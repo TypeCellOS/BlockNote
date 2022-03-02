@@ -1,8 +1,6 @@
-import { useState } from "react";
-
 // import logo from './logo.svg'
 // import './App.css'
-import { useEditor, EditorContent } from "@blocknote/core";
+import { EditorContent, useEditor } from "@blocknote/core";
 
 // import "@blocknote/core/style.css";
 
