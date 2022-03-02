@@ -1,0 +1,21 @@
+{
+  "name": "root",
+  "private": true,
+  "devDependencies": {
+    "@playwright/test": "^1.19.2",
+    "lerna": "^4.0.0",
+    "patch-package": "^6.4.7"
+  },
+  "scripts": {
+    "postinstall": "npm run bootstrap",
+    "start": "lerna run --scope @blocknote/example-editor dev",
+    "start:built": "npx serve examples/editor/dist",
+    "test": "jest --coverage=true --config=jest.config.js",
+    "build": "lerna run build --concurrency 1",
+    "bootstrap": "lerna bootstrap --hoist --ci && patch-package",
+    "install-new-packages": "lerna bootstrap --hoist && patch-package",
+    "install-lerna": "npm install --no-package-lock",
+    "playwright": "npx playwright test",
+    "install-playwright": "npx playwright install --with-deps"
+  }
+}

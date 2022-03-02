@@ -1,0 +1,57 @@
+{
+  "name": "@blocknote/core",
+  "private": true,
+  "version": "0.0.0",
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/blocknote.umd.js",
+  "module": "./dist/blocknote.es.js",
+  "exports": {
+    ".": {
+      "import": "./dist/blocknote.es.js",
+      "require": "./dist/blocknote.umd.js"
+    }
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@tiptap/core": "2.0.0-beta.171",
+    "@tiptap/extension-bubble-menu": "2.0.0-beta.55",
+    "@tiptap/extension-code-block-lowlight": "2.0.0-beta.68",
+    "@tiptap/extension-collaboration": "2.0.0-beta.33",
+    "@tiptap/extension-collaboration-cursor": "2.0.0-beta.34",
+    "@tiptap/extension-floating-menu": "2.0.0-beta.50",
+    "@tiptap/extension-image": "2.0.0-beta.25",
+    "@tiptap/extension-link": "2.0.0-beta.36",
+    "@tiptap/extension-placeholder": "2.0.0-beta.47",
+    "@tiptap/extension-table": "2.0.0-beta.48",
+    "@tiptap/extension-table-cell": "2.0.0-beta.20",
+    "@tiptap/extension-table-header": "2.0.0-beta.22",
+    "@tiptap/extension-table-row": "2.0.0-beta.19",
+    "@tiptap/react": "2.0.0-beta.107",
+    "@tiptap/extension-blockquote": "^2.0.0-beta.26",
+    "@tiptap/extension-bold": "^2.0.0-beta.26",
+    "@tiptap/extension-code": "^2.0.0-beta.26",
+    "@tiptap/extension-dropcursor": "^2.0.0-beta.25",
+    "@tiptap/extension-gapcursor": "^2.0.0-beta.34",
+    "@tiptap/extension-hard-break": "^2.0.0-beta.30",
+    "@tiptap/extension-heading": "^2.0.0-beta.26",
+    "@tiptap/extension-history": "^2.0.0-beta.21",
+    "@tiptap/extension-horizontal-rule": "^2.0.0-beta.31",
+    "@tiptap/extension-italic": "^2.0.0-beta.26",
+    "@tiptap/extension-paragraph": "^2.0.0-beta.23",
+    "@tiptap/extension-strike": "^2.0.0-beta.27",
+    "@tiptap/extension-text": "^2.0.0-beta.15",
+    "@tiptap/suggestion": "2.0.0-beta.90"
+  },
+  "devDependencies": {
+    "typescript": "^4.5.4",
+    "vite": "^2.8.0",
+    "@types/react": "^17.0.39",
+    "@types/react-dom": "^17.0.12"
+  }
+}
