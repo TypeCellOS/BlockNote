@@ -32,6 +32,5 @@ export const useEditor = (
       },
     },
   };
-
   return useEditorTiptap(tiptapOptions, deps);
 };

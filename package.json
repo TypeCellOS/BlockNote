@@ -12,6 +12,7 @@
     "start:built": "npx serve examples/editor/dist",
     "test": "jest --coverage=true --config=jest.config.js",
     "build": "lerna run build --concurrency 1",
+    "lint": "lerna run lint",
     "bootstrap": "lerna bootstrap --hoist --ci && patch-package",
     "install-new-packages": "lerna bootstrap --hoist && patch-package",
     "install-lerna": "npm install --no-package-lock",

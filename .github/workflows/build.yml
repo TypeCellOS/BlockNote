@@ -30,6 +30,11 @@ jobs:
       - name: Bootstrap packages
         run: npm run bootstrap
 
+      - name: Lint packages
+        run: npm run lint
+        env:
+          CI: true
+
       - name: Build packages
         run: npm run build
         env:
