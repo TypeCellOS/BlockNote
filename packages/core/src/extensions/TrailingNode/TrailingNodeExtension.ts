@@ -34,7 +34,7 @@ export const TrailingNode = Extension.create<TrailingNodeOptions>({
           if (!shouldInsertNodeAtEnd) {
             return;
           }
-          debugger;
+
           return tr.insert(
             endPosition,
             type.create(undefined, contenttype.create())

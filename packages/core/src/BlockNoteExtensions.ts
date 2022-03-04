@@ -7,7 +7,7 @@ import GapCursor from "@tiptap/extension-gapcursor";
 import HardBreak from "@tiptap/extension-hard-break";
 import Italic from "@tiptap/extension-italic";
 import Underline from "@tiptap/extension-underline";
-import Placeholder from "@tiptap/extension-placeholder";
+// import Placeholder from "@tiptap/extension-placeholder";
 import Strike from "@tiptap/extension-strike";
 import Text from "@tiptap/extension-text";
 import Paragraph from "@tiptap/extension-paragraph";
@@ -19,7 +19,8 @@ import { blocks } from "./extensions/Blocks";
 import HyperlinkMark from "./extensions/Hyperlinks/HyperlinkMark";
 import { BubbleMenuExtension } from "./extensions/BubbleMenu/BubbleMenuExtension";
 import { TrailingNode } from "./extensions/TrailingNode/TrailingNodeExtension";
-
+import blockStyles from "./extensions/Blocks/nodes/Block.module.css";
+import { Placeholder } from "./extensions/Placeholder/PlaceholderExtension";
 export const Document = Node.create({
   name: "doc",
   topNode: true,
@@ -38,13 +39,11 @@ export const getBlockNoteExtensions = () => {
     GapCursor,
 
     // DropCursor,
-    // Even though we implement our own placeholder logic in Blocks, we
-    // still need the placeholder extension to make sure nodeviews
-    // are re-rendered when they're empty or when the anchor changes.
     Placeholder.configure({
-      placeholder: "placeholder-todo", // actual placeholders are defined per block
+      emptyNodeClass: blockStyles.isEmpty,
+      hasAnchorClass: blockStyles.hasAnchor,
       includeChildren: true,
-      showOnlyCurrent: false, // use showOnlyCurrent to make sure the nodeviews are rerendered when cursor moves
+      showOnlyCurrent: false,
     }),
     UniqueID.configure({
       types: ["tcblock"],
@@ -54,7 +53,6 @@ export const getBlockNoteExtensions = () => {
 
     // basics:
     Text,
-    // Document,
 
     // marks:
     Bold,
@@ -62,10 +60,8 @@ export const getBlockNoteExtensions = () => {
     Italic,
     Strike,
     Underline,
-    // Comment,
     HyperlinkMark,
     Paragraph,
-    // Document,
     // custom blocks:
     ...blocks,
     DraggableBlocksExtension,

@@ -6,9 +6,36 @@
 } */
 
 /*
-TODO: organize
+BASIC STYLES
+*/
 
+.blockOuter {
+  /* padding-bottom: 15px; */
+  font-size: 16px;
+  line-height: 1.5;
+  transition: all 0.2s;
+  font-weight: normal;
+}
 
+.block {
+  border-left: 2px solid white;
+  border-color: white;
+  transition: all 0.2s;
+}
+
+.block {
+  /* content: ""; */
+  transition: all 0.2s;
+  margin: 0px;
+}
+
+.blockContent {
+  padding: 3px 0;
+  transition: font-size 0.2s;
+  /* display: inline-block; */
+}
+
+/*
 NESTED BLOCKS
 */
 
@@ -29,61 +56,12 @@ NESTED BLOCKS
   height: 100%;
   transition: all 0.2s 0.1s;
 }
-.blockGroup .blockGroup > .blockOuter[data-prev-depthchange="2"]::before {
-  /* height: 0; */
-}
+
 .blockGroup .blockGroup > .blockOuter[data-prev-depthchange="-2"]::before {
   height: 0;
 }
 
-.blockOuter {
-  /* padding-bottom: 15px; */
-  font-size: 16px;
-  line-height: 1.5;
-  transition: all 0.2s;
-}
-
-.block {
-  border-left: 2px solid white;
-  border-color: white;
-  transition: all 0.2s;
-}
-
-.block > div:first-child {
-  /* display: inline-block; */
-  padding: 3px 0;
-  transition: font-size 0.2s;
-}
-
-.block > div:first-child::before {
-  content: "";
-  transition: all 0.2s;
-  margin: 0px;
-}
-
-.blockOuter[data-prev-headingtype="1"] > .block > div:first-child,
-.blockOuter[data-headingtype="1"]:not([data-prev-headingtype])
-  > .block
-  > div:first-child {
-  font-size: 3em;
-  font-weight: bold;
-}
-
-.blockOuter[data-prev-headingtype="2"] > .block > div:first-child,
-.blockOuter[data-headingtype="2"]:not([data-prev-headingtype])
-  > .block
-  > div:first-child {
-  font-size: 2em;
-  font-weight: bold;
-}
-
-.blockOuter[data-prev-headingtype="3"] > .block > div:first-child,
-.blockOuter[data-headingtype="3"]:not([data-prev-headingtype])
-  > .block
-  > div:first-child {
-  font-size: 1.3em;
-  font-weight: bold;
-}
+/* NESTED BLOCK ANIMATIONS */
 
 [data-prev-depthchange="1"] {
   --x: 1;
@@ -125,7 +103,39 @@ NESTED BLOCKS
   margin-left: 0;
 }
 
-/* .blockOuter[blocktype="list"] .block::before, */
+/* HEADINGS*/
+.blockOuter[data-prev-headingtype="1"] > .block > div:first-child,
+.blockOuter[data-headingtype="1"]:not([data-prev-headingtype])
+  > .block
+  > div:first-child {
+  font-size: 3em;
+  font-weight: bold;
+}
+
+.blockOuter[data-prev-headingtype="2"] > .block > div:first-child,
+.blockOuter[data-headingtype="2"]:not([data-prev-headingtype])
+  > .block
+  > div:first-child {
+  font-size: 2em;
+  font-weight: bold;
+}
+
+.blockOuter[data-prev-headingtype="3"] > .block > div:first-child,
+.blockOuter[data-headingtype="3"]:not([data-prev-headingtype])
+  > .block
+  > div:first-child {
+  font-size: 1.3em;
+  font-weight: bold;
+}
+
+/* LISTS */
+
+.block > div:first-child::before {
+  content: "";
+  transition: all 0.2s;
+  margin-left: 0px;
+}
+
 .blockOuter[data-prev-listtype="li"] > .block > div:first-child::before,
 .blockOuter[data-listtype="li"]:not([data-prev-listtype])
   > .block
@@ -136,7 +146,7 @@ NESTED BLOCKS
   /* list-style-type: circle; */
   /* list-style-position: inside; */
   padding-left: 0px;
-  /* margin-left: -20px; */
+  /* margin-left: 0.2em; */
 }
 
 .blockOuter[data-listtype="li"]
@@ -177,19 +187,33 @@ NESTED BLOCKS
   content: "▪";
 }
 
-/* .quote.list .block {
-  padding-left: 10px;
+/* PLACEHOLDERS*/
+
+.blockContent > div {
+  display: inline;
 }
 
-.same .block {
-  margin-bottom: 0;
+.blockContent.isEmpty div::before {
+  /*float: left; */
+  content: "";
+  color: #aeb8c2;
+  pointer-events: none;
+  height: 0;
+  /* width: 0; */
+  position: absolute;
+  font-style: italic;
 }
 
-.same .block-outer {
-  margin-bottom: 0;
-  padding-bottom: 0;
-} */
+/* TODO: would be nicer if defined from code */
 
-/* .blockOuter:hover {
-  background: gray;
-} */
+.blockContent.isEmpty.hasAnchor div::before {
+  content: "Enter text or type '/' for commands";
+}
+
+[data-headingtype] > .blockContent.isEmpty div::before {
+  content: "Heading";
+}
+
+[data-listtype] > .blockContent.isEmpty div::before {
+  content: "List";
+}
