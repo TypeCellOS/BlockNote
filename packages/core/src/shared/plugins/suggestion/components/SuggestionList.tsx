@@ -1,7 +1,8 @@
-import { PopupMenuGroup, Section } from "@atlaskit/menu";
-import styles from "../../menus/SideMenu.module.css";
+import { MenuGroup, Section } from "@atlaskit/menu";
+import React from "react";
+import styles from "./SuggestionList.module.css";
 import { SuggestionGroup } from "./SuggestionGroup";
-import SuggestionItem from "./SuggestionItem";
+import SuggestionItem from "../SuggestionItem";
 
 export type SuggestionListProps<T> = {
   /**
@@ -58,13 +59,13 @@ export function SuggestionList<T extends SuggestionItem>(
 
   return (
     <div className={styles.menuList}>
-      <PopupMenuGroup maxWidth="250px" maxHeight="400px">
+      <MenuGroup>
         {renderedGroups.length > 0 ? (
           renderedGroups
         ) : (
           <Section title={"No match found"}> </Section>
         )}
-      </PopupMenuGroup>
+      </MenuGroup>
     </div>
 
     // doesn't work well yet, maybe https://github.com/atomiks/tippyjs-react/issues/173

@@ -1,5 +1,3 @@
-import { RemixiconReactIconComponentType } from "remixicon-react";
-
 /**
  * A generic interface used in all suggestion menus (slash menu, mentions, etc)
  */
@@ -17,7 +15,11 @@ export default interface SuggestionItem {
   /**
    * The react icon
    */
-  icon?: RemixiconReactIconComponentType;
+  icon?: React.ComponentType<{ className: string }>;
+
+  hint?: string;
+
+  shortcut?: string;
 
   /**
    * This function matches this item against a query string, the function should return **true** if the item

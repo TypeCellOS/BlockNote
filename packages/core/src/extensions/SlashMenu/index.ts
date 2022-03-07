@@ -1,7 +1,11 @@
-import { SlashCommandExtension } from "./SlashMenuExtension";
+import { SlashMenuExtension } from "./SlashMenuExtension";
 import defaultCommands from "./defaultCommands";
-import { CommandGroup, SlashCommand } from "./SlashCommand";
+import { SlashMenuGroups, SlashMenuItem } from "./SlashMenuItem";
 
-export { defaultCommands, SlashCommand, CommandGroup };
+export {
+  defaultCommands,
+  SlashMenuItem as SlashCommand,
+  SlashMenuGroups as CommandGroup,
+};
 
-export default SlashCommandExtension;
+export default SlashMenuExtension;

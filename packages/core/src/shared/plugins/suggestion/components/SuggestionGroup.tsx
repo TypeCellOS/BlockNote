@@ -1,59 +1,25 @@
-import { Section, ButtonItem } from "@atlaskit/menu";
-
-import SuggestionItem from "./SuggestionItem";
-import styles from "./SuggestionGroup.module.css";
-import { SlashCommand } from "../../extensions/slashcommand/SlashCommand";
+import { ButtonItem, Section } from "@atlaskit/menu";
 import React from "react";
+import SuggestionItem from "../SuggestionItem";
+import styles from "./SuggestionGroup.module.css";
 
 const MIN_LEFT_MARGIN = 5;
 
-type SuggestionGroupProps<T> = {
-  /**
-   * Name of the group
-   */
-  name: string;
-
-  /**
-   * The list of items
-   */
-  items: T[];
-
-  /**
-   * Index of the selected item in this group; relative to this item group (so 0 refers to the first item in this group)
-   * This should be 'undefined' if none of the items in this group are selected
-   */
-  selectedIndex?: number;
-
-  /**
-   * Callback that gets executed when an item is clicked on.
-   */
-  clickItem: (item: T) => void;
-};
-
-type SuggestionComponentProps<T> = {
-  item: T;
-  index: number;
-  selectedIndex?: number;
-  clickItem: (item: T) => void;
-};
-
 function SuggestionContent<T extends SuggestionItem>(props: { item: T }) {
-  return props.item instanceof SlashCommand ? (
+  return (
     <div className={styles.suggestionWrapper}>
       <div>
         <div className={styles.buttonName}>{props.item.name}</div>
-        <div className={styles.buttonHint}>{props.item.hint}</div>
+        {props.item.hint && (
+          <div className={styles.buttonHint}>{props.item.hint}</div>
+        )}
       </div>
-      {props.item.shortcut ? (
+      {props.item.shortcut && (
         <div>
           <div className={styles.buttonShortcut}>{props.item.shortcut}</div>
         </div>
-      ) : (
-        <></>
       )}
     </div>
-  ) : (
-    <div className={styles.buttonName}>{props.item.name}</div>
   );
 }
 
@@ -61,9 +27,9 @@ function getIcon<T extends SuggestionItem>(
   item: T,
   isButtonSelected: boolean
 ): JSX.Element | undefined {
-  const Icon = item.icon; // Because it's used as a DOM element, it has to start with a capital letter
+  const Icon = item.icon;
   return (
-    Icon && ( // This is a null check
+    Icon && (
       <div className={styles.iconWrapper}>
         <Icon
           className={
@@ -74,6 +40,13 @@ function getIcon<T extends SuggestionItem>(
     )
   );
 }
+
+type SuggestionComponentProps<T> = {
+  item: T;
+  index: number;
+  selectedIndex?: number;
+  clickItem: (item: T) => void;
+};
 
 function SuggestionComponent<T extends SuggestionItem>(
   props: SuggestionComponentProps<T>
@@ -102,7 +75,7 @@ function SuggestionComponent<T extends SuggestionItem>(
       <ButtonItem
         isSelected={isButtonSelected} // This is needed to navigate with the keyboard
         iconBefore={getIcon(props.item, isButtonSelected)}
-        onClick={(e) => {
+        onClick={(_e) => {
           setTimeout(() => {
             props.clickItem(props.item);
           }, 0);
@@ -116,6 +89,29 @@ function SuggestionComponent<T extends SuggestionItem>(
     </div>
   );
 }
+
+type SuggestionGroupProps<T> = {
+  /**
+   * Name of the group
+   */
+  name: string;
+
+  /**
+   * The list of items
+   */
+  items: T[];
+
+  /**
+   * Index of the selected item in this group; relative to this item group (so 0 refers to the first item in this group)
+   * This should be 'undefined' if none of the items in this group are selected
+   */
+  selectedIndex?: number;
+
+  /**
+   * Callback that gets executed when an item is clicked on.
+   */
+  clickItem: (item: T) => void;
+};
 
 export function SuggestionGroup<T extends SuggestionItem>(
   props: SuggestionGroupProps<T>

@@ -1,9 +1,9 @@
 import { Editor, Range } from "@tiptap/core";
 import SuggestionItem from "../../shared/plugins/suggestion/SuggestionItem";
 
-export type SlashCommandCallback = (editor: Editor, range: Range) => boolean;
+export type SlashMenuCallback = (editor: Editor, range: Range) => boolean;
 
-export enum CommandGroup {
+export enum SlashMenuGroups {
   HEADINGS = "Headings",
   BASIC_BLOCKS = "Basic Blocks",
   CODE = "Code Blocks",
@@ -19,7 +19,7 @@ export enum CommandGroup {
  *
  * Not to be confused with ProseMirror commands nor TipTap commands.
  */
-export class SlashCommand implements SuggestionItem {
+export class SlashMenuItem implements SuggestionItem {
   groupName: string;
   // other parameters initialized in the constructor
 
@@ -35,8 +35,8 @@ export class SlashCommand implements SuggestionItem {
    */
   constructor(
     public readonly name: string,
-    public readonly group: CommandGroup,
-    public readonly execute: SlashCommandCallback,
+    public readonly group: SlashMenuGroups,
+    public readonly execute: SlashMenuCallback,
     public readonly aliases: string[] = [],
     public readonly icon?: React.ComponentType<{ className: string }>,
     public readonly hint?: string,

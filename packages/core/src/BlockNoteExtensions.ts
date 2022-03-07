@@ -22,6 +22,7 @@ import { History } from "@tiptap/extension-history";
 import { TrailingNode } from "./extensions/TrailingNode/TrailingNodeExtension";
 import blockStyles from "./extensions/Blocks/nodes/Block.module.css";
 import { Placeholder } from "./extensions/Placeholder/PlaceholderExtension";
+import SlashMenuExtension from "./extensions/SlashMenu";
 export const Document = Node.create({
   name: "doc",
   topNode: true,
@@ -69,6 +70,7 @@ export const getBlockNoteExtensions = () => {
     DropCursor.configure({ width: 5, color: "#ddeeff" }),
     BubbleMenuExtension,
     History,
+    SlashMenuExtension,
     // This needs to be at the bottom of this list, because Key events (such as enter, when selecting a /command),
     // should be handled before Enter handlers in other components like splitListItem
     // SlashCommandExtension.configure({

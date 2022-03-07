@@ -2,7 +2,10 @@ import { Editor as ReactEditor, ReactRenderer } from "@tiptap/react";
 import { Editor } from "@tiptap/core";
 import tippy, { Instance } from "tippy.js";
 import SuggestionItem from "./SuggestionItem";
-import { SuggestionList, SuggestionListProps } from "./SuggestionList";
+import {
+  SuggestionList,
+  SuggestionListProps,
+} from "./components/SuggestionList";
 
 /**
  * The interface that each suggestion renderer should conform to.
@@ -69,7 +72,6 @@ export type SuggestionRendererProps<T extends SuggestionItem> = {
   onClose: () => void;
 };
 
-// If we do major work on this, consider exploring a cleaner approach: https://github.com/YousefED/typecell-next/issues/59
 /**
  * This function creates a SuggestionRenderer based on TipTap's ReactRenderer utility.
  *
@@ -204,7 +206,7 @@ export default function createRenderer<T extends SuggestionItem>(
       return false;
     },
 
-    onExit: (props) => {
+    onExit: (_props) => {
       if (componentsDisposedOrDisposing) {
         return;
       }
