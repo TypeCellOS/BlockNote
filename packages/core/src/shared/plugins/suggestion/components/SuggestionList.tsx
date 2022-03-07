@@ -1,6 +1,7 @@
 import { MenuGroup, Section } from "@atlaskit/menu";
 import React from "react";
 import styles from "./SuggestionList.module.css";
+import rootStyles from "../../../../root.module.css";
 import { SuggestionGroup } from "./SuggestionGroup";
 import SuggestionItem from "../SuggestionItem";
 
@@ -58,7 +59,7 @@ export function SuggestionList<T extends SuggestionItem>(
   }
 
   return (
-    <div className={styles.menuList}>
+    <div className={styles.menuList + " " + rootStyles.bnRoot}>
       <MenuGroup>
         {renderedGroups.length > 0 ? (
           renderedGroups
