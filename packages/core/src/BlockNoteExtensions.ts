@@ -18,6 +18,7 @@ import { DraggableBlocksExtension } from "./extensions/DraggableBlocks/Draggable
 import { blocks } from "./extensions/Blocks";
 import HyperlinkMark from "./extensions/Hyperlinks/HyperlinkMark";
 import { BubbleMenuExtension } from "./extensions/BubbleMenu/BubbleMenuExtension";
+import { History } from "@tiptap/extension-history";
 import { TrailingNode } from "./extensions/TrailingNode/TrailingNodeExtension";
 import blockStyles from "./extensions/Blocks/nodes/Block.module.css";
 import { Placeholder } from "./extensions/Placeholder/PlaceholderExtension";
@@ -67,6 +68,7 @@ export const getBlockNoteExtensions = () => {
     DraggableBlocksExtension,
     DropCursor.configure({ width: 5, color: "#ddeeff" }),
     BubbleMenuExtension,
+    History,
     // This needs to be at the bottom of this list, because Key events (such as enter, when selecting a /command),
     // should be handled before Enter handlers in other components like splitListItem
     // SlashCommandExtension.configure({

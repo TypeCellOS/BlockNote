@@ -146,7 +146,6 @@ export const Block = Node.create<IBlock>({
       unsetBlockHeading:
         () =>
         ({ commands }) => {
-          debugger;
           return commands.updateAttributes(this.name, {
             headingType: undefined,
           });
