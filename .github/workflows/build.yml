@@ -30,8 +30,18 @@ jobs:
       - name: Bootstrap packages
         run: npm run bootstrap
 
+      - name: Lint packages
+        run: npm run lint
+        env:
+          CI: true
+
       - name: Build packages
         run: npm run build
+        env:
+          CI: true
+
+      - name: Run server
+        run: npm run start:built & npx wait-on http://localhost:3000
         env:
           CI: true
 

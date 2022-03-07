@@ -6,13 +6,21 @@ import DropCursor from "@tiptap/extension-dropcursor";
 import GapCursor from "@tiptap/extension-gapcursor";
 import HardBreak from "@tiptap/extension-hard-break";
 import Italic from "@tiptap/extension-italic";
-import Placeholder from "@tiptap/extension-placeholder";
+import Underline from "@tiptap/extension-underline";
+// import Placeholder from "@tiptap/extension-placeholder";
 import Strike from "@tiptap/extension-strike";
 import Text from "@tiptap/extension-text";
 import Paragraph from "@tiptap/extension-paragraph";
 
 import { Node } from "@tiptap/core";
-
+import UniqueID from "./extensions/UniqueID/UniqueID";
+import { DraggableBlocksExtension } from "./extensions/DraggableBlocks/DraggableBlocksExtension";
+import { blocks } from "./extensions/Blocks";
+import HyperlinkMark from "./extensions/Hyperlinks/HyperlinkMark";
+import { BubbleMenuExtension } from "./extensions/BubbleMenu/BubbleMenuExtension";
+import { TrailingNode } from "./extensions/TrailingNode/TrailingNodeExtension";
+import blockStyles from "./extensions/Blocks/nodes/Block.module.css";
+import { Placeholder } from "./extensions/Placeholder/PlaceholderExtension";
 export const Document = Node.create({
   name: "doc",
   topNode: true,
@@ -31,45 +39,34 @@ export const getBlockNoteExtensions = () => {
     GapCursor,
 
     // DropCursor,
-    // Even though we implement our own placeholder logic in Blocks, we
-    // still need the placeholder extension to make sure nodeviews
-    // are re-rendered when they're empty or when the anchor changes.
     Placeholder.configure({
-      placeholder: "placeholder-todo", // actual placeholders are defined per block
+      emptyNodeClass: blockStyles.isEmpty,
+      hasAnchorClass: blockStyles.hasAnchor,
       includeChildren: true,
-      showOnlyCurrent: false, // use showOnlyCurrent to make sure the nodeviews are rerendered when cursor moves
+      showOnlyCurrent: false,
     }),
-    // UniqueID.configure({
-    //     types: [
-    //         "paragraph",
-    //         "block",
-    //         "tcblock",
-    //         "bulletList",
-    //         "listItem",
-    //         "heading",
-    //     ],
-    // }),
+    UniqueID.configure({
+      types: ["tcblock"],
+    }),
     HardBreak,
     // Comments,
 
     // basics:
     Text,
-    // Document,
 
     // marks:
     Bold,
     Code,
     Italic,
     Strike,
-    // Underline,
-    // Comment,
-    // Hyperlink,
+    Underline,
+    HyperlinkMark,
     Paragraph,
-    Document,
     // custom blocks:
-    // ...blocks,
-    // DraggableBlocksExtension,
+    ...blocks,
+    DraggableBlocksExtension,
     DropCursor.configure({ width: 5, color: "#ddeeff" }),
+    BubbleMenuExtension,
     // This needs to be at the bottom of this list, because Key events (such as enter, when selecting a /command),
     // should be handled before Enter handlers in other components like splitListItem
     // SlashCommandExtension.configure({
@@ -83,7 +80,7 @@ export const getBlockNoteExtensions = () => {
     //         },
     //     },
     // }),
-    // TrailingNode,
+    TrailingNode,
   ];
   return ret;
 };

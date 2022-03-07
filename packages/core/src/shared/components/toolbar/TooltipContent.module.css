@@ -1,0 +1,15 @@
+.tooltip {
+  color: var(--N40);
+  background-color: var(--N800);
+  box-shadow: 0 0 10px rgba(253, 254, 255, 0.8),
+    0 0 3px rgba(253, 254, 255, 0.4);
+  border-radius: 2px;
+  font-size: smaller;
+  text-align: center;
+  padding: 4px;
+}
+
+.secondaryText {
+  font-weight: 400;
+  opacity: 0.6;
+}

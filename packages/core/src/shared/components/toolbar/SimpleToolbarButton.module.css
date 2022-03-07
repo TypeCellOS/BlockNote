@@ -1,0 +1,9 @@
+.icon {
+  width: 20px;
+  height: 20px;
+  fill: var(--N800);
+}
+
+.isSelected {
+  fill: white;
+}

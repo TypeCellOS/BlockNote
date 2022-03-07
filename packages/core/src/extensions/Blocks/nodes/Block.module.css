@@ -1,0 +1,212 @@
+/*
+BASIC STYLES
+*/
+
+.blockOuter {
+  /* padding-bottom: 15px; */
+  font-size: 16px;
+  line-height: 1.5;
+  transition: all 0.2s;
+  font-weight: normal;
+}
+
+.block {
+  border-left: 2px solid white;
+  border-color: white;
+  transition: all 0.2s;
+}
+
+.block {
+  /* content: ""; */
+  transition: all 0.2s;
+  margin: 0px;
+}
+
+.blockContent {
+  padding: 3px 0;
+  transition: font-size 0.2s;
+  /* display: inline-block; */
+}
+
+/*
+NESTED BLOCKS
+*/
+
+.blockGroup .blockGroup {
+  margin-left: 1.5em;
+}
+
+.blockGroup .blockGroup > .blockOuter {
+  position: relative;
+}
+
+.blockGroup .blockGroup > .blockOuter:not([data-prev-depthchanged])::before {
+  content: " ";
+  display: inline;
+  border-left: 1px solid #ccc;
+  position: absolute;
+  left: -20px;
+  height: 100%;
+  transition: all 0.2s 0.1s;
+}
+
+.blockGroup .blockGroup > .blockOuter[data-prev-depthchange="-2"]::before {
+  height: 0;
+}
+
+/* NESTED BLOCK ANIMATIONS */
+
+[data-prev-depthchange="1"] {
+  --x: 1;
+}
+[data-prev-depthchange="2"] {
+  --x: 2;
+}
+[data-prev-depthchange="3"] {
+  --x: 3;
+}
+[data-prev-depthchange="4"] {
+  --x: 4;
+}
+[data-prev-depthchange="5"] {
+  --x: 5;
+}
+
+[data-prev-depthchange="-1"] {
+  --x: -1;
+}
+[data-prev-depthchange="-2"] {
+  --x: -2;
+}
+[data-prev-depthchange="-3"] {
+  --x: -3;
+}
+[data-prev-depthchange="-4"] {
+  --x: -4;
+}
+[data-prev-depthchange="-5"] {
+  --x: -5;
+}
+
+.blockOuter[data-prev-depthchange] {
+  margin-left: calc(10px * var(--x));
+}
+
+.blockOuter[data-prev-depthchange] .blockOuter[data-prev-depthchange] {
+  margin-left: 0;
+}
+
+/* HEADINGS*/
+.blockOuter[data-prev-headingtype="1"] > .block > div:first-child,
+.blockOuter[data-headingtype="1"]:not([data-prev-headingtype])
+  > .block
+  > div:first-child {
+  font-size: 3em;
+  font-weight: bold;
+}
+
+.blockOuter[data-prev-headingtype="2"] > .block > div:first-child,
+.blockOuter[data-headingtype="2"]:not([data-prev-headingtype])
+  > .block
+  > div:first-child {
+  font-size: 2em;
+  font-weight: bold;
+}
+
+.blockOuter[data-prev-headingtype="3"] > .block > div:first-child,
+.blockOuter[data-headingtype="3"]:not([data-prev-headingtype])
+  > .block
+  > div:first-child {
+  font-size: 1.3em;
+  font-weight: bold;
+}
+
+/* LISTS */
+
+.block > div:first-child::before {
+  content: "";
+  transition: all 0.2s;
+  margin-left: 0px;
+}
+
+.blockOuter[data-prev-listtype="li"] > .block > div:first-child::before,
+.blockOuter[data-listtype="li"]:not([data-prev-listtype])
+  > .block
+  > div:first-child::before {
+  content: "•";
+  margin-right: 1.2em;
+  /* display: list-item; */
+  /* list-style-type: circle; */
+  /* list-style-position: inside; */
+  padding-left: 0px;
+  /* margin-left: 0.2em; */
+}
+
+.blockOuter[data-listtype="li"]
+  > .block
+  > .blockGroup
+  > .blockOuter[data-prev-listtype="li"]
+  > .block
+  > div:first-child::before,
+.blockOuter[data-listtype="li"]
+  > .block
+  > .blockGroup
+  > .blockOuter[data-listtype="li"]:not([data-prev-listtype])
+  > .block
+  > div:first-child::before {
+  content: "◦";
+  /* font-size: 1.2em; */
+  font-family: arial;
+}
+
+.blockOuter[data-listtype="li"]
+  > .block
+  > .blockGroup
+  > .blockOuter[data-listtype="li"]
+  > .block
+  > .blockGroup
+  .blockOuter[data-prev-listtype="li"]
+  > .block
+  > div:first-child::before,
+.blockOuter[data-listtype="li"]
+  > .block
+  > .blockGroup
+  > .blockOuter[data-listtype="li"]
+  > .block
+  > .blockGroup
+  .blockOuter[data-listtype="li"]:not([data-prev-listtype])
+  > .block
+  > div:first-child::before {
+  content: "▪";
+}
+
+/* PLACEHOLDERS*/
+
+.blockContent > div {
+  display: inline;
+}
+
+.blockContent.isEmpty div::before {
+  /*float: left; */
+  content: "";
+  color: #aeb8c2;
+  pointer-events: none;
+  height: 0;
+  /* width: 0; */
+  position: absolute;
+  font-style: italic;
+}
+
+/* TODO: would be nicer if defined from code */
+
+.blockContent.isEmpty.hasAnchor div::before {
+  content: "Enter text or type '/' for commands";
+}
+
+[data-headingtype] > .blockContent.isEmpty div::before {
+  content: "Heading";
+}
+
+[data-listtype] > .blockContent.isEmpty div::before {
+  content: "List";
+}

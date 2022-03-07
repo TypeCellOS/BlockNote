@@ -1,0 +1,10 @@
+.toolbar {
+  color: var(--N800);
+  background-color: white;
+  border: 1px solid var(--N40);
+  box-shadow: 0px 4px 8px rgba(9, 30, 66, 0.15),
+    0px 0px 1px rgba(9, 30, 66, 0.21);
+  border-radius: 4px;
+  font-size: 14px;
+  line-height: 1.42857142857143;
+}
