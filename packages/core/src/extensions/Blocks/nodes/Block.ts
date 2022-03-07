@@ -3,6 +3,7 @@ import { Selection } from "prosemirror-state";
 import styles from "./Block.module.css";
 import { PreviousBlockTypePlugin } from "../PreviousBlockTypePlugin";
 import { textblockTypeInputRuleSameNodeType } from "../rule";
+import {OrderedListPlugin} from "../OrderedListPlugin";
 
 export interface IBlock {
   HTMLAttributes: Record<string, any>;
@@ -131,6 +132,13 @@ export const Block = Node.create<IBlock>({
           listType: "li",
         },
       }),
+      textblockTypeInputRuleSameNodeType({
+        find: new RegExp(/^1.\s/),
+        type: this.type,
+        getAttributes: {
+          listType: "oli",
+        },
+      }),
     ];
   },
 
@@ -171,7 +179,7 @@ export const Block = Node.create<IBlock>({
     };
   },
   addProseMirrorPlugins() {
-    return [PreviousBlockTypePlugin()];
+    return [PreviousBlockTypePlugin(), OrderedListPlugin()];
   },
   addKeyboardShortcuts() {
     // handleBackspace is partially adapted from https://github.com/ueberdosis/tiptap/blob/ed56337470efb4fd277128ab7ef792b37cfae992/packages/core/src/extensions/keymap.ts
