@@ -1,5 +1,4 @@
 import { Editor } from "@tiptap/core";
-import React from "react";
 import {
   RiBold,
   RiItalic,
@@ -12,6 +11,7 @@ import { SimpleToolbarButton } from "../../../shared/components/toolbar/SimpleTo
 import { Toolbar } from "../../../shared/components/toolbar/Toolbar";
 import { useEditorForceUpdate } from "../../../shared/hooks/useEditorForceUpdate";
 import LinkToolbarButton from "./LinkToolbarButton";
+import React from "react";
 
 function formatKeyboardShortcut(shortcut: string) {
   if (browser.ios || browser.mac) {

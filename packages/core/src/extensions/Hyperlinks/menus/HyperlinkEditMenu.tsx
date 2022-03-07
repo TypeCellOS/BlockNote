@@ -1,3 +1,7 @@
+import Tooltip from "@atlaskit/tooltip";
+import React, { useState } from "react";
+import { RiLink, RiText } from "react-icons/ri";
+import PanelTextInput from "./atlaskit/PanelTextInput";
 import {
   Container,
   ContainerWrapper,
@@ -5,10 +9,6 @@ import {
   TextInputWrapper,
   UrlInputWrapper,
 } from "./atlaskit/ToolbarComponent";
-import PanelTextInput from "./atlaskit/PanelTextInput";
-import Tooltip from "@atlaskit/tooltip";
-import { RiLink, RiText } from "react-icons/ri";
-import { useState } from "react";
 
 export type HyperlinkEditorMenuProps = {
   url: string;

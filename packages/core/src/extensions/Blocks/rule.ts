@@ -51,6 +51,7 @@ export function textblockTypeInputRuleSameNodeType(config: {
         })
         .delete(range.from, range.to);
       // .setBlockType(range.from, range.from, config.type, attributes);
+      return;
     },
   });
 }

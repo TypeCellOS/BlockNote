@@ -1,4 +1,5 @@
 import styles from "./TooltipContent.module.css";
+import React from "react";
 
 /**
  * Helper for the tooltip for inline bubble menu buttons.

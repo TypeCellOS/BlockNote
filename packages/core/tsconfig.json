@@ -5,7 +5,7 @@
     "module": "ESNext",
     "lib": ["ESNext", "DOM"],
     "moduleResolution": "Node",
-    "jsx": "react-jsx",
+    "jsx": "react",
     "strict": true,
     "sourceMap": true,
     "resolveJsonModule": true,
@@ -17,7 +17,8 @@
     "outDir": "dist",
     "declaration": true,
     "emitDeclarationOnly": true,
-    "composite": true
+    "composite": true,
+    "skipLibCheck": true
   },
   "include": ["src"]
 }

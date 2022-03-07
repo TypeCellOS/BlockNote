@@ -1,5 +1,6 @@
 import { Extension } from "@tiptap/core";
 import { PluginKey } from "prosemirror-state";
+import React from "react";
 import ReactDOM from "react-dom";
 import { createBubbleMenuPlugin } from "./BubbleMenuPlugin";
 import { BubbleMenu } from "./component/BubbleMenu";

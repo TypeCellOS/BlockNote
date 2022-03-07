@@ -131,13 +131,11 @@ export const Block = Node.create<IBlock>({
 
   addCommands() {
     return {
-      setBlockHeading:
-        (attributes) =>
-        ({ commands }) => {
-          // TODO
-          return false;
-          // return commands.setNode(this.name, attributes);
-        },
+      setBlockHeading: (_attributes) => () => {
+        // TODO
+        return false;
+        // return commands.setNode(this.name, attributes);
+      },
       toggleBlockHeading:
         (attributes) =>
         ({ commands }) => {

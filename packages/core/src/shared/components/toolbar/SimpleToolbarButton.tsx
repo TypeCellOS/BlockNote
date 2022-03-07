@@ -3,6 +3,7 @@ import Tippy from "@tippyjs/react";
 import { forwardRef } from "react";
 import styles from "./SimpleToolbarButton.module.css";
 import { TooltipContent } from "./TooltipContent";
+import React from "react";
 
 export type SimpleToolbarButtonProps = {
   onClick?: (e: React.MouseEvent) => void;

@@ -51,7 +51,8 @@ export const PreviousBlockTypePlugin = () => {
         // const { mapping } = transform;
         const changes = getChangedRanges(transform);
 
-        changes.forEach(({ oldRange, newRange }) => {
+        changes.forEach(() => {
+          // changes.forEach(({ oldRange, newRange }) => {
           // const oldNodes = findChildrenInRange(
           //   oldState.doc,
           //   oldRange,
