@@ -1,5 +1,3 @@
-import { Editor, Range } from "@tiptap/core";
-import { Node } from "prosemirror-model";
 import { RiH1, RiH2, RiH3, RiText } from "react-icons/ri";
 import { SlashMenuGroups, SlashMenuItem } from "./SlashMenuItem";
 

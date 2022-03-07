@@ -201,7 +201,7 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
       },
 
       // Apply changes to the plugin state from a view transaction.
-      apply(transaction, prev, oldState, newState) {
+      apply(transaction, prev, _oldState, _newState) {
         const { selection } = transaction;
         const next = { ...prev };
 
