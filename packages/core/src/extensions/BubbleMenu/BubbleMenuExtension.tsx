@@ -5,6 +5,9 @@ import ReactDOM from "react-dom";
 import { createBubbleMenuPlugin } from "./BubbleMenuPlugin";
 import { BubbleMenu } from "./component/BubbleMenu";
 
+/**
+ * The menu that is displayed when selecting a piece of text.
+ */
 export const BubbleMenuExtension = Extension.create<{}>({
   name: "BubbleMenuExtension",
 

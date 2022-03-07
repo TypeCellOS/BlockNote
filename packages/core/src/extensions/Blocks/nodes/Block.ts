@@ -21,10 +21,15 @@ declare module "@tiptap/core" {
        * Toggle a heading node
        */
       toggleBlockHeading: (attributes: { level: Level }) => ReturnType;
+
+      unsetList: () => ReturnType;
     };
   }
 }
-// TODO: document, clean commands
+
+/**
+ * The main "Block node" documents consist of
+ */
 export const Block = Node.create<IBlock>({
   name: "tcblock",
   group: "block",
@@ -144,16 +149,36 @@ export const Block = Node.create<IBlock>({
             headingType: attributes.level,
           });
         },
+      unsetList:
+        () =>
+        ({ tr, dispatch }) => {
+          const node = tr.selection.$anchor.node(-1);
+          const nodePos = tr.selection.$anchor.posAtIndex(0, -1) - 1;
+
+          // const node2 = tr.doc.nodeAt(nodePos);
+          if (node.type.name === "tcblock" && node.attrs["listType"]) {
+            if (dispatch) {
+              tr.setNodeMarkup(nodePos, undefined, {
+                ...node.attrs,
+                listType: undefined,
+              });
+            }
+            return true;
+          }
+          return false;
+        },
     };
   },
   addProseMirrorPlugins() {
     return [PreviousBlockTypePlugin()];
   },
   addKeyboardShortcuts() {
+    // handleBackspace is partially adapted from https://github.com/ueberdosis/tiptap/blob/ed56337470efb4fd277128ab7ef792b37cfae992/packages/core/src/extensions/keymap.ts
     const handleBackspace = () =>
       this.editor.commands.first(({ commands }) => [
+        // Maybe the user wants to undo an auto formatting input rule (e.g.: - or #, and then hit backspace) (source: tiptap)
         () => commands.undoInputRule(),
-        // maybe convert first text block node to default node
+        // maybe convert first text block node to default node (source: tiptap)
         () =>
           commands.command(({ tr }) => {
             const { selection, doc } = tr;
@@ -172,121 +197,114 @@ export const Block = Node.create<IBlock>({
 
             return commands.clearNodes();
           }),
-        () => commands.deleteSelection(),
+        () => commands.deleteSelection(), // (source: tiptap)
         () =>
           commands.command(({ tr }) => {
             const isAtStartOfNode = tr.selection.$anchor.parentOffset === 0;
-            if (isAtStartOfNode) {
-              const node = tr.selection.$anchor.node(-1);
-              const nodePos = tr.selection.$anchor.posAtIndex(0, -1) - 1;
-
-              // const node2 = tr.doc.nodeAt(nodePos);
-              if (node.type.name === "tcblock" && node.attrs["listType"]) {
-                tr.setNodeMarkup(nodePos, undefined, {
-                  ...node.attrs,
-                  listType: undefined,
-                });
-                return true;
-                //   commands.updateAttributes("tcblock", {
-                //     ...node.attrs,
-                //     listType: undefined,
-                //   })
-                // );
-              } else {
-                return commands.liftListItem("tcblock");
-              }
+            const node = tr.selection.$anchor.node(-1);
+            if (isAtStartOfNode && node.type.name === "tcblock") {
+              // we're at the start of the block, so we're trying to "backspace" the bullet or indentation
+              return commands.first([
+                () => commands.unsetList(), // first try to remove the "list" property
+                () => commands.liftListItem("tcblock"), // then try to remove a level of indentation
+              ]);
             }
-            // console.log(tr.selection);
             return false;
           }),
-        // () => {
-        //   commands.command(({}))
-        // },
-        // () => {
-        //   const first = commands.joinBackward();
-        //   return first;
-        // },
         ({ chain }) =>
-          chain()
-            .command(({ tr, state }) => {
-              const isAtStartOfNode = tr.selection.$anchor.parentOffset === 0;
-              if (isAtStartOfNode) {
-                const anchor = tr.selection.$anchor;
-                const node = anchor.node(-1);
-                if (node.type.name === "tcblock") {
-                  if (node.childCount === 2) {
-                    // const nestedBlockRange = {
-                    //   start: anchor.posAtIndex(1, -1) + 1,
-                    //   end: anchor.posAtIndex(2, -1),
-                    // };
+          // we are at the start of a block at the root level. The user hits backspace to "merge it" to the end of the block above
+          //
+          // BlockA
+          // BlockB
 
-                    const startSecondChild = anchor.posAtIndex(1, -1) + 1; // start of blockgroup
-                    state.doc
-                      .resolve(startSecondChild)
-                      .blockRange(
-                        state.doc.resolve(37),
-                        (node) => node.type.name === "blockGroup"
-                      );
-                    const endSecondChild = anchor.posAtIndex(2, -1) - 1;
-                    const range = state.doc
-                      .resolve(startSecondChild)
-                      .blockRange(state.doc.resolve(endSecondChild));
-                    // const range2 = state.doc
-                    //   .resolve(anchor.posAtIndex(1, -1) + 1)
-                    //   .blockRange(state.doc.resolve(anchor.posAtIndex(2, -1)));
+          // Becomes:
+
+          // BlockABlockB
+
+          chain()
+            .command(({ tr, state, dispatch }) => {
+              const isAtStartOfNode = tr.selection.$anchor.parentOffset === 0;
+              const anchor = tr.selection.$anchor;
+              const node = anchor.node(-1);
+              if (isAtStartOfNode && node.type.name === "tcblock") {
+                if (node.childCount === 2) {
+                  // BlockB has children. We want to go from this:
+                  //
+                  // BlockA
+                  // BlockB
+                  //    BlockC
+                  //        BlockD
+                  //
+                  // to:
+                  //
+                  // BlockABlockB
+                  // BlockC
+                  //     BlockD
+
+                  // This parts moves the children of BlockB to the top level
+                  const startSecondChild = anchor.posAtIndex(1, -1) + 1; // start of blockgroup
+                  const endSecondChild = anchor.posAtIndex(2, -1) - 1;
+                  const range = state.doc
+                    .resolve(startSecondChild)
+                    .blockRange(state.doc.resolve(endSecondChild));
+
+                  if (dispatch) {
                     tr.lift(range!, anchor.depth - 2);
-                    // tr.step(new ReplaceAroundStep(start, end, gapStart, gapEnd,
-                    //   new Slice(before.append(after), openStart, openEnd),
-                    //   before.size - openStart, true))
-                    // const pos = anchor.posAtIndex(node.firstChild!.nodeSize + 1, -1);
                   }
-                  return true;
                 }
+                return true;
               }
               return false;
             })
-            .joinBackward()
+            .joinBackward() // joinBackward merges BlockB to BlockA.
             .run(),
 
-        () => commands.selectNodeBackward(),
-        // () => true,
+        () => commands.selectNodeBackward(), // (source: tiptap)
       ]);
 
-    return {
-      Enter: () =>
-        this.editor.commands.first(({ commands }) => [
-          () => commands.splitListItem("tcblock"),
-          ({ tr }) => {
-            const $from = tr.selection.$from;
-            if ($from.depth !== 3) {
-              return false;
-            }
-            const node = tr.selection.$anchor.node(-1);
-            const nodePos = tr.selection.$anchor.posAtIndex(0, -1) - 1;
-            // const node2 = tr.doc.nodeAt(nodePos);
-            if (node.type.name === "tcblock" && node.attrs["listType"]) {
+    const handleEnter = () =>
+      this.editor.commands.first(({ commands }) => [
+        // Try to split the current block into 2 items:
+        () => commands.splitListItem("tcblock"),
+        // Otherwise, maybe we are in an empty list item. "Enter" should remove the list bullet
+        ({ tr, dispatch }) => {
+          const $from = tr.selection.$from;
+          if ($from.depth !== 3) {
+            // only needed at root level, at deeper levels it should be handled already by splitListItem
+            return false;
+          }
+          const node = tr.selection.$anchor.node(-1);
+          const nodePos = tr.selection.$anchor.posAtIndex(0, -1) - 1;
+
+          if (node.type.name === "tcblock" && node.attrs["listType"]) {
+            if (dispatch) {
               tr.setNodeMarkup(nodePos, undefined, {
                 ...node.attrs,
                 listType: undefined,
               });
-              return true;
             }
-            return false;
-          },
-          ({ tr }) => {
-            const $from = tr.selection.$from;
-            // if ($from.depth !== 3) {
-            //   return false;
-            // }
-            tr.split($from.pos, 2).scrollIntoView();
             return true;
-          },
-        ]),
+          }
+          return false;
+        },
+        // Otherwise, we might be on an empty line and hit "Enter" to create a new line:
+        ({ tr, dispatch }) => {
+          const $from = tr.selection.$from;
+
+          if (dispatch) {
+            tr.split($from.pos, 2).scrollIntoView();
+          }
+          return true;
+        },
+      ]);
+
+    return {
+      Backspace: handleBackspace,
+      Enter: handleEnter,
       Tab: () => this.editor.commands.sinkListItem("tcblock"),
       "Shift-Tab": () => {
         return this.editor.commands.liftListItem("tcblock");
       },
-      Backspace: handleBackspace,
     };
   },
 });

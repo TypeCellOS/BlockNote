@@ -3,4 +3,9 @@
 - heading, lists, indent in bubble menu
 - slash commands
 - side menu
-- playwright
+
+- document previousblocks
+- heading command
+- backspace handover / document
+- slash menu
+- side menu
