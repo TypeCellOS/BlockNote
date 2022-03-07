@@ -1,6 +1,0 @@
-- documentation
-- backspace
-- heading, lists, indent in bubble menu
-- slash commands
-- side menu
-- playwright

@@ -2,6 +2,8 @@ import { Editor } from "@tiptap/core";
 import React from "react";
 import {
   RiBold,
+  RiH1,
+  RiH2,
   RiItalic,
   RiLink,
   RiStrikethrough,
@@ -11,6 +13,7 @@ import browser from "../../../lib/atlaskit/browser";
 import { SimpleToolbarButton } from "../../../shared/components/toolbar/SimpleToolbarButton";
 import { Toolbar } from "../../../shared/components/toolbar/Toolbar";
 import { useEditorForceUpdate } from "../../../shared/hooks/useEditorForceUpdate";
+import { findBlock } from "../../Blocks/helpers/findBlock";
 import LinkToolbarButton from "./LinkToolbarButton";
 
 function formatKeyboardShortcut(shortcut: string) {
@@ -21,25 +24,39 @@ function formatKeyboardShortcut(shortcut: string) {
   }
 }
 
-// TODO: add heading, list, hyperlink
+// TODO: add list options, indentation
 export const BubbleMenu = (props: { editor: Editor }) => {
   useEditorForceUpdate(props.editor);
 
+  // TODO: For heading, there should be a drop down menu similar to notion
+  const isHeadingActive =
+    findBlock(props.editor.state.selection)?.node.attrs.headingType === 1;
+
+  const isHeading2Active =
+    findBlock(props.editor.state.selection)?.node.attrs.headingType === 2;
+
   return (
     <Toolbar>
-      {/* <Button
-        appearance="subtle"
+      <SimpleToolbarButton
         onClick={() =>
-          props.editor
-            .chain()
-            .focus()
-            .toggleBlockHeading({ level: 1 })
-            .run()
+          isHeadingActive
+            ? props.editor.chain().focus().unsetBlockHeading().run()
+            : props.editor.chain().focus().setBlockHeading({ level: 1 }).run()
         }
-        isSelected={isActive}
-        // iconBefore={addSelectedStyling(ButtonIcon, isSelected)}
-      /> */}
-
+        isSelected={isHeadingActive}
+        mainTooltip="Heading"
+        icon={RiH1}
+      />
+      <SimpleToolbarButton
+        onClick={() =>
+          isHeading2Active
+            ? props.editor.chain().focus().unsetBlockHeading().run()
+            : props.editor.chain().focus().setBlockHeading({ level: 2 }).run()
+        }
+        isSelected={isHeading2Active}
+        mainTooltip="Heading 2"
+        icon={RiH2}
+      />
       <SimpleToolbarButton
         onClick={() => props.editor.chain().focus().toggleBold().run()}
         isSelected={props.editor.isActive("bold")}

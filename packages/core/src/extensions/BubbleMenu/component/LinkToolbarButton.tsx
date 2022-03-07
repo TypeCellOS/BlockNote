@@ -1,11 +1,11 @@
 import Tippy from "@tippyjs/react";
 import { Editor } from "@tiptap/core";
-import { useCallback, useState } from "react";
-import { HyperlinkEditMenu } from "../../Hyperlinks/menus/HyperlinkEditMenu";
+import React, { useCallback, useState } from "react";
 import {
   SimpleToolbarButton,
   SimpleToolbarButtonProps,
 } from "../../../shared/components/toolbar/SimpleToolbarButton";
+import { HyperlinkEditMenu } from "../../Hyperlinks/menus/HyperlinkEditMenu";
 
 type Props = SimpleToolbarButtonProps & {
   editor: Editor;

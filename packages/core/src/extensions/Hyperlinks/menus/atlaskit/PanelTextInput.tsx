@@ -2,6 +2,7 @@ import { KeyboardEvent, PureComponent } from "react";
 import { Input } from "./PanelTextInputStyles";
 import { FocusEvent } from "react";
 import browser from "../../../../lib/atlaskit/browser";
+import React from "react";
 
 // code adapted from https://bitbucket.org/atlassian/design-system-mirror/src/master/editor/editor-core/src/ui/PanelTextInput/index.tsx
 
@@ -85,7 +86,7 @@ export default class PanelTextInput extends PureComponent<Props, State> {
         onKeyDown={this.handleKeydown}
         onMouseDown={this.onMouseDown}
         onBlur={this.onBlur}
-        innerRef={this.handleRef}
+        ref={this.handleRef}
         width={width}
         maxLength={maxLength}
         aria-label={ariaLabel}

@@ -29,7 +29,8 @@ export const ContentBlock = Node.create<IBlock>({
       mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, {
         class: styles.blockContent,
       }),
-      // The extra nested div is only needed for placeholders, different solution (without extra div) would be preferable
+      // TODO: The extra nested div is only needed for placeholders, different solution (without extra div) would be preferable
+      // We can't use the other div because the ::before attribute on that one is already reserved for list-bullets
       ["div", 0],
     ];
   },

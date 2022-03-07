@@ -3,6 +3,7 @@ import { RiExternalLinkFill, RiLinkUnlink } from "react-icons/ri";
 import { SimpleToolbarButton } from "../../../shared/components/toolbar/SimpleToolbarButton";
 import { Toolbar } from "../../../shared/components/toolbar/Toolbar";
 import { ToolbarSeparator } from "../../../shared/components/toolbar/ToolbarSeparator";
+import React from "react";
 
 type HyperlinkMenuProps = {
   href: string;

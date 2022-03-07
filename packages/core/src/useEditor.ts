@@ -28,6 +28,7 @@ export const useEditor = (
         : [...(options.extensions || []), ...blockNoteExtensions],
     editorProps: {
       attributes: {
+        ...(options.editorProps?.attributes || {}),
         class:
           styles.bnEditor +
           " " +

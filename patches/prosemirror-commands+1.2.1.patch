@@ -1,0 +1,26 @@
+diff --git a/node_modules/prosemirror-commands/dist/index.es.js b/node_modules/prosemirror-commands/dist/index.es.js
+index 1ced984..4c07458 100644
+--- a/node_modules/prosemirror-commands/dist/index.es.js
++++ b/node_modules/prosemirror-commands/dist/index.es.js
+@@ -414,7 +414,7 @@ function deleteBarrier(state, $cut, dispatch) {
+ 
+   var canDelAfter = $cut.parent.canReplace($cut.index(), $cut.index() + 1);
+   if (canDelAfter &&
+-      (conn = (match = before.contentMatchAt(before.childCount)).findWrapping(after.type)) &&
++      (conn = (match = before.contentMatchAt(before.childCount)).findWrapping(after.type)) && false && 
+       match.matchType(conn[0] || after.type).validEnd) {
+     if (dispatch) {
+       var end = $cut.pos + after.nodeSize, wrap = Fragment.empty;
+diff --git a/node_modules/prosemirror-commands/dist/index.js b/node_modules/prosemirror-commands/dist/index.js
+index e5634ea..ec7da89 100644
+--- a/node_modules/prosemirror-commands/dist/index.js
++++ b/node_modules/prosemirror-commands/dist/index.js
+@@ -418,7 +418,7 @@ function deleteBarrier(state, $cut, dispatch) {
+ 
+   var canDelAfter = $cut.parent.canReplace($cut.index(), $cut.index() + 1);
+   if (canDelAfter &&
+-      (conn = (match = before.contentMatchAt(before.childCount)).findWrapping(after.type)) &&
++      (conn = (match = before.contentMatchAt(before.childCount)).findWrapping(after.type)) && false &&
+       match.matchType(conn[0] || after.type).validEnd) {
+     if (dispatch) {
+       var end = $cut.pos + after.nodeSize, wrap = prosemirrorModel.Fragment.empty;
