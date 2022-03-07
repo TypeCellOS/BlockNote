@@ -9,7 +9,6 @@ import { Plugin } from "prosemirror-state";
  *
  * It does not set a data-placeholder (text is currently done in css)
  *
- * TODO: document extra div
  */
 export interface PlaceholderOptions {
   emptyEditorClass: string;

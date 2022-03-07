@@ -8,25 +8,24 @@ import { Decoration, DecorationSet } from "prosemirror-view";
 
 const PLUGIN_KEY = new PluginKey(`previous-blocks`);
 
-// const attrsToTrack = ["listType", "blockColor", "blockStyle"];
-// TODO: document
-
+/**
+ * This plugin tracks transformation of Block node attributes, so we can support CSS transitions.
+ *
+ * Problem it solves: Prosemirror recreates the DOM when transactions happen. So when a transaction changes an Node attribute,
+ * it results in a completely new DOM element. This means CSS transitions don't work.
+ *
+ * Solution: When attributes change on a node, this plugin sets a data-* attribute with the "previous" value. This way we can still use CSS transitions. (See block.module.css)
+ */
 export const PreviousBlockTypePlugin = () => {
   return new Plugin({
     key: PLUGIN_KEY,
     view(_editorView) {
       return {
         update: async (view, _prevState) => {
-          //   console.log(
-          //     "update view",
-          //     this.key?.getState(view.state).needsUpdate
-          //   );
           if (this.key?.getState(view.state).needsUpdate) {
-            // setTimeout(() => {
             view.dispatch(
               view.state.tr.setMeta(PLUGIN_KEY, { clearUpdate: true })
             );
-            // }, 10000);
           }
         },
       };
@@ -34,7 +33,6 @@ export const PreviousBlockTypePlugin = () => {
     state: {
       init() {
         return {
-          blockAttrs: {},
           prevBlockAttrs: {},
           needsUpdate: false,
         };
@@ -51,25 +49,27 @@ export const PreviousBlockTypePlugin = () => {
         // const { mapping } = transform;
         const changes = getChangedRanges(transform);
 
-        changes.forEach(() => {
-          // changes.forEach(({ oldRange, newRange }) => {
-          // const oldNodes = findChildrenInRange(
-          //   oldState.doc,
-          //   oldRange,
-          //   (node) => node.attrs.id
-          // );
+        // TODO: instead of iterating through the entire document, only check nodes affected by the transactions
+        // We didn't get this to work yet:
+        // changes.forEach(({ oldRange, newRange }) => {
+        // const oldNodes = findChildrenInRange(
+        //   oldState.doc,
+        //   oldRange,
+        //   (node) => node.attrs.id
+        // );
 
+        // const newNodes = findChildrenInRange(
+        //   newState.doc,
+        //   newRange,
+        //   (node) => node.attrs.id
+        // );
+
+        changes.forEach(() => {
           const oldNodes = findChildren(oldState.doc, (node) => node.attrs.id);
 
           const oldNodesById = new Map(
             oldNodes.map((node) => [node.node.attrs.id, node])
           );
-
-          // const newNodes = findChildrenInRange(
-          //   newState.doc,
-          //   newRange,
-          //   (node) => node.attrs.id
-          // );
 
           const newNodes = findChildren(newState.doc, (node) => node.attrs.id);
 
@@ -100,23 +100,6 @@ export const PreviousBlockTypePlugin = () => {
                 prev.needsUpdate = true;
               }
             }
-            // const newAttrs = {
-            //   listType: node.node.attrs.listType,
-            //   blockColor: node.node.attrs.blockColor,
-            //   blockStyle: node.node.attrs.blockStyle,
-            // };
-            // if (!prev.blockAttrs[node.attrs.id]) {
-            //   prev.blockAttrs[node.attrs.id] = newAttrs;
-            // } else if (
-            //   JSON.stringify(prev.blockAttrs[node.attrs.id]) !==
-            //   JSON.stringify(newAttrs) // TODO: faster deep equal?
-            // ) {
-            //   debugger;
-            //   prev.prevBlockAttrs[node.attrs.id] =
-            //     prev.blockAttrs[node.attrs.id];
-            //   prev.blockAttrs[node.attrs.id] = newAttrs;
-            //   prev.needsUpdate = true;
-            // }
           }
         });
 

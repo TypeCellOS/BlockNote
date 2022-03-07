@@ -16,11 +16,11 @@ declare module "@tiptap/core" {
       /**
        * Set a heading node
        */
-      setBlockHeading: (attributes: { headingType: Level }) => ReturnType;
+      setBlockHeading: (attributes: { level: Level }) => ReturnType;
       /**
-       * Toggle a heading node
+       * Unset a heading node
        */
-      toggleBlockHeading: (attributes: { level: Level }) => ReturnType;
+      unsetBlockHeading: () => ReturnType;
 
       unsetList: () => ReturnType;
     };
@@ -136,17 +136,19 @@ export const Block = Node.create<IBlock>({
 
   addCommands() {
     return {
-      setBlockHeading: (_attributes) => () => {
-        // TODO
-        return false;
-        // return commands.setNode(this.name, attributes);
-      },
-      toggleBlockHeading:
+      setBlockHeading:
         (attributes) =>
         ({ commands }) => {
-          // TODO
           return commands.updateAttributes(this.name, {
             headingType: attributes.level,
+          });
+        },
+      unsetBlockHeading:
+        () =>
+        ({ commands }) => {
+          debugger;
+          return commands.updateAttributes(this.name, {
+            headingType: undefined,
           });
         },
       unsetList:
@@ -256,7 +258,13 @@ export const Block = Node.create<IBlock>({
               }
               return false;
             })
-            .joinBackward() // joinBackward merges BlockB to BlockA.
+            // use joinBackward to merge BlockB to BlockA (i.e.: turn it into BlockABlockB)
+            // The standard JoinBackward would break here, and would turn it into:
+            // BlockA
+            //     BlockB
+            //
+            // joinBackward has been patched with patch-package (see /patches) to prevent this behaviour
+            .joinBackward()
             .run(),
 
         () => commands.selectNodeBackward(), // (source: tiptap)
