@@ -1,7 +1,6 @@
 // import logo from './logo.svg'
 import styles from "./App.module.css";
 import { EditorContent, useEditor } from "@blocknote/core";
-import React from "react";
 // import "@blocknote/core/style.css";
 
 function App() {

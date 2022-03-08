@@ -7,7 +7,7 @@ import eslintPlugin from "vite-plugin-eslint";
 export default defineConfig({
   plugins: [
     react({
-      jsxRuntime: "classic", // TODO: would prefer to move to new jsxRuntime
+      // jsxRuntime: "classic", // TODO: would prefer to move to new jsxRuntime
     }),
     eslintPlugin(),
   ],
