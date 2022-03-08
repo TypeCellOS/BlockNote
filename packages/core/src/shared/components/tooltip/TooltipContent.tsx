@@ -7,6 +7,8 @@ import styles from "./TooltipContent.module.css";
  *
  *      Bold
  *      Ctrl+B
+ *
+ * TODO: maybe use default Tippy styles instead?
  */
 export const TooltipContent = (props: {
   mainTooltip: string;

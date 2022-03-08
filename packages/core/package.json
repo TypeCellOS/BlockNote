@@ -51,7 +51,6 @@
     "lodash": "^4.17.21",
     "uuid": "^8.3.2",
     "react-icons": "^4.3.1",
-    "@atlaskit/tooltip": "^17.5.4",
     "@tippyjs/react": "^4.2.6",
     "@atlaskit/button": "^16.1.6",
     "@atlaskit/theme": "^12.1.4",

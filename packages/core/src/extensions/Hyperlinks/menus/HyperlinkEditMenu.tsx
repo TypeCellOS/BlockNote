@@ -1,6 +1,7 @@
-import Tooltip from "@atlaskit/tooltip";
+import Tippy from "@tippyjs/react";
 import { useState } from "react";
 import { RiLink, RiText } from "react-icons/ri";
+import { TooltipContent } from "../../../shared/components/tooltip/TooltipContent";
 import PanelTextInput from "./atlaskit/PanelTextInput";
 import {
   Container,
@@ -28,9 +29,13 @@ export const HyperlinkEditMenu = (props: HyperlinkEditorMenuProps) => {
       <Container provider={false}>
         <UrlInputWrapper>
           <IconWrapper>
-            <Tooltip content={"Edit URL"} position={"left"}>
-              <RiLink size={20}></RiLink>
-            </Tooltip>
+            <Tippy
+              content={<TooltipContent mainTooltip="Edit URL" />}
+              placement="left">
+              <span>
+                <RiLink size={20}></RiLink>
+              </span>
+            </Tippy>
           </IconWrapper>
           <PanelTextInput
             defaultValue={url}
@@ -44,9 +49,13 @@ export const HyperlinkEditMenu = (props: HyperlinkEditorMenuProps) => {
         </UrlInputWrapper>
         <TextInputWrapper>
           <IconWrapper>
-            <Tooltip content={"Edit title"} position={"left"}>
-              <RiText size={20}></RiText>
-            </Tooltip>
+            <Tippy
+              content={<TooltipContent mainTooltip="Edit title" />}
+              placement="left">
+              <span>
+                <RiText size={20} />
+              </span>
+            </Tippy>
           </IconWrapper>
           <PanelTextInput
             defaultValue={text!}
