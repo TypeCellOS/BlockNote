@@ -3,7 +3,7 @@ import { Selection } from "prosemirror-state";
 import styles from "./Block.module.css";
 import { PreviousBlockTypePlugin } from "../PreviousBlockTypePlugin";
 import { textblockTypeInputRuleSameNodeType } from "../rule";
-import {OrderedListPlugin} from "../OrderedListPlugin";
+import { OrderedListPlugin } from "../OrderedListPlugin";
 
 export interface IBlock {
   HTMLAttributes: Record<string, any>;
