@@ -5,12 +5,7 @@ import eslintPlugin from "vite-plugin-eslint";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [
-    react({
-      // jsxRuntime: "classic", // TODO: would prefer to move to new jsxRuntime
-    }),
-    eslintPlugin(),
-  ],
+  plugins: [react(), eslintPlugin()],
   optimizeDeps: {
     // link: ['vite-react-ts-components'],
   },
