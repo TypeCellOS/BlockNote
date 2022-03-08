@@ -2,6 +2,8 @@ import { test, expect, Page } from "@playwright/test";
 
 test.beforeEach(async ({ page }) => {
   await page.goto("http://localhost:3000");
+  // TODO: add const for that
+  // await page.goto("http://host.docker.internal:3000");
 });
 
 test.describe("Basic typing functionality", () => {
