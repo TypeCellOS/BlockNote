@@ -1,5 +1,5 @@
 import Tooltip from "@atlaskit/tooltip";
-import React, { useState } from "react";
+import { useState } from "react";
 import { RiLink, RiText } from "react-icons/ri";
 import PanelTextInput from "./atlaskit/PanelTextInput";
 import {
