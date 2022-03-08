@@ -36,7 +36,16 @@ interface NodeTypeWithCompatibleContent extends NodeType {
 }
 
 /**
- * Code taken from prosemirror-commands/src/commands.js
+ * Code taken from https://github.com/ProseMirror/prosemirror-commands/blob/master/src/commands.js
+ * Reason for modification: https://github.com/YousefED/BlockNote/pull/11
+ *
+ * BlockA
+ * BlockB
+ * Order of behavior has been switched to make first and second blocks content
+ * merge before trying to add second block as child of first
+ *
+ * behavior responsible for joining BlockB as A child of BlockA moved to (line 197 - 228) after
+ * behavior responsible for joining content of BlockA and BlockB (line 156 - 192)
  */
 export const joinBackward =
   () =>
@@ -118,12 +127,6 @@ function findCutBefore($pos: ResolvedPos) {
   return null;
 }
 
-/**
- * BlockA
- * BlockB
- * Order of behavior has been switched to make first and second blocks content
- * merge before trying to add second node as child of first
- */
 function deleteBarrier(
   state: EditorState,
   $cut: ResolvedPos,
