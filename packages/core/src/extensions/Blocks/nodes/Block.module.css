@@ -133,10 +133,10 @@ NESTED BLOCKS
 .blockOuter[data-listtype="oli"]:not([data-prev-listtype])
   > .block
   > div:first-child::before {
-    content: attr(data-position);
-    margin-right: 1.2em;
-    padding-left: 0px;
-  }
+  content: attr(data-position);
+  margin-right: 1.2em;
+  padding-left: 0px;
+}
 
 .blockOuter[data-prev-listtype="li"] > .block > div:first-child::before,
 .blockOuter[data-listtype="li"]:not([data-prev-listtype])
@@ -209,7 +209,7 @@ NESTED BLOCKS
 /* TODO: would be nicer if defined from code */
 
 .blockContent.isEmpty.hasAnchor div::before {
-  content: "Enter text or type '/' for commands";
+  content: "TEXT";
 }
 
 [data-headingtype] > .blockContent.isEmpty div::before {
