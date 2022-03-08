@@ -3,7 +3,8 @@ import { Selection } from "prosemirror-state";
 import styles from "./Block.module.css";
 import { PreviousBlockTypePlugin } from "../PreviousBlockTypePlugin";
 import { textblockTypeInputRuleSameNodeType } from "../rule";
-import {OrderedListPlugin} from "../OrderedListPlugin";
+import { OrderedListPlugin } from "../OrderedListPlugin";
+import { joinBackward } from "../commands/joinBackward";
 
 export interface IBlock {
   HTMLAttributes: Record<string, any>;
@@ -176,6 +177,7 @@ export const Block = Node.create<IBlock>({
           }
           return false;
         },
+      joinBackward, // Override default joinBackward with edited command
     };
   },
   addProseMirrorPlugins() {
