@@ -11,7 +11,9 @@ export const OrderedListPlugin = () => {
       let count = 1;
       let skip = 0;
       newState.doc.descendants((node, pos) => {
-        if (node.type.name === "tcblock" && !node.attrs.listType) count = 1;
+        if (node.type.name === "tcblock" && !node.attrs.listType) {
+          count = 1;
+        }
         if (
           skip === 0 &&
           node.type.name === "tcblock" &&
@@ -31,7 +33,9 @@ export const OrderedListPlugin = () => {
           }
 
           count++;
-        } else if (skip > 0) skip--;
+        } else if (skip > 0) {
+          skip--;
+        }
       });
       if (modified) {
         return newTr;
