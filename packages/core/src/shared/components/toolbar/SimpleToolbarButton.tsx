@@ -2,7 +2,7 @@ import Button from "@atlaskit/button";
 import Tippy from "@tippyjs/react";
 import { forwardRef } from "react";
 import styles from "./SimpleToolbarButton.module.css";
-import { TooltipContent } from "./TooltipContent";
+import { TooltipContent } from "../tooltip/TooltipContent";
 import React from "react";
 
 export type SimpleToolbarButtonProps = {
