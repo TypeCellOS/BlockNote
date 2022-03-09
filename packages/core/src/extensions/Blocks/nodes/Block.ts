@@ -1,5 +1,6 @@
 import { mergeAttributes, Node } from "@tiptap/core";
 import { Selection } from "prosemirror-state";
+import { Node as ProsemirrorNode } from "prosemirror-model";
 import styles from "./Block.module.css";
 import { PreviousBlockTypePlugin } from "../PreviousBlockTypePlugin";
 import { textblockTypeInputRuleSameNodeType } from "../rule";
@@ -138,31 +139,37 @@ export const Block = Node.create<IBlock>({
     return {
       setBlockHeading:
         (attributes) =>
-        ({ commands, view, tr, state }) => {
-          // console.log(commands);
-          // const ret = commands.updateAttributes(this.name, {
-          //   headingType: attributes.level,
-          // });
-          // console.log(tr);
-          // return ret;
-          const pos = tr.selection.from - 1;
-          const node = state.doc.nodeAt(pos);
-
-          if (!node) return false;
-          const contentSize = node.nodeSize || 0;
-          const parentPos = pos - contentSize - 1;
-          const parentNode = state.doc.nodeAt(pos - contentSize - 1);
-          console.log(node);
-          console.log(parentNode);
-          const attrs = {
-            ...node.attrs,
-            headingType: attributes.level,
-          };
-          console.log(attrs);
-          tr.setNodeMarkup(parentPos, this.type, attrs);
-          console.log(tr);
-
-          // view.dispatch(tr);
+        ({ tr }) => {
+          const pos = (tr.selection.from + tr.selection.to) / 2;
+          let closest: number | undefined = undefined;
+          let closestNode: ProsemirrorNode | undefined = undefined;
+          let closestPos: number | undefined = undefined;
+          let prevDist: number | undefined = undefined;
+          tr.doc.nodesBetween(
+            tr.selection.from,
+            tr.selection.to,
+            (node, currentNodePos) => {
+              if (node.type === this.type) {
+                let distance = Math.abs(pos - currentNodePos);
+                if (prevDist && prevDist < distance) {
+                  return false;
+                }
+                prevDist = distance;
+                if (!closest || distance < closest) {
+                  closest = distance;
+                  closestPos = currentNodePos;
+                  closestNode = node;
+                }
+              }
+              return true;
+            }
+          );
+          if (closestNode && closestPos) {
+            tr.setNodeMarkup(closestPos, this.type, {
+              ...(closestNode as ProsemirrorNode).attrs,
+              headingType: attributes.level,
+            });
+          }
           return true;
         },
       unsetBlockHeading:
