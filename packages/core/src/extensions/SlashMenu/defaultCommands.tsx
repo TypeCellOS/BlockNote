@@ -1,6 +1,15 @@
-import { RiH1, RiH2, RiH3, RiText, RiBold, RiUnderline } from "react-icons/ri";
+import {
+  RiH1,
+  RiH2,
+  RiH3,
+  RiText,
+  RiBold,
+  RiUnderline,
+  RiItalic,
+} from "react-icons/ri";
 import boldChain from "./CommandChains/boldChain";
 import headingChain from "./CommandChains/headingChain";
+import italicChain from "./CommandChains/italicChain";
 import paragraphChain from "./CommandChains/paragraphChain";
 import underlineChain from "./CommandChains/underlineChain";
 import { SlashMenuGroups, SlashMenuItem } from "./SlashMenuItem";
@@ -60,6 +69,16 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
     RiBold,
     "Used for emphasizing text",
     "Ctrl+Alt+B"
+  ),
+
+  italic: new SlashMenuItem(
+    "Italic",
+    SlashMenuGroups.INLINE,
+    italicChain(),
+    ["i", "italic"],
+    RiItalic,
+    "Used for making text italic",
+    "Ctrl+Alt+I"
   ),
 
   underline: new SlashMenuItem(
