@@ -24,6 +24,10 @@ declare module "@tiptap/core" {
       unsetBlockHeading: () => ReturnType;
 
       unsetList: () => ReturnType;
+
+      clearBlockAttributes: () => ReturnType;
+
+      clearMarks: () => ReturnType;
     };
   }
 }
@@ -162,21 +166,47 @@ export const Block = Node.create<IBlock>({
         },
       unsetList:
         () =>
-        ({ tr, dispatch }) => {
+        ({ tr }) => {
           const node = tr.selection.$anchor.node(-1);
           const nodePos = tr.selection.$anchor.posAtIndex(0, -1) - 1;
 
           // const node2 = tr.doc.nodeAt(nodePos);
           if (node.type.name === "tcblock" && node.attrs["listType"]) {
-            if (dispatch) {
-              tr.setNodeMarkup(nodePos, undefined, {
-                ...node.attrs,
-                listType: undefined,
-              });
-            }
+            tr.setNodeMarkup(nodePos, undefined, {
+              ...node.attrs,
+              listType: undefined,
+            });
             return true;
           }
           return false;
+        },
+
+      clearBlockAttributes:
+        () =>
+        ({ tr }) => {
+          // Get parent of
+          const containingBlock = findBlock(tr.selection);
+
+          // Should not be possible because of schema
+          if (!containingBlock) return false;
+
+          // Add heading attribute to Block
+          tr.setNodeMarkup(containingBlock.pos, undefined, {});
+          return true;
+        },
+
+      clearMarks:
+        () =>
+        ({ tr, state }) => {
+          const pos = (state.selection.from + state.selection.to) / 2;
+          console.log(pos);
+
+          const node = state.doc.nodeAt(pos);
+          console.log(node);
+
+          if (!node) return false;
+          tr.setNodeMarkup(pos, undefined, { ...node.attrs }, []);
+          return true;
         },
     };
   },
