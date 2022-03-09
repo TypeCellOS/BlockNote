@@ -1,7 +1,8 @@
-import { RiH1, RiH2, RiH3, RiText, RiBold } from "react-icons/ri";
+import { RiH1, RiH2, RiH3, RiText, RiBold, RiUnderline } from "react-icons/ri";
 import boldChain from "./CommandChains/boldChain";
 import headingChain from "./CommandChains/headingChain";
 import paragraphChain from "./CommandChains/paragraphChain";
+import underlineChain from "./CommandChains/underlineChain";
 import { SlashMenuGroups, SlashMenuItem } from "./SlashMenuItem";
 
 /**
@@ -59,6 +60,16 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
     RiBold,
     "Used for emphasizing text",
     "Ctrl+Alt+B"
+  ),
+
+  underline: new SlashMenuItem(
+    "Underline",
+    SlashMenuGroups.INLINE,
+    underlineChain(),
+    ["u", "underline"],
+    RiUnderline,
+    "Used for underlining text",
+    "Ctrl+Alt+U"
   ),
 
   // Command for creating a bullet list
