@@ -138,10 +138,32 @@ export const Block = Node.create<IBlock>({
     return {
       setBlockHeading:
         (attributes) =>
-        ({ commands }) => {
-          return commands.updateAttributes(this.name, {
+        ({ commands, view, tr, state }) => {
+          // console.log(commands);
+          // const ret = commands.updateAttributes(this.name, {
+          //   headingType: attributes.level,
+          // });
+          // console.log(tr);
+          // return ret;
+          const pos = tr.selection.from - 1;
+          const node = state.doc.nodeAt(pos);
+
+          if (!node) return false;
+          const contentSize = node.nodeSize || 0;
+          const parentPos = pos - contentSize - 1;
+          const parentNode = state.doc.nodeAt(pos - contentSize - 1);
+          console.log(node);
+          console.log(parentNode);
+          const attrs = {
+            ...node.attrs,
             headingType: attributes.level,
-          });
+          };
+          console.log(attrs);
+          tr.setNodeMarkup(parentPos, this.type, attrs);
+          console.log(tr);
+
+          // view.dispatch(tr);
+          return true;
         },
       unsetBlockHeading:
         () =>
