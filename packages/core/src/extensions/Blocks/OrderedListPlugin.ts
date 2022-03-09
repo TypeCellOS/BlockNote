@@ -8,7 +8,7 @@ function getLetterForNumber(number: number): string {
 
   while (number > 0) {
     t = (number - 1) % 26;
-    s = String.fromCharCode(65 + t) + s;
+    s = String.fromCharCode(97 + t) + s;
     number = ((number - t) / 26) | 0;
   }
   return s;
@@ -31,7 +31,9 @@ export const OrderedListPlugin = () => {
         if (node.attrs.listType !== "oli") {
           countByDepth.set(depth, 0);
         } else {
-          if (prevDepth < depth) countByDepth.set(depth, 0);
+          if (prevDepth < depth) {
+            countByDepth.set(depth, 0);
+          }
           let currentCount = (countByDepth.get(depth) || 0) + 1;
           countByDepth.set(depth, currentCount);
           // This assumes that the content node is always the first child of the oli block,
@@ -41,9 +43,11 @@ export const OrderedListPlugin = () => {
             prevDepth !== depth
           ) {
             let display: string | number = 0;
-            if (depth === 1 || Math.ceil(depth / 3) % 2 === 0)
+            if (depth === 0 || Math.ceil(depth / 2) % 2 === 1) {
               display = currentCount;
-            else if (depth > 1) display = getLetterForNumber(currentCount);
+            } else if (depth > 1) {
+              display = getLetterForNumber(currentCount);
+            }
             newTr.setNodeMarkup(pos + 1, undefined, {
               ...node.attrs,
               position: `${display}.`,
