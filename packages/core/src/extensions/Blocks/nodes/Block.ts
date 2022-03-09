@@ -1,9 +1,9 @@
 import { mergeAttributes, Node } from "@tiptap/core";
 import { Selection } from "prosemirror-state";
-import { Node as ProsemirrorNode } from "prosemirror-model";
 import styles from "./Block.module.css";
 import { PreviousBlockTypePlugin } from "../PreviousBlockTypePlugin";
 import { textblockTypeInputRuleSameNodeType } from "../rule";
+import { findBlock } from "../helpers/findBlock";
 
 export interface IBlock {
   HTMLAttributes: Record<string, any>;
@@ -140,36 +140,17 @@ export const Block = Node.create<IBlock>({
       setBlockHeading:
         (attributes) =>
         ({ tr }) => {
-          const pos = (tr.selection.from + tr.selection.to) / 2;
-          let closest: number | undefined = undefined;
-          let closestNode: ProsemirrorNode | undefined = undefined;
-          let closestPos: number | undefined = undefined;
-          let prevDist: number | undefined = undefined;
-          tr.doc.nodesBetween(
-            tr.selection.from,
-            tr.selection.to,
-            (node, currentNodePos) => {
-              if (node.type === this.type) {
-                let distance = Math.abs(pos - currentNodePos);
-                if (prevDist && prevDist < distance) {
-                  return false;
-                }
-                prevDist = distance;
-                if (!closest || distance < closest) {
-                  closest = distance;
-                  closestPos = currentNodePos;
-                  closestNode = node;
-                }
-              }
-              return true;
-            }
-          );
-          if (closestNode && closestPos) {
-            tr.setNodeMarkup(closestPos, this.type, {
-              ...(closestNode as ProsemirrorNode).attrs,
-              headingType: attributes.level,
-            });
-          }
+          // Get parent of
+          const containingBlock = findBlock(tr.selection);
+
+          // Should not be possible because of schema
+          if (!containingBlock) return false;
+
+          // Add heading attribute to Block
+          tr.setNodeMarkup(containingBlock.pos, undefined, {
+            ...containingBlock.node.attrs,
+            headingType: attributes.level,
+          });
           return true;
         },
       unsetBlockHeading:
