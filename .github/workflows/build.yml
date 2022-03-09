@@ -1,5 +1,14 @@
 name: build
-on: ["push", "pull_request"]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+    branches:
+      - main
+      - "project/**"
+
 jobs:
   build:
     name: Build
