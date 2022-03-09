@@ -1,4 +1,5 @@
 import { RiH1, RiH2, RiH3, RiText } from "react-icons/ri";
+import createHeading from "./commands/headingCommands";
 import { SlashMenuGroups, SlashMenuItem } from "./SlashMenuItem";
 
 /**
@@ -9,11 +10,7 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
   heading: new SlashMenuItem(
     "Heading",
     SlashMenuGroups.HEADINGS,
-    (_editor, _range) => {
-      alert("not implemented");
-
-      return true;
-    },
+    createHeading(1),
     ["h", "heading1", "h1"],
     RiH1,
     "Used for a top-level heading",
@@ -24,11 +21,7 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
   heading2: new SlashMenuItem(
     "Heading 2",
     SlashMenuGroups.HEADINGS,
-    (_editor, _range) => {
-      alert("not implemented");
-
-      return true;
-    },
+    createHeading(2),
     ["h2", "heading2", "subheading"],
     RiH2,
     "Used for key sections",
@@ -39,11 +32,7 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
   heading3: new SlashMenuItem(
     "Heading 3",
     SlashMenuGroups.HEADINGS,
-    (_editor, _range) => {
-      alert("not implemented");
-
-      return true;
-    },
+    createHeading(3),
     ["h3", "heading3", "subsubheading"],
     RiH3,
     "Used for subsections and group headings",
@@ -54,9 +43,8 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
   paragraph: new SlashMenuItem(
     "Paragraph",
     SlashMenuGroups.BASIC_BLOCKS,
-    (_editor, _range) => {
-      alert("not implemented");
-
+    (editor, range) => {
+      editor.chain().focus().deleteRange(range).unsetBlockHeading().run();
       return true;
     },
     ["p"],
