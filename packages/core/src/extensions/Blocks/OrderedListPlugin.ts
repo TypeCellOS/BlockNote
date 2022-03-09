@@ -1,4 +1,5 @@
 import { Plugin, PluginKey } from "prosemirror-state";
+import { Decoration, DecorationSet } from "prosemirror-view";
 
 const PLUGIN_KEY = new PluginKey(`ordered-list`);
 
@@ -17,50 +18,55 @@ function getLetterForNumber(number: number): string {
 export const OrderedListPlugin = () => {
   return new Plugin({
     key: PLUGIN_KEY,
-    appendTransaction: (_transactions, _oldState, newState) => {
-      const newTr = newState.tr;
-      let modified = false;
+    props: {
+      decorations: ({ doc }) => {
+        const decs: Decoration[] = [];
 
-      let countByDepth = new Map<number, number>();
-      let prevDepth = 1;
-      newState.doc.descendants((node, pos) => {
-        const depth = newState.doc.resolve(pos).depth;
-        if (node.type.name !== "tcblock") {
-          return;
-        }
-        if (node.attrs.listType !== "oli") {
-          countByDepth.set(depth, 0);
-        } else {
-          if (prevDepth < depth) {
-            countByDepth.set(depth, 0);
+        let countByDepth: number[] = [];
+        let prevDepth = 1;
+        doc.descendants((node, pos) => {
+          const depth = doc.resolve(pos).depth;
+          if (node.type.name !== "tcblock") {
+            return;
           }
-          let currentCount = (countByDepth.get(depth) || 0) + 1;
-          countByDepth.set(depth, currentCount);
-          // This assumes that the content node is always the first child of the oli block,
-          // as the content model grows this assumption may need to change
-          if (
-            node.content.child(0).attrs.position !== `${currentCount}.` ||
-            prevDepth !== depth
-          ) {
-            let display: string | number = 0;
-            if (depth === 0 || Math.ceil(depth / 2) % 2 === 1) {
-              display = currentCount;
-            } else if (depth > 1) {
-              display = getLetterForNumber(currentCount);
+          if (node.attrs.listType !== "oli") {
+            countByDepth.splice(depth, countByDepth.length);
+          } else {
+            if (prevDepth < depth) {
+              countByDepth.splice(depth, countByDepth.length);
             }
-            newTr.setNodeMarkup(pos + 1, undefined, {
-              ...node.attrs,
-              position: `${display}.`,
-            });
-            modified = true;
+            let currentCount = (countByDepth[depth] || 0) + 1;
+            countByDepth[depth] = currentCount;
+            // This assumes that the content node is always the first child of the oli block,
+            // as the content model grows this assumption may need to change
+            if (
+              node.content.child(0).attrs.position !== `${currentCount}.` ||
+              prevDepth !== depth
+            ) {
+              let display: string | number = 0;
+              if (depth === 0 || Math.ceil(depth / 2) % 2 === 1) {
+                display = currentCount;
+              } else if (depth > 1) {
+                display = getLetterForNumber(currentCount);
+              }
+
+              const contentNode = doc.resolve(pos + 2);
+
+              const dec = Decoration.node(
+                pos + 1,
+                pos + 1 + contentNode.parent.nodeSize,
+                {
+                  "data-list-position": `${display}.`,
+                }
+              );
+              decs.push(dec);
+            }
+            prevDepth = depth;
           }
-          prevDepth = depth;
-        }
-      });
-      if (modified) {
-        return newTr;
-      }
-      return null;
+        });
+        const dset = decs.length ? DecorationSet.create(doc, decs) : null;
+        return dset;
+      },
     },
   });
 };
