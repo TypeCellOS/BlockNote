@@ -1,5 +1,7 @@
-import { RiH1, RiH2, RiH3, RiText } from "react-icons/ri";
-import createHeading from "./commands/headingCommands";
+import { RiH1, RiH2, RiH3, RiText, RiBold } from "react-icons/ri";
+import boldChain from "./CommandChains/boldChain";
+import headingChain from "./CommandChains/headingChain";
+import paragraphChain from "./CommandChains/paragraphChain";
 import { SlashMenuGroups, SlashMenuItem } from "./SlashMenuItem";
 
 /**
@@ -10,7 +12,7 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
   heading: new SlashMenuItem(
     "Heading",
     SlashMenuGroups.HEADINGS,
-    createHeading(1),
+    headingChain(1),
     ["h", "heading1", "h1"],
     RiH1,
     "Used for a top-level heading",
@@ -21,7 +23,7 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
   heading2: new SlashMenuItem(
     "Heading 2",
     SlashMenuGroups.HEADINGS,
-    createHeading(2),
+    headingChain(2),
     ["h2", "heading2", "subheading"],
     RiH2,
     "Used for key sections",
@@ -32,7 +34,7 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
   heading3: new SlashMenuItem(
     "Heading 3",
     SlashMenuGroups.HEADINGS,
-    createHeading(3),
+    headingChain(3),
     ["h3", "heading3", "subsubheading"],
     RiH3,
     "Used for subsections and group headings",
@@ -43,13 +45,20 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
   paragraph: new SlashMenuItem(
     "Paragraph",
     SlashMenuGroups.BASIC_BLOCKS,
-    (editor, range) => {
-      editor.chain().focus().deleteRange(range).unsetBlockHeading().run();
-      return true;
-    },
+    paragraphChain(),
     ["p"],
     RiText,
     "Used for the body of your document"
+  ),
+
+  bold: new SlashMenuItem(
+    "Bold",
+    SlashMenuGroups.INLINE,
+    boldChain(),
+    ["b", "bold", "strong"],
+    RiBold,
+    "Used for emphasizing text",
+    "Ctrl+Alt+B"
   ),
 
   // Command for creating a bullet list
