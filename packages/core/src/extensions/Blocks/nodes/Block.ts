@@ -25,9 +25,10 @@ declare module "@tiptap/core" {
 
       unsetList: () => ReturnType;
 
+      /**
+       * Clear block of it's attributes
+       */
       clearBlockAttributes: () => ReturnType;
-
-      clearMarks: () => ReturnType;
     };
   }
 }
@@ -144,7 +145,7 @@ export const Block = Node.create<IBlock>({
       setBlockHeading:
         (attributes) =>
         ({ tr }) => {
-          // Get parent of
+          // Get parent of TextNode
           const containingBlock = findBlock(tr.selection);
 
           // Should not be possible because of schema
@@ -184,28 +185,14 @@ export const Block = Node.create<IBlock>({
       clearBlockAttributes:
         () =>
         ({ tr }) => {
-          // Get parent of
+          // Get parent of block
           const containingBlock = findBlock(tr.selection);
 
           // Should not be possible because of schema
           if (!containingBlock) return false;
 
-          // Add heading attribute to Block
+          // Remove all blocks attributes
           tr.setNodeMarkup(containingBlock.pos, undefined, {});
-          return true;
-        },
-
-      clearMarks:
-        () =>
-        ({ tr, state }) => {
-          const pos = (state.selection.from + state.selection.to) / 2;
-          console.log(pos);
-
-          const node = state.doc.nodeAt(pos);
-          console.log(node);
-
-          if (!node) return false;
-          tr.setNodeMarkup(pos, undefined, { ...node.attrs }, []);
           return true;
         },
     };
