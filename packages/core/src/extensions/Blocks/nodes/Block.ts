@@ -167,24 +167,26 @@ export const Block = Node.create<IBlock>({
         },
       unsetList:
         () =>
-        ({ tr }) => {
+        ({ tr, dispatch }) => {
           const node = tr.selection.$anchor.node(-1);
           const nodePos = tr.selection.$anchor.posAtIndex(0, -1) - 1;
 
           // const node2 = tr.doc.nodeAt(nodePos);
           if (node.type.name === "tcblock" && node.attrs["listType"]) {
-            tr.setNodeMarkup(nodePos, undefined, {
-              ...node.attrs,
-              listType: undefined,
-            });
-            return true;
+            if (dispatch) {
+              tr.setNodeMarkup(nodePos, undefined, {
+                ...node.attrs,
+                listType: undefined,
+              });
+              return true;
+            }
           }
           return false;
         },
 
       clearBlockAttributes:
         () =>
-        ({ tr }) => {
+        ({ tr, dispatch }) => {
           // Get parent of block
           const containingBlock = findBlock(tr.selection);
 
@@ -192,8 +194,11 @@ export const Block = Node.create<IBlock>({
           if (!containingBlock) return false;
 
           // Remove all blocks attributes
-          tr.setNodeMarkup(containingBlock.pos, undefined, {});
-          return true;
+          if (dispatch) {
+            tr.setNodeMarkup(containingBlock.pos, undefined, {});
+            return true;
+          }
+          return false;
         },
     };
   },
