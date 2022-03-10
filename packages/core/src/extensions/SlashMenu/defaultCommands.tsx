@@ -1,6 +1,4 @@
 import { RiH1, RiH2, RiH3, RiText } from "react-icons/ri";
-import headingChain from "./CommandChains/headingChain";
-import paragraphChain from "./CommandChains/paragraphChain";
 
 import { SlashMenuGroups, SlashMenuItem } from "./SlashMenuItem";
 
@@ -12,7 +10,14 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
   heading: new SlashMenuItem(
     "Heading",
     SlashMenuGroups.HEADINGS,
-    headingChain(1),
+    (editor, range) => {
+      return editor
+        .chain()
+        .focus()
+        .deleteRange(range)
+        .setBlockHeading({ level: 1 })
+        .run();
+    },
     ["h", "heading1", "h1"],
     RiH1,
     "Used for a top-level heading",
@@ -23,7 +28,14 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
   heading2: new SlashMenuItem(
     "Heading 2",
     SlashMenuGroups.HEADINGS,
-    headingChain(2),
+    (editor, range) => {
+      return editor
+        .chain()
+        .focus()
+        .deleteRange(range)
+        .setBlockHeading({ level: 2 })
+        .run();
+    },
     ["h2", "heading2", "subheading"],
     RiH2,
     "Used for key sections",
@@ -34,8 +46,15 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
   heading3: new SlashMenuItem(
     "Heading 3",
     SlashMenuGroups.HEADINGS,
-    headingChain(3),
-    ["h3", "heading3", "subsubheading"],
+    (editor, range) => {
+      return editor
+        .chain()
+        .focus()
+        .deleteRange(range)
+        .setBlockHeading({ level: 3 })
+        .run();
+    },
+    ["h3", "heading3", "subheading"],
     RiH3,
     "Used for subsections and group headings",
     "Ctrl+Alt+3"
@@ -45,7 +64,14 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
   paragraph: new SlashMenuItem(
     "Paragraph",
     SlashMenuGroups.BASIC_BLOCKS,
-    paragraphChain(),
+    (editor, range) => {
+      return editor
+        .chain()
+        .focus()
+        .deleteRange(range)
+        .clearBlockAttributes()
+        .run();
+    },
     ["p"],
     RiText,
     "Used for the body of your document"
