@@ -348,6 +348,10 @@ export const Block = Node.create<IBlock>({
       "Shift-Tab": () => {
         return this.editor.commands.liftListItem("tcblock");
       },
+      "Mod-Alt-0": () => this.editor.commands.unsetBlockHeading(),
+      "Mod-Alt-1": () => this.editor.commands.setBlockHeading({ level: 1 }),
+      "Mod-Alt-2": () => this.editor.commands.setBlockHeading({ level: 2 }),
+      "Mod-Alt-3": () => this.editor.commands.setBlockHeading({ level: 3 }),
     };
   },
 });

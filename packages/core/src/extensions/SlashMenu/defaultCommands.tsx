@@ -1,6 +1,14 @@
 import { RiH1, RiH2, RiH3, RiText } from "react-icons/ri";
-
+import browser from "../../lib/atlaskit/browser";
 import { SlashMenuGroups, SlashMenuItem } from "./SlashMenuItem";
+
+function formatKeyboardShortcut(shortcut: string) {
+  if (browser.ios || browser.mac) {
+    return shortcut.replace("Mod", "⌘").replace("Alt", "⌥");
+  } else {
+    return shortcut.replace("Mod", "Ctrl");
+  }
+}
 
 /**
  * An array containing commands for creating all default blocks.
@@ -21,7 +29,7 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
     ["h", "heading1", "h1"],
     RiH1,
     "Used for a top-level heading",
-    "Ctrl+Alt+1"
+    formatKeyboardShortcut("Mod-Alt-1")
   ),
 
   // Command for creating a level 2 heading
@@ -39,7 +47,7 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
     ["h2", "heading2", "subheading"],
     RiH2,
     "Used for key sections",
-    "Ctrl+Alt+2"
+    formatKeyboardShortcut("Mod-Alt-2")
   ),
 
   // Command for creating a level 3 heading
@@ -57,7 +65,7 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
     ["h3", "heading3", "subheading"],
     RiH3,
     "Used for subsections and group headings",
-    "Ctrl+Alt+3"
+    formatKeyboardShortcut("Mod-Alt-3")
   ),
 
   // Command for creating a paragraph (pretty useless)
@@ -74,7 +82,8 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
     },
     ["p"],
     RiText,
-    "Used for the body of your document"
+    "Used for the body of your document",
+    formatKeyboardShortcut("Mod-Alt-0")
   ),
 
   // Command for creating a bullet list
