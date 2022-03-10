@@ -188,16 +188,36 @@ export const Block = Node.create<IBlock>({
           const currentBlock = findBlock(tr.selection);
           if (!currentBlock) return false;
 
-          if (dispatch) {
-            // Add sibling below current block
-            const endOfBlock = currentBlock.pos + currentBlock.node.nodeSize;
-            const newNode =
-              state.schema.nodes["tcblock"].createAndFill(attributes);
-            tr.insert(endOfBlock, newNode);
-            tr.setSelection(new TextSelection(tr.doc.resolve(endOfBlock + 1)));
+          if (!dispatch) return false;
+
+          // If current blocks content is empty dont create a new block
+          if (currentBlock.node.firstChild?.textContent.length === 0) {
+            tr.setNodeMarkup(currentBlock.pos, undefined, attributes);
             return true;
           }
-          return false;
+
+          // Add sibling below current block
+          const contentLength = currentBlock.node.firstChild?.nodeSize;
+          if (!contentLength) return false;
+          let endOfBlock = currentBlock.pos + contentLength;
+          // If the current node has a blockGroup copy the blockgroup to the new block
+          //And remove the blockGroup from the current block
+          let newBlock =
+            state.schema.nodes["tcblock"].createAndFill(attributes);
+          // TODO: Fix bug with adding new block with its children
+          // if (currentBlock.node.childCount > 1) {
+          //   const currentBlockGroup = currentBlock.node.child(1);
+          //   newBlock = state.schema.nodes["tcblock"].createAndFill(attributes, [
+          //     currentBlockGroup,
+          //   ]);
+          //   tr.delete(
+          //     currentBlock.pos + contentLength,
+          //     currentBlock.node.nodeSize - 1
+          //   );
+          // }
+          tr.insert(endOfBlock, newBlock);
+          tr.setSelection(new TextSelection(tr.doc.resolve(endOfBlock + 1)));
+          return true;
         },
     };
   },
