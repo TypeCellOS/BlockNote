@@ -149,13 +149,14 @@ export const Block = Node.create<IBlock>({
     return {
       setBlockHeading:
         (attributes) =>
-        ({ tr }) => {
+        ({ tr, dispatch }) => {
           // Get parent of TextNode
           const containingBlock = findBlock(tr.selection);
 
           // Should not be possible because of schema
           if (!containingBlock) return false;
 
+          if (!dispatch) return false;
           // Add heading attribute to Block
           tr.setNodeMarkup(containingBlock.pos, undefined, {
             ...containingBlock.node.attrs,
