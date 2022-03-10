@@ -196,25 +196,10 @@ export const Block = Node.create<IBlock>({
             return true;
           }
 
-          // Add sibling below current block
-          const contentLength = currentBlock.node.firstChild?.nodeSize;
-          if (!contentLength) return false;
-          let endOfBlock = currentBlock.pos + contentLength;
-          // If the current node has a blockGroup copy the blockgroup to the new block
-          //And remove the blockGroup from the current block
+          // Create new block after current block
+          const endOfBlock = currentBlock.pos + currentBlock.node.nodeSize;
           let newBlock =
             state.schema.nodes["tcblock"].createAndFill(attributes);
-          // TODO: Fix bug with adding new block with its children
-          // if (currentBlock.node.childCount > 1) {
-          //   const currentBlockGroup = currentBlock.node.child(1);
-          //   newBlock = state.schema.nodes["tcblock"].createAndFill(attributes, [
-          //     currentBlockGroup,
-          //   ]);
-          //   tr.delete(
-          //     currentBlock.pos + contentLength,
-          //     currentBlock.node.nodeSize - 1
-          //   );
-          // }
           tr.insert(endOfBlock, newBlock);
           tr.setSelection(new TextSelection(tr.doc.resolve(endOfBlock + 1)));
           return true;
