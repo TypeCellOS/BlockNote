@@ -15,7 +15,7 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         .chain()
         .focus()
         .deleteRange(range)
-        .setBlockHeading({ level: 1 })
+        .addNewBlockAsSibling({ headingType: 1 })
         .run();
     },
     ["h", "heading1", "h1"],
@@ -33,7 +33,7 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         .chain()
         .focus()
         .deleteRange(range)
-        .setBlockHeading({ level: 2 })
+        .addNewBlockAsSibling({ headingType: 2 })
         .run();
     },
     ["h2", "heading2", "subheading"],
@@ -51,7 +51,7 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         .chain()
         .focus()
         .deleteRange(range)
-        .setBlockHeading({ level: 3 })
+        .addNewBlockAsSibling({ headingType: 3 })
         .run();
     },
     ["h3", "heading3", "subheading"],
@@ -69,7 +69,7 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         .chain()
         .focus()
         .deleteRange(range)
-        .clearBlockAttributes()
+        .addNewBlockAsSibling()
         .run();
     },
     ["p"],

@@ -1,5 +1,5 @@
 import { mergeAttributes, Node } from "@tiptap/core";
-import { Selection } from "prosemirror-state";
+import { Selection, TextSelection } from "prosemirror-state";
 import styles from "./Block.module.css";
 import { PreviousBlockTypePlugin } from "../PreviousBlockTypePlugin";
 import { textblockTypeInputRuleSameNodeType } from "../rule";
@@ -25,10 +25,7 @@ declare module "@tiptap/core" {
 
       unsetList: () => ReturnType;
 
-      /**
-       * Clear block of it's attributes
-       */
-      clearBlockAttributes: () => ReturnType;
+      addNewBlockAsSibling: (attributes?: { headingType: Level }) => ReturnType;
     };
   }
 }
@@ -184,18 +181,20 @@ export const Block = Node.create<IBlock>({
           return false;
         },
 
-      clearBlockAttributes:
-        () =>
-        ({ tr, dispatch }) => {
-          // Get parent of block
-          const containingBlock = findBlock(tr.selection);
+      addNewBlockAsSibling:
+        (attributes) =>
+        ({ tr, dispatch, state }) => {
+          // Get current block
+          const currentBlock = findBlock(tr.selection);
+          if (!currentBlock) return false;
 
-          // Should not be possible because of schema
-          if (!containingBlock) return false;
-
-          // Remove all blocks attributes
           if (dispatch) {
-            tr.setNodeMarkup(containingBlock.pos, undefined, {});
+            // Add sibling below current block
+            const endOfBlock = currentBlock.pos + currentBlock.node.nodeSize;
+            const newNode =
+              state.schema.nodes["tcblock"].createAndFill(attributes);
+            tr.insert(endOfBlock, newNode);
+            tr.setSelection(new TextSelection(tr.doc.resolve(endOfBlock + 1)));
             return true;
           }
           return false;
