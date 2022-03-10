@@ -12,6 +12,19 @@ export const ContentBlock = Node.create<IBlock>({
       HTMLAttributes: {},
     };
   },
+  addAttributes() {
+    return {
+      position: {
+        default: undefined,
+        renderHTML: (attributes) => {
+          return {
+            "data-position": attributes.position,
+          };
+        },
+        parseHTML: (element) => element.getAttribute("data-position"),
+      },
+    };
+  },
 
   content: "inline*",
 

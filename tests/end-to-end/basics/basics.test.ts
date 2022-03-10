@@ -1,7 +1,8 @@
 import { test, expect, Page } from "@playwright/test";
+import { BASE_URL } from "../../utils/const";
 
 test.beforeEach(async ({ page }) => {
-  await page.goto("http://localhost:3000");
+  await page.goto(BASE_URL);
 });
 
 test.describe("Basic typing functionality", () => {
