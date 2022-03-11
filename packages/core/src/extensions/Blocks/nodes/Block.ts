@@ -167,6 +167,8 @@ export const Block = Node.create<IBlock>({
       unsetBlockHeading:
         () =>
         ({ commands }) => {
+          console.log("!!!");
+
           return commands.updateAttributes(this.name, {
             headingType: undefined,
           });
