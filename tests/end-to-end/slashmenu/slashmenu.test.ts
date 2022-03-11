@@ -58,16 +58,26 @@ test.describe("Check SlashMenu Functionality", () => {
   test("Should add new block after current blocks children", async ({
     page,
   }) => {
+    // BLOCK_A /(create Block_C)
+    //        BLOCK_B
+    //
+    // When adding a new block after Block_A, it should be added
+    // As a sibling of Block_A, beneath it
+    //
+    // BLOCK_A
+    //        BLOCK_B
+    // BLOCK_C
     await focusOnEditor(page);
     await page.keyboard.type("A");
-    await page.keyboard.press("Enter");
-    await page.keyboard.press("Tab");
+    await page.keyboard.press("Enter", { delay: 100 });
+    await page.keyboard.press("Tab", { delay: 100 });
     await page.keyboard.type("B");
-    await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("ArrowUp", { delay: 100 });
     await executeSlashCommand(page, "h1");
     await page.waitForSelector(H_ONE_BLOCK_SELECTOR);
     // If done correctly there should be a total on 2 block groups
     // a total of 4 blocks and the 3rd block should have no blockgroup
+    // and BLOCK_A should have one child
     const blockGroupCount = await page.locator(BLOCK_GROUP_SELECTOR).count();
     expect(blockGroupCount).toBe(2);
     const blockCount = await page.locator(BLOCK_SELECTOR).count();
@@ -76,5 +86,14 @@ test.describe("Check SlashMenu Functionality", () => {
     await thirdBlock
       .locator(BLOCK_GROUP_SELECTOR)
       .waitFor({ state: "detached" });
+    const firstBlock = page.locator(BLOCK_SELECTOR).nth(0);
+    const firstBlockChildren = await firstBlock.locator(BLOCK_SELECTOR).count();
+    expect(firstBlockChildren).toBe(1);
+    // Open slash menu and take screenshot
+    await openSlashMenu(page);
+    await page.waitForTimeout(5000); // Wait for slash menu to finish animation
+    expect(await page.screenshot()).toMatchSnapshot(
+      "slash_menu_end_product.png"
+    );
   });
 });
