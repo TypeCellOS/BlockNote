@@ -166,12 +166,20 @@ export const Block = Node.create<IBlock>({
         },
       unsetBlockHeading:
         () =>
-        ({ commands }) => {
-          console.log("!!!");
+        ({ tr, dispatch }) => {
+          // Get parent of TextNode
+          const containingBlock = findBlock(tr.selection);
 
-          return commands.updateAttributes(this.name, {
+          // Should not be possible because of schema
+          if (!containingBlock) return false;
+
+          if (!dispatch) return false;
+          // Remove heading attribute from block
+          tr.setNodeMarkup(containingBlock.pos, undefined, {
+            ...containingBlock.node.attrs,
             headingType: undefined,
           });
+          return true;
         },
       unsetList:
         () =>
@@ -359,7 +367,7 @@ export const Block = Node.create<IBlock>({
       "Shift-Tab": () => {
         return this.editor.commands.liftListItem("tcblock");
       },
-      "Mod-Alt-0": () => this.editor.commands.unsetBlockHeading(),
+      "Mod-Alt-0": () => this.editor.commands.unsetBlockHeading(), // There is a weird bug with this specific shortcut
       "Mod-Alt-1": () => this.editor.commands.setBlockHeading({ level: 1 }),
       "Mod-Alt-2": () => this.editor.commands.setBlockHeading({ level: 2 }),
       "Mod-Alt-3": () => this.editor.commands.setBlockHeading({ level: 3 }),
