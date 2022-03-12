@@ -1,18 +1,19 @@
 import { test, expect, Page, ElementHandle } from "@playwright/test";
-import { BASE_URL } from "../../utils/const";
 import {
+  BASE_URL,
   BLOCK_GROUP_SELECTOR,
   BLOCK_SELECTOR,
-  executeSlashCommand,
-  focusOnEditor,
-  getDoc,
   H_ONE_BLOCK_SELECTOR,
   H_THREE_BLOCK_SELECTOR,
   H_TWO_BLOCK_SELECTOR,
-  openSlashMenu,
-  removeAttFromDoc,
+} from "../../utils/const";
+import {
+  focusOnEditor,
   waitForSelectorInEditor,
-} from "./utils";
+  removeAttFromDoc,
+  getDoc,
+} from "../../utils/editor";
+import { executeSlashCommand, openSlashMenu } from "../../utils/slashmenu";
 import docStructureSnapshot from "./docStructureSnapshot.json";
 
 test.beforeEach(async ({ page }) => {
