@@ -5,12 +5,15 @@ import {
   BLOCK_SELECTOR,
   executeSlashCommand,
   focusOnEditor,
+  getDoc,
   H_ONE_BLOCK_SELECTOR,
   H_THREE_BLOCK_SELECTOR,
   H_TWO_BLOCK_SELECTOR,
   openSlashMenu,
+  removeAttFromDoc,
   waitForSelectorInEditor,
 } from "./utils";
+import docStructureSnapshot from "./docStructureSnapshot.json";
 
 test.beforeEach(async ({ page }) => {
   await page.goto(BASE_URL);
@@ -89,6 +92,10 @@ test.describe("Check SlashMenu Functionality", () => {
     const firstBlock = page.locator(BLOCK_SELECTOR).nth(0);
     const firstBlockChildren = await firstBlock.locator(BLOCK_SELECTOR).count();
     expect(firstBlockChildren).toBe(1);
+    // Compare doc structure to snapshot
+    const doc = removeAttFromDoc(await getDoc(page), "id");
+    const docSnap = removeAttFromDoc(docStructureSnapshot, "id");
+    expect(JSON.stringify(doc)).toEqual(JSON.stringify(docSnap));
     // Open slash menu and take screenshot
     await openSlashMenu(page);
     await page.waitForTimeout(5000); // Wait for slash menu to finish animation

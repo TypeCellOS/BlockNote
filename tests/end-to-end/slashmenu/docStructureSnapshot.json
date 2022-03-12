@@ -1,0 +1,76 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "blockGroup",
+      "content": [
+        {
+          "type": "tcblock",
+          "attrs": {
+            "id": "41e2f5de-3398-4b23-98ba-a3d02c46bd52"
+          },
+          "content": [
+            {
+              "type": "tccontent",
+              "attrs": {},
+              "content": [
+                {
+                  "type": "text",
+                  "text": "A"
+                }
+              ]
+            },
+            {
+              "type": "blockGroup",
+              "content": [
+                {
+                  "type": "tcblock",
+                  "attrs": {
+                    "id": "cfaa3573-942e-4289-bb9f-630eb3987acb"
+                  },
+                  "content": [
+                    {
+                      "type": "tccontent",
+                      "attrs": {},
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "B"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "tcblock",
+          "attrs": {
+            "id": "2a30d246-987c-47f3-a7d8-64c21532c499",
+            "headingType": 1
+          },
+          "content": [
+            {
+              "type": "tccontent",
+              "attrs": {}
+            }
+          ]
+        },
+        {
+          "type": "tcblock",
+          "attrs": {
+            "id": "6267a8d3-52e6-4449-b7ac-fb1a7674ebbe"
+          },
+          "content": [
+            {
+              "type": "tccontent",
+              "attrs": {}
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

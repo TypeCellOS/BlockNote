@@ -31,3 +31,20 @@ export async function waitForSelectorInEditor(page: Page, selector: string) {
     timeout: 1000,
   });
 }
+
+export async function getDoc(page: Page) {
+  const window = await page.evaluateHandle("window");
+  const doc = await window.evaluate((win) =>
+    (win as any).ProseMirror.getJSON()
+  );
+  return doc;
+}
+
+export function removeAttFromDoc(doc: unknown, att: string) {
+  if (typeof doc !== "object") return;
+  if (Object.keys(doc).includes(att)) {
+    delete doc[att];
+  }
+  Object.keys(doc).forEach((key) => removeAttFromDoc(doc[key], att));
+  return doc;
+}

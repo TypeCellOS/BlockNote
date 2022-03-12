@@ -8,6 +8,7 @@ function App() {
   const editor = useEditor({
     onUpdate: ({ editor }) => {
       console.log(editor.getJSON());
+      (window as any).ProseMirror = editor; // Give tests a way to get editor instance
     },
     editorProps: {
       attributes: {
