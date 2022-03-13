@@ -28,21 +28,25 @@ test.describe("Check SlashMenu Functionality", () => {
   test("Should be able to create h1", async ({ page }) => {
     await focusOnEditor(page);
     await executeSlashCommand(page, "h1");
+    await page.keyboard.type("This is a H1");
     await waitForSelectorInEditor(page, H_ONE_BLOCK_SELECTOR);
   });
   test("Should be able to create h2", async ({ page }) => {
     await focusOnEditor(page);
     await executeSlashCommand(page, "h2");
+    await page.keyboard.type("This is a H2");
     await waitForSelectorInEditor(page, H_TWO_BLOCK_SELECTOR);
   });
   test("Should be able to create h3", async ({ page }) => {
     await focusOnEditor(page);
     await executeSlashCommand(page, "h3");
+    await page.keyboard.type("This is a H3");
     await waitForSelectorInEditor(page, H_THREE_BLOCK_SELECTOR);
   });
   test("Should be able to create paragraph", async ({ page }) => {
     await focusOnEditor(page);
     await executeSlashCommand(page, "paragraph");
+    await page.keyboard.type("This is a Paragraph");
     const block = page.locator(BLOCK_SELECTOR).nth(0);
     const blockHeadingType = await block.getAttribute("headingtype");
     expect(blockHeadingType).toBeFalsy();
