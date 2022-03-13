@@ -32,13 +32,6 @@ function formatKeyboardShortcut(shortcut: string) {
 export const BubbleMenu = (props: { editor: Editor }) => {
   useEditorForceUpdate(props.editor);
 
-  // TODO: For heading, there should be a drop down menu similar to notion
-  const isHeadingActive =
-    findBlock(props.editor.state.selection)?.node.attrs.headingType === 1;
-
-  const isHeading2Active =
-    findBlock(props.editor.state.selection)?.node.attrs.headingType === 2;
-
   const currentBlockHeading = findBlock(props.editor.state.selection)?.node
     .attrs.headingType;
 
@@ -93,26 +86,6 @@ export const BubbleMenu = (props: { editor: Editor }) => {
           />
         </DropdownItemGroup>
       </DropdownMenu>
-      <SimpleToolbarButton
-        onClick={() =>
-          isHeadingActive
-            ? props.editor.chain().focus().unsetBlockHeading().run()
-            : props.editor.chain().focus().setBlockHeading({ level: 1 }).run()
-        }
-        isSelected={isHeadingActive}
-        mainTooltip="Heading"
-        icon={RiH1}
-      />
-      <SimpleToolbarButton
-        onClick={() =>
-          isHeading2Active
-            ? props.editor.chain().focus().unsetBlockHeading().run()
-            : props.editor.chain().focus().setBlockHeading({ level: 2 }).run()
-        }
-        isSelected={isHeading2Active}
-        mainTooltip="Heading 2"
-        icon={RiH2}
-      />
       <SimpleToolbarButton
         onClick={() => props.editor.chain().focus().toggleBold().run()}
         isSelected={props.editor.isActive("bold")}
