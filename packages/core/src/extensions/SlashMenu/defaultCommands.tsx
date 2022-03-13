@@ -10,6 +10,8 @@ function formatKeyboardShortcut(shortcut: string) {
   }
 }
 
+import { SlashMenuGroups, SlashMenuItem } from "./SlashMenuItem";
+
 /**
  * An array containing commands for creating all default blocks.
  */
@@ -65,7 +67,11 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
     ["h3", "heading3", "subheading"],
     RiH3,
     "Used for subsections and group headings",
-    formatKeyboardShortcut("Mod-Alt-3")
+    formatKeyboardShortcut("Mod-Alt-3"),
+    ["h3", "heading3", "subsubheading"],
+    RiH3,
+    "Used for subsections and group headings",
+    "Ctrl+Alt+3"
   ),
 
   // Command for creating a paragraph (pretty useless)
@@ -83,7 +89,10 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
     ["p"],
     RiText,
     "Used for the body of your document",
-    formatKeyboardShortcut("Mod-Alt-0")
+    formatKeyboardShortcut("Mod-Alt-0"),
+    ["p"],
+    RiText,
+    "Used for the body of your document"
   ),
 
   // Command for creating a bullet list
