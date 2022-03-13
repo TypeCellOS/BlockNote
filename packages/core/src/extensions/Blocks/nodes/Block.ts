@@ -153,7 +153,9 @@ export const Block = Node.create<IBlock>({
           // Get parent of TextNode
           const containingBlock = findBlock(tr.selection);
 
-          // Should not be possible because of schema
+          // Should not be possible because schema dictates
+          // that each text node is nested in a BlockContent
+          // node which is nested inside a BlockNode
           if (!containingBlock) return false;
 
           if (!dispatch) return false;
