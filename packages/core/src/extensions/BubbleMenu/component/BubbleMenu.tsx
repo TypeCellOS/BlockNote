@@ -10,6 +10,8 @@ import {
   RiStrikethrough,
   RiUnderline,
   RiText,
+  RiListOrdered,
+  RiListUnordered,
 } from "react-icons/ri";
 import browser from "../../../lib/atlaskit/browser";
 import { SimpleToolbarButton } from "../../../shared/components/toolbar/SimpleToolbarButton";
@@ -32,17 +34,26 @@ function formatKeyboardShortcut(shortcut: string) {
 export const BubbleMenu = (props: { editor: Editor }) => {
   useEditorForceUpdate(props.editor);
 
-  const currentBlockHeading = findBlock(props.editor.state.selection)?.node
-    .attrs.headingType;
+  const currentBlock = findBlock(props.editor.state.selection);
+  const currentBlockHeading = currentBlock?.node.attrs.headingType;
+  const currentBlockListType = currentBlock?.node.attrs.listType;
 
   const currentBlockName = (() => {
-    switch (currentBlockHeading) {
-      case 1:
-        return "Heading 1";
-      case 2:
-        return "Heading 2";
-      case 3:
-        return "Heading 3";
+    if (currentBlockHeading) {
+      switch (currentBlockHeading) {
+        case 1:
+          return "Heading 1";
+        case 2:
+          return "Heading 2";
+        case 3:
+          return "Heading 3";
+      }
+    }
+    switch (currentBlockListType) {
+      case "li": //bullet list
+        return "Bullet List";
+      case "oli": //numbered list
+        return "Numbered List";
       default:
         return "Paragraph";
     }
@@ -55,7 +66,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
           <DropdownBlockItem
             title="Heading 1"
             icon={RiH1}
-            isSelected={currentBlockHeading === 1}
+            isSelected={currentBlockName === "Heading 1"}
             onClick={() =>
               props.editor.chain().focus().setBlockHeading({ level: 1 }).run()
             }
@@ -63,7 +74,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
           <DropdownBlockItem
             title="Heading 2"
             icon={RiH2}
-            isSelected={currentBlockHeading === 2}
+            isSelected={currentBlockName === "Heading 2"}
             onClick={() =>
               props.editor.chain().focus().setBlockHeading({ level: 2 }).run()
             }
@@ -71,17 +82,33 @@ export const BubbleMenu = (props: { editor: Editor }) => {
           <DropdownBlockItem
             title="Heading 3"
             icon={RiH3}
-            isSelected={currentBlockHeading === 3}
+            isSelected={currentBlockName === "Heading 3"}
             onClick={() =>
               props.editor.chain().focus().setBlockHeading({ level: 3 }).run()
             }
           />
           <DropdownBlockItem
+            title="Bullet List"
+            icon={RiListUnordered}
+            isSelected={currentBlockName === "Bullet List"}
+            onClick={() =>
+              props.editor.chain().focus().setBlockList("li").run()
+            }
+          />
+          <DropdownBlockItem
+            title="Numbered List"
+            icon={RiListOrdered}
+            isSelected={currentBlockName === "Numbered List"}
+            onClick={() =>
+              props.editor.chain().focus().setBlockList("oli").run()
+            }
+          />
+          <DropdownBlockItem
             title="Paragraph"
             icon={RiText}
-            isSelected={currentBlockHeading === undefined}
+            isSelected={currentBlockName === "Paragraph"}
             onClick={() =>
-              props.editor.chain().focus().unsetBlockHeading().run()
+              props.editor.chain().focus().unsetBlockHeading().unsetList().run()
             }
           />
         </DropdownItemGroup>
