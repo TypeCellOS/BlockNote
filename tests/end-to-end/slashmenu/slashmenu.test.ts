@@ -99,7 +99,7 @@ test.describe("Check SlashMenu Functionality", () => {
     expect(JSON.stringify(doc)).toEqual(JSON.stringify(docSnap));
     // Open slash menu and take screenshot
     await openSlashMenu(page);
-    await page.waitForTimeout(5000); // Wait for slash menu to finish animation
+    await page.waitForTimeout(3000); // Wait for slash menu to finish animation
     expect(await page.screenshot()).toMatchSnapshot(
       "slash_menu_end_product.png"
     );
