@@ -39,6 +39,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
   const currentBlockListType = currentBlock?.node.attrs.listType;
 
   const currentBlockName = (() => {
+    // A heading that's also a list, should show as Heading
     if (currentBlockHeading) {
       switch (currentBlockHeading) {
         case 1:
@@ -68,7 +69,12 @@ export const BubbleMenu = (props: { editor: Editor }) => {
             icon={RiH1}
             isSelected={currentBlockName === "Heading 1"}
             onClick={() =>
-              props.editor.chain().focus().setBlockHeading({ level: 1 }).run()
+              props.editor
+                .chain()
+                .focus()
+                .unsetList()
+                .setBlockHeading({ level: 1 })
+                .run()
             }
           />
           <DropdownBlockItem
@@ -76,7 +82,12 @@ export const BubbleMenu = (props: { editor: Editor }) => {
             icon={RiH2}
             isSelected={currentBlockName === "Heading 2"}
             onClick={() =>
-              props.editor.chain().focus().setBlockHeading({ level: 2 }).run()
+              props.editor
+                .chain()
+                .focus()
+                .unsetList()
+                .setBlockHeading({ level: 2 })
+                .run()
             }
           />
           <DropdownBlockItem
@@ -84,7 +95,12 @@ export const BubbleMenu = (props: { editor: Editor }) => {
             icon={RiH3}
             isSelected={currentBlockName === "Heading 3"}
             onClick={() =>
-              props.editor.chain().focus().setBlockHeading({ level: 3 }).run()
+              props.editor
+                .chain()
+                .focus()
+                .unsetList()
+                .setBlockHeading({ level: 3 })
+                .run()
             }
           />
           <DropdownBlockItem
@@ -92,7 +108,12 @@ export const BubbleMenu = (props: { editor: Editor }) => {
             icon={RiListUnordered}
             isSelected={currentBlockName === "Bullet List"}
             onClick={() =>
-              props.editor.chain().focus().setBlockList("li").run()
+              props.editor
+                .chain()
+                .focus()
+                .unsetBlockHeading()
+                .setBlockList("li")
+                .run()
             }
           />
           <DropdownBlockItem
@@ -100,7 +121,12 @@ export const BubbleMenu = (props: { editor: Editor }) => {
             icon={RiListOrdered}
             isSelected={currentBlockName === "Numbered List"}
             onClick={() =>
-              props.editor.chain().focus().setBlockList("oli").run()
+              props.editor
+                .chain()
+                .focus()
+                .unsetBlockHeading()
+                .setBlockList("oli")
+                .run()
             }
           />
           <DropdownBlockItem
