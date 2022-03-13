@@ -8,6 +8,8 @@ import {
   RiLink,
   RiStrikethrough,
   RiUnderline,
+  RiIndentIncrease,
+  RiIndentDecrease,
 } from "react-icons/ri";
 import browser from "../../../lib/atlaskit/browser";
 import { SimpleToolbarButton } from "../../../shared/components/toolbar/SimpleToolbarButton";
@@ -80,11 +82,35 @@ export const BubbleMenu = (props: { editor: Editor }) => {
       />
       <SimpleToolbarButton
         onClick={() => props.editor.chain().focus().toggleStrike().run()}
-        isSelected={props.editor.isActive("strike")}
+        isDisabled={props.editor.isActive("strike")}
         mainTooltip="Strike-through"
         secondaryTooltip={formatKeyboardShortcut("Mod+Shift+X")}
         icon={RiStrikethrough}
       />
+      <SimpleToolbarButton
+        onClick={() =>
+          props.editor.chain().focus().sinkListItem("tcblock").run()
+        }
+        isDisabled={
+          !props.editor.can().chain().focus().sinkListItem("tcblock").run()
+        }
+        mainTooltip="Indent"
+        secondaryTooltip={formatKeyboardShortcut("Tab")}
+        icon={RiIndentIncrease}
+      />
+
+      <SimpleToolbarButton
+        onClick={() =>
+          props.editor.chain().focus().liftListItem("tcblock").run()
+        }
+        isDisabled={
+          !props.editor.can().chain().focus().liftListItem("tcblock").run()
+        }
+        mainTooltip="UnIndent"
+        secondaryTooltip={formatKeyboardShortcut("Shift+Tab")}
+        icon={RiIndentDecrease}
+      />
+
       <LinkToolbarButton
         // editor={props.editor}
         isSelected={props.editor.isActive("link")}
