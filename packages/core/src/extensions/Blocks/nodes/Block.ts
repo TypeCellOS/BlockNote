@@ -5,6 +5,7 @@ import { PreviousBlockTypePlugin } from "../PreviousBlockTypePlugin";
 import { textblockTypeInputRuleSameNodeType } from "../rule";
 import { findBlock } from "../helpers/findBlock";
 import { OrderedListPlugin } from "../OrderedListPlugin";
+import { setBlockHeading } from "../helpers/setBlockHeading";
 
 export interface IBlock {
   HTMLAttributes: Record<string, any>;
@@ -150,38 +151,12 @@ export const Block = Node.create<IBlock>({
       setBlockHeading:
         (attributes) =>
         ({ tr, dispatch }) => {
-          // Get parent of TextNode
-          const containingBlock = findBlock(tr.selection);
-
-          // Should not be possible because schema dictates
-          // that each text node is nested in a BlockContent
-          // node which is nested inside a BlockNode
-          if (!containingBlock) return false;
-
-          if (!dispatch) return false;
-          // Add heading attribute to Block
-          tr.setNodeMarkup(containingBlock.pos, undefined, {
-            ...containingBlock.node.attrs,
-            headingType: attributes.level,
-          });
-          return true;
+          return setBlockHeading(tr, dispatch, attributes.level);
         },
       unsetBlockHeading:
         () =>
         ({ tr, dispatch }) => {
-          // Get parent of TextNode
-          const containingBlock = findBlock(tr.selection);
-
-          // Should not be possible because of schema
-          if (!containingBlock) return false;
-
-          if (!dispatch) return false;
-          // Remove heading attribute from block
-          tr.setNodeMarkup(containingBlock.pos, undefined, {
-            ...containingBlock.node.attrs,
-            headingType: undefined,
-          });
-          return true;
+          return setBlockHeading(tr, dispatch, undefined);
         },
       unsetList:
         () =>
