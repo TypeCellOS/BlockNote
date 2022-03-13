@@ -1,4 +1,4 @@
-import { Page } from "@playwright/test";
+import { Page, expect } from "@playwright/test";
 import { EDITOR_SELECTOR } from "./const";
 
 export async function focusOnEditor(page: Page) {
@@ -29,4 +29,14 @@ export function removeAttFromDoc(doc: unknown, att: string) {
   }
   Object.keys(doc).forEach((key) => removeAttFromDoc(doc[key], att));
   return doc;
+}
+
+export async function compareDocToSnapshot(page: Page) {
+  // Remove id from docs
+  const doc = JSON.stringify(
+    removeAttFromDoc(await getDoc(page), "id"),
+    null,
+    2
+  );
+  expect(doc).toMatchSnapshot("docStructureSnapshot.json");
 }

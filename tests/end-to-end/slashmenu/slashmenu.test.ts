@@ -10,11 +10,11 @@ import {
 import {
   focusOnEditor,
   waitForSelectorInEditor,
-  removeAttFromDoc,
-  getDoc,
+  compareDocToSnapshot,
 } from "../../utils/editor";
 import { executeSlashCommand, openSlashMenu } from "../../utils/slashmenu";
-import docStructureSnapshot from "./docStructureSnapshot.json";
+
+const TYPE_DELAY = 10;
 
 test.beforeEach(async ({ page }) => {
   await page.goto(BASE_URL);
@@ -77,10 +77,10 @@ test.describe("Check SlashMenu Functionality", () => {
     // BLOCK_C
     await focusOnEditor(page);
     await page.keyboard.type("A");
-    await page.keyboard.press("Enter", { delay: 100 });
-    await page.keyboard.press("Tab", { delay: 100 });
+    await page.keyboard.press("Enter", { delay: TYPE_DELAY });
+    await page.keyboard.press("Tab", { delay: TYPE_DELAY });
     await page.keyboard.type("B");
-    await page.keyboard.press("ArrowUp", { delay: 100 });
+    await page.keyboard.press("ArrowUp", { delay: TYPE_DELAY });
     await executeSlashCommand(page, "h1");
     await page.waitForSelector(H_ONE_BLOCK_SELECTOR);
     // If done correctly there should be a total on 2 block groups
@@ -97,12 +97,29 @@ test.describe("Check SlashMenu Functionality", () => {
     const firstBlock = page.locator(BLOCK_SELECTOR).nth(0);
     const firstBlockChildren = await firstBlock.locator(BLOCK_SELECTOR).count();
     expect(firstBlockChildren).toBe(1);
-    // Compare doc structure to snapshot
-    const doc = removeAttFromDoc(await getDoc(page), "id");
-    const docSnap = removeAttFromDoc(docStructureSnapshot, "id");
-    expect(JSON.stringify(doc)).toEqual(JSON.stringify(docSnap));
-    // Open slash menu and take screenshot
+  });
+  test("Should be able to create complex documents that match snapshots", async ({
+    page,
+  }) => {
+    await focusOnEditor(page);
+    await executeSlashCommand(page, "h1");
+    await page.keyboard.type("This is a h1", { delay: TYPE_DELAY });
+    await executeSlashCommand(page, "h2");
+    await page.keyboard.type("This is a h2", { delay: TYPE_DELAY });
+    await page.keyboard.press("Enter", { delay: TYPE_DELAY });
+    await page.keyboard.press("Tab", { delay: TYPE_DELAY });
+    await executeSlashCommand(page, "h3");
+    await page.keyboard.type("This is a h3", { delay: TYPE_DELAY });
+    await executeSlashCommand(page, "paragraph");
+    await page.keyboard.type("This is a paragraph", { delay: TYPE_DELAY });
+    await page.keyboard.press("Tab", { delay: TYPE_DELAY });
+    await page.keyboard.press("ArrowUp", { delay: TYPE_DELAY });
+    await executeSlashCommand(page, "h1");
+    await page.keyboard.type("This is a h1 again", { delay: TYPE_DELAY });
     await page.waitForTimeout(1000);
+    // Compare doc object snapshot
+    await compareDocToSnapshot(page);
+    // Compare editor screenshot
     expect(await page.screenshot()).toMatchSnapshot(
       "slash_menu_end_product.png"
     );
