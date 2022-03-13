@@ -29,6 +29,17 @@ export const Document = Node.create({
   content: "block+",
 });
 
+// Override paragraph to disable "Mod-Alt-0" shortcut throw invalid content for doc type error
+const FixedParagraph = Paragraph.extend({
+  addKeyboardShortcuts: () => {
+    return {
+      "Mod-Alt-0": () => {
+        return false;
+      },
+    };
+  },
+});
+
 export const getBlockNoteExtensions = () => {
   const ret: Extensions = [
     extensions.ClipboardTextSerializer,
@@ -63,7 +74,7 @@ export const getBlockNoteExtensions = () => {
     Strike,
     Underline,
     HyperlinkMark,
-    Paragraph,
+    FixedParagraph,
     // custom blocks:
     ...blocks,
     DraggableBlocksExtension,
