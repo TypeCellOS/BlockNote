@@ -106,7 +106,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
         isDisabled={
           !props.editor.can().chain().focus().liftListItem("tcblock").run()
         }
-        mainTooltip="UnIndent"
+        mainTooltip="Decrease Indent"
         secondaryTooltip={formatKeyboardShortcut("Shift+Tab")}
         icon={RiIndentDecrease}
       />
