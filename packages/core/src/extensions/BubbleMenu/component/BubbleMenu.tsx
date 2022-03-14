@@ -47,7 +47,7 @@ function getBlockName(
   } else if (currentBlockListType) {
     return lists[currentBlockListType];
   } else {
-    return "Paragraph";
+    return "Text";
   }
 }
 
@@ -70,6 +70,14 @@ export const BubbleMenu = (props: { editor: Editor }) => {
     <Toolbar>
       <DropdownMenu trigger={currentBlockName}>
         <DropdownItemGroup>
+          <DropdownBlockItem
+            title="Text"
+            icon={RiText}
+            isSelected={currentBlockName === "Paragraph"}
+            onClick={() =>
+              props.editor.chain().focus().unsetBlockHeading().unsetList().run()
+            }
+          />
           <DropdownBlockItem
             title="Heading 1"
             icon={RiH1}
@@ -133,14 +141,6 @@ export const BubbleMenu = (props: { editor: Editor }) => {
                 .unsetBlockHeading()
                 .setBlockList("oli")
                 .run()
-            }
-          />
-          <DropdownBlockItem
-            title="Paragraph"
-            icon={RiText}
-            isSelected={currentBlockName === "Paragraph"}
-            onClick={() =>
-              props.editor.chain().focus().unsetBlockHeading().unsetList().run()
             }
           />
         </DropdownItemGroup>
