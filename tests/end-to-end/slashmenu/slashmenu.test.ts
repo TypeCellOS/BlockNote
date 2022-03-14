@@ -3,9 +3,11 @@ import {
   BASE_URL,
   BLOCK_GROUP_SELECTOR,
   BLOCK_SELECTOR,
+  BULLET_LIST_SELECTOR,
   H_ONE_BLOCK_SELECTOR,
   H_THREE_BLOCK_SELECTOR,
   H_TWO_BLOCK_SELECTOR,
+  NUMBERED_LIST_SELECTOR,
 } from "../../utils/const";
 import {
   focusOnEditor,
@@ -42,6 +44,18 @@ test.describe("Check SlashMenu Functionality", () => {
     await executeSlashCommand(page, "h3");
     await page.keyboard.type("This is a H3");
     await waitForSelectorInEditor(page, H_THREE_BLOCK_SELECTOR);
+  });
+  test("Should be able to create numbered list", async ({ page }) => {
+    await focusOnEditor(page);
+    await executeSlashCommand(page, "numbered");
+    await page.keyboard.type("This is a numbered list");
+    await waitForSelectorInEditor(page, NUMBERED_LIST_SELECTOR);
+  });
+  test("Should be able to create bullet list", async ({ page }) => {
+    await focusOnEditor(page);
+    await executeSlashCommand(page, "bullet");
+    await page.keyboard.type("This is a bullet list");
+    await waitForSelectorInEditor(page, BULLET_LIST_SELECTOR);
   });
   test("Should be able to create paragraph", async ({ page }) => {
     await focusOnEditor(page);
@@ -103,19 +117,23 @@ test.describe("Check SlashMenu Functionality", () => {
   }) => {
     await focusOnEditor(page);
     await executeSlashCommand(page, "h1");
-    await page.keyboard.type("This is a h1", { delay: TYPE_DELAY });
+    await page.keyboard.type("This is a h1");
     await executeSlashCommand(page, "h2");
-    await page.keyboard.type("This is a h2", { delay: TYPE_DELAY });
+    await page.keyboard.type("This is a h2");
     await page.keyboard.press("Enter", { delay: TYPE_DELAY });
     await page.keyboard.press("Tab", { delay: TYPE_DELAY });
     await executeSlashCommand(page, "h3");
-    await page.keyboard.type("This is a h3", { delay: TYPE_DELAY });
+    await page.keyboard.type("This is a h3");
     await executeSlashCommand(page, "paragraph");
-    await page.keyboard.type("This is a paragraph", { delay: TYPE_DELAY });
+    await page.keyboard.type("This is a paragraph");
     await page.keyboard.press("Tab", { delay: TYPE_DELAY });
     await page.keyboard.press("ArrowUp", { delay: TYPE_DELAY });
-    await executeSlashCommand(page, "h1");
-    await page.keyboard.type("This is a h1 again", { delay: TYPE_DELAY });
+    await executeSlashCommand(page, "numbered");
+    await page.keyboard.type("This is");
+    await page.keyboard.press("Enter", { delay: TYPE_DELAY });
+    await page.keyboard.type("a numbered list");
+    await executeSlashCommand(page, "bullet");
+    await page.keyboard.type("And this is a bullet list");
     await page.waitForTimeout(1000);
     // Compare doc object snapshot
     await compareDocToSnapshot(page);

@@ -83,7 +83,47 @@
                 {
                   "type": "tcblock",
                   "attrs": {
-                    "headingType": 1
+                    "listType": "oli"
+                  },
+                  "content": [
+                    {
+                      "type": "tccontent",
+                      "attrs": {
+                        "position": "1."
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "This is"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "tcblock",
+                  "attrs": {
+                    "listType": "oli"
+                  },
+                  "content": [
+                    {
+                      "type": "tccontent",
+                      "attrs": {
+                        "position": "2."
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "a numbered list"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "tcblock",
+                  "attrs": {
+                    "listType": "li"
                   },
                   "content": [
                     {
@@ -92,7 +132,7 @@
                       "content": [
                         {
                           "type": "text",
-                          "text": "This is a h1 again"
+                          "text": "And this is a bullet list"
                         }
                       ]
                     }
