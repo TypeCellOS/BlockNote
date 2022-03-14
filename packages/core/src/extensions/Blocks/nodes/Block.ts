@@ -184,20 +184,22 @@ export const Block = Node.create<IBlock>({
           const currentBlock = findBlock(tr.selection);
           if (!currentBlock) return false;
 
-          if (!dispatch) return false;
-
           // If current blocks content is empty dont create a new block
           if (currentBlock.node.firstChild?.textContent.length === 0) {
-            tr.setNodeMarkup(currentBlock.pos, undefined, attributes);
-            return true;
+            if (dispatch) {
+              tr.setNodeMarkup(currentBlock.pos, undefined, attributes);
+              return true;
+            }
           }
 
           // Create new block after current block
           const endOfBlock = currentBlock.pos + currentBlock.node.nodeSize;
           let newBlock =
             state.schema.nodes["tcblock"].createAndFill(attributes);
-          tr.insert(endOfBlock, newBlock);
-          tr.setSelection(new TextSelection(tr.doc.resolve(endOfBlock + 1)));
+          if (dispatch) {
+            tr.insert(endOfBlock, newBlock);
+            tr.setSelection(new TextSelection(tr.doc.resolve(endOfBlock + 1)));
+          }
           return true;
         },
     };
