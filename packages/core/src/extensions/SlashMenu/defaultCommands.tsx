@@ -1,14 +1,6 @@
 import { RiH1, RiH2, RiH3, RiText } from "react-icons/ri";
-import browser from "../../lib/atlaskit/browser";
+import formatKeyboardShortcut from "../helpers/formatKeyboardShortcut";
 import { SlashMenuGroups, SlashMenuItem } from "./SlashMenuItem";
-
-function formatKeyboardShortcut(shortcut: string) {
-  if (browser.ios || browser.mac) {
-    return shortcut.replace("Mod", "⌘").replace("Alt", "⌥");
-  } else {
-    return shortcut.replace("Mod", "Ctrl");
-  }
-}
 
 /**
  * An array containing commands for creating all default blocks.
