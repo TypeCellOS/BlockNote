@@ -174,8 +174,8 @@ export const Block = Node.create<IBlock>({
                 ...node.attrs,
                 listType: undefined,
               });
-              return true;
             }
+            return true;
           }
           return false;
         },
@@ -192,8 +192,8 @@ export const Block = Node.create<IBlock>({
                 ...node.attrs,
                 listType: type,
               });
-              return true;
             }
+            return true;
           }
           return false;
         },
