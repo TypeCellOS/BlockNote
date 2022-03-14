@@ -30,35 +30,41 @@ function formatKeyboardShortcut(shortcut: string) {
   }
 }
 
+type ListType = "li" | "oli";
+
+function getBlockName(
+  currentBlockHeading: number | undefined,
+  currentBlockListType: ListType | undefined
+) {
+  const headings = ["Heading 1", "Heading 2", "Heading 3"];
+  const lists = {
+    li: "Bullet List",
+    oli: "Numbered List",
+  };
+  // A heading that's also a list, should show as Heading
+  if (currentBlockHeading) {
+    return headings[currentBlockHeading - 1];
+  } else if (currentBlockListType) {
+    return lists[currentBlockListType];
+  } else {
+    return "Paragraph";
+  }
+}
+
 // TODO: add list options, indentation
 export const BubbleMenu = (props: { editor: Editor }) => {
   useEditorForceUpdate(props.editor);
 
   const currentBlock = findBlock(props.editor.state.selection);
-  const currentBlockHeading = currentBlock?.node.attrs.headingType;
-  const currentBlockListType = currentBlock?.node.attrs.listType;
+  const currentBlockHeading: number | undefined =
+    currentBlock?.node.attrs.headingType;
+  const currentBlockListType: ListType | undefined =
+    currentBlock?.node.attrs.listType;
 
-  const currentBlockName = (() => {
-    // A heading that's also a list, should show as Heading
-    if (currentBlockHeading) {
-      switch (currentBlockHeading) {
-        case 1:
-          return "Heading 1";
-        case 2:
-          return "Heading 2";
-        case 3:
-          return "Heading 3";
-      }
-    }
-    switch (currentBlockListType) {
-      case "li": //bullet list
-        return "Bullet List";
-      case "oli": //numbered list
-        return "Numbered List";
-      default:
-        return "Paragraph";
-    }
-  })();
+  const currentBlockName = getBlockName(
+    currentBlockHeading,
+    currentBlockListType
+  );
 
   return (
     <Toolbar>
