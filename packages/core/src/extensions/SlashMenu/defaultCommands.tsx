@@ -1,4 +1,11 @@
-import { RiH1, RiH2, RiH3, RiText } from "react-icons/ri";
+import {
+  RiH1,
+  RiH2,
+  RiH3,
+  RiListOrdered,
+  RiListUnordered,
+  RiText,
+} from "react-icons/ri";
 import formatKeyboardShortcut from "../helpers/formatKeyboardShortcut";
 import { SlashMenuGroups, SlashMenuItem } from "./SlashMenuItem";
 
@@ -60,6 +67,42 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
     formatKeyboardShortcut("Mod-Alt-3")
   ),
 
+  // Command for creating an ordered list
+  numberedList: new SlashMenuItem(
+    "Numbered List",
+    SlashMenuGroups.BASIC_BLOCKS,
+    (editor, range) => {
+      return editor
+        .chain()
+        .focus()
+        .deleteRange(range)
+        .addNewBlockAsSibling({ listType: "oli" })
+        .run();
+    },
+    ["li", "list", "numberedlist", "numbered list"],
+    RiListOrdered,
+    "Used to display a numbered list",
+    formatKeyboardShortcut("Mod-Shift-7")
+  ),
+
+  // Command for creating a bullet list
+  bulletlist: new SlashMenuItem(
+    "Bullet List",
+    SlashMenuGroups.BASIC_BLOCKS,
+    (editor, range) => {
+      return editor
+        .chain()
+        .focus()
+        .deleteRange(range)
+        .addNewBlockAsSibling({ listType: "li" })
+        .run();
+    },
+    ["ul", "list", "bulletlist", "bullet list"],
+    RiListUnordered,
+    "Used to display an unordered list",
+    formatKeyboardShortcut("Mod-Shift-8")
+  ),
+
   // Command for creating a paragraph (pretty useless)
   paragraph: new SlashMenuItem(
     "Paragraph",
@@ -77,49 +120,6 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
     "Used for the body of your document",
     formatKeyboardShortcut("Mod-Alt-0")
   ),
-
-  // Command for creating a bullet list
-  // bulletlist: new SlashCommand(
-  //   "Bullet List",
-  //   CommandGroup.BASIC_BLOCKS,
-  //   (editor, range) => {
-  //     const paragraph = editor.schema.node("paragraph");
-  //     const listItem = editor.schema.node(
-  //       "listItem",
-  //       { "block-id": uniqueId.generate() },
-  //       paragraph
-  //     );
-  //     const node = editor.schema.node(
-  //       "bulletList",
-  //       { "block-id": uniqueId.generate() },
-  //       listItem
-  //     );
-
-  //     replaceRangeWithNode(editor, range, node);
-
-  //     return true;
-  //   },
-  //   ["ul", "list", "bulletlist"],
-  //   UnorderedListIcon,
-  //   "Used to display an unordered list item"
-  // ),
-
-  // Command for creating an ordered list
-  // orderedlist: new SlashCommand(
-  //   "Ordered List",
-  //   CommandGroup.BASIC_BLOCKS,
-  //   (editor, range) => {
-  //     const paragraph = editor.schema.node("paragraph");
-  //     const listItem = editor.schema.node(
-  //       "listItem",
-  //       { "block-id": uniqueId.generate() },
-  //       paragraph
-  //     );
-  //     const node = editor.schema.node(
-  //       "orderedList",
-  //       { "block-id": uniqueId.generate() },
-  //       listItem
-  //     );
 
   //     replaceRangeWithNode(editor, range, node);
 

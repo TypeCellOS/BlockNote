@@ -12,7 +12,7 @@ export interface IBlock {
 }
 
 export type Level = 1 | 2 | 3;
-
+export type ListType = "li" | "oli";
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
     blockHeading: {
@@ -27,7 +27,10 @@ declare module "@tiptap/core" {
 
       unsetList: () => ReturnType;
 
-      addNewBlockAsSibling: (attributes?: { headingType: Level }) => ReturnType;
+      addNewBlockAsSibling: (attributes?: {
+        headingType?: Level;
+        listType?: ListType;
+      }) => ReturnType;
     };
   }
 }
@@ -346,10 +349,12 @@ export const Block = Node.create<IBlock>({
       "Shift-Tab": () => {
         return this.editor.commands.liftListItem("tcblock");
       },
-      "Mod-Alt-0": () => this.editor.commands.unsetBlockHeading(), // There is a weird bug with this specific shortcut
+      "Mod-Alt-0": () =>
+        this.editor.chain().unsetList().unsetBlockHeading().run(),
       "Mod-Alt-1": () => this.editor.commands.setBlockHeading({ level: 1 }),
       "Mod-Alt-2": () => this.editor.commands.setBlockHeading({ level: 2 }),
       "Mod-Alt-3": () => this.editor.commands.setBlockHeading({ level: 3 }),
+      // TODO: Add shortcuts for numbered and bullet list
     };
   },
 });
