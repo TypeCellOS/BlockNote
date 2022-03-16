@@ -204,10 +204,7 @@ export const createDraggableBlocksPlugin = () => {
           const win = block.node.ownerDocument.defaultView!;
           const dropElementRect = dropElement.getBoundingClientRect();
 
-          rect.top +=
-            rect.height > dropElementRect.height * 2
-              ? rect.height / 2 - dropElementRect.height / 4
-              : dropElementRect.height / 2;
+          rect.top += rect.height / 2 - dropElementRect.height / 2;
           rect.left += win.pageXOffset;
 
           dropElement.style.left = -WIDTH + rect.left + "px";
