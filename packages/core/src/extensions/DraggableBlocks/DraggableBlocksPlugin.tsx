@@ -203,12 +203,15 @@ export const createDraggableBlocksPlugin = () => {
           const rect = absoluteRect(blockContent);
           const win = block.node.ownerDocument.defaultView!;
           const dropElementRect = dropElement.getBoundingClientRect();
-          // rect.top += rect.height / 2 - 15;
-          rect.top += rect.height / 2 + dropElementRect.height / 2;
+
+          rect.top +=
+            rect.height > dropElementRect.height * 2
+              ? rect.height / 2 - dropElementRect.height / 4
+              : dropElementRect.height / 2;
           rect.left += win.pageXOffset;
 
           dropElement.style.left = -WIDTH + rect.left + "px";
-          dropElement.style.top = `calc(${rect.top}px - 1.5em)`; // This calc deducts the height of the blocks content
+          dropElement.style.top = rect.top + "px";
 
           ReactDOM.render(
             <DragHandle
