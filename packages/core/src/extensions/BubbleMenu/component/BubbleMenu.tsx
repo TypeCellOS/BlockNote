@@ -179,9 +179,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
         onClick={() =>
           props.editor.chain().focus().sinkListItem("tcblock").run()
         }
-        isDisabled={
-          !props.editor.can().chain().focus().sinkListItem("tcblock").run()
-        }
+        isDisabled={!props.editor.can().sinkListItem("tcblock")}
         mainTooltip="Indent"
         secondaryTooltip={formatKeyboardShortcut("Tab")}
         icon={RiIndentIncrease}
@@ -191,9 +189,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
         onClick={() =>
           props.editor.chain().focus().liftListItem("tcblock").run()
         }
-        isDisabled={
-          !props.editor.can().chain().focus().liftListItem("tcblock").run()
-        }
+        isDisabled={!props.editor.can().liftListItem("tcblock")}
         mainTooltip="Decrease Indent"
         secondaryTooltip={formatKeyboardShortcut("Shift+Tab")}
         icon={RiIndentDecrease}
