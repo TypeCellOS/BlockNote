@@ -105,6 +105,10 @@ export const createDraggableBlocksPlugin = () => {
 
   const WIDTH = 24;
 
+  // When true, the drag handle with be anchored at the same level as root elements
+  // When false, the drag handle with be just to the left of the element
+  const horizontalPosAnchoredAtRoot = true;
+
   let menuShown = false;
 
   const onShow = () => {
@@ -197,17 +201,23 @@ export const createDraggableBlocksPlugin = () => {
           const blockContent = block.node.querySelector(
             "[class*=blockContent]"
           ) as HTMLElement; // Blocks content node
+          const firstBlockGroup = document.querySelector(
+            ".ProseMirror > [class*='blockGroup']"
+          ) as HTMLElement; // first block group node
 
-          if (!blockContent) return true;
+          if (!blockContent || !firstBlockGroup) return true;
 
           const rect = absoluteRect(blockContent);
           const win = block.node.ownerDocument.defaultView!;
           const dropElementRect = dropElement.getBoundingClientRect();
-
+          const horizontalAnchor = absoluteRect(firstBlockGroup).left; // Anchor to the left of the first block group
+          const left =
+            (horizontalPosAnchoredAtRoot ? horizontalAnchor : rect.left) -
+            WIDTH +
+            win.pageXOffset;
           rect.top += rect.height / 2 - dropElementRect.height / 2;
-          rect.left += win.pageXOffset;
 
-          dropElement.style.left = -WIDTH + rect.left + "px";
+          dropElement.style.left = left + "px";
           dropElement.style.top = rect.top + "px";
 
           ReactDOM.render(
