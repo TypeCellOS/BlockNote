@@ -1,7 +1,7 @@
 import Tippy from "@tippyjs/react";
 import DragHandleMenu from "./DragHandleMenu";
 import styles from "./DragHandle.module.css";
-import React from "react";
+import React, { useState } from "react";
 import { EditorView } from "prosemirror-view";
 import { TextSelection } from "prosemirror-state";
 import { findBlock } from "../../Blocks/helpers/findBlock";
@@ -12,6 +12,8 @@ export const DragHandle = (props: {
   onShow?: () => void;
   onHide?: () => void;
 }) => {
+  const [deleted, setDeleted] = useState<boolean>(false);
+
   const onDelete = () => {
     const pos = props.view.posAtCoords(props.coords);
     if (!pos) return;
@@ -28,8 +30,12 @@ export const DragHandle = (props: {
           )
         );
       }
+      setDeleted(true);
     }
   };
+
+  if (deleted) return null;
+
   return (
     <Tippy
       content={<DragHandleMenu onDelete={onDelete} />}
