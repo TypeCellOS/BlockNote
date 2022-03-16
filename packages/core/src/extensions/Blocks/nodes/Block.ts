@@ -10,6 +10,7 @@ export interface IBlock {
 }
 
 export type Level = 1 | 2 | 3;
+export type ListType = "li" | "oli";
 
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
@@ -24,6 +25,8 @@ declare module "@tiptap/core" {
       unsetBlockHeading: () => ReturnType;
 
       unsetList: () => ReturnType;
+
+      setBlockList: (type: ListType) => ReturnType;
     };
   }
 }
@@ -170,6 +173,24 @@ export const Block = Node.create<IBlock>({
               tr.setNodeMarkup(nodePos, undefined, {
                 ...node.attrs,
                 listType: undefined,
+              });
+            }
+            return true;
+          }
+          return false;
+        },
+      setBlockList:
+        (type) =>
+        ({ tr, dispatch }) => {
+          const node = tr.selection.$anchor.node(-1);
+          const nodePos = tr.selection.$anchor.posAtIndex(0, -1) - 1;
+
+          // const node2 = tr.doc.nodeAt(nodePos);
+          if (node.type.name === "tcblock") {
+            if (dispatch) {
+              tr.setNodeMarkup(nodePos, undefined, {
+                ...node.attrs,
+                listType: type,
               });
             }
             return true;
