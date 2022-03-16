@@ -4,10 +4,14 @@ import {
   RiBold,
   RiH1,
   RiH2,
+  RiH3,
   RiItalic,
   RiLink,
   RiStrikethrough,
   RiUnderline,
+  RiText,
+  RiListOrdered,
+  RiListUnordered,
 } from "react-icons/ri";
 import { SimpleToolbarButton } from "../../../shared/components/toolbar/SimpleToolbarButton";
 import { Toolbar } from "../../../shared/components/toolbar/Toolbar";
@@ -15,40 +19,124 @@ import { useEditorForceUpdate } from "../../../shared/hooks/useEditorForceUpdate
 import { findBlock } from "../../Blocks/helpers/findBlock";
 import formatKeyboardShortcut from "../../helpers/formatKeyboardShortcut";
 import LinkToolbarButton from "./LinkToolbarButton";
+import DropdownMenu, { DropdownItemGroup } from "@atlaskit/dropdown-menu";
+import DropdownBlockItem from "./DropdownBlockItem";
+
+type ListType = "li" | "oli";
+
+function getBlockName(
+  currentBlockHeading: number | undefined,
+  currentBlockListType: ListType | undefined
+) {
+  const headings = ["Heading 1", "Heading 2", "Heading 3"];
+  const lists = {
+    li: "Bullet List",
+    oli: "Numbered List",
+  };
+  // A heading that's also a list, should show as Heading
+  if (currentBlockHeading) {
+    return headings[currentBlockHeading - 1];
+  } else if (currentBlockListType) {
+    return lists[currentBlockListType];
+  } else {
+    return "Text";
+  }
+}
 
 // TODO: add list options, indentation
 export const BubbleMenu = (props: { editor: Editor }) => {
   useEditorForceUpdate(props.editor);
 
-  // TODO: For heading, there should be a drop down menu similar to notion
-  const isHeadingActive =
-    findBlock(props.editor.state.selection)?.node.attrs.headingType === 1;
+  const currentBlock = findBlock(props.editor.state.selection);
+  const currentBlockHeading: number | undefined =
+    currentBlock?.node.attrs.headingType;
+  const currentBlockListType: ListType | undefined =
+    currentBlock?.node.attrs.listType;
 
-  const isHeading2Active =
-    findBlock(props.editor.state.selection)?.node.attrs.headingType === 2;
+  const currentBlockName = getBlockName(
+    currentBlockHeading,
+    currentBlockListType
+  );
 
   return (
     <Toolbar>
-      <SimpleToolbarButton
-        onClick={() =>
-          isHeadingActive
-            ? props.editor.chain().focus().unsetBlockHeading().run()
-            : props.editor.chain().focus().setBlockHeading({ level: 1 }).run()
-        }
-        isSelected={isHeadingActive}
-        mainTooltip="Heading"
-        icon={RiH1}
-      />
-      <SimpleToolbarButton
-        onClick={() =>
-          isHeading2Active
-            ? props.editor.chain().focus().unsetBlockHeading().run()
-            : props.editor.chain().focus().setBlockHeading({ level: 2 }).run()
-        }
-        isSelected={isHeading2Active}
-        mainTooltip="Heading 2"
-        icon={RiH2}
-      />
+      <DropdownMenu trigger={currentBlockName}>
+        <DropdownItemGroup>
+          <DropdownBlockItem
+            title="Text"
+            icon={RiText}
+            isSelected={currentBlockName === "Paragraph"}
+            onClick={() =>
+              props.editor.chain().focus().unsetBlockHeading().unsetList().run()
+            }
+          />
+          <DropdownBlockItem
+            title="Heading 1"
+            icon={RiH1}
+            isSelected={currentBlockName === "Heading 1"}
+            onClick={() =>
+              props.editor
+                .chain()
+                .focus()
+                .unsetList()
+                .setBlockHeading({ level: 1 })
+                .run()
+            }
+          />
+          <DropdownBlockItem
+            title="Heading 2"
+            icon={RiH2}
+            isSelected={currentBlockName === "Heading 2"}
+            onClick={() =>
+              props.editor
+                .chain()
+                .focus()
+                .unsetList()
+                .setBlockHeading({ level: 2 })
+                .run()
+            }
+          />
+          <DropdownBlockItem
+            title="Heading 3"
+            icon={RiH3}
+            isSelected={currentBlockName === "Heading 3"}
+            onClick={() =>
+              props.editor
+                .chain()
+                .focus()
+                .unsetList()
+                .setBlockHeading({ level: 3 })
+                .run()
+            }
+          />
+          <DropdownBlockItem
+            title="Bullet List"
+            icon={RiListUnordered}
+            isSelected={currentBlockName === "Bullet List"}
+            onClick={() =>
+              props.editor
+                .chain()
+                .focus()
+                .unsetBlockHeading()
+                .setBlockList("li")
+                .run()
+            }
+          />
+          <DropdownBlockItem
+            title="Numbered List"
+            icon={RiListOrdered}
+            isSelected={currentBlockName === "Numbered List"}
+            onClick={() =>
+              props.editor
+                .chain()
+                .focus()
+                .unsetBlockHeading()
+                .setBlockList("oli")
+                .run()
+            }
+          />
+        </DropdownItemGroup>
+      </DropdownMenu>
       <SimpleToolbarButton
         onClick={() => props.editor.chain().focus().toggleBold().run()}
         isSelected={props.editor.isActive("bold")}

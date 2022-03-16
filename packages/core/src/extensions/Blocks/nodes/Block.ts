@@ -13,6 +13,7 @@ export interface IBlock {
 
 export type Level = 1 | 2 | 3;
 export type ListType = "li" | "oli";
+
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
     blockHeading: {
@@ -31,6 +32,8 @@ declare module "@tiptap/core" {
         headingType?: Level;
         listType?: ListType;
       }) => ReturnType;
+
+      setBlockList: (type: ListType) => ReturnType;
     };
   }
 }
@@ -204,6 +207,24 @@ export const Block = Node.create<IBlock>({
             tr.setSelection(new TextSelection(tr.doc.resolve(endOfBlock + 1)));
           }
           return true;
+        },
+      setBlockList:
+        (type) =>
+        ({ tr, dispatch }) => {
+          const node = tr.selection.$anchor.node(-1);
+          const nodePos = tr.selection.$anchor.posAtIndex(0, -1) - 1;
+
+          // const node2 = tr.doc.nodeAt(nodePos);
+          if (node.type.name === "tcblock") {
+            if (dispatch) {
+              tr.setNodeMarkup(nodePos, undefined, {
+                ...node.attrs,
+                listType: type,
+              });
+            }
+            return true;
+          }
+          return false;
         },
     };
   },
