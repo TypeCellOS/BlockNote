@@ -201,7 +201,13 @@ export const createDraggableBlocksPlugin = () => {
           dropElement.style.top = rect.top + "px";
 
           ReactDOM.render(
-            <DragHandle onShow={onShow} onHide={onHide} key={block.id + ""} />,
+            <DragHandle
+              onShow={onShow}
+              onHide={onHide}
+              key={block.id + ""}
+              view={view}
+              coords={coords}
+            />,
             dropElement
           );
           return true;

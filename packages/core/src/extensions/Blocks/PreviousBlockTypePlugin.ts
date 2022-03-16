@@ -23,13 +23,13 @@ export const PreviousBlockTypePlugin = () => {
       return {
         update: async (view, _prevState) => {
           if (this.key?.getState(view.state).needsUpdate) {
-            // use setImmediate to clear the decorations so that at least
+            // use setTimeout 0 to clear the decorations so that at least
             // for one DOM-render the decorations have been applied
-            setImmediate(() => {
+            setTimeout(() => {
               view.dispatch(
                 view.state.tr.setMeta(PLUGIN_KEY, { clearUpdate: true })
               );
-            });
+            }, 0);
           }
         },
       };
