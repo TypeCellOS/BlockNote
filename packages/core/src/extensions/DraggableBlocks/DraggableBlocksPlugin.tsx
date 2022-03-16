@@ -191,7 +191,16 @@ export const createDraggableBlocksPlugin = () => {
             return true;
           }
 
-          const rect = absoluteRect(block.node);
+          // I want the dim of the blocks content node
+          // because if the block contains other blocks
+          // Its dims change, moving the position of the drag handle
+          const blockContent = block.node.querySelector(
+            "[class*=blockContent]"
+          ) as HTMLElement; // Blocks content node
+
+          if (!blockContent) return true;
+
+          const rect = absoluteRect(blockContent);
           const win = block.node.ownerDocument.defaultView!;
           const dropElementRect = dropElement.getBoundingClientRect();
           // rect.top += rect.height / 2 - 15;
