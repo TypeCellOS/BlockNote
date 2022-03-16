@@ -180,7 +180,7 @@ export const createDraggableBlocksPlugin = () => {
             // The submenu is open, don't move draghandle
             return true;
           }
-          let coords = {
+          const coords = {
             left: view.dom.clientWidth / 2, // take middle of editor
             top: event.clientY,
           };
@@ -191,14 +191,15 @@ export const createDraggableBlocksPlugin = () => {
             return true;
           }
 
-          let rect = absoluteRect(block.node);
-          let win = block.node.ownerDocument.defaultView!;
-          rect.top += win.pageYOffset;
+          const rect = absoluteRect(block.node);
+          const win = block.node.ownerDocument.defaultView!;
+          const dropElementRect = dropElement.getBoundingClientRect();
+          // rect.top += rect.height / 2 - 15;
+          rect.top += rect.height / 2 + dropElementRect.height / 2;
           rect.left += win.pageXOffset;
-          //   rect.width = WIDTH + "px";
 
           dropElement.style.left = -WIDTH + rect.left + "px";
-          dropElement.style.top = rect.top + "px";
+          dropElement.style.top = `calc(${rect.top}px - 1.5em)`; // This calc deducts the height of the blocks content
 
           ReactDOM.render(
             <DragHandle
