@@ -375,6 +375,8 @@ export const Block = Node.create<IBlock>({
       "Mod-Alt-1": () => this.editor.commands.setBlockHeading({ level: 1 }),
       "Mod-Alt-2": () => this.editor.commands.setBlockHeading({ level: 2 }),
       "Mod-Alt-3": () => this.editor.commands.setBlockHeading({ level: 3 }),
+      "Mod-Shift-7": () => this.editor.commands.setBlockList("li"),
+      "Mod-Shift-8": () => this.editor.commands.setBlockList("oli"),
       // TODO: Add shortcuts for numbered and bullet list
     };
   },
