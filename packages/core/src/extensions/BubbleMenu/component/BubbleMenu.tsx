@@ -189,7 +189,14 @@ export const BubbleMenu = (props: { editor: Editor }) => {
         onClick={() =>
           props.editor.chain().focus().liftListItem("tcblock").run()
         }
-        isDisabled={!props.editor.can().liftListItem("tcblock")}
+        isDisabled={
+          !props.editor.can().command(({ state }) => {
+            const block = findBlock(state.selection);
+            if (!block) return false;
+            // If the depth is greater than 2 you can lift
+            return block.depth > 2;
+          })
+        }
         mainTooltip="Decrease Indent"
         secondaryTooltip={formatKeyboardShortcut("Shift+Tab")}
         icon={RiIndentDecrease}
