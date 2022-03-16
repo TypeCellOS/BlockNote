@@ -120,6 +120,7 @@ export const createDraggableBlocksPlugin = () => {
       dropElement = document.createElement("div");
       dropElement.setAttribute("draggable", "true");
       dropElement.style.position = "absolute";
+      document.body.append(dropElement);
 
       dropElement.addEventListener("dragstart", (e) =>
         dragStart(e, editorView)
