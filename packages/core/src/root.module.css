@@ -1,0 +1,19 @@
+/*
+bnRoot should be applied to all top-level elements
+
+This includes the Prosemirror editor, but also <div> element such as 
+Tippy popups that are appended to document.body directly
+*/
+.bnRoot {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+.bnRoot *,
+.bnRoot *::before,
+.bnRoot *::after {
+  -webkit-box-sizing: inherit;
+  -moz-box-sizing: inherit;
+  box-sizing: inherit;
+}
