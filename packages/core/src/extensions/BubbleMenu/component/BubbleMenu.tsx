@@ -9,26 +9,20 @@ import {
   RiLink,
   RiStrikethrough,
   RiUnderline,
+  RiIndentIncrease,
+  RiIndentDecrease,
   RiText,
   RiListOrdered,
   RiListUnordered,
 } from "react-icons/ri";
-import browser from "../../../lib/atlaskit/browser";
 import { SimpleToolbarButton } from "../../../shared/components/toolbar/SimpleToolbarButton";
 import { Toolbar } from "../../../shared/components/toolbar/Toolbar";
 import { useEditorForceUpdate } from "../../../shared/hooks/useEditorForceUpdate";
 import { findBlock } from "../../Blocks/helpers/findBlock";
+import formatKeyboardShortcut from "../../helpers/formatKeyboardShortcut";
 import LinkToolbarButton from "./LinkToolbarButton";
 import DropdownMenu, { DropdownItemGroup } from "@atlaskit/dropdown-menu";
 import DropdownBlockItem from "./DropdownBlockItem";
-
-function formatKeyboardShortcut(shortcut: string) {
-  if (browser.ios || browser.mac) {
-    return shortcut.replace("Mod", "⌘");
-  } else {
-    return shortcut.replace("Mod", "Ctrl");
-  }
-}
 
 type ListType = "li" | "oli";
 
@@ -168,11 +162,38 @@ export const BubbleMenu = (props: { editor: Editor }) => {
       />
       <SimpleToolbarButton
         onClick={() => props.editor.chain().focus().toggleStrike().run()}
-        isSelected={props.editor.isActive("strike")}
+        isDisabled={props.editor.isActive("strike")}
         mainTooltip="Strike-through"
         secondaryTooltip={formatKeyboardShortcut("Mod+Shift+X")}
         icon={RiStrikethrough}
       />
+      <SimpleToolbarButton
+        onClick={() =>
+          props.editor.chain().focus().sinkListItem("tcblock").run()
+        }
+        isDisabled={!props.editor.can().sinkListItem("tcblock")}
+        mainTooltip="Indent"
+        secondaryTooltip={formatKeyboardShortcut("Tab")}
+        icon={RiIndentIncrease}
+      />
+
+      <SimpleToolbarButton
+        onClick={() =>
+          props.editor.chain().focus().liftListItem("tcblock").run()
+        }
+        isDisabled={
+          !props.editor.can().command(({ state }) => {
+            const block = findBlock(state.selection);
+            if (!block) return false;
+            // If the depth is greater than 2 you can lift
+            return block.depth > 2;
+          })
+        }
+        mainTooltip="Decrease Indent"
+        secondaryTooltip={formatKeyboardShortcut("Shift+Tab")}
+        icon={RiIndentDecrease}
+      />
+
       <LinkToolbarButton
         // editor={props.editor}
         isSelected={props.editor.isActive("link")}
