@@ -10,8 +10,6 @@ import Underline from "@tiptap/extension-underline";
 // import Placeholder from "@tiptap/extension-placeholder";
 import Strike from "@tiptap/extension-strike";
 import Text from "@tiptap/extension-text";
-import Paragraph from "@tiptap/extension-paragraph";
-
 import { Node } from "@tiptap/core";
 import UniqueID from "./extensions/UniqueID/UniqueID";
 import { DraggableBlocksExtension } from "./extensions/DraggableBlocks/DraggableBlocksExtension";
@@ -23,6 +21,7 @@ import { TrailingNode } from "./extensions/TrailingNode/TrailingNodeExtension";
 import blockStyles from "./extensions/Blocks/nodes/Block.module.css";
 import { Placeholder } from "./extensions/Placeholder/PlaceholderExtension";
 import SlashMenuExtension from "./extensions/SlashMenu";
+import { FixedParagraph } from "./extensions/Paragraph/FixedParagraph";
 export const Document = Node.create({
   name: "doc",
   topNode: true,
@@ -63,7 +62,7 @@ export const getBlockNoteExtensions = () => {
     Strike,
     Underline,
     HyperlinkMark,
-    Paragraph,
+    FixedParagraph,
     // custom blocks:
     ...blocks,
     DraggableBlocksExtension,

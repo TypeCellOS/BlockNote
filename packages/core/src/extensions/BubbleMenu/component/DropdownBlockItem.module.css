@@ -1,0 +1,13 @@
+.item_container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  min-width: 100px;
+  gap: 1em;
+}
+.logo_and_item_container {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 0.5rem;
+}
