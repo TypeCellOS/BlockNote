@@ -9,6 +9,8 @@ import {
   RiLink,
   RiStrikethrough,
   RiUnderline,
+  RiIndentIncrease,
+  RiIndentDecrease,
   RiText,
   RiListOrdered,
   RiListUnordered,
@@ -160,11 +162,38 @@ export const BubbleMenu = (props: { editor: Editor }) => {
       />
       <SimpleToolbarButton
         onClick={() => props.editor.chain().focus().toggleStrike().run()}
-        isSelected={props.editor.isActive("strike")}
+        isDisabled={props.editor.isActive("strike")}
         mainTooltip="Strike-through"
         secondaryTooltip={formatKeyboardShortcut("Mod+Shift+X")}
         icon={RiStrikethrough}
       />
+      <SimpleToolbarButton
+        onClick={() =>
+          props.editor.chain().focus().sinkListItem("tcblock").run()
+        }
+        isDisabled={!props.editor.can().sinkListItem("tcblock")}
+        mainTooltip="Indent"
+        secondaryTooltip={formatKeyboardShortcut("Tab")}
+        icon={RiIndentIncrease}
+      />
+
+      <SimpleToolbarButton
+        onClick={() =>
+          props.editor.chain().focus().liftListItem("tcblock").run()
+        }
+        isDisabled={
+          !props.editor.can().command(({ state }) => {
+            const block = findBlock(state.selection);
+            if (!block) return false;
+            // If the depth is greater than 2 you can lift
+            return block.depth > 2;
+          })
+        }
+        mainTooltip="Decrease Indent"
+        secondaryTooltip={formatKeyboardShortcut("Shift+Tab")}
+        icon={RiIndentDecrease}
+      />
+
       <LinkToolbarButton
         // editor={props.editor}
         isSelected={props.editor.isActive("link")}
