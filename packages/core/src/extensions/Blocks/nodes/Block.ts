@@ -194,8 +194,8 @@ export const Block = Node.create<IBlock>({
           if (currentBlock.node.firstChild?.textContent.length === 0) {
             if (dispatch) {
               tr.setNodeMarkup(currentBlock.pos, undefined, attributes);
-              return true;
             }
+            return true;
           }
 
           // Create new block after current block
