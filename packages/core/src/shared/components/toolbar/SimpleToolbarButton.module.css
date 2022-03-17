@@ -7,3 +7,7 @@
 .isSelected {
   fill: white;
 }
+
+.isDisabled {
+  fill: gray;
+}
