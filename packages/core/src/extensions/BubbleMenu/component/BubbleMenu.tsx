@@ -15,22 +15,14 @@ import {
   RiListOrdered,
   RiListUnordered,
 } from "react-icons/ri";
-import browser from "../../../lib/atlaskit/browser";
 import { SimpleToolbarButton } from "../../../shared/components/toolbar/SimpleToolbarButton";
 import { Toolbar } from "../../../shared/components/toolbar/Toolbar";
 import { useEditorForceUpdate } from "../../../shared/hooks/useEditorForceUpdate";
 import { findBlock } from "../../Blocks/helpers/findBlock";
+import formatKeyboardShortcut from "../../helpers/formatKeyboardShortcut";
 import LinkToolbarButton from "./LinkToolbarButton";
 import DropdownMenu, { DropdownItemGroup } from "@atlaskit/dropdown-menu";
 import DropdownBlockItem from "./DropdownBlockItem";
-
-function formatKeyboardShortcut(shortcut: string) {
-  if (browser.ios || browser.mac) {
-    return shortcut.replace("Mod", "⌘");
-  } else {
-    return shortcut.replace("Mod", "Ctrl");
-  }
-}
 
 type ListType = "li" | "oli";
 

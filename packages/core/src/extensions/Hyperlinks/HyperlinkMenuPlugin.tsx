@@ -9,7 +9,7 @@ import {
   HyperlinkEditorMenuProps,
 } from "./menus/HyperlinkEditMenu";
 import React from "react";
-
+import rootStyles from "../../root.module.css";
 const PLUGIN_KEY = new PluginKey("HyperlinkMenuPlugin");
 
 /**
@@ -32,6 +32,7 @@ const tippyWrapperHyperlinkEditMenu = (
       showOnCreate={true}
       trigger={"click"} // so that we don't hide on mouse out
       hideOnClick
+      className={rootStyles.bnRoot}
       appendTo={document.body}>
       <div></div>
     </Tippy>
