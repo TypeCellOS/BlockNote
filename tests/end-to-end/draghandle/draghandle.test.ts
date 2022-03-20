@@ -2,6 +2,7 @@ import { test, expect, Page } from "@playwright/test";
 import {
   BASE_URL,
   DRAGHANDLE,
+  EDITOR_SELECTOR,
   H_ONE_BLOCK_SELECTOR,
   H_THREE_BLOCK_SELECTOR,
   H_TWO_BLOCK_SELECTOR,
@@ -43,7 +44,9 @@ test.describe("Check Draghandle functionality", () => {
     await page.waitForSelector(TIPPY_MENU);
     await page.waitForTimeout(1000);
     // Compare editor screenshot
-    expect(await page.screenshot()).toMatchSnapshot("draghandlemenu.png");
+    expect(await page.locator(EDITOR_SELECTOR).screenshot()).toMatchSnapshot(
+      "draghandlemenu.png"
+    );
   });
 
   test("Clicking delete button should delete block", async () => {
