@@ -41,18 +41,29 @@ export const DragHandle = (props: {
       TextSelection.create(props.view.state.doc, pos.pos)
     );
     if (!currentBlock) return false;
-    // Create new block after current block
-    const endOfBlock = currentBlock.pos + currentBlock.node.nodeSize;
-    let newBlock = props.view.state.schema.nodes["tcblock"].createAndFill();
-    props.view.state.tr.insert(endOfBlock, newBlock);
-    // props.view.state.tr.setSelection(
-    //   new TextSelection(props.view.state.tr.doc.resolve(endOfBlock + 1))
-    // );
-    props.view.dispatch(props.view.state.tr.insert(endOfBlock, newBlock));
+    // If current blocks content is empty dont create a new block
+    if (currentBlock.node.firstChild?.textContent.length === 0) {
+      props.view.dispatch(props.view.state.tr.setNodeMarkup(currentBlock.pos));
+    } else {
+      // Create new block after current block
+      const endOfBlock = currentBlock.pos + currentBlock.node.nodeSize;
+      let newBlock = props.view.state.schema.nodes["tcblock"].createAndFill();
+      props.view.state.tr.insert(endOfBlock, newBlock);
+      props.view.dispatch(props.view.state.tr.insert(endOfBlock, newBlock));
+      props.view.dispatch(
+        props.view.state.tr.setSelection(
+          new TextSelection(props.view.state.tr.doc.resolve(endOfBlock + 1))
+        )
+      );
+    }
+    props.view.focus();
     props.view.dispatch(
-      props.view.state.tr.setSelection(
-        new TextSelection(props.view.state.tr.doc.resolve(endOfBlock + 1))
-      )
+      props.view.state.tr
+        .scrollIntoView()
+        .setMeta("suggestions-slash-commands$", {
+          activate: true,
+          type: "drag",
+        })
     );
   };
 

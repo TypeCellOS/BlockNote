@@ -2,6 +2,7 @@ import { Editor, Range } from "@tiptap/core";
 import { escapeRegExp, groupBy } from "lodash";
 import { Plugin, PluginKey, Selection } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
+import { findBlock } from "../../../extensions/Blocks/helpers/findBlock";
 import SuggestionItem from "./SuggestionItem";
 
 import createRenderer, {
@@ -42,6 +43,8 @@ export type SuggestionPluginOptions<T extends SuggestionItem> = {
 
   allow?: (props: { editor: Editor; range: Range }) => boolean;
 };
+
+export type MenuType = "slash" | "drag";
 
 /**
  * Finds a command: a specified character (e.g. '/') followed by a string of characters (all characters except the specified character are allowed).
@@ -197,6 +200,7 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
           query: null,
           notFoundCount: 0,
           items: [],
+          type: "slash",
         };
       },
 
@@ -230,9 +234,13 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
             };
             next.query = "";
             next.active = true;
+            next.type = transaction.getMeta(PLUGIN_KEY)?.type;
           } else if (prev.active) {
             // Try to match against where our cursor currently is
-            const match = findCommandBeforeCursor(char, selection);
+            const match = findCommandBeforeCursor(
+              prev.type === "slash" ? char : "",
+              selection
+            );
             if (!match) {
               throw new Error("active but no match (suggestions)");
             }
@@ -292,7 +300,7 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
               view.state.tr
                 .insertText(char)
                 .scrollIntoView()
-                .setMeta(PLUGIN_KEY, { activate: true })
+                .setMeta(PLUGIN_KEY, { activate: true, type: "slash" })
             );
             // return true to cancel the original event, as we insert / ourselves
             return true;
@@ -307,10 +315,30 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
 
       // Setup decorator on the currently active suggestion.
       decorations(state) {
-        const { active, range, decorationId } = this.getState(state);
+        const { active, range, decorationId, type } = this.getState(state);
 
+        console.log(type, active);
         if (!active) {
           return null;
+        }
+
+        if (type === "drag") {
+          console.log(range);
+          const blockNode = findBlock(state.selection);
+          console.log(blockNode);
+          if (blockNode) {
+            return DecorationSet.create(state.doc, [
+              Decoration.node(
+                blockNode.pos,
+                blockNode.pos + blockNode.node.nodeSize,
+                {
+                  nodeName: "span",
+                  class: "suggestion-decorator",
+                  "data-decoration-id": decorationId,
+                }
+              ),
+            ]);
+          }
         }
 
         return DecorationSet.create(state.doc, [
