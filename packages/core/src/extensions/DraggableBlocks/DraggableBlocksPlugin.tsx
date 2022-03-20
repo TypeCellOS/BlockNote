@@ -7,10 +7,16 @@ import React from "react";
 
 // code based on https://github.com/ueberdosis/tiptap/issues/323#issuecomment-506637799
 
-const firstBlockGroup = document.querySelector(
-  ".ProseMirror > [class*='blockGroup']"
-) as HTMLElement; // first block group node
-const horizontalAnchor = absoluteRect(firstBlockGroup).left; // Anchor to the left of the first block group
+let horizontalAnchor: number;
+function getHorizontalAnchor() {
+  if (!horizontalAnchor) {
+    const firstBlockGroup = document.querySelector(
+      ".ProseMirror > [class*='blockGroup']"
+    ) as HTMLElement | undefined; // first block group node
+    if (firstBlockGroup) horizontalAnchor = absoluteRect(firstBlockGroup).left; // Anchor to the left of the first block group
+  }
+  return horizontalAnchor;
+}
 
 export function createRect(rect: DOMRect) {
   let newRect = {
@@ -205,13 +211,13 @@ export const createDraggableBlocksPlugin = () => {
           // Its dims change, moving the position of the drag handle
           const blockContent = block.node.firstChild as HTMLElement;
 
-          if (!blockContent || !firstBlockGroup) return true;
+          if (!blockContent) return true;
 
           const rect = absoluteRect(blockContent);
           const win = block.node.ownerDocument.defaultView!;
           const dropElementRect = dropElement.getBoundingClientRect();
           const left =
-            (horizontalPosAnchoredAtRoot ? horizontalAnchor : rect.left) -
+            (horizontalPosAnchoredAtRoot ? getHorizontalAnchor() : rect.left) -
             WIDTH +
             win.pageXOffset;
           rect.top += rect.height / 2 - dropElementRect.height / 2;
