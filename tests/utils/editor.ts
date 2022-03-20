@@ -31,12 +31,12 @@ export function removeAttFromDoc(doc: unknown, att: string) {
   return doc;
 }
 
-export async function compareDocToSnapshot(page: Page) {
+export async function compareDocToSnapshot(page: Page, name: string) {
   // Remove id from docs
   const doc = JSON.stringify(
     removeAttFromDoc(await getDoc(page), "id"),
     null,
     2
   );
-  expect(doc).toMatchSnapshot("docStructureSnapshot.json");
+  expect(doc).toMatchSnapshot(`${name}.json`);
 }

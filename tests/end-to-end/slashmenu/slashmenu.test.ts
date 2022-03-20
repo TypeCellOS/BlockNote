@@ -136,7 +136,7 @@ test.describe("Check SlashMenu Functionality", () => {
     await page.keyboard.type("And this is a bullet list");
     await page.waitForTimeout(1000);
     // Compare doc object snapshot
-    await compareDocToSnapshot(page);
+    await compareDocToSnapshot(page, "docStructureSnapshot");
     // Compare editor screenshot
     expect(await page.screenshot()).toMatchSnapshot(
       "slash_menu_end_product.png"
