@@ -203,9 +203,7 @@ export const createDraggableBlocksPlugin = () => {
           // I want the dim of the blocks content node
           // because if the block contains other blocks
           // Its dims change, moving the position of the drag handle
-          const blockContent = block.node.querySelector(
-            "[class*=blockContent]"
-          ) as HTMLElement;
+          const blockContent = block.node.firstChild as HTMLElement;
 
           if (!blockContent || !firstBlockGroup) return true;
 
