@@ -34,19 +34,44 @@ export const DragHandle = (props: {
     }
   };
 
+  const onAddClick = () => {
+    const pos = props.view.posAtCoords(props.coords);
+    if (!pos) return;
+    const currentBlock = findBlock(
+      TextSelection.create(props.view.state.doc, pos.pos)
+    );
+    if (!currentBlock) return false;
+    // Create new block after current block
+    const endOfBlock = currentBlock.pos + currentBlock.node.nodeSize;
+    let newBlock = props.view.state.schema.nodes["tcblock"].createAndFill();
+    props.view.state.tr.insert(endOfBlock, newBlock);
+    // props.view.state.tr.setSelection(
+    //   new TextSelection(props.view.state.tr.doc.resolve(endOfBlock + 1))
+    // );
+    props.view.dispatch(props.view.state.tr.insert(endOfBlock, newBlock));
+    props.view.dispatch(
+      props.view.state.tr.setSelection(
+        new TextSelection(props.view.state.tr.doc.resolve(endOfBlock + 1))
+      )
+    );
+  };
+
   if (deleted) return null;
 
   return (
-    <Tippy
-      content={<DragHandleMenu onDelete={onDelete} />}
-      placement={"left"}
-      trigger={"click"}
-      duration={0}
-      interactiveBorder={100}
-      interactive={true}
-      onShow={props.onShow}
-      onHide={props.onHide}>
-      <div className={styles.dragHandle} />
-    </Tippy>
+    <div style={{ display: "flex", flexDirection: "row", gap: "0.25em" }}>
+      <div className={styles.dragHandleAdd} onClick={onAddClick}></div>
+      <Tippy
+        content={<DragHandleMenu onDelete={onDelete} />}
+        placement={"left"}
+        trigger={"click"}
+        duration={0}
+        interactiveBorder={100}
+        interactive={true}
+        onShow={props.onShow}
+        onHide={props.onHide}>
+        <div className={styles.dragHandle} />
+      </Tippy>
+    </div>
   );
 };

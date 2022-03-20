@@ -16,6 +16,21 @@
   cursor:  !important;
 } */
 
+.dragHandleAdd:hover,
 .dragHandle:hover {
   background-color: #eee;
+}
+
+.dragHandleAdd {
+  /* position: absolute; */
+  transition: opacity 300ms;
+  width: 20px;
+  height: 24px;
+
+  background-image: url('data:image/svg+xml;charset=UTF-8,<?xml version="1.0"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="256" height="256" viewBox="0 0 256 256" xml:space="preserve"><desc>Created with Fabric.js 1.7.22</desc><defs></defs><g transform="translate(128 128) scale(0.87 0.87)" style=""><g style="stroke: none; stroke-width: 0; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: none; fill-rule: nonzero; opacity: 1;" transform="translate(-144.89999999999998 -144.90000000000003) scale(3.22 3.22)" ><path d="M 88.516 43.517 H 46.484 V 1.484 C 46.484 0.664 45.819 0 45 0 s -1.484 0.664 -1.484 1.484 v 42.033 H 1.484 C 0.664 43.517 0 44.181 0 45 s 0.664 1.483 1.484 1.483 h 42.033 v 42.033 C 43.516 89.335 44.18 90 45 90 s 1.484 -0.664 1.484 -1.484 V 46.483 h 42.033 C 89.336 46.483 90 45.82 90 45 S 89.336 43.517 88.516 43.517 z" style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: rgb(0,0,0); fill-rule: nonzero; opacity: 1;" transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round" /></g></g></svg>');
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+  cursor: pointer;
+  border-radius: 3px;
 }

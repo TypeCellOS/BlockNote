@@ -114,7 +114,7 @@ function dragStart(e: DragEvent, view: EditorView) {
 export const createDraggableBlocksPlugin = () => {
   let dropElement: HTMLElement | undefined;
 
-  const WIDTH = 24;
+  const WIDTH = 48;
 
   // When true, the drag handle with be anchored at the same level as root elements
   // When false, the drag handle with be just to the left of the element
