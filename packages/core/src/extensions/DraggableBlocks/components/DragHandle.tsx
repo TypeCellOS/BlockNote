@@ -38,11 +38,15 @@ export const DragHandle = (props: {
 
   const onAddClick = () => {
     const pos = props.view.posAtCoords(props.coords);
-    if (!pos) return;
+    if (!pos) {
+      return;
+    }
     const currentBlock = findBlock(
       TextSelection.create(props.view.state.doc, pos.pos)
     );
-    if (!currentBlock) return false;
+    if (!currentBlock) {
+      return;
+    }
     // If current blocks content is empty dont create a new block
     if (currentBlock.node.firstChild?.textContent.length === 0) {
       props.view.dispatch(props.view.state.tr.setNodeMarkup(currentBlock.pos));
