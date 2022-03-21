@@ -44,6 +44,7 @@ test.describe("Check Draghandle functionality", () => {
     await page.click(DRAGHANDLE);
     await page.waitForSelector(TIPPY_MENU);
     // Compare editor screenshot
+    await page.waitForTimeout(1000);
     expect(await page.screenshot()).toMatchSnapshot("draghandlemenu.png");
   });
 
