@@ -12,5 +12,6 @@ export const NUMBERED_LIST_SELECTOR = `[data-listtype="oli"] > [data-listtype="o
 export const BULLET_LIST_SELECTOR = `[data-listtype="li"] > [data-listtype="li"]`;
 export const BLOCK_GROUP_SELECTOR = `[class*="blockGroup"]`;
 export const BLOCK_SELECTOR = `[data-id][class*="blockOuter"] > [data-id][class*="block_"]`;
-export const DRAGHANDLE = `[class*='dragHandle']`;
+export const DRAGHANDLE = `[class*='dragHandle_']`;
+export const DRAGHANDLEADD = `[class*='dragHandleAdd']`;
 export const TIPPY_MENU = "[data-tippy-root]";
