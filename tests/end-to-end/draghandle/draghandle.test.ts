@@ -3,6 +3,7 @@ import {
   BASE_URL,
   BLOCK_SELECTOR,
   DRAGHANDLE,
+  DRAGHANDLEADD,
   H_ONE_BLOCK_SELECTOR,
   H_THREE_BLOCK_SELECTOR,
   H_TWO_BLOCK_SELECTOR,
@@ -46,6 +47,19 @@ test.describe("Check Draghandle functionality", () => {
     // Compare editor screenshot
     await page.waitForTimeout(1000);
     expect(await page.screenshot()).toMatchSnapshot("draghandlemenu.png");
+  });
+
+  test.only("Clicking add button should create new block", async () => {
+    await executeSlashCommand(page, "h1");
+    await page.keyboard.type("Hover over this text");
+    await moveMouseOverElement(page, H_ONE_BLOCK_SELECTOR);
+    await page.click(DRAGHANDLEADD);
+    await page.keyboard.type("h2", { delay: 10 });
+    await page.keyboard.press("Enter", { delay: 10 });
+    await page.keyboard.type("This is an h2");
+    await page.waitForSelector(H_TWO_BLOCK_SELECTOR);
+    await page.waitForTimeout(1000);
+    await compareDocToSnapshot(page, "draghandleadd");
   });
 
   test("Clicking delete button should delete block", async () => {
