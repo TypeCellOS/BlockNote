@@ -77,7 +77,7 @@ export const Placeholder = Extension.create<PlaceholderOptions>({
                   classes.push(this.options.hasAnchorClass);
                 }
 
-                // If node has isFilter attrs add isFilterClass which changes its placeholder
+                // If slash menu is of drag type and active, show the filter placeholder
                 if (menuState.type === "drag" && menuState.active) {
                   classes.push(this.options.isFilterClass);
                 }
