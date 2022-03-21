@@ -27,6 +27,7 @@ export const Document = Node.create({
   topNode: true,
   content: "block+",
 });
+console.log(SlashMenuExtension);
 
 export const getBlockNoteExtensions = () => {
   const ret: Extensions = [

@@ -190,6 +190,14 @@ export const createDraggableBlocksPlugin = () => {
           // dropElement.style.display = "none";
           return true;
         },
+        mousedown(view, event) {
+          if (!dropElement) {
+            throw new Error("unexpected");
+          }
+          menuShown = false;
+          ReactDOM.render(<></>, dropElement);
+          return false;
+        },
         mousemove(view, event) {
           if (!dropElement) {
             throw new Error("unexpected");
@@ -227,8 +235,6 @@ export const createDraggableBlocksPlugin = () => {
             win.pageXOffset;
           rect.top +=
             rect.height / 2 - dropElementRect.height / 2 + win.pageYOffset;
-
-          console.log(rect.top);
 
           dropElement.style.left = left + "px";
           dropElement.style.top = rect.top + "px";

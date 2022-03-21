@@ -5,6 +5,7 @@ import React, { useState } from "react";
 import { EditorView } from "prosemirror-view";
 import { TextSelection } from "prosemirror-state";
 import { findBlock } from "../../Blocks/helpers/findBlock";
+import { SlashMenuPluginKey } from "../../SlashMenu/SlashMenuExtension";
 
 export const DragHandle = (props: {
   view: EditorView;
@@ -12,6 +13,7 @@ export const DragHandle = (props: {
   onShow?: () => void;
   onHide?: () => void;
 }) => {
+  const [clicked, setClicked] = useState<boolean>(false);
   const [deleted, setDeleted] = useState<boolean>(false);
 
   const onDelete = () => {
@@ -37,6 +39,7 @@ export const DragHandle = (props: {
   };
 
   const onAddClick = () => {
+    setClicked(true);
     const pos = props.view.posAtCoords(props.coords);
     if (!pos) {
       return;
@@ -64,17 +67,15 @@ export const DragHandle = (props: {
     }
     props.view.focus();
     props.view.dispatch(
-      props.view.state.tr
-        .scrollIntoView()
-        .setMeta("suggestions-slash-commands$", {
-          // TODO import suggestion plugin key
-          activate: true,
-          type: "drag",
-        })
+      props.view.state.tr.scrollIntoView().setMeta(SlashMenuPluginKey, {
+        // TODO import suggestion plugin key
+        activate: true,
+        type: "drag",
+      })
     );
   };
 
-  if (deleted) {
+  if (deleted || clicked) {
     return null;
   }
 

@@ -15,7 +15,7 @@ export type SuggestionPluginOptions<T extends SuggestionItem> = {
    *
    * Used for ensuring that the plugin key is unique when more than one instance of the SuggestionPlugin is used.
    */
-  pluginName: string;
+  pluginKey: PluginKey;
 
   /**
    * The TipTap editor.
@@ -99,7 +99,7 @@ export function findCommandBeforeCursor(
  * @returns the prosemirror plugin
  */
 export function createSuggestionPlugin<T extends SuggestionItem>({
-  pluginName,
+  pluginKey,
   editor,
   char,
   onSelectItem: selectItemCallback = () => {},
@@ -112,11 +112,9 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
 
   const renderer = createRenderer<T>(editor);
 
-  // Create a random plugin key (since this plugin might be instantiated multiple times)
-  const PLUGIN_KEY = new PluginKey(`suggestions-${pluginName}`);
-
+  // Plugin key is passed in parameter so it can be exported and used in draghandle
   return new Plugin({
-    key: PLUGIN_KEY,
+    key: pluginKey,
 
     filterTransaction(transaction) {
       // prevent blurring when clicking with the mouse inside the popup menu
@@ -158,7 +156,7 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
 
           const deactivate = () => {
             view.dispatch(
-              view.state.tr.setMeta(PLUGIN_KEY, { deactivate: true })
+              view.state.tr.setMeta(pluginKey, { deactivate: true })
             );
           };
 
@@ -221,7 +219,7 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
           // only show popup if selection is a blinking cursor
           selection.from === selection.to &&
           // deactivate popup from view (e.g.: choice has been made or esc has been pressed)
-          !transaction.getMeta(PLUGIN_KEY)?.deactivate &&
+          !transaction.getMeta(pluginKey)?.deactivate &&
           // deactivate because a mouse event occurs (user clicks somewhere else in the document)
           !transaction.getMeta("focus") &&
           !transaction.getMeta("blur") &&
@@ -230,7 +228,7 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
           // Reset active state if we just left the previous suggestion range (e.g.: key arrows moving before /)
           if (prev.active && selection.from <= prev.range.from) {
             next.active = false;
-          } else if (transaction.getMeta(PLUGIN_KEY)?.activate) {
+          } else if (transaction.getMeta(pluginKey)?.activate) {
             // Start showing suggestions. activate has been set after typing a "/" (or whatever the specified character is), so let's create the decoration and initialize
             const newDecorationId = `id_${Math.floor(
               Math.random() * 0xffffffff
@@ -242,7 +240,7 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
             };
             next.query = "";
             next.active = true;
-            next.type = transaction.getMeta(PLUGIN_KEY)?.type;
+            next.type = transaction.getMeta(pluginKey)?.type;
           } else if (prev.active) {
             // Try to match against where our cursor currently is
             const match = findCommandBeforeCursor(
@@ -308,7 +306,7 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
               view.state.tr
                 .insertText(char)
                 .scrollIntoView()
-                .setMeta(PLUGIN_KEY, { activate: true, type: "slash" })
+                .setMeta(pluginKey, { activate: true, type: "slash" })
             );
             // return true to cancel the original event, as we insert / ourselves
             return true;
@@ -325,16 +323,13 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
       decorations(state) {
         const { active, range, decorationId, type } = this.getState(state);
 
-        console.log(type, active);
         if (!active) {
           return null;
         }
 
         // If type in meta is drag, create decoration node that wraps block
         if (type === "drag") {
-          console.log(range);
           const blockNode = findBlock(state.selection);
-          console.log(blockNode);
           if (blockNode) {
             return DecorationSet.create(state.doc, [
               Decoration.node(
