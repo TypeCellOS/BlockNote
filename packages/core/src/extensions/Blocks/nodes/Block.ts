@@ -5,6 +5,7 @@ import { PreviousBlockTypePlugin } from "../PreviousBlockTypePlugin";
 import { textblockTypeInputRuleSameNodeType } from "../rule";
 import { findBlock } from "../helpers/findBlock";
 import { OrderedListPlugin } from "../OrderedListPlugin";
+import { joinBackward } from "../commands/joinBackward";
 import { setBlockHeading } from "../helpers/setBlockHeading";
 
 export interface IBlock {
@@ -228,6 +229,7 @@ export const Block = Node.create<IBlock>({
           }
           return false;
         },
+      joinBackward, // Override default joinBackward with edited command
     };
   },
   addProseMirrorPlugins() {
