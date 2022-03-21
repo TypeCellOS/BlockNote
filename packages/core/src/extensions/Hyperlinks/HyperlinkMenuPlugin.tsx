@@ -99,7 +99,9 @@ export const createHyperlinkMenuPlugin = () => {
           }
 
           const range = getMarkRange(resPos, linkMark.type, linkMark.attrs);
-          if (!range) return;
+          if (!range) {
+            return;
+          }
           const text = view.state.doc.textBetween(range.from, range.to);
           const url = linkMark.attrs.href;
 

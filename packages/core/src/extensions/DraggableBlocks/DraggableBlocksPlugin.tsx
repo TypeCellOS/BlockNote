@@ -7,6 +7,19 @@ import React from "react";
 
 // code based on https://github.com/ueberdosis/tiptap/issues/323#issuecomment-506637799
 
+let horizontalAnchor: number;
+function getHorizontalAnchor() {
+  if (!horizontalAnchor) {
+    const firstBlockGroup = document.querySelector(
+      ".ProseMirror > [class*='blockGroup']"
+    ) as HTMLElement | undefined; // first block group node
+    if (firstBlockGroup) {
+      horizontalAnchor = absoluteRect(firstBlockGroup).left;
+    } // Anchor to the left of the first block group
+  }
+  return horizontalAnchor;
+}
+
 export function createRect(rect: DOMRect) {
   let newRect = {
     left: rect.left + document.body.scrollLeft,
@@ -105,6 +118,10 @@ export const createDraggableBlocksPlugin = () => {
 
   const WIDTH = 24;
 
+  // When true, the drag handle with be anchored at the same level as root elements
+  // When false, the drag handle with be just to the left of the element
+  const horizontalPosAnchoredAtRoot = true;
+
   let menuShown = false;
 
   const onShow = () => {
@@ -120,6 +137,7 @@ export const createDraggableBlocksPlugin = () => {
       dropElement = document.createElement("div");
       dropElement.setAttribute("draggable", "true");
       dropElement.style.position = "absolute";
+      dropElement.style.height = "24px"; // default height
       document.body.append(dropElement);
 
       dropElement.addEventListener("dragstart", (e) =>
@@ -180,7 +198,7 @@ export const createDraggableBlocksPlugin = () => {
             // The submenu is open, don't move draghandle
             return true;
           }
-          let coords = {
+          const coords = {
             left: view.dom.clientWidth / 2, // take middle of editor
             top: event.clientY,
           };
@@ -191,13 +209,28 @@ export const createDraggableBlocksPlugin = () => {
             return true;
           }
 
-          let rect = absoluteRect(block.node);
-          let win = block.node.ownerDocument.defaultView!;
-          rect.top += win.pageYOffset;
-          rect.left += win.pageXOffset;
-          //   rect.width = WIDTH + "px";
+          // I want the dim of the blocks content node
+          // because if the block contains other blocks
+          // Its dims change, moving the position of the drag handle
+          const blockContent = block.node.firstChild as HTMLElement;
 
-          dropElement.style.left = -WIDTH + rect.left + "px";
+          if (!blockContent) {
+            return true;
+          }
+
+          const rect = absoluteRect(blockContent);
+          const win = block.node.ownerDocument.defaultView!;
+          const dropElementRect = dropElement.getBoundingClientRect();
+          const left =
+            (horizontalPosAnchoredAtRoot ? getHorizontalAnchor() : rect.left) -
+            WIDTH +
+            win.pageXOffset;
+          rect.top +=
+            rect.height / 2 - dropElementRect.height / 2 + win.pageYOffset;
+
+          console.log(rect.top);
+
+          dropElement.style.left = left + "px";
           dropElement.style.top = rect.top + "px";
 
           ReactDOM.render(

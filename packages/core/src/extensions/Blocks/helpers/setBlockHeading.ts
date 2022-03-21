@@ -15,7 +15,9 @@ export function setBlockHeading(
   // Should not be possible because schema dictates
   // that each text node is nested in a BlockContent
   // node which is nested inside a BlockNode
-  if (!containingBlock) return false;
+  if (!containingBlock) {
+    return false;
+  }
 
   // Add heading attribute to Block
   if (dispatch) {

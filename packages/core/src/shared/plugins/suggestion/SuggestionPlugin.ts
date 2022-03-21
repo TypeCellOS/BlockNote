@@ -55,17 +55,23 @@ export function findCommandBeforeCursor(
   char: string,
   selection: Selection<any>
 ): { range: Range; query: string } | undefined {
-  if (!selection.empty) return undefined;
+  if (!selection.empty) {
+    return undefined;
+  }
 
   // get the text before the cursor as a node
   const node = selection.$anchor.nodeBefore;
-  if (!node || !node.text) return undefined;
+  if (!node || !node.text) {
+    return undefined;
+  }
 
   // regex to match anything between with the specified char (e.g. '/') and the end of text (which is the end of selection)
   const regex = new RegExp(`${escapeRegExp(char)}([^${escapeRegExp(char)}]*)$`);
   const match = node.text.match(regex);
 
-  if (!match) return undefined;
+  if (!match) {
+    return undefined;
+  }
 
   return {
     query: match[1],
@@ -97,7 +103,9 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
   items = () => [],
 }: SuggestionPluginOptions<T>) {
   // Assertions
-  if (char.length !== 1) throw new Error("'char' should be a single character");
+  if (char.length !== 1) {
+    throw new Error("'char' should be a single character");
+  }
 
   const renderer = createRenderer<T>(editor);
 
