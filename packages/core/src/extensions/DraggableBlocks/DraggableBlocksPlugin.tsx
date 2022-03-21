@@ -137,6 +137,7 @@ export const createDraggableBlocksPlugin = () => {
       dropElement = document.createElement("div");
       dropElement.setAttribute("draggable", "true");
       dropElement.style.position = "absolute";
+      dropElement.style.height = "24px"; // default height
       document.body.append(dropElement);
 
       dropElement.addEventListener("dragstart", (e) =>
@@ -224,7 +225,10 @@ export const createDraggableBlocksPlugin = () => {
             (horizontalPosAnchoredAtRoot ? getHorizontalAnchor() : rect.left) -
             WIDTH +
             win.pageXOffset;
-          rect.top += rect.height / 2 - dropElementRect.height / 2;
+          rect.top +=
+            rect.height / 2 - dropElementRect.height / 2 + win.pageYOffset;
+
+          console.log(rect.top);
 
           dropElement.style.left = left + "px";
           dropElement.style.top = rect.top + "px";

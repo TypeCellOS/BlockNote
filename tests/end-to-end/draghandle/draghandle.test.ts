@@ -1,6 +1,7 @@
 import { test, expect, Page } from "@playwright/test";
 import {
   BASE_URL,
+  BLOCK_SELECTOR,
   DRAGHANDLE,
   H_ONE_BLOCK_SELECTOR,
   H_THREE_BLOCK_SELECTOR,
@@ -8,6 +9,7 @@ import {
   TIPPY_MENU,
 } from "../../utils/const";
 import { compareDocToSnapshot, focusOnEditor } from "../../utils/editor";
+import { moveMouseOverElement } from "../../utils/mouse";
 import { executeSlashCommand } from "../../utils/slashmenu";
 
 let page: Page;
@@ -29,7 +31,7 @@ test.describe("Check Draghandle functionality", () => {
   test("Should show draghandle when hovering over block", async () => {
     await executeSlashCommand(page, "h1");
     await page.keyboard.type("Hover over this text");
-    await page.hover(H_ONE_BLOCK_SELECTOR);
+    await moveMouseOverElement(page, H_ONE_BLOCK_SELECTOR);
     await page.waitForSelector(DRAGHANDLE);
   });
 
@@ -38,10 +40,9 @@ test.describe("Check Draghandle functionality", () => {
   test("Clicking draghandle should open menu", async () => {
     await executeSlashCommand(page, "h1");
     await page.keyboard.type("Hover over this text");
-    await page.hover(H_ONE_BLOCK_SELECTOR);
+    await moveMouseOverElement(page, H_ONE_BLOCK_SELECTOR);
     await page.click(DRAGHANDLE);
     await page.waitForSelector(TIPPY_MENU);
-    await page.waitForTimeout(1000);
     // Compare editor screenshot
     expect(await page.screenshot()).toMatchSnapshot("draghandlemenu.png");
   });

@@ -8,7 +8,7 @@ import { createDraggableBlocksPlugin } from "./DraggableBlocksPlugin";
  */
 export const DraggableBlocksExtension = Extension.create<{}>({
   name: "DraggableBlocksExtension",
-
+  priority: 1000, // Need to be high, in order to hide draghandle when typing slash
   addProseMirrorPlugins() {
     return [createDraggableBlocksPlugin()];
   },
