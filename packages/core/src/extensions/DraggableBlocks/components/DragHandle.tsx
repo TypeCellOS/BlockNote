@@ -61,6 +61,7 @@ export const DragHandle = (props: {
       props.view.state.tr
         .scrollIntoView()
         .setMeta("suggestions-slash-commands$", {
+          // TODO import suggestion plugin key
           activate: true,
           type: "drag",
         })

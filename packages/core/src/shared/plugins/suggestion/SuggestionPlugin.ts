@@ -322,6 +322,7 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
           return null;
         }
 
+        // If type in meta is drag, create decoration node that wraps block
         if (type === "drag") {
           console.log(range);
           const blockNode = findBlock(state.selection);
@@ -340,7 +341,7 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
             ]);
           }
         }
-
+        // Create inline decoration that wraps / or whatever the specified character is
         return DecorationSet.create(state.doc, [
           Decoration.inline(range.from, range.to, {
             nodeName: "span",
