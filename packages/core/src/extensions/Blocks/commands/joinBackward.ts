@@ -50,15 +50,18 @@ interface NodeTypeWithCompatibleContent extends NodeType {
 export const joinBackward =
   () =>
   ({ state, dispatch, view }: JoinBackwardParams) => {
-    if (!isTextSelection(state.selection)) return false;
+    if (!isTextSelection(state.selection)) {
+      return false;
+    }
     let { $cursor } = state.selection;
     if (
       !$cursor ||
       (view
         ? !view.endOfTextblock("backward", state)
         : $cursor.parentOffset > 0)
-    )
+    ) {
       return false;
+    }
 
     let $cut = findCutBefore($cursor);
 
@@ -66,16 +69,23 @@ export const joinBackward =
     if (!$cut) {
       let range = $cursor.blockRange(),
         target = range && liftTarget(range);
-      if (target == null || !range) return false;
-      if (dispatch) dispatch(state.tr.lift(range, target).scrollIntoView());
+      if (target == null || !range) {
+        return false;
+      }
+      if (dispatch) {
+        dispatch(state.tr.lift(range, target).scrollIntoView());
+      }
       return true;
     }
 
     let before = $cut.nodeBefore;
-    if (!before) return false;
+    if (!before) {
+      return false;
+    }
     // Apply the joining algorithm
-    if (!before.type.spec.isolating && deleteBarrier(state, $cut, dispatch))
+    if (!before.type.spec.isolating && deleteBarrier(state, $cut, dispatch)) {
       return true;
+    }
 
     // If the node below has no content and the node above is
     // selectable, delete the node below and select the one above.
@@ -89,7 +99,9 @@ export const joinBackward =
         $cursor.after(),
         Slice.empty
       ) as DelStep;
-      if (!delStep) return false;
+      if (!delStep) {
+        return false;
+      }
       if (delStep.slice.size < delStep.to - delStep.from) {
         if (dispatch) {
           let tr = state.tr.step(delStep);
@@ -99,7 +111,9 @@ export const joinBackward =
                 -1
               )
             : NodeSelection.create(tr.doc, $cut.pos - before.nodeSize);
-          if (!tmpBlock) return false;
+          if (!tmpBlock) {
+            return false;
+          }
           tr.setSelection(tmpBlock);
           dispatch(tr.scrollIntoView());
         }
@@ -108,10 +122,11 @@ export const joinBackward =
     }
     // If the node before is an atom, delete it
     if (before.isAtom && $cut.depth === $cursor.depth - 1) {
-      if (dispatch)
+      if (dispatch) {
         dispatch(
           state.tr.delete($cut.pos - before.nodeSize, $cut.pos).scrollIntoView()
         );
+      }
       return true;
     }
 
@@ -119,11 +134,16 @@ export const joinBackward =
   };
 
 function findCutBefore($pos: ResolvedPos) {
-  if (!$pos.parent.type.spec.isolating)
+  if (!$pos.parent.type.spec.isolating) {
     for (let i = $pos.depth - 1; i >= 0; i--) {
-      if ($pos.index(i) > 0) return $pos.doc.resolve($pos.before(i + 1));
-      if ($pos.node(i).type.spec.isolating) break;
+      if ($pos.index(i) > 0) {
+        return $pos.doc.resolve($pos.before(i + 1));
+      }
+      if ($pos.node(i).type.spec.isolating) {
+        break;
+      }
     }
+  }
   return null;
 }
 
@@ -137,18 +157,28 @@ function deleteBarrier(
     after = $cut.nodeAfter,
     conn,
     match;
-  if (!before || !after) return false;
-  if (before.type.spec.isolating || after.type.spec.isolating) return false;
-  if (joinMaybeClear(state, $cut, dispatch)) return true;
+  if (!before || !after) {
+    return false;
+  }
+  if (before.type.spec.isolating || after.type.spec.isolating) {
+    return false;
+  }
+  if (joinMaybeClear(state, $cut, dispatch)) {
+    return true;
+  }
 
   let canDelAfter = $cut.parent.canReplace($cut.index(), $cut.index() + 1);
 
   let selAfter = Selection.findFrom($cut, 1);
   let range = selAfter && selAfter.$from.blockRange(selAfter.$to),
     target = range && liftTarget(range);
-  if (!range) return false;
+  if (!range) {
+    return false;
+  }
   if (target != null && target >= $cut.depth) {
-    if (dispatch) dispatch(state.tr.lift(range, target).scrollIntoView());
+    if (dispatch) {
+      dispatch(state.tr.lift(range, target).scrollIntoView());
+    }
     return true;
   }
 
@@ -162,18 +192,22 @@ function deleteBarrier(
       wrap = [];
     for (;;) {
       wrap.push(at);
-      if (at.isTextblock) break;
+      if (at.isTextblock) {
+        break;
+      }
       at = at.lastChild as Node;
     }
     let afterText = after,
       afterDepth = 1;
-    for (; !afterText.isTextblock; afterText = afterText.firstChild as Node)
+    for (; !afterText.isTextblock; afterText = afterText.firstChild as Node) {
       afterDepth++;
+    }
     if (at.canReplace(at.childCount, at.childCount, afterText.content)) {
       if (dispatch) {
         let end = Fragment.empty;
-        for (let i = wrap.length - 1; i >= 0; i--)
+        for (let i = wrap.length - 1; i >= 0; i--) {
           end = Fragment.from(wrap[i].copy(end));
+        }
         let tr = state.tr.step(
           new ReplaceAroundStep(
             $cut.pos - wrap.length,
@@ -204,8 +238,9 @@ function deleteBarrier(
     if (dispatch) {
       let end = $cut.pos + after.nodeSize,
         wrap = Fragment.empty;
-      for (let i = conn.length - 1; i >= 0; i--)
+      for (let i = conn.length - 1; i >= 0; i--) {
         wrap = Fragment.from(conn[i].create(null, wrap));
+      }
       wrap = Fragment.from(before.copy(wrap));
 
       let tr = state.tr.step(
@@ -221,7 +256,9 @@ function deleteBarrier(
       );
 
       let joinAt = end + 2 * conn.length;
-      if (canJoin(tr.doc, joinAt)) tr.join(joinAt);
+      if (canJoin(tr.doc, joinAt)) {
+        tr.join(joinAt);
+      }
       dispatch(tr.scrollIntoView());
     }
     return true;
@@ -235,8 +272,12 @@ function textblockAt(node: Node, side: "start" | "end", only?: boolean) {
     node;
     node = (side === "start" ? node.firstChild : node.lastChild) as Node
   ) {
-    if (node.isTextblock) return true;
-    if (only && node.childCount !== 1) return false;
+    if (node.isTextblock) {
+      return true;
+    }
+    if (only && node.childCount !== 1) {
+      return false;
+    }
   }
   return false;
 }
@@ -252,21 +293,24 @@ function joinMaybeClear(state: any, $pos: ResolvedPos, dispatch: Dispatch) {
     !(before.type as NodeTypeWithCompatibleContent).compatibleContent(
       after.type
     )
-  )
+  ) {
     return false;
+  }
   if (!before.content.size && $pos.parent.canReplace(index - 1, index)) {
-    if (dispatch)
+    if (dispatch) {
       dispatch(
         state.tr.delete($pos.pos - before.nodeSize, $pos.pos).scrollIntoView()
       );
+    }
     return true;
   }
   if (
     !$pos.parent.canReplace(index, index + 1) ||
     !(after.isTextblock || canJoin(state.doc, $pos.pos))
-  )
+  ) {
     return false;
-  if (dispatch)
+  }
+  if (dispatch) {
     dispatch(
       state.tr
         .clearIncompatible(
@@ -277,5 +321,6 @@ function joinMaybeClear(state: any, $pos: ResolvedPos, dispatch: Dispatch) {
         .join($pos.pos)
         .scrollIntoView()
     );
+  }
   return true;
 }
