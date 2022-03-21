@@ -122,7 +122,9 @@ export default function createRenderer<T extends SuggestionItem>(
 
   return {
     getComponent: () => {
-      if (!popup || !popup[0]) return undefined;
+      if (!popup || !popup[0]) {
+        return undefined;
+      }
       // return the tippy container element, this is used to ensure
       // that click events inside the menu are handled properly.
       return popup[0].reference;

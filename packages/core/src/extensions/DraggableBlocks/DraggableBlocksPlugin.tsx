@@ -13,7 +13,9 @@ function getHorizontalAnchor() {
     const firstBlockGroup = document.querySelector(
       ".ProseMirror > [class*='blockGroup']"
     ) as HTMLElement | undefined; // first block group node
-    if (firstBlockGroup) horizontalAnchor = absoluteRect(firstBlockGroup).left; // Anchor to the left of the first block group
+    if (firstBlockGroup) {
+      horizontalAnchor = absoluteRect(firstBlockGroup).left;
+    } // Anchor to the left of the first block group
   }
   return horizontalAnchor;
 }
@@ -211,7 +213,9 @@ export const createDraggableBlocksPlugin = () => {
           // Its dims change, moving the position of the drag handle
           const blockContent = block.node.firstChild as HTMLElement;
 
-          if (!blockContent) return true;
+          if (!blockContent) {
+            return true;
+          }
 
           const rect = absoluteRect(blockContent);
           const win = block.node.ownerDocument.defaultView!;

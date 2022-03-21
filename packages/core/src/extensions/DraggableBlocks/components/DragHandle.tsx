@@ -16,7 +16,9 @@ export const DragHandle = (props: {
 
   const onDelete = () => {
     const pos = props.view.posAtCoords(props.coords);
-    if (!pos) return;
+    if (!pos) {
+      return;
+    }
     const currentBlock = findBlock(
       TextSelection.create(props.view.state.doc, pos.pos)
     );
@@ -34,7 +36,9 @@ export const DragHandle = (props: {
     }
   };
 
-  if (deleted) return null;
+  if (deleted) {
+    return null;
+  }
 
   return (
     <Tippy

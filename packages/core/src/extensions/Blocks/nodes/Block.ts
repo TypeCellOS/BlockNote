@@ -188,7 +188,9 @@ export const Block = Node.create<IBlock>({
         ({ tr, dispatch, state }) => {
           // Get current block
           const currentBlock = findBlock(tr.selection);
-          if (!currentBlock) return false;
+          if (!currentBlock) {
+            return false;
+          }
 
           // If current blocks content is empty dont create a new block
           if (currentBlock.node.firstChild?.textContent.length === 0) {

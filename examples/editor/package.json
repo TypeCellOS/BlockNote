@@ -27,7 +27,10 @@
     "extends": [
       "react-app",
       "react-app/jest"
-    ]
+    ],
+    "rules": {
+      "curly": 1
+    }
   },
   "workspaces": {
     "nohoist": [
