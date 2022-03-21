@@ -9,6 +9,10 @@ import {
   H_TWO_BLOCK_SELECTOR,
   TIPPY_MENU,
 } from "../../utils/const";
+import {
+  addBlockFromDragHandle,
+  hoverAndAddBlockFromDragHandle,
+} from "../../utils/draghandle";
 import { compareDocToSnapshot, focusOnEditor } from "../../utils/editor";
 import { moveMouseOverElement } from "../../utils/mouse";
 import { executeSlashCommand } from "../../utils/slashmenu";
@@ -52,12 +56,10 @@ test.describe("Check Draghandle functionality", () => {
   test("Clicking add button should create new block", async () => {
     await executeSlashCommand(page, "h1");
     await page.keyboard.type("Hover over this text");
-    await moveMouseOverElement(page, H_ONE_BLOCK_SELECTOR);
-    await page.click(DRAGHANDLEADD);
-    await page.keyboard.type("h2", { delay: 10 });
-    await page.keyboard.press("Enter", { delay: 10 });
+    await hoverAndAddBlockFromDragHandle(page, H_ONE_BLOCK_SELECTOR, "h2");
     await page.keyboard.type("This is an h2");
     await page.waitForSelector(H_TWO_BLOCK_SELECTOR);
+
     await page.waitForTimeout(1000);
     await compareDocToSnapshot(page, "draghandleadd");
   });
