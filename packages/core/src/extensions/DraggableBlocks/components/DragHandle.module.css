@@ -1,5 +1,5 @@
 .dragHandle {
-  position: absolute;
+  /* position: absolute; */
   transition: opacity 300ms;
   width: 20px;
   height: 24px;
@@ -18,9 +18,4 @@
 
 .dragHandle:hover {
   background-color: #eee;
-}
-
-.dragHandle.hidden {
-  pointer-events: none;
-  opacity: 0;
 }

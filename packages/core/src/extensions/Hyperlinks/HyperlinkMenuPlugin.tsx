@@ -8,7 +8,7 @@ import {
   HyperlinkEditMenu,
   HyperlinkEditorMenuProps,
 } from "./menus/HyperlinkEditMenu";
-
+import rootStyles from "../../root.module.css";
 const PLUGIN_KEY = new PluginKey("HyperlinkMenuPlugin");
 
 /**
@@ -31,6 +31,7 @@ const tippyWrapperHyperlinkEditMenu = (
       showOnCreate={true}
       trigger={"click"} // so that we don't hide on mouse out
       hideOnClick
+      className={rootStyles.bnRoot}
       appendTo={document.body}>
       <div></div>
     </Tippy>
@@ -97,7 +98,9 @@ export const createHyperlinkMenuPlugin = () => {
           }
 
           const range = getMarkRange(resPos, linkMark.type, linkMark.attrs);
-          if (!range) return;
+          if (!range) {
+            return;
+          }
           const text = view.state.doc.textBetween(range.from, range.to);
           const url = linkMark.attrs.href;
 

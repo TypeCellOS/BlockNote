@@ -10,6 +10,7 @@
     "postinstall": "npm run bootstrap",
     "start": "lerna run --stream --scope @blocknote/example-editor dev",
     "start:built": "npx serve examples/editor/dist",
+    "test:updateSnaps": "docker run --rm  -e RUN_IN_DOCKER=true --network host -v $(pwd):/work/ -w /work/ -it mcr.microsoft.com/playwright:v1.19.2-focal npx playwright test --update-snapshots",
     "test": "jest --coverage=true --config=jest.config.js",
     "build": "lerna run --stream build --concurrency 1",
     "lint": "lerna run --stream lint",
