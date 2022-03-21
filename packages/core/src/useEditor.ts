@@ -3,6 +3,7 @@ import { useEditor as useEditorTiptap, EditorOptions } from "@tiptap/react";
 import { DependencyList } from "react";
 import { getBlockNoteExtensions } from "./BlockNoteExtensions";
 import styles from "./editor.module.css";
+import rootStyles from "./root.module.css";
 
 type BlockNoteEditorOptions = EditorOptions & {
   enableBlockNoteExtensions: boolean;
@@ -29,10 +30,11 @@ export const useEditor = (
     editorProps: {
       attributes: {
         ...(options.editorProps?.attributes || {}),
-        class:
-          styles.bnEditor +
-          " " +
-          ((options.editorProps?.attributes as any)?.class || ""),
+        class: [
+          styles.bnEditor,
+          rootStyles.bnRoot,
+          (options.editorProps?.attributes as any)?.class || "",
+        ].join(" "),
       },
     },
   };

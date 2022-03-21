@@ -1,0 +1,45 @@
+.suggestionWrapper {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+  white-space: initial;
+  padding: 0px;
+}
+
+.buttonName {
+  font-size: small;
+  margin-bottom: 4px;
+}
+.buttonHint {
+  font-size: smaller;
+  color: rgb(128, 128, 128);
+}
+.buttonShortcut {
+  font-size: x-small;
+  color: rgb(128, 128, 128);
+  background-color: rgba(128, 128, 128, 0.2);
+  vertical-align: top;
+  padding: 3px;
+  border-radius: 3px;
+}
+.iconWrapper {
+  border: 1px solid rgba(128, 128, 128, 0.5);
+  border-radius: 4px;
+  background-color: white;
+  width: 40px;
+  height: 40px;
+  padding: 10px;
+}
+.icon {
+  width: 20px;
+  height: 20px;
+  fill: var(--N800);
+}
+.icon path[fill="none"] {
+  stroke: none;
+}
+
+.selectedIcon path {
+  stroke: var(--N800);
+  stroke-width: 1px;
+}

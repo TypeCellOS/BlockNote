@@ -1,8 +1,24 @@
 import { NodeSelection, Plugin, PluginKey } from "prosemirror-state";
 import { EditorView, __serializeForClipboard } from "prosemirror-view";
-import styles from "./draggableBlocks.module.css";
+import ReactDOM from "react-dom";
+import { DragHandle } from "./components/DragHandle";
+
+import React from "react";
 
 // code based on https://github.com/ueberdosis/tiptap/issues/323#issuecomment-506637799
+
+let horizontalAnchor: number;
+function getHorizontalAnchor() {
+  if (!horizontalAnchor) {
+    const firstBlockGroup = document.querySelector(
+      ".ProseMirror > [class*='blockGroup']"
+    ) as HTMLElement | undefined; // first block group node
+    if (firstBlockGroup) {
+      horizontalAnchor = absoluteRect(firstBlockGroup).left;
+    } // Anchor to the left of the first block group
+  }
+  return horizontalAnchor;
+}
 
 export function createRect(rect: DOMRect) {
   let newRect = {
@@ -26,12 +42,12 @@ function blockPosAtCoords(
   coords: { left: number; top: number },
   view: EditorView
 ) {
-  let node = getDraggableNodeFromCoords(coords, view);
+  let block = getDraggableBlockFromCoords(coords, view);
 
-  if (node && node.nodeType === 1) {
+  if (block && block.node.nodeType === 1) {
     // TODO: this uses undocumented PM APIs? do we need this / let's add docs?
     const docView = (view as any).docView;
-    let desc = docView.nearestDesc(node, true);
+    let desc = docView.nearestDesc(block.node, true);
     if (!desc || desc === docView) {
       return null;
     }
@@ -40,7 +56,7 @@ function blockPosAtCoords(
   return null;
 }
 
-function getDraggableNodeFromCoords(
+function getDraggableBlockFromCoords(
   coords: { left: number; top: number },
   view: EditorView
 ) {
@@ -63,7 +79,10 @@ function getDraggableNodeFromCoords(
   ) {
     node = node.parentNode as HTMLElement;
   }
-  return node;
+  if (!node) {
+    return undefined;
+  }
+  return { node, id: node.getAttribute("data-id")! };
 }
 
 function dragStart(e: DragEvent, view: EditorView) {
@@ -88,8 +107,8 @@ function dragStart(e: DragEvent, view: EditorView) {
     e.dataTransfer.setData("text/html", dom.innerHTML);
     e.dataTransfer.setData("text/plain", text);
     e.dataTransfer.effectAllowed = "move";
-    const node = getDraggableNodeFromCoords(coords, view);
-    e.dataTransfer.setDragImage(node as any, 0, 0);
+    const block = getDraggableBlockFromCoords(coords, view);
+    e.dataTransfer.setDragImage(block?.node as any, 0, 0);
     view.dragging = { slice, move: true };
   }
 }
@@ -99,14 +118,27 @@ export const createDraggableBlocksPlugin = () => {
 
   const WIDTH = 24;
 
+  // When true, the drag handle with be anchored at the same level as root elements
+  // When false, the drag handle with be just to the left of the element
+  const horizontalPosAnchoredAtRoot = true;
+
+  let menuShown = false;
+
+  const onShow = () => {
+    menuShown = true;
+  };
+  const onHide = () => {
+    menuShown = false;
+  };
+
   return new Plugin({
     key: new PluginKey("DraggableBlocksPlugin"),
     view(editorView) {
       dropElement = document.createElement("div");
       dropElement.setAttribute("draggable", "true");
-      dropElement.className = styles.dragHandle;
-      // dropElement.textContent = "⠿";
-      document.body.appendChild(dropElement);
+      dropElement.style.position = "absolute";
+      dropElement.style.height = "24px"; // default height
+      document.body.append(dropElement);
 
       dropElement.addEventListener("dragstart", (e) =>
         dragStart(e, editorView)
@@ -141,7 +173,8 @@ export const createDraggableBlocksPlugin = () => {
         if (!dropElement) {
           throw new Error("unexpected");
         }
-        dropElement.classList.add(styles.hidden);
+        menuShown = false;
+        ReactDOM.render(<></>, dropElement);
         return false;
       },
       handleDOMEvents: {
@@ -161,26 +194,55 @@ export const createDraggableBlocksPlugin = () => {
           if (!dropElement) {
             throw new Error("unexpected");
           }
-          let coords = {
+          if (menuShown) {
+            // The submenu is open, don't move draghandle
+            return true;
+          }
+          const coords = {
             left: view.dom.clientWidth / 2, // take middle of editor
             top: event.clientY,
           };
-          const node = getDraggableNodeFromCoords(coords, view);
+          const block = getDraggableBlockFromCoords(coords, view);
 
-          if (!node) {
-            dropElement.classList.add(styles.hidden);
+          if (!block) {
+            console.warn("Perhaps we should hide element?");
             return true;
           }
 
-          dropElement.classList.remove(styles.hidden);
-          let rect = absoluteRect(node);
-          let win = node.ownerDocument.defaultView!;
-          rect.top += win.pageYOffset;
-          rect.left += win.pageXOffset;
-          //   rect.width = WIDTH + "px";
+          // I want the dim of the blocks content node
+          // because if the block contains other blocks
+          // Its dims change, moving the position of the drag handle
+          const blockContent = block.node.firstChild as HTMLElement;
 
-          dropElement.style.left = -WIDTH + rect.left + "px";
+          if (!blockContent) {
+            return true;
+          }
+
+          const rect = absoluteRect(blockContent);
+          const win = block.node.ownerDocument.defaultView!;
+          const dropElementRect = dropElement.getBoundingClientRect();
+          const left =
+            (horizontalPosAnchoredAtRoot ? getHorizontalAnchor() : rect.left) -
+            WIDTH +
+            win.pageXOffset;
+          rect.top +=
+            rect.height / 2 - dropElementRect.height / 2 + win.pageYOffset;
+
+          console.log(rect.top);
+
+          dropElement.style.left = left + "px";
           dropElement.style.top = rect.top + "px";
+
+          ReactDOM.render(
+            <DragHandle
+              onShow={onShow}
+              onHide={onHide}
+              key={block.id + ""}
+              view={view}
+              coords={coords}
+            />,
+            dropElement
+          );
           return true;
         },
       },

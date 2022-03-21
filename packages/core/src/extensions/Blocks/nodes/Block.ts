@@ -1,16 +1,19 @@
 import { mergeAttributes, Node } from "@tiptap/core";
-import { Selection } from "prosemirror-state";
+import { Selection, TextSelection } from "prosemirror-state";
 import styles from "./Block.module.css";
 import { PreviousBlockTypePlugin } from "../PreviousBlockTypePlugin";
 import { textblockTypeInputRuleSameNodeType } from "../rule";
+import { findBlock } from "../helpers/findBlock";
 import { OrderedListPlugin } from "../OrderedListPlugin";
 import { joinBackward } from "../commands/joinBackward";
+import { setBlockHeading } from "../helpers/setBlockHeading";
 
 export interface IBlock {
   HTMLAttributes: Record<string, any>;
 }
 
 export type Level = 1 | 2 | 3;
+export type ListType = "li" | "oli";
 
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
@@ -25,6 +28,13 @@ declare module "@tiptap/core" {
       unsetBlockHeading: () => ReturnType;
 
       unsetList: () => ReturnType;
+
+      addNewBlockAsSibling: (attributes?: {
+        headingType?: Level;
+        listType?: ListType;
+      }) => ReturnType;
+
+      setBlockList: (type: ListType) => ReturnType;
     };
   }
 }
@@ -147,17 +157,13 @@ export const Block = Node.create<IBlock>({
     return {
       setBlockHeading:
         (attributes) =>
-        ({ commands }) => {
-          return commands.updateAttributes(this.name, {
-            headingType: attributes.level,
-          });
+        ({ tr, dispatch }) => {
+          return setBlockHeading(tr, dispatch, attributes.level);
         },
       unsetBlockHeading:
         () =>
-        ({ commands }) => {
-          return commands.updateAttributes(this.name, {
-            headingType: undefined,
-          });
+        ({ tr, dispatch }) => {
+          return setBlockHeading(tr, dispatch, undefined);
         },
       unsetList:
         () =>
@@ -171,6 +177,52 @@ export const Block = Node.create<IBlock>({
               tr.setNodeMarkup(nodePos, undefined, {
                 ...node.attrs,
                 listType: undefined,
+              });
+              return true;
+            }
+          }
+          return false;
+        },
+
+      addNewBlockAsSibling:
+        (attributes) =>
+        ({ tr, dispatch, state }) => {
+          // Get current block
+          const currentBlock = findBlock(tr.selection);
+          if (!currentBlock) {
+            return false;
+          }
+
+          // If current blocks content is empty dont create a new block
+          if (currentBlock.node.firstChild?.textContent.length === 0) {
+            if (dispatch) {
+              tr.setNodeMarkup(currentBlock.pos, undefined, attributes);
+            }
+            return true;
+          }
+
+          // Create new block after current block
+          const endOfBlock = currentBlock.pos + currentBlock.node.nodeSize;
+          let newBlock =
+            state.schema.nodes["tcblock"].createAndFill(attributes);
+          if (dispatch) {
+            tr.insert(endOfBlock, newBlock);
+            tr.setSelection(new TextSelection(tr.doc.resolve(endOfBlock + 1)));
+          }
+          return true;
+        },
+      setBlockList:
+        (type) =>
+        ({ tr, dispatch }) => {
+          const node = tr.selection.$anchor.node(-1);
+          const nodePos = tr.selection.$anchor.posAtIndex(0, -1) - 1;
+
+          // const node2 = tr.doc.nodeAt(nodePos);
+          if (node.type.name === "tcblock") {
+            if (dispatch) {
+              tr.setNodeMarkup(nodePos, undefined, {
+                ...node.attrs,
+                listType: type,
               });
             }
             return true;
@@ -322,6 +374,14 @@ export const Block = Node.create<IBlock>({
       "Shift-Tab": () => {
         return this.editor.commands.liftListItem("tcblock");
       },
+      "Mod-Alt-0": () =>
+        this.editor.chain().unsetList().unsetBlockHeading().run(),
+      "Mod-Alt-1": () => this.editor.commands.setBlockHeading({ level: 1 }),
+      "Mod-Alt-2": () => this.editor.commands.setBlockHeading({ level: 2 }),
+      "Mod-Alt-3": () => this.editor.commands.setBlockHeading({ level: 3 }),
+      "Mod-Shift-7": () => this.editor.commands.setBlockList("li"),
+      "Mod-Shift-8": () => this.editor.commands.setBlockList("oli"),
+      // TODO: Add shortcuts for numbered and bullet list
     };
   },
 });
