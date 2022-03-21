@@ -12,6 +12,7 @@ export const DragHandle = (props: {
   coords: { left: number; top: number };
   onShow?: () => void;
   onHide?: () => void;
+  onAddClicked?: () => void;
 }) => {
   const [clicked, setClicked] = useState<boolean>(false);
   const [deleted, setDeleted] = useState<boolean>(false);
@@ -40,6 +41,9 @@ export const DragHandle = (props: {
 
   const onAddClick = () => {
     setClicked(true);
+    if (props.onAddClicked) {
+      props.onAddClicked();
+    }
     const pos = props.view.posAtCoords(props.coords);
     if (!pos) {
       return;

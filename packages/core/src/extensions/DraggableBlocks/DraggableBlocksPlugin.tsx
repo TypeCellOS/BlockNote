@@ -123,12 +123,16 @@ export const createDraggableBlocksPlugin = () => {
   const horizontalPosAnchoredAtRoot = true;
 
   let menuShown = false;
+  let addClicked = false;
 
   const onShow = () => {
     menuShown = true;
   };
   const onHide = () => {
     menuShown = false;
+  };
+  const onAddClicked = () => {
+    addClicked = true;
   };
 
   return new Plugin({
@@ -174,6 +178,7 @@ export const createDraggableBlocksPlugin = () => {
           throw new Error("unexpected");
         }
         menuShown = false;
+        addClicked = false;
         ReactDOM.render(<></>, dropElement);
         return false;
       },
@@ -195,6 +200,7 @@ export const createDraggableBlocksPlugin = () => {
             throw new Error("unexpected");
           }
           menuShown = false;
+          addClicked = false;
           ReactDOM.render(<></>, dropElement);
           return false;
         },
@@ -202,8 +208,10 @@ export const createDraggableBlocksPlugin = () => {
           if (!dropElement) {
             throw new Error("unexpected");
           }
-          if (menuShown) {
+
+          if (menuShown || addClicked) {
             // The submenu is open, don't move draghandle
+            // Or if the user clicked the add button
             return true;
           }
           const coords = {
@@ -243,6 +251,7 @@ export const createDraggableBlocksPlugin = () => {
             <DragHandle
               onShow={onShow}
               onHide={onHide}
+              onAddClicked={onAddClicked}
               key={block.id + ""}
               view={view}
               coords={coords}
