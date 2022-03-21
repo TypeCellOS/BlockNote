@@ -56,11 +56,18 @@ export const DragHandle = (props: {
     }
     // If current blocks content is empty dont create a new block
     if (currentBlock.node.firstChild?.textContent.length === 0) {
-      props.view.dispatch(props.view.state.tr.setNodeMarkup(currentBlock.pos));
+      // Give block content isFilter att
+      props.view.dispatch(
+        props.view.state.tr.setNodeMarkup(currentBlock.pos + 1, undefined, {
+          isFilter: true,
+        })
+      );
     } else {
       // Create new block after current block
       const endOfBlock = currentBlock.pos + currentBlock.node.nodeSize;
-      let newBlock = props.view.state.schema.nodes["tcblock"].createAndFill();
+      let newBlock = props.view.state.schema.nodes["tccontent"].createAndFill({
+        isFilter: true,
+      });
       props.view.state.tr.insert(endOfBlock, newBlock);
       props.view.dispatch(props.view.state.tr.insert(endOfBlock, newBlock));
       props.view.dispatch(

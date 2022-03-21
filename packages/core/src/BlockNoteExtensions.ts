@@ -44,6 +44,7 @@ export const getBlockNoteExtensions = () => {
     Placeholder.configure({
       emptyNodeClass: blockStyles.isEmpty,
       hasAnchorClass: blockStyles.hasAnchor,
+      isFilterClass: blockStyles.isFilter,
       includeChildren: true,
       showOnlyCurrent: false,
     }),

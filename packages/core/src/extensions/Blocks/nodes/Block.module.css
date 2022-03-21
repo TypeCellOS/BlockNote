@@ -133,10 +133,10 @@ NESTED BLOCKS
 .blockOuter[data-listtype="oli"]:not([data-prev-listtype])
   > .block
   > div:first-child::before {
-    content: attr(data-position);
-    margin-right: 1.2em;
-    padding-left: 0px;
-  }
+  content: attr(data-position);
+  margin-right: 1.2em;
+  padding-left: 0px;
+}
 
 .blockOuter[data-prev-listtype="li"] > .block > div:first-child::before,
 .blockOuter[data-listtype="li"]:not([data-prev-listtype])
@@ -195,7 +195,8 @@ NESTED BLOCKS
   display: inline;
 }
 
-.blockContent.isEmpty div::before {
+.blockContent.isEmpty div::before,
+.blockContent.isFilter div::before {
   /*float: left; */
   content: "";
   color: #aeb8c2;
@@ -210,6 +211,10 @@ NESTED BLOCKS
 
 .blockContent.isEmpty.hasAnchor div::before {
   content: "Enter text or type '/' for commands";
+}
+
+.blockContent.isFilter.hasAnchor div::before {
+  content: "Type to filter";
 }
 
 [data-headingtype] > .blockContent.isEmpty div::before {

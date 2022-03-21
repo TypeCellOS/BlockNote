@@ -2,6 +2,7 @@ import { Editor, Extension } from "@tiptap/core";
 import { Node as ProsemirrorNode } from "prosemirror-model";
 import { Decoration, DecorationSet } from "prosemirror-view";
 import { Plugin } from "prosemirror-state";
+import { SlashMenuPluginKey } from "../SlashMenu/SlashMenuExtension";
 
 /**
  * This is a modified version of the tiptap
@@ -13,6 +14,7 @@ import { Plugin } from "prosemirror-state";
 export interface PlaceholderOptions {
   emptyEditorClass: string;
   emptyNodeClass: string;
+  isFilterClass: string;
   hasAnchorClass: string;
   placeholder:
     | ((PlaceholderProps: {
@@ -34,6 +36,7 @@ export const Placeholder = Extension.create<PlaceholderOptions>({
     return {
       emptyEditorClass: "is-editor-empty",
       emptyNodeClass: "is-empty",
+      isFilterClass: "is-filter",
       hasAnchorClass: "has-anchor",
       placeholder: "Write something …",
       showOnlyWhenEditable: true,
@@ -46,7 +49,10 @@ export const Placeholder = Extension.create<PlaceholderOptions>({
     return [
       new Plugin({
         props: {
-          decorations: ({ doc, selection }) => {
+          decorations: (state) => {
+            const { doc, selection } = state;
+            // Get state of slash menu
+            const menuState = SlashMenuPluginKey.getState(state);
             const active =
               this.editor.isEditable || !this.options.showOnlyWhenEditable;
             const { anchor } = selection;
@@ -69,6 +75,11 @@ export const Placeholder = Extension.create<PlaceholderOptions>({
 
                 if (hasAnchor) {
                   classes.push(this.options.hasAnchorClass);
+                }
+
+                // If node has isFilter attrs add isFilterClass which changes its placeholder
+                if (menuState.type === "drag" && menuState.active) {
+                  classes.push(this.options.isFilterClass);
                 }
                 // using widget, didn't work (caret position bug)
                 // const decoration = Decoration.widget(
