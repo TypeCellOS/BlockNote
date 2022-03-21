@@ -190,7 +190,7 @@ export const createDraggableBlocksPlugin = () => {
           // dropElement.style.display = "none";
           return true;
         },
-        mousedown(view, event) {
+        mousedown(_view, _event) {
           if (!dropElement) {
             throw new Error("unexpected");
           }
