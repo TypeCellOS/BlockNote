@@ -49,7 +49,7 @@ test.describe("Check Draghandle functionality", () => {
     expect(await page.screenshot()).toMatchSnapshot("draghandlemenu.png");
   });
 
-  test.only("Clicking add button should create new block", async () => {
+  test("Clicking add button should create new block", async () => {
     await executeSlashCommand(page, "h1");
     await page.keyboard.type("Hover over this text");
     await moveMouseOverElement(page, H_ONE_BLOCK_SELECTOR);
