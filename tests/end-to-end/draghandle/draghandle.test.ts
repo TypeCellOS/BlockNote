@@ -64,6 +64,14 @@ test.describe("Check Draghandle functionality", () => {
     await compareDocToSnapshot(page, "draghandleadd");
   });
 
+  test("Click add button hides drag handle", async () => {
+    await executeSlashCommand(page, "h1");
+    await page.keyboard.type("Hover over this text");
+    await hoverAndAddBlockFromDragHandle(page, H_ONE_BLOCK_SELECTOR, "h2");
+    await page.waitForSelector(DRAGHANDLE, { state: "detached" });
+    await page.waitForSelector(DRAGHANDLEADD, { state: "detached" });
+  });
+
   test("Clicking delete button should delete block", async () => {
     await executeSlashCommand(page, "h1");
     await page.keyboard.type("Hover over this text");
