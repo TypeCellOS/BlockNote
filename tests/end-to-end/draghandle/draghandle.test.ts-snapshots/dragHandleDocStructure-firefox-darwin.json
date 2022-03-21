@@ -1,0 +1,56 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "blockGroup",
+      "content": [
+        {
+          "type": "tcblock",
+          "attrs": {
+            "headingType": 1
+          },
+          "content": [
+            {
+              "type": "tccontent",
+              "attrs": {},
+              "content": [
+                {
+                  "type": "text",
+                  "text": "This is h1"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "tcblock",
+          "attrs": {
+            "headingType": 3
+          },
+          "content": [
+            {
+              "type": "tccontent",
+              "attrs": {},
+              "content": [
+                {
+                  "type": "text",
+                  "text": "This is h3"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "tcblock",
+          "attrs": {},
+          "content": [
+            {
+              "type": "tccontent",
+              "attrs": {}
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
