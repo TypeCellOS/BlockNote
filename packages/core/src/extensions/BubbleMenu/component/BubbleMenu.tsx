@@ -1,5 +1,4 @@
 import { Editor } from "@tiptap/core";
-import React from "react";
 import {
   RiBold,
   RiH1,

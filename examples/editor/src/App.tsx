@@ -2,7 +2,6 @@
 import styles from "./App.module.css";
 import { EditorContent, useEditor } from "@blocknote/core";
 import { Editor } from "@tiptap/core";
-import React from "react";
 // import "@blocknote/core/style.css";
 
 type WindowWithProseMirror = Window &

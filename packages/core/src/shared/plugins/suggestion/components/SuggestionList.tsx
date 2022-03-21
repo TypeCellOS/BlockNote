@@ -1,5 +1,4 @@
 import { MenuGroup, Section } from "@atlaskit/menu";
-import React from "react";
 import styles from "./SuggestionList.module.css";
 import rootStyles from "../../../../root.module.css";
 import { SuggestionGroup } from "./SuggestionGroup";

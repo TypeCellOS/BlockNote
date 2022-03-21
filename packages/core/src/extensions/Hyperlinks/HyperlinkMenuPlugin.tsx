@@ -8,7 +8,6 @@ import {
   HyperlinkEditMenu,
   HyperlinkEditorMenuProps,
 } from "./menus/HyperlinkEditMenu";
-import React from "react";
 import rootStyles from "../../root.module.css";
 const PLUGIN_KEY = new PluginKey("HyperlinkMenuPlugin");
 

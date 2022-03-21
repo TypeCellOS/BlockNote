@@ -1,6 +1,6 @@
 import Tippy from "@tippyjs/react";
 import { Editor } from "@tiptap/core";
-import React, { useCallback, useState } from "react";
+import { useCallback, useState } from "react";
 import {
   SimpleToolbarButton,
   SimpleToolbarButtonProps,

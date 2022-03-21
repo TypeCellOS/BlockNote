@@ -1,5 +1,4 @@
 import styles from "./TooltipContent.module.css";
-import React from "react";
 
 /**
  * Helper for the tooltip for inline bubble menu buttons.
@@ -8,6 +7,8 @@ import React from "react";
  *
  *      Bold
  *      Ctrl+B
+ *
+ * TODO: maybe use default Tippy styles instead?
  */
 export const TooltipContent = (props: {
   mainTooltip: string;

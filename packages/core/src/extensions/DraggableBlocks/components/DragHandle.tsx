@@ -1,7 +1,7 @@
 import Tippy from "@tippyjs/react";
 import DragHandleMenu from "./DragHandleMenu";
 import styles from "./DragHandle.module.css";
-import React, { useState } from "react";
+import { useState } from "react";
 import { EditorView } from "prosemirror-view";
 import { TextSelection } from "prosemirror-state";
 import { findBlock } from "../../Blocks/helpers/findBlock";
