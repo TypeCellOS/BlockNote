@@ -1,6 +1,5 @@
 import styles from "./DragHandleMenu.module.css";
 import { MenuGroup, ButtonItem } from "@atlaskit/menu";
-import React from "react";
 
 type Props = {
   onDelete: () => void;

@@ -1,4 +1,3 @@
-import React from "react";
 import { DropdownItem } from "@atlaskit/dropdown-menu";
 import { IconType } from "react-icons/lib";
 import { TiTick } from "react-icons/ti";

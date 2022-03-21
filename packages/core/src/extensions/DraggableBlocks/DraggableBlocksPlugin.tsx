@@ -3,8 +3,6 @@ import { EditorView, __serializeForClipboard } from "prosemirror-view";
 import ReactDOM from "react-dom";
 import { DragHandle } from "./components/DragHandle";
 
-import React from "react";
-
 // code based on https://github.com/ueberdosis/tiptap/issues/323#issuecomment-506637799
 
 let horizontalAnchor: number;
