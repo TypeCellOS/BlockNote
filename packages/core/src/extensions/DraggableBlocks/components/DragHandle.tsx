@@ -70,7 +70,9 @@ export const DragHandle = (props: {
     );
   };
 
-  if (deleted) return null;
+  if (deleted) {
+    return null;
+  }
 
   return (
     <div style={{ display: "flex", flexDirection: "row", gap: "0.25em" }}>
