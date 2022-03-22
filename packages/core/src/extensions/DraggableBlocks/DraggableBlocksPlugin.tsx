@@ -7,6 +7,7 @@ import React from "react";
 
 // code based on https://github.com/ueberdosis/tiptap/issues/323#issuecomment-506637799
 
+let prevCoords: { left: number; top: number };
 let horizontalAnchor: number;
 function getHorizontalAnchor(update = false) {
   if (update || !horizontalAnchor) {
@@ -136,12 +137,69 @@ export const createDraggableBlocksPlugin = () => {
     addClicked = true;
   };
 
+  const renderHandle = (
+    coords: { left: number; top: number },
+    view: EditorView
+  ) => {
+    if (!dropElement) {
+      throw new Error("unexpected");
+    }
+
+    if (menuShown || addClicked) {
+      // The submenu is open, don't move draghandle
+      // Or if the user clicked the add button
+      return true;
+    }
+
+    const block = getDraggableBlockFromCoords(coords, view);
+
+    if (!block) {
+      console.warn("Perhaps we should hide element?");
+      return true;
+    }
+
+    // I want the dim of the blocks content node
+    // because if the block contains other blocks
+    // Its dims change, moving the position of the drag handle
+    const blockContent = block.node.firstChild as HTMLElement;
+
+    if (!blockContent) {
+      return true;
+    }
+
+    const rect = absoluteRect(blockContent);
+    const win = block.node.ownerDocument.defaultView!;
+    const dropElementRect = dropElement.getBoundingClientRect();
+    const left =
+      (horizontalPosAnchoredAtRoot ? getHorizontalAnchor() : rect.left) -
+      WIDTH +
+      win.pageXOffset;
+    rect.top += rect.height / 2 - dropElementRect.height / 2 + win.pageYOffset;
+
+    dropElement.style.left = left + "px";
+    dropElement.style.top = rect.top + "px";
+
+    ReactDOM.render(
+      <DragHandle
+        onShow={onShow}
+        onHide={onHide}
+        onAddClicked={onAddClicked}
+        key={block.id + ""}
+        view={view}
+        coords={coords}
+      />,
+      dropElement
+    );
+    return true;
+  };
+
   return new Plugin({
     key: new PluginKey("DraggableBlocksPlugin"),
     state: {
       init() {},
-      apply(transaction, prev, _oldState, _newState) {
+      apply(transaction, _prev, _oldState, _newState) {
         if (transaction.getMeta("Resize")) {
+          // Update the horizontal anchor
           getHorizontalAnchor(true);
         }
       },
@@ -158,19 +216,24 @@ export const createDraggableBlocksPlugin = () => {
       );
 
       // Send resize meta
-      // let viewForPosHandler: EditorView;
+      let viewForPosHandler: EditorView;
       const posHandler = () => {
-        // viewForPosHandler.dispatch(
-        //   viewForPosHandler.state.tr.setMeta("Resize", true)
-        // );
+        // When window size changes, create transaction
+        viewForPosHandler.dispatch(
+          viewForPosHandler.state.tr.setMeta("Resize", true)
+        );
         // Update horizontal anchor
         getHorizontalAnchor(true);
       };
       return {
         update(view, _prevState) {
           // On each new view add resize handler
-          // viewForPosHandler = view;
+          viewForPosHandler = view;
           window.addEventListener("resize", posHandler);
+          if (prevCoords) {
+            // Render draghandle in correct position
+            renderHandle(prevCoords, view);
+          }
         },
         destroy() {
           if (!dropElement) {
@@ -183,6 +246,7 @@ export const createDraggableBlocksPlugin = () => {
         },
       };
     },
+
     props: {
       // handleDOMEvents: {
 
@@ -230,60 +294,12 @@ export const createDraggableBlocksPlugin = () => {
           return false;
         },
         mousemove(view, event) {
-          if (!dropElement) {
-            throw new Error("unexpected");
-          }
-
-          if (menuShown || addClicked) {
-            // The submenu is open, don't move draghandle
-            // Or if the user clicked the add button
-            return true;
-          }
           const coords = {
             left: view.dom.clientWidth / 2, // take middle of editor
             top: event.clientY,
           };
-          const block = getDraggableBlockFromCoords(coords, view);
-
-          if (!block) {
-            console.warn("Perhaps we should hide element?");
-            return true;
-          }
-
-          // I want the dim of the blocks content node
-          // because if the block contains other blocks
-          // Its dims change, moving the position of the drag handle
-          const blockContent = block.node.firstChild as HTMLElement;
-
-          if (!blockContent) {
-            return true;
-          }
-
-          const rect = absoluteRect(blockContent);
-          const win = block.node.ownerDocument.defaultView!;
-          const dropElementRect = dropElement.getBoundingClientRect();
-          const left =
-            (horizontalPosAnchoredAtRoot ? getHorizontalAnchor() : rect.left) -
-            WIDTH +
-            win.pageXOffset;
-          rect.top +=
-            rect.height / 2 - dropElementRect.height / 2 + win.pageYOffset;
-
-          dropElement.style.left = left + "px";
-          dropElement.style.top = rect.top + "px";
-
-          ReactDOM.render(
-            <DragHandle
-              onShow={onShow}
-              onHide={onHide}
-              onAddClicked={onAddClicked}
-              key={block.id + ""}
-              view={view}
-              coords={coords}
-            />,
-            dropElement
-          );
-          return true;
+          prevCoords = coords;
+          return renderHandle(coords, view);
         },
       },
     },
