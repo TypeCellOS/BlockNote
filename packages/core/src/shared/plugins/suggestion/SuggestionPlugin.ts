@@ -328,6 +328,8 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
         }
 
         // If type in meta is drag, create decoration node that wraps block
+        // Because the block does not have content yet (slash menu has the '/' in its content),
+        // so we can't use an inline decoration.
         if (type === "drag") {
           const blockNode = findBlock(state.selection);
           if (blockNode) {

@@ -55,14 +55,7 @@ export const DragHandle = (props: {
       return;
     }
     // If current blocks content is empty dont create a new block
-    if (currentBlock.node.firstChild?.textContent.length === 0) {
-      // Give block content isFilter att
-      props.view.dispatch(
-        props.view.state.tr.setNodeMarkup(currentBlock.pos + 1, undefined, {
-          isFilter: true,
-        })
-      );
-    } else {
+    if (currentBlock.node.firstChild?.textContent.length !== 0) {
       // Create new block after current block
       const endOfBlock = currentBlock.pos + currentBlock.node.nodeSize;
       let newBlock = props.view.state.schema.nodes["tccontent"].createAndFill({
@@ -76,6 +69,7 @@ export const DragHandle = (props: {
         )
       );
     }
+    // Focus and activate slash menu
     props.view.focus();
     props.view.dispatch(
       props.view.state.tr.scrollIntoView().setMeta(SlashMenuPluginKey, {
