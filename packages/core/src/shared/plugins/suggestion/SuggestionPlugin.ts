@@ -243,6 +243,8 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
             next.type = transaction.getMeta(pluginKey)?.type;
           } else if (prev.active) {
             // Try to match against where our cursor currently is
+            // if the type is slash we get the command after the character
+            // otherwise we get the whole query
             const match = findCommandBeforeCursor(
               prev.type === "slash" ? char : "",
               selection
