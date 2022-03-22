@@ -8,14 +8,15 @@ import React from "react";
 // code based on https://github.com/ueberdosis/tiptap/issues/323#issuecomment-506637799
 
 let horizontalAnchor: number;
-function getHorizontalAnchor() {
-  if (!horizontalAnchor) {
+function getHorizontalAnchor(update = false) {
+  if (update || !horizontalAnchor) {
     const firstBlockGroup = document.querySelector(
       ".ProseMirror > [class*='blockGroup']"
     ) as HTMLElement | undefined; // first block group node
+    // Anchor to the left of the first block group
     if (firstBlockGroup) {
       horizontalAnchor = absoluteRect(firstBlockGroup).left;
-    } // Anchor to the left of the first block group
+    }
   }
   return horizontalAnchor;
 }
@@ -137,6 +138,14 @@ export const createDraggableBlocksPlugin = () => {
 
   return new Plugin({
     key: new PluginKey("DraggableBlocksPlugin"),
+    state: {
+      init() {},
+      apply(transaction, prev, _oldState, _newState) {
+        if (transaction.getMeta("Resize")) {
+          getHorizontalAnchor(true);
+        }
+      },
+    },
     view(editorView) {
       dropElement = document.createElement("div");
       dropElement.setAttribute("draggable", "true");
@@ -148,14 +157,29 @@ export const createDraggableBlocksPlugin = () => {
         dragStart(e, editorView)
       );
 
+      // Send resize meta
+      // let viewForPosHandler: EditorView;
+      const posHandler = () => {
+        // viewForPosHandler.dispatch(
+        //   viewForPosHandler.state.tr.setMeta("Resize", true)
+        // );
+        // Update horizontal anchor
+        getHorizontalAnchor(true);
+      };
       return {
-        // update(view, prevState) {},
+        update(view, _prevState) {
+          // On each new view add resize handler
+          // viewForPosHandler = view;
+          window.addEventListener("resize", posHandler);
+        },
         destroy() {
           if (!dropElement) {
             throw new Error("unexpected");
           }
           dropElement.parentNode!.removeChild(dropElement);
           dropElement = undefined;
+          // Remove resize listener
+          window.removeEventListener("resize", posHandler);
         },
       };
     },
@@ -182,6 +206,7 @@ export const createDraggableBlocksPlugin = () => {
         ReactDOM.render(<></>, dropElement);
         return false;
       },
+
       handleDOMEvents: {
         // drag(view, event) {
         //   // event.dataTransfer!.;
