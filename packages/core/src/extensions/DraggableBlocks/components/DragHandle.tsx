@@ -6,6 +6,7 @@ import { EditorView } from "prosemirror-view";
 import { TextSelection } from "prosemirror-state";
 import { findBlock } from "../../Blocks/helpers/findBlock";
 import { SlashMenuPluginKey } from "../../SlashMenu/SlashMenuExtension";
+import { AiOutlinePlus } from "react-icons/ai";
 
 export const DragHandle = (props: {
   view: EditorView;
@@ -85,8 +86,13 @@ export const DragHandle = (props: {
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "row", gap: "0.25em" }}>
-      <div className={styles.dragHandleAdd} onClick={onAddClick}></div>
+    <div style={{ display: "flex", flexDirection: "row" }}>
+      <AiOutlinePlus
+        size={24}
+        fillOpacity={"0.25"}
+        className={styles.dragHandleAdd}
+        onClick={onAddClick}
+      />
       <Tippy
         content={<DragHandleMenu onDelete={onDelete} />}
         placement={"left"}
