@@ -5,23 +5,12 @@ import { DragHandle } from "./components/DragHandle";
 
 import React from "react";
 
-// code based on https://github.com/ueberdosis/tiptap/issues/323#issuecomment-506637799
-
-let prevCoords: { left: number; top: number };
-let horizontalAnchor: number;
-function getHorizontalAnchor(update = false) {
-  if (update || !horizontalAnchor) {
-    const firstBlockGroup = document.querySelector(
-      ".ProseMirror > [class*='blockGroup']"
-    ) as HTMLElement | undefined; // first block group node
-    // Anchor to the left of the first block group
-    if (firstBlockGroup) {
-      horizontalAnchor = absoluteRect(firstBlockGroup).left;
-    }
-  }
-  return horizontalAnchor;
+interface Coordinates {
+  top: number;
+  left: number;
 }
 
+// code based on https://github.com/ueberdosis/tiptap/issues/323#issuecomment-506637799
 export function createRect(rect: DOMRect) {
   let newRect = {
     left: rect.left + document.body.scrollLeft,
@@ -40,10 +29,7 @@ export function absoluteRect(element: HTMLElement) {
   return createRect(element.getBoundingClientRect());
 }
 
-function blockPosAtCoords(
-  coords: { left: number; top: number },
-  view: EditorView
-) {
+function blockPosAtCoords(coords: Coordinates, view: EditorView) {
   let block = getDraggableBlockFromCoords(coords, view);
 
   if (block && block.node.nodeType === 1) {
@@ -58,10 +44,7 @@ function blockPosAtCoords(
   return null;
 }
 
-function getDraggableBlockFromCoords(
-  coords: { left: number; top: number },
-  view: EditorView
-) {
+function getDraggableBlockFromCoords(coords: Coordinates, view: EditorView) {
   let pos = view.posAtCoords(coords);
   if (!pos) {
     return undefined;
@@ -118,7 +101,10 @@ function dragStart(e: DragEvent, view: EditorView) {
 export const createDraggableBlocksPlugin = () => {
   let dropElement: HTMLElement | undefined;
 
-  const WIDTH = 48;
+  let prevCoords: Coordinates; // Prev coords draghandle was at
+  let horizontalAnchor: number; // Where to anchor the draghandle on the x axis
+
+  const WIDTH = 48; // Width of drag handle
 
   // When true, the drag handle with be anchored at the same level as root elements
   // When false, the drag handle with be just to the left of the element
@@ -137,10 +123,26 @@ export const createDraggableBlocksPlugin = () => {
     addClicked = true;
   };
 
-  const renderHandle = (
-    coords: { left: number; top: number },
-    view: EditorView
-  ) => {
+  /**
+   * If the horizontal anchor has not been set or if update param is true
+   * it calculates it
+   * @param update if true calculate the horizontal anchor
+   * @returns horizontal anchor
+   */
+  function getHorizontalAnchor(update = false) {
+    if (update || !horizontalAnchor) {
+      const firstBlockGroup = document.querySelector(
+        ".ProseMirror > [class*='blockGroup']"
+      ) as HTMLElement | undefined; // first block group node
+      // Anchor to the left of the first block group
+      if (firstBlockGroup) {
+        horizontalAnchor = absoluteRect(firstBlockGroup).left;
+      }
+    }
+    return horizontalAnchor;
+  }
+
+  const renderDragHandle = (coords: Coordinates, view: EditorView) => {
     if (!dropElement) {
       throw new Error("unexpected");
     }
@@ -222,8 +224,6 @@ export const createDraggableBlocksPlugin = () => {
         viewForPosHandler.dispatch(
           viewForPosHandler.state.tr.setMeta("Resize", true)
         );
-        // Update horizontal anchor
-        getHorizontalAnchor(true);
       };
       return {
         update(view, _prevState) {
@@ -231,8 +231,8 @@ export const createDraggableBlocksPlugin = () => {
           viewForPosHandler = view;
           window.addEventListener("resize", posHandler);
           if (prevCoords) {
-            // Render draghandle in correct position
-            renderHandle(prevCoords, view);
+            // Render handle in correct position
+            renderDragHandle(prevCoords, view);
           }
         },
         destroy() {
@@ -299,7 +299,7 @@ export const createDraggableBlocksPlugin = () => {
             top: event.clientY,
           };
           prevCoords = coords;
-          return renderHandle(coords, view);
+          return renderDragHandle(coords, view);
         },
       },
     },
