@@ -64,6 +64,18 @@ test.describe("Check Draghandle functionality", () => {
     await compareDocToSnapshot(page, "draghandleadd");
   });
 
+  test("Clicking add button should show filter message", async () => {
+    await executeSlashCommand(page, "h1");
+    await page.keyboard.type("Hover over this text");
+    await moveMouseOverElement(page, H_ONE_BLOCK_SELECTOR);
+    await page.click(DRAGHANDLEADD);
+
+    await page.waitForTimeout(1000);
+    expect(
+      await page.locator(BLOCK_SELECTOR).nth(1).screenshot()
+    ).toMatchSnapshot("drag_add_filter_message.png");
+  });
+
   test("Click add button hides drag handle", async () => {
     await executeSlashCommand(page, "h1");
     await page.keyboard.type("Hover over this text");
