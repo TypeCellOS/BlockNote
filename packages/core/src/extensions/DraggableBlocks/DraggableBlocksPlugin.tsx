@@ -204,12 +204,19 @@ export const createDraggableBlocksPlugin = () => {
         //   // event.dataTransfer!.;
         //   return false;
         // },
-        mouseleave(_view, _event) {
+        mouseleave(view, event) {
           if (!dropElement) {
             throw new Error("unexpected");
           }
-          // TODO
-          // dropElement.style.display = "none";
+
+          // Hide the drop element when the mouse leaves the editor from the bottom
+          // This is not in mouse move because the mouse leaving the bottom of the editor
+          // Is not detected there
+          if (event.clientY > view.dom.clientTop + view.dom.clientHeight) {
+            menuShown = false;
+            addClicked = false;
+            ReactDOM.render(<></>, dropElement);
+          }
           return true;
         },
         mousedown(_view, _event) {
@@ -265,15 +272,25 @@ export const createDraggableBlocksPlugin = () => {
           dropElement.style.left = left + "px";
           dropElement.style.top = rect.top + "px";
 
+          // Check whether mouse is in block or not so we can hide draghandle
+          const mouseInBlock =
+            rect.left - WIDTH + win.pageXOffset < event.clientX && // Left bound
+            rect.left + rect.width + win.pageXOffset > event.clientX && // Right bound
+            rect.top - win.pageYOffset < event.clientY; // Top bound
+
           ReactDOM.render(
-            <DragHandle
-              onShow={onShow}
-              onHide={onHide}
-              onAddClicked={onAddClicked}
-              key={block.id + ""}
-              view={view}
-              coords={coords}
-            />,
+            mouseInBlock ? (
+              <DragHandle
+                onShow={onShow}
+                onHide={onHide}
+                onAddClicked={onAddClicked}
+                key={block.id + ""}
+                view={view}
+                coords={coords}
+              />
+            ) : (
+              <></>
+            ),
             dropElement
           );
           return true;
