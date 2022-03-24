@@ -16,6 +16,18 @@
   cursor:  !important;
 } */
 
+.dragHandleAdd:hover,
 .dragHandle:hover {
   background-color: #eee;
+}
+
+.dragHandleAdd {
+  /* position: absolute; */
+  transition: opacity 300ms;
+
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+  cursor: pointer;
+  border-radius: 3px;
 }

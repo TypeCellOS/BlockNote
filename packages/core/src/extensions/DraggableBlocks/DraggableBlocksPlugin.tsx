@@ -114,19 +114,23 @@ function dragStart(e: DragEvent, view: EditorView) {
 export const createDraggableBlocksPlugin = () => {
   let dropElement: HTMLElement | undefined;
 
-  const WIDTH = 24;
+  const WIDTH = 48;
 
   // When true, the drag handle with be anchored at the same level as root elements
   // When false, the drag handle with be just to the left of the element
   const horizontalPosAnchoredAtRoot = true;
 
   let menuShown = false;
+  let addClicked = false;
 
   const onShow = () => {
     menuShown = true;
   };
   const onHide = () => {
     menuShown = false;
+  };
+  const onAddClicked = () => {
+    addClicked = true;
   };
 
   return new Plugin({
@@ -172,6 +176,7 @@ export const createDraggableBlocksPlugin = () => {
           throw new Error("unexpected");
         }
         menuShown = false;
+        addClicked = false;
         ReactDOM.render(<></>, dropElement);
         return false;
       },
@@ -188,12 +193,23 @@ export const createDraggableBlocksPlugin = () => {
           // dropElement.style.display = "none";
           return true;
         },
+        mousedown(_view, _event) {
+          if (!dropElement) {
+            throw new Error("unexpected");
+          }
+          menuShown = false;
+          addClicked = false;
+          ReactDOM.render(<></>, dropElement);
+          return false;
+        },
         mousemove(view, event) {
           if (!dropElement) {
             throw new Error("unexpected");
           }
-          if (menuShown) {
+
+          if (menuShown || addClicked) {
             // The submenu is open, don't move draghandle
+            // Or if the user clicked the add button
             return true;
           }
           const coords = {
@@ -226,8 +242,6 @@ export const createDraggableBlocksPlugin = () => {
           rect.top +=
             rect.height / 2 - dropElementRect.height / 2 + win.pageYOffset;
 
-          console.log(rect.top);
-
           dropElement.style.left = left + "px";
           dropElement.style.top = rect.top + "px";
 
@@ -235,6 +249,7 @@ export const createDraggableBlocksPlugin = () => {
             <DragHandle
               onShow={onShow}
               onHide={onHide}
+              onAddClicked={onAddClicked}
               key={block.id + ""}
               view={view}
               coords={coords}
