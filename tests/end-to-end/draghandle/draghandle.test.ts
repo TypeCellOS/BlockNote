@@ -1,12 +1,14 @@
 import { test, expect, Page } from "@playwright/test";
 import {
   BASE_URL,
+  BLOCK_CONTENT_SELECTOR,
   BLOCK_SELECTOR,
   DRAGHANDLE,
   DRAGHANDLEADD,
   H_ONE_BLOCK_SELECTOR,
   H_THREE_BLOCK_SELECTOR,
   H_TWO_BLOCK_SELECTOR,
+  SLASH_MENU_SELECTOR,
   TIPPY_MENU,
 } from "../../utils/const";
 import {
@@ -65,15 +67,24 @@ test.describe("Check Draghandle functionality", () => {
   });
 
   test("Clicking add button should show filter message", async () => {
+    await moveMouseOverElement(page, BLOCK_SELECTOR);
+    await page.click(DRAGHANDLEADD);
+    const content = await page.waitForSelector(BLOCK_CONTENT_SELECTOR);
+    // Get text in :before
+    const text = await content.evaluate((el) =>
+      window
+        .getComputedStyle(el.children[0], ":before")
+        .getPropertyValue("content")
+    );
+    expect(text).toBe('"Type to filter"');
+  });
+
+  test("Clicking add button should open menu", async () => {
     await executeSlashCommand(page, "h1");
     await page.keyboard.type("Hover over this text");
     await moveMouseOverElement(page, H_ONE_BLOCK_SELECTOR);
     await page.click(DRAGHANDLEADD);
-
-    await page.waitForTimeout(1000);
-    expect(
-      await page.locator(BLOCK_SELECTOR).nth(1).screenshot()
-    ).toMatchSnapshot("drag_add_filter_message.png");
+    await page.waitForSelector(SLASH_MENU_SELECTOR);
   });
 
   test("Click add button hides drag handle", async () => {
