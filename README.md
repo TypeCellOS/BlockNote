@@ -21,6 +21,7 @@ To run the project, open the command line in the project's root directory and en
     npm run install-lerna
     npm run bootstrap
 
+
     # Start the editor project
     npm start
 
