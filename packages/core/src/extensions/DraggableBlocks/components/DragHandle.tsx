@@ -1,12 +1,12 @@
 import Tippy from "@tippyjs/react";
-import DragHandleMenu from "./DragHandleMenu";
-import styles from "./DragHandle.module.css";
-import { useState } from "react";
-import { EditorView } from "prosemirror-view";
 import { TextSelection } from "prosemirror-state";
+import { EditorView } from "prosemirror-view";
+import { useState } from "react";
+import { AiOutlinePlus } from "react-icons/ai";
 import { findBlock } from "../../Blocks/helpers/findBlock";
 import { SlashMenuPluginKey } from "../../SlashMenu/SlashMenuExtension";
-import { AiOutlinePlus } from "react-icons/ai";
+import styles from "./DragHandle.module.css";
+import DragHandleMenu from "./DragHandleMenu";
 
 export const DragHandle = (props: {
   view: EditorView;
@@ -59,7 +59,8 @@ export const DragHandle = (props: {
     if (currentBlock.node.firstChild?.textContent.length !== 0) {
       // Create new block after current block
       const endOfBlock = currentBlock.pos + currentBlock.node.nodeSize;
-      let newBlock = props.view.state.schema.nodes["tccontent"].createAndFill();
+      let newBlock =
+        props.view.state.schema.nodes["tccontent"].createAndFill()!;
       props.view.state.tr.insert(endOfBlock, newBlock);
       props.view.dispatch(props.view.state.tr.insert(endOfBlock, newBlock));
       props.view.dispatch(

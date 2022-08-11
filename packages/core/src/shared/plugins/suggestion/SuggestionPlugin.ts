@@ -56,7 +56,7 @@ export type MenuType = "slash" | "drag";
  */
 export function findCommandBeforeCursor(
   char: string,
-  selection: Selection<any>
+  selection: Selection
 ): { range: Range; query: string } | undefined {
   if (!selection.empty) {
     return undefined;
@@ -202,11 +202,12 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
       init() {
         return {
           active: false,
-          range: {},
-          query: null,
+          range: {} as any, // TODO
+          query: null as string | null,
           notFoundCount: 0,
-          items: [],
+          items: [] as T[],
           type: "slash",
+          decorationId: null as string | null,
         };
       },
 
@@ -263,7 +264,7 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
         }
 
         if (next.active) {
-          next.items = items(next.query);
+          next.items = items(next.query!);
           if (next.items.length) {
             next.notFoundCount = 0;
           } else {

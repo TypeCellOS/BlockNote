@@ -1,8 +1,8 @@
 // import logo from './logo.svg'
-import styles from "./App.module.css";
 import { EditorContent, useEditor } from "@blocknote/core";
+import "@blocknote/core/style.css";
 import { Editor } from "@tiptap/core";
-// import "@blocknote/core/style.css";
+import styles from "./App.module.css";
 
 type WindowWithProseMirror = Window &
   typeof globalThis & { ProseMirror: Editor };
