@@ -1,42 +1,17 @@
+import { Fragment, Node, ResolvedPos, Slice } from "prosemirror-model";
+import { EditorState, NodeSelection, Selection } from "prosemirror-state";
 import {
   canJoin,
   liftTarget,
   ReplaceAroundStep,
   replaceStep,
-  Step,
 } from "prosemirror-transform";
-import { Selection, NodeSelection } from "prosemirror-state";
-import {
-  Slice,
-  Fragment,
-  ResolvedPos,
-  Node,
-  NodeType,
-} from "prosemirror-model";
-import { isTextSelection } from "@tiptap/core";
-import { EditorState } from "prosemirror-state";
-import { EditorView } from "prosemirror-view";
 
-type Dispatch = ((args?: any) => any) | undefined;
-
-interface JoinBackwardParams {
-  state: EditorState;
-  dispatch: Dispatch;
-  view: EditorView;
-}
-
-interface DelStep extends Step {
-  slice: Slice;
-  to: number;
-  from: number;
-}
-
-interface NodeTypeWithCompatibleContent extends NodeType {
-  compatibleContent: (other: NodeType) => boolean;
-}
+import { Command, TextSelection, Transaction } from "prosemirror-state";
+import { ReplaceStep } from "prosemirror-transform";
 
 /**
- * Code taken from https://github.com/ProseMirror/prosemirror-commands/blob/master/src/commands.js
+ * Code taken from https://github.com/ProseMirror/prosemirror-commands/blob/97a8cb5fac25e697d4693ce343e2e3b020a7fa2f/src/commands.ts
  * Reason for modification: https://github.com/YousefED/BlockNote/pull/11
  *
  * BlockA
@@ -44,96 +19,86 @@ interface NodeTypeWithCompatibleContent extends NodeType {
  * Order of behavior has been switched to make first and second blocks content
  * merge before trying to add second block as child of first
  *
- * behavior responsible for joining BlockB as A child of BlockA moved to (line 197 - 228) after
- * behavior responsible for joining content of BlockA and BlockB (line 156 - 192)
+ * behavior responsible for joining BlockB as A child of BlockA moved to (line 379 - 393 original file) after
+ * behavior responsible for joining content of BlockA and BlockB (line 402 - 422 original file)
  */
-export const joinBackward =
-  () =>
-  ({ state, dispatch, view }: JoinBackwardParams) => {
-    if (!isTextSelection(state.selection)) {
+export const joinBackward: Command = (state, dispatch, view) => {
+  let { $cursor } = state.selection as TextSelection;
+  if (
+    !$cursor ||
+    (view ? !view.endOfTextblock("backward", state) : $cursor.parentOffset > 0)
+  ) {
+    return false;
+  }
+
+  let $cut = findCutBefore($cursor);
+
+  // If there is no node before this, try to lift
+  if (!$cut) {
+    let range = $cursor.blockRange(),
+      target = range && liftTarget(range);
+    if (target === null) {
       return false;
     }
-    let { $cursor } = state.selection;
+    if (dispatch) {
+      dispatch(state.tr.lift(range!, target).scrollIntoView());
+    }
+    return true;
+  }
+
+  let before = $cut.nodeBefore!;
+  // Apply the joining algorithm
+  if (!before.type.spec.isolating && deleteBarrier(state, $cut, dispatch)) {
+    return true;
+  }
+
+  // If the node below has no content and the node above is
+  // selectable, delete the node below and select the one above.
+  if (
+    $cursor.parent.content.size === 0 &&
+    (textblockAt(before, "end") || NodeSelection.isSelectable(before))
+  ) {
+    let delStep = replaceStep(
+      state.doc,
+      $cursor.before(),
+      $cursor.after(),
+      Slice.empty
+    );
     if (
-      !$cursor ||
-      (view
-        ? !view.endOfTextblock("backward", state)
-        : $cursor.parentOffset > 0)
+      delStep &&
+      (delStep as ReplaceStep).slice.size <
+        (delStep as ReplaceStep).to - (delStep as ReplaceStep).from
     ) {
-      return false;
-    }
-
-    let $cut = findCutBefore($cursor);
-
-    // If there is no node before this, try to lift
-    if (!$cut) {
-      let range = $cursor.blockRange(),
-        target = range && liftTarget(range);
-      if (target == null || !range) {
-        return false;
-      }
       if (dispatch) {
-        dispatch(state.tr.lift(range, target).scrollIntoView());
-      }
-      return true;
-    }
-
-    let before = $cut.nodeBefore;
-    if (!before) {
-      return false;
-    }
-    // Apply the joining algorithm
-    if (!before.type.spec.isolating && deleteBarrier(state, $cut, dispatch)) {
-      return true;
-    }
-
-    // If the node below has no content and the node above is
-    // selectable, delete the node below and select the one above.
-    if (
-      $cursor.parent.content.size === 0 &&
-      (textblockAt(before, "end") || NodeSelection.isSelectable(before))
-    ) {
-      let delStep = replaceStep(
-        state.doc,
-        $cursor.before(),
-        $cursor.after(),
-        Slice.empty
-      ) as DelStep;
-      if (!delStep) {
-        return false;
-      }
-      if (delStep.slice.size < delStep.to - delStep.from) {
-        if (dispatch) {
-          let tr = state.tr.step(delStep);
-          const tmpBlock = textblockAt(before, "end")
+        let tr = state.tr.step(delStep);
+        tr.setSelection(
+          textblockAt(before, "end")
             ? Selection.findFrom(
                 tr.doc.resolve(tr.mapping.map($cut.pos, -1)),
                 -1
-              )
-            : NodeSelection.create(tr.doc, $cut.pos - before.nodeSize);
-          if (!tmpBlock) {
-            return false;
-          }
-          tr.setSelection(tmpBlock);
-          dispatch(tr.scrollIntoView());
-        }
-        return true;
-      }
-    }
-    // If the node before is an atom, delete it
-    if (before.isAtom && $cut.depth === $cursor.depth - 1) {
-      if (dispatch) {
-        dispatch(
-          state.tr.delete($cut.pos - before.nodeSize, $cut.pos).scrollIntoView()
+              )!
+            : NodeSelection.create(tr.doc, $cut.pos - before.nodeSize)
         );
+        dispatch(tr.scrollIntoView());
       }
       return true;
     }
+  }
 
-    return false;
-  };
+  // If the node before is an atom, delete it
+  if (before.isAtom && $cut.depth === $cursor.depth - 1) {
+    if (dispatch) {
+      dispatch(
+        state.tr.delete($cut.pos - before.nodeSize, $cut.pos).scrollIntoView()
+      );
+    }
+    return true;
+  }
 
-function findCutBefore($pos: ResolvedPos) {
+  return false;
+};
+
+function findCutBefore($pos: ResolvedPos): ResolvedPos | null {
   if (!$pos.parent.type.spec.isolating) {
     for (let i = $pos.depth - 1; i >= 0; i--) {
       if ($pos.index(i) > 0) {
@@ -150,16 +115,12 @@ function findCutBefore($pos: ResolvedPos) {
 function deleteBarrier(
   state: EditorState,
   $cut: ResolvedPos,
-  dispatch: Dispatch
+  dispatch: ((tr: Transaction) => void) | undefined
 ) {
-  // Delete barrier to join top
-  let before = $cut.nodeBefore,
-    after = $cut.nodeAfter,
+  let before = $cut.nodeBefore!,
+    after = $cut.nodeAfter!,
     conn,
     match;
-  if (!before || !after) {
-    return false;
-  }
   if (before.type.spec.isolating || after.type.spec.isolating) {
     return false;
   }
@@ -172,17 +133,13 @@ function deleteBarrier(
   let selAfter = Selection.findFrom($cut, 1);
   let range = selAfter && selAfter.$from.blockRange(selAfter.$to),
     target = range && liftTarget(range);
-  if (!range) {
-    return false;
-  }
   if (target != null && target >= $cut.depth) {
     if (dispatch) {
-      dispatch(state.tr.lift(range, target).scrollIntoView());
+      dispatch(state.tr.lift(range!, target).scrollIntoView());
     }
     return true;
   }
 
-  // Try to join content with the block that is directly before
   if (
     canDelAfter &&
     textblockAt(after, "start", true) &&
@@ -195,11 +152,11 @@ function deleteBarrier(
       if (at.isTextblock) {
         break;
       }
-      at = at.lastChild as Node;
+      at = at.lastChild!;
     }
     let afterText = after,
       afterDepth = 1;
-    for (; !afterText.isTextblock; afterText = afterText.firstChild as Node) {
+    for (; !afterText.isTextblock; afterText = afterText.firstChild!) {
       afterDepth++;
     }
     if (at.canReplace(at.childCount, at.childCount, afterText.content)) {
@@ -225,15 +182,12 @@ function deleteBarrier(
     }
   }
 
-  // Try move the block closer to the next one in the document
-  // structure by lifting it out of its parent and moving it into
-  // a parent of the prev block
   if (
     canDelAfter &&
     (conn = (match = before.contentMatchAt(before.childCount)).findWrapping(
       after.type
     )) &&
-    match.matchType(conn[0] || after.type)?.validEnd
+    match.matchType(conn[0] || after.type)!.validEnd
   ) {
     if (dispatch) {
       let end = $cut.pos + after.nodeSize,
@@ -242,7 +196,6 @@ function deleteBarrier(
         wrap = Fragment.from(conn[i].create(null, wrap));
       }
       wrap = Fragment.from(before.copy(wrap));
-
       let tr = state.tr.step(
         new ReplaceAroundStep(
           $cut.pos - 1,
@@ -254,7 +207,6 @@ function deleteBarrier(
           true
         )
       );
-
       let joinAt = end + 2 * conn.length;
       if (canJoin(tr.doc, joinAt)) {
         tr.join(joinAt);
@@ -266,34 +218,30 @@ function deleteBarrier(
   return false;
 }
 
-function textblockAt(node: Node, side: "start" | "end", only?: boolean) {
+function textblockAt(node: Node, side: "start" | "end", only = false) {
   for (
-    ;
-    node;
-    node = (side === "start" ? node.firstChild : node.lastChild) as Node
+    let scan: Node | null = node;
+    scan;
+    scan = side === "start" ? scan.firstChild : scan.lastChild
   ) {
-    if (node.isTextblock) {
+    if (scan.isTextblock) {
       return true;
     }
-    if (only && node.childCount !== 1) {
+    if (only && scan.childCount !== 1) {
       return false;
     }
   }
   return false;
 }
-
-function joinMaybeClear(state: any, $pos: ResolvedPos, dispatch: Dispatch) {
+function joinMaybeClear(
+  state: EditorState,
+  $pos: ResolvedPos,
+  dispatch: ((tr: Transaction) => void) | undefined
+) {
   let before = $pos.nodeBefore,
     after = $pos.nodeAfter,
     index = $pos.index();
-
-  if (
-    !before ||
-    !after ||
-    !(before.type as NodeTypeWithCompatibleContent).compatibleContent(
-      after.type
-    )
-  ) {
+  if (!before || !after || !before.type.compatibleContent(after.type)) {
     return false;
   }
   if (!before.content.size && $pos.parent.canReplace(index - 1, index)) {

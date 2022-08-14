@@ -3,12 +3,12 @@ import { getMarkRange } from "@tiptap/core";
 import { Mark, ResolvedPos } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
 import ReactDOM from "react-dom";
+import rootStyles from "../../root.module.css";
 import { HyperlinkBasicMenu } from "./menus/HyperlinkBasicMenu";
 import {
   HyperlinkEditMenu,
   HyperlinkEditorMenuProps,
 } from "./menus/HyperlinkEditMenu";
-import rootStyles from "../../root.module.css";
 const PLUGIN_KEY = new PluginKey("HyperlinkMenuPlugin");
 
 /**
@@ -63,8 +63,8 @@ export const createHyperlinkMenuPlugin = () => {
           }
 
           let pos: number | undefined;
-          let resPos: ResolvedPos<any> | undefined;
-          let linkMark: Mark<any> | undefined;
+          let resPos: ResolvedPos | undefined;
+          let linkMark: Mark | undefined;
           let basedOnCursorPos = false;
           if (hoveredLink) {
             pos = view.posAtDOM(hoveredLink.firstChild!, 0);
@@ -119,7 +119,7 @@ export const createHyperlinkMenuPlugin = () => {
             ReactDOM.render(<></>, fakeRenderTarget);
 
             // update the mark with new href
-            foundLinkMark.attrs = { ...foundLinkMark.attrs, href };
+            (foundLinkMark as any).attrs = { ...foundLinkMark.attrs, href }; // TODO: invalid assign to attrs
             // insertText actually replaces the range with text
             const tr = view.state.tr.insertText(text, range.from, range.to);
             // the former range.to is no longer in use

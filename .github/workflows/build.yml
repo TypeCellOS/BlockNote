@@ -33,8 +33,15 @@ jobs:
             ${{ runner.os }}-build-
             ${{ runner.os }}-
 
+      - name: cache playwright
+        id: playwright-cache
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache/ms-playwright
+          key: pw-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+
       - name: Install Dependencies
-        run: npm run install-lerna
+        run: npm install
 
       - name: Bootstrap packages
         run: npm run bootstrap

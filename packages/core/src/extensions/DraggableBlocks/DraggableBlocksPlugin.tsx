@@ -1,8 +1,10 @@
 import { NodeSelection, Plugin, PluginKey } from "prosemirror-state";
-import { EditorView, __serializeForClipboard } from "prosemirror-view";
+import * as pv from "prosemirror-view";
+import { EditorView } from "prosemirror-view";
 import ReactDOM from "react-dom";
 import { DragHandle } from "./components/DragHandle";
 
+const serializeForClipboard = (pv as any).__serializeForClipboard;
 // code based on https://github.com/ueberdosis/tiptap/issues/323#issuecomment-506637799
 
 let horizontalAnchor: number;
@@ -99,7 +101,7 @@ function dragStart(e: DragEvent, view: EditorView) {
     );
 
     let slice = view.state.selection.content();
-    let { dom, text } = __serializeForClipboard(view, slice);
+    let { dom, text } = serializeForClipboard(view, slice);
 
     e.dataTransfer.clearData();
     e.dataTransfer.setData("text/html", dom.innerHTML);

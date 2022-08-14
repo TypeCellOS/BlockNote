@@ -1,12 +1,12 @@
 import { mergeAttributes, Node } from "@tiptap/core";
 import { Selection, TextSelection } from "prosemirror-state";
-import styles from "./Block.module.css";
+import { joinBackward } from "../commands/joinBackward";
+import { findBlock } from "../helpers/findBlock";
+import { setBlockHeading } from "../helpers/setBlockHeading";
+import { OrderedListPlugin } from "../OrderedListPlugin";
 import { PreviousBlockTypePlugin } from "../PreviousBlockTypePlugin";
 import { textblockTypeInputRuleSameNodeType } from "../rule";
-import { findBlock } from "../helpers/findBlock";
-import { OrderedListPlugin } from "../OrderedListPlugin";
-import { joinBackward } from "../commands/joinBackward";
-import { setBlockHeading } from "../helpers/setBlockHeading";
+import styles from "./Block.module.css";
 
 export interface IBlock {
   HTMLAttributes: Record<string, any>;
@@ -204,7 +204,7 @@ export const Block = Node.create<IBlock>({
           // Create new block after current block
           const endOfBlock = currentBlock.pos + currentBlock.node.nodeSize;
           let newBlock =
-            state.schema.nodes["tcblock"].createAndFill(attributes);
+            state.schema.nodes["tcblock"].createAndFill(attributes)!;
           if (dispatch) {
             tr.insert(endOfBlock, newBlock);
             tr.setSelection(new TextSelection(tr.doc.resolve(endOfBlock + 1)));
@@ -229,7 +229,10 @@ export const Block = Node.create<IBlock>({
           }
           return false;
         },
-      joinBackward, // Override default joinBackward with edited command
+      joinBackward:
+        () =>
+        ({ view, dispatch, state }) =>
+          joinBackward(state, dispatch, view), // Override default joinBackward with edited command
     };
   },
   addProseMirrorPlugins() {
@@ -324,7 +327,7 @@ export const Block = Node.create<IBlock>({
             // BlockA
             //     BlockB
             //
-            // joinBackward has been patched with patch-package (see /patches) to prevent this behaviour
+            // joinBackward has been patched with our custom version to fix this (see commands/joinBackward)
             .joinBackward()
             .run(),
 

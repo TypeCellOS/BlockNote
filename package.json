@@ -1,23 +1,29 @@
 {
   "name": "root",
   "private": true,
+  "workspaces": [
+    "packages/*",
+    "examples/*"
+  ],
   "devDependencies": {
-    "@playwright/test": "^1.19.2",
-    "lerna": "^4.0.0",
-    "patch-package": "^6.4.7"
+    "@playwright/test": "^1.25.0",
+    "lerna": "^5.4.0",
+    "patch-package": "^6.4.7",
+    "eslint": "^8.22.0"
   },
   "scripts": {
-    "postinstall": "npm run bootstrap",
     "start": "lerna run --stream --scope @blocknote/example-editor dev",
     "start:built": "npx serve examples/editor/dist",
-    "test:updateSnaps": "docker run --rm  -e RUN_IN_DOCKER=true --network host -v $(pwd):/work/ -w /work/ -it mcr.microsoft.com/playwright:v1.19.2-focal npx playwright test --update-snapshots",
-    "test": "jest --coverage=true --config=jest.config.js",
+    "test:updateSnaps": "docker run --rm  -e RUN_IN_DOCKER=true --network host -v $(pwd):/work/ -w /work/ -it mcr.microsoft.com/playwright:v1.25.0-focal npx playwright test --update-snapshots",
     "build": "lerna run --stream build --concurrency 1",
     "lint": "lerna run --stream lint",
-    "bootstrap": "lerna bootstrap --hoist --ci && patch-package",
-    "install-new-packages": "lerna bootstrap --hoist && patch-package",
-    "install-lerna": "npm install --no-package-lock",
+    "bootstrap": "lerna bootstrap --ci -- --force && patch-package",
+    "install-new-packages": "lerna bootstrap -- --force && patch-package",
     "playwright": "npx playwright test",
     "install-playwright": "npx playwright install --with-deps"
+  },
+  "overrides": {
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
   }
 }

@@ -5,12 +5,19 @@
   "files": [
     "dist"
   ],
-  "main": "./dist/blocknote.umd.js",
-  "module": "./dist/blocknote.es.js",
+  "type": "module",
+  "source": "src/index.ts",
+  "types": "./types/src/index.d.ts",
+  "main": "./dist/blocknote.umd.cjs",
+  "module": "./dist/blocknote.js",
   "exports": {
     ".": {
-      "import": "./dist/blocknote.es.js",
-      "require": "./dist/blocknote.umd.js"
+      "import": "./dist/blocknote.js",
+      "require": "./dist/blocknote.umd.cjs"
+    },
+    "./style.css": {
+      "import": "./dist/style.css",
+      "require": "./dist/style.css"
     }
   },
   "scripts": {
@@ -48,29 +55,38 @@
     "@tiptap/extension-text": "^2.0.0-beta.15",
     "@tiptap/extension-underline": "^2.0.0-beta.23",
     "@tiptap/suggestion": "2.0.0-beta.90",
+    "prosemirror-view": "^1.27.0",
+    "prosemirror-state": "^1.4.1",
+    "prosemirror-model": "^1.18.1",
     "lodash": "^4.17.21",
     "uuid": "^8.3.2",
     "react-icons": "^4.3.1",
     "@tippyjs/react": "^4.2.6",
-    "@atlaskit/button": "^16.1.6",
+    "@atlaskit/button": "^16.3.5",
     "@atlaskit/theme": "^12.1.4",
     "@atlaskit/menu": "^1.3.0",
     "@atlaskit/dropdown-menu": "^11.1.2",
     "styled-components": "^5.3.3",
     "react-popper": "^2.2.5",
     "warning": "^4.0.3",
-    "react-fast-compare": "^3.2.0"
+    "react-fast-compare": "^3.2.0",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  },
+  "overrides": {
+    "react-dom": "$react-dom",
+    "react": "$react"
   },
   "devDependencies": {
     "@types/styled-components": "^5.1.24",
     "typescript": "^4.5.4",
-    "vite": "^2.8.0",
+    "vite": "^3.0.5",
     "@types/react": "^17.0.39",
     "@types/react-dom": "^17.0.12",
     "@types/lodash": "^4.14.179",
     "eslint-config-react-app": "^7.0.0",
     "eslint": "^8.10.0",
-    "vite-plugin-eslint": "^1.3.0",
+    "vite-plugin-eslint": "^1.7.0",
     "@types/uuid": "^8.3.4"
   },
   "eslintConfig": {

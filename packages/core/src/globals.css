@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap");
+@import url("fonts-inter.css");
 
 /* TODO: should not be on root as this changes entire consuming application */
 
@@ -8,6 +8,16 @@
   --N800: #172b4d; /* Dark neutral used for tooltips and text on light background */
   --N40: #dfe1e6; /* Light neutral used for subtle borders and text on dark background */
 
+  font-family: "Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont,
+    "Open Sans", "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell",
+    "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  color: rgb(60, 65, 73);
+}
+
+button {
   font-family: "Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont,
     "Open Sans", "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell",
     "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;

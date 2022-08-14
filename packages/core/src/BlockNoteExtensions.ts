@@ -8,20 +8,20 @@ import HardBreak from "@tiptap/extension-hard-break";
 import Italic from "@tiptap/extension-italic";
 import Underline from "@tiptap/extension-underline";
 // import Placeholder from "@tiptap/extension-placeholder";
+import { Node } from "@tiptap/core";
+import { History } from "@tiptap/extension-history";
 import Strike from "@tiptap/extension-strike";
 import Text from "@tiptap/extension-text";
-import { Node } from "@tiptap/core";
-import UniqueID from "./extensions/UniqueID/UniqueID";
-import { DraggableBlocksExtension } from "./extensions/DraggableBlocks/DraggableBlocksExtension";
 import { blocks } from "./extensions/Blocks";
-import HyperlinkMark from "./extensions/Hyperlinks/HyperlinkMark";
-import { BubbleMenuExtension } from "./extensions/BubbleMenu/BubbleMenuExtension";
-import { History } from "@tiptap/extension-history";
-import { TrailingNode } from "./extensions/TrailingNode/TrailingNodeExtension";
 import blockStyles from "./extensions/Blocks/nodes/Block.module.css";
+import { BubbleMenuExtension } from "./extensions/BubbleMenu/BubbleMenuExtension";
+import { DraggableBlocksExtension } from "./extensions/DraggableBlocks/DraggableBlocksExtension";
+import HyperlinkMark from "./extensions/Hyperlinks/HyperlinkMark";
+import { FixedParagraph } from "./extensions/Paragraph/FixedParagraph";
 import { Placeholder } from "./extensions/Placeholder/PlaceholderExtension";
 import SlashMenuExtension from "./extensions/SlashMenu";
-import { FixedParagraph } from "./extensions/Paragraph/FixedParagraph";
+import { TrailingNode } from "./extensions/TrailingNode/TrailingNodeExtension";
+import UniqueID from "./extensions/UniqueID/UniqueID";
 export const Document = Node.create({
   name: "doc",
   topNode: true,

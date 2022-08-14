@@ -1,20 +1,22 @@
-import { defineConfig } from "vite";
 import * as path from "path";
-import eslintPlugin from "vite-plugin-eslint";
+import { defineConfig } from "vite";
+import pkg from "./package.json";
+// import eslintPlugin from "vite-plugin-eslint";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [eslintPlugin()],
+  plugins: [],
   build: {
+    sourcemap: true,
     lib: {
       entry: path.resolve(__dirname, "src/index.ts"),
       name: "blocknote",
-      fileName: (format) => `blocknote.${format}.js`,
+      fileName: "blocknote",
     },
     rollupOptions: {
       // make sure to externalize deps that shouldn't be bundled
       // into your library
-      external: ["react", "react-dom"],
+      external: Object.keys(pkg.dependencies),
       output: {
         // Provide global variables to use in the UMD build
         // for externalized deps

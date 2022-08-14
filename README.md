@@ -18,7 +18,7 @@ We use [Lerna](https://lerna.js.org/) to manage the monorepo with separate packa
 To run the project, open the command line in the project's root directory and enter the following commands:
 
     # Install all required npm modules for lerna, and bootstrap lerna packages
-    npm run install-lerna
+    npm install
     npm run bootstrap
 
     # Start the editor project

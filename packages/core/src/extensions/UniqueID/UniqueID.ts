@@ -1,12 +1,12 @@
 import {
+  combineTransactionSteps,
   Extension,
   findChildren,
-  combineTransactionSteps,
-  getChangedRanges,
   findChildrenInRange,
+  getChangedRanges,
 } from "@tiptap/core";
+import { Fragment, Slice } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
-import { Slice, Fragment } from "prosemirror-model";
 import { v4 } from "uuid";
 
 /**
@@ -130,7 +130,10 @@ const UniqueID = Extension.create({
           }
           const { tr } = newState;
           const { types, attributeName, generateID } = this.options;
-          const transform = combineTransactionSteps(oldState.doc, transactions);
+          const transform = combineTransactionSteps(
+            oldState.doc,
+            transactions as any
+          );
           const { mapping } = transform;
           // get changed ranges based on the old state
           const changes = getChangedRanges(transform);

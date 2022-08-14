@@ -37,7 +37,7 @@ export const PreviousBlockTypePlugin = () => {
     state: {
       init() {
         return {
-          prevBlockAttrs: {},
+          prevBlockAttrs: {} as any,
           needsUpdate: false,
         };
       },

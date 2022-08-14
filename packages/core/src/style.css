@@ -1,0 +1,7 @@
+/*
+This is an empty placeholder file, which should NOT contain CSS code.
+It's here so DEV environment doesn't show a 404
+
+- In DEV environment, examples/editor loads this stub file, but actual CSS is loaded from CSS modules directly
+- In PROD environment, the actual dist/style.css file is built from the CSS modules
+*/
