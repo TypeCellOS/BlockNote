@@ -1,7 +1,7 @@
 import {
   Editor,
-  isTextSelection,
   isNodeSelection,
+  isTextSelection,
   posToDOMRect,
 } from "@tiptap/core";
 import { EditorState, Plugin, PluginKey } from "prosemirror-state";

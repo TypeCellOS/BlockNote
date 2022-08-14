@@ -229,7 +229,10 @@ export const Block = Node.create<IBlock>({
           }
           return false;
         },
-      joinBackward, // Override default joinBackward with edited command
+      joinBackward:
+        () =>
+        ({ view, dispatch, state }) =>
+          joinBackward(state, dispatch, view), // Override default joinBackward with edited command
     };
   },
   addProseMirrorPlugins() {
@@ -324,7 +327,7 @@ export const Block = Node.create<IBlock>({
             // BlockA
             //     BlockB
             //
-            // joinBackward has been patched with patch-package (see /patches) to prevent this behaviour
+            // joinBackward has been patched with our custom version to fix this (see commands/joinBackward)
             .joinBackward()
             .run(),
 
