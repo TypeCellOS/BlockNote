@@ -27,8 +27,9 @@ export const joinBackward: Command = (state, dispatch, view) => {
   if (
     !$cursor ||
     (view ? !view.endOfTextblock("backward", state) : $cursor.parentOffset > 0)
-  )
+  ) {
     return false;
+  }
 
   let $cut = findCutBefore($cursor);
 
@@ -36,20 +37,25 @@ export const joinBackward: Command = (state, dispatch, view) => {
   if (!$cut) {
     let range = $cursor.blockRange(),
       target = range && liftTarget(range);
-    if (target == null) return false;
-    if (dispatch) dispatch(state.tr.lift(range!, target).scrollIntoView());
+    if (target === null) {
+      return false;
+    }
+    if (dispatch) {
+      dispatch(state.tr.lift(range!, target).scrollIntoView());
+    }
     return true;
   }
 
   let before = $cut.nodeBefore!;
   // Apply the joining algorithm
-  if (!before.type.spec.isolating && deleteBarrier(state, $cut, dispatch))
+  if (!before.type.spec.isolating && deleteBarrier(state, $cut, dispatch)) {
     return true;
+  }
 
   // If the node below has no content and the node above is
   // selectable, delete the node below and select the one above.
   if (
-    $cursor.parent.content.size == 0 &&
+    $cursor.parent.content.size === 0 &&
     (textblockAt(before, "end") || NodeSelection.isSelectable(before))
   ) {
     let delStep = replaceStep(
@@ -80,11 +86,12 @@ export const joinBackward: Command = (state, dispatch, view) => {
   }
 
   // If the node before is an atom, delete it
-  if (before.isAtom && $cut.depth == $cursor.depth - 1) {
-    if (dispatch)
+  if (before.isAtom && $cut.depth === $cursor.depth - 1) {
+    if (dispatch) {
       dispatch(
         state.tr.delete($cut.pos - before.nodeSize, $cut.pos).scrollIntoView()
       );
+    }
     return true;
   }
 
@@ -92,11 +99,16 @@ export const joinBackward: Command = (state, dispatch, view) => {
 };
 
 function findCutBefore($pos: ResolvedPos): ResolvedPos | null {
-  if (!$pos.parent.type.spec.isolating)
+  if (!$pos.parent.type.spec.isolating) {
     for (let i = $pos.depth - 1; i >= 0; i--) {
-      if ($pos.index(i) > 0) return $pos.doc.resolve($pos.before(i + 1));
-      if ($pos.node(i).type.spec.isolating) break;
+      if ($pos.index(i) > 0) {
+        return $pos.doc.resolve($pos.before(i + 1));
+      }
+      if ($pos.node(i).type.spec.isolating) {
+        break;
+      }
     }
+  }
   return null;
 }
 
@@ -109,8 +121,12 @@ function deleteBarrier(
     after = $cut.nodeAfter!,
     conn,
     match;
-  if (before.type.spec.isolating || after.type.spec.isolating) return false;
-  if (joinMaybeClear(state, $cut, dispatch)) return true;
+  if (before.type.spec.isolating || after.type.spec.isolating) {
+    return false;
+  }
+  if (joinMaybeClear(state, $cut, dispatch)) {
+    return true;
+  }
 
   let canDelAfter = $cut.parent.canReplace($cut.index(), $cut.index() + 1);
 
@@ -118,7 +134,9 @@ function deleteBarrier(
   let range = selAfter && selAfter.$from.blockRange(selAfter.$to),
     target = range && liftTarget(range);
   if (target != null && target >= $cut.depth) {
-    if (dispatch) dispatch(state.tr.lift(range!, target).scrollIntoView());
+    if (dispatch) {
+      dispatch(state.tr.lift(range!, target).scrollIntoView());
+    }
     return true;
   }
 
@@ -131,18 +149,22 @@ function deleteBarrier(
       wrap = [];
     for (;;) {
       wrap.push(at);
-      if (at.isTextblock) break;
+      if (at.isTextblock) {
+        break;
+      }
       at = at.lastChild!;
     }
     let afterText = after,
       afterDepth = 1;
-    for (; !afterText.isTextblock; afterText = afterText.firstChild!)
+    for (; !afterText.isTextblock; afterText = afterText.firstChild!) {
       afterDepth++;
+    }
     if (at.canReplace(at.childCount, at.childCount, afterText.content)) {
       if (dispatch) {
         let end = Fragment.empty;
-        for (let i = wrap.length - 1; i >= 0; i--)
+        for (let i = wrap.length - 1; i >= 0; i--) {
           end = Fragment.from(wrap[i].copy(end));
+        }
         let tr = state.tr.step(
           new ReplaceAroundStep(
             $cut.pos - wrap.length,
@@ -170,8 +192,9 @@ function deleteBarrier(
     if (dispatch) {
       let end = $cut.pos + after.nodeSize,
         wrap = Fragment.empty;
-      for (let i = conn.length - 1; i >= 0; i--)
+      for (let i = conn.length - 1; i >= 0; i--) {
         wrap = Fragment.from(conn[i].create(null, wrap));
+      }
       wrap = Fragment.from(before.copy(wrap));
       let tr = state.tr.step(
         new ReplaceAroundStep(
@@ -185,7 +208,9 @@ function deleteBarrier(
         )
       );
       let joinAt = end + 2 * conn.length;
-      if (canJoin(tr.doc, joinAt)) tr.join(joinAt);
+      if (canJoin(tr.doc, joinAt)) {
+        tr.join(joinAt);
+      }
       dispatch(tr.scrollIntoView());
     }
     return true;
@@ -197,10 +222,14 @@ function textblockAt(node: Node, side: "start" | "end", only = false) {
   for (
     let scan: Node | null = node;
     scan;
-    scan = side == "start" ? scan.firstChild : scan.lastChild
+    scan = side === "start" ? scan.firstChild : scan.lastChild
   ) {
-    if (scan.isTextblock) return true;
-    if (only && scan.childCount != 1) return false;
+    if (scan.isTextblock) {
+      return true;
+    }
+    if (only && scan.childCount !== 1) {
+      return false;
+    }
   }
   return false;
 }
@@ -212,21 +241,24 @@ function joinMaybeClear(
   let before = $pos.nodeBefore,
     after = $pos.nodeAfter,
     index = $pos.index();
-  if (!before || !after || !before.type.compatibleContent(after.type))
+  if (!before || !after || !before.type.compatibleContent(after.type)) {
     return false;
+  }
   if (!before.content.size && $pos.parent.canReplace(index - 1, index)) {
-    if (dispatch)
+    if (dispatch) {
       dispatch(
         state.tr.delete($pos.pos - before.nodeSize, $pos.pos).scrollIntoView()
       );
+    }
     return true;
   }
   if (
     !$pos.parent.canReplace(index, index + 1) ||
     !(after.isTextblock || canJoin(state.doc, $pos.pos))
-  )
+  ) {
     return false;
-  if (dispatch)
+  }
+  if (dispatch) {
     dispatch(
       state.tr
         .clearIncompatible(
@@ -237,5 +269,6 @@ function joinMaybeClear(
         .join($pos.pos)
         .scrollIntoView()
     );
+  }
   return true;
 }
