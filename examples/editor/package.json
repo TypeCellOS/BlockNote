@@ -31,13 +31,5 @@
     "rules": {
       "curly": 1
     }
-  },
-  "workspaces": {
-    "nohoist": [
-      "**"
-    ],
-    "packages": [
-      "."
-    ]
   }
 }

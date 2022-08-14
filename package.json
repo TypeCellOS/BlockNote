@@ -1,6 +1,10 @@
 {
   "name": "root",
   "private": true,
+  "workspaces": [
+    "packages/*",
+    "examples/*"
+  ],
   "devDependencies": {
     "@playwright/test": "^1.19.2",
     "lerna": "^5.4.0",
@@ -16,5 +20,9 @@
     "install-new-packages": "lerna bootstrap -- --force && patch-package",
     "playwright": "npx playwright test",
     "install-playwright": "npx playwright install --with-deps"
+  },
+  "overrides": {
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
   }
 }

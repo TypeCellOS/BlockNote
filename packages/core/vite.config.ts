@@ -1,10 +1,11 @@
 import * as path from "path";
 import { defineConfig } from "vite";
-import eslintPlugin from "vite-plugin-eslint";
+import pkg from "./package.json";
+// import eslintPlugin from "vite-plugin-eslint";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [eslintPlugin()],
+  plugins: [],
   build: {
     sourcemap: true,
     lib: {
@@ -15,7 +16,7 @@ export default defineConfig({
     rollupOptions: {
       // make sure to externalize deps that shouldn't be bundled
       // into your library
-      external: ["react", "react-dom"],
+      external: Object.keys(pkg.dependencies),
       output: {
         // Provide global variables to use in the UMD build
         // for externalized deps

@@ -4,7 +4,7 @@
     "useDefineForClassFields": true,
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "allowJs": false,
-    "skipLibCheck": false,
+    "skipLibCheck": true,
     "esModuleInterop": false,
     "allowSyntheticDefaultImports": true,
     "strict": true,
@@ -14,10 +14,10 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx",
-    "paths": {
-      "@blocknote/core": ["../../packages/core/src"]
-    }
+    "jsx": "react-jsx"
+    // "paths": {
+    //   "@blocknote/core": ["../../packages/core/src"]
+    // }
   },
   "include": ["src"],
   "references": [
