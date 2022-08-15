@@ -300,7 +300,7 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
 
     props: {
       handleKeyDown(view, event) {
-        const { active } = this.getState(view.state);
+        const { active } = (this as Plugin).getState(view.state);
 
         if (!active) {
           // activate the popup on 'char' keypress (e.g. '/')
@@ -324,7 +324,9 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
 
       // Setup decorator on the currently active suggestion.
       decorations(state) {
-        const { active, range, decorationId, type } = this.getState(state);
+        const { active, range, decorationId, type } = (this as Plugin).getState(
+          state
+        );
 
         if (!active) {
           return null;

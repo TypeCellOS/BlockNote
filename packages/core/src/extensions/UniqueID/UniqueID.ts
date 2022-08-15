@@ -208,7 +208,7 @@ const UniqueID = Extension.create({
           handleDOMEvents: {
             // only create new ids for dropped content while holding `alt`
             // or content is dragged from another editor
-            drop: (view, event) => {
+            drop: (view, event: any) => {
               var _a;
               if (
                 dragSourceElement !== view.dom.parentElement ||

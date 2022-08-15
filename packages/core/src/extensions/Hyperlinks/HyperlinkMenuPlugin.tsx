@@ -177,7 +177,7 @@ export const createHyperlinkMenuPlugin = () => {
     props: {
       handleDOMEvents: {
         // update view when an <a> is hovered over
-        mouseover(view, event) {
+        mouseover(view, event: any) {
           const newHoveredLink =
             event.target instanceof HTMLAnchorElement &&
             event.target.nodeName === "A"
