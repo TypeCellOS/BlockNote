@@ -187,7 +187,7 @@ export const createDraggableBlocksPlugin = () => {
         //   // event.dataTransfer!.;
         //   return false;
         // },
-        mouseleave(_view, _event) {
+        mouseleave(_view, _event: any) {
           if (!dropElement) {
             throw new Error("unexpected");
           }
@@ -195,7 +195,7 @@ export const createDraggableBlocksPlugin = () => {
           // dropElement.style.display = "none";
           return true;
         },
-        mousedown(_view, _event) {
+        mousedown(_view, _event: any) {
           if (!dropElement) {
             throw new Error("unexpected");
           }
@@ -204,7 +204,7 @@ export const createDraggableBlocksPlugin = () => {
           ReactDOM.render(<></>, dropElement);
           return false;
         },
-        mousemove(view, event) {
+        mousemove(view, event: any) {
           if (!dropElement) {
             throw new Error("unexpected");
           }

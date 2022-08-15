@@ -112,7 +112,7 @@ export const PreviousBlockTypePlugin = () => {
     },
     props: {
       decorations(state) {
-        const pluginState = this.getState(state);
+        const pluginState = (this as Plugin).getState(state);
         if (!pluginState.needsUpdate) {
           return undefined;
         }
