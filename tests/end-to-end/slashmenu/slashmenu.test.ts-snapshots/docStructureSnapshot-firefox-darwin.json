@@ -2,7 +2,7 @@
   "type": "doc",
   "content": [
     {
-      "type": "blockGroup",
+      "type": "blockgroup",
       "content": [
         {
           "type": "tcblock",
@@ -39,7 +39,7 @@
               ]
             },
             {
-              "type": "blockGroup",
+              "type": "blockgroup",
               "content": [
                 {
                   "type": "tcblock",
@@ -58,7 +58,7 @@
                       ]
                     },
                     {
-                      "type": "blockGroup",
+                      "type": "blockgroup",
                       "content": [
                         {
                           "type": "tcblock",

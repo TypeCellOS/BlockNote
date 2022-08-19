@@ -52,7 +52,7 @@ export const Block = Node.create<IBlock>({
   },
 
   // A block always contains content, and optionally a blockGroup which contains nested blocks
-  content: "tccontent blockGroup?",
+  content: "tccontent blockgroup?",
 
   defining: true,
 

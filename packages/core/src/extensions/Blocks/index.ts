@@ -10,6 +10,6 @@ export const blocks: any[] = [
   Node.create({
     name: "doc",
     topNode: true,
-    content: "blockGroup",
+    content: "blockgroup",
   }),
 ];

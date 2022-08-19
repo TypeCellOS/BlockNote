@@ -1,5 +1,5 @@
 import { Extension } from "@tiptap/core";
-import { PluginKey, Plugin } from "prosemirror-state";
+import { Plugin, PluginKey } from "prosemirror-state";
 
 // based on https://github.com/ueberdosis/tiptap/blob/40a9404c94c7fef7900610c195536384781ae101/demos/src/Experiments/TrailingNode/Vue/trailing-node.ts
 
@@ -52,8 +52,8 @@ export const TrailingNode = Extension.create<TrailingNodeOptions>({
 
             let lastNode = tr.doc.lastChild;
 
-            if (!lastNode || lastNode.type.name !== "blockGroup") {
-              throw new Error("Expected blockGroup");
+            if (!lastNode || lastNode.type.name !== "blockgroup") {
+              throw new Error("Expected blockgroup");
             }
 
             lastNode = lastNode.lastChild;
