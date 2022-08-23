@@ -21,7 +21,7 @@
     "install-new-packages": "lerna bootstrap -- --force && patch-package",
     "playwright": "npx playwright test",
     "install-playwright": "npx playwright install --with-deps",
-    "deploy": "lerna publish",
+    "deploy": "lerna publish -- --access public",
     "prepublishOnly": "npm run build && cp README.md packages/core/README.md",
     "postpublish": "rm -rf packages/core/README.md"
   },
