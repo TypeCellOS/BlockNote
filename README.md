@@ -79,6 +79,7 @@ To run the project, open the command line in the project's root directory and en
 
     # Install all required npm modules for lerna, and bootstrap lerna packages
     npm install
+    npm run bootstrap
 
     # Start the example project
     npm start
