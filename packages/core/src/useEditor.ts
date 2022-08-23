@@ -1,4 +1,4 @@
-import { useEditor as useEditorTiptap, EditorOptions } from "@tiptap/react";
+import { EditorOptions, useEditor as useEditorTiptap } from "@tiptap/react";
 
 import { DependencyList } from "react";
 import { getBlockNoteExtensions } from "./BlockNoteExtensions";
@@ -7,6 +7,7 @@ import rootStyles from "./root.module.css";
 
 type BlockNoteEditorOptions = EditorOptions & {
   enableBlockNoteExtensions: boolean;
+  disableHistoryExtension: boolean;
 };
 
 const blockNoteExtensions = getBlockNoteExtensions();
@@ -20,13 +21,17 @@ export const useEditor = (
   options: Partial<BlockNoteEditorOptions> = {},
   deps: DependencyList = []
 ) => {
+  const extensions = options.disableHistoryExtension
+    ? blockNoteExtensions.filter((e) => e.name !== "history")
+    : blockNoteExtensions;
+
   const tiptapOptions = {
     ...blockNoteOptions,
     ...options,
     extensions:
       options.enableBlockNoteExtensions === false
         ? options.extensions
-        : [...(options.extensions || []), ...blockNoteExtensions],
+        : [...(options.extensions || []), ...extensions],
     editorProps: {
       attributes: {
         ...(options.editorProps?.attributes || {}),

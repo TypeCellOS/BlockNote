@@ -1,10 +1,27 @@
 {
   "name": "@blocknote/core",
-  "private": true,
-  "version": "0.0.0",
+  "private": false,
+  "license": "MIT",
+  "version": "0.0.1",
   "files": [
-    "dist"
+    "dist",
+    "types",
+    "src"
   ],
+  "keywords": [
+    "react",
+    "javascript",
+    "editor",
+    "typescript",
+    "prosemirror",
+    "wysiwyg",
+    "rich-text-editor",
+    "notion",
+    "yjs",
+    "block-based",
+    "tiptap"
+  ],
+  "description": "A \"Notion-style\" block-based extensible text editor built on top of Prosemirror and Tiptap.",
   "type": "module",
   "source": "src/index.ts",
   "types": "./types/src/index.d.ts",

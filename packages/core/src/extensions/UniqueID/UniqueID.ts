@@ -10,8 +10,11 @@ import { Plugin, PluginKey } from "prosemirror-state";
 import { v4 } from "uuid";
 
 /**
- * Code from tiptap UniqueID extension
- * TODO: this is a pro extension, but with MIT license, discuss with TipTap
+ * Code from Tiptap UniqueID extension (https://tiptap.dev/api/extensions/unique-id)
+ * This extension is licensed under MIT (even though it's part of Tiptap pro).
+ *
+ * If you're a user of BlockNote, we still recommend to support their awesome work and become a sponsor!
+ * https://tiptap.dev/pro
  */
 
 /**

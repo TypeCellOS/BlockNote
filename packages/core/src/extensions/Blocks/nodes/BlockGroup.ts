@@ -2,7 +2,7 @@ import { mergeAttributes, Node } from "@tiptap/core";
 import styles from "./Block.module.css";
 
 export const BlockGroup = Node.create({
-  name: "blockGroup",
+  name: "blockgroup",
 
   addOptions() {
     return {

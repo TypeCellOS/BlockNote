@@ -20,7 +20,11 @@
     "bootstrap": "lerna bootstrap --ci -- --force && patch-package",
     "install-new-packages": "lerna bootstrap -- --force && patch-package",
     "playwright": "npx playwright test",
-    "install-playwright": "npx playwright install --with-deps"
+    "install-playwright": "npx playwright install --with-deps",
+    "postinstall": "npm run bootstrap",
+    "deploy": "lerna publish",
+    "prepublishOnly": "npm run build && cp README.md packages/core/README.md",
+    "postpublish": "rm -rf packages/core/README.md"
   },
   "overrides": {
     "react": "^17.0.2",
