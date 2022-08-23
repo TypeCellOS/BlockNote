@@ -100,5 +100,10 @@
     "rules": {
       "curly": 1
     }
-  }
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "gitHead": "e77f1641384ac96ef298aa8966997e2dd1385a86"
 }
