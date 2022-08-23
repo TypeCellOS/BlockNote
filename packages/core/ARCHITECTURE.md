@@ -4,11 +4,11 @@ We use a Prosemirror document structure where every element is a `block` with 1 
 
 - A `block` can only appear in a `blockgroup` (which is also the type of the root node)
 - Every `block` element can have attributes (e.g.: is it a heading or a list item)
-- Ever `block` element can contain a `blockgroup` as second child. In this case the `blockgroup` is considered nested (indented in the UX)
+- Every `block` element can contain a `blockgroup` as second child. In this case the `blockgroup` is considered nested (indented in the UX)
 
-This architecture is different from the "default" Prosemirror / Tiptap implementation which would use more semantic HTML node types (`p`, `li`, etc.). We have designed this block structure instead to:
+This architecture is different from the "default" Prosemirror / Tiptap implementation which would use more semantic HTML node types (`p`, `li`, etc.). We have designed this block structure instead to more easily:
 
-- support indentation of any node (without <ul> wrapping logic)
+- support indentation of any node (without complex wrapping logic)
 - supporting animations (nodes stay the same type, only attrs are changed)
 
 ## Example
