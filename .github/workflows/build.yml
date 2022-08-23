@@ -43,8 +43,8 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      # - name: Bootstrap packages
-      # run: npm run bootstrap
+      - name: Bootstrap packages
+        run: npm run bootstrap
 
       - name: Lint packages
         run: npm run lint

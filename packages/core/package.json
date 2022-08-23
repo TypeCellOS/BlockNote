@@ -1,5 +1,6 @@
 {
   "name": "@blocknote/core",
+  "homepage": "https://github.com/yousefed/blocknote",
   "private": false,
   "license": "MIT",
   "version": "0.1.0-alpha.3",
