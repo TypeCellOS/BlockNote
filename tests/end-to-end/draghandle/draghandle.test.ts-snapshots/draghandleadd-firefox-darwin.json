@@ -5,13 +5,13 @@
       "type": "blockgroup",
       "content": [
         {
-          "type": "tcblock",
+          "type": "block",
           "attrs": {
             "headingType": 1
           },
           "content": [
             {
-              "type": "tccontent",
+              "type": "content",
               "attrs": {},
               "content": [
                 {
@@ -23,13 +23,13 @@
           ]
         },
         {
-          "type": "tcblock",
+          "type": "block",
           "attrs": {
             "headingType": 2
           },
           "content": [
             {
-              "type": "tccontent",
+              "type": "content",
               "attrs": {},
               "content": [
                 {
@@ -42,11 +42,11 @@
               "type": "blockgroup",
               "content": [
                 {
-                  "type": "tcblock",
+                  "type": "block",
                   "attrs": {},
                   "content": [
                     {
-                      "type": "tccontent",
+                      "type": "content",
                       "attrs": {}
                     }
                   ]
@@ -56,11 +56,11 @@
           ]
         },
         {
-          "type": "tcblock",
+          "type": "block",
           "attrs": {},
           "content": [
             {
-              "type": "tccontent",
+              "type": "content",
               "attrs": {}
             }
           ]

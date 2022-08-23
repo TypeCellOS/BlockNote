@@ -13,6 +13,9 @@ export interface TrailingNodeOptions {
   node: string;
 }
 
+/**
+ * Add a trailing node to the document so the user can always click at the bottom of the document and start typing
+ */
 export const TrailingNode = Extension.create<TrailingNodeOptions>({
   name: "trailingNode",
 
@@ -29,8 +32,8 @@ export const TrailingNode = Extension.create<TrailingNodeOptions>({
           const { doc, tr, schema } = state;
           const shouldInsertNodeAtEnd = plugin.getState(state);
           const endPosition = doc.content.size - 2;
-          const type = schema.nodes["tcblock"];
-          const contenttype = schema.nodes["tccontent"];
+          const type = schema.nodes["block"];
+          const contenttype = schema.nodes["content"];
           if (!shouldInsertNodeAtEnd) {
             return;
           }
@@ -58,10 +61,10 @@ export const TrailingNode = Extension.create<TrailingNodeOptions>({
 
             lastNode = lastNode.lastChild;
 
-            if (!lastNode || lastNode.type.name !== "tcblock") {
-              throw new Error("Expected tcblock");
+            if (!lastNode || lastNode.type.name !== "block") {
+              throw new Error("Expected block");
             }
-            return lastNode.nodeSize > 4; // empty <tcblock><tccontent/></tcblock> is length 4
+            return lastNode.nodeSize > 4; // empty <block><content/></block> is length 4
           },
         },
       }),

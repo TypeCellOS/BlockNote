@@ -1,17 +1,16 @@
 import { Extensions, extensions } from "@tiptap/core";
 
+import { Node } from "@tiptap/core";
 import Bold from "@tiptap/extension-bold";
 import Code from "@tiptap/extension-code";
 import DropCursor from "@tiptap/extension-dropcursor";
 import GapCursor from "@tiptap/extension-gapcursor";
 import HardBreak from "@tiptap/extension-hard-break";
-import Italic from "@tiptap/extension-italic";
-import Underline from "@tiptap/extension-underline";
-// import Placeholder from "@tiptap/extension-placeholder";
-import { Node } from "@tiptap/core";
 import { History } from "@tiptap/extension-history";
+import Italic from "@tiptap/extension-italic";
 import Strike from "@tiptap/extension-strike";
 import Text from "@tiptap/extension-text";
+import Underline from "@tiptap/extension-underline";
 import { blocks } from "./extensions/Blocks";
 import blockStyles from "./extensions/Blocks/nodes/Block.module.css";
 import { BubbleMenuExtension } from "./extensions/BubbleMenu/BubbleMenuExtension";
@@ -22,12 +21,16 @@ import { Placeholder } from "./extensions/Placeholder/PlaceholderExtension";
 import SlashMenuExtension from "./extensions/SlashMenu";
 import { TrailingNode } from "./extensions/TrailingNode/TrailingNodeExtension";
 import UniqueID from "./extensions/UniqueID/UniqueID";
+
 export const Document = Node.create({
   name: "doc",
   topNode: true,
   content: "block+",
 });
 
+/**
+ * Get all the Tiptap extensions BlockNote is configured with by default
+ */
 export const getBlockNoteExtensions = () => {
   const ret: Extensions = [
     extensions.ClipboardTextSerializer,
@@ -48,7 +51,7 @@ export const getBlockNoteExtensions = () => {
       showOnlyCurrent: false,
     }),
     UniqueID.configure({
-      types: ["tcblock"],
+      types: ["block"],
     }),
     HardBreak,
     // Comments,
@@ -64,26 +67,16 @@ export const getBlockNoteExtensions = () => {
     Underline,
     HyperlinkMark,
     FixedParagraph,
+
     // custom blocks:
     ...blocks,
     DraggableBlocksExtension,
     DropCursor.configure({ width: 5, color: "#ddeeff" }),
     BubbleMenuExtension,
     History,
-    SlashMenuExtension,
     // This needs to be at the bottom of this list, because Key events (such as enter, when selecting a /command),
     // should be handled before Enter handlers in other components like splitListItem
-    // SlashCommandExtension.configure({
-    //     // Extra commands can be registered here
-    //     commands: {},
-    // }),
-    // MentionsExtension.configure({
-    //     providers: {
-    //         people: (query) => {
-    //             return PEOPLE.filter((mention) => mention.match(query));
-    //         },
-    //     },
-    // }),
+    SlashMenuExtension,
     TrailingNode,
   ];
   return ret;

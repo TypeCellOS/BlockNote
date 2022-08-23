@@ -10,7 +10,7 @@ export const BlockGroup = Node.create({
     };
   },
 
-  content: "tcblock+",
+  content: "block+",
 
   parseHTML() {
     return [{ tag: "div" }];

@@ -43,7 +43,7 @@ declare module "@tiptap/core" {
  * The main "Block node" documents consist of
  */
 export const Block = Node.create<IBlock>({
-  name: "tcblock",
+  name: "block",
   group: "block",
   addOptions() {
     return {
@@ -52,7 +52,7 @@ export const Block = Node.create<IBlock>({
   },
 
   // A block always contains content, and optionally a blockGroup which contains nested blocks
-  content: "tccontent blockgroup?",
+  content: "content blockgroup?",
 
   defining: true,
 
@@ -172,7 +172,7 @@ export const Block = Node.create<IBlock>({
           const nodePos = tr.selection.$anchor.posAtIndex(0, -1) - 1;
 
           // const node2 = tr.doc.nodeAt(nodePos);
-          if (node.type.name === "tcblock" && node.attrs["listType"]) {
+          if (node.type.name === "block" && node.attrs["listType"]) {
             if (dispatch) {
               tr.setNodeMarkup(nodePos, undefined, {
                 ...node.attrs,
@@ -203,8 +203,7 @@ export const Block = Node.create<IBlock>({
 
           // Create new block after current block
           const endOfBlock = currentBlock.pos + currentBlock.node.nodeSize;
-          let newBlock =
-            state.schema.nodes["tcblock"].createAndFill(attributes)!;
+          let newBlock = state.schema.nodes["block"].createAndFill(attributes)!;
           if (dispatch) {
             tr.insert(endOfBlock, newBlock);
             tr.setSelection(new TextSelection(tr.doc.resolve(endOfBlock + 1)));
@@ -218,7 +217,7 @@ export const Block = Node.create<IBlock>({
           const nodePos = tr.selection.$anchor.posAtIndex(0, -1) - 1;
 
           // const node2 = tr.doc.nodeAt(nodePos);
-          if (node.type.name === "tcblock") {
+          if (node.type.name === "block") {
             if (dispatch) {
               tr.setNodeMarkup(nodePos, undefined, {
                 ...node.attrs,
@@ -268,11 +267,11 @@ export const Block = Node.create<IBlock>({
           commands.command(({ tr }) => {
             const isAtStartOfNode = tr.selection.$anchor.parentOffset === 0;
             const node = tr.selection.$anchor.node(-1);
-            if (isAtStartOfNode && node.type.name === "tcblock") {
+            if (isAtStartOfNode && node.type.name === "block") {
               // we're at the start of the block, so we're trying to "backspace" the bullet or indentation
               return commands.first([
                 () => commands.unsetList(), // first try to remove the "list" property
-                () => commands.liftListItem("tcblock"), // then try to remove a level of indentation
+                () => commands.liftListItem("block"), // then try to remove a level of indentation
               ]);
             }
             return false;
@@ -292,7 +291,7 @@ export const Block = Node.create<IBlock>({
               const isAtStartOfNode = tr.selection.$anchor.parentOffset === 0;
               const anchor = tr.selection.$anchor;
               const node = anchor.node(-1);
-              if (isAtStartOfNode && node.type.name === "tcblock") {
+              if (isAtStartOfNode && node.type.name === "block") {
                 if (node.childCount === 2) {
                   // BlockB has children. We want to go from this:
                   //
@@ -337,7 +336,7 @@ export const Block = Node.create<IBlock>({
     const handleEnter = () =>
       this.editor.commands.first(({ commands }) => [
         // Try to split the current block into 2 items:
-        () => commands.splitListItem("tcblock"),
+        () => commands.splitListItem("block"),
         // Otherwise, maybe we are in an empty list item. "Enter" should remove the list bullet
         ({ tr, dispatch }) => {
           const $from = tr.selection.$from;
@@ -348,7 +347,7 @@ export const Block = Node.create<IBlock>({
           const node = tr.selection.$anchor.node(-1);
           const nodePos = tr.selection.$anchor.posAtIndex(0, -1) - 1;
 
-          if (node.type.name === "tcblock" && node.attrs["listType"]) {
+          if (node.type.name === "block" && node.attrs["listType"]) {
             if (dispatch) {
               tr.setNodeMarkup(nodePos, undefined, {
                 ...node.attrs,
@@ -373,9 +372,9 @@ export const Block = Node.create<IBlock>({
     return {
       Backspace: handleBackspace,
       Enter: handleEnter,
-      Tab: () => this.editor.commands.sinkListItem("tcblock"),
+      Tab: () => this.editor.commands.sinkListItem("block"),
       "Shift-Tab": () => {
-        return this.editor.commands.liftListItem("tcblock");
+        return this.editor.commands.liftListItem("block");
       },
       "Mod-Alt-0": () =>
         this.editor.chain().unsetList().unsetBlockHeading().run(),

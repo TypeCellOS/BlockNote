@@ -2,7 +2,7 @@
   "name": "@blocknote/core",
   "homepage": "https://github.com/yousefed/blocknote",
   "private": false,
-  "license": "MIT",
+  "license": "MPL-2.0",
   "version": "0.1.0-alpha.3",
   "files": [
     "dist",

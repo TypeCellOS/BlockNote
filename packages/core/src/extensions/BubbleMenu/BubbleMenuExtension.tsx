@@ -1,9 +1,10 @@
 import { Extension } from "@tiptap/core";
 import { PluginKey } from "prosemirror-state";
 import ReactDOM from "react-dom";
+import rootStyles from "../../root.module.css";
 import { createBubbleMenuPlugin } from "./BubbleMenuPlugin";
 import { BubbleMenu } from "./component/BubbleMenu";
-import rootStyles from "../../root.module.css";
+
 /**
  * The menu that is displayed when selecting a piece of text.
  */

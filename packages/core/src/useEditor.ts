@@ -17,6 +17,10 @@ const blockNoteOptions = {
   enablePasteRules: true,
   enableCoreExtensions: false,
 };
+
+/**
+ * Main hook for importing a BlockNote editor into a react project
+ */
 export const useEditor = (
   options: Partial<BlockNoteEditorOptions> = {},
   deps: DependencyList = []

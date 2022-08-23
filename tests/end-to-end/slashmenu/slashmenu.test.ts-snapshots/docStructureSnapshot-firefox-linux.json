@@ -5,13 +5,13 @@
       "type": "blockgroup",
       "content": [
         {
-          "type": "tcblock",
+          "type": "block",
           "attrs": {
             "headingType": 1
           },
           "content": [
             {
-              "type": "tccontent",
+              "type": "content",
               "attrs": {},
               "content": [
                 {
@@ -23,13 +23,13 @@
           ]
         },
         {
-          "type": "tcblock",
+          "type": "block",
           "attrs": {
             "headingType": 2
           },
           "content": [
             {
-              "type": "tccontent",
+              "type": "content",
               "attrs": {},
               "content": [
                 {
@@ -42,13 +42,13 @@
               "type": "blockgroup",
               "content": [
                 {
-                  "type": "tcblock",
+                  "type": "block",
                   "attrs": {
                     "headingType": 3
                   },
                   "content": [
                     {
-                      "type": "tccontent",
+                      "type": "content",
                       "attrs": {},
                       "content": [
                         {
@@ -61,11 +61,11 @@
                       "type": "blockgroup",
                       "content": [
                         {
-                          "type": "tcblock",
+                          "type": "block",
                           "attrs": {},
                           "content": [
                             {
-                              "type": "tccontent",
+                              "type": "content",
                               "attrs": {},
                               "content": [
                                 {
@@ -81,13 +81,13 @@
                   ]
                 },
                 {
-                  "type": "tcblock",
+                  "type": "block",
                   "attrs": {
                     "listType": "oli"
                   },
                   "content": [
                     {
-                      "type": "tccontent",
+                      "type": "content",
                       "attrs": {
                         "position": "1."
                       },
@@ -101,13 +101,13 @@
                   ]
                 },
                 {
-                  "type": "tcblock",
+                  "type": "block",
                   "attrs": {
                     "listType": "oli"
                   },
                   "content": [
                     {
-                      "type": "tccontent",
+                      "type": "content",
                       "attrs": {
                         "position": "2."
                       },
@@ -121,13 +121,13 @@
                   ]
                 },
                 {
-                  "type": "tcblock",
+                  "type": "block",
                   "attrs": {
                     "listType": "li"
                   },
                   "content": [
                     {
-                      "type": "tccontent",
+                      "type": "content",
                       "attrs": {},
                       "content": [
                         {
@@ -143,11 +143,11 @@
           ]
         },
         {
-          "type": "tcblock",
+          "type": "block",
           "attrs": {},
           "content": [
             {
-              "type": "tccontent",
+              "type": "content",
               "attrs": {}
             }
           ]

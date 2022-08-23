@@ -59,8 +59,7 @@ export const DragHandle = (props: {
     if (currentBlock.node.firstChild?.textContent.length !== 0) {
       // Create new block after current block
       const endOfBlock = currentBlock.pos + currentBlock.node.nodeSize;
-      let newBlock =
-        props.view.state.schema.nodes["tccontent"].createAndFill()!;
+      let newBlock = props.view.state.schema.nodes["content"].createAndFill()!;
       props.view.state.tr.insert(endOfBlock, newBlock);
       props.view.dispatch(props.view.state.tr.insert(endOfBlock, newBlock));
       props.view.dispatch(
