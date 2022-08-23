@@ -36,27 +36,33 @@ BlockNote comes with a number of features and components to make it easy to embe
 
 ### Animations:
 
-![animations](.resources/animations.gif)
+<img src="https://github.com/YousefED/BlockNote/blob/readme/.resources/animations.gif?raw=true" width="400" />
 
 ### Helpful placeholders:
 
+<img src="https://github.com/YousefED/BlockNote/blob/readme/.resources/placeholders.gif?raw=true" width="400" />
 ![placeholders](.resources/placeholders.gif)
 
 ### Drag and drop blocks:
 
+<img src="https://github.com/YousefED/BlockNote/blob/readme/.resources/dragdrop.gif?raw=true" width="400" />
 ![dragdrop](.resources/dragdrop.gif)
 
 ### Nesting / indentation with tab and shift+tab:
 
-![nesting](.resources/nesting.gif)
+<img src="https://github.com/YousefED/BlockNote/blob/readme/.resources/nesting.gif?raw=true" width="400" />
 
 ### Slash (/) menu:
 
-![slashmenu](.resources/slashmenu.gif)
+<img src="https://github.com/YousefED/BlockNote/blob/readme/.resources/slashmenu.gif?raw=true" width="400" />
 
 ### Format menu:
 
-![selectmenu](.resources/selectmenu.gif)
+<img src="https://github.com/YousefED/BlockNote/blob/readme/.resources/selectmenu.gif?raw=true" width="400" />
+
+### Real-time collaboration:
+
+<img src="https://github.com/YousefED/BlockNote/blob/readme/.resources/collaboration.gif?raw=true" width="400" />
 
 # Contributing
 
