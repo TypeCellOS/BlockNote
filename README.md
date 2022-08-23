@@ -80,3 +80,11 @@ To run the project, open the command line in the project's root directory and en
 - Add the dependency to the relevant `package.json` file (packages/xxx/package.json)
 - run `npm run install-new-packages`
 - Double check `package-lock.json` to make sure only the relevant packages have been affected
+
+# Credits ❤️
+
+BlockNote builds directly on two awesome projects; [Prosemirror](https://prosemirror.net/) by Marijn Haverbeke and [Tiptap](https://tiptap.dev/). Consider sponsoring those libraries when using BlockNote: [Prosemirror](https://marijnhaverbeke.nl/fund/), [Tiptap](https://github.com/sponsors/ueberdosis).
+
+BlockNote is built as part of [TypeCell](https://www.typecell.org). TypeCell is proudly sponsored by the renowned [NLNet foundation](https://nlnet.nl/foundation/) who are on a mission to support an open internet, and protect the privacy and security of internet users. Check them out!
+
+<a href="https://nlnet.nl"><img src="https://nlnet.nl/image/logos/NGIAssure_tag.svg" alt="NLNet" width="100"></a>
