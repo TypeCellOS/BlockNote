@@ -41,12 +41,10 @@ BlockNote comes with a number of features and components to make it easy to embe
 ### Helpful placeholders:
 
 <img src="https://github.com/YousefED/BlockNote/blob/readme/.resources/placeholders.gif?raw=true" width="400" />
-![placeholders](.resources/placeholders.gif)
 
 ### Drag and drop blocks:
 
 <img src="https://github.com/YousefED/BlockNote/blob/readme/.resources/dragdrop.gif?raw=true" width="400" />
-![dragdrop](.resources/dragdrop.gif)
 
 ### Nesting / indentation with tab and shift+tab:
 
