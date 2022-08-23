@@ -11,12 +11,12 @@ export const OrderedListPlugin = () => {
       let count = 1;
       let skip = 0;
       newState.doc.descendants((node, pos) => {
-        if (node.type.name === "tcblock" && !node.attrs.listType) {
+        if (node.type.name === "block" && !node.attrs.listType) {
           count = 1;
         }
         if (
           skip === 0 &&
-          node.type.name === "tcblock" &&
+          node.type.name === "block" &&
           node.attrs.listType === "oli"
         ) {
           skip = node.content.childCount;

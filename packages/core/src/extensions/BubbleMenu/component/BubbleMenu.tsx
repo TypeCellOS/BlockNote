@@ -1,27 +1,27 @@
+import DropdownMenu, { DropdownItemGroup } from "@atlaskit/dropdown-menu";
 import { Editor } from "@tiptap/core";
 import {
   RiBold,
   RiH1,
   RiH2,
   RiH3,
+  RiIndentDecrease,
+  RiIndentIncrease,
   RiItalic,
   RiLink,
-  RiStrikethrough,
-  RiUnderline,
-  RiIndentIncrease,
-  RiIndentDecrease,
-  RiText,
   RiListOrdered,
   RiListUnordered,
+  RiStrikethrough,
+  RiText,
+  RiUnderline,
 } from "react-icons/ri";
 import { SimpleToolbarButton } from "../../../shared/components/toolbar/SimpleToolbarButton";
 import { Toolbar } from "../../../shared/components/toolbar/Toolbar";
 import { useEditorForceUpdate } from "../../../shared/hooks/useEditorForceUpdate";
 import { findBlock } from "../../Blocks/helpers/findBlock";
 import formatKeyboardShortcut from "../../helpers/formatKeyboardShortcut";
-import LinkToolbarButton from "./LinkToolbarButton";
-import DropdownMenu, { DropdownItemGroup } from "@atlaskit/dropdown-menu";
 import DropdownBlockItem from "./DropdownBlockItem";
+import LinkToolbarButton from "./LinkToolbarButton";
 
 type ListType = "li" | "oli";
 
@@ -167,19 +167,15 @@ export const BubbleMenu = (props: { editor: Editor }) => {
         icon={RiStrikethrough}
       />
       <SimpleToolbarButton
-        onClick={() =>
-          props.editor.chain().focus().sinkListItem("tcblock").run()
-        }
-        isDisabled={!props.editor.can().sinkListItem("tcblock")}
+        onClick={() => props.editor.chain().focus().sinkListItem("block").run()}
+        isDisabled={!props.editor.can().sinkListItem("block")}
         mainTooltip="Indent"
         secondaryTooltip={formatKeyboardShortcut("Tab")}
         icon={RiIndentIncrease}
       />
 
       <SimpleToolbarButton
-        onClick={() =>
-          props.editor.chain().focus().liftListItem("tcblock").run()
-        }
+        onClick={() => props.editor.chain().focus().liftListItem("block").run()}
         isDisabled={
           !props.editor.can().command(({ state }) => {
             const block = findBlock(state.selection);

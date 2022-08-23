@@ -73,6 +73,8 @@ blocknote
 └── tests               - Playwright end to end tests
 ```
 
+An introduction into the BlockNote Prosemirror schema can be found in [packages/core/ARCHITECTURE.md](https://github.com/YousefED/BlockNote/blob/main/packages/core/ARCHITECTURE.md).
+
 ## Running
 
 To run the project, open the command line in the project's root directory and enter the following commands:

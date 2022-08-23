@@ -5,7 +5,7 @@ export interface IBlock {
 }
 
 export const ContentBlock = Node.create<IBlock>({
-  name: "tccontent",
+  name: "content",
 
   addOptions() {
     return {
