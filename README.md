@@ -1,6 +1,62 @@
 # BlockNote
 
-Welcome to the BlockNote editor. Let's build a block based WYSIWYG editor with killer UX!
+**Welcome to BlockNote editor: a "Notion-style" block-based extensible text editor built on top of [Prosemirror](https://prosemirror.net/) and [Tiptap](https://tiptap.dev/).**
+
+# Live demo
+
+Play with the editor @ [https://blocknote-main.vercel.app/](https://blocknote-main.vercel.app/).
+
+(Source in [examples/editor](/examples/editor))
+
+# Example code (React)
+
+```typescript
+import { EditorContent, useEditor } from "@blocknote/core";
+import "@blocknote/core/style.css";
+
+function App() {
+  const editor = useEditor({
+    onUpdate: ({ editor }) => {
+      // Log the document to console on every update
+      console.log(editor.getJSON());
+    },
+  });
+
+  return <EditorContent editor={editor} />;
+}
+```
+
+# Features
+
+BlockNote comes with a number of features and components to make it easy to embed a high-quality block-based editor in your app:
+
+### Animations:
+
+![animations](.resources/animations.gif)
+
+### Helpful placeholders:
+
+![placeholders](.resources/placeholders.gif)
+
+### Drag and drop blocks:
+
+![dragdrop](.resources/dragdrop.gif)
+
+### Nesting / indentation with tab and shift+tab:
+
+![nesting](.resources/nesting.gif)
+
+### Slash (/) menu:
+
+![slashmenu](.resources/slashmenu.gif)
+
+### Format menu:
+
+![selectmenu](.resources/selectmenu.gif)
+
+# Contributing
+
+Directory structure:
 
 ```
 blocknote
@@ -9,24 +65,15 @@ blocknote
 └── tests               - Playwright end to end tests
 ```
 
-# Development
-
-We use [Lerna](https://lerna.js.org/) to manage the monorepo with separate packages.
-
 ## Running
 
 To run the project, open the command line in the project's root directory and enter the following commands:
 
     # Install all required npm modules for lerna, and bootstrap lerna packages
     npm install
-    npm run bootstrap
 
-    # Start the editor project
+    # Start the example project
     npm start
-
-## Updating packages
-
-If you've pulled changes from git that add new or update existing dependencies, use `npm run bootstrap` instead of `npm install` to install updated dependencies!
 
 ## Adding packages
 
