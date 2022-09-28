@@ -103,6 +103,7 @@ export const Block = Node.create<IBlock>({
     return [
       {
         tag: "div",
+        context: "blockgroup/",
       },
     ];
   },

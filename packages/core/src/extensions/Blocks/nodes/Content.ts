@@ -32,6 +32,7 @@ export const ContentBlock = Node.create<IBlock>({
     return [
       {
         tag: "div",
+        context: "block/",
       },
     ];
   },
