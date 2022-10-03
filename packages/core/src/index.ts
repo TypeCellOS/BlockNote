@@ -1,5 +1,6 @@
 import "./globals.css";
 
-export * from "./BlockNoteExtensions";
-export * from "./EditorContent";
-export * from "./useEditor";
+export * from "./plugins/TreeViewPlugin";
+export * from "./react";
+export * from "./registerBlockNote";
+export * from "./themes/BlockNoteEditorTheme";

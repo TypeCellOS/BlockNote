@@ -23,7 +23,11 @@
     "install-playwright": "npx playwright install --with-deps",
     "deploy": "lerna publish -- --access public",
     "prepublishOnly": "npm run build && cp README.md packages/core/README.md",
-    "postpublish": "rm -rf packages/core/README.md"
+    "postpublish": "rm -rf packages/core/README.md",
+    "postinstall": "npm run init-lexical && npm run build-lexical && npm run copy-lexical",
+    "init-lexical": "git submodule update --init",
+    "build-lexical": "cd lexical-submodule/lexical && npm install && npm run prepare-release && cd ../..",
+    "copy-lexical": "rm -rf node_modules/lexical && cp -rf lexical-submodule/lexical/packages/lexical/npm node_modules/lexical"
   },
   "overrides": {
     "react": "^17.0.2",

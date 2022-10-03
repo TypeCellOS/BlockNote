@@ -26,3 +26,42 @@ button {
 
   color: rgb(60, 65, 73);
 }
+
+body {
+  margin: 0;
+  padding: 0;
+}
+/*
+TODO: put in right location
+*/
+.editor-scroller {
+  min-height: 150px;
+  height: 360px;
+  border: 0;
+  resize: none;
+  cursor: text;
+  display: block;
+  position: relative;
+  outline: 0;
+  overflow: auto;
+  resize: vertical;
+}
+
+.editor {
+  height: 100%;
+  position: relative;
+}
+.ContentEditable__root {
+  border: 0;
+  font-size: 15px;
+  display: block;
+  position: relative;
+  tab-size: 1;
+  outline: 0;
+  padding: 8px 28px;
+  min-height: calc(100% - 16px);
+}
+
+.childgroup {
+  padding-left: 18px;
+}
