@@ -1,4 +1,4 @@
 [submodule "lexical-submodule/lexical"]
 	path = lexical-submodule/lexical
-	url = git@github.com:YousefED/lexical.git
+	url = https://github.com/YousefED/lexical.git
 	branch = blocknote
