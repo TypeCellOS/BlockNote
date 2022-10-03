@@ -5,6 +5,7 @@ import { registerDragonSupport } from "@lexical/dragon";
 import { registerRichText } from "@lexical/rich-text";
 import { registerIndentationCommands } from "./commands/indentation";
 import { patchNode } from "./nodes/patchNodes";
+import { registerAnimation } from "./plugins/animation";
 
 export function registerBlockNote(editor: LexicalEditor) {
   editor._nodes.forEach((node) => {
@@ -24,8 +25,8 @@ export function registerBlockNote(editor: LexicalEditor) {
   return mergeRegister(
     registerRichText(editor),
     registerDragonSupport(editor),
-    registerIndentationCommands(editor)
-    // registerAnimation(editor),
+    registerIndentationCommands(editor),
+    registerAnimation(editor)
     // registerMarkdownShortcuts(editor, TRANSFORMERS)
   );
 }
