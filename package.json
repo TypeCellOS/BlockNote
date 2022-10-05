@@ -15,7 +15,7 @@
     "start": "lerna run --stream --scope @blocknote/example-editor-lexical dev",
     "start:built": "npx serve examples/editor-lexical/dist",
     "test:updateSnaps": "docker run --rm  -e RUN_IN_DOCKER=true --network host -v $(pwd):/work/ -w /work/ -it mcr.microsoft.com/playwright:v1.25.0-focal npx playwright test --update-snapshots",
-    "build": "lerna run --stream build --concurrency 1",
+    "build": "lerna run --stream build --concurrency 1 --scope '{@blocknote/core-lexical,@blocknote/example-editor-lexical}'",
     "lint": "lerna run --stream lint",
     "bootstrap": "lerna bootstrap --ci -- --force && patch-package",
     "install-new-packages": "lerna bootstrap -- --force && patch-package",
