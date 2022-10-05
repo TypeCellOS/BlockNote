@@ -12,8 +12,8 @@
     "eslint": "^8.22.0"
   },
   "scripts": {
-    "start": "lerna run --stream --scope @blocknote/example-editor dev",
-    "start:built": "npx serve examples/editor/dist",
+    "start": "lerna run --stream --scope @blocknote/example-editor-lexical dev",
+    "start:built": "npx serve examples/editor-lexical/dist",
     "test:updateSnaps": "docker run --rm  -e RUN_IN_DOCKER=true --network host -v $(pwd):/work/ -w /work/ -it mcr.microsoft.com/playwright:v1.25.0-focal npx playwright test --update-snapshots",
     "build": "lerna run --stream build --concurrency 1",
     "lint": "lerna run --stream lint",
