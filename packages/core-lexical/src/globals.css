@@ -1,0 +1,67 @@
+@import url("fonts-inter.css");
+
+/* TODO: should not be on root as this changes entire consuming application */
+
+:root {
+  /* Define a set of colors to be used throughout the app for consistency
+  see https://atlassian.design/foundations/color for more info */
+  --N800: #172b4d; /* Dark neutral used for tooltips and text on light background */
+  --N40: #dfe1e6; /* Light neutral used for subtle borders and text on dark background */
+
+  font-family: "Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont,
+    "Open Sans", "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell",
+    "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  color: rgb(60, 65, 73);
+}
+
+button {
+  font-family: "Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont,
+    "Open Sans", "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell",
+    "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  color: rgb(60, 65, 73);
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+/*
+TODO: put in right location
+*/
+.editor-scroller {
+  min-height: 150px;
+  height: 360px;
+  border: 0;
+  resize: none;
+  cursor: text;
+  display: block;
+  position: relative;
+  outline: 0;
+  overflow: auto;
+  resize: vertical;
+}
+
+.editor {
+  height: 100%;
+  position: relative;
+}
+.ContentEditable__root {
+  border: 0;
+  font-size: 15px;
+  display: block;
+  position: relative;
+  tab-size: 1;
+  outline: 0;
+  padding: 8px 28px;
+  min-height: calc(100% - 16px);
+}
+
+.childgroup {
+  padding-left: 18px;
+}
