@@ -21,7 +21,8 @@ export const BlockGroup = Node.create({
             return false;
           }
 
-          if(element.getAttribute("node") === "block-group") {
+          if(element.getAttribute("data-node-type") === "block-group") {
+            // Null means the element matches, but we don't want to add any attributes to the node.
             return null;
           }
 
@@ -36,7 +37,7 @@ export const BlockGroup = Node.create({
       "div",
       mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, {
         class: styles.blockGroup,
-        node: "block-group"
+        "data-node-type": "block-group"
       }),
       0,
     ];

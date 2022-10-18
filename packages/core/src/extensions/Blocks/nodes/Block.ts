@@ -60,7 +60,7 @@ export const Block = Node.create<IBlock>({
     return {
       listType: {
         default: undefined,
-        // Causes nesting issues pasting outside editor
+        // Causes formatting issues pasting BlockNote content in other editors as "ul"/"ol" tags aren't present.
         renderHTML: (attributes) => {
           return {
             "data-listType": attributes.listType,
@@ -109,7 +109,7 @@ export const Block = Node.create<IBlock>({
             return false;
           }
 
-          if (element.getAttribute("node") === "block") {
+          if (element.getAttribute("data-node-type") === "block") {
             // Null means the element matches, but we don't want to add any attributes to the node.
             return null;
           }
@@ -142,20 +142,19 @@ export const Block = Node.create<IBlock>({
             return false;
           }
 
-          let ancestor = element.parentElement;
+          const parent = element.parentElement;
 
-          if (ancestor === null) {
+          if (parent === null) {
             return false;
           }
 
-          while (ancestor.tagName !== "B") {
-            if (ancestor.tagName === "UL") {
-              return {listType: "li"};
-            }
+          // Sets appropriate ordered/unordered list attributes based on parent list element type.
+          if (parent.tagName === "UL") {
+            return {listType: "li"};
+          }
 
-            if (ancestor.tagName === "OL") {
-              return {listType: "oli"};
-            }
+          if (parent.tagName === "OL") {
+            return {listType: "oli"};
           }
 
           return false;
@@ -169,13 +168,13 @@ export const Block = Node.create<IBlock>({
       "div",
       mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, {
         class: styles.blockOuter,
-        node: "block-outer"
+        "data-node-type": "block-outer"
       }),
       [
         "div",
         mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, {
           class: styles.block,
-          node: "block"
+          "data-node-type": "block"
         }),
         0,
       ],
