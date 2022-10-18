@@ -1,11 +1,11 @@
-import { mergeAttributes, Node } from "@tiptap/core";
-import { Selection, TextSelection } from "prosemirror-state";
-import { joinBackward } from "../commands/joinBackward";
-import { findBlock } from "../helpers/findBlock";
-import { setBlockHeading } from "../helpers/setBlockHeading";
-import { OrderedListPlugin } from "../OrderedListPlugin";
-import { PreviousBlockTypePlugin } from "../PreviousBlockTypePlugin";
-import { textblockTypeInputRuleSameNodeType } from "../rule";
+import {mergeAttributes, Node} from "@tiptap/core";
+import {Selection, TextSelection} from "prosemirror-state";
+import {joinBackward} from "../commands/joinBackward";
+import {findBlock} from "../helpers/findBlock";
+import {setBlockHeading} from "../helpers/setBlockHeading";
+import {OrderedListPlugin} from "../OrderedListPlugin";
+import {PreviousBlockTypePlugin} from "../PreviousBlockTypePlugin";
+import {textblockTypeInputRuleSameNodeType} from "../rule";
 import styles from "./Block.module.css";
 
 export interface IBlock {
@@ -105,11 +105,11 @@ export const Block = Node.create<IBlock>({
       {
         tag: "div",
         getAttrs: (element) => {
-          if(typeof element === "string") {
+          if (typeof element === "string") {
             return false;
           }
 
-          if(element.getAttribute("node") === "block") {
+          if (element.getAttribute("node") === "block") {
             // Null means the element matches, but we don't want to add any attributes to the node.
             return null;
           }
@@ -138,22 +138,22 @@ export const Block = Node.create<IBlock>({
       {
         tag: "li",
         getAttrs: (element: HTMLElement | string) => {
-          if(typeof element === "string") {
+          if (typeof element === "string") {
             return false;
           }
 
           let ancestor = element.parentElement;
 
-          if(ancestor === null) {
+          if (ancestor === null) {
             return false;
           }
 
-          while(ancestor.tagName !== "B") {
-            if(ancestor.tagName === "UL") {
+          while (ancestor.tagName !== "B") {
+            if (ancestor.tagName === "UL") {
               return {listType: "li"};
             }
 
-            if(ancestor.tagName === "OL") {
+            if (ancestor.tagName === "OL") {
               return {listType: "oli"};
             }
           }
@@ -164,7 +164,7 @@ export const Block = Node.create<IBlock>({
     ];
   },
 
-  renderHTML({ HTMLAttributes }) {
+  renderHTML({HTMLAttributes}) {
     return [
       "div",
       mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, {
@@ -216,81 +216,81 @@ export const Block = Node.create<IBlock>({
     return {
       setBlockHeading:
         (attributes) =>
-        ({ tr, dispatch }) => {
-          return setBlockHeading(tr, dispatch, attributes.level);
-        },
+          ({tr, dispatch}) => {
+            return setBlockHeading(tr, dispatch, attributes.level);
+          },
       unsetBlockHeading:
         () =>
-        ({ tr, dispatch }) => {
-          return setBlockHeading(tr, dispatch, undefined);
-        },
+          ({tr, dispatch}) => {
+            return setBlockHeading(tr, dispatch, undefined);
+          },
       unsetList:
         () =>
-        ({ tr, dispatch }) => {
-          const node = tr.selection.$anchor.node(-1);
-          const nodePos = tr.selection.$anchor.posAtIndex(0, -1) - 1;
+          ({tr, dispatch}) => {
+            const node = tr.selection.$anchor.node(-1);
+            const nodePos = tr.selection.$anchor.posAtIndex(0, -1) - 1;
 
-          // const node2 = tr.doc.nodeAt(nodePos);
-          if (node.type.name === "block" && node.attrs["listType"]) {
-            if (dispatch) {
-              tr.setNodeMarkup(nodePos, undefined, {
-                ...node.attrs,
-                listType: undefined,
-              });
-              return true;
+            // const node2 = tr.doc.nodeAt(nodePos);
+            if (node.type.name === "block" && node.attrs["listType"]) {
+              if (dispatch) {
+                tr.setNodeMarkup(nodePos, undefined, {
+                  ...node.attrs,
+                  listType: undefined,
+                });
+                return true;
+              }
             }
-          }
-          return false;
-        },
+            return false;
+          },
 
       addNewBlockAsSibling:
         (attributes) =>
-        ({ tr, dispatch, state }) => {
-          // Get current block
-          const currentBlock = findBlock(tr.selection);
-          if (!currentBlock) {
-            return false;
-          }
+          ({tr, dispatch, state}) => {
+            // Get current block
+            const currentBlock = findBlock(tr.selection);
+            if (!currentBlock) {
+              return false;
+            }
 
-          // If current blocks content is empty dont create a new block
-          if (currentBlock.node.firstChild?.textContent.length === 0) {
+            // If current blocks content is empty dont create a new block
+            if (currentBlock.node.firstChild?.textContent.length === 0) {
+              if (dispatch) {
+                tr.setNodeMarkup(currentBlock.pos, undefined, attributes);
+              }
+              return true;
+            }
+
+            // Create new block after current block
+            const endOfBlock = currentBlock.pos + currentBlock.node.nodeSize;
+            let newBlock = state.schema.nodes["block"].createAndFill(attributes)!;
             if (dispatch) {
-              tr.setNodeMarkup(currentBlock.pos, undefined, attributes);
+              tr.insert(endOfBlock, newBlock);
+              tr.setSelection(new TextSelection(tr.doc.resolve(endOfBlock + 1)));
             }
             return true;
-          }
-
-          // Create new block after current block
-          const endOfBlock = currentBlock.pos + currentBlock.node.nodeSize;
-          let newBlock = state.schema.nodes["block"].createAndFill(attributes)!;
-          if (dispatch) {
-            tr.insert(endOfBlock, newBlock);
-            tr.setSelection(new TextSelection(tr.doc.resolve(endOfBlock + 1)));
-          }
-          return true;
-        },
+          },
       setBlockList:
         (type) =>
-        ({ tr, dispatch }) => {
-          const node = tr.selection.$anchor.node(-1);
-          const nodePos = tr.selection.$anchor.posAtIndex(0, -1) - 1;
+          ({tr, dispatch}) => {
+            const node = tr.selection.$anchor.node(-1);
+            const nodePos = tr.selection.$anchor.posAtIndex(0, -1) - 1;
 
-          // const node2 = tr.doc.nodeAt(nodePos);
-          if (node.type.name === "block") {
-            if (dispatch) {
-              tr.setNodeMarkup(nodePos, undefined, {
-                ...node.attrs,
-                listType: type,
-              });
+            // const node2 = tr.doc.nodeAt(nodePos);
+            if (node.type.name === "block") {
+              if (dispatch) {
+                tr.setNodeMarkup(nodePos, undefined, {
+                  ...node.attrs,
+                  listType: type,
+                });
+              }
+              return true;
             }
-            return true;
-          }
-          return false;
-        },
+            return false;
+          },
       joinBackward:
         () =>
-        ({ view, dispatch, state }) =>
-          joinBackward(state, dispatch, view), // Override default joinBackward with edited command
+          ({view, dispatch, state}) =>
+            joinBackward(state, dispatch, view), // Override default joinBackward with edited command
     };
   },
   addProseMirrorPlugins() {
@@ -299,15 +299,15 @@ export const Block = Node.create<IBlock>({
   addKeyboardShortcuts() {
     // handleBackspace is partially adapted from https://github.com/ueberdosis/tiptap/blob/ed56337470efb4fd277128ab7ef792b37cfae992/packages/core/src/extensions/keymap.ts
     const handleBackspace = () =>
-      this.editor.commands.first(({ commands }) => [
+      this.editor.commands.first(({commands}) => [
         // Maybe the user wants to undo an auto formatting input rule (e.g.: - or #, and then hit backspace) (source: tiptap)
         () => commands.undoInputRule(),
         // maybe convert first text block node to default node (source: tiptap)
         () =>
-          commands.command(({ tr }) => {
-            const { selection, doc } = tr;
-            const { empty, $anchor } = selection;
-            const { pos, parent } = $anchor;
+          commands.command(({tr}) => {
+            const {selection, doc} = tr;
+            const {empty, $anchor} = selection;
+            const {pos, parent} = $anchor;
             const isAtStart = Selection.atStart(doc).from === pos;
 
             if (
@@ -323,7 +323,7 @@ export const Block = Node.create<IBlock>({
           }),
         () => commands.deleteSelection(), // (source: tiptap)
         () =>
-          commands.command(({ tr }) => {
+          commands.command(({tr}) => {
             const isAtStartOfNode = tr.selection.$anchor.parentOffset === 0;
             const node = tr.selection.$anchor.node(-1);
             if (isAtStartOfNode && node.type.name === "block") {
@@ -335,7 +335,7 @@ export const Block = Node.create<IBlock>({
             }
             return false;
           }),
-        ({ chain }) =>
+        ({chain}) =>
           // we are at the start of a block at the root level. The user hits backspace to "merge it" to the end of the block above
           //
           // BlockA
@@ -346,7 +346,7 @@ export const Block = Node.create<IBlock>({
           // BlockABlockB
 
           chain()
-            .command(({ tr, state, dispatch }) => {
+            .command(({tr, state, dispatch}) => {
               const isAtStartOfNode = tr.selection.$anchor.parentOffset === 0;
               const anchor = tr.selection.$anchor;
               const node = anchor.node(-1);
@@ -393,11 +393,11 @@ export const Block = Node.create<IBlock>({
       ]);
 
     const handleEnter = () =>
-      this.editor.commands.first(({ commands }) => [
+      this.editor.commands.first(({commands}) => [
         // Try to split the current block into 2 items:
         () => commands.splitListItem("block"),
         // Otherwise, maybe we are in an empty list item. "Enter" should remove the list bullet
-        ({ tr, dispatch }) => {
+        ({tr, dispatch}) => {
           const $from = tr.selection.$from;
           if ($from.depth !== 3) {
             // only needed at root level, at deeper levels it should be handled already by splitListItem
@@ -418,7 +418,7 @@ export const Block = Node.create<IBlock>({
           return false;
         },
         // Otherwise, we might be on an empty line and hit "Enter" to create a new line:
-        ({ tr, dispatch }) => {
+        ({tr, dispatch}) => {
           const $from = tr.selection.$from;
 
           if (dispatch) {
@@ -437,9 +437,9 @@ export const Block = Node.create<IBlock>({
       },
       "Mod-Alt-0": () =>
         this.editor.chain().unsetList().unsetBlockHeading().run(),
-      "Mod-Alt-1": () => this.editor.commands.setBlockHeading({ level: 1 }),
-      "Mod-Alt-2": () => this.editor.commands.setBlockHeading({ level: 2 }),
-      "Mod-Alt-3": () => this.editor.commands.setBlockHeading({ level: 3 }),
+      "Mod-Alt-1": () => this.editor.commands.setBlockHeading({level: 1}),
+      "Mod-Alt-2": () => this.editor.commands.setBlockHeading({level: 2}),
+      "Mod-Alt-3": () => this.editor.commands.setBlockHeading({level: 3}),
       "Mod-Shift-7": () => this.editor.commands.setBlockList("li"),
       "Mod-Shift-8": () => this.editor.commands.setBlockList("oli"),
       // TODO: Add shortcuts for numbered and bullet list
