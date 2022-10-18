@@ -1,4 +1,4 @@
-import {mergeAttributes, Node} from "@tiptap/core";
+import { mergeAttributes, Node } from "@tiptap/core";
 import { Selection, TextSelection } from "prosemirror-state";
 import { joinBackward } from "../commands/joinBackward";
 import { findBlock } from "../helpers/findBlock";
@@ -99,7 +99,6 @@ export const Block = Node.create<IBlock>({
     };
   },
 
-  // TODO: should we parse <li>, <ol>, <h1>, etc?
   parseHTML() {
     return [
       // For all content copied from within the editor.
