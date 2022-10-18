@@ -32,7 +32,6 @@ export const ContentBlock = Node.create<IBlock>({
     return [
       {
         tag: "div",
-        context: "block/",
         getAttrs: (element) => {
           if(typeof element === "string") {
             return false;

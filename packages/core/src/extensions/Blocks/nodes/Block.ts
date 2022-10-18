@@ -105,18 +105,23 @@ export const Block = Node.create<IBlock>({
       // For all content copied from within the editor.
       {
         tag: "div",
-        context: "blockgroup/",
         getAttrs: (element) => {
           if(typeof element === "string") {
             return false;
           }
 
           if(element.getAttribute("node") === "block") {
+            // Null means the element matches, but we don't want to add any attributes to the node.
             return null;
           }
 
           return false;
         }
+      },
+      // For headings & paragraphs copied from outside the editor.
+      {
+        // Not working properly - paragraphs are pasted as a single block.
+        tag: "p"
       },
       {
         tag: "h1",
@@ -133,20 +138,30 @@ export const Block = Node.create<IBlock>({
       // For lists copied from outside the editor.
       {
         tag: "li",
-        attrs: {listType: "li"},
-        // context: "bulletList/"
+        getAttrs: (element: HTMLElement | string) => {
+          if(typeof element === "string") {
+            return false;
+          }
+
+          let ancestor = element.parentElement;
+
+          if(ancestor === null) {
+            return false;
+          }
+
+          while(ancestor.tagName !== "B") {
+            if(ancestor.tagName === "UL") {
+              return {listType: "li"};
+            }
+
+            if(ancestor.tagName === "OL") {
+              return {listType: "oli"};
+            }
+          }
+
+          return false;
+        }
       },
-      // {
-      //   tag: "li",
-      //   attrs: {listType: "oli"},
-      //   // context: "ol/"
-      // },
-      // We only use list elements in the editor model and don't use "ul" or "ol" elements to wrap them.
-      // So how do we differentiate between ordered and unordered list elements?
-      // {
-      //   tag: "li",
-      //   attrs: {listType: "oli"}
-      // }
     ];
   },
 
