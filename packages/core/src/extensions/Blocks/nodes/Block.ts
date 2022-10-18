@@ -104,8 +104,19 @@ export const Block = Node.create<IBlock>({
     return [
       // For all content copied from within the editor.
       {
-        tag: "block",
-        context: "blockgroup/"
+        tag: "div",
+        context: "blockgroup/",
+        getAttrs: (element) => {
+          if(typeof element === "string") {
+            return false;
+          }
+
+          if(element.getAttribute("node") === "block") {
+            return null;
+          }
+
+          return false;
+        }
       },
       {
         tag: "h1",
@@ -141,14 +152,16 @@ export const Block = Node.create<IBlock>({
 
   renderHTML({ HTMLAttributes }) {
     return [
-      "block-outer",
+      "div",
       mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, {
         class: styles.blockOuter,
+        node: "block-outer"
       }),
       [
-        "block",
+        "div",
         mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, {
           class: styles.block,
+          node: "block"
         }),
         0,
       ],

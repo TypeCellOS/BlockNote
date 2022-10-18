@@ -15,16 +15,28 @@ export const BlockGroup = Node.create({
   parseHTML() {
     return [
       {
-        tag: "block-group"
+        tag: "div",
+        getAttrs: (element) => {
+          if(typeof element === "string") {
+            return false;
+          }
+
+          if(element.getAttribute("node") === "block-group") {
+            return null;
+          }
+
+          return false;
+        }
       }
     ];
   },
 
   renderHTML({ HTMLAttributes }) {
     return [
-      "block-group",
+      "div",
       mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, {
         class: styles.blockGroup,
+        node: "block-group"
       }),
       0,
     ];

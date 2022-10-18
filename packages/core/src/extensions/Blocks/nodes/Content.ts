@@ -31,17 +31,29 @@ export const ContentBlock = Node.create<IBlock>({
   parseHTML() {
     return [
       {
-        tag: "block-content",
-        context: "block/"
+        tag: "div",
+        context: "block/",
+        getAttrs: (element) => {
+          if(typeof element === "string") {
+            return false;
+          }
+
+          if(element.getAttribute("node") === "block-content") {
+            return null;
+          }
+
+          return false;
+        }
       }
     ];
   },
 
   renderHTML({ HTMLAttributes }) {
     return [
-      "block-content",
+      "div",
       mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, {
         class: styles.blockContent,
+        node: "block-content"
       }),
       // TODO: The extra nested div is only needed for placeholders, different solution (without extra div) would be preferable
       // We can't use the other div because the ::before attribute on that one is already reserved for list-bullets
