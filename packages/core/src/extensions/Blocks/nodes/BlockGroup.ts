@@ -13,12 +13,16 @@ export const BlockGroup = Node.create({
   content: "block+",
 
   parseHTML() {
-    return [{ tag: "div" }];
+    return [
+      {
+        tag: "block-group"
+      }
+    ];
   },
 
   renderHTML({ HTMLAttributes }) {
     return [
-      "div",
+      "block-group",
       mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, {
         class: styles.blockGroup,
       }),

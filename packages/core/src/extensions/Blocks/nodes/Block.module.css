@@ -2,6 +2,13 @@
 BASIC STYLES
 */
 
+block-group.blockGroup,
+block-outer.blockOuter,
+block.block,
+block-content.blockContent {
+  display: block;
+}
+
 .blockOuter {
   /* padding-bottom: 15px; */
   font-size: 16px;
@@ -123,25 +130,25 @@ NESTED BLOCKS
 
 /* LISTS */
 
-.block > div:first-child::before {
+.block > block-content::before {
   content: "";
   transition: all 0.2s;
   margin-left: 0px;
 }
 
-.blockOuter[data-prev-listtype="oli"] > .block > div:first-child::before,
+.blockOuter[data-prev-listtype="oli"] > .block > block-content::before,
 .blockOuter[data-listtype="oli"]:not([data-prev-listtype])
   > .block
-  > div:first-child::before {
+  > block-content::before {
   content: attr(data-position);
   margin-right: 1.2em;
   padding-left: 0px;
 }
 
-.blockOuter[data-prev-listtype="li"] > .block > div:first-child::before,
+.blockOuter[data-prev-listtype="li"] > .block > block-content::before,
 .blockOuter[data-listtype="li"]:not([data-prev-listtype])
   > .block
-  > div:first-child::before {
+  > block-content::before {
   content: "•";
   margin-right: 1.2em;
   /* display: list-item; */
@@ -156,13 +163,13 @@ NESTED BLOCKS
   > .blockGroup
   > .blockOuter[data-prev-listtype="li"]
   > .block
-  > div:first-child::before,
+  > block-content::before,
 .blockOuter[data-listtype="li"]
   > .block
   > .blockGroup
   > .blockOuter[data-listtype="li"]:not([data-prev-listtype])
   > .block
-  > div:first-child::before {
+  > block-content::before {
   content: "◦";
   /* font-size: 1.2em; */
   font-family: arial;
@@ -176,7 +183,7 @@ NESTED BLOCKS
   > .blockGroup
   .blockOuter[data-prev-listtype="li"]
   > .block
-  > div:first-child::before,
+  > block-content::before,
 .blockOuter[data-listtype="li"]
   > .block
   > .blockGroup
@@ -185,7 +192,7 @@ NESTED BLOCKS
   > .blockGroup
   .blockOuter[data-listtype="li"]:not([data-prev-listtype])
   > .block
-  > div:first-child::before {
+  > block-content::before {
   content: "▪";
 }
 

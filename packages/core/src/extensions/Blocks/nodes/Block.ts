@@ -1,4 +1,4 @@
-import { mergeAttributes, Node } from "@tiptap/core";
+import {mergeAttributes, Node} from "@tiptap/core";
 import { Selection, TextSelection } from "prosemirror-state";
 import { joinBackward } from "../commands/joinBackward";
 import { findBlock } from "../helpers/findBlock";
@@ -60,6 +60,7 @@ export const Block = Node.create<IBlock>({
     return {
       listType: {
         default: undefined,
+        // Causes nesting issues pasting outside editor
         renderHTML: (attributes) => {
           return {
             "data-listType": attributes.listType,
@@ -101,20 +102,51 @@ export const Block = Node.create<IBlock>({
   // TODO: should we parse <li>, <ol>, <h1>, etc?
   parseHTML() {
     return [
+      // For all content copied from within the editor.
       {
-        tag: "div",
+        tag: "block",
+        context: "blockgroup/"
       },
+      {
+        tag: "h1",
+        attrs: {headingType: 1}
+      },
+      {
+        tag: "h2",
+        attrs: {headingType: 2}
+      },
+      {
+        tag: "h3",
+        attrs: {headingType: 3}
+      },
+      // For lists copied from outside the editor.
+      {
+        tag: "li",
+        attrs: {listType: "li"},
+        // context: "bulletList/"
+      },
+      // {
+      //   tag: "li",
+      //   attrs: {listType: "oli"},
+      //   // context: "ol/"
+      // },
+      // We only use list elements in the editor model and don't use "ul" or "ol" elements to wrap them.
+      // So how do we differentiate between ordered and unordered list elements?
+      // {
+      //   tag: "li",
+      //   attrs: {listType: "oli"}
+      // }
     ];
   },
 
   renderHTML({ HTMLAttributes }) {
     return [
-      "div",
+      "block-outer",
       mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, {
         class: styles.blockOuter,
       }),
       [
-        "div",
+        "block",
         mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, {
           class: styles.block,
         }),
@@ -149,7 +181,7 @@ export const Block = Node.create<IBlock>({
         getAttributes: {
           listType: "oli",
         },
-      }),
+      })
     ];
   },
 

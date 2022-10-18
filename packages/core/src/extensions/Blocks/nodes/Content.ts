@@ -31,14 +31,15 @@ export const ContentBlock = Node.create<IBlock>({
   parseHTML() {
     return [
       {
-        tag: "div",
-      },
+        tag: "block-content",
+        context: "block/"
+      }
     ];
   },
 
   renderHTML({ HTMLAttributes }) {
     return [
-      "div",
+      "block-content",
       mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, {
         class: styles.blockContent,
       }),
