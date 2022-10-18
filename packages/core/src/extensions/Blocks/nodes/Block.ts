@@ -120,8 +120,8 @@ export const Block = Node.create<IBlock>({
       },
       // For headings & paragraphs copied from outside the editor.
       {
-        // Not working properly - paragraphs are pasted as a single block.
-        tag: "p"
+        tag: "p",
+        priority: 100
       },
       {
         tag: "h1",
