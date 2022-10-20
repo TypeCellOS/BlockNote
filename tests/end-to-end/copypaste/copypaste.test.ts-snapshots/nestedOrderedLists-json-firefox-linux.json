@@ -7,99 +7,24 @@
         {
           "type": "block",
           "attrs": {
-            "headingType": "1"
+            "listType": "oli"
           },
           "content": [
             {
               "type": "content",
-              "attrs": {},
+              "attrs": {
+                "position": "1."
+              },
               "content": [
                 {
                   "type": "text",
-                  "text": "This is a h1"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "type": "block",
-          "attrs": {
-            "headingType": "2"
-          },
-          "content": [
-            {
-              "type": "content",
-              "attrs": {},
-              "content": [
-                {
-                  "type": "text",
-                  "text": "This is a h2"
+                  "text": "List Item 1"
                 }
               ]
             },
             {
               "type": "blockgroup",
               "content": [
-                {
-                  "type": "block",
-                  "attrs": {
-                    "headingType": "3"
-                  },
-                  "content": [
-                    {
-                      "type": "content",
-                      "attrs": {},
-                      "content": [
-                        {
-                          "type": "text",
-                          "text": "This is a h3"
-                        }
-                      ]
-                    },
-                    {
-                      "type": "blockgroup",
-                      "content": [
-                        {
-                          "type": "block",
-                          "attrs": {},
-                          "content": [
-                            {
-                              "type": "content",
-                              "attrs": {},
-                              "content": [
-                                {
-                                  "type": "text",
-                                  "text": "This is a paragraph"
-                                }
-                              ]
-                            }
-                          ]
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "type": "block",
-                  "attrs": {
-                    "listType": "oli"
-                  },
-                  "content": [
-                    {
-                      "type": "content",
-                      "attrs": {
-                        "position": "1."
-                      },
-                      "content": [
-                        {
-                          "type": "text",
-                          "text": "This is"
-                        }
-                      ]
-                    }
-                  ]
-                },
                 {
                   "type": "block",
                   "attrs": {
@@ -114,25 +39,112 @@
                       "content": [
                         {
                           "type": "text",
-                          "text": "a numbered list"
+                          "text": "List Item 2"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "blockgroup",
+                      "content": [
+                        {
+                          "type": "block",
+                          "attrs": {
+                            "listType": "oli"
+                          },
+                          "content": [
+                            {
+                              "type": "content",
+                              "attrs": {
+                                "position": "3."
+                              },
+                              "content": [
+                                {
+                                  "type": "text",
+                                  "text": "List Item 3"
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     }
                   ]
-                },
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "block",
+          "attrs": {},
+          "content": [
+            {
+              "type": "content",
+              "attrs": {}
+            }
+          ]
+        },
+        {
+          "type": "block",
+          "attrs": {
+            "listType": "oli"
+          },
+          "content": [
+            {
+              "type": "content",
+              "attrs": {
+                "position": "1."
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "List Item 1"
+                }
+              ]
+            },
+            {
+              "type": "blockgroup",
+              "content": [
                 {
                   "type": "block",
                   "attrs": {
-                    "listType": "li"
+                    "listType": "oli"
                   },
                   "content": [
                     {
                       "type": "content",
-                      "attrs": {},
+                      "attrs": {
+                        "position": "2."
+                      },
                       "content": [
                         {
                           "type": "text",
-                          "text": "And this is a bullet list"
+                          "text": "List Item 2"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "blockgroup",
+                      "content": [
+                        {
+                          "type": "block",
+                          "attrs": {
+                            "listType": "oli"
+                          },
+                          "content": [
+                            {
+                              "type": "content",
+                              "attrs": {
+                                "position": "3."
+                              },
+                              "content": [
+                                {
+                                  "type": "text",
+                                  "text": "List Item 3"
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     }

@@ -1,0 +1,150 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "blockgroup",
+      "content": [
+        {
+          "type": "block",
+          "attrs": {
+            "listType": "oli"
+          },
+          "content": [
+            {
+              "type": "content",
+              "attrs": {
+                "position": "1."
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "List Item 1"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "block",
+          "attrs": {
+            "listType": "oli"
+          },
+          "content": [
+            {
+              "type": "content",
+              "attrs": {
+                "position": "2."
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "List Item 2"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "block",
+          "attrs": {
+            "listType": "oli"
+          },
+          "content": [
+            {
+              "type": "content",
+              "attrs": {
+                "position": "3."
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "List Item 3"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "block",
+          "attrs": {},
+          "content": [
+            {
+              "type": "content",
+              "attrs": {}
+            }
+          ]
+        },
+        {
+          "type": "block",
+          "attrs": {
+            "listType": "oli"
+          },
+          "content": [
+            {
+              "type": "content",
+              "attrs": {
+                "position": "1."
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "List Item 1"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "block",
+          "attrs": {
+            "listType": "oli"
+          },
+          "content": [
+            {
+              "type": "content",
+              "attrs": {
+                "position": "2."
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "List Item 2"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "block",
+          "attrs": {
+            "listType": "oli"
+          },
+          "content": [
+            {
+              "type": "content",
+              "attrs": {
+                "position": "3."
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "List Item 3"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "block",
+          "attrs": {},
+          "content": [
+            {
+              "type": "content",
+              "attrs": {}
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

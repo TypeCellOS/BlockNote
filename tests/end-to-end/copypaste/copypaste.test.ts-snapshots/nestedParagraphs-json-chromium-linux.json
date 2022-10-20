@@ -6,9 +6,7 @@
       "content": [
         {
           "type": "block",
-          "attrs": {
-            "headingType": "1"
-          },
+          "attrs": {},
           "content": [
             {
               "type": "content",
@@ -16,25 +14,7 @@
               "content": [
                 {
                   "type": "text",
-                  "text": "This is a h1"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "type": "block",
-          "attrs": {
-            "headingType": "2"
-          },
-          "content": [
-            {
-              "type": "content",
-              "attrs": {},
-              "content": [
-                {
-                  "type": "text",
-                  "text": "This is a h2"
+                  "text": "Paragraph"
                 }
               ]
             },
@@ -43,9 +23,7 @@
               "content": [
                 {
                   "type": "block",
-                  "attrs": {
-                    "headingType": "3"
-                  },
+                  "attrs": {},
                   "content": [
                     {
                       "type": "content",
@@ -53,7 +31,7 @@
                       "content": [
                         {
                           "type": "text",
-                          "text": "This is a h3"
+                          "text": "Paragraph"
                         }
                       ]
                     },
@@ -70,7 +48,7 @@
                               "content": [
                                 {
                                   "type": "text",
-                                  "text": "This is a paragraph"
+                                  "text": "Paragraph"
                                 }
                               ]
                             }
@@ -79,52 +57,41 @@
                       ]
                     }
                   ]
-                },
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "block",
+          "attrs": {},
+          "content": [
+            {
+              "type": "content",
+              "attrs": {}
+            }
+          ]
+        },
+        {
+          "type": "block",
+          "attrs": {},
+          "content": [
+            {
+              "type": "content",
+              "attrs": {},
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Paragraph"
+                }
+              ]
+            },
+            {
+              "type": "blockgroup",
+              "content": [
                 {
                   "type": "block",
-                  "attrs": {
-                    "listType": "oli"
-                  },
-                  "content": [
-                    {
-                      "type": "content",
-                      "attrs": {
-                        "position": "1."
-                      },
-                      "content": [
-                        {
-                          "type": "text",
-                          "text": "This is"
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "type": "block",
-                  "attrs": {
-                    "listType": "oli"
-                  },
-                  "content": [
-                    {
-                      "type": "content",
-                      "attrs": {
-                        "position": "2."
-                      },
-                      "content": [
-                        {
-                          "type": "text",
-                          "text": "a numbered list"
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "type": "block",
-                  "attrs": {
-                    "listType": "li"
-                  },
+                  "attrs": {},
                   "content": [
                     {
                       "type": "content",
@@ -132,7 +99,28 @@
                       "content": [
                         {
                           "type": "text",
-                          "text": "And this is a bullet list"
+                          "text": "Paragraph"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "blockgroup",
+                      "content": [
+                        {
+                          "type": "block",
+                          "attrs": {},
+                          "content": [
+                            {
+                              "type": "content",
+                              "attrs": {},
+                              "content": [
+                                {
+                                  "type": "text",
+                                  "text": "Paragraph"
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     }
