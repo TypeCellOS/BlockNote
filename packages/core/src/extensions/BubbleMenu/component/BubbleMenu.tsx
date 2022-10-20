@@ -80,7 +80,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
                 .chain()
                 .focus()
                 .unsetList()
-                .setBlockHeading({ level: 1 })
+                .setBlockHeading({ level: "1" })
                 .run()
             }
           />
@@ -93,7 +93,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
                 .chain()
                 .focus()
                 .unsetList()
-                .setBlockHeading({ level: 2 })
+                .setBlockHeading({ level: "2" })
                 .run()
             }
           />
@@ -106,7 +106,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
                 .chain()
                 .focus()
                 .unsetList()
-                .setBlockHeading({ level: 3 })
+                .setBlockHeading({ level: "3" })
                 .run()
             }
           />

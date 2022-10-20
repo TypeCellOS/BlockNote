@@ -16,3 +16,4 @@ export const BLOCK_CONTENT_SELECTOR = `[class*=blockContent]`;
 export const DRAGHANDLE = `[class*='dragHandle_']`;
 export const DRAGHANDLEADD = `[class*='dragHandleAdd']`;
 export const TIPPY_MENU = "[data-tippy-root]";
+export const TYPE_DELAY = 50;
