@@ -15,7 +15,12 @@ test.beforeEach(async ({ page }) => {
 });
 
 test.describe("Check Copy/Paste Functionality", () => {
-  test("Paragraphs should stay separate", async ({ page }) => {
+  test("Paragraphs should stay separate", async ({ page, browserName }) => {
+    test.skip(
+      browserName === "firefox",
+      "Firefox doesn't yet support the async clipboard API."
+    );
+
     await focusOnEditor(page);
     await insertParagraph(page);
     await insertParagraph(page);
@@ -25,7 +30,12 @@ test.describe("Check Copy/Paste Functionality", () => {
     await compareDocToSnapshot(page, "paragraphs.json");
   });
 
-  test("Headings should keep formatting", async ({ page }) => {
+  test("Headings should keep formatting", async ({ page, browserName }) => {
+    test.skip(
+      browserName === "firefox",
+      "Firefox doesn't yet support the async clipboard API."
+    );
+
     await focusOnEditor(page);
     await insertHeading(page, 1);
     await insertHeading(page, 2);
@@ -35,7 +45,15 @@ test.describe("Check Copy/Paste Functionality", () => {
     await compareDocToSnapshot(page, "headings.json");
   });
 
-  test("Unordered lists should keep formatting", async ({ page }) => {
+  test("Unordered lists should keep formatting", async ({
+    page,
+    browserName,
+  }) => {
+    test.skip(
+      browserName === "firefox",
+      "Firefox doesn't yet support the async clipboard API."
+    );
+
     await focusOnEditor(page);
     await startList(page, false);
     await insertListItems(page);
@@ -44,7 +62,15 @@ test.describe("Check Copy/Paste Functionality", () => {
     await compareDocToSnapshot(page, "unorderedLists.json");
   });
 
-  test("Ordered lists should keep formatting", async ({ page }) => {
+  test("Ordered lists should keep formatting", async ({
+    page,
+    browserName,
+  }) => {
+    test.skip(
+      browserName === "firefox",
+      "Firefox doesn't yet support the async clipboard API."
+    );
+
     await focusOnEditor(page);
     await startList(page, true);
     await insertListItems(page);
@@ -53,7 +79,15 @@ test.describe("Check Copy/Paste Functionality", () => {
     await compareDocToSnapshot(page, "orderedLists.json");
   });
 
-  test("Nested paragraphs should stay nested", async ({ page }) => {
+  test("Nested paragraphs should stay nested", async ({
+    page,
+    browserName,
+  }) => {
+    test.skip(
+      browserName === "firefox",
+      "Firefox doesn't yet support the async clipboard API."
+    );
+
     await focusOnEditor(page);
     await insertParagraph(page);
     await page.keyboard.press("Tab");
@@ -66,7 +100,15 @@ test.describe("Check Copy/Paste Functionality", () => {
     await compareDocToSnapshot(page, "nestedParagraphs.json");
   });
 
-  test("Nested unordered lists should stay nested", async ({ page }) => {
+  test("Nested unordered lists should stay nested", async ({
+    page,
+    browserName,
+  }) => {
+    test.skip(
+      browserName === "firefox",
+      "Firefox doesn't yet support the async clipboard API."
+    );
+
     await focusOnEditor(page);
     await startList(page, false);
     await insertNestedListItems(page);
@@ -75,7 +117,15 @@ test.describe("Check Copy/Paste Functionality", () => {
     await compareDocToSnapshot(page, "nestedUnorderedLists.json");
   });
 
-  test("Nested ordered lists should stay nested", async ({ page }) => {
+  test("Nested ordered lists should stay nested", async ({
+    page,
+    browserName,
+  }) => {
+    test.skip(
+      browserName === "firefox",
+      "Firefox doesn't yet support the async clipboard API."
+    );
+
     await focusOnEditor(page);
     await startList(page, true);
     await insertNestedListItems(page);
