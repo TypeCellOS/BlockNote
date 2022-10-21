@@ -60,48 +60,23 @@ export const Block = Node.create<IBlock>({
     return {
       listType: {
         default: undefined,
-        // Causes formatting issues pasting BlockNote content in other editors as "ul"/"ol" tags aren't present.
-        renderHTML: (attributes) => {
-          return {
-            "data-list-type": attributes.listType,
-          };
-        },
-        parseHTML: (element) => element.getAttribute("data-list-type"),
       },
       blockColor: {
         default: undefined,
-        renderHTML: (attributes) => {
-          return {
-            "data-block-color": attributes.blockColor,
-          };
-        },
-        parseHTML: (element) => element.getAttribute("data-block-color"),
       },
       blockStyle: {
         default: undefined,
-        renderHTML: (attributes) => {
-          return {
-            "data-block-style": attributes.blockStyle,
-          };
-        },
-        parseHTML: (element) => element.getAttribute("data-block-style"),
       },
       headingType: {
         default: undefined,
         keepOnSplit: false,
-        renderHTML: (attributes) => {
-          return {
-            "data-heading-type": attributes.headingType,
-          };
-        },
-        parseHTML: (element) => element.getAttribute("data-heading-type"),
       },
     };
   },
 
   parseHTML() {
     return [
-      // For all content copied from within the editor.
+      // For parsing blocks within the editor.
       {
         tag: "div",
         getAttrs: (element) => {
@@ -109,25 +84,30 @@ export const Block = Node.create<IBlock>({
             return false;
           }
 
-          let headingType: string | undefined = undefined;
-          let listType: string | undefined = undefined;
+          // Only adds attributes if they're actually present in the element.
+          const attrs = {
+            ...(element.getAttribute("data-list-type") && {
+              listType: element.getAttribute("data-list-type"),
+            }),
+            ...(element.getAttribute("data-block-color") && {
+              blockColor: element.getAttribute("data-block-color"),
+            }),
+            ...(element.getAttribute("data-block-style") && {
+              blockStyle: element.getAttribute("data-block-style"),
+            }),
+            ...(element.getAttribute("data-heading-type") && {
+              headingType: element.getAttribute("data-heading-type"),
+            }),
+          };
 
           if (element.getAttribute("data-node-type") === "block") {
-            if (element.getAttribute("data-heading-type")) {
-              headingType = element.getAttribute("data-heading-type") as string;
-            }
-
-            if (element.getAttribute("data-list-type")) {
-              listType = element.getAttribute("data-heading-type") as string;
-            }
-
-            return { headingType: headingType, listType: listType };
+            return attrs;
           }
 
           return false;
         },
       },
-      // For headings & paragraphs copied from outside the editor.
+      // For parsing headings & paragraphs copied from outside the editor.
       {
         tag: "p",
         priority: 100,
@@ -144,10 +124,10 @@ export const Block = Node.create<IBlock>({
         tag: "h3",
         attrs: { headingType: "3" },
       },
-      // For lists copied from outside the editor.
+      // For parsing list items copied from outside the editor.
       {
         tag: "li",
-        getAttrs: (element: HTMLElement | string) => {
+        getAttrs: (element) => {
           if (typeof element === "string") {
             return false;
           }
@@ -158,7 +138,7 @@ export const Block = Node.create<IBlock>({
             return false;
           }
 
-          // Sets appropriate ordered/unordered list attributes based on parent list element type.
+          // Gets type of list item (ordered/unordered) based on parent element's tag ("ol"/"ul").
           if (parent.tagName === "UL") {
             return { listType: "li" };
           }
@@ -174,15 +154,22 @@ export const Block = Node.create<IBlock>({
   },
 
   renderHTML({ HTMLAttributes }) {
+    const attrs = {
+      "data-list-type": HTMLAttributes.listType,
+      "data-block-color": HTMLAttributes.blockColor,
+      "data-block-style": HTMLAttributes.blockStyle,
+      "data-heading-type": HTMLAttributes.headingType,
+    };
+
     return [
       "div",
-      mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, {
+      mergeAttributes(this.options.HTMLAttributes, attrs, {
         class: styles.blockOuter,
         "data-node-type": "block-outer",
       }),
       [
         "div",
-        mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, {
+        mergeAttributes(this.options.HTMLAttributes, attrs, {
           class: styles.block,
           "data-node-type": "block",
         }),

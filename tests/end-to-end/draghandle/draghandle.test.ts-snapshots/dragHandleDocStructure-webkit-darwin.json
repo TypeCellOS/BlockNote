@@ -7,7 +7,7 @@
         {
           "type": "block",
           "attrs": {
-            "headingType": 1
+            "headingType": "1"
           },
           "content": [
             {
@@ -25,7 +25,7 @@
         {
           "type": "block",
           "attrs": {
-            "headingType": 3
+            "headingType": "3"
           },
           "content": [
             {
