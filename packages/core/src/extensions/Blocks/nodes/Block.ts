@@ -12,7 +12,7 @@ export interface IBlock {
   HTMLAttributes: Record<string, any>;
 }
 
-export type Level = 1 | 2 | 3;
+export type Level = "1" | "2" | "3";
 export type ListType = "li" | "oli";
 
 declare module "@tiptap/core" {
@@ -60,63 +60,118 @@ export const Block = Node.create<IBlock>({
     return {
       listType: {
         default: undefined,
-        renderHTML: (attributes) => {
-          return {
-            "data-listType": attributes.listType,
-          };
-        },
-        parseHTML: (element) => element.getAttribute("data-listType"),
       },
       blockColor: {
         default: undefined,
-        renderHTML: (attributes) => {
-          return {
-            "data-blockColor": attributes.blockColor,
-          };
-        },
-        parseHTML: (element) => element.getAttribute("data-blockColor"),
       },
       blockStyle: {
         default: undefined,
-        renderHTML: (attributes) => {
-          return {
-            "data-blockStyle": attributes.blockStyle,
-          };
-        },
-        parseHTML: (element) => element.getAttribute("data-blockStyle"),
       },
       headingType: {
         default: undefined,
         keepOnSplit: false,
-        renderHTML: (attributes) => {
-          return {
-            "data-headingType": attributes.headingType,
-          };
-        },
-        parseHTML: (element) => element.getAttribute("data-headingType"),
       },
     };
   },
 
-  // TODO: should we parse <li>, <ol>, <h1>, etc?
   parseHTML() {
     return [
+      // For parsing blocks within the editor.
       {
         tag: "div",
+        getAttrs: (element) => {
+          if (typeof element === "string") {
+            return false;
+          }
+
+          // Only adds attributes if they're actually present in the element.
+          const attrs = {
+            ...(element.getAttribute("data-list-type") && {
+              listType: element.getAttribute("data-list-type"),
+            }),
+            ...(element.getAttribute("data-block-color") && {
+              blockColor: element.getAttribute("data-block-color"),
+            }),
+            ...(element.getAttribute("data-block-style") && {
+              blockStyle: element.getAttribute("data-block-style"),
+            }),
+            ...(element.getAttribute("data-heading-type") && {
+              headingType: element.getAttribute("data-heading-type"),
+            }),
+          };
+
+          if (element.getAttribute("data-node-type") === "block") {
+            return attrs;
+          }
+
+          return false;
+        },
+      },
+      // For parsing headings & paragraphs copied from outside the editor.
+      {
+        tag: "p",
+        priority: 100,
+      },
+      {
+        tag: "h1",
+        attrs: { headingType: "1" },
+      },
+      {
+        tag: "h2",
+        attrs: { headingType: "2" },
+      },
+      {
+        tag: "h3",
+        attrs: { headingType: "3" },
+      },
+      // For parsing list items copied from outside the editor.
+      {
+        tag: "li",
+        getAttrs: (element) => {
+          if (typeof element === "string") {
+            return false;
+          }
+
+          const parent = element.parentElement;
+
+          if (parent === null) {
+            return false;
+          }
+
+          // Gets type of list item (ordered/unordered) based on parent element's tag ("ol"/"ul").
+          if (parent.tagName === "UL") {
+            return { listType: "li" };
+          }
+
+          if (parent.tagName === "OL") {
+            return { listType: "oli" };
+          }
+
+          return false;
+        },
       },
     ];
   },
 
   renderHTML({ HTMLAttributes }) {
+    const attrs = {
+      "data-list-type": HTMLAttributes.listType,
+      "data-block-color": HTMLAttributes.blockColor,
+      "data-block-style": HTMLAttributes.blockStyle,
+      "data-heading-type": HTMLAttributes.headingType,
+    };
+
     return [
       "div",
-      mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, {
+      mergeAttributes(attrs, {
         class: styles.blockOuter,
+        "data-node-type": "block-outer",
       }),
       [
         "div",
-        mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, {
+        mergeAttributes(attrs, {
           class: styles.block,
+          "data-node-type": "block",
         }),
         0,
       ],
@@ -125,7 +180,7 @@ export const Block = Node.create<IBlock>({
 
   addInputRules() {
     return [
-      ...[1, 2, 3].map((level) => {
+      ...["1", "2", "3"].map((level) => {
         // Create a heading when starting with "#", "##", or "###""
         return textblockTypeInputRuleSameNodeType({
           find: new RegExp(`^(#{1,${level}})\\s$`),
@@ -378,9 +433,9 @@ export const Block = Node.create<IBlock>({
       },
       "Mod-Alt-0": () =>
         this.editor.chain().unsetList().unsetBlockHeading().run(),
-      "Mod-Alt-1": () => this.editor.commands.setBlockHeading({ level: 1 }),
-      "Mod-Alt-2": () => this.editor.commands.setBlockHeading({ level: 2 }),
-      "Mod-Alt-3": () => this.editor.commands.setBlockHeading({ level: 3 }),
+      "Mod-Alt-1": () => this.editor.commands.setBlockHeading({ level: "1" }),
+      "Mod-Alt-2": () => this.editor.commands.setBlockHeading({ level: "2" }),
+      "Mod-Alt-3": () => this.editor.commands.setBlockHeading({ level: "3" }),
       "Mod-Shift-7": () => this.editor.commands.setBlockList("li"),
       "Mod-Shift-8": () => this.editor.commands.setBlockList("oli"),
       // TODO: Add shortcuts for numbered and bullet list
