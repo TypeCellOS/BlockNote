@@ -1,4 +1,3 @@
-import DropdownMenu, { DropdownItemGroup } from "@atlaskit/dropdown-menu";
 import { Editor } from "@tiptap/core";
 import {
   RiBold,
@@ -20,10 +19,21 @@ import { Toolbar } from "../../../shared/components/toolbar/Toolbar";
 import { useEditorForceUpdate } from "../../../shared/hooks/useEditorForceUpdate";
 import { findBlock } from "../../Blocks/helpers/findBlock";
 import formatKeyboardShortcut from "../../helpers/formatKeyboardShortcut";
-import DropdownBlockItem from "./DropdownBlockItem";
+import {TextTypeDropdownItemProps, TextTypeDropdownItem} from "./TextTypeDropdownItem";
 import LinkToolbarButton from "./LinkToolbarButton";
+import {MantineProvider, Select, useMantineTheme} from "@mantine/core";
+import {useState} from "react";
 
 type ListType = "li" | "oli";
+
+const textTypeFunctionMap: Record<string, (editor: Editor) => boolean> = {
+  "Text": (editor) => editor.chain().focus().unsetBlockHeading().unsetList().run(),
+  "Heading 1": (editor) => editor.chain().focus().unsetList().setBlockHeading({ level: 1 }).run(),
+  "Heading 2": (editor) => editor.chain().focus().unsetList().setBlockHeading({ level: 2 }).run(),
+  "Heading 3": (editor) => editor.chain().focus().unsetList().setBlockHeading({ level: 3 }).run(),
+  "Bullet List": (editor) => editor.chain().focus().unsetBlockHeading().setBlockList("li").run(),
+  "Numbered List": (editor) => editor.chain().focus().unsetBlockHeading().setBlockList("oli").run()
+}
 
 function getBlockName(
   currentBlockHeading: number | undefined,
@@ -46,6 +56,7 @@ function getBlockName(
 
 // TODO: add list options, indentation
 export const BubbleMenu = (props: { editor: Editor }) => {
+  const theme = useMantineTheme();
   useEditorForceUpdate(props.editor);
 
   const currentBlock = findBlock(props.editor.state.selection);
@@ -59,154 +70,170 @@ export const BubbleMenu = (props: { editor: Editor }) => {
     currentBlockListType
   );
 
+  const [textType, setTextType] = useState(currentBlockName);
+  const textTypeDropdownData: Array<TextTypeDropdownItemProps> = [
+    {
+      label: "Text",
+      value: "Text",
+      icon: RiText,
+      isSelected: textType === "Text"
+    },
+    {
+      label: "Heading 1",
+      value: "Heading 1",
+      icon: RiH1,
+      isSelected: textType === "Heading 1"
+    },
+    {
+      label: "Heading 2",
+      value: "Heading 2",
+      icon: RiH2,
+      isSelected: textType === "Heading 2"
+    },
+    {
+      label: "Heading 3",
+      value: "Heading 3",
+      icon: RiH3,
+      isSelected: textType === "Heading 3"
+    },
+    {
+      label: "Bullet List",
+      value: "Bullet List",
+      icon: RiListUnordered,
+      isSelected: textType === "Bullet List"
+    },
+    {
+      label: "Numbered List",
+      value: "Numbered List",
+      icon: RiListOrdered,
+      isSelected: textType === "Numbered List"
+    }
+  ]
+
   return (
-    <Toolbar>
-      <DropdownMenu trigger={currentBlockName}>
-        <DropdownItemGroup>
-          <DropdownBlockItem
-            title="Text"
-            icon={RiText}
-            isSelected={currentBlockName === "Paragraph"}
-            onClick={() =>
-              props.editor.chain().focus().unsetBlockHeading().unsetList().run()
+    <MantineProvider
+      withGlobalStyles
+      withNormalizeCSS
+      theme={{
+        colorScheme: 'light',
+        colors: {
+          'ocean-blue': ['#7AD1DD', '#5FCCDB', '#44CADC', '#2AC9DE', '#1AC2D9', '#11B7CD', '#09ADC3', '#0E99AC', '#128797', '#147885'],
+          'bright-pink': ['#F0BBDD', '#ED9BCF', '#EC7CC3', '#ED5DB8', '#F13EAF', '#F71FA7', '#FF00A1', '#E00890', '#C50E82', '#AD1374'],
+          "brand": [
+            '#a2aab8',
+            '#8b95a6',
+            '#748094',
+            '#5d6b82',
+            '#455571',
+            '#2e405f',
+            '#172b4d',
+            '#152745',
+            '#12223e',
+            '#101e36'
+          ]
+        },
+        fontFamily: "Inter",
+        primaryColor: 'brand',
+        primaryShade: 6
+      }}
+    >
+      <Toolbar>
+        <Select
+          data={textTypeDropdownData}
+          value={textType}
+          itemComponent={TextTypeDropdownItem}
+          size={"xs"}
+          variant={"filled"}
+          // icon={<RiText/>}
+          styles={{
+            dropdown: {
+              width: "max-content !important",
+            },
+            input: {
+              // TODO: Make input width adapt to length of input text since this doesn't work.
+              width: "max-content !important",
+              fontSize: '14px',
+              backgroundColor: 'ocean-blue'
             }
-          />
-          <DropdownBlockItem
-            title="Heading 1"
-            icon={RiH1}
-            isSelected={currentBlockName === "Heading 1"}
-            onClick={() =>
-              props.editor
-                .chain()
-                .focus()
-                .unsetList()
-                .setBlockHeading({ level: 1 })
-                .run()
+          }}
+          onChange={(value) => {
+            if (value && value !== textType) {
+              textTypeFunctionMap[value](props.editor);
+              setTextType(value);
             }
-          />
-          <DropdownBlockItem
-            title="Heading 2"
-            icon={RiH2}
-            isSelected={currentBlockName === "Heading 2"}
-            onClick={() =>
-              props.editor
-                .chain()
-                .focus()
-                .unsetList()
-                .setBlockHeading({ level: 2 })
-                .run()
-            }
-          />
-          <DropdownBlockItem
-            title="Heading 3"
-            icon={RiH3}
-            isSelected={currentBlockName === "Heading 3"}
-            onClick={() =>
-              props.editor
-                .chain()
-                .focus()
-                .unsetList()
-                .setBlockHeading({ level: 3 })
-                .run()
-            }
-          />
-          <DropdownBlockItem
-            title="Bullet List"
-            icon={RiListUnordered}
-            isSelected={currentBlockName === "Bullet List"}
-            onClick={() =>
-              props.editor
-                .chain()
-                .focus()
-                .unsetBlockHeading()
-                .setBlockList("li")
-                .run()
-            }
-          />
-          <DropdownBlockItem
-            title="Numbered List"
-            icon={RiListOrdered}
-            isSelected={currentBlockName === "Numbered List"}
-            onClick={() =>
-              props.editor
-                .chain()
-                .focus()
-                .unsetBlockHeading()
-                .setBlockList("oli")
-                .run()
-            }
-          />
-        </DropdownItemGroup>
-      </DropdownMenu>
-      <SimpleToolbarButton
-        onClick={() => props.editor.chain().focus().toggleBold().run()}
-        isSelected={props.editor.isActive("bold")}
-        mainTooltip="Bold"
-        secondaryTooltip={formatKeyboardShortcut("Mod+B")}
-        icon={RiBold}
-      />
-      <SimpleToolbarButton
-        onClick={() => props.editor.chain().focus().toggleItalic().run()}
-        isSelected={props.editor.isActive("italic")}
-        mainTooltip="Italic"
-        secondaryTooltip={formatKeyboardShortcut("Mod+I")}
-        icon={RiItalic}
-      />
-      <SimpleToolbarButton
-        onClick={() => props.editor.chain().focus().toggleUnderline().run()}
-        isSelected={props.editor.isActive("underline")}
-        mainTooltip="Underline"
-        secondaryTooltip={formatKeyboardShortcut("Mod+U")}
-        icon={RiUnderline}
-      />
-      <SimpleToolbarButton
-        onClick={() => props.editor.chain().focus().toggleStrike().run()}
-        isDisabled={props.editor.isActive("strike")}
-        mainTooltip="Strike-through"
-        secondaryTooltip={formatKeyboardShortcut("Mod+Shift+X")}
-        icon={RiStrikethrough}
-      />
-      <SimpleToolbarButton
-        onClick={() => props.editor.chain().focus().sinkListItem("block").run()}
-        isDisabled={!props.editor.can().sinkListItem("block")}
-        mainTooltip="Indent"
-        secondaryTooltip={formatKeyboardShortcut("Tab")}
-        icon={RiIndentIncrease}
-      />
+          }}
 
-      <SimpleToolbarButton
-        onClick={() => props.editor.chain().focus().liftListItem("block").run()}
-        isDisabled={
-          !props.editor.can().command(({ state }) => {
-            const block = findBlock(state.selection);
-            if (!block) {
-              return false;
-            }
-            // If the depth is greater than 2 you can lift
-            return block.depth > 2;
-          })
-        }
-        mainTooltip="Decrease Indent"
-        secondaryTooltip={formatKeyboardShortcut("Shift+Tab")}
-        icon={RiIndentDecrease}
-      />
+        />
+        <SimpleToolbarButton
+          onClick={() => props.editor.chain().focus().toggleBold().run()}
+          isSelected={props.editor.isActive("bold")}
+          mainTooltip="Bold"
+          secondaryTooltip={formatKeyboardShortcut("Mod+B")}
+          icon={RiBold}
+        />
+        <SimpleToolbarButton
+          onClick={() => props.editor.chain().focus().toggleItalic().run()}
+          isSelected={props.editor.isActive("italic")}
+          mainTooltip="Italic"
+          secondaryTooltip={formatKeyboardShortcut("Mod+I")}
+          icon={RiItalic}
+        />
+        <SimpleToolbarButton
+          onClick={() => props.editor.chain().focus().toggleUnderline().run()}
+          isSelected={props.editor.isActive("underline")}
+          mainTooltip="Underline"
+          secondaryTooltip={formatKeyboardShortcut("Mod+U")}
+          icon={RiUnderline}
+        />
+        <SimpleToolbarButton
+          onClick={() => props.editor.chain().focus().toggleStrike().run()}
+          isSelected={props.editor.isActive("strike")}
+          mainTooltip="Strike-through"
+          secondaryTooltip={formatKeyboardShortcut("Mod+Shift+X")}
+          icon={RiStrikethrough}
+        />
+        <SimpleToolbarButton
+          onClick={() => props.editor.chain().focus().sinkListItem("block").run()}
+          isDisabled={!props.editor.can().sinkListItem("block")}
+          mainTooltip="Indent"
+          secondaryTooltip={formatKeyboardShortcut("Tab")}
+          icon={RiIndentIncrease}
+        />
 
-      <LinkToolbarButton
-        // editor={props.editor}
-        isSelected={props.editor.isActive("link")}
-        mainTooltip="Link"
-        secondaryTooltip={formatKeyboardShortcut("Mod+K")}
-        icon={RiLink}
-        editor={props.editor}
-      />
-      {/* <SimpleBubbleMenuButton
-        editor={props.editor}
-        onClick={() => {
-          const comment = this.props.commentStore.createComment();
-          props.editor.chain().focus().setComment(comment.id).run();
-        }}
-        styleDetails={comment}
-      /> */}
-    </Toolbar>
+        <SimpleToolbarButton
+          onClick={() => props.editor.chain().focus().liftListItem("block").run()}
+          isDisabled={
+            !props.editor.can().command(({ state }) => {
+              const block = findBlock(state.selection);
+              if (!block) {
+                return false;
+              }
+              // If the depth is greater than 2 you can lift
+              return block.depth > 2;
+            })
+          }
+          mainTooltip="Decrease Indent"
+          secondaryTooltip={formatKeyboardShortcut("Shift+Tab")}
+          icon={RiIndentDecrease}
+        />
+
+        <LinkToolbarButton
+          // editor={props.editor}
+          isSelected={props.editor.isActive("link")}
+          mainTooltip="Link"
+          secondaryTooltip={formatKeyboardShortcut("Mod+K")}
+          icon={RiLink}
+          editor={props.editor}
+        />
+        {/* <SimpleBubbleMenuButton
+          editor={props.editor}
+          onClick={() => {
+            const comment = this.props.commentStore.createComment();
+            props.editor.chain().focus().setComment(comment.id).run();
+          }}
+          styleDetails={comment}
+        /> */}
+      </Toolbar>
+    </MantineProvider>
   );
 };

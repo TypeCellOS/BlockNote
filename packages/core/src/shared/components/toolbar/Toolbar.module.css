@@ -1,4 +1,7 @@
 .toolbar {
+  display: flex;
+  width: fit-content;
+  align-items: center;
   color: var(--N800);
   background-color: white;
   border: 1px solid var(--N40);

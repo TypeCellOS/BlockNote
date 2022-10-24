@@ -1,13 +1,13 @@
-import Button from "@atlaskit/button";
+import {ActionIcon, useMantineTheme} from '@mantine/core';
 import Tippy from "@tippyjs/react";
 import { forwardRef } from "react";
-import styles from "./SimpleToolbarButton.module.css";
 import { TooltipContent } from "../tooltip/TooltipContent";
 import React from "react";
+import {IconType} from "react-icons";
 
 export type SimpleToolbarButtonProps = {
   onClick?: (e: React.MouseEvent) => void;
-  icon?: React.ComponentType<{ className: string }>;
+  icon?: IconType;
   mainTooltip: string;
   secondaryTooltip?: string;
   isSelected?: boolean;
@@ -20,6 +20,7 @@ export type SimpleToolbarButtonProps = {
  */
 export const SimpleToolbarButton = forwardRef(
   (props: SimpleToolbarButtonProps, ref) => {
+    // const theme = useMantineTheme();
     const ButtonIcon = props.icon;
     return (
       <Tippy
@@ -29,27 +30,19 @@ export const SimpleToolbarButton = forwardRef(
             secondaryTooltip={props.secondaryTooltip}
           />
         }>
-        <Button
+        <ActionIcon
+          size={30}
           ref={ref as any}
-          appearance="subtle"
+          color={'brand'}
+          variant= {props.isSelected ? "filled" : "subtle"}
           onClick={props.onClick}
-          isSelected={props.isSelected || false}
-          isDisabled={props.isDisabled || false}
-          iconBefore={
-            ButtonIcon && (
-              <ButtonIcon
-                className={
-                  styles.icon +
-                  " " +
-                  (props.isSelected ? styles.isSelected : "") +
-                  " " +
-                  (props.isDisabled ? styles.isDisabled : "")
-                }
-              />
-            )
-          }>
+          disabled={props.isDisabled || false}
+        >
+          {ButtonIcon && (
+            <ButtonIcon/>
+          )}
           {props.children}
-        </Button>
+        </ActionIcon>
       </Tippy>
     );
   }
