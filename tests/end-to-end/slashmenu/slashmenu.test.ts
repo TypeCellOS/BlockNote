@@ -1,4 +1,4 @@
-import { test, expect, Page, ElementHandle } from "@playwright/test";
+import { test, expect } from "@playwright/test";
 import {
   BASE_URL,
   BLOCK_GROUP_SELECTOR,
@@ -8,6 +8,7 @@ import {
   H_THREE_BLOCK_SELECTOR,
   H_TWO_BLOCK_SELECTOR,
   NUMBERED_LIST_SELECTOR,
+  TYPE_DELAY,
 } from "../../utils/const";
 import {
   focusOnEditor,
@@ -15,8 +16,6 @@ import {
   compareDocToSnapshot,
 } from "../../utils/editor";
 import { executeSlashCommand, openSlashMenu } from "../../utils/slashmenu";
-
-const TYPE_DELAY = 10;
 
 test.beforeEach(async ({ page }) => {
   await page.goto(BASE_URL);
@@ -62,7 +61,7 @@ test.describe("Check SlashMenu Functionality", () => {
     await executeSlashCommand(page, "paragraph");
     await page.keyboard.type("This is a Paragraph");
     const block = page.locator(BLOCK_SELECTOR).nth(0);
-    const blockHeadingType = await block.getAttribute("headingtype");
+    const blockHeadingType = await block.getAttribute("data-heading-type");
     expect(blockHeadingType).toBeFalsy();
   });
   test("Should add block as sibling of current block if block has content", async ({

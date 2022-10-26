@@ -97,24 +97,24 @@ NESTED BLOCKS
 }
 
 /* HEADINGS*/
-.blockOuter[data-prev-headingtype="1"] > .block > div:first-child,
-.blockOuter[data-headingtype="1"]:not([data-prev-headingtype])
+.blockOuter[data-prev-heading-type="1"] > .block > div:first-child,
+.blockOuter[data-heading-type="1"]:not([data-prev-heading-type])
   > .block
   > div:first-child {
   font-size: 3em;
   font-weight: bold;
 }
 
-.blockOuter[data-prev-headingtype="2"] > .block > div:first-child,
-.blockOuter[data-headingtype="2"]:not([data-prev-headingtype])
+.blockOuter[data-prev-heading-type="2"] > .block > div:first-child,
+.blockOuter[data-heading-type="2"]:not([data-prev-heading-type])
   > .block
   > div:first-child {
   font-size: 2em;
   font-weight: bold;
 }
 
-.blockOuter[data-prev-headingtype="3"] > .block > div:first-child,
-.blockOuter[data-headingtype="3"]:not([data-prev-headingtype])
+.blockOuter[data-prev-heading-type="3"] > .block > div:first-child,
+.blockOuter[data-heading-type="3"]:not([data-prev-heading-type])
   > .block
   > div:first-child {
   font-size: 1.3em;
@@ -129,8 +129,8 @@ NESTED BLOCKS
   margin-left: 0px;
 }
 
-.blockOuter[data-prev-listtype="oli"] > .block > div:first-child::before,
-.blockOuter[data-listtype="oli"]:not([data-prev-listtype])
+.blockOuter[data-prev-list-type="oli"] > .block > div:first-child::before,
+.blockOuter[data-list-type="oli"]:not([data-prev-list-type])
   > .block
   > div:first-child::before {
   content: attr(data-position);
@@ -138,8 +138,8 @@ NESTED BLOCKS
   padding-left: 0px;
 }
 
-.blockOuter[data-prev-listtype="li"] > .block > div:first-child::before,
-.blockOuter[data-listtype="li"]:not([data-prev-listtype])
+.blockOuter[data-prev-list-type="li"] > .block > div:first-child::before,
+.blockOuter[data-list-type="li"]:not([data-prev-list-type])
   > .block
   > div:first-child::before {
   content: "•";
@@ -151,16 +151,16 @@ NESTED BLOCKS
   /* margin-left: 0.2em; */
 }
 
-.blockOuter[data-listtype="li"]
+.blockOuter[data-list-type="li"]
   > .block
   > .blockGroup
-  > .blockOuter[data-prev-listtype="li"]
+  > .blockOuter[data-prev-list-type="li"]
   > .block
   > div:first-child::before,
-.blockOuter[data-listtype="li"]
+.blockOuter[data-list-type="li"]
   > .block
   > .blockGroup
-  > .blockOuter[data-listtype="li"]:not([data-prev-listtype])
+  > .blockOuter[data-list-type="li"]:not([data-prev-list-type])
   > .block
   > div:first-child::before {
   content: "◦";
@@ -168,22 +168,22 @@ NESTED BLOCKS
   font-family: arial;
 }
 
-.blockOuter[data-listtype="li"]
+.blockOuter[data-list-type="li"]
   > .block
   > .blockGroup
-  > .blockOuter[data-listtype="li"]
+  > .blockOuter[data-list-type="li"]
   > .block
   > .blockGroup
-  .blockOuter[data-prev-listtype="li"]
+  .blockOuter[data-prev-list-type="li"]
   > .block
   > div:first-child::before,
-.blockOuter[data-listtype="li"]
+.blockOuter[data-list-type="li"]
   > .block
   > .blockGroup
-  > .blockOuter[data-listtype="li"]
+  > .blockOuter[data-list-type="li"]
   > .block
   > .blockGroup
-  .blockOuter[data-listtype="li"]:not([data-prev-listtype])
+  .blockOuter[data-list-type="li"]:not([data-prev-list-type])
   > .block
   > div:first-child::before {
   content: "▪";
@@ -217,10 +217,10 @@ NESTED BLOCKS
   content: "Type to filter";
 }
 
-[data-headingtype] > .blockContent.isEmpty div::before {
+[data-heading-type] > .blockContent.isEmpty div::before {
   content: "Heading";
 }
 
-[data-listtype] > .blockContent.isEmpty div::before {
+[data-list-type] > .blockContent.isEmpty div::before {
   content: "List";
 }

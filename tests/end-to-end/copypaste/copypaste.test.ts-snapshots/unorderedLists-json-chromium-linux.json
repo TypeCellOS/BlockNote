@@ -1,0 +1,138 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "blockgroup",
+      "content": [
+        {
+          "type": "block",
+          "attrs": {
+            "listType": "li"
+          },
+          "content": [
+            {
+              "type": "content",
+              "attrs": {},
+              "content": [
+                {
+                  "type": "text",
+                  "text": "List Item 1"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "block",
+          "attrs": {
+            "listType": "li"
+          },
+          "content": [
+            {
+              "type": "content",
+              "attrs": {},
+              "content": [
+                {
+                  "type": "text",
+                  "text": "List Item 2"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "block",
+          "attrs": {
+            "listType": "li"
+          },
+          "content": [
+            {
+              "type": "content",
+              "attrs": {},
+              "content": [
+                {
+                  "type": "text",
+                  "text": "List Item 3"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "block",
+          "attrs": {},
+          "content": [
+            {
+              "type": "content",
+              "attrs": {}
+            }
+          ]
+        },
+        {
+          "type": "block",
+          "attrs": {
+            "listType": "li"
+          },
+          "content": [
+            {
+              "type": "content",
+              "attrs": {},
+              "content": [
+                {
+                  "type": "text",
+                  "text": "List Item 1"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "block",
+          "attrs": {
+            "listType": "li"
+          },
+          "content": [
+            {
+              "type": "content",
+              "attrs": {},
+              "content": [
+                {
+                  "type": "text",
+                  "text": "List Item 2"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "block",
+          "attrs": {
+            "listType": "li"
+          },
+          "content": [
+            {
+              "type": "content",
+              "attrs": {},
+              "content": [
+                {
+                  "type": "text",
+                  "text": "List Item 3"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "block",
+          "attrs": {},
+          "content": [
+            {
+              "type": "content",
+              "attrs": {}
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
