@@ -1,4 +1,4 @@
-import {ActionIcon, useMantineTheme} from '@mantine/core';
+import {ActionIcon} from '@mantine/core';
 import Tippy from "@tippyjs/react";
 import { forwardRef } from "react";
 import { TooltipContent } from "../tooltip/TooltipContent";

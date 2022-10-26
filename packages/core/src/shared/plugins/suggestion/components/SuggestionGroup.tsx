@@ -1,4 +1,4 @@
-import { ButtonItem, Section } from "@atlaskit/menu";
+import {Menu} from "@mantine/core";
 import React from "react";
 import SuggestionItem from "../SuggestionItem";
 import styles from "./SuggestionGroup.module.css";
@@ -71,11 +71,10 @@ function SuggestionComponent<T extends SuggestionItem>(
   }, [isButtonSelected]);
 
   return (
-    <div className={styles.buttonItem}>
-      <ButtonItem
-        isSelected={isButtonSelected} // This is needed to navigate with the keyboard
-        iconBefore={getIcon(props.item, isButtonSelected)}
-        onClick={(_e) => {
+    <div className={styles.buttonItem} ref={buttonRef}>
+      <Menu.Item
+        icon={getIcon(props.item, isButtonSelected)}
+        onClick={(e: any) => {
           setTimeout(() => {
             props.clickItem(props.item);
           }, 0);
@@ -83,9 +82,10 @@ function SuggestionComponent<T extends SuggestionItem>(
           // e.stopPropagation();
           // e.preventDefault();
         }}
-        ref={buttonRef}>
+        // ref={buttonRef}
+      >
         <SuggestionContent item={props.item} />
-      </ButtonItem>
+      </Menu.Item>
     </div>
   );
 }
@@ -117,7 +117,10 @@ export function SuggestionGroup<T extends SuggestionItem>(
   props: SuggestionGroupProps<T>
 ) {
   return (
-    <Section title={props.name}>
+    <>
+      <Menu.Label>
+        {props.name}
+      </Menu.Label>
       {props.items.map((item, index) => {
         return (
           <SuggestionComponent
@@ -129,6 +132,6 @@ export function SuggestionGroup<T extends SuggestionItem>(
           />
         );
       })}
-    </Section>
+    </>
   );
 }

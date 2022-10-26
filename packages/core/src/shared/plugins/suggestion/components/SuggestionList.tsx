@@ -1,4 +1,4 @@
-import { MenuGroup, Section } from "@atlaskit/menu";
+import {Menu} from "@mantine/core";
 import styles from "./SuggestionList.module.css";
 import rootStyles from "../../../../root.module.css";
 import { SuggestionGroup } from "./SuggestionGroup";
@@ -59,13 +59,15 @@ export function SuggestionList<T extends SuggestionItem>(
 
   return (
     <div className={styles.menuList + " " + rootStyles.bnRoot}>
-      <MenuGroup>
+      <Menu defaultOpened={true}>
+        <Menu.Dropdown>
         {renderedGroups.length > 0 ? (
           renderedGroups
         ) : (
-          <Section title={"No match found"}> </Section>
+          <Menu.Item>No match found</Menu.Item>
         )}
-      </MenuGroup>
+        </Menu.Dropdown>
+      </Menu>
     </div>
 
     // doesn't work well yet, maybe https://github.com/atomiks/tippyjs-react/issues/173
