@@ -1,9 +1,10 @@
 import styled, { css } from "styled-components";
-import { N80, N30 } from "@atlaskit/theme/colors";
 
 // code taken from https://bitbucket.org/atlassian/design-system-mirror/src/master/editor/editor-core/src/ui/LinkSearch/ToolbarComponents.tsx
 // and https://bitbucket.org/atlassian/design-system-mirror/src/master/editor/editor-core/src/plugins/hyperlink/ui/HyperlinkAddToolbar/HyperlinkAddToolbar.tsx
 
+export const N80 = "#97A0AF";
+export const N30 = "#EBECF0";
 export const RECENT_SEARCH_WIDTH_IN_PX = 420;
 export const RECENT_SEARCH_WIDTH_WITHOUT_ITEMS_IN_PX = 360;
 export const RECENT_SEARCH_HEIGHT_IN_PX = 360;

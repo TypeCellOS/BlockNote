@@ -1,7 +1,9 @@
-import { N400, N800 } from "@atlaskit/theme/colors";
 import styled from "styled-components";
 
 // code taken from https://bitbucket.org/atlassian/design-system-mirror/src/master/editor/editor-core/src/ui/PanelTextInput/styles.ts
+
+export const N400 = "#505F79";
+export const N800 = "#172B4D";
 
 // Normal .className gets overridden by input[type=text] hence this hack to produce input.className
 export const Input = styled.input`

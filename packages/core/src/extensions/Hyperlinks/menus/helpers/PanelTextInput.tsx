@@ -1,7 +1,6 @@
 import { KeyboardEvent, PureComponent } from "react";
 import { Input } from "./PanelTextInputStyles";
 import { FocusEvent } from "react";
-import browser from "../../../../lib/atlaskit/browser";
 
 // code adapted from https://bitbucket.org/atlassian/design-system-mirror/src/master/editor/editor-core/src/ui/PanelTextInput/index.tsx
 
@@ -30,6 +29,7 @@ export interface State {
   value?: string;
 }
 
+const isMacOS = () => /Mac/.test(navigator.platform);
 const KeyZCode = 90;
 const KeyYCode = 89;
 
@@ -141,17 +141,17 @@ export default class PanelTextInput extends PureComponent<Props, State> {
     return (
       event.keyCode === KeyZCode &&
       // cmd + z for mac
-      ((browser.mac && event.metaKey && !event.shiftKey) ||
+      ((isMacOS() && event.metaKey && !event.shiftKey) ||
         // ctrl + z for non-mac
-        (!browser.mac && event.ctrlKey))
+        (!isMacOS() && event.ctrlKey))
     );
   }
 
   private isRedoEvent(event: KeyboardEvent<any>) {
     return (
       // ctrl + y for non-mac
-      (!browser.mac && event.ctrlKey && event.keyCode === KeyYCode) ||
-      (browser.mac &&
+      (!isMacOS() && event.ctrlKey && event.keyCode === KeyYCode) ||
+      (isMacOS() &&
         event.metaKey &&
         event.shiftKey &&
         event.keyCode === KeyZCode) ||
