@@ -1,5 +1,5 @@
 import styles from "./DragHandleMenu.module.css";
-import { MenuGroup, ButtonItem } from "@atlaskit/menu";
+import { Menu } from "@mantine/core";
 
 type Props = {
   onDelete: () => void;
@@ -8,9 +8,11 @@ type Props = {
 const DragHandleMenu = (props: Props) => {
   return (
     <div className={styles.menuList}>
-      <MenuGroup>
-        <ButtonItem onClick={props.onDelete}>Delete</ButtonItem>
-      </MenuGroup>
+      <Menu defaultOpened={true}>
+        <Menu.Dropdown>
+          <Menu.Item onClick={props.onDelete}>Delete</Menu.Item>
+        </Menu.Dropdown>
+      </Menu>
     </div>
   );
 };

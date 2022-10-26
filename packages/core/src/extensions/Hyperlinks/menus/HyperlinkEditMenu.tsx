@@ -2,14 +2,14 @@ import Tippy from "@tippyjs/react";
 import { useState } from "react";
 import { RiLink, RiText } from "react-icons/ri";
 import { TooltipContent } from "../../../shared/components/tooltip/TooltipContent";
-import PanelTextInput from "./atlaskit/PanelTextInput";
+import PanelTextInput from "./helpers/PanelTextInput";
 import {
   Container,
   ContainerWrapper,
   IconWrapper,
   TextInputWrapper,
   UrlInputWrapper,
-} from "./atlaskit/ToolbarComponent";
+} from "./helpers/ToolbarComponent";
 
 export type HyperlinkEditorMenuProps = {
   url: string;
