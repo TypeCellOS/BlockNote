@@ -150,105 +150,130 @@ export const BubbleMenu = (props: { editor: Editor }) => {
           icon={blockIconMap[currentBlockName]}
           items={[
             {
-              onClick: () =>
+              onClick: () => {
+                props.editor.view.focus();
                 props.editor
                   .chain()
                   .focus()
                   .unsetBlockHeading()
                   .unsetList()
-                  .run(),
+                  .run();
+              },
               text: "Text",
               icon: RiText,
             },
             {
-              onClick: () =>
+              onClick: () => {
+                props.editor.view.focus();
                 props.editor
                   .chain()
                   .focus()
                   .unsetList()
                   .setBlockHeading({ level: "1" })
-                  .run(),
+                  .run();
+              },
               text: "Heading 1",
               icon: RiH1,
             },
             {
-              onClick: () =>
+              onClick: () => {
+                props.editor.view.focus();
                 props.editor
                   .chain()
                   .focus()
                   .unsetList()
                   .setBlockHeading({ level: "2" })
-                  .run(),
+                  .run();
+              },
               text: "Heading 2",
               icon: RiH2,
             },
             {
-              onClick: () =>
+              onClick: () => {
+                props.editor.view.focus();
                 props.editor
                   .chain()
                   .focus()
                   .unsetList()
                   .setBlockHeading({ level: "3" })
-                  .run(),
+                  .run();
+              },
               text: "Heading 3",
               icon: RiH3,
             },
             {
-              onClick: () =>
+              onClick: () => {
+                props.editor.view.focus();
                 props.editor
                   .chain()
                   .focus()
                   .unsetBlockHeading()
                   .setBlockList("li")
-                  .run(),
+                  .run();
+              },
               text: "Bullet List",
               icon: RiListUnordered,
             },
             {
-              onClick: () =>
+              onClick: () => {
+                props.editor.view.focus();
                 props.editor
                   .chain()
                   .focus()
                   .unsetBlockHeading()
                   .setBlockList("oli")
-                  .run(),
+                  .run();
+              },
               text: "Numbered List",
               icon: RiListOrdered,
             },
           ]}
         />
         <SimpleToolbarButton
-          onClick={() => props.editor.chain().focus().toggleBold().run()}
+          onClick={() => {
+            props.editor.view.focus();
+            props.editor.chain().focus().toggleBold().run();
+          }}
           isSelected={props.editor.isActive("bold")}
           mainTooltip="Bold"
           secondaryTooltip={formatKeyboardShortcut("Mod+B")}
           icon={RiBold}
         />
         <SimpleToolbarButton
-          onClick={() => props.editor.chain().focus().toggleItalic().run()}
+          onClick={() => {
+            props.editor.view.focus();
+            props.editor.chain().focus().toggleItalic().run();
+          }}
           isSelected={props.editor.isActive("italic")}
           mainTooltip="Italic"
           secondaryTooltip={formatKeyboardShortcut("Mod+I")}
           icon={RiItalic}
         />
         <SimpleToolbarButton
-          onClick={() => props.editor.chain().focus().toggleUnderline().run()}
+          onClick={() => {
+            props.editor.view.focus();
+            props.editor.chain().focus().toggleUnderline().run();
+          }}
           isSelected={props.editor.isActive("underline")}
           mainTooltip="Underline"
           secondaryTooltip={formatKeyboardShortcut("Mod+U")}
           icon={RiUnderline}
         />
         <SimpleToolbarButton
-          onClick={() => props.editor.chain().focus().toggleStrike().run()}
+          onClick={() => {
+            props.editor.view.focus();
+            props.editor.chain().focus().toggleStrike().run();
+          }}
           isSelected={props.editor.isActive("strike")}
           mainTooltip="Strike-through"
           secondaryTooltip={formatKeyboardShortcut("Mod+Shift+X")}
           icon={RiStrikethrough}
         />
         <SimpleToolbarButton
-          onClick={() =>
-            props.editor.chain().focus().sinkListItem("block").run()
-          }
+          onClick={() => {
+            props.editor.view.focus();
+            props.editor.chain().focus().sinkListItem("block").run();
+          }}
           isDisabled={!props.editor.can().sinkListItem("block")}
           mainTooltip="Indent"
           secondaryTooltip={formatKeyboardShortcut("Tab")}
@@ -256,9 +281,10 @@ export const BubbleMenu = (props: { editor: Editor }) => {
         />
 
         <SimpleToolbarButton
-          onClick={() =>
-            props.editor.chain().focus().liftListItem("block").run()
-          }
+          onClick={() => {
+            props.editor.view.focus();
+            props.editor.chain().focus().liftListItem("block").run();
+          }}
           isDisabled={
             !props.editor.can().command(({ state }) => {
               const block = findBlock(state.selection);

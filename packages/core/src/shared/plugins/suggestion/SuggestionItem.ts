@@ -1,3 +1,5 @@
+import { IconType } from "react-icons";
+
 /**
  * A generic interface used in all suggestion menus (slash menu, mentions, etc)
  */
@@ -15,7 +17,7 @@ export default interface SuggestionItem {
   /**
    * The react icon
    */
-  icon?: React.ComponentType<{ className: string }>;
+  icon?: IconType;
 
   hint?: string;
 

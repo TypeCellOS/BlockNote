@@ -1,4 +1,4 @@
-import { Menu } from "@mantine/core";
+import { MantineProvider, Menu } from "@mantine/core";
 import React from "react";
 import SuggestionItem from "../SuggestionItem";
 import styles from "./SuggestionGroup.module.css";
@@ -20,24 +20,6 @@ function SuggestionContent<T extends SuggestionItem>(props: { item: T }) {
         </div>
       )}
     </div>
-  );
-}
-
-function getIcon<T extends SuggestionItem>(
-  item: T,
-  isButtonSelected: boolean
-): JSX.Element | undefined {
-  const Icon = item.icon;
-  return (
-    Icon && (
-      <div className={styles.iconWrapper}>
-        <Icon
-          className={
-            styles.icon + " " + (isButtonSelected ? styles.selectedIcon : "")
-          }
-        />
-      </div>
-    )
   );
 }
 
@@ -70,10 +52,34 @@ function SuggestionComponent<T extends SuggestionItem>(
     }
   }, [isButtonSelected]);
 
+  const Icon = props.item.icon;
+
   return (
-    <div className={styles.buttonItem}>
+    <MantineProvider
+      withGlobalStyles
+      withNormalizeCSS
+      inherit
+      theme={{
+        components: {
+          Menu: {
+            styles: (theme) => ({
+              item: {
+                backgroundColor: isButtonSelected
+                  ? theme.colors.gray[0]
+                  : theme.colors.white,
+              },
+            }),
+          },
+        },
+      }}>
       <Menu.Item
-        icon={getIcon(props.item, isButtonSelected)}
+        icon={
+          Icon && (
+            <div className={styles.iconWrapper}>
+              <Icon className={styles.icon} />
+            </div>
+          )
+        }
         onClick={() => {
           setTimeout(() => {
             props.clickItem(props.item);
@@ -86,7 +92,7 @@ function SuggestionComponent<T extends SuggestionItem>(
       >
         <SuggestionContent item={props.item} />
       </Menu.Item>
-    </div>
+    </MantineProvider>
   );
 }
 

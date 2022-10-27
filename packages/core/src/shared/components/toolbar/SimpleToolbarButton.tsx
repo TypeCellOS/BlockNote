@@ -1,4 +1,4 @@
-import { ActionIcon } from "@mantine/core";
+import { ActionIcon, Button } from "@mantine/core";
 import Tippy from "@tippyjs/react";
 import { forwardRef } from "react";
 import { TooltipContent } from "../tooltip/TooltipContent";
@@ -29,20 +29,27 @@ export const SimpleToolbarButton = forwardRef(
             secondaryTooltip={props.secondaryTooltip}
           />
         }>
-        <ActionIcon
-          onMouseDown={(event: React.MouseEvent) => {
-            // Prevents focus being moved from the editor to the button.
-            event.preventDefault();
-          }}
-          onClick={props.onClick}
-          color={"brand3"}
-          variant={props.isSelected ? "filled" : "subtle"}
-          disabled={props.isDisabled || false}
-          size={30}
-          ref={ref as any}>
-          {ButtonIcon && <ButtonIcon />}
-          {props.children}
-        </ActionIcon>
+        {props.children ? (
+          <Button
+            onClick={props.onClick}
+            color={"brand3"}
+            compact={true}
+            variant={props.isSelected ? "filled" : "subtle"}
+            disabled={props.isDisabled || false}
+            ref={ref as any}>
+            {ButtonIcon && <ButtonIcon />}
+            {props.children}
+          </Button>
+        ) : (
+          <ActionIcon
+            onClick={props.onClick}
+            color={"brand3"}
+            variant={props.isSelected ? "filled" : "subtle"}
+            disabled={props.isDisabled || false}
+            ref={ref as any}>
+            {ButtonIcon && <ButtonIcon />}
+          </ActionIcon>
+        )}
       </Tippy>
     );
   }
