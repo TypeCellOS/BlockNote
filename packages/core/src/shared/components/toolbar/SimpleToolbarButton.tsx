@@ -32,7 +32,7 @@ export const SimpleToolbarButton = forwardRef(
         {props.children ? (
           <Button
             onClick={props.onClick}
-            color={"brand3"}
+            color={"brandFinal"}
             compact={true}
             variant={props.isSelected ? "filled" : "subtle"}
             disabled={props.isDisabled || false}
