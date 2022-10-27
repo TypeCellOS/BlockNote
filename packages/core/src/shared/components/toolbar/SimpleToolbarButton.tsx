@@ -1,9 +1,9 @@
-import {ActionIcon} from '@mantine/core';
+import { ActionIcon } from "@mantine/core";
 import Tippy from "@tippyjs/react";
 import { forwardRef } from "react";
 import { TooltipContent } from "../tooltip/TooltipContent";
 import React from "react";
-import {IconType} from "react-icons";
+import { IconType } from "react-icons";
 
 export type SimpleToolbarButtonProps = {
   onClick?: (e: React.MouseEvent) => void;
@@ -33,14 +33,11 @@ export const SimpleToolbarButton = forwardRef(
         <ActionIcon
           size={30}
           ref={ref as any}
-          color={'brand'}
-          variant= {props.isSelected ? "filled" : "subtle"}
+          color={"brand3"}
+          variant={props.isSelected ? "filled" : "subtle"}
           onClick={props.onClick}
-          disabled={props.isDisabled || false}
-        >
-          {ButtonIcon && (
-            <ButtonIcon/>
-          )}
+          disabled={props.isDisabled || false}>
+          {ButtonIcon && <ButtonIcon />}
           {props.children}
         </ActionIcon>
       </Tippy>

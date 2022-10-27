@@ -1,4 +1,4 @@
-import {Menu} from "@mantine/core";
+import { Menu } from "@mantine/core";
 import styles from "./SuggestionList.module.css";
 import rootStyles from "../../../../root.module.css";
 import { SuggestionGroup } from "./SuggestionGroup";
@@ -59,13 +59,13 @@ export function SuggestionList<T extends SuggestionItem>(
 
   return (
     <div className={styles.menuList + " " + rootStyles.bnRoot}>
-      <Menu defaultOpened={true}>
+      <Menu defaultOpened={true} trigger={"hover"} closeDelay={10000000}>
         <Menu.Dropdown>
-        {renderedGroups.length > 0 ? (
-          renderedGroups
-        ) : (
-          <Menu.Item>No match found</Menu.Item>
-        )}
+          {renderedGroups.length > 0 ? (
+            renderedGroups
+          ) : (
+            <Menu.Item>No match found</Menu.Item>
+          )}
         </Menu.Dropdown>
       </Menu>
     </div>

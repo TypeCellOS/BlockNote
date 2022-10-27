@@ -1,4 +1,4 @@
-import {Menu} from "@mantine/core";
+import { Menu } from "@mantine/core";
 import React from "react";
 import SuggestionItem from "../SuggestionItem";
 import styles from "./SuggestionGroup.module.css";
@@ -71,10 +71,10 @@ function SuggestionComponent<T extends SuggestionItem>(
   }, [isButtonSelected]);
 
   return (
-    <div className={styles.buttonItem} ref={buttonRef}>
+    <div className={styles.buttonItem}>
       <Menu.Item
         icon={getIcon(props.item, isButtonSelected)}
-        onClick={(e: any) => {
+        onClick={() => {
           setTimeout(() => {
             props.clickItem(props.item);
           }, 0);
@@ -118,9 +118,7 @@ export function SuggestionGroup<T extends SuggestionItem>(
 ) {
   return (
     <>
-      <Menu.Label>
-        {props.name}
-      </Menu.Label>
+      <Menu.Label>{props.name}</Menu.Label>
       {props.items.map((item, index) => {
         return (
           <SuggestionComponent
