@@ -20,7 +20,6 @@ export type SimpleToolbarButtonProps = {
  */
 export const SimpleToolbarButton = forwardRef(
   (props: SimpleToolbarButtonProps, ref) => {
-    // const theme = useMantineTheme();
     const ButtonIcon = props.icon;
     return (
       <Tippy
@@ -31,12 +30,16 @@ export const SimpleToolbarButton = forwardRef(
           />
         }>
         <ActionIcon
-          size={30}
-          ref={ref as any}
+          onMouseDown={(event: React.MouseEvent) => {
+            // Prevents focus being moved from the editor to the button.
+            event.preventDefault();
+          }}
+          onClick={props.onClick}
           color={"brand3"}
           variant={props.isSelected ? "filled" : "subtle"}
-          onClick={props.onClick}
-          disabled={props.isDisabled || false}>
+          disabled={props.isDisabled || false}
+          size={30}
+          ref={ref as any}>
           {ButtonIcon && <ButtonIcon />}
           {props.children}
         </ActionIcon>

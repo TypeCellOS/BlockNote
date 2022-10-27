@@ -24,7 +24,7 @@ export function SimpleToolbarDropdownItem(
         props.isSelected ? (
           <TiTick />
         ) : (
-          // Ensures space for tick even if item isn't currently selected
+          // Ensures space for tick even if item isn't currently selected.
           <div style={{ width: "12px", padding: "0" }} />
         )
       }

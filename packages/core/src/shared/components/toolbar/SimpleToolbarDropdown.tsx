@@ -5,6 +5,7 @@ import {
 } from "./SimpleToolbarDropdownItem";
 import { HiChevronDown } from "react-icons/hi";
 import { IconType } from "react-icons";
+import { FocusEvent } from "react";
 
 export type SimpleToolbarDropdownProps = {
   text: string;
@@ -30,15 +31,24 @@ export function SimpleToolbarDropdown(props: SimpleToolbarDropdownProps) {
       }}>
       <Menu.Target>
         <Button
-          size={"xs"}
-          variant={"subtle"}
+          onMouseDown={(event: React.MouseEvent) => {
+            // Prevents focus being moved from the editor to the button.
+            event.preventDefault();
+          }}
           leftIcon={TargetIcon && <TargetIcon />}
           rightIcon={<HiChevronDown />}
-          disabled={props.isDisabled}>
+          variant={"subtle"}
+          disabled={props.isDisabled}
+          size={"xs"}>
           {props.text}
         </Button>
       </Menu.Target>
-      <Menu.Dropdown>
+      <Menu.Dropdown
+        onFocus={(event: FocusEvent) =>
+          // Clicking the menu target button moves focus to the dropdown. This is custom Mantine behaviour that can't be
+          // prevented by event.preventDefault(), so we have to return focus to the editor manually.
+          event.relatedTarget && (event.relatedTarget as HTMLElement).focus()
+        }>
         {props.items.map((item) => {
           return (
             <SimpleToolbarDropdownItem
