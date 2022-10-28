@@ -59,11 +59,11 @@ export function SuggestionList<T extends SuggestionItem>(
 
   return (
     <div className={styles.menuList + " " + rootStyles.bnRoot}>
-      // Hacky fix to get the desired menu behaviour. The trigger="hover"
+      {/*Hacky fix to get the desired menu behaviour. The trigger="hover"
       attribute allows focus to remain on the editor, allowing for suggestion
       filtering. The closeDelay=10000000 attribute allows the menu to stay open
       practically indefinitely, as normally hovering off it would cause it to
-      close due to trigger="hover".
+      close due to trigger="hover".*/}
       <Menu defaultOpened={true} trigger={"hover"} closeDelay={10000000}>
         <Menu.Dropdown>
           {renderedGroups.length > 0 ? (
