@@ -1,9 +1,9 @@
-const isAppleOS = () =>
+export const isAppleOS = () =>
   /Mac/.test(navigator.platform) ||
   (/AppleWebKit/.test(navigator.userAgent) &&
     /Mobile\/\w+/.test(navigator.userAgent));
 
-export default function formatKeyboardShortcut(shortcut: string) {
+export function formatKeyboardShortcut(shortcut: string) {
   if (isAppleOS()) {
     return shortcut.replace("Mod", "⌘");
   } else {

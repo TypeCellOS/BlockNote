@@ -19,7 +19,7 @@ import { SimpleToolbarDropdown } from "../../../shared/components/toolbar/Simple
 import { Toolbar } from "../../../shared/components/toolbar/Toolbar";
 import { useEditorForceUpdate } from "../../../shared/hooks/useEditorForceUpdate";
 import { findBlock } from "../../Blocks/helpers/findBlock";
-import formatKeyboardShortcut from "../../helpers/formatKeyboardShortcut";
+import { formatKeyboardShortcut } from "../../../utils";
 import LinkToolbarButton from "./LinkToolbarButton";
 import { IconType } from "react-icons";
 
