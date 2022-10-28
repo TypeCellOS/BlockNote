@@ -50,6 +50,7 @@ export const Toolbar = (props: { children: any }) => {
             "0px 4px 8px rgba(9, 30, 66, 0.15), 0px 0px 1px rgba(9, 30, 66, 0.21)",
           border: `1px solid ${theme.colors.brandFinal[1]}`,
           borderRadius: "6px",
+          width: "fit-content",
         })}>
         <Group p={2} noWrap grow={false} spacing={2}>
           {props.children}
