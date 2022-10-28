@@ -76,13 +76,9 @@ export const BubbleMenu = (props: { editor: Editor }) => {
         items={[
           {
             onClick: () => {
+              // Setting editor focus using a chained command instead causes bubble menu to flicker on click.
               props.editor.view.focus();
-              props.editor
-                .chain()
-                .focus()
-                .unsetBlockHeading()
-                .unsetList()
-                .run();
+              props.editor.chain().unsetBlockHeading().unsetList().run();
             },
             text: "Text",
             icon: RiText,
@@ -92,7 +88,6 @@ export const BubbleMenu = (props: { editor: Editor }) => {
               props.editor.view.focus();
               props.editor
                 .chain()
-                .focus()
                 .unsetList()
                 .setBlockHeading({ level: "1" })
                 .run();
@@ -105,7 +100,6 @@ export const BubbleMenu = (props: { editor: Editor }) => {
               props.editor.view.focus();
               props.editor
                 .chain()
-                .focus()
                 .unsetList()
                 .setBlockHeading({ level: "2" })
                 .run();
@@ -118,7 +112,6 @@ export const BubbleMenu = (props: { editor: Editor }) => {
               props.editor.view.focus();
               props.editor
                 .chain()
-                .focus()
                 .unsetList()
                 .setBlockHeading({ level: "3" })
                 .run();
@@ -129,12 +122,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
           {
             onClick: () => {
               props.editor.view.focus();
-              props.editor
-                .chain()
-                .focus()
-                .unsetBlockHeading()
-                .setBlockList("li")
-                .run();
+              props.editor.chain().unsetBlockHeading().setBlockList("li").run();
             },
             text: "Bullet List",
             icon: RiListUnordered,
@@ -144,7 +132,6 @@ export const BubbleMenu = (props: { editor: Editor }) => {
               props.editor.view.focus();
               props.editor
                 .chain()
-                .focus()
                 .unsetBlockHeading()
                 .setBlockList("oli")
                 .run();
@@ -156,8 +143,9 @@ export const BubbleMenu = (props: { editor: Editor }) => {
       />
       <SimpleToolbarButton
         onClick={() => {
+          // Setting editor focus using a chained command instead causes bubble menu to flicker on click.
           props.editor.view.focus();
-          props.editor.chain().focus().toggleBold().run();
+          props.editor.commands.toggleBold();
         }}
         isSelected={props.editor.isActive("bold")}
         mainTooltip="Bold"
@@ -167,7 +155,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
       <SimpleToolbarButton
         onClick={() => {
           props.editor.view.focus();
-          props.editor.chain().focus().toggleItalic().run();
+          props.editor.commands.toggleItalic();
         }}
         isSelected={props.editor.isActive("italic")}
         mainTooltip="Italic"
@@ -177,7 +165,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
       <SimpleToolbarButton
         onClick={() => {
           props.editor.view.focus();
-          props.editor.chain().focus().toggleUnderline().run();
+          props.editor.commands.toggleUnderline();
         }}
         isSelected={props.editor.isActive("underline")}
         mainTooltip="Underline"
@@ -187,7 +175,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
       <SimpleToolbarButton
         onClick={() => {
           props.editor.view.focus();
-          props.editor.chain().focus().toggleStrike().run();
+          props.editor.commands.toggleStrike();
         }}
         isSelected={props.editor.isActive("strike")}
         mainTooltip="Strike-through"
@@ -197,7 +185,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
       <SimpleToolbarButton
         onClick={() => {
           props.editor.view.focus();
-          props.editor.chain().focus().sinkListItem("block").run();
+          props.editor.commands.sinkListItem("block");
         }}
         isDisabled={!props.editor.can().sinkListItem("block")}
         mainTooltip="Indent"
@@ -208,7 +196,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
       <SimpleToolbarButton
         onClick={() => {
           props.editor.view.focus();
-          props.editor.chain().focus().liftListItem("block").run();
+          props.editor.commands.liftListItem("block");
         }}
         isDisabled={
           !props.editor.can().command(({ state }) => {
