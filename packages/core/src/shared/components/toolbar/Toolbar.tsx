@@ -1,5 +1,4 @@
-import styles from "./Toolbar.module.css";
-import { Group, MantineProvider } from "@mantine/core";
+import { Box, Group, MantineProvider } from "@mantine/core";
 
 export const Toolbar = (props: { children: any }) => {
   return (
@@ -13,18 +12,6 @@ export const Toolbar = (props: { children: any }) => {
         },
         colorScheme: "light",
         colors: {
-          brand: [
-            "#a2aab8",
-            "#8b95a6",
-            "#748094",
-            "#5d6b82",
-            "#455571",
-            "#2e405f",
-            "#172b4d",
-            "#152745",
-            "#12223e",
-            "#101e36",
-          ],
           brandFinal: [
             "#F6F6F8",
             "#ECEDF0",
@@ -38,13 +25,36 @@ export const Toolbar = (props: { children: any }) => {
             "#172B4D",
           ],
         },
+        components: {
+          Menu: {
+            styles: (theme) => ({
+              item: {
+                fontSize: "12px",
+                color: theme.colors.brandFinal,
+              },
+              // Adds some space between the item text and selection tick
+              itemRightSection: {
+                paddingLeft: "10px",
+              },
+            }),
+          },
+        },
         fontFamily: "Inter",
         primaryColor: "brandFinal",
         primaryShade: 9,
       }}>
-      <Group p={2} className={styles.toolbar} noWrap grow={false} spacing={2}>
-        {props.children}
-      </Group>
+      <Box
+        sx={(theme) => ({
+          backgroundColor: "white",
+          boxShadow:
+            "0px 4px 8px rgba(9, 30, 66, 0.15), 0px 0px 1px rgba(9, 30, 66, 0.21)",
+          border: `1px solid ${theme.colors.brandFinal[1]}`,
+          borderRadius: "6px",
+        })}>
+        <Group p={2} noWrap grow={false} spacing={2}>
+          {props.children}
+        </Group>
+      </Box>
     </MantineProvider>
   );
 };

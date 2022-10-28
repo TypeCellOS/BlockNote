@@ -33,7 +33,7 @@ export const SimpleToolbarButton = forwardRef(
           <Button
             onClick={props.onClick}
             color={"brandFinal"}
-            compact={true}
+            size={"xs"}
             variant={props.isSelected ? "filled" : "subtle"}
             disabled={props.isDisabled || false}
             ref={ref as any}>
@@ -43,7 +43,8 @@ export const SimpleToolbarButton = forwardRef(
         ) : (
           <ActionIcon
             onClick={props.onClick}
-            color={"brand3"}
+            color={"brandFinal"}
+            size={30}
             variant={props.isSelected ? "filled" : "subtle"}
             disabled={props.isDisabled || false}
             ref={ref as any}>

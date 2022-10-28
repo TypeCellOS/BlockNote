@@ -18,24 +18,14 @@ export function SimpleToolbarDropdown(props: SimpleToolbarDropdownProps) {
   const TargetIcon = props.icon;
 
   return (
-    <Menu
-      exitTransitionDuration={0}
-      styles={{
-        item: {
-          fontSize: "12px",
-        },
-        // Adds some space between the item text and selection tick
-        itemRightSection: {
-          paddingLeft: "10px",
-        },
-      }}>
+    <Menu exitTransitionDuration={0}>
       <Menu.Target>
         <Button
           leftIcon={TargetIcon && <TargetIcon />}
           rightIcon={<HiChevronDown />}
+          size={"xs"}
           variant={"subtle"}
-          disabled={props.isDisabled}
-          size={"xs"}>
+          disabled={props.isDisabled}>
           {props.text}
         </Button>
       </Menu.Target>

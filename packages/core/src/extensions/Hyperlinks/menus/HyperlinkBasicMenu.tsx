@@ -2,7 +2,6 @@ import { useState } from "react";
 import { RiExternalLinkFill, RiLinkUnlink } from "react-icons/ri";
 import { SimpleToolbarButton } from "../../../shared/components/toolbar/SimpleToolbarButton";
 import { Toolbar } from "../../../shared/components/toolbar/Toolbar";
-import { ToolbarSeparator } from "../../../shared/components/toolbar/ToolbarSeparator";
 import React from "react";
 
 type HyperlinkMenuProps = {
@@ -34,9 +33,6 @@ export const HyperlinkBasicMenu = (props: HyperlinkMenuProps) => {
         onClick={onEditClick}>
         Edit Link
       </SimpleToolbarButton>
-
-      <ToolbarSeparator />
-
       <SimpleToolbarButton
         mainTooltip="Open in new tab"
         isSelected={false}
@@ -45,9 +41,6 @@ export const HyperlinkBasicMenu = (props: HyperlinkMenuProps) => {
         }}
         icon={RiExternalLinkFill}
       />
-
-      <ToolbarSeparator />
-
       <SimpleToolbarButton
         mainTooltip="Remove link"
         isSelected={false}
