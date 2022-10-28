@@ -8,6 +8,13 @@ import { Decoration, DecorationSet } from "prosemirror-view";
 
 const PLUGIN_KEY = new PluginKey(`previous-blocks`);
 
+// Used to change HTML attribute string from camelCase to kebab-case to better follow naming conventions.
+const changeAttributeCase = (str: string) =>
+  str.replace(
+    /[A-Z]+(?![a-z])|[A-Z]/g,
+    ($, ofs) => (ofs ? "-" : "") + $.toLowerCase()
+  );
+
 /**
  * This plugin tracks transformation of Block node attributes, so we can support CSS transitions.
  *
@@ -130,7 +137,8 @@ export const PreviousBlockTypePlugin = () => {
 
           const decorationAttributes: any = {};
           for (let [key, val] of Object.entries(prevAttrs)) {
-            decorationAttributes["data-prev-" + key] = val || "none";
+            decorationAttributes["data-prev-" + changeAttributeCase(key)] =
+              val || "none";
           }
           const decoration = Decoration.node(pos, pos + node.nodeSize, {
             ...decorationAttributes,
