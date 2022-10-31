@@ -1,7 +1,7 @@
 import { KeyboardEvent, useEffect, useRef } from "react";
 import { TextInput } from "@mantine/core";
 
-export type HyperlinkMenuInputProps = {
+export type EditHyperlinkMenuItemInputProps = {
   autofocus?: boolean;
   placeholder?: string;
   value?: string;
@@ -9,13 +9,15 @@ export type HyperlinkMenuInputProps = {
   onSubmit: () => void;
 };
 
-export function HyperlinkMenuInput(props: HyperlinkMenuInputProps) {
+export function EditHyperlinkMenuItemInput(
+  props: EditHyperlinkMenuItemInputProps
+) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setTimeout(() => {
       props.autofocus && inputRef.current?.focus();
-    }, 0);
+    });
   }, [props.autofocus]);
 
   function handleEnter(event: KeyboardEvent) {
@@ -27,6 +29,17 @@ export function HyperlinkMenuInput(props: HyperlinkMenuInputProps) {
 
   return (
     <TextInput
+      styles={{
+        root: {
+          background: "transparent",
+          width: "300px",
+        },
+        input: {
+          fontSize: "12px",
+          border: 0,
+          padding: 0,
+        },
+      }}
       size={"xs"}
       value={props.value}
       onChange={(event) => props.onChange(event.currentTarget.value)}

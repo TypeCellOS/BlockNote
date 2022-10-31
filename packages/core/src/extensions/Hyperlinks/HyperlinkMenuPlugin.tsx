@@ -3,37 +3,8 @@ import { getMarkRange } from "@tiptap/core";
 import { Mark, ResolvedPos } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
 import ReactDOM from "react-dom";
-import rootStyles from "../../root.module.css";
-import { HyperlinkEditMenu } from "./menus/HyperlinkEditMenu";
-import { HyperlinkMenu, HyperlinkEditorMenuProps } from "./menus/HyperlinkMenu";
+import { HyperlinkMenu } from "./menus/HyperlinkMenu";
 const PLUGIN_KEY = new PluginKey("HyperlinkMenuPlugin");
-
-/**
- * a helper function that wraps a Tippy around a HyperlinkEditMenu
- * @param props has {text, url, onSubmit and anchorPos}
- * @returns a Tippy instance whose content is a editMenu
- */
-const tippyWrapperHyperlinkEditMenu = (
-  props: HyperlinkEditorMenuProps & {
-    anchorPos: { left: number; top: number; width: number; height: number };
-  }
-) => {
-  const { anchorPos, ...editMenuProps } = props;
-  return (
-    <Tippy
-      getReferenceClientRect={() => anchorPos as any}
-      content={<HyperlinkMenu {...editMenuProps}></HyperlinkMenu>}
-      interactive={true}
-      interactiveBorder={30}
-      showOnCreate={true}
-      trigger={"click"} // so that we don't hide on mouse out
-      hideOnClick
-      className={rootStyles.bnRoot}
-      appendTo={document.body}>
-      <div></div>
-    </Tippy>
-  );
-};
 
 export const createHyperlinkMenuPlugin = () => {
   // as we always use Tippy appendTo(document.body), we can just create an element
@@ -132,25 +103,18 @@ export const createHyperlinkMenuPlugin = () => {
             );
           };
 
-          // the hyperlinkEditMenu will be positioned at the same place as hyperlinkBasicMenu
-          // this is achieved by making this editMenu a property of the basicMenu below
-          // and returning this editMenu directly by introducing another isEditing state
-          const hyperlinkEditMenu = tippyWrapperHyperlinkEditMenu({
-            anchorPos,
-            text,
-            url,
-            onSubmit: editHandler,
-          });
-
-          const hyperlinkBasicMenu = (
+          const hyperlinkMenu = (
             <Tippy
               key={nextTippyKey + ""} // it could be tippy has "hidden" itself after mouseout. We use a key to get a new instance with a clean state.
               getReferenceClientRect={() => anchorPos as any}
               content={
-                <HyperlinkEditMenu
-                  editMenu={hyperlinkEditMenu}
-                  removeHandler={removeHandler}
-                  href={url}></HyperlinkEditMenu>
+                <HyperlinkMenu
+                  update={editHandler}
+                  pos={anchorPos}
+                  remove={removeHandler}
+                  text={text}
+                  url={url}
+                />
               }
               onHide={() => {
                 nextTippyKey++;
@@ -165,7 +129,7 @@ export const createHyperlinkMenuPlugin = () => {
               <div></div>
             </Tippy>
           );
-          ReactDOM.render(hyperlinkBasicMenu, fakeRenderTarget);
+          ReactDOM.render(hyperlinkMenu, fakeRenderTarget);
           menuState = basedOnCursorPos ? "cursor-based" : "mouse-based";
         },
       };

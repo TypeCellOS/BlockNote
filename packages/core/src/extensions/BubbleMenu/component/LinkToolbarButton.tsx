@@ -5,7 +5,7 @@ import {
   SimpleToolbarButton,
   SimpleToolbarButtonProps,
 } from "../../../shared/components/toolbar/SimpleToolbarButton";
-import { HyperlinkMenu } from "../../Hyperlinks/menus/HyperlinkMenu";
+import { EditHyperlinkMenu } from "../../Hyperlinks/menus/EditHyperlinkMenu";
 
 type Props = SimpleToolbarButtonProps & {
   editor: Editor;
@@ -41,11 +41,11 @@ export const LinkToolbarButton = (props: Props) => {
       : "";
 
     setCreationMenu(
-      <HyperlinkMenu
+      <EditHyperlinkMenu
         key={Math.random() + ""} // Math.random to prevent old element from being re-used
         url={activeUrl}
         text={selectedText}
-        onSubmit={onSubmit}
+        update={onSubmit}
       />
     );
   }, [props.editor]);

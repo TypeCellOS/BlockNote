@@ -2,13 +2,15 @@ import { IconType } from "react-icons";
 import Tippy from "@tippyjs/react";
 import { TooltipContent } from "../../../shared/components/tooltip/TooltipContent";
 
-export type IconWithTooltipProps = {
+export type EditHyperlinkMenuItemIconProps = {
   icon: IconType;
   mainTooltip: string;
   secondaryTooltip?: string;
 };
 
-export function HyperlinkMenuIcon(props: IconWithTooltipProps) {
+export function EditHyperlinkMenuItemIcon(
+  props: EditHyperlinkMenuItemIconProps
+) {
   const Icon = props.icon;
 
   return (
@@ -20,7 +22,7 @@ export function HyperlinkMenuIcon(props: IconWithTooltipProps) {
         />
       }
       placement="left">
-      <div style={{ display: "flex", justifyContent: "center", flexGrow: 0 }}>
+      <div style={{ display: "flex", justifyContent: "center" }}>
         <Icon size={16}></Icon>
       </div>
     </Tippy>

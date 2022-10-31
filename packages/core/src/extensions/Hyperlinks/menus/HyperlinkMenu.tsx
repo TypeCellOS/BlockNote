@@ -1,76 +1,63 @@
 import { useState } from "react";
-import { RiLink, RiText } from "react-icons/ri";
-import { Group, MantineProvider, Stack } from "@mantine/core";
-import { HyperlinkMenuIcon } from "./HyperlinkMenuIcon";
-import { HyperlinkMenuInput } from "./HyperlinkMenuInput";
+import Tippy from "@tippyjs/react";
+import { EditHyperlinkMenu } from "./EditHyperlinkMenu";
+import { HoverHyperlinkMenu } from "./HoverHyperlinkMenu";
+import rootStyles from "../../../root.module.css";
 
-export type HyperlinkEditorMenuProps = {
+type HyperlinkMenuProps = {
   url: string;
   text: string;
-  onSubmit: (url: string, text: string) => void;
+  pos: {
+    height: number;
+    width: number;
+    left: number;
+    right: number;
+    top: number;
+    bottom: number;
+  };
+  update: (url: string, text: string) => void;
+  remove: () => void;
 };
 
 /**
- * The sub menu for editing an anchor element
+ * Main menu component for the hyperlink extension.
+ * Either renders a menu to create/edit a hyperlink, or a menu to interact with it on mouse hover.
  */
-export const HyperlinkMenu = (props: HyperlinkEditorMenuProps) => {
-  const [url, setUrl] = useState(props.url);
-  const [title, setTitle] = useState(props.text);
+export const HyperlinkMenu = (props: HyperlinkMenuProps) => {
+  const [isEditing, setIsEditing] = useState(false);
 
-  return (
-    <MantineProvider
-      withGlobalStyles
-      withNormalizeCSS
-      inherit
-      theme={{
-        components: {
-          TextInput: {
-            styles: {
-              root: {
-                background: "transparent",
-                width: "300px",
-              },
-              input: {
-                fontSize: "12px",
-                border: 0,
-                padding: 0,
-              },
-            },
-          },
-        },
-      }}>
-      <Stack
-        spacing={4}
-        p={6}
-        sx={{
-          backgroundColor: "white",
-          borderRadius: "3px",
-          boxShadow:
-            "rgb(9 30 66 / 31%) 0px 0px 1px, rgb(9 30 66 / 25%) 0px 4px 8px -2px",
-          minWidth: "145px",
-          width: "fit-content",
-        }}>
-        <Group noWrap={true} spacing={12} px={6}>
-          <HyperlinkMenuIcon icon={RiLink} mainTooltip={"Edit URL"} />
-          <HyperlinkMenuInput
-            autofocus={true}
-            placeholder={"Edit URL"}
-            value={url}
-            onChange={(value) => setUrl(value)}
-            onSubmit={() => props.onSubmit(url, title)}
-          />
-        </Group>
-        <Group noWrap={true} spacing={12} px={6}>
-          <HyperlinkMenuIcon icon={RiText} mainTooltip={"Edit Title"} />
-          <HyperlinkMenuInput
-            autofocus={false}
-            placeholder={"Edit Title"}
-            value={title}
-            onChange={(value) => setTitle(value)}
-            onSubmit={() => props.onSubmit(url, title)}
-          />
-        </Group>
-      </Stack>
-    </MantineProvider>
+  const createHyperlinkMenu = (
+    <Tippy
+      getReferenceClientRect={() => props.pos as any}
+      content={
+        <EditHyperlinkMenu
+          url={props.url}
+          text={props.text}
+          update={props.update}
+        />
+      }
+      interactive={true}
+      interactiveBorder={30}
+      showOnCreate={true}
+      trigger={"click"} // so that we don't hide on mouse out
+      hideOnClick
+      className={rootStyles.bnRoot}
+      appendTo={document.body}>
+      <div></div>
+    </Tippy>
   );
+
+  const editHyperlinkMenu = (
+    <HoverHyperlinkMenu
+      url={props.url}
+      edit={() => setIsEditing(true)}
+      remove={props.remove}
+    />
+  );
+
+  if (isEditing) {
+    return createHyperlinkMenu;
+  } else {
+    return editHyperlinkMenu;
+  }
 };
