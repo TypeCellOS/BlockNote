@@ -16,7 +16,7 @@ export function HyperlinkMenuInput(props: HyperlinkMenuInputProps) {
     setTimeout(() => {
       props.autofocus && inputRef.current?.focus();
     }, 0);
-  }, []);
+  }, [props.autofocus]);
 
   function handleEnter(event: KeyboardEvent) {
     if (event.key === "Enter") {
