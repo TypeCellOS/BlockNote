@@ -4,11 +4,8 @@ import { Mark, ResolvedPos } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
 import ReactDOM from "react-dom";
 import rootStyles from "../../root.module.css";
-import { HyperlinkBasicMenu } from "./menus/HyperlinkBasicMenu";
-import {
-  HyperlinkEditMenu,
-  HyperlinkEditorMenuProps,
-} from "./menus/HyperlinkEditMenu";
+import { HyperlinkEditMenu } from "./menus/HyperlinkEditMenu";
+import { HyperlinkMenu, HyperlinkEditorMenuProps } from "./menus/HyperlinkMenu";
 const PLUGIN_KEY = new PluginKey("HyperlinkMenuPlugin");
 
 /**
@@ -25,7 +22,7 @@ const tippyWrapperHyperlinkEditMenu = (
   return (
     <Tippy
       getReferenceClientRect={() => anchorPos as any}
-      content={<HyperlinkEditMenu {...editMenuProps}></HyperlinkEditMenu>}
+      content={<HyperlinkMenu {...editMenuProps}></HyperlinkMenu>}
       interactive={true}
       interactiveBorder={30}
       showOnCreate={true}
@@ -150,10 +147,10 @@ export const createHyperlinkMenuPlugin = () => {
               key={nextTippyKey + ""} // it could be tippy has "hidden" itself after mouseout. We use a key to get a new instance with a clean state.
               getReferenceClientRect={() => anchorPos as any}
               content={
-                <HyperlinkBasicMenu
+                <HyperlinkEditMenu
                   editMenu={hyperlinkEditMenu}
                   removeHandler={removeHandler}
-                  href={url}></HyperlinkBasicMenu>
+                  href={url}></HyperlinkEditMenu>
               }
               onHide={() => {
                 nextTippyKey++;

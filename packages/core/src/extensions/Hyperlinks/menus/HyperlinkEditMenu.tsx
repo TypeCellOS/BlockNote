@@ -1,72 +1,53 @@
-import Tippy from "@tippyjs/react";
 import { useState } from "react";
-import { RiLink, RiText } from "react-icons/ri";
-import { TooltipContent } from "../../../shared/components/tooltip/TooltipContent";
-import PanelTextInput from "./helpers/PanelTextInput";
-import {
-  Container,
-  ContainerWrapper,
-  IconWrapper,
-  TextInputWrapper,
-  UrlInputWrapper,
-} from "./helpers/ToolbarComponent";
+import { RiExternalLinkFill, RiLinkUnlink } from "react-icons/ri";
+import { SimpleToolbarButton } from "../../../shared/components/toolbar/SimpleToolbarButton";
+import { Toolbar } from "../../../shared/components/toolbar/Toolbar";
+import { MouseEvent, ReactElement } from "react";
 
-export type HyperlinkEditorMenuProps = {
-  url: string;
-  text: string;
-  onSubmit: (url: string, text: string) => void;
+type HyperlinkMenuProps = {
+  href: string;
+  removeHandler: () => void;
+  editMenu: ReactElement;
 };
 
 /**
- * The sub menu for editing an anchor element
+ * A hyperlink menu shown when an anchor is hovered over.
+ * It shows options to edit / remove / open the link
  */
-export const HyperlinkEditMenu = (props: HyperlinkEditorMenuProps) => {
-  const [url, setUrl] = useState(props.url);
-  const [text, setText] = useState(props.text);
+export const HyperlinkEditMenu = (props: HyperlinkMenuProps) => {
+  const [isEditing, setIsEditing] = useState(false);
+
+  if (isEditing) {
+    return props.editMenu;
+  }
+
+  function onEditClick(e: MouseEvent) {
+    setIsEditing(true);
+    e.stopPropagation();
+  }
 
   return (
-    <ContainerWrapper>
-      <Container provider={false}>
-        <UrlInputWrapper>
-          <IconWrapper>
-            <Tippy
-              content={<TooltipContent mainTooltip="Edit URL" />}
-              placement="left">
-              <span>
-                <RiLink size={20}></RiLink>
-              </span>
-            </Tippy>
-          </IconWrapper>
-          <PanelTextInput
-            defaultValue={url}
-            autoFocus={true}
-            onSubmit={(value) => {
-              props.onSubmit(value, text);
-            }}
-            onChange={(value) => {
-              setUrl(value);
-            }}></PanelTextInput>
-        </UrlInputWrapper>
-        <TextInputWrapper>
-          <IconWrapper>
-            <Tippy
-              content={<TooltipContent mainTooltip="Edit title" />}
-              placement="left">
-              <span>
-                <RiText size={20} />
-              </span>
-            </Tippy>
-          </IconWrapper>
-          <PanelTextInput
-            defaultValue={text!}
-            onSubmit={(value) => {
-              props.onSubmit(url, value);
-            }}
-            onChange={(value) => {
-              setText(value);
-            }}></PanelTextInput>
-        </TextInputWrapper>
-      </Container>
-    </ContainerWrapper>
+    <Toolbar>
+      <SimpleToolbarButton
+        mainTooltip="Edit"
+        isSelected={false}
+        onClick={onEditClick}>
+        Edit Link
+      </SimpleToolbarButton>
+      <SimpleToolbarButton
+        mainTooltip="Open in new tab"
+        isSelected={false}
+        onClick={() => {
+          window.open(props.href, "_blank");
+        }}
+        icon={RiExternalLinkFill}
+      />
+      <SimpleToolbarButton
+        mainTooltip="Remove link"
+        isSelected={false}
+        onClick={props.removeHandler}
+        icon={RiLinkUnlink}
+      />
+    </Toolbar>
   );
 };
