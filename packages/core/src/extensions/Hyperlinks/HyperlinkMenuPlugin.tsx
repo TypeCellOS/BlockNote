@@ -106,10 +106,7 @@ export const createHyperlinkMenuPlugin = () => {
           };
 
           const hyperlinkMenu = (
-            <MantineProvider
-              withGlobalStyles
-              withNormalizeCSS
-              theme={BlockNoteTheme}>
+            <MantineProvider theme={BlockNoteTheme}>
               <Tippy
                 key={nextTippyKey + ""} // it could be tippy has "hidden" itself after mouseout. We use a key to get a new instance with a clean state.
                 getReferenceClientRect={() => anchorPos as any}

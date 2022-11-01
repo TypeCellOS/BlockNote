@@ -24,48 +24,54 @@ export const BlockNoteTheme: MantineThemeOverride = {
     Toolbar: {
       styles: (theme) => ({
         root: {
-          backgroundColor: "green",
-          border: `1px solid red`,
+          backgroundColor: "white",
+          border: `1px solid ${theme.colors.brandFinal[1]}`,
+          boxShadow: theme.other.defaultBoxShadow,
           borderRadius: "6px",
           width: "fit-content",
         },
+        wrapper: {
+          backgroundColor: "transparent",
+          flexWrap: "nowrap",
+          gap: "2px",
+          padding: 2,
+        },
       }),
     },
-    Menu: {
+    ToolbarButton: {
       styles: (theme) => ({
-        dropdown: {
-          border: "",
-          boxShadow: "",
-        },
-        item: {
+        root: {
           color: theme.colors.brandFinal,
         },
-        // Adds some space between the item text and selection tick
+      }),
+    },
+    ToolbarDropdown: {
+      styles: (theme) => ({
+        dropdown: {
+          backgroundColor: "white",
+          border: `1px solid ${theme.colors.brandFinal[1]}`,
+          borderRadius: "6px",
+          boxShadow: theme.other.defaultBoxShadow,
+          padding: "2px",
+        },
+        item: {
+          borderRadius: "4px",
+          color: theme.colors.brandFinal,
+          fontSize: "12px",
+          height: "34px",
+        },
+        itemIcon: {},
         itemRightSection: {
-          // paddingLeft: "10px",
+          paddingLeft: "5px",
         },
       }),
     },
-    // Box: {
-    //   styles: {
-    //     root: {
-    //       // backgroundColor: "white",
-    //       boxShadow:
-    //         "0px 4px 8px rgba(9, 30, 66, 0.15), 0px 0px 1px rgba(9, 30, 66, 0.21)",
-    //       // border: `1px solid ${theme.colors.brandFinal[1]}`,
-    //       borderRadius: "6px",
-    //       width: "fit-content",
-    //     },
-    //   },
-    // },
-    Group: {
-      styles: {},
-    },
-    Button: {
-      styles: {},
-    },
-    ActionIcon: {
-      styles: {},
+    ToolbarDropdownTarget: {
+      styles: {
+        root: {
+          // backgroundColor: "red",
+        },
+      },
     },
   },
   fontFamily: "Inter",

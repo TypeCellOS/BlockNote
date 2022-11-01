@@ -1,7 +1,10 @@
 import { createStyles } from "@mantine/core";
 
-export default createStyles((_theme, _params: {}) => ({
-  // add all styles as usual
+type ToolbarStylesNames = "root" | "wrapper";
+
+const styles: Record<ToolbarStylesNames, {}> = {
   root: {},
-  items: {},
-}));
+  wrapper: {},
+};
+
+export default createStyles(styles);

@@ -1,6 +1,6 @@
 import { RiExternalLinkFill, RiLinkUnlink } from "react-icons/ri";
 import { Toolbar } from "../../../shared/components/toolbar/Toolbar";
-import { SimpleToolbarButton } from "../../../shared/components/toolbar/SimpleToolbarButton";
+import { ToolbarButton } from "../../../shared/components/toolbar/ToolbarButton";
 
 type HoverHyperlinkMenuProps = {
   url: string;
@@ -15,13 +15,10 @@ type HoverHyperlinkMenuProps = {
 export const HoverHyperlinkMenu = (props: HoverHyperlinkMenuProps) => {
   return (
     <Toolbar>
-      <SimpleToolbarButton
-        mainTooltip="Edit"
-        isSelected={false}
-        onClick={props.edit}>
+      <ToolbarButton mainTooltip="Edit" isSelected={false} onClick={props.edit}>
         Edit Link
-      </SimpleToolbarButton>
-      <SimpleToolbarButton
+      </ToolbarButton>
+      <ToolbarButton
         mainTooltip="Open in new tab"
         isSelected={false}
         onClick={() => {
@@ -29,7 +26,7 @@ export const HoverHyperlinkMenu = (props: HoverHyperlinkMenuProps) => {
         }}
         icon={RiExternalLinkFill}
       />
-      <SimpleToolbarButton
+      <ToolbarButton
         mainTooltip="Remove link"
         isSelected={false}
         onClick={props.remove}

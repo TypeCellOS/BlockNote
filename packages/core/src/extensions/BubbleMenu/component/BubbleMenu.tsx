@@ -14,8 +14,8 @@ import {
   RiText,
   RiUnderline,
 } from "react-icons/ri";
-import { SimpleToolbarButton } from "../../../shared/components/toolbar/SimpleToolbarButton";
-import { SimpleToolbarDropdown } from "../../../shared/components/toolbar/SimpleToolbarDropdown";
+import { ToolbarButton } from "../../../shared/components/toolbar/ToolbarButton";
+import { ToolbarDropdown } from "../../../shared/components/toolbar/ToolbarDropdown";
 import { Toolbar } from "../../../shared/components/toolbar/Toolbar";
 import { useEditorForceUpdate } from "../../../shared/hooks/useEditorForceUpdate";
 import { findBlock } from "../../Blocks/helpers/findBlock";
@@ -70,7 +70,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
 
   return (
     <Toolbar>
-      <SimpleToolbarDropdown
+      <ToolbarDropdown
         text={currentBlockName}
         icon={blockIconMap[currentBlockName]}
         items={[
@@ -82,6 +82,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
             },
             text: "Text",
             icon: RiText,
+            isSelected: currentBlockName === "Text",
           },
           {
             onClick: () => {
@@ -94,6 +95,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
             },
             text: "Heading 1",
             icon: RiH1,
+            isSelected: currentBlockName === "Heading 1",
           },
           {
             onClick: () => {
@@ -106,6 +108,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
             },
             text: "Heading 2",
             icon: RiH2,
+            isSelected: currentBlockName === "Heading 2",
           },
           {
             onClick: () => {
@@ -118,6 +121,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
             },
             text: "Heading 3",
             icon: RiH3,
+            isSelected: currentBlockName === "Heading 3",
           },
           {
             onClick: () => {
@@ -126,6 +130,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
             },
             text: "Bullet List",
             icon: RiListUnordered,
+            isSelected: currentBlockName === "Bullet List",
           },
           {
             onClick: () => {
@@ -138,10 +143,11 @@ export const BubbleMenu = (props: { editor: Editor }) => {
             },
             text: "Numbered List",
             icon: RiListOrdered,
+            isSelected: currentBlockName === "Numbered List",
           },
         ]}
       />
-      <SimpleToolbarButton
+      <ToolbarButton
         onClick={() => {
           // Setting editor focus using a chained command instead causes bubble menu to flicker on click.
           props.editor.view.focus();
@@ -152,7 +158,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
         secondaryTooltip={formatKeyboardShortcut("Mod+B")}
         icon={RiBold}
       />
-      <SimpleToolbarButton
+      <ToolbarButton
         onClick={() => {
           props.editor.view.focus();
           props.editor.commands.toggleItalic();
@@ -162,7 +168,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
         secondaryTooltip={formatKeyboardShortcut("Mod+I")}
         icon={RiItalic}
       />
-      <SimpleToolbarButton
+      <ToolbarButton
         onClick={() => {
           props.editor.view.focus();
           props.editor.commands.toggleUnderline();
@@ -172,7 +178,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
         secondaryTooltip={formatKeyboardShortcut("Mod+U")}
         icon={RiUnderline}
       />
-      <SimpleToolbarButton
+      <ToolbarButton
         onClick={() => {
           props.editor.view.focus();
           props.editor.commands.toggleStrike();
@@ -182,7 +188,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
         secondaryTooltip={formatKeyboardShortcut("Mod+Shift+X")}
         icon={RiStrikethrough}
       />
-      <SimpleToolbarButton
+      <ToolbarButton
         onClick={() => {
           props.editor.view.focus();
           props.editor.commands.sinkListItem("block");
@@ -193,7 +199,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
         icon={RiIndentIncrease}
       />
 
-      <SimpleToolbarButton
+      <ToolbarButton
         onClick={() => {
           props.editor.view.focus();
           props.editor.commands.liftListItem("block");
