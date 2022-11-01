@@ -26,7 +26,7 @@ type HyperlinkMenuProps = {
 export const HyperlinkMenu = (props: HyperlinkMenuProps) => {
   const [isEditing, setIsEditing] = useState(false);
 
-  const createHyperlinkMenu = (
+  const editHyperlinkMenu = (
     <Tippy
       getReferenceClientRect={() => props.pos as any}
       content={
@@ -47,7 +47,7 @@ export const HyperlinkMenu = (props: HyperlinkMenuProps) => {
     </Tippy>
   );
 
-  const editHyperlinkMenu = (
+  const hoverHyperlinkMenu = (
     <HoverHyperlinkMenu
       url={props.url}
       edit={() => setIsEditing(true)}
@@ -56,8 +56,8 @@ export const HyperlinkMenu = (props: HyperlinkMenuProps) => {
   );
 
   if (isEditing) {
-    return createHyperlinkMenu;
-  } else {
     return editHyperlinkMenu;
+  } else {
+    return hoverHyperlinkMenu;
   }
 };
