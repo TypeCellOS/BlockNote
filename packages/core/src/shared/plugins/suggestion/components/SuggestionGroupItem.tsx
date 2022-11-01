@@ -33,6 +33,7 @@ export function SuggestionGroupItem<T extends SuggestionItem>(
   }
 
   useEffect(() => {
+    // Updates whether the item is selected with the keyboard (triggered on selectedIndex prop change).
     updateSelection();
 
     if (
@@ -65,11 +66,16 @@ export function SuggestionGroupItem<T extends SuggestionItem>(
           props.clickItem(props.item);
         }, 0);
       }}
+      // Updates whether the item is selected with the mouse.
+      // Also ensures an item selected with both mouse & keyboard doesn't get deselected on mouse leave.
+      onMouseEnter={() => {
+        setTimeout(() => {
+          updateSelection();
+        });
+      }}
       onMouseLeave={() => {
         setTimeout(() => {
-          isSelected()
-            ? itemRef.current?.setAttribute("data-hovered", "true")
-            : itemRef.current?.removeAttribute("data-hovered");
+          updateSelection();
         });
       }}
       ref={itemRef}>
