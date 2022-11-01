@@ -1,8 +1,10 @@
+import { MantineProvider } from "@mantine/core";
 import Tippy from "@tippyjs/react";
 import { getMarkRange } from "@tiptap/core";
 import { Mark, ResolvedPos } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
 import ReactDOM from "react-dom";
+import { BlockNoteTheme } from "../../BlockNoteTheme";
 import { HyperlinkMenu } from "./menus/HyperlinkMenu";
 const PLUGIN_KEY = new PluginKey("HyperlinkMenuPlugin");
 
@@ -104,30 +106,35 @@ export const createHyperlinkMenuPlugin = () => {
           };
 
           const hyperlinkMenu = (
-            <Tippy
-              key={nextTippyKey + ""} // it could be tippy has "hidden" itself after mouseout. We use a key to get a new instance with a clean state.
-              getReferenceClientRect={() => anchorPos as any}
-              content={
-                <HyperlinkMenu
-                  update={editHandler}
-                  pos={anchorPos}
-                  remove={removeHandler}
-                  text={text}
-                  url={url}
-                />
-              }
-              onHide={() => {
-                nextTippyKey++;
-                menuState = "hidden";
-              }}
-              aria={{ expanded: false }}
-              interactive={true}
-              interactiveBorder={30}
-              triggerTarget={hoveredLink}
-              showOnCreate={basedOnCursorPos}
-              appendTo={document.body}>
-              <div></div>
-            </Tippy>
+            <MantineProvider
+              withGlobalStyles
+              withNormalizeCSS
+              theme={BlockNoteTheme}>
+              <Tippy
+                key={nextTippyKey + ""} // it could be tippy has "hidden" itself after mouseout. We use a key to get a new instance with a clean state.
+                getReferenceClientRect={() => anchorPos as any}
+                content={
+                  <HyperlinkMenu
+                    update={editHandler}
+                    pos={anchorPos}
+                    remove={removeHandler}
+                    text={text}
+                    url={url}
+                  />
+                }
+                onHide={() => {
+                  nextTippyKey++;
+                  menuState = "hidden";
+                }}
+                aria={{ expanded: false }}
+                interactive={true}
+                interactiveBorder={30}
+                triggerTarget={hoveredLink}
+                showOnCreate={basedOnCursorPos}
+                appendTo={document.body}>
+                <div></div>
+              </Tippy>
+            </MantineProvider>
           );
           ReactDOM.render(hyperlinkMenu, fakeRenderTarget);
           menuState = basedOnCursorPos ? "cursor-based" : "mouse-based";

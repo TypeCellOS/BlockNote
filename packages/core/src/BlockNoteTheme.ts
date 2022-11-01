@@ -21,10 +21,10 @@ export const BlockNoteTheme: MantineThemeOverride = {
     ],
   },
   components: {
-    MyComponent: {
+    Toolbar: {
       styles: (theme) => ({
         root: {
-          backgroundColor: "red",
+          backgroundColor: "green",
           border: `1px solid red`,
           borderRadius: "6px",
           width: "fit-content",
