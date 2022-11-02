@@ -27,6 +27,8 @@ export function SuggestionGroupItem<T extends SuggestionItem>(
     return isKeyboardSelected || isMouseSelected;
   }
 
+  // Updates HTML "data-hovered" attribute which Mantine uses to set mouse hover styles.
+  // Allows users to "hover" menu items when navigating using the keyboard.
   function updateSelection() {
     isSelected()
       ? itemRef.current?.setAttribute("data-hovered", "true")
