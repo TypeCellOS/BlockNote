@@ -165,12 +165,14 @@ export const Block = Node.create<IBlock>({
       "div",
       mergeAttributes(attrs, {
         class: styles.blockOuter,
+        "data-id": HTMLAttributes['data-id'],
         "data-node-type": "block-outer",
       }),
       [
         "div",
         mergeAttributes(attrs, {
           class: styles.block,
+          "data-id": HTMLAttributes["data-id"],
           "data-node-type": "block",
         }),
         0,
