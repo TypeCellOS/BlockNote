@@ -1,19 +1,18 @@
-import styles from "./DragHandleMenu.module.css";
-import { Menu } from "@mantine/core";
+import { createStyles, Menu } from "@mantine/core";
 
 type Props = {
   onDelete: () => void;
 };
 
 const DragHandleMenu = (props: Props) => {
+  const { classes } = createStyles({ root: {} })(undefined, {
+    name: "DragHandleMenu",
+  });
+
   return (
-    <div className={styles.menuList}>
-      <Menu defaultOpened={true}>
-        <Menu.Dropdown>
-          <Menu.Item onClick={props.onDelete}>Delete</Menu.Item>
-        </Menu.Dropdown>
-      </Menu>
-    </div>
+    <Menu.Dropdown className={classes.root}>
+      <Menu.Item onClick={props.onDelete}>Delete</Menu.Item>
+    </Menu.Dropdown>
   );
 };
 

@@ -21,6 +21,18 @@ export const BlockNoteTheme: MantineThemeOverride = {
     ],
   },
   components: {
+    DragHandleMenu: {
+      styles: (theme) => ({
+        root: {
+          ...theme.other.defaultMenuStyles(theme),
+          ".mantine-Menu-item": {
+            color: theme.colors.brandFinal,
+            fontSize: "12px",
+            height: "34px",
+          },
+        },
+      }),
+    },
     EditHyperlinkMenu: {
       styles: (theme) => ({
         root: {
@@ -72,7 +84,6 @@ export const BlockNoteTheme: MantineThemeOverride = {
             ...theme.other.defaultMenuStyles(theme),
             // Dropdown item
             ".mantine-Menu-item": {
-              borderRadius: "4px",
               color: theme.colors.brandFinal,
               fontSize: "12px",
               height: "34px",

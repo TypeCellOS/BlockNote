@@ -3,6 +3,8 @@ import * as pv from "prosemirror-view";
 import { EditorView } from "prosemirror-view";
 import ReactDOM from "react-dom";
 import { DragHandle } from "./components/DragHandle";
+import { MantineProvider } from "@mantine/core";
+import { BlockNoteTheme } from "../../BlockNoteTheme";
 
 const serializeForClipboard = (pv as any).__serializeForClipboard;
 // code based on https://github.com/ueberdosis/tiptap/issues/323#issuecomment-506637799
@@ -248,14 +250,16 @@ export const createDraggableBlocksPlugin = () => {
           dropElement.style.top = rect.top + "px";
 
           ReactDOM.render(
-            <DragHandle
-              onShow={onShow}
-              onHide={onHide}
-              onAddClicked={onAddClicked}
-              key={block.id + ""}
-              view={view}
-              coords={coords}
-            />,
+            <MantineProvider theme={BlockNoteTheme}>
+              <DragHandle
+                onShow={onShow}
+                onHide={onHide}
+                onAddClicked={onAddClicked}
+                key={block.id + ""}
+                view={view}
+                coords={coords}
+              />
+            </MantineProvider>,
             dropElement
           );
           return true;
