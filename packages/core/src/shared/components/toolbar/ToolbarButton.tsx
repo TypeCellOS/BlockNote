@@ -27,7 +27,8 @@ export const ToolbarButton = forwardRef((props: ToolbarButtonProps, ref) => {
           mainTooltip={props.mainTooltip}
           secondaryTooltip={props.secondaryTooltip}
         />
-      }>
+      }
+      trigger={"mouseenter"}>
       {/*Creates an ActionIcon instead of a Button if only an icon is provided as content.*/}
       {props.children ? (
         <Button
