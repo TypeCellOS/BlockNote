@@ -27,12 +27,12 @@ export const BlockNoteTheme: MantineThemeOverride = {
           ...theme.other.defaultMenuStyles(theme),
           gap: "4px",
           minWidth: "145px",
-          // Menu row.
+          // Row
           ".mantine-Group-root": {
             flexWrap: "nowrap",
             gap: "8px",
             paddingInline: "6px",
-            // Row icon.
+            // Row icon
             ".mantine-Container-root": {
               color: theme.colors.brandFinal,
               display: "flex",
@@ -40,7 +40,7 @@ export const BlockNoteTheme: MantineThemeOverride = {
               padding: "0",
               width: "fit-content",
             },
-            // Row input field.
+            // Row input field
             ".mantine-TextInput-root": {
               background: "transparent",
               width: "300px",
@@ -63,13 +63,14 @@ export const BlockNoteTheme: MantineThemeOverride = {
           flexWrap: "nowrap",
           gap: "2px",
           width: "fit-content",
-          // Menu button (including dropdown target).
+          // Button (including dropdown target)
           ".mantine-UnstyledButton-root": {
             borderRadius: "4px",
           },
-          // Menu dropdown.
+          // Dropdown
           ".mantine-Menu-dropdown": {
             ...theme.other.defaultMenuStyles(theme),
+            // Dropdown item
             ".mantine-Menu-item": {
               borderRadius: "4px",
               color: theme.colors.brandFinal,
@@ -86,11 +87,30 @@ export const BlockNoteTheme: MantineThemeOverride = {
     SuggestionList: {
       styles: (theme) => ({
         root: {
-          backgroundColor: "red",
-          color: "red",
           ...theme.other.defaultMenuStyles(theme),
-          ".mantine-Menu-dropdown": {
-            backgroundColor: "red",
+          ".mantine-Menu-item": {
+            // Icon
+            ".mantine-Menu-itemIcon": {
+              padding: "8px",
+              border: `1px solid ${theme.colors.brandFinal[2]}`,
+              backgroundColor: theme.colors.brandFinal[0],
+              borderRadius: "4px",
+              color: theme.colors.brandFinal,
+            },
+            // Text
+            ".mantine-Menu-itemLabel": {
+              color: theme.colors.brandFinal,
+              paddingRight: "16px",
+              ".mantine-Stack-root": {
+                gap: "0",
+              },
+            },
+            // Badge (keyboard shortcut)
+            ".mantine-Menu-itemRightSection": {
+              ".mantine-Badge-root": {
+                border: `1px solid ${theme.colors.brandFinal[2]}`,
+              },
+            },
           },
         },
       }),
@@ -102,8 +122,7 @@ export const BlockNoteTheme: MantineThemeOverride = {
   other: {
     defaultMenuStyles: (theme: MantineTheme) => ({
       backgroundColor: "white",
-      boxShadow:
-        "0px 4px 8px rgba(9, 30, 66, 0.15), 0px 0px 1px rgba(9, 30, 66, 0.21)",
+      boxShadow: `0px 4px 8px ${theme.colors.brandFinal[2]}, 0px 0px 1px ${theme.colors.brandFinal[2]}`,
       border: `1px solid ${theme.colors.brandFinal[1]}`,
       borderRadius: "6px",
       padding: "2px",

@@ -1,8 +1,6 @@
 import SuggestionItem from "../SuggestionItem";
 import { useEffect, useRef } from "react";
-import { Menu } from "@mantine/core";
-import styles from "./SuggestionGroup.module.css";
-import { SuggestionGroupItemContent } from "./SuggestionGroupItemContent";
+import { Badge, createStyles, Menu, Stack, Text } from "@mantine/core";
 
 const MIN_LEFT_MARGIN = 5;
 
@@ -17,6 +15,9 @@ export function SuggestionGroupItem<T extends SuggestionItem>(
   props: SuggestionGroupItemProps<T>
 ) {
   const itemRef = useRef<HTMLButtonElement>(null);
+  const { classes } = createStyles({ root: {} })(undefined, {
+    name: "SuggestionListItem",
+  });
 
   function isSelected() {
     const isKeyboardSelected =
@@ -54,13 +55,8 @@ export function SuggestionGroupItem<T extends SuggestionItem>(
 
   return (
     <Menu.Item
-      icon={
-        Icon && (
-          <div className={styles.iconWrapper}>
-            <Icon className={styles.icon} />
-          </div>
-        )
-      }
+      className={classes.root}
+      icon={Icon && <Icon size={18} />}
       onClick={() => {
         setTimeout(() => {
           props.clickItem(props.item);
@@ -78,8 +74,17 @@ export function SuggestionGroupItem<T extends SuggestionItem>(
           updateSelection();
         });
       }}
-      ref={itemRef}>
-      <SuggestionGroupItemContent item={props.item} />
+      ref={itemRef}
+      rightSection={
+        props.item.shortcut && <Badge size={"xs"}>{props.item.shortcut}</Badge>
+      }>
+      <Stack>
+        {/*Might need separate classes.*/}
+        <Text size={14} weight={500}>
+          {props.item.name}
+        </Text>
+        <Text size={10}>{props.item.hint}</Text>
+      </Stack>
     </Menu.Item>
   );
 }

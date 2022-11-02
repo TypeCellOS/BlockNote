@@ -1,6 +1,4 @@
-import { Menu } from "@mantine/core";
-import styles from "./SuggestionList.module.css";
-import rootStyles from "../../../../root.module.css";
+import { createStyles, Menu } from "@mantine/core";
 import { SuggestionGroup } from "./SuggestionGroup";
 import SuggestionItem from "../SuggestionItem";
 
@@ -24,6 +22,10 @@ export type SuggestionListProps<T> = {
 export function SuggestionList<T extends SuggestionItem>(
   props: SuggestionListProps<T>
 ) {
+  const { classes } = createStyles({ root: {} })(undefined, {
+    name: "SuggestionList",
+  });
+
   const renderedGroups = [];
 
   let currentGroupIndex = 0;
@@ -48,22 +50,24 @@ export function SuggestionList<T extends SuggestionItem>(
   }
 
   return (
-    <div className={styles.menuList + " " + rootStyles.bnRoot}>
-      {/*Hacky fix to get the desired menu behaviour. The trigger="hover"
-      attribute allows focus to remain on the editor, allowing for suggestion
-      filtering. The closeDelay=10000000 attribute allows the menu to stay open
-      practically indefinitely, as normally hovering off it would cause it to
-      close due to trigger="hover".*/}
-      <Menu defaultOpened={true} trigger={"hover"} closeDelay={10000000}>
-        <Menu.Dropdown>
-          {renderedGroups.length > 0 ? (
-            renderedGroups
-          ) : (
-            <Menu.Item>No match found</Menu.Item>
-          )}
-        </Menu.Dropdown>
-      </Menu>
-    </div>
+    <Menu
+      /** Hacky fix to get the desired menu behaviour. The trigger="hover"
+       * attribute allows focus to remain on the editor, allowing for suggestion
+       * filtering. The closeDelay=10000000 attribute allows the menu to stay open
+       * practically indefinitely, as normally hovering off it would cause it to
+       * close due to trigger="hover".
+       */
+      defaultOpened={true}
+      trigger={"hover"}
+      closeDelay={10000000}>
+      <Menu.Dropdown className={classes.root}>
+        {renderedGroups.length > 0 ? (
+          renderedGroups
+        ) : (
+          <Menu.Item>No match found</Menu.Item>
+        )}
+      </Menu.Dropdown>
+    </Menu>
 
     // doesn't work well yet, maybe https://github.com/atomiks/tippyjs-react/issues/173
     // We now render the tippy element manually in SuggestionListReactRenderer

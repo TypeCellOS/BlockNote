@@ -6,6 +6,8 @@ import {
   SuggestionList,
   SuggestionListProps,
 } from "./components/SuggestionList";
+import { BlockNoteTheme } from "../../../BlockNoteTheme";
+import { MantineProvider } from "@mantine/core";
 
 /**
  * The interface that each suggestion renderer should conform to.
@@ -140,10 +142,17 @@ export default function createRenderer<T extends SuggestionItem>(
         selectedIndex,
       };
 
-      component = new ReactRenderer(SuggestionList as any, {
-        editor: editor as ReactEditor,
-        props: componentProps,
-      });
+      component = new ReactRenderer(
+        (props: SuggestionListProps<T>) => (
+          <MantineProvider theme={BlockNoteTheme}>
+            <SuggestionList {...props} />
+          </MantineProvider>
+        ),
+        {
+          editor: editor as ReactEditor,
+          props: componentProps,
+        }
+      );
 
       popup = tippy("body", {
         getReferenceClientRect: newProps.clientRect,
