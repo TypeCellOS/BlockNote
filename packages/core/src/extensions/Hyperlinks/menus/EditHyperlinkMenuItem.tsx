@@ -16,7 +16,7 @@ export type EditHyperlinkMenuItemProps = {
 
 export function EditHyperlinkMenuItem(props: EditHyperlinkMenuItemProps) {
   return (
-    <Group noWrap={true} spacing={12} px={6}>
+    <Group>
       <EditHyperlinkMenuItemIcon
         icon={props.icon}
         mainTooltip={props.mainIconTooltip}

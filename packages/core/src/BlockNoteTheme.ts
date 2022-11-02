@@ -1,4 +1,4 @@
-import { MantineThemeOverride } from "@mantine/core";
+import { MantineTheme, MantineThemeOverride } from "@mantine/core";
 
 export const BlockNoteTheme: MantineThemeOverride = {
   activeStyles: {
@@ -21,65 +21,92 @@ export const BlockNoteTheme: MantineThemeOverride = {
     ],
   },
   components: {
+    EditHyperlinkMenu: {
+      styles: (theme) => ({
+        root: {
+          ...theme.other.defaultMenuStyles(theme),
+          gap: "4px",
+          minWidth: "145px",
+          // Menu row.
+          ".mantine-Group-root": {
+            flexWrap: "nowrap",
+            gap: "8px",
+            paddingInline: "6px",
+            // Row icon.
+            ".mantine-Container-root": {
+              color: theme.colors.brandFinal,
+              display: "flex",
+              justifyContent: "center",
+              padding: "0",
+              width: "fit-content",
+            },
+            // Row input field.
+            ".mantine-TextInput-root": {
+              background: "transparent",
+              width: "300px",
+              ".mantine-TextInput-wrapper": {
+                ".mantine-TextInput-input": {
+                  fontSize: "12px",
+                  border: 0,
+                  padding: 0,
+                },
+              },
+            },
+          },
+        },
+      }),
+    },
     Toolbar: {
       styles: (theme) => ({
         root: {
-          backgroundColor: "white",
-          border: `1px solid ${theme.colors.brandFinal[1]}`,
-          boxShadow: theme.other.defaultBoxShadow,
-          borderRadius: "6px",
-          width: "fit-content",
-        },
-        wrapper: {
-          backgroundColor: "transparent",
+          ...theme.other.defaultMenuStyles(theme),
           flexWrap: "nowrap",
           gap: "2px",
-          padding: 2,
+          width: "fit-content",
+          // Menu button (including dropdown target).
+          ".mantine-UnstyledButton-root": {
+            borderRadius: "4px",
+          },
+          // Menu dropdown.
+          ".mantine-Menu-dropdown": {
+            ...theme.other.defaultMenuStyles(theme),
+            ".mantine-Menu-item": {
+              borderRadius: "4px",
+              color: theme.colors.brandFinal,
+              fontSize: "12px",
+              height: "34px",
+              ".mantine-Menu-itemRightSection": {
+                paddingLeft: "5px",
+              },
+            },
+          },
         },
       }),
     },
-    ToolbarButton: {
+    SuggestionList: {
       styles: (theme) => ({
         root: {
-          color: theme.colors.brandFinal,
+          backgroundColor: "red",
+          color: "red",
+          ...theme.other.defaultMenuStyles(theme),
+          ".mantine-Menu-dropdown": {
+            backgroundColor: "red",
+          },
         },
       }),
-    },
-    ToolbarDropdown: {
-      styles: (theme) => ({
-        dropdown: {
-          backgroundColor: "white",
-          border: `1px solid ${theme.colors.brandFinal[1]}`,
-          borderRadius: "6px",
-          boxShadow: theme.other.defaultBoxShadow,
-          padding: "2px",
-        },
-        item: {
-          borderRadius: "4px",
-          color: theme.colors.brandFinal,
-          fontSize: "12px",
-          height: "34px",
-        },
-        itemIcon: {},
-        itemRightSection: {
-          paddingLeft: "5px",
-        },
-      }),
-    },
-    ToolbarDropdownTarget: {
-      styles: {
-        root: {
-          // backgroundColor: "red",
-        },
-      },
     },
   },
   fontFamily: "Inter",
   primaryColor: "brandFinal",
   primaryShade: 9,
   other: {
-    defaultBoxShadow:
-      "0px 4px 8px rgba(9, 30, 66, 0.15), 0px 0px 1px rgba(9, 30, 66, 0.21)",
-    // border: `1px solid ${theme.colors.brandFinal[1]}`,
+    defaultMenuStyles: (theme: MantineTheme) => ({
+      backgroundColor: "white",
+      boxShadow:
+        "0px 4px 8px rgba(9, 30, 66, 0.15), 0px 0px 1px rgba(9, 30, 66, 0.21)",
+      border: `1px solid ${theme.colors.brandFinal[1]}`,
+      borderRadius: "6px",
+      padding: "2px",
+    }),
   },
 };

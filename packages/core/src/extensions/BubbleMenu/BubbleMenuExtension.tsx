@@ -17,7 +17,7 @@ export const BubbleMenuExtension = Extension.create<{}>({
     const element = document.createElement("div");
     element.className = rootStyles.bnRoot;
     ReactDOM.render(
-      <MantineProvider withGlobalStyles withNormalizeCSS theme={BlockNoteTheme}>
+      <MantineProvider theme={BlockNoteTheme}>
         <BubbleMenu editor={this.editor} />
       </MantineProvider>,
       element

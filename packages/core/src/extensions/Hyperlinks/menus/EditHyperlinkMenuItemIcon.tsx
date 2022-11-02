@@ -1,7 +1,7 @@
 import { IconType } from "react-icons";
 import Tippy from "@tippyjs/react";
 import { TooltipContent } from "../../../shared/components/tooltip/TooltipContent";
-import { Box } from "@mantine/core";
+import { Container } from "@mantine/core";
 
 export type EditHyperlinkMenuItemIconProps = {
   icon: IconType;
@@ -23,9 +23,9 @@ export function EditHyperlinkMenuItemIcon(
         />
       }
       placement="left">
-      <Box sx={{ display: "flex", justifyContent: "center" }}>
+      <Container>
         <Icon size={16}></Icon>
-      </Box>
+      </Container>
     </Tippy>
   );
 }

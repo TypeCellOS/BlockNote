@@ -29,17 +29,6 @@ export function EditHyperlinkMenuItemInput(
 
   return (
     <TextInput
-      styles={{
-        root: {
-          background: "transparent",
-          width: "300px",
-        },
-        input: {
-          fontSize: "12px",
-          border: 0,
-          padding: 0,
-        },
-      }}
       size={"xs"}
       value={props.value}
       onChange={(event) => props.onChange(event.currentTarget.value)}
