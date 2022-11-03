@@ -59,11 +59,7 @@ export function SuggestionGroupItem<T extends SuggestionItem>(
     <Menu.Item
       className={classes.root}
       icon={Icon && <Icon size={18} />}
-      onClick={() => {
-        setTimeout(() => {
-          props.clickItem(props.item);
-        }, 0);
-      }}
+      onClick={() => props.clickItem(props.item)}
       // Ensures an item selected with both mouse & keyboard doesn't get deselected on mouse leave.
       onMouseLeave={() => {
         setTimeout(() => {
