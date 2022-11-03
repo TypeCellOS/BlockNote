@@ -1,4 +1,4 @@
-import { MantineTheme, MantineThemeOverride } from "@mantine/core";
+import { MantineThemeOverride } from "@mantine/core";
 
 export const BlockNoteTheme: MantineThemeOverride = {
   activeStyles: {
@@ -21,10 +21,20 @@ export const BlockNoteTheme: MantineThemeOverride = {
     ],
   },
   components: {
+    Menu: {
+      styles: (theme) => ({
+        dropdown: {
+          backgroundColor: "white",
+          boxShadow: `0px 4px 8px ${theme.colors.brandFinal[2]}, 0px 0px 1px ${theme.colors.brandFinal[2]}`,
+          border: `1px solid ${theme.colors.brandFinal[1]}`,
+          borderRadius: "6px",
+          padding: "2px",
+        },
+      }),
+    },
     DragHandleMenu: {
       styles: (theme) => ({
         root: {
-          ...theme.other.defaultMenuStyles(theme),
           ".mantine-Menu-item": {
             color: theme.colors.brandFinal,
             fontSize: "12px",
@@ -36,9 +46,13 @@ export const BlockNoteTheme: MantineThemeOverride = {
     EditHyperlinkMenu: {
       styles: (theme) => ({
         root: {
-          ...theme.other.defaultMenuStyles(theme),
+          backgroundColor: "white",
+          boxShadow: `0px 4px 8px ${theme.colors.brandFinal[2]}, 0px 0px 1px ${theme.colors.brandFinal[2]}`,
+          border: `1px solid ${theme.colors.brandFinal[1]}`,
+          borderRadius: "6px",
           gap: "4px",
           minWidth: "145px",
+          padding: "2px",
           // Row
           ".mantine-Group-root": {
             flexWrap: "nowrap",
@@ -71,9 +85,13 @@ export const BlockNoteTheme: MantineThemeOverride = {
     Toolbar: {
       styles: (theme) => ({
         root: {
-          ...theme.other.defaultMenuStyles(theme),
+          backgroundColor: "white",
+          boxShadow: `0px 4px 8px ${theme.colors.brandFinal[2]}, 0px 0px 1px ${theme.colors.brandFinal[2]}`,
+          border: `1px solid ${theme.colors.brandFinal[1]}`,
+          borderRadius: "6px",
           flexWrap: "nowrap",
           gap: "2px",
+          padding: "2px",
           width: "fit-content",
           // Button (including dropdown target)
           ".mantine-UnstyledButton-root": {
@@ -81,7 +99,6 @@ export const BlockNoteTheme: MantineThemeOverride = {
           },
           // Dropdown
           ".mantine-Menu-dropdown": {
-            ...theme.other.defaultMenuStyles(theme),
             // Dropdown item
             ".mantine-Menu-item": {
               color: theme.colors.brandFinal,
@@ -98,7 +115,7 @@ export const BlockNoteTheme: MantineThemeOverride = {
     SuggestionList: {
       styles: (theme) => ({
         root: {
-          ...theme.other.defaultMenuStyles(theme),
+          // ...theme.other.defaultMenuStyles(theme),
           ".mantine-Menu-item": {
             // Icon
             ".mantine-Menu-itemIcon": {
@@ -130,13 +147,4 @@ export const BlockNoteTheme: MantineThemeOverride = {
   fontFamily: "Inter",
   primaryColor: "brandFinal",
   primaryShade: 9,
-  other: {
-    defaultMenuStyles: (theme: MantineTheme) => ({
-      backgroundColor: "white",
-      boxShadow: `0px 4px 8px ${theme.colors.brandFinal[2]}, 0px 0px 1px ${theme.colors.brandFinal[2]}`,
-      border: `1px solid ${theme.colors.brandFinal[1]}`,
-      borderRadius: "6px",
-      padding: "2px",
-    }),
-  },
 };
