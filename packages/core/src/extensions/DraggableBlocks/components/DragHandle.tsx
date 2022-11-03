@@ -86,12 +86,12 @@ export const DragHandle = (props: {
 
   return (
     <div style={{ display: "flex", flexDirection: "row" }}>
-      <ActionIcon size={24} color={"brandFinal.3"}>
+      <ActionIcon size={24} color={"brandFinal.3"} data-test={"dragHandleAdd"}>
         {<AiOutlinePlus size={24} onClick={onAddClick} />}
       </ActionIcon>
       <Menu onOpen={props.onShow} onClose={props.onHide} position={"left"}>
         <Menu.Target>
-          <ActionIcon size={24} color={"brandFinal.3"}>
+          <ActionIcon size={24} color={"brandFinal.3"} data-test={"dragHandle"}>
             {<MdDragIndicator size={24} />}
           </ActionIcon>
         </Menu.Target>
