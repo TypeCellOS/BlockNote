@@ -1,4 +1,4 @@
-import { Plugin, PluginKey} from "prosemirror-state";
+import {NodeSelection, Plugin, PluginKey} from "prosemirror-state";
 import * as pv from "prosemirror-view";
 import { EditorView } from "prosemirror-view";
 import ReactDOM from "react-dom";
@@ -99,11 +99,17 @@ function dragStart(e: DragEvent, view: EditorView) {
   if (pos != null) {
     let selection = view.state.selection;
 
-    let startPos = selection.$from.start();
-    let endPos = selection.$to.end();
+    const multipleSelection = MultipleNodeSelection.create(view.state.doc, selection.from, selection.to);
+    const singleSelection = NodeSelection.create(view.state.doc, pos);
 
     view.dispatch(
-      view.state.tr.setSelection(MultipleNodeSelection.create(view.state.doc, startPos, endPos))
+      view.state.tr.setSelection(
+        // Only selects multiple blocks if the current selection spans the block that the drag handle corresponds to,
+        // and also spans multiple blocks. pos is shifted slightly to ensure it's inside a block content node like the
+        // selection from and to positions are.
+        selection.$to.end() > pos + 2 && pos + 2 >= selection.$from.start() && multipleSelection.nodes.length > 1 ?
+          multipleSelection : singleSelection
+      )
     );
 
     let slice = view.state.selection.content();
