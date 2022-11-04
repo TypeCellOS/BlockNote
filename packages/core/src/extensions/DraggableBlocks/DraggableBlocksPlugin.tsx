@@ -1,8 +1,9 @@
-import { NodeSelection, Plugin, PluginKey } from "prosemirror-state";
+import { Plugin, PluginKey} from "prosemirror-state";
 import * as pv from "prosemirror-view";
 import { EditorView } from "prosemirror-view";
 import ReactDOM from "react-dom";
 import { DragHandle } from "./components/DragHandle";
+import {MultipleNodeSelection} from "../Blocks/MultipleNodeSelection";
 
 const serializeForClipboard = (pv as any).__serializeForClipboard;
 // code based on https://github.com/ueberdosis/tiptap/issues/323#issuecomment-506637799
@@ -96,15 +97,28 @@ function dragStart(e: DragEvent, view: EditorView) {
   };
   let pos = blockPosAtCoords(coords, view);
   if (pos != null) {
+    let selection = view.state.selection;
+    // console.log("Selection:", selection);
+    // let startNode = selection.$from.node(selection.$from.depth);
+    // console.log("Start Node:", startNode);
+    // let endNode = selection.$to.node(selection.$to.depth);
+    // console.log("End Node:", endNode);
+    let startPos = selection.$from.start();
+    // console.log("Start Pos:", startPos);
+    let endPos = selection.$to.end();
+    // console.log("End Pos:", endPos);
+
     view.dispatch(
-      view.state.tr.setSelection(NodeSelection.create(view.state.doc, pos))
+      view.state.tr.setSelection(MultipleNodeSelection.create(view.state.doc, startPos, endPos))
     );
 
     let slice = view.state.selection.content();
+    // console.log("Slice:", slice);
+
     let { dom, text } = serializeForClipboard(view, slice);
 
     e.dataTransfer.clearData();
-    e.dataTransfer.setData("text/html", dom.innerHTML);
+    e.dataTransfer.setData("text/html", dom);
     e.dataTransfer.setData("text/plain", text);
     e.dataTransfer.effectAllowed = "move";
     const block = getDraggableBlockFromCoords(coords, view);
