@@ -98,23 +98,15 @@ function dragStart(e: DragEvent, view: EditorView) {
   let pos = blockPosAtCoords(coords, view);
   if (pos != null) {
     let selection = view.state.selection;
-    // console.log("Selection:", selection);
-    // let startNode = selection.$from.node(selection.$from.depth);
-    // console.log("Start Node:", startNode);
-    // let endNode = selection.$to.node(selection.$to.depth);
-    // console.log("End Node:", endNode);
+
     let startPos = selection.$from.start();
-    // console.log("Start Pos:", startPos);
     let endPos = selection.$to.end();
-    // console.log("End Pos:", endPos);
 
     view.dispatch(
       view.state.tr.setSelection(MultipleNodeSelection.create(view.state.doc, startPos, endPos))
     );
 
     let slice = view.state.selection.content();
-    // console.log("Slice:", slice);
-
     let { dom, text } = serializeForClipboard(view, slice);
 
     e.dataTransfer.clearData();

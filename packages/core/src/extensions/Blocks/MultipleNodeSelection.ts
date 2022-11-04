@@ -17,32 +17,24 @@ export class MultipleNodeSelection extends Selection {
     const startBlockPos = $anchor.start(minDepth - 1);
     const endBlockPos = $head.end(minDepth - 1);
 
-    // Resolved positions of the start of the block the anchor is in and the start of the block after the one that the
-    // head is in - ensures that dragging and dropping multiple blocks doesn't leave behind a line break.
-    const $startBlockPos = doc.resolve(startBlockPos);
+    // Resolved positions at the end of the block before the one the anchor is in, and the start of the block after the
+    // one that the head is in. Having the selection start and end just before and just after the target blocks ensures
+    // no whitespace/line breaks are left behind after dropping them.
+    const $endPrevBlockPos = doc.resolve(startBlockPos - 2);
     const $startNextBlockPos = doc.resolve(endBlockPos + 2);
-
-    super($startBlockPos, $startNextBlockPos);
-
-
-    this.nodes = [];
+    super($endPrevBlockPos, $startNextBlockPos);
 
     // Have to go up 2 nesting levels to get parent since it should be a block group node.
     // minDepth - 0 -> block content
     // minDepth - 1 -> block
     // minDepth - 2 -> block group
     const parentNode = $anchor.node(minDepth - 2);
-    console["log"]("Parent Node:", parentNode);
 
+    this.nodes = [];
     $anchor.doc.nodesBetween(
       startBlockPos,
       endBlockPos,
       (node, _pos, parent) => {
-        // console.log("NODE:");
-        // console.log("    TYPE:", node.type.name);
-        // console.log("    CONTENT:", node.textContent)
-        // console.log("    START:", _pos);
-        // console.log("    END:", _pos + node.nodeSize);
         if(parent !== null && parent.eq(parentNode)) {
           this.nodes.push(node);
           return false;
@@ -50,8 +42,6 @@ export class MultipleNodeSelection extends Selection {
         return;
       }
     )
-
-    // console.log("Nodes:", this.nodes);
   }
 
   static create(doc: Node, from: number, to: number): MultipleNodeSelection {
