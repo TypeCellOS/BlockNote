@@ -3,18 +3,15 @@ import {
   BASE_URL,
   BLOCK_CONTENT_SELECTOR,
   BLOCK_SELECTOR,
-  DRAGHANDLE,
-  DRAGHANDLEADD,
+  DRAG_HANDLE,
+  DRAG_HANDLE_ADD,
+  DRAG_HANDLE_MENU_SELECTOR,
   H_ONE_BLOCK_SELECTOR,
   H_THREE_BLOCK_SELECTOR,
   H_TWO_BLOCK_SELECTOR,
   SLASH_MENU_SELECTOR,
-  TIPPY_MENU,
 } from "../../utils/const";
-import {
-  addBlockFromDragHandle,
-  hoverAndAddBlockFromDragHandle,
-} from "../../utils/draghandle";
+import { hoverAndAddBlockFromDragHandle } from "../../utils/draghandle";
 import { compareDocToSnapshot, focusOnEditor } from "../../utils/editor";
 import { moveMouseOverElement } from "../../utils/mouse";
 import { executeSlashCommand } from "../../utils/slashmenu";
@@ -39,7 +36,7 @@ test.describe("Check Draghandle functionality", () => {
     await executeSlashCommand(page, "h1");
     await page.keyboard.type("Hover over this text");
     await moveMouseOverElement(page, H_ONE_BLOCK_SELECTOR);
-    await page.waitForSelector(DRAGHANDLE);
+    await page.waitForSelector(DRAG_HANDLE);
   });
 
   // TODO: add drag and drop test - playwright dragAndDrop function not working for some reason
@@ -48,8 +45,8 @@ test.describe("Check Draghandle functionality", () => {
     await executeSlashCommand(page, "h1");
     await page.keyboard.type("Hover over this text");
     await moveMouseOverElement(page, H_ONE_BLOCK_SELECTOR);
-    await page.click(DRAGHANDLE);
-    await page.waitForSelector(TIPPY_MENU);
+    await page.click(DRAG_HANDLE);
+    await page.waitForSelector(DRAG_HANDLE_MENU_SELECTOR);
     // Compare editor screenshot
     await page.waitForTimeout(1000);
     expect(await page.screenshot()).toMatchSnapshot("draghandlemenu.png");
@@ -68,7 +65,7 @@ test.describe("Check Draghandle functionality", () => {
 
   test("Clicking add button should show filter message", async () => {
     await moveMouseOverElement(page, BLOCK_SELECTOR);
-    await page.click(DRAGHANDLEADD);
+    await page.click(DRAG_HANDLE_ADD);
     const content = await page.waitForSelector(BLOCK_CONTENT_SELECTOR);
     // Get text in :before
     const text = await content.evaluate((el) =>
@@ -83,7 +80,7 @@ test.describe("Check Draghandle functionality", () => {
     await executeSlashCommand(page, "h1");
     await page.keyboard.type("Hover over this text");
     await moveMouseOverElement(page, H_ONE_BLOCK_SELECTOR);
-    await page.click(DRAGHANDLEADD);
+    await page.click(DRAG_HANDLE_ADD);
     await page.waitForSelector(SLASH_MENU_SELECTOR);
   });
 
@@ -91,16 +88,16 @@ test.describe("Check Draghandle functionality", () => {
     await executeSlashCommand(page, "h1");
     await page.keyboard.type("Hover over this text");
     await hoverAndAddBlockFromDragHandle(page, H_ONE_BLOCK_SELECTOR, "h2");
-    await page.waitForSelector(DRAGHANDLE, { state: "detached" });
-    await page.waitForSelector(DRAGHANDLEADD, { state: "detached" });
+    await page.waitForSelector(DRAG_HANDLE, { state: "detached" });
+    await page.waitForSelector(DRAG_HANDLE_ADD, { state: "detached" });
   });
 
   test("Clicking delete button should delete block", async () => {
     await executeSlashCommand(page, "h1");
     await page.keyboard.type("Hover over this text");
     await page.hover(H_ONE_BLOCK_SELECTOR);
-    await page.click(DRAGHANDLE);
-    await page.waitForSelector(TIPPY_MENU);
+    await page.click(DRAG_HANDLE);
+    await page.waitForSelector(DRAG_HANDLE_MENU_SELECTOR);
     await page.click("text=Delete");
     await page.locator(H_ONE_BLOCK_SELECTOR).waitFor({ state: "detached" });
   });
@@ -113,7 +110,7 @@ test.describe("Check Draghandle functionality", () => {
     await executeSlashCommand(page, "h3");
     await page.keyboard.type("This is h3");
     await page.hover(H_TWO_BLOCK_SELECTOR);
-    await page.click(DRAGHANDLE);
+    await page.click(DRAG_HANDLE);
     await page.click("text=Delete");
     await page.waitForSelector(H_ONE_BLOCK_SELECTOR);
     await page.waitForSelector(H_TWO_BLOCK_SELECTOR, { state: "detached" });
@@ -136,7 +133,7 @@ test.describe("Check Draghandle functionality", () => {
     await executeSlashCommand(page, "h3");
     await page.keyboard.type("This is h3");
     await page.hover(H_TWO_BLOCK_SELECTOR);
-    await page.click(DRAGHANDLE);
+    await page.click(DRAG_HANDLE);
     await page.click("text=Delete");
     await page.waitForSelector(H_ONE_BLOCK_SELECTOR);
     await page.waitForSelector(H_TWO_BLOCK_SELECTOR, { state: "detached" });

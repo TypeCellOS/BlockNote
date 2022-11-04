@@ -2,12 +2,12 @@ import Tippy from "@tippyjs/react";
 import { Editor } from "@tiptap/core";
 import { useCallback, useState } from "react";
 import {
-  SimpleToolbarButton,
-  SimpleToolbarButtonProps,
-} from "../../../shared/components/toolbar/SimpleToolbarButton";
-import { HyperlinkEditMenu } from "../../Hyperlinks/menus/HyperlinkEditMenu";
+  ToolbarButton,
+  ToolbarButtonProps,
+} from "../../../shared/components/toolbar/ToolbarButton";
+import { EditHyperlinkMenu } from "../../Hyperlinks/menus/EditHyperlinkMenu";
 
-type Props = SimpleToolbarButtonProps & {
+type Props = ToolbarButtonProps & {
   editor: Editor;
 };
 
@@ -41,11 +41,11 @@ export const LinkToolbarButton = (props: Props) => {
       : "";
 
     setCreationMenu(
-      <HyperlinkEditMenu
+      <EditHyperlinkMenu
         key={Math.random() + ""} // Math.random to prevent old element from being re-used
         url={activeUrl}
         text={selectedText}
-        onSubmit={onSubmit}
+        update={onSubmit}
       />
     );
   }, [props.editor]);
@@ -59,7 +59,7 @@ export const LinkToolbarButton = (props: Props) => {
       }}
       interactive={true}
       maxWidth={500}>
-      <SimpleToolbarButton {...props} />
+      <ToolbarButton {...props} />
     </Tippy>
   );
 };

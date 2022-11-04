@@ -1,42 +1,12 @@
+import { MantineProvider } from "@mantine/core";
 import Tippy from "@tippyjs/react";
 import { getMarkRange } from "@tiptap/core";
 import { Mark, ResolvedPos } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
 import ReactDOM from "react-dom";
-import rootStyles from "../../root.module.css";
-import { HyperlinkBasicMenu } from "./menus/HyperlinkBasicMenu";
-import {
-  HyperlinkEditMenu,
-  HyperlinkEditorMenuProps,
-} from "./menus/HyperlinkEditMenu";
+import { BlockNoteTheme } from "../../BlockNoteTheme";
+import { HyperlinkMenu } from "./menus/HyperlinkMenu";
 const PLUGIN_KEY = new PluginKey("HyperlinkMenuPlugin");
-
-/**
- * a helper function that wraps a Tippy around a HyperlinkEditMenu
- * @param props has {text, url, onSubmit and anchorPos}
- * @returns a Tippy instance whose content is a editMenu
- */
-const tippyWrapperHyperlinkEditMenu = (
-  props: HyperlinkEditorMenuProps & {
-    anchorPos: { left: number; top: number; width: number; height: number };
-  }
-) => {
-  const { anchorPos, ...editMenuProps } = props;
-  return (
-    <Tippy
-      getReferenceClientRect={() => anchorPos as any}
-      content={<HyperlinkEditMenu {...editMenuProps}></HyperlinkEditMenu>}
-      interactive={true}
-      interactiveBorder={30}
-      showOnCreate={true}
-      trigger={"click"} // so that we don't hide on mouse out
-      hideOnClick
-      className={rootStyles.bnRoot}
-      appendTo={document.body}>
-      <div></div>
-    </Tippy>
-  );
-};
 
 export const createHyperlinkMenuPlugin = () => {
   // as we always use Tippy appendTo(document.body), we can just create an element
@@ -135,40 +105,35 @@ export const createHyperlinkMenuPlugin = () => {
             );
           };
 
-          // the hyperlinkEditMenu will be positioned at the same place as hyperlinkBasicMenu
-          // this is achieved by making this editMenu a property of the basicMenu below
-          // and returning this editMenu directly by introducing another isEditing state
-          const hyperlinkEditMenu = tippyWrapperHyperlinkEditMenu({
-            anchorPos,
-            text,
-            url,
-            onSubmit: editHandler,
-          });
-
-          const hyperlinkBasicMenu = (
-            <Tippy
-              key={nextTippyKey + ""} // it could be tippy has "hidden" itself after mouseout. We use a key to get a new instance with a clean state.
-              getReferenceClientRect={() => anchorPos as any}
-              content={
-                <HyperlinkBasicMenu
-                  editMenu={hyperlinkEditMenu}
-                  removeHandler={removeHandler}
-                  href={url}></HyperlinkBasicMenu>
-              }
-              onHide={() => {
-                nextTippyKey++;
-                menuState = "hidden";
-              }}
-              aria={{ expanded: false }}
-              interactive={true}
-              interactiveBorder={30}
-              triggerTarget={hoveredLink}
-              showOnCreate={basedOnCursorPos}
-              appendTo={document.body}>
-              <div></div>
-            </Tippy>
+          const hyperlinkMenu = (
+            <MantineProvider theme={BlockNoteTheme}>
+              <Tippy
+                key={nextTippyKey + ""} // it could be tippy has "hidden" itself after mouseout. We use a key to get a new instance with a clean state.
+                getReferenceClientRect={() => anchorPos as any}
+                content={
+                  <HyperlinkMenu
+                    update={editHandler}
+                    pos={anchorPos}
+                    remove={removeHandler}
+                    text={text}
+                    url={url}
+                  />
+                }
+                onHide={() => {
+                  nextTippyKey++;
+                  menuState = "hidden";
+                }}
+                aria={{ expanded: false }}
+                interactive={true}
+                interactiveBorder={30}
+                triggerTarget={hoveredLink}
+                showOnCreate={basedOnCursorPos}
+                appendTo={document.body}>
+                <div></div>
+              </Tippy>
+            </MantineProvider>
           );
-          ReactDOM.render(hyperlinkBasicMenu, fakeRenderTarget);
+          ReactDOM.render(hyperlinkMenu, fakeRenderTarget);
           menuState = basedOnCursorPos ? "cursor-based" : "mouse-based";
         },
       };

@@ -6,7 +6,7 @@ import {
   RiListUnordered,
   RiText,
 } from "react-icons/ri";
-import formatKeyboardShortcut from "../helpers/formatKeyboardShortcut";
+import { formatKeyboardShortcut } from "../../utils";
 import { SlashMenuGroups, SlashMenuItem } from "./SlashMenuItem";
 
 /**
