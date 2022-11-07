@@ -1,11 +1,12 @@
-import Tippy from "@tippyjs/react";
 import { TextSelection } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 import { useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import { findBlock } from "../../Blocks/helpers/findBlock";
 import { SlashMenuPluginKey } from "../../SlashMenu/SlashMenuExtension";
-import styles from "./DragHandle.module.css";
+import { Menu } from "@mantine/core";
+import { MdDragIndicator } from "react-icons/all";
+import { ActionIcon } from "@mantine/core";
 import DragHandleMenu from "./DragHandleMenu";
 
 export const DragHandle = (props: {
@@ -85,23 +86,17 @@ export const DragHandle = (props: {
 
   return (
     <div style={{ display: "flex", flexDirection: "row" }}>
-      <AiOutlinePlus
-        size={24}
-        fillOpacity={"0.25"}
-        className={styles.dragHandleAdd}
-        onClick={onAddClick}
-      />
-      <Tippy
-        content={<DragHandleMenu onDelete={onDelete} />}
-        placement={"left"}
-        trigger={"click"}
-        duration={0}
-        interactiveBorder={100}
-        interactive={true}
-        onShow={props.onShow}
-        onHide={props.onHide}>
-        <div className={styles.dragHandle} />
-      </Tippy>
+      <ActionIcon size={24} color={"brandFinal.3"} data-test={"dragHandleAdd"}>
+        {<AiOutlinePlus size={24} onClick={onAddClick} />}
+      </ActionIcon>
+      <Menu onOpen={props.onShow} onClose={props.onHide} position={"left"}>
+        <Menu.Target>
+          <ActionIcon size={24} color={"brandFinal.3"} data-test={"dragHandle"}>
+            {<MdDragIndicator size={24} />}
+          </ActionIcon>
+        </Menu.Target>
+        <DragHandleMenu onDelete={onDelete} />
+      </Menu>
     </div>
   );
 };
