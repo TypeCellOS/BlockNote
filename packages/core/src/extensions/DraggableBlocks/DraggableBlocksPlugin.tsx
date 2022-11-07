@@ -1,4 +1,4 @@
-import {NodeSelection, Plugin, PluginKey} from "prosemirror-state";
+import {NodeSelection, Plugin, PluginKey } from "prosemirror-state";
 import * as pv from "prosemirror-view";
 import { EditorView } from "prosemirror-view";
 import ReactDOM from "react-dom";
@@ -107,7 +107,7 @@ function dragStart(e: DragEvent, view: EditorView) {
         // Only selects multiple blocks if the current selection spans the block that the drag handle corresponds to,
         // and also spans multiple blocks. pos is shifted slightly to ensure it's inside a block content node like the
         // selection from and to positions are.
-        selection.$to.end() > pos + 2 && pos + 2 >= selection.$from.start() && multipleSelection.nodes.length > 1 ?
+        selection.$to.end() > pos + 2 && pos + 2 >= selection.$from.start() ?
           multipleSelection : singleSelection
       )
     );
@@ -120,6 +120,7 @@ function dragStart(e: DragEvent, view: EditorView) {
     e.dataTransfer.setData("text/plain", text);
     e.dataTransfer.effectAllowed = "move";
     const block = getDraggableBlockFromCoords(coords, view);
+    // TODO: Fix drag image
     e.dataTransfer.setDragImage(block?.node as any, 0, 0);
     view.dragging = { slice, move: true };
   }

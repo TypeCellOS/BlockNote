@@ -1,5 +1,6 @@
 import {Selection} from "prosemirror-state";
 import {Fragment, Node, Slice} from "prosemirror-model";
+import { Mappable } from "prosemirror-transform";
 
 export class MultipleNodeSelection extends Selection {
   nodes: Array<Node>;
@@ -20,8 +21,8 @@ export class MultipleNodeSelection extends Selection {
     // Resolved positions at the end of the block before the one the anchor is in, and the start of the block after the
     // one that the head is in. Having the selection start and end just before and just after the target blocks ensures
     // no whitespace/line breaks are left behind after dropping them.
-    const $endPrevBlockPos = doc.resolve(startBlockPos - 2);
-    const $startNextBlockPos = doc.resolve(endBlockPos + 2);
+    const $endPrevBlockPos = doc.resolve(startBlockPos - 1);
+    const $startNextBlockPos = doc.resolve(endBlockPos + 1);
     super($endPrevBlockPos, $startNextBlockPos);
 
     // Have to go up 2 nesting levels to get parent since it should be a block group node.
@@ -48,19 +49,36 @@ export class MultipleNodeSelection extends Selection {
     return new MultipleNodeSelection(doc, from, to);
   }
 
-  // TODO: Ensure that t
   content(): Slice {
     return new Slice(Fragment.from(this.nodes), 0, 0)
   }
 
   eq(selection: Selection): boolean {
-    return false;
+    if(!(selection instanceof MultipleNodeSelection)) return false;
+
+    if(this.nodes.length !== selection.nodes.length) return false;
+
+    if(this.from !== selection.from || this.to !== selection.to) return false;
+
+    for (let i = 0; i < this.nodes.length; i++) {
+      if (!this.nodes[i].eq(selection.nodes[i])) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   map(doc: Node, mapping: Mappable): Selection {
-    return undefined;
+    let fromResult = mapping.mapResult(this.from);
+    let toResult = mapping.mapResult(this.to);
+
+    if (fromResult.deleted || toResult.deleted) return Selection.near(doc.resolve(fromResult.pos));
+
+    return new MultipleNodeSelection(doc, fromResult.pos, toResult.pos);
   }
 
   toJSON(): any {
+    return {type: "node", anchor: this.anchor, head: this.head}
   }
 }
