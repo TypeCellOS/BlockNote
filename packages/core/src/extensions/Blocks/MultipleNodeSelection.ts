@@ -1,5 +1,5 @@
-import {Selection} from "prosemirror-state";
-import {Fragment, Node, Slice} from "prosemirror-model";
+import { Selection } from "prosemirror-state";
+import { Fragment, Node, Slice } from "prosemirror-model";
 import { Mappable } from "prosemirror-transform";
 
 export class MultipleNodeSelection extends Selection {
@@ -36,13 +36,13 @@ export class MultipleNodeSelection extends Selection {
       startBlockPos,
       endBlockPos,
       (node, _pos, parent) => {
-        if(parent !== null && parent.eq(parentNode)) {
+        if (parent !== null && parent.eq(parentNode)) {
           this.nodes.push(node);
           return false;
         }
         return;
       }
-    )
+    );
   }
 
   static create(doc: Node, from: number, to: number): MultipleNodeSelection {
@@ -50,15 +50,15 @@ export class MultipleNodeSelection extends Selection {
   }
 
   content(): Slice {
-    return new Slice(Fragment.from(this.nodes), 0, 0)
+    return new Slice(Fragment.from(this.nodes), 0, 0);
   }
 
   eq(selection: Selection): boolean {
-    if(!(selection instanceof MultipleNodeSelection)) return false;
+    if (!(selection instanceof MultipleNodeSelection)) return false;
 
-    if(this.nodes.length !== selection.nodes.length) return false;
+    if (this.nodes.length !== selection.nodes.length) return false;
 
-    if(this.from !== selection.from || this.to !== selection.to) return false;
+    if (this.from !== selection.from || this.to !== selection.to) return false;
 
     for (let i = 0; i < this.nodes.length; i++) {
       if (!this.nodes[i].eq(selection.nodes[i])) {
@@ -73,12 +73,13 @@ export class MultipleNodeSelection extends Selection {
     let fromResult = mapping.mapResult(this.from);
     let toResult = mapping.mapResult(this.to);
 
-    if (fromResult.deleted || toResult.deleted) return Selection.near(doc.resolve(fromResult.pos));
+    if (fromResult.deleted || toResult.deleted)
+      return Selection.near(doc.resolve(fromResult.pos));
 
     return new MultipleNodeSelection(doc, fromResult.pos, toResult.pos);
   }
 
   toJSON(): any {
-    return {type: "node", anchor: this.anchor, head: this.head}
+    return { type: "node", anchor: this.anchor, head: this.head };
   }
 }

@@ -4,13 +4,14 @@ import { EditorView } from "prosemirror-view";
 import ReactDOM from "react-dom";
 import { MantineProvider } from "@mantine/core";
 import { DragHandle } from "./components/DragHandle";
-import {MultipleNodeSelection} from "../Blocks/MultipleNodeSelection";
+import { MultipleNodeSelection } from "../Blocks/MultipleNodeSelection";
 import { BlockNoteTheme } from "../../BlockNoteTheme";
 
 const serializeForClipboard = (pv as any).__serializeForClipboard;
 // code based on https://github.com/ueberdosis/tiptap/issues/323#issuecomment-506637799
 
 let horizontalAnchor: number;
+
 function getHorizontalAnchor() {
   if (!horizontalAnchor) {
     const firstBlockGroup = document.querySelector(
@@ -101,7 +102,11 @@ function dragStart(e: DragEvent, view: EditorView) {
   if (pos != null) {
     let selection = view.state.selection;
 
-    const multipleSelection = MultipleNodeSelection.create(view.state.doc, selection.from, selection.to);
+    const multipleSelection = MultipleNodeSelection.create(
+      view.state.doc,
+      selection.from,
+      selection.to
+    );
     const singleSelection = NodeSelection.create(view.state.doc, pos);
 
     view.dispatch(
@@ -109,8 +114,9 @@ function dragStart(e: DragEvent, view: EditorView) {
         // Only selects multiple blocks if the current selection spans the block that the drag handle corresponds to,
         // and also spans multiple blocks. pos is shifted slightly to ensure it's inside a block content node like the
         // selection from and to positions are.
-        selection.$to.end() > pos + 2 && pos + 2 >= selection.$from.start() ?
-          multipleSelection : singleSelection
+        selection.$to.end() > pos + 2 && pos + 2 >= selection.$from.start()
+          ? multipleSelection
+          : singleSelection
       )
     );
 
