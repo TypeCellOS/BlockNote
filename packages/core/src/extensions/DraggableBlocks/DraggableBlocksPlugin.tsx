@@ -2,10 +2,10 @@ import { NodeSelection, Plugin, PluginKey } from "prosemirror-state";
 import * as pv from "prosemirror-view";
 import { EditorView } from "prosemirror-view";
 import ReactDOM from "react-dom";
-import { MantineProvider } from "@mantine/core";
 import { DragHandle } from "./components/DragHandle";
-import { MultipleNodeSelection } from "../Blocks/MultipleNodeSelection";
+import { MantineProvider } from "@mantine/core";
 import { BlockNoteTheme } from "../../BlockNoteTheme";
+import { MultipleNodeSelection } from "../Blocks/MultipleNodeSelection";
 
 const serializeForClipboard = (pv as any).__serializeForClipboard;
 // code based on https://github.com/ueberdosis/tiptap/issues/323#issuecomment-506637799
