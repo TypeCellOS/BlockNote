@@ -54,11 +54,17 @@ export class MultipleNodeSelection extends Selection {
   }
 
   eq(selection: Selection): boolean {
-    if (!(selection instanceof MultipleNodeSelection)) return false;
+    if (!(selection instanceof MultipleNodeSelection)) {
+      return false;
+    }
 
-    if (this.nodes.length !== selection.nodes.length) return false;
+    if (this.nodes.length !== selection.nodes.length) {
+      return false;
+    }
 
-    if (this.from !== selection.from || this.to !== selection.to) return false;
+    if (this.from !== selection.from || this.to !== selection.to) {
+      return false;
+    }
 
     for (let i = 0; i < this.nodes.length; i++) {
       if (!this.nodes[i].eq(selection.nodes[i])) {
@@ -73,8 +79,9 @@ export class MultipleNodeSelection extends Selection {
     let fromResult = mapping.mapResult(this.from);
     let toResult = mapping.mapResult(this.to);
 
-    if (fromResult.deleted || toResult.deleted)
+    if (fromResult.deleted || toResult.deleted) {
       return Selection.near(doc.resolve(fromResult.pos));
+    }
 
     return new MultipleNodeSelection(doc, fromResult.pos, toResult.pos);
   }
