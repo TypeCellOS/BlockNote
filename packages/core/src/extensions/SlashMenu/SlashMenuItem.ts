@@ -1,5 +1,6 @@
 import { Editor, Range } from "@tiptap/core";
 import SuggestionItem from "../../shared/plugins/suggestion/SuggestionItem";
+import { IconType } from "react-icons";
 
 export type SlashMenuCallback = (editor: Editor, range: Range) => boolean;
 
@@ -31,6 +32,7 @@ export class SlashMenuItem implements SuggestionItem {
    * @param execute The callback for creating a new node
    * @param aliases Aliases for this command
    * @param icon To be shown next to the name in the menu
+   * @param hint Short description of command
    * @param shortcut Info about keyboard shortcut that would activate this command
    */
   constructor(
@@ -38,7 +40,7 @@ export class SlashMenuItem implements SuggestionItem {
     public readonly group: SlashMenuGroups,
     public readonly execute: SlashMenuCallback,
     public readonly aliases: string[] = [],
-    public readonly icon?: React.ComponentType<{ className: string }>,
+    public readonly icon?: IconType,
     public readonly hint?: string,
     public readonly shortcut?: string
   ) {

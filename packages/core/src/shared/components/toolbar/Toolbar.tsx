@@ -1,5 +1,10 @@
-import styles from "./Toolbar.module.css";
+import { createStyles, Group } from "@mantine/core";
+import { ReactNode } from "react";
 
-export const Toolbar = (props: { children: any }) => {
-  return <div className={styles.toolbar}>{props.children}</div>;
+export const Toolbar = (props: { children: ReactNode }) => {
+  const { classes } = createStyles({ root: {} })(undefined, {
+    name: "Toolbar",
+  });
+
+  return <Group className={classes.root}>{props.children}</Group>;
 };

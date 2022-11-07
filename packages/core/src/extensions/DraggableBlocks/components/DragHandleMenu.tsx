@@ -1,17 +1,18 @@
-import styles from "./DragHandleMenu.module.css";
-import { MenuGroup, ButtonItem } from "@atlaskit/menu";
+import { createStyles, Menu } from "@mantine/core";
 
 type Props = {
   onDelete: () => void;
 };
 
 const DragHandleMenu = (props: Props) => {
+  const { classes } = createStyles({ root: {} })(undefined, {
+    name: "DragHandleMenu",
+  });
+
   return (
-    <div className={styles.menuList}>
-      <MenuGroup>
-        <ButtonItem onClick={props.onDelete}>Delete</ButtonItem>
-      </MenuGroup>
-    </div>
+    <Menu.Dropdown className={classes.root}>
+      <Menu.Item onClick={props.onDelete}>Delete</Menu.Item>
+    </Menu.Dropdown>
   );
 };
 
