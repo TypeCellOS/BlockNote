@@ -2,6 +2,10 @@ import { Selection } from "prosemirror-state";
 import { Fragment, Node, Slice } from "prosemirror-model";
 import { Mappable } from "prosemirror-transform";
 
+/**
+ * This class represents an editor selection which spans multiple nodes/blocks. It's currently only used to allow users
+ * to drag multiple blocks at the same time.
+ */
 export class MultipleNodeSelection extends Selection {
   nodes: Array<Node>;
 
@@ -79,8 +83,12 @@ export class MultipleNodeSelection extends Selection {
     let fromResult = mapping.mapResult(this.from);
     let toResult = mapping.mapResult(this.to);
 
-    if (fromResult.deleted || toResult.deleted) {
+    if (toResult.deleted) {
       return Selection.near(doc.resolve(fromResult.pos));
+    }
+
+    if (fromResult.deleted) {
+      return Selection.near(doc.resolve(toResult.pos));
     }
 
     return new MultipleNodeSelection(doc, fromResult.pos, toResult.pos);
