@@ -5,6 +5,15 @@ import { Mappable } from "prosemirror-transform";
 /**
  * This class represents an editor selection which spans multiple nodes/blocks. It's currently only used to allow users
  * to drag multiple blocks at the same time.
+ *
+ * Partially based on ProseMirror's NodeSelection implementation:
+ * (https://github.com/ProseMirror/prosemirror-state/blob/master/src/selection.ts)
+ * MultipleNodeSelection differs from NodeSelection in the following ways:
+ * 1. Stores which nodes are included in the selection instead of just a single node.
+ * 2. Selection starts just before the first included node and ends just after the last, instead of both anchor and head
+ * pointing to the start of a single node.
+ * 3. For use specifically with Block nodes, which have the following node structure:
+ * block group -> block -> block content -> text
  */
 export class MultipleNodeSelection extends Selection {
   nodes: Array<Node>;
@@ -22,12 +31,12 @@ export class MultipleNodeSelection extends Selection {
     const startBlockPos = $anchor.start(minDepth - 1);
     const endBlockPos = $head.end(minDepth - 1);
 
-    // Resolved positions at the end of the block before the one the anchor is in, and the start of the block after the
-    // one that the head is in. Having the selection start and end just before and just after the target blocks ensures
-    // no whitespace/line breaks are left behind after dropping them.
-    const $endPrevBlockPos = doc.resolve(startBlockPos - 1);
-    const $startNextBlockPos = doc.resolve(endBlockPos + 1);
-    super($endPrevBlockPos, $startNextBlockPos);
+    // Resolved positions just before the block the anchor is in, and just after the block after the head is in. Having
+    // the selection start and end just before and just after the target blocks ensures no whitespace/line breaks are
+    // left behind after dropping them.
+    const $beforeStartBlockPos = doc.resolve(startBlockPos - 1);
+    const $afterEndBlockPos = doc.resolve(endBlockPos + 1);
+    super($beforeStartBlockPos, $afterEndBlockPos);
 
     // Have to go up 2 nesting levels to get parent since it should be a block group node.
     // minDepth - 0 -> block content
