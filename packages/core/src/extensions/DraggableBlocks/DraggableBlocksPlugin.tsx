@@ -1,4 +1,4 @@
-import { Plugin, PluginKey } from "prosemirror-state";
+import { NodeSelection, Plugin, PluginKey } from "prosemirror-state";
 import * as pv from "prosemirror-view";
 import { EditorView } from "prosemirror-view";
 import ReactDOM from "react-dom";
@@ -11,6 +11,7 @@ const serializeForClipboard = (pv as any).__serializeForClipboard;
 // code based on https://github.com/ueberdosis/tiptap/issues/323#issuecomment-506637799
 
 let horizontalAnchor: number;
+let dragImageElement: Element;
 
 function getHorizontalAnchor() {
   if (!horizontalAnchor) {
@@ -89,6 +90,43 @@ function getDraggableBlockFromCoords(
   return { node, id: node.getAttribute("data-id")! };
 }
 
+function setDragImage(view: EditorView, from: number, to = from) {
+  // Adds all selected nodes to an array.
+  const elements: Element[] = [];
+  let temp = from + 1;
+  while (temp < to) {
+    elements.push(view.domAtPos(temp).node.cloneNode(true) as Element);
+    temp += view.state.doc.resolve(temp).node().nodeSize;
+  }
+
+  // Gets parent node.
+  const parentElement = view.domAtPos(from).node.cloneNode(true) as Element;
+
+  // Removes all child nodes before selected ones.
+  let index = 0;
+  while (index < elements.length && index < parentElement.childElementCount) {
+    if (
+      parentElement.children[index].firstChild!.isEqualNode(elements[index])
+    ) {
+      index++;
+    } else {
+      parentElement.removeChild(parentElement.children[index]);
+    }
+  }
+
+  // Removes all child nodes after selected ones
+  while (index < parentElement.childElementCount) {
+    parentElement.removeChild(parentElement.children[index]);
+  }
+
+  dragImageElement = parentElement;
+  document.body.appendChild(dragImageElement);
+}
+
+function unsetDragImage() {
+  document.body.removeChild(dragImageElement);
+}
+
 function dragStart(e: DragEvent, view: EditorView) {
   if (!e.dataTransfer) {
     return;
@@ -98,6 +136,7 @@ function dragStart(e: DragEvent, view: EditorView) {
     left: view.dom.clientWidth / 2, // take middle of editor
     top: e.clientY,
   };
+
   let pos = blockPosAtCoords(coords, view);
   if (pos != null) {
     // pos is shifted slightly to ensure it's inside a block content node like the selection from and to positions.
@@ -107,8 +146,9 @@ function dragStart(e: DragEvent, view: EditorView) {
     // Ensures that entire outermost nodes are selected if the selection spans multiple nesting levels.
     const minDepth = Math.min(selection.$anchor.depth, selection.$head.depth);
 
-    // Absolute positions at the start of the first block in the selection and at the end of the last block. We want
-    // these starts/ends of block nodes rather than block content nodes which is why minDepth - 1 is used.
+    // Absolute positions at the start of the first block in the selection and at the end of the last block. User
+    // selections will always start and end in block content nodes, but we want the start and end positions of their
+    // parent block nodes, which is why minDepth - 1 is used.
     const startBlockPos = selection.$from.start(minDepth - 1);
     const endBlockPos = selection.$to.end(minDepth - 1);
 
@@ -119,25 +159,26 @@ function dragStart(e: DragEvent, view: EditorView) {
     const afterEndBlockPos = view.state.doc.resolve(endBlockPos + 1).pos;
 
     // Even the user starts dragging blocks but drops them in the same place, the selection will still update to
-    // the new positions just before & just after the target blocks, and therefore should not change if they try to drag
-    // the same blocks again. When this happens, the anchor and head move out of the block content node they were
-    // originally in.
+    // new positions just before & just after the target blocks, and therefore should not change if they try to drag the
+    // same blocks again. If this happens, the anchor & head move out of the block content node they were originally in.
     const startShouldUpdate =
       view.state.doc.resolve(selection.from).node().type.name === "content";
     const endShouldUpdate =
       view.state.doc.resolve(selection.to).node().type.name === "content";
 
+    // Final selection positions.
+    const fromPos = startShouldUpdate ? beforeStartBlockPos : selection.from;
+    const toPos = endShouldUpdate ? afterEndBlockPos : selection.to;
+
+    // Checks if the current selection spans the block that the visible drag handle being used corresponds to.
+    const draggingSelected =
+      selection.$to.end() > pos && pos >= selection.$from.start();
+
     view.dispatch(
       view.state.tr.setSelection(
-        // Only selects multiple blocks if the current selection spans the block that the drag handle corresponds to.
-        // MultipleNodeSelection is used even if only a single block is selected as it considers Block node structure.
-        selection.$to.end() > pos && pos >= selection.$from.start()
-          ? MultipleNodeSelection.create(
-              view.state.doc,
-              startShouldUpdate ? beforeStartBlockPos : selection.from,
-              endShouldUpdate ? afterEndBlockPos : selection.to
-            )
-          : MultipleNodeSelection.create(view.state.doc, pos)
+        draggingSelected
+          ? MultipleNodeSelection.create(view.state.doc, fromPos, toPos)
+          : NodeSelection.create(view.state.doc, pos)
       )
     );
 
@@ -148,9 +189,10 @@ function dragStart(e: DragEvent, view: EditorView) {
     e.dataTransfer.setData("text/html", dom.innerHTML);
     e.dataTransfer.setData("text/plain", text);
     e.dataTransfer.effectAllowed = "move";
-    const block = getDraggableBlockFromCoords(coords, view);
-    // TODO: Fix drag image
-    e.dataTransfer.setDragImage(block?.node as any, 0, 0);
+    draggingSelected
+      ? setDragImage(view, fromPos, toPos)
+      : setDragImage(view, pos);
+    e.dataTransfer.setDragImage(dragImageElement, 0, 0);
     view.dragging = { slice, move: true };
   }
 }
@@ -189,6 +231,7 @@ export const createDraggableBlocksPlugin = () => {
       dropElement.addEventListener("dragstart", (e) =>
         dragStart(e, editorView)
       );
+      dropElement.addEventListener("dragend", () => unsetDragImage());
 
       return {
         // update(view, prevState) {},

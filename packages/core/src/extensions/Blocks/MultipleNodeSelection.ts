@@ -12,7 +12,7 @@ import { Mappable } from "prosemirror-transform";
  * MultipleNodeSelection differs from NodeSelection in the following ways:
  * 1. Stores which nodes are included in the selection instead of just a single node.
  * 2. Already expects the selection to start just before the first target node and ends just after the last, while a
- * NodeSelection automatically sets both anchor and head to the start of the single target node.
+ * NodeSelection automatically sets both anchor and head to just before the single target node.
  */
 export class MultipleNodeSelection extends Selection {
   nodes: Array<Node>;
