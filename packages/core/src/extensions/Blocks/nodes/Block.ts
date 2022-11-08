@@ -7,6 +7,7 @@ import { OrderedListPlugin } from "../OrderedListPlugin";
 import { PreviousBlockTypePlugin } from "../PreviousBlockTypePlugin";
 import { textblockTypeInputRuleSameNodeType } from "../rule";
 import styles from "./Block.module.css";
+import BlockAttributes from "../BlockAttributes";
 
 export interface IBlock {
   HTMLAttributes: Record<string, any>;
@@ -84,21 +85,12 @@ export const Block = Node.create<IBlock>({
             return false;
           }
 
-          // Only adds attributes if they're actually present in the element.
-          const attrs = {
-            ...(element.getAttribute("data-list-type") && {
-              listType: element.getAttribute("data-list-type"),
-            }),
-            ...(element.getAttribute("data-block-color") && {
-              blockColor: element.getAttribute("data-block-color"),
-            }),
-            ...(element.getAttribute("data-block-style") && {
-              blockStyle: element.getAttribute("data-block-style"),
-            }),
-            ...(element.getAttribute("data-heading-type") && {
-              headingType: element.getAttribute("data-heading-type"),
-            }),
-          };
+          const attrs: Record<string, string> = {};
+          for (let [nodeAttr, HTMLAttr] of Object.entries(BlockAttributes)) {
+            if (element.getAttribute(HTMLAttr)) {
+              attrs[nodeAttr] = element.getAttribute(HTMLAttr)!;
+            }
+          }
 
           if (element.getAttribute("data-node-type") === "block") {
             return attrs;
@@ -154,25 +146,21 @@ export const Block = Node.create<IBlock>({
   },
 
   renderHTML({ HTMLAttributes }) {
-    const attrs = {
-      "data-list-type": HTMLAttributes.listType,
-      "data-block-color": HTMLAttributes.blockColor,
-      "data-block-style": HTMLAttributes.blockStyle,
-      "data-heading-type": HTMLAttributes.headingType,
-    };
+    const attrs: Record<string, string> = {};
+    for (let [nodeAttr, HTMLAttr] of Object.entries(BlockAttributes)) {
+      attrs[HTMLAttr] = HTMLAttributes[nodeAttr];
+    }
 
     return [
       "div",
       mergeAttributes(attrs, {
         class: styles.blockOuter,
-        "data-id": HTMLAttributes['data-id'],
         "data-node-type": "block-outer",
       }),
       [
         "div",
         mergeAttributes(attrs, {
           class: styles.block,
-          "data-id": HTMLAttributes["data-id"],
           "data-node-type": "block",
         }),
         0,

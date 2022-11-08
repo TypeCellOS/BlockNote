@@ -5,8 +5,13 @@ import {
 } from "@tiptap/core";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
+import BlockAttributes from "./BlockAttributes";
 
 const PLUGIN_KEY = new PluginKey(`previous-blocks`);
+
+// Inserts "prev-" string into an HTML attribute name with a "data-" prefix, e.g. "data-depth" -> "data-prev-depth".
+// Assumes "data-" prefix is in the attribute name.
+const insertPrev = (attr: string) => attr.slice(0, 5) + "prev-" + attr.slice(5);
 
 /**
  * This plugin tracks transformation of Block node attributes, so we can support CSS transitions.
@@ -129,8 +134,9 @@ export const PreviousBlockTypePlugin = () => {
           }
 
           const decorationAttributes: any = {};
-          for (let [key, val] of Object.entries(prevAttrs)) {
-            decorationAttributes["data-prev-" + key] = val || "none";
+          for (let [nodeAttr, val] of Object.entries(prevAttrs)) {
+            decorationAttributes[insertPrev(BlockAttributes[nodeAttr])] =
+              val || "none";
           }
           const decoration = Decoration.node(pos, pos + node.nodeSize, {
             ...decorationAttributes,
