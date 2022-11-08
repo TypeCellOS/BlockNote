@@ -1,65 +1,40 @@
 import { Selection } from "prosemirror-state";
-import { Fragment, Node, Slice } from "prosemirror-model";
+import { Fragment, Node, ResolvedPos, Slice } from "prosemirror-model";
 import { Mappable } from "prosemirror-transform";
 
 /**
  * This class represents an editor selection which spans multiple nodes/blocks. It's currently only used to allow users
- * to drag multiple blocks at the same time.
+ * to drag multiple blocks at the same time. Expects the selection anchor and head to be between nodes, i.e. just before
+ * the first target node and just after the last, and that anchor and head are at the same nesting level.
  *
  * Partially based on ProseMirror's NodeSelection implementation:
  * (https://github.com/ProseMirror/prosemirror-state/blob/master/src/selection.ts)
  * MultipleNodeSelection differs from NodeSelection in the following ways:
  * 1. Stores which nodes are included in the selection instead of just a single node.
- * 2. Selection starts just before the first included node and ends just after the last, instead of both anchor and head
- * pointing to the start of a single node.
- * 3. For use specifically with Block nodes, which have the following node structure:
- * block group -> block -> block content -> text
+ * 2. Already expects the selection to start just before the first target node and ends just after the last, while a
+ * NodeSelection automatically sets both anchor and head to the start of the single target node.
  */
 export class MultipleNodeSelection extends Selection {
   nodes: Array<Node>;
 
-  constructor(doc: Node, anchor: number, head = anchor) {
-    // Resolved positions of anchor and head inside block content nodes.
-    const $anchor = doc.resolve(anchor);
-    const $head = doc.resolve(head);
+  constructor($anchor: ResolvedPos, $head: ResolvedPos) {
+    super($anchor, $head);
 
-    // Ensures that entire outermost nodes are selected if the selection spans multiple nesting levels.
-    const minDepth = Math.min($anchor.depth, $head.depth);
-
-    // Absolute positions of the start of the block the anchor is in and the end of the block that the head is in.
-    // We want these positions for block nodes rather than block content nodes which is why minDepth - 1 is used.
-    const startBlockPos = $anchor.start(minDepth - 1);
-    const endBlockPos = $head.end(minDepth - 1);
-
-    // Resolved positions just before the block the anchor is in, and just after the block after the head is in. Having
-    // the selection start and end just before and just after the target blocks ensures no whitespace/line breaks are
-    // left behind after dropping them.
-    const $beforeStartBlockPos = doc.resolve(startBlockPos - 1);
-    const $afterEndBlockPos = doc.resolve(endBlockPos + 1);
-    super($beforeStartBlockPos, $afterEndBlockPos);
-
-    // Have to go up 2 nesting levels to get parent since it should be a block group node.
-    // minDepth - 0 -> block content
-    // minDepth - 1 -> block
-    // minDepth - 2 -> block group
-    const parentNode = $anchor.node(minDepth - 2);
+    // Parent is at the same nesting level as anchor/head since they are just before/ just after target nodes.
+    const parentNode = $anchor.node();
 
     this.nodes = [];
-    $anchor.doc.nodesBetween(
-      startBlockPos,
-      endBlockPos,
-      (node, _pos, parent) => {
-        if (parent !== null && parent.eq(parentNode)) {
-          this.nodes.push(node);
-          return false;
-        }
-        return;
+    $anchor.doc.nodesBetween($anchor.pos, $head.pos, (node, _pos, parent) => {
+      if (parent !== null && parent.eq(parentNode)) {
+        this.nodes.push(node);
+        return false;
       }
-    );
+      return;
+    });
   }
 
-  static create(doc: Node, from: number, to: number): MultipleNodeSelection {
-    return new MultipleNodeSelection(doc, from, to);
+  static create(doc: Node, from: number, to = from): MultipleNodeSelection {
+    return new MultipleNodeSelection(doc.resolve(from), doc.resolve(to));
   }
 
   content(): Slice {
@@ -100,7 +75,10 @@ export class MultipleNodeSelection extends Selection {
       return Selection.near(doc.resolve(toResult.pos));
     }
 
-    return new MultipleNodeSelection(doc, fromResult.pos, toResult.pos);
+    return new MultipleNodeSelection(
+      doc.resolve(fromResult.pos),
+      doc.resolve(toResult.pos)
+    );
   }
 
   toJSON(): any {

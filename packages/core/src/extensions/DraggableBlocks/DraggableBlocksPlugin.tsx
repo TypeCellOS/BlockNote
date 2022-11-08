@@ -104,6 +104,29 @@ function dragStart(e: DragEvent, view: EditorView) {
     pos += 2;
     let selection = view.state.selection;
 
+    // Ensures that entire outermost nodes are selected if the selection spans multiple nesting levels.
+    const minDepth = Math.min(selection.$anchor.depth, selection.$head.depth);
+
+    // Absolute positions at the start of the first block in the selection and at the end of the last block. We want
+    // these starts/ends of block nodes rather than block content nodes which is why minDepth - 1 is used.
+    const startBlockPos = selection.$from.start(minDepth - 1);
+    const endBlockPos = selection.$to.end(minDepth - 1);
+
+    // Absolute positions just before the first block in the selection, and just after the last block. Having the
+    // selection start and end just before and just after the target blocks ensures no whitespace/line breaks are left
+    // behind after dropping them.
+    const beforeStartBlockPos = view.state.doc.resolve(startBlockPos - 1).pos;
+    const afterEndBlockPos = view.state.doc.resolve(endBlockPos + 1).pos;
+
+    // Even the user starts dragging blocks but drops them in the same place, the selection will still update to
+    // the new positions just before & just after the target blocks, and therefore should not change if they try to drag
+    // the same blocks again. When this happens, the anchor and head move out of the block content node they were
+    // originally in.
+    const startShouldUpdate =
+      view.state.doc.resolve(selection.from).node().type.name === "content";
+    const endShouldUpdate =
+      view.state.doc.resolve(selection.to).node().type.name === "content";
+
     view.dispatch(
       view.state.tr.setSelection(
         // Only selects multiple blocks if the current selection spans the block that the drag handle corresponds to.
@@ -111,10 +134,10 @@ function dragStart(e: DragEvent, view: EditorView) {
         selection.$to.end() > pos && pos >= selection.$from.start()
           ? MultipleNodeSelection.create(
               view.state.doc,
-              selection.from,
-              selection.to
+              startShouldUpdate ? beforeStartBlockPos : selection.from,
+              endShouldUpdate ? afterEndBlockPos : selection.to
             )
-          : MultipleNodeSelection.create(view.state.doc, pos, pos)
+          : MultipleNodeSelection.create(view.state.doc, pos)
       )
     );
 
