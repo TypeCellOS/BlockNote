@@ -90,36 +90,31 @@ function getDraggableBlockFromCoords(
   return { node, id: node.getAttribute("data-id")! };
 }
 
+function getElementIndex(parentElement: Element, targetElement: Element) {
+  return Array.prototype.indexOf.call(parentElement.children, targetElement);
+}
+
 function setDragImage(view: EditorView, from: number, to = from) {
-  // Adds all selected nodes to an array.
-  const elements: Element[] = [];
-  let temp = from + 1;
-  while (temp < to) {
-    elements.push(view.domAtPos(temp).node.cloneNode(true) as Element);
-    temp += view.state.doc.resolve(temp).node().nodeSize;
-  }
-
   // Gets parent node.
-  const parentElement = view.domAtPos(from).node.cloneNode(true) as Element;
+  const parent = view.domAtPos(from).node as Element;
+  const parentClone = view.domAtPos(from).node.cloneNode(true) as Element;
 
-  // Removes all child nodes before selected ones.
-  let index = 0;
-  while (index < elements.length && index < parentElement.childElementCount) {
-    if (
-      parentElement.children[index].firstChild!.isEqualNode(elements[index])
-    ) {
-      index++;
-    } else {
-      parentElement.removeChild(parentElement.children[index]);
+  const leadingNodes = getElementIndex(
+    parent,
+    view.domAtPos(from + 1).node.parentElement!
+  );
+  const trailingNodes = getElementIndex(
+    parent,
+    view.domAtPos(to - 1).node.parentElement!
+  );
+
+  for (let i = parent.childElementCount - 1; i >= 0; i--) {
+    if (i > trailingNodes || i < leadingNodes) {
+      parentClone.removeChild(parentClone.children[i]);
     }
   }
 
-  // Removes all child nodes after selected ones
-  while (index < parentElement.childElementCount) {
-    parentElement.removeChild(parentElement.children[index]);
-  }
-
-  dragImageElement = parentElement;
+  dragImageElement = parentClone;
   document.body.appendChild(dragImageElement);
 }
 
