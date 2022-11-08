@@ -143,32 +143,42 @@ function dragStart(e: DragEvent, view: EditorView) {
     pos += 2;
     let selection = view.state.selection;
 
-    // Ensures that entire outermost nodes are selected if the selection spans multiple nesting levels.
-    const minDepth = Math.min(selection.$anchor.depth, selection.$head.depth);
-
-    // Absolute positions at the start of the first block in the selection and at the end of the last block. User
-    // selections will always start and end in block content nodes, but we want the start and end positions of their
-    // parent block nodes, which is why minDepth - 1 is used.
-    const startBlockPos = selection.$from.start(minDepth - 1);
-    const endBlockPos = selection.$to.end(minDepth - 1);
-
-    // Absolute positions just before the first block in the selection, and just after the last block. Having the
-    // selection start and end just before and just after the target blocks ensures no whitespace/line breaks are left
-    // behind after dropping them.
-    const beforeStartBlockPos = view.state.doc.resolve(startBlockPos - 1).pos;
-    const afterEndBlockPos = view.state.doc.resolve(endBlockPos + 1).pos;
+    // Final selection positions.
+    let fromPos: number;
+    let toPos: number;
 
     // Even the user starts dragging blocks but drops them in the same place, the selection will still update to
     // new positions just before & just after the target blocks, and therefore should not change if they try to drag the
     // same blocks again. If this happens, the anchor & head move out of the block content node they were originally in.
+    // If the anchor should update but the head shouldn't and vice versa, it means the user selection is outside a
+    // block content node, which should never happen.
     const startShouldUpdate =
       view.state.doc.resolve(selection.from).node().type.name === "content";
     const endShouldUpdate =
       view.state.doc.resolve(selection.to).node().type.name === "content";
 
-    // Final selection positions.
-    const fromPos = startShouldUpdate ? beforeStartBlockPos : selection.from;
-    const toPos = endShouldUpdate ? afterEndBlockPos : selection.to;
+    // Ensures that entire outermost nodes are selected if the selection spans multiple nesting levels.
+    const minDepth = Math.min(selection.$anchor.depth, selection.$head.depth);
+
+    if (startShouldUpdate && endShouldUpdate) {
+      // Absolute positions at the start of the first block in the selection and at the end of the last block. User
+      // selections will always start and end in block content nodes, but we want the start and end positions of their
+      // parent block nodes, which is why minDepth - 1 is used.
+      const startBlockPos = selection.$from.start(minDepth - 1);
+      const endBlockPos = selection.$to.end(minDepth - 1);
+
+      // Absolute positions just before the first block in the selection, and just after the last block. Having the
+      // selection start and end just before and just after the target blocks ensures no whitespace/line breaks are left
+      // behind after dropping them.
+      const beforeStartBlockPos = view.state.doc.resolve(startBlockPos - 1).pos;
+      const afterEndBlockPos = view.state.doc.resolve(endBlockPos + 1).pos;
+
+      fromPos = beforeStartBlockPos;
+      toPos = afterEndBlockPos;
+    } else {
+      fromPos = selection.from;
+      toPos = selection.to;
+    }
 
     // Checks if the current selection spans the block that the visible drag handle being used corresponds to.
     const draggingSelected =
