@@ -7,7 +7,7 @@ import { OrderedListPlugin } from "../OrderedListPlugin";
 import { PreviousBlockTypePlugin } from "../PreviousBlockTypePlugin";
 import { textblockTypeInputRuleSameNodeType } from "../rule";
 import styles from "./Block.module.css";
-import { parseAttrs } from "../BlockAttributes";
+import BlockAttributes from "../BlockAttributes";
 
 export interface IBlock {
   HTMLAttributes: Record<string, any>;
@@ -85,12 +85,12 @@ export const Block = Node.create<IBlock>({
             return false;
           }
 
-          const attrs = parseAttrs(([nodeAttr, HTMLAttr]) => {
+          const attrs: Record<string, string> = {};
+          for (let [nodeAttr, HTMLAttr] of Object.entries(BlockAttributes)) {
             if (element.getAttribute(HTMLAttr)) {
-              return [nodeAttr, element.getAttribute(HTMLAttr)!];
+              attrs[nodeAttr] = element.getAttribute(HTMLAttr)!;
             }
-            return null;
-          });
+          }
 
           if (element.getAttribute("data-node-type") === "block") {
             return attrs;
@@ -146,10 +146,10 @@ export const Block = Node.create<IBlock>({
   },
 
   renderHTML({ HTMLAttributes }) {
-    const attrs = parseAttrs(([nodeAttr, HTMLAttr]) => [
-      HTMLAttr,
-      HTMLAttributes[nodeAttr],
-    ]);
+    const attrs: Record<string, string> = {};
+    for (let [nodeAttr, HTMLAttr] of Object.entries(BlockAttributes)) {
+      attrs[HTMLAttr] = HTMLAttributes[nodeAttr];
+    }
 
     return [
       "div",
