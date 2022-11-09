@@ -94,7 +94,7 @@ function blockPositionFromCoords(
 function blockPositionsFromSelection(
   selection: Selection,
   doc: Node
-): Record<string, number> {
+) {
   // Absolute positions just before the first block spanned by the selection, and just after the last block. Having the
   // selection start and end just before and just after the target blocks ensures no whitespace/line breaks are left
   // behind after dragging & dropping them.
