@@ -10,8 +10,12 @@ import {
   H_THREE_BLOCK_SELECTOR,
   H_TWO_BLOCK_SELECTOR,
   SLASH_MENU_SELECTOR,
+  TYPE_DELAY,
 } from "../../utils/const";
-import { hoverAndAddBlockFromDragHandle } from "../../utils/draghandle";
+import {
+  getDragHandleYCoord,
+  hoverAndAddBlockFromDragHandle,
+} from "../../utils/draghandle";
 import { compareDocToSnapshot, focusOnEditor } from "../../utils/editor";
 import { moveMouseOverElement } from "../../utils/mouse";
 import { executeSlashCommand } from "../../utils/slashmenu";
@@ -37,6 +41,44 @@ test.describe("Check Draghandle functionality", () => {
     await page.keyboard.type("Hover over this text");
     await moveMouseOverElement(page, H_ONE_BLOCK_SELECTOR);
     await page.waitForSelector(DRAG_HANDLE);
+  });
+
+  test("Draghandle should display next to correct block", async () => {
+    await executeSlashCommand(page, "h1");
+    await page.keyboard.type("Heading 1");
+    await page.keyboard.press("ArrowDown", { delay: TYPE_DELAY });
+    await executeSlashCommand(page, "h2");
+    await page.keyboard.type("Heading 2");
+    await page.keyboard.press("ArrowDown", { delay: TYPE_DELAY });
+    await executeSlashCommand(page, "h3");
+    await page.keyboard.type("Heading 3");
+    await page.keyboard.press("ArrowDown", { delay: TYPE_DELAY });
+
+    const h1y = await getDragHandleYCoord(page, H_ONE_BLOCK_SELECTOR);
+    const h2y = await getDragHandleYCoord(page, H_TWO_BLOCK_SELECTOR);
+    const h3y = await getDragHandleYCoord(page, H_THREE_BLOCK_SELECTOR);
+
+    expect(h1y < h2y && h1y < h3y && h2y < h3y).toBeTruthy();
+  });
+
+  test("Draghandle should display next to correct nested block", async () => {
+    await executeSlashCommand(page, "h1");
+    await page.keyboard.type("Heading 1");
+    await page.keyboard.press("ArrowDown", { delay: TYPE_DELAY });
+    await page.keyboard.press("Tab");
+    await executeSlashCommand(page, "h2");
+    await page.keyboard.type("Heading 2");
+    await page.keyboard.press("ArrowDown", { delay: TYPE_DELAY });
+    await page.keyboard.press("Tab");
+    await executeSlashCommand(page, "h3");
+    await page.keyboard.type("Heading 3");
+    await page.keyboard.press("ArrowDown", { delay: TYPE_DELAY });
+
+    const h1y = await getDragHandleYCoord(page, H_ONE_BLOCK_SELECTOR);
+    const h2y = await getDragHandleYCoord(page, H_TWO_BLOCK_SELECTOR);
+    const h3y = await getDragHandleYCoord(page, H_THREE_BLOCK_SELECTOR);
+
+    expect(h1y < h2y && h1y < h3y && h2y < h3y).toBeTruthy();
   });
 
   // TODO: add drag and drop test - playwright dragAndDrop function not working for some reason

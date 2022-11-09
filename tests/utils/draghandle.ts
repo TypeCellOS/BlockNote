@@ -1,5 +1,5 @@
 import { Page } from "@playwright/test";
-import { DRAG_HANDLE_ADD } from "./const";
+import { DRAG_HANDLE, DRAG_HANDLE_ADD } from "./const";
 import { moveMouseOverElement } from "./mouse";
 
 export async function addBlockFromDragHandle(page: Page, blockQuery: string) {
@@ -15,4 +15,11 @@ export async function hoverAndAddBlockFromDragHandle(
 ) {
   await moveMouseOverElement(page, selector);
   await addBlockFromDragHandle(page, blockQuery);
+}
+
+export async function getDragHandleYCoord(page: Page, selector: string) {
+  await moveMouseOverElement(page, selector);
+  await page.waitForSelector(DRAG_HANDLE);
+  const boundingBox = await page.locator(DRAG_HANDLE).boundingBox();
+  return boundingBox.y;
 }
