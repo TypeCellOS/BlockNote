@@ -39,7 +39,8 @@ test.describe("Check Draghandle functionality", () => {
   test("Should show draghandle when hovering over block", async () => {
     await executeSlashCommand(page, "h1");
     await page.keyboard.type("Hover over this text");
-    await moveMouseOverElement(page, H_ONE_BLOCK_SELECTOR);
+    const heading = await page.locator(H_ONE_BLOCK_SELECTOR);
+    await moveMouseOverElement(page, heading);
     await page.waitForSelector(DRAG_HANDLE);
   });
 
@@ -86,7 +87,8 @@ test.describe("Check Draghandle functionality", () => {
   test("Clicking draghandle should open menu", async () => {
     await executeSlashCommand(page, "h1");
     await page.keyboard.type("Hover over this text");
-    await moveMouseOverElement(page, H_ONE_BLOCK_SELECTOR);
+    const block = await page.locator(BLOCK_SELECTOR);
+    await moveMouseOverElement(page, block);
     await page.click(DRAG_HANDLE);
     await page.waitForSelector(DRAG_HANDLE_MENU_SELECTOR);
     // Compare editor screenshot
@@ -106,7 +108,8 @@ test.describe("Check Draghandle functionality", () => {
   });
 
   test("Clicking add button should show filter message", async () => {
-    await moveMouseOverElement(page, BLOCK_SELECTOR);
+    const block = await page.locator(BLOCK_SELECTOR);
+    await moveMouseOverElement(page, block);
     await page.click(DRAG_HANDLE_ADD);
     const content = await page.waitForSelector(BLOCK_CONTENT_SELECTOR);
     // Get text in :before
@@ -121,7 +124,8 @@ test.describe("Check Draghandle functionality", () => {
   test("Clicking add button should open menu", async () => {
     await executeSlashCommand(page, "h1");
     await page.keyboard.type("Hover over this text");
-    await moveMouseOverElement(page, H_ONE_BLOCK_SELECTOR);
+    const heading = await page.locator(H_ONE_BLOCK_SELECTOR);
+    await moveMouseOverElement(page, heading);
     await page.click(DRAG_HANDLE_ADD);
     await page.waitForSelector(SLASH_MENU_SELECTOR);
   });

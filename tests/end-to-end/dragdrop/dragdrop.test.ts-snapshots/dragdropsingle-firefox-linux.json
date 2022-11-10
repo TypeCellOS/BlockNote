@@ -1,0 +1,74 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "blockgroup",
+      "content": [
+        {
+          "type": "block",
+          "attrs": {
+            "headingType": "1"
+          },
+          "content": [
+            {
+              "type": "content",
+              "attrs": {},
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Heading"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "block",
+          "attrs": {
+            "headingType": "2"
+          },
+          "content": [
+            {
+              "type": "content",
+              "attrs": {},
+              "content": [
+                {
+                  "type": "text",
+                  "text": "HeadingHeading"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "block",
+          "attrs": {
+            "headingType": "3"
+          },
+          "content": [
+            {
+              "type": "content",
+              "attrs": {},
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Heading"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "block",
+          "attrs": {},
+          "content": [
+            {
+              "type": "content",
+              "attrs": {}
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
