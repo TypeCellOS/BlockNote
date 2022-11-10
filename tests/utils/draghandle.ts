@@ -13,12 +13,14 @@ export async function hoverAndAddBlockFromDragHandle(
   selector: string,
   blockQuery: string
 ) {
-  await moveMouseOverElement(page, selector);
+  const element = await page.locator(selector);
+  await moveMouseOverElement(page, element);
   await addBlockFromDragHandle(page, blockQuery);
 }
 
 export async function getDragHandleYCoord(page: Page, selector: string) {
-  await moveMouseOverElement(page, selector);
+  const element = await page.locator(selector);
+  await moveMouseOverElement(page, element);
   await page.waitForSelector(DRAG_HANDLE);
   const boundingBox = await page.locator(DRAG_HANDLE).boundingBox();
   return boundingBox.y;
