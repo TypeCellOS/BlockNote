@@ -10,7 +10,6 @@ import {
   H_THREE_BLOCK_SELECTOR,
   H_TWO_BLOCK_SELECTOR,
   SLASH_MENU_SELECTOR,
-  TYPE_DELAY,
 } from "../../utils/const";
 import {
   getDragHandleYCoord,
@@ -19,6 +18,7 @@ import {
 import { compareDocToSnapshot, focusOnEditor } from "../../utils/editor";
 import { moveMouseOverElement } from "../../utils/mouse";
 import { executeSlashCommand } from "../../utils/slashmenu";
+import { insertHeading } from "../../utils/copypaste";
 
 let page: Page;
 
@@ -39,20 +39,15 @@ test.describe("Check Draghandle functionality", () => {
   test("Should show draghandle when hovering over block", async () => {
     await executeSlashCommand(page, "h1");
     await page.keyboard.type("Hover over this text");
-    await moveMouseOverElement(page, H_ONE_BLOCK_SELECTOR);
+    const heading = await page.locator(H_ONE_BLOCK_SELECTOR);
+    await moveMouseOverElement(page, heading);
     await page.waitForSelector(DRAG_HANDLE);
   });
 
   test("Draghandle should display next to correct block", async () => {
-    await executeSlashCommand(page, "h1");
-    await page.keyboard.type("Heading 1");
-    await page.keyboard.press("ArrowDown", { delay: TYPE_DELAY });
-    await executeSlashCommand(page, "h2");
-    await page.keyboard.type("Heading 2");
-    await page.keyboard.press("ArrowDown", { delay: TYPE_DELAY });
-    await executeSlashCommand(page, "h3");
-    await page.keyboard.type("Heading 3");
-    await page.keyboard.press("ArrowDown", { delay: TYPE_DELAY });
+    await insertHeading(page, 1);
+    await insertHeading(page, 2);
+    await insertHeading(page, 3);
 
     const h1y = await getDragHandleYCoord(page, H_ONE_BLOCK_SELECTOR);
     const h2y = await getDragHandleYCoord(page, H_TWO_BLOCK_SELECTOR);
@@ -62,31 +57,27 @@ test.describe("Check Draghandle functionality", () => {
   });
 
   test("Draghandle should display next to correct nested block", async () => {
-    await executeSlashCommand(page, "h1");
-    await page.keyboard.type("Heading 1");
-    await page.keyboard.press("ArrowDown", { delay: TYPE_DELAY });
+    await insertHeading(page, 1);
     await page.keyboard.press("Tab");
-    await executeSlashCommand(page, "h2");
-    await page.keyboard.type("Heading 2");
-    await page.keyboard.press("ArrowDown", { delay: TYPE_DELAY });
+    await insertHeading(page, 2);
     await page.keyboard.press("Tab");
-    await executeSlashCommand(page, "h3");
-    await page.keyboard.type("Heading 3");
-    await page.keyboard.press("ArrowDown", { delay: TYPE_DELAY });
+    await page.keyboard.press("Tab");
+    await insertHeading(page, 3);
 
     const h1y = await getDragHandleYCoord(page, H_ONE_BLOCK_SELECTOR);
+    await page.pause();
     const h2y = await getDragHandleYCoord(page, H_TWO_BLOCK_SELECTOR);
+    await page.pause();
     const h3y = await getDragHandleYCoord(page, H_THREE_BLOCK_SELECTOR);
-
+    await page.pause();
     expect(h1y < h2y && h1y < h3y && h2y < h3y).toBeTruthy();
   });
-
-  // TODO: add drag and drop test - playwright dragAndDrop function not working for some reason
 
   test("Clicking draghandle should open menu", async () => {
     await executeSlashCommand(page, "h1");
     await page.keyboard.type("Hover over this text");
-    await moveMouseOverElement(page, H_ONE_BLOCK_SELECTOR);
+    const heading = await page.locator(H_ONE_BLOCK_SELECTOR).first();
+    await moveMouseOverElement(page, heading);
     await page.click(DRAG_HANDLE);
     await page.waitForSelector(DRAG_HANDLE_MENU_SELECTOR);
     // Compare editor screenshot
@@ -106,7 +97,8 @@ test.describe("Check Draghandle functionality", () => {
   });
 
   test("Clicking add button should show filter message", async () => {
-    await moveMouseOverElement(page, BLOCK_SELECTOR);
+    const block = await page.locator(BLOCK_SELECTOR);
+    await moveMouseOverElement(page, block);
     await page.click(DRAG_HANDLE_ADD);
     const content = await page.waitForSelector(BLOCK_CONTENT_SELECTOR);
     // Get text in :before
@@ -121,7 +113,8 @@ test.describe("Check Draghandle functionality", () => {
   test("Clicking add button should open menu", async () => {
     await executeSlashCommand(page, "h1");
     await page.keyboard.type("Hover over this text");
-    await moveMouseOverElement(page, H_ONE_BLOCK_SELECTOR);
+    const heading = await page.locator(H_ONE_BLOCK_SELECTOR);
+    await moveMouseOverElement(page, heading);
     await page.click(DRAG_HANDLE_ADD);
     await page.waitForSelector(SLASH_MENU_SELECTOR);
   });
