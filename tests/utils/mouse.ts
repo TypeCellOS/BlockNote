@@ -15,16 +15,9 @@ async function getElementRightCoords(page: Page, element: Locator) {
   return { x: boundingBox.x + boundingBox.width - 1, y: centerY };
 }
 
-async function getElementCenterCoords(page: Page, element: Locator) {
-  const boundingBox = await element.boundingBox();
-  const centerX = boundingBox.x + boundingBox.width / 2;
-  const centerY = boundingBox.y + boundingBox.height / 2;
-
-  return { x: centerX, y: centerY };
-}
-
 export async function moveMouseOverElement(page: Page, element: Locator) {
-  const coords = await getElementCenterCoords(page, element);
+  const boundingBox = await element.boundingBox();
+  const coords = { x: boundingBox.x, y: boundingBox.y };
   await page.mouse.move(coords.x, coords.y, { steps: 5 });
 }
 
