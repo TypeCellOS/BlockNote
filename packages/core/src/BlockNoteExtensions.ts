@@ -7,6 +7,7 @@ import DropCursor from "@tiptap/extension-dropcursor";
 import GapCursor from "@tiptap/extension-gapcursor";
 import HardBreak from "@tiptap/extension-hard-break";
 import { History } from "@tiptap/extension-history";
+import Image from "@tiptap/extension-image";
 import Italic from "@tiptap/extension-italic";
 import Strike from "@tiptap/extension-strike";
 import Text from "@tiptap/extension-text";
@@ -21,6 +22,13 @@ import { Placeholder } from "./extensions/Placeholder/PlaceholderExtension";
 import SlashMenuExtension from "./extensions/SlashMenu";
 import { TrailingNode } from "./extensions/TrailingNode/TrailingNodeExtension";
 import UniqueID from "./extensions/UniqueID/UniqueID";
+import { ContentBlock, createCustomBlock } from "./customBlocks/customBlock";
+import { TextBlock } from "./customBlocks/TextBlock";
+import { MonacoEditorBlock } from "./customBlocks/MonacoEditorBlock";
+import { ImageBlock } from "./customBlocks/ImageBlock";
+import { IFrameBlock } from "./customBlocks/IFrameBlock";
+import { EditorBlock } from "./customBlocks/EditorBlock";
+import { HeadingBlock } from "./customBlocks/HeadingBlock";
 
 export const Document = Node.create({
   name: "doc",
@@ -38,9 +46,12 @@ export const getBlockNoteExtensions = () => {
     extensions.Editable,
     extensions.FocusEvents,
     extensions.Tabindex,
+    // Image.configure({
+    //   inline: false,
+    // }),
 
     // DevTools,
-    GapCursor,
+    // GapCursor,
 
     // DropCursor,
     Placeholder.configure({
@@ -70,6 +81,12 @@ export const getBlockNoteExtensions = () => {
 
     // custom blocks:
     ...blocks,
+    createCustomBlock(TextBlock),
+    createCustomBlock(MonacoEditorBlock),
+    createCustomBlock(ImageBlock),
+    createCustomBlock(IFrameBlock),
+    createCustomBlock(EditorBlock),
+    createCustomBlock(HeadingBlock),
     DraggableBlocksExtension,
     DropCursor.configure({ width: 5, color: "#ddeeff" }),
     BubbleMenuExtension,

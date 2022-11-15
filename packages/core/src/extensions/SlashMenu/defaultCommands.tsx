@@ -49,16 +49,39 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
     formatKeyboardShortcut("Mod-Alt-2")
   ),
 
+  // // Command for creating a level 3 heading
+  // heading3: new SlashMenuItem(
+  //   "Heading 3",
+  //   SlashMenuGroups.HEADINGS,
+  //   (editor, range) => {
+  //     return editor
+  //       .chain()
+  //       .focus()
+  //       .deleteRange(range)
+  //       .addNewBlockAsSibling({ headingType: "3" })
+  //       .run();
+  //   },
+  //   ["h3", "heading3", "subheading"],
+  //   RiH3,
+  //   "Used for subsections and group headings",
+  //   formatKeyboardShortcut("Mod-Alt-3")
+  // ),
+
   // Command for creating a level 3 heading
-  heading3: new SlashMenuItem(
-    "Heading 3",
+  image: new SlashMenuItem(
+    "Image",
     SlashMenuGroups.HEADINGS,
     (editor, range) => {
       return editor
         .chain()
         .focus()
         .deleteRange(range)
-        .addNewBlockAsSibling({ headingType: "3" })
+        .addNewBlockAsSibling({
+          type: "image",
+          attrs: {
+            src: "https://cdn.x-kom.pl/i/setup/images/prod/big/product-new-big,,2021/9/pr_2021_9_6_14_7_26_932_00.jpg",
+          },
+        })
         .run();
     },
     ["h3", "heading3", "subheading"],
@@ -67,41 +90,124 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
     formatKeyboardShortcut("Mod-Alt-3")
   ),
 
-  // Command for creating an ordered list
-  numberedList: new SlashMenuItem(
-    "Numbered List",
-    SlashMenuGroups.BASIC_BLOCKS,
+  // Command for creating a level 3 heading
+  monacoEditor: new SlashMenuItem(
+    "Embed",
+    SlashMenuGroups.HEADINGS,
     (editor, range) => {
       return editor
         .chain()
         .focus()
         .deleteRange(range)
-        .addNewBlockAsSibling({ listType: "oli" })
+        .addNewBlockAsSibling({
+          type: "iframe",
+          attrs: {
+            src: "https://codesandbox.io/embed/interesting-pine-gbk0pb?fontsize=14&hidenavigation=1&theme=dark",
+          },
+        })
         .run();
     },
-    ["li", "list", "numberedlist", "numbered list"],
-    RiListOrdered,
-    "Used to display a numbered list",
-    formatKeyboardShortcut("Mod-Shift-7")
+    ["h3", "heading3", "subheading"],
+    RiH3,
+    "Used for subsections and group headings",
+    formatKeyboardShortcut("Mod-Alt-3")
   ),
 
-  // Command for creating a bullet list
-  bulletlist: new SlashMenuItem(
-    "Bullet List",
-    SlashMenuGroups.BASIC_BLOCKS,
+  editor: new SlashMenuItem(
+    "Editor",
+    SlashMenuGroups.HEADINGS,
     (editor, range) => {
       return editor
         .chain()
         .focus()
         .deleteRange(range)
-        .addNewBlockAsSibling({ listType: "li" })
+        .addNewBlockAsSibling({
+          type: "editor",
+          attrs: {},
+        })
         .run();
     },
-    ["ul", "list", "bulletlist", "bullet list"],
-    RiListUnordered,
-    "Used to display an unordered list",
-    formatKeyboardShortcut("Mod-Shift-8")
+    ["h3", "heading3", "subheading"],
+    RiH3,
+    "Used for subsections and group headings",
+    formatKeyboardShortcut("Mod-Alt-3")
   ),
+
+  contentHeading: new SlashMenuItem(
+    "Content Heading",
+    SlashMenuGroups.HEADINGS,
+    (editor, range) => {
+      return editor
+        .chain()
+        .focus()
+        .deleteRange(range)
+        .addNewBlockAsSibling({
+          type: "heading",
+          attrs: { level: "2" },
+        })
+        .run();
+    },
+    ["h", "heading1", "h1"],
+    RiH1,
+    "Used for a top-level heading",
+    formatKeyboardShortcut("Mod-Alt-1")
+  ),
+
+  contentText: new SlashMenuItem(
+    "Content Text",
+    SlashMenuGroups.HEADINGS,
+    (editor, range) => {
+      return editor
+        .chain()
+        .focus()
+        .deleteRange(range)
+        .addNewBlockAsSibling({
+          type: "content",
+          attrs: {},
+        })
+        .run();
+    },
+    ["h", "heading1", "h1"],
+    RiH1,
+    "Used for a top-level heading",
+    formatKeyboardShortcut("Mod-Alt-1")
+  ),
+
+  // Command for creating an ordered list
+  // numberedList: new SlashMenuItem(
+  //   "Numbered List",
+  //   SlashMenuGroups.BASIC_BLOCKS,
+  //   (editor, range) => {
+  //     return editor
+  //       .chain()
+  //       .focus()
+  //       .deleteRange(range)
+  //       .addNewBlockAsSibling({ listType: "oli" })
+  //       .run();
+  //   },
+  //   ["li", "list", "numberedlist", "numbered list"],
+  //   RiListOrdered,
+  //   "Used to display a numbered list",
+  //   formatKeyboardShortcut("Mod-Shift-7")
+  // ),
+  //
+  // // Command for creating a bullet list
+  // bulletlist: new SlashMenuItem(
+  //   "Bullet List",
+  //   SlashMenuGroups.BASIC_BLOCKS,
+  //   (editor, range) => {
+  //     return editor
+  //       .chain()
+  //       .focus()
+  //       .deleteRange(range)
+  //       .addNewBlockAsSibling({ listType: "li" })
+  //       .run();
+  //   },
+  //   ["ul", "list", "bulletlist", "bullet list"],
+  //   RiListUnordered,
+  //   "Used to display an unordered list",
+  //   formatKeyboardShortcut("Mod-Shift-8")
+  // ),
 
   // Command for creating a paragraph (pretty useless)
   paragraph: new SlashMenuItem(

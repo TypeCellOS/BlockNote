@@ -30,10 +30,7 @@ declare module "@tiptap/core" {
 
       unsetList: () => ReturnType;
 
-      addNewBlockAsSibling: (attributes?: {
-        headingType?: Level;
-        listType?: ListType;
-      }) => ReturnType;
+      addNewBlockAsSibling: (attributes?: any) => ReturnType;
 
       setBlockList: (type: ListType) => ReturnType;
     };
@@ -46,6 +43,7 @@ declare module "@tiptap/core" {
 export const Block = Node.create<IBlock>({
   name: "block",
   group: "block",
+  atom: true,
   addOptions() {
     return {
       HTMLAttributes: {},
@@ -53,9 +51,11 @@ export const Block = Node.create<IBlock>({
   },
 
   // A block always contains content, and optionally a blockGroup which contains nested blocks
-  content: "content blockgroup?",
+  content:
+    "(content blockgroup?) | image | monacoEditor | iframe | editor | heading",
 
   defining: true,
+  // selectable: false,
 
   addAttributes() {
     return {
@@ -243,16 +243,28 @@ export const Block = Node.create<IBlock>({
           // If current blocks content is empty dont create a new block
           if (currentBlock.node.firstChild?.textContent.length === 0) {
             if (dispatch) {
-              tr.setNodeMarkup(currentBlock.pos, undefined, attributes);
+              // tr.setNodeMarkup(currentBlock.pos, undefined, attributes);
+              console.log(attributes);
+              tr.insert(
+                currentBlock.pos,
+                state.schema.nodes[attributes.type].create(attributes.attrs)!
+              );
+              // tr.setSelection(
+              //   new TextSelection(tr.doc.resolve(currentBlock.pos + 1))
+              // );
             }
             return true;
           }
 
           // Create new block after current block
           const endOfBlock = currentBlock.pos + currentBlock.node.nodeSize;
-          let newBlock = state.schema.nodes["block"].createAndFill(attributes)!;
+          let newBlock = state.schema.nodes["block"].createAndFill()!;
+          let content = state.schema.nodes[attributes.type].create(
+            attributes.attrs
+          )!;
           if (dispatch) {
             tr.insert(endOfBlock, newBlock);
+            tr.insert(endOfBlock + 2, content);
             tr.setSelection(new TextSelection(tr.doc.resolve(endOfBlock + 1)));
           }
           return true;
