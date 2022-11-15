@@ -8,11 +8,14 @@ export const OrderedListPlugin = () => {
     appendTransaction: (_transactions, _oldState, newState) => {
       const newTr = newState.tr;
       let modified = false;
-      let count = 1;
       let skip = 0;
-      newState.doc.descendants((node, pos) => {
+
+      let countPerBlockGroup = new Map();
+
+      newState.doc.descendants((node, pos, parent) => {
         if (node.type.name === "block" && !node.attrs.listType) {
-          count = 1;
+          // reset for non consecutive oli blocks
+          countPerBlockGroup.set(parent, 1);
         }
         if (
           skip === 0 &&
@@ -20,6 +23,14 @@ export const OrderedListPlugin = () => {
           node.attrs.listType === "oli"
         ) {
           skip = node.content.childCount;
+
+          // create count for block group if not exist
+          if (!countPerBlockGroup.has(parent)) {
+            countPerBlockGroup.set(parent, 1);
+          }
+
+          let count = countPerBlockGroup.get(parent);
+
           // This assumes that the content node is always the first child of the oli block,
           // as the content model grows this assumption may need to change
           if (node.content.child(0).attrs.position !== `${count}.`) {
@@ -32,7 +43,7 @@ export const OrderedListPlugin = () => {
             modified = true;
           }
 
-          count++;
+          countPerBlockGroup.set(parent, count + 1);
         } else if (skip > 0) {
           skip--;
         }
