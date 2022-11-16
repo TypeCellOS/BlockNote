@@ -22,7 +22,9 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         .chain()
         .focus()
         .deleteRange(range)
-        .addNewBlockAsSibling({ headingType: "1" })
+        .createOrSetBlock(editor.state.selection.anchor, "headingBlock", {
+          level: "1",
+        })
         .run();
     },
     ["h", "heading1", "h1"],
@@ -40,7 +42,9 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         .chain()
         .focus()
         .deleteRange(range)
-        .addNewBlockAsSibling({ headingType: "2" })
+        .createOrSetBlock(editor.state.selection.anchor, "headingBlock", {
+          level: "2",
+        })
         .run();
     },
     ["h2", "heading2", "subheading"],
@@ -58,7 +62,9 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         .chain()
         .focus()
         .deleteRange(range)
-        .addNewBlockAsSibling({ headingType: "3" })
+        .createOrSetBlock(editor.state.selection.anchor, "headingBlock", {
+          level: "3",
+        })
         .run();
     },
     ["h3", "heading3", "subheading"],
@@ -72,12 +78,14 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
     "Numbered List",
     SlashMenuGroups.BASIC_BLOCKS,
     (editor, range) => {
-      return editor
-        .chain()
-        .focus()
-        .deleteRange(range)
-        .addNewBlockAsSibling({ listType: "oli" })
-        .run();
+      return (
+        editor
+          .chain()
+          .focus()
+          .deleteRange(range)
+          // .addNewBlockAsSibling({ listType: "oli" })
+          .run()
+      );
     },
     ["li", "list", "numberedlist", "numbered list"],
     RiListOrdered,
@@ -90,12 +98,14 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
     "Bullet List",
     SlashMenuGroups.BASIC_BLOCKS,
     (editor, range) => {
-      return editor
-        .chain()
-        .focus()
-        .deleteRange(range)
-        .addNewBlockAsSibling({ listType: "li" })
-        .run();
+      return (
+        editor
+          .chain()
+          .focus()
+          .deleteRange(range)
+          // .addNewBlockAsSibling({ listType: "li" })
+          .run()
+      );
     },
     ["ul", "list", "bulletlist", "bullet list"],
     RiListUnordered,
@@ -112,7 +122,7 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         .chain()
         .focus()
         .deleteRange(range)
-        .addNewBlockAsSibling()
+        .createOrSetBlock(editor.state.selection.anchor, "textBlock")
         .run();
     },
     ["p"],

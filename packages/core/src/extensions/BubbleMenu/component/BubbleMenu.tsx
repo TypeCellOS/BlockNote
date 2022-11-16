@@ -22,42 +22,26 @@ import { findBlock } from "../../Blocks/helpers/findBlock";
 import { formatKeyboardShortcut } from "../../../utils";
 import LinkToolbarButton from "./LinkToolbarButton";
 import { IconType } from "react-icons";
+import { Node } from "prosemirror-model";
 
-type ListType = "li" | "oli";
-
-function getBlockName(
-  currentBlockHeading: number | undefined,
-  currentBlockListType: ListType | undefined
-) {
-  const headings = ["Heading 1", "Heading 2", "Heading 3"];
-  const lists = {
-    li: "Bullet List",
-    oli: "Numbered List",
-  };
-  // A heading that's also a list, should show as Heading
-  if (currentBlockHeading) {
-    return headings[currentBlockHeading - 1];
-  } else if (currentBlockListType) {
-    return lists[currentBlockListType];
-  } else {
+function getBlockName(blockContentNode: Node) {
+  if (blockContentNode.type.name === "textBlock") {
     return "Text";
   }
+
+  if (blockContentNode.type.name === "headingBlock") {
+    return "Heading " + blockContentNode.attrs["level"];
+  }
+
+  return "";
 }
 
 // TODO: add list options, indentation
 export const BubbleMenu = (props: { editor: Editor }) => {
   useEditorForceUpdate(props.editor);
 
-  const currentBlock = findBlock(props.editor.state.selection);
-  const currentBlockHeading: number | undefined =
-    currentBlock?.node.attrs.headingType;
-  const currentBlockListType: ListType | undefined =
-    currentBlock?.node.attrs.listType;
-
-  const currentBlockName = getBlockName(
-    currentBlockHeading,
-    currentBlockListType
-  );
+  const selectedNode = props.editor.state.selection.$from.node();
+  const currentBlockName = getBlockName(selectedNode);
 
   const blockIconMap: Record<string, IconType> = {
     Text: RiText,
@@ -78,55 +62,64 @@ export const BubbleMenu = (props: { editor: Editor }) => {
             onClick: () => {
               // Setting editor focus using a chained command instead causes bubble menu to flicker on click.
               props.editor.view.focus();
-              props.editor.chain().unsetBlockHeading().unsetList().run();
+              props.editor.commands.setBlockType(
+                props.editor.state.selection.from,
+                "textBlock"
+              );
             },
             text: "Text",
             icon: RiText,
-            isSelected: currentBlockName === "Text",
+            isSelected: selectedNode.type.name === "textBlock",
           },
           {
             onClick: () => {
               props.editor.view.focus();
-              props.editor
-                .chain()
-                .unsetList()
-                .setBlockHeading({ level: "1" })
-                .run();
+              props.editor.commands.setBlockType(
+                props.editor.state.selection.from,
+                "headingBlock",
+                { level: "1" }
+              );
             },
             text: "Heading 1",
             icon: RiH1,
-            isSelected: currentBlockName === "Heading 1",
+            isSelected:
+              selectedNode.type.name === "headingBlock" &&
+              selectedNode.attrs["level"] === "1",
           },
           {
             onClick: () => {
               props.editor.view.focus();
-              props.editor
-                .chain()
-                .unsetList()
-                .setBlockHeading({ level: "2" })
-                .run();
+              props.editor.commands.setBlockType(
+                props.editor.state.selection.from,
+                "headingBlock",
+                { level: "2" }
+              );
             },
             text: "Heading 2",
             icon: RiH2,
-            isSelected: currentBlockName === "Heading 2",
+            isSelected:
+              selectedNode.type.name === "headingBlock" &&
+              selectedNode.attrs["level"] === "2",
           },
           {
             onClick: () => {
               props.editor.view.focus();
-              props.editor
-                .chain()
-                .unsetList()
-                .setBlockHeading({ level: "3" })
-                .run();
+              props.editor.commands.setBlockType(
+                props.editor.state.selection.from,
+                "headingBlock",
+                { level: "3" }
+              );
             },
             text: "Heading 3",
             icon: RiH3,
-            isSelected: currentBlockName === "Heading 3",
+            isSelected:
+              selectedNode.type.name === "headingBlock" &&
+              selectedNode.attrs["level"] === "3",
           },
           {
             onClick: () => {
               props.editor.view.focus();
-              props.editor.chain().unsetBlockHeading().setBlockList("li").run();
+              props.editor.chain().setBlockList("li").run();
             },
             text: "Bullet List",
             icon: RiListUnordered,
@@ -135,11 +128,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
           {
             onClick: () => {
               props.editor.view.focus();
-              props.editor
-                .chain()
-                .unsetBlockHeading()
-                .setBlockList("oli")
-                .run();
+              props.editor.chain().setBlockList("oli").run();
             },
             text: "Numbered List",
             icon: RiListOrdered,

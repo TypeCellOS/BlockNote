@@ -33,7 +33,7 @@ export const TrailingNode = Extension.create<TrailingNodeOptions>({
           const shouldInsertNodeAtEnd = plugin.getState(state);
           const endPosition = doc.content.size - 2;
           const type = schema.nodes["block"];
-          const contenttype = schema.nodes["content"];
+          const contenttype = schema.nodes["textBlock"];
           if (!shouldInsertNodeAtEnd) {
             return;
           }

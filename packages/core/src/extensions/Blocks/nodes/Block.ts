@@ -1,41 +1,45 @@
-import { mergeAttributes, Node } from "@tiptap/core";
+import { InputRule, mergeAttributes, Node } from "@tiptap/core";
 import { Selection, TextSelection } from "prosemirror-state";
 import { joinBackward } from "../commands/joinBackward";
-import { findBlock } from "../helpers/findBlock";
-import { setBlockHeading } from "../helpers/setBlockHeading";
 import { OrderedListPlugin } from "../OrderedListPlugin";
 import { PreviousBlockTypePlugin } from "../PreviousBlockTypePlugin";
 import { textblockTypeInputRuleSameNodeType } from "../rule";
 import styles from "./Block.module.css";
 import BlockAttributes from "../BlockAttributes";
+import { HeadingBlockAttributes } from "./HeadingBlock";
+import { getBlockFromPos } from "../helpers/getBlockFromPos";
 
 export interface IBlock {
   HTMLAttributes: Record<string, any>;
 }
+
+export type BlockContentAttributes = HeadingBlockAttributes;
 
 export type Level = "1" | "2" | "3";
 export type ListType = "li" | "oli";
 
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
-    blockHeading: {
-      /**
-       * Set a heading node
-       */
-      setBlockHeading: (attributes: { level: Level }) => ReturnType;
-      /**
-       * Unset a heading node
-       */
-      unsetBlockHeading: () => ReturnType;
-
-      unsetList: () => ReturnType;
-
-      addNewBlockAsSibling: (attributes?: {
-        headingType?: Level;
-        listType?: ListType;
-      }) => ReturnType;
+    block: {
+      createBlock: (
+        pos: number,
+        type: string,
+        attributes?: BlockContentAttributes
+      ) => ReturnType;
+      setBlockType: (
+        posInBlock: number,
+        type: string,
+        attributes?: BlockContentAttributes
+      ) => ReturnType;
+      createOrSetBlock: (
+        posInBlock: number,
+        type: string,
+        attributes?: BlockContentAttributes
+      ) => ReturnType;
+      getBlockFromPos: (posInBlock: number) => ReturnType;
 
       setBlockList: (type: ListType) => ReturnType;
+      unsetList: () => ReturnType;
     };
   }
 }
@@ -53,7 +57,7 @@ export const Block = Node.create<IBlock>({
   },
 
   // A block always contains content, and optionally a blockGroup which contains nested blocks
-  content: "content blockgroup?",
+  content: "(textBlock | headingBlock) blockgroup?",
 
   defining: true,
 
@@ -67,10 +71,6 @@ export const Block = Node.create<IBlock>({
       },
       blockStyle: {
         default: undefined,
-      },
-      headingType: {
-        default: undefined,
-        keepOnSplit: false,
       },
     };
   },
@@ -98,23 +98,6 @@ export const Block = Node.create<IBlock>({
 
           return false;
         },
-      },
-      // For parsing headings & paragraphs copied from outside the editor.
-      {
-        tag: "p",
-        priority: 100,
-      },
-      {
-        tag: "h1",
-        attrs: { headingType: "1" },
-      },
-      {
-        tag: "h2",
-        attrs: { headingType: "2" },
-      },
-      {
-        tag: "h3",
-        attrs: { headingType: "3" },
       },
       // For parsing list items copied from outside the editor.
       {
@@ -173,12 +156,16 @@ export const Block = Node.create<IBlock>({
   addInputRules() {
     return [
       ...["1", "2", "3"].map((level) => {
-        // Create a heading when starting with "#", "##", or "###""
-        return textblockTypeInputRuleSameNodeType({
-          find: new RegExp(`^(#{1,${level}})\\s$`),
-          type: this.type,
-          getAttributes: {
-            headingType: level,
+        // Create a heading of appropriate level when starting with "#", "##", or "###".
+        return new InputRule({
+          find: new RegExp(`^(#{${parseInt(level)}})\\s$`),
+          handler: ({ state, commands, range }) => {
+            commands.setBlockType(state.selection.anchor, "headingBlock", {
+              level: level,
+            });
+
+            // Removes "#" character(s) used to set the heading.
+            state.tr.deleteRange(range.from, range.to);
           },
         });
       }),
@@ -202,59 +189,64 @@ export const Block = Node.create<IBlock>({
 
   addCommands() {
     return {
-      setBlockHeading:
-        (attributes) =>
-        ({ tr, dispatch }) => {
-          return setBlockHeading(tr, dispatch, attributes.level);
+      // Creates a new block of a given type at a given position.
+      createBlock:
+        (pos, type, attributes) =>
+        ({ state, commands }) => {
+          const newBlock =
+            state.schema.nodes["block"].createAndFill(attributes)!;
+          state.tr.insert(pos, newBlock);
+
+          // posInNewBlock should be in the new block's child content node, which is why it's shifted by 2.
+          const posInNewBlock = pos + 2;
+          commands.setBlockType(posInNewBlock, type, attributes);
+          state.tr.setSelection(
+            new TextSelection(state.doc.resolve(posInNewBlock))
+          );
+
+          return true;
         },
-      unsetBlockHeading:
-        () =>
-        ({ tr, dispatch }) => {
-          return setBlockHeading(tr, dispatch, undefined);
+      // Gets the block that a given position lies in and changes it to a given type.
+      setBlockType:
+        (posInBlock, type, attributes) =>
+        ({ state }) => {
+          const block = getBlockFromPos(state, posInBlock);
+          if (block === undefined) return false;
+
+          const depth = block.depth;
+          const depthDiff = state.doc.resolve(posInBlock).depth - depth;
+          const start = state.doc.resolve(posInBlock).start(depth + depthDiff);
+          const end = state.doc.resolve(posInBlock).end(depth + depthDiff);
+
+          state.tr.setBlockType(
+            start,
+            end,
+            state.schema.node(type).type,
+            attributes
+          );
+
+          return true;
         },
-      unsetList:
-        () =>
-        ({ tr, dispatch }) => {
-          const node = tr.selection.$anchor.node(-1);
-          const nodePos = tr.selection.$anchor.posAtIndex(0, -1) - 1;
+      // Gets the block that a given position lies in and changes it to a given type if it's empty, otherwise creates a
+      // new block of that type below it.
+      createOrSetBlock:
+        (posInBlock, type, attributes) =>
+        ({ state, commands }) => {
+          const block = getBlockFromPos(state, posInBlock);
+          if (block === undefined) return false;
 
-          // const node2 = tr.doc.nodeAt(nodePos);
-          if (node.type.name === "block" && node.attrs["listType"]) {
-            if (dispatch) {
-              tr.setNodeMarkup(nodePos, undefined, {
-                ...node.attrs,
-                listType: undefined,
-              });
-              return true;
-            }
-          }
-          return false;
-        },
+          const { node, depth } = block;
 
-      addNewBlockAsSibling:
-        (attributes) =>
-        ({ tr, dispatch, state }) => {
-          // Get current block
-          const currentBlock = findBlock(tr.selection);
-          if (!currentBlock) {
-            return false;
+          if (node.textContent.length === 0) {
+            commands.setBlockType(posInBlock, type, attributes);
+          } else {
+            const newBlockInsertionPos = state.doc
+              .resolve(posInBlock)
+              .after(depth);
+
+            commands.createBlock(newBlockInsertionPos, type, attributes);
           }
 
-          // If current blocks content is empty dont create a new block
-          if (currentBlock.node.firstChild?.textContent.length === 0) {
-            if (dispatch) {
-              tr.setNodeMarkup(currentBlock.pos, undefined, attributes);
-            }
-            return true;
-          }
-
-          // Create new block after current block
-          const endOfBlock = currentBlock.pos + currentBlock.node.nodeSize;
-          let newBlock = state.schema.nodes["block"].createAndFill(attributes)!;
-          if (dispatch) {
-            tr.insert(endOfBlock, newBlock);
-            tr.setSelection(new TextSelection(tr.doc.resolve(endOfBlock + 1)));
-          }
           return true;
         },
       setBlockList:
@@ -272,6 +264,24 @@ export const Block = Node.create<IBlock>({
               });
             }
             return true;
+          }
+          return false;
+        },
+      unsetList:
+        () =>
+        ({ tr, dispatch }) => {
+          const node = tr.selection.$anchor.node(-1);
+          const nodePos = tr.selection.$anchor.posAtIndex(0, -1) - 1;
+
+          // const node2 = tr.doc.nodeAt(nodePos);
+          if (node.type.name === "block" && node.attrs["listType"]) {
+            if (dispatch) {
+              tr.setNodeMarkup(nodePos, undefined, {
+                ...node.attrs,
+                listType: undefined,
+              });
+              return true;
+            }
           }
           return false;
         },
@@ -424,10 +434,25 @@ export const Block = Node.create<IBlock>({
         return this.editor.commands.liftListItem("block");
       },
       "Mod-Alt-0": () =>
-        this.editor.chain().unsetList().unsetBlockHeading().run(),
-      "Mod-Alt-1": () => this.editor.commands.setBlockHeading({ level: "1" }),
-      "Mod-Alt-2": () => this.editor.commands.setBlockHeading({ level: "2" }),
-      "Mod-Alt-3": () => this.editor.commands.setBlockHeading({ level: "3" }),
+        this.editor.commands.setTextBlock(this.editor.state.selection.anchor),
+      "Mod-Alt-1": () =>
+        this.editor.commands.setBlockType(
+          this.editor.state.selection.anchor,
+          "headingBlock",
+          { level: "1" }
+        ),
+      "Mod-Alt-2": () =>
+        this.editor.commands.setBlockType(
+          this.editor.state.selection.anchor,
+          "headingBlock",
+          { level: "2" }
+        ),
+      "Mod-Alt-3": () =>
+        this.editor.commands.setBlockType(
+          this.editor.state.selection.anchor,
+          "headingBlock",
+          { level: "3" }
+        ),
       "Mod-Shift-7": () => this.editor.commands.setBlockList("li"),
       "Mod-Shift-8": () => this.editor.commands.setBlockList("oli"),
       // TODO: Add shortcuts for numbered and bullet list
