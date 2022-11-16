@@ -13,9 +13,10 @@ export interface IBlock {
   HTMLAttributes: Record<string, any>;
 }
 
+// Currently only Text and Heading blocks work, and only Heading blocks need attributes.
+// This will aggregate attributes fom more block types in the future.
 export type BlockContentAttributes = HeadingBlockAttributes;
 
-export type Level = "1" | "2" | "3";
 export type ListType = "li" | "oli";
 
 declare module "@tiptap/core" {
@@ -36,7 +37,6 @@ declare module "@tiptap/core" {
         type: string,
         attributes?: BlockContentAttributes
       ) => ReturnType;
-      getBlockFromPos: (posInBlock: number) => ReturnType;
 
       setBlockList: (type: ListType) => ReturnType;
       unsetList: () => ReturnType;
