@@ -37,6 +37,7 @@ declare module "@tiptap/core" {
         type: string,
         attributes?: BlockContentAttributes
       ) => ReturnType;
+      deleteBlock: (posInBlock: number) => ReturnType;
 
       setBlockList: (type: ListType) => ReturnType;
       unsetList: () => ReturnType;
@@ -213,8 +214,10 @@ export const Block = Node.create<IBlock>({
           const block = getBlockFromPos(state, posInBlock);
           if (block === undefined) return false;
 
+          // Ensures that the correct range is found regardless of what node type posInBlock is in.
           const depth = block.depth;
           const depthDiff = state.doc.resolve(posInBlock).depth - depth;
+
           const start = state.doc.resolve(posInBlock).start(depth + depthDiff);
           const end = state.doc.resolve(posInBlock).end(depth + depthDiff);
 
@@ -239,6 +242,9 @@ export const Block = Node.create<IBlock>({
 
           if (node.textContent.length === 0) {
             commands.setBlockType(posInBlock, type, attributes);
+            state.tr.setSelection(
+              new TextSelection(state.doc.resolve(posInBlock))
+            );
           } else {
             const newBlockInsertionPos = state.doc
               .resolve(posInBlock)
@@ -246,6 +252,21 @@ export const Block = Node.create<IBlock>({
 
             commands.createBlock(newBlockInsertionPos, type, attributes);
           }
+
+          return true;
+        },
+      deleteBlock:
+        (posInBlock) =>
+        ({ state }) => {
+          const block = getBlockFromPos(state, posInBlock);
+          if (block === undefined) return false;
+
+          const depth = block.depth;
+
+          state.tr.deleteRange(
+            state.doc.resolve(posInBlock).start(depth),
+            state.doc.resolve(posInBlock).end(depth)
+          );
 
           return true;
         },

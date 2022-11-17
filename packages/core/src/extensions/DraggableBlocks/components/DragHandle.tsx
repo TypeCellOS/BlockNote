@@ -1,16 +1,12 @@
-import { TextSelection } from "prosemirror-state";
-import { EditorView } from "prosemirror-view";
 import { useState } from "react";
-import { AiOutlinePlus } from "react-icons/ai";
-import { findBlock } from "../../Blocks/helpers/findBlock";
-import { SlashMenuPluginKey } from "../../SlashMenu/SlashMenuExtension";
-import { Menu } from "@mantine/core";
-import { MdDragIndicator } from "react-icons/all";
-import { ActionIcon } from "@mantine/core";
+import { Editor } from "@tiptap/core";
+import { ActionIcon, Menu } from "@mantine/core";
+import { AiOutlinePlus, MdDragIndicator } from "react-icons/all";
 import DragHandleMenu from "./DragHandleMenu";
+import { SlashMenuPluginKey } from "../../SlashMenu/SlashMenuExtension";
 
 export const DragHandle = (props: {
-  view: EditorView;
+  editor: Editor;
   coords: { left: number; top: number };
   onShow?: () => void;
   onHide?: () => void;
@@ -20,60 +16,28 @@ export const DragHandle = (props: {
   const [deleted, setDeleted] = useState<boolean>(false);
 
   const onDelete = () => {
-    const pos = props.view.posAtCoords(props.coords);
-    if (!pos) {
-      return;
-    }
-    const currentBlock = findBlock(
-      TextSelection.create(props.view.state.doc, pos.pos)
-    );
+    const pos = props.editor.view.posAtCoords(props.coords);
+    if (!pos) return;
 
-    if (currentBlock) {
-      if (props.view.dispatch) {
-        props.view.dispatch(
-          props.view.state.tr.deleteRange(
-            currentBlock.pos,
-            currentBlock.pos + currentBlock.node.nodeSize
-          )
-        );
-      }
-      setDeleted(true);
-    }
+    props.editor.commands.deleteBlock(pos.pos);
+
+    setDeleted(true);
   };
 
   const onAddClick = () => {
     setClicked(true);
-    if (props.onAddClicked) {
-      props.onAddClicked();
-    }
-    const pos = props.view.posAtCoords(props.coords);
-    if (!pos) {
-      return;
-    }
-    const currentBlock = findBlock(
-      TextSelection.create(props.view.state.doc, pos.pos)
-    );
-    if (!currentBlock) {
-      return;
-    }
-    // If current blocks content is empty dont create a new block
-    if (currentBlock.node.firstChild?.textContent.length !== 0) {
-      // Create new block after current block
-      const endOfBlock = currentBlock.pos + currentBlock.node.nodeSize;
-      let newBlock =
-        props.view.state.schema.nodes["textBlock"].createAndFill()!;
-      props.view.state.tr.insert(endOfBlock, newBlock);
-      props.view.dispatch(props.view.state.tr.insert(endOfBlock, newBlock));
-      props.view.dispatch(
-        props.view.state.tr.setSelection(
-          new TextSelection(props.view.state.tr.doc.resolve(endOfBlock + 1))
-        )
-      );
-    }
-    // Focus and activate slash menu
-    props.view.focus();
-    props.view.dispatch(
-      props.view.state.tr.scrollIntoView().setMeta(SlashMenuPluginKey, {
+    if (props.onAddClicked) props.onAddClicked();
+
+    const pos = props.editor.view.posAtCoords(props.coords);
+    if (!pos) return;
+
+    // Creates a new block if current one is not empty.
+    props.editor.commands.createOrSetBlock(pos.pos, "textBlock");
+
+    // Focuses and activates the slash menu.
+    props.editor.view.focus();
+    props.editor.view.dispatch(
+      props.editor.view.state.tr.scrollIntoView().setMeta(SlashMenuPluginKey, {
         // TODO import suggestion plugin key
         activate: true,
         type: "drag",

@@ -7,6 +7,7 @@ import { DragHandle } from "./components/DragHandle";
 import { MantineProvider } from "@mantine/core";
 import { BlockNoteTheme } from "../../BlockNoteTheme";
 import { MultipleNodeSelection } from "../Blocks/MultipleNodeSelection";
+import { Editor } from "@tiptap/core";
 
 const serializeForClipboard = (pv as any).__serializeForClipboard;
 // code based on https://github.com/ueberdosis/tiptap/issues/323#issuecomment-506637799
@@ -91,10 +92,7 @@ function blockPositionFromCoords(
   return null;
 }
 
-function blockPositionsFromSelection(
-  selection: Selection,
-  doc: Node
-) {
+function blockPositionsFromSelection(selection: Selection, doc: Node) {
   // Absolute positions just before the first block spanned by the selection, and just after the last block. Having the
   // selection start and end just before and just after the target blocks ensures no whitespace/line breaks are left
   // behind after dragging & dropping them.
@@ -220,7 +218,7 @@ function dragStart(e: DragEvent, view: EditorView) {
   }
 }
 
-export const createDraggableBlocksPlugin = () => {
+export const createDraggableBlocksPlugin = (editor: Editor) => {
   let dropElement: HTMLElement | undefined;
 
   const WIDTH = 48;
@@ -358,12 +356,12 @@ export const createDraggableBlocksPlugin = () => {
           ReactDOM.render(
             <MantineProvider theme={BlockNoteTheme}>
               <DragHandle
+                key={block.id + ""}
+                editor={editor}
+                coords={coords}
                 onShow={onShow}
                 onHide={onHide}
                 onAddClicked={onAddClicked}
-                key={block.id + ""}
-                view={view}
-                coords={coords}
               />
             </MantineProvider>,
             dropElement
