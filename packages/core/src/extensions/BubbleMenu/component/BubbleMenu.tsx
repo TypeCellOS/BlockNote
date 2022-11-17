@@ -33,6 +33,12 @@ function getBlockName(blockContentNode: Node) {
     return "Heading " + blockContentNode.attrs["level"];
   }
 
+  if (blockContentNode.type.name === "listItemBlock") {
+    return blockContentNode.attrs["type"] === "unordered"
+      ? "Bullet List"
+      : "Numbered List";
+  }
+
   return "";
 }
 
@@ -119,20 +125,32 @@ export const BubbleMenu = (props: { editor: Editor }) => {
           {
             onClick: () => {
               props.editor.view.focus();
-              props.editor.chain().setBlockList("li").run();
+              props.editor.commands.setBlockType(
+                props.editor.state.selection.from,
+                "listItemBlock",
+                { type: "unordered" }
+              );
             },
             text: "Bullet List",
             icon: RiListUnordered,
-            isSelected: currentBlockName === "Bullet List",
+            isSelected:
+              selectedNode.type.name === "listItemBlock" &&
+              selectedNode.attrs["type"] === "unordered",
           },
           {
             onClick: () => {
               props.editor.view.focus();
-              props.editor.chain().setBlockList("oli").run();
+              props.editor.commands.setBlockType(
+                props.editor.state.selection.from,
+                "listItemBlock",
+                { type: "ordered" }
+              );
             },
             text: "Numbered List",
             icon: RiListOrdered,
-            isSelected: currentBlockName === "Numbered List",
+            isSelected:
+              selectedNode.type.name === "listItemBlock" &&
+              selectedNode.attrs["type"] === "ordered",
           },
         ]}
       />

@@ -3,21 +3,19 @@ import { Selection, TextSelection } from "prosemirror-state";
 import { joinBackward } from "../commands/joinBackward";
 import { OrderedListPlugin } from "../OrderedListPlugin";
 import { PreviousBlockTypePlugin } from "../PreviousBlockTypePlugin";
-import { textblockTypeInputRuleSameNodeType } from "../rule";
-import styles from "./Block.module.css";
+import { getBlockFromPos } from "../helpers/getBlockFromPos";
 import BlockAttributes from "../BlockAttributes";
 import { HeadingBlockAttributes } from "./HeadingBlock";
-import { getBlockFromPos } from "../helpers/getBlockFromPos";
+import { ListItemBlockAttributes } from "./ListItemBlock";
+import styles from "./Block.module.css";
 
 export interface IBlock {
   HTMLAttributes: Record<string, any>;
 }
 
-// Currently only Text and Heading blocks work, and only Heading blocks need attributes.
-// This will aggregate attributes fom more block types in the future.
-export type BlockContentAttributes = HeadingBlockAttributes;
-
-export type ListType = "li" | "oli";
+export type BlockContentAttributes =
+  | HeadingBlockAttributes
+  | ListItemBlockAttributes;
 
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
@@ -38,9 +36,6 @@ declare module "@tiptap/core" {
         attributes?: BlockContentAttributes
       ) => ReturnType;
       deleteBlock: (posInBlock: number) => ReturnType;
-
-      setBlockList: (type: ListType) => ReturnType;
-      unsetList: () => ReturnType;
     };
   }
 }
@@ -58,15 +53,12 @@ export const Block = Node.create<IBlock>({
   },
 
   // A block always contains content, and optionally a blockGroup which contains nested blocks
-  content: "(textBlock | headingBlock) blockgroup?",
+  content: "(textBlock | headingBlock | listItemBlock) blockgroup?",
 
   defining: true,
 
   addAttributes() {
     return {
-      listType: {
-        default: undefined,
-      },
       blockColor: {
         default: undefined,
       },
@@ -78,7 +70,6 @@ export const Block = Node.create<IBlock>({
 
   parseHTML() {
     return [
-      // For parsing blocks within the editor.
       {
         tag: "div",
         getAttrs: (element) => {
@@ -95,32 +86,6 @@ export const Block = Node.create<IBlock>({
 
           if (element.getAttribute("data-node-type") === "block") {
             return attrs;
-          }
-
-          return false;
-        },
-      },
-      // For parsing list items copied from outside the editor.
-      {
-        tag: "li",
-        getAttrs: (element) => {
-          if (typeof element === "string") {
-            return false;
-          }
-
-          const parent = element.parentElement;
-
-          if (parent === null) {
-            return false;
-          }
-
-          // Gets type of list item (ordered/unordered) based on parent element's tag ("ol"/"ul").
-          if (parent.tagName === "UL") {
-            return { listType: "li" };
-          }
-
-          if (parent.tagName === "OL") {
-            return { listType: "oli" };
           }
 
           return false;
@@ -147,7 +112,7 @@ export const Block = Node.create<IBlock>({
         "div",
         mergeAttributes(attrs, {
           class: styles.block,
-          "data-node-type": "block",
+          "data-node-type": this.name,
         }),
         0,
       ],
@@ -157,7 +122,7 @@ export const Block = Node.create<IBlock>({
   addInputRules() {
     return [
       ...["1", "2", "3"].map((level) => {
-        // Create a heading of appropriate level when starting with "#", "##", or "###".
+        // Creates a heading of appropriate level when starting with "#", "##", or "###".
         return new InputRule({
           find: new RegExp(`^(#{${parseInt(level)}})\\s$`),
           handler: ({ state, commands, range }) => {
@@ -165,24 +130,33 @@ export const Block = Node.create<IBlock>({
               level: level,
             });
 
-            // Removes "#" character(s) used to set the heading.
+            // Removes the "#" character(s) used to set the heading.
             state.tr.deleteRange(range.from, range.to);
           },
         });
       }),
-      // Create a list when starting with "-"
-      textblockTypeInputRuleSameNodeType({
-        find: /^\s*([-+*])\s$/,
-        type: this.type,
-        getAttributes: {
-          listType: "li",
+      // Creates an unordered list when starting with "-", "+", or "*".
+      new InputRule({
+        find: new RegExp(`^[-+*]\\s$`),
+        handler: ({ state, commands, range }) => {
+          commands.setBlockType(state.selection.anchor, "listItemBlock", {
+            type: "unordered",
+          });
+
+          // Removes the "-", "+", or "*" character used to set the list.
+          state.tr.deleteRange(range.from, range.to);
         },
       }),
-      textblockTypeInputRuleSameNodeType({
-        find: new RegExp(/^1.\s/),
-        type: this.type,
-        getAttributes: {
-          listType: "oli",
+      // Creates an ordered list when starting with "1.".
+      new InputRule({
+        find: new RegExp(`^1.\\s$`),
+        handler: ({ state, commands, range }) => {
+          commands.setBlockType(state.selection.anchor, "listItemBlock", {
+            type: "unordered",
+          });
+
+          // Removes the "1." characters used to set the list.
+          state.tr.deleteRange(range.from, range.to);
         },
       }),
     ];
@@ -270,42 +244,6 @@ export const Block = Node.create<IBlock>({
 
           return true;
         },
-      setBlockList:
-        (type) =>
-        ({ tr, dispatch }) => {
-          const node = tr.selection.$anchor.node(-1);
-          const nodePos = tr.selection.$anchor.posAtIndex(0, -1) - 1;
-
-          // const node2 = tr.doc.nodeAt(nodePos);
-          if (node.type.name === "block") {
-            if (dispatch) {
-              tr.setNodeMarkup(nodePos, undefined, {
-                ...node.attrs,
-                listType: type,
-              });
-            }
-            return true;
-          }
-          return false;
-        },
-      unsetList:
-        () =>
-        ({ tr, dispatch }) => {
-          const node = tr.selection.$anchor.node(-1);
-          const nodePos = tr.selection.$anchor.posAtIndex(0, -1) - 1;
-
-          // const node2 = tr.doc.nodeAt(nodePos);
-          if (node.type.name === "block" && node.attrs["listType"]) {
-            if (dispatch) {
-              tr.setNodeMarkup(nodePos, undefined, {
-                ...node.attrs,
-                listType: undefined,
-              });
-              return true;
-            }
-          }
-          return false;
-        },
       joinBackward:
         () =>
         ({ view, dispatch, state }) =>
@@ -348,7 +286,7 @@ export const Block = Node.create<IBlock>({
             if (isAtStartOfNode && node.type.name === "block") {
               // we're at the start of the block, so we're trying to "backspace" the bullet or indentation
               return commands.first([
-                () => commands.unsetList(), // first try to remove the "list" property
+                // () => commands.unsetList(), // first try to remove the "list" property
                 () => commands.liftListItem("block"), // then try to remove a level of indentation
               ]);
             }
@@ -474,9 +412,18 @@ export const Block = Node.create<IBlock>({
           "headingBlock",
           { level: "3" }
         ),
-      "Mod-Shift-7": () => this.editor.commands.setBlockList("li"),
-      "Mod-Shift-8": () => this.editor.commands.setBlockList("oli"),
-      // TODO: Add shortcuts for numbered and bullet list
+      "Mod-Shift-7": () =>
+        this.editor.commands.setBlockType(
+          this.editor.state.selection.anchor,
+          "listItemBlock",
+          { type: "unordered" }
+        ),
+      "Mod-Shift-8": () =>
+        this.editor.commands.setBlockType(
+          this.editor.state.selection.anchor,
+          "listItemBlock",
+          { type: "ordered" }
+        ),
     };
   },
 });

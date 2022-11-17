@@ -17,7 +17,7 @@ export const TextBlock = Node.create({
     return (_props: NodeViewRendererProps) => {
       const element = document.createElement("div");
       element.setAttribute("data-node-type", "block-content");
-      element.setAttribute("data-content-type", "textBlock");
+      element.setAttribute("data-content-type", this.name);
       element.className = styles.blockContent;
 
       const editableElement = document.createElement("p");
@@ -44,7 +44,7 @@ export const TextBlock = Node.create({
       "div",
       {
         "data-node-type": "block-content",
-        "data-content-type": "textBlock",
+        "data-content-type": this.name,
         class: styles.blockContent,
       },
       ["p", 0],

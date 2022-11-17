@@ -78,14 +78,14 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
     "Numbered List",
     SlashMenuGroups.BASIC_BLOCKS,
     (editor, range) => {
-      return (
-        editor
-          .chain()
-          .focus()
-          .deleteRange(range)
-          // .addNewBlockAsSibling({ listType: "oli" })
-          .run()
-      );
+      return editor
+        .chain()
+        .focus()
+        .deleteRange(range)
+        .createOrSetBlock(editor.state.selection.anchor, "listItemBlock", {
+          type: "ordered",
+        })
+        .run();
     },
     ["li", "list", "numberedlist", "numbered list"],
     RiListOrdered,
@@ -94,18 +94,18 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
   ),
 
   // Command for creating a bullet list
-  bulletlist: new SlashMenuItem(
+  bulletList: new SlashMenuItem(
     "Bullet List",
     SlashMenuGroups.BASIC_BLOCKS,
     (editor, range) => {
-      return (
-        editor
-          .chain()
-          .focus()
-          .deleteRange(range)
-          // .addNewBlockAsSibling({ listType: "li" })
-          .run()
-      );
+      return editor
+        .chain()
+        .focus()
+        .deleteRange(range)
+        .createOrSetBlock(editor.state.selection.anchor, "listItemBlock", {
+          type: "unordered",
+        })
+        .run();
     },
     ["ul", "list", "bulletlist", "bullet list"],
     RiListUnordered,

@@ -19,7 +19,7 @@ export const HeadingBlock = Node.create({
     return (props: NodeViewRendererProps) => {
       const element = document.createElement("div");
       element.setAttribute("data-node-type", "block-content");
-      element.setAttribute("data-content-type", "headingBlock");
+      element.setAttribute("data-content-type", this.name);
       element.className = styles.blockContent;
 
       const editableElement = document.createElement(
@@ -56,7 +56,7 @@ export const HeadingBlock = Node.create({
       "div",
       {
         "data-node-type": "block-content",
-        "data-content-type": "headingBlock",
+        "data-content-type": this.name,
         class: styles.blockContent,
       },
       ["h" + HTMLAttributes["level"], 0],
