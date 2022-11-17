@@ -68,7 +68,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
             onClick: () => {
               // Setting editor focus using a chained command instead causes bubble menu to flicker on click.
               props.editor.view.focus();
-              props.editor.commands.setBlockType(
+              props.editor.commands.setContentType(
                 props.editor.state.selection.from,
                 "textBlock"
               );
@@ -80,10 +80,12 @@ export const BubbleMenu = (props: { editor: Editor }) => {
           {
             onClick: () => {
               props.editor.view.focus();
-              props.editor.commands.setBlockType(
+              props.editor.commands.setContentType(
                 props.editor.state.selection.from,
                 "headingBlock",
-                { level: "1" }
+                {
+                  level: "1",
+                }
               );
             },
             text: "Heading 1",
@@ -95,10 +97,12 @@ export const BubbleMenu = (props: { editor: Editor }) => {
           {
             onClick: () => {
               props.editor.view.focus();
-              props.editor.commands.setBlockType(
+              props.editor.commands.setContentType(
                 props.editor.state.selection.from,
                 "headingBlock",
-                { level: "2" }
+                {
+                  level: "2",
+                }
               );
             },
             text: "Heading 2",
@@ -110,10 +114,12 @@ export const BubbleMenu = (props: { editor: Editor }) => {
           {
             onClick: () => {
               props.editor.view.focus();
-              props.editor.commands.setBlockType(
+              props.editor.commands.setContentType(
                 props.editor.state.selection.from,
                 "headingBlock",
-                { level: "3" }
+                {
+                  level: "3",
+                }
               );
             },
             text: "Heading 3",
@@ -125,10 +131,12 @@ export const BubbleMenu = (props: { editor: Editor }) => {
           {
             onClick: () => {
               props.editor.view.focus();
-              props.editor.commands.setBlockType(
+              props.editor.commands.setContentType(
                 props.editor.state.selection.from,
                 "listItemBlock",
-                { type: "unordered" }
+                {
+                  type: "unordered",
+                }
               );
             },
             text: "Bullet List",
@@ -140,10 +148,12 @@ export const BubbleMenu = (props: { editor: Editor }) => {
           {
             onClick: () => {
               props.editor.view.focus();
-              props.editor.commands.setBlockType(
+              props.editor.commands.setContentType(
                 props.editor.state.selection.from,
                 "listItemBlock",
-                { type: "ordered" }
+                {
+                  type: "ordered",
+                }
               );
             },
             text: "Numbered List",
