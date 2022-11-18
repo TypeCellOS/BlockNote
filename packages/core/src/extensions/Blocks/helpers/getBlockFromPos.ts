@@ -1,8 +1,8 @@
-import { EditorState } from "prosemirror-state";
+import { Node } from "prosemirror-model";
 
-export function getBlockFromPos(state: EditorState, posInBlock: number) {
-  const maxDepth = state.doc.resolve(posInBlock).depth;
-  let node = state.doc.resolve(posInBlock).node(maxDepth);
+export function getBlockFromPos(doc: Node, posInBlock: number) {
+  const maxDepth = doc.resolve(posInBlock).depth;
+  let node = doc.resolve(posInBlock).node(maxDepth);
   let depth = maxDepth;
 
   while (depth >= 0) {
@@ -11,7 +11,7 @@ export function getBlockFromPos(state: EditorState, posInBlock: number) {
     if (node.type.name === "block") break;
 
     depth -= 1;
-    node = state.doc.resolve(posInBlock).node(depth);
+    node = doc.resolve(posInBlock).node(depth);
   }
 
   return { node, depth };

@@ -1,6 +1,5 @@
 import { InputRule, mergeAttributes, Node } from "@tiptap/core";
 import { joinBackward } from "../commands/joinBackward";
-import { OrderedListPlugin } from "../OrderedListPlugin";
 import { PreviousBlockTypePlugin } from "../PreviousBlockTypePlugin";
 import { getBlockFromPos } from "../helpers/getBlockFromPos";
 import { getBlockRangeFromPos } from "../helpers/getBlockRangeFromPos";
@@ -174,7 +173,7 @@ export const Block = Node.create<IBlock>({
       setContentType:
         (posInBlock, type, attributes) =>
         ({ state }) => {
-          const blockRange = getBlockRangeFromPos(state, posInBlock);
+          const blockRange = getBlockRangeFromPos(state.doc, posInBlock);
           if (blockRange === undefined) return false;
 
           const { start, end } = blockRange;
@@ -193,12 +192,12 @@ export const Block = Node.create<IBlock>({
       createBlockOrSetContentType:
         (posInBlock, type, attributes) =>
         ({ state, chain }) => {
-          const block = getBlockFromPos(state, posInBlock);
+          const block = getBlockFromPos(state.doc, posInBlock);
           if (block === undefined) return false;
 
           const node = block.node;
 
-          const blockRange = getBlockRangeFromPos(state, posInBlock);
+          const blockRange = getBlockRangeFromPos(state.doc, posInBlock);
           if (blockRange === undefined) return false;
 
           const { start, end } = blockRange;
@@ -224,7 +223,7 @@ export const Block = Node.create<IBlock>({
       deleteBlock:
         (posInBlock) =>
         ({ state }) => {
-          const blockRange = getBlockRangeFromPos(state, posInBlock);
+          const blockRange = getBlockRangeFromPos(state.doc, posInBlock);
           if (blockRange === undefined) return false;
 
           const { start, end } = blockRange;
@@ -239,9 +238,11 @@ export const Block = Node.create<IBlock>({
           joinBackward(state, dispatch, view), // Override default joinBackward with edited command
     };
   },
+
   // addProseMirrorPlugins() {
-  //   return [PreviousBlockTypePlugin(), OrderedListPlugin()];
+  //   return [OrderedListPlugin()];
   // },
+
   addKeyboardShortcuts() {
     // handleBackspace is partially adapted from https://github.com/ueberdosis/tiptap/blob/ed56337470efb4fd277128ab7ef792b37cfae992/packages/core/src/extensions/keymap.ts
     const handleBackspace = () =>
@@ -256,7 +257,7 @@ export const Block = Node.create<IBlock>({
             const selectionEmpty =
               state.selection.anchor === state.selection.head;
 
-            const block = getBlockFromPos(state, state.selection.anchor);
+            const block = getBlockFromPos(state.doc, state.selection.anchor);
             if (block === undefined) return false;
 
             const depth = block.depth;
@@ -290,7 +291,7 @@ export const Block = Node.create<IBlock>({
               const selectionEmpty =
                 state.selection.anchor === state.selection.head;
 
-              const block = getBlockFromPos(state, state.selection.anchor);
+              const block = getBlockFromPos(state.doc, state.selection.anchor);
               if (block === undefined) return false;
 
               const depth = block.depth;
@@ -339,14 +340,14 @@ export const Block = Node.create<IBlock>({
       this.editor.commands.first(({ commands }) => [
         () =>
           commands.command(({ state, chain }) => {
-            const block = getBlockFromPos(state, state.selection.from);
+            const block = getBlockFromPos(state.doc, state.selection.from);
             if (block === undefined) return false;
 
             const node = block.node;
 
             if (node.textContent.length === 0) {
               const blockRange = getBlockRangeFromPos(
-                state,
+                state.doc,
                 state.selection.from
               );
               if (blockRange === undefined) return false;
@@ -368,7 +369,7 @@ export const Block = Node.create<IBlock>({
           }),
         () =>
           commands.command(({ state, chain }) => {
-            const block = getBlockFromPos(state, state.selection.from);
+            const block = getBlockFromPos(state.doc, state.selection.from);
             if (block === undefined) return false;
 
             const node = block.node;
