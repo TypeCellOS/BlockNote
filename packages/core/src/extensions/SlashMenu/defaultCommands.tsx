@@ -22,7 +22,7 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         .chain()
         .focus()
         .deleteRange(range)
-        .createBlockOrSetContentType(
+        .BNCreateBlockOrSetContentType(
           editor.state.selection.from,
           "headingBlock",
           {
@@ -46,7 +46,7 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         .chain()
         .focus()
         .deleteRange(range)
-        .createBlockOrSetContentType(
+        .BNCreateBlockOrSetContentType(
           editor.state.selection.from,
           "headingBlock",
           {
@@ -70,7 +70,7 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         .chain()
         .focus()
         .deleteRange(range)
-        .createBlockOrSetContentType(
+        .BNCreateBlockOrSetContentType(
           editor.state.selection.from,
           "headingBlock",
           {
@@ -94,7 +94,7 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         .chain()
         .focus()
         .deleteRange(range)
-        .createBlockOrSetContentType(
+        .BNCreateBlockOrSetContentType(
           editor.state.selection.from,
           "listItemBlock",
           {
@@ -118,7 +118,7 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         .chain()
         .focus()
         .deleteRange(range)
-        .createBlockOrSetContentType(
+        .BNCreateBlockOrSetContentType(
           editor.state.selection.from,
           "listItemBlock",
           {
@@ -142,7 +142,7 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         .chain()
         .focus()
         .deleteRange(range)
-        .createBlockOrSetContentType(editor.state.selection.from, "textBlock")
+        .BNCreateBlockOrSetContentType(editor.state.selection.from, "textBlock")
         .run();
     },
     ["p"],

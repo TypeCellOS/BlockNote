@@ -19,7 +19,7 @@ export const DragHandle = (props: {
     const pos = props.editor.view.posAtCoords(props.coords);
     if (!pos) return;
 
-    props.editor.commands.deleteBlock(pos.pos);
+    props.editor.commands.BNDeleteBlock(pos.pos);
 
     setDeleted(true);
   };
@@ -32,7 +32,7 @@ export const DragHandle = (props: {
     if (!pos) return;
 
     // Creates a new block if current one is not empty.
-    props.editor.commands.createBlockOrSetContentType(pos.pos, "textBlock");
+    props.editor.commands.BNCreateBlockOrSetContentType(pos.pos, "textBlock");
 
     // Focuses and activates the slash menu.
     props.editor.view.focus();

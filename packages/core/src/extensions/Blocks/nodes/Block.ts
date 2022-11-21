@@ -1,8 +1,8 @@
 import { InputRule, mergeAttributes, Node } from "@tiptap/core";
-import { joinBackward } from "../commands/joinBackward";
+import { TextSelection } from "prosemirror-state";
+import { Slice } from "prosemirror-model";
 import { PreviousBlockTypePlugin } from "../PreviousBlockTypePlugin";
-import { getBlockFromPos } from "../helpers/getBlockFromPos";
-import { getBlockRangeFromPos } from "../helpers/getBlockRangeFromPos";
+import { getBlockInfoFromPos } from "../helpers/getBlockInfoFromPos";
 import BlockAttributes from "../BlockAttributes";
 import { HeadingBlockAttributes } from "./HeadingBlock";
 import { ListItemBlockAttributes } from "./ListItemBlock";
@@ -19,18 +19,20 @@ export type BlockContentAttributes =
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
     block: {
-      createBlock: (pos: number) => ReturnType;
-      setContentType: (
+      BNCreateBlock: (pos: number) => ReturnType;
+      BNDeleteBlock: (posInBlock: number) => ReturnType;
+      BNMergeBlocks: (posBetweenBlocks: number) => ReturnType;
+      BNSplitBlock: (posInBlock: number, keepType: boolean) => ReturnType;
+      BNSetContentType: (
         posInBlock: number,
         type: string,
         attributes?: BlockContentAttributes
       ) => ReturnType;
-      createBlockOrSetContentType: (
+      BNCreateBlockOrSetContentType: (
         posInBlock: number,
         type: string,
         attributes?: BlockContentAttributes
       ) => ReturnType;
-      deleteBlock: (posInBlock: number) => ReturnType;
     };
   }
 }
@@ -121,7 +123,7 @@ export const Block = Node.create<IBlock>({
         return new InputRule({
           find: new RegExp(`^(#{${parseInt(level)}})\\s$`),
           handler: ({ state, commands, range }) => {
-            commands.setContentType(state.selection.from, "headingBlock", {
+            commands.BNSetContentType(state.selection.from, "headingBlock", {
               level: level,
             });
 
@@ -134,7 +136,7 @@ export const Block = Node.create<IBlock>({
       new InputRule({
         find: new RegExp(`^[-+*]\\s$`),
         handler: ({ state, commands, range }) => {
-          commands.setContentType(state.selection.from, "listItemBlock", {
+          commands.BNSetContentType(state.selection.from, "listItemBlock", {
             type: "unordered",
           });
 
@@ -144,9 +146,9 @@ export const Block = Node.create<IBlock>({
       }),
       // Creates an ordered list when starting with "1.".
       new InputRule({
-        find: new RegExp(`^1.\\s$`),
+        find: new RegExp(`^1\\.\\s$`),
         handler: ({ state, commands, range }) => {
-          commands.setContentType(state.selection.from, "listItemBlock", {
+          commands.BNSetContentType(state.selection.from, "listItemBlock", {
             type: "unordered",
           });
 
@@ -160,7 +162,7 @@ export const Block = Node.create<IBlock>({
   addCommands() {
     return {
       // Creates a new text block at a given position.
-      createBlock:
+      BNCreateBlock:
         (pos) =>
         ({ state }) => {
           const newBlock = state.schema.nodes["block"].createAndFill()!;
@@ -169,78 +171,182 @@ export const Block = Node.create<IBlock>({
 
           return true;
         },
-      // Gets the block at a given position and changes it to a given type.
-      setContentType:
+      // Deletes a block at a given position.
+      BNDeleteBlock:
+        (posInBlock) =>
+        ({ state }) => {
+          const blockInfo = getBlockInfoFromPos(state.doc, posInBlock);
+          if (blockInfo === undefined) return false;
+
+          const { startPos, endPos } = blockInfo;
+
+          state.tr.deleteRange(startPos, endPos);
+
+          return true;
+        },
+      // Appends the text contents of a block to the nearest previous block, given a position between them. Children of
+      // the merged block are moved out of it first, rather than also being merged.
+      //
+      // In the example below, the position passed into the function is between Block1 and Block2.
+      //
+      // Block1
+      //    Block2
+      // Block3
+      //    Block4
+      //        Block5
+      //
+      // Becomes:
+      //
+      // Block1
+      //    Block2Block3
+      // Block4
+      //     Block5
+      BNMergeBlocks:
+        (posBetweenBlocks) =>
+        ({ state }) => {
+          const nextBlockInfo = getBlockInfoFromPos(
+            state.doc,
+            posBetweenBlocks + 1
+          );
+          if (nextBlockInfo === undefined) return false;
+
+          const { node, contentNode, startPos, endPos, depth } = nextBlockInfo;
+
+          // Removes a level of nesting all children of the next block by 1 level, if it contains both content and block
+          // group nodes.
+          if (node.childCount === 2) {
+            const childBlocksStart = state.doc.resolve(
+              startPos + contentNode.nodeSize + 1
+            );
+            const childBlocksEnd = state.doc.resolve(endPos - 1);
+            const childBlocksRange =
+              childBlocksStart.blockRange(childBlocksEnd);
+
+            // Moves the block group node inside the block into the block group node that the current block is in.
+            state.tr.lift(childBlocksRange!, depth - 1);
+          }
+
+          let prevBlockEndPos = posBetweenBlocks - 1;
+          let prevBlockInfo = getBlockInfoFromPos(state.doc, prevBlockEndPos);
+          if (prevBlockInfo === undefined) return false;
+
+          // Finds the nearest previous block, prioritizing higher nesting levels.
+          while (prevBlockInfo.numChildBlocks > 0) {
+            prevBlockEndPos--;
+            prevBlockInfo = getBlockInfoFromPos(state.doc, prevBlockEndPos);
+            if (prevBlockInfo === undefined) return false;
+          }
+
+          // Deletes next block and adds its text content to the nearest previous block.
+          // TODO: Is there any situation where we need the whole block content, not just text? Implementation for this
+          //  is trickier.
+          state.tr.deleteRange(startPos, startPos + contentNode.nodeSize);
+          state.tr.insertText(contentNode.textContent, prevBlockEndPos - 1);
+          state.tr.setSelection(
+            new TextSelection(state.doc.resolve(prevBlockEndPos - 1))
+          );
+
+          return true;
+        },
+      // Splits a block at a given position. Content after the position is moved to a new block below, at the same
+      // nesting level.
+      BNSplitBlock:
+        (posInBlock, keepType) =>
+        ({ state }) => {
+          const blockInfo = getBlockInfoFromPos(state.doc, posInBlock);
+          if (blockInfo === undefined) return false;
+
+          const { startPos, endPos, depth } = blockInfo;
+
+          const newBlockInsertionPos = endPos + 1;
+
+          // Creates new block first, otherwise positions get changed due to the original block's content changing.
+          // Only text content is transferred if the content type shouldn't be kept.
+          if (keepType) {
+            const secondBlockContent = state.doc.content.cut(
+              posInBlock,
+              endPos
+            );
+
+            state.tr.replace(
+              newBlockInsertionPos,
+              newBlockInsertionPos,
+              new Slice(secondBlockContent, depth, depth)
+            );
+          } else {
+            const secondBlockContent = state.doc.textBetween(
+              posInBlock,
+              endPos
+            );
+
+            const newBlock = state.schema.nodes["block"].createAndFill()!;
+
+            state.tr.insert(newBlockInsertionPos, newBlock);
+            state.tr.insertText(secondBlockContent, newBlockInsertionPos + 1);
+          }
+
+          // Updates content of original block.
+          const firstBlockContent = state.doc.content.cut(startPos, posInBlock);
+
+          state.tr.replace(
+            startPos - 1,
+            endPos + 1,
+            new Slice(firstBlockContent, depth, depth)
+          );
+
+          return true;
+        },
+      // Changes the block at a given position to a given type.
+      BNSetContentType:
         (posInBlock, type, attributes) =>
         ({ state }) => {
-          const blockRange = getBlockRangeFromPos(state.doc, posInBlock);
-          if (blockRange === undefined) return false;
+          const blockInfo = getBlockInfoFromPos(state.doc, posInBlock);
+          if (blockInfo === undefined) return false;
 
-          const { start, end } = blockRange;
+          const { startPos, endPos } = blockInfo;
 
           state.tr.setBlockType(
-            start + 1,
-            end - 1,
+            startPos + 1,
+            endPos - 1,
             state.schema.node(type).type,
             attributes
           );
 
           return true;
         },
-      // Gets the block that the current selection start lies in and changes it to a given type if it's empty, otherwise
-      // creates a new block of that type below it.
-      createBlockOrSetContentType:
+      // Changes the block at a given position to a given type if it's empty, otherwise creates a new block of that type
+      // below it.
+      BNCreateBlockOrSetContentType:
         (posInBlock, type, attributes) =>
         ({ state, chain }) => {
-          const block = getBlockFromPos(state.doc, posInBlock);
-          if (block === undefined) return false;
+          const blockInfo = getBlockInfoFromPos(state.doc, posInBlock);
+          if (blockInfo === undefined) return false;
 
-          const node = block.node;
-
-          const blockRange = getBlockRangeFromPos(state.doc, posInBlock);
-          if (blockRange === undefined) return false;
-
-          const { start, end } = blockRange;
+          const { node, startPos, endPos } = blockInfo;
 
           if (node.textContent.length === 0) {
-            const oldBlockContentPos = start + 1;
+            const oldBlockContentPos = startPos + 1;
 
             return chain()
-              .setContentType(posInBlock, type, attributes)
+              .BNSetContentType(posInBlock, type, attributes)
               .setTextSelection(oldBlockContentPos)
               .run();
           } else {
-            const newBlockInsertionPos = end + 1;
-            const newBlockContentPos = newBlockInsertionPos + 2;
+            const newBlockInsertionPos = endPos + 1;
+            const newBlockContentPos = newBlockInsertionPos + 1;
 
             return chain()
-              .createBlock(newBlockInsertionPos)
-              .setContentType(newBlockContentPos, type, attributes)
+              .BNCreateBlock(newBlockInsertionPos)
+              .BNSetContentType(newBlockContentPos, type, attributes)
               .setTextSelection(newBlockContentPos)
               .run();
           }
         },
-      deleteBlock:
-        (posInBlock) =>
-        ({ state }) => {
-          const blockRange = getBlockRangeFromPos(state.doc, posInBlock);
-          if (blockRange === undefined) return false;
-
-          const { start, end } = blockRange;
-
-          state.tr.deleteRange(start, end);
-
-          return true;
-        },
-      joinBackward:
-        () =>
-        ({ view, dispatch, state }) =>
-          joinBackward(state, dispatch, view), // Override default joinBackward with edited command
     };
   },
 
   // addProseMirrorPlugins() {
-  //   return [OrderedListPlugin()];
+  //   return [PreviousBlockTypePlugin()];
   // },
 
   addKeyboardShortcuts() {
@@ -249,18 +355,18 @@ export const Block = Node.create<IBlock>({
       this.editor.commands.first(({ commands }) => [
         // Undoes an input rule if one was triggered in the last editor state change.
         () => commands.undoInputRule(),
-        // Removes a level of nesting if the block is indented and the selection is at the start of the block.
+        // Removes a level of nesting if the block is indented and the selection is empty at the start of the block.
         () =>
           commands.command(({ state }) => {
+            const { depth } = getBlockInfoFromPos(
+              state.doc,
+              state.selection.from
+            )!;
+
             const selectionAtBlockStart =
               state.selection.$anchor.parentOffset === 0;
             const selectionEmpty =
               state.selection.anchor === state.selection.head;
-
-            const block = getBlockFromPos(state.doc, state.selection.anchor);
-            if (block === undefined) return false;
-
-            const depth = block.depth;
 
             if (selectionAtBlockStart && selectionEmpty && depth > 2) {
               return commands.liftListItem("block");
@@ -268,97 +374,54 @@ export const Block = Node.create<IBlock>({
 
             return false;
           }),
-        // Merges block with the previous one if it isn't indented and the selection is at the start of the block.
-        ({ chain }) =>
-          // Removes a level of nesting from any child blocks, if the current block has any.
-          // In the example below, the selection is at the start of BlockB and backspace is pressed.
-          //
-          // BlockA
-          // BlockB
-          //    BlockC
-          //        BlockD
-          //
-          // Becomes:
-          //
-          // BlockA
-          // BlockB
-          // BlockC
-          //     BlockD
-          chain()
-            .command(({ tr, state, dispatch }) => {
-              const selectionAtBlockStart =
-                state.selection.$anchor.parentOffset === 0;
-              const selectionEmpty =
-                state.selection.anchor === state.selection.head;
+        // Merges block with the previous one if it isn't indented, isn't the first block in the doc, and the selection
+        // is at the start of the block.
+        () =>
+          commands.command(({ state, commands }) => {
+            const { depth, startPos } = getBlockInfoFromPos(
+              state.doc,
+              state.selection.from
+            )!;
 
-              const block = getBlockFromPos(state.doc, state.selection.anchor);
-              if (block === undefined) return false;
+            const selectionAtBlockStart =
+              state.selection.$anchor.parentOffset === 0;
+            const selectionEmpty =
+              state.selection.anchor === state.selection.head;
+            const blockAtDocStart = startPos === 2;
 
-              const depth = block.depth;
+            const posBetweenBlocks = startPos - 1;
 
-              const anchor = tr.selection.$anchor;
-              const node = anchor.node(-1);
+            if (
+              !blockAtDocStart &&
+              selectionAtBlockStart &&
+              selectionEmpty &&
+              depth === 2
+            ) {
+              return commands.BNMergeBlocks(posBetweenBlocks);
+            }
 
-              if (selectionAtBlockStart && selectionEmpty && depth < 2) {
-                if (node.childCount === 2) {
-                  const startSecondChild = anchor.posAtIndex(1, -1) + 1; // start of blockgroup
-                  const endSecondChild = anchor.posAtIndex(2, -1) - 1;
-                  const range = state.doc
-                    .resolve(startSecondChild)
-                    .blockRange(state.doc.resolve(endSecondChild));
-
-                  if (dispatch) {
-                    tr.lift(range!, anchor.depth - 2);
-                  }
-                }
-                return true;
-              }
-              return false;
-            })
-            // Merges the block (now without children) with the previous one.
-            // The standard JoinBackward would break here, and would turn it into:
-            //
-            // BlockA
-            //     BlockB
-            // BlockC
-            //     BlockD
-            //
-            // Instead of:
-            //
-            // BlockABlockB
-            // BlockC
-            //     BlockD
-            //
-            // It has been patched with our custom version to fix this (see commands/joinBackward)
-            .joinBackward()
-            .run(),
-
+            return false;
+          }),
+        // Regular backspace behaviour.
         () => commands.deleteSelection(),
       ]);
 
     const handleEnter = () =>
       this.editor.commands.first(({ commands }) => [
+        // Creates a new block and moves the selection to it, if the current one is empty.
         () =>
           commands.command(({ state, chain }) => {
-            const block = getBlockFromPos(state.doc, state.selection.from);
-            if (block === undefined) return false;
-
-            const node = block.node;
+            const { node, endPos } = getBlockInfoFromPos(
+              state.doc,
+              state.selection.from
+            )!;
 
             if (node.textContent.length === 0) {
-              const blockRange = getBlockRangeFromPos(
-                state.doc,
-                state.selection.from
-              );
-              if (blockRange === undefined) return false;
-
-              const end = blockRange.end;
-
-              const newBlockInsertionPos = end + 1;
+              const newBlockInsertionPos = endPos + 1;
               const newBlockContentPos = newBlockInsertionPos + 2;
 
               chain()
-                .createBlock(newBlockInsertionPos)
+                .BNCreateBlock(newBlockInsertionPos)
                 .setTextSelection(newBlockContentPos)
                 .run();
 
@@ -367,15 +430,19 @@ export const Block = Node.create<IBlock>({
 
             return false;
           }),
+        // Splits the current block, moving content inside that's after the cursor to a new text block below.
         () =>
           commands.command(({ state, chain }) => {
-            const block = getBlockFromPos(state.doc, state.selection.from);
-            if (block === undefined) return false;
-
-            const node = block.node;
+            const { node } = getBlockInfoFromPos(
+              state.doc,
+              state.selection.from
+            )!;
 
             if (node.textContent.length > 0) {
-              chain().deleteSelection().splitListItem("block").run();
+              chain()
+                .deleteSelection()
+                .BNSplitBlock(state.selection.from, false)
+                .run();
 
               return true;
             }
@@ -390,12 +457,12 @@ export const Block = Node.create<IBlock>({
       Tab: () => this.editor.commands.sinkListItem("block"),
       "Shift-Tab": () => this.editor.commands.liftListItem("block"),
       "Mod-Alt-0": () =>
-        this.editor.commands.setContentType(
+        this.editor.commands.BNSetContentType(
           this.editor.state.selection.anchor,
           "textBlock"
         ),
       "Mod-Alt-1": () =>
-        this.editor.commands.setContentType(
+        this.editor.commands.BNSetContentType(
           this.editor.state.selection.anchor,
           "headingBlock",
           {
@@ -403,7 +470,7 @@ export const Block = Node.create<IBlock>({
           }
         ),
       "Mod-Alt-2": () =>
-        this.editor.commands.setContentType(
+        this.editor.commands.BNSetContentType(
           this.editor.state.selection.anchor,
           "headingBlock",
           {
@@ -411,7 +478,7 @@ export const Block = Node.create<IBlock>({
           }
         ),
       "Mod-Alt-3": () =>
-        this.editor.commands.setContentType(
+        this.editor.commands.BNSetContentType(
           this.editor.state.selection.anchor,
           "headingBlock",
           {
@@ -419,7 +486,7 @@ export const Block = Node.create<IBlock>({
           }
         ),
       "Mod-Shift-7": () =>
-        this.editor.commands.setContentType(
+        this.editor.commands.BNSetContentType(
           this.editor.state.selection.anchor,
           "listItemBlock",
           {
@@ -427,7 +494,7 @@ export const Block = Node.create<IBlock>({
           }
         ),
       "Mod-Shift-8": () =>
-        this.editor.commands.setContentType(
+        this.editor.commands.BNSetContentType(
           this.editor.state.selection.anchor,
           "listItemBlock",
           {

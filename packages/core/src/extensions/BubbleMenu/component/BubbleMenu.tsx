@@ -68,7 +68,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
             onClick: () => {
               // Setting editor focus using a chained command instead causes bubble menu to flicker on click.
               props.editor.view.focus();
-              props.editor.commands.setContentType(
+              props.editor.commands.BNSetContentType(
                 props.editor.state.selection.from,
                 "textBlock"
               );
@@ -80,7 +80,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
           {
             onClick: () => {
               props.editor.view.focus();
-              props.editor.commands.setContentType(
+              props.editor.commands.BNSetContentType(
                 props.editor.state.selection.from,
                 "headingBlock",
                 {
@@ -97,7 +97,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
           {
             onClick: () => {
               props.editor.view.focus();
-              props.editor.commands.setContentType(
+              props.editor.commands.BNSetContentType(
                 props.editor.state.selection.from,
                 "headingBlock",
                 {
@@ -114,7 +114,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
           {
             onClick: () => {
               props.editor.view.focus();
-              props.editor.commands.setContentType(
+              props.editor.commands.BNSetContentType(
                 props.editor.state.selection.from,
                 "headingBlock",
                 {
@@ -131,7 +131,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
           {
             onClick: () => {
               props.editor.view.focus();
-              props.editor.commands.setContentType(
+              props.editor.commands.BNSetContentType(
                 props.editor.state.selection.from,
                 "listItemBlock",
                 {
@@ -148,7 +148,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
           {
             onClick: () => {
               props.editor.view.focus();
-              props.editor.commands.setContentType(
+              props.editor.commands.BNSetContentType(
                 props.editor.state.selection.from,
                 "listItemBlock",
                 {
