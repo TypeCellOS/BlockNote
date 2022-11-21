@@ -10,7 +10,6 @@ export type ListItemBlockAttributes = {
 export const ListItemBlock = Node.create({
   name: "listItemBlock",
   content: "inline*",
-  priority: 200,
 
   addAttributes() {
     return {

@@ -43,6 +43,10 @@ declare module "@tiptap/core" {
 export const Block = Node.create<IBlock>({
   name: "block",
   group: "block",
+
+  // Ensures content-specific keyboard handlers trigger first.
+  priority: 50,
+
   addOptions() {
     return {
       HTMLAttributes: {},
@@ -345,9 +349,9 @@ export const Block = Node.create<IBlock>({
     };
   },
 
-  // addProseMirrorPlugins() {
-  //   return [PreviousBlockTypePlugin()];
-  // },
+  addProseMirrorPlugins() {
+    return [PreviousBlockTypePlugin()];
+  },
 
   addKeyboardShortcuts() {
     // handleBackspace is partially adapted from https://github.com/ueberdosis/tiptap/blob/ed56337470efb4fd277128ab7ef792b37cfae992/packages/core/src/extensions/keymap.ts
