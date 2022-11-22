@@ -1,12 +1,12 @@
 import { InputRule, mergeAttributes, Node } from "@tiptap/core";
-import { TextSelection } from "prosemirror-state";
 import { Slice } from "prosemirror-model";
-import { PreviousBlockTypePlugin } from "../PreviousBlockTypePlugin";
-import { getBlockInfoFromPos } from "../helpers/getBlockInfoFromPos";
+import { TextSelection } from "prosemirror-state";
 import BlockAttributes from "../BlockAttributes";
+import { getBlockInfoFromPos } from "../helpers/getBlockInfoFromPos";
+import { PreviousBlockTypePlugin } from "../PreviousBlockTypePlugin";
+import styles from "./Block.module.css";
 import { HeadingBlockAttributes } from "./HeadingBlock";
 import { ListItemBlockAttributes } from "./ListItemBlock";
-import styles from "./Block.module.css";
 
 export interface IBlock {
   HTMLAttributes: Record<string, any>;
@@ -112,6 +112,7 @@ export const Block = Node.create<IBlock>({
       [
         "div",
         mergeAttributes(attrs, {
+          // TODO: maybe remove html attributes from inner block
           class: styles.block,
           "data-node-type": this.name,
         }),

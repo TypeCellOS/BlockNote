@@ -13,6 +13,7 @@ export const TextBlock = Node.create({
   name: "textBlock",
   content: "inline*",
 
+  // TODO: not necessary because we use renderHTML?
   addNodeView() {
     return (_props: NodeViewRendererProps) => {
       const element = document.createElement("div");
@@ -43,7 +44,7 @@ export const TextBlock = Node.create({
     return [
       "div",
       {
-        "data-node-type": "block-content",
+        "data-node-type": "block-content", // TODO: only for testing? if so, rename to data-test-*?
         "data-content-type": this.name,
         class: styles.blockContent,
       },

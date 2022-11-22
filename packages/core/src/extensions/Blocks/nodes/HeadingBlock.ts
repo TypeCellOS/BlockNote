@@ -1,4 +1,4 @@
-import { Node, NodeViewRendererProps } from "@tiptap/core";
+import { mergeAttributes, Node } from "@tiptap/core";
 import styles from "./Block.module.css";
 
 export type HeadingBlockAttributes = {
@@ -11,10 +11,20 @@ export const HeadingBlock = Node.create({
 
   addAttributes() {
     return {
-      level: { default: "1" },
+      level: {
+        default: "1",
+        parseHTML: (element) => element.getAttribute("data-level"),
+        renderHTML: (attributes) => {
+          return {
+            "data-level": attributes.level,
+          };
+        },
+      },
     };
   },
 
+  /*
+  TODO: this is not necessary?
   addNodeView() {
     return (props: NodeViewRendererProps) => {
       const element = document.createElement("div");
@@ -32,7 +42,7 @@ export const HeadingBlock = Node.create({
         contentDOM: editableElement,
       };
     };
-  },
+  },*/
 
   parseHTML() {
     return [
@@ -51,15 +61,15 @@ export const HeadingBlock = Node.create({
     ];
   },
 
-  renderHTML({ HTMLAttributes }) {
+  renderHTML({ node, HTMLAttributes }) {
     return [
       "div",
-      {
-        "data-node-type": "block-content",
+      mergeAttributes(HTMLAttributes, {
+        "data-node-type": "block-content", // TODO: only for testing? if so, rename to data-test-*?
         "data-content-type": this.name,
         class: styles.blockContent,
-      },
-      ["h" + HTMLAttributes["level"], 0],
+      }),
+      ["h" + node.attrs.level, 0],
     ];
   },
 });

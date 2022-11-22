@@ -23,9 +23,20 @@ BASIC STYLES
 }
 
 .blockContent {
+  font-size: 1em;
   padding: 3px 0;
   transition: font-size 0.2s;
   /* display: inline-block; */
+}
+
+/* reset styles, they will be set on blockContent */
+.blockContent p,
+.blockContent h1,
+.blockContent h2,
+.blockContent h3 {
+  margin: 0;
+  padding: 0;
+  font-size: inherit;
 }
 
 /*
@@ -54,7 +65,7 @@ NESTED BLOCKS
   height: 0;
 }
 
-/* NESTED BLOCK ANIMATIONS */
+/* NESTED BLOCK ANIMATIONS (change in indent) */
 
 [data-prev-depth-change="1"] {
   --x: 1;
@@ -97,31 +108,39 @@ NESTED BLOCKS
 }
 
 /* HEADINGS*/
-.blockOuter[data-prev-heading-type="1"] > .block > div:first-child,
-.blockOuter[data-heading-type="1"]:not([data-prev-heading-type])
-  > .block
-  > div:first-child {
-  font-size: 3em;
+[data-level="1"] {
+  --level: 3em;
+}
+[data-level="2"] {
+  --level: 2em;
+}
+[data-level="3"] {
+  --level: 1.3em;
+}
+
+[data-prev-level="1"] {
+  --prev-level: 3em;
+}
+[data-prev-level="2"] {
+  --prev-level: 2em;
+}
+[data-prev-level="3"] {
+  --prev-level: 1.3em;
+}
+
+.blockOuter[data-prev-type="headingBlock"] > .block > .blockContent {
+  font-size: var(--prev-level);
   font-weight: bold;
 }
 
-.blockOuter[data-prev-heading-type="2"] > .block > div:first-child,
-.blockOuter[data-heading-type="2"]:not([data-prev-heading-type])
+.blockOuter:not([data-prev-type])
   > .block
-  > div:first-child {
-  font-size: 2em;
+  > .blockContent[data-content-type="headingBlock"] {
+  font-size: var(--level);
   font-weight: bold;
 }
 
-.blockOuter[data-prev-heading-type="3"] > .block > div:first-child,
-.blockOuter[data-heading-type="3"]:not([data-prev-heading-type])
-  > .block
-  > div:first-child {
-  font-size: 1.3em;
-  font-weight: bold;
-}
-
-/* LISTS */
+/* LISTS (TODO) */
 
 .block > div:first-child::before {
   content: "";
@@ -191,12 +210,12 @@ NESTED BLOCKS
 
 /* PLACEHOLDERS*/
 
-.blockContent > div {
+.blockContent > :first-child {
   display: inline;
 }
 
-.blockContent.isEmpty div::before,
-.blockContent.isFilter div::before {
+.blockContent.isEmpty > :first-child:before,
+.blockContent.isFilter > :first-child:before {
   /*float: left; */
   content: "";
   color: #aeb8c2;
@@ -209,18 +228,18 @@ NESTED BLOCKS
 
 /* TODO: would be nicer if defined from code */
 
-.blockContent.isEmpty.hasAnchor div::before {
+.blockContent.isEmpty.hasAnchor > :first-child:before {
   content: "Enter text or type '/' for commands";
 }
 
-.blockContent.isFilter.hasAnchor div::before {
+.blockContent.isFilter.hasAnchor > :first-child:before {
   content: "Type to filter";
 }
 
-[data-heading-type] > .blockContent.isEmpty div::before {
+.blockContent[data-content-type="headingBlock"].isEmpty > :first-child::before {
   content: "Heading";
 }
 
-[data-list-type] > .blockContent.isEmpty div::before {
+.blockContent[data-content-type="listBlock"] > :first-child div::before {
   content: "List";
 }
