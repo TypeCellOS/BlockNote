@@ -1,12 +1,12 @@
-import { NodeSelection, Plugin, PluginKey, Selection } from "prosemirror-state";
+import { MantineProvider } from "@mantine/core";
 import { Node } from "prosemirror-model";
+import { NodeSelection, Plugin, PluginKey, Selection } from "prosemirror-state";
 import * as pv from "prosemirror-view";
 import { EditorView } from "prosemirror-view";
-import ReactDOM from "react-dom";
-import { DragHandle } from "./components/DragHandle";
-import { MantineProvider } from "@mantine/core";
+import { createRoot, Root } from "react-dom/client";
 import { BlockNoteTheme } from "../../BlockNoteTheme";
 import { MultipleNodeSelection } from "../Blocks/MultipleNodeSelection";
+import { DragHandle } from "./components/DragHandle";
 
 const serializeForClipboard = (pv as any).__serializeForClipboard;
 // code based on https://github.com/ueberdosis/tiptap/issues/323#issuecomment-506637799
@@ -91,10 +91,7 @@ function blockPositionFromCoords(
   return null;
 }
 
-function blockPositionsFromSelection(
-  selection: Selection,
-  doc: Node
-) {
+function blockPositionsFromSelection(selection: Selection, doc: Node) {
   // Absolute positions just before the first block spanned by the selection, and just after the last block. Having the
   // selection start and end just before and just after the target blocks ensures no whitespace/line breaks are left
   // behind after dragging & dropping them.
@@ -222,6 +219,7 @@ function dragStart(e: DragEvent, view: EditorView) {
 
 export const createDraggableBlocksPlugin = () => {
   let dropElement: HTMLElement | undefined;
+  let dropElementRoot: Root | undefined;
 
   const WIDTH = 48;
 
@@ -255,7 +253,7 @@ export const createDraggableBlocksPlugin = () => {
         dragStart(e, editorView)
       );
       dropElement.addEventListener("dragend", () => unsetDragImage());
-
+      dropElementRoot = createRoot(dropElement);
       return {
         // update(view, prevState) {},
         destroy() {
@@ -264,6 +262,7 @@ export const createDraggableBlocksPlugin = () => {
           }
           dropElement.parentNode!.removeChild(dropElement);
           dropElement = undefined;
+          dropElementRoot = undefined;
         },
       };
     },
@@ -282,12 +281,12 @@ export const createDraggableBlocksPlugin = () => {
       //       return true;
       //     },
       handleKeyDown(_view, _event) {
-        if (!dropElement) {
+        if (!dropElementRoot) {
           throw new Error("unexpected");
         }
         menuShown = false;
         addClicked = false;
-        ReactDOM.render(<></>, dropElement);
+        dropElementRoot.render(<></>);
         return false;
       },
       handleDOMEvents: {
@@ -304,16 +303,16 @@ export const createDraggableBlocksPlugin = () => {
           return true;
         },
         mousedown(_view, _event: any) {
-          if (!dropElement) {
+          if (!dropElementRoot) {
             throw new Error("unexpected");
           }
           menuShown = false;
           addClicked = false;
-          ReactDOM.render(<></>, dropElement);
+          dropElementRoot.render(<></>);
           return false;
         },
         mousemove(view, event: any) {
-          if (!dropElement) {
+          if (!dropElementRoot || !dropElement) {
             throw new Error("unexpected");
           }
 
@@ -355,7 +354,7 @@ export const createDraggableBlocksPlugin = () => {
           dropElement.style.left = left + "px";
           dropElement.style.top = rect.top + "px";
 
-          ReactDOM.render(
+          dropElementRoot.render(
             <MantineProvider theme={BlockNoteTheme}>
               <DragHandle
                 onShow={onShow}
@@ -365,8 +364,7 @@ export const createDraggableBlocksPlugin = () => {
                 view={view}
                 coords={coords}
               />
-            </MantineProvider>,
-            dropElement
+            </MantineProvider>
           );
           return true;
         },

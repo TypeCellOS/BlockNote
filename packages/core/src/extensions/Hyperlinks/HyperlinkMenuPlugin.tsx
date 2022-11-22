@@ -3,7 +3,7 @@ import Tippy from "@tippyjs/react";
 import { getMarkRange } from "@tiptap/core";
 import { Mark, ResolvedPos } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import { BlockNoteTheme } from "../../BlockNoteTheme";
 import { HyperlinkMenu } from "./menus/HyperlinkMenu";
 const PLUGIN_KEY = new PluginKey("HyperlinkMenuPlugin");
@@ -12,6 +12,7 @@ export const createHyperlinkMenuPlugin = () => {
   // as we always use Tippy appendTo(document.body), we can just create an element
   // that we use for ReactDOM, but it isn't used anywhere (except by React internally)
   const fakeRenderTarget = document.createElement("div");
+  const fakeRenderTargetRoot = createRoot(fakeRenderTarget);
 
   let hoveredLink: HTMLAnchorElement | undefined;
   let menuState: "cursor-based" | "mouse-based" | "hidden" = "hidden";
@@ -27,7 +28,7 @@ export const createHyperlinkMenuPlugin = () => {
             // don't show menu when we have an active selection
             if (menuState !== "hidden") {
               menuState = "hidden";
-              ReactDOM.render(<></>, fakeRenderTarget);
+              fakeRenderTargetRoot.render(<></>);
             }
             return;
           }
@@ -62,7 +63,7 @@ export const createHyperlinkMenuPlugin = () => {
             // if the cursor moves way
             if (menuState === "cursor-based") {
               menuState = "hidden";
-              ReactDOM.render(<></>, fakeRenderTarget);
+              fakeRenderTargetRoot.render(<></>);
             }
             return;
           }
@@ -86,7 +87,7 @@ export const createHyperlinkMenuPlugin = () => {
           // A URL has to begin with http(s):// to be interpreted as an absolute path
           const editHandler = (href: string, text: string) => {
             menuState = "hidden";
-            ReactDOM.render(<></>, fakeRenderTarget);
+            fakeRenderTargetRoot.render(<></>);
 
             // update the mark with new href
             (foundLinkMark as any).attrs = { ...foundLinkMark.attrs, href }; // TODO: invalid assign to attrs
@@ -133,7 +134,7 @@ export const createHyperlinkMenuPlugin = () => {
               </Tippy>
             </MantineProvider>
           );
-          ReactDOM.render(hyperlinkMenu, fakeRenderTarget);
+          fakeRenderTargetRoot.render(hyperlinkMenu);
           menuState = basedOnCursorPos ? "cursor-based" : "mouse-based";
         },
       };

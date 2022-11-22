@@ -1,7 +1,7 @@
 import { MantineProvider } from "@mantine/core";
 import { Extension } from "@tiptap/core";
 import { PluginKey } from "prosemirror-state";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import { BlockNoteTheme } from "../../BlockNoteTheme";
 import rootStyles from "../../root.module.css";
 import { createBubbleMenuPlugin } from "./BubbleMenuPlugin";
@@ -16,11 +16,11 @@ export const BubbleMenuExtension = Extension.create<{}>({
   addProseMirrorPlugins() {
     const element = document.createElement("div");
     element.className = rootStyles.bnRoot;
-    ReactDOM.render(
+    const root = createRoot(element);
+    root.render(
       <MantineProvider theme={BlockNoteTheme}>
         <BubbleMenu editor={this.editor} />
-      </MantineProvider>,
-      element
+      </MantineProvider>
     );
     return [
       createBubbleMenuPlugin({
