@@ -1,16 +1,9 @@
 import { Node, NodeViewRendererProps } from "@tiptap/core";
 import styles from "./Block.module.css";
 
-declare module "@tiptap/core" {
-  interface Commands<ReturnType> {
-    textBlock: {
-      setTextBlock: (posInBlock: number) => ReturnType;
-    };
-  }
-}
-
-export const TextBlock = Node.create({
-  name: "textBlock",
+export const TextContent = Node.create({
+  name: "textContent",
+  group: "blockContent",
   content: "inline*",
 
   addNodeView() {

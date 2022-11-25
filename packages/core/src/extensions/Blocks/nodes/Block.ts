@@ -1,11 +1,11 @@
-import { InputRule, mergeAttributes, Node } from "@tiptap/core";
+import { mergeAttributes, Node } from "@tiptap/core";
 import { TextSelection } from "prosemirror-state";
 import { Slice } from "prosemirror-model";
 import { PreviousBlockTypePlugin } from "../PreviousBlockTypePlugin";
 import { getBlockInfoFromPos } from "../helpers/getBlockInfoFromPos";
 import BlockAttributes from "../BlockAttributes";
-import { HeadingBlockAttributes } from "./HeadingBlock";
-import { ListItemBlockAttributes } from "./ListItemBlock";
+import { HeadingContentAttributes } from "./HeadingContent";
+import { ListItemContentAttributes } from "./ListItemContent";
 import styles from "./Block.module.css";
 
 export interface IBlock {
@@ -13,8 +13,8 @@ export interface IBlock {
 }
 
 export type BlockContentAttributes =
-  | HeadingBlockAttributes
-  | ListItemBlockAttributes;
+  | HeadingContentAttributes
+  | ListItemContentAttributes;
 
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
@@ -43,20 +43,17 @@ declare module "@tiptap/core" {
 export const Block = Node.create<IBlock>({
   name: "block",
   group: "block",
-
+  // A block always contains content, and optionally a blockGroup which contains nested blocks
+  content: "blockContent blockGroup?",
   // Ensures content-specific keyboard handlers trigger first.
   priority: 50,
+  defining: true,
 
   addOptions() {
     return {
       HTMLAttributes: {},
     };
   },
-
-  // A block always contains content, and optionally a blockGroup which contains nested blocks
-  content: "(textBlock | headingBlock | listItemBlock) blockgroup?",
-
-  defining: true,
 
   addAttributes() {
     return {
@@ -117,49 +114,6 @@ export const Block = Node.create<IBlock>({
         }),
         0,
       ],
-    ];
-  },
-
-  addInputRules() {
-    return [
-      ...["1", "2", "3"].map((level) => {
-        // Creates a heading of appropriate level when starting with "#", "##", or "###".
-        return new InputRule({
-          find: new RegExp(`^(#{${parseInt(level)}})\\s$`),
-          handler: ({ state, commands, range }) => {
-            commands.BNSetContentType(state.selection.from, "headingBlock", {
-              level: level,
-            });
-
-            // Removes the "#" character(s) used to set the heading.
-            state.tr.deleteRange(range.from, range.to);
-          },
-        });
-      }),
-      // Creates an unordered list when starting with "-", "+", or "*".
-      new InputRule({
-        find: new RegExp(`^[-+*]\\s$`),
-        handler: ({ state, commands, range }) => {
-          commands.BNSetContentType(state.selection.from, "listItemBlock", {
-            type: "unordered",
-          });
-
-          // Removes the "-", "+", or "*" character used to set the list.
-          state.tr.deleteRange(range.from, range.to);
-        },
-      }),
-      // Creates an ordered list when starting with "1.".
-      new InputRule({
-        find: new RegExp(`^1\\.\\s$`),
-        handler: ({ state, commands, range }) => {
-          commands.BNSetContentType(state.selection.from, "listItemBlock", {
-            type: "unordered",
-          });
-
-          // Removes the "1." characters used to set the list.
-          state.tr.deleteRange(range.from, range.to);
-        },
-      }),
     ];
   },
 
@@ -357,6 +311,8 @@ export const Block = Node.create<IBlock>({
     // handleBackspace is partially adapted from https://github.com/ueberdosis/tiptap/blob/ed56337470efb4fd277128ab7ef792b37cfae992/packages/core/src/extensions/keymap.ts
     const handleBackspace = () =>
       this.editor.commands.first(({ commands }) => [
+        // Deletes the selection if it's not empty.
+        () => commands.deleteSelection(),
         // Undoes an input rule if one was triggered in the last editor state change.
         () => commands.undoInputRule(),
         // Removes a level of nesting if the block is indented and the selection is empty at the start of the block.
@@ -406,8 +362,6 @@ export const Block = Node.create<IBlock>({
 
             return false;
           }),
-        // Regular backspace behaviour.
-        () => commands.deleteSelection(),
       ]);
 
     const handleEnter = () =>
@@ -463,12 +417,12 @@ export const Block = Node.create<IBlock>({
       "Mod-Alt-0": () =>
         this.editor.commands.BNSetContentType(
           this.editor.state.selection.anchor,
-          "textBlock"
+          "textContent"
         ),
       "Mod-Alt-1": () =>
         this.editor.commands.BNSetContentType(
           this.editor.state.selection.anchor,
-          "headingBlock",
+          "headingContent",
           {
             level: "1",
           }
@@ -476,7 +430,7 @@ export const Block = Node.create<IBlock>({
       "Mod-Alt-2": () =>
         this.editor.commands.BNSetContentType(
           this.editor.state.selection.anchor,
-          "headingBlock",
+          "headingContent",
           {
             level: "2",
           }
@@ -484,7 +438,7 @@ export const Block = Node.create<IBlock>({
       "Mod-Alt-3": () =>
         this.editor.commands.BNSetContentType(
           this.editor.state.selection.anchor,
-          "headingBlock",
+          "headingContent",
           {
             level: "3",
           }
@@ -492,7 +446,7 @@ export const Block = Node.create<IBlock>({
       "Mod-Shift-7": () =>
         this.editor.commands.BNSetContentType(
           this.editor.state.selection.anchor,
-          "listItemBlock",
+          "listItemContent",
           {
             type: "unordered",
           }
@@ -500,7 +454,7 @@ export const Block = Node.create<IBlock>({
       "Mod-Shift-8": () =>
         this.editor.commands.BNSetContentType(
           this.editor.state.selection.anchor,
-          "listItemBlock",
+          "listItemContent",
           {
             type: "ordered",
           }

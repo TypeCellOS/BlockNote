@@ -1,19 +1,14 @@
-import { Node, NodeViewRendererProps } from "@tiptap/core";
+import { InputRule, Node, NodeViewRendererProps } from "@tiptap/core";
 import styles from "./Block.module.css";
 
-export type HeadingBlockAttributes = {
+export type HeadingContentAttributes = {
   level: string;
 };
 
-export const HeadingBlock = Node.create({
-  name: "headingBlock",
+export const HeadingContent = Node.create({
+  name: "headingContent",
+  group: "blockContent",
   content: "inline*",
-
-  addAttributes() {
-    return {
-      level: { default: "1" },
-    };
-  },
 
   addNodeView() {
     return (props: NodeViewRendererProps) => {
@@ -32,6 +27,31 @@ export const HeadingBlock = Node.create({
         contentDOM: editableElement,
       };
     };
+  },
+
+  addAttributes() {
+    return {
+      level: { default: "1" },
+    };
+  },
+
+  addInputRules() {
+    return [
+      ...["1", "2", "3"].map((level) => {
+        // Creates a heading of appropriate level when starting with "#", "##", or "###".
+        return new InputRule({
+          find: new RegExp(`^(#{${parseInt(level)}})\\s$`),
+          handler: ({ state, chain, range }) => {
+            chain()
+              .BNSetContentType(state.selection.from, "headingContent", {
+                level: level,
+              })
+              // Removes the "#" character(s) used to set the heading.
+              .deleteRange({ from: range.from, to: range.to });
+          },
+        });
+      }),
+    ];
   },
 
   parseHTML() {

@@ -1,22 +1,16 @@
-import { Node, NodeViewRendererProps } from "@tiptap/core";
+import { InputRule, Node, NodeViewRendererProps } from "@tiptap/core";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { getBlockInfoFromPos } from "../helpers/getBlockInfoFromPos";
 import styles from "./Block.module.css";
 
-export type ListItemBlockAttributes = {
+export type ListItemContentAttributes = {
   type: string;
 };
 
-export const ListItemBlock = Node.create({
-  name: "listItemBlock",
+export const ListItemContent = Node.create({
+  name: "listItemContent",
+  group: "blockContent",
   content: "inline*",
-
-  addAttributes() {
-    return {
-      type: { default: "unordered" },
-      index: { default: null },
-    };
-  },
 
   addNodeView() {
     return (_props: NodeViewRendererProps) => {
@@ -35,60 +29,90 @@ export const ListItemBlock = Node.create({
     };
   },
 
-  addProseMirrorPlugins() {
-    return [OrderedListItemIndexPlugin()];
+  addAttributes() {
+    return {
+      type: { default: "unordered" },
+      index: { default: null },
+    };
+  },
+
+  addInputRules() {
+    return [
+      // Creates an unordered list when starting with "-", "+", or "*".
+      new InputRule({
+        find: new RegExp(`^[-+*]\\s$`),
+        handler: ({ state, chain, range }) => {
+          chain()
+            .BNSetContentType(state.selection.from, "listItemContent", {
+              type: "unordered",
+            })
+            // Removes the "-", "+", or "*" character used to set the list.
+            .deleteRange({ from: range.from, to: range.to });
+        },
+      }),
+      // Creates an ordered list when starting with "1.".
+      new InputRule({
+        find: new RegExp(`^1\\.\\s$`),
+        handler: ({ state, chain, range }) => {
+          chain()
+            .BNSetContentType(state.selection.from, "listItemContent", {
+              type: "ordered",
+            })
+            // Removes the "1." characters used to set the list.
+            .deleteRange({ from: range.from, to: range.to });
+        },
+      }),
+    ];
   },
 
   addKeyboardShortcuts() {
-    const handleBackspace = () =>
-      this.editor.commands.first(({ commands }) => [
+    const handleBackspace = () => {
+      const { contentType } = getBlockInfoFromPos(
+        this.editor.state.doc,
+        this.editor.state.selection.from
+      )!;
+
+      const selectionEmpty =
+        this.editor.state.selection.anchor === this.editor.state.selection.head;
+
+      if (contentType.name !== "listItemContent" || !selectionEmpty) {
+        return false;
+      }
+
+      return this.editor.commands.command(({ state, commands }) => {
         // Changes list item block to a text block if the selection is empty and at the start of the block.
+        const selectionAtBlockStart =
+          state.selection.$anchor.parentOffset === 0;
+
+        if (selectionAtBlockStart) {
+          return commands.BNSetContentType(state.selection.from, "textContent");
+        }
+
+        return false;
+      });
+    };
+
+    const handleEnter = () => {
+      const { node, contentType } = getBlockInfoFromPos(
+        this.editor.state.doc,
+        this.editor.state.selection.from
+      )!;
+
+      const selectionEmpty =
+        this.editor.state.selection.anchor === this.editor.state.selection.head;
+
+      if (contentType.name !== "listItemContent" || !selectionEmpty) {
+        return false;
+      }
+
+      return this.editor.commands.first(({ state, chain, commands }) => [
         () =>
-          commands.command(({ state }) => {
-            const { contentType } = getBlockInfoFromPos(
-              state.doc,
-              state.selection.from
-            )!;
-
-            if (contentType.name !== "listItemBlock") return false;
-
-            const selectionAtBlockStart =
-              state.selection.$anchor.parentOffset === 0;
-            const selectionEmpty =
-              state.selection.anchor === state.selection.head;
-
-            if (selectionAtBlockStart && selectionEmpty) {
+          // Changes list item block to a text block if both the content is empty.
+          commands.command(() => {
+            if (node.textContent.length === 0) {
               return commands.BNSetContentType(
                 state.selection.from,
-                "textBlock"
-              );
-            }
-
-            return false;
-          }),
-        // Regular backspace behaviour.
-        () => commands.deleteSelection(),
-      ]);
-
-    const handleEnter = () =>
-      this.editor.commands.first(({ commands }) => [
-        () =>
-          // Changes list item block to a text block if both the content and selection are empty.
-          commands.command(({ state }) => {
-            const { node, contentType } = getBlockInfoFromPos(
-              state.doc,
-              state.selection.from
-            )!;
-
-            if (contentType.name !== "listItemBlock") return false;
-
-            const selectionEmpty =
-              state.selection.anchor === state.selection.head;
-
-            if (selectionEmpty && node.textContent.length === 0) {
-              return commands.BNSetContentType(
-                state.selection.from,
-                "textBlock"
+                "textContent"
               );
             }
 
@@ -98,14 +122,7 @@ export const ListItemBlock = Node.create({
         () =>
           // Splits the current block, moving content inside that's after the cursor to a new block of the same type
           // below.
-          commands.command(({ state, chain }) => {
-            const { node, contentType } = getBlockInfoFromPos(
-              state.doc,
-              state.selection.from
-            )!;
-
-            if (contentType.name !== "listItemBlock") return false;
-
+          commands.command(() => {
             if (node.textContent.length > 0) {
               chain()
                 .deleteSelection()
@@ -118,11 +135,16 @@ export const ListItemBlock = Node.create({
             return false;
           }),
       ]);
+    };
 
     return {
       Backspace: handleBackspace,
       Enter: handleEnter,
     };
+  },
+
+  addProseMirrorPlugins() {
+    return [OrderedListItemIndexPlugin()];
   },
 
   parseHTML() {
@@ -183,7 +205,7 @@ const OrderedListItemIndexPlugin = () => {
       newState.doc.descendants((node, pos) => {
         if (
           node.type.name === "block" &&
-          node.firstChild!.type.name === "listItemBlock" &&
+          node.firstChild!.type.name === "listItemContent" &&
           node.firstChild!.attrs["type"] === "ordered"
         ) {
           let isFirstListItem = true;
@@ -205,7 +227,7 @@ const OrderedListItemIndexPlugin = () => {
               const prevBlockContentType = prevBlockInfo.contentType;
 
               const isPrevBlockOrderedListItem =
-                prevBlockContentType.name === "listItemBlock" &&
+                prevBlockContentType.name === "listItemContent" &&
                 prevBlockContentNode.attrs["type"] === "ordered";
 
               if (isPrevBlockOrderedListItem) {
