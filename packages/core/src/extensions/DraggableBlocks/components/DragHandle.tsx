@@ -32,7 +32,7 @@ export const DragHandle = (props: {
     if (!pos) return;
 
     // Creates a new block if current one is not empty.
-    props.editor.commands.BNCreateBlockOrSetContentType(pos.pos, "textBlock");
+    props.editor.commands.BNCreateBlockOrSetContentType(pos.pos, "textContent");
 
     // Focuses and activates the slash menu.
     props.editor.view.focus();
