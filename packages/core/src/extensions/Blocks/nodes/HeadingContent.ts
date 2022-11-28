@@ -1,4 +1,4 @@
-import { InputRule, Node, NodeViewRendererProps } from "@tiptap/core";
+import { InputRule, mergeAttributes, Node } from "@tiptap/core";
 import styles from "./Block.module.css";
 
 export type HeadingContentAttributes = {
@@ -10,28 +10,18 @@ export const HeadingContent = Node.create({
   group: "blockContent",
   content: "inline*",
 
-  addNodeView() {
-    return (props: NodeViewRendererProps) => {
-      const element = document.createElement("div");
-      element.setAttribute("data-node-type", "block-content");
-      element.setAttribute("data-content-type", this.name);
-      element.className = styles.blockContent;
-
-      const editableElement = document.createElement(
-        "h" + props.HTMLAttributes["level"]
-      );
-      element.appendChild(editableElement);
-
-      return {
-        dom: element,
-        contentDOM: editableElement,
-      };
-    };
-  },
-
   addAttributes() {
     return {
-      level: { default: "1" },
+      level: {
+        default: "1",
+        // instead of "level" attributes, use "data-level"
+        parseHTML: (element) => element.getAttribute("data-level"),
+        renderHTML: (attributes) => {
+          return {
+            "data-level": attributes.level,
+          };
+        },
+      },
     };
   },
 
@@ -71,15 +61,15 @@ export const HeadingContent = Node.create({
     ];
   },
 
-  renderHTML({ HTMLAttributes }) {
+  renderHTML({ node, HTMLAttributes }) {
     return [
       "div",
-      {
-        "data-node-type": "block-content",
+      mergeAttributes(HTMLAttributes, {
+        "data-node-type": "block-content", // TODO: only for testing? if so, rename to data-test-*?
         "data-content-type": this.name,
         class: styles.blockContent,
-      },
-      ["h" + HTMLAttributes["level"], 0],
+      }),
+      ["h" + node.attrs.level, 0],
     ];
   },
 });

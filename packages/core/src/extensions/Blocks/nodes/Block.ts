@@ -1,12 +1,12 @@
 import { mergeAttributes, Node } from "@tiptap/core";
-import { TextSelection } from "prosemirror-state";
 import { Slice } from "prosemirror-model";
-import { PreviousBlockTypePlugin } from "../PreviousBlockTypePlugin";
-import { getBlockInfoFromPos } from "../helpers/getBlockInfoFromPos";
+import { TextSelection } from "prosemirror-state";
 import BlockAttributes from "../BlockAttributes";
+import { getBlockInfoFromPos } from "../helpers/getBlockInfoFromPos";
+import { PreviousBlockTypePlugin } from "../PreviousBlockTypePlugin";
+import styles from "./Block.module.css";
 import { HeadingContentAttributes } from "./HeadingContent";
 import { ListItemContentAttributes } from "./ListItemContent";
-import styles from "./Block.module.css";
 
 export interface IBlock {
   HTMLAttributes: Record<string, any>;
@@ -109,6 +109,7 @@ export const Block = Node.create<IBlock>({
       [
         "div",
         mergeAttributes(attrs, {
+          // TODO: maybe remove html attributes from inner block
           class: styles.block,
           "data-node-type": this.name,
         }),
@@ -134,7 +135,9 @@ export const Block = Node.create<IBlock>({
         (posInBlock) =>
         ({ state }) => {
           const blockInfo = getBlockInfoFromPos(state.doc, posInBlock);
-          if (blockInfo === undefined) return false;
+          if (blockInfo === undefined) {
+            return false;
+          }
 
           const { startPos, endPos } = blockInfo;
 
@@ -166,7 +169,9 @@ export const Block = Node.create<IBlock>({
             state.doc,
             posBetweenBlocks + 1
           );
-          if (nextBlockInfo === undefined) return false;
+          if (nextBlockInfo === undefined) {
+            return false;
+          }
 
           const { node, contentNode, startPos, endPos, depth } = nextBlockInfo;
 
@@ -186,13 +191,17 @@ export const Block = Node.create<IBlock>({
 
           let prevBlockEndPos = posBetweenBlocks - 1;
           let prevBlockInfo = getBlockInfoFromPos(state.doc, prevBlockEndPos);
-          if (prevBlockInfo === undefined) return false;
+          if (prevBlockInfo === undefined) {
+            return false;
+          }
 
           // Finds the nearest previous block, prioritizing higher nesting levels.
           while (prevBlockInfo.numChildBlocks > 0) {
             prevBlockEndPos--;
             prevBlockInfo = getBlockInfoFromPos(state.doc, prevBlockEndPos);
-            if (prevBlockInfo === undefined) return false;
+            if (prevBlockInfo === undefined) {
+              return false;
+            }
           }
 
           // Deletes next block and adds its text content to the nearest previous block.
@@ -212,7 +221,9 @@ export const Block = Node.create<IBlock>({
         (posInBlock, keepType) =>
         ({ state }) => {
           const blockInfo = getBlockInfoFromPos(state.doc, posInBlock);
-          if (blockInfo === undefined) return false;
+          if (blockInfo === undefined) {
+            return false;
+          }
 
           const { startPos, endPos, depth } = blockInfo;
 
@@ -259,7 +270,9 @@ export const Block = Node.create<IBlock>({
         (posInBlock, type, attributes) =>
         ({ state }) => {
           const blockInfo = getBlockInfoFromPos(state.doc, posInBlock);
-          if (blockInfo === undefined) return false;
+          if (blockInfo === undefined) {
+            return false;
+          }
 
           const { startPos, endPos } = blockInfo;
 
@@ -278,7 +291,9 @@ export const Block = Node.create<IBlock>({
         (posInBlock, type, attributes) =>
         ({ state, chain }) => {
           const blockInfo = getBlockInfoFromPos(state.doc, posInBlock);
-          if (blockInfo === undefined) return false;
+          if (blockInfo === undefined) {
+            return false;
+          }
 
           const { node, startPos, endPos } = blockInfo;
 

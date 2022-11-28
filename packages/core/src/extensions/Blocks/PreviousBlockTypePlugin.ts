@@ -5,13 +5,8 @@ import {
 } from "@tiptap/core";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
-import BlockAttributes from "./BlockAttributes";
 
 const PLUGIN_KEY = new PluginKey(`previous-blocks`);
-
-// Inserts "prev-" string into an HTML attribute name with a "data-" prefix, e.g. "data-depth" -> "data-prev-depth".
-// Assumes "data-" prefix is in the attribute name.
-const insertPrev = (attr: string) => attr.slice(0, 5) + "prev-" + attr.slice(5);
 
 /**
  * This plugin tracks transformation of Block node attributes, so we can support CSS transitions.
@@ -75,7 +70,6 @@ export const PreviousBlockTypePlugin = () => {
 
         changes.forEach(() => {
           const oldNodes = findChildren(oldState.doc, (node) => node.attrs.id);
-
           const oldNodesById = new Map(
             oldNodes.map((node) => [node.node.attrs.id, node])
           );
@@ -84,28 +78,38 @@ export const PreviousBlockTypePlugin = () => {
 
           for (let node of newNodes) {
             const oldNode = oldNodesById.get(node.node.attrs.id);
-            if (oldNode) {
+            const oldContentNode = oldNode?.node.firstChild;
+            const newContentNode = node.node.firstChild;
+            if (oldNode && oldContentNode && newContentNode) {
               const newAttrs = {
-                listType: node.node.attrs.listType,
-                blockColor: node.node.attrs.blockColor,
-                blockStyle: node.node.attrs.blockStyle,
-                headingType: node.node.attrs.headingType,
+                // listType: node.node.attrs.listType,
+                level: newContentNode.attrs.level,
+                type: newContentNode.type.name,
                 depth: newState.doc.resolve(node.pos).depth,
               };
 
               const oldAttrs = {
-                listType: oldNode.node.attrs.listType,
-                blockColor: oldNode.node.attrs.blockColor,
-                blockStyle: oldNode.node.attrs.blockStyle,
-                headingType: oldNode.node.attrs.headingType,
+                // listType: oldNode.node.attrs.listType,
+                level: oldContentNode.attrs.level,
+                type: oldContentNode.type.name,
                 depth: oldState.doc.resolve(oldNode.pos).depth,
               };
 
               if (
                 JSON.stringify(oldAttrs) !== JSON.stringify(newAttrs) // TODO: faster deep equal?
               ) {
-                (oldAttrs as any).depthChange = oldAttrs.depth - newAttrs.depth;
+                (oldAttrs as any)["depth-change"] =
+                  oldAttrs.depth - newAttrs.depth;
                 prev.prevBlockAttrs[node.node.attrs.id] = oldAttrs;
+
+                // for debugging:
+                // console.log(
+                //   "previousBlockTypePlugin changes detected, oldAttrs",
+                //   oldAttrs,
+                //   "new",
+                //   newAttrs
+                // );
+
                 prev.needsUpdate = true;
               }
             }
@@ -135,9 +139,15 @@ export const PreviousBlockTypePlugin = () => {
 
           const decorationAttributes: any = {};
           for (let [nodeAttr, val] of Object.entries(prevAttrs)) {
-            decorationAttributes[insertPrev(BlockAttributes[nodeAttr])] =
-              val || "none";
+            decorationAttributes["data-prev-" + nodeAttr] = val || "none";
           }
+
+          // for debugging:
+          // console.log(
+          //   "previousBlockTypePlugin committing decorations",
+          //   decorationAttributes
+          // );
+
           const decoration = Decoration.node(pos, pos + node.nodeSize, {
             ...decorationAttributes,
           });
