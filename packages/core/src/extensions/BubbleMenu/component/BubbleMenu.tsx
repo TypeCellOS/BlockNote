@@ -25,15 +25,15 @@ import { IconType } from "react-icons";
 import { Node } from "prosemirror-model";
 
 function getBlockName(blockContentNode: Node) {
-  if (blockContentNode.type.name === "textBlock") {
+  if (blockContentNode.type.name === "textContent") {
     return "Text";
   }
 
-  if (blockContentNode.type.name === "headingBlock") {
+  if (blockContentNode.type.name === "headingContent") {
     return "Heading " + blockContentNode.attrs["level"];
   }
 
-  if (blockContentNode.type.name === "listItemBlock") {
+  if (blockContentNode.type.name === "listItemContent") {
     return blockContentNode.attrs["type"] === "unordered"
       ? "Bullet List"
       : "Numbered List";
@@ -70,19 +70,19 @@ export const BubbleMenu = (props: { editor: Editor }) => {
               props.editor.view.focus();
               props.editor.commands.BNSetContentType(
                 props.editor.state.selection.from,
-                "textBlock"
+                "textContent"
               );
             },
             text: "Text",
             icon: RiText,
-            isSelected: selectedNode.type.name === "textBlock",
+            isSelected: selectedNode.type.name === "textContent",
           },
           {
             onClick: () => {
               props.editor.view.focus();
               props.editor.commands.BNSetContentType(
                 props.editor.state.selection.from,
-                "headingBlock",
+                "headingContent",
                 {
                   level: "1",
                 }
@@ -91,7 +91,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
             text: "Heading 1",
             icon: RiH1,
             isSelected:
-              selectedNode.type.name === "headingBlock" &&
+              selectedNode.type.name === "headingContent" &&
               selectedNode.attrs["level"] === "1",
           },
           {
@@ -99,7 +99,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
               props.editor.view.focus();
               props.editor.commands.BNSetContentType(
                 props.editor.state.selection.from,
-                "headingBlock",
+                "headingContent",
                 {
                   level: "2",
                 }
@@ -108,7 +108,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
             text: "Heading 2",
             icon: RiH2,
             isSelected:
-              selectedNode.type.name === "headingBlock" &&
+              selectedNode.type.name === "headingContent" &&
               selectedNode.attrs["level"] === "2",
           },
           {
@@ -116,7 +116,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
               props.editor.view.focus();
               props.editor.commands.BNSetContentType(
                 props.editor.state.selection.from,
-                "headingBlock",
+                "headingContent",
                 {
                   level: "3",
                 }
@@ -125,7 +125,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
             text: "Heading 3",
             icon: RiH3,
             isSelected:
-              selectedNode.type.name === "headingBlock" &&
+              selectedNode.type.name === "headingContent" &&
               selectedNode.attrs["level"] === "3",
           },
           {
@@ -133,7 +133,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
               props.editor.view.focus();
               props.editor.commands.BNSetContentType(
                 props.editor.state.selection.from,
-                "listItemBlock",
+                "listItemContent",
                 {
                   type: "unordered",
                 }
@@ -142,7 +142,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
             text: "Bullet List",
             icon: RiListUnordered,
             isSelected:
-              selectedNode.type.name === "listItemBlock" &&
+              selectedNode.type.name === "listItemContent" &&
               selectedNode.attrs["type"] === "unordered",
           },
           {
@@ -150,7 +150,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
               props.editor.view.focus();
               props.editor.commands.BNSetContentType(
                 props.editor.state.selection.from,
-                "listItemBlock",
+                "listItemContent",
                 {
                   type: "ordered",
                 }
@@ -159,7 +159,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
             text: "Numbered List",
             icon: RiListOrdered,
             isSelected:
-              selectedNode.type.name === "listItemBlock" &&
+              selectedNode.type.name === "listItemContent" &&
               selectedNode.attrs["type"] === "ordered",
           },
         ]}

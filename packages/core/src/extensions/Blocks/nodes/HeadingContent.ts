@@ -1,18 +1,20 @@
-import { mergeAttributes, Node } from "@tiptap/core";
+import { InputRule, mergeAttributes, Node } from "@tiptap/core";
 import styles from "./Block.module.css";
 
-export type HeadingBlockAttributes = {
+export type HeadingContentAttributes = {
   level: string;
 };
 
-export const HeadingBlock = Node.create({
-  name: "headingBlock",
+export const HeadingContent = Node.create({
+  name: "headingContent",
+  group: "blockContent",
   content: "inline*",
 
   addAttributes() {
     return {
       level: {
         default: "1",
+        // instead of "level" attributes, use "data-level"
         parseHTML: (element) => element.getAttribute("data-level"),
         renderHTML: (attributes) => {
           return {
@@ -23,26 +25,24 @@ export const HeadingBlock = Node.create({
     };
   },
 
-  /*
-  TODO: this is not necessary?
-  addNodeView() {
-    return (props: NodeViewRendererProps) => {
-      const element = document.createElement("div");
-      element.setAttribute("data-node-type", "block-content");
-      element.setAttribute("data-content-type", this.name);
-      element.className = styles.blockContent;
-
-      const editableElement = document.createElement(
-        "h" + props.HTMLAttributes["level"]
-      );
-      element.appendChild(editableElement);
-
-      return {
-        dom: element,
-        contentDOM: editableElement,
-      };
-    };
-  },*/
+  addInputRules() {
+    return [
+      ...["1", "2", "3"].map((level) => {
+        // Creates a heading of appropriate level when starting with "#", "##", or "###".
+        return new InputRule({
+          find: new RegExp(`^(#{${parseInt(level)}})\\s$`),
+          handler: ({ state, chain, range }) => {
+            chain()
+              .BNSetContentType(state.selection.from, "headingContent", {
+                level: level,
+              })
+              // Removes the "#" character(s) used to set the heading.
+              .deleteRange({ from: range.from, to: range.to });
+          },
+        });
+      }),
+    ];
+  },
 
   parseHTML() {
     return [
