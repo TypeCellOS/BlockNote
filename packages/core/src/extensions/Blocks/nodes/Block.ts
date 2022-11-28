@@ -249,23 +249,24 @@ export const Block = Node.create<IBlock>({
             );
 
             const newBlock = state.schema.nodes["block"].createAndFill()!;
+            const newBlockContentPos = newBlockInsertionPos + 2;
 
             state.tr.insert(newBlockInsertionPos, newBlock);
-            state.tr.insertText(secondBlockContent, newBlockInsertionPos + 1);
+            state.tr.insertText(secondBlockContent, newBlockContentPos);
           }
 
           // Updates content of original block.
           const firstBlockContent = state.doc.content.cut(startPos, posInBlock);
 
           state.tr.replace(
-            startPos - 1,
-            endPos + 1,
+            startPos,
+            endPos,
             new Slice(firstBlockContent, depth, depth)
           );
 
           return true;
         },
-      // Changes the block at a given position to a given type.
+      // Changes the block at a given position to a given content type.
       BNSetContentType:
         (posInBlock, type, attributes) =>
         ({ state }) => {
@@ -285,8 +286,8 @@ export const Block = Node.create<IBlock>({
 
           return true;
         },
-      // Changes the block at a given position to a given type if it's empty, otherwise creates a new block of that type
-      // below it.
+      // Changes the block at a given position to a given content type if it's empty, otherwise creates a new block of
+      // that type below it.
       BNCreateBlockOrSetContentType:
         (posInBlock, type, attributes) =>
         ({ state, chain }) => {
