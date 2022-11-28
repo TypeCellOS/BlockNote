@@ -197,6 +197,8 @@ const OrderedListItemIndexPlugin = () => {
     key: PLUGIN_KEY,
     appendTransaction: (_transactions, _oldState, newState) => {
       const tr = newState.tr;
+      tr.setMeta("orderedListIndexing", true);
+
       let modified = false;
 
       // Traverses each node the doc using DFS, so blocks which are on the same nesting level will be traversed in the
