@@ -130,10 +130,10 @@ export const Block = Node.create<IBlock>({
 
           return true;
         },
-      // Deletes a block at a given position.
+      // Deletes a block at a given position and sets the selection to where the block was.
       BNDeleteBlock:
         (posInBlock) =>
-        ({ state }) => {
+        ({ state, view }) => {
           const blockInfo = getBlockInfoFromPos(state.doc, posInBlock);
           if (blockInfo === undefined) {
             return false;
@@ -142,6 +142,10 @@ export const Block = Node.create<IBlock>({
           const { startPos, endPos } = blockInfo;
 
           state.tr.deleteRange(startPos, endPos);
+          state.tr.setSelection(
+            new TextSelection(state.doc.resolve(startPos + 1))
+          );
+          view.focus();
 
           return true;
         },

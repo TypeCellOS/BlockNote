@@ -22,13 +22,9 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         .chain()
         .focus()
         .deleteRange(range)
-        .BNCreateBlockOrSetContentType(
-          editor.state.selection.from,
-          "headingContent",
-          {
-            headingLevel: "1",
-          }
-        )
+        .BNCreateBlockOrSetContentType(range.from, "headingContent", {
+          headingLevel: "1",
+        })
         .run();
     },
     ["h", "heading1", "h1"],
@@ -46,13 +42,9 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         .chain()
         .focus()
         .deleteRange(range)
-        .BNCreateBlockOrSetContentType(
-          editor.state.selection.from,
-          "headingContent",
-          {
-            headingLevel: "2",
-          }
-        )
+        .BNCreateBlockOrSetContentType(range.from, "headingContent", {
+          headingLevel: "2",
+        })
         .run();
     },
     ["h2", "heading2", "subheading"],
@@ -70,13 +62,9 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         .chain()
         .focus()
         .deleteRange(range)
-        .BNCreateBlockOrSetContentType(
-          editor.state.selection.from,
-          "headingContent",
-          {
-            headingLevel: "3",
-          }
-        )
+        .BNCreateBlockOrSetContentType(range.from, "headingContent", {
+          headingLevel: "3",
+        })
         .run();
     },
     ["h3", "heading3", "subheading"],
@@ -94,13 +82,9 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         .chain()
         .focus()
         .deleteRange(range)
-        .BNCreateBlockOrSetContentType(
-          editor.state.selection.from,
-          "listItemContent",
-          {
-            listItemType: "ordered",
-          }
-        )
+        .BNCreateBlockOrSetContentType(range.from, "listItemContent", {
+          listItemType: "ordered",
+        })
         .run();
     },
     ["li", "list", "numberedlist", "numbered list"],
@@ -118,13 +102,9 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         .chain()
         .focus()
         .deleteRange(range)
-        .BNCreateBlockOrSetContentType(
-          editor.state.selection.from,
-          "listItemContent",
-          {
-            listItemType: "unordered",
-          }
-        )
+        .BNCreateBlockOrSetContentType(range.from, "listItemContent", {
+          listItemType: "unordered",
+        })
         .run();
     },
     ["ul", "list", "bulletlist", "bullet list"],
@@ -142,10 +122,7 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         .chain()
         .focus()
         .deleteRange(range)
-        .BNCreateBlockOrSetContentType(
-          editor.state.selection.from,
-          "textContent"
-        )
+        .BNCreateBlockOrSetContentType(range.from, "textContent")
         .run();
     },
     ["p"],
