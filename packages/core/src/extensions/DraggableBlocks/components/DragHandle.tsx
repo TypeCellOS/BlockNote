@@ -1,9 +1,9 @@
-import { useState } from "react";
 import { Editor } from "@tiptap/core";
 import { ActionIcon, Menu } from "@mantine/core";
 import { AiOutlinePlus, MdDragIndicator } from "react-icons/all";
 import DragHandleMenu from "./DragHandleMenu";
 import { SlashMenuPluginKey } from "../../SlashMenu/SlashMenuExtension";
+import { getBlockInfoFromPos } from "../../Blocks/helpers/getBlockInfoFromPos";
 
 export const DragHandle = (props: {
   editor: Editor;
@@ -12,29 +12,38 @@ export const DragHandle = (props: {
   onHide?: () => void;
   onAddClicked?: () => void;
 }) => {
-  const [clicked, setClicked] = useState<boolean>(false);
-  const [deleted, setDeleted] = useState<boolean>(false);
-
   const onDelete = () => {
     const pos = props.editor.view.posAtCoords(props.coords);
     if (!pos) return;
 
     props.editor.commands.BNDeleteBlock(pos.pos);
-
-    setDeleted(true);
   };
 
   const onAddClick = () => {
-    setClicked(true);
     if (props.onAddClicked) props.onAddClicked();
 
     const pos = props.editor.view.posAtCoords(props.coords);
     if (!pos) return;
 
-    // Creates a new block if current one is not empty.
-    props.editor.commands.BNCreateBlockOrSetContentType(pos.pos, "textContent");
+    const blockInfo = getBlockInfoFromPos(props.editor.state.doc, pos.pos);
+    if (blockInfo === undefined) return;
 
-    // Focuses and activates the slash menu.
+    const { contentNode, endPos } = blockInfo;
+
+    // Creates a new block if current one is not empty for the suggestion menu to open in.
+    if (contentNode.textContent.length !== 0) {
+      const newBlockInsertionPos = endPos + 1;
+      const newBlockContentPos = newBlockInsertionPos + 2;
+
+      props.editor
+        .chain()
+        .BNCreateBlock(newBlockInsertionPos)
+        .BNSetContentType(newBlockContentPos, "textContent")
+        .setTextSelection(newBlockContentPos)
+        .run();
+    }
+
+    // Focuses and activates the suggestion menu.
     props.editor.view.focus();
     props.editor.view.dispatch(
       props.editor.view.state.tr.scrollIntoView().setMeta(SlashMenuPluginKey, {
@@ -44,10 +53,6 @@ export const DragHandle = (props: {
       })
     );
   };
-
-  if (deleted || clicked) {
-    return null;
-  }
 
   return (
     <div style={{ display: "flex", flexDirection: "row" }}>
