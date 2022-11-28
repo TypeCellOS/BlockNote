@@ -2,15 +2,14 @@
   "type": "doc",
   "content": [
     {
-      "type": "blockgroup",
+      "type": "blockGroup",
       "content": [
         {
           "type": "block",
           "attrs": {},
           "content": [
             {
-              "type": "content",
-              "attrs": {},
+              "type": "textContent",
               "content": [
                 {
                   "type": "text",
@@ -19,15 +18,14 @@
               ]
             },
             {
-              "type": "blockgroup",
+              "type": "blockGroup",
               "content": [
                 {
                   "type": "block",
                   "attrs": {},
                   "content": [
                     {
-                      "type": "content",
-                      "attrs": {},
+                      "type": "textContent",
                       "content": [
                         {
                           "type": "text",
@@ -36,15 +34,14 @@
                       ]
                     },
                     {
-                      "type": "blockgroup",
+                      "type": "blockGroup",
                       "content": [
                         {
                           "type": "block",
                           "attrs": {},
                           "content": [
                             {
-                              "type": "content",
-                              "attrs": {},
+                              "type": "textContent",
                               "content": [
                                 {
                                   "type": "text",
@@ -67,8 +64,7 @@
           "attrs": {},
           "content": [
             {
-              "type": "content",
-              "attrs": {}
+              "type": "textContent"
             }
           ]
         },
@@ -77,8 +73,7 @@
           "attrs": {},
           "content": [
             {
-              "type": "content",
-              "attrs": {},
+              "type": "textContent",
               "content": [
                 {
                   "type": "text",
@@ -87,15 +82,14 @@
               ]
             },
             {
-              "type": "blockgroup",
+              "type": "blockGroup",
               "content": [
                 {
                   "type": "block",
                   "attrs": {},
                   "content": [
                     {
-                      "type": "content",
-                      "attrs": {},
+                      "type": "textContent",
                       "content": [
                         {
                           "type": "text",
@@ -104,15 +98,14 @@
                       ]
                     },
                     {
-                      "type": "blockgroup",
+                      "type": "blockGroup",
                       "content": [
                         {
                           "type": "block",
                           "attrs": {},
                           "content": [
                             {
-                              "type": "content",
-                              "attrs": {},
+                              "type": "textContent",
                               "content": [
                                 {
                                   "type": "text",
@@ -135,8 +128,7 @@
           "attrs": {},
           "content": [
             {
-              "type": "content",
-              "attrs": {}
+              "type": "textContent"
             }
           ]
         }

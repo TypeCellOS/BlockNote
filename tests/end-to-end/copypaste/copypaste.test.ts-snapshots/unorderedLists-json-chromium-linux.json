@@ -2,17 +2,18 @@
   "type": "doc",
   "content": [
     {
-      "type": "blockgroup",
+      "type": "blockGroup",
       "content": [
         {
           "type": "block",
-          "attrs": {
-            "listType": "li"
-          },
+          "attrs": {},
           "content": [
             {
-              "type": "content",
-              "attrs": {},
+              "type": "listItemContent",
+              "attrs": {
+                "listItemType": "unordered",
+                "listItemIndex": null
+              },
               "content": [
                 {
                   "type": "text",
@@ -24,13 +25,14 @@
         },
         {
           "type": "block",
-          "attrs": {
-            "listType": "li"
-          },
+          "attrs": {},
           "content": [
             {
-              "type": "content",
-              "attrs": {},
+              "type": "listItemContent",
+              "attrs": {
+                "listItemType": "unordered",
+                "listItemIndex": null
+              },
               "content": [
                 {
                   "type": "text",
@@ -42,13 +44,14 @@
         },
         {
           "type": "block",
-          "attrs": {
-            "listType": "li"
-          },
+          "attrs": {},
           "content": [
             {
-              "type": "content",
-              "attrs": {},
+              "type": "listItemContent",
+              "attrs": {
+                "listItemType": "unordered",
+                "listItemIndex": null
+              },
               "content": [
                 {
                   "type": "text",
@@ -63,20 +66,20 @@
           "attrs": {},
           "content": [
             {
-              "type": "content",
-              "attrs": {}
+              "type": "textContent"
             }
           ]
         },
         {
           "type": "block",
-          "attrs": {
-            "listType": "li"
-          },
+          "attrs": {},
           "content": [
             {
-              "type": "content",
-              "attrs": {},
+              "type": "listItemContent",
+              "attrs": {
+                "listItemType": "unordered",
+                "listItemIndex": null
+              },
               "content": [
                 {
                   "type": "text",
@@ -88,13 +91,14 @@
         },
         {
           "type": "block",
-          "attrs": {
-            "listType": "li"
-          },
+          "attrs": {},
           "content": [
             {
-              "type": "content",
-              "attrs": {},
+              "type": "listItemContent",
+              "attrs": {
+                "listItemType": "unordered",
+                "listItemIndex": null
+              },
               "content": [
                 {
                   "type": "text",
@@ -106,13 +110,14 @@
         },
         {
           "type": "block",
-          "attrs": {
-            "listType": "li"
-          },
+          "attrs": {},
           "content": [
             {
-              "type": "content",
-              "attrs": {},
+              "type": "listItemContent",
+              "attrs": {
+                "listItemType": "unordered",
+                "listItemIndex": null
+              },
               "content": [
                 {
                   "type": "text",
@@ -127,8 +132,7 @@
           "attrs": {},
           "content": [
             {
-              "type": "content",
-              "attrs": {}
+              "type": "textContent"
             }
           ]
         }

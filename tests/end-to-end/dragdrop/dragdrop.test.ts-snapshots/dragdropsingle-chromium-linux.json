@@ -2,53 +2,17 @@
   "type": "doc",
   "content": [
     {
-      "type": "blockgroup",
+      "type": "blockGroup",
       "content": [
         {
           "type": "block",
-          "attrs": {
-            "headingType": "2"
-          },
+          "attrs": {},
           "content": [
             {
-              "type": "content",
-              "attrs": {},
-              "content": [
-                {
-                  "type": "text",
-                  "text": "Heading"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "type": "block",
-          "attrs": {
-            "headingType": "1"
-          },
-          "content": [
-            {
-              "type": "content",
-              "attrs": {},
-              "content": [
-                {
-                  "type": "text",
-                  "text": "Heading"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "type": "block",
-          "attrs": {
-            "headingType": "3"
-          },
-          "content": [
-            {
-              "type": "content",
-              "attrs": {},
+              "type": "headingContent",
+              "attrs": {
+                "headingLevel": "2"
+              },
               "content": [
                 {
                   "type": "text",
@@ -63,8 +27,43 @@
           "attrs": {},
           "content": [
             {
-              "type": "content",
-              "attrs": {}
+              "type": "headingContent",
+              "attrs": {
+                "headingLevel": "1"
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Heading"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "block",
+          "attrs": {},
+          "content": [
+            {
+              "type": "headingContent",
+              "attrs": {
+                "headingLevel": "3"
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Heading"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "block",
+          "attrs": {},
+          "content": [
+            {
+              "type": "textContent"
             }
           ]
         }

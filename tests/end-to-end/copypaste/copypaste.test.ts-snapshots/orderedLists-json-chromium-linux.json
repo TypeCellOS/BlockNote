@@ -2,18 +2,17 @@
   "type": "doc",
   "content": [
     {
-      "type": "blockgroup",
+      "type": "blockGroup",
       "content": [
         {
           "type": "block",
-          "attrs": {
-            "listType": "oli"
-          },
+          "attrs": {},
           "content": [
             {
-              "type": "content",
+              "type": "listItemContent",
               "attrs": {
-                "position": "1."
+                "listItemType": "ordered",
+                "listItemIndex": "0"
               },
               "content": [
                 {
@@ -26,14 +25,13 @@
         },
         {
           "type": "block",
-          "attrs": {
-            "listType": "oli"
-          },
+          "attrs": {},
           "content": [
             {
-              "type": "content",
+              "type": "listItemContent",
               "attrs": {
-                "position": "2."
+                "listItemType": "ordered",
+                "listItemIndex": "1"
               },
               "content": [
                 {
@@ -46,14 +44,13 @@
         },
         {
           "type": "block",
-          "attrs": {
-            "listType": "oli"
-          },
+          "attrs": {},
           "content": [
             {
-              "type": "content",
+              "type": "listItemContent",
               "attrs": {
-                "position": "3."
+                "listItemType": "ordered",
+                "listItemIndex": "2"
               },
               "content": [
                 {
@@ -69,21 +66,19 @@
           "attrs": {},
           "content": [
             {
-              "type": "content",
-              "attrs": {}
+              "type": "textContent"
             }
           ]
         },
         {
           "type": "block",
-          "attrs": {
-            "listType": "oli"
-          },
+          "attrs": {},
           "content": [
             {
-              "type": "content",
+              "type": "listItemContent",
               "attrs": {
-                "position": "1."
+                "listItemType": "ordered",
+                "listItemIndex": "0"
               },
               "content": [
                 {
@@ -96,14 +91,13 @@
         },
         {
           "type": "block",
-          "attrs": {
-            "listType": "oli"
-          },
+          "attrs": {},
           "content": [
             {
-              "type": "content",
+              "type": "listItemContent",
               "attrs": {
-                "position": "2."
+                "listItemType": "ordered",
+                "listItemIndex": "1"
               },
               "content": [
                 {
@@ -116,14 +110,13 @@
         },
         {
           "type": "block",
-          "attrs": {
-            "listType": "oli"
-          },
+          "attrs": {},
           "content": [
             {
-              "type": "content",
+              "type": "listItemContent",
               "attrs": {
-                "position": "3."
+                "listItemType": "ordered",
+                "listItemIndex": "2"
               },
               "content": [
                 {
@@ -139,8 +132,7 @@
           "attrs": {},
           "content": [
             {
-              "type": "content",
-              "attrs": {}
+              "type": "textContent"
             }
           ]
         }
