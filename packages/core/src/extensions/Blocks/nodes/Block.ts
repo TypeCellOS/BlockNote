@@ -440,7 +440,7 @@ export const Block = Node.create<IBlock>({
           this.editor.state.selection.anchor,
           "headingContent",
           {
-            level: "1",
+            headingLevel: "1",
           }
         ),
       "Mod-Alt-2": () =>
@@ -448,7 +448,7 @@ export const Block = Node.create<IBlock>({
           this.editor.state.selection.anchor,
           "headingContent",
           {
-            level: "2",
+            headingLevel: "2",
           }
         ),
       "Mod-Alt-3": () =>
@@ -456,7 +456,7 @@ export const Block = Node.create<IBlock>({
           this.editor.state.selection.anchor,
           "headingContent",
           {
-            level: "3",
+            headingLevel: "3",
           }
         ),
       "Mod-Shift-7": () =>
@@ -464,7 +464,7 @@ export const Block = Node.create<IBlock>({
           this.editor.state.selection.anchor,
           "listItemContent",
           {
-            type: "unordered",
+            listItemType: "unordered",
           }
         ),
       "Mod-Shift-8": () =>
@@ -472,7 +472,7 @@ export const Block = Node.create<IBlock>({
           this.editor.state.selection.anchor,
           "listItemContent",
           {
-            type: "ordered",
+            listItemType: "ordered",
           }
         ),
     };

@@ -14,19 +14,27 @@ export const DragHandle = (props: {
 }) => {
   const onDelete = () => {
     const pos = props.editor.view.posAtCoords(props.coords);
-    if (!pos) return;
+    if (!pos) {
+      return;
+    }
 
     props.editor.commands.BNDeleteBlock(pos.pos);
   };
 
   const onAddClick = () => {
-    if (props.onAddClicked) props.onAddClicked();
+    if (props.onAddClicked) {
+      props.onAddClicked();
+    }
 
     const pos = props.editor.view.posAtCoords(props.coords);
-    if (!pos) return;
+    if (!pos) {
+      return;
+    }
 
     const blockInfo = getBlockInfoFromPos(props.editor.state.doc, pos.pos);
-    if (blockInfo === undefined) return;
+    if (blockInfo === undefined) {
+      return;
+    }
 
     const { contentNode, endPos } = blockInfo;
 

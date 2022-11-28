@@ -28,8 +28,12 @@ export function getBlockInfoFromPos(
 
   while (depth >= 0) {
     // If the outermost node is not a block, it means the position does not lie within a block.
-    if (depth === 0) return undefined;
-    if (node.type.name === "block") break;
+    if (depth === 0) {
+      return undefined;
+    }
+    if (node.type.name === "block") {
+      break;
+    }
 
     depth -= 1;
     node = doc.resolve(posInBlock).node(depth);

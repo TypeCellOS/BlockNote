@@ -27,10 +27,14 @@ export const OrderedListItemIndexPlugin = () => {
 
           if (!isFirstBlockInDoc) {
             const blockInfo = getBlockInfoFromPos(tr.doc, pos + 1)!;
-            if (blockInfo === undefined) return;
+            if (blockInfo === undefined) {
+              return;
+            }
 
             const prevBlockInfo = getBlockInfoFromPos(tr.doc, pos - 2)!;
-            if (prevBlockInfo === undefined) return;
+            if (prevBlockInfo === undefined) {
+              return;
+            }
 
             const isFirstBlockInNestingLevel =
               blockInfo.depth !== prevBlockInfo.depth;
@@ -54,7 +58,9 @@ export const OrderedListItemIndexPlugin = () => {
 
           if (!isFirstListItem) {
             const prevBlockInfo = getBlockInfoFromPos(tr.doc, pos - 2);
-            if (prevBlockInfo === undefined) return;
+            if (prevBlockInfo === undefined) {
+              return;
+            }
 
             const prevBlockContentNode = prevBlockInfo.contentNode;
 
