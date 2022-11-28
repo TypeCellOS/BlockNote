@@ -128,14 +128,14 @@ NESTED BLOCKS
   --prev-level: 1.3em;
 }
 
-.blockOuter[data-prev-type="headingBlock"] > .block > .blockContent {
+.blockOuter[data-prev-type="headingContent"] > .block > .blockContent {
   font-size: var(--prev-level);
   font-weight: bold;
 }
 
 .blockOuter:not([data-prev-type])
   > .block
-  > .blockContent[data-content-type="headingBlock"] {
+  > .blockContent[data-content-type="headingContent"] {
   font-size: var(--level);
   font-weight: bold;
 }
@@ -236,10 +236,11 @@ NESTED BLOCKS
   content: "Type to filter";
 }
 
-.blockContent[data-content-type="headingBlock"].isEmpty > :first-child::before {
+.blockContent[data-content-type="headingContent"].isEmpty
+  > :first-child::before {
   content: "Heading";
 }
 
-.blockContent[data-content-type="listBlock"] > :first-child div::before {
+.blockContent[data-content-type="listContent"] > :first-child div::before {
   content: "List";
 }
