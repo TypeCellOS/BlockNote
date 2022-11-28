@@ -161,11 +161,17 @@ export const ListItemContent = Node.create({
             return false;
           }
 
+          // Case for BlockNote list structure.
+          // Gets type of list item (ordered/unordered) based on the block content's listItemType attribute.
+          if (parent.getAttribute("data-content-type") === "listItemContent") {
+            return { listItemType: parent.getAttribute("data-list-item-type") };
+          }
+
+          // Case for regular HTML list structure.
           // Gets type of list item (ordered/unordered) based on parent element's tag ("ol"/"ul").
           if (parent.tagName === "UL") {
             return { listItemType: "unordered" };
           }
-
           if (parent.tagName === "OL") {
             return { listItemType: "ordered" };
           }
