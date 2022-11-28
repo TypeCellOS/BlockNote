@@ -48,27 +48,28 @@ export const HeadingContent = Node.create({
     return [
       {
         tag: "h1",
-        attrs: { level: "1" },
+        attrs: { headingLevel: "1" },
       },
       {
         tag: "h2",
-        attrs: { level: "2" },
+        attrs: { headingLevel: "2" },
       },
       {
         tag: "h3",
-        attrs: { level: "3" },
+        attrs: { headingLevel: "3" },
       },
     ];
   },
 
   renderHTML({ node, HTMLAttributes }) {
+    console.log(node.attrs);
     return [
       "div",
       mergeAttributes(HTMLAttributes, {
         class: styles.blockContent,
         "data-content-type": this.name,
       }),
-      ["h" + node.attrs.level, 0],
+      ["h" + node.attrs["headingLevel"], 0],
     ];
   },
 });

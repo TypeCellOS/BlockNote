@@ -30,11 +30,11 @@ function getBlockName(blockContentNode: Node) {
   }
 
   if (blockContentNode.type.name === "headingContent") {
-    return "Heading " + blockContentNode.attrs["level"];
+    return "Heading " + blockContentNode.attrs["headingLevel"];
   }
 
   if (blockContentNode.type.name === "listItemContent") {
-    return blockContentNode.attrs["type"] === "unordered"
+    return blockContentNode.attrs["listItemType"] === "unordered"
       ? "Bullet List"
       : "Numbered List";
   }
@@ -92,7 +92,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
             icon: RiH1,
             isSelected:
               selectedNode.type.name === "headingContent" &&
-              selectedNode.attrs["level"] === "1",
+              selectedNode.attrs["headingLevel"] === "1",
           },
           {
             onClick: () => {
@@ -109,7 +109,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
             icon: RiH2,
             isSelected:
               selectedNode.type.name === "headingContent" &&
-              selectedNode.attrs["level"] === "2",
+              selectedNode.attrs["headingLevel"] === "2",
           },
           {
             onClick: () => {
@@ -126,7 +126,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
             icon: RiH3,
             isSelected:
               selectedNode.type.name === "headingContent" &&
-              selectedNode.attrs["level"] === "3",
+              selectedNode.attrs["headingLevel"] === "3",
           },
           {
             onClick: () => {
@@ -143,7 +143,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
             icon: RiListUnordered,
             isSelected:
               selectedNode.type.name === "listItemContent" &&
-              selectedNode.attrs["type"] === "unordered",
+              selectedNode.attrs["listItemType"] === "unordered",
           },
           {
             onClick: () => {
@@ -160,7 +160,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
             icon: RiListOrdered,
             isSelected:
               selectedNode.type.name === "listItemContent" &&
-              selectedNode.attrs["type"] === "ordered",
+              selectedNode.attrs["listItemType"] === "ordered",
           },
         ]}
       />
