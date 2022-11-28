@@ -1,10 +1,10 @@
-import { InputRule, Node, NodeViewRendererProps } from "@tiptap/core";
-import { Plugin, PluginKey } from "prosemirror-state";
-import { getBlockInfoFromPos } from "../helpers/getBlockInfoFromPos";
-import styles from "./Block.module.css";
+import { InputRule, mergeAttributes, Node } from "@tiptap/core";
+import { OrderedListItemIndexPlugin } from "./OrderedListItemIndexPlugin";
+import { getBlockInfoFromPos } from "../../../helpers/getBlockInfoFromPos";
+import styles from "../../Block.module.css";
 
 export type ListItemContentAttributes = {
-  type: string;
+  listItemType: string;
 };
 
 export const ListItemContent = Node.create({
@@ -12,27 +12,26 @@ export const ListItemContent = Node.create({
   group: "blockContent",
   content: "inline*",
 
-  addNodeView() {
-    return (_props: NodeViewRendererProps) => {
-      const element = document.createElement("div");
-      element.setAttribute("data-node-type", "block-content");
-      element.setAttribute("data-content-type", this.name);
-      element.className = styles.blockContent;
-
-      const editableElement = document.createElement("li");
-      element.appendChild(editableElement);
-
-      return {
-        dom: element,
-        contentDOM: editableElement,
-      };
-    };
-  },
-
   addAttributes() {
     return {
-      type: { default: "unordered" },
-      index: { default: null },
+      listItemType: {
+        default: "unordered",
+        parseHTML: (element) => element.getAttribute("data-list-item-type"),
+        renderHTML: (attributes) => {
+          return {
+            "data-list-item-type": attributes.listItemType,
+          };
+        },
+      },
+      listItemIndex: {
+        default: null,
+        parseHTML: (element) => element.getAttribute("data-list-item-index"),
+        renderHTML: (attributes) => {
+          return {
+            "data-list-item-index": attributes.listItemIndex,
+          };
+        },
+      },
     };
   },
 
@@ -44,7 +43,7 @@ export const ListItemContent = Node.create({
         handler: ({ state, chain, range }) => {
           chain()
             .BNSetContentType(state.selection.from, "listItemContent", {
-              type: "unordered",
+              listItemType: "unordered",
             })
             // Removes the "-", "+", or "*" character used to set the list.
             .deleteRange({ from: range.from, to: range.to });
@@ -56,7 +55,7 @@ export const ListItemContent = Node.create({
         handler: ({ state, chain, range }) => {
           chain()
             .BNSetContentType(state.selection.from, "listItemContent", {
-              type: "ordered",
+              listItemType: "ordered",
             })
             // Removes the "1." characters used to set the list.
             .deleteRange({ from: range.from, to: range.to });
@@ -164,11 +163,11 @@ export const ListItemContent = Node.create({
 
           // Gets type of list item (ordered/unordered) based on parent element's tag ("ol"/"ul").
           if (parent.tagName === "UL") {
-            return { type: "unordered" };
+            return { listItemType: "unordered" };
           }
 
           if (parent.tagName === "OL") {
-            return { type: "ordered" };
+            return { listItemType: "ordered" };
           }
 
           return false;
@@ -177,94 +176,14 @@ export const ListItemContent = Node.create({
     ];
   },
 
-  renderHTML() {
+  renderHTML({ HTMLAttributes }) {
     return [
       "div",
-      {
-        "data-node-type": "block-content",
-        "data-content-type": this.name,
+      mergeAttributes(HTMLAttributes, {
         class: styles.blockContent,
-      },
+        "data-content-type": this.name,
+      }),
       ["li", 0],
     ];
   },
 });
-
-// ProseMirror Plugin which automatically assigns
-const PLUGIN_KEY = new PluginKey(`ordered-list-item-index`);
-const OrderedListItemIndexPlugin = () => {
-  return new Plugin({
-    key: PLUGIN_KEY,
-    appendTransaction: (_transactions, _oldState, newState) => {
-      const tr = newState.tr;
-      tr.setMeta("orderedListIndexing", true);
-
-      let modified = false;
-
-      // Traverses each node the doc using DFS, so blocks which are on the same nesting level will be traversed in the
-      // same order they appear. This means the index of each list item block can be calculated by incrementing the
-      // index of the previous list item block.
-      newState.doc.descendants((node, pos) => {
-        if (
-          node.type.name === "block" &&
-          node.firstChild!.type.name === "listItemContent" &&
-          node.firstChild!.attrs["type"] === "ordered"
-        ) {
-          let isFirstListItem = true;
-
-          const isFirstBlockInDoc = pos === 1;
-
-          if (!isFirstBlockInDoc) {
-            const blockInfo = getBlockInfoFromPos(tr.doc, pos + 1)!;
-            if (blockInfo === undefined) return;
-
-            const prevBlockInfo = getBlockInfoFromPos(tr.doc, pos - 2)!;
-            if (prevBlockInfo === undefined) return;
-
-            const isFirstBlockInNestingLevel =
-              blockInfo.depth !== prevBlockInfo.depth;
-
-            if (!isFirstBlockInNestingLevel) {
-              const prevBlockContentNode = prevBlockInfo.contentNode;
-              const prevBlockContentType = prevBlockInfo.contentType;
-
-              const isPrevBlockOrderedListItem =
-                prevBlockContentType.name === "listItemContent" &&
-                prevBlockContentNode.attrs["type"] === "ordered";
-
-              if (isPrevBlockOrderedListItem) {
-                isFirstListItem = false;
-              }
-            }
-          }
-
-          const index = node.attrs["index"];
-          let newIndex = "0";
-
-          if (!isFirstListItem) {
-            const prevBlockInfo = getBlockInfoFromPos(tr.doc, pos - 2);
-            if (prevBlockInfo === undefined) return;
-
-            const prevBlockContentNode = prevBlockInfo.contentNode;
-
-            const prevBlockIndex = parseInt(
-              prevBlockContentNode.attrs["index"]
-            );
-            newIndex = (prevBlockIndex + 1).toString();
-          }
-
-          if (!index || index !== newIndex) {
-            modified = true;
-
-            tr.setNodeMarkup(pos + 1, undefined, {
-              type: "ordered",
-              index: newIndex,
-            });
-          }
-        }
-      });
-
-      return modified ? tr : null;
-    },
-  });
-};

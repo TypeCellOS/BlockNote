@@ -83,14 +83,14 @@ export const PreviousBlockTypePlugin = () => {
             if (oldNode && oldContentNode && newContentNode) {
               const newAttrs = {
                 // listType: node.node.attrs.listType,
-                level: newContentNode.attrs.level,
+                headingLevel: newContentNode.attrs.headingLevel,
                 type: newContentNode.type.name,
                 depth: newState.doc.resolve(node.pos).depth,
               };
 
               const oldAttrs = {
                 // listType: oldNode.node.attrs.listType,
-                level: oldContentNode.attrs.level,
+                headingLevel: oldContentNode.attrs.headingLevel,
                 type: oldContentNode.type.name,
                 depth: oldState.doc.resolve(oldNode.pos).depth,
               };

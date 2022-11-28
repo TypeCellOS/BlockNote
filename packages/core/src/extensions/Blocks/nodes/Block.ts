@@ -5,8 +5,8 @@ import BlockAttributes from "../BlockAttributes";
 import { getBlockInfoFromPos } from "../helpers/getBlockInfoFromPos";
 import { PreviousBlockTypePlugin } from "../PreviousBlockTypePlugin";
 import styles from "./Block.module.css";
-import { HeadingContentAttributes } from "./HeadingContent";
-import { ListItemContentAttributes } from "./ListItemContent";
+import { HeadingContentAttributes } from "./BlockTypes/HeadingBlock/HeadingContent";
+import { ListItemContentAttributes } from "./BlockTypes/ListItemBlock/ListItemContent";
 
 export interface IBlock {
   HTMLAttributes: Record<string, any>;

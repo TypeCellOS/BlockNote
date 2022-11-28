@@ -108,23 +108,23 @@ NESTED BLOCKS
 }
 
 /* HEADINGS*/
-[data-level="1"] {
+[data-heading-level="1"] {
   --level: 3em;
 }
-[data-level="2"] {
+[data-heading-level="2"] {
   --level: 2em;
 }
-[data-level="3"] {
+[data-heading-level="3"] {
   --level: 1.3em;
 }
 
-[data-prev-level="1"] {
+[data-prev-heading-level="1"] {
   --prev-level: 3em;
 }
-[data-prev-level="2"] {
+[data-prev-heading-level="2"] {
   --prev-level: 2em;
 }
-[data-prev-level="3"] {
+[data-prev-heading-level="3"] {
   --prev-level: 1.3em;
 }
 

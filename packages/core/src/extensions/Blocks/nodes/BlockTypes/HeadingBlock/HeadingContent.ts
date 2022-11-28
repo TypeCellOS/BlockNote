@@ -1,8 +1,8 @@
 import { InputRule, mergeAttributes, Node } from "@tiptap/core";
-import styles from "./Block.module.css";
+import styles from "../../Block.module.css";
 
 export type HeadingContentAttributes = {
-  level: string;
+  headingLevel: string;
 };
 
 export const HeadingContent = Node.create({
@@ -12,13 +12,13 @@ export const HeadingContent = Node.create({
 
   addAttributes() {
     return {
-      level: {
+      headingLevel: {
         default: "1",
         // instead of "level" attributes, use "data-level"
-        parseHTML: (element) => element.getAttribute("data-level"),
+        parseHTML: (element) => element.getAttribute("data-heading-level"),
         renderHTML: (attributes) => {
           return {
-            "data-level": attributes.level,
+            "data-heading-level": attributes.headingLevel,
           };
         },
       },
@@ -34,7 +34,7 @@ export const HeadingContent = Node.create({
           handler: ({ state, chain, range }) => {
             chain()
               .BNSetContentType(state.selection.from, "headingContent", {
-                level: level,
+                headingLevel: level,
               })
               // Removes the "#" character(s) used to set the heading.
               .deleteRange({ from: range.from, to: range.to });
@@ -65,9 +65,8 @@ export const HeadingContent = Node.create({
     return [
       "div",
       mergeAttributes(HTMLAttributes, {
-        "data-node-type": "block-content", // TODO: only for testing? if so, rename to data-test-*?
-        "data-content-type": this.name,
         class: styles.blockContent,
+        "data-content-type": this.name,
       }),
       ["h" + node.attrs.level, 0],
     ];

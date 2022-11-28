@@ -26,7 +26,7 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
           editor.state.selection.from,
           "headingContent",
           {
-            level: "1",
+            headingLevel: "1",
           }
         )
         .run();
@@ -50,7 +50,7 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
           editor.state.selection.from,
           "headingContent",
           {
-            level: "2",
+            headingLevel: "2",
           }
         )
         .run();
@@ -74,7 +74,7 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
           editor.state.selection.from,
           "headingContent",
           {
-            level: "3",
+            headingLevel: "3",
           }
         )
         .run();
@@ -98,7 +98,7 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
           editor.state.selection.from,
           "listItemContent",
           {
-            type: "ordered",
+            listItemType: "ordered",
           }
         )
         .run();
@@ -122,7 +122,7 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
           editor.state.selection.from,
           "listItemContent",
           {
-            type: "unordered",
+            listItemType: "unordered",
           }
         )
         .run();

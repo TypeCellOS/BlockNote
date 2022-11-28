@@ -84,7 +84,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
                 props.editor.state.selection.from,
                 "headingContent",
                 {
-                  level: "1",
+                  headingLevel: "1",
                 }
               );
             },
@@ -101,7 +101,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
                 props.editor.state.selection.from,
                 "headingContent",
                 {
-                  level: "2",
+                  headingLevel: "2",
                 }
               );
             },
@@ -118,7 +118,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
                 props.editor.state.selection.from,
                 "headingContent",
                 {
-                  level: "3",
+                  headingLevel: "3",
                 }
               );
             },
@@ -135,7 +135,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
                 props.editor.state.selection.from,
                 "listItemContent",
                 {
-                  type: "unordered",
+                  listItemType: "unordered",
                 }
               );
             },
@@ -152,7 +152,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
                 props.editor.state.selection.from,
                 "listItemContent",
                 {
-                  type: "ordered",
+                  listItemType: "ordered",
                 }
               );
             },
