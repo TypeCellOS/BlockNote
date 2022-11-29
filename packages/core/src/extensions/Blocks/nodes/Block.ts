@@ -335,7 +335,7 @@ export const Block = Node.create<IBlock>({
         () => commands.deleteSelection(),
         // Undoes an input rule if one was triggered in the last editor state change.
         () => commands.undoInputRule(),
-        // Removes a level of nesting if the block is indented and the selection is empty at the start of the block.
+        // Removes a level of nesting if the block is indented and the block is empty.
         () =>
           commands.command(({ state }) => {
             const { depth } = getBlockInfoFromPos(
@@ -347,8 +347,9 @@ export const Block = Node.create<IBlock>({
               state.selection.$anchor.parentOffset === 0;
             const selectionEmpty =
               state.selection.anchor === state.selection.head;
+            const blockIndented = depth > 2;
 
-            if (selectionAtBlockStart && selectionEmpty && depth > 2) {
+            if (selectionAtBlockStart && selectionEmpty && blockIndented) {
               return commands.liftListItem("block");
             }
 
@@ -386,7 +387,35 @@ export const Block = Node.create<IBlock>({
 
     const handleEnter = () =>
       this.editor.commands.first(({ commands }) => [
-        // Creates a new block and moves the selection to it, if the current one is empty.
+        // Removes a level of nesting if the block is empty & indented, while the selection is also empty & at the start
+        // of the block.
+        () =>
+          commands.command(({ state }) => {
+            const { node, depth } = getBlockInfoFromPos(
+              state.doc,
+              state.selection.from
+            )!;
+
+            const selectionAtBlockStart =
+              state.selection.$anchor.parentOffset === 0;
+            const selectionEmpty =
+              state.selection.anchor === state.selection.head;
+            const blockEmpty = node.textContent.length === 0;
+            const blockIndented = depth > 2;
+
+            if (
+              selectionAtBlockStart &&
+              selectionEmpty &&
+              blockEmpty &&
+              blockIndented
+            ) {
+              return commands.liftListItem("block");
+            }
+
+            return false;
+          }),
+        // Creates a new block and moves the selection to it if the current one is empty, while the selection is also
+        // empty & at the start of the block.
         () =>
           commands.command(({ state, chain }) => {
             const { node, endPos } = getBlockInfoFromPos(
@@ -394,7 +423,13 @@ export const Block = Node.create<IBlock>({
               state.selection.from
             )!;
 
-            if (node.textContent.length === 0) {
+            const selectionAtBlockStart =
+              state.selection.$anchor.parentOffset === 0;
+            const selectionEmpty =
+              state.selection.anchor === state.selection.head;
+            const blockEmpty = node.textContent.length === 0;
+
+            if (selectionAtBlockStart && selectionEmpty && blockEmpty) {
               const newBlockInsertionPos = endPos + 1;
               const newBlockContentPos = newBlockInsertionPos + 2;
 
@@ -408,7 +443,8 @@ export const Block = Node.create<IBlock>({
 
             return false;
           }),
-        // Splits the current block, moving content inside that's after the cursor to a new text block below.
+        // Splits the current block, moving content inside that's after the cursor to a new text block below. Also
+        // deletes the selection beforehand, if it's not empty.
         () =>
           commands.command(({ state, chain }) => {
             const { node } = getBlockInfoFromPos(
@@ -416,7 +452,9 @@ export const Block = Node.create<IBlock>({
               state.selection.from
             )!;
 
-            if (node.textContent.length > 0) {
+            const blockEmpty = node.textContent.length === 0;
+
+            if (!blockEmpty) {
               chain()
                 .deleteSelection()
                 .BNSplitBlock(state.selection.from, false)
