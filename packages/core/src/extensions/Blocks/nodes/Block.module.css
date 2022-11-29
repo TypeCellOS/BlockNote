@@ -33,7 +33,8 @@ BASIC STYLES
 .blockContent p,
 .blockContent h1,
 .blockContent h2,
-.blockContent h3 {
+.blockContent h3,
+.blockContent li {
   margin: 0;
   padding: 0;
   font-size: inherit;
@@ -142,71 +143,35 @@ NESTED BLOCKS
 
 /* LISTS (TODO) */
 
-.block > div:first-child::before {
-  content: "";
-  transition: all 0.2s;
-  margin-left: 0px;
-}
-
-.blockOuter[data-prev-list-type="oli"] > .block > div:first-child::before,
-.blockOuter[data-list-type="oli"]:not([data-prev-list-type])
-  > .block
-  > div:first-child::before {
-  content: attr(data-position);
+[data-content-type="listItemContent"]::before {
   margin-right: 1.2em;
-  padding-left: 0px;
+  padding-left: 0;
 }
 
-.blockOuter[data-prev-list-type="li"] > .block > div:first-child::before,
-.blockOuter[data-list-type="li"]:not([data-prev-list-type])
-  > .block
-  > div:first-child::before {
+[data-list-item-type="ordered"]::before {
+  content: attr(data-list-item-index)".";
+}
+
+[data-list-item-type="unordered"]::before {
   content: "•";
-  margin-right: 1.2em;
-  /* display: list-item; */
-  /* list-style-type: circle; */
-  /* list-style-position: inside; */
-  padding-left: 0px;
-  /* margin-left: 0.2em; */
 }
 
-.blockOuter[data-list-type="li"]
-  > .block
-  > .blockGroup
-  > .blockOuter[data-prev-list-type="li"]
-  > .block
-  > div:first-child::before,
-.blockOuter[data-list-type="li"]
-  > .block
-  > .blockGroup
-  > .blockOuter[data-list-type="li"]:not([data-prev-list-type])
-  > .block
-  > div:first-child::before {
+[data-list-item-type="unordered"]~.blockGroup
+[data-list-item-type="unordered"]::before {
   content: "◦";
-  /* font-size: 1.2em; */
-  font-family: arial;
 }
 
-.blockOuter[data-list-type="li"]
-  > .block
-  > .blockGroup
-  > .blockOuter[data-list-type="li"]
-  > .block
-  > .blockGroup
-  .blockOuter[data-prev-list-type="li"]
-  > .block
-  > div:first-child::before,
-.blockOuter[data-list-type="li"]
-  > .block
-  > .blockGroup
-  > .blockOuter[data-list-type="li"]
-  > .block
-  > .blockGroup
-  .blockOuter[data-list-type="li"]:not([data-prev-list-type])
-  > .block
-  > div:first-child::before {
+[data-list-item-type="unordered"]~.blockGroup
+[data-list-item-type="unordered"]~.blockGroup
+[data-list-item-type="unordered"]::before {
   content: "▪";
 }
+
+/*.block > div:first-child::before {*/
+/*  content: "";*/
+/*  transition: all 0.2s;*/
+/*  margin-left: 0px;*/
+/*}*/
 
 /* PLACEHOLDERS*/
 
@@ -241,6 +206,7 @@ NESTED BLOCKS
   content: "Heading";
 }
 
-.blockContent[data-content-type="listContent"] > :first-child div::before {
+.blockContent[data-content-type="listItemContent"].isEmpty
+  > :first-child:before {
   content: "List";
 }
