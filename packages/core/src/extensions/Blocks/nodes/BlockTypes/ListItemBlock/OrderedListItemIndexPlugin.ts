@@ -54,7 +54,7 @@ export const OrderedListItemIndexPlugin = () => {
           }
 
           const index = node.attrs["listItemIndex"];
-          let newIndex = "0";
+          let newIndex = "1";
 
           if (!isFirstListItem) {
             const prevBlockInfo = getBlockInfoFromPos(tr.doc, pos - 2);
