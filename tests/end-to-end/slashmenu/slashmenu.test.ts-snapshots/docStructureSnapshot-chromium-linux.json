@@ -2,17 +2,17 @@
   "type": "doc",
   "content": [
     {
-      "type": "blockgroup",
+      "type": "blockGroup",
       "content": [
         {
           "type": "block",
-          "attrs": {
-            "headingType": "1"
-          },
+          "attrs": {},
           "content": [
             {
-              "type": "content",
-              "attrs": {},
+              "type": "headingContent",
+              "attrs": {
+                "headingLevel": "1"
+              },
               "content": [
                 {
                   "type": "text",
@@ -24,13 +24,13 @@
         },
         {
           "type": "block",
-          "attrs": {
-            "headingType": "2"
-          },
+          "attrs": {},
           "content": [
             {
-              "type": "content",
-              "attrs": {},
+              "type": "headingContent",
+              "attrs": {
+                "headingLevel": "2"
+              },
               "content": [
                 {
                   "type": "text",
@@ -39,17 +39,17 @@
               ]
             },
             {
-              "type": "blockgroup",
+              "type": "blockGroup",
               "content": [
                 {
                   "type": "block",
-                  "attrs": {
-                    "headingType": "3"
-                  },
+                  "attrs": {},
                   "content": [
                     {
-                      "type": "content",
-                      "attrs": {},
+                      "type": "headingContent",
+                      "attrs": {
+                        "headingLevel": "3"
+                      },
                       "content": [
                         {
                           "type": "text",
@@ -58,15 +58,14 @@
                       ]
                     },
                     {
-                      "type": "blockgroup",
+                      "type": "blockGroup",
                       "content": [
                         {
                           "type": "block",
                           "attrs": {},
                           "content": [
                             {
-                              "type": "content",
-                              "attrs": {},
+                              "type": "textContent",
                               "content": [
                                 {
                                   "type": "text",
@@ -82,14 +81,13 @@
                 },
                 {
                   "type": "block",
-                  "attrs": {
-                    "listType": "oli"
-                  },
+                  "attrs": {},
                   "content": [
                     {
-                      "type": "content",
+                      "type": "listItemContent",
                       "attrs": {
-                        "position": "1."
+                        "listItemType": "ordered",
+                        "listItemIndex": "1"
                       },
                       "content": [
                         {
@@ -102,14 +100,13 @@
                 },
                 {
                   "type": "block",
-                  "attrs": {
-                    "listType": "oli"
-                  },
+                  "attrs": {},
                   "content": [
                     {
-                      "type": "content",
+                      "type": "listItemContent",
                       "attrs": {
-                        "position": "2."
+                        "listItemType": "ordered",
+                        "listItemIndex": "2"
                       },
                       "content": [
                         {
@@ -122,13 +119,14 @@
                 },
                 {
                   "type": "block",
-                  "attrs": {
-                    "listType": "li"
-                  },
+                  "attrs": {},
                   "content": [
                     {
-                      "type": "content",
-                      "attrs": {},
+                      "type": "listItemContent",
+                      "attrs": {
+                        "listItemType": "unordered",
+                        "listItemIndex": null
+                      },
                       "content": [
                         {
                           "type": "text",
@@ -147,8 +145,7 @@
           "attrs": {},
           "content": [
             {
-              "type": "content",
-              "attrs": {}
+              "type": "textContent"
             }
           ]
         }

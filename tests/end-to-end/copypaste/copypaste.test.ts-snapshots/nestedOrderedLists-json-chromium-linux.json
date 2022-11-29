@@ -12,7 +12,7 @@
               "type": "listItemContent",
               "attrs": {
                 "listItemType": "ordered",
-                "listItemIndex": "0"
+                "listItemIndex": "1"
               },
               "content": [
                 {
@@ -32,7 +32,7 @@
                       "type": "listItemContent",
                       "attrs": {
                         "listItemType": "ordered",
-                        "listItemIndex": "0"
+                        "listItemIndex": "1"
                       },
                       "content": [
                         {
@@ -52,7 +52,7 @@
                               "type": "listItemContent",
                               "attrs": {
                                 "listItemType": "ordered",
-                                "listItemIndex": "0"
+                                "listItemIndex": "1"
                               },
                               "content": [
                                 {
@@ -88,7 +88,7 @@
               "type": "listItemContent",
               "attrs": {
                 "listItemType": "ordered",
-                "listItemIndex": "0"
+                "listItemIndex": "1"
               },
               "content": [
                 {
@@ -108,7 +108,7 @@
                       "type": "listItemContent",
                       "attrs": {
                         "listItemType": "ordered",
-                        "listItemIndex": "0"
+                        "listItemIndex": "1"
                       },
                       "content": [
                         {
@@ -128,7 +128,7 @@
                               "type": "listItemContent",
                               "attrs": {
                                 "listItemType": "ordered",
-                                "listItemIndex": "0"
+                                "listItemIndex": "1"
                               },
                               "content": [
                                 {

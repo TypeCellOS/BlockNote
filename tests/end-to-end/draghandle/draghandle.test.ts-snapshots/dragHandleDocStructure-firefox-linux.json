@@ -2,17 +2,17 @@
   "type": "doc",
   "content": [
     {
-      "type": "blockgroup",
+      "type": "blockGroup",
       "content": [
         {
           "type": "block",
-          "attrs": {
-            "headingType": "1"
-          },
+          "attrs": {},
           "content": [
             {
-              "type": "content",
-              "attrs": {},
+              "type": "headingContent",
+              "attrs": {
+                "headingLevel": "1"
+              },
               "content": [
                 {
                   "type": "text",
@@ -24,13 +24,13 @@
         },
         {
           "type": "block",
-          "attrs": {
-            "headingType": "3"
-          },
+          "attrs": {},
           "content": [
             {
-              "type": "content",
-              "attrs": {},
+              "type": "headingContent",
+              "attrs": {
+                "headingLevel": "3"
+              },
               "content": [
                 {
                   "type": "text",
@@ -45,8 +45,7 @@
           "attrs": {},
           "content": [
             {
-              "type": "content",
-              "attrs": {}
+              "type": "textContent"
             }
           ]
         }
