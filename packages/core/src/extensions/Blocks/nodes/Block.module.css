@@ -155,27 +155,27 @@ NESTED BLOCKS
 }
 
 /* Ordered */
-/*[data-list-item-type="ordered"] {*/
-/*  --index: attr(data-list-item-index)*/
-/*}*/
+[data-list-item-type="ordered"] {
+  --index: attr(data-list-item-index)
+}
 
-/*[data-prev-list-item-type="ordered"] {*/
-/*  --prev-index: attr(data-prev-list-item-index)*/
-/*}*/
+[data-prev-list-item-type="ordered"] {
+  --prev-index: attr(data-prev-list-item-index)
+}
 
-/*.blockOuter[data-prev-list-item-type="ordered"]*/
-/*> .block*/
-/*> .blockContent::before {*/
-/*  margin-right: 1.2em;*/
-/*  content: "•";*/
-/*}*/
+.blockOuter[data-prev-list-item-type="ordered"]:not([data-prev-list-item-index="none"])
+> .block
+> .blockContent::before {
+  margin-right: 1.2em;
+  content: var(--prev-index)".";
+}
 
-/*.blockOuter:not([data-prev-type])*/
-/*> .block*/
-/*> .blockContent[data-list-item-type="ordered"]::before {*/
-/*  margin-right: 1.2em;*/
-/*  content: "•";*/
-/*}*/
+.blockOuter:not([data-prev-type])
+> .block
+> .blockContent[data-list-item-type="ordered"]::before {
+  margin-right: 1.2em;
+  content: var(--index)".";
+}
 
 /* Unordered */
 /* No list nesting */

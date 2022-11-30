@@ -10,16 +10,17 @@ const PLUGIN_KEY = new PluginKey(`previous-blocks`);
 
 const nodeAttributes: Record<string, string> = {
   listItemType: "list-item-type",
+  listItemIndex: "list-item-index",
   headingLevel: "heading-level",
   type: "type",
   depth: "depth",
-  "depth-change": "depth-change"
-}
+  "depth-change": "depth-change",
+};
 
 /**
  * This plugin tracks transformation of Block node attributes, so we can support CSS transitions.
  *
- * Problem it solves: Prosemirror recreates the DOM when transactions happen. So when a transaction changes an Node attribute,
+ * Problem it solves: ProseMirror recreates the DOM when transactions happen. So when a transaction changes a Node attribute,
  * it results in a completely new DOM element. This means CSS transitions don't work.
  *
  * Solution: When attributes change on a node, this plugin sets a data-* attribute with the "previous" value. This way we can still use CSS transitions. (See block.module.css)
@@ -91,7 +92,7 @@ export const PreviousBlockTypePlugin = () => {
             if (oldNode && oldContentNode && newContentNode) {
               const newAttrs = {
                 listItemType: newContentNode.attrs.listItemType,
-                // listItemIndex: newContentNode.attrs.listItemIndex,
+                listItemIndex: newContentNode.attrs.listItemIndex,
                 headingLevel: newContentNode.attrs.headingLevel,
                 type: newContentNode.type.name,
                 depth: newState.doc.resolve(node.pos).depth,
@@ -99,11 +100,29 @@ export const PreviousBlockTypePlugin = () => {
 
               const oldAttrs = {
                 listItemType: oldContentNode.attrs.listItemType,
-                // listItemIndex: oldContentNode.attrs.listItemIndex,
+                listItemIndex: oldContentNode.attrs.listItemIndex,
                 headingLevel: oldContentNode.attrs.headingLevel,
                 type: oldContentNode.type.name,
                 depth: oldState.doc.resolve(oldNode.pos).depth,
               };
+
+              // Hacky fix to avoid processing certain transactions created by ordered list indexing plugin.
+              // Ignores when an ordered list item is assigned an index for the first time.
+              if (
+                newAttrs.listItemType === "ordered" &&
+                newAttrs.listItemIndex === null
+              ) {
+                return;
+              }
+              // Ignores when the indices of ordered list items are updated (i.e. dragging and dropping).
+              if (
+                oldAttrs.listItemType === "ordered" &&
+                oldAttrs.listItemIndex !== null &&
+                newAttrs.listItemType === "ordered" &&
+                newAttrs.listItemIndex !== null
+              ) {
+                return;
+              }
 
               if (
                 JSON.stringify(oldAttrs) !== JSON.stringify(newAttrs) // TODO: faster deep equal?
@@ -151,7 +170,8 @@ export const PreviousBlockTypePlugin = () => {
 
           const decorationAttributes: any = {};
           for (let [nodeAttr, val] of Object.entries(prevAttrs)) {
-            decorationAttributes["data-prev-" + nodeAttributes[nodeAttr]] = val || "none";
+            decorationAttributes["data-prev-" + nodeAttributes[nodeAttr]] =
+              val || "none";
           }
 
           // for debugging:
