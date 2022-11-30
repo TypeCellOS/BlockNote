@@ -43,6 +43,10 @@ export const PreviousBlockTypePlugin = () => {
       },
 
       apply(transaction, prev, oldState, newState) {
+        if (transaction.getMeta("orderedListIndexing") !== undefined) {
+          return prev;
+        }
+
         prev.needsUpdate = false;
         prev.prevBlockAttrs = {};
         if (!transaction.docChanged || oldState.doc.eq(newState.doc)) {
@@ -103,12 +107,14 @@ export const PreviousBlockTypePlugin = () => {
                 prev.prevBlockAttrs[node.node.attrs.id] = oldAttrs;
 
                 // for debugging:
-                // console.log(
-                //   "previousBlockTypePlugin changes detected, oldAttrs",
-                //   oldAttrs,
-                //   "new",
-                //   newAttrs
-                // );
+                console.log(
+                  "id:",
+                  node.node.attrs.id,
+                  "previousBlockTypePlugin changes detected, oldAttrs",
+                  oldAttrs,
+                  "new",
+                  newAttrs
+                );
 
                 prev.needsUpdate = true;
               }
@@ -143,10 +149,10 @@ export const PreviousBlockTypePlugin = () => {
           }
 
           // for debugging:
-          // console.log(
-          //   "previousBlockTypePlugin committing decorations",
-          //   decorationAttributes
-          // );
+          console.log(
+            "previousBlockTypePlugin committing decorations",
+            decorationAttributes
+          );
 
           const decoration = Decoration.node(pos, pos + node.nodeSize, {
             ...decorationAttributes,

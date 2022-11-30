@@ -25,6 +25,8 @@ export const OrderedListItemIndexPlugin = () => {
 
           const isFirstBlockInDoc = pos === 1;
 
+          // Checks if this block is the start of a new ordered list, i.e. if it's the first block in the document, the
+          // first block in its nesting level, or the previous block is not an ordered list item.
           if (!isFirstBlockInDoc) {
             const blockInfo = getBlockInfoFromPos(tr.doc, pos + 1)!;
             if (blockInfo === undefined) {
@@ -53,9 +55,17 @@ export const OrderedListItemIndexPlugin = () => {
             }
           }
 
-          const index = node.attrs["listItemIndex"];
-          let newIndex = "1";
+          const blockInfo = getBlockInfoFromPos(tr.doc, pos + 1);
+          if (blockInfo === undefined) {
+            return;
+          }
 
+          const contentNode = blockInfo.contentNode;
+          const index = contentNode.attrs["listItemIndex"];
+
+          // Calculates new index by incrementing that of the previous block, if the block is not the start of a new
+          // ordered list. Otherwise, the new index is set to 1.
+          let newIndex = "1";
           if (!isFirstListItem) {
             const prevBlockInfo = getBlockInfoFromPos(tr.doc, pos - 2);
             if (prevBlockInfo === undefined) {
@@ -63,14 +73,12 @@ export const OrderedListItemIndexPlugin = () => {
             }
 
             const prevBlockContentNode = prevBlockInfo.contentNode;
+            const prevBlockIndex = prevBlockContentNode.attrs["listItemIndex"];
 
-            const prevBlockIndex = parseInt(
-              prevBlockContentNode.attrs["listItemIndex"]
-            );
-            newIndex = (prevBlockIndex + 1).toString();
+            newIndex = (parseInt(prevBlockIndex) + 1).toString();
           }
 
-          if (!index || index !== newIndex) {
+          if (index !== newIndex) {
             modified = true;
 
             tr.setNodeMarkup(pos + 1, undefined, {
