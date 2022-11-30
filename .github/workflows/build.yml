@@ -38,7 +38,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.cache/ms-playwright
-          key: pw-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+          key: pw-new-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
 
       - name: Install Dependencies
         run: npm install
