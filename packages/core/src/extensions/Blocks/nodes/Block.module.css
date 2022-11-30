@@ -29,6 +29,12 @@ BASIC STYLES
   /* display: inline-block; */
 }
 
+.blockContent::before {
+  /* content: ""; */
+  transition: all 0.2s;
+  /*margin: 0px;*/
+}
+
 /* reset styles, they will be set on blockContent */
 .blockContent p,
 .blockContent h1,
@@ -141,37 +147,87 @@ NESTED BLOCKS
   font-weight: bold;
 }
 
-/* LISTS (TODO) */
+/* LISTS */
 
-[data-content-type="listItemContent"]::before {
+.blockContent::before {
+  margin-right: 0;
+  content: "";
+}
+
+/* Ordered */
+/*[data-list-item-type="ordered"] {*/
+/*  --index: attr(data-list-item-index)*/
+/*}*/
+
+/*[data-prev-list-item-type="ordered"] {*/
+/*  --prev-index: attr(data-prev-list-item-index)*/
+/*}*/
+
+/*.blockOuter[data-prev-list-item-type="ordered"]*/
+/*> .block*/
+/*> .blockContent::before {*/
+/*  margin-right: 1.2em;*/
+/*  content: "•";*/
+/*}*/
+
+/*.blockOuter:not([data-prev-type])*/
+/*> .block*/
+/*> .blockContent[data-list-item-type="ordered"]::before {*/
+/*  margin-right: 1.2em;*/
+/*  content: "•";*/
+/*}*/
+
+/* Unordered */
+/* No list nesting */
+.blockOuter[data-prev-list-item-type="unordered"]
+> .block
+> .blockContent::before {
   margin-right: 1.2em;
-  padding-left: 0;
-}
-
-[data-list-item-type="ordered"]::before {
-  content: attr(data-list-item-index)".";
-}
-
-[data-list-item-type="unordered"]::before {
   content: "•";
 }
 
+.blockOuter:not([data-prev-type])
+> .block
+> .blockContent[data-list-item-type="unordered"]::before {
+  margin-right: 1.2em;
+  content: "•";
+}
+
+/* 1 level of list nesting */
 [data-list-item-type="unordered"]~.blockGroup
-[data-list-item-type="unordered"]::before {
+> .blockOuter[data-prev-list-item-type="unordered"]
+> .block
+> .blockContent::before {
+  margin-right: 1.2em;
   content: "◦";
 }
 
 [data-list-item-type="unordered"]~.blockGroup
+> .blockOuter:not([data-prev-type])
+> .block
+> .blockContent[data-list-item-type="unordered"]::before {
+  margin-right: 1.2em;
+  content: "◦";
+}
+
+/* 2 levels of list nesting */
 [data-list-item-type="unordered"]~.blockGroup
-[data-list-item-type="unordered"]::before {
+[data-list-item-type="unordered"]~.blockGroup
+> .blockOuter[data-prev-list-item-type="unordered"]
+> .block
+> .blockContent::before {
+  margin-right: 1.2em;
   content: "▪";
 }
 
-/*.block > div:first-child::before {*/
-/*  content: "";*/
-/*  transition: all 0.2s;*/
-/*  margin-left: 0px;*/
-/*}*/
+[data-list-item-type="unordered"]~.blockGroup
+[data-list-item-type="unordered"]~.blockGroup
+> .blockOuter:not([data-prev-type])
+> .block
+> .blockContent[data-list-item-type="unordered"]::before {
+  margin-right: 1.2em;
+  content: "▪";
+}
 
 /* PLACEHOLDERS*/
 

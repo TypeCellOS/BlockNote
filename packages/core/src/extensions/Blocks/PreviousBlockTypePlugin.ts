@@ -9,10 +9,11 @@ import { Decoration, DecorationSet } from "prosemirror-view";
 const PLUGIN_KEY = new PluginKey(`previous-blocks`);
 
 const nodeAttributes: Record<string, string> = {
-  listType: "list-type",
+  listItemType: "list-item-type",
   headingLevel: "heading-level",
   type: "type",
   depth: "depth",
+  "depth-change": "depth-change"
 }
 
 /**
@@ -50,10 +51,6 @@ export const PreviousBlockTypePlugin = () => {
       },
 
       apply(transaction, prev, oldState, newState) {
-        if (transaction.getMeta("orderedListIndexing") !== undefined) {
-          return prev;
-        }
-
         prev.needsUpdate = false;
         prev.prevBlockAttrs = {};
         if (!transaction.docChanged || oldState.doc.eq(newState.doc)) {
@@ -93,14 +90,16 @@ export const PreviousBlockTypePlugin = () => {
             const newContentNode = node.node.firstChild;
             if (oldNode && oldContentNode && newContentNode) {
               const newAttrs = {
-                // listType: node.node.attrs.listType,
+                listItemType: newContentNode.attrs.listItemType,
+                // listItemIndex: newContentNode.attrs.listItemIndex,
                 headingLevel: newContentNode.attrs.headingLevel,
                 type: newContentNode.type.name,
                 depth: newState.doc.resolve(node.pos).depth,
               };
 
               const oldAttrs = {
-                // listType: oldNode.node.attrs.listType,
+                listItemType: oldContentNode.attrs.listItemType,
+                // listItemIndex: oldContentNode.attrs.listItemIndex,
                 headingLevel: oldContentNode.attrs.headingLevel,
                 type: oldContentNode.type.name,
                 depth: oldState.doc.resolve(oldNode.pos).depth,
