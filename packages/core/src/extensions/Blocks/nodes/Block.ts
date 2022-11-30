@@ -229,34 +229,28 @@ export const Block = Node.create<IBlock>({
             return false;
           }
 
-          const { startPos, endPos, depth } = blockInfo;
+          const { contentNode, contentType, startPos, endPos, depth } =
+            blockInfo;
 
           const newBlockInsertionPos = endPos + 1;
 
           // Creates new block first, otherwise positions get changed due to the original block's content changing.
-          // Only text content is transferred if the content type shouldn't be kept.
+          // Only text content is transferred to the new block.
+          const secondBlockContent = state.doc.textBetween(posInBlock, endPos);
+
+          const newBlock = state.schema.nodes["block"].createAndFill()!;
+          const newBlockContentPos = newBlockInsertionPos + 2;
+
+          state.tr.insert(newBlockInsertionPos, newBlock);
+          state.tr.insertText(secondBlockContent, newBlockContentPos);
+
           if (keepType) {
-            const secondBlockContent = state.doc.content.cut(
-              posInBlock,
-              endPos
+            state.tr.setBlockType(
+              newBlockContentPos,
+              newBlockContentPos,
+              state.schema.node(contentType).type,
+              contentNode.attrs
             );
-
-            state.tr.replace(
-              newBlockInsertionPos,
-              newBlockInsertionPos,
-              new Slice(secondBlockContent, depth, depth)
-            );
-          } else {
-            const secondBlockContent = state.doc.textBetween(
-              posInBlock,
-              endPos
-            );
-
-            const newBlock = state.schema.nodes["block"].createAndFill()!;
-            const newBlockContentPos = newBlockInsertionPos + 2;
-
-            state.tr.insert(newBlockInsertionPos, newBlock);
-            state.tr.insertText(secondBlockContent, newBlockContentPos);
           }
 
           // Updates content of original block.
