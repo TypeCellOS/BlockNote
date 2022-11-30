@@ -8,6 +8,13 @@ import { Decoration, DecorationSet } from "prosemirror-view";
 
 const PLUGIN_KEY = new PluginKey(`previous-blocks`);
 
+const nodeAttributes: Record<string, string> = {
+  listType: "list-type",
+  headingLevel: "heading-level",
+  type: "type",
+  depth: "depth",
+}
+
 /**
  * This plugin tracks transformation of Block node attributes, so we can support CSS transitions.
  *
@@ -145,7 +152,7 @@ export const PreviousBlockTypePlugin = () => {
 
           const decorationAttributes: any = {};
           for (let [nodeAttr, val] of Object.entries(prevAttrs)) {
-            decorationAttributes["data-prev-" + nodeAttr] = val || "none";
+            decorationAttributes["data-prev-" + nodeAttributes[nodeAttr]] = val || "none";
           }
 
           // for debugging:
