@@ -21,18 +21,17 @@ export const OrderedListItemIndexPlugin = () => {
           node.firstChild!.type.name === "listItemContent" &&
           node.firstChild!.attrs["listItemType"] === "ordered"
         ) {
-          let isFirstListItem = true;
-
+          let newIndex = 1;
           const isFirstBlockInDoc = pos === 1;
+
+          const blockInfo = getBlockInfoFromPos(tr.doc, pos + 1)!;
+          if (blockInfo === undefined) {
+            return;
+          }
 
           // Checks if this block is the start of a new ordered list, i.e. if it's the first block in the document, the
           // first block in its nesting level, or the previous block is not an ordered list item.
           if (!isFirstBlockInDoc) {
-            const blockInfo = getBlockInfoFromPos(tr.doc, pos + 1)!;
-            if (blockInfo === undefined) {
-              return;
-            }
-
             const prevBlockInfo = getBlockInfoFromPos(tr.doc, pos - 2)!;
             if (prevBlockInfo === undefined) {
               return;
@@ -50,33 +49,16 @@ export const OrderedListItemIndexPlugin = () => {
                 prevBlockContentNode.attrs["listItemType"] === "ordered";
 
               if (isPrevBlockOrderedListItem) {
-                isFirstListItem = false;
+                const prevBlockIndex =
+                  prevBlockContentNode.attrs["listItemIndex"];
+
+                newIndex = parseInt(prevBlockIndex) + 1;
               }
             }
           }
 
-          const blockInfo = getBlockInfoFromPos(tr.doc, pos + 1);
-          if (blockInfo === undefined) {
-            return;
-          }
-
           const contentNode = blockInfo.contentNode;
           const index = contentNode.attrs["listItemIndex"];
-
-          // Calculates new index by incrementing that of the previous block, if the block is not the start of a new
-          // ordered list. Otherwise, the new index is set to 1.
-          let newIndex = "1";
-          if (!isFirstListItem) {
-            const prevBlockInfo = getBlockInfoFromPos(tr.doc, pos - 2);
-            if (prevBlockInfo === undefined) {
-              return;
-            }
-
-            const prevBlockContentNode = prevBlockInfo.contentNode;
-            const prevBlockIndex = prevBlockContentNode.attrs["listItemIndex"];
-
-            newIndex = (parseInt(prevBlockIndex) + 1).toString();
-          }
 
           if (index !== newIndex) {
             modified = true;
