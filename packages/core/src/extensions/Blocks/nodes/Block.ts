@@ -123,17 +123,19 @@ export const Block = Node.create<IBlock>({
       // Creates a new text block at a given position.
       BNCreateBlock:
         (pos) =>
-        ({ state }) => {
+        ({ state, dispatch }) => {
           const newBlock = state.schema.nodes["block"].createAndFill()!;
 
-          state.tr.insert(pos, newBlock);
+          if (dispatch) {
+            dispatch(state.tr.insert(pos, newBlock));
+          }
 
           return true;
         },
       // Deletes a block at a given position and sets the selection to where the block was.
       BNDeleteBlock:
         (posInBlock) =>
-        ({ state, view }) => {
+        ({ state, view, dispatch }) => {
           const blockInfo = getBlockInfoFromPos(state.doc, posInBlock);
           if (blockInfo === undefined) {
             return false;
@@ -141,11 +143,15 @@ export const Block = Node.create<IBlock>({
 
           const { startPos, endPos } = blockInfo;
 
-          state.tr.deleteRange(startPos, endPos);
-          state.tr.setSelection(
-            new TextSelection(state.doc.resolve(startPos + 1))
-          );
-          view.focus();
+          if (dispatch) {
+            dispatch(state.tr.deleteRange(startPos, endPos));
+            dispatch(
+              state.tr.setSelection(
+                new TextSelection(state.doc.resolve(startPos + 1))
+              )
+            );
+            view.focus();
+          }
 
           return true;
         },
@@ -168,7 +174,7 @@ export const Block = Node.create<IBlock>({
       //     Block5
       BNMergeBlocks:
         (posBetweenBlocks) =>
-        ({ state }) => {
+        ({ state, dispatch }) => {
           const nextBlockInfo = getBlockInfoFromPos(
             state.doc,
             posBetweenBlocks + 1
@@ -190,7 +196,9 @@ export const Block = Node.create<IBlock>({
               childBlocksStart.blockRange(childBlocksEnd);
 
             // Moves the block group node inside the block into the block group node that the current block is in.
-            state.tr.lift(childBlocksRange!, depth - 1);
+            if (dispatch) {
+              dispatch(state.tr.lift(childBlocksRange!, depth - 1));
+            }
           }
 
           let prevBlockEndPos = posBetweenBlocks - 1;
@@ -211,11 +219,19 @@ export const Block = Node.create<IBlock>({
           // Deletes next block and adds its text content to the nearest previous block.
           // TODO: Is there any situation where we need the whole block content, not just text? Implementation for this
           //  is trickier.
-          state.tr.deleteRange(startPos, startPos + contentNode.nodeSize);
-          state.tr.insertText(contentNode.textContent, prevBlockEndPos - 1);
-          state.tr.setSelection(
-            new TextSelection(state.doc.resolve(prevBlockEndPos - 1))
-          );
+          if (dispatch) {
+            dispatch(
+              state.tr.deleteRange(startPos, startPos + contentNode.nodeSize)
+            );
+            dispatch(
+              state.tr.insertText(contentNode.textContent, prevBlockEndPos - 1)
+            );
+            dispatch(
+              state.tr.setSelection(
+                new TextSelection(state.doc.resolve(prevBlockEndPos - 1))
+              )
+            );
+          }
 
           return true;
         },
@@ -223,7 +239,7 @@ export const Block = Node.create<IBlock>({
       // nesting level.
       BNSplitBlock:
         (posInBlock, keepType) =>
-        ({ state }) => {
+        ({ state, dispatch }) => {
           const blockInfo = getBlockInfoFromPos(state.doc, posInBlock);
           if (blockInfo === undefined) {
             return false;
@@ -244,30 +260,36 @@ export const Block = Node.create<IBlock>({
           state.tr.insert(newBlockInsertionPos, newBlock);
           state.tr.insertText(secondBlockContent, newBlockContentPos);
 
-          if (keepType) {
-            state.tr.setBlockType(
-              newBlockContentPos,
-              newBlockContentPos,
-              state.schema.node(contentType).type,
-              contentNode.attrs
+          if (keepType && dispatch) {
+            dispatch(
+              state.tr.setBlockType(
+                newBlockContentPos,
+                newBlockContentPos,
+                state.schema.node(contentType).type,
+                contentNode.attrs
+              )
             );
           }
 
           // Updates content of original block.
           const firstBlockContent = state.doc.content.cut(startPos, posInBlock);
 
-          state.tr.replace(
-            startPos,
-            endPos,
-            new Slice(firstBlockContent, depth, depth)
-          );
+          if (dispatch) {
+            dispatch(
+              state.tr.replace(
+                startPos,
+                endPos,
+                new Slice(firstBlockContent, depth, depth)
+              )
+            );
+          }
 
           return true;
         },
       // Changes the block at a given position to a given content type.
       BNSetContentType:
         (posInBlock, type, attributes) =>
-        ({ state }) => {
+        ({ state, dispatch }) => {
           const blockInfo = getBlockInfoFromPos(state.doc, posInBlock);
           if (blockInfo === undefined) {
             return false;
@@ -275,12 +297,16 @@ export const Block = Node.create<IBlock>({
 
           const { startPos, endPos } = blockInfo;
 
-          state.tr.setBlockType(
-            startPos + 1,
-            endPos - 1,
-            state.schema.node(type).type,
-            attributes
-          );
+          if (dispatch) {
+            dispatch(
+              state.tr.setBlockType(
+                startPos + 1,
+                endPos - 1,
+                state.schema.node(type).type,
+                attributes
+              )
+            );
+          }
 
           return true;
         },
