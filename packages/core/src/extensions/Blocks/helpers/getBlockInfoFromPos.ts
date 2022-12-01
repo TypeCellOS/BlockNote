@@ -22,8 +22,10 @@ export function getBlockInfoFromPos(
   doc: Node,
   posInBlock: number
 ): BlockInfo | undefined {
-  const maxDepth = doc.resolve(posInBlock).depth;
-  let node = doc.resolve(posInBlock).node(maxDepth);
+  const $pos = doc.resolve(posInBlock);
+
+  const maxDepth = $pos.depth;
+  let node = $pos.node(maxDepth);
   let depth = maxDepth;
 
   while (depth >= 0) {
@@ -36,7 +38,7 @@ export function getBlockInfoFromPos(
     }
 
     depth -= 1;
-    node = doc.resolve(posInBlock).node(depth);
+    node = $pos.node(depth);
   }
 
   const id = node.attrs["id"];
@@ -44,8 +46,8 @@ export function getBlockInfoFromPos(
   const contentType = contentNode.type;
   const numChildBlocks = node.childCount === 2 ? node.lastChild!.childCount : 0;
 
-  const startPos = doc.resolve(posInBlock).start(depth);
-  const endPos = doc.resolve(posInBlock).end(depth);
+  const startPos = $pos.start(depth);
+  const endPos = $pos.end(depth);
 
   return {
     id,
