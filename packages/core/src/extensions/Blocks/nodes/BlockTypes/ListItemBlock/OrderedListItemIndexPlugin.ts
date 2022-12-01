@@ -21,7 +21,7 @@ export const OrderedListItemIndexPlugin = () => {
           node.firstChild!.type.name === "listItemContent" &&
           node.firstChild!.attrs["listItemType"] === "ordered"
         ) {
-          let newIndex = 1;
+          let newIndex = "1";
           const isFirstBlockInDoc = pos === 1;
 
           const blockInfo = getBlockInfoFromPos(tr.doc, pos + 1)!;
@@ -52,7 +52,7 @@ export const OrderedListItemIndexPlugin = () => {
                 const prevBlockIndex =
                   prevBlockContentNode.attrs["listItemIndex"];
 
-                newIndex = parseInt(prevBlockIndex) + 1;
+                newIndex = (parseInt(prevBlockIndex) + 1).toString();
               }
             }
           }
