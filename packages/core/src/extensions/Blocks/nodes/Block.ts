@@ -355,6 +355,30 @@ export const Block = Node.create<IBlock>({
         () => commands.deleteSelection(),
         // Undoes an input rule if one was triggered in the last editor state change.
         () => commands.undoInputRule(),
+        // Changes block type to text if it's not a text block already, while the selection is empty and at the start of
+        // the block.
+        () =>
+          commands.command(({ state }) => {
+            const { contentType } = getBlockInfoFromPos(
+              state.doc,
+              state.selection.from
+            )!;
+
+            const selectionAtBlockStart =
+              state.selection.$anchor.parentOffset === 0;
+            const selectionEmpty =
+              state.selection.anchor === state.selection.head;
+            const isTextBlock = contentType.name === "textContent";
+
+            if (selectionAtBlockStart && selectionEmpty && !isTextBlock) {
+              return commands.BNSetContentType(
+                state.selection.from,
+                "textContent"
+              );
+            }
+
+            return false;
+          }),
         // Removes a level of nesting if the block is indented and the block is empty.
         () =>
           commands.command(({ state }) => {
@@ -378,7 +402,7 @@ export const Block = Node.create<IBlock>({
         // Merges block with the previous one if it isn't indented, isn't the first block in the doc, and the selection
         // is at the start of the block.
         () =>
-          commands.command(({ state, commands }) => {
+          commands.command(({ state }) => {
             const { depth, startPos } = getBlockInfoFromPos(
               state.doc,
               state.selection.from

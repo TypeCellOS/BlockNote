@@ -65,32 +65,6 @@ export const ListItemContent = Node.create({
   },
 
   addKeyboardShortcuts() {
-    const handleBackspace = () => {
-      const { contentType } = getBlockInfoFromPos(
-        this.editor.state.doc,
-        this.editor.state.selection.from
-      )!;
-
-      const selectionEmpty =
-        this.editor.state.selection.anchor === this.editor.state.selection.head;
-
-      if (contentType.name !== "listItemContent" || !selectionEmpty) {
-        return false;
-      }
-
-      return this.editor.commands.command(({ state, commands }) => {
-        // Changes list item block to a text block if the selection is empty and at the start of the block.
-        const selectionAtBlockStart =
-          state.selection.$anchor.parentOffset === 0;
-
-        if (selectionAtBlockStart) {
-          return commands.BNSetContentType(state.selection.from, "textContent");
-        }
-
-        return false;
-      });
-    };
-
     const handleEnter = () => {
       const { node, contentType } = getBlockInfoFromPos(
         this.editor.state.doc,
@@ -137,7 +111,6 @@ export const ListItemContent = Node.create({
     };
 
     return {
-      Backspace: handleBackspace,
       Enter: handleEnter,
     };
   },
