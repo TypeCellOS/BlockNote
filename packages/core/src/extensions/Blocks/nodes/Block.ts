@@ -127,7 +127,7 @@ export const Block = Node.create<IBlock>({
           const newBlock = state.schema.nodes["block"].createAndFill()!;
 
           if (dispatch) {
-            dispatch(state.tr.insert(pos, newBlock));
+            state.tr.insert(pos, newBlock);
           }
 
           return true;
@@ -144,11 +144,9 @@ export const Block = Node.create<IBlock>({
           const { startPos, endPos } = blockInfo;
 
           if (dispatch) {
-            dispatch(state.tr.deleteRange(startPos, endPos));
-            dispatch(
-              state.tr.setSelection(
-                new TextSelection(state.doc.resolve(startPos + 1))
-              )
+            state.tr.deleteRange(startPos, endPos);
+            state.tr.setSelection(
+              new TextSelection(state.doc.resolve(startPos + 1))
             );
             view.focus();
           }
@@ -197,7 +195,7 @@ export const Block = Node.create<IBlock>({
 
             // Moves the block group node inside the block into the block group node that the current block is in.
             if (dispatch) {
-              dispatch(state.tr.lift(childBlocksRange!, depth - 1));
+              state.tr.lift(childBlocksRange!, depth - 1);
             }
           }
 
@@ -220,16 +218,10 @@ export const Block = Node.create<IBlock>({
           // TODO: Is there any situation where we need the whole block content, not just text? Implementation for this
           //  is trickier.
           if (dispatch) {
-            dispatch(
-              state.tr.deleteRange(startPos, startPos + contentNode.nodeSize)
-            );
-            dispatch(
-              state.tr.insertText(contentNode.textContent, prevBlockEndPos - 1)
-            );
-            dispatch(
-              state.tr.setSelection(
-                new TextSelection(state.doc.resolve(prevBlockEndPos - 1))
-              )
+            state.tr.deleteRange(startPos, startPos + contentNode.nodeSize);
+            state.tr.insertText(contentNode.textContent, prevBlockEndPos - 1);
+            state.tr.setSelection(
+              new TextSelection(state.doc.resolve(prevBlockEndPos - 1))
             );
           }
 
@@ -257,30 +249,30 @@ export const Block = Node.create<IBlock>({
           const newBlock = state.schema.nodes["block"].createAndFill()!;
           const newBlockContentPos = newBlockInsertionPos + 2;
 
-          state.tr.insert(newBlockInsertionPos, newBlock);
-          state.tr.insertText(secondBlockContent, newBlockContentPos);
+          if (dispatch) {
+            state.tr.insert(newBlockInsertionPos, newBlock);
+            state.tr.insertText(secondBlockContent, newBlockContentPos);
 
-          if (keepType && dispatch) {
-            dispatch(
-              state.tr.setBlockType(
-                newBlockContentPos,
-                newBlockContentPos,
-                state.schema.node(contentType).type,
-                contentNode.attrs
-              )
-            );
+            if (keepType) {
+              dispatch(
+                state.tr.setBlockType(
+                  newBlockContentPos,
+                  newBlockContentPos,
+                  state.schema.node(contentType).type,
+                  contentNode.attrs
+                )
+              );
+            }
           }
 
           // Updates content of original block.
           const firstBlockContent = state.doc.content.cut(startPos, posInBlock);
 
           if (dispatch) {
-            dispatch(
-              state.tr.replace(
-                startPos,
-                endPos,
-                new Slice(firstBlockContent, depth, depth)
-              )
+            state.tr.replace(
+              startPos,
+              endPos,
+              new Slice(firstBlockContent, depth, depth)
             );
           }
 
@@ -298,13 +290,11 @@ export const Block = Node.create<IBlock>({
           const { startPos, endPos } = blockInfo;
 
           if (dispatch) {
-            dispatch(
-              state.tr.setBlockType(
-                startPos + 1,
-                endPos - 1,
-                state.schema.node(type).type,
-                attributes
-              )
+            state.tr.setBlockType(
+              startPos + 1,
+              endPos - 1,
+              state.schema.node(type).type,
+              attributes
             );
           }
 
