@@ -1,0 +1,52 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "blockGroup",
+      "content": [
+        {
+          "type": "block",
+          "attrs": {},
+          "content": [
+            {
+              "type": "headingContent",
+              "attrs": {
+                "headingLevel": "1"
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "H"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "block",
+          "attrs": {},
+          "content": [
+            {
+              "type": "textContent",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "g"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "block",
+          "attrs": {},
+          "content": [
+            {
+              "type": "textContent"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
