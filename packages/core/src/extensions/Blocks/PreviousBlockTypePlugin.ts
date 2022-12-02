@@ -107,25 +107,24 @@ export const PreviousBlockTypePlugin = () => {
               };
 
               // Hacky fix to avoid processing certain transactions created by ordered list indexing plugin.
-              // Ignores when an ordered list item is assigned an index for the first time.
-              if (
-                newAttrs.listItemType === "ordered" &&
-                newAttrs.listItemIndex === null
-              ) {
-                return;
-              }
-              // Ignores when the indices of ordered list items are updated (i.e. dragging and dropping).
-              if (
-                oldAttrs.listItemType === "ordered" &&
+              const indexInitialized =
+                oldAttrs.listItemIndex === null &&
+                newAttrs.listItemIndex !== null;
+
+              const depthChanged =
                 oldAttrs.listItemIndex !== null &&
-                newAttrs.listItemType === "ordered" &&
-                newAttrs.listItemIndex !== null
-              ) {
-                return;
-              }
+                newAttrs.listItemIndex !== null &&
+                oldAttrs.listItemIndex === newAttrs.listItemIndex;
+
+              const update =
+                oldAttrs.listItemType === "ordered" &&
+                newAttrs.listItemType === "ordered"
+                  ? indexInitialized || depthChanged
+                  : true;
 
               if (
-                JSON.stringify(oldAttrs) !== JSON.stringify(newAttrs) // TODO: faster deep equal?
+                JSON.stringify(oldAttrs) !== JSON.stringify(newAttrs) && // TODO: faster deep equal?
+                update
               ) {
                 (oldAttrs as any)["depth-change"] =
                   oldAttrs.depth - newAttrs.depth;
@@ -154,6 +153,7 @@ export const PreviousBlockTypePlugin = () => {
       decorations(state) {
         const pluginState = (this as Plugin).getState(state);
         if (!pluginState.needsUpdate) {
+          // console.log("0");
           return undefined;
         }
 
@@ -161,10 +161,12 @@ export const PreviousBlockTypePlugin = () => {
 
         state.doc.descendants((node, pos) => {
           if (!node.attrs.id) {
+            // console.log("1");
             return;
           }
           const prevAttrs = pluginState.prevBlockAttrs[node.attrs.id];
           if (!prevAttrs) {
+            // console.log("2");
             return;
           }
 
