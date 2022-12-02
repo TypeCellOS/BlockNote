@@ -151,6 +151,7 @@ export const ListItemContent = Node.create({
 
           return false;
         },
+        node: "block"
       },
     ];
   },

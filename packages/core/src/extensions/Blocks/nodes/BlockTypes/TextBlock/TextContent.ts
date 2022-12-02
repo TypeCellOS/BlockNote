@@ -10,6 +10,8 @@ export const TextContent = Node.create({
     return [
       {
         tag: "p",
+        priority: 200,
+        node: "block",
       },
     ];
   },

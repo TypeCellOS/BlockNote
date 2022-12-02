@@ -49,14 +49,17 @@ export const HeadingContent = Node.create({
       {
         tag: "h1",
         attrs: { headingLevel: "1" },
+        node: "block"
       },
       {
         tag: "h2",
         attrs: { headingLevel: "2" },
+        node: "block"
       },
       {
         tag: "h3",
         attrs: { headingLevel: "3" },
+        node: "block"
       },
     ];
   },
