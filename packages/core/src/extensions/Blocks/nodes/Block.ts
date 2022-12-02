@@ -173,15 +173,23 @@ export const Block = Node.create<IBlock>({
       BNMergeBlocks:
         (posBetweenBlocks) =>
         ({ state, dispatch }) => {
+          const nextNodeIsBlock =
+            state.doc.resolve(posBetweenBlocks + 1).node().type.name ===
+            "block";
+          const prevNodeIsBlock =
+            state.doc.resolve(posBetweenBlocks - 1).node().type.name ===
+            "block";
+
+          if (!nextNodeIsBlock || !prevNodeIsBlock) {
+            return false;
+          }
+
           const nextBlockInfo = getBlockInfoFromPos(
             state.doc,
             posBetweenBlocks + 1
           );
-          if (nextBlockInfo === undefined) {
-            return false;
-          }
 
-          const { node, contentNode, startPos, endPos, depth } = nextBlockInfo;
+          const { node, contentNode, startPos, endPos, depth } = nextBlockInfo!;
 
           // Removes a level of nesting all children of the next block by 1 level, if it contains both content and block
           // group nodes.
@@ -201,12 +209,9 @@ export const Block = Node.create<IBlock>({
 
           let prevBlockEndPos = posBetweenBlocks - 1;
           let prevBlockInfo = getBlockInfoFromPos(state.doc, prevBlockEndPos);
-          if (prevBlockInfo === undefined) {
-            return false;
-          }
 
-          // Finds the nearest previous block, prioritizing higher nesting levels.
-          while (prevBlockInfo.numChildBlocks > 0) {
+          // Finds the nearest previous block, regardless of nesting level.
+          while (prevBlockInfo!.numChildBlocks > 0) {
             prevBlockEndPos--;
             prevBlockInfo = getBlockInfoFromPos(state.doc, prevBlockEndPos);
             if (prevBlockInfo === undefined) {
@@ -496,9 +501,8 @@ export const Block = Node.create<IBlock>({
       Tab: () => this.editor.commands.sinkListItem("block"),
       "Shift-Tab": () => this.editor.commands.liftListItem("block"),
       "Mod-Alt-0": () =>
-        this.editor.commands.BNSetContentType(
-          this.editor.state.selection.anchor,
-          "textContent"
+        this.editor.commands.BNCreateBlock(
+          this.editor.state.selection.anchor + 2
         ),
       "Mod-Alt-1": () =>
         this.editor.commands.BNSetContentType(

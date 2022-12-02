@@ -22,6 +22,10 @@ export function getBlockInfoFromPos(
   doc: Node,
   posInBlock: number
 ): BlockInfo | undefined {
+  if (posInBlock <= 0 || posInBlock > doc.nodeSize) {
+    return undefined;
+  }
+
   const $pos = doc.resolve(posInBlock);
 
   const maxDepth = $pos.depth;
