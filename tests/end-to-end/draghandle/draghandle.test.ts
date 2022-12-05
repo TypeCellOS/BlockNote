@@ -15,7 +15,13 @@ import {
   getDragHandleYCoord,
   hoverAndAddBlockFromDragHandle,
 } from "../../utils/draghandle";
-import { compareDocToSnapshot, focusOnEditor } from "../../utils/editor";
+import {
+  compareDocToSnapshot,
+  compareDocWithIDsToSnapshot,
+  focusOnEditor,
+  getDoc,
+  getMockIDMap,
+} from "../../utils/editor";
 import { moveMouseOverElement } from "../../utils/mouse";
 import { executeSlashCommand } from "../../utils/slashmenu";
 import { insertHeading } from "../../utils/copypaste";
@@ -130,11 +136,15 @@ test.describe("Check Draghandle functionality", () => {
   test("Clicking delete button should delete block", async () => {
     await executeSlashCommand(page, "h1");
     await page.keyboard.type("Hover over this text");
+    const mockIDMap = getMockIDMap(await getDoc(page));
+
     await page.hover(H_ONE_BLOCK_SELECTOR);
     await page.click(DRAG_HANDLE_SELECTOR);
     await page.waitForSelector(DRAG_HANDLE_MENU_SELECTOR);
     await page.click("text=Delete");
     await page.locator(H_ONE_BLOCK_SELECTOR).waitFor({ state: "detached" });
+
+    await compareDocWithIDsToSnapshot(page, mockIDMap, "draghandledelete");
   });
 
   test("Delete button should delete correct block", async () => {
@@ -144,6 +154,8 @@ test.describe("Check Draghandle functionality", () => {
     await page.keyboard.type("This is h2");
     await executeSlashCommand(page, "h3");
     await page.keyboard.type("This is h3");
+    const mockIDMap = getMockIDMap(await getDoc(page));
+
     await page.hover(H_TWO_BLOCK_SELECTOR);
     await page.click(DRAG_HANDLE_SELECTOR);
     await page.click("text=Delete");
@@ -151,7 +163,11 @@ test.describe("Check Draghandle functionality", () => {
     await page.waitForSelector(H_TWO_BLOCK_SELECTOR, { state: "detached" });
     await page.waitForSelector(H_THREE_BLOCK_SELECTOR);
     // Compare doc object snapshot
-    await compareDocToSnapshot(page, "dragHandleDocStructure");
+    await compareDocWithIDsToSnapshot(
+      page,
+      mockIDMap,
+      "dragHandleDocStructure"
+    );
   });
 
   test("Deleting block with children should delete all children", async () => {
@@ -167,11 +183,19 @@ test.describe("Check Draghandle functionality", () => {
     await page.keyboard.press("Tab", { delay: 10 });
     await executeSlashCommand(page, "h3");
     await page.keyboard.type("This is h3");
+    const mockIDMap = getMockIDMap(await getDoc(page));
+
     await page.hover(H_TWO_BLOCK_SELECTOR);
     await page.click(DRAG_HANDLE_SELECTOR);
     await page.click("text=Delete");
     await page.waitForSelector(H_ONE_BLOCK_SELECTOR);
     await page.waitForSelector(H_TWO_BLOCK_SELECTOR, { state: "detached" });
     await page.waitForSelector(H_THREE_BLOCK_SELECTOR, { state: "detached" });
+
+    await compareDocWithIDsToSnapshot(
+      page,
+      mockIDMap,
+      "draghandlenesteddelete"
+    );
   });
 });
