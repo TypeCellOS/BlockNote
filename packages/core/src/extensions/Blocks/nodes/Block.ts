@@ -7,6 +7,7 @@ import { PreviousBlockTypePlugin } from "../PreviousBlockTypePlugin";
 import styles from "./Block.module.css";
 import { HeadingContentAttributes } from "./BlockTypes/HeadingBlock/HeadingContent";
 import { ListItemContentAttributes } from "./BlockTypes/ListItemBlock/ListItemContent";
+import { parseBlock } from "../helpers/parseBlock";
 
 export interface IBlock {
   HTMLAttributes: Record<string, any>;
@@ -69,24 +70,34 @@ export const Block = Node.create<IBlock>({
   parseHTML() {
     return [
       {
-        tag: "div",
-        getAttrs: (element) => {
-          if (typeof element === "string") {
-            return false;
-          }
-
-          const attrs: Record<string, string> = {};
-          for (let [nodeAttr, HTMLAttr] of Object.entries(BlockAttributes)) {
-            if (element.getAttribute(HTMLAttr)) {
-              attrs[nodeAttr] = element.getAttribute(HTMLAttr)!;
-            }
-          }
-
-          if (element.getAttribute("data-node-type") === "block") {
-            return attrs;
-          }
-
-          return false;
+        tag: "p",
+        priority: 200,
+        getContent: (node, schema) => {
+          return parseBlock(node, schema).content;
+        },
+      },
+      {
+        tag: "h1",
+        getContent: (node, schema) => {
+          return parseBlock(node, schema).content;
+        },
+      },
+      {
+        tag: "h2",
+        getContent: (node, schema) => {
+          return parseBlock(node, schema).content;
+        },
+      },
+      {
+        tag: "h3",
+        getContent: (node, schema) => {
+          return parseBlock(node, schema).content;
+        },
+      },
+      {
+        tag: "li",
+        getContent: (node, schema) => {
+          return parseBlock(node, schema).content;
         },
       },
     ];

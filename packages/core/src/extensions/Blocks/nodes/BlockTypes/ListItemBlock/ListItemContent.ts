@@ -2,6 +2,8 @@ import { InputRule, mergeAttributes, Node } from "@tiptap/core";
 import { OrderedListItemIndexPlugin } from "./OrderedListItemIndexPlugin";
 import { getBlockInfoFromPos } from "../../../helpers/getBlockInfoFromPos";
 import styles from "../../Block.module.css";
+// import { Fragment } from "prosemirror-model";
+// import { clone } from "lodash";
 
 export type ListItemContentAttributes = {
   listItemType: string;
@@ -117,43 +119,6 @@ export const ListItemContent = Node.create({
 
   addProseMirrorPlugins() {
     return [OrderedListItemIndexPlugin()];
-  },
-
-  parseHTML() {
-    return [
-      {
-        tag: "li",
-        getAttrs: (element) => {
-          if (typeof element === "string") {
-            return false;
-          }
-
-          const parent = element.parentElement;
-
-          if (parent === null) {
-            return false;
-          }
-
-          // Case for BlockNote list structure.
-          // Gets type of list item (ordered/unordered) based on the block content's listItemType attribute.
-          if (parent.getAttribute("data-content-type") === "listItemContent") {
-            return { listItemType: parent.getAttribute("data-list-item-type") };
-          }
-
-          // Case for regular HTML list structure.
-          // Gets type of list item (ordered/unordered) based on parent element's tag ("ol"/"ul").
-          if (parent.tagName === "UL") {
-            return { listItemType: "unordered" };
-          }
-          if (parent.tagName === "OL") {
-            return { listItemType: "ordered" };
-          }
-
-          return false;
-        },
-        node: "block"
-      },
-    ];
   },
 
   renderHTML({ HTMLAttributes }) {
