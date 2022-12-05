@@ -44,6 +44,26 @@ export const HeadingContent = Node.create({
     ];
   },
 
+  parseHTML() {
+    return [
+      {
+        tag: "h1",
+        attrs: { headingLevel: "1" },
+        node: "block"
+      },
+      {
+        tag: "h2",
+        attrs: { headingLevel: "2" },
+        node: "block"
+      },
+      {
+        tag: "h3",
+        attrs: { headingLevel: "3" },
+        node: "block"
+      },
+    ];
+  },
+
   renderHTML({ node, HTMLAttributes }) {
     console.log(node.attrs);
     return [

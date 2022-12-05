@@ -6,6 +6,16 @@ export const TextContent = Node.create({
   group: "blockContent",
   content: "inline*",
 
+  parseHTML() {
+    return [
+      {
+        tag: "p",
+        priority: 200,
+        node: "block",
+      },
+    ];
+  },
+
   renderHTML() {
     return [
       "div",
