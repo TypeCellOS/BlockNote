@@ -259,13 +259,11 @@ export const Block = Node.create<IBlock>({
             state.tr.insertText(secondBlockContent, newBlockContentPos);
 
             if (keepType) {
-              dispatch(
-                state.tr.setBlockType(
-                  newBlockContentPos,
-                  newBlockContentPos,
-                  state.schema.node(contentType).type,
-                  contentNode.attrs
-                )
+              state.tr.setBlockType(
+                newBlockContentPos,
+                newBlockContentPos,
+                state.schema.node(contentType).type,
+                contentNode.attrs
               );
             }
           }

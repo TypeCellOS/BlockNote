@@ -107,16 +107,25 @@ export const PreviousBlockTypePlugin = () => {
               };
 
               // Hacky fix to avoid processing certain transactions created by ordered list indexing plugin.
+
+              // True when an existing ordered list item is assigned an index for the first time, which happens
+              // immediately after it's created. Using this condition to start an animation ensures it's not
+              // immediately overridden by a different transaction created by the ordered list indexing plugin.
               const indexInitialized =
                 oldAttrs.listItemIndex === null &&
                 newAttrs.listItemIndex !== null;
 
+              // True when an existing ordered list item changes nesting levels, before its index is updated by the
+              // ordered list indexing plugin. This condition ensures that animations for indentation still work with
+              // ordered list items, while preventing unnecessary animations being done when dragging/dropping them.
               const depthChanged =
                 oldAttrs.listItemIndex !== null &&
                 newAttrs.listItemIndex !== null &&
                 oldAttrs.listItemIndex === newAttrs.listItemIndex;
 
-              const update =
+              // Only false for transactions in which the block remains an ordered list item before & after, but neither
+              // of the previous conditions apply.
+              const shouldUpdate =
                 oldAttrs.listItemType === "ordered" &&
                 newAttrs.listItemType === "ordered"
                   ? indexInitialized || depthChanged
@@ -124,7 +133,7 @@ export const PreviousBlockTypePlugin = () => {
 
               if (
                 JSON.stringify(oldAttrs) !== JSON.stringify(newAttrs) && // TODO: faster deep equal?
-                update
+                shouldUpdate
               ) {
                 (oldAttrs as any)["depth-change"] =
                   oldAttrs.depth - newAttrs.depth;
