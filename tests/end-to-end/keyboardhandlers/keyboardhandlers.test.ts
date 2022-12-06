@@ -1,15 +1,10 @@
-import { test } from "@playwright/test";
+import { test } from "../../setup/setupScript";
 import {
   BASE_URL,
   H_ONE_BLOCK_SELECTOR,
   H_TWO_BLOCK_SELECTOR,
 } from "../../utils/const";
-import {
-  compareDocWithIDsToSnapshot,
-  focusOnEditor,
-  getDoc,
-  getMockIDMap,
-} from "../../utils/editor";
+import { compareDocToSnapshot, focusOnEditor } from "../../utils/editor";
 import { insertHeading } from "../../utils/copypaste";
 
 test.beforeEach(async ({ page }) => {
@@ -22,8 +17,6 @@ test.describe("Check Keyboard Handlers' Behaviour", () => {
     await focusOnEditor(page);
     await insertHeading(page, 1);
     await insertHeading(page, 2);
-
-    const mockIDMap = getMockIDMap(await getDoc(page));
 
     const startElement = await page.locator(H_ONE_BLOCK_SELECTOR);
     let boundingBox = await startElement.boundingBox();
@@ -39,10 +32,6 @@ test.describe("Check Keyboard Handlers' Behaviour", () => {
 
     await page.keyboard.press("Enter");
 
-    await compareDocWithIDsToSnapshot(
-      page,
-      mockIDMap,
-      "enterSelectionNotEmpty.json"
-    );
+    await compareDocToSnapshot(page, "enterSelectionNotEmpty.json");
   });
 });

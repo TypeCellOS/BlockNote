@@ -6,7 +6,9 @@
       "content": [
         {
           "type": "block",
-          "attrs": {},
+          "attrs": {
+            "id": 0
+          },
           "content": [
             {
               "type": "headingContent",
@@ -24,7 +26,9 @@
         },
         {
           "type": "block",
-          "attrs": {},
+          "attrs": {
+            "id": 1
+          },
           "content": [
             {
               "type": "headingContent",
@@ -42,7 +46,9 @@
         },
         {
           "type": "block",
-          "attrs": {},
+          "attrs": {
+            "id": 2
+          },
           "content": [
             {
               "type": "headingContent",
@@ -60,7 +66,9 @@
         },
         {
           "type": "block",
-          "attrs": {},
+          "attrs": {
+            "id": 3
+          },
           "content": [
             {
               "type": "textContent"
@@ -69,7 +77,9 @@
         },
         {
           "type": "block",
-          "attrs": {},
+          "attrs": {
+            "id": 5
+          },
           "content": [
             {
               "type": "headingContent",
@@ -87,7 +97,9 @@
         },
         {
           "type": "block",
-          "attrs": {},
+          "attrs": {
+            "id": 6
+          },
           "content": [
             {
               "type": "headingContent",
@@ -105,7 +117,9 @@
         },
         {
           "type": "block",
-          "attrs": {},
+          "attrs": {
+            "id": 7
+          },
           "content": [
             {
               "type": "headingContent",
@@ -123,7 +137,9 @@
         },
         {
           "type": "block",
-          "attrs": {},
+          "attrs": {
+            "id": 8
+          },
           "content": [
             {
               "type": "textContent"

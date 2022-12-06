@@ -6,7 +6,9 @@
       "content": [
         {
           "type": "block",
-          "attrs": {},
+          "attrs": {
+            "id": 0
+          },
           "content": [
             {
               "type": "headingContent",
@@ -24,7 +26,9 @@
         },
         {
           "type": "block",
-          "attrs": {},
+          "attrs": {
+            "id": 2
+          },
           "content": [
             {
               "type": "headingContent",
@@ -42,7 +46,9 @@
         },
         {
           "type": "block",
-          "attrs": {},
+          "attrs": {
+            "id": 1
+          },
           "content": [
             {
               "type": "textContent"

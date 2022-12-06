@@ -95,7 +95,8 @@ export const Block = Node.create<IBlock>({
   renderHTML({ HTMLAttributes }) {
     const attrs: Record<string, string> = {};
     for (let [nodeAttr, HTMLAttr] of Object.entries(BlockAttributes)) {
-      if (HTMLAttributes[nodeAttr]) {
+      // Ensure falsy values are not misinterpreted.
+      if (HTMLAttributes[nodeAttr] !== undefined) {
         attrs[HTMLAttr] = HTMLAttributes[nodeAttr];
       }
     }

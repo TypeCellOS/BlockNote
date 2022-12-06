@@ -1,4 +1,4 @@
-import { test } from "@playwright/test";
+import { test } from "../../setup/setupScript";
 import {
   BASE_URL,
   BLOCK_SELECTOR,
@@ -6,12 +6,7 @@ import {
   H_THREE_BLOCK_SELECTOR,
   H_TWO_BLOCK_SELECTOR,
 } from "../../utils/const";
-import {
-  compareDocWithIDsToSnapshot,
-  focusOnEditor,
-  getDoc,
-  getMockIDMap,
-} from "../../utils/editor";
+import { compareDocToSnapshot, focusOnEditor } from "../../utils/editor";
 import { insertHeading, insertParagraph } from "../../utils/copypaste";
 import { dragAndDropBlock } from "../../utils/mouse";
 
@@ -33,7 +28,6 @@ test.describe("Check Block Dragging Functionality", () => {
     await insertHeading(page, 1);
     await insertHeading(page, 2);
     await insertHeading(page, 3);
-    const mockIDMap = getMockIDMap(await getDoc(page));
 
     const dragTarget = await page.locator(H_ONE_BLOCK_SELECTOR);
     const dropTarget = await page.locator(H_TWO_BLOCK_SELECTOR);
@@ -41,7 +35,7 @@ test.describe("Check Block Dragging Functionality", () => {
 
     await page.pause();
 
-    await compareDocWithIDsToSnapshot(page, mockIDMap, "dragdropsingle");
+    await compareDocToSnapshot(page, "dragdropsingle");
   });
 
   test("Should be able to drag & drop nested blocks", async ({
@@ -65,7 +59,6 @@ test.describe("Check Block Dragging Functionality", () => {
     await page.keyboard.press("Tab");
     await page.keyboard.press("Tab");
     await insertHeading(page, 3);
-    const mockIDMap = getMockIDMap(await getDoc(page));
 
     // Dragging first heading into next nested element.
     let dragTarget = await page.locator(H_ONE_BLOCK_SELECTOR);
@@ -84,6 +77,6 @@ test.describe("Check Block Dragging Functionality", () => {
 
     await page.pause();
 
-    await compareDocWithIDsToSnapshot(page, mockIDMap, "dragdropnested");
+    await compareDocToSnapshot(page, "dragdropnested");
   });
 });

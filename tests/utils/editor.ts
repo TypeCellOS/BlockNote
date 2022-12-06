@@ -33,42 +33,6 @@ export function removeAttFromDoc(doc: unknown, att: string) {
 
 export async function compareDocToSnapshot(page: Page, name: string) {
   // Remove id from docs
-  const doc = JSON.stringify(
-    removeAttFromDoc(await getDoc(page), "id"),
-    null,
-    2
-  );
-  expect(doc).toMatchSnapshot(`${name}.json`);
-}
-
-export function getMockIDMap(doc: unknown, mockIDs = {}) {
-  if (typeof doc !== "object") return;
-  if (Object.keys(doc).includes("id")) {
-    mockIDs[doc["id"]] = Object.entries(mockIDs).length;
-  }
-  Object.keys(doc).forEach((key) => getMockIDMap(doc[key], mockIDs));
-  return mockIDs;
-}
-
-function mockIDs(doc: unknown, mockIDMap: Record<string, number>) {
-  if (typeof doc !== "object" || doc === null) return;
-  if (Object.keys(doc).includes("id")) {
-    if (!(doc["id"] in mockIDMap)) {
-      mockIDMap[doc["id"]] = Object.entries(mockIDMap).length;
-    }
-
-    doc["id"] = mockIDMap[doc["id"]];
-  }
-  Object.keys(doc).forEach((key) => mockIDs(doc[key], mockIDMap));
-  return doc;
-}
-
-export async function compareDocWithIDsToSnapshot(
-  page: Page,
-  mockIDMap: Record<string, number>,
-  name: string
-) {
-  // Replaces actual IDs with mock IDs.
-  const doc = JSON.stringify(mockIDs(await getDoc(page), mockIDMap), null, 2);
+  const doc = JSON.stringify(await getDoc(page), null, 2);
   expect(doc).toMatchSnapshot(`${name}.json`);
 }

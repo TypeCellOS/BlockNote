@@ -1,4 +1,5 @@
-import { test, expect, Page } from "@playwright/test";
+import { expect, Page } from "@playwright/test";
+import { test } from "../../setup/setupScript";
 import {
   BASE_URL,
   BLOCK_SELECTOR,
@@ -15,13 +16,7 @@ import {
   getDragHandleYCoord,
   hoverAndAddBlockFromDragHandle,
 } from "../../utils/draghandle";
-import {
-  compareDocToSnapshot,
-  compareDocWithIDsToSnapshot,
-  focusOnEditor,
-  getDoc,
-  getMockIDMap,
-} from "../../utils/editor";
+import { compareDocToSnapshot, focusOnEditor } from "../../utils/editor";
 import { moveMouseOverElement } from "../../utils/mouse";
 import { executeSlashCommand } from "../../utils/slashmenu";
 import { insertHeading } from "../../utils/copypaste";
@@ -34,7 +29,7 @@ test.describe("Check Draghandle functionality", () => {
   });
 
   test.beforeEach(async () => {
-    page.goto(BASE_URL, { waitUntil: "networkidle" });
+    await page.goto(BASE_URL, { waitUntil: "networkidle" });
     await focusOnEditor(page);
   });
 
@@ -71,11 +66,9 @@ test.describe("Check Draghandle functionality", () => {
     await insertHeading(page, 3);
 
     const h1y = await getDragHandleYCoord(page, H_ONE_BLOCK_SELECTOR);
-    await page.pause();
     const h2y = await getDragHandleYCoord(page, H_TWO_BLOCK_SELECTOR);
-    await page.pause();
     const h3y = await getDragHandleYCoord(page, H_THREE_BLOCK_SELECTOR);
-    await page.pause();
+
     expect(h1y < h2y && h1y < h3y && h2y < h3y).toBeTruthy();
   });
 
@@ -87,6 +80,7 @@ test.describe("Check Draghandle functionality", () => {
     await page.click(DRAG_HANDLE_SELECTOR);
     await page.waitForSelector(DRAG_HANDLE_MENU_SELECTOR);
     // Compare editor screenshot
+
     await page.waitForTimeout(1000);
     expect(await page.screenshot()).toMatchSnapshot("draghandlemenu.png");
   });
@@ -113,6 +107,7 @@ test.describe("Check Draghandle functionality", () => {
         .getComputedStyle(el.children[0], ":before")
         .getPropertyValue("content")
     );
+
     expect(text).toBe('"Type to filter"');
   });
 
@@ -136,7 +131,6 @@ test.describe("Check Draghandle functionality", () => {
   test("Clicking delete button should delete block", async () => {
     await executeSlashCommand(page, "h1");
     await page.keyboard.type("Hover over this text");
-    const mockIDMap = getMockIDMap(await getDoc(page));
 
     await page.hover(H_ONE_BLOCK_SELECTOR);
     await page.click(DRAG_HANDLE_SELECTOR);
@@ -144,7 +138,7 @@ test.describe("Check Draghandle functionality", () => {
     await page.click("text=Delete");
     await page.locator(H_ONE_BLOCK_SELECTOR).waitFor({ state: "detached" });
 
-    await compareDocWithIDsToSnapshot(page, mockIDMap, "draghandledelete");
+    await compareDocToSnapshot(page, "draghandledelete");
   });
 
   test("Delete button should delete correct block", async () => {
@@ -154,7 +148,6 @@ test.describe("Check Draghandle functionality", () => {
     await page.keyboard.type("This is h2");
     await executeSlashCommand(page, "h3");
     await page.keyboard.type("This is h3");
-    const mockIDMap = getMockIDMap(await getDoc(page));
 
     await page.hover(H_TWO_BLOCK_SELECTOR);
     await page.click(DRAG_HANDLE_SELECTOR);
@@ -162,12 +155,9 @@ test.describe("Check Draghandle functionality", () => {
     await page.waitForSelector(H_ONE_BLOCK_SELECTOR);
     await page.waitForSelector(H_TWO_BLOCK_SELECTOR, { state: "detached" });
     await page.waitForSelector(H_THREE_BLOCK_SELECTOR);
+
     // Compare doc object snapshot
-    await compareDocWithIDsToSnapshot(
-      page,
-      mockIDMap,
-      "dragHandleDocStructure"
-    );
+    await compareDocToSnapshot(page, "dragHandleDocStructure");
   });
 
   test("Deleting block with children should delete all children", async () => {
@@ -183,7 +173,6 @@ test.describe("Check Draghandle functionality", () => {
     await page.keyboard.press("Tab", { delay: 10 });
     await executeSlashCommand(page, "h3");
     await page.keyboard.type("This is h3");
-    const mockIDMap = getMockIDMap(await getDoc(page));
 
     await page.hover(H_TWO_BLOCK_SELECTOR);
     await page.click(DRAG_HANDLE_SELECTOR);
@@ -192,10 +181,6 @@ test.describe("Check Draghandle functionality", () => {
     await page.waitForSelector(H_TWO_BLOCK_SELECTOR, { state: "detached" });
     await page.waitForSelector(H_THREE_BLOCK_SELECTOR, { state: "detached" });
 
-    await compareDocWithIDsToSnapshot(
-      page,
-      mockIDMap,
-      "draghandlenesteddelete"
-    );
+    await compareDocToSnapshot(page, "draghandlenesteddelete");
   });
 });
