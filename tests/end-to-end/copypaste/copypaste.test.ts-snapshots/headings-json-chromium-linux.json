@@ -89,11 +89,6 @@
               "content": [
                 {
                   "type": "text",
-                  "marks": [
-                    {
-                      "type": "bold"
-                    }
-                  ],
                   "text": "Heading"
                 }
               ]
@@ -114,11 +109,6 @@
               "content": [
                 {
                   "type": "text",
-                  "marks": [
-                    {
-                      "type": "bold"
-                    }
-                  ],
                   "text": "Heading"
                 }
               ]
@@ -139,11 +129,6 @@
               "content": [
                 {
                   "type": "text",
-                  "marks": [
-                    {
-                      "type": "bold"
-                    }
-                  ],
                   "text": "Heading"
                 }
               ]
