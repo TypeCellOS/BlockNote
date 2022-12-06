@@ -41,7 +41,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "build-bundled": "tsc && vite build --config vite.config.bundled.ts && git checkout tmp-releases && rm-rf release && mv tmp-release release",
+    "build-bundled": "tsc && vite build --config vite.config.bundled.ts && git checkout tmp-releases && rm -rf ../../release && mv ../../release-tmp ../../release",
     "preview": "vite preview",
     "lint": "eslint src --max-warnings 0"
   },
