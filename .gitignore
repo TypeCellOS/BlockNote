@@ -29,3 +29,4 @@ yarn-error.log*
 test-results/
 playwright-report/
 release
+release-tmp

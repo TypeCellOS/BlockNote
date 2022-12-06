@@ -7,7 +7,7 @@ import { defineConfig } from "vite";
 export default defineConfig({
   plugins: [],
   build: {
-    outDir: "../../release",
+    outDir: "../../release-tmp",
     minify: false,
     sourcemap: true,
     lib: {
