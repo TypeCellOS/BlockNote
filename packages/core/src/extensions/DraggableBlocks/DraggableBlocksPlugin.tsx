@@ -92,10 +92,7 @@ function blockPositionFromCoords(
   return null;
 }
 
-function blockPositionsFromSelection(
-  selection: Selection,
-  doc: Node
-) {
+function blockPositionsFromSelection(selection: Selection, doc: Node) {
   // Absolute positions just before the first block spanned by the selection, and just after the last block. Having the
   // selection start and end just before and just after the target blocks ensures no whitespace/line breaks are left
   // behind after dragging & dropping them.
@@ -108,9 +105,9 @@ function blockPositionsFromSelection(
   // in. If the anchor should update but the head shouldn't and vice versa, it means the user selection is outside a
   // block content node, which should never happen.
   const selectionStartInBlockContent =
-    doc.resolve(selection.from).node().type.name === "content";
+    doc.resolve(selection.from).node().type.spec.group === "blockContent";
   const selectionEndInBlockContent =
-    doc.resolve(selection.to).node().type.name === "content";
+    doc.resolve(selection.to).node().type.spec.group === "blockContent";
 
   // Ensures that entire outermost nodes are selected if the selection spans multiple nesting levels.
   const minDepth = Math.min(selection.$anchor.depth, selection.$head.depth);
