@@ -2,7 +2,7 @@ import { mergeAttributes, Node } from "@tiptap/core";
 import styles from "./Block.module.css";
 
 export const BlockGroup = Node.create({
-  name: "blockgroup",
+  name: "blockGroup",
 
   addOptions() {
     return {
@@ -17,18 +17,18 @@ export const BlockGroup = Node.create({
       {
         tag: "div",
         getAttrs: (element) => {
-          if(typeof element === "string") {
+          if (typeof element === "string") {
             return false;
           }
 
-          if(element.getAttribute("data-node-type") === "block-group") {
+          if (element.getAttribute("data-node-type") === "block-group") {
             // Null means the element matches, but we don't want to add any attributes to the node.
             return null;
           }
 
           return false;
-        }
-      }
+        },
+      },
     ];
   },
 
@@ -37,7 +37,7 @@ export const BlockGroup = Node.create({
       "div",
       mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, {
         class: styles.blockGroup,
-        "data-node-type": "block-group"
+        "data-node-type": "block-group",
       }),
       0,
     ];

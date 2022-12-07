@@ -1,4 +1,5 @@
-import { test, expect } from "@playwright/test";
+import { expect } from "@playwright/test";
+import { test } from "../../setup/setupScript";
 import { BASE_URL } from "../../utils/const";
 
 test.beforeEach(async ({ page }) => {

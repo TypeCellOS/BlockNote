@@ -23,9 +23,27 @@ BASIC STYLES
 }
 
 .blockContent {
+  font-size: 1em;
   padding: 3px 0;
   transition: font-size 0.2s;
   /* display: inline-block; */
+}
+
+.blockContent::before {
+  /* content: ""; */
+  transition: all 0.2s;
+  /*margin: 0px;*/
+}
+
+/* reset styles, they will be set on blockContent */
+.blockContent p,
+.blockContent h1,
+.blockContent h2,
+.blockContent h3,
+.blockContent li {
+  margin: 0;
+  padding: 0;
+  font-size: inherit;
 }
 
 /*
@@ -54,7 +72,7 @@ NESTED BLOCKS
   height: 0;
 }
 
-/* NESTED BLOCK ANIMATIONS */
+/* NESTED BLOCK ANIMATIONS (change in indent) */
 
 [data-prev-depth-change="1"] {
   --x: 1;
@@ -97,106 +115,128 @@ NESTED BLOCKS
 }
 
 /* HEADINGS*/
-.blockOuter[data-prev-heading-type="1"] > .block > div:first-child,
-.blockOuter[data-heading-type="1"]:not([data-prev-heading-type])
-  > .block
-  > div:first-child {
-  font-size: 3em;
+[data-heading-level="1"] {
+  --level: 3em;
+}
+[data-heading-level="2"] {
+  --level: 2em;
+}
+[data-heading-level="3"] {
+  --level: 1.3em;
+}
+
+[data-prev-heading-level="1"] {
+  --prev-level: 3em;
+}
+[data-prev-heading-level="2"] {
+  --prev-level: 2em;
+}
+[data-prev-heading-level="3"] {
+  --prev-level: 1.3em;
+}
+
+.blockOuter[data-prev-type="headingContent"] > .block > .blockContent {
+  font-size: var(--prev-level);
   font-weight: bold;
 }
 
-.blockOuter[data-prev-heading-type="2"] > .block > div:first-child,
-.blockOuter[data-heading-type="2"]:not([data-prev-heading-type])
+.blockOuter:not([data-prev-type])
   > .block
-  > div:first-child {
-  font-size: 2em;
-  font-weight: bold;
-}
-
-.blockOuter[data-prev-heading-type="3"] > .block > div:first-child,
-.blockOuter[data-heading-type="3"]:not([data-prev-heading-type])
-  > .block
-  > div:first-child {
-  font-size: 1.3em;
+  > .blockContent[data-content-type="headingContent"] {
+  font-size: var(--level);
   font-weight: bold;
 }
 
 /* LISTS */
 
-.block > div:first-child::before {
+.blockContent::before {
+  margin-right: 0;
   content: "";
-  transition: all 0.2s;
-  margin-left: 0px;
 }
 
-.blockOuter[data-prev-list-type="oli"] > .block > div:first-child::before,
-.blockOuter[data-list-type="oli"]:not([data-prev-list-type])
-  > .block
-  > div:first-child::before {
-  content: attr(data-position);
+/* Ordered */
+[data-list-item-type="ordered"] {
+  --index: attr(data-list-item-index)
+}
+
+[data-prev-list-item-type="ordered"] {
+  --prev-index: attr(data-prev-list-item-index)
+}
+
+.blockOuter[data-prev-list-item-type="ordered"]:not([data-prev-list-item-index="none"])
+> .block
+> .blockContent::before {
   margin-right: 1.2em;
-  padding-left: 0px;
+  content: var(--prev-index)".";
 }
 
-.blockOuter[data-prev-list-type="li"] > .block > div:first-child::before,
-.blockOuter[data-list-type="li"]:not([data-prev-list-type])
-  > .block
-  > div:first-child::before {
+.blockOuter:not([data-prev-type])
+> .block
+> .blockContent[data-list-item-type="ordered"]::before {
+  margin-right: 1.2em;
+  content: var(--index)".";
+}
+
+/* Unordered */
+/* No list nesting */
+.blockOuter[data-prev-list-item-type="unordered"]
+> .block
+> .blockContent::before {
+  margin-right: 1.2em;
   content: "•";
+}
+
+.blockOuter:not([data-prev-type])
+> .block
+> .blockContent[data-list-item-type="unordered"]::before {
   margin-right: 1.2em;
-  /* display: list-item; */
-  /* list-style-type: circle; */
-  /* list-style-position: inside; */
-  padding-left: 0px;
-  /* margin-left: 0.2em; */
+  content: "•";
 }
 
-.blockOuter[data-list-type="li"]
-  > .block
-  > .blockGroup
-  > .blockOuter[data-prev-list-type="li"]
-  > .block
-  > div:first-child::before,
-.blockOuter[data-list-type="li"]
-  > .block
-  > .blockGroup
-  > .blockOuter[data-list-type="li"]:not([data-prev-list-type])
-  > .block
-  > div:first-child::before {
+/* 1 level of list nesting */
+[data-list-item-type="unordered"]~.blockGroup
+> .blockOuter[data-prev-list-item-type="unordered"]
+> .block
+> .blockContent::before {
+  margin-right: 1.2em;
   content: "◦";
-  /* font-size: 1.2em; */
-  font-family: arial;
 }
 
-.blockOuter[data-list-type="li"]
-  > .block
-  > .blockGroup
-  > .blockOuter[data-list-type="li"]
-  > .block
-  > .blockGroup
-  .blockOuter[data-prev-list-type="li"]
-  > .block
-  > div:first-child::before,
-.blockOuter[data-list-type="li"]
-  > .block
-  > .blockGroup
-  > .blockOuter[data-list-type="li"]
-  > .block
-  > .blockGroup
-  .blockOuter[data-list-type="li"]:not([data-prev-list-type])
-  > .block
-  > div:first-child::before {
+[data-list-item-type="unordered"]~.blockGroup
+> .blockOuter:not([data-prev-type])
+> .block
+> .blockContent[data-list-item-type="unordered"]::before {
+  margin-right: 1.2em;
+  content: "◦";
+}
+
+/* 2 levels of list nesting */
+[data-list-item-type="unordered"]~.blockGroup
+[data-list-item-type="unordered"]~.blockGroup
+> .blockOuter[data-prev-list-item-type="unordered"]
+> .block
+> .blockContent::before {
+  margin-right: 1.2em;
+  content: "▪";
+}
+
+[data-list-item-type="unordered"]~.blockGroup
+[data-list-item-type="unordered"]~.blockGroup
+> .blockOuter:not([data-prev-type])
+> .block
+> .blockContent[data-list-item-type="unordered"]::before {
+  margin-right: 1.2em;
   content: "▪";
 }
 
 /* PLACEHOLDERS*/
 
-.blockContent > div {
+.blockContent > :first-child {
   display: inline;
 }
 
-.blockContent.isEmpty div::before,
-.blockContent.isFilter div::before {
+.blockContent.isEmpty > :first-child:before,
+.blockContent.isFilter > :first-child:before {
   /*float: left; */
   content: "";
   color: #aeb8c2;
@@ -209,18 +249,20 @@ NESTED BLOCKS
 
 /* TODO: would be nicer if defined from code */
 
-.blockContent.isEmpty.hasAnchor div::before {
+.blockContent.isEmpty.hasAnchor > :first-child:before {
   content: "Enter text or type '/' for commands";
 }
 
-.blockContent.isFilter.hasAnchor div::before {
+.blockContent.isFilter.hasAnchor > :first-child:before {
   content: "Type to filter";
 }
 
-[data-heading-type] > .blockContent.isEmpty div::before {
+.blockContent[data-content-type="headingContent"].isEmpty
+  > :first-child::before {
   content: "Heading";
 }
 
-[data-list-type] > .blockContent.isEmpty div::before {
+.blockContent[data-content-type="listItemContent"].isEmpty
+  > :first-child:before {
   content: "List";
 }

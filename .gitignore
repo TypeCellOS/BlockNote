@@ -28,3 +28,4 @@ yarn-error.log*
 .vercel
 test-results/
 playwright-report/
+release

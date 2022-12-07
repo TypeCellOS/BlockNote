@@ -51,7 +51,20 @@ const UniqueID = Extension.create({
     return {
       attributeName: "id",
       types: [],
-      generateID: () => v4(),
+      generateID: () => {
+        // Use mock ID if tests are running.
+        if ((window as any).__TEST_OPTIONS) {
+          if ((window as any).__TEST_OPTIONS.mockID === undefined) {
+            (window as any).__TEST_OPTIONS.mockID = 0;
+          } else {
+            (window as any).__TEST_OPTIONS.mockID++;
+          }
+
+          return parseInt((window as any).__TEST_OPTIONS.mockID);
+        }
+
+        return v4();
+      },
       filterTransaction: null,
     };
   },

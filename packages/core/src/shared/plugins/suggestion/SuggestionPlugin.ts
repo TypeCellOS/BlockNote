@@ -216,6 +216,11 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
         const { selection } = transaction;
         const next = { ...prev };
 
+        // TODO: More clearly define which transactions should be ignored and which should deactivate the menu.
+        if (transaction.getMeta("orderedListIndexing") !== undefined) {
+          return next;
+        }
+
         if (
           // only show popup if selection is a blinking cursor
           selection.from === selection.to &&

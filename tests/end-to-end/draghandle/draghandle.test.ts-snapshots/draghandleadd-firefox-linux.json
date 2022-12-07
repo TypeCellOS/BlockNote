@@ -2,17 +2,19 @@
   "type": "doc",
   "content": [
     {
-      "type": "blockgroup",
+      "type": "blockGroup",
       "content": [
         {
           "type": "block",
           "attrs": {
-            "headingType": "1"
+            "id": 0
           },
           "content": [
             {
-              "type": "content",
-              "attrs": {},
+              "type": "headingContent",
+              "attrs": {
+                "headingLevel": "1"
+              },
               "content": [
                 {
                   "type": "text",
@@ -25,31 +27,18 @@
         {
           "type": "block",
           "attrs": {
-            "headingType": "2"
+            "id": 2
           },
           "content": [
             {
-              "type": "content",
-              "attrs": {},
+              "type": "headingContent",
+              "attrs": {
+                "headingLevel": "2"
+              },
               "content": [
                 {
                   "type": "text",
                   "text": "This is an h2"
-                }
-              ]
-            },
-            {
-              "type": "blockgroup",
-              "content": [
-                {
-                  "type": "block",
-                  "attrs": {},
-                  "content": [
-                    {
-                      "type": "content",
-                      "attrs": {}
-                    }
-                  ]
                 }
               ]
             }
@@ -57,11 +46,12 @@
         },
         {
           "type": "block",
-          "attrs": {},
+          "attrs": {
+            "id": 1
+          },
           "content": [
             {
-              "type": "content",
-              "attrs": {}
+              "type": "textContent"
             }
           ]
         }

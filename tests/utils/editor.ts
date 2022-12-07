@@ -23,7 +23,7 @@ export async function getDoc(page: Page) {
 }
 
 export function removeAttFromDoc(doc: unknown, att: string) {
-  if (typeof doc !== "object") return;
+  if (typeof doc !== "object" || doc === null) return;
   if (Object.keys(doc).includes(att)) {
     delete doc[att];
   }
@@ -33,10 +33,6 @@ export function removeAttFromDoc(doc: unknown, att: string) {
 
 export async function compareDocToSnapshot(page: Page, name: string) {
   // Remove id from docs
-  const doc = JSON.stringify(
-    removeAttFromDoc(await getDoc(page), "id"),
-    null,
-    2
-  );
+  const doc = JSON.stringify(await getDoc(page), null, 2);
   expect(doc).toMatchSnapshot(`${name}.json`);
 }

@@ -2,33 +2,16 @@
   "type": "doc",
   "content": [
     {
-      "type": "blockgroup",
+      "type": "blockGroup",
       "content": [
         {
           "type": "block",
           "attrs": {
-            "headingType": "1"
+            "id": 1
           },
           "content": [
             {
-              "type": "content",
-              "attrs": {},
-              "content": [
-                {
-                  "type": "text",
-                  "text": "Heading"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "type": "block",
-          "attrs": {},
-          "content": [
-            {
-              "type": "content",
-              "attrs": {},
+              "type": "textContent",
               "content": [
                 {
                   "type": "text",
@@ -37,21 +20,23 @@
               ]
             },
             {
-              "type": "blockgroup",
+              "type": "blockGroup",
               "content": [
                 {
                   "type": "block",
                   "attrs": {
-                    "headingType": "2"
+                    "id": 6
                   },
                   "content": [
                     {
-                      "type": "content",
-                      "attrs": {},
+                      "type": "headingContent",
+                      "attrs": {
+                        "headingLevel": "1"
+                      },
                       "content": [
                         {
                           "type": "text",
-                          "text": "HeadingHeading"
+                          "text": "Heading"
                         }
                       ]
                     }
@@ -59,11 +44,12 @@
                 },
                 {
                   "type": "block",
-                  "attrs": {},
+                  "attrs": {
+                    "id": 3
+                  },
                   "content": [
                     {
-                      "type": "content",
-                      "attrs": {},
+                      "type": "textContent",
                       "content": [
                         {
                           "type": "text",
@@ -72,21 +58,23 @@
                       ]
                     },
                     {
-                      "type": "blockgroup",
+                      "type": "blockGroup",
                       "content": [
                         {
                           "type": "block",
                           "attrs": {
-                            "headingType": "3"
+                            "id": 7
                           },
                           "content": [
                             {
-                              "type": "content",
-                              "attrs": {},
+                              "type": "headingContent",
+                              "attrs": {
+                                "headingLevel": "2"
+                              },
                               "content": [
                                 {
                                   "type": "text",
-                                  "text": "HeadingHeadingHeading"
+                                  "text": "Heading"
                                 }
                               ]
                             }
@@ -102,15 +90,19 @@
         },
         {
           "type": "block",
-          "attrs": {},
+          "attrs": {
+            "id": 8
+          },
           "content": [
             {
-              "type": "content",
-              "attrs": {},
+              "type": "headingContent",
+              "attrs": {
+                "headingLevel": "3"
+              },
               "content": [
                 {
                   "type": "text",
-                  "text": "HeadingHeadingHeading"
+                  "text": "Heading"
                 }
               ]
             }
@@ -118,11 +110,12 @@
         },
         {
           "type": "block",
-          "attrs": {},
+          "attrs": {
+            "id": 5
+          },
           "content": [
             {
-              "type": "content",
-              "attrs": {}
+              "type": "textContent"
             }
           ]
         }

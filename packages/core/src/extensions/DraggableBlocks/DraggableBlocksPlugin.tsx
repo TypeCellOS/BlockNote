@@ -3,6 +3,7 @@ import { Node } from "prosemirror-model";
 import { NodeSelection, Plugin, PluginKey, Selection } from "prosemirror-state";
 import * as pv from "prosemirror-view";
 import { EditorView } from "prosemirror-view";
+import { Editor } from "@tiptap/core";
 import { createRoot, Root } from "react-dom/client";
 import { BlockNoteTheme } from "../../BlockNoteTheme";
 import { MultipleNodeSelection } from "../Blocks/MultipleNodeSelection";
@@ -91,7 +92,10 @@ function blockPositionFromCoords(
   return null;
 }
 
-function blockPositionsFromSelection(selection: Selection, doc: Node) {
+function blockPositionsFromSelection(
+  selection: Selection,
+  doc: Node
+) {
   // Absolute positions just before the first block spanned by the selection, and just after the last block. Having the
   // selection start and end just before and just after the target blocks ensures no whitespace/line breaks are left
   // behind after dragging & dropping them.
@@ -217,7 +221,7 @@ function dragStart(e: DragEvent, view: EditorView) {
   }
 }
 
-export const createDraggableBlocksPlugin = () => {
+export const createDraggableBlocksPlugin = (editor: Editor) => {
   let dropElement: HTMLElement | undefined;
   let dropElementRoot: Root | undefined;
 
@@ -357,12 +361,12 @@ export const createDraggableBlocksPlugin = () => {
           dropElementRoot.render(
             <MantineProvider theme={BlockNoteTheme}>
               <DragHandle
+                key={block.id + ""}
+                editor={editor}
+                coords={coords}
                 onShow={onShow}
                 onHide={onHide}
                 onAddClicked={onAddClicked}
-                key={block.id + ""}
-                view={view}
-                coords={coords}
               />
             </MantineProvider>
           );
