@@ -1,9 +1,9 @@
 import { Page } from "@playwright/test";
-import { DRAG_HANDLE, DRAG_HANDLE_ADD } from "./const";
+import { DRAG_HANDLE_SELECTOR, DRAG_HANDLE_ADD_SELECTOR } from "./const";
 import { moveMouseOverElement } from "./mouse";
 
 export async function addBlockFromDragHandle(page: Page, blockQuery: string) {
-  await page.click(DRAG_HANDLE_ADD);
+  await page.click(DRAG_HANDLE_ADD_SELECTOR);
   await page.keyboard.type(blockQuery, { delay: 10 });
   await page.keyboard.press("Enter", { delay: 10 });
 }
@@ -21,7 +21,7 @@ export async function hoverAndAddBlockFromDragHandle(
 export async function getDragHandleYCoord(page: Page, selector: string) {
   const element = await page.locator(selector);
   await moveMouseOverElement(page, element);
-  await page.waitForSelector(DRAG_HANDLE);
-  const boundingBox = await page.locator(DRAG_HANDLE).boundingBox();
+  await page.waitForSelector(DRAG_HANDLE_SELECTOR);
+  const boundingBox = await page.locator(DRAG_HANDLE_SELECTOR).boundingBox();
   return boundingBox.y;
 }

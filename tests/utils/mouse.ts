@@ -1,5 +1,5 @@
 import { Locator, Page } from "@playwright/test";
-import { DRAG_HANDLE } from "./const";
+import { DRAG_HANDLE_SELECTOR } from "./const";
 
 async function getElementLeftCoords(page: Page, element: Locator) {
   const boundingBox = await element.boundingBox();
@@ -29,8 +29,8 @@ export async function dragAndDropBlock(
 ) {
   await moveMouseOverElement(page, dragTarget);
 
-  await page.waitForSelector(DRAG_HANDLE);
-  const dragHandle = await page.locator(DRAG_HANDLE);
+  await page.waitForSelector(DRAG_HANDLE_SELECTOR);
+  const dragHandle = await page.locator(DRAG_HANDLE_SELECTOR);
   await moveMouseOverElement(page, dragHandle);
   await page.mouse.down();
 

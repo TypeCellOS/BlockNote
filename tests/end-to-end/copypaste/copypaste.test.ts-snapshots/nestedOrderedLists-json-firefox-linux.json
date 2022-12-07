@@ -2,18 +2,19 @@
   "type": "doc",
   "content": [
     {
-      "type": "blockgroup",
+      "type": "blockGroup",
       "content": [
         {
           "type": "block",
           "attrs": {
-            "listType": "oli"
+            "id": 0
           },
           "content": [
             {
-              "type": "content",
+              "type": "listItemContent",
               "attrs": {
-                "position": "1."
+                "listItemType": "ordered",
+                "listItemIndex": "1"
               },
               "content": [
                 {
@@ -23,18 +24,19 @@
               ]
             },
             {
-              "type": "blockgroup",
+              "type": "blockGroup",
               "content": [
                 {
                   "type": "block",
                   "attrs": {
-                    "listType": "oli"
+                    "id": 2
                   },
                   "content": [
                     {
-                      "type": "content",
+                      "type": "listItemContent",
                       "attrs": {
-                        "position": "2."
+                        "listItemType": "ordered",
+                        "listItemIndex": "1"
                       },
                       "content": [
                         {
@@ -44,18 +46,19 @@
                       ]
                     },
                     {
-                      "type": "blockgroup",
+                      "type": "blockGroup",
                       "content": [
                         {
                           "type": "block",
                           "attrs": {
-                            "listType": "oli"
+                            "id": 3
                           },
                           "content": [
                             {
-                              "type": "content",
+                              "type": "listItemContent",
                               "attrs": {
-                                "position": "3."
+                                "listItemType": "ordered",
+                                "listItemIndex": "1"
                               },
                               "content": [
                                 {
@@ -71,29 +74,31 @@
                   ]
                 }
               ]
-            }
-          ]
-        },
-        {
-          "type": "block",
-          "attrs": {},
-          "content": [
-            {
-              "type": "content",
-              "attrs": {}
             }
           ]
         },
         {
           "type": "block",
           "attrs": {
-            "listType": "oli"
+            "id": 1
           },
           "content": [
             {
-              "type": "content",
+              "type": "textContent"
+            }
+          ]
+        },
+        {
+          "type": "block",
+          "attrs": {
+            "id": 5
+          },
+          "content": [
+            {
+              "type": "listItemContent",
               "attrs": {
-                "position": "1."
+                "listItemType": "ordered",
+                "listItemIndex": "1"
               },
               "content": [
                 {
@@ -103,18 +108,19 @@
               ]
             },
             {
-              "type": "blockgroup",
+              "type": "blockGroup",
               "content": [
                 {
                   "type": "block",
                   "attrs": {
-                    "listType": "oli"
+                    "id": 6
                   },
                   "content": [
                     {
-                      "type": "content",
+                      "type": "listItemContent",
                       "attrs": {
-                        "position": "2."
+                        "listItemType": "ordered",
+                        "listItemIndex": "1"
                       },
                       "content": [
                         {
@@ -124,18 +130,19 @@
                       ]
                     },
                     {
-                      "type": "blockgroup",
+                      "type": "blockGroup",
                       "content": [
                         {
                           "type": "block",
                           "attrs": {
-                            "listType": "oli"
+                            "id": 7
                           },
                           "content": [
                             {
-                              "type": "content",
+                              "type": "listItemContent",
                               "attrs": {
-                                "position": "3."
+                                "listItemType": "ordered",
+                                "listItemIndex": "1"
                               },
                               "content": [
                                 {
@@ -156,11 +163,12 @@
         },
         {
           "type": "block",
-          "attrs": {},
+          "attrs": {
+            "id": 8
+          },
           "content": [
             {
-              "type": "content",
-              "attrs": {}
+              "type": "textContent"
             }
           ]
         }

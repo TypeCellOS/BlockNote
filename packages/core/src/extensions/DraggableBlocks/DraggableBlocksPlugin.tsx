@@ -3,6 +3,7 @@ import { Node } from "prosemirror-model";
 import { NodeSelection, Plugin, PluginKey, Selection } from "prosemirror-state";
 import * as pv from "prosemirror-view";
 import { EditorView } from "prosemirror-view";
+import { Editor } from "@tiptap/core";
 import { createRoot, Root } from "react-dom/client";
 import { BlockNoteTheme } from "../../BlockNoteTheme";
 import { MultipleNodeSelection } from "../Blocks/MultipleNodeSelection";
@@ -104,9 +105,9 @@ function blockPositionsFromSelection(selection: Selection, doc: Node) {
   // in. If the anchor should update but the head shouldn't and vice versa, it means the user selection is outside a
   // block content node, which should never happen.
   const selectionStartInBlockContent =
-    doc.resolve(selection.from).node().type.name === "content";
+    doc.resolve(selection.from).node().type.spec.group === "blockContent";
   const selectionEndInBlockContent =
-    doc.resolve(selection.to).node().type.name === "content";
+    doc.resolve(selection.to).node().type.spec.group === "blockContent";
 
   // Ensures that entire outermost nodes are selected if the selection spans multiple nesting levels.
   const minDepth = Math.min(selection.$anchor.depth, selection.$head.depth);
@@ -217,7 +218,7 @@ function dragStart(e: DragEvent, view: EditorView) {
   }
 }
 
-export const createDraggableBlocksPlugin = () => {
+export const createDraggableBlocksPlugin = (editor: Editor) => {
   let dropElement: HTMLElement | undefined;
   let dropElementRoot: Root | undefined;
 
@@ -357,12 +358,12 @@ export const createDraggableBlocksPlugin = () => {
           dropElementRoot.render(
             <MantineProvider theme={BlockNoteTheme}>
               <DragHandle
+                key={block.id + ""}
+                editor={editor}
+                coords={coords}
                 onShow={onShow}
                 onHide={onHide}
                 onAddClicked={onAddClicked}
-                key={block.id + ""}
-                view={view}
-                coords={coords}
               />
             </MantineProvider>
           );
