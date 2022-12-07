@@ -1,0 +1,41 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "blockGroup",
+      "content": [
+        {
+          "type": "block",
+          "attrs": {
+            "id": 0
+          },
+          "content": [
+            {
+              "type": "headingContent",
+              "attrs": {
+                "headingLevel": "1"
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "This is h1"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "block",
+          "attrs": {
+            "id": 1
+          },
+          "content": [
+            {
+              "type": "textContent"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

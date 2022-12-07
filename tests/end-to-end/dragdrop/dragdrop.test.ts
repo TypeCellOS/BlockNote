@@ -1,4 +1,4 @@
-import { test } from "@playwright/test";
+import { test } from "../../setup/setupScript";
 import {
   BASE_URL,
   BLOCK_SELECTOR,

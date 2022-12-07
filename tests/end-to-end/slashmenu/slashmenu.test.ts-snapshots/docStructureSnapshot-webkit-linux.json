@@ -2,17 +2,19 @@
   "type": "doc",
   "content": [
     {
-      "type": "blockgroup",
+      "type": "blockGroup",
       "content": [
         {
           "type": "block",
           "attrs": {
-            "headingType": "1"
+            "id": 0
           },
           "content": [
             {
-              "type": "content",
-              "attrs": {},
+              "type": "headingContent",
+              "attrs": {
+                "headingLevel": "1"
+              },
               "content": [
                 {
                   "type": "text",
@@ -25,12 +27,14 @@
         {
           "type": "block",
           "attrs": {
-            "headingType": "2"
+            "id": 2
           },
           "content": [
             {
-              "type": "content",
-              "attrs": {},
+              "type": "headingContent",
+              "attrs": {
+                "headingLevel": "2"
+              },
               "content": [
                 {
                   "type": "text",
@@ -39,17 +43,19 @@
               ]
             },
             {
-              "type": "blockgroup",
+              "type": "blockGroup",
               "content": [
                 {
                   "type": "block",
                   "attrs": {
-                    "headingType": "3"
+                    "id": 3
                   },
                   "content": [
                     {
-                      "type": "content",
-                      "attrs": {},
+                      "type": "headingContent",
+                      "attrs": {
+                        "headingLevel": "3"
+                      },
                       "content": [
                         {
                           "type": "text",
@@ -58,15 +64,16 @@
                       ]
                     },
                     {
-                      "type": "blockgroup",
+                      "type": "blockGroup",
                       "content": [
                         {
                           "type": "block",
-                          "attrs": {},
+                          "attrs": {
+                            "id": 4
+                          },
                           "content": [
                             {
-                              "type": "content",
-                              "attrs": {},
+                              "type": "textContent",
                               "content": [
                                 {
                                   "type": "text",
@@ -83,13 +90,14 @@
                 {
                   "type": "block",
                   "attrs": {
-                    "listType": "oli"
+                    "id": 5
                   },
                   "content": [
                     {
-                      "type": "content",
+                      "type": "listItemContent",
                       "attrs": {
-                        "position": "1."
+                        "listItemType": "ordered",
+                        "listItemIndex": "1"
                       },
                       "content": [
                         {
@@ -103,13 +111,14 @@
                 {
                   "type": "block",
                   "attrs": {
-                    "listType": "oli"
+                    "id": 6
                   },
                   "content": [
                     {
-                      "type": "content",
+                      "type": "listItemContent",
                       "attrs": {
-                        "position": "2."
+                        "listItemType": "ordered",
+                        "listItemIndex": "2"
                       },
                       "content": [
                         {
@@ -123,12 +132,15 @@
                 {
                   "type": "block",
                   "attrs": {
-                    "listType": "li"
+                    "id": 7
                   },
                   "content": [
                     {
-                      "type": "content",
-                      "attrs": {},
+                      "type": "listItemContent",
+                      "attrs": {
+                        "listItemType": "unordered",
+                        "listItemIndex": null
+                      },
                       "content": [
                         {
                           "type": "text",
@@ -144,11 +156,12 @@
         },
         {
           "type": "block",
-          "attrs": {},
+          "attrs": {
+            "id": 1
+          },
           "content": [
             {
-              "type": "content",
-              "attrs": {}
+              "type": "textContent"
             }
           ]
         }

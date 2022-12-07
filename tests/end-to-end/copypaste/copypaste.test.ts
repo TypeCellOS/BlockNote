@@ -1,4 +1,4 @@
-import { test } from "@playwright/test";
+import { test } from "../../setup/setupScript";
 import { BASE_URL } from "../../utils/const";
 import { compareDocToSnapshot, focusOnEditor } from "../../utils/editor";
 import {

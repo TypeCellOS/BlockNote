@@ -1,0 +1,21 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "blockGroup",
+      "content": [
+        {
+          "type": "block",
+          "attrs": {
+            "id": 1
+          },
+          "content": [
+            {
+              "type": "textContent"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

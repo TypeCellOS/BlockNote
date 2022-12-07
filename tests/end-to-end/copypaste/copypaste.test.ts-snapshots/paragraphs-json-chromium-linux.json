@@ -2,15 +2,16 @@
   "type": "doc",
   "content": [
     {
-      "type": "blockgroup",
+      "type": "blockGroup",
       "content": [
         {
           "type": "block",
-          "attrs": {},
+          "attrs": {
+            "id": 0
+          },
           "content": [
             {
-              "type": "content",
-              "attrs": {},
+              "type": "textContent",
               "content": [
                 {
                   "type": "text",
@@ -22,11 +23,12 @@
         },
         {
           "type": "block",
-          "attrs": {},
+          "attrs": {
+            "id": 1
+          },
           "content": [
             {
-              "type": "content",
-              "attrs": {},
+              "type": "textContent",
               "content": [
                 {
                   "type": "text",
@@ -38,11 +40,12 @@
         },
         {
           "type": "block",
-          "attrs": {},
+          "attrs": {
+            "id": 2
+          },
           "content": [
             {
-              "type": "content",
-              "attrs": {},
+              "type": "textContent",
               "content": [
                 {
                   "type": "text",
@@ -54,21 +57,23 @@
         },
         {
           "type": "block",
-          "attrs": {},
+          "attrs": {
+            "id": 3
+          },
           "content": [
             {
-              "type": "content",
-              "attrs": {}
+              "type": "textContent"
             }
           ]
         },
         {
           "type": "block",
-          "attrs": {},
+          "attrs": {
+            "id": 5
+          },
           "content": [
             {
-              "type": "content",
-              "attrs": {},
+              "type": "textContent",
               "content": [
                 {
                   "type": "text",
@@ -80,11 +85,12 @@
         },
         {
           "type": "block",
-          "attrs": {},
+          "attrs": {
+            "id": 6
+          },
           "content": [
             {
-              "type": "content",
-              "attrs": {},
+              "type": "textContent",
               "content": [
                 {
                   "type": "text",
@@ -96,11 +102,12 @@
         },
         {
           "type": "block",
-          "attrs": {},
+          "attrs": {
+            "id": 7
+          },
           "content": [
             {
-              "type": "content",
-              "attrs": {},
+              "type": "textContent",
               "content": [
                 {
                   "type": "text",
@@ -112,11 +119,12 @@
         },
         {
           "type": "block",
-          "attrs": {},
+          "attrs": {
+            "id": 8
+          },
           "content": [
             {
-              "type": "content",
-              "attrs": {}
+              "type": "textContent"
             }
           ]
         }

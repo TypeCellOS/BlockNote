@@ -2,15 +2,16 @@
   "type": "doc",
   "content": [
     {
-      "type": "blockgroup",
+      "type": "blockGroup",
       "content": [
         {
           "type": "block",
-          "attrs": {},
+          "attrs": {
+            "id": 1
+          },
           "content": [
             {
-              "type": "content",
-              "attrs": {},
+              "type": "textContent",
               "content": [
                 {
                   "type": "text",
@@ -19,17 +20,19 @@
               ]
             },
             {
-              "type": "blockgroup",
+              "type": "blockGroup",
               "content": [
                 {
                   "type": "block",
                   "attrs": {
-                    "headingType": "1"
+                    "id": 6
                   },
                   "content": [
                     {
-                      "type": "content",
-                      "attrs": {},
+                      "type": "headingContent",
+                      "attrs": {
+                        "headingLevel": "1"
+                      },
                       "content": [
                         {
                           "type": "text",
@@ -41,11 +44,12 @@
                 },
                 {
                   "type": "block",
-                  "attrs": {},
+                  "attrs": {
+                    "id": 3
+                  },
                   "content": [
                     {
-                      "type": "content",
-                      "attrs": {},
+                      "type": "textContent",
                       "content": [
                         {
                           "type": "text",
@@ -54,17 +58,19 @@
                       ]
                     },
                     {
-                      "type": "blockgroup",
+                      "type": "blockGroup",
                       "content": [
                         {
                           "type": "block",
                           "attrs": {
-                            "headingType": "2"
+                            "id": 7
                           },
                           "content": [
                             {
-                              "type": "content",
-                              "attrs": {},
+                              "type": "headingContent",
+                              "attrs": {
+                                "headingLevel": "2"
+                              },
                               "content": [
                                 {
                                   "type": "text",
@@ -85,12 +91,14 @@
         {
           "type": "block",
           "attrs": {
-            "headingType": "3"
+            "id": 8
           },
           "content": [
             {
-              "type": "content",
-              "attrs": {},
+              "type": "headingContent",
+              "attrs": {
+                "headingLevel": "3"
+              },
               "content": [
                 {
                   "type": "text",
@@ -102,11 +110,12 @@
         },
         {
           "type": "block",
-          "attrs": {},
+          "attrs": {
+            "id": 5
+          },
           "content": [
             {
-              "type": "content",
-              "attrs": {}
+              "type": "textContent"
             }
           ]
         }
