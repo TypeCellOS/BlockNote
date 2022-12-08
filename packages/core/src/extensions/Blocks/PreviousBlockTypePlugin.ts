@@ -31,7 +31,7 @@ export const PreviousBlockTypePlugin = () => {
     view(_editorView) {
       return {
         update: async (view, _prevState) => {
-          if (this.key?.getState(view.state).needsUpdate) {
+          if (this.key?.getState(view.state).updatedBlocks.size > 0) {
             // use setTimeout 0 to clear the decorations so that at least
             // for one DOM-render the decorations have been applied
             setTimeout(() => {
@@ -47,14 +47,13 @@ export const PreviousBlockTypePlugin = () => {
       init() {
         return {
           prevBlockAttrs: {} as any,
-          prevPrevBlockAttrs: {} as any,
-          needsUpdate: false,
+          updatedBlocks: new Set<string>(),
         };
       },
 
       apply(transaction, prev, oldState, newState) {
-        prev.needsUpdate = false;
-        // prev.prevBlockAttrs = {};
+        prev.updatedBlocks.clear();
+
         if (!transaction.docChanged || oldState.doc.eq(newState.doc)) {
           return prev;
         }
@@ -83,13 +82,14 @@ export const PreviousBlockTypePlugin = () => {
           const oldNodesById = new Map(
             oldNodes.map((node) => [node.node.attrs.id, node])
           );
-
           const newNodes = findChildren(newState.doc, (node) => node.attrs.id);
 
           for (let node of newNodes) {
             const oldNode = oldNodesById.get(node.node.attrs.id);
+
             const oldContentNode = oldNode?.node.firstChild;
             const newContentNode = node.node.firstChild;
+
             if (oldNode && oldContentNode && newContentNode) {
               let newAttrs = {
                 listItemType: newContentNode.attrs.listItemType,
@@ -106,8 +106,6 @@ export const PreviousBlockTypePlugin = () => {
                 type: oldContentNode.type.name,
                 depth: oldState.doc.resolve(oldNode.pos).depth,
               };
-
-              // Hacky fix to avoid processing certain transactions created by ordered list indexing plugin.
 
               let ou = false;
 
@@ -149,28 +147,12 @@ export const PreviousBlockTypePlugin = () => {
                 ou = true;
               }
 
-              console.log(
-                "id:",
-                node.node.attrs.id,
-                "oldAttrs",
-                oldAttrs,
-                "new",
-                newAttrs,
-                "ou",
-                oldAttrs.listItemIndex !== null &&
-                  newAttrs.listItemIndex !== null &&
-                  oldAttrs.depth !== newAttrs.depth,
-                ou
-              );
-
               prev.prevBlockAttrs[node.node.attrs.id] = oldAttrs;
 
               if (
                 (newAttrs.listItemType === "ordered" ? ou : true) &&
                 JSON.stringify(oldAttrs) !== JSON.stringify(newAttrs) // TODO: faster deep equal?
               ) {
-                console.log("AAAAAAAAAAAAAAAAAAAAA");
-
                 (oldAttrs as any)["depth-change"] =
                   oldAttrs.depth - newAttrs.depth;
 
@@ -184,8 +166,7 @@ export const PreviousBlockTypePlugin = () => {
                   newAttrs
                 );
 
-                prev.needsUpdate = true;
-                prev.prevBlockAttrs[node.node.attrs.id].updated = true;
+                prev.updatedBlocks.add(node.node.attrs.id);
               }
             }
           }
@@ -197,8 +178,7 @@ export const PreviousBlockTypePlugin = () => {
     props: {
       decorations(state) {
         const pluginState = (this as Plugin).getState(state);
-        if (!pluginState.needsUpdate) {
-          // console.log("0");
+        if (pluginState.updatedBlocks.size === 0) {
           return undefined;
         }
 
@@ -206,32 +186,34 @@ export const PreviousBlockTypePlugin = () => {
 
         state.doc.descendants((node, pos) => {
           if (!node.attrs.id) {
-            // console.log("1");
-            return;
-          }
-          const prevAttrs = pluginState.prevBlockAttrs[node.attrs.id];
-          if (!prevAttrs) {
-            // console.log("2");
             return;
           }
 
-          const decorationAttributes: any = {};
-          console.log(prevAttrs);
-          if (prevAttrs.updated) {
-            for (let [nodeAttr, val] of Object.entries(prevAttrs)) {
-              decorationAttributes["data-prev-" + nodeAttributes[nodeAttr]] =
-                val || "none";
-            }
+          console.log("ID:", node.attrs.id);
+          console.log("Updated:", pluginState.updatedBlocks.has(node.attrs.id));
+          console.log("All Updated:", pluginState.updatedBlocks);
+          console.log("Attrs:", pluginState.prevBlockAttrs[node.attrs.id]);
+
+          if (!pluginState.updatedBlocks.has(node.attrs.id)) {
+            return;
+          }
+
+          const prevAttrs = pluginState.prevBlockAttrs[node.attrs.id];
+          const decorationAttrs: any = {};
+
+          for (let [nodeAttr, val] of Object.entries(prevAttrs)) {
+            decorationAttrs["data-prev-" + nodeAttributes[nodeAttr]] =
+              val || "none";
           }
 
           // for debugging:
           console.log(
             "previousBlockTypePlugin committing decorations",
-            decorationAttributes
+            decorationAttrs
           );
 
           const decoration = Decoration.node(pos, pos + node.nodeSize, {
-            ...decorationAttributes,
+            ...decorationAttrs,
           });
 
           decorations.push(decoration);
