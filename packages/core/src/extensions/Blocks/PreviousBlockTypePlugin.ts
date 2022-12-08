@@ -47,13 +47,14 @@ export const PreviousBlockTypePlugin = () => {
       init() {
         return {
           prevBlockAttrs: {} as any,
+          prevPrevBlockAttrs: {} as any,
           needsUpdate: false,
         };
       },
 
       apply(transaction, prev, oldState, newState) {
         prev.needsUpdate = false;
-        prev.prevBlockAttrs = {};
+        // prev.prevBlockAttrs = {};
         if (!transaction.docChanged || oldState.doc.eq(newState.doc)) {
           return prev;
         }
@@ -90,7 +91,7 @@ export const PreviousBlockTypePlugin = () => {
             const oldContentNode = oldNode?.node.firstChild;
             const newContentNode = node.node.firstChild;
             if (oldNode && oldContentNode && newContentNode) {
-              const newAttrs = {
+              let newAttrs = {
                 listItemType: newContentNode.attrs.listItemType,
                 listItemIndex: newContentNode.attrs.listItemIndex,
                 headingLevel: newContentNode.attrs.headingLevel,
@@ -98,7 +99,7 @@ export const PreviousBlockTypePlugin = () => {
                 depth: newState.doc.resolve(node.pos).depth,
               };
 
-              const oldAttrs = {
+              let oldAttrs = {
                 listItemType: oldContentNode.attrs.listItemType,
                 listItemIndex: oldContentNode.attrs.listItemIndex,
                 headingLevel: oldContentNode.attrs.headingLevel,
@@ -108,36 +109,70 @@ export const PreviousBlockTypePlugin = () => {
 
               // Hacky fix to avoid processing certain transactions created by ordered list indexing plugin.
 
-              // True when an existing ordered list item is assigned an index for the first time, which happens
-              // immediately after it's created. Using this condition to start an animation ensures it's not
-              // immediately overridden by a different transaction created by the ordered list indexing plugin.
-              const indexInitialized =
-                oldAttrs.listItemIndex === null &&
-                newAttrs.listItemIndex !== null;
+              let ou = false;
 
-              // True when an existing ordered list item changes nesting levels, before its index is updated by the
-              // ordered list indexing plugin. This condition ensures that animations for indentation still work with
-              // ordered list items, while preventing unnecessary animations being done when dragging/dropping them.
-              const depthChanged =
-                oldAttrs.listItemIndex !== null &&
-                newAttrs.listItemIndex !== null &&
-                oldAttrs.listItemIndex === newAttrs.listItemIndex;
+              if (transaction.getMeta("orderedListIndexing")) {
+                console.log("Index Update detected");
+                console.log(
+                  "prevAttrs:",
+                  prev.prevBlockAttrs[node.node.attrs.id]
+                );
+                console.log("oldAttrs:", oldAttrs);
+                console.log("newAttrs:", newAttrs);
 
-              // Only false for transactions in which the block remains an ordered list item before & after, but neither
-              // of the previous conditions apply.
-              const shouldUpdate =
-                oldAttrs.listItemType === "ordered" &&
-                newAttrs.listItemType === "ordered"
-                  ? indexInitialized || depthChanged
-                  : true;
+                if (
+                  oldAttrs.listItemIndex === null &&
+                  newAttrs.listItemIndex !== null
+                ) {
+                  if (prev.prevBlockAttrs[node.node.attrs.id]) {
+                    oldAttrs = prev.prevBlockAttrs[node.node.attrs.id];
+                  }
+                  oldAttrs.listItemIndex = newAttrs.listItemIndex;
+                  ou = true;
+                } else if (
+                  oldAttrs.listItemIndex !== null &&
+                  newAttrs.listItemIndex !== null
+                ) {
+                  if (prev.prevBlockAttrs[node.node.attrs.id]) {
+                    oldAttrs = prev.prevBlockAttrs[node.node.attrs.id];
+                  }
+                  oldAttrs.listItemIndex = newAttrs.listItemIndex;
+                  ou = true;
+                }
+              }
 
               if (
-                JSON.stringify(oldAttrs) !== JSON.stringify(newAttrs) && // TODO: faster deep equal?
-                shouldUpdate
+                oldAttrs.listItemIndex !== null &&
+                newAttrs.listItemIndex !== null &&
+                oldAttrs.depth !== newAttrs.depth
               ) {
+                ou = true;
+              }
+
+              console.log(
+                "id:",
+                node.node.attrs.id,
+                "oldAttrs",
+                oldAttrs,
+                "new",
+                newAttrs,
+                "ou",
+                oldAttrs.listItemIndex !== null &&
+                  newAttrs.listItemIndex !== null &&
+                  oldAttrs.depth !== newAttrs.depth,
+                ou
+              );
+
+              prev.prevBlockAttrs[node.node.attrs.id] = oldAttrs;
+
+              if (
+                (newAttrs.listItemType === "ordered" ? ou : true) &&
+                JSON.stringify(oldAttrs) !== JSON.stringify(newAttrs) // TODO: faster deep equal?
+              ) {
+                console.log("AAAAAAAAAAAAAAAAAAAAA");
+
                 (oldAttrs as any)["depth-change"] =
                   oldAttrs.depth - newAttrs.depth;
-                prev.prevBlockAttrs[node.node.attrs.id] = oldAttrs;
 
                 // for debugging:
                 console.log(
@@ -150,6 +185,7 @@ export const PreviousBlockTypePlugin = () => {
                 );
 
                 prev.needsUpdate = true;
+                prev.prevBlockAttrs[node.node.attrs.id].updated = true;
               }
             }
           }
@@ -180,9 +216,12 @@ export const PreviousBlockTypePlugin = () => {
           }
 
           const decorationAttributes: any = {};
-          for (let [nodeAttr, val] of Object.entries(prevAttrs)) {
-            decorationAttributes["data-prev-" + nodeAttributes[nodeAttr]] =
-              val || "none";
+          console.log(prevAttrs);
+          if (prevAttrs.updated) {
+            for (let [nodeAttr, val] of Object.entries(prevAttrs)) {
+              decorationAttributes["data-prev-" + nodeAttributes[nodeAttr]] =
+                val || "none";
+            }
           }
 
           // for debugging:
