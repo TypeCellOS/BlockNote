@@ -243,21 +243,37 @@ export const Block = Node.create<IBlock>({
             return false;
           }
 
-          const { contentNode, contentType, startPos, endPos, depth } =
-            blockInfo;
+          const {
+            node,
+            contentNode,
+            contentType,
+            numChildBlocks,
+            startPos,
+            endPos,
+            depth,
+          } = blockInfo;
 
           const newBlockInsertionPos = endPos + 1;
 
           // Creates new block first, otherwise positions get changed due to the original block's content changing.
-          // Only text content is transferred to the new block.
-          const secondBlockContent = state.doc.textBetween(posInBlock, endPos);
+          // Only text content and nested blocks are transferred to the new block.
+          const secondBlockTextContent = state.doc.textBetween(
+            posInBlock,
+            startPos + 1 + contentNode.nodeSize
+          );
 
           const newBlock = state.schema.nodes["block"].createAndFill()!;
           const newBlockContentPos = newBlockInsertionPos + 2;
 
           if (dispatch) {
             state.tr.insert(newBlockInsertionPos, newBlock);
-            state.tr.insertText(secondBlockContent, newBlockContentPos);
+
+            if (numChildBlocks > 0) {
+              const secondBlockNestedBlocks = node.lastChild!;
+              state.tr.insert(newBlockContentPos, secondBlockNestedBlocks);
+            }
+
+            state.tr.insertText(secondBlockTextContent, newBlockContentPos);
 
             if (keepType) {
               state.tr.setBlockType(
@@ -269,14 +285,18 @@ export const Block = Node.create<IBlock>({
             }
           }
 
-          // Updates content of original block.
-          const firstBlockContent = state.doc.content.cut(startPos, posInBlock);
+          // Updates content of original block. We don't need to worry about any nested blocks here since they're
+          // always transferred to the new block.
+          const originalBlockTextContent = state.doc.content.cut(
+            startPos,
+            posInBlock
+          );
 
           if (dispatch) {
             state.tr.replace(
               startPos,
               endPos,
-              new Slice(firstBlockContent, depth, depth)
+              new Slice(originalBlockTextContent, depth, depth)
             );
           }
 
