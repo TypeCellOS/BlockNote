@@ -88,9 +88,6 @@ export const PreviousBlockTypePlugin = () => {
 
             prevTransactionOldAttrs[node.node.attrs.id] = oldAttrs;
 
-            let shouldUpdate =
-              JSON.stringify(oldAttrs) !== JSON.stringify(newAttrs); // TODO: faster deep equal?
-
             // Whenever a transaction is appended by the OrderedListItemIndexPlugin, it's given the metadata:
             // { "orderedListIndexing": true }
             // These appended transactions happen immediately after any transaction which causes ordered list item
@@ -114,7 +111,8 @@ export const PreviousBlockTypePlugin = () => {
 
             prev.prevBlockAttrs[node.node.attrs.id] = oldAttrs;
 
-            if (shouldUpdate) {
+            // TODO: faster deep equal?
+            if (JSON.stringify(oldAttrs) !== JSON.stringify(newAttrs)) {
               (oldAttrs as any)["depth-change"] =
                 oldAttrs.depth - newAttrs.depth;
 
