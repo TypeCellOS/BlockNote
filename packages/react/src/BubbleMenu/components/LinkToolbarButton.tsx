@@ -4,8 +4,8 @@ import { useCallback, useState } from "react";
 import {
   ToolbarButton,
   ToolbarButtonProps,
-} from "../../../shared/components/toolbar/ToolbarButton";
-import { EditHyperlinkMenu } from "../../Hyperlinks/menus/EditHyperlinkMenu";
+} from "../../shared/components/toolbar/ToolbarButton";
+import { EditHyperlinkMenu } from "../../HyperlinkMenus/EditHyperlinkMenu/components/EditHyperlinkMenu";
 
 type Props = ToolbarButtonProps & {
   editor: Editor;

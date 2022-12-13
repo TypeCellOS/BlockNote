@@ -1,35 +1,21 @@
-import { MantineProvider } from "@mantine/core";
-import { Extension } from "@tiptap/core";
+import { Editor, Extension } from "@tiptap/core";
 import { PluginKey } from "prosemirror-state";
-import { createRoot } from "react-dom/client";
-import { BlockNoteTheme } from "../../BlockNoteTheme";
-import rootStyles from "../../root.module.css";
 import { createBubbleMenuPlugin } from "./BubbleMenuPlugin";
-import { BubbleMenu } from "./component/BubbleMenu";
 
 /**
  * The menu that is displayed when selecting a piece of text.
  */
-export const BubbleMenuExtension = Extension.create<{}>({
+export const BubbleMenuExtension = Extension.create<{
+  bubbleMenuFactory: (editor: Editor) => HTMLElement;
+}>({
   name: "BubbleMenuExtension",
 
   addProseMirrorPlugins() {
-    const element = document.createElement("div");
-    element.className = rootStyles.bnRoot;
-    const root = createRoot(element);
-    root.render(
-      <MantineProvider theme={BlockNoteTheme}>
-        <BubbleMenu editor={this.editor} />
-      </MantineProvider>
-    );
     return [
       createBubbleMenuPlugin({
         editor: this.editor,
-        element,
+        bubbleMenuFactory: this.editor.options.menus.bubbleMenuFactory,
         pluginKey: new PluginKey("BubbleMenuPlugin"),
-        tippyOptions: {
-          appendTo: document.body,
-        },
       }),
     ];
   },

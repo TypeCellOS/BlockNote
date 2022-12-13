@@ -1,4 +1,5 @@
 import { Editor } from "@tiptap/core";
+import { Node } from "prosemirror-model";
 import {
   RiBold,
   RiH1,
@@ -14,55 +15,87 @@ import {
   RiText,
   RiUnderline,
 } from "react-icons/ri";
-import { ToolbarButton } from "../../../shared/components/toolbar/ToolbarButton";
-import { ToolbarDropdown } from "../../../shared/components/toolbar/ToolbarDropdown";
-import { Toolbar } from "../../../shared/components/toolbar/Toolbar";
-import { useEditorForceUpdate } from "../../../shared/hooks/useEditorForceUpdate";
-import { findBlock } from "../../Blocks/helpers/findBlock";
-import { formatKeyboardShortcut } from "../../../utils";
+import { ToolbarButton } from "../../shared/components/toolbar/ToolbarButton";
+import { ToolbarDropdown } from "../../shared/components/toolbar/ToolbarDropdown";
+import { Toolbar } from "../../shared/components/toolbar/Toolbar";
+import { useState } from "react";
+import { formatKeyboardShortcut } from "../../utils";
 import LinkToolbarButton from "./LinkToolbarButton";
-import { IconType } from "react-icons";
-import { Node } from "prosemirror-model";
-
-function getBlockName(blockContentNode: Node) {
-  if (blockContentNode.type.name === "textContent") {
-    return "Text";
-  }
-
-  if (blockContentNode.type.name === "headingContent") {
-    return "Heading " + blockContentNode.attrs["headingLevel"];
-  }
-
-  if (blockContentNode.type.name === "listItemContent") {
-    return blockContentNode.attrs["listItemType"] === "unordered"
-      ? "Bullet List"
-      : "Numbered List";
-  }
-
-  return "";
-}
 
 // TODO: add list options, indentation
 export const BubbleMenu = (props: { editor: Editor }) => {
-  useEditorForceUpdate(props.editor);
+  const getDropdownText = (node: Node) => {
+    if (node.type.name === "textContent") {
+      return "Text";
+    }
 
-  const selectedNode = props.editor.state.selection.$from.node();
-  const currentBlockName = getBlockName(selectedNode);
+    if (node.type.name === "headingContent") {
+      return "Heading " + node.attrs["headingLevel"];
+    }
 
-  const blockIconMap: Record<string, IconType> = {
-    Text: RiText,
-    "Heading 1": RiH1,
-    "Heading 2": RiH2,
-    "Heading 3": RiH3,
-    "Bullet List": RiListUnordered,
-    "Numbered List": RiListOrdered,
+    if (node.type.name === "listItemContent") {
+      if (node.attrs["listItemType"] === "unordered") {
+        return "Bullet List";
+      } else {
+        return "Ordered List";
+      }
+    }
+
+    return undefined;
   };
+
+  const getDropdownIcon = (node: Node) => {
+    if (node.type.name === "textContent") {
+      return RiText;
+    }
+
+    if (node.type.name === "headingContent") {
+      if (node.attrs["headingLevel"] === "1") {
+        return RiH1;
+      }
+
+      if (node.attrs["headingLevel"] === "2") {
+        return RiH2;
+      }
+
+      if (node.attrs["headingLevel"] === "3") {
+        return RiH3;
+      }
+    }
+
+    if (node.type.name === "listItemContent") {
+      if (node.attrs["listItemType"] === "unordered") {
+        return RiListUnordered;
+      } else {
+        return RiListOrdered;
+      }
+    }
+
+    return undefined;
+  };
+
+  const getActiveMarks = () => {
+    const activeMarks = new Set<string>();
+
+    props.editor.isActive("bold") && activeMarks.add("bold");
+    props.editor.isActive("italic") && activeMarks.add("italic");
+    props.editor.isActive("underline") && activeMarks.add("underline");
+    props.editor.isActive("strike") && activeMarks.add("strike");
+    props.editor.isActive("link") && activeMarks.add("link");
+
+    return activeMarks;
+  };
+
+  const [selectedNode, setSelectedNode] = useState(
+    props.editor.state.selection.$from.node()
+  );
+  const [selectedNodeMarks, setSelectedNodeMarks] = useState(getActiveMarks());
 
   return (
     <Toolbar>
       <ToolbarDropdown
-        text={currentBlockName}
-        icon={blockIconMap[currentBlockName]}
+        text={getDropdownText(selectedNode)}
+        icon={getDropdownIcon(selectedNode)}
         items={[
           {
             onClick: () => {
@@ -72,6 +105,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
                 props.editor.state.selection.from,
                 "textContent"
               );
+              setSelectedNode(props.editor.state.selection.$from.node());
             },
             text: "Text",
             icon: RiText,
@@ -87,6 +121,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
                   headingLevel: "1",
                 }
               );
+              setSelectedNode(props.editor.state.selection.$from.node());
             },
             text: "Heading 1",
             icon: RiH1,
@@ -104,6 +139,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
                   headingLevel: "2",
                 }
               );
+              setSelectedNode(props.editor.state.selection.$from.node());
             },
             text: "Heading 2",
             icon: RiH2,
@@ -121,6 +157,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
                   headingLevel: "3",
                 }
               );
+              setSelectedNode(props.editor.state.selection.$from.node());
             },
             text: "Heading 3",
             icon: RiH3,
@@ -138,6 +175,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
                   listItemType: "unordered",
                 }
               );
+              setSelectedNode(props.editor.state.selection.$from.node());
             },
             text: "Bullet List",
             icon: RiListUnordered,
@@ -155,6 +193,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
                   listItemType: "ordered",
                 }
               );
+              setSelectedNode(props.editor.state.selection.$from.node());
             },
             text: "Numbered List",
             icon: RiListOrdered,
@@ -169,8 +208,9 @@ export const BubbleMenu = (props: { editor: Editor }) => {
           // Setting editor focus using a chained command instead causes bubble menu to flicker on click.
           props.editor.view.focus();
           props.editor.commands.toggleBold();
+          setSelectedNodeMarks(getActiveMarks());
         }}
-        isSelected={props.editor.isActive("bold")}
+        isSelected={selectedNodeMarks.has("bold")}
         mainTooltip="Bold"
         secondaryTooltip={formatKeyboardShortcut("Mod+B")}
         icon={RiBold}
@@ -179,8 +219,9 @@ export const BubbleMenu = (props: { editor: Editor }) => {
         onClick={() => {
           props.editor.view.focus();
           props.editor.commands.toggleItalic();
+          setSelectedNodeMarks(getActiveMarks());
         }}
-        isSelected={props.editor.isActive("italic")}
+        isSelected={selectedNodeMarks.has("italic")}
         mainTooltip="Italic"
         secondaryTooltip={formatKeyboardShortcut("Mod+I")}
         icon={RiItalic}
@@ -189,8 +230,9 @@ export const BubbleMenu = (props: { editor: Editor }) => {
         onClick={() => {
           props.editor.view.focus();
           props.editor.commands.toggleUnderline();
+          setSelectedNodeMarks(getActiveMarks());
         }}
-        isSelected={props.editor.isActive("underline")}
+        isSelected={selectedNodeMarks.has("underline")}
         mainTooltip="Underline"
         secondaryTooltip={formatKeyboardShortcut("Mod+U")}
         icon={RiUnderline}
@@ -199,8 +241,9 @@ export const BubbleMenu = (props: { editor: Editor }) => {
         onClick={() => {
           props.editor.view.focus();
           props.editor.commands.toggleStrike();
+          setSelectedNodeMarks(getActiveMarks());
         }}
-        isSelected={props.editor.isActive("strike")}
+        isSelected={selectedNodeMarks.has("strike")}
         mainTooltip="Strike-through"
         secondaryTooltip={formatKeyboardShortcut("Mod+Shift+X")}
         icon={RiStrikethrough}
@@ -209,6 +252,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
         onClick={() => {
           props.editor.view.focus();
           props.editor.commands.sinkListItem("block");
+          setSelectedNodeMarks(getActiveMarks());
         }}
         isDisabled={!props.editor.can().sinkListItem("block")}
         mainTooltip="Indent"
@@ -220,16 +264,18 @@ export const BubbleMenu = (props: { editor: Editor }) => {
         onClick={() => {
           props.editor.view.focus();
           props.editor.commands.liftListItem("block");
+          setSelectedNodeMarks(getActiveMarks());
         }}
         isDisabled={
-          !props.editor.can().command(({ state }) => {
-            const block = findBlock(state.selection);
-            if (!block) {
-              return false;
-            }
-            // If the depth is greater than 2 you can lift
-            return block.depth > 2;
-          })
+          // !props.editor.can().command(({ state }) => {
+          //   const block = findBlock(state.selection);
+          //   if (!block) {
+          //     return false;
+          //   }
+          //   // If the depth is greater than 2 you can lift
+          //   return block.depth > 2;
+          // })
+          true
         }
         mainTooltip="Decrease Indent"
         secondaryTooltip={formatKeyboardShortcut("Shift+Tab")}
@@ -237,12 +283,11 @@ export const BubbleMenu = (props: { editor: Editor }) => {
       />
 
       <LinkToolbarButton
-        // editor={props.editor}
-        isSelected={props.editor.isActive("link")}
+        editor={props.editor}
+        isSelected={selectedNodeMarks.has("link")}
         mainTooltip="Link"
         secondaryTooltip={formatKeyboardShortcut("Mod+K")}
         icon={RiLink}
-        editor={props.editor}
       />
       {/* <SimpleBubbleMenuButton
           editor={props.editor}
