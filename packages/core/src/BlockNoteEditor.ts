@@ -7,9 +7,17 @@ import rootStyles from "./root.module.css";
 type BlockNoteEditorOptions = EditorOptions & {
   enableBlockNoteExtensions: boolean;
   disableHistoryExtension: boolean;
-  menus: {
-    bubbleMenuFactory: (editor: Editor) => HTMLElement;
-  };
+};
+
+export type menuFactoriesType = {
+  bubbleMenuFactory: (editor: Editor) => HTMLElement;
+  hyperlinkMenuFactory: (
+    editor: Editor,
+    url: string,
+    text: string,
+    update: (url: string, text: string) => void,
+    remove: () => void
+  ) => HTMLElement;
 };
 
 const blockNoteExtensions = getBlockNoteExtensions();
@@ -21,16 +29,23 @@ const blockNoteOptions = {
 };
 
 export const mountBlockNoteEditor = (
+  menuFactories: menuFactoriesType,
   options: Partial<BlockNoteEditorOptions> = {}
 ) => {
-  const extensions = options.disableHistoryExtension
+  let extensions = options.disableHistoryExtension
     ? blockNoteExtensions.filter((e) => e.name !== "history")
     : blockNoteExtensions;
 
-  extensions.map((extension) => {
+  extensions = extensions.map((extension) => {
     if (extension.name === "BubbleMenuExtension") {
       return extension.configure({
-        bubbleMenuFactory: options.menus?.bubbleMenuFactory,
+        bubbleMenuFactory: menuFactories.bubbleMenuFactory,
+      });
+    }
+
+    if (extension.name === "link") {
+      return extension.configure({
+        hyperlinkMenuFactory: menuFactories.hyperlinkMenuFactory,
       });
     }
 

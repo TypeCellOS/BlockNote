@@ -14,7 +14,7 @@ export const BubbleMenuExtension = Extension.create<{
     return [
       createBubbleMenuPlugin({
         editor: this.editor,
-        bubbleMenuFactory: this.editor.options.menus.bubbleMenuFactory,
+        bubbleMenuFactory: this.options.bubbleMenuFactory,
         pluginKey: new PluginKey("BubbleMenuPlugin"),
       }),
     ];

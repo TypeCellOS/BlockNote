@@ -1,8 +1,7 @@
 import { useState } from "react";
-import Tippy from "@tippyjs/react";
-import { EditHyperlinkMenu } from "./EditHyperlinkMenu";
-import { HoverHyperlinkMenu } from "./HoverHyperlinkMenu";
-import rootStyles from "../../../root.module.css";
+import { EditHyperlinkMenu } from "../EditHyperlinkMenu/components/EditHyperlinkMenu";
+import { HoverHyperlinkMenu } from "../HoverHyperlinkMenu/components/HoverHyperlinkMenu";
+// import rootStyles from "../../../root.module.css";
 
 type HyperlinkMenuProps = {
   url: string;
@@ -27,24 +26,11 @@ export const HyperlinkMenu = (props: HyperlinkMenuProps) => {
   const [isEditing, setIsEditing] = useState(false);
 
   const editHyperlinkMenu = (
-    <Tippy
-      getReferenceClientRect={() => props.pos as any}
-      content={
-        <EditHyperlinkMenu
-          url={props.url}
-          text={props.text}
-          update={props.update}
-        />
-      }
-      interactive={true}
-      interactiveBorder={30}
-      showOnCreate={true}
-      trigger={"click"} // so that we don't hide on mouse out
-      hideOnClick
-      className={rootStyles.bnRoot}
-      appendTo={document.body}>
-      <div></div>
-    </Tippy>
+    <EditHyperlinkMenu
+      url={props.url}
+      text={props.text}
+      update={props.update}
+    />
   );
 
   const hoverHyperlinkMenu = (

@@ -4,11 +4,11 @@ import { MantineProvider } from "@mantine/core";
 import { BlockNoteTheme } from "../../../core/src/BlockNoteTheme";
 import { BubbleMenu } from "./components/BubbleMenu";
 import tippy from "tippy.js";
-import rootStyles from "../../../core/src/root.module.css";
+// import rootStyles from "../../../core/src/root.module.css";
 
 export const BubbleMenuFactory = (editor: Editor) => {
   const element = document.createElement("div");
-  element.className = rootStyles.bnRoot;
+  // element.className = rootStyles.bnRoot;
   const root = createRoot(element);
   root.render(
     <MantineProvider theme={BlockNoteTheme}>
@@ -48,5 +48,5 @@ export const BubbleMenuFactory = (editor: Editor) => {
 
   menu.show();
 
-  return element;
+  return element as HTMLElement;
 };
