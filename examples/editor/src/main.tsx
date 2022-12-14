@@ -1,16 +1,16 @@
 import "./index.css";
 import styles from "./App.module.css";
 import { mountBlockNoteEditor } from "../../../packages/core/src/BlockNoteEditor";
-import { BubbleMenuFactory } from "../../../packages/react/src/BubbleMenu/BubbleMenuFactory";
-import { HyperlinkMenuFactory } from "../../../packages/react/src/HyperlinkMenus/HyperlinkMenuFactory";
+import { ReactBubbleMenuFactory } from "../../../packages/react/src/BubbleMenu/BubbleMenuFactory";
+import { ReactHyperlinkMenuFactory } from "../../../packages/react/src/HyperlinkMenus/HyperlinkMenuFactory";
 
 // type WindowWithProseMirror = Window &
 //   typeof globalThis & { ProseMirror: Editor };
 
 mountBlockNoteEditor(
   {
-    bubbleMenuFactory: BubbleMenuFactory,
-    hyperlinkMenuFactory: HyperlinkMenuFactory,
+    bubbleMenuFactory: ReactBubbleMenuFactory,
+    hyperlinkMenuFactory: ReactHyperlinkMenuFactory,
   },
   {
     element: document.getElementById("root")!,

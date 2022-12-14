@@ -1,131 +1,69 @@
-import { Editor, getMarkRange } from "@tiptap/core";
-import { Mark, ResolvedPos } from "prosemirror-model";
+import { Editor } from "@tiptap/core";
+import { Mark } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
+import { HyperlinkHoverMenuFactory } from "../../menu-tools/HyperlinkHoverMenu/types";
+import { getHyperlinkHoverMenuFactoryFunctions } from "../../menu-tools/HyperlinkHoverMenu/getHyperlinkHoverMenuFactoryFunctions";
 const PLUGIN_KEY = new PluginKey("HyperlinkMenuPlugin");
 
 export type HyperlinkMenuPluginProps = {
-  hyperlinkMenuFactory: (
-    editor: Editor,
-    url: string,
-    text: string,
-    update: (url: string, text: string) => void,
-    remove: () => void
-  ) => HTMLElement;
+  hyperlinkMenuFactory: HyperlinkHoverMenuFactory;
 };
 
 export const createHyperlinkMenuPlugin = (
   editor: Editor,
   options: HyperlinkMenuPluginProps
 ) => {
-  const hyperlinkMenuFactory = options.hyperlinkMenuFactory;
-  let hyperlinkMenuElement: HTMLElement | undefined;
+  let mouseHoveredHyperlinkMark: Mark | undefined;
+  let keyboardHoveredHyperlinkMark: Mark | undefined;
+  let hyperlinkMark: Mark | undefined;
 
-  let hoveredLink: HTMLAnchorElement | undefined;
-  let menuState: "cursor-based" | "mouse-based" | "hidden" = "hidden";
+  const hyperlinkMenuFactory = options.hyperlinkMenuFactory;
+  let hyperlinkMenu = hyperlinkMenuFactory(
+    getHyperlinkHoverMenuFactoryFunctions(editor)
+  );
 
   return new Plugin({
     key: PLUGIN_KEY,
     view() {
       return {
-        update: async (view, _prevState) => {
-          const selection = view.state.selection;
-          if (selection.from !== selection.to) {
-            // don't show menu when we have an active selection
-            if (menuState !== "hidden") {
-              menuState = "hidden";
-              if (hyperlinkMenuElement) {
-                hyperlinkMenuElement.remove();
-                hyperlinkMenuElement = undefined;
+        update: async (_view, _prevState) => {
+          if (editor.state.selection.empty) {
+            const marksAtPos = editor.state.selection.$from.marks();
+
+            let foundHyperlinkMark = false;
+
+            for (const mark of marksAtPos) {
+              if (mark.type.name === editor.schema.mark("link").type.name) {
+                keyboardHoveredHyperlinkMark = mark;
+                foundHyperlinkMark = true;
+
+                break;
               }
             }
-            return;
-          }
 
-          let pos: number | undefined;
-          let resPos: ResolvedPos | undefined;
-          let linkMark: Mark | undefined;
-          let basedOnCursorPos = false;
-          if (hoveredLink) {
-            pos = view.posAtDOM(hoveredLink.firstChild!, 0);
-            resPos = view.state.doc.resolve(pos);
-            // based on https://github.com/ueberdosis/tiptap/blob/main/packages/core/src/helpers/getMarkRange.ts
-            const start = resPos.parent.childAfter(resPos.parentOffset).node;
-            linkMark = start?.marks.find((m) => m.type.name.startsWith("link"));
-          }
-
-          if (
-            !linkMark &&
-            (view.hasFocus() || menuState === "cursor-based") // prevents re-opening menu after submission. Only open cursor-based menu if editor has focus
-          ) {
-            // no hovered link mark, try get from cursor position
-            pos = selection.from;
-            resPos = view.state.doc.resolve(pos);
-            const start = resPos.parent.childAfter(resPos.parentOffset).node;
-            linkMark = start?.marks.find((m) => m.type.name.startsWith("link"));
-            basedOnCursorPos = true;
-          }
-
-          if (!linkMark || !pos || !resPos) {
-            // The mouse-based popup takes care of hiding itself (tippy)
-            // Because the cursor-based popup is has "showOnCreate", we want to hide it manually
-            // if the cursor moves way
-            if (menuState === "cursor-based") {
-              menuState = "hidden";
-              if (hyperlinkMenuElement) {
-                hyperlinkMenuElement.remove();
-                hyperlinkMenuElement = undefined;
-              }
+            if (!foundHyperlinkMark) {
+              keyboardHoveredHyperlinkMark = undefined;
             }
-            return;
           }
 
-          const range = getMarkRange(resPos, linkMark.type, linkMark.attrs);
-          if (!range) {
-            return;
-          }
-          const text = view.state.doc.textBetween(range.from, range.to);
-          const url = linkMark.attrs.href;
-
-          const foundLinkMark = linkMark; // typescript workaround for event handlers
-
-          // A URL has to begin with http(s):// to be interpreted as an absolute path
-          const editHandler = (href: string, text: string) => {
-            menuState = "hidden";
-
-            // hide menu
-            if (hyperlinkMenuElement) {
-              hyperlinkMenuElement.remove();
-              hyperlinkMenuElement = undefined;
-            }
-
-            // update the mark with new href
-            (foundLinkMark as any).attrs = { ...foundLinkMark.attrs, href }; // TODO: invalid assign to attrs
-            // insertText actually replaces the range with text
-            const tr = view.state.tr.insertText(text, range.from, range.to);
-            // the former range.to is no longer in use
-            tr.addMark(range.from, range.from + text.length, foundLinkMark);
-            view.dispatch(tr);
-          };
-
-          const removeHandler = () => {
-            view.dispatch(
-              view.state.tr
-                .removeMark(range.from, range.to, foundLinkMark.type)
-                .setMeta("preventAutolink", true)
-            );
-          };
-
-          if (!hyperlinkMenuElement) {
-            hyperlinkMenuElement = hyperlinkMenuFactory(
-              editor,
-              url,
-              text,
-              editHandler,
-              removeHandler
-            );
+          if (keyboardHoveredHyperlinkMark) {
+            hyperlinkMark = keyboardHoveredHyperlinkMark;
           }
 
-          menuState = basedOnCursorPos ? "cursor-based" : "mouse-based";
+          if (mouseHoveredHyperlinkMark) {
+            hyperlinkMark = mouseHoveredHyperlinkMark;
+          }
+
+          if (!mouseHoveredHyperlinkMark && !keyboardHoveredHyperlinkMark) {
+            hyperlinkMark = undefined;
+          }
+
+          if (!hyperlinkMark) {
+            hyperlinkMenu.hide();
+          } else {
+            hyperlinkMenu.update();
+            hyperlinkMenu.show();
+          }
         },
       };
     },
@@ -134,20 +72,46 @@ export const createHyperlinkMenuPlugin = (
       handleDOMEvents: {
         // update view when an <a> is hovered over
         mouseover(view, event: any) {
-          const newHoveredLink =
+          if (
             event.target instanceof HTMLAnchorElement &&
             event.target.nodeName === "A"
-              ? event.target
-              : undefined;
-
-          if (newHoveredLink !== hoveredLink) {
-            // dispatch a meta transaction to make sure the view gets updated
-            hoveredLink = newHoveredLink;
-
-            view.dispatch(
-              view.state.tr.setMeta(PLUGIN_KEY, { hoveredLinkChanged: true })
+          ) {
+            const hoveredHyperlinkElement = event.target;
+            const posInHoveredHyperlinkMark =
+              editor.view.posAtDOM(hoveredHyperlinkElement, 0) + 1;
+            const resolvedPosInHoveredHyperlinkMark = editor.state.doc.resolve(
+              posInHoveredHyperlinkMark
             );
+            const marksAtPos = resolvedPosInHoveredHyperlinkMark.marks();
+
+            let foundHyperlinkMark = false;
+
+            for (const mark of marksAtPos) {
+              if (mark.type.name === editor.schema.mark("link").type.name) {
+                mouseHoveredHyperlinkMark = mark;
+                foundHyperlinkMark = true;
+
+                break;
+              }
+            }
+
+            if (!foundHyperlinkMark) {
+              mouseHoveredHyperlinkMark = undefined;
+            }
+          } else {
+            mouseHoveredHyperlinkMark = undefined;
           }
+
+          // Using setTimeout ensures all other listeners of this event are executed before a new transaction is
+          // dispatched.
+          setTimeout(() => {
+            view.dispatch(
+              view.state.tr.setMeta(PLUGIN_KEY, {
+                hoveredLinkChanged: true,
+              })
+            );
+          });
+
           return false;
         },
       },

@@ -1,13 +1,16 @@
 import { Editor, isTextSelection } from "@tiptap/core";
 import { EditorState, Plugin, PluginKey } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
+import { BubbleMenuFactory } from "../../menu-tools/BubbleMenu/types";
+import { Menu } from "../../menu-tools/types";
+import { getBubbleMenuFactoryFunctions } from "../../menu-tools/BubbleMenu/getBubbleMenuFactoryFunctions";
 
 // Same as TipTap bubblemenu plugin, but with these changes:
 // https://github.com/ueberdosis/tiptap/pull/2596/files
 export interface BubbleMenuPluginProps {
   pluginKey: PluginKey | string;
   editor: Editor;
-  bubbleMenuFactory: (editor: Editor) => HTMLElement;
+  bubbleMenuFactory: BubbleMenuFactory;
   shouldShow?:
     | ((props: {
         editor: Editor;
@@ -27,9 +30,9 @@ export type BubbleMenuViewProps = BubbleMenuPluginProps & {
 export class BubbleMenuView {
   public editor: Editor;
 
-  public bubbleMenuFactory: (editor: Editor) => HTMLElement;
+  public bubbleMenuFactory: BubbleMenuFactory;
 
-  public bubbleMenuElement: HTMLElement | undefined;
+  public bubbleMenu: Menu;
 
   public view: EditorView;
 
@@ -67,6 +70,9 @@ export class BubbleMenuView {
   }: BubbleMenuViewProps) {
     this.editor = editor;
     this.bubbleMenuFactory = bubbleMenuFactory;
+    this.bubbleMenu = this.bubbleMenuFactory(
+      getBubbleMenuFactoryFunctions(editor)
+    );
     this.view = view;
 
     if (shouldShow) {
@@ -90,7 +96,7 @@ export class BubbleMenuView {
   };
 
   dragstartHandler = () => {
-    this.destroy();
+    this.hideMenu();
   };
 
   focusHandler = () => {
@@ -107,23 +113,21 @@ export class BubbleMenuView {
 
     if (
       event?.relatedTarget &&
-      this.bubbleMenuElement?.parentNode?.contains(event.relatedTarget as Node)
+      this.bubbleMenu.element?.parentNode?.contains(event.relatedTarget as Node)
     ) {
       return;
     }
 
-    this.destroy();
+    this.hideMenu();
   };
 
   update(view: EditorView, oldState?: EditorState) {
-    console.log("UPDATING");
     const { state, composing } = view;
     const { doc, selection } = state;
     const isSame =
       oldState && oldState.doc.eq(doc) && oldState.selection.eq(selection);
 
     if (composing || isSame) {
-      console.log("NOT COMPOSING OR SAME");
       return;
     }
 
@@ -142,45 +146,37 @@ export class BubbleMenuView {
     });
 
     if (!shouldShow || this.preventShow) {
-      console.log("SHOULDN'T SHOW OR PREVENT SHOW");
-      !shouldShow && console.log("SHOULDN'T SHOW");
-      this.preventShow && console.log("PREVENT SHOW");
-
-      this.destroy();
-
+      this.hideMenu();
       return;
     }
 
-    console.log("SHOW");
-    this.create();
+    this.showMenu();
+    this.bubbleMenu.update();
   }
 
-  create() {
-    if (!this.bubbleMenuElement) {
-      this.bubbleMenuElement = this.bubbleMenuFactory(this.editor);
-      this.bubbleMenuElement.style.visibility = "visible";
-      this.bubbleMenuElement.addEventListener(
-        "mousedown",
-        this.mousedownHandler,
-        {
-          capture: true,
-        }
-      );
-    }
+  showMenu() {
+    this.bubbleMenu.show();
+
+    this.bubbleMenu.element!.style.visibility = "visible";
+    this.bubbleMenu.element!.addEventListener(
+      "mousedown",
+      this.mousedownHandler,
+      {
+        capture: true,
+      }
+    );
   }
 
-  destroy() {
-    if (this.bubbleMenuElement) {
-      this.bubbleMenuElement.removeEventListener(
-        "mousedown",
-        this.mousedownHandler,
-        {
-          capture: true,
-        }
-      );
-      this.bubbleMenuElement.remove();
-      this.bubbleMenuElement = undefined;
-    }
+  hideMenu() {
+    this.bubbleMenu.hide();
+
+    this.bubbleMenu.element!.removeEventListener(
+      "mousedown",
+      this.mousedownHandler,
+      {
+        capture: true,
+      }
+    );
   }
 
   addEditorListeners() {
@@ -193,7 +189,7 @@ export class BubbleMenuView {
   }
 
   removeEditorListeners() {
-    this.destroy();
+    this.hideMenu();
 
     this.view.dom.removeEventListener("mousedown", this.viewMousedownHandler);
     this.view.dom.removeEventListener("mouseup", this.viewMouseupHandler);

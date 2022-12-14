@@ -6,14 +6,6 @@ import { HoverHyperlinkMenu } from "../HoverHyperlinkMenu/components/HoverHyperl
 type HyperlinkMenuProps = {
   url: string;
   text: string;
-  pos: {
-    height: number;
-    width: number;
-    left: number;
-    right: number;
-    top: number;
-    bottom: number;
-  };
   update: (url: string, text: string) => void;
   remove: () => void;
 };

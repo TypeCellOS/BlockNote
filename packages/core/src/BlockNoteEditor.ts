@@ -3,21 +3,17 @@ import { Editor, EditorOptions } from "@tiptap/core";
 import { getBlockNoteExtensions } from "./BlockNoteExtensions";
 import styles from "./editor.module.css";
 import rootStyles from "./root.module.css";
+import { BubbleMenuFactory } from "./menu-tools/BubbleMenu/types";
+import { HyperlinkHoverMenuFactory } from "./menu-tools/HyperlinkHoverMenu/types";
 
 type BlockNoteEditorOptions = EditorOptions & {
   enableBlockNoteExtensions: boolean;
   disableHistoryExtension: boolean;
 };
 
-export type menuFactoriesType = {
-  bubbleMenuFactory: (editor: Editor) => HTMLElement;
-  hyperlinkMenuFactory: (
-    editor: Editor,
-    url: string,
-    text: string,
-    update: (url: string, text: string) => void,
-    remove: () => void
-  ) => HTMLElement;
+export type MenuFactories = {
+  bubbleMenuFactory: BubbleMenuFactory;
+  hyperlinkMenuFactory: HyperlinkHoverMenuFactory;
 };
 
 const blockNoteExtensions = getBlockNoteExtensions();
@@ -29,7 +25,7 @@ const blockNoteOptions = {
 };
 
 export const mountBlockNoteEditor = (
-  menuFactories: menuFactoriesType,
+  menuFactories: MenuFactories,
   options: Partial<BlockNoteEditorOptions> = {}
 ) => {
   let extensions = options.disableHistoryExtension

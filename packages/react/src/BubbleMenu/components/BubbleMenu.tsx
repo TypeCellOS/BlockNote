@@ -1,5 +1,3 @@
-import { Editor } from "@tiptap/core";
-import { Node } from "prosemirror-model";
 import {
   RiBold,
   RiH1,
@@ -21,240 +19,203 @@ import { Toolbar } from "../../shared/components/toolbar/Toolbar";
 import { useState } from "react";
 import { formatKeyboardShortcut } from "../../utils";
 import LinkToolbarButton from "./LinkToolbarButton";
+import { BubbleMenuFactoryFunctions } from "../../../../core/src/menu-tools/BubbleMenu/types";
 
 // TODO: add list options, indentation
-export const BubbleMenu = (props: { editor: Editor }) => {
-  const getDropdownText = (node: Node) => {
-    if (node.type.name === "textContent") {
-      return "Text";
-    }
-
-    if (node.type.name === "headingContent") {
-      return "Heading " + node.attrs["headingLevel"];
-    }
-
-    if (node.type.name === "listItemContent") {
-      if (node.attrs["listItemType"] === "unordered") {
-        return "Bullet List";
-      } else {
-        return "Ordered List";
-      }
-    }
-
-    return undefined;
-  };
-
-  const getDropdownIcon = (node: Node) => {
-    if (node.type.name === "textContent") {
-      return RiText;
-    }
-
-    if (node.type.name === "headingContent") {
-      if (node.attrs["headingLevel"] === "1") {
-        return RiH1;
-      }
-
-      if (node.attrs["headingLevel"] === "2") {
-        return RiH2;
-      }
-
-      if (node.attrs["headingLevel"] === "3") {
-        return RiH3;
-      }
-    }
-
-    if (node.type.name === "listItemContent") {
-      if (node.attrs["listItemType"] === "unordered") {
-        return RiListUnordered;
-      } else {
-        return RiListOrdered;
-      }
-    }
-
-    return undefined;
-  };
-
+export const BubbleMenu = (props: {
+  bubbleMenuFunctions: BubbleMenuFactoryFunctions;
+}) => {
   const getActiveMarks = () => {
     const activeMarks = new Set<string>();
 
-    props.editor.isActive("bold") && activeMarks.add("bold");
-    props.editor.isActive("italic") && activeMarks.add("italic");
-    props.editor.isActive("underline") && activeMarks.add("underline");
-    props.editor.isActive("strike") && activeMarks.add("strike");
-    props.editor.isActive("link") && activeMarks.add("link");
+    props.bubbleMenuFunctions.marks.bold.isActive() && activeMarks.add("bold");
+    props.bubbleMenuFunctions.marks.italic.isActive() &&
+      activeMarks.add("italic");
+    props.bubbleMenuFunctions.marks.underline.isActive() &&
+      activeMarks.add("underline");
+    props.bubbleMenuFunctions.marks.strike.isActive() &&
+      activeMarks.add("strike");
+    props.bubbleMenuFunctions.marks.hyperlink.isActive() &&
+      activeMarks.add("link");
 
     return activeMarks;
   };
 
-  const [selectedNode, setSelectedNode] = useState(
-    props.editor.state.selection.$from.node()
-  );
-  const [selectedNodeMarks, setSelectedNodeMarks] = useState(getActiveMarks());
+  const getActiveBlock = () => {
+    if (props.bubbleMenuFunctions.blocks.paragraph.isActive()) {
+      return {
+        text: "Text",
+        icon: RiText,
+      };
+    }
+
+    if (props.bubbleMenuFunctions.blocks.heading.isActive()) {
+      if (props.bubbleMenuFunctions.blocks.heading.getLevel() === "1") {
+        return {
+          text: "Heading 1",
+          icon: RiH1,
+        };
+      }
+
+      if (props.bubbleMenuFunctions.blocks.heading.getLevel() === "2") {
+        return {
+          text: "Heading 2",
+          icon: RiH2,
+        };
+      }
+
+      if (props.bubbleMenuFunctions.blocks.heading.getLevel() === "3") {
+        return {
+          text: "Heading 3",
+          icon: RiH3,
+        };
+      }
+    }
+
+    if (props.bubbleMenuFunctions.blocks.listItem.isActive()) {
+      if (props.bubbleMenuFunctions.blocks.listItem.getType() === "unordered") {
+        return {
+          text: "Bullet List",
+          icon: RiListUnordered,
+        };
+      } else {
+        return {
+          text: "Ordered List",
+          icon: RiListOrdered,
+        };
+      }
+    }
+
+    return undefined;
+  };
+
+  const [activeMarks, setActiveMarks] = useState(getActiveMarks());
+  const [activeBlock, setActiveBlock] = useState(getActiveBlock());
 
   return (
     <Toolbar>
       <ToolbarDropdown
-        text={getDropdownText(selectedNode)}
-        icon={getDropdownIcon(selectedNode)}
+        text={activeBlock!.text}
+        icon={activeBlock!.icon}
         items={[
           {
             onClick: () => {
               // Setting editor focus using a chained command instead causes bubble menu to flicker on click.
-              props.editor.view.focus();
-              props.editor.commands.BNSetContentType(
-                props.editor.state.selection.from,
-                "textContent"
-              );
-              setSelectedNode(props.editor.state.selection.$from.node());
+              props.bubbleMenuFunctions.blocks.paragraph.set();
+              setActiveBlock(getActiveBlock());
             },
             text: "Text",
             icon: RiText,
-            isSelected: selectedNode.type.name === "textContent",
+            isSelected: props.bubbleMenuFunctions.blocks.paragraph.isActive(),
           },
           {
             onClick: () => {
-              props.editor.view.focus();
-              props.editor.commands.BNSetContentType(
-                props.editor.state.selection.from,
-                "headingContent",
-                {
-                  headingLevel: "1",
-                }
-              );
-              setSelectedNode(props.editor.state.selection.$from.node());
+              props.bubbleMenuFunctions.blocks.heading.set("1");
+              setActiveBlock(getActiveBlock());
             },
             text: "Heading 1",
             icon: RiH1,
             isSelected:
-              selectedNode.type.name === "headingContent" &&
-              selectedNode.attrs["headingLevel"] === "1",
+              props.bubbleMenuFunctions.blocks.heading.isActive() &&
+              props.bubbleMenuFunctions.blocks.heading.getLevel() === "1",
           },
           {
             onClick: () => {
-              props.editor.view.focus();
-              props.editor.commands.BNSetContentType(
-                props.editor.state.selection.from,
-                "headingContent",
-                {
-                  headingLevel: "2",
-                }
-              );
-              setSelectedNode(props.editor.state.selection.$from.node());
+              props.bubbleMenuFunctions.blocks.heading.set("2");
+              setActiveBlock(getActiveBlock());
             },
             text: "Heading 2",
             icon: RiH2,
             isSelected:
-              selectedNode.type.name === "headingContent" &&
-              selectedNode.attrs["headingLevel"] === "2",
+              props.bubbleMenuFunctions.blocks.heading.isActive() &&
+              props.bubbleMenuFunctions.blocks.heading.getLevel() === "2",
           },
           {
             onClick: () => {
-              props.editor.view.focus();
-              props.editor.commands.BNSetContentType(
-                props.editor.state.selection.from,
-                "headingContent",
-                {
-                  headingLevel: "3",
-                }
-              );
-              setSelectedNode(props.editor.state.selection.$from.node());
+              props.bubbleMenuFunctions.blocks.heading.set("3");
+              setActiveBlock(getActiveBlock());
             },
             text: "Heading 3",
             icon: RiH3,
             isSelected:
-              selectedNode.type.name === "headingContent" &&
-              selectedNode.attrs["headingLevel"] === "3",
+              props.bubbleMenuFunctions.blocks.heading.isActive() &&
+              props.bubbleMenuFunctions.blocks.heading.getLevel() === "3",
           },
           {
             onClick: () => {
-              props.editor.view.focus();
-              props.editor.commands.BNSetContentType(
-                props.editor.state.selection.from,
-                "listItemContent",
-                {
-                  listItemType: "unordered",
-                }
-              );
-              setSelectedNode(props.editor.state.selection.$from.node());
+              props.bubbleMenuFunctions.blocks.listItem.set("unordered");
+              setActiveBlock(getActiveBlock());
             },
             text: "Bullet List",
             icon: RiListUnordered,
             isSelected:
-              selectedNode.type.name === "listItemContent" &&
-              selectedNode.attrs["listItemType"] === "unordered",
+              props.bubbleMenuFunctions.blocks.listItem.isActive() &&
+              props.bubbleMenuFunctions.blocks.listItem.getType() ===
+                "unordered",
           },
           {
             onClick: () => {
-              props.editor.view.focus();
-              props.editor.commands.BNSetContentType(
-                props.editor.state.selection.from,
-                "listItemContent",
-                {
-                  listItemType: "ordered",
-                }
-              );
-              setSelectedNode(props.editor.state.selection.$from.node());
+              props.bubbleMenuFunctions.blocks.listItem.set("ordered");
+              setActiveBlock(getActiveBlock());
             },
             text: "Numbered List",
             icon: RiListOrdered,
             isSelected:
-              selectedNode.type.name === "listItemContent" &&
-              selectedNode.attrs["listItemType"] === "ordered",
+              props.bubbleMenuFunctions.blocks.listItem.isActive() &&
+              props.bubbleMenuFunctions.blocks.listItem.getType() === "ordered",
           },
         ]}
       />
       <ToolbarButton
         onClick={() => {
-          // Setting editor focus using a chained command instead causes bubble menu to flicker on click.
-          props.editor.view.focus();
-          props.editor.commands.toggleBold();
-          setSelectedNodeMarks(getActiveMarks());
+          props.bubbleMenuFunctions.marks.bold.toggle();
+          setActiveMarks(getActiveMarks());
         }}
-        isSelected={selectedNodeMarks.has("bold")}
+        isSelected={activeMarks.has("bold")}
         mainTooltip="Bold"
         secondaryTooltip={formatKeyboardShortcut("Mod+B")}
         icon={RiBold}
       />
       <ToolbarButton
         onClick={() => {
-          props.editor.view.focus();
-          props.editor.commands.toggleItalic();
-          setSelectedNodeMarks(getActiveMarks());
+          props.bubbleMenuFunctions.marks.italic.toggle();
+          setActiveMarks(getActiveMarks());
         }}
-        isSelected={selectedNodeMarks.has("italic")}
+        isSelected={activeMarks.has("italic")}
         mainTooltip="Italic"
         secondaryTooltip={formatKeyboardShortcut("Mod+I")}
         icon={RiItalic}
       />
       <ToolbarButton
         onClick={() => {
-          props.editor.view.focus();
-          props.editor.commands.toggleUnderline();
-          setSelectedNodeMarks(getActiveMarks());
+          props.bubbleMenuFunctions.marks.underline.toggle();
+          setActiveMarks(getActiveMarks());
         }}
-        isSelected={selectedNodeMarks.has("underline")}
+        isSelected={activeMarks.has("underline")}
         mainTooltip="Underline"
         secondaryTooltip={formatKeyboardShortcut("Mod+U")}
         icon={RiUnderline}
       />
       <ToolbarButton
         onClick={() => {
-          props.editor.view.focus();
-          props.editor.commands.toggleStrike();
-          setSelectedNodeMarks(getActiveMarks());
+          props.bubbleMenuFunctions.marks.strike.toggle();
+          setActiveMarks(getActiveMarks());
         }}
-        isSelected={selectedNodeMarks.has("strike")}
+        isSelected={activeMarks.has("strike")}
         mainTooltip="Strike-through"
         secondaryTooltip={formatKeyboardShortcut("Mod+Shift+X")}
         icon={RiStrikethrough}
       />
       <ToolbarButton
         onClick={() => {
-          props.editor.view.focus();
-          props.editor.commands.sinkListItem("block");
-          setSelectedNodeMarks(getActiveMarks());
+          // props.editor.view.focus();
+          // props.editor.commands.sinkListItem("block");
+          setActiveMarks(getActiveMarks());
         }}
-        isDisabled={!props.editor.can().sinkListItem("block")}
+        isDisabled={
+          // !props.editor.can().sinkListItem("block")
+          true
+        }
         mainTooltip="Indent"
         secondaryTooltip={formatKeyboardShortcut("Tab")}
         icon={RiIndentIncrease}
@@ -262,9 +223,9 @@ export const BubbleMenu = (props: { editor: Editor }) => {
 
       <ToolbarButton
         onClick={() => {
-          props.editor.view.focus();
-          props.editor.commands.liftListItem("block");
-          setSelectedNodeMarks(getActiveMarks());
+          // props.editor.view.focus();
+          // props.editor.commands.liftListItem("block");
+          setActiveMarks(getActiveMarks());
         }}
         isDisabled={
           // !props.editor.can().command(({ state }) => {
@@ -283,8 +244,8 @@ export const BubbleMenu = (props: { editor: Editor }) => {
       />
 
       <LinkToolbarButton
-        editor={props.editor}
-        isSelected={selectedNodeMarks.has("link")}
+        hyperlinkMarkFunctions={props.bubbleMenuFunctions.marks.hyperlink}
+        isSelected={activeMarks.has("link")}
         mainTooltip="Link"
         secondaryTooltip={formatKeyboardShortcut("Mod+K")}
         icon={RiLink}

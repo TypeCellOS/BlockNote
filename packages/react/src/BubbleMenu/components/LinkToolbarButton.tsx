@@ -1,14 +1,14 @@
 import Tippy from "@tippyjs/react";
-import { Editor } from "@tiptap/core";
 import { useCallback, useState } from "react";
 import {
   ToolbarButton,
   ToolbarButtonProps,
 } from "../../shared/components/toolbar/ToolbarButton";
 import { EditHyperlinkMenu } from "../../HyperlinkMenus/EditHyperlinkMenu/components/EditHyperlinkMenu";
+import { HyperlinkMarkFunctions } from "../../../../core/src/menu-tools/BubbleMenu/types";
 
 type Props = ToolbarButtonProps & {
-  editor: Editor;
+  hyperlinkMarkFunctions: HyperlinkMarkFunctions;
 };
 
 /**
@@ -19,36 +19,23 @@ export const LinkToolbarButton = (props: Props) => {
 
   // TODO: review code; does this pattern still make sense?
   const updateCreationMenu = useCallback(() => {
-    const onSubmit = (url: string, text: string) => {
-      if (url === "") {
-        return;
-      }
-      const mark = props.editor.schema.mark("link", { href: url });
-      let { from, to } = props.editor.state.selection;
-      props.editor.view.dispatch(
-        props.editor.view.state.tr
-          .insertText(text, from, to)
-          .addMark(from, from + text.length, mark)
-      );
-    };
-
-    // get the currently selected text and url from the document, and use it to
-    // create a new creation menu
-    const { from, to } = props.editor.state.selection;
-    const selectedText = props.editor.state.doc.textBetween(from, to);
-    const activeUrl = props.editor.isActive("link")
-      ? props.editor.getAttributes("link").href || ""
-      : "";
-
     setCreationMenu(
       <EditHyperlinkMenu
         key={Math.random() + ""} // Math.random to prevent old element from being re-used
-        url={activeUrl}
-        text={selectedText}
-        update={onSubmit}
+        url={
+          props.hyperlinkMarkFunctions.isActive()
+            ? props.hyperlinkMarkFunctions.getUrl()
+            : ""
+        }
+        text={
+          props.hyperlinkMarkFunctions.isActive()
+            ? props.hyperlinkMarkFunctions.getText()
+            : ""
+        }
+        update={props.hyperlinkMarkFunctions.set}
       />
     );
-  }, [props.editor]);
+  }, [props.hyperlinkMarkFunctions]);
 
   return (
     <Tippy

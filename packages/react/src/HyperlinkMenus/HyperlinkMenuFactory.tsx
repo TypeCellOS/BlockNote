@@ -1,43 +1,34 @@
-import { Editor } from "@tiptap/core";
 import { createRoot } from "react-dom/client";
 import { HyperlinkMenu } from "./components/HyperlinkMenu";
 import tippy from "tippy.js";
 import { MantineProvider } from "@mantine/core";
 import { BlockNoteTheme } from "../BlockNoteTheme";
+import {
+  HyperlinkHoverMenuFactory,
+  HyperlinkHoverMenuFactoryFunctions,
+} from "../../../core/src/menu-tools/HyperlinkHoverMenu/types";
 
-export const HyperlinkMenuFactory = (
-  editor: Editor,
-  url: string,
-  text: string,
-  update: (url: string, text: string) => void,
-  remove: () => void
+export const ReactHyperlinkMenuFactory: HyperlinkHoverMenuFactory = (
+  hyperlinkHoverMenuFactoryFunctions: HyperlinkHoverMenuFactoryFunctions
 ) => {
   const element = document.createElement("div");
   const root = createRoot(element);
 
-  const getReferenceClientRect = () => {
-    const { left, top } = editor.view.coordsAtPos(
-      editor.state.selection.anchor
-    );
-
-    return new DOMRect(left, top);
-  };
-
   root.render(
     <MantineProvider theme={BlockNoteTheme}>
       <HyperlinkMenu
-        url={url}
-        text={text}
-        pos={getReferenceClientRect()}
-        update={update}
-        remove={remove}
+        url={hyperlinkHoverMenuFactoryFunctions.hyperlink.getUrl()}
+        text={hyperlinkHoverMenuFactoryFunctions.hyperlink.getText()}
+        update={hyperlinkHoverMenuFactoryFunctions.hyperlink.edit}
+        remove={hyperlinkHoverMenuFactoryFunctions.hyperlink.delete}
       />
     </MantineProvider>
   );
 
   const menu = tippy(document.body, {
     duration: 0,
-    getReferenceClientRect: getReferenceClientRect,
+    getReferenceClientRect:
+      hyperlinkHoverMenuFactoryFunctions.view.getHyperlinkBoundingBox,
     content: element,
     interactive: true,
     trigger: "manual",
@@ -47,5 +38,12 @@ export const HyperlinkMenuFactory = (
 
   menu.show();
 
-  return element as HTMLElement;
+  return {
+    element: element,
+    show: menu.show,
+    hide: menu.hide,
+    update: () => {
+      menu.popperInstance?.forceUpdate();
+    },
+  };
 };
