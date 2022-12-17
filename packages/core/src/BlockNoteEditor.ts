@@ -5,6 +5,8 @@ import styles from "./editor.module.css";
 import rootStyles from "./root.module.css";
 import { BubbleMenuFactory } from "./menu-tools/BubbleMenu/types";
 import { HyperlinkHoverMenuFactory } from "./menu-tools/HyperlinkHoverMenu/types";
+import { SuggestionsMenuFactory } from "./menu-tools/SuggestionsMenu/types";
+import SuggestionItem from "./shared/plugins/suggestion/SuggestionItem";
 
 type BlockNoteEditorOptions = EditorOptions & {
   enableBlockNoteExtensions: boolean;
@@ -14,6 +16,7 @@ type BlockNoteEditorOptions = EditorOptions & {
 export type MenuFactories = {
   bubbleMenuFactory: BubbleMenuFactory;
   hyperlinkMenuFactory: HyperlinkHoverMenuFactory;
+  suggestionsMenuFactory: SuggestionsMenuFactory<SuggestionItem>;
 };
 
 const blockNoteExtensions = getBlockNoteExtensions();
@@ -42,6 +45,12 @@ export const mountBlockNoteEditor = (
     if (extension.name === "link") {
       return extension.configure({
         hyperlinkMenuFactory: menuFactories.hyperlinkMenuFactory,
+      });
+    }
+
+    if (extension.name === "slash-command") {
+      return extension.configure({
+        suggestionsMenuFactory: menuFactories.suggestionsMenuFactory,
       });
     }
 

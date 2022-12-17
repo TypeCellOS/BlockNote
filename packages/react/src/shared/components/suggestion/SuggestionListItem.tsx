@@ -1,27 +1,28 @@
-import SuggestionItem from "../SuggestionItem";
+// import SuggestionItem from "../SuggestionItem";
 import { useEffect, useRef } from "react";
 import { Badge, createStyles, Menu, Stack, Text } from "@mantine/core";
+import { IconType } from "react-icons";
 
 const MIN_LEFT_MARGIN = 5;
 
-export type SuggestionGroupItemProps<T> = {
-  item: T;
-  index: number;
-  selectedIndex?: number;
-  clickItem: (item: T) => void;
+export type SuggestionGroupItemProps = {
+  name: string;
+  hint: string;
+  icon: IconType;
+  shortcut?: string;
+  isSelected: boolean;
+  set: () => void;
 };
 
-export function SuggestionGroupItem<T extends SuggestionItem>(
-  props: SuggestionGroupItemProps<T>
-) {
+export function SuggestionListItem(props: SuggestionGroupItemProps) {
   const itemRef = useRef<HTMLButtonElement>(null);
   const { classes } = createStyles({ root: {} })(undefined, {
     name: "SuggestionListItem",
   });
 
   function isSelected() {
-    const isKeyboardSelected =
-      props.selectedIndex !== undefined && props.selectedIndex === props.index;
+    const isKeyboardSelected = props.isSelected;
+    // props.selectedIndex !== undefined && props.selectedIndex === props.index;
     const isMouseSelected = itemRef.current?.matches(":hover");
 
     return isKeyboardSelected || isMouseSelected;
@@ -53,29 +54,30 @@ export function SuggestionGroupItem<T extends SuggestionItem>(
     }
   });
 
-  const Icon = props.item.icon;
+  const Icon = props.icon;
 
   return (
     <Menu.Item
       className={classes.root}
       icon={Icon && <Icon size={18} />}
-      onClick={() => props.clickItem(props.item)}
+      onClick={props.set}
+      closeMenuOnClick={false}
       // Ensures an item selected with both mouse & keyboard doesn't get deselected on mouse leave.
       onMouseLeave={() => {
         setTimeout(() => {
           updateSelection();
-        });
+        }, 1);
       }}
       ref={itemRef}
       rightSection={
-        props.item.shortcut && <Badge size={"xs"}>{props.item.shortcut}</Badge>
+        props.shortcut && <Badge size={"xs"}>{props.shortcut}</Badge>
       }>
       <Stack>
         {/*Might need separate classes.*/}
         <Text size={14} weight={500}>
-          {props.item.name}
+          {props.name}
         </Text>
-        <Text size={10}>{props.item.hint}</Text>
+        <Text size={10}>{props.hint}</Text>
       </Stack>
     </Menu.Item>
   );

@@ -1,13 +1,11 @@
 import { Editor, Range } from "@tiptap/core";
-import { escapeRegExp, groupBy } from "lodash";
+import { escapeRegExp } from "lodash";
 import { Plugin, PluginKey, Selection } from "prosemirror-state";
-import { Decoration, DecorationSet } from "prosemirror-view";
+import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
 import { findBlock } from "../../../extensions/Blocks/helpers/findBlock";
 import SuggestionItem from "./SuggestionItem";
-
-import createRenderer, {
-  SuggestionRendererProps,
-} from "./SuggestionListReactRenderer";
+import { SuggestionsMenuFactory } from "../../../menu-tools/SuggestionsMenu/types";
+import { getSuggestionsMenuFactoryFunctions } from "../../../menu-tools/SuggestionsMenu/getSuggestionsMenuFactoryFunctions";
 
 export type SuggestionPluginOptions<T extends SuggestionItem> = {
   /**
@@ -26,6 +24,8 @@ export type SuggestionPluginOptions<T extends SuggestionItem> = {
    * The character that should trigger the suggestion menu to pop up (e.g. a '/' for commands)
    */
   char: string;
+
+  suggestionsMenuFactory: SuggestionsMenuFactory<T>;
 
   /**
    * The callback that gets executed when an item is selected by the user.
@@ -102,6 +102,7 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
   pluginKey,
   editor,
   char,
+  suggestionsMenuFactory,
   onSelectItem: selectItemCallback = () => {},
   items = () => [],
 }: SuggestionPluginOptions<T>) {
@@ -110,7 +111,25 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
     throw new Error("'char' should be a single character");
   }
 
-  const renderer = createRenderer<T>(editor);
+  const deactivate = (view: EditorView) => {
+    view.dispatch(view.state.tr.setMeta(pluginKey, { deactivate: true }));
+  };
+
+  const suggestionsMenu = suggestionsMenuFactory(
+    getSuggestionsMenuFactoryFunctions<T>(
+      [],
+      0,
+      (item) => {
+        deactivate(editor.view);
+        selectItemCallback({
+          item: item,
+          editor: editor,
+          range: { from: 0, to: 0 },
+        });
+      },
+      new DOMRect()
+    )
+  );
 
   // Plugin key is passed in parameter so it can be exported and used in draghandle
   return new Plugin({
@@ -120,8 +139,7 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
       // prevent blurring when clicking with the mouse inside the popup menu
       const blurMeta = transaction.getMeta("blur");
       if (blurMeta?.event.relatedTarget) {
-        const c = renderer.getComponent();
-        if (c?.contains(blurMeta.event.relatedTarget)) {
+        if (suggestionsMenu.element?.contains(blurMeta.event.relatedTarget)) {
           return false;
         }
       }
@@ -149,49 +167,48 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
             `[data-decoration-id="${state.decorationId}"]`
           );
 
-          const groups: { [groupName: string]: T[] } = groupBy(
-            state.items,
-            "groupName"
-          );
-
-          const deactivate = () => {
-            view.dispatch(
-              view.state.tr.setMeta(pluginKey, { deactivate: true })
-            );
-          };
-
-          const rendererProps: SuggestionRendererProps<T> = {
-            groups: changed || started ? groups : {},
-            count: state.items.length,
-            onSelectItem: (item: T) => {
-              deactivate();
-              selectItemCallback({
-                item,
-                editor,
-                range: state.range,
-              });
-            },
-            // virtual node for popper.js or tippy.js
-            // this can be used for building popups without a DOM node
-            clientRect: decorationNode
-              ? () => decorationNode.getBoundingClientRect()
-              : null,
-            onClose: () => {
-              deactivate();
-              renderer.onExit?.(rendererProps);
-            },
-          };
-
           if (stopped) {
-            renderer.onExit?.(rendererProps);
+            suggestionsMenu.hide();
           }
 
           if (changed) {
-            renderer.onUpdate?.(rendererProps);
+            suggestionsMenu.update(
+              getSuggestionsMenuFactoryFunctions<T>(
+                next.items,
+                0,
+                (item) => {
+                  deactivate(editor.view);
+                  selectItemCallback({
+                    item: item,
+                    editor: editor,
+                    range: state.range,
+                  });
+                },
+                decorationNode !== null
+                  ? decorationNode.getBoundingClientRect()
+                  : new DOMRect()
+              )
+            );
           }
 
           if (started) {
-            renderer.onStart?.(rendererProps);
+            suggestionsMenu.show(
+              getSuggestionsMenuFactoryFunctions<T>(
+                next.items,
+                0,
+                (item) => {
+                  deactivate(editor.view);
+                  selectItemCallback({
+                    item: item,
+                    editor: editor,
+                    range: state.range,
+                  });
+                },
+                decorationNode !== null
+                  ? decorationNode.getBoundingClientRect()
+                  : new DOMRect()
+              )
+            );
           }
         },
       };
@@ -206,6 +223,7 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
           query: null as string | null,
           notFoundCount: 0,
           items: [] as T[],
+          selectedItemIndex: 0,
           type: "slash",
           decorationId: null as string | null,
         };
@@ -218,6 +236,47 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
 
         // TODO: More clearly define which transactions should be ignored and which should deactivate the menu.
         if (transaction.getMeta("orderedListIndexing") !== undefined) {
+          return next;
+        }
+
+        // Handles transactions created by navigating the menu using the up/down arrow keys.
+        if (
+          transaction.getMeta(pluginKey)?.selectedItemIndexChanged !== undefined
+        ) {
+          let newIndex =
+            transaction.getMeta(pluginKey).selectedItemIndexChanged;
+
+          if (newIndex < 0) {
+            newIndex = prev.items.length - 1;
+          }
+
+          if (newIndex >= prev.items.length) {
+            newIndex = 0;
+          }
+
+          next.selectedItemIndex = newIndex;
+
+          const decorationNode = document.querySelector(
+            `[data-decoration-id="${next.decorationId}"]`
+          );
+
+          suggestionsMenu.update(
+            getSuggestionsMenuFactoryFunctions(
+              next.items,
+              next.selectedItemIndex,
+              (item) => {
+                selectItemCallback({
+                  item: item,
+                  editor: editor,
+                  range: next.range,
+                });
+              },
+              decorationNode !== null
+                ? decorationNode.getBoundingClientRect()
+                : new DOMRect()
+            )
+          );
+
           return next;
         }
 
@@ -247,6 +306,7 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
             next.query = "";
             next.active = true;
             next.type = transaction.getMeta(pluginKey)?.type;
+            next.selectedItemIndex = 0;
           } else if (prev.active) {
             // Try to match against where our cursor currently is
             // if the type is slash we get the command after the character
@@ -263,6 +323,7 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
             next.active = true;
             next.decorationId = prev.decorationId;
             next.query = match.query;
+            next.selectedItemIndex = 0;
           }
         } else {
           next.active = false;
@@ -319,12 +380,46 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
             // return true to cancel the original event, as we insert / ourselves
             return true;
           }
-          return false;
+        } else {
+          const { items, range, selectedItemIndex } = pluginKey.getState(
+            view.state
+          );
+
+          if (event.key === "ArrowUp") {
+            view.dispatch(
+              view.state.tr.setMeta(pluginKey, {
+                selectedItemIndexChanged: selectedItemIndex - 1,
+              })
+            );
+            return true;
+          }
+
+          if (event.key === "ArrowDown") {
+            view.dispatch(
+              view.state.tr.setMeta(pluginKey, {
+                selectedItemIndexChanged: selectedItemIndex + 1,
+              })
+            );
+            return true;
+          }
+
+          if (event.key === "Enter") {
+            deactivate(view);
+            selectItemCallback({
+              item: items[selectedItemIndex],
+              editor: editor,
+              range: range,
+            });
+            return true;
+          }
+
+          if (event.key === "Escape") {
+            deactivate(view);
+            return true;
+          }
         }
 
-        // pass the key event onto the renderer (to handle arrow keys, enter and escape)
-        // return true if the event got handled by the renderer or false otherwise
-        return renderer.onKeyDown?.(event) || false;
+        return false;
       },
 
       // Setup decorator on the currently active suggestion.
