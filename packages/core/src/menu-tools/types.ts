@@ -1,16 +1,8 @@
-import { BubbleMenuFactoryFunctions } from "./BubbleMenu/types";
-import { HyperlinkHoverMenuFactoryFunctions } from "./HyperlinkHoverMenu/types";
-import { SuggestionsMenuFactoryFunctions } from "./SuggestionsMenu/types";
-import SuggestionItem from "../shared/plugins/suggestion/SuggestionItem";
-
-export type MenuUpdateProps<T extends SuggestionItem> =
-  | BubbleMenuFactoryFunctions
-  | HyperlinkHoverMenuFactoryFunctions
-  | SuggestionsMenuFactoryFunctions<T>;
-
-export type Menu<T extends SuggestionItem> = {
+export type Menu<MenuProps> = {
   element: HTMLElement | undefined;
-  show: (props: MenuUpdateProps<T>) => void;
+  show: (props: MenuProps) => void;
   hide: () => void;
-  update: (newProps: MenuUpdateProps<T>) => void;
+  update: (newProps: MenuProps) => void;
 };
+
+export type MenuFactory<MenuProps> = (props: MenuProps) => Menu<MenuProps>;

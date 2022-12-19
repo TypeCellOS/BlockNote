@@ -1,46 +1,46 @@
-import { Menu } from "../types";
+import { Menu, MenuFactory } from "../types";
 
-export type BasicMarkFunctions = {
-  isActive: () => boolean;
+export type BasicMarkProps = {
+  isActive: boolean;
   toggle: () => void;
 };
 
-export type HyperlinkMarkFunctions = {
-  isActive: () => boolean;
-  getUrl: () => string;
-  getText: () => string;
+export type HyperlinkMarkProps = {
+  isActive: boolean;
+  url: string;
+  text: string;
   set: (url: string, text?: string) => void;
 };
 
-export type ParagraphBlockFunctions = {
-  isActive: () => boolean;
+export type ParagraphBlockProps = {
+  isActive: boolean;
   set: () => void;
 };
 
-export type HeadingBlockFunctions = {
-  isActive: () => boolean;
-  getLevel: () => string;
+export type HeadingBlockProps = {
+  isActive: boolean;
+  level: string;
   set: (level: string) => void;
 };
 
-export type ListItemBlockFunctions = {
-  isActive: () => boolean;
-  getType: () => string;
+export type ListItemBlockProps = {
+  isActive: boolean;
+  type: string;
   set: (type: string) => void;
 };
 
-export type BubbleMenuFactoryFunctions = {
+export type BubbleMenuProps = {
   marks: {
-    bold: BasicMarkFunctions;
-    italic: BasicMarkFunctions;
-    underline: BasicMarkFunctions;
-    strike: BasicMarkFunctions;
-    hyperlink: HyperlinkMarkFunctions;
+    bold: BasicMarkProps;
+    italic: BasicMarkProps;
+    underline: BasicMarkProps;
+    strike: BasicMarkProps;
+    hyperlink: HyperlinkMarkProps;
   };
   blocks: {
-    paragraph: ParagraphBlockFunctions;
-    heading: HeadingBlockFunctions;
-    listItem: ListItemBlockFunctions;
+    paragraph: ParagraphBlockProps;
+    heading: HeadingBlockProps;
+    listItem: ListItemBlockProps;
   };
   view: {
     getSelectionBoundingBox: () => DOMRect;
@@ -48,4 +48,5 @@ export type BubbleMenuFactoryFunctions = {
   };
 };
 
-export type BubbleMenuFactory = (functions: BubbleMenuFactoryFunctions) => Menu;
+export type BubbleMenu = Menu<BubbleMenuProps>;
+export type BubbleMenuFactory = MenuFactory<BubbleMenuProps>;

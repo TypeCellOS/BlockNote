@@ -1,12 +1,13 @@
-import { Editor, Extension } from "@tiptap/core";
+import { Extension } from "@tiptap/core";
 import { PluginKey } from "prosemirror-state";
 import { createBubbleMenuPlugin } from "./BubbleMenuPlugin";
+import { BubbleMenuFactory } from "../../menu-tools/BubbleMenu/types";
 
 /**
  * The menu that is displayed when selecting a piece of text.
  */
 export const BubbleMenuExtension = Extension.create<{
-  bubbleMenuFactory: (editor: Editor) => HTMLElement;
+  bubbleMenuFactory: BubbleMenuFactory;
 }>({
   name: "BubbleMenuExtension",
 

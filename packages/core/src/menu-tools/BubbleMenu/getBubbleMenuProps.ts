@@ -1,47 +1,44 @@
 import { Editor, isNodeSelection, posToDOMRect } from "@tiptap/core";
-import { BubbleMenuFactoryFunctions } from "./types";
+import { BubbleMenuProps } from "./types";
 
-export function getBubbleMenuFactoryFunctions(
-  editor: Editor
-): BubbleMenuFactoryFunctions {
+export function getBubbleMenuProps(editor: Editor): BubbleMenuProps {
   return {
     marks: {
       bold: {
-        isActive: () => editor.isActive("bold"),
+        isActive: editor.isActive("bold"),
         toggle: () => {
           editor.view.focus();
           editor.commands.toggleBold();
         },
       },
       italic: {
-        isActive: () => editor.isActive("italic"),
+        isActive: editor.isActive("italic"),
         toggle: () => {
           editor.view.focus();
           editor.commands.toggleItalic();
         },
       },
       underline: {
-        isActive: () => editor.isActive("underline"),
+        isActive: editor.isActive("underline"),
         toggle: () => {
           editor.view.focus();
           editor.commands.toggleUnderline();
         },
       },
       strike: {
-        isActive: () => editor.isActive("strike"),
+        isActive: editor.isActive("strike"),
         toggle: () => {
           editor.view.focus();
           editor.commands.toggleStrike();
         },
       },
       hyperlink: {
-        isActive: () => editor.isActive("link"),
-        getUrl: () => editor.getAttributes("link").href,
-        getText: () => {
-          const { from, to } = editor.state.selection;
-
-          return editor.state.doc.textBetween(from, to);
-        },
+        isActive: editor.isActive("link"),
+        url: editor.getAttributes("link").href,
+        text: editor.state.doc.textBetween(
+          editor.state.selection.from,
+          editor.state.selection.to
+        ),
         set: (url: string, text?: string) => {
           if (url === "") {
             return;
@@ -65,7 +62,7 @@ export function getBubbleMenuFactoryFunctions(
     },
     blocks: {
       paragraph: {
-        isActive: () =>
+        isActive:
           editor.state.selection.$from.node().type.name === "textContent",
         set: () => {
           editor.view.focus();
@@ -76,10 +73,9 @@ export function getBubbleMenuFactoryFunctions(
         },
       },
       heading: {
-        isActive: () =>
+        isActive:
           editor.state.selection.$from.node().type.name === "headingContent",
-        getLevel: () =>
-          editor.state.selection.$from.node().attrs["headingLevel"],
+        level: editor.state.selection.$from.node().attrs["headingLevel"],
         set: (level: string = "1") => {
           editor.view.focus();
           editor.commands.BNSetContentType(
@@ -92,10 +88,9 @@ export function getBubbleMenuFactoryFunctions(
         },
       },
       listItem: {
-        isActive: () =>
+        isActive:
           editor.state.selection.$from.node().type.name === "listItemContent",
-        getType: () =>
-          editor.state.selection.$from.node().attrs["listItemType"],
+        type: editor.state.selection.$from.node().attrs["listItemType"],
         set: (type: string = "unordered") => {
           editor.view.focus();
           editor.commands.BNSetContentType(
@@ -109,6 +104,7 @@ export function getBubbleMenuFactoryFunctions(
       },
     },
     view: {
+      // TODO: Define function in plugin instead and pass it as an argument?
       getSelectionBoundingBox: () => {
         const { state } = editor.view;
         const { selection } = state;

@@ -5,10 +5,10 @@ import {
   ToolbarButtonProps,
 } from "../../shared/components/toolbar/ToolbarButton";
 import { EditHyperlinkMenu } from "../../HyperlinkMenus/EditHyperlinkMenu/components/EditHyperlinkMenu";
-import { HyperlinkMarkFunctions } from "../../../../core/src/menu-tools/BubbleMenu/types";
+import { HyperlinkMarkProps } from "../../../../core/src/menu-tools/BubbleMenu/types";
 
 type Props = ToolbarButtonProps & {
-  hyperlinkMarkFunctions: HyperlinkMarkFunctions;
+  hyperlinkMarkProps: HyperlinkMarkProps;
 };
 
 /**
@@ -23,19 +23,15 @@ export const LinkToolbarButton = (props: Props) => {
       <EditHyperlinkMenu
         key={Math.random() + ""} // Math.random to prevent old element from being re-used
         url={
-          props.hyperlinkMarkFunctions.isActive()
-            ? props.hyperlinkMarkFunctions.getUrl()
-            : ""
+          props.hyperlinkMarkProps.isActive ? props.hyperlinkMarkProps.url : ""
         }
         text={
-          props.hyperlinkMarkFunctions.isActive()
-            ? props.hyperlinkMarkFunctions.getText()
-            : ""
+          props.hyperlinkMarkProps.isActive ? props.hyperlinkMarkProps.text : ""
         }
-        update={props.hyperlinkMarkFunctions.set}
+        update={props.hyperlinkMarkProps.set}
       />
     );
-  }, [props.hyperlinkMarkFunctions]);
+  }, [props.hyperlinkMarkProps]);
 
   return (
     <Tippy
