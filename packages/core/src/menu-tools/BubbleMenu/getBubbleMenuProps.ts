@@ -124,7 +124,7 @@ export function getBubbleMenuProps(editor: Editor): BubbleMenuProps {
 
         return posToDOMRect(editor.view, from, to);
       },
-      getEditorElement: () => editor.options.element,
+      editorElement: editor.options.element,
     },
   };
 }

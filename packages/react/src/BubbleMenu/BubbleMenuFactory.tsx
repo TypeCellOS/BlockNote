@@ -17,7 +17,7 @@ export const ReactBubbleMenuFactory: BubbleMenuFactory = (
   // element.className = rootStyles.bnRoot;
   const root = createRoot(element);
 
-  let menu = tippy(props.view.getEditorElement(), {
+  let menu = tippy(props.view.editorElement, {
     duration: 0,
     getReferenceClientRect: props.view.getSelectionBoundingBox,
     content: element,
@@ -38,16 +38,16 @@ export const ReactBubbleMenuFactory: BubbleMenuFactory = (
       menu.show();
     },
     hide: menu.hide,
-    // BubbleMenu React component updates its UI elements automatically with useState hooks, so we only need to ensure
-    // the tippy menu updates its position.
     update: (newProps: BubbleMenuProps) => {
       root.render(
         <MantineProvider theme={BlockNoteTheme}>
           <ReactBubbleMenu bubbleMenuProps={newProps} />
         </MantineProvider>
       );
-      // Waits one second for animation to complete. Can be a bit clunky.
-      setTimeout(() => menu.popperInstance?.forceUpdate(), 1000);
+
+      // TODO: Waits 500ms for animations to complete, looks clunky. See TODO in getBubbleMenuProps for why this is
+      //  necessary.
+      setTimeout(() => menu.popperInstance?.forceUpdate(), 350);
     },
   };
 };
