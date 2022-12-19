@@ -24,7 +24,6 @@ import { BubbleMenuProps } from "../../../../core/src/menu-tools/BubbleMenu/type
 export const BubbleMenu = (props: { bubbleMenuProps: BubbleMenuProps }) => {
   const getActiveMarks = () => {
     const activeMarks = new Set<string>();
-    console.log(props.bubbleMenuProps.marks.bold.isActive);
 
     props.bubbleMenuProps.marks.bold.isActive && activeMarks.add("bold");
     props.bubbleMenuProps.marks.italic.isActive && activeMarks.add("italic");

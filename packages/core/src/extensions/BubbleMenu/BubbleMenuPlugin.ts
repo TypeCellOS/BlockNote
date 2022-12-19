@@ -111,10 +111,11 @@ export const createBubbleMenuPlugin = (options: BubbleMenuPluginProps) => {
               );
             }
 
-            if (prev.show && next.show) {
-              console.log("UPDATE");
-              console.log(options.editor.isActive("bold"));
-              bubbleMenu.update(getBubbleMenuProps(options.editor));
+            if (!next.preventUpdate) {
+              if (prev.show && next.show) {
+                console.log("UPDATE");
+                bubbleMenu.update(getBubbleMenuProps(options.editor));
+              }
             }
           }
 
@@ -139,29 +140,24 @@ export const createBubbleMenuPlugin = (options: BubbleMenuPluginProps) => {
         return {
           show: false,
           preventShow: false,
+          preventUpdate: false,
           preventHide: false,
         };
       },
-      apply: (tr, prev, _oldState, state) => {
+      apply: (tr, prev, oldState, state) => {
         const next = { ...prev };
+        const { doc, selection } = state;
 
         if (tr.getMeta(options.pluginKey)?.preventShow !== undefined) {
           next.preventShow = tr.getMeta(options.pluginKey).preventShow;
         }
 
+        next.preventUpdate =
+          oldState && oldState.doc.eq(doc) && oldState.selection.eq(selection);
+
         if (tr.getMeta(options.pluginKey)?.preventHide !== undefined) {
           next.preventHide = tr.getMeta(options.pluginKey).preventHide;
         }
-
-        const { doc, selection } = state;
-
-        // const isSame =
-        //   oldState && oldState.doc.eq(doc) && oldState.selection.eq(selection);
-        //
-        // if (isSame && !prev.preventHide) {
-        //   next.show = false;
-        //   return next;
-        // }
 
         // Support for CellSelections
         const { ranges, empty } = selection;

@@ -43,8 +43,11 @@ export type BubbleMenuProps = {
     listItem: ListItemBlockProps;
   };
   view: {
+    // TODO: Menu currently needs to delay getting the bounding box, as the editor, and its corresponding view, are
+    //  passed in when an animation starts. This means that the DOMRect found will be incorrect, as the selection
+    //  bounding box used to create it is from an editor view that is out of date due to the animation.
     getSelectionBoundingBox: () => DOMRect;
-    getEditorElement: () => Element;
+    editorElement: Element;
   };
 };
 
