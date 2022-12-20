@@ -98,38 +98,43 @@ export const createBubbleMenuPlugin = (options: BubbleMenuPluginProps) => {
           const prev = options.pluginKey.getState(prevState);
           const next = options.pluginKey.getState(view.state);
 
-          if (!next.preventShow) {
-            if (!prev.show && next.show) {
-              bubbleMenu.show(getBubbleMenuProps(options.editor));
+          if (!prev.show && next.show && !next.preventShow) {
+            bubbleMenu.show(getBubbleMenuProps(options.editor));
 
-              bubbleMenu.element!.addEventListener(
-                "mousedown",
-                () => mousedownHandler(view),
-                {
-                  capture: true,
-                }
-              );
-            }
-
-            if (!next.preventUpdate) {
-              if (prev.show && next.show) {
-                bubbleMenu.update(getBubbleMenuProps(options.editor));
+            bubbleMenu.element!.addEventListener(
+              "mousedown",
+              () => mousedownHandler(view),
+              {
+                capture: true,
               }
-            }
+            );
+
+            return;
           }
 
-          if (!next.preventHide) {
-            if (prev.show && !next.show) {
-              bubbleMenu.hide();
+          if (
+            prev.show &&
+            next.show &&
+            !next.preventShow &&
+            !next.preventUpdate
+          ) {
+            bubbleMenu.update(getBubbleMenuProps(options.editor));
 
-              bubbleMenu.element!.removeEventListener(
-                "mousedown",
-                () => mousedownHandler(view),
-                {
-                  capture: true,
-                }
-              );
-            }
+            return;
+          }
+
+          if (prev.show && !next.show && !next.preventHide) {
+            bubbleMenu.element!.removeEventListener(
+              "mousedown",
+              () => mousedownHandler(view),
+              {
+                capture: true,
+              }
+            );
+
+            bubbleMenu.hide();
+
+            return;
           }
         },
       };

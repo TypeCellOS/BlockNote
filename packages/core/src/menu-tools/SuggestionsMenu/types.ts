@@ -1,4 +1,4 @@
-import { Menu } from "../types";
+import { Menu, MenuFactory } from "../types";
 import SuggestionItem from "../../shared/plugins/suggestion/SuggestionItem";
 
 export type SuggestionsMenuItem = {
@@ -6,7 +6,7 @@ export type SuggestionsMenuItem = {
   set: () => void;
 };
 
-export type SuggestionsMenuFactoryFunctions<T extends SuggestionItem> = {
+export type SuggestionsMenuProps<T extends SuggestionItem> = {
   menuItems: {
     items: T[];
     selectedItemIndex: number;
@@ -14,9 +14,13 @@ export type SuggestionsMenuFactoryFunctions<T extends SuggestionItem> = {
   };
   view: {
     selectedBlockBoundingBox: DOMRect;
+    editorElement: Element;
   };
 };
 
-export type SuggestionsMenuFactory<T extends SuggestionItem> = (
-  functions: SuggestionsMenuFactoryFunctions<T>
-) => Menu<T>;
+export type SuggestionsMenu<T extends SuggestionItem> = Menu<
+  SuggestionsMenuProps<T>
+>;
+export type SuggestionsMenuFactory<T extends SuggestionItem> = MenuFactory<
+  SuggestionsMenuProps<T>
+>;

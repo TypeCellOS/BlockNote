@@ -5,7 +5,7 @@ import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
 import { findBlock } from "../../../extensions/Blocks/helpers/findBlock";
 import SuggestionItem from "./SuggestionItem";
 import { SuggestionsMenuFactory } from "../../../menu-tools/SuggestionsMenu/types";
-import { getSuggestionsMenuFactoryFunctions } from "../../../menu-tools/SuggestionsMenu/getSuggestionsMenuFactoryFunctions";
+import { getSuggestionsMenuProps } from "../../../menu-tools/SuggestionsMenu/getSuggestionsMenuProps";
 
 export type SuggestionPluginOptions<T extends SuggestionItem> = {
   /**
@@ -116,7 +116,7 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
   };
 
   const suggestionsMenu = suggestionsMenuFactory(
-    getSuggestionsMenuFactoryFunctions<T>(
+    getSuggestionsMenuProps<T>(
       [],
       0,
       (item) => {
@@ -127,7 +127,8 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
           range: { from: 0, to: 0 },
         });
       },
-      new DOMRect()
+      new DOMRect(),
+      editor.options.element
     )
   );
 
@@ -173,7 +174,7 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
 
           if (changed) {
             suggestionsMenu.update(
-              getSuggestionsMenuFactoryFunctions<T>(
+              getSuggestionsMenuProps<T>(
                 next.items,
                 0,
                 (item) => {
@@ -186,14 +187,15 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
                 },
                 decorationNode !== null
                   ? decorationNode.getBoundingClientRect()
-                  : new DOMRect()
+                  : new DOMRect(),
+                editor.options.element
               )
             );
           }
 
           if (started) {
             suggestionsMenu.show(
-              getSuggestionsMenuFactoryFunctions<T>(
+              getSuggestionsMenuProps<T>(
                 next.items,
                 0,
                 (item) => {
@@ -206,7 +208,8 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
                 },
                 decorationNode !== null
                   ? decorationNode.getBoundingClientRect()
-                  : new DOMRect()
+                  : new DOMRect(),
+                editor.options.element
               )
             );
           }
@@ -261,7 +264,7 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
           );
 
           suggestionsMenu.update(
-            getSuggestionsMenuFactoryFunctions(
+            getSuggestionsMenuProps(
               next.items,
               next.selectedItemIndex,
               (item) => {
@@ -273,7 +276,8 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
               },
               decorationNode !== null
                 ? decorationNode.getBoundingClientRect()
-                : new DOMRect()
+                : new DOMRect(),
+              editor.options.element
             )
           );
 

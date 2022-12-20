@@ -4,46 +4,68 @@ import tippy from "tippy.js";
 import { MantineProvider } from "@mantine/core";
 import { BlockNoteTheme } from "../BlockNoteTheme";
 import {
+  HyperlinkHoverMenu,
   HyperlinkHoverMenuFactory,
-  HyperlinkHoverMenuFactoryFunctions,
+  HyperlinkHoverMenuProps,
 } from "../../../core/src/menu-tools/HyperlinkHoverMenu/types";
 
 export const ReactHyperlinkMenuFactory: HyperlinkHoverMenuFactory = (
-  hyperlinkHoverMenuFactoryFunctions: HyperlinkHoverMenuFactoryFunctions
-) => {
+  props: HyperlinkHoverMenuProps
+): HyperlinkHoverMenu => {
   const element = document.createElement("div");
   const root = createRoot(element);
 
-  root.render(
-    <MantineProvider theme={BlockNoteTheme}>
-      <HyperlinkMenu
-        url={hyperlinkHoverMenuFactoryFunctions.hyperlink.getUrl()}
-        text={hyperlinkHoverMenuFactoryFunctions.hyperlink.getText()}
-        update={hyperlinkHoverMenuFactoryFunctions.hyperlink.edit}
-        remove={hyperlinkHoverMenuFactoryFunctions.hyperlink.delete}
-      />
-    </MantineProvider>
-  );
-
-  const menu = tippy(document.body, {
+  const menu = tippy(props.view.editorElement, {
+    appendTo: props.view.editorElement,
     duration: 0,
-    getReferenceClientRect:
-      hyperlinkHoverMenuFactoryFunctions.view.getHyperlinkBoundingBox,
+    getReferenceClientRect: () => props.view.hyperlinkBoundingBox,
     content: element,
     interactive: true,
     trigger: "manual",
     placement: "top",
-    hideOnClick: "toggle",
+    hideOnClick: false,
   });
 
   menu.show();
 
   return {
     element: element,
-    show: menu.show,
-    hide: menu.hide,
-    update: () => {
-      menu.popperInstance?.forceUpdate();
+    show: (props: HyperlinkHoverMenuProps) => {
+      root.render(
+        <MantineProvider theme={BlockNoteTheme}>
+          <HyperlinkMenu
+            url={props.hyperlink.url}
+            text={props.hyperlink.text}
+            update={props.hyperlink.edit}
+            remove={props.hyperlink.delete}
+          />
+        </MantineProvider>
+      );
+
+      menu.setProps({
+        getReferenceClientRect: () => props.view.hyperlinkBoundingBox,
+      });
+
+      menu.show();
+    },
+    hide: () => {
+      menu.hide();
+    },
+    update: (newProps: HyperlinkHoverMenuProps) => {
+      root.render(
+        <MantineProvider theme={BlockNoteTheme}>
+          <HyperlinkMenu
+            url={newProps.hyperlink.url}
+            text={newProps.hyperlink.text}
+            update={newProps.hyperlink.edit}
+            remove={newProps.hyperlink.delete}
+          />
+        </MantineProvider>
+      );
+
+      menu.setProps({
+        getReferenceClientRect: () => newProps.view.hyperlinkBoundingBox,
+      });
     },
   };
 };

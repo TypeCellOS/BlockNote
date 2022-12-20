@@ -1,10 +1,10 @@
 import { createStyles, Menu } from "@mantine/core";
 import { SuggestionListItem } from "./SuggestionListItem";
-import { SuggestionsMenuFactoryFunctions } from "../../../../../core/src/menu-tools/SuggestionsMenu/types";
+import { SuggestionsMenuProps } from "../../../../../core/src/menu-tools/SuggestionsMenu/types";
 import SuggestionItem from "@blocknote/core/types/src/shared/plugins/suggestion/SuggestionItem";
 
 export type SuggestionListProps<T extends SuggestionItem> =
-  SuggestionsMenuFactoryFunctions<T>;
+  SuggestionsMenuProps<T>;
 
 export function SuggestionList<T extends SuggestionItem>(
   props: SuggestionListProps<T>

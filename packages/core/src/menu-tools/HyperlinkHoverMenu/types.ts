@@ -1,17 +1,17 @@
-import { Menu } from "../types";
+import { Menu, MenuFactory } from "../types";
 
-export type HyperlinkHoverMenuFactoryFunctions = {
+export type HyperlinkHoverMenuProps = {
   hyperlink: {
-    getUrl: () => string;
-    getText: () => string;
+    url: string;
+    text: string;
     edit: (url: string, text: string) => void;
     delete: () => void;
   };
   view: {
-    getHyperlinkBoundingBox: () => DOMRect | undefined;
+    hyperlinkBoundingBox: DOMRect;
+    editorElement: Element;
   };
 };
 
-export type HyperlinkHoverMenuFactory = (
-  functions: HyperlinkHoverMenuFactoryFunctions
-) => Menu;
+export type HyperlinkHoverMenu = Menu<HyperlinkHoverMenuProps>;
+export type HyperlinkHoverMenuFactory = MenuFactory<HyperlinkHoverMenuProps>;
