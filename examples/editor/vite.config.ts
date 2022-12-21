@@ -8,6 +8,9 @@ export default defineConfig((conf) => ({
   optimizeDeps: {
     // link: ['vite-react-ts-components'],
   },
+  build: {
+    sourcemap: true,
+  },
   resolve: {
     alias:
       conf.command === "build"

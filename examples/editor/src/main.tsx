@@ -1,12 +1,12 @@
-import styles from "./App.module.css";
-import "./index.css";
-
 import { mountBlockNoteEditor } from "@blocknote/core";
+import "@blocknote/core/style.css";
 import {
   ReactBubbleMenuFactory,
   ReactHyperlinkMenuFactory,
   ReactSuggestionsMenuFactory,
 } from "@blocknote/react";
+import styles from "./App.module.css";
+import "./index.css";
 
 // type WindowWithProseMirror = Window &
 //   typeof globalThis & { ProseMirror: Editor };
