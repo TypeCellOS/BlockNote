@@ -58,13 +58,6 @@ export const BubbleMenu = (props: { bubbleMenuProps: BubbleMenuProps }) => {
   };
 
   const getActiveBlock = () => {
-    if (props.bubbleMenuProps.paragraphIsActive) {
-      return {
-        text: "Text",
-        icon: RiText,
-      };
-    }
-
     if (props.bubbleMenuProps.headingIsActive) {
       if (props.bubbleMenuProps.activeHeadingLevel === "1") {
         return {
@@ -102,7 +95,10 @@ export const BubbleMenu = (props: { bubbleMenuProps: BubbleMenuProps }) => {
       }
     }
 
-    return undefined;
+    return {
+      text: "Text",
+      icon: RiText,
+    };
   };
 
   const activeMarks = getActiveMarks();

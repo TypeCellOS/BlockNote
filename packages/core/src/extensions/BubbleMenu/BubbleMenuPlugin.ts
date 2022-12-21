@@ -2,7 +2,10 @@ import { Editor, isTextSelection } from "@tiptap/core";
 import { EditorState, Plugin, PluginKey } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 import { getBubbleMenuInitProps } from "../../menu-tools/BubbleMenu/getBubbleMenuInitProps";
-import { BubbleMenuFactory } from "../../menu-tools/BubbleMenu/types";
+import {
+  BubbleMenu,
+  BubbleMenuFactory,
+} from "../../menu-tools/BubbleMenu/types";
 import { getBubbleMenuUpdateProps } from "../../menu-tools/BubbleMenu/getBubbleMenuUpdateProps";
 
 // Same as TipTap bubblemenu plugin, but with these changes:
@@ -23,176 +26,214 @@ export interface BubbleMenuPluginProps {
     | null;
 }
 
-// TODO: do from previous code
-export const createBubbleMenuPlugin = (options: BubbleMenuPluginProps) => {
-  const bubbleMenu = options.bubbleMenuFactory(
-    getBubbleMenuInitProps(options.editor)
-  );
+export type BubbleMenuViewProps = BubbleMenuPluginProps & {
+  view: EditorView;
+};
 
-  // TODO: Is this callback needed?
-  const mousedownHandler = (_view: EditorView) => {
-    // view.dispatch(
-    //   view.state.tr.setMeta(options.pluginKey, {
-    //     preventHide: true,
-    //   })
-    // );
+export class BubbleMenuView {
+  public editor: Editor;
+
+  public bubbleMenu: BubbleMenu;
+
+  public view: EditorView;
+
+  public preventHide = false;
+
+  public preventShow = false;
+
+  public menuIsOpen = false;
+
+  public shouldShow: Exclude<BubbleMenuPluginProps["shouldShow"], null> = ({
+    view,
+    state,
+    from,
+    to,
+  }) => {
+    const { doc, selection } = state;
+    const { empty } = selection;
+
+    // Sometime check for `empty` is not enough.
+    // Doubleclick an empty paragraph returns a node size of 2.
+    // So we check also for an empty text size.
+    const isEmptyTextBlock =
+      !doc.textBetween(from, to).length && isTextSelection(state.selection);
+
+    if (!view.hasFocus() || empty || isEmptyTextBlock) {
+      return false;
+    }
+
+    return true;
   };
 
-  // TODO: transaction needed?
-  const viewMousedownHandler = (view: EditorView) => {
-    view.dispatch(
-      view.state.tr.setMeta(options.pluginKey, {
-        preventShow: true,
-      })
+  constructor({
+    editor,
+    bubbleMenuFactory,
+    view,
+    shouldShow,
+  }: BubbleMenuViewProps) {
+    this.editor = editor;
+    this.bubbleMenu = bubbleMenuFactory(getBubbleMenuInitProps(editor));
+    this.view = view;
+
+    if (shouldShow) {
+      this.shouldShow = shouldShow;
+    }
+
+    this.view.dom.addEventListener("mousedown", this.viewMousedownHandler);
+    this.view.dom.addEventListener("mouseup", this.viewMouseupHandler);
+    this.view.dom.addEventListener("dragstart", this.dragstartHandler);
+
+    this.editor.on("focus", this.focusHandler);
+    this.editor.on("blur", this.blurHandler);
+  }
+
+  mousedownHandler = () => {
+    this.preventHide = true;
+  };
+
+  viewMousedownHandler = () => {
+    this.preventShow = true;
+  };
+
+  viewMouseupHandler = () => {
+    this.preventShow = false;
+    setTimeout(() => this.update(this.editor.view));
+  };
+
+  dragstartHandler = () => {
+    this.bubbleMenu.element!.removeEventListener(
+      "mousedown",
+      this.mousedownHandler,
+      {
+        capture: true,
+      }
     );
+
+    this.bubbleMenu.hide();
+    this.menuIsOpen = false;
   };
 
-  const viewMouseupHandler = (view: EditorView) => {
-    view.dispatch(
-      view.state.tr.setMeta(options.pluginKey, {
-        preventShow: false,
-      })
-    );
-  };
-
-  const dragstartHandler = () => {
-    bubbleMenu.hide();
-  };
-
-  // TODO: Is this callback needed?
-  const focusHandler = () => {
+  focusHandler = () => {
     // we use `setTimeout` to make sure `selection` is already updated
-    // setTimeout(() => this.update(this.editor.view));
+    setTimeout(() => this.update(this.editor.view));
   };
 
-  const blurHandler = ({ event }: { event: FocusEvent }, view: EditorView) => {
-    const pluginState = options.pluginKey.getState(view.state);
-
-    if (pluginState.preventHide) {
-      pluginState.preventHide = false;
+  blurHandler = ({ event }: { event: FocusEvent }) => {
+    if (this.preventHide) {
+      this.preventHide = false;
 
       return;
     }
 
     if (
       event?.relatedTarget &&
-      bubbleMenu.element?.parentNode?.contains(event.relatedTarget as Node)
+      this.bubbleMenu.element?.parentNode?.contains(event.relatedTarget as Node)
     ) {
       return;
     }
 
-    bubbleMenu.hide();
+    this.bubbleMenu.element!.removeEventListener(
+      "mousedown",
+      this.mousedownHandler,
+      {
+        capture: true,
+      }
+    );
+
+    this.bubbleMenu.hide();
+    this.menuIsOpen = false;
   };
 
-  return new Plugin({
-    key: options.pluginKey,
-    view: (view) => {
-      view.dom.addEventListener("mousedown", () => viewMousedownHandler(view));
-      view.dom.addEventListener("mouseup", () => viewMouseupHandler(view));
-      view.dom.addEventListener("dragstart", dragstartHandler);
+  update(view: EditorView, oldState?: EditorState) {
+    const { state, composing } = view;
+    const { doc, selection } = state;
+    const isSame =
+      oldState && oldState.doc.eq(doc) && oldState.selection.eq(selection);
 
-      options.editor.on("focus", focusHandler);
-      options.editor.on("blur", ({ event }: { event: FocusEvent }) =>
-        blurHandler({ event }, view)
+    if (composing || isSame) {
+      return;
+    }
+
+    // support for CellSelections
+    const { ranges } = selection;
+    const from = Math.min(...ranges.map((range) => range.$from.pos));
+    const to = Math.max(...ranges.map((range) => range.$to.pos));
+
+    const shouldShow = this.shouldShow?.({
+      editor: this.editor,
+      view,
+      state,
+      oldState,
+      from,
+      to,
+    });
+
+    // Checks if menu should be hidden.
+    if (
+      this.menuIsOpen &&
+      !this.preventHide &&
+      (!shouldShow || this.preventShow)
+    ) {
+      this.bubbleMenu.element!.removeEventListener(
+        "mousedown",
+        this.mousedownHandler,
+        {
+          capture: true,
+        }
       );
 
-      return {
-        update: (view, prevState) => {
-          const prev = options.pluginKey.getState(prevState);
-          const next = options.pluginKey.getState(view.state);
+      this.bubbleMenu.hide();
+      this.menuIsOpen = false;
 
-          if (!prev.show && next.show && !next.preventShow) {
-            bubbleMenu.show(getBubbleMenuUpdateProps(options.editor));
+      return;
+    }
 
-            bubbleMenu.element!.addEventListener(
-              "mousedown",
-              () => mousedownHandler(view),
-              {
-                capture: true,
-              }
-            );
+    // Checks if menu should be updated.
+    if (
+      this.menuIsOpen &&
+      !this.preventShow &&
+      (shouldShow || this.preventHide)
+    ) {
+      setTimeout(
+        () => this.bubbleMenu.update(getBubbleMenuUpdateProps(this.editor)),
+        350
+      );
 
-            return;
-          }
+      return;
+    }
 
-          if (
-            prev.show &&
-            next.show &&
-            !next.preventShow &&
-            !next.preventUpdate
-          ) {
-            // TODO: Waits 350ms for animations to complete, looks clunky. See TODO in getBubbleMenuInitProps for why
-            //  this is necessary.
-            setTimeout(() => {
-              bubbleMenu.update(getBubbleMenuUpdateProps(options.editor));
-            }, 350);
+    // Checks if menu should be shown.
+    if (
+      !this.menuIsOpen &&
+      !this.preventShow &&
+      (shouldShow || this.preventHide)
+    ) {
+      this.bubbleMenu.show(getBubbleMenuUpdateProps(this.editor));
+      this.menuIsOpen = true;
 
-            return;
-          }
-
-          if (prev.show && !next.show && !next.preventHide) {
-            bubbleMenu.element!.removeEventListener(
-              "mousedown",
-              () => mousedownHandler(view),
-              {
-                capture: true,
-              }
-            );
-
-            bubbleMenu.hide();
-
-            return;
-          }
-        },
-      };
-    },
-    state: {
-      init: () => {
-        return {
-          show: false,
-          preventShow: false,
-          preventUpdate: false,
-          preventHide: false,
-        };
-      },
-      apply: (tr, prev, oldState, state) => {
-        const next = { ...prev };
-        const { doc, selection } = state;
-
-        if (tr.getMeta(options.pluginKey)?.preventShow !== undefined) {
-          next.preventShow = tr.getMeta(options.pluginKey).preventShow;
+      this.bubbleMenu.element!.addEventListener(
+        "mousedown",
+        this.mousedownHandler,
+        {
+          capture: true,
         }
+      );
+    }
+  }
 
-        next.preventUpdate =
-          oldState && oldState.doc.eq(doc) && oldState.selection.eq(selection);
+  destroy() {
+    this.view.dom.removeEventListener("mousedown", this.viewMousedownHandler);
+    this.view.dom.removeEventListener("mouseup", this.viewMouseupHandler);
+    this.view.dom.removeEventListener("dragstart", this.dragstartHandler);
 
-        if (tr.getMeta(options.pluginKey)?.preventHide !== undefined) {
-          next.preventHide = tr.getMeta(options.pluginKey).preventHide;
-        }
+    this.editor.off("focus", this.focusHandler);
+    this.editor.off("blur", this.blurHandler);
+  }
+}
 
-        // Support for CellSelections
-        const { ranges, empty } = selection;
-        const from = Math.min(...ranges.map((range) => range.$from.pos));
-        const to = Math.max(...ranges.map((range) => range.$to.pos));
-
-        // Sometime check for `empty` is not enough.
-        // Doubleclick an empty paragraph returns a node size of 2.
-        // So we check also for an empty text size.
-        const isEmptyTextBlock =
-          !doc.textBetween(from, to).length && isTextSelection(state.selection);
-
-        if ((empty || isEmptyTextBlock) && !next.preventHide) {
-          next.show = false;
-          return next;
-        }
-
-        if (!next.preventShow) {
-          next.show = true;
-          return next;
-        }
-
-        return next;
-      },
-    },
+export const createBubbleMenuPlugin = (options: BubbleMenuPluginProps) => {
+  return new Plugin({
+    key: new PluginKey("BubbleMenuPlugin"),
+    view: (view) => new BubbleMenuView({ view, ...options }),
   });
 };

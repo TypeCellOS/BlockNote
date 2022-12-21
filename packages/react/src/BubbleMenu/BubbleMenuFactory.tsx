@@ -18,20 +18,6 @@ import {
 export const ReactBubbleMenuFactory: BubbleMenuFactory = (
   initProps: BubbleMenuInitProps
 ): BubbleMenu => {
-  const element = document.createElement("div");
-  // element.className = rootStyles.bnRoot;
-  const root = createRoot(element);
-
-  let menu = tippy(initProps.editorElement, {
-    duration: 0,
-    getReferenceClientRect: initProps.getSelectionBoundingBox,
-    content: element,
-    interactive: true,
-    trigger: "manual",
-    placement: "top",
-    hideOnClick: "toggle",
-  });
-
   const bubbleMenuProps: BubbleMenuProps = {
     boldIsActive: false,
     toggleBold: initProps.toggleBold,
@@ -75,6 +61,21 @@ export const ReactBubbleMenuFactory: BubbleMenuFactory = (
     bubbleMenuProps.activeListItemType = updateProps.activeListItemType;
   }
 
+  const element = document.createElement("div");
+  // element.className = rootStyles.bnRoot;
+
+  const root = createRoot(element);
+
+  let menu = tippy(initProps.editorElement, {
+    duration: 0,
+    getReferenceClientRect: initProps.getSelectionBoundingBox,
+    content: element,
+    interactive: true,
+    trigger: "manual",
+    placement: "top",
+    hideOnClick: "toggle",
+  });
+
   return {
     element: element as HTMLElement,
     show: (updateProps: BubbleMenuUpdateProps) => {
@@ -85,6 +86,11 @@ export const ReactBubbleMenuFactory: BubbleMenuFactory = (
           <ReactBubbleMenu bubbleMenuProps={bubbleMenuProps} />
         </MantineProvider>
       );
+
+      // Ensures that the component is rendered so that Tippy can display it in the correct position.
+      setTimeout(() => {
+        menu.popperInstance.forceUpdate();
+      });
 
       menu.show();
     },
@@ -98,7 +104,10 @@ export const ReactBubbleMenuFactory: BubbleMenuFactory = (
         </MantineProvider>
       );
 
-      menu.popperInstance?.forceUpdate();
+      // Ensures that the component is rendered so that Tippy can display it in the correct position.
+      setTimeout(() => {
+        menu.popperInstance.forceUpdate();
+      });
     },
   };
 };
