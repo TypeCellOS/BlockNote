@@ -1,4 +1,4 @@
-import { Menu, MenuFactory } from "../types";
+// import { Menu, MenuFactory } from "../types";
 
 // TODO: reconsider .set() function
 export type BasicMarkProps = {
@@ -52,5 +52,47 @@ export type BubbleMenuProps = {
   };
 };
 
-export type BubbleMenu = Menu<BubbleMenuProps>;
-export type BubbleMenuFactory = MenuFactory<BubbleMenuProps>;
+export type BubbleMenuInitProps = {
+  toggleBold: () => void;
+  toggleItalic: () => void;
+  toggleUnderline: () => void;
+  toggleStrike: () => void;
+  setHyperlink: (url: string, text?: string) => void;
+  setParagraph: () => void;
+  setHeading: (level: string) => void;
+  setListItem: (type: string) => void;
+  getSelectionBoundingBox: () => DOMRect;
+  editorElement: Element;
+};
+
+export type BubbleMenuUpdateProps = {
+  boldIsActive: boolean;
+  italicIsActive: boolean;
+  underlineIsActive: boolean;
+  strikeIsActive: boolean;
+  hyperlinkIsActive: boolean;
+  activeHyperlinkUrl: string;
+  activeHyperlinkText: string;
+  paragraphIsActive: boolean;
+  headingIsActive: boolean;
+  activeHeadingLevel: string;
+  listItemIsActive: boolean;
+  activeListItemType: string;
+};
+
+type Menu<MenuUpdateProps> = {
+  element: HTMLElement | undefined;
+  show: (props: MenuUpdateProps) => void;
+  hide: () => void;
+  update: (newProps: MenuUpdateProps) => void;
+};
+
+type MenuFactory<MenuInitProps, MenuUpdateProps> = (
+  initProps: MenuInitProps
+) => Menu<MenuUpdateProps>;
+
+export type BubbleMenu = Menu<BubbleMenuUpdateProps>;
+export type BubbleMenuFactory = MenuFactory<
+  BubbleMenuInitProps,
+  BubbleMenuUpdateProps
+>;

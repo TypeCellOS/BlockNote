@@ -5,16 +5,18 @@ import {
   ToolbarButtonProps,
 } from "../../shared/components/toolbar/ToolbarButton";
 import { EditHyperlinkMenu } from "../../HyperlinkMenus/EditHyperlinkMenu/components/EditHyperlinkMenu";
-import { HyperlinkMarkProps } from "../../../../core/src/menu-tools/BubbleMenu/types";
 
-type Props = ToolbarButtonProps & {
-  hyperlinkMarkProps: HyperlinkMarkProps;
+type HyperlinkButtonProps = ToolbarButtonProps & {
+  hyperlinkIsActive: boolean;
+  activeHyperlinkUrl: string;
+  activeHyperlinkText: string;
+  setHyperlink: (url: string, text?: string) => void;
 };
 
 /**
  * The link menu button opens a tooltip on click
  */
-export const LinkToolbarButton = (props: Props) => {
+export const LinkToolbarButton = (props: HyperlinkButtonProps) => {
   const [creationMenu, setCreationMenu] = useState<any>();
 
   // TODO: review code; does this pattern still make sense?
@@ -22,16 +24,12 @@ export const LinkToolbarButton = (props: Props) => {
     setCreationMenu(
       <EditHyperlinkMenu
         key={Math.random() + ""} // Math.random to prevent old element from being re-used
-        url={
-          props.hyperlinkMarkProps.isActive ? props.hyperlinkMarkProps.url : ""
-        }
-        text={
-          props.hyperlinkMarkProps.isActive ? props.hyperlinkMarkProps.text : ""
-        }
-        update={props.hyperlinkMarkProps.set}
+        url={props.hyperlinkIsActive ? props.activeHyperlinkUrl : ""}
+        text={props.hyperlinkIsActive ? props.activeHyperlinkText : ""}
+        update={props.setHyperlink}
       />
     );
-  }, [props.hyperlinkMarkProps]);
+  }, [props]);
 
   return (
     <Tippy

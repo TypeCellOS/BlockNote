@@ -18,47 +18,69 @@ import { ToolbarDropdown } from "../../shared/components/toolbar/ToolbarDropdown
 import { Toolbar } from "../../shared/components/toolbar/Toolbar";
 import { formatKeyboardShortcut } from "../../utils";
 import LinkToolbarButton from "./LinkToolbarButton";
-import { BubbleMenuProps } from "../../../../core/src/menu-tools/BubbleMenu/types";
+
+export type BubbleMenuProps = {
+  boldIsActive: boolean;
+  toggleBold: () => void;
+  italicIsActive: boolean;
+  toggleItalic: () => void;
+  underlineIsActive: boolean;
+  toggleUnderline: () => void;
+  strikeIsActive: boolean;
+  toggleStrike: () => void;
+  hyperlinkIsActive: boolean;
+  activeHyperlinkUrl: string;
+  activeHyperlinkText: string;
+  setHyperlink: (url: string, text?: string) => void;
+
+  paragraphIsActive: boolean;
+  setParagraph: () => void;
+  headingIsActive: boolean;
+  activeHeadingLevel: string;
+  setHeading: (level: string) => void;
+  listItemIsActive: boolean;
+  activeListItemType: string;
+  setListItem: (type: string) => void;
+};
 
 // TODO: add list options, indentation
 export const BubbleMenu = (props: { bubbleMenuProps: BubbleMenuProps }) => {
   const getActiveMarks = () => {
     const activeMarks = new Set<string>();
 
-    props.bubbleMenuProps.marks.bold.isActive && activeMarks.add("bold");
-    props.bubbleMenuProps.marks.italic.isActive && activeMarks.add("italic");
-    props.bubbleMenuProps.marks.underline.isActive &&
-      activeMarks.add("underline");
-    props.bubbleMenuProps.marks.strike.isActive && activeMarks.add("strike");
-    props.bubbleMenuProps.marks.hyperlink.isActive && activeMarks.add("link");
+    props.bubbleMenuProps.boldIsActive && activeMarks.add("bold");
+    props.bubbleMenuProps.italicIsActive && activeMarks.add("italic");
+    props.bubbleMenuProps.underlineIsActive && activeMarks.add("underline");
+    props.bubbleMenuProps.strikeIsActive && activeMarks.add("strike");
+    props.bubbleMenuProps.hyperlinkIsActive && activeMarks.add("link");
 
     return activeMarks;
   };
 
   const getActiveBlock = () => {
-    if (props.bubbleMenuProps.blocks.paragraph.isActive) {
+    if (props.bubbleMenuProps.paragraphIsActive) {
       return {
         text: "Text",
         icon: RiText,
       };
     }
 
-    if (props.bubbleMenuProps.blocks.heading.isActive) {
-      if (props.bubbleMenuProps.blocks.heading.level === "1") {
+    if (props.bubbleMenuProps.headingIsActive) {
+      if (props.bubbleMenuProps.activeHeadingLevel === "1") {
         return {
           text: "Heading 1",
           icon: RiH1,
         };
       }
 
-      if (props.bubbleMenuProps.blocks.heading.level === "2") {
+      if (props.bubbleMenuProps.activeHeadingLevel === "2") {
         return {
           text: "Heading 2",
           icon: RiH2,
         };
       }
 
-      if (props.bubbleMenuProps.blocks.heading.level === "3") {
+      if (props.bubbleMenuProps.activeHeadingLevel === "3") {
         return {
           text: "Heading 3",
           icon: RiH3,
@@ -66,8 +88,8 @@ export const BubbleMenu = (props: { bubbleMenuProps: BubbleMenuProps }) => {
       }
     }
 
-    if (props.bubbleMenuProps.blocks.listItem.isActive) {
-      if (props.bubbleMenuProps.blocks.listItem.type === "unordered") {
+    if (props.bubbleMenuProps.listItemIsActive) {
+      if (props.bubbleMenuProps.activeListItemType === "unordered") {
         return {
           text: "Bullet List",
           icon: RiListUnordered,
@@ -93,97 +115,76 @@ export const BubbleMenu = (props: { bubbleMenuProps: BubbleMenuProps }) => {
         icon={activeBlock!.icon}
         items={[
           {
-            onClick: () => {
-              // Setting editor focus using a chained command instead causes bubble menu to flicker on click.
-              props.bubbleMenuProps.blocks.paragraph.set();
-            },
+            onClick: () => props.bubbleMenuProps.setParagraph(),
             text: "Text",
             icon: RiText,
-            isSelected: props.bubbleMenuProps.blocks.paragraph.isActive,
+            isSelected: props.bubbleMenuProps.paragraphIsActive,
           },
           {
-            onClick: () => {
-              props.bubbleMenuProps.blocks.heading.set("1");
-            },
+            onClick: () => props.bubbleMenuProps.setHeading("1"),
             text: "Heading 1",
             icon: RiH1,
             isSelected:
-              props.bubbleMenuProps.blocks.heading.isActive &&
-              props.bubbleMenuProps.blocks.heading.level === "1",
+              props.bubbleMenuProps.headingIsActive &&
+              props.bubbleMenuProps.activeHeadingLevel === "1",
           },
           {
-            onClick: () => {
-              props.bubbleMenuProps.blocks.heading.set("2");
-            },
+            onClick: () => props.bubbleMenuProps.setHeading("2"),
             text: "Heading 2",
             icon: RiH2,
             isSelected:
-              props.bubbleMenuProps.blocks.heading.isActive &&
-              props.bubbleMenuProps.blocks.heading.level === "2",
+              props.bubbleMenuProps.headingIsActive &&
+              props.bubbleMenuProps.activeHeadingLevel === "2",
           },
           {
-            onClick: () => {
-              props.bubbleMenuProps.blocks.heading.set("3");
-            },
+            onClick: () => props.bubbleMenuProps.setHeading("3"),
             text: "Heading 3",
             icon: RiH3,
             isSelected:
-              props.bubbleMenuProps.blocks.heading.isActive &&
-              props.bubbleMenuProps.blocks.heading.level === "3",
+              props.bubbleMenuProps.headingIsActive &&
+              props.bubbleMenuProps.activeHeadingLevel === "3",
           },
           {
-            onClick: () => {
-              props.bubbleMenuProps.blocks.listItem.set("unordered");
-            },
+            onClick: () => props.bubbleMenuProps.setListItem("unordered"),
             text: "Bullet List",
             icon: RiListUnordered,
             isSelected:
-              props.bubbleMenuProps.blocks.listItem.isActive &&
-              props.bubbleMenuProps.blocks.listItem.type === "unordered",
+              props.bubbleMenuProps.listItemIsActive &&
+              props.bubbleMenuProps.activeListItemType === "unordered",
           },
           {
-            onClick: () => {
-              props.bubbleMenuProps.blocks.listItem.set("ordered");
-            },
+            onClick: () => props.bubbleMenuProps.setListItem("ordered"),
             text: "Numbered List",
             icon: RiListOrdered,
             isSelected:
-              props.bubbleMenuProps.blocks.listItem.isActive &&
-              props.bubbleMenuProps.blocks.listItem.type === "ordered",
+              props.bubbleMenuProps.listItemIsActive &&
+              props.bubbleMenuProps.activeListItemType === "ordered",
           },
         ]}
       />
       <ToolbarButton
-        onClick={() => {
-          props.bubbleMenuProps.marks.bold.toggle();
-        }}
+        onClick={props.bubbleMenuProps.toggleBold}
         isSelected={activeMarks.has("bold")}
         mainTooltip="Bold"
         secondaryTooltip={formatKeyboardShortcut("Mod+B")}
         icon={RiBold}
       />
       <ToolbarButton
-        onClick={() => {
-          props.bubbleMenuProps.marks.italic.toggle();
-        }}
+        onClick={props.bubbleMenuProps.toggleItalic}
         isSelected={activeMarks.has("italic")}
         mainTooltip="Italic"
         secondaryTooltip={formatKeyboardShortcut("Mod+I")}
         icon={RiItalic}
       />
       <ToolbarButton
-        onClick={() => {
-          props.bubbleMenuProps.marks.underline.toggle();
-        }}
+        onClick={props.bubbleMenuProps.toggleUnderline}
         isSelected={activeMarks.has("underline")}
         mainTooltip="Underline"
         secondaryTooltip={formatKeyboardShortcut("Mod+U")}
         icon={RiUnderline}
       />
       <ToolbarButton
-        onClick={() => {
-          props.bubbleMenuProps.marks.strike.toggle();
-        }}
+        onClick={props.bubbleMenuProps.toggleStrike}
         isSelected={activeMarks.has("strike")}
         mainTooltip="Strike-through"
         secondaryTooltip={formatKeyboardShortcut("Mod+Shift+X")}
@@ -225,11 +226,14 @@ export const BubbleMenu = (props: { bubbleMenuProps: BubbleMenuProps }) => {
       />
 
       <LinkToolbarButton
-        hyperlinkMarkProps={props.bubbleMenuProps.marks.hyperlink}
         isSelected={activeMarks.has("link")}
         mainTooltip="Link"
         secondaryTooltip={formatKeyboardShortcut("Mod+K")}
         icon={RiLink}
+        hyperlinkIsActive={props.bubbleMenuProps.hyperlinkIsActive}
+        activeHyperlinkUrl={props.bubbleMenuProps.activeHyperlinkUrl}
+        activeHyperlinkText={props.bubbleMenuProps.activeHyperlinkText}
+        setHyperlink={props.bubbleMenuProps.setHyperlink}
       />
       {/* <SimpleBubbleMenuButton
           editor={props.editor}

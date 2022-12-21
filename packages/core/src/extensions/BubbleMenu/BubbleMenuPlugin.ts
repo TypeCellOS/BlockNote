@@ -1,8 +1,9 @@
 import { Editor, isTextSelection } from "@tiptap/core";
 import { EditorState, Plugin, PluginKey } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
-import { getBubbleMenuProps } from "../../menu-tools/BubbleMenu/getBubbleMenuProps";
+import { getBubbleMenuInitProps } from "../../menu-tools/BubbleMenu/getBubbleMenuInitProps";
 import { BubbleMenuFactory } from "../../menu-tools/BubbleMenu/types";
+import { getBubbleMenuUpdateProps } from "../../menu-tools/BubbleMenu/getBubbleMenuUpdateProps";
 
 // Same as TipTap bubblemenu plugin, but with these changes:
 // https://github.com/ueberdosis/tiptap/pull/2596/files
@@ -25,7 +26,7 @@ export interface BubbleMenuPluginProps {
 // TODO: do from previous code
 export const createBubbleMenuPlugin = (options: BubbleMenuPluginProps) => {
   const bubbleMenu = options.bubbleMenuFactory(
-    getBubbleMenuProps(options.editor)
+    getBubbleMenuInitProps(options.editor)
   );
 
   // TODO: Is this callback needed?
@@ -101,7 +102,7 @@ export const createBubbleMenuPlugin = (options: BubbleMenuPluginProps) => {
           const next = options.pluginKey.getState(view.state);
 
           if (!prev.show && next.show && !next.preventShow) {
-            bubbleMenu.show(getBubbleMenuProps(options.editor));
+            bubbleMenu.show(getBubbleMenuUpdateProps(options.editor));
 
             bubbleMenu.element!.addEventListener(
               "mousedown",
@@ -120,7 +121,11 @@ export const createBubbleMenuPlugin = (options: BubbleMenuPluginProps) => {
             !next.preventShow &&
             !next.preventUpdate
           ) {
-            bubbleMenu.update(getBubbleMenuProps(options.editor));
+            // TODO: Waits 350ms for animations to complete, looks clunky. See TODO in getBubbleMenuInitProps for why
+            //  this is necessary.
+            setTimeout(() => {
+              bubbleMenu.update(getBubbleMenuUpdateProps(options.editor));
+            }, 350);
 
             return;
           }
