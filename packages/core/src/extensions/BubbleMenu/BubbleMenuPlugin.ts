@@ -1,8 +1,8 @@
 import { Editor, isTextSelection } from "@tiptap/core";
 import { EditorState, Plugin, PluginKey } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
-import { BubbleMenuFactory } from "../../menu-tools/BubbleMenu/types";
 import { getBubbleMenuProps } from "../../menu-tools/BubbleMenu/getBubbleMenuProps";
+import { BubbleMenuFactory } from "../../menu-tools/BubbleMenu/types";
 
 // Same as TipTap bubblemenu plugin, but with these changes:
 // https://github.com/ueberdosis/tiptap/pull/2596/files
@@ -22,6 +22,7 @@ export interface BubbleMenuPluginProps {
     | null;
 }
 
+// TODO: do from previous code
 export const createBubbleMenuPlugin = (options: BubbleMenuPluginProps) => {
   const bubbleMenu = options.bubbleMenuFactory(
     getBubbleMenuProps(options.editor)
@@ -36,6 +37,7 @@ export const createBubbleMenuPlugin = (options: BubbleMenuPluginProps) => {
     // );
   };
 
+  // TODO: transaction needed?
   const viewMousedownHandler = (view: EditorView) => {
     view.dispatch(
       view.state.tr.setMeta(options.pluginKey, {

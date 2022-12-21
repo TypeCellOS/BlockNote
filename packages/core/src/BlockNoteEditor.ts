@@ -2,10 +2,10 @@ import { Editor, EditorOptions } from "@tiptap/core";
 
 import { getBlockNoteExtensions } from "./BlockNoteExtensions";
 import styles from "./editor.module.css";
-import rootStyles from "./root.module.css";
 import { BubbleMenuFactory } from "./menu-tools/BubbleMenu/types";
 import { HyperlinkHoverMenuFactory } from "./menu-tools/HyperlinkHoverMenu/types";
 import { SuggestionsMenuFactory } from "./menu-tools/SuggestionsMenu/types";
+import rootStyles from "./root.module.css";
 import SuggestionItem from "./shared/plugins/suggestion/SuggestionItem";
 
 type BlockNoteEditorOptions = EditorOptions & {
@@ -35,6 +35,7 @@ export const mountBlockNoteEditor = (
     ? blockNoteExtensions.filter((e) => e.name !== "history")
     : blockNoteExtensions;
 
+  // TODO: review
   extensions = extensions.map((extension) => {
     if (extension.name === "BubbleMenuExtension") {
       return extension.configure({

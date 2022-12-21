@@ -3,9 +3,9 @@ import { escapeRegExp } from "lodash";
 import { Plugin, PluginKey, Selection } from "prosemirror-state";
 import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
 import { findBlock } from "../../../extensions/Blocks/helpers/findBlock";
-import SuggestionItem from "./SuggestionItem";
-import { SuggestionsMenuFactory } from "../../../menu-tools/SuggestionsMenu/types";
 import { getSuggestionsMenuProps } from "../../../menu-tools/SuggestionsMenu/getSuggestionsMenuProps";
+import { SuggestionsMenuFactory } from "../../../menu-tools/SuggestionsMenu/types";
+import SuggestionItem from "./SuggestionItem";
 
 export type SuggestionPluginOptions<T extends SuggestionItem> = {
   /**
@@ -115,6 +115,10 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
     view.dispatch(view.state.tr.setMeta(pluginKey, { deactivate: true }));
   };
 
+  // initialize the SuggestionsMenu UI element
+  // the actual values are dummy values, as the menu isn't shown / positioned yet
+  // (TBD: we could also decide not to pass these values upon creation,
+  //      or only initialize a menu upon first-use)
   const suggestionsMenu = suggestionsMenuFactory(
     getSuggestionsMenuProps<T>(
       [],

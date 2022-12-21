@@ -1,13 +1,13 @@
-import { createRoot } from "react-dom/client";
 import { MantineProvider } from "@mantine/core";
-import { BlockNoteTheme } from "../../../core/src/BlockNoteTheme";
-import { BubbleMenu as ReactBubbleMenu } from "./components/BubbleMenu";
+import { createRoot } from "react-dom/client";
 import tippy from "tippy.js";
+import { BlockNoteTheme } from "../../../core/src/BlockNoteTheme";
 import {
   BubbleMenu,
   BubbleMenuFactory,
   BubbleMenuProps,
 } from "../../../core/src/menu-tools/BubbleMenu/types";
+import { BubbleMenu as ReactBubbleMenu } from "./components/BubbleMenu";
 // import rootStyles from "../../../core/src/root.module.css";
 
 export const ReactBubbleMenuFactory: BubbleMenuFactory = (

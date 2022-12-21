@@ -1,6 +1,7 @@
 import { Editor, isNodeSelection, posToDOMRect } from "@tiptap/core";
 import { BubbleMenuProps } from "./types";
 
+// TODO: don't create new functions every time, only execute necessary logic (isActive)
 export function getBubbleMenuProps(editor: Editor): BubbleMenuProps {
   return {
     marks: {

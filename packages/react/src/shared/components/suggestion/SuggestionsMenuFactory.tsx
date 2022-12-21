@@ -1,14 +1,14 @@
-import { createRoot } from "react-dom/client";
+import SuggestionItem from "@blocknote/core/types/src/shared/plugins/suggestion/SuggestionItem";
 import { MantineProvider } from "@mantine/core";
-import { BlockNoteTheme } from "../../../BlockNoteTheme";
+import { createRoot } from "react-dom/client";
 import tippy from "tippy.js";
 import {
   SuggestionsMenu,
   SuggestionsMenuFactory,
   SuggestionsMenuProps,
 } from "../../../../../core/src/menu-tools/SuggestionsMenu/types";
+import { BlockNoteTheme } from "../../../BlockNoteTheme";
 import { SuggestionList } from "./SuggestionList";
-import SuggestionItem from "@blocknote/core/types/src/shared/plugins/suggestion/SuggestionItem";
 // import rootStyles from "../../../core/src/root.module.css";
 
 export const ReactSuggestionsMenuFactory: SuggestionsMenuFactory<
@@ -52,6 +52,8 @@ export const ReactSuggestionsMenuFactory: SuggestionsMenuFactory<
         </MantineProvider>
       );
 
+      // setProps is a tippy function,
+      // update the position based on passed in props
       menu.setProps({
         getReferenceClientRect: () => newProps.view.selectedBlockBoundingBox,
       });

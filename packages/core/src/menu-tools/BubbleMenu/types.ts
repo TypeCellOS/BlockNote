@@ -1,5 +1,6 @@
 import { Menu, MenuFactory } from "../types";
 
+// TODO: reconsider .set() function
 export type BasicMarkProps = {
   isActive: boolean;
   toggle: () => void;

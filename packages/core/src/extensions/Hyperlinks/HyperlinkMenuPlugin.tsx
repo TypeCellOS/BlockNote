@@ -1,14 +1,15 @@
 import { Editor, getMarkRange, posToDOMRect, Range } from "@tiptap/core";
 import { Mark } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
-import { HyperlinkHoverMenuFactory } from "../../menu-tools/HyperlinkHoverMenu/types";
 import { getHyperlinkHoverMenuProps } from "../../menu-tools/HyperlinkHoverMenu/getHyperlinkHoverMenuProps";
+import { HyperlinkHoverMenuFactory } from "../../menu-tools/HyperlinkHoverMenu/types";
 const PLUGIN_KEY = new PluginKey("HyperlinkMenuPlugin");
 
 export type HyperlinkMenuPluginProps = {
   hyperlinkMenuFactory: HyperlinkHoverMenuFactory;
 };
 
+// Rewrite to class?
 export const createHyperlinkMenuPlugin = (
   editor: Editor,
   options: HyperlinkMenuPluginProps
@@ -41,6 +42,10 @@ export const createHyperlinkMenuPlugin = (
   let hyperlinkMark: Mark | undefined;
   let hyperlinkMarkRange: Range | undefined;
 
+  // initialize the hyperlinkMenu UI element
+  // the actual values are dummy values, as the menu isn't shown / positioned yet
+  // (TBD: we could also decide not to pass these values upon creation,
+  //      or only initialize a menu upon first-use)
   let hyperlinkMenu = options.hyperlinkMenuFactory(
     getHyperlinkHoverMenuProps(
       "",
@@ -60,7 +65,8 @@ export const createHyperlinkMenuPlugin = (
           if (editor.state.selection.empty) {
             const marksAtPos = editor.state.selection.$from.marks();
 
-            let foundHyperlinkMark = false;
+            keyboardHoveredHyperlinkMark = undefined;
+            keyboardHoveredHyperlinkMarkRange = undefined;
 
             for (const mark of marksAtPos) {
               if (mark.type.name === editor.schema.mark("link").type.name) {
@@ -71,34 +77,26 @@ export const createHyperlinkMenuPlugin = (
                     mark.type,
                     mark.attrs
                   ) || undefined;
-                foundHyperlinkMark = true;
 
                 break;
               }
-            }
-
-            if (!foundHyperlinkMark) {
-              keyboardHoveredHyperlinkMark = undefined;
-              keyboardHoveredHyperlinkMarkRange = undefined;
             }
           }
 
           const prevHyperlinkMark = hyperlinkMark;
 
-          // Keyboard cursor position overrides mouse cursor position.
+          hyperlinkMark = undefined;
+          hyperlinkMarkRange = undefined;
+
           if (mouseHoveredHyperlinkMark) {
             hyperlinkMark = mouseHoveredHyperlinkMark;
             hyperlinkMarkRange = mouseHoveredHyperlinkMarkRange;
           }
 
+          // Keyboard cursor position takes precedence over mouse hovered hyperlink.
           if (keyboardHoveredHyperlinkMark) {
             hyperlinkMark = keyboardHoveredHyperlinkMark;
             hyperlinkMarkRange = keyboardHoveredHyperlinkMarkRange;
-          }
-
-          if (!mouseHoveredHyperlinkMark && !keyboardHoveredHyperlinkMark) {
-            hyperlinkMark = undefined;
-            hyperlinkMarkRange = undefined;
           }
 
           // Hides menu.

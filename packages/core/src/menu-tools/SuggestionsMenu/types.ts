@@ -1,11 +1,12 @@
-import { Menu, MenuFactory } from "../types";
 import SuggestionItem from "../../shared/plugins/suggestion/SuggestionItem";
+import { Menu, MenuFactory } from "../types";
 
 export type SuggestionsMenuItem = {
   name: string;
   set: () => void;
 };
 
+// TODO: remove nesting
 export type SuggestionsMenuProps<T extends SuggestionItem> = {
   menuItems: {
     items: T[];
