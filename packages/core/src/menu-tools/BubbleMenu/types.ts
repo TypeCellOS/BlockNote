@@ -1,4 +1,4 @@
-// import { Menu, MenuFactory } from "../types";
+import { Menu, MenuFactory } from "../types";
 
 // TODO: reconsider .set() function
 export type BasicMarkProps = {
@@ -79,17 +79,6 @@ export type BubbleMenuUpdateProps = {
   listItemIsActive: boolean;
   activeListItemType: string;
 };
-
-type Menu<MenuUpdateProps> = {
-  element: HTMLElement | undefined;
-  show: (props: MenuUpdateProps) => void;
-  hide: () => void;
-  update: (newProps: MenuUpdateProps) => void;
-};
-
-type MenuFactory<MenuInitProps, MenuUpdateProps> = (
-  initProps: MenuInitProps
-) => Menu<MenuUpdateProps>;
 
 export type BubbleMenu = Menu<BubbleMenuUpdateProps>;
 export type BubbleMenuFactory = MenuFactory<

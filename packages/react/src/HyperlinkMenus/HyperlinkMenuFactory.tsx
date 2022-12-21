@@ -1,24 +1,39 @@
 import { createRoot } from "react-dom/client";
-import { HyperlinkMenu } from "./components/HyperlinkMenu";
+import { HyperlinkMenu, HyperlinkMenuProps } from "./components/HyperlinkMenu";
 import tippy from "tippy.js";
 import { MantineProvider } from "@mantine/core";
 import { BlockNoteTheme } from "../BlockNoteTheme";
 import {
   HyperlinkHoverMenu,
   HyperlinkHoverMenuFactory,
-  HyperlinkHoverMenuProps,
+  HyperlinkHoverMenuInitProps,
+  HyperlinkHoverMenuUpdateProps,
 } from "../../../core/src/menu-tools/HyperlinkHoverMenu/types";
 
 export const ReactHyperlinkMenuFactory: HyperlinkHoverMenuFactory = (
-  props: HyperlinkHoverMenuProps
+  initProps: HyperlinkHoverMenuInitProps
 ): HyperlinkHoverMenu => {
+  const hyperlinkMenuProps: HyperlinkMenuProps = {
+    url: "",
+    text: "",
+    update: initProps.editHyperlink,
+    remove: initProps.deleteHyperlink,
+  };
+
+  function updateHyperlinkMenuProps(
+    updateProps: HyperlinkHoverMenuUpdateProps
+  ) {
+    hyperlinkMenuProps.url = updateProps.hyperlinkUrl;
+    hyperlinkMenuProps.text = updateProps.hyperlinkText;
+  }
+
   const element = document.createElement("div");
   const root = createRoot(element);
 
-  const menu = tippy(props.view.editorElement, {
-    appendTo: props.view.editorElement,
+  const menu = tippy(initProps.editorElement, {
+    appendTo: initProps.editorElement,
     duration: 0,
-    getReferenceClientRect: () => props.view.hyperlinkBoundingBox,
+    getReferenceClientRect: () => new DOMRect(),
     content: element,
     interactive: true,
     trigger: "manual",
@@ -30,20 +45,17 @@ export const ReactHyperlinkMenuFactory: HyperlinkHoverMenuFactory = (
 
   return {
     element: element,
-    show: (props: HyperlinkHoverMenuProps) => {
+    show: (updateProps: HyperlinkHoverMenuUpdateProps) => {
+      updateHyperlinkMenuProps(updateProps);
+
       root.render(
         <MantineProvider theme={BlockNoteTheme}>
-          <HyperlinkMenu
-            url={props.hyperlink.url}
-            text={props.hyperlink.text}
-            update={props.hyperlink.edit}
-            remove={props.hyperlink.delete}
-          />
+          <HyperlinkMenu {...hyperlinkMenuProps} />
         </MantineProvider>
       );
 
       menu.setProps({
-        getReferenceClientRect: () => props.view.hyperlinkBoundingBox,
+        getReferenceClientRect: () => updateProps.hyperlinkBoundingBox,
       });
 
       menu.show();
@@ -51,20 +63,17 @@ export const ReactHyperlinkMenuFactory: HyperlinkHoverMenuFactory = (
     hide: () => {
       menu.hide();
     },
-    update: (newProps: HyperlinkHoverMenuProps) => {
+    update: (updateProps: HyperlinkHoverMenuUpdateProps) => {
+      updateHyperlinkMenuProps(updateProps);
+
       root.render(
         <MantineProvider theme={BlockNoteTheme}>
-          <HyperlinkMenu
-            url={newProps.hyperlink.url}
-            text={newProps.hyperlink.text}
-            update={newProps.hyperlink.edit}
-            remove={newProps.hyperlink.delete}
-          />
+          <HyperlinkMenu {...hyperlinkMenuProps} />
         </MantineProvider>
       );
 
       menu.setProps({
-        getReferenceClientRect: () => newProps.view.hyperlinkBoundingBox,
+        getReferenceClientRect: () => updateProps.hyperlinkBoundingBox,
       });
     },
   };

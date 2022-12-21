@@ -1,8 +1,9 @@
 import { Editor, getMarkRange, posToDOMRect, Range } from "@tiptap/core";
 import { Mark } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
-import { getHyperlinkHoverMenuProps } from "../../menu-tools/HyperlinkHoverMenu/getHyperlinkHoverMenuProps";
 import { HyperlinkHoverMenuFactory } from "../../menu-tools/HyperlinkHoverMenu/types";
+import { getHyperlinkHoverMenuInitProps } from "../../menu-tools/HyperlinkHoverMenu/getHyperlinkHoverMenuInitProps";
+import { getHyperlinkHoverMenuUpdateProps } from "../../menu-tools/HyperlinkHoverMenu/getHyperlinkMenuUpdateProps";
 const PLUGIN_KEY = new PluginKey("HyperlinkMenuPlugin");
 
 export type HyperlinkMenuPluginProps = {
@@ -14,6 +15,40 @@ export const createHyperlinkMenuPlugin = (
   editor: Editor,
   options: HyperlinkMenuPluginProps
 ) => {
+  const editHyperlink = (url: string, text: string) => {
+    const tr = editor.view.state.tr.insertText(
+      text,
+      hyperlinkMarkRange!.from,
+      hyperlinkMarkRange!.to
+    );
+    tr.addMark(
+      hyperlinkMarkRange!.from,
+      hyperlinkMarkRange!.from + text.length,
+      editor.schema.mark("link", { href: url })
+    );
+    editor.view.dispatch(tr);
+  };
+
+  const deleteHyperlink = () => {
+    editor.view.dispatch(
+      editor.view.state.tr
+        .removeMark(
+          hyperlinkMarkRange!.from,
+          hyperlinkMarkRange!.to,
+          hyperlinkMark!.type
+        )
+        .setMeta("preventAutolink", true)
+    );
+  };
+
+  let hyperlinkMenu = options.hyperlinkMenuFactory(
+    getHyperlinkHoverMenuInitProps(
+      editHyperlink,
+      deleteHyperlink,
+      editor.options.element
+    )
+  );
+
   let menuHideTimer: NodeJS.Timeout | undefined;
   const startMenuHideTimer = () => {
     menuHideTimer = setTimeout(() => {
@@ -41,21 +76,6 @@ export const createHyperlinkMenuPlugin = (
 
   let hyperlinkMark: Mark | undefined;
   let hyperlinkMarkRange: Range | undefined;
-
-  // initialize the hyperlinkMenu UI element
-  // the actual values are dummy values, as the menu isn't shown / positioned yet
-  // (TBD: we could also decide not to pass these values upon creation,
-  //      or only initialize a menu upon first-use)
-  let hyperlinkMenu = options.hyperlinkMenuFactory(
-    getHyperlinkHoverMenuProps(
-      "",
-      "",
-      () => {},
-      () => {},
-      new DOMRect(),
-      editor.options.element
-    )
-  );
 
   return new Plugin({
     key: PLUGIN_KEY,
@@ -117,52 +137,24 @@ export const createHyperlinkMenuPlugin = (
 
           if (hyperlinkMark) {
             // Gets all variables/functions needed to render menu.
-            const url = hyperlinkMark.attrs.href;
-            const text = editor.view.state.doc.textBetween(
+            const hyperlinkUrl = hyperlinkMark.attrs.href;
+            const hyperlinkText = editor.view.state.doc.textBetween(
               hyperlinkMarkRange!.from,
               hyperlinkMarkRange!.to
             );
-            const editHyperlink = (url: string, text: string) => {
-              const tr = editor.view.state.tr.insertText(
-                text,
-                hyperlinkMarkRange!.from,
-                hyperlinkMarkRange!.to
-              );
-              tr.addMark(
-                hyperlinkMarkRange!.from,
-                hyperlinkMarkRange!.from + text.length,
-                editor.schema.mark("link", { href: url })
-              );
-              editor.view.dispatch(tr);
-            };
-            const deleteHyperlink = () => {
-              editor.view.dispatch(
-                editor.view.state.tr
-                  .removeMark(
-                    hyperlinkMarkRange!.from,
-                    hyperlinkMarkRange!.to,
-                    hyperlinkMark!.type
-                  )
-                  .setMeta("preventAutolink", true)
-              );
-            };
             const hyperlinkBoundingBox = posToDOMRect(
               editor.view,
               hyperlinkMarkRange!.from,
               hyperlinkMarkRange!.to
             );
-            const editorElement = editor.view.dom;
 
             // Shows menu.
             if (!prevHyperlinkMark) {
               hyperlinkMenu.show(
-                getHyperlinkHoverMenuProps(
-                  url,
-                  text,
-                  editHyperlink,
-                  deleteHyperlink,
-                  hyperlinkBoundingBox,
-                  editorElement
+                getHyperlinkHoverMenuUpdateProps(
+                  hyperlinkUrl,
+                  hyperlinkText,
+                  hyperlinkBoundingBox
                 )
               );
 
@@ -180,13 +172,10 @@ export const createHyperlinkMenuPlugin = (
 
             // Updates menu.
             hyperlinkMenu.update(
-              getHyperlinkHoverMenuProps(
-                url,
-                text,
-                editHyperlink,
-                deleteHyperlink,
-                hyperlinkBoundingBox,
-                editorElement
+              getHyperlinkHoverMenuUpdateProps(
+                hyperlinkUrl,
+                hyperlinkText,
+                hyperlinkBoundingBox
               )
             );
           }

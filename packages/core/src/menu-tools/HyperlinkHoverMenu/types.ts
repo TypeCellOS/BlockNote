@@ -13,5 +13,20 @@ export type HyperlinkHoverMenuProps = {
   };
 };
 
-export type HyperlinkHoverMenu = Menu<HyperlinkHoverMenuProps>;
-export type HyperlinkHoverMenuFactory = MenuFactory<HyperlinkHoverMenuProps>;
+export type HyperlinkHoverMenuInitProps = {
+  editHyperlink: (url: string, text: string) => void;
+  deleteHyperlink: () => void;
+  editorElement: Element;
+};
+
+export type HyperlinkHoverMenuUpdateProps = {
+  hyperlinkUrl: string;
+  hyperlinkText: string;
+  hyperlinkBoundingBox: DOMRect;
+};
+
+export type HyperlinkHoverMenu = Menu<HyperlinkHoverMenuUpdateProps>;
+export type HyperlinkHoverMenuFactory = MenuFactory<
+  HyperlinkHoverMenuInitProps,
+  HyperlinkHoverMenuUpdateProps
+>;

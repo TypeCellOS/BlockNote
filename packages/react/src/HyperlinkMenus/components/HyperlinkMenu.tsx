@@ -3,7 +3,7 @@ import { EditHyperlinkMenu } from "../EditHyperlinkMenu/components/EditHyperlink
 import { HoverHyperlinkMenu } from "../HoverHyperlinkMenu/components/HoverHyperlinkMenu";
 // import rootStyles from "../../../root.module.css";
 
-type HyperlinkMenuProps = {
+export type HyperlinkMenuProps = {
   url: string;
   text: string;
   update: (url: string, text: string) => void;

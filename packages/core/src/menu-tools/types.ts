@@ -1,8 +1,10 @@
-export type Menu<MenuProps> = {
+export type Menu<MenuUpdateProps> = {
   element: HTMLElement | undefined;
-  show: (props: MenuProps) => void;
+  show: (props: MenuUpdateProps) => void;
   hide: () => void;
-  update: (newProps: MenuProps) => void;
+  update: (newProps: MenuUpdateProps) => void;
 };
 
-export type MenuFactory<MenuProps> = (props: MenuProps) => Menu<MenuProps>;
+export type MenuFactory<MenuInitProps, MenuUpdateProps> = (
+  initProps: MenuInitProps
+) => Menu<MenuUpdateProps>;
