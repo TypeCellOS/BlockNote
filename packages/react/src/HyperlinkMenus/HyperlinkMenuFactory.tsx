@@ -1,13 +1,13 @@
-import { createRoot } from "react-dom/client";
-import { HyperlinkMenu } from "./components/HyperlinkMenu";
-import tippy from "tippy.js";
-import { MantineProvider } from "@mantine/core";
-import { BlockNoteTheme } from "../BlockNoteTheme";
 import {
   HyperlinkHoverMenu,
   HyperlinkHoverMenuFactory,
   HyperlinkHoverMenuProps,
-} from "../../../core/src/menu-tools/HyperlinkHoverMenu/types";
+} from "@blocknote/core";
+import { MantineProvider } from "@mantine/core";
+import { createRoot } from "react-dom/client";
+import tippy from "tippy.js";
+import { BlockNoteTheme } from "../BlockNoteTheme";
+import { HyperlinkMenu } from "./components/HyperlinkMenu";
 
 export const ReactHyperlinkMenuFactory: HyperlinkHoverMenuFactory = (
   props: HyperlinkHoverMenuProps

@@ -1,3 +1,4 @@
+import react from "@vitejs/plugin-react";
 import * as path from "path";
 import { defineConfig } from "vite";
 import pkg from "./package.json";
@@ -5,13 +6,13 @@ import pkg from "./package.json";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [],
+  plugins: [react()],
   build: {
     sourcemap: true,
     lib: {
       entry: path.resolve(__dirname, "src/index.ts"),
-      name: "blocknote",
-      fileName: "blocknote",
+      name: "blocknote-react",
+      fileName: "blocknote-react",
     },
     rollupOptions: {
       // make sure to externalize deps that shouldn't be bundled
@@ -20,7 +21,10 @@ export default defineConfig({
       output: {
         // Provide global variables to use in the UMD build
         // for externalized deps
-        globals: {},
+        globals: {
+          react: "React",
+          "react-dom": "ReactDOM",
+        },
       },
     },
   },

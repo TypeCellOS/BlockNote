@@ -1,11 +1,11 @@
+import { HyperlinkMarkProps } from "@blocknote/core";
 import Tippy from "@tippyjs/react";
 import { useCallback, useState } from "react";
+import { EditHyperlinkMenu } from "../../HyperlinkMenus/EditHyperlinkMenu/components/EditHyperlinkMenu";
 import {
   ToolbarButton,
   ToolbarButtonProps,
 } from "../../shared/components/toolbar/ToolbarButton";
-import { EditHyperlinkMenu } from "../../HyperlinkMenus/EditHyperlinkMenu/components/EditHyperlinkMenu";
-import { HyperlinkMarkProps } from "../../../../core/src/menu-tools/BubbleMenu/types";
 
 type Props = ToolbarButtonProps & {
   hyperlinkMarkProps: HyperlinkMarkProps;

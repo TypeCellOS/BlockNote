@@ -1,11 +1,13 @@
 import { Extension } from "@tiptap/core";
+import { PluginKey } from "prosemirror-state";
+import { SuggestionsMenuFactory } from "../../menu-tools/SuggestionsMenu/types";
 import { createSuggestionPlugin } from "../../shared/plugins/suggestion/SuggestionPlugin";
 import defaultCommands from "./defaultCommands";
 import { SlashMenuItem } from "./SlashMenuItem";
-import { PluginKey } from "prosemirror-state";
 
 export type SlashMenuOptions = {
   commands: { [key: string]: SlashMenuItem };
+  suggestionsMenuFactory: SuggestionsMenuFactory<any> | undefined;
 };
 
 export const SlashMenuPluginKey = new PluginKey("suggestions-slash-commands");
@@ -16,6 +18,7 @@ export const SlashMenuExtension = Extension.create<SlashMenuOptions>({
   addOptions() {
     return {
       commands: defaultCommands,
+      suggestionsMenuFactory: undefined, // TODO: fix undefined
     };
   },
 
@@ -25,7 +28,7 @@ export const SlashMenuExtension = Extension.create<SlashMenuOptions>({
         pluginKey: SlashMenuPluginKey,
         editor: this.editor,
         char: "/",
-        suggestionsMenuFactory: this.options.suggestionsMenuFactory,
+        suggestionsMenuFactory: this.options.suggestionsMenuFactory!,
         items: (query) => {
           const commands = [];
 

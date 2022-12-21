@@ -1,11 +1,10 @@
-import { MantineProvider } from "@mantine/core";
+import { Editor } from "@tiptap/core";
 import { Node } from "prosemirror-model";
 import { NodeSelection, Plugin, PluginKey, Selection } from "prosemirror-state";
 import * as pv from "prosemirror-view";
 import { EditorView } from "prosemirror-view";
-import { Editor } from "@tiptap/core";
 import { createRoot, Root } from "react-dom/client";
-import { BlockNoteTheme } from "../../BlockNoteTheme";
+// import { BlockNoteTheme } from "../../BlockNoteTheme";
 import { MultipleNodeSelection } from "../Blocks/MultipleNodeSelection";
 import { DragHandle } from "./components/DragHandle";
 
@@ -355,17 +354,19 @@ export const createDraggableBlocksPlugin = (editor: Editor) => {
           dropElement.style.left = left + "px";
           dropElement.style.top = rect.top + "px";
 
+          // MantineProvider has been commented out because I removed
+          // BlockNoteTheme. I know this will be part of the DraggableBlocks rewrite anyway
           dropElementRoot.render(
-            <MantineProvider theme={BlockNoteTheme}>
-              <DragHandle
-                key={block.id + ""}
-                editor={editor}
-                coords={coords}
-                onShow={onShow}
-                onHide={onHide}
-                onAddClicked={onAddClicked}
-              />
-            </MantineProvider>
+            // <MantineProvider theme={BlockNoteTheme}>
+            <DragHandle
+              key={block.id + ""}
+              editor={editor}
+              coords={coords}
+              onShow={onShow}
+              onHide={onHide}
+              onAddClicked={onAddClicked}
+            />
+            // </MantineProvider>
           );
           return true;
         },

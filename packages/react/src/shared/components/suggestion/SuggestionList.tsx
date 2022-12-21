@@ -1,6 +1,5 @@
-import SuggestionItem from "@blocknote/core/types/src/shared/plugins/suggestion/SuggestionItem";
+import { SuggestionItem, SuggestionsMenuProps } from "@blocknote/core";
 import { createStyles, Menu } from "@mantine/core";
-import { SuggestionsMenuProps } from "../../../../../core/src/menu-tools/SuggestionsMenu/types";
 import { SuggestionListItem } from "./SuggestionListItem";
 
 export type SuggestionListProps<T extends SuggestionItem> =

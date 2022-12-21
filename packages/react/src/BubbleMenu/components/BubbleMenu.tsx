@@ -1,3 +1,4 @@
+import { BubbleMenuProps } from "@blocknote/core";
 import {
   RiBold,
   RiH1,
@@ -13,12 +14,11 @@ import {
   RiText,
   RiUnderline,
 } from "react-icons/ri";
+import { Toolbar } from "../../shared/components/toolbar/Toolbar";
 import { ToolbarButton } from "../../shared/components/toolbar/ToolbarButton";
 import { ToolbarDropdown } from "../../shared/components/toolbar/ToolbarDropdown";
-import { Toolbar } from "../../shared/components/toolbar/Toolbar";
 import { formatKeyboardShortcut } from "../../utils";
 import LinkToolbarButton from "./LinkToolbarButton";
-import { BubbleMenuProps } from "../../../../core/src/menu-tools/BubbleMenu/types";
 
 // TODO: add list options, indentation
 export const BubbleMenu = (props: { bubbleMenuProps: BubbleMenuProps }) => {
