@@ -1,10 +1,12 @@
+import { mountBlockNoteEditor } from "@blocknote/core";
+import "@blocknote/core/style.css";
+import {
+  ReactBubbleMenuFactory,
+  ReactHyperlinkMenuFactory,
+  ReactSuggestionsMenuFactory,
+} from "@blocknote/react";
 import styles from "./App.module.css";
 import "./index.css";
-// TODO: fix imports
-import { mountBlockNoteEditor } from "../../../packages/core/src/BlockNoteEditor";
-import { ReactBubbleMenuFactory } from "../../../packages/react/src/BubbleMenu/BubbleMenuFactory";
-import { ReactHyperlinkMenuFactory } from "../../../packages/react/src/HyperlinkMenus/HyperlinkMenuFactory";
-import { ReactSuggestionsMenuFactory } from "../../../packages/react/src/shared/components/suggestion/SuggestionsMenuFactory";
 
 // type WindowWithProseMirror = Window &
 //   typeof globalThis & { ProseMirror: Editor };

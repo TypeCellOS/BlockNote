@@ -1,4 +1,4 @@
-import SuggestionItem from "../../shared/plugins/suggestion/SuggestionItem";
+import { SuggestionItem } from "../../shared/plugins/suggestion/SuggestionItem";
 import { SuggestionsMenuProps } from "./types";
 
 // TODO: maybe later discuss if we want to delegate keyboard handling / filtering

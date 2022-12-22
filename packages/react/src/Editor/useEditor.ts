@@ -1,7 +1,7 @@
 import { EditorOptions, useEditor as useEditorTiptap } from "@tiptap/react";
 
+import { getBlockNoteExtensions } from "@blocknote/core";
 import { DependencyList } from "react";
-import { getBlockNoteExtensions } from "../../../core/src/BlockNoteExtensions";
 // import styles from "../../../core/src/editor.module.css";
 // import rootStyles from "../../../core/src/root.module.css";
 

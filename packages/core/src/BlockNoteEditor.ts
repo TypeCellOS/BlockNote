@@ -6,7 +6,7 @@ import { BubbleMenuFactory } from "./menu-tools/BubbleMenu/types";
 import { HyperlinkHoverMenuFactory } from "./menu-tools/HyperlinkHoverMenu/types";
 import { SuggestionsMenuFactory } from "./menu-tools/SuggestionsMenu/types";
 import rootStyles from "./root.module.css";
-import SuggestionItem from "./shared/plugins/suggestion/SuggestionItem";
+import { SuggestionItem } from "./shared/plugins/suggestion/SuggestionItem";
 
 type BlockNoteEditorOptions = EditorOptions & {
   enableBlockNoteExtensions: boolean;

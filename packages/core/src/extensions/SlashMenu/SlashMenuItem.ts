@@ -1,6 +1,6 @@
 import { Editor, Range } from "@tiptap/core";
-import SuggestionItem from "../../shared/plugins/suggestion/SuggestionItem";
 import { IconType } from "react-icons";
+import { SuggestionItem } from "../../shared/plugins/suggestion/SuggestionItem";
 
 export type SlashMenuCallback = (editor: Editor, range: Range) => boolean;
 

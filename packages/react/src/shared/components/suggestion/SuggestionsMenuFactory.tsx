@@ -1,12 +1,12 @@
-import SuggestionItem from "@blocknote/core/types/src/shared/plugins/suggestion/SuggestionItem";
-import { MantineProvider } from "@mantine/core";
-import { createRoot } from "react-dom/client";
-import tippy from "tippy.js";
 import {
+  SuggestionItem,
   SuggestionsMenu,
   SuggestionsMenuFactory,
   SuggestionsMenuProps,
-} from "../../../../../core/src/menu-tools/SuggestionsMenu/types";
+} from "@blocknote/core";
+import { MantineProvider } from "@mantine/core";
+import { createRoot } from "react-dom/client";
+import tippy from "tippy.js";
 import { BlockNoteTheme } from "../../../BlockNoteTheme";
 import { SuggestionList } from "./SuggestionList";
 // import rootStyles from "../../../core/src/root.module.css";

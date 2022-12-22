@@ -1,4 +1,4 @@
-import SuggestionItem from "../../shared/plugins/suggestion/SuggestionItem";
+import { SuggestionItem } from "../../shared/plugins/suggestion/SuggestionItem";
 import { Menu, MenuFactory } from "../types";
 
 export type SuggestionsMenuItem = {

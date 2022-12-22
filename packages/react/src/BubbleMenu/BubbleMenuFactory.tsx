@@ -1,19 +1,18 @@
 import { MantineProvider } from "@mantine/core";
 import { createRoot } from "react-dom/client";
 import tippy from "tippy.js";
-import { BlockNoteTheme } from "../../../core/src/BlockNoteTheme";
 import {
   BubbleMenu,
   BubbleMenuFactory,
   BubbleMenuParams,
-} from "../../../core/src/menu-tools/BubbleMenu/types";
+} from "@blocknote/core";
 import {
   BubbleMenu as ReactBubbleMenu,
   BubbleMenuProps,
 } from "./components/BubbleMenu";
+import { BlockNoteTheme } from "../BlockNoteTheme";
 // import rootStyles from "../../../core/src/root.module.css";
 
-// TODO: Rename init & update props to something like static & dynamic props?
 export const ReactBubbleMenuFactory: BubbleMenuFactory = (
   params: BubbleMenuParams
 ): BubbleMenu => {

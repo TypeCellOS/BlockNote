@@ -5,7 +5,7 @@ import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
 import { findBlock } from "../../../extensions/Blocks/helpers/findBlock";
 import { getSuggestionsMenuProps } from "../../../menu-tools/SuggestionsMenu/getSuggestionsMenuProps";
 import { SuggestionsMenuFactory } from "../../../menu-tools/SuggestionsMenu/types";
-import SuggestionItem from "./SuggestionItem";
+import { SuggestionItem } from "./SuggestionItem";
 
 export type SuggestionPluginOptions<T extends SuggestionItem> = {
   /**

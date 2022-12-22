@@ -1,14 +1,14 @@
 // import SuggestionItem from "../SuggestionItem";
-import { useEffect, useRef } from "react";
 import { Badge, createStyles, Menu, Stack, Text } from "@mantine/core";
+import { useEffect, useRef } from "react";
 import { IconType } from "react-icons";
 
 const MIN_LEFT_MARGIN = 5;
 
 export type SuggestionGroupItemProps = {
   name: string;
-  hint: string;
-  icon: IconType;
+  hint: string | undefined;
+  icon: IconType | undefined;
   shortcut?: string;
   isSelected: boolean;
   set: () => void;
