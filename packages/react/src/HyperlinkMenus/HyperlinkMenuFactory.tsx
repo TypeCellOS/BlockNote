@@ -6,34 +6,31 @@ import { BlockNoteTheme } from "../BlockNoteTheme";
 import {
   HyperlinkHoverMenu,
   HyperlinkHoverMenuFactory,
-  HyperlinkHoverMenuInitProps,
-  HyperlinkHoverMenuUpdateProps,
+  HyperlinkHoverMenuParams,
 } from "../../../core/src/menu-tools/HyperlinkHoverMenu/types";
 
 export const ReactHyperlinkMenuFactory: HyperlinkHoverMenuFactory = (
-  initProps: HyperlinkHoverMenuInitProps
+  params: HyperlinkHoverMenuParams
 ): HyperlinkHoverMenu => {
   const hyperlinkMenuProps: HyperlinkMenuProps = {
-    url: "",
-    text: "",
-    update: initProps.editHyperlink,
-    remove: initProps.deleteHyperlink,
+    url: params.hyperlinkUrl,
+    text: params.hyperlinkText,
+    update: params.editHyperlink,
+    remove: params.deleteHyperlink,
   };
 
-  function updateHyperlinkMenuProps(
-    updateProps: HyperlinkHoverMenuUpdateProps
-  ) {
-    hyperlinkMenuProps.url = updateProps.hyperlinkUrl;
-    hyperlinkMenuProps.text = updateProps.hyperlinkText;
+  function updateHyperlinkMenuProps(params: HyperlinkHoverMenuParams) {
+    hyperlinkMenuProps.url = params.hyperlinkUrl;
+    hyperlinkMenuProps.text = params.hyperlinkText;
   }
 
   const element = document.createElement("div");
+
   const root = createRoot(element);
 
-  const menu = tippy(initProps.editorElement, {
-    appendTo: initProps.editorElement,
+  const menu = tippy(params.editorElement, {
     duration: 0,
-    getReferenceClientRect: () => new DOMRect(),
+    getReferenceClientRect: () => params.hyperlinkBoundingBox,
     content: element,
     interactive: true,
     trigger: "manual",
@@ -41,12 +38,10 @@ export const ReactHyperlinkMenuFactory: HyperlinkHoverMenuFactory = (
     hideOnClick: false,
   });
 
-  menu.show();
-
   return {
     element: element,
-    show: (updateProps: HyperlinkHoverMenuUpdateProps) => {
-      updateHyperlinkMenuProps(updateProps);
+    show: (params: HyperlinkHoverMenuParams) => {
+      updateHyperlinkMenuProps(params);
 
       root.render(
         <MantineProvider theme={BlockNoteTheme}>
@@ -55,16 +50,14 @@ export const ReactHyperlinkMenuFactory: HyperlinkHoverMenuFactory = (
       );
 
       menu.setProps({
-        getReferenceClientRect: () => updateProps.hyperlinkBoundingBox,
+        getReferenceClientRect: () => params.hyperlinkBoundingBox,
       });
 
       menu.show();
     },
-    hide: () => {
-      menu.hide();
-    },
-    update: (updateProps: HyperlinkHoverMenuUpdateProps) => {
-      updateHyperlinkMenuProps(updateProps);
+    hide: menu.hide,
+    update: (params: HyperlinkHoverMenuParams) => {
+      updateHyperlinkMenuProps(params);
 
       root.render(
         <MantineProvider theme={BlockNoteTheme}>
@@ -73,7 +66,7 @@ export const ReactHyperlinkMenuFactory: HyperlinkHoverMenuFactory = (
       );
 
       menu.setProps({
-        getReferenceClientRect: () => updateProps.hyperlinkBoundingBox,
+        getReferenceClientRect: () => params.hyperlinkBoundingBox,
       });
     },
   };

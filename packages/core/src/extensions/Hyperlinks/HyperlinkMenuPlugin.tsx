@@ -4,9 +4,8 @@ import { Plugin, PluginKey } from "prosemirror-state";
 import {
   HyperlinkHoverMenu,
   HyperlinkHoverMenuFactory,
+  HyperlinkHoverMenuParams,
 } from "../../menu-tools/HyperlinkHoverMenu/types";
-import { getHyperlinkHoverMenuInitProps } from "../../menu-tools/HyperlinkHoverMenu/getHyperlinkHoverMenuInitProps";
-import { getHyperlinkHoverMenuUpdateProps } from "../../menu-tools/HyperlinkHoverMenu/getHyperlinkMenuUpdateProps";
 const PLUGIN_KEY = new PluginKey("HyperlinkMenuPlugin");
 
 export type HyperlinkMenuPluginProps = {
@@ -21,6 +20,7 @@ export type HyperlinkHoverMenuViewProps = {
 class HyperlinkHoverMenuView {
   editor: Editor;
 
+  hyperlinkHoverMenuParams: HyperlinkHoverMenuParams;
   hyperlinkHoverMenu: HyperlinkHoverMenu;
 
   menuUpdateTimer: NodeJS.Timeout | undefined;
@@ -42,38 +42,9 @@ class HyperlinkHoverMenuView {
   }: HyperlinkHoverMenuViewProps) {
     this.editor = editor;
 
-    const editHyperlink = (url: string, text: string) => {
-      const tr = editor.view.state.tr.insertText(
-        text,
-        this.hyperlinkMarkRange!.from,
-        this.hyperlinkMarkRange!.to
-      );
-      tr.addMark(
-        this.hyperlinkMarkRange!.from,
-        this.hyperlinkMarkRange!.from + text.length,
-        editor.schema.mark("link", { href: url })
-      );
-      editor.view.dispatch(tr);
-    };
-
-    const deleteHyperlink = () => {
-      editor.view.dispatch(
-        editor.view.state.tr
-          .removeMark(
-            this.hyperlinkMarkRange!.from,
-            this.hyperlinkMarkRange!.to,
-            this.hyperlinkMark!.type
-          )
-          .setMeta("preventAutolink", true)
-      );
-    };
-
+    this.hyperlinkHoverMenuParams = this.initHyperlinkHoverMenuParams();
     this.hyperlinkHoverMenu = hyperlinkHoverMenuFactory(
-      getHyperlinkHoverMenuInitProps(
-        editHyperlink,
-        deleteHyperlink,
-        editor.options.element
-      )
+      this.hyperlinkHoverMenuParams
     );
 
     this.startMenuUpdateTimer = () => {
@@ -193,27 +164,11 @@ class HyperlinkHoverMenuView {
     }
 
     if (this.hyperlinkMark) {
-      // Gets all variables/functions needed to render menu.
-      const hyperlinkUrl = this.hyperlinkMark.attrs.href;
-      const hyperlinkText = this.editor.view.state.doc.textBetween(
-        this.hyperlinkMarkRange!.from,
-        this.hyperlinkMarkRange!.to
-      );
-      const hyperlinkBoundingBox = posToDOMRect(
-        this.editor.view,
-        this.hyperlinkMarkRange!.from,
-        this.hyperlinkMarkRange!.to
-      );
+      this.updateHyperlinkHoverMenuParams();
 
       // Shows menu.
       if (!prevHyperlinkMark) {
-        this.hyperlinkHoverMenu.show(
-          getHyperlinkHoverMenuUpdateProps(
-            hyperlinkUrl,
-            hyperlinkText,
-            hyperlinkBoundingBox
-          )
-        );
+        this.hyperlinkHoverMenu.show(this.hyperlinkHoverMenuParams);
 
         this.hyperlinkHoverMenu.element?.addEventListener(
           "mouseleave",
@@ -228,12 +183,60 @@ class HyperlinkHoverMenuView {
       }
 
       // Updates menu.
-      this.hyperlinkHoverMenu.update(
-        getHyperlinkHoverMenuUpdateProps(
-          hyperlinkUrl,
-          hyperlinkText,
-          hyperlinkBoundingBox
-        )
+      this.hyperlinkHoverMenu.update(this.hyperlinkHoverMenuParams);
+    }
+  }
+
+  initHyperlinkHoverMenuParams() {
+    return {
+      hyperlinkUrl: "",
+      hyperlinkText: "",
+      editHyperlink: (url: string, text: string) => {
+        const tr = this.editor.view.state.tr.insertText(
+          text,
+          this.hyperlinkMarkRange!.from,
+          this.hyperlinkMarkRange!.to
+        );
+        tr.addMark(
+          this.hyperlinkMarkRange!.from,
+          this.hyperlinkMarkRange!.from + text.length,
+          this.editor.schema.mark("link", { href: url })
+        );
+        this.editor.view.dispatch(tr);
+      },
+      deleteHyperlink: () => {
+        this.editor.view.dispatch(
+          this.editor.view.state.tr
+            .removeMark(
+              this.hyperlinkMarkRange!.from,
+              this.hyperlinkMarkRange!.to,
+              this.hyperlinkMark!.type
+            )
+            .setMeta("preventAutolink", true)
+        );
+      },
+
+      hyperlinkBoundingBox: new DOMRect(),
+      editorElement: this.editor.options.element,
+    };
+  }
+
+  updateHyperlinkHoverMenuParams() {
+    if (this.hyperlinkMark) {
+      this.hyperlinkHoverMenuParams.hyperlinkUrl =
+        this.hyperlinkMark.attrs.href;
+      this.hyperlinkHoverMenuParams.hyperlinkText =
+        this.editor.view.state.doc.textBetween(
+          this.hyperlinkMarkRange!.from,
+          this.hyperlinkMarkRange!.to
+        );
+    }
+
+    if (this.hyperlinkMarkRange) {
+      this.hyperlinkHoverMenuParams.hyperlinkBoundingBox = posToDOMRect(
+        this.editor.view,
+        this.hyperlinkMarkRange!.from,
+        this.hyperlinkMarkRange!.to
       );
     }
   }
