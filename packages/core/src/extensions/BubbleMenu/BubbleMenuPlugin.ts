@@ -1,12 +1,16 @@
-import { Editor, isTextSelection } from "@tiptap/core";
+import {
+  Editor,
+  isNodeSelection,
+  isTextSelection,
+  posToDOMRect,
+} from "@tiptap/core";
 import { EditorState, Plugin, PluginKey } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
-import { getBubbleMenuInitProps } from "../../menu-tools/BubbleMenu/getBubbleMenuInitProps";
 import {
   BubbleMenu,
   BubbleMenuFactory,
+  BubbleMenuParams,
 } from "../../menu-tools/BubbleMenu/types";
-import { getBubbleMenuUpdateProps } from "../../menu-tools/BubbleMenu/getBubbleMenuUpdateProps";
 
 // Same as TipTap bubblemenu plugin, but with these changes:
 // https://github.com/ueberdosis/tiptap/pull/2596/files
@@ -33,9 +37,11 @@ export type BubbleMenuViewProps = BubbleMenuPluginProps & {
 export class BubbleMenuView {
   public editor: Editor;
 
-  public bubbleMenu: BubbleMenu;
-
   public view: EditorView;
+
+  public bubbleMenuParams: BubbleMenuParams;
+
+  public bubbleMenu: BubbleMenu;
 
   public preventHide = false;
 
@@ -58,11 +64,7 @@ export class BubbleMenuView {
     const isEmptyTextBlock =
       !doc.textBetween(from, to).length && isTextSelection(state.selection);
 
-    if (!view.hasFocus() || empty || isEmptyTextBlock) {
-      return false;
-    }
-
-    return true;
+    return !(!view.hasFocus() || empty || isEmptyTextBlock);
   };
 
   constructor({
@@ -72,8 +74,10 @@ export class BubbleMenuView {
     shouldShow,
   }: BubbleMenuViewProps) {
     this.editor = editor;
-    this.bubbleMenu = bubbleMenuFactory(getBubbleMenuInitProps(editor));
     this.view = view;
+
+    this.bubbleMenuParams = this.initBubbleMenuParams();
+    this.bubbleMenu = bubbleMenuFactory(this.bubbleMenuParams);
 
     if (shouldShow) {
       this.shouldShow = shouldShow;
@@ -168,6 +172,39 @@ export class BubbleMenuView {
       to,
     });
 
+    // Checks if menu should be shown.
+    if (
+      !this.menuIsOpen &&
+      !this.preventShow &&
+      (shouldShow || this.preventHide)
+    ) {
+      this.updateBubbleMenuParams();
+      this.bubbleMenu.show(this.bubbleMenuParams);
+      this.menuIsOpen = true;
+
+      this.bubbleMenu.element!.addEventListener(
+        "mousedown",
+        this.mousedownHandler,
+        {
+          capture: true,
+        }
+      );
+    }
+
+    // Checks if menu should be updated.
+    if (
+      this.menuIsOpen &&
+      !this.preventShow &&
+      (shouldShow || this.preventHide)
+    ) {
+      setTimeout(() => {
+        this.updateBubbleMenuParams();
+        this.bubbleMenu.update(this.bubbleMenuParams);
+      }, 400);
+
+      return;
+    }
+
     // Checks if menu should be hidden.
     if (
       this.menuIsOpen &&
@@ -187,38 +224,6 @@ export class BubbleMenuView {
 
       return;
     }
-
-    // Checks if menu should be updated.
-    if (
-      this.menuIsOpen &&
-      !this.preventShow &&
-      (shouldShow || this.preventHide)
-    ) {
-      setTimeout(
-        () => this.bubbleMenu.update(getBubbleMenuUpdateProps(this.editor)),
-        350
-      );
-
-      return;
-    }
-
-    // Checks if menu should be shown.
-    if (
-      !this.menuIsOpen &&
-      !this.preventShow &&
-      (shouldShow || this.preventHide)
-    ) {
-      this.bubbleMenu.show(getBubbleMenuUpdateProps(this.editor));
-      this.menuIsOpen = true;
-
-      this.bubbleMenu.element!.addEventListener(
-        "mousedown",
-        this.mousedownHandler,
-        {
-          capture: true,
-        }
-      );
-    }
   }
 
   destroy() {
@@ -228,6 +233,144 @@ export class BubbleMenuView {
 
     this.editor.off("focus", this.focusHandler);
     this.editor.off("blur", this.blurHandler);
+  }
+
+  getSelectionBoundingBox() {
+    const { state } = this.editor.view;
+    const { selection } = state;
+
+    // support for CellSelections
+    const { ranges } = selection;
+    const from = Math.min(...ranges.map((range) => range.$from.pos));
+    const to = Math.max(...ranges.map((range) => range.$to.pos));
+
+    if (isNodeSelection(selection)) {
+      const node = this.editor.view.nodeDOM(from) as HTMLElement;
+
+      if (node) {
+        return node.getBoundingClientRect();
+      }
+    }
+
+    return posToDOMRect(this.editor.view, from, to);
+  }
+
+  initBubbleMenuParams() {
+    return {
+      boldIsActive: false,
+      toggleBold: () => {
+        this.editor.view.focus();
+        this.editor.commands.toggleBold();
+      },
+      italicIsActive: this.editor.isActive("italic"),
+      toggleItalic: () => {
+        this.editor.view.focus();
+        this.editor.commands.toggleItalic();
+      },
+      underlineIsActive: this.editor.isActive("underline"),
+      toggleUnderline: () => {
+        this.editor.view.focus();
+        this.editor.commands.toggleUnderline();
+      },
+      strikeIsActive: this.editor.isActive("strike"),
+      toggleStrike: () => {
+        this.editor.view.focus();
+        this.editor.commands.toggleStrike();
+      },
+      hyperlinkIsActive: this.editor.isActive("link"),
+      activeHyperlinkUrl: this.editor.getAttributes("link").href,
+      activeHyperlinkText: this.editor.state.doc.textBetween(
+        this.editor.state.selection.from,
+        this.editor.state.selection.to
+      ),
+      setHyperlink: (url: string, text?: string) => {
+        if (url === "") {
+          return;
+        }
+
+        let { from, to } = this.editor.state.selection;
+
+        if (!text) {
+          text = this.editor.state.doc.textBetween(from, to);
+        }
+
+        const mark = this.editor.schema.mark("link", { href: url });
+
+        this.editor.view.dispatch(
+          this.editor.view.state.tr
+            .insertText(text, from, to)
+            .addMark(from, from + text.length, mark)
+        );
+      },
+      paragraphIsActive:
+        this.editor.state.selection.$from.node().type.name === "textContent",
+      setParagraph: () => {
+        this.editor.view.focus();
+        this.editor.commands.BNSetContentType(
+          this.editor.state.selection.from,
+          "textContent"
+        );
+      },
+      headingIsActive:
+        this.editor.state.selection.$from.node().type.name === "headingContent",
+      activeHeadingLevel:
+        this.editor.state.selection.$from.node().attrs["headingLevel"],
+      setHeading: (level: string = "1") => {
+        this.editor.view.focus();
+        this.editor.commands.BNSetContentType(
+          this.editor.state.selection.from,
+          "headingContent",
+          {
+            headingLevel: level,
+          }
+        );
+      },
+      listItemIsActive:
+        this.editor.state.selection.$from.node().type.name ===
+        "listItemContent",
+      activeListItemType:
+        this.editor.state.selection.$from.node().attrs["listItemType"],
+      setListItem: (type: string = "unordered") => {
+        this.editor.view.focus();
+        this.editor.commands.BNSetContentType(
+          this.editor.state.selection.from,
+          "listItemContent",
+          {
+            listItemType: type,
+          }
+        );
+      },
+      selectionBoundingBox: this.getSelectionBoundingBox(),
+      editorElement: this.editor.options.element,
+    };
+  }
+
+  updateBubbleMenuParams() {
+    this.bubbleMenuParams.boldIsActive = this.editor.isActive("bold");
+    this.bubbleMenuParams.italicIsActive = this.editor.isActive("italic");
+    this.bubbleMenuParams.underlineIsActive = this.editor.isActive("underline");
+    this.bubbleMenuParams.strikeIsActive = this.editor.isActive("strike");
+    this.bubbleMenuParams.hyperlinkIsActive = this.editor.isActive("link");
+    this.bubbleMenuParams.activeHyperlinkUrl =
+      this.editor.getAttributes("link").href;
+    this.bubbleMenuParams.activeHyperlinkText =
+      this.editor.state.doc.textBetween(
+        this.editor.state.selection.from,
+        this.editor.state.selection.to
+      );
+
+    this.bubbleMenuParams.paragraphIsActive =
+      this.editor.state.selection.$from.node().type.name === "textContent";
+    this.bubbleMenuParams.headingIsActive =
+      this.editor.state.selection.$from.node().type.name === "headingContent";
+    this.bubbleMenuParams.activeHeadingLevel =
+      this.editor.state.selection.$from.node().attrs["headingLevel"];
+    this.bubbleMenuParams.listItemIsActive =
+      this.editor.state.selection.$from.node().type.name === "listItemContent";
+    this.bubbleMenuParams.activeListItemType =
+      this.editor.state.selection.$from.node().attrs["listItemType"];
+
+    this.bubbleMenuParams.selectionBoundingBox = this.getSelectionBoundingBox();
   }
 }
 
