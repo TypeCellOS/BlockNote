@@ -147,22 +147,6 @@ class HyperlinkHoverMenuView {
       this.hyperlinkMarkRange = this.keyboardHoveredHyperlinkMarkRange;
     }
 
-    // Hides menu.
-    if (prevHyperlinkMark && !this.hyperlinkMark) {
-      this.hyperlinkHoverMenu.element?.removeEventListener(
-        "mouseleave",
-        this.startMenuUpdateTimer
-      );
-      this.hyperlinkHoverMenu.element?.removeEventListener(
-        "mouseenter",
-        this.stopMenuUpdateTimer
-      );
-
-      this.hyperlinkHoverMenu.hide();
-
-      return;
-    }
-
     if (this.hyperlinkMark) {
       this.updateHyperlinkHoverMenuParams();
 
@@ -184,6 +168,22 @@ class HyperlinkHoverMenuView {
 
       // Updates menu.
       this.hyperlinkHoverMenu.update(this.hyperlinkHoverMenuParams);
+    }
+
+    // Hides menu.
+    if (prevHyperlinkMark && !this.hyperlinkMark) {
+      this.hyperlinkHoverMenu.element?.removeEventListener(
+        "mouseleave",
+        this.startMenuUpdateTimer
+      );
+      this.hyperlinkHoverMenu.element?.removeEventListener(
+        "mouseenter",
+        this.stopMenuUpdateTimer
+      );
+
+      this.hyperlinkHoverMenu.hide();
+
+      return;
     }
   }
 

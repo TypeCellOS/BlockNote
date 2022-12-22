@@ -1,7 +1,7 @@
 import { MantineProvider } from "@mantine/core";
 import { createRoot } from "react-dom/client";
 import tippy from "tippy.js";
-import { HyperlinkMenu } from "./components/HyperlinkMenu";
+import { HyperlinkMenu, HyperlinkMenuProps } from "./components/HyperlinkMenu";
 import { BlockNoteTheme } from "../BlockNoteTheme";
 import {
   HyperlinkHoverMenu,

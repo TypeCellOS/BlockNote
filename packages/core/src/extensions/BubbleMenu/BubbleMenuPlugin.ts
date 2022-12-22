@@ -91,10 +91,6 @@ export class BubbleMenuView {
     this.editor.on("blur", this.blurHandler);
   }
 
-  mousedownHandler = () => {
-    this.preventHide = true;
-  };
-
   viewMousedownHandler = () => {
     this.preventShow = true;
   };
@@ -105,14 +101,6 @@ export class BubbleMenuView {
   };
 
   dragstartHandler = () => {
-    this.bubbleMenu.element!.removeEventListener(
-      "mousedown",
-      this.mousedownHandler,
-      {
-        capture: true,
-      }
-    );
-
     this.bubbleMenu.hide();
     this.menuIsOpen = false;
   };
@@ -135,14 +123,6 @@ export class BubbleMenuView {
     ) {
       return;
     }
-
-    this.bubbleMenu.element!.removeEventListener(
-      "mousedown",
-      this.mousedownHandler,
-      {
-        capture: true,
-      }
-    );
 
     this.bubbleMenu.hide();
     this.menuIsOpen = false;
@@ -181,14 +161,6 @@ export class BubbleMenuView {
       this.updateBubbleMenuParams();
       this.bubbleMenu.show(this.bubbleMenuParams);
       this.menuIsOpen = true;
-
-      this.bubbleMenu.element!.addEventListener(
-        "mousedown",
-        this.mousedownHandler,
-        {
-          capture: true,
-        }
-      );
     }
 
     // Checks if menu should be updated.
@@ -211,14 +183,6 @@ export class BubbleMenuView {
       !this.preventHide &&
       (!shouldShow || this.preventShow)
     ) {
-      this.bubbleMenu.element!.removeEventListener(
-        "mousedown",
-        this.mousedownHandler,
-        {
-          capture: true,
-        }
-      );
-
       this.bubbleMenu.hide();
       this.menuIsOpen = false;
 
