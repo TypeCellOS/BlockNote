@@ -51,6 +51,8 @@ export const DragHandle = (props: {
         .run();
     }
 
+    props.editor.commands.focus(endPos);
+
     // Focuses and activates the suggestion menu.
     props.editor.view.focus();
     props.editor.view.dispatch(
