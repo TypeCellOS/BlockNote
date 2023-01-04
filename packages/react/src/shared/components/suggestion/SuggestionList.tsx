@@ -1,9 +1,12 @@
-import { SuggestionItem, SuggestionsMenuProps } from "@blocknote/core";
+import { SuggestionItem } from "@blocknote/core";
 import { createStyles, Menu } from "@mantine/core";
 import { SuggestionListItem } from "./SuggestionListItem";
 
-export type SuggestionListProps<T extends SuggestionItem> =
-  SuggestionsMenuProps<T>;
+export type SuggestionListProps<T extends SuggestionItem> = {
+  items: T[];
+  selectedItemIndex: number;
+  itemCallback: (item: T) => void;
+};
 
 export function SuggestionList<T extends SuggestionItem>(
   props: SuggestionListProps<T>
@@ -11,14 +14,11 @@ export function SuggestionList<T extends SuggestionItem>(
   const { classes } = createStyles({ root: {} })(undefined, {
     name: "SuggestionList",
   });
-  console.log(props.menuItems.items);
 
   const headingGroup = [];
   const basicBlockGroup = [];
 
-  for (const item of props.menuItems.items) {
-    console.log(item.name);
-
+  for (const item of props.items) {
     if (item.name === "Heading") {
       headingGroup.push(item);
     }
@@ -59,8 +59,8 @@ export function SuggestionList<T extends SuggestionItem>(
           name={item.name}
           hint={item.hint}
           icon={item.icon}
-          isSelected={props.menuItems.selectedItemIndex === index}
-          set={() => props.menuItems.itemCallback(item)}
+          isSelected={props.selectedItemIndex === index}
+          set={() => props.itemCallback(item)}
         />
       );
       index++;
@@ -79,8 +79,8 @@ export function SuggestionList<T extends SuggestionItem>(
           name={item.name}
           hint={item.hint}
           icon={item.icon}
-          isSelected={props.menuItems.selectedItemIndex === index}
-          set={() => props.menuItems.itemCallback(item)}
+          isSelected={props.selectedItemIndex === index}
+          set={() => props.itemCallback(item)}
         />
       );
       index++;

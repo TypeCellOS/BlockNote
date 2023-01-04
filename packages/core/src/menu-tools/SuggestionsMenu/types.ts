@@ -6,22 +6,18 @@ export type SuggestionsMenuItem = {
   set: () => void;
 };
 
-// TODO: remove nesting
-export type SuggestionsMenuProps<T extends SuggestionItem> = {
-  menuItems: {
-    items: T[];
-    selectedItemIndex: number;
-    itemCallback: (item: T) => void;
-  };
-  view: {
-    selectedBlockBoundingBox: DOMRect;
-    editorElement: Element;
-  };
+export type SuggestionsMenuParams<T extends SuggestionItem> = {
+  items: T[];
+  selectedItemIndex: number;
+  itemCallback: (item: T) => void;
+
+  queryStartBoundingBox: DOMRect;
+  editorElement: Element;
 };
 
 export type SuggestionsMenu<T extends SuggestionItem> = Menu<
-  SuggestionsMenuProps<T>
+  SuggestionsMenuParams<T>
 >;
 export type SuggestionsMenuFactory<T extends SuggestionItem> = MenuFactory<
-  SuggestionsMenuProps<T>
+  SuggestionsMenuParams<T>
 >;

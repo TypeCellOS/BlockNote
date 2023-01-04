@@ -2,27 +2,37 @@ import {
   SuggestionItem,
   SuggestionsMenu,
   SuggestionsMenuFactory,
-  SuggestionsMenuProps,
+  SuggestionsMenuParams,
 } from "@blocknote/core";
 import { MantineProvider } from "@mantine/core";
 import { createRoot } from "react-dom/client";
 import tippy from "tippy.js";
 import { BlockNoteTheme } from "../../../BlockNoteTheme";
-import { SuggestionList } from "./SuggestionList";
+import { SuggestionList, SuggestionListProps } from "./SuggestionList";
 // import rootStyles from "../../../core/src/root.module.css";
 
 export const ReactSuggestionsMenuFactory: SuggestionsMenuFactory<
   SuggestionItem
 > = (
-  props: SuggestionsMenuProps<SuggestionItem>
+  params: SuggestionsMenuParams<SuggestionItem>
 ): SuggestionsMenu<SuggestionItem> => {
+  const suggestionsMenuProps: SuggestionListProps<SuggestionItem> = {
+    ...params,
+  };
+
+  function updateSuggestionsMenuProps(params: SuggestionsMenuParams) {
+    suggestionsMenuProps.items = params.items;
+    suggestionsMenuProps.selectedItemIndex = params.selectedItemIndex;
+    suggestionsMenuProps.itemCallback = params.itemCallback;
+  }
+
   const element = document.createElement("div");
   // element.className = rootStyles.bnRoot;
   const root = createRoot(element);
 
-  const menu = tippy(props.view.editorElement, {
+  const menu = tippy(params.editorElement, {
     duration: 0,
-    getReferenceClientRect: () => props.view.selectedBlockBoundingBox,
+    getReferenceClientRect: () => params.queryStartBoundingBox,
     content: element,
     interactive: true,
     trigger: "manual",
@@ -32,34 +42,36 @@ export const ReactSuggestionsMenuFactory: SuggestionsMenuFactory<
 
   return {
     element: element as HTMLElement,
-    show: (props: SuggestionsMenuProps<SuggestionItem>) => {
+    show: (params: SuggestionsMenuParams<SuggestionItem>) => {
+      updateSuggestionsMenuProps(params);
+
       root.render(
         <MantineProvider theme={BlockNoteTheme}>
-          <SuggestionList {...props} />
+          <SuggestionList {...suggestionsMenuProps} />
         </MantineProvider>
       );
 
       menu.setProps({
-        getReferenceClientRect: () => props.view.selectedBlockBoundingBox,
+        getReferenceClientRect: () => params.queryStartBoundingBox,
       });
 
       menu.show();
     },
-    update: (newProps: SuggestionsMenuProps<SuggestionItem>) => {
+    hide: menu.hide,
+    update: (params: SuggestionsMenuParams<SuggestionItem>) => {
+      updateSuggestionsMenuProps(params);
+
       root.render(
         <MantineProvider theme={BlockNoteTheme}>
-          <SuggestionList {...newProps} />
+          <SuggestionList {...suggestionsMenuProps} />
         </MantineProvider>
       );
 
       // setProps is a tippy function,
       // update the position based on passed in props
       menu.setProps({
-        getReferenceClientRect: () => newProps.view.selectedBlockBoundingBox,
+        getReferenceClientRect: () => params.queryStartBoundingBox,
       });
-    },
-    hide: () => {
-      menu.hide();
     },
   };
 };

@@ -1,10 +1,13 @@
 import { Editor, Range } from "@tiptap/core";
 import { escapeRegExp } from "lodash";
-import { Plugin, PluginKey, Selection } from "prosemirror-state";
+import { EditorState, Plugin, PluginKey, Selection } from "prosemirror-state";
 import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
 import { findBlock } from "../../../extensions/Blocks/helpers/findBlock";
-import { getSuggestionsMenuProps } from "../../../menu-tools/SuggestionsMenu/getSuggestionsMenuProps";
-import { SuggestionsMenuFactory } from "../../../menu-tools/SuggestionsMenu/types";
+import {
+  SuggestionsMenu,
+  SuggestionsMenuFactory,
+  SuggestionsMenuParams,
+} from "../../../menu-tools/SuggestionsMenu/types";
 import { SuggestionItem } from "./SuggestionItem";
 
 export type SuggestionPluginOptions<T extends SuggestionItem> = {
@@ -42,6 +45,13 @@ export type SuggestionPluginOptions<T extends SuggestionItem> = {
   items?: (query: string) => T[];
 
   allow?: (props: { editor: Editor; range: Range }) => boolean;
+};
+
+type SuggestionPluginViewOptions<T extends SuggestionItem> = {
+  editor: Editor;
+  pluginKey: PluginKey;
+  onSelectItem: (props: { item: T; editor: Editor; range: Range }) => void;
+  suggestionsMenuFactory: SuggestionsMenuFactory<T>;
 };
 
 export type MenuType = "slash" | "drag";
@@ -85,6 +95,111 @@ export function findCommandBeforeCursor(
   };
 }
 
+class SuggestionPluginView<T extends SuggestionItem> {
+  editor: Editor;
+  pluginKey: PluginKey;
+
+  itemCallback: (props: { item: T; editor: Editor; range: Range }) => void;
+
+  suggestionsMenuParams: SuggestionsMenuParams<T>;
+  suggestionsMenu: SuggestionsMenu<T>;
+
+  constructor({
+    editor,
+    pluginKey,
+    onSelectItem: selectItemCallback = () => {},
+    suggestionsMenuFactory,
+  }: SuggestionPluginViewOptions<T>) {
+    this.editor = editor;
+    this.pluginKey = pluginKey;
+
+    this.itemCallback = selectItemCallback;
+
+    this.suggestionsMenuParams = this.initSuggestionsMenuParams();
+    this.suggestionsMenu = suggestionsMenuFactory(this.suggestionsMenuParams);
+  }
+
+  update(view: EditorView, prevState: EditorState) {
+    const prev = this.pluginKey.getState(prevState);
+    const next = this.pluginKey.getState(view.state);
+
+    // See how the state changed
+    const started = !prev.active && next.active;
+    const stopped = prev.active && !next.active;
+    // TODO: Currently also true for cases in which an update isn't needed so selected list item index updates still
+    //  cause the view to update. May need to be more strict.
+    const changed = prev.active && next.active;
+
+    // Cancel when suggestion isn't active
+    if (!started && !changed && !stopped) {
+      return;
+    }
+
+    const state = stopped ? prev : next;
+
+    if (stopped) {
+      this.suggestionsMenu.hide();
+
+      // Listener stops focus moving to the menu on click.
+      this.suggestionsMenu.element!.removeEventListener("mousedown", (event) =>
+        event.preventDefault()
+      );
+    }
+
+    if (changed) {
+      this.updateSuggestionsMenuParams(state);
+      this.suggestionsMenu.update(this.suggestionsMenuParams);
+    }
+
+    if (started) {
+      this.updateSuggestionsMenuParams(state);
+      this.suggestionsMenu.show(this.suggestionsMenuParams);
+
+      // Listener stops focus moving to the menu on click.
+      this.suggestionsMenu.element!.addEventListener("mousedown", (event) =>
+        event.preventDefault()
+      );
+    }
+  }
+
+  initSuggestionsMenuParams() {
+    return {
+      items: [],
+      selectedItemIndex: 0,
+      itemCallback: (item: T) => {
+        this.itemCallback({
+          item: item,
+          editor: this.editor,
+          range: { from: 0, to: 0 },
+        });
+      },
+      queryStartBoundingBox: new DOMRect(),
+      editorElement: this.editor.options.element,
+    };
+  }
+
+  updateSuggestionsMenuParams(pluginState: any) {
+    this.suggestionsMenuParams.items = pluginState.items;
+    this.suggestionsMenuParams.selectedItemIndex =
+      pluginState.selectedItemIndex;
+    this.suggestionsMenuParams.itemCallback = (item: T) => {
+      this.itemCallback({
+        item: item,
+        editor: this.editor,
+        range: pluginState.range,
+      });
+    };
+
+    const decorationNode = document.querySelector(
+      `[data-decoration-id="${pluginState.decorationId}"]`
+    );
+    this.suggestionsMenuParams.queryStartBoundingBox =
+      decorationNode !== null
+        ? decorationNode.getBoundingClientRect()
+        : new DOMRect();
+  }
+}
+
 /**
  * A ProseMirror plugin for suggestions, designed to make '/'-commands possible as well as mentions.
  *
@@ -115,111 +230,20 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
     view.dispatch(view.state.tr.setMeta(pluginKey, { deactivate: true }));
   };
 
-  // initialize the SuggestionsMenu UI element
-  // the actual values are dummy values, as the menu isn't shown / positioned yet
-  // (TBD: we could also decide not to pass these values upon creation,
-  //      or only initialize a menu upon first-use)
-  const suggestionsMenu = suggestionsMenuFactory(
-    getSuggestionsMenuProps<T>(
-      [],
-      0,
-      (item) => {
-        deactivate(editor.view);
-        selectItemCallback({
-          item: item,
-          editor: editor,
-          range: { from: 0, to: 0 },
-        });
-      },
-      new DOMRect(),
-      editor.options.element
-    )
-  );
-
   // Plugin key is passed in parameter so it can be exported and used in draghandle
   return new Plugin({
     key: pluginKey,
 
-    filterTransaction(transaction) {
-      // prevent blurring when clicking with the mouse inside the popup menu
-      const blurMeta = transaction.getMeta("blur");
-      if (blurMeta?.event.relatedTarget) {
-        if (suggestionsMenu.element?.contains(blurMeta.event.relatedTarget)) {
-          return false;
-        }
-      }
-      return true;
-    },
-
-    view() {
-      return {
-        update: async (view, prevState) => {
-          const prev = this.key?.getState(prevState);
-          const next = this.key?.getState(view.state);
-
-          // See how the state changed
-          const started = !prev.active && next.active;
-          const stopped = prev.active && !next.active;
-          const changed = !started && !stopped && prev.query !== next.query;
-
-          // Cancel when suggestion isn't active
-          if (!started && !changed && !stopped) {
-            return;
-          }
-
-          const state = stopped ? prev : next;
-          const decorationNode = document.querySelector(
-            `[data-decoration-id="${state.decorationId}"]`
-          );
-
-          if (stopped) {
-            suggestionsMenu.hide();
-          }
-
-          if (changed) {
-            suggestionsMenu.update(
-              getSuggestionsMenuProps<T>(
-                next.items,
-                0,
-                (item) => {
-                  deactivate(editor.view);
-                  selectItemCallback({
-                    item: item,
-                    editor: editor,
-                    range: state.range,
-                  });
-                },
-                decorationNode !== null
-                  ? decorationNode.getBoundingClientRect()
-                  : new DOMRect(),
-                editor.options.element
-              )
-            );
-          }
-
-          if (started) {
-            suggestionsMenu.show(
-              getSuggestionsMenuProps<T>(
-                next.items,
-                0,
-                (item) => {
-                  deactivate(editor.view);
-                  selectItemCallback({
-                    item: item,
-                    editor: editor,
-                    range: state.range,
-                  });
-                },
-                decorationNode !== null
-                  ? decorationNode.getBoundingClientRect()
-                  : new DOMRect(),
-                editor.options.element
-              )
-            );
-          }
+    view: (view: EditorView) =>
+      new SuggestionPluginView({
+        editor: editor,
+        pluginKey: pluginKey,
+        onSelectItem: (props: { item: T; editor: Editor; range: Range }) => {
+          deactivate(view);
+          selectItemCallback(props);
         },
-      };
-    },
+        suggestionsMenuFactory,
+      }),
 
     state: {
       // Initialize the plugin's internal state.
@@ -237,7 +261,7 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
       },
 
       // Apply changes to the plugin state from a view transaction.
-      apply(transaction, prev, _oldState, _newState) {
+      apply(transaction, prev, _oldState, newState) {
         const { selection } = transaction;
         const next = { ...prev };
 
@@ -250,6 +274,7 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
         if (
           transaction.getMeta(pluginKey)?.selectedItemIndexChanged !== undefined
         ) {
+          console.log("INDEX");
           let newIndex =
             transaction.getMeta(pluginKey).selectedItemIndexChanged;
 
@@ -262,28 +287,6 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
           }
 
           next.selectedItemIndex = newIndex;
-
-          const decorationNode = document.querySelector(
-            `[data-decoration-id="${next.decorationId}"]`
-          );
-
-          suggestionsMenu.update(
-            getSuggestionsMenuProps(
-              next.items,
-              next.selectedItemIndex,
-              (item) => {
-                selectItemCallback({
-                  item: item,
-                  editor: editor,
-                  range: next.range,
-                });
-              },
-              decorationNode !== null
-                ? decorationNode.getBoundingClientRect()
-                : new DOMRect(),
-              editor.options.element
-            )
-          );
 
           return next;
         }
@@ -321,7 +324,7 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
             // otherwise we get the whole query
             const match = findCommandBeforeCursor(
               prev.type === "slash" ? char : "",
-              selection
+              newState.selection
             );
             if (!match) {
               throw new Error("active but no match (suggestions)");
@@ -332,6 +335,7 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
             next.decorationId = prev.decorationId;
             next.query = match.query;
             next.selectedItemIndex = 0;
+            console.log(match.query);
           }
         } else {
           next.active = false;
