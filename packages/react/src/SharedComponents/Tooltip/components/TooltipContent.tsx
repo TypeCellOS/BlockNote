@@ -1,4 +1,4 @@
-import styles from "./TooltipContent.module.css";
+import styles from "../TooltipContent.module.css";
 
 /**
  * Helper for the tooltip for inline bubble menu buttons.

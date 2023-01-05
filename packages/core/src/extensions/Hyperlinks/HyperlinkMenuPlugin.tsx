@@ -5,7 +5,7 @@ import {
   HyperlinkHoverMenu,
   HyperlinkHoverMenuFactory,
   HyperlinkHoverMenuParams,
-} from "../../menu-tools/HyperlinkHoverMenu/types";
+} from "./HyperlinkMenuFactoryTypes";
 const PLUGIN_KEY = new PluginKey("HyperlinkMenuPlugin");
 
 export type HyperlinkMenuPluginProps = {

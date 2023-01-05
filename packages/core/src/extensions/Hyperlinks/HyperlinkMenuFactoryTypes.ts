@@ -1,4 +1,4 @@
-import { Menu, MenuFactory } from "../types";
+import { Menu, MenuFactory } from "../../MenuFactoryTypes";
 
 export type HyperlinkHoverMenuParams = {
   hyperlinkUrl: string;

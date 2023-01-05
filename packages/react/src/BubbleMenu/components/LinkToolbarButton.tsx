@@ -3,7 +3,7 @@ import { useCallback, useState } from "react";
 import {
   ToolbarButton,
   ToolbarButtonProps,
-} from "../../shared/components/toolbar/ToolbarButton";
+} from "../../SharedComponents/Toolbar/components/ToolbarButton";
 import { EditHyperlinkMenu } from "../../HyperlinkMenus/EditHyperlinkMenu/components/EditHyperlinkMenu";
 
 type HyperlinkButtonProps = ToolbarButtonProps & {

@@ -2,9 +2,9 @@ import { Editor, EditorOptions } from "@tiptap/core";
 
 import { getBlockNoteExtensions } from "./BlockNoteExtensions";
 import styles from "./editor.module.css";
-import { BubbleMenuFactory } from "./menu-tools/BubbleMenu/types";
-import { HyperlinkHoverMenuFactory } from "./menu-tools/HyperlinkHoverMenu/types";
-import { SuggestionsMenuFactory } from "./menu-tools/SuggestionsMenu/types";
+import { BubbleMenuFactory } from "./extensions/BubbleMenu/BubbleMenuFactoryTypes";
+import { HyperlinkHoverMenuFactory } from "./extensions/Hyperlinks/HyperlinkMenuFactoryTypes";
+import { SuggestionsMenuFactory } from "./shared/plugins/suggestion/SuggestionsMenuFactoryTypes";
 import rootStyles from "./root.module.css";
 import { SuggestionItem } from "./shared/plugins/suggestion/SuggestionItem";
 

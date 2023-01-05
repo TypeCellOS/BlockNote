@@ -1,7 +1,7 @@
 import { ActionIcon, Button } from "@mantine/core";
 import Tippy from "@tippyjs/react";
 import { forwardRef } from "react";
-import { TooltipContent } from "../tooltip/TooltipContent";
+import { TooltipContent } from "../../Tooltip/components/TooltipContent";
 import { IconType } from "react-icons";
 
 export type ToolbarButtonProps = {

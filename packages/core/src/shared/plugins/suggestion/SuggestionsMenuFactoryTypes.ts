@@ -1,10 +1,5 @@
-import { SuggestionItem } from "../../shared/plugins/suggestion/SuggestionItem";
-import { Menu, MenuFactory } from "../types";
-
-export type SuggestionsMenuItem = {
-  name: string;
-  set: () => void;
-};
+import { SuggestionItem } from "./SuggestionItem";
+import { Menu, MenuFactory } from "../../../MenuFactoryTypes";
 
 export type SuggestionsMenuParams<T extends SuggestionItem> = {
   items: T[];

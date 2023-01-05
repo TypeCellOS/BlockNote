@@ -10,7 +10,7 @@ import {
   BubbleMenu,
   BubbleMenuFactory,
   BubbleMenuParams,
-} from "../../menu-tools/BubbleMenu/types";
+} from "./BubbleMenuFactoryTypes";
 
 // Same as TipTap bubblemenu plugin, but with these changes:
 // https://github.com/ueberdosis/tiptap/pull/2596/files

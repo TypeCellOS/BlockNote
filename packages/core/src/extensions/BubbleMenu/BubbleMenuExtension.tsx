@@ -1,7 +1,7 @@
 import { Extension } from "@tiptap/core";
 import { PluginKey } from "prosemirror-state";
 import { createBubbleMenuPlugin } from "./BubbleMenuPlugin";
-import { BubbleMenuFactory } from "../../menu-tools/BubbleMenu/types";
+import { BubbleMenuFactory } from "./BubbleMenuFactoryTypes";
 
 /**
  * The menu that is displayed when selecting a piece of text.

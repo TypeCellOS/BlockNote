@@ -1,6 +1,6 @@
 import { RiExternalLinkFill, RiLinkUnlink } from "react-icons/ri";
-import { Toolbar } from "../../../shared/components/toolbar/Toolbar";
-import { ToolbarButton } from "../../../shared/components/toolbar/ToolbarButton";
+import { Toolbar } from "../../../SharedComponents/Toolbar/components/Toolbar";
+import { ToolbarButton } from "../../../SharedComponents/Toolbar/components/ToolbarButton";
 
 type HoverHyperlinkMenuProps = {
   url: string;

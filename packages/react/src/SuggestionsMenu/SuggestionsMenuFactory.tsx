@@ -7,8 +7,11 @@ import {
 } from "@blocknote/core";
 import { MantineProvider } from "@mantine/core";
 import Tippy from "@tippyjs/react";
-import { SuggestionList, SuggestionListProps } from "./SuggestionList";
-import { BlockNoteTheme } from "../../../BlockNoteTheme";
+import {
+  SuggestionList,
+  SuggestionListProps,
+} from "./components/SuggestionList";
+import { BlockNoteTheme } from "../BlockNoteTheme";
 // import rootStyles from "../../../core/src/root.module.css";
 
 export const ReactSuggestionsMenuFactory: SuggestionsMenuFactory<

@@ -7,7 +7,7 @@ import {
   SuggestionsMenu,
   SuggestionsMenuFactory,
   SuggestionsMenuParams,
-} from "../../../menu-tools/SuggestionsMenu/types";
+} from "./SuggestionsMenuFactoryTypes";
 import { SuggestionItem } from "./SuggestionItem";
 
 export type SuggestionPluginOptions<T extends SuggestionItem> = {
@@ -274,7 +274,6 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
         if (
           transaction.getMeta(pluginKey)?.selectedItemIndexChanged !== undefined
         ) {
-          console.log("INDEX");
           let newIndex =
             transaction.getMeta(pluginKey).selectedItemIndexChanged;
 
@@ -335,7 +334,6 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
             next.decorationId = prev.decorationId;
             next.query = match.query;
             next.selectedItemIndex = 0;
-            console.log(match.query);
           }
         } else {
           next.active = false;

@@ -13,9 +13,9 @@ import {
   RiText,
   RiUnderline,
 } from "react-icons/ri";
-import { ToolbarButton } from "../../shared/components/toolbar/ToolbarButton";
-import { ToolbarDropdown } from "../../shared/components/toolbar/ToolbarDropdown";
-import { Toolbar } from "../../shared/components/toolbar/Toolbar";
+import { ToolbarButton } from "../../SharedComponents/Toolbar/components/ToolbarButton";
+import { ToolbarDropdown } from "../../SharedComponents/Toolbar/components/ToolbarDropdown";
+import { Toolbar } from "../../SharedComponents/Toolbar/components/Toolbar";
 import { formatKeyboardShortcut } from "../../utils";
 import LinkToolbarButton from "./LinkToolbarButton";
 

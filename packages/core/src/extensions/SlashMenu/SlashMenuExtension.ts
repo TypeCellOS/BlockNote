@@ -1,6 +1,6 @@
 import { Extension } from "@tiptap/core";
 import { PluginKey } from "prosemirror-state";
-import { SuggestionsMenuFactory } from "../../menu-tools/SuggestionsMenu/types";
+import { SuggestionsMenuFactory } from "../../shared/plugins/suggestion/SuggestionsMenuFactoryTypes";
 import { createSuggestionPlugin } from "../../shared/plugins/suggestion/SuggestionPlugin";
 import defaultCommands from "./defaultCommands";
 import { SlashMenuItem } from "./SlashMenuItem";

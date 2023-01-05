@@ -1,6 +1,6 @@
 import { IconType } from "react-icons";
 import Tippy from "@tippyjs/react";
-import { TooltipContent } from "../../../shared/components/tooltip/TooltipContent";
+import { TooltipContent } from "../../../SharedComponents/Tooltip/components/TooltipContent";
 import { Container } from "@mantine/core";
 
 export type EditHyperlinkMenuItemIconProps = {
