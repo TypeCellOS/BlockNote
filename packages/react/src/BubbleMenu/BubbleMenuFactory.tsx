@@ -1,11 +1,11 @@
-import { MantineProvider } from "@mantine/core";
-import { createRoot } from "react-dom/client";
-import tippy from "tippy.js";
+import { createRoot, Root } from "react-dom/client";
 import {
   BubbleMenu,
   BubbleMenuFactory,
   BubbleMenuParams,
 } from "@blocknote/core";
+import { MantineProvider } from "@mantine/core";
+import Tippy from "@tippyjs/react";
 import {
   BubbleMenu as ReactBubbleMenu,
   BubbleMenuProps,
@@ -42,9 +42,6 @@ export const ReactBubbleMenuFactory: BubbleMenuFactory = (
   };
 
   function updateBubbleMenuProps(params: BubbleMenuParams) {
-    // Can't use a constant and not all update props are needed.
-    // bubbleMenuProps = {...params}
-
     bubbleMenuProps.boldIsActive = params.boldIsActive;
     bubbleMenuProps.italicIsActive = params.italicIsActive;
     bubbleMenuProps.underlineIsActive = params.underlineIsActive;
@@ -60,57 +57,49 @@ export const ReactBubbleMenuFactory: BubbleMenuFactory = (
     bubbleMenuProps.activeListItemType = params.activeListItemType;
   }
 
-  const element = document.createElement("div");
-  // element.className = rootStyles.bnRoot;
+  // We don't use the document body as a root as it would cause multiple React roots to be created on a single element
+  // if other menu factories do the same.
+  const menuRootElement = document.createElement("div");
+  // menuRootElement.className = rootStyles.bnRoot;
+  let menuRoot: Root | undefined;
 
-  const root = createRoot(element);
-
-  let menu = tippy(params.editorElement, {
-    duration: 0,
-    getReferenceClientRect: () => params.selectionBoundingBox,
-    content: element,
-    interactive: true,
-    trigger: "manual",
-    placement: "top",
-    hideOnClick: "toggle",
-  });
+  function getMenuComponent() {
+    return (
+      <MantineProvider theme={BlockNoteTheme}>
+        <Tippy
+          appendTo={menuRootElement}
+          content={<ReactBubbleMenu bubbleMenuProps={bubbleMenuProps} />}
+          duration={0}
+          getReferenceClientRect={() => params.selectionBoundingBox}
+          hideOnClick={false}
+          interactive={true}
+          placement={"top"}
+          showOnCreate={true}
+          trigger={"manual"}
+        />
+      </MantineProvider>
+    );
+  }
 
   return {
-    element: element as HTMLElement,
+    element: menuRootElement,
     show: (params: BubbleMenuParams) => {
       updateBubbleMenuProps(params);
 
-      root.render(
-        <MantineProvider theme={BlockNoteTheme}>
-          <ReactBubbleMenu bubbleMenuProps={bubbleMenuProps} />
-        </MantineProvider>
-      );
+      document.body.appendChild(menuRootElement);
+      menuRoot = createRoot(menuRootElement);
 
-      // Ensures that the component finishes rendering so that Tippy can display it in the correct position.
-      setTimeout(() => {
-        menu.setProps({
-          getReferenceClientRect: () => params.selectionBoundingBox,
-        });
-      });
-
-      menu.show();
+      menuRoot.render(getMenuComponent());
     },
-    hide: menu.hide,
+    hide: () => {
+      menuRoot!.unmount();
+
+      menuRootElement.remove();
+    },
     update: (params: BubbleMenuParams) => {
       updateBubbleMenuProps(params);
 
-      root.render(
-        <MantineProvider theme={BlockNoteTheme}>
-          <ReactBubbleMenu bubbleMenuProps={bubbleMenuProps} />
-        </MantineProvider>
-      );
-
-      // Ensures that the component finishes rendering so that Tippy can display it in the correct position.
-      setTimeout(() => {
-        menu.setProps({
-          getReferenceClientRect: () => params.selectionBoundingBox,
-        });
-      });
+      menuRoot!.render(getMenuComponent());
     },
   };
 };

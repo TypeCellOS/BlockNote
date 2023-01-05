@@ -4,6 +4,7 @@ import { DependencyList } from "react";
 import { getBlockNoteExtensions } from "./BlockNoteExtensions";
 import styles from "./editor.module.css";
 import rootStyles from "./root.module.css";
+import { MenuFactories } from "./BlockNoteEditor";
 
 type BlockNoteEditorOptions = EditorOptions & {
   enableBlockNoteExtensions: boolean;
@@ -22,12 +23,36 @@ const blockNoteOptions = {
  * Main hook for importing a BlockNote editor into a react project
  */
 export const useEditor = (
+  menuFactories: MenuFactories,
   options: Partial<BlockNoteEditorOptions> = {},
   deps: DependencyList = []
 ) => {
-  const extensions = options.disableHistoryExtension
+  let extensions = options.disableHistoryExtension
     ? blockNoteExtensions.filter((e) => e.name !== "history")
     : blockNoteExtensions;
+
+  // TODO: review
+  extensions = extensions.map((extension) => {
+    if (extension.name === "BubbleMenuExtension") {
+      return extension.configure({
+        bubbleMenuFactory: menuFactories.bubbleMenuFactory,
+      });
+    }
+
+    if (extension.name === "link") {
+      return extension.configure({
+        hyperlinkMenuFactory: menuFactories.hyperlinkMenuFactory,
+      });
+    }
+
+    if (extension.name === "slash-command") {
+      return extension.configure({
+        suggestionsMenuFactory: menuFactories.suggestionsMenuFactory,
+      });
+    }
+
+    return extension;
+  });
 
   const tiptapOptions = {
     ...blockNoteOptions,

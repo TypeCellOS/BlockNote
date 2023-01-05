@@ -1,13 +1,14 @@
-import { MantineProvider } from "@mantine/core";
-import { createRoot } from "react-dom/client";
-import tippy from "tippy.js";
-import { HyperlinkMenu, HyperlinkMenuProps } from "./components/HyperlinkMenu";
-import { BlockNoteTheme } from "../BlockNoteTheme";
+import { createRoot, Root } from "react-dom/client";
 import {
   HyperlinkHoverMenu,
   HyperlinkHoverMenuFactory,
   HyperlinkHoverMenuParams,
 } from "@blocknote/core";
+import { MantineProvider } from "@mantine/core";
+import Tippy from "@tippyjs/react";
+import { HyperlinkMenu, HyperlinkMenuProps } from "./components/HyperlinkMenu";
+import { BlockNoteTheme } from "../BlockNoteTheme";
+// import rootStyles from "../../../core/src/root.module.css";
 
 export const ReactHyperlinkMenuFactory: HyperlinkHoverMenuFactory = (
   params: HyperlinkHoverMenuParams
@@ -24,50 +25,49 @@ export const ReactHyperlinkMenuFactory: HyperlinkHoverMenuFactory = (
     hyperlinkMenuProps.text = params.hyperlinkText;
   }
 
-  const element = document.createElement("div");
+  // We don't use the document body as a root as it would cause multiple React roots to be created on a single element
+  // if other menu factories do the same.
+  const menuRootElement = document.createElement("div");
+  // menuRootElement.className = rootStyles.bnRoot;
+  let menuRoot: Root | undefined;
 
-  const root = createRoot(element);
-
-  const menu = tippy(params.editorElement, {
-    duration: 0,
-    getReferenceClientRect: () => params.hyperlinkBoundingBox,
-    content: element,
-    interactive: true,
-    trigger: "manual",
-    placement: "top",
-    hideOnClick: false,
-  });
+  function getMenuComponent() {
+    return (
+      <MantineProvider theme={BlockNoteTheme}>
+        <Tippy
+          appendTo={menuRootElement}
+          content={<HyperlinkMenu {...hyperlinkMenuProps} />}
+          duration={0}
+          getReferenceClientRect={() => params.hyperlinkBoundingBox}
+          hideOnClick={false}
+          interactive={true}
+          placement={"top"}
+          showOnCreate={true}
+          trigger={"manual"}
+        />
+      </MantineProvider>
+    );
+  }
 
   return {
-    element: element,
+    element: menuRootElement,
     show: (params: HyperlinkHoverMenuParams) => {
       updateHyperlinkMenuProps(params);
 
-      root.render(
-        <MantineProvider theme={BlockNoteTheme}>
-          <HyperlinkMenu {...hyperlinkMenuProps} />
-        </MantineProvider>
-      );
+      document.body.appendChild(menuRootElement);
+      menuRoot = createRoot(menuRootElement);
 
-      menu.setProps({
-        getReferenceClientRect: () => params.hyperlinkBoundingBox,
-      });
-
-      menu.show();
+      menuRoot.render(getMenuComponent());
     },
-    hide: menu.hide,
+    hide: () => {
+      menuRoot!.unmount();
+
+      menuRootElement.remove();
+    },
     update: (params: HyperlinkHoverMenuParams) => {
       updateHyperlinkMenuProps(params);
 
-      root.render(
-        <MantineProvider theme={BlockNoteTheme}>
-          <HyperlinkMenu {...hyperlinkMenuProps} />
-        </MantineProvider>
-      );
-
-      menu.setProps({
-        getReferenceClientRect: () => params.hyperlinkBoundingBox,
-      });
+      menuRoot!.render(getMenuComponent());
     },
   };
 };

@@ -161,6 +161,14 @@ export class BubbleMenuView {
       this.updateBubbleMenuParams();
       this.bubbleMenu.show(this.bubbleMenuParams);
       this.menuIsOpen = true;
+
+      // TODO: Is this necessary? Also for other menu plugins.
+      // Listener stops focus moving to the menu on click.
+      this.bubbleMenu.element!.addEventListener("mousedown", (event) =>
+        event.preventDefault()
+      );
+
+      return;
     }
 
     // Checks if menu should be updated.
@@ -169,6 +177,11 @@ export class BubbleMenuView {
       !this.preventShow &&
       (shouldShow || this.preventHide)
     ) {
+      // Hacky fix to account for animations. Since the bounding boxes/DOMRects of elements are calculated based on how
+      // they are displayed on the screen, we need to wait until a given animation is completed to get the correct
+      // values for the selectionBoundingBox param.
+      // TODO: Find a better solution. The delay can cause menu updates to occur while the menu is hidden, which may
+      //  cause issues depending on the menu factory implementation.
       setTimeout(() => {
         this.updateBubbleMenuParams();
         this.bubbleMenu.update(this.bubbleMenuParams);
@@ -185,6 +198,11 @@ export class BubbleMenuView {
     ) {
       this.bubbleMenu.hide();
       this.menuIsOpen = false;
+
+      // Listener stops focus moving to the menu on click.
+      this.bubbleMenu.element!.removeEventListener("mousedown", (event) =>
+        event.preventDefault()
+      );
 
       return;
     }
