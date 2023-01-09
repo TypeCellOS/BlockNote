@@ -105,6 +105,10 @@ class HyperlinkHoverMenuView {
   }
 
   update() {
+    if (!this.editor.view.hasFocus()) {
+      return;
+    }
+
     // Saves the currently hovered hyperlink mark before it's updated.
     const prevHyperlinkMark = this.hyperlinkMark;
 
@@ -203,6 +207,9 @@ class HyperlinkHoverMenuView {
           this.editor.schema.mark("link", { href: url })
         );
         this.editor.view.dispatch(tr);
+        this.editor.view.focus();
+
+        this.hyperlinkHoverMenu.hide();
       },
       deleteHyperlink: () => {
         this.editor.view.dispatch(
@@ -214,6 +221,9 @@ class HyperlinkHoverMenuView {
             )
             .setMeta("preventAutolink", true)
         );
+        this.editor.view.focus();
+
+        this.hyperlinkHoverMenu.hide();
       },
 
       hyperlinkBoundingBox: new DOMRect(),

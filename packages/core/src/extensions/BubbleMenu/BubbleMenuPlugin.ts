@@ -283,6 +283,7 @@ export class BubbleMenuView {
             .insertText(text, from, to)
             .addMark(from, from + text.length, mark)
         );
+        this.editor.view.focus();
       },
       paragraphIsActive:
         this.editor.state.selection.$from.node().type.name === "textContent",
