@@ -4,7 +4,7 @@ import {
   ToolbarButton,
   ToolbarButtonProps,
 } from "../../SharedComponents/Toolbar/components/ToolbarButton";
-import { EditHyperlinkMenu } from "../../HyperlinkMenus/EditHyperlinkMenu/components/EditHyperlinkMenu";
+import { EditHyperlinkMenu } from "../../HyperlinkMenu/EditHyperlinkMenu/components/EditHyperlinkMenu";
 
 type HyperlinkButtonProps = ToolbarButtonProps & {
   hyperlinkIsActive: boolean;
