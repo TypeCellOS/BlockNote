@@ -4,7 +4,10 @@ import "@blocknote/core/style.css";
 import { Editor } from "@tiptap/core";
 import styles from "./App.module.css";
 import {
+  ReactAddBlockButtonFactory,
   ReactBubbleMenuFactory,
+  ReactDragHandleFactory,
+  ReactDragHandleMenuFactory,
   ReactHyperlinkMenuFactory,
   ReactSuggestionsMenuFactory,
 } from "@blocknote/react";
@@ -15,7 +18,10 @@ type WindowWithProseMirror = Window &
 function App() {
   const editor = useEditor(
     {
+      addBlockButtonFactory: ReactAddBlockButtonFactory,
       bubbleMenuFactory: ReactBubbleMenuFactory,
+      dragHandleFactory: ReactDragHandleFactory,
+      dragHandleMenuFactory: ReactDragHandleMenuFactory,
       hyperlinkMenuFactory: ReactHyperlinkMenuFactory,
       suggestionsMenuFactory: ReactSuggestionsMenuFactory,
     },
