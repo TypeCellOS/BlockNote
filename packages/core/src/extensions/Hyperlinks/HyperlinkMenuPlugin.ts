@@ -2,26 +2,26 @@ import { Editor, getMarkRange, posToDOMRect, Range } from "@tiptap/core";
 import { Mark } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
 import {
-  HyperlinkHoverMenu,
-  HyperlinkHoverMenuFactory,
-  HyperlinkHoverMenuParams,
+  HyperlinkMenu,
+  HyperlinkMenuFactory,
+  HyperlinkMenuParams,
 } from "./HyperlinkMenuFactoryTypes";
 const PLUGIN_KEY = new PluginKey("HyperlinkMenuPlugin");
 
 export type HyperlinkMenuPluginProps = {
-  hyperlinkMenuFactory: HyperlinkHoverMenuFactory;
+  hyperlinkMenuFactory: HyperlinkMenuFactory;
 };
 
 export type HyperlinkHoverMenuViewProps = {
   editor: Editor;
-  hyperlinkHoverMenuFactory: HyperlinkHoverMenuFactory;
+  hyperlinkHoverMenuFactory: HyperlinkMenuFactory;
 };
 
 class HyperlinkHoverMenuView {
   editor: Editor;
 
-  hyperlinkHoverMenuParams: HyperlinkHoverMenuParams;
-  hyperlinkHoverMenu: HyperlinkHoverMenu;
+  hyperlinkHoverMenuParams: HyperlinkMenuParams;
+  hyperlinkHoverMenu: HyperlinkMenu;
 
   menuUpdateTimer: NodeJS.Timeout | undefined;
   startMenuUpdateTimer: () => void;
@@ -191,10 +191,10 @@ class HyperlinkHoverMenuView {
     }
   }
 
-  initHyperlinkHoverMenuParams() {
+  initHyperlinkHoverMenuParams(): HyperlinkMenuParams {
     return {
-      hyperlinkUrl: "",
-      hyperlinkText: "",
+      url: "",
+      text: "",
       editHyperlink: (url: string, text: string) => {
         const tr = this.editor.view.state.tr.insertText(
           text,
@@ -226,16 +226,15 @@ class HyperlinkHoverMenuView {
         this.hyperlinkHoverMenu.hide();
       },
 
-      hyperlinkBoundingBox: new DOMRect(),
+      boundingBox: new DOMRect(),
       editorElement: this.editor.options.element,
     };
   }
 
   updateHyperlinkHoverMenuParams() {
     if (this.hyperlinkMark) {
-      this.hyperlinkHoverMenuParams.hyperlinkUrl =
-        this.hyperlinkMark.attrs.href;
-      this.hyperlinkHoverMenuParams.hyperlinkText =
+      this.hyperlinkHoverMenuParams.url = this.hyperlinkMark.attrs.href;
+      this.hyperlinkHoverMenuParams.text =
         this.editor.view.state.doc.textBetween(
           this.hyperlinkMarkRange!.from,
           this.hyperlinkMarkRange!.to
@@ -243,7 +242,7 @@ class HyperlinkHoverMenuView {
     }
 
     if (this.hyperlinkMarkRange) {
-      this.hyperlinkHoverMenuParams.hyperlinkBoundingBox = posToDOMRect(
+      this.hyperlinkHoverMenuParams.boundingBox = posToDOMRect(
         this.editor.view,
         this.hyperlinkMarkRange!.from,
         this.hyperlinkMarkRange!.to

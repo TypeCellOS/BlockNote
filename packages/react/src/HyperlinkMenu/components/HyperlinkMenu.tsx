@@ -8,8 +8,8 @@ import { RiExternalLinkFill, RiLinkUnlink } from "react-icons/ri";
 export type HyperlinkMenuProps = {
   url: string;
   text: string;
-  update: (url: string, text: string) => void;
-  remove: () => void;
+  editHyperlink: (url: string, text: string) => void;
+  deleteHyperlink: () => void;
 };
 
 /**
@@ -24,7 +24,7 @@ export const HyperlinkMenu = (props: HyperlinkMenuProps) => {
       <EditHyperlinkMenu
         url={props.url}
         text={props.text}
-        update={props.update}
+        update={props.editHyperlink}
       />
     );
   }
@@ -48,7 +48,7 @@ export const HyperlinkMenu = (props: HyperlinkMenuProps) => {
       <ToolbarButton
         mainTooltip="Remove link"
         isSelected={false}
-        onClick={props.remove}
+        onClick={props.deleteHyperlink}
         icon={RiLinkUnlink}
       />
     </Toolbar>

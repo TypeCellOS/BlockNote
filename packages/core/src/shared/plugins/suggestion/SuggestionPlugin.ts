@@ -162,7 +162,7 @@ class SuggestionPluginView<T extends SuggestionItem> {
     }
   }
 
-  initSuggestionsMenuParams() {
+  initSuggestionsMenuParams(): SuggestionsMenuParams<T> {
     return {
       items: [],
       selectedItemIndex: 0,

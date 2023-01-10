@@ -237,7 +237,7 @@ export class BubbleMenuView {
     return posToDOMRect(this.editor.view, from, to);
   }
 
-  initBubbleMenuParams() {
+  initBubbleMenuParams(): BubbleMenuParams {
     return {
       boldIsActive: this.editor.isActive("bold"),
       toggleBold: () => {

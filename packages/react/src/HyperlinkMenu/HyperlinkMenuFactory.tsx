@@ -1,28 +1,26 @@
 import { createRoot, Root } from "react-dom/client";
 import {
-  HyperlinkHoverMenu,
-  HyperlinkHoverMenuFactory,
-  HyperlinkHoverMenuParams,
+  HyperlinkMenu,
+  HyperlinkMenuFactory,
+  HyperlinkMenuParams,
 } from "@blocknote/core";
 import { MantineProvider } from "@mantine/core";
 import Tippy from "@tippyjs/react";
-import { HyperlinkMenu, HyperlinkMenuProps } from "./components/HyperlinkMenu";
+import {
+  HyperlinkMenu as ReactHyperlinkMenu,
+  HyperlinkMenuProps,
+} from "./components/HyperlinkMenu";
 import { BlockNoteTheme } from "../BlockNoteTheme";
 // import rootStyles from "../../../core/src/root.module.css";
 
-export const ReactHyperlinkMenuFactory: HyperlinkHoverMenuFactory = (
-  params: HyperlinkHoverMenuParams
-): HyperlinkHoverMenu => {
-  const hyperlinkMenuProps: HyperlinkMenuProps = {
-    url: params.hyperlinkUrl,
-    text: params.hyperlinkText,
-    update: params.editHyperlink,
-    remove: params.deleteHyperlink,
-  };
+export const ReactHyperlinkMenuFactory: HyperlinkMenuFactory = (
+  params: HyperlinkMenuParams
+): HyperlinkMenu => {
+  const hyperlinkMenuProps: HyperlinkMenuProps = { ...params };
 
-  function updateHyperlinkMenuProps(params: HyperlinkHoverMenuParams) {
-    hyperlinkMenuProps.url = params.hyperlinkUrl;
-    hyperlinkMenuProps.text = params.hyperlinkText;
+  function updateHyperlinkMenuProps(params: HyperlinkMenuParams) {
+    hyperlinkMenuProps.url = params.url;
+    hyperlinkMenuProps.text = params.text;
   }
 
   // We don't use the document body as a root as it would cause multiple React roots to be created on a single element
@@ -36,9 +34,9 @@ export const ReactHyperlinkMenuFactory: HyperlinkHoverMenuFactory = (
       <MantineProvider theme={BlockNoteTheme}>
         <Tippy
           appendTo={menuRootElement}
-          content={<HyperlinkMenu {...hyperlinkMenuProps} />}
+          content={<ReactHyperlinkMenu {...hyperlinkMenuProps} />}
           duration={0}
-          getReferenceClientRect={() => params.hyperlinkBoundingBox}
+          getReferenceClientRect={() => params.boundingBox}
           hideOnClick={false}
           interactive={true}
           placement={"top"}
@@ -51,7 +49,7 @@ export const ReactHyperlinkMenuFactory: HyperlinkHoverMenuFactory = (
 
   return {
     element: menuRootElement,
-    show: (params: HyperlinkHoverMenuParams) => {
+    show: (params: HyperlinkMenuParams) => {
       updateHyperlinkMenuProps(params);
 
       document.body.appendChild(menuRootElement);
@@ -64,7 +62,7 @@ export const ReactHyperlinkMenuFactory: HyperlinkHoverMenuFactory = (
 
       menuRootElement.remove();
     },
-    update: (params: HyperlinkHoverMenuParams) => {
+    update: (params: HyperlinkMenuParams) => {
       updateHyperlinkMenuProps(params);
 
       menuRoot!.render(getMenuComponent());
