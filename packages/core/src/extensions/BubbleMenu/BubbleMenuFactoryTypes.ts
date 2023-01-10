@@ -1,4 +1,4 @@
-import { Menu, MenuFactory } from "../../MenuFactoryTypes";
+import { EditorElement, ElementFactory } from "../../EditorElement";
 
 export type BubbleMenuParams = {
   boldIsActive: boolean;
@@ -27,5 +27,5 @@ export type BubbleMenuParams = {
   editorElement: Element;
 };
 
-export type BubbleMenu = Menu<BubbleMenuParams>;
-export type BubbleMenuFactory = MenuFactory<BubbleMenuParams>;
+export type BubbleMenu = EditorElement<BubbleMenuParams>;
+export type BubbleMenuFactory = ElementFactory<BubbleMenuParams>;

@@ -1,12 +1,17 @@
-import { Editor } from "@tiptap/core";
 import { Node } from "prosemirror-model";
 import { NodeSelection, Plugin, PluginKey, Selection } from "prosemirror-state";
 import * as pv from "prosemirror-view";
 import { EditorView } from "prosemirror-view";
-import { createRoot, Root } from "react-dom/client";
 // import { BlockNoteTheme } from "../../BlockNoteTheme";
 import { MultipleNodeSelection } from "../Blocks/MultipleNodeSelection";
-import { DragHandle } from "./components/DragHandle";
+import { DraggableBlocksOptions } from "./DraggableBlocksExtension";
+import {
+  AddBlockButtonParams,
+  DragHandleMenuParams,
+  DragHandleParams,
+} from "./DragMenuFactoryTypes";
+import { getBlockInfoFromPos } from "../Blocks/helpers/getBlockInfoFromPos";
+import { SlashMenuPluginKey } from "../SlashMenu/SlashMenuExtension";
 
 const serializeForClipboard = (pv as any).__serializeForClipboard;
 // code based on https://github.com/ueberdosis/tiptap/issues/323#issuecomment-506637799
@@ -217,52 +222,131 @@ function dragStart(e: DragEvent, view: EditorView) {
   }
 }
 
-export const createDraggableBlocksPlugin = (editor: Editor) => {
-  let dropElement: HTMLElement | undefined;
-  let dropElementRoot: Root | undefined;
-
-  const WIDTH = 48;
-
+export const createDraggableBlocksPlugin = (
+  options: DraggableBlocksOptions
+) => {
   // When true, the drag handle with be anchored at the same level as root elements
   // When false, the drag handle with be just to the left of the element
   const horizontalPosAnchoredAtRoot = true;
+  // Determines if the drag handle and add block buttons should be visible. Gets set to true on mouse move events. Gets
+  // set to false on mouse click and key down events.
+  let blockButtonsVisible = false;
+  // Determines if the drag handle and add block buttons should be frozen, i.e. should not update on mouse move. Gets
+  // set to true when clicking the add block button. Gets set to false on mouse click and key down events.
+  let blockButtonsFrozen = false;
 
-  let menuShown = false;
-  let addClicked = false;
+  // Declares callback functions for use for params in drag handle, drag handle menu, and add block button factories.
+  function addBlock(coords: { left: number; top: number }) {
+    blockButtonsFrozen = true;
 
-  const onShow = () => {
-    menuShown = true;
+    const pos = options.editor.view.posAtCoords(coords);
+    if (!pos) {
+      return;
+    }
+
+    const blockInfo = getBlockInfoFromPos(options.editor.state.doc, pos.pos);
+    if (blockInfo === undefined) {
+      return;
+    }
+
+    const { contentNode, endPos } = blockInfo;
+
+    // Creates a new block if current one is not empty for the suggestion menu to open in.
+    if (contentNode.textContent.length !== 0) {
+      const newBlockInsertionPos = endPos + 1;
+      const newBlockContentPos = newBlockInsertionPos + 2;
+
+      options.editor
+        .chain()
+        .BNCreateBlock(newBlockInsertionPos)
+        .BNSetContentType(newBlockContentPos, "textContent")
+        .setTextSelection(newBlockContentPos)
+        .run();
+    }
+
+    // Focuses and activates the suggestion menu.
+    options.editor.view.focus();
+    options.editor.view.dispatch(
+      options.editor.view.state.tr
+        .scrollIntoView()
+        .setMeta(SlashMenuPluginKey, {
+          // TODO import suggestion plugin key
+          activate: true,
+          type: "drag",
+        })
+    );
+  }
+
+  function deleteBlock(coords: { left: number; top: number }) {
+    dragHandleMenu.hide();
+
+    const pos = options.editor.view.posAtCoords(coords);
+    if (!pos) {
+      return;
+    }
+
+    options.editor.commands.BNDeleteBlock(pos.pos);
+  }
+
+  // Initializes params for use in drag handle, drag handle menu, and add block button factories.
+  const addBlockButtonParams: AddBlockButtonParams = {
+    addBlock: () => addBlock({ left: 0, top: 0 }),
+    blockBoundingBox: new DOMRect(),
   };
-  const onHide = () => {
-    menuShown = false;
+  const dragHandleParams: DragHandleParams = {
+    blockBoundingBox: new DOMRect(),
   };
-  const onAddClicked = () => {
-    addClicked = true;
+  const dragHandleMenuParams: DragHandleMenuParams = {
+    deleteBlock: () => deleteBlock({ left: 0, top: 0 }),
+    dragHandleBoundingBox: new DOMRect(),
   };
+
+  // Creates drag handle, drag handle menu, and add block button editor elements.
+  const addBlockButton = options.addBlockButtonFactory(addBlockButtonParams);
+  const dragHandle = options.dragHandleFactory(dragHandleParams);
+  const dragHandleMenu = options.dragHandleMenuFactory(dragHandleMenuParams);
+
+  // Declares additional listeners to attach to the drag handle element for drag/drop & menu opening.
+  const dragStartCallback = (event: DragEvent) =>
+    dragStart(event, options.editor.view);
+  const dragEndCallback = (_event: DragEvent) => unsetDragImage();
+  const clickCallback = (_event: MouseEvent) => {
+    dragHandleMenu.show(dragHandleMenuParams);
+    blockButtonsFrozen = true;
+  };
+
+  function addDragHandleListeners() {
+    dragHandle.element!.addEventListener("dragstart", dragStartCallback);
+    dragHandle.element!.addEventListener("dragend", dragEndCallback);
+    dragHandle.element!.addEventListener("click", clickCallback);
+  }
+
+  function removeDragHandleListeners() {
+    dragHandle.element!.removeEventListener("dragstart", dragStartCallback);
+    dragHandle.element!.removeEventListener("dragend", dragEndCallback);
+    dragHandle.element!.removeEventListener("click", clickCallback);
+  }
+
+  // Hides drag handle, drag handle menu, and add block button when scrolling.
+  window.addEventListener("scroll", () => {
+    blockButtonsVisible = false;
+    blockButtonsFrozen = false;
+
+    addBlockButton.hide();
+    dragHandle.hide();
+    removeDragHandleListeners();
+    dragHandleMenu.hide();
+  });
 
   return new Plugin({
     key: new PluginKey("DraggableBlocksPlugin"),
-    view(editorView) {
-      dropElement = document.createElement("div");
-      dropElement.setAttribute("draggable", "true");
-      dropElement.style.position = "absolute";
-      dropElement.style.height = "24px"; // default height
-      document.body.append(dropElement);
-
-      dropElement.addEventListener("dragstart", (e) =>
-        dragStart(e, editorView)
-      );
-      dropElement.addEventListener("dragend", () => unsetDragImage());
-      dropElementRoot = createRoot(dropElement);
+    view() {
       return {
-        // update(view, prevState) {},
         destroy() {
-          if (!dropElement) {
-            throw new Error("unexpected");
-          }
-          dropElement.parentNode!.removeChild(dropElement);
-          dropElement = undefined;
-          dropElementRoot = undefined;
+          addBlockButton.hide();
+          dragHandle.hide();
+          removeDragHandleListeners();
+          dragHandleMenu.hide();
         },
       };
     },
@@ -281,12 +365,13 @@ export const createDraggableBlocksPlugin = (editor: Editor) => {
       //       return true;
       //     },
       handleKeyDown(_view, _event) {
-        if (!dropElementRoot) {
-          throw new Error("unexpected");
-        }
-        menuShown = false;
-        addClicked = false;
-        dropElementRoot.render(<></>);
+        blockButtonsVisible = false;
+        blockButtonsFrozen = false;
+
+        addBlockButton.hide();
+        dragHandle.hide();
+        removeDragHandleListeners();
+
         return false;
       },
       handleDOMEvents: {
@@ -295,32 +380,27 @@ export const createDraggableBlocksPlugin = (editor: Editor) => {
         //   return false;
         // },
         mouseleave(_view, _event: any) {
-          if (!dropElement) {
-            throw new Error("unexpected");
-          }
           // TODO
           // dropElement.style.display = "none";
           return true;
         },
         mousedown(_view, _event: any) {
-          if (!dropElementRoot) {
-            throw new Error("unexpected");
-          }
-          menuShown = false;
-          addClicked = false;
-          dropElementRoot.render(<></>);
+          blockButtonsVisible = false;
+          blockButtonsFrozen = false;
+
+          addBlockButton.hide();
+          dragHandle.hide();
+          removeDragHandleListeners();
+          dragHandleMenu.hide();
+
           return false;
         },
         mousemove(view, event: any) {
-          if (!dropElementRoot || !dropElement) {
-            throw new Error("unexpected");
-          }
-
-          if (menuShown || addClicked) {
-            // The submenu is open, don't move draghandle
-            // Or if the user clicked the add button
+          if (blockButtonsFrozen) {
             return true;
           }
+
+          // Gets block at mouse Y coordinate.
           const coords = {
             left: view.dom.clientWidth / 2, // take middle of editor
             top: event.clientY,
@@ -341,33 +421,43 @@ export const createDraggableBlocksPlugin = (editor: Editor) => {
             return true;
           }
 
-          const rect = absoluteRect(blockContent);
-          const win = block.node.ownerDocument.defaultView!;
-          const dropElementRect = dropElement.getBoundingClientRect();
-          const left =
-            (horizontalPosAnchoredAtRoot ? getHorizontalAnchor() : rect.left) -
-            WIDTH +
-            win.pageXOffset;
-          rect.top +=
-            rect.height / 2 - dropElementRect.height / 2 + win.pageYOffset;
+          // Gets bounding box of relevant block.
+          const blockBoundingBox = blockContent.getBoundingClientRect();
+          blockBoundingBox.x = horizontalPosAnchoredAtRoot
+            ? getHorizontalAnchor()
+            : blockBoundingBox.left;
 
-          dropElement.style.left = left + "px";
-          dropElement.style.top = rect.top + "px";
+          // Updates element params.
+          addBlockButtonParams.addBlock = () =>
+            addBlock({
+              left: blockBoundingBox.left,
+              top: blockBoundingBox.top,
+            });
+          addBlockButtonParams.blockBoundingBox = blockBoundingBox;
 
-          // MantineProvider has been commented out because I removed
-          // BlockNoteTheme. I know this will be part of the DraggableBlocks rewrite anyway
-          dropElementRoot.render(
-            // <MantineProvider theme={BlockNoteTheme}>
-            <DragHandle
-              key={block.id + ""}
-              editor={editor}
-              coords={coords}
-              onShow={onShow}
-              onHide={onHide}
-              onAddClicked={onAddClicked}
-            />
-            // </MantineProvider>
-          );
+          dragHandleParams.blockBoundingBox = blockBoundingBox;
+
+          dragHandleMenuParams.deleteBlock = () =>
+            deleteBlock({
+              left: blockBoundingBox.left,
+              top: blockBoundingBox.top,
+            });
+          dragHandleMenuParams.dragHandleBoundingBox = blockBoundingBox;
+
+          // Shows or updates elements.
+          if (!blockButtonsVisible) {
+            blockButtonsVisible = true;
+
+            dragHandle.show(dragHandleParams);
+            addBlockButton.show(addBlockButtonParams);
+
+            dragHandle.element!.setAttribute("draggable", "true");
+            addDragHandleListeners();
+          } else {
+            dragHandle.update(dragHandleParams);
+            addBlockButton.update(addBlockButtonParams);
+          }
+
           return true;
         },
       },
