@@ -12,16 +12,16 @@ export type HyperlinkMenuPluginProps = {
   hyperlinkMenuFactory: HyperlinkMenuFactory;
 };
 
-export type HyperlinkHoverMenuViewProps = {
+export type HyperlinkMenuViewProps = {
   editor: Editor;
-  hyperlinkHoverMenuFactory: HyperlinkMenuFactory;
+  hyperlinkMenuFactory: HyperlinkMenuFactory;
 };
 
-class HyperlinkHoverMenuView {
+class HyperlinkMenuView {
   editor: Editor;
 
-  hyperlinkHoverMenuParams: HyperlinkMenuParams;
-  hyperlinkHoverMenu: HyperlinkMenu;
+  hyperlinkMenuParams: HyperlinkMenuParams;
+  hyperlinkMenu: HyperlinkMenu;
 
   menuUpdateTimer: NodeJS.Timeout | undefined;
   startMenuUpdateTimer: () => void;
@@ -36,16 +36,11 @@ class HyperlinkHoverMenuView {
   hyperlinkMark: Mark | undefined;
   hyperlinkMarkRange: Range | undefined;
 
-  constructor({
-    editor,
-    hyperlinkHoverMenuFactory,
-  }: HyperlinkHoverMenuViewProps) {
+  constructor({ editor, hyperlinkMenuFactory }: HyperlinkMenuViewProps) {
     this.editor = editor;
 
-    this.hyperlinkHoverMenuParams = this.initHyperlinkHoverMenuParams();
-    this.hyperlinkHoverMenu = hyperlinkHoverMenuFactory(
-      this.hyperlinkHoverMenuParams
-    );
+    this.hyperlinkMenuParams = this.initHyperlinkMenuParams();
+    this.hyperlinkMenu = hyperlinkMenuFactory(this.hyperlinkMenuParams);
 
     this.startMenuUpdateTimer = () => {
       this.menuUpdateTimer = setTimeout(() => {
@@ -152,17 +147,17 @@ class HyperlinkHoverMenuView {
     }
 
     if (this.hyperlinkMark) {
-      this.updateHyperlinkHoverMenuParams();
+      this.updateHyperlinkMenuParams();
 
       // Shows menu.
       if (!prevHyperlinkMark) {
-        this.hyperlinkHoverMenu.show(this.hyperlinkHoverMenuParams);
+        this.hyperlinkMenu.show(this.hyperlinkMenuParams);
 
-        this.hyperlinkHoverMenu.element?.addEventListener(
+        this.hyperlinkMenu.element?.addEventListener(
           "mouseleave",
           this.startMenuUpdateTimer
         );
-        this.hyperlinkHoverMenu.element?.addEventListener(
+        this.hyperlinkMenu.element?.addEventListener(
           "mouseenter",
           this.stopMenuUpdateTimer
         );
@@ -171,27 +166,27 @@ class HyperlinkHoverMenuView {
       }
 
       // Updates menu.
-      this.hyperlinkHoverMenu.update(this.hyperlinkHoverMenuParams);
+      this.hyperlinkMenu.update(this.hyperlinkMenuParams);
     }
 
     // Hides menu.
     if (prevHyperlinkMark && !this.hyperlinkMark) {
-      this.hyperlinkHoverMenu.element?.removeEventListener(
+      this.hyperlinkMenu.element?.removeEventListener(
         "mouseleave",
         this.startMenuUpdateTimer
       );
-      this.hyperlinkHoverMenu.element?.removeEventListener(
+      this.hyperlinkMenu.element?.removeEventListener(
         "mouseenter",
         this.stopMenuUpdateTimer
       );
 
-      this.hyperlinkHoverMenu.hide();
+      this.hyperlinkMenu.hide();
 
       return;
     }
   }
 
-  initHyperlinkHoverMenuParams(): HyperlinkMenuParams {
+  initHyperlinkMenuParams(): HyperlinkMenuParams {
     return {
       url: "",
       text: "",
@@ -209,7 +204,7 @@ class HyperlinkHoverMenuView {
         this.editor.view.dispatch(tr);
         this.editor.view.focus();
 
-        this.hyperlinkHoverMenu.hide();
+        this.hyperlinkMenu.hide();
       },
       deleteHyperlink: () => {
         this.editor.view.dispatch(
@@ -223,7 +218,7 @@ class HyperlinkHoverMenuView {
         );
         this.editor.view.focus();
 
-        this.hyperlinkHoverMenu.hide();
+        this.hyperlinkMenu.hide();
       },
 
       boundingBox: new DOMRect(),
@@ -231,18 +226,17 @@ class HyperlinkHoverMenuView {
     };
   }
 
-  updateHyperlinkHoverMenuParams() {
+  updateHyperlinkMenuParams() {
     if (this.hyperlinkMark) {
-      this.hyperlinkHoverMenuParams.url = this.hyperlinkMark.attrs.href;
-      this.hyperlinkHoverMenuParams.text =
-        this.editor.view.state.doc.textBetween(
-          this.hyperlinkMarkRange!.from,
-          this.hyperlinkMarkRange!.to
-        );
+      this.hyperlinkMenuParams.url = this.hyperlinkMark.attrs.href;
+      this.hyperlinkMenuParams.text = this.editor.view.state.doc.textBetween(
+        this.hyperlinkMarkRange!.from,
+        this.hyperlinkMarkRange!.to
+      );
     }
 
     if (this.hyperlinkMarkRange) {
-      this.hyperlinkHoverMenuParams.boundingBox = posToDOMRect(
+      this.hyperlinkMenuParams.boundingBox = posToDOMRect(
         this.editor.view,
         this.hyperlinkMarkRange!.from,
         this.hyperlinkMarkRange!.to
@@ -258,9 +252,9 @@ export const createHyperlinkMenuPlugin = (
   return new Plugin({
     key: PLUGIN_KEY,
     view: () =>
-      new HyperlinkHoverMenuView({
+      new HyperlinkMenuView({
         editor: editor,
-        hyperlinkHoverMenuFactory: options.hyperlinkMenuFactory,
+        hyperlinkMenuFactory: options.hyperlinkMenuFactory,
       }),
   });
 };
