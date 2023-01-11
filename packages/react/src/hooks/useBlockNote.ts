@@ -22,7 +22,7 @@ export const useBlockNote = (
   options: Partial<BlockNoteEditorOptions> = {},
   deps: DependencyList = []
 ) => {
-  const [editor, setEditor] = useState<BlockNoteEditor | null>();
+  const [editor, setEditor] = useState<BlockNoteEditor | null>(null);
   const forceUpdate = useForceUpdate();
   // useEditorForceUpdate(editor.tiptapEditor);
 
