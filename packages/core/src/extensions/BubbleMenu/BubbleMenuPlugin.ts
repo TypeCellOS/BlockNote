@@ -177,15 +177,8 @@ export class BubbleMenuView {
       !this.preventShow &&
       (shouldShow || this.preventHide)
     ) {
-      // Hacky fix to account for animations. Since the bounding boxes/DOMRects of elements are calculated based on how
-      // they are displayed on the screen, we need to wait until a given animation is completed to get the correct
-      // values for the selectionBoundingBox param.
-      // TODO: Find a better solution. The delay can cause menu updates to occur while the menu is hidden, which may
-      //  cause issues depending on the menu factory implementation.
-      setTimeout(() => {
-        this.updateBubbleMenuParams();
-        this.bubbleMenu.update(this.bubbleMenuParams);
-      }, 400);
+      this.updateBubbleMenuParams();
+      this.bubbleMenu.update(this.bubbleMenuParams);
 
       return;
     }
