@@ -1,5 +1,3 @@
-import { IconType } from "react-icons";
-
 /**
  * A generic interface used in all suggestion menus (slash menu, mentions, etc)
  */
@@ -13,11 +11,6 @@ export interface SuggestionItem {
    * The name of the group to which this item belongs
    */
   groupName: string;
-
-  /**
-   * The react icon
-   */
-  icon?: IconType;
 
   hint?: string;
 

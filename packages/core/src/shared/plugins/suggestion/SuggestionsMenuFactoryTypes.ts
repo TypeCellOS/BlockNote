@@ -1,5 +1,5 @@
+import { EditorElement, ElementFactory } from "../../EditorElement";
 import { SuggestionItem } from "./SuggestionItem";
-import { EditorElement, ElementFactory } from "../../../EditorElement";
 
 export type SuggestionsMenuParams<T extends SuggestionItem> = {
   items: T[];
