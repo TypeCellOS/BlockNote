@@ -23,7 +23,7 @@
     "build": "tsc && vite build",
     "build-bundled": "tsc && vite build --config vite.config.bundled.ts && git checkout tmp-releases && rm -rf ../../release && mv ../../release-tmp ../../release",
     "preview": "vite preview",
-    "lint": "eslint ../menus/src --max-warnings 0"
+    "lint": "eslint src --max-warnings 0"
   },
   "dependencies": {
     "@mantine/core": "^5.6.1",

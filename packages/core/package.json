@@ -74,8 +74,6 @@
   },
   "devDependencies": {
     "@types/lodash": "^4.14.179",
-    "@types/react": "^18.0.25",
-    "@types/react-dom": "^18.0.9",
     "@types/uuid": "^8.3.4",
     "eslint": "^8.10.0",
     "eslint-config-react-app": "^7.0.0",
