@@ -29,7 +29,8 @@
     "@mantine/core": "^5.6.1",
     "@blocknote/core": "^0.1.2",
     "@tippyjs/react": "^4.2.6",
-    "@tiptap/react": "^2.0.0-beta.207"
+    "@tiptap/react": "^2.0.0-beta.207",
+    "react-icons": "^4.3.1"
   },
   "devDependencies": {
     "@types/react": "^18.0.25",
