@@ -1,5 +1,6 @@
 import { Editor, EditorOptions } from "@tiptap/core";
 
+// import "./blocknote.css";
 import { getBlockNoteExtensions } from "./BlockNoteExtensions";
 import styles from "./editor.module.css";
 import { BubbleMenuFactory } from "./extensions/BubbleMenu/BubbleMenuFactoryTypes";
