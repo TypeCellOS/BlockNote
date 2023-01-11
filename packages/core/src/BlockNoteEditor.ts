@@ -9,7 +9,6 @@ import {
   DragHandleMenuFactory,
 } from "./extensions/DraggableBlocks/DragMenuFactoryTypes";
 import { HyperlinkMenuFactory } from "./extensions/Hyperlinks/HyperlinkMenuFactoryTypes";
-import rootStyles from "./root.module.css";
 import { SuggestionItem } from "./shared/plugins/suggestion/SuggestionItem";
 import { SuggestionsMenuFactory } from "./shared/plugins/suggestion/SuggestionsMenuFactoryTypes";
 
@@ -97,7 +96,7 @@ export class BlockNoteEditor {
           ...(options.editorProps?.attributes || {}),
           class: [
             styles.bnEditor,
-            rootStyles.bnRoot,
+            styles.bnRoot,
             (options.editorProps?.attributes as any)?.class || "",
           ].join(" "),
         },

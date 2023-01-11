@@ -1,5 +1,3 @@
-import "./globals.css";
-
 export * from "./BlockNoteEditor";
 export * from "./BlockNoteExtensions";
 export * from "./extensions/BubbleMenu/BubbleMenuFactoryTypes";

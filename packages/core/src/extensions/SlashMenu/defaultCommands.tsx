@@ -1,4 +1,4 @@
-import { formatKeyboardShortcut } from "../../utils";
+import { formatKeyboardShortcut } from "../../shared/utils";
 import { SlashMenuGroups, SlashMenuItem } from "./SlashMenuItem";
 
 /**

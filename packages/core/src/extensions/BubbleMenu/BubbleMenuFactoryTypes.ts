@@ -1,4 +1,4 @@
-import { EditorElement, ElementFactory } from "../../EditorElement";
+import { EditorElement, ElementFactory } from "../../shared/EditorElement";
 
 export type BubbleMenuParams = {
   boldIsActive: boolean;
