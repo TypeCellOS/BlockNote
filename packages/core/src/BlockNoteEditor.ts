@@ -16,14 +16,14 @@ import { SuggestionsMenuFactory } from "./shared/plugins/suggestion/SuggestionsM
 export type BlockNoteEditorOptions = EditorOptions & {
   enableBlockNoteExtensions: boolean;
   disableHistoryExtension: boolean;
-  uiFactories: {
+  uiFactories: Partial<{
     bubbleMenuFactory: BubbleMenuFactory;
     hyperlinkMenuFactory: HyperlinkMenuFactory;
     suggestionsMenuFactory: SuggestionsMenuFactory<SuggestionItem>;
     addBlockButtonFactory: AddBlockButtonFactory;
     dragHandleFactory: DragHandleFactory;
     dragHandleMenuFactory: DragHandleMenuFactory;
-  };
+  }>;
 };
 
 const blockNoteExtensions = getBlockNoteExtensions();
