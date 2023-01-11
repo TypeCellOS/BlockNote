@@ -3,20 +3,27 @@ import { Editor, EditorOptions } from "@tiptap/core";
 import { getBlockNoteExtensions } from "./BlockNoteExtensions";
 import styles from "./editor.module.css";
 import { BubbleMenuFactory } from "./extensions/BubbleMenu/BubbleMenuFactoryTypes";
-import { HyperlinkHoverMenuFactory } from "./extensions/Hyperlinks/HyperlinkMenuFactoryTypes";
-import { SuggestionsMenuFactory } from "./shared/plugins/suggestion/SuggestionsMenuFactoryTypes";
+import {
+  AddBlockButtonFactory,
+  DragHandleFactory,
+  DragHandleMenuFactory,
+} from "./extensions/DraggableBlocks/DragMenuFactoryTypes";
+import { HyperlinkMenuFactory } from "./extensions/Hyperlinks/HyperlinkMenuFactoryTypes";
 import rootStyles from "./root.module.css";
 import { SuggestionItem } from "./shared/plugins/suggestion/SuggestionItem";
+import { SuggestionsMenuFactory } from "./shared/plugins/suggestion/SuggestionsMenuFactoryTypes";
 
-type BlockNoteEditorOptions = EditorOptions & {
+export type BlockNoteEditorOptions = EditorOptions & {
   enableBlockNoteExtensions: boolean;
   disableHistoryExtension: boolean;
-};
-
-export type MenuFactories = {
-  bubbleMenuFactory: BubbleMenuFactory;
-  hyperlinkMenuFactory: HyperlinkHoverMenuFactory;
-  suggestionsMenuFactory: SuggestionsMenuFactory<SuggestionItem>;
+  uiFactories: {
+    bubbleMenuFactory: BubbleMenuFactory;
+    hyperlinkMenuFactory: HyperlinkMenuFactory;
+    suggestionsMenuFactory: SuggestionsMenuFactory<SuggestionItem>;
+    addBlockButtonFactory: AddBlockButtonFactory;
+    dragHandleFactory: DragHandleFactory;
+    dragHandleMenuFactory: DragHandleMenuFactory;
+  };
 };
 
 const blockNoteExtensions = getBlockNoteExtensions();
@@ -27,55 +34,78 @@ const blockNoteOptions = {
   enableCoreExtensions: false,
 };
 
-export const mountBlockNoteEditor = (
-  menuFactories: MenuFactories,
-  options: Partial<BlockNoteEditorOptions> = {}
-) => {
-  let extensions = options.disableHistoryExtension
-    ? blockNoteExtensions.filter((e) => e.name !== "history")
-    : blockNoteExtensions;
+export class BlockNoteEditor {
+  public readonly tiptapEditor: Editor & { contentComponent: any };
 
-  // TODO: review
-  extensions = extensions.map((extension) => {
-    if (extension.name === "BubbleMenuExtension") {
-      return extension.configure({
-        bubbleMenuFactory: menuFactories.bubbleMenuFactory,
-      });
-    }
+  constructor(options: Partial<BlockNoteEditorOptions> = {}) {
+    let extensions = options.disableHistoryExtension
+      ? blockNoteExtensions.filter((e) => e.name !== "history")
+      : blockNoteExtensions;
 
-    if (extension.name === "link") {
-      return extension.configure({
-        hyperlinkMenuFactory: menuFactories.hyperlinkMenuFactory,
-      });
-    }
+    // TODO: review
+    extensions = extensions.map((extension) => {
+      if (
+        extension.name === "BubbleMenuExtension" &&
+        options.uiFactories?.bubbleMenuFactory
+      ) {
+        return extension.configure({
+          bubbleMenuFactory: options.uiFactories.bubbleMenuFactory,
+        });
+      }
 
-    if (extension.name === "slash-command") {
-      return extension.configure({
-        suggestionsMenuFactory: menuFactories.suggestionsMenuFactory,
-      });
-    }
+      if (
+        extension.name === "link" &&
+        options.uiFactories?.hyperlinkMenuFactory
+      ) {
+        return extension.configure({
+          hyperlinkMenuFactory: options.uiFactories.hyperlinkMenuFactory,
+        });
+      }
 
-    return extension;
-  });
+      if (
+        extension.name === "slash-command" &&
+        options.uiFactories?.suggestionsMenuFactory
+      ) {
+        return extension.configure({
+          suggestionsMenuFactory: options.uiFactories.suggestionsMenuFactory,
+        });
+      }
 
-  const tiptapOptions = {
-    ...blockNoteOptions,
-    ...options,
-    extensions:
-      options.enableBlockNoteExtensions === false
-        ? options.extensions
-        : [...(options.extensions || []), ...extensions],
-    editorProps: {
-      attributes: {
-        ...(options.editorProps?.attributes || {}),
-        class: [
-          styles.bnEditor,
-          rootStyles.bnRoot,
-          (options.editorProps?.attributes as any)?.class || "",
-        ].join(" "),
+      if (
+        extension.name === "DraggableBlocksExtension" &&
+        options.uiFactories
+      ) {
+        return extension.configure({
+          addBlockButtonFactory: options.uiFactories.addBlockButtonFactory,
+          dragHandleFactory: options.uiFactories.dragHandleFactory,
+          dragHandleMenuFactory: options.uiFactories.dragHandleMenuFactory,
+        });
+      }
+
+      return extension;
+    });
+
+    const tiptapOptions = {
+      ...blockNoteOptions,
+      ...options,
+      extensions:
+        options.enableBlockNoteExtensions === false
+          ? options.extensions
+          : [...(options.extensions || []), ...extensions],
+      editorProps: {
+        attributes: {
+          ...(options.editorProps?.attributes || {}),
+          class: [
+            styles.bnEditor,
+            rootStyles.bnRoot,
+            (options.editorProps?.attributes as any)?.class || "",
+          ].join(" "),
+        },
       },
-    },
-  };
+    };
 
-  return new Editor(tiptapOptions);
-};
+    this.tiptapEditor = new Editor(tiptapOptions) as Editor & {
+      contentComponent: any;
+    };
+  }
+}

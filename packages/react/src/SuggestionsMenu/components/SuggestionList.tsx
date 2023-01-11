@@ -15,8 +15,8 @@ export function SuggestionList<T extends SuggestionItem>(
     name: "SuggestionList",
   });
 
-  const headingGroup = [];
-  const basicBlockGroup = [];
+  const headingGroup: T[] = [];
+  const basicBlockGroup: T[] = [];
 
   for (const item of props.items) {
     if (item.name === "Heading") {
@@ -44,7 +44,7 @@ export function SuggestionList<T extends SuggestionItem>(
     }
   }
 
-  const renderedItems = [];
+  const renderedItems: any[] = [];
   let index = 0;
 
   if (headingGroup.length > 0) {
@@ -58,7 +58,6 @@ export function SuggestionList<T extends SuggestionItem>(
           key={item.name}
           name={item.name}
           hint={item.hint}
-          icon={item.icon}
           isSelected={props.selectedItemIndex === index}
           set={() => props.itemCallback(item)}
         />
@@ -78,7 +77,6 @@ export function SuggestionList<T extends SuggestionItem>(
           key={item.name}
           name={item.name}
           hint={item.hint}
-          icon={item.icon}
           isSelected={props.selectedItemIndex === index}
           set={() => props.itemCallback(item)}
         />

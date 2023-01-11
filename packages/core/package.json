@@ -69,7 +69,6 @@
     "prosemirror-model": "1.18.1",
     "prosemirror-state": "1.4.1",
     "prosemirror-view": "1.26.2",
-    "react-icons": "^4.3.1",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
