@@ -12,6 +12,11 @@ import {
 const Hyperlink = Link.extend<HyperlinkMenuPluginProps>({
   priority: 500,
   addProseMirrorPlugins() {
+    if (!this.options.hyperlinkMenuFactory) {
+      console.warn("factories not defined for Hyperlink");
+      return [...(this.parent?.() || [])];
+    }
+
     return [
       ...(this.parent?.() || []),
       createHyperlinkMenuPlugin(this.editor, {

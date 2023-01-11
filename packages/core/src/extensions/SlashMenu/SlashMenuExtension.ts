@@ -1,7 +1,7 @@
 import { Extension } from "@tiptap/core";
 import { PluginKey } from "prosemirror-state";
-import { SuggestionsMenuFactory } from "../../shared/plugins/suggestion/SuggestionsMenuFactoryTypes";
 import { createSuggestionPlugin } from "../../shared/plugins/suggestion/SuggestionPlugin";
+import { SuggestionsMenuFactory } from "../../shared/plugins/suggestion/SuggestionsMenuFactoryTypes";
 import defaultCommands from "./defaultCommands";
 import { SlashMenuItem } from "./SlashMenuItem";
 
@@ -23,6 +23,11 @@ export const SlashMenuExtension = Extension.create<SlashMenuOptions>({
   },
 
   addProseMirrorPlugins() {
+    if (!this.options.suggestionsMenuFactory) {
+      console.warn("factories not defined for SlashMenuExtension");
+      return [];
+    }
+
     return [
       createSuggestionPlugin<SlashMenuItem>({
         pluginKey: SlashMenuPluginKey,

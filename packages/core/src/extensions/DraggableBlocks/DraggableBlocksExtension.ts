@@ -23,6 +23,14 @@ export const DraggableBlocksExtension =
     name: "DraggableBlocksExtension",
     priority: 1000, // Need to be high, in order to hide draghandle when typing slash
     addProseMirrorPlugins() {
+      if (
+        !this.options.addBlockButtonFactory ||
+        !this.options.dragHandleFactory ||
+        !this.options.dragHandleMenuFactory
+      ) {
+        console.warn("factories not defined for DraggableBlocksExtension");
+        return [];
+      }
       return [
         createDraggableBlocksPlugin({
           editor: this.editor,
