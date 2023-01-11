@@ -24,8 +24,8 @@ export const LinkToolbarButton = (props: HyperlinkButtonProps) => {
     setCreationMenu(
       <EditHyperlinkMenu
         key={Math.random() + ""} // Math.random to prevent old element from being re-used
-        url={props.hyperlinkIsActive ? props.activeHyperlinkUrl : ""}
-        text={props.hyperlinkIsActive ? props.activeHyperlinkText : ""}
+        url={props.activeHyperlinkUrl}
+        text={props.activeHyperlinkText}
         update={props.setHyperlink}
       />
     );
@@ -33,6 +33,7 @@ export const LinkToolbarButton = (props: HyperlinkButtonProps) => {
 
   return (
     <Tippy
+      appendTo={document.body}
       content={creationMenu}
       trigger={"click"}
       onShow={(_) => {
