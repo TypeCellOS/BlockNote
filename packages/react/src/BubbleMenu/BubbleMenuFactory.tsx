@@ -73,7 +73,7 @@ export const ReactBubbleMenuFactory: BubbleMenuFactory = (
           getReferenceClientRect={() => params.selectionBoundingBox}
           hideOnClick={false}
           interactive={true}
-          placement={"top"}
+          placement={"top-start"}
           showOnCreate={true}
           trigger={"manual"}
         />

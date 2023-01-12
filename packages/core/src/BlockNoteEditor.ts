@@ -4,11 +4,7 @@ import { Editor, EditorOptions } from "@tiptap/core";
 import { getBlockNoteExtensions } from "./BlockNoteExtensions";
 import styles from "./editor.module.css";
 import { BubbleMenuFactory } from "./extensions/BubbleMenu/BubbleMenuFactoryTypes";
-import {
-  AddBlockButtonFactory,
-  DragHandleFactory,
-  DragHandleMenuFactory,
-} from "./extensions/DraggableBlocks/DragMenuFactoryTypes";
+import { BlockMenuFactory } from "./extensions/DraggableBlocks/BlockMenuFactoryTypes";
 import { HyperlinkMenuFactory } from "./extensions/Hyperlinks/HyperlinkMenuFactoryTypes";
 import { SuggestionItem } from "./shared/plugins/suggestion/SuggestionItem";
 import { SuggestionsMenuFactory } from "./shared/plugins/suggestion/SuggestionsMenuFactoryTypes";
@@ -20,9 +16,7 @@ export type BlockNoteEditorOptions = EditorOptions & {
     bubbleMenuFactory: BubbleMenuFactory;
     hyperlinkMenuFactory: HyperlinkMenuFactory;
     suggestionsMenuFactory: SuggestionsMenuFactory<SuggestionItem>;
-    addBlockButtonFactory: AddBlockButtonFactory;
-    dragHandleFactory: DragHandleFactory;
-    dragHandleMenuFactory: DragHandleMenuFactory;
+    blockMenuFactory: BlockMenuFactory;
   }>;
 };
 
@@ -76,9 +70,7 @@ export class BlockNoteEditor {
         options.uiFactories
       ) {
         return extension.configure({
-          addBlockButtonFactory: options.uiFactories.addBlockButtonFactory,
-          dragHandleFactory: options.uiFactories.dragHandleFactory,
-          dragHandleMenuFactory: options.uiFactories.dragHandleMenuFactory,
+          blockMenuFactory: options.uiFactories.blockMenuFactory,
         });
       }
 

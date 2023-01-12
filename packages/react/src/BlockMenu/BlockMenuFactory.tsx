@@ -1,21 +1,26 @@
+import { BlockMenu, BlockMenuFactory, BlockMenuParams } from "@blocknote/core";
 import {
-  DragHandle,
-  DragHandleFactory,
-  DragHandleParams,
-} from "@blocknote/core";
-import { DragHandle as ReactDragHandle } from "./components/DragHandle";
-import { BlockNoteTheme } from "../BlockNoteTheme";
-import { MantineProvider } from "@mantine/core";
+  BlockMenu as ReactBlockMenu,
+  BlockMenuProps,
+} from "../BlockMenu/components/BlockMenu";
 import { createRoot, Root } from "react-dom/client";
+import { MantineProvider } from "@mantine/core";
+import { BlockNoteTheme } from "../BlockNoteTheme";
 import Tippy from "@tippyjs/react";
 
-export const ReactDragHandleFactory: DragHandleFactory = (
-  params: DragHandleParams
-): DragHandle => {
+export const ReactBlockMenuFactory: BlockMenuFactory = (
+  params: BlockMenuParams
+): BlockMenu => {
+  const blockMenuProps: BlockMenuProps = { ...params };
+
+  function updateBlockMenuProps(params: BlockMenuParams) {
+    blockMenuProps.addBlock = params.addBlock;
+    blockMenuProps.deleteBlock = params.deleteBlock;
+  }
+
   // We don't use the document body as a root as it would cause multiple React roots to be created on a single element
   // if other menu factories do the same.
   const menuRootElement = document.createElement("div");
-  menuRootElement.style.position = "absolute";
   // menuRootElement.className = rootStyles.bnRoot;
   let menuRoot: Root | undefined;
 
@@ -24,7 +29,7 @@ export const ReactDragHandleFactory: DragHandleFactory = (
       <MantineProvider theme={BlockNoteTheme}>
         <Tippy
           appendTo={menuRootElement}
-          content={<ReactDragHandle />}
+          content={<ReactBlockMenu {...blockMenuProps} />}
           duration={0}
           getReferenceClientRect={() => params.blockBoundingBox}
           hideOnClick={false}
@@ -40,19 +45,23 @@ export const ReactDragHandleFactory: DragHandleFactory = (
 
   return {
     element: menuRootElement,
-    show: (_params: DragHandleParams) => {
+    show: (params: BlockMenuParams) => {
+      updateBlockMenuProps(params);
+
       document.body.appendChild(menuRootElement);
       menuRoot = createRoot(menuRootElement);
 
       menuRoot.render(getMenuComponent());
     },
     hide: () => {
-      menuRoot?.unmount();
+      menuRoot!.unmount();
 
       menuRootElement.remove();
     },
-    update: (_params: DragHandleParams) => {
-      menuRoot?.render(getMenuComponent());
+    update: (params: BlockMenuParams) => {
+      updateBlockMenuProps(params);
+
+      menuRoot!.render(getMenuComponent());
     },
   };
 };

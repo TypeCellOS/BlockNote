@@ -432,6 +432,11 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
         return false;
       },
 
+      // Hides menu in cases where mouse click does not cause an editor state change.
+      handleClick(view) {
+        deactivate(view);
+      },
+
       // Setup decorator on the currently active suggestion.
       decorations(state) {
         const { active, range, decorationId, type } = (this as Plugin).getState(
