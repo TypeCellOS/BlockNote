@@ -243,6 +243,8 @@ export class BlockMenuView {
   menuOpen = false;
   menuFrozen = false;
 
+  blockID: string | undefined;
+
   constructor({
     editor,
     blockMenuFactory,
@@ -290,6 +292,12 @@ export class BlockMenuView {
 
           return;
         }
+
+        // Doesn't update if the menu is already open and the mouse cursor is still hovering the same block.
+        if (this.menuOpen && this.blockID === block.id) {
+          return;
+        }
+        this.blockID = block.id;
 
         // Gets the block's content node, which lets to ignore child blocks when determining the block menu's position.
         const blockContent = block.node.firstChild as HTMLElement;
