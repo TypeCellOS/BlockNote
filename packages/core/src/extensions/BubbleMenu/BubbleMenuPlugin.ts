@@ -124,8 +124,10 @@ export class BubbleMenuView {
       return;
     }
 
-    this.bubbleMenu.hide();
-    this.menuIsOpen = false;
+    if (this.menuIsOpen) {
+      this.bubbleMenu.hide();
+      this.menuIsOpen = false;
+    }
   };
 
   update(view: EditorView, oldState?: EditorState) {

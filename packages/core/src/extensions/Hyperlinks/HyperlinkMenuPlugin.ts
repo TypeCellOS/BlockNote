@@ -170,7 +170,7 @@ class HyperlinkMenuView {
     }
 
     // Hides menu.
-    if (prevHyperlinkMark && !this.hyperlinkMark) {
+    if (!this.hyperlinkMark && prevHyperlinkMark) {
       this.hyperlinkMenu.element?.removeEventListener(
         "mouseleave",
         this.startMenuUpdateTimer
