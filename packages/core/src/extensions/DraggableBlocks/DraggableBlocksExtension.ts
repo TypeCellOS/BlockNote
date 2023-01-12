@@ -1,16 +1,10 @@
 import { Editor, Extension } from "@tiptap/core";
 import { createDraggableBlocksPlugin } from "./DraggableBlocksPlugin";
-import {
-  AddBlockButtonFactory,
-  DragHandleFactory,
-  DragHandleMenuFactory,
-} from "./DragMenuFactoryTypes";
+import { BlockMenuFactory } from "./BlockMenuFactoryTypes";
 
 export type DraggableBlocksOptions = {
   editor: Editor;
-  addBlockButtonFactory: AddBlockButtonFactory;
-  dragHandleFactory: DragHandleFactory;
-  dragHandleMenuFactory: DragHandleMenuFactory;
+  blockMenuFactory: BlockMenuFactory;
 };
 
 /**
@@ -26,9 +20,7 @@ export const DraggableBlocksExtension =
       return [
         createDraggableBlocksPlugin({
           editor: this.editor,
-          addBlockButtonFactory: this.options.addBlockButtonFactory,
-          dragHandleFactory: this.options.dragHandleFactory,
-          dragHandleMenuFactory: this.options.dragHandleMenuFactory,
+          blockMenuFactory: this.options.blockMenuFactory,
         }),
       ];
     },

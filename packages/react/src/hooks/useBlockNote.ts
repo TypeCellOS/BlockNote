@@ -1,11 +1,9 @@
 import { BlockNoteEditor, BlockNoteEditorOptions } from "@blocknote/core";
 import { DependencyList, useEffect, useState } from "react";
-import { ReactAddBlockButtonFactory } from "../AddBlockButton/AddBlockButtonFactory";
 import { ReactBubbleMenuFactory } from "../BubbleMenu/BubbleMenuFactory";
-import { ReactDragHandleFactory } from "../DragHandle/DragHandleFactory";
-import { ReactDragHandleMenuFactory } from "../DragHandleMenu/DragHandleMenuFactory";
 import { ReactHyperlinkMenuFactory } from "../HyperlinkMenu/HyperlinkMenuFactory";
 import { ReactSuggestionsMenuFactory } from "../SuggestionsMenu/SuggestionsMenuFactory";
+import { ReactBlockMenuFactory } from "../BlockMenu/BlockMenuFactory";
 
 //based on https://github.com/ueberdosis/tiptap/blob/main/packages/react/src/useEditor.ts
 
@@ -36,9 +34,7 @@ export const useBlockNote = (
           bubbleMenuFactory: ReactBubbleMenuFactory,
           hyperlinkMenuFactory: ReactHyperlinkMenuFactory,
           suggestionsMenuFactory: ReactSuggestionsMenuFactory,
-          addBlockButtonFactory: ReactAddBlockButtonFactory,
-          dragHandleFactory: ReactDragHandleFactory,
-          dragHandleMenuFactory: ReactDragHandleMenuFactory,
+          blockMenuFactory: ReactBlockMenuFactory,
         },
       };
     }
