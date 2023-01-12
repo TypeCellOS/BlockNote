@@ -1,40 +1,18 @@
 import { BlockNoteEditor } from "@blocknote/core";
 import "./index.css";
+import { bubbleMenuFactory } from "./ui/bubbleMenuFactory";
+import { hyperlinkMenuFactory } from "./ui/hyperlinkMenuFactory";
+import { suggestionsMenuFactory } from "./ui/suggestionsMenuFactory";
 
 const editor = new BlockNoteEditor({
   element: document.getElementById("root")!,
   uiFactories: {
     // Create an example bubble menu which just consists of a bold toggle
-    bubbleMenuFactory: (props) => {
-      const element = document.createElement("a");
-      element.href = "#";
-      element.text = "set bold";
-      element.style.position = "absolute";
-      element.style.background = "gray";
-      element.style.padding = "10px";
-      element.addEventListener("click", (e) => {
-        props.toggleBold();
-        e.preventDefault();
-      });
-      document.body.appendChild(element);
-
-      return {
-        element,
-        show: (params) => {
-          element.style.display = "block";
-        },
-        hide: () => {
-          element.style.display = "none";
-        },
-        update: (params) => {
-          element.text = params.boldIsActive ? "unset bold" : "set bold";
-          element.style.top = params.selectionBoundingBox.y + "px";
-          element.style.left = params.selectionBoundingBox.x + "px";
-        },
-      };
-    },
-    //   hyperlinkMenuFactory: ReactHyperlinkMenuFactory,
-    //   suggestionsMenuFactory: ReactSuggestionsMenuFactory,
+    bubbleMenuFactory,
+    // Create an example menu for hyperlinks
+    hyperlinkMenuFactory,
+    // Create an example menu for the /-menu
+    suggestionsMenuFactory,
   },
   onUpdate: ({ editor }) => {
     console.log(editor.getJSON());
