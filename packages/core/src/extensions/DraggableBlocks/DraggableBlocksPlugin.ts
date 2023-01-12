@@ -12,6 +12,7 @@ import {
 } from "./BlockMenuFactoryTypes";
 import { getBlockInfoFromPos } from "../Blocks/helpers/getBlockInfoFromPos";
 import { SlashMenuPluginKey } from "../SlashMenu/SlashMenuExtension";
+import styles from "../../editor.module.css";
 
 const serializeForClipboard = (pv as any).__serializeForClipboard;
 // code based on https://github.com/ueberdosis/tiptap/issues/323#issuecomment-506637799
@@ -166,6 +167,7 @@ function setDragImage(view: EditorView, from: number, to = from) {
 
   // dataTransfer.setDragImage(element) only works if element is attached to the DOM.
   dragImageElement = parentClone;
+  dragImageElement.className = styles.dragPreview;
   document.body.appendChild(dragImageElement);
 }
 
