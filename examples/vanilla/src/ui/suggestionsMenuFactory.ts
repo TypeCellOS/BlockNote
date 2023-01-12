@@ -13,7 +13,7 @@ export const suggestionsMenuFactory: SuggestionsMenuFactory<SuggestionItem> = (
   container.style.position = "absolute";
   container.style.padding = "10px";
   container.style.opacity = "0.8";
-
+  container.style.display = "none";
   document.body.appendChild(container);
 
   function updateItems(

@@ -22,13 +22,14 @@ export const bubbleMenuFactory: BubbleMenuFactory = (props) => {
 
   container.appendChild(boldBtn);
   container.appendChild(linkBtn);
+  container.style.display = "none";
   document.body.appendChild(container);
 
   return {
     element: container,
     show: (params) => {
       container.style.display = "block";
-      console.log("show", params);
+      console.log("show bubble", params);
       boldBtn.text = params.boldIsActive ? "unset bold" : "set bold";
       container.style.top = params.selectionBoundingBox.y + "px";
       container.style.left = params.selectionBoundingBox.x + "px";
@@ -37,7 +38,7 @@ export const bubbleMenuFactory: BubbleMenuFactory = (props) => {
       container.style.display = "none";
     },
     update: (params) => {
-      console.log("update", params);
+      console.log("update bubble", params);
       boldBtn.text = params.boldIsActive ? "unset bold" : "set bold";
       container.style.top = params.selectionBoundingBox.y + "px";
       container.style.left = params.selectionBoundingBox.x + "px";

@@ -1,5 +1,6 @@
 import { BlockNoteEditor } from "@blocknote/core";
 import "./index.css";
+import { blockMenuFactory } from "./ui/blockMenuFactory";
 import { bubbleMenuFactory } from "./ui/bubbleMenuFactory";
 import { hyperlinkMenuFactory } from "./ui/hyperlinkMenuFactory";
 import { suggestionsMenuFactory } from "./ui/suggestionsMenuFactory";
@@ -13,6 +14,8 @@ const editor = new BlockNoteEditor({
     hyperlinkMenuFactory,
     // Create an example menu for the /-menu
     suggestionsMenuFactory,
+    // Create an example menu for when a block is hovered
+    blockMenuFactory,
   },
   onUpdate: ({ editor }) => {
     console.log(editor.getJSON());

@@ -1,6 +1,6 @@
 import { Editor, Extension } from "@tiptap/core";
-import { createDraggableBlocksPlugin } from "./DraggableBlocksPlugin";
 import { BlockMenuFactory } from "./BlockMenuFactoryTypes";
+import { createDraggableBlocksPlugin } from "./DraggableBlocksPlugin";
 
 export type DraggableBlocksOptions = {
   editor: Editor;
@@ -17,11 +17,7 @@ export const DraggableBlocksExtension =
     name: "DraggableBlocksExtension",
     priority: 1000, // Need to be high, in order to hide draghandle when typing slash
     addProseMirrorPlugins() {
-      if (
-        !this.options.addBlockButtonFactory ||
-        !this.options.dragHandleFactory ||
-        !this.options.dragHandleMenuFactory
-      ) {
+      if (!this.options.blockMenuFactory) {
         console.warn("factories not defined for DraggableBlocksExtension");
         return [];
       }

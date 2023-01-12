@@ -24,6 +24,7 @@ export const hyperlinkMenuFactory: HyperlinkMenuFactory = (props) => {
 
   container.appendChild(editBtn);
   container.appendChild(removeBtn);
+  container.style.display = "none";
   document.body.appendChild(container);
 
   return {
