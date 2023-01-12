@@ -112,6 +112,22 @@ export const BlockNoteTheme: MantineThemeOverride = {
         },
       }),
     },
+    Tooltip: {
+      styles: (theme) => ({
+        root: {
+          color: theme.colors.brandFinal[2],
+          backgroundColor: theme.colors.brandFinal,
+          border: `1px solid ${theme.colors.brandFinal[1]}`,
+          borderRadius: "6px",
+          boxShadow: `0px 4px 8px ${theme.colors.brandFinal[2]}, 0px 0px 1px ${theme.colors.brandFinal[2]}`,
+          padding: "4px 10px",
+          textAlign: "center",
+          "div ~ div": {
+            color: theme.colors.brandFinal[4],
+          },
+        },
+      }),
+    },
     SuggestionList: {
       styles: (theme) => ({
         root: {
