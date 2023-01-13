@@ -18,6 +18,6 @@ export const DRAG_HANDLE_SELECTOR = `[data-test="dragHandle"]`;
 export const DRAG_HANDLE_ADD_SELECTOR = `[data-test="dragHandleAdd"]`;
 
 export const DRAG_HANDLE_MENU_SELECTOR = `.mantine-DragHandleMenu-root`;
-export const SLASH_MENU_SELECTOR = `.mantine-SuggestionList-root`;
+export const SLASH_MENU_SELECTOR = `.mantine-SlashMenu-root`;
 
 export const TYPE_DELAY = 10;
