@@ -1,7 +1,7 @@
 import { Editor, Extension } from "@tiptap/core";
 import { Node as ProsemirrorNode } from "prosemirror-model";
-import { Decoration, DecorationSet } from "prosemirror-view";
 import { Plugin } from "prosemirror-state";
+import { Decoration, DecorationSet } from "prosemirror-view";
 import { SlashMenuPluginKey } from "../SlashMenu/SlashMenuExtension";
 
 /**
@@ -78,7 +78,7 @@ export const Placeholder = Extension.create<PlaceholderOptions>({
                 }
 
                 // If slash menu is of drag type and active, show the filter placeholder
-                if (menuState.type === "drag" && menuState.active) {
+                if (menuState?.type === "drag" && menuState?.active) {
                   classes.push(this.options.isFilterClass);
                 }
                 // using widget, didn't work (caret position bug)
