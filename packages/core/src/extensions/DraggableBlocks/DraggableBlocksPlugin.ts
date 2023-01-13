@@ -308,9 +308,6 @@ export class BlockMenuView {
 
         // Gets bounding box of the block content.
         const blockBoundingBox = blockContent.getBoundingClientRect();
-        blockBoundingBox.x = this.horizontalPosAnchoredAtRoot
-          ? getHorizontalAnchor()
-          : blockBoundingBox.left;
 
         this.blockMenuParams.addBlock = () =>
           this.addBlock({
@@ -322,7 +319,14 @@ export class BlockMenuView {
             left: blockBoundingBox.left,
             top: blockBoundingBox.top,
           });
-        this.blockMenuParams.blockBoundingBox = blockBoundingBox;
+        this.blockMenuParams.blockBoundingBox = new DOMRect(
+          this.horizontalPosAnchoredAtRoot
+            ? getHorizontalAnchor()
+            : blockBoundingBox.x,
+          blockBoundingBox.y,
+          blockBoundingBox.width,
+          blockBoundingBox.height
+        );
 
         // Shows or updates elements.
         if (!this.menuOpen) {
@@ -388,6 +392,7 @@ export class BlockMenuView {
     if (blockInfo === undefined) {
       return;
     }
+    console.log(blockInfo);
 
     const { contentNode, endPos } = blockInfo;
 

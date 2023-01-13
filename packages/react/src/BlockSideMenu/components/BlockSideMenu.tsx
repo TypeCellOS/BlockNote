@@ -13,7 +13,7 @@ export type BlockSideMenuProps = {
 
 export const BlockSideMenu = (props: BlockSideMenuProps) => {
   const { classes } = createStyles({ root: {} })(undefined, {
-    name: "DragSideHandleMenu",
+    name: "DragHandleMenu",
   });
 
   const dragHandleRef = useRef<HTMLDivElement>(null);
@@ -46,7 +46,10 @@ export const BlockSideMenu = (props: BlockSideMenuProps) => {
           />
         }
       </ActionIcon>
-      <Menu onOpen={props.freezeMenu} onClose={props.unfreezeMenu}>
+      <Menu
+        position={"left"}
+        onOpen={props.freezeMenu}
+        onClose={props.unfreezeMenu}>
         <Menu.Target>
           <div draggable="true" ref={dragHandleRef}>
             <ActionIcon
