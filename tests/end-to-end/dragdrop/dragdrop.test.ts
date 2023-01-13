@@ -9,6 +9,7 @@ import {
 import { compareDocToSnapshot, focusOnEditor } from "../../utils/editor";
 import { insertHeading, insertParagraph } from "../../utils/copypaste";
 import { dragAndDropBlock } from "../../utils/mouse";
+import { showMouseCursor } from "../../utils/debug";
 
 test.beforeEach(async ({ page }) => {
   await page.goto(BASE_URL, { waitUntil: "networkidle" });
@@ -24,6 +25,7 @@ test.describe("Check Block Dragging Functionality", () => {
       "Playwright doesn't correctly simulate drag events in Firefox."
     );
     await focusOnEditor(page);
+    await showMouseCursor(page);
 
     await insertHeading(page, 1);
     await insertHeading(page, 2);
@@ -31,6 +33,7 @@ test.describe("Check Block Dragging Functionality", () => {
 
     const dragTarget = await page.locator(H_ONE_BLOCK_SELECTOR);
     const dropTarget = await page.locator(H_TWO_BLOCK_SELECTOR);
+    await page.pause();
     await dragAndDropBlock(page, dragTarget, dropTarget, false);
 
     await page.pause();
@@ -47,6 +50,7 @@ test.describe("Check Block Dragging Functionality", () => {
       "Playwright doesn't correctly simulate drag events in Firefox."
     );
     await focusOnEditor(page);
+    await showMouseCursor(page);
 
     await insertHeading(page, 1);
     await insertParagraph(page);
@@ -63,16 +67,19 @@ test.describe("Check Block Dragging Functionality", () => {
     // Dragging first heading into next nested element.
     let dragTarget = await page.locator(H_ONE_BLOCK_SELECTOR);
     let dropTarget = await page.locator(H_TWO_BLOCK_SELECTOR);
+    await page.pause();
     await dragAndDropBlock(page, dragTarget, dropTarget, true);
 
     // Dragging second heading into next nested element.
     dragTarget = await page.locator(H_TWO_BLOCK_SELECTOR);
     dropTarget = await page.locator(H_THREE_BLOCK_SELECTOR);
+    await page.pause();
     await dragAndDropBlock(page, dragTarget, dropTarget, true);
 
     // Dragging third heading into outside nesting.
     dragTarget = await page.locator(H_THREE_BLOCK_SELECTOR);
     dropTarget = await page.locator(BLOCK_SELECTOR).last();
+    await page.pause();
     await dragAndDropBlock(page, dragTarget, dropTarget, true);
 
     await page.pause();
