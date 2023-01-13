@@ -14,11 +14,12 @@ export type EditHyperlinkMenuProps = {
  * Provides input fields for setting the hyperlink URL and title.
  */
 export const EditHyperlinkMenu = (props: EditHyperlinkMenuProps) => {
-  const [url, setUrl] = useState(props.url);
-  const [title, setTitle] = useState(props.text);
   const { classes } = createStyles({ root: {} })(undefined, {
     name: "EditHyperlinkMenu",
   });
+
+  const [url, setUrl] = useState(props.url);
+  const [title, setTitle] = useState(props.text);
 
   return (
     <Stack className={classes.root}>

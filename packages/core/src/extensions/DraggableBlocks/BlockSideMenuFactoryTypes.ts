@@ -1,6 +1,6 @@
 import { EditorElement, ElementFactory } from "../../shared/EditorElement";
 
-export type BlockMenuParams = {
+export type BlockSideMenuParams = {
   addBlock: () => void;
   deleteBlock: () => void;
   blockDragStart: (event: DragEvent) => void;
@@ -10,5 +10,5 @@ export type BlockMenuParams = {
   blockBoundingBox: DOMRect;
 };
 
-export type BlockMenu = EditorElement<BlockMenuParams>;
-export type BlockMenuFactory = ElementFactory<BlockMenuParams>;
+export type BlockSideMenu = EditorElement<BlockSideMenuParams>;
+export type BlockSideMenuFactory = ElementFactory<BlockSideMenuParams>;

@@ -1,30 +1,31 @@
 import { Editor, Extension } from "@tiptap/core";
-import { BlockMenuFactory } from "./BlockMenuFactoryTypes";
+import { BlockSideMenuFactory } from "./BlockSideMenuFactoryTypes";
 import { createDraggableBlocksPlugin } from "./DraggableBlocksPlugin";
 
 export type DraggableBlocksOptions = {
   editor: Editor;
-  blockMenuFactory: BlockMenuFactory;
+  blockSideMenuFactory: BlockSideMenuFactory;
 };
 
 /**
- * This extension adds a drag handle in front of all nodes with a "data-id" attribute
+ * This extension adds a menu to the side of blocks which features various BlockNote functions such as adding and
+ * removing blocks. More importantly, it adds a drag handle which allows the user to drag and drop blocks.
  *
  * code based on https://github.com/ueberdosis/tiptap/issues/323#issuecomment-506637799
  */
 export const DraggableBlocksExtension =
   Extension.create<DraggableBlocksOptions>({
     name: "DraggableBlocksExtension",
-    priority: 1000, // Need to be high, in order to hide draghandle when typing slash
+    priority: 1000, // Need to be high, in order to hide menu when typing slash
     addProseMirrorPlugins() {
-      if (!this.options.blockMenuFactory) {
+      if (!this.options.blockSideMenuFactory) {
         console.warn("factories not defined for DraggableBlocksExtension");
         return [];
       }
       return [
         createDraggableBlocksPlugin({
           editor: this.editor,
-          blockMenuFactory: this.options.blockMenuFactory,
+          blockSideMenuFactory: this.options.blockSideMenuFactory,
         }),
       ];
     },

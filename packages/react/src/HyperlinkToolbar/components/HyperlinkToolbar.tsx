@@ -5,7 +5,7 @@ import { ToolbarButton } from "../../SharedComponents/Toolbar/components/Toolbar
 import { RiExternalLinkFill, RiLinkUnlink } from "react-icons/ri";
 // import rootStyles from "../../../root.module.css";
 
-export type HyperlinkMenuProps = {
+export type HyperlinkToolbarProps = {
   url: string;
   text: string;
   editHyperlink: (url: string, text: string) => void;
@@ -14,9 +14,9 @@ export type HyperlinkMenuProps = {
 
 /**
  * Main menu component for the hyperlink extension.
- * Either renders a menu to create/edit a hyperlink, or a menu to interact with it on mouse hover.
+ * Renders a toolbar that appears on hyperlink hover.
  */
-export const HyperlinkMenu = (props: HyperlinkMenuProps) => {
+export const HyperlinkToolbar = (props: HyperlinkToolbarProps) => {
   const [isEditing, setIsEditing] = useState(false);
 
   if (isEditing) {

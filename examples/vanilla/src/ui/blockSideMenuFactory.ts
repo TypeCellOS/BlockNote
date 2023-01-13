@@ -1,11 +1,11 @@
-import { BlockMenuFactory } from "@blocknote/core";
+import { BlockSideMenuFactory } from "@blocknote/core";
 import { createButton } from "./util";
 
 /**
  * This menu is drawn next to a block, when it's hovered over
  * It renders a drag handle and + button to create a new block
  */
-export const blockMenuFactory: BlockMenuFactory = (props) => {
+export const blockSideMenuFactory: BlockSideMenuFactory = (props) => {
   const container = document.createElement("div");
   container.style.background = "gray";
   container.style.position = "absolute";

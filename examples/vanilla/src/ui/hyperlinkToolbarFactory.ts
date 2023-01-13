@@ -1,11 +1,11 @@
-import { HyperlinkMenuFactory } from "@blocknote/core";
+import { HyperlinkToolbarFactory } from "@blocknote/core";
 import { createButton } from "./util";
 
 /**
  * This menu is drawn when the cursor is moved to a hyperlink (using the keyboard),
  * or when the mouse is hovering over a hyperlink
  */
-export const hyperlinkMenuFactory: HyperlinkMenuFactory = (props) => {
+export const hyperlinkToolbarFactory: HyperlinkToolbarFactory = (props) => {
   const container = document.createElement("div");
   container.style.background = "gray";
   container.style.position = "absolute";

@@ -1,6 +1,6 @@
 import { EditorElement, ElementFactory } from "../../shared/EditorElement";
 
-export type HyperlinkMenuParams = {
+export type HyperlinkToolbarParams = {
   url: string;
   text: string;
   editHyperlink: (url: string, text: string) => void;
@@ -10,5 +10,5 @@ export type HyperlinkMenuParams = {
   editorElement: Element;
 };
 
-export type HyperlinkMenu = EditorElement<HyperlinkMenuParams>;
-export type HyperlinkMenuFactory = ElementFactory<HyperlinkMenuParams>;
+export type HyperlinkToolbar = EditorElement<HyperlinkToolbarParams>;
+export type HyperlinkToolbarFactory = ElementFactory<HyperlinkToolbarParams>;

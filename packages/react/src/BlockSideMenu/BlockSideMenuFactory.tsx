@@ -1,26 +1,25 @@
-import { createRoot, Root } from "react-dom/client";
 import {
-  HyperlinkMenu,
-  HyperlinkMenuFactory,
-  HyperlinkMenuParams,
+  BlockSideMenu,
+  BlockSideMenuFactory,
+  BlockSideMenuParams,
 } from "@blocknote/core";
-import { MantineProvider } from "@mantine/core";
-import Tippy from "@tippyjs/react";
 import {
-  HyperlinkMenu as ReactHyperlinkMenu,
-  HyperlinkMenuProps,
-} from "./components/HyperlinkMenu";
+  BlockSideMenu as ReactSideBlockMenu,
+  BlockSideMenuProps,
+} from "./components/BlockSideMenu";
+import { createRoot, Root } from "react-dom/client";
+import { MantineProvider } from "@mantine/core";
 import { BlockNoteTheme } from "../BlockNoteTheme";
-// import rootStyles from "../../../core/src/root.module.css";
+import Tippy from "@tippyjs/react";
 
-export const ReactHyperlinkMenuFactory: HyperlinkMenuFactory = (
-  params: HyperlinkMenuParams
-): HyperlinkMenu => {
-  const hyperlinkMenuProps: HyperlinkMenuProps = { ...params };
+export const ReactBlockSideMenuFactory: BlockSideMenuFactory = (
+  params: BlockSideMenuParams
+): BlockSideMenu => {
+  const blockMenuProps: BlockSideMenuProps = { ...params };
 
-  function updateHyperlinkMenuProps(params: HyperlinkMenuParams) {
-    hyperlinkMenuProps.url = params.url;
-    hyperlinkMenuProps.text = params.text;
+  function updateBlockMenuProps(params: BlockSideMenuParams) {
+    blockMenuProps.addBlock = params.addBlock;
+    blockMenuProps.deleteBlock = params.deleteBlock;
   }
 
   // We don't use the document body as a root as it would cause multiple React roots to be created on a single element
@@ -34,12 +33,13 @@ export const ReactHyperlinkMenuFactory: HyperlinkMenuFactory = (
       <MantineProvider theme={BlockNoteTheme}>
         <Tippy
           appendTo={menuRootElement}
-          content={<ReactHyperlinkMenu {...hyperlinkMenuProps} />}
+          content={<ReactSideBlockMenu {...blockMenuProps} />}
           duration={0}
-          getReferenceClientRect={() => params.boundingBox}
+          getReferenceClientRect={() => params.blockBoundingBox}
           hideOnClick={false}
           interactive={true}
-          placement={"top"}
+          offset={[0, 0]}
+          placement={"left"}
           showOnCreate={true}
           trigger={"manual"}
         />
@@ -49,8 +49,8 @@ export const ReactHyperlinkMenuFactory: HyperlinkMenuFactory = (
 
   return {
     element: menuRootElement,
-    show: (params: HyperlinkMenuParams) => {
-      updateHyperlinkMenuProps(params);
+    show: (params: BlockSideMenuParams) => {
+      updateBlockMenuProps(params);
 
       document.body.appendChild(menuRootElement);
       menuRoot = createRoot(menuRootElement);
@@ -62,8 +62,8 @@ export const ReactHyperlinkMenuFactory: HyperlinkMenuFactory = (
 
       menuRootElement.remove();
     },
-    update: (params: HyperlinkMenuParams) => {
-      updateHyperlinkMenuProps(params);
+    update: (params: BlockSideMenuParams) => {
+      updateBlockMenuProps(params);
 
       menuRoot!.render(getMenuComponent());
     },

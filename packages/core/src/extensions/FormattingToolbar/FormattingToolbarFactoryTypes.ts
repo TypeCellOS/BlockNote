@@ -1,6 +1,6 @@
 import { EditorElement, ElementFactory } from "../../shared/EditorElement";
 
-export type BubbleMenuParams = {
+export type FormattingToolbarParams = {
   boldIsActive: boolean;
   toggleBold: () => void;
   italicIsActive: boolean;
@@ -27,5 +27,5 @@ export type BubbleMenuParams = {
   editorElement: Element;
 };
 
-export type BubbleMenu = EditorElement<BubbleMenuParams>;
-export type BubbleMenuFactory = ElementFactory<BubbleMenuParams>;
+export type FormattingToolbar = EditorElement<FormattingToolbarParams>;
+export type FormattingToolbarFactory = ElementFactory<FormattingToolbarParams>;

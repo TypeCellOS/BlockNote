@@ -2,7 +2,7 @@ import { AiOutlinePlus, MdDragIndicator } from "react-icons/all";
 import { ActionIcon, createStyles, Group, Menu } from "@mantine/core";
 import { useEffect, useRef } from "react";
 
-export type BlockMenuProps = {
+export type BlockSideMenuProps = {
   addBlock: () => void;
   deleteBlock: () => void;
   blockDragStart: (event: DragEvent) => void;
@@ -11,9 +11,9 @@ export type BlockMenuProps = {
   unfreezeMenu: () => void;
 };
 
-export const BlockMenu = (props: BlockMenuProps) => {
+export const BlockSideMenu = (props: BlockSideMenuProps) => {
   const { classes } = createStyles({ root: {} })(undefined, {
-    name: "DragHandleMenu",
+    name: "DragSideHandleMenu",
   });
 
   const dragHandleRef = useRef<HTMLDivElement>(null);
@@ -41,7 +41,6 @@ export const BlockMenu = (props: BlockMenuProps) => {
           <AiOutlinePlus
             size={24}
             onClick={() => {
-              console.log("OPEN MENU");
               props.addBlock();
             }}
           />

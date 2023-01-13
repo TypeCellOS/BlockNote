@@ -7,17 +7,17 @@ import {
 import { EditorState, Plugin, PluginKey } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 import {
-  BubbleMenu,
-  BubbleMenuFactory,
-  BubbleMenuParams,
-} from "./BubbleMenuFactoryTypes";
+  FormattingToolbar,
+  FormattingToolbarFactory,
+  FormattingToolbarParams,
+} from "./FormattingToolbarFactoryTypes";
 
 // Same as TipTap bubblemenu plugin, but with these changes:
 // https://github.com/ueberdosis/tiptap/pull/2596/files
-export interface BubbleMenuPluginProps {
+export interface FormattingToolbarPluginProps {
   pluginKey: PluginKey;
   editor: Editor;
-  bubbleMenuFactory: BubbleMenuFactory;
+  formattingToolbarFactory: FormattingToolbarFactory;
   shouldShow?:
     | ((props: {
         editor: Editor;
@@ -30,54 +30,52 @@ export interface BubbleMenuPluginProps {
     | null;
 }
 
-export type BubbleMenuViewProps = BubbleMenuPluginProps & {
+export type FormattingToolbarViewProps = FormattingToolbarPluginProps & {
   view: EditorView;
 };
 
-export class BubbleMenuView {
+export class FormattingToolbarView {
   public editor: Editor;
 
   public view: EditorView;
 
-  public bubbleMenuParams: BubbleMenuParams;
+  public formattingToolbarParams: FormattingToolbarParams;
 
-  public bubbleMenu: BubbleMenu;
+  public formattingToolbar: FormattingToolbar;
 
   public preventHide = false;
 
   public preventShow = false;
 
-  public menuIsOpen = false;
+  public toolbarIsOpen = false;
 
-  public shouldShow: Exclude<BubbleMenuPluginProps["shouldShow"], null> = ({
-    view,
-    state,
-    from,
-    to,
-  }) => {
-    const { doc, selection } = state;
-    const { empty } = selection;
+  public shouldShow: Exclude<FormattingToolbarPluginProps["shouldShow"], null> =
+    ({ view, state, from, to }) => {
+      const { doc, selection } = state;
+      const { empty } = selection;
 
-    // Sometime check for `empty` is not enough.
-    // Doubleclick an empty paragraph returns a node size of 2.
-    // So we check also for an empty text size.
-    const isEmptyTextBlock =
-      !doc.textBetween(from, to).length && isTextSelection(state.selection);
+      // Sometime check for `empty` is not enough.
+      // Doubleclick an empty paragraph returns a node size of 2.
+      // So we check also for an empty text size.
+      const isEmptyTextBlock =
+        !doc.textBetween(from, to).length && isTextSelection(state.selection);
 
-    return !(!view.hasFocus() || empty || isEmptyTextBlock);
-  };
+      return !(!view.hasFocus() || empty || isEmptyTextBlock);
+    };
 
   constructor({
     editor,
-    bubbleMenuFactory,
+    formattingToolbarFactory,
     view,
     shouldShow,
-  }: BubbleMenuViewProps) {
+  }: FormattingToolbarViewProps) {
     this.editor = editor;
     this.view = view;
 
-    this.bubbleMenuParams = this.initBubbleMenuParams();
-    this.bubbleMenu = bubbleMenuFactory(this.bubbleMenuParams);
+    this.formattingToolbarParams = this.initFormattingToolbarParams();
+    this.formattingToolbar = formattingToolbarFactory(
+      this.formattingToolbarParams
+    );
 
     if (shouldShow) {
       this.shouldShow = shouldShow;
@@ -101,8 +99,8 @@ export class BubbleMenuView {
   };
 
   dragstartHandler = () => {
-    this.bubbleMenu.hide();
-    this.menuIsOpen = false;
+    this.formattingToolbar.hide();
+    this.toolbarIsOpen = false;
   };
 
   focusHandler = () => {
@@ -119,14 +117,16 @@ export class BubbleMenuView {
 
     if (
       event?.relatedTarget &&
-      this.bubbleMenu.element?.parentNode?.contains(event.relatedTarget as Node)
+      this.formattingToolbar.element?.parentNode?.contains(
+        event.relatedTarget as Node
+      )
     ) {
       return;
     }
 
-    if (this.menuIsOpen) {
-      this.bubbleMenu.hide();
-      this.menuIsOpen = false;
+    if (this.toolbarIsOpen) {
+      this.formattingToolbar.hide();
+      this.toolbarIsOpen = false;
     }
   };
 
@@ -156,17 +156,17 @@ export class BubbleMenuView {
 
     // Checks if menu should be shown.
     if (
-      !this.menuIsOpen &&
+      !this.toolbarIsOpen &&
       !this.preventShow &&
       (shouldShow || this.preventHide)
     ) {
-      this.updateBubbleMenuParams();
-      this.bubbleMenu.show(this.bubbleMenuParams);
-      this.menuIsOpen = true;
+      this.updateFormattingToolbarParams();
+      this.formattingToolbar.show(this.formattingToolbarParams);
+      this.toolbarIsOpen = true;
 
       // TODO: Is this necessary? Also for other menu plugins.
       // Listener stops focus moving to the menu on click.
-      this.bubbleMenu.element!.addEventListener("mousedown", (event) =>
+      this.formattingToolbar.element!.addEventListener("mousedown", (event) =>
         event.preventDefault()
       );
 
@@ -175,28 +175,29 @@ export class BubbleMenuView {
 
     // Checks if menu should be updated.
     if (
-      this.menuIsOpen &&
+      this.toolbarIsOpen &&
       !this.preventShow &&
       (shouldShow || this.preventHide)
     ) {
-      this.updateBubbleMenuParams();
-      this.bubbleMenu.update(this.bubbleMenuParams);
+      this.updateFormattingToolbarParams();
+      this.formattingToolbar.update(this.formattingToolbarParams);
 
       return;
     }
 
     // Checks if menu should be hidden.
     if (
-      this.menuIsOpen &&
+      this.toolbarIsOpen &&
       !this.preventHide &&
       (!shouldShow || this.preventShow)
     ) {
-      this.bubbleMenu.hide();
-      this.menuIsOpen = false;
+      this.formattingToolbar.hide();
+      this.toolbarIsOpen = false;
 
       // Listener stops focus moving to the menu on click.
-      this.bubbleMenu.element!.removeEventListener("mousedown", (event) =>
-        event.preventDefault()
+      this.formattingToolbar.element!.removeEventListener(
+        "mousedown",
+        (event) => event.preventDefault()
       );
 
       return;
@@ -232,7 +233,7 @@ export class BubbleMenuView {
     return posToDOMRect(this.editor.view, from, to);
   }
 
-  initBubbleMenuParams(): BubbleMenuParams {
+  initFormattingToolbarParams(): FormattingToolbarParams {
     return {
       boldIsActive: this.editor.isActive("bold"),
       toggleBold: () => {
@@ -255,7 +256,9 @@ export class BubbleMenuView {
         this.editor.commands.toggleStrike();
       },
       hyperlinkIsActive: this.editor.isActive("link"),
-      activeHyperlinkUrl: this.editor.getAttributes("link").href,
+      activeHyperlinkUrl: this.editor.getAttributes("link").href
+        ? this.editor.getAttributes("link").href
+        : "",
       activeHyperlinkText: this.editor.state.doc.textBetween(
         this.editor.state.selection.from,
         this.editor.state.selection.to
@@ -323,38 +326,48 @@ export class BubbleMenuView {
     };
   }
 
-  updateBubbleMenuParams() {
-    this.bubbleMenuParams.boldIsActive = this.editor.isActive("bold");
-    this.bubbleMenuParams.italicIsActive = this.editor.isActive("italic");
-    this.bubbleMenuParams.underlineIsActive = this.editor.isActive("underline");
-    this.bubbleMenuParams.strikeIsActive = this.editor.isActive("strike");
-    this.bubbleMenuParams.hyperlinkIsActive = this.editor.isActive("link");
-    this.bubbleMenuParams.activeHyperlinkUrl =
-      this.editor.getAttributes("link").href;
-    this.bubbleMenuParams.activeHyperlinkText =
+  updateFormattingToolbarParams() {
+    this.formattingToolbarParams.boldIsActive = this.editor.isActive("bold");
+    this.formattingToolbarParams.italicIsActive =
+      this.editor.isActive("italic");
+    this.formattingToolbarParams.underlineIsActive =
+      this.editor.isActive("underline");
+    this.formattingToolbarParams.strikeIsActive =
+      this.editor.isActive("strike");
+    this.formattingToolbarParams.hyperlinkIsActive =
+      this.editor.isActive("link");
+    this.formattingToolbarParams.activeHyperlinkUrl = this.editor.getAttributes(
+      "link"
+    ).href
+      ? this.editor.getAttributes("link").href
+      : "";
+    this.formattingToolbarParams.activeHyperlinkText =
       this.editor.state.doc.textBetween(
         this.editor.state.selection.from,
         this.editor.state.selection.to
       );
 
-    this.bubbleMenuParams.paragraphIsActive =
+    this.formattingToolbarParams.paragraphIsActive =
       this.editor.state.selection.$from.node().type.name === "textContent";
-    this.bubbleMenuParams.headingIsActive =
+    this.formattingToolbarParams.headingIsActive =
       this.editor.state.selection.$from.node().type.name === "headingContent";
-    this.bubbleMenuParams.activeHeadingLevel =
+    this.formattingToolbarParams.activeHeadingLevel =
       this.editor.state.selection.$from.node().attrs["headingLevel"];
-    this.bubbleMenuParams.listItemIsActive =
+    this.formattingToolbarParams.listItemIsActive =
       this.editor.state.selection.$from.node().type.name === "listItemContent";
-    this.bubbleMenuParams.activeListItemType =
+    this.formattingToolbarParams.activeListItemType =
       this.editor.state.selection.$from.node().attrs["listItemType"];
 
-    this.bubbleMenuParams.selectionBoundingBox = this.getSelectionBoundingBox();
+    this.formattingToolbarParams.selectionBoundingBox =
+      this.getSelectionBoundingBox();
   }
 }
 
-export const createBubbleMenuPlugin = (options: BubbleMenuPluginProps) => {
+export const createFormattingToolbarPlugin = (
+  options: FormattingToolbarPluginProps
+) => {
   return new Plugin({
-    key: new PluginKey("BubbleMenuPlugin"),
-    view: (view) => new BubbleMenuView({ view, ...options }),
+    key: new PluginKey("FormattingToolbarPlugin"),
+    view: (view) => new FormattingToolbarView({ view, ...options }),
   });
 };

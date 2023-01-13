@@ -1,9 +1,9 @@
 import { BlockNoteEditor, BlockNoteEditorOptions } from "@blocknote/core";
 import { DependencyList, useEffect, useState } from "react";
-import { ReactBubbleMenuFactory } from "../BubbleMenu/BubbleMenuFactory";
-import { ReactHyperlinkMenuFactory } from "../HyperlinkMenu/HyperlinkMenuFactory";
+import { ReactFormattingToolbarFactory } from "../FormattingToolbar/FormattingToolbarFactory";
+import { ReactHyperlinkToolbarFactory } from "../HyperlinkToolbar/HyperlinkToolbarFactory";
 import { ReactSuggestionsMenuFactory } from "../SuggestionsMenu/SuggestionsMenuFactory";
-import { ReactBlockMenuFactory } from "../BlockMenu/BlockMenuFactory";
+import { ReactBlockSideMenuFactory } from "../BlockSideMenu/BlockSideMenuFactory";
 
 //based on https://github.com/ueberdosis/tiptap/blob/main/packages/react/src/useEditor.ts
 
@@ -14,7 +14,7 @@ function useForceUpdate() {
 }
 
 /**
- * Main hook for importing a BlockNote editor into a react project
+ * Main hook for importing a BlockNote editor into a React project
  */
 export const useBlockNote = (
   options: Partial<BlockNoteEditorOptions> = {},
@@ -22,7 +22,6 @@ export const useBlockNote = (
 ) => {
   const [editor, setEditor] = useState<BlockNoteEditor | null>(null);
   const forceUpdate = useForceUpdate();
-  // useEditorForceUpdate(editor.tiptapEditor);
 
   useEffect(() => {
     let isMounted = true;
@@ -31,10 +30,10 @@ export const useBlockNote = (
       newOptions = {
         ...newOptions,
         uiFactories: {
-          bubbleMenuFactory: ReactBubbleMenuFactory,
-          hyperlinkMenuFactory: ReactHyperlinkMenuFactory,
+          formattingToolbarFactory: ReactFormattingToolbarFactory,
+          hyperlinkToolbarFactory: ReactHyperlinkToolbarFactory,
           suggestionsMenuFactory: ReactSuggestionsMenuFactory,
-          blockMenuFactory: ReactBlockMenuFactory,
+          blockSideMenuFactory: ReactBlockSideMenuFactory,
         },
       };
     }

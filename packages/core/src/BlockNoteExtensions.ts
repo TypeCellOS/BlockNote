@@ -13,9 +13,9 @@ import Text from "@tiptap/extension-text";
 import Underline from "@tiptap/extension-underline";
 import { blocks } from "./extensions/Blocks";
 import blockStyles from "./extensions/Blocks/nodes/Block.module.css";
-import { BubbleMenuExtension } from "./extensions/BubbleMenu/BubbleMenuExtension";
+import { FormattingToolbarExtension } from "./extensions/FormattingToolbar/FormattingToolbarExtension";
 import { DraggableBlocksExtension } from "./extensions/DraggableBlocks/DraggableBlocksExtension";
-import HyperlinkMark from "./extensions/Hyperlinks/HyperlinkMark";
+import HyperlinkMark from "./extensions/HyperlinkToolbar/HyperlinkMark";
 import { FixedParagraph } from "./extensions/Paragraph/FixedParagraph";
 import { Placeholder } from "./extensions/Placeholder/PlaceholderExtension";
 import SlashMenuExtension from "./extensions/SlashMenu";
@@ -72,7 +72,7 @@ export const getBlockNoteExtensions = () => {
     ...blocks,
     DraggableBlocksExtension,
     DropCursor.configure({ width: 5, color: "#ddeeff" }),
-    BubbleMenuExtension,
+    FormattingToolbarExtension,
     History,
     // This needs to be at the bottom of this list, because Key events (such as enter, when selecting a /command),
     // should be handled before Enter handlers in other components like splitListItem

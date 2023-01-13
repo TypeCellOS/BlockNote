@@ -6,10 +6,10 @@ import { EditorView } from "prosemirror-view";
 import { MultipleNodeSelection } from "../Blocks/MultipleNodeSelection";
 import { DraggableBlocksOptions } from "./DraggableBlocksExtension";
 import {
-  BlockMenu,
-  BlockMenuFactory,
-  BlockMenuParams,
-} from "./BlockMenuFactoryTypes";
+  BlockSideMenu,
+  BlockSideMenuFactory,
+  BlockSideMenuParams,
+} from "./BlockSideMenuFactoryTypes";
 import { getBlockInfoFromPos } from "../Blocks/helpers/getBlockInfoFromPos";
 import { SlashMenuPluginKey } from "../SlashMenu/SlashMenuExtension";
 import styles from "../../editor.module.css";
@@ -226,7 +226,7 @@ function dragStart(e: DragEvent, view: EditorView) {
 
 export type BlockMenuViewProps = {
   editor: Editor;
-  blockMenuFactory: BlockMenuFactory;
+  blockMenuFactory: BlockSideMenuFactory;
   horizontalPosAnchoredAtRoot: boolean;
 };
 
@@ -237,8 +237,8 @@ export class BlockMenuView {
   // When false, the drag handle with be just to the left of the element
   horizontalPosAnchoredAtRoot: boolean;
 
-  blockMenuParams: BlockMenuParams;
-  blockMenu: BlockMenu;
+  blockMenuParams: BlockSideMenuParams;
+  blockMenu: BlockSideMenu;
 
   menuOpen = false;
   menuFrozen = false;
@@ -436,7 +436,7 @@ export const createDraggableBlocksPlugin = (
     view: () =>
       new BlockMenuView({
         editor: options.editor,
-        blockMenuFactory: options.blockMenuFactory,
+        blockMenuFactory: options.blockSideMenuFactory,
         horizontalPosAnchoredAtRoot: true,
       }),
   });

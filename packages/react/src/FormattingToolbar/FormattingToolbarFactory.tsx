@@ -1,23 +1,23 @@
 import { createRoot, Root } from "react-dom/client";
 import {
-  BubbleMenu,
-  BubbleMenuFactory,
-  BubbleMenuParams,
+  FormattingToolbar,
+  FormattingToolbarParams,
+  FormattingToolbarFactory,
 } from "@blocknote/core";
 import { MantineProvider } from "@mantine/core";
 import Tippy from "@tippyjs/react";
 import {
-  BubbleMenu as ReactBubbleMenu,
-  BubbleMenuProps,
-} from "./components/BubbleMenu";
+  FormattingToolbar as ReactFormattingToolbar,
+  FormattingToolbarProps,
+} from "./components/FormattingToolbar";
 import { BlockNoteTheme } from "../BlockNoteTheme";
 // import rootStyles from "../../../core/src/root.module.css";
 
-export const ReactBubbleMenuFactory: BubbleMenuFactory = (
-  params: BubbleMenuParams
-): BubbleMenu => {
+export const ReactFormattingToolbarFactory: FormattingToolbarFactory = (
+  params: FormattingToolbarParams
+): FormattingToolbar => {
   // TODO: Maybe just use {...params}?
-  const bubbleMenuProps: BubbleMenuProps = {
+  const formattingToolbarProps: FormattingToolbarProps = {
     boldIsActive: params.boldIsActive,
     toggleBold: params.toggleBold,
     italicIsActive: params.italicIsActive,
@@ -41,20 +41,20 @@ export const ReactBubbleMenuFactory: BubbleMenuFactory = (
     setListItem: params.setListItem,
   };
 
-  function updateBubbleMenuProps(params: BubbleMenuParams) {
-    bubbleMenuProps.boldIsActive = params.boldIsActive;
-    bubbleMenuProps.italicIsActive = params.italicIsActive;
-    bubbleMenuProps.underlineIsActive = params.underlineIsActive;
-    bubbleMenuProps.strikeIsActive = params.strikeIsActive;
-    bubbleMenuProps.hyperlinkIsActive = params.hyperlinkIsActive;
-    bubbleMenuProps.activeHyperlinkUrl = params.activeHyperlinkUrl;
-    bubbleMenuProps.activeHyperlinkText = params.activeHyperlinkText;
+  function updateFormattingToolbarProps(params: FormattingToolbarParams) {
+    formattingToolbarProps.boldIsActive = params.boldIsActive;
+    formattingToolbarProps.italicIsActive = params.italicIsActive;
+    formattingToolbarProps.underlineIsActive = params.underlineIsActive;
+    formattingToolbarProps.strikeIsActive = params.strikeIsActive;
+    formattingToolbarProps.hyperlinkIsActive = params.hyperlinkIsActive;
+    formattingToolbarProps.activeHyperlinkUrl = params.activeHyperlinkUrl;
+    formattingToolbarProps.activeHyperlinkText = params.activeHyperlinkText;
 
-    bubbleMenuProps.paragraphIsActive = params.paragraphIsActive;
-    bubbleMenuProps.headingIsActive = params.headingIsActive;
-    bubbleMenuProps.activeHeadingLevel = params.activeHeadingLevel;
-    bubbleMenuProps.listItemIsActive = params.listItemIsActive;
-    bubbleMenuProps.activeListItemType = params.activeListItemType;
+    formattingToolbarProps.paragraphIsActive = params.paragraphIsActive;
+    formattingToolbarProps.headingIsActive = params.headingIsActive;
+    formattingToolbarProps.activeHeadingLevel = params.activeHeadingLevel;
+    formattingToolbarProps.listItemIsActive = params.listItemIsActive;
+    formattingToolbarProps.activeListItemType = params.activeListItemType;
   }
 
   // We don't use the document body as a root as it would cause multiple React roots to be created on a single element
@@ -68,7 +68,11 @@ export const ReactBubbleMenuFactory: BubbleMenuFactory = (
       <MantineProvider theme={BlockNoteTheme}>
         <Tippy
           appendTo={menuRootElement}
-          content={<ReactBubbleMenu bubbleMenuProps={bubbleMenuProps} />}
+          content={
+            <ReactFormattingToolbar
+              formattingToolbarProps={formattingToolbarProps}
+            />
+          }
           duration={0}
           getReferenceClientRect={() => params.selectionBoundingBox}
           hideOnClick={false}
@@ -83,8 +87,8 @@ export const ReactBubbleMenuFactory: BubbleMenuFactory = (
 
   return {
     element: menuRootElement,
-    show: (params: BubbleMenuParams) => {
-      updateBubbleMenuProps(params);
+    show: (params: FormattingToolbarParams) => {
+      updateFormattingToolbarProps(params);
 
       document.body.appendChild(menuRootElement);
       menuRoot = createRoot(menuRootElement);
@@ -96,8 +100,8 @@ export const ReactBubbleMenuFactory: BubbleMenuFactory = (
 
       menuRootElement.remove();
     },
-    update: (params: BubbleMenuParams) => {
-      updateBubbleMenuProps(params);
+    update: (params: FormattingToolbarParams) => {
+      updateFormattingToolbarProps(params);
 
       menuRoot!.render(getMenuComponent());
     },

@@ -2,26 +2,26 @@ import { Editor, getMarkRange, posToDOMRect, Range } from "@tiptap/core";
 import { Mark } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
 import {
-  HyperlinkMenu,
-  HyperlinkMenuFactory,
-  HyperlinkMenuParams,
-} from "./HyperlinkMenuFactoryTypes";
-const PLUGIN_KEY = new PluginKey("HyperlinkMenuPlugin");
+  HyperlinkToolbar,
+  HyperlinkToolbarFactory,
+  HyperlinkToolbarParams,
+} from "./HyperlinkToolbarFactoryTypes";
+const PLUGIN_KEY = new PluginKey("HyperlinkToolbarPlugin");
 
-export type HyperlinkMenuPluginProps = {
-  hyperlinkMenuFactory: HyperlinkMenuFactory;
+export type HyperlinkToolbarPluginProps = {
+  hyperlinkToolbarFactory: HyperlinkToolbarFactory;
 };
 
-export type HyperlinkMenuViewProps = {
+export type HyperlinkToolbarViewProps = {
   editor: Editor;
-  hyperlinkMenuFactory: HyperlinkMenuFactory;
+  hyperlinkToolbarFactory: HyperlinkToolbarFactory;
 };
 
-class HyperlinkMenuView {
+class HyperlinkToolbarView {
   editor: Editor;
 
-  hyperlinkMenuParams: HyperlinkMenuParams;
-  hyperlinkMenu: HyperlinkMenu;
+  hyperlinkToolbarParams: HyperlinkToolbarParams;
+  hyperlinkToolbar: HyperlinkToolbar;
 
   menuUpdateTimer: NodeJS.Timeout | undefined;
   startMenuUpdateTimer: () => void;
@@ -36,11 +36,13 @@ class HyperlinkMenuView {
   hyperlinkMark: Mark | undefined;
   hyperlinkMarkRange: Range | undefined;
 
-  constructor({ editor, hyperlinkMenuFactory }: HyperlinkMenuViewProps) {
+  constructor({ editor, hyperlinkToolbarFactory }: HyperlinkToolbarViewProps) {
     this.editor = editor;
 
-    this.hyperlinkMenuParams = this.initHyperlinkMenuParams();
-    this.hyperlinkMenu = hyperlinkMenuFactory(this.hyperlinkMenuParams);
+    this.hyperlinkToolbarParams = this.initHyperlinkToolbarParams();
+    this.hyperlinkToolbar = hyperlinkToolbarFactory(
+      this.hyperlinkToolbarParams
+    );
 
     this.startMenuUpdateTimer = () => {
       this.menuUpdateTimer = setTimeout(() => {
@@ -147,17 +149,17 @@ class HyperlinkMenuView {
     }
 
     if (this.hyperlinkMark) {
-      this.updateHyperlinkMenuParams();
+      this.updateHyperlinkToolbarParams();
 
       // Shows menu.
       if (!prevHyperlinkMark) {
-        this.hyperlinkMenu.show(this.hyperlinkMenuParams);
+        this.hyperlinkToolbar.show(this.hyperlinkToolbarParams);
 
-        this.hyperlinkMenu.element?.addEventListener(
+        this.hyperlinkToolbar.element?.addEventListener(
           "mouseleave",
           this.startMenuUpdateTimer
         );
-        this.hyperlinkMenu.element?.addEventListener(
+        this.hyperlinkToolbar.element?.addEventListener(
           "mouseenter",
           this.stopMenuUpdateTimer
         );
@@ -166,27 +168,27 @@ class HyperlinkMenuView {
       }
 
       // Updates menu.
-      this.hyperlinkMenu.update(this.hyperlinkMenuParams);
+      this.hyperlinkToolbar.update(this.hyperlinkToolbarParams);
     }
 
     // Hides menu.
     if (!this.hyperlinkMark && prevHyperlinkMark) {
-      this.hyperlinkMenu.element?.removeEventListener(
+      this.hyperlinkToolbar.element?.removeEventListener(
         "mouseleave",
         this.startMenuUpdateTimer
       );
-      this.hyperlinkMenu.element?.removeEventListener(
+      this.hyperlinkToolbar.element?.removeEventListener(
         "mouseenter",
         this.stopMenuUpdateTimer
       );
 
-      this.hyperlinkMenu.hide();
+      this.hyperlinkToolbar.hide();
 
       return;
     }
   }
 
-  initHyperlinkMenuParams(): HyperlinkMenuParams {
+  initHyperlinkToolbarParams(): HyperlinkToolbarParams {
     return {
       url: "",
       text: "",
@@ -204,7 +206,7 @@ class HyperlinkMenuView {
         this.editor.view.dispatch(tr);
         this.editor.view.focus();
 
-        this.hyperlinkMenu.hide();
+        this.hyperlinkToolbar.hide();
       },
       deleteHyperlink: () => {
         this.editor.view.dispatch(
@@ -218,7 +220,7 @@ class HyperlinkMenuView {
         );
         this.editor.view.focus();
 
-        this.hyperlinkMenu.hide();
+        this.hyperlinkToolbar.hide();
       },
 
       boundingBox: new DOMRect(),
@@ -226,17 +228,19 @@ class HyperlinkMenuView {
     };
   }
 
-  updateHyperlinkMenuParams() {
+  updateHyperlinkToolbarParams() {
     if (this.hyperlinkMark) {
-      this.hyperlinkMenuParams.url = this.hyperlinkMark.attrs.href;
-      this.hyperlinkMenuParams.text = this.editor.view.state.doc.textBetween(
+      this.hyperlinkToolbarParams.url = this.hyperlinkMark.attrs.href
+        ? this.hyperlinkMark.attrs.href
+        : "";
+      this.hyperlinkToolbarParams.text = this.editor.view.state.doc.textBetween(
         this.hyperlinkMarkRange!.from,
         this.hyperlinkMarkRange!.to
       );
     }
 
     if (this.hyperlinkMarkRange) {
-      this.hyperlinkMenuParams.boundingBox = posToDOMRect(
+      this.hyperlinkToolbarParams.boundingBox = posToDOMRect(
         this.editor.view,
         this.hyperlinkMarkRange!.from,
         this.hyperlinkMarkRange!.to
@@ -245,16 +249,16 @@ class HyperlinkMenuView {
   }
 }
 
-export const createHyperlinkMenuPlugin = (
+export const createHyperlinkToolbarPlugin = (
   editor: Editor,
-  options: HyperlinkMenuPluginProps
+  options: HyperlinkToolbarPluginProps
 ) => {
   return new Plugin({
     key: PLUGIN_KEY,
     view: () =>
-      new HyperlinkMenuView({
+      new HyperlinkToolbarView({
         editor: editor,
-        hyperlinkMenuFactory: options.hyperlinkMenuFactory,
+        hyperlinkToolbarFactory: options.hyperlinkToolbarFactory,
       }),
   });
 };

@@ -1,11 +1,11 @@
-import { BubbleMenuFactory } from "@blocknote/core";
+import { FormattingToolbarFactory } from "@blocknote/core";
 import { createButton } from "./util";
 
 /**
  * This menu is drawn when a piece of text is selected. We can use it to change formatting options
  * such as bold, italic, indentation, etc.
  */
-export const bubbleMenuFactory: BubbleMenuFactory = (props) => {
+export const formattingToolbarFactory: FormattingToolbarFactory = (props) => {
   const container = document.createElement("div");
   container.style.background = "gray";
   container.style.position = "absolute";
@@ -29,7 +29,6 @@ export const bubbleMenuFactory: BubbleMenuFactory = (props) => {
     element: container,
     show: (params) => {
       container.style.display = "block";
-      console.log("show bubble", params);
       boldBtn.text = params.boldIsActive ? "unset bold" : "set bold";
       container.style.top = params.selectionBoundingBox.y + "px";
       container.style.left = params.selectionBoundingBox.x + "px";
@@ -38,7 +37,6 @@ export const bubbleMenuFactory: BubbleMenuFactory = (props) => {
       container.style.display = "none";
     },
     update: (params) => {
-      console.log("update bubble", params);
       boldBtn.text = params.boldIsActive ? "unset bold" : "set bold";
       container.style.top = params.selectionBoundingBox.y + "px";
       container.style.left = params.selectionBoundingBox.x + "px";

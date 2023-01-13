@@ -1,21 +1,21 @@
 import { BlockNoteEditor } from "@blocknote/core";
 import "./index.css";
-import { blockMenuFactory } from "./ui/blockMenuFactory";
-import { bubbleMenuFactory } from "./ui/bubbleMenuFactory";
-import { hyperlinkMenuFactory } from "./ui/hyperlinkMenuFactory";
+import { blockSideMenuFactory } from "./ui/blockSideMenuFactory";
+import { formattingToolbarFactory } from "./ui/formattingToolbarFactory";
+import { hyperlinkToolbarFactory } from "./ui/hyperlinkToolbarFactory";
 import { suggestionsMenuFactory } from "./ui/suggestionsMenuFactory";
 
 const editor = new BlockNoteEditor({
   element: document.getElementById("root")!,
   uiFactories: {
-    // Create an example bubble menu which just consists of a bold toggle
-    bubbleMenuFactory,
+    // Create an example formatting toolbar which just consists of a bold toggle
+    formattingToolbarFactory,
     // Create an example menu for hyperlinks
-    hyperlinkMenuFactory,
+    hyperlinkToolbarFactory,
     // Create an example menu for the /-menu
     suggestionsMenuFactory,
     // Create an example menu for when a block is hovered
-    blockMenuFactory,
+    blockSideMenuFactory,
   },
   onUpdate: ({ editor }) => {
     console.log(editor.getJSON());

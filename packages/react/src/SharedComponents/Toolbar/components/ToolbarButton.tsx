@@ -15,7 +15,7 @@ export type ToolbarButtonProps = {
 };
 
 /**
- * Helper for basic buttons that show in the inline bubble menu.
+ * Helper for basic buttons that show in the formatting toolbar.
  */
 export const ToolbarButton = forwardRef((props: ToolbarButtonProps, ref) => {
   const ButtonIcon = props.icon;

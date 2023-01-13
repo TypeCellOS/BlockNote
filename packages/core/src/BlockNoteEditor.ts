@@ -3,9 +3,9 @@ import { Editor, EditorOptions } from "@tiptap/core";
 // import "./blocknote.css";
 import { getBlockNoteExtensions } from "./BlockNoteExtensions";
 import styles from "./editor.module.css";
-import { BubbleMenuFactory } from "./extensions/BubbleMenu/BubbleMenuFactoryTypes";
-import { BlockMenuFactory } from "./extensions/DraggableBlocks/BlockMenuFactoryTypes";
-import { HyperlinkMenuFactory } from "./extensions/Hyperlinks/HyperlinkMenuFactoryTypes";
+import { FormattingToolbarFactory } from "./extensions/FormattingToolbar/FormattingToolbarFactoryTypes";
+import { BlockSideMenuFactory } from "./extensions/DraggableBlocks/BlockSideMenuFactoryTypes";
+import { HyperlinkToolbarFactory } from "./extensions/HyperlinkToolbar/HyperlinkToolbarFactoryTypes";
 import { SuggestionItem } from "./shared/plugins/suggestion/SuggestionItem";
 import { SuggestionsMenuFactory } from "./shared/plugins/suggestion/SuggestionsMenuFactoryTypes";
 
@@ -13,10 +13,10 @@ export type BlockNoteEditorOptions = EditorOptions & {
   enableBlockNoteExtensions: boolean;
   disableHistoryExtension: boolean;
   uiFactories: Partial<{
-    bubbleMenuFactory: BubbleMenuFactory;
-    hyperlinkMenuFactory: HyperlinkMenuFactory;
+    formattingToolbarFactory: FormattingToolbarFactory;
+    hyperlinkToolbarFactory: HyperlinkToolbarFactory;
     suggestionsMenuFactory: SuggestionsMenuFactory<SuggestionItem>;
-    blockMenuFactory: BlockMenuFactory;
+    blockSideMenuFactory: BlockSideMenuFactory;
   }>;
 };
 
@@ -39,20 +39,21 @@ export class BlockNoteEditor {
     // TODO: review
     extensions = extensions.map((extension) => {
       if (
-        extension.name === "BubbleMenuExtension" &&
-        options.uiFactories?.bubbleMenuFactory
+        extension.name === "FormattingToolbarExtension" &&
+        options.uiFactories?.formattingToolbarFactory
       ) {
         return extension.configure({
-          bubbleMenuFactory: options.uiFactories.bubbleMenuFactory,
+          formattingToolbarFactory:
+            options.uiFactories.formattingToolbarFactory,
         });
       }
 
       if (
         extension.name === "link" &&
-        options.uiFactories?.hyperlinkMenuFactory
+        options.uiFactories?.hyperlinkToolbarFactory
       ) {
         return extension.configure({
-          hyperlinkMenuFactory: options.uiFactories.hyperlinkMenuFactory,
+          hyperlinkToolbarFactory: options.uiFactories.hyperlinkToolbarFactory,
         });
       }
 
@@ -70,7 +71,7 @@ export class BlockNoteEditor {
         options.uiFactories
       ) {
         return extension.configure({
-          blockMenuFactory: options.uiFactories.blockMenuFactory,
+          blockSideMenuFactory: options.uiFactories.blockSideMenuFactory,
         });
       }
 
