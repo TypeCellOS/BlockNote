@@ -3,7 +3,7 @@ import "./index.css";
 import { blockSideMenuFactory } from "./ui/blockSideMenuFactory";
 import { formattingToolbarFactory } from "./ui/formattingToolbarFactory";
 import { hyperlinkToolbarFactory } from "./ui/hyperlinkToolbarFactory";
-import { suggestionsMenuFactory } from "./ui/suggestionsMenuFactory";
+import { slashMenuFactory } from "./ui/slashMenuFactory";
 
 const editor = new BlockNoteEditor({
   element: document.getElementById("root")!,
@@ -13,7 +13,7 @@ const editor = new BlockNoteEditor({
     // Create an example menu for hyperlinks
     hyperlinkToolbarFactory,
     // Create an example menu for the /-menu
-    suggestionsMenuFactory,
+    slashMenuFactory: slashMenuFactory,
     // Create an example menu for when a block is hovered
     blockSideMenuFactory,
   },

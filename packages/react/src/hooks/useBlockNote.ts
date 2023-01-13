@@ -2,7 +2,7 @@ import { BlockNoteEditor, BlockNoteEditorOptions } from "@blocknote/core";
 import { DependencyList, useEffect, useState } from "react";
 import { ReactFormattingToolbarFactory } from "../FormattingToolbar/FormattingToolbarFactory";
 import { ReactHyperlinkToolbarFactory } from "../HyperlinkToolbar/HyperlinkToolbarFactory";
-import { ReactSuggestionsMenuFactory } from "../SuggestionsMenu/SuggestionsMenuFactory";
+import { ReactSlashMenuFactory } from "../SlashMenu/SlashMenuFactory";
 import { ReactBlockSideMenuFactory } from "../BlockSideMenu/BlockSideMenuFactory";
 
 //based on https://github.com/ueberdosis/tiptap/blob/main/packages/react/src/useEditor.ts
@@ -32,7 +32,7 @@ export const useBlockNote = (
         uiFactories: {
           formattingToolbarFactory: ReactFormattingToolbarFactory,
           hyperlinkToolbarFactory: ReactHyperlinkToolbarFactory,
-          suggestionsMenuFactory: ReactSuggestionsMenuFactory,
+          slashMenuFactory: ReactSlashMenuFactory,
           blockSideMenuFactory: ReactBlockSideMenuFactory,
         },
       };

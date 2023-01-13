@@ -1,22 +1,20 @@
-import { SuggestionItem } from "@blocknote/core";
+import { SlashMenuItem } from "@blocknote/core";
 import { createStyles, Menu } from "@mantine/core";
-import { SuggestionListItem } from "./SuggestionListItem";
+import { SlashMenuItem as ReactSlashMenuItem } from "./SlashMenuItem";
 
-export type SuggestionListProps<T extends SuggestionItem> = {
-  items: T[];
+export type SlashMenuProps = {
+  items: SlashMenuItem[];
   selectedItemIndex: number;
-  itemCallback: (item: T) => void;
+  itemCallback: (item: SlashMenuItem) => void;
 };
 
-export function SuggestionList<T extends SuggestionItem>(
-  props: SuggestionListProps<T>
-) {
+export function SlashMenu(props: SlashMenuProps) {
   const { classes } = createStyles({ root: {} })(undefined, {
-    name: "SuggestionList",
+    name: "SlashMenu",
   });
 
-  const headingGroup: T[] = [];
-  const basicBlockGroup: T[] = [];
+  const headingGroup: SlashMenuItem[] = [];
+  const basicBlockGroup: SlashMenuItem[] = [];
 
   for (const item of props.items) {
     if (item.name === "Heading") {
@@ -54,7 +52,7 @@ export function SuggestionList<T extends SuggestionItem>(
 
     for (const item of headingGroup) {
       renderedItems.push(
-        <SuggestionListItem
+        <ReactSlashMenuItem
           key={item.name}
           name={item.name}
           hint={item.hint}
@@ -73,7 +71,7 @@ export function SuggestionList<T extends SuggestionItem>(
 
     for (const item of basicBlockGroup) {
       renderedItems.push(
-        <SuggestionListItem
+        <ReactSlashMenuItem
           key={item.name}
           name={item.name}
           hint={item.hint}

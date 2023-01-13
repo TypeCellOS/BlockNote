@@ -1,4 +1,3 @@
-// import SuggestionItem from "../SuggestionItem";
 import { Badge, createStyles, Menu, Stack, Text } from "@mantine/core";
 import { useEffect, useRef } from "react";
 import { IconType } from "react-icons";
@@ -14,7 +13,7 @@ import {
 
 const MIN_LEFT_MARGIN = 5;
 
-export type SuggestionGroupItemProps = {
+export type SlashMenuItemProps = {
   name: string;
   hint: string | undefined;
   shortcut?: string;
@@ -22,7 +21,7 @@ export type SuggestionGroupItemProps = {
   set: () => void;
 };
 
-export function SuggestionListItem(props: SuggestionGroupItemProps) {
+export function SlashMenuItem(props: SlashMenuItemProps) {
   const itemRef = useRef<HTMLButtonElement>(null);
   const { classes } = createStyles({ root: {} })(undefined, {
     name: "SuggestionListItem",

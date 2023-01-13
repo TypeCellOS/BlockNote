@@ -24,9 +24,9 @@ import UniqueID from "./extensions/UniqueID/UniqueID";
 import { FormattingToolbarFactory } from "./extensions/FormattingToolbar/FormattingToolbarFactoryTypes";
 import { HyperlinkToolbarFactory } from "./extensions/HyperlinkToolbar/HyperlinkToolbarFactoryTypes";
 import { SuggestionsMenuFactory } from "./shared/plugins/suggestion/SuggestionsMenuFactoryTypes";
-import { SuggestionItem } from "./shared/plugins/suggestion/SuggestionItem";
 import { BlockSideMenuFactory } from "./extensions/DraggableBlocks/BlockSideMenuFactoryTypes";
 import { Link } from "@tiptap/extension-link";
+import { SlashMenuItem } from "./extensions/SlashMenu/SlashMenuItem";
 
 export const Document = Node.create({
   name: "doc",
@@ -37,7 +37,7 @@ export const Document = Node.create({
 export type UiFactories = Partial<{
   formattingToolbarFactory: FormattingToolbarFactory;
   hyperlinkToolbarFactory: HyperlinkToolbarFactory;
-  suggestionsMenuFactory: SuggestionsMenuFactory<SuggestionItem>;
+  slashMenuFactory: SuggestionsMenuFactory<SlashMenuItem>;
   blockSideMenuFactory: BlockSideMenuFactory;
 }>;
 
@@ -116,10 +116,10 @@ export const getBlockNoteExtensions = (uiFactories: UiFactories) => {
     ret.push(Link);
   }
 
-  if (uiFactories.suggestionsMenuFactory) {
+  if (uiFactories.slashMenuFactory) {
     ret.push(
       SlashMenuExtension.configure({
-        suggestionsMenuFactory: uiFactories.suggestionsMenuFactory,
+        slashMenuFactory: uiFactories.slashMenuFactory,
       })
     );
   }

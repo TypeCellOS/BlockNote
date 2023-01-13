@@ -128,7 +128,7 @@ export const BlockNoteTheme: MantineThemeOverride = {
         },
       }),
     },
-    SuggestionList: {
+    SlashMenu: {
       styles: (theme) => ({
         root: {
           // ...theme.other.defaultMenuStyles(theme),

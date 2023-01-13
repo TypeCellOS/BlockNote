@@ -242,7 +242,7 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
           deactivate(view);
           selectItemCallback(props);
         },
-        suggestionsMenuFactory,
+        suggestionsMenuFactory: suggestionsMenuFactory,
       }),
 
     state: {

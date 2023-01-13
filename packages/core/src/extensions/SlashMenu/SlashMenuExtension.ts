@@ -7,7 +7,7 @@ import { SlashMenuItem } from "./SlashMenuItem";
 
 export type SlashMenuOptions = {
   commands: { [key: string]: SlashMenuItem };
-  suggestionsMenuFactory: SuggestionsMenuFactory<any> | undefined;
+  slashMenuFactory: SuggestionsMenuFactory<any> | undefined;
 };
 
 export const SlashMenuPluginKey = new PluginKey("suggestions-slash-commands");
@@ -18,12 +18,12 @@ export const SlashMenuExtension = Extension.create<SlashMenuOptions>({
   addOptions() {
     return {
       commands: defaultCommands,
-      suggestionsMenuFactory: undefined, // TODO: fix undefined
+      slashMenuFactory: undefined, // TODO: fix undefined
     };
   },
 
   addProseMirrorPlugins() {
-    if (!this.options.suggestionsMenuFactory) {
+    if (!this.options.slashMenuFactory) {
       throw new Error("UI Element factory not defined for SlashMenuExtension");
     }
 
@@ -32,7 +32,7 @@ export const SlashMenuExtension = Extension.create<SlashMenuOptions>({
         pluginKey: SlashMenuPluginKey,
         editor: this.editor,
         char: "/",
-        suggestionsMenuFactory: this.options.suggestionsMenuFactory!,
+        suggestionsMenuFactory: this.options.slashMenuFactory!,
         items: (query) => {
           const commands = [];
 

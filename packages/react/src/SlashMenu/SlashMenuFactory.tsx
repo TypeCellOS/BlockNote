@@ -1,30 +1,25 @@
 import { createRoot, Root } from "react-dom/client";
 import {
-  SuggestionItem,
+  SlashMenuItem,
   SuggestionsMenu,
   SuggestionsMenuFactory,
   SuggestionsMenuParams,
 } from "@blocknote/core";
 import { MantineProvider } from "@mantine/core";
 import Tippy from "@tippyjs/react";
-import {
-  SuggestionList,
-  SuggestionListProps,
-} from "./components/SuggestionList";
+import { SlashMenu, SlashMenuProps } from "./components/SlashMenu";
 import { BlockNoteTheme } from "../BlockNoteTheme";
 // import rootStyles from "../../../core/src/root.module.css";
 
-export const ReactSuggestionsMenuFactory: SuggestionsMenuFactory<
-  SuggestionItem
-> = (
-  params: SuggestionsMenuParams<SuggestionItem>
-): SuggestionsMenu<SuggestionItem> => {
-  const suggestionsMenuProps: SuggestionListProps<SuggestionItem> = {
+export const ReactSlashMenuFactory: SuggestionsMenuFactory<SlashMenuItem> = (
+  params: SuggestionsMenuParams<SlashMenuItem>
+): SuggestionsMenu<SlashMenuItem> => {
+  const suggestionsMenuProps: SlashMenuProps = {
     ...params,
   };
 
   function updateSuggestionsMenuProps(
-    params: SuggestionsMenuParams<SuggestionItem>
+    params: SuggestionsMenuParams<SlashMenuItem>
   ) {
     suggestionsMenuProps.items = params.items;
     suggestionsMenuProps.selectedItemIndex = params.selectedItemIndex;
@@ -42,7 +37,7 @@ export const ReactSuggestionsMenuFactory: SuggestionsMenuFactory<
       <MantineProvider theme={BlockNoteTheme}>
         <Tippy
           appendTo={menuRootElement}
-          content={<SuggestionList {...suggestionsMenuProps} />}
+          content={<SlashMenu {...suggestionsMenuProps} />}
           duration={0}
           getReferenceClientRect={() => params.queryStartBoundingBox}
           hideOnClick={false}
@@ -57,7 +52,7 @@ export const ReactSuggestionsMenuFactory: SuggestionsMenuFactory<
 
   return {
     element: menuRootElement as HTMLElement,
-    show: (params: SuggestionsMenuParams<SuggestionItem>) => {
+    show: (params: SuggestionsMenuParams<SlashMenuItem>) => {
       updateSuggestionsMenuProps(params);
 
       document.body.appendChild(menuRootElement);
@@ -70,7 +65,7 @@ export const ReactSuggestionsMenuFactory: SuggestionsMenuFactory<
 
       menuRootElement.remove();
     },
-    update: (params: SuggestionsMenuParams<SuggestionItem>) => {
+    update: (params: SuggestionsMenuParams<SlashMenuItem>) => {
       updateSuggestionsMenuProps(params);
 
       menuRoot!.render(getMenuComponent());
