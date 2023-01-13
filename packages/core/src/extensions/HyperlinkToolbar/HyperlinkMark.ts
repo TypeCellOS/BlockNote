@@ -13,8 +13,7 @@ const Hyperlink = Link.extend<HyperlinkToolbarPluginProps>({
   priority: 500,
   addProseMirrorPlugins() {
     if (!this.options.hyperlinkToolbarFactory) {
-      console.warn("factories not defined for Hyperlink");
-      return [...(this.parent?.() || [])];
+      throw new Error("UI Element factory not defined for HyperlinkMark");
     }
 
     return [

@@ -13,8 +13,9 @@ export const FormattingToolbarExtension = Extension.create<{
 
   addProseMirrorPlugins() {
     if (!this.options.formattingToolbarFactory) {
-      console.warn("factories not defined for FormattingToolbarExtension");
-      return [];
+      throw new Error(
+        "UI Element factory not defined for FormattingToolbarExtension"
+      );
     }
 
     return [

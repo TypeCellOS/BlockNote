@@ -19,8 +19,9 @@ export const DraggableBlocksExtension =
     priority: 1000, // Need to be high, in order to hide menu when typing slash
     addProseMirrorPlugins() {
       if (!this.options.blockSideMenuFactory) {
-        console.warn("factories not defined for DraggableBlocksExtension");
-        return [];
+        throw new Error(
+          "UI Element factory not defined for DraggableBlocksExtension"
+        );
       }
       return [
         createDraggableBlocksPlugin({

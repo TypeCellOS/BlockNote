@@ -24,8 +24,7 @@ export const SlashMenuExtension = Extension.create<SlashMenuOptions>({
 
   addProseMirrorPlugins() {
     if (!this.options.suggestionsMenuFactory) {
-      console.warn("factories not defined for SlashMenuExtension");
-      return [];
+      throw new Error("UI Element factory not defined for SlashMenuExtension");
     }
 
     return [
