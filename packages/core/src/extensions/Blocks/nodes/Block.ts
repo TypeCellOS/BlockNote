@@ -282,7 +282,7 @@ export const Block = Node.create<IBlock>({
 
           return true;
         },
-      // Changes the block at a given position to a given content type.
+      // Changes the content of a block at a given position to a given type.
       BNSetContentType:
         (posInBlock, type, attributes) =>
         ({ state, dispatch }) => {
@@ -291,12 +291,12 @@ export const Block = Node.create<IBlock>({
             return false;
           }
 
-          const { startPos, endPos } = blockInfo;
+          const { startPos, contentNode } = blockInfo;
 
           if (dispatch) {
             state.tr.setBlockType(
               startPos + 1,
-              endPos - 1,
+              startPos + contentNode.nodeSize + 1,
               state.schema.node(type).type,
               attributes
             );
