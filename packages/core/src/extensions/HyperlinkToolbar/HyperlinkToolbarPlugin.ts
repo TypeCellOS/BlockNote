@@ -3,8 +3,9 @@ import { Mark } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
 import {
   HyperlinkToolbar,
+  HyperlinkToolbarDynamicParams,
   HyperlinkToolbarFactory,
-  HyperlinkToolbarParams,
+  HyperlinkToolbarStaticParams,
 } from "./HyperlinkToolbarFactoryTypes";
 const PLUGIN_KEY = new PluginKey("HyperlinkToolbarPlugin");
 
@@ -20,7 +21,6 @@ export type HyperlinkToolbarViewProps = {
 class HyperlinkToolbarView {
   editor: Editor;
 
-  hyperlinkToolbarParams: HyperlinkToolbarParams;
   hyperlinkToolbar: HyperlinkToolbar;
 
   menuUpdateTimer: NodeJS.Timeout | undefined;
@@ -39,10 +39,7 @@ class HyperlinkToolbarView {
   constructor({ editor, hyperlinkToolbarFactory }: HyperlinkToolbarViewProps) {
     this.editor = editor;
 
-    this.hyperlinkToolbarParams = this.initHyperlinkToolbarParams();
-    this.hyperlinkToolbar = hyperlinkToolbarFactory(
-      this.hyperlinkToolbarParams
-    );
+    this.hyperlinkToolbar = hyperlinkToolbarFactory(this.getStaticParams());
 
     this.startMenuUpdateTimer = () => {
       this.menuUpdateTimer = setTimeout(() => {
@@ -149,11 +146,11 @@ class HyperlinkToolbarView {
     }
 
     if (this.hyperlinkMark) {
-      this.updateHyperlinkToolbarParams();
+      this.getDynamicParams();
 
       // Shows menu.
       if (!prevHyperlinkMark) {
-        this.hyperlinkToolbar.show(this.hyperlinkToolbarParams);
+        this.hyperlinkToolbar.show(this.getDynamicParams());
 
         this.hyperlinkToolbar.element?.addEventListener(
           "mouseleave",
@@ -168,7 +165,7 @@ class HyperlinkToolbarView {
       }
 
       // Updates menu.
-      this.hyperlinkToolbar.update(this.hyperlinkToolbarParams);
+      this.hyperlinkToolbar.update(this.getDynamicParams());
     }
 
     // Hides menu.
@@ -188,10 +185,8 @@ class HyperlinkToolbarView {
     }
   }
 
-  initHyperlinkToolbarParams(): HyperlinkToolbarParams {
+  getStaticParams(): HyperlinkToolbarStaticParams {
     return {
-      url: "",
-      text: "",
       editHyperlink: (url: string, text: string) => {
         const tr = this.editor.view.state.tr.insertText(
           text,
@@ -222,30 +217,22 @@ class HyperlinkToolbarView {
 
         this.hyperlinkToolbar.hide();
       },
-
-      boundingBox: new DOMRect(),
-      editorElement: this.editor.options.element,
     };
   }
 
-  updateHyperlinkToolbarParams() {
-    if (this.hyperlinkMark) {
-      this.hyperlinkToolbarParams.url = this.hyperlinkMark.attrs.href
-        ? this.hyperlinkMark.attrs.href
-        : "";
-      this.hyperlinkToolbarParams.text = this.editor.view.state.doc.textBetween(
+  getDynamicParams(): HyperlinkToolbarDynamicParams {
+    return {
+      url: this.hyperlinkMark!.attrs.href,
+      text: this.editor.view.state.doc.textBetween(
         this.hyperlinkMarkRange!.from,
         this.hyperlinkMarkRange!.to
-      );
-    }
-
-    if (this.hyperlinkMarkRange) {
-      this.hyperlinkToolbarParams.boundingBox = posToDOMRect(
+      ),
+      boundingBox: posToDOMRect(
         this.editor.view,
         this.hyperlinkMarkRange!.from,
         this.hyperlinkMarkRange!.to
-      );
-    }
+      ),
+    };
   }
 }
 

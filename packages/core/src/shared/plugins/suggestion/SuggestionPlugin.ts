@@ -5,8 +5,9 @@ import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
 import { findBlock } from "../../../extensions/Blocks/helpers/findBlock";
 import {
   SuggestionsMenu,
+  SuggestionsMenuDynamicParams,
   SuggestionsMenuFactory,
-  SuggestionsMenuParams,
+  SuggestionsMenuStaticParams,
 } from "./SuggestionsMenuFactoryTypes";
 import { SuggestionItem } from "./SuggestionItem";
 
@@ -45,6 +46,17 @@ export type SuggestionPluginOptions<T extends SuggestionItem> = {
   items?: (query: string) => T[];
 
   allow?: (props: { editor: Editor; range: Range }) => boolean;
+};
+
+type SuggestionPluginState<T extends SuggestionItem> = {
+  active: boolean;
+  range: Range | null;
+  query: string | null;
+  notFoundCount: number;
+  items: T[];
+  selectedItemIndex: number;
+  type: string;
+  decorationId: string | null;
 };
 
 type SuggestionPluginViewOptions<T extends SuggestionItem> = {
@@ -99,10 +111,10 @@ class SuggestionPluginView<T extends SuggestionItem> {
   editor: Editor;
   pluginKey: PluginKey;
 
-  itemCallback: (props: { item: T; editor: Editor; range: Range }) => void;
-
-  suggestionsMenuParams: SuggestionsMenuParams<T>;
   suggestionsMenu: SuggestionsMenu<T>;
+
+  pluginState: SuggestionPluginState<T>;
+  itemCallback: (item: T) => void;
 
   constructor({
     editor,
@@ -113,10 +125,25 @@ class SuggestionPluginView<T extends SuggestionItem> {
     this.editor = editor;
     this.pluginKey = pluginKey;
 
-    this.itemCallback = selectItemCallback;
+    this.pluginState = {
+      active: false,
+      range: null,
+      query: null,
+      notFoundCount: 0,
+      items: [],
+      selectedItemIndex: 0,
+      type: "slash",
+      decorationId: null,
+    };
 
-    this.suggestionsMenuParams = this.initSuggestionsMenuParams();
-    this.suggestionsMenu = suggestionsMenuFactory(this.suggestionsMenuParams);
+    this.itemCallback = (item: T) =>
+      selectItemCallback({
+        item: item,
+        editor: editor,
+        range: this.pluginState.range as Range,
+      });
+
+    this.suggestionsMenu = suggestionsMenuFactory(this.getStaticParams());
   }
 
   update(view: EditorView, prevState: EditorState) {
@@ -135,7 +162,7 @@ class SuggestionPluginView<T extends SuggestionItem> {
       return;
     }
 
-    const state = stopped ? prev : next;
+    this.pluginState = stopped ? prev : next;
 
     if (stopped) {
       this.suggestionsMenu.hide();
@@ -147,13 +174,11 @@ class SuggestionPluginView<T extends SuggestionItem> {
     }
 
     if (changed) {
-      this.updateSuggestionsMenuParams(state);
-      this.suggestionsMenu.update(this.suggestionsMenuParams);
+      this.suggestionsMenu.update(this.getDynamicParams());
     }
 
     if (started) {
-      this.updateSuggestionsMenuParams(state);
-      this.suggestionsMenu.show(this.suggestionsMenuParams);
+      this.suggestionsMenu.show(this.getDynamicParams());
 
       // Listener stops focus moving to the menu on click.
       this.suggestionsMenu.element!.addEventListener("mousedown", (event) =>
@@ -162,41 +187,22 @@ class SuggestionPluginView<T extends SuggestionItem> {
     }
   }
 
-  initSuggestionsMenuParams(): SuggestionsMenuParams<T> {
+  getStaticParams(): SuggestionsMenuStaticParams<T> {
     return {
-      items: [],
-      selectedItemIndex: 0,
-      itemCallback: (item: T) => {
-        this.itemCallback({
-          item: item,
-          editor: this.editor,
-          range: { from: 0, to: 0 },
-        });
-      },
-      queryStartBoundingBox: new DOMRect(),
-      editorElement: this.editor.options.element,
+      itemCallback: (item: T) => this.itemCallback(item),
     };
   }
 
-  updateSuggestionsMenuParams(pluginState: any) {
-    this.suggestionsMenuParams.items = pluginState.items;
-    this.suggestionsMenuParams.selectedItemIndex =
-      pluginState.selectedItemIndex;
-    this.suggestionsMenuParams.itemCallback = (item: T) => {
-      this.itemCallback({
-        item: item,
-        editor: this.editor,
-        range: pluginState.range,
-      });
-    };
-
+  getDynamicParams(): SuggestionsMenuDynamicParams<T> {
     const decorationNode = document.querySelector(
-      `[data-decoration-id="${pluginState.decorationId}"]`
+      `[data-decoration-id="${this.pluginState.decorationId}"]`
     );
-    this.suggestionsMenuParams.queryStartBoundingBox =
-      decorationNode !== null
-        ? decorationNode.getBoundingClientRect()
-        : new DOMRect();
+
+    return {
+      items: this.pluginState.items,
+      selectedItemIndex: this.pluginState.selectedItemIndex,
+      queryStartBoundingBox: decorationNode!.getBoundingClientRect(),
+    };
   }
 }
 
@@ -247,16 +253,16 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
 
     state: {
       // Initialize the plugin's internal state.
-      init() {
+      init(): SuggestionPluginState<T> {
         return {
           active: false,
-          range: {} as any, // TODO
-          query: null as string | null,
+          range: null, // TODO
+          query: null,
           notFoundCount: 0,
           items: [] as T[],
           selectedItemIndex: 0,
           type: "slash",
-          decorationId: null as string | null,
+          decorationId: null,
         };
       },
 
@@ -301,7 +307,7 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
           !transaction.getMeta("pointer")
         ) {
           // Reset active state if we just left the previous suggestion range (e.g.: key arrows moving before /)
-          if (prev.active && selection.from <= prev.range.from) {
+          if (prev.active && selection.from <= prev.range!.from) {
             next.active = false;
           } else if (transaction.getMeta(pluginKey)?.activate) {
             // Start showing suggestions. activate has been set after typing a "/" (or whatever the specified character is), so let's create the decoration and initialize
@@ -346,7 +352,7 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
           } else {
             // Update the "notFoundCount",
             // which indicates how many characters have been typed after showing no results
-            if (next.range.to > prev.range.to) {
+            if (next.range!.to > prev.range!.to) {
               // Text has been entered (selection moved to right), but still no items found, update Count
               next.notFoundCount = prev.notFoundCount + 1;
             } else {
@@ -364,7 +370,7 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
         // Make sure to empty the range if suggestion is inactive
         if (!next.active) {
           next.decorationId = null;
-          next.range = {};
+          next.range = null;
           next.query = null;
           next.notFoundCount = 0;
           next.items = [];

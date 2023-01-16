@@ -44,39 +44,36 @@ export type FormattingToolbarProps = {
 };
 
 // TODO: add list options, indentation
-export const FormattingToolbar = (props: {
-  formattingToolbarProps: FormattingToolbarProps;
-}) => {
+export const FormattingToolbar = (props: FormattingToolbarProps) => {
   const getActiveMarks = () => {
     const activeMarks = new Set<string>();
 
-    props.formattingToolbarProps.boldIsActive && activeMarks.add("bold");
-    props.formattingToolbarProps.italicIsActive && activeMarks.add("italic");
-    props.formattingToolbarProps.underlineIsActive &&
-      activeMarks.add("underline");
-    props.formattingToolbarProps.strikeIsActive && activeMarks.add("strike");
-    props.formattingToolbarProps.hyperlinkIsActive && activeMarks.add("link");
+    props.boldIsActive && activeMarks.add("bold");
+    props.italicIsActive && activeMarks.add("italic");
+    props.underlineIsActive && activeMarks.add("underline");
+    props.strikeIsActive && activeMarks.add("strike");
+    props.hyperlinkIsActive && activeMarks.add("link");
 
     return activeMarks;
   };
 
   const getActiveBlock = () => {
-    if (props.formattingToolbarProps.headingIsActive) {
-      if (props.formattingToolbarProps.activeHeadingLevel === "1") {
+    if (props.headingIsActive) {
+      if (props.activeHeadingLevel === "1") {
         return {
           text: "Heading 1",
           icon: RiH1,
         };
       }
 
-      if (props.formattingToolbarProps.activeHeadingLevel === "2") {
+      if (props.activeHeadingLevel === "2") {
         return {
           text: "Heading 2",
           icon: RiH2,
         };
       }
 
-      if (props.formattingToolbarProps.activeHeadingLevel === "3") {
+      if (props.activeHeadingLevel === "3") {
         return {
           text: "Heading 3",
           icon: RiH3,
@@ -84,8 +81,8 @@ export const FormattingToolbar = (props: {
       }
     }
 
-    if (props.formattingToolbarProps.listItemIsActive) {
-      if (props.formattingToolbarProps.activeListItemType === "unordered") {
+    if (props.listItemIsActive) {
+      if (props.activeListItemType === "unordered") {
         return {
           text: "Bullet List",
           icon: RiListUnordered,
@@ -114,77 +111,72 @@ export const FormattingToolbar = (props: {
         icon={activeBlock!.icon}
         items={[
           {
-            onClick: () => props.formattingToolbarProps.setParagraph(),
+            onClick: () => props.setParagraph(),
             text: "Text",
             icon: RiText,
-            isSelected: props.formattingToolbarProps.paragraphIsActive,
+            isSelected: props.paragraphIsActive,
           },
           {
-            onClick: () => props.formattingToolbarProps.setHeading("1"),
+            onClick: () => props.setHeading("1"),
             text: "Heading 1",
             icon: RiH1,
             isSelected:
-              props.formattingToolbarProps.headingIsActive &&
-              props.formattingToolbarProps.activeHeadingLevel === "1",
+              props.headingIsActive && props.activeHeadingLevel === "1",
           },
           {
-            onClick: () => props.formattingToolbarProps.setHeading("2"),
+            onClick: () => props.setHeading("2"),
             text: "Heading 2",
             icon: RiH2,
             isSelected:
-              props.formattingToolbarProps.headingIsActive &&
-              props.formattingToolbarProps.activeHeadingLevel === "2",
+              props.headingIsActive && props.activeHeadingLevel === "2",
           },
           {
-            onClick: () => props.formattingToolbarProps.setHeading("3"),
+            onClick: () => props.setHeading("3"),
             text: "Heading 3",
             icon: RiH3,
             isSelected:
-              props.formattingToolbarProps.headingIsActive &&
-              props.formattingToolbarProps.activeHeadingLevel === "3",
+              props.headingIsActive && props.activeHeadingLevel === "3",
           },
           {
-            onClick: () =>
-              props.formattingToolbarProps.setListItem("unordered"),
+            onClick: () => props.setListItem("unordered"),
             text: "Bullet List",
             icon: RiListUnordered,
             isSelected:
-              props.formattingToolbarProps.listItemIsActive &&
-              props.formattingToolbarProps.activeListItemType === "unordered",
+              props.listItemIsActive &&
+              props.activeListItemType === "unordered",
           },
           {
-            onClick: () => props.formattingToolbarProps.setListItem("ordered"),
+            onClick: () => props.setListItem("ordered"),
             text: "Numbered List",
             icon: RiListOrdered,
             isSelected:
-              props.formattingToolbarProps.listItemIsActive &&
-              props.formattingToolbarProps.activeListItemType === "ordered",
+              props.listItemIsActive && props.activeListItemType === "ordered",
           },
         ]}
       />
       <ToolbarButton
-        onClick={props.formattingToolbarProps.toggleBold}
+        onClick={props.toggleBold}
         isSelected={activeMarks.has("bold")}
         mainTooltip="Bold"
         secondaryTooltip={formatKeyboardShortcut("Mod+B")}
         icon={RiBold}
       />
       <ToolbarButton
-        onClick={props.formattingToolbarProps.toggleItalic}
+        onClick={props.toggleItalic}
         isSelected={activeMarks.has("italic")}
         mainTooltip="Italic"
         secondaryTooltip={formatKeyboardShortcut("Mod+I")}
         icon={RiItalic}
       />
       <ToolbarButton
-        onClick={props.formattingToolbarProps.toggleUnderline}
+        onClick={props.toggleUnderline}
         isSelected={activeMarks.has("underline")}
         mainTooltip="Underline"
         secondaryTooltip={formatKeyboardShortcut("Mod+U")}
         icon={RiUnderline}
       />
       <ToolbarButton
-        onClick={props.formattingToolbarProps.toggleStrike}
+        onClick={props.toggleStrike}
         isSelected={activeMarks.has("strike")}
         mainTooltip="Strike-through"
         secondaryTooltip={formatKeyboardShortcut("Mod+Shift+X")}
@@ -230,10 +222,10 @@ export const FormattingToolbar = (props: {
         mainTooltip="Link"
         secondaryTooltip={formatKeyboardShortcut("Mod+K")}
         icon={RiLink}
-        hyperlinkIsActive={props.formattingToolbarProps.hyperlinkIsActive}
-        activeHyperlinkUrl={props.formattingToolbarProps.activeHyperlinkUrl}
-        activeHyperlinkText={props.formattingToolbarProps.activeHyperlinkText}
-        setHyperlink={props.formattingToolbarProps.setHyperlink}
+        hyperlinkIsActive={props.hyperlinkIsActive}
+        activeHyperlinkUrl={props.activeHyperlinkUrl}
+        activeHyperlinkText={props.activeHyperlinkText}
+        setHyperlink={props.setHyperlink}
       />
       {/* <SimpleBubbleMenuButton
           editor={props.editor}

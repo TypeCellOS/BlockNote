@@ -7,8 +7,9 @@ import { MultipleNodeSelection } from "../Blocks/MultipleNodeSelection";
 import { DraggableBlocksOptions } from "./DraggableBlocksExtension";
 import {
   BlockSideMenu,
+  BlockSideMenuDynamicParams,
   BlockSideMenuFactory,
-  BlockSideMenuParams,
+  BlockSideMenuStaticParams,
 } from "./BlockSideMenuFactoryTypes";
 import { getBlockInfoFromPos } from "../Blocks/helpers/getBlockInfoFromPos";
 import { SlashMenuPluginKey } from "../SlashMenu/SlashMenuExtension";
@@ -237,13 +238,12 @@ export class BlockMenuView {
   // When false, the drag handle with be just to the left of the element
   horizontalPosAnchoredAtRoot: boolean;
 
-  blockMenuParams: BlockSideMenuParams;
   blockMenu: BlockSideMenu;
+
+  hoveredBlock: HTMLElement | undefined;
 
   menuOpen = false;
   menuFrozen = false;
-
-  blockID: string | undefined;
 
   constructor({
     editor,
@@ -253,20 +253,7 @@ export class BlockMenuView {
     this.editor = editor;
     this.horizontalPosAnchoredAtRoot = horizontalPosAnchoredAtRoot;
 
-    this.blockMenuParams = {
-      addBlock: () => this.addBlock({ left: 0, top: 0 }),
-      deleteBlock: () => this.deleteBlock({ left: 0, top: 0 }),
-      blockDragStart: (event: DragEvent) => dragStart(event, this.editor.view),
-      blockDragEnd: () => unsetDragImage(),
-      freezeMenu: () => {
-        this.menuFrozen = true;
-      },
-      unfreezeMenu: () => {
-        this.menuFrozen = false;
-      },
-      blockBoundingBox: new DOMRect(),
-    };
-    this.blockMenu = blockMenuFactory(this.blockMenuParams);
+    this.blockMenu = blockMenuFactory(this.getStaticParams());
 
     // Shows or updates menu position whenever the cursor moves, if the menu isn't frozen.
     document.body.addEventListener(
@@ -294,46 +281,28 @@ export class BlockMenuView {
         }
 
         // Doesn't update if the menu is already open and the mouse cursor is still hovering the same block.
-        if (this.menuOpen && this.blockID === block.id) {
+        if (
+          this.menuOpen &&
+          this.hoveredBlock?.hasAttribute("data-id") &&
+          this.hoveredBlock?.getAttribute("data-id") === block.id
+        ) {
           return;
         }
-        this.blockID = block.id;
 
         // Gets the block's content node, which lets to ignore child blocks when determining the block menu's position.
         const blockContent = block.node.firstChild as HTMLElement;
+        this.hoveredBlock = blockContent;
 
         if (!blockContent) {
           return;
         }
 
-        // Gets bounding box of the block content.
-        const blockBoundingBox = blockContent.getBoundingClientRect();
-
-        this.blockMenuParams.addBlock = () =>
-          this.addBlock({
-            left: blockBoundingBox.left,
-            top: blockBoundingBox.top,
-          });
-        this.blockMenuParams.deleteBlock = () =>
-          this.deleteBlock({
-            left: blockBoundingBox.left,
-            top: blockBoundingBox.top,
-          });
-        this.blockMenuParams.blockBoundingBox = new DOMRect(
-          this.horizontalPosAnchoredAtRoot
-            ? getHorizontalAnchor()
-            : blockBoundingBox.x,
-          blockBoundingBox.y,
-          blockBoundingBox.width,
-          blockBoundingBox.height
-        );
-
         // Shows or updates elements.
         if (!this.menuOpen) {
           this.menuOpen = true;
-          this.blockMenu.show(this.blockMenuParams);
+          this.blockMenu.show(this.getDynamicParams());
         } else {
-          this.blockMenu.update(this.blockMenuParams);
+          this.blockMenu.update(this.getDynamicParams());
         }
       },
       true
@@ -378,12 +347,17 @@ export class BlockMenuView {
     }
   }
 
-  addBlock(coords: { left: number; top: number }) {
+  addBlock() {
     this.menuOpen = false;
     this.menuFrozen = true;
     this.blockMenu.hide();
 
-    const pos = this.editor.view.posAtCoords(coords);
+    const blockBoundingBox = this.hoveredBlock!.getBoundingClientRect();
+
+    const pos = this.editor.view.posAtCoords({
+      left: blockBoundingBox.left,
+      top: blockBoundingBox.top,
+    });
     if (!pos) {
       return;
     }
@@ -392,7 +366,6 @@ export class BlockMenuView {
     if (blockInfo === undefined) {
       return;
     }
-    console.log(blockInfo);
 
     const { contentNode, endPos } = blockInfo;
 
@@ -420,16 +393,51 @@ export class BlockMenuView {
     );
   }
 
-  deleteBlock(coords: { left: number; top: number }) {
+  deleteBlock() {
     this.menuOpen = false;
     this.blockMenu.hide();
 
-    const pos = this.editor.view.posAtCoords(coords);
+    const blockBoundingBox = this.hoveredBlock!.getBoundingClientRect();
+
+    const pos = this.editor.view.posAtCoords({
+      left: blockBoundingBox.left,
+      top: blockBoundingBox.top,
+    });
     if (!pos) {
       return;
     }
 
     this.editor.commands.BNDeleteBlock(pos.pos);
+  }
+
+  getStaticParams(): BlockSideMenuStaticParams {
+    return {
+      addBlock: () => this.addBlock(),
+      deleteBlock: () => this.deleteBlock(),
+      blockDragStart: (event: DragEvent) => dragStart(event, this.editor.view),
+      blockDragEnd: () => unsetDragImage(),
+      freezeMenu: () => {
+        this.menuFrozen = true;
+      },
+      unfreezeMenu: () => {
+        this.menuFrozen = false;
+      },
+    };
+  }
+
+  getDynamicParams(): BlockSideMenuDynamicParams {
+    const blockBoundingBox = this.hoveredBlock!.getBoundingClientRect();
+
+    return {
+      blockBoundingBox: new DOMRect(
+        this.horizontalPosAnchoredAtRoot
+          ? getHorizontalAnchor()
+          : blockBoundingBox.x,
+        blockBoundingBox.y,
+        blockBoundingBox.width,
+        blockBoundingBox.height
+      ),
+    };
   }
 }
 

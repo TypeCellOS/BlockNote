@@ -12,10 +12,14 @@ export const hyperlinkToolbarFactory: HyperlinkToolbarFactory = (props) => {
   container.style.padding = "10px";
   container.style.opacity = "0.8";
 
+  let url = "";
+  let text = "";
+
   const editBtn = createButton("edit", () => {
-    const newUrl = prompt("new url") || props.url;
-    props.editHyperlink(newUrl, props.text);
+    const newUrl = prompt("new url") || url;
+    props.editHyperlink(newUrl, text);
   });
+
   container.appendChild(editBtn);
 
   const removeBtn = createButton("remove", () => {
@@ -30,6 +34,9 @@ export const hyperlinkToolbarFactory: HyperlinkToolbarFactory = (props) => {
   return {
     element: container,
     show: (params) => {
+      url = params.url;
+      text = params.text;
+
       container.style.display = "block";
       console.log("show", params);
 

@@ -8,8 +8,9 @@ import { EditorState, Plugin, PluginKey } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 import {
   FormattingToolbar,
+  FormattingToolbarDynamicParams,
   FormattingToolbarFactory,
-  FormattingToolbarParams,
+  FormattingToolbarStaticParams,
 } from "./FormattingToolbarFactoryTypes";
 
 // Same as TipTap bubblemenu plugin, but with these changes:
@@ -38,8 +39,6 @@ export class FormattingToolbarView {
   public editor: Editor;
 
   public view: EditorView;
-
-  public formattingToolbarParams: FormattingToolbarParams;
 
   public formattingToolbar: FormattingToolbar;
 
@@ -72,10 +71,7 @@ export class FormattingToolbarView {
     this.editor = editor;
     this.view = view;
 
-    this.formattingToolbarParams = this.initFormattingToolbarParams();
-    this.formattingToolbar = formattingToolbarFactory(
-      this.formattingToolbarParams
-    );
+    this.formattingToolbar = formattingToolbarFactory(this.getStaticParams());
 
     if (shouldShow) {
       this.shouldShow = shouldShow;
@@ -160,8 +156,7 @@ export class FormattingToolbarView {
       !this.preventShow &&
       (shouldShow || this.preventHide)
     ) {
-      this.updateFormattingToolbarParams();
-      this.formattingToolbar.show(this.formattingToolbarParams);
+      this.formattingToolbar.show(this.getDynamicParams());
       this.toolbarIsOpen = true;
 
       // TODO: Is this necessary? Also for other menu plugins.
@@ -179,9 +174,7 @@ export class FormattingToolbarView {
       !this.preventShow &&
       (shouldShow || this.preventHide)
     ) {
-      this.updateFormattingToolbarParams();
-      this.formattingToolbar.update(this.formattingToolbarParams);
-
+      this.formattingToolbar.update(this.getDynamicParams());
       return;
     }
 
@@ -233,36 +226,24 @@ export class FormattingToolbarView {
     return posToDOMRect(this.editor.view, from, to);
   }
 
-  initFormattingToolbarParams(): FormattingToolbarParams {
+  getStaticParams(): FormattingToolbarStaticParams {
     return {
-      boldIsActive: this.editor.isActive("bold"),
       toggleBold: () => {
         this.editor.view.focus();
         this.editor.commands.toggleBold();
       },
-      italicIsActive: this.editor.isActive("italic"),
       toggleItalic: () => {
         this.editor.view.focus();
         this.editor.commands.toggleItalic();
       },
-      underlineIsActive: this.editor.isActive("underline"),
       toggleUnderline: () => {
         this.editor.view.focus();
         this.editor.commands.toggleUnderline();
       },
-      strikeIsActive: this.editor.isActive("strike"),
       toggleStrike: () => {
         this.editor.view.focus();
         this.editor.commands.toggleStrike();
       },
-      hyperlinkIsActive: this.editor.isActive("link"),
-      activeHyperlinkUrl: this.editor.getAttributes("link").href
-        ? this.editor.getAttributes("link").href
-        : "",
-      activeHyperlinkText: this.editor.state.doc.textBetween(
-        this.editor.state.selection.from,
-        this.editor.state.selection.to
-      ),
       setHyperlink: (url: string, text?: string) => {
         if (url === "") {
           return;
@@ -283,8 +264,6 @@ export class FormattingToolbarView {
         );
         this.editor.view.focus();
       },
-      paragraphIsActive:
-        this.editor.state.selection.$from.node().type.name === "textContent",
       setParagraph: () => {
         this.editor.view.focus();
         this.editor.commands.BNSetContentType(
@@ -292,10 +271,6 @@ export class FormattingToolbarView {
           "textContent"
         );
       },
-      headingIsActive:
-        this.editor.state.selection.$from.node().type.name === "headingContent",
-      activeHeadingLevel:
-        this.editor.state.selection.$from.node().attrs["headingLevel"],
       setHeading: (level: string = "1") => {
         this.editor.view.focus();
         this.editor.commands.BNSetContentType(
@@ -306,11 +281,6 @@ export class FormattingToolbarView {
           }
         );
       },
-      listItemIsActive:
-        this.editor.state.selection.$from.node().type.name ===
-        "listItemContent",
-      activeListItemType:
-        this.editor.state.selection.$from.node().attrs["listItemType"],
       setListItem: (type: string = "unordered") => {
         this.editor.view.focus();
         this.editor.commands.BNSetContentType(
@@ -321,45 +291,36 @@ export class FormattingToolbarView {
           }
         );
       },
-      selectionBoundingBox: this.getSelectionBoundingBox(),
-      editorElement: this.editor.options.element,
     };
   }
 
-  updateFormattingToolbarParams() {
-    this.formattingToolbarParams.boldIsActive = this.editor.isActive("bold");
-    this.formattingToolbarParams.italicIsActive =
-      this.editor.isActive("italic");
-    this.formattingToolbarParams.underlineIsActive =
-      this.editor.isActive("underline");
-    this.formattingToolbarParams.strikeIsActive =
-      this.editor.isActive("strike");
-    this.formattingToolbarParams.hyperlinkIsActive =
-      this.editor.isActive("link");
-    this.formattingToolbarParams.activeHyperlinkUrl = this.editor.getAttributes(
-      "link"
-    ).href
-      ? this.editor.getAttributes("link").href
-      : "";
-    this.formattingToolbarParams.activeHyperlinkText =
-      this.editor.state.doc.textBetween(
+  getDynamicParams(): FormattingToolbarDynamicParams {
+    return {
+      boldIsActive: this.editor.isActive("bold"),
+      italicIsActive: this.editor.isActive("italic"),
+      underlineIsActive: this.editor.isActive("underline"),
+      strikeIsActive: this.editor.isActive("strike"),
+      hyperlinkIsActive: this.editor.isActive("link"),
+      activeHyperlinkUrl: this.editor.getAttributes("link").href
+        ? this.editor.getAttributes("link").href
+        : "",
+      activeHyperlinkText: this.editor.state.doc.textBetween(
         this.editor.state.selection.from,
         this.editor.state.selection.to
-      );
-
-    this.formattingToolbarParams.paragraphIsActive =
-      this.editor.state.selection.$from.node().type.name === "textContent";
-    this.formattingToolbarParams.headingIsActive =
-      this.editor.state.selection.$from.node().type.name === "headingContent";
-    this.formattingToolbarParams.activeHeadingLevel =
-      this.editor.state.selection.$from.node().attrs["headingLevel"];
-    this.formattingToolbarParams.listItemIsActive =
-      this.editor.state.selection.$from.node().type.name === "listItemContent";
-    this.formattingToolbarParams.activeListItemType =
-      this.editor.state.selection.$from.node().attrs["listItemType"];
-
-    this.formattingToolbarParams.selectionBoundingBox =
-      this.getSelectionBoundingBox();
+      ),
+      paragraphIsActive:
+        this.editor.state.selection.$from.node().type.name === "textContent",
+      headingIsActive:
+        this.editor.state.selection.$from.node().type.name === "headingContent",
+      activeHeadingLevel:
+        this.editor.state.selection.$from.node().attrs["headingLevel"],
+      listItemIsActive:
+        this.editor.state.selection.$from.node().type.name ===
+        "listItemContent",
+      activeListItemType:
+        this.editor.state.selection.$from.node().attrs["listItemType"],
+      selectionBoundingBox: this.getSelectionBoundingBox(),
+    };
   }
 }
 

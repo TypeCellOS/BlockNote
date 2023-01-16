@@ -6,7 +6,7 @@ import { createButton } from "./util";
  * or when the mouse is hovering over a hyperlink
  */
 export const slashMenuFactory: SuggestionsMenuFactory<SlashMenuItem> = (
-  _props
+  props
 ) => {
   const container = document.createElement("div");
   container.style.background = "gray";
@@ -39,7 +39,7 @@ export const slashMenuFactory: SuggestionsMenuFactory<SlashMenuItem> = (
   return {
     element: container,
     show: (params) => {
-      updateItems(params.items, params.itemCallback, params.selectedItemIndex);
+      updateItems(params.items, props.itemCallback, params.selectedItemIndex);
       container.style.display = "block";
       console.log("show", params);
 
@@ -51,7 +51,7 @@ export const slashMenuFactory: SuggestionsMenuFactory<SlashMenuItem> = (
     },
     update: (params) => {
       console.log("update", params);
-      updateItems(params.items, params.itemCallback, params.selectedItemIndex);
+      updateItems(params.items, props.itemCallback, params.selectedItemIndex);
       container.style.top = params.queryStartBoundingBox.y + "px";
       container.style.left = params.queryStartBoundingBox.x + "px";
     },

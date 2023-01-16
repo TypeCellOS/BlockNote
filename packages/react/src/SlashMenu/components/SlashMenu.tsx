@@ -56,6 +56,7 @@ export function SlashMenu(props: SlashMenuProps) {
           key={item.name}
           name={item.name}
           hint={item.hint}
+          shortcut={item.shortcut}
           isSelected={props.selectedItemIndex === index}
           set={() => props.itemCallback(item)}
         />
@@ -75,6 +76,7 @@ export function SlashMenu(props: SlashMenuProps) {
           key={item.name}
           name={item.name}
           hint={item.hint}
+          shortcut={item.shortcut}
           isSelected={props.selectedItemIndex === index}
           set={() => props.itemCallback(item)}
         />

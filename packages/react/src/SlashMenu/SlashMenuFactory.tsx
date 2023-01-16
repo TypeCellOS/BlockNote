@@ -2,44 +2,35 @@ import { createRoot, Root } from "react-dom/client";
 import {
   SlashMenuItem,
   SuggestionsMenu,
+  SuggestionsMenuDynamicParams,
   SuggestionsMenuFactory,
-  SuggestionsMenuParams,
+  SuggestionsMenuStaticParams,
 } from "@blocknote/core";
 import { MantineProvider } from "@mantine/core";
 import Tippy from "@tippyjs/react";
-import { SlashMenu, SlashMenuProps } from "./components/SlashMenu";
+import { SlashMenu } from "./components/SlashMenu";
 import { BlockNoteTheme } from "../BlockNoteTheme";
 // import rootStyles from "../../../core/src/root.module.css";
 
 export const ReactSlashMenuFactory: SuggestionsMenuFactory<SlashMenuItem> = (
-  params: SuggestionsMenuParams<SlashMenuItem>
+  staticParams: SuggestionsMenuStaticParams<SlashMenuItem>
 ): SuggestionsMenu<SlashMenuItem> => {
-  const suggestionsMenuProps: SlashMenuProps = {
-    ...params,
-  };
-
-  function updateSuggestionsMenuProps(
-    params: SuggestionsMenuParams<SlashMenuItem>
-  ) {
-    suggestionsMenuProps.items = params.items;
-    suggestionsMenuProps.selectedItemIndex = params.selectedItemIndex;
-    suggestionsMenuProps.itemCallback = params.itemCallback;
-  }
-
   // We don't use the document body as a root as it would cause multiple React roots to be created on a single element
   // if other menu factories do the same.
   const menuRootElement = document.createElement("div");
   // menuRootElement.className = rootStyles.bnRoot;
   let menuRoot: Root | undefined;
 
-  function getMenuComponent() {
+  function getMenuComponent(
+    dynamicParams: SuggestionsMenuDynamicParams<SlashMenuItem>
+  ) {
     return (
       <MantineProvider theme={BlockNoteTheme}>
         <Tippy
           appendTo={menuRootElement}
-          content={<SlashMenu {...suggestionsMenuProps} />}
+          content={<SlashMenu {...staticParams} {...dynamicParams} />}
           duration={0}
-          getReferenceClientRect={() => params.queryStartBoundingBox}
+          getReferenceClientRect={() => dynamicParams.queryStartBoundingBox}
           hideOnClick={false}
           interactive={true}
           placement={"bottom-start"}
@@ -52,23 +43,19 @@ export const ReactSlashMenuFactory: SuggestionsMenuFactory<SlashMenuItem> = (
 
   return {
     element: menuRootElement as HTMLElement,
-    show: (params: SuggestionsMenuParams<SlashMenuItem>) => {
-      updateSuggestionsMenuProps(params);
-
+    show: (dynamicParams: SuggestionsMenuDynamicParams<SlashMenuItem>) => {
       document.body.appendChild(menuRootElement);
       menuRoot = createRoot(menuRootElement);
 
-      menuRoot.render(getMenuComponent());
+      menuRoot.render(getMenuComponent(dynamicParams));
     },
     hide: () => {
       menuRoot!.unmount();
 
       menuRootElement.remove();
     },
-    update: (params: SuggestionsMenuParams<SlashMenuItem>) => {
-      updateSuggestionsMenuProps(params);
-
-      menuRoot!.render(getMenuComponent());
+    update: (dynamicParams: SuggestionsMenuDynamicParams<SlashMenuItem>) => {
+      menuRoot!.render(getMenuComponent(dynamicParams));
     },
   };
 };

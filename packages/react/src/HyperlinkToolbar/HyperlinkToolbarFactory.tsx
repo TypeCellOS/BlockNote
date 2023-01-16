@@ -1,41 +1,34 @@
 import { createRoot, Root } from "react-dom/client";
 import {
   HyperlinkToolbar,
+  HyperlinkToolbarDynamicParams,
   HyperlinkToolbarFactory,
-  HyperlinkToolbarParams,
+  HyperlinkToolbarStaticParams,
 } from "@blocknote/core";
 import { MantineProvider } from "@mantine/core";
 import Tippy from "@tippyjs/react";
-import {
-  HyperlinkToolbar as ReactHyperlinkToolbar,
-  HyperlinkToolbarProps,
-} from "./components/HyperlinkToolbar";
+import { HyperlinkToolbar as ReactHyperlinkToolbar } from "./components/HyperlinkToolbar";
 import { BlockNoteTheme } from "../BlockNoteTheme";
 // import rootStyles from "../../../core/src/root.module.css";
 
 export const ReactHyperlinkToolbarFactory: HyperlinkToolbarFactory = (
-  params: HyperlinkToolbarParams
+  staticParams: HyperlinkToolbarStaticParams
 ): HyperlinkToolbar => {
-  const hyperlinkToolbarProps: HyperlinkToolbarProps = { ...params };
-
-  function updateHyperlinkToolbarProps(params: HyperlinkToolbarParams) {
-    hyperlinkToolbarProps.url = params.url;
-    hyperlinkToolbarProps.text = params.text;
-  }
-
   // We don't use the document body as a root as it would cause multiple React roots to be created on a single element
   // if other UI factories do the same.
   const rootElement = document.createElement("div");
   let root: Root | undefined;
 
-  function getComponent() {
+  function getComponent(dynamicParams: HyperlinkToolbarDynamicParams) {
     return (
       <MantineProvider theme={BlockNoteTheme}>
         <Tippy
           appendTo={rootElement}
-          content={<ReactHyperlinkToolbar {...hyperlinkToolbarProps} />}
+          content={
+            <ReactHyperlinkToolbar {...staticParams} {...dynamicParams} />
+          }
           duration={0}
-          getReferenceClientRect={() => params.boundingBox}
+          getReferenceClientRect={() => dynamicParams.boundingBox}
           hideOnClick={false}
           interactive={true}
           placement={"top"}
@@ -48,23 +41,19 @@ export const ReactHyperlinkToolbarFactory: HyperlinkToolbarFactory = (
 
   return {
     element: rootElement,
-    show: (params: HyperlinkToolbarParams) => {
-      updateHyperlinkToolbarProps(params);
-
+    show: (dynamicParams: HyperlinkToolbarDynamicParams) => {
       document.body.appendChild(rootElement);
       root = createRoot(rootElement);
 
-      root.render(getComponent());
+      root.render(getComponent(dynamicParams));
     },
     hide: () => {
       root!.unmount();
 
       rootElement.remove();
     },
-    update: (params: HyperlinkToolbarParams) => {
-      updateHyperlinkToolbarProps(params);
-
-      root!.render(getComponent());
+    update: (dynamicParams: HyperlinkToolbarDynamicParams) => {
+      root!.render(getComponent(dynamicParams));
     },
   };
 };

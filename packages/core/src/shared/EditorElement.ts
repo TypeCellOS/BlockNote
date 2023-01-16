@@ -1,10 +1,11 @@
-export type EditorElement<ElementParams extends Record<string, any>> = {
+export type EditorElement<ElementDynamicParams extends Record<string, any>> = {
   element: HTMLElement | undefined;
-  show: (params: ElementParams) => void;
+  show: (params: ElementDynamicParams) => void;
   hide: () => void;
-  update: (params: ElementParams) => void;
+  update: (params: ElementDynamicParams) => void;
 };
 
-export type ElementFactory<ElementParams extends Record<string, any>> = (
-  params: ElementParams
-) => EditorElement<ElementParams>;
+export type ElementFactory<
+  ElementStaticParams extends Record<string, any>,
+  ElementDynamicParams extends Record<string, any>
+> = (params: ElementStaticParams) => EditorElement<ElementDynamicParams>;

@@ -1,41 +1,32 @@
 import {
   BlockSideMenu,
+  BlockSideMenuDynamicParams,
   BlockSideMenuFactory,
-  BlockSideMenuParams,
+  BlockSideMenuStaticParams,
 } from "@blocknote/core";
-import {
-  BlockSideMenu as ReactSideBlockMenu,
-  BlockSideMenuProps,
-} from "./components/BlockSideMenu";
+import { BlockSideMenu as ReactSideBlockMenu } from "./components/BlockSideMenu";
 import { createRoot, Root } from "react-dom/client";
 import { MantineProvider } from "@mantine/core";
 import { BlockNoteTheme } from "../BlockNoteTheme";
 import Tippy from "@tippyjs/react";
 
 export const ReactBlockSideMenuFactory: BlockSideMenuFactory = (
-  params: BlockSideMenuParams
+  staticParams: BlockSideMenuStaticParams
 ): BlockSideMenu => {
-  const blockMenuProps: BlockSideMenuProps = { ...params };
-
-  function updateBlockMenuProps(params: BlockSideMenuParams) {
-    blockMenuProps.addBlock = params.addBlock;
-    blockMenuProps.deleteBlock = params.deleteBlock;
-  }
-
   // We don't use the document body as a root as it would cause multiple React roots to be created on a single element
   // if other menu factories do the same.
   const menuRootElement = document.createElement("div");
   // menuRootElement.className = rootStyles.bnRoot;
   let menuRoot: Root | undefined;
 
-  function getMenuComponent() {
+  function getMenuComponent(dynamicParams: BlockSideMenuDynamicParams) {
     return (
       <MantineProvider theme={BlockNoteTheme}>
         <Tippy
           appendTo={menuRootElement}
-          content={<ReactSideBlockMenu {...blockMenuProps} />}
+          content={<ReactSideBlockMenu {...staticParams} {...dynamicParams} />}
           duration={0}
-          getReferenceClientRect={() => params.blockBoundingBox}
+          getReferenceClientRect={() => dynamicParams.blockBoundingBox}
           hideOnClick={false}
           interactive={true}
           offset={[0, 0]}
@@ -49,23 +40,19 @@ export const ReactBlockSideMenuFactory: BlockSideMenuFactory = (
 
   return {
     element: menuRootElement,
-    show: (params: BlockSideMenuParams) => {
-      updateBlockMenuProps(params);
-
+    show: (dynamicParams: BlockSideMenuDynamicParams) => {
       document.body.appendChild(menuRootElement);
       menuRoot = createRoot(menuRootElement);
 
-      menuRoot.render(getMenuComponent());
+      menuRoot.render(getMenuComponent(dynamicParams));
     },
     hide: () => {
       menuRoot!.unmount();
 
       menuRootElement.remove();
     },
-    update: (params: BlockSideMenuParams) => {
-      updateBlockMenuProps(params);
-
-      menuRoot!.render(getMenuComponent());
+    update: (dynamicParams: BlockSideMenuDynamicParams) => {
+      menuRoot!.render(getMenuComponent(dynamicParams));
     },
   };
 };
