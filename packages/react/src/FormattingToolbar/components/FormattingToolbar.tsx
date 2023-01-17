@@ -34,7 +34,7 @@ export type FormattingToolbarProps = {
   activeHyperlinkText: string;
   setHyperlink: (url: string, text?: string) => void;
 
-  activeBlockType: BlockContentType;
+  activeBlockType: Required<BlockContentType>;
   setBlockType: (type: BlockContentType) => void;
 };
 
