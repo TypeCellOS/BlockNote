@@ -12,6 +12,7 @@ import {
   FormattingToolbarFactory,
   FormattingToolbarStaticParams,
 } from "./FormattingToolbarFactoryTypes";
+import { BlockContentType } from "../Blocks/nodes/Block";
 
 // Same as TipTap bubblemenu plugin, but with these changes:
 // https://github.com/ueberdosis/tiptap/pull/2596/files
@@ -264,31 +265,11 @@ export class FormattingToolbarView {
         );
         this.editor.view.focus();
       },
-      setParagraph: () => {
+      setBlockType: (type: BlockContentType) => {
         this.editor.view.focus();
         this.editor.commands.BNSetContentType(
           this.editor.state.selection.from,
-          "textContent"
-        );
-      },
-      setHeading: (level: string = "1") => {
-        this.editor.view.focus();
-        this.editor.commands.BNSetContentType(
-          this.editor.state.selection.from,
-          "headingContent",
-          {
-            headingLevel: level,
-          }
-        );
-      },
-      setListItem: (type: string = "unordered") => {
-        this.editor.view.focus();
-        this.editor.commands.BNSetContentType(
-          this.editor.state.selection.from,
-          "listItemContent",
-          {
-            listItemType: type,
-          }
+          type
         );
       },
     };
@@ -308,17 +289,10 @@ export class FormattingToolbarView {
         this.editor.state.selection.from,
         this.editor.state.selection.to
       ),
-      paragraphIsActive:
-        this.editor.state.selection.$from.node().type.name === "textContent",
-      headingIsActive:
-        this.editor.state.selection.$from.node().type.name === "headingContent",
-      activeHeadingLevel:
-        this.editor.state.selection.$from.node().attrs["headingLevel"],
-      listItemIsActive:
-        this.editor.state.selection.$from.node().type.name ===
-        "listItemContent",
-      activeListItemType:
-        this.editor.state.selection.$from.node().attrs["listItemType"],
+      activeBlockType: {
+        name: this.editor.state.selection.$from.node().type.name,
+        attrs: this.editor.state.selection.$from.node().attrs,
+      } as Required<BlockContentType>,
       selectionBoundingBox: this.getSelectionBoundingBox(),
     };
   }

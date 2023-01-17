@@ -1,8 +1,11 @@
 import { InputRule, mergeAttributes, Node } from "@tiptap/core";
 import styles from "../../Block.module.css";
 
-export type HeadingContentAttributes = {
-  headingLevel: string;
+export type HeadingContentType = {
+  name: "headingContent";
+  attrs?: {
+    headingLevel: string;
+  };
 };
 
 export const HeadingContent = Node.create({
@@ -33,8 +36,11 @@ export const HeadingContent = Node.create({
           find: new RegExp(`^(#{${parseInt(level)}})\\s$`),
           handler: ({ state, chain, range }) => {
             chain()
-              .BNSetContentType(state.selection.from, "headingContent", {
-                headingLevel: level,
+              .BNSetContentType(state.selection.from, {
+                name: "headingContent",
+                attrs: {
+                  headingLevel: level,
+                },
               })
               // Removes the "#" character(s) used to set the heading.
               .deleteRange({ from: range.from, to: range.to });
@@ -49,17 +55,17 @@ export const HeadingContent = Node.create({
       {
         tag: "h1",
         attrs: { headingLevel: "1" },
-        node: "block"
+        node: "block",
       },
       {
         tag: "h2",
         attrs: { headingLevel: "2" },
-        node: "block"
+        node: "block",
       },
       {
         tag: "h3",
         attrs: { headingLevel: "3" },
-        node: "block"
+        node: "block",
       },
     ];
   },

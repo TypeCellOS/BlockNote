@@ -14,8 +14,11 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         .chain()
         .focus()
         .deleteRange(range)
-        .BNCreateBlockOrSetContentType(range.from, "headingContent", {
-          headingLevel: "1",
+        .BNCreateBlockOrSetContentType(range.from, {
+          name: "headingContent",
+          attrs: {
+            headingLevel: "1",
+          },
         })
         .run();
     },
@@ -33,8 +36,11 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         .chain()
         .focus()
         .deleteRange(range)
-        .BNCreateBlockOrSetContentType(range.from, "headingContent", {
-          headingLevel: "2",
+        .BNCreateBlockOrSetContentType(range.from, {
+          name: "headingContent",
+          attrs: {
+            headingLevel: "2",
+          },
         })
         .run();
     },
@@ -52,8 +58,11 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         .chain()
         .focus()
         .deleteRange(range)
-        .BNCreateBlockOrSetContentType(range.from, "headingContent", {
-          headingLevel: "3",
+        .BNCreateBlockOrSetContentType(range.from, {
+          name: "headingContent",
+          attrs: {
+            headingLevel: "3",
+          },
         })
         .run();
     },
@@ -71,8 +80,11 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         .chain()
         .focus()
         .deleteRange(range)
-        .BNCreateBlockOrSetContentType(range.from, "listItemContent", {
-          listItemType: "ordered",
+        .BNCreateBlockOrSetContentType(range.from, {
+          name: "listItemContent",
+          attrs: {
+            listItemType: "ordered",
+          },
         })
         .run();
     },
@@ -90,8 +102,11 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         .chain()
         .focus()
         .deleteRange(range)
-        .BNCreateBlockOrSetContentType(range.from, "listItemContent", {
-          listItemType: "unordered",
+        .BNCreateBlockOrSetContentType(range.from, {
+          name: "listItemContent",
+          attrs: {
+            listItemType: "unordered",
+          },
         })
         .run();
     },
@@ -109,7 +124,7 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         .chain()
         .focus()
         .deleteRange(range)
-        .BNCreateBlockOrSetContentType(range.from, "textContent")
+        .BNCreateBlockOrSetContentType(range.from, { name: "textContent" })
         .run();
     },
     ["p"],

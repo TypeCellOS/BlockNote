@@ -1,4 +1,5 @@
 import { EditorElement, ElementFactory } from "../../shared/EditorElement";
+import { BlockContentType } from "../Blocks/nodes/Block";
 
 export type FormattingToolbarStaticParams = {
   toggleBold: () => void;
@@ -7,9 +8,7 @@ export type FormattingToolbarStaticParams = {
   toggleStrike: () => void;
   setHyperlink: (url: string, text?: string) => void;
 
-  setParagraph: () => void;
-  setHeading: (level: string) => void;
-  setListItem: (type: string) => void;
+  setBlockType: (type: BlockContentType) => void;
 };
 
 export type FormattingToolbarDynamicParams = {
@@ -21,11 +20,10 @@ export type FormattingToolbarDynamicParams = {
   activeHyperlinkUrl: string;
   activeHyperlinkText: string;
 
-  paragraphIsActive: boolean;
-  headingIsActive: boolean;
-  activeHeadingLevel: string;
-  listItemIsActive: boolean;
-  activeListItemType: string;
+  // BlockContentType is mostly used to set a block's type, so the attr field is optional as block content types have
+  // default values for attributes. However, it means that a block type's attributes field will never be undefined due to
+  // these default values, which the Required type enforces.
+  activeBlockType: Required<BlockContentType>;
 
   selectionBoundingBox: DOMRect;
 };

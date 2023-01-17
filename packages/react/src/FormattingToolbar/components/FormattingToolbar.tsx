@@ -18,6 +18,7 @@ import { ToolbarDropdown } from "../../SharedComponents/Toolbar/components/Toolb
 import { Toolbar } from "../../SharedComponents/Toolbar/components/Toolbar";
 import { formatKeyboardShortcut } from "../../utils";
 import LinkToolbarButton from "./LinkToolbarButton";
+import { BlockContentType } from "@blocknote/core";
 
 export type FormattingToolbarProps = {
   boldIsActive: boolean;
@@ -33,14 +34,8 @@ export type FormattingToolbarProps = {
   activeHyperlinkText: string;
   setHyperlink: (url: string, text?: string) => void;
 
-  paragraphIsActive: boolean;
-  setParagraph: () => void;
-  headingIsActive: boolean;
-  activeHeadingLevel: string;
-  setHeading: (level: string) => void;
-  listItemIsActive: boolean;
-  activeListItemType: string;
-  setListItem: (type: string) => void;
+  activeBlockType: BlockContentType;
+  setBlockType: (type: BlockContentType) => void;
 };
 
 // TODO: add list options, indentation
@@ -58,22 +53,22 @@ export const FormattingToolbar = (props: FormattingToolbarProps) => {
   };
 
   const getActiveBlock = () => {
-    if (props.headingIsActive) {
-      if (props.activeHeadingLevel === "1") {
+    if (props.activeBlockType.name === "headingContent") {
+      if (props.activeBlockType.attrs["headingLevel"] === "1") {
         return {
           text: "Heading 1",
           icon: RiH1,
         };
       }
 
-      if (props.activeHeadingLevel === "2") {
+      if (props.activeBlockType.attrs["headingLevel"] === "2") {
         return {
           text: "Heading 2",
           icon: RiH2,
         };
       }
 
-      if (props.activeHeadingLevel === "3") {
+      if (props.activeBlockType.attrs["headingLevel"] === "3") {
         return {
           text: "Heading 3",
           icon: RiH3,
@@ -81,8 +76,8 @@ export const FormattingToolbar = (props: FormattingToolbarProps) => {
       }
     }
 
-    if (props.listItemIsActive) {
-      if (props.activeListItemType === "unordered") {
+    if (props.activeBlockType.name === "listItemContent") {
+      if (props.activeBlockType.attrs["listItemType"] === "unordered") {
         return {
           text: "Bullet List",
           icon: RiListUnordered,
@@ -111,46 +106,70 @@ export const FormattingToolbar = (props: FormattingToolbarProps) => {
         icon={activeBlock!.icon}
         items={[
           {
-            onClick: () => props.setParagraph(),
+            onClick: () => props.setBlockType({ name: "textContent" }),
             text: "Text",
             icon: RiText,
-            isSelected: props.paragraphIsActive,
+            isSelected: props.activeBlockType.name === "textContent",
           },
           {
-            onClick: () => props.setHeading("1"),
+            onClick: () =>
+              props.setBlockType({
+                name: "headingContent",
+                attrs: { headingLevel: "1" },
+              }),
             text: "Heading 1",
             icon: RiH1,
             isSelected:
-              props.headingIsActive && props.activeHeadingLevel === "1",
+              props.activeBlockType.name === "headingContent" &&
+              props.activeBlockType.attrs["headingLevel"] === "1",
           },
           {
-            onClick: () => props.setHeading("2"),
+            onClick: () =>
+              props.setBlockType({
+                name: "headingContent",
+                attrs: { headingLevel: "2" },
+              }),
             text: "Heading 2",
             icon: RiH2,
             isSelected:
-              props.headingIsActive && props.activeHeadingLevel === "2",
+              props.activeBlockType.name === "headingContent" &&
+              props.activeBlockType.attrs["headingLevel"] === "2",
           },
           {
-            onClick: () => props.setHeading("3"),
+            onClick: () =>
+              props.setBlockType({
+                name: "headingContent",
+                attrs: { headingLevel: "3" },
+              }),
             text: "Heading 3",
             icon: RiH3,
             isSelected:
-              props.headingIsActive && props.activeHeadingLevel === "3",
+              props.activeBlockType.name === "headingContent" &&
+              props.activeBlockType.attrs["headingLevel"] === "3",
           },
           {
-            onClick: () => props.setListItem("unordered"),
+            onClick: () =>
+              props.setBlockType({
+                name: "listItemContent",
+                attrs: { listItemType: "unordered" },
+              }),
             text: "Bullet List",
             icon: RiListUnordered,
             isSelected:
-              props.listItemIsActive &&
-              props.activeListItemType === "unordered",
+              props.activeBlockType.name === "listItemContent" &&
+              props.activeBlockType.attrs["listItemType"] === "unordered",
           },
           {
-            onClick: () => props.setListItem("ordered"),
+            onClick: () =>
+              props.setBlockType({
+                name: "listItemContent",
+                attrs: { listItemType: "ordered" },
+              }),
             text: "Numbered List",
             icon: RiListOrdered,
             isSelected:
-              props.listItemIsActive && props.activeListItemType === "ordered",
+              props.activeBlockType.name === "listItemContent" &&
+              props.activeBlockType.attrs["listItemType"] === "ordered",
           },
         ]}
       />
