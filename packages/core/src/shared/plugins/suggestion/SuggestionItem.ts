@@ -8,15 +8,6 @@ export interface SuggestionItem {
   name: string;
 
   /**
-   * The name of the group to which this item belongs
-   */
-  groupName: string;
-
-  hint?: string;
-
-  shortcut?: string;
-
-  /**
    * This function matches this item against a query string, the function should return **true** if the item
    * matches the query or **false** otherwise.
    *

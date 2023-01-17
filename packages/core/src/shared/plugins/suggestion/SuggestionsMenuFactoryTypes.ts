@@ -6,10 +6,9 @@ export type SuggestionsMenuStaticParams<T extends SuggestionItem> = {
 };
 
 export type SuggestionsMenuDynamicParams<T extends SuggestionItem> = {
-  items: T[];
-  selectedItemIndex: number;
-
   queryStartBoundingBox: DOMRect;
+  items: T[];
+  keyboardHoveredItemIndex: number;
 };
 
 export type SuggestionsMenu<T extends SuggestionItem> = EditorElement<
