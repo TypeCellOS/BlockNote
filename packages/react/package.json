@@ -2,7 +2,27 @@
   "name": "@blocknote/react",
   "homepage": "https://github.com/yousefed/blocknote",
   "private": false,
-  "version": "0.1.2",
+  "license": "MPL-2.0",
+  "version": "0.2.0",
+  "files": [
+    "dist",
+    "types",
+    "src"
+  ],
+  "keywords": [
+    "react",
+    "javascript",
+    "editor",
+    "typescript",
+    "prosemirror",
+    "wysiwyg",
+    "rich-text-editor",
+    "notion",
+    "yjs",
+    "block-based",
+    "tiptap"
+  ],
+  "description": "A \"Notion-style\" block-based extensible text editor built on top of Prosemirror and Tiptap.",
   "type": "module",
   "source": "src/index.ts",
   "types": "./types/src/index.d.ts",
@@ -26,8 +46,8 @@
     "lint": "eslint src --max-warnings 0"
   },
   "dependencies": {
+    "@blocknote/core": "^0.2.0",
     "@mantine/core": "^5.6.1",
-    "@blocknote/core": "^0.1.2",
     "@tippyjs/react": "^4.2.6",
     "@tiptap/react": "^2.0.0-beta.207",
     "react-icons": "^4.3.1"
@@ -35,13 +55,13 @@
   "devDependencies": {
     "@types/react": "^18.0.25",
     "@types/react-dom": "^18.0.9",
+    "@vitejs/plugin-react": "^1.0.7",
     "eslint": "^8.10.0",
     "eslint-config-react-app": "^7.0.0",
     "prettier": "^2.7.1",
     "typescript": "^4.5.4",
     "vite": "^3.0.5",
-    "vite-plugin-eslint": "^1.7.0",
-    "@vitejs/plugin-react": "^1.0.7"
+    "vite-plugin-eslint": "^1.7.0"
   },
   "peerDependencies": {
     "react": "^18",
