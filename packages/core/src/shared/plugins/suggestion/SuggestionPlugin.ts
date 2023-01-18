@@ -174,11 +174,11 @@ class SuggestionPluginView<T extends SuggestionItem> {
     }
 
     if (changed) {
-      this.suggestionsMenu.update(this.getDynamicParams());
+      this.suggestionsMenu.render(this.getDynamicParams(), false);
     }
 
     if (started) {
-      this.suggestionsMenu.show(this.getDynamicParams());
+      this.suggestionsMenu.render(this.getDynamicParams(), true);
 
       // Listener stops focus moving to the menu on click.
       this.suggestionsMenu.element!.addEventListener("mousedown", (event) =>

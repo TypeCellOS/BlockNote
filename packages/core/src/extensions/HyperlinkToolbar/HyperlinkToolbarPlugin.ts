@@ -150,7 +150,7 @@ class HyperlinkToolbarView {
 
       // Shows menu.
       if (!prevHyperlinkMark) {
-        this.hyperlinkToolbar.show(this.getDynamicParams());
+        this.hyperlinkToolbar.render(this.getDynamicParams(), true);
 
         this.hyperlinkToolbar.element?.addEventListener(
           "mouseleave",
@@ -165,7 +165,7 @@ class HyperlinkToolbarView {
       }
 
       // Updates menu.
-      this.hyperlinkToolbar.update(this.getDynamicParams());
+      this.hyperlinkToolbar.render(this.getDynamicParams(), false);
     }
 
     // Hides menu.

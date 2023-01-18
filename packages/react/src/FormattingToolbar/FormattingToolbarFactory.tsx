@@ -16,15 +16,15 @@ export const ReactFormattingToolbarFactory: FormattingToolbarFactory = (
 ): FormattingToolbar => {
   // We don't use the document body as a root as it would cause multiple React roots to be created on a single element
   // if other menu factories do the same.
-  const menuRootElement = document.createElement("div");
-  // menuRootElement.className = rootStyles.bnRoot;
-  let menuRoot: Root | undefined;
+  const rootElement = document.createElement("div");
+  // rootElement.className = rootStyles.bnRoot;
+  let root: Root | undefined;
 
-  function getMenuComponent(dynamicParams: FormattingToolbarDynamicParams) {
+  function getComponent(dynamicParams: FormattingToolbarDynamicParams) {
     return (
       <MantineProvider theme={BlockNoteTheme}>
         <Tippy
-          appendTo={menuRootElement}
+          appendTo={rootElement}
           content={
             <ReactFormattingToolbar {...staticParams} {...dynamicParams} />
           }
@@ -41,20 +41,22 @@ export const ReactFormattingToolbarFactory: FormattingToolbarFactory = (
   }
 
   return {
-    element: menuRootElement,
-    show: (dynamicParams: FormattingToolbarDynamicParams) => {
-      document.body.appendChild(menuRootElement);
-      menuRoot = createRoot(menuRootElement);
+    element: rootElement,
+    render: (
+      dynamicParams: FormattingToolbarDynamicParams,
+      isHidden: boolean
+    ) => {
+      if (isHidden) {
+        document.body.appendChild(rootElement);
+        root = createRoot(rootElement);
+      }
 
-      menuRoot.render(getMenuComponent(dynamicParams));
+      root!.render(getComponent(dynamicParams));
     },
     hide: () => {
-      menuRoot!.unmount();
+      root!.unmount();
 
-      menuRootElement.remove();
-    },
-    update: (dynamicParams: FormattingToolbarDynamicParams) => {
-      menuRoot!.render(getMenuComponent(dynamicParams));
+      rootElement.remove();
     },
   };
 };

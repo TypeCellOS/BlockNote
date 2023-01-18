@@ -38,22 +38,19 @@ export const slashMenuFactory: SuggestionsMenuFactory<SlashMenuItem> = (
 
   return {
     element: container,
-    show: (params) => {
+    render: (params, isHidden) => {
       updateItems(params.items, props.itemCallback, params.selectedItemIndex);
-      container.style.display = "block";
-      console.log("show", params);
 
+      if (isHidden) {
+        container.style.display = "block";
+      }
+
+      console.log("show", params);
       container.style.top = params.queryStartBoundingBox.y + "px";
       container.style.left = params.queryStartBoundingBox.x + "px";
     },
     hide: () => {
       container.style.display = "none";
-    },
-    update: (params) => {
-      console.log("update", params);
-      updateItems(params.items, props.itemCallback, params.selectedItemIndex);
-      container.style.top = params.queryStartBoundingBox.y + "px";
-      container.style.left = params.queryStartBoundingBox.x + "px";
     },
   };
 };

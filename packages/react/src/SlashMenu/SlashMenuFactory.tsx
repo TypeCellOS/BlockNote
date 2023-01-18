@@ -17,17 +17,17 @@ export const ReactSlashMenuFactory: SuggestionsMenuFactory<SlashMenuItem> = (
 ): SuggestionsMenu<SlashMenuItem> => {
   // We don't use the document body as a root as it would cause multiple React roots to be created on a single element
   // if other menu factories do the same.
-  const menuRootElement = document.createElement("div");
-  // menuRootElement.className = rootStyles.bnRoot;
-  let menuRoot: Root | undefined;
+  const rootElement = document.createElement("div");
+  // rootElement.className = rootStyles.bnRoot;
+  let root: Root | undefined;
 
-  function getMenuComponent(
+  function getComponent(
     dynamicParams: SuggestionsMenuDynamicParams<SlashMenuItem>
   ) {
     return (
       <MantineProvider theme={BlockNoteTheme}>
         <Tippy
-          appendTo={menuRootElement}
+          appendTo={rootElement}
           content={<SlashMenu {...staticParams} {...dynamicParams} />}
           duration={0}
           getReferenceClientRect={() => dynamicParams.queryStartBoundingBox}
@@ -42,20 +42,22 @@ export const ReactSlashMenuFactory: SuggestionsMenuFactory<SlashMenuItem> = (
   }
 
   return {
-    element: menuRootElement as HTMLElement,
-    show: (dynamicParams: SuggestionsMenuDynamicParams<SlashMenuItem>) => {
-      document.body.appendChild(menuRootElement);
-      menuRoot = createRoot(menuRootElement);
+    element: rootElement as HTMLElement,
+    render: (
+      dynamicParams: SuggestionsMenuDynamicParams<SlashMenuItem>,
+      isHidden: boolean
+    ) => {
+      if (isHidden) {
+        document.body.appendChild(rootElement);
+        root = createRoot(rootElement);
+      }
 
-      menuRoot.render(getMenuComponent(dynamicParams));
+      root!.render(getComponent(dynamicParams));
     },
     hide: () => {
-      menuRoot!.unmount();
+      root!.unmount();
 
-      menuRootElement.remove();
-    },
-    update: (dynamicParams: SuggestionsMenuDynamicParams<SlashMenuItem>) => {
-      menuRoot!.render(getMenuComponent(dynamicParams));
+      rootElement.remove();
     },
   };
 };

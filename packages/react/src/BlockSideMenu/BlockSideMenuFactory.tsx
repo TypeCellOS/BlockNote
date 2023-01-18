@@ -15,15 +15,15 @@ export const ReactBlockSideMenuFactory: BlockSideMenuFactory = (
 ): BlockSideMenu => {
   // We don't use the document body as a root as it would cause multiple React roots to be created on a single element
   // if other menu factories do the same.
-  const menuRootElement = document.createElement("div");
-  // menuRootElement.className = rootStyles.bnRoot;
-  let menuRoot: Root | undefined;
+  const rootElement = document.createElement("div");
+  // rootElement.className = rootStyles.bnRoot;
+  let root: Root | undefined;
 
-  function getMenuComponent(dynamicParams: BlockSideMenuDynamicParams) {
+  function getComponent(dynamicParams: BlockSideMenuDynamicParams) {
     return (
       <MantineProvider theme={BlockNoteTheme}>
         <Tippy
-          appendTo={menuRootElement}
+          appendTo={rootElement}
           content={<ReactSideBlockMenu {...staticParams} {...dynamicParams} />}
           duration={0}
           getReferenceClientRect={() => dynamicParams.blockBoundingBox}
@@ -39,20 +39,19 @@ export const ReactBlockSideMenuFactory: BlockSideMenuFactory = (
   }
 
   return {
-    element: menuRootElement,
-    show: (dynamicParams: BlockSideMenuDynamicParams) => {
-      document.body.appendChild(menuRootElement);
-      menuRoot = createRoot(menuRootElement);
+    element: rootElement,
+    render: (dynamicParams: BlockSideMenuDynamicParams, isHidden: boolean) => {
+      if (isHidden) {
+        document.body.appendChild(rootElement);
+        root = createRoot(rootElement);
+      }
 
-      menuRoot.render(getMenuComponent(dynamicParams));
+      root!.render(getComponent(dynamicParams));
     },
     hide: () => {
-      menuRoot!.unmount();
+      root!.unmount();
 
-      menuRootElement.remove();
-    },
-    update: (dynamicParams: BlockSideMenuDynamicParams) => {
-      menuRoot!.render(getMenuComponent(dynamicParams));
+      rootElement.remove();
     },
   };
 };

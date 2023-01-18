@@ -29,8 +29,11 @@ export const blockSideMenuFactory: BlockSideMenuFactory = (props) => {
 
   return {
     element: container,
-    show: (params) => {
-      container.style.display = "block";
+    render: (params, isHidden) => {
+      if (isHidden) {
+        container.style.display = "block";
+      }
+
       console.log("show blockmenu", params);
       container.style.top = params.blockBoundingBox.y + "px";
       container.style.left =
@@ -38,12 +41,6 @@ export const blockSideMenuFactory: BlockSideMenuFactory = (props) => {
     },
     hide: () => {
       container.style.display = "none";
-    },
-    update: (params) => {
-      console.log("update blockmenu", params);
-      container.style.top = params.blockBoundingBox.y + "px";
-      container.style.left =
-        params.blockBoundingBox.x - container.offsetWidth + "px";
     },
   };
 };

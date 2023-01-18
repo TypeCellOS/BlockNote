@@ -33,23 +33,20 @@ export const hyperlinkToolbarFactory: HyperlinkToolbarFactory = (props) => {
 
   return {
     element: container,
-    show: (params) => {
-      url = params.url;
-      text = params.text;
+    render: (params, isHidden) => {
+      if (isHidden) {
+        url = params.url;
+        text = params.text;
 
-      container.style.display = "block";
+        container.style.display = "block";
+      }
+
       console.log("show", params);
-
       container.style.top = params.boundingBox.y + "px";
       container.style.left = params.boundingBox.x + "px";
     },
     hide: () => {
       container.style.display = "none";
-    },
-    update: (params) => {
-      console.log("update", params);
-      container.style.top = params.boundingBox.y + "px";
-      container.style.left = params.boundingBox.x + "px";
     },
   };
 };
