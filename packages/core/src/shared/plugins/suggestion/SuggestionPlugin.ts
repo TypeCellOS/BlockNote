@@ -325,8 +325,10 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
 
     props: {
       handleKeyDown(view, event) {
-        // Shows the menu if the default trigger character was pressed.
-        if (event.key === defaultTriggerCharacter) {
+        const menuIsActive = (this as Plugin).getState(view.state).active;
+
+        // Shows the menu if the default trigger character was pressed and the menu isn't active.
+        if (event.key === defaultTriggerCharacter && !menuIsActive) {
           view.dispatch(
             view.state.tr
               .insertText(defaultTriggerCharacter)
@@ -341,7 +343,7 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
         }
 
         // Doesn't handle other keystrokes if the menu isn't active.
-        if (!(this as Plugin).getState(view.state).active) {
+        if (!menuIsActive) {
           return false;
         }
 
