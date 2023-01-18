@@ -22,8 +22,8 @@
     "playwright": "npx playwright test",
     "install-playwright": "npx playwright install --with-deps",
     "deploy": "lerna publish -- --access public",
-    "prepublishOnly": "npm run build && cp README.md packages/core/README.md",
-    "postpublish": "rm -rf packages/core/README.md"
+    "prepublishOnly": "npm run build && cp README.md packages/core/README.md && cp README.md packages/react/README.md",
+    "postpublish": "rm -rf packages/core/README.md && rm -rf packages/react/README.md"
   },
   "overrides": {
     "react": "18.2.0",
