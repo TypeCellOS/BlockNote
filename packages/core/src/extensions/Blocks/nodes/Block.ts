@@ -5,16 +5,18 @@ import BlockAttributes from "../BlockAttributes";
 import { getBlockInfoFromPos } from "../helpers/getBlockInfoFromPos";
 import { PreviousBlockTypePlugin } from "../PreviousBlockTypePlugin";
 import styles from "./Block.module.css";
-import { HeadingContentAttributes } from "./BlockTypes/HeadingBlock/HeadingContent";
-import { ListItemContentAttributes } from "./BlockTypes/ListItemBlock/ListItemContent";
+import { TextContentType } from "./BlockTypes/TextBlock/TextContent";
+import { HeadingContentType } from "./BlockTypes/HeadingBlock/HeadingContent";
+import { ListItemContentType } from "./BlockTypes/ListItemBlock/ListItemContent";
 
 export interface IBlock {
   HTMLAttributes: Record<string, any>;
 }
 
-export type BlockContentAttributes =
-  | HeadingContentAttributes
-  | ListItemContentAttributes;
+export type BlockContentType =
+  | TextContentType
+  | HeadingContentType
+  | ListItemContentType;
 
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
@@ -25,13 +27,11 @@ declare module "@tiptap/core" {
       BNSplitBlock: (posInBlock: number, keepType: boolean) => ReturnType;
       BNSetContentType: (
         posInBlock: number,
-        type: string,
-        attributes?: BlockContentAttributes
+        type: BlockContentType
       ) => ReturnType;
       BNCreateBlockOrSetContentType: (
         posInBlock: number,
-        type: string,
-        attributes?: BlockContentAttributes
+        type: BlockContentType
       ) => ReturnType;
     };
   }
@@ -282,23 +282,23 @@ export const Block = Node.create<IBlock>({
 
           return true;
         },
-      // Changes the block at a given position to a given content type.
+      // Changes the content of a block at a given position to a given type.
       BNSetContentType:
-        (posInBlock, type, attributes) =>
+        (posInBlock, type) =>
         ({ state, dispatch }) => {
           const blockInfo = getBlockInfoFromPos(state.doc, posInBlock);
           if (blockInfo === undefined) {
             return false;
           }
 
-          const { startPos, endPos } = blockInfo;
+          const { startPos, contentNode } = blockInfo;
 
           if (dispatch) {
             state.tr.setBlockType(
               startPos + 1,
-              endPos - 1,
-              state.schema.node(type).type,
-              attributes
+              startPos + contentNode.nodeSize + 1,
+              state.schema.node(type.name).type,
+              type.attrs
             );
           }
 
@@ -307,7 +307,7 @@ export const Block = Node.create<IBlock>({
       // Changes the block at a given position to a given content type if it's empty, otherwise creates a new block of
       // that type below it.
       BNCreateBlockOrSetContentType:
-        (posInBlock, type, attributes) =>
+        (posInBlock, type) =>
         ({ state, chain }) => {
           const blockInfo = getBlockInfoFromPos(state.doc, posInBlock);
           if (blockInfo === undefined) {
@@ -320,7 +320,7 @@ export const Block = Node.create<IBlock>({
             const oldBlockContentPos = startPos + 1;
 
             return chain()
-              .BNSetContentType(posInBlock, type, attributes)
+              .BNSetContentType(posInBlock, type)
               .setTextSelection(oldBlockContentPos)
               .run();
           } else {
@@ -329,7 +329,7 @@ export const Block = Node.create<IBlock>({
 
             return chain()
               .BNCreateBlock(newBlockInsertionPos)
-              .BNSetContentType(newBlockContentPos, type, attributes)
+              .BNSetContentType(newBlockContentPos, type)
               .setTextSelection(newBlockContentPos)
               .run();
           }
@@ -362,10 +362,9 @@ export const Block = Node.create<IBlock>({
             const isTextBlock = contentType.name === "textContent";
 
             if (selectionAtBlockStart && !isTextBlock) {
-              return commands.BNSetContentType(
-                state.selection.from,
-                "textContent"
-              );
+              return commands.BNSetContentType(state.selection.from, {
+                name: "textContent",
+              });
             }
 
             return false;
@@ -506,41 +505,51 @@ export const Block = Node.create<IBlock>({
       "Mod-Alt-1": () =>
         this.editor.commands.BNSetContentType(
           this.editor.state.selection.anchor,
-          "headingContent",
           {
-            headingLevel: "1",
+            name: "headingContent",
+            attrs: {
+              headingLevel: "1",
+            },
           }
         ),
       "Mod-Alt-2": () =>
         this.editor.commands.BNSetContentType(
           this.editor.state.selection.anchor,
-          "headingContent",
           {
-            headingLevel: "2",
+            name: "headingContent",
+            attrs: {
+              headingLevel: "2",
+            },
           }
         ),
       "Mod-Alt-3": () =>
         this.editor.commands.BNSetContentType(
           this.editor.state.selection.anchor,
-          "headingContent",
           {
-            headingLevel: "3",
+            name: "headingContent",
+            attrs: {
+              headingLevel: "3",
+            },
           }
         ),
       "Mod-Shift-7": () =>
         this.editor.commands.BNSetContentType(
           this.editor.state.selection.anchor,
-          "listItemContent",
           {
-            listItemType: "unordered",
+            name: "listItemContent",
+            attrs: {
+              listItemType: "unordered",
+            },
           }
         ),
       "Mod-Shift-8": () =>
         this.editor.commands.BNSetContentType(
           this.editor.state.selection.anchor,
-          "listItemContent",
           {
-            listItemType: "ordered",
+            name: "listItemContent",
+            attrs: {
+              listItemType: "ordered",
+            },
           }
         ),
     };

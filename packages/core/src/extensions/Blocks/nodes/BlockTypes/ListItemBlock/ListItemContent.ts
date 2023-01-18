@@ -3,8 +3,11 @@ import { OrderedListItemIndexPlugin } from "./OrderedListItemIndexPlugin";
 import { getBlockInfoFromPos } from "../../../helpers/getBlockInfoFromPos";
 import styles from "../../Block.module.css";
 
-export type ListItemContentAttributes = {
-  listItemType: string;
+export type ListItemContentType = {
+  name: "listItemContent";
+  attrs?: {
+    listItemType: string;
+  };
 };
 
 export const ListItemContent = Node.create({
@@ -42,8 +45,11 @@ export const ListItemContent = Node.create({
         find: new RegExp(`^[-+*]\\s$`),
         handler: ({ state, chain, range }) => {
           chain()
-            .BNSetContentType(state.selection.from, "listItemContent", {
-              listItemType: "unordered",
+            .BNSetContentType(state.selection.from, {
+              name: "listItemContent",
+              attrs: {
+                listItemType: "unordered",
+              },
             })
             // Removes the "-", "+", or "*" character used to set the list.
             .deleteRange({ from: range.from, to: range.to });
@@ -54,8 +60,11 @@ export const ListItemContent = Node.create({
         find: new RegExp(`^1\\.\\s$`),
         handler: ({ state, chain, range }) => {
           chain()
-            .BNSetContentType(state.selection.from, "listItemContent", {
-              listItemType: "ordered",
+            .BNSetContentType(state.selection.from, {
+              name: "listItemContent",
+              attrs: {
+                listItemType: "ordered",
+              },
             })
             // Removes the "1." characters used to set the list.
             .deleteRange({ from: range.from, to: range.to });
@@ -83,10 +92,9 @@ export const ListItemContent = Node.create({
           // Changes list item block to a text block if both the content is empty.
           commands.command(() => {
             if (node.textContent.length === 0) {
-              return commands.BNSetContentType(
-                state.selection.from,
-                "textContent"
-              );
+              return commands.BNSetContentType(state.selection.from, {
+                name: "textContent",
+              });
             }
 
             return false;
@@ -151,7 +159,7 @@ export const ListItemContent = Node.create({
 
           return false;
         },
-        node: "block"
+        node: "block",
       },
     ];
   },

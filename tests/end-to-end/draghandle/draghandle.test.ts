@@ -42,6 +42,7 @@ test.describe("Check Draghandle functionality", () => {
     await page.keyboard.type("Hover over this text");
     const heading = await page.locator(H_ONE_BLOCK_SELECTOR);
     await moveMouseOverElement(page, heading);
+
     await page.waitForSelector(DRAG_HANDLE_SELECTOR);
   });
 
@@ -117,6 +118,7 @@ test.describe("Check Draghandle functionality", () => {
     const heading = await page.locator(H_ONE_BLOCK_SELECTOR);
     await moveMouseOverElement(page, heading);
     await page.click(DRAG_HANDLE_ADD_SELECTOR);
+
     await page.waitForSelector(SLASH_MENU_SELECTOR);
   });
 
@@ -125,6 +127,7 @@ test.describe("Check Draghandle functionality", () => {
     await page.keyboard.type("Hover over this text");
     await hoverAndAddBlockFromDragHandle(page, H_ONE_BLOCK_SELECTOR, "h2");
     await page.waitForSelector(DRAG_HANDLE_SELECTOR, { state: "detached" });
+
     await page.waitForSelector(DRAG_HANDLE_ADD_SELECTOR, { state: "detached" });
   });
 
@@ -156,7 +159,6 @@ test.describe("Check Draghandle functionality", () => {
     await page.waitForSelector(H_TWO_BLOCK_SELECTOR, { state: "detached" });
     await page.waitForSelector(H_THREE_BLOCK_SELECTOR);
 
-    // Compare doc object snapshot
     await compareDocToSnapshot(page, "dragHandleDocStructure");
   });
 

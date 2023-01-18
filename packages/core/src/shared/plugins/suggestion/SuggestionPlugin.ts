@@ -1,13 +1,15 @@
 import { Editor, Range } from "@tiptap/core";
-import { escapeRegExp, groupBy } from "lodash";
-import { Plugin, PluginKey, Selection } from "prosemirror-state";
-import { Decoration, DecorationSet } from "prosemirror-view";
+import { escapeRegExp } from "lodash";
+import { EditorState, Plugin, PluginKey, Selection } from "prosemirror-state";
+import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
 import { findBlock } from "../../../extensions/Blocks/helpers/findBlock";
-import SuggestionItem from "./SuggestionItem";
-
-import createRenderer, {
-  SuggestionRendererProps,
-} from "./SuggestionListReactRenderer";
+import {
+  SuggestionsMenu,
+  SuggestionsMenuDynamicParams,
+  SuggestionsMenuFactory,
+  SuggestionsMenuStaticParams,
+} from "./SuggestionsMenuFactoryTypes";
+import { SuggestionItem } from "./SuggestionItem";
 
 export type SuggestionPluginOptions<T extends SuggestionItem> = {
   /**
@@ -27,6 +29,8 @@ export type SuggestionPluginOptions<T extends SuggestionItem> = {
    */
   char: string;
 
+  suggestionsMenuFactory: SuggestionsMenuFactory<T>;
+
   /**
    * The callback that gets executed when an item is selected by the user.
    *
@@ -42,6 +46,24 @@ export type SuggestionPluginOptions<T extends SuggestionItem> = {
   items?: (query: string) => T[];
 
   allow?: (props: { editor: Editor; range: Range }) => boolean;
+};
+
+type SuggestionPluginState<T extends SuggestionItem> = {
+  active: boolean;
+  range: Range | null;
+  query: string | null;
+  notFoundCount: number;
+  items: T[];
+  selectedItemIndex: number;
+  type: string;
+  decorationId: string | null;
+};
+
+type SuggestionPluginViewOptions<T extends SuggestionItem> = {
+  editor: Editor;
+  pluginKey: PluginKey;
+  onSelectItem: (props: { item: T; editor: Editor; range: Range }) => void;
+  suggestionsMenuFactory: SuggestionsMenuFactory<T>;
 };
 
 export type MenuType = "slash" | "drag";
@@ -85,6 +107,105 @@ export function findCommandBeforeCursor(
   };
 }
 
+class SuggestionPluginView<T extends SuggestionItem> {
+  editor: Editor;
+  pluginKey: PluginKey;
+
+  suggestionsMenu: SuggestionsMenu<T>;
+
+  pluginState: SuggestionPluginState<T>;
+  itemCallback: (item: T) => void;
+
+  constructor({
+    editor,
+    pluginKey,
+    onSelectItem: selectItemCallback = () => {},
+    suggestionsMenuFactory,
+  }: SuggestionPluginViewOptions<T>) {
+    this.editor = editor;
+    this.pluginKey = pluginKey;
+
+    this.pluginState = {
+      active: false,
+      range: null,
+      query: null,
+      notFoundCount: 0,
+      items: [],
+      selectedItemIndex: 0,
+      type: "slash",
+      decorationId: null,
+    };
+
+    this.itemCallback = (item: T) =>
+      selectItemCallback({
+        item: item,
+        editor: editor,
+        range: this.pluginState.range as Range,
+      });
+
+    this.suggestionsMenu = suggestionsMenuFactory(this.getStaticParams());
+  }
+
+  update(view: EditorView, prevState: EditorState) {
+    const prev = this.pluginKey.getState(prevState);
+    const next = this.pluginKey.getState(view.state);
+
+    // See how the state changed
+    const started = !prev.active && next.active;
+    const stopped = prev.active && !next.active;
+    // TODO: Currently also true for cases in which an update isn't needed so selected list item index updates still
+    //  cause the view to update. May need to be more strict.
+    const changed = prev.active && next.active;
+
+    // Cancel when suggestion isn't active
+    if (!started && !changed && !stopped) {
+      return;
+    }
+
+    this.pluginState = stopped ? prev : next;
+
+    if (stopped) {
+      this.suggestionsMenu.hide();
+
+      // Listener stops focus moving to the menu on click.
+      this.suggestionsMenu.element!.removeEventListener("mousedown", (event) =>
+        event.preventDefault()
+      );
+    }
+
+    if (changed) {
+      this.suggestionsMenu.render(this.getDynamicParams(), false);
+    }
+
+    if (started) {
+      this.suggestionsMenu.render(this.getDynamicParams(), true);
+
+      // Listener stops focus moving to the menu on click.
+      this.suggestionsMenu.element!.addEventListener("mousedown", (event) =>
+        event.preventDefault()
+      );
+    }
+  }
+
+  getStaticParams(): SuggestionsMenuStaticParams<T> {
+    return {
+      itemCallback: (item: T) => this.itemCallback(item),
+    };
+  }
+
+  getDynamicParams(): SuggestionsMenuDynamicParams<T> {
+    const decorationNode = document.querySelector(
+      `[data-decoration-id="${this.pluginState.decorationId}"]`
+    );
+
+    return {
+      items: this.pluginState.items,
+      selectedItemIndex: this.pluginState.selectedItemIndex,
+      queryStartBoundingBox: decorationNode!.getBoundingClientRect(),
+    };
+  }
+}
+
 /**
  * A ProseMirror plugin for suggestions, designed to make '/'-commands possible as well as mentions.
  *
@@ -102,6 +223,7 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
   pluginKey,
   editor,
   char,
+  suggestionsMenuFactory,
   onSelectItem: selectItemCallback = () => {},
   items = () => [],
 }: SuggestionPluginOptions<T>) {
@@ -110,114 +232,67 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
     throw new Error("'char' should be a single character");
   }
 
-  const renderer = createRenderer<T>(editor);
+  const deactivate = (view: EditorView) => {
+    view.dispatch(view.state.tr.setMeta(pluginKey, { deactivate: true }));
+  };
 
   // Plugin key is passed in parameter so it can be exported and used in draghandle
   return new Plugin({
     key: pluginKey,
 
-    filterTransaction(transaction) {
-      // prevent blurring when clicking with the mouse inside the popup menu
-      const blurMeta = transaction.getMeta("blur");
-      if (blurMeta?.event.relatedTarget) {
-        const c = renderer.getComponent();
-        if (c?.contains(blurMeta.event.relatedTarget)) {
-          return false;
-        }
-      }
-      return true;
-    },
-
-    view() {
-      return {
-        update: async (view, prevState) => {
-          const prev = this.key?.getState(prevState);
-          const next = this.key?.getState(view.state);
-
-          // See how the state changed
-          const started = !prev.active && next.active;
-          const stopped = prev.active && !next.active;
-          const changed = !started && !stopped && prev.query !== next.query;
-
-          // Cancel when suggestion isn't active
-          if (!started && !changed && !stopped) {
-            return;
-          }
-
-          const state = stopped ? prev : next;
-          const decorationNode = document.querySelector(
-            `[data-decoration-id="${state.decorationId}"]`
-          );
-
-          const groups: { [groupName: string]: T[] } = groupBy(
-            state.items,
-            "groupName"
-          );
-
-          const deactivate = () => {
-            view.dispatch(
-              view.state.tr.setMeta(pluginKey, { deactivate: true })
-            );
-          };
-
-          const rendererProps: SuggestionRendererProps<T> = {
-            groups: changed || started ? groups : {},
-            count: state.items.length,
-            onSelectItem: (item: T) => {
-              deactivate();
-              selectItemCallback({
-                item,
-                editor,
-                range: state.range,
-              });
-            },
-            // virtual node for popper.js or tippy.js
-            // this can be used for building popups without a DOM node
-            clientRect: decorationNode
-              ? () => decorationNode.getBoundingClientRect()
-              : null,
-            onClose: () => {
-              deactivate();
-              renderer.onExit?.(rendererProps);
-            },
-          };
-
-          if (stopped) {
-            renderer.onExit?.(rendererProps);
-          }
-
-          if (changed) {
-            renderer.onUpdate?.(rendererProps);
-          }
-
-          if (started) {
-            renderer.onStart?.(rendererProps);
-          }
+    view: (view: EditorView) =>
+      new SuggestionPluginView({
+        editor: editor,
+        pluginKey: pluginKey,
+        onSelectItem: (props: { item: T; editor: Editor; range: Range }) => {
+          deactivate(view);
+          selectItemCallback(props);
         },
-      };
-    },
+        suggestionsMenuFactory: suggestionsMenuFactory,
+      }),
 
     state: {
       // Initialize the plugin's internal state.
-      init() {
+      init(): SuggestionPluginState<T> {
         return {
           active: false,
-          range: {} as any, // TODO
-          query: null as string | null,
+          range: null, // TODO
+          query: null,
           notFoundCount: 0,
           items: [] as T[],
+          selectedItemIndex: 0,
           type: "slash",
-          decorationId: null as string | null,
+          decorationId: null,
         };
       },
 
       // Apply changes to the plugin state from a view transaction.
-      apply(transaction, prev, _oldState, _newState) {
+      apply(transaction, prev, _oldState, newState) {
         const { selection } = transaction;
         const next = { ...prev };
 
         // TODO: More clearly define which transactions should be ignored and which should deactivate the menu.
         if (transaction.getMeta("orderedListIndexing") !== undefined) {
+          return next;
+        }
+
+        // Handles transactions created by navigating the menu using the up/down arrow keys.
+        if (
+          transaction.getMeta(pluginKey)?.selectedItemIndexChanged !== undefined
+        ) {
+          let newIndex =
+            transaction.getMeta(pluginKey).selectedItemIndexChanged;
+
+          if (newIndex < 0) {
+            newIndex = prev.items.length - 1;
+          }
+
+          if (newIndex >= prev.items.length) {
+            newIndex = 0;
+          }
+
+          next.selectedItemIndex = newIndex;
+
           return next;
         }
 
@@ -232,7 +307,7 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
           !transaction.getMeta("pointer")
         ) {
           // Reset active state if we just left the previous suggestion range (e.g.: key arrows moving before /)
-          if (prev.active && selection.from <= prev.range.from) {
+          if (prev.active && selection.from <= prev.range!.from) {
             next.active = false;
           } else if (transaction.getMeta(pluginKey)?.activate) {
             // Start showing suggestions. activate has been set after typing a "/" (or whatever the specified character is), so let's create the decoration and initialize
@@ -247,13 +322,14 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
             next.query = "";
             next.active = true;
             next.type = transaction.getMeta(pluginKey)?.type;
+            next.selectedItemIndex = 0;
           } else if (prev.active) {
             // Try to match against where our cursor currently is
             // if the type is slash we get the command after the character
             // otherwise we get the whole query
             const match = findCommandBeforeCursor(
               prev.type === "slash" ? char : "",
-              selection
+              newState.selection
             );
             if (!match) {
               throw new Error("active but no match (suggestions)");
@@ -263,6 +339,7 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
             next.active = true;
             next.decorationId = prev.decorationId;
             next.query = match.query;
+            next.selectedItemIndex = 0;
           }
         } else {
           next.active = false;
@@ -275,7 +352,7 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
           } else {
             // Update the "notFoundCount",
             // which indicates how many characters have been typed after showing no results
-            if (next.range.to > prev.range.to) {
+            if (next.range!.to > prev.range!.to) {
               // Text has been entered (selection moved to right), but still no items found, update Count
               next.notFoundCount = prev.notFoundCount + 1;
             } else {
@@ -293,7 +370,7 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
         // Make sure to empty the range if suggestion is inactive
         if (!next.active) {
           next.decorationId = null;
-          next.range = {};
+          next.range = null;
           next.query = null;
           next.notFoundCount = 0;
           next.items = [];
@@ -319,12 +396,51 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
             // return true to cancel the original event, as we insert / ourselves
             return true;
           }
-          return false;
+        } else {
+          const { items, range, selectedItemIndex } = pluginKey.getState(
+            view.state
+          );
+
+          if (event.key === "ArrowUp") {
+            view.dispatch(
+              view.state.tr.setMeta(pluginKey, {
+                selectedItemIndexChanged: selectedItemIndex - 1,
+              })
+            );
+            return true;
+          }
+
+          if (event.key === "ArrowDown") {
+            view.dispatch(
+              view.state.tr.setMeta(pluginKey, {
+                selectedItemIndexChanged: selectedItemIndex + 1,
+              })
+            );
+            return true;
+          }
+
+          if (event.key === "Enter") {
+            deactivate(view);
+            selectItemCallback({
+              item: items[selectedItemIndex],
+              editor: editor,
+              range: range,
+            });
+            return true;
+          }
+
+          if (event.key === "Escape") {
+            deactivate(view);
+            return true;
+          }
         }
 
-        // pass the key event onto the renderer (to handle arrow keys, enter and escape)
-        // return true if the event got handled by the renderer or false otherwise
-        return renderer.onKeyDown?.(event) || false;
+        return false;
+      },
+
+      // Hides menu in cases where mouse click does not cause an editor state change.
+      handleClick(view) {
+        deactivate(view);
       },
 
       // Setup decorator on the currently active suggestion.

@@ -1,0 +1,64 @@
+{
+  "name": "@blocknote/react",
+  "homepage": "https://github.com/yousefed/blocknote",
+  "private": false,
+  "version": "0.1.2",
+  "type": "module",
+  "source": "src/index.ts",
+  "types": "./types/src/index.d.ts",
+  "main": "./dist/blocknote-react.umd.cjs",
+  "module": "./dist/blocknote-react.js",
+  "exports": {
+    ".": {
+      "import": "./dist/blocknote-react.js",
+      "require": "./dist/blocknote-react.umd.cjs"
+    },
+    "./style.css": {
+      "import": "./dist/style.css",
+      "require": "./dist/style.css"
+    }
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "build-bundled": "tsc && vite build --config vite.config.bundled.ts && git checkout tmp-releases && rm -rf ../../release && mv ../../release-tmp ../../release",
+    "preview": "vite preview",
+    "lint": "eslint src --max-warnings 0"
+  },
+  "dependencies": {
+    "@mantine/core": "^5.6.1",
+    "@blocknote/core": "^0.1.2",
+    "@tippyjs/react": "^4.2.6",
+    "@tiptap/react": "^2.0.0-beta.207",
+    "react-icons": "^4.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.25",
+    "@types/react-dom": "^18.0.9",
+    "eslint": "^8.10.0",
+    "eslint-config-react-app": "^7.0.0",
+    "prettier": "^2.7.1",
+    "typescript": "^4.5.4",
+    "vite": "^3.0.5",
+    "vite-plugin-eslint": "^1.7.0",
+    "@vitejs/plugin-react": "^1.0.7"
+  },
+  "peerDependencies": {
+    "react": "^18",
+    "react-dom": "^18"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ],
+    "rules": {
+      "curly": 1
+    }
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "gitHead": "37614ab348dcc7faa830a9a88437b37197a2162d"
+}

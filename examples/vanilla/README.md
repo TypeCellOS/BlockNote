@@ -1,0 +1,3 @@
+# Vanilla editor example
+
+This is an example client application that consumes @blocknote/core.

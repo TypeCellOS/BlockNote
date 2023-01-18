@@ -13,14 +13,20 @@ import Text from "@tiptap/extension-text";
 import Underline from "@tiptap/extension-underline";
 import { blocks } from "./extensions/Blocks";
 import blockStyles from "./extensions/Blocks/nodes/Block.module.css";
-import { BubbleMenuExtension } from "./extensions/BubbleMenu/BubbleMenuExtension";
+import { FormattingToolbarExtension } from "./extensions/FormattingToolbar/FormattingToolbarExtension";
 import { DraggableBlocksExtension } from "./extensions/DraggableBlocks/DraggableBlocksExtension";
-import HyperlinkMark from "./extensions/Hyperlinks/HyperlinkMark";
+import HyperlinkMark from "./extensions/HyperlinkToolbar/HyperlinkMark";
 import { FixedParagraph } from "./extensions/Paragraph/FixedParagraph";
 import { Placeholder } from "./extensions/Placeholder/PlaceholderExtension";
 import SlashMenuExtension from "./extensions/SlashMenu";
 import { TrailingNode } from "./extensions/TrailingNode/TrailingNodeExtension";
 import UniqueID from "./extensions/UniqueID/UniqueID";
+import { FormattingToolbarFactory } from "./extensions/FormattingToolbar/FormattingToolbarFactoryTypes";
+import { HyperlinkToolbarFactory } from "./extensions/HyperlinkToolbar/HyperlinkToolbarFactoryTypes";
+import { SuggestionsMenuFactory } from "./shared/plugins/suggestion/SuggestionsMenuFactoryTypes";
+import { BlockSideMenuFactory } from "./extensions/DraggableBlocks/BlockSideMenuFactoryTypes";
+import { Link } from "@tiptap/extension-link";
+import { SlashMenuItem } from "./extensions/SlashMenu/SlashMenuItem";
 
 export const Document = Node.create({
   name: "doc",
@@ -28,10 +34,17 @@ export const Document = Node.create({
   content: "block+",
 });
 
+export type UiFactories = Partial<{
+  formattingToolbarFactory: FormattingToolbarFactory;
+  hyperlinkToolbarFactory: HyperlinkToolbarFactory;
+  slashMenuFactory: SuggestionsMenuFactory<SlashMenuItem>;
+  blockSideMenuFactory: BlockSideMenuFactory;
+}>;
+
 /**
  * Get all the Tiptap extensions BlockNote is configured with by default
  */
-export const getBlockNoteExtensions = () => {
+export const getBlockNoteExtensions = (uiFactories: UiFactories) => {
   const ret: Extensions = [
     extensions.ClipboardTextSerializer,
     extensions.Commands,
@@ -65,19 +78,51 @@ export const getBlockNoteExtensions = () => {
     Italic,
     Strike,
     Underline,
-    HyperlinkMark,
     FixedParagraph,
 
     // custom blocks:
     ...blocks,
-    DraggableBlocksExtension,
+
     DropCursor.configure({ width: 5, color: "#ddeeff" }),
-    BubbleMenuExtension,
     History,
     // This needs to be at the bottom of this list, because Key events (such as enter, when selecting a /command),
     // should be handled before Enter handlers in other components like splitListItem
-    SlashMenuExtension,
     TrailingNode,
   ];
+
+  if (uiFactories.blockSideMenuFactory) {
+    ret.push(
+      DraggableBlocksExtension.configure({
+        blockSideMenuFactory: uiFactories.blockSideMenuFactory,
+      })
+    );
+  }
+
+  if (uiFactories.formattingToolbarFactory) {
+    ret.push(
+      FormattingToolbarExtension.configure({
+        formattingToolbarFactory: uiFactories.formattingToolbarFactory,
+      })
+    );
+  }
+
+  if (uiFactories.hyperlinkToolbarFactory) {
+    ret.push(
+      HyperlinkMark.configure({
+        hyperlinkToolbarFactory: uiFactories.hyperlinkToolbarFactory,
+      })
+    );
+  } else {
+    ret.push(Link);
+  }
+
+  if (uiFactories.slashMenuFactory) {
+    ret.push(
+      SlashMenuExtension.configure({
+        slashMenuFactory: uiFactories.slashMenuFactory,
+      })
+    );
+  }
+
   return ret;
 };

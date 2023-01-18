@@ -21,8 +21,8 @@ export default defineConfig({
         // Provide global variables to use in the UMD build
         // for externalized deps
         globals: {
-          react: "React",
-          "react-dom": "ReactDOM",
+          // react: "React",
+          // "react-dom": "ReactDOM",
         },
       },
     },

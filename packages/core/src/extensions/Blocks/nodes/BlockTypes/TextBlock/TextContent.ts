@@ -1,6 +1,11 @@
 import { Node } from "@tiptap/core";
 import styles from "../../Block.module.css";
 
+export type TextContentType = {
+  name: "textContent";
+  attrs?: {};
+};
+
 export const TextContent = Node.create({
   name: "textContent",
   group: "blockContent",
