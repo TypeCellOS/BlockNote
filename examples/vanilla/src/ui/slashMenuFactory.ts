@@ -39,7 +39,11 @@ export const slashMenuFactory: SuggestionsMenuFactory<SlashMenuItem> = (
   return {
     element: container,
     render: (params, isHidden) => {
-      updateItems(params.items, props.itemCallback, params.selectedItemIndex);
+      updateItems(
+        params.items,
+        props.itemCallback,
+        params.keyboardHoveredItemIndex
+      );
 
       if (isHidden) {
         container.style.display = "block";
