@@ -157,7 +157,7 @@ export class FormattingToolbarView {
       !this.preventShow &&
       (shouldShow || this.preventHide)
     ) {
-      this.formattingToolbar.show(this.getDynamicParams());
+      this.formattingToolbar.render(this.getDynamicParams(), true);
       this.toolbarIsOpen = true;
 
       // TODO: Is this necessary? Also for other menu plugins.
@@ -175,7 +175,7 @@ export class FormattingToolbarView {
       !this.preventShow &&
       (shouldShow || this.preventHide)
     ) {
-      this.formattingToolbar.update(this.getDynamicParams());
+      this.formattingToolbar.render(this.getDynamicParams(), false);
       return;
     }
 

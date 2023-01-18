@@ -1,8 +1,7 @@
 export type EditorElement<ElementDynamicParams extends Record<string, any>> = {
   element: HTMLElement | undefined;
-  show: (params: ElementDynamicParams) => void;
+  render: (params: ElementDynamicParams, isHidden: boolean) => void;
   hide: () => void;
-  update: (params: ElementDynamicParams) => void;
 };
 
 export type ElementFactory<

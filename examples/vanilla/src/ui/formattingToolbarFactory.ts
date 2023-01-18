@@ -27,19 +27,17 @@ export const formattingToolbarFactory: FormattingToolbarFactory = (props) => {
 
   return {
     element: container,
-    show: (params) => {
-      container.style.display = "block";
+    render: (params, isHidden) => {
+      if (isHidden) {
+        container.style.display = "block";
+      }
+
       boldBtn.text = params.boldIsActive ? "unset bold" : "set bold";
       container.style.top = params.selectionBoundingBox.y + "px";
       container.style.left = params.selectionBoundingBox.x + "px";
     },
     hide: () => {
       container.style.display = "none";
-    },
-    update: (params) => {
-      boldBtn.text = params.boldIsActive ? "unset bold" : "set bold";
-      container.style.top = params.selectionBoundingBox.y + "px";
-      container.style.left = params.selectionBoundingBox.x + "px";
     },
   };
 };

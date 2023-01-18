@@ -41,19 +41,21 @@ export const ReactHyperlinkToolbarFactory: HyperlinkToolbarFactory = (
 
   return {
     element: rootElement,
-    show: (dynamicParams: HyperlinkToolbarDynamicParams) => {
-      document.body.appendChild(rootElement);
-      root = createRoot(rootElement);
+    render: (
+      dynamicParams: HyperlinkToolbarDynamicParams,
+      isHidden: boolean
+    ) => {
+      if (isHidden) {
+        document.body.appendChild(rootElement);
+        root = createRoot(rootElement);
+      }
 
-      root.render(getComponent(dynamicParams));
+      root!.render(getComponent(dynamicParams));
     },
     hide: () => {
       root!.unmount();
 
       rootElement.remove();
-    },
-    update: (dynamicParams: HyperlinkToolbarDynamicParams) => {
-      root!.render(getComponent(dynamicParams));
     },
   };
 };

@@ -300,9 +300,9 @@ export class BlockMenuView {
         // Shows or updates elements.
         if (!this.menuOpen) {
           this.menuOpen = true;
-          this.blockMenu.show(this.getDynamicParams());
+          this.blockMenu.render(this.getDynamicParams(), true);
         } else {
-          this.blockMenu.update(this.getDynamicParams());
+          this.blockMenu.render(this.getDynamicParams(), false);
         }
       },
       true
