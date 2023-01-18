@@ -5,7 +5,9 @@ import { createButton } from "./util";
  * This menu is drawn when the cursor is moved to a hyperlink (using the keyboard),
  * or when the mouse is hovering over a hyperlink
  */
-export const hyperlinkToolbarFactory: HyperlinkToolbarFactory = (props) => {
+export const hyperlinkToolbarFactory: HyperlinkToolbarFactory = (
+  staticParams
+) => {
   const container = document.createElement("div");
   container.style.background = "gray";
   container.style.position = "absolute";
@@ -17,13 +19,13 @@ export const hyperlinkToolbarFactory: HyperlinkToolbarFactory = (props) => {
 
   const editBtn = createButton("edit", () => {
     const newUrl = prompt("new url") || url;
-    props.editHyperlink(newUrl, text);
+    staticParams.editHyperlink(newUrl, text);
   });
 
   container.appendChild(editBtn);
 
   const removeBtn = createButton("remove", () => {
-    props.deleteHyperlink();
+    staticParams.deleteHyperlink();
   });
 
   container.appendChild(editBtn);

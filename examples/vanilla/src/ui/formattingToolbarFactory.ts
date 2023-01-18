@@ -5,19 +5,21 @@ import { createButton } from "./util";
  * This menu is drawn when a piece of text is selected. We can use it to change formatting options
  * such as bold, italic, indentation, etc.
  */
-export const formattingToolbarFactory: FormattingToolbarFactory = (props) => {
+export const formattingToolbarFactory: FormattingToolbarFactory = (
+  staticParams
+) => {
   const container = document.createElement("div");
   container.style.background = "gray";
   container.style.position = "absolute";
   container.style.padding = "10px";
   container.style.opacity = "0.8";
   const boldBtn = createButton("set bold", () => {
-    props.toggleBold();
+    staticParams.toggleBold();
   });
   container.appendChild(boldBtn);
 
   const linkBtn = createButton("set link", () => {
-    props.setHyperlink("https://www.google.com");
+    staticParams.setHyperlink("https://www.google.com");
   });
 
   container.appendChild(boldBtn);

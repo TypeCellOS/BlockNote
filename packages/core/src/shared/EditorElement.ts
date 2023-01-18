@@ -7,4 +7,4 @@ export type EditorElement<ElementDynamicParams extends Record<string, any>> = {
 export type ElementFactory<
   ElementStaticParams extends Record<string, any>,
   ElementDynamicParams extends Record<string, any>
-> = (params: ElementStaticParams) => EditorElement<ElementDynamicParams>;
+> = (staticParams: ElementStaticParams) => EditorElement<ElementDynamicParams>;
