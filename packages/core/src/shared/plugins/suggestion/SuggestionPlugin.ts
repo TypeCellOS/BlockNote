@@ -115,7 +115,7 @@ class SuggestionPluginView<T extends SuggestionItem> {
           from:
             this.pluginState.queryStartPos! -
             this.pluginState.triggerCharacter!.length,
-          to: this.pluginState.queryStartPos!,
+          to: editor.state.selection.from,
         },
       });
 
@@ -381,7 +381,7 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
             editor: editor,
             range: {
               from: queryStartPos - triggerCharacter.length,
-              to: queryStartPos,
+              to: view.state.selection.from,
             },
           });
           return true;
