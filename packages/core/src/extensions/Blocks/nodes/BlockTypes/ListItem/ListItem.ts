@@ -1,37 +1,30 @@
 import { InputRule, mergeAttributes, Node } from "@tiptap/core";
-import { OrderedListItemIndexPlugin } from "./OrderedListItemIndexPlugin";
+import { ListItemIndexingPlugin } from "./ListItemIndexingPlugin";
 import { getBlockInfoFromPos } from "../../../helpers/getBlockInfoFromPos";
 import styles from "../../Block.module.css";
 
-export type ListItemContentType = {
-  name: "listItemContent";
-  attrs?: {
-    listItemType: string;
-  };
-};
-
-export const ListItemContent = Node.create({
-  name: "listItemContent",
+export const ListItem = Node.create({
+  name: "listItem",
   group: "blockContent",
   content: "inline*",
 
   addAttributes() {
     return {
-      listItemType: {
-        default: "unordered",
-        parseHTML: (element) => element.getAttribute("data-list-item-type"),
+      ordered: {
+        default: "false",
+        parseHTML: (element) => element.getAttribute("data-ordered"),
         renderHTML: (attributes) => {
           return {
-            "data-list-item-type": attributes.listItemType,
+            "data-ordered": attributes.ordered,
           };
         },
       },
-      listItemIndex: {
+      index: {
         default: null,
-        parseHTML: (element) => element.getAttribute("data-list-item-index"),
+        parseHTML: (element) => element.getAttribute("data-index"),
         renderHTML: (attributes) => {
           return {
-            "data-list-item-index": attributes.listItemIndex,
+            "data-index": attributes.index,
           };
         },
       },
@@ -46,9 +39,9 @@ export const ListItemContent = Node.create({
         handler: ({ state, chain, range }) => {
           chain()
             .BNSetContentType(state.selection.from, {
-              name: "listItemContent",
+              name: "listItem",
               attrs: {
-                listItemType: "unordered",
+                ordered: "false",
               },
             })
             // Removes the "-", "+", or "*" character used to set the list.
@@ -61,9 +54,9 @@ export const ListItemContent = Node.create({
         handler: ({ state, chain, range }) => {
           chain()
             .BNSetContentType(state.selection.from, {
-              name: "listItemContent",
+              name: "listItem",
               attrs: {
-                listItemType: "ordered",
+                ordered: "true",
               },
             })
             // Removes the "1." characters used to set the list.
@@ -83,7 +76,7 @@ export const ListItemContent = Node.create({
       const selectionEmpty =
         this.editor.state.selection.anchor === this.editor.state.selection.head;
 
-      if (contentType.name !== "listItemContent" || !selectionEmpty) {
+      if (contentType.name !== "listItem" || !selectionEmpty) {
         return false;
       }
 
@@ -93,7 +86,7 @@ export const ListItemContent = Node.create({
           commands.command(() => {
             if (node.textContent.length === 0) {
               return commands.BNSetContentType(state.selection.from, {
-                name: "textContent",
+                name: "paragraph",
               });
             }
 
@@ -124,7 +117,7 @@ export const ListItemContent = Node.create({
   },
 
   addProseMirrorPlugins() {
-    return [OrderedListItemIndexPlugin()];
+    return [ListItemIndexingPlugin()];
   },
 
   parseHTML() {
@@ -144,17 +137,17 @@ export const ListItemContent = Node.create({
 
           // Case for BlockNote list structure.
           // Gets type of list item (ordered/unordered) based on the block content's listItemType attribute.
-          if (parent.getAttribute("data-content-type") === "listItemContent") {
+          if (parent.getAttribute("data-content-type") === "listItem") {
             return { listItemType: parent.getAttribute("data-list-item-type") };
           }
 
           // Case for regular HTML list structure.
           // Gets type of list item (ordered/unordered) based on parent element's tag ("ol"/"ul").
           if (parent.tagName === "UL") {
-            return { listItemType: "unordered" };
+            return { ordered: "false" };
           }
           if (parent.tagName === "OL") {
-            return { listItemType: "ordered" };
+            return { ordered: "true" };
           }
 
           return false;

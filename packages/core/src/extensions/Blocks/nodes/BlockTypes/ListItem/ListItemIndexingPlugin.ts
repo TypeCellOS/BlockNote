@@ -2,13 +2,13 @@ import { Plugin, PluginKey } from "prosemirror-state";
 import { getBlockInfoFromPos } from "../../../helpers/getBlockInfoFromPos";
 
 // ProseMirror Plugin which automatically assigns indices to ordered list items per nesting level.
-const PLUGIN_KEY = new PluginKey(`ordered-list-item-index`);
-export const OrderedListItemIndexPlugin = () => {
+const PLUGIN_KEY = new PluginKey(`list-item-indexing`);
+export const ListItemIndexingPlugin = () => {
   return new Plugin({
     key: PLUGIN_KEY,
     appendTransaction: (_transactions, _oldState, newState) => {
       const tr = newState.tr;
-      tr.setMeta("orderedListIndexing", true);
+      tr.setMeta("listItemIndexing", true);
 
       let modified = false;
 
@@ -18,8 +18,8 @@ export const OrderedListItemIndexPlugin = () => {
       newState.doc.descendants((node, pos) => {
         if (
           node.type.name === "block" &&
-          node.firstChild!.type.name === "listItemContent" &&
-          node.firstChild!.attrs["listItemType"] === "ordered"
+          node.firstChild!.type.name === "listItem" &&
+          node.firstChild!.attrs["ordered"] === "true"
         ) {
           let newIndex = "1";
           const isFirstBlockInDoc = pos === 1;
@@ -45,12 +45,11 @@ export const OrderedListItemIndexPlugin = () => {
               const prevBlockContentType = prevBlockInfo.contentType;
 
               const isPrevBlockOrderedListItem =
-                prevBlockContentType.name === "listItemContent" &&
-                prevBlockContentNode.attrs["listItemType"] === "ordered";
+                prevBlockContentType.name === "listItem" &&
+                prevBlockContentNode.attrs["ordered"] === "true";
 
               if (isPrevBlockOrderedListItem) {
-                const prevBlockIndex =
-                  prevBlockContentNode.attrs["listItemIndex"];
+                const prevBlockIndex = prevBlockContentNode.attrs["index"];
 
                 newIndex = (parseInt(prevBlockIndex) + 1).toString();
               }
@@ -58,14 +57,14 @@ export const OrderedListItemIndexPlugin = () => {
           }
 
           const contentNode = blockInfo.contentNode;
-          const index = contentNode.attrs["listItemIndex"];
+          const index = contentNode.attrs["index"];
 
           if (index !== newIndex) {
             modified = true;
 
             tr.setNodeMarkup(pos + 1, undefined, {
-              listItemType: "ordered",
-              listItemIndex: newIndex,
+              ordered: "true",
+              index: newIndex,
             });
           }
         }

@@ -16,7 +16,6 @@ import blockStyles from "./extensions/Blocks/nodes/Block.module.css";
 import { FormattingToolbarExtension } from "./extensions/FormattingToolbar/FormattingToolbarExtension";
 import { DraggableBlocksExtension } from "./extensions/DraggableBlocks/DraggableBlocksExtension";
 import HyperlinkMark from "./extensions/HyperlinkToolbar/HyperlinkMark";
-import { FixedParagraph } from "./extensions/Paragraph/FixedParagraph";
 import { Placeholder } from "./extensions/Placeholder/PlaceholderExtension";
 import SlashMenuExtension from "./extensions/SlashMenu";
 import { TrailingNode } from "./extensions/TrailingNode/TrailingNodeExtension";
@@ -78,7 +77,6 @@ export const getBlockNoteExtensions = (uiFactories: UiFactories) => {
     Italic,
     Strike,
     Underline,
-    FixedParagraph,
 
     // custom blocks:
     ...blocks,

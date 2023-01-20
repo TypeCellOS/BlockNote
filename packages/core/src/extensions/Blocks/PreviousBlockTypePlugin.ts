@@ -9,9 +9,12 @@ import { Decoration, DecorationSet } from "prosemirror-view";
 const PLUGIN_KEY = new PluginKey(`previous-blocks`);
 
 const nodeAttributes: Record<string, string> = {
-  listItemType: "list-item-type",
-  listItemIndex: "list-item-index",
-  headingLevel: "heading-level",
+  // List Items
+  ordered: "ordered",
+  index: "index",
+  // Headings
+  level: "level",
+  // All Blocks
   type: "type",
   depth: "depth",
   "depth-change": "depth-change",
@@ -91,17 +94,17 @@ export const PreviousBlockTypePlugin = () => {
             const newContentNode = node.node.firstChild;
             if (oldNode && oldContentNode && newContentNode) {
               const newAttrs = {
-                listItemType: newContentNode.attrs.listItemType,
-                listItemIndex: newContentNode.attrs.listItemIndex,
-                headingLevel: newContentNode.attrs.headingLevel,
+                ordered: newContentNode.attrs.ordered,
+                index: newContentNode.attrs.index,
+                level: newContentNode.attrs.level,
                 type: newContentNode.type.name,
                 depth: newState.doc.resolve(node.pos).depth,
               };
 
               const oldAttrs = {
-                listItemType: oldContentNode.attrs.listItemType,
-                listItemIndex: oldContentNode.attrs.listItemIndex,
-                headingLevel: oldContentNode.attrs.headingLevel,
+                ordered: oldContentNode.attrs.ordered,
+                index: oldContentNode.attrs.index,
+                level: oldContentNode.attrs.level,
                 type: oldContentNode.type.name,
                 depth: oldState.doc.resolve(oldNode.pos).depth,
               };
@@ -112,22 +115,20 @@ export const PreviousBlockTypePlugin = () => {
               // immediately after it's created. Using this condition to start an animation ensures it's not
               // immediately overridden by a different transaction created by the ordered list indexing plugin.
               const indexInitialized =
-                oldAttrs.listItemIndex === null &&
-                newAttrs.listItemIndex !== null;
+                oldAttrs.index === null && newAttrs.index !== null;
 
               // True when an existing ordered list item changes nesting levels, before its index is updated by the
               // ordered list indexing plugin. This condition ensures that animations for indentation still work with
               // ordered list items, while preventing unnecessary animations being done when dragging/dropping them.
               const depthChanged =
-                oldAttrs.listItemIndex !== null &&
-                newAttrs.listItemIndex !== null &&
-                oldAttrs.listItemIndex === newAttrs.listItemIndex;
+                oldAttrs.index !== null &&
+                newAttrs.index !== null &&
+                oldAttrs.index === newAttrs.index;
 
               // Only false for transactions in which the block remains an ordered list item before & after, but neither
               // of the previous conditions apply.
               const shouldUpdate =
-                oldAttrs.listItemType === "ordered" &&
-                newAttrs.listItemType === "ordered"
+                oldAttrs.ordered === "true" && newAttrs.ordered === "true"
                   ? indexInitialized || depthChanged
                   : true;
 

@@ -377,7 +377,7 @@ export class BlockMenuView {
       this.editor
         .chain()
         .BNCreateBlock(newBlockInsertionPos)
-        .BNSetContentType(newBlockContentPos, { name: "textContent" })
+        .BNSetContentType(newBlockContentPos, { name: "paragraph" })
         .setTextSelection(newBlockContentPos)
         .run();
     }

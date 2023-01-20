@@ -1,27 +1,20 @@
 import { InputRule, mergeAttributes, Node } from "@tiptap/core";
 import styles from "../../Block.module.css";
 
-export type HeadingContentType = {
-  name: "headingContent";
-  attrs?: {
-    headingLevel: string;
-  };
-};
-
-export const HeadingContent = Node.create({
-  name: "headingContent",
+export const Heading = Node.create({
+  name: "heading",
   group: "blockContent",
   content: "inline*",
 
   addAttributes() {
     return {
-      headingLevel: {
+      level: {
         default: "1",
         // instead of "level" attributes, use "data-level"
-        parseHTML: (element) => element.getAttribute("data-heading-level"),
+        parseHTML: (element) => element.getAttribute("data-level"),
         renderHTML: (attributes) => {
           return {
-            "data-heading-level": attributes.headingLevel,
+            "data-level": attributes.level,
           };
         },
       },
@@ -37,9 +30,9 @@ export const HeadingContent = Node.create({
           handler: ({ state, chain, range }) => {
             chain()
               .BNSetContentType(state.selection.from, {
-                name: "headingContent",
+                name: "heading",
                 attrs: {
-                  headingLevel: level,
+                  level: level as "1" | "2" | "3",
                 },
               })
               // Removes the "#" character(s) used to set the heading.
@@ -54,31 +47,30 @@ export const HeadingContent = Node.create({
     return [
       {
         tag: "h1",
-        attrs: { headingLevel: "1" },
+        attrs: { level: "1" },
         node: "block",
       },
       {
         tag: "h2",
-        attrs: { headingLevel: "2" },
+        attrs: { level: "2" },
         node: "block",
       },
       {
         tag: "h3",
-        attrs: { headingLevel: "3" },
+        attrs: { level: "3" },
         node: "block",
       },
     ];
   },
 
   renderHTML({ node, HTMLAttributes }) {
-    console.log(node.attrs);
     return [
       "div",
       mergeAttributes(HTMLAttributes, {
         class: styles.blockContent,
         "data-content-type": this.name,
       }),
-      ["h" + node.attrs["headingLevel"], 0],
+      ["h" + node.attrs.level, 0],
     ];
   },
 });

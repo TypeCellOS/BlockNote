@@ -15,9 +15,9 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         .focus()
         .deleteRange(range)
         .BNCreateBlockOrSetContentType(range.from, {
-          name: "headingContent",
+          name: "heading",
           attrs: {
-            headingLevel: "1",
+            level: "1",
           },
         })
         .run();
@@ -37,9 +37,9 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         .focus()
         .deleteRange(range)
         .BNCreateBlockOrSetContentType(range.from, {
-          name: "headingContent",
+          name: "heading",
           attrs: {
-            headingLevel: "2",
+            level: "2",
           },
         })
         .run();
@@ -59,9 +59,9 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         .focus()
         .deleteRange(range)
         .BNCreateBlockOrSetContentType(range.from, {
-          name: "headingContent",
+          name: "heading",
           attrs: {
-            headingLevel: "3",
+            level: "3",
           },
         })
         .run();
@@ -81,9 +81,9 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         .focus()
         .deleteRange(range)
         .BNCreateBlockOrSetContentType(range.from, {
-          name: "listItemContent",
+          name: "listItem",
           attrs: {
-            listItemType: "ordered",
+            ordered: "true",
           },
         })
         .run();
@@ -103,9 +103,9 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         .focus()
         .deleteRange(range)
         .BNCreateBlockOrSetContentType(range.from, {
-          name: "listItemContent",
+          name: "listItem",
           attrs: {
-            listItemType: "unordered",
+            ordered: "false",
           },
         })
         .run();
@@ -124,7 +124,7 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         .chain()
         .focus()
         .deleteRange(range)
-        .BNCreateBlockOrSetContentType(range.from, { name: "textContent" })
+        .BNCreateBlockOrSetContentType(range.from, "paragraph")
         .run();
     },
     ["p"],

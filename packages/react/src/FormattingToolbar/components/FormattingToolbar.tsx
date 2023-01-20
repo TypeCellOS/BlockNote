@@ -18,7 +18,7 @@ import { ToolbarDropdown } from "../../SharedComponents/Toolbar/components/Toolb
 import { Toolbar } from "../../SharedComponents/Toolbar/components/Toolbar";
 import { formatKeyboardShortcut } from "../../utils";
 import LinkToolbarButton from "./LinkToolbarButton";
-import { BlockContentType } from "@blocknote/core";
+import { BlockContent } from "@blocknote/core";
 
 export type FormattingToolbarProps = {
   boldIsActive: boolean;
@@ -34,8 +34,8 @@ export type FormattingToolbarProps = {
   activeHyperlinkText: string;
   setHyperlink: (url: string, text?: string) => void;
 
-  activeBlockType: Required<BlockContentType>;
-  setBlockType: (type: BlockContentType) => void;
+  activeBlockType: Required<BlockContent>;
+  setBlockType: (type: BlockContent["name"] | BlockContent) => void;
 };
 
 // TODO: add list options, indentation
@@ -53,22 +53,22 @@ export const FormattingToolbar = (props: FormattingToolbarProps) => {
   };
 
   const getActiveBlock = () => {
-    if (props.activeBlockType.name === "headingContent") {
-      if (props.activeBlockType.attrs["headingLevel"] === "1") {
+    if (props.activeBlockType.name === "heading") {
+      if (props.activeBlockType.attrs.level === "1") {
         return {
           text: "Heading 1",
           icon: RiH1,
         };
       }
 
-      if (props.activeBlockType.attrs["headingLevel"] === "2") {
+      if (props.activeBlockType.attrs.level === "2") {
         return {
           text: "Heading 2",
           icon: RiH2,
         };
       }
 
-      if (props.activeBlockType.attrs["headingLevel"] === "3") {
+      if (props.activeBlockType.attrs.level === "3") {
         return {
           text: "Heading 3",
           icon: RiH3,
@@ -76,8 +76,8 @@ export const FormattingToolbar = (props: FormattingToolbarProps) => {
       }
     }
 
-    if (props.activeBlockType.name === "listItemContent") {
-      if (props.activeBlockType.attrs["listItemType"] === "unordered") {
+    if (props.activeBlockType.name === "listItem") {
+      if (props.activeBlockType.attrs.ordered === "false") {
         return {
           text: "Bullet List",
           icon: RiListUnordered,
@@ -91,7 +91,7 @@ export const FormattingToolbar = (props: FormattingToolbarProps) => {
     }
 
     return {
-      text: "Text",
+      text: "Paragraph",
       icon: RiText,
     };
   };
@@ -106,70 +106,70 @@ export const FormattingToolbar = (props: FormattingToolbarProps) => {
         icon={activeBlock!.icon}
         items={[
           {
-            onClick: () => props.setBlockType({ name: "textContent" }),
-            text: "Text",
+            onClick: () => props.setBlockType({ name: "paragraph" }),
+            text: "Paragraph",
             icon: RiText,
-            isSelected: props.activeBlockType.name === "textContent",
+            isSelected: props.activeBlockType.name === "paragraph",
           },
           {
             onClick: () =>
               props.setBlockType({
-                name: "headingContent",
-                attrs: { headingLevel: "1" },
+                name: "heading",
+                attrs: { level: "1" },
               }),
             text: "Heading 1",
             icon: RiH1,
             isSelected:
-              props.activeBlockType.name === "headingContent" &&
-              props.activeBlockType.attrs["headingLevel"] === "1",
+              props.activeBlockType.name === "heading" &&
+              props.activeBlockType.attrs.level === "1",
           },
           {
             onClick: () =>
               props.setBlockType({
-                name: "headingContent",
-                attrs: { headingLevel: "2" },
+                name: "heading",
+                attrs: { level: "2" },
               }),
             text: "Heading 2",
             icon: RiH2,
             isSelected:
-              props.activeBlockType.name === "headingContent" &&
-              props.activeBlockType.attrs["headingLevel"] === "2",
+              props.activeBlockType.name === "heading" &&
+              props.activeBlockType.attrs.level === "2",
           },
           {
             onClick: () =>
               props.setBlockType({
-                name: "headingContent",
-                attrs: { headingLevel: "3" },
+                name: "heading",
+                attrs: { level: "3" },
               }),
             text: "Heading 3",
             icon: RiH3,
             isSelected:
-              props.activeBlockType.name === "headingContent" &&
-              props.activeBlockType.attrs["headingLevel"] === "3",
+              props.activeBlockType.name === "heading" &&
+              props.activeBlockType.attrs.level === "3",
           },
           {
             onClick: () =>
               props.setBlockType({
-                name: "listItemContent",
-                attrs: { listItemType: "unordered" },
+                name: "listItem",
+                attrs: { ordered: "false" },
               }),
             text: "Bullet List",
             icon: RiListUnordered,
             isSelected:
-              props.activeBlockType.name === "listItemContent" &&
-              props.activeBlockType.attrs["listItemType"] === "unordered",
+              props.activeBlockType.name === "listItem" &&
+              props.activeBlockType.attrs.ordered === "false",
           },
           {
             onClick: () =>
               props.setBlockType({
-                name: "listItemContent",
-                attrs: { listItemType: "ordered" },
+                name: "listItem",
+                attrs: { ordered: "true" },
               }),
             text: "Numbered List",
             icon: RiListOrdered,
             isSelected:
-              props.activeBlockType.name === "listItemContent" &&
-              props.activeBlockType.attrs["listItemType"] === "ordered",
+              props.activeBlockType.name === "listItem" &&
+              props.activeBlockType.attrs.ordered === "true",
           },
         ]}
       />

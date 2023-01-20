@@ -5,18 +5,37 @@ import BlockAttributes from "../BlockAttributes";
 import { getBlockInfoFromPos } from "../helpers/getBlockInfoFromPos";
 import { PreviousBlockTypePlugin } from "../PreviousBlockTypePlugin";
 import styles from "./Block.module.css";
-import { TextContentType } from "./BlockTypes/TextBlock/TextContent";
-import { HeadingContentType } from "./BlockTypes/HeadingBlock/HeadingContent";
-import { ListItemContentType } from "./BlockTypes/ListItemBlock/ListItemContent";
+import { Paragraph } from "./BlockTypes/Paragraph/ParagraphType";
+import { Heading } from "./BlockTypes/Heading/HeadingType";
+import { ListItem } from "./BlockTypes/ListItem/ListItemType";
 
 export interface IBlock {
   HTMLAttributes: Record<string, any>;
 }
 
-export type BlockContentType =
-  | TextContentType
-  | HeadingContentType
-  | ListItemContentType;
+// TODO: Automatically get block names & attributes on editor creation?
+// function getBlockTypes(editor: Editor) {
+//   const nodes = editor.schema.nodes;
+//   const nonBlockContentNodeNames = new Set<string>([
+//     "block",
+//     "blockGroup",
+//     "doc",
+//     "fixedParagraph",
+//     "hardBreak",
+//   ]);
+//
+//   const blockContentNodes: NodeType[] = [];
+//
+//   for (const nodeName in nodes) {
+//     if (!nonBlockContentNodeNames.has(nodeName)) {
+//       blockContentNodes.push(nodes[nodeName]);
+//     }
+//   }
+//
+//   blockContentNodes[0].spec.attrs;
+// }
+
+export type BlockContent = Paragraph | Heading | ListItem;
 
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
@@ -27,11 +46,11 @@ declare module "@tiptap/core" {
       BNSplitBlock: (posInBlock: number, keepType: boolean) => ReturnType;
       BNSetContentType: (
         posInBlock: number,
-        type: BlockContentType
+        type: BlockContent | BlockContent["name"]
       ) => ReturnType;
       BNCreateBlockOrSetContentType: (
         posInBlock: number,
-        type: BlockContentType
+        type: BlockContent | BlockContent["name"]
       ) => ReturnType;
     };
   }
@@ -292,13 +311,16 @@ export const Block = Node.create<IBlock>({
           }
 
           const { startPos, contentNode } = blockInfo;
+          const contentTypeName = typeof type !== "string" ? type.name : type;
+          const contentTypeAttrs =
+            typeof type !== "string" ? type.attrs : undefined;
 
           if (dispatch) {
             state.tr.setBlockType(
               startPos + 1,
               startPos + contentNode.nodeSize + 1,
-              state.schema.node(type.name).type,
-              type.attrs
+              state.schema.node(contentTypeName).type,
+              contentTypeAttrs
             );
           }
 
@@ -349,7 +371,7 @@ export const Block = Node.create<IBlock>({
         () => commands.deleteSelection(),
         // Undoes an input rule if one was triggered in the last editor state change.
         () => commands.undoInputRule(),
-        // Changes block type to a text block if it's not already, while the selection is at the start of the block.
+        // Reverts block content type to a paragraph if the selection is at the start of the block.
         () =>
           commands.command(({ state }) => {
             const { contentType } = getBlockInfoFromPos(
@@ -359,11 +381,11 @@ export const Block = Node.create<IBlock>({
 
             const selectionAtBlockStart =
               state.selection.$anchor.parentOffset === 0;
-            const isTextBlock = contentType.name === "textContent";
+            const isParagraph = contentType.name === "paragraph";
 
-            if (selectionAtBlockStart && !isTextBlock) {
+            if (selectionAtBlockStart && !isParagraph) {
               return commands.BNSetContentType(state.selection.from, {
-                name: "textContent",
+                name: "paragraph",
               });
             }
 
@@ -496,8 +518,16 @@ export const Block = Node.create<IBlock>({
     return {
       Backspace: handleBackspace,
       Enter: handleEnter,
-      Tab: () => this.editor.commands.sinkListItem("block"),
-      "Shift-Tab": () => this.editor.commands.liftListItem("block"),
+      // Always returning true for tab key presses endures they're not captured by the browser. Otherwise, they blur the
+      // editor since the browser will try to use tab for keyboard navigation.
+      Tab: () => {
+        this.editor.commands.sinkListItem("block");
+        return true;
+      },
+      "Shift-Tab": () => {
+        this.editor.commands.liftListItem("block");
+        return true;
+      },
       "Mod-Alt-0": () =>
         this.editor.commands.BNCreateBlock(
           this.editor.state.selection.anchor + 2
@@ -506,9 +536,9 @@ export const Block = Node.create<IBlock>({
         this.editor.commands.BNSetContentType(
           this.editor.state.selection.anchor,
           {
-            name: "headingContent",
+            name: "heading",
             attrs: {
-              headingLevel: "1",
+              level: "1",
             },
           }
         ),
@@ -516,9 +546,9 @@ export const Block = Node.create<IBlock>({
         this.editor.commands.BNSetContentType(
           this.editor.state.selection.anchor,
           {
-            name: "headingContent",
+            name: "heading",
             attrs: {
-              headingLevel: "2",
+              level: "2",
             },
           }
         ),
@@ -526,9 +556,9 @@ export const Block = Node.create<IBlock>({
         this.editor.commands.BNSetContentType(
           this.editor.state.selection.anchor,
           {
-            name: "headingContent",
+            name: "heading",
             attrs: {
-              headingLevel: "3",
+              level: "3",
             },
           }
         ),
@@ -536,9 +566,9 @@ export const Block = Node.create<IBlock>({
         this.editor.commands.BNSetContentType(
           this.editor.state.selection.anchor,
           {
-            name: "listItemContent",
+            name: "listItem",
             attrs: {
-              listItemType: "unordered",
+              ordered: "false",
             },
           }
         ),
@@ -546,9 +576,9 @@ export const Block = Node.create<IBlock>({
         this.editor.commands.BNSetContentType(
           this.editor.state.selection.anchor,
           {
-            name: "listItemContent",
+            name: "listItem",
             attrs: {
-              listItemType: "ordered",
+              ordered: "true",
             },
           }
         ),
