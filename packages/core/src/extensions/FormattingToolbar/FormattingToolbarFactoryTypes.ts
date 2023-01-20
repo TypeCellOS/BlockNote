@@ -25,7 +25,7 @@ export type FormattingToolbarDynamicParams = {
   // these default values, which the Required type enforces.
   activeBlockType: Required<BlockContentType>;
 
-  selectionBoundingBox: DOMRect;
+  referenceRect: DOMRect;
 };
 
 export type FormattingToolbar = EditorElement<FormattingToolbarDynamicParams>;

@@ -10,7 +10,7 @@ export type BlockSideMenuStaticParams = {
 };
 
 export type BlockSideMenuDynamicParams = {
-  blockBoundingBox: DOMRect;
+  referenceRect: DOMRect;
 };
 
 export type BlockSideMenu = EditorElement<BlockSideMenuDynamicParams>;

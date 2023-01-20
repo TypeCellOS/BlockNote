@@ -293,7 +293,7 @@ export class FormattingToolbarView {
         name: this.editor.state.selection.$from.node().type.name,
         attrs: this.editor.state.selection.$from.node().attrs,
       } as Required<BlockContentType>,
-      selectionBoundingBox: this.getSelectionBoundingBox(),
+      referenceRect: this.getSelectionBoundingBox(),
     };
   }
 }

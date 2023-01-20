@@ -44,8 +44,8 @@ export const hyperlinkToolbarFactory: HyperlinkToolbarFactory = (
       }
 
       console.log("show", params);
-      container.style.top = params.boundingBox.y + "px";
-      container.style.left = params.boundingBox.x + "px";
+      container.style.top = params.referenceRect.y + "px";
+      container.style.left = params.referenceRect.x + "px";
     },
     hide: () => {
       container.style.display = "none";

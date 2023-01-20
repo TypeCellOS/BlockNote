@@ -227,7 +227,7 @@ class HyperlinkToolbarView {
         this.hyperlinkMarkRange!.from,
         this.hyperlinkMarkRange!.to
       ),
-      boundingBox: posToDOMRect(
+      referenceRect: posToDOMRect(
         this.editor.view,
         this.hyperlinkMarkRange!.from,
         this.hyperlinkMarkRange!.to

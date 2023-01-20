@@ -201,7 +201,7 @@ class SuggestionPluginView<T extends SuggestionItem> {
     return {
       items: this.pluginState.items,
       selectedItemIndex: this.pluginState.selectedItemIndex,
-      queryStartBoundingBox: decorationNode!.getBoundingClientRect(),
+      referenceRect: decorationNode!.getBoundingClientRect(),
     };
   }
 }
