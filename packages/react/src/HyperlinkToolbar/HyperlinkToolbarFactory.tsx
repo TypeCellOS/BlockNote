@@ -5,12 +5,12 @@ import {
   HyperlinkToolbarStaticParams,
 } from "@blocknote/core";
 import { HyperlinkToolbar as ReactHyperlinkToolbar } from "./components/HyperlinkToolbar";
-import { ReactEditorElementFactory } from "../EditorElementFactory";
+import { ElementFactory as ReactElementFactory } from "../ElementFactory";
 
 export const ReactHyperlinkToolbarFactory: HyperlinkToolbarFactory = (
   staticParams
 ): HyperlinkToolbar =>
-  ReactEditorElementFactory<
+  ReactElementFactory<
     HyperlinkToolbarStaticParams,
     HyperlinkToolbarDynamicParams
   >(staticParams, ReactHyperlinkToolbar, {

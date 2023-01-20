@@ -5,7 +5,7 @@ import Tippy, { TippyProps } from "@tippyjs/react";
 import { createRoot } from "react-dom/client";
 import { EditorElement, RequiredDynamicParams } from "@blocknote/core";
 
-export const ReactEditorElementFactory = <
+export const ElementFactory = <
   ElementStaticParams extends Record<string, any>,
   ElementDynamicParams extends RequiredDynamicParams
 >(
