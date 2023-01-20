@@ -15,10 +15,13 @@ export const ElementFactory = <
   ) => JSX.Element,
   tippyProps?: TippyProps
 ): EditorElement<ElementDynamicParams> => {
+  const rootElement = document.createElement("div");
+  const root = createRoot(rootElement);
+
   let setElementDynamicParams: (dynamicParams: ElementDynamicParams) => void;
   let setElementIsOpen: (isOpen: boolean) => void;
 
-  const EditorElementController = () => {
+  const EditorElementComponentWrapper = () => {
     const [dynamicParams, setDynamicParams] = useState<
       ElementDynamicParams | undefined
     >(undefined);
@@ -32,7 +35,7 @@ export const ElementFactory = <
       <MantineProvider theme={BlockNoteTheme}>
         <Tippy
           {...tippyProps}
-          appendTo={document.body}
+          appendTo={rootElement}
           content={
             dynamicParams ? (
               <EditorElementComponent {...staticParams} {...dynamicParams} />
@@ -42,16 +45,22 @@ export const ElementFactory = <
             dynamicParams ? () => dynamicParams!.referenceRect : undefined
           }
           interactive={true}
+          // Tippy needs to be inside it's parent div so that it handles mouse events before the elements under it.
+          // Appending it directly to the document body causes click, mousedown, etc. events to go through it.
+          // TODO: Should rootElement just be added to the DOM once and stay there instead?
+          onShow={() => {
+            document.body.appendChild(rootElement);
+          }}
+          onHidden={() => {
+            rootElement.remove();
+          }}
           visible={isOpen}
         />
       </MantineProvider>
     );
   };
 
-  const rootElement = document.createElement("div");
-  const root = createRoot(rootElement);
-
-  root.render(<EditorElementController />);
+  root.render(<EditorElementComponentWrapper />);
 
   return {
     element: rootElement,
