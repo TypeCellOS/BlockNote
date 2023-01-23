@@ -519,7 +519,7 @@ export const Block = Node.create<IBlock>({
     return {
       Backspace: handleBackspace,
       Enter: handleEnter,
-      // Always returning true for tab key presses endures they're not captured by the browser. Otherwise, they blur the
+      // Always returning true for tab key presses ensures they're not captured by the browser. Otherwise, they blur the
       // editor since the browser will try to use tab for keyboard navigation.
       Tab: () => {
         this.editor.commands.sinkListItem("block");
