@@ -23,7 +23,7 @@ export type FormattingToolbarDynamicParams = {
   // BlockContentType is mostly used to set a block's type, so the attr field is optional as block content types have
   // default values for attributes. However, it means that a block type's attributes field will never be undefined due to
   // these default values, which the Required type enforces.
-  activeBlockType: Required<BlockContent>;
+  activeBlockType: BlockContent;
 
   selectionBoundingBox: DOMRect;
 };

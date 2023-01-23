@@ -85,9 +85,10 @@ export const ListItem = Node.create({
           // Changes list item block to a text block if both the content is empty.
           commands.command(() => {
             if (node.textContent.length === 0) {
-              return commands.BNSetContentType(state.selection.from, {
-                name: "paragraph",
-              });
+              return commands.BNSetContentType(
+                state.selection.from,
+                "paragraph"
+              );
             }
 
             return false;

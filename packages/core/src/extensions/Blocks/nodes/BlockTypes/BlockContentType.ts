@@ -3,5 +3,5 @@ export type BlockContent<
   Attrs extends Record<string, string>
 > = {
   name: Name;
-  attrs?: Attrs;
+  attrs: Attrs;
 };

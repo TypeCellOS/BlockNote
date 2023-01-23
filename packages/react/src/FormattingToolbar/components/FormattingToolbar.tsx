@@ -106,7 +106,7 @@ export const FormattingToolbar = (props: FormattingToolbarProps) => {
         icon={activeBlock!.icon}
         items={[
           {
-            onClick: () => props.setBlockType({ name: "paragraph" }),
+            onClick: () => props.setBlockType("paragraph"),
             text: "Paragraph",
             icon: RiText,
             isSelected: props.activeBlockType.name === "paragraph",

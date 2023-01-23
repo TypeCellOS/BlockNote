@@ -384,9 +384,10 @@ export const Block = Node.create<IBlock>({
             const isParagraph = contentType.name === "paragraph";
 
             if (selectionAtBlockStart && !isParagraph) {
-              return commands.BNSetContentType(state.selection.from, {
-                name: "paragraph",
-              });
+              return commands.BNSetContentType(
+                state.selection.from,
+                "paragraph"
+              );
             }
 
             return false;
