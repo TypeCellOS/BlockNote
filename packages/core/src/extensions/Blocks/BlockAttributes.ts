@@ -1,7 +1,6 @@
 // Object containing all possible block attributes.
 const BlockAttributes: Record<string, string> = {
-  blockColor: "data-block-color",
-  blockStyle: "data-block-style",
+  editable: "contenteditable",
   id: "data-id",
   depth: "data-depth",
   depthChange: "data-depth-change",

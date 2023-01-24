@@ -1,20 +1,31 @@
-import { AiOutlinePlus, MdDragIndicator } from "react-icons/all";
+import {
+  AiOutlinePlus,
+  MdDragIndicator,
+  RiDeleteBin5Fill,
+  RiLockFill,
+  RiLockUnlockFill,
+} from "react-icons/all";
 import { ActionIcon, createStyles, Group, Menu } from "@mantine/core";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export type BlockSideMenuProps = {
   addBlock: () => void;
   deleteBlock: () => void;
+  menuFrozen: boolean;
+  setMenuFrozen: (menuFrozen: boolean) => void;
+  blockEditable: boolean;
+  setBlockEditable: (blockEditable: boolean) => void;
+
   blockDragStart: (event: DragEvent) => void;
   blockDragEnd: () => void;
-  freezeMenu: () => void;
-  unfreezeMenu: () => void;
 };
 
 export const BlockSideMenu = (props: BlockSideMenuProps) => {
   const { classes } = createStyles({ root: {} })(undefined, {
     name: "DragHandleMenu",
   });
+
+  const [menuEditableText, setMenuEditableText] = useState("Lock");
 
   const dragHandleRef = useRef<HTMLDivElement>(null);
 
@@ -48,8 +59,13 @@ export const BlockSideMenu = (props: BlockSideMenuProps) => {
       </ActionIcon>
       <Menu
         position={"left"}
-        onOpen={props.freezeMenu}
-        onClose={props.unfreezeMenu}>
+        onOpen={() => {
+          // Lock/Unlock text is set on menu open only, as setting them on prop change causes the text to change before
+          // the menu close animation completes when the button is clicked, which looks unpolished.
+          setMenuEditableText(props.blockEditable ? "Lock" : "Unlock");
+          props.setMenuFrozen(true);
+        }}
+        onClose={() => props.setMenuFrozen(false)}>
         <Menu.Target>
           <div draggable="true" ref={dragHandleRef}>
             <ActionIcon
@@ -61,7 +77,21 @@ export const BlockSideMenu = (props: BlockSideMenuProps) => {
           </div>
         </Menu.Target>
         <Menu.Dropdown className={classes.root}>
-          <Menu.Item onClick={props.deleteBlock}>Delete</Menu.Item>
+          <Menu.Label>Block Actions</Menu.Label>
+          <Menu.Item icon={<RiDeleteBin5Fill />} onClick={props.deleteBlock}>
+            Delete
+          </Menu.Item>
+          <Menu.Item
+            icon={
+              menuEditableText === "Lock" ? (
+                <RiLockFill />
+              ) : (
+                <RiLockUnlockFill />
+              )
+            }
+            onClick={() => props.setBlockEditable(!props.blockEditable)}>
+            {menuEditableText}
+          </Menu.Item>
         </Menu.Dropdown>
       </Menu>
     </Group>

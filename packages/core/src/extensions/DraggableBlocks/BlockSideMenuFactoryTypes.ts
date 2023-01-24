@@ -3,13 +3,17 @@ import { EditorElement, ElementFactory } from "../../shared/EditorElement";
 export type BlockSideMenuStaticParams = {
   addBlock: () => void;
   deleteBlock: () => void;
+  setMenuFrozen: (menuFrozen: boolean) => void;
+  setBlockEditable: (blockEditable: boolean) => void;
+
   blockDragStart: (event: DragEvent) => void;
   blockDragEnd: () => void;
-  freezeMenu: () => void;
-  unfreezeMenu: () => void;
 };
 
 export type BlockSideMenuDynamicParams = {
+  menuFrozen: boolean;
+  blockEditable: boolean;
+
   blockBoundingBox: DOMRect;
 };
 

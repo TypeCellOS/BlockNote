@@ -75,6 +75,10 @@ const UniqueID = Extension.create({
         attributes: {
           [this.options.attributeName]: {
             default: null,
+            parseHTML: (element) => element.getAttribute("data-id"),
+            renderHTML: (attributes) => ({
+              "data-id": attributes[this.options.attributeName],
+            }),
           },
         },
       },

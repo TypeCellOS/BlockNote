@@ -13,6 +13,7 @@ import {
   FormattingToolbarStaticParams,
 } from "./FormattingToolbarFactoryTypes";
 import { BlockContentType } from "../Blocks/nodes/Block";
+import { getBlockInfoFromPos } from "../Blocks/helpers/getBlockInfoFromPos";
 
 // Same as TipTap bubblemenu plugin, but with these changes:
 // https://github.com/ueberdosis/tiptap/pull/2596/files
@@ -60,7 +61,19 @@ export class FormattingToolbarView {
       const isEmptyTextBlock =
         !doc.textBetween(from, to).length && isTextSelection(state.selection);
 
-      return !(!view.hasFocus() || empty || isEmptyTextBlock);
+      const block = getBlockInfoFromPos(doc, selection.from);
+      if (!block) {
+        return false;
+      }
+
+      const blockIsEditable = block.node.attrs["editable"] === "true";
+
+      return !(
+        !view.hasFocus() ||
+        empty ||
+        isEmptyTextBlock ||
+        !blockIsEditable
+      );
     };
 
   constructor({

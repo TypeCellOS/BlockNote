@@ -240,7 +240,8 @@ export class BlockMenuView {
 
   blockMenu: BlockSideMenu;
 
-  hoveredBlock: HTMLElement | undefined;
+  hoveredCoords: { left: number; top: number };
+  hoveredBlockId: string | undefined;
 
   menuOpen = false;
   menuFrozen = false;
@@ -255,22 +256,31 @@ export class BlockMenuView {
 
     this.blockMenu = blockMenuFactory(this.getStaticParams());
 
+    this.hoveredCoords = { left: 0, top: 0 };
+
     // Shows or updates menu position whenever the cursor moves, if the menu isn't frozen.
     document.body.addEventListener(
       "mousemove",
       (event) => {
+        // If the menu is frozen, mouse movements don't affect its position.
         if (this.menuFrozen) {
           return;
         }
 
-        // Gets block at mouse cursor's vertical position.
-        const coords = {
-          left: this.editor.view.dom.clientWidth / 2, // take middle of editor
+        // Gets the mouse cursor's vertical position. The horizontal position is set to the middle of the editor.
+        this.hoveredCoords = {
+          left: this.editor.view.dom.clientWidth / 2,
           top: event.clientY,
         };
-        const block = getDraggableBlockFromCoords(coords, this.editor.view);
 
-        // Closes the menu if the mouse cursor is beyond the editor vertically.
+        // Gets block at the hovered coordinates.
+        const block = getDraggableBlockFromCoords(
+          this.hoveredCoords,
+          this.editor.view
+        );
+
+        // Closes the menu if the hovered coordinates aren't over a block, i.e. if the mouse cursor is beyond the editor
+        // vertically.
         if (!block) {
           if (this.menuOpen) {
             this.menuOpen = false;
@@ -281,21 +291,11 @@ export class BlockMenuView {
         }
 
         // Doesn't update if the menu is already open and the mouse cursor is still hovering the same block.
-        if (
-          this.menuOpen &&
-          this.hoveredBlock?.hasAttribute("data-id") &&
-          this.hoveredBlock?.getAttribute("data-id") === block.id
-        ) {
+        if (this.menuOpen && this.hoveredBlockId === block.id) {
           return;
         }
 
-        // Gets the block's content node, which lets to ignore child blocks when determining the block menu's position.
-        const blockContent = block.node.firstChild as HTMLElement;
-        this.hoveredBlock = blockContent;
-
-        if (!blockContent) {
-          return;
-        }
+        this.hoveredBlockId = block.id;
 
         // Shows or updates elements.
         if (!this.menuOpen) {
@@ -313,6 +313,7 @@ export class BlockMenuView {
     document.body.addEventListener(
       "mousedown",
       (event) => {
+        // Checks if the menu itself is being clicked.
         if (this.blockMenu.element?.contains(event.target as HTMLElement)) {
           return;
         }
@@ -347,16 +348,30 @@ export class BlockMenuView {
     }
   }
 
+  getBlockContentBoundingBox() {
+    const block = getDraggableBlockFromCoords(
+      this.hoveredCoords,
+      this.editor.view
+    );
+
+    const blockContent = block!.node.firstChild as HTMLElement;
+
+    return blockContent.getBoundingClientRect();
+  }
+
   addBlock() {
     this.menuOpen = false;
     this.menuFrozen = true;
     this.blockMenu.hide();
 
-    const blockBoundingBox = this.hoveredBlock!.getBoundingClientRect();
+    // Using the block's content node bounding box as we don't want the drag handle position to be affected by number of
+    // child blocks.
+    const blockContentBoundingBox = this.getBlockContentBoundingBox();
 
+    // Gets position at the start of the hovered block's content node.
     const pos = this.editor.view.posAtCoords({
-      left: blockBoundingBox.left,
-      top: blockBoundingBox.top,
+      left: blockContentBoundingBox.left,
+      top: blockContentBoundingBox.top,
     });
     if (!pos) {
       return;
@@ -397,8 +412,11 @@ export class BlockMenuView {
     this.menuOpen = false;
     this.blockMenu.hide();
 
-    const blockBoundingBox = this.hoveredBlock!.getBoundingClientRect();
+    // To delete a block, a position anywhere inside it is needed, so getBlockContentBoundingBox is used to get a
+    // position inside its content node.
+    const blockBoundingBox = this.getBlockContentBoundingBox();
 
+    // Gets position at the start of the hovered block's content node.
     const pos = this.editor.view.posAtCoords({
       left: blockBoundingBox.left,
       top: blockBoundingBox.top,
@@ -410,25 +428,67 @@ export class BlockMenuView {
     this.editor.commands.BNDeleteBlock(pos.pos);
   }
 
+  setMenuFrozen(menuFrozen: boolean) {
+    this.menuFrozen = menuFrozen;
+  }
+
+  setBlockEditable(blockEditable: boolean) {
+    // To set a block as editable, the position just before it is needed, which means that the start position of the
+    // block must be found first. We can get this using getBlockInfoFromPos, but we need to supply a parameter for a
+    // position inside the block, so getBlockContentBoundingBox is used to get a position inside its content node.
+    const blockBoundingBox = this.getBlockContentBoundingBox();
+
+    const pos = this.editor.view.posAtCoords({
+      left: blockBoundingBox.left,
+      top: blockBoundingBox.top,
+    });
+    if (!pos) {
+      return;
+    }
+
+    const blockInfo = getBlockInfoFromPos(this.editor.state.doc, pos.pos);
+    if (blockInfo === undefined) {
+      return;
+    }
+
+    // Sets the block's "editable" attribute. The "type" and "marks" args are undefined as these don't change.
+    this.editor.view.dispatch(
+      this.editor.state.tr.setNodeMarkup(
+        blockInfo.startPos - 1,
+        undefined,
+        {
+          editable: blockEditable ? "true" : "false",
+        },
+        undefined
+      )
+    );
+
+    this.blockMenu.render(this.getDynamicParams(), false);
+  }
+
   getStaticParams(): BlockSideMenuStaticParams {
     return {
       addBlock: () => this.addBlock(),
       deleteBlock: () => this.deleteBlock(),
+      setMenuFrozen: (menuFrozen: boolean) => this.setMenuFrozen(menuFrozen),
+      setBlockEditable: (blockEditable: boolean) =>
+        this.setBlockEditable(blockEditable),
       blockDragStart: (event: DragEvent) => dragStart(event, this.editor.view),
       blockDragEnd: () => unsetDragImage(),
-      freezeMenu: () => {
-        this.menuFrozen = true;
-      },
-      unfreezeMenu: () => {
-        this.menuFrozen = false;
-      },
     };
   }
 
   getDynamicParams(): BlockSideMenuDynamicParams {
-    const blockBoundingBox = this.hoveredBlock!.getBoundingClientRect();
+    const block = getDraggableBlockFromCoords(
+      this.hoveredCoords,
+      this.editor.view
+    );
+
+    const blockBoundingBox = this.getBlockContentBoundingBox();
 
     return {
+      menuFrozen: this.menuFrozen,
+      blockEditable: block!.node.getAttribute("contenteditable") !== "false",
       blockBoundingBox: new DOMRect(
         this.horizontalPosAnchoredAtRoot
           ? getHorizontalAnchor()
