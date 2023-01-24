@@ -508,6 +508,7 @@ export const Block = Node.create<IBlock>({
           {
             name: "headingContent",
             attrs: {
+              textAlignment: "left",
               headingLevel: "1",
             },
           }
@@ -518,6 +519,7 @@ export const Block = Node.create<IBlock>({
           {
             name: "headingContent",
             attrs: {
+              textAlignment: "left",
               headingLevel: "2",
             },
           }
@@ -528,6 +530,7 @@ export const Block = Node.create<IBlock>({
           {
             name: "headingContent",
             attrs: {
+              textAlignment: "left",
               headingLevel: "3",
             },
           }
@@ -538,6 +541,7 @@ export const Block = Node.create<IBlock>({
           {
             name: "listItemContent",
             attrs: {
+              textAlignment: "left",
               listItemType: "unordered",
             },
           }
@@ -548,6 +552,7 @@ export const Block = Node.create<IBlock>({
           {
             name: "listItemContent",
             attrs: {
+              textAlignment: "left",
               listItemType: "ordered",
             },
           }

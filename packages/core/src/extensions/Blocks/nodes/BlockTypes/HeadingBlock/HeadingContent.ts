@@ -4,6 +4,7 @@ import styles from "../../Block.module.css";
 export type HeadingContentType = {
   name: "headingContent";
   attrs?: {
+    textAlignment: string;
     headingLevel: string;
   };
 };
@@ -15,6 +16,14 @@ export const HeadingContent = Node.create({
 
   addAttributes() {
     return {
+      textAlignment: {
+        default: "left",
+        parseHTML: (element) => element.getAttribute("align"),
+        renderHTML: (attributes) =>
+          attributes.textAlignment !== "left"
+            ? { align: attributes.textAlignment }
+            : undefined,
+      },
       headingLevel: {
         default: "1",
         // instead of "level" attributes, use "data-level"
@@ -39,6 +48,7 @@ export const HeadingContent = Node.create({
               .BNSetContentType(state.selection.from, {
                 name: "headingContent",
                 attrs: {
+                  textAlignment: "left",
                   headingLevel: level,
                 },
               })
@@ -71,7 +81,6 @@ export const HeadingContent = Node.create({
   },
 
   renderHTML({ node, HTMLAttributes }) {
-    console.log(node.attrs);
     return [
       "div",
       mergeAttributes(HTMLAttributes, {

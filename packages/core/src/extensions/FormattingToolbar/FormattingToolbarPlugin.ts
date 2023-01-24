@@ -13,6 +13,7 @@ import {
   FormattingToolbarStaticParams,
 } from "./FormattingToolbarFactoryTypes";
 import { BlockContentType } from "../Blocks/nodes/Block";
+import { getBlockInfoFromPos } from "../Blocks/helpers/getBlockInfoFromPos";
 
 // Same as TipTap bubblemenu plugin, but with these changes:
 // https://github.com/ueberdosis/tiptap/pull/2596/files
@@ -265,6 +266,26 @@ export class FormattingToolbarView {
         );
         this.editor.view.focus();
       },
+      setTextAlignment: (alignment: string) => {
+        const blockInfo = getBlockInfoFromPos(
+          this.editor.state.doc,
+          this.editor.state.selection.from
+        );
+        if (!blockInfo) {
+          return;
+        }
+
+        const { startPos } = blockInfo;
+
+        this.editor.view.focus();
+        this.editor.view.dispatch(
+          this.editor.state.tr.setNodeAttribute(
+            startPos,
+            "textAlignment",
+            alignment
+          )
+        );
+      },
       setBlockType: (type: BlockContentType) => {
         this.editor.view.focus();
         this.editor.commands.BNSetContentType(
@@ -289,6 +310,10 @@ export class FormattingToolbarView {
         this.editor.state.selection.from,
         this.editor.state.selection.to
       ),
+      textAlignment: getBlockInfoFromPos(
+        this.editor.state.doc,
+        this.editor.state.selection.from
+      )?.contentNode.attrs["textAlignment"],
       activeBlockType: {
         name: this.editor.state.selection.$from.node().type.name,
         attrs: this.editor.state.selection.$from.node().attrs,

@@ -17,6 +17,7 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         .BNCreateBlockOrSetContentType(range.from, {
           name: "headingContent",
           attrs: {
+            textAlignment: "left",
             headingLevel: "1",
           },
         })
@@ -39,6 +40,7 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         .BNCreateBlockOrSetContentType(range.from, {
           name: "headingContent",
           attrs: {
+            textAlignment: "left",
             headingLevel: "2",
           },
         })
@@ -61,6 +63,7 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         .BNCreateBlockOrSetContentType(range.from, {
           name: "headingContent",
           attrs: {
+            textAlignment: "left",
             headingLevel: "3",
           },
         })
@@ -83,6 +86,7 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         .BNCreateBlockOrSetContentType(range.from, {
           name: "listItemContent",
           attrs: {
+            textAlignment: "left",
             listItemType: "ordered",
           },
         })
@@ -105,6 +109,7 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         .BNCreateBlockOrSetContentType(range.from, {
           name: "listItemContent",
           attrs: {
+            textAlignment: "left",
             listItemType: "unordered",
           },
         })

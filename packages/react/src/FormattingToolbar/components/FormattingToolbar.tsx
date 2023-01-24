@@ -1,4 +1,8 @@
 import {
+  RiAlignCenter,
+  RiAlignJustify,
+  RiAlignLeft,
+  RiAlignRight,
   RiBold,
   RiH1,
   RiH2,
@@ -34,7 +38,11 @@ export type FormattingToolbarProps = {
   activeHyperlinkText: string;
   setHyperlink: (url: string, text?: string) => void;
 
+  textAlignment: string;
+  setTextAlignment: (textAlignment: string) => void;
+
   activeBlockType: Required<BlockContentType>;
+
   setBlockType: (type: BlockContentType) => void;
 };
 
@@ -115,7 +123,7 @@ export const FormattingToolbar = (props: FormattingToolbarProps) => {
             onClick: () =>
               props.setBlockType({
                 name: "headingContent",
-                attrs: { headingLevel: "1" },
+                attrs: { textAlignment: "left", headingLevel: "1" },
               }),
             text: "Heading 1",
             icon: RiH1,
@@ -127,7 +135,7 @@ export const FormattingToolbar = (props: FormattingToolbarProps) => {
             onClick: () =>
               props.setBlockType({
                 name: "headingContent",
-                attrs: { headingLevel: "2" },
+                attrs: { textAlignment: "left", headingLevel: "2" },
               }),
             text: "Heading 2",
             icon: RiH2,
@@ -139,7 +147,7 @@ export const FormattingToolbar = (props: FormattingToolbarProps) => {
             onClick: () =>
               props.setBlockType({
                 name: "headingContent",
-                attrs: { headingLevel: "3" },
+                attrs: { textAlignment: "left", headingLevel: "3" },
               }),
             text: "Heading 3",
             icon: RiH3,
@@ -151,7 +159,7 @@ export const FormattingToolbar = (props: FormattingToolbarProps) => {
             onClick: () =>
               props.setBlockType({
                 name: "listItemContent",
-                attrs: { listItemType: "unordered" },
+                attrs: { textAlignment: "left", listItemType: "unordered" },
               }),
             text: "Bullet List",
             icon: RiListUnordered,
@@ -163,7 +171,7 @@ export const FormattingToolbar = (props: FormattingToolbarProps) => {
             onClick: () =>
               props.setBlockType({
                 name: "listItemContent",
-                attrs: { listItemType: "ordered" },
+                attrs: { textAlignment: "left", listItemType: "ordered" },
               }),
             text: "Numbered List",
             icon: RiListOrdered,
@@ -200,6 +208,31 @@ export const FormattingToolbar = (props: FormattingToolbarProps) => {
         mainTooltip="Strike-through"
         secondaryTooltip={formatKeyboardShortcut("Mod+Shift+X")}
         icon={RiStrikethrough}
+      />
+      <ToolbarButton
+        onClick={() => props.setTextAlignment("left")}
+        isSelected={props.textAlignment === "left"}
+        mainTooltip={"Align Text Left"}
+        icon={RiAlignLeft}
+      />
+      <ToolbarButton
+        onClick={() => props.setTextAlignment("center")}
+        isSelected={props.textAlignment === "center"}
+        mainTooltip={"Align Text Center"}
+        icon={RiAlignCenter}
+      />
+      <ToolbarButton
+        onClick={() => props.setTextAlignment("right")}
+        isSelected={props.textAlignment === "right"}
+        mainTooltip={"Align Text Right"}
+        icon={RiAlignRight}
+      />
+
+      <ToolbarButton
+        onClick={() => props.setTextAlignment("justify")}
+        isSelected={props.textAlignment === "justify"}
+        mainTooltip={"Justify Text"}
+        icon={RiAlignJustify}
       />
       <ToolbarButton
         onClick={() => {

@@ -8,6 +8,8 @@ export type FormattingToolbarStaticParams = {
   toggleStrike: () => void;
   setHyperlink: (url: string, text?: string) => void;
 
+  setTextAlignment: (alignment: string) => void;
+
   setBlockType: (type: BlockContentType) => void;
 };
 
@@ -19,6 +21,8 @@ export type FormattingToolbarDynamicParams = {
   hyperlinkIsActive: boolean;
   activeHyperlinkUrl: string;
   activeHyperlinkText: string;
+
+  textAlignment: string;
 
   // BlockContentType is mostly used to set a block's type, so the attr field is optional as block content types have
   // default values for attributes. However, it means that a block type's attributes field will never be undefined due to

@@ -6,6 +6,7 @@ import styles from "../../Block.module.css";
 export type ListItemContentType = {
   name: "listItemContent";
   attrs?: {
+    textAlignment: string;
     listItemType: string;
   };
 };
@@ -17,6 +18,14 @@ export const ListItemContent = Node.create({
 
   addAttributes() {
     return {
+      textAlignment: {
+        default: "right",
+        parseHTML: (element) => element.getAttribute("align"),
+        renderHTML: (attributes) =>
+          attributes.textAlignment !== "left"
+            ? { align: attributes.textAlignment }
+            : undefined,
+      },
       listItemType: {
         default: "unordered",
         parseHTML: (element) => element.getAttribute("data-list-item-type"),
@@ -48,6 +57,7 @@ export const ListItemContent = Node.create({
             .BNSetContentType(state.selection.from, {
               name: "listItemContent",
               attrs: {
+                textAlignment: "left",
                 listItemType: "unordered",
               },
             })
@@ -63,6 +73,7 @@ export const ListItemContent = Node.create({
             .BNSetContentType(state.selection.from, {
               name: "listItemContent",
               attrs: {
+                textAlignment: "left",
                 listItemType: "ordered",
               },
             })
