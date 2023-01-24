@@ -100,11 +100,15 @@
           },
           "content": [
             {
-              "type": "textContent",
+              "type": "listItemContent",
+              "attrs": {
+                "listItemType": "unordered",
+                "listItemIndex": null
+              },
               "content": [
                 {
                   "type": "text",
-                  "text": "Paragraph"
+                  "text": "List Item 1"
                 }
               ]
             },
@@ -119,11 +123,15 @@
                   },
                   "content": [
                     {
-                      "type": "textContent",
+                      "type": "listItemContent",
+                      "attrs": {
+                        "listItemType": "unordered",
+                        "listItemIndex": null
+                      },
                       "content": [
                         {
                           "type": "text",
-                          "text": "Paragraph"
+                          "text": "List Item 2"
                         }
                       ]
                     },
@@ -138,11 +146,15 @@
                           },
                           "content": [
                             {
-                              "type": "textContent",
+                              "type": "listItemContent",
+                              "attrs": {
+                                "listItemType": "unordered",
+                                "listItemIndex": null
+                              },
                               "content": [
                                 {
                                   "type": "text",
-                                  "text": "Paragraph"
+                                  "text": "List Item 3"
                                 }
                               ]
                             }
