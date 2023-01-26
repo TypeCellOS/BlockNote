@@ -1,7 +1,7 @@
 import { Node } from "@tiptap/core";
 import styles from "../../Block.module.css";
 
-export const Paragraph = Node.create({
+export const ParagraphBlockContent = Node.create({
   name: "paragraph",
   group: "blockContent",
   content: "inline*",

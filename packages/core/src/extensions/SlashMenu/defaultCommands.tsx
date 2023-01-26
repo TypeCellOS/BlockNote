@@ -14,9 +14,9 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         .chain()
         .focus()
         .deleteRange(range)
-        .BNCreateBlockOrSetContentType(range.from, {
-          name: "heading",
-          attrs: {
+        .BNCreateOrUpdateBlock(range.from, {
+          type: "heading",
+          props: {
             level: "1",
           },
         })
@@ -36,9 +36,9 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         .chain()
         .focus()
         .deleteRange(range)
-        .BNCreateBlockOrSetContentType(range.from, {
-          name: "heading",
-          attrs: {
+        .BNCreateOrUpdateBlock(range.from, {
+          type: "heading",
+          props: {
             level: "2",
           },
         })
@@ -58,9 +58,9 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         .chain()
         .focus()
         .deleteRange(range)
-        .BNCreateBlockOrSetContentType(range.from, {
-          name: "heading",
-          attrs: {
+        .BNCreateOrUpdateBlock(range.from, {
+          type: "heading",
+          props: {
             level: "3",
           },
         })
@@ -80,11 +80,9 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         .chain()
         .focus()
         .deleteRange(range)
-        .BNCreateBlockOrSetContentType(range.from, {
-          name: "listItem",
-          attrs: {
-            ordered: "true",
-          },
+        .BNCreateOrUpdateBlock(range.from, {
+          type: "numberedListItem",
+          props: {},
         })
         .run();
     },
@@ -102,11 +100,9 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         .chain()
         .focus()
         .deleteRange(range)
-        .BNCreateBlockOrSetContentType(range.from, {
-          name: "listItem",
-          attrs: {
-            ordered: "false",
-          },
+        .BNCreateOrUpdateBlock(range.from, {
+          type: "bulletListItem",
+          props: {},
         })
         .run();
     },
@@ -124,7 +120,10 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         .chain()
         .focus()
         .deleteRange(range)
-        .BNCreateBlockOrSetContentType(range.from, "paragraph")
+        .BNCreateOrUpdateBlock(range.from, {
+          type: "paragraph",
+          props: {},
+        })
         .run();
     },
     ["p"],

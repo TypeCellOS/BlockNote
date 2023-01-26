@@ -9,8 +9,7 @@ import { Decoration, DecorationSet } from "prosemirror-view";
 const PLUGIN_KEY = new PluginKey(`previous-blocks`);
 
 const nodeAttributes: Record<string, string> = {
-  // List Items
-  ordered: "ordered",
+  // Numbered List Items
   index: "index",
   // Headings
   level: "level",
@@ -94,7 +93,6 @@ export const PreviousBlockTypePlugin = () => {
             const newContentNode = node.node.firstChild;
             if (oldNode && oldContentNode && newContentNode) {
               const newAttrs = {
-                ordered: newContentNode.attrs.ordered,
                 index: newContentNode.attrs.index,
                 level: newContentNode.attrs.level,
                 type: newContentNode.type.name,
@@ -102,14 +100,13 @@ export const PreviousBlockTypePlugin = () => {
               };
 
               const oldAttrs = {
-                ordered: oldContentNode.attrs.ordered,
                 index: oldContentNode.attrs.index,
                 level: oldContentNode.attrs.level,
                 type: oldContentNode.type.name,
                 depth: oldState.doc.resolve(oldNode.pos).depth,
               };
 
-              // Hacky fix to avoid processing certain transactions created by ordered list indexing plugin.
+              // Hacky fix to avoid processing certain transactions created by numbered list indexing plugin.
 
               // True when an existing ordered list item is assigned an index for the first time, which happens
               // immediately after it's created. Using this condition to start an animation ensures it's not
@@ -128,7 +125,8 @@ export const PreviousBlockTypePlugin = () => {
               // Only false for transactions in which the block remains an ordered list item before & after, but neither
               // of the previous conditions apply.
               const shouldUpdate =
-                oldAttrs.ordered === "true" && newAttrs.ordered === "true"
+                oldAttrs.type === "numberedListItem" &&
+                newAttrs.type === "numberedListItem"
                   ? indexInitialized || depthChanged
                   : true;
 
@@ -163,7 +161,6 @@ export const PreviousBlockTypePlugin = () => {
       decorations(state) {
         const pluginState = (this as Plugin).getState(state);
         if (!pluginState.needsUpdate) {
-          // console.log("0");
           return undefined;
         }
 
@@ -171,12 +168,10 @@ export const PreviousBlockTypePlugin = () => {
 
         state.doc.descendants((node, pos) => {
           if (!node.attrs.id) {
-            // console.log("1");
             return;
           }
           const prevAttrs = pluginState.prevBlockAttrs[node.attrs.id];
           if (!prevAttrs) {
-            // console.log("2");
             return;
           }
 

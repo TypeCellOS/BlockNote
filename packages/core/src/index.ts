@@ -1,6 +1,6 @@
 export * from "./BlockNoteEditor";
 export * from "./BlockNoteExtensions";
-export type { BlockContent } from "./extensions/Blocks/nodes/Block";
+export type { BNBlock } from "./extensions/Blocks/nodes/Block";
 export * from "./extensions/FormattingToolbar/FormattingToolbarFactoryTypes";
 export * from "./extensions/DraggableBlocks/BlockSideMenuFactoryTypes";
 export * from "./extensions/HyperlinkToolbar/HyperlinkToolbarFactoryTypes";

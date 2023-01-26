@@ -1,7 +1,7 @@
 import { InputRule, mergeAttributes, Node } from "@tiptap/core";
 import styles from "../../Block.module.css";
 
-export const Heading = Node.create({
+export const HeadingBlockContent = Node.create({
   name: "heading",
   group: "blockContent",
   content: "inline*",
@@ -29,9 +29,9 @@ export const Heading = Node.create({
           find: new RegExp(`^(#{${parseInt(level)}})\\s$`),
           handler: ({ state, chain, range }) => {
             chain()
-              .BNSetContentType(state.selection.from, {
-                name: "heading",
-                attrs: {
+              .BNUpdateBlock(state.selection.from, {
+                type: "heading",
+                props: {
                   level: level as "1" | "2" | "3",
                 },
               })

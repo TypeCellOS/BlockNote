@@ -1,14 +1,14 @@
 import { Plugin, PluginKey } from "prosemirror-state";
-import { getBlockInfoFromPos } from "../../../helpers/getBlockInfoFromPos";
+import { getBlockInfoFromPos } from "../../../../helpers/getBlockInfoFromPos";
 
 // ProseMirror Plugin which automatically assigns indices to ordered list items per nesting level.
-const PLUGIN_KEY = new PluginKey(`list-item-indexing`);
-export const ListItemIndexingPlugin = () => {
+const PLUGIN_KEY = new PluginKey(`numbered-list-indexing`);
+export const NumberedListIndexingPlugin = () => {
   return new Plugin({
     key: PLUGIN_KEY,
     appendTransaction: (_transactions, _oldState, newState) => {
       const tr = newState.tr;
-      tr.setMeta("listItemIndexing", true);
+      tr.setMeta("numberedListIndexing", true);
 
       let modified = false;
 
@@ -18,8 +18,7 @@ export const ListItemIndexingPlugin = () => {
       newState.doc.descendants((node, pos) => {
         if (
           node.type.name === "block" &&
-          node.firstChild!.type.name === "listItem" &&
-          node.firstChild!.attrs["ordered"] === "true"
+          node.firstChild!.type.name === "numberedListItem"
         ) {
           let newIndex = "1";
           const isFirstBlockInDoc = pos === 1;
@@ -45,8 +44,7 @@ export const ListItemIndexingPlugin = () => {
               const prevBlockContentType = prevBlockInfo.contentType;
 
               const isPrevBlockOrderedListItem =
-                prevBlockContentType.name === "listItem" &&
-                prevBlockContentNode.attrs["ordered"] === "true";
+                prevBlockContentType.name === "numberedListItem";
 
               if (isPrevBlockOrderedListItem) {
                 const prevBlockIndex = prevBlockContentNode.attrs["index"];
@@ -63,7 +61,6 @@ export const ListItemIndexingPlugin = () => {
             modified = true;
 
             tr.setNodeMarkup(pos + 1, undefined, {
-              ordered: "true",
               index: newIndex,
             });
           }

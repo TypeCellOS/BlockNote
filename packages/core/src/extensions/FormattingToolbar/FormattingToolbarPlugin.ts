@@ -12,7 +12,7 @@ import {
   FormattingToolbarFactory,
   FormattingToolbarStaticParams,
 } from "./FormattingToolbarFactoryTypes";
-import { BlockContent } from "../Blocks/nodes/Block";
+import { BNBlock } from "../Blocks/nodes/Block";
 
 // Same as TipTap bubblemenu plugin, but with these changes:
 // https://github.com/ueberdosis/tiptap/pull/2596/files
@@ -265,11 +265,11 @@ export class FormattingToolbarView {
         );
         this.editor.view.focus();
       },
-      setBlockType: (type: BlockContent["name"] | BlockContent) => {
+      updateBlock: (newBlock: BNBlock<"SettableProps">) => {
         this.editor.view.focus();
-        this.editor.commands.BNSetContentType(
+        this.editor.commands.BNUpdateBlock(
           this.editor.state.selection.from,
-          type
+          newBlock
         );
       },
     };
@@ -289,10 +289,10 @@ export class FormattingToolbarView {
         this.editor.state.selection.from,
         this.editor.state.selection.to
       ),
-      activeBlockType: {
-        name: this.editor.state.selection.$from.node().type.name,
-        attrs: this.editor.state.selection.$from.node().attrs,
-      } as Required<BlockContent>,
+      block: {
+        type: this.editor.state.selection.$from.node().type.name,
+        props: this.editor.state.selection.$from.node().attrs,
+      } as BNBlock<"AllProps">,
       selectionBoundingBox: this.getSelectionBoundingBox(),
     };
   }

@@ -5,9 +5,11 @@ import BlockAttributes from "../BlockAttributes";
 import { getBlockInfoFromPos } from "../helpers/getBlockInfoFromPos";
 import { PreviousBlockTypePlugin } from "../PreviousBlockTypePlugin";
 import styles from "./Block.module.css";
-import { Paragraph } from "./BlockTypes/Paragraph/ParagraphType";
-import { Heading } from "./BlockTypes/Heading/HeadingType";
-import { ListItem } from "./BlockTypes/ListItem/ListItemType";
+import { ParagraphBlock } from "./BlockContent/ParagraphBlockContent/ParagraphBlockContentTypes";
+import { HeadingBlock } from "./BlockContent/HeadingBlockContent/HeadingBlockContentTypes";
+import { BlockPropsType } from "./BlockContent/BlockContentTypes";
+import { BulletListItemBlock } from "./BlockContent/ListItemBlockContent/BulletListItemBlockContent/BulletListItemBlockContentTypes";
+import { NumberedListItemBlock } from "./BlockContent/ListItemBlockContent/NumberedListItemBlockContent/NumberedListItemBlockContentTypes";
 
 export interface IBlock {
   HTMLAttributes: Record<string, any>;
@@ -35,7 +37,11 @@ export interface IBlock {
 //   blockContentNodes[0].spec.attrs;
 // }
 
-export type BlockContent = Paragraph | Heading | ListItem;
+export type BNBlock<PropsType extends BlockPropsType> =
+  | ParagraphBlock<PropsType>
+  | HeadingBlock<PropsType>
+  | BulletListItemBlock<PropsType>
+  | NumberedListItemBlock<PropsType>;
 
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
@@ -44,13 +50,13 @@ declare module "@tiptap/core" {
       BNDeleteBlock: (posInBlock: number) => ReturnType;
       BNMergeBlocks: (posBetweenBlocks: number) => ReturnType;
       BNSplitBlock: (posInBlock: number, keepType: boolean) => ReturnType;
-      BNSetContentType: (
+      BNUpdateBlock: (
         posInBlock: number,
-        type: BlockContent | BlockContent["name"]
+        newBlock: BNBlock<"SettableProps">
       ) => ReturnType;
-      BNCreateBlockOrSetContentType: (
+      BNCreateOrUpdateBlock: (
         posInBlock: number,
-        type: BlockContent | BlockContent["name"]
+        newBlock: BNBlock<"SettableProps">
       ) => ReturnType;
     };
   }
@@ -302,25 +308,25 @@ export const Block = Node.create<IBlock>({
           return true;
         },
       // Changes the content of a block at a given position to a given type.
-      BNSetContentType:
-        (posInBlock, type) =>
+      BNUpdateBlock:
+        (posInBlock, newBlock) =>
         ({ state, dispatch }) => {
           const blockInfo = getBlockInfoFromPos(state.doc, posInBlock);
           if (blockInfo === undefined) {
             return false;
           }
 
-          const { startPos, contentNode } = blockInfo;
-          const contentTypeName = typeof type !== "string" ? type.name : type;
-          const contentTypeAttrs =
-            typeof type !== "string" ? type.attrs : undefined;
+          const { node, startPos, contentNode } = blockInfo;
 
           if (dispatch) {
             state.tr.setBlockType(
               startPos + 1,
               startPos + contentNode.nodeSize + 1,
-              state.schema.node(contentTypeName).type,
-              contentTypeAttrs
+              state.schema.node(newBlock.type).type,
+              {
+                ...node.attrs,
+                ...newBlock.props,
+              }
             );
           }
 
@@ -328,8 +334,8 @@ export const Block = Node.create<IBlock>({
         },
       // Changes the block at a given position to a given content type if it's empty, otherwise creates a new block of
       // that type below it.
-      BNCreateBlockOrSetContentType:
-        (posInBlock, type) =>
+      BNCreateOrUpdateBlock:
+        (posInBlock, newBlock) =>
         ({ state, chain }) => {
           const blockInfo = getBlockInfoFromPos(state.doc, posInBlock);
           if (blockInfo === undefined) {
@@ -342,7 +348,7 @@ export const Block = Node.create<IBlock>({
             const oldBlockContentPos = startPos + 1;
 
             return chain()
-              .BNSetContentType(posInBlock, type)
+              .BNUpdateBlock(posInBlock, newBlock)
               .setTextSelection(oldBlockContentPos)
               .run();
           } else {
@@ -351,7 +357,7 @@ export const Block = Node.create<IBlock>({
 
             return chain()
               .BNCreateBlock(newBlockInsertionPos)
-              .BNSetContentType(newBlockContentPos, type)
+              .BNUpdateBlock(newBlockContentPos, newBlock)
               .setTextSelection(newBlockContentPos)
               .run();
           }
@@ -384,10 +390,10 @@ export const Block = Node.create<IBlock>({
             const isParagraph = contentType.name === "paragraph";
 
             if (selectionAtBlockStart && !isParagraph) {
-              return commands.BNSetContentType(
-                state.selection.from,
-                "paragraph"
-              );
+              return commands.BNUpdateBlock(state.selection.from, {
+                type: "paragraph",
+                props: {},
+              });
             }
 
             return false;
@@ -534,55 +540,36 @@ export const Block = Node.create<IBlock>({
           this.editor.state.selection.anchor + 2
         ),
       "Mod-Alt-1": () =>
-        this.editor.commands.BNSetContentType(
-          this.editor.state.selection.anchor,
-          {
-            name: "heading",
-            attrs: {
-              level: "1",
-            },
-          }
-        ),
+        this.editor.commands.BNUpdateBlock(this.editor.state.selection.anchor, {
+          type: "heading",
+          props: {
+            level: "1",
+          },
+        }),
       "Mod-Alt-2": () =>
-        this.editor.commands.BNSetContentType(
-          this.editor.state.selection.anchor,
-          {
-            name: "heading",
-            attrs: {
-              level: "2",
-            },
-          }
-        ),
+        this.editor.commands.BNUpdateBlock(this.editor.state.selection.anchor, {
+          type: "heading",
+          props: {
+            level: "2",
+          },
+        }),
       "Mod-Alt-3": () =>
-        this.editor.commands.BNSetContentType(
-          this.editor.state.selection.anchor,
-          {
-            name: "heading",
-            attrs: {
-              level: "3",
-            },
-          }
-        ),
+        this.editor.commands.BNUpdateBlock(this.editor.state.selection.anchor, {
+          type: "heading",
+          props: {
+            level: "3",
+          },
+        }),
       "Mod-Shift-7": () =>
-        this.editor.commands.BNSetContentType(
-          this.editor.state.selection.anchor,
-          {
-            name: "listItem",
-            attrs: {
-              ordered: "false",
-            },
-          }
-        ),
+        this.editor.commands.BNUpdateBlock(this.editor.state.selection.anchor, {
+          type: "bulletListItem",
+          props: {},
+        }),
       "Mod-Shift-8": () =>
-        this.editor.commands.BNSetContentType(
-          this.editor.state.selection.anchor,
-          {
-            name: "listItem",
-            attrs: {
-              ordered: "true",
-            },
-          }
-        ),
+        this.editor.commands.BNUpdateBlock(this.editor.state.selection.anchor, {
+          type: "numberedListItem",
+          props: {},
+        }),
     };
   },
 });

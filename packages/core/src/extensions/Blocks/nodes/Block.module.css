@@ -155,15 +155,15 @@ NESTED BLOCKS
 }
 
 /* Ordered */
-[data-ordered="true"] {
+[data-content-type="numberedListItem"] {
   --index: attr(data-index)
 }
 
-[data-prev-ordered="true"] {
+[data-prev-content-type="numberedListItem"] {
   --prev-index: attr(data-prev-index)
 }
 
-.blockOuter[data-prev-ordered="true"]:not([data-prev-index="none"])
+.blockOuter[data-prev-content-type="numberedListItem"]:not([data-prev-index="none"])
 > .block
 > .blockContent::before {
   margin-right: 1.2em;
@@ -172,14 +172,14 @@ NESTED BLOCKS
 
 .blockOuter:not([data-prev-type])
 > .block
-> .blockContent[data-ordered="true"]::before {
+> .blockContent[data-content-type="numberedListItem"]::before {
   margin-right: 1.2em;
   content: var(--index)".";
 }
 
 /* Unordered */
 /* No list nesting */
-.blockOuter[data-prev-ordered="false"]
+.blockOuter[data-prev-content-type="bulletListItem"]
 > .block
 > .blockContent::before {
   margin-right: 1.2em;
@@ -188,43 +188,43 @@ NESTED BLOCKS
 
 .blockOuter:not([data-prev-type])
 > .block
-> .blockContent[data-ordered="false"]::before {
+> .blockContent[data-content-type="bulletListItem"]::before {
   margin-right: 1.2em;
   content: "•";
 }
 
 /* 1 level of list nesting */
-[data-ordered="false"]~.blockGroup
-> .blockOuter[data-prev-ordered="false"]
+[data-content-type="bulletListItem"]~.blockGroup
+> .blockOuter[data-prev-content-type="bulletListItem"]
 > .block
 > .blockContent::before {
   margin-right: 1.2em;
   content: "◦";
 }
 
-[data-ordered="false"]~.blockGroup
+[data-content-type="bulletListItem"]~.blockGroup
 > .blockOuter:not([data-prev-type])
 > .block
-> .blockContent[data-ordered="false"]::before {
+> .blockContent[data-content-type="bulletListItem"]::before {
   margin-right: 1.2em;
   content: "◦";
 }
 
 /* 2 levels of list nesting */
-[data-ordered="false"]~.blockGroup
-[data-ordered="false"]~.blockGroup
-> .blockOuter[data-prev-ordered="false"]
+[data-content-type="bulletListItem"]~.blockGroup
+[data-content-type="bulletListItem"]~.blockGroup
+> .blockOuter[data-prev-content-type="bulletListItem"]
 > .block
 > .blockContent::before {
   margin-right: 1.2em;
   content: "▪";
 }
 
-[data-ordered="false"]~.blockGroup
-[data-ordered="false"]~.blockGroup
+[data-content-type="bulletListItem"]~.blockGroup
+[data-content-type="bulletListItem"]~.blockGroup
 > .blockOuter:not([data-prev-type])
 > .block
-> .blockContent[data-ordered="false"]::before {
+> .blockContent[data-content-type="bulletListItem"]::before {
   margin-right: 1.2em;
   content: "▪";
 }
@@ -257,12 +257,14 @@ NESTED BLOCKS
   content: "Type to filter";
 }
 
-.blockContent[data-content-type="headingContent"].isEmpty
+.blockContent[data-content-type="heading"].isEmpty
   > :first-child::before {
   content: "Heading";
 }
 
-.blockContent[data-content-type="listItemContent"].isEmpty
-  > :first-child:before {
+.blockContent[data-content-type="bulletListItem"].isEmpty
+> :first-child:before,
+.blockContent[data-content-type="numberedListItem"].isEmpty
+> :first-child:before {
   content: "List";
 }
