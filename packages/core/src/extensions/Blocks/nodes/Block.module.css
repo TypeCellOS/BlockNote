@@ -159,11 +159,11 @@ NESTED BLOCKS
   --index: attr(data-index)
 }
 
-[data-prev-content-type="numberedListItem"] {
+[data-prev-type="numberedListItem"] {
   --prev-index: attr(data-prev-index)
 }
 
-.blockOuter[data-prev-content-type="numberedListItem"]:not([data-prev-index="none"])
+.blockOuter[data-prev-type="numberedListItem"]:not([data-prev-index="none"])
 > .block
 > .blockContent::before {
   margin-right: 1.2em;
@@ -179,7 +179,7 @@ NESTED BLOCKS
 
 /* Unordered */
 /* No list nesting */
-.blockOuter[data-prev-content-type="bulletListItem"]
+.blockOuter[data-prev-type="bulletListItem"]
 > .block
 > .blockContent::before {
   margin-right: 1.2em;
@@ -195,7 +195,7 @@ NESTED BLOCKS
 
 /* 1 level of list nesting */
 [data-content-type="bulletListItem"]~.blockGroup
-> .blockOuter[data-prev-content-type="bulletListItem"]
+> .blockOuter[data-prev-type="bulletListItem"]
 > .block
 > .blockContent::before {
   margin-right: 1.2em;
@@ -213,7 +213,7 @@ NESTED BLOCKS
 /* 2 levels of list nesting */
 [data-content-type="bulletListItem"]~.blockGroup
 [data-content-type="bulletListItem"]~.blockGroup
-> .blockOuter[data-prev-content-type="bulletListItem"]
+> .blockOuter[data-prev-type="bulletListItem"]
 > .block
 > .blockContent::before {
   margin-right: 1.2em;

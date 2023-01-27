@@ -10,8 +10,8 @@ export const BLOCK_SELECTOR = `[data-node-type="block"]`;
 export const H_ONE_BLOCK_SELECTOR = `[data-content-type=heading][data-level="1"]`;
 export const H_TWO_BLOCK_SELECTOR = `[data-content-type=heading][data-level="2"]`;
 export const H_THREE_BLOCK_SELECTOR = `[data-content-type=heading][data-level="3"]`;
-export const NUMBERED_LIST_SELECTOR = `[data-content-type="listItem"][data-ordered="true"]`;
-export const BULLET_LIST_SELECTOR = `[data-content-type="listItem"][data-ordered="false"]`;
+export const NUMBERED_LIST_SELECTOR = `[data-content-type="numberedListItem"]`;
+export const BULLET_LIST_SELECTOR = `[data-content-type="bulletListItem"]`;
 export const PARAGRAPH_SELECTOR = `[data-content-type=paragraph]`;
 
 export const DRAG_HANDLE_SELECTOR = `[data-test="dragHandle"]`;
