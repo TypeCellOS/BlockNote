@@ -96,23 +96,15 @@ export const BlockContainer = Node.create<IBlock>({
   },
 
   renderHTML({ HTMLAttributes }) {
-    const attrs: Record<string, string> = {};
-    for (let [nodeAttr, HTMLAttr] of Object.entries(BlockAttributes)) {
-      // Ensure falsy values are not misinterpreted.
-      if (HTMLAttributes[nodeAttr] !== undefined) {
-        attrs[HTMLAttr] = HTMLAttributes[nodeAttr];
-      }
-    }
-
     return [
       "div",
-      mergeAttributes(attrs, {
+      mergeAttributes(HTMLAttributes, {
         class: styles.blockOuter,
         "data-node-type": "block-outer",
       }),
       [
         "div",
-        mergeAttributes(attrs, {
+        mergeAttributes(HTMLAttributes, {
           // TODO: maybe remove html attributes from inner block
           class: styles.block,
           "data-node-type": this.name,
