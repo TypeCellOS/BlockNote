@@ -77,7 +77,7 @@ export const NumberedListItemBlockContent = Node.create({
 
           return false;
         },
-        node: "block",
+        node: "blockContainer",
       },
     ];
   },

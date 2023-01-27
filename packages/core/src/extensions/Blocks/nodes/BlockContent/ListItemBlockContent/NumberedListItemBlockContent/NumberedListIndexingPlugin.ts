@@ -17,7 +17,7 @@ export const NumberedListIndexingPlugin = () => {
       // index of the previous list item block.
       newState.doc.descendants((node, pos) => {
         if (
-          node.type.name === "block" &&
+          node.type.name === "blockContainer" &&
           node.firstChild!.type.name === "numberedListItem"
         ) {
           let newIndex = "1";

@@ -15,28 +15,6 @@ export interface IBlock {
   HTMLAttributes: Record<string, any>;
 }
 
-// TODO: Automatically get block names & attributes on editor creation?
-// function getBlockTypes(editor: Editor) {
-//   const nodes = editor.schema.nodes;
-//   const nonBlockContentNodeNames = new Set<string>([
-//     "block",
-//     "blockGroup",
-//     "doc",
-//     "fixedParagraph",
-//     "hardBreak",
-//   ]);
-//
-//   const blockContentNodes: NodeType[] = [];
-//
-//   for (const nodeName in nodes) {
-//     if (!nonBlockContentNodeNames.has(nodeName)) {
-//       blockContentNodes.push(nodes[nodeName]);
-//     }
-//   }
-//
-//   blockContentNodes[0].spec.attrs;
-// }
-
 export type BNBlock<PropsType extends BlockPropsType> =
   | ParagraphBlock<PropsType>
   | HeadingBlock<PropsType>
@@ -65,9 +43,9 @@ declare module "@tiptap/core" {
 /**
  * The main "Block node" documents consist of
  */
-export const Block = Node.create<IBlock>({
-  name: "block",
-  group: "block",
+export const BlockContainer = Node.create<IBlock>({
+  name: "blockContainer",
+  group: "blockContainer",
   // A block always contains content, and optionally a blockGroup which contains nested blocks
   content: "blockContent blockGroup?",
   // Ensures content-specific keyboard handlers trigger first.
@@ -107,7 +85,7 @@ export const Block = Node.create<IBlock>({
             }
           }
 
-          if (element.getAttribute("data-node-type") === "block") {
+          if (element.getAttribute("data-node-type") === "blockContainer") {
             return attrs;
           }
 
@@ -150,7 +128,8 @@ export const Block = Node.create<IBlock>({
       BNCreateBlock:
         (pos) =>
         ({ state, dispatch }) => {
-          const newBlock = state.schema.nodes["block"].createAndFill()!;
+          const newBlock =
+            state.schema.nodes["blockContainer"].createAndFill()!;
 
           if (dispatch) {
             state.tr.insert(pos, newBlock);
@@ -201,10 +180,10 @@ export const Block = Node.create<IBlock>({
         ({ state, dispatch }) => {
           const nextNodeIsBlock =
             state.doc.resolve(posBetweenBlocks + 1).node().type.name ===
-            "block";
+            "blockContainer";
           const prevNodeIsBlock =
             state.doc.resolve(posBetweenBlocks - 1).node().type.name ===
-            "block";
+            "blockContainer";
 
           if (!nextNodeIsBlock || !prevNodeIsBlock) {
             return false;
@@ -277,7 +256,8 @@ export const Block = Node.create<IBlock>({
           // Only text content is transferred to the new block.
           const secondBlockContent = state.doc.textBetween(posInBlock, endPos);
 
-          const newBlock = state.schema.nodes["block"].createAndFill()!;
+          const newBlock =
+            state.schema.nodes["blockContainer"].createAndFill()!;
           const newBlockContentPos = newBlockInsertionPos + 2;
 
           if (dispatch) {
@@ -405,7 +385,7 @@ export const Block = Node.create<IBlock>({
               state.selection.$anchor.parentOffset === 0;
 
             if (selectionAtBlockStart) {
-              return commands.liftListItem("block");
+              return commands.liftListItem("blockContainer");
             }
 
             return false;
@@ -464,7 +444,7 @@ export const Block = Node.create<IBlock>({
               blockEmpty &&
               blockIndented
             ) {
-              return commands.liftListItem("block");
+              return commands.liftListItem("blockContainer");
             }
 
             return false;
@@ -528,11 +508,11 @@ export const Block = Node.create<IBlock>({
       // Always returning true for tab key presses ensures they're not captured by the browser. Otherwise, they blur the
       // editor since the browser will try to use tab for keyboard navigation.
       Tab: () => {
-        this.editor.commands.sinkListItem("block");
+        this.editor.commands.sinkListItem("blockContainer");
         return true;
       },
       "Shift-Tab": () => {
-        this.editor.commands.liftListItem("block");
+        this.editor.commands.liftListItem("blockContainer");
         return true;
       },
       "Mod-Alt-0": () =>

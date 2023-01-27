@@ -12,7 +12,7 @@ import {
   FormattingToolbarFactory,
   FormattingToolbarStaticParams,
 } from "./FormattingToolbarFactoryTypes";
-import { BNBlock } from "../Blocks/nodes/Block";
+import { BNBlock } from "../Blocks/nodes/BlockContainer";
 
 // Same as TipTap bubblemenu plugin, but with these changes:
 // https://github.com/ueberdosis/tiptap/pull/2596/files

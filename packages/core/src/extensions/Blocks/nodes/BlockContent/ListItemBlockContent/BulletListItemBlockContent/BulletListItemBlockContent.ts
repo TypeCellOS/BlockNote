@@ -58,7 +58,7 @@ export const BulletListItemBlockContent = Node.create({
 
           return false;
         },
-        node: "block",
+        node: "blockContainer",
       },
     ];
   },

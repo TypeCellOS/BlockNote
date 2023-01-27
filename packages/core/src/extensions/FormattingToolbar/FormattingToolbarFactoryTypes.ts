@@ -1,5 +1,5 @@
 import { EditorElement, ElementFactory } from "../../shared/EditorElement";
-import { BNBlock } from "../Blocks/nodes/Block";
+import { BNBlock } from "../Blocks/nodes/BlockContainer";
 
 export type FormattingToolbarStaticParams = {
   toggleBold: () => void;
