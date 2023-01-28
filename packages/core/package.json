@@ -71,7 +71,7 @@
     "prosemirror-gapcursor": "^1.3.1",
     "prosemirror-history": "^1.3.0",
     "prosemirror-keymap": "^1.2.0",
-    "prosemirror-model": "^1.19.0",
+    "prosemirror-model": "~1.18.3",
     "prosemirror-schema-list": "^1.2.2",
     "prosemirror-state": "^1.4.2",
     "prosemirror-transform": "^1.7.1",
