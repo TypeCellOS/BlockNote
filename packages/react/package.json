@@ -3,7 +3,7 @@
   "homepage": "https://github.com/yousefed/blocknote",
   "private": false,
   "license": "MPL-2.0",
-  "version": "0.2.1",
+  "version": "0.2.2-alpha.0",
   "files": [
     "dist",
     "types",
@@ -46,8 +46,10 @@
     "lint": "eslint src --max-warnings 0"
   },
   "dependencies": {
-    "@blocknote/core": "^0.2.1",
+    "@blocknote/core": "^0.2.2-alpha.0",
+    "@emotion/react": "^11.10.5",
     "@mantine/core": "^5.6.1",
+    "@mantine/hooks": "^5.6.1",
     "@tippyjs/react": "^4.2.6",
     "@tiptap/react": "2.0.0-beta.209",
     "react-icons": "^4.3.1"
