@@ -5,15 +5,15 @@
       "type": "blockGroup",
       "content": [
         {
-          "type": "block",
+          "type": "blockContainer",
           "attrs": {
             "id": 0
           },
           "content": [
             {
-              "type": "headingContent",
+              "type": "heading",
               "attrs": {
-                "headingLevel": "1"
+                "level": "1"
               },
               "content": [
                 {
@@ -25,15 +25,15 @@
           ]
         },
         {
-          "type": "block",
+          "type": "blockContainer",
           "attrs": {
             "id": 2
           },
           "content": [
             {
-              "type": "headingContent",
+              "type": "heading",
               "attrs": {
-                "headingLevel": "2"
+                "level": "2"
               },
               "content": [
                 {
@@ -45,13 +45,13 @@
           ]
         },
         {
-          "type": "block",
+          "type": "blockContainer",
           "attrs": {
             "id": 1
           },
           "content": [
             {
-              "type": "textContent"
+              "type": "paragraph"
             }
           ]
         }

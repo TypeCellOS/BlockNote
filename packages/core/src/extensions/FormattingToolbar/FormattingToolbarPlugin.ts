@@ -6,13 +6,14 @@ import {
 } from "@tiptap/core";
 import { EditorState, Plugin, PluginKey } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
+import { Block, BlockUpdate } from "../Blocks/apiTypes";
+import { getBlockInfoFromPos } from "../Blocks/helpers/getBlockInfoFromPos";
 import {
   FormattingToolbar,
   FormattingToolbarDynamicParams,
   FormattingToolbarFactory,
   FormattingToolbarStaticParams,
 } from "./FormattingToolbarFactoryTypes";
-import { BlockContentType } from "../Blocks/nodes/Block";
 
 // Same as TipTap bubblemenu plugin, but with these changes:
 // https://github.com/ueberdosis/tiptap/pull/2596/files
@@ -265,17 +266,22 @@ export class FormattingToolbarView {
         );
         this.editor.view.focus();
       },
-      setBlockType: (type: BlockContentType) => {
+      updateBlock: (blockUpdate: BlockUpdate) => {
         this.editor.view.focus();
-        this.editor.commands.BNSetContentType(
+        this.editor.commands.BNUpdateBlock(
           this.editor.state.selection.from,
-          type
+          blockUpdate
         );
       },
     };
   }
 
   getDynamicParams(): FormattingToolbarDynamicParams {
+    const blockInfo = getBlockInfoFromPos(
+      this.editor.state.doc,
+      this.editor.state.selection.from
+    )!;
+
     return {
       boldIsActive: this.editor.isActive("bold"),
       italicIsActive: this.editor.isActive("italic"),
@@ -289,10 +295,12 @@ export class FormattingToolbarView {
         this.editor.state.selection.from,
         this.editor.state.selection.to
       ),
-      activeBlockType: {
-        name: this.editor.state.selection.$from.node().type.name,
-        attrs: this.editor.state.selection.$from.node().attrs,
-      } as Required<BlockContentType>,
+      // Needs type cast as there is no way to create a type that dynamically updates based on which extensions are
+      // loaded by the editor.
+      block: {
+        type: blockInfo.contentType.name,
+        props: blockInfo.contentNode.attrs,
+      } as Block,
       selectionBoundingBox: this.getSelectionBoundingBox(),
     };
   }

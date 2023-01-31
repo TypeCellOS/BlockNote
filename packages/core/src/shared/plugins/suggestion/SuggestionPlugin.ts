@@ -272,7 +272,7 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
         const next = { ...prev };
 
         // TODO: More clearly define which transactions should be ignored and which should deactivate the menu.
-        if (transaction.getMeta("orderedListIndexing") !== undefined) {
+        if (transaction.getMeta("numberedListIndexing") !== undefined) {
           return next;
         }
 

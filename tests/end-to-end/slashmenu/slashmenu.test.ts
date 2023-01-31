@@ -2,8 +2,8 @@ import { expect } from "@playwright/test";
 import { test } from "../../setup/setupScript";
 import {
   BASE_URL,
+  BLOCK_CONTAINER_SELECTOR,
   BLOCK_GROUP_SELECTOR,
-  BLOCK_SELECTOR,
   BULLET_LIST_SELECTOR,
   H_ONE_BLOCK_SELECTOR,
   H_THREE_BLOCK_SELECTOR,
@@ -61,7 +61,7 @@ test.describe("Check SlashMenu Functionality", () => {
     await focusOnEditor(page);
     await executeSlashCommand(page, "paragraph");
     await page.keyboard.type("This is a Paragraph");
-    const block = page.locator(BLOCK_SELECTOR).nth(0);
+    const block = page.locator(BLOCK_CONTAINER_SELECTOR).nth(0);
     const blockHeadingType = await block.getAttribute("data-heading-type");
     expect(blockHeadingType).toBeFalsy();
   });
@@ -102,14 +102,16 @@ test.describe("Check SlashMenu Functionality", () => {
     // and BLOCK_A should have one child
     const blockGroupCount = await page.locator(BLOCK_GROUP_SELECTOR).count();
     expect(blockGroupCount).toBe(2);
-    const blockCount = await page.locator(BLOCK_SELECTOR).count();
+    const blockCount = await page.locator(BLOCK_CONTAINER_SELECTOR).count();
     expect(blockCount).toBe(4);
-    const thirdBlock = page.locator(BLOCK_SELECTOR).nth(2);
+    const thirdBlock = page.locator(BLOCK_CONTAINER_SELECTOR).nth(2);
     await thirdBlock
       .locator(BLOCK_GROUP_SELECTOR)
       .waitFor({ state: "detached" });
-    const firstBlock = page.locator(BLOCK_SELECTOR).nth(0);
-    const firstBlockChildren = await firstBlock.locator(BLOCK_SELECTOR).count();
+    const firstBlock = page.locator(BLOCK_CONTAINER_SELECTOR).nth(0);
+    const firstBlockChildren = await firstBlock
+      .locator(BLOCK_CONTAINER_SELECTOR)
+      .count();
     expect(firstBlockChildren).toBe(1);
   });
   test("Should be able to create complex documents that match snapshots", async ({
