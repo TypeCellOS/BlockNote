@@ -1,8 +1,10 @@
 import { Editor, Extension } from "@tiptap/core";
 import { Node as ProsemirrorNode } from "prosemirror-model";
-import { Plugin } from "prosemirror-state";
+import { Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
 import { SlashMenuPluginKey } from "../SlashMenu/SlashMenuExtension";
+
+const PLUGIN_KEY = new PluginKey(`blocknote-placeholder`);
 
 /**
  * This is a modified version of the tiptap
@@ -48,6 +50,7 @@ export const Placeholder = Extension.create<PlaceholderOptions>({
   addProseMirrorPlugins() {
     return [
       new Plugin({
+        key: PLUGIN_KEY,
         props: {
           decorations: (state) => {
             const { doc, selection } = state;
