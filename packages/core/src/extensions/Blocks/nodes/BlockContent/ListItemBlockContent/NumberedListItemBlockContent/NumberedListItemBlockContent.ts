@@ -72,7 +72,7 @@ export const NumberedListItemBlockContent = Node.create({
 
           // Case for regular HTML list structure.
           if (parent.tagName === "OL") {
-            return { ordered: "true" };
+            return {};
           }
 
           return false;

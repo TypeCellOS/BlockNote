@@ -1,7 +1,7 @@
 import { mergeAttributes, Node } from "@tiptap/core";
 import { Slice } from "prosemirror-model";
 import { TextSelection } from "prosemirror-state";
-import { SettableBlock } from "../apiTypes";
+import { BlockUpdate } from "../apiTypes";
 import { getBlockInfoFromPos } from "../helpers/getBlockInfoFromPos";
 import { PreviousBlockTypePlugin } from "../PreviousBlockTypePlugin";
 import styles from "./Block.module.css";
@@ -21,11 +21,11 @@ declare module "@tiptap/core" {
       BNSplitBlock: (posInBlock: number, keepType: boolean) => ReturnType;
       BNUpdateBlock: (
         posInBlock: number,
-        newBlock: SettableBlock
+        blockUpdate: BlockUpdate
       ) => ReturnType;
       BNCreateOrUpdateBlock: (
         posInBlock: number,
-        newBlock: SettableBlock
+        blockUpdate: BlockUpdate
       ) => ReturnType;
     };
   }
@@ -272,7 +272,7 @@ export const BlockContainer = Node.create<IBlock>({
         },
       // Changes the content of a block at a given position to a given type.
       BNUpdateBlock:
-        (posInBlock, newBlock) =>
+        (posInBlock, blockUpdate) =>
         ({ state, dispatch }) => {
           const blockInfo = getBlockInfoFromPos(state.doc, posInBlock);
           if (blockInfo === undefined) {
@@ -285,10 +285,10 @@ export const BlockContainer = Node.create<IBlock>({
             state.tr.setBlockType(
               startPos + 1,
               startPos + contentNode.nodeSize + 1,
-              state.schema.node(newBlock.type).type,
+              state.schema.node(blockUpdate.type).type,
               {
                 ...node.attrs,
-                ...newBlock.props,
+                ...blockUpdate.props,
               }
             );
           }
@@ -298,7 +298,7 @@ export const BlockContainer = Node.create<IBlock>({
       // Changes the block at a given position to a given content type if it's empty, otherwise creates a new block of
       // that type below it.
       BNCreateOrUpdateBlock:
-        (posInBlock, newBlock) =>
+        (posInBlock, blockUpdate) =>
         ({ state, chain }) => {
           const blockInfo = getBlockInfoFromPos(state.doc, posInBlock);
           if (blockInfo === undefined) {
@@ -311,7 +311,7 @@ export const BlockContainer = Node.create<IBlock>({
             const oldBlockContentPos = startPos + 1;
 
             return chain()
-              .BNUpdateBlock(posInBlock, newBlock)
+              .BNUpdateBlock(posInBlock, blockUpdate)
               .setTextSelection(oldBlockContentPos)
               .run();
           } else {
@@ -320,7 +320,7 @@ export const BlockContainer = Node.create<IBlock>({
 
             return chain()
               .BNCreateBlock(newBlockInsertionPos)
-              .BNUpdateBlock(newBlockContentPos, newBlock)
+              .BNUpdateBlock(newBlockContentPos, blockUpdate)
               .setTextSelection(newBlockContentPos)
               .run();
           }

@@ -13,6 +13,7 @@ import {
   RiText,
   RiUnderline,
 } from "react-icons/ri";
+import { Block, BlockUpdate } from "@blocknote/core";
 import { Toolbar } from "../../SharedComponents/Toolbar/components/Toolbar";
 import { ToolbarButton } from "../../SharedComponents/Toolbar/components/ToolbarButton";
 import { ToolbarDropdown } from "../../SharedComponents/Toolbar/components/ToolbarDropdown";
@@ -34,7 +35,7 @@ export type FormattingToolbarProps = {
   setHyperlink: (url: string, text?: string) => void;
 
   block: Block;
-  updateBlock: (newBlock: SettableBlock) => void;
+  updateBlock: (blockUpdate: BlockUpdate) => void;
 };
 
 // TODO: add list options, indentation
@@ -107,13 +108,9 @@ export const FormattingToolbar = (props: FormattingToolbarProps) => {
           {
             onClick: () =>
               props.updateBlock({
-                type: "heading",
-                props: { level: "3" },
+                type: "paragraph",
+                props: {},
               }),
-            // props.updateBlock({
-            //   type: "paragraph",
-            //   props: {},
-            // }),
             text: "Paragraph",
             icon: RiText,
             isSelected: props.block.type === "paragraph",
