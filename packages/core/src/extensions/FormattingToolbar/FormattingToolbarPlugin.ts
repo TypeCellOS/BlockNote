@@ -6,13 +6,13 @@ import {
 } from "@tiptap/core";
 import { EditorState, Plugin, PluginKey } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
+import { BNBlock, SetBNBlock } from "../Blocks/nodes/BlockContainer";
 import {
   FormattingToolbar,
   FormattingToolbarDynamicParams,
   FormattingToolbarFactory,
   FormattingToolbarStaticParams,
 } from "./FormattingToolbarFactoryTypes";
-import { BNBlock } from "../Blocks/nodes/BlockContainer";
 
 // Same as TipTap bubblemenu plugin, but with these changes:
 // https://github.com/ueberdosis/tiptap/pull/2596/files
@@ -265,7 +265,7 @@ export class FormattingToolbarView {
         );
         this.editor.view.focus();
       },
-      updateBlock: (newBlock: BNBlock<"SettableProps">) => {
+      updateBlock: (newBlock: SetBNBlock<BNBlock>) => {
         this.editor.view.focus();
         this.editor.commands.BNUpdateBlock(
           this.editor.state.selection.from,
@@ -292,7 +292,7 @@ export class FormattingToolbarView {
       block: {
         type: this.editor.state.selection.$from.node().type.name,
         props: this.editor.state.selection.$from.node().attrs,
-      } as BNBlock<"AllProps">,
+      } as BNBlock, // TODO
       selectionBoundingBox: this.getSelectionBoundingBox(),
     };
   }

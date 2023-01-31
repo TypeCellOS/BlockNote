@@ -1,25 +1,16 @@
 import { mergeAttributes, Node } from "@tiptap/core";
 import { Slice } from "prosemirror-model";
 import { TextSelection } from "prosemirror-state";
-import BlockAttributes from "../BlockAttributes";
+import { SettableBlock } from "../apiTypes";
 import { getBlockInfoFromPos } from "../helpers/getBlockInfoFromPos";
 import { PreviousBlockTypePlugin } from "../PreviousBlockTypePlugin";
 import styles from "./Block.module.css";
-import { ParagraphBlock } from "./BlockContent/ParagraphBlockContent/ParagraphBlockContentTypes";
-import { HeadingBlock } from "./BlockContent/HeadingBlockContent/HeadingBlockContentTypes";
-import { BlockPropsType } from "./BlockContent/BlockContentTypes";
-import { BulletListItemBlock } from "./BlockContent/ListItemBlockContent/BulletListItemBlockContent/BulletListItemBlockContentTypes";
-import { NumberedListItemBlock } from "./BlockContent/ListItemBlockContent/NumberedListItemBlockContent/NumberedListItemBlockContentTypes";
+import BlockAttributes from "./BlockAttributes";
 
+// TODO
 export interface IBlock {
   HTMLAttributes: Record<string, any>;
 }
-
-export type BNBlock<PropsType extends BlockPropsType> =
-  | ParagraphBlock<PropsType>
-  | HeadingBlock<PropsType>
-  | BulletListItemBlock<PropsType>
-  | NumberedListItemBlock<PropsType>;
 
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
@@ -30,11 +21,11 @@ declare module "@tiptap/core" {
       BNSplitBlock: (posInBlock: number, keepType: boolean) => ReturnType;
       BNUpdateBlock: (
         posInBlock: number,
-        newBlock: BNBlock<"SettableProps">
+        newBlock: SettableBlock
       ) => ReturnType;
       BNCreateOrUpdateBlock: (
         posInBlock: number,
-        newBlock: BNBlock<"SettableProps">
+        newBlock: SettableBlock
       ) => ReturnType;
     };
   }

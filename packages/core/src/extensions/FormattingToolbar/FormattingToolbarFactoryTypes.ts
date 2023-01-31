@@ -1,5 +1,5 @@
 import { EditorElement, ElementFactory } from "../../shared/EditorElement";
-import { BNBlock } from "../Blocks/nodes/BlockContainer";
+import { BNBlock, SetBNBlock } from "../Blocks/nodes/BlockContainer";
 
 export type FormattingToolbarStaticParams = {
   toggleBold: () => void;
@@ -8,7 +8,7 @@ export type FormattingToolbarStaticParams = {
   toggleStrike: () => void;
   setHyperlink: (url: string, text?: string) => void;
 
-  updateBlock: (newBlock: BNBlock<"SettableProps">) => void;
+  updateBlock: (newBlock: SetBNBlock<BNBlock>) => void;
 };
 
 export type FormattingToolbarDynamicParams = {
@@ -20,7 +20,7 @@ export type FormattingToolbarDynamicParams = {
   activeHyperlinkUrl: string;
   activeHyperlinkText: string;
 
-  block: BNBlock<"AllProps">;
+  block: BNBlock;
 
   selectionBoundingBox: DOMRect;
 };
