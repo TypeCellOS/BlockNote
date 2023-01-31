@@ -5,13 +5,13 @@
       "type": "blockGroup",
       "content": [
         {
-          "type": "block",
+          "type": "blockContainer",
           "attrs": {
             "id": 1
           },
           "content": [
             {
-              "type": "textContent",
+              "type": "paragraph",
               "content": [
                 {
                   "type": "text",
@@ -23,15 +23,15 @@
               "type": "blockGroup",
               "content": [
                 {
-                  "type": "block",
+                  "type": "blockContainer",
                   "attrs": {
                     "id": 6
                   },
                   "content": [
                     {
-                      "type": "headingContent",
+                      "type": "heading",
                       "attrs": {
-                        "headingLevel": "1"
+                        "level": "1"
                       },
                       "content": [
                         {
@@ -43,13 +43,13 @@
                   ]
                 },
                 {
-                  "type": "block",
+                  "type": "blockContainer",
                   "attrs": {
                     "id": 3
                   },
                   "content": [
                     {
-                      "type": "textContent",
+                      "type": "paragraph",
                       "content": [
                         {
                           "type": "text",
@@ -61,15 +61,15 @@
                       "type": "blockGroup",
                       "content": [
                         {
-                          "type": "block",
+                          "type": "blockContainer",
                           "attrs": {
                             "id": 7
                           },
                           "content": [
                             {
-                              "type": "headingContent",
+                              "type": "heading",
                               "attrs": {
-                                "headingLevel": "2"
+                                "level": "2"
                               },
                               "content": [
                                 {
@@ -89,15 +89,15 @@
           ]
         },
         {
-          "type": "block",
+          "type": "blockContainer",
           "attrs": {
             "id": 8
           },
           "content": [
             {
-              "type": "headingContent",
+              "type": "heading",
               "attrs": {
-                "headingLevel": "3"
+                "level": "3"
               },
               "content": [
                 {
@@ -109,13 +109,13 @@
           ]
         },
         {
-          "type": "block",
+          "type": "blockContainer",
           "attrs": {
             "id": 5
           },
           "content": [
             {
-              "type": "textContent"
+              "type": "paragraph"
             }
           ]
         }

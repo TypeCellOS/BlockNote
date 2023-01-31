@@ -5,13 +5,13 @@
       "type": "blockGroup",
       "content": [
         {
-          "type": "block",
+          "type": "blockContainer",
           "attrs": {
             "id": 0
           },
           "content": [
             {
-              "type": "textContent",
+              "type": "paragraph",
               "content": [
                 {
                   "type": "text",
@@ -23,13 +23,13 @@
               "type": "blockGroup",
               "content": [
                 {
-                  "type": "block",
+                  "type": "blockContainer",
                   "attrs": {
                     "id": 1
                   },
                   "content": [
                     {
-                      "type": "textContent",
+                      "type": "paragraph",
                       "content": [
                         {
                           "type": "text",
@@ -41,13 +41,13 @@
                       "type": "blockGroup",
                       "content": [
                         {
-                          "type": "block",
+                          "type": "blockContainer",
                           "attrs": {
                             "id": 2
                           },
                           "content": [
                             {
-                              "type": "textContent",
+                              "type": "paragraph",
                               "content": [
                                 {
                                   "type": "text",
@@ -66,24 +66,24 @@
           ]
         },
         {
-          "type": "block",
+          "type": "blockContainer",
           "attrs": {
             "id": 3
           },
           "content": [
             {
-              "type": "textContent"
+              "type": "paragraph"
             }
           ]
         },
         {
-          "type": "block",
+          "type": "blockContainer",
           "attrs": {
             "id": 5
           },
           "content": [
             {
-              "type": "textContent",
+              "type": "paragraph",
               "content": [
                 {
                   "type": "text",
@@ -95,13 +95,13 @@
               "type": "blockGroup",
               "content": [
                 {
-                  "type": "block",
+                  "type": "blockContainer",
                   "attrs": {
                     "id": 6
                   },
                   "content": [
                     {
-                      "type": "textContent",
+                      "type": "paragraph",
                       "content": [
                         {
                           "type": "text",
@@ -113,13 +113,13 @@
                       "type": "blockGroup",
                       "content": [
                         {
-                          "type": "block",
+                          "type": "blockContainer",
                           "attrs": {
                             "id": 7
                           },
                           "content": [
                             {
-                              "type": "textContent",
+                              "type": "paragraph",
                               "content": [
                                 {
                                   "type": "text",
@@ -138,13 +138,13 @@
           ]
         },
         {
-          "type": "block",
+          "type": "blockContainer",
           "attrs": {
             "id": 8
           },
           "content": [
             {
-              "type": "textContent"
+              "type": "paragraph"
             }
           ]
         }

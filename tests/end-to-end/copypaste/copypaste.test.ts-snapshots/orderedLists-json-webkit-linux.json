@@ -5,16 +5,15 @@
       "type": "blockGroup",
       "content": [
         {
-          "type": "block",
+          "type": "blockContainer",
           "attrs": {
             "id": 0
           },
           "content": [
             {
-              "type": "listItemContent",
+              "type": "numberedListItem",
               "attrs": {
-                "listItemType": "ordered",
-                "listItemIndex": "1"
+                "index": "1"
               },
               "content": [
                 {
@@ -26,16 +25,15 @@
           ]
         },
         {
-          "type": "block",
+          "type": "blockContainer",
           "attrs": {
             "id": 2
           },
           "content": [
             {
-              "type": "listItemContent",
+              "type": "numberedListItem",
               "attrs": {
-                "listItemType": "ordered",
-                "listItemIndex": "2"
+                "index": "2"
               },
               "content": [
                 {
@@ -47,16 +45,15 @@
           ]
         },
         {
-          "type": "block",
+          "type": "blockContainer",
           "attrs": {
             "id": 3
           },
           "content": [
             {
-              "type": "listItemContent",
+              "type": "numberedListItem",
               "attrs": {
-                "listItemType": "ordered",
-                "listItemIndex": "3"
+                "index": "3"
               },
               "content": [
                 {
@@ -68,27 +65,26 @@
           ]
         },
         {
-          "type": "block",
+          "type": "blockContainer",
           "attrs": {
             "id": 1
           },
           "content": [
             {
-              "type": "textContent"
+              "type": "paragraph"
             }
           ]
         },
         {
-          "type": "block",
+          "type": "blockContainer",
           "attrs": {
             "id": 5
           },
           "content": [
             {
-              "type": "listItemContent",
+              "type": "numberedListItem",
               "attrs": {
-                "listItemType": "ordered",
-                "listItemIndex": "1"
+                "index": "1"
               },
               "content": [
                 {
@@ -100,16 +96,15 @@
           ]
         },
         {
-          "type": "block",
+          "type": "blockContainer",
           "attrs": {
             "id": 6
           },
           "content": [
             {
-              "type": "listItemContent",
+              "type": "numberedListItem",
               "attrs": {
-                "listItemType": "ordered",
-                "listItemIndex": "2"
+                "index": "2"
               },
               "content": [
                 {
@@ -121,16 +116,15 @@
           ]
         },
         {
-          "type": "block",
+          "type": "blockContainer",
           "attrs": {
             "id": 7
           },
           "content": [
             {
-              "type": "listItemContent",
+              "type": "numberedListItem",
               "attrs": {
-                "listItemType": "ordered",
-                "listItemIndex": "3"
+                "index": "3"
               },
               "content": [
                 {
@@ -142,13 +136,13 @@
           ]
         },
         {
-          "type": "block",
+          "type": "blockContainer",
           "attrs": {
             "id": 8
           },
           "content": [
             {
-              "type": "textContent"
+              "type": "paragraph"
             }
           ]
         }
