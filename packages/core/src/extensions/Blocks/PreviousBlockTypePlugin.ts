@@ -106,23 +106,23 @@ export const PreviousBlockTypePlugin = () => {
                 depth: oldState.doc.resolve(oldNode.pos).depth,
               };
 
-              // Hacky fix to avoid processing certain transactions created by numbered list indexing plugin.
+              // Hacky fix to avoid processing certain transactions created by the numbered list indexing plugin.
 
-              // True when an existing ordered list item is assigned an index for the first time, which happens
+              // True when an existing numbered list item is assigned an index for the first time, which happens
               // immediately after it's created. Using this condition to start an animation ensures it's not
-              // immediately overridden by a different transaction created by the ordered list indexing plugin.
+              // immediately overridden by a different transaction created by the numbered list indexing plugin.
               const indexInitialized =
                 oldAttrs.index === null && newAttrs.index !== null;
 
-              // True when an existing ordered list item changes nesting levels, before its index is updated by the
-              // ordered list indexing plugin. This condition ensures that animations for indentation still work with
-              // ordered list items, while preventing unnecessary animations being done when dragging/dropping them.
+              // True when an existing numbered list item changes nesting levels, before its index is updated by the
+              // numbered list indexing plugin. This condition ensures that animations for indentation still work with
+              // numbered list items, while preventing unnecessary animations being done when dragging/dropping them.
               const depthChanged =
                 oldAttrs.index !== null &&
                 newAttrs.index !== null &&
                 oldAttrs.index === newAttrs.index;
 
-              // Only false for transactions in which the block remains an ordered list item before & after, but neither
+              // Only false for transactions in which the block remains a numbered list item before & after, but neither
               // of the previous conditions apply.
               const shouldUpdate =
                 oldAttrs.type === "numberedListItem" &&
