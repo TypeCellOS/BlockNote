@@ -49,7 +49,7 @@ export const ReactElementFactory = <
           isOpen={false}
           staticParams={staticParams}
           dynamicParams={undefined}
-          editorElementComponent={EditorElementComponent}
+          editorElementComponent={() => <div />}
           tippyProps={tippyProps}
         />
       );
