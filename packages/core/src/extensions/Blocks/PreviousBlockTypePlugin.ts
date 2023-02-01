@@ -42,9 +42,12 @@ export const PreviousBlockTypePlugin = () => {
     state: {
       init() {
         return {
-          prevBlockAttrs: {} as any,
+          // Block attributes, by block ID, from just before the previous transaction.
+          prevTransactionOldBlockAttrs: {} as any,
+          // Block attributes, by block ID, from just before the current transaction.
+          currentTransactionOldBlockAttrs: {} as any,
+          // Set of IDs of blocks whose attributes changed from the current transaction.
           updatedBlocks: new Set<string>(),
-          prevTransactionOldAttrs: {} as any,
         };
       },
 
@@ -55,7 +58,7 @@ export const PreviousBlockTypePlugin = () => {
           return prev;
         }
 
-        const prevTransactionOldAttrs = {} as any;
+        const prevTransactionOldBlockAttrs = {} as any;
 
         const oldNodes = findChildren(oldState.doc, (node) => node.attrs.id);
         const oldNodesById = new Map(
@@ -86,7 +89,7 @@ export const PreviousBlockTypePlugin = () => {
               depth: oldState.doc.resolve(oldNode.pos).depth,
             };
 
-            prevTransactionOldAttrs[node.node.attrs.id] = oldAttrs;
+            prevTransactionOldBlockAttrs[node.node.attrs.id] = oldAttrs;
 
             // Whenever a transaction is appended by the OrderedListItemIndexPlugin, it's given the metadata:
             // { "orderedListIndexing": true }
@@ -95,11 +98,12 @@ export const PreviousBlockTypePlugin = () => {
             // immediately overridden when the PreviousBlockTypePlugin processes the appended transaction, despite only
             // the listItemIndex attribute changing. To solve this, oldAttrs must be edited for transactions with the
             // "orderedListIndexing" metadata, so the correct animation can be re-triggered.
-            if (transaction.getMeta("orderedListIndexing")) {
+            if (transaction.getMeta("numberedListIndexing")) {
               // If the block existed before the transaction, gets the attributes from before the previous transaction
               // (i.e. the transaction that caused list item indices to need updating).
-              if (node.node.attrs.id in prev.prevTransactionOldAttrs) {
-                oldAttrs = prev.prevTransactionOldAttrs[node.node.attrs.id];
+              if (node.node.attrs.id in prev.prevTransactionOldBlockAttrs) {
+                oldAttrs =
+                  prev.prevTransactionOldBlockAttrs[node.node.attrs.id];
               }
 
               // Stops list item indices themselves being animated (looks smoother), unless the block's content type is
@@ -109,7 +113,7 @@ export const PreviousBlockTypePlugin = () => {
               }
             }
 
-            prev.prevBlockAttrs[node.node.attrs.id] = oldAttrs;
+            prev.currentTransactionOldBlockAttrs[node.node.attrs.id] = oldAttrs;
 
             // TODO: faster deep equal?
             if (JSON.stringify(oldAttrs) !== JSON.stringify(newAttrs)) {
@@ -117,21 +121,21 @@ export const PreviousBlockTypePlugin = () => {
                 oldAttrs.depth - newAttrs.depth;
 
               // for debugging:
-              console.log(
-                "id:",
-                node.node.attrs.id,
-                "previousBlockTypePlugin changes detected, oldAttrs",
-                oldAttrs,
-                "new",
-                newAttrs
-              );
+              // console.log(
+              //   "id:",
+              //   node.node.attrs.id,
+              //   "previousBlockTypePlugin changes detected, oldAttrs",
+              //   oldAttrs,
+              //   "new",
+              //   newAttrs
+              // );
 
               prev.updatedBlocks.add(node.node.attrs.id);
             }
           }
         }
 
-        prev.prevTransactionOldAttrs = prevTransactionOldAttrs;
+        prev.prevTransactionOldBlockAttrs = prevTransactionOldBlockAttrs;
 
         return prev;
       },
