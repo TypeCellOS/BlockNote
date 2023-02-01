@@ -60,7 +60,7 @@ export const PreviousBlockTypePlugin = () => {
           return prev;
         }
 
-        const prevTransactionOldBlockAttrs = {} as any;
+        const currentTransactionOriginalOldBlockAttrs = {} as any;
 
         const oldNodes = findChildren(oldState.doc, (node) => node.attrs.id);
         const oldNodesById = new Map(
@@ -68,26 +68,30 @@ export const PreviousBlockTypePlugin = () => {
         );
         const newNodes = findChildren(newState.doc, (node) => node.attrs.id);
 
-          for (let node of newNodes) {
-            const oldNode = oldNodesById.get(node.node.attrs.id);
-            const oldContentNode = oldNode?.node.firstChild;
-            const newContentNode = node.node.firstChild;
-            if (oldNode && oldContentNode && newContentNode) {
-              const newAttrs = {
-                index: newContentNode.attrs.index,
-                level: newContentNode.attrs.level,
-                type: newContentNode.type.name,
-                depth: newState.doc.resolve(node.pos).depth,
-              };
+        // Traverses all block containers in the new editor state.
+        for (let node of newNodes) {
+          const oldNode = oldNodesById.get(node.node.attrs.id);
 
-              const oldAttrs = {
-                index: oldContentNode.attrs.index,
-                level: oldContentNode.attrs.level,
-                type: oldContentNode.type.name,
-                depth: oldState.doc.resolve(oldNode.pos).depth,
-              };
+          const oldContentNode = oldNode?.node.firstChild;
+          const newContentNode = node.node.firstChild;
 
-            prevTransactionOldBlockAttrs[node.node.attrs.id] = oldAttrs;
+          if (oldNode && oldContentNode && newContentNode) {
+            const newAttrs = {
+              index: newContentNode.attrs.index,
+              level: newContentNode.attrs.level,
+              type: newContentNode.type.name,
+              depth: newState.doc.resolve(node.pos).depth,
+            };
+
+            let oldAttrs = {
+              index: oldContentNode.attrs.index,
+              level: oldContentNode.attrs.level,
+              type: oldContentNode.type.name,
+              depth: oldState.doc.resolve(oldNode.pos).depth,
+            };
+
+            currentTransactionOriginalOldBlockAttrs[node.node.attrs.id] =
+              oldAttrs;
 
             // Whenever a transaction is appended by the OrderedListItemIndexPlugin, it's given the metadata:
             // { "orderedListIndexing": true }
@@ -105,8 +109,8 @@ export const PreviousBlockTypePlugin = () => {
               }
 
               // Stops list item indices themselves being animated (looks smoother), unless the block's content type is
-              // changing from an ordered list item to something else.
-              if (newAttrs.index) {
+              // changing from a numbered list item to something else.
+              if (newAttrs.type === "numberedListItem") {
                 oldAttrs.index = newAttrs.index;
               }
             }
@@ -133,7 +137,8 @@ export const PreviousBlockTypePlugin = () => {
           }
         }
 
-        prev.prevTransactionOldBlockAttrs = prevTransactionOldBlockAttrs;
+        prev.prevTransactionOldBlockAttrs =
+          currentTransactionOriginalOldBlockAttrs;
 
         return prev;
       },
@@ -156,7 +161,8 @@ export const PreviousBlockTypePlugin = () => {
             return;
           }
 
-          const prevAttrs = pluginState.prevBlockAttrs[node.attrs.id];
+          const prevAttrs =
+            pluginState.currentTransactionOldBlockAttrs[node.attrs.id];
           const decorationAttrs: any = {};
 
           for (let [nodeAttr, val] of Object.entries(prevAttrs)) {
