@@ -5,13 +5,13 @@
       "type": "blockGroup",
       "content": [
         {
-          "type": "block",
+          "type": "blockContainer",
           "attrs": {
             "id": 1
           },
           "content": [
             {
-              "type": "textContent"
+              "type": "paragraph"
             }
           ]
         }

@@ -1,12 +1,4 @@
-import {
-  RiH1,
-  RiH2,
-  RiH3,
-  RiListOrdered,
-  RiListUnordered,
-  RiText,
-} from "react-icons/ri";
-import { formatKeyboardShortcut } from "../../utils";
+import { formatKeyboardShortcut } from "../../shared/utils";
 import { SlashMenuGroups, SlashMenuItem } from "./SlashMenuItem";
 
 /**
@@ -22,13 +14,15 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         .chain()
         .focus()
         .deleteRange(range)
-        .BNCreateBlockOrSetContentType(range.from, "headingContent", {
-          headingLevel: "1",
+        .BNCreateOrUpdateBlock(range.from, {
+          type: "heading",
+          props: {
+            level: "1",
+          },
         })
         .run();
     },
     ["h", "heading1", "h1"],
-    RiH1,
     "Used for a top-level heading",
     formatKeyboardShortcut("Mod-Alt-1")
   ),
@@ -42,13 +36,15 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         .chain()
         .focus()
         .deleteRange(range)
-        .BNCreateBlockOrSetContentType(range.from, "headingContent", {
-          headingLevel: "2",
+        .BNCreateOrUpdateBlock(range.from, {
+          type: "heading",
+          props: {
+            level: "2",
+          },
         })
         .run();
     },
     ["h2", "heading2", "subheading"],
-    RiH2,
     "Used for key sections",
     formatKeyboardShortcut("Mod-Alt-2")
   ),
@@ -62,13 +58,15 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         .chain()
         .focus()
         .deleteRange(range)
-        .BNCreateBlockOrSetContentType(range.from, "headingContent", {
-          headingLevel: "3",
+        .BNCreateOrUpdateBlock(range.from, {
+          type: "heading",
+          props: {
+            level: "3",
+          },
         })
         .run();
     },
     ["h3", "heading3", "subheading"],
-    RiH3,
     "Used for subsections and group headings",
     formatKeyboardShortcut("Mod-Alt-3")
   ),
@@ -82,13 +80,13 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         .chain()
         .focus()
         .deleteRange(range)
-        .BNCreateBlockOrSetContentType(range.from, "listItemContent", {
-          listItemType: "ordered",
+        .BNCreateOrUpdateBlock(range.from, {
+          type: "numberedListItem",
+          props: {},
         })
         .run();
     },
     ["li", "list", "numberedlist", "numbered list"],
-    RiListOrdered,
     "Used to display a numbered list",
     formatKeyboardShortcut("Mod-Shift-7")
   ),
@@ -102,13 +100,13 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         .chain()
         .focus()
         .deleteRange(range)
-        .BNCreateBlockOrSetContentType(range.from, "listItemContent", {
-          listItemType: "unordered",
+        .BNCreateOrUpdateBlock(range.from, {
+          type: "bulletListItem",
+          props: {},
         })
         .run();
     },
     ["ul", "list", "bulletlist", "bullet list"],
-    RiListUnordered,
     "Used to display an unordered list",
     formatKeyboardShortcut("Mod-Shift-8")
   ),
@@ -122,11 +120,13 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         .chain()
         .focus()
         .deleteRange(range)
-        .BNCreateBlockOrSetContentType(range.from, "textContent")
+        .BNCreateOrUpdateBlock(range.from, {
+          type: "paragraph",
+          props: {},
+        })
         .run();
     },
     ["p"],
-    RiText,
     "Used for the body of your document",
     formatKeyboardShortcut("Mod-Alt-0")
   ),

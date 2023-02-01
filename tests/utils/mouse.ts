@@ -15,6 +15,14 @@ async function getElementRightCoords(page: Page, element: Locator) {
   return { x: boundingBox.x + boundingBox.width - 1, y: centerY };
 }
 
+async function getElementCenterCoords(page: Page, element: Locator) {
+  const boundingBox = await element.boundingBox();
+  const centerX = boundingBox.x + boundingBox.width / 2;
+  const centerY = boundingBox.y + boundingBox.height / 2;
+
+  return { x: centerX, y: centerY };
+}
+
 export async function moveMouseOverElement(page: Page, element: Locator) {
   const boundingBox = await element.boundingBox();
   const coords = { x: boundingBox.x, y: boundingBox.y };
@@ -31,7 +39,10 @@ export async function dragAndDropBlock(
 
   await page.waitForSelector(DRAG_HANDLE_SELECTOR);
   const dragHandle = await page.locator(DRAG_HANDLE_SELECTOR);
-  await moveMouseOverElement(page, dragHandle);
+  const dragHandleCenterCoords = await getElementCenterCoords(page, dragHandle);
+  await page.mouse.move(dragHandleCenterCoords.x, dragHandleCenterCoords.y, {
+    steps: 5,
+  });
   await page.mouse.down();
 
   const dropTargetCoords = dropAbove

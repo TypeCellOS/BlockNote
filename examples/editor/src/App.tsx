@@ -1,14 +1,12 @@
 // import logo from './logo.svg'
-import { EditorContent, useEditor } from "@blocknote/core";
 import "@blocknote/core/style.css";
-import { Editor } from "@tiptap/core";
+import { BlockNoteView, useBlockNote } from "@blocknote/react";
 import styles from "./App.module.css";
 
-type WindowWithProseMirror = Window &
-  typeof globalThis & { ProseMirror: Editor };
+type WindowWithProseMirror = Window & typeof globalThis & { ProseMirror: any };
 
 function App() {
-  const editor = useEditor({
+  const editor = useBlockNote({
     onUpdate: ({ editor }) => {
       console.log(editor.getJSON());
       (window as WindowWithProseMirror).ProseMirror = editor; // Give tests a way to get editor instance
@@ -21,7 +19,7 @@ function App() {
     },
   });
 
-  return <EditorContent editor={editor} />;
+  return <BlockNoteView editor={editor} />;
 }
 
 export default App;

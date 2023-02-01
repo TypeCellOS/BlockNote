@@ -1,8 +1,10 @@
 import { Editor, Extension } from "@tiptap/core";
 import { Node as ProsemirrorNode } from "prosemirror-model";
+import { Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
-import { Plugin } from "prosemirror-state";
 import { SlashMenuPluginKey } from "../SlashMenu/SlashMenuExtension";
+
+const PLUGIN_KEY = new PluginKey(`blocknote-placeholder`);
 
 /**
  * This is a modified version of the tiptap
@@ -48,6 +50,7 @@ export const Placeholder = Extension.create<PlaceholderOptions>({
   addProseMirrorPlugins() {
     return [
       new Plugin({
+        key: PLUGIN_KEY,
         props: {
           decorations: (state) => {
             const { doc, selection } = state;
@@ -78,7 +81,7 @@ export const Placeholder = Extension.create<PlaceholderOptions>({
                 }
 
                 // If slash menu is of drag type and active, show the filter placeholder
-                if (menuState.type === "drag" && menuState.active) {
+                if (menuState?.type === "drag" && menuState?.active) {
                   classes.push(this.options.isFilterClass);
                 }
                 // using widget, didn't work (caret position bug)

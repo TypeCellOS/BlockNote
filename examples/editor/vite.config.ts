@@ -8,16 +8,23 @@ export default defineConfig((conf) => ({
   optimizeDeps: {
     // link: ['vite-react-ts-components'],
   },
+  build: {
+    sourcemap: true,
+  },
   resolve: {
     alias:
       conf.command === "build"
         ? {}
         : {
-            // Comment out the line below to load a built version of blocknote
+            // Comment out the lines below to load a built version of blocknote
             // or, keep as is to load live from sources with live reload working
             "@blocknote/core": path.resolve(
               __dirname,
               "../../packages/core/src/"
+            ),
+            "@blocknote/react": path.resolve(
+              __dirname,
+              "../../packages/react/src/"
             ),
           },
   },

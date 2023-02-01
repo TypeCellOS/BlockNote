@@ -5,9 +5,11 @@ import { Decoration, DecorationSet } from "prosemirror-view";
 const PLUGIN_KEY = new PluginKey(`previous-blocks`);
 
 const nodeAttributes: Record<string, string> = {
-  listItemType: "list-item-type",
-  listItemIndex: "list-item-index",
-  headingLevel: "heading-level",
+  // Numbered List Items
+  index: "index",
+  // Headings
+  level: "level",
+  // All Blocks
   type: "type",
   depth: "depth",
   "depth-change": "depth-change",
@@ -66,28 +68,24 @@ export const PreviousBlockTypePlugin = () => {
         );
         const newNodes = findChildren(newState.doc, (node) => node.attrs.id);
 
-        for (let node of newNodes) {
-          const oldNode = oldNodesById.get(node.node.attrs.id);
+          for (let node of newNodes) {
+            const oldNode = oldNodesById.get(node.node.attrs.id);
+            const oldContentNode = oldNode?.node.firstChild;
+            const newContentNode = node.node.firstChild;
+            if (oldNode && oldContentNode && newContentNode) {
+              const newAttrs = {
+                index: newContentNode.attrs.index,
+                level: newContentNode.attrs.level,
+                type: newContentNode.type.name,
+                depth: newState.doc.resolve(node.pos).depth,
+              };
 
-          const oldContentNode = oldNode?.node.firstChild;
-          const newContentNode = node.node.firstChild;
-
-          if (oldNode && oldContentNode && newContentNode) {
-            const newAttrs = {
-              listItemType: newContentNode.attrs.listItemType,
-              listItemIndex: newContentNode.attrs.listItemIndex,
-              headingLevel: newContentNode.attrs.headingLevel,
-              type: newContentNode.type.name,
-              depth: newState.doc.resolve(node.pos).depth,
-            };
-
-            let oldAttrs = {
-              listItemType: oldContentNode.attrs.listItemType,
-              listItemIndex: oldContentNode.attrs.listItemIndex,
-              headingLevel: oldContentNode.attrs.headingLevel,
-              type: oldContentNode.type.name,
-              depth: oldState.doc.resolve(oldNode.pos).depth,
-            };
+              const oldAttrs = {
+                index: oldContentNode.attrs.index,
+                level: oldContentNode.attrs.level,
+                type: oldContentNode.type.name,
+                depth: oldState.doc.resolve(oldNode.pos).depth,
+              };
 
             prevTransactionOldBlockAttrs[node.node.attrs.id] = oldAttrs;
 
@@ -108,8 +106,8 @@ export const PreviousBlockTypePlugin = () => {
 
               // Stops list item indices themselves being animated (looks smoother), unless the block's content type is
               // changing from an ordered list item to something else.
-              if (newAttrs.listItemIndex) {
-                oldAttrs.listItemIndex = newAttrs.listItemIndex;
+              if (newAttrs.index) {
+                oldAttrs.index = newAttrs.index;
               }
             }
 
