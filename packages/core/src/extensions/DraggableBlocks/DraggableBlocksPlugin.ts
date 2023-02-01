@@ -3,17 +3,17 @@ import { Node } from "prosemirror-model";
 import { NodeSelection, Plugin, PluginKey, Selection } from "prosemirror-state";
 import * as pv from "prosemirror-view";
 import { EditorView } from "prosemirror-view";
-import { MultipleNodeSelection } from "../Blocks/MultipleNodeSelection";
-import { DraggableBlocksOptions } from "./DraggableBlocksExtension";
+import styles from "../../editor.module.css";
+import { getBlockInfoFromPos } from "../Blocks/helpers/getBlockInfoFromPos";
+import { SlashMenuPluginKey } from "../SlashMenu/SlashMenuExtension";
 import {
   BlockSideMenu,
   BlockSideMenuDynamicParams,
   BlockSideMenuFactory,
   BlockSideMenuStaticParams,
 } from "./BlockSideMenuFactoryTypes";
-import { getBlockInfoFromPos } from "../Blocks/helpers/getBlockInfoFromPos";
-import { SlashMenuPluginKey } from "../SlashMenu/SlashMenuExtension";
-import styles from "../../editor.module.css";
+import { DraggableBlocksOptions } from "./DraggableBlocksExtension";
+import { MultipleNodeSelection } from "./MultipleNodeSelection";
 
 const serializeForClipboard = (pv as any).__serializeForClipboard;
 // code based on https://github.com/ueberdosis/tiptap/issues/323#issuecomment-506637799
@@ -377,7 +377,7 @@ export class BlockMenuView {
       this.editor
         .chain()
         .BNCreateBlock(newBlockInsertionPos)
-        .BNSetContentType(newBlockContentPos, { name: "textContent" })
+        .BNUpdateBlock(newBlockContentPos, { type: "paragraph", props: {} })
         .setTextSelection(newBlockContentPos)
         .run();
     }

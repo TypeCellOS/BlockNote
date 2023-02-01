@@ -115,34 +115,34 @@ NESTED BLOCKS
 }
 
 /* HEADINGS*/
-[data-heading-level="1"] {
+[data-level="1"] {
   --level: 3em;
 }
-[data-heading-level="2"] {
+[data-level="2"] {
   --level: 2em;
 }
-[data-heading-level="3"] {
+[data-level="3"] {
   --level: 1.3em;
 }
 
-[data-prev-heading-level="1"] {
+[data-prev-level="1"] {
   --prev-level: 3em;
 }
-[data-prev-heading-level="2"] {
+[data-prev-level="2"] {
   --prev-level: 2em;
 }
-[data-prev-heading-level="3"] {
+[data-prev-level="3"] {
   --prev-level: 1.3em;
 }
 
-.blockOuter[data-prev-type="headingContent"] > .block > .blockContent {
+.blockOuter[data-prev-type="heading"] > .block > .blockContent {
   font-size: var(--prev-level);
   font-weight: bold;
 }
 
 .blockOuter:not([data-prev-type])
   > .block
-  > .blockContent[data-content-type="headingContent"] {
+  > .blockContent[data-content-type="heading"] {
   font-size: var(--level);
   font-weight: bold;
 }
@@ -155,15 +155,15 @@ NESTED BLOCKS
 }
 
 /* Ordered */
-[data-list-item-type="ordered"] {
-  --index: attr(data-list-item-index)
+[data-content-type="numberedListItem"] {
+  --index: attr(data-index)
 }
 
-[data-prev-list-item-type="ordered"] {
-  --prev-index: attr(data-prev-list-item-index)
+[data-prev-type="numberedListItem"] {
+  --prev-index: attr(data-prev-index)
 }
 
-.blockOuter[data-prev-list-item-type="ordered"]:not([data-prev-list-item-index="none"])
+.blockOuter[data-prev-type="numberedListItem"]:not([data-prev-index="none"])
 > .block
 > .blockContent::before {
   margin-right: 1.2em;
@@ -172,14 +172,14 @@ NESTED BLOCKS
 
 .blockOuter:not([data-prev-type])
 > .block
-> .blockContent[data-list-item-type="ordered"]::before {
+> .blockContent[data-content-type="numberedListItem"]::before {
   margin-right: 1.2em;
   content: var(--index)".";
 }
 
 /* Unordered */
 /* No list nesting */
-.blockOuter[data-prev-list-item-type="unordered"]
+.blockOuter[data-prev-type="bulletListItem"]
 > .block
 > .blockContent::before {
   margin-right: 1.2em;
@@ -188,43 +188,43 @@ NESTED BLOCKS
 
 .blockOuter:not([data-prev-type])
 > .block
-> .blockContent[data-list-item-type="unordered"]::before {
+> .blockContent[data-content-type="bulletListItem"]::before {
   margin-right: 1.2em;
   content: "•";
 }
 
 /* 1 level of list nesting */
-[data-list-item-type="unordered"]~.blockGroup
-> .blockOuter[data-prev-list-item-type="unordered"]
+[data-content-type="bulletListItem"]~.blockGroup
+> .blockOuter[data-prev-type="bulletListItem"]
 > .block
 > .blockContent::before {
   margin-right: 1.2em;
   content: "◦";
 }
 
-[data-list-item-type="unordered"]~.blockGroup
+[data-content-type="bulletListItem"]~.blockGroup
 > .blockOuter:not([data-prev-type])
 > .block
-> .blockContent[data-list-item-type="unordered"]::before {
+> .blockContent[data-content-type="bulletListItem"]::before {
   margin-right: 1.2em;
   content: "◦";
 }
 
 /* 2 levels of list nesting */
-[data-list-item-type="unordered"]~.blockGroup
-[data-list-item-type="unordered"]~.blockGroup
-> .blockOuter[data-prev-list-item-type="unordered"]
+[data-content-type="bulletListItem"]~.blockGroup
+[data-content-type="bulletListItem"]~.blockGroup
+> .blockOuter[data-prev-type="bulletListItem"]
 > .block
 > .blockContent::before {
   margin-right: 1.2em;
   content: "▪";
 }
 
-[data-list-item-type="unordered"]~.blockGroup
-[data-list-item-type="unordered"]~.blockGroup
+[data-content-type="bulletListItem"]~.blockGroup
+[data-content-type="bulletListItem"]~.blockGroup
 > .blockOuter:not([data-prev-type])
 > .block
-> .blockContent[data-list-item-type="unordered"]::before {
+> .blockContent[data-content-type="bulletListItem"]::before {
   margin-right: 1.2em;
   content: "▪";
 }
@@ -257,12 +257,14 @@ NESTED BLOCKS
   content: "Type to filter";
 }
 
-.blockContent[data-content-type="headingContent"].isEmpty
+.blockContent[data-content-type="heading"].isEmpty
   > :first-child::before {
   content: "Heading";
 }
 
-.blockContent[data-content-type="listItemContent"].isEmpty
-  > :first-child:before {
+.blockContent[data-content-type="bulletListItem"].isEmpty
+> :first-child:before,
+.blockContent[data-content-type="numberedListItem"].isEmpty
+> :first-child:before {
   content: "List";
 }
