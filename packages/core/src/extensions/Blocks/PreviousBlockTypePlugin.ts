@@ -54,11 +54,32 @@ export const PreviousBlockTypePlugin = () => {
       },
 
       apply(transaction, prev, oldState, newState) {
+        prev.currentTransactionOldBlockAttrs = {};
         prev.updatedBlocks.clear();
 
         if (!transaction.docChanged || oldState.doc.eq(newState.doc)) {
           return prev;
         }
+
+        // TODO: Instead of iterating through the entire document, only check nodes affected by the transactions. Will
+        //  also probably require checking nodes affected by the previous transaction too.
+        // We didn't get this to work yet:
+        // const transform = combineTransactionSteps(oldState.doc, [transaction]);
+        // // const { mapping } = transform;
+        // const changes = getChangedRanges(transform);
+        //
+        // changes.forEach(({ oldRange, newRange }) => {
+        // const oldNodes = findChildrenInRange(
+        //   oldState.doc,
+        //   oldRange,
+        //   (node) => node.attrs.id
+        // );
+        //
+        // const newNodes = findChildrenInRange(
+        //   newState.doc,
+        //   newRange,
+        //   (node) => node.attrs.id
+        // );
 
         const currentTransactionOriginalOldBlockAttrs = {} as any;
 
