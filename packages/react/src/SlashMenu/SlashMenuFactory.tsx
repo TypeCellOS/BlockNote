@@ -6,7 +6,7 @@ import {
   SuggestionsMenuStaticParams,
 } from "@blocknote/core";
 import { SlashMenu } from "./components/SlashMenu";
-import { ElementFactory as ReactElementFactory } from "../ElementFactory";
+import { ReactElementFactory } from "../ElementFactory/components/ReactElementFactory";
 
 export const ReactSlashMenuFactory: SuggestionsMenuFactory<SlashMenuItem> = (
   staticParams

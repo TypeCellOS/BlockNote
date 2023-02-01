@@ -5,7 +5,7 @@ import {
   BlockSideMenuStaticParams,
 } from "@blocknote/core";
 import { BlockSideMenu as ReactBlockSideMenu } from "./components/BlockSideMenu";
-import { ElementFactory as ReactElementFactory } from "../ElementFactory";
+import { ReactElementFactory } from "../ElementFactory/components/ReactElementFactory";
 
 export const ReactBlockSideMenuFactory: BlockSideMenuFactory = (
   staticParams

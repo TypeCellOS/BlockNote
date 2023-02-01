@@ -5,7 +5,7 @@ import {
   FormattingToolbarDynamicParams,
 } from "@blocknote/core";
 import { FormattingToolbar as ReactFormattingToolbar } from "./components/FormattingToolbar";
-import { ElementFactory as ReactElementFactory } from "../ElementFactory";
+import { ReactElementFactory } from "../ElementFactory/components/ReactElementFactory";
 
 export const ReactFormattingToolbarFactory: FormattingToolbarFactory = (
   staticParams
