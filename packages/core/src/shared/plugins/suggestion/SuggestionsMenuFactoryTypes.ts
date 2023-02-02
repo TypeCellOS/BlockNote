@@ -9,7 +9,7 @@ export type SuggestionsMenuDynamicParams<T extends SuggestionItem> = {
   items: T[];
   selectedItemIndex: number;
 
-  queryStartBoundingBox: DOMRect;
+  referenceRect: DOMRect;
 };
 
 export type SuggestionsMenu<T extends SuggestionItem> = EditorElement<

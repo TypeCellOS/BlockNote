@@ -22,7 +22,7 @@ export type FormattingToolbarDynamicParams = {
 
   block: Block;
 
-  selectionBoundingBox: DOMRect;
+  referenceRect: DOMRect;
 };
 
 export type FormattingToolbar = EditorElement<FormattingToolbarDynamicParams>;

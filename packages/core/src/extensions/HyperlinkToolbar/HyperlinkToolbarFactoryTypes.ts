@@ -9,7 +9,7 @@ export type HyperlinkToolbarDynamicParams = {
   url: string;
   text: string;
 
-  boundingBox: DOMRect;
+  referenceRect: DOMRect;
 };
 
 export type HyperlinkToolbar = EditorElement<HyperlinkToolbarDynamicParams>;

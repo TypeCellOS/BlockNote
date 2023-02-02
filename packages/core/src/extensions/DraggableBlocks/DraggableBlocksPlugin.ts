@@ -429,7 +429,7 @@ export class BlockMenuView {
     const blockBoundingBox = this.hoveredBlock!.getBoundingClientRect();
 
     return {
-      blockBoundingBox: new DOMRect(
+      referenceRect: new DOMRect(
         this.horizontalPosAnchoredAtRoot
           ? getHorizontalAnchor()
           : blockBoundingBox.x,

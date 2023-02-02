@@ -301,7 +301,7 @@ export class FormattingToolbarView {
         type: blockInfo.contentType.name,
         props: blockInfo.contentNode.attrs,
       } as Block,
-      selectionBoundingBox: this.getSelectionBoundingBox(),
+      referenceRect: this.getSelectionBoundingBox(),
     };
   }
 }
