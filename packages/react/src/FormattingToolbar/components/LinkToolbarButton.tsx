@@ -38,8 +38,8 @@ export const LinkToolbarButton = (props: HyperlinkButtonProps) => {
   }, [props]);
 
   const handleClick = useCallback(
-    (event) => {
-      if (ref.current.contains(event.target as HTMLElement)) {
+    (event: MouseEvent) => {
+      if (ref.current?.contains(event.target as HTMLElement)) {
         setCreationMenuOpen(!creationMenuOpen);
         return;
       }
