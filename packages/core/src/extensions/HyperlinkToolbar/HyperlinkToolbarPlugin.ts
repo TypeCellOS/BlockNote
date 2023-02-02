@@ -166,6 +166,8 @@ class HyperlinkToolbarView {
 
       // Updates menu.
       this.hyperlinkToolbar.render(this.getDynamicParams(), false);
+
+      return;
     }
 
     // Hides menu.

@@ -2,6 +2,7 @@ import { MantineProvider } from "@mantine/core";
 import Tippy, { TippyProps } from "@tippyjs/react";
 import { RequiredDynamicParams } from "@blocknote/core";
 import { BlockNoteTheme } from "../../BlockNoteTheme";
+import { useCallback, useState } from "react";
 
 /**
  * Component used in the ReactElementFactory to wrap the EditorElementComponent in a MantineProvider and Tippy
@@ -19,7 +20,7 @@ export function EditorElementComponentWrapper<
   rootElement: HTMLElement;
   isOpen: boolean;
   staticParams: ElementStaticParams;
-  dynamicParams: ElementDynamicParams | undefined;
+  dynamicParams: ElementDynamicParams;
   editorElementComponent: (
     props: ElementStaticParams & ElementDynamicParams
   ) => JSX.Element;
@@ -27,12 +28,29 @@ export function EditorElementComponentWrapper<
 }) {
   const EditorElementComponent = props.editorElementComponent;
 
+  const [contentCleared, setContentCleared] = useState(false);
+
+  const getReferenceClientRect = useCallback(
+    () => props.dynamicParams!.referenceRect,
+    [props.dynamicParams]
+  );
+
+  const onShow = useCallback(() => {
+    setContentCleared(false);
+    document.body.appendChild(props.rootElement);
+  }, [props.rootElement]);
+
+  const onHidden = useCallback(() => {
+    props.rootElement.remove();
+    setContentCleared(true);
+  }, [props.rootElement]);
+
   return (
     <MantineProvider theme={BlockNoteTheme}>
       <Tippy
         appendTo={props.rootElement}
         content={
-          props.dynamicParams ? (
+          !contentCleared ? (
             <EditorElementComponent
               {...props.staticParams}
               {...props.dynamicParams}
@@ -40,17 +58,11 @@ export function EditorElementComponentWrapper<
           ) : undefined
         }
         getReferenceClientRect={
-          props.dynamicParams
-            ? () => props.dynamicParams!.referenceRect
-            : undefined
+          !contentCleared ? getReferenceClientRect : undefined
         }
         interactive={true}
-        onShow={() => {
-          document.body.appendChild(props.rootElement);
-        }}
-        onHidden={() => {
-          props.rootElement.remove();
-        }}
+        onShow={onShow}
+        onHidden={onHidden}
         visible={props.isOpen}
         {...props.tippyProps}
       />

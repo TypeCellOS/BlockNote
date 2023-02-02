@@ -28,9 +28,15 @@ export const ReactElementFactory = <
   const rootElement = document.createElement("div");
   const root = createRoot(rootElement);
 
+  // Used when hiding the element. If we were to pass in undefined instead, the element would be immediately cleared, not
+  // leaving time for the fade out animation to complete.
+  let prevDynamicParams: ElementDynamicParams | undefined = undefined;
+
   return {
     element: rootElement,
     render: (dynamicParams: ElementDynamicParams, _isHidden: boolean) => {
+      prevDynamicParams = dynamicParams;
+
       root.render(
         <EditorElementComponentWrapper
           rootElement={rootElement}
@@ -48,8 +54,8 @@ export const ReactElementFactory = <
           rootElement={rootElement}
           isOpen={false}
           staticParams={staticParams}
-          dynamicParams={undefined}
-          editorElementComponent={() => <div />}
+          dynamicParams={prevDynamicParams!}
+          editorElementComponent={EditorElementComponent}
           tippyProps={tippyProps}
         />
       );

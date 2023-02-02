@@ -15,5 +15,5 @@ export const ReactHyperlinkToolbarFactory: HyperlinkToolbarFactory = (
     HyperlinkToolbarDynamicParams
   >(staticParams, ReactHyperlinkToolbar, {
     animation: "fade",
-    placement: "top",
+    placement: "top-start",
   });
