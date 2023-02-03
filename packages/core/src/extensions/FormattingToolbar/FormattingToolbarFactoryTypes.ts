@@ -10,6 +10,9 @@ export type FormattingToolbarStaticParams = {
 
   setTextColor: (color: string) => void;
   setBackgroundColor: (color: string) => void;
+  setTextAlignment: (
+    textAlignment: "left" | "center" | "right" | "justify"
+  ) => void;
 
   updateBlock: (blockUpdate: BlockUpdate) => void;
 };
@@ -25,6 +28,7 @@ export type FormattingToolbarDynamicParams = {
 
   textColor: string;
   backgroundColor: string;
+  textAlignment: "left" | "center" | "right" | "justify";
 
   block: Block;
 

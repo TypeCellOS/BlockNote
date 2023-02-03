@@ -1,5 +1,9 @@
 import { ActionIcon } from "@mantine/core";
 import {
+  RiAlignCenter,
+  RiAlignJustify,
+  RiAlignLeft,
+  RiAlignRight,
   RiBold,
   RiH1,
   RiH2,
@@ -41,6 +45,10 @@ export type FormattingToolbarProps = {
   setTextColor: (color: string) => void;
   backgroundColor: string;
   setBackgroundColor: (color: string) => void;
+  textAlignment: "left" | "center" | "right" | "justify";
+  setTextAlignment: (
+    textAlignment: "left" | "center" | "right" | "justify"
+  ) => void;
 
   block: Block;
   updateBlock: (blockUpdate: BlockUpdate) => void;
@@ -221,6 +229,34 @@ export const FormattingToolbar = (props: FormattingToolbarProps) => {
         setTextColor={props.setTextColor}
         backgroundColor={props.backgroundColor}
         setBackgroundColor={props.setBackgroundColor}
+      />
+
+      <ToolbarButton
+        onClick={() => props.setTextAlignment("left")}
+        isSelected={props.textAlignment === "left"}
+        mainTooltip={"Align Text Left"}
+        icon={RiAlignLeft}
+      />
+
+      <ToolbarButton
+        onClick={() => props.setTextAlignment("center")}
+        isSelected={props.textAlignment === "center"}
+        mainTooltip={"Align Text Center"}
+        icon={RiAlignCenter}
+      />
+
+      <ToolbarButton
+        onClick={() => props.setTextAlignment("right")}
+        isSelected={props.textAlignment === "right"}
+        mainTooltip={"Align Text Right"}
+        icon={RiAlignRight}
+      />
+
+      <ToolbarButton
+        onClick={() => props.setTextAlignment("justify")}
+        isSelected={props.textAlignment === "justify"}
+        mainTooltip={"Justify Text"}
+        icon={RiAlignJustify}
       />
 
       <ToolbarButton

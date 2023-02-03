@@ -1,4 +1,4 @@
-import { Node } from "@tiptap/core";
+import { mergeAttributes, Node } from "@tiptap/core";
 import styles from "../../Block.module.css";
 
 export const ParagraphBlockContent = Node.create({
@@ -16,13 +16,13 @@ export const ParagraphBlockContent = Node.create({
     ];
   },
 
-  renderHTML() {
+  renderHTML({ HTMLAttributes }) {
     return [
       "div",
-      {
+      mergeAttributes(HTMLAttributes, {
         class: styles.blockContent,
         "data-content-type": this.name,
-      },
+      }),
       ["p", 0],
     ];
   },

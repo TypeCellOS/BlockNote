@@ -38,10 +38,7 @@ export const TextColorExtension = Extension.create({
       setBlockTextColor:
         (posInBlock, color) =>
         ({ state }) => {
-          const blockInfo = getBlockInfoFromPos(
-            this.editor.state.doc,
-            posInBlock
-          );
+          const blockInfo = getBlockInfoFromPos(state.doc, posInBlock);
           if (blockInfo === undefined) {
             return false;
           }

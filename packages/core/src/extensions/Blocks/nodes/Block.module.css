@@ -336,3 +336,20 @@ NESTED BLOCKS
 [data-background-color="pink"] {
   background-color: #f4dfeb;
 }
+
+/* TEXT ALIGNMENT */
+[data-text-alignment="left"] {
+  text-align: left;
+}
+
+[data-text-alignment="center"] {
+  text-align: center;
+}
+
+[data-text-alignment="right"] {
+  text-align: right;
+}
+
+[data-text-alignment="justify"] {
+  text-align: justify;
+}

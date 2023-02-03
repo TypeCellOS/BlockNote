@@ -199,9 +199,18 @@ export const BlockNoteTheme: MantineThemeOverride = {
       };
     }
 
+    const textAlignments: Record<string, any> = {};
+
+    for (const alignment of ["left", "center", "right", "justify"]) {
+      textAlignments[`[data-text-alignment="${alignment}"]`] = {
+        textAlign: alignment,
+      };
+    }
+
     return {
       ...textColors,
       ...backgroundColors,
+      ...textAlignments,
     };
   },
   other: {

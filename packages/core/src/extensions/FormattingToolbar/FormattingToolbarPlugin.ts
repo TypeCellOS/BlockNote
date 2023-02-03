@@ -274,6 +274,12 @@ export class FormattingToolbarView {
         this.editor.view.focus();
         this.editor.commands.setBackgroundColor(color);
       },
+      setTextAlignment: (
+        textAlignment: "left" | "center" | "right" | "justify"
+      ) => {
+        this.editor.view.focus();
+        this.editor.commands.setTextAlignment(textAlignment);
+      },
       updateBlock: (blockUpdate: BlockUpdate) => {
         this.editor.view.focus();
         this.editor.commands.BNUpdateBlock(
@@ -304,6 +310,9 @@ export class FormattingToolbarView {
       textColor: this.editor.getAttributes("textColor").color || "default",
       backgroundColor:
         this.editor.getAttributes("backgroundColor").color || "default",
+      textAlignment:
+        this.editor.getAttributes(blockInfo.contentType).textAlignment ||
+        "left",
       // Needs type cast as there is no way to create a type that dynamically updates based on which extensions are
       // loaded by the editor.
       block: {
