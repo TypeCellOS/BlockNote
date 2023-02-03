@@ -9,7 +9,7 @@ declare module "@tiptap/core" {
   }
 }
 
-export const BackgroundColor = Mark.create({
+export const BackgroundColorMark = Mark.create({
   name: "backgroundColor",
 
   addAttributes() {

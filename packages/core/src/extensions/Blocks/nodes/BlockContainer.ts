@@ -49,33 +49,6 @@ export const BlockContainer = Node.create<IBlock>({
     };
   },
 
-  addAttributes() {
-    return {
-      backgroundColor: {
-        default: "default",
-        parseHTML: (element) =>
-          element.hasAttribute("data-background-color")
-            ? element.getAttribute("data-background-color")
-            : "default",
-        renderHTML: (attributes) =>
-          attributes.backgroundColor !== "default" && {
-            "data-background-color": attributes.backgroundColor,
-          },
-      },
-      textColor: {
-        default: "default",
-        parseHTML: (element) =>
-          element.hasAttribute("data-text-color")
-            ? element.getAttribute("data-text-color")
-            : "default",
-        renderHTML: (attributes) =>
-          attributes.textColor !== "default" && {
-            "data-text-color": attributes.textColor,
-          },
-      },
-    };
-  },
-
   parseHTML() {
     return [
       {

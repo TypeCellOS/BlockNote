@@ -425,19 +425,7 @@ export class BlockMenuView {
       return;
     }
 
-    const blockInfo = getBlockInfoFromPos(this.editor.state.doc, pos.pos);
-    if (blockInfo === undefined) {
-      return;
-    }
-
-    this.editor.commands.command(({ state }) => {
-      state.tr.setNodeAttribute(
-        blockInfo.startPos - 1,
-        "backgroundColor",
-        color
-      );
-      return true;
-    });
+    this.editor.commands.setBlockBackgroundColor(pos.pos, color);
   }
 
   setBlockTextColor(color: string) {
@@ -455,15 +443,7 @@ export class BlockMenuView {
       return;
     }
 
-    const blockInfo = getBlockInfoFromPos(this.editor.state.doc, pos.pos);
-    if (blockInfo === undefined) {
-      return;
-    }
-
-    this.editor.commands.command(({ state }) => {
-      state.tr.setNodeAttribute(blockInfo.startPos - 1, "textColor", color);
-      return true;
-    });
+    this.editor.commands.setBlockTextColor(pos.pos, color);
   }
 
   getStaticParams(): BlockSideMenuStaticParams {
@@ -487,16 +467,10 @@ export class BlockMenuView {
   getDynamicParams(): BlockSideMenuDynamicParams {
     const blockBoundingBox = this.hoveredBlock!.getBoundingClientRect();
 
-    const pos = this.editor.view.posAtCoords({
-      left: blockBoundingBox.left,
-      top: blockBoundingBox.top,
-    })!;
-
-    const blockInfo = getBlockInfoFromPos(this.editor.state.doc, pos.pos);
-
     return {
-      blockBackgroundColor: blockInfo!.node!.attrs.backgroundColor,
-      blockTextColor: blockInfo!.node!.attrs.textColor,
+      blockBackgroundColor:
+        this.editor.getAttributes("blockContainer").backgroundColor,
+      blockTextColor: this.editor.getAttributes("blockContainer").textColor,
       blockBoundingBox: new DOMRect(
         this.horizontalPosAnchoredAtRoot
           ? getHorizontalAnchor()
