@@ -268,21 +268,11 @@ export class FormattingToolbarView {
       },
       setBlockTextColor: (color: string) => {
         this.editor.view.focus();
-
-        if (color === "default") {
-          this.editor.commands.unsetTextColor();
-        } else {
-          this.editor.commands.setTextColor(color);
-        }
+        this.editor.commands.setTextColor(color);
       },
       setBlockBackgroundColor: (color: string) => {
         this.editor.view.focus();
-
-        if (color === "default") {
-          this.editor.commands.unsetBackgroundColor();
-        } else {
-          this.editor.commands.setBackgroundColor(color);
-        }
+        this.editor.commands.setBackgroundColor(color);
       },
       updateBlock: (blockUpdate: BlockUpdate) => {
         this.editor.view.focus();

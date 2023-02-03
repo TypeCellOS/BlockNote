@@ -4,7 +4,6 @@ declare module "@tiptap/core" {
   interface Commands<ReturnType> {
     backgroundColor: {
       setBackgroundColor: (color: string) => ReturnType;
-      unsetBackgroundColor: () => ReturnType;
     };
   }
 }
@@ -52,11 +51,10 @@ export const BackgroundColorMark = Mark.create({
       setBackgroundColor:
         (color) =>
         ({ commands }) => {
-          return commands.setMark(this.name, { color: color });
-        },
-      unsetBackgroundColor:
-        () =>
-        ({ commands }) => {
+          if (color !== "default") {
+            return commands.setMark(this.name, { color: color });
+          }
+
           return commands.unsetMark(this.name);
         },
     };
