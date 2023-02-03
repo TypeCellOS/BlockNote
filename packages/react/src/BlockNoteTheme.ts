@@ -19,6 +19,30 @@ export const BlockNoteTheme: MantineThemeOverride = {
       "#344563",
       "#172B4D",
     ],
+    textColors: [
+      "#37352f",
+      "#9b9a97",
+      "#64473a",
+      "#e03e3e",
+      "#d9730d",
+      "#dfab01",
+      "#4d6461",
+      "#0b6e99",
+      "#6940a5",
+      "#ad1a72",
+    ],
+    backgroundColors: [
+      "#ffffff",
+      "#ebeced",
+      "#e9e5e3",
+      "#fbe4e4",
+      "#f6e9d9",
+      "#fbf3db",
+      "#ddedea",
+      "#ddebf1",
+      "#eae4f2",
+      "#f4dfeb",
+    ],
   },
   components: {
     Menu: {
@@ -161,6 +185,39 @@ export const BlockNoteTheme: MantineThemeOverride = {
     },
   },
   fontFamily: "Inter",
+  globalStyles: (theme) => {
+    const textColors: Record<string, any> = {};
+    const backgroundColors: Record<string, any> = {};
+
+    for (const color in theme.other.colorIndex) {
+      textColors[`[data-text-color="${color}"]`] = {
+        color: theme.colors["textColors"][theme.other.colorIndex[color]],
+      };
+      backgroundColors[`[data-background-color="${color}"]`] = {
+        backgroundColor:
+          theme.colors["backgroundColors"][theme.other.colorIndex[color]],
+      };
+    }
+
+    return {
+      ...textColors,
+      ...backgroundColors,
+    };
+  },
+  other: {
+    colorIndex: {
+      default: 0,
+      gray: 1,
+      brown: 2,
+      red: 3,
+      orange: 4,
+      yellow: 5,
+      green: 6,
+      blue: 7,
+      purple: 8,
+      pink: 9,
+    },
+  },
   primaryColor: "brandFinal",
   primaryShade: 9,
 };

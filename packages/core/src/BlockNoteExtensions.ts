@@ -25,6 +25,8 @@ import { SuggestionsMenuFactory } from "./shared/plugins/suggestion/SuggestionsM
 import { BlockSideMenuFactory } from "./extensions/DraggableBlocks/BlockSideMenuFactoryTypes";
 import { Link } from "@tiptap/extension-link";
 import { SlashMenuItem } from "./extensions/SlashMenu/SlashMenuItem";
+import { BackgroundColor } from "./extensions/BackgroundColor/BackgroundColorMark";
+import { TextColor } from "./extensions/TextColor/TextColorMark";
 
 export type UiFactories = Partial<{
   formattingToolbarFactory: FormattingToolbarFactory;
@@ -70,6 +72,8 @@ export const getBlockNoteExtensions = (uiFactories: UiFactories) => {
     Italic,
     Strike,
     Underline,
+    TextColor,
+    BackgroundColor,
 
     // custom blocks:
     ...blocks,

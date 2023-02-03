@@ -266,6 +266,24 @@ export class FormattingToolbarView {
         );
         this.editor.view.focus();
       },
+      setBlockTextColor: (color: string) => {
+        this.editor.view.focus();
+
+        if (color === "default") {
+          this.editor.commands.unsetTextColor();
+        } else {
+          this.editor.commands.setTextColor(color);
+        }
+      },
+      setBlockBackgroundColor: (color: string) => {
+        this.editor.view.focus();
+
+        if (color === "default") {
+          this.editor.commands.unsetBackgroundColor();
+        } else {
+          this.editor.commands.setBackgroundColor(color);
+        }
+      },
       updateBlock: (blockUpdate: BlockUpdate) => {
         this.editor.view.focus();
         this.editor.commands.BNUpdateBlock(
@@ -288,13 +306,14 @@ export class FormattingToolbarView {
       underlineIsActive: this.editor.isActive("underline"),
       strikeIsActive: this.editor.isActive("strike"),
       hyperlinkIsActive: this.editor.isActive("link"),
-      activeHyperlinkUrl: this.editor.getAttributes("link").href
-        ? this.editor.getAttributes("link").href
-        : "",
+      activeHyperlinkUrl: this.editor.getAttributes("link").href || "",
       activeHyperlinkText: this.editor.state.doc.textBetween(
         this.editor.state.selection.from,
         this.editor.state.selection.to
       ),
+      blockTextColor: this.editor.getAttributes("textColor").color || "default",
+      blockBackgroundColor:
+        this.editor.getAttributes("backgroundColor").color || "default",
       // Needs type cast as there is no way to create a type that dynamically updates based on which extensions are
       // loaded by the editor.
       block: {

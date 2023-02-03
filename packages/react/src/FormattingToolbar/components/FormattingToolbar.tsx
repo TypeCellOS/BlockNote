@@ -1,3 +1,4 @@
+import { ActionIcon } from "@mantine/core";
 import {
   RiBold,
   RiH1,
@@ -19,6 +20,8 @@ import { ToolbarButton } from "../../SharedComponents/Toolbar/components/Toolbar
 import { ToolbarDropdown } from "../../SharedComponents/Toolbar/components/ToolbarDropdown";
 import { formatKeyboardShortcut } from "../../utils";
 import LinkToolbarButton from "./LinkToolbarButton";
+import { ColorPicker } from "../../SharedComponents/ColorPicker/components/ColorPicker";
+import { ColorIcon } from "../../SharedComponents/ColorPicker/components/ColorIcon";
 
 export type FormattingToolbarProps = {
   boldIsActive: boolean;
@@ -33,6 +36,11 @@ export type FormattingToolbarProps = {
   activeHyperlinkUrl: string;
   activeHyperlinkText: string;
   setHyperlink: (url: string, text?: string) => void;
+
+  blockTextColor: string;
+  setBlockTextColor: (color: string) => void;
+  blockBackgroundColor: string;
+  setBlockBackgroundColor: (color: string) => void;
 
   block: Block;
   updateBlock: (blockUpdate: BlockUpdate) => void;
@@ -198,6 +206,23 @@ export const FormattingToolbar = (props: FormattingToolbarProps) => {
         secondaryTooltip={formatKeyboardShortcut("Mod+Shift+X")}
         icon={RiStrikethrough}
       />
+
+      <ColorPicker
+        targetElement={
+          <ActionIcon color={"brandFinal"} size={30}>
+            <ColorIcon
+              textColor={props.blockTextColor}
+              backgroundColor={props.blockBackgroundColor}
+              size={20}
+            />
+          </ActionIcon>
+        }
+        blockTextColor={props.blockTextColor}
+        setBlockTextColor={props.setBlockTextColor}
+        blockBackgroundColor={props.blockBackgroundColor}
+        setBlockBackgroundColor={props.setBlockBackgroundColor}
+      />
+
       <ToolbarButton
         onClick={() => {
           // props.editor.view.focus();

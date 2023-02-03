@@ -10,13 +10,13 @@ export type BlockSideMenuStaticParams = {
   freezeMenu: () => void;
   unfreezeMenu: () => void;
 
-  setBlockBackgroundColor: (color: string) => void;
   setBlockTextColor: (color: string) => void;
+  setBlockBackgroundColor: (color: string) => void;
 };
 
 export type BlockSideMenuDynamicParams = {
-  blockBackgroundColor: string;
   blockTextColor: string;
+  blockBackgroundColor: string;
 
   blockBoundingBox: DOMRect;
 };
