@@ -38,7 +38,7 @@ export const BlockNoteTheme: MantineThemeOverride = {
           ".mantine-Menu-item": {
             color: theme.colors.brandFinal,
             fontSize: "12px",
-            height: "34px",
+            height: "30px",
           },
         },
       }),
@@ -103,7 +103,7 @@ export const BlockNoteTheme: MantineThemeOverride = {
             ".mantine-Menu-item": {
               color: theme.colors.brandFinal,
               fontSize: "12px",
-              height: "34px",
+              height: "30px",
               ".mantine-Menu-itemRightSection": {
                 paddingLeft: "5px",
               },

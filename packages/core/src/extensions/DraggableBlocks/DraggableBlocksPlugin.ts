@@ -410,6 +410,62 @@ export class BlockMenuView {
     this.editor.commands.BNDeleteBlock(pos.pos);
   }
 
+  setBlockBackgroundColor(color: string) {
+    this.menuOpen = false;
+    this.menuFrozen = true;
+    this.blockMenu.hide();
+
+    const blockBoundingBox = this.hoveredBlock!.getBoundingClientRect();
+
+    const pos = this.editor.view.posAtCoords({
+      left: blockBoundingBox.left,
+      top: blockBoundingBox.top,
+    });
+    if (!pos) {
+      return;
+    }
+
+    const blockInfo = getBlockInfoFromPos(this.editor.state.doc, pos.pos);
+    if (blockInfo === undefined) {
+      return;
+    }
+
+    this.editor.commands.command(({ state }) => {
+      state.tr.setNodeAttribute(
+        blockInfo.startPos - 1,
+        "backgroundColor",
+        color
+      );
+      return true;
+    });
+  }
+
+  setBlockTextColor(color: string) {
+    this.menuOpen = false;
+    this.menuFrozen = true;
+    this.blockMenu.hide();
+
+    const blockBoundingBox = this.hoveredBlock!.getBoundingClientRect();
+
+    const pos = this.editor.view.posAtCoords({
+      left: blockBoundingBox.left,
+      top: blockBoundingBox.top,
+    });
+    if (!pos) {
+      return;
+    }
+
+    const blockInfo = getBlockInfoFromPos(this.editor.state.doc, pos.pos);
+    if (blockInfo === undefined) {
+      return;
+    }
+
+    this.editor.commands.command(({ state }) => {
+      state.tr.setNodeAttribute(blockInfo.startPos - 1, "textColor", color);
+      return true;
+    });
+  }
+
   getStaticParams(): BlockSideMenuStaticParams {
     return {
       addBlock: () => this.addBlock(),
@@ -422,13 +478,25 @@ export class BlockMenuView {
       unfreezeMenu: () => {
         this.menuFrozen = false;
       },
+      setBlockBackgroundColor: (color: string) =>
+        this.setBlockBackgroundColor(color),
+      setBlockTextColor: (color: string) => this.setBlockTextColor(color),
     };
   }
 
   getDynamicParams(): BlockSideMenuDynamicParams {
     const blockBoundingBox = this.hoveredBlock!.getBoundingClientRect();
 
+    const pos = this.editor.view.posAtCoords({
+      left: blockBoundingBox.left,
+      top: blockBoundingBox.top,
+    })!;
+
+    const blockInfo = getBlockInfoFromPos(this.editor.state.doc, pos.pos);
+
     return {
+      blockBackgroundColor: blockInfo!.node!.attrs.backgroundColor,
+      blockTextColor: blockInfo!.node!.attrs.textColor,
       blockBoundingBox: new DOMRect(
         this.horizontalPosAnchoredAtRoot
           ? getHorizontalAnchor()
