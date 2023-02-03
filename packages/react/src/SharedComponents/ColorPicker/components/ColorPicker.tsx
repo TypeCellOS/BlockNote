@@ -5,10 +5,10 @@ import { TiTick } from "react-icons/ti";
 export const ColorPicker = (props: {
   targetElement: JSX.Element;
   iconSize?: number;
-  blockTextColor: string;
-  setBlockTextColor: (color: string) => void;
-  blockBackgroundColor: string;
-  setBlockBackgroundColor: (color: string) => void;
+  textColor: string;
+  setTextColor: (color: string) => void;
+  backgroundColor: string;
+  setBackgroundColor: (color: string) => void;
 }) => {
   const Target = props.targetElement;
 
@@ -18,11 +18,11 @@ export const ColorPicker = (props: {
       <Menu.Dropdown>
         <Menu.Label>Text</Menu.Label>
         <Menu.Item
-          onClick={() => props.setBlockTextColor("default")}
+          onClick={() => props.setTextColor("default")}
           component={"div"}
           icon={<ColorIcon textColor={"default"} size={props.iconSize} />}
           rightSection={
-            props.blockTextColor === "default" ? (
+            props.textColor === "default" ? (
               <TiTick size={16} style={{ paddingLeft: "8px" }} />
             ) : (
               <div style={{ width: "24px", padding: "0" }} />
@@ -31,11 +31,11 @@ export const ColorPicker = (props: {
           Default
         </Menu.Item>
         <Menu.Item
-          onClick={() => props.setBlockTextColor("gray")}
+          onClick={() => props.setTextColor("gray")}
           component={"div"}
           icon={<ColorIcon textColor={"gray"} size={props.iconSize} />}
           rightSection={
-            props.blockTextColor === "gray" ? (
+            props.textColor === "gray" ? (
               <TiTick size={16} style={{ paddingLeft: "8px" }} />
             ) : (
               <div style={{ width: "24px", padding: "0" }} />
@@ -44,11 +44,11 @@ export const ColorPicker = (props: {
           Gray
         </Menu.Item>
         <Menu.Item
-          onClick={() => props.setBlockTextColor("brown")}
+          onClick={() => props.setTextColor("brown")}
           component={"div"}
           icon={<ColorIcon textColor={"brown"} size={props.iconSize} />}
           rightSection={
-            props.blockTextColor === "brown" ? (
+            props.textColor === "brown" ? (
               <TiTick size={16} style={{ paddingLeft: "8px" }} />
             ) : (
               <div style={{ width: "24px", padding: "0" }} />
@@ -57,11 +57,11 @@ export const ColorPicker = (props: {
           Brown
         </Menu.Item>
         <Menu.Item
-          onClick={() => props.setBlockTextColor("red")}
+          onClick={() => props.setTextColor("red")}
           component={"div"}
           icon={<ColorIcon textColor={"red"} size={props.iconSize} />}
           rightSection={
-            props.blockTextColor === "red" ? (
+            props.textColor === "red" ? (
               <TiTick size={16} style={{ paddingLeft: "8px" }} />
             ) : (
               <div style={{ width: "24px", padding: "0" }} />
@@ -70,11 +70,11 @@ export const ColorPicker = (props: {
           Red
         </Menu.Item>
         <Menu.Item
-          onClick={() => props.setBlockTextColor("orange")}
+          onClick={() => props.setTextColor("orange")}
           component={"div"}
           icon={<ColorIcon textColor={"orange"} size={props.iconSize} />}
           rightSection={
-            props.blockTextColor === "orange" ? (
+            props.textColor === "orange" ? (
               <TiTick size={16} style={{ paddingLeft: "8px" }} />
             ) : (
               <div style={{ width: "24px", padding: "0" }} />
@@ -83,11 +83,11 @@ export const ColorPicker = (props: {
           Orange
         </Menu.Item>
         <Menu.Item
-          onClick={() => props.setBlockTextColor("yellow")}
+          onClick={() => props.setTextColor("yellow")}
           component={"div"}
           icon={<ColorIcon textColor={"yellow"} size={props.iconSize} />}
           rightSection={
-            props.blockTextColor === "yellow" ? (
+            props.textColor === "yellow" ? (
               <TiTick size={16} style={{ paddingLeft: "8px" }} />
             ) : (
               <div style={{ width: "24px", padding: "0" }} />
@@ -96,11 +96,11 @@ export const ColorPicker = (props: {
           Yellow
         </Menu.Item>
         <Menu.Item
-          onClick={() => props.setBlockTextColor("green")}
+          onClick={() => props.setTextColor("green")}
           component={"div"}
           icon={<ColorIcon textColor={"green"} size={props.iconSize} />}
           rightSection={
-            props.blockTextColor === "green" ? (
+            props.textColor === "green" ? (
               <TiTick size={16} style={{ paddingLeft: "8px" }} />
             ) : (
               <div style={{ width: "24px", padding: "0" }} />
@@ -109,11 +109,11 @@ export const ColorPicker = (props: {
           Green
         </Menu.Item>
         <Menu.Item
-          onClick={() => props.setBlockTextColor("blue")}
+          onClick={() => props.setTextColor("blue")}
           component={"div"}
           icon={<ColorIcon textColor={"blue"} size={props.iconSize} />}
           rightSection={
-            props.blockTextColor === "blue" ? (
+            props.textColor === "blue" ? (
               <TiTick size={16} style={{ paddingLeft: "8px" }} />
             ) : (
               <div style={{ width: "24px", padding: "0" }} />
@@ -122,11 +122,11 @@ export const ColorPicker = (props: {
           Blue
         </Menu.Item>
         <Menu.Item
-          onClick={() => props.setBlockTextColor("purple")}
+          onClick={() => props.setTextColor("purple")}
           component={"div"}
           icon={<ColorIcon textColor={"purple"} size={props.iconSize} />}
           rightSection={
-            props.blockTextColor === "purple" ? (
+            props.textColor === "purple" ? (
               <TiTick size={16} style={{ paddingLeft: "8px" }} />
             ) : (
               <div style={{ width: "24px", padding: "0" }} />
@@ -135,11 +135,11 @@ export const ColorPicker = (props: {
           Purple
         </Menu.Item>
         <Menu.Item
-          onClick={() => props.setBlockTextColor("pink")}
+          onClick={() => props.setTextColor("pink")}
           component={"div"}
           icon={<ColorIcon textColor={"pink"} size={props.iconSize} />}
           rightSection={
-            props.blockTextColor === "pink" ? (
+            props.textColor === "pink" ? (
               <TiTick size={16} style={{ paddingLeft: "8px" }} />
             ) : (
               <div style={{ width: "24px", padding: "0" }} />
@@ -149,11 +149,11 @@ export const ColorPicker = (props: {
         </Menu.Item>
         <Menu.Label>Background</Menu.Label>
         <Menu.Item
-          onClick={() => props.setBlockBackgroundColor("default")}
+          onClick={() => props.setBackgroundColor("default")}
           component={"div"}
           icon={<ColorIcon backgroundColor={"default"} size={props.iconSize} />}
           rightSection={
-            props.blockBackgroundColor === "default" ? (
+            props.backgroundColor === "default" ? (
               <TiTick size={16} style={{ paddingLeft: "8px" }} />
             ) : (
               <div style={{ width: "24px", padding: "0" }} />
@@ -162,11 +162,11 @@ export const ColorPicker = (props: {
           Default
         </Menu.Item>
         <Menu.Item
-          onClick={() => props.setBlockBackgroundColor("gray")}
+          onClick={() => props.setBackgroundColor("gray")}
           component={"div"}
           icon={<ColorIcon backgroundColor={"gray"} size={props.iconSize} />}
           rightSection={
-            props.blockBackgroundColor === "gray" ? (
+            props.backgroundColor === "gray" ? (
               <TiTick size={16} style={{ paddingLeft: "8px" }} />
             ) : (
               <div style={{ width: "24px", padding: "0" }} />
@@ -175,11 +175,11 @@ export const ColorPicker = (props: {
           Gray
         </Menu.Item>
         <Menu.Item
-          onClick={() => props.setBlockBackgroundColor("brown")}
+          onClick={() => props.setBackgroundColor("brown")}
           component={"div"}
           icon={<ColorIcon backgroundColor={"brown"} size={props.iconSize} />}
           rightSection={
-            props.blockBackgroundColor === "brown" ? (
+            props.backgroundColor === "brown" ? (
               <TiTick size={16} style={{ paddingLeft: "8px" }} />
             ) : (
               <div style={{ width: "24px", padding: "0" }} />
@@ -188,11 +188,11 @@ export const ColorPicker = (props: {
           Brown
         </Menu.Item>
         <Menu.Item
-          onClick={() => props.setBlockBackgroundColor("red")}
+          onClick={() => props.setBackgroundColor("red")}
           component={"div"}
           icon={<ColorIcon backgroundColor={"red"} size={props.iconSize} />}
           rightSection={
-            props.blockBackgroundColor === "red" ? (
+            props.backgroundColor === "red" ? (
               <TiTick size={16} style={{ paddingLeft: "8px" }} />
             ) : (
               <div style={{ width: "24px", padding: "0" }} />
@@ -201,11 +201,11 @@ export const ColorPicker = (props: {
           Red
         </Menu.Item>
         <Menu.Item
-          onClick={() => props.setBlockBackgroundColor("orange")}
+          onClick={() => props.setBackgroundColor("orange")}
           component={"div"}
           icon={<ColorIcon backgroundColor={"orange"} size={props.iconSize} />}
           rightSection={
-            props.blockBackgroundColor === "orange" ? (
+            props.backgroundColor === "orange" ? (
               <TiTick size={16} style={{ paddingLeft: "8px" }} />
             ) : (
               <div style={{ width: "24px", padding: "0" }} />
@@ -214,11 +214,11 @@ export const ColorPicker = (props: {
           Orange
         </Menu.Item>
         <Menu.Item
-          onClick={() => props.setBlockBackgroundColor("yellow")}
+          onClick={() => props.setBackgroundColor("yellow")}
           component={"div"}
           icon={<ColorIcon backgroundColor={"yellow"} size={props.iconSize} />}
           rightSection={
-            props.blockBackgroundColor === "yellow" ? (
+            props.backgroundColor === "yellow" ? (
               <TiTick size={16} style={{ paddingLeft: "8px" }} />
             ) : (
               <div style={{ width: "24px", padding: "0" }} />
@@ -227,11 +227,11 @@ export const ColorPicker = (props: {
           Yellow
         </Menu.Item>
         <Menu.Item
-          onClick={() => props.setBlockBackgroundColor("green")}
+          onClick={() => props.setBackgroundColor("green")}
           component={"div"}
           icon={<ColorIcon backgroundColor={"green"} size={props.iconSize} />}
           rightSection={
-            props.blockBackgroundColor === "green" ? (
+            props.backgroundColor === "green" ? (
               <TiTick size={16} style={{ paddingLeft: "8px" }} />
             ) : (
               <div style={{ width: "24px", padding: "0" }} />
@@ -240,11 +240,11 @@ export const ColorPicker = (props: {
           Green
         </Menu.Item>
         <Menu.Item
-          onClick={() => props.setBlockBackgroundColor("blue")}
+          onClick={() => props.setBackgroundColor("blue")}
           component={"div"}
           icon={<ColorIcon backgroundColor={"blue"} size={props.iconSize} />}
           rightSection={
-            props.blockBackgroundColor === "blue" ? (
+            props.backgroundColor === "blue" ? (
               <TiTick size={16} style={{ paddingLeft: "8px" }} />
             ) : (
               <div style={{ width: "24px", padding: "0" }} />
@@ -253,11 +253,11 @@ export const ColorPicker = (props: {
           Blue
         </Menu.Item>
         <Menu.Item
-          onClick={() => props.setBlockBackgroundColor("purple")}
+          onClick={() => props.setBackgroundColor("purple")}
           component={"div"}
           icon={<ColorIcon backgroundColor={"purple"} size={props.iconSize} />}
           rightSection={
-            props.blockBackgroundColor === "purple" ? (
+            props.backgroundColor === "purple" ? (
               <TiTick size={16} style={{ paddingLeft: "8px" }} />
             ) : (
               <div style={{ width: "24px", padding: "0" }} />
@@ -266,11 +266,11 @@ export const ColorPicker = (props: {
           Purple
         </Menu.Item>
         <Menu.Item
-          onClick={() => props.setBlockBackgroundColor("pink")}
+          onClick={() => props.setBackgroundColor("pink")}
           component={"div"}
           icon={<ColorIcon backgroundColor={"pink"} size={props.iconSize} />}
           rightSection={
-            props.blockBackgroundColor === "pink" ? (
+            props.backgroundColor === "pink" ? (
               <TiTick size={16} style={{ paddingLeft: "8px" }} />
             ) : (
               <div style={{ width: "24px", padding: "0" }} />

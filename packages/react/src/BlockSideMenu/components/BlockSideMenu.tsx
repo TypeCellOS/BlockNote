@@ -10,6 +10,7 @@ export type BlockSideMenuProps = {
   blockDragEnd: () => void;
   freezeMenu: () => void;
   unfreezeMenu: () => void;
+
   blockBackgroundColor: string;
   setBlockBackgroundColor: (color: string) => void;
   blockTextColor: string;
@@ -73,10 +74,10 @@ export const BlockSideMenu = (props: BlockSideMenuProps) => {
             <ColorPicker
               targetElement={<Box>Colors</Box>}
               iconSize={18}
-              blockTextColor={props.blockTextColor}
-              setBlockTextColor={props.setBlockTextColor}
-              blockBackgroundColor={props.blockBackgroundColor}
-              setBlockBackgroundColor={props.setBlockBackgroundColor}
+              textColor={props.blockTextColor}
+              setTextColor={props.setBlockTextColor}
+              backgroundColor={props.blockBackgroundColor}
+              setBackgroundColor={props.setBlockBackgroundColor}
             />
           </Menu.Item>
         </Menu.Dropdown>

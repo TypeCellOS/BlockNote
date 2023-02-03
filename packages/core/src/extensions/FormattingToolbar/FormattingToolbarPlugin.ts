@@ -266,11 +266,11 @@ export class FormattingToolbarView {
         );
         this.editor.view.focus();
       },
-      setBlockTextColor: (color: string) => {
+      setTextColor: (color: string) => {
         this.editor.view.focus();
         this.editor.commands.setTextColor(color);
       },
-      setBlockBackgroundColor: (color: string) => {
+      setBackgroundColor: (color: string) => {
         this.editor.view.focus();
         this.editor.commands.setBackgroundColor(color);
       },
@@ -301,8 +301,8 @@ export class FormattingToolbarView {
         this.editor.state.selection.from,
         this.editor.state.selection.to
       ),
-      blockTextColor: this.editor.getAttributes("textColor").color || "default",
-      blockBackgroundColor:
+      textColor: this.editor.getAttributes("textColor").color || "default",
+      backgroundColor:
         this.editor.getAttributes("backgroundColor").color || "default",
       // Needs type cast as there is no way to create a type that dynamically updates based on which extensions are
       // loaded by the editor.

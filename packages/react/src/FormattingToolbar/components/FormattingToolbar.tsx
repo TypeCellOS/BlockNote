@@ -37,10 +37,10 @@ export type FormattingToolbarProps = {
   activeHyperlinkText: string;
   setHyperlink: (url: string, text?: string) => void;
 
-  blockTextColor: string;
-  setBlockTextColor: (color: string) => void;
-  blockBackgroundColor: string;
-  setBlockBackgroundColor: (color: string) => void;
+  textColor: string;
+  setTextColor: (color: string) => void;
+  backgroundColor: string;
+  setBackgroundColor: (color: string) => void;
 
   block: Block;
   updateBlock: (blockUpdate: BlockUpdate) => void;
@@ -211,16 +211,16 @@ export const FormattingToolbar = (props: FormattingToolbarProps) => {
         targetElement={
           <ActionIcon color={"brandFinal"} size={30}>
             <ColorIcon
-              textColor={props.blockTextColor}
-              backgroundColor={props.blockBackgroundColor}
+              textColor={props.textColor}
+              backgroundColor={props.backgroundColor}
               size={20}
             />
           </ActionIcon>
         }
-        blockTextColor={props.blockTextColor}
-        setBlockTextColor={props.setBlockTextColor}
-        blockBackgroundColor={props.blockBackgroundColor}
-        setBlockBackgroundColor={props.setBlockBackgroundColor}
+        textColor={props.textColor}
+        setTextColor={props.setTextColor}
+        backgroundColor={props.backgroundColor}
+        setBackgroundColor={props.setBackgroundColor}
       />
 
       <ToolbarButton
