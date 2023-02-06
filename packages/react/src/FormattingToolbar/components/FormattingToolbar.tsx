@@ -215,22 +215,6 @@ export const FormattingToolbar = (props: FormattingToolbarProps) => {
         icon={RiStrikethrough}
       />
 
-      <ColorPicker
-        targetElement={
-          <ActionIcon color={"brandFinal"} size={30}>
-            <ColorIcon
-              textColor={props.textColor}
-              backgroundColor={props.backgroundColor}
-              size={20}
-            />
-          </ActionIcon>
-        }
-        textColor={props.textColor}
-        setTextColor={props.setTextColor}
-        backgroundColor={props.backgroundColor}
-        setBackgroundColor={props.setBackgroundColor}
-      />
-
       <ToolbarButton
         onClick={() => props.setTextAlignment("left")}
         isSelected={props.textAlignment === "left"}
@@ -257,6 +241,22 @@ export const FormattingToolbar = (props: FormattingToolbarProps) => {
         isSelected={props.textAlignment === "justify"}
         mainTooltip={"Justify Text"}
         icon={RiAlignJustify}
+      />
+
+      <ColorPicker
+        targetElement={
+          <ActionIcon color={"brandFinal"} size={30}>
+            <ColorIcon
+              textColor={props.textColor}
+              backgroundColor={props.backgroundColor}
+              size={20}
+            />
+          </ActionIcon>
+        }
+        textColor={props.textColor}
+        setTextColor={props.setTextColor}
+        backgroundColor={props.backgroundColor}
+        setBackgroundColor={props.setBackgroundColor}
       />
 
       <ToolbarButton

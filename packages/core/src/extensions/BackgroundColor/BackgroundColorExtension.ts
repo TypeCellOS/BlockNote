@@ -13,7 +13,7 @@ declare module "@tiptap/core" {
 }
 
 export const BackgroundColorExtension = Extension.create({
-  name: "backgroundColor",
+  name: "blockBackgroundColor",
 
   addGlobalAttributes() {
     return [
@@ -40,7 +40,7 @@ export const BackgroundColorExtension = Extension.create({
     return {
       setBlockBackgroundColor:
         (posInBlock, color) =>
-        ({ state }) => {
+        ({ state, view }) => {
           const blockInfo = getBlockInfoFromPos(state.doc, posInBlock);
           if (blockInfo === undefined) {
             return false;
@@ -51,6 +51,8 @@ export const BackgroundColorExtension = Extension.create({
             "backgroundColor",
             color
           );
+
+          view.focus();
 
           return true;
         },

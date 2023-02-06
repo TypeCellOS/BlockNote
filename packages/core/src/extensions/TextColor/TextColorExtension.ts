@@ -10,7 +10,7 @@ declare module "@tiptap/core" {
 }
 
 export const TextColorExtension = Extension.create({
-  name: "textColor",
+  name: "blockTextColor",
 
   addGlobalAttributes() {
     return [
@@ -37,13 +37,15 @@ export const TextColorExtension = Extension.create({
     return {
       setBlockTextColor:
         (posInBlock, color) =>
-        ({ state }) => {
+        ({ state, view }) => {
           const blockInfo = getBlockInfoFromPos(state.doc, posInBlock);
           if (blockInfo === undefined) {
             return false;
           }
 
           state.tr.setNodeAttribute(blockInfo.startPos - 1, "textColor", color);
+
+          view.focus();
 
           return true;
         },
