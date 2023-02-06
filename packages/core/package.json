@@ -3,7 +3,7 @@
   "homepage": "https://github.com/yousefed/blocknote",
   "private": false,
   "license": "MPL-2.0",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "files": [
     "dist",
     "types",
