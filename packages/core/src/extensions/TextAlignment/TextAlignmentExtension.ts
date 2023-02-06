@@ -17,6 +17,8 @@ export const TextAlignmentExtension = Extension.create({
   addGlobalAttributes() {
     return [
       {
+        // Attribute is applied to block content instead of container so that child blocks don't inherit the text
+        // alignment styling.
         types: ["paragraph", "heading", "bulletListItem", "numberedListItem"],
         attributes: {
           textAlignment: {

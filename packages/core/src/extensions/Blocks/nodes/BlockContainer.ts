@@ -76,7 +76,6 @@ export const BlockContainer = Node.create<IBlock>({
   },
 
   renderHTML({ HTMLAttributes }) {
-    console.log(HTMLAttributes);
     return [
       "div",
       mergeAttributes(HTMLAttributes, {

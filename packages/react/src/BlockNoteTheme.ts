@@ -185,34 +185,6 @@ export const BlockNoteTheme: MantineThemeOverride = {
     },
   },
   fontFamily: "Inter",
-  globalStyles: (theme) => {
-    const textColors: Record<string, any> = {};
-    const backgroundColors: Record<string, any> = {};
-
-    for (const color in theme.other.colorIndex) {
-      textColors[`[data-text-color="${color}"]`] = {
-        color: theme.colors["textColors"][theme.other.colorIndex[color]],
-      };
-      backgroundColors[`[data-background-color="${color}"]`] = {
-        backgroundColor:
-          theme.colors["backgroundColors"][theme.other.colorIndex[color]],
-      };
-    }
-
-    const textAlignments: Record<string, any> = {};
-
-    for (const alignment of ["left", "center", "right", "justify"]) {
-      textAlignments[`[data-text-alignment="${alignment}"]`] = {
-        textAlign: alignment,
-      };
-    }
-
-    return {
-      ...textColors,
-      ...backgroundColors,
-      ...textAlignments,
-    };
-  },
   other: {
     colorIndex: {
       default: 0,
