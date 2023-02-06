@@ -1,7 +1,7 @@
 import { AiOutlinePlus, MdDragIndicator } from "react-icons/all";
-import { ActionIcon, Box, createStyles, Group, Menu } from "@mantine/core";
-import { useEffect, useRef } from "react";
-import { ColorPicker } from "../../SharedComponents/ColorPicker/components/ColorPicker";
+import { ActionIcon, createStyles, Group, Menu } from "@mantine/core";
+import { useEffect, useRef, useState } from "react";
+import { ColorPickerMenu } from "./ColorPickerMenu";
 
 export type BlockSideMenuProps = {
   addBlock: () => void;
@@ -21,6 +21,8 @@ export const BlockSideMenu = (props: BlockSideMenuProps) => {
   const { classes } = createStyles({ root: {} })(undefined, {
     name: "DragHandleMenu",
   });
+
+  const [dragHandleMenuOpened, setDragHandleMenuOpened] = useState(false);
 
   const dragHandleRef = useRef<HTMLDivElement>(null);
 
@@ -52,13 +54,14 @@ export const BlockSideMenu = (props: BlockSideMenuProps) => {
           />
         }
       </ActionIcon>
-      <Menu
-        position={"left"}
-        onOpen={props.freezeMenu}
-        onClose={props.unfreezeMenu}>
+      <Menu opened={dragHandleMenuOpened} width={100} position={"left"}>
         <Menu.Target>
           <div draggable="true" ref={dragHandleRef}>
             <ActionIcon
+              onClick={() => {
+                setDragHandleMenuOpened(true);
+                props.freezeMenu();
+              }}
               size={24}
               color={"brandFinal.3"}
               data-test={"dragHandle"}>
@@ -67,19 +70,22 @@ export const BlockSideMenu = (props: BlockSideMenuProps) => {
           </div>
         </Menu.Target>
         <Menu.Dropdown className={classes.root}>
-          <Menu.Item component={"div"} onClick={props.deleteBlock}>
+          <Menu.Item
+            component={"div"}
+            onClick={() => {
+              setDragHandleMenuOpened(false);
+              props.unfreezeMenu();
+              props.deleteBlock();
+            }}>
             Delete
           </Menu.Item>
-          <Menu.Item>
-            <ColorPicker
-              targetElement={<Box>Colors</Box>}
-              iconSize={18}
-              textColor={props.blockTextColor}
-              setTextColor={props.setBlockTextColor}
-              backgroundColor={props.blockBackgroundColor}
-              setBackgroundColor={props.setBlockBackgroundColor}
-            />
-          </Menu.Item>
+          <ColorPickerMenu
+            onClick={() => {
+              setDragHandleMenuOpened(false);
+              props.unfreezeMenu();
+            }}
+            {...props}
+          />
         </Menu.Dropdown>
       </Menu>
     </Group>

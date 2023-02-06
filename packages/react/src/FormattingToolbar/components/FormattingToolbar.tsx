@@ -1,7 +1,6 @@
-import { ActionIcon } from "@mantine/core";
+import { ActionIcon, Menu } from "@mantine/core";
 import {
   RiAlignCenter,
-  RiAlignJustify,
   RiAlignLeft,
   RiAlignRight,
   RiBold,
@@ -236,63 +235,65 @@ export const FormattingToolbar = (props: FormattingToolbarProps) => {
         icon={RiAlignRight}
       />
 
-      <ToolbarButton
-        onClick={() => props.setTextAlignment("justify")}
-        isSelected={props.textAlignment === "justify"}
-        mainTooltip={"Justify Text"}
-        icon={RiAlignJustify}
-      />
-
-      <ColorPicker
-        targetElement={
+      <Menu>
+        <Menu.Target>
           <ActionIcon color={"brandFinal"} size={30}>
-            <ColorIcon
-              textColor={props.textColor}
-              backgroundColor={props.backgroundColor}
-              size={20}
+            <ToolbarButton
+              mainTooltip={"Colors"}
+              icon={() => (
+                <ColorIcon
+                  textColor={props.textColor}
+                  backgroundColor={props.backgroundColor}
+                  size={20}
+                />
+              )}
             />
           </ActionIcon>
-        }
-        textColor={props.textColor}
-        setTextColor={props.setTextColor}
-        backgroundColor={props.backgroundColor}
-        setBackgroundColor={props.setBackgroundColor}
-      />
+        </Menu.Target>
+        <Menu.Dropdown>
+          <ColorPicker
+            textColor={props.textColor}
+            setTextColor={props.setTextColor}
+            backgroundColor={props.backgroundColor}
+            setBackgroundColor={props.setBackgroundColor}
+          />
+        </Menu.Dropdown>
+      </Menu>
 
-      <ToolbarButton
-        onClick={() => {
-          // props.editor.view.focus();
-          // props.editor.commands.sinkListItem("block");
-        }}
-        isDisabled={
-          // !props.editor.can().sinkListItem("block")
-          true
-        }
-        mainTooltip="Indent"
-        secondaryTooltip={formatKeyboardShortcut("Tab")}
-        icon={RiIndentIncrease}
-      />
+      {/*<ToolbarButton*/}
+      {/*  onClick={() => {*/}
+      {/*    // props.editor.view.focus();*/}
+      {/*    // props.editor.commands.sinkListItem("block");*/}
+      {/*  }}*/}
+      {/*  isDisabled={*/}
+      {/*    // !props.editor.can().sinkListItem("block")*/}
+      {/*    true*/}
+      {/*  }*/}
+      {/*  mainTooltip="Indent"*/}
+      {/*  secondaryTooltip={formatKeyboardShortcut("Tab")}*/}
+      {/*  icon={RiIndentIncrease}*/}
+      {/*/>*/}
 
-      <ToolbarButton
-        onClick={() => {
-          // props.editor.view.focus();
-          // props.editor.commands.liftListItem("block");
-        }}
-        isDisabled={
-          // !props.editor.can().command(({ state }) => {
-          //   const block = findBlock(state.selection);
-          //   if (!block) {
-          //     return false;
-          //   }
-          //   // If the depth is greater than 2 you can lift
-          //   return block.depth > 2;
-          // })
-          true
-        }
-        mainTooltip="Decrease Indent"
-        secondaryTooltip={formatKeyboardShortcut("Shift+Tab")}
-        icon={RiIndentDecrease}
-      />
+      {/*<ToolbarButton*/}
+      {/*  onClick={() => {*/}
+      {/*    // props.editor.view.focus();*/}
+      {/*    // props.editor.commands.liftListItem("block");*/}
+      {/*  }}*/}
+      {/*  isDisabled={*/}
+      {/*    // !props.editor.can().command(({ state }) => {*/}
+      {/*    //   const block = findBlock(state.selection);*/}
+      {/*    //   if (!block) {*/}
+      {/*    //     return false;*/}
+      {/*    //   }*/}
+      {/*    //   // If the depth is greater than 2 you can lift*/}
+      {/*    //   return block.depth > 2;*/}
+      {/*    // })*/}
+      {/*    true*/}
+      {/*  }*/}
+      {/*  mainTooltip="Decrease Indent"*/}
+      {/*  secondaryTooltip={formatKeyboardShortcut("Shift+Tab")}*/}
+      {/*  icon={RiIndentDecrease}*/}
+      {/*/>*/}
 
       <LinkToolbarButton
         isSelected={activeMarks.has("link")}
