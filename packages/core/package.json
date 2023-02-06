@@ -77,7 +77,9 @@
     "prosemirror-transform": "^1.7.1",
     "prosemirror-view": "^1.30.0",
     "uuid": "^8.3.2",
-    "y-prosemirror": "1.0.20"
+    "y-prosemirror": "1.0.20",
+    "y-protocols": "1.0.5",
+    "yjs": "13.5.44"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.179",
