@@ -37,6 +37,8 @@ export const TextAlignmentExtension = Extension.create({
       setTextAlignment:
         (textAlignment) =>
         ({ state }) => {
+          const positionsBeforeSelectedContent = [];
+
           const blockInfo = getBlockInfoFromPos(
             state.doc,
             state.selection.from
@@ -44,13 +46,25 @@ export const TextAlignmentExtension = Extension.create({
           if (blockInfo === undefined) {
             return false;
           }
-          console.log(blockInfo.startPos - 1);
 
-          state.tr.setNodeAttribute(
-            blockInfo.startPos,
-            "textAlignment",
-            textAlignment
-          );
+          // Finds all blockContent nodes that the current selection is in.
+          let pos = blockInfo.startPos;
+          while (pos < state.selection.to) {
+            if (
+              state.doc.resolve(pos).node().type.spec.group === "blockContent"
+            ) {
+              positionsBeforeSelectedContent.push(pos - 1);
+
+              pos += state.doc.resolve(pos).node().nodeSize - 1;
+            } else {
+              pos += 1;
+            }
+          }
+
+          // Sets text alignment for all blockContent nodes that the current selection is in.
+          for (const pos of positionsBeforeSelectedContent) {
+            state.tr.setNodeAttribute(pos, "textAlignment", textAlignment);
+          }
 
           return true;
         },
