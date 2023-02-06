@@ -35,8 +35,8 @@ export const formattingToolbarFactory: FormattingToolbarFactory = (
       }
 
       boldBtn.text = params.boldIsActive ? "unset bold" : "set bold";
-      container.style.top = params.selectionBoundingBox.y + "px";
-      container.style.left = params.selectionBoundingBox.x + "px";
+      container.style.top = params.referenceRect.y + "px";
+      container.style.left = params.referenceRect.x + "px";
     },
     hide: () => {
       container.style.display = "none";

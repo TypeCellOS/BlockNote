@@ -469,9 +469,9 @@ export class BlockMenuView {
 
     return {
       blockBackgroundColor:
-        this.editor.getAttributes("blockContainer").backgroundColor,
+      this.editor.getAttributes("blockContainer").backgroundColor,
       blockTextColor: this.editor.getAttributes("blockContainer").textColor,
-      blockBoundingBox: new DOMRect(
+      referenceRect: new DOMRect(
         this.horizontalPosAnchoredAtRoot
           ? getHorizontalAnchor()
           : blockBoundingBox.x,

@@ -166,6 +166,8 @@ class HyperlinkToolbarView {
 
       // Updates menu.
       this.hyperlinkToolbar.render(this.getDynamicParams(), false);
+
+      return;
     }
 
     // Hides menu.
@@ -227,7 +229,7 @@ class HyperlinkToolbarView {
         this.hyperlinkMarkRange!.from,
         this.hyperlinkMarkRange!.to
       ),
-      boundingBox: posToDOMRect(
+      referenceRect: posToDOMRect(
         this.editor.view,
         this.hyperlinkMarkRange!.from,
         this.hyperlinkMarkRange!.to

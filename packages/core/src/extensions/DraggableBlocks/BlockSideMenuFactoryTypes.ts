@@ -18,7 +18,7 @@ export type BlockSideMenuDynamicParams = {
   blockTextColor: string;
   blockBackgroundColor: string;
 
-  blockBoundingBox: DOMRect;
+  referenceRect: DOMRect;
 };
 
 export type BlockSideMenu = EditorElement<BlockSideMenuDynamicParams>;

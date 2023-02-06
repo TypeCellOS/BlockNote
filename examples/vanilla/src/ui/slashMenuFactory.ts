@@ -50,8 +50,8 @@ export const slashMenuFactory: SuggestionsMenuFactory<SlashMenuItem> = (
       }
 
       console.log("show", params);
-      container.style.top = params.queryStartBoundingBox.y + "px";
-      container.style.left = params.queryStartBoundingBox.x + "px";
+      container.style.top = params.referenceRect.y + "px";
+      container.style.left = params.referenceRect.x + "px";
     },
     hide: () => {
       container.style.display = "none";
