@@ -22,14 +22,12 @@ let horizontalAnchor: number;
 let dragImageElement: Element | undefined;
 
 function getHorizontalAnchor() {
-  if (!horizontalAnchor) {
-    const firstBlockGroup = document.querySelector(
-      ".ProseMirror > [class*='blockGroup']"
-    ) as HTMLElement | undefined; // first block group node
-    if (firstBlockGroup) {
-      horizontalAnchor = absoluteRect(firstBlockGroup).left;
-    } // Anchor to the left of the first block group
-  }
+  const firstBlockGroup = document.querySelector(
+    ".ProseMirror > [class*='blockGroup']"
+  ) as HTMLElement | undefined; // first block group node
+  if (firstBlockGroup) {
+    horizontalAnchor = absoluteRect(firstBlockGroup).left;
+  } // Anchor to the left of the first block group
   return horizontalAnchor;
 }
 
@@ -185,7 +183,7 @@ function dragStart(e: DragEvent, view: EditorView) {
   }
 
   let coords = {
-    left: view.dom.clientWidth / 2, // take middle of editor
+    left: e.clientX + view.dom.clientWidth / 2, // take middle of editor
     top: e.clientY,
   };
 
