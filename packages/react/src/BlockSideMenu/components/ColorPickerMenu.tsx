@@ -15,8 +15,12 @@ export const ColorPickerMenu = (props: {
   setBlockTextColor: (color: string) => void;
 }) => {
   const [opened, setOpened] = useState(false);
-  const [menuCloseTimer, setMenuCloseTimer] = useState(undefined);
-  const [buttonBackground, setButtonBackground] = useState(undefined);
+  const [menuCloseTimer, setMenuCloseTimer] = useState<
+    NodeJS.Timeout | undefined
+  >(undefined);
+  const [buttonBackground, setButtonBackground] = useState<string | undefined>(
+    undefined
+  );
 
   const startMenuCloseTimer = useCallback(() => {
     setMenuCloseTimer(
@@ -28,7 +32,6 @@ export const ColorPickerMenu = (props: {
   }, [menuCloseTimer]);
 
   const stopMenuCloseTimer = useCallback(() => {
-    console.log(menuCloseTimer);
     if (menuCloseTimer) {
       clearTimeout(menuCloseTimer);
       setMenuCloseTimer(undefined);
@@ -45,9 +48,7 @@ export const ColorPickerMenu = (props: {
         component={"div"}
         onMouseLeave={() => {
           startMenuCloseTimer();
-          // if (!opened) {
           setButtonBackground(undefined);
-          // }
         }}
         onMouseOver={() => {
           stopMenuCloseTimer();

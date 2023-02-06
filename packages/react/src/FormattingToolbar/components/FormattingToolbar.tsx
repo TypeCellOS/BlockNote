@@ -7,8 +7,6 @@ import {
   RiH1,
   RiH2,
   RiH3,
-  RiIndentDecrease,
-  RiIndentIncrease,
   RiItalic,
   RiLink,
   RiListOrdered,
