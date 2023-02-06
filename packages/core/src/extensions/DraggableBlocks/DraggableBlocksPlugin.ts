@@ -182,8 +182,10 @@ function dragStart(e: DragEvent, view: EditorView) {
     return;
   }
 
+  const editorBoundingBox = view.dom.getBoundingClientRect();
+
   let coords = {
-    left: e.clientX + view.dom.clientWidth / 2, // take middle of editor
+    left: editorBoundingBox.left + editorBoundingBox.width / 2, // take middle of editor
     top: e.clientY,
   };
 
@@ -261,9 +263,11 @@ export class BlockMenuView {
           return;
         }
 
+        const editorBoundingBox = this.editor.view.dom.getBoundingClientRect();
+
         // Gets block at mouse cursor's vertical position.
         const coords = {
-          left: this.editor.view.dom.clientWidth / 2, // take middle of editor
+          left: editorBoundingBox.left + editorBoundingBox.width / 2, // take middle of editor
           top: event.clientY,
         };
         const block = getDraggableBlockFromCoords(coords, this.editor.view);
