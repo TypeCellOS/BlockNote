@@ -26,10 +26,9 @@ export const ColorPickerMenu = (props: {
     setMenuCloseTimer(
       setTimeout(() => {
         setOpened(false);
-        console.log(menuCloseTimer);
       }, 250)
     );
-  }, [menuCloseTimer]);
+  }, []);
 
   const stopMenuCloseTimer = useCallback(() => {
     if (menuCloseTimer) {

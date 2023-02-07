@@ -31,7 +31,9 @@ export const ColorPicker = (props: {
             props.setTextColor(color);
           }}
           component={"div"}
+          data-test={"text-color-" + color}
           icon={<ColorIcon textColor={color} size={props.iconSize} />}
+          key={"text-color-" + color}
           rightSection={
             props.textColor === color ? (
               <TiTick size={16} style={{ paddingLeft: "8px" }} />
@@ -61,7 +63,9 @@ export const ColorPicker = (props: {
             props.setBackgroundColor(color);
           }}
           component={"div"}
+          data-test={"background-color-" + color}
           icon={<ColorIcon backgroundColor={color} size={props.iconSize} />}
+          key={"background-color-" + color}
           rightSection={
             props.backgroundColor === color ? (
               <TiTick size={16} style={{ paddingLeft: "8px" }} />

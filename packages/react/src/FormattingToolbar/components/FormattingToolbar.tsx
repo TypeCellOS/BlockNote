@@ -207,7 +207,7 @@ export const FormattingToolbar = (props: FormattingToolbarProps) => {
       <ToolbarButton
         onClick={props.toggleStrike}
         isSelected={activeMarks.has("strike")}
-        mainTooltip="Strike-through"
+        mainTooltip="Strikethrough"
         secondaryTooltip={formatKeyboardShortcut("Mod+Shift+X")}
         icon={RiStrikethrough}
       />

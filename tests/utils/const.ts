@@ -20,4 +20,10 @@ export const DRAG_HANDLE_ADD_SELECTOR = `[data-test="dragHandleAdd"]`;
 export const DRAG_HANDLE_MENU_SELECTOR = `.mantine-DragHandleMenu-root`;
 export const SLASH_MENU_SELECTOR = `.mantine-SlashMenu-root`;
 
+export const COLORS_BUTTON_SELECTOR = '[data-test="colors"]';
+export const TEXT_COLOR_SELECTOR = (color: string) =>
+  `[data-test="text-color-${color}"]`;
+export const BACKGROUND_COLOR_SELECTOR = (color: string) =>
+  `[data-test="background-color-${color}"]`;
+
 export const TYPE_DELAY = 10;
