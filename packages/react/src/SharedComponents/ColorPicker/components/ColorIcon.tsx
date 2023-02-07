@@ -16,19 +16,12 @@ export const ColorIcon = (
       sx={(theme) => {
         return {
           backgroundColor:
-            backgroundColor !== "default"
-              ? theme.colors.backgroundColors[
-                  theme.other.colorIndex[backgroundColor]
-                ]
-              : theme.colors.backgroundColors[
-                  theme.other.colorIndex["default"]
-                ],
+            theme.colors.backgroundColors[
+              theme.other.colors.indexOf(backgroundColor)
+            ],
           border: "solid #D3D3D3 1px",
           borderRadius: (size * 0.25).toString() + "px",
-          color:
-            textColor !== "default"
-              ? theme.colors.textColors[theme.other.colorIndex[textColor]]
-              : theme.colors.textColors[theme.other.colorIndex["default"]],
+          color: theme.colors.textColors[theme.other.colors.indexOf(textColor)],
           fontSize: (size * 0.75).toString() + "px",
           height: size.toString() + "px",
           lineHeight: size.toString() + "px",

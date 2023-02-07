@@ -1,4 +1,4 @@
-import { ActionIcon, Menu } from "@mantine/core";
+import { Menu } from "@mantine/core";
 import {
   RiAlignCenter,
   RiAlignLeft,
@@ -235,18 +235,16 @@ export const FormattingToolbar = (props: FormattingToolbarProps) => {
 
       <Menu>
         <Menu.Target>
-          <ActionIcon color={"brandFinal"} size={30}>
-            <ToolbarButton
-              mainTooltip={"Colors"}
-              icon={() => (
-                <ColorIcon
-                  textColor={props.textColor}
-                  backgroundColor={props.backgroundColor}
-                  size={20}
-                />
-              )}
-            />
-          </ActionIcon>
+          <ToolbarButton
+            mainTooltip={"Colors"}
+            icon={() => (
+              <ColorIcon
+                textColor={props.textColor}
+                backgroundColor={props.backgroundColor}
+                size={20}
+              />
+            )}
+          />
         </Menu.Target>
         <Menu.Dropdown>
           <ColorPicker
