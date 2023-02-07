@@ -18,20 +18,7 @@ import { MultipleNodeSelection } from "./MultipleNodeSelection";
 const serializeForClipboard = (pv as any).__serializeForClipboard;
 // code based on https://github.com/ueberdosis/tiptap/issues/323#issuecomment-506637799
 
-let horizontalAnchor: number;
 let dragImageElement: Element | undefined;
-
-function getHorizontalAnchor() {
-  if (!horizontalAnchor) {
-    const firstBlockGroup = document.querySelector(
-      ".ProseMirror > [class*='blockGroup']"
-    ) as HTMLElement | undefined; // first block group node
-    if (firstBlockGroup) {
-      horizontalAnchor = absoluteRect(firstBlockGroup).left;
-    } // Anchor to the left of the first block group
-  }
-  return horizontalAnchor;
-}
 
 export function createRect(rect: DOMRect) {
   let newRect = {
@@ -45,10 +32,6 @@ export function createRect(rect: DOMRect) {
   newRect.bottom = newRect.top + newRect.height;
   newRect.right = newRect.left + newRect.width;
   return newRect;
-}
-
-export function absoluteRect(element: HTMLElement) {
-  return createRect(element.getBoundingClientRect());
 }
 
 function getDraggableBlockFromCoords(
@@ -184,8 +167,10 @@ function dragStart(e: DragEvent, view: EditorView) {
     return;
   }
 
+  const editorBoundingBox = view.dom.getBoundingClientRect();
+
   let coords = {
-    left: view.dom.clientWidth / 2, // take middle of editor
+    left: editorBoundingBox.left + editorBoundingBox.width / 2, // take middle of editor
     top: e.clientY,
   };
 
@@ -238,6 +223,8 @@ export class BlockMenuView {
   // When false, the drag handle with be just to the left of the element
   horizontalPosAnchoredAtRoot: boolean;
 
+  horizontalPosAnchor: number;
+
   blockMenu: BlockSideMenu;
 
   hoveredBlock: HTMLElement | undefined;
@@ -252,6 +239,9 @@ export class BlockMenuView {
   }: BlockMenuViewProps) {
     this.editor = editor;
     this.horizontalPosAnchoredAtRoot = horizontalPosAnchoredAtRoot;
+    this.horizontalPosAnchor = (
+      editor.view.dom.firstChild! as HTMLElement
+    ).getBoundingClientRect().x;
 
     this.blockMenu = blockMenuFactory(this.getStaticParams());
 
@@ -263,9 +253,17 @@ export class BlockMenuView {
           return;
         }
 
+        // Editor itself may have padding or other styling which affects size/position, so we get the boundingRect of
+        // the first child (i.e. the blockGroup that wraps all blocks in the editor) for a more accurate bounding box.
+        const editorBoundingBox = (
+          this.editor.view.dom.firstChild! as HTMLElement
+        ).getBoundingClientRect();
+
+        this.horizontalPosAnchor = editorBoundingBox.x;
+
         // Gets block at mouse cursor's vertical position.
         const coords = {
-          left: this.editor.view.dom.clientWidth / 2, // take middle of editor
+          left: editorBoundingBox.left + editorBoundingBox.width / 2, // take middle of editor
           top: event.clientY,
         };
         const block = getDraggableBlockFromCoords(coords, this.editor.view);
@@ -431,7 +429,7 @@ export class BlockMenuView {
     return {
       referenceRect: new DOMRect(
         this.horizontalPosAnchoredAtRoot
-          ? getHorizontalAnchor()
+          ? this.horizontalPosAnchor
           : blockBoundingBox.x,
         blockBoundingBox.y,
         blockBoundingBox.width,
