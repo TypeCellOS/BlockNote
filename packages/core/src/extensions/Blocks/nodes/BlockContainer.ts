@@ -236,13 +236,14 @@ export const BlockContainer = Node.create<IBlock>({
           const originalBlockContent = state.doc.cut(startPos + 1, posInBlock);
           const newBlockContent = state.doc.cut(posInBlock, endPos - 1);
 
-          const newBlock = state.schema.nodes["blockContainer"].createAndFill()!;
+          const newBlock =
+            state.schema.nodes["blockContainer"].createAndFill()!;
 
           const newBlockInsertionPos = endPos + 1;
           const newBlockContentPos = newBlockInsertionPos + 2;
 
           if (dispatch) {
-            // Creates a new block. Since the schema requires it to have a content node, a textContent node is created
+            // Creates a new block. Since the schema requires it to have a content node, a paragraph node is created
             // automatically, spanning newBlockContentPos to newBlockContentPos + 1.
             state.tr.insert(newBlockInsertionPos, newBlock);
 
