@@ -45,9 +45,11 @@ test.describe("Check Keyboard Handlers' Behaviour", () => {
 
     await page.mouse.click(x + 35, y + height / 2, { clickCount: 2 });
     await page.locator(ITALIC_BUTTON_SELECTOR).click();
-    await page.waitForTimeout(450);
+    await page.waitForTimeout(600);
     await page.mouse.click(x + 35, y + height / 2);
     await page.keyboard.press("Enter");
+
+    await page.pause();
 
     await compareDocToSnapshot(page, "enterPreservesMarks.json");
   });
