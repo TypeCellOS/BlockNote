@@ -34,6 +34,10 @@ export const ToolbarButton = forwardRef(
           <Button
             onClick={props.onClick}
             color={"brandFinal"}
+            data-test={
+              props.mainTooltip.slice(0, 1).toLowerCase() +
+              props.mainTooltip.replace(/\s+/g, "").slice(1)
+            }
             size={"xs"}
             variant={props.isSelected ? "filled" : "subtle"}
             disabled={props.isDisabled || false}
@@ -45,6 +49,10 @@ export const ToolbarButton = forwardRef(
           <ActionIcon
             onClick={props.onClick}
             color={"brandFinal"}
+            data-test={
+              props.mainTooltip.slice(0, 1).toLowerCase() +
+              props.mainTooltip.replace(/\s+/g, "").slice(1)
+            }
             size={30}
             variant={props.isSelected ? "filled" : "subtle"}
             disabled={props.isDisabled || false}

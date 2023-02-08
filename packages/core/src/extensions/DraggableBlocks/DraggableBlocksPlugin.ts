@@ -227,7 +227,7 @@ export class BlockMenuView {
 
   blockMenu: BlockSideMenu;
 
-  hoveredBlock: HTMLElement | undefined;
+  hoveredBlockContent: HTMLElement | undefined;
 
   menuOpen = false;
   menuFrozen = false;
@@ -281,15 +281,15 @@ export class BlockMenuView {
         // Doesn't update if the menu is already open and the mouse cursor is still hovering the same block.
         if (
           this.menuOpen &&
-          this.hoveredBlock?.hasAttribute("data-id") &&
-          this.hoveredBlock?.getAttribute("data-id") === block.id
+          this.hoveredBlockContent?.hasAttribute("data-id") &&
+          this.hoveredBlockContent?.getAttribute("data-id") === block.id
         ) {
           return;
         }
 
         // Gets the block's content node, which lets to ignore child blocks when determining the block menu's position.
         const blockContent = block.node.firstChild as HTMLElement;
-        this.hoveredBlock = blockContent;
+        this.hoveredBlockContent = blockContent;
 
         if (!blockContent) {
           return;
@@ -350,11 +350,12 @@ export class BlockMenuView {
     this.menuFrozen = true;
     this.blockMenu.hide();
 
-    const blockBoundingBox = this.hoveredBlock!.getBoundingClientRect();
+    const blockContentBoundingBox =
+      this.hoveredBlockContent!.getBoundingClientRect();
 
     const pos = this.editor.view.posAtCoords({
-      left: blockBoundingBox.left,
-      top: blockBoundingBox.top,
+      left: blockContentBoundingBox.left + blockContentBoundingBox.width / 2,
+      top: blockContentBoundingBox.top + blockContentBoundingBox.height / 2,
     });
     if (!pos) {
       return;
@@ -395,17 +396,54 @@ export class BlockMenuView {
     this.menuOpen = false;
     this.blockMenu.hide();
 
-    const blockBoundingBox = this.hoveredBlock!.getBoundingClientRect();
+    const blockContentBoundingBox =
+      this.hoveredBlockContent!.getBoundingClientRect();
 
     const pos = this.editor.view.posAtCoords({
-      left: blockBoundingBox.left,
-      top: blockBoundingBox.top,
+      left: blockContentBoundingBox.left + blockContentBoundingBox.width / 2,
+      top: blockContentBoundingBox.top + blockContentBoundingBox.height / 2,
     });
     if (!pos) {
       return;
     }
 
     this.editor.commands.BNDeleteBlock(pos.pos);
+  }
+
+  setBlockBackgroundColor(color: string) {
+    this.menuOpen = false;
+    this.blockMenu.hide();
+
+    const blockContentBoundingBox =
+      this.hoveredBlockContent!.getBoundingClientRect();
+
+    const pos = this.editor.view.posAtCoords({
+      left: blockContentBoundingBox.left + blockContentBoundingBox.width / 2,
+      top: blockContentBoundingBox.top + blockContentBoundingBox.height / 2,
+    });
+    if (!pos) {
+      return;
+    }
+
+    this.editor.commands.setBlockBackgroundColor(pos.pos, color);
+  }
+
+  setBlockTextColor(color: string) {
+    this.menuOpen = false;
+    this.blockMenu.hide();
+
+    const blockContentBoundingBox =
+      this.hoveredBlockContent!.getBoundingClientRect();
+
+    const pos = this.editor.view.posAtCoords({
+      left: blockContentBoundingBox.left + blockContentBoundingBox.width / 2,
+      top: blockContentBoundingBox.top + blockContentBoundingBox.height / 2,
+    });
+    if (!pos) {
+      return;
+    }
+
+    this.editor.commands.setBlockTextColor(pos.pos, color);
   }
 
   getStaticParams(): BlockSideMenuStaticParams {
@@ -420,20 +458,27 @@ export class BlockMenuView {
       unfreezeMenu: () => {
         this.menuFrozen = false;
       },
+      setBlockBackgroundColor: (color: string) =>
+        this.setBlockBackgroundColor(color),
+      setBlockTextColor: (color: string) => this.setBlockTextColor(color),
     };
   }
 
   getDynamicParams(): BlockSideMenuDynamicParams {
-    const blockBoundingBox = this.hoveredBlock!.getBoundingClientRect();
+    const blockContentBoundingBox =
+      this.hoveredBlockContent!.getBoundingClientRect();
 
     return {
+      blockBackgroundColor:
+        this.editor.getAttributes("blockContainer").backgroundColor,
+      blockTextColor: this.editor.getAttributes("blockContainer").textColor,
       referenceRect: new DOMRect(
         this.horizontalPosAnchoredAtRoot
           ? this.horizontalPosAnchor
-          : blockBoundingBox.x,
-        blockBoundingBox.y,
-        blockBoundingBox.width,
-        blockBoundingBox.height
+          : blockContentBoundingBox.x,
+        blockContentBoundingBox.y,
+        blockContentBoundingBox.width,
+        blockContentBoundingBox.height
       ),
     };
   }
