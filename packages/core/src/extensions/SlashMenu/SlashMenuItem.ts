@@ -1,6 +1,5 @@
 import { Editor, Range } from "@tiptap/core";
-import SuggestionItem from "../../shared/plugins/suggestion/SuggestionItem";
-import { IconType } from "react-icons";
+import { SuggestionItem } from "../../shared/plugins/suggestion/SuggestionItem";
 
 export type SlashMenuCallback = (editor: Editor, range: Range) => boolean;
 
@@ -40,7 +39,6 @@ export class SlashMenuItem implements SuggestionItem {
     public readonly group: SlashMenuGroups,
     public readonly execute: SlashMenuCallback,
     public readonly aliases: string[] = [],
-    public readonly icon?: IconType,
     public readonly hint?: string,
     public readonly shortcut?: string
   ) {

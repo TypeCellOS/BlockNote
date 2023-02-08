@@ -5,13 +5,18 @@
       "type": "blockGroup",
       "content": [
         {
-          "type": "block",
+          "type": "blockContainer",
           "attrs": {
-            "id": 1
+            "id": 1,
+            "textColor": "default",
+            "backgroundColor": "default"
           },
           "content": [
             {
-              "type": "textContent"
+              "type": "paragraph",
+              "attrs": {
+                "textAlignment": "left"
+              }
             }
           ]
         }

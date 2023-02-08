@@ -37,7 +37,7 @@ export function getBlockInfoFromPos(
     if (depth === 0) {
       return undefined;
     }
-    if (node.type.name === "block") {
+    if (node.type.name === "blockContainer") {
       break;
     }
 

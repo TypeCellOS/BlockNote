@@ -5,15 +5,18 @@
       "type": "blockGroup",
       "content": [
         {
-          "type": "block",
+          "type": "blockContainer",
           "attrs": {
-            "id": 0
+            "id": 0,
+            "textColor": "default",
+            "backgroundColor": "default"
           },
           "content": [
             {
-              "type": "headingContent",
+              "type": "heading",
               "attrs": {
-                "headingLevel": "1"
+                "textAlignment": "left",
+                "level": "1"
               },
               "content": [
                 {
@@ -25,15 +28,18 @@
           ]
         },
         {
-          "type": "block",
+          "type": "blockContainer",
           "attrs": {
-            "id": 2
+            "id": 2,
+            "textColor": "default",
+            "backgroundColor": "default"
           },
           "content": [
             {
-              "type": "headingContent",
+              "type": "heading",
               "attrs": {
-                "headingLevel": "2"
+                "textAlignment": "left",
+                "level": "2"
               },
               "content": [
                 {
@@ -46,15 +52,18 @@
               "type": "blockGroup",
               "content": [
                 {
-                  "type": "block",
+                  "type": "blockContainer",
                   "attrs": {
-                    "id": 3
+                    "id": 3,
+                    "textColor": "default",
+                    "backgroundColor": "default"
                   },
                   "content": [
                     {
-                      "type": "headingContent",
+                      "type": "heading",
                       "attrs": {
-                        "headingLevel": "3"
+                        "textAlignment": "left",
+                        "level": "3"
                       },
                       "content": [
                         {
@@ -67,13 +76,18 @@
                       "type": "blockGroup",
                       "content": [
                         {
-                          "type": "block",
+                          "type": "blockContainer",
                           "attrs": {
-                            "id": 4
+                            "id": 4,
+                            "textColor": "default",
+                            "backgroundColor": "default"
                           },
                           "content": [
                             {
-                              "type": "textContent",
+                              "type": "paragraph",
+                              "attrs": {
+                                "textAlignment": "left"
+                              },
                               "content": [
                                 {
                                   "type": "text",
@@ -88,16 +102,18 @@
                   ]
                 },
                 {
-                  "type": "block",
+                  "type": "blockContainer",
                   "attrs": {
-                    "id": 5
+                    "id": 5,
+                    "textColor": "default",
+                    "backgroundColor": "default"
                   },
                   "content": [
                     {
-                      "type": "listItemContent",
+                      "type": "numberedListItem",
                       "attrs": {
-                        "listItemType": "ordered",
-                        "listItemIndex": "1"
+                        "textAlignment": "left",
+                        "index": "1"
                       },
                       "content": [
                         {
@@ -109,16 +125,18 @@
                   ]
                 },
                 {
-                  "type": "block",
+                  "type": "blockContainer",
                   "attrs": {
-                    "id": 6
+                    "id": 6,
+                    "textColor": "default",
+                    "backgroundColor": "default"
                   },
                   "content": [
                     {
-                      "type": "listItemContent",
+                      "type": "numberedListItem",
                       "attrs": {
-                        "listItemType": "ordered",
-                        "listItemIndex": "2"
+                        "textAlignment": "left",
+                        "index": "2"
                       },
                       "content": [
                         {
@@ -130,16 +148,17 @@
                   ]
                 },
                 {
-                  "type": "block",
+                  "type": "blockContainer",
                   "attrs": {
-                    "id": 7
+                    "id": 7,
+                    "textColor": "default",
+                    "backgroundColor": "default"
                   },
                   "content": [
                     {
-                      "type": "listItemContent",
+                      "type": "bulletListItem",
                       "attrs": {
-                        "listItemType": "unordered",
-                        "listItemIndex": null
+                        "textAlignment": "left"
                       },
                       "content": [
                         {
@@ -155,13 +174,18 @@
           ]
         },
         {
-          "type": "block",
+          "type": "blockContainer",
           "attrs": {
-            "id": 1
+            "id": 1,
+            "textColor": "default",
+            "backgroundColor": "default"
           },
           "content": [
             {
-              "type": "textContent"
+              "type": "paragraph",
+              "attrs": {
+                "textAlignment": "left"
+              }
             }
           ]
         }

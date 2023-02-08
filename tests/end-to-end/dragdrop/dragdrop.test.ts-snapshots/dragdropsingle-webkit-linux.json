@@ -5,15 +5,18 @@
       "type": "blockGroup",
       "content": [
         {
-          "type": "block",
+          "type": "blockContainer",
           "attrs": {
-            "id": 1
+            "id": 1,
+            "textColor": "default",
+            "backgroundColor": "default"
           },
           "content": [
             {
-              "type": "headingContent",
+              "type": "heading",
               "attrs": {
-                "headingLevel": "2"
+                "textAlignment": "left",
+                "level": "2"
               },
               "content": [
                 {
@@ -25,15 +28,18 @@
           ]
         },
         {
-          "type": "block",
+          "type": "blockContainer",
           "attrs": {
-            "id": 4
+            "id": 4,
+            "textColor": "default",
+            "backgroundColor": "default"
           },
           "content": [
             {
-              "type": "headingContent",
+              "type": "heading",
               "attrs": {
-                "headingLevel": "1"
+                "textAlignment": "left",
+                "level": "1"
               },
               "content": [
                 {
@@ -45,15 +51,18 @@
           ]
         },
         {
-          "type": "block",
+          "type": "blockContainer",
           "attrs": {
-            "id": 2
+            "id": 2,
+            "textColor": "default",
+            "backgroundColor": "default"
           },
           "content": [
             {
-              "type": "headingContent",
+              "type": "heading",
               "attrs": {
-                "headingLevel": "3"
+                "textAlignment": "left",
+                "level": "3"
               },
               "content": [
                 {
@@ -65,13 +74,18 @@
           ]
         },
         {
-          "type": "block",
+          "type": "blockContainer",
           "attrs": {
-            "id": 3
+            "id": 3,
+            "textColor": "default",
+            "backgroundColor": "default"
           },
           "content": [
             {
-              "type": "textContent"
+              "type": "paragraph",
+              "attrs": {
+                "textAlignment": "left"
+              }
             }
           ]
         }

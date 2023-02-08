@@ -1,0 +1,127 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "blockGroup",
+      "content": [
+        {
+          "type": "blockContainer",
+          "attrs": {
+            "id": 0,
+            "textColor": "default",
+            "backgroundColor": "default"
+          },
+          "content": [
+            {
+              "type": "paragraph",
+              "attrs": {
+                "textAlignment": "left"
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Paragraph"
+                }
+              ]
+            },
+            {
+              "type": "blockGroup",
+              "content": [
+                {
+                  "type": "blockContainer",
+                  "attrs": {
+                    "id": 1,
+                    "textColor": "default",
+                    "backgroundColor": "default"
+                  },
+                  "content": [
+                    {
+                      "type": "heading",
+                      "attrs": {
+                        "textAlignment": "left",
+                        "level": "1"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Heading"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "blockContainer",
+          "attrs": {
+            "id": 2,
+            "textColor": "default",
+            "backgroundColor": "default"
+          },
+          "content": [
+            {
+              "type": "heading",
+              "attrs": {
+                "textAlignment": "left",
+                "level": "2"
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Heading"
+                }
+              ]
+            },
+            {
+              "type": "blockGroup",
+              "content": [
+                {
+                  "type": "blockContainer",
+                  "attrs": {
+                    "id": 3,
+                    "textColor": "default",
+                    "backgroundColor": "default"
+                  },
+                  "content": [
+                    {
+                      "type": "heading",
+                      "attrs": {
+                        "textAlignment": "left",
+                        "level": "3"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Heading"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "blockContainer",
+          "attrs": {
+            "id": 4,
+            "textColor": "default",
+            "backgroundColor": "default"
+          },
+          "content": [
+            {
+              "type": "paragraph",
+              "attrs": {
+                "textAlignment": "left"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

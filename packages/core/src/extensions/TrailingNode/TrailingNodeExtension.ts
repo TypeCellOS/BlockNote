@@ -32,8 +32,8 @@ export const TrailingNode = Extension.create<TrailingNodeOptions>({
           const { doc, tr, schema } = state;
           const shouldInsertNodeAtEnd = plugin.getState(state);
           const endPosition = doc.content.size - 2;
-          const type = schema.nodes["block"];
-          const contentType = schema.nodes["textContent"];
+          const type = schema.nodes["blockContainer"];
+          const contentType = schema.nodes["paragraph"];
           if (!shouldInsertNodeAtEnd) {
             return;
           }
@@ -61,8 +61,8 @@ export const TrailingNode = Extension.create<TrailingNodeOptions>({
 
             lastNode = lastNode.lastChild;
 
-            if (!lastNode || lastNode.type.name !== "block") {
-              throw new Error("Expected block");
+            if (!lastNode || lastNode.type.name !== "blockContainer") {
+              throw new Error("Expected blockContainer");
             }
             return lastNode.nodeSize > 4; // empty <block><content/></block> is length 4
           },

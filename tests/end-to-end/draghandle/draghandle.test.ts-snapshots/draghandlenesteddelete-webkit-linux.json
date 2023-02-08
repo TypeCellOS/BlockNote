@@ -5,15 +5,18 @@
       "type": "blockGroup",
       "content": [
         {
-          "type": "block",
+          "type": "blockContainer",
           "attrs": {
-            "id": 0
+            "id": 0,
+            "textColor": "default",
+            "backgroundColor": "default"
           },
           "content": [
             {
-              "type": "headingContent",
+              "type": "heading",
               "attrs": {
-                "headingLevel": "1"
+                "textAlignment": "left",
+                "level": "1"
               },
               "content": [
                 {
@@ -25,13 +28,18 @@
           ]
         },
         {
-          "type": "block",
+          "type": "blockContainer",
           "attrs": {
-            "id": 1
+            "id": 1,
+            "textColor": "default",
+            "backgroundColor": "default"
           },
           "content": [
             {
-              "type": "textContent"
+              "type": "paragraph",
+              "attrs": {
+                "textAlignment": "left"
+              }
             }
           ]
         }
