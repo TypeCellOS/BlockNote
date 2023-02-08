@@ -6,13 +6,14 @@ import {
 } from "@tiptap/core";
 import { EditorState, Plugin, PluginKey } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
+import { Block, BlockUpdate } from "../Blocks/apiTypes";
+import { getBlockInfoFromPos } from "../Blocks/helpers/getBlockInfoFromPos";
 import {
   FormattingToolbar,
   FormattingToolbarDynamicParams,
   FormattingToolbarFactory,
   FormattingToolbarStaticParams,
 } from "./FormattingToolbarFactoryTypes";
-import { BlockContentType } from "../Blocks/nodes/Block";
 
 // Same as TipTap bubblemenu plugin, but with these changes:
 // https://github.com/ueberdosis/tiptap/pull/2596/files
@@ -265,35 +266,73 @@ export class FormattingToolbarView {
         );
         this.editor.view.focus();
       },
-      setBlockType: (type: BlockContentType) => {
+      setTextColor: (color: string) => {
         this.editor.view.focus();
-        this.editor.commands.BNSetContentType(
+        this.editor.commands.setTextColor(color);
+      },
+      setBackgroundColor: (color: string) => {
+        this.editor.view.focus();
+        this.editor.commands.setBackgroundColor(color);
+      },
+      setTextAlignment: (
+        textAlignment: "left" | "center" | "right" | "justify"
+      ) => {
+        this.editor.view.focus();
+        this.editor.commands.setTextAlignment(textAlignment);
+      },
+      increaseBlockIndent: () => {
+        this.editor.view.focus();
+        this.editor.commands.sinkListItem("blockContainer");
+      },
+      decreaseBlockIndent: () => {
+        this.editor.view.focus();
+        this.editor.commands.liftListItem("blockContainer");
+      },
+      updateBlock: (blockUpdate: BlockUpdate) => {
+        this.editor.view.focus();
+        this.editor.commands.BNUpdateBlock(
           this.editor.state.selection.from,
-          type
+          blockUpdate
         );
       },
     };
   }
 
   getDynamicParams(): FormattingToolbarDynamicParams {
+    const blockInfo = getBlockInfoFromPos(
+      this.editor.state.doc,
+      this.editor.state.selection.from
+    )!;
+
     return {
       boldIsActive: this.editor.isActive("bold"),
       italicIsActive: this.editor.isActive("italic"),
       underlineIsActive: this.editor.isActive("underline"),
       strikeIsActive: this.editor.isActive("strike"),
       hyperlinkIsActive: this.editor.isActive("link"),
-      activeHyperlinkUrl: this.editor.getAttributes("link").href
-        ? this.editor.getAttributes("link").href
-        : "",
+      activeHyperlinkUrl: this.editor.getAttributes("link").href || "",
       activeHyperlinkText: this.editor.state.doc.textBetween(
         this.editor.state.selection.from,
         this.editor.state.selection.to
       ),
-      activeBlockType: {
-        name: this.editor.state.selection.$from.node().type.name,
-        attrs: this.editor.state.selection.$from.node().attrs,
-      } as Required<BlockContentType>,
-      selectionBoundingBox: this.getSelectionBoundingBox(),
+      textColor: this.editor.getAttributes("textColor").color || "default",
+      backgroundColor:
+        this.editor.getAttributes("backgroundColor").color || "default",
+      textAlignment:
+        this.editor.getAttributes(blockInfo.contentType).textAlignment ||
+        "left",
+      canIncreaseBlockIndent:
+        this.editor.state.doc
+          .resolve(blockInfo.startPos)
+          .index(blockInfo.depth - 1) > 0,
+      canDecreaseBlockIndent: blockInfo.depth > 2,
+      // Needs type cast as there is no way to create a type that dynamically updates based on which extensions are
+      // loaded by the editor.
+      block: {
+        type: blockInfo.contentType.name,
+        props: blockInfo.contentNode.attrs,
+      } as Block,
+      referenceRect: this.getSelectionBoundingBox(),
     };
   }
 }

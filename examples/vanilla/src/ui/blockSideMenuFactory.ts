@@ -35,9 +35,9 @@ export const blockSideMenuFactory: BlockSideMenuFactory = (staticParams) => {
       }
 
       console.log("show blockmenu", params);
-      container.style.top = params.blockBoundingBox.y + "px";
+      container.style.top = params.referenceRect.y + "px";
       container.style.left =
-        params.blockBoundingBox.x - container.offsetWidth + "px";
+        params.referenceRect.x - container.offsetWidth + "px";
     },
     hide: () => {
       container.style.display = "none";

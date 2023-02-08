@@ -2,7 +2,7 @@ import { expect, Page } from "@playwright/test";
 import { test } from "../../setup/setupScript";
 import {
   BASE_URL,
-  BLOCK_SELECTOR,
+  BLOCK_CONTAINER_SELECTOR,
   DRAG_HANDLE_SELECTOR,
   DRAG_HANDLE_ADD_SELECTOR,
   DRAG_HANDLE_MENU_SELECTOR,
@@ -98,7 +98,7 @@ test.describe("Check Draghandle functionality", () => {
   });
 
   test("Clicking add button should show filter message", async () => {
-    const block = await page.locator(BLOCK_SELECTOR);
+    const block = await page.locator(BLOCK_CONTAINER_SELECTOR);
     await moveMouseOverElement(page, block);
     await page.click(DRAG_HANDLE_ADD_SELECTOR);
     const content = await page.waitForSelector(PARAGRAPH_SELECTOR);
@@ -129,6 +129,14 @@ test.describe("Check Draghandle functionality", () => {
     await page.waitForSelector(DRAG_HANDLE_SELECTOR, { state: "detached" });
 
     await page.waitForSelector(DRAG_HANDLE_ADD_SELECTOR, { state: "detached" });
+  });
+
+  test("Click add button for non-selected empty block", async () => {
+    await executeSlashCommand(page, "h1");
+    await page.keyboard.type("Heading 1");
+    await hoverAndAddBlockFromDragHandle(page, PARAGRAPH_SELECTOR, "h1");
+
+    await compareDocToSnapshot(page, "addnonselectedemptyblock");
   });
 
   test("Clicking delete button should delete block", async () => {

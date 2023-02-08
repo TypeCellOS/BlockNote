@@ -1,7 +1,7 @@
 import { test } from "../../setup/setupScript";
 import {
   BASE_URL,
-  BLOCK_SELECTOR,
+  BLOCK_CONTAINER_SELECTOR,
   H_ONE_BLOCK_SELECTOR,
   H_THREE_BLOCK_SELECTOR,
   H_TWO_BLOCK_SELECTOR,
@@ -9,7 +9,6 @@ import {
 import { compareDocToSnapshot, focusOnEditor } from "../../utils/editor";
 import { insertHeading, insertParagraph } from "../../utils/copypaste";
 import { dragAndDropBlock } from "../../utils/mouse";
-import { showMouseCursor } from "../../utils/debug";
 
 test.beforeEach(async ({ page }) => {
   await page.goto(BASE_URL, { waitUntil: "networkidle" });
@@ -25,7 +24,6 @@ test.describe("Check Block Dragging Functionality", () => {
       "Playwright doesn't correctly simulate drag events in Firefox."
     );
     await focusOnEditor(page);
-    await showMouseCursor(page);
 
     await insertHeading(page, 1);
     await insertHeading(page, 2);
@@ -50,7 +48,6 @@ test.describe("Check Block Dragging Functionality", () => {
       "Playwright doesn't correctly simulate drag events in Firefox."
     );
     await focusOnEditor(page);
-    await showMouseCursor(page);
 
     await insertHeading(page, 1);
     await insertParagraph(page);
@@ -78,7 +75,7 @@ test.describe("Check Block Dragging Functionality", () => {
 
     // Dragging third heading into outside nesting.
     dragTarget = await page.locator(H_THREE_BLOCK_SELECTOR);
-    dropTarget = await page.locator(BLOCK_SELECTOR).last();
+    dropTarget = await page.locator(BLOCK_CONTAINER_SELECTOR).last();
     await page.pause();
     await dragAndDropBlock(page, dragTarget, dropTarget, true);
 

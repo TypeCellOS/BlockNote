@@ -1,4 +1,8 @@
+import { Menu } from "@mantine/core";
 import {
+  RiAlignCenter,
+  RiAlignLeft,
+  RiAlignRight,
   RiBold,
   RiH1,
   RiH2,
@@ -13,12 +17,14 @@ import {
   RiText,
   RiUnderline,
 } from "react-icons/ri";
+import { Block, BlockUpdate } from "@blocknote/core";
+import { Toolbar } from "../../SharedComponents/Toolbar/components/Toolbar";
 import { ToolbarButton } from "../../SharedComponents/Toolbar/components/ToolbarButton";
 import { ToolbarDropdown } from "../../SharedComponents/Toolbar/components/ToolbarDropdown";
-import { Toolbar } from "../../SharedComponents/Toolbar/components/Toolbar";
 import { formatKeyboardShortcut } from "../../utils";
 import LinkToolbarButton from "./LinkToolbarButton";
-import { BlockContentType } from "@blocknote/core";
+import { ColorPicker } from "../../SharedComponents/ColorPicker/components/ColorPicker";
+import { ColorIcon } from "../../SharedComponents/ColorPicker/components/ColorIcon";
 
 export type FormattingToolbarProps = {
   boldIsActive: boolean;
@@ -34,8 +40,22 @@ export type FormattingToolbarProps = {
   activeHyperlinkText: string;
   setHyperlink: (url: string, text?: string) => void;
 
-  activeBlockType: Required<BlockContentType>;
-  setBlockType: (type: BlockContentType) => void;
+  textColor: string;
+  setTextColor: (color: string) => void;
+  backgroundColor: string;
+  setBackgroundColor: (color: string) => void;
+  textAlignment: "left" | "center" | "right" | "justify";
+  setTextAlignment: (
+    textAlignment: "left" | "center" | "right" | "justify"
+  ) => void;
+
+  canIncreaseBlockIndent: boolean;
+  increaseBlockIndent: () => void;
+  canDecreaseBlockIndent: boolean;
+  decreaseBlockIndent: () => void;
+
+  block: Block;
+  updateBlock: (blockUpdate: BlockUpdate) => void;
 };
 
 // TODO: add list options, indentation
@@ -53,22 +73,22 @@ export const FormattingToolbar = (props: FormattingToolbarProps) => {
   };
 
   const getActiveBlock = () => {
-    if (props.activeBlockType.name === "headingContent") {
-      if (props.activeBlockType.attrs["headingLevel"] === "1") {
+    if (props.block.type === "heading") {
+      if (props.block.props.level === "1") {
         return {
           text: "Heading 1",
           icon: RiH1,
         };
       }
 
-      if (props.activeBlockType.attrs["headingLevel"] === "2") {
+      if (props.block.props.level === "2") {
         return {
           text: "Heading 2",
           icon: RiH2,
         };
       }
 
-      if (props.activeBlockType.attrs["headingLevel"] === "3") {
+      if (props.block.props.level === "3") {
         return {
           text: "Heading 3",
           icon: RiH3,
@@ -76,22 +96,22 @@ export const FormattingToolbar = (props: FormattingToolbarProps) => {
       }
     }
 
-    if (props.activeBlockType.name === "listItemContent") {
-      if (props.activeBlockType.attrs["listItemType"] === "unordered") {
-        return {
-          text: "Bullet List",
-          icon: RiListUnordered,
-        };
-      } else {
-        return {
-          text: "Ordered List",
-          icon: RiListOrdered,
-        };
-      }
+    if (props.block.type === "bulletListItem") {
+      return {
+        text: "Bullet List",
+        icon: RiListUnordered,
+      };
+    }
+
+    if (props.block.type === "numberedListItem") {
+      return {
+        text: "Numbered List",
+        icon: RiListOrdered,
+      };
     }
 
     return {
-      text: "Text",
+      text: "Paragraph",
       icon: RiText,
     };
   };
@@ -106,70 +126,67 @@ export const FormattingToolbar = (props: FormattingToolbarProps) => {
         icon={activeBlock!.icon}
         items={[
           {
-            onClick: () => props.setBlockType({ name: "textContent" }),
-            text: "Text",
+            onClick: () =>
+              props.updateBlock({
+                type: "paragraph",
+                props: {},
+              }),
+            text: "Paragraph",
             icon: RiText,
-            isSelected: props.activeBlockType.name === "textContent",
+            isSelected: props.block.type === "paragraph",
           },
           {
             onClick: () =>
-              props.setBlockType({
-                name: "headingContent",
-                attrs: { headingLevel: "1" },
+              props.updateBlock({
+                type: "heading",
+                props: { level: "1" },
               }),
             text: "Heading 1",
             icon: RiH1,
             isSelected:
-              props.activeBlockType.name === "headingContent" &&
-              props.activeBlockType.attrs["headingLevel"] === "1",
+              props.block.type === "heading" && props.block.props.level === "1",
           },
           {
             onClick: () =>
-              props.setBlockType({
-                name: "headingContent",
-                attrs: { headingLevel: "2" },
+              props.updateBlock({
+                type: "heading",
+                props: { level: "2" },
               }),
             text: "Heading 2",
             icon: RiH2,
             isSelected:
-              props.activeBlockType.name === "headingContent" &&
-              props.activeBlockType.attrs["headingLevel"] === "2",
+              props.block.type === "heading" && props.block.props.level === "2",
           },
           {
             onClick: () =>
-              props.setBlockType({
-                name: "headingContent",
-                attrs: { headingLevel: "3" },
+              props.updateBlock({
+                type: "heading",
+                props: { level: "3" },
               }),
             text: "Heading 3",
             icon: RiH3,
             isSelected:
-              props.activeBlockType.name === "headingContent" &&
-              props.activeBlockType.attrs["headingLevel"] === "3",
+              props.block.type === "heading" && props.block.props.level === "3",
           },
           {
             onClick: () =>
-              props.setBlockType({
-                name: "listItemContent",
-                attrs: { listItemType: "unordered" },
+              props.updateBlock({
+                type: "bulletListItem",
+                props: {},
               }),
             text: "Bullet List",
             icon: RiListUnordered,
-            isSelected:
-              props.activeBlockType.name === "listItemContent" &&
-              props.activeBlockType.attrs["listItemType"] === "unordered",
+            isSelected: props.block.type === "bulletListItem",
           },
           {
             onClick: () =>
-              props.setBlockType({
-                name: "listItemContent",
-                attrs: { listItemType: "ordered" },
+              props.updateBlock({
+                type: "numberedListItem",
+                props: {},
               }),
             text: "Numbered List",
             icon: RiListOrdered,
-            isSelected:
-              props.activeBlockType.name === "listItemContent" &&
-              props.activeBlockType.attrs["listItemType"] === "ordered",
+            isSelected: props.block.type === "numberedListItem",
           },
         ]}
       />
@@ -197,40 +214,66 @@ export const FormattingToolbar = (props: FormattingToolbarProps) => {
       <ToolbarButton
         onClick={props.toggleStrike}
         isSelected={activeMarks.has("strike")}
-        mainTooltip="Strike-through"
+        mainTooltip="Strikethrough"
         secondaryTooltip={formatKeyboardShortcut("Mod+Shift+X")}
         icon={RiStrikethrough}
       />
+
       <ToolbarButton
-        onClick={() => {
-          // props.editor.view.focus();
-          // props.editor.commands.sinkListItem("block");
-        }}
-        isDisabled={
-          // !props.editor.can().sinkListItem("block")
-          true
-        }
+        onClick={() => props.setTextAlignment("left")}
+        isSelected={props.textAlignment === "left"}
+        mainTooltip={"Align Text Left"}
+        icon={RiAlignLeft}
+      />
+
+      <ToolbarButton
+        onClick={() => props.setTextAlignment("center")}
+        isSelected={props.textAlignment === "center"}
+        mainTooltip={"Align Text Center"}
+        icon={RiAlignCenter}
+      />
+
+      <ToolbarButton
+        onClick={() => props.setTextAlignment("right")}
+        isSelected={props.textAlignment === "right"}
+        mainTooltip={"Align Text Right"}
+        icon={RiAlignRight}
+      />
+
+      <Menu>
+        <Menu.Target>
+          <ToolbarButton
+            mainTooltip={"Colors"}
+            icon={() => (
+              <ColorIcon
+                textColor={props.textColor}
+                backgroundColor={props.backgroundColor}
+                size={20}
+              />
+            )}
+          />
+        </Menu.Target>
+        <Menu.Dropdown>
+          <ColorPicker
+            textColor={props.textColor}
+            setTextColor={props.setTextColor}
+            backgroundColor={props.backgroundColor}
+            setBackgroundColor={props.setBackgroundColor}
+          />
+        </Menu.Dropdown>
+      </Menu>
+
+      <ToolbarButton
+        onClick={props.increaseBlockIndent}
+        isDisabled={!props.canIncreaseBlockIndent}
         mainTooltip="Indent"
         secondaryTooltip={formatKeyboardShortcut("Tab")}
         icon={RiIndentIncrease}
       />
 
       <ToolbarButton
-        onClick={() => {
-          // props.editor.view.focus();
-          // props.editor.commands.liftListItem("block");
-        }}
-        isDisabled={
-          // !props.editor.can().command(({ state }) => {
-          //   const block = findBlock(state.selection);
-          //   if (!block) {
-          //     return false;
-          //   }
-          //   // If the depth is greater than 2 you can lift
-          //   return block.depth > 2;
-          // })
-          true
-        }
+        onClick={props.decreaseBlockIndent}
+        isDisabled={!props.canDecreaseBlockIndent}
         mainTooltip="Decrease Indent"
         secondaryTooltip={formatKeyboardShortcut("Shift+Tab")}
         icon={RiIndentDecrease}

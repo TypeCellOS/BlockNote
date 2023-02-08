@@ -1,6 +1,5 @@
 import { Extensions, extensions } from "@tiptap/core";
 
-import { Node } from "@tiptap/core";
 import Bold from "@tiptap/extension-bold";
 import Code from "@tiptap/extension-code";
 import DropCursor from "@tiptap/extension-dropcursor";
@@ -16,7 +15,6 @@ import blockStyles from "./extensions/Blocks/nodes/Block.module.css";
 import { FormattingToolbarExtension } from "./extensions/FormattingToolbar/FormattingToolbarExtension";
 import { DraggableBlocksExtension } from "./extensions/DraggableBlocks/DraggableBlocksExtension";
 import HyperlinkMark from "./extensions/HyperlinkToolbar/HyperlinkMark";
-import { FixedParagraph } from "./extensions/Paragraph/FixedParagraph";
 import { Placeholder } from "./extensions/Placeholder/PlaceholderExtension";
 import SlashMenuExtension from "./extensions/SlashMenu";
 import { TrailingNode } from "./extensions/TrailingNode/TrailingNodeExtension";
@@ -27,12 +25,11 @@ import { SuggestionsMenuFactory } from "./shared/plugins/suggestion/SuggestionsM
 import { BlockSideMenuFactory } from "./extensions/DraggableBlocks/BlockSideMenuFactoryTypes";
 import { Link } from "@tiptap/extension-link";
 import { SlashMenuItem } from "./extensions/SlashMenu/SlashMenuItem";
-
-export const Document = Node.create({
-  name: "doc",
-  topNode: true,
-  content: "block+",
-});
+import { BackgroundColorMark } from "./extensions/BackgroundColor/BackgroundColorMark";
+import { TextColorMark } from "./extensions/TextColor/TextColorMark";
+import { BackgroundColorExtension } from "./extensions/BackgroundColor/BackgroundColorExtension";
+import { TextColorExtension } from "./extensions/TextColor/TextColorExtension";
+import { TextAlignmentExtension } from "./extensions/TextAlignment/TextAlignmentExtension";
 
 export type UiFactories = Partial<{
   formattingToolbarFactory: FormattingToolbarFactory;
@@ -64,7 +61,7 @@ export const getBlockNoteExtensions = (uiFactories: UiFactories) => {
       showOnlyCurrent: false,
     }),
     UniqueID.configure({
-      types: ["block"],
+      types: ["blockContainer"],
     }),
     HardBreak,
     // Comments,
@@ -78,7 +75,11 @@ export const getBlockNoteExtensions = (uiFactories: UiFactories) => {
     Italic,
     Strike,
     Underline,
-    FixedParagraph,
+    TextColorMark,
+    TextColorExtension,
+    BackgroundColorMark,
+    BackgroundColorExtension,
+    TextAlignmentExtension,
 
     // custom blocks:
     ...blocks,

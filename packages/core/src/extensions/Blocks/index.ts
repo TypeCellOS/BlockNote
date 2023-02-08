@@ -1,15 +1,17 @@
 import { Node } from "@tiptap/core";
-import { Block } from "./nodes/Block";
+import { BlockContainer } from "./nodes/BlockContainer";
 import { BlockGroup } from "./nodes/BlockGroup";
-import { TextContent } from "./nodes/BlockTypes/TextBlock/TextContent";
-import { HeadingContent } from "./nodes/BlockTypes/HeadingBlock/HeadingContent";
-import { ListItemContent } from "./nodes/BlockTypes/ListItemBlock/ListItemContent";
+import { ParagraphBlockContent } from "./nodes/BlockContent/ParagraphBlockContent/ParagraphBlockContent";
+import { HeadingBlockContent } from "./nodes/BlockContent/HeadingBlockContent/HeadingBlockContent";
+import { BulletListItemBlockContent } from "./nodes/BlockContent/ListItemBlockContent/BulletListItemBlockContent/BulletListItemBlockContent";
+import { NumberedListItemBlockContent } from "./nodes/BlockContent/ListItemBlockContent/NumberedListItemBlockContent/NumberedListItemBlockContent";
 
 export const blocks: any[] = [
-  TextContent,
-  HeadingContent,
-  ListItemContent,
-  Block,
+  ParagraphBlockContent,
+  HeadingBlockContent,
+  BulletListItemBlockContent,
+  NumberedListItemBlockContent,
+  BlockContainer,
   BlockGroup,
   Node.create({
     name: "doc",
