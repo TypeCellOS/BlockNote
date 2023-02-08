@@ -26,5 +26,7 @@ export const TEXT_COLOR_SELECTOR = (color: string) =>
 export const BACKGROUND_COLOR_SELECTOR = (color: string) =>
   `[data-test="background-color-${color}"]`;
 export const ALIGN_TEXT_RIGHT_BUTTON_SELECTOR = `[data-test="alignTextRight"]`;
+export const INDENT_BUTTON_SELECTOR = `[data-test="indent"]`;
+export const DECREASE_INDENT_BUTTON_SELECTOR = `[data-test="decreaseIndent"]`;
 
 export const TYPE_DELAY = 10;
