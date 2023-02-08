@@ -1,13 +1,10 @@
 import { Menu } from "@mantine/core";
-import { HiChevronDown } from "react-icons/hi";
+import { HiChevronRight } from "react-icons/hi";
 import { ColorPicker } from "../../SharedComponents/ColorPicker/components/ColorPicker";
 import { useCallback, useState } from "react";
 
 export const ColorPickerMenu = (props: {
-  // freezeMenu: () => void;
-  // unfreezeMenu: () => void;
-  // onButtonClick: () => void;
-  onClick: () => void;
+  onClick?: () => void;
 
   blockBackgroundColor: string;
   setBlockBackgroundColor: (color: string) => void;
@@ -53,7 +50,7 @@ export const ColorPickerMenu = (props: {
           stopMenuCloseTimer();
           setButtonBackground("#f1f3f5");
         }}
-        rightSection={<HiChevronDown />}>
+        rightSection={<HiChevronRight />}>
         Colors
       </Menu.Item>
       <Menu.Dropdown
