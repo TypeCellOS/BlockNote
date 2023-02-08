@@ -7,11 +7,16 @@
         {
           "type": "blockContainer",
           "attrs": {
-            "id": 1
+            "id": 1,
+            "textColor": "default",
+            "backgroundColor": "default"
           },
           "content": [
             {
               "type": "paragraph",
+              "attrs": {
+                "textAlignment": "left"
+              },
               "content": [
                 {
                   "type": "text",
@@ -25,12 +30,15 @@
                 {
                   "type": "blockContainer",
                   "attrs": {
-                    "id": 6
+                    "id": 6,
+                    "textColor": "default",
+                    "backgroundColor": "default"
                   },
                   "content": [
                     {
                       "type": "heading",
                       "attrs": {
+                        "textAlignment": "left",
                         "level": "1"
                       },
                       "content": [
@@ -45,11 +53,16 @@
                 {
                   "type": "blockContainer",
                   "attrs": {
-                    "id": 3
+                    "id": 3,
+                    "textColor": "default",
+                    "backgroundColor": "default"
                   },
                   "content": [
                     {
                       "type": "paragraph",
+                      "attrs": {
+                        "textAlignment": "left"
+                      },
                       "content": [
                         {
                           "type": "text",
@@ -63,12 +76,15 @@
                         {
                           "type": "blockContainer",
                           "attrs": {
-                            "id": 7
+                            "id": 7,
+                            "textColor": "default",
+                            "backgroundColor": "default"
                           },
                           "content": [
                             {
                               "type": "heading",
                               "attrs": {
+                                "textAlignment": "left",
                                 "level": "2"
                               },
                               "content": [
@@ -91,12 +107,15 @@
         {
           "type": "blockContainer",
           "attrs": {
-            "id": 8
+            "id": 8,
+            "textColor": "default",
+            "backgroundColor": "default"
           },
           "content": [
             {
               "type": "heading",
               "attrs": {
+                "textAlignment": "left",
                 "level": "3"
               },
               "content": [
@@ -111,11 +130,16 @@
         {
           "type": "blockContainer",
           "attrs": {
-            "id": 5
+            "id": 5,
+            "textColor": "default",
+            "backgroundColor": "default"
           },
           "content": [
             {
-              "type": "paragraph"
+              "type": "paragraph",
+              "attrs": {
+                "textAlignment": "left"
+              }
             }
           ]
         }

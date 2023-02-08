@@ -49,17 +49,6 @@ export const BlockContainer = Node.create<IBlock>({
     };
   },
 
-  addAttributes() {
-    return {
-      blockColor: {
-        default: undefined,
-      },
-      blockStyle: {
-        default: undefined,
-      },
-    };
-  },
-
   parseHTML() {
     return [
       {
