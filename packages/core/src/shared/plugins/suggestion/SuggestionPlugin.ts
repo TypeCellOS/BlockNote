@@ -175,9 +175,9 @@ class SuggestionPluginView<T extends SuggestionItem> {
     );
 
     return {
-      queryStartBoundingBox: decorationNode!.getBoundingClientRect(),
       items: this.pluginState.items,
       keyboardHoveredItemIndex: this.pluginState.keyboardHoveredItemIndex!,
+      referenceRect: decorationNode!.getBoundingClientRect(),
     };
   }
 }
