@@ -2,7 +2,7 @@
 
 <a href="https://discord.gg/aDQxXezfNj"><img alt="Discord" src="https://img.shields.io/badge/Chat on discord%20-%237289DA.svg?&style=for-the-badge&logo=discord&logoColor=white"/></a> <a href="https://matrix.to/#/#typecell-space:matrix.org"><img alt="Matrix" src="https://img.shields.io/badge/Chat on matrix%20-%23000.svg?&style=for-the-badge&logo=matrix&logoColor=white"/></a>
 
-[![npm version](https://badge.fury.io/js/%40blocknote%2Fcore.svg)](https://badge.fury.io/js/%40blocknote%2Fcore)
+[![npm version](https://badge.fury.io/js/%40blocknote%2Freact.svg)](https://badge.fury.io/js/%40blocknote%2Freact)
 
 **Welcome to BlockNote editor: a "Notion-style" block-based extensible text editor built on top of [Prosemirror](https://prosemirror.net/) and [Tiptap](https://tiptap.dev/).**
 
@@ -15,20 +15,24 @@ Play with the editor @ [https://blocknote-main.vercel.app/](https://blocknote-ma
 # Example code (React)
 
 ```typescript
-import { EditorContent, useEditor } from "@blocknote/core";
+import { BlockNoteView, useBlockNote } from "@blocknote/react";
 import "@blocknote/core/style.css";
 
 function App() {
-  const editor = useEditor({
+  const editor = useBlockNote({
     onUpdate: ({ editor }) => {
       // Log the document to console on every update
       console.log(editor.getJSON());
     },
   });
 
-  return <EditorContent editor={editor} />;
+  return <BlockNoteView editor={editor} />;
 }
 ```
+
+`@blocknote/react` comes with a fully styled UI that makes it an instant, polished editor ready to use in your app.
+
+If you prefer to create your own UI components (menus), or don't want to use React, you can use `@blocknote/core` (_advanced_, see `examples/vanilla` for a demo).
 
 # Features
 
@@ -68,8 +72,10 @@ Directory structure:
 
 ```
 blocknote
-├── packages/core       - The editor that can be used in other applications
-├── examples/editor     - The main example application that just embeds the editor
+├── packages/core       - The core of the editor
+├── packages/react      - The main library for use in React apps
+├── examples/editor     - Example React app that embeds the editor
+├── examples/vanilla    - An advanced example if you don't want to use React or want to build your own UI components
 └── tests               - Playwright end to end tests
 ```
 
