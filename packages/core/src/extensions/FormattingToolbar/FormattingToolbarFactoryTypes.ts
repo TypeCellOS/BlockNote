@@ -14,6 +14,9 @@ export type FormattingToolbarStaticParams = {
     textAlignment: "left" | "center" | "right" | "justify"
   ) => void;
 
+  increaseBlockIndent: () => void;
+  decreaseBlockIndent: () => void;
+
   updateBlock: (blockUpdate: BlockUpdate) => void;
 };
 
@@ -29,6 +32,9 @@ export type FormattingToolbarDynamicParams = {
   textColor: string;
   backgroundColor: string;
   textAlignment: "left" | "center" | "right" | "justify";
+
+  canIncreaseBlockIndent: boolean;
+  canDecreaseBlockIndent: boolean;
 
   block: Block;
 

@@ -280,6 +280,14 @@ export class FormattingToolbarView {
         this.editor.view.focus();
         this.editor.commands.setTextAlignment(textAlignment);
       },
+      increaseBlockIndent: () => {
+        this.editor.view.focus();
+        this.editor.commands.sinkListItem("blockContainer");
+      },
+      decreaseBlockIndent: () => {
+        this.editor.view.focus();
+        this.editor.commands.liftListItem("blockContainer");
+      },
       updateBlock: (blockUpdate: BlockUpdate) => {
         this.editor.view.focus();
         this.editor.commands.BNUpdateBlock(
@@ -313,6 +321,11 @@ export class FormattingToolbarView {
       textAlignment:
         this.editor.getAttributes(blockInfo.contentType).textAlignment ||
         "left",
+      canIncreaseBlockIndent:
+        this.editor.state.doc
+          .resolve(blockInfo.startPos)
+          .index(blockInfo.depth - 1) > 0,
+      canDecreaseBlockIndent: blockInfo.depth > 2,
       // Needs type cast as there is no way to create a type that dynamically updates based on which extensions are
       // loaded by the editor.
       block: {

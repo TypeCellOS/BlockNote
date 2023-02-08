@@ -7,6 +7,8 @@ import {
   RiH1,
   RiH2,
   RiH3,
+  RiIndentDecrease,
+  RiIndentIncrease,
   RiItalic,
   RiLink,
   RiListOrdered,
@@ -46,6 +48,11 @@ export type FormattingToolbarProps = {
   setTextAlignment: (
     textAlignment: "left" | "center" | "right" | "justify"
   ) => void;
+
+  canIncreaseBlockIndent: boolean;
+  increaseBlockIndent: () => void;
+  canDecreaseBlockIndent: boolean;
+  decreaseBlockIndent: () => void;
 
   block: Block;
   updateBlock: (blockUpdate: BlockUpdate) => void;
@@ -256,40 +263,21 @@ export const FormattingToolbar = (props: FormattingToolbarProps) => {
         </Menu.Dropdown>
       </Menu>
 
-      {/*<ToolbarButton*/}
-      {/*  onClick={() => {*/}
-      {/*    // props.editor.view.focus();*/}
-      {/*    // props.editor.commands.sinkListItem("block");*/}
-      {/*  }}*/}
-      {/*  isDisabled={*/}
-      {/*    // !props.editor.can().sinkListItem("block")*/}
-      {/*    true*/}
-      {/*  }*/}
-      {/*  mainTooltip="Indent"*/}
-      {/*  secondaryTooltip={formatKeyboardShortcut("Tab")}*/}
-      {/*  icon={RiIndentIncrease}*/}
-      {/*/>*/}
+      <ToolbarButton
+        onClick={props.increaseBlockIndent}
+        isDisabled={!props.canIncreaseBlockIndent}
+        mainTooltip="Indent"
+        secondaryTooltip={formatKeyboardShortcut("Tab")}
+        icon={RiIndentIncrease}
+      />
 
-      {/*<ToolbarButton*/}
-      {/*  onClick={() => {*/}
-      {/*    // props.editor.view.focus();*/}
-      {/*    // props.editor.commands.liftListItem("block");*/}
-      {/*  }}*/}
-      {/*  isDisabled={*/}
-      {/*    // !props.editor.can().command(({ state }) => {*/}
-      {/*    //   const block = findBlock(state.selection);*/}
-      {/*    //   if (!block) {*/}
-      {/*    //     return false;*/}
-      {/*    //   }*/}
-      {/*    //   // If the depth is greater than 2 you can lift*/}
-      {/*    //   return block.depth > 2;*/}
-      {/*    // })*/}
-      {/*    true*/}
-      {/*  }*/}
-      {/*  mainTooltip="Decrease Indent"*/}
-      {/*  secondaryTooltip={formatKeyboardShortcut("Shift+Tab")}*/}
-      {/*  icon={RiIndentDecrease}*/}
-      {/*/>*/}
+      <ToolbarButton
+        onClick={props.decreaseBlockIndent}
+        isDisabled={!props.canDecreaseBlockIndent}
+        mainTooltip="Decrease Indent"
+        secondaryTooltip={formatKeyboardShortcut("Shift+Tab")}
+        icon={RiIndentDecrease}
+      />
 
       <LinkToolbarButton
         isSelected={activeMarks.has("link")}
