@@ -1,6 +1,7 @@
 import { test } from "../../setup/setupScript";
 import {
   BASE_URL,
+  ITALIC_BUTTON_SELECTOR,
   H_ONE_BLOCK_SELECTOR,
   H_TWO_BLOCK_SELECTOR,
 } from "../../utils/const";
@@ -33,5 +34,40 @@ test.describe("Check Keyboard Handlers' Behaviour", () => {
     await page.keyboard.press("Enter");
 
     await compareDocToSnapshot(page, "enterSelectionNotEmpty.json");
+  });
+  test("Check Enter preserves marks", async ({ page }) => {
+    await focusOnEditor(page);
+    await insertHeading(page, 1);
+
+    const element = await page.locator(H_ONE_BLOCK_SELECTOR);
+    let boundingBox = await element.boundingBox();
+    let { x, y, height } = boundingBox;
+
+    await page.mouse.click(x + 35, y + height / 2, { clickCount: 2 });
+    await page.locator(ITALIC_BUTTON_SELECTOR).click();
+    await page.waitForTimeout(600);
+    await page.mouse.click(x + 35, y + height / 2);
+    await page.keyboard.press("Enter");
+
+    await page.pause();
+
+    await compareDocToSnapshot(page, "enterPreservesMarks.json");
+  });
+  test("Check Enter preserves nested blocks", async ({ page }) => {
+    await focusOnEditor(page);
+    await insertHeading(page, 1);
+    await page.keyboard.press("Tab");
+    await insertHeading(page, 2);
+    await page.keyboard.press("Tab");
+    await insertHeading(page, 3);
+
+    const element = await page.locator(H_ONE_BLOCK_SELECTOR);
+    let boundingBox = await element.boundingBox();
+    let { x, y, height } = boundingBox;
+
+    await page.mouse.click(x + 35, y + height / 2);
+    await page.keyboard.press("Enter");
+
+    await compareDocToSnapshot(page, "enterPreservesNestedBlocks.json");
   });
 });
