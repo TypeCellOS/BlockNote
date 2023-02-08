@@ -1,4 +1,4 @@
-import { Menu } from "@mantine/core";
+import { Box, Menu } from "@mantine/core";
 import { HiChevronRight } from "react-icons/hi";
 import { ColorPicker } from "../../SharedComponents/ColorPicker/components/ColorPicker";
 import { useCallback, useState } from "react";
@@ -50,7 +50,11 @@ export const ColorPickerMenu = (props: {
           stopMenuCloseTimer();
           setButtonBackground("#f1f3f5");
         }}
-        rightSection={<HiChevronRight />}>
+        rightSection={
+          <Box style={{ display: "flex", alignItems: "center" }}>
+            <HiChevronRight size={15} />
+          </Box>
+        }>
         Colors
       </Menu.Item>
       <Menu.Dropdown
