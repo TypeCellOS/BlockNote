@@ -131,6 +131,14 @@ test.describe("Check Draghandle functionality", () => {
     await page.waitForSelector(DRAG_HANDLE_ADD_SELECTOR, { state: "detached" });
   });
 
+  test("Click add button for non-selected empty block", async () => {
+    await executeSlashCommand(page, "h1");
+    await page.keyboard.type("Heading 1");
+    await hoverAndAddBlockFromDragHandle(page, PARAGRAPH_SELECTOR, "h1");
+
+    await compareDocToSnapshot(page, "addnonselectedemptyblock");
+  });
+
   test("Clicking delete button should delete block", async () => {
     await executeSlashCommand(page, "h1");
     await page.keyboard.type("Hover over this text");

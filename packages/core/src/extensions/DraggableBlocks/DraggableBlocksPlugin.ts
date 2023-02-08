@@ -379,6 +379,8 @@ export class BlockMenuView {
         .BNUpdateBlock(newBlockContentPos, { type: "paragraph", props: {} })
         .setTextSelection(newBlockContentPos)
         .run();
+    } else {
+      this.editor.commands.setTextSelection(endPos);
     }
 
     // Focuses and activates the suggestion menu.
