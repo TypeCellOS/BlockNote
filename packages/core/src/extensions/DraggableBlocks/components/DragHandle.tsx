@@ -49,9 +49,9 @@ export const DragHandle = (props: {
         .BNSetContentType(newBlockContentPos, "textContent")
         .setTextSelection(newBlockContentPos)
         .run();
+    } else {
+      props.editor.commands.setTextSelection(endPos);
     }
-
-    props.editor.commands.focus(endPos);
 
     // Focuses and activates the suggestion menu.
     props.editor.view.focus();
