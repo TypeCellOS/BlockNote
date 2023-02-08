@@ -42,7 +42,7 @@ export const slashMenuFactory: SuggestionsMenuFactory<SlashMenuItem> = (
       updateItems(
         params.items,
         staticParams.itemCallback,
-        params.selectedItemIndex
+        params.keyboardHoveredItemIndex
       );
 
       if (isHidden) {

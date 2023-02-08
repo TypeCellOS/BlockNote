@@ -1,6 +1,5 @@
 import { Editor, Range } from "@tiptap/core";
-import { escapeRegExp } from "lodash";
-import { EditorState, Plugin, PluginKey, Selection } from "prosemirror-state";
+import { EditorState, Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
 import { findBlock } from "../../../extensions/Blocks/helpers/findBlock";
 import {
@@ -25,9 +24,9 @@ export type SuggestionPluginOptions<T extends SuggestionItem> = {
   editor: Editor;
 
   /**
-   * The character that should trigger the suggestion menu to pop up (e.g. a '/' for commands)
+   * The character that should trigger the suggestion menu to pop up (e.g. a '/' for commands), when typed by the user.
    */
-  char: string;
+  defaultTriggerCharacter: string;
 
   suggestionsMenuFactory: SuggestionsMenuFactory<T>;
 
@@ -49,15 +48,37 @@ export type SuggestionPluginOptions<T extends SuggestionItem> = {
 };
 
 type SuggestionPluginState<T extends SuggestionItem> = {
+  // True when the menu is shown, false when hidden.
   active: boolean;
-  range: Range | null;
-  query: string | null;
-  notFoundCount: number;
+  // The character that triggered the menu being shown. Allowing the trigger to be different to the default
+  // trigger allows other extensions to open it programmatically.
+  triggerCharacter: string | undefined;
+  // The editor position just after the trigger character, i.e. where the user query begins. Used to figure out
+  // which menu items to show and can also be used to delete the trigger character.
+  queryStartPos: number | undefined;
+  // The items that should be shown in the menu.
   items: T[];
-  selectedItemIndex: number;
-  type: string;
-  decorationId: string | null;
+  // The index of the item in the menu that's currently hovered using the keyboard.
+  keyboardHoveredItemIndex: number | undefined;
+  // The number of characters typed after the last query that matched with at least 1 item. Used to close the
+  // menu if the user keeps entering queries that don't return any results.
+  notFoundCount: number | undefined;
+  decorationId: string | undefined;
 };
+
+function getDefaultPluginState<
+  T extends SuggestionItem
+>(): SuggestionPluginState<T> {
+  return {
+    active: false,
+    triggerCharacter: undefined,
+    queryStartPos: undefined,
+    items: [] as T[],
+    keyboardHoveredItemIndex: undefined,
+    notFoundCount: 0,
+    decorationId: undefined,
+  };
+}
 
 type SuggestionPluginViewOptions<T extends SuggestionItem> = {
   editor: Editor;
@@ -65,47 +86,6 @@ type SuggestionPluginViewOptions<T extends SuggestionItem> = {
   onSelectItem: (props: { item: T; editor: Editor; range: Range }) => void;
   suggestionsMenuFactory: SuggestionsMenuFactory<T>;
 };
-
-export type MenuType = "slash" | "drag";
-
-/**
- * Finds a command: a specified character (e.g. '/') followed by a string of characters (all characters except the specified character are allowed).
- * Returns the string following the specified character or undefined if no command was found.
- *
- * @param char the character that indicates the start of a command
- * @param selection the selection (only works if the selection is empty; i.e. is a blinking cursor).
- * @returns an object containing the matching word (excluding the specified character) and the range of the match (including the specified character) or undefined if there is no match.
- */
-export function findCommandBeforeCursor(
-  char: string,
-  selection: Selection
-): { range: Range; query: string } | undefined {
-  if (!selection.empty) {
-    return undefined;
-  }
-
-  // get the text before the cursor as a node
-  const node = selection.$anchor.nodeBefore;
-  if (!node || !node.text) {
-    return undefined;
-  }
-
-  // regex to match anything between with the specified char (e.g. '/') and the end of text (which is the end of selection)
-  const regex = new RegExp(`${escapeRegExp(char)}([^${escapeRegExp(char)}]*)$`);
-  const match = node.text.match(regex);
-
-  if (!match) {
-    return undefined;
-  }
-
-  return {
-    query: match[1],
-    range: {
-      from: selection.$anchor.pos - match[1].length - char.length,
-      to: selection.$anchor.pos,
-    },
-  };
-}
 
 class SuggestionPluginView<T extends SuggestionItem> {
   editor: Editor;
@@ -125,22 +105,18 @@ class SuggestionPluginView<T extends SuggestionItem> {
     this.editor = editor;
     this.pluginKey = pluginKey;
 
-    this.pluginState = {
-      active: false,
-      range: null,
-      query: null,
-      notFoundCount: 0,
-      items: [],
-      selectedItemIndex: 0,
-      type: "slash",
-      decorationId: null,
-    };
+    this.pluginState = getDefaultPluginState<T>();
 
     this.itemCallback = (item: T) =>
       selectItemCallback({
         item: item,
         editor: editor,
-        range: this.pluginState.range as Range,
+        range: {
+          from:
+            this.pluginState.queryStartPos! -
+            this.pluginState.triggerCharacter!.length,
+          to: editor.state.selection.from,
+        },
       });
 
     this.suggestionsMenu = suggestionsMenuFactory(this.getStaticParams());
@@ -200,7 +176,7 @@ class SuggestionPluginView<T extends SuggestionItem> {
 
     return {
       items: this.pluginState.items,
-      selectedItemIndex: this.pluginState.selectedItemIndex,
+      keyboardHoveredItemIndex: this.pluginState.keyboardHoveredItemIndex!,
       referenceRect: decorationNode!.getBoundingClientRect(),
     };
   }
@@ -222,13 +198,13 @@ class SuggestionPluginView<T extends SuggestionItem> {
 export function createSuggestionPlugin<T extends SuggestionItem>({
   pluginKey,
   editor,
-  char,
+  defaultTriggerCharacter,
   suggestionsMenuFactory,
   onSelectItem: selectItemCallback = () => {},
   items = () => [],
 }: SuggestionPluginOptions<T>) {
   // Assertions
-  if (char.length !== 1) {
+  if (defaultTriggerCharacter.length !== 1) {
     throw new Error("'char' should be a single character");
   }
 
@@ -236,7 +212,7 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
     view.dispatch(view.state.tr.setMeta(pluginKey, { deactivate: true }));
   };
 
-  // Plugin key is passed in parameter so it can be exported and used in draghandle
+  // Plugin key is passed in as a parameter, so it can be exported and used in the DraggableBlocksPlugin.
   return new Plugin({
     key: pluginKey,
 
@@ -254,126 +230,93 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
     state: {
       // Initialize the plugin's internal state.
       init(): SuggestionPluginState<T> {
-        return {
-          active: false,
-          range: null, // TODO
-          query: null,
-          notFoundCount: 0,
-          items: [] as T[],
-          selectedItemIndex: 0,
-          type: "slash",
-          decorationId: null,
-        };
+        return getDefaultPluginState<T>();
       },
 
-      // Apply changes to the plugin state from a view transaction.
-      apply(transaction, prev, _oldState, newState) {
-        const { selection } = transaction;
-        const next = { ...prev };
-
-        // TODO: More clearly define which transactions should be ignored and which should deactivate the menu.
-        if (transaction.getMeta("numberedListIndexing") !== undefined) {
-          return next;
+      // Apply changes to the plugin state from an editor transaction.
+      apply(transaction, prev, oldState, newState): SuggestionPluginState<T> {
+        // TODO: More clearly define which transactions should be ignored.
+        if (transaction.getMeta("orderedListIndexing") !== undefined) {
+          return prev;
         }
 
-        // Handles transactions created by navigating the menu using the up/down arrow keys.
+        // Checks if the menu should be shown.
+        if (transaction.getMeta(pluginKey)?.activate) {
+          return {
+            active: true,
+            triggerCharacter:
+              transaction.getMeta(pluginKey)?.triggerCharacter || "",
+            queryStartPos: newState.selection.from,
+            items: items(""),
+            keyboardHoveredItemIndex: 0,
+            // TODO: Maybe should be 1 if the menu has no possible items? Probably redundant since a menu with no items
+            //  is useless in practice.
+            notFoundCount: 0,
+            decorationId: `id_${Math.floor(Math.random() * 0xffffffff)}`,
+          };
+        }
+
+        // Checks if the menu is hidden, in which case it doesn't need to be hidden or updated.
+        if (!prev.active) {
+          return prev;
+        }
+
+        const next = { ...prev };
+
+        // Updates which menu items to show by checking which items the current query (the text between the trigger
+        // character and caret) matches with.
+        next.items = items(
+          newState.doc.textBetween(prev.queryStartPos!, newState.selection.from)
+        );
+
+        // Updates notFoundCount if the query doesn't match any items.
+        next.notFoundCount = 0;
+        if (next.items.length === 0) {
+          // Checks how many characters were typed or deleted since the last transaction, and updates the notFoundCount
+          // accordingly. Also ensures the notFoundCount does not become negative.
+          next.notFoundCount = Math.max(
+            0,
+            prev.notFoundCount! +
+              (newState.selection.from - oldState.selection.from)
+          );
+        }
+
+        // Hides the menu. This is done after items and notFoundCount are already updated as notFoundCount is needed to
+        // check if the menu should be hidden.
+        if (
+          // Highlighting text should hide the menu.
+          newState.selection.from !== newState.selection.to ||
+          // Transactions with plugin metadata {deactivate: true} should hide the menu.
+          transaction.getMeta(pluginKey)?.deactivate ||
+          // Certain mouse events should hide the menu.
+          // TODO: Change to global mousedown listener.
+          transaction.getMeta("focus") ||
+          transaction.getMeta("blur") ||
+          transaction.getMeta("pointer") ||
+          // Moving the caret before the character which triggered the menu should hide it.
+          (prev.active && newState.selection.from < prev.queryStartPos!) ||
+          // Entering more than 3 characters, after the last query that matched with at least 1 menu item, should hide
+          // the menu.
+          next.notFoundCount > 3
+        ) {
+          return getDefaultPluginState<T>();
+        }
+
+        // Updates keyboardHoveredItemIndex if necessary.
         if (
           transaction.getMeta(pluginKey)?.selectedItemIndexChanged !== undefined
         ) {
           let newIndex =
             transaction.getMeta(pluginKey).selectedItemIndexChanged;
 
+          // Allows selection to jump between first and last items.
           if (newIndex < 0) {
             newIndex = prev.items.length - 1;
-          }
-
-          if (newIndex >= prev.items.length) {
+          } else if (newIndex >= prev.items.length) {
             newIndex = 0;
           }
 
-          next.selectedItemIndex = newIndex;
-
-          return next;
-        }
-
-        if (
-          // only show popup if selection is a blinking cursor
-          selection.from === selection.to &&
-          // deactivate popup from view (e.g.: choice has been made or esc has been pressed)
-          !transaction.getMeta(pluginKey)?.deactivate &&
-          // deactivate because a mouse event occurs (user clicks somewhere else in the document)
-          !transaction.getMeta("focus") &&
-          !transaction.getMeta("blur") &&
-          !transaction.getMeta("pointer")
-        ) {
-          // Reset active state if we just left the previous suggestion range (e.g.: key arrows moving before /)
-          if (prev.active && selection.from <= prev.range!.from) {
-            next.active = false;
-          } else if (transaction.getMeta(pluginKey)?.activate) {
-            // Start showing suggestions. activate has been set after typing a "/" (or whatever the specified character is), so let's create the decoration and initialize
-            const newDecorationId = `id_${Math.floor(
-              Math.random() * 0xffffffff
-            )}`;
-            next.decorationId = newDecorationId;
-            next.range = {
-              from: selection.from - 1,
-              to: selection.to,
-            };
-            next.query = "";
-            next.active = true;
-            next.type = transaction.getMeta(pluginKey)?.type;
-            next.selectedItemIndex = 0;
-          } else if (prev.active) {
-            // Try to match against where our cursor currently is
-            // if the type is slash we get the command after the character
-            // otherwise we get the whole query
-            const match = findCommandBeforeCursor(
-              prev.type === "slash" ? char : "",
-              newState.selection
-            );
-            if (!match) {
-              throw new Error("active but no match (suggestions)");
-            }
-
-            next.range = match.range;
-            next.active = true;
-            next.decorationId = prev.decorationId;
-            next.query = match.query;
-            next.selectedItemIndex = 0;
-          }
-        } else {
-          next.active = false;
-        }
-
-        if (next.active) {
-          next.items = items(next.query!);
-          if (next.items.length) {
-            next.notFoundCount = 0;
-          } else {
-            // Update the "notFoundCount",
-            // which indicates how many characters have been typed after showing no results
-            if (next.range!.to > prev.range!.to) {
-              // Text has been entered (selection moved to right), but still no items found, update Count
-              next.notFoundCount = prev.notFoundCount + 1;
-            } else {
-              // No text has been entered in this tr, keep not found count
-              // (e.g.: user hits backspace after no results)
-              next.notFoundCount = prev.notFoundCount;
-            }
-          }
-
-          if (next.notFoundCount > 3) {
-            next.active = false;
-          }
-        }
-
-        // Make sure to empty the range if suggestion is inactive
-        if (!next.active) {
-          next.decorationId = null;
-          next.range = null;
-          next.query = null;
-          next.notFoundCount = 0;
-          next.items = [];
+          next.keyboardHoveredItemIndex = newIndex;
         }
 
         return next;
@@ -382,57 +325,74 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
 
     props: {
       handleKeyDown(view, event) {
-        const { active } = (this as Plugin).getState(view.state);
+        const menuIsActive = (this as Plugin).getState(view.state).active;
 
-        if (!active) {
-          // activate the popup on 'char' keypress (e.g. '/')
-          if (event.key === char) {
-            view.dispatch(
-              view.state.tr
-                .insertText(char)
-                .scrollIntoView()
-                .setMeta(pluginKey, { activate: true, type: "slash" })
-            );
-            // return true to cancel the original event, as we insert / ourselves
-            return true;
-          }
-        } else {
-          const { items, range, selectedItemIndex } = pluginKey.getState(
-            view.state
+        // Shows the menu if the default trigger character was pressed and the menu isn't active.
+        if (event.key === defaultTriggerCharacter && !menuIsActive) {
+          view.dispatch(
+            view.state.tr
+              .insertText(defaultTriggerCharacter)
+              .scrollIntoView()
+              .setMeta(pluginKey, {
+                activate: true,
+                triggerCharacter: defaultTriggerCharacter,
+              })
           );
 
-          if (event.key === "ArrowUp") {
-            view.dispatch(
-              view.state.tr.setMeta(pluginKey, {
-                selectedItemIndexChanged: selectedItemIndex - 1,
-              })
-            );
-            return true;
-          }
+          return true;
+        }
 
-          if (event.key === "ArrowDown") {
-            view.dispatch(
-              view.state.tr.setMeta(pluginKey, {
-                selectedItemIndexChanged: selectedItemIndex + 1,
-              })
-            );
-            return true;
-          }
+        // Doesn't handle other keystrokes if the menu isn't active.
+        if (!menuIsActive) {
+          return false;
+        }
 
-          if (event.key === "Enter") {
-            deactivate(view);
-            selectItemCallback({
-              item: items[selectedItemIndex],
-              editor: editor,
-              range: range,
-            });
-            return true;
-          }
+        // Handles keystrokes for navigating the menu.
+        const {
+          triggerCharacter,
+          queryStartPos,
+          items,
+          keyboardHoveredItemIndex,
+        } = pluginKey.getState(view.state);
 
-          if (event.key === "Escape") {
-            deactivate(view);
-            return true;
-          }
+        // Moves the keyboard selection to the previous item.
+        if (event.key === "ArrowUp") {
+          view.dispatch(
+            view.state.tr.setMeta(pluginKey, {
+              selectedItemIndexChanged: keyboardHoveredItemIndex - 1,
+            })
+          );
+          return true;
+        }
+
+        // Moves the keyboard selection to the next item.
+        if (event.key === "ArrowDown") {
+          view.dispatch(
+            view.state.tr.setMeta(pluginKey, {
+              selectedItemIndexChanged: keyboardHoveredItemIndex + 1,
+            })
+          );
+          return true;
+        }
+
+        // Selects an item and closes the menu.
+        if (event.key === "Enter") {
+          deactivate(view);
+          selectItemCallback({
+            item: items[keyboardHoveredItemIndex],
+            editor: editor,
+            range: {
+              from: queryStartPos - triggerCharacter.length,
+              to: view.state.selection.from,
+            },
+          });
+          return true;
+        }
+
+        // Closes the menu.
+        if (event.key === "Escape") {
+          deactivate(view);
+          return true;
         }
 
         return false;
@@ -445,18 +405,17 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
 
       // Setup decorator on the currently active suggestion.
       decorations(state) {
-        const { active, range, decorationId, type } = (this as Plugin).getState(
-          state
-        );
+        const { active, decorationId, queryStartPos, triggerCharacter } = (
+          this as Plugin
+        ).getState(state);
 
         if (!active) {
           return null;
         }
 
-        // If type in meta is drag, create decoration node that wraps block
-        // Because the block does not have content yet (slash menu has the '/' in its content),
-        // so we can't use an inline decoration.
-        if (type === "drag") {
+        // If the menu was opened programmatically by another extension, it may not use a trigger character. In this
+        // case, the decoration is set on the whole block instead, as the decoration range would otherwise be empty.
+        if (triggerCharacter === "") {
           const blockNode = findBlock(state.selection);
           if (blockNode) {
             return DecorationSet.create(state.doc, [
@@ -472,13 +431,17 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
             ]);
           }
         }
-        // Create inline decoration that wraps / or whatever the specified character is
+        // Creates an inline decoration around the trigger character.
         return DecorationSet.create(state.doc, [
-          Decoration.inline(range.from, range.to, {
-            nodeName: "span",
-            class: "suggestion-decorator",
-            "data-decoration-id": decorationId,
-          }),
+          Decoration.inline(
+            queryStartPos - triggerCharacter.length,
+            queryStartPos,
+            {
+              nodeName: "span",
+              class: "suggestion-decorator",
+              "data-decoration-id": decorationId,
+            }
+          ),
         ]);
       },
     },
