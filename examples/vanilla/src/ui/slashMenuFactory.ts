@@ -6,7 +6,7 @@ import { createButton } from "./util";
  * or when the mouse is hovering over a hyperlink
  */
 export const slashMenuFactory: SuggestionsMenuFactory<SlashMenuItem> = (
-  props
+  staticParams
 ) => {
   const container = document.createElement("div");
   container.style.background = "gray";
@@ -41,7 +41,7 @@ export const slashMenuFactory: SuggestionsMenuFactory<SlashMenuItem> = (
     render: (params, isHidden) => {
       updateItems(
         params.items,
-        props.itemCallback,
+        staticParams.itemCallback,
         params.keyboardHoveredItemIndex
       );
 

@@ -5,14 +5,14 @@ import { createButton } from "./util";
  * This menu is drawn next to a block, when it's hovered over
  * It renders a drag handle and + button to create a new block
  */
-export const blockSideMenuFactory: BlockSideMenuFactory = (props) => {
+export const blockSideMenuFactory: BlockSideMenuFactory = (staticParams) => {
   const container = document.createElement("div");
   container.style.background = "gray";
   container.style.position = "absolute";
   container.style.padding = "10px";
   container.style.opacity = "0.8";
   const addBtn = createButton("+", () => {
-    props.addBlock();
+    staticParams.addBlock();
   });
   container.appendChild(addBtn);
 
@@ -20,8 +20,8 @@ export const blockSideMenuFactory: BlockSideMenuFactory = (props) => {
     // TODO: render a submenu with a delete option that calls "props.deleteBlock"
   });
 
-  dragBtn.addEventListener("dragstart", props.blockDragStart);
-  dragBtn.addEventListener("dragend", props.blockDragEnd);
+  dragBtn.addEventListener("dragstart", staticParams.blockDragStart);
+  dragBtn.addEventListener("dragend", staticParams.blockDragEnd);
   container.style.display = "none";
   container.appendChild(dragBtn);
 
