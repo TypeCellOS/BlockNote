@@ -3,11 +3,14 @@ export type BlockSpec<
   // Examples might include: "paragraph", "heading", or "bulletListItem".
   Type extends string,
   // Changeable props which affect the block's behaviour or appearance.
-  // An example might be: { textAlignment: "left" | "right" | "center" | "justify" } for a paragraph block.
+  // An example might be: { textAlignment: "left" | "right" | "center" } for a paragraph block.
   Props extends Record<string, string>
 > = {
+  id: string;
+  children: Block[];
   type: Type;
   props: Props;
+  // TODO: content
 };
 
 export type BlockSpecUpdate<Spec> = Spec extends BlockSpec<

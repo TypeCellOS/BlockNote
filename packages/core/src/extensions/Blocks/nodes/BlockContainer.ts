@@ -1,7 +1,7 @@
 import { mergeAttributes, Node } from "@tiptap/core";
 import { Fragment, Slice } from "prosemirror-model";
 import { TextSelection } from "prosemirror-state";
-import { BlockUpdate } from "../apiTypes";
+import { BlockUpdate } from "../api/apiTypes";
 import { getBlockInfoFromPos } from "../helpers/getBlockInfoFromPos";
 import { PreviousBlockTypePlugin } from "../PreviousBlockTypePlugin";
 import styles from "./Block.module.css";

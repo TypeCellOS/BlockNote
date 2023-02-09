@@ -17,7 +17,10 @@ export class SlashMenuItem implements SuggestionItem {
   constructor(
     public readonly name: string,
     public readonly execute: (editor: Editor, range: Range) => void,
-    public readonly aliases: string[] = []
+    public readonly aliases: string[] = [],
+    public readonly group: string,
+    public readonly hint?: string,
+    public readonly shortcut?: string
   ) {}
 
   match(query: string): boolean {

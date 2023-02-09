@@ -6,7 +6,7 @@ import {
 } from "@tiptap/core";
 import { EditorState, Plugin, PluginKey } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
-import { Block, BlockUpdate } from "../Blocks/apiTypes";
+import { Block, BlockUpdate } from "../Blocks/api/apiTypes";
 import { getBlockInfoFromPos } from "../Blocks/helpers/getBlockInfoFromPos";
 import {
   FormattingToolbar,
