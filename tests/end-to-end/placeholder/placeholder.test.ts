@@ -9,7 +9,7 @@ test.beforeEach(async ({ page }) => {
 test.describe("Basic placeholder functionality", () => {
   test("should show placeholder on load", async ({ page }) => {
     // const editor = await page.waitForSelector("[data-test='editor']");
-    await page.locator('[data-test="editor"] div').nth(3).click();
+    await page.locator('[data-test="editor"] div').nth(3).hover();
 
     // TODO: doesn't work. No way to access text of ::before element?
     // expect(await editor.textContent()).toBe(

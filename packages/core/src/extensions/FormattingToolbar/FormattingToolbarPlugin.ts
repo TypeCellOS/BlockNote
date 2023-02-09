@@ -266,6 +266,28 @@ export class FormattingToolbarView {
         );
         this.editor.view.focus();
       },
+      setTextColor: (color: string) => {
+        this.editor.view.focus();
+        this.editor.commands.setTextColor(color);
+      },
+      setBackgroundColor: (color: string) => {
+        this.editor.view.focus();
+        this.editor.commands.setBackgroundColor(color);
+      },
+      setTextAlignment: (
+        textAlignment: "left" | "center" | "right" | "justify"
+      ) => {
+        this.editor.view.focus();
+        this.editor.commands.setTextAlignment(textAlignment);
+      },
+      increaseBlockIndent: () => {
+        this.editor.view.focus();
+        this.editor.commands.sinkListItem("blockContainer");
+      },
+      decreaseBlockIndent: () => {
+        this.editor.view.focus();
+        this.editor.commands.liftListItem("blockContainer");
+      },
       updateBlock: (blockUpdate: BlockUpdate) => {
         this.editor.view.focus();
         this.editor.commands.BNUpdateBlock(
@@ -288,13 +310,22 @@ export class FormattingToolbarView {
       underlineIsActive: this.editor.isActive("underline"),
       strikeIsActive: this.editor.isActive("strike"),
       hyperlinkIsActive: this.editor.isActive("link"),
-      activeHyperlinkUrl: this.editor.getAttributes("link").href
-        ? this.editor.getAttributes("link").href
-        : "",
+      activeHyperlinkUrl: this.editor.getAttributes("link").href || "",
       activeHyperlinkText: this.editor.state.doc.textBetween(
         this.editor.state.selection.from,
         this.editor.state.selection.to
       ),
+      textColor: this.editor.getAttributes("textColor").color || "default",
+      backgroundColor:
+        this.editor.getAttributes("backgroundColor").color || "default",
+      textAlignment:
+        this.editor.getAttributes(blockInfo.contentType).textAlignment ||
+        "left",
+      canIncreaseBlockIndent:
+        this.editor.state.doc
+          .resolve(blockInfo.startPos)
+          .index(blockInfo.depth - 1) > 0,
+      canDecreaseBlockIndent: blockInfo.depth > 2,
       // Needs type cast as there is no way to create a type that dynamically updates based on which extensions are
       // loaded by the editor.
       block: {

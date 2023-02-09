@@ -11,12 +11,6 @@ BASIC STYLES
 }
 
 .block {
-  border-left: 2px solid white;
-  border-color: white;
-  transition: all 0.2s;
-}
-
-.block {
   /* content: ""; */
   transition: all 0.2s;
   margin: 0px;
@@ -267,4 +261,95 @@ NESTED BLOCKS
 .blockContent[data-content-type="numberedListItem"].isEmpty
 > :first-child:before {
   content: "List";
+}
+
+/* TEXT COLORS */
+[data-text-color="gray"] {
+  color: #9b9a97;
+}
+
+[data-text-color="brown"] {
+  color: #64473a;
+}
+
+[data-text-color="red"] {
+  color: #e03e3e;
+}
+
+[data-text-color="orange"] {
+  color: #d9730d;
+}
+
+[data-text-color="yellow"] {
+  color: #dfab01;
+}
+
+[data-text-color="green"] {
+  color: #4d6461;
+}
+
+[data-text-color="blue"] {
+  color: #0b6e99;
+}
+
+[data-text-color="purple"] {
+  color: #6940a5;
+}
+
+[data-text-color="pink"] {
+  color: #ad1a72;
+}
+
+/* BACKGROUND COLORS */
+[data-background-color="gray"] {
+  background-color: #ebeced;
+}
+
+[data-background-color="brown"] {
+  background-color: #e9e5e3;
+}
+
+[data-background-color="red"] {
+  background-color: #fbe4e4;
+}
+
+[data-background-color="orange"] {
+  background-color: #faebdd;
+}
+
+[data-background-color="yellow"] {
+  background-color: #fbf3db;
+}
+
+[data-background-color="green"] {
+  background-color: #ddedea;
+}
+
+[data-background-color="blue"] {
+  background-color: #ddebf1;
+}
+
+[data-background-color="purple"] {
+  background-color: #eae4f2;
+}
+
+[data-background-color="pink"] {
+  background-color: #f4dfeb;
+}
+
+/* TEXT ALIGNMENT */
+[data-text-alignment="left"] {
+  text-align: left;
+}
+
+[data-text-alignment="center"] {
+  text-align: center;
+}
+
+[data-text-alignment="right"] {
+  text-align: right;
+}
+
+[data-text-alignment="justify"] {
+  text-align: justify;
 }

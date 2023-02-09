@@ -1,5 +1,5 @@
-import { formatKeyboardShortcut } from "../../shared/utils";
-import { SlashMenuGroups, SlashMenuItem } from "./SlashMenuItem";
+import { SlashMenuItem } from "./SlashMenuItem";
+import { Editor, Range } from "@tiptap/core";
 
 /**
  * An array containing commands for creating all default blocks.
@@ -8,8 +8,7 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
   // Command for creating a level 1 heading
   heading: new SlashMenuItem(
     "Heading",
-    SlashMenuGroups.HEADINGS,
-    (editor, range) => {
+    (editor: Editor, range: Range) => {
       return editor
         .chain()
         .focus()
@@ -22,16 +21,13 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         })
         .run();
     },
-    ["h", "heading1", "h1"],
-    "Used for a top-level heading",
-    formatKeyboardShortcut("Mod-Alt-1")
+    ["h", "heading1", "h1"]
   ),
 
   // Command for creating a level 2 heading
   heading2: new SlashMenuItem(
     "Heading 2",
-    SlashMenuGroups.HEADINGS,
-    (editor, range) => {
+    (editor: Editor, range: Range) => {
       return editor
         .chain()
         .focus()
@@ -44,16 +40,13 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         })
         .run();
     },
-    ["h2", "heading2", "subheading"],
-    "Used for key sections",
-    formatKeyboardShortcut("Mod-Alt-2")
+    ["h2", "heading2", "subheading"]
   ),
 
   // Command for creating a level 3 heading
   heading3: new SlashMenuItem(
     "Heading 3",
-    SlashMenuGroups.HEADINGS,
-    (editor, range) => {
+    (editor: Editor, range: Range) => {
       return editor
         .chain()
         .focus()
@@ -66,16 +59,13 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         })
         .run();
     },
-    ["h3", "heading3", "subheading"],
-    "Used for subsections and group headings",
-    formatKeyboardShortcut("Mod-Alt-3")
+    ["h3", "heading3", "subheading"]
   ),
 
   // Command for creating an ordered list
   numberedList: new SlashMenuItem(
     "Numbered List",
-    SlashMenuGroups.BASIC_BLOCKS,
-    (editor, range) => {
+    (editor: Editor, range: Range) => {
       return editor
         .chain()
         .focus()
@@ -86,16 +76,13 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         })
         .run();
     },
-    ["li", "list", "numberedlist", "numbered list"],
-    "Used to display a numbered list",
-    formatKeyboardShortcut("Mod-Shift-7")
+    ["li", "list", "numberedlist", "numbered list"]
   ),
 
   // Command for creating a bullet list
   bulletList: new SlashMenuItem(
     "Bullet List",
-    SlashMenuGroups.BASIC_BLOCKS,
-    (editor, range) => {
+    (editor: Editor, range: Range) => {
       return editor
         .chain()
         .focus()
@@ -106,16 +93,13 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         })
         .run();
     },
-    ["ul", "list", "bulletlist", "bullet list"],
-    "Used to display an unordered list",
-    formatKeyboardShortcut("Mod-Shift-8")
+    ["ul", "list", "bulletlist", "bullet list"]
   ),
 
   // Command for creating a paragraph (pretty useless)
   paragraph: new SlashMenuItem(
     "Paragraph",
-    SlashMenuGroups.BASIC_BLOCKS,
-    (editor, range) => {
+    (editor: Editor, range: Range) => {
       return editor
         .chain()
         .focus()
@@ -126,9 +110,7 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         })
         .run();
     },
-    ["p"],
-    "Used for the body of your document",
-    formatKeyboardShortcut("Mod-Alt-0")
+    ["p"]
   ),
 
   //     replaceRangeWithNode(editor, range, node);

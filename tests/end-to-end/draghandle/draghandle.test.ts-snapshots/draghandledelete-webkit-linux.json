@@ -7,11 +7,16 @@
         {
           "type": "blockContainer",
           "attrs": {
-            "id": 1
+            "id": 1,
+            "textColor": "default",
+            "backgroundColor": "default"
           },
           "content": [
             {
-              "type": "paragraph"
+              "type": "paragraph",
+              "attrs": {
+                "textAlignment": "left"
+              }
             }
           ]
         }

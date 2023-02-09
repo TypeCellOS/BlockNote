@@ -31,7 +31,7 @@ export const SlashMenuExtension = Extension.create<SlashMenuOptions>({
       createSuggestionPlugin<SlashMenuItem>({
         pluginKey: SlashMenuPluginKey,
         editor: this.editor,
-        char: "/",
+        defaultTriggerCharacter: "/",
         suggestionsMenuFactory: this.options.slashMenuFactory!,
         items: (query) => {
           const commands = [];
