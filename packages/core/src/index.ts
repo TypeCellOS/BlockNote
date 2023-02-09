@@ -9,3 +9,4 @@ export * from "./extensions/SlashMenu/SlashMenuItem";
 export * from "./shared/EditorElement";
 export type { SuggestionItem } from "./shared/plugins/suggestion/SuggestionItem";
 export * from "./shared/plugins/suggestion/SuggestionsMenuFactoryTypes";
+export * from "../src/api/Editor";
