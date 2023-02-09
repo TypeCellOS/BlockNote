@@ -1,7 +1,7 @@
 import { SlashMenuItem } from "@blocknote/core";
 import { createStyles, Menu } from "@mantine/core";
+import * as _ from "lodash";
 import { SlashMenuItem as ReactSlashMenuItem } from "./SlashMenuItem";
-
 export type SlashMenuProps = {
   items: SlashMenuItem[];
   selectedItemIndex: number;
@@ -12,45 +12,17 @@ export function SlashMenu(props: SlashMenuProps) {
   const { classes } = createStyles({ root: {} })(undefined, {
     name: "SlashMenu",
   });
-
-  const headingGroup: SlashMenuItem[] = [];
-  const basicBlockGroup: SlashMenuItem[] = [];
-
-  for (const item of props.items) {
-    if (item.name === "Heading") {
-      headingGroup.push(item);
-    }
-
-    if (item.name === "Heading 2") {
-      headingGroup.push(item);
-    }
-
-    if (item.name === "Heading 3") {
-      headingGroup.push(item);
-    }
-
-    if (item.name === "Numbered List") {
-      basicBlockGroup.push(item);
-    }
-
-    if (item.name === "Bullet List") {
-      basicBlockGroup.push(item);
-    }
-
-    if (item.name === "Paragraph") {
-      basicBlockGroup.push(item);
-    }
-  }
-
   const renderedItems: any[] = [];
   let index = 0;
 
-  if (headingGroup.length > 0) {
+  const groups = _.groupBy(props.items, (i) => i.group);
+
+  _.forEach(groups, (el) => {
     renderedItems.push(
-      <Menu.Label key={"Headings Label"}>{"Headings"}</Menu.Label>
+      <Menu.Label key={el[0].group}>{el[0].group}</Menu.Label>
     );
 
-    for (const item of headingGroup) {
+    for (const item of el) {
       renderedItems.push(
         <ReactSlashMenuItem
           key={item.name}
@@ -63,27 +35,7 @@ export function SlashMenu(props: SlashMenuProps) {
       );
       index++;
     }
-  }
-
-  if (basicBlockGroup.length > 0) {
-    renderedItems.push(
-      <Menu.Label key={"Basic Blocks Label"}>{"Basic Blocks"}</Menu.Label>
-    );
-
-    for (const item of basicBlockGroup) {
-      renderedItems.push(
-        <ReactSlashMenuItem
-          key={item.name}
-          name={item.name}
-          hint={item.hint}
-          shortcut={item.shortcut}
-          isSelected={props.selectedItemIndex === index}
-          set={() => props.itemCallback(item)}
-        />
-      );
-      index++;
-    }
-  }
+  });
 
   return (
     <Menu

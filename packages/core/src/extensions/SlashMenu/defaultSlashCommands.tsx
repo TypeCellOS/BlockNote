@@ -1,14 +1,20 @@
 import { formatKeyboardShortcut } from "../../shared/utils";
-import { SlashMenuGroups, SlashMenuItem } from "./SlashMenuItem";
+import { SlashMenuItem } from "./SlashMenuItem";
+
+export enum defaultSlashGroups {
+  HEADINGS = "Headings",
+  BASIC_BLOCKS = "Basic Blocks",
+  CODE = "Code Blocks",
+}
 
 /**
  * An array containing commands for creating all default blocks.
  */
-const defaultCommands: { [key: string]: SlashMenuItem } = {
+export const defaultSlashCommands: SlashMenuItem[] = [
   // Command for creating a level 1 heading
-  heading: new SlashMenuItem(
+  new SlashMenuItem(
     "Heading",
-    SlashMenuGroups.HEADINGS,
+    defaultSlashGroups.HEADINGS,
     (editor, range) => {
       return editor
         .chain()
@@ -28,9 +34,9 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
   ),
 
   // Command for creating a level 2 heading
-  heading2: new SlashMenuItem(
+  new SlashMenuItem(
     "Heading 2",
-    SlashMenuGroups.HEADINGS,
+    defaultSlashGroups.HEADINGS,
     (editor, range) => {
       return editor
         .chain()
@@ -50,9 +56,9 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
   ),
 
   // Command for creating a level 3 heading
-  heading3: new SlashMenuItem(
+  new SlashMenuItem(
     "Heading 3",
-    SlashMenuGroups.HEADINGS,
+    defaultSlashGroups.HEADINGS,
     (editor, range) => {
       return editor
         .chain()
@@ -72,9 +78,9 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
   ),
 
   // Command for creating an ordered list
-  numberedList: new SlashMenuItem(
+  new SlashMenuItem(
     "Numbered List",
-    SlashMenuGroups.BASIC_BLOCKS,
+    defaultSlashGroups.BASIC_BLOCKS,
     (editor, range) => {
       return editor
         .chain()
@@ -92,9 +98,9 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
   ),
 
   // Command for creating a bullet list
-  bulletList: new SlashMenuItem(
+  new SlashMenuItem(
     "Bullet List",
-    SlashMenuGroups.BASIC_BLOCKS,
+    defaultSlashGroups.BASIC_BLOCKS,
     (editor, range) => {
       return editor
         .chain()
@@ -112,9 +118,9 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
   ),
 
   // Command for creating a paragraph (pretty useless)
-  paragraph: new SlashMenuItem(
+  new SlashMenuItem(
     "Paragraph",
-    SlashMenuGroups.BASIC_BLOCKS,
+    defaultSlashGroups.BASIC_BLOCKS,
     (editor, range) => {
       return editor
         .chain()
@@ -234,6 +240,4 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
   //   TableIcon,
   //   "Used to create a simple table"
   // ),
-};
-
-export default defaultCommands;
+];

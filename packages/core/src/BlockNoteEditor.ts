@@ -3,11 +3,14 @@ import { Editor, EditorOptions } from "@tiptap/core";
 // import "./blocknote.css";
 import { getBlockNoteExtensions, UiFactories } from "./BlockNoteExtensions";
 import styles from "./editor.module.css";
+import { SlashCommand } from "./extensions/SlashMenu";
+import { defaultSlashCommands } from "./extensions/SlashMenu/defaultSlashCommands";
 
 export type BlockNoteEditorOptions = EditorOptions & {
   enableBlockNoteExtensions: boolean;
   disableHistoryExtension: boolean;
   uiFactories: UiFactories;
+  slashCommands: SlashCommand[];
 };
 
 const blockNoteOptions = {
@@ -20,9 +23,10 @@ export class BlockNoteEditor {
   public readonly tiptapEditor: Editor & { contentComponent: any };
 
   constructor(options: Partial<BlockNoteEditorOptions> = {}) {
-    const blockNoteExtensions = getBlockNoteExtensions(
-      options.uiFactories || {}
-    );
+    const blockNoteExtensions = getBlockNoteExtensions({
+      uiFactories: options.uiFactories || {},
+      slashCommands: options.slashCommands || defaultSlashCommands,
+    });
 
     let extensions = options.disableHistoryExtension
       ? blockNoteExtensions.filter((e) => e.name !== "history")

@@ -10,7 +10,7 @@ export interface SuggestionItem {
   /**
    * The name of the group to which this item belongs
    */
-  groupName: string;
+  group: string;
 
   hint?: string;
 

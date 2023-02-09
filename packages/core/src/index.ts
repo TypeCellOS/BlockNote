@@ -1,9 +1,10 @@
 export * from "./BlockNoteEditor";
 export * from "./BlockNoteExtensions";
 export type { Block, BlockUpdate } from "./extensions/Blocks/apiTypes";
-export * from "./extensions/FormattingToolbar/FormattingToolbarFactoryTypes";
 export * from "./extensions/DraggableBlocks/BlockSideMenuFactoryTypes";
+export * from "./extensions/FormattingToolbar/FormattingToolbarFactoryTypes";
 export * from "./extensions/HyperlinkToolbar/HyperlinkToolbarFactoryTypes";
+export { defaultSlashCommands } from "./extensions/SlashMenu/defaultSlashCommands";
 export * from "./extensions/SlashMenu/SlashMenuItem";
 export * from "./shared/EditorElement";
 export type { SuggestionItem } from "./shared/plugins/suggestion/SuggestionItem";
