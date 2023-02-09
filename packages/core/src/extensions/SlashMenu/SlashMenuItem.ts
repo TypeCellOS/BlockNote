@@ -1,34 +1,23 @@
 import { Editor, Range } from "@tiptap/core";
 import { SuggestionItem } from "../../shared/plugins/suggestion/SuggestionItem";
 
-export type SlashMenuCallback = (editor: Editor, range: Range) => boolean;
-
 /**
  * A class that defines a slash command (/<command>).
  *
  * Not to be confused with ProseMirror commands nor TipTap commands.
  */
 export class SlashMenuItem implements SuggestionItem {
-  // other parameters initialized in the constructor
-
   /**
    * Constructs a new slash-command.
    *
    * @param name The name of the command
-   * @param group Used to organize the menu
    * @param execute The callback for creating a new node
    * @param aliases Aliases for this command
-   * @param icon To be shown next to the name in the menu
-   * @param hint Short description of command
-   * @param shortcut Info about keyboard shortcut that would activate this command
    */
   constructor(
     public readonly name: string,
-    public readonly group: string,
-    public readonly execute: SlashMenuCallback,
-    public readonly aliases: string[] = [],
-    public readonly hint?: string,
-    public readonly shortcut?: string
+    public readonly execute: (editor: Editor, range: Range) => void,
+    public readonly aliases: string[] = []
   ) {}
 
   match(query: string): boolean {

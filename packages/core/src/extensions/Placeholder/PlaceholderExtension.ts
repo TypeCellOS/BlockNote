@@ -81,7 +81,7 @@ export const Placeholder = Extension.create<PlaceholderOptions>({
                 }
 
                 // If slash menu is of drag type and active, show the filter placeholder
-                if (menuState?.type === "drag" && menuState?.active) {
+                if (menuState?.triggerCharacter === "" && menuState?.active) {
                   classes.push(this.options.isFilterClass);
                 }
                 // using widget, didn't work (caret position bug)

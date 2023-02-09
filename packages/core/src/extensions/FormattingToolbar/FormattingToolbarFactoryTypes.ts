@@ -8,6 +8,15 @@ export type FormattingToolbarStaticParams = {
   toggleStrike: () => void;
   setHyperlink: (url: string, text?: string) => void;
 
+  setTextColor: (color: string) => void;
+  setBackgroundColor: (color: string) => void;
+  setTextAlignment: (
+    textAlignment: "left" | "center" | "right" | "justify"
+  ) => void;
+
+  increaseBlockIndent: () => void;
+  decreaseBlockIndent: () => void;
+
   updateBlock: (blockUpdate: BlockUpdate) => void;
 };
 
@@ -19,6 +28,13 @@ export type FormattingToolbarDynamicParams = {
   hyperlinkIsActive: boolean;
   activeHyperlinkUrl: string;
   activeHyperlinkText: string;
+
+  textColor: string;
+  backgroundColor: string;
+  textAlignment: "left" | "center" | "right" | "justify";
+
+  canIncreaseBlockIndent: boolean;
+  canDecreaseBlockIndent: boolean;
 
   block: Block;
 

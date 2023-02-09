@@ -9,7 +9,6 @@ import {
 import { compareDocToSnapshot, focusOnEditor } from "../../utils/editor";
 import { insertHeading, insertParagraph } from "../../utils/copypaste";
 import { dragAndDropBlock } from "../../utils/mouse";
-import { showMouseCursor } from "../../utils/debug";
 
 test.beforeEach(async ({ page }) => {
   await page.goto(BASE_URL, { waitUntil: "networkidle" });
@@ -25,7 +24,6 @@ test.describe("Check Block Dragging Functionality", () => {
       "Playwright doesn't correctly simulate drag events in Firefox."
     );
     await focusOnEditor(page);
-    await showMouseCursor(page);
 
     await insertHeading(page, 1);
     await insertHeading(page, 2);
@@ -50,7 +48,6 @@ test.describe("Check Block Dragging Functionality", () => {
       "Playwright doesn't correctly simulate drag events in Firefox."
     );
     await focusOnEditor(page);
-    await showMouseCursor(page);
 
     await insertHeading(page, 1);
     await insertParagraph(page);

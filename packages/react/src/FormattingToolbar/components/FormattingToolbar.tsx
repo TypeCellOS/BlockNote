@@ -1,4 +1,8 @@
+import { Menu } from "@mantine/core";
 import {
+  RiAlignCenter,
+  RiAlignLeft,
+  RiAlignRight,
   RiBold,
   RiH1,
   RiH2,
@@ -19,6 +23,8 @@ import { ToolbarButton } from "../../SharedComponents/Toolbar/components/Toolbar
 import { ToolbarDropdown } from "../../SharedComponents/Toolbar/components/ToolbarDropdown";
 import { formatKeyboardShortcut } from "../../utils";
 import LinkToolbarButton from "./LinkToolbarButton";
+import { ColorPicker } from "../../SharedComponents/ColorPicker/components/ColorPicker";
+import { ColorIcon } from "../../SharedComponents/ColorPicker/components/ColorIcon";
 
 export type FormattingToolbarProps = {
   boldIsActive: boolean;
@@ -33,6 +39,20 @@ export type FormattingToolbarProps = {
   activeHyperlinkUrl: string;
   activeHyperlinkText: string;
   setHyperlink: (url: string, text?: string) => void;
+
+  textColor: string;
+  setTextColor: (color: string) => void;
+  backgroundColor: string;
+  setBackgroundColor: (color: string) => void;
+  textAlignment: "left" | "center" | "right" | "justify";
+  setTextAlignment: (
+    textAlignment: "left" | "center" | "right" | "justify"
+  ) => void;
+
+  canIncreaseBlockIndent: boolean;
+  increaseBlockIndent: () => void;
+  canDecreaseBlockIndent: boolean;
+  decreaseBlockIndent: () => void;
 
   block: Block;
   updateBlock: (blockUpdate: BlockUpdate) => void;
@@ -194,40 +214,66 @@ export const FormattingToolbar = (props: FormattingToolbarProps) => {
       <ToolbarButton
         onClick={props.toggleStrike}
         isSelected={activeMarks.has("strike")}
-        mainTooltip="Strike-through"
+        mainTooltip="Strikethrough"
         secondaryTooltip={formatKeyboardShortcut("Mod+Shift+X")}
         icon={RiStrikethrough}
       />
+
       <ToolbarButton
-        onClick={() => {
-          // props.editor.view.focus();
-          // props.editor.commands.sinkListItem("block");
-        }}
-        isDisabled={
-          // !props.editor.can().sinkListItem("block")
-          true
-        }
+        onClick={() => props.setTextAlignment("left")}
+        isSelected={props.textAlignment === "left"}
+        mainTooltip={"Align Text Left"}
+        icon={RiAlignLeft}
+      />
+
+      <ToolbarButton
+        onClick={() => props.setTextAlignment("center")}
+        isSelected={props.textAlignment === "center"}
+        mainTooltip={"Align Text Center"}
+        icon={RiAlignCenter}
+      />
+
+      <ToolbarButton
+        onClick={() => props.setTextAlignment("right")}
+        isSelected={props.textAlignment === "right"}
+        mainTooltip={"Align Text Right"}
+        icon={RiAlignRight}
+      />
+
+      <Menu>
+        <Menu.Target>
+          <ToolbarButton
+            mainTooltip={"Colors"}
+            icon={() => (
+              <ColorIcon
+                textColor={props.textColor}
+                backgroundColor={props.backgroundColor}
+                size={20}
+              />
+            )}
+          />
+        </Menu.Target>
+        <Menu.Dropdown>
+          <ColorPicker
+            textColor={props.textColor}
+            setTextColor={props.setTextColor}
+            backgroundColor={props.backgroundColor}
+            setBackgroundColor={props.setBackgroundColor}
+          />
+        </Menu.Dropdown>
+      </Menu>
+
+      <ToolbarButton
+        onClick={props.increaseBlockIndent}
+        isDisabled={!props.canIncreaseBlockIndent}
         mainTooltip="Indent"
         secondaryTooltip={formatKeyboardShortcut("Tab")}
         icon={RiIndentIncrease}
       />
 
       <ToolbarButton
-        onClick={() => {
-          // props.editor.view.focus();
-          // props.editor.commands.liftListItem("block");
-        }}
-        isDisabled={
-          // !props.editor.can().command(({ state }) => {
-          //   const block = findBlock(state.selection);
-          //   if (!block) {
-          //     return false;
-          //   }
-          //   // If the depth is greater than 2 you can lift
-          //   return block.depth > 2;
-          // })
-          true
-        }
+        onClick={props.decreaseBlockIndent}
+        isDisabled={!props.canDecreaseBlockIndent}
         mainTooltip="Decrease Indent"
         secondaryTooltip={formatKeyboardShortcut("Shift+Tab")}
         icon={RiIndentDecrease}

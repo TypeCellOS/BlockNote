@@ -11,6 +11,8 @@ import { Link } from "@tiptap/extension-link";
 import Strike from "@tiptap/extension-strike";
 import Text from "@tiptap/extension-text";
 import Underline from "@tiptap/extension-underline";
+import { BackgroundColorExtension } from "./extensions/BackgroundColor/BackgroundColorExtension";
+import { BackgroundColorMark } from "./extensions/BackgroundColor/BackgroundColorMark";
 import { blocks } from "./extensions/Blocks";
 import blockStyles from "./extensions/Blocks/nodes/Block.module.css";
 import { BlockSideMenuFactory } from "./extensions/DraggableBlocks/BlockSideMenuFactoryTypes";
@@ -22,6 +24,9 @@ import { HyperlinkToolbarFactory } from "./extensions/HyperlinkToolbar/Hyperlink
 import { Placeholder } from "./extensions/Placeholder/PlaceholderExtension";
 import { SlashCommand, SlashMenuExtension } from "./extensions/SlashMenu";
 import { SlashMenuItem } from "./extensions/SlashMenu/SlashMenuItem";
+import { TextAlignmentExtension } from "./extensions/TextAlignment/TextAlignmentExtension";
+import { TextColorExtension } from "./extensions/TextColor/TextColorExtension";
+import { TextColorMark } from "./extensions/TextColor/TextColorMark";
 import { TrailingNode } from "./extensions/TrailingNode/TrailingNodeExtension";
 import UniqueID from "./extensions/UniqueID/UniqueID";
 import { SuggestionsMenuFactory } from "./shared/plugins/suggestion/SuggestionsMenuFactoryTypes";
@@ -73,6 +78,11 @@ export const getBlockNoteExtensions = (opts: {
     Italic,
     Strike,
     Underline,
+    TextColorMark,
+    TextColorExtension,
+    BackgroundColorMark,
+    BackgroundColorExtension,
+    TextAlignmentExtension,
 
     // custom blocks:
     ...blocks,

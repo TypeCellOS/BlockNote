@@ -7,7 +7,7 @@ export type SuggestionsMenuStaticParams<T extends SuggestionItem> = {
 
 export type SuggestionsMenuDynamicParams<T extends SuggestionItem> = {
   items: T[];
-  selectedItemIndex: number;
+  keyboardHoveredItemIndex: number;
 
   referenceRect: DOMRect;
 };
