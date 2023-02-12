@@ -13,30 +13,17 @@ export function blockFromPMNode(node: Node): Block {
   }
 
   const blockInfo = getBlockInfoFromPos(node, 0)!;
-
-  if (blockInfo.numChildBlocks === 0) {
-    const block = {
-      children: [],
-      id: blockInfo.id,
-      props: blockInfo.contentNode.attrs,
-      type: blockInfo.contentType as any,
-    };
-
-    cache.set(node, block);
-
-    return block;
-  }
-
-  const children = [];
+  console.log("block", blockInfo);
+  const children: Block[] = [];
   for (let i = 0; i < blockInfo.numChildBlocks; i++) {
     children.push(blockFromPMNode(blockInfo.node.lastChild!.child(i)));
   }
 
   const block = {
-    children: children,
+    children,
     id: blockInfo.id,
     props: blockInfo.contentNode.attrs,
-    type: blockInfo.contentType as any,
+    type: blockInfo.contentType.name as any,
   };
 
   cache.set(node, block);

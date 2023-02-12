@@ -1,9 +1,8 @@
 // import logo from './logo.svg'
-import { defaultSlashCommands, SlashMenuItem } from "@blocknote/core";
+import { defaultSlashCommands, Editor, SlashMenuItem } from "@blocknote/core";
 import "@blocknote/core/style.css";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
 import styles from "./App.module.css";
-import { Editor } from "@blocknote/core";
 
 type WindowWithProseMirror = Window & typeof globalThis & { ProseMirror: any };
 
@@ -88,7 +87,7 @@ function App() {
       } else {
         console.log(editorAPI.blocks);
       }
-      console.log(editor.getJSON());
+      // console.log(editor.getJSON());
       (window as WindowWithProseMirror).ProseMirror = editor; // Give tests a way to get editor instance
     },
     editorProps: {
