@@ -1,12 +1,14 @@
 import { Editor as TiptapEditor } from "@tiptap/core";
-import { DOMParser, DOMSerializer, Node } from "prosemirror-model";
-import { EditorState } from "prosemirror-state";
-import { Converter } from "showdown";
-import TurndownService from "turndown";
+import { DOMParser, Node } from "prosemirror-model";
 import { getBlockInfoFromPos } from "../extensions/Blocks/helpers/getBlockInfoFromPos";
 import { Style, StyledText } from "../extensions/Blocks/api/styleTypes";
 import { Block, BlockUpdate } from "../extensions/Blocks/api/blockTypes";
 import { CursorPosition } from "../extensions/Blocks/api/cursorPositionTypes";
+import { unified } from "unified";
+import remarkParse from "remark-parse";
+import remarkRehype from "remark-rehype";
+import rehypeStringify from "rehype-stringify";
+import rehypeSanitize from "rehype-sanitize";
 
 const blockCache = new WeakMap<Node, Block>();
 
@@ -50,6 +52,8 @@ export function blockFromNode(node: Node): Block {
   const block = {
     id: blockInfo.id,
     type: blockInfo.contentType.name,
+    // TODO: Only return attributes specified in the BlockSpec, not all attributes (e.g. ordered list item index should
+    //  not be included).
     props: blockInfo.contentNode.attrs,
     textContent: blockInfo.contentNode.textContent,
     styledTextContent: styledContentFromNode(node),
@@ -61,26 +65,10 @@ export function blockFromNode(node: Node): Block {
   return block;
 }
 
-export function blocksAreEqual(block1: Block, block2: Block) {
-  return JSON.stringify(block1) === JSON.stringify(block2);
-}
-
-export function blocksFromState(state: EditorState): Block[] {
-  const blocks: Block[] = [];
-
-  state.doc.firstChild!.descendants((node) => {
-    blocks.push(blockFromNode(node));
-
-    return false;
-  });
-
-  return blocks;
-}
-
 export class Editor {
   constructor(private tiptapEditor: TiptapEditor) {}
 
-  public nodeFromBlockUpdate(blockUpdate: BlockUpdate) {
+  private nodeFromBlockUpdate(blockUpdate: BlockUpdate) {
     const content: Node[] = [];
 
     if (blockUpdate.styledTextContent) {
@@ -106,7 +94,15 @@ export class Editor {
   }
 
   public get allBlocks(): Block[] {
-    return blocksFromState(this.tiptapEditor.state);
+    const blocks: Block[] = [];
+
+    this.tiptapEditor.state.doc.firstChild!.descendants((node) => {
+      blocks.push(blockFromNode(node));
+
+      return false;
+    });
+
+    return blocks;
   }
 
   public get cursorPosition(): CursorPosition {
@@ -121,8 +117,12 @@ export class Editor {
   public insertBlocks(
     blocksToInsert: BlockUpdate[],
     referenceBlockId: string,
-    position: "before" | "after" | "nested"
+    placement?: "before" | "after" | "nested"
   ): void {
+    if (!placement) {
+      placement = "before";
+    }
+
     let blockFound = false;
 
     this.tiptapEditor.state.doc.descendants((node, pos) => {
@@ -137,29 +137,45 @@ export class Editor {
         return true;
       }
 
-      let insertionPos = -1;
-      console.log(pos + node.firstChild!.nodeSize);
+      const nodesToInsert = [];
 
-      if (position === "before") {
+      for (const blockUpdate of blocksToInsert) {
+        nodesToInsert.push(this.nodeFromBlockUpdate(blockUpdate));
+      }
+
+      let insertionPos = -1;
+
+      if (placement === "before") {
         insertionPos = pos;
       }
 
-      if (position === "after") {
+      if (placement === "after") {
         insertionPos = pos + node.nodeSize;
       }
 
-      // if (position === "nested") {
-      //   insertionPos = pos + node.firstChild!.nodeSize + 1;
-      // }
+      if (placement === "nested") {
+        // Case if block doesn't have children.
+        if (node.childCount < 2) {
+          insertionPos = pos + node.firstChild!.nodeSize + 1;
 
-      const nodes = [];
+          const blockGroupNode = this.tiptapEditor.state.schema.nodes[
+            "blockGroup"
+          ].create({}, nodesToInsert);
 
-      for (const blockUpdate of blocksToInsert) {
-        nodes.push(this.nodeFromBlockUpdate(blockUpdate));
+          this.tiptapEditor.view.dispatch(
+            this.tiptapEditor.state.tr.insert(insertionPos, blockGroupNode)
+          );
+
+          blockFound = true;
+
+          return false;
+        }
+
+        insertionPos = pos + node.firstChild!.nodeSize + 2;
       }
 
       this.tiptapEditor.view.dispatch(
-        this.tiptapEditor.state.tr.insert(insertionPos, nodes)
+        this.tiptapEditor.state.tr.insert(insertionPos, nodesToInsert)
       );
 
       blockFound = true;
@@ -168,40 +184,46 @@ export class Editor {
     });
 
     if (!blockFound) {
-      throw Error("");
+      throw Error("Block with given ID does not exist in the document");
     }
   }
 
-  public firstBlockAsMarkdown(): void {
-    const node =
-      this.tiptapEditor.state.doc.firstChild!.firstChild!.firstChild!;
+  // public firstBlockAsMarkdown(): void {
+  //   const node =
+  //     this.tiptapEditor.state.doc.firstChild!.firstChild!.firstChild!;
+  //
+  //   const serializer = DOMSerializer.fromSchema(this.tiptapEditor.schema);
+  //   const htmlNode = serializer.serializeNode(node).firstChild!;
+  //
+  //   const turndownService = new TurndownService();
+  //   const markdownNode = turndownService.turndown(htmlNode as HTMLElement);
+  //
+  //   console.log(node);
+  //   console.log(htmlNode);
+  //   console.log(markdownNode);
+  // }
 
-    const serializer = DOMSerializer.fromSchema(this.tiptapEditor.schema);
-    const htmlNode = serializer.serializeNode(node).firstChild!;
+  public async markdownToBlocks(markdownString: string): Promise<Block[]> {
+    const htmlString = await unified()
+      .use(remarkParse)
+      .use(remarkRehype)
+      .use(rehypeSanitize)
+      .use(rehypeStringify)
+      .process(markdownString);
 
-    const turndownService = new TurndownService();
-    const markdownNode = turndownService.turndown(htmlNode as HTMLElement);
-
-    console.log(node);
-    console.log(htmlNode);
-    console.log(markdownNode);
-  }
-
-  markdownToBlocks(markdownString: string): void {
-    const converter = new Converter();
-    const htmlString = converter.makeHtml(markdownString);
     const htmlNode = document.createElement("div");
-    htmlNode.innerHTML = htmlString.trim();
+    htmlNode.innerHTML = (htmlString.value as string).trim();
 
     const parser = DOMParser.fromSchema(this.tiptapEditor.schema);
     const node = parser.parse(htmlNode);
 
-    console.log(markdownString);
-    console.log(htmlString);
-    console.log(htmlNode);
-    console.log(node);
+    const blocks: Block[] = [];
 
-    // this.tiptapEditor.commands.setContent(htmlString);
+    for (let i = 0; i < node.firstChild!.childCount; i++) {
+      blocks.push(blockFromNode(node.firstChild!.child(i)));
+    }
+
+    return blocks;
   }
 
   public get blocksAsMarkdown(): string {

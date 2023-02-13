@@ -112,54 +112,60 @@ function App() {
         //     ],
         //   })
         // );
-        editorAPI.insertBlocks(
-          [
-            {
-              type: "heading",
-              props: { level: "3" },
-              styledTextContent: [
-                {
-                  text: "Hello ",
-                  styles: [
-                    {
-                      type: "underline",
-                      props: {},
-                    },
-                  ],
-                },
-                {
-                  text: "World",
-                  styles: [
-                    {
-                      type: "italic",
-                      props: {},
-                    },
-                  ],
-                },
-              ],
-            },
-          ],
-          editor.state.doc.firstChild!.firstChild!.attrs.id,
-          "after"
-        );
+        // editorAPI.insertBlocks(
+        //   [
+        //     {
+        //       type: "heading",
+        //       props: { level: "3" },
+        //       styledTextContent: [
+        //         {
+        //           text: "Hello ",
+        //           styles: [
+        //             {
+        //               type: "underline",
+        //               props: {},
+        //             },
+        //           ],
+        //         },
+        //         {
+        //           text: "World",
+        //           styles: [
+        //             {
+        //               type: "italic",
+        //               props: {},
+        //             },
+        //           ],
+        //         },
+        //       ],
+        //     },
+        //   ],
+        //   editor.state.doc.firstChild!.firstChild!.attrs.id,
+        //   "before"
+        // );
         // editorAPI.insertBlocks([], editorAPI.cursorPosition.block, "after");
         // editorAPI.firstBlockAsMarkdown();
-        //         editorAPI.markdownToBlocks(`
-        // # dawdwa
-        // ## flesfj
-        // ### trjhirtjoihtrjhor
-        // dwadwadwa
-        // dwadwa
-        // dwaadwdwadwa
-        // - sdfesfes
-        //     - grdggdrg
-        //     - grdgrdgdrgrd
-        //         1. wqewqewq
-        //         2. eqwewqewq
-        //             3. ewqewqewq
-        //         4. ewqewqewq
-        // - fesfesfesfes
-        //         `);
+        editorAPI.markdownToBlocks(`
+# dawdwa
+
+## flesfj
+
+### trjhirtjoihtrjhor
+
+dwadwadwa
+
+dwadwa
+
+dwaadwdwadwa
+
+- sdfesfes
+    - grdggdrg
+    - grdgrdgdrgrd
+        1. wqewqewq
+        2. eqwewqewq
+            1. ewqewqewq
+        3. ewqewqewq
+- fesfesfesfes
+        `);
         // console.log(editorAPI.blocksAsMarkdown);
         // const node = editor.state.doc.firstChild!.firstChild!;
         // console.log(node);
