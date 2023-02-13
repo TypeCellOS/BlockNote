@@ -1,3 +1,5 @@
+import { StyledText } from "./styleTypes";
+
 export type BlockSpec<
   // Type of the block.
   // Examples might include: "paragraph", "heading", or "bulletListItem".
@@ -7,10 +9,11 @@ export type BlockSpec<
   Props extends Record<string, string>
 > = {
   id: string;
-  children: Block[];
   type: Type;
   props: Props;
-  // TODO: content
+  textContent: string;
+  styledTextContent: StyledText[];
+  children: Block[];
 };
 
 export type BlockSpecUpdate<Spec> = Spec extends BlockSpec<
@@ -20,6 +23,7 @@ export type BlockSpecUpdate<Spec> = Spec extends BlockSpec<
   ? {
       type: Type;
       props?: Partial<Props>;
+      styledTextContent?: StyledText[];
     }
   : never;
 
@@ -44,8 +48,6 @@ export type Block =
 
 export type BlockUpdate = BlockSpecUpdate<Block>;
 
-/*
-TODO:
- 1) guard read / writes (now we just pass on internal node attrs)
- 2) where to locate this code / types
-*/
+// TODO:
+//  1) guard read / writes (now we just pass on internal node attrs)
+//  2) where to locate this code / types

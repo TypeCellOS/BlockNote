@@ -1,5 +1,5 @@
 import { EditorElement, ElementFactory } from "../../shared/EditorElement";
-import { Block, BlockUpdate } from "../Blocks/api/apiTypes";
+import { Block, BlockUpdate } from "../Blocks/api/blockTypes";
 
 export type FormattingToolbarStaticParams = {
   toggleBold: () => void;

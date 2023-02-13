@@ -33,6 +33,10 @@ export function getBlockInfoFromPos(
   let depth = maxDepth;
 
   while (true) {
+    if (depth < 0) {
+      return undefined;
+    }
+
     if (node.type.name === "blockContainer") {
       break;
     }

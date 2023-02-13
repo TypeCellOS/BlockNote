@@ -4,7 +4,6 @@ import "@blocknote/core/style.css";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
 import styles from "./App.module.css";
 import { Editor } from "@blocknote/core";
-
 type WindowWithProseMirror = Window & typeof globalThis & { ProseMirror: any };
 
 // slash commands
@@ -86,7 +85,86 @@ function App() {
       if (!editorAPI) {
         editorAPI = new Editor(editor);
       } else {
-        console.log(editorAPI.blocks);
+        // console.log(editorAPI.allBlocks);
+        // console.log(
+        //   editorAPI.nodeFromBlockUpdate({
+        //     type: "heading",
+        //     props: { level: "3" },
+        //     styledTextContent: [
+        //       {
+        //         text: "Hello ",
+        //         styles: [
+        //           {
+        //             type: "underline",
+        //             props: {},
+        //           },
+        //         ],
+        //       },
+        //       {
+        //         text: "World",
+        //         styles: [
+        //           {
+        //             type: "italic",
+        //             props: {},
+        //           },
+        //         ],
+        //       },
+        //     ],
+        //   })
+        // );
+        editorAPI.insertBlocks(
+          [
+            {
+              type: "heading",
+              props: { level: "3" },
+              styledTextContent: [
+                {
+                  text: "Hello ",
+                  styles: [
+                    {
+                      type: "underline",
+                      props: {},
+                    },
+                  ],
+                },
+                {
+                  text: "World",
+                  styles: [
+                    {
+                      type: "italic",
+                      props: {},
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+          editor.state.doc.firstChild!.firstChild!.attrs.id,
+          "after"
+        );
+        // editorAPI.insertBlocks([], editorAPI.cursorPosition.block, "after");
+        // editorAPI.firstBlockAsMarkdown();
+        //         editorAPI.markdownToBlocks(`
+        // # dawdwa
+        // ## flesfj
+        // ### trjhirtjoihtrjhor
+        // dwadwadwa
+        // dwadwa
+        // dwaadwdwadwa
+        // - sdfesfes
+        //     - grdggdrg
+        //     - grdgrdgdrgrd
+        //         1. wqewqewq
+        //         2. eqwewqewq
+        //             3. ewqewqewq
+        //         4. ewqewqewq
+        // - fesfesfesfes
+        //         `);
+        // console.log(editorAPI.blocksAsMarkdown);
+        // const node = editor.state.doc.firstChild!.firstChild!;
+        // console.log(node);
+        // console.log(node!.type!.spec!.toDOM(node)!);
+        // const serializer = DOMSerializer.fromSchema(editor.schema);
       }
       console.log(editor.getJSON());
       (window as WindowWithProseMirror).ProseMirror = editor; // Give tests a way to get editor instance

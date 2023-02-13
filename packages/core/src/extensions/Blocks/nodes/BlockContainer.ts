@@ -1,7 +1,7 @@
 import { mergeAttributes, Node } from "@tiptap/core";
 import { Fragment, Slice } from "prosemirror-model";
 import { TextSelection } from "prosemirror-state";
-import { BlockUpdate } from "../api/apiTypes";
+import { BlockUpdate } from "../api/blockTypes";
 import { getBlockInfoFromPos } from "../helpers/getBlockInfoFromPos";
 import { PreviousBlockTypePlugin } from "../PreviousBlockTypePlugin";
 import styles from "./Block.module.css";
@@ -197,8 +197,7 @@ export const BlockContainer = Node.create<IBlock>({
           }
 
           // Deletes next block and adds its text content to the nearest previous block.
-          // TODO: Is there any situation where we need the whole block content, not just text? Implementation for this
-          //  is trickier.
+          // TODO: Use slices.
           if (dispatch) {
             state.tr.deleteRange(startPos, startPos + contentNode.nodeSize);
             state.tr.insertText(contentNode.textContent, prevBlockEndPos - 1);
