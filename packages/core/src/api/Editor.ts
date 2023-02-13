@@ -41,24 +41,8 @@ export function blockFromNode(node: Node): Block {
   }
 
   const blockInfo = getBlockInfoFromPos(node, 0)!;
-  console.log(blockInfo.contentNode);
 
-  if (blockInfo.numChildBlocks === 0) {
-    const block = {
-      id: blockInfo.id,
-      type: blockInfo.contentType.name,
-      props: blockInfo.contentNode.attrs,
-      textContent: blockInfo.contentNode.textContent,
-      styledTextContent: styledContentFromNode(node),
-      children: [],
-    } as Block;
-
-    blockCache.set(node, block);
-
-    return block;
-  }
-
-  const children = [];
+  const children: Block[] = [];
   for (let i = 0; i < blockInfo.numChildBlocks; i++) {
     children.push(blockFromNode(blockInfo.node.lastChild!.child(i)));
   }
@@ -92,14 +76,6 @@ export function blocksFromState(state: EditorState): Block[] {
 
   return blocks;
 }
-
-// export const blockTypeToMarkdownSymbol = {
-//   heading1: "#",
-//   heading2: "##",
-//   heading3: "###",
-//   bulletListItem: "-",
-//   numberedListItem: ""
-// }
 
 export class Editor {
   constructor(private tiptapEditor: TiptapEditor) {}
