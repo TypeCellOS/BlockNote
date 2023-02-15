@@ -24,6 +24,7 @@ export type BlockSpecUpdate<Spec> = Spec extends BlockSpec<
       type: Type;
       props?: Partial<Props>;
       styledTextContent?: StyledText[];
+      children?: Block[];
     }
   : never;
 

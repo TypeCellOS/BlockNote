@@ -89,7 +89,7 @@ export const NumberedListItemBlockContent = Node.create({
         class: styles.blockContent,
         "data-content-type": this.name,
       }),
-      ["li", 0],
+      ["p", 0],
     ];
   },
 });

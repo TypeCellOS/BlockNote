@@ -1,14 +1,18 @@
 import { Editor as TiptapEditor } from "@tiptap/core";
-import { DOMParser, Node } from "prosemirror-model";
+import { DOMParser, DOMSerializer, Node } from "prosemirror-model";
 import { getBlockInfoFromPos } from "../extensions/Blocks/helpers/getBlockInfoFromPos";
 import { Style, StyledText } from "../extensions/Blocks/api/styleTypes";
 import { Block, BlockUpdate } from "../extensions/Blocks/api/blockTypes";
 import { CursorPosition } from "../extensions/Blocks/api/cursorPositionTypes";
 import { unified } from "unified";
 import remarkParse from "remark-parse";
+import remarkStringify from "remark-stringify";
 import remarkRehype from "remark-rehype";
+import rehypeParse from "rehype-parse";
 import rehypeStringify from "rehype-stringify";
-import rehypeSanitize from "rehype-sanitize";
+import rehypeRemark from "rehype-remark";
+import { Element as HASTElement, Parent as HASTParent } from "hast";
+import { fromDom } from "hast-util-from-dom";
 
 const blockCache = new WeakMap<Node, Block>();
 
@@ -87,9 +91,22 @@ export class Editor {
       blockUpdate.type
     ].create(blockUpdate.props, content);
 
+    const children: Node[] = [];
+
+    if (blockUpdate.children) {
+      for (const child of blockUpdate.children) {
+        children.push(this.nodeFromBlockUpdate(child));
+      }
+    }
+
+    const groupNode = this.tiptapEditor.state.schema.nodes["blockGroup"].create(
+      {},
+      children
+    );
+
     return this.tiptapEditor.state.schema.nodes["blockContainer"].create(
       {},
-      contentNode
+      children.length > 0 ? [contentNode, groupNode] : contentNode
     );
   }
 
@@ -207,7 +224,6 @@ export class Editor {
     const htmlString = await unified()
       .use(remarkParse)
       .use(remarkRehype)
-      .use(rehypeSanitize)
       .use(rehypeStringify)
       .process(markdownString);
 
@@ -226,73 +242,160 @@ export class Editor {
     return blocks;
   }
 
-  public get blocksAsMarkdown(): string {
-    let markdown = "";
+  public async blocksToHTML(blocks: Block[]): Promise<string> {
+    type SimplifyBlocksOptions = {
+      orderedListItemBlockTypes: Set<string>;
+      unorderedListItemBlockTypes: Set<string>;
+    };
 
-    this.tiptapEditor.state.doc.firstChild!.descendants((node, pos) => {
-      if (node.type.name !== "blockContainer") {
-        return true;
-      }
-      // console.log(pos, node);
-      // return true;
+    /**
+     * Rehype plugin which converts the HTML output rendered by BlockNote into a simplified structure which better
+     * follows HTML standards. It does several things:
+     * - Removes all block related div elements, leaving only the actual content inside the block.
+     * - Lifts nested blocks to a higher level for all block types that don't represent list items.
+     * - Wraps blocks which represent list items in corresponding ul/ol HTML elements and restructures them to comply
+     * with HTML list structure.
+     * @param options Options for specifying which block types represent ordered and unordered list items.
+     */
+    function simplifyBlocks(options: SimplifyBlocksOptions) {
+      const listItemBlockTypes = new Set<string>([
+        ...options.orderedListItemBlockTypes,
+        ...options.unorderedListItemBlockTypes,
+      ]);
 
-      const blockInfo = getBlockInfoFromPos(
-        this.tiptapEditor.state.doc,
-        pos + 2
-      )!;
+      const simplifyBlocksHelper = (tree: HASTParent) => {
+        let numChildElements = tree.children.length;
+        let activeList: HASTElement | undefined;
 
-      if (blockInfo.contentType.name === "heading") {
-        for (let i = 0; i < blockInfo.contentNode.attrs.level; i++) {
-          markdown += "#";
+        for (let i = 0; i < numChildElements; i++) {
+          const blockOuter = tree.children[i] as HASTElement;
+          const blockContainer = blockOuter.children[0] as HASTElement;
+          const blockContent = blockContainer.children[0] as HASTElement;
+          const blockGroup =
+            blockContainer.children.length === 2
+              ? (blockContainer.children[1] as HASTElement)
+              : null;
+
+          const isListItemBlock = listItemBlockTypes.has(
+            blockContent.properties!["dataContentType"] as string
+          );
+
+          const listItemBlockType = isListItemBlock
+            ? options.orderedListItemBlockTypes.has(
+                blockContent.properties!["dataContentType"] as string
+              )
+              ? "ol"
+              : "ul"
+            : null;
+
+          // Plugin runs recursively to process nested blocks.
+          if (blockGroup !== null) {
+            simplifyBlocksHelper(blockGroup);
+          }
+
+          // Checks that there is an active list, but the block can't be added to it as it's of a different type.
+          if (activeList && activeList.tagName !== listItemBlockType) {
+            // Blocks that were copied into the list are removed and the list is inserted in their place.
+            tree.children.splice(
+              i - activeList.children.length,
+              activeList.children.length,
+              activeList
+            );
+
+            // Updates the current index and number of child elements.
+            const numElementsRemoved = activeList.children.length - 1;
+            i -= numElementsRemoved;
+            numChildElements -= numElementsRemoved;
+
+            activeList = undefined;
+          }
+
+          // Checks if the block represents a list item.
+          if (isListItemBlock) {
+            // Checks if a list isn't already active. We don't have to check if the block and the list are of the same
+            // type as this was already done earlier.
+            if (!activeList) {
+              // Creates a new list element to represent an active list.
+              activeList = fromDom(
+                document.createElement(listItemBlockType!)
+              ) as HASTElement;
+            }
+
+            // Creates a new list item element to represent the block.
+            const listItemElement = fromDom(
+              document.createElement("li")
+            ) as HASTElement;
+
+            // Adds only the content inside the block to the active list.
+            listItemElement.children.push(blockContent.children[0]);
+            // Nested blocks have already been processed in the recursive function call, so the resulting elements are
+            // also added to the active list.
+            if (blockGroup !== null) {
+              listItemElement.children.push(...blockGroup.children);
+            }
+
+            // Adds the list item representing the block to the active list.
+            activeList.children.push(listItemElement);
+          } else if (blockGroup !== null) {
+            // Lifts all children out of the current block, as only list items should allow nesting.
+            tree.children.splice(i + 1, 0, ...blockGroup.children);
+            // Replaces the block with only the content inside it.
+            tree.children[i] = blockContent.children[0];
+
+            // Updates the current index and number of child elements.
+            const numElementsAdded = blockGroup.children.length;
+            i += numElementsAdded;
+            numChildElements += numElementsAdded;
+          } else {
+            // Replaces the block with only the content inside it.
+            tree.children[i] = blockContent.children[0];
+          }
         }
-        markdown += " ";
-      } else if (blockInfo.contentType.name === "bulletListItem") {
-        let ancestorBlockInfo = getBlockInfoFromPos(
-          this.tiptapEditor.state.doc,
-          blockInfo.startPos - 1
-        )!;
-        console.log(ancestorBlockInfo);
 
-        while (
-          ancestorBlockInfo &&
-          (ancestorBlockInfo.contentType.name === "bulletListItem" ||
-            ancestorBlockInfo.contentType.name === "numberedListItem")
-        ) {
-          markdown += "    ";
-
-          ancestorBlockInfo = getBlockInfoFromPos(
-            this.tiptapEditor.state.doc,
-            ancestorBlockInfo.startPos - 1
-          )!;
+        // Since the active list is only inserted after encountering a block which can't be added to it, there are cases
+        // where it remains un-inserted after processing all blocks, which are handled here.
+        if (activeList) {
+          tree.children.splice(
+            numChildElements - activeList.children.length,
+            activeList.children.length,
+            activeList
+          );
         }
-        markdown += "- ";
-      } else if (blockInfo.contentType.name === "numberedListItem") {
-        let ancestorBlockInfo = getBlockInfoFromPos(
-          this.tiptapEditor.state.doc,
-          blockInfo.startPos - 1
-        )!;
+      };
 
-        while (
-          ancestorBlockInfo &&
-          ancestorBlockInfo.contentType.name !== "bulletListItem" &&
-          ancestorBlockInfo.contentType.name !== "numberedListItem"
-        ) {
-          markdown += "    ";
+      return simplifyBlocksHelper;
+    }
 
-          ancestorBlockInfo = getBlockInfoFromPos(
-            this.tiptapEditor.state.doc,
-            ancestorBlockInfo.startPos - 1
-          )!;
-        }
-        markdown += blockInfo.contentNode.attrs["index"] + " ";
-      }
+    const htmlParentElement = document.createElement("div");
+    const serializer = DOMSerializer.fromSchema(this.tiptapEditor.schema);
 
-      markdown += blockInfo.contentNode.textContent + "\r\n";
+    for (const block of blocks) {
+      const node = this.nodeFromBlockUpdate(block);
+      const htmlNode = serializer.serializeNode(node);
+      htmlParentElement.appendChild(htmlNode);
+    }
 
-      return true;
-    });
+    const htmlString = await unified()
+      .use(rehypeParse, { fragment: true })
+      .use(simplifyBlocks, {
+        orderedListItemBlockTypes: new Set<string>(["numberedListItem"]),
+        unorderedListItemBlockTypes: new Set<string>(["bulletListItem"]),
+      })
+      .use(rehypeStringify)
+      .process(htmlParentElement.innerHTML);
 
-    return markdown;
+    return htmlString.value as string;
+  }
+
+  public async blocksToMarkdown(blocks: Block[]): Promise<string> {
+    const htmlString = await this.blocksToHTML(blocks);
+    const markdownString = await unified()
+      .use(rehypeParse, { fragment: true })
+      .use(rehypeRemark)
+      .use(remarkStringify)
+      .process(htmlString);
+
+    return markdownString.value as string;
   }
 
   // public get markdownAsBlocks(markdownString: string) {

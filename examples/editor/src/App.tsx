@@ -1,5 +1,10 @@
 // import logo from './logo.svg'
-import { defaultSlashCommands, Editor, SlashMenuItem } from "@blocknote/core";
+import {
+  Block,
+  defaultSlashCommands,
+  Editor,
+  SlashMenuItem,
+} from "@blocknote/core";
 import "@blocknote/core/style.css";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
 import styles from "./App.module.css";
@@ -86,32 +91,264 @@ function App() {
         editorAPI = new Editor(editor);
       } else {
         // console.log(editorAPI.allBlocks);
-        // console.log(
-        //   editorAPI.nodeFromBlockUpdate({
-        //     type: "heading",
-        //     props: { level: "3" },
-        //     styledTextContent: [
-        //       {
-        //         text: "Hello ",
-        //         styles: [
-        //           {
-        //             type: "underline",
-        //             props: {},
-        //           },
-        //         ],
-        //       },
-        //       {
-        //         text: "World",
-        //         styles: [
-        //           {
-        //             type: "italic",
-        //             props: {},
-        //           },
-        //         ],
-        //       },
-        //     ],
-        //   })
-        // );
+        const blocks: Block[] = [
+          {
+            id: "0",
+            type: "heading",
+            props: {
+              level: "1",
+            },
+            textContent: "Heading 1",
+            styledTextContent: [
+              {
+                text: "Heading 1",
+                styles: [],
+              },
+            ],
+            children: [
+              {
+                id: "1",
+                type: "heading",
+                props: {
+                  level: "2",
+                },
+                textContent: "Heading 2",
+                styledTextContent: [
+                  {
+                    text: "Heading 2",
+                    styles: [],
+                  },
+                ],
+                children: [
+                  {
+                    id: "2",
+                    type: "heading",
+                    props: {
+                      level: "3",
+                    },
+                    textContent: "Heading 3",
+                    styledTextContent: [
+                      {
+                        text: "Heading 3",
+                        styles: [],
+                      },
+                    ],
+                    children: [],
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            id: "3",
+            type: "paragraph",
+            props: {},
+            textContent: "Paragraph",
+            styledTextContent: [
+              {
+                text: "Paragraph",
+                styles: [],
+              },
+            ],
+            children: [],
+          },
+          {
+            id: "4",
+            type: "paragraph",
+            props: {},
+            textContent: "Paragraph",
+            styledTextContent: [
+              {
+                text: "Paragraph",
+                styles: [],
+              },
+            ],
+            children: [],
+          },
+          {
+            id: "5",
+            type: "paragraph",
+            props: {},
+            textContent: "Paragraph",
+            styledTextContent: [
+              {
+                text: "Paragraph",
+                styles: [],
+              },
+            ],
+            children: [],
+          },
+          {
+            id: "6",
+            type: "bulletListItem",
+            props: {},
+            textContent: "Bullet List Item",
+            styledTextContent: [
+              {
+                text: "Bullet List Item",
+                styles: [],
+              },
+            ],
+            children: [],
+          },
+          {
+            id: "7",
+            type: "bulletListItem",
+            props: {},
+            textContent: "Bullet List Item",
+            styledTextContent: [
+              {
+                text: "Bullet List Item",
+                styles: [],
+              },
+            ],
+            children: [
+              {
+                id: "8",
+                type: "bulletListItem",
+                props: {},
+                textContent: "Bullet List Item",
+                styledTextContent: [
+                  {
+                    text: "Bullet List Item",
+                    styles: [],
+                  },
+                ],
+                children: [
+                  {
+                    id: "9",
+                    type: "bulletListItem",
+                    props: {},
+                    textContent: "Bullet List Item",
+                    styledTextContent: [
+                      {
+                        text: "Bullet List Item",
+                        styles: [],
+                      },
+                    ],
+                    children: [],
+                  },
+                  {
+                    id: "10",
+                    type: "paragraph",
+                    props: {},
+                    textContent: "Paragraph",
+                    styledTextContent: [
+                      {
+                        text: "Paragraph",
+                        styles: [],
+                      },
+                    ],
+                    children: [],
+                  },
+                  {
+                    id: "11",
+                    type: "numberedListItem",
+                    props: {},
+                    textContent: "Numbered List Item",
+                    styledTextContent: [
+                      {
+                        text: "Numbered List Item",
+                        styles: [],
+                      },
+                    ],
+                    children: [],
+                  },
+                  {
+                    id: "12",
+                    type: "numberedListItem",
+                    props: {},
+                    textContent: "Numbered List Item",
+                    styledTextContent: [
+                      {
+                        text: "Numbered List Item",
+                        styles: [],
+                      },
+                    ],
+                    children: [],
+                  },
+                  {
+                    id: "13",
+                    type: "numberedListItem",
+                    props: {},
+                    textContent: "Numbered List Item",
+                    styledTextContent: [
+                      {
+                        text: "Numbered List Item",
+                        styles: [],
+                      },
+                    ],
+                    children: [
+                      {
+                        id: "14",
+                        type: "numberedListItem",
+                        props: {},
+                        textContent: "Numbered List Item",
+                        styledTextContent: [
+                          {
+                            text: "Numbered List Item",
+                            styles: [],
+                          },
+                        ],
+                        children: [],
+                      },
+                    ],
+                  },
+                  {
+                    id: "15",
+                    type: "bulletListItem",
+                    props: {},
+                    textContent: "Bullet List Item",
+                    styledTextContent: [
+                      {
+                        text: "Bullet List Item",
+                        styles: [],
+                      },
+                    ],
+                    children: [],
+                  },
+                ],
+              },
+              {
+                id: "16",
+                type: "bulletListItem",
+                props: {},
+                textContent: "Bullet List Item",
+                styledTextContent: [
+                  {
+                    text: "Bullet List Item",
+                    styles: [],
+                  },
+                ],
+                children: [],
+              },
+            ],
+          },
+          {
+            id: "17",
+            type: "bulletListItem",
+            props: {},
+            textContent: "Bullet List Item",
+            styledTextContent: [
+              {
+                text: "Bullet List Item",
+                styles: [],
+              },
+            ],
+            children: [],
+          },
+          {
+            id: "18",
+            type: "paragraph",
+            props: {},
+            textContent: "",
+            styledTextContent: [],
+            children: [],
+          },
+        ];
+        editorAPI.blocksToHTML(blocks).then((html) => console.log(html));
+        editorAPI.blocksToMarkdown(blocks).then((html) => console.log(html));
+        //   .then((html) => console.log(html));
         // editorAPI.insertBlocks(
         //   [
         //     {
@@ -144,7 +381,7 @@ function App() {
         // );
         // editorAPI.insertBlocks([], editorAPI.cursorPosition.block, "after");
         // editorAPI.firstBlockAsMarkdown();
-        editorAPI.markdownToBlocks(`
+        const markdown = `
 # dawdwa
 
 ## flesfj
@@ -165,7 +402,14 @@ dwaadwdwadwa
             1. ewqewqewq
         3. ewqewqewq
 - fesfesfesfes
-        `);
+`;
+        editorAPI.markdownToBlocks(markdown).then((blocks) => {
+          // console.log(blocks);
+          // editorAPI.blocksToMarkdown(blocks).then((markdown) => {
+          //   console.log(markdown);
+          // });
+        });
+        editorAPI.blocksToMarkdown([]);
         // console.log(editorAPI.blocksAsMarkdown);
         // const node = editor.state.doc.firstChild!.firstChild!;
         // console.log(node);
