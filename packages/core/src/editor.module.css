@@ -24,7 +24,8 @@ Tippy popups that are appended to document.body directly
   box-sizing: inherit;
 }
 
-.bnEditor, .dragPreview {
+.bnEditor,
+.dragPreview {
   /* Define a set of colors to be used throughout the app for consistency
   see https://atlassian.design/foundations/color for more info */
   --N800: #172b4d; /* Dark neutral used for tooltips and text on light background */
@@ -37,4 +38,9 @@ Tippy popups that are appended to document.body directly
   -moz-osx-font-smoothing: grayscale;
 
   color: rgb(60, 65, 73);
+}
+
+.dragPreview {
+  position: absolute;
+  top: -1000px;
 }
