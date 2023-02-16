@@ -263,12 +263,17 @@ export class BlockMenuView {
 
         // Gets block at mouse cursor's vertical position.
         const coords = {
-          left: editorBoundingBox.left + editorBoundingBox.width / 2, // take middle of editor
+          // Horizontal position is always the center of the editor to account for nested blocks being shifted.
+          left: editorBoundingBox.left + editorBoundingBox.width / 2,
           top: event.clientY,
         };
-        const block = getDraggableBlockFromCoords(coords, this.editor.view);
 
-        // Closes the menu if the mouse cursor is beyond the editor vertically.
+        const block =
+          editorBoundingBox.left + editorBoundingBox.width >= event.clientX &&
+          event.clientX >= editorBoundingBox.left - 100 &&
+          getDraggableBlockFromCoords(coords, this.editor.view);
+
+        // Closes the menu if the mouse cursor is beyond the editor.
         if (!block) {
           if (this.menuOpen) {
             this.menuOpen = false;
