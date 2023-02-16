@@ -268,13 +268,16 @@ export class BlockMenuView {
           top: event.clientY,
         };
 
-        const block =
+        const block = getDraggableBlockFromCoords(coords, this.editor.view);
+
+        // Detection area which covers the width of the editor with a 100px left margin. The menu cannot be shown while
+        // the cursor is outside this area.
+        const cursorWithinDetectionArea =
           editorBoundingBox.left + editorBoundingBox.width >= event.clientX &&
-          event.clientX >= editorBoundingBox.left - 100 &&
-          getDraggableBlockFromCoords(coords, this.editor.view);
+          event.clientX >= editorBoundingBox.left - 100;
 
         // Closes the menu if the mouse cursor is beyond the editor.
-        if (!block) {
+        if (!block || !cursorWithinDetectionArea) {
           if (this.menuOpen) {
             this.menuOpen = false;
             this.blockMenu.hide();
