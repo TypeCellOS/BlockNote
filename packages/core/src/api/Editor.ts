@@ -1,9 +1,5 @@
 import { Editor as TiptapEditor } from "@tiptap/core";
 import { DOMParser, DOMSerializer, Node } from "prosemirror-model";
-import { getBlockInfoFromPos } from "../extensions/Blocks/helpers/getBlockInfoFromPos";
-import { Style, StyledText } from "../extensions/Blocks/api/styleTypes";
-import { Block, BlockUpdate } from "../extensions/Blocks/api/blockTypes";
-import { CursorPosition } from "../extensions/Blocks/api/cursorPositionTypes";
 import { unified } from "unified";
 import remarkParse from "remark-parse";
 import remarkStringify from "remark-stringify";
@@ -13,89 +9,74 @@ import rehypeStringify from "rehype-stringify";
 import rehypeRemark from "rehype-remark";
 import { Element as HASTElement, Parent as HASTParent } from "hast";
 import { fromDom } from "hast-util-from-dom";
-
-const blockCache = new WeakMap<Node, Block>();
-
-export function styledContentFromNode(node: Node): StyledText[] {
-  const styledText: StyledText[] = [];
-
-  const blockInfo = getBlockInfoFromPos(node, 0)!;
-
-  blockInfo.contentNode.content.forEach((node) => {
-    const styles: Style[] = [];
-
-    for (const mark of node.marks) {
-      styles.push({
-        type: mark.type.name,
-        props: mark.attrs,
-      } as Style);
-    }
-
-    styledText.push({
-      text: node.textContent,
-      styles: styles,
-    });
-  });
-
-  return styledText;
-}
-
-export function blockFromNode(node: Node): Block {
-  const cachedBlock = blockCache.get(node);
-  if (cachedBlock) {
-    return cachedBlock;
-  }
-
-  const blockInfo = getBlockInfoFromPos(node, 0)!;
-
-  const children: Block[] = [];
-  for (let i = 0; i < blockInfo.numChildBlocks; i++) {
-    children.push(blockFromNode(blockInfo.node.lastChild!.child(i)));
-  }
-
-  const block = {
-    id: blockInfo.id,
-    type: blockInfo.contentType.name,
-    // TODO: Only return attributes specified in the BlockSpec, not all attributes (e.g. ordered list item index should
-    //  not be included).
-    props: blockInfo.contentNode.attrs,
-    textContent: blockInfo.contentNode.textContent,
-    styledTextContent: styledContentFromNode(node),
-    children: children,
-  } as Block;
-
-  blockCache.set(node, block);
-
-  return block;
-}
+import { getBlockInfoFromPos } from "../extensions/Blocks/helpers/getBlockInfoFromPos";
+import { Style, StyledText } from "../extensions/Blocks/api/styleTypes";
+import { Block, BlockSpec } from "../extensions/Blocks/api/blockTypes";
+import { CursorPosition } from "../extensions/Blocks/api/cursorPositionTypes";
 
 export class Editor {
+  private blockCache = new WeakMap<Node, Block>();
+
   constructor(private tiptapEditor: TiptapEditor) {}
 
-  private nodeFromBlockUpdate(blockUpdate: BlockUpdate) {
-    const content: Node[] = [];
+  public createBlock(blockSpec: BlockSpec): Block {
+    const props = this.tiptapEditor.schema.node(
+      blockSpec.type,
+      blockSpec.props
+    ).attrs;
 
-    if (blockUpdate.styledTextContent) {
-      for (const styledText of blockUpdate.styledTextContent) {
-        const marks = [];
+    let textContent: string;
+    let styledTextContent: StyledText[] = [];
 
-        for (const style of styledText.styles) {
-          marks.push(this.tiptapEditor.schema.mark(style.type, style.props));
-        }
-
-        content.push(this.tiptapEditor.schema.text(styledText.text, marks));
+    if (typeof blockSpec.content === "string") {
+      textContent = blockSpec.content;
+      styledTextContent.push({
+        text: blockSpec.content,
+        styles: [],
+      });
+    } else if (typeof blockSpec.content !== "undefined") {
+      textContent = "";
+      for (const styledText of blockSpec.content) {
+        textContent += styledText.text;
       }
+      styledTextContent = blockSpec.content;
+    } else {
+      textContent = "";
     }
 
-    const contentNode = this.tiptapEditor.state.schema.nodes[
-      blockUpdate.type
-    ].create(blockUpdate.props, content);
+    return {
+      id: null,
+      type: blockSpec.type,
+      props: props,
+      textContent: textContent,
+      styledTextContent: styledTextContent,
+      children: blockSpec.children || [],
+    } as Block;
+  }
+
+  private blockToNode(block: Block) {
+    const content: Node[] = [];
+
+    for (const styledText of block.styledTextContent) {
+      const marks = [];
+
+      for (const style of styledText.styles) {
+        marks.push(this.tiptapEditor.schema.mark(style.type, style.props));
+      }
+
+      content.push(this.tiptapEditor.schema.text(styledText.text, marks));
+    }
+
+    const contentNode = this.tiptapEditor.state.schema.nodes[block.type].create(
+      block.props,
+      content
+    );
 
     const children: Node[] = [];
 
-    if (blockUpdate.children) {
-      for (const child of blockUpdate.children) {
-        children.push(this.nodeFromBlockUpdate(child));
+    if (block.children) {
+      for (const child of block.children) {
+        children.push(this.blockToNode(child));
       }
     }
 
@@ -110,11 +91,57 @@ export class Editor {
     );
   }
 
+  private nodeToBlock(node: Node): Block {
+    const cachedBlock = this.blockCache.get(node);
+    if (cachedBlock) {
+      return cachedBlock;
+    }
+
+    const blockInfo = getBlockInfoFromPos(node, 0)!;
+
+    const styledText: StyledText[] = [];
+    blockInfo.contentNode.content.forEach((node) => {
+      const styles: Style[] = [];
+
+      for (const mark of node.marks) {
+        styles.push({
+          type: mark.type.name,
+          props: mark.attrs,
+        } as Style);
+      }
+
+      styledText.push({
+        text: node.textContent,
+        styles: styles,
+      });
+    });
+
+    const children: Block[] = [];
+    for (let i = 0; i < blockInfo.numChildBlocks; i++) {
+      children.push(this.nodeToBlock(blockInfo.node.lastChild!.child(i)));
+    }
+
+    const block = {
+      id: blockInfo.id,
+      type: blockInfo.contentType.name,
+      // TODO: Only return attributes specified in the BlockSpec, not all attributes (e.g. ordered list item index should
+      //  not be included).
+      props: blockInfo.contentNode.attrs,
+      textContent: blockInfo.contentNode.textContent,
+      styledTextContent: styledText,
+      children: children,
+    } as Block;
+
+    this.blockCache.set(node, block);
+
+    return block;
+  }
+
   public get allBlocks(): Block[] {
     const blocks: Block[] = [];
 
     this.tiptapEditor.state.doc.firstChild!.descendants((node) => {
-      blocks.push(blockFromNode(node));
+      blocks.push(this.nodeToBlock(node));
 
       return false;
     });
@@ -128,11 +155,11 @@ export class Editor {
       this.tiptapEditor.state.selection.from
     )!;
 
-    return { block: blockFromNode(node) };
+    return { block: this.nodeToBlock(node) };
   }
 
   public insertBlocks(
-    blocksToInsert: BlockUpdate[],
+    blocksToInsert: Block[],
     referenceBlockId: string,
     placement?: "before" | "after" | "nested"
   ): void {
@@ -154,10 +181,11 @@ export class Editor {
         return true;
       }
 
-      const nodesToInsert = [];
+      blockFound = true;
 
-      for (const blockUpdate of blocksToInsert) {
-        nodesToInsert.push(this.nodeFromBlockUpdate(blockUpdate));
+      const nodesToInsert = [];
+      for (const block of blocksToInsert) {
+        nodesToInsert.push(this.blockToNode(block));
       }
 
       let insertionPos = -1;
@@ -171,7 +199,7 @@ export class Editor {
       }
 
       if (placement === "nested") {
-        // Case if block doesn't have children.
+        // Case if block doesn't already have children.
         if (node.childCount < 2) {
           insertionPos = pos + node.firstChild!.nodeSize + 1;
 
@@ -183,8 +211,6 @@ export class Editor {
             this.tiptapEditor.state.tr.insert(insertionPos, blockGroupNode)
           );
 
-          blockFound = true;
-
           return false;
         }
 
@@ -195,51 +221,12 @@ export class Editor {
         this.tiptapEditor.state.tr.insert(insertionPos, nodesToInsert)
       );
 
-      blockFound = true;
-
       return false;
     });
 
     if (!blockFound) {
       throw Error("Block with given ID does not exist in the document");
     }
-  }
-
-  // public firstBlockAsMarkdown(): void {
-  //   const node =
-  //     this.tiptapEditor.state.doc.firstChild!.firstChild!.firstChild!;
-  //
-  //   const serializer = DOMSerializer.fromSchema(this.tiptapEditor.schema);
-  //   const htmlNode = serializer.serializeNode(node).firstChild!;
-  //
-  //   const turndownService = new TurndownService();
-  //   const markdownNode = turndownService.turndown(htmlNode as HTMLElement);
-  //
-  //   console.log(node);
-  //   console.log(htmlNode);
-  //   console.log(markdownNode);
-  // }
-
-  public async markdownToBlocks(markdownString: string): Promise<Block[]> {
-    const htmlString = await unified()
-      .use(remarkParse)
-      .use(remarkRehype)
-      .use(rehypeStringify)
-      .process(markdownString);
-
-    const htmlNode = document.createElement("div");
-    htmlNode.innerHTML = (htmlString.value as string).trim();
-
-    const parser = DOMParser.fromSchema(this.tiptapEditor.schema);
-    const node = parser.parse(htmlNode);
-
-    const blocks: Block[] = [];
-
-    for (let i = 0; i < node.firstChild!.childCount; i++) {
-      blocks.push(blockFromNode(node.firstChild!.child(i)));
-    }
-
-    return blocks;
   }
 
   public async blocksToHTML(blocks: Block[]): Promise<string> {
@@ -370,7 +357,7 @@ export class Editor {
     const serializer = DOMSerializer.fromSchema(this.tiptapEditor.schema);
 
     for (const block of blocks) {
-      const node = this.nodeFromBlockUpdate(block);
+      const node = this.blockToNode(block);
       const htmlNode = serializer.serializeNode(node);
       htmlParentElement.appendChild(htmlNode);
     }
@@ -387,56 +374,41 @@ export class Editor {
     return htmlString.value as string;
   }
 
+  public async HTMLToBlocks(htmlString: string): Promise<Block[]> {
+    const htmlNode = document.createElement("div");
+    htmlNode.innerHTML = htmlString.trim();
+
+    const parser = DOMParser.fromSchema(this.tiptapEditor.schema);
+    const parentNode = parser.parse(htmlNode);
+
+    const blocks: Block[] = [];
+
+    for (let i = 0; i < parentNode.firstChild!.childCount; i++) {
+      blocks.push(this.nodeToBlock(parentNode.firstChild!.child(i)));
+    }
+
+    return blocks;
+  }
+
   public async blocksToMarkdown(blocks: Block[]): Promise<string> {
-    const htmlString = await this.blocksToHTML(blocks);
     const markdownString = await unified()
       .use(rehypeParse, { fragment: true })
       .use(rehypeRemark)
       .use(remarkStringify)
-      .process(htmlString);
+      .process(await this.blocksToHTML(blocks));
 
     return markdownString.value as string;
   }
 
-  // public get markdownAsBlocks(markdownString: string) {
-  //   const blockStrings = markdownString.split("\n");
-  //
-  //   for (let i = 0; i < blockStrings.length; i++) {
-  //     const blockString = blockStrings[i];
-  //
-  //     let type = undefined;
-  //     let props = undefined;
-  //
-  //     if (blockString.startsWith("### ")) {
-  //       type = "heading";
-  //       props = {
-  //         level: "3",
-  //       };
-  //     } else if (blockString.startsWith("## ")) {
-  //       type = "heading";
-  //       props = {
-  //         level: "2",
-  //       };
-  //     } else if (blockString.startsWith("# ")) {
-  //       type = "heading";
-  //       props = {
-  //         level: "1",
-  //       };
-  //     } else if (blockString.match(/^[-+*]\. /)) {
-  //       type = "bulletListItem";
-  //     } else if (blockString.match(/^\d+\. /)) {
-  //       type = "numberedListItem";
-  //     }
-  //
-  //     const children;
-  //     if (type === "bulletListItem" || type === "numberedListItem") {
-  //     }
-  //   }
-  // }
+  public async markdownToBlocks(markdownString: string): Promise<Block[]> {
+    const htmlString = await unified()
+      .use(remarkParse)
+      .use(remarkRehype)
+      .use(rehypeStringify)
+      .process(markdownString);
 
-  // blocksToMarkdown
-
-  // cursorPosition
+    return this.HTMLToBlocks(htmlString.value as string);
+  }
 
   // public get selection
 

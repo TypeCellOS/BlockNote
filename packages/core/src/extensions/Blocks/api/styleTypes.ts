@@ -1,4 +1,4 @@
-export type StyleSpec<
+export type StyleTemplate<
   // Type of the style.
   // Examples might include: "bold", "italic", or "textColor".
   Type extends string,
@@ -10,19 +10,22 @@ export type StyleSpec<
   props: Props;
 };
 
-export type Bold = StyleSpec<"bold", {}>;
+export type Bold = StyleTemplate<"bold", {}>;
 
-export type Italic = StyleSpec<"italic", {}>;
+export type Italic = StyleTemplate<"italic", {}>;
 
-export type Underline = StyleSpec<"underline", {}>;
+export type Underline = StyleTemplate<"underline", {}>;
 
-export type Strikethrough = StyleSpec<"strikethrough", {}>;
+export type Strikethrough = StyleTemplate<"strikethrough", {}>;
 
-export type TextColor = StyleSpec<"textColor", { color: string }>;
+export type TextColor = StyleTemplate<"textColor", { color: string }>;
 
-export type BackgroundColor = StyleSpec<"backgroundColor", { color: string }>;
+export type BackgroundColor = StyleTemplate<
+  "backgroundColor",
+  { color: string }
+>;
 
-export type Link = StyleSpec<"link", { href: string }>;
+export type Link = StyleTemplate<"link", { href: string }>;
 
 export type Style =
   | Bold

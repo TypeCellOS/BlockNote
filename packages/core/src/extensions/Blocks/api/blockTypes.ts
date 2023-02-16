@@ -1,6 +1,6 @@
 import { StyledText } from "./styleTypes";
 
-export type BlockSpec<
+export type BlockTemplate<
   // Type of the block.
   // Examples might include: "paragraph", "heading", or "bulletListItem".
   Type extends string,
@@ -8,7 +8,7 @@ export type BlockSpec<
   // An example might be: { textAlignment: "left" | "right" | "center" } for a paragraph block.
   Props extends Record<string, string>
 > = {
-  id: string;
+  id: string | null;
   type: Type;
   props: Props;
   textContent: string;
@@ -16,30 +16,30 @@ export type BlockSpec<
   children: Block[];
 };
 
-export type BlockSpecUpdate<Spec> = Spec extends BlockSpec<
+export type BlockSpecTemplate<Spec> = Spec extends BlockTemplate<
   infer Type,
   infer Props
 >
   ? {
       type: Type;
       props?: Partial<Props>;
-      styledTextContent?: StyledText[];
+      content?: string | StyledText[];
       children?: Block[];
     }
   : never;
 
-export type NumberedListItemBlock = BlockSpec<"numberedListItem", {}>;
+export type NumberedListItemBlock = BlockTemplate<"numberedListItem", {}>;
 
-export type BulletListItemBlock = BlockSpec<"bulletListItem", {}>;
+export type BulletListItemBlock = BlockTemplate<"bulletListItem", {}>;
 
-export type HeadingBlock = BlockSpec<
+export type HeadingBlock = BlockTemplate<
   "heading",
   {
     level: "1" | "2" | "3";
   }
 >;
 
-export type ParagraphBlock = BlockSpec<"paragraph", {}>;
+export type ParagraphBlock = BlockTemplate<"paragraph", {}>;
 
 export type Block =
   | ParagraphBlock
@@ -47,7 +47,7 @@ export type Block =
   | BulletListItemBlock
   | NumberedListItemBlock;
 
-export type BlockUpdate = BlockSpecUpdate<Block>;
+export type BlockSpec = BlockSpecTemplate<Block>;
 
 // TODO:
 //  1) guard read / writes (now we just pass on internal node attrs)

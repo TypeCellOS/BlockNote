@@ -1,7 +1,7 @@
 import { mergeAttributes, Node } from "@tiptap/core";
 import { Fragment, Slice } from "prosemirror-model";
 import { TextSelection } from "prosemirror-state";
-import { BlockUpdate } from "../api/blockTypes";
+import { BlockSpec } from "../api/blockTypes";
 import { getBlockInfoFromPos } from "../helpers/getBlockInfoFromPos";
 import { PreviousBlockTypePlugin } from "../PreviousBlockTypePlugin";
 import styles from "./Block.module.css";
@@ -19,13 +19,10 @@ declare module "@tiptap/core" {
       BNDeleteBlock: (posInBlock: number) => ReturnType;
       BNMergeBlocks: (posBetweenBlocks: number) => ReturnType;
       BNSplitBlock: (posInBlock: number, keepType: boolean) => ReturnType;
-      BNUpdateBlock: (
-        posInBlock: number,
-        blockUpdate: BlockUpdate
-      ) => ReturnType;
+      BNUpdateBlock: (posInBlock: number, blockSpec: BlockSpec) => ReturnType;
       BNCreateOrUpdateBlock: (
         posInBlock: number,
-        blockUpdate: BlockUpdate
+        blockSpec: BlockSpec
       ) => ReturnType;
     };
   }
@@ -284,7 +281,7 @@ export const BlockContainer = Node.create<IBlock>({
         },
       // Updates the type and attributes of a block at a given position.
       BNUpdateBlock:
-        (posInBlock, blockUpdate) =>
+        (posInBlock, blockSpec) =>
         ({ state, dispatch }) => {
           const blockInfo = getBlockInfoFromPos(state.doc, posInBlock);
           if (blockInfo === undefined) {
@@ -297,10 +294,10 @@ export const BlockContainer = Node.create<IBlock>({
             state.tr.setBlockType(
               startPos + 1,
               startPos + contentNode.nodeSize + 1,
-              state.schema.node(blockUpdate.type).type,
+              state.schema.node(blockSpec.type).type,
               {
                 ...node.attrs,
-                ...blockUpdate.props,
+                ...blockSpec.props,
               }
             );
           }
@@ -310,7 +307,7 @@ export const BlockContainer = Node.create<IBlock>({
       // Changes the block at a given position to a given content type if it's empty, otherwise creates a new block of
       // that type below it.
       BNCreateOrUpdateBlock:
-        (posInBlock, blockUpdate) =>
+        (posInBlock, blockSpec) =>
         ({ state, chain }) => {
           const blockInfo = getBlockInfoFromPos(state.doc, posInBlock);
           if (blockInfo === undefined) {
@@ -323,7 +320,7 @@ export const BlockContainer = Node.create<IBlock>({
             const oldBlockContentPos = startPos + 1;
 
             return chain()
-              .BNUpdateBlock(posInBlock, blockUpdate)
+              .BNUpdateBlock(posInBlock, blockSpec)
               .setTextSelection(oldBlockContentPos)
               .run();
           } else {
@@ -332,7 +329,7 @@ export const BlockContainer = Node.create<IBlock>({
 
             return chain()
               .BNCreateBlock(newBlockInsertionPos)
-              .BNUpdateBlock(newBlockContentPos, blockUpdate)
+              .BNUpdateBlock(newBlockContentPos, blockSpec)
               .setTextSelection(newBlockContentPos)
               .run();
           }

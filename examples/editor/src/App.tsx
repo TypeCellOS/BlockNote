@@ -90,7 +90,6 @@ function App() {
       if (!editorAPI) {
         editorAPI = new Editor(editor);
       } else {
-        // console.log(editorAPI.allBlocks);
         const blocks: Block[] = [
           {
             id: "0",
@@ -346,41 +345,61 @@ function App() {
             children: [],
           },
         ];
-        editorAPI.blocksToHTML(blocks).then((html) => console.log(html));
-        editorAPI.blocksToMarkdown(blocks).then((html) => console.log(html));
-        //   .then((html) => console.log(html));
-        // editorAPI.insertBlocks(
-        //   [
-        //     {
-        //       type: "heading",
-        //       props: { level: "3" },
-        //       styledTextContent: [
-        //         {
-        //           text: "Hello ",
-        //           styles: [
-        //             {
-        //               type: "underline",
-        //               props: {},
-        //             },
-        //           ],
-        //         },
-        //         {
-        //           text: "World",
-        //           styles: [
-        //             {
-        //               type: "italic",
-        //               props: {},
-        //             },
-        //           ],
-        //         },
-        //       ],
-        //     },
-        //   ],
-        //   editor.state.doc.firstChild!.firstChild!.attrs.id,
-        //   "before"
-        // );
-        // editorAPI.insertBlocks([], editorAPI.cursorPosition.block, "after");
-        // editorAPI.firstBlockAsMarkdown();
+        const html = `
+<h1>Heading 1</h1>
+<h2>Heading 2</h2>
+<h3>Heading 3</h3>
+<p>Paragraph</p>
+<p>Paragraph</p>
+<p>Paragraph</p>
+<ul>
+   <li>
+      <p>Bullet List Item</p>
+   </li>
+   <li>
+      <p>Bullet List Item</p>
+      <ul>
+         <li>
+            <p>Bullet List Item</p>
+            <ul>
+               <li>
+                  <p>Bullet List Item</p>
+               </li>
+            </ul>
+            <p>Paragraph</p>
+            <ol>
+               <li>
+                  <p>Numbered List Item</p>
+               </li>
+               <li>
+                  <p>Numbered List Item</p>
+               </li>
+               <li>
+                  <p>Numbered List Item</p>
+                  <ol>
+                     <li>
+                        <p>Numbered List Item</p>
+                     </li>
+                  </ol>
+               </li>
+            </ol>
+            <ul>
+               <li>
+                  <p>Bullet List Item</p>
+               </li>
+            </ul>
+         </li>
+         <li>
+            <p>Bullet List Item</p>
+         </li>
+      </ul>
+   </li>
+   <li>
+      <p>Bullet List Item</p>
+   </li>
+</ul>
+<p></p>
+        `;
         const markdown = `
 # dawdwa
 
@@ -403,18 +422,27 @@ dwaadwdwadwa
         3. ewqewqewq
 - fesfesfesfes
 `;
-        editorAPI.markdownToBlocks(markdown).then((blocks) => {
-          // console.log(blocks);
-          // editorAPI.blocksToMarkdown(blocks).then((markdown) => {
-          //   console.log(markdown);
-          // });
+
+        editorAPI.blocksToHTML(blocks).then((html) => {
+          console.log("BLOCKS TO HTML:");
+          console.log("Input Blocks:", blocks);
+          console.log("Output HTML:", html);
         });
-        editorAPI.blocksToMarkdown([]);
-        // console.log(editorAPI.blocksAsMarkdown);
-        // const node = editor.state.doc.firstChild!.firstChild!;
-        // console.log(node);
-        // console.log(node!.type!.spec!.toDOM(node)!);
-        // const serializer = DOMSerializer.fromSchema(editor.schema);
+        editorAPI.HTMLToBlocks(html).then((blocks) => {
+          console.log("HTML TO BLOCKS:");
+          console.log("Input HTML:", html);
+          console.log("Output Blocks:", blocks);
+        });
+        editorAPI.blocksToMarkdown(blocks).then((markdown) => {
+          console.log("BLOCKS TO MARKDOWN:");
+          console.log("Input Blocks:", blocks);
+          console.log("Output Markdown:", markdown);
+        });
+        editorAPI.markdownToBlocks(markdown).then((blocks) => {
+          console.log("MARKDOWN TO BLOCKS:");
+          console.log("Input Markdown:", markdown);
+          console.log("Output Blocks:", blocks);
+        });
       }
       // console.log(editor.getJSON());
       (window as WindowWithProseMirror).ProseMirror = editor; // Give tests a way to get editor instance
