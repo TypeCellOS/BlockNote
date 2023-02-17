@@ -1,5 +1,5 @@
 import { Block } from "./blockTypes";
 
-export type CursorPosition = {
+export type TextCursorPosition = {
   block: Block;
 };

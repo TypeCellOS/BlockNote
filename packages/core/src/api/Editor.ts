@@ -10,7 +10,7 @@ import rehypeRemark from "rehype-remark";
 import { getBlockInfoFromPos } from "../extensions/Blocks/helpers/getBlockInfoFromPos";
 import { Style, StyledText } from "../extensions/Blocks/api/styleTypes";
 import { Block, BlockSpec } from "../extensions/Blocks/api/blockTypes";
-import { CursorPosition } from "../extensions/Blocks/api/cursorPositionTypes";
+import { TextCursorPosition } from "../extensions/Blocks/api/cursorPositionTypes";
 import { simplifyBlocks } from "./simplifyBlocksUnifiedPlugin";
 
 export function createBlockContent(
@@ -81,7 +81,7 @@ export function getNodeById(
   });
 
   if (!targetNode || !posBeforeNode) {
-    throw Error("Node with given ID does not exist in the document");
+    throw Error("Could not find block in the editor with matching ID");
   }
 
   return {
@@ -163,14 +163,26 @@ export class Editor {
 
   constructor(private tiptapEditor: TiptapEditor) {}
 
+  /**
+   * Creates a Block out of a BlockSpec.
+   * @param blockSpec The BlockSpec to create a Block from.
+   */
   public createBlock(blockSpec: BlockSpec): Block {
     return createBlock(blockSpec, this.tiptapEditor.schema);
   }
 
+  /**
+   * Converts a Block into a ProseMirror node.
+   * @param block The Block to convert into a ProseMirror node.
+   */
   private blockToNode(block: Block) {
     return blockToNode(block, this.tiptapEditor.schema);
   }
 
+  /**
+   * Converts a ProseMirror node into a Block.
+   * @param node The ProseMirror node to convert into a Block.
+   */
   private nodeToBlock(node: Node): Block {
     const cachedBlock = this.blockCache.get(node);
 
@@ -184,6 +196,9 @@ export class Editor {
     return block;
   }
 
+  /**
+   * Gets a list of all top-level blocks that are in the editor.
+   */
   public get allBlocks(): Block[] {
     const blocks: Block[] = [];
 
@@ -196,7 +211,10 @@ export class Editor {
     return blocks;
   }
 
-  public get cursorPosition(): CursorPosition {
+  /**
+   * Gets information regarding the position of the text cursor in the editor.
+   */
+  public get textCursorPosition(): TextCursorPosition {
     const { node } = getBlockInfoFromPos(
       this.tiptapEditor.state.doc,
       this.tiptapEditor.state.selection.from
@@ -205,11 +223,24 @@ export class Editor {
     return { block: this.nodeToBlock(node) };
   }
 
+  /**
+   * Inserts a list of blocks into the editor.
+   * @param blocksToInsert The list of blocks to insert.
+   * @param referenceBlock The block to insert the list of blocks at.
+   * @param placement Determines whether the blocks should be inserted just before, just after, or nested inside the
+   * reference block.
+   */
   public insertBlocks(
     blocksToInsert: Block[],
-    referenceBlockId: string,
+    referenceBlock: Block,
     placement: "before" | "after" | "nested" = "before"
   ): void {
+    if (referenceBlock.id === null) {
+      throw Error(
+        "Reference block cannot be found in the editor as it has a null ID"
+      );
+    }
+
     const nodesToInsert: Node[] = [];
     for (const block of blocksToInsert) {
       nodesToInsert.push(this.blockToNode(block));
@@ -218,7 +249,7 @@ export class Editor {
     let insertionPos = -1;
 
     const { node, pos } = getNodeById(
-      referenceBlockId,
+      referenceBlock.id,
       this.tiptapEditor.state.doc
     );
 
@@ -254,6 +285,12 @@ export class Editor {
     );
   }
 
+  /**
+   * Serializes a list of blocks into an HTML string. The output is not the same as what's rendered by the editor, and
+   * is simplified in order to better conform to HTML standards. Block structuring elements are removed, children of
+   * blocks which aren't list items are lifted out of them, and list items blocks are wrapped in `ul`/`ol` tags.
+   * @param blocks The list of blocks to serialize into HTML.
+   */
   public async blocksToHTML(blocks: Block[]): Promise<string> {
     const htmlParentElement = document.createElement("div");
     const serializer = DOMSerializer.fromSchema(this.tiptapEditor.schema);
@@ -276,6 +313,10 @@ export class Editor {
     return htmlString.value as string;
   }
 
+  /**
+   * Creates a list of blocks from an HTML string.
+   * @param htmlString The HTML string to create a list of blocks from.
+   */
   public async HTMLToBlocks(htmlString: string): Promise<Block[]> {
     const htmlNode = document.createElement("div");
     htmlNode.innerHTML = htmlString.trim();
@@ -292,6 +333,12 @@ export class Editor {
     return blocks;
   }
 
+  /**
+   * Serializes a list of blocks into a Markdown string. The output is simplified as Markdown does not support all
+   * features of BlockNote. Block structuring elements are removed, children of blocks which aren't list items are
+   * lifted out of them, and certain styles are removed.
+   * @param blocks The list of blocks to serialize into Markdown.
+   */
   public async blocksToMarkdown(blocks: Block[]): Promise<string> {
     const markdownString = await unified()
       .use(rehypeParse, { fragment: true })
@@ -302,6 +349,10 @@ export class Editor {
     return markdownString.value as string;
   }
 
+  /**
+   * Creates a list of blocks from a Markdown string.
+   * @param markdownString The Markdown string to create a list of blocks from.
+   */
   public async markdownToBlocks(markdownString: string): Promise<Block[]> {
     const htmlString = await unified()
       .use(remarkParse)
