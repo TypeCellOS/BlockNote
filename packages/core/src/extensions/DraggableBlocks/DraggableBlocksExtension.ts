@@ -5,6 +5,7 @@ import { createDraggableBlocksPlugin } from "./DraggableBlocksPlugin";
 export type DraggableBlocksOptions = {
   editor: Editor;
   blockSideMenuFactory: BlockSideMenuFactory;
+  menuDetectionElement: HTMLElement;
 };
 
 /**
@@ -27,6 +28,8 @@ export const DraggableBlocksExtension =
         createDraggableBlocksPlugin({
           editor: this.editor,
           blockSideMenuFactory: this.options.blockSideMenuFactory,
+          menuDetectionElement:
+            this.options.menuDetectionElement || this.editor.view.dom,
         }),
       ];
     },

@@ -214,6 +214,7 @@ export type BlockMenuViewProps = {
   editor: Editor;
   blockMenuFactory: BlockSideMenuFactory;
   horizontalPosAnchoredAtRoot: boolean;
+  menuDetectionElement: HTMLElement;
 };
 
 export class BlockMenuView {
@@ -236,6 +237,7 @@ export class BlockMenuView {
     editor,
     blockMenuFactory,
     horizontalPosAnchoredAtRoot,
+    menuDetectionElement,
   }: BlockMenuViewProps) {
     this.editor = editor;
     this.horizontalPosAnchoredAtRoot = horizontalPosAnchoredAtRoot;
@@ -270,14 +272,21 @@ export class BlockMenuView {
 
         const block = getDraggableBlockFromCoords(coords, this.editor.view);
 
-        // Detection area which covers the width of the editor with a 100px left margin. The menu cannot be shown while
-        // the cursor is outside this area.
-        const cursorWithinDetectionArea =
-          editorBoundingBox.left + editorBoundingBox.width >= event.clientX &&
-          event.clientX >= editorBoundingBox.left - 100;
+        const detectionElementBoundingBox =
+          menuDetectionElement.getBoundingClientRect();
 
-        // Closes the menu if the mouse cursor is beyond the editor.
-        if (!block || !cursorWithinDetectionArea) {
+        const cursorWithinDetectionElement =
+          detectionElementBoundingBox.left +
+            detectionElementBoundingBox.width >=
+            event.clientX &&
+          event.clientX >= detectionElementBoundingBox.left &&
+          detectionElementBoundingBox.top +
+            detectionElementBoundingBox.height >=
+            event.clientY &&
+          event.clientY >= detectionElementBoundingBox.top;
+
+        // Closes the menu if the mouse cursor is not next to any block, or is outside the menu detection element.
+        if (!block || !cursorWithinDetectionElement) {
           if (this.menuOpen) {
             this.menuOpen = false;
             this.blockMenu.hide();
@@ -504,6 +513,7 @@ export const createDraggableBlocksPlugin = (
         editor: options.editor,
         blockMenuFactory: options.blockSideMenuFactory,
         horizontalPosAnchoredAtRoot: true,
+        menuDetectionElement: options.menuDetectionElement,
       }),
   });
 };

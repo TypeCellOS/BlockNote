@@ -95,6 +95,7 @@ export const getBlockNoteExtensions = (uiFactories: UiFactories) => {
     ret.push(
       DraggableBlocksExtension.configure({
         blockSideMenuFactory: uiFactories.blockSideMenuFactory,
+        // menuDetectionElement: document.getElementById("detection-element")!,
       })
     );
   }
