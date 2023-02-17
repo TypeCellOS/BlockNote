@@ -7,6 +7,9 @@ const deps = Object.keys(pkg.dependencies);
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  test: {
+    environment: "jsdom",
+  },
   plugins: [],
   build: {
     sourcemap: true,
@@ -22,10 +25,7 @@ export default defineConfig({
         if (deps.includes(source)) {
           return true;
         }
-        if (source.startsWith("prosemirror-")) {
-          return true;
-        }
-        return false;
+        return source.startsWith("prosemirror-");
       },
       output: {
         // Provide global variables to use in the UMD build

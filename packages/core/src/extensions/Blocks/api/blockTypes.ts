@@ -28,6 +28,10 @@ export type BlockSpecTemplate<Spec> = Spec extends BlockTemplate<
     }
   : never;
 
+export type BlockPropsTemplate<Props> = Props extends Block["props"]
+  ? keyof Props
+  : never;
+
 export type NumberedListItemBlock = BlockTemplate<"numberedListItem", {}>;
 
 export type BulletListItemBlock = BlockTemplate<"bulletListItem", {}>;
@@ -49,6 +53,12 @@ export type Block =
 
 export type BlockSpec = BlockSpecTemplate<Block>;
 
-// TODO:
-//  1) guard read / writes (now we just pass on internal node attrs)
-//  2) where to locate this code / types
+export type BlockProps = BlockPropsTemplate<BlockSpec["props"]>;
+
+// TODO: Better way of doing this type guard?
+export const blockProps: Record<Block["type"], Set<BlockProps>> = {
+  paragraph: new Set<keyof ParagraphBlock["props"]>(),
+  heading: new Set<keyof HeadingBlock["props"]>(["level"]),
+  numberedListItem: new Set<keyof NumberedListItemBlock["props"]>(),
+  bulletListItem: new Set<keyof BulletListItemBlock["props"]>(),
+};

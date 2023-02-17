@@ -16,7 +16,7 @@ export type Italic = StyleTemplate<"italic", {}>;
 
 export type Underline = StyleTemplate<"underline", {}>;
 
-export type Strikethrough = StyleTemplate<"strikethrough", {}>;
+export type Strikethrough = StyleTemplate<"strike", {}>;
 
 export type TextColor = StyleTemplate<"textColor", { color: string }>;
 

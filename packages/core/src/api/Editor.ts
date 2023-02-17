@@ -3,13 +3,19 @@ import { DOMParser, DOMSerializer, Node, Schema } from "prosemirror-model";
 import { unified } from "unified";
 import remarkParse from "remark-parse";
 import remarkStringify from "remark-stringify";
+import remarkGfm from "remark-gfm";
 import remarkRehype from "remark-rehype";
 import rehypeParse from "rehype-parse";
 import rehypeStringify from "rehype-stringify";
 import rehypeRemark from "rehype-remark";
 import { getBlockInfoFromPos } from "../extensions/Blocks/helpers/getBlockInfoFromPos";
 import { Style, StyledText } from "../extensions/Blocks/api/styleTypes";
-import { Block, BlockSpec } from "../extensions/Blocks/api/blockTypes";
+import {
+  Block,
+  BlockProps,
+  blockProps,
+  BlockSpec,
+} from "../extensions/Blocks/api/blockTypes";
 import { TextCursorPosition } from "../extensions/Blocks/api/cursorPositionTypes";
 import { simplifyBlocks } from "./simplifyBlocksUnifiedPlugin";
 
@@ -124,6 +130,19 @@ export function blockToNode(block: Block, schema: Schema) {
 export function nodeToBlock(node: Node): Block {
   const blockInfo = getBlockInfoFromPos(node, 0)!;
 
+  const props: any = {};
+  for (const [attr, value] of Object.entries(blockInfo.contentNode.attrs)) {
+    if (!(blockInfo.contentType.name in blockProps)) {
+      throw Error("Node is of a type that isn't recognized by the editor");
+    }
+
+    const validAttrs = blockProps[blockInfo.contentType.name as Block["type"]];
+
+    if (validAttrs.has(attr as BlockProps)) {
+      props[attr] = value;
+    }
+  }
+
   const styledText: StyledText[] = [];
   blockInfo.contentNode.content.forEach((node) => {
     const styles: Style[] = [];
@@ -151,7 +170,7 @@ export function nodeToBlock(node: Node): Block {
     type: blockInfo.contentType.name,
     // TODO: Only return attributes specified in the BlockSpec, not all attributes (e.g. ordered list item index should
     //  not be included).
-    props: blockInfo.contentNode.attrs,
+    props: props,
     textContent: blockInfo.contentNode.textContent,
     styledTextContent: styledText,
     children: children,
@@ -343,6 +362,7 @@ export class Editor {
     const markdownString = await unified()
       .use(rehypeParse, { fragment: true })
       .use(rehypeRemark)
+      .use(remarkGfm)
       .use(remarkStringify)
       .process(await this.blocksToHTML(blocks));
 
