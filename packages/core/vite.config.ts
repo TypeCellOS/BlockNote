@@ -3,6 +3,8 @@ import { defineConfig } from "vite";
 import pkg from "./package.json";
 // import eslintPlugin from "vite-plugin-eslint";
 
+const deps = Object.keys(pkg.dependencies);
+
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [],
@@ -16,7 +18,15 @@ export default defineConfig({
     rollupOptions: {
       // make sure to externalize deps that shouldn't be bundled
       // into your library
-      external: Object.keys(pkg.dependencies),
+      external: (source: string) => {
+        if (deps.includes(source)) {
+          return true;
+        }
+        if (source.startsWith("prosemirror-")) {
+          return true;
+        }
+        return false;
+      },
       output: {
         // Provide global variables to use in the UMD build
         // for externalized deps
