@@ -1,5 +1,5 @@
-import { BlockNoteEditor } from "@blocknote/core";
 import { expect, it } from "vitest";
+import { BlockNoteEditor } from "./BlockNoteEditor";
 import { getBlockInfoFromPos } from "./extensions/Blocks/helpers/getBlockInfoFromPos";
 
 /**
