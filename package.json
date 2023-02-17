@@ -20,6 +20,7 @@
     "bootstrap": "lerna bootstrap --ci -- --force && patch-package",
     "install-new-packages": "lerna bootstrap -- --force && patch-package",
     "playwright": "npx playwright test",
+    "test": "lerna run --stream test",
     "install-playwright": "npx playwright install --with-deps",
     "deploy": "lerna publish -- --access public",
     "prepublishOnly": "npm run build && cp README.md packages/core/README.md && cp README.md packages/react/README.md",
