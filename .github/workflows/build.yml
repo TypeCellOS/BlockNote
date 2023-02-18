@@ -56,6 +56,11 @@ jobs:
         env:
           CI: true
 
+      - name: Run unit tests
+        run: npm run test
+        env:
+          CI: true
+
       - name: Run server
         run: npm run start:built & npx wait-on http://localhost:3000
         env:
