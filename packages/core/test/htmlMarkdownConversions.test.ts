@@ -180,13 +180,13 @@ describe("Nested Block/HTML/Markdown Conversions", () => {
 
     expect(output).toMatchSnapshot();
   });
-
+  // Failing due to nested block parsing bug.
   it("Convert nested HTML to blocks", async () => {
     const output = await editorAPI.HTMLToBlocks(nestedHTML);
 
     expect(output).toMatchSnapshot();
   });
-
+  // Failing due to nested block parsing bug.
   it("Convert nested Markdown to blocks", async () => {
     const output = await editorAPI.markdownToBlocks(nestedMarkdown);
 
@@ -671,14 +671,12 @@ describe("Complex Block/HTML/Markdown Conversions", () => {
 
     expect(output).toMatchSnapshot();
   });
-
-  // Snapshot is currently incorrect du
+  // Failing due to nested block parsing bug.
   it("Convert complex HTML to blocks", async () => {
     const output = await editorAPI.HTMLToBlocks(complexHTML);
 
     expect(output).toMatchSnapshot();
   });
-
   // Failing due to nested block parsing bug.
   it("Convert complex Markdown to blocks", async () => {
     const output = await editorAPI.markdownToBlocks(complexMarkdown);
