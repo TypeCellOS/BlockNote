@@ -17,7 +17,8 @@ import {
   BlockSpec,
 } from "../extensions/Blocks/api/blockTypes";
 import { TextCursorPosition } from "../extensions/Blocks/api/cursorPositionTypes";
-import { simplifyBlocks } from "./simplifyBlocksUnifiedPlugin";
+import { simplifyBlocks } from "./simplifyBlocksRehypePlugin";
+import { removeUnderlines } from "./removeUnderlinesRehypePlugin";
 
 export function createBlockContent(
   blockSpec: BlockSpec
@@ -168,8 +169,6 @@ export function nodeToBlock(node: Node): Block {
   return {
     id: blockInfo.id,
     type: blockInfo.contentType.name,
-    // TODO: Only return attributes specified in the BlockSpec, not all attributes (e.g. ordered list item index should
-    //  not be included).
     props: props,
     textContent: blockInfo.contentNode.textContent,
     styledTextContent: styledText,
@@ -361,6 +360,7 @@ export class Editor {
   public async blocksToMarkdown(blocks: Block[]): Promise<string> {
     const markdownString = await unified()
       .use(rehypeParse, { fragment: true })
+      .use(removeUnderlines)
       .use(rehypeRemark)
       .use(remarkGfm)
       .use(remarkStringify)
@@ -376,6 +376,7 @@ export class Editor {
   public async markdownToBlocks(markdownString: string): Promise<Block[]> {
     const htmlString = await unified()
       .use(remarkParse)
+      .use(remarkGfm)
       .use(remarkRehype)
       .use(rehypeStringify)
       .process(markdownString);
