@@ -7,7 +7,7 @@ type SimplifyBlocksOptions = {
 };
 
 /**
- * Unified plugin which converts the HTML output string rendered by BlockNote into a simplified structure which better
+ * Rehype plugin which converts the HTML output string rendered by BlockNote into a simplified structure which better
  * follows HTML standards. It does several things:
  * - Removes all block related div elements, leaving only the actual content inside the block.
  * - Lifts nested blocks to a higher level for all block types that don't represent list items.
