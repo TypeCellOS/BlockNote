@@ -1,0 +1,32 @@
+{
+  "extends": "@vue/tsconfig/tsconfig.json",
+  "compilerOptions": {
+    "target": "ESNext",
+    "useDefineForClassFields": true,
+    "module": "ESNext",
+    "lib": ["ESNext", "DOM"],
+    "moduleResolution": "Node",
+    "strict": true,
+    "jsx": "react-jsx",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "noEmit": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "skipLibCheck": true,
+    "paths": {
+      "@theme/*": ["./docs/.vitepress/theme/*"]
+    }
+  },
+  "include": [
+    "src",
+    "docs/.vitepress/**/*", // not needed because it resides in docs/** now (?)
+    "env.d.ts",
+    "docs/**/*",
+    // Also need to explicitly include Markdown files to have TS intellisense work with Volar
+    "docs/**/*.md"
+  ],
+  "exclude": ["node_modules/"]
+}
