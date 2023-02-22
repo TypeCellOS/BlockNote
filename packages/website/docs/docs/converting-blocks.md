@@ -9,7 +9,7 @@ This page will explain:
 
 ### Converting Blocks to HTML
 
-`Block` objects can be converted an HTML string using the following API call:
+`Block` objects can be serialized an HTML string using the following API call:
 
 ```
 editor.blocksToHTML(blocks: Block[]): string
@@ -43,7 +43,7 @@ TODO
 
 ### Converting Blocks to Markdown
 
-`Block` objects can be converted a Markdown string using the following API call:
+`Block` objects can be serialized to a Markdown string using the following API call:
 
 ```
 editor.blocksToHTML(blocks: Block[]): string

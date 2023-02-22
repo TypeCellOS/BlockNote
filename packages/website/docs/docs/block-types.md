@@ -9,9 +9,7 @@ This page will explain:
 
 ## Default Block Types
 
-In the BlockNote API, `Block` objects have a `type` field which determines the content it contains and what keys its `props` field contains, as well as its appearance and behaviour in the editor. If you're not familiar with `Block` objects or the BlockNote API, head to **TODO** Introduction to Blocks.
-
-There are a variety of default block types that can be used in BlockNote, which are listed below along with their corresponding `type` and `props` values.
+There are a variety of default block types that can be used in BlockNote, which are listed below along with how they're represented using a `Block` object.
 
 ### Paragraph
 
@@ -22,7 +20,7 @@ TODO
 **Type & Props**
 
 ```
-type ParagraphBlock{
+type ParagraphBlock = {
     ...
     type: "paragraph";
     props: {}
@@ -38,7 +36,7 @@ TODO
 **Type & Props**
 
 ```
-type HeadingBlock{
+type HeadingBlock = {
     ...
     type: "heading";
     props: {
@@ -59,7 +57,7 @@ TODO
 **Type & Props**
 
 ```
-type BulletListItemBlock{
+type BulletListItemBlock = {
     ...
     type: "bulletListItem";
     props: {}
@@ -76,7 +74,7 @@ TODO
 **Type & Props**
 
 ```
-type NumberedListItemBlock{
+type NumberedListItemBlock = {
     ...
     type: "numberedListItem";
     props: {}

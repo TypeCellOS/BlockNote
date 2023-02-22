@@ -15,7 +15,9 @@ BlockNote offers a way to interact with the editor programmatically using the Bl
 
 ## Block Objects
 
-BlockNote is centered around the idea of blocks, each containing an individual piece of content and optionally also containing nested blocks. This block-based design extends to the BlockNote API, which uses the `Block` object type to represent blocks in code. Most functions in the BlockNote API either return `Block` objects or take them as arguments, so it's important to familiarize yourself with them in order to best make use of it. You can find out which functions are available in the BlockNote API in **TODO** Manipulating Blocks.
+BlockNote is centered around the idea of blocks, each containing an individual piece of content and optionally also containing nested blocks. This design philosophy extends to the BlockNote API, which uses the `Block` object type to represent blocks in code.
+
+Most functions in the BlockNote API either return `Block` objects or take them as arguments, so it's important to familiarize yourself with them in order to best make use of it. You can find all the functions available in the BlockNote API in **TODO** Manipulating Blocks. 
 
 ```
 type Block = {
@@ -28,15 +30,15 @@ type Block = {
 }
 ```
 
-`id:` The block's ID. Multiple blocks cannot share a single ID, and it's most often used to access a specific `Block` object in the editor as the ID won't change even if its `type`, `props`, or contents are updated. However, the ID for a new `Block` object is only generated once it's added to the editor. Before that, it's assigned a default value of `null`.
+`id:` The block's ID. Multiple blocks cannot share a single ID, and block will keep the same ID from when it's created until it's removed.
 
-`type:` The block's type, which determines the kind of content it contains, such as a paragraph, heading, or image, as well as what properties it can have. The type also affects the block's appearance and behaviour in the editor. It's important to note that nested blocks do not inherit their parent blocks' type, and you can find a list of all default types in **TODO** Block Types.
+`type:` The block's type, which determines several things. One of these, is the kind of content that the block contains, such as a paragraph, heading, or image. The type also establishes what properties the block can have, and affects the block's appearance as well as behaviour in the editor. It's important to note that nested blocks do not inherit their parent blocks' type, and you can find a list of all default types in **TODO** Block Types.
 
-`props:` The block's properties, which are a set of key/value pairs that further modify its appearance or behaviour in addition to its type. As such, the properties that a block can have are also entirely determined by its type. You can find more information on which block types introduce which properties in **TODO** Block Types.
+`props:` The block's properties, which are a set of key/value pairs that further modify its appearance or behaviour alongside its type. This means that the properties that a block can have are also entirely determined by its type. You can find more information on which properties each type of block has in **TODO** Block Types.
 
 `textContent:` The block's content, represented as plain text. This does not include content from any nested blocks.
 
-`styledTextContent:` The block's content, represented as an array of StyledText objects. It contains not only a plain text representation of the block's contents, but also the inline styles applied, such as bold, italic, and text color. Like `textContent`, this doesn't include content from nested blocks. For more information on StyledText objects, visit **TODO** Rich Text Content.
+`styledTextContent:` The block's content, represented as an array of StyledText objects. It contains not only a plain text information regarding the block's contents, but also the inline styles applied, such as bold, italic, and text color. Like `textContent`, this doesn't include content from nested blocks. For more information on StyledText objects, visit **TODO** Rich Text Content.
 
 `children:` Any blocks nested inside the block. The nested blocks are also represented using Block objects.
 
