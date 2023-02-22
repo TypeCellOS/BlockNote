@@ -8,7 +8,7 @@ export type BlockTemplate<
   // An example might be: { textAlignment: "left" | "right" | "center" } for a paragraph block.
   Props extends Record<string, string>
 > = {
-  id: string | null;
+  id: string;
   type: Type;
   props: Props;
   textContent: string;
@@ -24,7 +24,7 @@ export type BlockSpecTemplate<Spec> = Spec extends BlockTemplate<
       type: Type;
       props?: Partial<Props>;
       content?: string | StyledText[];
-      children?: Block[];
+      children?: BlockSpec[];
     }
   : never;
 
@@ -51,6 +51,7 @@ export type Block =
   | BulletListItemBlock
   | NumberedListItemBlock;
 
+// @ts-ignore
 export type BlockSpec = BlockSpecTemplate<Block>;
 
 export type BlockProps = BlockPropsTemplate<BlockSpec["props"]>;

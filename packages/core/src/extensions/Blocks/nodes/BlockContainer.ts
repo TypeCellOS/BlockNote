@@ -6,6 +6,7 @@ import { getBlockInfoFromPos } from "../helpers/getBlockInfoFromPos";
 import { PreviousBlockTypePlugin } from "../PreviousBlockTypePlugin";
 import styles from "./Block.module.css";
 import BlockAttributes from "./BlockAttributes";
+import { blockSpecToNode } from "../../../api/Editor";
 
 // TODO
 export interface IBlock {
@@ -279,7 +280,7 @@ export const BlockContainer = Node.create<IBlock>({
 
           return true;
         },
-      // Updates the type and attributes of a block at a given position.
+      // Updates a block to the given specification.
       BNUpdateBlock:
         (posInBlock, blockSpec) =>
         ({ state, dispatch }) => {
@@ -288,24 +289,25 @@ export const BlockContainer = Node.create<IBlock>({
             return false;
           }
 
-          const { node, startPos, contentNode } = blockInfo;
+          const { startPos, endPos, contentNode } = blockInfo;
+
+          const updatedNode = blockSpecToNode(blockSpec, state.schema);
 
           if (dispatch) {
-            state.tr.setBlockType(
-              startPos + 1,
-              startPos + contentNode.nodeSize + 1,
-              state.schema.node(blockSpec.type).type,
-              {
-                ...node.attrs,
+            state.tr
+              // Replaces block contents and nested blocks with what's defined in the spec.
+              .replace(startPos, endPos, new Slice(updatedNode.content, 0, 0))
+              // Re-adds old attributes that are shared between the old and updated block types.
+              .setNodeMarkup(startPos, state.schema.nodes[blockSpec.type], {
+                ...contentNode.attrs,
                 ...blockSpec.props,
-              }
-            );
+              });
           }
 
           return true;
         },
-      // Changes the block at a given position to a given content type if it's empty, otherwise creates a new block of
-      // that type below it.
+      // Updates a block to the given specification if it's empty, otherwise creates a new block from that specification
+      // below it.
       BNCreateOrUpdateBlock:
         (posInBlock, blockSpec) =>
         ({ state, chain }) => {

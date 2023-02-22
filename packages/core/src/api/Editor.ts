@@ -1,5 +1,11 @@
 import { Editor as TiptapEditor } from "@tiptap/core";
-import { DOMParser, DOMSerializer, Node, Schema } from "prosemirror-model";
+import {
+  DOMParser,
+  DOMSerializer,
+  Node as PMNode,
+  Node,
+  Schema,
+} from "prosemirror-model";
 import { unified } from "unified";
 import remarkParse from "remark-parse";
 import remarkStringify from "remark-stringify";
@@ -20,53 +26,48 @@ import { TextCursorPosition } from "../extensions/Blocks/api/cursorPositionTypes
 import { simplifyBlocks } from "./simplifyBlocksRehypePlugin";
 import { removeUnderlines } from "./removeUnderlinesRehypePlugin";
 
-export function createBlockContent(
-  blockSpec: BlockSpec
-): Pick<Block, "textContent" | "styledTextContent"> {
-  let textContent: string;
-  let styledTextContent: StyledText[] = [];
+export function blockSpecToNode(blockSpec: BlockSpec, schema: Schema) {
+  let content: PMNode[] = [];
 
   if (typeof blockSpec.content === "string") {
-    textContent = blockSpec.content;
-    styledTextContent.push({
-      text: blockSpec.content,
-      styles: [],
-    });
-  } else if (typeof blockSpec.content !== "undefined") {
-    textContent = "";
+    content.push(schema.text(blockSpec.content));
+  } else if (typeof blockSpec.content === "object") {
     for (const styledText of blockSpec.content) {
-      textContent += styledText.text;
+      const marks = [];
+
+      for (const style of styledText.styles) {
+        marks.push(schema.mark(style.type, style.props));
+      }
+
+      content.push(schema.text(styledText.text, marks));
     }
-    styledTextContent = blockSpec.content;
-  } else {
-    textContent = "";
   }
 
-  return {
-    textContent: textContent,
-    styledTextContent: styledTextContent,
-  };
-}
+  const contentNode = schema.nodes[blockSpec.type].create(
+    blockSpec.props,
+    content
+  );
 
-export function createBlock(blockSpec: BlockSpec, schema: Schema): Block {
-  const props = schema.node(blockSpec.type, blockSpec.props).attrs;
+  const children: Node[] = [];
 
-  const { textContent, styledTextContent } = createBlockContent(blockSpec);
+  if (blockSpec.children) {
+    for (const child of blockSpec.children) {
+      children.push(blockSpecToNode(child, schema));
+    }
+  }
 
-  return {
-    id: null,
-    type: blockSpec.type,
-    props: props,
-    textContent: textContent,
-    styledTextContent: styledTextContent,
-    children: blockSpec.children || [],
-  } as Block;
+  const groupNode = schema.nodes["blockGroup"].create({}, children);
+
+  return schema.nodes["blockContainer"].create(
+    {},
+    children.length > 0 ? [contentNode, groupNode] : contentNode
+  );
 }
 
 export function getNodeById(
-  blockId: string,
+  id: string,
   doc: Node
-): { node: Node; pos: number } {
+): { node: Node; posBeforeNode: number } {
   let targetNode: Node | undefined = undefined;
   let posBeforeNode: number | undefined = undefined;
 
@@ -77,7 +78,7 @@ export function getNodeById(
     }
 
     // Keeps traversing nodes if block with target ID has not been found.
-    if (node.type.name !== "blockContainer" || node.attrs.id !== blockId) {
+    if (node.type.name !== "blockContainer" || node.attrs.id !== id) {
       return true;
     }
 
@@ -93,39 +94,8 @@ export function getNodeById(
 
   return {
     node: targetNode,
-    pos: posBeforeNode,
+    posBeforeNode: posBeforeNode,
   };
-}
-
-export function blockToNode(block: Block, schema: Schema) {
-  const content: Node[] = [];
-
-  for (const styledText of block.styledTextContent) {
-    const marks = [];
-
-    for (const style of styledText.styles) {
-      marks.push(schema.mark(style.type, style.props));
-    }
-
-    content.push(schema.text(styledText.text, marks));
-  }
-
-  const contentNode = schema.nodes[block.type].create(block.props, content);
-
-  const children: Node[] = [];
-
-  if (block.children) {
-    for (const child of block.children) {
-      children.push(blockToNode(child, schema));
-    }
-  }
-
-  const groupNode = schema.nodes["blockGroup"].create({}, children);
-
-  return schema.nodes["blockContainer"].create(
-    {},
-    children.length > 0 ? [contentNode, groupNode] : contentNode
-  );
 }
 
 export function nodeToBlock(node: Node): Block {
@@ -134,7 +104,7 @@ export function nodeToBlock(node: Node): Block {
   const props: any = {};
   for (const [attr, value] of Object.entries(blockInfo.contentNode.attrs)) {
     if (!(blockInfo.contentType.name in blockProps)) {
-      throw Error("Node is of a type that isn't recognized by the editor");
+      throw Error("Block is of an unrecognized type.");
     }
 
     const validAttrs = blockProps[blockInfo.contentType.name as Block["type"]];
@@ -182,19 +152,24 @@ export class Editor {
   constructor(private tiptapEditor: TiptapEditor) {}
 
   /**
-   * Creates a Block out of a BlockSpec.
-   * @param blockSpec The BlockSpec to create a Block from.
+   * Converts a Block into a ProseMirror node.
+   * @param blockSpec The Block to convert into a ProseMirror node.
    */
-  public createBlock(blockSpec: BlockSpec): Block {
-    return createBlock(blockSpec, this.tiptapEditor.schema);
+  private blockSpecToNode(blockSpec: BlockSpec) {
+    return blockSpecToNode(blockSpec, this.tiptapEditor.schema);
   }
 
   /**
-   * Converts a Block into a ProseMirror node.
-   * @param block The Block to convert into a ProseMirror node.
+   * Gets the ProseMirror `blockContainer` node with the given ID from within a document. Throws an error if no
+   * `blockContainerNode` with the given ID could be found.
+   * @param id The ID of the target `blockContainer` node.
+   * @param doc The ProseMirror document to search for the node in.
    */
-  private blockToNode(block: Block) {
-    return blockToNode(block, this.tiptapEditor.schema);
+  private getNodeById(
+    id: string,
+    doc: Node
+  ): { node: Node; posBeforeNode: number } {
+    return getNodeById(id, doc);
   }
 
   /**
@@ -242,47 +217,41 @@ export class Editor {
   }
 
   /**
-   * Inserts a list of blocks into the editor.
-   * @param blocksToInsert The list of blocks to insert.
-   * @param referenceBlock The block to insert the list of blocks at.
+   * Inserts multiple blocks before, after, or nested inside an existing block in the editor.
+   * @param blocksToInsert An array of specifications for the blocks to insert.
+   * @param blockToInsertAt An existing block, marking where the new blocks should be inserted at.
    * @param placement Determines whether the blocks should be inserted just before, just after, or nested inside the
-   * reference block.
+   * existing block.
    */
   public insertBlocks(
-    blocksToInsert: Block[],
-    referenceBlock: Block,
+    blocksToInsert: BlockSpec[],
+    blockToInsertAt: Block,
     placement: "before" | "after" | "nested" = "before"
   ): void {
-    if (referenceBlock.id === null) {
-      throw Error(
-        "Reference block cannot be found in the editor as it has a null ID"
-      );
-    }
-
     const nodesToInsert: Node[] = [];
-    for (const block of blocksToInsert) {
-      nodesToInsert.push(this.blockToNode(block));
+    for (const blockSpec of blocksToInsert) {
+      nodesToInsert.push(this.blockSpecToNode(blockSpec));
     }
 
     let insertionPos = -1;
 
-    const { node, pos } = getNodeById(
-      referenceBlock.id,
+    const { node, posBeforeNode } = this.getNodeById(
+      blockToInsertAt.id,
       this.tiptapEditor.state.doc
     );
 
     if (placement === "before") {
-      insertionPos = pos;
+      insertionPos = posBeforeNode;
     }
 
     if (placement === "after") {
-      insertionPos = pos + node.nodeSize;
+      insertionPos = posBeforeNode + node.nodeSize;
     }
 
     if (placement === "nested") {
       // Case if block doesn't already have children.
       if (node.childCount < 2) {
-        insertionPos = pos + node.firstChild!.nodeSize + 1;
+        insertionPos = posBeforeNode + node.firstChild!.nodeSize + 1;
 
         const blockGroupNode = this.tiptapEditor.state.schema.nodes[
           "blockGroup"
@@ -295,12 +264,69 @@ export class Editor {
         return;
       }
 
-      insertionPos = pos + node.firstChild!.nodeSize + 2;
+      insertionPos = posBeforeNode + node.firstChild!.nodeSize + 2;
     }
 
     this.tiptapEditor.view.dispatch(
       this.tiptapEditor.state.tr.insert(insertionPos, nodesToInsert)
     );
+  }
+
+  /**
+   * Updates a block in the editor to the given specification.
+   * @param blockToUpdate The block that should be updated.
+   * @param blockUpdate The specification that the block should be updated to.
+   */
+  public updateBlock(blockToUpdate: Block, blockUpdate: BlockSpec) {
+    const { posBeforeNode } = this.getNodeById(
+      blockToUpdate.id,
+      this.tiptapEditor.state.doc
+    );
+
+    this.tiptapEditor.commands.BNUpdateBlock(posBeforeNode + 1, blockUpdate);
+  }
+
+  /**
+   * Removes multiple blocks from the editor. Throws an error if any of the blocks could not be found.
+   * @param blocksToRemove An array of blocks that should be removed.
+   */
+  public removeBlocks(blocksToRemove: Block[]) {
+    const idsOfBlocksToRemove = new Set<string>(
+      blocksToRemove.map((block) => block.id)
+    );
+
+    this.tiptapEditor.state.doc.descendants((node, pos) => {
+      // Skips traversing nodes after all target blocks have been removed.
+      if (idsOfBlocksToRemove.size === 0) {
+        return false;
+      }
+
+      // Keeps traversing nodes if block with target ID has not been found.
+      if (
+        node.type.name !== "blockContainer" ||
+        !idsOfBlocksToRemove.has(node.attrs.id)
+      ) {
+        return true;
+      }
+
+      idsOfBlocksToRemove.delete(node.attrs.id);
+      this.tiptapEditor.commands.BNDeleteBlock(pos + 1);
+
+      return false;
+    });
+
+    if (idsOfBlocksToRemove.size > 0) {
+      let notFoundIds = "";
+
+      for (const id of Array.from(idsOfBlocksToRemove)) {
+        notFoundIds += "\n" + id;
+      }
+
+      throw Error(
+        "Blocks with the following IDs could not be found in the editor: " +
+          notFoundIds
+      );
+    }
   }
 
   /**
@@ -314,7 +340,7 @@ export class Editor {
     const serializer = DOMSerializer.fromSchema(this.tiptapEditor.schema);
 
     for (const block of blocks) {
-      const node = this.blockToNode(block);
+      const node = this.blockSpecToNode(block);
       const htmlNode = serializer.serializeNode(node);
       htmlParentElement.appendChild(htmlNode);
     }
