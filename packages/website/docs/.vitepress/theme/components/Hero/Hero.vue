@@ -102,6 +102,23 @@ header {
   padding: 50px;
 }
 
+.header-media::after {
+  content: "";
+  background-image: url(/img/assets/try.svg);
+  width: 250px;
+  height: 160px;
+  display: block;
+  position: absolute;
+  background-size: contain;
+  background-repeat: no-repeat;
+  bottom: -90px;
+  left: -120px;
+
+  @media (max-width: 1280px) {
+    left: 0px;
+  }
+}
+
 $icon-mask: linear-gradient(to bottom, #fff9 10%, #fffa 30%, #fff0 74%);
 
 header .icon {
