@@ -40,7 +40,7 @@ type HeadingBlock = {
     ...
     type: "heading";
     props: {
-        level: "1" | "2" | "3"
+        level: "1" | "2" | "3" = "1"
     }
     ...
 }
