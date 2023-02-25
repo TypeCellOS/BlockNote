@@ -7,6 +7,7 @@ import Footer from "@theme/components/Footer.vue";
 import Hero from "@theme/components/Hero/Hero.vue";
 import Sponsors from "@theme/components/Sponsors/Sponsors.vue";
 // import ProjectsUsingWCCardList from "@theme/components/WCUsedByProjects/ProjectsUsingWCCardList.vue";
+import GithubButton from "vue-github-button";
 
 defineProps<{
   externalLinks: any[];
@@ -44,8 +45,17 @@ defineProps<{
     </div>
     <p class="intro">
       BlockNote is free and open source, made possible by our sponsors and
-      community:
+      community.
     </p>
+    <div class="star">
+      <GithubButton
+        href="https://github.com/yousefed/blocknote"
+        data-size="large"
+        data-show-count="true"
+        aria-label="Star yousefed/blocknote on GitHub"
+        >Star</GithubButton
+      >
+    </div>
     <h3>Sponsors:</h3>
     <Sponsors />
     <h3>Contributors:</h3>
@@ -57,45 +67,45 @@ defineProps<{
     >
   </div>
 
-  <div className="final-section">
-    <div className="section">
-      <div className="features-small">
-        <div className="feature">
-          <h2>Programmable</h2>
-          <p>
-            BlockNote exposes an extensive API so you can integrate BlockNote
-            into your app and add functionality to the editor.
-          </p>
-        </div>
-        <div className="feature">
-          <h2>Proven tech</h2>
-          <p>
-            BlockNote builds on top of Prosemirror and TipTap (two awesome open
-            source projects), but is simpler to use. Prosemirror is a
-            battle-tested framework, used by top organizations around the world
-            to power their text-editing products.
-          </p>
-        </div>
-        <div className="feature">
-          <h2>React components</h2>
-          <p>
-            BlockNote is built for React and exposes easy-to-use components.
-            However, it is possible to use BlockNote with other frameworks or
-            Vanilla JS (advanced users).
-          </p>
-        </div>
+  <!-- <div className="final-section"> -->
+  <div className="section">
+    <div className="features-small">
+      <div className="feature">
+        <h2>Programmable</h2>
+        <p>
+          BlockNote exposes an extensive API so you can integrate BlockNote into
+          your app and add functionality to the editor.
+        </p>
+      </div>
+      <div className="feature">
+        <h2>Proven tech</h2>
+        <p>
+          BlockNote builds on top of Prosemirror and TipTap (two awesome open
+          source projects), but is simpler to use. Prosemirror is a
+          battle-tested framework, used by top organizations around the world to
+          power their text-editing products.
+        </p>
+      </div>
+      <div className="feature">
+        <h2>React components</h2>
+        <p>
+          BlockNote is built for React and exposes easy-to-use components.
+          However, it is possible to use BlockNote with other frameworks or
+          Vanilla JS (advanced users).
+        </p>
       </div>
     </div>
   </div>
+  <!-- </div> -->
 
-  <div className="section">
+  <!-- <div className="section">
     <h2>
       Epic
       <strong>Headline</strong>
     </h2>
     <p>Explain cool stuff</p>
     <CTAButton href="/docs/introduction">Get started!</CTAButton>
-  </div>
+  </div> -->
   <Footer :sections="footerSections" />
 </template>
 
@@ -349,5 +359,10 @@ img {
 .love .intro {
   margin-top: 1em;
   max-width: 350px !important;
+  margin-bottom: 26px !important;
+}
+
+.love .star {
+  margin-bottom: 52px;
 }
 </style>

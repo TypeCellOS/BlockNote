@@ -17,9 +17,9 @@ import BlockNote from "@theme/components/Examples/BlockNote/BlockNote.vue";
       </p>
       <div class="cta-buttons">
         <CTAButton href="/guides/quickstart">Get started (beta)</CTAButton>
-        <CTAButton href="/guides/introduction" layout="simple"
+        <!-- <CTAButton href="/guides/introduction" layout="simple"
           >Learn more</CTAButton
-        >
+        > -->
       </div>
     </div>
 
