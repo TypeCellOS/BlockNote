@@ -19,7 +19,7 @@ TODO
 
 **Type & Props**
 
-```
+```typescript
 type ParagraphBlock = {
     ...
     type: "paragraph";
@@ -35,7 +35,7 @@ TODO
 
 **Type & Props**
 
-```
+```typescript
 type HeadingBlock = {
     ...
     type: "heading";
@@ -56,7 +56,7 @@ TODO
 
 **Type & Props**
 
-```
+```typescript
 type BulletListItemBlock = {
     ...
     type: "bulletListItem";
@@ -73,7 +73,7 @@ TODO
 
 **Type & Props**
 
-```
+```typescript
 type NumberedListItemBlock = {
     ...
     type: "numberedListItem";

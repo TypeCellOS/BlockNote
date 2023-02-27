@@ -17,9 +17,18 @@ The first step in manipulating blocks using the BlockNote API is accessing them,
 
 The simplest way to access a given block is to first get all blocks in the editor , then navigate through them until you find what you're looking for. The first thing to do is retrieving all blocks in the editor, which can be done using the following getter from the API:
 
+```typescript
+// Definition
+class BlockNoteAPI {
+...
+  public get allBlocks(): Block[];
+...
+}
+
+// Usage
+const allBlocks = editorAPI.allBlocks;
 ```
-editor.allBlocks: Block[];
-```
+
 `returns:` An array containing all blocks in the editor, represented as `Block` objects.
 
 We've actually already seen this used for the live example in [Getting Familiar with Block Objects](blocks#getting-familiar-with-block-objects), where we displayed its output below the editor. Typically though, you'll want to process the results further. Let's look at a few examples of how we could do that.
@@ -28,12 +37,12 @@ We've actually already seen this used for the live example in [Getting Familiar 
 
 Since `editor.allBlocks` returns an array of `Block` objects, we can simply access them by index, which we use in the example below to return the first and last block in the editor. You can access a block's children by index too, as they're also represented as an array of `Block` objects.
 
-```
+```typescript
 function getFirstAndLastBlocks(): {firstBlock: Block; lastBlock: Block} {
-    const allBlocks: Block[] = editor.allBlocks;
+    const allBlocks: Block[] = editorAPI.allBlocks;
     
     return {
-        firstBlock: allBlocks[0];
+        firstBlock: allBlocks[0],
         lastBlock: allBlocks[allBlocks.length - 1]
     }
 }
@@ -45,7 +54,7 @@ If you want to traverse each block in the editor, including nested blocks, the b
 
 Then, it calls itself recursively for each nested block, logging its text content too, and this recursive call keeps executing until a block without children is found. If you think of each block as a node in a tree, this method traverses said tree in a depth-first manner.
 
-```
+```typescript
 function logAllBlocksTextContent(): void {
     function helper(block: Block) {
         // Logs block text content.
@@ -58,7 +67,7 @@ function logAllBlocksTextContent(): void {
     }
     
     // Gets all blocks in the editor.
-    const allBlocks = editor.allBlocks;
+    const allBlocks = editorAPI.allBlocks;
     
     // Runs helper function for each block.
     for (const block of allBlocks) {
@@ -73,7 +82,7 @@ A common use case when for the BlockNote API executing a callback for each block
 
 This pattern is incredibly useful as it allows you to access each block in the editor, one by one, and process them immediately.
 
-```
+```typescript
 function callbackForEachBlock(callback: (block: Block) => void): Block[] {    
     function helper(block: Block) {
         // Executes callback.
@@ -86,7 +95,7 @@ function callbackForEachBlock(callback: (block: Block) => void): Block[] {
     }
     
     // Gets all blocks in the editor.
-    const allBlocks = editor.allBlocks;
+    const allBlocks = editorAPI.allBlocks;
     
     // Runs helper function for each block.
     for (const block of allBlocks) {
@@ -112,8 +121,16 @@ In some cases, you may want to know whether a block is being hovered by either t
 
 The block currently containing the text cursor is found in the `TextCursorPosition` object, and we can retrieve it using the following API call:
 
-```
-editor.textCursorPosition.block: Block;
+```typescript
+// Definition
+class BlockNoteAPI {
+...
+  public get textCursorPosition: TextCursorPosition;
+...
+}
+
+// Usage
+const blockContainingTextCursor = editorAPI.textCursorPosition.block;
 ```
 `returns:` The block currently containing the text cursor.
 
@@ -125,7 +142,7 @@ While the BlockNote API is centered around the use of `Block` objects, we might 
 
 As you can see, while `Block` objects are great for describing blocks, they aren't as useful for creating or updating new ones, which is what `BlockSpec` objects are for:
 
-```
+```typescript
 type BlockSpec = {
     type: string;
     props?: Partial<Record<string, string>>;
@@ -148,12 +165,20 @@ As you can probably guess, `BlockSpec` objects are used whenever we want to inse
 
 You can insert new blocks into the editor using the following API call:
 
-```
-editor.insertBlocks(
-    blocksToInsert: BlockSpec[], 
-    blockToInsertAt: Block, 
+```typescript
+// Definition
+class BlockNoteAPI {
+...
+  public insertBlocks(
+    blocksToInsert: BlockSpec[],
+    blockToInsertAt: Block,
     placement: "before" | "after" | "nested" = "before"
-)
+  ): void;
+...
+}
+
+// Usage
+editorAPI.insertBlocks(blocksToInsert, blockToInsertAt, placement)
 ```
 
 `blocksToInsert:` An array of block specifications which define the blocks that should be inserted.
@@ -166,7 +191,7 @@ editor.insertBlocks(
 
 The `blocksToInsert` argument is an array of `BlockSpec` objects, which have optional fields that need to be handled if they're undefined.
 
-Whenever either the `content` or `children` field isn't defined in an item of `blocksToInsert`, they assume the following default values:
+Whenever either the `content` or `children` field isn't defined in an item in `blocksToInsert`, they assume the following default values:
 
 `content =  "";`
 
@@ -178,22 +203,30 @@ A default value can also be assigned to `props` or any keys inside it if it's ei
 
 You can update an existing block in the editor using the following API call:
 
-```
-editor.updateBlock(
-    blockToUpdate: Block, 
-    updatedBlock: BlockSpec, 
-)
+```typescript
+// Definition
+class BlockNoteAPI {
+...
+  public updateBlock(
+    blockToUpdate: Block,
+    updatedBlock: BlockSpec
+  ): void;
+...
+}
+
+// Usage
+editorAPI.updateBlock(blockToUpdate, updatedBlock)
 ```
 
 `blockToUpdate:` An existing block that should be updated.
 
-`updatedBlock:` A block specification which defines what should be updated in the existing block.
+`updatedBlock:` A block specification which defines how the existing block should be updated.
 
 **Optional Fields in BlockSpec Objects**
 
-The `updatedBlock` argument is a `BlockSpec` object, which has optional fields that need to be handled if they're undefined.
+The `updatedBlock` argument is also a `BlockSpec` object, which has optional fields that need to be handled if they're undefined.
 
-If the `props`, `content`, or `children` fields are undefined in `updatedBlock`, the block keeps whatever properties, content, or nested blocks it had before.
+If any of the optional `props`, `content`, or `children` fields are undefined in `updatedBlock`, the block keeps whatever properties, content, or nested blocks it had before.
 
 There is one caveat regarding the `props` field, as different block types have different properties. Therefore, only properties which are compatible with the updated block type can be kept. Additionally, the new type might introduce more properties, which are assigned default values if they're not defined in `props`. You can check which properties each block types has, as well as their default values, in [Default Block Types](block-types#default-block-types).
 
@@ -201,10 +234,18 @@ There is one caveat regarding the `props` field, as different block types have d
 
 You can remove existing blocks from the editor using the following API call:
 
-```
-editor.removeBlocks(
-    blocksToRemove: Block[], 
-)
+```typescript
+// Definition
+class BlockNoteAPI {
+...
+  public removeBlocks(
+    blocksToRemove: Block[],
+  ): void;
+...
+}
+
+// Usage
+editorAPI.removeBlocks(blocksToRemove)
 ```
 
 `blocksToRemove:` An array of existing blocks that should be removed.

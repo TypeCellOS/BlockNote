@@ -7,12 +7,22 @@ This page will explain:
 
 ## Converting Blocks To & From HTML
 
+If you need to describe blocks using HTML rather than `Block` objects, the BlockNote API provides functions for converting between the two formats.
+
 ### Converting Blocks to HTML
 
-`Block` objects can be serialized an HTML string using the following API call:
+`Block` objects can be serialized to an HTML string using the following API function:
 
-```
-editor.blocksToHTML(blocks: Block[]): string
+```typescript
+// Definition
+class BlockNoteAPI {
+...
+  public blocksToHTML(blocks: Block[]): string;
+...
+}
+
+// Usage
+const HTMLFromBlocks = editorAPI.blocksToHTML(blocks);
 ```
 
 The HTML obtained from this function is different to what's rendered in the browser by BlockNote to better comply with HTML standards, which causes some information to be lost. This results in a number of differences:
@@ -27,13 +37,21 @@ TODO
 
 ### Converting HTML to Blocks
 
-`Block` objects can be parsed from an HTML string using the following API call:
+`Block` objects can be parsed from an HTML string using the following API function:
 
-```
-editor.HTMLToBlocks(htmlString: string): Blocks[]
+```typescript
+// Definition
+class BlockNoteAPI {
+...
+  public HTMLToBlocks(html: string): Blocks[];
+...
+}
+
+// Usage
+const blocksFromHTML = editorAPI.HTMLToBlocks(html);
 ```
 
-This function preserves all information from the HTML string that has an analogue in BlockNote. This includes all HTML block elements with an equivalent BlockNote block type, HTML inline elements with an equivalent BlockNote style type, and element nesting.
+This function preserves all information from the HTML string that can be represented in BlockNote. This means BlockNote will try to create `Block` objects out of any HTML block-level elements, and determine their type based on the tag. Additionally, it'll try to create `StyledText` objects from any HTML inline elements. It also preserves all nesting.
 
 **Example**
 
@@ -41,12 +59,22 @@ TODO
 
 ## Converting Blocks To & From Markdown
 
+If you need to describe blocks using Markdown rather than `Block` objects, the BlockNote API also provides functions for converting between them.
+
 ### Converting Blocks to Markdown
 
-`Block` objects can be serialized to a Markdown string using the following API call:
+`Block` objects can be serialized to a Markdown string using the following API function:
 
-```
-editor.blocksToHTML(blocks: Block[]): string
+```typescript
+// Definition
+class BlockNoteAPI {
+...
+  public blocksToMarkdown(blocks: Block[]): string;
+...
+}
+
+// Usage
+const markdownFromBlocks = editorAPI.blocksToMarkdown(blocks);
 ```
 
 The Markdown obtained from this function does not preserve all information provided in the `Block` objects due to the inherent limitations of Markdown. This results in a number of features being lost:
@@ -59,15 +87,23 @@ The Markdown obtained from this function does not preserve all information provi
 
 TODO
 
-### Converting HTML to Blocks
+### Converting Markdown to Blocks
 
-`Block` objects can be parsed from a Markdown string using the following API call:
+`Block` objects can be parsed from a Markdown string using the following API function:
 
+```typescript
+// Definition
+class BlockNoteAPI {
+...
+  public markdownToBlocks(markdown: string): Blocks[];
+...
+}
+
+// Usage
+const blocksFromMarkdown = editorAPI.markdownToBlocks(markdown);
 ```
-editor.markdownToBlocks(markdownString: string): Blocks[]
-```
 
-This function preserves all information from the Markdown string that has an analogue in BlockNote. This includes all syntax with an equivalent BlockNote block or style type and list item nesting.
+This function preserves all information from the Markdown string that can be represented in BlockNote. This means will try to `Block` objects and `StyledText` objects based on the syntax. It also preserves list item nesting.
 
 **Example**
 
