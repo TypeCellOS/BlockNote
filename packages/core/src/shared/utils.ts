@@ -1,7 +1,10 @@
+export const isClientSide = () => typeof window !== "undefined";
+
 export const isAppleOS = () =>
-  /Mac/.test(navigator.platform) ||
-  (/AppleWebKit/.test(navigator.userAgent) &&
-    /Mobile\/\w+/.test(navigator.userAgent));
+  isClientSide() &&
+  (/Mac/.test(window.navigator.platform) ||
+    (/AppleWebKit/.test(window.navigator.userAgent) &&
+      /Mobile\/\w+/.test(window.navigator.userAgent)));
 
 export function formatKeyboardShortcut(shortcut: string) {
   if (isAppleOS()) {
