@@ -1,5 +1,5 @@
 import { BlockNoteEditor, BlockNoteEditorOptions } from "@blocknote/core";
-import { DependencyList, useEffect, useState } from "react";
+import { DependencyList, useEffect, useRef, useState } from "react";
 import { ReactFormattingToolbarFactory } from "../FormattingToolbar/FormattingToolbarFactory";
 import { ReactHyperlinkToolbarFactory } from "../HyperlinkToolbar/HyperlinkToolbarFactory";
 import { ReactSlashMenuFactory } from "../SlashMenu/SlashMenuFactory";
@@ -21,6 +21,7 @@ export const useBlockNote = (
   deps: DependencyList = []
 ) => {
   const [editor, setEditor] = useState<BlockNoteEditor | null>(null);
+  const editorRef = useRef<BlockNoteEditor | null>(null);
   const forceUpdate = useForceUpdate();
 
   useEffect(() => {
@@ -31,7 +32,7 @@ export const useBlockNote = (
         ...newOptions,
         uiFactories: {
           formattingToolbarFactory: ReactFormattingToolbarFactory,
-          hyperlinkToolbarFactory: ReactHyperlinkToolbarFactory,
+          hyperlinkToolbarFactory: ReactHyperlinkToolbarFactory(editorRef),
           slashMenuFactory: ReactSlashMenuFactory,
           blockSideMenuFactory: ReactBlockSideMenuFactory,
         },
@@ -39,6 +40,7 @@ export const useBlockNote = (
     }
     console.log("create new blocknote instance");
     const instance = new BlockNoteEditor(newOptions);
+    editorRef.current = instance;
 
     setEditor(instance);
 

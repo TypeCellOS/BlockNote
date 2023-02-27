@@ -1,8 +1,8 @@
 import { MantineProvider } from "@mantine/core";
 import Tippy, { TippyProps } from "@tippyjs/react";
-import { RequiredDynamicParams } from "@blocknote/core";
+import { RequiredDynamicParams, BlockNoteEditor } from "@blocknote/core";
 import { BlockNoteTheme } from "../../BlockNoteTheme";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 /**
  * Component used in the ReactElementFactory to wrap the EditorElementComponent in a MantineProvider and Tippy
@@ -25,6 +25,7 @@ export function EditorElementComponentWrapper<
     props: ElementStaticParams & ElementDynamicParams
   ) => JSX.Element;
   tippyProps?: TippyProps;
+  editorRef?: React.MutableRefObject<BlockNoteEditor | null>;
 }) {
   const EditorElementComponent = props.editorElementComponent;
 
@@ -44,6 +45,26 @@ export function EditorElementComponentWrapper<
     props.rootElement.remove();
     setContentCleared(true);
   }, [props.rootElement]);
+
+  useEffect(() => {
+    const outerClickEvent = (ev: MouseEvent) => {
+      if (
+        props.editorRef?.current &&
+        !props.editorRef?.current.tiptapEditor.view.dom.contains(
+          ev.target as HTMLElement
+        )
+      ) {
+        onHidden();
+      }
+    };
+
+    window.addEventListener("click", outerClickEvent);
+
+    return () => {
+      window.removeEventListener("click", outerClickEvent);
+      onHidden();
+    };
+  }, [onHidden, props.editorRef]);
 
   return (
     <MantineProvider theme={BlockNoteTheme}>

@@ -1,6 +1,11 @@
+import React from "react";
 import { TippyProps } from "@tippyjs/react";
 import { createRoot } from "react-dom/client";
-import { EditorElement, RequiredDynamicParams } from "@blocknote/core";
+import {
+  EditorElement,
+  RequiredDynamicParams,
+  BlockNoteEditor,
+} from "@blocknote/core";
 import { EditorElementComponentWrapper } from "./EditorElementComponentWrapper";
 
 /**
@@ -23,7 +28,8 @@ export const ReactElementFactory = <
   EditorElementComponent: (
     props: ElementStaticParams & ElementDynamicParams
   ) => JSX.Element,
-  tippyProps?: TippyProps
+  tippyProps?: TippyProps,
+  editorRef?: React.MutableRefObject<BlockNoteEditor | null>
 ): EditorElement<ElementDynamicParams> => {
   const rootElement = document.createElement("div");
   const root = createRoot(rootElement);
@@ -45,6 +51,7 @@ export const ReactElementFactory = <
           dynamicParams={dynamicParams}
           editorElementComponent={EditorElementComponent}
           tippyProps={tippyProps}
+          editorRef={editorRef}
         />
       );
     },
@@ -57,6 +64,7 @@ export const ReactElementFactory = <
           dynamicParams={prevDynamicParams!}
           editorElementComponent={EditorElementComponent}
           tippyProps={tippyProps}
+          editorRef={editorRef}
         />
       );
     },
