@@ -295,6 +295,8 @@ export class Editor {
       blocksToRemove.map((block) => block.id)
     );
 
+    let removedSize = 0;
+
     this.tiptapEditor.state.doc.descendants((node, pos) => {
       // Skips traversing nodes after all target blocks have been removed.
       if (idsOfBlocksToRemove.size === 0) {
@@ -310,7 +312,12 @@ export class Editor {
       }
 
       idsOfBlocksToRemove.delete(node.attrs.id);
-      this.tiptapEditor.commands.BNDeleteBlock(pos + 1);
+      const oldDocSize = this.tiptapEditor.state.doc.nodeSize;
+
+      this.tiptapEditor.commands.BNDeleteBlock(pos - removedSize + 1);
+
+      const newDocSize = this.tiptapEditor.state.doc.nodeSize;
+      removedSize += oldDocSize - newDocSize;
 
       return false;
     });

@@ -1,5 +1,5 @@
 import { mergeAttributes, Node } from "@tiptap/core";
-import { Fragment, Slice } from "prosemirror-model";
+import { Fragment, Node as PMNode, Slice } from "prosemirror-model";
 import { TextSelection } from "prosemirror-state";
 import { BlockSpec } from "../api/blockTypes";
 import { getBlockInfoFromPos } from "../helpers/getBlockInfoFromPos";
@@ -289,19 +289,75 @@ export const BlockContainer = Node.create<IBlock>({
             return false;
           }
 
-          const { startPos, endPos, contentNode } = blockInfo;
-
-          const updatedNode = blockSpecToNode(blockSpec, state.schema);
+          const { startPos, endPos, node, contentNode } = blockInfo;
 
           if (dispatch) {
-            state.tr
-              // Replaces block contents and nested blocks with what's defined in the spec.
-              .replace(startPos, endPos, new Slice(updatedNode.content, 0, 0))
-              // Re-adds old attributes that are shared between the old and updated block types.
-              .setNodeMarkup(startPos, state.schema.nodes[blockSpec.type], {
+            // Adds blockGroup node with child blocks if necessary.
+            if (blockSpec.children !== undefined) {
+              const childNodes = [];
+
+              // Creates ProseMirror nodes for each child block, including their descendants.
+              for (const child of blockSpec.children) {
+                childNodes.push(blockSpecToNode(child, state.schema));
+              }
+
+              // Checks if a blockGroup node already exists.
+              if (node.childCount === 2) {
+                // Replaces all child nodes in the existing blockGroup with the ones created earlier.
+                state.tr.replace(
+                  startPos + contentNode.nodeSize + 1,
+                  endPos - 1,
+                  new Slice(Fragment.from(childNodes), 0, 0)
+                );
+              } else {
+                // Inserts a new blockGroup containing the child nodes created earlier.
+                state.tr.insert(
+                  startPos + contentNode.nodeSize,
+                  state.schema.nodes["blockGroup"].create({}, childNodes)
+                );
+              }
+            }
+
+            // Replaces the blockContent node's content if necessary.
+            if (blockSpec.content !== undefined) {
+              let content: PMNode[] = [];
+
+              // Checks if the provided content is a string or StyledText[] type.
+              if (typeof blockSpec.content === "string") {
+                // Adds a single text node with no marks to the content.
+                content.push(state.schema.text(blockSpec.content));
+              } else {
+                // Adds a text node with the provided styles converted into marks to the content, for each StyledText
+                // object.
+                for (const styledText of blockSpec.content) {
+                  const marks = [];
+
+                  for (const style of styledText.styles) {
+                    marks.push(state.schema.mark(style.type, style.props));
+                  }
+
+                  content.push(state.schema.text(styledText.text, marks));
+                }
+              }
+
+              // Replaces the contents of the blockContent node with the previously created text node(s).
+              state.tr.replace(
+                startPos + 1,
+                startPos + contentNode.nodeSize - 1,
+                new Slice(Fragment.from(content), 0, 0)
+              );
+            }
+
+            // Changes the block type and adds the provided props as node attributes. Also preserves all existing node
+            // attributes that are compatible with the new type.
+            state.tr.setNodeMarkup(
+              startPos,
+              state.schema.nodes[blockSpec.type],
+              {
                 ...contentNode.attrs,
                 ...blockSpec.props,
-              });
+              }
+            );
           }
 
           return true;
