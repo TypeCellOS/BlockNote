@@ -17,22 +17,41 @@ const simpleNode = editor.schema.nodes["blockContainer"].create(
 );
 
 describe("Simple ProseMirror Node Conversions", () => {
-  it("Convert simple spec to node", async () => {
-    const output = blockToNode(simpleBlock, editor.schema);
+  it("Convert simple block to node", async () => {
+    const firstNodeConversion = blockToNode(simpleBlock, editor.schema);
 
-    expect(output).toMatchSnapshot();
+    expect(firstNodeConversion).toMatchSnapshot();
+
+    const firstBlockConversion = nodeToBlock(firstNodeConversion);
+
+    const secondNodeConversion = blockToNode(
+      firstBlockConversion,
+      editor.schema
+    );
+
+    expect(secondNodeConversion).toStrictEqual(simpleNode);
   });
 
   it("Convert simple node to block", async () => {
-    const output = nodeToBlock(simpleNode);
+    const firstBlockConversion = nodeToBlock(simpleNode);
 
-    expect(output).toMatchSnapshot();
+    expect(firstBlockConversion).toMatchSnapshot();
+
+    const firstNodeConversion = blockToNode(
+      firstBlockConversion,
+      editor.schema
+    );
+
+    expect(firstNodeConversion).toStrictEqual(simpleNode);
   });
 });
 
 const complexBlock: PartialBlock = {
   type: "heading",
   props: {
+    backgroundColor: "blue",
+    textColor: "yellow",
+    textAlignment: "right",
     level: "2",
   },
   content: [
@@ -66,7 +85,9 @@ const complexBlock: PartialBlock = {
   children: [
     {
       type: "paragraph",
-      props: {},
+      props: {
+        backgroundColor: "red",
+      },
       content: "Paragraph",
       children: [],
     },
@@ -75,40 +96,63 @@ const complexBlock: PartialBlock = {
     },
   ],
 };
-const complexNode = editor.schema.nodes["blockContainer"].create({}, [
-  editor.schema.nodes["heading"].create({ level: "2" }, [
-    editor.schema.text("Heading ", [
-      editor.schema.mark("bold"),
-      editor.schema.mark("underline"),
+
+const complexNode = editor.schema.nodes["blockContainer"].create(
+  { backgroundColor: "blue", textColor: "yellow" },
+  [
+    editor.schema.nodes["heading"].create(
+      { textAlignment: "right", level: "2" },
+      [
+        editor.schema.text("Heading ", [
+          editor.schema.mark("bold"),
+          editor.schema.mark("underline"),
+        ]),
+        editor.schema.text("2", [
+          editor.schema.mark("italic"),
+          editor.schema.mark("strike"),
+        ]),
+      ]
+    ),
+    editor.schema.nodes["blockGroup"].create({}, [
+      editor.schema.nodes["blockContainer"].create({ backgroundColor: "red" }, [
+        editor.schema.nodes["paragraph"].create(
+          {},
+          editor.schema.text("Paragraph")
+        ),
+      ]),
+      editor.schema.nodes["blockContainer"].create({}, [
+        editor.schema.nodes["bulletListItem"].create(),
+      ]),
     ]),
-    editor.schema.text("2", [
-      editor.schema.mark("italic"),
-      editor.schema.mark("strike"),
-    ]),
-  ]),
-  editor.schema.nodes["blockGroup"].create({}, [
-    editor.schema.nodes["blockContainer"].create({}, [
-      editor.schema.nodes["paragraph"].create(
-        {},
-        editor.schema.text("Paragraph")
-      ),
-    ]),
-    editor.schema.nodes["blockContainer"].create({}, [
-      editor.schema.nodes["bulletListItem"].create(),
-    ]),
-  ]),
-]);
+  ]
+);
 
 describe("Complex ProseMirror Node Conversions", () => {
-  it("Convert complex spec to node", async () => {
-    const output = blockToNode(complexBlock, editor.schema);
+  it("Convert complex block to node", async () => {
+    const firstNodeConversion = blockToNode(complexBlock, editor.schema);
 
-    expect(output).toMatchSnapshot();
+    expect(firstNodeConversion).toMatchSnapshot();
+
+    const firstBlockConversion = nodeToBlock(firstNodeConversion);
+
+    const secondNodeConversion = blockToNode(
+      firstBlockConversion,
+      editor.schema
+    );
+
+    expect(secondNodeConversion).toStrictEqual(complexNode);
   });
 
   it("Convert complex node to block", async () => {
-    const output = nodeToBlock(complexNode);
+    const firstBlockConversion = nodeToBlock(complexNode);
 
-    expect(output).toMatchSnapshot();
+    expect(firstBlockConversion).toMatchSnapshot();
+
+    const firstNodeConversion = blockToNode(
+      firstBlockConversion,
+      editor.schema
+    );
+
+    expect(firstNodeConversion).toStrictEqual(complexNode);
   });
 });
