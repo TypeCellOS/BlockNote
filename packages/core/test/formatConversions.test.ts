@@ -8,6 +8,9 @@ const nonNestedBlocks: Block[] = [
     id: null,
     type: "heading",
     props: {
+      backgroundColor: "default",
+      textColor: "default",
+      textAlignment: "left",
       level: "1",
     },
     content: [
@@ -21,7 +24,11 @@ const nonNestedBlocks: Block[] = [
   {
     id: null,
     type: "paragraph",
-    props: {},
+    props: {
+      backgroundColor: "default",
+      textColor: "default",
+      textAlignment: "left",
+    },
     content: [
       {
         text: "Paragraph",
@@ -33,7 +40,11 @@ const nonNestedBlocks: Block[] = [
   {
     id: null,
     type: "bulletListItem",
-    props: {},
+    props: {
+      backgroundColor: "default",
+      textColor: "default",
+      textAlignment: "left",
+    },
     content: [
       {
         text: "Bullet List Item",
@@ -45,7 +56,11 @@ const nonNestedBlocks: Block[] = [
   {
     id: null,
     type: "numberedListItem",
-    props: {},
+    props: {
+      backgroundColor: "default",
+      textColor: "default",
+      textAlignment: "left",
+    },
     content: [
       {
         text: "Numbered List Item",
@@ -98,6 +113,9 @@ const nestedBlocks: Block[] = [
     id: null,
     type: "heading",
     props: {
+      backgroundColor: "default",
+      textColor: "default",
+      textAlignment: "left",
       level: "1",
     },
     content: [
@@ -110,7 +128,11 @@ const nestedBlocks: Block[] = [
       {
         id: null,
         type: "paragraph",
-        props: {},
+        props: {
+          backgroundColor: "default",
+          textColor: "default",
+          textAlignment: "left",
+        },
         content: [
           {
             text: "Paragraph",
@@ -121,7 +143,11 @@ const nestedBlocks: Block[] = [
           {
             id: null,
             type: "bulletListItem",
-            props: {},
+            props: {
+              backgroundColor: "default",
+              textColor: "default",
+              textAlignment: "left",
+            },
             content: [
               {
                 text: "Bullet List Item",
@@ -132,7 +158,11 @@ const nestedBlocks: Block[] = [
               {
                 id: null,
                 type: "numberedListItem",
-                props: {},
+                props: {
+                  backgroundColor: "default",
+                  textColor: "default",
+                  textAlignment: "left",
+                },
                 content: [
                   {
                     text: "Numbered List Item",
@@ -190,7 +220,11 @@ const styledBlocks: Block[] = [
   {
     id: null,
     type: "paragraph",
-    props: {},
+    props: {
+      backgroundColor: "default",
+      textColor: "default",
+      textAlignment: "left",
+    },
     content: [
       {
         text: "Bold",
@@ -303,6 +337,9 @@ const complexBlocks: Block[] = [
     id: null,
     type: "heading",
     props: {
+      backgroundColor: "red",
+      textColor: "yellow",
+      textAlignment: "right",
       level: "1",
     },
     content: [
@@ -316,6 +353,9 @@ const complexBlocks: Block[] = [
         id: null,
         type: "heading",
         props: {
+          backgroundColor: "orange",
+          textColor: "orange",
+          textAlignment: "center",
           level: "2",
         },
         content: [
@@ -329,6 +369,9 @@ const complexBlocks: Block[] = [
             id: null,
             type: "heading",
             props: {
+              backgroundColor: "yellow",
+              textColor: "red",
+              textAlignment: "left",
               level: "3",
             },
             content: [
@@ -346,7 +389,11 @@ const complexBlocks: Block[] = [
   {
     id: null,
     type: "paragraph",
-    props: {},
+    props: {
+      backgroundColor: "default",
+      textColor: "default",
+      textAlignment: "left",
+    },
     content: [
       {
         text: "Paragraph",
@@ -371,7 +418,11 @@ const complexBlocks: Block[] = [
   {
     id: null,
     type: "paragraph",
-    props: {},
+    props: {
+      backgroundColor: "default",
+      textColor: "default",
+      textAlignment: "left",
+    },
     content: [
       {
         text: "P",
@@ -405,7 +456,11 @@ const complexBlocks: Block[] = [
   {
     id: null,
     type: "paragraph",
-    props: {},
+    props: {
+      backgroundColor: "default",
+      textColor: "default",
+      textAlignment: "left",
+    },
     content: [
       {
         text: "P",
@@ -439,7 +494,11 @@ const complexBlocks: Block[] = [
   {
     id: null,
     type: "bulletListItem",
-    props: {},
+    props: {
+      backgroundColor: "default",
+      textColor: "default",
+      textAlignment: "left",
+    },
     content: [
       {
         text: "Bullet List Item",
@@ -451,7 +510,11 @@ const complexBlocks: Block[] = [
   {
     id: null,
     type: "bulletListItem",
-    props: {},
+    props: {
+      backgroundColor: "default",
+      textColor: "default",
+      textAlignment: "left",
+    },
     content: [
       {
         text: "Bullet List Item",
@@ -462,7 +525,11 @@ const complexBlocks: Block[] = [
       {
         id: null,
         type: "bulletListItem",
-        props: {},
+        props: {
+          backgroundColor: "default",
+          textColor: "default",
+          textAlignment: "left",
+        },
         content: [
           {
             text: "Bullet List Item",
@@ -473,7 +540,11 @@ const complexBlocks: Block[] = [
           {
             id: null,
             type: "bulletListItem",
-            props: {},
+            props: {
+              backgroundColor: "default",
+              textColor: "default",
+              textAlignment: "left",
+            },
             content: [
               {
                 text: "Bullet List Item",
@@ -485,7 +556,11 @@ const complexBlocks: Block[] = [
           {
             id: null,
             type: "paragraph",
-            props: {},
+            props: {
+              backgroundColor: "default",
+              textColor: "default",
+              textAlignment: "left",
+            },
             content: [
               {
                 text: "Paragraph",
@@ -498,7 +573,9 @@ const complexBlocks: Block[] = [
             id: null,
             type: "numberedListItem",
             props: {
-              index: "1",
+              backgroundColor: "default",
+              textColor: "default",
+              textAlignment: "left",
             },
             content: [
               {
@@ -512,7 +589,9 @@ const complexBlocks: Block[] = [
             id: null,
             type: "numberedListItem",
             props: {
-              index: "2",
+              backgroundColor: "default",
+              textColor: "default",
+              textAlignment: "left",
             },
             content: [
               {
@@ -526,7 +605,9 @@ const complexBlocks: Block[] = [
             id: null,
             type: "numberedListItem",
             props: {
-              index: "3",
+              backgroundColor: "default",
+              textColor: "default",
+              textAlignment: "left",
             },
             content: [
               {
@@ -539,7 +620,9 @@ const complexBlocks: Block[] = [
                 id: null,
                 type: "numberedListItem",
                 props: {
-                  index: "1",
+                  backgroundColor: "default",
+                  textColor: "default",
+                  textAlignment: "left",
                 },
                 content: [
                   {
@@ -554,7 +637,11 @@ const complexBlocks: Block[] = [
           {
             id: null,
             type: "bulletListItem",
-            props: {},
+            props: {
+              backgroundColor: "default",
+              textColor: "default",
+              textAlignment: "left",
+            },
             content: [
               {
                 text: "Bullet List Item",
@@ -568,7 +655,11 @@ const complexBlocks: Block[] = [
       {
         id: null,
         type: "bulletListItem",
-        props: {},
+        props: {
+          backgroundColor: "default",
+          textColor: "default",
+          textAlignment: "left",
+        },
         content: [
           {
             text: "Bullet List Item",
@@ -582,7 +673,11 @@ const complexBlocks: Block[] = [
   {
     id: null,
     type: "bulletListItem",
-    props: {},
+    props: {
+      backgroundColor: "default",
+      textColor: "default",
+      textAlignment: "left",
+    },
     content: [
       {
         text: "Bullet List Item",

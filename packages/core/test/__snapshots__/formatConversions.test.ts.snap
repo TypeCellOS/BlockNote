@@ -725,56 +725,67 @@ exports[`Non-Nested Block/HTML/Markdown Conversions > Convert non-nested HTML to
 [
   {
     "children": [],
-    "id": null,
-    "props": {
-      "level": "1",
-    },
-    "styledTextContent": [
+    "content": [
       {
         "styles": [],
         "text": "Heading",
       },
     ],
-    "textContent": "Heading",
+    "id": null,
+    "props": {
+      "backgroundColor": "default",
+      "level": "1",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
     "type": "heading",
   },
   {
     "children": [],
-    "id": null,
-    "props": {},
-    "styledTextContent": [
+    "content": [
       {
         "styles": [],
         "text": "Paragraph",
       },
     ],
-    "textContent": "Paragraph",
+    "id": null,
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
     "type": "paragraph",
   },
   {
     "children": [],
-    "id": null,
-    "props": {},
-    "styledTextContent": [
+    "content": [
       {
         "styles": [],
         "text": "Bullet List Item",
       },
     ],
-    "textContent": "Bullet List Item",
+    "id": null,
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
     "type": "bulletListItem",
   },
   {
     "children": [],
-    "id": null,
-    "props": {},
-    "styledTextContent": [
+    "content": [
       {
         "styles": [],
         "text": "Numbered List Item",
       },
     ],
-    "textContent": "Numbered List Item",
+    "id": null,
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
     "type": "numberedListItem",
   },
 ]
@@ -784,56 +795,67 @@ exports[`Non-Nested Block/HTML/Markdown Conversions > Convert non-nested Markdow
 [
   {
     "children": [],
-    "id": null,
-    "props": {
-      "level": "1",
-    },
-    "styledTextContent": [
+    "content": [
       {
         "styles": [],
         "text": "Heading",
       },
     ],
-    "textContent": "Heading",
+    "id": null,
+    "props": {
+      "backgroundColor": "default",
+      "level": "1",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
     "type": "heading",
   },
   {
     "children": [],
-    "id": null,
-    "props": {},
-    "styledTextContent": [
+    "content": [
       {
         "styles": [],
         "text": "Paragraph",
       },
     ],
-    "textContent": "Paragraph",
+    "id": null,
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
     "type": "paragraph",
   },
   {
     "children": [],
-    "id": null,
-    "props": {},
-    "styledTextContent": [
+    "content": [
       {
         "styles": [],
         "text": "Bullet List Item",
       },
     ],
-    "textContent": "Bullet List Item",
+    "id": null,
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
     "type": "bulletListItem",
   },
   {
     "children": [],
-    "id": null,
-    "props": {},
-    "styledTextContent": [
+    "content": [
       {
         "styles": [],
         "text": "Numbered List Item",
       },
     ],
-    "textContent": "Numbered List Item",
+    "id": null,
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
     "type": "numberedListItem",
   },
 ]
