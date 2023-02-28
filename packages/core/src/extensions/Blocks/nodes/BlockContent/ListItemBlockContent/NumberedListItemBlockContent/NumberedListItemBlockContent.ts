@@ -52,6 +52,7 @@ export const NumberedListItemBlockContent = Node.create({
 
   parseHTML() {
     return [
+      // Case for regular HTML list structure.
       {
         tag: "li",
         getAttrs: (element) => {
@@ -65,18 +66,35 @@ export const NumberedListItemBlockContent = Node.create({
             return false;
           }
 
-          // Case for BlockNote list structure.
-          if (parent.getAttribute("data-content-type") === "numberedListItem") {
-            return {};
-          }
-
-          // Case for regular HTML list structure.
           if (parent.tagName === "OL") {
             return {};
           }
 
           return false;
         },
+        node: "blockContainer",
+      },
+      // Case for BlockNote list structure.
+      {
+        tag: "p",
+        getAttrs: (element) => {
+          if (typeof element === "string") {
+            return false;
+          }
+
+          const parent = element.parentElement;
+
+          if (parent === null) {
+            return false;
+          }
+
+          if (parent.getAttribute("data-content-type") === "numberedListItem") {
+            return {};
+          }
+
+          return false;
+        },
+        priority: 300,
         node: "blockContainer",
       },
     ];
