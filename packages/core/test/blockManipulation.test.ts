@@ -98,6 +98,7 @@ describe("Insert, Update, & Delete Blocks", () => {
     editorAPI.updateBlock(newBlock, {
       type: "heading",
       props: {
+        textAlignment: "right",
         level: "3",
       },
       content: [
@@ -105,8 +106,10 @@ describe("Insert, Update, & Delete Blocks", () => {
           text: "Heading ",
           styles: [
             {
-              type: "italic",
-              props: {},
+              type: "textColor",
+              props: {
+                color: "red",
+              },
             },
           ],
         },
@@ -114,8 +117,10 @@ describe("Insert, Update, & Delete Blocks", () => {
           text: "3",
           styles: [
             {
-              type: "underline",
-              props: {},
+              type: "backgroundColor",
+              props: {
+                color: "red",
+              },
             },
           ],
         },
