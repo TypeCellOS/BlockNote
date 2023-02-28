@@ -878,9 +878,7 @@ exports[`Styled Block/HTML/Markdown Conversions > Convert styled HTML to blocks 
 [
   {
     "children": [],
-    "id": null,
-    "props": {},
-    "styledTextContent": [
+    "content": [
       {
         "styles": [
           {
@@ -953,7 +951,12 @@ exports[`Styled Block/HTML/Markdown Conversions > Convert styled HTML to blocks 
         "text": "Multiple",
       },
     ],
-    "textContent": "BoldItalicUnderlineStrikethroughTextColorBackgroundColorMultiple",
+    "id": null,
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
     "type": "paragraph",
   },
 ]
@@ -963,9 +966,7 @@ exports[`Styled Block/HTML/Markdown Conversions > Convert styled Markdown to blo
 [
   {
     "children": [],
-    "id": null,
-    "props": {},
-    "styledTextContent": [
+    "content": [
       {
         "styles": [
           {
@@ -1015,7 +1016,12 @@ exports[`Styled Block/HTML/Markdown Conversions > Convert styled Markdown to blo
         "text": "Multiple",
       },
     ],
-    "textContent": "BoldItalicUnderlineStrikethroughTextColorBackgroundColorMultiple",
+    "id": null,
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
     "type": "paragraph",
   },
 ]
