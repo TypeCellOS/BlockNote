@@ -56,7 +56,7 @@ export function blockToNode(block: PartialBlock, schema: Schema) {
   const groupNode = schema.nodes["blockGroup"].create({}, children);
 
   return schema.nodes["blockContainer"].create(
-    {},
+    block.props,
     children.length > 0 ? [contentNode, groupNode] : contentNode
   );
 }
@@ -99,7 +99,10 @@ export function nodeToBlock(node: Node): Block {
   const blockInfo = getBlockInfoFromPos(node, 0)!;
 
   const props: any = {};
-  for (const [attr, value] of Object.entries(blockInfo.contentNode.attrs)) {
+  for (const [attr, value] of Object.entries({
+    ...blockInfo.node.attrs,
+    ...blockInfo.contentNode.attrs,
+  })) {
     if (!(blockInfo.contentType.name in blockProps)) {
       throw Error(
         "Block is of an unrecognized type: " + blockInfo.contentType.name

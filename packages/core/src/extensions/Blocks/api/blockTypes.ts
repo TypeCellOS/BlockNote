@@ -32,18 +32,27 @@ export type BlockPropsTemplate<Props> = Props extends Block["props"]
   ? keyof Props
   : never;
 
-export type NumberedListItemBlock = BlockTemplate<"numberedListItem", {}>;
+export type GlobalProps = {
+  backgroundColor: string;
+  textColor: string;
+  textAlignment: "left" | "center" | "right" | "justify";
+};
 
-export type BulletListItemBlock = BlockTemplate<"bulletListItem", {}>;
+export type NumberedListItemBlock = BlockTemplate<
+  "numberedListItem",
+  GlobalProps
+>;
+
+export type BulletListItemBlock = BlockTemplate<"bulletListItem", GlobalProps>;
 
 export type HeadingBlock = BlockTemplate<
   "heading",
-  {
+  GlobalProps & {
     level: "1" | "2" | "3";
   }
 >;
 
-export type ParagraphBlock = BlockTemplate<"paragraph", {}>;
+export type ParagraphBlock = BlockTemplate<"paragraph", GlobalProps>;
 
 export type Block =
   | ParagraphBlock
@@ -57,9 +66,16 @@ export type PartialBlock = PartialBlockTemplate<Block>;
 export type BlockProps = BlockPropsTemplate<PartialBlock["props"]>;
 
 // TODO: Better way of doing this type guard?
+export const globalProps: Array<keyof GlobalProps> = [
+  "backgroundColor",
+  "textColor",
+  "textAlignment",
+];
 export const blockProps: Record<Block["type"], Set<BlockProps>> = {
-  paragraph: new Set<keyof ParagraphBlock["props"]>(),
-  heading: new Set<keyof HeadingBlock["props"]>(["level"]),
-  numberedListItem: new Set<keyof NumberedListItemBlock["props"]>(),
-  bulletListItem: new Set<keyof BulletListItemBlock["props"]>(),
+  paragraph: new Set<keyof ParagraphBlock["props"]>([...globalProps]),
+  heading: new Set<keyof HeadingBlock["props"]>([...globalProps, "level"]),
+  numberedListItem: new Set<keyof NumberedListItemBlock["props"]>([
+    ...globalProps,
+  ]),
+  bulletListItem: new Set<keyof BulletListItemBlock["props"]>([...globalProps]),
 };
