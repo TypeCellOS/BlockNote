@@ -1,6 +1,7 @@
 import { Editor, EditorOptions } from "@tiptap/core";
 
 // import "./blocknote.css";
+import { Editor as EditorAPI } from "./api/Editor";
 import { getBlockNoteExtensions, UiFactories } from "./BlockNoteExtensions";
 import styles from "./editor.module.css";
 import { SlashCommand } from "./extensions/SlashMenu";
@@ -21,6 +22,8 @@ const blockNoteOptions = {
 
 export class BlockNoteEditor {
   public readonly tiptapEditor: Editor & { contentComponent: any };
+  // TODO: design where to put this
+  public readonly api: EditorAPI;
 
   constructor(options: Partial<BlockNoteEditorOptions> = {}) {
     const blockNoteExtensions = getBlockNoteExtensions({
@@ -54,5 +57,6 @@ export class BlockNoteEditor {
     this.tiptapEditor = new Editor(tiptapOptions) as Editor & {
       contentComponent: any;
     };
+    this.api = new EditorAPI(this.tiptapEditor);
   }
 }
