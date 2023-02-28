@@ -20,19 +20,19 @@ import {
   Block,
   BlockProps,
   blockProps,
-  BlockSpec,
+  PartialBlock,
 } from "../extensions/Blocks/api/blockTypes";
 import { TextCursorPosition } from "../extensions/Blocks/api/cursorPositionTypes";
 import { simplifyBlocks } from "./simplifyBlocksRehypePlugin";
 import { removeUnderlines } from "./removeUnderlinesRehypePlugin";
 
-export function blockSpecToNode(blockSpec: BlockSpec, schema: Schema) {
+export function blockToNode(block: PartialBlock, schema: Schema) {
   let content: PMNode[] = [];
 
-  if (typeof blockSpec.content === "string") {
-    content.push(schema.text(blockSpec.content));
-  } else if (typeof blockSpec.content === "object") {
-    for (const styledText of blockSpec.content) {
+  if (typeof block.content === "string") {
+    content.push(schema.text(block.content));
+  } else if (typeof block.content === "object") {
+    for (const styledText of block.content) {
       const marks = [];
 
       for (const style of styledText.styles) {
@@ -43,16 +43,13 @@ export function blockSpecToNode(blockSpec: BlockSpec, schema: Schema) {
     }
   }
 
-  const contentNode = schema.nodes[blockSpec.type].create(
-    blockSpec.props,
-    content
-  );
+  const contentNode = schema.nodes[block.type].create(block.props, content);
 
   const children: Node[] = [];
 
-  if (blockSpec.children) {
-    for (const child of blockSpec.children) {
-      children.push(blockSpecToNode(child, schema));
+  if (block.children) {
+    for (const child of block.children) {
+      children.push(blockToNode(child, schema));
     }
   }
 
@@ -89,7 +86,7 @@ export function getNodeById(
   });
 
   if (!targetNode || !posBeforeNode) {
-    throw Error("Could not find block in the editor with matching ID");
+    throw Error("Could not find block in the editor with matching ID.");
   }
 
   return {
@@ -104,7 +101,9 @@ export function nodeToBlock(node: Node): Block {
   const props: any = {};
   for (const [attr, value] of Object.entries(blockInfo.contentNode.attrs)) {
     if (!(blockInfo.contentType.name in blockProps)) {
-      throw Error("Block is of an unrecognized type.");
+      throw Error(
+        "Block is of an unrecognized type: " + blockInfo.contentType.name
+      );
     }
 
     const validAttrs = blockProps[blockInfo.contentType.name as Block["type"]];
@@ -114,7 +113,7 @@ export function nodeToBlock(node: Node): Block {
     }
   }
 
-  const styledText: StyledText[] = [];
+  const content: StyledText[] = [];
   blockInfo.contentNode.content.forEach((node) => {
     const styles: Style[] = [];
 
@@ -125,7 +124,7 @@ export function nodeToBlock(node: Node): Block {
       } as Style);
     }
 
-    styledText.push({
+    content.push({
       text: node.textContent,
       styles: styles,
     });
@@ -140,8 +139,7 @@ export function nodeToBlock(node: Node): Block {
     id: blockInfo.id,
     type: blockInfo.contentType.name,
     props: props,
-    textContent: blockInfo.contentNode.textContent,
-    styledTextContent: styledText,
+    content: content,
     children: children,
   } as Block;
 }
@@ -153,10 +151,10 @@ export class Editor {
 
   /**
    * Converts a Block into a ProseMirror node.
-   * @param blockSpec The Block to convert into a ProseMirror node.
+   * @param block The Block to convert into a ProseMirror node.
    */
-  private blockSpecToNode(blockSpec: BlockSpec) {
-    return blockSpecToNode(blockSpec, this.tiptapEditor.schema);
+  private blockToNode(block: PartialBlock) {
+    return blockToNode(block, this.tiptapEditor.schema);
   }
 
   /**
@@ -224,13 +222,20 @@ export class Editor {
    * existing block.
    */
   public insertBlocks(
-    blocksToInsert: BlockSpec[],
+    blocksToInsert: PartialBlock[],
     blockToInsertAt: Block,
     placement: "before" | "after" | "nested" = "before"
   ): void {
+    if (blockToInsertAt.id === null) {
+      throw Error(
+        "The target block has a null ID and could not be found in the editor: " +
+          blockToInsertAt
+      );
+    }
+
     const nodesToInsert: Node[] = [];
     for (const blockSpec of blocksToInsert) {
-      nodesToInsert.push(this.blockSpecToNode(blockSpec));
+      nodesToInsert.push(this.blockToNode(blockSpec));
     }
 
     let insertionPos = -1;
@@ -275,15 +280,22 @@ export class Editor {
   /**
    * Updates a block in the editor to the given specification.
    * @param blockToUpdate The block that should be updated.
-   * @param blockUpdate The specification that the block should be updated to.
+   * @param updatedBlock The specification that the block should be updated to.
    */
-  public updateBlock(blockToUpdate: Block, blockUpdate: BlockSpec) {
+  public updateBlock(blockToUpdate: Block, updatedBlock: PartialBlock) {
+    if (blockToUpdate.id === null) {
+      throw Error(
+        "The target block has a null ID and could not be found in the editor: " +
+          blockToUpdate
+      );
+    }
+
     const { posBeforeNode } = this.getNodeById(
       blockToUpdate.id,
       this.tiptapEditor.state.doc
     );
 
-    this.tiptapEditor.commands.BNUpdateBlock(posBeforeNode + 1, blockUpdate);
+    this.tiptapEditor.commands.BNUpdateBlock(posBeforeNode + 1, updatedBlock);
   }
 
   /**
@@ -292,7 +304,16 @@ export class Editor {
    */
   public removeBlocks(blocksToRemove: Block[]) {
     const idsOfBlocksToRemove = new Set<string>(
-      blocksToRemove.map((block) => block.id)
+      blocksToRemove.map((block) => {
+        if (block.id === null) {
+          throw Error(
+            "The following block has a null ID and could not be found in the editor: " +
+              block
+          );
+        }
+
+        return block.id;
+      })
     );
 
     let removedSize = 0;
@@ -336,6 +357,10 @@ export class Editor {
     }
   }
 
+  public onUpdate(callback: () => void) {
+    this.tiptapEditor.on("update", callback);
+  }
+
   /**
    * Serializes a list of blocks into an HTML string. The output is not the same as what's rendered by the editor, and
    * is simplified in order to better conform to HTML standards. Block structuring elements are removed, children of
@@ -347,7 +372,7 @@ export class Editor {
     const serializer = DOMSerializer.fromSchema(this.tiptapEditor.schema);
 
     for (const block of blocks) {
-      const node = this.blockSpecToNode(block);
+      const node = this.blockToNode(block);
       const htmlNode = serializer.serializeNode(node);
       htmlParentElement.appendChild(htmlNode);
     }

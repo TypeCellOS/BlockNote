@@ -11,20 +11,20 @@ export type BlockTemplate<
   id: string;
   type: Type;
   props: Props;
-  textContent: string;
-  styledTextContent: StyledText[];
+  content: StyledText[];
   children: Block[];
 };
 
-export type BlockSpecTemplate<Spec> = Spec extends BlockTemplate<
+export type PartialBlockTemplate<Template> = Template extends BlockTemplate<
   infer Type,
   infer Props
 >
   ? {
+      id?: string;
       type: Type;
       props?: Partial<Props>;
       content?: string | StyledText[];
-      children?: BlockSpec[];
+      children?: PartialBlock[];
     }
   : never;
 
@@ -52,9 +52,9 @@ export type Block =
   | NumberedListItemBlock;
 
 // @ts-ignore
-export type BlockSpec = BlockSpecTemplate<Block>;
+export type PartialBlock = PartialBlockTemplate<Block>;
 
-export type BlockProps = BlockPropsTemplate<BlockSpec["props"]>;
+export type BlockProps = BlockPropsTemplate<PartialBlock["props"]>;
 
 // TODO: Better way of doing this type guard?
 export const blockProps: Record<Block["type"], Set<BlockProps>> = {

@@ -1,14 +1,14 @@
 import { describe, expect, it } from "vitest";
 import {
-  BlockSpec,
+  PartialBlock,
   BlockNoteEditor,
-  blockSpecToNode,
+  blockToNode,
   nodeToBlock,
 } from "../src";
 
 const editor = new BlockNoteEditor().tiptapEditor;
 
-const simpleBlockSpec: BlockSpec = {
+const simpleBlock: PartialBlock = {
   type: "paragraph",
 };
 const simpleNode = editor.schema.nodes["blockContainer"].create(
@@ -18,7 +18,7 @@ const simpleNode = editor.schema.nodes["blockContainer"].create(
 
 describe("Simple ProseMirror Node Conversions", () => {
   it("Convert simple spec to node", async () => {
-    const output = blockSpecToNode(simpleBlockSpec, editor.schema);
+    const output = blockToNode(simpleBlock, editor.schema);
 
     expect(output).toMatchSnapshot();
   });
@@ -30,7 +30,7 @@ describe("Simple ProseMirror Node Conversions", () => {
   });
 });
 
-const complexBlockSpec: BlockSpec = {
+const complexBlock: PartialBlock = {
   type: "heading",
   props: {
     level: "2",
@@ -101,7 +101,7 @@ const complexNode = editor.schema.nodes["blockContainer"].create({}, [
 
 describe("Complex ProseMirror Node Conversions", () => {
   it("Convert complex spec to node", async () => {
-    const output = blockSpecToNode(complexBlockSpec, editor.schema);
+    const output = blockToNode(complexBlock, editor.schema);
 
     expect(output).toMatchSnapshot();
   });
