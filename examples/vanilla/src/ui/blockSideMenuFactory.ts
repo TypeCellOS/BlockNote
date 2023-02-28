@@ -22,6 +22,7 @@ export const blockSideMenuFactory: BlockSideMenuFactory = (staticParams) => {
 
   dragBtn.addEventListener("dragstart", staticParams.blockDragStart);
   dragBtn.addEventListener("dragend", staticParams.blockDragEnd);
+  dragBtn.draggable = true;
   container.style.display = "none";
   container.appendChild(dragBtn);
 
