@@ -159,15 +159,11 @@ export class Editor {
 
   /**
    * Gets the ProseMirror `blockContainer` node with the given ID from within a document. Throws an error if no
-   * `blockContainerNode` with the given ID could be found.
+   * `blockContainer` node with the given ID could be found.
    * @param id The ID of the target `blockContainer` node.
-   * @param doc The ProseMirror document to search for the node in.
    */
-  private getNodeById(
-    id: string,
-    doc: Node
-  ): { node: Node; posBeforeNode: number } {
-    return getNodeById(id, doc);
+  private getNodeById(id: string): { node: Node; posBeforeNode: number } {
+    return getNodeById(id, this.tiptapEditor.state.doc);
   }
 
   /**
@@ -216,7 +212,7 @@ export class Editor {
 
   /**
    * Inserts multiple blocks before, after, or nested inside an existing block in the editor.
-   * @param blocksToInsert An array of specifications for the blocks to insert.
+   * @param blocksToInsert An array of blocks to insert.
    * @param blockToInsertAt An existing block, marking where the new blocks should be inserted at.
    * @param placement Determines whether the blocks should be inserted just before, just after, or nested inside the
    * existing block.
@@ -226,13 +222,6 @@ export class Editor {
     blockToInsertAt: Block,
     placement: "before" | "after" | "nested" = "before"
   ): void {
-    if (blockToInsertAt.id === null) {
-      throw Error(
-        "The target block has a null ID and could not be found in the editor: " +
-          blockToInsertAt
-      );
-    }
-
     const nodesToInsert: Node[] = [];
     for (const blockSpec of blocksToInsert) {
       nodesToInsert.push(this.blockToNode(blockSpec));
@@ -240,10 +229,7 @@ export class Editor {
 
     let insertionPos = -1;
 
-    const { node, posBeforeNode } = this.getNodeById(
-      blockToInsertAt.id,
-      this.tiptapEditor.state.doc
-    );
+    const { node, posBeforeNode } = this.getNodeById(blockToInsertAt.id);
 
     if (placement === "before") {
       insertionPos = posBeforeNode;
@@ -283,17 +269,7 @@ export class Editor {
    * @param updatedBlock The specification that the block should be updated to.
    */
   public updateBlock(blockToUpdate: Block, updatedBlock: PartialBlock) {
-    if (blockToUpdate.id === null) {
-      throw Error(
-        "The target block has a null ID and could not be found in the editor: " +
-          blockToUpdate
-      );
-    }
-
-    const { posBeforeNode } = this.getNodeById(
-      blockToUpdate.id,
-      this.tiptapEditor.state.doc
-    );
+    const { posBeforeNode } = this.getNodeById(blockToUpdate.id);
 
     this.tiptapEditor.commands.BNUpdateBlock(posBeforeNode + 1, updatedBlock);
   }
@@ -304,16 +280,7 @@ export class Editor {
    */
   public removeBlocks(blocksToRemove: Block[]) {
     const idsOfBlocksToRemove = new Set<string>(
-      blocksToRemove.map((block) => {
-        if (block.id === null) {
-          throw Error(
-            "The following block has a null ID and could not be found in the editor: " +
-              block
-          );
-        }
-
-        return block.id;
-      })
+      blocksToRemove.map((block) => block.id)
     );
 
     let removedSize = 0;
@@ -357,7 +324,26 @@ export class Editor {
     }
   }
 
-  public onUpdate(callback: () => void) {
+  /**
+   * Replaces multiple blocks in the editor with several other blocks. If the provided blocks to remove are not adjacent
+   * to each other, the new blocks are inserted at the position of the first block in the array. Throws an error if any
+   * of the blocks could not be found.
+   * @param blocksToRemove An array of blocks that should be replaced.
+   * @param blocksToInsert An array of blocks to replace the old ones with.
+   */
+  public replaceBlocks(
+    blocksToRemove: Block[],
+    blocksToInsert: PartialBlock[]
+  ) {
+    this.insertBlocks(blocksToInsert, blocksToRemove[0]);
+    this.removeBlocks(blocksToRemove);
+  }
+
+  /**
+   * Executes a callback function whenever the editor's content changes.
+   * @param callback The callback function to execute.
+   */
+  public onContentChange(callback: () => void) {
     this.tiptapEditor.on("update", callback);
   }
 
