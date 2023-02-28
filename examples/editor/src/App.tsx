@@ -88,10 +88,12 @@ function App() {
             id: "0",
             type: "heading",
             props: {
+              backgroundColor: "default",
+              textColor: "default",
+              textAlignment: "left",
               level: "1",
             },
-            textContent: "Heading 1",
-            styledTextContent: [
+            content: [
               {
                 text: "Heading 1",
                 styles: [],
@@ -102,10 +104,12 @@ function App() {
                 id: "1",
                 type: "heading",
                 props: {
+                  backgroundColor: "default",
+                  textColor: "default",
+                  textAlignment: "left",
                   level: "2",
                 },
-                textContent: "Heading 2",
-                styledTextContent: [
+                content: [
                   {
                     text: "Heading 2",
                     styles: [],
@@ -116,10 +120,12 @@ function App() {
                     id: "2",
                     type: "heading",
                     props: {
+                      backgroundColor: "default",
+                      textColor: "default",
+                      textAlignment: "left",
                       level: "3",
                     },
-                    textContent: "Heading 3",
-                    styledTextContent: [
+                    content: [
                       {
                         text: "Heading 3",
                         styles: [],
@@ -134,9 +140,12 @@ function App() {
           {
             id: "3",
             type: "paragraph",
-            props: {},
-            textContent: "Paragraph",
-            styledTextContent: [
+            props: {
+              backgroundColor: "default",
+              textColor: "default",
+              textAlignment: "left",
+            },
+            content: [
               {
                 text: "Paragraph",
                 styles: [],
@@ -147,9 +156,12 @@ function App() {
           {
             id: "4",
             type: "paragraph",
-            props: {},
-            textContent: "Paragraph",
-            styledTextContent: [
+            props: {
+              backgroundColor: "default",
+              textColor: "default",
+              textAlignment: "left",
+            },
+            content: [
               {
                 text: "Paragraph",
                 styles: [],
@@ -160,9 +172,12 @@ function App() {
           {
             id: "5",
             type: "paragraph",
-            props: {},
-            textContent: "Paragraph",
-            styledTextContent: [
+            props: {
+              backgroundColor: "default",
+              textColor: "default",
+              textAlignment: "left",
+            },
+            content: [
               {
                 text: "Paragraph",
                 styles: [],
@@ -173,9 +188,12 @@ function App() {
           {
             id: "6",
             type: "bulletListItem",
-            props: {},
-            textContent: "Bullet List Item",
-            styledTextContent: [
+            props: {
+              backgroundColor: "default",
+              textColor: "default",
+              textAlignment: "left",
+            },
+            content: [
               {
                 text: "Bullet List Item",
                 styles: [],
@@ -186,9 +204,12 @@ function App() {
           {
             id: "7",
             type: "bulletListItem",
-            props: {},
-            textContent: "Bullet List Item",
-            styledTextContent: [
+            props: {
+              backgroundColor: "default",
+              textColor: "default",
+              textAlignment: "left",
+            },
+            content: [
               {
                 text: "Bullet List Item",
                 styles: [],
@@ -198,9 +219,12 @@ function App() {
               {
                 id: "8",
                 type: "bulletListItem",
-                props: {},
-                textContent: "Bullet List Item",
-                styledTextContent: [
+                props: {
+                  backgroundColor: "default",
+                  textColor: "default",
+                  textAlignment: "left",
+                },
+                content: [
                   {
                     text: "Bullet List Item",
                     styles: [],
@@ -210,9 +234,12 @@ function App() {
                   {
                     id: "9",
                     type: "bulletListItem",
-                    props: {},
-                    textContent: "Bullet List Item",
-                    styledTextContent: [
+                    props: {
+                      backgroundColor: "default",
+                      textColor: "default",
+                      textAlignment: "left",
+                    },
+                    content: [
                       {
                         text: "Bullet List Item",
                         styles: [],
@@ -223,9 +250,12 @@ function App() {
                   {
                     id: "10",
                     type: "paragraph",
-                    props: {},
-                    textContent: "Paragraph",
-                    styledTextContent: [
+                    props: {
+                      backgroundColor: "default",
+                      textColor: "default",
+                      textAlignment: "left",
+                    },
+                    content: [
                       {
                         text: "Paragraph",
                         styles: [],
@@ -236,9 +266,12 @@ function App() {
                   {
                     id: "11",
                     type: "numberedListItem",
-                    props: {},
-                    textContent: "Numbered List Item",
-                    styledTextContent: [
+                    props: {
+                      backgroundColor: "default",
+                      textColor: "default",
+                      textAlignment: "left",
+                    },
+                    content: [
                       {
                         text: "Numbered List Item",
                         styles: [],
@@ -249,9 +282,12 @@ function App() {
                   {
                     id: "12",
                     type: "numberedListItem",
-                    props: {},
-                    textContent: "Numbered List Item",
-                    styledTextContent: [
+                    props: {
+                      backgroundColor: "default",
+                      textColor: "default",
+                      textAlignment: "left",
+                    },
+                    content: [
                       {
                         text: "Numbered List Item",
                         styles: [],
@@ -262,9 +298,12 @@ function App() {
                   {
                     id: "13",
                     type: "numberedListItem",
-                    props: {},
-                    textContent: "Numbered List Item",
-                    styledTextContent: [
+                    props: {
+                      backgroundColor: "default",
+                      textColor: "default",
+                      textAlignment: "left",
+                    },
+                    content: [
                       {
                         text: "Numbered List Item",
                         styles: [],
@@ -274,9 +313,12 @@ function App() {
                       {
                         id: "14",
                         type: "numberedListItem",
-                        props: {},
-                        textContent: "Numbered List Item",
-                        styledTextContent: [
+                        props: {
+                          backgroundColor: "default",
+                          textColor: "default",
+                          textAlignment: "left",
+                        },
+                        content: [
                           {
                             text: "Numbered List Item",
                             styles: [],
@@ -289,9 +331,12 @@ function App() {
                   {
                     id: "15",
                     type: "bulletListItem",
-                    props: {},
-                    textContent: "Bullet List Item",
-                    styledTextContent: [
+                    props: {
+                      backgroundColor: "default",
+                      textColor: "default",
+                      textAlignment: "left",
+                    },
+                    content: [
                       {
                         text: "Bullet List Item",
                         styles: [],
@@ -304,9 +349,12 @@ function App() {
               {
                 id: "16",
                 type: "bulletListItem",
-                props: {},
-                textContent: "Bullet List Item",
-                styledTextContent: [
+                props: {
+                  backgroundColor: "default",
+                  textColor: "default",
+                  textAlignment: "left",
+                },
+                content: [
                   {
                     text: "Bullet List Item",
                     styles: [],
@@ -319,9 +367,12 @@ function App() {
           {
             id: "17",
             type: "bulletListItem",
-            props: {},
-            textContent: "Bullet List Item",
-            styledTextContent: [
+            props: {
+              backgroundColor: "default",
+              textColor: "default",
+              textAlignment: "left",
+            },
+            content: [
               {
                 text: "Bullet List Item",
                 styles: [],
@@ -332,9 +383,12 @@ function App() {
           {
             id: "18",
             type: "paragraph",
-            props: {},
-            textContent: "",
-            styledTextContent: [],
+            props: {
+              backgroundColor: "default",
+              textColor: "default",
+              textAlignment: "left",
+            },
+            content: [],
             children: [],
           },
         ];
