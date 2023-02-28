@@ -68,8 +68,8 @@ const SIDEBAR_DEFAULT = [
     collapsed: true,
     items: [
       {
-        text: "Usage in Vanilla JS",
-        link: "/tutorial/1-building",
+        text: "Without React (vanilla JS)",
+        link: "/docs/vanilla-js",
       },
       {
         text: "Real-time collaboration",
