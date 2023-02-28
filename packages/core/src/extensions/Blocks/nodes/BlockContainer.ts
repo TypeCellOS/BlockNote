@@ -1,12 +1,12 @@
 import { mergeAttributes, Node } from "@tiptap/core";
 import { Fragment, Node as PMNode, Slice } from "prosemirror-model";
 import { TextSelection } from "prosemirror-state";
-import { BlockSpec } from "../api/blockTypes";
+import { PartialBlock } from "../api/blockTypes";
 import { getBlockInfoFromPos } from "../helpers/getBlockInfoFromPos";
 import { PreviousBlockTypePlugin } from "../PreviousBlockTypePlugin";
 import styles from "./Block.module.css";
 import BlockAttributes from "./BlockAttributes";
-import { blockSpecToNode } from "../../../api/Editor";
+import { blockToNode } from "../../../api/Editor";
 
 // TODO
 export interface IBlock {
@@ -20,10 +20,10 @@ declare module "@tiptap/core" {
       BNDeleteBlock: (posInBlock: number) => ReturnType;
       BNMergeBlocks: (posBetweenBlocks: number) => ReturnType;
       BNSplitBlock: (posInBlock: number, keepType: boolean) => ReturnType;
-      BNUpdateBlock: (posInBlock: number, blockSpec: BlockSpec) => ReturnType;
+      BNUpdateBlock: (posInBlock: number, block: PartialBlock) => ReturnType;
       BNCreateOrUpdateBlock: (
         posInBlock: number,
-        blockSpec: BlockSpec
+        block: PartialBlock
       ) => ReturnType;
     };
   }
@@ -282,7 +282,7 @@ export const BlockContainer = Node.create<IBlock>({
         },
       // Updates a block to the given specification.
       BNUpdateBlock:
-        (posInBlock, blockSpec) =>
+        (posInBlock, block) =>
         ({ state, dispatch }) => {
           const blockInfo = getBlockInfoFromPos(state.doc, posInBlock);
           if (blockInfo === undefined) {
@@ -293,12 +293,12 @@ export const BlockContainer = Node.create<IBlock>({
 
           if (dispatch) {
             // Adds blockGroup node with child blocks if necessary.
-            if (blockSpec.children !== undefined) {
+            if (block.children !== undefined) {
               const childNodes = [];
 
               // Creates ProseMirror nodes for each child block, including their descendants.
-              for (const child of blockSpec.children) {
-                childNodes.push(blockSpecToNode(child, state.schema));
+              for (const child of block.children) {
+                childNodes.push(blockToNode(child, state.schema));
               }
 
               // Checks if a blockGroup node already exists.
@@ -319,17 +319,17 @@ export const BlockContainer = Node.create<IBlock>({
             }
 
             // Replaces the blockContent node's content if necessary.
-            if (blockSpec.content !== undefined) {
+            if (block.content !== undefined) {
               let content: PMNode[] = [];
 
               // Checks if the provided content is a string or StyledText[] type.
-              if (typeof blockSpec.content === "string") {
+              if (typeof block.content === "string") {
                 // Adds a single text node with no marks to the content.
-                content.push(state.schema.text(blockSpec.content));
+                content.push(state.schema.text(block.content));
               } else {
                 // Adds a text node with the provided styles converted into marks to the content, for each StyledText
                 // object.
-                for (const styledText of blockSpec.content) {
+                for (const styledText of block.content) {
                   const marks = [];
 
                   for (const style of styledText.styles) {
@@ -350,14 +350,10 @@ export const BlockContainer = Node.create<IBlock>({
 
             // Changes the block type and adds the provided props as node attributes. Also preserves all existing node
             // attributes that are compatible with the new type.
-            state.tr.setNodeMarkup(
-              startPos,
-              state.schema.nodes[blockSpec.type],
-              {
-                ...contentNode.attrs,
-                ...blockSpec.props,
-              }
-            );
+            state.tr.setNodeMarkup(startPos, state.schema.nodes[block.type], {
+              ...contentNode.attrs,
+              ...block.props,
+            });
           }
 
           return true;
@@ -365,7 +361,7 @@ export const BlockContainer = Node.create<IBlock>({
       // Updates a block to the given specification if it's empty, otherwise creates a new block from that specification
       // below it.
       BNCreateOrUpdateBlock:
-        (posInBlock, blockSpec) =>
+        (posInBlock, block) =>
         ({ state, chain }) => {
           const blockInfo = getBlockInfoFromPos(state.doc, posInBlock);
           if (blockInfo === undefined) {
@@ -378,7 +374,7 @@ export const BlockContainer = Node.create<IBlock>({
             const oldBlockContentPos = startPos + 1;
 
             return chain()
-              .BNUpdateBlock(posInBlock, blockSpec)
+              .BNUpdateBlock(posInBlock, block)
               .setTextSelection(oldBlockContentPos)
               .run();
           } else {
@@ -387,7 +383,7 @@ export const BlockContainer = Node.create<IBlock>({
 
             return chain()
               .BNCreateBlock(newBlockInsertionPos)
-              .BNUpdateBlock(newBlockContentPos, blockSpec)
+              .BNUpdateBlock(newBlockContentPos, block)
               .setTextSelection(newBlockContentPos)
               .run();
           }

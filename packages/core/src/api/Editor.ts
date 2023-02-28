@@ -20,19 +20,19 @@ import {
   Block,
   BlockProps,
   blockProps,
-  BlockSpec,
+  PartialBlock,
 } from "../extensions/Blocks/api/blockTypes";
 import { TextCursorPosition } from "../extensions/Blocks/api/cursorPositionTypes";
 import { simplifyBlocks } from "./simplifyBlocksRehypePlugin";
 import { removeUnderlines } from "./removeUnderlinesRehypePlugin";
 
-export function blockSpecToNode(blockSpec: BlockSpec, schema: Schema) {
+export function blockToNode(block: PartialBlock, schema: Schema) {
   let content: PMNode[] = [];
 
-  if (typeof blockSpec.content === "string") {
-    content.push(schema.text(blockSpec.content));
-  } else if (typeof blockSpec.content === "object") {
-    for (const styledText of blockSpec.content) {
+  if (typeof block.content === "string") {
+    content.push(schema.text(block.content));
+  } else if (typeof block.content === "object") {
+    for (const styledText of block.content) {
       const marks = [];
 
       for (const style of styledText.styles) {
@@ -43,16 +43,13 @@ export function blockSpecToNode(blockSpec: BlockSpec, schema: Schema) {
     }
   }
 
-  const contentNode = schema.nodes[blockSpec.type].create(
-    blockSpec.props,
-    content
-  );
+  const contentNode = schema.nodes[block.type].create(block.props, content);
 
   const children: Node[] = [];
 
-  if (blockSpec.children) {
-    for (const child of blockSpec.children) {
-      children.push(blockSpecToNode(child, schema));
+  if (block.children) {
+    for (const child of block.children) {
+      children.push(blockToNode(child, schema));
     }
   }
 
@@ -89,7 +86,7 @@ export function getNodeById(
   });
 
   if (!targetNode || !posBeforeNode) {
-    throw Error("Could not find block in the editor with matching ID");
+    throw Error("Could not find block in the editor with matching ID.");
   }
 
   return {
@@ -104,7 +101,9 @@ export function nodeToBlock(node: Node): Block {
   const props: any = {};
   for (const [attr, value] of Object.entries(blockInfo.contentNode.attrs)) {
     if (!(blockInfo.contentType.name in blockProps)) {
-      throw Error("Block is of an unrecognized type.");
+      throw Error(
+        "Block is of an unrecognized type: " + blockInfo.contentType.name
+      );
     }
 
     const validAttrs = blockProps[blockInfo.contentType.name as Block["type"]];
@@ -114,7 +113,7 @@ export function nodeToBlock(node: Node): Block {
     }
   }
 
-  const styledText: StyledText[] = [];
+  const content: StyledText[] = [];
   blockInfo.contentNode.content.forEach((node) => {
     const styles: Style[] = [];
 
@@ -125,7 +124,7 @@ export function nodeToBlock(node: Node): Block {
       } as Style);
     }
 
-    styledText.push({
+    content.push({
       text: node.textContent,
       styles: styles,
     });
@@ -140,8 +139,7 @@ export function nodeToBlock(node: Node): Block {
     id: blockInfo.id,
     type: blockInfo.contentType.name,
     props: props,
-    textContent: blockInfo.contentNode.textContent,
-    styledTextContent: styledText,
+    content: content,
     children: children,
   } as Block;
 }
@@ -153,23 +151,19 @@ export class Editor {
 
   /**
    * Converts a Block into a ProseMirror node.
-   * @param blockSpec The Block to convert into a ProseMirror node.
+   * @param block The Block to convert into a ProseMirror node.
    */
-  private blockSpecToNode(blockSpec: BlockSpec) {
-    return blockSpecToNode(blockSpec, this.tiptapEditor.schema);
+  private blockToNode(block: PartialBlock) {
+    return blockToNode(block, this.tiptapEditor.schema);
   }
 
   /**
    * Gets the ProseMirror `blockContainer` node with the given ID from within a document. Throws an error if no
-   * `blockContainerNode` with the given ID could be found.
+   * `blockContainer` node with the given ID could be found.
    * @param id The ID of the target `blockContainer` node.
-   * @param doc The ProseMirror document to search for the node in.
    */
-  private getNodeById(
-    id: string,
-    doc: Node
-  ): { node: Node; posBeforeNode: number } {
-    return getNodeById(id, doc);
+  private getNodeById(id: string): { node: Node; posBeforeNode: number } {
+    return getNodeById(id, this.tiptapEditor.state.doc);
   }
 
   /**
@@ -218,27 +212,24 @@ export class Editor {
 
   /**
    * Inserts multiple blocks before, after, or nested inside an existing block in the editor.
-   * @param blocksToInsert An array of specifications for the blocks to insert.
+   * @param blocksToInsert An array of blocks to insert.
    * @param blockToInsertAt An existing block, marking where the new blocks should be inserted at.
    * @param placement Determines whether the blocks should be inserted just before, just after, or nested inside the
    * existing block.
    */
   public insertBlocks(
-    blocksToInsert: BlockSpec[],
+    blocksToInsert: PartialBlock[],
     blockToInsertAt: Block,
     placement: "before" | "after" | "nested" = "before"
   ): void {
     const nodesToInsert: Node[] = [];
     for (const blockSpec of blocksToInsert) {
-      nodesToInsert.push(this.blockSpecToNode(blockSpec));
+      nodesToInsert.push(this.blockToNode(blockSpec));
     }
 
     let insertionPos = -1;
 
-    const { node, posBeforeNode } = this.getNodeById(
-      blockToInsertAt.id,
-      this.tiptapEditor.state.doc
-    );
+    const { node, posBeforeNode } = this.getNodeById(blockToInsertAt.id);
 
     if (placement === "before") {
       insertionPos = posBeforeNode;
@@ -275,15 +266,12 @@ export class Editor {
   /**
    * Updates a block in the editor to the given specification.
    * @param blockToUpdate The block that should be updated.
-   * @param blockUpdate The specification that the block should be updated to.
+   * @param updatedBlock The specification that the block should be updated to.
    */
-  public updateBlock(blockToUpdate: Block, blockUpdate: BlockSpec) {
-    const { posBeforeNode } = this.getNodeById(
-      blockToUpdate.id,
-      this.tiptapEditor.state.doc
-    );
+  public updateBlock(blockToUpdate: Block, updatedBlock: PartialBlock) {
+    const { posBeforeNode } = this.getNodeById(blockToUpdate.id);
 
-    this.tiptapEditor.commands.BNUpdateBlock(posBeforeNode + 1, blockUpdate);
+    this.tiptapEditor.commands.BNUpdateBlock(posBeforeNode + 1, updatedBlock);
   }
 
   /**
@@ -337,6 +325,29 @@ export class Editor {
   }
 
   /**
+   * Replaces multiple blocks in the editor with several other blocks. If the provided blocks to remove are not adjacent
+   * to each other, the new blocks are inserted at the position of the first block in the array. Throws an error if any
+   * of the blocks could not be found.
+   * @param blocksToRemove An array of blocks that should be replaced.
+   * @param blocksToInsert An array of blocks to replace the old ones with.
+   */
+  public replaceBlocks(
+    blocksToRemove: Block[],
+    blocksToInsert: PartialBlock[]
+  ) {
+    this.insertBlocks(blocksToInsert, blocksToRemove[0]);
+    this.removeBlocks(blocksToRemove);
+  }
+
+  /**
+   * Executes a callback function whenever the editor's content changes.
+   * @param callback The callback function to execute.
+   */
+  public onContentChange(callback: () => void) {
+    this.tiptapEditor.on("update", callback);
+  }
+
+  /**
    * Serializes a list of blocks into an HTML string. The output is not the same as what's rendered by the editor, and
    * is simplified in order to better conform to HTML standards. Block structuring elements are removed, children of
    * blocks which aren't list items are lifted out of them, and list items blocks are wrapped in `ul`/`ol` tags.
@@ -347,7 +358,7 @@ export class Editor {
     const serializer = DOMSerializer.fromSchema(this.tiptapEditor.schema);
 
     for (const block of blocks) {
-      const node = this.blockSpecToNode(block);
+      const node = this.blockToNode(block);
       const htmlNode = serializer.serializeNode(node);
       htmlParentElement.appendChild(htmlNode);
     }

@@ -10,8 +10,7 @@ const nonNestedBlocks: Block[] = [
     props: {
       level: "1",
     },
-    textContent: "Heading",
-    styledTextContent: [
+    content: [
       {
         text: "Heading",
         styles: [],
@@ -23,8 +22,7 @@ const nonNestedBlocks: Block[] = [
     id: null,
     type: "paragraph",
     props: {},
-    textContent: "Paragraph",
-    styledTextContent: [
+    content: [
       {
         text: "Paragraph",
         styles: [],
@@ -36,8 +34,7 @@ const nonNestedBlocks: Block[] = [
     id: null,
     type: "bulletListItem",
     props: {},
-    textContent: "Bullet List Item",
-    styledTextContent: [
+    content: [
       {
         text: "Bullet List Item",
         styles: [],
@@ -49,8 +46,7 @@ const nonNestedBlocks: Block[] = [
     id: null,
     type: "numberedListItem",
     props: {},
-    textContent: "Numbered List Item",
-    styledTextContent: [
+    content: [
       {
         text: "Numbered List Item",
         styles: [],
@@ -104,8 +100,7 @@ const nestedBlocks: Block[] = [
     props: {
       level: "1",
     },
-    textContent: "Heading",
-    styledTextContent: [
+    content: [
       {
         text: "Heading",
         styles: [],
@@ -116,8 +111,7 @@ const nestedBlocks: Block[] = [
         id: null,
         type: "paragraph",
         props: {},
-        textContent: "Paragraph",
-        styledTextContent: [
+        content: [
           {
             text: "Paragraph",
             styles: [],
@@ -128,8 +122,7 @@ const nestedBlocks: Block[] = [
             id: null,
             type: "bulletListItem",
             props: {},
-            textContent: "Bullet List Item",
-            styledTextContent: [
+            content: [
               {
                 text: "Bullet List Item",
                 styles: [],
@@ -140,8 +133,7 @@ const nestedBlocks: Block[] = [
                 id: null,
                 type: "numberedListItem",
                 props: {},
-                textContent: "Numbered List Item",
-                styledTextContent: [
+                content: [
                   {
                     text: "Numbered List Item",
                     styles: [],
@@ -199,8 +191,7 @@ const styledBlocks: Block[] = [
     id: null,
     type: "paragraph",
     props: {},
-    textContent: "BoldItalicUnderlineStrikethroughTextColorBackgroundColor",
-    styledTextContent: [
+    content: [
       {
         text: "Bold",
         styles: [
@@ -314,8 +305,7 @@ const complexBlocks: Block[] = [
     props: {
       level: "1",
     },
-    textContent: "Heading 1",
-    styledTextContent: [
+    content: [
       {
         text: "Heading 1",
         styles: [],
@@ -328,8 +318,7 @@ const complexBlocks: Block[] = [
         props: {
           level: "2",
         },
-        textContent: "Heading 2",
-        styledTextContent: [
+        content: [
           {
             text: "Heading 2",
             styles: [],
@@ -342,8 +331,7 @@ const complexBlocks: Block[] = [
             props: {
               level: "3",
             },
-            textContent: "Heading 3",
-            styledTextContent: [
+            content: [
               {
                 text: "Heading 3",
                 styles: [],
@@ -359,8 +347,7 @@ const complexBlocks: Block[] = [
     id: null,
     type: "paragraph",
     props: {},
-    textContent: "Paragraph",
-    styledTextContent: [
+    content: [
       {
         text: "Paragraph",
         styles: [
@@ -385,8 +372,7 @@ const complexBlocks: Block[] = [
     id: null,
     type: "paragraph",
     props: {},
-    textContent: "Paragraph",
-    styledTextContent: [
+    content: [
       {
         text: "P",
         styles: [],
@@ -420,8 +406,7 @@ const complexBlocks: Block[] = [
     id: null,
     type: "paragraph",
     props: {},
-    textContent: "Paragraph",
-    styledTextContent: [
+    content: [
       {
         text: "P",
         styles: [],
@@ -455,8 +440,7 @@ const complexBlocks: Block[] = [
     id: null,
     type: "bulletListItem",
     props: {},
-    textContent: "Bullet List Item",
-    styledTextContent: [
+    content: [
       {
         text: "Bullet List Item",
         styles: [],
@@ -468,8 +452,7 @@ const complexBlocks: Block[] = [
     id: null,
     type: "bulletListItem",
     props: {},
-    textContent: "Bullet List Item",
-    styledTextContent: [
+    content: [
       {
         text: "Bullet List Item",
         styles: [],
@@ -480,8 +463,7 @@ const complexBlocks: Block[] = [
         id: null,
         type: "bulletListItem",
         props: {},
-        textContent: "Bullet List Item",
-        styledTextContent: [
+        content: [
           {
             text: "Bullet List Item",
             styles: [],
@@ -492,8 +474,7 @@ const complexBlocks: Block[] = [
             id: null,
             type: "bulletListItem",
             props: {},
-            textContent: "Bullet List Item",
-            styledTextContent: [
+            content: [
               {
                 text: "Bullet List Item",
                 styles: [],
@@ -505,8 +486,7 @@ const complexBlocks: Block[] = [
             id: null,
             type: "paragraph",
             props: {},
-            textContent: "Paragraph",
-            styledTextContent: [
+            content: [
               {
                 text: "Paragraph",
                 styles: [],
@@ -520,8 +500,7 @@ const complexBlocks: Block[] = [
             props: {
               index: "1",
             },
-            textContent: "Numbered List Item",
-            styledTextContent: [
+            content: [
               {
                 text: "Numbered List Item",
                 styles: [],
@@ -535,8 +514,7 @@ const complexBlocks: Block[] = [
             props: {
               index: "2",
             },
-            textContent: "Numbered List Item",
-            styledTextContent: [
+            content: [
               {
                 text: "Numbered List Item",
                 styles: [],
@@ -550,8 +528,7 @@ const complexBlocks: Block[] = [
             props: {
               index: "3",
             },
-            textContent: "Numbered List Item",
-            styledTextContent: [
+            content: [
               {
                 text: "Numbered List Item",
                 styles: [],
@@ -564,8 +541,7 @@ const complexBlocks: Block[] = [
                 props: {
                   index: "1",
                 },
-                textContent: "Numbered List Item",
-                styledTextContent: [
+                content: [
                   {
                     text: "Numbered List Item",
                     styles: [],
@@ -579,8 +555,7 @@ const complexBlocks: Block[] = [
             id: null,
             type: "bulletListItem",
             props: {},
-            textContent: "Bullet List Item",
-            styledTextContent: [
+            content: [
               {
                 text: "Bullet List Item",
                 styles: [],
@@ -594,8 +569,7 @@ const complexBlocks: Block[] = [
         id: null,
         type: "bulletListItem",
         props: {},
-        textContent: "Bullet List Item",
-        styledTextContent: [
+        content: [
           {
             text: "Bullet List Item",
             styles: [],
@@ -609,8 +583,7 @@ const complexBlocks: Block[] = [
     id: null,
     type: "bulletListItem",
     props: {},
-    textContent: "Bullet List Item",
-    styledTextContent: [
+    content: [
       {
         text: "Bullet List Item",
         styles: [],

@@ -1,12 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { BlockNoteEditor, Editor, Block, BlockSpec } from "../src";
+import { BlockNoteEditor, Editor, Block, PartialBlock } from "../src";
 
-const singleBlock: BlockSpec = {
+const singleBlock: PartialBlock = {
   type: "paragraph",
   content: "Paragraph",
 };
 
-const multipleBlocks: BlockSpec[] = [
+const multipleBlocks: PartialBlock[] = [
   {
     type: "heading",
     props: {
