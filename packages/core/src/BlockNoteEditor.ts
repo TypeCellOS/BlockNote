@@ -16,6 +16,7 @@ const blockNoteOptions = {
   enableCoreExtensions: false,
 };
 
+// TODO: clean tiptap api
 export class BlockNoteEditor {
   public readonly tiptapEditor: Editor & { contentComponent: any };
 
