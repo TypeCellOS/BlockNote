@@ -43,8 +43,7 @@ type Block = {
     id: string | null;
     type: string;
     props: Record<string, string>;
-    textContent: string;
-    styledTextContent: StyledText[];
+    content: StyledText[];
     children: Block[];
 }
 ```
@@ -55,11 +54,11 @@ type Block = {
 
 `props:` The block's properties, which are a set of key/value pairs that further modify its appearance or behaviour alongside its type. This means that the properties that a block can have are also entirely determined by its type. You can find more information on which properties each type of block has in [Default Block Types](block-types#default-block-types).
 
-`textContent:` The block's content, represented as plain text. This does not include content from any nested blocks.
-
-`styledTextContent:` The block's content, represented as an array of `StyledText` objects. It contains not only plain text information regarding the block's contents, but also the inline styles applied, such as bold, italic, and text color. Like `textContent`, this doesn't include content from nested blocks. For more information on StyledText objects, visit [Rich Text Content](rich-text.md).
+`content:` The block's content, represented as an array of `StyledText` objects. It contains not only plain text information regarding the block's contents, but also the inline styles applied, such as bold, italic, and text color. This does not include content from any nested blocks. For more information on StyledText objects, visit [Rich Text Content](rich-text.md).
 
 `children:` Any blocks nested inside the block. The nested blocks are also represented using `Block` objects.
+
+**Additional Information**
 
 When using the BlockNote API, not only is the entire editor content represented entirely using `Block` objects, but most functions also either return them, or take them as arguments. Therefore, it's important to familiarize yourself with them, as they'll be referenced throughout the documentation.
 
