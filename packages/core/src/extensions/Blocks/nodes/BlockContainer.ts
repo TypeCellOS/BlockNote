@@ -6,7 +6,7 @@ import { getBlockInfoFromPos } from "../helpers/getBlockInfoFromPos";
 import { PreviousBlockTypePlugin } from "../PreviousBlockTypePlugin";
 import styles from "./Block.module.css";
 import BlockAttributes from "./BlockAttributes";
-import { blockToNode } from "../../../api/Editor";
+import { blockToNode } from "../../../api/nodeConversions/nodeConversions";
 
 // TODO
 export interface IBlock {
