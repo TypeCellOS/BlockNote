@@ -68,7 +68,6 @@
     "@tiptap/extension-text": "2.0.0-beta.217",
     "@tiptap/extension-underline": "2.0.0-beta.217",
     "@tiptap/pm": "2.0.0-beta.217",
-    "@types/hast": "^2.3.4",
     "hast-util-from-dom": "^4.2.0",
     "lodash": "^4.17.21",
     "rehype": "^12.0.1",
@@ -82,6 +81,7 @@
     "yjs": "13.5.44"
   },
   "devDependencies": {
+    "@types/hast": "^2.3.4",
     "@types/lodash": "^4.14.179",
     "@types/uuid": "^8.3.4",
     "eslint": "^8.10.0",
