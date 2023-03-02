@@ -1,12 +1,13 @@
-import { SlashMenuItem } from "./SlashMenuItem";
 import { Editor, Range } from "@tiptap/core";
+import { formatKeyboardShortcut } from "../../shared/utils";
+import { SlashMenuItem } from "./SlashMenuItem";
 
 /**
  * An array containing commands for creating all default blocks.
  */
-const defaultCommands: { [key: string]: SlashMenuItem } = {
+export const defaultSlashCommands: SlashMenuItem[] = [
   // Command for creating a level 1 heading
-  heading: new SlashMenuItem(
+  new SlashMenuItem(
     "Heading",
     (editor: Editor, range: Range) => {
       return editor
@@ -21,11 +22,14 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         })
         .run();
     },
-    ["h", "heading1", "h1"]
+    ["h", "heading1", "h1"],
+    "Headings",
+    "Used for a top-level heading",
+    formatKeyboardShortcut("Mod-Alt-1")
   ),
 
   // Command for creating a level 2 heading
-  heading2: new SlashMenuItem(
+  new SlashMenuItem(
     "Heading 2",
     (editor: Editor, range: Range) => {
       return editor
@@ -40,11 +44,14 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         })
         .run();
     },
-    ["h2", "heading2", "subheading"]
+    ["h2", "heading2", "subheading"],
+    "Headings",
+    "Used for key sections",
+    formatKeyboardShortcut("Mod-Alt-2")
   ),
 
   // Command for creating a level 3 heading
-  heading3: new SlashMenuItem(
+  new SlashMenuItem(
     "Heading 3",
     (editor: Editor, range: Range) => {
       return editor
@@ -59,11 +66,14 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         })
         .run();
     },
-    ["h3", "heading3", "subheading"]
+    ["h3", "heading3", "subheading"],
+    "Headings",
+    "Used for subsections and group headings",
+    formatKeyboardShortcut("Mod-Alt-3")
   ),
 
   // Command for creating an ordered list
-  numberedList: new SlashMenuItem(
+  new SlashMenuItem(
     "Numbered List",
     (editor: Editor, range: Range) => {
       return editor
@@ -76,11 +86,14 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         })
         .run();
     },
-    ["li", "list", "numberedlist", "numbered list"]
+    ["li", "list", "numberedlist", "numbered list"],
+    "Basic blocks",
+    "Used to display a numbered list",
+    "Mod-Alt-7"
   ),
 
   // Command for creating a bullet list
-  bulletList: new SlashMenuItem(
+  new SlashMenuItem(
     "Bullet List",
     (editor: Editor, range: Range) => {
       return editor
@@ -93,11 +106,14 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         })
         .run();
     },
-    ["ul", "list", "bulletlist", "bullet list"]
+    ["ul", "list", "bulletlist", "bullet list"],
+    "Basic blocks",
+    "Used to display an unordered list",
+    "Mod-Alt-9"
   ),
 
   // Command for creating a paragraph (pretty useless)
-  paragraph: new SlashMenuItem(
+  new SlashMenuItem(
     "Paragraph",
     (editor: Editor, range: Range) => {
       return editor
@@ -110,7 +126,10 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
         })
         .run();
     },
-    ["p"]
+    ["p"],
+    "Basic blocks",
+    "Used for the body of your document",
+    "Mod-Alt-0"
   ),
 
   //     replaceRangeWithNode(editor, range, node);
@@ -216,6 +235,4 @@ const defaultCommands: { [key: string]: SlashMenuItem } = {
   //   TableIcon,
   //   "Used to create a simple table"
   // ),
-};
-
-export default defaultCommands;
+];

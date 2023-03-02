@@ -7,29 +7,29 @@ import GapCursor from "@tiptap/extension-gapcursor";
 import HardBreak from "@tiptap/extension-hard-break";
 import { History } from "@tiptap/extension-history";
 import Italic from "@tiptap/extension-italic";
+import { Link } from "@tiptap/extension-link";
 import Strike from "@tiptap/extension-strike";
 import Text from "@tiptap/extension-text";
 import Underline from "@tiptap/extension-underline";
+import { BackgroundColorExtension } from "./extensions/BackgroundColor/BackgroundColorExtension";
+import { BackgroundColorMark } from "./extensions/BackgroundColor/BackgroundColorMark";
 import { blocks } from "./extensions/Blocks";
 import blockStyles from "./extensions/Blocks/nodes/Block.module.css";
-import { FormattingToolbarExtension } from "./extensions/FormattingToolbar/FormattingToolbarExtension";
+import { BlockSideMenuFactory } from "./extensions/DraggableBlocks/BlockSideMenuFactoryTypes";
 import { DraggableBlocksExtension } from "./extensions/DraggableBlocks/DraggableBlocksExtension";
+import { FormattingToolbarExtension } from "./extensions/FormattingToolbar/FormattingToolbarExtension";
+import { FormattingToolbarFactory } from "./extensions/FormattingToolbar/FormattingToolbarFactoryTypes";
 import HyperlinkMark from "./extensions/HyperlinkToolbar/HyperlinkMark";
+import { HyperlinkToolbarFactory } from "./extensions/HyperlinkToolbar/HyperlinkToolbarFactoryTypes";
 import { Placeholder } from "./extensions/Placeholder/PlaceholderExtension";
-import SlashMenuExtension from "./extensions/SlashMenu";
+import { SlashCommand, SlashMenuExtension } from "./extensions/SlashMenu";
+import { SlashMenuItem } from "./extensions/SlashMenu/SlashMenuItem";
+import { TextAlignmentExtension } from "./extensions/TextAlignment/TextAlignmentExtension";
+import { TextColorExtension } from "./extensions/TextColor/TextColorExtension";
+import { TextColorMark } from "./extensions/TextColor/TextColorMark";
 import { TrailingNode } from "./extensions/TrailingNode/TrailingNodeExtension";
 import UniqueID from "./extensions/UniqueID/UniqueID";
-import { FormattingToolbarFactory } from "./extensions/FormattingToolbar/FormattingToolbarFactoryTypes";
-import { HyperlinkToolbarFactory } from "./extensions/HyperlinkToolbar/HyperlinkToolbarFactoryTypes";
 import { SuggestionsMenuFactory } from "./shared/plugins/suggestion/SuggestionsMenuFactoryTypes";
-import { BlockSideMenuFactory } from "./extensions/DraggableBlocks/BlockSideMenuFactoryTypes";
-import { Link } from "@tiptap/extension-link";
-import { SlashMenuItem } from "./extensions/SlashMenu/SlashMenuItem";
-import { BackgroundColorMark } from "./extensions/BackgroundColor/BackgroundColorMark";
-import { TextColorMark } from "./extensions/TextColor/TextColorMark";
-import { BackgroundColorExtension } from "./extensions/BackgroundColor/BackgroundColorExtension";
-import { TextColorExtension } from "./extensions/TextColor/TextColorExtension";
-import { TextAlignmentExtension } from "./extensions/TextAlignment/TextAlignmentExtension";
 
 export type UiFactories = Partial<{
   formattingToolbarFactory: FormattingToolbarFactory;
@@ -41,7 +41,10 @@ export type UiFactories = Partial<{
 /**
  * Get all the Tiptap extensions BlockNote is configured with by default
  */
-export const getBlockNoteExtensions = (uiFactories: UiFactories) => {
+export const getBlockNoteExtensions = (opts: {
+  uiFactories: UiFactories;
+  slashCommands: SlashCommand[];
+}) => {
   const ret: Extensions = [
     extensions.ClipboardTextSerializer,
     extensions.Commands,
@@ -91,36 +94,37 @@ export const getBlockNoteExtensions = (uiFactories: UiFactories) => {
     TrailingNode,
   ];
 
-  if (uiFactories.blockSideMenuFactory) {
+  if (opts.uiFactories.blockSideMenuFactory) {
     ret.push(
       DraggableBlocksExtension.configure({
-        blockSideMenuFactory: uiFactories.blockSideMenuFactory,
+        blockSideMenuFactory: opts.uiFactories.blockSideMenuFactory,
       })
     );
   }
 
-  if (uiFactories.formattingToolbarFactory) {
+  if (opts.uiFactories.formattingToolbarFactory) {
     ret.push(
       FormattingToolbarExtension.configure({
-        formattingToolbarFactory: uiFactories.formattingToolbarFactory,
+        formattingToolbarFactory: opts.uiFactories.formattingToolbarFactory,
       })
     );
   }
 
-  if (uiFactories.hyperlinkToolbarFactory) {
+  if (opts.uiFactories.hyperlinkToolbarFactory) {
     ret.push(
       HyperlinkMark.configure({
-        hyperlinkToolbarFactory: uiFactories.hyperlinkToolbarFactory,
+        hyperlinkToolbarFactory: opts.uiFactories.hyperlinkToolbarFactory,
       })
     );
   } else {
     ret.push(Link);
   }
 
-  if (uiFactories.slashMenuFactory) {
+  if (opts.uiFactories.slashMenuFactory) {
     ret.push(
       SlashMenuExtension.configure({
-        slashMenuFactory: uiFactories.slashMenuFactory,
+        commands: opts.slashCommands,
+        slashMenuFactory: opts.uiFactories.slashMenuFactory,
       })
     );
   }

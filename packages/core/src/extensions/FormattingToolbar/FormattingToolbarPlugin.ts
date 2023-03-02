@@ -6,7 +6,7 @@ import {
 } from "@tiptap/core";
 import { EditorState, Plugin, PluginKey } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
-import { Block, BlockUpdate } from "../Blocks/apiTypes";
+import { Block, PartialBlock } from "../Blocks/api/blockTypes";
 import { getBlockInfoFromPos } from "../Blocks/helpers/getBlockInfoFromPos";
 import {
   FormattingToolbar,
@@ -288,11 +288,11 @@ export class FormattingToolbarView {
         this.editor.view.focus();
         this.editor.commands.liftListItem("blockContainer");
       },
-      updateBlock: (blockUpdate: BlockUpdate) => {
+      updateBlock: (updatedBlock: PartialBlock) => {
         this.editor.view.focus();
         this.editor.commands.BNUpdateBlock(
           this.editor.state.selection.from,
-          blockUpdate
+          updatedBlock
         );
       },
     };
