@@ -9,7 +9,7 @@ This page will explain all about blocks:
 
 ## BlockNote API
 
-BlockNote offers a way to interact with the editor programmatically using the BlockNote API. With it, you can access and manipulate blocks inside the editor in various ways by calling different API functions.
+You can interact with the editor programmatically using the BlockNote API. With it, you can access and manipulate blocks inside the editor in various ways by calling different API functions.
 
 To use the BlockNote API, we first need a BlockNote editor. We already went over how to set up an editor in [Creating an Editor](quickstart#creating-an-editor), so we can just work from that.
 
@@ -21,14 +21,14 @@ import { BlockNoteView, useBlockNote } from "@blocknote/react";
 import "@blocknote/core/style.css";
 
 function App() {
-    // Creates a new editor instance.
-    const editor = useBlockNote({});
-    
-    // Creates a new API instance to interact with the editor.
-    const editorAPI = new BlockNoteAPI(editor);
-    
-    // Renders the editor instance using a React component.
-    return <BlockNoteView editor={editor} />;
+  // Creates a new editor instance.
+  const editor = useBlockNote({});
+
+  // Creates a new API instance to interact with the editor.
+  const editorAPI = new BlockNoteAPI(editor);
+
+  // Renders the editor instance using a React component.
+  return <BlockNoteView editor={editor} />;
 }
 ```
 
@@ -40,12 +40,12 @@ BlockNote is centered around the idea of blocks, each containing an individual p
 
 ```typescript
 type Block = {
-    id: string | null;
-    type: string;
-    props: Record<string, string>;
-    content: StyledText[];
-    children: Block[];
-}
+  id: string | null;
+  type: string;
+  props: Record<string, string>;
+  content: StyledText[];
+  children: Block[];
+};
 ```
 
 `id:` The block's ID. Multiple blocks cannot share a single ID, and a block will keep the same ID from when it's created until it's removed.
@@ -62,7 +62,7 @@ type Block = {
 
 When using the BlockNote API, not only is the entire editor content represented entirely using `Block` objects, but most functions also either return them, or take them as arguments. Therefore, it's important to familiarize yourself with them, as they'll be referenced throughout the documentation.
 
-It's also important to keep in mind that `Block` objects represent a block in the editor *at that point in time*. This means that once you obtain a `Block` object, it won't be automatically updated, no matter what happens to its corresponding block in the editor. Therefore, whenever you use a `Block` object, it's important to make sure that the block it represents has not been edited or removed since it was created.
+It's also important to keep in mind that `Block` objects represent a block in the editor _at that point in time_. This means that once you obtain a `Block` object, it won't be automatically updated, no matter what happens to its corresponding block in the editor. Therefore, whenever you use a `Block` object, it's important to make sure that the block it represents has not been edited or removed since it was created.
 
 ## Getting Familiar with Block Objects
 
@@ -81,34 +81,31 @@ import "./styles.css";
 export default function App() {
   const [editorAPI, setEditorAPI] = useState(null);
   const [blocks, setBlocks] = useState(null);
-  
+
   // Creates a new editor instance.
   const editor = useBlockNote({
-    onUpdate: ({editor}) => {
+    onUpdate: ({ editor }) => {
       if (editorAPI === null) {
         setEditorAPI(new Editor(editor));
       }
-      
+
       setBlocks(editorAPI.allBlocks);
-    }
-  })
+    },
+  });
 
   // Renders the editor instance using a React component.
   return (
     <>
-      <BlockNoteView editor={editor} />;
-      <div>
-        {blocks}
-      </div>
+      <BlockNoteView editor={editor} />;<div>{blocks}</div>
     </>
-  )
+  );
 }
 ```
 
 ```css /styles.css [hidden]
 #root {
-    margin-left: 45px;
-    width: calc(100% - 90px);
+  margin-left: 45px;
+  width: calc(100% - 90px);
 }
 ```
 

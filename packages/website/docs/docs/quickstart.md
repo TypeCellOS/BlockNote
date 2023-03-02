@@ -1,20 +1,12 @@
 # Quickstart
 
-How to install and add to your app.
-
-- npm install
-- add react component
-
-All set! Explain possible areas to explore next
-
 ## Setting up BlockNote
 
-Getting started wi
-th BlockNote is quick and easy. All you need to do is install the package and add the React component to your app!
+Getting started with BlockNote is quick and easy. All you need to do is install the package and add the React component to your app!
 
 ### Installing with NPM
 
-Installing BlockNote is done using [NPM](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm), which you can do by running the following command in your console:
+Install BlockNote with [NPM](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm), by running the following command in your console:
 
 ```
 npm install @blocknote/core @blocknote/react
@@ -29,11 +21,11 @@ import { BlockNoteView, useBlockNote } from "@blocknote/react";
 import "@blocknote/core/style.css";
 
 function App() {
-    // Creates a new editor instance.
-    const editor = useBlockNote({});
-    
-    // Renders the editor instance using a React component.
-    return <BlockNoteView editor={editor} />;
+  // Creates a new editor instance.
+  const editor = useBlockNote({});
+
+  // Renders the editor instance using a React component.
+  return <BlockNoteView editor={editor} />;
 }
 ```
 
@@ -41,7 +33,7 @@ As well as `BlockNoteView` and `useBlockNote`, we import `@blocknote/core/style.
 
 ### Basic App Using BlockNote
 
-Taking the same code, the example below turns it into a super simple, working app:
+Taking the same code, the live preview below turns it into a super simple, working app:
 
 ::: sandbox {template=react-ts}
 
@@ -59,10 +51,10 @@ export default function App() {
 }
 ```
 
-```css /styles.css [hidden]
+```css /styles.css
 #root {
-    margin-left: 45px;
-    width: calc(100% - 90px);
+  margin-left: 45px;
+  width: calc(100% - 90px);
 }
 ```
 
@@ -76,12 +68,12 @@ You now know how to integrate BlockNote into your React app! However, this is ju
 
 ### Customizing Menus
 
-You might notice that in previous examples, we've been calling `useBlockNote` with an empty object. This object represents the editor options, which can be used to customize the editor's menus and behaviour.
+You might notice that in previous examples, we've been calling `useBlockNote` with an empty object (`{}`). This object represents the editor options, which can be used to customize the editor's menus and behaviour.
 
 To find out more about BlockNote editor options and menu customization, visit [Customizing the Editor](editor.md).
 
 ### Interacting with the Editor Using Code
 
-The BlockNote editor can not only be interacted with through the browser window, but also through code using the BlockNote API, which allows you to access and manipulate blocks in the editor programmatically.
+You also access and manipulate blocks in the editor programmatically using the BlockNote API.
 
-To find out more about the BlockNote API and manipulating the editor using code, visit [Introduction to Blocks](blocks.md).
+To find out more about Blocks, the BlockNote API and manipulating the editor using code, visit [Introduction to Blocks](blocks.md).
