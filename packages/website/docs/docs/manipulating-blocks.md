@@ -11,11 +11,11 @@ TBD: how deep do we need to go into blockspec vs block, or can we just document 
 
 ## Accessing Blocks
 
-The first step in manipulating blocks using the BlockNote API is accessing them, and there are several API functions available to do this. They're listed below, and the one you should use depends on your use case.
+The first step in manipulating blocks is accessing them, and there are several editor functions available to do this. They're listed below, and the one you should use depends on your use case.
 
 ### Getting All Blocks
 
-The simplest way to access a given block is to first get all blocks in the editor , then navigate through them until you find what you're looking for. The first thing to do is retrieving all blocks in the editor, which can be done using the following getter from the API:
+The simplest way to access a given block is to first get all blocks in the editor , then navigate through them until you find what you're looking for. The first thing to do is retrieving all blocks in the editor, which can be done using the following getter:
 
 ```typescript
 // Definition
@@ -78,7 +78,7 @@ function logAllBlocksTextContent(): void {
 
 **Executing a Callback for Each Block**
 
-A common use case when for the BlockNote API executing a callback for each block in the editor. This is a more generalized case of the previous example, where we called `console.log(block.textContent)` for each block. Now, we execute a callback instead, which is passed as an argument to the function. In the example below, we create a callback which checks if the block is a heading block, and adds its ID to an array if it is.
+A common use case when working with blocks, is executing a callback for each block in the editor. This is a more generalized case of the previous example, where we called `console.log(block.textContent)` for each block. Now, we execute a callback instead, which is passed as an argument to the function. In the example below, we create a callback which checks if the block is a heading block, and adds its ID to an array if it is.
 
 This pattern is incredibly useful as it allows you to access each block in the editor, one by one, and process them immediately.
 
@@ -115,11 +115,11 @@ callbackForEachBlock(callback);
 
 ### Getting the Hovered Block
 
-In some cases, you may want to know whether a block is being hovered by either the text or mouse cursor, yet `Block` objects don't contain any information that could help with that. Instead, this is handled by other getters in the BlockNote API.
+In some cases, you may want to know whether a block is being hovered by either the text or mouse cursor, yet `Block` objects don't contain any information that could help with that. Instead, this is handled by other getters.
 
 **Accessing Block Containing Text Cursor**
 
-The block currently containing the text cursor is found in the `TextCursorPosition` object, and we can retrieve it using the following API call:
+The block currently containing the text cursor is found in the `TextCursorPosition` object, and we can retrieve it using the following call:
 
 ```typescript
 // Definition
@@ -138,9 +138,9 @@ More specifically, this returns the *most immediate* block currently containing 
 
 ## Partial Blocks
 
-While the BlockNote API is centered around the use of `Block` objects, they can be cumbersome when we use them to insert new blocks or update existing ones. After all, if we want to just insert an empty paragraph, defining each field in a `Block` object to do so can feel pretty unnecessary.
+While interacting with the editor is centered around the use of `Block` objects, they can be cumbersome when we use them to insert new blocks or update existing ones. After all, if we want to just insert an empty paragraph, defining each field in a `Block` object to do so can feel pretty unnecessary. It's not obvious what kind of ID we should assign either.
 
-To alleviate this, the BlockNote API allows you to define new or updated blocks using `PartialBlock` objects:
+To alleviate these issues, you can define new or updated blocks using `PartialBlock` objects:
 
 ```typescript
 type PartialBlock = {
@@ -152,11 +152,11 @@ type PartialBlock = {
 }
 ```
 
-As you can see, `PartialBlock` objects are effectively the same as regular `Block` objects, but don't need to be fully defined. The first benefit of these is that it makes creating simpler blocks much easier, but it also crucially means that you can use a `Block` object in place of any `PartialBlock`. This makes things like duplicating and updating blocks far smoother, as you always receive `Block` objects when accessing existing blocks.
+As you can see, `PartialBlock` objects are effectively the same as regular `Block` objects, but don't need to be fully defined. The first benefit of these is that it makes creating simpler blocks much easier, and also crucially means that you can use a `Block` object in place of any `PartialBlock`. This makes things like duplicating and updating blocks far smoother, as you always receive `Block` objects when accessing existing blocks.
 
 ## Inserting Blocks
 
-You can insert new blocks into the editor using the following API call:
+You can insert new blocks into the editor using the following call:
 
 ```typescript
 // Definition
@@ -200,14 +200,14 @@ id = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX";
 content =  "";
 ```
 
-The `children` field is assigned an empty array:
+`children` is assigned an empty array:
 ```typescript
 children = [];
 ```
 
 ## Updating Blocks
 
-You can update an existing block in the editor using the following API call:
+You can update an existing block in the editor using the following call:
 
 ```typescript
 // Definition
@@ -236,7 +236,7 @@ There is one caveat regarding the `props` field, as different block types have d
 
 ## Removing Blocks
 
-You can remove existing blocks from the editor using the following API call:
+You can remove existing blocks from the editor using the following call:
 
 ```typescript
 // Definition
@@ -256,7 +256,7 @@ editorAPI.removeBlocks(blocksToRemove)
 
 ## Replacing Blocks
 
-You can replace existing blocks in the editor with new blocks using the following API call:
+You can replace existing blocks in the editor with new blocks using the following call:
 
 ```typescript
 // Definition

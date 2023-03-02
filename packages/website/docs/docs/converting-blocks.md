@@ -7,11 +7,11 @@ This page will explain:
 
 ## Converting Blocks To & From HTML
 
-If you need to describe blocks using HTML rather than `Block` objects, the BlockNote API provides functions for converting between the two formats.
+If you need to describe blocks using HTML rather than `Block` objects, BlockNote provides editor functions for converting between the two formats.
 
 ### Converting Blocks to HTML
 
-`Block` objects can be serialized to an HTML string using the following API function:
+`Block` objects can be serialized to an HTML string using the following function:
 
 ```typescript
 // Definition
@@ -37,7 +37,7 @@ TODO
 
 ### Converting HTML to Blocks
 
-`Block` objects can be parsed from an HTML string using the following API function:
+`Block` objects can be parsed from an HTML string using the following function:
 
 ```typescript
 // Definition
@@ -59,11 +59,11 @@ TODO
 
 ## Converting Blocks To & From Markdown
 
-If you need to describe blocks using Markdown rather than `Block` objects, the BlockNote API also provides functions for converting between them.
+If you need to describe blocks using Markdown rather than `Block` objects, BlockNote provides editor functions for converting between them.
 
 ### Converting Blocks to Markdown
 
-`Block` objects can be serialized to a Markdown string using the following API function:
+`Block` objects can be serialized to a Markdown string using the following function:
 
 ```typescript
 // Definition
@@ -89,7 +89,7 @@ TODO
 
 ### Converting Markdown to Blocks
 
-`Block` objects can be parsed from a Markdown string using the following API function:
+`Block` objects can be parsed from a Markdown string using the following function:
 
 ```typescript
 // Definition
