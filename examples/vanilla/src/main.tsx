@@ -17,14 +17,11 @@ const editor = new BlockNoteEditor({
     // Create an example menu for when a block is hovered
     blockSideMenuFactory,
   },
-  onUpdate: ({ editor }) => {
-    console.log(editor.getJSON());
-    (window as any).ProseMirror = editor; // Give tests a way to get editor instance
+  onUpdate: () => {
+    console.log(editor.allBlocks);
   },
-  editorProps: {
-    attributes: {
-      class: "editor",
-    },
+  editorDOMAttributes: {
+    class: "editor",
   },
 });
 

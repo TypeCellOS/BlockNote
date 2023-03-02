@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { BlockNoteEditor, Editor, Block, PartialBlock } from "../src";
+import { Block, BlockNoteEditor, PartialBlock } from "../src";
 
 const singleBlock: PartialBlock = {
   type: "paragraph",
@@ -51,16 +51,15 @@ afterEach(() => {
 
 describe("Inserting Blocks with Different Placements", () => {
   function insert(placement: "before" | "nested" | "after"): Block[] {
-    const editor = new BlockNoteEditor().tiptapEditor;
-    const editorAPI = new Editor(editor);
+    const editor = new BlockNoteEditor();
     (window as Window & { __TEST_OPTIONS?: {} }).__TEST_OPTIONS =
       (window as Window & { __TEST_OPTIONS?: {} }).__TEST_OPTIONS || {};
 
-    const existingBlock = editorAPI.allBlocks[0];
+    const existingBlock = editor.allBlocks[0];
 
-    editorAPI.insertBlocks(multipleBlocks, existingBlock, placement);
+    editor.insertBlocks(multipleBlocks, existingBlock, placement);
 
-    return editorAPI.allBlocks;
+    return editor.allBlocks;
   }
 
   it("Insert before existing block", async () => {
@@ -84,18 +83,17 @@ describe("Inserting Blocks with Different Placements", () => {
 
 describe("Insert, Update, & Delete Blocks", () => {
   it("Insert, update, & delete single block", async () => {
-    const editor = new BlockNoteEditor().tiptapEditor;
-    const editorAPI = new Editor(editor);
+    const editor = new BlockNoteEditor();
 
-    const existingBlock = editorAPI.allBlocks[0];
+    const existingBlock = editor.allBlocks[0];
 
-    editorAPI.insertBlocks([singleBlock], existingBlock);
+    editor.insertBlocks([singleBlock], existingBlock);
 
-    expect(editorAPI.allBlocks).toMatchSnapshot();
+    expect(editor.allBlocks).toMatchSnapshot();
 
-    const newBlock = editorAPI.allBlocks[0];
+    const newBlock = editor.allBlocks[0];
 
-    editorAPI.updateBlock(newBlock, {
+    editor.updateBlock(newBlock, {
       type: "heading",
       props: {
         textAlignment: "right",
@@ -128,37 +126,36 @@ describe("Insert, Update, & Delete Blocks", () => {
       children: [singleBlock],
     });
 
-    expect(editorAPI.allBlocks).toMatchSnapshot();
+    expect(editor.allBlocks).toMatchSnapshot();
 
-    const updatedBlock = editorAPI.allBlocks[0];
+    const updatedBlock = editor.allBlocks[0];
 
-    editorAPI.removeBlocks([updatedBlock]);
+    editor.removeBlocks([updatedBlock]);
 
-    expect(editorAPI.allBlocks).toMatchSnapshot();
+    expect(editor.allBlocks).toMatchSnapshot();
   });
 
   it("Insert, update, & delete multiple blocks", async () => {
-    const editor = new BlockNoteEditor().tiptapEditor;
-    const editorAPI = new Editor(editor);
+    const editor = new BlockNoteEditor();
 
-    const existingBlock = editorAPI.allBlocks[0];
+    const existingBlock = editor.allBlocks[0];
 
-    editorAPI.insertBlocks(multipleBlocks, existingBlock);
+    editor.insertBlocks(multipleBlocks, existingBlock);
 
-    expect(editorAPI.allBlocks).toMatchSnapshot();
+    expect(editor.allBlocks).toMatchSnapshot();
 
-    const newBlock = editorAPI.allBlocks[0];
+    const newBlock = editor.allBlocks[0];
 
-    editorAPI.updateBlock(newBlock, {
+    editor.updateBlock(newBlock, {
       type: "paragraph",
     });
 
-    expect(editorAPI.allBlocks).toMatchSnapshot();
+    expect(editor.allBlocks).toMatchSnapshot();
 
-    const updatedBlocks = editorAPI.allBlocks.slice(0, 2);
+    const updatedBlocks = editor.allBlocks.slice(0, 2);
 
-    editorAPI.removeBlocks([updatedBlocks[0].children[0], updatedBlocks[1]]);
+    editor.removeBlocks([updatedBlocks[0].children[0], updatedBlocks[1]]);
 
-    expect(editorAPI.allBlocks).toMatchSnapshot();
+    expect(editor.allBlocks).toMatchSnapshot();
   });
 });

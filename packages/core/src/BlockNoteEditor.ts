@@ -7,11 +7,17 @@ import styles from "./editor.module.css";
 import { SlashCommand } from "./extensions/SlashMenu";
 import { defaultSlashCommands } from "./extensions/SlashMenu/defaultSlashCommands";
 
-export type BlockNoteEditorOptions = EditorOptions & {
+export type BlockNoteEditorOptions = {
   enableBlockNoteExtensions: boolean;
   disableHistoryExtension: boolean;
   uiFactories: UiFactories;
   slashCommands: SlashCommand[];
+  element: HTMLElement;
+  editorDOMAttributes: Record<string, string>;
+  onUpdate: () => void;
+
+  // tiptap options, undocumented
+  _tiptapOptions: any;
 };
 
 const blockNoteOptions = {
@@ -20,10 +26,10 @@ const blockNoteOptions = {
   enableCoreExtensions: false,
 };
 
-export class BlockNoteEditor {
-  public readonly tiptapEditor: Editor & { contentComponent: any };
+export class BlockNoteEditor extends EditorAPI {
+  public readonly _tiptapEditor: Editor & { contentComponent: any };
   // TODO: design where to put this
-  public readonly api: EditorAPI;
+  // public readonly api: EditorAPI;
 
   constructor(options: Partial<BlockNoteEditorOptions> = {}) {
     const blockNoteExtensions = getBlockNoteExtensions({
@@ -35,28 +41,32 @@ export class BlockNoteEditor {
       ? blockNoteExtensions.filter((e) => e.name !== "history")
       : blockNoteExtensions;
 
-    const tiptapOptions = {
+    const tiptapOptions: EditorOptions = {
       ...blockNoteOptions,
-      ...options,
+      ...options._tiptapOptions,
+      onUpdate: () => {
+        options.onUpdate?.();
+      },
       extensions:
         options.enableBlockNoteExtensions === false
-          ? options.extensions
-          : [...(options.extensions || []), ...extensions],
+          ? options._tiptapOptions?.extensions
+          : [...(options._tiptapOptions?.extensions || []), ...extensions],
       editorProps: {
         attributes: {
-          ...(options.editorProps?.attributes || {}),
+          ...(options.editorDOMAttributes || {}),
           class: [
             styles.bnEditor,
             styles.bnRoot,
-            (options.editorProps?.attributes as any)?.class || "",
+            options.editorDOMAttributes?.class || "",
           ].join(" "),
         },
       },
     };
 
-    this.tiptapEditor = new Editor(tiptapOptions) as Editor & {
+    const _tiptapEditor = new Editor(tiptapOptions) as Editor & {
       contentComponent: any;
     };
-    this.api = new EditorAPI(this.tiptapEditor);
+    super(_tiptapEditor);
+    this._tiptapEditor = _tiptapEditor;
   }
 }

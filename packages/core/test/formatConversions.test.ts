@@ -1,11 +1,11 @@
+import { PartialBlock } from "@blocknote/core";
 import { describe, expect, it } from "vitest";
-import { Block, BlockNoteEditor, Editor } from "../src";
+import { BlockNoteEditor } from "../src";
 
-const editorAPI = new Editor(new BlockNoteEditor().tiptapEditor);
+const editorAPI = new BlockNoteEditor();
 
-const nonNestedBlocks: Block[] = [
+const nonNestedBlocks: PartialBlock[] = [
   {
-    id: null,
     type: "heading",
     props: {
       backgroundColor: "default",
@@ -22,7 +22,6 @@ const nonNestedBlocks: Block[] = [
     children: [],
   },
   {
-    id: null,
     type: "paragraph",
     props: {
       backgroundColor: "default",
@@ -38,7 +37,6 @@ const nonNestedBlocks: Block[] = [
     children: [],
   },
   {
-    id: null,
     type: "bulletListItem",
     props: {
       backgroundColor: "default",
@@ -54,7 +52,6 @@ const nonNestedBlocks: Block[] = [
     children: [],
   },
   {
-    id: null,
     type: "numberedListItem",
     props: {
       backgroundColor: "default",
@@ -108,9 +105,8 @@ describe("Non-Nested Block/HTML/Markdown Conversions", () => {
   });
 });
 
-const nestedBlocks: Block[] = [
+const nestedBlocks: PartialBlock[] = [
   {
-    id: null,
     type: "heading",
     props: {
       backgroundColor: "default",
@@ -126,7 +122,6 @@ const nestedBlocks: Block[] = [
     ],
     children: [
       {
-        id: null,
         type: "paragraph",
         props: {
           backgroundColor: "default",
@@ -141,7 +136,6 @@ const nestedBlocks: Block[] = [
         ],
         children: [
           {
-            id: null,
             type: "bulletListItem",
             props: {
               backgroundColor: "default",
@@ -156,7 +150,6 @@ const nestedBlocks: Block[] = [
             ],
             children: [
               {
-                id: null,
                 type: "numberedListItem",
                 props: {
                   backgroundColor: "default",
@@ -216,9 +209,8 @@ describe("Nested Block/HTML/Markdown Conversions", () => {
   // });
 });
 
-const styledBlocks: Block[] = [
+const styledBlocks: PartialBlock[] = [
   {
-    id: null,
     type: "paragraph",
     props: {
       backgroundColor: "default",
@@ -332,9 +324,8 @@ describe("Styled Block/HTML/Markdown Conversions", () => {
   });
 });
 
-const complexBlocks: Block[] = [
+const complexBlocks: PartialBlock[] = [
   {
-    id: null,
     type: "heading",
     props: {
       backgroundColor: "red",
@@ -350,7 +341,6 @@ const complexBlocks: Block[] = [
     ],
     children: [
       {
-        id: null,
         type: "heading",
         props: {
           backgroundColor: "orange",
@@ -366,7 +356,6 @@ const complexBlocks: Block[] = [
         ],
         children: [
           {
-            id: null,
             type: "heading",
             props: {
               backgroundColor: "yellow",
@@ -387,7 +376,6 @@ const complexBlocks: Block[] = [
     ],
   },
   {
-    id: null,
     type: "paragraph",
     props: {
       backgroundColor: "default",
@@ -416,7 +404,6 @@ const complexBlocks: Block[] = [
     children: [],
   },
   {
-    id: null,
     type: "paragraph",
     props: {
       backgroundColor: "default",
@@ -454,7 +441,6 @@ const complexBlocks: Block[] = [
     children: [],
   },
   {
-    id: null,
     type: "paragraph",
     props: {
       backgroundColor: "default",
@@ -492,7 +478,6 @@ const complexBlocks: Block[] = [
     children: [],
   },
   {
-    id: null,
     type: "bulletListItem",
     props: {
       backgroundColor: "default",
@@ -508,7 +493,6 @@ const complexBlocks: Block[] = [
     children: [],
   },
   {
-    id: null,
     type: "bulletListItem",
     props: {
       backgroundColor: "default",
@@ -523,7 +507,6 @@ const complexBlocks: Block[] = [
     ],
     children: [
       {
-        id: null,
         type: "bulletListItem",
         props: {
           backgroundColor: "default",
@@ -538,7 +521,6 @@ const complexBlocks: Block[] = [
         ],
         children: [
           {
-            id: null,
             type: "bulletListItem",
             props: {
               backgroundColor: "default",
@@ -554,7 +536,6 @@ const complexBlocks: Block[] = [
             children: [],
           },
           {
-            id: null,
             type: "paragraph",
             props: {
               backgroundColor: "default",
@@ -570,7 +551,6 @@ const complexBlocks: Block[] = [
             children: [],
           },
           {
-            id: null,
             type: "numberedListItem",
             props: {
               backgroundColor: "default",
@@ -586,7 +566,6 @@ const complexBlocks: Block[] = [
             children: [],
           },
           {
-            id: null,
             type: "numberedListItem",
             props: {
               backgroundColor: "default",
@@ -602,7 +581,6 @@ const complexBlocks: Block[] = [
             children: [],
           },
           {
-            id: null,
             type: "numberedListItem",
             props: {
               backgroundColor: "default",
@@ -617,7 +595,6 @@ const complexBlocks: Block[] = [
             ],
             children: [
               {
-                id: null,
                 type: "numberedListItem",
                 props: {
                   backgroundColor: "default",
@@ -635,7 +612,6 @@ const complexBlocks: Block[] = [
             ],
           },
           {
-            id: null,
             type: "bulletListItem",
             props: {
               backgroundColor: "default",
@@ -653,7 +629,6 @@ const complexBlocks: Block[] = [
         ],
       },
       {
-        id: null,
         type: "bulletListItem",
         props: {
           backgroundColor: "default",
@@ -671,7 +646,6 @@ const complexBlocks: Block[] = [
     ],
   },
   {
-    id: null,
     type: "bulletListItem",
     props: {
       backgroundColor: "default",

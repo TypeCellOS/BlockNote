@@ -1,12 +1,11 @@
 import { describe, expect, it } from "vitest";
+import { BlockNoteEditor, PartialBlock } from "../src";
 import {
-  PartialBlock,
-  BlockNoteEditor,
   blockToNode,
   nodeToBlock,
-} from "../src";
+} from "../src/api/nodeConversions/nodeConversions";
 
-const editor = new BlockNoteEditor().tiptapEditor;
+const editor = new BlockNoteEditor()._tiptapEditor;
 
 const simpleBlock: PartialBlock = {
   type: "paragraph",

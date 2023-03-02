@@ -1,9 +1,9 @@
 import { BlockNoteEditor, BlockNoteEditorOptions } from "@blocknote/core";
 import { DependencyList, useEffect, useState } from "react";
+import { ReactBlockSideMenuFactory } from "../BlockSideMenu/BlockSideMenuFactory";
 import { ReactFormattingToolbarFactory } from "../FormattingToolbar/FormattingToolbarFactory";
 import { ReactHyperlinkToolbarFactory } from "../HyperlinkToolbar/HyperlinkToolbarFactory";
 import { ReactSlashMenuFactory } from "../SlashMenu/SlashMenuFactory";
-import { ReactBlockSideMenuFactory } from "../BlockSideMenu/BlockSideMenuFactory";
 
 //based on https://github.com/ueberdosis/tiptap/blob/main/packages/react/src/useEditor.ts
 
@@ -42,7 +42,7 @@ export const useBlockNote = (
 
     setEditor(instance);
 
-    instance.tiptapEditor.on("transaction", () => {
+    instance._tiptapEditor.on("transaction", () => {
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           if (isMounted) {
@@ -53,7 +53,7 @@ export const useBlockNote = (
     });
 
     return () => {
-      instance.tiptapEditor.destroy();
+      instance._tiptapEditor.destroy();
       isMounted = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
