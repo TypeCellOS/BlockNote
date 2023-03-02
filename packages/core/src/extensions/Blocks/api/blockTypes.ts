@@ -1,5 +1,7 @@
 import { StyledText } from "./styleTypes";
 
+/** Define the main block types **/
+
 export type BlockTemplate<
   // Type of the block.
   // Examples might include: "paragraph", "heading", or "bulletListItem".
@@ -14,23 +16,6 @@ export type BlockTemplate<
   content: StyledText[];
   children: Block[];
 };
-
-export type PartialBlockTemplate<Template> = Template extends BlockTemplate<
-  infer Type,
-  infer Props
->
-  ? {
-      id?: string;
-      type: Type;
-      props?: Partial<Props>;
-      content?: string | StyledText[];
-      children?: PartialBlock[];
-    }
-  : never;
-
-export type BlockPropsTemplate<Props> = Props extends Block["props"]
-  ? keyof Props
-  : never;
 
 export type GlobalProps = {
   backgroundColor: string;
@@ -60,20 +45,38 @@ export type Block =
   | BulletListItemBlock
   | NumberedListItemBlock;
 
-// @ts-ignore
+/** Define "Partial Blocks", these are for updating or creating blocks */
+export type PartialBlockTemplate<B extends Block> = B extends Block
+  ? Partial<Omit<B, "props" | "children" | "type">> & {
+      type: B["type"];
+      props?: Partial<B["props"]>;
+      children?: PartialBlock[];
+    }
+  : never;
+
 export type PartialBlock = PartialBlockTemplate<Block>;
 
-export type BlockProps = BlockPropsTemplate<PartialBlock["props"]>;
+export type BlockPropsTemplate<Props> = Props extends Block["props"]
+  ? keyof Props
+  : never;
 
-// TODO: Better way of doing this type guard?
+/**
+ * Expose blockProps. This is currently not very nice, but it's expected this
+ * will change anyway once we allow for custom blocks
+ */
+
 export const globalProps: Array<keyof GlobalProps> = [
   "backgroundColor",
   "textColor",
   "textAlignment",
 ];
-export const blockProps: Record<Block["type"], Set<BlockProps>> = {
+
+export const blockProps: Record<Block["type"], Set<string>> = {
   paragraph: new Set<keyof ParagraphBlock["props"]>([...globalProps]),
-  heading: new Set<keyof HeadingBlock["props"]>([...globalProps, "level"]),
+  heading: new Set<keyof HeadingBlock["props"]>([
+    ...globalProps,
+    "level" as const,
+  ]),
   numberedListItem: new Set<keyof NumberedListItemBlock["props"]>([
     ...globalProps,
   ]),

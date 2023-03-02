@@ -1,12 +1,11 @@
 import { Node, Schema } from "prosemirror-model";
-import { getBlockInfoFromPos } from "../../extensions/Blocks/helpers/getBlockInfoFromPos";
 import {
   Block,
-  BlockProps,
   blockProps,
   PartialBlock,
 } from "../../extensions/Blocks/api/blockTypes";
 import { Style, StyledText } from "../../extensions/Blocks/api/styleTypes";
+import { getBlockInfoFromPos } from "../../extensions/Blocks/helpers/getBlockInfoFromPos";
 import UniqueID from "../../extensions/UniqueID/UniqueID";
 
 export function blockToNode(block: PartialBlock, schema: Schema) {
@@ -47,7 +46,7 @@ export function blockToNode(block: PartialBlock, schema: Schema) {
   return schema.nodes["blockContainer"].create(
     {
       id: id,
-      ...block.props
+      ...block.props,
     },
     children.length > 0 ? [contentNode, groupNode] : contentNode
   );
@@ -70,11 +69,11 @@ export function getNodeById(
     if (node.type.name !== "blockContainer" || node.attrs.id !== id) {
       return true;
     }
-    console.log("grdgrdgrdgdr")
-    console.log(doc.resolve(pos).node().type.name)
-    console.log(doc.resolve(pos+ 1).node().type.name)
-    console.log(doc.resolve(pos+2).node().type.name)
-    console.log("grdgrdgrdgdr")
+    console.log("grdgrdgrdgdr");
+    console.log(doc.resolve(pos).node().type.name);
+    console.log(doc.resolve(pos + 1).node().type.name);
+    console.log(doc.resolve(pos + 2).node().type.name);
+    console.log("grdgrdgrdgdr");
 
     targetNode = node;
     posBeforeNode = pos + 1;
@@ -97,7 +96,11 @@ export function nodeToBlock(
   blockCache?: WeakMap<Node, Block>
 ): Block {
   if (node.type.name !== "blockContainer") {
-    throw Error("Node must be of type blockContainer, but is of type" + node.type.name + ".")
+    throw Error(
+      "Node must be of type blockContainer, but is of type" +
+        node.type.name +
+        "."
+    );
   }
 
   const cachedBlock = blockCache?.get(node);
@@ -112,7 +115,7 @@ export function nodeToBlock(
 
   // Only used for blocks converted from other formats.
   if (id === null) {
-    id =  UniqueID.options.generateID()
+    id = UniqueID.options.generateID();
   }
 
   const props: any = {};
@@ -128,7 +131,7 @@ export function nodeToBlock(
 
     const validAttrs = blockProps[blockInfo.contentType.name as Block["type"]];
 
-    if (validAttrs.has(attr as BlockProps)) {
+    if (validAttrs.has(attr)) {
       props[attr] = value;
     }
   }
