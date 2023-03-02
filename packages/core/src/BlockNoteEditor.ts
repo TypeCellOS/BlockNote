@@ -4,15 +4,14 @@ import { Editor, EditorOptions } from "@tiptap/core";
 import { Editor as EditorAPI } from "./api/Editor";
 import { getBlockNoteExtensions, UiFactories } from "./BlockNoteExtensions";
 import styles from "./editor.module.css";
-import { SlashCommand } from "./extensions/SlashMenu";
-import { defaultSlashCommands } from "./extensions/SlashMenu";
+import { defaultSlashCommands, SlashCommand } from "./extensions/SlashMenu";
 
 export type BlockNoteEditorOptions = {
   enableBlockNoteExtensions: boolean;
   disableHistoryExtension: boolean;
   uiFactories: UiFactories;
   slashCommands: SlashCommand[];
-  element: HTMLElement;
+  parentElement: HTMLElement;
   editorDOMAttributes: Record<string, string>;
   onUpdate: () => void;
   onCreate: () => void;
@@ -21,7 +20,7 @@ export type BlockNoteEditorOptions = {
   _tiptapOptions: any;
 };
 
-const blockNoteOptions = {
+const blockNoteTipTapOptions = {
   enableInputRules: true,
   enablePasteRules: true,
   enableCoreExtensions: false,
@@ -29,6 +28,10 @@ const blockNoteOptions = {
 
 export class BlockNoteEditor extends EditorAPI {
   public readonly _tiptapEditor: Editor & { contentComponent: any };
+
+  public get domElement() {
+    return this._tiptapEditor.view.dom as HTMLDivElement;
+  }
 
   constructor(options: Partial<BlockNoteEditorOptions> = {}) {
     const blockNoteExtensions = getBlockNoteExtensions({
@@ -41,7 +44,7 @@ export class BlockNoteEditor extends EditorAPI {
       : blockNoteExtensions;
 
     const tiptapOptions: EditorOptions = {
-      ...blockNoteOptions,
+      ...blockNoteTipTapOptions,
       ...options._tiptapOptions,
       onUpdate: () => {
         options.onUpdate?.();

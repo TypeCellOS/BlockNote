@@ -6,7 +6,7 @@ import { hyperlinkToolbarFactory } from "./ui/hyperlinkToolbarFactory";
 import { slashMenuFactory } from "./ui/slashMenuFactory";
 
 const editor = new BlockNoteEditor({
-  element: document.getElementById("root")!,
+  parentElement: document.getElementById("root")!,
   uiFactories: {
     // Create an example formatting toolbar which just consists of a bold toggle
     formattingToolbarFactory,
