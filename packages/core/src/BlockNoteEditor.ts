@@ -5,7 +5,7 @@ import { Editor as EditorAPI } from "./api/Editor";
 import { getBlockNoteExtensions, UiFactories } from "./BlockNoteExtensions";
 import styles from "./editor.module.css";
 import { SlashCommand } from "./extensions/SlashMenu";
-import { defaultSlashCommands } from "./extensions/SlashMenu/defaultSlashCommands";
+import { defaultSlashCommands } from "./extensions/SlashMenu";
 
 export type BlockNoteEditorOptions = {
   enableBlockNoteExtensions: boolean;
@@ -15,6 +15,7 @@ export type BlockNoteEditorOptions = {
   element: HTMLElement;
   editorDOMAttributes: Record<string, string>;
   onUpdate: () => void;
+  onCreate: () => void;
 
   // tiptap options, undocumented
   _tiptapOptions: any;
@@ -44,6 +45,9 @@ export class BlockNoteEditor extends EditorAPI {
       ...options._tiptapOptions,
       onUpdate: () => {
         options.onUpdate?.();
+      },
+      onCreate: () => {
+        options.onCreate?.();
       },
       extensions:
         options.enableBlockNoteExtensions === false
