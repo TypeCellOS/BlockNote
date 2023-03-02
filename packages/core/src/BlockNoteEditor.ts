@@ -28,8 +28,6 @@ const blockNoteOptions = {
 
 export class BlockNoteEditor extends EditorAPI {
   public readonly _tiptapEditor: Editor & { contentComponent: any };
-  // TODO: design where to put this
-  // public readonly api: EditorAPI;
 
   constructor(options: Partial<BlockNoteEditorOptions> = {}) {
     const blockNoteExtensions = getBlockNoteExtensions({
