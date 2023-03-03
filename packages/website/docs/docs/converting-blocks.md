@@ -7,7 +7,7 @@ This page will explain:
 
 ## Converting Blocks To & From HTML
 
-If you need to describe blocks using HTML rather than `Block` objects, BlockNote provides editor functions for converting between the two formats.
+If you need to describe blocks using HTML instead `Block` objects, BlockNote makes it easy to convert between the two formats.
 
 ### Converting Blocks to HTML
 
@@ -15,21 +15,21 @@ If you need to describe blocks using HTML rather than `Block` objects, BlockNote
 
 ```typescript
 // Definition
-class BlockNoteAPI {
+class BlockNoteEditor {
 ...
   public blocksToHTML(blocks: Block[]): string;
 ...
 }
 
 // Usage
-const HTMLFromBlocks = editorAPI.blocksToHTML(blocks);
+const HTMLFromBlocks = editor.blocksToHTML(blocks);
 ```
 
-The HTML obtained from this function is different to what's rendered in the browser by BlockNote to better comply with HTML standards, which causes some information to be lost. This results in a number of differences:
+The HTML from this function is different to what you'll see rendered in the browser by BlockNote in order to better comply with HTML standards:
 
-1. HTML `div` elements used to create the block structure are removed to ease parsing the output HTML outside BlockNote. This also removes changes in appearance caused by the block's properties.
-2. All blocks except those inside list item blocks are no longer nested, as the block structuring `div` elements have been removed, and most HTML text elements, such as `p` elements, don't support nesting.
-3. List item blocks are wrapped in corresponding `ul`/`ol` and `li` elements.
+1. HTML `div` elements used to structure blocks are removed. This also removes the block's properties.
+2. All blocks except those inside list item blocks are no longer nested, since there are no more block structuring `div` elements to nest them in.
+3. Content from list item blocks is wrapped in `ul`/`ol` and `li` elements.
 
 **Example**
 
@@ -41,17 +41,17 @@ TODO
 
 ```typescript
 // Definition
-class BlockNoteAPI {
+class BlockNoteEditor {
 ...
   public HTMLToBlocks(html: string): Blocks[];
 ...
 }
 
 // Usage
-const blocksFromHTML = editorAPI.HTMLToBlocks(html);
+const blocksFromHTML = editor.HTMLToBlocks(html);
 ```
 
-This function preserves all information from the HTML string that can be represented in BlockNote. This means BlockNote will try to create `Block` objects out of any HTML block-level elements, and determine their type based on the tag. Additionally, it'll try to create `StyledText` objects from any HTML inline elements. It also preserves all nesting.
+This function will try to create `Block` objects out of any HTML block-level elements, and`InlineNode` objects from any HTML inline elements, though not all types of elements are recognized. If BlockNote doesn't recognize an HTML element's tag, it will parse it as a paragraph or text.
 
 **Example**
 
@@ -67,21 +67,21 @@ If you need to describe blocks using Markdown rather than `Block` objects, Block
 
 ```typescript
 // Definition
-class BlockNoteAPI {
+class BlockNoteEditor {
 ...
   public blocksToMarkdown(blocks: Block[]): string;
 ...
 }
 
 // Usage
-const markdownFromBlocks = editorAPI.blocksToMarkdown(blocks);
+const markdownFromBlocks = editor.blocksToMarkdown(blocks);
 ```
 
-The Markdown obtained from this function does not preserve all information provided in the `Block` objects due to the inherent limitations of Markdown. This results in a number of features being lost:
+Some features of blocks can't be represented using Markdown, such as block color or text alignment, so some information is lost from the conversion:
 
-1. All block structure is removed, as Markdown has no way of encoding that. This also removes changes in appearance caused by the block's properties.
-2. All blocks except those inside list item blocks are no longer nested, as Markdown only supports nesting for list items.
-3. Underline, text color, and background color styles are removed as Markdown has no support for them.
+1. All block structure is removed, only type and content are kept.
+2. All blocks, except ones inside list items, are no longer nested since Markdown doesn't support nesting for them.
+3. Underline, text color, and background color styles are removed as Markdown doesn't support them.
 
 **Example**
 
@@ -93,17 +93,17 @@ TODO
 
 ```typescript
 // Definition
-class BlockNoteAPI {
+class BlockNoteEditor {
 ...
   public markdownToBlocks(markdown: string): Blocks[];
 ...
 }
 
 // Usage
-const blocksFromMarkdown = editorAPI.markdownToBlocks(markdown);
+const blocksFromMarkdown = editor.markdownToBlocks(markdown);
 ```
 
-This function preserves all information from the Markdown string that can be represented in BlockNote. This means will try to `Block` objects and `StyledText` objects based on the syntax. It also preserves list item nesting.
+This function will try to create `Block` objects and `InlineNode` objects based on the Markdown syntax, though not all symbols are recognized. If BlockNote doesn't recognize a symbol, it will parse it as text.
 
 **Example**
 
