@@ -1,6 +1,6 @@
-import { StyledText } from "./styleTypes";
-
 /** Define the main block types **/
+
+import { InlineContent } from "./inlineContentTypes";
 
 export type BlockTemplate<
   // Type of the block.
@@ -13,7 +13,7 @@ export type BlockTemplate<
   id: string;
   type: Type;
   props: Props;
-  content: StyledText[];
+  content: InlineContent[];
   children: Block[];
 };
 

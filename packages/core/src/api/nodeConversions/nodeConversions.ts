@@ -4,7 +4,10 @@ import {
   blockProps,
   PartialBlock,
 } from "../../extensions/Blocks/api/blockTypes";
-import { Style, StyledText } from "../../extensions/Blocks/api/styleTypes";
+import {
+  InlineContent,
+  Style,
+} from "../../extensions/Blocks/api/inlineContentTypes";
 import { getBlockInfoFromPos } from "../../extensions/Blocks/helpers/getBlockInfoFromPos";
 import UniqueID from "../../extensions/UniqueID/UniqueID";
 
@@ -131,7 +134,7 @@ export function nodeToBlock(
     }
   }
 
-  const content: StyledText[] = [];
+  const content: InlineContent[] = [];
   blockInfo.contentNode.content.forEach((node) => {
     const styles: Style[] = [];
 
@@ -144,7 +147,7 @@ export function nodeToBlock(
 
     content.push({
       text: node.textContent,
-      styles: styles,
+      styles,
     });
   });
 
@@ -154,11 +157,11 @@ export function nodeToBlock(
   }
 
   const block: Block = {
-    id: id,
+    id,
     type: blockInfo.contentType.name as Block["type"],
-    props: props,
-    content: content,
-    children: children,
+    props,
+    content,
+    children,
   };
 
   blockCache?.set(node, block);

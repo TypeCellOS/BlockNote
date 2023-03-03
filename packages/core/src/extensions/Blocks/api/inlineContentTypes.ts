@@ -40,3 +40,5 @@ export type StyledText = {
   text: string;
   styles: Style[];
 };
+
+export type InlineContent = StyledText;
