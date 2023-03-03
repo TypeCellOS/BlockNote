@@ -95,11 +95,7 @@ export function removeBlocks(blocksToRemove: Block[], editor: Editor) {
   });
 
   if (idsOfBlocksToRemove.size > 0) {
-    let notFoundIds = "";
-
-    for (const id of Array.from(idsOfBlocksToRemove)) {
-      notFoundIds += "\n" + id;
-    }
+    let notFoundIds = [...idsOfBlocksToRemove].join("\n");
 
     throw Error(
       "Blocks with the following IDs could not be found in the editor: " +
