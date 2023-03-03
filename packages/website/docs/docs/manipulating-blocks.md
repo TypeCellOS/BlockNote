@@ -193,7 +193,7 @@ Since the `blocksToInsert` argument is an array of `PartialBlock` objects, some 
 id = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX";
 ```
 
-`props` is assigned an object with entries that depends on `type`. If `props` is partially defined, entries are added, again depending on the value of `type`. You can find out more about the properties of different block types in [Default Block Types](block-types#default-block-types), as well as their default values.
+`props` is assigned an object with entries that depends on `type`. If `props` is partially defined, entries are added, again depending on the value of `type`. You can find out more about the properties of different block types in [Block Types](block-types#block-types), as well as their default values.
 
 `content` is assigned an empty string:
 ```typescript
@@ -232,7 +232,7 @@ editor.updateBlock(blockToUpdate, updatedBlock)
 
 Since the `updatedBlock` argument is a `PartialBlock` object, some fields might not be defined. When updating existing blocks, we just copy over the values from `blockToUpdate`.
 
-However, only properties which are compatible with the updated block type are kept and new ones may be added. You can find out more about the properties of different block types in [Default Block Types](block-types#default-block-types), as well as their default values.
+However, only properties which are compatible with the updated type are kept. If `props` is partially defined, entries are added, again depending on the value of `type`. You can find out more about the properties of different block types in [Block Types](block-types#block-types), as well as their default values.
 
 ## Removing Blocks
 
@@ -281,4 +281,4 @@ editor.replaceBlocks(blocksToRemove, blocksToInsert)
 
 **Additional Information**
 
-If the blocks provided in `blocksToRemove` are not adjacent or are at different nesting levels, `blocksToInsert` will be inserted in place of the first element in the array.
+If the blocks provided in `blocksToRemove` are not adjacent or are at different nesting levels, `blocksToInsert` will be inserted in place of the first block in the array.
