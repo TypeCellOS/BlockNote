@@ -40,3 +40,8 @@ Tippy popups that are appended to document.body directly
 
   color: rgb(60, 65, 73);
 }
+
+.dragPreview {
+  position: absolute;
+  top: -1000px;
+}
