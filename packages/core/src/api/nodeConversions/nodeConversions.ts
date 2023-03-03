@@ -69,11 +69,6 @@ export function getNodeById(
     if (node.type.name !== "blockContainer" || node.attrs.id !== id) {
       return true;
     }
-    console.log("grdgrdgrdgdr");
-    console.log(doc.resolve(pos).node().type.name);
-    console.log(doc.resolve(pos + 1).node().type.name);
-    console.log(doc.resolve(pos + 2).node().type.name);
-    console.log("grdgrdgrdgdr");
 
     targetNode = node;
     posBeforeNode = pos + 1;
