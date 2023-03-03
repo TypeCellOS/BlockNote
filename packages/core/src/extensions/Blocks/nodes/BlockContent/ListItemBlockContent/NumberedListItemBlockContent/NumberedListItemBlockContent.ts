@@ -1,7 +1,7 @@
 import { InputRule, mergeAttributes, Node } from "@tiptap/core";
-import { NumberedListIndexingPlugin } from "./NumberedListIndexingPlugin";
 import styles from "../../../Block.module.css";
 import { handleEnter } from "../ListItemKeyboardShortcuts";
+import { NumberedListIndexingPlugin } from "./NumberedListIndexingPlugin";
 
 export const NumberedListItemBlockContent = Node.create({
   name: "numberedListItem",
@@ -52,6 +52,8 @@ export const NumberedListItemBlockContent = Node.create({
 
   parseHTML() {
     return [
+      // Case for regular HTML list structure.
+      // (e.g.: when pasting from other apps)
       {
         tag: "li",
         getAttrs: (element) => {
@@ -65,18 +67,36 @@ export const NumberedListItemBlockContent = Node.create({
             return false;
           }
 
-          // Case for BlockNote list structure.
-          if (parent.getAttribute("data-content-type") === "numberedListItem") {
-            return {};
-          }
-
-          // Case for regular HTML list structure.
           if (parent.tagName === "OL") {
             return {};
           }
 
           return false;
         },
+        node: "blockContainer",
+      },
+      // Case for BlockNote list structure.
+      // (e.g.: when pasting from blocknote)
+      {
+        tag: "p",
+        getAttrs: (element) => {
+          if (typeof element === "string") {
+            return false;
+          }
+
+          const parent = element.parentElement;
+
+          if (parent === null) {
+            return false;
+          }
+
+          if (parent.getAttribute("data-content-type") === "numberedListItem") {
+            return {};
+          }
+
+          return false;
+        },
+        priority: 300,
         node: "blockContainer",
       },
     ];
@@ -89,7 +109,9 @@ export const NumberedListItemBlockContent = Node.create({
         class: styles.blockContent,
         "data-content-type": this.name,
       }),
-      ["li", 0],
+      // we use a <p> tag, because for <li> tags we'd need to add a <ul> parent for around siblings to be semantically correct,
+      // which would be quite cumbersome
+      ["p", 0],
     ];
   },
 });

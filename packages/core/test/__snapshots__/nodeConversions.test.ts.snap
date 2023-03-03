@@ -1,0 +1,193 @@
+// Vitest Snapshot v1
+
+exports[`Complex ProseMirror Node Conversions > Convert complex block to node 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "blue",
+    "id": 4,
+    "textColor": "yellow",
+  },
+  "content": [
+    {
+      "attrs": {
+        "level": "2",
+        "textAlignment": "right",
+      },
+      "content": [
+        {
+          "marks": [
+            {
+              "type": "bold",
+            },
+            {
+              "type": "underline",
+            },
+          ],
+          "text": "Heading ",
+          "type": "text",
+        },
+        {
+          "marks": [
+            {
+              "type": "italic",
+            },
+            {
+              "type": "strike",
+            },
+          ],
+          "text": "2",
+          "type": "text",
+        },
+      ],
+      "type": "heading",
+    },
+    {
+      "content": [
+        {
+          "attrs": {
+            "backgroundColor": "red",
+            "id": 5,
+            "textColor": "default",
+          },
+          "content": [
+            {
+              "attrs": {
+                "textAlignment": "left",
+              },
+              "content": [
+                {
+                  "text": "Paragraph",
+                  "type": "text",
+                },
+              ],
+              "type": "paragraph",
+            },
+          ],
+          "type": "blockContainer",
+        },
+        {
+          "attrs": {
+            "backgroundColor": "default",
+            "id": 6,
+            "textColor": "default",
+          },
+          "content": [
+            {
+              "attrs": {
+                "textAlignment": "left",
+              },
+              "type": "bulletListItem",
+            },
+          ],
+          "type": "blockContainer",
+        },
+      ],
+      "type": "blockGroup",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Complex ProseMirror Node Conversions > Convert complex node to block 1`] = `
+{
+  "children": [
+    {
+      "children": [],
+      "content": [
+        {
+          "styles": [],
+          "text": "Paragraph",
+        },
+      ],
+      "id": 2,
+      "props": {
+        "backgroundColor": "red",
+        "textAlignment": "left",
+        "textColor": "default",
+      },
+      "type": "paragraph",
+    },
+    {
+      "children": [],
+      "content": [],
+      "id": 3,
+      "props": {
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
+      },
+      "type": "bulletListItem",
+    },
+  ],
+  "content": [
+    {
+      "styles": [
+        {
+          "props": {},
+          "type": "bold",
+        },
+        {
+          "props": {},
+          "type": "underline",
+        },
+      ],
+      "text": "Heading ",
+    },
+    {
+      "styles": [
+        {
+          "props": {},
+          "type": "italic",
+        },
+        {
+          "props": {},
+          "type": "strike",
+        },
+      ],
+      "text": "2",
+    },
+  ],
+  "id": 1,
+  "props": {
+    "backgroundColor": "blue",
+    "level": "2",
+    "textAlignment": "right",
+    "textColor": "yellow",
+  },
+  "type": "heading",
+}
+`;
+
+exports[`Simple ProseMirror Node Conversions > Convert simple block to node 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": 4,
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "textAlignment": "left",
+      },
+      "type": "paragraph",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Simple ProseMirror Node Conversions > Convert simple node to block 1`] = `
+{
+  "children": [],
+  "content": [],
+  "id": 0,
+  "props": {
+    "backgroundColor": "default",
+    "textAlignment": "left",
+    "textColor": "default",
+  },
+  "type": "paragraph",
+}
+`;

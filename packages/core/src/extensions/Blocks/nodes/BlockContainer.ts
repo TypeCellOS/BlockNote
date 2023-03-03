@@ -1,7 +1,8 @@
 import { mergeAttributes, Node } from "@tiptap/core";
-import { Fragment, Slice } from "prosemirror-model";
+import { Fragment, Node as PMNode, Slice } from "prosemirror-model";
 import { TextSelection } from "prosemirror-state";
-import { BlockUpdate } from "../apiTypes";
+import { blockToNode } from "../../../api/nodeConversions/nodeConversions";
+import { PartialBlock } from "../api/blockTypes";
 import { getBlockInfoFromPos } from "../helpers/getBlockInfoFromPos";
 import { PreviousBlockTypePlugin } from "../PreviousBlockTypePlugin";
 import styles from "./Block.module.css";
@@ -19,13 +20,10 @@ declare module "@tiptap/core" {
       BNDeleteBlock: (posInBlock: number) => ReturnType;
       BNMergeBlocks: (posBetweenBlocks: number) => ReturnType;
       BNSplitBlock: (posInBlock: number, keepType: boolean) => ReturnType;
-      BNUpdateBlock: (
-        posInBlock: number,
-        blockUpdate: BlockUpdate
-      ) => ReturnType;
+      BNUpdateBlock: (posInBlock: number, block: PartialBlock) => ReturnType;
       BNCreateOrUpdateBlock: (
         posInBlock: number,
-        blockUpdate: BlockUpdate
+        block: PartialBlock
       ) => ReturnType;
     };
   }
@@ -197,8 +195,7 @@ export const BlockContainer = Node.create<IBlock>({
           }
 
           // Deletes next block and adds its text content to the nearest previous block.
-          // TODO: Is there any situation where we need the whole block content, not just text? Implementation for this
-          //  is trickier.
+          // TODO: Use slices.
           if (dispatch) {
             state.tr.deleteRange(startPos, startPos + contentNode.nodeSize);
             state.tr.insertText(contentNode.textContent, prevBlockEndPos - 1);
@@ -283,35 +280,88 @@ export const BlockContainer = Node.create<IBlock>({
 
           return true;
         },
-      // Updates the type and attributes of a block at a given position.
+      // Updates a block to the given specification.
       BNUpdateBlock:
-        (posInBlock, blockUpdate) =>
+        (posInBlock, block) =>
         ({ state, dispatch }) => {
           const blockInfo = getBlockInfoFromPos(state.doc, posInBlock);
           if (blockInfo === undefined) {
             return false;
           }
 
-          const { node, startPos, contentNode } = blockInfo;
+          const { startPos, endPos, node, contentNode } = blockInfo;
 
           if (dispatch) {
-            state.tr.setBlockType(
-              startPos + 1,
-              startPos + contentNode.nodeSize + 1,
-              state.schema.node(blockUpdate.type).type,
-              {
-                ...node.attrs,
-                ...blockUpdate.props,
+            // Adds blockGroup node with child blocks if necessary.
+            if (block.children !== undefined) {
+              const childNodes = [];
+
+              // Creates ProseMirror nodes for each child block, including their descendants.
+              for (const child of block.children) {
+                childNodes.push(blockToNode(child, state.schema));
               }
-            );
+
+              // Checks if a blockGroup node already exists.
+              if (node.childCount === 2) {
+                // Replaces all child nodes in the existing blockGroup with the ones created earlier.
+                state.tr.replace(
+                  startPos + contentNode.nodeSize + 1,
+                  endPos - 1,
+                  new Slice(Fragment.from(childNodes), 0, 0)
+                );
+              } else {
+                // Inserts a new blockGroup containing the child nodes created earlier.
+                state.tr.insert(
+                  startPos + contentNode.nodeSize,
+                  state.schema.nodes["blockGroup"].create({}, childNodes)
+                );
+              }
+            }
+
+            // Replaces the blockContent node's content if necessary.
+            if (block.content !== undefined) {
+              let content: PMNode[] = [];
+
+              // Checks if the provided content is a string or InlineContent[] type.
+              if (typeof block.content === "string") {
+                // Adds a single text node with no marks to the content.
+                content.push(state.schema.text(block.content));
+              } else {
+                // Adds a text node with the provided styles converted into marks to the content, for each InlineContent
+                // object.
+                for (const styledText of block.content) {
+                  const marks = [];
+
+                  for (const style of styledText.styles) {
+                    marks.push(state.schema.mark(style.type, style.props));
+                  }
+
+                  content.push(state.schema.text(styledText.text, marks));
+                }
+              }
+
+              // Replaces the contents of the blockContent node with the previously created text node(s).
+              state.tr.replace(
+                startPos + 1,
+                startPos + contentNode.nodeSize - 1,
+                new Slice(Fragment.from(content), 0, 0)
+              );
+            }
+
+            // Changes the block type and adds the provided props as node attributes. Also preserves all existing node
+            // attributes that are compatible with the new type.
+            state.tr.setNodeMarkup(startPos, state.schema.nodes[block.type], {
+              ...contentNode.attrs,
+              ...block.props,
+            });
           }
 
           return true;
         },
-      // Changes the block at a given position to a given content type if it's empty, otherwise creates a new block of
-      // that type below it.
+      // Updates a block to the given specification if it's empty, otherwise creates a new block from that specification
+      // below it.
       BNCreateOrUpdateBlock:
-        (posInBlock, blockUpdate) =>
+        (posInBlock, block) =>
         ({ state, chain }) => {
           const blockInfo = getBlockInfoFromPos(state.doc, posInBlock);
           if (blockInfo === undefined) {
@@ -324,7 +374,7 @@ export const BlockContainer = Node.create<IBlock>({
             const oldBlockContentPos = startPos + 1;
 
             return chain()
-              .BNUpdateBlock(posInBlock, blockUpdate)
+              .BNUpdateBlock(posInBlock, block)
               .setTextSelection(oldBlockContentPos)
               .run();
           } else {
@@ -333,7 +383,7 @@ export const BlockContainer = Node.create<IBlock>({
 
             return chain()
               .BNCreateBlock(newBlockInsertionPos)
-              .BNUpdateBlock(newBlockContentPos, blockUpdate)
+              .BNUpdateBlock(newBlockContentPos, block)
               .setTextSelection(newBlockContentPos)
               .run();
           }

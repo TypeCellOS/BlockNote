@@ -7,17 +7,17 @@ type WindowWithProseMirror = Window & typeof globalThis & { ProseMirror: any };
 
 function App() {
   const editor = useBlockNote({
-    onUpdate: ({ editor }) => {
-      console.log(editor.getJSON());
-      (window as WindowWithProseMirror).ProseMirror = editor; // Give tests a way to get editor instance
+    onUpdate: () => {
+      // console.log(editor.getJSON());
     },
-    editorProps: {
-      attributes: {
-        class: styles.editor,
-        "data-test": "editor",
-      },
+    editorDOMAttributes: {
+      class: styles.editor,
+      "data-test": "editor",
     },
   });
+
+  // Give tests a way to get prosemirror instance
+  (window as WindowWithProseMirror).ProseMirror = editor?._tiptapEditor;
 
   return <BlockNoteView editor={editor} />;
 }

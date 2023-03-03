@@ -1,0 +1,601 @@
+// Vitest Snapshot v1
+
+exports[`Insert, Update, & Delete Blocks > Insert, update, & delete multiple blocks 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": [],
+            "text": "Nested Heading 1",
+          },
+        ],
+        "id": 2,
+        "props": {
+          "backgroundColor": "default",
+          "level": "1",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "heading",
+      },
+    ],
+    "content": [
+      {
+        "styles": [],
+        "text": "Heading 1",
+      },
+    ],
+    "id": 1,
+    "props": {
+      "backgroundColor": "default",
+      "level": "1",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "heading",
+  },
+  {
+    "children": [
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": [],
+            "text": "Nested Heading 2",
+          },
+        ],
+        "id": 4,
+        "props": {
+          "backgroundColor": "default",
+          "level": "2",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "heading",
+      },
+    ],
+    "content": [
+      {
+        "styles": [],
+        "text": "Heading 2",
+      },
+    ],
+    "id": 3,
+    "props": {
+      "backgroundColor": "default",
+      "level": "2",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "heading",
+  },
+  {
+    "children": [],
+    "content": [],
+    "id": 0,
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]
+`;
+
+exports[`Insert, Update, & Delete Blocks > Insert, update, & delete multiple blocks 2`] = `
+[
+  {
+    "children": [
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": [],
+            "text": "Nested Heading 1",
+          },
+        ],
+        "id": 2,
+        "props": {
+          "backgroundColor": "default",
+          "level": "1",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "heading",
+      },
+    ],
+    "content": [
+      {
+        "styles": [],
+        "text": "Heading 1",
+      },
+    ],
+    "id": 1,
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": [],
+            "text": "Nested Heading 2",
+          },
+        ],
+        "id": 4,
+        "props": {
+          "backgroundColor": "default",
+          "level": "2",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "heading",
+      },
+    ],
+    "content": [
+      {
+        "styles": [],
+        "text": "Heading 2",
+      },
+    ],
+    "id": 3,
+    "props": {
+      "backgroundColor": "default",
+      "level": "2",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "heading",
+  },
+  {
+    "children": [],
+    "content": [],
+    "id": 0,
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]
+`;
+
+exports[`Insert, Update, & Delete Blocks > Insert, update, & delete multiple blocks 3`] = `
+[
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": [],
+        "text": "Heading 1",
+      },
+    ],
+    "id": 1,
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [],
+    "id": 0,
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]
+`;
+
+exports[`Insert, Update, & Delete Blocks > Insert, update, & delete single block 1`] = `
+[
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": [],
+        "text": "Paragraph",
+      },
+    ],
+    "id": 1,
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [],
+    "id": 0,
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]
+`;
+
+exports[`Insert, Update, & Delete Blocks > Insert, update, & delete single block 2`] = `
+[
+  {
+    "children": [
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": [],
+            "text": "Paragraph",
+          },
+        ],
+        "id": 2,
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+    ],
+    "content": [
+      {
+        "styles": [
+          {
+            "props": {
+              "color": "red",
+            },
+            "type": "textColor",
+          },
+        ],
+        "text": "Heading ",
+      },
+      {
+        "styles": [
+          {
+            "props": {
+              "color": "red",
+            },
+            "type": "backgroundColor",
+          },
+        ],
+        "text": "3",
+      },
+    ],
+    "id": 1,
+    "props": {
+      "backgroundColor": "default",
+      "level": "3",
+      "textAlignment": "right",
+      "textColor": "default",
+    },
+    "type": "heading",
+  },
+  {
+    "children": [],
+    "content": [],
+    "id": 0,
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]
+`;
+
+exports[`Insert, Update, & Delete Blocks > Insert, update, & delete single block 3`] = `
+[
+  {
+    "children": [],
+    "content": [],
+    "id": 0,
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]
+`;
+
+exports[`Inserting Blocks with Different Placements > Insert after existing block 1`] = `
+[
+  {
+    "children": [],
+    "content": [],
+    "id": 0,
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": [],
+            "text": "Nested Heading 1",
+          },
+        ],
+        "id": 2,
+        "props": {
+          "backgroundColor": "default",
+          "level": "1",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "heading",
+      },
+    ],
+    "content": [
+      {
+        "styles": [],
+        "text": "Heading 1",
+      },
+    ],
+    "id": 1,
+    "props": {
+      "backgroundColor": "default",
+      "level": "1",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "heading",
+  },
+  {
+    "children": [
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": [],
+            "text": "Nested Heading 2",
+          },
+        ],
+        "id": 4,
+        "props": {
+          "backgroundColor": "default",
+          "level": "2",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "heading",
+      },
+    ],
+    "content": [
+      {
+        "styles": [],
+        "text": "Heading 2",
+      },
+    ],
+    "id": 3,
+    "props": {
+      "backgroundColor": "default",
+      "level": "2",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "heading",
+  },
+  {
+    "children": [],
+    "content": [],
+    "id": 5,
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]
+`;
+
+exports[`Inserting Blocks with Different Placements > Insert before existing block 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": [],
+            "text": "Nested Heading 1",
+          },
+        ],
+        "id": 2,
+        "props": {
+          "backgroundColor": "default",
+          "level": "1",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "heading",
+      },
+    ],
+    "content": [
+      {
+        "styles": [],
+        "text": "Heading 1",
+      },
+    ],
+    "id": 1,
+    "props": {
+      "backgroundColor": "default",
+      "level": "1",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "heading",
+  },
+  {
+    "children": [
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": [],
+            "text": "Nested Heading 2",
+          },
+        ],
+        "id": 4,
+        "props": {
+          "backgroundColor": "default",
+          "level": "2",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "heading",
+      },
+    ],
+    "content": [
+      {
+        "styles": [],
+        "text": "Heading 2",
+      },
+    ],
+    "id": 3,
+    "props": {
+      "backgroundColor": "default",
+      "level": "2",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "heading",
+  },
+  {
+    "children": [],
+    "content": [],
+    "id": 0,
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]
+`;
+
+exports[`Inserting Blocks with Different Placements > Insert nested inside existing block 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": [],
+                "text": "Nested Heading 1",
+              },
+            ],
+            "id": 2,
+            "props": {
+              "backgroundColor": "default",
+              "level": "1",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "heading",
+          },
+        ],
+        "content": [
+          {
+            "styles": [],
+            "text": "Heading 1",
+          },
+        ],
+        "id": 1,
+        "props": {
+          "backgroundColor": "default",
+          "level": "1",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "heading",
+      },
+      {
+        "children": [
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": [],
+                "text": "Nested Heading 2",
+              },
+            ],
+            "id": 4,
+            "props": {
+              "backgroundColor": "default",
+              "level": "2",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "heading",
+          },
+        ],
+        "content": [
+          {
+            "styles": [],
+            "text": "Heading 2",
+          },
+        ],
+        "id": 3,
+        "props": {
+          "backgroundColor": "default",
+          "level": "2",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "heading",
+      },
+    ],
+    "content": [],
+    "id": 0,
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [],
+    "id": 5,
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]
+`;

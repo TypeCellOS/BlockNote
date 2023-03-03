@@ -22,7 +22,7 @@ export function getBlockInfoFromPos(
   doc: Node,
   posInBlock: number
 ): BlockInfo | undefined {
-  if (posInBlock <= 0 || posInBlock > doc.nodeSize) {
+  if (posInBlock < 0 || posInBlock > doc.nodeSize) {
     return undefined;
   }
 
@@ -32,11 +32,11 @@ export function getBlockInfoFromPos(
   let node = $pos.node(maxDepth);
   let depth = maxDepth;
 
-  while (depth >= 0) {
-    // If the outermost node is not a block, it means the position does not lie within a block.
-    if (depth === 0) {
+  while (true) {
+    if (depth < 0) {
       return undefined;
     }
+
     if (node.type.name === "blockContainer") {
       break;
     }

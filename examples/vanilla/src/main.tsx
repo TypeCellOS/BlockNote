@@ -6,7 +6,7 @@ import { hyperlinkToolbarFactory } from "./ui/hyperlinkToolbarFactory";
 import { slashMenuFactory } from "./ui/slashMenuFactory";
 
 const editor = new BlockNoteEditor({
-  element: document.getElementById("root")!,
+  parentElement: document.getElementById("root")!,
   uiFactories: {
     // Create an example formatting toolbar which just consists of a bold toggle
     formattingToolbarFactory,
@@ -17,14 +17,11 @@ const editor = new BlockNoteEditor({
     // Create an example menu for when a block is hovered
     blockSideMenuFactory,
   },
-  onUpdate: ({ editor }) => {
-    console.log(editor.getJSON());
-    (window as any).ProseMirror = editor; // Give tests a way to get editor instance
+  onUpdate: () => {
+    console.log(editor.allBlocks);
   },
-  editorProps: {
-    attributes: {
-      class: "editor",
-    },
+  editorDOMAttributes: {
+    class: "editor",
   },
 });
 

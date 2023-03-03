@@ -2,11 +2,10 @@ import { Extension } from "@tiptap/core";
 import { PluginKey } from "prosemirror-state";
 import { createSuggestionPlugin } from "../../shared/plugins/suggestion/SuggestionPlugin";
 import { SuggestionsMenuFactory } from "../../shared/plugins/suggestion/SuggestionsMenuFactoryTypes";
-import defaultCommands from "./defaultCommands";
 import { SlashMenuItem } from "./SlashMenuItem";
 
 export type SlashMenuOptions = {
-  commands: { [key: string]: SlashMenuItem };
+  commands: SlashMenuItem[] | undefined;
   slashMenuFactory: SuggestionsMenuFactory<any> | undefined;
 };
 
@@ -17,15 +16,17 @@ export const SlashMenuExtension = Extension.create<SlashMenuOptions>({
 
   addOptions() {
     return {
-      commands: defaultCommands,
-      slashMenuFactory: undefined, // TODO: fix undefined
+      commands: undefined,
+      slashMenuFactory: undefined,
     };
   },
 
   addProseMirrorPlugins() {
-    if (!this.options.slashMenuFactory) {
-      throw new Error("UI Element factory not defined for SlashMenuExtension");
+    if (!this.options.slashMenuFactory || !this.options.commands) {
+      throw new Error("required args not defined for SlashMenuExtension");
     }
+
+    const commands = this.options.commands;
 
     return [
       createSuggestionPlugin<SlashMenuItem>({
@@ -34,12 +35,6 @@ export const SlashMenuExtension = Extension.create<SlashMenuOptions>({
         defaultTriggerCharacter: "/",
         suggestionsMenuFactory: this.options.slashMenuFactory!,
         items: (query) => {
-          const commands = [];
-
-          for (const key in this.options.commands) {
-            commands.push(this.options.commands[key]);
-          }
-
           return commands.filter((cmd: SlashMenuItem) => cmd.match(query));
         },
         onSelectItem: ({ item, editor, range }) => {

@@ -17,7 +17,7 @@ import {
   RiText,
   RiUnderline,
 } from "react-icons/ri";
-import { Block, BlockUpdate } from "@blocknote/core";
+import { Block, PartialBlock } from "@blocknote/core";
 import { Toolbar } from "../../SharedComponents/Toolbar/components/Toolbar";
 import { ToolbarButton } from "../../SharedComponents/Toolbar/components/ToolbarButton";
 import { ToolbarDropdown } from "../../SharedComponents/Toolbar/components/ToolbarDropdown";
@@ -55,7 +55,7 @@ export type FormattingToolbarProps = {
   decreaseBlockIndent: () => void;
 
   block: Block;
-  updateBlock: (blockUpdate: BlockUpdate) => void;
+  updateBlock: (updatedBlock: PartialBlock) => void;
 };
 
 // TODO: add list options, indentation
