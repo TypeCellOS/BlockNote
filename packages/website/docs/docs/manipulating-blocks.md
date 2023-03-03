@@ -11,35 +11,35 @@ TBD: how deep do we need to go into blockspec vs block, or can we just document 
 
 ## Accessing Blocks
 
-The first step in manipulating blocks is accessing them, and there are several editor functions available to do this. They're listed below, and the one you should use depends on your use case.
+The first thing we can do with blocks, is to get them from the editor, and there are a few different ways of doing that.
 
 ### Getting All Blocks
 
-The simplest way to access a given block is to first get all blocks in the editor , then navigate through them until you find what you're looking for. The first thing to do is retrieving all blocks in the editor, which can be done using the following getter:
+You can retrieve all blocks from the editor using the following call:
 
 ```typescript
 // Definition
-class BlockNoteAPI {
+class BlockNoteEditor {
 ...
   public get allBlocks(): Block[];
 ...
 }
 
 // Usage
-const allBlocks = editorAPI.allBlocks;
+const allBlocks = editor.allBlocks;
 ```
 
 `returns:` An array containing all blocks in the editor, represented as `Block` objects.
 
-We've actually already seen this used for the live example in [Getting Familiar with Block Objects](blocks#getting-familiar-with-block-objects), where we displayed its output below the editor. Typically though, you'll want to process the results further. Let's look at a few examples of how we could do that.
+We've actually already seen this used for the live example in [Getting Familiar with Block Objects](blocks#getting-familiar-with-block-objects), where we showed its output below the editor. Most of the time though, you'll want to find specific blocks. Let's look at a few examples of how we could do that.
 
 **Accessing Blocks by Index**
 
-Since `editor.allBlocks` returns an array of `Block` objects, we can simply access them by index, which we use in the example below to return the first and last block in the editor. You can access a block's children by index too, as they're also represented as an array of `Block` objects.
+Since `editor.allBlocks` returns an array of `Block` objects, we can just access them by index. We do this in the example below to get the first and last block in the editor. You can also access a block's children by index.
 
 ```typescript
 function getFirstAndLastBlocks(): {firstBlock: Block; lastBlock: Block} {
-    const allBlocks: Block[] = editorAPI.allBlocks;
+    const allBlocks: Block[] = editor.allBlocks;
     
     return {
         firstBlock: allBlocks[0],
@@ -50,24 +50,22 @@ function getFirstAndLastBlocks(): {firstBlock: Block; lastBlock: Block} {
 
 **Traversing All Blocks**
 
-If you want to traverse each block in the editor, including nested blocks, the best way to do so is using a recursive function. In the example below, we call the `helper` function for each `Block` object returned by `editor.allBlocks`, which logs its text content in the console.
-
-Then, it calls itself recursively for each nested block, logging its text content too, and this recursive call keeps executing until a block without children is found. If you think of each block as a node in a tree, this method traverses said tree in a depth-first manner.
+If you want to go over each block in the editor, including nested blocks, the best way to do that is using recursion. In the example below, we use a recursive function to log the content of every block in the editor. If you think of each block as a node in a tree, this method traverses the tree in a depth-first manner.
 
 ```typescript
 function logAllBlocksTextContent(): void {
     function helper(block: Block) {
         // Logs block text content.
-        console.log(block.textContent + "\n");
+        console.log(block.content + "\n");
         
-        // Recursive call for each nested block.
+        // Runs helper function for each nested block.
         for (const child of block.children) {
             helper(child);
         }
     }
     
     // Gets all blocks in the editor.
-    const allBlocks = editorAPI.allBlocks;
+    const allBlocks = editor.allBlocks;
     
     // Runs helper function for each block.
     for (const block of allBlocks) {
@@ -78,9 +76,9 @@ function logAllBlocksTextContent(): void {
 
 **Executing a Callback for Each Block**
 
-A common use case when working with blocks, is executing a callback for each block in the editor. This is a more generalized case of the previous example, where we called `console.log(block.textContent)` for each block. Now, we execute a callback instead, which is passed as an argument to the function. In the example below, we create a callback which checks if the block is a heading block, and adds its ID to an array if it is.
+A common use case is executing a callback for each block in the editor. This is a more general case of the previous example, where we called logged the content of each block.
 
-This pattern is incredibly useful as it allows you to access each block in the editor, one by one, and process them immediately.
+Now, we execute a callback instead, which is passed as an argument. In the example below, we create a callback which checks if the block is a heading block, and adds its ID to an array if it is.
 
 ```typescript
 function callbackForEachBlock(callback: (block: Block) => void): Block[] {    
@@ -95,7 +93,7 @@ function callbackForEachBlock(callback: (block: Block) => void): Block[] {
     }
     
     // Gets all blocks in the editor.
-    const allBlocks = editorAPI.allBlocks;
+    const allBlocks = editor.allBlocks;
     
     // Runs helper function for each block.
     for (const block of allBlocks) {
@@ -115,44 +113,46 @@ callbackForEachBlock(callback);
 
 ### Getting the Hovered Block
 
-In some cases, you may want to know whether a block is being hovered by either the text or mouse cursor, yet `Block` objects don't contain any information that could help with that. Instead, this is handled by other getters.
+In some cases, you may want to know which block is being hovered by the text or mouse cursor, this is also quite easy to do for either.
 
-**Accessing Block Containing Text Cursor**
+**Accessing Block Hovered by Text Cursor**
 
-The block currently containing the text cursor is found in the `TextCursorPosition` object, and we can retrieve it using the following call:
+We can get the block hovered by the text cursor using the following call:
 
 ```typescript
 // Definition
-class BlockNoteAPI {
+class BlockNoteEditor {
 ...
   public get textCursorPosition: TextCursorPosition;
 ...
 }
 
 // Usage
-const blockContainingTextCursor = editorAPI.textCursorPosition.block;
+const blockContainingTextCursor = editor.textCursorPosition.block;
 ```
 `returns:` The block currently containing the text cursor.
 
-More specifically, this returns the *most immediate* block currently containing the text cursor. This means that if the text cursor lies in a nested block, the `Block` object returned will represent the most nested block possible that still contains the cursor, as opposed to one of its parents. More information regarding the `TextCursorPosition` object can be found in **TODO** Cursor and Selections.
+**Additional Information**
+
+If the mouse/text cursor is in a nested block, only the hovered block at the deepest nesting level is returned. More information on how mouse & text cursor positions can be found in [Cursor and Selections](cursor-selections.md).
 
 ## Partial Blocks
 
-While interacting with the editor is centered around the use of `Block` objects, they can be cumbersome when we use them to insert new blocks or update existing ones. After all, if we want to just insert an empty paragraph, defining each field in a `Block` object to do so can feel pretty unnecessary. It's not obvious what kind of ID we should assign either.
+While interacting with the editor is centered around `Block` objects, they aren't that practical for inserting new blocks or updating existing ones. If we want to just insert an empty paragraph, defining each field in a `Block` object would feel pretty unnecessary.
 
-To alleviate these issues, you can define new or updated blocks using `PartialBlock` objects:
+Therefore, you can use `PartialBlock` objects when inserting or updating blocks:
 
 ```typescript
 type PartialBlock = {
     id?: string;
     type: string;
     props?: Partial<Record<string, string>>;
-    content?: string | StyledTextContent[];
+    content?: string | InlineNode[];
     children?: BlockSpec[];
 }
 ```
 
-As you can see, `PartialBlock` objects are effectively the same as regular `Block` objects, but don't need to be fully defined. The first benefit of these is that it makes creating simpler blocks much easier, and also crucially means that you can use a `Block` object in place of any `PartialBlock`. This makes things like duplicating and updating blocks far smoother, as you always receive `Block` objects when accessing existing blocks.
+`PartialBlock` objects are almost the same as regular `Block` objects, but don't need to be fully defined, which makes creating simpler blocks much easier. It also means that you can also use a `Block` object in place of any `PartialBlock`.
 
 ## Inserting Blocks
 
@@ -160,7 +160,7 @@ You can insert new blocks into the editor using the following call:
 
 ```typescript
 // Definition
-class BlockNoteAPI {
+class BlockNoteEditor {
 ...
 
   public insertBlocks(
@@ -173,7 +173,7 @@ class BlockNoteAPI {
 }
 
 // Usage
-editorAPI.insertBlocks(blocksToInsert, blockToInsertAt, placement)
+editor.insertBlocks(blocksToInsert, blockToInsertAt, placement)
 ```
 
 `blocksToInsert:` An array of block specifications which define the blocks that should be inserted.
@@ -184,7 +184,7 @@ editorAPI.insertBlocks(blocksToInsert, blockToInsertAt, placement)
 
 **Additional Information**
 
-Since the `blocksToInsert` argument is an array of `PartialBlock` objects, some fields may be left undefined, which we need to interpret somehow. When inserting new blocks, we assign them default values which are as simple as possible:
+Since the `blocksToInsert` argument is an array of `PartialBlock` objects, some fields might not be defined. When inserting new blocks, we assign them the simplest possible values:
 
 `id` is assigned a string that's automatically generated in the following format:
 
@@ -193,7 +193,7 @@ Since the `blocksToInsert` argument is an array of `PartialBlock` objects, some 
 id = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX";
 ```
 
-`props` is assigned an object, the entries of which depend on the value of `type`. The value of `type` determines the keys that have to be in `props` and the values they can take, as well as their default values, which you can find more about in [Default Block Types](block-types#default-block-types). If `props` is partially defined, the required keys are added with their default values.
+`props` is assigned an object with entries that depends on `type`. If `props` is partially defined, entries are added, again depending on the value of `type`. You can find out more about the properties of different block types in [Default Block Types](block-types#default-block-types), as well as their default values.
 
 `content` is assigned an empty string:
 ```typescript
@@ -211,7 +211,7 @@ You can update an existing block in the editor using the following call:
 
 ```typescript
 // Definition
-class BlockNoteAPI {
+class BlockNoteEditor {
 ...
   public updateBlock(
     blockToUpdate: Block,
@@ -221,7 +221,7 @@ class BlockNoteAPI {
 }
 
 // Usage
-editorAPI.updateBlock(blockToUpdate, updatedBlock)
+editor.updateBlock(blockToUpdate, updatedBlock)
 ```
 
 `blockToUpdate:` An existing block that should be updated.
@@ -230,9 +230,9 @@ editorAPI.updateBlock(blockToUpdate, updatedBlock)
 
 **Additional Information**
 
-Since the `updatedBlock` argument is a `PartialBlock` object, some fields may be left undefined, which we need to interpret somehow. When updating existing blocks, we just copy over the old values.
+Since the `updatedBlock` argument is a `PartialBlock` object, some fields might not be defined. When updating existing blocks, we just copy over the values from `blockToUpdate`.
 
-There is one caveat regarding the `props` field, as different block types have different properties. Therefore, only properties which are compatible with the updated block type can be kept. Additionally, the new type might introduce more properties, which are assigned default values if they're not defined in `props`. You can check which properties each block types has, as well as their default values, in [Default Block Types](block-types#default-block-types).
+However, only properties which are compatible with the updated block type are kept and new ones may be added. You can find out more about the properties of different block types in [Default Block Types](block-types#default-block-types), as well as their default values.
 
 ## Removing Blocks
 
@@ -240,7 +240,7 @@ You can remove existing blocks from the editor using the following call:
 
 ```typescript
 // Definition
-class BlockNoteAPI {
+class BlockNoteEditor {
 ...
   public removeBlocks(
     blocksToRemove: Block[],
@@ -249,7 +249,7 @@ class BlockNoteAPI {
 }
 
 // Usage
-editorAPI.removeBlocks(blocksToRemove)
+editor.removeBlocks(blocksToRemove)
 ```
 
 `blocksToRemove:` An array of existing blocks that should be removed.
@@ -260,7 +260,7 @@ You can replace existing blocks in the editor with new blocks using the followin
 
 ```typescript
 // Definition
-class BlockNoteAPI {
+class BlockNoteEditor {
 ...
 
   public replaceBlocks(
@@ -272,7 +272,7 @@ class BlockNoteAPI {
 }
 
 // Usage
-editorAPI.replaceBlocks(blocksToRemove, blocksToInsert)
+editor.replaceBlocks(blocksToRemove, blocksToInsert)
 ```
 
 `blocksToRemove:` An array of existing blocks that should be replaced.
@@ -281,4 +281,4 @@ editorAPI.replaceBlocks(blocksToRemove, blocksToInsert)
 
 **Additional Information**
 
-The blocks provided in `blocksToRemove` are generally expected to be adjacent and at the same level of nesting, in which case it's clear where `blocksToInsert` should be inserted. However, this isn't strictly required, and if the blocks provided in `blocksToRemove` are not adjacent or at different nesting levels, `blocksToInsert` will be inserted in place of the first element in thje array.
+If the blocks provided in `blocksToRemove` are not adjacent or are at different nesting levels, `blocksToInsert` will be inserted in place of the first element in the array.
