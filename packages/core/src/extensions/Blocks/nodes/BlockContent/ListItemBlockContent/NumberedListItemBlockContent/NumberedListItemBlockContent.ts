@@ -1,7 +1,7 @@
 import { InputRule, mergeAttributes, Node } from "@tiptap/core";
-import { NumberedListIndexingPlugin } from "./NumberedListIndexingPlugin";
 import styles from "../../../Block.module.css";
 import { handleEnter } from "../ListItemKeyboardShortcuts";
+import { NumberedListIndexingPlugin } from "./NumberedListIndexingPlugin";
 
 export const NumberedListItemBlockContent = Node.create({
   name: "numberedListItem",
@@ -53,6 +53,7 @@ export const NumberedListItemBlockContent = Node.create({
   parseHTML() {
     return [
       // Case for regular HTML list structure.
+      // (e.g.: when pasting from other apps)
       {
         tag: "li",
         getAttrs: (element) => {
@@ -75,6 +76,7 @@ export const NumberedListItemBlockContent = Node.create({
         node: "blockContainer",
       },
       // Case for BlockNote list structure.
+      // (e.g.: when pasting from blocknote)
       {
         tag: "p",
         getAttrs: (element) => {
@@ -107,6 +109,8 @@ export const NumberedListItemBlockContent = Node.create({
         class: styles.blockContent,
         "data-content-type": this.name,
       }),
+      // we use a <p> tag, because for <li> tags we'd need to add a <ul> parent for around siblings to be semantically correct,
+      // which would be quite cumbersome
       ["p", 0],
     ];
   },

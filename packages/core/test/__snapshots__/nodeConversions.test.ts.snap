@@ -4,7 +4,7 @@ exports[`Complex ProseMirror Node Conversions > Convert complex block to node 1`
 {
   "attrs": {
     "backgroundColor": "blue",
-    "id": null,
+    "id": 4,
     "textColor": "yellow",
   },
   "content": [
@@ -46,7 +46,7 @@ exports[`Complex ProseMirror Node Conversions > Convert complex block to node 1`
         {
           "attrs": {
             "backgroundColor": "red",
-            "id": null,
+            "id": 5,
             "textColor": "default",
           },
           "content": [
@@ -68,7 +68,7 @@ exports[`Complex ProseMirror Node Conversions > Convert complex block to node 1`
         {
           "attrs": {
             "backgroundColor": "default",
-            "id": null,
+            "id": 6,
             "textColor": "default",
           },
           "content": [
@@ -100,7 +100,7 @@ exports[`Complex ProseMirror Node Conversions > Convert complex node to block 1`
           "text": "Paragraph",
         },
       ],
-      "id": null,
+      "id": 2,
       "props": {
         "backgroundColor": "red",
         "textAlignment": "left",
@@ -111,7 +111,7 @@ exports[`Complex ProseMirror Node Conversions > Convert complex node to block 1`
     {
       "children": [],
       "content": [],
-      "id": null,
+      "id": 3,
       "props": {
         "backgroundColor": "default",
         "textAlignment": "left",
@@ -148,7 +148,7 @@ exports[`Complex ProseMirror Node Conversions > Convert complex node to block 1`
       "text": "2",
     },
   ],
-  "id": null,
+  "id": 1,
   "props": {
     "backgroundColor": "blue",
     "level": "2",
@@ -163,7 +163,7 @@ exports[`Simple ProseMirror Node Conversions > Convert simple block to node 1`] 
 {
   "attrs": {
     "backgroundColor": "default",
-    "id": null,
+    "id": 4,
     "textColor": "default",
   },
   "content": [
@@ -182,7 +182,7 @@ exports[`Simple ProseMirror Node Conversions > Convert simple node to block 1`] 
 {
   "children": [],
   "content": [],
-  "id": null,
+  "id": 0,
   "props": {
     "backgroundColor": "default",
     "textAlignment": "left",

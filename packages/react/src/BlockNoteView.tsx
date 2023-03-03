@@ -7,7 +7,7 @@ export function BlockNoteView(props: { editor: BlockNoteEditor | null }) {
   return (
     // TODO: Should we wrap editor in MantineProvider? Otherwise we have to duplicate color hex values.
     // <MantineProvider theme={BlockNoteTheme}>
-    <EditorContent editor={props.editor?.tiptapEditor || null} />
+    <EditorContent editor={props.editor?._tiptapEditor || null} />
     // </MantineProvider>
   );
 }
