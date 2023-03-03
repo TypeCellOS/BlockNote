@@ -1,14 +1,20 @@
 import { Node, Schema } from "prosemirror-model";
-import { getBlockInfoFromPos } from "../../extensions/Blocks/helpers/getBlockInfoFromPos";
 import {
   Block,
-  BlockProps,
   blockProps,
   PartialBlock,
 } from "../../extensions/Blocks/api/blockTypes";
 import { Style, StyledText } from "../../extensions/Blocks/api/styleTypes";
+import { getBlockInfoFromPos } from "../../extensions/Blocks/helpers/getBlockInfoFromPos";
+import UniqueID from "../../extensions/UniqueID/UniqueID";
 
 export function blockToNode(block: PartialBlock, schema: Schema) {
+  let id = block.id;
+
+  if (id === undefined) {
+    id = UniqueID.options.generateID();
+  }
+
   let content: Node[] = [];
 
   if (typeof block.content === "string") {
@@ -38,7 +44,10 @@ export function blockToNode(block: PartialBlock, schema: Schema) {
   const groupNode = schema.nodes["blockGroup"].create({}, children);
 
   return schema.nodes["blockContainer"].create(
-    block.props,
+    {
+      id: id,
+      ...block.props,
+    },
     children.length > 0 ? [contentNode, groupNode] : contentNode
   );
 }
@@ -50,7 +59,7 @@ export function getNodeById(
   let targetNode: Node | undefined = undefined;
   let posBeforeNode: number | undefined = undefined;
 
-  doc.descendants((node, pos) => {
+  doc.firstChild!.descendants((node, pos) => {
     // Skips traversing nodes after node with target ID has been found.
     if (targetNode) {
       return false;
@@ -62,12 +71,12 @@ export function getNodeById(
     }
 
     targetNode = node;
-    posBeforeNode = pos;
+    posBeforeNode = pos + 1;
 
     return false;
   });
 
-  if (!targetNode || !posBeforeNode) {
+  if (targetNode === undefined || posBeforeNode === undefined) {
     throw Error("Could not find block in the editor with matching ID.");
   }
 
@@ -81,6 +90,14 @@ export function nodeToBlock(
   node: Node,
   blockCache?: WeakMap<Node, Block>
 ): Block {
+  if (node.type.name !== "blockContainer") {
+    throw Error(
+      "Node must be of type blockContainer, but is of type" +
+        node.type.name +
+        "."
+    );
+  }
+
   const cachedBlock = blockCache?.get(node);
 
   if (cachedBlock) {
@@ -88,6 +105,13 @@ export function nodeToBlock(
   }
 
   const blockInfo = getBlockInfoFromPos(node, 0)!;
+
+  let id = blockInfo.id;
+
+  // Only used for blocks converted from other formats.
+  if (id === null) {
+    id = UniqueID.options.generateID();
+  }
 
   const props: any = {};
   for (const [attr, value] of Object.entries({
@@ -102,7 +126,7 @@ export function nodeToBlock(
 
     const validAttrs = blockProps[blockInfo.contentType.name as Block["type"]];
 
-    if (validAttrs.has(attr as BlockProps)) {
+    if (validAttrs.has(attr)) {
       props[attr] = value;
     }
   }
@@ -130,7 +154,7 @@ export function nodeToBlock(
   }
 
   const block: Block = {
-    id: blockInfo.id,
+    id: id,
     type: blockInfo.contentType.name as Block["type"],
     props: props,
     content: content,

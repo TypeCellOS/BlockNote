@@ -4,26 +4,34 @@ import { Editor, EditorOptions } from "@tiptap/core";
 import { Editor as EditorAPI } from "./api/Editor";
 import { getBlockNoteExtensions, UiFactories } from "./BlockNoteExtensions";
 import styles from "./editor.module.css";
-import { SlashCommand } from "./extensions/SlashMenu";
-import { defaultSlashCommands } from "./extensions/SlashMenu/defaultSlashCommands";
+import { defaultSlashCommands, SlashCommand } from "./extensions/SlashMenu";
 
-export type BlockNoteEditorOptions = EditorOptions & {
+export type BlockNoteEditorOptions = {
   enableBlockNoteExtensions: boolean;
   disableHistoryExtension: boolean;
   uiFactories: UiFactories;
   slashCommands: SlashCommand[];
+  parentElement: HTMLElement;
+  editorDOMAttributes: Record<string, string>;
+  onUpdate: () => void;
+  onCreate: () => void;
+
+  // tiptap options, undocumented
+  _tiptapOptions: any;
 };
 
-const blockNoteOptions = {
+const blockNoteTipTapOptions = {
   enableInputRules: true,
   enablePasteRules: true,
   enableCoreExtensions: false,
 };
 
-export class BlockNoteEditor {
-  public readonly tiptapEditor: Editor & { contentComponent: any };
-  // TODO: design where to put this
-  public readonly api: EditorAPI;
+export class BlockNoteEditor extends EditorAPI {
+  public readonly _tiptapEditor: Editor & { contentComponent: any };
+
+  public get domElement() {
+    return this._tiptapEditor.view.dom as HTMLDivElement;
+  }
 
   constructor(options: Partial<BlockNoteEditorOptions> = {}) {
     const blockNoteExtensions = getBlockNoteExtensions({
@@ -35,28 +43,35 @@ export class BlockNoteEditor {
       ? blockNoteExtensions.filter((e) => e.name !== "history")
       : blockNoteExtensions;
 
-    const tiptapOptions = {
-      ...blockNoteOptions,
-      ...options,
+    const tiptapOptions: EditorOptions = {
+      ...blockNoteTipTapOptions,
+      ...options._tiptapOptions,
+      onUpdate: () => {
+        options.onUpdate?.();
+      },
+      onCreate: () => {
+        options.onCreate?.();
+      },
       extensions:
         options.enableBlockNoteExtensions === false
-          ? options.extensions
-          : [...(options.extensions || []), ...extensions],
+          ? options._tiptapOptions?.extensions
+          : [...(options._tiptapOptions?.extensions || []), ...extensions],
       editorProps: {
         attributes: {
-          ...(options.editorProps?.attributes || {}),
+          ...(options.editorDOMAttributes || {}),
           class: [
             styles.bnEditor,
             styles.bnRoot,
-            (options.editorProps?.attributes as any)?.class || "",
+            options.editorDOMAttributes?.class || "",
           ].join(" "),
         },
       },
     };
 
-    this.tiptapEditor = new Editor(tiptapOptions) as Editor & {
+    const _tiptapEditor = new Editor(tiptapOptions) as Editor & {
       contentComponent: any;
     };
-    this.api = new EditorAPI(this.tiptapEditor);
+    super(_tiptapEditor);
+    this._tiptapEditor = _tiptapEditor;
   }
 }
