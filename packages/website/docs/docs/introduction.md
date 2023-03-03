@@ -2,7 +2,7 @@
 
 ## About BlockNote
 
-BlockNote is a block-based rich-text editor for [React](https://reactjs.org/), focused on providing an excellent out-of-the-box experience with minimal setup.
+BlockNote is a block-based rich-text editor for [React](https://reactjs.org/), focused on providing a great out-of-the-box experience with minimal setup.
 
 With BlockNote, we want to make it easy for developers to add a next-generation text editing experience to their app, with a UX that's on-par with industry leaders like Notion or Coda.
 
@@ -10,7 +10,7 @@ Unlike other rich-text editor libraries, BlockNote organizes documents into bloc
 
 Conceptually, you can think of a block as a paragraph, heading, image, or some other individual piece of content. Blocks can have more blocks nested inside of them, and can also be moved by dragging and dropping them inside or around each other.
 
-BlockNote has been created with extensibility in mind. You can customize the document, creation custom block types and customize UX elements like menu items. Advanced users can even create their own UI from scratch and use BlockNote with vanilla JavaScript instead of React.
+BlockNote has been created with extensibility in mind. You can customize the document, create custom block types and customize UX elements like menu items. Advanced users can even create their own UI from scratch and use BlockNote with vanilla JavaScript instead of React.
 
 ### Why BlockNote?
 

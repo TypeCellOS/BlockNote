@@ -9,11 +9,10 @@ This page will explain all about blocks:
 
 ## Editor Functions
 
-As well as being able to use BlockNote through the browser window, you can also interact with the editor programmatically by calling various functions. These functions can read, write, and listen to the editor in basically any way you want.
+So, you've set up a BlockNote editor and your users can start writing content, organized in blocks. Now, how do we access the blocks from code?
 
-All we need to start using editor functions is a BlockNote editor itself. We already went over how to set up a basic editor in [Creating an Editor](quickstart#creating-an-editor), so we can just work from that.
-
-Below are some examples of the kinds of functions you can call from the editor. It's just a small taste of what's to come, but should hopefully give you an idea for why they're useful:
+The `editor` returned from `useBlockNote` exposes functions for this.
+We'll go through the full API later in this section, but let's start with a simple example; getting all blocks created in the editor:
 
 ```typescript
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
@@ -22,22 +21,14 @@ import "@blocknote/core/style.css";
 function App() {
   // Creates a new editor instance.
   const editor = useBlockNote({});
-  
+
   // Executes a callback whenever the editor contents change.
   editor.onContentChange(() => {
-    // Gets the first block in the editor.
-    const firstBlock = editor.allBlocks[0];
-    
-    // Checks if the first block is not a title/heading 1 block.
-    if (firstBlock.type !== "heading" || firstBlock.props.level !== "1") {
-      // Updates the first block to be a title/heading 1 block.
-      editor.updateBlock({
-        type: firstBlock, 
-        props: { type: "heading", props: { level: "1"} }
-      });
-    }
-  })
-  
+    // Get and log the blocks in the editor
+    const blocks = editor.allBlocks;
+    console.log("Content was changed:", blocks);
+  });
+
   // Renders the editor instance using a React component.
   return <BlockNoteView editor={editor} />;
 }
@@ -45,23 +36,23 @@ function App() {
 
 ## Block Objects
 
-BlockNote is centered around the idea of blocks, each containing an individual piece of content and optionally also containing nested blocks. This design philosophy extends to code, in which the `Block` object type is used to describe any given block in the editor:
+So, BlockNote is centered around the idea of blocks. A block - like a Heading, Paragraph, or List item - contains a piece of content and optionally nested blocks. In code, the `Block` type is used to describe any given block in the editor:
 
 ```typescript
 type Block = {
-  id: string | null;
+  id: string;
   type: string;
   props: Record<string, string>;
-  content: StyledText[];
+  content: InlineContent[];
   children: Block[];
 };
 ```
 
 `id:` The block's ID. Multiple blocks cannot share a single ID, and a block will keep the same ID from when it's created until it's removed.
 
-`type:` The block's type, which determines several things. One of these, is the kind of content that the block contains, such as a paragraph, heading, or image. The type also establishes what properties the block can have, and affects the block's appearance as well as behaviour in the editor. It's important to note that nested blocks do not inherit their parent blocks' type, and you can find a list of all default types in [Default Block Types](block-types#default-block-types).
+`type:` The block's type, such as a paragraph, heading, or list item. For an overview of built-in block types, see [Default Block Types](block-types#default-block-types).
 
-`props:` The block's properties, which are a set of key/value pairs that further modify its appearance or behaviour alongside its type. This means that the properties that a block can have are also entirely determined by its type. You can find more information on which properties each type of block has in [Default Block Types](block-types#default-block-types).
+`props:` The block's properties are stored in a set of key/value pairs and specify how the block looks and behaves. Different block types have different props; see [Default Block Types](block-types#default-block-types).
 
 `content:` The block's content, represented as an array of `StyledText` objects. It contains not only plain text information regarding the block's contents, but also the inline styles applied, such as bold, italic, and text color. This does not include content from any nested blocks. For more information on StyledText objects, visit [Rich Text Content](rich-text.md).
 
