@@ -4,15 +4,14 @@ import { Block, BlockNoteEditor, PartialBlock } from "../src";
 let editor: BlockNoteEditor;
 let ready = false;
 function waitForEditor() {
-  const poll = (resolve) => {
-    if(ready) {
+  // wait for create event on editor,
+  // this is necessary because otherwise UniqueId.create hasn't been called yet, and
+  // blocks would have "null" as their id
+  return new Promise<void>((resolve) => {
+    editor._tiptapEditor.on("create", () => {
       resolve();
-    } else {
-      setTimeout(() => poll(resolve));
-    }
-  }
-
-  return new Promise<void>(poll);
+    });
+  });
 }
 
 let singleBlock: PartialBlock;
@@ -27,7 +26,7 @@ beforeEach(() => {
   editor = new BlockNoteEditor({
     onCreate: () => {
       ready = true;
-    }
+    },
   });
 
   singleBlock = {
@@ -75,12 +74,12 @@ beforeEach(() => {
     editor.insertBlocks(multipleBlocks, existingBlock, placement);
 
     return editor.allBlocks;
-  }
+  };
 });
 
 afterEach(() => {
   ready = false;
-  editor._tiptapEditor.destroy()
+  editor._tiptapEditor.destroy();
   editor = undefined;
 
   delete (window as Window & { __TEST_OPTIONS?: {} }).__TEST_OPTIONS;
@@ -88,15 +87,15 @@ afterEach(() => {
 
 describe("Inserting Blocks with Different Placements", () => {
   it("Insert before existing block", async () => {
-    await waitForEditor()
+    await waitForEditor();
 
-    const output = insert("before")
+    const output = insert("before");
 
     expect(output).toMatchSnapshot();
   });
 
   it("Insert nested inside existing block", async () => {
-    await waitForEditor()
+    await waitForEditor();
 
     const output = insert("nested");
 
@@ -104,7 +103,7 @@ describe("Inserting Blocks with Different Placements", () => {
   });
 
   it("Insert after existing block", async () => {
-    await waitForEditor()
+    await waitForEditor();
 
     const output = insert("after");
 
@@ -114,7 +113,7 @@ describe("Inserting Blocks with Different Placements", () => {
 
 describe("Insert, Update, & Delete Blocks", () => {
   it("Insert, update, & delete single block", async () => {
-    await waitForEditor()
+    await waitForEditor();
 
     const existingBlock = editor.allBlocks[0];
     editor.insertBlocks([singleBlock], existingBlock);
@@ -164,7 +163,7 @@ describe("Insert, Update, & Delete Blocks", () => {
   });
 
   it("Insert, update, & delete multiple blocks", async () => {
-    await waitForEditor()
+    await waitForEditor();
 
     const existingBlock = editor.allBlocks[0];
     editor.insertBlocks(multipleBlocks, existingBlock);
