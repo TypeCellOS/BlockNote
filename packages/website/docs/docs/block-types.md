@@ -1,15 +1,6 @@
 # Block Types & Properties
 
-This page will explain:
-
-- list all built-in blocks + examples
-- shortcuts & different behaviour?
-- explain props
-- creating your own block types: Coming Soon!
-
-## Block Types
-
-BlockNote includes a variety of built-in block types, each with their own set of type-specific properties. You can see how they look, both in the editor, and in code using `Block` objects:
+BlockNote includes a number of built-in block types, each with their own set of type-specific properties. You can see how they look, both in the editor, and in code using `Block` objects:
 
 ### Paragraph
 
@@ -21,14 +12,16 @@ BlockNote includes a variety of built-in block types, each with their own set of
 
 ```typescript
 type ParagraphBlock = {
-...
-    type: "paragraph";
-    props: {}
-...
-}
+  id: string;
+  type: "paragraph";
+  props: DefaultBlockProps;
+  content: InlineContent[];
+  children: Block[];
+};
 ```
 
 ### Heading
+
 **Appearance**
 
 <img src="../public/img/screenshots/heading_type.png" alt="image" style="height: 77px">
@@ -37,13 +30,14 @@ type ParagraphBlock = {
 
 ```typescript
 type HeadingBlock = {
-...
-    type: "heading";
-    props: {
-        level: "1" | "2" | "3" = "1"
-    }
-...
-}
+  id: string;
+  type: "heading";
+  props: {
+    level: "1" | "2" | "3" = "1";
+  } & DefaultBlockProps;
+  content: InlineContent[];
+  children: Block[];
+};
 ```
 
 `level:` The heading level, representing a title (`level: "1"`), heading (`level: "2"`), and subheading (`level: "3"`).
@@ -58,11 +52,12 @@ type HeadingBlock = {
 
 ```typescript
 type BulletListItemBlock = {
-...
-    type: "bulletListItem";
-    props: {}
-...
-}
+  id: string;
+  type: "bulletListItem";
+  props: DefaultBlockProps;
+  content: InlineContent[];
+  children: Block[];
+};
 ```
 
 ### Numbered List Item
@@ -75,23 +70,24 @@ type BulletListItemBlock = {
 
 ```typescript
 type NumberedListItemBlock = {
-...
-    type: "numberedListItem";
-    props: {}
-...
-}
+  id: string;
+  type: "numberedListItem";
+  props: DefaultBlockProps;
+  content: InlineContent[];
+  children: Block[];
+};
 ```
 
-## Universal Properties
+## Default Block Properties
 
-While each type of block can have its own set of properties, there are some properties that all block types have. These are known as universal properties, and are listed below:
+While each type of block can have its own set of properties, there are some properties that all block types have. See the definition for `DefaultBlockProps`:
 
 ```typescript
-type UniversalProps = {
+type DefaultBlockProps = {
   backgroundColor: string = "default";
   textColor: string = "default";
-  textAlignment: "left" | "center" | "right" | "justify" = "left"
-}
+  textAlignment: "left" | "center" | "right" | "justify" = "left";
+};
 ```
 
 `backgroundColor:` The background color of the block, which also applies to nested blocks.
@@ -99,25 +95,6 @@ type UniversalProps = {
 `textColor:` The text color of the block, which also applies to nested blocks.
 
 `textAlignment:` The text alignment of the block.
-
-Since all block types have these properties, the full definition of `props` for a heading block, for example, looks like this:
-
-```typescript
-type HeadingBlock = {
-...
-    type: "heading";
-    props: {
-      // Universal props
-      backgroundColor: string = "default";
-      textColor: string = "default";
-      textAlignment: "left" | "center" | "right" | "justify" = "left"
-      
-      // Type-specific props
-      level: "1" | "2" | "3" = "1"
-    }
-...
-}
-```
 
 ## Custom Block Types
 

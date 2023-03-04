@@ -1,13 +1,16 @@
 # Converting Blocks to and from other formats
 
-This page will explain:
+It's possible to export Blocks to other formats, or import Blocks from other formats.
 
-- how to import / export from HTML / markdown
-- how these conversions are "lossy"
+::: warning
+The functions to import / export to and from HTML / Markdown are considered "lossy"; some information might be dropped when you export Blocks to those formats.
 
-## Converting Blocks To & From HTML
+To serialize Blocks to a non-lossy format (for example, to store the contents of the editor in your backend), simply export the built in Block format using `JSON.stringify(editor.allBlocks)`.
+:::
 
-If you need to describe blocks using HTML instead `Block` objects, BlockNote makes it easy to convert between the two formats.
+## HTML
+
+We expose functions to convert Blocks to and from HTML. Converting Blocks to HTML will lose some information such as the nesting of nodes in order to export a simple HTML structure.
 
 ### Converting Blocks to HTML
 
@@ -24,12 +27,6 @@ class BlockNoteEditor {
 // Usage
 const HTMLFromBlocks = editor.blocksToHTML(blocks);
 ```
-
-The HTML from this function is different to what you'll see rendered in the browser by BlockNote in order to better comply with HTML standards:
-
-1. HTML `div` elements used to structure blocks are removed. This also removes the block's properties.
-2. All blocks except those inside list item blocks are no longer nested, since there are no more block structuring `div` elements to nest them in.
-3. Content from list item blocks is wrapped in `ul`/`ol` and `li` elements.
 
 **Example**
 
@@ -51,15 +48,15 @@ class BlockNoteEditor {
 const blocksFromHTML = editor.HTMLToBlocks(html);
 ```
 
-This function will try to create `Block` objects out of any HTML block-level elements, and`InlineNode` objects from any HTML inline elements, though not all types of elements are recognized. If BlockNote doesn't recognize an HTML element's tag, it will parse it as a paragraph or text.
+This function will try to create `Block` objects out of any HTML block-level elements, and`InlineNode` objects from any HTML inline elements, though not all types of elements are recognized. If BlockNote doesn't recognize an HTML element's tag, it will parse it as a paragraph or plain text.
 
 **Example**
 
 TODO
 
-## Converting Blocks To & From Markdown
+## Markdown
 
-If you need to describe blocks using Markdown rather than `Block` objects, BlockNote provides editor functions for converting between them.
+BlockNote can import / export Blocks to and from Markdown. Note that this is also considered "lossy", as not all structures can be entirely represented in Markdown.
 
 ### Converting Blocks to Markdown
 
@@ -79,9 +76,8 @@ const markdownFromBlocks = editor.blocksToMarkdown(blocks);
 
 Some features of blocks can't be represented using Markdown, such as block color or text alignment, so some information is lost from the conversion:
 
-1. All block structure is removed, only type and content are kept.
-2. All blocks, except ones inside list items, are no longer nested since Markdown doesn't support nesting for them.
-3. Underline, text color, and background color styles are removed as Markdown doesn't support them.
+1. All blocks, except ones inside list items, are no longer nested since Markdown doesn't support nesting for them.
+2. Underline, text color, and background color styles are removed as Markdown doesn't support them.
 
 **Example**
 

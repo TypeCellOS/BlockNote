@@ -78,31 +78,31 @@ const SIDEBAR_DEFAULT = [
     ],
   },
 
-  {
-    text: "AI App Tutorial (n2h)",
-    collapsed: true,
-    items: [
-      { text: "Introduction", link: "/guides/introduction" },
-      { text: "Quickstart", link: "/guides/quickstart" },
-      {
-        text: "Working with the File System",
-        link: "/guides/working-with-the-file-system",
-      },
-      { text: "Running Processes", link: "/guides/running-processes" },
-      { text: "Configuring Headers", link: "/guides/configuring-headers" },
-      { text: "Troubleshooting", link: "/guides/troubleshooting" },
-      { text: "Browser Support", link: "/guides/browser-support" },
-      { text: "Browser Configuration", link: "/guides/browser-config" },
-      {
-        text: "Community Inspirations",
-        link: "/guides/community-inspirations",
-      },
-    ],
-  },
+  // {
+  //   text: "AI App Tutorial (n2h)",
+  //   collapsed: true,
+  //   items: [
+  //     { text: "Introduction", link: "/guides/introduction" },
+  //     { text: "Quickstart", link: "/guides/quickstart" },
+  //     {
+  //       text: "Working with the File System",
+  //       link: "/guides/working-with-the-file-system",
+  //     },
+  //     { text: "Running Processes", link: "/guides/running-processes" },
+  //     { text: "Configuring Headers", link: "/guides/configuring-headers" },
+  //     { text: "Troubleshooting", link: "/guides/troubleshooting" },
+  //     { text: "Browser Support", link: "/guides/browser-support" },
+  //     { text: "Browser Configuration", link: "/guides/browser-config" },
+  //     {
+  //       text: "Community Inspirations",
+  //       link: "/guides/community-inspirations",
+  //     },
+  //   ],
+  // },
 
   {
     items: [
-      { text: "API Reference (n2h)", link: "/api" },
+      // { text: "API Reference (n2h)", link: "/api" },
       { text: "Community", link: "/contact" },
     ],
   },
