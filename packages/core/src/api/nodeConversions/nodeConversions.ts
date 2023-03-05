@@ -16,6 +16,10 @@ import { getBlockInfoFromPos } from "../../extensions/Blocks/helpers/getBlockInf
 import UniqueID from "../../extensions/UniqueID/UniqueID";
 import { UnreachableCaseError } from "../../shared/utils";
 
+/**
+ * Converts an array of StyledText inline content elements to
+ * prosemirror text nodes with the appropriate marks
+ */
 function styledTextArrayToNodes(
   content: string | StyledText[],
   schema: Schema,
@@ -40,6 +44,9 @@ function styledTextArrayToNodes(
   return nodes;
 }
 
+/**
+ * converts an array of inline content elements to prosemirror nodes
+ */
 export function inlineContentToNodes(
   blockContent: PartialInlineContent[],
   schema: Schema
@@ -108,6 +115,9 @@ export function blockToNode(block: PartialBlock, schema: Schema) {
   );
 }
 
+/**
+ * Converts an internal (prosemirror) content node to a BlockNote InlineContent array.
+ */
 function contentNodeToInlineContent(contentNode: Node) {
   const content: InlineContent[] = [];
 
