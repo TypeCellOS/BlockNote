@@ -1,7 +1,10 @@
 import { mergeAttributes, Node } from "@tiptap/core";
 import { Fragment, Node as PMNode, Slice } from "prosemirror-model";
 import { TextSelection } from "prosemirror-state";
-import { blockToNode } from "../../../api/nodeConversions/nodeConversions";
+import {
+  blockToNode,
+  inlineContentToNodes,
+} from "../../../api/nodeConversions/nodeConversions";
 import { PartialBlock } from "../api/blockTypes";
 import { getBlockInfoFromPos } from "../helpers/getBlockInfoFromPos";
 import { PreviousBlockTypePlugin } from "../PreviousBlockTypePlugin";
@@ -329,15 +332,7 @@ export const BlockContainer = Node.create<IBlock>({
               } else {
                 // Adds a text node with the provided styles converted into marks to the content, for each InlineContent
                 // object.
-                for (const styledText of block.content) {
-                  const marks = [];
-
-                  for (const style of styledText.styles) {
-                    marks.push(state.schema.mark(style.type, style.props));
-                  }
-
-                  content.push(state.schema.text(styledText.text, marks));
-                }
+                content = inlineContentToNodes(block.content, state.schema);
               }
 
               // Replaces the contents of the blockContent node with the previously created text node(s).

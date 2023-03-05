@@ -1,7 +1,8 @@
 import { Editor } from "@tiptap/core";
 import { Node } from "prosemirror-model";
 import { Block, PartialBlock } from "../../extensions/Blocks/api/blockTypes";
-import { blockToNode, getNodeById } from "../nodeConversions/nodeConversions";
+import { blockToNode } from "../nodeConversions/nodeConversions";
+import { getNodeById } from "../util/nodeUtil";
 
 export function insertBlocks(
   blocksToInsert: PartialBlock[],

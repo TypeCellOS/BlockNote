@@ -1,6 +1,6 @@
 /** Define the main block types **/
 
-import { InlineContent } from "./inlineContentTypes";
+import { InlineContent, PartialInlineContent } from "./inlineContentTypes";
 
 export type BlockTemplate<
   // Type of the block.
@@ -50,7 +50,11 @@ export type PartialBlockTemplate<B extends Block> = B extends Block
   ? Partial<Omit<B, "props" | "children" | "content" | "type">> & {
       type: B["type"];
       props?: Partial<B["props"]>;
-      content?: string | B["content"];
+      content?:
+        | string
+        | (B["content"] extends InlineContent[]
+            ? PartialInlineContent[]
+            : B["content"]);
       children?: PartialBlock[];
     }
   : never;
