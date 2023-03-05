@@ -1,7 +1,6 @@
-import {Block} from "@blocknote/core";
-import {afterEach, beforeEach, describe, expect, it} from "vitest";
-import { BlockNoteEditor } from "../src";
-import UniqueID from "../src/extensions/UniqueID/UniqueID";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { Block, BlockNoteEditor } from "../..";
+import UniqueID from "../../extensions/UniqueID/UniqueID";
 
 let editor: BlockNoteEditor;
 
@@ -173,15 +172,15 @@ Paragraph
       ],
     },
   ];
-// nestedHTML = `<h1>Heading</h1><p>Paragraph</p><ul><li><p>Bullet List Item</p><ol><li><p>Numbered List Item</p></li></ol></li></ul>`;
-// nestedMarkdown = `# Heading
-//
-// Paragraph
-//
-// *   Bullet List Item
-//
-//     1.  Numbered List Item
-// `;
+  // nestedHTML = `<h1>Heading</h1><p>Paragraph</p><ul><li><p>Bullet List Item</p><ol><li><p>Numbered List Item</p></li></ol></li></ul>`;
+  // nestedMarkdown = `# Heading
+  //
+  // Paragraph
+  //
+  // *   Bullet List Item
+  //
+  //     1.  Numbered List Item
+  // `;
 
   styledBlocks = [
     {
@@ -627,48 +626,48 @@ Paragraph
     },
   ];
 
-// complexHTML = `<h1>Heading 1</h1><h2>Heading 2</h2><h3>Heading 3</h3><p><span data-text-color="purple"><span data-background-color="green">Paragraph</span></span></p><p>P<strong>ara</strong><em>grap</em>h</p><p>P<u>ara</u><s>grap</s>h</p><ul><li><p>Bullet List Item</p></li><li><p>Bullet List Item</p><ul><li><p>Bullet List Item</p><ul><li><p>Bullet List Item</p></li></ul><p>Paragraph</p><ol><li><p>Numbered List Item</p></li><li><p>Numbered List Item</p></li><li><p>Numbered List Item</p><ol><li><p>Numbered List Item</p></li></ol></li></ol><ul><li><p>Bullet List Item</p></li></ul></li><li><p>Bullet List Item</p></li></ul></li><li><p>Bullet List Item</p></li></ul>`;
-// complexMarkdown = `# Heading 1
-//
-// ## Heading 2
-//
-// ### Heading 3
-//
-// Paragraph
-//
-// P**ara***grap*h
-//
-// P*ara*~~grap~~h
-//
-// *   Bullet List Item
-//
-// *   Bullet List Item
-//
-//     *   Bullet List Item
-//
-//         *   Bullet List Item
-//
-//         Paragraph
-//
-//         1.  Numbered List Item
-//
-//         2.  Numbered List Item
-//
-//         3.  Numbered List Item
-//
-//             1.  Numbered List Item
-//
-//         *   Bullet List Item
-//
-//     *   Bullet List Item
-//
-// *   Bullet List Item
-// `;
+  // complexHTML = `<h1>Heading 1</h1><h2>Heading 2</h2><h3>Heading 3</h3><p><span data-text-color="purple"><span data-background-color="green">Paragraph</span></span></p><p>P<strong>ara</strong><em>grap</em>h</p><p>P<u>ara</u><s>grap</s>h</p><ul><li><p>Bullet List Item</p></li><li><p>Bullet List Item</p><ul><li><p>Bullet List Item</p><ul><li><p>Bullet List Item</p></li></ul><p>Paragraph</p><ol><li><p>Numbered List Item</p></li><li><p>Numbered List Item</p></li><li><p>Numbered List Item</p><ol><li><p>Numbered List Item</p></li></ol></li></ol><ul><li><p>Bullet List Item</p></li></ul></li><li><p>Bullet List Item</p></li></ul></li><li><p>Bullet List Item</p></li></ul>`;
+  // complexMarkdown = `# Heading 1
+  //
+  // ## Heading 2
+  //
+  // ### Heading 3
+  //
+  // Paragraph
+  //
+  // P**ara***grap*h
+  //
+  // P*ara*~~grap~~h
+  //
+  // *   Bullet List Item
+  //
+  // *   Bullet List Item
+  //
+  //     *   Bullet List Item
+  //
+  //         *   Bullet List Item
+  //
+  //         Paragraph
+  //
+  //         1.  Numbered List Item
+  //
+  //         2.  Numbered List Item
+  //
+  //         3.  Numbered List Item
+  //
+  //             1.  Numbered List Item
+  //
+  //         *   Bullet List Item
+  //
+  //     *   Bullet List Item
+  //
+  // *   Bullet List Item
+  // `;
 });
 
 afterEach(() => {
-  editor._tiptapEditor.destroy()
-  editor = undefined;
+  editor._tiptapEditor.destroy();
+  editor = undefined as any;
 
   delete (window as Window & { __TEST_OPTIONS?: {} }).__TEST_OPTIONS;
 });

@@ -1,12 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { BlockNoteEditor, PartialBlock } from "../src";
-import {
-  blockToNode,
-  nodeToBlock,
-} from "../src/api/nodeConversions/nodeConversions";
-import UniqueID from "../src/extensions/UniqueID/UniqueID";
+import { BlockNoteEditor, PartialBlock } from "../..";
+import { blockToNode, nodeToBlock } from "./nodeConversions";
+
 import { Editor } from "@tiptap/core";
 import { Node } from "prosemirror-model";
+import UniqueID from "../../extensions/UniqueID/UniqueID";
 
 let editor: Editor;
 
@@ -120,7 +118,7 @@ beforeEach(() => {
 
 afterEach(() => {
   editor.destroy();
-  editor = undefined;
+  editor = undefined as any;
 
   delete (window as Window & { __TEST_OPTIONS?: {} }).__TEST_OPTIONS;
 });
