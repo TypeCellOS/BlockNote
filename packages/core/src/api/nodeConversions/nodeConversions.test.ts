@@ -160,7 +160,7 @@ describe("Complex ProseMirror Node Conversions", () => {
 });
 
 describe("links", () => {
-  it("Convert simple link block", async () => {
+  it("Convert a block with link", async () => {
     const block: PartialBlock = {
       id: "fake-id",
       type: "paragraph",
@@ -226,7 +226,7 @@ describe("links", () => {
     expect(outputBlock).toStrictEqual(fullOriginalBlock);
   });
 
-  it("Convert two adjacent link blocks", async () => {
+  it("Convert two adjacent links in a block", async () => {
     const block: PartialBlock = {
       id: "fake-id",
       type: "paragraph",
