@@ -48,6 +48,8 @@ export function partialBlockToBlockForTesting(
   const withDefaults = {
     id: "",
     type: "paragraph" as any,
+    // because at this point we don't have an easy way to access default props at runtime,
+    // partialBlockToBlockForTesting will not set them.
     props: {} as any,
     content: [],
     children: [],
