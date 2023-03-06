@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { Block, BlockNoteEditor, PartialBlock } from "../src";
+import { Block, BlockNoteEditor, PartialBlock } from "../..";
 
 let editor: BlockNoteEditor;
-let ready = false;
+
 function waitForEditor() {
   // wait for create event on editor,
   // this is necessary because otherwise UniqueId.create hasn't been called yet, and
@@ -23,11 +23,7 @@ let insert: (placement: "before" | "nested" | "after") => Block[];
 beforeEach(() => {
   (window as Window & { __TEST_OPTIONS?: {} }).__TEST_OPTIONS = {};
 
-  editor = new BlockNoteEditor({
-    onCreate: () => {
-      ready = true;
-    },
-  });
+  editor = new BlockNoteEditor();
 
   singleBlock = {
     type: "paragraph",
@@ -78,9 +74,8 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  ready = false;
   editor._tiptapEditor.destroy();
-  editor = undefined;
+  editor = undefined as any;
 
   delete (window as Window & { __TEST_OPTIONS?: {} }).__TEST_OPTIONS;
 });
