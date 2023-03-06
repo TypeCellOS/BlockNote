@@ -82,18 +82,24 @@ export function blockToNode(block: PartialBlock, schema: Schema) {
     id = UniqueID.options.generateID();
   }
 
+  let type = block.type;
+
+  if (type === undefined) {
+    type = "paragraph";
+  }
+
   let contentNode: Node;
 
   if (!block.content) {
-    contentNode = schema.nodes[block.type].create(block.props);
+    contentNode = schema.nodes[type].create(block.props);
   } else if (typeof block.content === "string") {
-    contentNode = schema.nodes[block.type].create(
+    contentNode = schema.nodes[type].create(
       block.props,
       schema.text(block.content)
     );
   } else {
     const nodes = inlineContentToNodes(block.content, schema);
-    contentNode = schema.nodes[block.type].create(block.props, nodes);
+    contentNode = schema.nodes[type].create(block.props, nodes);
   }
 
   const children: Node[] = [];

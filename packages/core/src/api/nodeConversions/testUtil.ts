@@ -27,7 +27,7 @@ function partialContentToInlineContent(
     return textShorthandToStyledText(content);
   }
 
-  const ret: InlineContent[] = content.map((partialContent) => {
+  return content.map((partialContent) => {
     if (partialContent.type === "link") {
       return {
         ...partialContent,
@@ -40,7 +40,6 @@ function partialContentToInlineContent(
       };
     }
   });
-  return ret;
 }
 
 export function partialBlockToBlockForTesting(
@@ -48,16 +47,16 @@ export function partialBlockToBlockForTesting(
 ): Block {
   const withDefaults = {
     id: "",
-    children: [],
+    type: "paragraph" as any,
     props: {} as any,
-    content: "",
+    content: [],
+    children: [],
     ...partialBlock,
   };
 
-  const ret: Block = {
+  return {
     ...withDefaults,
     content: partialContentToInlineContent(withDefaults.content),
     children: withDefaults.children.map(partialBlockToBlockForTesting),
   };
-  return ret;
 }
