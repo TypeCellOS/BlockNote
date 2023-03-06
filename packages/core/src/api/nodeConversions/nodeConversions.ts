@@ -9,6 +9,7 @@ import {
   InlineContent,
   Link,
   PartialInlineContent,
+  PartialLink,
   Style,
   StyledText,
 } from "../../extensions/Blocks/api/inlineContentTypes";
@@ -17,29 +18,52 @@ import UniqueID from "../../extensions/UniqueID/UniqueID";
 import { UnreachableCaseError } from "../../shared/utils";
 
 /**
+ * Convert a StyledText inline element to a
+ * prosemirror text node with the appropriate marks
+ */
+function styledTextToNode(styledText: StyledText, schema: Schema): Node {
+  const marks: Mark[] = [];
+
+  for (const style of styledText.styles) {
+    marks.push(schema.mark(style.type, style.props));
+  }
+
+  return schema.text(styledText.text, marks);
+}
+
+/**
+ * Converts a Link inline content element to
+ * prosemirror text nodes with the appropriate marks
+ */
+function linkToNodes(link: PartialLink, schema: Schema): Node[] {
+  const linkMark = schema.marks.link.create({
+    href: link.href,
+  });
+
+  const nodes = styledTextArrayToNodes(link.content, schema).map((node) => {
+    return node.mark([...node.marks, linkMark]);
+  });
+
+  return nodes;
+}
+
+/**
  * Converts an array of StyledText inline content elements to
  * prosemirror text nodes with the appropriate marks
  */
 function styledTextArrayToNodes(
   content: string | StyledText[],
-  schema: Schema,
-  defaultMarks: Mark[] = []
+  schema: Schema
 ): Node[] {
   let nodes: Node[] = [];
 
   if (typeof content === "string") {
-    nodes.push(schema.text(content, defaultMarks));
+    nodes.push(schema.text(content));
     return nodes;
   }
 
   for (const styledText of content) {
-    const marks = [...defaultMarks];
-
-    for (const style of styledText.styles) {
-      marks.push(schema.mark(style.type, style.props));
-    }
-
-    nodes.push(schema.text(styledText.text, marks));
+    nodes.push(styledTextToNode(styledText, schema));
   }
   return nodes;
 }
@@ -55,14 +79,7 @@ export function inlineContentToNodes(
 
   for (const content of blockContent) {
     if (content.type === "link") {
-      // special case for links, because in ProseMirror, links are marks
-      // in BlockNote, links are a type of inline content
-      const linkMark = schema.marks.link.create({
-        href: content.href,
-      });
-      nodes.push(
-        ...styledTextArrayToNodes(content.content, schema, [linkMark])
-      );
+      nodes.push(...linkToNodes(content, schema));
     } else if (content.type === "text") {
       nodes.push(...styledTextArrayToNodes([content], schema));
     } else {
