@@ -162,7 +162,7 @@ describe("Complex ProseMirror Node Conversions", () => {
 describe("links", () => {
   it("Convert a block with link", async () => {
     const block: PartialBlock = {
-      id: "fake-id",
+      id: UniqueID.options.generateID(),
       type: "paragraph",
       content: [
         {
@@ -187,7 +187,7 @@ describe("links", () => {
 
   it("Convert link block with marks", async () => {
     const block: PartialBlock = {
-      id: "fake-id",
+      id: UniqueID.options.generateID(),
       type: "paragraph",
       content: [
         {
@@ -228,7 +228,7 @@ describe("links", () => {
 
   it("Convert two adjacent links in a block", async () => {
     const block: PartialBlock = {
-      id: "fake-id",
+      id: UniqueID.options.generateID(),
       type: "paragraph",
       content: [
         {

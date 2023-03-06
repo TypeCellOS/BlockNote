@@ -195,63 +195,11 @@ exports[`Simple ProseMirror Node Conversions > Convert simple node to block 1`] 
 }
 `;
 
-exports[`links > Convert link block with marks 1`] = `
+exports[`links > Convert a block with link 1`] = `
 {
   "attrs": {
     "backgroundColor": "default",
-    "id": "fake-id",
-    "textColor": "default",
-  },
-  "content": [
-    {
-      "attrs": {
-        "textAlignment": "left",
-      },
-      "content": [
-        {
-          "marks": [
-            {
-              "attrs": {
-                "class": null,
-                "href": "https://www.website.com",
-                "target": "_blank",
-              },
-              "type": "link",
-            },
-            {
-              "type": "bold",
-            },
-          ],
-          "text": "Web",
-          "type": "text",
-        },
-        {
-          "marks": [
-            {
-              "attrs": {
-                "class": null,
-                "href": "https://www.website.com",
-                "target": "_blank",
-              },
-              "type": "link",
-            },
-          ],
-          "text": "site",
-          "type": "text",
-        },
-      ],
-      "type": "paragraph",
-    },
-  ],
-  "type": "blockContainer",
-}
-`;
-
-exports[`links > Convert simple link block 1`] = `
-{
-  "attrs": {
-    "backgroundColor": "default",
-    "id": "fake-id",
+    "id": 4,
     "textColor": "default",
   },
   "content": [
@@ -282,11 +230,11 @@ exports[`links > Convert simple link block 1`] = `
 }
 `;
 
-exports[`links > Convert two adjacent link blocks 1`] = `
+exports[`links > Convert two adjacent links in a block 1`] = `
 {
   "attrs": {
     "backgroundColor": "default",
-    "id": "fake-id",
+    "id": 4,
     "textColor": "default",
   },
   "content": [
