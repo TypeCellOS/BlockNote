@@ -345,10 +345,16 @@ export const BlockContainer = Node.create<IBlock>({
 
             // Changes the block type and adds the provided props as node attributes. Also preserves all existing node
             // attributes that are compatible with the new type.
-            state.tr.setNodeMarkup(startPos, state.schema.nodes[block.type], {
-              ...contentNode.attrs,
-              ...block.props,
-            });
+            state.tr.setNodeMarkup(
+              startPos,
+              block.type === undefined
+                ? undefined
+                : state.schema.nodes[block.type],
+              {
+                ...contentNode.attrs,
+                ...block.props,
+              }
+            );
           }
 
           return true;
