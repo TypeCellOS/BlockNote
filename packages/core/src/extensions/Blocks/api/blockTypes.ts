@@ -50,11 +50,7 @@ export type PartialBlockTemplate<B extends Block> = B extends Block
   ? Partial<Omit<B, "props" | "children" | "content" | "type">> & {
       type?: B["type"];
       props?: Partial<B["props"]>;
-      content?:
-        | string
-        | (B["content"] extends InlineContent[]
-            ? PartialInlineContent[]
-            : B["content"]);
+      content?: string | PartialInlineContent[];
       children?: PartialBlock[];
     }
   : never;
