@@ -4,7 +4,7 @@ Below, we explain how to read Blocks from the editor, and how to create / remove
 
 ## Block Identifiers
 
-Whenever you need to find a block in the editor for accessing, inserting, updating, removing, or replacing a block, you can use a `BlockIdentifier`. This can be either the block's ID string, or a `Block` object from which the ID is taken:
+Whenever you need to find a block in the editor for accessing, inserting, updating, removing, or replacing a block, you can use a `BlockIdentifier`. This can be either a `string` representing the block ID, or a `Block` object from which the ID is taken:
 
 ```typescript
 type BlockIdentifier = string | Block;
@@ -12,7 +12,7 @@ type BlockIdentifier = string | Block;
 
 ## Accessing Blocks
 
-The first thing we can do with Blocks, is to get them from the editor, and there are a few different ways of doing that.
+There are a few different ways to retrieve Blocks from the editor:
 
 ### Getting All Top-Level Blocks
 
@@ -27,16 +27,16 @@ class BlockNoteEditor {
 }
 
 // Usage
-const allBlocks = editor.topLevelBlocks;
+const blocks = editor.topLevelBlocks;
 ```
 
-`returns:` An array containing all top-level, or non-nested blocks in the editor.
+`returns:` An array containing a snapshot of all top-level (non-nested) blocks in the editor.
 
 We've actually already seen this used for the live example in [Getting Familiar with Block Objects](blocks#demo-getting-familiar-with-block-objects), where we showed its output below the editor.
 
 ### Getting a Specific Block
 
-If you want to retrieve a snapshot of a specific block in the editor using the following call:
+Use `getBlock` to retrieve a snapshot of a specific block in the editor:
 
 ```typescript
 // Definition
@@ -52,7 +52,7 @@ const block = editor.getBlock(blockIdentifier);
 
 `blockIdentifier:` The identifier of an existing block that should be retrieved.
 
-`returns:` The block that matches the identifier, or nothing if no matching block was found.
+`returns:` The block that matches the identifier, or `undefined` if no matching block was found.
 
 ### Traversing All Blocks
 
@@ -62,18 +62,18 @@ You can traverse all blocks in the editor depth-first, and execute a callback fo
 // Definition
 class BlockNoteEditor {
 ...
-  public allBlocks(
-    callback: (block: Block) => void, 
-    reverse: boolean = true
+  public forEachBlock(
+    callback: (block: Block) => boolean,
+    reverse: boolean = false
   ): void;
 ...
 }
 
 // Usage
-editor.allBlocks((block) => {...});
+editor.forEachBlock((block) => {...});
 ```
 
-`callback:` The callback to execute for each block.
+`callback:` The callback to execute for each block. Return `false` to stop the traversal.
 
 `reverse:` Whether the blocks should be traversed in reverse order.
 
@@ -88,7 +88,7 @@ When retrieving blocks from the editor, you always receive complete `Block` obje
 ```typescript
 type PartialBlock = {
   id?: string;
-  type: string;
+  type?: string;
   props?: Partial<Record<string, string>>;
   content?: string | InlineNode[];
   children?: BlockSpec[];
@@ -107,21 +107,21 @@ class BlockNoteEditor {
 ...
   public insertBlocks(
     blocksToInsert: PartialBlock[],
-    blockToInsertAt: BlockIdentifier,
+    referenceBlock: BlockIdentifier,
     placement: "before" | "after" | "nested" = "before"
   ): void;
 ...
 }
 
 // Usage
-editor.insertBlocks(blocksToInsert, blockToInsertAt, placement)
+editor.insertBlocks(blocksToInsert, referenceBlock, placement)
 ```
 
 `blocksToInsert:` An array of blocks that should be inserted.
 
-`blockToInsertAt:` An identifier for an existing block, at which the new blocks should be inserted.
+`referenceBlock:` An [identifier](#block-identifiers) for an existing block, at which the new blocks should be inserted.
 
-`placement:` Determines whether the blocks should be inserted just before, just after, or nested inside the existing block. Inserts the blocks at the start of the existing block's children if `"nested"` is used.
+`placement:` Determines whether the blocks should be inserted just before, just after, or nested inside the `referenceBlock`. Inserts the blocks at the start of the existing block's children if `"nested"` is used.
 
 ## Updating Blocks
 
@@ -133,18 +133,18 @@ class BlockNoteEditor {
 ...
   public updateBlock(
     blockToUpdate: BlockIdentifier,
-    updatedBlock: PartialBlock
+    updates: PartialBlock
   ): void;
 ...
 }
 
-// Usage
-editor.updateBlock(blockToUpdate, updatedBlock)
+// Example to change a block type to paragraph
+editor.updateBlock(blockToUpdate, { type: "paragraph" });
 ```
 
-`blockToUpdate:` An identifier for existing block that should be updated.
+`blockToUpdate:` The [identifier](#block-identifiers) of the existing block that should be updated.
 
-`updatedBlock:` A block which that the existing block should be updated to.
+`updates:` A [partial block](#partial-blocks) which defines values of the block should be updated.
 
 #### Partial updates
 
@@ -168,7 +168,7 @@ class BlockNoteEditor {
 editor.removeBlocks(blocksToRemove)
 ```
 
-`blocksToRemove:` An array of identifiers for existing blocks that should be removed.
+`blocksToRemove:` An array of [identifiers](#block-identifiers) for existing blocks that should be removed.
 
 ## Replacing Blocks
 
@@ -189,10 +189,10 @@ class BlockNoteEditor {
 editor.replaceBlocks(blocksToRemove, blocksToInsert)
 ```
 
-`blocksToRemove:` An array of identifiers for existing blocks that should be replaced.
+`blocksToRemove:` An array of [identifiers](#block-identifiers) for existing blocks that should be replaced.
 
 `blocksToInsert:` An array of blocks that the existing ones should be replaced with.
 
 #### Additional Information
 
-If the blocks that should be removed are not adjacent or are at different nesting levels, `blocksToInsert` will be inserted in place of the block found by the first identifier in `blocksToRemove`.
+If the blocks that should be removed are not adjacent or are at different nesting levels, `blocksToInsert` will be inserted at the position of the first block in `blocksToRemove`.
