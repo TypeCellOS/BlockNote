@@ -59,4 +59,5 @@ type Link = {
 ```
 
 `content:` The styled text that should be used to display the link.
+
 `href:` The URL that should be opened when clicking the link.

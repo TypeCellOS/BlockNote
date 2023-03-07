@@ -7,6 +7,7 @@ import styles from "./editor.module.css";
 import { defaultSlashCommands, SlashCommand } from "./extensions/SlashMenu";
 
 export type BlockNoteEditorOptions = {
+  // TODO: Figure out if enableBlockNoteExtensions/disableHistoryExtension are needed and document them.
   enableBlockNoteExtensions: boolean;
   disableHistoryExtension: boolean;
   uiFactories: UiFactories;
