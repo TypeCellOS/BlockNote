@@ -13,8 +13,8 @@ export type BlockNoteEditorOptions = {
   slashCommands: SlashCommand[];
   parentElement: HTMLElement;
   editorDOMAttributes: Record<string, string>;
-  onUpdate: () => void;
-  onCreate: () => void;
+  onUpdate: (editor: BlockNoteEditor) => void;
+  onCreate: (editor: BlockNoteEditor) => void;
 
   // tiptap options, undocumented
   _tiptapOptions: any;
@@ -47,10 +47,10 @@ export class BlockNoteEditor extends EditorAPI {
       ...blockNoteTipTapOptions,
       ...options._tiptapOptions,
       onUpdate: () => {
-        options.onUpdate?.();
+        options.onUpdate?.(this);
       },
       onCreate: () => {
-        options.onCreate?.();
+        options.onCreate?.(this);
       },
       extensions:
         options.enableBlockNoteExtensions === false

@@ -4,14 +4,12 @@ import * as styles from "./ReactBlockNote.module.css";
 
 export function ReactBlockNote() {
   const editor = useBlockNote({
-    onUpdate: ({ editor }) => {
+    onUpdate: (editor) => {
       // Log the document to console on every update
-      console.log(editor.getJSON());
+      console.log(editor.allBlocks);
     },
-    editorProps: {
-      attributes: {
-        class: styles.editor,
-      },
+    editorDOMAttributes: {
+      class: styles.editor,
     },
   });
 
