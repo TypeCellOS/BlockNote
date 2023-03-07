@@ -35,7 +35,7 @@ const SIDEBAR_DEFAULT = [
       { text: "Introduction to Blocks", link: "/docs/blocks" },
       { text: "Block types", link: "/docs/block-types" },
       { text: "Manipulating Blocks", link: "/docs/manipulating-blocks" },
-      { text: "Rich Text content (TBD)", link: "/docs/rich-text" },
+      { text: "Inline Content", link: "/docs/rich-text" },
       { text: "Cursor and selections", link: "/docs/cursor-selections" },
       { text: "Markdown and HTML", link: "/docs/converting-blocks" },
     ],
