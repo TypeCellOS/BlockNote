@@ -8,7 +8,14 @@ exports[`Insert, Update, & Delete Blocks > Insert, update, & delete multiple blo
         "children": [],
         "content": [
           {
-            "styles": [],
+            "styles": {
+              "backgroundColor": "default",
+              "bold": false,
+              "italic": false,
+              "strike": false,
+              "textColor": "default",
+              "underline": false,
+            },
             "text": "Nested Heading 1",
             "type": "text",
           },
@@ -25,7 +32,14 @@ exports[`Insert, Update, & Delete Blocks > Insert, update, & delete multiple blo
     ],
     "content": [
       {
-        "styles": [],
+        "styles": {
+          "backgroundColor": "default",
+          "bold": false,
+          "italic": false,
+          "strike": false,
+          "textColor": "default",
+          "underline": false,
+        },
         "text": "Heading 1",
         "type": "text",
       },
@@ -45,7 +59,14 @@ exports[`Insert, Update, & Delete Blocks > Insert, update, & delete multiple blo
         "children": [],
         "content": [
           {
-            "styles": [],
+            "styles": {
+              "backgroundColor": "default",
+              "bold": false,
+              "italic": false,
+              "strike": false,
+              "textColor": "default",
+              "underline": false,
+            },
             "text": "Nested Heading 2",
             "type": "text",
           },
@@ -62,7 +83,14 @@ exports[`Insert, Update, & Delete Blocks > Insert, update, & delete multiple blo
     ],
     "content": [
       {
-        "styles": [],
+        "styles": {
+          "backgroundColor": "default",
+          "bold": false,
+          "italic": false,
+          "strike": false,
+          "textColor": "default",
+          "underline": false,
+        },
         "text": "Heading 2",
         "type": "text",
       },
@@ -98,7 +126,14 @@ exports[`Insert, Update, & Delete Blocks > Insert, update, & delete multiple blo
         "children": [],
         "content": [
           {
-            "styles": [],
+            "styles": {
+              "backgroundColor": "default",
+              "bold": false,
+              "italic": false,
+              "strike": false,
+              "textColor": "default",
+              "underline": false,
+            },
             "text": "Nested Heading 1",
             "type": "text",
           },
@@ -115,7 +150,14 @@ exports[`Insert, Update, & Delete Blocks > Insert, update, & delete multiple blo
     ],
     "content": [
       {
-        "styles": [],
+        "styles": {
+          "backgroundColor": "default",
+          "bold": false,
+          "italic": false,
+          "strike": false,
+          "textColor": "default",
+          "underline": false,
+        },
         "text": "Heading 1",
         "type": "text",
       },
@@ -134,7 +176,14 @@ exports[`Insert, Update, & Delete Blocks > Insert, update, & delete multiple blo
         "children": [],
         "content": [
           {
-            "styles": [],
+            "styles": {
+              "backgroundColor": "default",
+              "bold": false,
+              "italic": false,
+              "strike": false,
+              "textColor": "default",
+              "underline": false,
+            },
             "text": "Nested Heading 2",
             "type": "text",
           },
@@ -151,7 +200,14 @@ exports[`Insert, Update, & Delete Blocks > Insert, update, & delete multiple blo
     ],
     "content": [
       {
-        "styles": [],
+        "styles": {
+          "backgroundColor": "default",
+          "bold": false,
+          "italic": false,
+          "strike": false,
+          "textColor": "default",
+          "underline": false,
+        },
         "text": "Heading 2",
         "type": "text",
       },
@@ -185,7 +241,14 @@ exports[`Insert, Update, & Delete Blocks > Insert, update, & delete multiple blo
     "children": [],
     "content": [
       {
-        "styles": [],
+        "styles": {
+          "backgroundColor": "default",
+          "bold": false,
+          "italic": false,
+          "strike": false,
+          "textColor": "default",
+          "underline": false,
+        },
         "text": "Heading 1",
         "type": "text",
       },
@@ -218,7 +281,14 @@ exports[`Insert, Update, & Delete Blocks > Insert, update, & delete single block
     "children": [],
     "content": [
       {
-        "styles": [],
+        "styles": {
+          "backgroundColor": "default",
+          "bold": false,
+          "italic": false,
+          "strike": false,
+          "textColor": "default",
+          "underline": false,
+        },
         "text": "Paragraph",
         "type": "text",
       },
@@ -253,7 +323,14 @@ exports[`Insert, Update, & Delete Blocks > Insert, update, & delete single block
         "children": [],
         "content": [
           {
-            "styles": [],
+            "styles": {
+              "backgroundColor": "default",
+              "bold": false,
+              "italic": false,
+              "strike": false,
+              "textColor": "default",
+              "underline": false,
+            },
             "text": "Paragraph",
             "type": "text",
           },
@@ -269,26 +346,26 @@ exports[`Insert, Update, & Delete Blocks > Insert, update, & delete single block
     ],
     "content": [
       {
-        "styles": [
-          {
-            "props": {
-              "color": "red",
-            },
-            "type": "textColor",
-          },
-        ],
+        "styles": {
+          "backgroundColor": "default",
+          "bold": false,
+          "italic": false,
+          "strike": false,
+          "textColor": "red",
+          "underline": false,
+        },
         "text": "Heading ",
         "type": "text",
       },
       {
-        "styles": [
-          {
-            "props": {
-              "color": "red",
-            },
-            "type": "backgroundColor",
-          },
-        ],
+        "styles": {
+          "backgroundColor": "red",
+          "bold": false,
+          "italic": false,
+          "strike": false,
+          "textColor": "default",
+          "underline": false,
+        },
         "text": "3",
         "type": "text",
       },
@@ -351,7 +428,14 @@ exports[`Inserting Blocks with Different Placements > Insert after existing bloc
         "children": [],
         "content": [
           {
-            "styles": [],
+            "styles": {
+              "backgroundColor": "default",
+              "bold": false,
+              "italic": false,
+              "strike": false,
+              "textColor": "default",
+              "underline": false,
+            },
             "text": "Nested Heading 1",
             "type": "text",
           },
@@ -368,7 +452,14 @@ exports[`Inserting Blocks with Different Placements > Insert after existing bloc
     ],
     "content": [
       {
-        "styles": [],
+        "styles": {
+          "backgroundColor": "default",
+          "bold": false,
+          "italic": false,
+          "strike": false,
+          "textColor": "default",
+          "underline": false,
+        },
         "text": "Heading 1",
         "type": "text",
       },
@@ -388,7 +479,14 @@ exports[`Inserting Blocks with Different Placements > Insert after existing bloc
         "children": [],
         "content": [
           {
-            "styles": [],
+            "styles": {
+              "backgroundColor": "default",
+              "bold": false,
+              "italic": false,
+              "strike": false,
+              "textColor": "default",
+              "underline": false,
+            },
             "text": "Nested Heading 2",
             "type": "text",
           },
@@ -405,7 +503,14 @@ exports[`Inserting Blocks with Different Placements > Insert after existing bloc
     ],
     "content": [
       {
-        "styles": [],
+        "styles": {
+          "backgroundColor": "default",
+          "bold": false,
+          "italic": false,
+          "strike": false,
+          "textColor": "default",
+          "underline": false,
+        },
         "text": "Heading 2",
         "type": "text",
       },
@@ -441,7 +546,14 @@ exports[`Inserting Blocks with Different Placements > Insert before existing blo
         "children": [],
         "content": [
           {
-            "styles": [],
+            "styles": {
+              "backgroundColor": "default",
+              "bold": false,
+              "italic": false,
+              "strike": false,
+              "textColor": "default",
+              "underline": false,
+            },
             "text": "Nested Heading 1",
             "type": "text",
           },
@@ -458,7 +570,14 @@ exports[`Inserting Blocks with Different Placements > Insert before existing blo
     ],
     "content": [
       {
-        "styles": [],
+        "styles": {
+          "backgroundColor": "default",
+          "bold": false,
+          "italic": false,
+          "strike": false,
+          "textColor": "default",
+          "underline": false,
+        },
         "text": "Heading 1",
         "type": "text",
       },
@@ -478,7 +597,14 @@ exports[`Inserting Blocks with Different Placements > Insert before existing blo
         "children": [],
         "content": [
           {
-            "styles": [],
+            "styles": {
+              "backgroundColor": "default",
+              "bold": false,
+              "italic": false,
+              "strike": false,
+              "textColor": "default",
+              "underline": false,
+            },
             "text": "Nested Heading 2",
             "type": "text",
           },
@@ -495,7 +621,14 @@ exports[`Inserting Blocks with Different Placements > Insert before existing blo
     ],
     "content": [
       {
-        "styles": [],
+        "styles": {
+          "backgroundColor": "default",
+          "bold": false,
+          "italic": false,
+          "strike": false,
+          "textColor": "default",
+          "underline": false,
+        },
         "text": "Heading 2",
         "type": "text",
       },
@@ -533,7 +666,14 @@ exports[`Inserting Blocks with Different Placements > Insert nested inside exist
             "children": [],
             "content": [
               {
-                "styles": [],
+                "styles": {
+                  "backgroundColor": "default",
+                  "bold": false,
+                  "italic": false,
+                  "strike": false,
+                  "textColor": "default",
+                  "underline": false,
+                },
                 "text": "Nested Heading 1",
                 "type": "text",
               },
@@ -550,7 +690,14 @@ exports[`Inserting Blocks with Different Placements > Insert nested inside exist
         ],
         "content": [
           {
-            "styles": [],
+            "styles": {
+              "backgroundColor": "default",
+              "bold": false,
+              "italic": false,
+              "strike": false,
+              "textColor": "default",
+              "underline": false,
+            },
             "text": "Heading 1",
             "type": "text",
           },
@@ -570,7 +717,14 @@ exports[`Inserting Blocks with Different Placements > Insert nested inside exist
             "children": [],
             "content": [
               {
-                "styles": [],
+                "styles": {
+                  "backgroundColor": "default",
+                  "bold": false,
+                  "italic": false,
+                  "strike": false,
+                  "textColor": "default",
+                  "underline": false,
+                },
                 "text": "Nested Heading 2",
                 "type": "text",
               },
@@ -587,7 +741,14 @@ exports[`Inserting Blocks with Different Placements > Insert nested inside exist
         ],
         "content": [
           {
-            "styles": [],
+            "styles": {
+              "backgroundColor": "default",
+              "bold": false,
+              "italic": false,
+              "strike": false,
+              "textColor": "default",
+              "underline": false,
+            },
             "text": "Heading 2",
             "type": "text",
           },

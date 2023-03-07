@@ -13,7 +13,14 @@ function textShorthandToStyledText(
       {
         type: "text",
         text: content,
-        styles: [],
+        styles: {
+          bold: false,
+          italic: false,
+          underline: false,
+          strike: false,
+          textColor: "default",
+          backgroundColor: "default",
+        },
       },
     ];
   }
@@ -34,10 +41,7 @@ function partialContentToInlineContent(
         content: textShorthandToStyledText(partialContent.content),
       };
     } else {
-      return {
-        ...partialContent,
-        styles: partialContent.styles || [],
-      };
+      return partialContent;
     }
   });
 }

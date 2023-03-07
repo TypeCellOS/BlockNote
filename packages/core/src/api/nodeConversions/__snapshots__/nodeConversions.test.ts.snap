@@ -96,7 +96,14 @@ exports[`Complex ProseMirror Node Conversions > Convert complex node to block 1`
       "children": [],
       "content": [
         {
-          "styles": [],
+          "styles": {
+            "backgroundColor": "default",
+            "bold": false,
+            "italic": false,
+            "strike": false,
+            "textColor": "default",
+            "underline": false,
+          },
           "text": "Paragraph",
           "type": "text",
         },
@@ -123,30 +130,26 @@ exports[`Complex ProseMirror Node Conversions > Convert complex node to block 1`
   ],
   "content": [
     {
-      "styles": [
-        {
-          "props": {},
-          "type": "bold",
-        },
-        {
-          "props": {},
-          "type": "underline",
-        },
-      ],
+      "styles": {
+        "backgroundColor": "default",
+        "bold": true,
+        "italic": false,
+        "strike": false,
+        "textColor": "default",
+        "underline": true,
+      },
       "text": "Heading ",
       "type": "text",
     },
     {
-      "styles": [
-        {
-          "props": {},
-          "type": "italic",
-        },
-        {
-          "props": {},
-          "type": "strike",
-        },
-      ],
+      "styles": {
+        "backgroundColor": "default",
+        "bold": false,
+        "italic": true,
+        "strike": true,
+        "textColor": "default",
+        "underline": false,
+      },
       "text": "2",
       "type": "text",
     },
