@@ -150,8 +150,10 @@ function setDragImage(view: EditorView, from: number, to = from) {
   }
 
   // dataTransfer.setDragImage(element) only works if element is attached to the DOM.
+  unsetDragImage();
   dragImageElement = parentClone;
-  dragImageElement.className = styles.dragPreview;
+  dragImageElement.className =
+    dragImageElement.className + " " + styles.dragPreview;
   document.body.appendChild(dragImageElement);
 }
 
@@ -245,104 +247,164 @@ export class BlockMenuView {
 
     this.blockMenu = blockMenuFactory(this.getStaticParams());
 
+    document.body.addEventListener("drop", this.onDrop, true);
+    document.body.addEventListener("dragover", this.onDragOver);
+
     // Shows or updates menu position whenever the cursor moves, if the menu isn't frozen.
-    document.body.addEventListener(
-      "mousemove",
-      (event) => {
-        if (this.menuFrozen) {
-          return;
-        }
-
-        // Editor itself may have padding or other styling which affects size/position, so we get the boundingRect of
-        // the first child (i.e. the blockGroup that wraps all blocks in the editor) for a more accurate bounding box.
-        const editorBoundingBox = (
-          this.editor.view.dom.firstChild! as HTMLElement
-        ).getBoundingClientRect();
-
-        this.horizontalPosAnchor = editorBoundingBox.x;
-
-        // Gets block at mouse cursor's vertical position.
-        const coords = {
-          left: editorBoundingBox.left + editorBoundingBox.width / 2, // take middle of editor
-          top: event.clientY,
-        };
-        const block = getDraggableBlockFromCoords(coords, this.editor.view);
-
-        // Closes the menu if the mouse cursor is beyond the editor vertically.
-        if (!block) {
-          if (this.menuOpen) {
-            this.menuOpen = false;
-            this.blockMenu.hide();
-          }
-
-          return;
-        }
-
-        // Doesn't update if the menu is already open and the mouse cursor is still hovering the same block.
-        if (
-          this.menuOpen &&
-          this.hoveredBlockContent?.hasAttribute("data-id") &&
-          this.hoveredBlockContent?.getAttribute("data-id") === block.id
-        ) {
-          return;
-        }
-
-        // Gets the block's content node, which lets to ignore child blocks when determining the block menu's position.
-        const blockContent = block.node.firstChild as HTMLElement;
-        this.hoveredBlockContent = blockContent;
-
-        if (!blockContent) {
-          return;
-        }
-
-        // Shows or updates elements.
-        if (!this.menuOpen) {
-          this.menuOpen = true;
-          this.blockMenu.render(this.getDynamicParams(), true);
-        } else {
-          this.blockMenu.render(this.getDynamicParams(), false);
-        }
-      },
-      true
-    );
+    document.body.addEventListener("mousemove", this.onMouseMove, true);
 
     // Hides and unfreezes the menu whenever the user selects the editor with the mouse or presses a key.
     // TODO: Better integration with suggestions menu and only editor scope?
-    document.body.addEventListener(
-      "mousedown",
-      (event) => {
-        if (this.blockMenu.element?.contains(event.target as HTMLElement)) {
-          return;
-        }
-
-        if (this.menuOpen) {
-          this.menuOpen = false;
-          this.blockMenu.hide();
-        }
-
-        this.menuFrozen = false;
-      },
-      true
-    );
-    document.body.addEventListener(
-      "keydown",
-      () => {
-        if (this.menuOpen) {
-          this.menuOpen = false;
-          this.blockMenu.hide();
-        }
-
-        this.menuFrozen = false;
-      },
-      true
-    );
+    document.body.addEventListener("mousedown", this.onMouseDown, true);
+    document.body.addEventListener("keydown", this.onKeyDown, true);
   }
+
+  /**
+   * If the event is outside of the editor contents,
+   * we dispatch a fake event, so that we can still drop the content
+   * when dragging / dropping to the side of the editor
+   */
+  onDrop = (event: DragEvent) => {
+    if ((event as any).synthetic) {
+      return;
+    }
+    let pos = this.editor.view.posAtCoords({
+      left: event.clientX,
+      top: event.clientY,
+    });
+
+    if (!pos || pos.inside === -1) {
+      const evt = new Event("drop", event) as any;
+      const editorBoundingBox = (
+        this.editor.view.dom.firstChild! as HTMLElement
+      ).getBoundingClientRect();
+      evt.clientX = editorBoundingBox.left + editorBoundingBox.width / 2;
+      evt.clientY = event.clientY;
+      evt.dataTransfer = event.dataTransfer;
+      evt.preventDefault = () => event.preventDefault();
+      evt.synthetic = true; // prevent recursion
+      // console.log("dispatch fake drop");
+      this.editor.view.dom.dispatchEvent(evt);
+    }
+  };
+
+  /**
+   * If the event is outside of the editor contents,
+   * we dispatch a fake event, so that we can still drop the content
+   * when dragging / dropping to the side of the editor
+   */
+  onDragOver = (event: DragEvent) => {
+    if ((event as any).synthetic) {
+      return;
+    }
+    let pos = this.editor.view.posAtCoords({
+      left: event.clientX,
+      top: event.clientY,
+    });
+
+    if (!pos || pos.inside === -1) {
+      const evt = new Event("dragover", event) as any;
+      const editorBoundingBox = (
+        this.editor.view.dom.firstChild! as HTMLElement
+      ).getBoundingClientRect();
+      evt.clientX = editorBoundingBox.left + editorBoundingBox.width / 2;
+      evt.clientY = event.clientY;
+      evt.dataTransfer = event.dataTransfer;
+      evt.preventDefault = () => event.preventDefault();
+      evt.synthetic = true; // prevent recursion
+      // console.log("dispatch fake dragover");
+      this.editor.view.dom.dispatchEvent(evt);
+    }
+  };
+
+  onKeyDown = (_event: KeyboardEvent) => {
+    if (this.menuOpen) {
+      this.menuOpen = false;
+      this.blockMenu.hide();
+    }
+
+    this.menuFrozen = false;
+  };
+
+  onMouseDown = (event: MouseEvent) => {
+    if (this.blockMenu.element?.contains(event.target as HTMLElement)) {
+      return;
+    }
+
+    if (this.menuOpen) {
+      this.menuOpen = false;
+      this.blockMenu.hide();
+    }
+
+    this.menuFrozen = false;
+  };
+
+  onMouseMove = (event: MouseEvent) => {
+    if (this.menuFrozen) {
+      return;
+    }
+
+    // Editor itself may have padding or other styling which affects size/position, so we get the boundingRect of
+    // the first child (i.e. the blockGroup that wraps all blocks in the editor) for a more accurate bounding box.
+    const editorBoundingBox = (
+      this.editor.view.dom.firstChild! as HTMLElement
+    ).getBoundingClientRect();
+
+    this.horizontalPosAnchor = editorBoundingBox.x;
+
+    // Gets block at mouse cursor's vertical position.
+    const coords = {
+      left: editorBoundingBox.left + editorBoundingBox.width / 2, // take middle of editor
+      top: event.clientY,
+    };
+    const block = getDraggableBlockFromCoords(coords, this.editor.view);
+
+    // Closes the menu if the mouse cursor is beyond the editor vertically.
+    if (!block) {
+      if (this.menuOpen) {
+        this.menuOpen = false;
+        this.blockMenu.hide();
+      }
+
+      return;
+    }
+
+    // Doesn't update if the menu is already open and the mouse cursor is still hovering the same block.
+    if (
+      this.menuOpen &&
+      this.hoveredBlockContent?.hasAttribute("data-id") &&
+      this.hoveredBlockContent?.getAttribute("data-id") === block.id
+    ) {
+      return;
+    }
+
+    // Gets the block's content node, which lets to ignore child blocks when determining the block menu's position.
+    const blockContent = block.node.firstChild as HTMLElement;
+    this.hoveredBlockContent = blockContent;
+
+    if (!blockContent) {
+      return;
+    }
+
+    // Shows or updates elements.
+    if (!this.menuOpen) {
+      this.menuOpen = true;
+      this.blockMenu.render(this.getDynamicParams(), true);
+    } else {
+      this.blockMenu.render(this.getDynamicParams(), false);
+    }
+  };
 
   destroy() {
     if (this.menuOpen) {
       this.menuOpen = false;
       this.blockMenu.hide();
     }
+    document.body.removeEventListener("mousemove", this.onMouseMove);
+    document.body.removeEventListener("dragover", this.onDragOver);
+    document.body.removeEventListener("drop", this.onDrop);
+    document.body.removeEventListener("mousedown", this.onMouseDown);
+    document.body.removeEventListener("keydown", this.onKeyDown);
   }
 
   addBlock() {
