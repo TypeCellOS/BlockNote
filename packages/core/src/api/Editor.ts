@@ -1,13 +1,12 @@
 import { Editor as TiptapEditor } from "@tiptap/core";
 import { Node } from "prosemirror-model";
-import { getBlockInfoFromPos } from "../extensions/Blocks/helpers/getBlockInfoFromPos";
 import {
   Block,
   BlockIdentifier,
   PartialBlock,
 } from "../extensions/Blocks/api/blockTypes";
 import { TextCursorPosition } from "../extensions/Blocks/api/cursorPositionTypes";
-import { nodeToBlock } from "./nodeConversions/nodeConversions";
+import { getBlockInfoFromPos } from "../extensions/Blocks/helpers/getBlockInfoFromPos";
 import {
   insertBlocks,
   removeBlocks,
@@ -20,6 +19,7 @@ import {
   HTMLToBlocks,
   markdownToBlocks,
 } from "./formatConversions/formatConversions";
+import { nodeToBlock } from "./nodeConversions/nodeConversions";
 
 export class Editor {
   constructor(
