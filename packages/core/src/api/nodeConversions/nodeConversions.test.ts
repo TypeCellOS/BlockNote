@@ -1,12 +1,13 @@
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { BlockNoteEditor, PartialBlock } from "../..";
-import { blockToNode, nodeToBlock } from "./nodeConversions";
-
 import { Editor } from "@tiptap/core";
 import { Node } from "prosemirror-model";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { BlockNoteEditor, PartialBlock } from "../..";
 import UniqueID from "../../extensions/UniqueID/UniqueID";
+import { blockToNode, nodeToBlock } from "./nodeConversions";
+import { partialBlockToBlockForTesting } from "./testUtil";
 
-let editor: Editor;
+let editor: BlockNoteEditor;
+let tt: Editor;
 
 let simpleBlock: PartialBlock;
 let simpleNode: Node;
@@ -17,14 +18,15 @@ let complexNode: Node;
 beforeEach(() => {
   (window as Window & { __TEST_OPTIONS?: {} }).__TEST_OPTIONS = {};
 
-  editor = new BlockNoteEditor()._tiptapEditor;
+  editor = new BlockNoteEditor();
+  tt = editor._tiptapEditor;
 
   simpleBlock = {
     type: "paragraph",
   };
-  simpleNode = editor.schema.nodes["blockContainer"].create(
+  simpleNode = tt.schema.nodes["blockContainer"].create(
     { id: UniqueID.options.generateID() },
-    editor.schema.nodes["paragraph"].create()
+    tt.schema.nodes["paragraph"].create()
   );
 
   complexBlock = {
@@ -37,6 +39,7 @@ beforeEach(() => {
     },
     content: [
       {
+        type: "text",
         text: "Heading ",
         styles: [
           {
@@ -50,6 +53,7 @@ beforeEach(() => {
         ],
       },
       {
+        type: "text",
         text: "2",
         styles: [
           {
@@ -77,39 +81,34 @@ beforeEach(() => {
       },
     ],
   };
-  complexNode = editor.schema.nodes["blockContainer"].create(
+  complexNode = tt.schema.nodes["blockContainer"].create(
     {
       id: UniqueID.options.generateID(),
       backgroundColor: "blue",
       textColor: "yellow",
     },
     [
-      editor.schema.nodes["heading"].create(
+      tt.schema.nodes["heading"].create(
         { textAlignment: "right", level: "2" },
         [
-          editor.schema.text("Heading ", [
-            editor.schema.mark("bold"),
-            editor.schema.mark("underline"),
+          tt.schema.text("Heading ", [
+            tt.schema.mark("bold"),
+            tt.schema.mark("underline"),
           ]),
-          editor.schema.text("2", [
-            editor.schema.mark("italic"),
-            editor.schema.mark("strike"),
+          tt.schema.text("2", [
+            tt.schema.mark("italic"),
+            tt.schema.mark("strike"),
           ]),
         ]
       ),
-      editor.schema.nodes["blockGroup"].create({}, [
-        editor.schema.nodes["blockContainer"].create(
+      tt.schema.nodes["blockGroup"].create({}, [
+        tt.schema.nodes["blockContainer"].create(
           { id: UniqueID.options.generateID(), backgroundColor: "red" },
-          [
-            editor.schema.nodes["paragraph"].create(
-              {},
-              editor.schema.text("Paragraph")
-            ),
-          ]
+          [tt.schema.nodes["paragraph"].create({}, tt.schema.text("Paragraph"))]
         ),
-        editor.schema.nodes["blockContainer"].create(
+        tt.schema.nodes["blockContainer"].create(
           { id: UniqueID.options.generateID() },
-          [editor.schema.nodes["bulletListItem"].create()]
+          [tt.schema.nodes["bulletListItem"].create()]
         ),
       ]),
     ]
@@ -117,15 +116,16 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  editor.destroy();
+  tt.destroy();
   editor = undefined as any;
+  tt = undefined as any;
 
   delete (window as Window & { __TEST_OPTIONS?: {} }).__TEST_OPTIONS;
 });
 
 describe("Simple ProseMirror Node Conversions", () => {
   it("Convert simple block to node", async () => {
-    const firstNodeConversion = blockToNode(simpleBlock, editor.schema);
+    const firstNodeConversion = blockToNode(simpleBlock, tt.schema);
 
     expect(firstNodeConversion).toMatchSnapshot();
   });
@@ -135,10 +135,7 @@ describe("Simple ProseMirror Node Conversions", () => {
 
     expect(firstBlockConversion).toMatchSnapshot();
 
-    const firstNodeConversion = blockToNode(
-      firstBlockConversion,
-      editor.schema
-    );
+    const firstNodeConversion = blockToNode(firstBlockConversion, tt.schema);
 
     expect(firstNodeConversion).toStrictEqual(simpleNode);
   });
@@ -146,7 +143,7 @@ describe("Simple ProseMirror Node Conversions", () => {
 
 describe("Complex ProseMirror Node Conversions", () => {
   it("Convert complex block to node", async () => {
-    const firstNodeConversion = blockToNode(complexBlock, editor.schema);
+    const firstNodeConversion = blockToNode(complexBlock, tt.schema);
 
     expect(firstNodeConversion).toMatchSnapshot();
   });
@@ -156,11 +153,107 @@ describe("Complex ProseMirror Node Conversions", () => {
 
     expect(firstBlockConversion).toMatchSnapshot();
 
-    const firstNodeConversion = blockToNode(
-      firstBlockConversion,
-      editor.schema
-    );
+    const firstNodeConversion = blockToNode(firstBlockConversion, tt.schema);
 
     expect(firstNodeConversion).toStrictEqual(complexNode);
+  });
+});
+
+describe("links", () => {
+  it("Convert a block with link", async () => {
+    const block: PartialBlock = {
+      id: UniqueID.options.generateID(),
+      type: "paragraph",
+      content: [
+        {
+          type: "link",
+          href: "https://www.website.com",
+          content: "Website",
+        },
+      ],
+    };
+    const node = blockToNode(block, tt.schema);
+    expect(node).toMatchSnapshot();
+    const outputBlock = nodeToBlock(node);
+
+    // Temporary fix to set props to {}, because at this point
+    // we don't have an easy way to access default props at runtime,
+    // so partialBlockToBlockForTesting will not set them.
+    (outputBlock as any).props = {};
+    const fullOriginalBlock = partialBlockToBlockForTesting(block);
+
+    expect(outputBlock).toStrictEqual(fullOriginalBlock);
+  });
+
+  it("Convert link block with marks", async () => {
+    const block: PartialBlock = {
+      id: UniqueID.options.generateID(),
+      type: "paragraph",
+      content: [
+        {
+          type: "link",
+          href: "https://www.website.com",
+          content: [
+            {
+              type: "text",
+              text: "Web",
+              styles: [
+                {
+                  type: "bold",
+                  props: Object.create(null), //  Object.create(null) to match Prosemirror
+                },
+              ],
+            },
+            {
+              type: "text",
+              text: "site",
+              styles: [],
+            },
+          ],
+        },
+      ],
+    };
+    const node = blockToNode(block, tt.schema);
+    // expect(node).toMatchSnapshot();
+    const outputBlock = nodeToBlock(node);
+
+    // Temporary fix to set props to {}, because at this point
+    // we don't have an easy way to access default props at runtime,
+    // so partialBlockToBlockForTesting will not set them.
+    (outputBlock as any).props = {};
+    const fullOriginalBlock = partialBlockToBlockForTesting(block);
+
+    expect(outputBlock).toStrictEqual(fullOriginalBlock);
+  });
+
+  it("Convert two adjacent links in a block", async () => {
+    const block: PartialBlock = {
+      id: UniqueID.options.generateID(),
+      type: "paragraph",
+      content: [
+        {
+          type: "link",
+          href: "https://www.website.com",
+          content: "Website",
+        },
+        {
+          type: "link",
+          href: "https://www.website2.com",
+          content: "Website2",
+        },
+      ],
+    };
+
+    const node = blockToNode(block, tt.schema);
+    expect(node).toMatchSnapshot();
+    const outputBlock = nodeToBlock(node);
+
+    // Temporary fix to set props to {}, because at this point
+    // we don't have an easy way to access default props at runtime,
+    // so partialBlockToBlockForTesting will not set them.
+    (outputBlock as any).props = {};
+    const fullOriginalBlock = partialBlockToBlockForTesting(block);
+
+    expect(outputBlock).toStrictEqual(fullOriginalBlock);
   });
 });

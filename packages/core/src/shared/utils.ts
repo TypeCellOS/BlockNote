@@ -10,3 +10,9 @@ export function formatKeyboardShortcut(shortcut: string) {
     return shortcut.replace("Mod", "Ctrl");
   }
 }
+
+export class UnreachableCaseError extends Error {
+  constructor(val: never) {
+    super(`Unreachable case: ${val}`);
+  }
+}

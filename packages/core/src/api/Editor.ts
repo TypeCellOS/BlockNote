@@ -26,7 +26,7 @@ export class Editor {
   /**
    * Gets a list of all top-level blocks that are in the editor.
    */
-  public get allBlocks(): Block[] {
+  public get topLevelBlocks(): Block[] {
     const blocks: Block[] = [];
 
     this.tiptapEditor.state.doc.firstChild!.descendants((node) => {
@@ -36,6 +36,33 @@ export class Editor {
     });
 
     return blocks;
+  }
+
+  /**
+   * Traverses all blocks in the editor, including all nested blocks, and executes a callback for each. The traversal is
+   * depth-first, which is the same order as blocks appear in the editor by y-coordinate.
+   * @param callback The callback to execute for each block.
+   * @param reverse Whether the blocks should be traversed in reverse order.
+   */
+  public allBlocks(
+    callback: (block: Block) => void,
+    reverse: boolean = false
+  ): void {
+    function helper(blocks: Block[]) {
+      if (reverse) {
+        for (const block of blocks.reverse()) {
+          helper(block.children);
+          callback(block);
+        }
+      } else {
+        for (const block of blocks) {
+          callback(block);
+          helper(block.children);
+        }
+      }
+    }
+
+    helper(this.topLevelBlocks);
   }
 
   /**

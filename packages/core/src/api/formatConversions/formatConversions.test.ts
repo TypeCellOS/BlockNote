@@ -37,6 +37,7 @@ beforeEach(() => {
       },
       content: [
         {
+          type: "text",
           text: "Heading",
           styles: [],
         },
@@ -53,6 +54,7 @@ beforeEach(() => {
       },
       content: [
         {
+          type: "text",
           text: "Paragraph",
           styles: [],
         },
@@ -69,6 +71,7 @@ beforeEach(() => {
       },
       content: [
         {
+          type: "text",
           text: "Bullet List Item",
           styles: [],
         },
@@ -85,6 +88,7 @@ beforeEach(() => {
       },
       content: [
         {
+          type: "text",
           text: "Numbered List Item",
           styles: [],
         },
@@ -114,6 +118,7 @@ Paragraph
       },
       content: [
         {
+          type: "text",
           text: "Heading",
           styles: [],
         },
@@ -129,6 +134,7 @@ Paragraph
           },
           content: [
             {
+              type: "text",
               text: "Paragraph",
               styles: [],
             },
@@ -144,6 +150,7 @@ Paragraph
               },
               content: [
                 {
+                  type: "text",
                   text: "Bullet List Item",
                   styles: [],
                 },
@@ -159,6 +166,7 @@ Paragraph
                   },
                   content: [
                     {
+                      type: "text",
                       text: "Numbered List Item",
                       styles: [],
                     },
@@ -193,6 +201,7 @@ Paragraph
       },
       content: [
         {
+          type: "text",
           text: "Bold",
           styles: [
             {
@@ -202,6 +211,7 @@ Paragraph
           ],
         },
         {
+          type: "text",
           text: "Italic",
           styles: [
             {
@@ -211,6 +221,7 @@ Paragraph
           ],
         },
         {
+          type: "text",
           text: "Underline",
           styles: [
             {
@@ -220,6 +231,7 @@ Paragraph
           ],
         },
         {
+          type: "text",
           text: "Strikethrough",
           styles: [
             {
@@ -229,6 +241,7 @@ Paragraph
           ],
         },
         {
+          type: "text",
           text: "TextColor",
           styles: [
             {
@@ -240,6 +253,7 @@ Paragraph
           ],
         },
         {
+          type: "text",
           text: "BackgroundColor",
           styles: [
             {
@@ -251,6 +265,7 @@ Paragraph
           ],
         },
         {
+          type: "text",
           text: "Multiple",
           styles: [
             {
@@ -282,6 +297,7 @@ Paragraph
       },
       content: [
         {
+          type: "text",
           text: "Heading 1",
           styles: [],
         },
@@ -298,6 +314,7 @@ Paragraph
           },
           content: [
             {
+              type: "text",
               text: "Heading 2",
               styles: [],
             },
@@ -314,6 +331,7 @@ Paragraph
               },
               content: [
                 {
+                  type: "text",
                   text: "Heading 3",
                   styles: [],
                 },
@@ -334,6 +352,7 @@ Paragraph
       },
       content: [
         {
+          type: "text",
           text: "Paragraph",
           styles: [
             {
@@ -363,10 +382,12 @@ Paragraph
       },
       content: [
         {
+          type: "text",
           text: "P",
           styles: [],
         },
         {
+          type: "text",
           text: "ara",
           styles: [
             {
@@ -376,6 +397,7 @@ Paragraph
           ],
         },
         {
+          type: "text",
           text: "grap",
           styles: [
             {
@@ -385,6 +407,7 @@ Paragraph
           ],
         },
         {
+          type: "text",
           text: "h",
           styles: [],
         },
@@ -401,10 +424,12 @@ Paragraph
       },
       content: [
         {
+          type: "text",
           text: "P",
           styles: [],
         },
         {
+          type: "text",
           text: "ara",
           styles: [
             {
@@ -414,6 +439,7 @@ Paragraph
           ],
         },
         {
+          type: "text",
           text: "grap",
           styles: [
             {
@@ -423,6 +449,7 @@ Paragraph
           ],
         },
         {
+          type: "text",
           text: "h",
           styles: [],
         },
@@ -439,6 +466,7 @@ Paragraph
       },
       content: [
         {
+          type: "text",
           text: "Bullet List Item",
           styles: [],
         },
@@ -455,6 +483,7 @@ Paragraph
       },
       content: [
         {
+          type: "text",
           text: "Bullet List Item",
           styles: [],
         },
@@ -470,6 +499,7 @@ Paragraph
           },
           content: [
             {
+              type: "text",
               text: "Bullet List Item",
               styles: [],
             },
@@ -485,6 +515,7 @@ Paragraph
               },
               content: [
                 {
+                  type: "text",
                   text: "Bullet List Item",
                   styles: [],
                 },
@@ -501,6 +532,7 @@ Paragraph
               },
               content: [
                 {
+                  type: "text",
                   text: "Paragraph",
                   styles: [],
                 },
@@ -517,6 +549,7 @@ Paragraph
               },
               content: [
                 {
+                  type: "text",
                   text: "Numbered List Item",
                   styles: [],
                 },
@@ -533,6 +566,7 @@ Paragraph
               },
               content: [
                 {
+                  type: "text",
                   text: "Numbered List Item",
                   styles: [],
                 },
@@ -549,6 +583,7 @@ Paragraph
               },
               content: [
                 {
+                  type: "text",
                   text: "Numbered List Item",
                   styles: [],
                 },
@@ -564,6 +599,7 @@ Paragraph
                   },
                   content: [
                     {
+                      type: "text",
                       text: "Numbered List Item",
                       styles: [],
                     },
@@ -582,6 +618,7 @@ Paragraph
               },
               content: [
                 {
+                  type: "text",
                   text: "Bullet List Item",
                   styles: [],
                 },
@@ -600,6 +637,7 @@ Paragraph
           },
           content: [
             {
+              type: "text",
               text: "Bullet List Item",
               styles: [],
             },
@@ -618,6 +656,7 @@ Paragraph
       },
       content: [
         {
+          type: "text",
           text: "Bullet List Item",
           styles: [],
         },

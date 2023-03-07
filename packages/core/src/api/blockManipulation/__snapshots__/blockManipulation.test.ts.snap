@@ -10,6 +10,7 @@ exports[`Insert, Update, & Delete Blocks > Insert, update, & delete multiple blo
           {
             "styles": [],
             "text": "Nested Heading 1",
+            "type": "text",
           },
         ],
         "id": 2,
@@ -26,6 +27,7 @@ exports[`Insert, Update, & Delete Blocks > Insert, update, & delete multiple blo
       {
         "styles": [],
         "text": "Heading 1",
+        "type": "text",
       },
     ],
     "id": 1,
@@ -45,6 +47,7 @@ exports[`Insert, Update, & Delete Blocks > Insert, update, & delete multiple blo
           {
             "styles": [],
             "text": "Nested Heading 2",
+            "type": "text",
           },
         ],
         "id": 4,
@@ -61,6 +64,7 @@ exports[`Insert, Update, & Delete Blocks > Insert, update, & delete multiple blo
       {
         "styles": [],
         "text": "Heading 2",
+        "type": "text",
       },
     ],
     "id": 3,
@@ -96,6 +100,7 @@ exports[`Insert, Update, & Delete Blocks > Insert, update, & delete multiple blo
           {
             "styles": [],
             "text": "Nested Heading 1",
+            "type": "text",
           },
         ],
         "id": 2,
@@ -112,6 +117,7 @@ exports[`Insert, Update, & Delete Blocks > Insert, update, & delete multiple blo
       {
         "styles": [],
         "text": "Heading 1",
+        "type": "text",
       },
     ],
     "id": 1,
@@ -130,6 +136,7 @@ exports[`Insert, Update, & Delete Blocks > Insert, update, & delete multiple blo
           {
             "styles": [],
             "text": "Nested Heading 2",
+            "type": "text",
           },
         ],
         "id": 4,
@@ -146,6 +153,7 @@ exports[`Insert, Update, & Delete Blocks > Insert, update, & delete multiple blo
       {
         "styles": [],
         "text": "Heading 2",
+        "type": "text",
       },
     ],
     "id": 3,
@@ -179,6 +187,7 @@ exports[`Insert, Update, & Delete Blocks > Insert, update, & delete multiple blo
       {
         "styles": [],
         "text": "Heading 1",
+        "type": "text",
       },
     ],
     "id": 1,
@@ -211,6 +220,7 @@ exports[`Insert, Update, & Delete Blocks > Insert, update, & delete single block
       {
         "styles": [],
         "text": "Paragraph",
+        "type": "text",
       },
     ],
     "id": 1,
@@ -245,6 +255,7 @@ exports[`Insert, Update, & Delete Blocks > Insert, update, & delete single block
           {
             "styles": [],
             "text": "Paragraph",
+            "type": "text",
           },
         ],
         "id": 2,
@@ -267,6 +278,7 @@ exports[`Insert, Update, & Delete Blocks > Insert, update, & delete single block
           },
         ],
         "text": "Heading ",
+        "type": "text",
       },
       {
         "styles": [
@@ -278,6 +290,7 @@ exports[`Insert, Update, & Delete Blocks > Insert, update, & delete single block
           },
         ],
         "text": "3",
+        "type": "text",
       },
     ],
     "id": 1,
@@ -340,6 +353,7 @@ exports[`Inserting Blocks with Different Placements > Insert after existing bloc
           {
             "styles": [],
             "text": "Nested Heading 1",
+            "type": "text",
           },
         ],
         "id": 2,
@@ -356,6 +370,7 @@ exports[`Inserting Blocks with Different Placements > Insert after existing bloc
       {
         "styles": [],
         "text": "Heading 1",
+        "type": "text",
       },
     ],
     "id": 1,
@@ -375,6 +390,7 @@ exports[`Inserting Blocks with Different Placements > Insert after existing bloc
           {
             "styles": [],
             "text": "Nested Heading 2",
+            "type": "text",
           },
         ],
         "id": 4,
@@ -391,6 +407,7 @@ exports[`Inserting Blocks with Different Placements > Insert after existing bloc
       {
         "styles": [],
         "text": "Heading 2",
+        "type": "text",
       },
     ],
     "id": 3,
@@ -426,6 +443,7 @@ exports[`Inserting Blocks with Different Placements > Insert before existing blo
           {
             "styles": [],
             "text": "Nested Heading 1",
+            "type": "text",
           },
         ],
         "id": 2,
@@ -442,6 +460,7 @@ exports[`Inserting Blocks with Different Placements > Insert before existing blo
       {
         "styles": [],
         "text": "Heading 1",
+        "type": "text",
       },
     ],
     "id": 1,
@@ -461,6 +480,7 @@ exports[`Inserting Blocks with Different Placements > Insert before existing blo
           {
             "styles": [],
             "text": "Nested Heading 2",
+            "type": "text",
           },
         ],
         "id": 4,
@@ -477,6 +497,7 @@ exports[`Inserting Blocks with Different Placements > Insert before existing blo
       {
         "styles": [],
         "text": "Heading 2",
+        "type": "text",
       },
     ],
     "id": 3,
@@ -514,6 +535,7 @@ exports[`Inserting Blocks with Different Placements > Insert nested inside exist
               {
                 "styles": [],
                 "text": "Nested Heading 1",
+                "type": "text",
               },
             ],
             "id": 2,
@@ -530,6 +552,7 @@ exports[`Inserting Blocks with Different Placements > Insert nested inside exist
           {
             "styles": [],
             "text": "Heading 1",
+            "type": "text",
           },
         ],
         "id": 1,
@@ -549,6 +572,7 @@ exports[`Inserting Blocks with Different Placements > Insert nested inside exist
               {
                 "styles": [],
                 "text": "Nested Heading 2",
+                "type": "text",
               },
             ],
             "id": 4,
@@ -565,6 +589,7 @@ exports[`Inserting Blocks with Different Placements > Insert nested inside exist
           {
             "styles": [],
             "text": "Heading 2",
+            "type": "text",
           },
         ],
         "id": 3,

@@ -66,10 +66,10 @@ beforeEach(() => {
   ];
 
   insert = (placement) => {
-    const existingBlock = editor.allBlocks[0];
+    const existingBlock = editor.topLevelBlocks[0];
     editor.insertBlocks(multipleBlocks, existingBlock, placement);
 
-    return editor.allBlocks;
+    return editor.topLevelBlocks;
   };
 });
 
@@ -110,12 +110,12 @@ describe("Insert, Update, & Delete Blocks", () => {
   it("Insert, update, & delete single block", async () => {
     await waitForEditor();
 
-    const existingBlock = editor.allBlocks[0];
+    const existingBlock = editor.topLevelBlocks[0];
     editor.insertBlocks([singleBlock], existingBlock);
 
-    expect(editor.allBlocks).toMatchSnapshot();
+    expect(editor.topLevelBlocks).toMatchSnapshot();
 
-    const newBlock = editor.allBlocks[0];
+    const newBlock = editor.topLevelBlocks[0];
     editor.updateBlock(newBlock, {
       type: "heading",
       props: {
@@ -124,6 +124,7 @@ describe("Insert, Update, & Delete Blocks", () => {
       },
       content: [
         {
+          type: "text",
           text: "Heading ",
           styles: [
             {
@@ -135,6 +136,7 @@ describe("Insert, Update, & Delete Blocks", () => {
           ],
         },
         {
+          type: "text",
           text: "3",
           styles: [
             {
@@ -149,32 +151,32 @@ describe("Insert, Update, & Delete Blocks", () => {
       children: [singleBlock],
     });
 
-    expect(editor.allBlocks).toMatchSnapshot();
+    expect(editor.topLevelBlocks).toMatchSnapshot();
 
-    const updatedBlock = editor.allBlocks[0];
+    const updatedBlock = editor.topLevelBlocks[0];
     editor.removeBlocks([updatedBlock]);
 
-    expect(editor.allBlocks).toMatchSnapshot();
+    expect(editor.topLevelBlocks).toMatchSnapshot();
   });
 
   it("Insert, update, & delete multiple blocks", async () => {
     await waitForEditor();
 
-    const existingBlock = editor.allBlocks[0];
+    const existingBlock = editor.topLevelBlocks[0];
     editor.insertBlocks(multipleBlocks, existingBlock);
 
-    expect(editor.allBlocks).toMatchSnapshot();
+    expect(editor.topLevelBlocks).toMatchSnapshot();
 
-    const newBlock = editor.allBlocks[0];
+    const newBlock = editor.topLevelBlocks[0];
     editor.updateBlock(newBlock, {
       type: "paragraph",
     });
 
-    expect(editor.allBlocks).toMatchSnapshot();
+    expect(editor.topLevelBlocks).toMatchSnapshot();
 
-    const updatedBlocks = editor.allBlocks.slice(0, 2);
+    const updatedBlocks = editor.topLevelBlocks.slice(0, 2);
     editor.removeBlocks([updatedBlocks[0].children[0], updatedBlocks[1]]);
 
-    expect(editor.allBlocks).toMatchSnapshot();
+    expect(editor.topLevelBlocks).toMatchSnapshot();
   });
 });

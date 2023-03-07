@@ -98,6 +98,7 @@ exports[`Complex ProseMirror Node Conversions > Convert complex node to block 1`
         {
           "styles": [],
           "text": "Paragraph",
+          "type": "text",
         },
       ],
       "id": 2,
@@ -133,6 +134,7 @@ exports[`Complex ProseMirror Node Conversions > Convert complex node to block 1`
         },
       ],
       "text": "Heading ",
+      "type": "text",
     },
     {
       "styles": [
@@ -146,6 +148,7 @@ exports[`Complex ProseMirror Node Conversions > Convert complex node to block 1`
         },
       ],
       "text": "2",
+      "type": "text",
     },
   ],
   "id": 1,
@@ -189,5 +192,89 @@ exports[`Simple ProseMirror Node Conversions > Convert simple node to block 1`] 
     "textColor": "default",
   },
   "type": "paragraph",
+}
+`;
+
+exports[`links > Convert a block with link 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": 4,
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "textAlignment": "left",
+      },
+      "content": [
+        {
+          "marks": [
+            {
+              "attrs": {
+                "class": null,
+                "href": "https://www.website.com",
+                "target": "_blank",
+              },
+              "type": "link",
+            },
+          ],
+          "text": "Website",
+          "type": "text",
+        },
+      ],
+      "type": "paragraph",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`links > Convert two adjacent links in a block 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": 4,
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "textAlignment": "left",
+      },
+      "content": [
+        {
+          "marks": [
+            {
+              "attrs": {
+                "class": null,
+                "href": "https://www.website.com",
+                "target": "_blank",
+              },
+              "type": "link",
+            },
+          ],
+          "text": "Website",
+          "type": "text",
+        },
+        {
+          "marks": [
+            {
+              "attrs": {
+                "class": null,
+                "href": "https://www.website2.com",
+                "target": "_blank",
+              },
+              "type": "link",
+            },
+          ],
+          "text": "Website2",
+          "type": "text",
+        },
+      ],
+      "type": "paragraph",
+    },
+  ],
+  "type": "blockContainer",
 }
 `;
