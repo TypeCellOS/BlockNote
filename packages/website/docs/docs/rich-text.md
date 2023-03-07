@@ -7,15 +7,7 @@ This page will explain:
 - default styles
 - examples
 
-An array of `InlineContent` objects are used to describe and order content inside blocks. The base definition for `InlineContent` objects is simple as different types of inline content add their own keys:
-
-```typescript
-type InlineContent = {
-  type: string;
-}
-```
-
-`type:` The type of the inline content.
+An array of `InlineContent` objects are used to describe the rich text content inside a block. Inline content can either be styled text or a link, and we'll go over both these in the next section.
 
 ## Built-In Inline Content Types
 
