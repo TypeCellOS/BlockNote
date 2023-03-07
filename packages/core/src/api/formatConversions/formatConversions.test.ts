@@ -1,7 +1,6 @@
-import {Block} from "@blocknote/core";
-import {afterEach, beforeEach, describe, expect, it} from "vitest";
-import { BlockNoteEditor } from "../src";
-import UniqueID from "../src/extensions/UniqueID/UniqueID";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { Block, BlockNoteEditor } from "../..";
+import UniqueID from "../../extensions/UniqueID/UniqueID";
 
 let editor: BlockNoteEditor;
 
@@ -38,6 +37,7 @@ beforeEach(() => {
       },
       content: [
         {
+          type: "text",
           text: "Heading",
           styles: [],
         },
@@ -54,6 +54,7 @@ beforeEach(() => {
       },
       content: [
         {
+          type: "text",
           text: "Paragraph",
           styles: [],
         },
@@ -70,6 +71,7 @@ beforeEach(() => {
       },
       content: [
         {
+          type: "text",
           text: "Bullet List Item",
           styles: [],
         },
@@ -86,6 +88,7 @@ beforeEach(() => {
       },
       content: [
         {
+          type: "text",
           text: "Numbered List Item",
           styles: [],
         },
@@ -115,6 +118,7 @@ Paragraph
       },
       content: [
         {
+          type: "text",
           text: "Heading",
           styles: [],
         },
@@ -130,6 +134,7 @@ Paragraph
           },
           content: [
             {
+              type: "text",
               text: "Paragraph",
               styles: [],
             },
@@ -145,6 +150,7 @@ Paragraph
               },
               content: [
                 {
+                  type: "text",
                   text: "Bullet List Item",
                   styles: [],
                 },
@@ -160,6 +166,7 @@ Paragraph
                   },
                   content: [
                     {
+                      type: "text",
                       text: "Numbered List Item",
                       styles: [],
                     },
@@ -173,15 +180,15 @@ Paragraph
       ],
     },
   ];
-// nestedHTML = `<h1>Heading</h1><p>Paragraph</p><ul><li><p>Bullet List Item</p><ol><li><p>Numbered List Item</p></li></ol></li></ul>`;
-// nestedMarkdown = `# Heading
-//
-// Paragraph
-//
-// *   Bullet List Item
-//
-//     1.  Numbered List Item
-// `;
+  // nestedHTML = `<h1>Heading</h1><p>Paragraph</p><ul><li><p>Bullet List Item</p><ol><li><p>Numbered List Item</p></li></ol></li></ul>`;
+  // nestedMarkdown = `# Heading
+  //
+  // Paragraph
+  //
+  // *   Bullet List Item
+  //
+  //     1.  Numbered List Item
+  // `;
 
   styledBlocks = [
     {
@@ -194,6 +201,7 @@ Paragraph
       },
       content: [
         {
+          type: "text",
           text: "Bold",
           styles: [
             {
@@ -203,6 +211,7 @@ Paragraph
           ],
         },
         {
+          type: "text",
           text: "Italic",
           styles: [
             {
@@ -212,6 +221,7 @@ Paragraph
           ],
         },
         {
+          type: "text",
           text: "Underline",
           styles: [
             {
@@ -221,6 +231,7 @@ Paragraph
           ],
         },
         {
+          type: "text",
           text: "Strikethrough",
           styles: [
             {
@@ -230,6 +241,7 @@ Paragraph
           ],
         },
         {
+          type: "text",
           text: "TextColor",
           styles: [
             {
@@ -241,6 +253,7 @@ Paragraph
           ],
         },
         {
+          type: "text",
           text: "BackgroundColor",
           styles: [
             {
@@ -252,6 +265,7 @@ Paragraph
           ],
         },
         {
+          type: "text",
           text: "Multiple",
           styles: [
             {
@@ -283,6 +297,7 @@ Paragraph
       },
       content: [
         {
+          type: "text",
           text: "Heading 1",
           styles: [],
         },
@@ -299,6 +314,7 @@ Paragraph
           },
           content: [
             {
+              type: "text",
               text: "Heading 2",
               styles: [],
             },
@@ -315,6 +331,7 @@ Paragraph
               },
               content: [
                 {
+                  type: "text",
                   text: "Heading 3",
                   styles: [],
                 },
@@ -335,6 +352,7 @@ Paragraph
       },
       content: [
         {
+          type: "text",
           text: "Paragraph",
           styles: [
             {
@@ -364,10 +382,12 @@ Paragraph
       },
       content: [
         {
+          type: "text",
           text: "P",
           styles: [],
         },
         {
+          type: "text",
           text: "ara",
           styles: [
             {
@@ -377,6 +397,7 @@ Paragraph
           ],
         },
         {
+          type: "text",
           text: "grap",
           styles: [
             {
@@ -386,6 +407,7 @@ Paragraph
           ],
         },
         {
+          type: "text",
           text: "h",
           styles: [],
         },
@@ -402,10 +424,12 @@ Paragraph
       },
       content: [
         {
+          type: "text",
           text: "P",
           styles: [],
         },
         {
+          type: "text",
           text: "ara",
           styles: [
             {
@@ -415,6 +439,7 @@ Paragraph
           ],
         },
         {
+          type: "text",
           text: "grap",
           styles: [
             {
@@ -424,6 +449,7 @@ Paragraph
           ],
         },
         {
+          type: "text",
           text: "h",
           styles: [],
         },
@@ -440,6 +466,7 @@ Paragraph
       },
       content: [
         {
+          type: "text",
           text: "Bullet List Item",
           styles: [],
         },
@@ -456,6 +483,7 @@ Paragraph
       },
       content: [
         {
+          type: "text",
           text: "Bullet List Item",
           styles: [],
         },
@@ -471,6 +499,7 @@ Paragraph
           },
           content: [
             {
+              type: "text",
               text: "Bullet List Item",
               styles: [],
             },
@@ -486,6 +515,7 @@ Paragraph
               },
               content: [
                 {
+                  type: "text",
                   text: "Bullet List Item",
                   styles: [],
                 },
@@ -502,6 +532,7 @@ Paragraph
               },
               content: [
                 {
+                  type: "text",
                   text: "Paragraph",
                   styles: [],
                 },
@@ -518,6 +549,7 @@ Paragraph
               },
               content: [
                 {
+                  type: "text",
                   text: "Numbered List Item",
                   styles: [],
                 },
@@ -534,6 +566,7 @@ Paragraph
               },
               content: [
                 {
+                  type: "text",
                   text: "Numbered List Item",
                   styles: [],
                 },
@@ -550,6 +583,7 @@ Paragraph
               },
               content: [
                 {
+                  type: "text",
                   text: "Numbered List Item",
                   styles: [],
                 },
@@ -565,6 +599,7 @@ Paragraph
                   },
                   content: [
                     {
+                      type: "text",
                       text: "Numbered List Item",
                       styles: [],
                     },
@@ -583,6 +618,7 @@ Paragraph
               },
               content: [
                 {
+                  type: "text",
                   text: "Bullet List Item",
                   styles: [],
                 },
@@ -601,6 +637,7 @@ Paragraph
           },
           content: [
             {
+              type: "text",
               text: "Bullet List Item",
               styles: [],
             },
@@ -619,6 +656,7 @@ Paragraph
       },
       content: [
         {
+          type: "text",
           text: "Bullet List Item",
           styles: [],
         },
@@ -627,48 +665,48 @@ Paragraph
     },
   ];
 
-// complexHTML = `<h1>Heading 1</h1><h2>Heading 2</h2><h3>Heading 3</h3><p><span data-text-color="purple"><span data-background-color="green">Paragraph</span></span></p><p>P<strong>ara</strong><em>grap</em>h</p><p>P<u>ara</u><s>grap</s>h</p><ul><li><p>Bullet List Item</p></li><li><p>Bullet List Item</p><ul><li><p>Bullet List Item</p><ul><li><p>Bullet List Item</p></li></ul><p>Paragraph</p><ol><li><p>Numbered List Item</p></li><li><p>Numbered List Item</p></li><li><p>Numbered List Item</p><ol><li><p>Numbered List Item</p></li></ol></li></ol><ul><li><p>Bullet List Item</p></li></ul></li><li><p>Bullet List Item</p></li></ul></li><li><p>Bullet List Item</p></li></ul>`;
-// complexMarkdown = `# Heading 1
-//
-// ## Heading 2
-//
-// ### Heading 3
-//
-// Paragraph
-//
-// P**ara***grap*h
-//
-// P*ara*~~grap~~h
-//
-// *   Bullet List Item
-//
-// *   Bullet List Item
-//
-//     *   Bullet List Item
-//
-//         *   Bullet List Item
-//
-//         Paragraph
-//
-//         1.  Numbered List Item
-//
-//         2.  Numbered List Item
-//
-//         3.  Numbered List Item
-//
-//             1.  Numbered List Item
-//
-//         *   Bullet List Item
-//
-//     *   Bullet List Item
-//
-// *   Bullet List Item
-// `;
+  // complexHTML = `<h1>Heading 1</h1><h2>Heading 2</h2><h3>Heading 3</h3><p><span data-text-color="purple"><span data-background-color="green">Paragraph</span></span></p><p>P<strong>ara</strong><em>grap</em>h</p><p>P<u>ara</u><s>grap</s>h</p><ul><li><p>Bullet List Item</p></li><li><p>Bullet List Item</p><ul><li><p>Bullet List Item</p><ul><li><p>Bullet List Item</p></li></ul><p>Paragraph</p><ol><li><p>Numbered List Item</p></li><li><p>Numbered List Item</p></li><li><p>Numbered List Item</p><ol><li><p>Numbered List Item</p></li></ol></li></ol><ul><li><p>Bullet List Item</p></li></ul></li><li><p>Bullet List Item</p></li></ul></li><li><p>Bullet List Item</p></li></ul>`;
+  // complexMarkdown = `# Heading 1
+  //
+  // ## Heading 2
+  //
+  // ### Heading 3
+  //
+  // Paragraph
+  //
+  // P**ara***grap*h
+  //
+  // P*ara*~~grap~~h
+  //
+  // *   Bullet List Item
+  //
+  // *   Bullet List Item
+  //
+  //     *   Bullet List Item
+  //
+  //         *   Bullet List Item
+  //
+  //         Paragraph
+  //
+  //         1.  Numbered List Item
+  //
+  //         2.  Numbered List Item
+  //
+  //         3.  Numbered List Item
+  //
+  //             1.  Numbered List Item
+  //
+  //         *   Bullet List Item
+  //
+  //     *   Bullet List Item
+  //
+  // *   Bullet List Item
+  // `;
 });
 
 afterEach(() => {
-  editor._tiptapEditor.destroy()
-  editor = undefined;
+  editor._tiptapEditor.destroy();
+  editor = undefined as any;
 
   delete (window as Window & { __TEST_OPTIONS?: {} }).__TEST_OPTIONS;
 });

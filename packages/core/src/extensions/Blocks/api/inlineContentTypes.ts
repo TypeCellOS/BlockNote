@@ -25,20 +25,29 @@ export type BackgroundColor = StyleTemplate<
   { color: string }
 >;
 
-export type Link = StyleTemplate<"link", { href: string }>;
-
 export type Style =
   | Bold
   | Italic
   | Underline
   | Strikethrough
   | TextColor
-  | BackgroundColor
-  | Link;
+  | BackgroundColor;
 
 export type StyledText = {
+  type: "text";
   text: string;
   styles: Style[];
 };
 
-export type InlineContent = StyledText;
+export type Link = {
+  type: "link";
+  href: string;
+  content: StyledText[];
+};
+
+export type PartialLink = Omit<Link, "content"> & {
+  content: string | Link["content"];
+};
+
+export type InlineContent = StyledText | Link;
+export type PartialInlineContent = StyledText | PartialLink;

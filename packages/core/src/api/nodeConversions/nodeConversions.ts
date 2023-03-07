@@ -1,3 +1,4 @@
+import { Mark } from "@tiptap/pm/model";
 import { Node, Schema } from "prosemirror-model";
 import {
   Block,
@@ -6,11 +7,91 @@ import {
 } from "../../extensions/Blocks/api/blockTypes";
 import {
   InlineContent,
+  Link,
+  PartialInlineContent,
+  PartialLink,
   Style,
+  StyledText,
 } from "../../extensions/Blocks/api/inlineContentTypes";
 import { getBlockInfoFromPos } from "../../extensions/Blocks/helpers/getBlockInfoFromPos";
 import UniqueID from "../../extensions/UniqueID/UniqueID";
+import { UnreachableCaseError } from "../../shared/utils";
 
+/**
+ * Convert a StyledText inline element to a
+ * prosemirror text node with the appropriate marks
+ */
+function styledTextToNode(styledText: StyledText, schema: Schema): Node {
+  const marks: Mark[] = [];
+
+  for (const style of styledText.styles) {
+    marks.push(schema.mark(style.type, style.props));
+  }
+
+  return schema.text(styledText.text, marks);
+}
+
+/**
+ * Converts a Link inline content element to
+ * prosemirror text nodes with the appropriate marks
+ */
+function linkToNodes(link: PartialLink, schema: Schema): Node[] {
+  const linkMark = schema.marks.link.create({
+    href: link.href,
+  });
+
+  const nodes = styledTextArrayToNodes(link.content, schema).map((node) => {
+    return node.mark([...node.marks, linkMark]);
+  });
+
+  return nodes;
+}
+
+/**
+ * Converts an array of StyledText inline content elements to
+ * prosemirror text nodes with the appropriate marks
+ */
+function styledTextArrayToNodes(
+  content: string | StyledText[],
+  schema: Schema
+): Node[] {
+  let nodes: Node[] = [];
+
+  if (typeof content === "string") {
+    nodes.push(schema.text(content));
+    return nodes;
+  }
+
+  for (const styledText of content) {
+    nodes.push(styledTextToNode(styledText, schema));
+  }
+  return nodes;
+}
+
+/**
+ * converts an array of inline content elements to prosemirror nodes
+ */
+export function inlineContentToNodes(
+  blockContent: PartialInlineContent[],
+  schema: Schema
+): Node[] {
+  let nodes: Node[] = [];
+
+  for (const content of blockContent) {
+    if (content.type === "link") {
+      nodes.push(...linkToNodes(content, schema));
+    } else if (content.type === "text") {
+      nodes.push(...styledTextArrayToNodes([content], schema));
+    } else {
+      throw new UnreachableCaseError(content);
+    }
+  }
+  return nodes;
+}
+
+/**
+ * Converts a BlockNote block to a TipTap node.
+ */
 export function blockToNode(block: PartialBlock, schema: Schema) {
   let id = block.id;
 
@@ -18,23 +99,25 @@ export function blockToNode(block: PartialBlock, schema: Schema) {
     id = UniqueID.options.generateID();
   }
 
-  let content: Node[] = [];
+  let type = block.type;
 
-  if (typeof block.content === "string") {
-    content.push(schema.text(block.content));
-  } else if (typeof block.content === "object") {
-    for (const styledText of block.content) {
-      const marks = [];
-
-      for (const style of styledText.styles) {
-        marks.push(schema.mark(style.type, style.props));
-      }
-
-      content.push(schema.text(styledText.text, marks));
-    }
+  if (type === undefined) {
+    type = "paragraph";
   }
 
-  const contentNode = schema.nodes[block.type].create(block.props, content);
+  let contentNode: Node;
+
+  if (!block.content) {
+    contentNode = schema.nodes[type].create(block.props);
+  } else if (typeof block.content === "string") {
+    contentNode = schema.nodes[type].create(
+      block.props,
+      schema.text(block.content)
+    );
+  } else {
+    const nodes = inlineContentToNodes(block.content, schema);
+    contentNode = schema.nodes[type].create(block.props, nodes);
+  }
 
   const children: Node[] = [];
 
@@ -55,40 +138,68 @@ export function blockToNode(block: PartialBlock, schema: Schema) {
   );
 }
 
-export function getNodeById(
-  id: string,
-  doc: Node
-): { node: Node; posBeforeNode: number } {
-  let targetNode: Node | undefined = undefined;
-  let posBeforeNode: number | undefined = undefined;
+/**
+ * Converts an internal (prosemirror) content node to a BlockNote InlineContent array.
+ */
+function contentNodeToInlineContent(contentNode: Node) {
+  const content: InlineContent[] = [];
 
-  doc.firstChild!.descendants((node, pos) => {
-    // Skips traversing nodes after node with target ID has been found.
-    if (targetNode) {
-      return false;
+  let currentLink: Link | undefined = undefined;
+
+  // Most of the logic below is for handling links because in ProseMirror links are marks
+  // while in BlockNote links are a type of inline content
+  contentNode.content.forEach((node) => {
+    const styles: Style[] = [];
+
+    let linkMark: Mark | undefined;
+    for (const mark of node.marks) {
+      if (mark.type.name === "link") {
+        linkMark = mark;
+      } else {
+        styles.push({
+          type: mark.type.name,
+          props: mark.attrs,
+        } as Style);
+      }
     }
 
-    // Keeps traversing nodes if block with target ID has not been found.
-    if (node.type.name !== "blockContainer" || node.attrs.id !== id) {
-      return true;
+    if (linkMark && currentLink && linkMark.attrs.href === currentLink.href) {
+      // if the node is a link that matches the current link, add it to the current link
+      currentLink.content.push({
+        type: "text",
+        text: node.textContent,
+        styles,
+      });
+    } else if (linkMark) {
+      // if the node is a link that doesn't match the current link, create a new link
+      currentLink = {
+        type: "link",
+        href: linkMark.attrs.href,
+        content: [
+          {
+            type: "text",
+            text: node.textContent,
+            styles,
+          },
+        ],
+      };
+      content.push(currentLink);
+    } else {
+      // if the node is not a link, add it to the content
+      content.push({
+        type: "text",
+        text: node.textContent,
+        styles,
+      });
+      currentLink = undefined;
     }
-
-    targetNode = node;
-    posBeforeNode = pos + 1;
-
-    return false;
   });
-
-  if (targetNode === undefined || posBeforeNode === undefined) {
-    throw Error("Could not find block in the editor with matching ID.");
-  }
-
-  return {
-    node: targetNode,
-    posBeforeNode: posBeforeNode,
-  };
+  return content;
 }
 
+/**
+ * Convert a TipTap node to a BlockNote block.
+ */
 export function nodeToBlock(
   node: Node,
   blockCache?: WeakMap<Node, Block>
@@ -134,22 +245,7 @@ export function nodeToBlock(
     }
   }
 
-  const content: InlineContent[] = [];
-  blockInfo.contentNode.content.forEach((node) => {
-    const styles: Style[] = [];
-
-    for (const mark of node.marks) {
-      styles.push({
-        type: mark.type.name,
-        props: mark.attrs,
-      } as Style);
-    }
-
-    content.push({
-      text: node.textContent,
-      styles,
-    });
-  });
+  const content = contentNodeToInlineContent(blockInfo.contentNode);
 
   const children: Block[] = [];
   for (let i = 0; i < blockInfo.numChildBlocks; i++) {
