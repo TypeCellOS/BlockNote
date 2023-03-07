@@ -48,7 +48,7 @@ export class Editor {
    * @param block The identifier of an existing block that should be retrieved.
    * @returns The block that matches the identifier, or undefined if no matching block was found.
    */
-  public getBlock(block: BlockIdentifier): Block {
+  public getBlock(block: BlockIdentifier): Block | undefined {
     const id = typeof block === "string" ? block : block.id;
     let newBlock: Block | undefined = undefined;
 
@@ -65,10 +65,6 @@ export class Editor {
 
       return false;
     });
-
-    if (typeof newBlock === "undefined") {
-      throw Error("Block could not be found in the editor.");
-    }
 
     return newBlock;
   }
