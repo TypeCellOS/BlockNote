@@ -1,15 +1,21 @@
 import { Editor } from "@tiptap/core";
 import { Node } from "prosemirror-model";
-import { Block, PartialBlock } from "../../extensions/Blocks/api/blockTypes";
+import {
+  BlockIdentifier,
+  PartialBlock,
+} from "../../extensions/Blocks/api/blockTypes";
 import { blockToNode } from "../nodeConversions/nodeConversions";
 import { getNodeById } from "../util/nodeUtil";
 
 export function insertBlocks(
   blocksToInsert: PartialBlock[],
-  blockToInsertAt: Block,
+  referenceBlock: BlockIdentifier,
   placement: "before" | "after" | "nested" = "before",
   editor: Editor
 ): void {
+  const id =
+    typeof referenceBlock === "string" ? referenceBlock : referenceBlock.id;
+
   const nodesToInsert: Node[] = [];
   for (const blockSpec of blocksToInsert) {
     nodesToInsert.push(blockToNode(blockSpec, editor.schema));
@@ -17,10 +23,7 @@ export function insertBlocks(
 
   let insertionPos = -1;
 
-  const { node, posBeforeNode } = getNodeById(
-    blockToInsertAt.id,
-    editor.state.doc
-  );
+  const { node, posBeforeNode } = getNodeById(id, editor.state.doc);
 
   if (placement === "before") {
     insertionPos = posBeforeNode;
@@ -54,18 +57,25 @@ export function insertBlocks(
 }
 
 export function updateBlock(
-  blockToUpdate: Block,
-  updatedBlock: PartialBlock,
+  blockToUpdate: BlockIdentifier,
+  update: PartialBlock,
   editor: Editor
 ) {
-  const { posBeforeNode } = getNodeById(blockToUpdate.id, editor.state.doc);
+  const id =
+    typeof blockToUpdate === "string" ? blockToUpdate : blockToUpdate.id;
+  const { posBeforeNode } = getNodeById(id, editor.state.doc);
 
-  editor.commands.BNUpdateBlock(posBeforeNode + 1, updatedBlock);
+  editor.commands.BNUpdateBlock(posBeforeNode + 1, update);
 }
 
-export function removeBlocks(blocksToRemove: Block[], editor: Editor) {
+export function removeBlocks(
+  blocksToRemove: BlockIdentifier[],
+  editor: Editor
+) {
   const idsOfBlocksToRemove = new Set<string>(
-    blocksToRemove.map((block) => block.id)
+    blocksToRemove.map((block) =>
+      typeof block === "string" ? block : block.id
+    )
   );
 
   let removedSize = 0;
@@ -106,7 +116,7 @@ export function removeBlocks(blocksToRemove: Block[], editor: Editor) {
 }
 
 export function replaceBlocks(
-  blocksToRemove: Block[],
+  blocksToRemove: BlockIdentifier[],
   blocksToInsert: PartialBlock[],
   editor: Editor
 ) {
