@@ -1,6 +1,10 @@
 # Block Types & Properties
 
-BlockNote includes a number of built-in block types, each with their own set of type-specific properties. You can see how they look, both in the editor, and in code using `Block` objects:
+A block's type affects how it looks and behaves in the editor. Each type also comes with its own set of properties, which further affect the block's appearance and behaviour.
+
+## Built-In Block Types
+
+BlockNote includes a number of built-in block types, each with their own set of properties. You can see how they look, both in the editor, and in code using `Block` objects:
 
 ### Paragraph
 
@@ -80,7 +84,7 @@ type NumberedListItemBlock = {
 
 ## Default Block Properties
 
-While each type of block can have its own set of properties, there are some properties that all block types have. See the definition for `DefaultBlockProps`:
+While each type of block can have its own set of properties, there are some properties that all block types have by default, which you can find in the definition for `DefaultBlockProps`:
 
 ```typescript
 type DefaultBlockProps = {

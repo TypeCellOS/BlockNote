@@ -6,7 +6,7 @@ Getting started with BlockNote is quick and easy. All you need to do is install 
 
 ## Installing with NPM
 
-Install BlockNote with [NPM](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm), by running the following command in your console:
+Install BlockNote with [NPM](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) by running the following command in your console:
 
 ```
 npm install @blocknote/core @blocknote/react

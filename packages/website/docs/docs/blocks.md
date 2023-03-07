@@ -17,8 +17,8 @@ function App() {
 
   // Executes a callback whenever the editor contents change.
   editor.onContentChange(() => {
-    // Get and log the blocks in the editor
-    const blocks = editor.allBlocks;
+    // Get and log all top-level, i.e. non-nested blocks in the editor.
+    const blocks = editor.topLevelBlocks;
     console.log("Content was changed:", blocks);
   });
 
@@ -43,7 +43,7 @@ type Block = {
 
 `id:` The block's ID. Multiple blocks cannot share a single ID, and a block will keep the same ID from when it's created until it's removed.
 
-`type:` The block's type, such as a paragraph, heading, or list item. For an overview of built-in block types, see [Block Types](block-types).
+`type:` The block's type, such as a paragraph, heading, or list item. For an overview of built-in block types, see [Block Types & Properties](block-types).
 
 `props:` The block's properties are stored in a set of key/value pairs and specify how the block looks and behaves. Different block types have different props - see [Block Types](block-types) for more.
 
