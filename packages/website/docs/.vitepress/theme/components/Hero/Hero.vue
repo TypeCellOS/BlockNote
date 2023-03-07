@@ -100,6 +100,7 @@ header {
   background: white;
   backdrop-filter: blur(6px);
   padding: 50px;
+  padding-left: 0;
 }
 
 .header-media::after {
