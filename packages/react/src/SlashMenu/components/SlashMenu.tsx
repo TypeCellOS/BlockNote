@@ -1,12 +1,12 @@
-import { SlashMenuItem } from "@blocknote/core";
 import { createStyles, Menu } from "@mantine/core";
 import * as _ from "lodash";
-import { SlashMenuItem as ReactSlashMenuItem } from "./SlashMenuItem";
+import { SlashMenuItem } from "./SlashMenuItem";
+import { ReactSlashMenuItem } from "../ReactSlashMenuItem";
 
 export type SlashMenuProps = {
-  items: SlashMenuItem[];
+  items: ReactSlashMenuItem[];
   keyboardHoveredItemIndex: number;
-  itemCallback: (item: SlashMenuItem) => void;
+  itemCallback: (item: ReactSlashMenuItem) => void;
 };
 
 export function SlashMenu(props: SlashMenuProps) {
@@ -25,9 +25,10 @@ export function SlashMenu(props: SlashMenuProps) {
 
     for (const item of el) {
       renderedItems.push(
-        <ReactSlashMenuItem
+        <SlashMenuItem
           key={item.name}
           name={item.name}
+          icon={item.icon}
           hint={item.hint}
           shortcut={item.shortcut}
           isSelected={props.keyboardHoveredItemIndex === index}

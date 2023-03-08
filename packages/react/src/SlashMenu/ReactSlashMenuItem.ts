@@ -6,6 +6,7 @@ export class ReactSlashMenuItem extends SlashMenuItem {
     public readonly execute: (editorFunctions: EditorFunctions) => void,
     public readonly aliases: string[] = [],
     public readonly group: string,
+    public readonly icon: JSX.Element,
     public readonly hint?: string,
     public readonly shortcut?: string
   ) {
