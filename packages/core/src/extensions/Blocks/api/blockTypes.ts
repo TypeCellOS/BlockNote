@@ -45,6 +45,8 @@ export type Block =
   | BulletListItemBlock
   | NumberedListItemBlock;
 
+export type BlockIdentifier = string | Block;
+
 /** Define "Partial Blocks", these are for updating or creating blocks */
 export type PartialBlockTemplate<B extends Block> = B extends Block
   ? Partial<Omit<B, "props" | "children" | "content" | "type">> & {
