@@ -1,10 +1,14 @@
 import { Extension } from "@tiptap/core";
+import { Node } from "prosemirror-model";
 import { PluginKey } from "prosemirror-state";
 import { createSuggestionPlugin } from "../../shared/plugins/suggestion/SuggestionPlugin";
 import { SuggestionsMenuFactory } from "../../shared/plugins/suggestion/SuggestionsMenuFactoryTypes";
 import { SlashMenuItem } from "./SlashMenuItem";
+import { EditorFunctions } from "../../api/EditorFunctions";
+import { Block } from "../Blocks/api/blockTypes";
 
 export type SlashMenuOptions = {
+  blockCache: WeakMap<Node, Block> | undefined;
   commands: SlashMenuItem[] | undefined;
   slashMenuFactory: SuggestionsMenuFactory<any> | undefined;
 };
@@ -16,6 +20,7 @@ export const SlashMenuExtension = Extension.create<SlashMenuOptions>({
 
   addOptions() {
     return {
+      blockCache: undefined,
       commands: undefined,
       slashMenuFactory: undefined,
     };
@@ -32,13 +37,17 @@ export const SlashMenuExtension = Extension.create<SlashMenuOptions>({
       createSuggestionPlugin<SlashMenuItem>({
         pluginKey: SlashMenuPluginKey,
         editor: this.editor,
+        editorFunctions: new EditorFunctions(
+          this.editor,
+          this.options.blockCache!
+        ),
         defaultTriggerCharacter: "/",
         suggestionsMenuFactory: this.options.slashMenuFactory!,
         items: (query) => {
           return commands.filter((cmd: SlashMenuItem) => cmd.match(query));
         },
-        onSelectItem: ({ item, editor, range }) => {
-          item.execute(editor, range);
+        onSelectItem: ({ item, editorFunctions }) => {
+          item.execute(editorFunctions);
         },
       }),
     ];

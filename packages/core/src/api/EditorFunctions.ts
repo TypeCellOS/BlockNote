@@ -17,7 +17,7 @@ import {
   markdownToBlocks,
 } from "./formatConversions/formatConversions";
 
-export class Editor {
+export class EditorFunctions {
   constructor(
     private tiptapEditor: TiptapEditor,
     private blockCache = new WeakMap<Node, Block>()

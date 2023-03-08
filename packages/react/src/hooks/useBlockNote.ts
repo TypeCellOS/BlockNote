@@ -4,6 +4,7 @@ import { ReactBlockSideMenuFactory } from "../BlockSideMenu/BlockSideMenuFactory
 import { ReactFormattingToolbarFactory } from "../FormattingToolbar/FormattingToolbarFactory";
 import { ReactHyperlinkToolbarFactory } from "../HyperlinkToolbar/HyperlinkToolbarFactory";
 import { ReactSlashMenuFactory } from "../SlashMenu/SlashMenuFactory";
+import { defaultReactSlashMenuItems } from "../SlashMenu/defaultReactSlashMenuItems";
 
 //based on https://github.com/ueberdosis/tiptap/blob/main/packages/react/src/useEditor.ts
 
@@ -25,7 +26,10 @@ export const useBlockNote = (
 
   useEffect(() => {
     let isMounted = true;
-    let newOptions = { ...options };
+    let newOptions: Partial<BlockNoteEditorOptions> = {
+      slashCommands: defaultReactSlashMenuItems,
+      ...options,
+    };
     if (!newOptions.uiFactories) {
       newOptions = {
         ...newOptions,

@@ -1,7 +1,8 @@
 import { Editor, EditorOptions } from "@tiptap/core";
-
+import { Node } from "prosemirror-model";
 // import "./blocknote.css";
-import { Editor as EditorAPI } from "./api/Editor";
+import { EditorFunctions } from "./api/EditorFunctions";
+import { Block } from "./extensions/Blocks/api/blockTypes";
 import { getBlockNoteExtensions, UiFactories } from "./BlockNoteExtensions";
 import styles from "./editor.module.css";
 import { defaultSlashCommands, SlashCommand } from "./extensions/SlashMenu";
@@ -27,7 +28,7 @@ const blockNoteTipTapOptions = {
   enableCoreExtensions: false,
 };
 
-export class BlockNoteEditor extends EditorAPI {
+export class BlockNoteEditor extends EditorFunctions {
   public readonly _tiptapEditor: Editor & { contentComponent: any };
 
   public get domElement() {
@@ -35,7 +36,10 @@ export class BlockNoteEditor extends EditorAPI {
   }
 
   constructor(options: Partial<BlockNoteEditorOptions> = {}) {
+    const blockCache = new WeakMap<Node, Block>();
+
     const blockNoteExtensions = getBlockNoteExtensions({
+      blockCache: blockCache,
       uiFactories: options.uiFactories || {},
       slashCommands: options.slashCommands || defaultSlashCommands,
     });
@@ -72,7 +76,8 @@ export class BlockNoteEditor extends EditorAPI {
     const _tiptapEditor = new Editor(tiptapOptions) as Editor & {
       contentComponent: any;
     };
-    super(_tiptapEditor);
+    super(_tiptapEditor, blockCache);
+
     this._tiptapEditor = _tiptapEditor;
   }
 }

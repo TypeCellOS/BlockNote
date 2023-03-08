@@ -1,5 +1,5 @@
-import { Editor, Range } from "@tiptap/core";
 import { SuggestionItem } from "../../shared/plugins/suggestion/SuggestionItem";
+import { EditorFunctions } from "../../api/EditorFunctions";
 
 /**
  * A class that defines a slash command (/<command>).
@@ -16,11 +16,8 @@ export class SlashMenuItem implements SuggestionItem {
    */
   constructor(
     public readonly name: string,
-    public readonly execute: (editor: Editor, range: Range) => void,
-    public readonly aliases: string[] = [],
-    public readonly group: string,
-    public readonly hint?: string,
-    public readonly shortcut?: string
+    public readonly execute: (editorFunctions: EditorFunctions) => void,
+    public readonly aliases: string[] = []
   ) {}
 
   match(query: string): boolean {

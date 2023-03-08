@@ -9,6 +9,7 @@ import {
   SuggestionsMenuStaticParams,
 } from "./SuggestionsMenuFactoryTypes";
 import { SuggestionItem } from "./SuggestionItem";
+import { EditorFunctions } from "../../../api/EditorFunctions";
 
 export type SuggestionPluginOptions<T extends SuggestionItem> = {
   /**
@@ -22,6 +23,8 @@ export type SuggestionPluginOptions<T extends SuggestionItem> = {
    * The TipTap editor.
    */
   editor: Editor;
+
+  editorFunctions: EditorFunctions;
 
   /**
    * The character that should trigger the suggestion menu to pop up (e.g. a '/' for commands), when typed by the user.
@@ -37,7 +40,7 @@ export type SuggestionPluginOptions<T extends SuggestionItem> = {
    * this should be done manually. The `editor` and `range` properties passed
    * to the callback function might come in handy when doing this.
    */
-  onSelectItem?: (props: { item: T; editor: Editor; range: Range }) => void;
+  onSelectItem?: (props: { item: T; editorFunctions: EditorFunctions }) => void;
 
   /**
    * A function that should supply the plugin with items to suggest, based on a certain query string.
@@ -82,8 +85,9 @@ function getDefaultPluginState<
 
 type SuggestionPluginViewOptions<T extends SuggestionItem> = {
   editor: Editor;
+  editorFunctions: EditorFunctions;
   pluginKey: PluginKey;
-  onSelectItem: (props: { item: T; editor: Editor; range: Range }) => void;
+  onSelectItem: (props: { item: T; editorFunctions: EditorFunctions }) => void;
   suggestionsMenuFactory: SuggestionsMenuFactory<T>;
 };
 
@@ -98,6 +102,7 @@ class SuggestionPluginView<T extends SuggestionItem> {
 
   constructor({
     editor,
+    editorFunctions,
     pluginKey,
     onSelectItem: selectItemCallback = () => {},
     suggestionsMenuFactory,
@@ -107,17 +112,18 @@ class SuggestionPluginView<T extends SuggestionItem> {
 
     this.pluginState = getDefaultPluginState<T>();
 
-    this.itemCallback = (item: T) =>
+    this.itemCallback = (item: T) => {
       selectItemCallback({
         item: item,
-        editor: editor,
-        range: {
-          from:
-            this.pluginState.queryStartPos! -
-            this.pluginState.triggerCharacter!.length,
-          to: editor.state.selection.from,
-        },
+        editorFunctions: editorFunctions,
       });
+      editor.commands.deleteRange({
+        from:
+          this.pluginState.queryStartPos! -
+          this.pluginState.triggerCharacter!.length,
+        to: editor.state.selection.from,
+      });
+    };
 
     this.suggestionsMenu = suggestionsMenuFactory(this.getStaticParams());
   }
@@ -198,6 +204,7 @@ class SuggestionPluginView<T extends SuggestionItem> {
 export function createSuggestionPlugin<T extends SuggestionItem>({
   pluginKey,
   editor,
+  editorFunctions,
   defaultTriggerCharacter,
   suggestionsMenuFactory,
   onSelectItem: selectItemCallback = () => {},
@@ -219,8 +226,12 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
     view: (view: EditorView) =>
       new SuggestionPluginView({
         editor: editor,
+        editorFunctions: editorFunctions,
         pluginKey: pluginKey,
-        onSelectItem: (props: { item: T; editor: Editor; range: Range }) => {
+        onSelectItem: (props: {
+          item: T;
+          editorFunctions: EditorFunctions;
+        }) => {
           deactivate(view);
           selectItemCallback(props);
         },
@@ -380,11 +391,11 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
           deactivate(view);
           selectItemCallback({
             item: items[keyboardHoveredItemIndex],
-            editor: editor,
-            range: {
-              from: queryStartPos - triggerCharacter.length,
-              to: view.state.selection.from,
-            },
+            editorFunctions: editorFunctions,
+          });
+          editor.commands.deleteRange({
+            from: queryStartPos! - triggerCharacter!.length,
+            to: editor.state.selection.from,
           });
           return true;
         }

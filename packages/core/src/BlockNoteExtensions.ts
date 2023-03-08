@@ -1,5 +1,8 @@
 import { Extensions, extensions } from "@tiptap/core";
 
+import { Node } from "prosemirror-model";
+import { Block } from "./extensions/Blocks/api/blockTypes";
+
 import Bold from "@tiptap/extension-bold";
 import Code from "@tiptap/extension-code";
 import DropCursor from "@tiptap/extension-dropcursor";
@@ -42,6 +45,7 @@ export type UiFactories = Partial<{
  * Get all the Tiptap extensions BlockNote is configured with by default
  */
 export const getBlockNoteExtensions = (opts: {
+  blockCache: WeakMap<Node, Block>;
   uiFactories: UiFactories;
   slashCommands: SlashCommand[];
 }) => {
@@ -123,6 +127,7 @@ export const getBlockNoteExtensions = (opts: {
   if (opts.uiFactories.slashMenuFactory) {
     ret.push(
       SlashMenuExtension.configure({
+        blockCache: opts.blockCache,
         commands: opts.slashCommands,
         slashMenuFactory: opts.uiFactories.slashMenuFactory,
       })
