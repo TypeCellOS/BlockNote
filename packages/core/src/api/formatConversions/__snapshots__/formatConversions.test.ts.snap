@@ -60,14 +60,7 @@ exports[`Non-Nested Block/HTML/Markdown Conversions > Convert non-nested HTML to
     "children": [],
     "content": [
       {
-        "styles": {
-          "backgroundColor": "default",
-          "bold": false,
-          "italic": false,
-          "strike": false,
-          "textColor": "default",
-          "underline": false,
-        },
+        "styles": {},
         "text": "Heading",
         "type": "text",
       },
@@ -85,14 +78,7 @@ exports[`Non-Nested Block/HTML/Markdown Conversions > Convert non-nested HTML to
     "children": [],
     "content": [
       {
-        "styles": {
-          "backgroundColor": "default",
-          "bold": false,
-          "italic": false,
-          "strike": false,
-          "textColor": "default",
-          "underline": false,
-        },
+        "styles": {},
         "text": "Paragraph",
         "type": "text",
       },
@@ -109,14 +95,7 @@ exports[`Non-Nested Block/HTML/Markdown Conversions > Convert non-nested HTML to
     "children": [],
     "content": [
       {
-        "styles": {
-          "backgroundColor": "default",
-          "bold": false,
-          "italic": false,
-          "strike": false,
-          "textColor": "default",
-          "underline": false,
-        },
+        "styles": {},
         "text": "Bullet List Item",
         "type": "text",
       },
@@ -133,14 +112,7 @@ exports[`Non-Nested Block/HTML/Markdown Conversions > Convert non-nested HTML to
     "children": [],
     "content": [
       {
-        "styles": {
-          "backgroundColor": "default",
-          "bold": false,
-          "italic": false,
-          "strike": false,
-          "textColor": "default",
-          "underline": false,
-        },
+        "styles": {},
         "text": "Numbered List Item",
         "type": "text",
       },
@@ -162,14 +134,7 @@ exports[`Non-Nested Block/HTML/Markdown Conversions > Convert non-nested Markdow
     "children": [],
     "content": [
       {
-        "styles": {
-          "backgroundColor": "default",
-          "bold": false,
-          "italic": false,
-          "strike": false,
-          "textColor": "default",
-          "underline": false,
-        },
+        "styles": {},
         "text": "Heading",
         "type": "text",
       },
@@ -187,14 +152,7 @@ exports[`Non-Nested Block/HTML/Markdown Conversions > Convert non-nested Markdow
     "children": [],
     "content": [
       {
-        "styles": {
-          "backgroundColor": "default",
-          "bold": false,
-          "italic": false,
-          "strike": false,
-          "textColor": "default",
-          "underline": false,
-        },
+        "styles": {},
         "text": "Paragraph",
         "type": "text",
       },
@@ -211,14 +169,7 @@ exports[`Non-Nested Block/HTML/Markdown Conversions > Convert non-nested Markdow
     "children": [],
     "content": [
       {
-        "styles": {
-          "backgroundColor": "default",
-          "bold": false,
-          "italic": false,
-          "strike": false,
-          "textColor": "default",
-          "underline": false,
-        },
+        "styles": {},
         "text": "Bullet List Item",
         "type": "text",
       },
@@ -235,14 +186,7 @@ exports[`Non-Nested Block/HTML/Markdown Conversions > Convert non-nested Markdow
     "children": [],
     "content": [
       {
-        "styles": {
-          "backgroundColor": "default",
-          "bold": false,
-          "italic": false,
-          "strike": false,
-          "textColor": "default",
-          "underline": false,
-        },
+        "styles": {},
         "text": "Numbered List Item",
         "type": "text",
       },
@@ -278,35 +222,20 @@ exports[`Styled Block/HTML/Markdown Conversions > Convert styled HTML to blocks 
     "content": [
       {
         "styles": {
-          "backgroundColor": "default",
           "bold": true,
-          "italic": false,
-          "strike": false,
-          "textColor": "default",
-          "underline": false,
         },
         "text": "Bold",
         "type": "text",
       },
       {
         "styles": {
-          "backgroundColor": "default",
-          "bold": false,
           "italic": true,
-          "strike": false,
-          "textColor": "default",
-          "underline": false,
         },
         "text": "Italic",
         "type": "text",
       },
       {
         "styles": {
-          "backgroundColor": "default",
-          "bold": false,
-          "italic": false,
-          "strike": false,
-          "textColor": "default",
           "underline": true,
         },
         "text": "Underline",
@@ -314,24 +243,14 @@ exports[`Styled Block/HTML/Markdown Conversions > Convert styled HTML to blocks 
       },
       {
         "styles": {
-          "backgroundColor": "default",
-          "bold": false,
-          "italic": false,
           "strike": true,
-          "textColor": "default",
-          "underline": false,
         },
         "text": "Strikethrough",
         "type": "text",
       },
       {
         "styles": {
-          "backgroundColor": "default",
-          "bold": false,
-          "italic": false,
-          "strike": false,
           "textColor": "red",
-          "underline": false,
         },
         "text": "TextColor",
         "type": "text",
@@ -339,23 +258,14 @@ exports[`Styled Block/HTML/Markdown Conversions > Convert styled HTML to blocks 
       {
         "styles": {
           "backgroundColor": "red",
-          "bold": false,
-          "italic": false,
-          "strike": false,
-          "textColor": "default",
-          "underline": false,
         },
         "text": "BackgroundColor",
         "type": "text",
       },
       {
         "styles": {
-          "backgroundColor": "default",
           "bold": true,
           "italic": true,
-          "strike": false,
-          "textColor": "default",
-          "underline": false,
         },
         "text": "Multiple",
         "type": "text",
@@ -379,72 +289,39 @@ exports[`Styled Block/HTML/Markdown Conversions > Convert styled Markdown to blo
     "content": [
       {
         "styles": {
-          "backgroundColor": "default",
           "bold": true,
-          "italic": false,
-          "strike": false,
-          "textColor": "default",
-          "underline": false,
         },
         "text": "Bold",
         "type": "text",
       },
       {
         "styles": {
-          "backgroundColor": "default",
-          "bold": false,
           "italic": true,
-          "strike": false,
-          "textColor": "default",
-          "underline": false,
         },
         "text": "Italic",
         "type": "text",
       },
       {
-        "styles": {
-          "backgroundColor": "default",
-          "bold": false,
-          "italic": false,
-          "strike": false,
-          "textColor": "default",
-          "underline": false,
-        },
+        "styles": {},
         "text": "Underline",
         "type": "text",
       },
       {
         "styles": {
-          "backgroundColor": "default",
-          "bold": false,
-          "italic": false,
           "strike": true,
-          "textColor": "default",
-          "underline": false,
         },
         "text": "Strikethrough",
         "type": "text",
       },
       {
-        "styles": {
-          "backgroundColor": "default",
-          "bold": false,
-          "italic": false,
-          "strike": false,
-          "textColor": "default",
-          "underline": false,
-        },
+        "styles": {},
         "text": "TextColorBackgroundColor",
         "type": "text",
       },
       {
         "styles": {
-          "backgroundColor": "default",
           "bold": true,
           "italic": true,
-          "strike": false,
-          "textColor": "default",
-          "underline": false,
         },
         "text": "Multiple",
         "type": "text",

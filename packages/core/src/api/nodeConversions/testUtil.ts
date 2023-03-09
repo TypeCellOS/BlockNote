@@ -13,14 +13,7 @@ function textShorthandToStyledText(
       {
         type: "text",
         text: content,
-        styles: {
-          bold: false,
-          italic: false,
-          underline: false,
-          strike: false,
-          textColor: "default",
-          backgroundColor: "default",
-        },
+        styles: {},
       },
     ];
   }
