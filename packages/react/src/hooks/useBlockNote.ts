@@ -26,7 +26,10 @@ export const useBlockNote = (
 
   useEffect(() => {
     let isMounted = true;
-    let newOptions: Partial<BlockNoteEditorOptions> = {
+    // TODO: Fix typing. UiFactories expects only BaseSlashMenuItems, not extended types. Can be fixed with a generic,
+    //  but it would have to be on several different classes (BlockNoteEditor, BlockNoteEditorOptions, UiFactories) and
+    //  gets messy quick.
+    let newOptions: Record<any, any> = {
       slashCommands: defaultReactSlashMenuItems,
       ...options,
     };
@@ -42,7 +45,9 @@ export const useBlockNote = (
       };
     }
     console.log("create new blocknote instance");
-    const instance = new BlockNoteEditor(newOptions);
+    const instance = new BlockNoteEditor(
+      newOptions as Partial<BlockNoteEditorOptions>
+    );
 
     setEditor(instance);
 

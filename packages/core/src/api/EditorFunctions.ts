@@ -16,6 +16,7 @@ import {
   HTMLToBlocks,
   markdownToBlocks,
 } from "./formatConversions/formatConversions";
+import { getNodeById } from "./util/nodeUtil";
 
 export class EditorFunctions {
   constructor(
@@ -68,13 +69,66 @@ export class EditorFunctions {
   /**
    * Gets information regarding the position of the text cursor in the editor.
    */
-  public get textCursorPosition(): TextCursorPosition {
-    const { node } = getBlockInfoFromPos(
+  public getTextCursorPosition(): TextCursorPosition {
+    const { node, depth, startPos, endPos } = getBlockInfoFromPos(
       this.tiptapEditor.state.doc,
       this.tiptapEditor.state.selection.from
     )!;
 
-    return { block: nodeToBlock(node, this.blockCache) };
+    // Index of the current blockContainer node relative to its parent blockGroup.
+    const nodeIndex = this.tiptapEditor.state.doc
+      .resolve(endPos)
+      .index(depth - 1);
+    // Number of the parent blockGroup's child blockContainer nodes.
+    const numNodes = this.tiptapEditor.state.doc
+      .resolve(endPos + 1)
+      .node().childCount;
+
+    // Gets previous blockContainer node at the same nesting level, if the current node isn't the first child.
+    let prevNode: Node | undefined = undefined;
+    if (nodeIndex > 0) {
+      prevNode = this.tiptapEditor.state.doc.resolve(startPos - 2).node();
+    }
+
+    // Gets next blockContainer node at the same nesting level, if the current node isn't the last child.
+    let nextNode: Node | undefined = undefined;
+    if (nodeIndex < numNodes - 1) {
+      nextNode = this.tiptapEditor.state.doc.resolve(endPos + 2).node();
+    }
+
+    return {
+      block: nodeToBlock(node, this.blockCache),
+      prevBlock:
+        prevNode === undefined
+          ? prevNode
+          : nodeToBlock(prevNode, this.blockCache),
+      nextBlock:
+        nextNode === undefined
+          ? nextNode
+          : nodeToBlock(nextNode, this.blockCache),
+    };
+  }
+
+  public setTextCursorPosition(
+    block: Block,
+    placement: "start" | "end" = "start"
+  ) {
+    const { posBeforeNode } = getNodeById(
+      block.id,
+      this.tiptapEditor.state.doc
+    );
+    const { startPos, contentNode } = getBlockInfoFromPos(
+      this.tiptapEditor.state.doc,
+      posBeforeNode + 2
+    )!;
+
+    if (placement === "start") {
+      this.tiptapEditor.commands.setTextSelection(startPos + 1);
+    } else {
+      this.tiptapEditor.commands.setTextSelection(
+        startPos + contentNode.nodeSize - 1
+      );
+    }
   }
 
   /**

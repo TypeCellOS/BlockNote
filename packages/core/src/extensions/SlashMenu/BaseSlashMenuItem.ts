@@ -6,7 +6,7 @@ import { EditorFunctions } from "../../api/EditorFunctions";
  *
  * Not to be confused with ProseMirror commands nor TipTap commands.
  */
-export class SlashMenuItem implements SuggestionItem {
+export class BaseSlashMenuItem extends SuggestionItem {
   /**
    * Constructs a new slash-command.
    *
@@ -18,14 +18,14 @@ export class SlashMenuItem implements SuggestionItem {
     public readonly name: string,
     public readonly execute: (editorFunctions: EditorFunctions) => void,
     public readonly aliases: string[] = []
-  ) {}
-
-  match(query: string): boolean {
-    return (
-      this.name.toLowerCase().startsWith(query.toLowerCase()) ||
-      this.aliases.filter((alias) =>
-        alias.toLowerCase().startsWith(query.toLowerCase())
-      ).length !== 0
-    );
+  ) {
+    super(name, (query: string): boolean => {
+      return (
+        this.name.toLowerCase().startsWith(query.toLowerCase()) ||
+        this.aliases.filter((alias) =>
+          alias.toLowerCase().startsWith(query.toLowerCase())
+        ).length !== 0
+      );
+    });
   }
 }

@@ -25,8 +25,8 @@ import { FormattingToolbarFactory } from "./extensions/FormattingToolbar/Formatt
 import HyperlinkMark from "./extensions/HyperlinkToolbar/HyperlinkMark";
 import { HyperlinkToolbarFactory } from "./extensions/HyperlinkToolbar/HyperlinkToolbarFactoryTypes";
 import { Placeholder } from "./extensions/Placeholder/PlaceholderExtension";
-import { SlashCommand, SlashMenuExtension } from "./extensions/SlashMenu";
-import { SlashMenuItem } from "./extensions/SlashMenu/SlashMenuItem";
+import { SlashMenuExtension } from "./extensions/SlashMenu";
+import { BaseSlashMenuItem } from "./extensions/SlashMenu";
 import { TextAlignmentExtension } from "./extensions/TextAlignment/TextAlignmentExtension";
 import { TextColorExtension } from "./extensions/TextColor/TextColorExtension";
 import { TextColorMark } from "./extensions/TextColor/TextColorMark";
@@ -37,7 +37,7 @@ import { SuggestionsMenuFactory } from "./shared/plugins/suggestion/SuggestionsM
 export type UiFactories = Partial<{
   formattingToolbarFactory: FormattingToolbarFactory;
   hyperlinkToolbarFactory: HyperlinkToolbarFactory;
-  slashMenuFactory: SuggestionsMenuFactory<SlashMenuItem>;
+  slashMenuFactory: SuggestionsMenuFactory<BaseSlashMenuItem>;
   blockSideMenuFactory: BlockSideMenuFactory;
 }>;
 
@@ -47,7 +47,7 @@ export type UiFactories = Partial<{
 export const getBlockNoteExtensions = (opts: {
   blockCache: WeakMap<Node, Block>;
   uiFactories: UiFactories;
-  slashCommands: SlashCommand[];
+  slashCommands: BaseSlashMenuItem[];
 }) => {
   const ret: Extensions = [
     extensions.ClipboardTextSerializer,

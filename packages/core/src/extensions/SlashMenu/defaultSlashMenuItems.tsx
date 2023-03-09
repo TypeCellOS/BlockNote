@@ -1,14 +1,33 @@
-import { SlashMenuItem } from "./SlashMenuItem";
+import { BaseSlashMenuItem } from "./BaseSlashMenuItem";
+import { PartialBlock } from "../Blocks/api/blockTypes";
+import { EditorFunctions } from "../../api/EditorFunctions";
+
+function insertOrUpdateBlock(editor: EditorFunctions, block: PartialBlock) {
+  const currentBlock = editor.getTextCursorPosition().block;
+  console.log(currentBlock.content);
+
+  if (
+    (currentBlock.content.length === 1 &&
+      currentBlock.content[0].type === "text" &&
+      currentBlock.content[0].text === "/") ||
+    currentBlock.content.length === 0
+  ) {
+    editor.updateBlock(currentBlock, block);
+  } else {
+    editor.insertBlocks([block], currentBlock, "after");
+    editor.setTextCursorPosition(editor.getTextCursorPosition().nextBlock!);
+  }
+}
 
 /**
  * An array containing commands for creating all default blocks.
  */
-export const defaultSlashCommands: SlashMenuItem[] = [
+export const defaultSlashMenuItems: BaseSlashMenuItem[] = [
   // Command for creating a level 1 heading
-  new SlashMenuItem(
+  new BaseSlashMenuItem(
     "Heading",
     (editor) =>
-      editor.updateBlock(editor.textCursorPosition.block, {
+      insertOrUpdateBlock(editor, {
         type: "heading",
         props: { level: "1" },
       }),
@@ -16,10 +35,10 @@ export const defaultSlashCommands: SlashMenuItem[] = [
   ),
 
   // Command for creating a level 2 heading
-  new SlashMenuItem(
+  new BaseSlashMenuItem(
     "Heading 2",
     (editor) =>
-      editor.updateBlock(editor.textCursorPosition.block, {
+      insertOrUpdateBlock(editor, {
         type: "heading",
         props: { level: "2" },
       }),
@@ -27,10 +46,10 @@ export const defaultSlashCommands: SlashMenuItem[] = [
   ),
 
   // Command for creating a level 3 heading
-  new SlashMenuItem(
+  new BaseSlashMenuItem(
     "Heading 3",
     (editor) =>
-      editor.updateBlock(editor.textCursorPosition.block, {
+      insertOrUpdateBlock(editor, {
         type: "heading",
         props: { level: "3" },
       }),
@@ -38,30 +57,30 @@ export const defaultSlashCommands: SlashMenuItem[] = [
   ),
 
   // Command for creating an ordered list
-  new SlashMenuItem(
+  new BaseSlashMenuItem(
     "Numbered List",
     (editor) =>
-      editor.updateBlock(editor.textCursorPosition.block, {
+      insertOrUpdateBlock(editor, {
         type: "numberedListItem",
       }),
     ["li", "list", "numberedlist", "numbered list"]
   ),
 
   // Command for creating a bullet list
-  new SlashMenuItem(
+  new BaseSlashMenuItem(
     "Bullet List",
     (editor) =>
-      editor.updateBlock(editor.textCursorPosition.block, {
+      insertOrUpdateBlock(editor, {
         type: "bulletListItem",
       }),
     ["ul", "list", "bulletlist", "bullet list"]
   ),
 
   // Command for creating a paragraph (pretty useless)
-  new SlashMenuItem(
+  new BaseSlashMenuItem(
     "Paragraph",
     (editor) =>
-      editor.updateBlock(editor.textCursorPosition.block, {
+      insertOrUpdateBlock(editor, {
         type: "paragraph",
       }),
     ["p"]

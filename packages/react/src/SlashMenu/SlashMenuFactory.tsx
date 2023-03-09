@@ -4,8 +4,8 @@ import {
   SuggestionsMenuFactory,
   SuggestionsMenuStaticParams,
 } from "@blocknote/core";
-import { ReactSlashMenuItem } from "./ReactSlashMenuItem";
 import { SlashMenu } from "./components/SlashMenu";
+import { ReactSlashMenuItem } from "./ReactSlashMenuItem";
 import { ReactElementFactory } from "../ElementFactory/components/ReactElementFactory";
 
 export const ReactSlashMenuFactory: SuggestionsMenuFactory<

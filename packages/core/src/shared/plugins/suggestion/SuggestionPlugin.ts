@@ -113,16 +113,23 @@ class SuggestionPluginView<T extends SuggestionItem> {
     this.pluginState = getDefaultPluginState<T>();
 
     this.itemCallback = (item: T) => {
-      selectItemCallback({
-        item: item,
-        editorFunctions: editorFunctions,
-      });
-      editor.commands.deleteRange({
-        from:
-          this.pluginState.queryStartPos! -
-          this.pluginState.triggerCharacter!.length,
-        to: editor.state.selection.from,
-      });
+      editor
+        .chain()
+        .focus()
+        .deleteRange({
+          from:
+            this.pluginState.queryStartPos! -
+            this.pluginState.triggerCharacter!.length,
+          to: editor.state.selection.from,
+        })
+        .command(() => {
+          selectItemCallback({
+            item: item,
+            editorFunctions: editorFunctions,
+          });
+
+          return true;
+        });
     };
 
     this.suggestionsMenu = suggestionsMenuFactory(this.getStaticParams());
@@ -386,17 +393,32 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
           return true;
         }
 
+        console.log(queryStartPos!);
+        console.log(triggerCharacter!.length);
+        console.log(
+          "from:",
+          queryStartPos! - triggerCharacter!.length,
+          "to:",
+          queryStartPos!
+        );
+
         // Selects an item and closes the menu.
         if (event.key === "Enter") {
           deactivate(view);
+          editor
+            .chain()
+            .focus()
+            .deleteRange({
+              from: queryStartPos! - triggerCharacter!.length,
+              to: editor.state.selection.from,
+            })
+            .run();
+
           selectItemCallback({
             item: items[keyboardHoveredItemIndex],
             editorFunctions: editorFunctions,
           });
-          editor.commands.deleteRange({
-            from: queryStartPos! - triggerCharacter!.length,
-            to: editor.state.selection.from,
-          });
+
           return true;
         }
 

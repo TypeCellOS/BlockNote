@@ -1,6 +1,6 @@
-import { EditorFunctions, SlashMenuItem } from "@blocknote/core";
+import { EditorFunctions, BaseSlashMenuItem } from "@blocknote/core";
 
-export class ReactSlashMenuItem extends SlashMenuItem {
+export class ReactSlashMenuItem extends BaseSlashMenuItem {
   constructor(
     public readonly name: string,
     public readonly execute: (editorFunctions: EditorFunctions) => void,

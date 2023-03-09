@@ -5,14 +5,17 @@ import { EditorFunctions } from "./api/EditorFunctions";
 import { Block } from "./extensions/Blocks/api/blockTypes";
 import { getBlockNoteExtensions, UiFactories } from "./BlockNoteExtensions";
 import styles from "./editor.module.css";
-import { defaultSlashCommands, SlashCommand } from "./extensions/SlashMenu";
+import {
+  defaultSlashMenuItems,
+  BaseSlashMenuItem,
+} from "./extensions/SlashMenu";
 
 export type BlockNoteEditorOptions = {
   // TODO: Figure out if enableBlockNoteExtensions/disableHistoryExtension are needed and document them.
   enableBlockNoteExtensions: boolean;
   disableHistoryExtension: boolean;
   uiFactories: UiFactories;
-  slashCommands: SlashCommand[];
+  slashCommands: BaseSlashMenuItem[];
   parentElement: HTMLElement;
   editorDOMAttributes: Record<string, string>;
   onUpdate: (editor: BlockNoteEditor) => void;
@@ -41,7 +44,7 @@ export class BlockNoteEditor extends EditorFunctions {
     const blockNoteExtensions = getBlockNoteExtensions({
       blockCache: blockCache,
       uiFactories: options.uiFactories || {},
-      slashCommands: options.slashCommands || defaultSlashCommands,
+      slashCommands: options.slashCommands || defaultSlashMenuItems,
     });
 
     let extensions = options.disableHistoryExtension
