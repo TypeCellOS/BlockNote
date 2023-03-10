@@ -2,17 +2,17 @@ import { Extensions, extensions } from "@tiptap/core";
 
 import { BlockNoteEditor } from "./BlockNoteEditor";
 
-import Bold from "@tiptap/extension-bold";
-import Code from "@tiptap/extension-code";
-import DropCursor from "@tiptap/extension-dropcursor";
-import GapCursor from "@tiptap/extension-gapcursor";
-import HardBreak from "@tiptap/extension-hard-break";
+import { Bold } from "@tiptap/extension-bold";
+import { Code } from "@tiptap/extension-code";
+import { Dropcursor } from "@tiptap/extension-dropcursor";
+import { Gapcursor } from "@tiptap/extension-gapcursor";
+import { HardBreak } from "@tiptap/extension-hard-break";
 import { History } from "@tiptap/extension-history";
-import Italic from "@tiptap/extension-italic";
+import { Italic } from "@tiptap/extension-italic";
 import { Link } from "@tiptap/extension-link";
-import Strike from "@tiptap/extension-strike";
-import Text from "@tiptap/extension-text";
-import Underline from "@tiptap/extension-underline";
+import { Strike } from "@tiptap/extension-strike";
+import { Text } from "@tiptap/extension-text";
+import { Underline } from "@tiptap/extension-underline";
 import { BackgroundColorExtension } from "./extensions/BackgroundColor/BackgroundColorExtension";
 import { BackgroundColorMark } from "./extensions/BackgroundColor/BackgroundColorMark";
 import { blocks } from "./extensions/Blocks";
@@ -56,7 +56,7 @@ export const getBlockNoteExtensions = (opts: {
     extensions.Tabindex,
 
     // DevTools,
-    GapCursor,
+    Gapcursor,
 
     // DropCursor,
     Placeholder.configure({
@@ -90,7 +90,7 @@ export const getBlockNoteExtensions = (opts: {
     // custom blocks:
     ...blocks,
 
-    DropCursor.configure({ width: 5, color: "#ddeeff" }),
+    Dropcursor.configure({ width: 5, color: "#ddeeff" }),
     History,
     // This needs to be at the bottom of this list, because Key events (such as enter, when selecting a /command),
     // should be handled before Enter handlers in other components like splitListItem
