@@ -1,7 +1,7 @@
 {
   "name": "blocknote-website",
   "private": true,
-  "version": "1.0.0",
+  "version": "0.4.2",
   "description": "Website for BlockNote",
   "main": "index.js",
   "scripts": {
@@ -12,15 +12,15 @@
   "author": "",
   "license": "MPL-2.0",
   "dependencies": {
-    "@blocknote/react": "*",
+    "@blocknote/react": "^0.4.2",
     "veaury": "^2.3.12",
     "vue-github-button": "^3.1.0"
   },
   "devDependencies": {
-    "vitepress": "^1.0.0-alpha.46",
-    "vue": "^3.2.47",
-    "sass": "^1.58.0",
     "@vue/tsconfig": "^0.1.3",
-    "vitepress-plugin-sandpack": "^0.2.2"
+    "sass": "^1.58.0",
+    "vitepress": "^1.0.0-alpha.46",
+    "vitepress-plugin-sandpack": "^0.2.2",
+    "vue": "^3.2.47"
   }
 }
