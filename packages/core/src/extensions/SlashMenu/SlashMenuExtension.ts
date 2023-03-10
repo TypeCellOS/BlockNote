@@ -2,10 +2,12 @@ import { Extension } from "@tiptap/core";
 import { PluginKey } from "prosemirror-state";
 import { createSuggestionPlugin } from "../../shared/plugins/suggestion/SuggestionPlugin";
 import { SuggestionsMenuFactory } from "../../shared/plugins/suggestion/SuggestionsMenuFactoryTypes";
-import { SlashMenuItem } from "./SlashMenuItem";
+import { BaseSlashMenuItem } from "./BaseSlashMenuItem";
+import { BlockNoteEditor } from "../../BlockNoteEditor";
 
 export type SlashMenuOptions = {
-  commands: SlashMenuItem[] | undefined;
+  editor: BlockNoteEditor | undefined;
+  commands: BaseSlashMenuItem[] | undefined;
   slashMenuFactory: SuggestionsMenuFactory<any> | undefined;
 };
 
@@ -16,6 +18,7 @@ export const SlashMenuExtension = Extension.create<SlashMenuOptions>({
 
   addOptions() {
     return {
+      editor: undefined,
       commands: undefined,
       slashMenuFactory: undefined,
     };
@@ -29,16 +32,16 @@ export const SlashMenuExtension = Extension.create<SlashMenuOptions>({
     const commands = this.options.commands;
 
     return [
-      createSuggestionPlugin<SlashMenuItem>({
+      createSuggestionPlugin<BaseSlashMenuItem>({
         pluginKey: SlashMenuPluginKey,
-        editor: this.editor,
+        editor: this.options.editor!,
         defaultTriggerCharacter: "/",
         suggestionsMenuFactory: this.options.slashMenuFactory!,
         items: (query) => {
-          return commands.filter((cmd: SlashMenuItem) => cmd.match(query));
+          return commands.filter((cmd: BaseSlashMenuItem) => cmd.match(query));
         },
-        onSelectItem: ({ item, editor, range }) => {
-          item.execute(editor, range);
+        onSelectItem: ({ item, editor }) => {
+          item.execute(editor);
         },
       }),
     ];

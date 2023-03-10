@@ -1,9 +1,5 @@
-import { defaultSlashCommands } from "./defaultSlashCommands";
+import { defaultSlashMenuItems } from "./defaultSlashMenuItems";
 import { SlashMenuExtension } from "./SlashMenuExtension";
-import { SlashMenuItem } from "./SlashMenuItem";
+import { BaseSlashMenuItem } from "./BaseSlashMenuItem";
 
-export {
-  defaultSlashCommands,
-  SlashMenuItem as SlashCommand,
-  SlashMenuExtension,
-};
+export { defaultSlashMenuItems, BaseSlashMenuItem, SlashMenuExtension };

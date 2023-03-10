@@ -1,20 +1,11 @@
 import { Badge, createStyles, Menu, Stack, Text } from "@mantine/core";
 import { useEffect, useRef } from "react";
-import { IconType } from "react-icons";
-
-import {
-  RiH1,
-  RiH2,
-  RiH3,
-  RiListOrdered,
-  RiListUnordered,
-  RiText,
-} from "react-icons/ri";
 
 const MIN_LEFT_MARGIN = 5;
 
 export type SlashMenuItemProps = {
   name: string;
+  icon: JSX.Element;
   hint: string | undefined;
   shortcut?: string;
   isSelected: boolean;
@@ -61,36 +52,10 @@ export function SlashMenuItem(props: SlashMenuItemProps) {
     }
   });
 
-  // TODO: rearchitect, this is hacky
-  let Icon: IconType | undefined;
-  switch (props.name) {
-    case "Heading":
-      Icon = RiH1;
-      break;
-    case "Heading 2":
-      Icon = RiH2;
-      break;
-
-    case "Heading 3":
-      Icon = RiH3;
-      break;
-    case "Numbered List":
-      Icon = RiListOrdered;
-      break;
-    case "Bullet List":
-      Icon = RiListUnordered;
-      break;
-    case "Paragraph":
-      Icon = RiText;
-      break;
-    default:
-      break;
-  }
-
   return (
     <Menu.Item
       className={classes.root}
-      icon={Icon && <Icon size={18} />}
+      icon={props.icon}
       onClick={props.set}
       closeMenuOnClick={false}
       // Ensures an item selected with both mouse & keyboard doesn't get deselected on mouse leave.

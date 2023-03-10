@@ -1,135 +1,88 @@
-import { Editor, Range } from "@tiptap/core";
-import { formatKeyboardShortcut } from "../../shared/utils";
-import { SlashMenuItem } from "./SlashMenuItem";
+import { BaseSlashMenuItem } from "./BaseSlashMenuItem";
+import { PartialBlock } from "../Blocks/api/blockTypes";
+import { BlockNoteEditor } from "../../BlockNoteEditor";
+
+function insertOrUpdateBlock(editor: BlockNoteEditor, block: PartialBlock) {
+  const currentBlock = editor.getTextCursorPosition().block;
+
+  if (
+    (currentBlock.content.length === 1 &&
+      currentBlock.content[0].type === "text" &&
+      currentBlock.content[0].text === "/") ||
+    currentBlock.content.length === 0
+  ) {
+    editor.updateBlock(currentBlock, block);
+  } else {
+    editor.insertBlocks([block], currentBlock, "after");
+    editor.setTextCursorPosition(editor.getTextCursorPosition().nextBlock!);
+  }
+}
 
 /**
  * An array containing commands for creating all default blocks.
  */
-export const defaultSlashCommands: SlashMenuItem[] = [
+export const defaultSlashMenuItems: BaseSlashMenuItem[] = [
   // Command for creating a level 1 heading
-  new SlashMenuItem(
+  new BaseSlashMenuItem(
     "Heading",
-    (editor: Editor, range: Range) => {
-      return editor
-        .chain()
-        .focus()
-        .deleteRange(range)
-        .BNCreateOrUpdateBlock(range.from, {
-          type: "heading",
-          props: {
-            level: "1",
-          },
-        })
-        .run();
-    },
-    ["h", "heading1", "h1"],
-    "Headings",
-    "Used for a top-level heading",
-    formatKeyboardShortcut("Mod-Alt-1")
+    (editor) =>
+      insertOrUpdateBlock(editor, {
+        type: "heading",
+        props: { level: "1" },
+      }),
+    ["h", "heading1", "h1"]
   ),
 
   // Command for creating a level 2 heading
-  new SlashMenuItem(
+  new BaseSlashMenuItem(
     "Heading 2",
-    (editor: Editor, range: Range) => {
-      return editor
-        .chain()
-        .focus()
-        .deleteRange(range)
-        .BNCreateOrUpdateBlock(range.from, {
-          type: "heading",
-          props: {
-            level: "2",
-          },
-        })
-        .run();
-    },
-    ["h2", "heading2", "subheading"],
-    "Headings",
-    "Used for key sections",
-    formatKeyboardShortcut("Mod-Alt-2")
+    (editor) =>
+      insertOrUpdateBlock(editor, {
+        type: "heading",
+        props: { level: "2" },
+      }),
+    ["h2", "heading2", "subheading"]
   ),
 
   // Command for creating a level 3 heading
-  new SlashMenuItem(
+  new BaseSlashMenuItem(
     "Heading 3",
-    (editor: Editor, range: Range) => {
-      return editor
-        .chain()
-        .focus()
-        .deleteRange(range)
-        .BNCreateOrUpdateBlock(range.from, {
-          type: "heading",
-          props: {
-            level: "3",
-          },
-        })
-        .run();
-    },
-    ["h3", "heading3", "subheading"],
-    "Headings",
-    "Used for subsections and group headings",
-    formatKeyboardShortcut("Mod-Alt-3")
+    (editor) =>
+      insertOrUpdateBlock(editor, {
+        type: "heading",
+        props: { level: "3" },
+      }),
+    ["h3", "heading3", "subheading"]
   ),
 
   // Command for creating an ordered list
-  new SlashMenuItem(
+  new BaseSlashMenuItem(
     "Numbered List",
-    (editor: Editor, range: Range) => {
-      return editor
-        .chain()
-        .focus()
-        .deleteRange(range)
-        .BNCreateOrUpdateBlock(range.from, {
-          type: "numberedListItem",
-          props: {},
-        })
-        .run();
-    },
-    ["li", "list", "numberedlist", "numbered list"],
-    "Basic blocks",
-    "Used to display a numbered list",
-    "Mod-Alt-7"
+    (editor) =>
+      insertOrUpdateBlock(editor, {
+        type: "numberedListItem",
+      }),
+    ["li", "list", "numberedlist", "numbered list"]
   ),
 
   // Command for creating a bullet list
-  new SlashMenuItem(
+  new BaseSlashMenuItem(
     "Bullet List",
-    (editor: Editor, range: Range) => {
-      return editor
-        .chain()
-        .focus()
-        .deleteRange(range)
-        .BNCreateOrUpdateBlock(range.from, {
-          type: "bulletListItem",
-          props: {},
-        })
-        .run();
-    },
-    ["ul", "list", "bulletlist", "bullet list"],
-    "Basic blocks",
-    "Used to display an unordered list",
-    "Mod-Alt-9"
+    (editor) =>
+      insertOrUpdateBlock(editor, {
+        type: "bulletListItem",
+      }),
+    ["ul", "list", "bulletlist", "bullet list"]
   ),
 
   // Command for creating a paragraph (pretty useless)
-  new SlashMenuItem(
+  new BaseSlashMenuItem(
     "Paragraph",
-    (editor: Editor, range: Range) => {
-      return editor
-        .chain()
-        .focus()
-        .deleteRange(range)
-        .BNCreateOrUpdateBlock(range.from, {
-          type: "paragraph",
-          props: {},
-        })
-        .run();
-    },
-    ["p"],
-    "Basic blocks",
-    "Used for the body of your document",
-    "Mod-Alt-0"
+    (editor) =>
+      insertOrUpdateBlock(editor, {
+        type: "paragraph",
+      }),
+    ["p"]
   ),
 
   //     replaceRangeWithNode(editor, range, node);
