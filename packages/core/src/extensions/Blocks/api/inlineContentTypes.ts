@@ -1,18 +1,18 @@
 export type Styles = {
-  bold: boolean;
-  italic: boolean;
-  underline: boolean;
-  strike: boolean;
-  textColor: string;
-  backgroundColor: string;
+  bold?: true;
+  italic?: true;
+  underline?: true;
+  strike?: true;
+  textColor?: string;
+  backgroundColor?: string;
 };
 
 export type ToggledStyles = {
-  [K in keyof Styles]-?: Styles[K] extends boolean ? K : never;
+  [K in keyof Styles]-?: Required<Styles>[K] extends true ? K : never;
 }[keyof Styles];
 
 export type ColorStyles = {
-  [K in keyof Styles]-?: Styles[K] extends string ? K : never;
+  [K in keyof Styles]-?: Required<Styles>[K] extends string ? K : never;
 }[keyof Styles];
 
 export type StyledText = {

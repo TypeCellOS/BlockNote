@@ -73,7 +73,7 @@ const SIDEBAR_DEFAULT = [
       },
       {
         text: "Real-time collaboration",
-        link: "/tutorial/1-building",
+        link: "/docs/real-time-collaboration",
       },
     ],
   },
@@ -103,7 +103,10 @@ const SIDEBAR_DEFAULT = [
   {
     items: [
       // { text: "API Reference (n2h)", link: "/api" },
-      { text: "Community", link: "/contact" },
+      {
+        text: "Community",
+        link: "https://discord.com/channels/928190961455087667/1015169282444894219",
+      },
     ],
   },
 ];

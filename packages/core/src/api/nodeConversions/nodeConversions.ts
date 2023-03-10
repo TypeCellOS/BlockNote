@@ -35,9 +35,9 @@ function styledTextToNode(styledText: StyledText, schema: Schema): Node {
   const marks: Mark[] = [];
 
   for (const [style, value] of Object.entries(styledText.styles)) {
-    if (toggleStyles.has(style as ToggledStyles) && value) {
+    if (toggleStyles.has(style as ToggledStyles)) {
       marks.push(schema.mark(style));
-    } else if (colorStyles.has(style as ColorStyles) && value !== "default") {
+    } else if (colorStyles.has(style as ColorStyles)) {
       marks.push(schema.mark(style, { color: value }));
     }
   }
@@ -161,14 +161,7 @@ function contentNodeToInlineContent(contentNode: Node) {
   // Most of the logic below is for handling links because in ProseMirror links are marks
   // while in BlockNote links are a type of inline content
   contentNode.content.forEach((node) => {
-    const styles: Styles = {
-      bold: false,
-      italic: false,
-      underline: false,
-      strike: false,
-      textColor: "default",
-      backgroundColor: "default",
-    };
+    const styles: Styles = {};
 
     let linkMark: Mark | undefined;
     for (const mark of node.marks) {

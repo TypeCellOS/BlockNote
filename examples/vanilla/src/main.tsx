@@ -18,7 +18,7 @@ const editor = new BlockNoteEditor({
     blockSideMenuFactory,
   },
   onUpdate: () => {
-    console.log(editor.allBlocks);
+    console.log(editor.topLevelBlocks);
   },
   editorDOMAttributes: {
     class: "editor",

@@ -9,7 +9,7 @@ export type BlockNoteEditorOptions = {
   editorDOMAttributes: Record<string, string>;
   onCreate: (editor: BlockNoteEditor) => void;
   onUpdate: (editor: BlockNoteEditor) => void;
-  slashCommands: SlashCommand[];
+  slashMenuItems: ReactSlashMenuItem[];
   uiFactories: UiFactories;
 };
 ```
@@ -20,6 +20,6 @@ export type BlockNoteEditorOptions = {
 
 `onUpdate:` A callback function that runs whenever the editor's contents change.
 
-`slashCommands:` The commands that are listed in the editor's [Slash Menu](slash-menu.md). If this option isn't defined, a default list of commands is loaded.
+`slashMenuItems:` The commands that are listed in the editor's [Slash Menu](slash-menu.md). If this option isn't defined, a default list of commands is loaded.
 
 `uiFactories:` Factories used to create a custom UI for BlockNote, which you can find out more about in [Creating Your Own UI Elements](vanilla-js#creating-your-own-ui-elements).

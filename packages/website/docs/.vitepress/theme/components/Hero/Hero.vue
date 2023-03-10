@@ -16,7 +16,7 @@ import BlockNote from "@theme/components/Examples/BlockNote/BlockNote.vue";
         custom blocks or AI tooling.
       </p>
       <div class="cta-buttons">
-        <CTAButton href="/guides/quickstart">Get started (beta)</CTAButton>
+        <CTAButton href="/docs/quickstart">Get started (beta)</CTAButton>
         <!-- <CTAButton href="/guides/introduction" layout="simple"
           >Learn more</CTAButton
         > -->
@@ -86,6 +86,10 @@ header {
   @media (max-width: 1024px) {
     width: 100%;
     transform: translateY(0);
+  }
+
+  @media only screen and (hover: none) and (pointer: coarse) {
+    display: none; /* disable on mobile */
   }
 
   border-radius: 12px;
