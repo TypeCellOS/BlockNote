@@ -1,5 +1,5 @@
-import { EditorFunctions } from "../../api/EditorFunctions";
 import { SuggestionItem } from "../../shared/plugins/suggestion/SuggestionItem";
+import { BlockNoteEditor } from "../../BlockNoteEditor";
 
 /**
  * A class that defines a slash command (/<command>).
@@ -16,7 +16,7 @@ export class BaseSlashMenuItem extends SuggestionItem {
    */
   constructor(
     public readonly name: string,
-    public readonly execute: (editorFunctions: EditorFunctions) => void,
+    public readonly execute: (editor: BlockNoteEditor) => void,
     public readonly aliases: string[] = []
   ) {
     super(name, (query: string): boolean => {
