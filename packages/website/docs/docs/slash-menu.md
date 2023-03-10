@@ -39,88 +39,9 @@ type ReactSlashMenuItem = {
 
 ## Default Items
 
-BlockNote comes with the following Slash Menu items:
+BlockNote comes with a variety of built-in Slash Menu items, which are used to change the type of the block containing the text cursor. If you don't pass anything to `slashMenuItems`, BlockNote will use these to set the Slash Menu contents.
 
-```typescript
-const defaultSlashMenuItems: ReactSlashMenuItem[] = [
-  {
-    name: "Heading",
-    execute: (editor: BlockNoteEditor) => {
-      // Changes the type of the block containing the text cursor to a
-      // heading 1.
-    ...
-    },
-    aliases: ["h", "heading1", "h1"],
-    group: "Headings",
-    hint: "Used for a top-level heading",
-    shortcut: "Mod-Alt-1" // Mod is Cmd or Ctrl depending on OS.
-  },
-  {
-    name: "Heading 2",
-    execute: (editor: BlockNoteEditor) => {
-      // Changes the type of the block containing the text cursor to a
-      // heading 2.
-    ...
-    },
-    aliases: ["h2", "heading2", "subheading"],
-    group: "Headings",
-    hint: "Used for key sections",
-    shortcut: "Mod-Alt-2" // Mod is Cmd or Ctrl depending on OS.
-  },
-  {
-    name: "Heading 3",
-    execute: (editor: BlockNoteEditor) => {
-      // Changes the type of the block containing the text cursor to a
-      // heading 3.
-    ...
-    },
-    aliases: ["h3", "heading3", "subheading"],
-    group: "Headings",
-    hint: "Used for subsections and group headings",
-    shortcut: "Mod-Alt-3" // Mod is Cmd or Ctrl depending on OS.
-  },
-  {
-    name: "Numbered List",
-    execute: (editor: BlockNoteEditor) => {
-      // Changes the type of the block containing the text cursor to a
-      // numbered list item.
-    ...
-    },
-    aliases: ["li", "list", "numberedlist", "numbered list"],
-    group: "Basic blocks",
-    hint: "Used to display a numbered list",
-    shortcut: "Mod-Alt-7" // Mod is Cmd or Ctrl depending on OS.
-  },
-  {
-    name: "Bullet List",
-    execute: (editor: BlockNoteEditor) => {
-      // Changes the type of the block containing the text cursor to a
-      // numbered list item.
-    ...
-    },
-    aliases: ["ul", "list", "bulletlist", "bullet list"],
-    group: "Basic blocks",
-    hint: "Used to display an unordered list",
-    shortcut: "Mod-Alt-9" // Mod is Cmd or Ctrl depending on OS.
-  },
-  {
-    name: "Paragraph",
-    execute: (editor: BlockNoteEditor) => {
-      // Changes the type of the block containing the text cursor to a
-      // numbered list item.
-    ...
-    },
-    aliases: ["p"],
-    group: "Basic blocks",
-    hint: "Used for the body of your document",
-    shortcut: "Mod-Alt-0" // Mod is Cmd or Ctrl depending on OS.
-  },
-]
-```
-
-## Customizing the Default Items
-
-If you don't pass anything to `slashMenuItems`, BlockNote will use `defaultSlashMenuItems` to set the Slash Menu contents. If you want to change, remove & reorder the default items though, you first import and copy them to a new array. From there, you can edit your array how you like, then pass it to `useBlockNote`:
+If you want to change, remove & reorder the default items , you first import and copy them to a new array. From there, you can edit the array how you like, then pass it to `useBlockNote`:
 
 ```typescript
 import { defaultSlashMenuItems } from "@blocknote/core";
@@ -138,3 +59,60 @@ function App() {
   return <BlockNoteView editor={editor} />;
 }
 ```
+
+## Custom Items
+
+You can also create your own, custom menu items too, as you can see in the example below. The new item, with the name "Insert Hello World", inserts a new block below with "Hello World" in bold:
+
+::: sandbox {template=react-ts}
+
+```typescript /App.tsx
+import {
+  Block,
+  BlockNoteEditor,
+  PartialBlock
+} from "@blocknote/core";
+import {
+  BlockNoteView,
+  defaultReactSlashMenuItems,
+  ReactSlashMenuItem,
+  useBlockNote
+} from "@blocknote/react";
+import "@blocknote/core/style.css";
+
+export default function App() {
+  const insertHelloWorld = (editor: BlockNoteEditor) => {
+    const currentBlock: Block = editor.getTextCursorPosition().block;
+    const helloWorldBlock: PartialBlock = {
+      type: "paragraph",
+      content: [{type: "text", text: "Hello World", styles: {bold: true}}],
+    };
+
+    editor.insertBlocks([helloWorldBlock], currentBlock, "after");
+  };
+
+  const insertHelloWorldItem: ReactSlashMenuItem = 
+    new ReactSlashMenuItem(
+      "Insert Hello World",
+      insertHelloWorld,
+      ["helloworld", "hw"],
+      "Other",
+      <HiOutlineGlobeAlt size={18} />,
+      "Used to insert a block with 'Hello World' below."
+    )
+
+  const editor = useBlockNote({
+    slashCommands: [
+      ...defaultReactSlashMenuItems,
+      insertHelloWorldItem
+    ]
+  });
+
+  return <BlockNoteView editor = {editor}
+  />;
+}
+```
+
+:::
+
+If you're confused about what's happening inside `execute`, head to [Introduction to Blocks](blocks.md), which will guide you through manipulating blocks in the editor using code. When creating your own `ReactSlashMenuItem`s, also make sure you use the class constructor like in the demo. 
