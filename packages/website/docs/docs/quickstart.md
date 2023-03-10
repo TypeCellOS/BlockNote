@@ -74,6 +74,6 @@ To find out more about BlockNote editor options and menu customization, visit [C
 
 ### Interacting with the Editor Using Code
 
-You also access and manipulate blocks in the editor programmatically using the BlockNote API.
+You also access and manipulate blocks in the editor programmatically with different editor functions.
 
-To find out more about Blocks, the BlockNote API and manipulating the editor using code, visit [Introduction to Blocks](blocks.md).
+To find out more about blocks, editor functions and manipulating the editor using code, visit [Introduction to Blocks](blocks.md).
