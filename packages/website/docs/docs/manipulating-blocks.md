@@ -90,7 +90,7 @@ type PartialBlock = {
   id?: string;
   type?: string;
   props?: Partial<Record<string, string>>;
-  content?: string | InlineNode[];
+  content?: string | InlineContent[];
   children?: BlockSpec[];
 };
 ```
@@ -123,7 +123,7 @@ editor.insertBlocks(blocksToInsert, referenceBlock, placement)
 
 `placement:` Whether the blocks should be inserted just before, just after, or nested inside the `referenceBlock`. Inserts the blocks at the start of the existing block's children if `"nested"` is used.
 
-Since the `blocksToInsert` argument is an array of `PartialBlock` objects, some fields might not be defined. These undefined fields are assigned values from an empty paragraph block, while the `id` is automatically generated. Throws an error if the reference block could not be found.
+Since `blocksToInsert` is an array of `PartialBlock` objects, some fields might not be defined. These undefined fields are assigned values from an empty paragraph block, while the `id` is automatically generated. Throws an error if the reference block could not be found.
 
 ## Updating Blocks
 
@@ -148,7 +148,7 @@ editor.updateBlock(blockToUpdate, { type: "paragraph" });
 
 `update:` A block which defines how the existing block should be changed.
 
-Since the `updatedBlock` argument is a `PartialBlock` object, some fields might not be defined. These undefined fields are kept as-is from the existing block. Throws an error if the block to update could not be found.
+Since `updatedBlock` is a `PartialBlock` object, some fields might not be defined. These undefined fields are kept as-is from the existing block. Throws an error if the block to update could not be found.
 
 ## Removing Blocks
 

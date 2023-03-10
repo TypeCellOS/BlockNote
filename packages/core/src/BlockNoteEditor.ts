@@ -118,11 +118,14 @@ export class BlockNoteEditor {
 
   /**
    * Gets a snapshot of an existing block from the editor.
-   * @param block The identifier of an existing block that should be retrieved.
+   * @param blockIdentifier The identifier of an existing block that should be retrieved.
    * @returns The block that matches the identifier, or `undefined` if no matching block was found.
    */
-  public getBlock(block: BlockIdentifier): Block | undefined {
-    const id = typeof block === "string" ? block : block.id;
+  public getBlock(blockIdentifier: BlockIdentifier): Block | undefined {
+    const id =
+      typeof blockIdentifier === "string"
+        ? blockIdentifier
+        : blockIdentifier.id;
     let newBlock: Block | undefined = undefined;
 
     this._tiptapEditor.state.doc.firstChild!.descendants((node) => {
@@ -147,7 +150,7 @@ export class BlockNoteEditor {
    * @param callback The callback to execute for each block. Returning `false` stops the traversal.
    * @param reverse Whether the blocks should be traversed in reverse order.
    */
-  public allBlocks(
+  public forEachBlock(
     callback: (block: Block) => void,
     reverse: boolean = false
   ): void {
@@ -240,7 +243,9 @@ export class BlockNoteEditor {
   }
 
   /**
-   * Inserts new blocks into the editor. Throws an error if the reference block could not be found.
+   * Inserts new blocks into the editor. Since `blocksToInsert` is an array of `PartialBlock` objects, some fields
+   * might not be defined. These undefined fields are assigned values from an empty paragraph block, while the `id` is
+   * automatically generated. Throws an error if the reference block could not be found.
    * @param blocksToInsert An array of blocks that should be inserted.
    * @param referenceBlock An identifier for an existing block, at which the new blocks should be inserted.
    * @param placement Whether the blocks should be inserted just before, just after, or nested inside the
@@ -255,7 +260,9 @@ export class BlockNoteEditor {
   }
 
   /**
-   * Updates an existing block in the editor. Throws an error if the block to update could not be found.
+   * Updates an existing block in the editor. Since updatedBlock is a PartialBlock object, some fields might not be
+   * defined. These undefined fields are kept as-is from the existing block. Throws an error if the block to update could
+   * not be found.
    * @param blockToUpdate The block that should be updated.
    * @param update A block which defines how the existing block should be changed.
    */
@@ -308,11 +315,11 @@ export class BlockNoteEditor {
    * Parses blocks from an HTML string. Tries to create `Block` objects out of any HTML block-level elements, and
    * `InlineNode` objects from any HTML inline elements, though not all element types are recognized. If BlockNote
    * doesn't recognize an HTML element's tag, it will parse it as a paragraph or plain text.
-   * @param htmlString The HTML string to parse blocks from.
+   * @param html The HTML string to parse blocks from.
    * @returns The blocks parsed from the HTML string.
    */
-  public async HTMLToBlocks(htmlString: string): Promise<Block[]> {
-    return HTMLToBlocks(htmlString, this._tiptapEditor.schema);
+  public async HTMLToBlocks(html: string): Promise<Block[]> {
+    return HTMLToBlocks(html, this._tiptapEditor.schema);
   }
 
   /**
@@ -330,10 +337,10 @@ export class BlockNoteEditor {
    * Creates a list of blocks from a Markdown string. Tries to create `Block` and `InlineNode` objects based on
    * Markdown syntax, though not all symbols are recognized. If BlockNote doesn't recognize a symbol, it will parse it
    * as text.
-   * @param markdownString The Markdown string to parse blocks from.
+   * @param markdown The Markdown string to parse blocks from.
    * @returns The blocks parsed from the Markdown string.
    */
-  public async markdownToBlocks(markdownString: string): Promise<Block[]> {
-    return markdownToBlocks(markdownString, this._tiptapEditor.schema);
+  public async markdownToBlocks(markdown: string): Promise<Block[]> {
+    return markdownToBlocks(markdown, this._tiptapEditor.schema);
   }
 }
