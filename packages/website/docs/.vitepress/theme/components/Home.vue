@@ -16,21 +16,21 @@ defineProps<{
 </script>
 
 <template>
-  <div className="top-section">
+  <div class="top-section">
     <Hero />
     <!-- <h3>Battle-tested by cutting-edge teams</h3>
     <WCUsedBy />-->
     <!-- <TestimonialCardList /> -->
   </div>
 
-  <div className="section">
+  <div class="section">
     <!-- <img src="/img/features/elements-01-nodeLIGHT-02-DARK.png" /> -->
     <h2>At a glance:</h2>
     <!-- <p>More text</p> -->
     <FeaturesCardList />
   </div>
 
-  <div className="section love">
+  <div class="section love">
     <div class="icon" data-v-6f4cd6f0="">
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -67,17 +67,17 @@ defineProps<{
     >
   </div>
 
-  <!-- <div className="final-section"> -->
-  <div className="section">
-    <div className="features-small">
-      <div className="feature">
+  <!-- <div class="final-section"> -->
+  <div class="section">
+    <div class="features-small">
+      <div class="feature">
         <h2>Programmable</h2>
         <p>
           BlockNote exposes an extensive API so you can integrate BlockNote into
           your app and add functionality to the editor.
         </p>
       </div>
-      <div className="feature">
+      <div class="feature">
         <h2>Proven tech</h2>
         <p>
           BlockNote builds on top of Prosemirror and TipTap (two awesome open
@@ -86,7 +86,7 @@ defineProps<{
           power their text-editing products.
         </p>
       </div>
-      <div className="feature">
+      <div class="feature">
         <h2>React components</h2>
         <p>
           BlockNote is built for React and exposes easy-to-use components.
@@ -98,7 +98,7 @@ defineProps<{
   </div>
   <!-- </div> -->
 
-  <!-- <div className="section">
+  <!-- <div class="section">
     <h2>
       Epic
       <strong>Headline</strong>
