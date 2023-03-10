@@ -1,16 +1,16 @@
 import { Extensions, extensions } from "@tiptap/core";
 
-import Bold from "@tiptap/extension-bold";
-import Code from "@tiptap/extension-code";
-import DropCursor from "@tiptap/extension-dropcursor";
-import GapCursor from "@tiptap/extension-gapcursor";
-import HardBreak from "@tiptap/extension-hard-break";
+import { Bold } from "@tiptap/extension-bold";
+import { Code } from "@tiptap/extension-code";
+import { DropCursor } from "@tiptap/extension-dropcursor";
+import { GapCursor } from "@tiptap/extension-gapcursor";
+import { HardBreak } from "@tiptap/extension-hard-break";
 import { History } from "@tiptap/extension-history";
-import Italic from "@tiptap/extension-italic";
+import { Italic } from "@tiptap/extension-italic";
 import { Link } from "@tiptap/extension-link";
-import Strike from "@tiptap/extension-strike";
-import Text from "@tiptap/extension-text";
-import Underline from "@tiptap/extension-underline";
+import { Strike } from "@tiptap/extension-strike";
+import { Text } from "@tiptap/extension-text";
+import { Underline } from "@tiptap/extension-underline";
 import { BackgroundColorExtension } from "./extensions/BackgroundColor/BackgroundColorExtension";
 import { BackgroundColorMark } from "./extensions/BackgroundColor/BackgroundColorMark";
 import { blocks } from "./extensions/Blocks";
