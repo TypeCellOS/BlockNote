@@ -49,7 +49,6 @@ export const slashMenuFactory: SuggestionsMenuFactory<BaseSlashMenuItem> = (
         container.style.display = "block";
       }
 
-      console.log("show", params);
       container.style.top = params.referenceRect.y + "px";
       container.style.left = params.referenceRect.x + "px";
     },

@@ -6,7 +6,7 @@ export function ReactBlockNote() {
   const editor = useBlockNote({
     onUpdate: (editor) => {
       // Log the document to console on every update
-      console.log(editor.allBlocks);
+      console.log(editor.topLevelBlocks);
     },
     editorDOMAttributes: {
       class: styles.editor,

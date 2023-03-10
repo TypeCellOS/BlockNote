@@ -382,15 +382,6 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
           return true;
         }
 
-        console.log(queryStartPos!);
-        console.log(triggerCharacter!.length);
-        console.log(
-          "from:",
-          queryStartPos! - triggerCharacter!.length,
-          "to:",
-          queryStartPos!
-        );
-
         // Selects an item and closes the menu.
         if (event.key === "Enter") {
           deactivate(view);

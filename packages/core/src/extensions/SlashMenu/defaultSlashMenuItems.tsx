@@ -4,7 +4,6 @@ import { BlockNoteEditor } from "../../BlockNoteEditor";
 
 function insertOrUpdateBlock(editor: BlockNoteEditor, block: PartialBlock) {
   const currentBlock = editor.getTextCursorPosition().block;
-  console.log(currentBlock.content);
 
   if (
     (currentBlock.content.length === 1 &&
