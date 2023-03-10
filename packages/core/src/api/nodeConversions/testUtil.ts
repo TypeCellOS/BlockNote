@@ -13,7 +13,7 @@ function textShorthandToStyledText(
       {
         type: "text",
         text: content,
-        styles: [],
+        styles: {},
       },
     ];
   }
@@ -34,10 +34,7 @@ function partialContentToInlineContent(
         content: textShorthandToStyledText(partialContent.content),
       };
     } else {
-      return {
-        ...partialContent,
-        styles: partialContent.styles || [],
-      };
+      return partialContent;
     }
   });
 }

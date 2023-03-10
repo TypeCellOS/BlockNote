@@ -60,7 +60,7 @@ exports[`Non-Nested Block/HTML/Markdown Conversions > Convert non-nested HTML to
     "children": [],
     "content": [
       {
-        "styles": [],
+        "styles": {},
         "text": "Heading",
         "type": "text",
       },
@@ -78,7 +78,7 @@ exports[`Non-Nested Block/HTML/Markdown Conversions > Convert non-nested HTML to
     "children": [],
     "content": [
       {
-        "styles": [],
+        "styles": {},
         "text": "Paragraph",
         "type": "text",
       },
@@ -95,7 +95,7 @@ exports[`Non-Nested Block/HTML/Markdown Conversions > Convert non-nested HTML to
     "children": [],
     "content": [
       {
-        "styles": [],
+        "styles": {},
         "text": "Bullet List Item",
         "type": "text",
       },
@@ -112,7 +112,7 @@ exports[`Non-Nested Block/HTML/Markdown Conversions > Convert non-nested HTML to
     "children": [],
     "content": [
       {
-        "styles": [],
+        "styles": {},
         "text": "Numbered List Item",
         "type": "text",
       },
@@ -134,7 +134,7 @@ exports[`Non-Nested Block/HTML/Markdown Conversions > Convert non-nested Markdow
     "children": [],
     "content": [
       {
-        "styles": [],
+        "styles": {},
         "text": "Heading",
         "type": "text",
       },
@@ -152,7 +152,7 @@ exports[`Non-Nested Block/HTML/Markdown Conversions > Convert non-nested Markdow
     "children": [],
     "content": [
       {
-        "styles": [],
+        "styles": {},
         "text": "Paragraph",
         "type": "text",
       },
@@ -169,7 +169,7 @@ exports[`Non-Nested Block/HTML/Markdown Conversions > Convert non-nested Markdow
     "children": [],
     "content": [
       {
-        "styles": [],
+        "styles": {},
         "text": "Bullet List Item",
         "type": "text",
       },
@@ -186,7 +186,7 @@ exports[`Non-Nested Block/HTML/Markdown Conversions > Convert non-nested Markdow
     "children": [],
     "content": [
       {
-        "styles": [],
+        "styles": {},
         "text": "Numbered List Item",
         "type": "text",
       },
@@ -221,80 +221,52 @@ exports[`Styled Block/HTML/Markdown Conversions > Convert styled HTML to blocks 
     "children": [],
     "content": [
       {
-        "styles": [
-          {
-            "props": {},
-            "type": "bold",
-          },
-        ],
+        "styles": {
+          "bold": true,
+        },
         "text": "Bold",
         "type": "text",
       },
       {
-        "styles": [
-          {
-            "props": {},
-            "type": "italic",
-          },
-        ],
+        "styles": {
+          "italic": true,
+        },
         "text": "Italic",
         "type": "text",
       },
       {
-        "styles": [
-          {
-            "props": {},
-            "type": "underline",
-          },
-        ],
+        "styles": {
+          "underline": true,
+        },
         "text": "Underline",
         "type": "text",
       },
       {
-        "styles": [
-          {
-            "props": {},
-            "type": "strike",
-          },
-        ],
+        "styles": {
+          "strike": true,
+        },
         "text": "Strikethrough",
         "type": "text",
       },
       {
-        "styles": [
-          {
-            "props": {
-              "color": "red",
-            },
-            "type": "textColor",
-          },
-        ],
+        "styles": {
+          "textColor": "red",
+        },
         "text": "TextColor",
         "type": "text",
       },
       {
-        "styles": [
-          {
-            "props": {
-              "color": "red",
-            },
-            "type": "backgroundColor",
-          },
-        ],
+        "styles": {
+          "backgroundColor": "red",
+        },
         "text": "BackgroundColor",
         "type": "text",
       },
       {
-        "styles": [
-          {
-            "props": {},
-            "type": "bold",
-          },
-          {
-            "props": {},
-            "type": "italic",
-          },
-        ],
+        "styles": {
+          "bold": true,
+          "italic": true,
+        },
         "text": "Multiple",
         "type": "text",
       },
@@ -316,56 +288,41 @@ exports[`Styled Block/HTML/Markdown Conversions > Convert styled Markdown to blo
     "children": [],
     "content": [
       {
-        "styles": [
-          {
-            "props": {},
-            "type": "bold",
-          },
-        ],
+        "styles": {
+          "bold": true,
+        },
         "text": "Bold",
         "type": "text",
       },
       {
-        "styles": [
-          {
-            "props": {},
-            "type": "italic",
-          },
-        ],
+        "styles": {
+          "italic": true,
+        },
         "text": "Italic",
         "type": "text",
       },
       {
-        "styles": [],
+        "styles": {},
         "text": "Underline",
         "type": "text",
       },
       {
-        "styles": [
-          {
-            "props": {},
-            "type": "strike",
-          },
-        ],
+        "styles": {
+          "strike": true,
+        },
         "text": "Strikethrough",
         "type": "text",
       },
       {
-        "styles": [],
+        "styles": {},
         "text": "TextColorBackgroundColor",
         "type": "text",
       },
       {
-        "styles": [
-          {
-            "props": {},
-            "type": "bold",
-          },
-          {
-            "props": {},
-            "type": "italic",
-          },
-        ],
+        "styles": {
+          "bold": true,
+          "italic": true,
+        },
         "text": "Multiple",
         "type": "text",
       },

@@ -17,7 +17,7 @@ export type BlockTemplate<
   children: Block[];
 };
 
-export type GlobalProps = {
+export type DefaultBlockProps = {
   backgroundColor: string;
   textColor: string;
   textAlignment: "left" | "center" | "right" | "justify";
@@ -25,19 +25,22 @@ export type GlobalProps = {
 
 export type NumberedListItemBlock = BlockTemplate<
   "numberedListItem",
-  GlobalProps
+  DefaultBlockProps
 >;
 
-export type BulletListItemBlock = BlockTemplate<"bulletListItem", GlobalProps>;
+export type BulletListItemBlock = BlockTemplate<
+  "bulletListItem",
+  DefaultBlockProps
+>;
 
 export type HeadingBlock = BlockTemplate<
   "heading",
-  GlobalProps & {
+  DefaultBlockProps & {
     level: "1" | "2" | "3";
   }
 >;
 
-export type ParagraphBlock = BlockTemplate<"paragraph", GlobalProps>;
+export type ParagraphBlock = BlockTemplate<"paragraph", DefaultBlockProps>;
 
 export type Block =
   | ParagraphBlock
@@ -68,7 +71,7 @@ export type BlockPropsTemplate<Props> = Props extends Block["props"]
  * will change anyway once we allow for custom blocks
  */
 
-export const globalProps: Array<keyof GlobalProps> = [
+export const globalProps: Array<keyof DefaultBlockProps> = [
   "backgroundColor",
   "textColor",
   "textAlignment",

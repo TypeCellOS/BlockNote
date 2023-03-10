@@ -41,30 +41,18 @@ beforeEach(() => {
       {
         type: "text",
         text: "Heading ",
-        styles: [
-          {
-            type: "bold",
-            props: {},
-          },
-          {
-            type: "underline",
-            props: {},
-          },
-        ],
+        styles: {
+          bold: true,
+          underline: true,
+        },
       },
       {
         type: "text",
         text: "2",
-        styles: [
-          {
-            type: "italic",
-            props: {},
-          },
-          {
-            type: "strike",
-            props: {},
-          },
-        ],
+        styles: {
+          italic: true,
+          strike: true,
+        },
       },
     ],
     children: [
@@ -197,17 +185,14 @@ describe("links", () => {
             {
               type: "text",
               text: "Web",
-              styles: [
-                {
-                  type: "bold",
-                  props: Object.create(null), //  Object.create(null) to match Prosemirror
-                },
-              ],
+              styles: {
+                bold: true,
+              },
             },
             {
               type: "text",
               text: "site",
-              styles: [],
+              styles: {},
             },
           ],
         },

@@ -39,7 +39,7 @@ beforeEach(() => {
         {
           type: "text",
           text: "Heading",
-          styles: [],
+          styles: {},
         },
       ],
       children: [],
@@ -56,7 +56,7 @@ beforeEach(() => {
         {
           type: "text",
           text: "Paragraph",
-          styles: [],
+          styles: {},
         },
       ],
       children: [],
@@ -73,7 +73,7 @@ beforeEach(() => {
         {
           type: "text",
           text: "Bullet List Item",
-          styles: [],
+          styles: {},
         },
       ],
       children: [],
@@ -90,7 +90,7 @@ beforeEach(() => {
         {
           type: "text",
           text: "Numbered List Item",
-          styles: [],
+          styles: {},
         },
       ],
       children: [],
@@ -120,7 +120,7 @@ Paragraph
         {
           type: "text",
           text: "Heading",
-          styles: [],
+          styles: {},
         },
       ],
       children: [
@@ -136,7 +136,7 @@ Paragraph
             {
               type: "text",
               text: "Paragraph",
-              styles: [],
+              styles: {},
             },
           ],
           children: [
@@ -152,7 +152,7 @@ Paragraph
                 {
                   type: "text",
                   text: "Bullet List Item",
-                  styles: [],
+                  styles: {},
                 },
               ],
               children: [
@@ -168,7 +168,7 @@ Paragraph
                     {
                       type: "text",
                       text: "Numbered List Item",
-                      styles: [],
+                      styles: {},
                     },
                   ],
                   children: [],
@@ -203,80 +203,52 @@ Paragraph
         {
           type: "text",
           text: "Bold",
-          styles: [
-            {
-              type: "bold",
-              props: {},
-            },
-          ],
+          styles: {
+            bold: true,
+          },
         },
         {
           type: "text",
           text: "Italic",
-          styles: [
-            {
-              type: "italic",
-              props: {},
-            },
-          ],
+          styles: {
+            italic: true,
+          },
         },
         {
           type: "text",
           text: "Underline",
-          styles: [
-            {
-              type: "underline",
-              props: {},
-            },
-          ],
+          styles: {
+            underline: true,
+          },
         },
         {
           type: "text",
           text: "Strikethrough",
-          styles: [
-            {
-              type: "strike",
-              props: {},
-            },
-          ],
+          styles: {
+            strike: true,
+          },
         },
         {
           type: "text",
           text: "TextColor",
-          styles: [
-            {
-              type: "textColor",
-              props: {
-                color: "red",
-              },
-            },
-          ],
+          styles: {
+            textColor: "red",
+          },
         },
         {
           type: "text",
           text: "BackgroundColor",
-          styles: [
-            {
-              type: "backgroundColor",
-              props: {
-                color: "red",
-              },
-            },
-          ],
+          styles: {
+            backgroundColor: "red",
+          },
         },
         {
           type: "text",
           text: "Multiple",
-          styles: [
-            {
-              type: "bold",
-              props: {},
-            },
-            {
-              type: "italic",
-              props: {},
-            },
-          ],
+          styles: {
+            bold: true,
+            italic: true,
+          },
         },
       ],
       children: [],
@@ -299,7 +271,7 @@ Paragraph
         {
           type: "text",
           text: "Heading 1",
-          styles: [],
+          styles: {},
         },
       ],
       children: [
@@ -316,7 +288,7 @@ Paragraph
             {
               type: "text",
               text: "Heading 2",
-              styles: [],
+              styles: {},
             },
           ],
           children: [
@@ -333,7 +305,7 @@ Paragraph
                 {
                   type: "text",
                   text: "Heading 3",
-                  styles: [],
+                  styles: {},
                 },
               ],
               children: [],
@@ -354,20 +326,10 @@ Paragraph
         {
           type: "text",
           text: "Paragraph",
-          styles: [
-            {
-              type: "textColor",
-              props: {
-                color: "purple",
-              },
-            },
-            {
-              type: "backgroundColor",
-              props: {
-                color: "green",
-              },
-            },
-          ],
+          styles: {
+            textColor: "purple",
+            backgroundColor: "green",
+          },
         },
       ],
       children: [],
@@ -384,32 +346,26 @@ Paragraph
         {
           type: "text",
           text: "P",
-          styles: [],
+          styles: {},
         },
         {
           type: "text",
           text: "ara",
-          styles: [
-            {
-              type: "bold",
-              props: {},
-            },
-          ],
+          styles: {
+            bold: true,
+          },
         },
         {
           type: "text",
           text: "grap",
-          styles: [
-            {
-              type: "italic",
-              props: {},
-            },
-          ],
+          styles: {
+            italic: true,
+          },
         },
         {
           type: "text",
           text: "h",
-          styles: [],
+          styles: {},
         },
       ],
       children: [],
@@ -426,32 +382,26 @@ Paragraph
         {
           type: "text",
           text: "P",
-          styles: [],
+          styles: {},
         },
         {
           type: "text",
           text: "ara",
-          styles: [
-            {
-              type: "underline",
-              props: {},
-            },
-          ],
+          styles: {
+            underline: true,
+          },
         },
         {
           type: "text",
           text: "grap",
-          styles: [
-            {
-              type: "strike",
-              props: {},
-            },
-          ],
+          styles: {
+            strike: true,
+          },
         },
         {
           type: "text",
           text: "h",
-          styles: [],
+          styles: {},
         },
       ],
       children: [],
@@ -468,7 +418,7 @@ Paragraph
         {
           type: "text",
           text: "Bullet List Item",
-          styles: [],
+          styles: {},
         },
       ],
       children: [],
@@ -485,7 +435,7 @@ Paragraph
         {
           type: "text",
           text: "Bullet List Item",
-          styles: [],
+          styles: {},
         },
       ],
       children: [
@@ -501,7 +451,7 @@ Paragraph
             {
               type: "text",
               text: "Bullet List Item",
-              styles: [],
+              styles: {},
             },
           ],
           children: [
@@ -517,7 +467,7 @@ Paragraph
                 {
                   type: "text",
                   text: "Bullet List Item",
-                  styles: [],
+                  styles: {},
                 },
               ],
               children: [],
@@ -534,7 +484,7 @@ Paragraph
                 {
                   type: "text",
                   text: "Paragraph",
-                  styles: [],
+                  styles: {},
                 },
               ],
               children: [],
@@ -551,7 +501,7 @@ Paragraph
                 {
                   type: "text",
                   text: "Numbered List Item",
-                  styles: [],
+                  styles: {},
                 },
               ],
               children: [],
@@ -568,7 +518,7 @@ Paragraph
                 {
                   type: "text",
                   text: "Numbered List Item",
-                  styles: [],
+                  styles: {},
                 },
               ],
               children: [],
@@ -585,7 +535,7 @@ Paragraph
                 {
                   type: "text",
                   text: "Numbered List Item",
-                  styles: [],
+                  styles: {},
                 },
               ],
               children: [
@@ -601,7 +551,7 @@ Paragraph
                     {
                       type: "text",
                       text: "Numbered List Item",
-                      styles: [],
+                      styles: {},
                     },
                   ],
                   children: [],
@@ -620,7 +570,7 @@ Paragraph
                 {
                   type: "text",
                   text: "Bullet List Item",
-                  styles: [],
+                  styles: {},
                 },
               ],
               children: [],
@@ -639,7 +589,7 @@ Paragraph
             {
               type: "text",
               text: "Bullet List Item",
-              styles: [],
+              styles: {},
             },
           ],
           children: [],
@@ -658,7 +608,7 @@ Paragraph
         {
           type: "text",
           text: "Bullet List Item",
-          styles: [],
+          styles: {},
         },
       ],
       children: [],

@@ -126,26 +126,16 @@ describe("Insert, Update, & Delete Blocks", () => {
         {
           type: "text",
           text: "Heading ",
-          styles: [
-            {
-              type: "textColor",
-              props: {
-                color: "red",
-              },
-            },
-          ],
+          styles: {
+            textColor: "red",
+          },
         },
         {
           type: "text",
           text: "3",
-          styles: [
-            {
-              type: "backgroundColor",
-              props: {
-                color: "red",
-              },
-            },
-          ],
+          styles: {
+            backgroundColor: "red",
+          },
         },
       ],
       children: [singleBlock],

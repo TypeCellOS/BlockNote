@@ -1,42 +1,24 @@
-export type StyleTemplate<
-  // Type of the style.
-  // Examples might include: "bold", "italic", or "textColor".
-  Type extends string,
-  // Changeable props which affect the style's appearance.
-  // An example might be: { color: string } for a textColor style.
-  Props extends Record<string, string>
-> = {
-  type: Type;
-  props: Props;
+export type Styles = {
+  bold?: true;
+  italic?: true;
+  underline?: true;
+  strike?: true;
+  textColor?: string;
+  backgroundColor?: string;
 };
 
-export type Bold = StyleTemplate<"bold", {}>;
+export type ToggledStyles = {
+  [K in keyof Styles]-?: Required<Styles>[K] extends true ? K : never;
+}[keyof Styles];
 
-export type Italic = StyleTemplate<"italic", {}>;
-
-export type Underline = StyleTemplate<"underline", {}>;
-
-export type Strikethrough = StyleTemplate<"strike", {}>;
-
-export type TextColor = StyleTemplate<"textColor", { color: string }>;
-
-export type BackgroundColor = StyleTemplate<
-  "backgroundColor",
-  { color: string }
->;
-
-export type Style =
-  | Bold
-  | Italic
-  | Underline
-  | Strikethrough
-  | TextColor
-  | BackgroundColor;
+export type ColorStyles = {
+  [K in keyof Styles]-?: Required<Styles>[K] extends string ? K : never;
+}[keyof Styles];
 
 export type StyledText = {
   type: "text";
   text: string;
-  styles: Style[];
+  styles: Styles;
 };
 
 export type Link = {

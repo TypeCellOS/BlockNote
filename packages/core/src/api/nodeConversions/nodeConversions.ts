@@ -6,16 +6,26 @@ import {
   PartialBlock,
 } from "../../extensions/Blocks/api/blockTypes";
 import {
+  ColorStyles,
   InlineContent,
   Link,
   PartialInlineContent,
   PartialLink,
-  Style,
   StyledText,
+  Styles,
+  ToggledStyles,
 } from "../../extensions/Blocks/api/inlineContentTypes";
 import { getBlockInfoFromPos } from "../../extensions/Blocks/helpers/getBlockInfoFromPos";
 import UniqueID from "../../extensions/UniqueID/UniqueID";
 import { UnreachableCaseError } from "../../shared/utils";
+
+const toggleStyles = new Set<ToggledStyles>([
+  "bold",
+  "italic",
+  "underline",
+  "strike",
+]);
+const colorStyles = new Set<ColorStyles>(["textColor", "backgroundColor"]);
 
 /**
  * Convert a StyledText inline element to a
@@ -24,8 +34,12 @@ import { UnreachableCaseError } from "../../shared/utils";
 function styledTextToNode(styledText: StyledText, schema: Schema): Node {
   const marks: Mark[] = [];
 
-  for (const style of styledText.styles) {
-    marks.push(schema.mark(style.type, style.props));
+  for (const [style, value] of Object.entries(styledText.styles)) {
+    if (toggleStyles.has(style as ToggledStyles)) {
+      marks.push(schema.mark(style));
+    } else if (colorStyles.has(style as ColorStyles)) {
+      marks.push(schema.mark(style, { color: value }));
+    }
   }
 
   return schema.text(styledText.text, marks);
@@ -40,11 +54,9 @@ function linkToNodes(link: PartialLink, schema: Schema): Node[] {
     href: link.href,
   });
 
-  const nodes = styledTextArrayToNodes(link.content, schema).map((node) => {
+  return styledTextArrayToNodes(link.content, schema).map((node) => {
     return node.mark([...node.marks, linkMark]);
   });
-
-  return nodes;
 }
 
 /**
@@ -149,17 +161,18 @@ function contentNodeToInlineContent(contentNode: Node) {
   // Most of the logic below is for handling links because in ProseMirror links are marks
   // while in BlockNote links are a type of inline content
   contentNode.content.forEach((node) => {
-    const styles: Style[] = [];
+    const styles: Styles = {};
 
     let linkMark: Mark | undefined;
     for (const mark of node.marks) {
       if (mark.type.name === "link") {
         linkMark = mark;
+      } else if (toggleStyles.has(mark.type.name as ToggledStyles)) {
+        styles[mark.type.name as ToggledStyles] = true;
+      } else if (colorStyles.has(mark.type.name as ColorStyles)) {
+        styles[mark.type.name as ColorStyles] = mark.attrs.color;
       } else {
-        styles.push({
-          type: mark.type.name,
-          props: mark.attrs,
-        } as Style);
+        throw Error("Mark is of an unrecognized type: " + mark.type.name);
       }
     }
 

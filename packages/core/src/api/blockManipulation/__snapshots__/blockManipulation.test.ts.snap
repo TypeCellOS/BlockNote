@@ -8,7 +8,7 @@ exports[`Insert, Update, & Delete Blocks > Insert, update, & delete multiple blo
         "children": [],
         "content": [
           {
-            "styles": [],
+            "styles": {},
             "text": "Nested Heading 1",
             "type": "text",
           },
@@ -25,7 +25,7 @@ exports[`Insert, Update, & Delete Blocks > Insert, update, & delete multiple blo
     ],
     "content": [
       {
-        "styles": [],
+        "styles": {},
         "text": "Heading 1",
         "type": "text",
       },
@@ -45,7 +45,7 @@ exports[`Insert, Update, & Delete Blocks > Insert, update, & delete multiple blo
         "children": [],
         "content": [
           {
-            "styles": [],
+            "styles": {},
             "text": "Nested Heading 2",
             "type": "text",
           },
@@ -62,7 +62,7 @@ exports[`Insert, Update, & Delete Blocks > Insert, update, & delete multiple blo
     ],
     "content": [
       {
-        "styles": [],
+        "styles": {},
         "text": "Heading 2",
         "type": "text",
       },
@@ -98,7 +98,7 @@ exports[`Insert, Update, & Delete Blocks > Insert, update, & delete multiple blo
         "children": [],
         "content": [
           {
-            "styles": [],
+            "styles": {},
             "text": "Nested Heading 1",
             "type": "text",
           },
@@ -115,7 +115,7 @@ exports[`Insert, Update, & Delete Blocks > Insert, update, & delete multiple blo
     ],
     "content": [
       {
-        "styles": [],
+        "styles": {},
         "text": "Heading 1",
         "type": "text",
       },
@@ -134,7 +134,7 @@ exports[`Insert, Update, & Delete Blocks > Insert, update, & delete multiple blo
         "children": [],
         "content": [
           {
-            "styles": [],
+            "styles": {},
             "text": "Nested Heading 2",
             "type": "text",
           },
@@ -151,7 +151,7 @@ exports[`Insert, Update, & Delete Blocks > Insert, update, & delete multiple blo
     ],
     "content": [
       {
-        "styles": [],
+        "styles": {},
         "text": "Heading 2",
         "type": "text",
       },
@@ -185,7 +185,7 @@ exports[`Insert, Update, & Delete Blocks > Insert, update, & delete multiple blo
     "children": [],
     "content": [
       {
-        "styles": [],
+        "styles": {},
         "text": "Heading 1",
         "type": "text",
       },
@@ -218,7 +218,7 @@ exports[`Insert, Update, & Delete Blocks > Insert, update, & delete single block
     "children": [],
     "content": [
       {
-        "styles": [],
+        "styles": {},
         "text": "Paragraph",
         "type": "text",
       },
@@ -253,7 +253,7 @@ exports[`Insert, Update, & Delete Blocks > Insert, update, & delete single block
         "children": [],
         "content": [
           {
-            "styles": [],
+            "styles": {},
             "text": "Paragraph",
             "type": "text",
           },
@@ -269,26 +269,16 @@ exports[`Insert, Update, & Delete Blocks > Insert, update, & delete single block
     ],
     "content": [
       {
-        "styles": [
-          {
-            "props": {
-              "color": "red",
-            },
-            "type": "textColor",
-          },
-        ],
+        "styles": {
+          "textColor": "red",
+        },
         "text": "Heading ",
         "type": "text",
       },
       {
-        "styles": [
-          {
-            "props": {
-              "color": "red",
-            },
-            "type": "backgroundColor",
-          },
-        ],
+        "styles": {
+          "backgroundColor": "red",
+        },
         "text": "3",
         "type": "text",
       },
@@ -351,7 +341,7 @@ exports[`Inserting Blocks with Different Placements > Insert after existing bloc
         "children": [],
         "content": [
           {
-            "styles": [],
+            "styles": {},
             "text": "Nested Heading 1",
             "type": "text",
           },
@@ -368,7 +358,7 @@ exports[`Inserting Blocks with Different Placements > Insert after existing bloc
     ],
     "content": [
       {
-        "styles": [],
+        "styles": {},
         "text": "Heading 1",
         "type": "text",
       },
@@ -388,7 +378,7 @@ exports[`Inserting Blocks with Different Placements > Insert after existing bloc
         "children": [],
         "content": [
           {
-            "styles": [],
+            "styles": {},
             "text": "Nested Heading 2",
             "type": "text",
           },
@@ -405,7 +395,7 @@ exports[`Inserting Blocks with Different Placements > Insert after existing bloc
     ],
     "content": [
       {
-        "styles": [],
+        "styles": {},
         "text": "Heading 2",
         "type": "text",
       },
@@ -441,7 +431,7 @@ exports[`Inserting Blocks with Different Placements > Insert before existing blo
         "children": [],
         "content": [
           {
-            "styles": [],
+            "styles": {},
             "text": "Nested Heading 1",
             "type": "text",
           },
@@ -458,7 +448,7 @@ exports[`Inserting Blocks with Different Placements > Insert before existing blo
     ],
     "content": [
       {
-        "styles": [],
+        "styles": {},
         "text": "Heading 1",
         "type": "text",
       },
@@ -478,7 +468,7 @@ exports[`Inserting Blocks with Different Placements > Insert before existing blo
         "children": [],
         "content": [
           {
-            "styles": [],
+            "styles": {},
             "text": "Nested Heading 2",
             "type": "text",
           },
@@ -495,7 +485,7 @@ exports[`Inserting Blocks with Different Placements > Insert before existing blo
     ],
     "content": [
       {
-        "styles": [],
+        "styles": {},
         "text": "Heading 2",
         "type": "text",
       },
@@ -533,7 +523,7 @@ exports[`Inserting Blocks with Different Placements > Insert nested inside exist
             "children": [],
             "content": [
               {
-                "styles": [],
+                "styles": {},
                 "text": "Nested Heading 1",
                 "type": "text",
               },
@@ -550,7 +540,7 @@ exports[`Inserting Blocks with Different Placements > Insert nested inside exist
         ],
         "content": [
           {
-            "styles": [],
+            "styles": {},
             "text": "Heading 1",
             "type": "text",
           },
@@ -570,7 +560,7 @@ exports[`Inserting Blocks with Different Placements > Insert nested inside exist
             "children": [],
             "content": [
               {
-                "styles": [],
+                "styles": {},
                 "text": "Nested Heading 2",
                 "type": "text",
               },
@@ -587,7 +577,7 @@ exports[`Inserting Blocks with Different Placements > Insert nested inside exist
         ],
         "content": [
           {
-            "styles": [],
+            "styles": {},
             "text": "Heading 2",
             "type": "text",
           },
