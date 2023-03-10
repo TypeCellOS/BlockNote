@@ -16,6 +16,7 @@
     "start:built": "npx serve examples/editor/dist",
     "test:updateSnaps": "docker run --rm  -e RUN_IN_DOCKER=true --network host -v $(pwd):/work/ -w /work/ -it mcr.microsoft.com/playwright:v1.25.0-focal npx playwright test --update-snapshots",
     "build": "lerna run --stream build --concurrency 1",
+    "build:site": "lerna run --stream docs:build --concurrency 1",
     "lint": "lerna run --stream lint",
     "bootstrap": "lerna bootstrap --ci -- --force && patch-package",
     "install-new-packages": "lerna bootstrap -- --force && patch-package",
