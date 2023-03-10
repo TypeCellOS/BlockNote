@@ -285,6 +285,10 @@ h4 {
   padding: 0 18px;
   margin: 100px auto 132px;
   text-align: center;
+
+  @media (max-width: 1024px) {
+    margin-top: 0;
+  }
 }
 
 .final-section {

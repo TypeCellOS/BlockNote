@@ -88,6 +88,10 @@ header {
     transform: translateY(0);
   }
 
+  @media only screen and (hover: none) and (pointer: coarse) {
+    display: none; /* disable on mobile */
+  }
+
   border-radius: 12px;
   box-shadow: inset 0 0 0 1px #c4d0d966, inset 0 -1px #ffffff1a,
     inset 0 1px #84b9f61a;
