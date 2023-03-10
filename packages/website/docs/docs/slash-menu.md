@@ -1,16 +1,14 @@
 # Slash Menu
 
-- Explain + show what the slash menu is (image)
-- Change default commands
-- Creating your own commands
-
 The Slash Menu is the list of commands which shows up whenever you type the "/" (slash) character, or when you click the "+" button in the [Side Menu](side-menu.md):
 
-<img src="../public/img/screenshots/slash_menu.png" alt="image">
+<!-- ![../public/img/screenshots/slash_menu.png]() -->
+
+<img style="max-width:400px" src="../public/img/screenshots/slash_menu.png" alt="image">
 
 ## Slash Menu Items
 
-In the options passed to `useBlockNote`, there's a field: 
+In the options passed to `useBlockNote`, there's a field:
 
 `slashMenuItems: ReactSlashMenuItem[]`
 
@@ -21,10 +19,10 @@ type ReactSlashMenuItem = {
   name: string;
   execute: (editor: BlockNoteEditor) => void;
   aliases: string[];
-  group: string,
-  hint?: string,
-  shortcut?: string
-}
+  group: string;
+  hint?: string;
+  shortcut?: string;
+};
 ```
 
 `name:` The item's name, which is the same string you see displayed in the menu, e.g. "Heading" or "Paragraph".
@@ -48,7 +46,7 @@ const defaultSlashMenuItems: ReactSlashMenuItem[] = [
   {
     name: "Heading",
     execute: (editor: BlockNoteEditor) => {
-      // Changes the type of the block containing the text cursor to a 
+      // Changes the type of the block containing the text cursor to a
       // heading 1.
     ...
     },
@@ -60,7 +58,7 @@ const defaultSlashMenuItems: ReactSlashMenuItem[] = [
   {
     name: "Heading 2",
     execute: (editor: BlockNoteEditor) => {
-      // Changes the type of the block containing the text cursor to a 
+      // Changes the type of the block containing the text cursor to a
       // heading 2.
     ...
     },
@@ -72,7 +70,7 @@ const defaultSlashMenuItems: ReactSlashMenuItem[] = [
   {
     name: "Heading 3",
     execute: (editor: BlockNoteEditor) => {
-      // Changes the type of the block containing the text cursor to a 
+      // Changes the type of the block containing the text cursor to a
       // heading 3.
     ...
     },
@@ -84,7 +82,7 @@ const defaultSlashMenuItems: ReactSlashMenuItem[] = [
   {
     name: "Numbered List",
     execute: (editor: BlockNoteEditor) => {
-      // Changes the type of the block containing the text cursor to a 
+      // Changes the type of the block containing the text cursor to a
       // numbered list item.
     ...
     },
@@ -96,7 +94,7 @@ const defaultSlashMenuItems: ReactSlashMenuItem[] = [
   {
     name: "Bullet List",
     execute: (editor: BlockNoteEditor) => {
-      // Changes the type of the block containing the text cursor to a 
+      // Changes the type of the block containing the text cursor to a
       // numbered list item.
     ...
     },
@@ -108,7 +106,7 @@ const defaultSlashMenuItems: ReactSlashMenuItem[] = [
   {
     name: "Paragraph",
     execute: (editor: BlockNoteEditor) => {
-      // Changes the type of the block containing the text cursor to a 
+      // Changes the type of the block containing the text cursor to a
       // numbered list item.
     ...
     },
@@ -131,12 +129,12 @@ import "@blocknote/core/style.css";
 
 function App() {
   const newSlashMenuItems: ReactSlashMenuItem[] = defaultSlashMenuItems;
-  
+
   // Edit newSlashMenuItems
   ...
-  
+
   const editor = useBlockNote({ slashMenuItems: newSlashMenuItems });
-  
+
   return <BlockNoteView editor={editor} />;
 }
 ```
