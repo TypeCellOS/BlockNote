@@ -1,10 +1,10 @@
-import { SuggestionItem } from "../../shared/plugins/suggestion/SuggestionItem";
 import { EditorFunctions } from "../../api/EditorFunctions";
+import { SuggestionItem } from "../../shared/plugins/suggestion/SuggestionItem";
 
 /**
  * A class that defines a slash command (/<command>).
  *
- * Not to be confused with ProseMirror commands nor TipTap commands.
+ * (Not to be confused with ProseMirror commands nor TipTap commands.)
  */
 export class BaseSlashMenuItem extends SuggestionItem {
   /**
