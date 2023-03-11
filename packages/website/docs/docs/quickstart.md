@@ -51,16 +51,7 @@ export default function App() {
 }
 ```
 
-```css /styles.css
-#root {
-  margin-left: 45px;
-  width: calc(100% - 90px);
-}
-```
-
 :::
-
-The only differences are some additional files, which contain boilerplate React code, and some extra styling to better position the editor.
 
 ## Next steps
 
