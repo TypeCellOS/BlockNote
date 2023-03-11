@@ -29,6 +29,7 @@ export default defineConfig({
           react: "React",
           "react-dom": "ReactDOM",
         },
+        interop: "compat", // https://rollupjs.org/migration/#changed-defaults
       },
     },
   },
