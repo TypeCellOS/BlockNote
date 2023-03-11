@@ -4,7 +4,7 @@
   <ClientOnly>
     <Sandbox
       :rtl="rtl"
-      :template="template"
+      :template="'react-ts'"
       :light-theme="lightTheme"
       :dark-theme="darkTheme"
       :options="{
