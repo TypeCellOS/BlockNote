@@ -48,13 +48,12 @@ export default function App() {
   const editor: BlockNoteEditor | null = useBlockNote({});
 
   // Renders the editor instance using a React component.
-  return <BlockNoteView editor={editor}/>;
+
+  return <BlockNoteView editor={editor} />;
 }
 ```
 
 :::
-
-The only differences are some additional files, which contain boilerplate React code, and some extra styling to better position the editor.
 
 ## Next steps
 
@@ -64,10 +63,10 @@ You now know how to integrate BlockNote into your React app! However, this is ju
 
 You might notice that in previous examples, we've been calling `useBlockNote` with an empty object (`{}`). This object represents the editor options, which can be used to customize the editor's menus and behaviour.
 
-To find out more about BlockNote editor options and menu customization, visit [Customizing the Editor](editor.md).
+To find out more about BlockNote editor options and menu customization, visit [Customizing the Editor](/docs/editor).
 
 ### Interacting with the Editor Using Code
 
-You also access and manipulate blocks in the editor programmatically using the BlockNote API.
+You also access and manipulate blocks in the editor programmatically with different editor functions.
 
-To find out more about Blocks, the BlockNote API and manipulating the editor using code, visit [Introduction to Blocks](blocks.md).
+To find out more about blocks, editor functions and manipulating the editor using code, visit [Introduction to Blocks](/docs/blocks).

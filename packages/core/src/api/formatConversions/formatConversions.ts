@@ -38,11 +38,11 @@ export async function blocksToHTML(
 }
 
 export async function HTMLToBlocks(
-  htmlString: string,
+  html: string,
   schema: Schema
 ): Promise<Block[]> {
   const htmlNode = document.createElement("div");
-  htmlNode.innerHTML = htmlString.trim();
+  htmlNode.innerHTML = html.trim();
 
   const parser = DOMParser.fromSchema(schema);
   const parentNode = parser.parse(htmlNode);
@@ -72,7 +72,7 @@ export async function blocksToMarkdown(
 }
 
 export async function markdownToBlocks(
-  markdownString: string,
+  markdown: string,
   schema: Schema
 ): Promise<Block[]> {
   const htmlString = await unified()
@@ -80,7 +80,7 @@ export async function markdownToBlocks(
     .use(remarkGfm)
     .use(remarkRehype)
     .use(rehypeStringify)
-    .process(markdownString);
+    .process(markdown);
 
   return HTMLToBlocks(htmlString.value as string, schema);
 }
