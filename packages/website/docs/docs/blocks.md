@@ -89,11 +89,4 @@ export default function App() {
 }
 ```
 
-```css /styles.css [hidden]
-#root {
-  margin-left: 45px;
-  width: calc(100% - 90px);
-}
-```
-
 :::
