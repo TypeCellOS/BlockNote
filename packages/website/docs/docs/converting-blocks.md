@@ -30,7 +30,7 @@ const HTMLFromBlocks = editor.blocksToHTML(blocks);
 
 `returns:` The blocks, serialized as an HTML string.
 
-The output is simplified in order to better conform to HTML standards. Block structuring elements are removed, children of blocks which aren't list items are un-nested, and list items are wrapped in `ul`/`ol` tags.
+To better conform to HTML standards, children of blocks which aren't list items are un-nested in the output HTML.
 
 **Example**
 
@@ -82,7 +82,7 @@ const markdownFromBlocks = editor.blocksToMarkdown(blocks);
 
 `returns:` The blocks, serialized as a Markdown string.
 
-The output is simplified as Markdown does not support all features of BlockNote. Block structuring elements are removed, children of blocks which aren't list items are un-nested, and certain styles are removed.
+The output is simplified as Markdown does not support all features of BlockNote - children of blocks which aren't list items are un-nested and certain styles are removed.
 
 **Example**
 

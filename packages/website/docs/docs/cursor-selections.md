@@ -65,7 +65,7 @@ class BlockNoteEditor {
 editor.setTextCursorPosition(targetBlock, placement);
 ```
 
-`targetBlock:` The [identifier](manipulating-blocks.md#block-identifiers) of an existing block that the text cursor should be moved to.
+`targetBlock:` The [identifier](/docs/manipulating-blocks#block-identifiers) of an existing block that the text cursor should be moved to.
 
 `placement:` Whether the text cursor should be placed at the start or end of the block.
 

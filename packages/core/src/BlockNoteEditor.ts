@@ -243,17 +243,16 @@ export class BlockNoteEditor {
   }
 
   /**
-   * Inserts new blocks into the editor. Since `blocksToInsert` is an array of `PartialBlock` objects, some fields
-   * might not be defined. These undefined fields are assigned values from an empty paragraph block, while the `id` is
-   * automatically generated. Throws an error if the reference block could not be found.
-   * @param blocksToInsert An array of blocks that should be inserted.
+   * Inserts new blocks into the editor. If a block's `id` is undefined, BlockNote generates one automatically. Throws an
+   * error if the reference block could not be found.
+   * @param blocksToInsert An array of partial blocks that should be inserted.
    * @param referenceBlock An identifier for an existing block, at which the new blocks should be inserted.
    * @param placement Whether the blocks should be inserted just before, just after, or nested inside the
    * `referenceBlock`. Inserts the blocks at the start of the existing block's children if "nested" is used.
    */
   public insertBlocks(
     blocksToInsert: PartialBlock[],
-    referenceBlock: Block,
+    referenceBlock: BlockIdentifier,
     placement: "before" | "after" | "nested" = "before"
   ): void {
     insertBlocks(blocksToInsert, referenceBlock, placement, this._tiptapEditor);
@@ -264,7 +263,7 @@ export class BlockNoteEditor {
    * defined. These undefined fields are kept as-is from the existing block. Throws an error if the block to update could
    * not be found.
    * @param blockToUpdate The block that should be updated.
-   * @param update A block which defines how the existing block should be changed.
+   * @param update A partial block which defines how the existing block should be changed.
    */
   public updateBlock(blockToUpdate: Block, update: PartialBlock) {
     updateBlock(blockToUpdate, update, this._tiptapEditor);
@@ -283,7 +282,7 @@ export class BlockNoteEditor {
    * are at different nesting levels, `blocksToInsert` will be inserted at the position of the first block in
    * `blocksToRemove`. Throws an error if any of the blocks to remove could not be found.
    * @param blocksToRemove An array of blocks that should be replaced.
-   * @param blocksToInsert An array of blocks to replace the old ones with.
+   * @param blocksToInsert An array of partial blocks to replace the old ones with.
    */
   public replaceBlocks(
     blocksToRemove: Block[],
@@ -301,9 +300,8 @@ export class BlockNoteEditor {
   }
 
   /**
-   * Serializes blocks into an HTML string. The output is simplified in order to better conform to HTML standards. Block
-   * structuring elements are removed, children of blocks which aren't list items are un-nested, and list items are
-   * wrapped in `ul`/`ol` tags.
+   * Serializes blocks into an HTML string. To better conform to HTML standards, children of blocks which aren't list
+   * items are un-nested in the output HTML.
    * @param blocks An array of blocks that should be serialized into HTML.
    * @returns The blocks, serialized as an HTML string.
    */
@@ -323,9 +321,8 @@ export class BlockNoteEditor {
   }
 
   /**
-   * Serializes blocks into a Markdown string. The output is simplified as Markdown does not support all
-   * features of BlockNote. Block structuring elements are removed, children of blocks which aren't list items are
-   * un-nested, and certain styles are removed.
+   * Serializes blocks into a Markdown string. The output is simplified as Markdown does not support all features of
+   * BlockNote - children of blocks which aren't list items are un-nested and certain styles are removed.
    * @param blocks An array of blocks that should be serialized into Markdown.
    * @returns The blocks, serialized as a Markdown string.
    */

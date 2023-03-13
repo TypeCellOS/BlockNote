@@ -8,8 +8,6 @@ With BlockNote, we want to make it easy for developers to add a next-generation 
 
 Unlike other rich-text editor libraries, BlockNote organizes documents into blocks, giving them a more rigid structure and making it easy to interact with the document from code.
 
-<img src="../public/img/screenshots/block_structure.png" alt="image" style="width: 100%">
-
 Conceptually, you can think of a block as a paragraph, heading, image, or some other individual piece of content. Blocks can have more blocks nested inside of them, and can also be moved by dragging and dropping them inside or around each other.
 
 BlockNote has been created with extensibility in mind. You can customize the document, create custom block types and customize UX elements like menu items. Advanced users can even create their own UI from scratch and use BlockNote with vanilla JavaScript instead of React.
@@ -30,7 +28,7 @@ BlockNote is currently in early beta. We'd love your feedback! If you have quest
 
 ## Next: Set up BlockNote
 
-See how to set up your own editor in the [Quickstart](quickstart.md). Here's a quick sneak peek in case you can't wait!
+See how to set up your own editor in the [Quickstart](/docs/quickstart). Here's a quick sneak peek in case you can't wait!
 
 ::: sandbox {template=react-ts}
 

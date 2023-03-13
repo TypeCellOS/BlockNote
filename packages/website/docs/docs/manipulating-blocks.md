@@ -32,7 +32,7 @@ const blocks = editor.topLevelBlocks;
 
 `returns:` A snapshot of all top-level (non-nested) blocks in the editor.
 
-We've actually already seen this used for the live example in [Getting Familiar with Block Objects](blocks#demo-getting-familiar-with-block-objects), where we showed its output below the editor.
+We've actually already seen this used for the live example in [Getting Familiar with Block Objects](/docs/blocks#demo-getting-familiar-with-block-objects), where we showed its output below the editor.
 
 ### Getting a Specific Block
 
@@ -50,7 +50,7 @@ class BlockNoteEditor {
 const block = editor.getBlock(blockIdentifier);
 ```
 
-`blockIdentifier:` The identifier of an existing block that should be retrieved.
+`blockIdentifier:` The [identifier](#block-identifiers) of an existing block that should be retrieved.
 
 `returns:` The block that matches the identifier, or `undefined` if no matching block was found.
 
@@ -79,7 +79,7 @@ editor.forEachBlock((block) => {...});
 
 ### Getting the Hovered Block
 
-BlockNote uses `TextCursorPosition` objects to represent the text cursor's position. In these, you can also find the block that currently contains the text cursor. To find out more about `TextCursorPosition` objects, head to [Cursor and Selections](cursor-selections.md).
+BlockNote uses `TextCursorPosition` objects to represent the text cursor's position. In these, you can also find the block that currently contains the text cursor. To find out more about `TextCursorPosition` objects, head to [Cursor and Selections](/docs/cursor-selections).
 
 ## Partial Blocks
 
@@ -117,13 +117,13 @@ class BlockNoteEditor {
 editor.insertBlocks(blocksToInsert, referenceBlock, placement)
 ```
 
-`blocksToInsert:` An array of blocks that should be inserted.
+`blocksToInsert:` An array of [partial blocks](#partial-blocks) that should be inserted.
 
 `referenceBlock:` An [identifier](#block-identifiers) for an existing block, at which the new blocks should be inserted.
 
 `placement:` Whether the blocks should be inserted just before, just after, or nested inside the `referenceBlock`. Inserts the blocks at the start of the existing block's children if `"nested"` is used.
 
-Since `blocksToInsert` is an array of `PartialBlock` objects, some fields might not be defined. These undefined fields are assigned values from an empty paragraph block, while the `id` is automatically generated. Throws an error if the reference block could not be found.
+If a block's `id` is undefined, BlockNote generates one automatically. Throws an error if the reference block could not be found.
 
 ## Updating Blocks
 
@@ -146,7 +146,7 @@ editor.updateBlock(blockToUpdate, { type: "paragraph" });
 
 `blockToUpdate:` The [identifier](#block-identifiers) of an existing block that should be updated.
 
-`update:` A block which defines how the existing block should be changed.
+`update:` A [partial block](#partial-blocks) which defines how the existing block should be changed.
 
 Since `updatedBlock` is a `PartialBlock` object, some fields might not be defined. These undefined fields are kept as-is from the existing block. Throws an error if the block to update could not be found.
 
@@ -193,6 +193,6 @@ editor.replaceBlocks(blocksToRemove, blocksToInsert)
 
 `blocksToRemove:` An array of [identifiers](#block-identifiers) for existing blocks that should be replaced.
 
-`blocksToInsert:` An array of blocks that the existing ones should be replaced with.
+`blocksToInsert:` An array of [partial blocks](#partial-blocks) that the existing ones should be replaced with.
 
 If the blocks that should be removed are not adjacent or are at different nesting levels, `blocksToInsert` will be inserted at the position of the first block in `blocksToRemove`. Throws an error if any of the blocks to remove could not be found.
