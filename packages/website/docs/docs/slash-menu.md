@@ -79,6 +79,7 @@ import {
   useBlockNote
 } from "@blocknote/react";
 import "@blocknote/core/style.css";
+import { HiOutlineGlobeAlt } from "react-icons/all";
 
 export default function App() {
   const insertHelloWorld = (editor: BlockNoteEditor) => {
@@ -91,15 +92,16 @@ export default function App() {
     editor.insertBlocks([helloWorldBlock], currentBlock, "after");
   };
 
-  const insertHelloWorldItem: ReactSlashMenuItem = 
+  const insertHelloWorldItem: ReactSlashMenuItem =
     new ReactSlashMenuItem(
       "Insert Hello World",
       insertHelloWorld,
       ["helloworld", "hw"],
       "Other",
-      <HiOutlineGlobeAlt size={18} />,
-      "Used to insert a block with 'Hello World' below."
-    )
+      <HiOutlineGlobeAlt size = {18}
+  />,
+  "Used to insert a block with 'Hello World' below."
+)
 
   const editor = useBlockNote({
     slashCommands: [

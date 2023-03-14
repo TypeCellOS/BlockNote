@@ -37,36 +37,33 @@ To better conform to HTML standards, children of blocks which aren't list items 
 ::: sandbox {template=react-ts}
 
 ```typescript /App.tsx
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { BlockNoteEditor } from "@blocknote/core";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
 import "@blocknote/core/style.css";
 
 export default function App() {
-  // Creates a new editor instance.
-  const editor: BlockNoteEditor | null = useBlockNote({})
-
   // Stores the editor's contents as HTML.
   const [html, setHTML] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (editor) {
-      // Converts the editor's contents to HTML whenever they change.
-      const getBlocks = async () => {
+  // Creates a new editor instance.
+  const editor = useBlockNote({
+    // Listens for when the editor's contents change.
+    onEditorContentChange: (editor: BlockNoteEditor) => {
+      // Converts the editor's contents from Block objects to HTML and saves 
+      // them.
+      const saveBlocksAsHTML = async () => {
         const html = await editor.blocksToHTML(editor.topLevelBlocks);
         setHTML(html);
-      }
-      getBlocks();
-
-      editor.onContentChange(getBlocks);
+      };
+      saveBlocksAsHTML();
     }
-  }, [editor])
-
+  });
 
   // Renders a BlockNote editor, and its contents as HTML below.
   return (
     <div>
-      <BlockNoteView editor={editor}/>
+      <BlockNoteView editor={editor} />
       <pre style={{ whiteSpace: "pre-wrap" }}>{html}</pre>
     </div>
   );
@@ -176,35 +173,33 @@ The output is simplified as Markdown does not support all features of BlockNote 
 ::: sandbox {template=react-ts}
 
 ```typescript /App.tsx
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { BlockNoteEditor } from "@blocknote/core";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
 import "@blocknote/core/style.css";
 
 export default function App() {
-  // Creates a new editor instance.
-  const editor: BlockNoteEditor | null = useBlockNote({})
-
   // Stores the editor's contents as Markdown.
   const [markdown, setMarkdown] = useState<string | null>(null);
 
-  useEffect(() => {    
-    if (editor) {
-      // Converts the editor's contents to Markdown whenever they change.
-      const getBlocks = async () => {
+  // Creates a new editor instance.
+  const editor = useBlockNote({
+    // Listens for when the editor's contents change.
+    onEditorContentChange: (editor: BlockNoteEditor) => {
+      // Converts the editor's contents from Block objects to Markdown and 
+      // saves them.
+      const saveBlocksAsMarkdown = async () => {
         const markdown = await editor.blocksToMarkdown(editor.topLevelBlocks);
         setMarkdown(markdown);
-      }
-      getBlocks();
-      
-      editor.onContentChange(getBlocks);
+      };
+      saveBlocksAsMarkdown();
     }
-  }, [editor])
-
+  });
+  
   // Renders a BlockNote editor, and its contents as Markdown below.
   return (
     <div>
-      <BlockNoteView editor={editor}/>
+      <BlockNoteView editor={editor} />
       <pre style={{ whiteSpace: "pre-wrap" }}>{markdown}</pre>
     </div>
   );

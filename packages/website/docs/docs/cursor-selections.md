@@ -8,7 +8,7 @@ This page will explain how to work with the Cursor and Selections
 
 ## Cursor Positions
 
-BlockNote allows you to keep track of the text cursor position in the editor, to get information about which block it's in and the surrounding blocks.
+BlockNote allows you to keep track of the text cursor position in the editor, to get information about the block it's in and its surrounding blocks.
 
 ## Text Cursor
 
@@ -70,3 +70,52 @@ editor.setTextCursorPosition(targetBlock, placement);
 `placement:` Whether the text cursor should be placed at the start or end of the block.
 
 Throws an error if the target block could not be found.
+
+**Demo**
+
+::: sandbox {template=react-ts}
+
+```typescript /App.tsx
+import { BlockNoteEditor } from "@blocknote/core";
+import { BlockNoteView, useBlockNote } from "@blocknote/react";
+import "@blocknote/core/style.css";
+
+export default function App() {
+  // Creates a new editor instance.
+  const editor: BlockNoteEditor | null = useBlockNote({
+    // Listens for when the text cursor position changes.
+    onTextCursorPositionChange: (editor) => {
+      // Gets the block currently hovered by the text cursor.
+      const hoveredBlock = editor.getTextCursorPosition().block;
+
+      // Traverses all blocks.
+      editor.forEachBlock((block) => {
+        if (
+          block.id === hoveredBlock.id &&
+          block.props.backgroundColor !== "blue"
+        ) {
+          // If the block is currently hovered by the text cursor, makes its 
+          // background blue if it isn't already.
+          editor.updateBlock(hoveredBlock, {
+            props: {backgroundColor: "blue"},
+          });
+        } else if (
+          block.id !== hoveredBlock.id &&
+          block.props.backgroundColor === "blue"
+        ) {
+          // If the block not is currently hovered by the text cursor, resets 
+          // its background if it's blue.
+          editor.updateBlock(block, {
+            props: {backgroundColor: "default"},
+          });
+        }
+      });
+    }
+  })
+  
+  // Renders a BlockNote editor.
+  return <BlockNoteView editor={editor}/>;
+}
+```
+
+:::

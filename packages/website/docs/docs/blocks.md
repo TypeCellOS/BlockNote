@@ -62,29 +62,23 @@ Now that we know how blocks are represented in code, let's take a look at the li
 ::: sandbox {template=react-ts}
 
 ```typescript /App.tsx
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { BlockNoteEditor } from "@blocknote/core";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
 import "@blocknote/core/style.css";
 
 export default function App() {
-  // Creates a new editor instance.
-  const editor: BlockNoteEditor | null = useBlockNote({})
-
   // Stores the editor's contents as an array of Block objects.
   const [blocks, setBlocks] = useState<Block[] | null>(null);
-
-  useEffect(() => {
-    if (editor) {
-      // Saves the editor's contents.
+  
+  // Creates a new editor instance.
+  const editor: BlockNoteEditor | null = useBlockNote({
+    // Listens for when the editor's contents change.
+    onEditorContentChange: (editor: BlockNoteEditor) => 
+      // Converts the editor's contents to an array of Block objects.
       setBlocks(editor.topLevelBlocks)
-
-      // Saves the editor's contents whenever they change.
-      editor.onContentChange(() => setBlocks(editor.topLevelBlocks));
-    }
-  }, [editor])
-
-
+  })
+  
   // Renders a BlockNote editor, and its contents as an array of Block objects 
   // below.
   return (
