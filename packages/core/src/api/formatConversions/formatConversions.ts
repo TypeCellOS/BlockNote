@@ -1,16 +1,16 @@
 import { DOMParser, DOMSerializer, Schema } from "prosemirror-model";
-import { unified } from "unified";
 import rehypeParse from "rehype-parse";
-import rehypeStringify from "rehype-stringify";
 import rehypeRemark from "rehype-remark";
+import rehypeStringify from "rehype-stringify";
 import remarkGfm from "remark-gfm";
-import remarkStringify from "remark-stringify";
 import remarkParse from "remark-parse";
 import remarkRehype from "remark-rehype";
+import remarkStringify from "remark-stringify";
+import { unified } from "unified";
 import { Block } from "../../extensions/Blocks/api/blockTypes";
 import { blockToNode, nodeToBlock } from "../nodeConversions/nodeConversions";
-import { simplifyBlocks } from "./simplifyBlocksRehypePlugin";
 import { removeUnderlines } from "./removeUnderlinesRehypePlugin";
+import { simplifyBlocks } from "./simplifyBlocksRehypePlugin";
 
 export async function blocksToHTML(
   blocks: Block[],
