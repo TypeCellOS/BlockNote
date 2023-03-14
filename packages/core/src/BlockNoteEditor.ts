@@ -38,7 +38,7 @@ export type BlockNoteEditorOptions = {
   slashCommands: BaseSlashMenuItem[];
   parentElement: HTMLElement;
   editorDOMAttributes: Record<string, string>;
-  onEditorCreate: (editor: BlockNoteEditor) => void;
+  onEditorReady: (editor: BlockNoteEditor) => void;
   onEditorContentChange: (editor: BlockNoteEditor) => void;
   onTextCursorPositionChange: (editor: BlockNoteEditor) => void;
 
@@ -75,7 +75,7 @@ export class BlockNoteEditor {
       ...blockNoteTipTapOptions,
       ...options._tiptapOptions,
       onCreate: () => {
-        options.onEditorCreate?.(this);
+        options.onEditorReady?.(this);
       },
       onUpdate: () => {
         options.onEditorContentChange?.(this);

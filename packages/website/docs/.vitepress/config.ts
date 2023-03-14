@@ -22,10 +22,10 @@ const SIDEBAR_DEFAULT = [
     text: "Editor setup",
     collapsed: false,
     items: [
-      { text: "Customizing the editor", link: "/docs/editor" },
-      { text: "Slash menu", link: "/docs/slash-menu" },
-      { text: "Formatting toolbar", link: "/docs/formatting-toolbar" },
-      { text: "Side menu", link: "/docs/side-menu" },
+      { text: "Customizing the Editor", link: "/docs/editor" },
+      { text: "Slash Menu", link: "/docs/slash-menu" },
+      { text: "Formatting Toolbar", link: "/docs/formatting-toolbar" },
+      { text: "Side Menu", link: "/docs/side-menu" },
     ],
   },
   {
@@ -33,11 +33,11 @@ const SIDEBAR_DEFAULT = [
     collapsed: false,
     items: [
       { text: "Introduction to Blocks", link: "/docs/blocks" },
-      { text: "Block types", link: "/docs/block-types" },
+      { text: "Block Types & Properties", link: "/docs/block-types" },
       { text: "Manipulating Blocks", link: "/docs/manipulating-blocks" },
       { text: "Inline Content", link: "/docs/inline-content" },
-      { text: "Cursor and selections", link: "/docs/cursor-selections" },
-      { text: "Markdown and HTML", link: "/docs/converting-blocks" },
+      { text: "Cursor & Selections", link: "/docs/cursor-selections" },
+      { text: "Markdown & HTML", link: "/docs/converting-blocks" },
     ],
   },
 
