@@ -1,18 +1,14 @@
-# Cursor and Selections
+# Cursor & Selections
 
-This page will explain how to work with the Cursor and Selections
-
-- explain differences
-- how to get / set them
-- examples (how to get)
+If you want to know which block(s) the user is currently editing, you can do so using cursor positions and selections.
 
 ## Cursor Positions
 
-BlockNote allows you to keep track of the text cursor position in the editor, to get information about the block it's in and its surrounding blocks.
+BlockNote keeps track of the text cursor position in the editor and exposes functions that let you retrieve it or change it.
 
 ## Text Cursor
 
-The text cursor is the blinking vertical line you see when typing in the editor. In code, its position is represented using the following object:
+The text cursor is the blinking vertical line you see when typing in the editor. BlockNote uses `TextCursorPosition` objects to give you information about the block it's in as well as those around it:
 
 ```typescript
 type TextCursorPosition = {
