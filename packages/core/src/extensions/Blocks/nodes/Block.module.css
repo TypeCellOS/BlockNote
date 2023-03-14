@@ -267,7 +267,7 @@ NESTED BLOCKS
 }
 
 /* TEXT COLORS */
-[data-text-color="grey"] {
+[data-text-color="gray"] {
   color: #9b9a97;
 }
 
@@ -304,7 +304,7 @@ NESTED BLOCKS
 }
 
 /* BACKGROUND COLORS */
-[data-background-color="grey"] {
+[data-background-color="gray"] {
   background-color: #ebeced;
 }
 

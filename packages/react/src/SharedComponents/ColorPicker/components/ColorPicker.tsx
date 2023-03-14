@@ -15,7 +15,7 @@ export const ColorPicker = (props: {
       <Menu.Label>Text</Menu.Label>
       {[
         "default",
-        "grey",
+        "gray",
         "brown",
         "red",
         "orange",
@@ -47,7 +47,7 @@ export const ColorPicker = (props: {
       <Menu.Label>Background</Menu.Label>
       {[
         "default",
-        "grey",
+        "gray",
         "brown",
         "red",
         "orange",
