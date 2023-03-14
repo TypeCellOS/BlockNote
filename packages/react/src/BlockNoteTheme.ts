@@ -188,7 +188,7 @@ export const BlockNoteTheme: MantineThemeOverride = {
   other: {
     colors: [
       "default",
-      "gray",
+      "grey",
       "brown",
       "red",
       "orange",
