@@ -17,7 +17,7 @@ const editor = new BlockNoteEditor({
     // Create an example menu for when a block is hovered
     blockSideMenuFactory,
   },
-  onUpdate: () => {
+  onEditorContentChange: () => {
     console.log(editor.topLevelBlocks);
   },
   editorDOMAttributes: {
