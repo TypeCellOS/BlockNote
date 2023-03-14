@@ -201,7 +201,6 @@ export default function App() {
     }
   }, [editor])
 
-
   // Renders a BlockNote editor, and its contents as Markdown below.
   return (
     <div>
