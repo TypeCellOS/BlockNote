@@ -8,12 +8,12 @@ Styled text is used to display pieces of text with markup, or styling, and is de
 
 ```typescript
 type Styles = {
-  bold: boolean;
-  italic: boolean;
-  underline: boolean;
-  strikethrough: boolean;
-  textColor: string;
-  backgroundColor: string;
+  bold?: true;
+  italic?: true;
+  underline?: true;
+  strikethrough?: true;
+  textColor?: string;
+  backgroundColor?: string;
 };
 
 type StyledText = {
