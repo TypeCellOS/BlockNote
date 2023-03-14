@@ -73,7 +73,7 @@ export const NumberedListItemBlockContent = Node.create({
 
           return false;
         },
-        node: "blockContainer",
+        node: "numberedListItem",
       },
       // Case for BlockNote list structure.
       // (e.g.: when pasting from blocknote)
@@ -97,7 +97,7 @@ export const NumberedListItemBlockContent = Node.create({
           return false;
         },
         priority: 300,
-        node: "blockContainer",
+        node: "numberedListItem",
       },
     ];
   },
