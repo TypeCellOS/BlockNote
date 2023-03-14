@@ -187,7 +187,7 @@ export const BlockContainer = Node.create<IBlock>({
               );
             }
 
-            // Changes the block type and adds the provided props as node attributes. Also preserves all existing node
+            // Changes the blockContent node type and adds the provided props as attributes. Also preserves all existing
             // attributes that are compatible with the new type.
             state.tr.setNodeMarkup(
               startPos,
@@ -199,6 +199,13 @@ export const BlockContainer = Node.create<IBlock>({
                 ...block.props,
               }
             );
+
+            // Adds all provided props as attributes to the parent blockContainer node too, and also preserves existing
+            // attributes.
+            state.tr.setNodeMarkup(startPos - 1, undefined, {
+              ...node.attrs,
+              ...block.props,
+            });
           }
 
           return true;
