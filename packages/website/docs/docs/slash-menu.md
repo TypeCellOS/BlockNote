@@ -1,6 +1,6 @@
 # Slash Menu
 
-The Slash Menu is the list of commands which shows up whenever you type the "/" (slash) character, or when you click the "+" button in the [Side Menu](side-menu.md):
+The Slash Menu is the list of commands which shows up whenever you type the "/" (slash) character, or when you click the "+" button in the [Side Menu](/docs/side-menu):
 
 <!-- ![../public/img/screenshots/slash_menu.png]() -->
 
@@ -115,4 +115,4 @@ export default function App() {
 
 :::
 
-If you're confused about what's happening inside `execute`, head to [Introduction to Blocks](blocks.md), which will guide you through manipulating blocks in the editor using code. When creating your own `ReactSlashMenuItem`s, also make sure you use the class constructor like in the demo. 
+If you're confused about what's happening inside `execute`, head to [Introduction to Blocks](/docs/blocks), which will guide you through manipulating blocks in the editor using code. When creating your own `ReactSlashMenuItem`s, also make sure you use the class constructor like in the demo. 

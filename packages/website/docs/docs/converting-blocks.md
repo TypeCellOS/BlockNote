@@ -5,7 +5,7 @@ It's possible to export Blocks to other formats, or import Blocks from other for
 ::: warning
 The functions to import / export to and from HTML / Markdown are considered "lossy"; some information might be dropped when you export Blocks to those formats.
 
-To serialize Blocks to a non-lossy format (for example, to store the contents of the editor in your backend), simply export the built in Block format using `JSON.stringify(editor.allBlocks)`.
+To serialize Blocks to a non-lossy format (for example, to store the contents of the editor in your backend), simply export the built-in Block format using `JSON.stringify(editor.allBlocks)`.
 :::
 
 ## HTML
@@ -28,6 +28,10 @@ class BlockNoteEditor {
 const HTMLFromBlocks = editor.blocksToHTML(blocks);
 ```
 
+`returns:` The blocks, serialized as an HTML string.
+
+To better conform to HTML standards, children of blocks which aren't list items are un-nested in the output HTML.
+
 **Example**
 
 TODO
@@ -48,7 +52,9 @@ class BlockNoteEditor {
 const blocksFromHTML = editor.HTMLToBlocks(html);
 ```
 
-This function will try to create `Block` objects out of any HTML block-level elements, and`InlineNode` objects from any HTML inline elements, though not all types of elements are recognized. If BlockNote doesn't recognize an HTML element's tag, it will parse it as a paragraph or plain text.
+`returns:` The blocks parsed from the HTML string.
+
+Tries to create `Block` objects out of any HTML block-level elements, and `InlineNode` objects from any HTML inline elements, though not all HTML tags are recognized. If BlockNote doesn't recognize an element's tag, it will parse it as a paragraph or plain text.
 
 **Example**
 
@@ -74,10 +80,9 @@ class BlockNoteEditor {
 const markdownFromBlocks = editor.blocksToMarkdown(blocks);
 ```
 
-Some features of blocks can't be represented using Markdown, such as block color or text alignment, so some information is lost from the conversion:
+`returns:` The blocks, serialized as a Markdown string.
 
-1. All blocks, except ones inside list items, are no longer nested since Markdown doesn't support nesting for them.
-2. Underline, text color, and background color styles are removed as Markdown doesn't support them.
+The output is simplified as Markdown does not support all features of BlockNote - children of blocks which aren't list items are un-nested and certain styles are removed.
 
 **Example**
 
@@ -99,7 +104,9 @@ class BlockNoteEditor {
 const blocksFromMarkdown = editor.markdownToBlocks(markdown);
 ```
 
-This function will try to create `Block` objects and `InlineNode` objects based on the Markdown syntax, though not all symbols are recognized. If BlockNote doesn't recognize a symbol, it will parse it as text.
+`returns:` The blocks parsed from the Markdown string.
+
+Tries to create `Block` and `InlineNode` objects based on Markdown syntax, though not all symbols are recognized. If BlockNote doesn't recognize a symbol, it will parse it as text.
 
 **Example**
 

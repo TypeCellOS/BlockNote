@@ -1,7 +1,11 @@
 import { Editor, EditorOptions } from "@tiptap/core";
 import { Node } from "prosemirror-model";
 // import "./blocknote.css";
-import { Block, PartialBlock } from "./extensions/Blocks/api/blockTypes";
+import {
+  Block,
+  BlockIdentifier,
+  PartialBlock,
+} from "./extensions/Blocks/api/blockTypes";
 import { getBlockNoteExtensions, UiFactories } from "./BlockNoteExtensions";
 import styles from "./editor.module.css";
 import {
@@ -97,7 +101,8 @@ export class BlockNoteEditor {
   }
 
   /**
-   * Gets a list of all top-level blocks that are in the editor.
+   * Gets a snapshot of all top-level (non-nested) blocks in the editor.
+   * @returns A snapshot of all top-level (non-nested) blocks in the editor.
    */
   public get topLevelBlocks(): Block[] {
     const blocks: Block[] = [];
@@ -112,12 +117,40 @@ export class BlockNoteEditor {
   }
 
   /**
-   * Traverses all blocks in the editor, including all nested blocks, and executes a callback for each. The traversal is
-   * depth-first, which is the same order as blocks appear in the editor by y-coordinate.
-   * @param callback The callback to execute for each block.
+   * Gets a snapshot of an existing block from the editor.
+   * @param blockIdentifier The identifier of an existing block that should be retrieved.
+   * @returns The block that matches the identifier, or `undefined` if no matching block was found.
+   */
+  public getBlock(blockIdentifier: BlockIdentifier): Block | undefined {
+    const id =
+      typeof blockIdentifier === "string"
+        ? blockIdentifier
+        : blockIdentifier.id;
+    let newBlock: Block | undefined = undefined;
+
+    this._tiptapEditor.state.doc.firstChild!.descendants((node) => {
+      if (typeof newBlock !== "undefined") {
+        return false;
+      }
+
+      if (node.type.name !== "blockContainer" || node.attrs.id !== id) {
+        return true;
+      }
+
+      newBlock = nodeToBlock(node, this.blockCache);
+
+      return false;
+    });
+
+    return newBlock;
+  }
+
+  /**
+   * Traverses all blocks in the editor depth-first, and executes a callback for each.
+   * @param callback The callback to execute for each block. Returning `false` stops the traversal.
    * @param reverse Whether the blocks should be traversed in reverse order.
    */
-  public allBlocks(
+  public forEachBlock(
     callback: (block: Block) => void,
     reverse: boolean = false
   ): void {
@@ -139,7 +172,8 @@ export class BlockNoteEditor {
   }
 
   /**
-   * Gets information regarding the position of the text cursor in the editor.
+   * Gets a snapshot of the current text cursor position.
+   * @returns A snapshot of the current text cursor position.
    */
   public getTextCursorPosition(): TextCursorPosition {
     const { node, depth, startPos, endPos } = getBlockInfoFromPos(
@@ -181,14 +215,19 @@ export class BlockNoteEditor {
     };
   }
 
+  /**
+   * Sets the text cursor position to the start or end of an existing block. Throws an error if the target block could
+   * not be found.
+   * @param targetBlock The identifier of an existing block that the text cursor should be moved to.
+   * @param placement Whether the text cursor should be placed at the start or end of the block.
+   */
   public setTextCursorPosition(
-    block: Block,
+    targetBlock: BlockIdentifier,
     placement: "start" | "end" = "start"
   ) {
-    const { posBeforeNode } = getNodeById(
-      block.id,
-      this._tiptapEditor.state.doc
-    );
+    const id = typeof targetBlock === "string" ? targetBlock : targetBlock.id;
+
+    const { posBeforeNode } = getNodeById(id, this._tiptapEditor.state.doc);
     const { startPos, contentNode } = getBlockInfoFromPos(
       this._tiptapEditor.state.doc,
       posBeforeNode + 2
@@ -204,48 +243,46 @@ export class BlockNoteEditor {
   }
 
   /**
-   * Inserts multiple blocks before, after, or nested inside an existing block in the editor.
-   * @param blocksToInsert An array of blocks to insert.
-   * @param blockToInsertAt An existing block, marking where the new blocks should be inserted at.
-   * @param placement Determines whether the blocks should be inserted just before, just after, or nested inside the
-   * existing block.
+   * Inserts new blocks into the editor. If a block's `id` is undefined, BlockNote generates one automatically. Throws an
+   * error if the reference block could not be found.
+   * @param blocksToInsert An array of partial blocks that should be inserted.
+   * @param referenceBlock An identifier for an existing block, at which the new blocks should be inserted.
+   * @param placement Whether the blocks should be inserted just before, just after, or nested inside the
+   * `referenceBlock`. Inserts the blocks at the start of the existing block's children if "nested" is used.
    */
   public insertBlocks(
     blocksToInsert: PartialBlock[],
-    blockToInsertAt: Block,
+    referenceBlock: BlockIdentifier,
     placement: "before" | "after" | "nested" = "before"
   ): void {
-    insertBlocks(
-      blocksToInsert,
-      blockToInsertAt,
-      placement,
-      this._tiptapEditor
-    );
+    insertBlocks(blocksToInsert, referenceBlock, placement, this._tiptapEditor);
   }
 
   /**
-   * Updates a block in the editor to the given specification.
+   * Updates an existing block in the editor. Since updatedBlock is a PartialBlock object, some fields might not be
+   * defined. These undefined fields are kept as-is from the existing block. Throws an error if the block to update could
+   * not be found.
    * @param blockToUpdate The block that should be updated.
-   * @param updatedBlock The specification that the block should be updated to.
+   * @param update A partial block which defines how the existing block should be changed.
    */
-  public updateBlock(blockToUpdate: Block, updatedBlock: PartialBlock) {
-    updateBlock(blockToUpdate, updatedBlock, this._tiptapEditor);
+  public updateBlock(blockToUpdate: Block, update: PartialBlock) {
+    updateBlock(blockToUpdate, update, this._tiptapEditor);
   }
 
   /**
-   * Removes multiple blocks from the editor. Throws an error if any of the blocks could not be found.
-   * @param blocksToRemove An array of blocks that should be removed.
+   * Removes existing blocks from the editor. Throws an error if any of the blocks could not be found.
+   * @param blocksToRemove An array of identifiers for existing blocks that should be removed.
    */
   public removeBlocks(blocksToRemove: Block[]) {
     removeBlocks(blocksToRemove, this._tiptapEditor);
   }
 
   /**
-   * Replaces multiple blocks in the editor with several other blocks. If the provided blocks to remove are not adjacent
-   * to each other, the new blocks are inserted at the position of the first block in the array. Throws an error if any
-   * of the blocks could not be found.
+   * Replaces existing blocks in the editor with new blocks. If the blocks that should be removed are not adjacent or
+   * are at different nesting levels, `blocksToInsert` will be inserted at the position of the first block in
+   * `blocksToRemove`. Throws an error if any of the blocks to remove could not be found.
    * @param blocksToRemove An array of blocks that should be replaced.
-   * @param blocksToInsert An array of blocks to replace the old ones with.
+   * @param blocksToInsert An array of partial blocks to replace the old ones with.
    */
   public replaceBlocks(
     blocksToRemove: Block[],
@@ -263,38 +300,44 @@ export class BlockNoteEditor {
   }
 
   /**
-   * Serializes a list of blocks into an HTML string. The output is not the same as what's rendered by the editor, and
-   * is simplified in order to better conform to HTML standards. Block structuring elements are removed, children of
-   * blocks which aren't list items are lifted out of them, and list items blocks are wrapped in `ul`/`ol` tags.
-   * @param blocks The list of blocks to serialize into HTML.
+   * Serializes blocks into an HTML string. To better conform to HTML standards, children of blocks which aren't list
+   * items are un-nested in the output HTML.
+   * @param blocks An array of blocks that should be serialized into HTML.
+   * @returns The blocks, serialized as an HTML string.
    */
   public async blocksToHTML(blocks: Block[]): Promise<string> {
     return blocksToHTML(blocks, this._tiptapEditor.schema);
   }
 
   /**
-   * Creates a list of blocks from an HTML string.
-   * @param htmlString The HTML string to create a list of blocks from.
+   * Parses blocks from an HTML string. Tries to create `Block` objects out of any HTML block-level elements, and
+   * `InlineNode` objects from any HTML inline elements, though not all element types are recognized. If BlockNote
+   * doesn't recognize an HTML element's tag, it will parse it as a paragraph or plain text.
+   * @param html The HTML string to parse blocks from.
+   * @returns The blocks parsed from the HTML string.
    */
-  public async HTMLToBlocks(htmlString: string): Promise<Block[]> {
-    return HTMLToBlocks(htmlString, this._tiptapEditor.schema);
+  public async HTMLToBlocks(html: string): Promise<Block[]> {
+    return HTMLToBlocks(html, this._tiptapEditor.schema);
   }
 
   /**
-   * Serializes a list of blocks into a Markdown string. The output is simplified as Markdown does not support all
-   * features of BlockNote. Block structuring elements are removed, children of blocks which aren't list items are
-   * lifted out of them, and certain styles are removed.
-   * @param blocks The list of blocks to serialize into Markdown.
+   * Serializes blocks into a Markdown string. The output is simplified as Markdown does not support all features of
+   * BlockNote - children of blocks which aren't list items are un-nested and certain styles are removed.
+   * @param blocks An array of blocks that should be serialized into Markdown.
+   * @returns The blocks, serialized as a Markdown string.
    */
   public async blocksToMarkdown(blocks: Block[]): Promise<string> {
     return blocksToMarkdown(blocks, this._tiptapEditor.schema);
   }
 
   /**
-   * Creates a list of blocks from a Markdown string.
-   * @param markdownString The Markdown string to create a list of blocks from.
+   * Creates a list of blocks from a Markdown string. Tries to create `Block` and `InlineNode` objects based on
+   * Markdown syntax, though not all symbols are recognized. If BlockNote doesn't recognize a symbol, it will parse it
+   * as text.
+   * @param markdown The Markdown string to parse blocks from.
+   * @returns The blocks parsed from the Markdown string.
    */
-  public async markdownToBlocks(markdownString: string): Promise<Block[]> {
-    return markdownToBlocks(markdownString, this._tiptapEditor.schema);
+  public async markdownToBlocks(markdown: string): Promise<Block[]> {
+    return markdownToBlocks(markdown, this._tiptapEditor.schema);
   }
 }

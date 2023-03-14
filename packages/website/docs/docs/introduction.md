@@ -28,7 +28,7 @@ BlockNote is currently in early beta. We'd love your feedback! If you have quest
 
 ## Next: Set up BlockNote
 
-See how to set up your own editor [in the Quickstart](/docs/quickstart). Here's a quick sneak peak in case you can't wait!
+See how to set up your own editor in the [Quickstart](/docs/quickstart). Here's a quick sneak peek in case you can't wait!
 
 ::: sandbox {template=react-ts}
 

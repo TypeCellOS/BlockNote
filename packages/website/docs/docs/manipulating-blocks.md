@@ -16,7 +16,7 @@ There are a few different ways to retrieve Blocks from the editor:
 
 ### Getting All Top-Level Blocks
 
-You can retrieve a snapshot of all top-level blocks in the editor using the following call:
+You can retrieve a snapshot of all top-level (non-nested) blocks in the editor using the following call:
 
 ```typescript
 // Definition
@@ -30,9 +30,9 @@ class BlockNoteEditor {
 const blocks = editor.topLevelBlocks;
 ```
 
-`returns:` An array containing a snapshot of all top-level (non-nested) blocks in the editor.
+`returns:` A snapshot of all top-level (non-nested) blocks in the editor.
 
-We've actually already seen this used for the live example in [Getting Familiar with Block Objects](blocks#demo-getting-familiar-with-block-objects), where we showed its output below the editor.
+We've actually already seen this used for the live example in [Getting Familiar with Block Objects](/docs/blocks#demo-getting-familiar-with-block-objects), where we showed its output below the editor.
 
 ### Getting a Specific Block
 
@@ -50,7 +50,7 @@ class BlockNoteEditor {
 const block = editor.getBlock(blockIdentifier);
 ```
 
-`blockIdentifier:` The identifier of an existing block that should be retrieved.
+`blockIdentifier:` The [identifier](#block-identifiers) of an existing block that should be retrieved.
 
 `returns:` The block that matches the identifier, or `undefined` if no matching block was found.
 
@@ -73,13 +73,13 @@ class BlockNoteEditor {
 editor.forEachBlock((block) => {...});
 ```
 
-`callback:` The callback to execute for each block. Return `false` to stop the traversal.
+`callback:` The callback to execute for each block. Returning `false` stops the traversal.
 
 `reverse:` Whether the blocks should be traversed in reverse order.
 
 ### Getting the Hovered Block
 
-BlockNote uses `TextCursorPosition` objects to represent the text cursor's position. In these, you can also find the block that currently contains the text cursor. To find out more about `TextCursorPosition` objects, head to [Cursor and Selections](cursor-selections.md).
+BlockNote uses `TextCursorPosition` objects to represent the text cursor's position. In these, you can also find the block that currently contains the text cursor. To find out more about `TextCursorPosition` objects, head to [Cursor and Selections](/docs/cursor-selections).
 
 ## Partial Blocks
 
@@ -90,12 +90,12 @@ type PartialBlock = {
   id?: string;
   type?: string;
   props?: Partial<Record<string, string>>;
-  content?: string | InlineNode[];
+  content?: string | InlineContent[];
   children?: BlockSpec[];
 };
 ```
 
-`PartialBlock` objects are almost the same as regular `Block` objects, but with all members optional. This makes updating or creating simpler blocks much easier. We'll see this below.
+`PartialBlock` objects are almost the same as regular `Block` objects, but with all members optional and partial `props`. This makes updating or creating simpler blocks much easier. We'll see this below.
 
 ## Inserting New Blocks
 
@@ -117,11 +117,13 @@ class BlockNoteEditor {
 editor.insertBlocks(blocksToInsert, referenceBlock, placement)
 ```
 
-`blocksToInsert:` An array of blocks that should be inserted.
+`blocksToInsert:` An array of [partial blocks](#partial-blocks) that should be inserted.
 
 `referenceBlock:` An [identifier](#block-identifiers) for an existing block, at which the new blocks should be inserted.
 
-`placement:` Determines whether the blocks should be inserted just before, just after, or nested inside the `referenceBlock`. Inserts the blocks at the start of the existing block's children if `"nested"` is used.
+`placement:` Whether the blocks should be inserted just before, just after, or nested inside the `referenceBlock`. Inserts the blocks at the start of the existing block's children if `"nested"` is used.
+
+If a block's `id` is undefined, BlockNote generates one automatically. Throws an error if the reference block could not be found.
 
 ## Updating Blocks
 
@@ -133,7 +135,7 @@ class BlockNoteEditor {
 ...
   public updateBlock(
     blockToUpdate: BlockIdentifier,
-    updates: PartialBlock
+    update: PartialBlock
   ): void;
 ...
 }
@@ -142,13 +144,11 @@ class BlockNoteEditor {
 editor.updateBlock(blockToUpdate, { type: "paragraph" });
 ```
 
-`blockToUpdate:` The [identifier](#block-identifiers) of the existing block that should be updated.
+`blockToUpdate:` The [identifier](#block-identifiers) of an existing block that should be updated.
 
-`updates:` A [partial block](#partial-blocks) which defines values of the block should be updated.
+`update:` A [partial block](#partial-blocks) which defines how the existing block should be changed.
 
-#### Partial updates
-
-Since the `updatedBlock` argument is a `PartialBlock` object, some fields might not be defined. Fields in the target block that are not present in `PartialBlock` are not affected and kept as-is.
+Since `updatedBlock` is a `PartialBlock` object, some fields might not be defined. These undefined fields are kept as-is from the existing block. Throws an error if the block to update could not be found.
 
 ## Removing Blocks
 
@@ -169,6 +169,8 @@ editor.removeBlocks(blocksToRemove)
 ```
 
 `blocksToRemove:` An array of [identifiers](#block-identifiers) for existing blocks that should be removed.
+
+Throws an error if any of the blocks could not be found.
 
 ## Replacing Blocks
 
@@ -191,8 +193,6 @@ editor.replaceBlocks(blocksToRemove, blocksToInsert)
 
 `blocksToRemove:` An array of [identifiers](#block-identifiers) for existing blocks that should be replaced.
 
-`blocksToInsert:` An array of blocks that the existing ones should be replaced with.
+`blocksToInsert:` An array of [partial blocks](#partial-blocks) that the existing ones should be replaced with.
 
-#### Additional Information
-
-If the blocks that should be removed are not adjacent or are at different nesting levels, `blocksToInsert` will be inserted at the position of the first block in `blocksToRemove`.
+If the blocks that should be removed are not adjacent or are at different nesting levels, `blocksToInsert` will be inserted at the position of the first block in `blocksToRemove`. Throws an error if any of the blocks to remove could not be found.

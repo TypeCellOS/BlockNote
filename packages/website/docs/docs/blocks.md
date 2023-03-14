@@ -29,7 +29,11 @@ function App() {
 
 ## Block Objects
 
-So, BlockNote is centered around the idea of blocks. A block - like a Heading, Paragraph, or List item - contains a piece of content and optionally nested blocks. In code, the `Block` type is used to describe any given block in the editor:
+So, BlockNote is centered around the idea of blocks. A block - like a heading, paragraph, or list item - contains a piece of content and optionally nested blocks:
+
+<img src="../public/img/screenshots/block_structure.png" alt="image" style="width: 100%">
+
+In code, the `Block` type is used to describe any given block in the editor:
 
 ```typescript
 type Block = {
@@ -43,11 +47,11 @@ type Block = {
 
 `id:` The block's ID. Multiple blocks cannot share a single ID, and a block will keep the same ID from when it's created until it's removed.
 
-`type:` The block's type, such as a paragraph, heading, or list item. For an overview of built-in block types, see [Block Types & Properties](block-types).
+`type:` The block's type, such as a paragraph, heading, or list item. For an overview of built-in block types, see [Built-In Block Types](/docs/block-types#built-in-block-types).
 
-`props:` The block's properties are stored in a set of key/value pairs and specify how the block looks and behaves. Different block types have different props - see [Block Types](block-types) for more.
+`props:` The block's properties, which are stored in a set of key/value pairs and specify how the block looks and behaves. Different block types have different props - see [Block Types & Properties](/docs/block-types) for more.
 
-`content:` The block's content, represented as an array of `InlineNode` objects. This does not include content from any nested blocks. For more information on `InlineNode` objects, visit [Inline Content](inline-content.md).
+`content:` The block's content, represented as an array of `InlineContent` objects. This does not include content from any nested blocks. For more information on `InlineContent` objects, visit [Inline Content](/docs/inline-content).
 
 `children:` Any blocks nested inside the block. The nested blocks are also represented using `Block` objects.
 
@@ -82,13 +86,6 @@ export default function App() {
       <div>{blocks}</div>
     </>
   );
-}
-```
-
-```css /styles.css [hidden]
-#root {
-  margin-left: 45px;
-  width: calc(100% - 90px);
 }
 ```
 
