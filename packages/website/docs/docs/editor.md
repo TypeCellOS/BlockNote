@@ -5,7 +5,7 @@ There are a number of options that you can pass to `useBlockNote()`, which you c
 ```typescript
 export type BlockNoteEditorOptions = {
   editorDOMAttributes: Record<string, string>;
-  onEditorCreate: (editor: BlockNoteEditor) => void;
+  onEditorReady: (editor: BlockNoteEditor) => void;
   onEditorContentChange: (editor: BlockNoteEditor) => void;
   onTextCursorPositionChange: (editor: BlockNoteEditor) => void;
   slashMenuItems: ReactSlashMenuItem[];
@@ -15,7 +15,7 @@ export type BlockNoteEditorOptions = {
 
 `editorDOMAttributes:` An object containing attributes that should be added to the editor's HTML element.
 
-`onEditorCreate:` A callback function that runs when the editor is ready to be used.
+`onEditorReady:` A callback function that runs when the editor is ready to be used.
 
 `onEditorContentChange:` A callback function that runs whenever the editor's contents change.
 
