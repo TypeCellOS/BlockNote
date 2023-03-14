@@ -33,18 +33,16 @@ See how to set up your own editor in the [Quickstart](/docs/quickstart). Here's 
 ::: sandbox {template=react-ts}
 
 ```typescript /App.tsx
+import { BlockNoteEditor } from "@blocknote/core";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
 import "@blocknote/core/style.css";
 
 export default function App() {
-  const editor = useBlockNote({
-    onUpdate: ({ editor }) => {
-      // Log the document to console on every update
-      console.log(editor.getJSON());
-    },
-  });
+  // Creates a new editor instance.
+  const editor: BlockNoteEditor | null = useBlockNote({});
 
-  return <BlockNoteView editor={editor} />;
+  // Renders the editor instance using a React component.
+  return <BlockNoteView editor={editor}/>;
 }
 ```
 

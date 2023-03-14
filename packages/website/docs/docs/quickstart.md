@@ -17,12 +17,13 @@ npm install @blocknote/core @blocknote/react
 BlockNote is meant for use with React, so creating an editor in an existing React app is easy. Using the `useBlockNote` hook, we can create a new editor instance, then use the`BlockNoteView` component to render it. You can see how to do that in the example below, where we create a new BlockNote editor inside the main `App` component of our React app:
 
 ```typescript
+import { BlockNoteEditor } from "@blocknote/core";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
 import "@blocknote/core/style.css";
 
 function App() {
   // Creates a new editor instance.
-  const editor = useBlockNote({});
+  const editor: BlockNoteEditor | null = useBlockNote({});
 
   // Renders the editor instance using a React component.
   return <BlockNoteView editor={editor} />;
@@ -31,22 +32,23 @@ function App() {
 
 As well as `BlockNoteView` and `useBlockNote`, we import `@blocknote/core/style.css` to provide default styling for the editor.
 
-## Basic App Using BlockNote
+## Demo: Basic App Using BlockNote
 
 Taking the same code, the live preview below turns it into a super simple, working app:
 
 ::: sandbox {template=react-ts}
 
 ```typescript /App.tsx
+import { BlockNoteEditor } from "@blocknote/core";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
 import "@blocknote/core/style.css";
-import "./styles.css";
 
 export default function App() {
   // Creates a new editor instance.
-  const editor = useBlockNote({});
+  const editor: BlockNoteEditor | null = useBlockNote({});
 
   // Renders the editor instance using a React component.
+
   return <BlockNoteView editor={editor} />;
 }
 ```

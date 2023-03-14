@@ -38,8 +38,9 @@ export type BlockNoteEditorOptions = {
   slashCommands: BaseSlashMenuItem[];
   parentElement: HTMLElement;
   editorDOMAttributes: Record<string, string>;
-  onUpdate: (editor: BlockNoteEditor) => void;
-  onCreate: (editor: BlockNoteEditor) => void;
+  onEditorCreate: (editor: BlockNoteEditor) => void;
+  onEditorContentChange: (editor: BlockNoteEditor) => void;
+  onTextCursorPositionChange: (editor: BlockNoteEditor) => void;
 
   // tiptap options, undocumented
   _tiptapOptions: any;
@@ -73,11 +74,14 @@ export class BlockNoteEditor {
     const tiptapOptions: EditorOptions = {
       ...blockNoteTipTapOptions,
       ...options._tiptapOptions,
-      onUpdate: () => {
-        options.onUpdate?.(this);
-      },
       onCreate: () => {
-        options.onCreate?.(this);
+        options.onEditorCreate?.(this);
+      },
+      onUpdate: () => {
+        options.onEditorContentChange?.(this);
+      },
+      onSelectionUpdate: () => {
+        options.onTextCursorPositionChange?.(this);
       },
       extensions:
         options.enableBlockNoteExtensions === false
@@ -289,14 +293,6 @@ export class BlockNoteEditor {
     blocksToInsert: PartialBlock[]
   ) {
     replaceBlocks(blocksToRemove, blocksToInsert, this._tiptapEditor);
-  }
-
-  /**
-   * Executes a callback function whenever the editor's content changes.
-   * @param callback The callback function to execute.
-   */
-  public onContentChange(callback: () => void) {
-    this._tiptapEditor.on("update", callback);
   }
 
   /**

@@ -59,32 +59,33 @@ type Block = {
 
 Now that we know how blocks are represented in code, let's take a look at the live example below. We have a BlockNote editor, under which we display its contents using an array of `Block` objects. Feel free to play around and get a better feel for how blocks look in the editor, compared to how they're represented using `Block` objects.
 
-**TODO** Live example.
-
 ::: sandbox {template=react-ts}
 
 ```typescript /App.tsx
 import { useState } from "react";
+import { BlockNoteEditor } from "@blocknote/core";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
 import "@blocknote/core/style.css";
-import "./styles.css";
 
 export default function App() {
-  const [editorAPI, setEditorAPI] = useState(null);
-  const [blocks, setBlocks] = useState(null);
-
+  // Stores the editor's contents as an array of Block objects.
+  const [blocks, setBlocks] = useState<Block[] | null>(null);
+  
   // Creates a new editor instance.
-  const editor = useBlockNote({});
-
-  // Saves the editor's contents as Block objects.
-  editor.onContentChange(() => setBlocks(editor.allBlocks));
-
-  // Renders the editor instance using a React component.
+  const editor: BlockNoteEditor | null = useBlockNote({
+    // Listens for when the editor's contents change.
+    onEditorContentChange: (editor: BlockNoteEditor) => 
+      // Converts the editor's contents to an array of Block objects.
+      setBlocks(editor.topLevelBlocks)
+  })
+  
+  // Renders a BlockNote editor, and its contents as an array of Block objects 
+  // below.
   return (
-    <>
-      <BlockNoteView editor={editor} />
-      <div>{blocks}</div>
-    </>
+    <div>
+      <BlockNoteView editor={editor}/>
+      <pre>{JSON.stringify(blocks, null, 2)}</pre>
+    </div>
   );
 }
 ```
