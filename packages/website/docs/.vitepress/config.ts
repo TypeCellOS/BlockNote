@@ -105,7 +105,7 @@ const SIDEBAR_DEFAULT = [
       // { text: "API Reference (n2h)", link: "/api" },
       {
         text: "Community",
-        link: "https://discord.com/channels/928190961455087667/1015169282444894219",
+        link: "https://discord.gg/Qc2QTTH5dF",
       },
     ],
   },
@@ -154,7 +154,7 @@ export default defineConfig({
       // { icon: "twitter", link: "https://twitter.com/TypeCellOS" },
       {
         icon: "discord",
-        link: "https://discord.com/channels/928190961455087667/1015169282444894219",
+        link: "https://discord.gg/Qc2QTTH5dF",
       },
     ],
   },
