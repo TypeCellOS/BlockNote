@@ -24,7 +24,7 @@ On top of that, it comes with a modern block-based design. This gives documents 
 
 ## Community
 
-BlockNote is currently in early beta. We'd love your feedback! If you have questions, need help, or want to contribute reach out to the community on [Discord](https://discord.gg/aDQxXezfNj) and [GitHub](https://github.com/yousefed/blocknote).
+BlockNote is currently in early beta. We'd love your feedback! If you have questions, need help, or want to contribute reach out to the community on [Discord](https://discord.gg/Qc2QTTH5dF) and [GitHub](https://github.com/yousefed/blocknote).
 
 ## Next: Set up BlockNote
 
@@ -42,7 +42,7 @@ export default function App() {
   const editor: BlockNoteEditor | null = useBlockNote({});
 
   // Renders the editor instance using a React component.
-  return <BlockNoteView editor={editor}/>;
+  return <BlockNoteView editor={editor} />;
 }
 ```
 

@@ -60,9 +60,7 @@ defineProps<{
     <Sponsors />
     <h3>Contributors:</h3>
     <Contributors />
-    <CTAButton
-      href="https://discord.com/channels/928190961455087667/1015169282444894219"
-      layout="simple"
+    <CTAButton href="https://discord.gg/Qc2QTTH5dF" layout="simple"
       >Join the community and get involved!</CTAButton
     >
   </div>
