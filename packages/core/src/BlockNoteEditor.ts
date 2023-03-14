@@ -1,34 +1,34 @@
 import { Editor, EditorOptions } from "@tiptap/core";
 import { Node } from "prosemirror-model";
 // import "./blocknote.css";
+import { Editor as TiptapEditor } from "@tiptap/core/dist/packages/core/src/Editor";
+import {
+  insertBlocks,
+  removeBlocks,
+  replaceBlocks,
+  updateBlock,
+} from "./api/blockManipulation/blockManipulation";
+import {
+  blocksToHTML,
+  blocksToMarkdown,
+  HTMLToBlocks,
+  markdownToBlocks,
+} from "./api/formatConversions/formatConversions";
+import { nodeToBlock } from "./api/nodeConversions/nodeConversions";
+import { getNodeById } from "./api/util/nodeUtil";
+import { getBlockNoteExtensions, UiFactories } from "./BlockNoteExtensions";
+import styles from "./editor.module.css";
 import {
   Block,
   BlockIdentifier,
   PartialBlock,
 } from "./extensions/Blocks/api/blockTypes";
-import { getBlockNoteExtensions, UiFactories } from "./BlockNoteExtensions";
-import styles from "./editor.module.css";
-import {
-  defaultSlashMenuItems,
-  BaseSlashMenuItem,
-} from "./extensions/SlashMenu";
-import { Editor as TiptapEditor } from "@tiptap/core/dist/packages/core/src/Editor";
-import { nodeToBlock } from "./api/nodeConversions/nodeConversions";
 import { TextCursorPosition } from "./extensions/Blocks/api/cursorPositionTypes";
 import { getBlockInfoFromPos } from "./extensions/Blocks/helpers/getBlockInfoFromPos";
-import { getNodeById } from "./api/util/nodeUtil";
 import {
-  insertBlocks,
-  updateBlock,
-  removeBlocks,
-  replaceBlocks,
-} from "./api/blockManipulation/blockManipulation";
-import {
-  blocksToHTML,
-  HTMLToBlocks,
-  blocksToMarkdown,
-  markdownToBlocks,
-} from "./api/formatConversions/formatConversions";
+  BaseSlashMenuItem,
+  defaultSlashMenuItems,
+} from "./extensions/SlashMenu";
 
 export type BlockNoteEditorOptions = {
   // TODO: Figure out if enableBlockNoteExtensions/disableHistoryExtension are needed and document them.
@@ -98,6 +98,10 @@ export class BlockNoteEditor {
         },
       },
     };
+
+    if (options.parentElement) {
+      tiptapOptions.element = options.parentElement;
+    }
 
     this._tiptapEditor = new Editor(tiptapOptions) as Editor & {
       contentComponent: any;
