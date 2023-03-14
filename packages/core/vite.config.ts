@@ -31,6 +31,7 @@ export default defineConfig({
         // Provide global variables to use in the UMD build
         // for externalized deps
         globals: {},
+        interop: "compat", // https://rollupjs.org/migration/#changed-defaults
       },
     },
   },
