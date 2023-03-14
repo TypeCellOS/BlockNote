@@ -1,4 +1,4 @@
-# Side menu
+# Side Menu
 
 Coming soon!
 

@@ -1,3 +1,3 @@
-# Real-time collaboration
+# Real-time Collaboration
 
 Docs coming soon!

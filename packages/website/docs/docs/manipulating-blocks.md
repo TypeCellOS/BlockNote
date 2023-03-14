@@ -1,4 +1,4 @@
-# Manipulating blocks
+# Manipulating Blocks
 
 Below, we explain how to read Blocks from the editor, and how to create / remove / update Blocks.
 
@@ -79,7 +79,7 @@ editor.forEachBlock((block) => {...});
 
 ### Getting the Hovered Block
 
-BlockNote uses `TextCursorPosition` objects to represent the text cursor's position. In these, you can also find the block that currently contains the text cursor. To find out more about `TextCursorPosition` objects, head to [Cursor and Selections](/docs/cursor-selections).
+BlockNote uses `TextCursorPosition` objects to represent the text cursor's position. In these, you can also find the block that currently contains the text cursor. To find out more about `TextCursorPosition` objects, head to [Cursor & Selections](/docs/cursor-selections).
 
 ## Partial Blocks
 
