@@ -72,7 +72,7 @@ function blockPositionFromCoords(
   if (block && block.node.nodeType === 1) {
     // TODO: this uses undocumented PM APIs? do we need this / let's add docs?
     const docView = (view as any).docView;
-    if (docView) {
+    if (docView && docView !== null) {
       let desc = docView.nearestDesc(block.node, true);
       if (!desc || desc === docView) {
         return null;
