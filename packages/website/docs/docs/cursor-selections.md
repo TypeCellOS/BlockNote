@@ -73,7 +73,7 @@ Throws an error if the target block could not be found.
 
 ```typescript /App.tsx
 import { BlockNoteEditor } from "blocknote-next-core";
-import { BlockNoteView, useBlockNote } from "@blocknote/react";
+import { BlockNoteView, useBlockNote } from "blocknote-next-react";
 import "blocknote-next-core/style.css";
 
 export default function App() {

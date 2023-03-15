@@ -45,7 +45,7 @@ If you want to change, remove & reorder the default items , you first import and
 
 ```typescript
 import { defaultSlashMenuItems } from "blocknote-next-core";
-import { BlockNoteView, useBlockNote } from "@blocknote/react";
+import { BlockNoteView, useBlockNote } from "blocknote-next-react";
 import "blocknote-next-core/style.css";
 
 function App() {
@@ -73,7 +73,7 @@ import {
   defaultReactSlashMenuItems,
   ReactSlashMenuItem,
   useBlockNote,
-} from "@blocknote/react";
+} from "blocknote-next-react";
 import "blocknote-next-core/style.css";
 import { HiOutlineGlobeAlt } from "react-icons/all";
 

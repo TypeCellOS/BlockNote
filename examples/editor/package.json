@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "blocknote-next-core": "^0.4.8",
-    "@blocknote/react": "^0.4.6",
+    "blocknote-next-react": "^0.4.10",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },

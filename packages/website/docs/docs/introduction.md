@@ -1,6 +1,6 @@
 # Introduction to BlockNote
 
-<div><a href="https://www.npmjs.com/package/blocknote-next-core"><img style="display: inline" alt="NPM" src="https://img.shields.io/npm/v/@blocknote/react"></a> <a href="https://github.com/yousefed/blocknote"><img style="display: inline" alt="GitHub Repo stars" src="https://img.shields.io/github/stars/yousefed/blocknote?style=social"></a></div>
+<div><a href="https://www.npmjs.com/package/blocknote-next-core"><img style="display: inline" alt="NPM" src="https://img.shields.io/npm/v/blocknote-next-react"></a> <a href="https://github.com/yousefed/blocknote"><img style="display: inline" alt="GitHub Repo stars" src="https://img.shields.io/github/stars/yousefed/blocknote?style=social"></a></div>
 
 BlockNote is a block-based rich-text editor for [React](https://reactjs.org/), focused on providing a great out-of-the-box experience with minimal setup.
 
@@ -34,7 +34,7 @@ See how to set up your own editor in the [Quickstart](/docs/quickstart). Here's 
 
 ```typescript /App.tsx
 import { BlockNoteEditor } from "blocknote-next-core";
-import { BlockNoteView, useBlockNote } from "@blocknote/react";
+import { BlockNoteView, useBlockNote } from "blocknote-next-react";
 import "blocknote-next-core/style.css";
 
 export default function App() {

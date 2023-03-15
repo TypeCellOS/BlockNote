@@ -1,6 +1,6 @@
 # Quickstart
 
-<div><a href="https://www.npmjs.com/package/blocknote-next-core"><img style="display: inline" alt="NPM" src="https://img.shields.io/npm/v/@blocknote/react"></a> <a href="https://github.com/yousefed/blocknote"><img style="display: inline" alt="GitHub Repo stars" src="https://img.shields.io/github/stars/yousefed/blocknote?style=social"></a></div>
+<div><a href="https://www.npmjs.com/package/blocknote-next-core"><img style="display: inline" alt="NPM" src="https://img.shields.io/npm/v/blocknote-next-react"></a> <a href="https://github.com/yousefed/blocknote"><img style="display: inline" alt="GitHub Repo stars" src="https://img.shields.io/github/stars/yousefed/blocknote?style=social"></a></div>
 
 Getting started with BlockNote is quick and easy. All you need to do is install the package and add the React component to your app!
 
@@ -9,7 +9,7 @@ Getting started with BlockNote is quick and easy. All you need to do is install 
 Install BlockNote with [NPM](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) by running the following command in your console:
 
 ```
-npm install blocknote-next-core @blocknote/react
+npm install blocknote-next-core blocknote-next-react
 ```
 
 ## Creating an Editor
@@ -18,7 +18,7 @@ BlockNote is meant for use with React, so creating an editor in an existing Reac
 
 ```typescript
 import { BlockNoteEditor } from "blocknote-next-core";
-import { BlockNoteView, useBlockNote } from "@blocknote/react";
+import { BlockNoteView, useBlockNote } from "blocknote-next-react";
 import "blocknote-next-core/style.css";
 
 function App() {
@@ -40,7 +40,7 @@ Taking the same code, the live preview below turns it into a super simple, worki
 
 ```typescript /App.tsx
 import { BlockNoteEditor } from "blocknote-next-core";
-import { BlockNoteView, useBlockNote } from "@blocknote/react";
+import { BlockNoteView, useBlockNote } from "blocknote-next-react";
 import "blocknote-next-core/style.css";
 
 export default function App() {

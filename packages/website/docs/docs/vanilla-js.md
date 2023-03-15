@@ -10,7 +10,7 @@ We recommend using BlockNote with React so you can use the built-in UI component
 
 ## Installing
 
-Instead of `@blocknote/react`, you'll need to install and use `blocknote-next-core`.
+Instead of `blocknote-next-react`, you'll need to install and use `blocknote-next-core`.
 
 ## Creating an editor
 

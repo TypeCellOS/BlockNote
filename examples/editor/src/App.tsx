@@ -1,13 +1,13 @@
 // import logo from './logo.svg'
 import "blocknote-next-core/style.css";
-import { BlockNoteView, useBlockNote } from "@blocknote/react";
+import { BlockNoteView, useBlockNote } from "blocknote-next-react";
 import styles from "./App.module.css";
 
 type WindowWithProseMirror = Window & typeof globalThis & { ProseMirror: any };
 
 function App() {
   const editor = useBlockNote({
-    onEditorContentChange: (editor) => {
+    onEditorContentChange: (editor: any) => {
       console.log(editor.topLevelBlocks);
     },
     editorDOMAttributes: {

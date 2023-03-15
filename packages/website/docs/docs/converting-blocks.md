@@ -39,7 +39,7 @@ The output is simplified as Markdown does not support all features of BlockNote 
 ```typescript /App.tsx
 import { useState } from "react";
 import { BlockNoteEditor } from "blocknote-next-core";
-import { BlockNoteView, useBlockNote } from "@blocknote/react";
+import { BlockNoteView, useBlockNote } from "blocknote-next-react";
 import "blocknote-next-core/style.css";
 
 export default function App() {
@@ -99,7 +99,7 @@ Tries to create `Block` and `InlineNode` objects based on Markdown syntax, thoug
 ```typescript /App.tsx
 import { useEffect, useState } from "react";
 import { BlockNoteEditor } from "blocknote-next-core";
-import { BlockNoteView, useBlockNote } from "@blocknote/react";
+import { BlockNoteView, useBlockNote } from "blocknote-next-react";
 import "blocknote-next-core/style.css";
 
 export default function App() {
@@ -174,7 +174,7 @@ To better conform to HTML standards, children of blocks which aren't list items 
 ```typescript /App.tsx
 import { useState } from "react";
 import { BlockNoteEditor } from "blocknote-next-core";
-import { BlockNoteView, useBlockNote } from "@blocknote/react";
+import { BlockNoteView, useBlockNote } from "blocknote-next-react";
 import "blocknote-next-core/style.css";
 
 export default function App() {
@@ -234,7 +234,7 @@ Tries to create `Block` objects out of any HTML block-level elements, and `Inlin
 ```typescript /App.tsx
 import { useEffect, useState } from "react";
 import { BlockNoteEditor } from "blocknote-next-core";
-import { BlockNoteView, useBlockNote } from "@blocknote/react";
+import { BlockNoteView, useBlockNote } from "blocknote-next-react";
 import "blocknote-next-core/style.css";
 
 export default function App() {

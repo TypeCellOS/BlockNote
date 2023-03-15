@@ -22,7 +22,7 @@ export default defineConfig((conf) => ({
               __dirname,
               "../../packages/core/src/"
             ),
-            "@blocknote/react": path.resolve(
+            "blocknote-next-react": path.resolve(
               __dirname,
               "../../packages/react/src/"
             ),

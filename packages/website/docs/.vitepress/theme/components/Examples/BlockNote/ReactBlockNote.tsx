@@ -1,5 +1,5 @@
 import "blocknote-next-core/style.css";
-import { BlockNoteView, useBlockNote } from "@blocknote/react";
+import { BlockNoteView, useBlockNote } from "blocknote-next-react";
 import * as styles from "./ReactBlockNote.module.css";
 
 export function ReactBlockNote() {

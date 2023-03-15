@@ -15,7 +15,7 @@ Play with the editor @ [https://blocknote-main.vercel.app/](https://blocknote-ma
 # Example code (React)
 
 ```typescript
-import { BlockNoteView, useBlockNote } from "@blocknote/react";
+import { BlockNoteView, useBlockNote } from "blocknote-next-react";
 import "blocknote-next-core/style.css";
 
 function App() {
@@ -30,7 +30,7 @@ function App() {
 }
 ```
 
-`@blocknote/react` comes with a fully styled UI that makes it an instant, polished editor ready to use in your app.
+`blocknote-next-react` comes with a fully styled UI that makes it an instant, polished editor ready to use in your app.
 
 If you prefer to create your own UI components (menus), or don't want to use React, you can use `blocknote-next-core` (_advanced_, see `examples/vanilla` for a demo).
 
