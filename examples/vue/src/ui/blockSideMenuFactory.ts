@@ -16,7 +16,7 @@ export const blockSideMenuFactory: BlockSideMenuFactory = (staticParams) => {
     document.body.appendChild(instance.$el);
 
     return {
-      element: container,
+      element: instance.$el,
       render: (params, isHidden) => {
         if (isHidden) {
           instance.$el.style.display = "block";

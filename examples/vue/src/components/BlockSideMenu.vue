@@ -4,13 +4,12 @@ import { ref } from 'vue'
 const props = defineProps<{
   staticParams?: any
 }>()
-console.log('pro', props)
 
 const show = ref(false)
 const title = ref('')
 const text = ref('')
-function addBlock() {
-  console.log('auie')
+function addBlock(event) {
+  console.log('auie', event)
   props.staticParams.addBlock()
 }
 function onDragStart() {
@@ -26,7 +25,7 @@ function onDragEnd() {
 
 <template>
   <div class="block-side-menu">
-    <button @click="addBlock">+</button>
+    <button @click="addBlock($event)">+</button>
     <button @click.stop @dragstart="onDragStart" @dragend="onDragEnd" draggable>::</button>
   </div>
 </template>
