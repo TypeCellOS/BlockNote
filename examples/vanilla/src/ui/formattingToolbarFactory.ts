@@ -1,4 +1,4 @@
-import { FormattingToolbarFactory } from "@blocknote/core";
+import { FormattingToolbarFactory } from "blocknote-next-core";
 import { createButton } from "./util";
 
 /**

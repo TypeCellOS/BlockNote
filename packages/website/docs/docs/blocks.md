@@ -8,8 +8,8 @@ The `editor` returned from `useBlockNote` exposes functions to access and update
 We'll go through the full API later in this section, but let's start with a simple example - logging all blocks in the editor whenever its contents change:
 
 ```typescript
-import { BlockNoteView, useBlockNote } from "@blocknote/react";
-import "@blocknote/core/style.css";
+import { BlockNoteView, useBlockNote } from "blocknote-next-react";
+import "blocknote-next-core/style.css";
 
 function App() {
   // Creates a new editor instance.
@@ -63,27 +63,27 @@ Now that we know how blocks are represented in code, let's take a look at the li
 
 ```typescript /App.tsx
 import { useState } from "react";
-import { BlockNoteEditor } from "@blocknote/core";
-import { BlockNoteView, useBlockNote } from "@blocknote/react";
-import "@blocknote/core/style.css";
+import { BlockNoteEditor } from "blocknote-next-core";
+import { BlockNoteView, useBlockNote } from "blocknote-next-react";
+import "blocknote-next-core/style.css";
 
 export default function App() {
   // Stores the editor's contents as an array of Block objects.
   const [blocks, setBlocks] = useState<Block[] | null>(null);
-  
+
   // Creates a new editor instance.
   const editor: BlockNoteEditor | null = useBlockNote({
     // Listens for when the editor's contents change.
-    onEditorContentChange: (editor: BlockNoteEditor) => 
+    onEditorContentChange: (editor: BlockNoteEditor) =>
       // Converts the editor's contents to an array of Block objects.
-      setBlocks(editor.topLevelBlocks)
-  })
-  
-  // Renders a BlockNote editor, and its contents as an array of Block objects 
+      setBlocks(editor.topLevelBlocks),
+  });
+
+  // Renders a BlockNote editor, and its contents as an array of Block objects
   // below.
   return (
     <div>
-      <BlockNoteView editor={editor}/>
+      <BlockNoteView editor={editor} />
       <pre>{JSON.stringify(blocks, null, 2)}</pre>
     </div>
   );

@@ -1,6 +1,6 @@
 import { MantineProvider } from "@mantine/core";
 import Tippy, { TippyProps } from "@tippyjs/react";
-import { RequiredDynamicParams } from "@blocknote/core";
+import { RequiredDynamicParams } from "blocknote-next-core";
 import { BlockNoteTheme } from "../../BlockNoteTheme";
 import { useCallback, useState } from "react";
 

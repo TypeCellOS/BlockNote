@@ -1,4 +1,4 @@
-import { BlockNoteEditor } from "@blocknote/core";
+import { BlockNoteEditor } from "blocknote-next-core";
 import { EditorContent } from "@tiptap/react";
 // import { BlockNoteTheme } from "./BlockNoteTheme";
 // import { MantineProvider } from "@mantine/core";

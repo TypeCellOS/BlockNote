@@ -1,4 +1,4 @@
-import { BaseSlashMenuItem, SuggestionsMenuFactory } from "@blocknote/core";
+import { BaseSlashMenuItem, SuggestionsMenuFactory } from "blocknote-next-core";
 import { createButton } from "./util";
 
 /**

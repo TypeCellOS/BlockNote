@@ -3,7 +3,7 @@ import {
   BlockSideMenuDynamicParams,
   BlockSideMenuFactory,
   BlockSideMenuStaticParams,
-} from "@blocknote/core";
+} from "blocknote-next-core";
 import { BlockSideMenu as ReactBlockSideMenu } from "./components/BlockSideMenu";
 import { ReactElementFactory } from "../ElementFactory/components/ReactElementFactory";
 
