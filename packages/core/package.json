@@ -3,7 +3,7 @@
   "homepage": "https://github.com/ishan-flek-ai/BlockNote",
   "private": false,
   "license": "MPL-2.0",
-  "version": "0.4.11",
+  "version": "0.4.12",
   "files": [
     "dist",
     "types",
