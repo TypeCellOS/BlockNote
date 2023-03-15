@@ -63,7 +63,7 @@ Now that we know how blocks are represented in code, let's take a look at the li
 
 ```typescript /App.tsx
 import { useState } from "react";
-import { BlockNoteEditor } from "@blocknote/core";
+import { BlockNoteEditor, Block } from "@blocknote/core";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
 import "@blocknote/core/style.css";
 
@@ -79,8 +79,8 @@ export default function App() {
       setBlocks(editor.topLevelBlocks)
   })
   
-  // Renders a BlockNote editor, and its contents as an array of Block objects 
-  // below.
+  // Renders the editor instance and its contents, as an array of Block
+  // objects, below.
   return (
     <div>
       <BlockNoteView editor={editor}/>

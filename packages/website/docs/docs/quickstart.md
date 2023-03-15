@@ -48,7 +48,6 @@ export default function App() {
   const editor: BlockNoteEditor | null = useBlockNote({});
 
   // Renders the editor instance using a React component.
-
   return <BlockNoteView editor={editor} />;
 }
 ```
