@@ -1,4 +1,4 @@
-import { BaseSlashMenuItem, BlockNoteEditor } from "@blocknote/core";
+import { BaseSlashMenuItem, BlockNoteEditor } from "blocknote-next-core";
 
 export class ReactSlashMenuItem extends BaseSlashMenuItem {
   constructor(

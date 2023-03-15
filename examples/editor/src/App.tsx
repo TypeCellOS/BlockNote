@@ -1,5 +1,5 @@
 // import logo from './logo.svg'
-import "@blocknote/core/style.css";
+import "blocknote-next-core/style.css";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
 import styles from "./App.module.css";
 

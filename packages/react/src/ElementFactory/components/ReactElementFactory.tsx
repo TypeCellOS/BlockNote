@@ -1,6 +1,6 @@
 import { TippyProps } from "@tippyjs/react";
 import { createRoot } from "react-dom/client";
-import { EditorElement, RequiredDynamicParams } from "@blocknote/core";
+import { EditorElement, RequiredDynamicParams } from "blocknote-next-core";
 import { EditorElementComponentWrapper } from "./EditorElementComponentWrapper";
 
 /**

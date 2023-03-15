@@ -3,7 +3,7 @@ import {
   SuggestionsMenuDynamicParams,
   SuggestionsMenuFactory,
   SuggestionsMenuStaticParams,
-} from "@blocknote/core";
+} from "blocknote-next-core";
 import { SlashMenu } from "./components/SlashMenu";
 import { ReactSlashMenuItem } from "./ReactSlashMenuItem";
 import { ReactElementFactory } from "../ElementFactory/components/ReactElementFactory";

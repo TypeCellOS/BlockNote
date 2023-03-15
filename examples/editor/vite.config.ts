@@ -18,7 +18,7 @@ export default defineConfig((conf) => ({
         : {
             // Comment out the lines below to load a built version of blocknote
             // or, keep as is to load live from sources with live reload working
-            "@blocknote/core": path.resolve(
+            "blocknote-next-core": path.resolve(
               __dirname,
               "../../packages/core/src/"
             ),

@@ -15,7 +15,7 @@ type TextCursorPosition = {
   block: Block;
   prevBlock: Block | undefined;
   nextBlock: Block | undefined;
-}
+};
 ```
 
 `block:` The block currently containing the text cursor. If the cursor is in a nested block, this is the block at the deepest possible nesting level.
@@ -51,7 +51,7 @@ You can set the text cursor position to the start or end of an existing block us
 class BlockNoteEditor {
 ...
   public setTextCursorPosition(
-    targetBlock: BlockIdentifier, 
+    targetBlock: BlockIdentifier,
     placement: "start" | "end" = "start"
   ): void;
 ...
@@ -72,9 +72,9 @@ Throws an error if the target block could not be found.
 ::: sandbox {template=react-ts}
 
 ```typescript /App.tsx
-import { BlockNoteEditor } from "@blocknote/core";
+import { BlockNoteEditor } from "blocknote-next-core";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
-import "@blocknote/core/style.css";
+import "blocknote-next-core/style.css";
 
 export default function App() {
   // Creates a new editor instance.
@@ -90,27 +90,27 @@ export default function App() {
           block.id === hoveredBlock.id &&
           block.props.backgroundColor !== "blue"
         ) {
-          // If the block is currently hovered by the text cursor, makes its 
+          // If the block is currently hovered by the text cursor, makes its
           // background blue if it isn't already.
           editor.updateBlock(hoveredBlock, {
-            props: {backgroundColor: "blue"},
+            props: { backgroundColor: "blue" },
           });
         } else if (
           block.id !== hoveredBlock.id &&
           block.props.backgroundColor === "blue"
         ) {
-          // If the block not is currently hovered by the text cursor, resets 
+          // If the block not is currently hovered by the text cursor, resets
           // its background if it's blue.
           editor.updateBlock(block, {
-            props: {backgroundColor: "default"},
+            props: { backgroundColor: "default" },
           });
         }
       });
-    }
-  })
-  
+    },
+  });
+
   // Renders a BlockNote editor.
-  return <BlockNoteView editor={editor}/>;
+  return <BlockNoteView editor={editor} />;
 }
 ```
 

@@ -44,9 +44,9 @@ BlockNote comes with a variety of built-in Slash Menu items, which are used to c
 If you want to change, remove & reorder the default items , you first import and copy them to a new array. From there, you can edit the array how you like, then pass it to `useBlockNote`:
 
 ```typescript
-import { defaultSlashMenuItems } from "@blocknote/core";
+import { defaultSlashMenuItems } from "blocknote-next-core";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
-import "@blocknote/core/style.css";
+import "blocknote-next-core/style.css";
 
 function App() {
   const newSlashMenuItems: ReactSlashMenuItem[] = defaultSlashMenuItems;
@@ -67,18 +67,14 @@ You can also create your own, custom menu items too, as you can see in the examp
 ::: sandbox {template=react-ts}
 
 ```typescript /App.tsx
-import {
-  Block,
-  BlockNoteEditor,
-  PartialBlock
-} from "@blocknote/core";
+import { Block, BlockNoteEditor, PartialBlock } from "blocknote-next-core";
 import {
   BlockNoteView,
   defaultReactSlashMenuItems,
   ReactSlashMenuItem,
-  useBlockNote
+  useBlockNote,
 } from "@blocknote/react";
-import "@blocknote/core/style.css";
+import "blocknote-next-core/style.css";
 import { HiOutlineGlobeAlt } from "react-icons/all";
 
 export default function App() {
@@ -86,35 +82,29 @@ export default function App() {
     const currentBlock: Block = editor.getTextCursorPosition().block;
     const helloWorldBlock: PartialBlock = {
       type: "paragraph",
-      content: [{type: "text", text: "Hello World", styles: {bold: true}}],
+      content: [{ type: "text", text: "Hello World", styles: { bold: true } }],
     };
 
     editor.insertBlocks([helloWorldBlock], currentBlock, "after");
   };
 
-  const insertHelloWorldItem: ReactSlashMenuItem =
-    new ReactSlashMenuItem(
-      "Insert Hello World",
-      insertHelloWorld,
-      ["helloworld", "hw"],
-      "Other",
-      <HiOutlineGlobeAlt size = {18}
-  />,
-  "Used to insert a block with 'Hello World' below."
-)
+  const insertHelloWorldItem: ReactSlashMenuItem = new ReactSlashMenuItem(
+    "Insert Hello World",
+    insertHelloWorld,
+    ["helloworld", "hw"],
+    "Other",
+    <HiOutlineGlobeAlt size={18} />,
+    "Used to insert a block with 'Hello World' below."
+  );
 
   const editor = useBlockNote({
-    slashCommands: [
-      ...defaultReactSlashMenuItems,
-      insertHelloWorldItem
-    ]
+    slashCommands: [...defaultReactSlashMenuItems, insertHelloWorldItem],
   });
 
-  return <BlockNoteView editor = {editor}
-  />;
+  return <BlockNoteView editor={editor} />;
 }
 ```
 
 :::
 
-If you're confused about what's happening inside `execute`, head to [Introduction to Blocks](/docs/blocks), which will guide you through manipulating blocks in the editor using code. When creating your own `ReactSlashMenuItem`s, also make sure you use the class constructor like in the demo. 
+If you're confused about what's happening inside `execute`, head to [Introduction to Blocks](/docs/blocks), which will guide you through manipulating blocks in the editor using code. When creating your own `ReactSlashMenuItem`s, also make sure you use the class constructor like in the demo.

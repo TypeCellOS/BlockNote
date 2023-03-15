@@ -38,9 +38,9 @@ The output is simplified as Markdown does not support all features of BlockNote 
 
 ```typescript /App.tsx
 import { useState } from "react";
-import { BlockNoteEditor } from "@blocknote/core";
+import { BlockNoteEditor } from "blocknote-next-core";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
-import "@blocknote/core/style.css";
+import "blocknote-next-core/style.css";
 
 export default function App() {
   // Stores the editor's contents as Markdown.
@@ -50,16 +50,16 @@ export default function App() {
   const editor = useBlockNote({
     // Listens for when the editor's contents change.
     onEditorContentChange: (editor: BlockNoteEditor) => {
-      // Converts the editor's contents from Block objects to Markdown and 
+      // Converts the editor's contents from Block objects to Markdown and
       // saves them.
       const saveBlocksAsMarkdown = async () => {
         const markdown = await editor.blocksToMarkdown(editor.topLevelBlocks);
         setMarkdown(markdown);
       };
       saveBlocksAsMarkdown();
-    }
+    },
   });
-  
+
   // Renders a BlockNote editor, and its contents as Markdown below.
   return (
     <div>
@@ -98,9 +98,9 @@ Tries to create `Block` and `InlineNode` objects based on Markdown syntax, thoug
 
 ```typescript /App.tsx
 import { useEffect, useState } from "react";
-import { BlockNoteEditor } from "@blocknote/core";
+import { BlockNoteEditor } from "blocknote-next-core";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
-import "@blocknote/core/style.css";
+import "blocknote-next-core/style.css";
 
 export default function App() {
   // Creates a new editor instance.
@@ -109,7 +109,7 @@ export default function App() {
     _tiptapOptions: {
       editable: false,
     },
-  })
+  });
 
   // Stores the current Markdown content.
   const [markdown, setMarkdown] = useState<string>("");
@@ -173,9 +173,9 @@ To better conform to HTML standards, children of blocks which aren't list items 
 
 ```typescript /App.tsx
 import { useState } from "react";
-import { BlockNoteEditor } from "@blocknote/core";
+import { BlockNoteEditor } from "blocknote-next-core";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
-import "@blocknote/core/style.css";
+import "blocknote-next-core/style.css";
 
 export default function App() {
   // Stores the editor's contents as HTML.
@@ -185,14 +185,14 @@ export default function App() {
   const editor = useBlockNote({
     // Listens for when the editor's contents change.
     onEditorContentChange: (editor: BlockNoteEditor) => {
-      // Converts the editor's contents from Block objects to HTML and saves 
+      // Converts the editor's contents from Block objects to HTML and saves
       // them.
       const saveBlocksAsHTML = async () => {
         const html = await editor.blocksToHTML(editor.topLevelBlocks);
         setHTML(html);
       };
       saveBlocksAsHTML();
-    }
+    },
   });
 
   // Renders a BlockNote editor, and its contents as HTML below.
@@ -233,9 +233,9 @@ Tries to create `Block` objects out of any HTML block-level elements, and `Inlin
 
 ```typescript /App.tsx
 import { useEffect, useState } from "react";
-import { BlockNoteEditor } from "@blocknote/core";
+import { BlockNoteEditor } from "blocknote-next-core";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
-import "@blocknote/core/style.css";
+import "blocknote-next-core/style.css";
 
 export default function App() {
   // Creates a new editor instance.
@@ -244,14 +244,14 @@ export default function App() {
     _tiptapOptions: {
       editable: false,
     },
-  })
+  });
 
   // Stores the current HTML content.
   const [html, setHTML] = useState<string>("");
 
   useEffect(() => {
     if (editor) {
-      // Whenever the current HTML content changes, converts it to an array of 
+      // Whenever the current HTML content changes, converts it to an array of
       // Block objects and replaces the editor's content with them.
       const getBlocks = async () => {
         const blocks = await editor.HTMLToBlocks(html);
@@ -261,7 +261,7 @@ export default function App() {
     }
   }, [editor, html]);
 
-  // Renders a text area for you to write/paste HTML in and a BlockNote editor 
+  // Renders a text area for you to write/paste HTML in and a BlockNote editor
   // below, which displays the current HTML as blocks.
   return (
     <div>

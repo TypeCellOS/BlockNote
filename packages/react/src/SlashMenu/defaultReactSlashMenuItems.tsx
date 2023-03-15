@@ -1,5 +1,5 @@
 import { formatKeyboardShortcut } from "../utils";
-import { defaultSlashMenuItems, BaseSlashMenuItem } from "@blocknote/core";
+import { defaultSlashMenuItems, BaseSlashMenuItem } from "blocknote-next-core";
 import { ReactSlashMenuItem } from "./ReactSlashMenuItem";
 import {
   RiH1,

@@ -1,4 +1,4 @@
-import { BlockSideMenuFactory } from "@blocknote/core";
+import { BlockSideMenuFactory } from "blocknote-next-core";
 import { createButton } from "./util";
 
 /**
