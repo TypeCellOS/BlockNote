@@ -72,12 +72,14 @@ function blockPositionFromCoords(
   if (block && block.node.nodeType === 1) {
     // TODO: this uses undocumented PM APIs? do we need this / let's add docs?
     // FIXME: Code causing issues in SSR
-    // const docView = (view as any).docView;
-    // let desc = docView.nearestDesc(block.node, true);
-    // if (!desc || desc === docView) {
-    //   return null;
-    // }
-    // return desc.posBefore;
+    const docView = (view as any).docView;
+    if (docView) {
+      let desc = docView.nearestDesc(block.node, true);
+      if (!desc || desc === docView) {
+        return null;
+      }
+      return desc.posBefore;
+    }
     return null;
   }
   return null;
