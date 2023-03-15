@@ -41,6 +41,7 @@ export type BlockNoteEditorOptions = {
   onEditorReady: (editor: BlockNoteEditor) => void;
   onEditorContentChange: (editor: BlockNoteEditor) => void;
   onTextCursorPositionChange: (editor: BlockNoteEditor) => void;
+  editable: boolean;
 
   // tiptap options, undocumented
   _tiptapOptions: any;
@@ -83,6 +84,7 @@ export class BlockNoteEditor {
       onSelectionUpdate: () => {
         options.onTextCursorPositionChange?.(this);
       },
+      editable: options.editable === undefined ? true : options.editable,
       extensions:
         options.enableBlockNoteExtensions === false
           ? options._tiptapOptions?.extensions

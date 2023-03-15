@@ -106,9 +106,7 @@ export default function App() {
   // Creates a new editor instance.
   const editor: BlockNoteEditor | null = useBlockNote({
     // Makes the editor non-editable.
-    _tiptapOptions: {
-      editable: false,
-    },
+    editable: false
   })
 
   // Stores the current Markdown content.
@@ -241,9 +239,7 @@ export default function App() {
   // Creates a new editor instance.
   const editor: BlockNoteEditor | null = useBlockNote({
     // Makes the editor non-editable.
-    _tiptapOptions: {
-      editable: false,
-    },
+    editable: false
   })
 
   // Stores the current HTML content.

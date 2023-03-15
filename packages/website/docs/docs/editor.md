@@ -4,6 +4,7 @@ There are a number of options that you can pass to `useBlockNote()`, which you c
 
 ```typescript
 export type BlockNoteEditorOptions = {
+  editable: boolean;
   editorDOMAttributes: Record<string, string>;
   onEditorReady: (editor: BlockNoteEditor) => void;
   onEditorContentChange: (editor: BlockNoteEditor) => void;
@@ -12,6 +13,8 @@ export type BlockNoteEditorOptions = {
   uiFactories: UiFactories;
 };
 ```
+
+`editable:` Locks the editor from being editable by the user if set to `false`. [Editor Functions](/docs/blocks#editor-functions) will still work.
 
 `editorDOMAttributes:` An object containing attributes that should be added to the editor's HTML element.
 
