@@ -1,8 +1,10 @@
 export const isAppleOS = () => {
   if (navigator) {
-    /Mac/.test(navigator.platform) ||
+    return (
+      /Mac/.test(navigator.platform) ||
       (/AppleWebKit/.test(navigator.userAgent) &&
-        /Mobile\/\w+/.test(navigator.userAgent));
+        /Mobile\/\w+/.test(navigator.userAgent))
+    );
   } else {
     return false;
   }
