@@ -251,6 +251,22 @@ export class BlockNoteEditor {
   }
 
   /**
+   * Checks if the editor is currently editable, or if it's locked.
+   * @returns True if the editor is editable, false otherwise.
+   */
+  public get isEditable(): boolean {
+    return this._tiptapEditor.isEditable;
+  }
+
+  /**
+   * Makes the editor editable or locks it, depending on the argument passed.
+   * @param editable True to make the editor editable, or false to lock it.
+   */
+  public setEditable(editable: boolean): void {
+    this._tiptapEditor.setEditable(editable);
+  }
+
+  /**
    * Inserts new blocks into the editor. If a block's `id` is undefined, BlockNote generates one automatically. Throws an
    * error if the reference block could not be found.
    * @param blocksToInsert An array of partial blocks that should be inserted.

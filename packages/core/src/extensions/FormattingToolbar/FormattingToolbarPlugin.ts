@@ -50,6 +50,8 @@ export class FormattingToolbarView {
 
   public toolbarIsOpen = false;
 
+  public prevWasEditable: boolean | null = null;
+
   public shouldShow: Exclude<FormattingToolbarPluginProps["shouldShow"], null> =
     ({ view, state, from, to }) => {
       const { doc, selection } = state;
@@ -134,9 +136,15 @@ export class FormattingToolbarView {
     const isSame =
       oldState && oldState.doc.eq(doc) && oldState.selection.eq(selection);
 
-    if (composing || isSame) {
+    if (
+      (this.prevWasEditable === null ||
+        this.prevWasEditable === this.editor.isEditable) &&
+      (composing || isSame)
+    ) {
       return;
     }
+
+    this.prevWasEditable = this.editor.isEditable;
 
     // support for CellSelections
     const { ranges } = selection;
@@ -154,6 +162,7 @@ export class FormattingToolbarView {
 
     // Checks if menu should be shown.
     if (
+      this.editor.isEditable &&
       !this.toolbarIsOpen &&
       !this.preventShow &&
       (shouldShow || this.preventHide)
@@ -184,7 +193,7 @@ export class FormattingToolbarView {
     if (
       this.toolbarIsOpen &&
       !this.preventHide &&
-      (!shouldShow || this.preventShow)
+      (!shouldShow || this.preventShow || !this.editor.isEditable)
     ) {
       this.formattingToolbar.hide();
       this.toolbarIsOpen = false;
