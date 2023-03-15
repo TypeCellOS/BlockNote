@@ -1,4 +1,8 @@
 export const isAppleOS = () => {
+  // FIXME: Code causing issues in SSR
+  // /Mac/.test(navigator.platform) ||
+  //   (/AppleWebKit/.test(navigator.userAgent) &&
+  //     /Mobile\/\w+/.test(navigator.userAgent));
   return false;
 };
 
