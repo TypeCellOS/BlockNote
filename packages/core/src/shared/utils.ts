@@ -1,7 +1,7 @@
-export const isAppleOS = () =>
-  /Mac/.test(navigator.platform) ||
-  (/AppleWebKit/.test(navigator.userAgent) &&
-    /Mobile\/\w+/.test(navigator.userAgent));
+export const isAppleOS = () => false;
+// /Mac/.test(navigator.platform) ||
+// (/AppleWebKit/.test(navigator.userAgent) &&
+//   /Mobile\/\w+/.test(navigator.userAgent));
 
 export function formatKeyboardShortcut(shortcut: string) {
   if (isAppleOS()) {
