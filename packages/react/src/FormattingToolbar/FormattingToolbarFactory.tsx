@@ -3,7 +3,7 @@ import {
   FormattingToolbarFactory,
   FormattingToolbarStaticParams,
   FormattingToolbarDynamicParams,
-} from "@blocknote/core";
+} from "blocknote-next-core";
 import { FormattingToolbar as ReactFormattingToolbar } from "./components/FormattingToolbar";
 import { ReactElementFactory } from "../ElementFactory/components/ReactElementFactory";
 

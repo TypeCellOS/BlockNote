@@ -1,4 +1,4 @@
-import { BlockNoteEditor } from "@blocknote/core";
+import { BlockNoteEditor } from "blocknote-next-core";
 import "./index.css";
 import { blockSideMenuFactory } from "./ui/blockSideMenuFactory";
 import { formattingToolbarFactory } from "./ui/formattingToolbarFactory";

@@ -14,7 +14,7 @@
       }"
       :custom-setup="{
         ...props, // do not forget it
-        deps: { '@blocknote/react': 'latest' },
+        deps: { 'blocknote-next-react': 'latest' },
       }"
       :code-options="codeOptions"
     >

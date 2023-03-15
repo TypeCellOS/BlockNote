@@ -1,4 +1,4 @@
-import { HyperlinkToolbarFactory } from "@blocknote/core";
+import { HyperlinkToolbarFactory } from "blocknote-next-core";
 import { createButton } from "./util";
 
 /**

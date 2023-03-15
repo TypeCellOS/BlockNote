@@ -17,7 +17,7 @@ import {
   RiText,
   RiUnderline,
 } from "react-icons/ri";
-import { Block, PartialBlock } from "@blocknote/core";
+import { Block, PartialBlock } from "blocknote-next-core";
 import { Toolbar } from "../../SharedComponents/Toolbar/components/Toolbar";
 import { ToolbarButton } from "../../SharedComponents/Toolbar/components/ToolbarButton";
 import { ToolbarDropdown } from "../../SharedComponents/Toolbar/components/ToolbarDropdown";

@@ -1,4 +1,4 @@
-import { BlockNoteEditor, BlockNoteEditorOptions } from "@blocknote/core";
+import { BlockNoteEditor, BlockNoteEditorOptions } from "blocknote-next-core";
 import { DependencyList, useEffect, useState } from "react";
 import { ReactBlockSideMenuFactory } from "../BlockSideMenu/BlockSideMenuFactory";
 import { ReactFormattingToolbarFactory } from "../FormattingToolbar/FormattingToolbarFactory";

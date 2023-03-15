@@ -12,7 +12,7 @@
   "author": "",
   "license": "MPL-2.0",
   "dependencies": {
-    "@blocknote/react": "^0.4.6",
+    "blocknote-next-react": "^0.4.10",
     "veaury": "^2.3.12",
     "vue-github-button": "^3.1.0"
   },
