@@ -150,7 +150,7 @@ export default defineConfig({
     // },
     algolia: getAlgoliaConfig(process.env),
     socialLinks: [
-      { icon: "github", link: "https://github.com/TypeCellOS/BlockNote" },
+      { icon: "github", link: "https://github.com/yousefed/blocknote" },
       // { icon: "twitter", link: "https://twitter.com/TypeCellOS" },
       {
         icon: "discord",
