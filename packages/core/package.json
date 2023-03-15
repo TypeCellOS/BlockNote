@@ -1,6 +1,6 @@
 {
-  "name": "@blocknote/core",
-  "homepage": "https://github.com/yousefed/blocknote",
+  "name": "blocknote-next-core",
+  "homepage": "https://github.com/ishan-flek-ai/BlockNote",
   "private": false,
   "license": "MPL-2.0",
   "version": "0.4.6",
