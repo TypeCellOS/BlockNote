@@ -3,7 +3,7 @@
   "homepage": "https://github.com/yousefed/blocknote",
   "private": false,
   "license": "MPL-2.0",
-  "version": "0.4.6-alpha.1",
+  "version": "0.4.6-alpha.3",
   "files": [
     "dist",
     "types",
@@ -46,7 +46,7 @@
     "lint": "eslint src --max-warnings 0"
   },
   "dependencies": {
-    "@blocknote/core": "^0.4.6-alpha.1",
+    "@blocknote/core": "^0.4.6-alpha.3",
     "@emotion/react": "^11.10.5",
     "@mantine/core": "^5.6.1",
     "@mantine/hooks": "^5.6.1",
