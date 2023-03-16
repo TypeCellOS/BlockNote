@@ -53,4 +53,4 @@ const editor = new BlockNoteEditor({
 
 ## Example
 
-For an example of a how to set up your custom UI factories, see the [Vanilla JS example](https://github.com/YousefED/BlockNote/blob/main/examples/vanilla/) in the repository.
+For an example of a how to set up your custom UI factories, see the [Vanilla JS example](https://github.com/TypeCellOS/BlockNote/blob/main/examples/vanilla/) in the repository.
