@@ -72,7 +72,7 @@ Throws an error if the target block could not be found.
 ::: sandbox {template=react-ts}
 
 ```typescript /App.tsx
-import { BlockNoteEditor } from "@blocknote/core";
+import { BlockNoteEditor, Block } from "@blocknote/core";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
 import "@blocknote/core/style.css";
 
@@ -80,12 +80,12 @@ export default function App() {
   // Creates a new editor instance.
   const editor: BlockNoteEditor | null = useBlockNote({
     // Listens for when the text cursor position changes.
-    onTextCursorPositionChange: (editor) => {
+    onTextCursorPositionChange: (editor: BlockNoteEditor) => {
       // Gets the block currently hovered by the text cursor.
-      const hoveredBlock = editor.getTextCursorPosition().block;
+      const hoveredBlock: Block = editor.getTextCursorPosition().block;
 
       // Traverses all blocks.
-      editor.forEachBlock((block) => {
+      editor.forEachBlock((block: Block) => {
         if (
           block.id === hoveredBlock.id &&
           block.props.backgroundColor !== "blue"
@@ -99,7 +99,7 @@ export default function App() {
           block.id !== hoveredBlock.id &&
           block.props.backgroundColor === "blue"
         ) {
-          // If the block not is currently hovered by the text cursor, resets 
+          // If the block is not currently hovered by the text cursor, resets 
           // its background if it's blue.
           editor.updateBlock(block, {
             props: {backgroundColor: "default"},
@@ -109,7 +109,7 @@ export default function App() {
     }
   })
   
-  // Renders a BlockNote editor.
+  // Renders the editor instance.
   return <BlockNoteView editor={editor}/>;
 }
 ```
