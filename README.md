@@ -14,7 +14,7 @@ rich text editor. Easily add a modern text editing experience to your app.
 </p>
 
 <p align="center">
-  <a href="https://www.typecell.org">
+  <a href="https://www.blocknotejs.org">
     Homepage
   </a> - <a href="https://www.blocknotejs.org/docs/introduction">
     Introduction
