@@ -1,6 +1,6 @@
 # Quickstart
 
-<div><a href="https://www.npmjs.com/package/@blocknote/core"><img style="display: inline" alt="NPM" src="https://img.shields.io/npm/v/@blocknote/react"></a> <a href="https://github.com/yousefed/blocknote"><img style="display: inline" alt="GitHub Repo stars" src="https://img.shields.io/github/stars/yousefed/blocknote?style=social"></a></div>
+<div><a href="https://www.npmjs.com/package/@blocknote/core"><img style="display: inline" alt="NPM" src="https://img.shields.io/npm/v/@blocknote/react"></a> <a href="https://github.com/TypeCellOS/BlockNote"><img style="display: inline" alt="GitHub Repo stars" src="https://img.shields.io/github/stars/TypeCellOS/BlockNote?style=social"></a></div>
 
 Getting started with BlockNote is quick and easy. All you need to do is install the package and add the React component to your app!
 

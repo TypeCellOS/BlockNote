@@ -1,10 +1,27 @@
-# BlockNote
+<p align="center">
+  <a href="https://www.blocknotejs.org">
+    <img alt="TypeCell" src="https://github.com/TypeCellOS/BlockNote/raw/main/packages/website/docs/public/img/logos/banner.svg?raw=true" width="300" />
+  </a>
+</p>
 
+<p align="center">
+Welcome to BlockNote! The open source Block-Based
+rich text editor. Easily add a modern text editing experience to your app.
+</p>
+
+<p align="center">
 <a href="https://discord.gg/Qc2QTTH5dF"><img alt="Discord" src="https://img.shields.io/badge/Chat on discord%20-%237289DA.svg?&style=for-the-badge&logo=discord&logoColor=white"/></a> <a href="https://matrix.to/#/#typecell-space:matrix.org"><img alt="Matrix" src="https://img.shields.io/badge/Chat on matrix%20-%23000.svg?&style=for-the-badge&logo=matrix&logoColor=white"/></a>
+</p>
 
-[![npm version](https://badge.fury.io/js/%40blocknote%2Freact.svg)](https://badge.fury.io/js/%40blocknote%2Freact)
-
-**Welcome to BlockNote editor: a "Notion-style" block-based extensible text editor built on top of [Prosemirror](https://prosemirror.net/) and [Tiptap](https://tiptap.dev/).**
+<p align="center">
+  <a href="https://www.blocknotejs.org">
+    Homepage
+  </a> - <a href="https://www.blocknotejs.org/docs/introduction">
+    Introduction
+  </a> - <a href="https://www.blocknotejs.org/docs/quickstart">
+    Documentation
+  </a>
+</p>
 
 # Live demo
 
@@ -14,13 +31,15 @@ Play with the editor @ [https://blocknote-main.vercel.app/](https://blocknote-ma
 
 # Example code (React)
 
+[![npm version](https://badge.fury.io/js/%40blocknote%2Freact.svg)](https://badge.fury.io/js/%40blocknote%2Freact)
+
 ```typescript
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
 import "@blocknote/core/style.css";
 
 function App() {
   const editor = useBlockNote({
-    onUpdate: ({ editor }) => {
+    onEditorContentChange: (editor) => {
       // Log the document to console on every update
       console.log(editor.getJSON());
     },
@@ -32,7 +51,7 @@ function App() {
 
 `@blocknote/react` comes with a fully styled UI that makes it an instant, polished editor ready to use in your app.
 
-If you prefer to create your own UI components (menus), or don't want to use React, you can use `@blocknote/core` (_advanced_, see `examples/vanilla` for a demo).
+If you prefer to create your own UI components (menus), or don't want to use React, you can use `@blocknote/core` (_advanced_, [see docs](https://www.blocknotejs.org/docs/vanilla-js)).
 
 # Features
 
@@ -40,33 +59,39 @@ BlockNote comes with a number of features and components to make it easy to embe
 
 ### Animations:
 
-<img src="https://github.com/YousefED/BlockNote/blob/readme/.resources/animations.gif?raw=true" width="400" />
+<img src="https://github.com/TypeCellOS/BlockNote/blob/readme/.resources/animations.gif?raw=true" width="400" />
 
 ### Helpful placeholders:
 
-<img src="https://github.com/YousefED/BlockNote/blob/readme/.resources/placeholders.gif?raw=true" width="400" />
+<img src="https://github.com/TypeCellOS/BlockNote/blob/readme/.resources/placeholders.gif?raw=true" width="400" />
 
 ### Drag and drop blocks:
 
-<img src="https://github.com/YousefED/BlockNote/blob/readme/.resources/dragdrop.gif?raw=true" width="400" />
+<img src="https://github.com/TypeCellOS/BlockNote/blob/readme/.resources/dragdrop.gif?raw=true" width="400" />
 
 ### Nesting / indentation with tab and shift+tab:
 
-<img src="https://github.com/YousefED/BlockNote/blob/readme/.resources/nesting.gif?raw=true" width="400" />
+<img src="https://github.com/TypeCellOS/BlockNote/blob/readme/.resources/nesting.gif?raw=true" width="400" />
 
 ### Slash (/) menu:
 
-<img src="https://github.com/YousefED/BlockNote/blob/readme/.resources/slashmenu.gif?raw=true" width="400" />
+<img src="https://github.com/TypeCellOS/BlockNote/blob/readme/.resources/slashmenu.gif?raw=true" width="400" />
 
 ### Format menu:
 
-<img src="https://github.com/YousefED/BlockNote/blob/readme/.resources/selectmenu.gif?raw=true" width="400" />
+<img src="https://github.com/TypeCellOS/BlockNote/blob/readme/.resources/selectmenu.gif?raw=true" width="400" />
 
 ### Real-time collaboration:
 
-<img src="https://github.com/YousefED/BlockNote/blob/readme/.resources/collaboration.gif?raw=true" width="400" />
+<img src="https://github.com/TypeCellOS/BlockNote/blob/readme/.resources/collaboration.gif?raw=true" width="400" />
 
-# Contributing
+# Feedback 🙋‍♂️🙋‍♀️
+
+We'd love to hear your thoughts and see your experiments, so [come and say hi on Discord](https://discord.gg/Qc2QTTH5dF) or [Matrix](https://matrix.to/#/#typecell-space:matrix.org).
+
+# Contributing 🙌
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for more info and guidance on how to run the project (TLDR: just use `npm start`).
 
 Directory structure:
 
@@ -79,24 +104,7 @@ blocknote
 └── tests               - Playwright end to end tests
 ```
 
-An introduction into the BlockNote Prosemirror schema can be found in [packages/core/ARCHITECTURE.md](https://github.com/YousefED/BlockNote/blob/main/packages/core/ARCHITECTURE.md).
-
-## Running
-
-To run the project, open the command line in the project's root directory and enter the following commands:
-
-    # Install all required npm modules for lerna, and bootstrap lerna packages
-    npm install
-    npm run bootstrap
-
-    # Start the example project
-    npm start
-
-## Adding packages
-
-- Add the dependency to the relevant `package.json` file (packages/xxx/package.json)
-- run `npm run install-new-packages`
-- Double check `package-lock.json` to make sure only the relevant packages have been affected
+The codebase is automatically tested using Vitest and Playwright.
 
 # Credits ❤️
 
