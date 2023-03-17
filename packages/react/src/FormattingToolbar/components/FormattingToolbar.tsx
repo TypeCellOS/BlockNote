@@ -1,3 +1,4 @@
+import { Block, PartialBlock } from "@blocknote/core";
 import { Menu } from "@mantine/core";
 import {
   RiAlignCenter,
@@ -17,14 +18,13 @@ import {
   RiText,
   RiUnderline,
 } from "react-icons/ri";
-import { Block, PartialBlock } from "@blocknote/core";
+import { ColorIcon } from "../../SharedComponents/ColorPicker/components/ColorIcon";
+import { ColorPicker } from "../../SharedComponents/ColorPicker/components/ColorPicker";
 import { Toolbar } from "../../SharedComponents/Toolbar/components/Toolbar";
 import { ToolbarButton } from "../../SharedComponents/Toolbar/components/ToolbarButton";
 import { ToolbarDropdown } from "../../SharedComponents/Toolbar/components/ToolbarDropdown";
 import { formatKeyboardShortcut } from "../../utils";
 import LinkToolbarButton from "./LinkToolbarButton";
-import { ColorPicker } from "../../SharedComponents/ColorPicker/components/ColorPicker";
-import { ColorIcon } from "../../SharedComponents/ColorPicker/components/ColorIcon";
 
 export type FormattingToolbarProps = {
   boldIsActive: boolean;
@@ -60,70 +60,9 @@ export type FormattingToolbarProps = {
 
 // TODO: add list options, indentation
 export const FormattingToolbar = (props: FormattingToolbarProps) => {
-  const getActiveMarks = () => {
-    const activeMarks = new Set<string>();
-
-    props.boldIsActive && activeMarks.add("bold");
-    props.italicIsActive && activeMarks.add("italic");
-    props.underlineIsActive && activeMarks.add("underline");
-    props.strikeIsActive && activeMarks.add("strike");
-    props.hyperlinkIsActive && activeMarks.add("link");
-
-    return activeMarks;
-  };
-
-  const getActiveBlock = () => {
-    if (props.block.type === "heading") {
-      if (props.block.props.level === "1") {
-        return {
-          text: "Heading 1",
-          icon: RiH1,
-        };
-      }
-
-      if (props.block.props.level === "2") {
-        return {
-          text: "Heading 2",
-          icon: RiH2,
-        };
-      }
-
-      if (props.block.props.level === "3") {
-        return {
-          text: "Heading 3",
-          icon: RiH3,
-        };
-      }
-    }
-
-    if (props.block.type === "bulletListItem") {
-      return {
-        text: "Bullet List",
-        icon: RiListUnordered,
-      };
-    }
-
-    if (props.block.type === "numberedListItem") {
-      return {
-        text: "Numbered List",
-        icon: RiListOrdered,
-      };
-    }
-
-    return {
-      text: "Paragraph",
-      icon: RiText,
-    };
-  };
-
-  const activeMarks = getActiveMarks();
-  const activeBlock = getActiveBlock();
-
   return (
     <Toolbar>
       <ToolbarDropdown
-        text={activeBlock!.text}
-        icon={activeBlock!.icon}
         items={[
           {
             onClick: () =>
@@ -192,28 +131,28 @@ export const FormattingToolbar = (props: FormattingToolbarProps) => {
       />
       <ToolbarButton
         onClick={props.toggleBold}
-        isSelected={activeMarks.has("bold")}
+        isSelected={props.boldIsActive}
         mainTooltip="Bold"
         secondaryTooltip={formatKeyboardShortcut("Mod+B")}
         icon={RiBold}
       />
       <ToolbarButton
         onClick={props.toggleItalic}
-        isSelected={activeMarks.has("italic")}
+        isSelected={props.italicIsActive}
         mainTooltip="Italic"
         secondaryTooltip={formatKeyboardShortcut("Mod+I")}
         icon={RiItalic}
       />
       <ToolbarButton
         onClick={props.toggleUnderline}
-        isSelected={activeMarks.has("underline")}
+        isSelected={props.underlineIsActive}
         mainTooltip="Underline"
         secondaryTooltip={formatKeyboardShortcut("Mod+U")}
         icon={RiUnderline}
       />
       <ToolbarButton
         onClick={props.toggleStrike}
-        isSelected={activeMarks.has("strike")}
+        isSelected={props.strikeIsActive}
         mainTooltip="Strikethrough"
         secondaryTooltip={formatKeyboardShortcut("Mod+Shift+X")}
         icon={RiStrikethrough}
@@ -280,7 +219,7 @@ export const FormattingToolbar = (props: FormattingToolbarProps) => {
       />
 
       <LinkToolbarButton
-        isSelected={activeMarks.has("link")}
+        isSelected={props.hyperlinkIsActive}
         mainTooltip="Link"
         secondaryTooltip={formatKeyboardShortcut("Mod+K")}
         icon={RiLink}
@@ -289,14 +228,6 @@ export const FormattingToolbar = (props: FormattingToolbarProps) => {
         activeHyperlinkText={props.activeHyperlinkText}
         setHyperlink={props.setHyperlink}
       />
-      {/* <SimpleBubbleMenuButton
-          editor={props.editor}
-          onClick={() => {
-            const comment = this.props.commentStore.createComment();
-            props.editor.chain().focus().setComment(comment.id).run();
-          }}
-          styleDetails={comment}
-        /> */}
     </Toolbar>
   );
 };
