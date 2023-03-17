@@ -1,6 +1,6 @@
-import { AiOutlinePlus, MdDragIndicator } from "react-icons/all";
 import { ActionIcon, createStyles, Group, Menu } from "@mantine/core";
 import { useEffect, useRef, useState } from "react";
+import { AiOutlinePlus, MdDragIndicator } from "react-icons/all";
 import { ColorPickerMenu } from "./ColorPickerMenu";
 
 export type BlockSideMenuProps = {
@@ -71,7 +71,6 @@ export const BlockSideMenu = (props: BlockSideMenuProps) => {
         </Menu.Target>
         <Menu.Dropdown className={classes.root}>
           <Menu.Item
-            component={"div"}
             onClick={() => {
               setDragHandleMenuOpened(false);
               props.unfreezeMenu();
@@ -84,8 +83,9 @@ export const BlockSideMenu = (props: BlockSideMenuProps) => {
               setDragHandleMenuOpened(false);
               props.unfreezeMenu();
             }}
-            {...props}
-          />
+            {...props}>
+            Colors
+          </ColorPickerMenu>
         </Menu.Dropdown>
       </Menu>
     </Group>
