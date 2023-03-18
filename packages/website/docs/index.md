@@ -24,7 +24,7 @@ hero:
   #     link: /docs
   #   - theme: alt
   #     text: View on GitHub
-  #     link: https://github.com/yousefed/blocknote
+  #     link: https://github.com/TypeCellOS/BlockNote
 ---
 
 <script setup lang="ts">

@@ -11,7 +11,7 @@ export const ParagraphBlockContent = Node.create({
       {
         tag: "p",
         priority: 200,
-        node: "blockContainer",
+        node: "paragraph",
       },
     ];
   },

@@ -38,6 +38,12 @@ function getDraggableBlockFromCoords(
   coords: { left: number; top: number },
   view: EditorView
 ) {
+  if (!view.dom.isConnected) {
+    // view is not connected to the DOM, this can cause posAtCoords to fail
+    // (Cannot read properties of null (reading 'nearestDesc'), https://github.com/TypeCellOS/BlockNote/issues/123)
+    return undefined;
+  }
+
   let pos = view.posAtCoords(coords);
   if (!pos) {
     return undefined;

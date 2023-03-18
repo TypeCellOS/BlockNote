@@ -1,6 +1,6 @@
 # Introduction to BlockNote
 
-<div><a href="https://www.npmjs.com/package/@blocknote/core"><img style="display: inline" alt="NPM" src="https://img.shields.io/npm/v/@blocknote/react"></a> <a href="https://github.com/yousefed/blocknote"><img style="display: inline" alt="GitHub Repo stars" src="https://img.shields.io/github/stars/yousefed/blocknote?style=social"></a></div>
+<div><a href="https://www.npmjs.com/package/@blocknote/core"><img style="display: inline" alt="NPM" src="https://img.shields.io/npm/v/@blocknote/react"></a> <a href="https://github.com/TypeCellOS/BlockNote"><img style="display: inline" alt="GitHub Repo stars" src="https://img.shields.io/github/stars/TypeCellOS/BlockNote?style=social"></a></div>
 
 BlockNote is a block-based rich-text editor for [React](https://reactjs.org/), focused on providing a great out-of-the-box experience with minimal setup.
 
@@ -24,7 +24,7 @@ On top of that, it comes with a modern block-based design. This gives documents 
 
 ## Community
 
-BlockNote is currently in early beta. We'd love your feedback! If you have questions, need help, or want to contribute reach out to the community on [Discord](https://discord.gg/Qc2QTTH5dF) and [GitHub](https://github.com/yousefed/blocknote).
+BlockNote is currently in early beta. We'd love your feedback! If you have questions, need help, or want to contribute reach out to the community on [Discord](https://discord.gg/Qc2QTTH5dF) and [GitHub](https://github.com/TypeCellOS/BlockNote).
 
 ## Next: Set up BlockNote
 
