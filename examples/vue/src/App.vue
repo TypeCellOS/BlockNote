@@ -35,7 +35,7 @@ onMounted(async () => {
       blockSideMenuFactory,
     },
     onEditorContentChange: () => {
-      console.log(editor.topLevelBlocks)
+      // console.log(editor.topLevelBlocks)
     },
     editorDOMAttributes: {
       class: "editor",
