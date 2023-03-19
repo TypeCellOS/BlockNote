@@ -1,32 +1,52 @@
-import type { BlockSideMenuFactory } from "@blocknote/core"
-import { createApp } from 'vue'
+import type { BlockSideMenuFactory, BlockSideMenuStaticParams } from "@blocknote/core"
+import type { App, Slots, VNodeProps } from 'vue'
+import { mount } from '../mount'
 
 import BlockSideMenu from '@/components/BlockSideMenu.vue'
-
+// console.log(BlockSideMenu)
 /**
  * This menu is drawn next to a block, when it's hovered over
  * It renders a drag handle and + button to create a new block
  */
-export const blockSideMenuFactory: BlockSideMenuFactory = (staticParams) => {
+export function blockSideMenuFactory(app: App, slots: Slots) {
 
-  const container = document.createElement("div")
-  const instance = createApp(BlockSideMenu, {
-    staticParams
-  }).mount(container)
-  document.body.appendChild(instance.$el)
+  const blockSideMenuFactory: BlockSideMenuFactory = (staticParams: BlockSideMenuStaticParams) => {
 
-  return {
-    element: instance.$el,
-    render: (params, isHidden) => {
-      if (isHidden) {
-        instance.$el.style.display = "block"
+    // Mount component
+    // https://github.com/pearofducks/mount-vue-component/blob/master/index.js
+    const children = slots
+    const { vNode, destroy, el } = mount(BlockSideMenu, {
+      app,
+      children,
+      props: {
+        staticParams
       }
+    })
+    el.classList.add('block-side-menu')
+    document.body.appendChild(el)
 
-      instance.$el.style.top = params.referenceRect.y + "px"
-      instance.$el.style.left = params.referenceRect.x - instance.$el.offsetWidth + "px"
-    },
-    hide: () => {
-      instance.$el.style.display = "none"
-    },
+    // Mount component as a new instance
+    // const container = document.createElement("div")
+    // const instance = createApp(BlockSideMenu, {
+    //   staticParams
+    // }).mount(container)
+    // document.body.appendChild(el)
+
+    return {
+      element: el,
+      render: (params, isHidden) => {
+        if (isHidden) {
+          el.style.display = "block"
+        }
+
+        el.style.top = params.referenceRect.y + "px"
+        el.style.left = params.referenceRect.x - el.offsetWidth + "px"
+      },
+      hide: () => {
+        el.style.display = "none"
+      },
+    }
   }
+
+  return blockSideMenuFactory
 }

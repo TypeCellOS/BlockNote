@@ -16,10 +16,15 @@ Donec posuere vulputate arcu.
 const content = ref(md)
 
 watch(content, (val) => {
+  // Reactive markdown with tiptap. Thanks Blocknote :)
   console.log(val)
 })
 </script>
 
 <template>
-  <BlockNoteView v-model="content" />
+  <BlockNoteView v-model="content">
+    <template #blockSideMenuAddBlock>
+      <div>Slot !!!</div>
+    </template>
+  </BlockNoteView>
 </template>
