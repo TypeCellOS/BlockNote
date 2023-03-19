@@ -4,7 +4,7 @@ import { onMounted, ref, useSlots, getCurrentInstance } from "vue"
 import { BlockNoteEditor } from "@blocknote/core"
 import type { BlockNoteEditorOptions } from "@blocknote/core"
 import { EditorContent } from "@tiptap/vue-3"
-import { blockSideMenuFactory } from "@/ui/blockSideMenuFactory"
+import { blockSideMenuFactory } from "@/BlockSideMenu/blockSideMenuFactory"
 
 const props = defineProps<{
   modelValue: string

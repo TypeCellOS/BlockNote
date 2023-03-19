@@ -3,7 +3,7 @@ const props = defineProps<{
   staticParams?: any
 }>()
 
-function addBlock(event: MouseEvent) {
+function addBlock() {
   props.staticParams.addBlock()
 }
 function onDragStart(event: DragEvent) {

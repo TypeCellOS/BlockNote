@@ -2,7 +2,7 @@ import type { BlockSideMenuFactory, BlockSideMenuStaticParams } from "@blocknote
 import type { ComponentInternalInstance, Slots, VNodeProps } from 'vue'
 import { mount } from '../mount'
 
-import BlockSideMenu from '@/components/BlockSideMenu.vue'
+import BlockSideMenu from './BlockSideMenu.vue'
 
 /**
  * This menu is drawn next to a block, when it's hovered over
