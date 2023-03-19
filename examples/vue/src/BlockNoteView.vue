@@ -1,9 +1,10 @@
 <script lang="ts" setup>
 import type { ComponentInternalInstance } from "vue"
 import { onMounted, ref, useSlots, getCurrentInstance } from "vue"
-import { BlockNoteEditor } from "@blocknote/core"
+import { BlockNoteEditor, defaultSlashMenuItems } from "@blocknote/core"
 import type { BlockNoteEditorOptions } from "@blocknote/core"
 import { EditorContent } from "@tiptap/vue-3"
+import { slashMenuFactory } from "@/SlashMenu/slashMenuFactory"
 import { blockSideMenuFactory } from "@/BlockSideMenu/blockSideMenuFactory"
 
 const props = defineProps<{
@@ -26,13 +27,14 @@ onMounted(async () => {
 
   const editor = new BlockNoteEditor({
     parentElement: document.getElementById("app")!,
+    slashCommands: defaultSlashMenuItems,
     uiFactories: {
       // Create an example formatting toolbar which just consists of a bold toggle
       // formattingToolbarFactory,
       // // Create an example menu for hyperlinks
       // hyperlinkToolbarFactory,
-      // // Create an example menu for the /-menu
-      // slashMenuFactory: slashMenuFactory,
+      // Create an example menu for the /-menu
+      slashMenuFactory: slashMenuFactory(component),
       // // Create an example menu for when a block is hovered
       blockSideMenuFactory: blockSideMenuFactory(component),
     },
@@ -46,7 +48,10 @@ onMounted(async () => {
       content
     }
   })
+
+  // console.log(editor)
 })
+
 </script>
 
 <template>

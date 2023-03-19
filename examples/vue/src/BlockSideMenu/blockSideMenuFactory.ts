@@ -16,7 +16,7 @@ export function blockSideMenuFactory(component: ComponentInternalInstance) {
     // https://github.com/pearofducks/mount-vue-component/blob/master/index.js
     const { el } = mount(BlockSideMenu, {
       app: component.appContext.app,
-      children: component.slots,
+      children: component.slots, // Pass all slots or filter for SideMenu ?
       props: {
         staticParams
       }
