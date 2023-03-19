@@ -24,7 +24,11 @@ watch(content, (val) => {
 <template>
   <BlockNoteView v-model="content">
     <!-- <template #blockSideMenuAddBlock="{ staticParams }">
-      <button @click="staticParams.addBlock()">+</button>
-    </template> -->
+                      <button @click="staticParams.addBlock()">+</button>
+                    </template> -->
+
+    <template #slashMenuItem-Heading="{ menu, selected, onClick }">
+      <button @click="onClick()" :style="selected && 'font-weight: bold;'">{{ menu.name }}</button>
+    </template>
   </BlockNoteView>
 </template>

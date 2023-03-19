@@ -4,13 +4,12 @@ import type { SlashMenuProps } from './slashMenuFactory'
 const props = defineProps<{
   staticParams: SlashMenuProps
 }>()
-console.log(props.staticParams)
 </script>
 
 <template>
-  <div>
-    menu
-  </div>
+  <slot name="slashMenu">
+    <div></div>
+  </slot>
 </template>
 
 <style style="postcss">
