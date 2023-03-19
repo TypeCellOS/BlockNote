@@ -1,23 +1,22 @@
 import type { BlockSideMenuFactory, BlockSideMenuStaticParams } from "@blocknote/core"
-import type { App, Slots, VNodeProps } from 'vue'
+import type { ComponentInternalInstance, Slots, VNodeProps } from 'vue'
 import { mount } from '../mount'
 
 import BlockSideMenu from '@/components/BlockSideMenu.vue'
-// console.log(BlockSideMenu)
+
 /**
  * This menu is drawn next to a block, when it's hovered over
  * It renders a drag handle and + button to create a new block
  */
-export function blockSideMenuFactory(app: App, slots: Slots) {
+export function blockSideMenuFactory(component: ComponentInternalInstance) {
 
   const blockSideMenuFactory: BlockSideMenuFactory = (staticParams: BlockSideMenuStaticParams) => {
 
     // Mount component
     // https://github.com/pearofducks/mount-vue-component/blob/master/index.js
-    const children = slots
-    const { vNode, destroy, el } = mount(BlockSideMenu, {
-      app,
-      children,
+    const { el } = mount(BlockSideMenu, {
+      app: component.appContext.app,
+      children: component.slots,
       props: {
         staticParams
       }

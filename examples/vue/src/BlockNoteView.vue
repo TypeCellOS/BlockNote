@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { App } from "vue"
+import type { ComponentInternalInstance } from "vue"
 import { onMounted, ref, useSlots, getCurrentInstance } from "vue"
 import { BlockNoteEditor } from "@blocknote/core"
 import type { BlockNoteEditorOptions } from "@blocknote/core"
@@ -15,9 +15,8 @@ const emit = defineEmits<{
   (event: 'update:modelValue', payload: string): void
 }>()
 
-const slots = useSlots()
+const component: ComponentInternalInstance = getCurrentInstance()!
 
-const app: App | any = getCurrentInstance()
 const editor = ref()
 onMounted(async () => {
   // Convert md to html
@@ -35,7 +34,7 @@ onMounted(async () => {
       // // Create an example menu for the /-menu
       // slashMenuFactory: slashMenuFactory,
       // // Create an example menu for when a block is hovered
-      blockSideMenuFactory: blockSideMenuFactory(app, slots),
+      blockSideMenuFactory: blockSideMenuFactory(component),
     },
     async onEditorContentChange() {
       emit('update:modelValue', await Editor.blocksToMarkdown(editor.topLevelBlocks))

@@ -3,7 +3,7 @@ import { createVNode, render } from 'vue'
 
 interface Mount {
   props: any
-  children: unknown
+  children?: unknown
   element?: HTMLElement
   app: App
 }

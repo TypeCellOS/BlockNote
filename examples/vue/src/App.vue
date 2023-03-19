@@ -23,8 +23,8 @@ watch(content, (val) => {
 
 <template>
   <BlockNoteView v-model="content">
-    <template #blockSideMenuAddBlock>
-      <div>Slot !!!</div>
-    </template>
+    <!-- <template #blockSideMenuAddBlock="{ staticParams }">
+      <button @click="staticParams.addBlock()">+</button>
+    </template> -->
   </BlockNoteView>
 </template>
