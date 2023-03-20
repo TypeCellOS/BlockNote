@@ -1,5 +1,11 @@
 import type { Component, App, VNode } from 'vue'
-import { createVNode, render } from 'vue'
+import { cloneVNode, createVNode, hydrate, render } from 'vue'
+
+/**
+ * Inspiration from https://github.com/pearofducks/mount-vue-component/blob/master/index.js
+ * And official `mount` Vue3 https://github.com/vuejs/core/blob/650f5c26f464505d9e865bdb0eafb24350859528/packages/runtime-core/src/apiCreateApp.ts#L294 
+ */
+
 
 interface Mount {
   props: any
@@ -8,20 +14,36 @@ interface Mount {
   app: App
 }
 
-export function mount(component: Component, { props, children, element, app }: Mount): {
-  vNode: VNode, destroy: () => void, el: HTMLElement
-} {
-  let el = element
+const __DEV__ = process.env.NODE_ENV === 'development'
 
-  let vNode: VNode | null = createVNode(component, props, children)
-  if (app && app._context) vNode.appContext = app._context
-  if (el) render(vNode, el)
-  else if (typeof document !== 'undefined') render(vNode, el = document.createElement('div'))
+export function mount(component: Component, { props, children, element, app }: Mount): {
+  vnode: VNode, destroy: () => void, el: HTMLElement
+} {
+  let el = element || document.createElement('div')
+
+  let vnode: VNode | null = createVNode(component, props, children)
+  if (app && app._context) vnode.appContext = app._context
+
+  // HMR root reload
+  if (__DEV__) {
+    app._context.reload = () => {
+      render(cloneVNode(vnode!), el) // , isSVG)
+    }
+  }
+
+  if (el) render(vnode, el)
+  else if (typeof document !== 'undefined') render(vnode, el)
+
+  // if (isHydrate && hydrate) {
+  //   hydrate(vnode as VNode<Node, Element>, el as any)
+  // } else {
+  //   render(vnode, el, isSVG)
+  // }
 
   const destroy = () => {
     if (el) render(null, el)
-    vNode = null
+    vnode = null
   }
 
-  return { vNode, destroy, el: el as HTMLElement }
+  return { vnode, destroy, el: el as HTMLElement }
 }
