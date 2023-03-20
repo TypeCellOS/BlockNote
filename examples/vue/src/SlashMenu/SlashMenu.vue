@@ -1,20 +1,21 @@
 <script lang="ts" setup>
 import type { SlashMenuProps } from './slashMenuFactory'
+import SlashMenuItem from './SlashMenuItem.vue'
 
 const props = defineProps<{
-  staticParams: SlashMenuProps
+  reactiveParams: SlashMenuProps
 }>()
 </script>
 
 <template>
   <slot name="slashMenu">
-    <div></div>
+    <SlashMenuItem v-for="(item, i) in reactiveParams.items" :key="item.name" :menu="item"
+      :selected="reactiveParams.keyboardHoveredItemIndex === i" :on-click="reactiveParams.itemCallback" />
   </slot>
 </template>
 
 <style style="postcss">
 .slash-menu {
-  display: none;
   position: absolute;
   background: white;
   box-shadow: rgb(223, 225, 230) 0px 4px 8px, rgb(223, 225, 230) 0px 0px 1px;

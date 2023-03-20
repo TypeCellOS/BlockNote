@@ -10,7 +10,9 @@ const props = defineProps<{
 
 <template>
   <slot :name="'slashMenuItem-' + menu.name" :menu="menu" :selected="selected" :on-click="onClick">
-    <button @click="onClick()" :class="selected && 'selected'">{{ menu.name }}</button>
+    <div>
+      <button @click="onClick()" :class="selected && 'selected'">{{ menu.name }}</button>
+    </div>
   </slot>
 </template>
 
