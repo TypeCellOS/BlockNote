@@ -1,31 +1,19 @@
 <script lang="ts" setup>
-import { ref, watch } from "vue"
+import { reactive, ref, watch } from "vue"
 import BlockNoteView from "@/BlockNoteView.vue"
+import blocks from './blocks.json'
+import type { Block } from "@blocknote/core"
 
-const md = `# Curabitur nisi.
-
-Vesatibulum **rutrum**, mi nec _elementum_ vehicula, eros quam gravida nisl, id fringilla neque ante vel mi.
-
-## Vestibulum ullamcorper mauris at ligula.
-
-Maecenas vestibulum mollis diam.
-
-Donec posuere vulputate arcu.
-`
-
-const content = ref(md)
-
-watch(content, (val) => {
-  // Reactive markdown with tiptap. Thanks Blocknote :)
-  console.log(val)
-})
+// TODO fix any
+const content = ref<any[]>(blocks)
+// const content: Block[] = ref(blocks) as Block[]
 </script>
 
 <template>
   <BlockNoteView v-model="content">
     <!-- <template #blockSideMenuAddBlock="{ staticParams }">
-                      <button @click="staticParams.addBlock()">+</button>
-                    </template> -->
+      <button @click="staticParams.addBlock()">+</button>
+    </template> -->
 
     <template #slashMenuItem-Heading="{ menu, selected, onClick }">
       <button @click="onClick()" :style="selected && 'font-weight: bold;'">{{ menu.name }}</button>
