@@ -17,7 +17,7 @@ function onDragEnd(event: DragEvent) {
 <template>
   <div>
     <slot :staticParams="staticParams">
-      <slot name="blockSideMenuAddBlock" :staticParams="staticParams">
+      <slot name="BlockSideMenu-AddBlock" :staticParams="staticParams">
         <button class="block-side-menu__button" @click="addBlock">
           <svg stroke="currentColor" fill="currentColor" stroke-width="0" t="1551322312294" viewBox="0 0 1024 1024"
             version="1.1" height="24" width="24" xmlns="http://www.w3.org/2000/svg">
@@ -28,7 +28,7 @@ function onDragEnd(event: DragEvent) {
         </button>
       </slot>
 
-      <slot name="blockSideMenuDrag" :staticParams="staticParams">
+      <slot name="BlockSideMenu-Drag" :staticParams="staticParams">
         <button class="block-side-menu__button" @dragstart="onDragStart" @dragend="onDragEnd" draggable="true">
           <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24" height="24" width="24"
             xmlns="http://www.w3.org/2000/svg">

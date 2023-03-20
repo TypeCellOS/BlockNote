@@ -11,12 +11,12 @@ const content = ref<any[]>(blocks)
 
 <template>
   <BlockNoteView v-model="content">
-    <!-- <template #blockSideMenuAddBlock="{ staticParams }">
+    <template #BlockSideMenu-AddBlock="{ staticParams }">
       <button @click="staticParams.addBlock()">+</button>
-    </template> -->
+    </template>
 
-    <template #slashMenuItem-Heading="{ menu, selected, onClick }">
-      <button @click="onClick()" :style="selected && 'font-weight: bold;'">{{ menu.name }}</button>
+    <template #SlashMenuItem-Heading="{ menu, selected, onClick }">
+      <button @click="onClick()" :style="selected && 'font-weight: bold;'">Slot {{ menu.name }}</button>
     </template>
   </BlockNoteView>
 </template>

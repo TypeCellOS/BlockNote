@@ -1,16 +1,29 @@
 <script lang="ts" setup>
 import type { SlashMenuProps } from './slashMenuFactory'
+import type { BaseSlashMenuItem } from "@blocknote/core"
 import SlashMenuItem from './SlashMenuItem.vue'
 
 const props = defineProps<{
   reactiveParams: SlashMenuProps
 }>()
+
+function onClick(menu: BaseSlashMenuItem) {
+  props.reactiveParams.itemCallback(menu)
+}
+
+function isSelected(i: number) {
+  return props.reactiveParams.keyboardHoveredItemIndex === i
+}
+
 </script>
 
 <template>
-  <slot name="slashMenu">
-    <SlashMenuItem v-for="(item, i) in reactiveParams.items" :key="item.name" :menu="item"
-      :selected="reactiveParams.keyboardHoveredItemIndex === i" :on-click="reactiveParams.itemCallback" />
+  <slot name="SlashMenu">
+    <template v-for="(menu, i) in reactiveParams.items" :key="menu.name">
+      <slot :name="'SlashMenuItem-' + menu.name" :menu="menu" :selected="isSelected(i)" :on-click="() => onClick(menu)">
+        <SlashMenuItem :menu="menu" :selected="isSelected(i)" :on-click="() => onClick(menu)" />
+      </slot>
+    </template>
   </slot>
 </template>
 
