@@ -10,6 +10,43 @@ function App() {
     onEditorContentChange: (editor) => {
       console.log(editor.topLevelBlocks);
     },
+    onEditorReady(editor) {
+      editor.insertBlocks(
+        [
+          {
+            type: "heading",
+            content: "my title",
+          },
+          {
+            type: "paragraph",
+            content: "Hello world",
+            children: [{ type: "paragraph", content: "nested" }],
+          },
+          {
+            type: "numberedListItem",
+            content: "hello",
+          },
+          {
+            type: "numberedListItem",
+            content: "world",
+            children: [
+              { type: "heading", content: "nested" },
+              {
+                type: "numberedListItem",
+                content: "hello",
+                children: [
+                  {
+                    type: "numberedListItem",
+                    content: "hello",
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+        editor.topLevelBlocks[0]
+      );
+    },
     editorDOMAttributes: {
       class: styles.editor,
       "data-test": "editor",
