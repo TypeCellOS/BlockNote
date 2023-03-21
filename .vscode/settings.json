@@ -8,5 +8,6 @@
   },
   "search.exclude": {
     "packages/editor/public/types": true
-  }
+  },
+  "typescript.tsdk": "node_modules/typescript/lib"
 }
