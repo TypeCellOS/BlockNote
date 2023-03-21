@@ -1,6 +1,6 @@
 # Customizing the Editor
 
-There are a number of options that you can pass to `useBlockNote()`, which you can use to customize the editor. You can find the full list of these below:
+There are a number of options (all optional) that you can pass to `useBlockNote()`, which you can use to customize the editor. You can find the full list of these below:
 
 ```typescript
 export type BlockNoteEditorOptions = {
@@ -10,10 +10,11 @@ export type BlockNoteEditorOptions = {
   onTextCursorPositionChange: (editor: BlockNoteEditor) => void;
   slashMenuItems: ReactSlashMenuItem[];
   uiFactories: UiFactories;
+  defaultStyles: boolean;
 };
 ```
 
-`editorDOMAttributes:` An object containing attributes that should be added to the editor's HTML element.
+`editorDOMAttributes:` An object containing attributes that should be added to the editor's HTML element. E.g.: pass `{ class: "my-editor-class" }` to set a custom classname.
 
 `onEditorReady:` A callback function that runs when the editor is ready to be used.
 
@@ -24,3 +25,5 @@ export type BlockNoteEditorOptions = {
 `slashMenuItems:` The commands that are listed in the editor's [Slash Menu](/docs/slash-menu). If this option isn't defined, a default list of commands is loaded.
 
 `uiFactories:` Factories used to create a custom UI for BlockNote, which you can find out more about in [Creating Your Own UI Elements](/docs/vanilla-js#creating-your-own-ui-elements).
+
+`defaultStyles`: Use default BlockNote font and reset the styles of `<p>` `<li>` `<h1>` elements etc., that are used in BlockNote. (true by default)
