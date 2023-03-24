@@ -42,8 +42,7 @@ Tippy popups that are appended to document.body directly
   font-size: inherit;
 }
 
-.defaultStyles,
-.dragPreview {
+.defaultStyles {
   font-size: 16px;
   font-weight: normal;
   font-family: "Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont,
