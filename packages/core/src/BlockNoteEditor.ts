@@ -162,32 +162,31 @@ export class BlockNoteEditor {
     callback: (block: Block) => boolean,
     reverse: boolean = false
   ): void {
-    let keepTraversing = true;
-    function helper(blocks: Block[]) {
-      if (reverse) {
-        for (const block of blocks.reverse()) {
-          if (keepTraversing) {
-            helper(block.children);
-          }
+    const blocks = this.topLevelBlocks.slice();
 
-          if (keepTraversing) {
-            keepTraversing = callback(block);
-          }
-        }
-      } else {
-        for (const block of blocks) {
-          if (keepTraversing) {
-            keepTraversing = callback(block);
-          }
-
-          if (keepTraversing) {
-            helper(block.children);
-          }
-        }
-      }
+    if (reverse) {
+      blocks.reverse();
     }
 
-    helper(this.topLevelBlocks);
+    function traverseBlockArray(blockArray: Block[]): boolean {
+      for (const block of blockArray) {
+        if (callback(block) === false) {
+          return false;
+        }
+
+        const children = reverse
+          ? block.children.slice().reverse()
+          : block.children;
+
+        if (traverseBlockArray(children) === false) {
+          return false;
+        }
+      }
+
+      return true;
+    }
+
+    traverseBlockArray(blocks);
   }
 
   /**
