@@ -41,6 +41,7 @@ export type BlockNoteEditorOptions = {
   onEditorReady: (editor: BlockNoteEditor) => void;
   onEditorContentChange: (editor: BlockNoteEditor) => void;
   onTextCursorPositionChange: (editor: BlockNoteEditor) => void;
+  initialContent: PartialBlock[];
 
   // tiptap options, undocumented
   _tiptapOptions: any;
@@ -72,10 +73,19 @@ export class BlockNoteEditor {
       : blockNoteExtensions;
 
     const tiptapOptions: EditorOptions = {
+      // TODO: This approach to setting initial content is "cleaner" but requires the PM editor schema, which is only
+      //  created after initializing the TipTap editor. Not sure it's feasible.
+      // content:
+      //   options.initialContent &&
+      //   options.initialContent.map((block) =>
+      //     blockToNode(block, this._tiptapEditor.schema).toJSON()
+      //   ),
       ...blockNoteTipTapOptions,
       ...options._tiptapOptions,
       onCreate: () => {
         options.onEditorReady?.(this);
+        options.initialContent &&
+          this.replaceBlocks(this.topLevelBlocks, options.initialContent);
       },
       onUpdate: () => {
         options.onEditorContentChange?.(this);
