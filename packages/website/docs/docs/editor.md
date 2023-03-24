@@ -4,6 +4,7 @@ There are a number of options that you can pass to `useBlockNote()`, which you c
 
 ```typescript
 export type BlockNoteEditorOptions = {
+  initialContent: Block[];
   editorDOMAttributes: Record<string, string>;
   onEditorReady: (editor: BlockNoteEditor) => void;
   onEditorContentChange: (editor: BlockNoteEditor) => void;
@@ -12,6 +13,8 @@ export type BlockNoteEditorOptions = {
   uiFactories: UiFactories;
 };
 ```
+
+`initialContent:` The content that should be in the editor when it's created, represented as an array of [Block objects](/docs/blocks#block-objects).
 
 `editorDOMAttributes:` An object containing attributes that should be added to the editor's HTML element.
 
