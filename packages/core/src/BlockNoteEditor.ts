@@ -34,14 +34,49 @@ export type BlockNoteEditorOptions = {
   // TODO: Figure out if enableBlockNoteExtensions/disableHistoryExtension are needed and document them.
   enableBlockNoteExtensions: boolean;
   disableHistoryExtension: boolean;
+  /**
+   * Factories used to create a custom UI for BlockNote
+   */
   uiFactories: UiFactories;
+  /**
+   * TODO: why is this called slashCommands and not slashMenuItems?
+   *
+   * @default defaultSlashMenuItems from `./extensions/SlashMenu`
+   */
   slashCommands: BaseSlashMenuItem[];
+
+  /**
+   * The HTML element that should be used as the parent element for the editor.
+   *
+   * @default: undefined, the editor is not attached to the DOM
+   */
   parentElement: HTMLElement;
+  /**
+   * An object containing attributes that should be added to the editor's HTML element.
+   *
+   * @example { class: "my-editor-class" }
+   */
   editorDOMAttributes: Record<string, string>;
+  /**
+   *  A callback function that runs when the editor is ready to be used.
+   */
   onEditorReady: (editor: BlockNoteEditor) => void;
+  /**
+   * A callback function that runs whenever the editor's contents change.
+   */
   onEditorContentChange: (editor: BlockNoteEditor) => void;
+  /**
+   * A callback function that runs whenever the text cursor position changes.
+   */
   onTextCursorPositionChange: (editor: BlockNoteEditor) => void;
   initialContent: PartialBlock[];
+
+  /**
+   * Use default BlockNote font and reset the styles of <p> <li> <h1> elements etc., that are used in BlockNote.
+   *
+   * @default true
+   */
+  defaultStyles: boolean;
 
   // tiptap options, undocumented
   _tiptapOptions: any;
@@ -62,6 +97,12 @@ export class BlockNoteEditor {
   }
 
   constructor(options: Partial<BlockNoteEditorOptions> = {}) {
+    // apply defaults
+    options = {
+      defaultStyles: true,
+      ...options,
+    };
+
     const blockNoteExtensions = getBlockNoteExtensions({
       editor: this,
       uiFactories: options.uiFactories || {},
@@ -103,6 +144,7 @@ export class BlockNoteEditor {
           class: [
             styles.bnEditor,
             styles.bnRoot,
+            options.defaultStyles ? styles.defaultStyles : "",
             options.editorDOMAttributes?.class || "",
           ].join(" "),
         },
