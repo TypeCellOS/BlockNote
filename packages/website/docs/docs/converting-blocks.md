@@ -5,7 +5,7 @@ It's possible to export or import Blocks to and from Markdown and HTML.
 ::: warning
 The functions to import/export to and from Markdown/HTML are considered "lossy"; some information might be dropped when you export Blocks to those formats.
 
-To serialize Blocks to a non-lossy format (for example, to store the contents of the editor in your backend), simply export the built-in Block format using `JSON.stringify(editor.allBlocks)`.
+To serialize Blocks to a non-lossy format (for example, to store the contents of the editor in your backend), simply export the built-in Block format using `JSON.stringify(editor.topLevelBlocks)`.
 :::
 
 ## Markdown
