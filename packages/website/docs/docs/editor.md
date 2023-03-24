@@ -1,9 +1,9 @@
 # Customizing the Editor
 
-There are a number of options (all optional) that you can pass to `useBlockNote()`, which you can use to customize the editor. You can find the full list of these below:
+There are a number of options that you can pass to `useBlockNote()`, which you can use to customize the editor. You can find the full list of these below:
 
 ```typescript
-export type BlockNoteEditorOptions = {
+export type BlockNoteEditorOptions = Partial<{
   editorDOMAttributes: Record<string, string>;
   onEditorReady: (editor: BlockNoteEditor) => void;
   onEditorContentChange: (editor: BlockNoteEditor) => void;
@@ -11,10 +11,10 @@ export type BlockNoteEditorOptions = {
   slashMenuItems: ReactSlashMenuItem[];
   uiFactories: UiFactories;
   defaultStyles: boolean;
-};
+}>;
 ```
 
-`editorDOMAttributes:` An object containing attributes that should be added to the editor's HTML element. E.g.: pass `{ class: "my-editor-class" }` to set a custom classname.
+`editorDOMAttributes:` An object containing attributes that should be added to the editor's HTML element. For example, you can pass `{ class: "my-editor-class" }` to set a custom class name.
 
 `onEditorReady:` A callback function that runs when the editor is ready to be used.
 
@@ -26,4 +26,4 @@ export type BlockNoteEditorOptions = {
 
 `uiFactories:` Factories used to create a custom UI for BlockNote, which you can find out more about in [Creating Your Own UI Elements](/docs/vanilla-js#creating-your-own-ui-elements).
 
-`defaultStyles`: Use default BlockNote font and reset the styles of `<p>` `<li>` `<h1>` elements etc., that are used in BlockNote. (true by default)
+`defaultStyles`: Whether to use the default font and reset the styles of `<p>`, `<li>`, `<h1>`, etc. elements that are used in BlockNote. Defaults to true if undefined.
