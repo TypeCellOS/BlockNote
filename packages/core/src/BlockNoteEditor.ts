@@ -169,24 +169,34 @@ export class BlockNoteEditor {
    * @param reverse Whether the blocks should be traversed in reverse order.
    */
   public forEachBlock(
-    callback: (block: Block) => void,
+    callback: (block: Block) => boolean,
     reverse: boolean = false
   ): void {
-    function helper(blocks: Block[]) {
-      if (reverse) {
-        for (const block of blocks.reverse()) {
-          helper(block.children);
-          callback(block);
-        }
-      } else {
-        for (const block of blocks) {
-          callback(block);
-          helper(block.children);
-        }
-      }
+    const blocks = this.topLevelBlocks.slice();
+
+    if (reverse) {
+      blocks.reverse();
     }
 
-    helper(this.topLevelBlocks);
+    function traverseBlockArray(blockArray: Block[]): boolean {
+      for (const block of blockArray) {
+        if (callback(block) === false) {
+          return false;
+        }
+
+        const children = reverse
+          ? block.children.slice().reverse()
+          : block.children;
+
+        if (traverseBlockArray(children) === false) {
+          return false;
+        }
+      }
+
+      return true;
+    }
+
+    traverseBlockArray(blocks);
   }
 
   /**
@@ -283,7 +293,7 @@ export class BlockNoteEditor {
    * @param blockToUpdate The block that should be updated.
    * @param update A partial block which defines how the existing block should be changed.
    */
-  public updateBlock(blockToUpdate: Block, update: PartialBlock) {
+  public updateBlock(blockToUpdate: BlockIdentifier, update: PartialBlock) {
     updateBlock(blockToUpdate, update, this._tiptapEditor);
   }
 
@@ -291,7 +301,7 @@ export class BlockNoteEditor {
    * Removes existing blocks from the editor. Throws an error if any of the blocks could not be found.
    * @param blocksToRemove An array of identifiers for existing blocks that should be removed.
    */
-  public removeBlocks(blocksToRemove: Block[]) {
+  public removeBlocks(blocksToRemove: BlockIdentifier[]) {
     removeBlocks(blocksToRemove, this._tiptapEditor);
   }
 
@@ -303,7 +313,7 @@ export class BlockNoteEditor {
    * @param blocksToInsert An array of partial blocks to replace the old ones with.
    */
   public replaceBlocks(
-    blocksToRemove: Block[],
+    blocksToRemove: BlockIdentifier[],
     blocksToInsert: PartialBlock[]
   ) {
     replaceBlocks(blocksToRemove, blocksToInsert, this._tiptapEditor);
