@@ -4,7 +4,8 @@ import { BlockNoteView } from "@blocknote/vue"
 import blocks from './blocks.json'
 import type { Block } from "@blocknote/core"
 
-import '@blocknote/vue/style.css'
+import "@blocknote/core/style.css"
+// import '@blocknote/vue/style.css'
 
 // TODO fix any
 const content = ref<any[]>(blocks)
