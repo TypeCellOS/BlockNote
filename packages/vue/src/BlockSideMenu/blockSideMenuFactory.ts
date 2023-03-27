@@ -1,5 +1,5 @@
 import type { BlockSideMenuFactory, BlockSideMenuStaticParams } from "@blocknote/core"
-import type { ComponentInternalInstance, Slots, VNodeProps } from 'vue'
+import type { ComponentInternalInstance } from 'vue'
 import { mount } from '../mount'
 
 import BlockSideMenu from './BlockSideMenu.vue'
@@ -10,10 +10,11 @@ import BlockSideMenu from './BlockSideMenu.vue'
  */
 export function blockSideMenuFactory(component: ComponentInternalInstance) {
 
+  let isMounted = false
+
   const blockSideMenuFactory: BlockSideMenuFactory = (staticParams: BlockSideMenuStaticParams) => {
 
     // Mount component
-    // https://github.com/pearofducks/mount-vue-component/blob/master/index.js
     const { el } = mount(BlockSideMenu, {
       app: component.appContext.app,
       children: component.slots, // Pass all slots or filter for SideMenu ?
@@ -21,8 +22,12 @@ export function blockSideMenuFactory(component: ComponentInternalInstance) {
         staticParams
       }
     })
-    el.classList.add('block-side-menu')
-    document.body.appendChild(el)
+
+    if (!isMounted) {
+      el.classList.add('block-side-menu')
+      document.body.appendChild(el)
+      isMounted = true
+    }
 
     // Mount component as a new instance
     // const container = document.createElement("div")

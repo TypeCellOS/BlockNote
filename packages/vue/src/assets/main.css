@@ -1,0 +1,10 @@
+html,
+body,
+#root {
+  height: 100%;
+}
+
+.editor {
+  padding: 0 calc((100% - 731px) / 2);
+  height: 100%;
+}

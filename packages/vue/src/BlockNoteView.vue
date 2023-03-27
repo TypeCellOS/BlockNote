@@ -45,7 +45,8 @@ onMounted(async () => {
     },
     _tiptapOptions: {
       content
-    }
+    },
+    ...props.options
   })
 
   // console.log(editor)
