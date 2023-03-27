@@ -3,7 +3,7 @@
   "homepage": "https://github.com/TypeCellOS/BlockNote",
   "private": false,
   "license": "MPL-2.0",
-  "version": "0.4.6-alpha.4",
+  "version": "0.5.0",
   "files": [
     "dist",
     "types",

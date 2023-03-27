@@ -34,13 +34,49 @@ export type BlockNoteEditorOptions = {
   // TODO: Figure out if enableBlockNoteExtensions/disableHistoryExtension are needed and document them.
   enableBlockNoteExtensions: boolean;
   disableHistoryExtension: boolean;
+  /**
+   * Factories used to create a custom UI for BlockNote
+   */
   uiFactories: UiFactories;
+  /**
+   * TODO: why is this called slashCommands and not slashMenuItems?
+   *
+   * @default defaultSlashMenuItems from `./extensions/SlashMenu`
+   */
   slashCommands: BaseSlashMenuItem[];
+
+  /**
+   * The HTML element that should be used as the parent element for the editor.
+   *
+   * @default: undefined, the editor is not attached to the DOM
+   */
   parentElement: HTMLElement;
+  /**
+   * An object containing attributes that should be added to the editor's HTML element.
+   *
+   * @example { class: "my-editor-class" }
+   */
   editorDOMAttributes: Record<string, string>;
+  /**
+   *  A callback function that runs when the editor is ready to be used.
+   */
   onEditorReady: (editor: BlockNoteEditor) => void;
+  /**
+   * A callback function that runs whenever the editor's contents change.
+   */
   onEditorContentChange: (editor: BlockNoteEditor) => void;
+  /**
+   * A callback function that runs whenever the text cursor position changes.
+   */
   onTextCursorPositionChange: (editor: BlockNoteEditor) => void;
+  initialContent: PartialBlock[];
+
+  /**
+   * Use default BlockNote font and reset the styles of <p> <li> <h1> elements etc., that are used in BlockNote.
+   *
+   * @default true
+   */
+  defaultStyles: boolean;
 
   // tiptap options, undocumented
   _tiptapOptions: any;
@@ -61,6 +97,12 @@ export class BlockNoteEditor {
   }
 
   constructor(options: Partial<BlockNoteEditorOptions> = {}) {
+    // apply defaults
+    options = {
+      defaultStyles: true,
+      ...options,
+    };
+
     const blockNoteExtensions = getBlockNoteExtensions({
       editor: this,
       uiFactories: options.uiFactories || {},
@@ -72,10 +114,19 @@ export class BlockNoteEditor {
       : blockNoteExtensions;
 
     const tiptapOptions: EditorOptions = {
+      // TODO: This approach to setting initial content is "cleaner" but requires the PM editor schema, which is only
+      //  created after initializing the TipTap editor. Not sure it's feasible.
+      // content:
+      //   options.initialContent &&
+      //   options.initialContent.map((block) =>
+      //     blockToNode(block, this._tiptapEditor.schema).toJSON()
+      //   ),
       ...blockNoteTipTapOptions,
       ...options._tiptapOptions,
       onCreate: () => {
         options.onEditorReady?.(this);
+        options.initialContent &&
+          this.replaceBlocks(this.topLevelBlocks, options.initialContent);
       },
       onUpdate: () => {
         options.onEditorContentChange?.(this);
@@ -93,6 +144,7 @@ export class BlockNoteEditor {
           class: [
             styles.bnEditor,
             styles.bnRoot,
+            options.defaultStyles ? styles.defaultStyles : "",
             options.editorDOMAttributes?.class || "",
           ].join(" "),
         },
@@ -159,24 +211,34 @@ export class BlockNoteEditor {
    * @param reverse Whether the blocks should be traversed in reverse order.
    */
   public forEachBlock(
-    callback: (block: Block) => void,
+    callback: (block: Block) => boolean,
     reverse: boolean = false
   ): void {
-    function helper(blocks: Block[]) {
-      if (reverse) {
-        for (const block of blocks.reverse()) {
-          helper(block.children);
-          callback(block);
-        }
-      } else {
-        for (const block of blocks) {
-          callback(block);
-          helper(block.children);
-        }
-      }
+    const blocks = this.topLevelBlocks.slice();
+
+    if (reverse) {
+      blocks.reverse();
     }
 
-    helper(this.topLevelBlocks);
+    function traverseBlockArray(blockArray: Block[]): boolean {
+      for (const block of blockArray) {
+        if (callback(block) === false) {
+          return false;
+        }
+
+        const children = reverse
+          ? block.children.slice().reverse()
+          : block.children;
+
+        if (traverseBlockArray(children) === false) {
+          return false;
+        }
+      }
+
+      return true;
+    }
+
+    traverseBlockArray(blocks);
   }
 
   /**
@@ -273,7 +335,7 @@ export class BlockNoteEditor {
    * @param blockToUpdate The block that should be updated.
    * @param update A partial block which defines how the existing block should be changed.
    */
-  public updateBlock(blockToUpdate: Block, update: PartialBlock) {
+  public updateBlock(blockToUpdate: BlockIdentifier, update: PartialBlock) {
     updateBlock(blockToUpdate, update, this._tiptapEditor);
   }
 
@@ -281,7 +343,7 @@ export class BlockNoteEditor {
    * Removes existing blocks from the editor. Throws an error if any of the blocks could not be found.
    * @param blocksToRemove An array of identifiers for existing blocks that should be removed.
    */
-  public removeBlocks(blocksToRemove: Block[]) {
+  public removeBlocks(blocksToRemove: BlockIdentifier[]) {
     removeBlocks(blocksToRemove, this._tiptapEditor);
   }
 
@@ -293,7 +355,7 @@ export class BlockNoteEditor {
    * @param blocksToInsert An array of partial blocks to replace the old ones with.
    */
   public replaceBlocks(
-    blocksToRemove: Block[],
+    blocksToRemove: BlockIdentifier[],
     blocksToInsert: PartialBlock[]
   ) {
     replaceBlocks(blocksToRemove, blocksToInsert, this._tiptapEditor);

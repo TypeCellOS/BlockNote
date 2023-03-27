@@ -3,6 +3,11 @@
 .bnEditor {
   outline: none;
   margin-left: 50px;
+
+  /* Define a set of colors to be used throughout the app for consistency
+  see https://atlassian.design/foundations/color for more info */
+  --N800: #172b4d; /* Dark neutral used for tooltips and text on light background */
+  --N40: #dfe1e6; /* Light neutral used for subtle borders and text on dark background */
 }
 
 /*
@@ -25,13 +30,21 @@ Tippy popups that are appended to document.body directly
   box-sizing: inherit;
 }
 
-.bnEditor,
-.dragPreview {
-  /* Define a set of colors to be used throughout the app for consistency
-  see https://atlassian.design/foundations/color for more info */
-  --N800: #172b4d; /* Dark neutral used for tooltips and text on light background */
-  --N40: #dfe1e6; /* Light neutral used for subtle borders and text on dark background */
+/* reset styles, they will be set on blockContent */
+.defaultStyles p,
+.defaultStyles h1,
+.defaultStyles h2,
+.defaultStyles h3,
+.defaultStyles li {
+  all: unset;
+  margin: 0;
+  padding: 0;
+  font-size: inherit;
+}
 
+.defaultStyles {
+  font-size: 16px;
+  font-weight: normal;
   font-family: "Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont,
     "Open Sans", "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell",
     "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
