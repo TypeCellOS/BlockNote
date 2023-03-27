@@ -1,5 +1,5 @@
 import type { Component, App, VNode } from 'vue'
-import { cloneVNode, createVNode, hydrate, render } from 'vue'
+import { cloneVNode, createVNode, render } from 'vue' // hydrate
 
 /**
  * Inspiration from https://github.com/pearofducks/mount-vue-component/blob/master/index.js
@@ -26,6 +26,7 @@ export function mount(component: Component, { props, children, element, app }: M
 
   // HMR root reload
   if (__DEV__) {
+    // @ts-ignore
     app._context.reload = () => {
       render(cloneVNode(vnode!), el) // , isSVG)
     }

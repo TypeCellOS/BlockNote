@@ -1,13 +1,12 @@
-import type { SuggestionsMenuFactory, BaseSlashMenuItem, BlockSideMenuStaticParams } from "@blocknote/core"
-import { BlockNoteEditor } from "@blocknote/core"
+import type { SuggestionsMenu, SuggestionsMenuFactory, BaseSlashMenuItem } from "@blocknote/core" // BlockSideMenuStaticParams
 
-import type { ComponentInternalInstance, Slots, VNodeProps } from 'vue'
-import { reactive, ref, watch } from 'vue'
+import type { ComponentInternalInstance } from 'vue'
+import { reactive } from 'vue'
 
 import { mount } from '../mount'
 
 import SlashMenu from './SlashMenu.vue'
-import SlashMenuItem from './SlashMenuItem.vue'
+// import type { ReactSlashMenuItem } from "./ReactSlashMenuItem"
 
 export type SlashMenuProps = {
   items: BaseSlashMenuItem[]
@@ -21,9 +20,10 @@ export type SlashMenuProps = {
 */
 export function slashMenuFactory(component: ComponentInternalInstance) {
 
-  const slashMenuFactory: SuggestionsMenuFactory<BaseSlashMenuItem> = (staticParams: SlashMenuProps) => {
+  const slashMenuFactory = (staticParams: any) => {
+    // const slashMenuFactory: SuggestionsMenuFactory<ReactSlashMenuItem> = (staticParams): SuggestionsMenu<ReactSlashMenuItem> => {
     // Mount component
-    const reactiveParams = reactive<SlashMenuProps>(staticParams)
+    const reactiveParams = reactive(staticParams)
 
     const { el } = mount(SlashMenu, {
       app: component.appContext.app,
@@ -35,7 +35,7 @@ export function slashMenuFactory(component: ComponentInternalInstance) {
 
     return {
       element: el,
-      render: (params, isActive) => {
+      render: (params: any, isActive: boolean) => {
         Object.assign(reactiveParams, params)
 
         if (isActive) {
