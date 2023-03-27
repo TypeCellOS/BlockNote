@@ -17,11 +17,11 @@ export default defineConfig((conf) => {
 
   // Comment out the lines below to load a built version of blocknote
   // or, keep as is to load live from sources with live reload working
-  if (conf.command === "build")
-    Object.assign(config.resolve.alias, {
-      "@blocknote/core": path.resolve(__dirname, "../../packages/core/src/"),
-      "@blocknote/vue": path.resolve(__dirname, "../../packages/vue/src/")
-    })
+  // if (conf.command === "build")
+  //   Object.assign(config.resolve.alias, {
+  //     "@blocknote/core": path.resolve(__dirname, "../../packages/core/src/"),
+  //     "@blocknote/vue": path.resolve(__dirname, "../../packages/vue/src/"),
+  //   })
 
   return config
 })
