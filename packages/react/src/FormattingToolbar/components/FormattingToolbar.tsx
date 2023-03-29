@@ -1,3 +1,4 @@
+import { FC } from "react";
 import { Block, PartialBlock } from "@blocknote/core";
 import { Menu } from "@mantine/core";
 import {
@@ -59,7 +60,9 @@ export type FormattingToolbarProps = {
 };
 
 // TODO: add list options, indentation
-export const FormattingToolbar = (props: FormattingToolbarProps) => {
+export const FormattingToolbar: FC<FormattingToolbarProps> = (
+  props: FormattingToolbarProps
+) => {
   return (
     <Toolbar>
       <ToolbarDropdown
