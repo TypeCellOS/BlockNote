@@ -57,18 +57,15 @@ export function insertBlocks(
 }
 
 export function updateBlock(
-  blockToUpdate: BlockIdentifier | BlockIdentifier[],
+  blockToUpdate: BlockIdentifier,
   update: PartialBlock,
   editor: Editor
 ) {
-  for (const block of Array.isArray(blockToUpdate)
-    ? blockToUpdate
-    : [blockToUpdate]) {
-    const id = typeof block === "string" ? block : block.id;
-    const { posBeforeNode } = getNodeById(id, editor.state.doc);
+  const id =
+    typeof blockToUpdate === "string" ? blockToUpdate : blockToUpdate.id;
+  const { posBeforeNode } = getNodeById(id, editor.state.doc);
 
-    editor.commands.BNUpdateBlock(posBeforeNode + 1, update);
-  }
+  editor.commands.BNUpdateBlock(posBeforeNode + 1, update);
 }
 
 export function removeBlocks(

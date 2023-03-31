@@ -311,10 +311,7 @@ export class BlockNoteEditor {
    * @param blockToUpdate The block that should be updated.
    * @param update A partial block which defines how the existing block should be changed.
    */
-  public updateBlock(
-    blockToUpdate: BlockIdentifier | BlockIdentifier[],
-    update: PartialBlock
-  ) {
+  public updateBlock(blockToUpdate: BlockIdentifier, update: PartialBlock) {
     updateBlock(blockToUpdate, update, this._tiptapEditor);
   }
 
