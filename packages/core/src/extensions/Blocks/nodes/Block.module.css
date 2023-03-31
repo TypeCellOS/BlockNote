@@ -3,21 +3,11 @@ BASIC STYLES
 */
 
 .blockOuter {
-  /* padding-bottom: 15px; */
-  font-size: 16px;
   line-height: 1.5;
-  transition: all 0.2s;
-  font-weight: normal;
-}
-
-.block {
-  /* content: ""; */
-  transition: all 0.2s;
-  margin: 0px;
+  transition: margin 0.2s;
 }
 
 .blockContent {
-  font-size: 1em;
   padding: 3px 0;
   transition: font-size 0.2s;
   /* display: inline-block; */
@@ -27,18 +17,6 @@ BASIC STYLES
   /* content: ""; */
   transition: all 0.2s;
   /*margin: 0px;*/
-}
-
-/* reset styles, they will be set on blockContent */
-.blockContent p,
-.blockContent h1,
-.blockContent h2,
-.blockContent h3,
-.blockContent li {
-  all: unset;
-  margin: 0;
-  padding: 0;
-  font-size: inherit;
 }
 
 /*
