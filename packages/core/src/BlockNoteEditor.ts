@@ -29,6 +29,7 @@ import {
   ToggledStyle,
 } from "./extensions/Blocks/api/inlineContentTypes";
 import { TextCursorPosition } from "./extensions/Blocks/api/cursorPositionTypes";
+import { Selection } from "./extensions/Blocks/api/selectionTypes";
 import { getBlockInfoFromPos } from "./extensions/Blocks/helpers/getBlockInfoFromPos";
 import {
   BaseSlashMenuItem,
@@ -259,6 +260,34 @@ export class BlockNoteEditor {
     }
   }
 
+  public getSelection(): Selection {
+    const blocks: Block[] = [];
+
+    this._tiptapEditor.state.doc.descendants((node, pos) => {
+      if (node.type.spec.group !== "blockContent") {
+        return true;
+      }
+
+      if (
+        pos + node.nodeSize < this._tiptapEditor.state.selection.from ||
+        pos > this._tiptapEditor.state.selection.to
+      ) {
+        return true;
+      }
+
+      blocks.push(
+        nodeToBlock(
+          this._tiptapEditor.state.doc.resolve(pos).node(),
+          this.blockCache
+        )
+      );
+
+      return false;
+    });
+
+    return { blocks: blocks };
+  }
+
   /**
    * Inserts new blocks into the editor. If a block's `id` is undefined, BlockNote generates one automatically. Throws an
    * error if the reference block could not be found.
@@ -282,7 +311,10 @@ export class BlockNoteEditor {
    * @param blockToUpdate The block that should be updated.
    * @param update A partial block which defines how the existing block should be changed.
    */
-  public updateBlock(blockToUpdate: Block, update: PartialBlock) {
+  public updateBlock(
+    blockToUpdate: BlockIdentifier | BlockIdentifier[],
+    update: PartialBlock
+  ) {
     updateBlock(blockToUpdate, update, this._tiptapEditor);
   }
 
@@ -311,7 +343,6 @@ export class BlockNoteEditor {
   public getActiveStyles() {
     const styles: Styles = {};
     const marks = this._tiptapEditor.state.selection.$to.marks();
-    console.log(marks);
 
     const toggleStyles = new Set<ToggledStyle>([
       "bold",
