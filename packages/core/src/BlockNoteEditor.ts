@@ -23,6 +23,11 @@ import {
   BlockIdentifier,
   PartialBlock,
 } from "./extensions/Blocks/api/blockTypes";
+import {
+  ColorStyle,
+  Styles,
+  ToggledStyle,
+} from "./extensions/Blocks/api/inlineContentTypes";
 import { TextCursorPosition } from "./extensions/Blocks/api/cursorPositionTypes";
 import { getBlockInfoFromPos } from "./extensions/Blocks/helpers/getBlockInfoFromPos";
 import {
@@ -58,6 +63,10 @@ export class BlockNoteEditor {
 
   public get domElement() {
     return this._tiptapEditor.view.dom as HTMLDivElement;
+  }
+
+  public focus() {
+    this._tiptapEditor.view.focus();
   }
 
   constructor(options: Partial<BlockNoteEditorOptions> = {}) {
@@ -297,6 +306,135 @@ export class BlockNoteEditor {
     blocksToInsert: PartialBlock[]
   ) {
     replaceBlocks(blocksToRemove, blocksToInsert, this._tiptapEditor);
+  }
+
+  public getActiveStyles() {
+    const styles: Styles = {};
+    const marks = this._tiptapEditor.state.selection.$to.marks();
+    console.log(marks);
+
+    const toggleStyles = new Set<ToggledStyle>([
+      "bold",
+      "italic",
+      "underline",
+      "strike",
+    ]);
+    const colorStyles = new Set<ColorStyle>(["textColor", "backgroundColor"]);
+
+    for (const mark of marks) {
+      if (toggleStyles.has(mark.type.name as ToggledStyle)) {
+        styles[mark.type.name as ToggledStyle] = true;
+      } else if (colorStyles.has(mark.type.name as ColorStyle)) {
+        styles[mark.type.name as ColorStyle] = mark.attrs.color;
+      }
+    }
+
+    return styles;
+  }
+
+  public addStyles(styles: Styles) {
+    const toggleStyles = new Set<ToggledStyle>([
+      "bold",
+      "italic",
+      "underline",
+      "strike",
+    ]);
+    const colorStyles = new Set<ColorStyle>(["textColor", "backgroundColor"]);
+
+    this._tiptapEditor.view.focus();
+
+    for (const [style, value] of Object.entries(styles)) {
+      if (toggleStyles.has(style as ToggledStyle)) {
+        this._tiptapEditor.commands.setMark(style);
+      } else if (colorStyles.has(style as ColorStyle)) {
+        this._tiptapEditor.commands.setMark(style, { color: value });
+      }
+    }
+  }
+
+  public removeStyles(styles: Styles) {
+    this._tiptapEditor.view.focus();
+
+    for (const style of Object.keys(styles)) {
+      this._tiptapEditor.commands.unsetMark(style);
+    }
+  }
+
+  public toggleStyles(styles: Styles) {
+    const toggleStyles = new Set<ToggledStyle>([
+      "bold",
+      "italic",
+      "underline",
+      "strike",
+    ]);
+    const colorStyles = new Set<ColorStyle>(["textColor", "backgroundColor"]);
+
+    this._tiptapEditor.view.focus();
+
+    for (const [style, value] of Object.entries(styles)) {
+      if (toggleStyles.has(style as ToggledStyle)) {
+        this._tiptapEditor.commands.toggleMark(style);
+      } else if (colorStyles.has(style as ColorStyle)) {
+        this._tiptapEditor.commands.toggleMark(style, { color: value });
+      }
+    }
+  }
+
+  public getActiveLink() {
+    const url = this._tiptapEditor.getAttributes("link").href;
+    // TODO: Does this make sense? Shouldn't it get the actual link text?
+    const text = this._tiptapEditor.state.doc.textBetween(
+      this._tiptapEditor.state.selection.from,
+      this._tiptapEditor.state.selection.to
+    );
+
+    return { text: text, url: url };
+  }
+
+  public createLink(url: string, text?: string) {
+    if (url === "") {
+      return;
+    }
+
+    let { from, to } = this._tiptapEditor.state.selection;
+
+    if (!text) {
+      text = this._tiptapEditor.state.doc.textBetween(from, to);
+    }
+
+    const mark = this._tiptapEditor.schema.mark("link", { href: url });
+
+    this._tiptapEditor.view.dispatch(
+      this._tiptapEditor.view.state.tr
+        .insertText(text, from, to)
+        .addMark(from, from + text.length, mark)
+    );
+  }
+
+  public canNestBlock() {
+    const { startPos, depth } = getBlockInfoFromPos(
+      this._tiptapEditor.state.doc,
+      this._tiptapEditor.state.selection.from
+    )!;
+
+    return this._tiptapEditor.state.doc.resolve(startPos).index(depth - 1) > 0;
+  }
+
+  public nestBlock() {
+    this._tiptapEditor.commands.sinkListItem("blockContainer");
+  }
+
+  public canUnnestBlock() {
+    const { depth } = getBlockInfoFromPos(
+      this._tiptapEditor.state.doc,
+      this._tiptapEditor.state.selection.from
+    )!;
+
+    return depth > 2;
+  }
+
+  public unnestBlock() {
+    this._tiptapEditor.commands.liftListItem("blockContainer");
   }
 
   /**

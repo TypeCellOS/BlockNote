@@ -5,12 +5,12 @@ export * from "./BlockSideMenu/BlockSideMenuFactory";
 
 export * from "./FormattingToolbar/FormattingToolbarFactory";
 export * from "./FormattingToolbar/components/FormattingToolbar";
-export * from "./FormattingToolbar/components/DefaultButtons/FontStyleButtons";
-export * from "./FormattingToolbar/components/DefaultButtons/TextAlignButtons";
-export * from "./FormattingToolbar/components/DefaultButtons/SetColorsButton";
-export * from "./FormattingToolbar/components/DefaultButtons/BlockIndentButtons";
-export * from "./FormattingToolbar/components/DefaultButtons/CreateHyperlinkButton";
 export * from "./FormattingToolbar/components/DefaultDropdowns/BlockTypeDropdown";
+export * from "./FormattingToolbar/components/DefaultButtons/ToggledStyleButton";
+export * from "./FormattingToolbar/components/DefaultButtons/TextAlignButton";
+export * from "./FormattingToolbar/components/DefaultButtons/ColorStyleButton";
+export * from "./FormattingToolbar/components/DefaultButtons/NestBlockButtons";
+export * from "./FormattingToolbar/components/DefaultButtons/CreateLinkButton";
 
 export * from "./hooks/useBlockNote";
 export * from "./hooks/useEditorForceUpdate";
