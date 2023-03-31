@@ -232,7 +232,7 @@ export class BlockNoteEditor {
 
     function traverseBlockArray(blockArray: Block[]): boolean {
       for (const block of blockArray) {
-        if (callback(block) === false) {
+        if (!callback(block)) {
           return false;
         }
 
@@ -240,7 +240,7 @@ export class BlockNoteEditor {
           ? block.children.slice().reverse()
           : block.children;
 
-        if (traverseBlockArray(children) === false) {
+        if (!traverseBlockArray(children)) {
           return false;
         }
       }
@@ -322,6 +322,9 @@ export class BlockNoteEditor {
     }
   }
 
+  /**
+   * Gets a snapshot of the current selection.
+   */
   public getSelection(): Selection {
     const blocks: Block[] = [];
 
@@ -399,6 +402,9 @@ export class BlockNoteEditor {
     replaceBlocks(blocksToRemove, blocksToInsert, this._tiptapEditor);
   }
 
+  /**
+   * Gets the active text styles at the text cursor position.
+   */
   public getActiveStyles() {
     const styles: Styles = {};
     const marks = this._tiptapEditor.state.selection.$to.marks();
@@ -422,6 +428,10 @@ export class BlockNoteEditor {
     return styles;
   }
 
+  /**
+   * Adds styles to the currently selected content.
+   * @param styles The styles to add.
+   */
   public addStyles(styles: Styles) {
     const toggleStyles = new Set<ToggledStyle>([
       "bold",
@@ -442,6 +452,10 @@ export class BlockNoteEditor {
     }
   }
 
+  /**
+   * Removes styles from the currently selected content.
+   * @param styles The styles to remove.
+   */
   public removeStyles(styles: Styles) {
     this._tiptapEditor.view.focus();
 
@@ -450,6 +464,10 @@ export class BlockNoteEditor {
     }
   }
 
+  /**
+   * Toggles styles on the currently selected content.
+   * @param styles The styles to toggle.
+   */
   public toggleStyles(styles: Styles) {
     const toggleStyles = new Set<ToggledStyle>([
       "bold",
@@ -470,6 +488,10 @@ export class BlockNoteEditor {
     }
   }
 
+  /**
+   * Gets the URL of the link at the current selection, and the currently selected text. If no link is active, the URL
+   * is an empty string.
+   */
   public getActiveLink() {
     const url = this._tiptapEditor.getAttributes("link").href;
     // TODO: Does this make sense? Shouldn't it get the actual link text?
@@ -481,6 +503,11 @@ export class BlockNoteEditor {
     return { text: text, url: url };
   }
 
+  /**
+   * Creates a new link to replace the selected content.
+   * @param url The link URL.
+   * @param text The text to display the link with.
+   */
   public createLink(url: string, text?: string) {
     if (url === "") {
       return;
@@ -501,6 +528,9 @@ export class BlockNoteEditor {
     );
   }
 
+  /**
+   * Checks if the block containing the text cursor can be nested.
+   */
   public canNestBlock() {
     const { startPos, depth } = getBlockInfoFromPos(
       this._tiptapEditor.state.doc,
@@ -510,10 +540,16 @@ export class BlockNoteEditor {
     return this._tiptapEditor.state.doc.resolve(startPos).index(depth - 1) > 0;
   }
 
+  /**
+   * Nests the block containing the text cursor into the block above it.
+   */
   public nestBlock() {
     this._tiptapEditor.commands.sinkListItem("blockContainer");
   }
 
+  /**
+   * Checks if the block containing the text cursor is nested.
+   */
   public canUnnestBlock() {
     const { depth } = getBlockInfoFromPos(
       this._tiptapEditor.state.doc,
@@ -523,6 +559,9 @@ export class BlockNoteEditor {
     return depth > 2;
   }
 
+  /**
+   * Lifts the block containing the text cursor out of its parent.
+   */
   public unnestBlock() {
     this._tiptapEditor.commands.liftListItem("blockContainer");
   }
