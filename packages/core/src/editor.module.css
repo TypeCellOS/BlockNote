@@ -36,7 +36,7 @@ Tippy popups that are appended to document.body directly
 .defaultStyles h2,
 .defaultStyles h3,
 .defaultStyles li {
-  all: unset;
+  all: unset !important;
   margin: 0;
   padding: 0;
   font-size: inherit;
