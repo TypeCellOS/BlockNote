@@ -158,8 +158,26 @@ function setDragImage(view: EditorView, from: number, to = from) {
   // dataTransfer.setDragImage(element) only works if element is attached to the DOM.
   unsetDragImage();
   dragImageElement = parentClone;
+
+  // TODO: This is hacky, need a better way of assigning classes to the editor so that they can also be applied to the
+  //  drag preview.
+  const classes = view.dom.className.split(" ");
+  const inheritedClasses = classes
+    .filter(
+      (className) =>
+        !className.includes("bn") &&
+        !className.includes("ProseMirror") &&
+        !className.includes("editor")
+    )
+    .join(" ");
+
   dragImageElement.className =
-    dragImageElement.className + " " + styles.dragPreview;
+    dragImageElement.className +
+    " " +
+    styles.dragPreview +
+    " " +
+    inheritedClasses;
+
   document.body.appendChild(dragImageElement);
 }
 
