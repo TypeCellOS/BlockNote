@@ -28,7 +28,10 @@ import {
   Styles,
   ToggledStyle,
 } from "./extensions/Blocks/api/inlineContentTypes";
-import { TextCursorPosition } from "./extensions/Blocks/api/cursorPositionTypes";
+import {
+  MouseCursorPosition,
+  TextCursorPosition,
+} from "./extensions/Blocks/api/cursorPositionTypes";
 import { Selection } from "./extensions/Blocks/api/selectionTypes";
 import { getBlockInfoFromPos } from "./extensions/Blocks/helpers/getBlockInfoFromPos";
 import {
@@ -97,6 +100,7 @@ const blockNoteTipTapOptions = {
 export class BlockNoteEditor {
   public readonly _tiptapEditor: TiptapEditor & { contentComponent: any };
   private blockCache = new WeakMap<Node, Block>();
+  private mousePos = { x: 0, y: 0 };
 
   public get domElement() {
     return this._tiptapEditor.view.dom as HTMLDivElement;
@@ -137,6 +141,11 @@ export class BlockNoteEditor {
         options.onEditorReady?.(this);
         options.initialContent &&
           this.replaceBlocks(this.topLevelBlocks, options.initialContent);
+        document.addEventListener(
+          "mousemove",
+          (event: MouseEvent) =>
+            (this.mousePos = { x: event.clientX, y: event.clientY })
+        );
       },
       onUpdate: () => {
         options.onEditorContentChange?.(this);
@@ -249,6 +258,38 @@ export class BlockNoteEditor {
     }
 
     traverseBlockArray(blocks);
+  }
+
+  /**
+   * Gets a snapshot of the current mouse cursor position.
+   * @returns A snapshot of the current mouse cursor position.
+   */
+  public getMouseCursorPosition(): MouseCursorPosition | undefined {
+    // Editor itself may have padding or other styling which affects size/position, so we get the boundingRect of
+    // the first child (i.e. the blockGroup that wraps all blocks in the editor) for a more accurate bounding box.
+    const editorBoundingBox = (
+      this._tiptapEditor.view.dom.firstChild! as HTMLElement
+    ).getBoundingClientRect();
+
+    const pos = this._tiptapEditor.view.posAtCoords({
+      left: editorBoundingBox.left + editorBoundingBox.width / 2,
+      top: this.mousePos.y,
+    });
+
+    if (!pos) {
+      return;
+    }
+
+    const blockInfo = getBlockInfoFromPos(
+      this._tiptapEditor.state.doc,
+      pos.pos
+    );
+
+    if (!blockInfo) {
+      return;
+    }
+
+    return { block: nodeToBlock(blockInfo.node, this.blockCache) };
   }
 
   /**
