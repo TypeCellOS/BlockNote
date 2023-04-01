@@ -1,22 +1,20 @@
 import { EditorElement, ElementFactory } from "../../shared/EditorElement";
+import { BlockNoteEditor } from "../../BlockNoteEditor";
 
 export type BlockSideMenuStaticParams = {
+  editor: BlockNoteEditor;
+
   addBlock: () => void;
-  deleteBlock: () => void;
 
   blockDragStart: (event: DragEvent) => void;
   blockDragEnd: () => void;
 
   freezeMenu: () => void;
   unfreezeMenu: () => void;
-
-  setBlockTextColor: (color: string) => void;
-  setBlockBackgroundColor: (color: string) => void;
 };
 
 export type BlockSideMenuDynamicParams = {
-  blockTextColor: string;
-  blockBackgroundColor: string;
+  editor: BlockNoteEditor;
 
   referenceRect: DOMRect;
 };

@@ -99,6 +99,7 @@ export const getBlockNoteExtensions = (opts: {
   if (opts.uiFactories.blockSideMenuFactory) {
     ret.push(
       DraggableBlocksExtension.configure({
+        editor: opts.editor,
         blockSideMenuFactory: opts.uiFactories.blockSideMenuFactory,
       })
     );

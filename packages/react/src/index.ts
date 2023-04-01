@@ -2,6 +2,9 @@
 export * from "./BlockNoteView";
 
 export * from "./BlockSideMenu/BlockSideMenuFactory";
+export * from "./BlockSideMenu/components/DragHandleMenu";
+export * from "./BlockSideMenu/components/DefaultButtons/RemoveBlockButton";
+export * from "./BlockSideMenu/components/DefaultButtons/BlockColorsButton";
 
 export * from "./FormattingToolbar/FormattingToolbarFactory";
 export * from "./FormattingToolbar/components/FormattingToolbar";

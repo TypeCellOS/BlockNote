@@ -1,27 +1,22 @@
 import { AiOutlinePlus, MdDragIndicator } from "react-icons/all";
-import { ActionIcon, createStyles, Group, Menu } from "@mantine/core";
-import { useEffect, useRef, useState } from "react";
-import { ColorPickerMenu } from "./ColorPickerMenu";
+import { ActionIcon, Group, Menu } from "@mantine/core";
+import { FC, useEffect, useRef, useState } from "react";
+import { BlockNoteEditor } from "@blocknote/core";
+import { DragHandleMenu } from "./DragHandleMenu";
+import { RemoveBlockButton } from "./DefaultButtons/RemoveBlockButton";
+import { BlockColorsButton } from "./DefaultButtons/BlockColorsButton";
 
 export type BlockSideMenuProps = {
+  editor: BlockNoteEditor;
+  dragHandleMenu?: FC<{ editor: BlockNoteEditor; closeMenu: () => void }>;
   addBlock: () => void;
-  deleteBlock: () => void;
   blockDragStart: (event: DragEvent) => void;
   blockDragEnd: () => void;
   freezeMenu: () => void;
   unfreezeMenu: () => void;
-
-  blockBackgroundColor: string;
-  setBlockBackgroundColor: (color: string) => void;
-  blockTextColor: string;
-  setBlockTextColor: (color: string) => void;
 };
 
 export const BlockSideMenu = (props: BlockSideMenuProps) => {
-  const { classes } = createStyles({ root: {} })(undefined, {
-    name: "DragHandleMenu",
-  });
-
   const [dragHandleMenuOpened, setDragHandleMenuOpened] = useState(false);
 
   const dragHandleRef = useRef<HTMLDivElement>(null);
@@ -41,6 +36,8 @@ export const BlockSideMenu = (props: BlockSideMenuProps) => {
 
     return;
   }, [props.blockDragEnd, props.blockDragStart]);
+
+  const CustomDragHandleMenu = props.dragHandleMenu;
 
   return (
     <Group spacing={0}>
@@ -69,24 +66,32 @@ export const BlockSideMenu = (props: BlockSideMenuProps) => {
             </ActionIcon>
           </div>
         </Menu.Target>
-        <Menu.Dropdown className={classes.root}>
-          <Menu.Item
-            component={"div"}
-            onClick={() => {
-              setDragHandleMenuOpened(false);
-              props.unfreezeMenu();
-              props.deleteBlock();
-            }}>
-            Delete
-          </Menu.Item>
-          <ColorPickerMenu
-            onClick={() => {
+        {CustomDragHandleMenu ? (
+          <CustomDragHandleMenu
+            editor={props.editor}
+            closeMenu={() => {
               setDragHandleMenuOpened(false);
               props.unfreezeMenu();
             }}
-            {...props}
           />
-        </Menu.Dropdown>
+        ) : (
+          <DragHandleMenu>
+            <RemoveBlockButton
+              editor={props.editor}
+              closeMenu={() => {
+                setDragHandleMenuOpened(false);
+                props.unfreezeMenu();
+              }}
+            />
+            <BlockColorsButton
+              editor={props.editor}
+              closeMenu={() => {
+                setDragHandleMenuOpened(false);
+                props.unfreezeMenu();
+              }}
+            />
+          </DragHandleMenu>
+        )}
       </Menu>
     </Group>
   );
