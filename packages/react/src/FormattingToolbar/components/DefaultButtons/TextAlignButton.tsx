@@ -20,10 +20,8 @@ export const TextAlignButton = (props: {
   editor: BlockNoteEditor;
   textAlignment: DefaultBlockProps["textAlignment"];
 }) => {
-  const getTextAlignment = useCallback(
-    () => props.editor.getTextCursorPosition().block.props.textAlignment,
-    [props]
-  );
+  const getTextAlignment = () =>
+    props.editor.getTextCursorPosition().block.props.textAlignment;
 
   const setTextAlignment = useCallback(
     (textAlignment: DefaultBlockProps["textAlignment"]) => {
@@ -34,7 +32,7 @@ export const TextAlignButton = (props: {
         });
       }
     },
-    [props]
+    [props.editor]
   );
 
   return (

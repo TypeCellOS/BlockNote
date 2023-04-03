@@ -23,19 +23,16 @@ export const ToggledStyleButton = (props: {
   editor: BlockNoteEditor;
   toggledStyle: ToggledStyle;
 }) => {
-  const styleIsActive = useCallback(
-    (style: ToggledStyle) => {
-      return style in props.editor.getActiveStyles();
-    },
-    [props]
-  );
+  const styleIsActive = (style: ToggledStyle) => {
+    return style in props.editor.getActiveStyles();
+  };
 
   const toggleStyle = useCallback(
     (style: ToggledStyle) => {
       props.editor.focus();
       props.editor.toggleStyles({ [style]: true });
     },
-    [props]
+    [props.editor]
   );
 
   return (

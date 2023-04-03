@@ -8,7 +8,7 @@ export const NestBlockButton = (props: { editor: BlockNoteEditor }) => {
   const nestBlock = useCallback(() => {
     props.editor.focus();
     props.editor.nestBlock();
-  }, [props]);
+  }, [props.editor]);
 
   const canNestBlock = useCallback(() => props.editor.canNestBlock(), [props]);
 
@@ -31,7 +31,7 @@ export const UnnestBlockButton = (props: { editor: BlockNoteEditor }) => {
 
   const canUnnestBlock = useCallback(
     () => props.editor.canUnnestBlock(),
-    [props]
+    [props.editor]
   );
 
   return (

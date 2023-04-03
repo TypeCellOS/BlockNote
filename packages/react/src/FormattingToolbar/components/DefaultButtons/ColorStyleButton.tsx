@@ -6,10 +6,8 @@ import { ColorIcon } from "../../../SharedComponents/ColorPicker/components/Colo
 import { ColorPicker } from "../../../SharedComponents/ColorPicker/components/ColorPicker";
 
 export const ColorStyleButton = (props: { editor: BlockNoteEditor }) => {
-  const getTextColor = useCallback(
-    () => props.editor.getActiveStyles().textColor || "default",
-    [props]
-  );
+  const getTextColor = () =>
+    props.editor.getActiveStyles().textColor || "default";
 
   const setTextColor = useCallback(
     (color: string) => {
@@ -18,23 +16,20 @@ export const ColorStyleButton = (props: { editor: BlockNoteEditor }) => {
         ? props.editor.removeStyles({ textColor: color })
         : props.editor.addStyles({ textColor: color });
     },
-    [props]
+    [props.editor]
   );
 
   const getBackgroundColor = useCallback(
     () => props.editor.getActiveStyles().backgroundColor || "default",
-    [props]
+    [props.editor]
   );
 
-  const setBackgroundColor = useCallback(
-    (color: string) => {
-      props.editor.focus();
-      color === "default"
-        ? props.editor.removeStyles({ backgroundColor: color })
-        : props.editor.addStyles({ backgroundColor: color });
-    },
-    [props]
-  );
+  const setBackgroundColor = (color: string) => {
+    props.editor.focus();
+    color === "default"
+      ? props.editor.removeStyles({ backgroundColor: color })
+      : props.editor.addStyles({ backgroundColor: color });
+  };
 
   return (
     <Menu>
