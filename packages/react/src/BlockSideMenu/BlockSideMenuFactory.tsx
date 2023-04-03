@@ -1,3 +1,4 @@
+import { FC } from "react";
 import {
   BlockNoteEditor,
   BlockSideMenu,
@@ -7,7 +8,6 @@ import {
 } from "@blocknote/core";
 import { BlockSideMenu as ReactBlockSideMenu } from "./components/BlockSideMenu";
 import { ReactElementFactory } from "../ElementFactory/components/ReactElementFactory";
-import { FC } from "react";
 
 export const createReactBlockSideMenuFactory = (
   dragHandleMenu: FC<{ editor: BlockNoteEditor; closeMenu: () => void }>

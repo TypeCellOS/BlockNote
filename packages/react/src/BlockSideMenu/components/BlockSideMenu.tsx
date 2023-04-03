@@ -1,7 +1,7 @@
-import { AiOutlinePlus, MdDragIndicator } from "react-icons/all";
-import { ActionIcon, Group, Menu } from "@mantine/core";
 import { FC, useEffect, useRef, useState } from "react";
+import { ActionIcon, Group, Menu } from "@mantine/core";
 import { BlockNoteEditor } from "@blocknote/core";
+import { AiOutlinePlus, MdDragIndicator } from "react-icons/all";
 import { DragHandleMenu } from "./DragHandleMenu";
 import { RemoveBlockButton } from "./DefaultButtons/RemoveBlockButton";
 import { BlockColorsButton } from "./DefaultButtons/BlockColorsButton";
@@ -36,6 +36,11 @@ export const BlockSideMenu = (props: BlockSideMenuProps) => {
 
     return;
   }, [props.blockDragEnd, props.blockDragStart]);
+
+  const closeMenu = () => {
+    setDragHandleMenuOpened(false);
+    props.unfreezeMenu();
+  };
 
   const CustomDragHandleMenu = props.dragHandleMenu;
 
@@ -76,20 +81,12 @@ export const BlockSideMenu = (props: BlockSideMenuProps) => {
           />
         ) : (
           <DragHandleMenu>
-            <RemoveBlockButton
-              editor={props.editor}
-              closeMenu={() => {
-                setDragHandleMenuOpened(false);
-                props.unfreezeMenu();
-              }}
-            />
-            <BlockColorsButton
-              editor={props.editor}
-              closeMenu={() => {
-                setDragHandleMenuOpened(false);
-                props.unfreezeMenu();
-              }}
-            />
+            <RemoveBlockButton editor={props.editor} closeMenu={closeMenu}>
+              Delete
+            </RemoveBlockButton>
+            <BlockColorsButton editor={props.editor} closeMenu={closeMenu}>
+              Colors
+            </BlockColorsButton>
           </DragHandleMenu>
         )}
       </Menu>

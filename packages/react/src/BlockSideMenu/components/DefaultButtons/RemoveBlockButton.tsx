@@ -1,10 +1,11 @@
-import { BlockNoteEditor } from "@blocknote/core";
+import { ReactNode, useState } from "react";
 import { Menu } from "@mantine/core";
-import { useState } from "react";
+import { BlockNoteEditor } from "@blocknote/core";
 
 export const RemoveBlockButton = (props: {
   editor: BlockNoteEditor;
   closeMenu: () => void;
+  children: ReactNode;
 }) => {
   const [block] = useState(props.editor.getMouseCursorPosition()?.block);
 
@@ -15,7 +16,7 @@ export const RemoveBlockButton = (props: {
         props.closeMenu();
         block && props.editor.removeBlocks([block]);
       }}>
-      Delete
+      {props.children}
     </Menu.Item>
   );
 };
