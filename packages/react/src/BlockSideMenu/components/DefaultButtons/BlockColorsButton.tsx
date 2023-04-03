@@ -1,14 +1,13 @@
-import { ReactNode, useCallback, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { Box, Menu } from "@mantine/core";
-import { BlockNoteEditor } from "@blocknote/core";
 import { HiChevronRight } from "react-icons/hi";
 import { ColorPicker } from "../../../SharedComponents/ColorPicker/components/ColorPicker";
+import {
+  DragHandleMenuItem,
+  DragHandleMenuItemProps,
+} from "../DragHandleMenuItem";
 
-export const BlockColorsButton = (props: {
-  editor: BlockNoteEditor;
-  closeMenu: () => void;
-  children: ReactNode;
-}) => {
+export const BlockColorsButton = (props: DragHandleMenuItemProps) => {
   const [block] = useState(props.editor.getMouseCursorPosition()?.block);
   const [opened, setOpened] = useState(false);
 
@@ -31,7 +30,9 @@ export const BlockColorsButton = (props: {
   }, []);
 
   return (
-    <Menu.Item
+    <DragHandleMenuItem
+      editor={props.editor}
+      closeMenu={props.closeMenu}
       onMouseLeave={() => {
         startMenuCloseTimer();
       }}
@@ -56,7 +57,6 @@ export const BlockColorsButton = (props: {
           }}
           style={{ marginLeft: "5px" }}>
           <ColorPicker
-            onClick={props.closeMenu}
             iconSize={18}
             textColor={block ? block.props.textColor || "default" : "default"}
             backgroundColor={
@@ -75,6 +75,6 @@ export const BlockColorsButton = (props: {
           />
         </Menu.Dropdown>
       </Menu>
-    </Menu.Item>
+    </DragHandleMenuItem>
   );
 };

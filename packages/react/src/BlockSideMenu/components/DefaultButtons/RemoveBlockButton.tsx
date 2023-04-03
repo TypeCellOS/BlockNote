@@ -1,21 +1,18 @@
-import { ReactNode, useState } from "react";
-import { Menu } from "@mantine/core";
-import { BlockNoteEditor } from "@blocknote/core";
+import { useState } from "react";
+import {
+  DragHandleMenuItem,
+  DragHandleMenuItemProps,
+} from "../DragHandleMenuItem";
 
-export const RemoveBlockButton = (props: {
-  editor: BlockNoteEditor;
-  closeMenu: () => void;
-  children: ReactNode;
-}) => {
+export const RemoveBlockButton = (props: DragHandleMenuItemProps) => {
   const [block] = useState(props.editor.getMouseCursorPosition()?.block);
 
   return (
-    <Menu.Item
-      onClick={() => {
-        props.closeMenu();
-        block && props.editor.removeBlocks([block]);
-      }}>
+    <DragHandleMenuItem
+      editor={props.editor}
+      closeMenu={props.closeMenu}
+      onClick={() => block && props.editor.removeBlocks([block])}>
       {props.children}
-    </Menu.Item>
+    </DragHandleMenuItem>
   );
 };
