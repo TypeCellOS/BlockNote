@@ -7,11 +7,11 @@ export type Styles = {
   backgroundColor?: string;
 };
 
-export type ToggledStyles = {
+export type ToggledStyle = {
   [K in keyof Styles]-?: Required<Styles>[K] extends true ? K : never;
 }[keyof Styles];
 
-export type ColorStyles = {
+export type ColorStyle = {
   [K in keyof Styles]-?: Required<Styles>[K] extends string ? K : never;
 }[keyof Styles];
 

@@ -23,7 +23,16 @@ import {
   BlockIdentifier,
   PartialBlock,
 } from "./extensions/Blocks/api/blockTypes";
-import { TextCursorPosition } from "./extensions/Blocks/api/cursorPositionTypes";
+import {
+  ColorStyle,
+  Styles,
+  ToggledStyle,
+} from "./extensions/Blocks/api/inlineContentTypes";
+import {
+  MouseCursorPosition,
+  TextCursorPosition,
+} from "./extensions/Blocks/api/cursorPositionTypes";
+import { Selection } from "./extensions/Blocks/api/selectionTypes";
 import { getBlockInfoFromPos } from "./extensions/Blocks/helpers/getBlockInfoFromPos";
 import {
   BaseSlashMenuItem,
@@ -34,13 +43,49 @@ export type BlockNoteEditorOptions = {
   // TODO: Figure out if enableBlockNoteExtensions/disableHistoryExtension are needed and document them.
   enableBlockNoteExtensions: boolean;
   disableHistoryExtension: boolean;
+  /**
+   * Factories used to create a custom UI for BlockNote
+   */
   uiFactories: UiFactories;
+  /**
+   * TODO: why is this called slashCommands and not slashMenuItems?
+   *
+   * @default defaultSlashMenuItems from `./extensions/SlashMenu`
+   */
   slashCommands: BaseSlashMenuItem[];
+
+  /**
+   * The HTML element that should be used as the parent element for the editor.
+   *
+   * @default: undefined, the editor is not attached to the DOM
+   */
   parentElement: HTMLElement;
+  /**
+   * An object containing attributes that should be added to the editor's HTML element.
+   *
+   * @example { class: "my-editor-class" }
+   */
   editorDOMAttributes: Record<string, string>;
+  /**
+   *  A callback function that runs when the editor is ready to be used.
+   */
   onEditorReady: (editor: BlockNoteEditor) => void;
+  /**
+   * A callback function that runs whenever the editor's contents change.
+   */
   onEditorContentChange: (editor: BlockNoteEditor) => void;
+  /**
+   * A callback function that runs whenever the text cursor position changes.
+   */
   onTextCursorPositionChange: (editor: BlockNoteEditor) => void;
+  initialContent: PartialBlock[];
+
+  /**
+   * Use default BlockNote font and reset the styles of <p> <li> <h1> elements etc., that are used in BlockNote.
+   *
+   * @default true
+   */
+  defaultStyles: boolean;
 
   // tiptap options, undocumented
   _tiptapOptions: any;
@@ -55,12 +100,23 @@ const blockNoteTipTapOptions = {
 export class BlockNoteEditor {
   public readonly _tiptapEditor: TiptapEditor & { contentComponent: any };
   private blockCache = new WeakMap<Node, Block>();
+  private mousePos = { x: 0, y: 0 };
 
   public get domElement() {
     return this._tiptapEditor.view.dom as HTMLDivElement;
   }
 
+  public focus() {
+    this._tiptapEditor.view.focus();
+  }
+
   constructor(options: Partial<BlockNoteEditorOptions> = {}) {
+    // apply defaults
+    options = {
+      defaultStyles: true,
+      ...options,
+    };
+
     const blockNoteExtensions = getBlockNoteExtensions({
       editor: this,
       uiFactories: options.uiFactories || {},
@@ -72,10 +128,24 @@ export class BlockNoteEditor {
       : blockNoteExtensions;
 
     const tiptapOptions: EditorOptions = {
+      // TODO: This approach to setting initial content is "cleaner" but requires the PM editor schema, which is only
+      //  created after initializing the TipTap editor. Not sure it's feasible.
+      // content:
+      //   options.initialContent &&
+      //   options.initialContent.map((block) =>
+      //     blockToNode(block, this._tiptapEditor.schema).toJSON()
+      //   ),
       ...blockNoteTipTapOptions,
       ...options._tiptapOptions,
       onCreate: () => {
         options.onEditorReady?.(this);
+        options.initialContent &&
+          this.replaceBlocks(this.topLevelBlocks, options.initialContent);
+        document.addEventListener(
+          "mousemove",
+          (event: MouseEvent) =>
+            (this.mousePos = { x: event.clientX, y: event.clientY })
+        );
       },
       onUpdate: () => {
         options.onEditorContentChange?.(this);
@@ -93,6 +163,7 @@ export class BlockNoteEditor {
           class: [
             styles.bnEditor,
             styles.bnRoot,
+            options.defaultStyles ? styles.defaultStyles : "",
             options.editorDOMAttributes?.class || "",
           ].join(" "),
         },
@@ -159,24 +230,66 @@ export class BlockNoteEditor {
    * @param reverse Whether the blocks should be traversed in reverse order.
    */
   public forEachBlock(
-    callback: (block: Block) => void,
+    callback: (block: Block) => boolean,
     reverse: boolean = false
   ): void {
-    function helper(blocks: Block[]) {
-      if (reverse) {
-        for (const block of blocks.reverse()) {
-          helper(block.children);
-          callback(block);
-        }
-      } else {
-        for (const block of blocks) {
-          callback(block);
-          helper(block.children);
-        }
-      }
+    const blocks = this.topLevelBlocks.slice();
+
+    if (reverse) {
+      blocks.reverse();
     }
 
-    helper(this.topLevelBlocks);
+    function traverseBlockArray(blockArray: Block[]): boolean {
+      for (const block of blockArray) {
+        if (!callback(block)) {
+          return false;
+        }
+
+        const children = reverse
+          ? block.children.slice().reverse()
+          : block.children;
+
+        if (!traverseBlockArray(children)) {
+          return false;
+        }
+      }
+
+      return true;
+    }
+
+    traverseBlockArray(blocks);
+  }
+
+  /**
+   * Gets a snapshot of the current mouse cursor position.
+   * @returns A snapshot of the current mouse cursor position.
+   */
+  public getMouseCursorPosition(): MouseCursorPosition | undefined {
+    // Editor itself may have padding or other styling which affects size/position, so we get the boundingRect of
+    // the first child (i.e. the blockGroup that wraps all blocks in the editor) for a more accurate bounding box.
+    const editorBoundingBox = (
+      this._tiptapEditor.view.dom.firstChild! as HTMLElement
+    ).getBoundingClientRect();
+
+    const pos = this._tiptapEditor.view.posAtCoords({
+      left: editorBoundingBox.left + editorBoundingBox.width / 2,
+      top: this.mousePos.y,
+    });
+
+    if (!pos) {
+      return;
+    }
+
+    const blockInfo = getBlockInfoFromPos(
+      this._tiptapEditor.state.doc,
+      pos.pos
+    );
+
+    if (!blockInfo) {
+      return;
+    }
+
+    return { block: nodeToBlock(blockInfo.node, this.blockCache) };
   }
 
   /**
@@ -251,6 +364,37 @@ export class BlockNoteEditor {
   }
 
   /**
+   * Gets a snapshot of the current selection.
+   */
+  public getSelection(): Selection {
+    const blocks: Block[] = [];
+
+    this._tiptapEditor.state.doc.descendants((node, pos) => {
+      if (node.type.spec.group !== "blockContent") {
+        return true;
+      }
+
+      if (
+        pos + node.nodeSize < this._tiptapEditor.state.selection.from ||
+        pos > this._tiptapEditor.state.selection.to
+      ) {
+        return true;
+      }
+
+      blocks.push(
+        nodeToBlock(
+          this._tiptapEditor.state.doc.resolve(pos).node(),
+          this.blockCache
+        )
+      );
+
+      return false;
+    });
+
+    return { blocks: blocks };
+  }
+
+  /**
    * Inserts new blocks into the editor. If a block's `id` is undefined, BlockNote generates one automatically. Throws an
    * error if the reference block could not be found.
    * @param blocksToInsert An array of partial blocks that should be inserted.
@@ -273,7 +417,7 @@ export class BlockNoteEditor {
    * @param blockToUpdate The block that should be updated.
    * @param update A partial block which defines how the existing block should be changed.
    */
-  public updateBlock(blockToUpdate: Block, update: PartialBlock) {
+  public updateBlock(blockToUpdate: BlockIdentifier, update: PartialBlock) {
     updateBlock(blockToUpdate, update, this._tiptapEditor);
   }
 
@@ -281,7 +425,7 @@ export class BlockNoteEditor {
    * Removes existing blocks from the editor. Throws an error if any of the blocks could not be found.
    * @param blocksToRemove An array of identifiers for existing blocks that should be removed.
    */
-  public removeBlocks(blocksToRemove: Block[]) {
+  public removeBlocks(blocksToRemove: BlockIdentifier[]) {
     removeBlocks(blocksToRemove, this._tiptapEditor);
   }
 
@@ -293,10 +437,174 @@ export class BlockNoteEditor {
    * @param blocksToInsert An array of partial blocks to replace the old ones with.
    */
   public replaceBlocks(
-    blocksToRemove: Block[],
+    blocksToRemove: BlockIdentifier[],
     blocksToInsert: PartialBlock[]
   ) {
     replaceBlocks(blocksToRemove, blocksToInsert, this._tiptapEditor);
+  }
+
+  /**
+   * Gets the active text styles at the text cursor position.
+   */
+  public getActiveStyles() {
+    const styles: Styles = {};
+    const marks = this._tiptapEditor.state.selection.$to.marks();
+
+    const toggleStyles = new Set<ToggledStyle>([
+      "bold",
+      "italic",
+      "underline",
+      "strike",
+    ]);
+    const colorStyles = new Set<ColorStyle>(["textColor", "backgroundColor"]);
+
+    for (const mark of marks) {
+      if (toggleStyles.has(mark.type.name as ToggledStyle)) {
+        styles[mark.type.name as ToggledStyle] = true;
+      } else if (colorStyles.has(mark.type.name as ColorStyle)) {
+        styles[mark.type.name as ColorStyle] = mark.attrs.color;
+      }
+    }
+
+    return styles;
+  }
+
+  /**
+   * Adds styles to the currently selected content.
+   * @param styles The styles to add.
+   */
+  public addStyles(styles: Styles) {
+    const toggleStyles = new Set<ToggledStyle>([
+      "bold",
+      "italic",
+      "underline",
+      "strike",
+    ]);
+    const colorStyles = new Set<ColorStyle>(["textColor", "backgroundColor"]);
+
+    this._tiptapEditor.view.focus();
+
+    for (const [style, value] of Object.entries(styles)) {
+      if (toggleStyles.has(style as ToggledStyle)) {
+        this._tiptapEditor.commands.setMark(style);
+      } else if (colorStyles.has(style as ColorStyle)) {
+        this._tiptapEditor.commands.setMark(style, { color: value });
+      }
+    }
+  }
+
+  /**
+   * Removes styles from the currently selected content.
+   * @param styles The styles to remove.
+   */
+  public removeStyles(styles: Styles) {
+    this._tiptapEditor.view.focus();
+
+    for (const style of Object.keys(styles)) {
+      this._tiptapEditor.commands.unsetMark(style);
+    }
+  }
+
+  /**
+   * Toggles styles on the currently selected content.
+   * @param styles The styles to toggle.
+   */
+  public toggleStyles(styles: Styles) {
+    const toggleStyles = new Set<ToggledStyle>([
+      "bold",
+      "italic",
+      "underline",
+      "strike",
+    ]);
+    const colorStyles = new Set<ColorStyle>(["textColor", "backgroundColor"]);
+
+    this._tiptapEditor.view.focus();
+
+    for (const [style, value] of Object.entries(styles)) {
+      if (toggleStyles.has(style as ToggledStyle)) {
+        this._tiptapEditor.commands.toggleMark(style);
+      } else if (colorStyles.has(style as ColorStyle)) {
+        this._tiptapEditor.commands.toggleMark(style, { color: value });
+      }
+    }
+  }
+
+  /**
+   * Gets the URL of the link at the current selection, and the currently selected text. If no link is active, the URL
+   * is an empty string.
+   */
+  public getActiveLink() {
+    const url = this._tiptapEditor.getAttributes("link").href;
+    // TODO: Does this make sense? Shouldn't it get the actual link text?
+    const text = this._tiptapEditor.state.doc.textBetween(
+      this._tiptapEditor.state.selection.from,
+      this._tiptapEditor.state.selection.to
+    );
+
+    return { text: text, url: url };
+  }
+
+  /**
+   * Creates a new link to replace the selected content.
+   * @param url The link URL.
+   * @param text The text to display the link with.
+   */
+  public createLink(url: string, text?: string) {
+    if (url === "") {
+      return;
+    }
+
+    let { from, to } = this._tiptapEditor.state.selection;
+
+    if (!text) {
+      text = this._tiptapEditor.state.doc.textBetween(from, to);
+    }
+
+    const mark = this._tiptapEditor.schema.mark("link", { href: url });
+
+    this._tiptapEditor.view.dispatch(
+      this._tiptapEditor.view.state.tr
+        .insertText(text, from, to)
+        .addMark(from, from + text.length, mark)
+    );
+  }
+
+  /**
+   * Checks if the block containing the text cursor can be nested.
+   */
+  public canNestBlock() {
+    const { startPos, depth } = getBlockInfoFromPos(
+      this._tiptapEditor.state.doc,
+      this._tiptapEditor.state.selection.from
+    )!;
+
+    return this._tiptapEditor.state.doc.resolve(startPos).index(depth - 1) > 0;
+  }
+
+  /**
+   * Nests the block containing the text cursor into the block above it.
+   */
+  public nestBlock() {
+    this._tiptapEditor.commands.sinkListItem("blockContainer");
+  }
+
+  /**
+   * Checks if the block containing the text cursor is nested.
+   */
+  public canUnnestBlock() {
+    const { depth } = getBlockInfoFromPos(
+      this._tiptapEditor.state.doc,
+      this._tiptapEditor.state.selection.from
+    )!;
+
+    return depth > 2;
+  }
+
+  /**
+   * Lifts the block containing the text cursor out of its parent.
+   */
+  public unnestBlock() {
+    this._tiptapEditor.commands.liftListItem("blockContainer");
   }
 
   /**

@@ -24,8 +24,7 @@ import { FormattingToolbarFactory } from "./extensions/FormattingToolbar/Formatt
 import HyperlinkMark from "./extensions/HyperlinkToolbar/HyperlinkMark";
 import { HyperlinkToolbarFactory } from "./extensions/HyperlinkToolbar/HyperlinkToolbarFactoryTypes";
 import { Placeholder } from "./extensions/Placeholder/PlaceholderExtension";
-import { SlashMenuExtension } from "./extensions/SlashMenu";
-import { BaseSlashMenuItem } from "./extensions/SlashMenu";
+import { BaseSlashMenuItem, SlashMenuExtension } from "./extensions/SlashMenu";
 import { TextAlignmentExtension } from "./extensions/TextAlignment/TextAlignmentExtension";
 import { TextColorExtension } from "./extensions/TextColor/TextColorExtension";
 import { TextColorMark } from "./extensions/TextColor/TextColorMark";
@@ -100,6 +99,7 @@ export const getBlockNoteExtensions = (opts: {
   if (opts.uiFactories.blockSideMenuFactory) {
     ret.push(
       DraggableBlocksExtension.configure({
+        editor: opts.editor,
         blockSideMenuFactory: opts.uiFactories.blockSideMenuFactory,
       })
     );
@@ -108,6 +108,7 @@ export const getBlockNoteExtensions = (opts: {
   if (opts.uiFactories.formattingToolbarFactory) {
     ret.push(
       FormattingToolbarExtension.configure({
+        editor: opts.editor,
         formattingToolbarFactory: opts.uiFactories.formattingToolbarFactory,
       })
     );

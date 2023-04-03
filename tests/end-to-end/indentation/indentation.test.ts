@@ -1,10 +1,10 @@
 import { test } from "../../setup/setupScript";
 import {
   BASE_URL,
-  DECREASE_INDENT_BUTTON_SELECTOR,
+  UNNEST_BLOCK_BUTTON_SELECTOR,
   H_THREE_BLOCK_SELECTOR,
   H_TWO_BLOCK_SELECTOR,
-  INDENT_BUTTON_SELECTOR,
+  NEST_BLOCK_BUTTON_SELECTOR,
 } from "../../utils/const";
 import { compareDocToSnapshot, focusOnEditor } from "../../utils/editor";
 import { insertHeading, insertParagraph } from "../../utils/copypaste";
@@ -33,7 +33,7 @@ test.describe("Check Block Indentation Functionality", () => {
 
     await page.mouse.click(x + 10, y + height / 2, { clickCount: 2 });
 
-    await page.locator(INDENT_BUTTON_SELECTOR).click();
+    await page.locator(NEST_BLOCK_BUTTON_SELECTOR).click();
 
     await page.waitForTimeout(350);
     await page.mouse.click(x + 10, y + height / 2);
@@ -62,7 +62,7 @@ test.describe("Check Block Indentation Functionality", () => {
 
     await page.mouse.click(x + 10, y + height / 2, { clickCount: 2 });
 
-    await page.locator(DECREASE_INDENT_BUTTON_SELECTOR).click();
+    await page.locator(UNNEST_BLOCK_BUTTON_SELECTOR).click();
 
     await page.waitForTimeout(350);
     await page.mouse.click(x + 10, y + height / 2);
@@ -101,7 +101,7 @@ test.describe("Check Block Indentation Functionality", () => {
     );
     await page.keyboard.up("Shift");
 
-    await page.locator(INDENT_BUTTON_SELECTOR).click();
+    await page.locator(NEST_BLOCK_BUTTON_SELECTOR).click();
 
     await page.waitForTimeout(350);
     await page.mouse.click(
@@ -143,7 +143,7 @@ test.describe("Check Block Indentation Functionality", () => {
     );
     await page.keyboard.up("Shift");
 
-    await page.locator(DECREASE_INDENT_BUTTON_SELECTOR).click();
+    await page.locator(UNNEST_BLOCK_BUTTON_SELECTOR).click();
 
     await page.waitForTimeout(350);
     await page.mouse.click(
