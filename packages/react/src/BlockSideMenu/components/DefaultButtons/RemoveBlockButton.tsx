@@ -11,7 +11,6 @@ export const RemoveBlockButton = (props: {
 
   return (
     <Menu.Item
-      component={"div"}
       onClick={() => {
         props.closeMenu();
         block && props.editor.removeBlocks([block]);
