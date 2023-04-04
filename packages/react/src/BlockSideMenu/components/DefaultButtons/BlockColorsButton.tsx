@@ -1,13 +1,15 @@
-import { useCallback, useRef, useState } from "react";
+import { ReactNode, useCallback, useRef, useState } from "react";
 import { Box, Menu } from "@mantine/core";
 import { HiChevronRight } from "react-icons/hi";
 import { ColorPicker } from "../../../SharedComponents/ColorPicker/components/ColorPicker";
-import {
-  DragHandleMenuItem,
-  DragHandleMenuItemProps,
-} from "../DragHandleMenuItem";
+import { DragHandleMenuItem } from "../DragHandleMenuItem";
+import { BlockNoteEditor } from "@blocknote/core";
 
-export const BlockColorsButton = (props: DragHandleMenuItemProps) => {
+export const BlockColorsButton = (props: {
+  editor: BlockNoteEditor;
+  closeMenu: () => void;
+  children: ReactNode;
+}) => {
   const [block] = useState(props.editor.getMouseCursorPosition()?.block);
   const [opened, setOpened] = useState(false);
 

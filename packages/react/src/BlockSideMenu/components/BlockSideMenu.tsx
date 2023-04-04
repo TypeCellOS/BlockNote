@@ -2,9 +2,7 @@ import { FC, useEffect, useRef, useState } from "react";
 import { ActionIcon, Group, Menu } from "@mantine/core";
 import { BlockNoteEditor } from "@blocknote/core";
 import { AiOutlinePlus, MdDragIndicator } from "react-icons/all";
-import { DragHandleMenu } from "./DragHandleMenu";
-import { RemoveBlockButton } from "./DefaultButtons/RemoveBlockButton";
-import { BlockColorsButton } from "./DefaultButtons/BlockColorsButton";
+import { DefaultDragHandleMenu } from "./DefaultDragHandleMenu";
 
 export type BlockSideMenuProps = {
   editor: BlockNoteEditor;
@@ -42,7 +40,7 @@ export const BlockSideMenu = (props: BlockSideMenuProps) => {
     props.unfreezeMenu();
   };
 
-  const CustomDragHandleMenu = props.dragHandleMenu;
+  const DragHandleMenu = props.dragHandleMenu || DefaultDragHandleMenu;
 
   return (
     <Group spacing={0}>
@@ -71,24 +69,7 @@ export const BlockSideMenu = (props: BlockSideMenuProps) => {
             </ActionIcon>
           </div>
         </Menu.Target>
-        {CustomDragHandleMenu ? (
-          <CustomDragHandleMenu
-            editor={props.editor}
-            closeMenu={() => {
-              setDragHandleMenuOpened(false);
-              props.unfreezeMenu();
-            }}
-          />
-        ) : (
-          <DragHandleMenu>
-            <RemoveBlockButton editor={props.editor} closeMenu={closeMenu}>
-              Delete
-            </RemoveBlockButton>
-            <BlockColorsButton editor={props.editor} closeMenu={closeMenu}>
-              Colors
-            </BlockColorsButton>
-          </DragHandleMenu>
-        )}
+        <DragHandleMenu editor={props.editor} closeMenu={closeMenu} />
       </Menu>
     </Group>
   );

@@ -1,9 +1,12 @@
-import {
-  DragHandleMenuItem,
-  DragHandleMenuItemProps,
-} from "../DragHandleMenuItem";
+import { DragHandleMenuItem } from "../DragHandleMenuItem";
+import { BlockNoteEditor } from "@blocknote/core";
+import { ReactNode } from "react";
 
-export const RemoveBlockButton = (props: DragHandleMenuItemProps) => {
+export const RemoveBlockButton = (props: {
+  editor: BlockNoteEditor;
+  closeMenu: () => void;
+  children: ReactNode;
+}) => {
   const block = props.editor.getMouseCursorPosition()?.block;
 
   return (
