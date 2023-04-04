@@ -256,7 +256,7 @@ export class BlockMenuView {
 
   blockMenu: BlockSideMenu;
 
-  hoveredBlockContent: HTMLElement | undefined;
+  hoveredBlock: HTMLElement | undefined;
 
   menuOpen = false;
   menuFrozen = false;
@@ -401,15 +401,16 @@ export class BlockMenuView {
     // Doesn't update if the menu is already open and the mouse cursor is still hovering the same block.
     if (
       this.menuOpen &&
-      this.hoveredBlockContent?.hasAttribute("data-id") &&
-      this.hoveredBlockContent?.getAttribute("data-id") === block.id
+      this.hoveredBlock?.hasAttribute("data-id") &&
+      this.hoveredBlock?.getAttribute("data-id") === block.id
     ) {
       return;
     }
 
+    this.hoveredBlock = block.node;
+
     // Gets the block's content node, which lets to ignore child blocks when determining the block menu's position.
     const blockContent = block.node.firstChild as HTMLElement;
-    this.hoveredBlockContent = blockContent;
 
     if (!blockContent) {
       return;
@@ -441,8 +442,8 @@ export class BlockMenuView {
     this.menuFrozen = true;
     this.blockMenu.hide();
 
-    const blockContentBoundingBox =
-      this.hoveredBlockContent!.getBoundingClientRect();
+    const blockContent = this.hoveredBlock!.firstChild! as HTMLElement;
+    const blockContentBoundingBox = blockContent.getBoundingClientRect();
 
     const pos = this.ttEditor.view.posAtCoords({
       left: blockContentBoundingBox.left + blockContentBoundingBox.width / 2,
@@ -502,8 +503,8 @@ export class BlockMenuView {
   }
 
   getDynamicParams(): BlockSideMenuDynamicParams {
-    const blockContentBoundingBox =
-      this.hoveredBlockContent!.getBoundingClientRect();
+    const blockContent = this.hoveredBlock!.firstChild! as HTMLElement;
+    const blockContentBoundingBox = blockContent.getBoundingClientRect();
 
     return {
       editor: this.editor,
