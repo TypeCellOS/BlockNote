@@ -1,11 +1,10 @@
-import { useState } from "react";
 import {
   DragHandleMenuItem,
   DragHandleMenuItemProps,
 } from "../DragHandleMenuItem";
 
 export const RemoveBlockButton = (props: DragHandleMenuItemProps) => {
-  const [block] = useState(props.editor.getMouseCursorPosition()?.block);
+  const block = props.editor.getMouseCursorPosition()?.block;
 
   return (
     <DragHandleMenuItem
