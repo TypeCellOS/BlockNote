@@ -24,6 +24,7 @@ const toggleStyles = new Set<ToggledStyles>([
   "italic",
   "underline",
   "strike",
+  "code",
 ]);
 const colorStyles = new Set<ColorStyles>(["textColor", "backgroundColor"]);
 

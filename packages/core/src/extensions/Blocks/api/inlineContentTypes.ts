@@ -3,6 +3,7 @@ export type Styles = {
   italic?: true;
   underline?: true;
   strike?: true;
+  code?: true;
   textColor?: string;
   backgroundColor?: string;
 };
