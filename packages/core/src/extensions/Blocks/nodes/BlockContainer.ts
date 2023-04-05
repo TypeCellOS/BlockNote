@@ -101,8 +101,12 @@ export const BlockContainer = Node.create<IBlock>({
       BNCreateBlock:
         (pos) =>
         ({ state, dispatch }) => {
-          const newBlock =
-            state.schema.nodes["blockContainer"].createAndFill()!;
+          const newContent = state.schema.nodes["table"].createAndFill()!;
+
+          const newBlock = state.schema.nodes["blockContainer"].createAndFill(
+            undefined,
+            newContent
+          )!;
 
           if (dispatch) {
             state.tr.insert(pos, newBlock);
@@ -490,6 +494,7 @@ export const BlockContainer = Node.create<IBlock>({
 
               chain()
                 .BNCreateBlock(newBlockInsertionPos)
+                // .BNUpdateBlock(newBlockContentPos, { type: "table" })
                 .setTextSelection(newBlockContentPos)
                 .run();
 

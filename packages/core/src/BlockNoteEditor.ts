@@ -127,6 +127,11 @@ export class BlockNoteEditor {
       ? blockNoteExtensions.filter((e) => e.name !== "history")
       : blockNoteExtensions;
 
+    // for (const ext of extensions) {
+    //   console.log(ext);
+    //   if (ext.type === "node" && ext.config.group === "blockContent")
+    // }
+
     const tiptapOptions: EditorOptions = {
       // TODO: This approach to setting initial content is "cleaner" but requires the PM editor schema, which is only
       //  created after initializing the TipTap editor. Not sure it's feasible.

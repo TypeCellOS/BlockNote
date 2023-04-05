@@ -334,3 +334,8 @@ NESTED BLOCKS
 [data-text-alignment="justify"] {
   text-align: justify;
 }
+
+th {
+  min-width: 100px;
+  border: solid black 2px;
+}
