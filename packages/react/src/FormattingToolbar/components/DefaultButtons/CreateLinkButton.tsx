@@ -5,18 +5,6 @@ import LinkToolbarButton from "../LinkToolbarButton";
 import { formatKeyboardShortcut } from "../../../utils";
 
 export const CreateLinkButton = (props: { editor: BlockNoteEditor }) => {
-  const linkIsActive = () => !!props.editor.getActiveLink().url;
-
-  const activeLinkUrl = () => {
-    const link = props.editor.getActiveLink();
-    return link !== undefined ? link.url : "";
-  };
-
-  const activeLinkText = () => {
-    const link = props.editor.getActiveLink();
-    return link !== undefined ? link.text : "";
-  };
-
   const setLink = useCallback(
     (url: string, text?: string) => {
       props.editor.focus();
@@ -27,13 +15,13 @@ export const CreateLinkButton = (props: { editor: BlockNoteEditor }) => {
 
   return (
     <LinkToolbarButton
-      isSelected={linkIsActive()}
+      isSelected={!!props.editor.getSelectedLinkUrl()}
       mainTooltip="Link"
       secondaryTooltip={formatKeyboardShortcut("Mod+K")}
       icon={RiLink}
-      hyperlinkIsActive={linkIsActive()}
-      activeHyperlinkUrl={activeLinkUrl()}
-      activeHyperlinkText={activeLinkText()}
+      hyperlinkIsActive={!!props.editor.getSelectedLinkUrl()}
+      activeHyperlinkUrl={props.editor.getSelectedLinkUrl() || ""}
+      activeHyperlinkText={props.editor.getSelectedText()}
       setHyperlink={setLink}
     />
   );

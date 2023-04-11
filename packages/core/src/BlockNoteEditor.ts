@@ -403,7 +403,7 @@ export class BlockNoteEditor {
   }
 
   /**
-   * Gets the active text styles at the text cursor position.
+   * Gets the active text styles at the text cursor position or at the end of the current selection if it's active.
    */
   public getActiveStyles() {
     const styles: Styles = {};
@@ -489,18 +489,20 @@ export class BlockNoteEditor {
   }
 
   /**
-   * Gets the URL of the link at the current selection, and the currently selected text. If no link is active, the URL
-   * is an empty string.
+   * Gets the currently selected text.
    */
-  public getActiveLink() {
-    const url = this._tiptapEditor.getAttributes("link").href;
-    // TODO: Does this make sense? Shouldn't it get the actual link text?
-    const text = this._tiptapEditor.state.doc.textBetween(
+  public getSelectedText() {
+    return this._tiptapEditor.state.doc.textBetween(
       this._tiptapEditor.state.selection.from,
       this._tiptapEditor.state.selection.to
     );
+  }
 
-    return { text: text, url: url };
+  /**
+   * Gets the URL of the last link in the current selection, or `undefined` if there are no links in the selection.
+   */
+  public getSelectedLinkUrl() {
+    return this._tiptapEditor.getAttributes("link").href as string | undefined;
   }
 
   /**
