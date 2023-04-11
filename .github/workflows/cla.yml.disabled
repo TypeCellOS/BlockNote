@@ -19,7 +19,7 @@ jobs:
           PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         with:
           path-to-signatures: ".signatures/v1/cla.json"
-          path-to-document: "https://github.com/YousefED/blocknote/blob/main/CLA.md" # e.g. a CLA or a DCO document
+          path-to-document: "https://github.com/TypeCellOS/BlockNote/blob/main/CLA.md" # e.g. a CLA or a DCO document
           # branch should not be protected
           branch: "main"
           # allowlist: user1,bot*

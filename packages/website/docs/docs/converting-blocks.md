@@ -5,7 +5,7 @@ It's possible to export or import Blocks to and from Markdown and HTML.
 ::: warning
 The functions to import/export to and from Markdown/HTML are considered "lossy"; some information might be dropped when you export Blocks to those formats.
 
-To serialize Blocks to a non-lossy format (for example, to store the contents of the editor in your backend), simply export the built-in Block format using `JSON.stringify(editor.allBlocks)`.
+To serialize Blocks to a non-lossy format (for example, to store the contents of the editor in your backend), simply export the built-in Block format using `JSON.stringify(editor.topLevelBlocks)`.
 :::
 
 ## Markdown
@@ -44,23 +44,24 @@ import "@blocknote/core/style.css";
 
 export default function App() {
   // Stores the editor's contents as Markdown.
-  const [markdown, setMarkdown] = useState<string | null>(null);
+  const [markdown, setMarkdown] = useState<string>("");
 
   // Creates a new editor instance.
-  const editor = useBlockNote({
+  const editor: BlockNoteEditor | null = useBlockNote({
     // Listens for when the editor's contents change.
     onEditorContentChange: (editor: BlockNoteEditor) => {
       // Converts the editor's contents from Block objects to Markdown and 
       // saves them.
       const saveBlocksAsMarkdown = async () => {
-        const markdown = await editor.blocksToMarkdown(editor.topLevelBlocks);
+        const markdown: string = 
+          await editor.blocksToMarkdown(editor.topLevelBlocks);
         setMarkdown(markdown);
       };
       saveBlocksAsMarkdown();
     }
   });
   
-  // Renders a BlockNote editor, and its contents as Markdown below.
+  // Renders the editor instance, and its contents as Markdown below.
   return (
     <div>
       <BlockNoteView editor={editor} />
@@ -98,34 +99,34 @@ Tries to create `Block` and `InlineNode` objects based on Markdown syntax, thoug
 
 ```typescript /App.tsx
 import { useEffect, useState } from "react";
-import { BlockNoteEditor } from "@blocknote/core";
+import { BlockNoteEditor, Block } from "@blocknote/core";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
 import "@blocknote/core/style.css";
 
 export default function App() {
+  // Stores the current Markdown content.
+  const [markdown, setMarkdown] = useState<string>("");
+  
   // Creates a new editor instance.
   const editor: BlockNoteEditor | null = useBlockNote({
     // Makes the editor non-editable.
     editable: false
   })
 
-  // Stores the current Markdown content.
-  const [markdown, setMarkdown] = useState<string>("");
-
   useEffect(() => {
     if (editor) {
       // Whenever the current Markdown content changes, converts it to an array
       // of Block objects and replaces the editor's content with them.
       const getBlocks = async () => {
-        const blocks = await editor.markdownToBlocks(markdown);
+        const blocks: Block[] = await editor.markdownToBlocks(markdown);
         editor.replaceBlocks(editor.topLevelBlocks, blocks);
       };
       getBlocks();
     }
   }, [editor, markdown]);
 
-  // Renders a text area for you to write/paste Markdown in and a BlockNote
-  // editor below, which displays the current Markdown as blocks.
+  // Renders a text area for you to write/paste Markdown in, and the editor
+  // instance below, which displays the current Markdown as blocks.
   return (
     <div>
       <textarea
@@ -177,23 +178,23 @@ import "@blocknote/core/style.css";
 
 export default function App() {
   // Stores the editor's contents as HTML.
-  const [html, setHTML] = useState<string | null>(null);
+  const [html, setHTML] = useState<string>("");
 
   // Creates a new editor instance.
-  const editor = useBlockNote({
+  const editor: BlockNoteEditor | null = useBlockNote({
     // Listens for when the editor's contents change.
     onEditorContentChange: (editor: BlockNoteEditor) => {
       // Converts the editor's contents from Block objects to HTML and saves 
       // them.
       const saveBlocksAsHTML = async () => {
-        const html = await editor.blocksToHTML(editor.topLevelBlocks);
+        const html: string = await editor.blocksToHTML(editor.topLevelBlocks);
         setHTML(html);
       };
       saveBlocksAsHTML();
     }
   });
 
-  // Renders a BlockNote editor, and its contents as HTML below.
+  // Renders the editor instance, and its contents as HTML below.
   return (
     <div>
       <BlockNoteView editor={editor} />
@@ -231,33 +232,33 @@ Tries to create `Block` objects out of any HTML block-level elements, and `Inlin
 
 ```typescript /App.tsx
 import { useEffect, useState } from "react";
-import { BlockNoteEditor } from "@blocknote/core";
+import { BlockNoteEditor, Block } from "@blocknote/core";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
 import "@blocknote/core/style.css";
 
 export default function App() {
+  // Stores the current HTML content.
+  const [html, setHTML] = useState<string>("");
+  
   // Creates a new editor instance.
   const editor: BlockNoteEditor | null = useBlockNote({
     // Makes the editor non-editable.
     editable: false
   })
 
-  // Stores the current HTML content.
-  const [html, setHTML] = useState<string>("");
-
   useEffect(() => {
     if (editor) {
       // Whenever the current HTML content changes, converts it to an array of 
       // Block objects and replaces the editor's content with them.
       const getBlocks = async () => {
-        const blocks = await editor.HTMLToBlocks(html);
+        const blocks: Block[] = await editor.HTMLToBlocks(html);
         editor.replaceBlocks(editor.topLevelBlocks, blocks);
       };
       getBlocks();
     }
   }, [editor, html]);
 
-  // Renders a text area for you to write/paste HTML in and a BlockNote editor 
+  // Renders a text area for you to write/paste HTML in, and the editor instance
   // below, which displays the current HTML as blocks.
   return (
     <div>

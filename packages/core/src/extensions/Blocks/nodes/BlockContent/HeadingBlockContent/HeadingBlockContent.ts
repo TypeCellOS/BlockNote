@@ -48,17 +48,17 @@ export const HeadingBlockContent = Node.create({
       {
         tag: "h1",
         attrs: { level: "1" },
-        node: "blockContainer",
+        node: "heading",
       },
       {
         tag: "h2",
         attrs: { level: "2" },
-        node: "blockContainer",
+        node: "heading",
       },
       {
         tag: "h3",
         attrs: { level: "3" },
-        node: "blockContainer",
+        node: "heading",
       },
     ];
   },

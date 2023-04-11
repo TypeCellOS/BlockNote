@@ -53,7 +53,7 @@ export const BulletListItemBlockContent = Node.create({
 
           return false;
         },
-        node: "blockContainer",
+        node: "bulletListItem",
       },
       // Case for BlockNote list structure.
       {
@@ -76,7 +76,7 @@ export const BulletListItemBlockContent = Node.create({
           return false;
         },
         priority: 300,
-        node: "blockContainer",
+        node: "bulletListItem",
       },
     ];
   },
