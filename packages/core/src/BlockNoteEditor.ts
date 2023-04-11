@@ -264,7 +264,7 @@ export class BlockNoteEditor {
    * Makes the editor editable or locks it, depending on the argument passed.
    * @param editable True to make the editor editable, or false to lock it.
    */
-  public setEditable(editable: boolean): void {
+  public set isEditable(editable: boolean) {
     this._tiptapEditor.setEditable(editable);
   }
 
