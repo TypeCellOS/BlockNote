@@ -147,7 +147,7 @@ class SuggestionPluginView<T extends SuggestionItem> {
 
     this.pluginState = stopped ? prev : next;
 
-    if (stopped) {
+    if (stopped || !this.editor.isEditable) {
       this.suggestionsMenu.hide();
 
       // Listener stops focus moving to the menu on click.
@@ -160,7 +160,7 @@ class SuggestionPluginView<T extends SuggestionItem> {
       this.suggestionsMenu.render(this.getDynamicParams(), false);
     }
 
-    if (started) {
+    if (started && this.editor.isEditable) {
       this.suggestionsMenu.render(this.getDynamicParams(), true);
 
       // Listener stops focus moving to the menu on click.

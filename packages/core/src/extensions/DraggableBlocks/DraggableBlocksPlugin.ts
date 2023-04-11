@@ -384,7 +384,7 @@ export class BlockMenuView {
     const block = getDraggableBlockFromCoords(coords, this.editor.view);
 
     // Closes the menu if the mouse cursor is beyond the editor vertically.
-    if (!block) {
+    if (!block || !this.editor.isEditable) {
       if (this.menuOpen) {
         this.menuOpen = false;
         this.blockMenu.hide();
@@ -411,11 +411,13 @@ export class BlockMenuView {
     }
 
     // Shows or updates elements.
-    if (!this.menuOpen) {
-      this.menuOpen = true;
-      this.blockMenu.render(this.getDynamicParams(), true);
-    } else {
-      this.blockMenu.render(this.getDynamicParams(), false);
+    if (this.editor.isEditable) {
+      if (!this.menuOpen) {
+        this.menuOpen = true;
+        this.blockMenu.render(this.getDynamicParams(), true);
+      } else {
+        this.blockMenu.render(this.getDynamicParams(), false);
+      }
     }
   };
 
