@@ -206,6 +206,17 @@ NESTED BLOCKS
   content: "▪";
 }
 
+/* IMAGES*/
+[data-content-type="image"] {
+  display: flex;
+  flex-direction: column-reverse;
+}
+
+[data-content-type="image"] > img {
+  display: block;
+  user-select: all;
+}
+
 /* PLACEHOLDERS*/
 
 .blockContent > :first-child {
@@ -242,6 +253,10 @@ NESTED BLOCKS
 .blockContent[data-content-type="numberedListItem"].isEmpty
   > :first-child:before {
   content: "List";
+}
+
+.blockContent[data-content-type="image"].isEmpty > :first-child:before {
+  content: "Caption";
 }
 
 /* TEXT COLORS */

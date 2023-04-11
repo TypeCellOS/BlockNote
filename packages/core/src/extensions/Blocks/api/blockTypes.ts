@@ -42,11 +42,17 @@ export type HeadingBlock = BlockTemplate<
 
 export type ParagraphBlock = BlockTemplate<"paragraph", DefaultBlockProps>;
 
+export type ImageBlock = BlockTemplate<
+  "image",
+  DefaultBlockProps & { src: string }
+>;
+
 export type Block =
   | ParagraphBlock
   | HeadingBlock
   | BulletListItemBlock
-  | NumberedListItemBlock;
+  | NumberedListItemBlock
+  | ImageBlock;
 
 export type BlockIdentifier = string | Block;
 
@@ -87,4 +93,5 @@ export const blockProps: Record<Block["type"], Set<string>> = {
     ...globalProps,
   ]),
   bulletListItem: new Set<keyof BulletListItemBlock["props"]>([...globalProps]),
+  image: new Set<keyof ImageBlock["props"]>([...globalProps, "src" as const]),
 };
