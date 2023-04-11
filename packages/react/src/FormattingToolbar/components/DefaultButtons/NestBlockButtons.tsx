@@ -10,12 +10,10 @@ export const NestBlockButton = (props: { editor: BlockNoteEditor }) => {
     props.editor.nestBlock();
   }, [props.editor]);
 
-  const canNestBlock = useCallback(() => props.editor.canNestBlock(), [props]);
-
   return (
     <ToolbarButton
       onClick={nestBlock}
-      isDisabled={!canNestBlock()}
+      isDisabled={!props.editor.canNestBlock()}
       mainTooltip="Nest Block"
       secondaryTooltip={formatKeyboardShortcut("Tab")}
       icon={RiIndentIncrease}
@@ -29,15 +27,10 @@ export const UnnestBlockButton = (props: { editor: BlockNoteEditor }) => {
     props.editor.unnestBlock();
   }, [props]);
 
-  const canUnnestBlock = useCallback(
-    () => props.editor.canUnnestBlock(),
-    [props.editor]
-  );
-
   return (
     <ToolbarButton
       onClick={unnestBlock}
-      isDisabled={!canUnnestBlock()}
+      isDisabled={!props.editor.canUnnestBlock()}
       mainTooltip="Unnest Block"
       secondaryTooltip={formatKeyboardShortcut("Shift+Tab")}
       icon={RiIndentDecrease}

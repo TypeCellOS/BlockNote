@@ -20,9 +20,6 @@ export const TextAlignButton = (props: {
   editor: BlockNoteEditor;
   textAlignment: DefaultBlockProps["textAlignment"];
 }) => {
-  const getTextAlignment = () =>
-    props.editor.getTextCursorPosition().block.props.textAlignment;
-
   const setTextAlignment = useCallback(
     (textAlignment: DefaultBlockProps["textAlignment"]) => {
       props.editor.focus();
@@ -38,7 +35,10 @@ export const TextAlignButton = (props: {
   return (
     <ToolbarButton
       onClick={() => setTextAlignment(props.textAlignment)}
-      isSelected={getTextAlignment() === props.textAlignment}
+      isSelected={
+        props.editor.getTextCursorPosition().block.props.textAlignment ===
+        props.textAlignment
+      }
       mainTooltip={
         props.textAlignment === "justify"
           ? "Justify Text"

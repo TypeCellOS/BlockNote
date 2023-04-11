@@ -6,9 +6,6 @@ import { ColorIcon } from "../../../SharedComponents/ColorPicker/components/Colo
 import { ColorPicker } from "../../../SharedComponents/ColorPicker/components/ColorPicker";
 
 export const ColorStyleButton = (props: { editor: BlockNoteEditor }) => {
-  const getTextColor = () =>
-    props.editor.getActiveStyles().textColor || "default";
-
   const setTextColor = useCallback(
     (color: string) => {
       props.editor.focus();
@@ -16,11 +13,6 @@ export const ColorStyleButton = (props: { editor: BlockNoteEditor }) => {
         ? props.editor.removeStyles({ textColor: color })
         : props.editor.addStyles({ textColor: color });
     },
-    [props.editor]
-  );
-
-  const getBackgroundColor = useCallback(
-    () => props.editor.getActiveStyles().backgroundColor || "default",
     [props.editor]
   );
 
@@ -38,8 +30,10 @@ export const ColorStyleButton = (props: { editor: BlockNoteEditor }) => {
           mainTooltip={"Colors"}
           icon={() => (
             <ColorIcon
-              textColor={getTextColor()}
-              backgroundColor={getBackgroundColor()}
+              textColor={props.editor.getActiveStyles().textColor || "default"}
+              backgroundColor={
+                props.editor.getActiveStyles().backgroundColor || "default"
+              }
               size={20}
             />
           )}
@@ -47,9 +41,11 @@ export const ColorStyleButton = (props: { editor: BlockNoteEditor }) => {
       </Menu.Target>
       <Menu.Dropdown>
         <ColorPicker
-          textColor={getTextColor()}
+          textColor={props.editor.getActiveStyles().textColor || "default"}
           setTextColor={setTextColor}
-          backgroundColor={getBackgroundColor()}
+          backgroundColor={
+            props.editor.getActiveStyles().backgroundColor || "default"
+          }
           setBackgroundColor={setBackgroundColor}
         />
       </Menu.Dropdown>

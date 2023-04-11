@@ -2,7 +2,6 @@ import { ToolbarButton } from "../../../SharedComponents/Toolbar/components/Tool
 import { formatKeyboardShortcut } from "../../../utils";
 import { RiBold, RiItalic, RiStrikethrough, RiUnderline } from "react-icons/ri";
 import { BlockNoteEditor, ToggledStyle } from "@blocknote/core";
-import { useCallback } from "react";
 import { IconType } from "react-icons";
 
 const shortcuts: Record<ToggledStyle, string> = {
@@ -23,22 +22,15 @@ export const ToggledStyleButton = (props: {
   editor: BlockNoteEditor;
   toggledStyle: ToggledStyle;
 }) => {
-  const styleIsActive = (style: ToggledStyle) => {
-    return style in props.editor.getActiveStyles();
+  const toggleStyle = (style: ToggledStyle) => {
+    props.editor.focus();
+    props.editor.toggleStyles({ [style]: true });
   };
-
-  const toggleStyle = useCallback(
-    (style: ToggledStyle) => {
-      props.editor.focus();
-      props.editor.toggleStyles({ [style]: true });
-    },
-    [props.editor]
-  );
 
   return (
     <ToolbarButton
       onClick={() => toggleStyle(props.toggledStyle)}
-      isSelected={styleIsActive(props.toggledStyle)}
+      isSelected={props.toggledStyle in props.editor.getActiveStyles()}
       mainTooltip={
         props.toggledStyle.slice(0, 1).toUpperCase() +
         props.toggledStyle.slice(1)
