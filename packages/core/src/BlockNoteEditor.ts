@@ -75,8 +75,14 @@ export type BlockNoteEditorOptions = {
    * A callback function that runs whenever the text cursor position changes.
    */
   onTextCursorPositionChange: (editor: BlockNoteEditor) => void;
+  /**
+   * Locks the editor from being editable by the user if set to `false`.
+   */
+  editable: boolean;
+  /**
+   * The content that should be in the editor when it's created, represented as an array of partial block objects.
+   */
   initialContent: PartialBlock[];
-
   /**
    * Use default BlockNote font and reset the styles of <p> <li> <h1> elements etc., that are used in BlockNote.
    *
@@ -144,6 +150,7 @@ export class BlockNoteEditor {
       onSelectionUpdate: () => {
         options.onTextCursorPositionChange?.(this);
       },
+      editable: options.editable === undefined ? true : options.editable,
       extensions:
         options.enableBlockNoteExtensions === false
           ? options._tiptapOptions?.extensions
@@ -351,6 +358,21 @@ export class BlockNoteEditor {
     });
 
     return { blocks: blocks };
+    
+  /**
+   * Checks if the editor is currently editable, or if it's locked.
+   * @returns True if the editor is editable, false otherwise.
+   */
+  public get isEditable(): boolean {
+    return this._tiptapEditor.isEditable;
+  }
+
+  /**
+   * Makes the editor editable or locks it, depending on the argument passed.
+   * @param editable True to make the editor editable, or false to lock it.
+   */
+  public set isEditable(editable: boolean) {
+    this._tiptapEditor.setEditable(editable);
   }
 
   /**

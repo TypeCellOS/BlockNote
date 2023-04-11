@@ -145,7 +145,7 @@ class HyperlinkToolbarView {
       this.hyperlinkMarkRange = this.keyboardHoveredHyperlinkMarkRange;
     }
 
-    if (this.hyperlinkMark) {
+    if (this.hyperlinkMark && this.editor.isEditable) {
       this.getDynamicParams();
 
       // Shows menu.
@@ -171,7 +171,7 @@ class HyperlinkToolbarView {
     }
 
     // Hides menu.
-    if (!this.hyperlinkMark && prevHyperlinkMark) {
+    if (prevHyperlinkMark && (!this.hyperlinkMark || !this.editor.isEditable)) {
       this.hyperlinkToolbar.element?.removeEventListener(
         "mouseleave",
         this.startMenuUpdateTimer
