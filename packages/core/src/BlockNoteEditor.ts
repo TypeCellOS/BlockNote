@@ -441,8 +441,6 @@ export class BlockNoteEditor {
     ]);
     const colorStyles = new Set<ColorStyle>(["textColor", "backgroundColor"]);
 
-    this._tiptapEditor.view.focus();
-
     for (const [style, value] of Object.entries(styles)) {
       if (toggleStyles.has(style as ToggledStyle)) {
         this._tiptapEditor.commands.setMark(style);
@@ -457,8 +455,6 @@ export class BlockNoteEditor {
    * @param styles The styles to remove.
    */
   public removeStyles(styles: Styles) {
-    this._tiptapEditor.view.focus();
-
     for (const style of Object.keys(styles)) {
       this._tiptapEditor.commands.unsetMark(style);
     }
@@ -476,8 +472,6 @@ export class BlockNoteEditor {
       "strike",
     ]);
     const colorStyles = new Set<ColorStyle>(["textColor", "backgroundColor"]);
-
-    this._tiptapEditor.view.focus();
 
     for (const [style, value] of Object.entries(styles)) {
       if (toggleStyles.has(style as ToggledStyle)) {

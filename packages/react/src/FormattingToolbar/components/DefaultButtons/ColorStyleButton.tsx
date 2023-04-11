@@ -16,12 +16,15 @@ export const ColorStyleButton = (props: { editor: BlockNoteEditor }) => {
     [props.editor]
   );
 
-  const setBackgroundColor = (color: string) => {
-    props.editor.focus();
-    color === "default"
-      ? props.editor.removeStyles({ backgroundColor: color })
-      : props.editor.addStyles({ backgroundColor: color });
-  };
+  const setBackgroundColor = useCallback(
+    (color: string) => {
+      props.editor.focus();
+      color === "default"
+        ? props.editor.removeStyles({ backgroundColor: color })
+        : props.editor.addStyles({ backgroundColor: color });
+    },
+    [props.editor]
+  );
 
   return (
     <Menu>
