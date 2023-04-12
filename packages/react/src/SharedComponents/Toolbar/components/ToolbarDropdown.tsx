@@ -10,10 +10,8 @@ export type ToolbarDropdownProps = {
     text: string;
     icon?: IconType;
     isSelected?: boolean;
-    children?: any;
     isDisabled?: boolean;
   }>;
-  children?: any;
   isDisabled?: boolean;
 };
 
@@ -21,7 +19,7 @@ export function ToolbarDropdown(props: ToolbarDropdownProps) {
   const activeItem = props.items.filter((p) => p.isSelected)[0];
 
   return (
-    <Menu exitTransitionDuration={0}>
+    <Menu exitTransitionDuration={0} disabled={props.isDisabled}>
       <Menu.Target>
         <ToolbarDropdownTarget {...activeItem} />
       </Menu.Target>
