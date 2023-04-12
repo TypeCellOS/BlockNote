@@ -358,7 +358,8 @@ export class BlockNoteEditor {
     });
 
     return { blocks: blocks };
-    
+  }
+
   /**
    * Checks if the editor is currently editable, or if it's locked.
    * @returns True if the editor is editable, false otherwise.
