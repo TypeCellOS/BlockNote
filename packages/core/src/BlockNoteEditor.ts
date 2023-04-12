@@ -437,6 +437,7 @@ export class BlockNoteEditor {
       "italic",
       "underline",
       "strike",
+      "code",
     ]);
     const colorStyles = new Set<ColorStyle>(["textColor", "backgroundColor"]);
 
@@ -461,6 +462,7 @@ export class BlockNoteEditor {
       "italic",
       "underline",
       "strike",
+      "code",
     ]);
     const colorStyles = new Set<ColorStyle>(["textColor", "backgroundColor"]);
 
@@ -493,6 +495,7 @@ export class BlockNoteEditor {
       "italic",
       "underline",
       "strike",
+      "code",
     ]);
     const colorStyles = new Set<ColorStyle>(["textColor", "backgroundColor"]);
 
