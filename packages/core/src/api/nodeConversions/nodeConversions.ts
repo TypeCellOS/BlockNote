@@ -1,6 +1,7 @@
 import { Mark } from "@tiptap/pm/model";
 import { Node, Schema } from "prosemirror-model";
 import {
+  BlockSpec,
   BlockTemplate,
   PartialBlockTemplate,
 } from "../../extensions/Blocks/api/blockTypes";
@@ -218,6 +219,7 @@ function contentNodeToInlineContent(contentNode: Node) {
  */
 export function nodeToBlock<Block extends BlockTemplate<any, any>>(
   node: Node,
+  schema: Map<string, BlockSpec>,
   blockCache?: WeakMap<Node, Block>
 ): Block {
   if (node.type.name !== "blockContainer") {
@@ -248,16 +250,19 @@ export function nodeToBlock<Block extends BlockTemplate<any, any>>(
     ...blockInfo.node.attrs,
     ...blockInfo.contentNode.attrs,
   })) {
-    if (!(blockInfo.contentType.name in blockProps)) {
+    const blockSpec = schema.get(blockInfo.contentType.name);
+    if (!blockSpec) {
       throw Error(
         "Block is of an unrecognized type: " + blockInfo.contentType.name
       );
     }
 
-    const validAttrs = blockProps[blockInfo.contentType.name as Block["type"]];
+    const validAttrs = blockSpec.acceptedProps;
 
-    if (validAttrs.has(attr)) {
+    if (validAttrs.find((prop) => prop.name === attr)) {
       props[attr] = value;
+    } else {
+      console.warn("Block has an unrecognized attribute: " + attr);
     }
   }
 
@@ -265,10 +270,13 @@ export function nodeToBlock<Block extends BlockTemplate<any, any>>(
 
   const children: Block[] = [];
   for (let i = 0; i < blockInfo.numChildBlocks; i++) {
-    children.push(nodeToBlock(blockInfo.node.lastChild!.child(i)));
+    children.push(
+      nodeToBlock(blockInfo.node.lastChild!.child(i), schema, blockCache)
+    );
   }
 
-  const block: Block = {
+  // TODO: fix types
+  const block: any = {
     id,
     type: blockInfo.contentType.name as Block["type"],
     props,

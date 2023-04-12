@@ -1,3 +1,6 @@
+import { BlockNoteEditor, DefaultBlockPropsType } from "@blocknote/core";
+import { useCallback } from "react";
+import { IconType } from "react-icons";
 import {
   RiAlignCenter,
   RiAlignJustify,
@@ -5,11 +8,8 @@ import {
   RiAlignRight,
 } from "react-icons/ri";
 import { ToolbarButton } from "../../../SharedComponents/Toolbar/components/ToolbarButton";
-import { BlockNoteEditor, DefaultBlockProps } from "@blocknote/core";
-import { useCallback } from "react";
-import { IconType } from "react-icons";
 
-const icons: Record<DefaultBlockProps["textAlignment"], IconType> = {
+const icons: Record<DefaultBlockPropsType["textAlignment"], IconType> = {
   left: RiAlignLeft,
   center: RiAlignCenter,
   right: RiAlignRight,
@@ -18,7 +18,7 @@ const icons: Record<DefaultBlockProps["textAlignment"], IconType> = {
 
 export const TextAlignButton = (props: {
   editor: BlockNoteEditor;
-  textAlignment: DefaultBlockProps["textAlignment"];
+  textAlignment: DefaultBlockPropsType["textAlignment"];
 }) => {
   const getTextAlignment = useCallback(
     () => props.editor.getTextCursorPosition().block.props.textAlignment,
@@ -26,7 +26,7 @@ export const TextAlignButton = (props: {
   );
 
   const setTextAlignment = useCallback(
-    (textAlignment: DefaultBlockProps["textAlignment"]) => {
+    (textAlignment: DefaultBlockPropsType["textAlignment"]) => {
       props.editor.focus();
       for (const block of props.editor.getSelection().blocks) {
         props.editor.updateBlock(block, {

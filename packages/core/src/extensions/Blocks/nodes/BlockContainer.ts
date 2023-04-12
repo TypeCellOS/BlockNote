@@ -5,7 +5,8 @@ import {
   blockToNode,
   inlineContentToNodes,
 } from "../../../api/nodeConversions/nodeConversions";
-import { PartialBlock } from "../api/blockTypes";
+import { PartialBlockTemplate } from "../api/blockTypes";
+
 import { getBlockInfoFromPos } from "../helpers/getBlockInfoFromPos";
 import { PreviousBlockTypePlugin } from "../PreviousBlockTypePlugin";
 import styles from "./Block.module.css";
@@ -23,10 +24,13 @@ declare module "@tiptap/core" {
       BNDeleteBlock: (posInBlock: number) => ReturnType;
       BNMergeBlocks: (posBetweenBlocks: number) => ReturnType;
       BNSplitBlock: (posInBlock: number, keepType: boolean) => ReturnType;
-      BNUpdateBlock: (posInBlock: number, block: PartialBlock) => ReturnType;
+      BNUpdateBlock: (
+        posInBlock: number,
+        block: PartialBlockTemplate<any>
+      ) => ReturnType;
       BNCreateOrUpdateBlock: (
         posInBlock: number,
-        block: PartialBlock
+        block: PartialBlockTemplate<any>
       ) => ReturnType;
     };
   }
@@ -101,12 +105,13 @@ export const BlockContainer = Node.create<IBlock>({
       BNCreateBlock:
         (pos) =>
         ({ state, dispatch }) => {
-          const newContent = state.schema.nodes["table"].createAndFill()!;
+          // const newContent = state.schema.nodes["table"].createAndFill()!;
 
-          const newBlock = state.schema.nodes["blockContainer"].createAndFill(
-            undefined,
-            newContent
-          )!;
+          const newBlock = state.schema.nodes["blockContainer"]
+            .createAndFill
+            // undefined,
+            // newContent
+            ()!;
 
           if (dispatch) {
             state.tr.insert(pos, newBlock);

@@ -122,6 +122,7 @@ export class BlockNoteEditor<
   public readonly _tiptapEditor: TiptapEditor & { contentComponent: any };
   private blockCache = new WeakMap<Node, Block>();
   private mousePos = { x: 0, y: 0 };
+  private schema = new Map<string, BlockSpec>();
 
   public get domElement() {
     return this._tiptapEditor.view.dom as HTMLDivElement;
@@ -132,6 +133,7 @@ export class BlockNoteEditor<
   }
 
   constructor(options: Partial<BlockNoteEditorOptions<Block>> = {}) {
+    console.log("test");
     // apply defaults
     options = {
       defaultStyles: true,
@@ -145,6 +147,11 @@ export class BlockNoteEditor<
       slashCommands: options.slashCommands || defaultSlashMenuItems,
       blocks: options.blocks || [],
     });
+
+    // add blocks to schema
+    for (const block of options.blocks || []) {
+      this.schema.set(block.type, block);
+    }
 
     let extensions = options.disableHistoryExtension
       ? blockNoteExtensions.filter((e) => e.name !== "history")
@@ -215,7 +222,7 @@ export class BlockNoteEditor<
     const blocks: Block[] = [];
 
     this._tiptapEditor.state.doc.firstChild!.descendants((node) => {
-      blocks.push(nodeToBlock(node, this.blockCache));
+      blocks.push(nodeToBlock(node, this.schema, this.blockCache));
 
       return false;
     });
@@ -244,7 +251,7 @@ export class BlockNoteEditor<
         return true;
       }
 
-      newBlock = nodeToBlock(node, this.blockCache);
+      newBlock = nodeToBlock(node, this.schema, this.blockCache);
 
       return false;
     });
@@ -317,7 +324,7 @@ export class BlockNoteEditor<
       return;
     }
 
-    return { block: nodeToBlock(blockInfo.node, this.blockCache) };
+    return { block: nodeToBlock(blockInfo.node, this.schema, this.blockCache) };
   }
 
   /**
@@ -352,15 +359,15 @@ export class BlockNoteEditor<
     }
 
     return {
-      block: nodeToBlock(node, this.blockCache),
+      block: nodeToBlock(node, this.schema, this.blockCache),
       prevBlock:
         prevNode === undefined
           ? undefined
-          : nodeToBlock(prevNode, this.blockCache),
+          : nodeToBlock(prevNode, this.schema, this.blockCache),
       nextBlock:
         nextNode === undefined
           ? undefined
-          : nodeToBlock(nextNode, this.blockCache),
+          : nodeToBlock(nextNode, this.schema, this.blockCache),
     };
   }
 
@@ -412,6 +419,7 @@ export class BlockNoteEditor<
       blocks.push(
         nodeToBlock(
           this._tiptapEditor.state.doc.resolve(pos).node(),
+          this.schema,
           this.blockCache
         )
       );
@@ -656,7 +664,7 @@ export class BlockNoteEditor<
    * @returns The blocks parsed from the HTML string.
    */
   public async HTMLToBlocks(html: string): Promise<Block[]> {
-    return HTMLToBlocks(html, this._tiptapEditor.schema);
+    return HTMLToBlocks(html, this.schema, this._tiptapEditor.schema) as any; // TODO: fix type
   }
 
   /**
@@ -677,7 +685,11 @@ export class BlockNoteEditor<
    * @returns The blocks parsed from the Markdown string.
    */
   public async markdownToBlocks(markdown: string): Promise<Block[]> {
-    return markdownToBlocks(markdown, this._tiptapEditor.schema);
+    return markdownToBlocks(
+      markdown,
+      this.schema,
+      this._tiptapEditor.schema
+    ) as any; // TODO: fix type
   }
 }
 

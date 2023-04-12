@@ -1,8 +1,11 @@
-import { BaseSlashMenuItem } from "./BaseSlashMenuItem";
-import { PartialBlock } from "../Blocks/api/blockTypes";
 import { BlockNoteEditor } from "../../BlockNoteEditor";
+import { PartialBlockTemplate } from "../Blocks/api/blockTypes";
+import { BaseSlashMenuItem } from "./BaseSlashMenuItem";
 
-function insertOrUpdateBlock(editor: BlockNoteEditor, block: PartialBlock) {
+function insertOrUpdateBlock(
+  editor: BlockNoteEditor,
+  block: PartialBlockTemplate<any>
+) {
   const currentBlock = editor.getTextCursorPosition().block;
 
   if (

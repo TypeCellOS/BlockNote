@@ -42,6 +42,8 @@ export const defaultBlockProps = [
   },
 ] as const; // TODO: upgrade typescript and use satisfies PropSpec
 
+export type DefaultBlockPropsType = PropsFromPropSpec<typeof defaultBlockProps>;
+
 export type BlockIdentifier = string | { id: string };
 
 /** Define "Partial Blocks", these are for updating or creating blocks */
@@ -91,27 +93,3 @@ export type BlockFromBlockSpec<T extends BlockSpec> = BlockTemplate<
   T["type"],
   PropsFromPropSpec<T["acceptedProps"]>
 >;
-
-/**
- * Expose blockProps. This is currently not very nice, but it's expected this
- * will change anyway once we allow for custom blocks
- */
-// TODO: we can now use BlockSpec values
-
-// export const globalProps: Array<keyof DefaultBlockProps> = [
-//   "backgroundColor",
-//   "textColor",
-//   "textAlignment",
-// ];
-
-// export const blockProps: Record<Block["type"], Set<string>> = {
-//   paragraph: new Set<keyof ParagraphBlock["props"]>([...globalProps]),
-//   heading: new Set<keyof HeadingBlock["props"]>([
-//     ...globalProps,
-//     "level" as const,
-//   ]),
-//   numberedListItem: new Set<keyof NumberedListItemBlock["props"]>([
-//     ...globalProps,
-//   ]),
-//   bulletListItem: new Set<keyof BulletListItemBlock["props"]>([...globalProps]),
-// };

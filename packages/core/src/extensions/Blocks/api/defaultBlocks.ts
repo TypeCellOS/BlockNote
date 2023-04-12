@@ -60,10 +60,10 @@ export const ParagraphBlock = createBlockFromTiptapNode(
 export type ParagraphBlockType = BlockFromBlockSpec<typeof ParagraphBlock>;
 
 export const defaultBlocks = [
+  ParagraphBlock,
   NumberedListItemBlock,
   BulletListItemBlock,
   HeadingBlock,
-  ParagraphBlock,
 ];
 export type DefaultBlockTypes =
   | NumberedListItemBlockType
