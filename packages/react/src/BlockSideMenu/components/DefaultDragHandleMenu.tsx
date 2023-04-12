@@ -1,18 +1,10 @@
-import { BlockNoteEditor } from "@blocknote/core";
-import { DragHandleMenu } from "./DragHandleMenu";
+import { DragHandleMenu, DragHandleMenuProps } from "./DragHandleMenu";
 import { RemoveBlockButton } from "./DefaultButtons/RemoveBlockButton";
 import { BlockColorsButton } from "./DefaultButtons/BlockColorsButton";
 
-export const DefaultDragHandleMenu = (props: {
-  editor: BlockNoteEditor;
-  closeMenu: () => void;
-}) => (
+export const DefaultDragHandleMenu = (props: DragHandleMenuProps) => (
   <DragHandleMenu>
-    <RemoveBlockButton editor={props.editor} closeMenu={props.closeMenu}>
-      Delete
-    </RemoveBlockButton>
-    <BlockColorsButton editor={props.editor} closeMenu={props.closeMenu}>
-      Colors
-    </BlockColorsButton>
+    <RemoveBlockButton {...props}>Delete</RemoveBlockButton>
+    <BlockColorsButton {...props}>Colors</BlockColorsButton>
   </DragHandleMenu>
 );

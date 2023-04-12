@@ -1,5 +1,6 @@
 import { EditorElement, ElementFactory } from "../../shared/EditorElement";
 import { BlockNoteEditor } from "../../BlockNoteEditor";
+import { Block } from "../Blocks/api/blockTypes";
 
 export type BlockSideMenuStaticParams = {
   editor: BlockNoteEditor;
@@ -15,6 +16,7 @@ export type BlockSideMenuStaticParams = {
 
 export type BlockSideMenuDynamicParams = {
   editor: BlockNoteEditor;
+  block: Block;
 
   referenceRect: DOMRect;
 };

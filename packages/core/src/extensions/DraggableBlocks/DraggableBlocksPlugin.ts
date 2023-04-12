@@ -21,20 +21,6 @@ const serializeForClipboard = (pv as any).__serializeForClipboard;
 
 let dragImageElement: Element | undefined;
 
-export function createRect(rect: DOMRect) {
-  let newRect = {
-    left: rect.left + document.body.scrollLeft,
-    top: rect.top + document.body.scrollTop,
-    width: rect.width,
-    height: rect.height,
-    bottom: 0,
-    right: 0,
-  };
-  newRect.bottom = newRect.top + newRect.height;
-  newRect.right = newRect.left + newRect.width;
-  return newRect;
-}
-
 function getDraggableBlockFromCoords(
   coords: { left: number; top: number },
   view: EditorView
@@ -289,7 +275,7 @@ export class BlockMenuView {
   }
 
   /**
-   * If the event is outside of the editor contents,
+   * If the event is outside the editor contents,
    * we dispatch a fake event, so that we can still drop the content
    * when dragging / dropping to the side of the editor
    */
@@ -508,6 +494,7 @@ export class BlockMenuView {
 
     return {
       editor: this.editor,
+      block: this.editor.getBlock(this.hoveredBlock!.getAttribute("data-id")!)!,
       referenceRect: new DOMRect(
         this.horizontalPosAnchoredAtRoot
           ? this.horizontalPosAnchor

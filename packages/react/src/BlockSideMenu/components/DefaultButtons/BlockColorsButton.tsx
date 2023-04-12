@@ -1,16 +1,13 @@
 import { ReactNode, useCallback, useRef, useState } from "react";
 import { Box, Menu } from "@mantine/core";
 import { HiChevronRight } from "react-icons/hi";
-import { ColorPicker } from "../../../SharedComponents/ColorPicker/components/ColorPicker";
+import { DragHandleMenuProps } from "../DragHandleMenu";
 import { DragHandleMenuItem } from "../DragHandleMenuItem";
-import { BlockNoteEditor } from "@blocknote/core";
+import { ColorPicker } from "../../../SharedComponents/ColorPicker/components/ColorPicker";
 
-export const BlockColorsButton = (props: {
-  editor: BlockNoteEditor;
-  closeMenu: () => void;
-  children: ReactNode;
-}) => {
-  const [block] = useState(props.editor.getMouseCursorPosition()?.block);
+export const BlockColorsButton = (
+  props: DragHandleMenuProps & { children: ReactNode }
+) => {
   const [opened, setOpened] = useState(false);
 
   const menuCloseTimer = useRef<NodeJS.Timeout | undefined>();
@@ -33,14 +30,9 @@ export const BlockColorsButton = (props: {
 
   return (
     <DragHandleMenuItem
-      editor={props.editor}
       closeMenu={props.closeMenu}
-      onMouseLeave={() => {
-        startMenuCloseTimer();
-      }}
-      onMouseOver={() => {
-        stopMenuCloseTimer();
-      }}>
+      onMouseLeave={startMenuCloseTimer}
+      onMouseOver={stopMenuCloseTimer}>
       <Menu opened={opened} position={"right"}>
         <Menu.Target>
           <div style={{ display: "flex", alignItems: "center" }}>
@@ -51,26 +43,20 @@ export const BlockColorsButton = (props: {
           </div>
         </Menu.Target>
         <Menu.Dropdown
-          onMouseLeave={() => {
-            startMenuCloseTimer();
-          }}
-          onMouseOver={() => {
-            stopMenuCloseTimer();
-          }}
+          onMouseLeave={startMenuCloseTimer}
+          onMouseOver={stopMenuCloseTimer}
           style={{ marginLeft: "5px" }}>
           <ColorPicker
             iconSize={18}
-            textColor={block ? block.props.textColor || "default" : "default"}
-            backgroundColor={
-              block ? block.props.backgroundColor || "default" : "default"
-            }
+            textColor={props.block.props.textColor || "default"}
+            backgroundColor={props.block.props.backgroundColor || "default"}
             setTextColor={(color) =>
-              block &&
-              props.editor.updateBlock(block, { props: { textColor: color } })
+              props.editor.updateBlock(props.block, {
+                props: { textColor: color },
+              })
             }
             setBackgroundColor={(color) =>
-              block &&
-              props.editor.updateBlock(block, {
+              props.editor.updateBlock(props.block, {
                 props: { backgroundColor: color },
               })
             }

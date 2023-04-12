@@ -1,12 +1,14 @@
 import { FC, useEffect, useRef, useState } from "react";
 import { ActionIcon, Group, Menu } from "@mantine/core";
-import { BlockNoteEditor } from "@blocknote/core";
+import { Block, BlockNoteEditor } from "@blocknote/core";
 import { AiOutlinePlus, MdDragIndicator } from "react-icons/all";
+import { DragHandleMenuProps } from "./DragHandleMenu";
 import { DefaultDragHandleMenu } from "./DefaultDragHandleMenu";
 
 export type BlockSideMenuProps = {
   editor: BlockNoteEditor;
-  dragHandleMenu?: FC<{ editor: BlockNoteEditor; closeMenu: () => void }>;
+  block: Block;
+  dragHandleMenu?: FC<DragHandleMenuProps>;
   addBlock: () => void;
   blockDragStart: (event: DragEvent) => void;
   blockDragEnd: () => void;
@@ -69,7 +71,11 @@ export const BlockSideMenu = (props: BlockSideMenuProps) => {
             </ActionIcon>
           </div>
         </Menu.Target>
-        <DragHandleMenu editor={props.editor} closeMenu={closeMenu} />
+        <DragHandleMenu
+          editor={props.editor}
+          block={props.block}
+          closeMenu={closeMenu}
+        />
       </Menu>
     </Group>
   );
