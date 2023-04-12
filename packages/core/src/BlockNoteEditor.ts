@@ -682,13 +682,26 @@ export class BlockNoteEditor<
 }
 
 // Playground:
+/*
+let x = new BlockNoteEditor(); // default block types are supported
 
-// let x = new BlockNoteEditor();
-// x.updateBlock("", { type: "paragraph", content: "hello", props: { sdf: "3" } });
-// x.updateBlock("", {
-//   type: "heading",
-//   content: "hello",
-//   props: { level: "1" },
-// });
+// this breaks because "level" is not valid on paragraph
+x.updateBlock("", { type: "paragraph", content: "hello", props: { level: "3" } });
+x.updateBlock("", {
+  type: "heading",
+  content: "hello",
+  props: { level: "1" },
+});
 
-// let y = x.topLevelBlocks[0].children[0].type;
+
+let y = new BlockNoteEditor<ParagraphBlockType>();
+
+y.updateBlock("", { type: "paragraph", content: "hello", props: {  } });
+
+// this breaks because "heading" is not a type on this editor
+y.updateBlock("", {
+  type: "heading",
+  content: "hello",
+  props: { level: "1" },
+});
+*/
