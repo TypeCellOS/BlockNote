@@ -19,19 +19,24 @@ import { getNodeById } from "./api/util/nodeUtil";
 import { getBlockNoteExtensions, UiFactories } from "./BlockNoteExtensions";
 import styles from "./editor.module.css";
 import {
-  Block,
   BlockIdentifier,
-  PartialBlock,
+  BlockSpec,
+  BlockTemplate,
+  PartialBlockTemplate,
 } from "./extensions/Blocks/api/blockTypes";
+import {
+  MouseCursorPosition,
+  TextCursorPosition,
+} from "./extensions/Blocks/api/cursorPositionTypes";
+import {
+  defaultBlocks,
+  DefaultBlockTypes,
+} from "./extensions/Blocks/api/defaultBlocks";
 import {
   ColorStyle,
   Styles,
   ToggledStyle,
 } from "./extensions/Blocks/api/inlineContentTypes";
-import {
-  MouseCursorPosition,
-  TextCursorPosition,
-} from "./extensions/Blocks/api/cursorPositionTypes";
 import { Selection } from "./extensions/Blocks/api/selectionTypes";
 import { getBlockInfoFromPos } from "./extensions/Blocks/helpers/getBlockInfoFromPos";
 import {
@@ -39,7 +44,16 @@ import {
   defaultSlashMenuItems,
 } from "./extensions/SlashMenu";
 
-export type BlockNoteEditorOptions = {
+// We need to separate WithChildren, otherwise we get issues with recursive types
+// maybe worth a revisit before merging
+type WithChildren<Block extends BlockTemplate<any, any>> = Block & {
+  children: WithChildren<Block>[];
+};
+
+export type BlockNoteEditorOptions<
+  BareBlock extends BlockTemplate<any, any>,
+  Block extends BareBlock = WithChildren<BareBlock>
+> = {
   // TODO: Figure out if enableBlockNoteExtensions/disableHistoryExtension are needed and document them.
   enableBlockNoteExtensions: boolean;
   disableHistoryExtension: boolean;
@@ -69,16 +83,16 @@ export type BlockNoteEditorOptions = {
   /**
    *  A callback function that runs when the editor is ready to be used.
    */
-  onEditorReady: (editor: BlockNoteEditor) => void;
+  onEditorReady: (editor: BlockNoteEditor<Block>) => void;
   /**
    * A callback function that runs whenever the editor's contents change.
    */
-  onEditorContentChange: (editor: BlockNoteEditor) => void;
+  onEditorContentChange: (editor: BlockNoteEditor<Block>) => void;
   /**
    * A callback function that runs whenever the text cursor position changes.
    */
-  onTextCursorPositionChange: (editor: BlockNoteEditor) => void;
-  initialContent: PartialBlock[];
+  onTextCursorPositionChange: (editor: BlockNoteEditor<Block>) => void;
+  initialContent: PartialBlockTemplate<Block>[];
 
   /**
    * Use default BlockNote font and reset the styles of <p> <li> <h1> elements etc., that are used in BlockNote.
@@ -87,6 +101,10 @@ export type BlockNoteEditorOptions = {
    */
   defaultStyles: boolean;
 
+  /**
+   * A list of block types that should be available in the editor.
+   */
+  blocks: BlockSpec[]; // TODO, type this so that it matches <Block>
   // tiptap options, undocumented
   _tiptapOptions: any;
 };
@@ -97,7 +115,10 @@ const blockNoteTipTapOptions = {
   enableCoreExtensions: false,
 };
 
-export class BlockNoteEditor {
+export class BlockNoteEditor<
+  BareBlock extends BlockTemplate<any, any> = DefaultBlockTypes,
+  Block extends BareBlock & { children: Block[] } = WithChildren<BareBlock>
+> {
   public readonly _tiptapEditor: TiptapEditor & { contentComponent: any };
   private blockCache = new WeakMap<Node, Block>();
   private mousePos = { x: 0, y: 0 };
@@ -110,10 +131,11 @@ export class BlockNoteEditor {
     this._tiptapEditor.view.focus();
   }
 
-  constructor(options: Partial<BlockNoteEditorOptions> = {}) {
+  constructor(options: Partial<BlockNoteEditorOptions<Block>> = {}) {
     // apply defaults
     options = {
       defaultStyles: true,
+      blocks: defaultBlocks,
       ...options,
     };
 
@@ -121,6 +143,7 @@ export class BlockNoteEditor {
       editor: this,
       uiFactories: options.uiFactories || {},
       slashCommands: options.slashCommands || defaultSlashMenuItems,
+      blocks: options.blocks || [],
     });
 
     let extensions = options.disableHistoryExtension
@@ -408,7 +431,7 @@ export class BlockNoteEditor {
    * `referenceBlock`. Inserts the blocks at the start of the existing block's children if "nested" is used.
    */
   public insertBlocks(
-    blocksToInsert: PartialBlock[],
+    blocksToInsert: PartialBlockTemplate<Block>[],
     referenceBlock: BlockIdentifier,
     placement: "before" | "after" | "nested" = "before"
   ): void {
@@ -422,7 +445,10 @@ export class BlockNoteEditor {
    * @param blockToUpdate The block that should be updated.
    * @param update A partial block which defines how the existing block should be changed.
    */
-  public updateBlock(blockToUpdate: BlockIdentifier, update: PartialBlock) {
+  public updateBlock(
+    blockToUpdate: BlockIdentifier,
+    update: PartialBlockTemplate<Block>
+  ) {
     updateBlock(blockToUpdate, update, this._tiptapEditor);
   }
 
@@ -443,7 +469,7 @@ export class BlockNoteEditor {
    */
   public replaceBlocks(
     blocksToRemove: BlockIdentifier[],
-    blocksToInsert: PartialBlock[]
+    blocksToInsert: PartialBlockTemplate<Block>[]
   ) {
     replaceBlocks(blocksToRemove, blocksToInsert, this._tiptapEditor);
   }
@@ -654,3 +680,15 @@ export class BlockNoteEditor {
     return markdownToBlocks(markdown, this._tiptapEditor.schema);
   }
 }
+
+// Playground:
+
+// let x = new BlockNoteEditor();
+// x.updateBlock("", { type: "paragraph", content: "hello", props: { sdf: "3" } });
+// x.updateBlock("", {
+//   type: "heading",
+//   content: "hello",
+//   props: { level: "1" },
+// });
+
+// let y = x.topLevelBlocks[0].children[0].type;

@@ -1,10 +1,10 @@
 import { Mark } from "@tiptap/pm/model";
 import { Node, Schema } from "prosemirror-model";
 import {
-  Block,
-  blockProps,
-  PartialBlock,
+  BlockTemplate,
+  PartialBlockTemplate,
 } from "../../extensions/Blocks/api/blockTypes";
+
 import {
   ColorStyle,
   InlineContent,
@@ -104,7 +104,10 @@ export function inlineContentToNodes(
 /**
  * Converts a BlockNote block to a TipTap node.
  */
-export function blockToNode(block: PartialBlock, schema: Schema) {
+export function blockToNode<Block extends BlockTemplate<any, any>>(
+  block: PartialBlockTemplate<Block>,
+  schema: Schema
+) {
   let id = block.id;
 
   if (id === undefined) {
@@ -213,7 +216,7 @@ function contentNodeToInlineContent(contentNode: Node) {
 /**
  * Convert a TipTap node to a BlockNote block.
  */
-export function nodeToBlock(
+export function nodeToBlock<Block extends BlockTemplate<any, any>>(
   node: Node,
   blockCache?: WeakMap<Node, Block>
 ): Block {

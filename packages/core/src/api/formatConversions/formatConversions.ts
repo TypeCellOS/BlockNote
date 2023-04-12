@@ -7,13 +7,14 @@ import remarkParse from "remark-parse";
 import remarkRehype from "remark-rehype";
 import remarkStringify from "remark-stringify";
 import { unified } from "unified";
-import { Block } from "../../extensions/Blocks/api/blockTypes";
+import { BlockTemplate } from "../../extensions/Blocks/api/blockTypes";
+
 import { blockToNode, nodeToBlock } from "../nodeConversions/nodeConversions";
 import { removeUnderlines } from "./removeUnderlinesRehypePlugin";
 import { simplifyBlocks } from "./simplifyBlocksRehypePlugin";
 
 export async function blocksToHTML(
-  blocks: Block[],
+  blocks: BlockTemplate<any, any>[],
   schema: Schema
 ): Promise<string> {
   const htmlParentElement = document.createElement("div");
@@ -40,14 +41,14 @@ export async function blocksToHTML(
 export async function HTMLToBlocks(
   html: string,
   schema: Schema
-): Promise<Block[]> {
+): Promise<BlockTemplate<any, any>[]> {
   const htmlNode = document.createElement("div");
   htmlNode.innerHTML = html.trim();
 
   const parser = DOMParser.fromSchema(schema);
   const parentNode = parser.parse(htmlNode);
 
-  const blocks: Block[] = [];
+  const blocks: BlockTemplate<any, any>[] = [];
 
   for (let i = 0; i < parentNode.firstChild!.childCount; i++) {
     blocks.push(nodeToBlock(parentNode.firstChild!.child(i)));
@@ -57,7 +58,7 @@ export async function HTMLToBlocks(
 }
 
 export async function blocksToMarkdown(
-  blocks: Block[],
+  blocks: BlockTemplate<any, any>[],
   schema: Schema
 ): Promise<string> {
   const markdownString = await unified()
@@ -74,7 +75,7 @@ export async function blocksToMarkdown(
 export async function markdownToBlocks(
   markdown: string,
   schema: Schema
-): Promise<Block[]> {
+): Promise<BlockTemplate<any, any>[]> {
   const htmlString = await unified()
     .use(remarkParse)
     .use(remarkGfm)

@@ -16,6 +16,7 @@ import { Underline } from "@tiptap/extension-underline";
 import { BackgroundColorExtension } from "./extensions/BackgroundColor/BackgroundColorExtension";
 import { BackgroundColorMark } from "./extensions/BackgroundColor/BackgroundColorMark";
 import { blocks } from "./extensions/Blocks";
+import { BlockSpec } from "./extensions/Blocks/api/blockTypes";
 import blockStyles from "./extensions/Blocks/nodes/Block.module.css";
 import { BlockSideMenuFactory } from "./extensions/DraggableBlocks/BlockSideMenuFactoryTypes";
 import { DraggableBlocksExtension } from "./extensions/DraggableBlocks/DraggableBlocksExtension";
@@ -46,6 +47,7 @@ export const getBlockNoteExtensions = (opts: {
   editor: BlockNoteEditor;
   uiFactories: UiFactories;
   slashCommands: BaseSlashMenuItem[];
+  blocks: BlockSpec[];
 }) => {
   const ret: Extensions = [
     extensions.ClipboardTextSerializer,
@@ -88,6 +90,7 @@ export const getBlockNoteExtensions = (opts: {
 
     // custom blocks:
     ...blocks,
+    ...opts.blocks.map((b) => b.node),
 
     Dropcursor.configure({ width: 5, color: "#ddeeff" }),
     History,
