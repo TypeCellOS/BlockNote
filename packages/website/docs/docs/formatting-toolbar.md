@@ -199,3 +199,5 @@ export default function App() {
 ```
 
 :::
+
+If you're unsure about what's happening inside `onClick` and `isSelected`, head to [Introduction to Blocks](/docs/blocks), which will guide you through manipulating blocks in the editor using code.
