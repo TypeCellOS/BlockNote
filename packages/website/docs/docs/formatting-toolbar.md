@@ -28,15 +28,18 @@ const editor = useBlockNote({
 });
 ```
 
-You can find out more about the `uiFactories` option in [Creating Your Own UI Elements](/docs/vanilla-js#creating-your-own-ui-elements) if all this sounds confusing, but it's only useful if you want to use BlockNote in a non-React app.
+If all this sounds confusing, you can find out more about the `uiFactories` option in [Creating Your Own UI Elements](/docs/vanilla-js#creating-your-own-ui-elements), but it's only useful if you want to use BlockNote in a non-React app.
 
 ## Default Items
 
-It might seem daunting to create your own Formatting Toolbar from scratch, which is why BlockNote provides default React components for both the toolbar itself, and many items in the toolbar. Below are all the default components you can use to build your custom toolbar:
+It might seem daunting to create your own Formatting Toolbar from scratch, which is why BlockNote provides React components for everything you see in the default layout - both the toolbar itself and the items in it. Below are all the default components you can use to build your custom toolbar:
 
 ```typescript
 // Toolbar which wraps all the items.
-const Toolbar = (props: {}) => ...;
+type ToolbarProps = {
+  children: ReactNode;
+};
+const Toolbar = (props: ToolbarProps) => ...;
 
 // Dropdown which changes the block type.
 type BlockTypeDropdownProps = {
@@ -151,13 +154,13 @@ import "@blocknote/core/style.css";
 const CustomFormattingToolbar = (props: { editor: BlockNoteEditor }) => {
   return (
     <Toolbar>
-      // Default button to toggle bold.
+      {/*Default button to toggle bold.*/}
       <ToggledStyleButton editor={props.editor} toggledStyle={"bold"} />
-      // Default button to toggle italic.
+      {/*Default button to toggle italic.*/}
       <ToggledStyleButton editor={props.editor} toggledStyle={"italic"} />
-      // Default button to toggle underline.
+      {/*Default button to toggle underline.*/}
       <ToggledStyleButton editor={props.editor} toggledStyle={"underline"} />
-      // Custom button to toggle blue text & background color.
+      {/*Custom button to toggle blue text & background color.*/}
       <ToolbarButton
       mainTooltip={"Blue Text & Background"}
       onClick={() => {
