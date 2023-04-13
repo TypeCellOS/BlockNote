@@ -1,6 +1,5 @@
 import { FC } from "react";
 import {
-  BlockNoteEditor,
   BlockSideMenu,
   BlockSideMenuDynamicParams,
   BlockSideMenuFactory,
@@ -8,9 +7,10 @@ import {
 } from "@blocknote/core";
 import { BlockSideMenu as ReactBlockSideMenu } from "./components/BlockSideMenu";
 import { ReactElementFactory } from "../ElementFactory/components/ReactElementFactory";
+import { DragHandleMenuProps } from "./components/DragHandleMenu";
 
 export const createReactBlockSideMenuFactory = (
-  dragHandleMenu: FC<{ editor: BlockNoteEditor; closeMenu: () => void }>
+  dragHandleMenu: FC<DragHandleMenuProps>
 ) => {
   const CustomDragHandleMenu = dragHandleMenu;
   const CustomBlockSideMenu = (
