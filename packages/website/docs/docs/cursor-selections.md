@@ -2,10 +2,6 @@
 
 If you want to know which block(s) the user is currently editing, you can do so using cursor positions and selections.
 
-## Cursor Positions
-
-BlockNote keeps track of the text cursor position in the editor and exposes functions that let you retrieve it or change it.
-
 ## Text Cursor
 
 The text cursor is the blinking vertical line you see when typing in the editor. BlockNote uses `TextCursorPosition` objects to give you information about the block it's in as well as those around it:
@@ -67,7 +63,9 @@ editor.setTextCursorPosition(targetBlock, placement);
 
 Throws an error if the target block could not be found.
 
-**Demo**
+### Demo: Highlighting Block Containing the Text Cursor
+
+If you need a visualization for which block contains the text cursor, the demo below highlights it in blue in real time.
 
 ::: sandbox {template=react-ts}
 
@@ -115,3 +113,33 @@ export default function App() {
 ```
 
 :::
+
+## Selections
+
+When you highlight content using the mouse or keyboard, this is called a selection. BlockNote uses `Selection` objects to show which blocks the current selection spans across:
+
+```typescript
+type Selection = {
+  blocks: Block[];
+}
+```
+
+`blocks:` The blocks currently spanned by the selection, including nested blocks.
+
+### Getting Selection
+
+You can get a snapshot of the current selection using the following call:
+
+```typescript
+// Definition
+class BlockNoteEditor {
+...
+  public getSelection(): Selection | undefined;
+...
+}
+
+// Usage
+const selection = editor.getSelection();
+```
+
+`returns:` A snapshot of the current selection, or `undefined` if no selection is active.
