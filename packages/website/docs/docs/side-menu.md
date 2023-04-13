@@ -40,11 +40,11 @@ const CustomDragHandleMenu = (props: {
 }) => {
   return (
     <DragHandleMenu>
-      // Default button to remove the block.
+      {/*Default button to remove the block.*/}
       <RemoveBlockButton {...props}>
         Delete
       </RemoveBlockButton>
-      // Custom item which opens an alert when clicked.
+      {/*Custom item which opens an alert when clicked.*/}
       <DragHandleMenuItem
         closeMenu={props.closeMenu}
         onClick={() => {
