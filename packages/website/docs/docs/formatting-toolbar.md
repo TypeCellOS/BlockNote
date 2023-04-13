@@ -1,11 +1,5 @@
 # Formatting Toolbar
 
-Coming soon!
-
-<!-- - Explain + show what the toolbar is (image)
-- Change default buttons
-- Creating your own buttons -->
-
 The Formatting Toolbar appears whenever you highlight text in the editor, and is mainly used for styling.
 
 <img style="max-width:600px" src="../public/img/screenshots/formatting_toolbar.png" alt="image">
@@ -34,7 +28,7 @@ const editor = useBlockNote({
 });
 ```
 
-You can find out more about the `uiFactories` option in [Creating Your Own UI Elements](/docs/vanilla-js#creating-your-own-ui-elements), but you don't need to worry about it if you're using BlockNote with React.
+You can find out more about the `uiFactories` option in [Creating Your Own UI Elements](/docs/vanilla-js#creating-your-own-ui-elements) if all this sounds confusing, but it's only useful if you want to use BlockNote in a non-React app.
 
 ## Default Items
 
@@ -92,7 +86,7 @@ const CreateLinkButton = (props: CreateLinkButtonProps) => ...;
 
 ## Custom Items
 
-You can also make your own toolbar items which match BlockNote's UI styling with the following React components:
+BlockNote also provides components that you can use to make your own toolbar items, which match BlockNote's UI styling:
 
 ```typescript
 // Custom dropdown.
