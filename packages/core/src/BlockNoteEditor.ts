@@ -332,7 +332,14 @@ export class BlockNoteEditor {
   /**
    * Gets a snapshot of the current selection.
    */
-  public getSelection(): Selection {
+  public getSelection(): Selection | undefined {
+    if (
+      this._tiptapEditor.state.selection.from ===
+      this._tiptapEditor.state.selection.to
+    ) {
+      return undefined;
+    }
+
     const blocks: Block[] = [];
 
     this._tiptapEditor.state.doc.descendants((node, pos) => {
