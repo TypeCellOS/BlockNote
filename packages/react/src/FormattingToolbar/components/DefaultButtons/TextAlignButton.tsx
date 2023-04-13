@@ -23,8 +23,17 @@ export const TextAlignButton = (props: {
   const setTextAlignment = useCallback(
     (textAlignment: DefaultBlockProps["textAlignment"]) => {
       props.editor.focus();
-      for (const block of props.editor.getSelection().blocks) {
-        props.editor.updateBlock(block, {
+
+      const selection = props.editor.getSelection();
+
+      if (selection) {
+        for (const block of selection.blocks) {
+          props.editor.updateBlock(block, {
+            props: { textAlignment: textAlignment },
+          });
+        }
+      } else {
+        props.editor.updateBlock(props.editor.getTextCursorPosition().block, {
           props: { textAlignment: textAlignment },
         });
       }
