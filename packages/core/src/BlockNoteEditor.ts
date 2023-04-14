@@ -115,6 +115,7 @@ const blockNoteTipTapOptions = {
   enableCoreExtensions: false,
 };
 
+// TODO: make type of BareBlock / Block automatically based on options.blocks
 export class BlockNoteEditor<
   BareBlock extends BlockTemplate<any, any> = DefaultBlockTypes,
   Block extends BareBlock & { children: Block[] } = WithChildren<BareBlock>

@@ -32,9 +32,11 @@ export type BulletListItemBlockType = BlockFromBlockSpec<
   typeof BulletListItemBlock
 >;
 
+// TODO: rename to HeadingBlockSpec?
 export const HeadingBlock = createBlockFromTiptapNode(
   "heading",
   {
+    // TODO: rename to propSpec?
     props: [
       ...defaultBlockProps,
       {

@@ -3,6 +3,8 @@ import { PropSpec } from "./blockTypes";
 
 // A function to create a "BlockSpec" from a tiptap node.
 // we use this to create the block specs for the built-in blocks
+
+// TODO: rename to createBlockSpecFromTiptapNode?
 export function createBlockFromTiptapNode<
   Type extends string,
   Props extends readonly PropSpec[]
@@ -27,6 +29,7 @@ export function createBlockFromTiptapNode<
   return {
     type: blockType,
     node,
+    // TODO: rename to propSpec?
     acceptedProps: options.props,
   };
 }
