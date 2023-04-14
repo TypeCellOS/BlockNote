@@ -127,15 +127,7 @@ class SuggestionPluginView<T extends SuggestionItem> {
     };
 
     this.suggestionsMenu = suggestionsMenuFactory(this.getStaticParams());
-
-    document.addEventListener("scroll", this.handleScroll);
   }
-
-  handleScroll = () => {
-    if (this.pluginKey.getState(this.editor._tiptapEditor.state).active) {
-      this.suggestionsMenu.render(this.getDynamicParams(), false);
-    }
-  };
 
   update(view: EditorView, prevState: EditorState) {
     const prev = this.pluginKey.getState(prevState);
@@ -176,10 +168,6 @@ class SuggestionPluginView<T extends SuggestionItem> {
         event.preventDefault()
       );
     }
-  }
-
-  destroy() {
-    document.removeEventListener("scroll", this.handleScroll);
   }
 
   getStaticParams(): SuggestionsMenuStaticParams<T> {
