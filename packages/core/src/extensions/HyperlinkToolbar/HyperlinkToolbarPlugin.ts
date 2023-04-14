@@ -56,47 +56,56 @@ class HyperlinkToolbarView {
       return false;
     };
 
-    editor.view.dom.addEventListener("mouseover", (event) => {
-      // Resets the hyperlink mark currently hovered by the mouse cursor.
-      this.mouseHoveredHyperlinkMark = undefined;
-      this.mouseHoveredHyperlinkMarkRange = undefined;
+    this.editor.view.dom.addEventListener("mouseover", this.mouseOverHandler);
+    document.addEventListener("scroll", this.scrollHandler);
+  }
 
-      this.stopMenuUpdateTimer();
+  mouseOverHandler = (event: MouseEvent) => {
+    // Resets the hyperlink mark currently hovered by the mouse cursor.
+    this.mouseHoveredHyperlinkMark = undefined;
+    this.mouseHoveredHyperlinkMarkRange = undefined;
 
-      if (
-        event.target instanceof HTMLAnchorElement &&
-        event.target.nodeName === "A"
-      ) {
-        // Finds link mark at the hovered element's position to update mouseHoveredHyperlinkMark and
-        // mouseHoveredHyperlinkMarkRange.
-        const hoveredHyperlinkElement = event.target;
-        const posInHoveredHyperlinkMark =
-          editor.view.posAtDOM(hoveredHyperlinkElement, 0) + 1;
-        const resolvedPosInHoveredHyperlinkMark = editor.state.doc.resolve(
-          posInHoveredHyperlinkMark
-        );
-        const marksAtPos = resolvedPosInHoveredHyperlinkMark.marks();
+    this.stopMenuUpdateTimer();
 
-        for (const mark of marksAtPos) {
-          if (mark.type.name === editor.schema.mark("link").type.name) {
-            this.mouseHoveredHyperlinkMark = mark;
-            this.mouseHoveredHyperlinkMarkRange =
-              getMarkRange(
-                resolvedPosInHoveredHyperlinkMark,
-                mark.type,
-                mark.attrs
-              ) || undefined;
+    if (
+      event.target instanceof HTMLAnchorElement &&
+      event.target.nodeName === "A"
+    ) {
+      // Finds link mark at the hovered element's position to update mouseHoveredHyperlinkMark and
+      // mouseHoveredHyperlinkMarkRange.
+      const hoveredHyperlinkElement = event.target;
+      const posInHoveredHyperlinkMark =
+        this.editor.view.posAtDOM(hoveredHyperlinkElement, 0) + 1;
+      const resolvedPosInHoveredHyperlinkMark = this.editor.state.doc.resolve(
+        posInHoveredHyperlinkMark
+      );
+      const marksAtPos = resolvedPosInHoveredHyperlinkMark.marks();
 
-            break;
-          }
+      for (const mark of marksAtPos) {
+        if (mark.type.name === this.editor.schema.mark("link").type.name) {
+          this.mouseHoveredHyperlinkMark = mark;
+          this.mouseHoveredHyperlinkMarkRange =
+            getMarkRange(
+              resolvedPosInHoveredHyperlinkMark,
+              mark.type,
+              mark.attrs
+            ) || undefined;
+
+          break;
         }
       }
+    }
 
-      this.startMenuUpdateTimer();
+    this.startMenuUpdateTimer();
 
-      return false;
-    });
-  }
+    return false;
+  };
+
+  scrollHandler = () => {
+    if (this.hyperlinkMark !== undefined) {
+      this.hyperlinkToolbar.render(this.getDynamicParams(), false);
+    }
+  };
 
   update() {
     if (!this.editor.view.hasFocus()) {
@@ -185,6 +194,14 @@ class HyperlinkToolbarView {
 
       return;
     }
+  }
+
+  destroy() {
+    this.editor.view.dom.removeEventListener(
+      "mouseover",
+      this.mouseOverHandler
+    );
+    document.removeEventListener("scroll", this.scrollHandler);
   }
 
   getStaticParams(): HyperlinkToolbarStaticParams {
