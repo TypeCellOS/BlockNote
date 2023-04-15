@@ -208,7 +208,7 @@ function dragStart(e: DragEvent, view: EditorView) {
     const { from, to } = blockPositionsFromSelection(selection, doc);
 
     const draggedBlockInSelection = from <= pos && pos < to;
-    const multipleBlocksSelected = selection.$anchor.node() !== selection.$head.node();
+    const multipleBlocksSelected = selection.$anchor.node() !== selection.$head.node() || selection instanceof MultipleNodeSelection;
 
     if (draggedBlockInSelection && multipleBlocksSelected) {
       view.dispatch(
