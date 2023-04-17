@@ -7,15 +7,16 @@ import {
 import { BlockSideMenu as ReactBlockSideMenu } from "./components/BlockSideMenu";
 import { ReactElementFactory } from "../ElementFactory/components/ReactElementFactory";
 
-export const ReactBlockSideMenuFactory: BlockSideMenuFactory = (
-  staticParams
-): BlockSideMenu =>
-  ReactElementFactory<BlockSideMenuStaticParams, BlockSideMenuDynamicParams>(
-    staticParams,
-    ReactBlockSideMenu,
-    {
-      animation: "fade",
-      offset: [0, 0],
-      placement: "left",
-    }
-  );
+export const createReactBlockSideMenuFactory =
+  (useDarkTheme?: boolean): BlockSideMenuFactory =>
+  (staticParams): BlockSideMenu =>
+    ReactElementFactory<BlockSideMenuStaticParams, BlockSideMenuDynamicParams>(
+      staticParams,
+      ReactBlockSideMenu,
+      useDarkTheme,
+      {
+        animation: "fade",
+        offset: [0, 0],
+        placement: "left",
+      }
+    );

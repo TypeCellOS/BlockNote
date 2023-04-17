@@ -1,11 +1,10 @@
 import { BlockNoteEditor, BlockNoteEditorOptions } from "@blocknote/core";
 import { DependencyList, useEffect, useState } from "react";
-import { ReactBlockSideMenuFactory } from "../BlockSideMenu/BlockSideMenuFactory";
-import { ReactFormattingToolbarFactory } from "../FormattingToolbar/FormattingToolbarFactory";
-import { ReactHyperlinkToolbarFactory } from "../HyperlinkToolbar/HyperlinkToolbarFactory";
-import { ReactSlashMenuFactory } from "../SlashMenu/SlashMenuFactory";
+import { createReactBlockSideMenuFactory } from "../BlockSideMenu/BlockSideMenuFactory";
+import { createReactFormattingToolbarFactory } from "../FormattingToolbar/FormattingToolbarFactory";
+import { createReactHyperlinkToolbarFactory } from "../HyperlinkToolbar/HyperlinkToolbarFactory";
+import { createReactSlashMenuFactory } from "../SlashMenu/SlashMenuFactory";
 import { defaultReactSlashMenuItems } from "../SlashMenu/defaultReactSlashMenuItems";
-
 //based on https://github.com/ueberdosis/tiptap/blob/main/packages/react/src/useEditor.ts
 
 function useForceUpdate() {
@@ -18,7 +17,7 @@ function useForceUpdate() {
  * Main hook for importing a BlockNote editor into a React project
  */
 export const useBlockNote = (
-  options: Partial<BlockNoteEditorOptions> = {},
+  options: Partial<BlockNoteEditorOptions & { useDarkTheme: boolean }> = {},
   deps: DependencyList = []
 ) => {
   const [editor, setEditor] = useState<BlockNoteEditor | null>(null);
@@ -37,10 +36,16 @@ export const useBlockNote = (
       newOptions = {
         ...newOptions,
         uiFactories: {
-          formattingToolbarFactory: ReactFormattingToolbarFactory,
-          hyperlinkToolbarFactory: ReactHyperlinkToolbarFactory,
-          slashMenuFactory: ReactSlashMenuFactory,
-          blockSideMenuFactory: ReactBlockSideMenuFactory,
+          formattingToolbarFactory: createReactFormattingToolbarFactory(
+            options.useDarkTheme
+          ),
+          hyperlinkToolbarFactory: createReactHyperlinkToolbarFactory(
+            options.useDarkTheme
+          ),
+          slashMenuFactory: createReactSlashMenuFactory(options.useDarkTheme),
+          blockSideMenuFactory: createReactBlockSideMenuFactory(
+            options.useDarkTheme
+          ),
         },
       };
     }
