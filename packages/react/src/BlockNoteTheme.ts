@@ -102,9 +102,9 @@ export const getBlockNoteTheme = (
         styles: () => ({
           dropdown: {
             backgroundColor: primaryBackground,
-            boxShadow: boxShadow,
             border: border,
             borderRadius: "6px",
+            boxShadow: boxShadow,
             color: primaryText,
             padding: "2px",
             ".mantine-Menu-item": {
@@ -128,27 +128,6 @@ export const getBlockNoteTheme = (
               height: "30px",
             },
           },
-          dropdown: {
-            backgroundColor: primaryBackground,
-            boxShadow: boxShadow,
-            border: border,
-            borderRadius: "6px",
-            color: primaryText,
-            padding: "2px",
-            ".mantine-Menu-item": {
-              backgroundColor: primaryBackground,
-              border: "none",
-              color: primaryText,
-              ".mantine-Menu-itemIcon": {
-                backgroundColor: primaryBackground,
-              },
-            },
-            ".mantine-Menu-item[data-hovereds]": {
-              backgroundColor: hoveredBackground,
-              border: "none",
-              color: hoveredText,
-            },
-          },
         }),
       },
       EditHyperlinkMenu: {
@@ -158,6 +137,7 @@ export const getBlockNoteTheme = (
             border: border,
             borderRadius: "6px",
             boxShadow: boxShadow,
+            color: primaryText,
             gap: "4px",
             minWidth: "145px",
             padding: "2px",
@@ -171,7 +151,7 @@ export const getBlockNoteTheme = (
                 color: primaryText,
                 display: "flex",
                 justifyContent: "center",
-                padding: "0",
+                padding: 0,
                 width: "fit-content",
               },
               // Row input field
@@ -179,7 +159,6 @@ export const getBlockNoteTheme = (
                 width: "300px",
                 ".mantine-TextInput-wrapper": {
                   ".mantine-TextInput-input": {
-                    backgroundColor: primaryBackground,
                     border: "none",
                     color: primaryText,
                     fontSize: "12px",
