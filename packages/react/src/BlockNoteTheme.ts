@@ -29,28 +29,50 @@ export const blockNoteColorScheme: ColorScheme = [
 export const getBlockNoteTheme = (
   useDarkTheme: boolean = false
 ): MantineThemeOverride => {
-  const colorScheme: ColorScheme = blockNoteColorScheme;
-
   const boxShadow = `0px 4px 8px ${
-    useDarkTheme ? colorScheme[8] : colorScheme[2]
-  }, 0px 0px 1px ${useDarkTheme ? colorScheme[6] : colorScheme[1]}`;
+    useDarkTheme ? blockNoteColorScheme[8] : blockNoteColorScheme[2]
+  }, 0px 0px 1px ${
+    useDarkTheme ? blockNoteColorScheme[6] : blockNoteColorScheme[1]
+  }`;
 
-  const border = `1px solid ${useDarkTheme ? colorScheme[7] : colorScheme[1]}`;
+  const border = `1px solid ${
+    useDarkTheme ? blockNoteColorScheme[7] : blockNoteColorScheme[1]
+  }`;
 
-  const primaryBackground = useDarkTheme ? colorScheme[6] : colorScheme[0];
-  const secondaryBackground = useDarkTheme ? colorScheme[7] : colorScheme[1];
+  const primaryBackground = useDarkTheme
+    ? blockNoteColorScheme[6]
+    : blockNoteColorScheme[0];
+  const secondaryBackground = useDarkTheme
+    ? blockNoteColorScheme[7]
+    : blockNoteColorScheme[1];
 
-  const primaryText = useDarkTheme ? colorScheme[2] : colorScheme[6];
-  const secondaryText = useDarkTheme ? colorScheme[4] : colorScheme[4];
+  const primaryText = useDarkTheme
+    ? blockNoteColorScheme[2]
+    : blockNoteColorScheme[6];
+  const secondaryText = useDarkTheme
+    ? blockNoteColorScheme[4]
+    : blockNoteColorScheme[4];
 
-  const hoveredBackground = useDarkTheme ? colorScheme[7] : colorScheme[1];
-  const hoveredText = useDarkTheme ? colorScheme[2] : colorScheme[6];
+  const hoveredBackground = useDarkTheme
+    ? blockNoteColorScheme[7]
+    : blockNoteColorScheme[1];
+  const hoveredText = useDarkTheme
+    ? blockNoteColorScheme[2]
+    : blockNoteColorScheme[6];
 
-  const selectedBackground = useDarkTheme ? colorScheme[8] : colorScheme[6];
-  const selectedText = useDarkTheme ? colorScheme[2] : colorScheme[0];
+  const selectedBackground = useDarkTheme
+    ? blockNoteColorScheme[8]
+    : blockNoteColorScheme[6];
+  const selectedText = useDarkTheme
+    ? blockNoteColorScheme[2]
+    : blockNoteColorScheme[0];
 
-  const disabledBackground = useDarkTheme ? colorScheme[7] : colorScheme[1];
-  const disabledText = useDarkTheme ? colorScheme[5] : colorScheme[3];
+  const disabledBackground = useDarkTheme
+    ? blockNoteColorScheme[7]
+    : blockNoteColorScheme[1];
+  const disabledText = useDarkTheme
+    ? blockNoteColorScheme[5]
+    : blockNoteColorScheme[3];
 
   return {
     activeStyles: {
@@ -59,11 +81,11 @@ export const getBlockNoteTheme = (
     },
     colorScheme: useDarkTheme ? "dark" : "light",
     colors: {
-      scheme: colorScheme,
-      dark: colorScheme,
+      scheme: blockNoteColorScheme,
+      dark: blockNoteColorScheme,
       textColors: [
         // primaryText,
-        colorScheme[6],
+        blockNoteColorScheme[6],
         "#9b9a97",
         "#64473a",
         "#e03e3e",
@@ -76,7 +98,7 @@ export const getBlockNoteTheme = (
       ],
       backgroundColors: [
         // primaryBackground,
-        colorScheme[0],
+        blockNoteColorScheme[0],
         "#ebeced",
         "#e9e5e3",
         "#fbe4e4",
