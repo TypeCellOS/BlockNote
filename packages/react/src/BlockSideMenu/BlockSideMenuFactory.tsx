@@ -6,14 +6,15 @@ import {
 } from "@blocknote/core";
 import { BlockSideMenu as ReactBlockSideMenu } from "./components/BlockSideMenu";
 import { ReactElementFactory } from "../ElementFactory/components/ReactElementFactory";
+import { MantineThemeOverride } from "@mantine/core";
 
 export const createReactBlockSideMenuFactory =
-  (useDarkTheme?: boolean): BlockSideMenuFactory =>
+  (theme: MantineThemeOverride): BlockSideMenuFactory =>
   (staticParams): BlockSideMenu =>
     ReactElementFactory<BlockSideMenuStaticParams, BlockSideMenuDynamicParams>(
       staticParams,
       ReactBlockSideMenu,
-      useDarkTheme,
+      theme,
       {
         animation: "fade",
         offset: [0, 0],

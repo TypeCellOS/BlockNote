@@ -1,7 +1,6 @@
-import { MantineProvider } from "@mantine/core";
+import { MantineProvider, MantineThemeOverride } from "@mantine/core";
 import Tippy, { TippyProps } from "@tippyjs/react";
 import { RequiredDynamicParams } from "@blocknote/core";
-import { getBlockNoteTheme } from "../../BlockNoteTheme";
 import { useCallback, useState } from "react";
 
 /**
@@ -24,7 +23,7 @@ export function EditorElementComponentWrapper<
   editorElementComponent: (
     props: ElementStaticParams & ElementDynamicParams
   ) => JSX.Element;
-  useDarkTheme?: boolean;
+  theme: MantineThemeOverride;
   tippyProps?: TippyProps;
 }) {
   const EditorElementComponent = props.editorElementComponent;
@@ -47,7 +46,7 @@ export function EditorElementComponentWrapper<
   }, [props.rootElement]);
 
   return (
-    <MantineProvider theme={getBlockNoteTheme(props.useDarkTheme)}>
+    <MantineProvider theme={props.theme}>
       <Tippy
         appendTo={props.rootElement}
         content={

@@ -5,6 +5,7 @@ import { createReactFormattingToolbarFactory } from "../FormattingToolbar/Format
 import { createReactHyperlinkToolbarFactory } from "../HyperlinkToolbar/HyperlinkToolbarFactory";
 import { createReactSlashMenuFactory } from "../SlashMenu/SlashMenuFactory";
 import { defaultReactSlashMenuItems } from "../SlashMenu/defaultReactSlashMenuItems";
+import { getBlockNoteTheme } from "../BlockNoteTheme";
 //based on https://github.com/ueberdosis/tiptap/blob/main/packages/react/src/useEditor.ts
 
 function useForceUpdate() {
@@ -37,14 +38,16 @@ export const useBlockNote = (
         ...newOptions,
         uiFactories: {
           formattingToolbarFactory: createReactFormattingToolbarFactory(
-            options.useDarkTheme
+            getBlockNoteTheme(options.useDarkTheme)
           ),
           hyperlinkToolbarFactory: createReactHyperlinkToolbarFactory(
-            options.useDarkTheme
+            getBlockNoteTheme(options.useDarkTheme)
           ),
-          slashMenuFactory: createReactSlashMenuFactory(options.useDarkTheme),
+          slashMenuFactory: createReactSlashMenuFactory(
+            getBlockNoteTheme(options.useDarkTheme)
+          ),
           blockSideMenuFactory: createReactBlockSideMenuFactory(
-            options.useDarkTheme
+            getBlockNoteTheme(options.useDarkTheme)
           ),
         },
       };

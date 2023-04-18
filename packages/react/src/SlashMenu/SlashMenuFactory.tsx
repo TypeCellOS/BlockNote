@@ -7,14 +7,15 @@ import {
 import { SlashMenu } from "./components/SlashMenu";
 import { ReactSlashMenuItem } from "./ReactSlashMenuItem";
 import { ReactElementFactory } from "../ElementFactory/components/ReactElementFactory";
+import { MantineThemeOverride } from "@mantine/core";
 
 export const createReactSlashMenuFactory =
-  (useDarkTheme?: boolean): SuggestionsMenuFactory<ReactSlashMenuItem> =>
+  (theme: MantineThemeOverride): SuggestionsMenuFactory<ReactSlashMenuItem> =>
   (staticParams): SuggestionsMenu<ReactSlashMenuItem> =>
     ReactElementFactory<
       SuggestionsMenuStaticParams<ReactSlashMenuItem>,
       SuggestionsMenuDynamicParams<ReactSlashMenuItem>
-    >(staticParams, SlashMenu, useDarkTheme, {
+    >(staticParams, SlashMenu, theme, {
       animation: "fade",
       placement: "bottom-start",
     });
