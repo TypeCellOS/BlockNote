@@ -18,7 +18,7 @@ function useForceUpdate() {
  * Main hook for importing a BlockNote editor into a React project
  */
 export const useBlockNote = (
-  options: Partial<BlockNoteEditorOptions & { useDarkTheme: boolean }> = {},
+  options: Partial<BlockNoteEditorOptions & { theme: "light" | "dark" }> = {},
   deps: DependencyList = []
 ) => {
   const [editor, setEditor] = useState<BlockNoteEditor | null>(null);
@@ -38,16 +38,16 @@ export const useBlockNote = (
         ...newOptions,
         uiFactories: {
           formattingToolbarFactory: createReactFormattingToolbarFactory(
-            getBlockNoteTheme(options.useDarkTheme)
+            getBlockNoteTheme(options.theme === "dark")
           ),
           hyperlinkToolbarFactory: createReactHyperlinkToolbarFactory(
-            getBlockNoteTheme(options.useDarkTheme)
+            getBlockNoteTheme(options.theme === "dark")
           ),
           slashMenuFactory: createReactSlashMenuFactory(
-            getBlockNoteTheme(options.useDarkTheme)
+            getBlockNoteTheme(options.theme === "dark")
           ),
           blockSideMenuFactory: createReactBlockSideMenuFactory(
-            getBlockNoteTheme(options.useDarkTheme)
+            getBlockNoteTheme(options.theme === "dark")
           ),
         },
       };
