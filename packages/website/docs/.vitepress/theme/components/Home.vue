@@ -118,6 +118,7 @@ defineProps<{
   padding-top: 276px;
   padding-bottom: 64px;
   // min-height: 100lvh;
+
   background: linear-gradient(
       180deg,
       rgba(0, 255, 255, 0) 0%,
@@ -127,6 +128,17 @@ defineProps<{
     radial-gradient(circle at 15% 35%, #dbe4ff, rgba(255, 255, 255, 0) 25%),
     radial-gradient(circle at 85% 20%, #e3fafc, rgba(255, 255, 255, 0) 25%),
     white;
+
+  :root.dark & {
+    background: linear-gradient(
+        180deg,
+        rgba(0, 0, 0, 0) 0%,
+        rgba(0, 0, 0, 0) 400px,
+        rgb(0, 0, 0) 700px
+      ),
+      radial-gradient(circle at 15% 35%, #243148, rgba(34, 34, 34, 0) 25%),
+      radial-gradient(circle at 85% 20%, #1c2e3c, rgba(34, 34, 34, 0) 25%), #222;
+  }
   // background-attachment: fixed;
   // background-image: url("/img/0001-8-2.jpg");
   background-size: cover;
