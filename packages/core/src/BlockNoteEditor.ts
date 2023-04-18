@@ -83,6 +83,12 @@ export type BlockNoteEditorOptions = {
    * @default true
    */
   defaultStyles: boolean;
+  /**
+   * Whether to use the light or dark theme.
+   *
+   * @default "light"
+   */
+  theme: "light" | "dark";
 
   // tiptap options, undocumented
   _tiptapOptions: any;
@@ -153,6 +159,7 @@ export class BlockNoteEditor {
             styles.bnRoot,
             options.defaultStyles ? styles.defaultStyles : "",
             options.editorDOMAttributes?.class || "",
+            options.theme ? styles[options.theme] : "",
           ].join(" "),
         },
       },

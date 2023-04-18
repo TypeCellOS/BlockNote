@@ -31,6 +31,8 @@ NESTED BLOCKS
   position: relative;
 }
 
+/* TODO: Should be different for light/dark editor class, but can't check since
+    it's from a different module. */
 .blockGroup .blockGroup > .blockOuter:not([data-prev-depth-changed])::before {
   content: " ";
   display: inline;
@@ -212,11 +214,13 @@ NESTED BLOCKS
   display: inline;
 }
 
+/* TODO: Should be different for light/dark editor class, but can't check since
+    it's from a different module. */
 .blockContent.isEmpty > :first-child:before,
 .blockContent.isFilter > :first-child:before {
   /*float: left; */
   content: "";
-  color: #aeb8c2;
+  color: #CCCCCC;
   pointer-events: none;
   height: 0;
   /* width: 0; */

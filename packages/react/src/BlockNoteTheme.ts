@@ -39,6 +39,10 @@ export const getBlockNoteTheme = (
     useDarkTheme ? blockNoteColorScheme[7] : blockNoteColorScheme[1]
   }`;
 
+  const sideMenu = useDarkTheme
+    ? blockNoteColorScheme[4]
+    : blockNoteColorScheme[3];
+
   const primaryBackground = useDarkTheme
     ? blockNoteColorScheme[6]
     : blockNoteColorScheme[0];
@@ -115,7 +119,7 @@ export const getBlockNoteTheme = (
       ActionIcon: {
         styles: () => ({
           root: {
-            color: disabledText,
+            color: sideMenu,
           },
         }),
       },
