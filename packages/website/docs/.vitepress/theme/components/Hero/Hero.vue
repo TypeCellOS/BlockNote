@@ -110,6 +110,9 @@ header {
 .header-media::after {
   content: "";
   background-image: url(/img/assets/try.svg);
+  :root.dark & {
+    background-image: url(/img/assets/try.dark.svg);
+  }
   width: 250px;
   height: 160px;
   display: block;
