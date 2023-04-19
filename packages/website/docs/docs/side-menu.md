@@ -1,11 +1,4 @@
-# Block Side Menu & Drag Handle Menu
-
-Coming soon!
-
-<!--
-- Explain + show what the side menu is (image)
-- Change default buttons
-- Creating your own buttons -->
+# Block Side Menu
 
 The Block Side Menu appears whenever you hover over a block, and is used to drag & drop the block as well as add new ones below it.
 
@@ -95,8 +88,6 @@ const editor = useBlockNote({
   },
 });
 ```
-
-If all this sounds confusing, you can find out more about the `uiFactories` option in [Creating Your Own UI Elements](/docs/vanilla-js#creating-your-own-ui-elements), but it's only useful if you want to use BlockNote in a non-React app.
 
 ## Default Items
 
