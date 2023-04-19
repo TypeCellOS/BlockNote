@@ -14,12 +14,12 @@ export const formattingToolbarFactory: FormattingToolbarFactory = (
   container.style.padding = "10px";
   container.style.opacity = "0.8";
   const boldBtn = createButton("set bold", () => {
-    staticParams.toggleBold();
+    staticParams.editor.toggleStyles({ bold: true });
   });
   container.appendChild(boldBtn);
 
   const linkBtn = createButton("set link", () => {
-    staticParams.setHyperlink("https://www.google.com");
+    staticParams.editor.createLink("https://www.google.com");
   });
 
   container.appendChild(boldBtn);
@@ -34,7 +34,8 @@ export const formattingToolbarFactory: FormattingToolbarFactory = (
         container.style.display = "block";
       }
 
-      boldBtn.text = params.boldIsActive ? "unset bold" : "set bold";
+      boldBtn.text =
+        "bold" in staticParams.editor.getActiveStyles() ? "unset bold" : "set bold";
       container.style.top = params.referenceRect.y + "px";
       container.style.left = params.referenceRect.x + "px";
     },

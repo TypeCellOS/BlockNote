@@ -6,8 +6,7 @@ import {
 } from "@tiptap/core";
 import { EditorState, Plugin, PluginKey } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
-import { Block, PartialBlock } from "../Blocks/api/blockTypes";
-import { getBlockInfoFromPos } from "../Blocks/helpers/getBlockInfoFromPos";
+import { BlockNoteEditor } from "../..";
 import {
   FormattingToolbar,
   FormattingToolbarDynamicParams,
@@ -19,11 +18,12 @@ import {
 // https://github.com/ueberdosis/tiptap/pull/2596/files
 export interface FormattingToolbarPluginProps {
   pluginKey: PluginKey;
-  editor: Editor;
+  tiptapEditor: Editor;
+  editor: BlockNoteEditor;
   formattingToolbarFactory: FormattingToolbarFactory;
   shouldShow?:
     | ((props: {
-        editor: Editor;
+        editor: BlockNoteEditor;
         view: EditorView;
         state: EditorState;
         oldState?: EditorState;
@@ -38,7 +38,8 @@ export type FormattingToolbarViewProps = FormattingToolbarPluginProps & {
 };
 
 export class FormattingToolbarView {
-  public editor: Editor;
+  public editor: BlockNoteEditor;
+  private ttEditor: Editor;
 
   public view: EditorView;
 
@@ -68,11 +69,13 @@ export class FormattingToolbarView {
 
   constructor({
     editor,
+    tiptapEditor,
     formattingToolbarFactory,
     view,
     shouldShow,
   }: FormattingToolbarViewProps) {
     this.editor = editor;
+    this.ttEditor = tiptapEditor;
     this.view = view;
 
     this.formattingToolbar = formattingToolbarFactory(this.getStaticParams());
@@ -85,10 +88,10 @@ export class FormattingToolbarView {
     this.view.dom.addEventListener("mouseup", this.viewMouseupHandler);
     this.view.dom.addEventListener("dragstart", this.dragstartHandler);
 
+    this.ttEditor.on("focus", this.focusHandler);
+    this.ttEditor.on("blur", this.blurHandler);
+    
     document.addEventListener("scroll", this.scrollHandler);
-
-    this.editor.on("focus", this.focusHandler);
-    this.editor.on("blur", this.blurHandler);
   }
 
   viewMousedownHandler = () => {
@@ -97,7 +100,7 @@ export class FormattingToolbarView {
 
   viewMouseupHandler = () => {
     this.preventShow = false;
-    setTimeout(() => this.update(this.editor.view));
+    setTimeout(() => this.update(this.ttEditor.view));
   };
 
   dragstartHandler = () => {
@@ -107,7 +110,7 @@ export class FormattingToolbarView {
 
   focusHandler = () => {
     // we use `setTimeout` to make sure `selection` is already updated
-    setTimeout(() => this.update(this.editor.view));
+    setTimeout(() => this.update(this.ttEditor.view));
   };
 
   blurHandler = ({ event }: { event: FocusEvent }) => {
@@ -221,14 +224,14 @@ export class FormattingToolbarView {
     this.view.dom.removeEventListener("mouseup", this.viewMouseupHandler);
     this.view.dom.removeEventListener("dragstart", this.dragstartHandler);
 
-    document.removeEventListener("scroll", this.scrollHandler);
+    this.ttEditor.off("focus", this.focusHandler);
+    this.ttEditor.off("blur", this.blurHandler);
 
-    this.editor.off("focus", this.focusHandler);
-    this.editor.off("blur", this.blurHandler);
+    document.removeEventListener("scroll", this.scrollHandler);
   }
 
   getSelectionBoundingBox() {
-    const { state } = this.editor.view;
+    const { state } = this.ttEditor.view;
     const { selection } = state;
 
     // support for CellSelections
@@ -237,120 +240,24 @@ export class FormattingToolbarView {
     const to = Math.max(...ranges.map((range) => range.$to.pos));
 
     if (isNodeSelection(selection)) {
-      const node = this.editor.view.nodeDOM(from) as HTMLElement;
+      const node = this.ttEditor.view.nodeDOM(from) as HTMLElement;
 
       if (node) {
         return node.getBoundingClientRect();
       }
     }
 
-    return posToDOMRect(this.editor.view, from, to);
+    return posToDOMRect(this.ttEditor.view, from, to);
   }
 
   getStaticParams(): FormattingToolbarStaticParams {
     return {
-      toggleBold: () => {
-        this.editor.view.focus();
-        this.editor.commands.toggleBold();
-      },
-      toggleItalic: () => {
-        this.editor.view.focus();
-        this.editor.commands.toggleItalic();
-      },
-      toggleUnderline: () => {
-        this.editor.view.focus();
-        this.editor.commands.toggleUnderline();
-      },
-      toggleStrike: () => {
-        this.editor.view.focus();
-        this.editor.commands.toggleStrike();
-      },
-      setHyperlink: (url: string, text?: string) => {
-        if (url === "") {
-          return;
-        }
-
-        let { from, to } = this.editor.state.selection;
-
-        if (!text) {
-          text = this.editor.state.doc.textBetween(from, to);
-        }
-
-        const mark = this.editor.schema.mark("link", { href: url });
-
-        this.editor.view.dispatch(
-          this.editor.view.state.tr
-            .insertText(text, from, to)
-            .addMark(from, from + text.length, mark)
-        );
-        this.editor.view.focus();
-      },
-      setTextColor: (color: string) => {
-        this.editor.view.focus();
-        this.editor.commands.setTextColor(color);
-      },
-      setBackgroundColor: (color: string) => {
-        this.editor.view.focus();
-        this.editor.commands.setBackgroundColor(color);
-      },
-      setTextAlignment: (
-        textAlignment: "left" | "center" | "right" | "justify"
-      ) => {
-        this.editor.view.focus();
-        this.editor.commands.setTextAlignment(textAlignment);
-      },
-      increaseBlockIndent: () => {
-        this.editor.view.focus();
-        this.editor.commands.sinkListItem("blockContainer");
-      },
-      decreaseBlockIndent: () => {
-        this.editor.view.focus();
-        this.editor.commands.liftListItem("blockContainer");
-      },
-      updateBlock: (updatedBlock: PartialBlock) => {
-        this.editor.view.focus();
-        this.editor.commands.BNUpdateBlock(
-          this.editor.state.selection.from,
-          updatedBlock
-        );
-      },
+      editor: this.editor,
     };
   }
 
   getDynamicParams(): FormattingToolbarDynamicParams {
-    const blockInfo = getBlockInfoFromPos(
-      this.editor.state.doc,
-      this.editor.state.selection.from
-    )!;
-
     return {
-      boldIsActive: this.editor.isActive("bold"),
-      italicIsActive: this.editor.isActive("italic"),
-      underlineIsActive: this.editor.isActive("underline"),
-      strikeIsActive: this.editor.isActive("strike"),
-      hyperlinkIsActive: this.editor.isActive("link"),
-      activeHyperlinkUrl: this.editor.getAttributes("link").href || "",
-      activeHyperlinkText: this.editor.state.doc.textBetween(
-        this.editor.state.selection.from,
-        this.editor.state.selection.to
-      ),
-      textColor: this.editor.getAttributes("textColor").color || "default",
-      backgroundColor:
-        this.editor.getAttributes("backgroundColor").color || "default",
-      textAlignment:
-        this.editor.getAttributes(blockInfo.contentType).textAlignment ||
-        "left",
-      canIncreaseBlockIndent:
-        this.editor.state.doc
-          .resolve(blockInfo.startPos)
-          .index(blockInfo.depth - 1) > 0,
-      canDecreaseBlockIndent: blockInfo.depth > 2,
-      // Needs type cast as there is no way to create a type that dynamically updates based on which extensions are
-      // loaded by the editor.
-      block: {
-        type: blockInfo.contentType.name,
-        props: blockInfo.contentNode.attrs,
-      } as Block,
       referenceRect: this.getSelectionBoundingBox(),
     };
   }

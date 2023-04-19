@@ -23,7 +23,13 @@ import {
   BlockIdentifier,
   PartialBlock,
 } from "./extensions/Blocks/api/blockTypes";
+import {
+  ColorStyle,
+  Styles,
+  ToggledStyle,
+} from "./extensions/Blocks/api/inlineContentTypes";
 import { TextCursorPosition } from "./extensions/Blocks/api/cursorPositionTypes";
+import { Selection } from "./extensions/Blocks/api/selectionTypes";
 import { getBlockInfoFromPos } from "./extensions/Blocks/helpers/getBlockInfoFromPos";
 import {
   BaseSlashMenuItem,
@@ -100,6 +106,10 @@ export class BlockNoteEditor {
 
   public get domElement() {
     return this._tiptapEditor.view.dom as HTMLDivElement;
+  }
+
+  public focus() {
+    this._tiptapEditor.view.focus();
   }
 
   constructor(options: Partial<BlockNoteEditorOptions> = {}) {
@@ -229,7 +239,7 @@ export class BlockNoteEditor {
 
     function traverseBlockArray(blockArray: Block[]): boolean {
       for (const block of blockArray) {
-        if (callback(block) === false) {
+        if (!callback(block)) {
           return false;
         }
 
@@ -237,7 +247,7 @@ export class BlockNoteEditor {
           ? block.children.slice().reverse()
           : block.children;
 
-        if (traverseBlockArray(children) === false) {
+        if (!traverseBlockArray(children)) {
           return false;
         }
       }
@@ -320,6 +330,44 @@ export class BlockNoteEditor {
   }
 
   /**
+   * Gets a snapshot of the current selection.
+   */
+  public getSelection(): Selection | undefined {
+    if (
+      this._tiptapEditor.state.selection.from ===
+      this._tiptapEditor.state.selection.to
+    ) {
+      return undefined;
+    }
+
+    const blocks: Block[] = [];
+
+    this._tiptapEditor.state.doc.descendants((node, pos) => {
+      if (node.type.spec.group !== "blockContent") {
+        return true;
+      }
+
+      if (
+        pos + node.nodeSize < this._tiptapEditor.state.selection.from ||
+        pos > this._tiptapEditor.state.selection.to
+      ) {
+        return true;
+      }
+
+      blocks.push(
+        nodeToBlock(
+          this._tiptapEditor.state.doc.resolve(pos).node(),
+          this.blockCache
+        )
+      );
+
+      return false;
+    });
+
+    return { blocks: blocks };
+  }
+
+  /**
    * Checks if the editor is currently editable, or if it's locked.
    * @returns True if the editor is editable, false otherwise.
    */
@@ -382,6 +430,169 @@ export class BlockNoteEditor {
     blocksToInsert: PartialBlock[]
   ) {
     replaceBlocks(blocksToRemove, blocksToInsert, this._tiptapEditor);
+  }
+
+  /**
+   * Gets the active text styles at the text cursor position or at the end of the current selection if it's active.
+   */
+  public getActiveStyles() {
+    const styles: Styles = {};
+    const marks = this._tiptapEditor.state.selection.$to.marks();
+
+    const toggleStyles = new Set<ToggledStyle>([
+      "bold",
+      "italic",
+      "underline",
+      "strike",
+      "code",
+    ]);
+    const colorStyles = new Set<ColorStyle>(["textColor", "backgroundColor"]);
+
+    for (const mark of marks) {
+      if (toggleStyles.has(mark.type.name as ToggledStyle)) {
+        styles[mark.type.name as ToggledStyle] = true;
+      } else if (colorStyles.has(mark.type.name as ColorStyle)) {
+        styles[mark.type.name as ColorStyle] = mark.attrs.color;
+      }
+    }
+
+    return styles;
+  }
+
+  /**
+   * Adds styles to the currently selected content.
+   * @param styles The styles to add.
+   */
+  public addStyles(styles: Styles) {
+    const toggleStyles = new Set<ToggledStyle>([
+      "bold",
+      "italic",
+      "underline",
+      "strike",
+      "code",
+    ]);
+    const colorStyles = new Set<ColorStyle>(["textColor", "backgroundColor"]);
+
+    for (const [style, value] of Object.entries(styles)) {
+      if (toggleStyles.has(style as ToggledStyle)) {
+        this._tiptapEditor.commands.setMark(style);
+      } else if (colorStyles.has(style as ColorStyle)) {
+        this._tiptapEditor.commands.setMark(style, { color: value });
+      }
+    }
+  }
+
+  /**
+   * Removes styles from the currently selected content.
+   * @param styles The styles to remove.
+   */
+  public removeStyles(styles: Styles) {
+    for (const style of Object.keys(styles)) {
+      this._tiptapEditor.commands.unsetMark(style);
+    }
+  }
+
+  /**
+   * Toggles styles on the currently selected content.
+   * @param styles The styles to toggle.
+   */
+  public toggleStyles(styles: Styles) {
+    const toggleStyles = new Set<ToggledStyle>([
+      "bold",
+      "italic",
+      "underline",
+      "strike",
+      "code",
+    ]);
+    const colorStyles = new Set<ColorStyle>(["textColor", "backgroundColor"]);
+
+    for (const [style, value] of Object.entries(styles)) {
+      if (toggleStyles.has(style as ToggledStyle)) {
+        this._tiptapEditor.commands.toggleMark(style);
+      } else if (colorStyles.has(style as ColorStyle)) {
+        this._tiptapEditor.commands.toggleMark(style, { color: value });
+      }
+    }
+  }
+
+  /**
+   * Gets the currently selected text.
+   */
+  public getSelectedText() {
+    return this._tiptapEditor.state.doc.textBetween(
+      this._tiptapEditor.state.selection.from,
+      this._tiptapEditor.state.selection.to
+    );
+  }
+
+  /**
+   * Gets the URL of the last link in the current selection, or `undefined` if there are no links in the selection.
+   */
+  public getSelectedLinkUrl() {
+    return this._tiptapEditor.getAttributes("link").href as string | undefined;
+  }
+
+  /**
+   * Creates a new link to replace the selected content.
+   * @param url The link URL.
+   * @param text The text to display the link with.
+   */
+  public createLink(url: string, text?: string) {
+    if (url === "") {
+      return;
+    }
+
+    let { from, to } = this._tiptapEditor.state.selection;
+
+    if (!text) {
+      text = this._tiptapEditor.state.doc.textBetween(from, to);
+    }
+
+    const mark = this._tiptapEditor.schema.mark("link", { href: url });
+
+    this._tiptapEditor.view.dispatch(
+      this._tiptapEditor.view.state.tr
+        .insertText(text, from, to)
+        .addMark(from, from + text.length, mark)
+    );
+  }
+
+  /**
+   * Checks if the block containing the text cursor can be nested.
+   */
+  public canNestBlock() {
+    const { startPos, depth } = getBlockInfoFromPos(
+      this._tiptapEditor.state.doc,
+      this._tiptapEditor.state.selection.from
+    )!;
+
+    return this._tiptapEditor.state.doc.resolve(startPos).index(depth - 1) > 0;
+  }
+
+  /**
+   * Nests the block containing the text cursor into the block above it.
+   */
+  public nestBlock() {
+    this._tiptapEditor.commands.sinkListItem("blockContainer");
+  }
+
+  /**
+   * Checks if the block containing the text cursor is nested.
+   */
+  public canUnnestBlock() {
+    const { depth } = getBlockInfoFromPos(
+      this._tiptapEditor.state.doc,
+      this._tiptapEditor.state.selection.from
+    )!;
+
+    return depth > 2;
+  }
+
+  /**
+   * Lifts the block containing the text cursor out of its parent.
+   */
+  public unnestBlock() {
+    this._tiptapEditor.commands.liftListItem("blockContainer");
   }
 
   /**

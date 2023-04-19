@@ -1,9 +1,11 @@
 import { Editor, Extension } from "@tiptap/core";
 import { BlockSideMenuFactory } from "./BlockSideMenuFactoryTypes";
 import { createDraggableBlocksPlugin } from "./DraggableBlocksPlugin";
+import { BlockNoteEditor } from "../../BlockNoteEditor";
 
 export type DraggableBlocksOptions = {
-  editor: Editor;
+  tiptapEditor: Editor;
+  editor: BlockNoteEditor;
   blockSideMenuFactory: BlockSideMenuFactory;
 };
 
@@ -25,7 +27,8 @@ export const DraggableBlocksExtension =
       }
       return [
         createDraggableBlocksPlugin({
-          editor: this.editor,
+          tiptapEditor: this.editor,
+          editor: this.options.editor,
           blockSideMenuFactory: this.options.blockSideMenuFactory,
         }),
       ];

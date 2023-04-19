@@ -196,3 +196,67 @@ editor.replaceBlocks(blocksToRemove, blocksToInsert)
 `blocksToInsert:` An array of [partial blocks](#partial-blocks) that the existing ones should be replaced with.
 
 If the blocks that should be removed are not adjacent or are at different nesting levels, `blocksToInsert` will be inserted at the position of the first block in `blocksToRemove`. Throws an error if any of the blocks to remove could not be found.
+
+## Nesting & Un-nesting Blocks
+
+BlockNote also provides functions to nest & un-nest the block containing the [Text Cursor](/docs/cursor-selections#text-cursor).
+
+### Nesting Blocks
+
+You can check whether the block containing the [Text Cursor](/docs/cursor-selections#text-cursor) can be nested (i.e. if there is a block above it at the same nesting level) using the following call:
+
+```typescript
+// Definition
+class BlockNoteEditor {
+...
+  public canNestBlock(): boolean;
+...
+}
+
+// Usage
+const canNestBlock = editor.canNestBlock();
+```
+
+Then nest the block with another call:
+
+```typescript
+// Definition
+class BlockNoteEditor {
+...
+  public nestBlock(): void;
+...
+}
+
+// Usage
+editor.nestBlock();
+```
+
+### Un-nesting Blocks
+
+You can also check whether the block containing the [Text Cursor](/docs/cursor-selections#text-cursor) can be un-nested (i.e. if it's nested in another block) using the following call:
+
+```typescript
+// Definition
+class BlockNoteEditor {
+...
+  public canUnnestBlock(): boolean;
+...
+}
+
+// Usage
+const canUnnestBlock = editor.canUnnestBlock();
+```
+
+Then un-nest the block with another call:
+
+```typescript
+// Definition
+class BlockNoteEditor {
+...
+  public unnestBlock(): void;
+...
+}
+
+// Usage
+editor.unnestBlock();
+```
