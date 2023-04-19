@@ -1,3 +1,4 @@
+import { FC } from "react";
 import { TippyProps } from "@tippyjs/react";
 import { createRoot } from "react-dom/client";
 import { EditorElement, RequiredDynamicParams } from "@blocknote/core";
@@ -22,9 +23,7 @@ export const ReactElementFactory = <
   ElementDynamicParams extends RequiredDynamicParams
 >(
   staticParams: ElementStaticParams,
-  EditorElementComponent: (
-    props: ElementStaticParams & ElementDynamicParams
-  ) => JSX.Element,
+  EditorElementComponent: FC<ElementStaticParams & ElementDynamicParams>,
   theme: MantineThemeOverride,
   tippyProps?: TippyProps
 ): EditorElement<ElementDynamicParams> => {

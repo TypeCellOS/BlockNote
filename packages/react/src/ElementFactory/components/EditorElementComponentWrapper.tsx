@@ -1,7 +1,7 @@
 import { MantineProvider, MantineThemeOverride } from "@mantine/core";
 import Tippy, { TippyProps } from "@tippyjs/react";
 import { RequiredDynamicParams } from "@blocknote/core";
-import { useCallback, useState } from "react";
+import { FC, useCallback, useState } from "react";
 
 /**
  * Component used in the ReactElementFactory to wrap the EditorElementComponent in a MantineProvider and Tippy
@@ -20,9 +20,7 @@ export function EditorElementComponentWrapper<
   isOpen: boolean;
   staticParams: ElementStaticParams;
   dynamicParams: ElementDynamicParams;
-  editorElementComponent: (
-    props: ElementStaticParams & ElementDynamicParams
-  ) => JSX.Element;
+  editorElementComponent: FC<ElementStaticParams & ElementDynamicParams>;
   theme: MantineThemeOverride;
   tippyProps?: TippyProps;
 }) {

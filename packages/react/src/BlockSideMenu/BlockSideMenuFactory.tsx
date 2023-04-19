@@ -1,19 +1,27 @@
+import { FC } from "react";
 import {
-  BlockSideMenu,
   BlockSideMenuDynamicParams,
-  BlockSideMenuFactory,
   BlockSideMenuStaticParams,
 } from "@blocknote/core";
 import { BlockSideMenu as ReactBlockSideMenu } from "./components/BlockSideMenu";
 import { ReactElementFactory } from "../ElementFactory/components/ReactElementFactory";
 import { MantineThemeOverride } from "@mantine/core";
+import { DragHandleMenuProps } from "./components/DragHandleMenu";
+import { DefaultDragHandleMenu } from "./components/DefaultDragHandleMenu";
 
-export const createReactBlockSideMenuFactory =
-  (theme: MantineThemeOverride): BlockSideMenuFactory =>
-  (staticParams): BlockSideMenu =>
+export const createReactBlockSideMenuFactory = (
+  theme: MantineThemeOverride,
+  dragHandleMenu: FC<DragHandleMenuProps> = DefaultDragHandleMenu
+) => {
+  const CustomDragHandleMenu = dragHandleMenu;
+  const CustomBlockSideMenu = (
+    props: BlockSideMenuStaticParams & BlockSideMenuDynamicParams
+  ) => <ReactBlockSideMenu {...props} dragHandleMenu={CustomDragHandleMenu} />;
+
+  return (staticParams: BlockSideMenuStaticParams) =>
     ReactElementFactory<BlockSideMenuStaticParams, BlockSideMenuDynamicParams>(
       staticParams,
-      ReactBlockSideMenu,
+      CustomBlockSideMenu,
       theme,
       {
         animation: "fade",
@@ -21,3 +29,4 @@ export const createReactBlockSideMenuFactory =
         placement: "left",
       }
     );
+};
