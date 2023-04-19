@@ -90,6 +90,8 @@ export class FormattingToolbarView {
 
     this.ttEditor.on("focus", this.focusHandler);
     this.ttEditor.on("blur", this.blurHandler);
+    
+    document.addEventListener("scroll", this.scrollHandler);
   }
 
   viewMousedownHandler = () => {
@@ -130,6 +132,12 @@ export class FormattingToolbarView {
     if (this.toolbarIsOpen) {
       this.formattingToolbar.hide();
       this.toolbarIsOpen = false;
+    }
+  };
+
+  scrollHandler = () => {
+    if (this.toolbarIsOpen) {
+      this.formattingToolbar.render(this.getDynamicParams(), false);
     }
   };
 
@@ -218,6 +226,8 @@ export class FormattingToolbarView {
 
     this.ttEditor.off("focus", this.focusHandler);
     this.ttEditor.off("blur", this.blurHandler);
+
+    document.removeEventListener("scroll", this.scrollHandler);
   }
 
   getSelectionBoundingBox() {

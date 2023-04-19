@@ -208,9 +208,9 @@ function dragStart(e: DragEvent, view: EditorView) {
     const { from, to } = blockPositionsFromSelection(selection, doc);
 
     const draggedBlockInSelection = from <= pos && pos < to;
-    const multipleBlocksSelected = !selection.$anchor
-      .node()
-      .eq(selection.$head.node());
+    const multipleBlocksSelected =
+      selection.$anchor.node() !== selection.$head.node() ||
+      selection instanceof MultipleNodeSelection;
 
     if (draggedBlockInSelection && multipleBlocksSelected) {
       view.dispatch(
@@ -276,6 +276,9 @@ export class BlockMenuView {
 
     // Shows or updates menu position whenever the cursor moves, if the menu isn't frozen.
     document.body.addEventListener("mousemove", this.onMouseMove, true);
+
+    // Makes menu scroll with the page.
+    document.addEventListener("scroll", this.onScroll);
 
     // Hides and unfreezes the menu whenever the user selects the editor with the mouse or presses a key.
     // TODO: Better integration with suggestions menu and only editor scope?
@@ -421,6 +424,12 @@ export class BlockMenuView {
     }
   };
 
+  onScroll = () => {
+    if (this.menuOpen) {
+      this.blockMenu.render(this.getDynamicParams(), false);
+    }
+  };
+
   destroy() {
     if (this.menuOpen) {
       this.menuOpen = false;
@@ -430,6 +439,7 @@ export class BlockMenuView {
     document.body.removeEventListener("dragover", this.onDragOver);
     document.body.removeEventListener("drop", this.onDrop);
     document.body.removeEventListener("mousedown", this.onMouseDown);
+    document.removeEventListener("scroll", this.onScroll);
     document.body.removeEventListener("keydown", this.onKeyDown);
   }
 
