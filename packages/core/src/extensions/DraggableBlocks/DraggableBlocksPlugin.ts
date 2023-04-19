@@ -255,6 +255,8 @@ export class BlockMenuView {
 
   hoveredBlockContent: HTMLElement | undefined;
 
+  // Used to check if currently dragged content comes from this editor instance.
+  isDragging = false;
   menuOpen = false;
   menuFrozen = false;
 
@@ -272,7 +274,8 @@ export class BlockMenuView {
     this.blockMenu = blockMenuFactory(this.getStaticParams());
 
     document.body.addEventListener("drop", this.onDrop, true);
-    document.body.addEventListener("dragover", this.onDragOver);
+    document.body.addEventListener("dragover", this.onDragOver, true);
+    this.editor.view.dom.addEventListener("dragstart", this.onDragStart);
 
     // Shows or updates menu position whenever the cursor moves, if the menu isn't frozen.
     document.body.addEventListener("mousemove", this.onMouseMove, true);
@@ -287,61 +290,82 @@ export class BlockMenuView {
   }
 
   /**
-   * If the event is outside of the editor contents,
-   * we dispatch a fake event, so that we can still drop the content
-   * when dragging / dropping to the side of the editor
+   * Sets isDragging when dragging text.
    */
-  onDrop = (event: DragEvent) => {
-    if ((event as any).synthetic) {
-      return;
-    }
-    let pos = this.editor.view.posAtCoords({
-      left: event.clientX,
-      top: event.clientY,
-    });
-
-    if (!pos || pos.inside === -1) {
-      const evt = new Event("drop", event) as any;
-      const editorBoundingBox = (
-        this.editor.view.dom.firstChild! as HTMLElement
-      ).getBoundingClientRect();
-      evt.clientX = editorBoundingBox.left + editorBoundingBox.width / 2;
-      evt.clientY = event.clientY;
-      evt.dataTransfer = event.dataTransfer;
-      evt.preventDefault = () => event.preventDefault();
-      evt.synthetic = true; // prevent recursion
-      // console.log("dispatch fake drop");
-      this.editor.view.dom.dispatchEvent(evt);
-    }
+  onDragStart = () => {
+    this.isDragging = true;
   };
 
   /**
-   * If the event is outside of the editor contents,
-   * we dispatch a fake event, so that we can still drop the content
-   * when dragging / dropping to the side of the editor
+   * If the dragged content is from this editor instance, we dispatch a fake
+   * event, so that we always drop the content into the same editor it came
+   * from.
    */
-  onDragOver = (event: DragEvent) => {
-    if ((event as any).synthetic) {
+  onDrop = (event: DragEvent) => {
+    if ((event as any).synthetic || !this.isDragging) {
       return;
     }
+
+    this.isDragging = false;
+    event.preventDefault();
+
     let pos = this.editor.view.posAtCoords({
       left: event.clientX,
       top: event.clientY,
     });
 
-    if (!pos || pos.inside === -1) {
-      const evt = new Event("dragover", event) as any;
-      const editorBoundingBox = (
-        this.editor.view.dom.firstChild! as HTMLElement
-      ).getBoundingClientRect();
-      evt.clientX = editorBoundingBox.left + editorBoundingBox.width / 2;
-      evt.clientY = event.clientY;
-      evt.dataTransfer = event.dataTransfer;
-      evt.preventDefault = () => event.preventDefault();
-      evt.synthetic = true; // prevent recursion
-      // console.log("dispatch fake dragover");
-      this.editor.view.dom.dispatchEvent(evt);
+    const evt = new Event("drop", event) as any;
+    const editorBoundingBox = (
+      this.editor.view.dom.firstChild! as HTMLElement
+    ).getBoundingClientRect();
+    evt.clientX =
+      // Checks if cursor is beyond the editor width
+      !pos || pos.inside === -1
+        ? editorBoundingBox.left + editorBoundingBox.width / 2
+        : event.clientX;
+    evt.clientY = event.clientY;
+    evt.dataTransfer = event.dataTransfer;
+    evt.preventDefault = () => event.preventDefault();
+    evt.synthetic = true; // prevent recursion
+    // console.log("dispatch fake drop");
+    this.editor.view.dom.dispatchEvent(evt);
+
+    return true;
+  };
+
+  /**
+   * If the dragged content is from this editor instance, we dispatch a fake
+   * event, so that we always drop the content into the same editor it came
+   * from.
+   */
+  onDragOver = (event: DragEvent) => {
+    if ((event as any).synthetic || !this.isDragging) {
+      return;
     }
+
+    event.preventDefault();
+
+    let pos = this.editor.view.posAtCoords({
+      left: event.clientX,
+      top: event.clientY,
+    });
+
+    const evt = new Event("dragover", event) as any;
+    const editorBoundingBox = (
+      this.editor.view.dom.firstChild! as HTMLElement
+    ).getBoundingClientRect();
+    evt.clientX =
+      // Checks if cursor is beyond the editor width
+      !pos || pos.inside === -1
+        ? editorBoundingBox.left + editorBoundingBox.width / 2
+        : event.clientX;
+    evt.clientY = event.clientY;
+    evt.dataTransfer = event.dataTransfer;
+    evt.preventDefault = () => event.preventDefault();
+    evt.synthetic = true; // prevent recursion
+    evt.editorDOM = this.editor.view.dom; // for drop cursor plugin
+    // console.log("dispatch fake dragover");
+    this.editor.view.dom.dispatchEvent(evt);
   };
 
   onKeyDown = (_event: KeyboardEvent) => {
@@ -437,6 +461,7 @@ export class BlockMenuView {
     }
     document.body.removeEventListener("mousemove", this.onMouseMove);
     document.body.removeEventListener("dragover", this.onDragOver);
+    this.editor.view.dom.removeEventListener("dragstart", this.onDragStart);
     document.body.removeEventListener("drop", this.onDrop);
     document.body.removeEventListener("mousedown", this.onMouseDown);
     document.removeEventListener("scroll", this.onScroll);
@@ -550,7 +575,11 @@ export class BlockMenuView {
     return {
       addBlock: () => this.addBlock(),
       deleteBlock: () => this.deleteBlock(),
-      blockDragStart: (event: DragEvent) => dragStart(event, this.editor.view),
+      blockDragStart: (event: DragEvent) => {
+        // Sets isDragging when dragging blocks.
+        this.isDragging = true;
+        dragStart(event, this.editor.view);
+      },
       blockDragEnd: () => unsetDragImage(),
       freezeMenu: () => {
         this.menuFrozen = true;
