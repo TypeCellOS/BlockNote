@@ -266,7 +266,7 @@ export class BlockMenuView {
 
     document.body.addEventListener("drop", this.onDrop, true);
     document.body.addEventListener("dragover", this.onDragOver);
-    this.editor.view.dom.addEventListener("dragstart", this.onDragStart);
+    this.ttEditor.view.dom.addEventListener("dragstart", this.onDragStart);
 
     // Shows or updates menu position whenever the cursor moves, if the menu isn't frozen.
     document.body.addEventListener("mousemove", this.onMouseMove, true);
@@ -441,7 +441,7 @@ export class BlockMenuView {
     }
     document.body.removeEventListener("mousemove", this.onMouseMove);
     document.body.removeEventListener("dragover", this.onDragOver);
-    this.editor.view.dom.removeEventListener("dragstart", this.onDragStart);
+    this.ttEditor.view.dom.removeEventListener("dragstart", this.onDragStart);
     document.body.removeEventListener("drop", this.onDrop);
     document.body.removeEventListener("mousedown", this.onMouseDown);
     document.removeEventListener("scroll", this.onScroll);
@@ -504,7 +504,7 @@ export class BlockMenuView {
       blockDragStart: (event: DragEvent) => {
         // Sets isDragging when dragging blocks.
         this.isDragging = true;
-        dragStart(event, this.editor.view);
+        dragStart(event, this.ttEditor.view);
       },
       blockDragEnd: () => unsetDragImage(),
       freezeMenu: () => {
