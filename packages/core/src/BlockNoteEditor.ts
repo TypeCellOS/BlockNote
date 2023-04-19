@@ -75,8 +75,14 @@ export type BlockNoteEditorOptions = {
    * A callback function that runs whenever the text cursor position changes.
    */
   onTextCursorPositionChange: (editor: BlockNoteEditor) => void;
+  /**
+   * Locks the editor from being editable by the user if set to `false`.
+   */
+  editable: boolean;
+  /**
+   * The content that should be in the editor when it's created, represented as an array of partial block objects.
+   */
   initialContent: PartialBlock[];
-
   /**
    * Use default BlockNote font and reset the styles of <p> <li> <h1> elements etc., that are used in BlockNote.
    *
@@ -144,6 +150,7 @@ export class BlockNoteEditor {
       onSelectionUpdate: () => {
         options.onTextCursorPositionChange?.(this);
       },
+      editable: options.editable === undefined ? true : options.editable,
       extensions:
         options.enableBlockNoteExtensions === false
           ? options._tiptapOptions?.extensions
@@ -325,7 +332,14 @@ export class BlockNoteEditor {
   /**
    * Gets a snapshot of the current selection.
    */
-  public getSelection(): Selection {
+  public getSelection(): Selection | undefined {
+    if (
+      this._tiptapEditor.state.selection.from ===
+      this._tiptapEditor.state.selection.to
+    ) {
+      return undefined;
+    }
+
     const blocks: Block[] = [];
 
     this._tiptapEditor.state.doc.descendants((node, pos) => {
@@ -351,6 +365,22 @@ export class BlockNoteEditor {
     });
 
     return { blocks: blocks };
+  }
+
+  /**
+   * Checks if the editor is currently editable, or if it's locked.
+   * @returns True if the editor is editable, false otherwise.
+   */
+  public get isEditable(): boolean {
+    return this._tiptapEditor.isEditable;
+  }
+
+  /**
+   * Makes the editor editable or locks it, depending on the argument passed.
+   * @param editable True to make the editor editable, or false to lock it.
+   */
+  public set isEditable(editable: boolean) {
+    this._tiptapEditor.setEditable(editable);
   }
 
   /**
@@ -403,7 +433,7 @@ export class BlockNoteEditor {
   }
 
   /**
-   * Gets the active text styles at the text cursor position.
+   * Gets the active text styles at the text cursor position or at the end of the current selection if it's active.
    */
   public getActiveStyles() {
     const styles: Styles = {};
@@ -414,6 +444,7 @@ export class BlockNoteEditor {
       "italic",
       "underline",
       "strike",
+      "code",
     ]);
     const colorStyles = new Set<ColorStyle>(["textColor", "backgroundColor"]);
 
@@ -438,10 +469,9 @@ export class BlockNoteEditor {
       "italic",
       "underline",
       "strike",
+      "code",
     ]);
     const colorStyles = new Set<ColorStyle>(["textColor", "backgroundColor"]);
-
-    this._tiptapEditor.view.focus();
 
     for (const [style, value] of Object.entries(styles)) {
       if (toggleStyles.has(style as ToggledStyle)) {
@@ -457,8 +487,6 @@ export class BlockNoteEditor {
    * @param styles The styles to remove.
    */
   public removeStyles(styles: Styles) {
-    this._tiptapEditor.view.focus();
-
     for (const style of Object.keys(styles)) {
       this._tiptapEditor.commands.unsetMark(style);
     }
@@ -474,10 +502,9 @@ export class BlockNoteEditor {
       "italic",
       "underline",
       "strike",
+      "code",
     ]);
     const colorStyles = new Set<ColorStyle>(["textColor", "backgroundColor"]);
-
-    this._tiptapEditor.view.focus();
 
     for (const [style, value] of Object.entries(styles)) {
       if (toggleStyles.has(style as ToggledStyle)) {
@@ -489,18 +516,20 @@ export class BlockNoteEditor {
   }
 
   /**
-   * Gets the URL of the link at the current selection, and the currently selected text. If no link is active, the URL
-   * is an empty string.
+   * Gets the currently selected text.
    */
-  public getActiveLink() {
-    const url = this._tiptapEditor.getAttributes("link").href;
-    // TODO: Does this make sense? Shouldn't it get the actual link text?
-    const text = this._tiptapEditor.state.doc.textBetween(
+  public getSelectedText() {
+    return this._tiptapEditor.state.doc.textBetween(
       this._tiptapEditor.state.selection.from,
       this._tiptapEditor.state.selection.to
     );
+  }
 
-    return { text: text, url: url };
+  /**
+   * Gets the URL of the last link in the current selection, or `undefined` if there are no links in the selection.
+   */
+  public getSelectedLinkUrl() {
+    return this._tiptapEditor.getAttributes("link").href as string | undefined;
   }
 
   /**

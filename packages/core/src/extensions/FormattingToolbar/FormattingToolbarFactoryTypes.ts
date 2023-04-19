@@ -6,7 +6,6 @@ export type FormattingToolbarStaticParams = {
 };
 
 export type FormattingToolbarDynamicParams = {
-  editor: BlockNoteEditor;
   referenceRect: DOMRect;
 };
 

@@ -8,6 +8,7 @@ There are a number of options that you can pass to `useBlockNote()`, which you c
 
 ```typescript
 export type BlockNoteEditorOptions = Partial<{
+  editable: boolean;
   initialContent: PartialBlock[];
   editorDOMAttributes: Record<string, string>;
   onEditorReady: (editor: BlockNoteEditor) => void;
@@ -18,6 +19,8 @@ export type BlockNoteEditorOptions = Partial<{
   defaultStyles: boolean;
 }>;
 ```
+
+`editable:` Locks the editor from being editable by the user if set to `false`. [Editor Functions](/docs/blocks#editor-functions) will still work.
 
 `initialContent:` The content that should be in the editor when it's created, represented as an array of [partial block objects](/docs/manipulating-blocks#partial-blocks).
 

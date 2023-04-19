@@ -1,7 +1,9 @@
-import { createStyles, Menu } from "@mantine/core";
 import * as _ from "lodash";
-import { SlashMenuItem } from "./SlashMenuItem";
+
+import { Menu, createStyles } from "@mantine/core";
+
 import { ReactSlashMenuItem } from "../ReactSlashMenuItem";
+import { SlashMenuItem } from "./SlashMenuItem";
 
 export type SlashMenuProps = {
   items: ReactSlashMenuItem[];
@@ -49,7 +51,8 @@ export function SlashMenu(props: SlashMenuProps) {
        */
       defaultOpened={true}
       trigger={"hover"}
-      closeDelay={10000000}>
+      closeDelay={10000000}
+      styles={{ dropdown: { position: "static" } }}>
       <Menu.Dropdown className={classes.root}>
         {renderedItems.length > 0 ? (
           renderedItems
