@@ -1,6 +1,8 @@
 import { BlockNoteEditor, BlockNoteEditorOptions } from "@blocknote/core";
 import { DependencyList, useEffect, useState } from "react";
-import { ReactBlockSideMenuFactory } from "../BlockSideMenu/BlockSideMenuFactory";
+import {
+  createReactBlockSideMenuFactory,
+} from "../BlockSideMenu/BlockSideMenuFactory";
 import {
   createReactFormattingToolbarFactory,
 } from "../FormattingToolbar/FormattingToolbarFactory";
@@ -42,7 +44,7 @@ export const useBlockNote = (
           formattingToolbarFactory: createReactFormattingToolbarFactory(),
           hyperlinkToolbarFactory: ReactHyperlinkToolbarFactory,
           slashMenuFactory: ReactSlashMenuFactory,
-          blockSideMenuFactory: ReactBlockSideMenuFactory,
+          blockSideMenuFactory: createReactBlockSideMenuFactory(),
         },
       };
     }
