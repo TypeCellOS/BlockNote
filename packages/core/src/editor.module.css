@@ -53,12 +53,12 @@ Tippy popups that are appended to document.body directly
   -moz-osx-font-smoothing: grayscale;
 }
 
-.light {
+[data-theme="light"] {
   background-color: #FFFFFF;
   color: #444444;
 }
 
-.dark {
+[data-theme="dark"] {
   background-color: #444444;
   color: #DDDDDD;
 }

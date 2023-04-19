@@ -153,13 +153,13 @@ export class BlockNoteEditor {
           : [...(options._tiptapOptions?.extensions || []), ...extensions],
       editorProps: {
         attributes: {
+          "data-theme": options.theme || "light",
           ...(options.editorDOMAttributes || {}),
           class: [
             styles.bnEditor,
             styles.bnRoot,
             options.defaultStyles ? styles.defaultStyles : "",
             options.editorDOMAttributes?.class || "",
-            options.theme ? styles[options.theme] : "",
           ].join(" "),
         },
       },
