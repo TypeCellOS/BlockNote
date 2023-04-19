@@ -7,7 +7,7 @@
         {
           "type": "blockContainer",
           "attrs": {
-            "id": 0,
+            "id": "0",
             "textColor": "default",
             "backgroundColor": "default"
           },
@@ -30,7 +30,7 @@
                 {
                   "type": "blockContainer",
                   "attrs": {
-                    "id": 1,
+                    "id": "1",
                     "textColor": "default",
                     "backgroundColor": "default"
                   },
@@ -57,7 +57,7 @@
         {
           "type": "blockContainer",
           "attrs": {
-            "id": 2,
+            "id": "2",
             "textColor": "default",
             "backgroundColor": "default"
           },
@@ -80,7 +80,7 @@
         {
           "type": "blockContainer",
           "attrs": {
-            "id": 3,
+            "id": "3",
             "textColor": "default",
             "backgroundColor": "default"
           },
@@ -103,7 +103,7 @@
         {
           "type": "blockContainer",
           "attrs": {
-            "id": 4,
+            "id": "4",
             "textColor": "default",
             "backgroundColor": "default"
           },
