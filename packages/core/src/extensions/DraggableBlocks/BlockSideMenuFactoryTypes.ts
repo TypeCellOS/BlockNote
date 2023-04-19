@@ -15,7 +15,6 @@ export type BlockSideMenuStaticParams = {
 };
 
 export type BlockSideMenuDynamicParams = {
-  editor: BlockNoteEditor;
   block: Block;
 
   referenceRect: DOMRect;

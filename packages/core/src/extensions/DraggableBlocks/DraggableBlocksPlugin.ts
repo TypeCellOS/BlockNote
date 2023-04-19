@@ -493,7 +493,6 @@ export class BlockMenuView {
     const blockContentBoundingBox = blockContent.getBoundingClientRect();
 
     return {
-      editor: this.editor,
       block: this.editor.getBlock(this.hoveredBlock!.getAttribute("data-id")!)!,
       referenceRect: new DOMRect(
         this.horizontalPosAnchoredAtRoot
