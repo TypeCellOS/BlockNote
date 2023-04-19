@@ -274,7 +274,7 @@ export class BlockMenuView {
     this.blockMenu = blockMenuFactory(this.getStaticParams());
 
     document.body.addEventListener("drop", this.onDrop, true);
-    document.body.addEventListener("dragover", this.onDragOver, true);
+    document.body.addEventListener("dragover", this.onDragOver);
     this.editor.view.dom.addEventListener("dragstart", this.onDragStart);
 
     // Shows or updates menu position whenever the cursor moves, if the menu isn't frozen.
