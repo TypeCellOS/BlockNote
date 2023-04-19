@@ -4,6 +4,7 @@ import { BlockNoteEditor } from "./BlockNoteEditor";
 
 import { Bold } from "@tiptap/extension-bold";
 import { Code } from "@tiptap/extension-code";
+import { Dropcursor } from "@tiptap/extension-dropcursor";
 import { Gapcursor } from "@tiptap/extension-gapcursor";
 import { HardBreak } from "@tiptap/extension-hard-break";
 import { History } from "@tiptap/extension-history";
@@ -31,7 +32,6 @@ import { TextColorMark } from "./extensions/TextColor/TextColorMark";
 import { TrailingNode } from "./extensions/TrailingNode/TrailingNodeExtension";
 import UniqueID from "./extensions/UniqueID/UniqueID";
 import { SuggestionsMenuFactory } from "./shared/plugins/suggestion/SuggestionsMenuFactoryTypes";
-import { DropCursor } from "./extensions/DropCursor/DropCursorExtension";
 
 export type UiFactories = Partial<{
   formattingToolbarFactory: FormattingToolbarFactory;
@@ -90,7 +90,7 @@ export const getBlockNoteExtensions = (opts: {
     // custom blocks:
     ...blocks,
 
-    DropCursor.configure({ width: 5, color: "#ddeeff" }),
+    Dropcursor.configure({ width: 5, color: "#ddeeff" }),
     History,
     // This needs to be at the bottom of this list, because Key events (such as enter, when selecting a /command),
     // should be handled before Enter handlers in other components like splitListItem
