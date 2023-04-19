@@ -6,27 +6,27 @@ import {
   PartialBlock,
 } from "../../extensions/Blocks/api/blockTypes";
 import {
-  ColorStyles,
+  ColorStyle,
   InlineContent,
   Link,
   PartialInlineContent,
   PartialLink,
   StyledText,
   Styles,
-  ToggledStyles,
+  ToggledStyle,
 } from "../../extensions/Blocks/api/inlineContentTypes";
 import { getBlockInfoFromPos } from "../../extensions/Blocks/helpers/getBlockInfoFromPos";
 import UniqueID from "../../extensions/UniqueID/UniqueID";
 import { UnreachableCaseError } from "../../shared/utils";
 
-const toggleStyles = new Set<ToggledStyles>([
+const toggleStyles = new Set<ToggledStyle>([
   "bold",
   "italic",
   "underline",
   "strike",
   "code",
 ]);
-const colorStyles = new Set<ColorStyles>(["textColor", "backgroundColor"]);
+const colorStyles = new Set<ColorStyle>(["textColor", "backgroundColor"]);
 
 /**
  * Convert a StyledText inline element to a
@@ -36,9 +36,9 @@ function styledTextToNode(styledText: StyledText, schema: Schema): Node {
   const marks: Mark[] = [];
 
   for (const [style, value] of Object.entries(styledText.styles)) {
-    if (toggleStyles.has(style as ToggledStyles)) {
+    if (toggleStyles.has(style as ToggledStyle)) {
       marks.push(schema.mark(style));
-    } else if (colorStyles.has(style as ColorStyles)) {
+    } else if (colorStyles.has(style as ColorStyle)) {
       marks.push(schema.mark(style, { color: value }));
     }
   }
@@ -168,10 +168,10 @@ function contentNodeToInlineContent(contentNode: Node) {
     for (const mark of node.marks) {
       if (mark.type.name === "link") {
         linkMark = mark;
-      } else if (toggleStyles.has(mark.type.name as ToggledStyles)) {
-        styles[mark.type.name as ToggledStyles] = true;
-      } else if (colorStyles.has(mark.type.name as ColorStyles)) {
-        styles[mark.type.name as ColorStyles] = mark.attrs.color;
+      } else if (toggleStyles.has(mark.type.name as ToggledStyle)) {
+        styles[mark.type.name as ToggledStyle] = true;
+      } else if (colorStyles.has(mark.type.name as ColorStyle)) {
+        styles[mark.type.name as ColorStyle] = mark.attrs.color;
       } else {
         throw Error("Mark is of an unrecognized type: " + mark.type.name);
       }

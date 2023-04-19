@@ -20,7 +20,8 @@ export const LinkToolbarButton = (props: HyperlinkButtonProps) => {
   const [creationMenu, setCreationMenu] = useState<any>();
   const [creationMenuOpen, setCreationMenuOpen] = useState(false);
 
-  const ref = useRef<HTMLButtonElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   // TODO: review code; does this pattern still make sense?
   const updateCreationMenu = useCallback(() => {
@@ -33,14 +34,19 @@ export const LinkToolbarButton = (props: HyperlinkButtonProps) => {
           props.setHyperlink(url, text);
           setCreationMenuOpen(false);
         }}
+        ref={menuRef}
       />
     );
   }, [props]);
 
   const handleClick = useCallback(
     (event: MouseEvent) => {
-      if (ref.current?.contains(event.target as HTMLElement)) {
+      if (buttonRef.current?.contains(event.target as HTMLElement)) {
         setCreationMenuOpen(!creationMenuOpen);
+        return;
+      }
+
+      if (menuRef.current?.contains(event.target as HTMLElement)) {
         return;
       }
 
@@ -67,7 +73,7 @@ export const LinkToolbarButton = (props: HyperlinkButtonProps) => {
         mainTooltip={props.mainTooltip}
         secondaryTooltip={props.secondaryTooltip}
         icon={props.icon}
-        ref={ref}
+        ref={buttonRef}
       />
     </Tippy>
   );
