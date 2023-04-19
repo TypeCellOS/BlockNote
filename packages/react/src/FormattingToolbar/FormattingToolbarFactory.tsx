@@ -1,6 +1,4 @@
 import {
-  FormattingToolbar,
-  FormattingToolbarFactory,
   FormattingToolbarStaticParams,
   FormattingToolbarDynamicParams,
   BlockNoteEditor,
@@ -10,7 +8,7 @@ import { ReactElementFactory } from "../ElementFactory/components/ReactElementFa
 import { FC } from "react";
 
 export const createReactFormattingToolbarFactory = (
-  toolbar: FC<{ editor: BlockNoteEditor }>
+  toolbar: FC<{ editor: BlockNoteEditor }> = ReactFormattingToolbar
 ) => {
   return (staticParams: FormattingToolbarStaticParams) =>
     ReactElementFactory<
@@ -21,14 +19,3 @@ export const createReactFormattingToolbarFactory = (
       placement: "top-start",
     });
 };
-
-export const ReactFormattingToolbarFactory: FormattingToolbarFactory = (
-  staticParams
-): FormattingToolbar =>
-  ReactElementFactory<
-    FormattingToolbarStaticParams,
-    FormattingToolbarDynamicParams
-  >(staticParams, ReactFormattingToolbar, {
-    animation: "fade",
-    placement: "top-start",
-  });

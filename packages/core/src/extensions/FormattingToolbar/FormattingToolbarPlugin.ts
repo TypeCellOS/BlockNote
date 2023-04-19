@@ -248,7 +248,6 @@ export class FormattingToolbarView {
 
   getDynamicParams(): FormattingToolbarDynamicParams {
     return {
-      editor: this.editor,
       referenceRect: this.getSelectionBoundingBox(),
     };
   }

@@ -28,8 +28,6 @@ const editor = useBlockNote({
 });
 ```
 
-If all this sounds confusing, you can find out more about the `uiFactories` option in [Creating Your Own UI Elements](/docs/vanilla-js#creating-your-own-ui-elements), but it's only useful if you want to use BlockNote in a non-React app.
-
 ## Default Items
 
 It might seem daunting to create your own Formatting Toolbar from scratch, which is why BlockNote provides React components for everything you see in the default layout - both the toolbar itself and the items in it. Below are all the default components you can use to build your custom toolbar:
