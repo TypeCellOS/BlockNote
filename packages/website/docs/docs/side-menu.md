@@ -53,10 +53,9 @@ const CustomDragHandleMenu = (props: {
 export default function App() {
   // Creates a new editor instance.
   const editor: BlockNoteEditor = useBlockNote({
-    uiFactories: {
+    customElements: {
       // Makes the editor instance use the custom menu.
-      blockSideMenuFactory:
-        createReactBlockSideMenuFactory(CustomDragHandleMenu),
+      dragHandleMenu: CustomDragHandleMenu
     },
   });
   // Renders the editor instance.
@@ -77,14 +76,13 @@ type CustomDragHandleMenuProps = {
 const CustomDragHandleMenu = (props: CustomDragHandleMenuProps): JSX.Element => ...;
 ```
 
-You can then tell BlockNote to use your custom Drag Handle Menu using the `uiFactories` option in `useBlockNote`, but you first have to turn it into a `SideMenuFactory` that uses it. Fortunately, you can easily do this using the `createReactSideMenuFactory` function:
+You can then tell BlockNote to use your custom Drag Handle Menu using
+the `customElements` option in `useBlockNote`:
 
 ```typescript
 const editor = useBlockNote({
-  uiFactories: {
-    blockSideMenuFactory: createReactBlockSideMenuFactory(
-      CustomBlockSideMenu
-    ),
+  customElements: {
+    blockSideMenuFactory: CustomBlockSideMenu
   },
 });
 ```

@@ -1,10 +1,12 @@
 # Customizing the Editor
 
-While you can get started with BlockNote in minutes, it's likely that you'll want to customize its features and functionality to better suit your app.
+While you can get started with BlockNote in minutes, it's likely that you'll
+want to customize its features and functionality to better suit your app.
 
 ## Editor Options
 
-There are a number of options that you can pass to `useBlockNote()`, which you can use to customize the editor. You can find the full list of these below:
+There are a number of options that you can pass to `useBlockNote()`, which you
+can use to customize the editor. You can find the full list of these below:
 
 ```typescript
 export type BlockNoteEditorOptions = Partial<{
@@ -15,8 +17,10 @@ export type BlockNoteEditorOptions = Partial<{
   onEditorContentChange: (editor: BlockNoteEditor) => void;
   onTextCursorPositionChange: (editor: BlockNoteEditor) => void;
   slashMenuItems: ReactSlashMenuItem[];
+  customElements: CustomElements;
   uiFactories: UiFactories;
   defaultStyles: boolean;
+  theme: "light" | "dark";
 }>;
 ```
 
@@ -34,9 +38,13 @@ export type BlockNoteEditorOptions = Partial<{
 
 `slashMenuItems:` The commands that are listed in the editor's [Slash Menu](/docs/slash-menu). If this option isn't defined, a default list of commands is loaded.
 
-`uiFactories:` Factories used to create a custom UI for BlockNote, which you can find out more about in [Creating Your Own UI Elements](/docs/vanilla-js#creating-your-own-ui-elements).
+`customElements:` React components for a custom [Formatting Toolbar](/docs/formatting-toolbar#custom-formatting-toolbar) and/or [Drag Handle Menu](/docs/side-menu#custom-drag-handle-menu) to use.
+
+`uiFactories:` UI element factories for creating a custom UI, including custom positioning & rendering. You can find out more about UI factories in [Creating Your Own UI Elements](/docs/vanilla-js#creating-your-own-ui-elements).
 
 `defaultStyles`: Whether to use the default font and reset the styles of `<p>`, `<li>`, `<h1>`, etc. elements that are used in BlockNote. Defaults to true if undefined.
+
+`theme:` Whether to use the light or dark theme.
 
 ## Demo: Saving & Restoring Editor Contents
 
