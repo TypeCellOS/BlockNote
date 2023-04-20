@@ -19,6 +19,7 @@ test.describe("Check Keyboard Handlers' Behaviour", () => {
     await insertHeading(page, 1);
     await insertHeading(page, 2);
 
+    await page.waitForTimeout(500);
     const startElement = await page.locator(H_ONE_BLOCK_SELECTOR);
     let boundingBox = await startElement.boundingBox();
     let { x, y, height } = boundingBox;
@@ -39,17 +40,16 @@ test.describe("Check Keyboard Handlers' Behaviour", () => {
     await focusOnEditor(page);
     await insertHeading(page, 1);
 
+    await page.waitForTimeout(500);
     const element = await page.locator(H_ONE_BLOCK_SELECTOR);
     let boundingBox = await element.boundingBox();
     let { x, y, height } = boundingBox;
 
     await page.mouse.click(x + 35, y + height / 2, { clickCount: 2 });
     await page.locator(ITALIC_BUTTON_SELECTOR).click();
-    await page.waitForTimeout(600);
+    await page.waitForTimeout(500);
     await page.mouse.click(x + 35, y + height / 2);
     await page.keyboard.press("Enter");
-
-    await page.pause();
 
     await compareDocToSnapshot(page, "enterPreservesMarks.json");
   });
@@ -61,6 +61,7 @@ test.describe("Check Keyboard Handlers' Behaviour", () => {
     await page.keyboard.press("Tab");
     await insertHeading(page, 3);
 
+    await page.waitForTimeout(500);
     const element = await page.locator(H_ONE_BLOCK_SELECTOR);
     let boundingBox = await element.boundingBox();
     let { x, y, height } = boundingBox;

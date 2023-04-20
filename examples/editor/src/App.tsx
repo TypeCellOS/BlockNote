@@ -14,6 +14,7 @@ function App() {
       class: styles.editor,
       "data-test": "editor",
     },
+    theme: "light",
   });
 
   // Give tests a way to get prosemirror instance

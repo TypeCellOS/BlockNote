@@ -135,7 +135,7 @@ export default defineConfig({
     siteTitle: false,
     logo: {
       light: "/img/logos/banner.svg",
-      dark: "/img/logos/banner.svg",
+      dark: "/img/logos/banner.dark.svg",
     },
     nav: [{ text: "Documentation", link: "/docs/introduction" }],
     sidebar: {

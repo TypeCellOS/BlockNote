@@ -34,11 +34,20 @@ NESTED BLOCKS
 .blockGroup .blockGroup > .blockOuter:not([data-prev-depth-changed])::before {
   content: " ";
   display: inline;
-  border-left: 1px solid #ccc;
   position: absolute;
   left: -20px;
   height: 100%;
   transition: all 0.2s 0.1s;
+}
+
+[data-theme="light"] .blockGroup .blockGroup
+> .blockOuter:not([data-prev-depth-changed])::before {
+  border-left: 1px solid #CCCCCC;
+}
+
+[data-theme="dark"] .blockGroup .blockGroup
+> .blockOuter:not([data-prev-depth-changed])::before {
+  border-left: 1px solid #999999;
 }
 
 .blockGroup .blockGroup > .blockOuter[data-prev-depth-change="-2"]::before {
@@ -216,12 +225,21 @@ NESTED BLOCKS
 .blockContent.isFilter > :first-child:before {
   /*float: left; */
   content: "";
-  color: #aeb8c2;
   pointer-events: none;
   height: 0;
   /* width: 0; */
   position: absolute;
   font-style: italic;
+}
+
+[data-theme="light"] .blockContent.isEmpty > :first-child:before,
+.blockContent.isFilter > :first-child:before {
+  color: #CCCCCC;
+}
+
+[data-theme="dark"] .blockContent.isEmpty > :first-child:before,
+.blockContent.isFilter > :first-child:before {
+  color: #999999;
 }
 
 /* TODO: would be nicer if defined from code */

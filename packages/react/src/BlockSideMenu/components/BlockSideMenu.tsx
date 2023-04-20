@@ -46,7 +46,7 @@ export const BlockSideMenu = (props: BlockSideMenuProps) => {
 
   return (
     <Group spacing={0}>
-      <ActionIcon size={24} color={"brandFinal.3"} data-test={"dragHandleAdd"}>
+      <ActionIcon size={24} data-test={"dragHandleAdd"}>
         {
           <AiOutlinePlus
             size={24}
@@ -65,7 +65,6 @@ export const BlockSideMenu = (props: BlockSideMenuProps) => {
                 props.freezeMenu();
               }}
               size={24}
-              color={"brandFinal.3"}
               data-test={"dragHandle"}>
               {<MdDragIndicator size={24} />}
             </ActionIcon>

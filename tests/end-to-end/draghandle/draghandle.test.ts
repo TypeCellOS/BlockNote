@@ -75,7 +75,7 @@ test.describe("Check Draghandle functionality", () => {
 
   test("Clicking draghandle should open menu", async () => {
     await executeSlashCommand(page, "h1");
-    await page.keyboard.type("Hover over this text");
+    await page.keyboard.type("Hover over this text", { delay: 20 });
     const heading = await page.locator(H_ONE_BLOCK_SELECTOR).first();
     await moveMouseOverElement(page, heading);
     await page.click(DRAG_HANDLE_SELECTOR);

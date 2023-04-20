@@ -1,15 +1,11 @@
 import { BlockNoteEditor, BlockNoteEditorOptions } from "@blocknote/core";
 import { DependencyList, useEffect, useState } from "react";
-import {
-  createReactBlockSideMenuFactory,
-} from "../BlockSideMenu/BlockSideMenuFactory";
-import {
-  createReactFormattingToolbarFactory,
-} from "../FormattingToolbar/FormattingToolbarFactory";
-import { ReactHyperlinkToolbarFactory } from "../HyperlinkToolbar/HyperlinkToolbarFactory";
-import { ReactSlashMenuFactory } from "../SlashMenu/SlashMenuFactory";
+import { createReactBlockSideMenuFactory } from "../BlockSideMenu/BlockSideMenuFactory";
+import { createReactFormattingToolbarFactory } from "../FormattingToolbar/FormattingToolbarFactory";
+import { createReactHyperlinkToolbarFactory } from "../HyperlinkToolbar/HyperlinkToolbarFactory";
+import { createReactSlashMenuFactory } from "../SlashMenu/SlashMenuFactory";
 import { defaultReactSlashMenuItems } from "../SlashMenu/defaultReactSlashMenuItems";
-
+import { getBlockNoteTheme } from "../BlockNoteTheme";
 //based on https://github.com/ueberdosis/tiptap/blob/main/packages/react/src/useEditor.ts
 
 function useForceUpdate() {
@@ -41,10 +37,18 @@ export const useBlockNote = (
       newOptions = {
         ...newOptions,
         uiFactories: {
-          formattingToolbarFactory: createReactFormattingToolbarFactory(),
-          hyperlinkToolbarFactory: ReactHyperlinkToolbarFactory,
-          slashMenuFactory: ReactSlashMenuFactory,
-          blockSideMenuFactory: createReactBlockSideMenuFactory(),
+          formattingToolbarFactory: createReactFormattingToolbarFactory(
+            getBlockNoteTheme(newOptions.theme === "dark")
+          ),
+          hyperlinkToolbarFactory: createReactHyperlinkToolbarFactory(
+            getBlockNoteTheme(newOptions.theme === "dark")
+          ),
+          slashMenuFactory: createReactSlashMenuFactory(
+            getBlockNoteTheme(newOptions.theme === "dark")
+          ),
+          blockSideMenuFactory: createReactBlockSideMenuFactory(
+            getBlockNoteTheme(newOptions.theme === "dark")
+          ),
         },
       };
     }
