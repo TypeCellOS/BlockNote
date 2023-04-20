@@ -113,7 +113,7 @@ const SIDEBAR_DEFAULT = [
 
 export default defineConfig({
   vite: {},
-  appearance: true,
+  appearance: false,
   srcDir: ".",
   outDir: "build",
 
