@@ -1,8 +1,4 @@
-import {
-  BlockNoteEditor,
-  BlockNoteEditorOptions,
-  UiFactories,
-} from "@blocknote/core";
+import { BlockNoteEditor, BlockNoteEditorOptions } from "@blocknote/core";
 import { DependencyList, FC, useEffect, useState } from "react";
 import { createReactBlockSideMenuFactory } from "../BlockSideMenu/BlockSideMenuFactory";
 import { createReactFormattingToolbarFactory } from "../FormattingToolbar/FormattingToolbarFactory";
@@ -26,10 +22,10 @@ function useForceUpdate() {
 export const useBlockNote = (
   options: Partial<
     BlockNoteEditorOptions & {
-      customElements: {
+      customElements: Partial<{
         formattingToolbar: FC<{ editor: BlockNoteEditor }>;
         dragHandleMenu: FC<DragHandleMenuProps>;
-      };
+      }>;
     }
   > = {},
   deps: DependencyList = []
@@ -46,63 +42,41 @@ export const useBlockNote = (
       slashCommands: defaultReactSlashMenuItems,
       ...options,
     };
-    if (!newOptions.uiFactories) {
-      let uiFactories: UiFactories;
 
-      if (options.customElements && options.uiFactories) {
-        console.warn(
-          "BlockNote editor initialized with both `customElements` and `uiFactories` options, prioritizing `uiFactories`."
-        );
-      } else if (options.uiFactories) {
-        uiFactories = {
-          formattingToolbarFactory: createReactFormattingToolbarFactory(
-            getBlockNoteTheme(newOptions.theme === "dark")
-          ),
-          hyperlinkToolbarFactory: createReactHyperlinkToolbarFactory(
-            getBlockNoteTheme(newOptions.theme === "dark")
-          ),
-          slashMenuFactory: createReactSlashMenuFactory(
-            getBlockNoteTheme(newOptions.theme === "dark")
-          ),
-          blockSideMenuFactory: createReactBlockSideMenuFactory(
-            getBlockNoteTheme(newOptions.theme === "dark")
-          ),
-        };
-      } else if (options.customElements) {
-        uiFactories = {
-          formattingToolbarFactory: createReactFormattingToolbarFactory(
-            getBlockNoteTheme(newOptions.theme === "dark")
-          ),
-          hyperlinkToolbarFactory: createReactHyperlinkToolbarFactory(
-            getBlockNoteTheme(newOptions.theme === "dark")
-          ),
-          slashMenuFactory: createReactSlashMenuFactory(
-            getBlockNoteTheme(newOptions.theme === "dark")
-          ),
-          blockSideMenuFactory: createReactBlockSideMenuFactory(
-            getBlockNoteTheme(newOptions.theme === "dark")
-          ),
-        };
-      }
+    let uiFactories: any;
 
-      newOptions = {
-        ...newOptions,
-        uiFactories: {
-          formattingToolbarFactory: createReactFormattingToolbarFactory(
-            getBlockNoteTheme(newOptions.theme === "dark")
-          ),
-          hyperlinkToolbarFactory: createReactHyperlinkToolbarFactory(
-            getBlockNoteTheme(newOptions.theme === "dark")
-          ),
-          slashMenuFactory: createReactSlashMenuFactory(
-            getBlockNoteTheme(newOptions.theme === "dark")
-          ),
-          blockSideMenuFactory: createReactBlockSideMenuFactory(
-            getBlockNoteTheme(newOptions.theme === "dark")
-          ),
-        },
+    if (newOptions.customElements && newOptions.uiFactories) {
+      console.warn(
+        "BlockNote editor initialized with both `customElements` and `uiFactories` options, prioritizing `uiFactories`."
+      );
+    }
+
+    if (newOptions.uiFactories) {
+      uiFactories = newOptions.uiFactories;
+    } else {
+      uiFactories = {
+        formattingToolbarFactory: createReactFormattingToolbarFactory(
+          getBlockNoteTheme(newOptions.theme === "dark"),
+          newOptions.customElements?.formattingToolbar
+        ),
+        hyperlinkToolbarFactory: createReactHyperlinkToolbarFactory(
+          getBlockNoteTheme(newOptions.theme === "dark")
+        ),
+        slashMenuFactory: createReactSlashMenuFactory(
+          getBlockNoteTheme(newOptions.theme === "dark")
+        ),
+        blockSideMenuFactory: createReactBlockSideMenuFactory(
+          getBlockNoteTheme(newOptions.theme === "dark"),
+          newOptions.customElements?.dragHandleMenu
+        ),
       };
     }
+
+    newOptions = {
+      ...newOptions,
+      uiFactories: uiFactories,
+    };
+
     console.log("create new blocknote instance");
     const instance = new BlockNoteEditor(
       newOptions as Partial<BlockNoteEditorOptions>
