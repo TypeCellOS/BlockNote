@@ -10,6 +10,11 @@ import { DragHandleMenuProps } from "../BlockSideMenu/components/DragHandleMenu"
 
 //based on https://github.com/ueberdosis/tiptap/blob/main/packages/react/src/useEditor.ts
 
+type CustomElements = Partial<{
+  formattingToolbar: FC<{ editor: BlockNoteEditor }>;
+  dragHandleMenu: FC<DragHandleMenuProps>;
+}>;
+
 function useForceUpdate() {
   const [, setValue] = useState(0);
 
@@ -22,10 +27,7 @@ function useForceUpdate() {
 export const useBlockNote = (
   options: Partial<
     BlockNoteEditorOptions & {
-      customElements: Partial<{
-        formattingToolbar: FC<{ editor: BlockNoteEditor }>;
-        dragHandleMenu: FC<DragHandleMenuProps>;
-      }>;
+      customElements: CustomElements;
     }
   > = {},
   deps: DependencyList = []

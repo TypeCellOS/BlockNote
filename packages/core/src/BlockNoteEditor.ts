@@ -41,7 +41,8 @@ export type BlockNoteEditorOptions = {
   enableBlockNoteExtensions: boolean;
   disableHistoryExtension: boolean;
   /**
-   * Factories used to create a custom UI for BlockNote
+   * UI element factories for creating a custom UI, including custom positioning
+   * & rendering.
    */
   uiFactories: UiFactories;
   /**

@@ -16,14 +16,13 @@ type CustomFormattingToolbarProps = {
 const CustomFormattingToolbar = (props: CustomFormattingToolbarProps): JSX.Element => ...;
 ```
 
-You can then tell BlockNote to use your custom Formatting Toolbar using the `uiFactories` option in `useBlockNote`, but you first have to turn it into a `FormattingToolbarFactory`. Fortunately, you can easily do this using the `createReactFormattingToolbarFactory` function:
+You can then tell BlockNote to use your custom Formatting Toolbar using
+the `customElements` option in `useBlockNote`:
 
 ```typescript
 const editor = useBlockNote({
-  uiFactories: {
-    formattingToolbarFactory: createReactFormattingToolbarFactory(
-      CustomFormattingToolbar
-    ),
+  customElements: {
+    formattingToolbar: CustomFormattingToolbar
   },
 });
 ```
@@ -180,12 +179,10 @@ const CustomFormattingToolbar = (props: { editor: BlockNoteEditor }) => {
 export default function App() {
   // Creates a new editor instance.
   const editor: BlockNoteEditor = useBlockNote({
-    uiFactories: {
+    customElements: {
       // Makes the editor instance use the custom toolbar.
-      formattingToolbarFactory: createReactFormattingToolbarFactory(
-        CustomFormattingToolbar
-      ),
-    },
+      formattingToolbar: CustomFormattingToolbar
+    }
   });
 
   // Renders the editor instance.
