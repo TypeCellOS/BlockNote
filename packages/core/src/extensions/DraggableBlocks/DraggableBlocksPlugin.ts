@@ -244,6 +244,8 @@ export class BlockMenuView {
 
   hoveredBlock: HTMLElement | undefined;
 
+  // Used to check if currently dragged content comes from this editor instance.
+  isDragging = false;
   menuOpen = false;
   menuFrozen = false;
 
@@ -264,6 +266,7 @@ export class BlockMenuView {
 
     document.body.addEventListener("drop", this.onDrop, true);
     document.body.addEventListener("dragover", this.onDragOver);
+    this.ttEditor.view.dom.addEventListener("dragstart", this.onDragStart);
 
     // Shows or updates menu position whenever the cursor moves, if the menu isn't frozen.
     document.body.addEventListener("mousemove", this.onMouseMove, true);
@@ -278,18 +281,27 @@ export class BlockMenuView {
   }
 
   /**
+   * Sets isDragging when dragging text.
+   */
+  onDragStart = () => {
+    this.isDragging = true;
+  };
+
+  /**
    * If the event is outside the editor contents,
    * we dispatch a fake event, so that we can still drop the content
    * when dragging / dropping to the side of the editor
    */
   onDrop = (event: DragEvent) => {
-    if ((event as any).synthetic) {
+    if ((event as any).synthetic || !this.isDragging) {
       return;
     }
     let pos = this.ttEditor.view.posAtCoords({
       left: event.clientX,
       top: event.clientY,
     });
+
+    this.isDragging = false;
 
     if (!pos || pos.inside === -1) {
       const evt = new Event("drop", event) as any;
@@ -312,7 +324,7 @@ export class BlockMenuView {
    * when dragging / dropping to the side of the editor
    */
   onDragOver = (event: DragEvent) => {
-    if ((event as any).synthetic) {
+    if ((event as any).synthetic || !this.isDragging) {
       return;
     }
     let pos = this.ttEditor.view.posAtCoords({
@@ -429,6 +441,7 @@ export class BlockMenuView {
     }
     document.body.removeEventListener("mousemove", this.onMouseMove);
     document.body.removeEventListener("dragover", this.onDragOver);
+    this.ttEditor.view.dom.removeEventListener("dragstart", this.onDragStart);
     document.body.removeEventListener("drop", this.onDrop);
     document.body.removeEventListener("mousedown", this.onMouseDown);
     document.removeEventListener("scroll", this.onScroll);
@@ -488,8 +501,11 @@ export class BlockMenuView {
     return {
       editor: this.editor,
       addBlock: () => this.addBlock(),
-      blockDragStart: (event: DragEvent) =>
-        dragStart(event, this.ttEditor.view),
+      blockDragStart: (event: DragEvent) => {
+        // Sets isDragging when dragging blocks.
+        this.isDragging = true;
+        dragStart(event, this.ttEditor.view);
+      },
       blockDragEnd: () => unsetDragImage(),
       freezeMenu: () => {
         this.menuFrozen = true;
