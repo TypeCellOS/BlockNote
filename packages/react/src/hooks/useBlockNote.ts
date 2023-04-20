@@ -1,11 +1,17 @@
-import { BlockNoteEditor, BlockNoteEditorOptions } from "@blocknote/core";
-import { DependencyList, useEffect, useState } from "react";
+import {
+  BlockNoteEditor,
+  BlockNoteEditorOptions,
+  UiFactories,
+} from "@blocknote/core";
+import { DependencyList, FC, useEffect, useState } from "react";
 import { createReactBlockSideMenuFactory } from "../BlockSideMenu/BlockSideMenuFactory";
 import { createReactFormattingToolbarFactory } from "../FormattingToolbar/FormattingToolbarFactory";
 import { createReactHyperlinkToolbarFactory } from "../HyperlinkToolbar/HyperlinkToolbarFactory";
 import { createReactSlashMenuFactory } from "../SlashMenu/SlashMenuFactory";
 import { defaultReactSlashMenuItems } from "../SlashMenu/defaultReactSlashMenuItems";
 import { getBlockNoteTheme } from "../BlockNoteTheme";
+import { DragHandleMenuProps } from "../BlockSideMenu/components/DragHandleMenu";
+
 //based on https://github.com/ueberdosis/tiptap/blob/main/packages/react/src/useEditor.ts
 
 function useForceUpdate() {
@@ -18,7 +24,14 @@ function useForceUpdate() {
  * Main hook for importing a BlockNote editor into a React project
  */
 export const useBlockNote = (
-  options: Partial<BlockNoteEditorOptions> = {},
+  options: Partial<
+    BlockNoteEditorOptions & {
+      customElements: {
+        formattingToolbar: FC<{ editor: BlockNoteEditor }>;
+        dragHandleMenu: FC<DragHandleMenuProps>;
+      };
+    }
+  > = {},
   deps: DependencyList = []
 ) => {
   const [editor, setEditor] = useState<BlockNoteEditor | null>(null);
@@ -34,6 +47,44 @@ export const useBlockNote = (
       ...options,
     };
     if (!newOptions.uiFactories) {
+      let uiFactories: UiFactories;
+
+      if (options.customElements && options.uiFactories) {
+        console.warn(
+          "BlockNote editor initialized with both `customElements` and `uiFactories` options, prioritizing `uiFactories`."
+        );
+      } else if (options.uiFactories) {
+        uiFactories = {
+          formattingToolbarFactory: createReactFormattingToolbarFactory(
+            getBlockNoteTheme(newOptions.theme === "dark")
+          ),
+          hyperlinkToolbarFactory: createReactHyperlinkToolbarFactory(
+            getBlockNoteTheme(newOptions.theme === "dark")
+          ),
+          slashMenuFactory: createReactSlashMenuFactory(
+            getBlockNoteTheme(newOptions.theme === "dark")
+          ),
+          blockSideMenuFactory: createReactBlockSideMenuFactory(
+            getBlockNoteTheme(newOptions.theme === "dark")
+          ),
+        };
+      } else if (options.customElements) {
+        uiFactories = {
+          formattingToolbarFactory: createReactFormattingToolbarFactory(
+            getBlockNoteTheme(newOptions.theme === "dark")
+          ),
+          hyperlinkToolbarFactory: createReactHyperlinkToolbarFactory(
+            getBlockNoteTheme(newOptions.theme === "dark")
+          ),
+          slashMenuFactory: createReactSlashMenuFactory(
+            getBlockNoteTheme(newOptions.theme === "dark")
+          ),
+          blockSideMenuFactory: createReactBlockSideMenuFactory(
+            getBlockNoteTheme(newOptions.theme === "dark")
+          ),
+        };
+      }
+
       newOptions = {
         ...newOptions,
         uiFactories: {
