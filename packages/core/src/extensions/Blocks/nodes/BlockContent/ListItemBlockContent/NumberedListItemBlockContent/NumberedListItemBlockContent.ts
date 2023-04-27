@@ -1,11 +1,11 @@
-import { InputRule, mergeAttributes, Node } from "@tiptap/core";
+import { InputRule, mergeAttributes } from "@tiptap/core";
 import styles from "../../../Block.module.css";
 import { handleEnter } from "../ListItemKeyboardShortcuts";
 import { NumberedListIndexingPlugin } from "./NumberedListIndexingPlugin";
+import { createTipTapNode } from "../../../../api/block";
 
-export const NumberedListItemBlockContent = Node.create({
+export const NumberedListItemBlockContent = createTipTapNode({
   name: "numberedListItem",
-  group: "blockContent",
   content: "inline*",
 
   addAttributes() {

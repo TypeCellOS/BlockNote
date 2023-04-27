@@ -1,5 +1,5 @@
 /** Define the main block types **/
-import { Node } from "@tiptap/core";
+import { Node, NodeConfig } from "@tiptap/core";
 import { InlineContent, PartialInlineContent } from "./inlineContentTypes";
 
 // the type of a block exposed to API consumers
@@ -25,9 +25,7 @@ export type PropSpec = {
 
 export type PropSpecs = Record<string, PropSpec>;
 
-export type BlockSpecs = {
-  readonly [key: string]: BlockSpecWithNode<string, PropSpecs>;
-};
+export type BlockSpecs = Record<string, BlockSpecWithNode<string, PropSpecs>>;
 
 // define the default Props
 export const defaultBlockProps = {
@@ -116,13 +114,40 @@ export type BlockSpec<
 };
 
 // Defines advanced blocks which need access to the TipTap & ProseMirror APIs
-export type BlockSpecWithNode<Type extends string, Props extends PropSpecs> = {
-  // TODO: type is kind of redundant as that information is already stored in
-  //  node. Unfortunately, there's no good way to make the type of node.name
-  //  Type without changing the Node definition or a lot of type casts.
+export type BlockSpecWithNode<
+  Type extends string,
+  Props extends PropSpecs,
+  Options = any,
+  Storage = any
+> = {
+  propSpecs: Props;
+  node: TipTapNode<Type, Options, Storage>;
+};
+
+export type TipTapNodeConfig<
+  Type extends string,
+  Options = any,
+  Storage = any
+> = {
+  [K in keyof NodeConfig<Options, Storage>]: K extends "name"
+    ? Type
+    : K extends "group"
+    ? never
+    : NodeConfig<Options, Storage>[K];
+};
+
+export type TipTapNode<Type extends string, Options = any, Storage = any> = {
+  [K in keyof Node<Options, Storage>]: K extends "name"
+    ? Type
+    : K extends "group"
+    ? "blockContent"
+    : NodeConfig<Options, Storage>[K];
+};
+
+export type BlockSchema<Type extends string, Props extends PropSpecs> = {
   type: Type;
   propSpecs: Props;
-  node: Node;
+  node: TipTapNode<Type>;
 };
 
 // export type BlockSpec = {
@@ -133,3 +158,29 @@ export type BlockSpecWithNode<Type extends string, Props extends PropSpecs> = {
 //   // Defines associated TipTap node
 //   node: Node;
 // };
+
+export type Schema<
+  Blocks extends Record<string, BlockSpecWithNode<string, PropSpecs>>
+> = Blocks extends {
+  [Type in keyof Blocks]: {
+    propSpecs: Blocks[Type]["propSpecs"];
+    node: Type extends string ? TipTapNode<Type> : never;
+  };
+}
+  ? Blocks
+  : never;
+
+type MyType<T extends Record<string, string>> = T extends {
+  [K in keyof T]: K;
+}
+  ? T
+  : never;
+
+const example: MyType<{
+  a: "a";
+  b: "b";
+}> = {
+  a: "a",
+  b: "b",
+};
+console.log(example);

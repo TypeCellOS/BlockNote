@@ -1,10 +1,11 @@
 import { Attribute, Node } from "@tiptap/core";
 import {
-  // BlockSpec,
   BlockSpec,
   BlockSpecWithNode,
-  PropTypes,
   PropSpecs,
+  PropTypes,
+  TipTapNode,
+  TipTapNodeConfig,
 } from "./blockTypes";
 
 function camelToDataKebab(str: string): string {
@@ -24,15 +25,15 @@ export function createBlockFromTiptapNode<
   Type extends string,
   Props extends PropSpecs
 >(blockSpec: BlockSpecWithNode<Type, Props>): BlockSpecWithNode<Type, Props> {
-  if (blockSpec.node.name !== blockSpec.type) {
-    throw Error(
-      "Node must be of type " +
-        blockSpec.type +
-        ", but is of type" +
-        blockSpec.node.name +
-        "."
-    );
-  }
+  // if (blockSpec.node.name !== blockSpec.type) {
+  //   throw Error(
+  //     "Node must be of type " +
+  //       blockSpec.type +
+  //       ", but is of type" +
+  //       blockSpec.node.name +
+  //       "."
+  //   );
+  // }
 
   // TODO: how to handle markdown / html conversions
 
@@ -51,9 +52,8 @@ export function createCustomBlock<
 >(
   blockSpec: BlockSpec<Type, Props, ContainsInlineContent>
 ): BlockSpecWithNode<Type, Props> {
-  const node = Node.create({
+  const node = createTipTapNode({
     name: blockSpec.type,
-    group: "blockContent",
     content: blockSpec.containsInlineContent ? "inline*" : "",
 
     addAttributes() {
@@ -135,11 +135,31 @@ export function createCustomBlock<
   });
 
   return {
-    type: blockSpec.type,
     node: node,
     propSpecs: blockSpec.propSpecs,
   };
 }
+
+export function createTipTapNode<
+  Type extends string,
+  Options = any,
+  Storage = any
+>(
+  config: TipTapNodeConfig<Type, Options, Storage>
+): TipTapNode<Type, Options, Storage> {
+  // Type cast is needed as Node.name is mutable, though there is basically no
+  // reason to change it after creation. Alternative is to wrap Node in a new
+  // class, which I don't think is worth it since we'd only be changing 1
+  // attribute to be read only.
+  return Node.create({
+    ...config,
+    group: "blockContent",
+  }) as TipTapNode<Type, Options, Storage>;
+}
+
+// export function createSchema(
+//   blockSpecs: Schema<Record<string, BlockSpecWithNode<string, PropSpecs>>>
+// );
 
 export const imageBlock = createCustomBlock({
   type: "image",

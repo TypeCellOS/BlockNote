@@ -20,30 +20,17 @@ import { getBlockNoteExtensions, UiFactories } from "./BlockNoteExtensions";
 import styles from "./editor.module.css";
 import {
   BlockIdentifier,
-  BlockSchema,
-  BlockTemplate,
-  BlockSpec,
-  BlockSpecWithNode,
-  PartialBlockTemplate,
-  PropSpec,
-  PropSpecs,
   BlockSpecs,
   PropTypes,
-  DefaultBlockProps,
+  Schema,
 } from "./extensions/Blocks/api/blockTypes";
 import {
   MouseCursorPosition,
   TextCursorPosition,
 } from "./extensions/Blocks/api/cursorPositionTypes";
 import {
-  DefaultBlocks,
-  defaultBlocks,
-  DefaultBlockSpecs,
   defaultBlockSpecs,
-  DefaultBlockTypes,
-  headingBlockSpec,
-  HeadingBlockSpec,
-  ParagraphBlockSpec,
+  DefaultBlockSpecs,
 } from "./extensions/Blocks/api/defaultBlocks";
 import {
   ColorStyle,
@@ -57,17 +44,12 @@ import {
   BaseSlashMenuItem,
   defaultSlashMenuItems,
 } from "./extensions/SlashMenu";
-import {
-  createBlockFromTiptapNode,
-  createCustomBlock,
-  imageBlock,
-} from "./extensions/Blocks/api/block";
 
 // Converts each block spec into a Block object without children
 type BlocksWithoutChildren<Blocks extends BlockSpecs> = {
   [Block in keyof Blocks]: {
     id: string;
-    type: Blocks[Block]["type"];
+    type: Blocks[Block]["node"]["name"];
     props: PropTypes<Blocks[Block]["propSpecs"]>;
     content: InlineContent[];
   };
@@ -83,7 +65,7 @@ type Block<Blocks extends BlockSpecs> =
 type PartialBlocksWithoutChildren<Blocks extends BlockSpecs> = {
   [Block in keyof Blocks]: Partial<{
     id: string;
-    type: Blocks[Block]["type"];
+    type: Blocks[Block]["node"]["name"];
     props: Partial<PropTypes<Blocks[Block]["propSpecs"]>>;
     content: InlineContent[] | string;
   }>;
@@ -136,7 +118,7 @@ export type BlockNoteEditorOptions<
    * A callback function that runs whenever the text cursor position changes.
    */
   onTextCursorPositionChange: (editor: BlockNoteEditor<Blocks>) => void;
-  initialContent: PartialBlockTemplate<Blocks>[];
+  initialContent: PartialBlock<Blocks>[];
 
   /**
    * Use default BlockNote font and reset the styles of <p> <li> <h1> elements etc., that are used in BlockNote.
@@ -148,7 +130,7 @@ export type BlockNoteEditorOptions<
   /**
    * A list of block types that should be available in the editor.
    */
-  blockSpecs: Blocks; // TODO, type this so that it matches <Block>
+  blockSpecs: Schema<Blocks>; // TODO, type this so that it matches <Block>
   // tiptap options, undocumented
   _tiptapOptions: any;
 };
@@ -164,10 +146,7 @@ export class BlockNoteEditor<Blocks extends BlockSpecs = DefaultBlockSpecs> {
   public readonly _tiptapEditor: TiptapEditor & { contentComponent: any };
   private blockCache = new WeakMap<Node, Block<Blocks>>();
   private mousePos = { x: 0, y: 0 };
-  private readonly schema = new Map<
-    string,
-    BlockSpecWithNode<string, PropSpecs>
-  >();
+  private readonly schema: Schema<Blocks | DefaultBlockSpecs>;
 
   public get domElement() {
     return this._tiptapEditor.view.dom as HTMLDivElement;
@@ -182,10 +161,10 @@ export class BlockNoteEditor<Blocks extends BlockSpecs = DefaultBlockSpecs> {
     // apply defaults
     options = {
       defaultStyles: true,
-      blockSpecs:
-        options.blockSpecs === undefined
-          ? defaultBlockSpecs
-          : options.blockSpecs,
+      // blockSpecs:
+      //   options.blockSpecs === undefined
+      //     ? defaultBlockSpecs
+      //     : options.blockSpecs,
       ...options,
     };
 
@@ -197,9 +176,7 @@ export class BlockNoteEditor<Blocks extends BlockSpecs = DefaultBlockSpecs> {
     });
 
     // add blocks to schema
-    for (const block of options.blockSpecs || []) {
-      this.schema.set(block.type, block);
-    }
+    this.schema = options.blockSpecs || defaultBlockSpecs;
 
     let extensions = options.disableHistoryExtension
       ? blockNoteExtensions.filter((e) => e.name !== "history")

@@ -1,10 +1,10 @@
-import { InputRule, mergeAttributes, Node } from "@tiptap/core";
+import { InputRule, mergeAttributes } from "@tiptap/core";
 import styles from "../../../Block.module.css";
 import { handleEnter } from "../ListItemKeyboardShortcuts";
+import { createTipTapNode } from "../../../../api/block";
 
-export const BulletListItemBlockContent = Node.create({
+export const BulletListItemBlockContent = createTipTapNode({
   name: "bulletListItem",
-  group: "blockContent",
   content: "inline*",
 
   addInputRules() {

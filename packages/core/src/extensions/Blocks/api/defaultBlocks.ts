@@ -2,7 +2,8 @@ import { HeadingBlockContent } from "../nodes/BlockContent/HeadingBlockContent/H
 import { BulletListItemBlockContent } from "../nodes/BlockContent/ListItemBlockContent/BulletListItemBlockContent/BulletListItemBlockContent";
 import { NumberedListItemBlockContent } from "../nodes/BlockContent/ListItemBlockContent/NumberedListItemBlockContent/NumberedListItemBlockContent";
 import { ParagraphBlockContent } from "../nodes/BlockContent/ParagraphBlockContent/ParagraphBlockContent";
-import { Block, BlockSpecWithNode, defaultBlockProps } from "./blockTypes";
+import { BlockSpecWithNode, defaultBlockProps } from "./blockTypes";
+import { createBlockFromTiptapNode } from "./block";
 
 export const paragraphBlockProps = defaultBlockProps;
 
@@ -12,7 +13,6 @@ export type ParagraphBlockSpec = BlockSpecWithNode<
 >;
 
 export const paragraphBlockSpec: ParagraphBlockSpec = {
-  type: "paragraph",
   propSpecs: paragraphBlockProps,
   node: ParagraphBlockContent,
 } as const;
@@ -28,7 +28,6 @@ export type HeadingBlockSpec = BlockSpecWithNode<
 >;
 
 export const headingBlockSpec: HeadingBlockSpec = {
-  type: "heading",
   propSpecs: headingBlockProps,
   node: HeadingBlockContent,
 };
@@ -41,7 +40,6 @@ export type BulletListItemBlockSpec = BlockSpecWithNode<
 >;
 
 export const bulletListItemBlockSpec: BulletListItemBlockSpec = {
-  type: "bulletListItem",
   propSpecs: bulletListItemBlockProps,
   node: BulletListItemBlockContent,
 };
@@ -54,18 +52,21 @@ export type NumberedListItemBlockSpec = BlockSpecWithNode<
 >;
 
 export const numberedListItemBlockSpec: NumberedListItemBlockSpec = {
-  type: "numberedListItem",
   propSpecs: numberedListItemBlockProps,
   node: NumberedListItemBlockContent,
 };
 
 export const defaultBlockSpecs = {
-  [paragraphBlockSpec.type]: paragraphBlockSpec,
-  [headingBlockSpec.type]: headingBlockSpec,
-  [bulletListItemBlockSpec.type]: bulletListItemBlockSpec,
-  [numberedListItemBlockSpec.type]: numberedListItemBlockSpec,
+  [paragraphBlockSpec.node.name]: createBlockFromTiptapNode(paragraphBlockSpec),
+  [headingBlockSpec.node.name]: createBlockFromTiptapNode(headingBlockSpec),
+  [bulletListItemBlockSpec.node.name]: createBlockFromTiptapNode(
+    bulletListItemBlockSpec
+  ),
+  [numberedListItemBlockSpec.node.name]: createBlockFromTiptapNode(
+    numberedListItemBlockSpec
+  ),
 } as const;
 
 export type DefaultBlockSpecs = typeof defaultBlockSpecs;
 
-export type DefaultBlocks = Block<DefaultBlockSpecs>;
+// export type DefaultBlocks = Block<DefaultBlockSpecs>;
