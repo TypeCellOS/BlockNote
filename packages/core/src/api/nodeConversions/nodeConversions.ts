@@ -1,7 +1,7 @@
 import { Mark } from "@tiptap/pm/model";
 import { Node, Schema } from "prosemirror-model";
 import {
-  BlockSpec,
+  BlockSchema,
   BlockTemplate,
   PartialBlockTemplate,
 } from "../../extensions/Blocks/api/blockTypes";
@@ -219,7 +219,7 @@ function contentNodeToInlineContent(contentNode: Node) {
  */
 export function nodeToBlock<Block extends BlockTemplate<any, any>>(
   node: Node,
-  schema: Map<string, BlockSpec>,
+  schema: Map<string, BlockSchema>,
   blockCache?: WeakMap<Node, Block>
 ): Block {
   if (node.type.name !== "blockContainer") {

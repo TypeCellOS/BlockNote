@@ -2,73 +2,70 @@ import { HeadingBlockContent } from "../nodes/BlockContent/HeadingBlockContent/H
 import { BulletListItemBlockContent } from "../nodes/BlockContent/ListItemBlockContent/BulletListItemBlockContent/BulletListItemBlockContent";
 import { NumberedListItemBlockContent } from "../nodes/BlockContent/ListItemBlockContent/NumberedListItemBlockContent/NumberedListItemBlockContent";
 import { ParagraphBlockContent } from "../nodes/BlockContent/ParagraphBlockContent/ParagraphBlockContent";
-import { createBlockFromTiptapNode } from "./block";
-import { BlockFromBlockSpec, defaultBlockProps } from "./blockTypes";
+import { Block, BlockSpecWithNode, defaultBlockProps } from "./blockTypes";
 
-// this file defines the default blocks that are available in the editor
-// and their types (Block types)
+export const paragraphBlockProps = defaultBlockProps;
 
-export const NumberedListItemBlock = createBlockFromTiptapNode(
-  "numberedListItem",
-  {
-    props: defaultBlockProps,
-  },
-  NumberedListItemBlockContent
-);
-
-export type NumberedListItemBlockType = BlockFromBlockSpec<
-  typeof NumberedListItemBlock
->;
-
-export const BulletListItemBlock = createBlockFromTiptapNode(
-  "bulletListItem",
-  {
-    props: defaultBlockProps,
-  },
-  BulletListItemBlockContent
-);
-
-export type BulletListItemBlockType = BlockFromBlockSpec<
-  typeof BulletListItemBlock
->;
-
-// TODO: rename to HeadingBlockSpec?
-export const HeadingBlock = createBlockFromTiptapNode(
-  "heading",
-  {
-    // TODO: rename to propSpec?
-    props: [
-      ...defaultBlockProps,
-      {
-        name: "level",
-        values: ["1", "2", "3"],
-        default: "1",
-      },
-    ] as const,
-  },
-  HeadingBlockContent
-);
-
-export type HeadingBlockType = BlockFromBlockSpec<typeof HeadingBlock>;
-
-export const ParagraphBlock = createBlockFromTiptapNode(
+export type ParagraphBlockSpec = BlockSpecWithNode<
   "paragraph",
-  {
-    props: defaultBlockProps,
-  },
-  ParagraphBlockContent
-);
+  typeof paragraphBlockProps
+>;
 
-export type ParagraphBlockType = BlockFromBlockSpec<typeof ParagraphBlock>;
+export const paragraphBlockSpec: ParagraphBlockSpec = {
+  type: "paragraph",
+  propSpecs: paragraphBlockProps,
+  node: ParagraphBlockContent,
+} as const;
 
-export const defaultBlocks = [
-  ParagraphBlock,
-  NumberedListItemBlock,
-  BulletListItemBlock,
-  HeadingBlock,
-];
-export type DefaultBlockTypes =
-  | NumberedListItemBlockType
-  | BulletListItemBlockType
-  | HeadingBlockType
-  | ParagraphBlockType;
+const headingBlockProps = {
+  ...defaultBlockProps,
+  level: { default: "1" as const, values: ["1", "2", "3"] as const },
+};
+
+export type HeadingBlockSpec = BlockSpecWithNode<
+  "heading",
+  typeof headingBlockProps
+>;
+
+export const headingBlockSpec: HeadingBlockSpec = {
+  type: "heading",
+  propSpecs: headingBlockProps,
+  node: HeadingBlockContent,
+};
+
+export const bulletListItemBlockProps = defaultBlockProps;
+
+export type BulletListItemBlockSpec = BlockSpecWithNode<
+  "bulletListItem",
+  typeof bulletListItemBlockProps
+>;
+
+export const bulletListItemBlockSpec: BulletListItemBlockSpec = {
+  type: "bulletListItem",
+  propSpecs: bulletListItemBlockProps,
+  node: BulletListItemBlockContent,
+};
+
+export const numberedListItemBlockProps = defaultBlockProps;
+
+export type NumberedListItemBlockSpec = BlockSpecWithNode<
+  "numberedListItem",
+  typeof numberedListItemBlockProps
+>;
+
+export const numberedListItemBlockSpec: NumberedListItemBlockSpec = {
+  type: "numberedListItem",
+  propSpecs: numberedListItemBlockProps,
+  node: NumberedListItemBlockContent,
+};
+
+export const defaultBlockSpecs = {
+  [paragraphBlockSpec.type]: paragraphBlockSpec,
+  [headingBlockSpec.type]: headingBlockSpec,
+  [bulletListItemBlockSpec.type]: bulletListItemBlockSpec,
+  [numberedListItemBlockSpec.type]: numberedListItemBlockSpec,
+} as const;
+
+export type DefaultBlockSpecs = typeof defaultBlockSpecs;
+
+export type DefaultBlocks = Block<DefaultBlockSpecs>;

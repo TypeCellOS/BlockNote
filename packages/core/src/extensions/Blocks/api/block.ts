@@ -1,14 +1,20 @@
 import { Attribute, Node } from "@tiptap/core";
-import { PropsFromPropSpec, PropSpec } from "./blockTypes";
+import {
+  // BlockSpec,
+  BlockSpec,
+  BlockSpecWithNode,
+  PropTypes,
+  PropSpecs,
+} from "./blockTypes";
 
 function camelToDataKebab(str: string): string {
   return "data-" + str.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
 }
 
-// function dataKebabToCamel(str: string): string {
-//   const withoutData = str.replace(/^data-/, "");
-//   return withoutData.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
-// }
+function dataKebabToCamel(str: string): string {
+  const withoutData = str.replace(/^data-/, "");
+  return withoutData.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
+}
 
 // A function to create a "BlockSpec" from a tiptap node.
 // we use this to create the block specs for the built-in blocks
@@ -16,17 +22,15 @@ function camelToDataKebab(str: string): string {
 // TODO: rename to createBlockSpecFromTiptapNode?
 export function createBlockFromTiptapNode<
   Type extends string,
-  Props extends readonly PropSpec[]
->(
-  blockType: Type,
-  options: {
-    props: Props;
-  },
-  node: Node<any, any>
-) {
-  if (node.name !== blockType) {
+  Props extends PropSpecs
+>(blockSpec: BlockSpecWithNode<Type, Props>): BlockSpecWithNode<Type, Props> {
+  if (blockSpec.node.name !== blockSpec.type) {
     throw Error(
-      "Node must be of type " + blockType + ", but is of type" + node.name + "."
+      "Node must be of type " +
+        blockSpec.type +
+        ", but is of type" +
+        blockSpec.node.name +
+        "."
     );
   }
 
@@ -35,56 +39,35 @@ export function createBlockFromTiptapNode<
   // the return type gives us runtime access to the block name, props, and tiptap node
   // but is also used to generate (derive) the type for the block spec
   // so that we can have a strongly typed BlockNoteEditor API
-  return {
-    type: blockType,
-    node,
-    // TODO: rename to propSpec?
-    acceptedProps: options.props,
-  };
+  return blockSpec;
 }
 
 // A function to create custom block for API consumers
 // we want to hide the tiptap node from API consumers and provide a simpler API surface instead
 export function createCustomBlock<
   Type extends string,
-  Props extends readonly PropSpec[]
+  Props extends PropSpecs,
+  ContainsInlineContent extends boolean
 >(
-  blockType: Type,
-  options: (
-    | {
-        // for blocks with a single inline content element
-        inlineContent: true;
-        render: () => { dom: HTMLElement; contentDOM: HTMLElement };
-      }
-    | {
-        // for custom blocks that don't support content
-        inlineContent: false;
-        render: () => { dom: HTMLElement };
-      }
-  ) & {
-    props: Props;
-    parseHTML?: (element: HTMLElement) => PropsFromPropSpec<Props>;
-    // todo: possibly add parseDom options / other options we need
-  }
-) {
+  blockSpec: BlockSpec<Type, Props, ContainsInlineContent>
+): BlockSpecWithNode<Type, Props> {
   const node = Node.create({
-    name: blockType,
+    name: blockSpec.type,
     group: "blockContent",
-    content: options.inlineContent ? "inline*" : "",
+    content: blockSpec.containsInlineContent ? "inline*" : "",
 
     addAttributes() {
       const tiptapAttributes: Record<string, Attribute> = {};
 
-      Object.values(options.props).forEach((propSpec) => {
-        tiptapAttributes[propSpec.name] = {
-          default: propSpec.default,
-          keepOnSplit: false,
-          parseHTML: (element) =>
-            element.getAttribute(camelToDataKebab(propSpec.name)),
+      Object.entries(blockSpec.propSpecs).forEach(([name, spec]) => {
+        tiptapAttributes[name] = {
+          default: spec.default,
+          keepOnSplit: true,
+          parseHTML: (element) => element.getAttribute(camelToDataKebab(name)),
           renderHTML: (attributes) =>
-            attributes[propSpec.name] !== propSpec.default
+            attributes[name] !== spec.default
               ? {
-                  [camelToDataKebab(propSpec.name)]: attributes[propSpec.name],
+                  [camelToDataKebab(name)]: attributes[name],
                 }
               : {},
         };
@@ -97,11 +80,23 @@ export function createCustomBlock<
       // TODO: This won't work for content copied outside BlockNote. Given the
       //  variety of possible custom block types, a one-size-fits-all solution
       //  probably won't work and we'll need an optional parseHTML option.
-      return [
-        {
-          tag: "div[data-content-type=" + blockType + "]",
-        },
-      ];
+      return blockSpec.parse
+        ? [
+            {
+              getAttrs: (node: HTMLElement | string) => {
+                if (typeof node === "string") {
+                  return false;
+                }
+
+                return blockSpec.parse!(node);
+              },
+            },
+          ]
+        : [
+            {
+              tag: "div[data-content-type=" + blockSpec.type + "]",
+            },
+          ];
     },
 
     // TODO, create node from render / inlineContent / other props from options
@@ -109,20 +104,55 @@ export function createCustomBlock<
       // Create blockContent element
       const blockContent = document.createElement("div");
       // Add blockContent HTML attribute
-      blockContent.setAttribute("data-content-type", blockType);
-      // Add props as HTML attributes
+      blockContent.setAttribute("data-content-type", blockSpec.type);
+      // Add props as HTML attributes in kebab-case with "data-" prefix
       for (const [attribute, value] of Object.entries(HTMLAttributes)) {
         blockContent.setAttribute(attribute, value);
       }
-      // Render content
-      const rendered = options.render();
-      // TODO: Should we always assume contentDOM is always a descendant of dom?
-      // Add content to blockContent element
+
+      // Converting kebab-case props with "data-" prefix to camelCase
+      const props: PropTypes<Props> = Object.fromEntries(
+        Object.entries<string>(HTMLAttributes).map(([attribute, value]) => [
+          dataKebabToCamel(attribute) as PropTypes<Props>,
+          value,
+        ])
+      );
+
+      // Render elements
+      const rendered = blockSpec.render(props);
+      // Add elements to blockContent
       blockContent.appendChild(rendered.dom);
 
-      return blockContent;
+      return {
+        dom: blockContent,
+        // I don't understand what's going on with the typing here
+        contentDOM:
+          "contentDOM" in rendered
+            ? (rendered.contentDOM as HTMLDivElement)
+            : undefined,
+      };
     },
   });
 
-  return createBlockFromTiptapNode(blockType, { props: options.props }, node);
+  return {
+    type: blockSpec.type,
+    node: node,
+    propSpecs: blockSpec.propSpecs,
+  };
 }
+
+export const imageBlock = createCustomBlock({
+  type: "image",
+  propSpecs: {
+    src: {
+      default:
+        "https://www.typescriptlang.org/static/TypeScript%20Types-ae199d69aeecf7d4a2704a528d0fd3f9.png" as const,
+    },
+  },
+  containsInlineContent: false,
+  render: (props) => {
+    const img = document.createElement("img");
+    img.setAttribute("src", props.src);
+    return { dom: img };
+  },
+});

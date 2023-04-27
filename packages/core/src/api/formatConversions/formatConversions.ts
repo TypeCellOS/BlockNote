@@ -8,7 +8,7 @@ import remarkRehype from "remark-rehype";
 import remarkStringify from "remark-stringify";
 import { unified } from "unified";
 import {
-  BlockSpec,
+  BlockSchema,
   BlockTemplate,
 } from "../../extensions/Blocks/api/blockTypes";
 
@@ -43,7 +43,7 @@ export async function blocksToHTML(
 
 export async function HTMLToBlocks(
   html: string,
-  schema: Map<string, BlockSpec>,
+  schema: Map<string, BlockSchema>,
   pmSchema: Schema
 ): Promise<BlockTemplate<any, any>[]> {
   const htmlNode = document.createElement("div");
@@ -78,7 +78,7 @@ export async function blocksToMarkdown(
 
 export async function markdownToBlocks(
   markdown: string,
-  schema: Map<string, BlockSpec>,
+  schema: Map<string, BlockSchema>,
   pmSchema: Schema
 ): Promise<BlockTemplate<any, any>[]> {
   const htmlString = await unified()

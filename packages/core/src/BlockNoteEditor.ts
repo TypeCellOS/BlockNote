@@ -20,20 +20,34 @@ import { getBlockNoteExtensions, UiFactories } from "./BlockNoteExtensions";
 import styles from "./editor.module.css";
 import {
   BlockIdentifier,
-  BlockSpec,
+  BlockSchema,
   BlockTemplate,
+  BlockSpec,
+  BlockSpecWithNode,
   PartialBlockTemplate,
+  PropSpec,
+  PropSpecs,
+  BlockSpecs,
+  PropTypes,
+  DefaultBlockProps,
 } from "./extensions/Blocks/api/blockTypes";
 import {
   MouseCursorPosition,
   TextCursorPosition,
 } from "./extensions/Blocks/api/cursorPositionTypes";
 import {
+  DefaultBlocks,
   defaultBlocks,
+  DefaultBlockSpecs,
+  defaultBlockSpecs,
   DefaultBlockTypes,
+  headingBlockSpec,
+  HeadingBlockSpec,
+  ParagraphBlockSpec,
 } from "./extensions/Blocks/api/defaultBlocks";
 import {
   ColorStyle,
+  InlineContent,
   Styles,
   ToggledStyle,
 } from "./extensions/Blocks/api/inlineContentTypes";
@@ -43,16 +57,46 @@ import {
   BaseSlashMenuItem,
   defaultSlashMenuItems,
 } from "./extensions/SlashMenu";
+import {
+  createBlockFromTiptapNode,
+  createCustomBlock,
+  imageBlock,
+} from "./extensions/Blocks/api/block";
 
-// We need to separate WithChildren, otherwise we get issues with recursive types
-// maybe worth a revisit before merging
-type WithChildren<Block extends BlockTemplate<any, any>> = Block & {
-  children: WithChildren<Block>[];
+// Converts each block spec into a Block object without children
+type BlocksWithoutChildren<Blocks extends BlockSpecs> = {
+  [Block in keyof Blocks]: {
+    id: string;
+    type: Blocks[Block]["type"];
+    props: PropTypes<Blocks[Block]["propSpecs"]>;
+    content: InlineContent[];
+  };
 };
 
+// Converts each block spec into a Block object without children, merges them
+// into a union type, and adds a children property
+type Block<Blocks extends BlockSpecs> =
+  BlocksWithoutChildren<Blocks>[keyof BlocksWithoutChildren<Blocks>] & {
+    children: Block<Blocks>[];
+  };
+
+type PartialBlocksWithoutChildren<Blocks extends BlockSpecs> = {
+  [Block in keyof Blocks]: Partial<{
+    id: string;
+    type: Blocks[Block]["type"];
+    props: Partial<PropTypes<Blocks[Block]["propSpecs"]>>;
+    content: InlineContent[] | string;
+  }>;
+};
+
+type PartialBlock<Blocks extends BlockSpecs> =
+  PartialBlocksWithoutChildren<Blocks>[keyof PartialBlocksWithoutChildren<Blocks>] &
+    Partial<{
+      children: PartialBlock<Blocks>[];
+    }>;
+
 export type BlockNoteEditorOptions<
-  BareBlock extends BlockTemplate<any, any>,
-  Block extends BareBlock = WithChildren<BareBlock>
+  Blocks extends BlockSpecs = DefaultBlockSpecs
 > = {
   // TODO: Figure out if enableBlockNoteExtensions/disableHistoryExtension are needed and document them.
   enableBlockNoteExtensions: boolean;
@@ -83,16 +127,16 @@ export type BlockNoteEditorOptions<
   /**
    *  A callback function that runs when the editor is ready to be used.
    */
-  onEditorReady: (editor: BlockNoteEditor<Block>) => void;
+  onEditorReady: (editor: BlockNoteEditor<Blocks>) => void;
   /**
    * A callback function that runs whenever the editor's contents change.
    */
-  onEditorContentChange: (editor: BlockNoteEditor<Block>) => void;
+  onEditorContentChange: (editor: BlockNoteEditor<Blocks>) => void;
   /**
    * A callback function that runs whenever the text cursor position changes.
    */
-  onTextCursorPositionChange: (editor: BlockNoteEditor<Block>) => void;
-  initialContent: PartialBlockTemplate<Block>[];
+  onTextCursorPositionChange: (editor: BlockNoteEditor<Blocks>) => void;
+  initialContent: PartialBlockTemplate<Blocks>[];
 
   /**
    * Use default BlockNote font and reset the styles of <p> <li> <h1> elements etc., that are used in BlockNote.
@@ -104,7 +148,7 @@ export type BlockNoteEditorOptions<
   /**
    * A list of block types that should be available in the editor.
    */
-  blocks: BlockSpec[]; // TODO, type this so that it matches <Block>
+  blockSpecs: Blocks; // TODO, type this so that it matches <Block>
   // tiptap options, undocumented
   _tiptapOptions: any;
 };
@@ -116,14 +160,14 @@ const blockNoteTipTapOptions = {
 };
 
 // TODO: make type of BareBlock / Block automatically based on options.blocks
-export class BlockNoteEditor<
-  BareBlock extends BlockTemplate<any, any> = DefaultBlockTypes,
-  Block extends BareBlock & { children: Block[] } = WithChildren<BareBlock>
-> {
+export class BlockNoteEditor<Blocks extends BlockSpecs = DefaultBlockSpecs> {
   public readonly _tiptapEditor: TiptapEditor & { contentComponent: any };
-  private blockCache = new WeakMap<Node, Block>();
+  private blockCache = new WeakMap<Node, Block<Blocks>>();
   private mousePos = { x: 0, y: 0 };
-  private schema = new Map<string, BlockSpec>();
+  private readonly schema = new Map<
+    string,
+    BlockSpecWithNode<string, PropSpecs>
+  >();
 
   public get domElement() {
     return this._tiptapEditor.view.dom as HTMLDivElement;
@@ -133,24 +177,27 @@ export class BlockNoteEditor<
     this._tiptapEditor.view.focus();
   }
 
-  constructor(options: Partial<BlockNoteEditorOptions<Block>> = {}) {
+  constructor(options: Partial<BlockNoteEditorOptions<Blocks>> = {}) {
     console.log("test");
     // apply defaults
     options = {
       defaultStyles: true,
-      blocks: defaultBlocks,
+      blockSpecs:
+        options.blockSpecs === undefined
+          ? defaultBlockSpecs
+          : options.blockSpecs,
       ...options,
     };
 
-    const blockNoteExtensions = getBlockNoteExtensions({
+    const blockNoteExtensions = getBlockNoteExtensions<Blocks>({
       editor: this,
       uiFactories: options.uiFactories || {},
       slashCommands: options.slashCommands || defaultSlashMenuItems,
-      blocks: options.blocks || [],
+      blocks: [],
     });
 
     // add blocks to schema
-    for (const block of options.blocks || []) {
+    for (const block of options.blockSpecs || []) {
       this.schema.set(block.type, block);
     }
 
@@ -219,8 +266,8 @@ export class BlockNoteEditor<
    * Gets a snapshot of all top-level (non-nested) blocks in the editor.
    * @returns A snapshot of all top-level (non-nested) blocks in the editor.
    */
-  public get topLevelBlocks(): Block[] {
-    const blocks: Block[] = [];
+  public get topLevelBlocks(): Block<Blocks>[] {
+    const blocks: Block<Blocks>[] = [];
 
     this._tiptapEditor.state.doc.firstChild!.descendants((node) => {
       blocks.push(nodeToBlock(node, this.schema, this.blockCache));
@@ -236,12 +283,12 @@ export class BlockNoteEditor<
    * @param blockIdentifier The identifier of an existing block that should be retrieved.
    * @returns The block that matches the identifier, or `undefined` if no matching block was found.
    */
-  public getBlock(blockIdentifier: BlockIdentifier): Block | undefined {
+  public getBlock(blockIdentifier: BlockIdentifier): Block<Blocks> | undefined {
     const id =
       typeof blockIdentifier === "string"
         ? blockIdentifier
         : blockIdentifier.id;
-    let newBlock: Block | undefined = undefined;
+    let newBlock: Block<Blocks> | undefined = undefined;
 
     this._tiptapEditor.state.doc.firstChild!.descendants((node) => {
       if (typeof newBlock !== "undefined") {
@@ -266,7 +313,7 @@ export class BlockNoteEditor<
    * @param reverse Whether the blocks should be traversed in reverse order.
    */
   public forEachBlock(
-    callback: (block: Block) => boolean,
+    callback: (block: Block<Blocks>) => boolean,
     reverse: boolean = false
   ): void {
     const blocks = this.topLevelBlocks.slice();
@@ -275,7 +322,7 @@ export class BlockNoteEditor<
       blocks.reverse();
     }
 
-    function traverseBlockArray(blockArray: Block[]): boolean {
+    function traverseBlockArray(blockArray: Block<Blocks>[]): boolean {
       for (const block of blockArray) {
         if (!callback(block)) {
           return false;
@@ -403,7 +450,7 @@ export class BlockNoteEditor<
    * Gets a snapshot of the current selection.
    */
   public getSelection(): Selection {
-    const blocks: Block[] = [];
+    const blocks: Block<Blocks>[] = [];
 
     this._tiptapEditor.state.doc.descendants((node, pos) => {
       if (node.type.spec.group !== "blockContent") {
@@ -440,7 +487,7 @@ export class BlockNoteEditor<
    * `referenceBlock`. Inserts the blocks at the start of the existing block's children if "nested" is used.
    */
   public insertBlocks(
-    blocksToInsert: PartialBlockTemplate<Block>[],
+    blocksToInsert: PartialBlock<Blocks>[],
     referenceBlock: BlockIdentifier,
     placement: "before" | "after" | "nested" = "before"
   ): void {
@@ -456,7 +503,7 @@ export class BlockNoteEditor<
    */
   public updateBlock(
     blockToUpdate: BlockIdentifier,
-    update: PartialBlockTemplate<Block>
+    update: PartialBlock<Blocks>
   ) {
     updateBlock(blockToUpdate, update, this._tiptapEditor);
   }
@@ -478,7 +525,7 @@ export class BlockNoteEditor<
    */
   public replaceBlocks(
     blocksToRemove: BlockIdentifier[],
-    blocksToInsert: PartialBlockTemplate<Block>[]
+    blocksToInsert: PartialBlock<Blocks>[]
   ) {
     replaceBlocks(blocksToRemove, blocksToInsert, this._tiptapEditor);
   }
@@ -653,7 +700,7 @@ export class BlockNoteEditor<
    * @param blocks An array of blocks that should be serialized into HTML.
    * @returns The blocks, serialized as an HTML string.
    */
-  public async blocksToHTML(blocks: Block[]): Promise<string> {
+  public async blocksToHTML(blocks: Block<Blocks>[]): Promise<string> {
     return blocksToHTML(blocks, this._tiptapEditor.schema);
   }
 
@@ -664,7 +711,7 @@ export class BlockNoteEditor<
    * @param html The HTML string to parse blocks from.
    * @returns The blocks parsed from the HTML string.
    */
-  public async HTMLToBlocks(html: string): Promise<Block[]> {
+  public async HTMLToBlocks(html: string): Promise<Block<Blocks>[]> {
     return HTMLToBlocks(html, this.schema, this._tiptapEditor.schema) as any; // TODO: fix type
   }
 
@@ -674,7 +721,7 @@ export class BlockNoteEditor<
    * @param blocks An array of blocks that should be serialized into Markdown.
    * @returns The blocks, serialized as a Markdown string.
    */
-  public async blocksToMarkdown(blocks: Block[]): Promise<string> {
+  public async blocksToMarkdown(blocks: Block<Blocks>[]): Promise<string> {
     return blocksToMarkdown(blocks, this._tiptapEditor.schema);
   }
 
@@ -685,7 +732,7 @@ export class BlockNoteEditor<
    * @param markdown The Markdown string to parse blocks from.
    * @returns The blocks parsed from the Markdown string.
    */
-  public async markdownToBlocks(markdown: string): Promise<Block[]> {
+  public async markdownToBlocks(markdown: string): Promise<Block<Blocks>[]> {
     return markdownToBlocks(
       markdown,
       this.schema,
@@ -694,27 +741,30 @@ export class BlockNoteEditor<
   }
 }
 
-// Playground:
-/*
-let x = new BlockNoteEditor(); // default block types are supported
-
-// this breaks because "level" is not valid on paragraph
-x.updateBlock("", { type: "paragraph", content: "hello", props: { level: "3" } });
-x.updateBlock("", {
-  type: "heading",
-  content: "hello",
-  props: { level: "1" },
-});
-
-
-let y = new BlockNoteEditor<ParagraphBlockType>();
-
-y.updateBlock("", { type: "paragraph", content: "hello", props: {  } });
-
-// this breaks because "heading" is not a type on this editor
-y.updateBlock("", {
-  type: "heading",
-  content: "hello",
-  props: { level: "1" },
-});
-*/
+// // Playground:
+//
+// let x = new BlockNoteEditor(); // default block types are supported
+//
+// // this breaks because "level" is not valid on paragraph
+// x.updateBlock("", {
+//   type: "paragraph",
+//   content: "hello",
+//   props: { level: "1" },
+// });
+//
+// x.updateBlock("", {
+//   type: "heading",
+//   content: "hello",
+//   props: { level: "1" },
+// });
+//
+// let y = new BlockNoteEditor<{ paragraph: ParagraphBlockSpec }>();
+//
+// y.updateBlock("", { type: "paragraph", content: "hello", props: {} });
+//
+// // this breaks because "heading" is not a type on this editor
+// y.updateBlock("", {
+//   type: "heading",
+//   content: "hello",
+//   props: { level: "1" },
+// });
