@@ -1,9 +1,11 @@
-import { BlockNoteEditor } from "@blocknote/core";
+import { BlockNoteEditor, BlockSchema } from "@blocknote/core";
 import { EditorContent } from "@tiptap/react";
 // import { BlockNoteTheme } from "./BlockNoteTheme";
 // import { MantineProvider } from "@mantine/core";
 
-export function BlockNoteView(props: { editor: BlockNoteEditor | null }) {
+export function BlockNoteView<BSchema extends BlockSchema>(props: {
+  editor: BlockNoteEditor<BSchema> | null;
+}) {
   return (
     // TODO: Should we wrap editor in MantineProvider? Otherwise we have to duplicate color hex values.
     // <MantineProvider theme={BlockNoteTheme}>

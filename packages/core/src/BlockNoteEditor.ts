@@ -44,9 +44,7 @@ import {
   defaultSlashMenuItems,
 } from "./extensions/SlashMenu";
 
-export type BlockNoteEditorOptions<
-  BSchema extends BlockSchema = DefaultBlockSchema
-> = {
+export type BlockNoteEditorOptions<BSchema extends BlockSchema> = {
   // TODO: Figure out if enableBlockNoteExtensions/disableHistoryExtension are needed and document them.
   enableBlockNoteExtensions: boolean;
   disableHistoryExtension: boolean;
@@ -97,7 +95,8 @@ export type BlockNoteEditorOptions<
   /**
    * A list of block types that should be available in the editor.
    */
-  blockSchema: BSchema; // TODO, type this so that it matches <Block>
+  blockSchema: BSchema;
+
   // tiptap options, undocumented
   _tiptapOptions: any;
 };
@@ -125,36 +124,32 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
   constructor(options: Partial<BlockNoteEditorOptions<BSchema>> = {}) {
     console.log("test");
     // apply defaults
-    options = {
+    const newOptions: Omit<typeof options, "defaultStyles" | "blockSchema"> & {
+      defaultStyles: boolean;
+      blockSchema: BSchema;
+    } = {
       defaultStyles: true,
-      // blockSpecs:
-      //   options.blockSpecs === undefined
-      //     ? defaultBlockSpecs
-      //     : options.blockSpecs,
+      // TODO: There's a lot of annoying typing stuff to deal with here. If
+      //  BSchema is specified, then options.blockSchema should also be required.
+      //  If BSchema is not specified, then options.blockSchema should also not
+      //  be defined. Unfortunately, trying to implement these constraints seems
+      //  to be a huge pain, hence the `as any` casts.
+      blockSchema: options.blockSchema || (defaultBlockSchema as any),
       ...options,
     };
 
     const blockNoteExtensions = getBlockNoteExtensions<BSchema>({
       editor: this,
-      uiFactories: options.uiFactories || {},
-      // TODO: Fix typing
-      slashCommands: options.slashCommands || (defaultSlashMenuItems as any),
-      // TODO: Fix typing
-      blocks: options.blockSchema || (defaultBlockSchema as any),
+      uiFactories: newOptions.uiFactories || {},
+      slashCommands: newOptions.slashCommands || (defaultSlashMenuItems as any),
+      blocks: newOptions.blockSchema,
     });
 
-    // add blocks to schema
-    // TODO: Fix typing
-    this.schema = options.blockSchema || (defaultBlockSchema as any);
+    this.schema = newOptions.blockSchema || defaultBlockSchema;
 
-    let extensions = options.disableHistoryExtension
+    let extensions = newOptions.disableHistoryExtension
       ? blockNoteExtensions.filter((e) => e.name !== "history")
       : blockNoteExtensions;
-
-    // for (const ext of extensions) {
-    //   console.log(ext);
-    //   if (ext.type === "node" && ext.config.group === "blockContent")
-    // }
 
     const tiptapOptions: EditorOptions = {
       // TODO: This approach to setting initial content is "cleaner" but requires the PM editor schema, which is only
@@ -165,11 +160,11 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
       //     blockToNode(block, this._tiptapEditor.schema).toJSON()
       //   ),
       ...blockNoteTipTapOptions,
-      ...options._tiptapOptions,
+      ...newOptions._tiptapOptions,
       onCreate: () => {
-        options.onEditorReady?.(this);
-        options.initialContent &&
-          this.replaceBlocks(this.topLevelBlocks, options.initialContent);
+        newOptions.onEditorReady?.(this);
+        newOptions.initialContent &&
+          this.replaceBlocks(this.topLevelBlocks, newOptions.initialContent);
         document.addEventListener(
           "mousemove",
           (event: MouseEvent) =>
@@ -177,30 +172,30 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
         );
       },
       onUpdate: () => {
-        options.onEditorContentChange?.(this);
+        newOptions.onEditorContentChange?.(this);
       },
       onSelectionUpdate: () => {
-        options.onTextCursorPositionChange?.(this);
+        newOptions.onTextCursorPositionChange?.(this);
       },
       extensions:
-        options.enableBlockNoteExtensions === false
-          ? options._tiptapOptions?.extensions
-          : [...(options._tiptapOptions?.extensions || []), ...extensions],
+        newOptions.enableBlockNoteExtensions === false
+          ? newOptions._tiptapOptions?.extensions
+          : [...(newOptions._tiptapOptions?.extensions || []), ...extensions],
       editorProps: {
         attributes: {
-          ...(options.editorDOMAttributes || {}),
+          ...(newOptions.editorDOMAttributes || {}),
           class: [
             styles.bnEditor,
             styles.bnRoot,
-            options.defaultStyles ? styles.defaultStyles : "",
-            options.editorDOMAttributes?.class || "",
+            newOptions.defaultStyles ? styles.defaultStyles : "",
+            newOptions.editorDOMAttributes?.class || "",
           ].join(" "),
         },
       },
     };
 
-    if (options.parentElement) {
-      tiptapOptions.element = options.parentElement;
+    if (newOptions.parentElement) {
+      tiptapOptions.element = newOptions.parentElement;
     }
 
     this._tiptapEditor = new Editor(tiptapOptions) as Editor & {
@@ -690,7 +685,7 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
 }
 
 // // Playground:
-// let x = new BlockNoteEditor<DefaultBlockSchema>(); // default block types are supported
+// let x = new BlockNoteEditor(); // default block types are supported
 //
 // // this breaks because "level" is not valid on paragraph
 // x.updateBlock("", {
@@ -724,3 +719,22 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
 // });
 //
 // let h = new BlockNoteEditor<typeof onlyImageBlockSchema>();
+
+// class Test<Word extends typeof word> {
+//   word: Word;
+//   constructor(word: Word = "default") {
+//     this.word = word;
+//   }
+// }
+//
+// type TestType<Word> = { word: Word };
+//
+// function FTest<Word extends string>(
+//   word: Word | "default" = "default"
+// ): TestType<Word> {
+//   return {
+//     word: word,
+//   };
+// }
+//
+// const fTest = FTest<>("hello");
