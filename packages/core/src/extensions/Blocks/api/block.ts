@@ -1,9 +1,9 @@
 import { Attribute, Node } from "@tiptap/core";
 import {
+  BlockConfig,
   BlockSpec,
-  BlockSpecWithNode,
-  PropSpecs,
-  PropTypes,
+  Props,
+  PropSchema,
   TipTapNode,
   TipTapNodeConfig,
 } from "./blockTypes";
@@ -20,46 +20,46 @@ function dataKebabToCamel(str: string): string {
 // A function to create a "BlockSpec" from a tiptap node.
 // we use this to create the block specs for the built-in blocks
 
-// TODO: rename to createBlockSpecFromTiptapNode?
-export function createBlockFromTiptapNode<
-  Type extends string,
-  Props extends PropSpecs
->(blockSpec: BlockSpecWithNode<Type, Props>): BlockSpecWithNode<Type, Props> {
-  // if (blockSpec.node.name !== blockSpec.type) {
-  //   throw Error(
-  //     "Node must be of type " +
-  //       blockSpec.type +
-  //       ", but is of type" +
-  //       blockSpec.node.name +
-  //       "."
-  //   );
-  // }
-
-  // TODO: how to handle markdown / html conversions
-
-  // the return type gives us runtime access to the block name, props, and tiptap node
-  // but is also used to generate (derive) the type for the block spec
-  // so that we can have a strongly typed BlockNoteEditor API
-  return blockSpec;
-}
+// // TODO: rename to createBlockSpecFromTiptapNode?
+// export function createBlockFromTiptapNode<
+//   Type extends string,
+//   Props extends PropSpecs
+// >(blockSpec: BlockSpecWithNode<Type, Props>): BlockSpecWithNode<Type, Props> {
+//   if (blockSpec.node.name !== blockSpec.type) {
+//     throw Error(
+//       "Node must be of type " +
+//         blockSpec.type +
+//         ", but is of type" +
+//         blockSpec.node.name +
+//         "."
+//     );
+//   }
+//
+//   // TODO: how to handle markdown / html conversions
+//
+//   // the return type gives us runtime access to the block name, props, and tiptap node
+//   // but is also used to generate (derive) the type for the block spec
+//   // so that we can have a strongly typed BlockNoteEditor API
+//   return blockSpec;
+// }
 
 // A function to create custom block for API consumers
 // we want to hide the tiptap node from API consumers and provide a simpler API surface instead
-export function createCustomBlock<
-  Type extends string,
-  Props extends PropSpecs,
+export function createBlockSpec<
+  BType extends string,
+  PSchema extends PropSchema,
   ContainsInlineContent extends boolean
 >(
-  blockSpec: BlockSpec<Type, Props, ContainsInlineContent>
-): BlockSpecWithNode<Type, Props> {
+  blockConfig: BlockConfig<BType, PSchema, ContainsInlineContent>
+): BlockSpec<BType, PSchema> {
   const node = createTipTapNode({
-    name: blockSpec.type,
-    content: blockSpec.containsInlineContent ? "inline*" : "",
+    name: blockConfig.type,
+    content: blockConfig.containsInlineContent ? "inline*" : "",
 
     addAttributes() {
       const tiptapAttributes: Record<string, Attribute> = {};
 
-      Object.entries(blockSpec.propSpecs).forEach(([name, spec]) => {
+      Object.entries(blockConfig.propSchema).forEach(([name, spec]) => {
         tiptapAttributes[name] = {
           default: spec.default,
           keepOnSplit: true,
@@ -80,7 +80,7 @@ export function createCustomBlock<
       // TODO: This won't work for content copied outside BlockNote. Given the
       //  variety of possible custom block types, a one-size-fits-all solution
       //  probably won't work and we'll need an optional parseHTML option.
-      return blockSpec.parse
+      return blockConfig.parse
         ? [
             {
               getAttrs: (node: HTMLElement | string) => {
@@ -88,13 +88,13 @@ export function createCustomBlock<
                   return false;
                 }
 
-                return blockSpec.parse!(node);
+                return blockConfig.parse!(node);
               },
             },
           ]
         : [
             {
-              tag: "div[data-content-type=" + blockSpec.type + "]",
+              tag: "div[data-content-type=" + blockConfig.type + "]",
             },
           ];
     },
@@ -104,22 +104,22 @@ export function createCustomBlock<
       // Create blockContent element
       const blockContent = document.createElement("div");
       // Add blockContent HTML attribute
-      blockContent.setAttribute("data-content-type", blockSpec.type);
+      blockContent.setAttribute("data-content-type", blockConfig.type);
       // Add props as HTML attributes in kebab-case with "data-" prefix
       for (const [attribute, value] of Object.entries(HTMLAttributes)) {
         blockContent.setAttribute(attribute, value);
       }
 
       // Converting kebab-case props with "data-" prefix to camelCase
-      const props: PropTypes<Props> = Object.fromEntries(
+      const props: Props<PSchema> = Object.fromEntries(
         Object.entries<string>(HTMLAttributes).map(([attribute, value]) => [
-          dataKebabToCamel(attribute) as PropTypes<Props>,
+          dataKebabToCamel(attribute) as Props<PSchema>,
           value,
         ])
       );
 
       // Render elements
-      const rendered = blockSpec.render(props);
+      const rendered = blockConfig.render(props);
       // Add elements to blockContent
       blockContent.appendChild(rendered.dom);
 
@@ -136,7 +136,7 @@ export function createCustomBlock<
 
   return {
     node: node,
-    propSpecs: blockSpec.propSpecs,
+    propSchema: blockConfig.propSchema,
   };
 }
 
@@ -156,23 +156,3 @@ export function createTipTapNode<
     group: "blockContent",
   }) as TipTapNode<Type, Options, Storage>;
 }
-
-// export function createSchema(
-//   blockSpecs: Schema<Record<string, BlockSpecWithNode<string, PropSpecs>>>
-// );
-
-export const imageBlock = createCustomBlock({
-  type: "image",
-  propSpecs: {
-    src: {
-      default:
-        "https://www.typescriptlang.org/static/TypeScript%20Types-ae199d69aeecf7d4a2704a528d0fd3f9.png" as const,
-    },
-  },
-  containsInlineContent: false,
-  render: (props) => {
-    const img = document.createElement("img");
-    img.setAttribute("src", props.src);
-    return { dom: img };
-  },
-});

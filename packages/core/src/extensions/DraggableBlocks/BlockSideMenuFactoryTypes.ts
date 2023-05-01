@@ -1,8 +1,9 @@
 import { EditorElement, ElementFactory } from "../../shared/EditorElement";
 import { BlockNoteEditor } from "../../BlockNoteEditor";
+import { BlockSchema } from "../Blocks/api/blockTypes";
 
-export type BlockSideMenuStaticParams = {
-  editor: BlockNoteEditor;
+export type BlockSideMenuStaticParams<BSchema extends BlockSchema> = {
+  editor: BlockNoteEditor<BSchema>;
 
   addBlock: () => void;
 
@@ -13,14 +14,16 @@ export type BlockSideMenuStaticParams = {
   unfreezeMenu: () => void;
 };
 
-export type BlockSideMenuDynamicParams = {
-  editor: BlockNoteEditor;
+export type BlockSideMenuDynamicParams<BSchema extends BlockSchema> = {
+  editor: BlockNoteEditor<BSchema>;
 
   referenceRect: DOMRect;
 };
 
-export type BlockSideMenu = EditorElement<BlockSideMenuDynamicParams>;
-export type BlockSideMenuFactory = ElementFactory<
-  BlockSideMenuStaticParams,
-  BlockSideMenuDynamicParams
+export type BlockSideMenu<BSchema extends BlockSchema> = EditorElement<
+  BlockSideMenuDynamicParams<BSchema>
+>;
+export type BlockSideMenuFactory<BSchema extends BlockSchema> = ElementFactory<
+  BlockSideMenuStaticParams<BSchema>,
+  BlockSideMenuDynamicParams<BSchema>
 >;

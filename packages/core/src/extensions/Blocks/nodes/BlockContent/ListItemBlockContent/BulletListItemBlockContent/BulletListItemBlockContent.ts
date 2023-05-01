@@ -3,7 +3,7 @@ import styles from "../../../Block.module.css";
 import { handleEnter } from "../ListItemKeyboardShortcuts";
 import { createTipTapNode } from "../../../../api/block";
 
-export const BulletListItemBlockContent = createTipTapNode({
+export const BulletListItemBlockContent = createTipTapNode<"bulletListItem">({
   name: "bulletListItem",
   content: "inline*",
 

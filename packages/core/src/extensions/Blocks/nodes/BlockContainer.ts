@@ -5,7 +5,6 @@ import {
   blockToNode,
   inlineContentToNodes,
 } from "../../../api/nodeConversions/nodeConversions";
-import { PartialBlockTemplate } from "../api/blockTypes";
 
 import { getBlockInfoFromPos } from "../helpers/getBlockInfoFromPos";
 import { PreviousBlockTypePlugin } from "../PreviousBlockTypePlugin";
@@ -26,11 +25,13 @@ declare module "@tiptap/core" {
       BNSplitBlock: (posInBlock: number, keepType: boolean) => ReturnType;
       BNUpdateBlock: (
         posInBlock: number,
-        block: PartialBlockTemplate<any>
+        // TODO: Fix typing
+        block: any
       ) => ReturnType;
       BNCreateOrUpdateBlock: (
         posInBlock: number,
-        block: PartialBlockTemplate<any>
+        // TODO: Fix typing
+        block: any
       ) => ReturnType;
     };
   }
@@ -499,7 +500,6 @@ export const BlockContainer = Node.create<IBlock>({
 
               chain()
                 .BNCreateBlock(newBlockInsertionPos)
-                // .BNUpdateBlock(newBlockContentPos, { type: "table" })
                 .setTextSelection(newBlockContentPos)
                 .run();
 

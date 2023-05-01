@@ -2,7 +2,7 @@ import { mergeAttributes } from "@tiptap/core";
 import styles from "../../Block.module.css";
 import { createTipTapNode } from "../../../api/block";
 
-export const ParagraphBlockContent = createTipTapNode({
+export const ParagraphBlockContent = createTipTapNode<"paragraph">({
   name: "paragraph",
   content: "inline*",
 

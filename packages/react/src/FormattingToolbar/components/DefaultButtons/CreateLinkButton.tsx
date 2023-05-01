@@ -1,10 +1,12 @@
 import { useCallback } from "react";
-import { BlockNoteEditor } from "@blocknote/core";
+import { BlockNoteEditor, BlockSchema } from "@blocknote/core";
 import { RiLink } from "react-icons/ri";
 import LinkToolbarButton from "../LinkToolbarButton";
 import { formatKeyboardShortcut } from "../../../utils";
 
-export const CreateLinkButton = (props: { editor: BlockNoteEditor }) => {
+export const CreateLinkButton = <BSchema extends BlockSchema>(props: {
+  editor: BlockNoteEditor<BSchema>;
+}) => {
   const setLink = useCallback(
     (url: string, text?: string) => {
       props.editor.focus();

@@ -1,22 +1,23 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { Block, BlockNoteEditor } from "../..";
 import UniqueID from "../../extensions/UniqueID/UniqueID";
+import { DefaultBlockSchema } from "../../extensions/Blocks/api/defaultBlocks";
 
 let editor: BlockNoteEditor;
 
-let nonNestedBlocks: Block[];
+let nonNestedBlocks: Block<DefaultBlockSchema>[];
 let nonNestedHTML: string;
 let nonNestedMarkdown: string;
 
-let nestedBlocks: Block[];
+let nestedBlocks: Block<DefaultBlockSchema>[];
 // let nestedHTML: string;
 // let nestedMarkdown: string;
 
-let styledBlocks: Block[];
+let styledBlocks: Block<DefaultBlockSchema>[];
 let styledHTML: string;
 let styledMarkdown: string;
 
-let complexBlocks: Block[];
+let complexBlocks: Block<DefaultBlockSchema>[];
 // let complexHTML: string;
 // let complexMarkdown: string;
 

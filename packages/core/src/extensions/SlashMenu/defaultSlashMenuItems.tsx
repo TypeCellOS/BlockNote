@@ -1,10 +1,11 @@
 import { BlockNoteEditor } from "../../BlockNoteEditor";
-import { PartialBlockTemplate } from "../Blocks/api/blockTypes";
+import { PartialBlock } from "../Blocks/api/blockTypes";
 import { BaseSlashMenuItem } from "./BaseSlashMenuItem";
+import { DefaultBlockSchema } from "../Blocks/api/defaultBlocks";
 
 function insertOrUpdateBlock(
-  editor: BlockNoteEditor,
-  block: PartialBlockTemplate<any>
+  editor: BlockNoteEditor<DefaultBlockSchema>,
+  block: PartialBlock<DefaultBlockSchema>
 ) {
   const currentBlock = editor.getTextCursorPosition().block;
 
@@ -24,7 +25,7 @@ function insertOrUpdateBlock(
 /**
  * An array containing commands for creating all default blocks.
  */
-export const defaultSlashMenuItems: BaseSlashMenuItem[] = [
+export const defaultSlashMenuItems: BaseSlashMenuItem<DefaultBlockSchema>[] = [
   // Command for creating a level 1 heading
   new BaseSlashMenuItem(
     "Heading",

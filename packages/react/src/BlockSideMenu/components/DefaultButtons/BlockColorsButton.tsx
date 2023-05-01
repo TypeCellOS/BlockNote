@@ -1,11 +1,11 @@
 import { ReactNode, useCallback, useRef, useState } from "react";
 import { Box, Menu } from "@mantine/core";
-import { BlockNoteEditor } from "@blocknote/core";
+import { BlockNoteEditor, BlockSchema, PartialBlock } from "@blocknote/core";
 import { HiChevronRight } from "react-icons/hi";
 import { ColorPicker } from "../../../SharedComponents/ColorPicker/components/ColorPicker";
 
-export const BlockColorsButton = (props: {
-  editor: BlockNoteEditor;
+export const BlockColorsButton = <BSchema extends BlockSchema>(props: {
+  editor: BlockNoteEditor<BSchema>;
   closeMenu: () => void;
   children: ReactNode;
 }) => {
@@ -29,6 +29,14 @@ export const BlockColorsButton = (props: {
     }
     setOpened(true);
   }, []);
+
+  if (
+    !block ||
+    !("textColor" in block.props) ||
+    !("backgroundColor" in block.props)
+  ) {
+    return null;
+  }
 
   return (
     <Menu.Item
@@ -64,13 +72,15 @@ export const BlockColorsButton = (props: {
             }
             setTextColor={(color) =>
               block &&
-              props.editor.updateBlock(block, { props: { textColor: color } })
+              props.editor.updateBlock(block, {
+                props: { textColor: color },
+              } as PartialBlock<BSchema>)
             }
             setBackgroundColor={(color) =>
               block &&
               props.editor.updateBlock(block, {
                 props: { backgroundColor: color },
-              })
+              } as PartialBlock<BSchema>)
             }
           />
         </Menu.Dropdown>

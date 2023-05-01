@@ -1,14 +1,17 @@
 import { FC, useEffect, useRef, useState } from "react";
 import { ActionIcon, Group, Menu } from "@mantine/core";
-import { BlockNoteEditor } from "@blocknote/core";
+import { BlockNoteEditor, BlockSchema } from "@blocknote/core";
 import { AiOutlinePlus, MdDragIndicator } from "react-icons/all";
 import { DragHandleMenu } from "./DragHandleMenu";
 import { RemoveBlockButton } from "./DefaultButtons/RemoveBlockButton";
 import { BlockColorsButton } from "./DefaultButtons/BlockColorsButton";
 
-export type BlockSideMenuProps = {
-  editor: BlockNoteEditor;
-  dragHandleMenu?: FC<{ editor: BlockNoteEditor; closeMenu: () => void }>;
+export type BlockSideMenuProps<BSchema extends BlockSchema> = {
+  editor: BlockNoteEditor<BSchema>;
+  dragHandleMenu?: FC<{
+    editor: BlockNoteEditor<BSchema>;
+    closeMenu: () => void;
+  }>;
   addBlock: () => void;
   blockDragStart: (event: DragEvent) => void;
   blockDragEnd: () => void;
@@ -16,7 +19,9 @@ export type BlockSideMenuProps = {
   unfreezeMenu: () => void;
 };
 
-export const BlockSideMenu = (props: BlockSideMenuProps) => {
+export const BlockSideMenu = <BSchema extends BlockSchema>(
+  props: BlockSideMenuProps<BSchema>
+) => {
   const [dragHandleMenuOpened, setDragHandleMenuOpened] = useState(false);
 
   const dragHandleRef = useRef<HTMLDivElement>(null);

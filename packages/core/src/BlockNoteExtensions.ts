@@ -16,16 +16,19 @@ import { Underline } from "@tiptap/extension-underline";
 import { BackgroundColorExtension } from "./extensions/BackgroundColor/BackgroundColorExtension";
 import { BackgroundColorMark } from "./extensions/BackgroundColor/BackgroundColorMark";
 import { blocks } from "./extensions/Blocks";
-import { BlockSchema, BlockSpecs } from "./extensions/Blocks/api/blockTypes";
+import { BlockSchema } from "./extensions/Blocks/api/blockTypes";
 import blockStyles from "./extensions/Blocks/nodes/Block.module.css";
 import { BlockSideMenuFactory } from "./extensions/DraggableBlocks/BlockSideMenuFactoryTypes";
-import { DraggableBlocksExtension } from "./extensions/DraggableBlocks/DraggableBlocksExtension";
-import { FormattingToolbarExtension } from "./extensions/FormattingToolbar/FormattingToolbarExtension";
+import { createDraggableBlocksExtension } from "./extensions/DraggableBlocks/DraggableBlocksExtension";
+import { createFormattingToolbarExtension } from "./extensions/FormattingToolbar/FormattingToolbarExtension";
 import { FormattingToolbarFactory } from "./extensions/FormattingToolbar/FormattingToolbarFactoryTypes";
 import HyperlinkMark from "./extensions/HyperlinkToolbar/HyperlinkMark";
 import { HyperlinkToolbarFactory } from "./extensions/HyperlinkToolbar/HyperlinkToolbarFactoryTypes";
 import { Placeholder } from "./extensions/Placeholder/PlaceholderExtension";
-import { BaseSlashMenuItem, SlashMenuExtension } from "./extensions/SlashMenu";
+import {
+  BaseSlashMenuItem,
+  createSlashMenuExtension,
+} from "./extensions/SlashMenu";
 import { TextAlignmentExtension } from "./extensions/TextAlignment/TextAlignmentExtension";
 import { TextColorExtension } from "./extensions/TextColor/TextColorExtension";
 import { TextColorMark } from "./extensions/TextColor/TextColorMark";
@@ -33,21 +36,21 @@ import { TrailingNode } from "./extensions/TrailingNode/TrailingNodeExtension";
 import UniqueID from "./extensions/UniqueID/UniqueID";
 import { SuggestionsMenuFactory } from "./shared/plugins/suggestion/SuggestionsMenuFactoryTypes";
 
-export type UiFactories = Partial<{
-  formattingToolbarFactory: FormattingToolbarFactory;
+export type UiFactories<BSchema extends BlockSchema> = Partial<{
+  formattingToolbarFactory: FormattingToolbarFactory<BSchema>;
   hyperlinkToolbarFactory: HyperlinkToolbarFactory;
-  slashMenuFactory: SuggestionsMenuFactory<BaseSlashMenuItem>;
-  blockSideMenuFactory: BlockSideMenuFactory;
+  slashMenuFactory: SuggestionsMenuFactory<BaseSlashMenuItem<BSchema>>;
+  blockSideMenuFactory: BlockSideMenuFactory<BSchema>;
 }>;
 
 /**
  * Get all the Tiptap extensions BlockNote is configured with by default
  */
-export const getBlockNoteExtensions = <Blocks extends BlockSpecs>(opts: {
-  editor: BlockNoteEditor<Blocks>;
-  uiFactories: UiFactories;
-  slashCommands: BaseSlashMenuItem[];
-  blocks: BlockSchema[];
+export const getBlockNoteExtensions = <BSchema extends BlockSchema>(opts: {
+  editor: BlockNoteEditor<BSchema>;
+  uiFactories: UiFactories<BSchema>;
+  slashCommands: BaseSlashMenuItem<BSchema>[];
+  blocks: BSchema;
 }) => {
   const ret: Extensions = [
     extensions.ClipboardTextSerializer,
@@ -90,7 +93,7 @@ export const getBlockNoteExtensions = <Blocks extends BlockSpecs>(opts: {
 
     // custom blocks:
     ...blocks,
-    ...opts.blocks.map((b) => b.node),
+    ...Object.values(opts.blocks).map((blockSpec) => blockSpec.node),
 
     Dropcursor.configure({ width: 5, color: "#ddeeff" }),
     History,
@@ -101,7 +104,7 @@ export const getBlockNoteExtensions = <Blocks extends BlockSpecs>(opts: {
 
   if (opts.uiFactories.blockSideMenuFactory) {
     ret.push(
-      DraggableBlocksExtension.configure({
+      createDraggableBlocksExtension<BSchema>().configure({
         editor: opts.editor,
         blockSideMenuFactory: opts.uiFactories.blockSideMenuFactory,
       })
@@ -110,7 +113,7 @@ export const getBlockNoteExtensions = <Blocks extends BlockSpecs>(opts: {
 
   if (opts.uiFactories.formattingToolbarFactory) {
     ret.push(
-      FormattingToolbarExtension.configure({
+      createFormattingToolbarExtension<BSchema>().configure({
         editor: opts.editor,
         formattingToolbarFactory: opts.uiFactories.formattingToolbarFactory,
       })
@@ -129,7 +132,7 @@ export const getBlockNoteExtensions = <Blocks extends BlockSpecs>(opts: {
 
   if (opts.uiFactories.slashMenuFactory) {
     ret.push(
-      SlashMenuExtension.configure({
+      createSlashMenuExtension<BSchema>().configure({
         editor: opts.editor,
         commands: opts.slashCommands,
         slashMenuFactory: opts.uiFactories.slashMenuFactory,

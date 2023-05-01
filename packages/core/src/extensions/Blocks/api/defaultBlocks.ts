@@ -2,71 +2,58 @@ import { HeadingBlockContent } from "../nodes/BlockContent/HeadingBlockContent/H
 import { BulletListItemBlockContent } from "../nodes/BlockContent/ListItemBlockContent/BulletListItemBlockContent/BulletListItemBlockContent";
 import { NumberedListItemBlockContent } from "../nodes/BlockContent/ListItemBlockContent/NumberedListItemBlockContent/NumberedListItemBlockContent";
 import { ParagraphBlockContent } from "../nodes/BlockContent/ParagraphBlockContent/ParagraphBlockContent";
-import { BlockSpecWithNode, defaultBlockProps } from "./blockTypes";
-import { createBlockFromTiptapNode } from "./block";
+import { createBlockSpec } from "./block";
+import { TypesMatch } from "./blockTypes";
 
-export const paragraphBlockProps = defaultBlockProps;
+export const defaultProps = {
+  backgroundColor: {
+    default: "transparent" as const,
+  },
+  textColor: {
+    default: "black" as const, // TODO
+  },
+  textAlignment: {
+    default: "left" as const,
+    values: ["left", "center", "right", "justify"] as const,
+  },
+} as const; // TODO: upgrade typescript and use satisfies PropSpec
 
-export type ParagraphBlockSpec = BlockSpecWithNode<
-  "paragraph",
-  typeof paragraphBlockProps
->;
-
-export const paragraphBlockSpec: ParagraphBlockSpec = {
-  propSpecs: paragraphBlockProps,
-  node: ParagraphBlockContent,
+export const defaultBlockSchema = {
+  paragraph: {
+    propSchema: defaultProps,
+    node: ParagraphBlockContent,
+  },
+  heading: {
+    propSchema: {
+      ...defaultProps,
+      level: { default: "1", values: ["1", "2", "3"] as const },
+    },
+    node: HeadingBlockContent,
+  },
+  bulletListItem: {
+    propSchema: defaultProps,
+    node: BulletListItemBlockContent,
+  },
+  numberedListItem: {
+    propSchema: defaultProps,
+    node: NumberedListItemBlockContent,
+  },
 } as const;
 
-const headingBlockProps = {
-  ...defaultBlockProps,
-  level: { default: "1" as const, values: ["1", "2", "3"] as const },
-};
-
-export type HeadingBlockSpec = BlockSpecWithNode<
-  "heading",
-  typeof headingBlockProps
->;
-
-export const headingBlockSpec: HeadingBlockSpec = {
-  propSpecs: headingBlockProps,
-  node: HeadingBlockContent,
-};
-
-export const bulletListItemBlockProps = defaultBlockProps;
-
-export type BulletListItemBlockSpec = BlockSpecWithNode<
-  "bulletListItem",
-  typeof bulletListItemBlockProps
->;
-
-export const bulletListItemBlockSpec: BulletListItemBlockSpec = {
-  propSpecs: bulletListItemBlockProps,
-  node: BulletListItemBlockContent,
-};
-
-export const numberedListItemBlockProps = defaultBlockProps;
-
-export type NumberedListItemBlockSpec = BlockSpecWithNode<
-  "numberedListItem",
-  typeof numberedListItemBlockProps
->;
-
-export const numberedListItemBlockSpec: NumberedListItemBlockSpec = {
-  propSpecs: numberedListItemBlockProps,
-  node: NumberedListItemBlockContent,
-};
-
-export const defaultBlockSpecs = {
-  [paragraphBlockSpec.node.name]: createBlockFromTiptapNode(paragraphBlockSpec),
-  [headingBlockSpec.node.name]: createBlockFromTiptapNode(headingBlockSpec),
-  [bulletListItemBlockSpec.node.name]: createBlockFromTiptapNode(
-    bulletListItemBlockSpec
-  ),
-  [numberedListItemBlockSpec.node.name]: createBlockFromTiptapNode(
-    numberedListItemBlockSpec
-  ),
+const imageProps = { src: { default: "gfr" } } as const;
+export const onlyImageBlockSchema = {
+  image: createBlockSpec<"image", typeof imageProps, false>({
+    type: "image",
+    propSchema: imageProps,
+    containsInlineContent: false,
+    render: (props) => {
+      const img = document.createElement("img");
+      img.setAttribute("src", props.src);
+      return { dom: img };
+    },
+  }),
 } as const;
 
-export type DefaultBlockSpecs = typeof defaultBlockSpecs;
+export type DefaultBlockSchema = TypesMatch<typeof defaultBlockSchema>;
 
 // export type DefaultBlocks = Block<DefaultBlockSpecs>;

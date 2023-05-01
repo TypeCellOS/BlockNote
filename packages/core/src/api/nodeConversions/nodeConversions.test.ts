@@ -5,14 +5,18 @@ import { BlockNoteEditor, PartialBlock } from "../..";
 import UniqueID from "../../extensions/UniqueID/UniqueID";
 import { blockToNode, nodeToBlock } from "./nodeConversions";
 import { partialBlockToBlockForTesting } from "./testUtil";
+import {
+  defaultBlockSchema,
+  DefaultBlockSchema,
+} from "../../extensions/Blocks/api/defaultBlocks";
 
 let editor: BlockNoteEditor;
 let tt: Editor;
 
-let simpleBlock: PartialBlock;
+let simpleBlock: PartialBlock<DefaultBlockSchema>;
 let simpleNode: Node;
 
-let complexBlock: PartialBlock;
+let complexBlock: PartialBlock<DefaultBlockSchema>;
 let complexNode: Node;
 
 beforeEach(() => {
@@ -119,7 +123,10 @@ describe("Simple ProseMirror Node Conversions", () => {
   });
 
   it("Convert simple node to block", async () => {
-    const firstBlockConversion = nodeToBlock(simpleNode);
+    const firstBlockConversion = nodeToBlock<DefaultBlockSchema>(
+      simpleNode,
+      defaultBlockSchema
+    );
 
     expect(firstBlockConversion).toMatchSnapshot();
 
@@ -137,7 +144,10 @@ describe("Complex ProseMirror Node Conversions", () => {
   });
 
   it("Convert complex node to block", async () => {
-    const firstBlockConversion = nodeToBlock(complexNode);
+    const firstBlockConversion = nodeToBlock<DefaultBlockSchema>(
+      complexNode,
+      defaultBlockSchema
+    );
 
     expect(firstBlockConversion).toMatchSnapshot();
 
@@ -149,7 +159,7 @@ describe("Complex ProseMirror Node Conversions", () => {
 
 describe("links", () => {
   it("Convert a block with link", async () => {
-    const block: PartialBlock = {
+    const block: PartialBlock<DefaultBlockSchema> = {
       id: UniqueID.options.generateID(),
       type: "paragraph",
       content: [
@@ -162,7 +172,10 @@ describe("links", () => {
     };
     const node = blockToNode(block, tt.schema);
     expect(node).toMatchSnapshot();
-    const outputBlock = nodeToBlock(node);
+    const outputBlock = nodeToBlock<DefaultBlockSchema>(
+      node,
+      defaultBlockSchema
+    );
 
     // Temporary fix to set props to {}, because at this point
     // we don't have an easy way to access default props at runtime,
@@ -174,7 +187,7 @@ describe("links", () => {
   });
 
   it("Convert link block with marks", async () => {
-    const block: PartialBlock = {
+    const block: PartialBlock<DefaultBlockSchema> = {
       id: UniqueID.options.generateID(),
       type: "paragraph",
       content: [
@@ -200,7 +213,10 @@ describe("links", () => {
     };
     const node = blockToNode(block, tt.schema);
     // expect(node).toMatchSnapshot();
-    const outputBlock = nodeToBlock(node);
+    const outputBlock = nodeToBlock<DefaultBlockSchema>(
+      node,
+      defaultBlockSchema
+    );
 
     // Temporary fix to set props to {}, because at this point
     // we don't have an easy way to access default props at runtime,
@@ -212,7 +228,7 @@ describe("links", () => {
   });
 
   it("Convert two adjacent links in a block", async () => {
-    const block: PartialBlock = {
+    const block: PartialBlock<DefaultBlockSchema> = {
       id: UniqueID.options.generateID(),
       type: "paragraph",
       content: [
@@ -231,7 +247,10 @@ describe("links", () => {
 
     const node = blockToNode(block, tt.schema);
     expect(node).toMatchSnapshot();
-    const outputBlock = nodeToBlock(node);
+    const outputBlock = nodeToBlock<DefaultBlockSchema>(
+      node,
+      defaultBlockSchema
+    );
 
     // Temporary fix to set props to {}, because at this point
     // we don't have an easy way to access default props at runtime,

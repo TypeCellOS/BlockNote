@@ -1,7 +1,7 @@
 import { ToolbarButton } from "../../../SharedComponents/Toolbar/components/ToolbarButton";
 import { formatKeyboardShortcut } from "../../../utils";
 import { RiBold, RiItalic, RiStrikethrough, RiUnderline } from "react-icons/ri";
-import { BlockNoteEditor, ToggledStyle } from "@blocknote/core";
+import { BlockNoteEditor, BlockSchema, ToggledStyle } from "@blocknote/core";
 import { useCallback } from "react";
 import { IconType } from "react-icons";
 
@@ -19,8 +19,8 @@ const icons: Record<ToggledStyle, IconType> = {
   strike: RiStrikethrough,
 };
 
-export const ToggledStyleButton = (props: {
-  editor: BlockNoteEditor;
+export const ToggledStyleButton = <BSchema extends BlockSchema>(props: {
+  editor: BlockNoteEditor<BSchema>;
   toggledStyle: ToggledStyle;
 }) => {
   const styleIsActive = useCallback(

@@ -1,9 +1,9 @@
 import { ReactNode, useState } from "react";
 import { Menu } from "@mantine/core";
-import { BlockNoteEditor } from "@blocknote/core";
+import { BlockNoteEditor, BlockSchema } from "@blocknote/core";
 
-export const RemoveBlockButton = (props: {
-  editor: BlockNoteEditor;
+export const RemoveBlockButton = <BSchema extends BlockSchema>(props: {
+  editor: BlockNoteEditor<BSchema>;
   closeMenu: () => void;
   children: ReactNode;
 }) => {

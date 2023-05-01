@@ -1,9 +1,9 @@
 import { Mark } from "@tiptap/pm/model";
 import { Node, Schema } from "prosemirror-model";
 import {
+  Block,
   BlockSchema,
-  BlockTemplate,
-  PartialBlockTemplate,
+  PartialBlock,
 } from "../../extensions/Blocks/api/blockTypes";
 
 import {
@@ -105,8 +105,8 @@ export function inlineContentToNodes(
 /**
  * Converts a BlockNote block to a TipTap node.
  */
-export function blockToNode<Block extends BlockTemplate<any, any>>(
-  block: PartialBlockTemplate<Block>,
+export function blockToNode<BSchema extends BlockSchema>(
+  block: PartialBlock<BSchema>,
   schema: Schema
 ) {
   let id = block.id;
@@ -217,11 +217,11 @@ function contentNodeToInlineContent(contentNode: Node) {
 /**
  * Convert a TipTap node to a BlockNote block.
  */
-export function nodeToBlock<Block extends BlockTemplate<any, any>>(
+export function nodeToBlock<BSchema extends BlockSchema>(
   node: Node,
-  schema: Map<string, BlockSchema>,
-  blockCache?: WeakMap<Node, Block>
-): Block {
+  schema: BSchema,
+  blockCache?: WeakMap<Node, Block<BSchema>>
+): Block<BSchema> {
   if (node.type.name !== "blockContainer") {
     throw Error(
       "Node must be of type blockContainer, but is of type" +
@@ -250,16 +250,16 @@ export function nodeToBlock<Block extends BlockTemplate<any, any>>(
     ...blockInfo.node.attrs,
     ...blockInfo.contentNode.attrs,
   })) {
-    const blockSpec = schema.get(blockInfo.contentType.name);
+    const blockSpec = schema[blockInfo.contentType.name];
     if (!blockSpec) {
       throw Error(
         "Block is of an unrecognized type: " + blockInfo.contentType.name
       );
     }
 
-    const validAttrs = blockSpec.acceptedProps;
+    const propSchema = blockSpec.propSchema;
 
-    if (validAttrs.find((prop) => prop.name === attr)) {
+    if (attr in propSchema) {
       props[attr] = value;
     } else {
       console.warn("Block has an unrecognized attribute: " + attr);
@@ -268,7 +268,7 @@ export function nodeToBlock<Block extends BlockTemplate<any, any>>(
 
   const content = contentNodeToInlineContent(blockInfo.contentNode);
 
-  const children: Block[] = [];
+  const children: Block<BSchema>[] = [];
   for (let i = 0; i < blockInfo.numChildBlocks; i++) {
     children.push(
       nodeToBlock(blockInfo.node.lastChild!.child(i), schema, blockCache)
@@ -278,7 +278,7 @@ export function nodeToBlock<Block extends BlockTemplate<any, any>>(
   // TODO: fix types
   const block: any = {
     id,
-    type: blockInfo.contentType.name as Block["type"],
+    type: blockInfo.contentType.name as Block<BSchema>["type"],
     props,
     content,
     children,

@@ -1,9 +1,15 @@
-import { BaseSlashMenuItem, BlockNoteEditor } from "@blocknote/core";
+import {
+  BaseSlashMenuItem,
+  BlockNoteEditor,
+  BlockSchema,
+} from "@blocknote/core";
 
-export class ReactSlashMenuItem extends BaseSlashMenuItem {
+export class ReactSlashMenuItem<
+  BSchema extends BlockSchema
+> extends BaseSlashMenuItem<BSchema> {
   constructor(
     public readonly name: string,
-    public readonly execute: (editor: BlockNoteEditor) => void,
+    public readonly execute: (editor: BlockNoteEditor<BSchema>) => void,
     public readonly aliases: string[] = [],
     public readonly group: string,
     public readonly icon: JSX.Element,

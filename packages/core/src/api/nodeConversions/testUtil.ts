@@ -1,4 +1,8 @@
-import { Block, PartialBlock } from "../../extensions/Blocks/api/blockTypes";
+import {
+  Block,
+  BlockSchema,
+  PartialBlock,
+} from "../../extensions/Blocks/api/blockTypes";
 import {
   InlineContent,
   PartialInlineContent,
@@ -39,9 +43,9 @@ function partialContentToInlineContent(
   });
 }
 
-export function partialBlockToBlockForTesting(
-  partialBlock: PartialBlock
-): Block {
+export function partialBlockToBlockForTesting<BSchema extends BlockSchema>(
+  partialBlock: PartialBlock<BSchema>
+): Block<BSchema> {
   const withDefaults = {
     id: "",
     type: "paragraph" as any,

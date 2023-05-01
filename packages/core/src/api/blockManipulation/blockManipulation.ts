@@ -2,15 +2,15 @@ import { Editor } from "@tiptap/core";
 import { Node } from "prosemirror-model";
 import {
   BlockIdentifier,
-  BlockTemplate,
-  PartialBlockTemplate,
+  BlockSchema,
+  PartialBlock,
 } from "../../extensions/Blocks/api/blockTypes";
 import { blockToNode } from "../nodeConversions/nodeConversions";
 import { getNodeById } from "../util/nodeUtil";
 
-export function insertBlocks<Block extends BlockTemplate<any, any>>(
-  blocksToInsert: PartialBlockTemplate<Block>[],
-  referenceBlock: BlockIdentifier,
+export function insertBlocks<BSchema extends BlockSchema>(
+  blocksToInsert: PartialBlock<BSchema>[],
+  referenceBlock: BlockIdentifier<BSchema>,
   placement: "before" | "after" | "nested" = "before",
   editor: Editor
 ): void {
@@ -57,9 +57,9 @@ export function insertBlocks<Block extends BlockTemplate<any, any>>(
   editor.view.dispatch(editor.state.tr.insert(insertionPos, nodesToInsert));
 }
 
-export function updateBlock<Block extends BlockTemplate<any, any>>(
-  blockToUpdate: BlockIdentifier,
-  update: PartialBlockTemplate<Block>,
+export function updateBlock<BSchema extends BlockSchema>(
+  blockToUpdate: BlockIdentifier<BSchema>,
+  update: PartialBlock<BSchema>,
   editor: Editor
 ) {
   const id =
@@ -69,8 +69,8 @@ export function updateBlock<Block extends BlockTemplate<any, any>>(
   editor.commands.BNUpdateBlock(posBeforeNode + 1, update);
 }
 
-export function removeBlocks(
-  blocksToRemove: BlockIdentifier[],
+export function removeBlocks<BSchema extends BlockSchema>(
+  blocksToRemove: BlockIdentifier<BSchema>[],
   editor: Editor
 ) {
   const idsOfBlocksToRemove = new Set<string>(
@@ -116,9 +116,9 @@ export function removeBlocks(
   }
 }
 
-export function replaceBlocks<Block extends BlockTemplate<any, any>>(
-  blocksToRemove: BlockIdentifier[],
-  blocksToInsert: PartialBlockTemplate<Block>[],
+export function replaceBlocks<BSchema extends BlockSchema>(
+  blocksToRemove: BlockIdentifier<BSchema>[],
+  blocksToInsert: PartialBlock<BSchema>[],
   editor: Editor
 ) {
   insertBlocks(blocksToInsert, blocksToRemove[0], "before", editor);

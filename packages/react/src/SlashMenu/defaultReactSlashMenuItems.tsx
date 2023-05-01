@@ -1,5 +1,9 @@
 import { formatKeyboardShortcut } from "../utils";
-import { defaultSlashMenuItems, BaseSlashMenuItem } from "@blocknote/core";
+import {
+  defaultSlashMenuItems,
+  BaseSlashMenuItem,
+  DefaultBlockSchema,
+} from "@blocknote/core";
 import { ReactSlashMenuItem } from "./ReactSlashMenuItem";
 import {
   RiH1,
@@ -9,10 +13,12 @@ import {
   RiListUnordered,
   RiText,
 } from "react-icons/ri";
-
 const extraFields: Record<
   string,
-  Omit<ReactSlashMenuItem, keyof BaseSlashMenuItem>
+  Omit<
+    ReactSlashMenuItem<DefaultBlockSchema>,
+    keyof BaseSlashMenuItem<DefaultBlockSchema>
+  >
 > = {
   Heading: {
     group: "Headings",
@@ -52,7 +58,7 @@ const extraFields: Record<
   },
 };
 
-export const defaultReactSlashMenuItems: ReactSlashMenuItem[] =
+export const defaultReactSlashMenuItems: ReactSlashMenuItem<DefaultBlockSchema>[] =
   defaultSlashMenuItems.map(
     (item) =>
       new ReactSlashMenuItem(

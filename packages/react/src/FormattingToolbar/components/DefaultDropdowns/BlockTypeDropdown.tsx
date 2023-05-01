@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react";
-import { BlockNoteEditor } from "@blocknote/core";
+import {
+  BlockNoteEditor,
+  BlockSchema,
+  defaultBlockSchema,
+  PartialBlock,
+} from "@blocknote/core";
 import {
   RiH1,
   RiH2,
@@ -10,7 +15,38 @@ import {
 } from "react-icons/ri";
 import { ToolbarDropdown } from "../../../SharedComponents/Toolbar/components/ToolbarDropdown";
 
-export const BlockTypeDropdown = (props: { editor: BlockNoteEditor }) => {
+const arrayEquals = (a: readonly string[], b: readonly string[]) => {
+  if (a.length !== b.length) {
+    return false;
+  }
+
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
+const shouldShow = (schema: BlockSchema) => {
+  const paragraph = "paragraph" in schema;
+  const heading =
+    "heading" in schema &&
+    "level" in schema.heading.propSchema &&
+    arrayEquals(
+      schema.heading.propSchema.level.values as string[],
+      defaultBlockSchema.heading.propSchema.level.values
+    );
+  const bulletListItem = "bulletListItem" in schema;
+  const numberedListItem = "numberedListItem" in schema;
+
+  return paragraph && heading && bulletListItem && numberedListItem;
+};
+
+export const BlockTypeDropdown = <BSchema extends BlockSchema>(props: {
+  editor: BlockNoteEditor<BSchema>;
+}) => {
   const [block, setBlock] = useState(
     props.editor.getTextCursorPosition().block
   );
@@ -19,6 +55,10 @@ export const BlockTypeDropdown = (props: { editor: BlockNoteEditor }) => {
     () => setBlock(props.editor.getTextCursorPosition().block),
     [props]
   );
+
+  if (!shouldShow(props.editor.schema)) {
+    return null;
+  }
 
   return (
     <ToolbarDropdown
@@ -41,7 +81,7 @@ export const BlockTypeDropdown = (props: { editor: BlockNoteEditor }) => {
             props.editor.updateBlock(block, {
               type: "heading",
               props: { level: "1" },
-            });
+            } as PartialBlock<BSchema>);
           },
           text: "Heading 1",
           icon: RiH1,
@@ -53,7 +93,7 @@ export const BlockTypeDropdown = (props: { editor: BlockNoteEditor }) => {
             props.editor.updateBlock(block, {
               type: "heading",
               props: { level: "2" },
-            });
+            } as PartialBlock<BSchema>);
           },
           text: "Heading 2",
           icon: RiH2,
@@ -65,7 +105,7 @@ export const BlockTypeDropdown = (props: { editor: BlockNoteEditor }) => {
             props.editor.updateBlock(block, {
               type: "heading",
               props: { level: "3" },
-            });
+            } as PartialBlock<BSchema>);
           },
           text: "Heading 3",
           icon: RiH3,

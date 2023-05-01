@@ -6,7 +6,7 @@ import {
 } from "@tiptap/core";
 import { EditorState, Plugin, PluginKey } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
-import { BlockNoteEditor } from "../..";
+import { BlockNoteEditor, BlockSchema } from "../..";
 import {
   FormattingToolbar,
   FormattingToolbarDynamicParams,
@@ -16,14 +16,14 @@ import {
 
 // Same as TipTap bubblemenu plugin, but with these changes:
 // https://github.com/ueberdosis/tiptap/pull/2596/files
-export interface FormattingToolbarPluginProps {
+export interface FormattingToolbarPluginProps<BSchema extends BlockSchema> {
   pluginKey: PluginKey;
   tiptapEditor: Editor;
-  editor: BlockNoteEditor;
-  formattingToolbarFactory: FormattingToolbarFactory;
+  editor: BlockNoteEditor<BSchema>;
+  formattingToolbarFactory: FormattingToolbarFactory<BSchema>;
   shouldShow?:
     | ((props: {
-        editor: BlockNoteEditor;
+        editor: BlockNoteEditor<BSchema>;
         view: EditorView;
         state: EditorState;
         oldState?: EditorState;
@@ -33,17 +33,18 @@ export interface FormattingToolbarPluginProps {
     | null;
 }
 
-export type FormattingToolbarViewProps = FormattingToolbarPluginProps & {
-  view: EditorView;
-};
+export type FormattingToolbarViewProps<BSchema extends BlockSchema> =
+  FormattingToolbarPluginProps<BSchema> & {
+    view: EditorView;
+  };
 
-export class FormattingToolbarView {
-  public editor: BlockNoteEditor;
+export class FormattingToolbarView<BSchema extends BlockSchema> {
+  public editor: BlockNoteEditor<BSchema>;
   private ttEditor: Editor;
 
   public view: EditorView;
 
-  public formattingToolbar: FormattingToolbar;
+  public formattingToolbar: FormattingToolbar<BSchema>;
 
   public preventHide = false;
 
@@ -51,19 +52,21 @@ export class FormattingToolbarView {
 
   public toolbarIsOpen = false;
 
-  public shouldShow: Exclude<FormattingToolbarPluginProps["shouldShow"], null> =
-    ({ view, state, from, to }) => {
-      const { doc, selection } = state;
-      const { empty } = selection;
+  public shouldShow: Exclude<
+    FormattingToolbarPluginProps<BSchema>["shouldShow"],
+    null
+  > = ({ view, state, from, to }) => {
+    const { doc, selection } = state;
+    const { empty } = selection;
 
-      // Sometime check for `empty` is not enough.
-      // Doubleclick an empty paragraph returns a node size of 2.
-      // So we check also for an empty text size.
-      const isEmptyTextBlock =
-        !doc.textBetween(from, to).length && isTextSelection(state.selection);
+    // Sometime check for `empty` is not enough.
+    // Doubleclick an empty paragraph returns a node size of 2.
+    // So we check also for an empty text size.
+    const isEmptyTextBlock =
+      !doc.textBetween(from, to).length && isTextSelection(state.selection);
 
-      return !(!view.hasFocus() || empty || isEmptyTextBlock);
-    };
+    return !(!view.hasFocus() || empty || isEmptyTextBlock);
+  };
 
   constructor({
     editor,
@@ -71,7 +74,7 @@ export class FormattingToolbarView {
     formattingToolbarFactory,
     view,
     shouldShow,
-  }: FormattingToolbarViewProps) {
+  }: FormattingToolbarViewProps<BSchema>) {
     this.editor = editor;
     this.ttEditor = tiptapEditor;
     this.view = view;
@@ -231,13 +234,13 @@ export class FormattingToolbarView {
     return posToDOMRect(this.ttEditor.view, from, to);
   }
 
-  getStaticParams(): FormattingToolbarStaticParams {
+  getStaticParams(): FormattingToolbarStaticParams<BSchema> {
     return {
       editor: this.editor,
     };
   }
 
-  getDynamicParams(): FormattingToolbarDynamicParams {
+  getDynamicParams(): FormattingToolbarDynamicParams<BSchema> {
     return {
       editor: this.editor,
       referenceRect: this.getSelectionBoundingBox(),
@@ -245,8 +248,8 @@ export class FormattingToolbarView {
   }
 }
 
-export const createFormattingToolbarPlugin = (
-  options: FormattingToolbarPluginProps
+export const createFormattingToolbarPlugin = <BSchema extends BlockSchema>(
+  options: FormattingToolbarPluginProps<BSchema>
 ) => {
   return new Plugin({
     key: new PluginKey("FormattingToolbarPlugin"),

@@ -7,17 +7,14 @@ import remarkParse from "remark-parse";
 import remarkRehype from "remark-rehype";
 import remarkStringify from "remark-stringify";
 import { unified } from "unified";
-import {
-  BlockSchema,
-  BlockTemplate,
-} from "../../extensions/Blocks/api/blockTypes";
+import { Block, BlockSchema } from "../../extensions/Blocks/api/blockTypes";
 
 import { blockToNode, nodeToBlock } from "../nodeConversions/nodeConversions";
 import { removeUnderlines } from "./removeUnderlinesRehypePlugin";
 import { simplifyBlocks } from "./simplifyBlocksRehypePlugin";
 
-export async function blocksToHTML(
-  blocks: BlockTemplate<any, any>[],
+export async function blocksToHTML<BSchema extends BlockSchema>(
+  blocks: Block<BSchema>[],
   schema: Schema
 ): Promise<string> {
   const htmlParentElement = document.createElement("div");
@@ -41,18 +38,18 @@ export async function blocksToHTML(
   return htmlString.value as string;
 }
 
-export async function HTMLToBlocks(
+export async function HTMLToBlocks<BSchema extends BlockSchema>(
   html: string,
-  schema: Map<string, BlockSchema>,
+  schema: BSchema,
   pmSchema: Schema
-): Promise<BlockTemplate<any, any>[]> {
+): Promise<Block<BSchema>[]> {
   const htmlNode = document.createElement("div");
   htmlNode.innerHTML = html.trim();
 
   const parser = DOMParser.fromSchema(pmSchema);
   const parentNode = parser.parse(htmlNode);
 
-  const blocks: BlockTemplate<any, any>[] = [];
+  const blocks: Block<BSchema>[] = [];
 
   for (let i = 0; i < parentNode.firstChild!.childCount; i++) {
     blocks.push(nodeToBlock(parentNode.firstChild!.child(i), schema));
@@ -61,8 +58,8 @@ export async function HTMLToBlocks(
   return blocks;
 }
 
-export async function blocksToMarkdown(
-  blocks: BlockTemplate<any, any>[],
+export async function blocksToMarkdown<BSchema extends BlockSchema>(
+  blocks: Block<BSchema>[],
   schema: Schema
 ): Promise<string> {
   const markdownString = await unified()
@@ -76,11 +73,11 @@ export async function blocksToMarkdown(
   return markdownString.value as string;
 }
 
-export async function markdownToBlocks(
+export async function markdownToBlocks<BSchema extends BlockSchema>(
   markdown: string,
-  schema: Map<string, BlockSchema>,
+  schema: BSchema,
   pmSchema: Schema
-): Promise<BlockTemplate<any, any>[]> {
+): Promise<Block<BSchema>[]> {
   const htmlString = await unified()
     .use(remarkParse)
     .use(remarkGfm)

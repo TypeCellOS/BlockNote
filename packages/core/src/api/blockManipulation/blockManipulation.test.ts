@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { Block, BlockNoteEditor, PartialBlock } from "../..";
+import { DefaultBlockSchema } from "../../extensions/Blocks/api/defaultBlocks";
 
 let editor: BlockNoteEditor;
 
@@ -14,11 +15,13 @@ function waitForEditor() {
   });
 }
 
-let singleBlock: PartialBlock;
+let singleBlock: PartialBlock<DefaultBlockSchema>;
 
-let multipleBlocks: PartialBlock[];
+let multipleBlocks: PartialBlock<DefaultBlockSchema>[];
 
-let insert: (placement: "before" | "nested" | "after") => Block[];
+let insert: (
+  placement: "before" | "nested" | "after"
+) => Block<DefaultBlockSchema>[];
 
 beforeEach(() => {
   (window as Window & { __TEST_OPTIONS?: {} }).__TEST_OPTIONS = {};

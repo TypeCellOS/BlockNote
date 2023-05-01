@@ -2,14 +2,17 @@ import { createStyles, Menu } from "@mantine/core";
 import * as _ from "lodash";
 import { SlashMenuItem } from "./SlashMenuItem";
 import { ReactSlashMenuItem } from "../ReactSlashMenuItem";
+import { BlockSchema } from "@blocknote/core";
 
-export type SlashMenuProps = {
-  items: ReactSlashMenuItem[];
+export type SlashMenuProps<BSchema extends BlockSchema> = {
+  items: ReactSlashMenuItem<BSchema>[];
   keyboardHoveredItemIndex: number;
-  itemCallback: (item: ReactSlashMenuItem) => void;
+  itemCallback: (item: ReactSlashMenuItem<BSchema>) => void;
 };
 
-export function SlashMenu(props: SlashMenuProps) {
+export function SlashMenu<BSchema extends BlockSchema>(
+  props: SlashMenuProps<BSchema>
+) {
   const { classes } = createStyles({ root: {} })(undefined, {
     name: "SlashMenu",
   });

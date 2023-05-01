@@ -1,12 +1,15 @@
 import { SuggestionItem } from "../../shared/plugins/suggestion/SuggestionItem";
 import { BlockNoteEditor } from "../../BlockNoteEditor";
+import { BlockSchema } from "../Blocks/api/blockTypes";
 
 /**
  * A class that defines a slash command (/<command>).
  *
  * (Not to be confused with ProseMirror commands nor TipTap commands.)
  */
-export class BaseSlashMenuItem extends SuggestionItem {
+export class BaseSlashMenuItem<
+  BSchema extends BlockSchema
+> extends SuggestionItem {
   /**
    * Constructs a new slash-command.
    *
@@ -16,7 +19,7 @@ export class BaseSlashMenuItem extends SuggestionItem {
    */
   constructor(
     public readonly name: string,
-    public readonly execute: (editor: BlockNoteEditor) => void,
+    public readonly execute: (editor: BlockNoteEditor<BSchema>) => void,
     public readonly aliases: string[] = []
   ) {
     super(name, (query: string): boolean => {

@@ -1,5 +1,11 @@
-import { BlockNoteEditor, DefaultBlockPropsType } from "@blocknote/core";
-import { useCallback } from "react";
+import {
+  Block,
+  BlockNoteEditor,
+  BlockSchema,
+  defaultProps,
+  Props,
+} from "@blocknote/core";
+import { useCallback, useState } from "react";
 import { IconType } from "react-icons";
 import {
   RiAlignCenter,
@@ -9,33 +15,51 @@ import {
 } from "react-icons/ri";
 import { ToolbarButton } from "../../../SharedComponents/Toolbar/components/ToolbarButton";
 
-const icons: Record<DefaultBlockPropsType["textAlignment"], IconType> = {
+type TextAlignment = Props<typeof defaultProps>["textAlignment"];
+
+const icons: Record<TextAlignment, IconType> = {
   left: RiAlignLeft,
   center: RiAlignCenter,
   right: RiAlignRight,
   justify: RiAlignJustify,
 };
 
-export const TextAlignButton = (props: {
-  editor: BlockNoteEditor;
-  textAlignment: DefaultBlockPropsType["textAlignment"];
+export const TextAlignButton = <BSchema extends BlockSchema>(props: {
+  editor: BlockNoteEditor<BSchema>;
+  textAlignment: TextAlignment;
 }) => {
-  const getTextAlignment = useCallback(
-    () => props.editor.getTextCursorPosition().block.props.textAlignment,
-    [props]
-  );
+  const [show, setShow] = useState(false);
+
+  const getTextAlignment = useCallback(() => {
+    const block = props.editor.getTextCursorPosition().block;
+
+    if ("textAlignment" in block.props) {
+      !show && setShow(true);
+      return block.props.textAlignment;
+    } else {
+      show && setShow(false);
+      return "left";
+    }
+  }, [show, props]);
 
   const setTextAlignment = useCallback(
-    (textAlignment: DefaultBlockPropsType["textAlignment"]) => {
+    (textAlignment: TextAlignment) => {
       props.editor.focus();
+
       for (const block of props.editor.getSelection().blocks) {
-        props.editor.updateBlock(block, {
-          props: { textAlignment: textAlignment },
-        });
+        if ("textAlignment" in block.props) {
+          props.editor.updateBlock(block, {
+            props: { textAlignment: textAlignment },
+          } as unknown as Block<BSchema>);
+        }
       }
     },
     [props]
   );
+
+  if (!show) {
+    return null;
+  }
 
   return (
     <ToolbarButton

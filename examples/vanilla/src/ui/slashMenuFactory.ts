@@ -1,13 +1,17 @@
-import { BaseSlashMenuItem, SuggestionsMenuFactory } from "@blocknote/core";
+import {
+  BaseSlashMenuItem,
+  DefaultBlockSchema,
+  SuggestionsMenuFactory,
+} from "@blocknote/core";
 import { createButton } from "./util";
 
 /**
  * This menu is drawn when the cursor is moved to a hyperlink (using the keyboard),
  * or when the mouse is hovering over a hyperlink
  */
-export const slashMenuFactory: SuggestionsMenuFactory<BaseSlashMenuItem> = (
-  staticParams
-) => {
+export const slashMenuFactory: SuggestionsMenuFactory<
+  BaseSlashMenuItem<DefaultBlockSchema>
+> = (staticParams) => {
   const container = document.createElement("div");
   container.style.background = "gray";
   container.style.position = "absolute";
@@ -17,8 +21,8 @@ export const slashMenuFactory: SuggestionsMenuFactory<BaseSlashMenuItem> = (
   document.body.appendChild(container);
 
   function updateItems(
-    items: BaseSlashMenuItem[],
-    onClick: (item: BaseSlashMenuItem) => void,
+    items: BaseSlashMenuItem<DefaultBlockSchema>[],
+    onClick: (item: BaseSlashMenuItem<DefaultBlockSchema>) => void,
     selected: number
   ) {
     container.innerHTML = "";
