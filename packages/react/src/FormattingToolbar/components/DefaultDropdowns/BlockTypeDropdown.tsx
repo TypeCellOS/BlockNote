@@ -1,10 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  BlockNoteEditor,
-  BlockSchema,
-  defaultBlockSchema,
-  PartialBlock,
-} from "@blocknote/core";
+import { BlockNoteEditor, BlockSchema, PartialBlock } from "@blocknote/core";
 import {
   RiH1,
   RiH2,
@@ -14,30 +9,19 @@ import {
   RiText,
 } from "react-icons/ri";
 import { ToolbarDropdown } from "../../../SharedComponents/Toolbar/components/ToolbarDropdown";
+import { IconType } from "react-icons";
 
-const arrayEquals = (a: readonly string[], b: readonly string[]) => {
-  if (a.length !== b.length) {
-    return false;
-  }
+type HeadingLevels = "1" | "2" | "3";
 
-  for (let i = 0; i < a.length; i++) {
-    if (a[i] !== b[i]) {
-      return false;
-    }
-  }
-
-  return true;
+const headingIcons: Record<HeadingLevels, IconType> = {
+  "1": RiH1,
+  "2": RiH2,
+  "3": RiH3,
 };
 
 const shouldShow = (schema: BlockSchema) => {
   const paragraph = "paragraph" in schema;
-  const heading =
-    "heading" in schema &&
-    "level" in schema.heading.propSchema &&
-    arrayEquals(
-      schema.heading.propSchema.level.values as string[],
-      defaultBlockSchema.heading.propSchema.level.values
-    );
+  const heading = "heading" in schema && "level" in schema.heading.propSchema;
   const bulletListItem = "bulletListItem" in schema;
   const numberedListItem = "numberedListItem" in schema;
 
@@ -60,6 +44,21 @@ export const BlockTypeDropdown = <BSchema extends BlockSchema>(props: {
     return null;
   }
 
+  const headingItems = (
+    props.editor.schema.heading.propSchema.level.values! as HeadingLevels[]
+  ).map((level) => ({
+    onClick: () => {
+      props.editor.focus();
+      props.editor.updateBlock(block, {
+        type: "heading",
+        props: { level: level },
+      } as PartialBlock<BSchema>);
+    },
+    text: "Heading " + level,
+    icon: headingIcons[level],
+    isSelected: block.type === "heading" && block.props.level === "1",
+  }));
+
   return (
     <ToolbarDropdown
       items={[
@@ -75,42 +74,7 @@ export const BlockTypeDropdown = <BSchema extends BlockSchema>(props: {
           icon: RiText,
           isSelected: block.type === "paragraph",
         },
-        {
-          onClick: () => {
-            props.editor.focus();
-            props.editor.updateBlock(block, {
-              type: "heading",
-              props: { level: "1" },
-            } as PartialBlock<BSchema>);
-          },
-          text: "Heading 1",
-          icon: RiH1,
-          isSelected: block.type === "heading" && block.props.level === "1",
-        },
-        {
-          onClick: () => {
-            props.editor.focus();
-            props.editor.updateBlock(block, {
-              type: "heading",
-              props: { level: "2" },
-            } as PartialBlock<BSchema>);
-          },
-          text: "Heading 2",
-          icon: RiH2,
-          isSelected: block.type === "heading" && block.props.level === "2",
-        },
-        {
-          onClick: () => {
-            props.editor.focus();
-            props.editor.updateBlock(block, {
-              type: "heading",
-              props: { level: "3" },
-            } as PartialBlock<BSchema>);
-          },
-          text: "Heading 3",
-          icon: RiH3,
-          isSelected: block.type === "heading" && block.props.level === "3",
-        },
+        ...headingItems,
         {
           onClick: () => {
             props.editor.focus();

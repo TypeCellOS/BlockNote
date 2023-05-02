@@ -10,6 +10,7 @@ import { getBlockInfoFromPos } from "../helpers/getBlockInfoFromPos";
 import { PreviousBlockTypePlugin } from "../PreviousBlockTypePlugin";
 import styles from "./Block.module.css";
 import BlockAttributes from "./BlockAttributes";
+import { BlockSchema, PartialBlock } from "../api/blockTypes";
 
 // TODO
 export interface IBlock {
@@ -23,15 +24,13 @@ declare module "@tiptap/core" {
       BNDeleteBlock: (posInBlock: number) => ReturnType;
       BNMergeBlocks: (posBetweenBlocks: number) => ReturnType;
       BNSplitBlock: (posInBlock: number, keepType: boolean) => ReturnType;
-      BNUpdateBlock: (
+      BNUpdateBlock: <BSchema extends BlockSchema>(
         posInBlock: number,
-        // TODO: Fix typing
-        block: any
+        block: PartialBlock<BSchema>
       ) => ReturnType;
-      BNCreateOrUpdateBlock: (
+      BNCreateOrUpdateBlock: <BSchema extends BlockSchema>(
         posInBlock: number,
-        // TODO: Fix typing
-        block: any
+        block: PartialBlock<BSchema>
       ) => ReturnType;
     };
   }

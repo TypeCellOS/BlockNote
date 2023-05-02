@@ -146,6 +146,4 @@ export type PartialBlock<BSchema extends BlockSchema> =
       children: PartialBlock<BSchema>[];
     }>;
 
-export type BlockIdentifier<BSchema extends BlockSchema> =
-  | Block<BSchema>
-  | string;
+export type BlockIdentifier = { id: string } | string;

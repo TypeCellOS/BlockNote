@@ -52,7 +52,7 @@ export function createBlockSpec<
 >(
   blockConfig: BlockConfig<BType, PSchema, ContainsInlineContent>
 ): BlockSpec<BType, PSchema> {
-  const node = createTipTapNode({
+  const node = createTipTapBlock({
     name: blockConfig.type,
     content: blockConfig.containsInlineContent ? "inline*" : "",
 
@@ -140,7 +140,7 @@ export function createBlockSpec<
   };
 }
 
-export function createTipTapNode<
+export function createTipTapBlock<
   Type extends string,
   Options = any,
   Storage = any

@@ -10,7 +10,7 @@ import { getNodeById } from "../util/nodeUtil";
 
 export function insertBlocks<BSchema extends BlockSchema>(
   blocksToInsert: PartialBlock<BSchema>[],
-  referenceBlock: BlockIdentifier<BSchema>,
+  referenceBlock: BlockIdentifier,
   placement: "before" | "after" | "nested" = "before",
   editor: Editor
 ): void {
@@ -58,7 +58,7 @@ export function insertBlocks<BSchema extends BlockSchema>(
 }
 
 export function updateBlock<BSchema extends BlockSchema>(
-  blockToUpdate: BlockIdentifier<BSchema>,
+  blockToUpdate: BlockIdentifier,
   update: PartialBlock<BSchema>,
   editor: Editor
 ) {
@@ -69,8 +69,8 @@ export function updateBlock<BSchema extends BlockSchema>(
   editor.commands.BNUpdateBlock(posBeforeNode + 1, update);
 }
 
-export function removeBlocks<BSchema extends BlockSchema>(
-  blocksToRemove: BlockIdentifier<BSchema>[],
+export function removeBlocks(
+  blocksToRemove: BlockIdentifier[],
   editor: Editor
 ) {
   const idsOfBlocksToRemove = new Set<string>(
@@ -117,7 +117,7 @@ export function removeBlocks<BSchema extends BlockSchema>(
 }
 
 export function replaceBlocks<BSchema extends BlockSchema>(
-  blocksToRemove: BlockIdentifier<BSchema>[],
+  blocksToRemove: BlockIdentifier[],
   blocksToInsert: PartialBlock<BSchema>[],
   editor: Editor
 ) {

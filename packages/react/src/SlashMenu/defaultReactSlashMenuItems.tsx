@@ -58,10 +58,12 @@ const extraFields: Record<
   },
 };
 
-export const defaultReactSlashMenuItems: ReactSlashMenuItem<DefaultBlockSchema>[] =
-  defaultSlashMenuItems.map(
+export const defaultReactSlashMenuItems = <
+  BSchema extends DefaultBlockSchema
+>() =>
+  defaultSlashMenuItems<BSchema>().map(
     (item) =>
-      new ReactSlashMenuItem(
+      new ReactSlashMenuItem<BSchema>(
         item.name,
         item.execute,
         item.aliases,

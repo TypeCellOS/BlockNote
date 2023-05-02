@@ -34,10 +34,14 @@ export const TextAlignButton = <BSchema extends BlockSchema>(props: {
     const block = props.editor.getTextCursorPosition().block;
 
     if ("textAlignment" in block.props) {
-      !show && setShow(true);
+      if (!show) {
+        setShow(true);
+      }
       return block.props.textAlignment;
     } else {
-      show && setShow(false);
+      if (show) {
+        setShow(false);
+      }
       return "left";
     }
   }, [show, props]);

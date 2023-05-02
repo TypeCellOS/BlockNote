@@ -3,9 +3,9 @@ import { PartialBlock } from "../Blocks/api/blockTypes";
 import { BaseSlashMenuItem } from "./BaseSlashMenuItem";
 import { DefaultBlockSchema } from "../Blocks/api/defaultBlocks";
 
-function insertOrUpdateBlock(
-  editor: BlockNoteEditor<DefaultBlockSchema>,
-  block: PartialBlock<DefaultBlockSchema>
+function insertOrUpdateBlock<BSchema extends DefaultBlockSchema>(
+  editor: BlockNoteEditor<BSchema>,
+  block: PartialBlock<BSchema>
 ) {
   const currentBlock = editor.getTextCursorPosition().block;
 
@@ -25,42 +25,42 @@ function insertOrUpdateBlock(
 /**
  * An array containing commands for creating all default blocks.
  */
-export const defaultSlashMenuItems: BaseSlashMenuItem<DefaultBlockSchema>[] = [
+export const defaultSlashMenuItems = <BSchema extends DefaultBlockSchema>() => [
   // Command for creating a level 1 heading
-  new BaseSlashMenuItem(
+  new BaseSlashMenuItem<BSchema>(
     "Heading",
     (editor) =>
-      insertOrUpdateBlock(editor, {
+      insertOrUpdateBlock<BSchema>(editor, {
         type: "heading",
         props: { level: "1" },
-      }),
+      } as PartialBlock<BSchema>),
     ["h", "heading1", "h1"]
   ),
 
   // Command for creating a level 2 heading
-  new BaseSlashMenuItem(
+  new BaseSlashMenuItem<BSchema>(
     "Heading 2",
     (editor) =>
       insertOrUpdateBlock(editor, {
         type: "heading",
         props: { level: "2" },
-      }),
+      } as PartialBlock<BSchema>),
     ["h2", "heading2", "subheading"]
   ),
 
   // Command for creating a level 3 heading
-  new BaseSlashMenuItem(
+  new BaseSlashMenuItem<BSchema>(
     "Heading 3",
     (editor) =>
       insertOrUpdateBlock(editor, {
         type: "heading",
         props: { level: "3" },
-      }),
+      } as PartialBlock<BSchema>),
     ["h3", "heading3", "subheading"]
   ),
 
   // Command for creating an ordered list
-  new BaseSlashMenuItem(
+  new BaseSlashMenuItem<BSchema>(
     "Numbered List",
     (editor) =>
       insertOrUpdateBlock(editor, {
@@ -70,7 +70,7 @@ export const defaultSlashMenuItems: BaseSlashMenuItem<DefaultBlockSchema>[] = [
   ),
 
   // Command for creating a bullet list
-  new BaseSlashMenuItem(
+  new BaseSlashMenuItem<BSchema>(
     "Bullet List",
     (editor) =>
       insertOrUpdateBlock(editor, {
@@ -80,7 +80,7 @@ export const defaultSlashMenuItems: BaseSlashMenuItem<DefaultBlockSchema>[] = [
   ),
 
   // Command for creating a paragraph (pretty useless)
-  new BaseSlashMenuItem(
+  new BaseSlashMenuItem<BSchema>(
     "Paragraph",
     (editor) =>
       insertOrUpdateBlock(editor, {

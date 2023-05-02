@@ -145,7 +145,7 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
       blocks: newOptions.blockSchema,
     });
 
-    this.schema = newOptions.blockSchema || defaultBlockSchema;
+    this.schema = newOptions.blockSchema;
 
     let extensions = newOptions.disableHistoryExtension
       ? blockNoteExtensions.filter((e) => e.name !== "history")
@@ -225,7 +225,7 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
    * @returns The block that matches the identifier, or `undefined` if no matching block was found.
    */
   public getBlock(
-    blockIdentifier: BlockIdentifier<BSchema>
+    blockIdentifier: BlockIdentifier
   ): Block<BSchema> | undefined {
     const id =
       typeof blockIdentifier === "string"
@@ -369,7 +369,7 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
    * @param placement Whether the text cursor should be placed at the start or end of the block.
    */
   public setTextCursorPosition(
-    targetBlock: BlockIdentifier<BSchema>,
+    targetBlock: BlockIdentifier,
     placement: "start" | "end" = "start"
   ) {
     const id = typeof targetBlock === "string" ? targetBlock : targetBlock.id;
@@ -431,7 +431,7 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
    */
   public insertBlocks(
     blocksToInsert: PartialBlock<BSchema>[],
-    referenceBlock: BlockIdentifier<BSchema>,
+    referenceBlock: BlockIdentifier,
     placement: "before" | "after" | "nested" = "before"
   ): void {
     insertBlocks(blocksToInsert, referenceBlock, placement, this._tiptapEditor);
@@ -445,7 +445,7 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
    * @param update A partial block which defines how the existing block should be changed.
    */
   public updateBlock(
-    blockToUpdate: BlockIdentifier<BSchema>,
+    blockToUpdate: BlockIdentifier,
     update: PartialBlock<BSchema>
   ) {
     updateBlock(blockToUpdate, update, this._tiptapEditor);
@@ -455,7 +455,7 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
    * Removes existing blocks from the editor. Throws an error if any of the blocks could not be found.
    * @param blocksToRemove An array of identifiers for existing blocks that should be removed.
    */
-  public removeBlocks(blocksToRemove: BlockIdentifier<BSchema>[]) {
+  public removeBlocks(blocksToRemove: BlockIdentifier[]) {
     removeBlocks(blocksToRemove, this._tiptapEditor);
   }
 
@@ -467,7 +467,7 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
    * @param blocksToInsert An array of partial blocks to replace the old ones with.
    */
   public replaceBlocks(
-    blocksToRemove: BlockIdentifier<BSchema>[],
+    blocksToRemove: BlockIdentifier[],
     blocksToInsert: PartialBlock<BSchema>[]
   ) {
     replaceBlocks(blocksToRemove, blocksToInsert, this._tiptapEditor);
