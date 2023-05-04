@@ -12,11 +12,6 @@ function camelToDataKebab(str: string): string {
   return "data-" + str.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
 }
 
-function dataKebabToCamel(str: string): string {
-  const withoutData = str.replace(/^data-/, "");
-  return withoutData.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
-}
-
 // A function to create a "BlockSpec" from a tiptap node.
 // we use this to create the block specs for the built-in blocks
 
@@ -55,6 +50,7 @@ export function createBlockSpec<
   const node = createTipTapBlock({
     name: blockConfig.type,
     content: blockConfig.containsInlineContent ? "inline*" : "",
+    selectable: blockConfig.containsInlineContent,
 
     addAttributes() {
       const tiptapAttributes: Record<string, Attribute> = {};
@@ -63,6 +59,9 @@ export function createBlockSpec<
         tiptapAttributes[name] = {
           default: spec.default,
           keepOnSplit: true,
+          // Props are displayed in kebab-case as HTML attributes. If a prop's
+          // value is the same as its default, we don't display an HTML
+          // attribute for it.
           parseHTML: (element) => element.getAttribute(camelToDataKebab(name)),
           renderHTML: (attributes) =>
             attributes[name] !== spec.default
@@ -100,7 +99,7 @@ export function createBlockSpec<
     },
 
     // TODO, create node from render / inlineContent / other props from options
-    renderHTML({ HTMLAttributes }) {
+    renderHTML({ HTMLAttributes, node }) {
       // Create blockContent element
       const blockContent = document.createElement("div");
       // Add blockContent HTML attribute
@@ -110,16 +109,8 @@ export function createBlockSpec<
         blockContent.setAttribute(attribute, value);
       }
 
-      // Converting kebab-case props with "data-" prefix to camelCase
-      const props: Props<PSchema> = Object.fromEntries(
-        Object.entries<string>(HTMLAttributes).map(([attribute, value]) => [
-          dataKebabToCamel(attribute) as Props<PSchema>,
-          value,
-        ])
-      );
-
       // Render elements
-      const rendered = blockConfig.render(props);
+      const rendered = blockConfig.render(node.attrs as Props<PSchema>);
       // Add elements to blockContent
       blockContent.appendChild(rendered.dom);
 
