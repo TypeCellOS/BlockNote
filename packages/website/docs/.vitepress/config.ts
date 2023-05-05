@@ -184,9 +184,54 @@ function getHeadTags(env: NodeJS.ProcessEnv): HeadConfig[] {
     ],
     ["meta", { property: "og:type", content: "website" }],
     ["meta", { property: "og:title", content: "BlockNote" }],
-    // ["meta", { name: "twitter:card", content: "summary_large_image" }],
-    // ["meta", { name: "twitter:title", content: "BlockNote Docs" }],
-    // ["meta", { name: "twitter:site", content: "@TypeCellOS" }],
+    [
+      "meta",
+      {
+        property: "og:description",
+        content:
+          "A beautiful text editor that just works. Easily add an editor to your app that users will love. Customize it with your own functionality like custom blocks or AI tooling.",
+      },
+    ],
+    [
+      "meta",
+      {
+        property: "og:image",
+        content: "https://www.blocknotejs.org/api/og",
+      },
+    ],
+    [
+      "meta",
+      {
+        property: "og:image:alt",
+        content: "BlockNote logo",
+      },
+    ],
+    [
+      "meta",
+      {
+        property: "og:url",
+        content: "https://www.blocknotejs.org",
+      },
+    ],
+
+    [
+      "meta",
+      {
+        property: "twitter:card",
+        content: "summary_large_image",
+      },
+    ],
+    ["meta", { name: "twitter:title", content: "BlockNote" }],
+    [
+      "meta",
+      {
+        name: "twitter:description",
+        content:
+          "A beautiful text editor that just works. Easily add an editor to your app that users will love. Customize it with your own functionality like custom blocks or AI tooling.",
+      },
+    ],
+    ["meta", { name: "twitter:url", content: "https://www.blocknotejs.org" }],
+    ["meta", { name: "twitter:site", content: "@TypeCellOS" }],
   ];
 
   if (env.VITE_GTM_ID) {
