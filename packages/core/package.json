@@ -69,6 +69,7 @@
     "@tiptap/extension-underline": "2.0.0-beta.217",
     "@tiptap/pm": "2.0.0-beta.217",
     "hast-util-from-dom": "^4.2.0",
+    "i18next": "^22.4.15",
     "lodash": "^4.17.21",
     "rehype-parse": "^8.0.4",
     "rehype-remark": "^9.1.2",

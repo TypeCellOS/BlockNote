@@ -3,8 +3,9 @@ import { Node as ProsemirrorNode } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
 import { SlashMenuPluginKey } from "../SlashMenu/SlashMenuExtension";
+import i18next from "./localisation";
 
-const PLUGIN_KEY = new PluginKey(`blocknote-placeholder`);
+const PLUGIN_KEY = new PluginKey("blocknote-placeholder");
 
 /**
  * This is a modified version of the tiptap
@@ -33,14 +34,14 @@ export interface PlaceholderOptions {
 
 export const Placeholder = Extension.create<PlaceholderOptions>({
   name: "placeholder",
-
   addOptions() {
     return {
       emptyEditorClass: "is-editor-empty",
       emptyNodeClass: "is-empty",
       isFilterClass: "is-filter",
       hasAnchorClass: "has-anchor",
-      placeholder: "Write something …",
+      placeholder:
+        i18next.t("placeholder") || "Enter text or type '/' for commands",
       showOnlyWhenEditable: true,
       showOnlyCurrent: true,
       includeChildren: false,
@@ -84,37 +85,28 @@ export const Placeholder = Extension.create<PlaceholderOptions>({
                 if (menuState?.triggerCharacter === "" && menuState?.active) {
                   classes.push(this.options.isFilterClass);
                 }
-                // using widget, didn't work (caret position bug)
-                // const decoration = Decoration.widget(
-                //   pos + 1,
-                //   () => {
-                //     const el = document.createElement("span");
-                //     el.innerText = "hello";
-                //     return el;
-                //   },
-                //   { side: 0 }
 
-                // Code that sets variables / classes
-                // const ph =
-                //   typeof this.options.placeholder === "function"
-                //     ? this.options.placeholder({
-                //         editor: this.editor,
-                //         node,
-                //         pos,
-                //         hasAnchor,
-                //       })
-                //     : this.options.placeholder;
-                // const decoration = Decoration.node(pos, pos + node.nodeSize, {
-                //   class: classes.join(" "),
-                //   style: `--placeholder:'${ph.replaceAll("'", "\\'")}';`,
-                //   "data-placeholder": ph,
-                // });
-
-                // Latest version, only set isEmpty and hasAnchor, rest is done via CSS
-
+                const pph =
+                  typeof this.options.placeholder === "function"
+                    ? this.options.placeholder({
+                        editor: this.editor,
+                        node,
+                        pos,
+                        hasAnchor,
+                      })
+                    : this.options.placeholder;
+                const typePh: Record<string, string> = {
+                  paragraph: pph,
+                  heading: i18next.t("heading"),
+                  numberedListItem: i18next.t("list"),
+                  bulletListItem: i18next.t("list"),
+                };
+                const ph = typePh[node.type.name] || "";
                 const decoration = Decoration.node(pos, pos + node.nodeSize, {
                   class: classes.join(" "),
+                  style: `--placeholder:'${ph.replaceAll("'", "\\'")}';`,
                 });
+
                 decorations.push(decoration);
               }
 
