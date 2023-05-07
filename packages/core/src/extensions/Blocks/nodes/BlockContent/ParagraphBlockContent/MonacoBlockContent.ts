@@ -10,7 +10,7 @@ import TsWorker from "monaco-editor/esm/vs/language/typescript/ts.worker?worker"
 // @ts-ignore
 import { Node } from "@tiptap/pm/model";
 import { Selection, TextSelection, Transaction } from "@tiptap/pm/state";
-import { EditorView } from "@tiptap/pm/view";
+import { Decoration, DecorationSource, EditorView } from "@tiptap/pm/view";
 import CSSWorker from "monaco-editor/esm/vs/language/css/css.worker?worker";
 
 import { keymap } from "prosemirror-keymap";
@@ -133,7 +133,7 @@ export const MonacoBlockContent = createTipTapBlock({
       decorations,
       extension,
     }) => {
-      console.log("new monaco");
+      console.log("new monaco", decorations);
       theNode = node;
       const dom = document.createElement("div");
       dom.style.height = "500px";
@@ -272,8 +272,8 @@ export const MonacoBlockContent = createTipTapBlock({
       return {
         dom,
 
-        update(node, decorations) {
-          console.log("update incoming", decorations);
+        update(node, decorations, innerDecorations: DecorationSource) {
+          console.log("update incoming", decorations, innerDecorations);
           if (node.type !== theNode.type) {
             return false;
           }
@@ -286,40 +286,115 @@ export const MonacoBlockContent = createTipTapBlock({
 
           let newText = node.textContent;
           let curText = modal.getValue();
-          if (newText === curText) {
-            console.log("same");
-            return true;
+          if (newText !== curText) {
+            let start = 0,
+              curEnd = curText.length,
+              newEnd = newText.length;
+            while (
+              start < curEnd &&
+              curText.charCodeAt(start) === newText.charCodeAt(start)
+            ) {
+              ++start;
+            }
+            while (
+              curEnd > start &&
+              newEnd > start &&
+              curText.charCodeAt(curEnd - 1) == newText.charCodeAt(newEnd - 1)
+            ) {
+              curEnd--;
+              newEnd--;
+            }
+
+            updating = true;
+            modal.applyEdits([
+              {
+                range: monaco.Range.fromPositions(
+                  modal.getPositionAt(start),
+                  modal.getPositionAt(curEnd)
+                ),
+                text: newText.slice(start, newEnd),
+              },
+            ]);
           }
 
-          let start = 0,
-            curEnd = curText.length,
-            newEnd = newText.length;
-          while (
-            start < curEnd &&
-            curText.charCodeAt(start) === newText.charCodeAt(start)
-          ) {
-            ++start;
-          }
-          while (
-            curEnd > start &&
-            newEnd > start &&
-            curText.charCodeAt(curEnd - 1) == newText.charCodeAt(newEnd - 1)
-          ) {
-            curEnd--;
-            newEnd--;
-          }
-
-          updating = true;
-          mon.getModel()!.applyEdits([
-            {
-              range: monaco.Range.fromPositions(
-                modal.getPositionAt(start),
-                modal.getPositionAt(curEnd)
+          const newDecorations: monaco.editor.IModelDeltaDecoration[] = [];
+          ((innerDecorations as any).local as Decoration[]).forEach((deco) => {
+            if (
+              (deco as any).type?.attrs?.class !== "ProseMirror-yjs-selection"
+            ) {
+              return;
+            }
+            let start: monaco.Position;
+            let end: monaco.Position;
+            let afterContentClassName: string | undefined;
+            let beforeContentClassName: string | undefined;
+            const clientID = "sdfdsf";
+            if (deco.from < deco.to) {
+              start = modal.getPositionAt(deco.from);
+              end = modal.getPositionAt(deco.to);
+              afterContentClassName =
+                "yRemoteSelectionHead yRemoteSelectionHead-" + clientID;
+            } else {
+              start = modal.getPositionAt(deco.to);
+              end = modal.getPositionAt(deco.from);
+              beforeContentClassName =
+                "yRemoteSelectionHead yRemoteSelectionHead-" + clientID;
+            }
+            newDecorations.push({
+              range: new monaco.Range(
+                start.lineNumber,
+                start.column,
+                end.lineNumber,
+                end.column
               ),
-              text: newText.slice(start, newEnd),
-            },
-          ]);
+              options: {
+                className: "yRemoteSelection yRemoteSelection-" + clientID,
+                afterContentClassName,
+                beforeContentClassName,
+              },
+            });
+            console.log("range", {
+              range: new monaco.Range(
+                start.lineNumber,
+                start.column,
+                end.lineNumber,
+                end.column
+              ),
+            });
+            // debugger;
+          });
+
+          const collection = mon.createDecorationsCollection(newDecorations);
+          // TODO: update / clear decorations?
+          console.log(collection);
+          // mon.deltaDecorations
           updating = false;
+
+          /*
+          const anchorAbs = Y.createAbsolutePositionFromRelativePosition(state.selection.anchor, this.doc)
+          const headAbs = Y.createAbsolutePositionFromRelativePosition(state.selection.head, this.doc)
+          if (anchorAbs !== null && headAbs !== null && anchorAbs.type === ytext && headAbs.type === ytext) {
+            let start, end, afterContentClassName, beforeContentClassName
+            if (anchorAbs.index < headAbs.index) {
+              start = monacoModel.getPositionAt(anchorAbs.index)
+              end = monacoModel.getPositionAt(headAbs.index)
+              afterContentClassName = 'yRemoteSelectionHead yRemoteSelectionHead-' + clientID
+              beforeContentClassName = null
+            } else {
+              start = monacoModel.getPositionAt(headAbs.index)
+              end = monacoModel.getPositionAt(anchorAbs.index)
+              afterContentClassName = null
+              beforeContentClassName = 'yRemoteSelectionHead yRemoteSelectionHead-' + clientID
+            }
+            newDecorations.push({
+              range: new monaco.Range(start.lineNumber, start.column, end.lineNumber, end.column),
+              options: {
+                className: 'yRemoteSelection yRemoteSelection-' + clientID,
+                afterContentClassName,
+                beforeContentClassName
+              }
+            })
+*/
 
           return true;
         },

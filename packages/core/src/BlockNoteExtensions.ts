@@ -76,7 +76,7 @@ export const getBlockNoteExtensions = <BSchema extends BlockSchema>(opts: {
       provider: provider,
       user: {
         name: "Cyndi Lauper",
-        color: "#f783" + Math.floor(Math.random() * 90) + 10,
+        color: "#f78300", // + Math.floor(Math.random() * 90) + 10,
       },
     }),
 
