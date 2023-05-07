@@ -4,6 +4,8 @@ import { BlockNoteEditor } from "./BlockNoteEditor";
 
 import { Bold } from "@tiptap/extension-bold";
 import { Code } from "@tiptap/extension-code";
+import { Collaboration } from "@tiptap/extension-collaboration";
+import { CollaborationCursor } from "@tiptap/extension-collaboration-cursor";
 import { Dropcursor } from "@tiptap/extension-dropcursor";
 import { Gapcursor } from "@tiptap/extension-gapcursor";
 import { HardBreak } from "@tiptap/extension-hard-break";
@@ -13,6 +15,8 @@ import { Link } from "@tiptap/extension-link";
 import { Strike } from "@tiptap/extension-strike";
 import { Text } from "@tiptap/extension-text";
 import { Underline } from "@tiptap/extension-underline";
+import { WebrtcProvider } from "y-webrtc";
+import * as Y from "yjs";
 import { BackgroundColorExtension } from "./extensions/BackgroundColor/BackgroundColorExtension";
 import { BackgroundColorMark } from "./extensions/BackgroundColor/BackgroundColorMark";
 import { blocks } from "./extensions/Blocks";
@@ -43,6 +47,12 @@ export type UiFactories<BSchema extends BlockSchema> = Partial<{
   blockSideMenuFactory: BlockSideMenuFactory<BSchema>;
 }>;
 
+const doc = new Y.Doc();
+const provider = new WebrtcProvider(
+  "tiptap-collaboration-cursor-extension",
+  doc
+);
+
 /**
  * Get all the Tiptap extensions BlockNote is configured with by default
  */
@@ -58,6 +68,17 @@ export const getBlockNoteExtensions = <BSchema extends BlockSchema>(opts: {
     extensions.Editable,
     extensions.FocusEvents,
     extensions.Tabindex,
+
+    Collaboration.configure({
+      document: doc,
+    }),
+    CollaborationCursor.configure({
+      provider: provider,
+      user: {
+        name: "Cyndi Lauper",
+        color: "#f783" + Math.floor(Math.random() * 90) + 10,
+      },
+    }),
 
     // DevTools,
     Gapcursor,

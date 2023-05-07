@@ -8,8 +8,8 @@ import { DependencyList, useEffect, useState } from "react";
 import { ReactBlockSideMenuFactory } from "../BlockSideMenu/BlockSideMenuFactory";
 import { ReactFormattingToolbarFactory } from "../FormattingToolbar/FormattingToolbarFactory";
 import { ReactHyperlinkToolbarFactory } from "../HyperlinkToolbar/HyperlinkToolbarFactory";
-import { ReactSlashMenuFactory } from "../SlashMenu/SlashMenuFactory";
 import { defaultReactSlashMenuItems } from "../SlashMenu/defaultReactSlashMenuItems";
+import { ReactSlashMenuFactory } from "../SlashMenu/SlashMenuFactory";
 
 //based on https://github.com/ueberdosis/tiptap/blob/main/packages/react/src/useEditor.ts
 
@@ -35,7 +35,7 @@ export const useBlockNote = <BSchema extends BlockSchema = DefaultBlockSchema>(
     //  but it would have to be on several different classes (BlockNoteEditor, BlockNoteEditorOptions, UiFactories) and
     //  gets messy quick.
     let newOptions: Record<any, any> = {
-      slashCommands: defaultReactSlashMenuItems,
+      slashCommands: defaultReactSlashMenuItems<any>(),
       ...options,
     };
     if (!newOptions.uiFactories) {

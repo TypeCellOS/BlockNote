@@ -1,10 +1,8 @@
-import { formatKeyboardShortcut } from "../utils";
 import {
-  defaultSlashMenuItems,
   BaseSlashMenuItem,
   DefaultBlockSchema,
+  defaultSlashMenuItems,
 } from "@blocknote/core";
-import { ReactSlashMenuItem } from "./ReactSlashMenuItem";
 import {
   RiH1,
   RiH2,
@@ -13,6 +11,8 @@ import {
   RiListUnordered,
   RiText,
 } from "react-icons/ri";
+import { formatKeyboardShortcut } from "../utils";
+import { ReactSlashMenuItem } from "./ReactSlashMenuItem";
 const extraFields: Record<
   string,
   Omit<
@@ -54,6 +54,12 @@ const extraFields: Record<
     group: "Basic blocks",
     icon: <RiText size={18} />,
     hint: "Used for the body of your document",
+    shortcut: formatKeyboardShortcut("Mod-Alt-0"),
+  },
+  Monaco: {
+    group: "Basic blocks",
+    icon: <RiText size={18} />,
+    hint: "mmm",
     shortcut: formatKeyboardShortcut("Mod-Alt-0"),
   },
 };

@@ -1,7 +1,7 @@
 import { BlockNoteEditor } from "../../BlockNoteEditor";
 import { PartialBlock } from "../Blocks/api/blockTypes";
-import { BaseSlashMenuItem } from "./BaseSlashMenuItem";
 import { DefaultBlockSchema } from "../Blocks/api/defaultBlocks";
+import { BaseSlashMenuItem } from "./BaseSlashMenuItem";
 
 function insertOrUpdateBlock<BSchema extends DefaultBlockSchema>(
   editor: BlockNoteEditor<BSchema>,
@@ -87,6 +87,14 @@ export const defaultSlashMenuItems = <BSchema extends DefaultBlockSchema>() => [
         type: "paragraph",
       }),
     ["p"]
+  ),
+  new BaseSlashMenuItem<BSchema>(
+    "Monaco",
+    (editor) =>
+      insertOrUpdateBlock(editor, {
+        type: "monaco",
+      }),
+    ["m"]
   ),
 
   //     replaceRangeWithNode(editor, range, node);
