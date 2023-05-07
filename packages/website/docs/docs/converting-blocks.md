@@ -1,3 +1,10 @@
+---
+title: Markdown & HTML
+description: It's possible to export or import Blocks to and from Markdown and HTML.
+imageTitle: Markdown & HTML
+path: /docs/converting-blocks
+---
+
 # Markdown & HTML
 
 It's possible to export or import Blocks to and from Markdown and HTML.

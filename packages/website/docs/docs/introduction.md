@@ -1,3 +1,9 @@
+---
+title: Introduction to BlockNote
+imageTitle: Introduction to BlockNote
+path: /docs/introduction
+---
+
 # Introduction to BlockNote
 
 <div><a href="https://www.npmjs.com/package/@blocknote/core"><img style="display: inline" alt="NPM" src="https://img.shields.io/npm/v/@blocknote/react"></a> <a href="https://github.com/TypeCellOS/BlockNote"><img style="display: inline" alt="GitHub Repo stars" src="https://img.shields.io/github/stars/TypeCellOS/BlockNote?style=social"></a></div>

@@ -1,3 +1,10 @@
+---
+title: Inline Content
+description: An array of InlineContent objects is used to describe the rich text content inside a block. Inline content can either be styled text or a link, and we'll go over both these in the upcoming sections.
+imageTitle: Inline Content
+path: /docs/inline-content
+---
+
 # Inline Content
 
 An array of `InlineContent` objects is used to describe the rich text content inside a block. Inline content can either be styled text or a link, and we'll go over both these in the upcoming sections.

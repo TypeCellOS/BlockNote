@@ -1,3 +1,10 @@
+---
+title: Formatting Toolbar
+description: The Formatting Toolbar appears whenever you highlight text in the editor, and is mainly used for styling.
+imageTitle: Formatting Toolbar
+path: /docs/formatting-toolbar
+---
+
 # Formatting Toolbar
 
 The Formatting Toolbar appears whenever you highlight text in the editor, and is mainly used for styling.
