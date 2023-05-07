@@ -262,9 +262,9 @@ function transformHead({ pageData }: TransformContext): HeadConfig[] {
     "meta",
     {
       property: "og:image",
-      content: pageData.frontmatter.imagePath
-        ? `${METADATA_DEFAULT.baseUrl}${encodeURI(
-            pageData.frontmatter.imagePath
+      content: pageData.frontmatter.imageTitle
+        ? `${METADATA_DEFAULT.baseUrl}/api/og?title=${encodeURIComponent(
+            pageData.frontmatter.imageTitle
           )}`
         : METADATA_DEFAULT.image,
     },
