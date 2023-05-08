@@ -1,6 +1,7 @@
 /** Define the main block types **/
 import { Node, NodeConfig } from "@tiptap/core";
 import { InlineContent, PartialInlineContent } from "./inlineContentTypes";
+import { BlockNoteEditor } from "../../../BlockNoteEditor";
 
 // A configuration for a TipTap node, but with stricter type constraints on the
 // "name" and "group" properties. The "name" property is now always a string
@@ -61,7 +62,8 @@ export type Props<PSchema extends PropSchema> = {
 export type BlockConfig<
   Type extends string,
   PSchema extends PropSchema,
-  ContainsInlineContent extends boolean
+  ContainsInlineContent extends boolean,
+  BSchema extends BlockSchema
 > = {
   // Attributes to define block in the API as well as a TipTap node.
   type: Type;
@@ -71,8 +73,14 @@ export type BlockConfig<
   containsInlineContent: ContainsInlineContent;
   parse?: (element: HTMLElement) => Props<PSchema>;
   render: ContainsInlineContent extends true
-    ? (props: Props<PSchema>) => { dom: HTMLElement; contentDOM: HTMLElement }
-    : (props: Props<PSchema>) => { dom: HTMLElement };
+    ? (
+        block: () => Block<BSchema>,
+        editor: BlockNoteEditor<BSchema>
+      ) => { dom: HTMLElement; contentDOM: HTMLElement }
+    : (
+        block: () => Block<BSchema>,
+        editor: BlockNoteEditor<BSchema>
+      ) => { dom: HTMLElement };
 };
 
 // Defines a single block spec, which includes the props that the block has and
