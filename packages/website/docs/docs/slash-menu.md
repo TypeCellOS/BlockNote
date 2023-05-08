@@ -44,7 +44,11 @@ BlockNote comes with a variety of built-in Slash Menu items, which are used to c
 If you want to change, remove & reorder the default items , you first import and copy them to a new array. From there, you can edit the array how you like, then pass it to `useBlockNote`:
 
 ```typescript
-import { BlockNoteView, useBlockNote, defaultReactSlashMenuItems } from "@blocknote/react";
+import { 
+  BlockNoteView,
+  defaultReactSlashMenuItems,
+  useBlockNote
+} from "@blocknote/react";
 import "@blocknote/core/style.css";
 
 function App() {
