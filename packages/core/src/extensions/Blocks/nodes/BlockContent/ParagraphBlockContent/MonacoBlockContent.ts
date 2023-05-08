@@ -269,6 +269,7 @@ export const MonacoBlockContent = createTipTapBlock({
           return;
         }
       });
+      let lastDecorations: string[] = [];
       return {
         dom,
 
@@ -317,6 +318,7 @@ export const MonacoBlockContent = createTipTapBlock({
             ]);
           }
 
+          // TODO: take widget decoration as base
           const newDecorations: monaco.editor.IModelDeltaDecoration[] = [];
           ((innerDecorations as any).local as Decoration[]).forEach((deco) => {
             if (
@@ -329,6 +331,7 @@ export const MonacoBlockContent = createTipTapBlock({
             let afterContentClassName: string | undefined;
             let beforeContentClassName: string | undefined;
             const clientID = "sdfdsf";
+            debugger;
             if (deco.from < deco.to) {
               start = modal.getPositionAt(deco.from);
               end = modal.getPositionAt(deco.to);
@@ -364,9 +367,13 @@ export const MonacoBlockContent = createTipTapBlock({
             // debugger;
           });
 
-          const collection = mon.createDecorationsCollection(newDecorations);
+          lastDecorations = mon.deltaDecorations(
+            lastDecorations,
+            newDecorations
+          );
+          // const collection = mon.createDecorationsCollection(newDecorations);
           // TODO: update / clear decorations?
-          console.log(collection);
+          // console.log(collection);
           // mon.deltaDecorations
           updating = false;
 

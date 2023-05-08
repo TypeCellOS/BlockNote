@@ -3,3 +3,34 @@ body,
 #root {
   height: 100%;
 }
+
+.yRemoteSelection {
+  position: relative;
+  background-color: rgb(250, 129, 0);
+  opacity: 0.5;
+}
+
+.yRemoteSelectionHead {
+  position: absolute;
+  border-left: orange solid 2px;
+  border-top: orange solid 2px;
+  border-bottom: orange solid 2px;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.yRemoteSelectionHead::after {
+  box-sizing: border-box;
+  z-index: 10000;
+  opacity: 1;
+  position: absolute;
+  left: -2px;
+  top: 100%;
+  border-radius: 3px;
+  border-top-left-radius: 0;
+  padding: 0 5px;
+  color: #0d0d0d;
+  content: "test name";
+  background-color: orange !important;
+  border-color: orange !important;
+}
