@@ -49,8 +49,11 @@ export function createBlockSpec<
   BSchema extends BlockSchema
 >(
   blockConfig: BlockConfig<BType, PSchema, ContainsInlineContent, BSchema>
-): BlockSpec<BType, PSchema, {editor: BlockNoteEditor<BSchema> | undefined}> {
-  const node = createTipTapBlock<BType, {editor: BlockNoteEditor<BSchema> | undefined}>({
+): BlockSpec<BType, PSchema, { editor: BlockNoteEditor<BSchema> | undefined }> {
+  const node = createTipTapBlock<
+    BType,
+    { editor: BlockNoteEditor<BSchema> | undefined }
+  >({
     name: blockConfig.type,
     content: blockConfig.containsInlineContent ? "inline*" : "",
     selectable: blockConfig.containsInlineContent,
@@ -80,14 +83,8 @@ export function createBlockSpec<
 
     addOptions() {
       return {
-        editor: undefined
-      }
-    },
-
-    addStorage() {
-      return {
-        output: []
-      }
+        editor: undefined,
+      };
     },
 
     parseHTML() {
@@ -112,7 +109,7 @@ export function createBlockSpec<
               getAttrs: (node: HTMLElement | string) => {
                 console.log(node);
                 return false;
-              }
+              },
             },
             {
               tag: "div[data-content-type=" + blockConfig.type + "]",
@@ -124,8 +121,10 @@ export function createBlockSpec<
           ];
     },
 
-    // TODO, create node from render / inlineContent / other props from options
-    renderHTML({ HTMLAttributes, node }) {
+    // TODO: Do we need renderHTML if we have a node view? Doesn't seem like it
+    //  makes sense but throws an error if ctrl+A and ctrl+C if it's not
+    //  implemented.
+    renderHTML({ HTMLAttributes }) {
       // Create blockContent element
       const blockContent = document.createElement("div");
       // Add blockContent HTML attribute
@@ -137,10 +136,22 @@ export function createBlockSpec<
 
       // Gets BlockNote editor instance
       const editor = this.options.editor!;
-      // const block = ;
+
+      // Quite hacky but don't think there's a better way to do this. Since the
+      // contentDOM can be anywhere inside the DOM, we don't know which element
+      // it is. Calling render() will give us the contentDOM, but we need to
+      // provide a block as a parameter.
+      const getDummyBlock: () => Block<BlockSchema> = () =>
+        ({
+          id: "",
+          type: "",
+          props: {},
+          content: [],
+          children: [],
+        } as Block<BlockSchema>);
 
       // Render elements
-      const rendered = blockConfig.render(undefined as any, editor);
+      const rendered = blockConfig.render(getDummyBlock, editor);
       // Add elements to blockContent
       blockContent.appendChild(rendered.dom);
 
@@ -155,7 +166,7 @@ export function createBlockSpec<
     },
 
     addNodeView() {
-      return ({HTMLAttributes, getPos}) => {
+      return ({ HTMLAttributes, getPos }) => {
         // Create blockContent element
         const blockContent = document.createElement("div");
         // Add blockContent HTML attribute
@@ -176,7 +187,8 @@ export function createBlockSpec<
         // Gets block identifier
         const blockIdentifier = blockContainer.attrs.id;
         // Function to get the block
-        const getBlock: () => Block<BSchema> = () => editor.getBlock(blockIdentifier)!;
+        const getBlock: () => Block<BSchema> = () =>
+          editor.getBlock(blockIdentifier)!;
 
         // Render elements
         const rendered = blockConfig.render(getBlock, editor);
@@ -191,8 +203,8 @@ export function createBlockSpec<
               ? (rendered.contentDOM as HTMLDivElement)
               : undefined,
         };
-      }
-    }
+      };
+    },
   });
 
   return {
