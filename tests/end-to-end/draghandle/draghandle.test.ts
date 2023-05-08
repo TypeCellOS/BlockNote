@@ -134,6 +134,8 @@ test.describe("Check Draghandle functionality", () => {
   test("Click add button for non-selected empty block", async () => {
     await executeSlashCommand(page, "h1");
     await page.keyboard.type("Heading 1");
+    // Wait for animation to finish
+    await page.waitForTimeout(350);
     await hoverAndAddBlockFromDragHandle(page, PARAGRAPH_SELECTOR, "h1");
 
     await compareDocToSnapshot(page, "addnonselectedemptyblock");
