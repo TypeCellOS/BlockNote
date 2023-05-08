@@ -48,6 +48,24 @@ export const BlockContainer = Node.create<IBlock>({
   priority: 50,
   defining: true,
 
+  addAttributes() {
+    return {
+      hidden: {
+        default: "false",
+        parseHTML: (element) => {
+          return {
+            hidden: element.hasAttribute("hidden") ? "true" : "false"
+          };
+        },
+        renderHTML: (attributes) => {
+          return attributes.hidden === "true" ? {
+            "hidden": "",
+          } : {};
+        },
+      },
+    };
+  },
+
   addOptions() {
     return {
       HTMLAttributes: {},

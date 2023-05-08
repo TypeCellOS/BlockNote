@@ -42,13 +42,13 @@ export const defaultBlockSchema = {
 
 const imageProps = { src: { default: "gfr" } } as const;
 export const onlyImageBlockSchema = {
-  image: createBlockSpec<"image", typeof imageProps, false>({
+  image: createBlockSpec({
     type: "image",
     propSchema: imageProps,
     containsInlineContent: false,
-    render: (props) => {
+    render: (block) => {
       const img = document.createElement("img");
-      img.setAttribute("src", props.src);
+      img.setAttribute("src", block().props.src);
       return { dom: img };
     },
   }),

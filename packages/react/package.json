@@ -43,7 +43,8 @@
     "build": "tsc && vite build",
     "build-bundled": "tsc && vite build --config vite.config.bundled.ts && git checkout tmp-releases && rm -rf ../../release && mv ../../release-tmp ../../release",
     "preview": "vite preview",
-    "lint": "eslint src --max-warnings 0"
+    "lint": "eslint src --max-warnings 0",
+    "test-ct": "playwright test -c playwright-ct.config.ts"
   },
   "dependencies": {
     "@blocknote/core": "^0.5.1",
@@ -55,6 +56,8 @@
     "react-icons": "^4.3.1"
   },
   "devDependencies": {
+    "@playwright/experimental-ct-react": "^1.33.0",
+    "@playwright/test": "^1.33.0",
     "@types/react": "^18.0.25",
     "@types/react-dom": "^18.0.9",
     "@vitejs/plugin-react": "^3.1.0",

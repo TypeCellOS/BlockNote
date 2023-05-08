@@ -109,7 +109,7 @@ const blockNoteTipTapOptions = {
 
 export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
   public readonly _tiptapEditor: TiptapEditor & { contentComponent: any };
-  private blockCache = new WeakMap<Node, Block<BSchema>>();
+  public blockCache = new WeakMap<Node, Block<BSchema>>();
   private mousePos = { x: 0, y: 0 };
   public readonly schema: BSchema;
 
