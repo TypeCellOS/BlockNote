@@ -1,0 +1,71 @@
+diff --git a/node_modules/y-prosemirror/dist/y-prosemirror.cjs b/node_modules/y-prosemirror/dist/y-prosemirror.cjs
+index 7459f68..55fa980 100644
+--- a/node_modules/y-prosemirror/dist/y-prosemirror.cjs
++++ b/node_modules/y-prosemirror/dist/y-prosemirror.cjs
+@@ -1345,10 +1345,10 @@ const createDecorations = (state, awareness, createCursor, createSelection) => {
+         const maxsize = math__namespace.max(state.doc.content.size - 1, 0);
+         anchor = math__namespace.min(anchor, maxsize);
+         head = math__namespace.min(head, maxsize);
+-        decorations.push(prosemirrorView.Decoration.widget(head, () => createCursor(user), { key: clientId + '', side: 10 }));
++        decorations.push(prosemirrorView.Decoration.widget(head, () => createCursor(user), { type: "cursor", key: clientId + '', side: 10, clientId: clientId + '' }));
+         const from = math__namespace.min(anchor, head);
+         const to = math__namespace.max(anchor, head);
+-        decorations.push(prosemirrorView.Decoration.inline(from, to, createSelection(user), { inclusiveEnd: true, inclusiveStart: false }));
++        decorations.push(prosemirrorView.Decoration.inline(from, to, createSelection(user), { type: "selection", inclusiveEnd: true, inclusiveStart: false, clientId: clientId + '' }));
+       }
+     }
+   });
+@@ -1396,13 +1396,14 @@ const yCursorPlugin = (awareness, { cursorBuilder = defaultCursorBuilder, select
+       }
+     };
+     const updateCursorInfo = () => {
++
+       const ystate = ySyncPluginKey.getState(view.state);
+       // @note We make implicit checks when checking for the cursor property
+       const current = awareness.getLocalState() || {};
+       if (ystate.binding == null) {
+         return
+       }
+-      if (view.hasFocus()) {
++      if (view.hasFocus() || view.dom.contains(document.activeElement)) {
+         const selection = getSelection(view.state);
+         /**
+          * @type {Y.RelativePosition}
+diff --git a/node_modules/y-prosemirror/src/plugins/cursor-plugin.js b/node_modules/y-prosemirror/src/plugins/cursor-plugin.js
+index 91a920f..682c04d 100644
+--- a/node_modules/y-prosemirror/src/plugins/cursor-plugin.js
++++ b/node_modules/y-prosemirror/src/plugins/cursor-plugin.js
+@@ -1,8 +1,8 @@
+ 
++import { Plugin } from 'prosemirror-state'; // eslint-disable-line
++import { Decoration, DecorationSet } from 'prosemirror-view'; // eslint-disable-line
++import { Awareness } from 'y-protocols/awareness'; // eslint-disable-line
+ import * as Y from 'yjs'
+-import { Decoration, DecorationSet } from 'prosemirror-view' // eslint-disable-line
+-import { Plugin } from 'prosemirror-state' // eslint-disable-line
+-import { Awareness } from 'y-protocols/awareness' // eslint-disable-line
+ import { absolutePositionToRelativePosition, relativePositionToAbsolutePosition, setMeta } from '../lib.js'
+ import { yCursorPluginKey, ySyncPluginKey } from './keys.js'
+ 
+@@ -78,10 +78,10 @@ export const createDecorations = (state, awareness, createCursor, createSelectio
+         const maxsize = math.max(state.doc.content.size - 1, 0)
+         anchor = math.min(anchor, maxsize)
+         head = math.min(head, maxsize)
+-        decorations.push(Decoration.widget(head, () => createCursor(user), { key: clientId + '', side: 10 }))
++        decorations.push(Decoration.widget(head, () => createCursor(user), { type: "cursor", key: clientId + '', side: 10, clientId: clientId + '' }));
+         const from = math.min(anchor, head)
+         const to = math.max(anchor, head)
+-        decorations.push(Decoration.inline(from, to, createSelection(user), { inclusiveEnd: true, inclusiveStart: false }))
++        decorations.push(Decoration.inline(from, to, createSelection(user), { type: "selection", inclusiveEnd: true, inclusiveStart: false, clientId: clientId + '' }));
+       }
+     }
+   })
+@@ -135,7 +135,7 @@ export const yCursorPlugin = (awareness, { cursorBuilder = defaultCursorBuilder,
+       if (ystate.binding == null) {
+         return
+       }
+-      if (view.hasFocus()) {
++      if (view.hasFocus() || view.dom.contains(document.activeElement)) {
+         const selection = getSelection(view.state)
+         /**
+          * @type {Y.RelativePosition}

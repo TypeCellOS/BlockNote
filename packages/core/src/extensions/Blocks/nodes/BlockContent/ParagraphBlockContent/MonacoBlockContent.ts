@@ -318,9 +318,62 @@ export const MonacoBlockContent = createTipTapBlock({
             ]);
           }
 
-          // TODO: take widget decoration as base
           const newDecorations: monaco.editor.IModelDeltaDecoration[] = [];
-          ((innerDecorations as any).local as Decoration[]).forEach((deco) => {
+          const decs = (innerDecorations as any).local as Decoration[];
+
+          decs
+            .filter((d) => d.spec.type === "cursor")
+            .forEach((cursorDec) => {
+              const selectionDec = decs.find(
+                (d) =>
+                  d.spec.type === "selection" &&
+                  d.spec.clientID === cursorDec.spec.clientID
+              );
+
+              let start: monaco.Position;
+              let end: monaco.Position;
+              let afterContentClassName: string | undefined;
+              let beforeContentClassName: string | undefined;
+
+              const to = cursorDec.to;
+              const from = selectionDec
+                ? selectionDec.from === to
+                  ? selectionDec.to
+                  : selectionDec.from
+                : to;
+
+              if (from < to) {
+                start = modal.getPositionAt(from);
+                end = modal.getPositionAt(to);
+                afterContentClassName =
+                  "yRemoteSelectionHead yRemoteSelectionHead-" +
+                  cursorDec.spec.clientID;
+              } else {
+                start = modal.getPositionAt(to);
+                end = modal.getPositionAt(from);
+                beforeContentClassName =
+                  "yRemoteSelectionHead yRemoteSelectionHead-" +
+                  cursorDec.spec.clientID;
+              }
+              newDecorations.push({
+                range: new monaco.Range(
+                  start.lineNumber,
+                  start.column,
+                  end.lineNumber,
+                  end.column
+                ),
+                options: {
+                  className:
+                    "yRemoteSelection yRemoteSelection-" +
+                    cursorDec.spec.clientID,
+                  afterContentClassName,
+                  beforeContentClassName,
+                },
+              });
+            });
+          // TODO: take widget decoration as base
+
+          /*decs.forEach((deco) => {
             if (
               (deco as any).type?.attrs?.class !== "ProseMirror-yjs-selection"
             ) {
@@ -331,7 +384,7 @@ export const MonacoBlockContent = createTipTapBlock({
             let afterContentClassName: string | undefined;
             let beforeContentClassName: string | undefined;
             const clientID = "sdfdsf";
-            debugger;
+
             if (deco.from < deco.to) {
               start = modal.getPositionAt(deco.from);
               end = modal.getPositionAt(deco.to);
@@ -365,7 +418,7 @@ export const MonacoBlockContent = createTipTapBlock({
               ),
             });
             // debugger;
-          });
+          });*/
 
           lastDecorations = mon.deltaDecorations(
             lastDecorations,
