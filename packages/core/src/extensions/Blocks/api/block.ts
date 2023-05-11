@@ -110,9 +110,6 @@ export function createBlockSpec<
           ];
     },
 
-    // TODO: Do we need renderHTML if we have a node view? Doesn't seem like it
-    //  makes sense but throws an error if ctrl+A and ctrl+C if it's not
-    //  implemented.
     renderHTML({ HTMLAttributes }) {
       // Create blockContent element
       const blockContent = document.createElement("div");
@@ -123,34 +120,45 @@ export function createBlockSpec<
         blockContent.setAttribute(attribute, value);
       }
 
-      // Gets BlockNote editor instance
-      const editor = this.options.editor!;
+      // TODO: This only works for content copied within BlockNote.
+      // Creates contentDOM element to serialize inline content into.
+      let contentDOM: HTMLDivElement | undefined;
+      if (blockConfig.containsInlineContent) {
+        contentDOM = document.createElement("div");
+        blockContent.appendChild(contentDOM);
+      } else {
+        contentDOM = undefined;
+      }
 
-      // Quite hacky but don't think there's a better way to do this. Since the
-      // contentDOM can be anywhere inside the DOM, we don't know which element
-      // it is. Calling render() will give us the contentDOM, but we need to
-      // provide a block as a parameter.
-      const getDummyBlock: () => Block<BlockSchema> = () =>
-        ({
-          id: "",
-          type: "",
-          props: {},
-          content: [],
-          children: [],
-        } as Block<BlockSchema>);
-
-      // Render elements
-      const rendered = blockConfig.render(getDummyBlock, editor);
-      // Add elements to blockContent
-      blockContent.appendChild(rendered.dom);
+      // Alternative approach to serializing the block.
+      // // Gets BlockNote editor instance
+      // const editor = this.options.editor!;
+      //
+      // // Quite hacky but don't think there's a better way to do this. Since the
+      // // contentDOM can be anywhere inside the DOM, we don't know which element
+      // // it is. Calling render() will give us the contentDOM, but we need to
+      // // provide a block as a parameter.
+      // const getDummyBlock: () => Block<BlockSchema> = () =>
+      //   ({
+      //     id: "",
+      //     type: "",
+      //     props: {},
+      //     content: [],
+      //     children: [],
+      //   } as Block<BlockSchema>);
+      //
+      // // Render elements
+      // const rendered = blockConfig.render(getDummyBlock, editor);
+      // // Add elements to blockContent
+      // blockContent.appendChild(rendered.dom);
+      //
+      // const contentDOM = blockConfig.containsInlineContent
+      //   ? rendered.contentDOM
+      //   : undefined;
 
       return {
         dom: blockContent,
-        // I don't understand what's going on with the typing here
-        contentDOM:
-          "contentDOM" in rendered
-            ? (rendered.contentDOM as HTMLDivElement)
-            : undefined,
+        contentDOM: contentDOM,
       };
     },
 
