@@ -3,7 +3,7 @@ import { BulletListItemBlockContent } from "../nodes/BlockContent/ListItemBlockC
 import { NumberedListItemBlockContent } from "../nodes/BlockContent/ListItemBlockContent/NumberedListItemBlockContent/NumberedListItemBlockContent";
 import { ParagraphBlockContent } from "../nodes/BlockContent/ParagraphBlockContent/ParagraphBlockContent";
 import { createBlockSpec } from "./block";
-import { TypesMatch } from "./blockTypes";
+import { BlockSchema, PropSchema, TypesMatch } from "./blockTypes";
 
 export const defaultProps = {
   backgroundColor: {
@@ -16,7 +16,7 @@ export const defaultProps = {
     default: "left" as const,
     values: ["left", "center", "right", "justify"] as const,
   },
-} as const; // TODO: upgrade typescript and use satisfies PropSpec
+} as const satisfies PropSchema;
 
 export const defaultBlockSchema = {
   paragraph: {
@@ -38,7 +38,7 @@ export const defaultBlockSchema = {
     propSchema: defaultProps,
     node: NumberedListItemBlockContent,
   },
-} as const;
+} as const satisfies BlockSchema;
 
 const imageProps = { src: { default: "gfr" } } as const;
 export const onlyImageBlockSchema = {
@@ -52,7 +52,7 @@ export const onlyImageBlockSchema = {
       return { dom: img };
     },
   }),
-} as const;
+} as const satisfies BlockSchema;
 
 export type DefaultBlockSchema = TypesMatch<typeof defaultBlockSchema>;
 
