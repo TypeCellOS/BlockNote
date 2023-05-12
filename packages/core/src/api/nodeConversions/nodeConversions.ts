@@ -275,14 +275,13 @@ export function nodeToBlock<BSchema extends BlockSchema>(
     );
   }
 
-  // TODO: fix types
-  const block: any = {
+  const block = {
     id,
-    type: blockInfo.contentType.name as Block<BSchema>["type"],
+    type: blockInfo.contentType.name,
     props,
     content,
     children,
-  };
+  } satisfies Block<BSchema>;
 
   blockCache?.set(node, block);
 
