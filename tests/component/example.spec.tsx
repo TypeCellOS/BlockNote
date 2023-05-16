@@ -1,55 +1,18 @@
 import { test, expect } from "@playwright/experimental-ct-react";
 import { EDITOR_SELECTOR } from "../utils/const";
-import App from "@blocknote/example-editor/src/App";
+import Editor from "../utils/components/Editor";
+import { focusOnEditor } from "../utils/editor";
+import { executeSlashCommand } from "../utils/slashmenu";
 
-// test("has title", async ({ page }) => {
-//   await page.goto("https://playwright.dev/");
-//
-//   // Expect a title "to contain" a substring.
-//   await expect(page).toHaveTitle(/Playwright/);
-// });
-//
-// test("get started link", async ({ page }) => {
-//   await page.goto("https://playwright.dev/");
-//
-//   // Click the get started link.
-//   await page.getByRole("link", { name: "Get started" }).click();
-//
-//   // Expects the URL to contain intro.
-//   await expect(page).toHaveURL(/.*intro/);
-// });
+test("basic editor", async ({ mount, page }) => {
+  await mount(<Editor blockTypes={["image"]} />);
 
-// test("should work", async ({ mount }) => {
-//   const component = await mount(<div>Learn React</div>);
-//   await expect(component).toContainText("Learn React");
-// });
+  await page.waitForSelector(EDITOR_SELECTOR);
 
-// function App() {
-//   const editor = useBlockNote({
-//     onEditorContentChange: (editor) => {
-//       console.log(editor.topLevelBlocks);
-//     },
-//     editorDOMAttributes: {
-//       "data-test": "editor",
-//     },
-//   });
-//
-//   // Give tests a way to get prosemirror instance
-//   // (window as WindowWithProseMirror).ProseMirror = editor?._tiptapEditor;
-//
-//   return <BlockNoteView editor={editor} />;
-// }
+  await expect(page.locator(EDITOR_SELECTOR)).toBeEditable();
 
-test("basic editor", async ({ mount }) => {
-  const component = await mount(<App />);
+  await focusOnEditor(page);
+  await executeSlashCommand(page, "image");
 
-  // await component.waitForSelector(EDITOR_SELECTOR);
-
-  await expect(component.locator(EDITOR_SELECTOR)).toBeEditable();
-
-  // Click the get started link.
-  // await page.getByRole("link", { name: "Get started" }).click();
-  //
-  // // Expects the URL to contain intro.
-  // await expect(page).toHaveURL(/.*intro/);
+  await expect(page.locator(`[data-content-type="image"]`)).toBeVisible();
 });

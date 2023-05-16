@@ -9,6 +9,7 @@ import {
   TipTapNodeConfig,
 } from "./blockTypes";
 import { BlockNoteEditor } from "../../../BlockNoteEditor";
+import styles from "../nodes/Block.module.css";
 
 function camelToDataKebab(str: string): string {
   return "data-" + str.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
@@ -158,6 +159,8 @@ export function createBlockSpec<
       return ({ HTMLAttributes, getPos }) => {
         // Create blockContent element
         const blockContent = document.createElement("div");
+        // Sets blockContent class
+        blockContent.className = styles.blockContent;
         // Add blockContent HTML attribute
         blockContent.setAttribute("data-content-type", blockConfig.type);
         // Add props as HTML attributes in kebab-case with "data-" prefix
