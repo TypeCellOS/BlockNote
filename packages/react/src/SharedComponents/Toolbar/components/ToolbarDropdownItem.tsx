@@ -4,11 +4,10 @@ import { TiTick } from "react-icons/ti";
 import { MouseEvent } from "react";
 
 export type ToolbarDropdownItemProps = {
-  onClick?: (e: MouseEvent) => void;
   text: string;
   icon?: IconType;
+  onClick?: (e: MouseEvent) => void;
   isSelected?: boolean;
-  children?: any;
   isDisabled?: boolean;
 };
 

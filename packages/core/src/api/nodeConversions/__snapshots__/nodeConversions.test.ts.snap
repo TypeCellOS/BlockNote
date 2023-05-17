@@ -4,7 +4,7 @@ exports[`Complex ProseMirror Node Conversions > Convert complex block to node 1`
 {
   "attrs": {
     "backgroundColor": "blue",
-    "id": 4,
+    "id": "4",
     "textColor": "yellow",
   },
   "content": [
@@ -46,7 +46,7 @@ exports[`Complex ProseMirror Node Conversions > Convert complex block to node 1`
         {
           "attrs": {
             "backgroundColor": "red",
-            "id": 5,
+            "id": "5",
             "textColor": "default",
           },
           "content": [
@@ -68,7 +68,7 @@ exports[`Complex ProseMirror Node Conversions > Convert complex block to node 1`
         {
           "attrs": {
             "backgroundColor": "default",
-            "id": 6,
+            "id": "6",
             "textColor": "default",
           },
           "content": [
@@ -101,7 +101,7 @@ exports[`Complex ProseMirror Node Conversions > Convert complex node to block 1`
           "type": "text",
         },
       ],
-      "id": 2,
+      "id": "2",
       "props": {
         "backgroundColor": "red",
         "textAlignment": "left",
@@ -112,7 +112,7 @@ exports[`Complex ProseMirror Node Conversions > Convert complex node to block 1`
     {
       "children": [],
       "content": [],
-      "id": 3,
+      "id": "3",
       "props": {
         "backgroundColor": "default",
         "textAlignment": "left",
@@ -139,7 +139,7 @@ exports[`Complex ProseMirror Node Conversions > Convert complex node to block 1`
       "type": "text",
     },
   ],
-  "id": 1,
+  "id": "1",
   "props": {
     "backgroundColor": "blue",
     "level": "2",
@@ -154,7 +154,7 @@ exports[`Simple ProseMirror Node Conversions > Convert simple block to node 1`] 
 {
   "attrs": {
     "backgroundColor": "default",
-    "id": 4,
+    "id": "4",
     "textColor": "default",
   },
   "content": [
@@ -173,7 +173,7 @@ exports[`Simple ProseMirror Node Conversions > Convert simple node to block 1`] 
 {
   "children": [],
   "content": [],
-  "id": 0,
+  "id": "0",
   "props": {
     "backgroundColor": "default",
     "textAlignment": "left",
@@ -187,7 +187,7 @@ exports[`links > Convert a block with link 1`] = `
 {
   "attrs": {
     "backgroundColor": "default",
-    "id": 4,
+    "id": "4",
     "textColor": "default",
   },
   "content": [
@@ -222,7 +222,7 @@ exports[`links > Convert two adjacent links in a block 1`] = `
 {
   "attrs": {
     "backgroundColor": "default",
-    "id": 4,
+    "id": "4",
     "textColor": "default",
   },
   "content": [

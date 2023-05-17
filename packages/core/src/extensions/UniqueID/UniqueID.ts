@@ -60,7 +60,7 @@ const UniqueID = Extension.create({
             (window as any).__TEST_OPTIONS.mockID++;
           }
 
-          return parseInt((window as any).__TEST_OPTIONS.mockID);
+          return (window as any).__TEST_OPTIONS.mockID.toString() as string;
         }
 
         return v4();

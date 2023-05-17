@@ -8,11 +8,6 @@ import { ColorPicker } from "../../../SharedComponents/ColorPicker/components/Co
 export const ColorStyleButton = <BSchema extends BlockSchema>(props: {
   editor: BlockNoteEditor<BSchema>;
 }) => {
-  const getTextColor = useCallback(
-    () => props.editor.getActiveStyles().textColor || "default",
-    [props]
-  );
-
   const setTextColor = useCallback(
     (color: string) => {
       props.editor.focus();
@@ -20,12 +15,7 @@ export const ColorStyleButton = <BSchema extends BlockSchema>(props: {
         ? props.editor.removeStyles({ textColor: color })
         : props.editor.addStyles({ textColor: color });
     },
-    [props]
-  );
-
-  const getBackgroundColor = useCallback(
-    () => props.editor.getActiveStyles().backgroundColor || "default",
-    [props]
+    [props.editor]
   );
 
   const setBackgroundColor = useCallback(
@@ -35,7 +25,7 @@ export const ColorStyleButton = <BSchema extends BlockSchema>(props: {
         ? props.editor.removeStyles({ backgroundColor: color })
         : props.editor.addStyles({ backgroundColor: color });
     },
-    [props]
+    [props.editor]
   );
 
   return (
@@ -45,8 +35,10 @@ export const ColorStyleButton = <BSchema extends BlockSchema>(props: {
           mainTooltip={"Colors"}
           icon={() => (
             <ColorIcon
-              textColor={getTextColor()}
-              backgroundColor={getBackgroundColor()}
+              textColor={props.editor.getActiveStyles().textColor || "default"}
+              backgroundColor={
+                props.editor.getActiveStyles().backgroundColor || "default"
+              }
               size={20}
             />
           )}
@@ -54,9 +46,11 @@ export const ColorStyleButton = <BSchema extends BlockSchema>(props: {
       </Menu.Target>
       <Menu.Dropdown>
         <ColorPicker
-          textColor={getTextColor()}
+          textColor={props.editor.getActiveStyles().textColor || "default"}
           setTextColor={setTextColor}
-          backgroundColor={getBackgroundColor()}
+          backgroundColor={
+            props.editor.getActiveStyles().backgroundColor || "default"
+          }
           setBackgroundColor={setBackgroundColor}
         />
       </Menu.Dropdown>

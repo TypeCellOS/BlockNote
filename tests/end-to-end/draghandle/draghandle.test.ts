@@ -75,7 +75,7 @@ test.describe("Check Draghandle functionality", () => {
 
   test("Clicking draghandle should open menu", async () => {
     await executeSlashCommand(page, "h1");
-    await page.keyboard.type("Hover over this text");
+    await page.keyboard.type("Hover over this text", { delay: 20 });
     const heading = await page.locator(H_ONE_BLOCK_SELECTOR).first();
     await moveMouseOverElement(page, heading);
     await page.click(DRAG_HANDLE_SELECTOR);
@@ -134,6 +134,8 @@ test.describe("Check Draghandle functionality", () => {
   test("Click add button for non-selected empty block", async () => {
     await executeSlashCommand(page, "h1");
     await page.keyboard.type("Heading 1");
+    // Wait for animation to finish
+    await page.waitForTimeout(350);
     await hoverAndAddBlockFromDragHandle(page, PARAGRAPH_SELECTOR, "h1");
 
     await compareDocToSnapshot(page, "addnonselectedemptyblock");

@@ -1,204 +1,315 @@
 import { MantineThemeOverride } from "@mantine/core";
 
-export const BlockNoteTheme: MantineThemeOverride = {
-  activeStyles: {
-    // Removes button press effect.
-    transform: "none",
-  },
-  colorScheme: "light",
-  colors: {
-    brandFinal: [
-      "#F6F6F8",
-      "#ECEDF0",
-      "#DFE1E6",
-      "#C2C7D0",
-      "#A6ADBA",
-      "#8993A4",
-      "#6D798F",
-      "#505F79",
-      "#344563",
-      "#172B4D",
-    ],
-    textColors: [
-      "#37352f",
-      "#9b9a97",
-      "#64473a",
-      "#e03e3e",
-      "#d9730d",
-      "#dfab01",
-      "#4d6461",
-      "#0b6e99",
-      "#6940a5",
-      "#ad1a72",
-    ],
-    backgroundColors: [
-      "#ffffff",
-      "#ebeced",
-      "#e9e5e3",
-      "#fbe4e4",
-      "#f6e9d9",
-      "#fbf3db",
-      "#ddedea",
-      "#ddebf1",
-      "#eae4f2",
-      "#f4dfeb",
-    ],
-  },
-  components: {
-    Menu: {
-      styles: (theme) => ({
-        dropdown: {
-          backgroundColor: "white",
-          boxShadow: `0px 4px 8px ${theme.colors.brandFinal[2]}, 0px 0px 1px ${theme.colors.brandFinal[2]}`,
-          border: `1px solid ${theme.colors.brandFinal[1]}`,
-          borderRadius: "6px",
-          padding: "2px",
-        },
-      }),
+type ColorScheme = [
+  string,
+  string,
+  string,
+  string,
+  string,
+  string,
+  string,
+  string,
+  string,
+  string
+];
+
+export const blockNoteColorScheme: ColorScheme = [
+  "#FFFFFF",
+  "#EEEEEE",
+  "#DDDDDD",
+  "#CCCCCC",
+  "#999999",
+  "#666666",
+  "#444444",
+  "#333333",
+  "#222222",
+  "#111111",
+];
+
+export const getBlockNoteTheme = (
+  useDarkTheme: boolean = false
+): MantineThemeOverride => {
+  const boxShadow = `0px 4px 8px ${
+    useDarkTheme ? blockNoteColorScheme[8] : blockNoteColorScheme[2]
+  }, 0px 0px 1px ${
+    useDarkTheme ? blockNoteColorScheme[6] : blockNoteColorScheme[1]
+  }`;
+
+  const border = `1px solid ${
+    useDarkTheme ? blockNoteColorScheme[7] : blockNoteColorScheme[1]
+  }`;
+
+  const sideMenu = useDarkTheme
+    ? blockNoteColorScheme[4]
+    : blockNoteColorScheme[3];
+
+  const primaryBackground = useDarkTheme
+    ? blockNoteColorScheme[6]
+    : blockNoteColorScheme[0];
+  const secondaryBackground = useDarkTheme
+    ? blockNoteColorScheme[7]
+    : blockNoteColorScheme[1];
+
+  const primaryText = useDarkTheme
+    ? blockNoteColorScheme[2]
+    : blockNoteColorScheme[6];
+  const secondaryText = useDarkTheme
+    ? blockNoteColorScheme[4]
+    : blockNoteColorScheme[4];
+
+  const hoveredBackground = useDarkTheme
+    ? blockNoteColorScheme[7]
+    : blockNoteColorScheme[1];
+  const hoveredText = useDarkTheme
+    ? blockNoteColorScheme[2]
+    : blockNoteColorScheme[6];
+
+  const selectedBackground = useDarkTheme
+    ? blockNoteColorScheme[8]
+    : blockNoteColorScheme[6];
+  const selectedText = useDarkTheme
+    ? blockNoteColorScheme[2]
+    : blockNoteColorScheme[0];
+
+  const disabledBackground = useDarkTheme
+    ? blockNoteColorScheme[7]
+    : blockNoteColorScheme[1];
+  const disabledText = useDarkTheme
+    ? blockNoteColorScheme[5]
+    : blockNoteColorScheme[3];
+
+  return {
+    activeStyles: {
+      // Removes button press effect.
+      transform: "none",
     },
-    DragHandleMenu: {
-      styles: (theme) => ({
-        root: {
-          ".mantine-Menu-item": {
-            color: theme.colors.brandFinal,
-            fontSize: "12px",
-            height: "30px",
+    colorScheme: useDarkTheme ? "dark" : "light",
+    colors: {
+      scheme: blockNoteColorScheme,
+      dark: blockNoteColorScheme,
+      textColors: [
+        // primaryText,
+        blockNoteColorScheme[6],
+        "#9b9a97",
+        "#64473a",
+        "#e03e3e",
+        "#d9730d",
+        "#dfab01",
+        "#4d6461",
+        "#0b6e99",
+        "#6940a5",
+        "#ad1a72",
+      ],
+      backgroundColors: [
+        // primaryBackground,
+        blockNoteColorScheme[0],
+        "#ebeced",
+        "#e9e5e3",
+        "#fbe4e4",
+        "#f6e9d9",
+        "#fbf3db",
+        "#ddedea",
+        "#ddebf1",
+        "#eae4f2",
+        "#f4dfeb",
+      ],
+    },
+    components: {
+      // Block Side Menu items
+      ActionIcon: {
+        styles: () => ({
+          root: {
+            color: sideMenu,
           },
-        },
-      }),
-    },
-    EditHyperlinkMenu: {
-      styles: (theme) => ({
-        root: {
-          backgroundColor: "white",
-          boxShadow: `0px 4px 8px ${theme.colors.brandFinal[2]}, 0px 0px 1px ${theme.colors.brandFinal[2]}`,
-          border: `1px solid ${theme.colors.brandFinal[1]}`,
-          borderRadius: "6px",
-          gap: "4px",
-          minWidth: "145px",
-          padding: "2px",
-          // Row
-          ".mantine-Group-root": {
-            flexWrap: "nowrap",
-            gap: "8px",
-            paddingInline: "6px",
-            // Row icon
-            ".mantine-Container-root": {
-              color: theme.colors.brandFinal,
-              display: "flex",
-              justifyContent: "center",
-              padding: "0",
-              width: "fit-content",
+        }),
+      },
+      // Slash Menu, Formatting Toolbar dropdown, color picker dropdown
+      Menu: {
+        styles: () => ({
+          dropdown: {
+            backgroundColor: primaryBackground,
+            border: border,
+            borderRadius: "6px",
+            boxShadow: boxShadow,
+            color: primaryText,
+            padding: "2px",
+            ".mantine-Menu-item": {
+              backgroundColor: primaryBackground,
+              border: "none",
+              color: primaryText,
             },
-            // Row input field
-            ".mantine-TextInput-root": {
-              background: "transparent",
-              width: "300px",
-              ".mantine-TextInput-wrapper": {
-                ".mantine-TextInput-input": {
-                  fontSize: "12px",
-                  border: 0,
-                  padding: 0,
+            ".mantine-Menu-item[data-hovered]": {
+              backgroundColor: hoveredBackground,
+              border: "none",
+              color: hoveredText,
+            },
+          },
+        }),
+      },
+      DragHandleMenu: {
+        styles: () => ({
+          root: {
+            ".mantine-Menu-item": {
+              fontSize: "12px",
+              height: "30px",
+            },
+          },
+        }),
+      },
+      EditHyperlinkMenu: {
+        styles: () => ({
+          root: {
+            backgroundColor: primaryBackground,
+            border: border,
+            borderRadius: "6px",
+            boxShadow: boxShadow,
+            color: primaryText,
+            gap: "4px",
+            minWidth: "145px",
+            padding: "2px",
+            // Row
+            ".mantine-Group-root": {
+              flexWrap: "nowrap",
+              gap: "8px",
+              paddingInline: "6px",
+              // Row icon
+              ".mantine-Container-root": {
+                color: primaryText,
+                display: "flex",
+                justifyContent: "center",
+                padding: 0,
+                width: "fit-content",
+              },
+              // Row input field
+              ".mantine-TextInput-root": {
+                width: "300px",
+                ".mantine-TextInput-wrapper": {
+                  ".mantine-TextInput-input": {
+                    border: "none",
+                    color: primaryText,
+                    fontSize: "12px",
+                    padding: 0,
+                  },
                 },
               },
             },
           },
-        },
-      }),
-    },
-    Toolbar: {
-      styles: (theme) => ({
-        root: {
-          backgroundColor: "white",
-          boxShadow: `0px 4px 8px ${theme.colors.brandFinal[2]}, 0px 0px 1px ${theme.colors.brandFinal[2]}`,
-          border: `1px solid ${theme.colors.brandFinal[1]}`,
-          borderRadius: "6px",
-          flexWrap: "nowrap",
-          gap: "2px",
-          padding: "2px",
-          width: "fit-content",
-          // Button (including dropdown target)
-          ".mantine-UnstyledButton-root": {
-            borderRadius: "4px",
-          },
-          // Dropdown
-          ".mantine-Menu-dropdown": {
-            // Dropdown item
-            ".mantine-Menu-item": {
-              color: theme.colors.brandFinal,
-              fontSize: "12px",
-              height: "30px",
-              ".mantine-Menu-itemRightSection": {
-                paddingLeft: "5px",
-              },
-            },
-          },
-        },
-      }),
-    },
-    Tooltip: {
-      styles: (theme) => ({
-        root: {
-          color: theme.colors.brandFinal[2],
-          backgroundColor: theme.colors.brandFinal,
-          border: `1px solid ${theme.colors.brandFinal[1]}`,
-          borderRadius: "6px",
-          boxShadow: `0px 4px 8px ${theme.colors.brandFinal[2]}, 0px 0px 1px ${theme.colors.brandFinal[2]}`,
-          padding: "4px 10px",
-          textAlign: "center",
-          "div ~ div": {
-            color: theme.colors.brandFinal[4],
-          },
-        },
-      }),
-    },
-    SlashMenu: {
-      styles: (theme) => ({
-        root: {
-          // ...theme.other.defaultMenuStyles(theme),
-          ".mantine-Menu-item": {
-            // Icon
-            ".mantine-Menu-itemIcon": {
-              padding: "8px",
-              border: `1px solid ${theme.colors.brandFinal[2]}`,
-              backgroundColor: theme.colors.brandFinal[0],
+        }),
+      },
+      Toolbar: {
+        styles: () => ({
+          root: {
+            backgroundColor: primaryBackground,
+            boxShadow: boxShadow,
+            border: border,
+            borderRadius: "6px",
+            flexWrap: "nowrap",
+            gap: "2px",
+            padding: "2px",
+            width: "fit-content",
+            // Button (including dropdown target)
+            ".mantine-UnstyledButton-root": {
+              backgroundColor: primaryBackground,
+              border: "none",
               borderRadius: "4px",
-              color: theme.colors.brandFinal,
+              color: primaryText,
             },
-            // Text
-            ".mantine-Menu-itemLabel": {
-              color: theme.colors.brandFinal,
-              paddingRight: "16px",
-              ".mantine-Stack-root": {
-                gap: "0",
+            // Hovered button
+            ".mantine-UnstyledButton-root:hover": {
+              backgroundColor: hoveredBackground,
+              border: "none",
+              color: hoveredText,
+            },
+            // Selected button
+            ".mantine-UnstyledButton-root[data-selected]": {
+              backgroundColor: selectedBackground,
+              border: "none",
+              color: selectedText,
+            },
+            // Disabled button
+            ".mantine-UnstyledButton-root[data-disabled]": {
+              backgroundColor: disabledBackground,
+              border: "none",
+              color: disabledText,
+            },
+            // Dropdown
+            ".mantine-Menu-dropdown": {
+              // Dropdown item
+              ".mantine-Menu-item": {
+                fontSize: "12px",
+                height: "30px",
+                ".mantine-Menu-itemRightSection": {
+                  paddingLeft: "5px",
+                },
               },
-            },
-            // Badge (keyboard shortcut)
-            ".mantine-Menu-itemRightSection": {
-              ".mantine-Badge-root": {
-                border: `1px solid ${theme.colors.brandFinal[2]}`,
+              ".mantine-Menu-item:hover": {
+                backgroundColor: hoveredBackground,
               },
             },
           },
-        },
-      }),
+        }),
+      },
+      Tooltip: {
+        styles: () => ({
+          root: {
+            backgroundColor: primaryBackground,
+            border: border,
+            borderRadius: "6px",
+            boxShadow: boxShadow,
+            color: primaryText,
+            padding: "4px 10px",
+            textAlign: "center",
+            "div ~ div": {
+              color: secondaryText,
+            },
+          },
+        }),
+      },
+      SlashMenu: {
+        styles: () => ({
+          root: {
+            ".mantine-Menu-item": {
+              // Icon
+              ".mantine-Menu-itemIcon": {
+                backgroundColor: secondaryBackground,
+                borderRadius: "4px",
+                color: primaryText,
+                padding: "8px",
+              },
+              // Text
+              ".mantine-Menu-itemLabel": {
+                paddingRight: "16px",
+                ".mantine-Stack-root": {
+                  gap: "0",
+                },
+              },
+              // Badge (keyboard shortcut)
+              ".mantine-Menu-itemRightSection": {
+                ".mantine-Badge-root": {
+                  backgroundColor: secondaryBackground,
+                  color: primaryText,
+                },
+              },
+            },
+          },
+        }),
+      },
     },
-  },
-  fontFamily: "Inter",
-  other: {
-    colors: [
-      "default",
-      "gray",
-      "brown",
-      "red",
-      "orange",
-      "yellow",
-      "green",
-      "blue",
-      "purple",
-      "pink",
-    ],
-  },
-  primaryColor: "brandFinal",
-  primaryShade: 9,
+    fontFamily: "Inter",
+    other: {
+      colors: [
+        "default",
+        "gray",
+        "brown",
+        "red",
+        "orange",
+        "yellow",
+        "green",
+        "blue",
+        "purple",
+        "pink",
+      ],
+    },
+    primaryColor: "scheme",
+  };
 };

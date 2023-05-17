@@ -12,33 +12,18 @@ export const CreateLinkButton = <BSchema extends BlockSchema>(props: {
       props.editor.focus();
       props.editor.createLink(url, text);
     },
-    [props]
+    [props.editor]
   );
-
-  const linkIsActive = useCallback(
-    () => !!props.editor.getActiveLink().url,
-    [props]
-  );
-
-  const activeLinkUrl = useCallback(() => {
-    const link = props.editor.getActiveLink();
-    return link !== undefined ? link.url : "";
-  }, [props]);
-
-  const activeLinkText = useCallback(() => {
-    const link = props.editor.getActiveLink();
-    return link !== undefined ? link.text : "";
-  }, [props]);
 
   return (
     <LinkToolbarButton
-      isSelected={linkIsActive()}
+      isSelected={!!props.editor.getSelectedLinkUrl()}
       mainTooltip="Link"
       secondaryTooltip={formatKeyboardShortcut("Mod+K")}
       icon={RiLink}
-      hyperlinkIsActive={linkIsActive()}
-      activeHyperlinkUrl={activeLinkUrl()}
-      activeHyperlinkText={activeLinkText()}
+      hyperlinkIsActive={!!props.editor.getSelectedLinkUrl()}
+      activeHyperlinkUrl={props.editor.getSelectedLinkUrl() || ""}
+      activeHyperlinkText={props.editor.getSelectedText()}
       setHyperlink={setLink}
     />
   );

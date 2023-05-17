@@ -18,12 +18,12 @@ export const createFormattingToolbarExtension = <
   Extension.create<FormattingToolbarOptions<BSchema>>({
     name: "FormattingToolbarExtension",
 
-    addProseMirrorPlugins() {
-      if (!this.options.formattingToolbarFactory || !this.options.editor) {
-        throw new Error(
-          "required args not defined for FormattingToolbarExtension"
-        );
-      }
+  addProseMirrorPlugins() {
+    if (!this.options.formattingToolbarFactory || !this.options.editor) {
+      throw new Error(
+        "required args not defined for FormattingToolbarExtension"
+      );
+    }
 
       return [
         createFormattingToolbarPlugin({

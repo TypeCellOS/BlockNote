@@ -1,14 +1,14 @@
 import { ReactNode, useCallback, useRef, useState } from "react";
 import { Box, Menu } from "@mantine/core";
-import { BlockNoteEditor, BlockSchema, PartialBlock } from "@blocknote/core";
+import { BlockSchema } from "@blocknote/core";
 import { HiChevronRight } from "react-icons/hi";
+import { DragHandleMenuProps } from "../DragHandleMenu";
+import { DragHandleMenuItem } from "../DragHandleMenuItem";
 import { ColorPicker } from "../../../SharedComponents/ColorPicker/components/ColorPicker";
 
-export const BlockColorsButton = <BSchema extends BlockSchema>(props: {
-  editor: BlockNoteEditor<BSchema>;
-  closeMenu: () => void;
-  children: ReactNode;
-}) => {
+export const BlockColorsButton = <BSchema extends BlockSchema>(
+  props: DragHandleMenuProps & { children: ReactNode }
+) => {
   const [block] = useState(props.editor.getMouseCursorPosition()?.block);
   const [opened, setOpened] = useState(false);
 
@@ -39,13 +39,10 @@ export const BlockColorsButton = <BSchema extends BlockSchema>(props: {
   }
 
   return (
-    <Menu.Item
-      onMouseLeave={() => {
-        startMenuCloseTimer();
-      }}
-      onMouseOver={() => {
-        stopMenuCloseTimer();
-      }}>
+    <DragHandleMenuItem
+      closeMenu={props.closeMenu}
+      onMouseLeave={startMenuCloseTimer}
+      onMouseOver={stopMenuCloseTimer}>
       <Menu opened={opened} position={"right"}>
         <Menu.Target>
           <div style={{ display: "flex", alignItems: "center" }}>
@@ -56,35 +53,26 @@ export const BlockColorsButton = <BSchema extends BlockSchema>(props: {
           </div>
         </Menu.Target>
         <Menu.Dropdown
-          onMouseLeave={() => {
-            startMenuCloseTimer();
-          }}
-          onMouseOver={() => {
-            stopMenuCloseTimer();
-          }}
+          onMouseLeave={startMenuCloseTimer}
+          onMouseOver={stopMenuCloseTimer}
           style={{ marginLeft: "5px" }}>
           <ColorPicker
-            onClick={props.closeMenu}
             iconSize={18}
-            textColor={block ? block.props.textColor || "default" : "default"}
-            backgroundColor={
-              block ? block.props.backgroundColor || "default" : "default"
-            }
+            textColor={props.block.props.textColor || "default"}
+            backgroundColor={props.block.props.backgroundColor || "default"}
             setTextColor={(color) =>
-              block &&
-              props.editor.updateBlock(block, {
+              props.editor.updateBlock(props.block, {
                 props: { textColor: color },
-              } as PartialBlock<BSchema>)
+              })
             }
             setBackgroundColor={(color) =>
-              block &&
-              props.editor.updateBlock(block, {
+              props.editor.updateBlock(props.block, {
                 props: { backgroundColor: color },
-              } as PartialBlock<BSchema>)
+              })
             }
           />
         </Menu.Dropdown>
       </Menu>
-    </Menu.Item>
+    </DragHandleMenuItem>
   );
 };

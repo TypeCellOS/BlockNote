@@ -1,17 +1,14 @@
 import { FC, useEffect, useRef, useState } from "react";
 import { ActionIcon, Group, Menu } from "@mantine/core";
-import { BlockNoteEditor, BlockSchema } from "@blocknote/core";
+import { Block, BlockNoteEditor, BlockSchema } from "@blocknote/core";
 import { AiOutlinePlus, MdDragIndicator } from "react-icons/all";
-import { DragHandleMenu } from "./DragHandleMenu";
-import { RemoveBlockButton } from "./DefaultButtons/RemoveBlockButton";
-import { BlockColorsButton } from "./DefaultButtons/BlockColorsButton";
+import { DragHandleMenuProps } from "./DragHandleMenu";
+import { DefaultDragHandleMenu } from "./DefaultDragHandleMenu";
 
 export type BlockSideMenuProps<BSchema extends BlockSchema> = {
   editor: BlockNoteEditor<BSchema>;
-  dragHandleMenu?: FC<{
-    editor: BlockNoteEditor<BSchema>;
-    closeMenu: () => void;
-  }>;
+  block: Block<BSchema>;
+  dragHandleMenu?: FC<DragHandleMenuProps>;
   addBlock: () => void;
   blockDragStart: (event: DragEvent) => void;
   blockDragEnd: () => void;
@@ -47,11 +44,11 @@ export const BlockSideMenu = <BSchema extends BlockSchema>(
     props.unfreezeMenu();
   };
 
-  const CustomDragHandleMenu = props.dragHandleMenu;
+  const DragHandleMenu = props.dragHandleMenu || DefaultDragHandleMenu;
 
   return (
     <Group spacing={0}>
-      <ActionIcon size={24} color={"brandFinal.3"} data-test={"dragHandleAdd"}>
+      <ActionIcon size={24} data-test={"dragHandleAdd"}>
         {
           <AiOutlinePlus
             size={24}
@@ -70,30 +67,16 @@ export const BlockSideMenu = <BSchema extends BlockSchema>(
                 props.freezeMenu();
               }}
               size={24}
-              color={"brandFinal.3"}
               data-test={"dragHandle"}>
               {<MdDragIndicator size={24} />}
             </ActionIcon>
           </div>
         </Menu.Target>
-        {CustomDragHandleMenu ? (
-          <CustomDragHandleMenu
-            editor={props.editor}
-            closeMenu={() => {
-              setDragHandleMenuOpened(false);
-              props.unfreezeMenu();
-            }}
-          />
-        ) : (
-          <DragHandleMenu>
-            <RemoveBlockButton editor={props.editor} closeMenu={closeMenu}>
-              Delete
-            </RemoveBlockButton>
-            <BlockColorsButton editor={props.editor} closeMenu={closeMenu}>
-              Colors
-            </BlockColorsButton>
-          </DragHandleMenu>
-        )}
+        <DragHandleMenu
+          editor={props.editor}
+          block={props.block}
+          closeMenu={closeMenu}
+        />
       </Menu>
     </Group>
   );

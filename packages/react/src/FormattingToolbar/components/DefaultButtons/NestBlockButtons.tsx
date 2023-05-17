@@ -10,14 +10,12 @@ export const NestBlockButton = <BSchema extends BlockSchema>(props: {
   const nestBlock = useCallback(() => {
     props.editor.focus();
     props.editor.nestBlock();
-  }, [props]);
-
-  const canNestBlock = useCallback(() => props.editor.canNestBlock(), [props]);
+  }, [props.editor]);
 
   return (
     <ToolbarButton
       onClick={nestBlock}
-      isDisabled={!canNestBlock()}
+      isDisabled={!props.editor.canNestBlock()}
       mainTooltip="Nest Block"
       secondaryTooltip={formatKeyboardShortcut("Tab")}
       icon={RiIndentIncrease}
@@ -33,15 +31,10 @@ export const UnnestBlockButton = <BSchema extends BlockSchema>(props: {
     props.editor.unnestBlock();
   }, [props]);
 
-  const canUnnestBlock = useCallback(
-    () => props.editor.canUnnestBlock(),
-    [props]
-  );
-
   return (
     <ToolbarButton
       onClick={unnestBlock}
-      isDisabled={!canUnnestBlock()}
+      isDisabled={!props.editor.canUnnestBlock()}
       mainTooltip="Unnest Block"
       secondaryTooltip={formatKeyboardShortcut("Shift+Tab")}
       icon={RiIndentDecrease}

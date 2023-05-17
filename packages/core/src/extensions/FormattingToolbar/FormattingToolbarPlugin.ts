@@ -52,6 +52,8 @@ export class FormattingToolbarView<BSchema extends BlockSchema> {
 
   public toolbarIsOpen = false;
 
+  public prevWasEditable: boolean | null = null;
+
   public shouldShow: Exclude<
     FormattingToolbarPluginProps<BSchema>["shouldShow"],
     null
@@ -91,6 +93,8 @@ export class FormattingToolbarView<BSchema extends BlockSchema> {
 
     this.ttEditor.on("focus", this.focusHandler);
     this.ttEditor.on("blur", this.blurHandler);
+
+    document.addEventListener("scroll", this.scrollHandler);
   }
 
   viewMousedownHandler = () => {
@@ -134,15 +138,27 @@ export class FormattingToolbarView<BSchema extends BlockSchema> {
     }
   };
 
+  scrollHandler = () => {
+    if (this.toolbarIsOpen) {
+      this.formattingToolbar.render(this.getDynamicParams(), false);
+    }
+  };
+
   update(view: EditorView, oldState?: EditorState) {
     const { state, composing } = view;
     const { doc, selection } = state;
     const isSame =
       oldState && oldState.doc.eq(doc) && oldState.selection.eq(selection);
 
-    if (composing || isSame) {
+    if (
+      (this.prevWasEditable === null ||
+        this.prevWasEditable === this.editor.isEditable) &&
+      (composing || isSame)
+    ) {
       return;
     }
+
+    this.prevWasEditable = this.editor.isEditable;
 
     // support for CellSelections
     const { ranges } = selection;
@@ -160,6 +176,7 @@ export class FormattingToolbarView<BSchema extends BlockSchema> {
 
     // Checks if menu should be shown.
     if (
+      this.editor.isEditable &&
       !this.toolbarIsOpen &&
       !this.preventShow &&
       (shouldShow || this.preventHide)
@@ -190,7 +207,7 @@ export class FormattingToolbarView<BSchema extends BlockSchema> {
     if (
       this.toolbarIsOpen &&
       !this.preventHide &&
-      (!shouldShow || this.preventShow)
+      (!shouldShow || this.preventShow || !this.editor.isEditable)
     ) {
       this.formattingToolbar.hide();
       this.toolbarIsOpen = false;
@@ -212,6 +229,8 @@ export class FormattingToolbarView<BSchema extends BlockSchema> {
 
     this.ttEditor.off("focus", this.focusHandler);
     this.ttEditor.off("blur", this.blurHandler);
+
+    document.removeEventListener("scroll", this.scrollHandler);
   }
 
   getSelectionBoundingBox() {
@@ -240,9 +259,8 @@ export class FormattingToolbarView<BSchema extends BlockSchema> {
     };
   }
 
-  getDynamicParams(): FormattingToolbarDynamicParams<BSchema> {
+  getDynamicParams(): FormattingToolbarDynamicParams {
     return {
-      editor: this.editor,
       referenceRect: this.getSelectionBoundingBox(),
     };
   }
