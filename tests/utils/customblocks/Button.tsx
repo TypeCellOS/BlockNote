@@ -19,7 +19,7 @@ export const Button = createBlockSpec({
             content: "Hello World",
           },
         ],
-        block(),
+        editor.getBlock(block)!,
         "after"
       );
     });

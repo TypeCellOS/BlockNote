@@ -74,11 +74,11 @@ export type BlockConfig<
   parse?: (element: HTMLElement) => Props<PSchema>;
   render: ContainsInlineContent extends true
     ? (
-        block: () => Block<BSchema>,
+        block: Block<BSchema>,
         editor: BlockNoteEditor<BSchema>
       ) => { dom: HTMLElement; contentDOM: HTMLElement }
     : (
-        block: () => Block<BSchema>,
+        block: Block<BSchema>,
         editor: BlockNoteEditor<BSchema>
       ) => { dom: HTMLElement };
 };

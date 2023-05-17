@@ -48,7 +48,7 @@ export const onlyImageBlockSchema = {
     containsInlineContent: false,
     render: (block) => {
       const img = document.createElement("img");
-      img.setAttribute("src", block().props.src);
+      img.setAttribute("src", block.props.src);
       return { dom: img };
     },
   }),

@@ -12,7 +12,7 @@ export const Image = createBlockSpec({
   containsInlineContent: true,
   render: (block) => {
     const image = document.createElement("img");
-    image.setAttribute("src", block().props.src);
+    image.setAttribute("src", block.props.src);
     image.setAttribute("contenteditable", "false");
     image.setAttribute("border", "1px solid black");
 

@@ -12,7 +12,7 @@ export const Embed = createBlockSpec({
   containsInlineContent: false,
   render: (block) => {
     const embed = document.createElement("iframe");
-    embed.setAttribute("src", block().props.src);
+    embed.setAttribute("src", block.props.src);
     embed.setAttribute("contenteditable", "false");
     embed.setAttribute("border", "1px solid black");
     embed.setAttribute("width", "500px");

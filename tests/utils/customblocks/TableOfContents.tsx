@@ -45,7 +45,7 @@ export const TableOfContents = createBlockSpec({
   type: "toc" as const,
   propSchema: {} as const,
   containsInlineContent: false,
-  render: (block, editor) => {
+  render: (_, editor) => {
     const toc = document.createElement("ol");
 
     editor.onEditorContentChange(() => {

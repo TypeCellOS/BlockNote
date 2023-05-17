@@ -141,7 +141,7 @@ export function createBlockSpec<
         } as Block<BlockSchema>);
 
       // Render elements
-      const rendered = blockConfig.render(getDummyBlock, editor);
+      const rendered = blockConfig.render(getDummyBlock(), editor);
       // Add elements to blockContent
       blockContent.appendChild(rendered.dom);
 
@@ -183,7 +183,7 @@ export function createBlockSpec<
           editor.getBlock(blockIdentifier)!;
 
         // Render elements
-        const rendered = blockConfig.render(getBlock, editor);
+        const rendered = blockConfig.render(getBlock(), editor);
         // Add elements to blockContent
         blockContent.appendChild(rendered.dom);
 

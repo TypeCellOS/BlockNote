@@ -37,26 +37,26 @@ export const Alert = createBlockSpec({
     parent.setAttribute(
       "style",
       `display: flex; background-color: ${
-        values[block().props.type as keyof typeof values].backgroundColor
+        values[block.props.type as keyof typeof values].backgroundColor
       }`
     );
 
     const icon = document.createElement("div");
-    icon.innerText = values[block().props.type as keyof typeof values].icon;
+    icon.innerText = values[block.props.type as keyof typeof values].icon;
     icon.setAttribute("contenteditable", "false");
     icon.setAttribute(
       "style",
       "margin-right: 0.5rem; user-select: none; cursor: pointer;"
     );
     icon.addEventListener("click", () => {
-      const type = block().props.type;
+      const type = editor.getBlock(block)!.props.type;
 
       if (type === "warning") {
         parent.setAttribute(
           "style",
           `display: flex; background-color: ${values["error"].backgroundColor}`
         );
-        editor.updateBlock(block(), {
+        editor.updateBlock(editor.getBlock(block)!, {
           props: {
             type: "error",
           },
@@ -66,7 +66,7 @@ export const Alert = createBlockSpec({
           "style",
           `display: flex; background-color: ${values["info"].backgroundColor}`
         );
-        editor.updateBlock(block(), {
+        editor.updateBlock(editor.getBlock(block)!, {
           props: {
             type: "info",
           },
@@ -76,7 +76,7 @@ export const Alert = createBlockSpec({
           "style",
           `display: flex; background-color: ${values["success"].backgroundColor}`
         );
-        editor.updateBlock(block(), {
+        editor.updateBlock(editor.getBlock(block)!, {
           props: {
             type: "success",
           },
@@ -86,7 +86,7 @@ export const Alert = createBlockSpec({
           "style",
           `display: flex; background-color: ${values["warning"].backgroundColor}`
         );
-        editor.updateBlock(block(), {
+        editor.updateBlock(editor.getBlock(block)!, {
           props: {
             type: "warning",
           },

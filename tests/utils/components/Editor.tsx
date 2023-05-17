@@ -1,10 +1,11 @@
+import { DefaultBlockSchema, defaultBlockSchema } from "@blocknote/core";
 import {
   BlockNoteView,
   defaultReactSlashMenuItems,
   ReactSlashMenuItem,
   useBlockNote,
 } from "@blocknote/react";
-import { DefaultBlockSchema, defaultBlockSchema } from "@blocknote/core";
+import "@blocknote/core/style.css";
 import styles from "./Editor.module.css";
 import { Alert, insertAlert } from "../customblocks/Alert";
 import { Button, insertButton } from "../customblocks/Button";
@@ -77,6 +78,8 @@ function Editor(props: { blockTypes: (keyof CustomBlocks)[] }) {
       ...slashCommands,
     ],
   });
+
+  console.log(editor);
 
   // Give tests a way to get prosemirror instance
   (window as WindowWithProseMirror).ProseMirror = editor?._tiptapEditor;
