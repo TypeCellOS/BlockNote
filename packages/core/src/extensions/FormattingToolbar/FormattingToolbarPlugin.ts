@@ -44,7 +44,7 @@ export class FormattingToolbarView<BSchema extends BlockSchema> {
 
   public view: EditorView;
 
-  public formattingToolbar: FormattingToolbar<BSchema>;
+  public formattingToolbar: FormattingToolbar;
 
   public preventHide = false;
 

@@ -8,7 +8,7 @@ import { DefaultDragHandleMenu } from "./DefaultDragHandleMenu";
 export type BlockSideMenuProps<BSchema extends BlockSchema> = {
   editor: BlockNoteEditor<BSchema>;
   block: Block<BSchema>;
-  dragHandleMenu?: FC<DragHandleMenuProps>;
+  dragHandleMenu?: FC<DragHandleMenuProps<BSchema>>;
   addBlock: () => void;
   blockDragStart: (event: DragEvent) => void;
   blockDragEnd: () => void;

@@ -15,9 +15,9 @@ import { DragHandleMenuProps } from "../BlockSideMenu/components/DragHandleMenu"
 
 //based on https://github.com/ueberdosis/tiptap/blob/main/packages/react/src/useEditor.ts
 
-type CustomElements = Partial<{
-  formattingToolbar: FC<{ editor: BlockNoteEditor }>;
-  dragHandleMenu: FC<DragHandleMenuProps>;
+type CustomElements<BSchema extends BlockSchema> = Partial<{
+  formattingToolbar: FC<{ editor: BlockNoteEditor<BSchema> }>;
+  dragHandleMenu: FC<DragHandleMenuProps<BSchema>>;
 }>;
 
 function useForceUpdate() {
@@ -30,9 +30,11 @@ function useForceUpdate() {
  * Main hook for importing a BlockNote editor into a React project
  */
 export const useBlockNote = <BSchema extends BlockSchema = DefaultBlockSchema>(
-  options: Partial<BlockNoteEditorOptions<BSchema> & {
-    customElements: CustomElements;
-  }> = {},
+  options: Partial<
+    BlockNoteEditorOptions<BSchema> & {
+      customElements: CustomElements<BSchema>;
+    }
+  > = {},
   deps: DependencyList = []
 ) => {
   const [editor, setEditor] = useState<BlockNoteEditor<BSchema> | null>(null);

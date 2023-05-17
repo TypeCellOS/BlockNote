@@ -13,12 +13,14 @@ export const createReactFormattingToolbarFactory = <
   BSchema extends BlockSchema
 >(
   theme: MantineThemeOverride,
-  toolbar: FC<{ editor: BlockNoteEditor<BSchema> }> = ReactFormattingToolbar
+  toolbar: FC<{
+    editor: BlockNoteEditor<BSchema>;
+  }> = ReactFormattingToolbar<BSchema>
 ) => {
   return (staticParams: FormattingToolbarStaticParams<BSchema>) =>
     ReactElementFactory<
       FormattingToolbarStaticParams<BSchema>,
-      FormattingToolbarDynamicParams<BSchema>
+      FormattingToolbarDynamicParams
     >(staticParams, toolbar, theme, {
       animation: "fade",
       placement: "top-start",

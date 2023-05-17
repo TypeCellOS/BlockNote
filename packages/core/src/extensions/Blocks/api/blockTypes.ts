@@ -75,10 +75,14 @@ export type BlockConfig<
   render: (
     block: Block<BSchema>,
     editor: BlockNoteEditor<BSchema>
-  ) => {
-    dom: HTMLElement;
-    contentDOM: ContainsInlineContent extends true ? HTMLElement : undefined;
-  };
+  ) => ContainsInlineContent extends true
+    ? {
+        dom: HTMLElement;
+        contentDOM: HTMLElement;
+      }
+    : {
+        dom: HTMLElement;
+      };
 };
 
 // Defines a single block spec, which includes the props that the block has and

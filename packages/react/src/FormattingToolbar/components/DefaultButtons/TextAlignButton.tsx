@@ -1,7 +1,8 @@
 import {
   BlockNoteEditor,
   BlockSchema,
-  defaultBlockProps,
+  DefaultProps,
+  PartialBlock,
 } from "@blocknote/core";
 import { useCallback } from "react";
 import { IconType } from "react-icons";
@@ -13,7 +14,9 @@ import {
 } from "react-icons/ri";
 import { ToolbarButton } from "../../../SharedComponents/Toolbar/components/ToolbarButton";
 
-const icons: Record<DefaultBlockProps["textAlignment"], IconType> = {
+type TextAlignment = DefaultProps["textAlignment"]["values"][number];
+
+const icons: Record<TextAlignment, IconType> = {
   left: RiAlignLeft,
   center: RiAlignCenter,
   right: RiAlignRight,
@@ -22,10 +25,10 @@ const icons: Record<DefaultBlockProps["textAlignment"], IconType> = {
 
 export const TextAlignButton = <BSchema extends BlockSchema>(props: {
   editor: BlockNoteEditor<BSchema>;
-  textAlignment: DefaultBlockProps["textAlignment"];
+  textAlignment: TextAlignment;
 }) => {
   const setTextAlignment = useCallback(
-    (textAlignment: DefaultBlockProps["textAlignment"]) => {
+    (textAlignment: TextAlignment) => {
       props.editor.focus();
 
       const selection = props.editor.getSelection();
@@ -34,12 +37,12 @@ export const TextAlignButton = <BSchema extends BlockSchema>(props: {
         for (const block of selection.blocks) {
           props.editor.updateBlock(block, {
             props: { textAlignment: textAlignment },
-          });
+          } as PartialBlock<BSchema>);
         }
       } else {
         props.editor.updateBlock(props.editor.getTextCursorPosition().block, {
           props: { textAlignment: textAlignment },
-        });
+        } as PartialBlock<BSchema>);
       }
     },
     [props.editor]

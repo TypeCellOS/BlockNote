@@ -12,7 +12,7 @@ import { DefaultDragHandleMenu } from "./components/DefaultDragHandleMenu";
 
 export const createReactBlockSideMenuFactory = <BSchema extends BlockSchema>(
   theme: MantineThemeOverride,
-  dragHandleMenu: FC<DragHandleMenuProps> = DefaultDragHandleMenu
+  dragHandleMenu: FC<DragHandleMenuProps<BSchema>> = DefaultDragHandleMenu
 ) => {
   const CustomDragHandleMenu = dragHandleMenu;
   const CustomBlockSideMenu = (
@@ -24,10 +24,9 @@ export const createReactBlockSideMenuFactory = <BSchema extends BlockSchema>(
     ReactElementFactory<
       BlockSideMenuStaticParams<BSchema>,
       BlockSideMenuDynamicParams<BSchema>
-    >(staticParams, CustomBlockSideMenu, {
+    >(staticParams, CustomBlockSideMenu, theme, {
       animation: "fade",
       offset: [0, 0],
       placement: "left",
     });
 };
-

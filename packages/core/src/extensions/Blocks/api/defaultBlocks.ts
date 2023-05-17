@@ -18,6 +18,8 @@ export const defaultProps = {
   },
 } as const; // TODO: upgrade typescript and use satisfies PropSpec
 
+export type DefaultProps = typeof defaultProps;
+
 export const defaultBlockSchema = {
   paragraph: {
     propSchema: defaultProps,
