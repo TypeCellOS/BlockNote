@@ -72,15 +72,13 @@ export type BlockConfig<
   // Additional attributes to help define block as a TipTap node.
   containsInlineContent: ContainsInlineContent;
   parse?: (element: HTMLElement) => Props<PSchema>;
-  render: ContainsInlineContent extends true
-    ? (
-        block: Block<BSchema>,
-        editor: BlockNoteEditor<BSchema>
-      ) => { dom: HTMLElement; contentDOM: HTMLElement }
-    : (
-        block: Block<BSchema>,
-        editor: BlockNoteEditor<BSchema>
-      ) => { dom: HTMLElement };
+  render: (
+    block: Block<BSchema>,
+    editor: BlockNoteEditor<BSchema>
+  ) => {
+    dom: HTMLElement;
+    contentDOM: ContainsInlineContent extends true ? HTMLElement : undefined;
+  };
 };
 
 // Defines a single block spec, which includes the props that the block has and
