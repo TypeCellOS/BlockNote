@@ -1,4 +1,6 @@
 import { Attribute, Node } from "@tiptap/core";
+import { BlockNoteEditor } from "../../../BlockNoteEditor";
+import styles from "../nodes/Block.module.css";
 import {
   Block,
   BlockConfig,
@@ -8,8 +10,6 @@ import {
   TipTapNode,
   TipTapNodeConfig,
 } from "./blockTypes";
-import { BlockNoteEditor } from "../../../BlockNoteEditor";
-import styles from "../nodes/Block.module.css";
 
 function camelToDataKebab(str: string): string {
   return "data-" + str.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();

@@ -1,6 +1,8 @@
 import { createBlockSpec, defaultProps } from "@blocknote/core";
 import { ReactSlashMenuItem } from "@blocknote/react";
+import React, { useEffect, useState } from "react";
 import { RiAlertFill } from "react-icons/ri";
+import { createReactBlockSpec } from "../../../packages/react/src/ReactBlockSpec";
 
 const values = {
   warning: {
@@ -128,3 +130,42 @@ export const insertAlert = new ReactSlashMenuItem<{
   <RiAlertFill />,
   "Insert an alert block to emphasize text"
 );
+
+export const ReactAlert = createReactBlockSpec({
+  type: "alert" as const,
+  propSchema: {
+    textAlignment: defaultProps.textAlignment,
+    textColor: defaultProps.textColor,
+    type: {
+      default: "warning",
+      values: ["warning", "error", "info", "success"],
+    },
+  } as const,
+  containsInlineContent: true,
+  render: (props: any) => {
+    return <El {...props} />;
+  },
+});
+
+let El = (props: any) => {
+  console.log("render", props);
+  let [x, setX] = useState(0);
+
+  // increase x every second
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setX((x) => x + 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [x]);
+
+  return (
+    <div>
+      Container:
+      <div
+        ref={props.contentRef}
+        style={{ background: "red", width: "100px", height: "20px" }}></div>
+      Footer {x}
+    </div>
+  );
+};
