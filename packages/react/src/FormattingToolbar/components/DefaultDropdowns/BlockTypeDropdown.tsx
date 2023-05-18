@@ -56,7 +56,7 @@ export const BlockTypeDropdown = <BSchema extends BlockSchema>(props: {
     },
     text: "Heading " + level,
     icon: headingIcons[level],
-    isSelected: block.type === "heading" && block.props.level === "1",
+    isSelected: block.type === "heading" && block.props.level === level,
   }));
 
   return (

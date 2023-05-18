@@ -1,5 +1,5 @@
 import { createStyles, Stack } from "@mantine/core";
-import { useState } from "react";
+import { forwardRef, useState } from "react";
 import { RiLink, RiText } from "react-icons/ri";
 import { EditHyperlinkMenuItem } from "./EditHyperlinkMenuItem";
 
@@ -13,7 +13,10 @@ export type EditHyperlinkMenuProps = {
  * Menu which opens when editing an existing hyperlink or creating a new one.
  * Provides input fields for setting the hyperlink URL and title.
  */
-export const EditHyperlinkMenu = (props: EditHyperlinkMenuProps) => {
+export const EditHyperlinkMenu = forwardRef<
+  HTMLDivElement,
+  EditHyperlinkMenuProps
+>((props, ref) => {
   const { classes } = createStyles({ root: {} })(undefined, {
     name: "EditHyperlinkMenu",
   });
@@ -22,7 +25,7 @@ export const EditHyperlinkMenu = (props: EditHyperlinkMenuProps) => {
   const [title, setTitle] = useState(props.text);
 
   return (
-    <Stack className={classes.root}>
+    <Stack className={classes.root} ref={ref}>
       <EditHyperlinkMenuItem
         icon={RiLink}
         mainIconTooltip={"Edit URL"}
@@ -42,4 +45,4 @@ export const EditHyperlinkMenu = (props: EditHyperlinkMenuProps) => {
       />
     </Stack>
   );
-};
+});

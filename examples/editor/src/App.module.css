@@ -1,4 +1,4 @@
 .editor {
-  padding: 0 calc((100% - 731px) / 2);
+  margin: 0 calc((100% - 731px) / 2);
   height: 100%;
 }

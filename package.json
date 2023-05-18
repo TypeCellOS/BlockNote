@@ -6,10 +6,11 @@
     "examples/*"
   ],
   "devDependencies": {
+    "@playwright/experimental-ct-react": "^1.33.0",
     "@playwright/test": "^1.25.0",
+    "eslint": "^8.22.0",
     "lerna": "^5.4.0",
-    "patch-package": "^6.4.7",
-    "eslint": "^8.22.0"
+    "patch-package": "^6.4.7"
   },
   "scripts": {
     "start": "lerna run --stream --scope @blocknote/example-editor dev",
@@ -25,7 +26,8 @@
     "install-playwright": "npx playwright install --with-deps",
     "deploy": "lerna publish -- --access public",
     "prepublishOnly": "npm run build && cp README.md packages/core/README.md && cp README.md packages/react/README.md",
-    "postpublish": "rm -rf packages/core/README.md && rm -rf packages/react/README.md"
+    "postpublish": "rm -rf packages/core/README.md && rm -rf packages/react/README.md",
+    "test-ct": "playwright test -c playwright-ct.config.ts"
   },
   "overrides": {
     "react": "18.2.0",

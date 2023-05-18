@@ -110,9 +110,7 @@ export default function App() {
   // Creates a new editor instance.
   const editor: BlockNoteEditor | null = useBlockNote({
     // Makes the editor non-editable.
-    _tiptapOptions: {
-      editable: false,
-    },
+    editable: false
   })
 
   useEffect(() => {
@@ -245,9 +243,7 @@ export default function App() {
   // Creates a new editor instance.
   const editor: BlockNoteEditor | null = useBlockNote({
     // Makes the editor non-editable.
-    _tiptapOptions: {
-      editable: false,
-    },
+    editable: false
   })
 
   useEffect(() => {

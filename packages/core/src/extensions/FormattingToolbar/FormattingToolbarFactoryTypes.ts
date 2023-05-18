@@ -6,16 +6,15 @@ export type FormattingToolbarStaticParams<BSchema extends BlockSchema> = {
   editor: BlockNoteEditor<BSchema>;
 };
 
-export type FormattingToolbarDynamicParams<BSchema extends BlockSchema> = {
-  editor: BlockNoteEditor<BSchema>;
+export type FormattingToolbarDynamicParams = {
   referenceRect: DOMRect;
 };
 
-export type FormattingToolbar<BSchema extends BlockSchema> = EditorElement<
-  FormattingToolbarDynamicParams<BSchema>
+export type FormattingToolbar = EditorElement<
+  FormattingToolbarDynamicParams
 >;
 export type FormattingToolbarFactory<BSchema extends BlockSchema> =
   ElementFactory<
     FormattingToolbarStaticParams<BSchema>,
-    FormattingToolbarDynamicParams<BSchema>
+    FormattingToolbarDynamicParams
   >;

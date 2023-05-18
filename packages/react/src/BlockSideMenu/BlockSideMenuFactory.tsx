@@ -1,19 +1,18 @@
 import { FC } from "react";
 import {
-  BlockNoteEditor,
   BlockSchema,
-  BlockSideMenu,
   BlockSideMenuDynamicParams,
   BlockSideMenuStaticParams,
 } from "@blocknote/core";
-import { BlockSideMenu as ReactBlockSideMenu } from "./components/BlockSideMenu";
+import { MantineThemeOverride } from "@mantine/core";
 import { ReactElementFactory } from "../ElementFactory/components/ReactElementFactory";
+import { BlockSideMenu as ReactBlockSideMenu } from "./components/BlockSideMenu";
+import { DragHandleMenuProps } from "./components/DragHandleMenu";
+import { DefaultDragHandleMenu } from "./components/DefaultDragHandleMenu";
 
 export const createReactBlockSideMenuFactory = <BSchema extends BlockSchema>(
-  dragHandleMenu: FC<{
-    editor: BlockNoteEditor<BSchema>;
-    closeMenu: () => void;
-  }>
+  theme: MantineThemeOverride,
+  dragHandleMenu: FC<DragHandleMenuProps<BSchema>> = DefaultDragHandleMenu
 ) => {
   const CustomDragHandleMenu = dragHandleMenu;
   const CustomBlockSideMenu = (
@@ -25,21 +24,9 @@ export const createReactBlockSideMenuFactory = <BSchema extends BlockSchema>(
     ReactElementFactory<
       BlockSideMenuStaticParams<BSchema>,
       BlockSideMenuDynamicParams<BSchema>
-    >(staticParams, CustomBlockSideMenu, {
+    >(staticParams, CustomBlockSideMenu, theme, {
       animation: "fade",
       offset: [0, 0],
       placement: "left",
     });
 };
-
-export const ReactBlockSideMenuFactory = <BSchema extends BlockSchema>(
-  staticParams: BlockSideMenuStaticParams<BSchema>
-): BlockSideMenu<BSchema> =>
-  ReactElementFactory<
-    BlockSideMenuStaticParams<BSchema>,
-    BlockSideMenuDynamicParams<BSchema>
-  >(staticParams, ReactBlockSideMenu, {
-    animation: "fade",
-    offset: [0, 0],
-    placement: "left",
-  });

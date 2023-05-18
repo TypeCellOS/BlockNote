@@ -4,14 +4,21 @@ import {
   BlockSchema,
   DefaultBlockSchema,
 } from "@blocknote/core";
-import { DependencyList, useEffect, useState } from "react";
-import { ReactBlockSideMenuFactory } from "../BlockSideMenu/BlockSideMenuFactory";
-import { ReactFormattingToolbarFactory } from "../FormattingToolbar/FormattingToolbarFactory";
-import { ReactHyperlinkToolbarFactory } from "../HyperlinkToolbar/HyperlinkToolbarFactory";
+import { DependencyList, FC, useEffect, useState } from "react";
+import { getBlockNoteTheme } from "../BlockNoteTheme";
+import { createReactBlockSideMenuFactory } from "../BlockSideMenu/BlockSideMenuFactory";
+import { DragHandleMenuProps } from "../BlockSideMenu/components/DragHandleMenu";
+import { createReactFormattingToolbarFactory } from "../FormattingToolbar/FormattingToolbarFactory";
+import { createReactHyperlinkToolbarFactory } from "../HyperlinkToolbar/HyperlinkToolbarFactory";
 import { defaultReactSlashMenuItems } from "../SlashMenu/defaultReactSlashMenuItems";
-import { ReactSlashMenuFactory } from "../SlashMenu/SlashMenuFactory";
+import { createReactSlashMenuFactory } from "../SlashMenu/SlashMenuFactory";
 
 //based on https://github.com/ueberdosis/tiptap/blob/main/packages/react/src/useEditor.ts
+
+type CustomElements<BSchema extends BlockSchema> = Partial<{
+  formattingToolbar: FC<{ editor: BlockNoteEditor<BSchema> }>;
+  dragHandleMenu: FC<DragHandleMenuProps<BSchema>>;
+}>;
 
 function useForceUpdate() {
   const [, setValue] = useState(0);
@@ -23,7 +30,11 @@ function useForceUpdate() {
  * Main hook for importing a BlockNote editor into a React project
  */
 export const useBlockNote = <BSchema extends BlockSchema = DefaultBlockSchema>(
-  options: Partial<BlockNoteEditorOptions<BSchema>> = {},
+  options: Partial<
+    BlockNoteEditorOptions<BSchema> & {
+      customElements: CustomElements<BSchema>;
+    }
+  > = {},
   deps: DependencyList = []
 ) => {
   const [editor, setEditor] = useState<BlockNoteEditor<BSchema> | null>(null);
@@ -35,20 +46,44 @@ export const useBlockNote = <BSchema extends BlockSchema = DefaultBlockSchema>(
     //  but it would have to be on several different classes (BlockNoteEditor, BlockNoteEditorOptions, UiFactories) and
     //  gets messy quick.
     let newOptions: Record<any, any> = {
-      slashCommands: defaultReactSlashMenuItems<any>(),
+      slashCommands: defaultReactSlashMenuItems(),
       ...options,
     };
-    if (!newOptions.uiFactories) {
-      newOptions = {
-        ...newOptions,
-        uiFactories: {
-          formattingToolbarFactory: ReactFormattingToolbarFactory,
-          hyperlinkToolbarFactory: ReactHyperlinkToolbarFactory,
-          slashMenuFactory: ReactSlashMenuFactory,
-          blockSideMenuFactory: ReactBlockSideMenuFactory,
-        },
+
+    let uiFactories: any;
+
+    if (newOptions.customElements && newOptions.uiFactories) {
+      console.warn(
+        "BlockNote editor initialized with both `customElements` and `uiFactories` options, prioritizing `uiFactories`."
+      );
+    }
+
+    if (newOptions.uiFactories) {
+      uiFactories = newOptions.uiFactories;
+    } else {
+      uiFactories = {
+        formattingToolbarFactory: createReactFormattingToolbarFactory(
+          getBlockNoteTheme(newOptions.theme === "dark"),
+          newOptions.customElements?.formattingToolbar
+        ),
+        hyperlinkToolbarFactory: createReactHyperlinkToolbarFactory(
+          getBlockNoteTheme(newOptions.theme === "dark")
+        ),
+        slashMenuFactory: createReactSlashMenuFactory(
+          getBlockNoteTheme(newOptions.theme === "dark")
+        ),
+        blockSideMenuFactory: createReactBlockSideMenuFactory(
+          getBlockNoteTheme(newOptions.theme === "dark"),
+          newOptions.customElements?.dragHandleMenu
+        ),
       };
     }
+
+    newOptions = {
+      ...newOptions,
+      uiFactories: uiFactories,
+    };
+
     console.log("create new blocknote instance");
     const instance = new BlockNoteEditor<BSchema>(
       newOptions as Partial<BlockNoteEditorOptions<BSchema>>

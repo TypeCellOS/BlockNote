@@ -35,7 +35,9 @@ export const formattingToolbarFactory: FormattingToolbarFactory<
       }
 
       boldBtn.text =
-        "bold" in params.editor.getActiveStyles() ? "unset bold" : "set bold";
+        "bold" in staticParams.editor.getActiveStyles()
+          ? "unset bold"
+          : "set bold";
       container.style.top = params.referenceRect.y + "px";
       container.style.left = params.referenceRect.x + "px";
     },

@@ -1,12 +1,15 @@
 import { Attribute, Node } from "@tiptap/core";
 import {
+  Block,
   BlockConfig,
+  BlockSchema,
   BlockSpec,
-  Props,
   PropSchema,
   TipTapNode,
   TipTapNodeConfig,
 } from "./blockTypes";
+import { BlockNoteEditor } from "../../../BlockNoteEditor";
+import styles from "../nodes/Block.module.css";
 
 function camelToDataKebab(str: string): string {
   return "data-" + str.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
@@ -43,11 +46,15 @@ function camelToDataKebab(str: string): string {
 export function createBlockSpec<
   BType extends string,
   PSchema extends PropSchema,
-  ContainsInlineContent extends boolean
+  ContainsInlineContent extends boolean,
+  BSchema extends BlockSchema
 >(
-  blockConfig: BlockConfig<BType, PSchema, ContainsInlineContent>
-): BlockSpec<BType, PSchema> {
-  const node = createTipTapBlock({
+  blockConfig: BlockConfig<BType, PSchema, ContainsInlineContent, BSchema>
+): BlockSpec<BType, PSchema, { editor: BlockNoteEditor<BSchema> | undefined }> {
+  const node = createTipTapBlock<
+    BType,
+    { editor: BlockNoteEditor<BSchema> | undefined }
+  >({
     name: blockConfig.type,
     content: blockConfig.containsInlineContent ? "inline*" : "",
     selectable: blockConfig.containsInlineContent,
@@ -75,6 +82,12 @@ export function createBlockSpec<
       return tiptapAttributes;
     },
 
+    addOptions() {
+      return {
+        editor: undefined,
+      };
+    },
+
     parseHTML() {
       // TODO: This won't work for content copied outside BlockNote. Given the
       //  variety of possible custom block types, a one-size-fits-all solution
@@ -98,8 +111,7 @@ export function createBlockSpec<
           ];
     },
 
-    // TODO, create node from render / inlineContent / other props from options
-    renderHTML({ HTMLAttributes, node }) {
+    renderHTML({ HTMLAttributes }) {
       // Create blockContent element
       const blockContent = document.createElement("div");
       // Add blockContent HTML attribute
@@ -109,18 +121,88 @@ export function createBlockSpec<
         blockContent.setAttribute(attribute, value);
       }
 
-      // Render elements
-      const rendered = blockConfig.render(node.attrs as Props<PSchema>);
-      // Add elements to blockContent
-      blockContent.appendChild(rendered.dom);
+      // TODO: This only works for content copied within BlockNote.
+      // Creates contentDOM element to serialize inline content into.
+      let contentDOM: HTMLDivElement | undefined;
+      if (blockConfig.containsInlineContent) {
+        contentDOM = document.createElement("div");
+        blockContent.appendChild(contentDOM);
+      } else {
+        contentDOM = undefined;
+      }
+
+      // Alternative approach to serializing the block.
+      // // Gets BlockNote editor instance
+      // const editor = this.options.editor!;
+      //
+      // // Quite hacky but don't think there's a better way to do this. Since the
+      // // contentDOM can be anywhere inside the DOM, we don't know which element
+      // // it is. Calling render() will give us the contentDOM, but we need to
+      // // provide a block as a parameter.
+      // const getDummyBlock: () => Block<BlockSchema> = () =>
+      //   ({
+      //     id: "",
+      //     type: "",
+      //     props: {},
+      //     content: [],
+      //     children: [],
+      //   } as Block<BlockSchema>);
+      //
+      // // Render elements
+      // const rendered = blockConfig.render(getDummyBlock, editor);
+      // // Add elements to blockContent
+      // blockContent.appendChild(rendered.dom);
+      //
+      // const contentDOM = blockConfig.containsInlineContent
+      //   ? rendered.contentDOM
+      //   : undefined;
 
       return {
         dom: blockContent,
-        // I don't understand what's going on with the typing here
-        contentDOM:
-          "contentDOM" in rendered
-            ? (rendered.contentDOM as HTMLDivElement)
-            : undefined,
+        contentDOM: contentDOM,
+      };
+    },
+
+    addNodeView() {
+      return ({ HTMLAttributes, getPos }) => {
+        // Create blockContent element
+        const blockContent = document.createElement("div");
+        // Sets blockContent class
+        blockContent.className = styles.blockContent;
+        // Add blockContent HTML attribute
+        blockContent.setAttribute("data-content-type", blockConfig.type);
+        // Add props as HTML attributes in kebab-case with "data-" prefix
+        for (const [attribute, value] of Object.entries(HTMLAttributes)) {
+          blockContent.setAttribute(attribute, value);
+        }
+
+        // Gets BlockNote editor instance
+        const editor = this.options.editor!;
+        // Gets position of the node
+        const pos = typeof getPos === "function" ? getPos() : undefined;
+        // Gets TipTap editor instance
+        const tipTapEditor = editor._tiptapEditor;
+        // Gets parent blockContainer node
+        const blockContainer = tipTapEditor.state.doc.resolve(pos!).node();
+        // Gets block identifier
+        const blockIdentifier = blockContainer.attrs.id;
+        // Function to get the block
+        const getBlock: () => Block<BSchema> = () =>
+          editor.getBlock(blockIdentifier)!;
+
+        // Render elements
+        const rendered = blockConfig.render(getBlock(), editor);
+        // Add elements to blockContent
+        blockContent.appendChild(rendered.dom);
+
+        return {
+          dom: blockContent,
+          // I don't understand what's going on with the typing here
+          contentDOM:
+            "contentDOM" in rendered
+              ? (rendered.contentDOM as HTMLDivElement)
+              : undefined,
+        };
       };
     },
   });

@@ -3,6 +3,7 @@ import { TippyProps } from "@tippyjs/react";
 import { createRoot } from "react-dom/client";
 import { EditorElement, RequiredDynamicParams } from "@blocknote/core";
 import { EditorElementComponentWrapper } from "./EditorElementComponentWrapper";
+import { MantineThemeOverride } from "@mantine/core";
 
 /**
  * The ReactElementFactory is a generic function used to create all other ElementFactories, which are then used in the
@@ -14,6 +15,7 @@ import { EditorElementComponentWrapper } from "./EditorElementComponentWrapper";
  * @param staticParams Properties used in rendering the element which do not change, regardless of editor state.
  * @param EditorElementComponent The element to render, which is a React component. Takes EditorStaticParams and
  * EditorDynamicParams as props.
+ * @param theme The Mantine theme used to style the element.
  * @param tippyProps Tippy props, which affect the elements' popup behaviour, e.g. popup position, animation, etc.
  */
 export const ReactElementFactory = <
@@ -22,6 +24,7 @@ export const ReactElementFactory = <
 >(
   staticParams: ElementStaticParams,
   EditorElementComponent: FC<ElementStaticParams & ElementDynamicParams>,
+  theme: MantineThemeOverride,
   tippyProps?: TippyProps
 ): EditorElement<ElementDynamicParams> => {
   const rootElement = document.createElement("div");
@@ -43,6 +46,7 @@ export const ReactElementFactory = <
           staticParams={staticParams}
           dynamicParams={dynamicParams}
           editorElementComponent={EditorElementComponent}
+          theme={theme}
           tippyProps={tippyProps}
         />
       );
@@ -55,6 +59,7 @@ export const ReactElementFactory = <
           staticParams={staticParams}
           dynamicParams={prevDynamicParams!}
           editorElementComponent={EditorElementComponent}
+          theme={theme}
           tippyProps={tippyProps}
         />
       );

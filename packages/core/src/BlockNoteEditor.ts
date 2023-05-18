@@ -19,15 +19,13 @@ import { getNodeById } from "./api/util/nodeUtil";
 import { getBlockNoteExtensions, UiFactories } from "./BlockNoteExtensions";
 import styles from "./editor.module.css";
 import {
-  BlockIdentifier,
   Block,
+  BlockIdentifier,
   BlockSchema,
   PartialBlock,
 } from "./extensions/Blocks/api/blockTypes";
-import {
-  MouseCursorPosition,
-  TextCursorPosition,
-} from "./extensions/Blocks/api/cursorPositionTypes";
+import { TextCursorPosition } from "./extensions/Blocks/api/cursorPositionTypes";
+import { Selection } from "./extensions/Blocks/api/selectionTypes";
 import {
   defaultBlockSchema,
   DefaultBlockSchema,
@@ -37,7 +35,6 @@ import {
   Styles,
   ToggledStyle,
 } from "./extensions/Blocks/api/inlineContentTypes";
-import { Selection } from "./extensions/Blocks/api/selectionTypes";
 import { getBlockInfoFromPos } from "./extensions/Blocks/helpers/getBlockInfoFromPos";
 import {
   BaseSlashMenuItem,
@@ -49,7 +46,8 @@ export type BlockNoteEditorOptions<BSchema extends BlockSchema> = {
   enableBlockNoteExtensions: boolean;
   disableHistoryExtension: boolean;
   /**
-   * Factories used to create a custom UI for BlockNote
+   * UI element factories for creating a custom UI, including custom positioning
+   * & rendering.
    */
   uiFactories: UiFactories<BSchema>;
   /**
@@ -83,14 +81,26 @@ export type BlockNoteEditorOptions<BSchema extends BlockSchema> = {
    * A callback function that runs whenever the text cursor position changes.
    */
   onTextCursorPositionChange: (editor: BlockNoteEditor<BSchema>) => void;
+  /**
+   * Locks the editor from being editable by the user if set to `false`.
+   */
+  editable: boolean;
+  /**
+   * The content that should be in the editor when it's created, represented as an array of partial block objects.
+   */
   initialContent: PartialBlock<BSchema>[];
-
   /**
    * Use default BlockNote font and reset the styles of <p> <li> <h1> elements etc., that are used in BlockNote.
    *
    * @default true
    */
   defaultStyles: boolean;
+  /**
+   * Whether to use the light or dark theme.
+   *
+   * @default "light"
+   */
+  theme: "light" | "dark";
 
   /**
    * A list of block types that should be available in the editor.
@@ -109,8 +119,7 @@ const blockNoteTipTapOptions = {
 
 export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
   public readonly _tiptapEditor: TiptapEditor & { contentComponent: any };
-  private blockCache = new WeakMap<Node, Block<BSchema>>();
-  private mousePos = { x: 0, y: 0 };
+  public blockCache = new WeakMap<Node, Block<BSchema>>();
   public readonly schema: BSchema;
 
   public get domElement() {
@@ -122,7 +131,6 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
   }
 
   constructor(options: Partial<BlockNoteEditorOptions<BSchema>> = {}) {
-    console.log("test");
     // apply defaults
     const newOptions: Omit<typeof options, "defaultStyles" | "blockSchema"> & {
       defaultStyles: boolean;
@@ -141,7 +149,8 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
     const blockNoteExtensions = getBlockNoteExtensions<BSchema>({
       editor: this,
       uiFactories: newOptions.uiFactories || {},
-      slashCommands: newOptions.slashCommands || (defaultSlashMenuItems as any),
+      slashCommands:
+        newOptions.slashCommands || (defaultSlashMenuItems() as any),
       blocks: newOptions.blockSchema,
     });
 
@@ -165,11 +174,6 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
         newOptions.onEditorReady?.(this);
         newOptions.initialContent &&
           this.replaceBlocks(this.topLevelBlocks, newOptions.initialContent);
-        document.addEventListener(
-          "mousemove",
-          (event: MouseEvent) =>
-            (this.mousePos = { x: event.clientX, y: event.clientY })
-        );
       },
       onUpdate: () => {
         newOptions.onEditorContentChange?.(this);
@@ -177,12 +181,14 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
       onSelectionUpdate: () => {
         newOptions.onTextCursorPositionChange?.(this);
       },
+      editable: options.editable === undefined ? true : options.editable,
       extensions:
         newOptions.enableBlockNoteExtensions === false
           ? newOptions._tiptapOptions?.extensions
           : [...(newOptions._tiptapOptions?.extensions || []), ...extensions],
       editorProps: {
         attributes: {
+          "data-theme": options.theme || "light",
           ...(newOptions.editorDOMAttributes || {}),
           class: [
             styles.bnEditor,
@@ -286,36 +292,8 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
     traverseBlockArray(blocks);
   }
 
-  /**
-   * Gets a snapshot of the current mouse cursor position.
-   * @returns A snapshot of the current mouse cursor position.
-   */
-  public getMouseCursorPosition(): MouseCursorPosition<BSchema> | undefined {
-    // Editor itself may have padding or other styling which affects size/position, so we get the boundingRect of
-    // the first child (i.e. the blockGroup that wraps all blocks in the editor) for a more accurate bounding box.
-    const editorBoundingBox = (
-      this._tiptapEditor.view.dom.firstChild! as HTMLElement
-    ).getBoundingClientRect();
-
-    const pos = this._tiptapEditor.view.posAtCoords({
-      left: editorBoundingBox.left + editorBoundingBox.width / 2,
-      top: this.mousePos.y,
-    });
-
-    if (!pos) {
-      return;
-    }
-
-    const blockInfo = getBlockInfoFromPos(
-      this._tiptapEditor.state.doc,
-      pos.pos
-    );
-
-    if (!blockInfo) {
-      return;
-    }
-
-    return { block: nodeToBlock(blockInfo.node, this.schema, this.blockCache) };
+  public onEditorContentChange(callback: () => void) {
+    this._tiptapEditor.on("update", callback);
   }
 
   /**
@@ -392,7 +370,14 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
   /**
    * Gets a snapshot of the current selection.
    */
-  public getSelection(): Selection<BSchema> {
+  public getSelection(): Selection<BSchema> | undefined {
+    if (
+      this._tiptapEditor.state.selection.from ===
+      this._tiptapEditor.state.selection.to
+    ) {
+      return undefined;
+    }
+
     const blocks: Block<BSchema>[] = [];
 
     this._tiptapEditor.state.doc.descendants((node, pos) => {
@@ -419,6 +404,22 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
     });
 
     return { blocks: blocks };
+  }
+
+  /**
+   * Checks if the editor is currently editable, or if it's locked.
+   * @returns True if the editor is editable, false otherwise.
+   */
+  public get isEditable(): boolean {
+    return this._tiptapEditor.isEditable;
+  }
+
+  /**
+   * Makes the editor editable or locks it, depending on the argument passed.
+   * @param editable True to make the editor editable, or false to lock it.
+   */
+  public set isEditable(editable: boolean) {
+    this._tiptapEditor.setEditable(editable);
   }
 
   /**
@@ -474,7 +475,7 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
   }
 
   /**
-   * Gets the active text styles at the text cursor position.
+   * Gets the active text styles at the text cursor position or at the end of the current selection if it's active.
    */
   public getActiveStyles() {
     const styles: Styles = {};
@@ -485,6 +486,7 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
       "italic",
       "underline",
       "strike",
+      "code",
     ]);
     const colorStyles = new Set<ColorStyle>(["textColor", "backgroundColor"]);
 
@@ -509,6 +511,7 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
       "italic",
       "underline",
       "strike",
+      "code",
     ]);
     const colorStyles = new Set<ColorStyle>(["textColor", "backgroundColor"]);
 
@@ -545,6 +548,7 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
       "italic",
       "underline",
       "strike",
+      "code",
     ]);
     const colorStyles = new Set<ColorStyle>(["textColor", "backgroundColor"]);
 
@@ -560,18 +564,20 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
   }
 
   /**
-   * Gets the URL of the link at the current selection, and the currently selected text. If no link is active, the URL
-   * is an empty string.
+   * Gets the currently selected text.
    */
-  public getActiveLink() {
-    const url = this._tiptapEditor.getAttributes("link").href;
-    // TODO: Does this make sense? Shouldn't it get the actual link text?
-    const text = this._tiptapEditor.state.doc.textBetween(
+  public getSelectedText() {
+    return this._tiptapEditor.state.doc.textBetween(
       this._tiptapEditor.state.selection.from,
       this._tiptapEditor.state.selection.to
     );
+  }
 
-    return { text: text, url: url };
+  /**
+   * Gets the URL of the last link in the current selection, or `undefined` if there are no links in the selection.
+   */
+  public getSelectedLinkUrl() {
+    return this._tiptapEditor.getAttributes("link").href as string | undefined;
   }
 
   /**
