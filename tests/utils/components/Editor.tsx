@@ -46,9 +46,9 @@ const customBlocks = {
   },
 } as const;
 
-type CustomBlocks = typeof customBlocks;
+export type CustomBlocks = typeof customBlocks;
 
-function Editor(props: { blockTypes: (keyof CustomBlocks)[] }) {
+export default function Editor(props: { blockTypes: (keyof CustomBlocks)[] }) {
   const blockSchema: Partial<{
     [BlockType in keyof CustomBlocks]: CustomBlocks[BlockType]["block"];
   }> = Object.fromEntries(
@@ -86,5 +86,3 @@ function Editor(props: { blockTypes: (keyof CustomBlocks)[] }) {
 
   return <BlockNoteView editor={editor} />;
 }
-
-export default Editor;

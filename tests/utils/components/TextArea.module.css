@@ -1,0 +1,6 @@
+.pasteZone {
+  margin-inline: calc((100% - 731px) / 2);
+  width: 731px;
+  height: 300px;
+  resize: none;
+}
