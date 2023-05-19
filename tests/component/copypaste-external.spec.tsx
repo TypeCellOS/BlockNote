@@ -4,12 +4,19 @@ import { executeSlashCommand } from "../utils/slashmenu";
 import { copyPasteAllExternal } from "../utils/copypaste";
 import EditorWithTextArea from "../utils/components/EditorWithTextArea";
 
-const alertHTML = "<div>Alert</div>";
-const buttonHTML = "<div>Alert</div>";
-const embedHTML = "<div>Alert</div>";
-const imageHTML = "<div>Alert</div>";
-const separatorHTML = "<div>Alert</div>";
-const tableOfContentsHTML = "<div>Alert</div>";
+const meta = "<meta charset='utf-8'>";
+
+const alertHTML = meta + "<div>❌</div><div>Alert</div>";
+const buttonHTML = meta + "<button>Insert Block Below</button>";
+const embedHTML =
+  meta + "<iframe src='https://www.youtube.com/embed/wjfuB8Xjhc4'/>";
+const imageHTML =
+  meta +
+  "<img src='https://via.placeholder.com/150' alt='image'/><div>Alert</div>";
+const separatorHTML = meta + "<hr/>";
+const tableOfContentsHTML =
+  meta +
+  "<li><p>Heading 1</p></li><li><p>Heading 2</p></li><li><p>Heading 1</p></li><li><p>Heading 2</p></li>";
 
 test.beforeEach(async ({}, testInfo) => {
   testInfo.snapshotSuffix = "";
