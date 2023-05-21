@@ -88,14 +88,14 @@ export const defaultSlashMenuItems = <BSchema extends DefaultBlockSchema>() => [
       }),
     ["p"]
   ),
-  new BaseSlashMenuItem<BSchema>(
-    "Monaco",
-    (editor) =>
-      insertOrUpdateBlock(editor, {
-        type: "monaco",
-      }),
-    ["m"]
-  ),
+  // new BaseSlashMenuItem<BSchema>(
+  //   "Monaco",
+  //   (editor) =>
+  //     insertOrUpdateBlock(editor, {
+  //       type: "monaco",
+  //     }),
+  //   ["m"]
+  // ),
 
   //     replaceRangeWithNode(editor, range, node);
 

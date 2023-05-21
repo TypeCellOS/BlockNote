@@ -1,7 +1,7 @@
 import { HeadingBlockContent } from "../nodes/BlockContent/HeadingBlockContent/HeadingBlockContent";
 import { BulletListItemBlockContent } from "../nodes/BlockContent/ListItemBlockContent/BulletListItemBlockContent/BulletListItemBlockContent";
 import { NumberedListItemBlockContent } from "../nodes/BlockContent/ListItemBlockContent/NumberedListItemBlockContent/NumberedListItemBlockContent";
-import { MonacoBlockContent } from "../nodes/BlockContent/ParagraphBlockContent/MonacoBlockContent";
+// import { MonacoBlockContent } from "../nodes/BlockContent/ParagraphBlockContent/MonacoBlockContent.ts.bak";
 import { ParagraphBlockContent } from "../nodes/BlockContent/ParagraphBlockContent/ParagraphBlockContent";
 import { createBlockSpec } from "./block";
 import { TypesMatch } from "./blockTypes";
@@ -41,10 +41,10 @@ export const defaultBlockSchema = {
     propSchema: defaultProps,
     node: NumberedListItemBlockContent,
   },
-  monaco: {
-    propSchema: defaultProps,
-    node: MonacoBlockContent,
-  },
+  // monaco: {
+  //   propSchema: defaultProps,
+  //   node: MonacoBlockContent,
+  // },
 } as const;
 
 const imageProps = { src: { default: "gfr" } } as const;
