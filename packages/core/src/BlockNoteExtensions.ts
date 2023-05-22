@@ -16,6 +16,7 @@ import { Strike } from "@tiptap/extension-strike";
 import { Text } from "@tiptap/extension-text";
 import { Underline } from "@tiptap/extension-underline";
 import * as Y from "yjs";
+import styles from "./editor.module.css";
 import { BackgroundColorExtension } from "./extensions/BackgroundColor/BackgroundColorExtension";
 import { BackgroundColorMark } from "./extensions/BackgroundColor/BackgroundColorMark";
 import { blocks } from "./extensions/Blocks";
@@ -113,10 +114,25 @@ export const getBlockNoteExtensions = (opts: {
         fragment: opts.collaboration.fragment,
       })
     );
+    const defaultRender = (user: { color: string; name: string }) => {
+      const cursor = document.createElement("span");
+
+      cursor.classList.add(styles["collaboration-cursor__caret"]);
+      cursor.setAttribute("style", `border-color: ${user.color}`);
+
+      const label = document.createElement("div");
+
+      label.classList.add(styles["collaboration-cursor__label"]);
+      label.setAttribute("style", `background-color: ${user.color}`);
+      label.insertBefore(document.createTextNode(user.name), null);
+      cursor.insertBefore(label, null);
+
+      return cursor;
+    };
     ret.push(
       CollaborationCursor.configure({
         user: opts.collaboration.user,
-        render: opts.collaboration.renderCursor,
+        render: opts.collaboration.renderCursor || defaultRender,
         provider: opts.collaboration.provider,
       })
     );

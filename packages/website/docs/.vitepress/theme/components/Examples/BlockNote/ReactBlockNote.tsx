@@ -1,17 +1,54 @@
 import "@blocknote/core/style.css";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import YPartyKitProvider from "y-partykit/provider";
 import * as Y from "yjs";
 import * as styles from "./ReactBlockNote.module.css";
+
+const colors = [
+  "#958DF1",
+  "#F98181",
+  "#FBBC88",
+  "#FAF594",
+  "#70CFF8",
+  "#94FADB",
+  "#B9F18D",
+];
+const names = [
+  "Lorem Ipsumovich",
+  "Typy McTypeface",
+  "Collabo Rative",
+  "Edito Von Editz",
+  "Wordsworth Writywrite",
+  "Docu D. Mentor",
+  "Scrivener Scribblesworth",
+  "Digi Penman",
+  "Ernest Wordway",
+  "Sir Typalot",
+  "Comic Sans-Serif",
+  "Miss Spellcheck",
+  "Bullet Liston",
+  "Autonomy Backspace",
+  "Ctrl Zedson",
+];
+
+const getRandomElement = (list: any[]) =>
+  list[Math.floor(Math.random() * list.length)];
+
+const getRandomColor = () => getRandomElement(colors);
+const getRandomName = () => getRandomElement(names);
 
 export function ReactBlockNote() {
   const [darkMode, setDarkMode] = useState(
     document.documentElement.classList.contains("dark")
   );
 
-  const doc = new Y.Doc();
-  const provider = new YPartyKitProvider("localhost:1999", "my-room", doc);
+  const [doc, provider] = useMemo(() => {
+    console.log("create");
+    const doc = new Y.Doc();
+    const provider = new YPartyKitProvider("localhost:1999", "homepage", doc);
+    return [doc, provider];
+  }, []);
 
   const editor = useBlockNote({
     editorDOMAttributes: {
@@ -22,8 +59,8 @@ export function ReactBlockNote() {
       provider,
       fragment: doc.getXmlFragment("blocknote"),
       user: {
-        name: "User",
-        color: "red",
+        name: getRandomName(),
+        color: getRandomColor(),
       },
     },
   });

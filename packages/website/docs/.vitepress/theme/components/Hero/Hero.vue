@@ -104,7 +104,7 @@ header {
   background: white;
   backdrop-filter: blur(6px);
   padding: 50px;
-  padding-left: 0;
+  padding-left: 1px;
 }
 
 .header-media::after {
