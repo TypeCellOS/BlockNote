@@ -13,6 +13,8 @@
   "license": "MPL-2.0",
   "dependencies": {
     "@blocknote/react": "^0.6.2",
+    "y-partykit": "^0.0.0",
+    "yjs": "^13.6.1",
     "veaury": "^2.3.12",
     "vue-github-button": "^3.1.0"
   },

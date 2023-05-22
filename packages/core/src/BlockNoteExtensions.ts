@@ -4,6 +4,8 @@ import { BlockNoteEditor } from "./BlockNoteEditor";
 
 import { Bold } from "@tiptap/extension-bold";
 import { Code } from "@tiptap/extension-code";
+import Collaboration from "@tiptap/extension-collaboration";
+import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
 import { Dropcursor } from "@tiptap/extension-dropcursor";
 import { Gapcursor } from "@tiptap/extension-gapcursor";
 import { HardBreak } from "@tiptap/extension-hard-break";
@@ -13,6 +15,7 @@ import { Link } from "@tiptap/extension-link";
 import { Strike } from "@tiptap/extension-strike";
 import { Text } from "@tiptap/extension-text";
 import { Underline } from "@tiptap/extension-underline";
+import * as Y from "yjs";
 import { BackgroundColorExtension } from "./extensions/BackgroundColor/BackgroundColorExtension";
 import { BackgroundColorMark } from "./extensions/BackgroundColor/BackgroundColorMark";
 import { blocks } from "./extensions/Blocks";
@@ -46,6 +49,15 @@ export const getBlockNoteExtensions = (opts: {
   editor: BlockNoteEditor;
   uiFactories: UiFactories;
   slashCommands: BaseSlashMenuItem[];
+  collaboration?: {
+    fragment: Y.XmlFragment;
+    user: {
+      name: string;
+      color: string;
+    };
+    provider: any;
+    renderCursor?: (user: any) => HTMLElement;
+  };
 }) => {
   const ret: Extensions = [
     extensions.ClipboardTextSerializer,
@@ -90,11 +102,28 @@ export const getBlockNoteExtensions = (opts: {
     ...blocks,
 
     Dropcursor.configure({ width: 5, color: "#ddeeff" }),
-    History,
     // This needs to be at the bottom of this list, because Key events (such as enter, when selecting a /command),
     // should be handled before Enter handlers in other components like splitListItem
     TrailingNode,
   ];
+
+  if (opts.collaboration) {
+    ret.push(
+      Collaboration.configure({
+        fragment: opts.collaboration.fragment,
+      })
+    );
+    ret.push(
+      CollaborationCursor.configure({
+        user: opts.collaboration.user,
+        render: opts.collaboration.renderCursor,
+        provider: opts.collaboration.provider,
+      })
+    );
+  } else {
+    // disable history extension when collaboration is enabled as Yjs takes care of undo / redo
+    ret.push(History);
+  }
 
   if (opts.uiFactories.blockSideMenuFactory) {
     ret.push(

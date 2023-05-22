@@ -1,6 +1,8 @@
 import "@blocknote/core/style.css";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
 import { useEffect, useState } from "react";
+import YPartyKitProvider from "y-partykit/provider";
+import * as Y from "yjs";
 import * as styles from "./ReactBlockNote.module.css";
 
 export function ReactBlockNote() {
@@ -8,15 +10,22 @@ export function ReactBlockNote() {
     document.documentElement.classList.contains("dark")
   );
 
+  const doc = new Y.Doc();
+  const provider = new YPartyKitProvider("localhost:1999", "my-room", doc);
+
   const editor = useBlockNote({
-    onUpdate: (editor) => {
-      // Log the document to console on every update
-      console.log(editor.topLevelBlocks);
-    },
     editorDOMAttributes: {
       class: styles.editor,
     },
-    useDarkTheme: darkMode,
+    theme: darkMode ? "dark" : "light",
+    collaboration: {
+      provider,
+      fragment: doc.getXmlFragment("blocknote"),
+      user: {
+        name: "User",
+        color: "red",
+      },
+    },
   });
 
   useEffect(() => {

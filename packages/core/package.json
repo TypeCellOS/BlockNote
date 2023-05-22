@@ -80,8 +80,8 @@
     "unified": "^10.1.2",
     "uuid": "^8.3.2",
     "y-prosemirror": "1.0.20",
-    "y-protocols": "1.0.5",
-    "yjs": "13.5.44"
+    "y-protocols": "^1.0.5",
+    "yjs": "^13.6.1"
   },
   "devDependencies": {
     "@types/hast": "^2.3.4",
