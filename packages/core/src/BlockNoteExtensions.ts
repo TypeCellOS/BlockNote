@@ -18,6 +18,7 @@ import { BackgroundColorMark } from "./extensions/BackgroundColor/BackgroundColo
 import { blocks } from "./extensions/Blocks";
 import { BlockSchema } from "./extensions/Blocks/api/blockTypes";
 import blockStyles from "./extensions/Blocks/nodes/Block.module.css";
+import { CustomBlockSerializerExtension } from "./extensions/Blocks/api/block";
 import { BlockSideMenuFactory } from "./extensions/DraggableBlocks/BlockSideMenuFactoryTypes";
 import { createDraggableBlocksExtension } from "./extensions/DraggableBlocks/DraggableBlocksExtension";
 import { createFormattingToolbarExtension } from "./extensions/FormattingToolbar/FormattingToolbarExtension";
@@ -90,6 +91,7 @@ export const getBlockNoteExtensions = <BSchema extends BlockSchema>(opts: {
     BackgroundColorMark,
     BackgroundColorExtension,
     TextAlignmentExtension,
+    CustomBlockSerializerExtension,
 
     // custom blocks:
     ...blocks,

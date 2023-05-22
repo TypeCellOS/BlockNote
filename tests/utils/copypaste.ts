@@ -11,17 +11,6 @@ export async function copyPasteAll(page: Page) {
   await page.keyboard.press("Meta+V");
 }
 
-function formatHTMLTags(str: string) {
-  return (
-    str
-      .replace(/&amp;/g, "&")
-      .replace(/&lt;/g, "<")
-      .replace(/&gt;/g, ">")
-      // TODO: Why doesn't this work?
-      .replace(/\\"/g, '"')
-  );
-}
-
 export async function copyPasteAllExternal(page: Page) {
   await showMouseCursor(page);
   await page.keyboard.press("Meta+A");
@@ -32,7 +21,7 @@ export async function copyPasteAllExternal(page: Page) {
   await pasteZone.click();
   await page.keyboard.press("Meta+V");
 
-  return formatHTMLTags(await pasteZone.innerHTML());
+  return await pasteZone.inputValue();
 }
 
 export async function insertParagraph(page: Page) {

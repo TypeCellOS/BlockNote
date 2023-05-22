@@ -4,6 +4,8 @@ import { compareDocToSnapshot, focusOnEditor } from "../utils/editor";
 import { executeSlashCommand } from "../utils/slashmenu";
 import { copyPasteAll } from "../utils/copypaste";
 
+test.describe.configure({ mode: "serial" });
+
 test.beforeEach(async ({}, testInfo) => {
   testInfo.snapshotSuffix = "";
 });

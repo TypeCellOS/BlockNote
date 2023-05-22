@@ -4,19 +4,7 @@ import { executeSlashCommand } from "../utils/slashmenu";
 import { copyPasteAllExternal } from "../utils/copypaste";
 import EditorWithTextArea from "../utils/components/EditorWithTextArea";
 
-const meta = "<meta charset='utf-8'>";
-
-const alertHTML = meta + "<div>❌</div><div>Alert</div>";
-const buttonHTML = meta + "<button>Insert Block Below</button>";
-const embedHTML =
-  meta + "<iframe src='https://www.youtube.com/embed/wjfuB8Xjhc4'/>";
-const imageHTML =
-  meta +
-  "<img src='https://via.placeholder.com/150' alt='image'/><div>Alert</div>";
-const separatorHTML = meta + "<hr/>";
-const tableOfContentsHTML =
-  meta +
-  "<li><p>Heading 1</p></li><li><p>Heading 2</p></li><li><p>Heading 1</p></li><li><p>Heading 2</p></li>";
+test.describe.configure({ mode: "serial" });
 
 test.beforeEach(async ({}, testInfo) => {
   testInfo.snapshotSuffix = "";
@@ -38,7 +26,8 @@ test("Alert Copy/Paste External", async ({ mount, page }) => {
   );
   await button.first().click();
 
-  await expect(await copyPasteAllExternal(page)).toEqual(alertHTML);
+  const value = await copyPasteAllExternal(page);
+  await expect(value).toMatchSnapshot("alert-external.html");
 });
 
 test("Button Copy/Paste External", async ({ mount, page }) => {
@@ -50,7 +39,8 @@ test("Button Copy/Paste External", async ({ mount, page }) => {
   await page.keyboard.press("ArrowDown");
   await page.keyboard.type("Paragraph 2");
 
-  await expect(await copyPasteAllExternal(page)).toEqual(buttonHTML);
+  const value = await copyPasteAllExternal(page);
+  await expect(value).toMatchSnapshot("button-external.html");
 });
 
 test("Embed Copy/Paste Internal", async ({ mount, page }) => {
@@ -62,7 +52,8 @@ test("Embed Copy/Paste Internal", async ({ mount, page }) => {
   await page.keyboard.press("ArrowDown");
   await page.keyboard.type("Paragraph 2");
 
-  await expect(await copyPasteAllExternal(page)).toEqual(embedHTML);
+  const value = await copyPasteAllExternal(page);
+  await expect(value).toMatchSnapshot("embed-external.html");
 });
 
 test("Image Copy/Paste Internal", async ({ mount, page }) => {
@@ -76,7 +67,8 @@ test("Image Copy/Paste Internal", async ({ mount, page }) => {
   await page.keyboard.press("ArrowDown");
   await page.keyboard.type("Paragraph 2");
 
-  await expect(await copyPasteAllExternal(page)).toEqual(imageHTML);
+  const value = await copyPasteAllExternal(page);
+  await expect(value).toMatchSnapshot("image-external.html");
 });
 
 test("Separator Copy/Paste Internal", async ({ mount, page }) => {
@@ -88,10 +80,8 @@ test("Separator Copy/Paste Internal", async ({ mount, page }) => {
   await page.keyboard.press("ArrowDown");
   await page.keyboard.type("Paragraph 2");
 
-  const html = await copyPasteAllExternal(page);
-
-  // await page.pause();
-  await expect(html).toEqual(separatorHTML);
+  const value = await copyPasteAllExternal(page);
+  await expect(value).toMatchSnapshot("separator-external.html");
 });
 
 test("Table of Contents Copy/Paste Internal", async ({ mount, page }) => {
@@ -105,5 +95,6 @@ test("Table of Contents Copy/Paste Internal", async ({ mount, page }) => {
   await executeSlashCommand(page, "h2");
   await page.keyboard.type("Heading 2");
 
-  await expect(await copyPasteAllExternal(page)).toEqual(tableOfContentsHTML);
+  const value = await copyPasteAllExternal(page);
+  await expect(value).toMatchSnapshot("toc-external.html");
 });
