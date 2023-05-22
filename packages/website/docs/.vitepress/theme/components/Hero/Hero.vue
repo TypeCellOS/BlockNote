@@ -74,7 +74,6 @@ header {
 
 .header-media {
   transform: translateY(-80px);
-  max-height: 600px;
   max-width: 596px;
   width: 100%;
   @media (max-width: 1460px) {

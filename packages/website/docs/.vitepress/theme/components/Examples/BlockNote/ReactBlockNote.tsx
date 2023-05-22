@@ -46,7 +46,11 @@ export function ReactBlockNote() {
   const [doc, provider] = useMemo(() => {
     console.log("create");
     const doc = new Y.Doc();
-    const provider = new YPartyKitProvider("localhost:1999", "homepage", doc);
+    const provider = new YPartyKitProvider(
+      "blocknote.yousefed.partykit.dev",
+      "homepage",
+      doc
+    );
     return [doc, provider];
   }, []);
 
@@ -64,6 +68,22 @@ export function ReactBlockNote() {
       },
     },
   });
+
+  useEffect(() => {
+    let shownAlert = false;
+    const listener = (e: any) => {
+      if (!shownAlert) {
+        alert(
+          "Text you enter in this demo is displayed publicly on the internet to show multiplayer features. Be kind :)"
+        );
+        shownAlert = true;
+      }
+    };
+    editor?.domElement?.addEventListener("focus", listener);
+    return () => {
+      editor?.domElement?.removeEventListener("focus", listener);
+    };
+  }, [editor?.domElement]);
 
   useEffect(() => {
     // Create the mutation observer
