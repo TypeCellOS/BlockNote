@@ -1,16 +1,15 @@
 import {
+  Block,
   BlockConfig,
   BlockNoteEditor,
   BlockSchema,
   BlockSpec,
   createTipTapBlock,
-  PropSchema,
-  Block,
-  propsToAttributes,
   parse,
+  PropSchema,
+  propsToAttributes,
   render,
 } from "@blocknote/core";
-import { FC } from "react";
 import {
   NodeViewContent,
   NodeViewContentProps,
@@ -18,6 +17,7 @@ import {
   NodeViewWrapper,
   ReactNodeViewRenderer,
 } from "@tiptap/react";
+import { FC } from "react";
 
 // extend BlockConfig but use a react render function
 export type ReactBlockConfig<
@@ -48,11 +48,8 @@ export function createReactBlockSpec<
   BSchema extends BlockSchema
 >(
   blockConfig: ReactBlockConfig<BType, PSchema, ContainsInlineContent, BSchema>
-): BlockSpec<BType, PSchema, { editor: BlockNoteEditor<BSchema> | undefined }> {
-  const node = createTipTapBlock<
-    BType,
-    { editor: BlockNoteEditor<BSchema> | undefined }
-  >({
+): BlockSpec<BType, PSchema> {
+  const node = createTipTapBlock<BType>({
     name: blockConfig.type,
     content: blockConfig.containsInlineContent ? "inline*" : "",
     selectable: blockConfig.containsInlineContent,

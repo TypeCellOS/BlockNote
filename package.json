@@ -10,7 +10,8 @@
     "@playwright/test": "^1.33.0",
     "eslint": "^8.22.0",
     "lerna": "^5.4.0",
-    "patch-package": "^6.4.7"
+    "patch-package": "^6.4.7",
+    "typescript": "^5.0.4"
   },
   "scripts": {
     "start": "lerna run --stream --scope @blocknote/example-editor dev",
