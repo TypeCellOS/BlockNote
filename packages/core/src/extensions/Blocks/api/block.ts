@@ -1,6 +1,7 @@
 import { DOMSerializer, Schema } from "prosemirror-model";
 import { Plugin } from "prosemirror-state";
 import { Attribute, Extension, Node } from "@tiptap/core";
+import { BlockNoteEditor } from "../../../BlockNoteEditor";
 import {
   Block,
   BlockConfig,
@@ -10,7 +11,6 @@ import {
   TipTapNode,
   TipTapNodeConfig,
 } from "./blockTypes";
-import { BlockNoteEditor } from "../../../BlockNoteEditor";
 import styles from "../nodes/Block.module.css";
 
 function camelToDataKebab(str: string): string {
@@ -43,6 +43,135 @@ function camelToDataKebab(str: string): string {
 //   return blockSpec;
 // }
 
+export function propsToAttributes<
+  BType extends string,
+  PSchema extends PropSchema,
+  ContainsInlineContent extends boolean,
+  BSchema extends BlockSchema
+>(
+  blockConfig: Omit<
+    BlockConfig<BType, PSchema, ContainsInlineContent, BSchema>,
+    "render"
+  >
+) {
+  const tiptapAttributes: Record<string, Attribute> = {};
+
+  Object.entries(blockConfig.propSchema).forEach(([name, spec]) => {
+    tiptapAttributes[name] = {
+      default: spec.default,
+      keepOnSplit: true,
+      // Props are displayed in kebab-case as HTML attributes. If a prop's
+      // value is the same as its default, we don't display an HTML
+      // attribute for it.
+      parseHTML: (element) => element.getAttribute(camelToDataKebab(name)),
+      renderHTML: (attributes) =>
+        attributes[name] !== spec.default
+          ? {
+              [camelToDataKebab(name)]: attributes[name],
+            }
+          : {},
+    };
+  });
+
+  return tiptapAttributes;
+}
+
+export function parse<
+  BType extends string,
+  PSchema extends PropSchema,
+  ContainsInlineContent extends boolean,
+  BSchema extends BlockSchema
+>(
+  blockConfig: Omit<
+    BlockConfig<BType, PSchema, ContainsInlineContent, BSchema>,
+    "render"
+  >
+) {
+  // TODO: This won't work for content copied outside BlockNote. Given the
+  //  variety of possible custom block types, a one-size-fits-all solution
+  //  probably won't work and we'll need an optional parseHTML option.
+  return blockConfig.parse
+    ? [
+        {
+          getAttrs: (node: HTMLElement | string) => {
+            if (typeof node === "string") {
+              return false;
+            }
+
+            return blockConfig.parse!(node);
+          },
+        },
+      ]
+    : [
+        {
+          tag: "div[data-content-type=" + blockConfig.type + "]",
+        },
+      ];
+}
+
+export function render<
+  BType extends string,
+  PSchema extends PropSchema,
+  ContainsInlineContent extends boolean,
+  BSchema extends BlockSchema
+>(
+  blockConfig: Omit<
+    BlockConfig<BType, PSchema, ContainsInlineContent, BSchema>,
+    "render"
+  >,
+  HTMLAttributes: Record<string, any>
+) {
+  // Create blockContent element
+  const blockContent = document.createElement("div");
+  // Add blockContent HTML attribute
+  blockContent.setAttribute("data-content-type", blockConfig.type);
+  // Add props as HTML attributes in kebab-case with "data-" prefix
+  for (const [attribute, value] of Object.entries(HTMLAttributes)) {
+    blockContent.setAttribute(attribute, value);
+  }
+
+  // TODO: This only works for content copied within BlockNote.
+  // Creates contentDOM element to serialize inline content into.
+  let contentDOM: HTMLDivElement | undefined;
+  if (blockConfig.containsInlineContent) {
+    contentDOM = document.createElement("div");
+    blockContent.appendChild(contentDOM);
+  } else {
+    contentDOM = undefined;
+  }
+
+  // Alternative approach to serializing the block.
+  // // Gets BlockNote editor instance
+  // const editor = this.options.editor!;
+  //
+  // // Quite hacky but don't think there's a better way to do this. Since the
+  // // contentDOM can be anywhere inside the DOM, we don't know which element
+  // // it is. Calling render() will give us the contentDOM, but we need to
+  // // provide a block as a parameter.
+  // const getDummyBlock: () => Block<BlockSchema> = () =>
+  //   ({
+  //     id: "",
+  //     type: "",
+  //     props: {},
+  //     content: [],
+  //     children: [],
+  //   } as Block<BlockSchema>);
+  //
+  // // Render elements
+  // const rendered = blockConfig.render(getDummyBlock, editor);
+  // // Add elements to blockContent
+  // blockContent.appendChild(rendered.dom);
+  //
+  // const contentDOM = blockConfig.containsInlineContent
+  //   ? rendered.contentDOM
+  //   : undefined;
+
+  return {
+    dom: blockContent,
+    contentDOM: contentDOM,
+  };
+}
+
 // A function to create custom block for API consumers
 // we want to hide the tiptap node from API consumers and provide a simpler API surface instead
 export function createBlockSpec<
@@ -61,108 +190,22 @@ export function createBlockSpec<
     content: blockConfig.containsInlineContent ? "inline*" : "",
     selectable: blockConfig.containsInlineContent,
 
-    addAttributes() {
-      const tiptapAttributes: Record<string, Attribute> = {};
-
-      Object.entries(blockConfig.propSchema).forEach(([name, spec]) => {
-        tiptapAttributes[name] = {
-          default: spec.default,
-          keepOnSplit: true,
-          // Props are displayed in kebab-case as HTML attributes. If a prop's
-          // value is the same as its default, we don't display an HTML
-          // attribute for it.
-          parseHTML: (element) => element.getAttribute(camelToDataKebab(name)),
-          renderHTML: (attributes) =>
-            attributes[name] !== spec.default
-              ? {
-                  [camelToDataKebab(name)]: attributes[name],
-                }
-              : {},
-        };
-      });
-
-      return tiptapAttributes;
-    },
-
     addOptions() {
       return {
         editor: undefined,
       };
     },
 
-    parseHTML() {
-      // TODO: This won't work for content copied outside BlockNote. Given the
-      //  variety of possible custom block types, a one-size-fits-all solution
-      //  probably won't work and we'll need an optional parseHTML option.
-      return blockConfig.parse
-        ? [
-            {
-              getAttrs: (node: HTMLElement | string) => {
-                if (typeof node === "string") {
-                  return false;
-                }
+    addAttributes() {
+      return propsToAttributes(blockConfig);
+    },
 
-                return blockConfig.parse!(node);
-              },
-            },
-          ]
-        : [
-            {
-              tag: "div[data-content-type=" + blockConfig.type + "]",
-            },
-          ];
+    parseHTML() {
+      return parse(blockConfig);
     },
 
     renderHTML({ HTMLAttributes }) {
-      // Create blockContent element
-      const blockContent = document.createElement("div");
-      // Add blockContent HTML attribute
-      blockContent.setAttribute("data-content-type", blockConfig.type);
-      // Add props as HTML attributes in kebab-case with "data-" prefix
-      for (const [attribute, value] of Object.entries(HTMLAttributes)) {
-        blockContent.setAttribute(attribute, value);
-      }
-
-      // TODO: This only works for content copied within BlockNote.
-      // Creates contentDOM element to serialize inline content into.
-      let contentDOM: HTMLDivElement | undefined;
-      if (blockConfig.containsInlineContent) {
-        contentDOM = document.createElement("div");
-        blockContent.appendChild(contentDOM);
-      } else {
-        contentDOM = undefined;
-      }
-
-      // Alternative approach to serializing the block.
-      // // Gets BlockNote editor instance
-      // const editor = this.options.editor!;
-      //
-      // // Quite hacky but don't think there's a better way to do this. Since the
-      // // contentDOM can be anywhere inside the DOM, we don't know which element
-      // // it is. Calling render() will give us the contentDOM, but we need to
-      // // provide a block as a parameter.
-      // const getDummyBlock: () => Block<BlockSchema> = () =>
-      //   ({
-      //     id: "",
-      //     type: "",
-      //     props: {},
-      //     content: [],
-      //     children: [],
-      //   } as Block<BlockSchema>);
-      //
-      // // Render elements
-      // const rendered = blockConfig.render(getDummyBlock, editor);
-      // // Add elements to blockContent
-      // blockContent.appendChild(rendered.dom);
-      //
-      // const contentDOM = blockConfig.containsInlineContent
-      //   ? rendered.contentDOM
-      //   : undefined;
-
-      return {
-        dom: blockContent,
-        contentDOM: contentDOM,
-      };
+      return render(blockConfig, HTMLAttributes);
     },
 
     addNodeView() {

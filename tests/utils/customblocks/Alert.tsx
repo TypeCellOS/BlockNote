@@ -1,5 +1,16 @@
-import { createBlockSpec, defaultProps } from "@blocknote/core";
-import { ReactSlashMenuItem } from "@blocknote/react";
+import { useState } from "react";
+import {
+  Block,
+  BlockNoteEditor,
+  BlockSchema,
+  createBlockSpec,
+  defaultProps,
+} from "@blocknote/core";
+import {
+  createReactBlockSpec,
+  ContentDOM,
+  ReactSlashMenuItem,
+} from "@blocknote/react";
 import { RiAlertFill } from "react-icons/ri";
 
 const values = {
@@ -124,6 +135,109 @@ export const insertAlert = new ReactSlashMenuItem<{
     );
   },
   ["alert", "notification", "emphasize", "warning", "error", "info", "success"],
+  "Media",
+  <RiAlertFill />,
+  "Insert an alert block to emphasize text"
+);
+
+export const ReactAlert = createReactBlockSpec({
+  type: "reactAlert" as const,
+  propSchema: {
+    textAlignment: defaultProps.textAlignment,
+    textColor: defaultProps.textColor,
+    type: {
+      default: "warning",
+      values: ["warning", "error", "info", "success"],
+    },
+  } as const,
+  containsInlineContent: true,
+  render: (props: {
+    block: Block<BlockSchema>;
+    editor: BlockNoteEditor<BlockSchema>;
+  }) => {
+    const [type, setType] = useState(props.block.props.type);
+
+    return (
+      <div
+        style={{
+          display: "flex",
+          backgroundColor: values[type as keyof typeof values].backgroundColor,
+        }}>
+        <div
+          style={{
+            marginRight: "0.5rem",
+            userSelect: "none",
+            cursor: "pointer",
+          }}
+          contentEditable={"false"}
+          onClick={() => {
+            if (type === "warning") {
+              props.editor.updateBlock(props.block, {
+                props: {
+                  type: "error",
+                },
+              });
+              setType("error");
+            } else if (type === "error") {
+              props.editor.updateBlock(props.block, {
+                props: {
+                  type: "info",
+                },
+              });
+              setType("info");
+            } else if (type === "info") {
+              props.editor.updateBlock(props.block, {
+                props: {
+                  type: "success",
+                },
+              });
+              setType("success");
+            } else if (type === "success") {
+              props.editor.updateBlock(props.block, {
+                props: {
+                  type: "warning",
+                },
+              });
+              setType("warning");
+            } else {
+              throw new Error("Unknown alert type");
+            }
+          }}>
+          {values[type as keyof typeof values].icon}
+        </div>
+        <ContentDOM />
+      </div>
+    );
+  },
+});
+
+export const insertReactAlert = new ReactSlashMenuItem<{
+  reactAlert: typeof ReactAlert;
+}>(
+  "Insert React Alert",
+  (editor) => {
+    editor.insertBlocks(
+      [
+        {
+          type: "reactAlert",
+        },
+      ],
+      editor.getTextCursorPosition().block,
+      "after"
+    );
+  },
+  [
+    "react",
+    "reactAlert",
+    "react alert",
+    "alert",
+    "notification",
+    "emphasize",
+    "warning",
+    "error",
+    "info",
+    "success",
+  ],
   "Media",
   <RiAlertFill />,
   "Insert an alert block to emphasize text"
