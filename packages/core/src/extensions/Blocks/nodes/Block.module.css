@@ -17,11 +17,6 @@ BASIC STYLES
   display: flex;
 }
 
-/* Ensures text alignment still works with flex positioning*/
-.blockContent > * {
-  flex-grow: 1;
-}
-
 .blockContent::before {
   /* content: ""; */
   transition: all 0.2s;
