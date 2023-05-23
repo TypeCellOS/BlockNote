@@ -2,7 +2,6 @@ import { HeadingBlockContent } from "../nodes/BlockContent/HeadingBlockContent/H
 import { BulletListItemBlockContent } from "../nodes/BlockContent/ListItemBlockContent/BulletListItemBlockContent/BulletListItemBlockContent";
 import { NumberedListItemBlockContent } from "../nodes/BlockContent/ListItemBlockContent/NumberedListItemBlockContent/NumberedListItemBlockContent";
 import { ParagraphBlockContent } from "../nodes/BlockContent/ParagraphBlockContent/ParagraphBlockContent";
-import { createBlockSpec } from "./block";
 import { TypesMatch } from "./blockTypes";
 
 export const defaultProps = {
@@ -42,20 +41,4 @@ export const defaultBlockSchema = {
   },
 } as const;
 
-const imageProps = { src: { default: "gfr" } } as const;
-export const onlyImageBlockSchema = {
-  image: createBlockSpec({
-    type: "image",
-    propSchema: imageProps,
-    containsInlineContent: false,
-    render: (block) => {
-      const img = document.createElement("img");
-      img.setAttribute("src", block.props.src);
-      return { dom: img };
-    },
-  }),
-} as const;
-
 export type DefaultBlockSchema = TypesMatch<typeof defaultBlockSchema>;
-
-// export type DefaultBlocks = Block<DefaultBlockSpecs>;
