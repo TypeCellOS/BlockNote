@@ -10,11 +10,12 @@ import {
   insertParagraph,
 } from "../../utils/copypaste";
 
+test.describe.configure({ mode: "serial" });
+
 test.beforeEach(async ({ page }) => {
   await page.goto(BASE_URL);
 });
 
-test.describe.configure({ mode: "serial" });
 test.describe("Check Copy/Paste Functionality", () => {
   test("Paragraphs should stay separate", async ({ page, browserName }) => {
     test.skip(

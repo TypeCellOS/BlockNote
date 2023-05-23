@@ -4,22 +4,22 @@ import { focusOnEditor } from "./editor";
 import { showMouseCursor } from "./debug";
 
 export async function copyPasteAll(page: Page) {
-  await page.keyboard.press("Meta+A");
-  await page.keyboard.press("Meta+C");
+  await page.keyboard.press("Control+A");
+  await page.keyboard.press("Control+C");
   await page.keyboard.press("ArrowDown", { delay: TYPE_DELAY });
   await page.keyboard.press("Enter");
-  await page.keyboard.press("Meta+V");
+  await page.keyboard.press("Control+V");
 }
 
 export async function copyPasteAllExternal(page: Page) {
   await showMouseCursor(page);
-  await page.keyboard.press("Meta+A");
-  await page.keyboard.press("Meta+C");
+  await page.keyboard.press("Control+A");
+  await page.keyboard.press("Control+C");
   await focusOnEditor(page);
 
   const pasteZone = page.locator(PASTE_ZONE_SELECTOR);
   await pasteZone.click();
-  await page.keyboard.press("Meta+V");
+  await page.keyboard.press("Control+V");
 
   return await pasteZone.inputValue();
 }

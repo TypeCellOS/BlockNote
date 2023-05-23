@@ -10,6 +10,8 @@ import { compareDocToSnapshot, focusOnEditor } from "../../utils/editor";
 import { insertHeading, insertParagraph } from "../../utils/copypaste";
 import { dragAndDropBlock } from "../../utils/mouse";
 
+test.describe.configure({ mode: "serial" });
+
 test.beforeEach(async ({ page }) => {
   await page.goto(BASE_URL, { waitUntil: "networkidle" });
 });
