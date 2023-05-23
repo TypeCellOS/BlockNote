@@ -68,12 +68,12 @@ const SIDEBAR_DEFAULT = [
     collapsed: true,
     items: [
       {
-        text: "Without React (vanilla JS)",
-        link: "/docs/vanilla-js",
-      },
-      {
         text: "Real-time collaboration",
         link: "/docs/real-time-collaboration",
+      },
+      {
+        text: "Without React (vanilla JS)",
+        link: "/docs/vanilla-js",
       },
     ],
   },

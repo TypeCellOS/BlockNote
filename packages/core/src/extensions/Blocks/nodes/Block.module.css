@@ -11,11 +11,10 @@ BASIC STYLES
   padding: 3px 0;
   transition: font-size 0.2s;
   /* 
-  because the content elements are display-block 
+  because the content elements are display: block 
   we use flex to position them next to list markers
   */
   display: flex;
-  /* display: inline-block; */
 }
 
 .blockContent::before {
@@ -225,10 +224,6 @@ NESTED BLOCKS
 }
 
 /* PLACEHOLDERS*/
-
-/* .blockContent > :first-child {
-  display: block;
-} */
 
 .blockContent.isEmpty > :first-child:before,
 .blockContent.isFilter > :first-child:before {
