@@ -10,11 +10,16 @@ BASIC STYLES
 .blockContent {
   padding: 3px 0;
   transition: font-size 0.2s;
-  /* 
-  because the content elements are display: block 
+  /*
+  because the content elements are display: block
   we use flex to position them next to list markers
   */
   display: flex;
+}
+
+/* Ensures text alignment still works with flex positioning*/
+.blockContent > * {
+  flex-grow: 1;
 }
 
 .blockContent::before {
