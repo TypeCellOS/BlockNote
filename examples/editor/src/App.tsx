@@ -1,11 +1,6 @@
 // import logo from './logo.svg'
-import { defaultBlockSchema } from "@blocknote/core";
 import "@blocknote/core/style.css";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
-import {
-  insertAlert,
-  ReactAlert,
-} from "../../../tests/utils/customblocks/Alert";
 import styles from "./App.module.css";
 
 type WindowWithProseMirror = Window & typeof globalThis & { ProseMirror: any };
@@ -20,11 +15,6 @@ function App() {
       "data-test": "editor",
     },
     theme: "light",
-    blockSchema: {
-      ...defaultBlockSchema,
-      alert: ReactAlert,
-    },
-    slashCommands: [insertAlert],
   });
 
   // Give tests a way to get prosemirror instance
