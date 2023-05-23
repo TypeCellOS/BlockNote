@@ -14,7 +14,9 @@
   "dependencies": {
     "@blocknote/react": "^0.6.2",
     "veaury": "^2.3.12",
-    "vue-github-button": "^3.1.0"
+    "vue-github-button": "^3.1.0",
+    "y-partykit": "^0.0.0-4d484bc",
+    "yjs": "^13.6.1"
   },
   "devDependencies": {
     "@vue/tsconfig": "^0.1.3",
