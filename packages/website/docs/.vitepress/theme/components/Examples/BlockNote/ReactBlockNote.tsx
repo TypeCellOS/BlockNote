@@ -48,7 +48,7 @@ export function ReactBlockNote() {
     const doc = new Y.Doc();
     const provider = new YPartyKitProvider(
       "blocknote.yousefed.partykit.dev",
-      "homepage",
+      "homepage-1",
       doc
     );
     return [doc, provider];

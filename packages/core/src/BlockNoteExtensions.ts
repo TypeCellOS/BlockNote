@@ -120,13 +120,17 @@ export const getBlockNoteExtensions = (opts: {
       cursor.classList.add(styles["collaboration-cursor__caret"]);
       cursor.setAttribute("style", `border-color: ${user.color}`);
 
-      const label = document.createElement("div");
+      const label = document.createElement("span");
 
       label.classList.add(styles["collaboration-cursor__label"]);
       label.setAttribute("style", `background-color: ${user.color}`);
       label.insertBefore(document.createTextNode(user.name), null);
-      cursor.insertBefore(label, null);
 
+      const nonbreakingSpace1 = document.createTextNode("\u2060");
+      const nonbreakingSpace2 = document.createTextNode("\u2060");
+      cursor.insertBefore(nonbreakingSpace1, null);
+      cursor.insertBefore(label, null);
+      cursor.insertBefore(nonbreakingSpace2, null);
       return cursor;
     };
     ret.push(
