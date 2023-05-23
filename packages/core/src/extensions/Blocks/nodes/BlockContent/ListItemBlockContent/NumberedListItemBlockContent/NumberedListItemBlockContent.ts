@@ -1,13 +1,9 @@
 import { InputRule, mergeAttributes } from "@tiptap/core";
-import styles from "../../../Block.module.css";
+import { createTipTapBlock } from "../../../../api/block";
 import { handleEnter } from "../ListItemKeyboardShortcuts";
 import { NumberedListIndexingPlugin } from "./NumberedListIndexingPlugin";
-import { createTipTapBlock } from "../../../../api/block";
+import styles from "../../../Block.module.css";
 
-// TODO: Something about defining addProseMirrorPlugins causes issues when
-//  inferring the `Type` type parameter. Not a big deal as it's fixed by
-//  explicitly setting it to "numberedListItem", but still weird. Issue goes
-//  away if we leave `addProseMirrorPlugins` undefined.
 export const NumberedListItemBlockContent =
   createTipTapBlock<"numberedListItem">({
     name: "numberedListItem",

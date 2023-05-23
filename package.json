@@ -27,7 +27,7 @@
     "deploy": "lerna publish -- --access public",
     "prepublishOnly": "npm run build && cp README.md packages/core/README.md && cp README.md packages/react/README.md",
     "postpublish": "rm -rf packages/core/README.md && rm -rf packages/react/README.md",
-    "test-ct": "playwright test -c playwright-ct.config.ts",
+    "test-ct": "playwright test -c playwright-ct.config.ts --headed",
     "test-ct:updateSnaps": "docker run --rm  -e RUN_IN_DOCKER=true --network host -v $(pwd):/work/ -w /work/ -it mcr.microsoft.com/playwright:v1.33.0-focal npm install && playwright test -c playwright-ct.config.ts -u"
   },
   "overrides": {

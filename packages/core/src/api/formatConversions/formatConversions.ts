@@ -40,19 +40,19 @@ export async function blocksToHTML<BSchema extends BlockSchema>(
 
 export async function HTMLToBlocks<BSchema extends BlockSchema>(
   html: string,
-  schema: BSchema,
-  pmSchema: Schema
+  blockSchema: BSchema,
+  schema: Schema
 ): Promise<Block<BSchema>[]> {
   const htmlNode = document.createElement("div");
   htmlNode.innerHTML = html.trim();
 
-  const parser = DOMParser.fromSchema(pmSchema);
+  const parser = DOMParser.fromSchema(schema);
   const parentNode = parser.parse(htmlNode);
 
   const blocks: Block<BSchema>[] = [];
 
   for (let i = 0; i < parentNode.firstChild!.childCount; i++) {
-    blocks.push(nodeToBlock(parentNode.firstChild!.child(i), schema));
+    blocks.push(nodeToBlock(parentNode.firstChild!.child(i), blockSchema));
   }
 
   return blocks;
@@ -75,8 +75,8 @@ export async function blocksToMarkdown<BSchema extends BlockSchema>(
 
 export async function markdownToBlocks<BSchema extends BlockSchema>(
   markdown: string,
-  schema: BSchema,
-  pmSchema: Schema
+  blockSchema: BSchema,
+  schema: Schema
 ): Promise<Block<BSchema>[]> {
   const htmlString = await unified()
     .use(remarkParse)
@@ -85,5 +85,5 @@ export async function markdownToBlocks<BSchema extends BlockSchema>(
     .use(rehypeStringify)
     .process(markdown);
 
-  return HTMLToBlocks(htmlString.value as string, schema, pmSchema);
+  return HTMLToBlocks(htmlString.value as string, blockSchema, schema);
 }

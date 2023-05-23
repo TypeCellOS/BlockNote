@@ -105,13 +105,8 @@ export const BlockContainer = Node.create<IBlock>({
       BNCreateBlock:
         (pos) =>
         ({ state, dispatch }) => {
-          // const newContent = state.schema.nodes["table"].createAndFill()!;
-
-          const newBlock = state.schema.nodes["blockContainer"]
-            .createAndFill
-            // undefined,
-            // newContent
-            ()!;
+          const newBlock =
+            state.schema.nodes["blockContainer"].createAndFill()!;
 
           if (dispatch) {
             state.tr.insert(pos, newBlock);
