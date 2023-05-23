@@ -15,6 +15,7 @@ BASIC STYLES
   we use flex to position them next to list markers
   */
   display: flex;
+  flex-direction: column;
 }
 
 /* Ensures text alignment still works with flex positioning*/
