@@ -229,7 +229,7 @@ export function createBlockSpec<
         const blockContainer = tipTapEditor.state.doc.resolve(pos!).node();
         // Gets block identifier
         const blockIdentifier = blockContainer.attrs.id;
-        // Function to get the block
+        // Get the block
         const block = editor.getBlock(blockIdentifier)!;
         if (block.type !== blockConfig.type) {
           throw new Error("Block type does not match");
