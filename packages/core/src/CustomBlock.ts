@@ -33,7 +33,6 @@ export function createCustomBlock(customBlock: CustomBlock) {
 
     addAttributes() {
       const attrs: Record<string, any> = {};
-      console.log(customBlock);
 
       if (customBlock.props) {
         for (const [attr, value] of Object.entries(customBlock.props)) {
@@ -81,7 +80,6 @@ export function createCustomBlock(customBlock: CustomBlock) {
 
     addNodeView() {
       return (props: NodeViewRendererProps) => {
-        console.log(props);
         const { element, editable } = customBlock.element(props);
         if (customBlock.className) {
           element.className = customBlock.className;
