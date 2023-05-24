@@ -151,7 +151,7 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
       uiFactories: newOptions.uiFactories || {},
       slashCommands:
         newOptions.slashCommands || (defaultSlashMenuItems() as any),
-      blocks: newOptions.blockSchema,
+      blockSchema: newOptions.blockSchema,
     });
 
     this.schema = newOptions.blockSchema;
@@ -661,7 +661,7 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
    * @returns The blocks parsed from the HTML string.
    */
   public async HTMLToBlocks(html: string): Promise<Block<BSchema>[]> {
-    return HTMLToBlocks(html, this.schema, this._tiptapEditor.schema) as any; // TODO: fix type
+    return HTMLToBlocks(html, this.schema, this._tiptapEditor.schema);
   }
 
   /**
@@ -682,65 +682,6 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
    * @returns The blocks parsed from the Markdown string.
    */
   public async markdownToBlocks(markdown: string): Promise<Block<BSchema>[]> {
-    return markdownToBlocks(
-      markdown,
-      this.schema,
-      this._tiptapEditor.schema
-    ) as any; // TODO: fix type
+    return markdownToBlocks(markdown, this.schema, this._tiptapEditor.schema);
   }
 }
-
-// // Playground:
-// let x = new BlockNoteEditor(); // default block types are supported
-//
-// // this breaks because "level" is not valid on paragraph
-// x.updateBlock("", {
-//   type: "paragraph",
-//   content: "hello",
-//   props: { level: "1" },
-// });
-//
-// x.updateBlock("", {
-//   type: "heading",
-//   content: "hello",
-//   props: { level: "1" },
-// });
-//
-// x.updateBlock("", {
-//   type: "fgrsdgfrd",
-//   props: {},
-// });
-//
-// let y = new BlockNoteEditor<{
-//   paragraph: typeof defaultBlockSchema.paragraph;
-// }>();
-//
-// y.updateBlock("", { type: "paragraph", content: "hello", props: {} });
-//
-// // this breaks because "heading" is not a type on this editor
-// y.updateBlock("", {
-//   type: "heading",
-//   content: "hello",
-//   props: { level: "1" },
-// });
-//
-// let h = new BlockNoteEditor<typeof onlyImageBlockSchema>();
-
-// class Test<Word extends typeof word> {
-//   word: Word;
-//   constructor(word: Word = "default") {
-//     this.word = word;
-//   }
-// }
-//
-// type TestType<Word> = { word: Word };
-//
-// function FTest<Word extends string>(
-//   word: Word | "default" = "default"
-// ): TestType<Word> {
-//   return {
-//     word: word,
-//   };
-// }
-//
-// const fTest = FTest<>("hello");

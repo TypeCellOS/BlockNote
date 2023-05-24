@@ -1,7 +1,11 @@
 import { expect, test } from "../setup/setupScriptComponent";
 import { focusOnEditor } from "../utils/editor";
 import { executeSlashCommand } from "../utils/slashmenu";
-import { copyPasteAllExternal } from "../utils/copypaste";
+import {
+  copyPasteAllExternal,
+  removeClassesFromHTML,
+  removeMetaFromHTML,
+} from "../utils/copypaste";
 import EditorWithTextArea from "../utils/components/EditorWithTextArea";
 
 test.describe.configure({ mode: "serial" });
@@ -10,7 +14,12 @@ test.beforeEach(async ({}, testInfo) => {
   testInfo.snapshotSuffix = "";
 });
 
-test("Alert Copy/Paste External", async ({ mount, page }) => {
+test("Alert Copy/Paste External", async ({ browserName, mount, page }) => {
+  test.skip(
+    browserName === "firefox",
+    "Playwright doesn't correctly simulate drag events in Firefox."
+  );
+
   await mount(<EditorWithTextArea blockTypes={["alert"]} />);
 
   await focusOnEditor(page);
@@ -26,11 +35,18 @@ test("Alert Copy/Paste External", async ({ mount, page }) => {
   );
   await button.first().click();
 
-  const value = await copyPasteAllExternal(page);
-  await expect(value).toMatchSnapshot("alert-external.html");
+  const value = await copyPasteAllExternal(page, "mac");
+  await expect(
+    removeClassesFromHTML(removeMetaFromHTML(value))
+  ).toMatchSnapshot("alert-external.html");
 });
 
-test("Button Copy/Paste External", async ({ mount, page }) => {
+test("Button Copy/Paste External", async ({ browserName, mount, page }) => {
+  test.skip(
+    browserName === "firefox",
+    "Playwright doesn't correctly simulate drag events in Firefox."
+  );
+
   await mount(<EditorWithTextArea blockTypes={["button"]} />);
 
   await focusOnEditor(page);
@@ -39,11 +55,18 @@ test("Button Copy/Paste External", async ({ mount, page }) => {
   await page.keyboard.press("ArrowDown");
   await page.keyboard.type("Paragraph 2");
 
-  const value = await copyPasteAllExternal(page);
-  await expect(value).toMatchSnapshot("button-external.html");
+  const value = await copyPasteAllExternal(page, "mac");
+  await expect(
+    removeClassesFromHTML(removeMetaFromHTML(value))
+  ).toMatchSnapshot("button-external.html");
 });
 
-test("Embed Copy/Paste Internal", async ({ mount, page }) => {
+test("Embed Copy/Paste Internal", async ({ browserName, mount, page }) => {
+  test.skip(
+    browserName === "firefox",
+    "Playwright doesn't correctly simulate drag events in Firefox."
+  );
+
   await mount(<EditorWithTextArea blockTypes={["embed"]} />);
 
   await focusOnEditor(page);
@@ -52,11 +75,18 @@ test("Embed Copy/Paste Internal", async ({ mount, page }) => {
   await page.keyboard.press("ArrowDown");
   await page.keyboard.type("Paragraph 2");
 
-  const value = await copyPasteAllExternal(page);
-  await expect(value).toMatchSnapshot("embed-external.html");
+  const value = await copyPasteAllExternal(page, "mac");
+  await expect(
+    removeClassesFromHTML(removeMetaFromHTML(value))
+  ).toMatchSnapshot("embed-external.html");
 });
 
-test("Image Copy/Paste Internal", async ({ mount, page }) => {
+test("Image Copy/Paste Internal", async ({ browserName, mount, page }) => {
+  test.skip(
+    browserName === "firefox",
+    "Playwright doesn't correctly simulate drag events in Firefox."
+  );
+
   await mount(<EditorWithTextArea blockTypes={["image"]} />);
 
   await focusOnEditor(page);
@@ -67,11 +97,18 @@ test("Image Copy/Paste Internal", async ({ mount, page }) => {
   await page.keyboard.press("ArrowDown");
   await page.keyboard.type("Paragraph 2");
 
-  const value = await copyPasteAllExternal(page);
-  await expect(value).toMatchSnapshot("image-external.html");
+  const value = await copyPasteAllExternal(page, "mac");
+  await expect(
+    removeClassesFromHTML(removeMetaFromHTML(value))
+  ).toMatchSnapshot("image-external.html");
 });
 
-test("Separator Copy/Paste Internal", async ({ mount, page }) => {
+test("Separator Copy/Paste Internal", async ({ browserName, mount, page }) => {
+  test.skip(
+    browserName === "firefox",
+    "Playwright doesn't correctly simulate drag events in Firefox."
+  );
+
   await mount(<EditorWithTextArea blockTypes={["separator"]} />);
 
   await focusOnEditor(page);
@@ -80,11 +117,22 @@ test("Separator Copy/Paste Internal", async ({ mount, page }) => {
   await page.keyboard.press("ArrowDown");
   await page.keyboard.type("Paragraph 2");
 
-  const value = await copyPasteAllExternal(page);
-  await expect(value).toMatchSnapshot("separator-external.html");
+  const value = await copyPasteAllExternal(page, "mac");
+  await expect(
+    removeClassesFromHTML(removeMetaFromHTML(value))
+  ).toMatchSnapshot("separator-external.html");
 });
 
-test("Table of Contents Copy/Paste Internal", async ({ mount, page }) => {
+test("Table of Contents Copy/Paste Internal", async ({
+  browserName,
+  mount,
+  page,
+}) => {
+  test.skip(
+    browserName === "firefox",
+    "Playwright doesn't correctly simulate drag events in Firefox."
+  );
+
   await mount(<EditorWithTextArea blockTypes={["toc"]} />);
 
   await focusOnEditor(page);
@@ -95,6 +143,8 @@ test("Table of Contents Copy/Paste Internal", async ({ mount, page }) => {
   await executeSlashCommand(page, "h2");
   await page.keyboard.type("Heading 2");
 
-  const value = await copyPasteAllExternal(page);
-  await expect(value).toMatchSnapshot("toc-external.html");
+  const value = await copyPasteAllExternal(page, "mac");
+  await expect(
+    removeClassesFromHTML(removeMetaFromHTML(value))
+  ).toMatchSnapshot("toc-external.html");
 });

@@ -1,6 +1,6 @@
 import { mergeAttributes } from "@tiptap/core";
-import styles from "../../Block.module.css";
 import { createTipTapBlock } from "../../../api/block";
+import styles from "../../Block.module.css";
 
 export const ParagraphBlockContent = createTipTapBlock<"paragraph">({
   name: "paragraph",

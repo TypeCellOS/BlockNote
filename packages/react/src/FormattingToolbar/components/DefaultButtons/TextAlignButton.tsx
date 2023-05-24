@@ -1,8 +1,7 @@
 import {
   BlockNoteEditor,
-  BlockSchema,
+  DefaultBlockSchema,
   DefaultProps,
-  PartialBlock,
 } from "@blocknote/core";
 import { useCallback } from "react";
 import { IconType } from "react-icons";
@@ -23,8 +22,8 @@ const icons: Record<TextAlignment, IconType> = {
   justify: RiAlignJustify,
 };
 
-export const TextAlignButton = <BSchema extends BlockSchema>(props: {
-  editor: BlockNoteEditor<BSchema>;
+export const TextAlignButton = (props: {
+  editor: BlockNoteEditor<DefaultBlockSchema>;
   textAlignment: TextAlignment;
 }) => {
   const setTextAlignment = useCallback(
@@ -37,12 +36,12 @@ export const TextAlignButton = <BSchema extends BlockSchema>(props: {
         for (const block of selection.blocks) {
           props.editor.updateBlock(block, {
             props: { textAlignment: textAlignment },
-          } as PartialBlock<BSchema>);
+          });
         }
       } else {
         props.editor.updateBlock(props.editor.getTextCursorPosition().block, {
           props: { textAlignment: textAlignment },
-        } as PartialBlock<BSchema>);
+        });
       }
     },
     [props.editor]

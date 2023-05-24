@@ -73,10 +73,7 @@ export default function Editor(props: { blockTypes: (keyof CustomBlocks)[] }) {
       ...defaultBlockSchema,
       ...blockSchema,
     },
-    slashCommands: [
-      ...defaultReactSlashMenuItems<CustomBlockSchema>(),
-      ...slashCommands,
-    ],
+    slashCommands: [...defaultReactSlashMenuItems(), ...slashCommands],
   });
 
   console.log(editor);

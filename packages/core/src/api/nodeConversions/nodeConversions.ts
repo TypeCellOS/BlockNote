@@ -220,7 +220,7 @@ function contentNodeToInlineContent(contentNode: Node) {
  */
 export function nodeToBlock<BSchema extends BlockSchema>(
   node: Node,
-  schema: BSchema,
+  blockSchema: BSchema,
   blockCache?: WeakMap<Node, Block<BSchema>>
 ): Block<BSchema> {
   if (node.type.name !== "blockContainer") {
@@ -251,7 +251,7 @@ export function nodeToBlock<BSchema extends BlockSchema>(
     ...blockInfo.node.attrs,
     ...blockInfo.contentNode.attrs,
   })) {
-    const blockSpec = schema[blockInfo.contentType.name];
+    const blockSpec = blockSchema[blockInfo.contentType.name];
     if (!blockSpec) {
       throw Error(
         "Block is of an unrecognized type: " + blockInfo.contentType.name
@@ -272,14 +272,13 @@ export function nodeToBlock<BSchema extends BlockSchema>(
   const children: Block<BSchema>[] = [];
   for (let i = 0; i < blockInfo.numChildBlocks; i++) {
     children.push(
-      nodeToBlock(blockInfo.node.lastChild!.child(i), schema, blockCache)
+      nodeToBlock(blockInfo.node.lastChild!.child(i), blockSchema, blockCache)
     );
   }
 
-  // TODO: fix types
-  const block: any = {
+  const block: Block<BSchema> = {
     id,
-    type: blockInfo.contentType.name as Block<BSchema>["type"],
+    type: blockInfo.contentType.name,
     props,
     content,
     children,

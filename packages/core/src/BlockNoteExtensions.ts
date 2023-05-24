@@ -51,7 +51,7 @@ export const getBlockNoteExtensions = <BSchema extends BlockSchema>(opts: {
   editor: BlockNoteEditor<BSchema>;
   uiFactories: UiFactories<BSchema>;
   slashCommands: BaseSlashMenuItem<BSchema>[];
-  blocks: BSchema;
+  blockSchema: BSchema;
 }) => {
   const ret: Extensions = [
     extensions.ClipboardTextSerializer,
@@ -95,7 +95,7 @@ export const getBlockNoteExtensions = <BSchema extends BlockSchema>(opts: {
 
     // custom blocks:
     ...blocks,
-    ...Object.values(opts.blocks).map((blockSpec) =>
+    ...Object.values(opts.blockSchema).map((blockSpec) =>
       blockSpec.node.configure({ editor: opts.editor })
     ),
 

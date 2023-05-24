@@ -42,5 +42,3 @@ export const defaultBlockSchema = {
 } as const;
 
 export type DefaultBlockSchema = TypesMatch<typeof defaultBlockSchema>;
-
-// export type DefaultBlocks = Block<DefaultBlockSpecs>;

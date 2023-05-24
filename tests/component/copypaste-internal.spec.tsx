@@ -10,7 +10,12 @@ test.beforeEach(async ({}, testInfo) => {
   testInfo.snapshotSuffix = "";
 });
 
-test("Alert Copy/Paste Internal", async ({ mount, page }) => {
+test("Alert Copy/Paste Internal", async ({ browserName, mount, page }) => {
+  test.skip(
+    browserName === "firefox",
+    "Playwright doesn't correctly simulate drag events in Firefox."
+  );
+
   await mount(<Editor blockTypes={["alert"]} />);
 
   await focusOnEditor(page);
@@ -26,13 +31,18 @@ test("Alert Copy/Paste Internal", async ({ mount, page }) => {
   );
   await button.first().click();
 
-  await copyPasteAll(page);
+  await copyPasteAll(page, "mac");
   await page.waitForTimeout(50);
 
   await compareDocToSnapshot(page, "alert-internal");
 });
 
-test("Button Copy/Paste Internal", async ({ mount, page }) => {
+test("Button Copy/Paste Internal", async ({ browserName, mount, page }) => {
+  test.skip(
+    browserName === "firefox",
+    "Playwright doesn't correctly simulate drag events in Firefox."
+  );
+
   await mount(<Editor blockTypes={["button"]} />);
 
   await focusOnEditor(page);
@@ -41,7 +51,7 @@ test("Button Copy/Paste Internal", async ({ mount, page }) => {
   await page.keyboard.press("ArrowDown");
   await page.keyboard.type("Paragraph 2");
 
-  await copyPasteAll(page);
+  await copyPasteAll(page, "mac");
   await page.waitForTimeout(50);
 
   const button = await page.locator("button");
@@ -51,7 +61,12 @@ test("Button Copy/Paste Internal", async ({ mount, page }) => {
   await compareDocToSnapshot(page, "button-internal");
 });
 
-test("Embed Copy/Paste Internal", async ({ mount, page }) => {
+test("Embed Copy/Paste Internal", async ({ browserName, mount, page }) => {
+  test.skip(
+    browserName === "firefox",
+    "Playwright doesn't correctly simulate drag events in Firefox."
+  );
+
   await mount(<Editor blockTypes={["embed"]} />);
 
   await focusOnEditor(page);
@@ -60,13 +75,18 @@ test("Embed Copy/Paste Internal", async ({ mount, page }) => {
   await page.keyboard.press("ArrowDown");
   await page.keyboard.type("Paragraph 2");
 
-  await copyPasteAll(page);
+  await copyPasteAll(page, "mac");
   await page.waitForTimeout(50);
 
   await compareDocToSnapshot(page, "embed-internal");
 });
 
-test("Image Copy/Paste Internal", async ({ mount, page }) => {
+test("Image Copy/Paste Internal", async ({ browserName, mount, page }) => {
+  test.skip(
+    browserName === "firefox",
+    "Playwright doesn't correctly simulate drag events in Firefox."
+  );
+
   await mount(<Editor blockTypes={["image"]} />);
 
   await focusOnEditor(page);
@@ -77,13 +97,18 @@ test("Image Copy/Paste Internal", async ({ mount, page }) => {
   await page.keyboard.press("ArrowDown");
   await page.keyboard.type("Paragraph 2");
 
-  await copyPasteAll(page);
+  await copyPasteAll(page, "mac");
   await page.waitForTimeout(50);
 
   await compareDocToSnapshot(page, "image-internal");
 });
 
-test("Separator Copy/Paste Internal", async ({ mount, page }) => {
+test("Separator Copy/Paste Internal", async ({ browserName, mount, page }) => {
+  test.skip(
+    browserName === "firefox",
+    "Playwright doesn't correctly simulate drag events in Firefox."
+  );
+
   await mount(<Editor blockTypes={["separator"]} />);
 
   await focusOnEditor(page);
@@ -92,13 +117,22 @@ test("Separator Copy/Paste Internal", async ({ mount, page }) => {
   await page.keyboard.press("ArrowDown");
   await page.keyboard.type("Paragraph 2");
 
-  await copyPasteAll(page);
+  await copyPasteAll(page, "mac");
   await page.waitForTimeout(50);
 
   await compareDocToSnapshot(page, "separator-internal");
 });
 
-test("Table of Contents Copy/Paste Internal", async ({ mount, page }) => {
+test("Table of Contents Copy/Paste Internal", async ({
+  browserName,
+  mount,
+  page,
+}) => {
+  test.skip(
+    browserName === "firefox",
+    "Playwright doesn't correctly simulate drag events in Firefox."
+  );
+
   await mount(<Editor blockTypes={["toc"]} />);
 
   await focusOnEditor(page);
@@ -109,7 +143,7 @@ test("Table of Contents Copy/Paste Internal", async ({ mount, page }) => {
   await executeSlashCommand(page, "h2");
   await page.keyboard.type("Heading 2");
 
-  await copyPasteAll(page);
+  await copyPasteAll(page, "mac");
   await page.waitForTimeout(50);
 
   const expectedToC =

@@ -99,10 +99,13 @@ export type BlockConfig<
 };
 
 // Defines a single block spec, which includes the props that the block has and
-// the TipTap node used to implement it. Can also be used to define more advanced
-// custom blocks when used as an argument to `createBlockSpec` as consumers can
-// create the associated nodes themselves.
-export type BlockSpec<Type extends string, PSchema extends PropSchema> = {
+// the TipTap node used to implement it. Usually created using `createBlockSpec`
+// though it can also be defined from scratch by providing your own TipTap node,
+// allowing for more advanced custom blocks.
+export type BlockSpec<
+  Type extends string,
+  PSchema extends PropSchema,
+> = {
   readonly propSchema: PSchema;
   node: TipTapNode<Type>;
 };
@@ -156,6 +159,8 @@ export type SpecificBlock<
   children: Block<BSchema>[];
 };
 
+// Same as BlockWithoutChildren, but as a partial type with some changes to make
+// it easier to create/update blocks in the editor.
 type PartialBlocksWithoutChildren<BSchema extends BlockSchema> = {
   [BType in keyof BSchema]: Partial<{
     id: string;
@@ -165,6 +170,8 @@ type PartialBlocksWithoutChildren<BSchema extends BlockSchema> = {
   }>;
 };
 
+// Same as Block, but as a partial type with some changes to make it easier to
+// create/update blocks in the editor.
 export type PartialBlock<BSchema extends BlockSchema> =
   PartialBlocksWithoutChildren<BSchema>[keyof PartialBlocksWithoutChildren<BSchema>] &
     Partial<{

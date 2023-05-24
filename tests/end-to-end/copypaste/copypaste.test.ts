@@ -10,16 +10,17 @@ import {
   insertParagraph,
 } from "../../utils/copypaste";
 
+test.describe.configure({ mode: "serial" });
+
 test.beforeEach(async ({ page }) => {
   await page.goto(BASE_URL);
 });
 
-test.describe.configure({ mode: "serial" });
 test.describe("Check Copy/Paste Functionality", () => {
   test("Paragraphs should stay separate", async ({ page, browserName }) => {
     test.skip(
-      browserName === "firefox",
-      "Firefox doesn't yet support the async clipboard API."
+      browserName === "firefox" || browserName === "webkit",
+      "Firefox doesn't yet support the async clipboard API. Webkit copy/paste stopped working after updating to Playwright 1.33."
     );
 
     await focusOnEditor(page);
@@ -33,8 +34,8 @@ test.describe("Check Copy/Paste Functionality", () => {
 
   test("Headings should keep formatting", async ({ page, browserName }) => {
     test.skip(
-      browserName === "firefox",
-      "Firefox doesn't yet support the async clipboard API."
+      browserName === "firefox" || browserName === "webkit",
+      "Firefox doesn't yet support the async clipboard API. Webkit copy/paste stopped working after updating to Playwright 1.33."
     );
 
     await focusOnEditor(page);
@@ -51,8 +52,8 @@ test.describe("Check Copy/Paste Functionality", () => {
     browserName,
   }) => {
     test.skip(
-      browserName === "firefox",
-      "Firefox doesn't yet support the async clipboard API."
+      browserName === "firefox" || browserName === "webkit",
+      "Firefox doesn't yet support the async clipboard API. Webkit copy/paste stopped working after updating to Playwright 1.33."
     );
 
     await focusOnEditor(page);
@@ -68,8 +69,8 @@ test.describe("Check Copy/Paste Functionality", () => {
     browserName,
   }) => {
     test.skip(
-      browserName === "firefox",
-      "Firefox doesn't yet support the async clipboard API."
+      browserName === "firefox" || browserName === "webkit",
+      "Firefox doesn't yet support the async clipboard API. Webkit copy/paste stopped working after updating to Playwright 1.33."
     );
 
     await focusOnEditor(page);
@@ -85,8 +86,8 @@ test.describe("Check Copy/Paste Functionality", () => {
     browserName,
   }) => {
     test.skip(
-      browserName === "firefox",
-      "Firefox doesn't yet support the async clipboard API."
+      browserName === "firefox" || browserName === "webkit",
+      "Firefox doesn't yet support the async clipboard API. Webkit copy/paste stopped working after updating to Playwright 1.33."
     );
 
     await focusOnEditor(page);
@@ -106,8 +107,8 @@ test.describe("Check Copy/Paste Functionality", () => {
     browserName,
   }) => {
     test.skip(
-      browserName === "firefox",
-      "Firefox doesn't yet support the async clipboard API."
+      browserName === "firefox" || browserName === "webkit",
+      "Firefox doesn't yet support the async clipboard API. Webkit copy/paste stopped working after updating to Playwright 1.33."
     );
 
     await focusOnEditor(page);
@@ -123,8 +124,8 @@ test.describe("Check Copy/Paste Functionality", () => {
     browserName,
   }) => {
     test.skip(
-      browserName === "firefox",
-      "Firefox doesn't yet support the async clipboard API."
+      browserName === "firefox" || browserName === "webkit",
+      "Firefox doesn't yet support the async clipboard API. Webkit copy/paste stopped working after updating to Playwright 1.33."
     );
 
     await focusOnEditor(page);

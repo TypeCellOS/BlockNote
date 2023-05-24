@@ -16,32 +16,6 @@ function camelToDataKebab(str: string): string {
   return "data-" + str.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
 }
 
-// A function to create a "BlockSpec" from a tiptap node.
-// we use this to create the block specs for the built-in blocks
-
-// // TODO: rename to createBlockSpecFromTiptapNode?
-// export function createBlockFromTiptapNode<
-//   Type extends string,
-//   Props extends PropSpecs
-// >(blockSpec: BlockSpecWithNode<Type, Props>): BlockSpecWithNode<Type, Props> {
-//   if (blockSpec.node.name !== blockSpec.type) {
-//     throw Error(
-//       "Node must be of type " +
-//         blockSpec.type +
-//         ", but is of type" +
-//         blockSpec.node.name +
-//         "."
-//     );
-//   }
-//
-//   // TODO: how to handle markdown / html conversions
-//
-//   // the return type gives us runtime access to the block name, props, and tiptap node
-//   // but is also used to generate (derive) the type for the block spec
-//   // so that we can have a strongly typed BlockNoteEditor API
-//   return blockSpec;
-// }
-
 export function propsToAttributes<
   BType extends string,
   PSchema extends PropSchema,
@@ -139,36 +113,14 @@ export function render<
     contentDOM = undefined;
   }
 
-  // Alternative approach to serializing the block.
-  // // Gets BlockNote editor instance
-  // const editor = this.options.editor!;
-  //
-  // // Quite hacky but don't think there's a better way to do this. Since the
-  // // contentDOM can be anywhere inside the DOM, we don't know which element
-  // // it is. Calling render() will give us the contentDOM, but we need to
-  // // provide a block as a parameter.
-  // const getDummyBlock: () => Block<BlockSchema> = () =>
-  //   ({
-  //     id: "",
-  //     type: "",
-  //     props: {},
-  //     content: [],
-  //     children: [],
-  //   } as Block<BlockSchema>);
-  //
-  // // Render elements
-  // const rendered = blockConfig.render(getDummyBlock, editor);
-  // // Add elements to blockContent
-  // blockContent.appendChild(rendered.dom);
-  //
-  // const contentDOM = blockConfig.containsInlineContent
-  //   ? rendered.contentDOM
-  //   : undefined;
-
-  return {
-    dom: blockContent,
-    contentDOM: contentDOM,
-  };
+  return contentDOM !== undefined
+    ? {
+        dom: blockContent,
+        contentDOM: contentDOM,
+      }
+    : {
+        dom: blockContent,
+      };
 }
 
 // A function to create custom block for API consumers
@@ -222,31 +174,41 @@ export function createBlockSpec<
           BSchema & { [k in BType]: BlockSpec<BType, PSchema> }
         >;
         // Gets position of the node
-        const pos = typeof getPos === "function" ? getPos() : undefined;
+        if (typeof getPos === "boolean") {
+          throw new Error(
+            "Cannot find node position as getPos is a boolean, not a function."
+          );
+        }
+        const pos = getPos();
         // Gets TipTap editor instance
         const tipTapEditor = editor._tiptapEditor;
         // Gets parent blockContainer node
         const blockContainer = tipTapEditor.state.doc.resolve(pos!).node();
         // Gets block identifier
         const blockIdentifier = blockContainer.attrs.id;
+
         // Get the block
         const block = editor.getBlock(blockIdentifier)!;
         if (block.type !== blockConfig.type) {
           throw new Error("Block type does not match");
         }
+
         // Render elements
-        const rendered = blockConfig.render(block as any, editor);
+        const rendered = blockConfig.render(
+          block as any,
+          editor
+        );
         // Add elements to blockContent
         blockContent.appendChild(rendered.dom);
 
-        return {
-          dom: blockContent,
-          // I don't understand what's going on with the typing here
-          contentDOM:
-            "contentDOM" in rendered
-              ? (rendered.contentDOM as HTMLDivElement)
-              : undefined,
-        };
+        return "contentDOM" in rendered
+          ? {
+              dom: blockContent,
+              contentDOM: rendered.contentDOM,
+            }
+          : {
+              dom: blockContent,
+            };
       };
     },
   });
