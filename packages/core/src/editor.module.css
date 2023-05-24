@@ -38,9 +38,12 @@ Tippy popups that are appended to document.body directly
 .defaultStyles h3,
 .defaultStyles li {
   all: unset !important;
+  flex-grow: 1 !important;
   margin: 0;
   padding: 0;
   font-size: inherit;
+  /* min width to make sure cursor is always visible */
+  min-width: 2px !important;
 }
 
 .defaultStyles {
@@ -54,16 +57,43 @@ Tippy popups that are appended to document.body directly
 }
 
 [data-theme="light"] {
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   color: #444444;
 }
 
 [data-theme="dark"] {
   background-color: #444444;
-  color: #DDDDDD;
+  color: #dddddd;
 }
 
 .dragPreview {
   position: absolute;
   top: -1000px;
+}
+
+/* Give a remote user a caret */
+.collaboration-cursor__caret {
+  border-left: 1px solid #0d0d0d;
+  border-right: 1px solid #0d0d0d;
+  margin-left: -1px;
+  margin-right: -1px;
+  pointer-events: none;
+  position: relative;
+  word-break: normal;
+}
+
+/* Render the username above the caret */
+.collaboration-cursor__label {
+  border-radius: 3px 3px 3px 0;
+  color: #0d0d0d;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 600;
+  left: -1px;
+  line-height: normal;
+  padding: 0.1rem 0.3rem;
+  position: absolute;
+  top: -1.4em;
+  user-select: none;
+  white-space: nowrap;
 }

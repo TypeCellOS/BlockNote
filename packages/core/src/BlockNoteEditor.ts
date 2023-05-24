@@ -2,7 +2,7 @@ import { Editor, EditorOptions } from "@tiptap/core";
 import { Node } from "prosemirror-model";
 // import "./blocknote.css";
 import { Editor as TiptapEditor } from "@tiptap/core/dist/packages/core/src/Editor";
-import { UiFactories, getBlockNoteExtensions } from "./BlockNoteExtensions";
+import * as Y from "yjs";
 import {
   insertBlocks,
   removeBlocks,
@@ -10,13 +10,14 @@ import {
   updateBlock,
 } from "./api/blockManipulation/blockManipulation";
 import {
-  HTMLToBlocks,
   blocksToHTML,
+  HTMLToBlocks,
   blocksToMarkdown,
   markdownToBlocks,
 } from "./api/formatConversions/formatConversions";
 import { nodeToBlock } from "./api/nodeConversions/nodeConversions";
 import { getNodeById } from "./api/util/nodeUtil";
+import { getBlockNoteExtensions, UiFactories } from "./BlockNoteExtensions";
 import styles from "./editor.module.css";
 import {
   Block,
@@ -44,7 +45,7 @@ import {
 export type BlockNoteEditorOptions<BSchema extends BlockSchema> = {
   // TODO: Figure out if enableBlockNoteExtensions/disableHistoryExtension are needed and document them.
   enableBlockNoteExtensions: boolean;
-  disableHistoryExtension: boolean;
+
   /**
    * UI element factories for creating a custom UI, including custom positioning
    * & rendering.
@@ -107,6 +108,31 @@ export type BlockNoteEditorOptions<BSchema extends BlockSchema> = {
    */
   blockSchema: BSchema;
 
+  /**
+   * When enabled, allows for collaboration between multiple users.
+   */
+  collaboration: {
+    /**
+     * The Yjs XML fragment that's used for collaboration.
+     */
+    fragment: Y.XmlFragment;
+    /**
+     * The user info for the current user that's shown to other collaborators.
+     */
+    user: {
+      name: string;
+      color: string;
+    };
+    /**
+     * A Yjs provider (used for awareness / cursor information)
+     */
+    provider: any;
+    /**
+     * Optional function to customize how cursors of users are rendered
+     */
+    renderCursor?: (user: any) => HTMLElement;
+  };
+
   // tiptap options, undocumented
   _tiptapOptions: any;
 };
@@ -130,7 +156,7 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
     this._tiptapEditor.view.focus();
   }
 
-  constructor(options: Partial<BlockNoteEditorOptions<BSchema>> = {}) {
+  constructor(private readonly options: Partial<BlockNoteEditorOptions<BSchema>> = {}) {
     // apply defaults
     const newOptions: Omit<typeof options, "defaultStyles" | "blockSchema"> & {
       defaultStyles: boolean;
@@ -146,19 +172,16 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
       ...options,
     };
 
-    const blockNoteExtensions = getBlockNoteExtensions<BSchema>({
+    const extensions = getBlockNoteExtensions<BSchema>({
       editor: this,
       uiFactories: newOptions.uiFactories || {},
       slashCommands:
         newOptions.slashCommands || (defaultSlashMenuItems() as any),
       blockSchema: newOptions.blockSchema,
+      collaboration: newOptions.collaboration,
     });
 
     this.schema = newOptions.blockSchema;
-
-    let extensions = newOptions.disableHistoryExtension
-      ? blockNoteExtensions.filter((e) => e.name !== "history")
-      : blockNoteExtensions;
 
     const tiptapOptions: EditorOptions = {
       // TODO: This approach to setting initial content is "cleaner" but requires the PM editor schema, which is only
@@ -292,6 +315,10 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
     traverseBlockArray(blocks);
   }
 
+  /**
+   * Executes a callback whenever the editor's contents change.
+   * @param callback The callback to execute.
+   */
   public onEditorContentChange(callback: () => void) {
     this._tiptapEditor.on("update", callback);
   }
@@ -683,5 +710,17 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
    */
   public async markdownToBlocks(markdown: string): Promise<Block<BSchema>[]> {
     return markdownToBlocks(markdown, this.schema, this._tiptapEditor.schema);
+  }
+
+  /**
+   * Updates the user info for the current user that's shown to other collaborators.
+   */
+  public updateCollaborationUserInfo(user: { name: string; color: string }) {
+    if (!this.options.collaboration) {
+      throw new Error(
+        "Cannot update collaboration user info when collaboration is disabled."
+      );
+    }
+    this._tiptapEditor.commands.updateUser(user);
   }
 }

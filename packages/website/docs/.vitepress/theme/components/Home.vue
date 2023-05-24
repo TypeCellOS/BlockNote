@@ -116,7 +116,6 @@ defineProps<{
   align-items: center;
   margin-top: -72px;
   padding-top: 276px;
-  padding-bottom: 64px;
   // min-height: 100lvh;
 
   background: linear-gradient(
@@ -293,7 +292,7 @@ h4 {
   width: 100%;
   max-width: var(--content-max-width);
   padding: 0 18px;
-  margin: 100px auto 132px;
+  margin: 0 auto 132px;
   text-align: center;
 
   @media (max-width: 1024px) {
