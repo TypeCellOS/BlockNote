@@ -187,6 +187,7 @@ function getHeadTags(env: NodeJS.ProcessEnv): HeadConfig[] {
     // ["meta", { name: "twitter:card", content: "summary_large_image" }],
     // ["meta", { name: "twitter:title", content: "BlockNote Docs" }],
     // ["meta", { name: "twitter:site", content: "@TypeCellOS" }],
+    ["script", { src: "/_vercel/insights/script.js", defer: "" }],
   ];
 
   if (env.VITE_GTM_ID) {
