@@ -1,16 +1,10 @@
-import { useState } from "react";
+import { createBlockSpec, defaultProps } from "@blocknote/core";
 import {
-  Block,
-  BlockNoteEditor,
-  BlockSchema,
-  createBlockSpec,
-  defaultProps,
-} from "@blocknote/core";
-import {
-  createReactBlockSpec,
   ContentDOM,
   ReactSlashMenuItem,
+  createReactBlockSpec,
 } from "@blocknote/react";
+import { useState } from "react";
 import { RiAlertFill } from "react-icons/ri";
 
 const values = {
@@ -44,6 +38,15 @@ export const Alert = createBlockSpec({
   } as const,
   containsInlineContent: true,
   render: (block, editor) => {
+    // Tests to see if types are correct:
+
+    let test: "alert" = block.type;
+    console.log(test);
+
+    // @ts-expect-error
+    let test1: "othertype" = block.type;
+    console.log(test1);
+
     const parent = document.createElement("div");
     parent.setAttribute(
       "style",
@@ -151,11 +154,17 @@ export const ReactAlert = createReactBlockSpec({
     },
   } as const,
   containsInlineContent: true,
-  render: (props: {
-    block: Block<BlockSchema>;
-    editor: BlockNoteEditor<BlockSchema>;
-  }) => {
+  render: (props) => {
     const [type, setType] = useState(props.block.props.type);
+
+    // Tests to see if types are correct:
+
+    let test: "reactAlert" = props.block.type;
+    console.log(test);
+
+    // @ts-expect-error
+    let test1: "othertype" = props.block.type;
+    console.log(test1);
 
     return (
       <div

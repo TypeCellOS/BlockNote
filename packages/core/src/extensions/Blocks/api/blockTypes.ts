@@ -1,7 +1,7 @@
 /** Define the main block types **/
 import { Node, NodeConfig } from "@tiptap/core";
-import { InlineContent, PartialInlineContent } from "./inlineContentTypes";
 import { BlockNoteEditor } from "../../../BlockNoteEditor";
+import { InlineContent, PartialInlineContent } from "./inlineContentTypes";
 
 // A configuration for a TipTap node, but with stricter type constraints on the
 // "name" and "group" properties. The "name" property is now always a string
@@ -73,8 +73,21 @@ export type BlockConfig<
   containsInlineContent: ContainsInlineContent;
   parse?: (element: HTMLElement) => Props<PSchema>;
   render: (
-    block: Block<BSchema>,
-    editor: BlockNoteEditor<BSchema>
+    /**
+     * The custom block to render
+     */
+    block: SpecificBlock<
+      BSchema & { [k in Type]: BlockSpec<Type, PSchema> },
+      Type
+    >,
+    /**
+     * The BlockNote editor instance
+     * This is typed generically. If you want an editor with your custom schema, you need to
+     * cast it manually, e.g.: `const e = editor as BlockNoteEditor<typeof mySchema>;`
+     */
+    editor: BlockNoteEditor<BSchema & { [k in Type]: BlockSpec<Type, PSchema> }>
+    // (note) if we want to fix the manual cast, we need to prevent circular references and separate block definition and render implementations
+    // or allow manually passing <BSchema>, but that's not possible without passing the other generics because Typescript doesn't support partial inferred generics
   ) => ContainsInlineContent extends true
     ? {
         dom: HTMLElement;
@@ -92,11 +105,9 @@ export type BlockConfig<
 export type BlockSpec<
   Type extends string,
   PSchema extends PropSchema,
-  Options = any,
-  Storage = any
 > = {
   readonly propSchema: PSchema;
-  node: TipTapNode<Type, Options, Storage>;
+  node: TipTapNode<Type>;
 };
 
 // Utility type. For a given object block schema, ensures that the key of each
@@ -140,6 +151,13 @@ export type Block<BSchema extends BlockSchema> =
   BlocksWithoutChildren<BSchema>[keyof BlocksWithoutChildren<BSchema>] & {
     children: Block<BSchema>[];
   };
+
+export type SpecificBlock<
+  BSchema extends BlockSchema,
+  BlockType extends keyof BSchema
+> = BlocksWithoutChildren<BSchema>[BlockType] & {
+  children: Block<BSchema>[];
+};
 
 // Same as BlockWithoutChildren, but as a partial type with some changes to make
 // it easier to create/update blocks in the editor.

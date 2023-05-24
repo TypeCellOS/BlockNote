@@ -1,7 +1,8 @@
+import { Attribute, Extension, Node } from "@tiptap/core";
 import { DOMSerializer, Schema } from "prosemirror-model";
 import { Plugin } from "prosemirror-state";
-import { Attribute, Extension, Node } from "@tiptap/core";
-import { BlockNoteEditor } from "../../../BlockNoteEditor";
+import { BlockNoteEditor } from "../../..";
+import styles from "../nodes/Block.module.css";
 import {
   BlockConfig,
   BlockSchema,
@@ -10,7 +11,6 @@ import {
   TipTapNode,
   TipTapNodeConfig,
 } from "./blockTypes";
-import styles from "../nodes/Block.module.css";
 
 function camelToDataKebab(str: string): string {
   return "data-" + str.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
@@ -132,11 +132,8 @@ export function createBlockSpec<
   BSchema extends BlockSchema
 >(
   blockConfig: BlockConfig<BType, PSchema, ContainsInlineContent, BSchema>
-): BlockSpec<BType, PSchema, { editor: BlockNoteEditor<BSchema> | undefined }> {
-  const node = createTipTapBlock<
-    BType,
-    { editor: BlockNoteEditor<BSchema> | undefined }
-  >({
+): BlockSpec<BType, PSchema> {
+  const node = createTipTapBlock<BType>({
     name: blockConfig.type,
     content: blockConfig.containsInlineContent ? "inline*" : "",
     selectable: blockConfig.containsInlineContent,
@@ -173,7 +170,9 @@ export function createBlockSpec<
         }
 
         // Gets BlockNote editor instance
-        const editor = this.options.editor!;
+        const editor = this.options.editor! as BlockNoteEditor<
+          BSchema & { [k in BType]: BlockSpec<BType, PSchema> }
+        >;
         // Gets position of the node
         if (typeof getPos === "boolean") {
           throw new Error(
@@ -188,9 +187,15 @@ export function createBlockSpec<
         // Gets block identifier
         const blockIdentifier = blockContainer.attrs.id;
 
+        // Get the block
+        const block = editor.getBlock(blockIdentifier)!;
+        if (block.type !== blockConfig.type) {
+          throw new Error("Block type does not match");
+        }
+
         // Render elements
         const rendered = blockConfig.render(
-          editor.getBlock(blockIdentifier)!,
+          block as any,
           editor
         );
         // Add elements to blockContent
@@ -214,13 +219,9 @@ export function createBlockSpec<
   };
 }
 
-export function createTipTapBlock<
-  Type extends string,
-  Options = any,
-  Storage = any
->(
-  config: TipTapNodeConfig<Type, Options, Storage>
-): TipTapNode<Type, Options, Storage> {
+export function createTipTapBlock<Type extends string>(
+  config: TipTapNodeConfig<Type>
+): TipTapNode<Type> {
   // Type cast is needed as Node.name is mutable, though there is basically no
   // reason to change it after creation. Alternative is to wrap Node in a new
   // class, which I don't think is worth it since we'd only be changing 1
@@ -228,7 +229,7 @@ export function createTipTapBlock<
   return Node.create({
     ...config,
     group: "blockContent",
-  }) as TipTapNode<Type, Options, Storage>;
+  }) as TipTapNode<Type>;
 }
 
 const customBlockSerializer = (schema: Schema) => {

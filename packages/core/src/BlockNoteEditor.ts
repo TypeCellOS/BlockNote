@@ -2,6 +2,7 @@ import { Editor, EditorOptions } from "@tiptap/core";
 import { Node } from "prosemirror-model";
 // import "./blocknote.css";
 import { Editor as TiptapEditor } from "@tiptap/core/dist/packages/core/src/Editor";
+import { UiFactories, getBlockNoteExtensions } from "./BlockNoteExtensions";
 import {
   insertBlocks,
   removeBlocks,
@@ -9,14 +10,13 @@ import {
   updateBlock,
 } from "./api/blockManipulation/blockManipulation";
 import {
+  HTMLToBlocks,
   blocksToHTML,
   blocksToMarkdown,
-  HTMLToBlocks,
   markdownToBlocks,
 } from "./api/formatConversions/formatConversions";
 import { nodeToBlock } from "./api/nodeConversions/nodeConversions";
 import { getNodeById } from "./api/util/nodeUtil";
-import { getBlockNoteExtensions, UiFactories } from "./BlockNoteExtensions";
 import styles from "./editor.module.css";
 import {
   Block,
@@ -25,16 +25,16 @@ import {
   PartialBlock,
 } from "./extensions/Blocks/api/blockTypes";
 import { TextCursorPosition } from "./extensions/Blocks/api/cursorPositionTypes";
-import { Selection } from "./extensions/Blocks/api/selectionTypes";
 import {
-  defaultBlockSchema,
   DefaultBlockSchema,
+  defaultBlockSchema,
 } from "./extensions/Blocks/api/defaultBlocks";
 import {
   ColorStyle,
   Styles,
   ToggledStyle,
 } from "./extensions/Blocks/api/inlineContentTypes";
+import { Selection } from "./extensions/Blocks/api/selectionTypes";
 import { getBlockInfoFromPos } from "./extensions/Blocks/helpers/getBlockInfoFromPos";
 import {
   BaseSlashMenuItem,

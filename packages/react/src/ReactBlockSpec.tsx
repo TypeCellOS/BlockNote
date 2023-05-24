@@ -1,16 +1,13 @@
 import {
   BlockConfig,
-  BlockNoteEditor,
   BlockSchema,
   BlockSpec,
   createTipTapBlock,
-  PropSchema,
-  Block,
-  propsToAttributes,
   parse,
+  PropSchema,
+  propsToAttributes,
   render,
 } from "@blocknote/core";
-import { FC } from "react";
 import {
   NodeViewContent,
   NodeViewContentProps,
@@ -18,6 +15,7 @@ import {
   NodeViewWrapper,
   ReactNodeViewRenderer,
 } from "@tiptap/react";
+import { FC } from "react";
 
 // extend BlockConfig but use a react render function
 export type ReactBlockConfig<
@@ -30,8 +28,12 @@ export type ReactBlockConfig<
   "render"
 > & {
   render: FC<{
-    block: Block<BSchema>;
-    editor: BlockNoteEditor<BSchema>;
+    block: Parameters<
+      BlockConfig<Type, PSchema, ContainsInlineContent, BSchema>["render"]
+    >[0];
+    editor: Parameters<
+      BlockConfig<Type, PSchema, ContainsInlineContent, BSchema>["render"]
+    >[1];
   }>;
 };
 
@@ -48,11 +50,8 @@ export function createReactBlockSpec<
   BSchema extends BlockSchema
 >(
   blockConfig: ReactBlockConfig<BType, PSchema, ContainsInlineContent, BSchema>
-): BlockSpec<BType, PSchema, { editor: BlockNoteEditor<BSchema> | undefined }> {
-  const node = createTipTapBlock<
-    BType,
-    { editor: BlockNoteEditor<BSchema> | undefined }
-  >({
+): BlockSpec<BType, PSchema> {
+  const node = createTipTapBlock<BType>({
     name: blockConfig.type,
     content: blockConfig.containsInlineContent ? "inline*" : "",
     selectable: blockConfig.containsInlineContent,
@@ -99,9 +98,11 @@ export function createReactBlockSpec<
         const blockContainer = tipTapEditor.state.doc.resolve(pos!).node();
         // Gets block identifier
         const blockIdentifier = blockContainer.attrs.id;
-        // Function to get the block
-        const getBlock: () => Block<BSchema> = () =>
-          editor.getBlock(blockIdentifier)!;
+        // Get the block
+        const block = editor.getBlock(blockIdentifier)!;
+        if (block.type !== blockConfig.type) {
+          throw new Error("Block type does not match");
+        }
 
         return (
           <NodeViewWrapper>
@@ -109,7 +110,7 @@ export function createReactBlockSpec<
               className={"TODO"}
               data-content-type={blockConfig.type}
               {...htmlAttributes}>
-              <Content block={getBlock()} editor={editor} />
+              <Content block={block} editor={editor} />
             </div>
           </NodeViewWrapper>
         );
