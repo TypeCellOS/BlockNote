@@ -24,7 +24,10 @@ import BlockNote from "@theme/components/Examples/BlockNote/BlockNote.vue";
     </div>
 
     <div class="header-media">
-      <ClientOnly><BlockNote /></ClientOnly>
+      <div class="editor-wrapper">
+        <ClientOnly><BlockNote /></ClientOnly>
+      </div>
+      <div class="try-here-image"/>
     </div>
     <!-- features
 sponsors
@@ -73,6 +76,8 @@ header {
 }
 
 .header-media {
+  display: flex;
+  flex-direction: column;
   transform: translateY(-80px);
   max-width: 596px;
   width: 100%;
@@ -90,10 +95,12 @@ header {
   @media only screen and (hover: none) and (pointer: coarse) {
     display: none; /* disable on mobile */
   }
+}
 
+.editor-wrapper {
   border-radius: 12px;
   box-shadow: inset 0 0 0 1px #c4d0d966, inset 0 -1px #ffffff1a,
-    inset 0 1px #84b9f61a;
+  inset 0 1px #84b9f61a;
   // background-image: radial-gradient(
   //   145% 110% at 46% 20%,
   //   #fdfeff 50%,
@@ -104,25 +111,26 @@ header {
   backdrop-filter: blur(6px);
   padding: 50px;
   padding-left: 1px;
+  overflow-y: scroll;
 }
 
-.header-media::after {
-  content: "";
+.try-here-image {
+  position: relative;
+  width: 250px;
+  height: 160px;
+  right: 120px;
+  display: block;
+  top: -50px;
+
   background-image: url(/img/assets/try.svg);
   :root.dark & {
     background-image: url(/img/assets/try.dark.svg);
   }
-  width: 250px;
-  height: 160px;
-  display: block;
-  position: absolute;
   background-size: contain;
   background-repeat: no-repeat;
-  bottom: -90px;
-  left: -120px;
 
   @media (max-width: 1280px) {
-    left: 0px;
+    right: 0;
   }
 }
 
