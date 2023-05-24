@@ -71,7 +71,6 @@ export type BlockConfig<
 
   // Additional attributes to help define block as a TipTap node.
   containsInlineContent: ContainsInlineContent;
-  parse?: (element: HTMLElement) => Props<PSchema>;
   render: (
     /**
      * The custom block to render
@@ -102,10 +101,7 @@ export type BlockConfig<
 // the TipTap node used to implement it. Usually created using `createBlockSpec`
 // though it can also be defined from scratch by providing your own TipTap node,
 // allowing for more advanced custom blocks.
-export type BlockSpec<
-  Type extends string,
-  PSchema extends PropSchema,
-> = {
+export type BlockSpec<Type extends string, PSchema extends PropSchema> = {
   readonly propSchema: PSchema;
   node: TipTapNode<Type>;
 };

@@ -156,7 +156,9 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
     this._tiptapEditor.view.focus();
   }
 
-  constructor(private readonly options: Partial<BlockNoteEditorOptions<BSchema>> = {}) {
+  constructor(
+    private readonly options: Partial<BlockNoteEditorOptions<BSchema>> = {}
+  ) {
     // apply defaults
     const newOptions: Omit<typeof options, "defaultStyles" | "blockSchema"> & {
       defaultStyles: boolean;
@@ -175,8 +177,7 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
     const extensions = getBlockNoteExtensions<BSchema>({
       editor: this,
       uiFactories: newOptions.uiFactories || {},
-      slashCommands:
-        newOptions.slashCommands || (defaultSlashMenuItems() as any),
+      slashCommands: newOptions.slashCommands || (defaultSlashMenuItems as any),
       blockSchema: newOptions.blockSchema,
       collaboration: newOptions.collaboration,
     });

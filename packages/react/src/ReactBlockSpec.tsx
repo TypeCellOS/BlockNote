@@ -2,6 +2,7 @@ import {
   BlockConfig,
   BlockSchema,
   BlockSpec,
+  camelToDataKebab,
   createTipTapBlock,
   parse,
   PropSchema,
@@ -11,7 +12,7 @@ import {
 import {
   NodeViewContent,
   NodeViewContentProps,
-  NodeViewRendererProps,
+  NodeViewProps,
   NodeViewWrapper,
   ReactNodeViewRenderer,
 } from "@tiptap/react";
@@ -75,17 +76,16 @@ export function createReactBlockSpec<
     },
 
     addNodeView() {
-      const BlockContent: FC<NodeViewRendererProps> = (
-        props: NodeViewRendererProps
-      ) => {
+      const BlockContent: FC<NodeViewProps> = (props: NodeViewProps) => {
         const Content = blockConfig.render;
-        console.log(props);
 
         // Add props as HTML attributes in kebab-case with "data-" prefix
         const htmlAttributes: Record<string, string> = {};
-        // for (const [attribute, value] of Object.entries(props.HTMLAttributes)) {
-        //   htmlAttributes[attribute] = value;
-        // }
+        for (const [attribute, value] of Object.entries(props.node.attrs)) {
+          if (attribute in blockConfig.propSchema) {
+            htmlAttributes[attribute] = camelToDataKebab(value);
+          }
+        }
 
         // Gets BlockNote editor instance
         const editor = this.options.editor!;

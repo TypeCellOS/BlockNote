@@ -21,16 +21,6 @@ export interface FormattingToolbarPluginProps<BSchema extends BlockSchema> {
   tiptapEditor: Editor;
   editor: BlockNoteEditor<BSchema>;
   formattingToolbarFactory: FormattingToolbarFactory<BSchema>;
-  shouldShow?:
-    | ((props: {
-        editor: BlockNoteEditor<BSchema>;
-        view: EditorView;
-        state: EditorState;
-        oldState?: EditorState;
-        from: number;
-        to: number;
-      }) => boolean)
-    | null;
 }
 
 export type FormattingToolbarViewProps<BSchema extends BlockSchema> =
@@ -54,10 +44,12 @@ export class FormattingToolbarView<BSchema extends BlockSchema> {
 
   public prevWasEditable: boolean | null = null;
 
-  public shouldShow: Exclude<
-    FormattingToolbarPluginProps<BSchema>["shouldShow"],
-    null
-  > = ({ view, state, from, to }) => {
+  public shouldShow: (props: {
+    view: EditorView;
+    state: EditorState;
+    from: number;
+    to: number;
+  }) => boolean = ({ view, state, from, to }) => {
     const { doc, selection } = state;
     const { empty } = selection;
 
@@ -75,17 +67,12 @@ export class FormattingToolbarView<BSchema extends BlockSchema> {
     tiptapEditor,
     formattingToolbarFactory,
     view,
-    shouldShow,
   }: FormattingToolbarViewProps<BSchema>) {
     this.editor = editor;
     this.ttEditor = tiptapEditor;
     this.view = view;
 
     this.formattingToolbar = formattingToolbarFactory(this.getStaticParams());
-
-    if (shouldShow) {
-      this.shouldShow = shouldShow;
-    }
 
     this.view.dom.addEventListener("mousedown", this.viewMousedownHandler);
     this.view.dom.addEventListener("mouseup", this.viewMouseupHandler);
@@ -166,10 +153,8 @@ export class FormattingToolbarView<BSchema extends BlockSchema> {
     const to = Math.max(...ranges.map((range) => range.$to.pos));
 
     const shouldShow = this.shouldShow?.({
-      editor: this.editor,
       view,
       state,
-      oldState,
       from,
       to,
     });

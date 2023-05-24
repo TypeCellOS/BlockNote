@@ -262,7 +262,10 @@ export function nodeToBlock<BSchema extends BlockSchema>(
 
     if (attr in propSchema) {
       props[attr] = value;
-    } else {
+    }
+    // Block ids are stored as node attributes the same way props are, so we
+    // need to ensure we don't attempt to read block ids as props.
+    else if (attr !== "id") {
       console.warn("Block has an unrecognized attribute: " + attr);
     }
   }

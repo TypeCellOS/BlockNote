@@ -46,7 +46,7 @@ export const useBlockNote = <BSchema extends BlockSchema = DefaultBlockSchema>(
     //  but it would have to be on several different classes (BlockNoteEditor, BlockNoteEditorOptions, UiFactories) and
     //  gets messy quick.
     let newOptions: Record<any, any> = {
-      slashCommands: defaultReactSlashMenuItems(),
+      slashCommands: defaultReactSlashMenuItems,
       ...options,
     };
 

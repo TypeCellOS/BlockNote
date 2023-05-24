@@ -14,13 +14,16 @@ test.beforeEach(async ({}, testInfo) => {
   testInfo.snapshotSuffix = "";
 });
 
+// TODO: These tests should not be used for now. While they do pass, the
+//  snapshots don't contain the output we actually want as the custom
+//  serializer hasn't been implemented yet.
 test("Alert Copy/Paste External", async ({ browserName, mount, page }) => {
   test.skip(
     browserName === "firefox",
-    "Playwright doesn't correctly simulate drag events in Firefox."
+    "Firefox doesn't yet support the async clipboard API."
   );
 
-  await mount(<EditorWithTextArea blockTypes={["alert"]} />);
+  await mount(<EditorWithTextArea />);
 
   await focusOnEditor(page);
   await page.keyboard.type("Paragraph 1");
@@ -44,10 +47,10 @@ test("Alert Copy/Paste External", async ({ browserName, mount, page }) => {
 test("Button Copy/Paste External", async ({ browserName, mount, page }) => {
   test.skip(
     browserName === "firefox",
-    "Playwright doesn't correctly simulate drag events in Firefox."
+    "Firefox doesn't yet support the async clipboard API."
   );
 
-  await mount(<EditorWithTextArea blockTypes={["button"]} />);
+  await mount(<EditorWithTextArea />);
 
   await focusOnEditor(page);
   await page.keyboard.type("Paragraph 1");
@@ -64,10 +67,10 @@ test("Button Copy/Paste External", async ({ browserName, mount, page }) => {
 test("Embed Copy/Paste Internal", async ({ browserName, mount, page }) => {
   test.skip(
     browserName === "firefox",
-    "Playwright doesn't correctly simulate drag events in Firefox."
+    "Firefox doesn't yet support the async clipboard API."
   );
 
-  await mount(<EditorWithTextArea blockTypes={["embed"]} />);
+  await mount(<EditorWithTextArea />);
 
   await focusOnEditor(page);
   await page.keyboard.type("Paragraph 1");
@@ -84,10 +87,10 @@ test("Embed Copy/Paste Internal", async ({ browserName, mount, page }) => {
 test("Image Copy/Paste Internal", async ({ browserName, mount, page }) => {
   test.skip(
     browserName === "firefox",
-    "Playwright doesn't correctly simulate drag events in Firefox."
+    "Firefox doesn't yet support the async clipboard API."
   );
 
-  await mount(<EditorWithTextArea blockTypes={["image"]} />);
+  await mount(<EditorWithTextArea />);
 
   await focusOnEditor(page);
   await page.keyboard.type("Paragraph 1");
@@ -106,10 +109,10 @@ test("Image Copy/Paste Internal", async ({ browserName, mount, page }) => {
 test("Separator Copy/Paste Internal", async ({ browserName, mount, page }) => {
   test.skip(
     browserName === "firefox",
-    "Playwright doesn't correctly simulate drag events in Firefox."
+    "Firefox doesn't yet support the async clipboard API."
   );
 
-  await mount(<EditorWithTextArea blockTypes={["separator"]} />);
+  await mount(<EditorWithTextArea />);
 
   await focusOnEditor(page);
   await page.keyboard.type("Paragraph 1");
@@ -130,10 +133,10 @@ test("Table of Contents Copy/Paste Internal", async ({
 }) => {
   test.skip(
     browserName === "firefox",
-    "Playwright doesn't correctly simulate drag events in Firefox."
+    "Firefox doesn't yet support the async clipboard API."
   );
 
-  await mount(<EditorWithTextArea blockTypes={["toc"]} />);
+  await mount(<EditorWithTextArea />);
 
   await focusOnEditor(page);
   await executeSlashCommand(page, "h1");
