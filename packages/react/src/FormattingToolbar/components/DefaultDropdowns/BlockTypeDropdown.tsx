@@ -1,5 +1,10 @@
+import {
+  BlockNoteEditor,
+  BlockSchema,
+  DefaultBlockSchema,
+} from "@blocknote/core";
 import { useEffect, useState } from "react";
-import { BlockNoteEditor, BlockSchema, PartialBlock } from "@blocknote/core";
+import { IconType } from "react-icons";
 import {
   RiH1,
   RiH2,
@@ -9,7 +14,6 @@ import {
   RiText,
 } from "react-icons/ri";
 import { ToolbarDropdown } from "../../../SharedComponents/Toolbar/components/ToolbarDropdown";
-import { IconType } from "react-icons";
 
 type HeadingLevels = "1" | "2" | "3";
 
@@ -44,20 +48,24 @@ export const BlockTypeDropdown = <BSchema extends BlockSchema>(props: {
     return null;
   }
 
-  const headingItems = (
-    props.editor.schema.heading.propSchema.level.values! as HeadingLevels[]
-  ).map((level) => ({
-    onClick: () => {
-      props.editor.focus();
-      props.editor.updateBlock(block, {
-        type: "heading",
-        props: { level: level },
-      } as PartialBlock<BSchema>);
-    },
-    text: "Heading " + level,
-    icon: headingIcons[level],
-    isSelected: block.type === "heading" && block.props.level === level,
-  }));
+  // let's cast the editor because "shouldShow" has given us the confidence
+  // the default block schema is being used
+  let editor = props.editor as any as BlockNoteEditor<DefaultBlockSchema>;
+
+  const headingItems = editor.schema.heading.propSchema.level.values.map(
+    (level) => ({
+      onClick: () => {
+        editor.focus();
+        editor.updateBlock(block, {
+          type: "heading",
+          props: { level: level },
+        });
+      },
+      text: "Heading " + level,
+      icon: headingIcons[level],
+      isSelected: block.type === "heading" && block.props.level === level,
+    })
+  );
 
   return (
     <ToolbarDropdown
