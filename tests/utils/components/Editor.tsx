@@ -1,12 +1,11 @@
 import { DefaultBlockSchema, defaultBlockSchema } from "@blocknote/core";
+import "@blocknote/core/style.css";
 import {
   BlockNoteView,
-  defaultReactSlashMenuItems,
   ReactSlashMenuItem,
+  defaultReactSlashMenuItems,
   useBlockNote,
 } from "@blocknote/react";
-import "@blocknote/core/style.css";
-import styles from "./Editor.module.css";
 import { Alert, insertAlert } from "../customblocks/Alert";
 import { Button, insertButton } from "../customblocks/Button";
 import { Embed, insertEmbed } from "../customblocks/Embed";
@@ -16,6 +15,7 @@ import {
   TableOfContents,
   insertTableOfContents,
 } from "../customblocks/TableOfContents";
+import styles from "./Editor.module.css";
 
 type WindowWithProseMirror = Window & typeof globalThis & { ProseMirror: any };
 
@@ -73,10 +73,7 @@ export default function Editor(props: { blockTypes: (keyof CustomBlocks)[] }) {
       ...defaultBlockSchema,
       ...blockSchema,
     },
-    slashCommands: [
-      ...defaultReactSlashMenuItems<CustomBlockSchema>(),
-      ...slashCommands,
-    ],
+    slashCommands: [...defaultReactSlashMenuItems(), ...slashCommands],
   });
 
   console.log(editor);
