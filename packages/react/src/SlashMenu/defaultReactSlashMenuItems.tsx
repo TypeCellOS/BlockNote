@@ -58,19 +58,15 @@ const extraFields: Record<
   },
 };
 
-export const defaultReactSlashMenuItems = () => {
-  const ret: ReactSlashMenuItem<DefaultBlockSchema>[] =
-    defaultSlashMenuItems().map(
-      (item) =>
-        new ReactSlashMenuItem<DefaultBlockSchema>(
-          item.name,
-          item.execute,
-          item.aliases,
-          extraFields[item.name].group,
-          extraFields[item.name].icon,
-          extraFields[item.name].hint,
-          extraFields[item.name].shortcut
-        )
-    );
-  return ret;
-};
+export const defaultReactSlashMenuItems = defaultSlashMenuItems.map(
+  (item) =>
+    new ReactSlashMenuItem<DefaultBlockSchema>(
+      item.name,
+      item.execute,
+      item.aliases,
+      extraFields[item.name].group,
+      extraFields[item.name].icon,
+      extraFields[item.name].hint,
+      extraFields[item.name].shortcut
+    )
+);

@@ -1,6 +1,4 @@
-import { Attribute, Extension, Node } from "@tiptap/core";
-import { DOMSerializer, Schema } from "prosemirror-model";
-import { Plugin } from "prosemirror-state";
+import { Attribute, Node } from "@tiptap/core";
 import { BlockNoteEditor } from "../../..";
 import styles from "../nodes/Block.module.css";
 import {
@@ -12,10 +10,12 @@ import {
   TipTapNodeConfig,
 } from "./blockTypes";
 
-function camelToDataKebab(str: string): string {
+export function camelToDataKebab(str: string): string {
   return "data-" + str.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
 }
 
+// Function that uses the 'propSchema' of a blockConfig to create a TipTap
+// node's `addAttributes` property.
 export function propsToAttributes<
   BType extends string,
   PSchema extends PropSchema,
@@ -49,6 +49,9 @@ export function propsToAttributes<
   return tiptapAttributes;
 }
 
+// Function that uses the 'parse' function of a blockConfig to create a
+// TipTap node's `parseHTML` property. This is only used for parsing content
+// from the clipboard.
 export function parse<
   BType extends string,
   PSchema extends PropSchema,
@@ -60,28 +63,16 @@ export function parse<
     "render"
   >
 ) {
-  // TODO: This won't work for content copied outside BlockNote. Given the
-  //  variety of possible custom block types, a one-size-fits-all solution
-  //  probably won't work and we'll need an optional parseHTML option.
-  return blockConfig.parse
-    ? [
-        {
-          getAttrs: (node: HTMLElement | string) => {
-            if (typeof node === "string") {
-              return false;
-            }
-
-            return blockConfig.parse!(node);
-          },
-        },
-      ]
-    : [
-        {
-          tag: "div[data-content-type=" + blockConfig.type + "]",
-        },
-      ];
+  return [
+    {
+      tag: "div[data-content-type=" + blockConfig.type + "]",
+    },
+  ];
 }
 
+// Function that uses the 'render' function of a blockConfig to create a
+// TipTap node's `renderHTML` property. Since custom blocks use node views,
+// this is only used for serializing content to the clipboard.
 export function render<
   BType extends string,
   PSchema extends PropSchema,
@@ -194,10 +185,7 @@ export function createBlockSpec<
         }
 
         // Render elements
-        const rendered = blockConfig.render(
-          block as any,
-          editor
-        );
+        const rendered = blockConfig.render(block as any, editor);
         // Add elements to blockContent
         blockContent.appendChild(rendered.dom);
 
@@ -231,30 +219,3 @@ export function createTipTapBlock<Type extends string>(
     group: "blockContent",
   }) as TipTapNode<Type>;
 }
-
-const customBlockSerializer = (schema: Schema) => {
-  const defaultSerializer = DOMSerializer.fromSchema(schema);
-
-  return new DOMSerializer(
-    {
-      ...defaultSerializer.nodes,
-      // TODO: If a serializer is defined in the config for a custom block, it
-      //  should be added here. We still need to figure out how the serializer
-      //  should be defined in the custom blocks API though, and implement that,
-      //  before we can do this.
-    },
-    defaultSerializer.marks
-  );
-};
-
-export const CustomBlockSerializerExtension = Extension.create({
-  addProseMirrorPlugins() {
-    return [
-      new Plugin({
-        props: {
-          clipboardSerializer: customBlockSerializer(this.editor.schema),
-        },
-      }),
-    ];
-  },
-});

@@ -1,4 +1,4 @@
-import { DefaultBlockSchema, defaultBlockSchema } from "@blocknote/core";
+import { defaultBlockSchema } from "@blocknote/core";
 import "@blocknote/core/style.css";
 import {
   BlockNoteView,
@@ -19,61 +19,38 @@ import styles from "./Editor.module.css";
 
 type WindowWithProseMirror = Window & typeof globalThis & { ProseMirror: any };
 
-const customBlocks = {
-  alert: {
-    block: Alert,
-    slashCommand: insertAlert,
-  },
-  button: {
-    block: Button,
-    slashCommand: insertButton,
-  },
-  embed: {
-    block: Embed,
-    slashCommand: insertEmbed,
-  },
-  image: {
-    block: Image,
-    slashCommand: insertImage,
-  },
-  separator: {
-    block: Separator,
-    slashCommand: insertSeparator,
-  },
-  toc: {
-    block: TableOfContents,
-    slashCommand: insertTableOfContents,
-  },
-} as const;
+export default function Editor() {
+  const blockSchema = {
+    ...defaultBlockSchema,
+    alert: Alert,
+    button: Button,
+    embed: Embed,
+    image: Image,
+    separator: Separator,
+    toc: TableOfContents,
+  } as const;
 
-export type CustomBlocks = typeof customBlocks;
+  const slashCommands = [
+    insertAlert,
+    insertButton,
+    insertEmbed,
+    insertImage,
+    insertSeparator,
+    insertTableOfContents,
+  ] as ReactSlashMenuItem<typeof blockSchema>[];
 
-export default function Editor(props: { blockTypes: (keyof CustomBlocks)[] }) {
-  const blockSchema: Partial<{
-    [BlockType in keyof CustomBlocks]: CustomBlocks[BlockType]["block"];
-  }> = Object.fromEntries(
-    props.blockTypes.map((blockType) => [
-      blockType,
-      customBlocks[blockType].block,
-    ])
-  );
-
-  type CustomBlockSchema = typeof blockSchema & DefaultBlockSchema;
-
-  const slashCommands = props.blockTypes.map(
-    (blockType) => customBlocks[blockType].slashCommand
-  ) as ReactSlashMenuItem<CustomBlockSchema>[];
-
-  const editor = useBlockNote<CustomBlockSchema>({
+  const editor = useBlockNote<typeof blockSchema>({
     editorDOMAttributes: {
       class: styles.editor,
       "data-test": "editor",
     },
-    blockSchema: {
-      ...defaultBlockSchema,
-      ...blockSchema,
-    },
-    slashCommands: [...defaultReactSlashMenuItems(), ...slashCommands],
+    blockSchema: blockSchema,
+    slashCommands: [
+      ...(defaultReactSlashMenuItems as ReactSlashMenuItem<
+        typeof blockSchema
+      >[]),
+      ...slashCommands,
+    ],
   });
 
   console.log(editor);

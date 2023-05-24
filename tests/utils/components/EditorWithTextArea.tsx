@@ -1,13 +1,11 @@
 import "@blocknote/core/style.css";
-import Editor, { CustomBlocks } from "./Editor";
+import Editor from "./Editor";
 import styles from "./TextArea.module.css";
 
-export default function EditorWithTextArea(props: {
-  blockTypes: (keyof CustomBlocks)[];
-}) {
+export default function EditorWithTextArea() {
   return (
     <>
-      <Editor {...props} />
+      <Editor />
       <textarea
         id={"pasteZone"}
         className={styles.pasteZone}
