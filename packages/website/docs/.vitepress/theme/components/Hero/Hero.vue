@@ -120,6 +120,7 @@ header {
   height: 160px;
   right: 120px;
   display: block;
+  top: -50px;
 
   background-image: url(/img/assets/try.svg);
   :root.dark & {
