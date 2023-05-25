@@ -53,6 +53,7 @@ export const ReactAlert = createReactBlockSpec({
       <div
         style={{
           display: "flex",
+          flexGrow: 1,
           backgroundColor: values[type as keyof typeof values].backgroundColor,
         }}>
         <div

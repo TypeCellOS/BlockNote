@@ -13,3 +13,4 @@ export type { SuggestionItem } from "./shared/plugins/suggestion/SuggestionItem"
 export * from "./shared/plugins/suggestion/SuggestionsMenuFactoryTypes";
 export * from "./extensions/Blocks/api/inlineContentTypes";
 export * from "./extensions/Blocks/api/serialization";
+export * as blockStyles from "./extensions/Blocks/nodes/Block.module.css";

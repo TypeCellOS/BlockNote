@@ -19,6 +19,7 @@ import {
 import { getBlockInfoFromPos } from "../../extensions/Blocks/helpers/getBlockInfoFromPos";
 import UniqueID from "../../extensions/UniqueID/UniqueID";
 import { UnreachableCaseError } from "../../shared/utils";
+import { defaultProps } from "../../extensions/Blocks/api/defaultBlocks";
 
 const toggleStyles = new Set<ToggledStyle>([
   "bold",
@@ -264,8 +265,10 @@ export function nodeToBlock<BSchema extends BlockSchema>(
       props[attr] = value;
     }
     // Block ids are stored as node attributes the same way props are, so we
-    // need to ensure we don't attempt to read block ids as props.
-    else if (attr !== "id") {
+    // need to ensure we don't attempt to read block ids as props. Also, props
+    // which apply to child blocks are set on the block container, but not all
+    // block types use them.
+    else if (attr !== "id" && !(attr in defaultProps)) {
       console.warn("Block has an unrecognized attribute: " + attr);
     }
   }

@@ -17,6 +17,7 @@ import {
   ReactNodeViewRenderer,
 } from "@tiptap/react";
 import { FC } from "react";
+import { blockStyles } from "@blocknote/core";
 
 // extend BlockConfig but use a react render function
 export type ReactBlockConfig<
@@ -83,7 +84,7 @@ export function createReactBlockSpec<
         const htmlAttributes: Record<string, string> = {};
         for (const [attribute, value] of Object.entries(props.node.attrs)) {
           if (attribute in blockConfig.propSchema) {
-            htmlAttributes[attribute] = camelToDataKebab(value);
+            htmlAttributes[camelToDataKebab(attribute)] = value;
           }
         }
 
@@ -105,13 +106,11 @@ export function createReactBlockSpec<
         }
 
         return (
-          <NodeViewWrapper>
-            <div
-              className={"TODO"}
-              data-content-type={blockConfig.type}
-              {...htmlAttributes}>
-              <Content block={block} editor={editor} />
-            </div>
+          <NodeViewWrapper
+            className={blockStyles.blockContent}
+            data-content-type={blockConfig.type}
+            {...htmlAttributes}>
+            <Content block={block} editor={editor} />
           </NodeViewWrapper>
         );
       };
