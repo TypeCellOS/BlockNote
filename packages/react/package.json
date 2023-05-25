@@ -30,6 +30,7 @@
   "module": "./dist/blocknote-react.js",
   "exports": {
     ".": {
+      "types": "./types/src/index.d.ts",
       "import": "./dist/blocknote-react.js",
       "require": "./dist/blocknote-react.umd.cjs"
     },
