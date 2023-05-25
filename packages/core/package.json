@@ -30,6 +30,7 @@
   "module": "./dist/blocknote.js",
   "exports": {
     ".": {
+      "types": "./types/src/index.d.ts",
       "import": "./dist/blocknote.js",
       "require": "./dist/blocknote.umd.cjs"
     },
