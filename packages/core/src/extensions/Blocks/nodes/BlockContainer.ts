@@ -143,53 +143,53 @@ export const BlockContainer = Node.create<IBlock>({
           const { startPos, endPos, node, contentNode } = blockInfo;
 
           if (dispatch) {
-            // Adds blockGroup node with child blocks if necessary.
-            if (block.children !== undefined) {
-              const childNodes = [];
-
-              // Creates ProseMirror nodes for each child block, including their descendants.
-              for (const child of block.children) {
-                childNodes.push(blockToNode(child, state.schema));
-              }
-
-              // Checks if a blockGroup node already exists.
-              if (node.childCount === 2) {
-                // Replaces all child nodes in the existing blockGroup with the ones created earlier.
-                state.tr.replace(
-                  startPos + contentNode.nodeSize + 1,
-                  endPos - 1,
-                  new Slice(Fragment.from(childNodes), 0, 0)
-                );
-              } else {
-                // Inserts a new blockGroup containing the child nodes created earlier.
-                state.tr.insert(
-                  startPos + contentNode.nodeSize,
-                  state.schema.nodes["blockGroup"].create({}, childNodes)
-                );
-              }
-            }
-
-            // Replaces the blockContent node's content if necessary.
-            if (block.content !== undefined) {
-              let content: PMNode[] = [];
-
-              // Checks if the provided content is a string or InlineContent[] type.
-              if (typeof block.content === "string") {
-                // Adds a single text node with no marks to the content.
-                content.push(state.schema.text(block.content));
-              } else {
-                // Adds a text node with the provided styles converted into marks to the content, for each InlineContent
-                // object.
-                content = inlineContentToNodes(block.content, state.schema);
-              }
-
-              // Replaces the contents of the blockContent node with the previously created text node(s).
-              state.tr.replace(
-                startPos + 1,
-                startPos + contentNode.nodeSize - 1,
-                new Slice(Fragment.from(content), 0, 0)
-              );
-            }
+            // // Adds blockGroup node with child blocks if necessary.
+            // if (block.children !== undefined) {
+            //   const childNodes = [];
+            //
+            //   // Creates ProseMirror nodes for each child block, including their descendants.
+            //   for (const child of block.children) {
+            //     childNodes.push(blockToNode(child, state.schema));
+            //   }
+            //
+            //   // Checks if a blockGroup node already exists.
+            //   if (node.childCount === 2) {
+            //     // Replaces all child nodes in the existing blockGroup with the ones created earlier.
+            //     state.tr.replace(
+            //       startPos + contentNode.nodeSize + 1,
+            //       endPos - 1,
+            //       new Slice(Fragment.from(childNodes), 0, 0)
+            //     );
+            //   } else {
+            //     // Inserts a new blockGroup containing the child nodes created earlier.
+            //     state.tr.insert(
+            //       startPos + contentNode.nodeSize,
+            //       state.schema.nodes["blockGroup"].create({}, childNodes)
+            //     );
+            //   }
+            // }
+            //
+            // // Replaces the blockContent node's content if necessary.
+            // if (block.content !== undefined) {
+            //   let content: PMNode[] = [];
+            //
+            //   // Checks if the provided content is a string or InlineContent[] type.
+            //   if (typeof block.content === "string") {
+            //     // Adds a single text node with no marks to the content.
+            //     content.push(state.schema.text(block.content));
+            //   } else {
+            //     // Adds a text node with the provided styles converted into marks to the content, for each InlineContent
+            //     // object.
+            //     content = inlineContentToNodes(block.content, state.schema);
+            //   }
+            //
+            //   // Replaces the contents of the blockContent node with the previously created text node(s).
+            //   state.tr.replace(
+            //     startPos + 1,
+            //     startPos + contentNode.nodeSize - 1,
+            //     new Slice(Fragment.from(content), 0, 0)
+            //   );
+            // }
 
             // Changes the blockContent node type and adds the provided props as attributes. Also preserves all existing
             // attributes that are compatible with the new type.
@@ -197,19 +197,19 @@ export const BlockContainer = Node.create<IBlock>({
               startPos,
               block.type === undefined
                 ? undefined
-                : state.schema.nodes[block.type],
-              {
-                ...contentNode.attrs,
-                ...block.props,
-              }
+                : state.schema.nodes[block.type]
+              // {
+              //   ...contentNode.attrs,
+              //   ...block.props,
+              // }
             );
 
-            // Adds all provided props as attributes to the parent blockContainer node too, and also preserves existing
-            // attributes.
-            state.tr.setNodeMarkup(startPos - 1, undefined, {
-              ...node.attrs,
-              ...block.props,
-            });
+            // // Adds all provided props as attributes to the parent blockContainer node too, and also preserves existing
+            // // attributes.
+            // state.tr.setNodeMarkup(startPos - 1, undefined, {
+            //   ...node.attrs,
+            //   ...block.props,
+            // });
           }
 
           return true;
@@ -369,9 +369,9 @@ export const BlockContainer = Node.create<IBlock>({
     };
   },
 
-  addProseMirrorPlugins() {
-    return [PreviousBlockTypePlugin()];
-  },
+  // addProseMirrorPlugins() {
+  //   return [PreviousBlockTypePlugin()];
+  // },
 
   addKeyboardShortcuts() {
     // handleBackspace is partially adapted from https://github.com/ueberdosis/tiptap/blob/ed56337470efb4fd277128ab7ef792b37cfae992/packages/core/src/extensions/keymap.ts

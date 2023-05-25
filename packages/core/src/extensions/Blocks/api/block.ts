@@ -193,6 +193,13 @@ export function createBlockSpec<
           ? {
               dom: blockContent,
               contentDOM: rendered.contentDOM,
+              update: (node) => {
+                console.log("Update");
+                return node.type.name === blockConfig.type;
+              },
+              destroy: () => {
+                console.log("Destroy");
+              },
             }
           : {
               dom: blockContent,

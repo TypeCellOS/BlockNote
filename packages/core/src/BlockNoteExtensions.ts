@@ -72,50 +72,50 @@ export const getBlockNoteExtensions = <BSchema extends BlockSchema>(opts: {
     extensions.Editable,
     extensions.FocusEvents,
     extensions.Tabindex,
-
-    // DevTools,
-    Gapcursor,
-
-    // DropCursor,
-    Placeholder.configure({
-      emptyNodeClass: blockStyles.isEmpty,
-      hasAnchorClass: blockStyles.hasAnchor,
-      isFilterClass: blockStyles.isFilter,
-      includeChildren: true,
-      showOnlyCurrent: false,
-    }),
-    UniqueID.configure({
-      types: ["blockContainer"],
-    }),
-    HardBreak,
-    // Comments,
-
-    // basics:
+    //
+    // // DevTools,
+    // Gapcursor,
+    //
+    // // DropCursor,
+    // Placeholder.configure({
+    //   emptyNodeClass: blockStyles.isEmpty,
+    //   hasAnchorClass: blockStyles.hasAnchor,
+    //   isFilterClass: blockStyles.isFilter,
+    //   includeChildren: true,
+    //   showOnlyCurrent: false,
+    // }),
+    // UniqueID.configure({
+    //   types: ["blockContainer"],
+    // }),
+    // HardBreak,
+    // // Comments,
+    //
+    // // basics:
     Text,
-
-    // marks:
-    Bold,
-    Code,
-    Italic,
-    Strike,
-    Underline,
-    TextColorMark,
-    TextColorExtension,
-    BackgroundColorMark,
-    BackgroundColorExtension,
-    TextAlignmentExtension,
+    //
+    // // marks:
+    // Bold,
+    // Code,
+    // Italic,
+    // Strike,
+    // Underline,
+    // TextColorMark,
+    // TextColorExtension,
+    // BackgroundColorMark,
+    // BackgroundColorExtension,
+    // TextAlignmentExtension,
 
     // custom blocks:
     ...blocks,
     ...Object.values(opts.blockSchema).map((blockSpec) =>
       blockSpec.node.configure({ editor: opts.editor })
     ),
-    CustomBlockSerializerExtension,
+    // CustomBlockSerializerExtension,
 
-    Dropcursor.configure({ width: 5, color: "#ddeeff" }),
+    // Dropcursor.configure({ width: 5, color: "#ddeeff" }),
     // This needs to be at the bottom of this list, because Key events (such as enter, when selecting a /command),
     // should be handled before Enter handlers in other components like splitListItem
-    TrailingNode,
+    // TrailingNode,
   ];
 
   if (opts.collaboration) {
