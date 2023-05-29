@@ -110,19 +110,25 @@ In addition to the default block types that BlockNote offers, you can also make 
 import {
   BlockNoteEditor,
   defaultBlockSchema,
+  defaultProps,
 } from "@blocknote/core";
 import {
   BlockNoteView,
   useBlockNote,
-  createReactBlockSpec
-} from "@blocknote/core";
-
+  createReactBlockSpec,
+  InlineContent,
+  ReactSlashMenuItem,
+  defaultReactSlashMenuItems,
+} from "@blocknote/react";
 import "@blocknote/core/style.css";
+import { RiImage2Fill } from "react-icons/ri";
 
 export default function App() {
+  // Configuration for a custom image block.
   const ImageBlockConfig = {
     type: "image",
     propSchema: {
+      ...defaultProps,
       src: {
         default: "https://via.placeholder.com/1000",
       },
@@ -133,8 +139,7 @@ export default function App() {
         style={{
         display: "flex",
           flexDirection: "column",
-        }}
-      >
+      }}>
         <img
           style={{
             width: "100%",
@@ -145,10 +150,35 @@ export default function App() {
         />
         <InlineContent />
       </div>
-    )
+    ),
   };
 
+  // Converts the image block config to a BlockSpec for BlockNote to use.
   const ImageBlock = createReactBlockSpec(ImageBlockConfig);
+
+  // Creates a slash menu item for inserting an image block.
+  const insertImage = new ReactSlashMenuItem(
+    "Insert Image",
+    (editor) => {
+      const src: string | null = prompt("Enter image URL");
+      editor.insertBlocks(
+        [
+          {
+            type: "image",
+            props: {
+              src: src || "https://via.placeholder.com/1000",
+            },
+          },
+        ],
+        editor.getTextCursorPosition().block,
+        "after"
+      );
+    },
+    ["image", "img", "picture", "media"],
+    "Media",
+    <RiImage2Fill />,
+    "Insert an image"
+  );
 
   // Creates a new editor instance.
   const editor: BlockNoteEditor | null = useBlockNote({
@@ -159,7 +189,8 @@ export default function App() {
       // Adds the custom image block.
       image: ImageBlock,
     },
-  })
+    slashCommands: [...defaultReactSlashMenuItems, insertImage],
+  });
 
   // Renders the editor instance using a React component.
   return <BlockNoteView editor={editor} />;
@@ -260,21 +291,12 @@ After creating `BlockConfig`s for all of our custom blocks, we need to convert t
 function createReactBlockSpec(blockConfig: BlockConfig): BlockSpec {...};
 ```
 
-Now, all we need to do is pass it to the editor using the `blockSchema` option, which tells BlockNote which blocks to use. Let's look again at the image block from the demo as an example:
+Now, all we need to do is pass it to the editor using the `blockSchema` option, which tells BlockNote which blocks to use. Let's again look at the image block from the demo as an example:
 
 ```typescript jsx
-import {
-  BlockNoteEditor,
-  defaultBlockSchema,
-} from "@blocknote/core";
-import {
-  useBlockNote,
-  createReactBlockSpec
-} from "@blocknote/core";
+const ImageBlock = createReactBlockSpec(ImageBlockConfig);
 
 ...
-
-const ImageBlock = createReactBlockSpec(ImageBlockConfig);
 
 // Creates a new editor instance.
 const editor: BlockNoteEditor | null = useBlockNote({
