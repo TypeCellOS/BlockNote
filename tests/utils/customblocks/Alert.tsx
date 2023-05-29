@@ -45,7 +45,7 @@ export const Alert = createBlockSpec({
     const parent = document.createElement("div");
     parent.setAttribute(
       "style",
-      `display: flex; flex-grow: 1; background-color: ${
+      `display: flex; background-color: ${
         values[block.props.type as keyof typeof values].backgroundColor
       }`
     );
