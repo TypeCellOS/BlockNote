@@ -1,5 +1,5 @@
 import {
-  ContentDOM,
+  InlineContent,
   createReactBlockSpec,
   ReactSlashMenuItem,
 } from "@blocknote/react";
@@ -98,7 +98,7 @@ export const ReactAlert = createReactBlockSpec({
           }}>
           {values[type as keyof typeof values].icon}
         </div>
-        <ContentDOM />
+        <InlineContent />
       </div>
     );
   },

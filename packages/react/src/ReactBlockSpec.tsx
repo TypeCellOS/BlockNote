@@ -11,12 +11,11 @@ import {
 } from "@blocknote/core";
 import {
   NodeViewContent,
-  NodeViewContentProps,
   NodeViewProps,
   NodeViewWrapper,
   ReactNodeViewRenderer,
 } from "@tiptap/react";
-import { FC } from "react";
+import { FC, HTMLAttributes } from "react";
 import { blockStyles } from "@blocknote/core";
 
 // extend BlockConfig but use a react render function
@@ -39,8 +38,13 @@ export type ReactBlockConfig<
   }>;
 };
 
-export const ContentDOM = (props: NodeViewContentProps) => (
-  <NodeViewContent {...props} />
+export const InlineContent = (props: HTMLAttributes<HTMLDivElement>) => (
+  <NodeViewContent
+    {...props}
+    className={`${props.className ? props.className + " " : ""}${
+      blockStyles.inlineContent
+    }`}
+  />
 );
 
 // A function to create custom block for API consumers
@@ -115,7 +119,9 @@ export function createReactBlockSpec<
         );
       };
 
-      return ReactNodeViewRenderer(BlockContent);
+      return ReactNodeViewRenderer(BlockContent, {
+        className: blockStyles.reactNodeViewRenderer,
+      });
     },
   });
 

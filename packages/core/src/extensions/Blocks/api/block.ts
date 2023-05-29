@@ -186,6 +186,14 @@ export function createBlockSpec<
 
         // Render elements
         const rendered = blockConfig.render(block as any, editor);
+        // Add inlineContent class to inline content
+        if ("contentDOM" in rendered) {
+          rendered.contentDOM.className = `${
+            rendered.contentDOM.className
+              ? rendered.contentDOM.className + " "
+              : ""
+          }${styles.inlineContent}`;
+        }
         // Add elements to blockContent
         blockContent.appendChild(rendered.dom);
 

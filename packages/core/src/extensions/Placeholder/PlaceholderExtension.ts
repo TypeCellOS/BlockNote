@@ -72,6 +72,7 @@ export const Placeholder = Extension.create<PlaceholderOptions>({
               if ((hasAnchor || !this.options.showOnlyCurrent) && isEmpty) {
                 const classes = [this.options.emptyNodeClass];
 
+                // TODO: Doesn't work?
                 if (this.editor.isEmpty) {
                   classes.push(this.options.emptyEditorClass);
                 }
