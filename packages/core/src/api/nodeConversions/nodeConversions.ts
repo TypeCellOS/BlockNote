@@ -6,6 +6,7 @@ import {
   PartialBlock,
 } from "../../extensions/Blocks/api/blockTypes";
 
+import { defaultProps } from "../../extensions/Blocks/api/defaultBlocks";
 import {
   ColorStyle,
   InlineContent,
@@ -19,7 +20,6 @@ import {
 import { getBlockInfoFromPos } from "../../extensions/Blocks/helpers/getBlockInfoFromPos";
 import UniqueID from "../../extensions/UniqueID/UniqueID";
 import { UnreachableCaseError } from "../../shared/utils";
-import { defaultProps } from "../../extensions/Blocks/api/defaultBlocks";
 
 const toggleStyles = new Set<ToggledStyle>([
   "bold",
@@ -265,9 +265,14 @@ export function nodeToBlock<BSchema extends BlockSchema>(
       props[attr] = value;
     }
     // Block ids are stored as node attributes the same way props are, so we
-    // need to ensure we don't attempt to read block ids as props. Also, props
-    // which apply to child blocks are set on the block container, but not all
-    // block types use them.
+    // need to ensure we don't attempt to read block ids as props.
+
+    // the second check is for the backgroundColor & textColor props.
+    // Since we want them to be inherited by child blocks, we can't put them on the blockContent node,
+    // and instead have to put them on the blockContainer node.
+    // The blockContainer node is the same for all block types, but some custom blocks might not use backgroundColor & textColor,
+    // so these 2 props are technically unexpected but we shouldn't log a warning.
+    // (this is a bit hacky)
     else if (attr !== "id" && !(attr in defaultProps)) {
       console.warn("Block has an unrecognized attribute: " + attr);
     }
