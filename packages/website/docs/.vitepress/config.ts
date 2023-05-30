@@ -248,9 +248,9 @@ function transformHead({ pageData }: TransformContext): HeadConfig[] {
     "meta",
     {
       property: "og:title",
-      content:
-        `${METADATA_DEFAULT.title} - ${pageData.frontmatter.title}` ||
-        METADATA_DEFAULT.title,
+      content: pageData.frontmatter.title
+        ? `${METADATA_DEFAULT.title} - ${pageData.frontmatter.title}`
+        : METADATA_DEFAULT.title,
     },
   ]);
   head.push([
@@ -276,9 +276,9 @@ function transformHead({ pageData }: TransformContext): HeadConfig[] {
     "meta",
     {
       property: "twitter:title",
-      content:
-        `${METADATA_DEFAULT.title} - ${pageData.frontmatter.title}` ||
-        METADATA_DEFAULT.title,
+      content: pageData.frontmatter.title
+        ? `${METADATA_DEFAULT.title} - ${pageData.frontmatter.title}`
+        : METADATA_DEFAULT.title,
     },
   ]);
   head.push([
