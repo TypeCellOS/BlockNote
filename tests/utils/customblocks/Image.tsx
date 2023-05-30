@@ -43,7 +43,7 @@ export const insertImage = new ReactSlashMenuItem<{
         {
           type: "image",
           props: {
-            src: src || "https://via.placeholder.com/150",
+            src: src || "https://via.placeholder.com/1000",
           },
         },
       ],

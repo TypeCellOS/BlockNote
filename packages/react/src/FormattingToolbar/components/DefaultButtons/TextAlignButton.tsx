@@ -40,7 +40,6 @@ export const TextAlignButton = <BSchema extends BlockSchema>(props: {
       }
     } else {
       const block = props.editor.getTextCursorPosition().block;
-      console.log(block);
 
       if (!("textAlignment" in block.props)) {
         setShow(false);

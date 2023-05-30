@@ -157,7 +157,9 @@ export default function App() {
   const ImageBlock = createReactBlockSpec(ImageBlockConfig);
 
   // Creates a slash menu item for inserting an image block.
-  const insertImage = new ReactSlashMenuItem(
+  const insertImage = new ReactSlashMenuItem<
+    DefaultBlockSchema & { image: typeof ImageBlock }
+  >(
     "Insert Image",
     (editor) => {
       const src: string | null = prompt("Enter image URL");
@@ -181,7 +183,9 @@ export default function App() {
   );
 
   // Creates a new editor instance.
-  const editor: BlockNoteEditor | null = useBlockNote({
+  const editor: BlockNoteEditor<
+    DefaultBlockSchema & { image: typeof ImageBlock }
+  > | null = useBlockNote({
     // Tells BlockNote which blocks to use.
     blockSchema: {
       // Adds all default blocks.
@@ -204,19 +208,26 @@ export default function App() {
 To define a custom block type, we use a `ReactBlockConfig` object, for which you can see the definition below:
 
 ```typescript
-type ReactBlockConfig = {
-  type: string;
-  propSchema: Record<
-    string,
-    {
-      default: string;
-      values?: string[];
-    };
-  >;
-  containsInlineContent: boolean;
+type PropSchema = Record<
+  string,
+  {
+    default: string;
+    values?: string[];
+  };
+>
+
+type ReactBlockConfig<
+  Type extends string,
+  PSchema extends PropSchema,
+  ContainsInlineContent extends boolean,
+  BSchema extends BlockSchema
+> = {
+  type: Type;
+  propSchema: PSchema;
+  containsInlineContent: ContainsInlineContent;
   render: (props: {
-    block: Block,
-    editor: BlockNoteEditor
+    block: Block<BSchema>,
+    editor: BlockNoteEditor<BSchema>
   }) => JSX.Element;
 };
 ```
@@ -299,7 +310,9 @@ const ImageBlock = createReactBlockSpec(ImageBlockConfig);
 ...
 
 // Creates a new editor instance.
-const editor: BlockNoteEditor | null = useBlockNote({
+const editor: BlockNoteEditor<
+  DefaultBlockSchema & { image: typeof ImageBlock }
+> | null = useBlockNote({
   // Tells BlockNote which blocks to use.
   blockSchema: {
     // Adds all default blocks.
@@ -310,7 +323,7 @@ const editor: BlockNoteEditor | null = useBlockNote({
 })
 ```
 
-Notice two details about this code snippet. First, since we still want the editor to use the [Built-In Block Types](/docs/block-types#built-in-block-types), we add `defaultBlockSchema` to our custom block schema. Second, the key which we use for the custom image block is the same string we use for its type. Make sure that this is always the case for your own custom blocks.
+Notice three details about this code snippet. First, since we still want the editor to use the [Built-In Block Types](/docs/block-types#built-in-block-types), we add `defaultBlockSchema` to our custom block schema. Second, the key which we use for the custom image block is the same string we use for its type. Make sure that this is always the case for your own custom blocks. Finally, we provide the type of our schema as a type argument to `BlockNoteEditor`.
 
 And we're done! You now know how to create custom blocks and add them to the editor. Head to [Manipulating Blocks](/docs/manipulating-blocks) to see what you can do with them in the editor.
 

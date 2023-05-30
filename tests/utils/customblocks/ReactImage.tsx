@@ -41,10 +41,14 @@ export const insertReactImage = new ReactSlashMenuItem<{
 }>(
   "Insert React Image",
   (editor) => {
+    const src = prompt("Enter image URL");
     editor.insertBlocks(
       [
         {
           type: "reactImage",
+          props: {
+            src: src || "https://via.placeholder.com/1000",
+          },
         },
       ],
       editor.getTextCursorPosition().block,
