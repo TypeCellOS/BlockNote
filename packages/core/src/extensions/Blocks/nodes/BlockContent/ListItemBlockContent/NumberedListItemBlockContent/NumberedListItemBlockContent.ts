@@ -114,7 +114,7 @@ export const NumberedListItemBlockContent =
         }),
         // we use a <p> tag, because for <li> tags we'd need to add a <ul> parent for around siblings to be semantically correct,
         // which would be quite cumbersome
-        ["p", 0],
+        ["p", { class: styles.inlineContent }, 0],
       ];
     },
   });

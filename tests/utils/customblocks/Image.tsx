@@ -7,7 +7,7 @@ export const Image = createBlockSpec({
   propSchema: {
     ...defaultProps,
     src: {
-      default: "https://via.placeholder.com/150",
+      default: "https://via.placeholder.com/1000",
     },
   } as const,
   containsInlineContent: true,
@@ -15,11 +15,13 @@ export const Image = createBlockSpec({
     const image = document.createElement("img");
     image.setAttribute("src", block.props.src);
     image.setAttribute("contenteditable", "false");
-    image.setAttribute("border", "1px solid black");
+    image.setAttribute("style", "width: 100%");
 
     const caption = document.createElement("div");
+    caption.setAttribute("style", "flex-grow: 1");
 
     const parent = document.createElement("div");
+    parent.setAttribute("style", "display: flex; flex-direction: column;");
     parent.appendChild(image);
     parent.appendChild(caption);
 
@@ -41,7 +43,7 @@ export const insertImage = new ReactSlashMenuItem<{
         {
           type: "image",
           props: {
-            src: src || "https://via.placeholder.com/150",
+            src: src || "https://via.placeholder.com/1000",
           },
         },
       ],

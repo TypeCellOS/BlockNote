@@ -7,14 +7,26 @@ BASIC STYLES
   transition: margin 0.2s;
 }
 
+/*Ensures blocks & block content spans editor width*/
+.block {
+  display: flex;
+  flex-direction: column;
+}
+
+/*Ensures block content inside React node views spans editor width*/
+.reactNodeViewRenderer {
+  display: flex;
+  flex-grow: 1;
+}
+
 .blockContent {
   padding: 3px 0;
+  flex-grow: 1;
   transition: font-size 0.2s;
   /*
   because the content elements are display: block
   we use flex to position them next to list markers
   */
-  display: flex;
 }
 
 .blockContent::before {
@@ -225,8 +237,8 @@ NESTED BLOCKS
 
 /* PLACEHOLDERS*/
 
-.blockContent.isEmpty > :first-child:before,
-.blockContent.isFilter > :first-child:before {
+.isEmpty .inlineContent:before,
+.isFilter .inlineContent:before {
   /*float: left; */
   content: "";
   pointer-events: none;
@@ -236,33 +248,33 @@ NESTED BLOCKS
   font-style: italic;
 }
 
-[data-theme="light"] .blockContent.isEmpty > :first-child:before,
-.blockContent.isFilter > :first-child:before {
+[data-theme="light"] .isEmpty .inlineContent:before,
+.isFilter .inlineContent:before {
   color: #cccccc;
 }
 
-[data-theme="dark"] .blockContent.isEmpty > :first-child:before,
-.blockContent.isFilter > :first-child:before {
+[data-theme="dark"] .isEmpty .inlineContent:before,
+.isFilter .inlineContent:before {
   color: #999999;
 }
 
 /* TODO: would be nicer if defined from code */
 
-.blockContent.isEmpty.hasAnchor > :first-child:before {
+.isEmpty.hasAnchor .inlineContent:before {
   content: "Enter text or type '/' for commands";
 }
 
-.blockContent.isFilter.hasAnchor > :first-child:before {
+.blockContent.isFilter.hasAnchor .inlineContent:before {
   content: "Type to filter";
 }
 
-.blockContent[data-content-type="heading"].isEmpty > :first-child::before {
+.blockContent[data-content-type="heading"].isEmpty .inlineContent:before {
   content: "Heading";
 }
 
-.blockContent[data-content-type="bulletListItem"].isEmpty > :first-child:before,
+.blockContent[data-content-type="bulletListItem"].isEmpty .inlineContent:before,
 .blockContent[data-content-type="numberedListItem"].isEmpty
-  > :first-child:before {
+.inlineContent:before {
   content: "List";
 }
 

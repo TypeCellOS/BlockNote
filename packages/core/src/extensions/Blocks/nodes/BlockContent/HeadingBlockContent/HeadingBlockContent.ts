@@ -70,7 +70,7 @@ export const HeadingBlockContent = createTipTapBlock<"heading">({
         class: styles.blockContent,
         "data-content-type": this.name,
       }),
-      ["h" + node.attrs.level, 0],
+      ["h" + node.attrs.level, { class: styles.inlineContent }, 0],
     ];
   },
 });

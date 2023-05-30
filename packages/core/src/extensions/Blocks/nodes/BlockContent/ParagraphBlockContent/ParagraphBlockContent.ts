@@ -23,7 +23,7 @@ export const ParagraphBlockContent = createTipTapBlock<"paragraph">({
         class: styles.blockContent,
         "data-content-type": this.name,
       }),
-      ["p", 0],
+      ["p", { class: styles.inlineContent }, 0],
     ];
   },
 });
