@@ -137,9 +137,9 @@ export default function App() {
     render: ({ block }) => (
       <div
         style={{
-        display: "flex",
+          display: "flex",
           flexDirection: "column",
-      }}>
+        }}>
         <img
           style={{
             width: "100%",
@@ -180,9 +180,7 @@ export default function App() {
   );
 
   // Creates a new editor instance.
-  const editor: BlockNoteEditor<
-    DefaultBlockSchema & { image: typeof ImageBlock }
-  > | null = useBlockNote({
+  const editor = useBlockNote({
     // Tells BlockNote which blocks to use.
     blockSchema: {
       // Adds all default blocks.
@@ -201,7 +199,7 @@ export default function App() {
 :::
 
 ::: info
-While custom blocks open a lot of doors for what you can do with BlockNote, we're still working on improving the API and there are a few limitations for the kinds of blocks you can create.
+While custom blocks open a lot of doors for what you can do with BlockNote, we're still working on the API and there are a few limitations for the kinds of blocks you can create.
 
 We'd love to hear your feedback on Github or in our Discord community!
 :::
@@ -219,23 +217,18 @@ type PropSchema = Record<
   };
 >
 
-function createReactBlockSpec<
-  Type extends string,
-  PSchema extends PropSchema,
-  ContainsInlineContent extends boolean,
-  BSchema extends BlockSchema
->(config: {
-  type: Type;
-  propSchema: PSchema;
-  containsInlineContent: ContainsInlineContent;
+function createReactBlockSpec(config: {
+  type: string;
+  propSchema: PropSchema;
+  containsInlineContent: boolean;
   render: (props: {
-    block: Block<BSchema>,
-    editor: BlockNoteEditor<BSchema>
+    block: Block,
+    editor: BlockNoteEditor
   }) => JSX.Element;
 }): BlockType;
 ```
 
-At first glance, this looks pretty complicated. So to make sure we understand what to provide in the configuration, let's look at our custom image block from the demo, and go over each field in-depth.
+Let's look at our custom image block from the demo, and go over each field in-depth to explain how it works:
 
 ```typescript jsx
 const ImageBlock = createReactBlockSpec({
@@ -251,8 +244,7 @@ const ImageBlock = createReactBlockSpec({
       style={{
         display: "flex",
         flexDirection: "column",
-      }}
-    >
+      }}>
       <img
         style={{
           width: "100%",
@@ -263,13 +255,13 @@ const ImageBlock = createReactBlockSpec({
       />
       <InlineContent />
     </div>
-  )
+  ),
 });
 ```
 
 #### `type`
 
-This is the simplest field in a `BlockConfig`, and just defines the name of the block, in this case, `image`.
+Defines the name of the block, in this case, `image`.
 
 #### `propSchema`
 
@@ -303,19 +295,17 @@ Now, we need to tell BlockNote to use our custom image block by passing it to th
 
 ```typescript jsx
 // Creates a new editor instance.
-const editor: BlockNoteEditor<
-  DefaultBlockSchema & { image: typeof ImageBlock }
-> | null = useBlockNote({
+const editor = useBlockNote({
   // Tells BlockNote which blocks to use.
   blockSchema: {
     // Adds all default blocks.
     ...defaultBlockSchema,
     // Adds the custom image block.
     image: ImageBlock,
-  }
-})
+  },
+});
 ```
 
-Notice three details about this code snippet. First, since we still want the editor to use the [Built-In Block Types](/docs/block-types#built-in-block-types), we add `defaultBlockSchema` to our custom block schema. Second, the key which we use for the custom image block is the same string we use for its type. Make sure that this is always the case for your own custom blocks. Finally, we provide the type of our schema as a type argument to `BlockNoteEditor`.
+Since we still want the editor to use the [Built-In Block Types](/docs/block-types#built-in-block-types), we add `defaultBlockSchema` to our custom block schema. The key which we use for the custom image block is the same string we use for its type. Make sure that this is always the case for your own custom blocks.
 
 And we're done! You now know how to create custom blocks and add them to the editor. Head to [Manipulating Blocks](/docs/manipulating-blocks) to see what you can do with them in the editor.
