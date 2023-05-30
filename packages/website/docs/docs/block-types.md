@@ -124,8 +124,8 @@ import "@blocknote/core/style.css";
 import { RiImage2Fill } from "react-icons/ri";
 
 export default function App() {
-  // Configuration for a custom image block.
-  const ImageBlockConfig = {
+  // Creates a custom image block.
+  const ImageBlock = createReactBlockSpec({
     type: "image",
     propSchema: {
       ...defaultProps,
@@ -151,10 +151,7 @@ export default function App() {
         <InlineContent />
       </div>
     ),
-  };
-
-  // Converts the image block config to a BlockSpec for BlockNote to use.
-  const ImageBlock = createReactBlockSpec(ImageBlockConfig);
+  });
 
   // Creates a slash menu item for inserting an image block.
   const insertImage = new ReactSlashMenuItem<
@@ -203,9 +200,15 @@ export default function App() {
 
 :::
 
-### Block Config Objects
+::: info
+While custom blocks open a lot of doors for what you can do with BlockNote, we're still working on improving the API and there are a few limitations for the kinds of blocks you can create.
 
-To define a custom block type, we use a `ReactBlockConfig` object, for which you can see the definition below:
+We'd love to hear your feedback on Github or in our Discord community!
+:::
+
+### Creating a Custom Block Type
+
+To define a custom block type, we use the `createReactBlockSpec` function, for which you can see the definition below:
 
 ```typescript
 type PropSchema = Record<
@@ -216,12 +219,12 @@ type PropSchema = Record<
   };
 >
 
-type ReactBlockConfig<
+function createReactBlockSpec<
   Type extends string,
   PSchema extends PropSchema,
   ContainsInlineContent extends boolean,
   BSchema extends BlockSchema
-> = {
+>(config: {
   type: Type;
   propSchema: PSchema;
   containsInlineContent: ContainsInlineContent;
@@ -229,13 +232,13 @@ type ReactBlockConfig<
     block: Block<BSchema>,
     editor: BlockNoteEditor<BSchema>
   }) => JSX.Element;
-};
+}): BlockType;
 ```
 
-To make sure we understand what's going on here, let's look at the `BlockConfig` we defined for our custom image block in the demo, and go over in-depth for what each field is for.
+At first glance, this looks pretty complicated. So to make sure we understand what to provide in the configuration, let's look at our custom image block from the demo, and go over each field in-depth.
 
 ```typescript jsx
-const ImageBlockConfig = {
+const ImageBlock = createReactBlockSpec({
   type: "image",
   propSchema: {
     src: {
@@ -261,7 +264,7 @@ const ImageBlockConfig = {
       <InlineContent />
     </div>
   )
-};
+});
 ```
 
 #### `type`
@@ -296,19 +299,9 @@ While the `InlineContent` component can be put anywhere inside the component you
 
 ### Adding Custom Blocks to the Editor
 
-After creating `BlockConfig`s for all of our custom blocks, we need to convert them into `BlockSpec`s. A `BlockSpec` just tells BlockNote how your custom block should be defined internally, so we don't need to know much about it. We just need to convert our `BlockConfig` to a `BlockSpec` using the `createReactBlockSpec` function:
+Now, we need to tell BlockNote to use our custom image block by passing it to the editor in the `blockSchema` option. Let's again look at the image block from the demo as an example:
 
 ```typescript jsx
-function createReactBlockSpec(blockConfig: BlockConfig): BlockSpec {...};
-```
-
-Now, all we need to do is pass it to the editor using the `blockSchema` option, which tells BlockNote which blocks to use. Let's again look at the image block from the demo as an example:
-
-```typescript jsx
-const ImageBlock = createReactBlockSpec(ImageBlockConfig);
-
-...
-
 // Creates a new editor instance.
 const editor: BlockNoteEditor<
   DefaultBlockSchema & { image: typeof ImageBlock }
@@ -326,20 +319,3 @@ const editor: BlockNoteEditor<
 Notice three details about this code snippet. First, since we still want the editor to use the [Built-In Block Types](/docs/block-types#built-in-block-types), we add `defaultBlockSchema` to our custom block schema. Second, the key which we use for the custom image block is the same string we use for its type. Make sure that this is always the case for your own custom blocks. Finally, we provide the type of our schema as a type argument to `BlockNoteEditor`.
 
 And we're done! You now know how to create custom blocks and add them to the editor. Head to [Manipulating Blocks](/docs/manipulating-blocks) to see what you can do with them in the editor.
-
-### Limitations
-
-While custom blocks open a lot of doors for what you can do with BlockNote, we're still working on improving the API and there are a few limitations for the kinds of blocks you can create.
-
-#### Multiple Rich-Text Fields
-
-Some block types may require having multiple editable rich-text fields in a single block. Tables, for example, have an editable field for each cell. However, since you can only include a single `InlineContent` component in your custom block, only one editable field per block is officially supported.
-
-Depending on your use case, it may be possible to work around this issue by using editable fields that aren't read by BlockNote. However, there are some caveats to this:
-
-1. Keyboard navigation will skip these editable fields.
-2. The editor will lose focus if the cursor is in one of these editable fields.
-
-#### Using the `contenteditable` Attribute
-
-BlockNote relies on the HTML `contenteditable` attribute to determine where the keyboard cursor can move. Therefore, any elements you use inside `render` should have their `contenteditable` set to `false`.
