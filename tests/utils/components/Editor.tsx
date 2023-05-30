@@ -2,7 +2,6 @@ import { defaultBlockSchema } from "@blocknote/core";
 import "@blocknote/core/style.css";
 import {
   BlockNoteView,
-  ReactSlashMenuItem,
   defaultReactSlashMenuItems,
   useBlockNote,
 } from "@blocknote/react";
@@ -10,10 +9,10 @@ import { Alert, insertAlert } from "../customblocks/Alert";
 import { Button, insertButton } from "../customblocks/Button";
 import { Embed, insertEmbed } from "../customblocks/Embed";
 import { Image, insertImage } from "../customblocks/Image";
-import { Separator, insertSeparator } from "../customblocks/Separator";
+import { insertSeparator, Separator } from "../customblocks/Separator";
 import {
-  TableOfContents,
   insertTableOfContents,
+  TableOfContents,
 } from "../customblocks/TableOfContents";
 import styles from "./Editor.module.css";
 
@@ -37,20 +36,15 @@ export default function Editor() {
     insertImage,
     insertSeparator,
     insertTableOfContents,
-  ] as ReactSlashMenuItem<typeof blockSchema>[];
+  ];
 
-  const editor = useBlockNote<typeof blockSchema>({
+  const editor = useBlockNote({
     editorDOMAttributes: {
       class: styles.editor,
       "data-test": "editor",
     },
     blockSchema: blockSchema,
-    slashCommands: [
-      ...(defaultReactSlashMenuItems as ReactSlashMenuItem<
-        typeof blockSchema
-      >[]),
-      ...slashCommands,
-    ],
+    slashCommands: [...defaultReactSlashMenuItems, ...slashCommands],
   });
 
   console.log(editor);

@@ -11,8 +11,8 @@ import {
 } from "./api/blockManipulation/blockManipulation";
 import {
   blocksToHTML,
-  HTMLToBlocks,
   blocksToMarkdown,
+  HTMLToBlocks,
   markdownToBlocks,
 } from "./api/formatConversions/formatConversions";
 import { nodeToBlock } from "./api/nodeConversions/nodeConversions";
@@ -54,9 +54,11 @@ export type BlockNoteEditorOptions<BSchema extends BlockSchema> = {
   /**
    * TODO: why is this called slashCommands and not slashMenuItems?
    *
+   * (couldn't fix any type, see https://github.com/TypeCellOS/BlockNote/pull/191#discussion_r1210708771)
+   *
    * @default defaultSlashMenuItems from `./extensions/SlashMenu`
    */
-  slashCommands: BaseSlashMenuItem<BSchema>[];
+  slashCommands: BaseSlashMenuItem<any>[];
 
   /**
    * The HTML element that should be used as the parent element for the editor.
@@ -177,7 +179,7 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
     const extensions = getBlockNoteExtensions<BSchema>({
       editor: this,
       uiFactories: newOptions.uiFactories || {},
-      slashCommands: newOptions.slashCommands || (defaultSlashMenuItems as any),
+      slashCommands: newOptions.slashCommands || defaultSlashMenuItems,
       blockSchema: newOptions.blockSchema,
       collaboration: newOptions.collaboration,
     });

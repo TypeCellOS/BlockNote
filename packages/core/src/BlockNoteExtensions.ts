@@ -21,8 +21,8 @@ import { BackgroundColorExtension } from "./extensions/BackgroundColor/Backgroun
 import { BackgroundColorMark } from "./extensions/BackgroundColor/BackgroundColorMark";
 import { blocks } from "./extensions/Blocks";
 import { BlockSchema } from "./extensions/Blocks/api/blockTypes";
-import blockStyles from "./extensions/Blocks/nodes/Block.module.css";
 import { CustomBlockSerializerExtension } from "./extensions/Blocks/api/serialization";
+import blockStyles from "./extensions/Blocks/nodes/Block.module.css";
 import { BlockSideMenuFactory } from "./extensions/DraggableBlocks/BlockSideMenuFactoryTypes";
 import { createDraggableBlocksExtension } from "./extensions/DraggableBlocks/DraggableBlocksExtension";
 import { createFormattingToolbarExtension } from "./extensions/FormattingToolbar/FormattingToolbarExtension";
@@ -54,7 +54,7 @@ export type UiFactories<BSchema extends BlockSchema> = Partial<{
 export const getBlockNoteExtensions = <BSchema extends BlockSchema>(opts: {
   editor: BlockNoteEditor<BSchema>;
   uiFactories: UiFactories<BSchema>;
-  slashCommands: BaseSlashMenuItem<BSchema>[];
+  slashCommands: BaseSlashMenuItem<any>[]; // couldn't fix type, see https://github.com/TypeCellOS/BlockNote/pull/191#discussion_r1210708771
   blockSchema: BSchema;
   collaboration?: {
     fragment: Y.XmlFragment;
