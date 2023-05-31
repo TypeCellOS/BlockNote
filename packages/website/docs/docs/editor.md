@@ -1,3 +1,10 @@
+---
+title: Customizing the Editor
+description: While you can get started with BlockNote in minutes, it's likely that you'll want to customize its features and functionality to better suit your app.
+imageTitle: Customizing the Editor
+path: /docs/editor
+---
+
 # Customizing the Editor
 
 While you can get started with BlockNote in minutes, it's likely that you'll

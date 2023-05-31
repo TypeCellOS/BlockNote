@@ -1,3 +1,10 @@
+---
+title: Introduction to Blocks
+description: So, you've set up a BlockNote editor and your users can start writing content, organized in blocks. What are blocks exactly, and how do we access the blocks from code?
+imageTitle: Introduction to Blocks
+path: /docs/blocks
+---
+
 # Introduction to Blocks
 
 So, you've set up a BlockNote editor and your users can start writing content, organized in blocks. What are blocks exactly, and how do we access the blocks from code?

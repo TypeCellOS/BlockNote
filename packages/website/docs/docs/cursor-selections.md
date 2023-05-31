@@ -1,3 +1,10 @@
+---
+title: Cursor & Selections
+description: If you want to know which block(s) the user is currently editing, you can do so using cursor positions and selections.
+imageTitle: Cursor & Selections
+path: /docs/cursor-selections
+---
+
 # Cursor & Selections
 
 If you want to know which block(s) the user is currently editing, you can do so using cursor positions and selections.

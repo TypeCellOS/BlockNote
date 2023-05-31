@@ -1,3 +1,10 @@
+---
+title: Quickstart
+description: Getting started with BlockNote is quick and easy. All you need to do is install the package and add the React component to your app!
+imageTitle: Quickstart
+path: /docs/quickstart
+---
+
 # Quickstart
 
 <div><a href="https://www.npmjs.com/package/@blocknote/core"><img style="display: inline" alt="NPM" src="https://img.shields.io/npm/v/@blocknote/react"></a> <a href="https://github.com/TypeCellOS/BlockNote"><img style="display: inline" alt="GitHub Repo stars" src="https://img.shields.io/github/stars/TypeCellOS/BlockNote?style=social"></a></div>
