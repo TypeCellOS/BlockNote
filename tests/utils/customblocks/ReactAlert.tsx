@@ -1,11 +1,11 @@
+import { defaultProps } from "@blocknote/core";
 import {
-  InlineContent,
   createReactBlockSpec,
+  InlineContent,
   ReactSlashMenuItem,
 } from "@blocknote/react";
+import React, { useState } from "react";
 import { RiAlertFill } from "react-icons/ri";
-import { defaultProps } from "@blocknote/core";
-import { useState } from "react";
 
 const values = {
   warning: {
@@ -40,6 +40,15 @@ export const ReactAlert = createReactBlockSpec({
   render: (props) => {
     const [type, setType] = useState(props.block.props.type);
 
+    React.useEffect(() => {
+      console.log("ReactAlert initialize");
+      return () => {
+        console.log(" ReactAlert cleanup");
+      };
+    }, []);
+
+    console.log("ReactAlert render");
+
     // Tests to see if types are correct:
 
     let test: "reactAlert" = props.block.type;
@@ -62,7 +71,7 @@ export const ReactAlert = createReactBlockSpec({
             userSelect: "none",
             cursor: "pointer",
           }}
-          contentEditable={"false"}
+          contentEditable={false}
           onClick={() => {
             if (type === "warning") {
               props.editor.updateBlock(props.block, {
