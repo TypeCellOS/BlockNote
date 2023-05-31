@@ -13,8 +13,8 @@ export default async function handler(request) {
   try {
     const { searchParams } = new URL(request.url);
     let title = searchParams.get("title");
-    if (title.length > 100) {
-      title = title.slice(0, 97) + "...";
+    if (title && title.length > 100) {
+      title = title.slice(0, 99) + "…";
     }
 
     const fontData = await font;
