@@ -10,7 +10,11 @@ BASIC STYLES
 .blockContent {
   padding: 3px 0;
   transition: font-size 0.2s;
-  /* display: inline-block; */
+  /*
+  because the content elements are display: block
+  we use flex to position them next to list markers
+  */
+  display: flex;
 }
 
 .blockContent::before {
@@ -40,13 +44,17 @@ NESTED BLOCKS
   transition: all 0.2s 0.1s;
 }
 
-[data-theme="light"] .blockGroup .blockGroup
-> .blockOuter:not([data-prev-depth-changed])::before {
-  border-left: 1px solid #CCCCCC;
+[data-theme="light"]
+  .blockGroup
+  .blockGroup
+  > .blockOuter:not([data-prev-depth-changed])::before {
+  border-left: 1px solid #cccccc;
 }
 
-[data-theme="dark"] .blockGroup .blockGroup
-> .blockOuter:not([data-prev-depth-changed])::before {
+[data-theme="dark"]
+  .blockGroup
+  .blockGroup
+  > .blockOuter:not([data-prev-depth-changed])::before {
   border-left: 1px solid #999999;
 }
 
@@ -217,10 +225,6 @@ NESTED BLOCKS
 
 /* PLACEHOLDERS*/
 
-.blockContent > :first-child {
-  display: inline;
-}
-
 .blockContent.isEmpty > :first-child:before,
 .blockContent.isFilter > :first-child:before {
   /*float: left; */
@@ -234,7 +238,7 @@ NESTED BLOCKS
 
 [data-theme="light"] .blockContent.isEmpty > :first-child:before,
 .blockContent.isFilter > :first-child:before {
-  color: #CCCCCC;
+  color: #cccccc;
 }
 
 [data-theme="dark"] .blockContent.isEmpty > :first-child:before,

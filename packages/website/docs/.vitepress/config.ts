@@ -72,12 +72,12 @@ const SIDEBAR_DEFAULT = [
     collapsed: true,
     items: [
       {
-        text: "Without React (vanilla JS)",
-        link: "/docs/vanilla-js",
-      },
-      {
         text: "Real-time collaboration",
         link: "/docs/real-time-collaboration",
+      },
+      {
+        text: "Without React (vanilla JS)",
+        link: "/docs/vanilla-js",
       },
     ],
   },
@@ -212,6 +212,7 @@ function getHeadTags(env: NodeJS.ProcessEnv): HeadConfig[] {
       },
     ],
     ["meta", { name: "twitter:site", content: "@TypeCellOS" }],
+    ["script", { src: "/_vercel/insights/script.js", defer: "" }],
   ];
 
   if (env.VITE_GTM_ID) {
