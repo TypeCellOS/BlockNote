@@ -1,9 +1,10 @@
-import { FC, useEffect, useRef, useState } from "react";
-import { ActionIcon, Group, Menu } from "@mantine/core";
 import { Block, BlockNoteEditor, BlockSchema } from "@blocknote/core";
-import { AiOutlinePlus, MdDragIndicator } from "react-icons/all";
-import { DragHandleMenuProps } from "./DragHandleMenu";
+import { ActionIcon, Group, Menu } from "@mantine/core";
+import { FC, useEffect, useRef, useState } from "react";
+import { AiOutlinePlus } from "react-icons/ai";
+import { MdDragIndicator } from "react-icons/md";
 import { DefaultDragHandleMenu } from "./DefaultDragHandleMenu";
+import { DragHandleMenuProps } from "./DragHandleMenu";
 
 export type BlockSideMenuProps<BSchema extends BlockSchema> = {
   editor: BlockNoteEditor<BSchema>;

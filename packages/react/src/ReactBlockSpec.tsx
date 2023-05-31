@@ -2,6 +2,7 @@ import {
   BlockConfig,
   BlockSchema,
   BlockSpec,
+  blockStyles,
   camelToDataKebab,
   createTipTapBlock,
   parse,
@@ -16,7 +17,6 @@ import {
   ReactNodeViewRenderer,
 } from "@tiptap/react";
 import { FC, HTMLAttributes } from "react";
-import { blockStyles } from "@blocknote/core";
 
 // extend BlockConfig but use a react render function
 export type ReactBlockConfig<
