@@ -1,3 +1,10 @@
+---
+title: Block Types & Properties
+description: A block's type affects how it looks and behaves in the editor. Each type also comes with its own set of properties, which further affect the block's appearance and behaviour.
+imageTitle: Block Types & Properties
+path: /docs/block-types
+---
+
 # Block Types & Properties
 
 A block's type affects how it looks and behaves in the editor. Each type also comes with its own set of properties, which further affect the block's appearance and behaviour.

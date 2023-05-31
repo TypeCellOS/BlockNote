@@ -2,7 +2,11 @@ import dotenv from "dotenv";
 // import mdFootnote from "markdown-it-footnote";
 // import { defineConfig, type HeadConfig } from 'vitepress';
 import container from "markdown-it-container";
-import { defineConfig, type HeadConfig } from "vitepress";
+import {
+  defineConfig,
+  type HeadConfig,
+  type TransformContext,
+} from "vitepress";
 import { renderSandbox } from "vitepress-plugin-sandpack";
 // import * as data from "../data";
 // @ts-check
@@ -111,6 +115,14 @@ const SIDEBAR_DEFAULT = [
   },
 ];
 
+const METADATA_DEFAULT = {
+  title: "BlockNote",
+  description:
+    "A beautiful text editor that just works. Easily add an editor to your app that users will love. Customize it with your own functionality like custom blocks or AI tooling.",
+  image: "https://blocknotejs.org/api/og",
+  baseUrl: "https://blocknotejs.org",
+};
+
 export default defineConfig({
   vite: {},
   appearance: false,
@@ -128,6 +140,7 @@ export default defineConfig({
   title: "BlockNote",
   description: "TODO",
   head: getHeadTags(process.env),
+  transformHead,
   // See docs: https://vitepress.vuejs.org/guides/theme-nav
 
   // Theme
@@ -183,10 +196,22 @@ function getHeadTags(env: NodeJS.ProcessEnv): HeadConfig[] {
       { rel: "icon", type: "image/svg", href: "/img/logos/icon_light_400.svg" },
     ],
     ["meta", { property: "og:type", content: "website" }],
-    ["meta", { property: "og:title", content: "BlockNote" }],
-    // ["meta", { name: "twitter:card", content: "summary_large_image" }],
-    // ["meta", { name: "twitter:title", content: "BlockNote Docs" }],
-    // ["meta", { name: "twitter:site", content: "@TypeCellOS" }],
+    [
+      "meta",
+      {
+        property: "og:image:alt",
+        content: "BlockNote logo",
+      },
+    ],
+
+    [
+      "meta",
+      {
+        property: "twitter:card",
+        content: "summary_large_image",
+      },
+    ],
+    ["meta", { name: "twitter:site", content: "@TypeCellOS" }],
     ["script", { src: "/_vercel/insights/script.js", defer: "" }],
   ];
 
@@ -206,6 +231,75 @@ function getHeadTags(env: NodeJS.ProcessEnv): HeadConfig[] {
   }
 
   return tags;
+}
+
+function transformHead({ pageData }: TransformContext): HeadConfig[] {
+  const head: HeadConfig[] = [];
+
+  head.push([
+    "meta",
+    {
+      property: "og:url",
+      content: pageData.frontmatter.path
+        ? `${METADATA_DEFAULT.baseUrl}${pageData.frontmatter.path}`
+        : METADATA_DEFAULT.baseUrl,
+    },
+  ]);
+  head.push([
+    "meta",
+    {
+      property: "og:title",
+      content: pageData.frontmatter.title
+        ? `${METADATA_DEFAULT.title} - ${pageData.frontmatter.title}`
+        : METADATA_DEFAULT.title,
+    },
+  ]);
+  head.push([
+    "meta",
+    {
+      property: "og:description",
+      content: pageData.frontmatter.description || METADATA_DEFAULT.description,
+    },
+  ]);
+  head.push([
+    "meta",
+    {
+      property: "og:image",
+      content: pageData.frontmatter.imageTitle
+        ? `${METADATA_DEFAULT.baseUrl}/api/og?title=${encodeURIComponent(
+            pageData.frontmatter.imageTitle
+          )}`
+        : METADATA_DEFAULT.image,
+    },
+  ]);
+
+  head.push([
+    "meta",
+    {
+      property: "twitter:title",
+      content: pageData.frontmatter.title
+        ? `${METADATA_DEFAULT.title} - ${pageData.frontmatter.title}`
+        : METADATA_DEFAULT.title,
+    },
+  ]);
+  head.push([
+    "meta",
+    {
+      property: "twitter:description",
+      content: pageData.frontmatter.description || METADATA_DEFAULT.description,
+    },
+  ]);
+  head.push([
+    "meta",
+    {
+      property: "twitter:url",
+      content: pageData.frontmatter.path
+        ? `${METADATA_DEFAULT.baseUrl}${pageData.frontmatter.path}`
+        : METADATA_DEFAULT.baseUrl,
+    },
+  ]);
+
+  return head;
 }
 
 function getAlgoliaConfig(env: NodeJS.ProcessEnv) {

@@ -1,3 +1,10 @@
+---
+title: Slash Menu
+description: The Slash Menu is the list of commands which shows up whenever you type the "/" (slash) character, or when you click the "+" button in the Side Menu.
+imageTitle: Slash Menu
+path: /docs/slash-menu
+---
+
 # Slash Menu
 
 The Slash Menu is the list of commands which shows up whenever you type the "/" (slash) character, or when you click the "+" button in the [Side Menu](/docs/side-menu):
