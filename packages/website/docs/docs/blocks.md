@@ -58,7 +58,7 @@ type Block = {
 
 `props:` The block's properties, which are stored in a set of key/value pairs and specify how the block looks and behaves. Different block types have different props - see [Block Types & Properties](/docs/block-types) for more.
 
-`content:` The block's content, represented as an array of `InlineContent` objects. This does not include content from any nested blocks. For more information on `InlineContent` objects, visit [Inline Content](/docs/inline-content).
+`content:` The block's rich text content, represented as an array of `InlineContent` objects. This does not include content from any nested blocks. For more information on `InlineContent` objects, visit [Inline Content](/docs/inline-content).
 
 `children:` Any blocks nested inside the block. The nested blocks are also represented using `Block` objects.
 

@@ -6,15 +6,17 @@
     "examples/*"
   ],
   "devDependencies": {
-    "@playwright/test": "^1.25.0",
+    "@playwright/experimental-ct-react": "^1.33.0",
+    "@playwright/test": "^1.33.0",
+    "eslint": "^8.22.0",
     "lerna": "^5.4.0",
     "patch-package": "^6.4.7",
-    "eslint": "^8.22.0"
+    "typescript": "^5.0.4"
   },
   "scripts": {
     "start": "lerna run --stream --scope @blocknote/example-editor dev",
     "start:built": "npx serve examples/editor/dist",
-    "test:updateSnaps": "docker run --rm  -e RUN_IN_DOCKER=true --network host -v $(pwd):/work/ -w /work/ -it mcr.microsoft.com/playwright:v1.25.0-focal npx playwright test --update-snapshots",
+    "test:updateSnaps": "docker run --rm  -e RUN_IN_DOCKER=true --network host -v $(pwd):/work/ -w /work/ -it mcr.microsoft.com/playwright:v1.33.0-focal npx playwright test -u",
     "build": "lerna run --stream build --concurrency 1",
     "build:site": "lerna run --stream docs:build --concurrency 1",
     "lint": "lerna run --stream lint",
@@ -25,7 +27,9 @@
     "install-playwright": "npx playwright install --with-deps",
     "deploy": "lerna publish -- --access public",
     "prepublishOnly": "npm run build && cp README.md packages/core/README.md && cp README.md packages/react/README.md",
-    "postpublish": "rm -rf packages/core/README.md && rm -rf packages/react/README.md"
+    "postpublish": "rm -rf packages/core/README.md && rm -rf packages/react/README.md",
+    "test-ct": "playwright test -c playwright-ct.config.ts --headed",
+    "test-ct:updateSnaps": "docker run --rm  -e RUN_IN_DOCKER=true --network host -v $(pwd):/work/ -w /work/ -it mcr.microsoft.com/playwright:v1.33.0-focal npm install && playwright test -c playwright-ct.config.ts -u"
   },
   "overrides": {
     "react": "18.2.0",

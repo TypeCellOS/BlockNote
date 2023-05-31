@@ -7,7 +7,7 @@ path: /docs/block-types
 
 # Block Types & Properties
 
-A block's type affects how it looks and behaves in the editor. Each type also comes with its own set of properties, which further affect the block's appearance and behaviour.
+A block's type affects how it looks and behaves in the editor. Each type also comes with its own set of properties, each having a string value, which further affect the block's appearance and behaviour.
 
 ## Built-In Block Types
 
@@ -91,7 +91,7 @@ type NumberedListItemBlock = {
 
 ## Default Block Properties
 
-While each type of block can have its own set of properties, there are some properties that all block types have by default, which you can find in the definition for `DefaultBlockProps`:
+While each type of block can have its own set of properties, there are some properties that all built-in block types have by default, which you can find in the definition for `DefaultBlockProps`:
 
 ```typescript
 type DefaultBlockProps = {
@@ -109,4 +109,210 @@ type DefaultBlockProps = {
 
 ## Custom Block Types
 
-### Coming Soon!
+In addition to the default block types that BlockNote offers, you can also make your own custom blocks. Take a look at the demo below, in which we add a custom block containing an image and caption to a BlockNote editor, as well as a custom [Slash Menu Item](/docs/slash-menu#custom-items) to insert it.
+
+::: sandbox {template=react-ts}
+
+```typescript /App.tsx
+import {
+  BlockNoteEditor,
+  defaultBlockSchema,
+  defaultProps,
+} from "@blocknote/core";
+import {
+  BlockNoteView,
+  useBlockNote,
+  createReactBlockSpec,
+  InlineContent,
+  ReactSlashMenuItem,
+  defaultReactSlashMenuItems,
+} from "@blocknote/react";
+import "@blocknote/core/style.css";
+import { RiImage2Fill } from "react-icons/ri";
+
+export default function App() {
+  // Creates a custom image block.
+  const ImageBlock = createReactBlockSpec({
+    type: "image",
+    propSchema: {
+      ...defaultProps,
+      src: {
+        default: "https://via.placeholder.com/1000",
+      },
+    },
+    containsInlineContent: true,
+    render: ({ block }) => (
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+        }}>
+        <img
+          style={{
+            width: "100%",
+          }}
+          src={block.props.src}
+          alt={"Image"}
+          contentEditable={false}
+        />
+        <InlineContent />
+      </div>
+    ),
+  });
+
+  // Creates a slash menu item for inserting an image block.
+  const insertImage = new ReactSlashMenuItem<
+    DefaultBlockSchema & { image: typeof ImageBlock }
+  >(
+    "Insert Image",
+    (editor) => {
+      const src: string | null = prompt("Enter image URL");
+      editor.insertBlocks(
+        [
+          {
+            type: "image",
+            props: {
+              src: src || "https://via.placeholder.com/1000",
+            },
+          },
+        ],
+        editor.getTextCursorPosition().block,
+        "after"
+      );
+    },
+    ["image", "img", "picture", "media"],
+    "Media",
+    <RiImage2Fill />,
+    "Insert an image"
+  );
+
+  // Creates a new editor instance.
+  const editor = useBlockNote({
+    // Tells BlockNote which blocks to use.
+    blockSchema: {
+      // Adds all default blocks.
+      ...defaultBlockSchema,
+      // Adds the custom image block.
+      image: ImageBlock,
+    },
+    slashCommands: [...defaultReactSlashMenuItems, insertImage],
+  });
+
+  // Renders the editor instance using a React component.
+  return <BlockNoteView editor={editor} />;
+}
+```
+
+:::
+
+::: info
+While custom blocks open a lot of doors for what you can do with BlockNote, we're still working on the API and there are a few limitations for the kinds of blocks you can create.
+
+We'd love to hear your feedback on Github or in our Discord community!
+:::
+
+### Creating a Custom Block Type
+
+To define a custom block type, we use the `createReactBlockSpec` function, for which you can see the definition below:
+
+```typescript
+type PropSchema = Record<
+  string,
+  {
+    default: string;
+    values?: string[];
+  };
+>
+
+function createReactBlockSpec(config: {
+  type: string;
+  propSchema: PropSchema;
+  containsInlineContent: boolean;
+  render: (props: {
+    block: Block,
+    editor: BlockNoteEditor
+  }) => JSX.Element;
+}): BlockType;
+```
+
+Let's look at our custom image block from the demo, and go over each field in-depth to explain how it works:
+
+```typescript jsx
+const ImageBlock = createReactBlockSpec({
+  type: "image",
+  propSchema: {
+    src: {
+      default: "https://via.placeholder.com/1000",
+    },
+  },
+  containsInlineContent: true,
+  render: ({ block }) => (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+      }}>
+      <img
+        style={{
+          width: "100%",
+        }}
+        src={block.props.src}
+        alt={"Image"}
+        contentEditable={false}
+      />
+      <InlineContent />
+    </div>
+  ),
+});
+```
+
+#### `type`
+
+Defines the name of the block, in this case, `image`.
+
+#### `propSchema`
+
+This is an object which defines the props that the block should have. In this case, we want the block to have a `src` prop for the URL of the image, so we add a `src` key. We also want basic styling options for the image block, so we also add the [Default Block Properties](/docs/block-types#default-block-properties) using `defaultProps`. The value of each key is an object with a mandatory `default` field and an optional `values` field:
+
+`default:` Stores the prop's default value, so we use a placeholder image URL for `src` if no URL is provided.
+
+`values:` Stores an array of strings that the prop can take. If `values` is not defined, BlockNote assumes the prop can be any string, which makes sense for `src`, since it can be any image URL.
+
+#### `containsInlineContent`
+
+As we saw in [Block Objects](/docs/blocks#block-objects), blocks can contain editable rich text which is represented as [Inline Content](/docs/inline-content). The `containsInlineContent` field allows your custom block to contain an editable rich-text field. For the custom image block, we use an inline content field to create our caption, so it's set to `true`.
+
+#### `render`
+
+This is a React component which defines how your custom block should be rendered in the editor, and takes two props:
+
+`block:` The block that should be rendered.
+
+`editor:` The BlockNote editor instance that the block is in.
+
+For our custom image block, we use a parent `div` which contains the image and caption. Since `block` will always be an `image` block, we also know it contains a `src` prop, and can pass it to the child `img` element.
+
+But what's this `InlineContent` component? Since we set `containsInlineContent` to `true`, it means we want to include an editable rich-text field somewhere in the image block. You should use the `InlineContent` component to represent this field in your `render` component. Since we're using it to create our caption, we add it below the `img` element.
+
+While the `InlineContent` component can be put anywhere inside the component you pass to `render`, you should make sure to only have one. If `containsInlineContent` is set to false, `render` shouldn't contain any.
+
+### Adding Custom Blocks to the Editor
+
+Now, we need to tell BlockNote to use our custom image block by passing it to the editor in the `blockSchema` option. Let's again look at the image block from the demo as an example:
+
+```typescript jsx
+// Creates a new editor instance.
+const editor = useBlockNote({
+  // Tells BlockNote which blocks to use.
+  blockSchema: {
+    // Adds all default blocks.
+    ...defaultBlockSchema,
+    // Adds the custom image block.
+    image: ImageBlock,
+  },
+});
+```
+
+Since we still want the editor to use the [Built-In Block Types](/docs/block-types#built-in-block-types), we add `defaultBlockSchema` to our custom block schema. The key which we use for the custom image block is the same string we use for its type. Make sure that this is always the case for your own custom blocks.
+
+And we're done! You now know how to create custom blocks and add them to the editor. Head to [Manipulating Blocks](/docs/manipulating-blocks) to see what you can do with them in the editor.

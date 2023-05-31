@@ -1,6 +1,8 @@
-import { formatKeyboardShortcut } from "../utils";
-import { defaultSlashMenuItems, BaseSlashMenuItem } from "@blocknote/core";
-import { ReactSlashMenuItem } from "./ReactSlashMenuItem";
+import {
+  BaseSlashMenuItem,
+  DefaultBlockSchema,
+  defaultSlashMenuItems,
+} from "@blocknote/core";
 import {
   RiH1,
   RiH2,
@@ -9,10 +11,14 @@ import {
   RiListUnordered,
   RiText,
 } from "react-icons/ri";
-
+import { formatKeyboardShortcut } from "../utils";
+import { ReactSlashMenuItem } from "./ReactSlashMenuItem";
 const extraFields: Record<
   string,
-  Omit<ReactSlashMenuItem, keyof BaseSlashMenuItem>
+  Omit<
+    ReactSlashMenuItem<DefaultBlockSchema>,
+    keyof BaseSlashMenuItem<DefaultBlockSchema>
+  >
 > = {
   Heading: {
     group: "Headings",
@@ -52,16 +58,15 @@ const extraFields: Record<
   },
 };
 
-export const defaultReactSlashMenuItems: ReactSlashMenuItem[] =
-  defaultSlashMenuItems.map(
-    (item) =>
-      new ReactSlashMenuItem(
-        item.name,
-        item.execute,
-        item.aliases,
-        extraFields[item.name].group,
-        extraFields[item.name].icon,
-        extraFields[item.name].hint,
-        extraFields[item.name].shortcut
-      )
-  );
+export const defaultReactSlashMenuItems = defaultSlashMenuItems.map(
+  (item) =>
+    new ReactSlashMenuItem<DefaultBlockSchema>(
+      item.name,
+      item.execute,
+      item.aliases,
+      extraFields[item.name].group,
+      extraFields[item.name].icon,
+      extraFields[item.name].hint,
+      extraFields[item.name].shortcut
+    )
+);

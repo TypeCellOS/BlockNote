@@ -15,6 +15,7 @@ import {
 import { DraggableBlocksOptions } from "./DraggableBlocksExtension";
 import { MultipleNodeSelection } from "./MultipleNodeSelection";
 import { BlockNoteEditor } from "../../BlockNoteEditor";
+import { BlockSchema } from "../Blocks/api/blockTypes";
 
 const serializeForClipboard = (pv as any).__serializeForClipboard;
 // code based on https://github.com/ueberdosis/tiptap/issues/323#issuecomment-506637799
@@ -223,15 +224,15 @@ function dragStart(e: DragEvent, view: EditorView) {
   }
 }
 
-export type BlockMenuViewProps = {
+export type BlockMenuViewProps<BSchema extends BlockSchema> = {
   tiptapEditor: Editor;
-  editor: BlockNoteEditor;
-  blockMenuFactory: BlockSideMenuFactory;
+  editor: BlockNoteEditor<BSchema>;
+  blockMenuFactory: BlockSideMenuFactory<BSchema>;
   horizontalPosAnchoredAtRoot: boolean;
 };
 
-export class BlockMenuView {
-  editor: BlockNoteEditor;
+export class BlockMenuView<BSchema extends BlockSchema> {
+  editor: BlockNoteEditor<BSchema>;
   private ttEditor: Editor;
 
   // When true, the drag handle with be anchored at the same level as root elements
@@ -240,7 +241,7 @@ export class BlockMenuView {
 
   horizontalPosAnchor: number;
 
-  blockMenu: BlockSideMenu;
+  blockMenu: BlockSideMenu<BSchema>;
 
   hoveredBlock: HTMLElement | undefined;
 
@@ -254,7 +255,7 @@ export class BlockMenuView {
     editor,
     blockMenuFactory,
     horizontalPosAnchoredAtRoot,
-  }: BlockMenuViewProps) {
+  }: BlockMenuViewProps<BSchema>) {
     this.editor = editor;
     this.ttEditor = tiptapEditor;
     this.horizontalPosAnchoredAtRoot = horizontalPosAnchoredAtRoot;
@@ -497,7 +498,7 @@ export class BlockMenuView {
     );
   }
 
-  getStaticParams(): BlockSideMenuStaticParams {
+  getStaticParams(): BlockSideMenuStaticParams<BSchema> {
     return {
       editor: this.editor,
       addBlock: () => this.addBlock(),
@@ -516,7 +517,7 @@ export class BlockMenuView {
     };
   }
 
-  getDynamicParams(): BlockSideMenuDynamicParams {
+  getDynamicParams(): BlockSideMenuDynamicParams<BSchema> {
     const blockContent = this.hoveredBlock!.firstChild! as HTMLElement;
     const blockContentBoundingBox = blockContent.getBoundingClientRect();
 
@@ -534,8 +535,8 @@ export class BlockMenuView {
   }
 }
 
-export const createDraggableBlocksPlugin = (
-  options: DraggableBlocksOptions
+export const createDraggableBlocksPlugin = <BSchema extends BlockSchema>(
+  options: DraggableBlocksOptions<BSchema>
 ) => {
   return new Plugin({
     key: new PluginKey("DraggableBlocksPlugin"),

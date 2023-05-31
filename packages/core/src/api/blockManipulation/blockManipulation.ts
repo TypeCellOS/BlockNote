@@ -2,13 +2,14 @@ import { Editor } from "@tiptap/core";
 import { Node } from "prosemirror-model";
 import {
   BlockIdentifier,
+  BlockSchema,
   PartialBlock,
 } from "../../extensions/Blocks/api/blockTypes";
 import { blockToNode } from "../nodeConversions/nodeConversions";
 import { getNodeById } from "../util/nodeUtil";
 
-export function insertBlocks(
-  blocksToInsert: PartialBlock[],
+export function insertBlocks<BSchema extends BlockSchema>(
+  blocksToInsert: PartialBlock<BSchema>[],
   referenceBlock: BlockIdentifier,
   placement: "before" | "after" | "nested" = "before",
   editor: Editor
@@ -56,9 +57,9 @@ export function insertBlocks(
   editor.view.dispatch(editor.state.tr.insert(insertionPos, nodesToInsert));
 }
 
-export function updateBlock(
+export function updateBlock<BSchema extends BlockSchema>(
   blockToUpdate: BlockIdentifier,
-  update: PartialBlock,
+  update: PartialBlock<BSchema>,
   editor: Editor
 ) {
   const id =
@@ -115,9 +116,9 @@ export function removeBlocks(
   }
 }
 
-export function replaceBlocks(
+export function replaceBlocks<BSchema extends BlockSchema>(
   blocksToRemove: BlockIdentifier[],
-  blocksToInsert: PartialBlock[],
+  blocksToInsert: PartialBlock<BSchema>[],
   editor: Editor
 ) {
   insertBlocks(blocksToInsert, blocksToRemove[0], "before", editor);

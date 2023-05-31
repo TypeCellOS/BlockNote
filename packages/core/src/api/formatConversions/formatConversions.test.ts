@@ -1,24 +1,29 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { Block, BlockNoteEditor } from "../..";
 import UniqueID from "../../extensions/UniqueID/UniqueID";
+import { DefaultBlockSchema } from "../../extensions/Blocks/api/defaultBlocks";
 
 let editor: BlockNoteEditor;
 
-let nonNestedBlocks: Block[];
+let nonNestedBlocks: Block<DefaultBlockSchema>[];
 let nonNestedHTML: string;
 let nonNestedMarkdown: string;
 
-let nestedBlocks: Block[];
+let nestedBlocks: Block<DefaultBlockSchema>[];
 // let nestedHTML: string;
 // let nestedMarkdown: string;
 
-let styledBlocks: Block[];
+let styledBlocks: Block<DefaultBlockSchema>[];
 let styledHTML: string;
 let styledMarkdown: string;
 
-let complexBlocks: Block[];
+let complexBlocks: Block<DefaultBlockSchema>[];
 // let complexHTML: string;
 // let complexMarkdown: string;
+
+function removeInlineContentClass(html: string) {
+  return html.replace(/ class="_inlineContent_1c48ad"/g, "");
+}
 
 beforeEach(() => {
   (window as Window & { __TEST_OPTIONS?: {} }).__TEST_OPTIONS = {};
@@ -665,7 +670,7 @@ describe("Non-Nested Block/HTML/Markdown Conversions", () => {
   it("Convert non-nested blocks to HTML", async () => {
     const output = await editor.blocksToHTML(nonNestedBlocks);
 
-    expect(output).toMatchSnapshot();
+    expect(removeInlineContentClass(output)).toMatchSnapshot();
   });
 
   it("Convert non-nested blocks to Markdown", async () => {
@@ -691,7 +696,7 @@ describe("Nested Block/HTML/Markdown Conversions", () => {
   it("Convert nested blocks to HTML", async () => {
     const output = await editor.blocksToHTML(nestedBlocks);
 
-    expect(output).toMatchSnapshot();
+    expect(removeInlineContentClass(output)).toMatchSnapshot();
   });
 
   it("Convert nested blocks to Markdown", async () => {
@@ -717,7 +722,7 @@ describe("Styled Block/HTML/Markdown Conversions", () => {
   it("Convert styled blocks to HTML", async () => {
     const output = await editor.blocksToHTML(styledBlocks);
 
-    expect(output).toMatchSnapshot();
+    expect(removeInlineContentClass(output)).toMatchSnapshot();
   });
 
   it("Convert styled blocks to Markdown", async () => {
@@ -743,7 +748,7 @@ describe("Complex Block/HTML/Markdown Conversions", () => {
   it("Convert complex blocks to HTML", async () => {
     const output = await editor.blocksToHTML(complexBlocks);
 
-    expect(output).toMatchSnapshot();
+    expect(removeInlineContentClass(output)).toMatchSnapshot();
   });
 
   it("Convert complex blocks to Markdown", async () => {
