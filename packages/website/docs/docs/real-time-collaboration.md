@@ -1,6 +1,6 @@
 ---
 title: Real-time Collaborative rich text editor
-description: Let's see how you can add Multiplayer capabilities to your BlockNote setup, and allow real-time collaboration between users (similar to Google Docs):
+description: Let's see how you can add Multiplayer capabilities to your BlockNote setup, and allow real-time collaboration between users (similar to Google Docs)
 imageTitle: Real-time Collaboration
 path: /docs/real-time-collaboration
 ---
