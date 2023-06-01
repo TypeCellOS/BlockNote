@@ -95,6 +95,8 @@ export function inlineContentToNodes(
   for (const content of blockContent) {
     if (content.type === "link") {
       nodes.push(...linkToNodes(content, schema));
+    } else if (content.type === "break") {
+      nodes.push(schema.nodes["hardBreak"].create());
     } else if (content.type === "text") {
       nodes.push(...styledTextArrayToNodes([content], schema));
     } else {
@@ -167,6 +169,19 @@ function contentNodeToInlineContent(contentNode: Node) {
   // Most of the logic below is for handling links because in ProseMirror links are marks
   // while in BlockNote links are a type of inline content
   contentNode.content.forEach((node) => {
+    if (node.type.name === "hardBreak") {
+      if (currentLink) {
+        content.push(currentLink);
+        currentLink = undefined;
+      }
+
+      content.push({
+        type: "break",
+      });
+
+      return;
+    }
+
     const styles: Styles = {};
 
     let linkMark: Mark | undefined;
@@ -181,6 +196,53 @@ function contentNodeToInlineContent(contentNode: Node) {
         throw Error("Mark is of an unrecognized type: " + mark.type.name);
       }
     }
+
+    // // Checks if the node has a link mark, i.e. whether we should add a Link or
+    // // Styled Text node.
+    // if (linkMark) {
+    //   // Checks if the link mark has the same URL as the current link.
+    //   if (currentLink && linkMark.attrs.href === currentLink.href) {
+    //     // Adds the styled text from the node to the current link.
+    //     currentLink.content.push({
+    //       type: "text",
+    //       text: node.textContent,
+    //       styles,
+    //     });
+    //   } else {
+    //     // Checks if there is a current link.
+    //     if (currentLink) {
+    //       // Adds the current link to the inline content.
+    //       content.push(currentLink);
+    //     }
+    //     // Sets the current link to a new link with the link mark's URL and
+    //     // styled text from the node.
+    //     currentLink = {
+    //       type: "link",
+    //       href: linkMark.attrs.href,
+    //       content: [
+    //         {
+    //           type: "text",
+    //           text: node.textContent,
+    //           styles,
+    //         },
+    //       ],
+    //     };
+    //   }
+    // } else {
+    //   // Checks if there is a current link.
+    //   if (currentLink) {
+    //     // Adds the current link to the inline content.
+    //     content.push(currentLink);
+    //     // Resets the current link.
+    //     currentLink = undefined;
+    //   }
+    //   // Adds the styled text from the node to the inline content.
+    //   content.push({
+    //     type: "text",
+    //     text: node.textContent,
+    //     styles,
+    //   });
+    // }
 
     if (linkMark && currentLink && linkMark.attrs.href === currentLink.href) {
       // if the node is a link that matches the current link, add it to the current link
