@@ -7,7 +7,7 @@ import {
   UnnestBlockButton,
 } from "./DefaultButtons/NestBlockButtons";
 import { TextAlignButton } from "./DefaultButtons/TextAlignButton";
-import { ToggledStyleButton } from "./DefaultButtons/ToggledStyleButton";
+// import { ToggledStyleButton } from "./DefaultButtons/ToggledStyleButton";
 import { BlockTypeDropdown } from "./DefaultDropdowns/BlockTypeDropdown";
 
 export const FormattingToolbar = <BSchema extends BlockSchema>(props: {
@@ -17,10 +17,10 @@ export const FormattingToolbar = <BSchema extends BlockSchema>(props: {
     <Toolbar>
       <BlockTypeDropdown {...props} />
 
-      <ToggledStyleButton editor={props.editor} toggledStyle={"bold"} />
-      <ToggledStyleButton editor={props.editor} toggledStyle={"italic"} />
-      <ToggledStyleButton editor={props.editor} toggledStyle={"underline"} />
-      <ToggledStyleButton editor={props.editor} toggledStyle={"strike"} />
+      {/*<ToggledStyleButton editor={props.editor} toggledStyle={"bold"} />*/}
+      {/*<ToggledStyleButton editor={props.editor} toggledStyle={"italic"} />*/}
+      {/*<ToggledStyleButton editor={props.editor} toggledStyle={"underline"} />*/}
+      {/*<ToggledStyleButton editor={props.editor} toggledStyle={"strike"} />*/}
 
       <TextAlignButton editor={props.editor as any} textAlignment={"left"} />
       <TextAlignButton editor={props.editor as any} textAlignment={"center"} />
