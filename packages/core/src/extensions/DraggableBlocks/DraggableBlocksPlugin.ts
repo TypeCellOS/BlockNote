@@ -375,6 +375,21 @@ export class BlockMenuView<BSchema extends BlockSchema> {
       return;
     }
 
+    // Checks if the block side menu should be hidden when the editor isn't
+    // focused.
+    if (
+      // Either editor should be focused
+      !this.editor.isFocused() &&
+      // Or the block side menu should be focused (e.g. dragging, clicking)
+      document.activeElement !== this.blockMenu.element &&
+      !this.blockMenu.element?.contains(document.activeElement) &&
+      // And the menu should be open
+      this.menuOpen
+    ) {
+      this.blockMenu.hide();
+      return;
+    }
+
     // Editor itself may have padding or other styling which affects size/position, so we get the boundingRect of
     // the first child (i.e. the blockGroup that wraps all blocks in the editor) for a more accurate bounding box.
     const editorBoundingBox = (
