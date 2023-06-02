@@ -111,10 +111,10 @@ export class FormattingToolbarView<BSchema extends BlockSchema> {
     }
 
     if (
-      event?.relatedTarget &&
-      this.formattingToolbar.element?.parentNode?.contains(
-        event.relatedTarget as Node
-      )
+      event &&
+      event.relatedTarget &&
+      (this.formattingToolbar.element === (event.relatedTarget as Node) ||
+        this.formattingToolbar.element?.contains(event.relatedTarget as Node))
     ) {
       return;
     }
