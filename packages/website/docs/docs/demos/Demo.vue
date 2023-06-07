@@ -55,7 +55,7 @@ export default {
     -webkit-tap-highlight-color: transparent;
     -webkit-touch-callout: none;
 
-    background-color: ${this.theme === "dark" ? "black" : "white"};
+    background-color: ${this.theme === "dark" ? "#444" : "white"};
   }`,
         "/theme.tsx": `const theme: "light" | "dark" = "${this.theme}";
   export default theme;`,

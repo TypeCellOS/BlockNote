@@ -39,8 +39,8 @@ const getRandomColor = () => getRandomElement(colors);
 const getRandomName = () => getRandomElement(names);
 
 export function ReactBlockNote() {
-  const [darkMode, setDarkMode] = useState(
-    document.documentElement.classList.contains("dark")
+  const [theme, setTheme] = useState<"light" | "dark">(
+    document.lastElementChild!.className === "dark" ? "dark" : "light"
   );
 
   const [doc, provider] = useMemo(() => {
@@ -54,24 +54,27 @@ export function ReactBlockNote() {
     return [doc, provider];
   }, []);
 
-  const editor = useBlockNote({
-    editorDOMAttributes: {
-      class: styles.editor,
-    },
-    theme: darkMode ? "dark" : "light",
-    collaboration: {
-      provider,
-      fragment: doc.getXmlFragment("blocknote"),
-      user: {
-        name: getRandomName(),
-        color: getRandomColor(),
+  const editor = useBlockNote(
+    {
+      editorDOMAttributes: {
+        class: styles.editor,
+      },
+      theme: theme,
+      collaboration: {
+        provider,
+        fragment: doc.getXmlFragment("blocknote"),
+        user: {
+          name: getRandomName(),
+          color: getRandomColor(),
+        },
       },
     },
-  });
+    [theme]
+  );
 
   useEffect(() => {
     let shownAlert = false;
-    const listener = (e: any) => {
+    const listener = () => {
       if (!shownAlert) {
         alert(
           "Text you enter in this demo is displayed publicly on the internet to show multiplayer features. Be kind :)"
@@ -86,23 +89,18 @@ export function ReactBlockNote() {
   }, [editor?.domElement]);
 
   useEffect(() => {
-    // Create the mutation observer
-    const observer = new MutationObserver((mutations) => {
-      for (const mutation of mutations) {
-        if (
-          mutation.type === "attributes" &&
-          mutation.attributeName === "class"
-        ) {
-          const hasDarkClass =
-            document.documentElement.classList.contains("dark");
-          setDarkMode(hasDarkClass);
-          // TODO: how to update the editor's theme?
-        }
-      }
-    });
+    const toggleThemeButton = document.querySelector(`.appearance-action`)!;
+    const toggleTheme = () => {
+      setTheme(
+        document.lastElementChild!.className === "dark" ? "dark" : "light"
+      );
+    };
 
-    // Set the observer to watch for changes on the <html> element
-    observer.observe(document.documentElement, { attributes: true });
+    toggleThemeButton.addEventListener("click", toggleTheme);
+
+    return () => {
+      toggleThemeButton.removeEventListener("click", toggleTheme);
+    };
   }, []);
 
   return <BlockNoteView editor={editor} />;
