@@ -125,7 +125,7 @@ const METADATA_DEFAULT = {
 
 export default defineConfig({
   vite: {},
-  appearance: false,
+  appearance: true,
   srcDir: ".",
   outDir: "build",
 

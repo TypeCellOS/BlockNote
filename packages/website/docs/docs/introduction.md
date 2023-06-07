@@ -36,20 +36,20 @@ BlockNote is currently in early beta. We'd love your feedback! If you have quest
 
 See how to set up your own editor in the [Quickstart](/docs/quickstart). Here's a quick sneak peek in case you can't wait!
 
-::: sandbox {template=react-ts}
+<script>
+import Demo from "./demos/Demo.vue";
+import IntroductionDemo from "./demos/introduction";
 
-```typescript /App.tsx
-import { BlockNoteEditor } from "@blocknote/core";
-import { BlockNoteView, useBlockNote } from "@blocknote/react";
-import "@blocknote/core/style.css";
-
-export default function App() {
-  // Creates a new editor instance.
-  const editor: BlockNoteEditor | null = useBlockNote({});
-
-  // Renders the editor instance using a React component.
-  return <BlockNoteView editor={editor} />;
+export default {
+  components: {
+    Demo,
+  },
+  data() {
+    return {
+      introduction: IntroductionDemo
+    };
+  }
 }
-```
+</script>
 
-:::
+<Demo :content="introduction" />
