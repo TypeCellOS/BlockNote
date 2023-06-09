@@ -19,33 +19,31 @@ export const createReactBlockSideMenuFactory = <BSchema extends BlockSchema>(
     props: BlockSideMenuStaticParams<BSchema> &
       BlockSideMenuDynamicParams<BSchema>
   ) => <ReactBlockSideMenu {...props} dragHandleMenu={CustomDragHandleMenu} />;
-  
-  return (staticParams: BlockSideMenuStaticParams) =>
-    ReactElementFactory<BlockSideMenuStaticParams, BlockSideMenuDynamicParams>(
-      staticParams,
-      CustomBlockSideMenu,
-      theme,
-      {
-        animation: "fade",
-        offset: [0, 0],
-        placement: "left",
-        popperOptions: {
-          modifiers: [
-            {
-              name: "flip",
-              options: {
-                fallbackPlacements: [],
-              },
+
+  return (staticParams: BlockSideMenuStaticParams<BSchema>) =>
+    ReactElementFactory<
+      BlockSideMenuStaticParams<BSchema>,
+      BlockSideMenuDynamicParams<BSchema>
+    >(staticParams, CustomBlockSideMenu, theme, {
+      animation: "fade",
+      offset: [0, 0],
+      placement: "left",
+      popperOptions: {
+        modifiers: [
+          {
+            name: "flip",
+            options: {
+              fallbackPlacements: [],
             },
-            {
-              name: "preventOverflow",
-              options: {
-                mainAxis: false,
-                altAxis: false,
-              },
+          },
+          {
+            name: "preventOverflow",
+            options: {
+              mainAxis: false,
+              altAxis: false,
             },
-          ],
-        },
-      }
-    );
+          },
+        ],
+      },
+    });
 };
