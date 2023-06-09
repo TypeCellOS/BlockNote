@@ -375,18 +375,24 @@ export class BlockMenuView<BSchema extends BlockSchema> {
       return;
     }
 
-    // Checks if the block side menu should be hidden when the editor isn't
-    // focused.
+    const editorOuterBoundingBox =
+      this.ttEditor.view.dom.getBoundingClientRect();
+    const cursorWithinEditor =
+      event.clientX >= editorOuterBoundingBox.left &&
+      event.clientX <= editorOuterBoundingBox.right &&
+      event.clientY >= editorOuterBoundingBox.top &&
+      event.clientY <= editorOuterBoundingBox.bottom;
+
     if (
-      // Either editor should be focused
-      !this.editor.isFocused() &&
-      // Or the block side menu should be focused (e.g. dragging, clicking)
-      document.activeElement !== this.blockMenu.element &&
-      !this.blockMenu.element?.contains(document.activeElement) &&
-      // And the menu should be open
-      this.menuOpen
+      cursorWithinEditor &&
+      this.ttEditor.view.dom !== event.target &&
+      !this.ttEditor.view.dom.contains(event.target as HTMLElement)
     ) {
-      this.blockMenu.hide();
+      if (this.menuOpen) {
+        this.menuOpen = false;
+        this.blockMenu.hide();
+      }
+
       return;
     }
 
@@ -437,8 +443,10 @@ export class BlockMenuView<BSchema extends BlockSchema> {
     if (this.editor.isEditable) {
       if (!this.menuOpen) {
         this.menuOpen = true;
+        console.log("RENDER 1");
         this.blockMenu.render(this.getDynamicParams(), true);
       } else {
+        console.log("RENDER 2");
         this.blockMenu.render(this.getDynamicParams(), false);
       }
     }
