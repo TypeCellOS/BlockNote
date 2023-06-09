@@ -22,10 +22,6 @@ export type StyledText = {
   styles: Styles;
 };
 
-export type HardBreak = {
-  type: "break";
-};
-
 export type Link = {
   type: "link";
   href: string;
@@ -36,5 +32,5 @@ export type PartialLink = Omit<Link, "content"> & {
   content: string | Link["content"];
 };
 
-export type InlineContent = StyledText | HardBreak | Link;
-export type PartialInlineContent = StyledText | HardBreak | PartialLink;
+export type InlineContent = StyledText | Link;
+export type PartialInlineContent = StyledText | PartialLink;
