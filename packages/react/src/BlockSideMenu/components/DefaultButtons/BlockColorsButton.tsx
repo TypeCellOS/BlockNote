@@ -1,12 +1,13 @@
 import { ReactNode, useCallback, useRef, useState } from "react";
 import { Box, Menu } from "@mantine/core";
+import { BlockSchema, PartialBlock } from "@blocknote/core";
 import { HiChevronRight } from "react-icons/hi";
 import { DragHandleMenuProps } from "../DragHandleMenu";
 import { DragHandleMenuItem } from "../DragHandleMenuItem";
 import { ColorPicker } from "../../../SharedComponents/ColorPicker/components/ColorPicker";
 
-export const BlockColorsButton = (
-  props: DragHandleMenuProps & { children: ReactNode }
+export const BlockColorsButton = <BSchema extends BlockSchema>(
+  props: DragHandleMenuProps<BSchema> & { children: ReactNode }
 ) => {
   const [opened, setOpened] = useState(false);
 
@@ -27,6 +28,13 @@ export const BlockColorsButton = (
     }
     setOpened(true);
   }, []);
+
+  if (
+    !("textColor" in props.block.props) ||
+    !("backgroundColor" in props.block.props)
+  ) {
+    return null;
+  }
 
   return (
     <DragHandleMenuItem
@@ -53,12 +61,12 @@ export const BlockColorsButton = (
             setTextColor={(color) =>
               props.editor.updateBlock(props.block, {
                 props: { textColor: color },
-              })
+              } as PartialBlock<BSchema>)
             }
             setBackgroundColor={(color) =>
               props.editor.updateBlock(props.block, {
                 props: { backgroundColor: color },
-              })
+              } as PartialBlock<BSchema>)
             }
           />
         </Menu.Dropdown>

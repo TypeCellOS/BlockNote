@@ -1,3 +1,10 @@
+---
+title: Block Side Menu
+description: The Block Side Menu appears whenever you hover over a block, and is used to drag & drop the block as well as add new ones below it.
+imageTitle: Block Side Menu
+path: /docs/side-menu
+---
+
 # Block Side Menu
 
 The Block Side Menu appears whenever you hover over a block, and is used to drag & drop the block as well as add new ones below it.

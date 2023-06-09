@@ -1,9 +1,9 @@
-import { mergeAttributes, Node } from "@tiptap/core";
+import { mergeAttributes } from "@tiptap/core";
+import { createTipTapBlock } from "../../../api/block";
 import styles from "../../Block.module.css";
 
-export const ParagraphBlockContent = Node.create({
+export const ParagraphBlockContent = createTipTapBlock<"paragraph">({
   name: "paragraph",
-  group: "blockContent",
   content: "inline*",
 
   parseHTML() {
@@ -23,7 +23,7 @@ export const ParagraphBlockContent = Node.create({
         class: styles.blockContent,
         "data-content-type": this.name,
       }),
-      ["p", 0],
+      ["p", { class: styles.inlineContent }, 0],
     ];
   },
 });

@@ -1,11 +1,13 @@
 import { useCallback } from "react";
 import { Menu } from "@mantine/core";
-import { BlockNoteEditor } from "@blocknote/core";
+import { BlockNoteEditor, BlockSchema } from "@blocknote/core";
 import { ToolbarButton } from "../../../SharedComponents/Toolbar/components/ToolbarButton";
 import { ColorIcon } from "../../../SharedComponents/ColorPicker/components/ColorIcon";
 import { ColorPicker } from "../../../SharedComponents/ColorPicker/components/ColorPicker";
 
-export const ColorStyleButton = (props: { editor: BlockNoteEditor }) => {
+export const ColorStyleButton = <BSchema extends BlockSchema>(props: {
+  editor: BlockNoteEditor<BSchema>;
+}) => {
   const setTextColor = useCallback(
     (color: string) => {
       props.editor.focus();

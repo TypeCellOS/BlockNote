@@ -1,4 +1,9 @@
-import { BlockNoteEditor, BlockNoteEditorOptions } from "@blocknote/core";
+import {
+  BlockNoteEditor,
+  BlockNoteEditorOptions,
+  BlockSchema,
+  DefaultBlockSchema,
+} from "@blocknote/core";
 import { DependencyList, FC, useEffect, useState } from "react";
 import { getBlockNoteTheme } from "../BlockNoteTheme";
 import { createReactBlockSideMenuFactory } from "../BlockSideMenu/BlockSideMenuFactory";
@@ -10,9 +15,9 @@ import { createReactSlashMenuFactory } from "../SlashMenu/SlashMenuFactory";
 
 //based on https://github.com/ueberdosis/tiptap/blob/main/packages/react/src/useEditor.ts
 
-type CustomElements = Partial<{
-  formattingToolbar: FC<{ editor: BlockNoteEditor }>;
-  dragHandleMenu: FC<DragHandleMenuProps>;
+type CustomElements<BSchema extends BlockSchema> = Partial<{
+  formattingToolbar: FC<{ editor: BlockNoteEditor<BSchema> }>;
+  dragHandleMenu: FC<DragHandleMenuProps<BSchema>>;
 }>;
 
 function useForceUpdate() {
@@ -24,15 +29,15 @@ function useForceUpdate() {
 /**
  * Main hook for importing a BlockNote editor into a React project
  */
-export const useBlockNote = (
+export const useBlockNote = <BSchema extends BlockSchema = DefaultBlockSchema>(
   options: Partial<
-    BlockNoteEditorOptions & {
-      customElements: CustomElements;
+    BlockNoteEditorOptions<BSchema> & {
+      customElements: CustomElements<BSchema>;
     }
   > = {},
   deps: DependencyList = []
 ) => {
-  const [editor, setEditor] = useState<BlockNoteEditor | null>(null);
+  const [editor, setEditor] = useState<BlockNoteEditor<BSchema> | null>(null);
   const forceUpdate = useForceUpdate();
 
   useEffect(() => {
@@ -75,8 +80,8 @@ export const useBlockNote = (
     };
 
     console.log("create new blocknote instance");
-    const instance = new BlockNoteEditor(
-      newOptions as Partial<BlockNoteEditorOptions>
+    const instance = new BlockNoteEditor<BSchema>(
+      newOptions as Partial<BlockNoteEditorOptions<BSchema>>
     );
 
     setEditor(instance);

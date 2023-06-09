@@ -3,6 +3,8 @@ export const BASE_URL = !process.env.RUN_IN_DOCKER
   ? `http://localhost:${PORT}`
   : `http://host.docker.internal:${PORT}`;
 
+export const PASTE_ZONE_SELECTOR = "#pasteZone";
+
 export const EDITOR_SELECTOR = `[data-test="editor"]`;
 export const BLOCK_CONTAINER_SELECTOR = `[data-node-type="blockContainer"]`;
 export const BLOCK_GROUP_SELECTOR = `[data-node-type="blockGroup"]`;

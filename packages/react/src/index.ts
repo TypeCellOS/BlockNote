@@ -1,6 +1,8 @@
 // TODO: review directories
 export * from "./BlockNoteView";
 
+export * from "./ReactBlockSpec";
+
 export * from "./BlockSideMenu/BlockSideMenuFactory";
 export * from "./BlockSideMenu/components/DragHandleMenu";
 export * from "./BlockSideMenu/components/DragHandleMenuItem";

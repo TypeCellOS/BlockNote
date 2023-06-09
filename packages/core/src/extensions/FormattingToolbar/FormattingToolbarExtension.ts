@@ -1,17 +1,22 @@
 import { Extension } from "@tiptap/core";
 import { PluginKey } from "prosemirror-state";
-import { BlockNoteEditor } from "../..";
+import { BlockNoteEditor, BlockSchema } from "../..";
 import { FormattingToolbarFactory } from "./FormattingToolbarFactoryTypes";
 import { createFormattingToolbarPlugin } from "./FormattingToolbarPlugin";
+
+export type FormattingToolbarOptions<BSchema extends BlockSchema> = {
+  formattingToolbarFactory: FormattingToolbarFactory<BSchema>;
+  editor: BlockNoteEditor<BSchema>;
+};
 
 /**
  * The menu that is displayed when selecting a piece of text.
  */
-export const FormattingToolbarExtension = Extension.create<{
-  formattingToolbarFactory: FormattingToolbarFactory;
-  editor: BlockNoteEditor;
-}>({
-  name: "FormattingToolbarExtension",
+export const createFormattingToolbarExtension = <
+  BSchema extends BlockSchema
+>() =>
+  Extension.create<FormattingToolbarOptions<BSchema>>({
+    name: "FormattingToolbarExtension",
 
   addProseMirrorPlugins() {
     if (!this.options.formattingToolbarFactory || !this.options.editor) {
@@ -20,13 +25,13 @@ export const FormattingToolbarExtension = Extension.create<{
       );
     }
 
-    return [
-      createFormattingToolbarPlugin({
-        tiptapEditor: this.editor,
-        editor: this.options.editor,
-        formattingToolbarFactory: this.options.formattingToolbarFactory,
-        pluginKey: new PluginKey("FormattingToolbarPlugin"),
-      }),
-    ];
-  },
-});
+      return [
+        createFormattingToolbarPlugin({
+          tiptapEditor: this.editor,
+          editor: this.options.editor,
+          formattingToolbarFactory: this.options.formattingToolbarFactory,
+          pluginKey: new PluginKey("FormattingToolbarPlugin"),
+        }),
+      ];
+    },
+  });

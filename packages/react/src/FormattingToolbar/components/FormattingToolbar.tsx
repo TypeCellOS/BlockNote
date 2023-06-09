@@ -1,18 +1,17 @@
-import { FC } from "react";
-import { BlockNoteEditor } from "@blocknote/core";
+import { BlockNoteEditor, BlockSchema } from "@blocknote/core";
 import { Toolbar } from "../../SharedComponents/Toolbar/components/Toolbar";
-import { BlockTypeDropdown } from "./DefaultDropdowns/BlockTypeDropdown";
-import { ToggledStyleButton } from "./DefaultButtons/ToggledStyleButton";
-import { TextAlignButton } from "./DefaultButtons/TextAlignButton";
 import { ColorStyleButton } from "./DefaultButtons/ColorStyleButton";
+import { CreateLinkButton } from "./DefaultButtons/CreateLinkButton";
 import {
   NestBlockButton,
   UnnestBlockButton,
 } from "./DefaultButtons/NestBlockButtons";
-import { CreateLinkButton } from "./DefaultButtons/CreateLinkButton";
+import { TextAlignButton } from "./DefaultButtons/TextAlignButton";
+import { ToggledStyleButton } from "./DefaultButtons/ToggledStyleButton";
+import { BlockTypeDropdown } from "./DefaultDropdowns/BlockTypeDropdown";
 
-export const FormattingToolbar: FC<{ editor: BlockNoteEditor }> = (props: {
-  editor: BlockNoteEditor;
+export const FormattingToolbar = <BSchema extends BlockSchema>(props: {
+  editor: BlockNoteEditor<BSchema>;
 }) => {
   return (
     <Toolbar>
@@ -23,9 +22,9 @@ export const FormattingToolbar: FC<{ editor: BlockNoteEditor }> = (props: {
       <ToggledStyleButton editor={props.editor} toggledStyle={"underline"} />
       <ToggledStyleButton editor={props.editor} toggledStyle={"strike"} />
 
-      <TextAlignButton editor={props.editor} textAlignment={"left"} />
-      <TextAlignButton editor={props.editor} textAlignment={"center"} />
-      <TextAlignButton editor={props.editor} textAlignment={"right"} />
+      <TextAlignButton editor={props.editor as any} textAlignment={"left"} />
+      <TextAlignButton editor={props.editor as any} textAlignment={"center"} />
+      <TextAlignButton editor={props.editor as any} textAlignment={"right"} />
 
       <ColorStyleButton editor={props.editor} />
 

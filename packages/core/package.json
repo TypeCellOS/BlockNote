@@ -3,7 +3,7 @@
   "homepage": "https://github.com/TypeCellOS/BlockNote",
   "private": false,
   "license": "MPL-2.0",
-  "version": "0.7.1-alpha.0",
+  "version": "0.8.0",
   "files": [
     "dist",
     "types",
@@ -92,7 +92,7 @@
     "eslint-config-react-app": "^7.0.0",
     "jsdom": "^21.1.0",
     "prettier": "^2.7.1",
-    "typescript": "^4.5.4",
+    "typescript": "^5.0.4",
     "vite": "^4.1.2",
     "vite-plugin-eslint": "^1.8.1",
     "vitest": "^0.28.5"

@@ -1,4 +1,5 @@
 import {
+  BlockSchema,
   SuggestionsMenu,
   SuggestionsMenuDynamicParams,
   SuggestionsMenuFactory,
@@ -10,11 +11,11 @@ import { ReactElementFactory } from "../ElementFactory/components/ReactElementFa
 import { MantineThemeOverride } from "@mantine/core";
 
 export const createReactSlashMenuFactory =
-  (theme: MantineThemeOverride): SuggestionsMenuFactory<ReactSlashMenuItem> =>
-  (staticParams): SuggestionsMenu<ReactSlashMenuItem> =>
+  <BSchema extends BlockSchema>(theme: MantineThemeOverride): SuggestionsMenuFactory<ReactSlashMenuItem<BSchema>> =>
+  (staticParams): SuggestionsMenu<ReactSlashMenuItem<BSchema>> =>
     ReactElementFactory<
-      SuggestionsMenuStaticParams<ReactSlashMenuItem>,
-      SuggestionsMenuDynamicParams<ReactSlashMenuItem>
+      SuggestionsMenuStaticParams<ReactSlashMenuItem<BSchema>>,
+      SuggestionsMenuDynamicParams<ReactSlashMenuItem<BSchema>>
     >(staticParams, SlashMenu, theme, {
       animation: "fade",
       placement: "bottom-start",

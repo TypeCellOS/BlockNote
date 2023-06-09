@@ -1,14 +1,15 @@
-import { FC, useEffect, useRef, useState } from "react";
+import { Block, BlockNoteEditor, BlockSchema } from "@blocknote/core";
 import { ActionIcon, Group, Menu } from "@mantine/core";
-import { Block, BlockNoteEditor } from "@blocknote/core";
-import { AiOutlinePlus, MdDragIndicator } from "react-icons/all";
-import { DragHandleMenuProps } from "./DragHandleMenu";
+import { FC, useEffect, useRef, useState } from "react";
+import { AiOutlinePlus } from "react-icons/ai";
+import { MdDragIndicator } from "react-icons/md";
 import { DefaultDragHandleMenu } from "./DefaultDragHandleMenu";
+import { DragHandleMenuProps } from "./DragHandleMenu";
 
-export type BlockSideMenuProps = {
-  editor: BlockNoteEditor;
-  block: Block;
-  dragHandleMenu?: FC<DragHandleMenuProps>;
+export type BlockSideMenuProps<BSchema extends BlockSchema> = {
+  editor: BlockNoteEditor<BSchema>;
+  block: Block<BSchema>;
+  dragHandleMenu?: FC<DragHandleMenuProps<BSchema>>;
   addBlock: () => void;
   blockDragStart: (event: DragEvent) => void;
   blockDragEnd: () => void;
@@ -16,7 +17,9 @@ export type BlockSideMenuProps = {
   unfreezeMenu: () => void;
 };
 
-export const BlockSideMenu = (props: BlockSideMenuProps) => {
+export const BlockSideMenu = <BSchema extends BlockSchema>(
+  props: BlockSideMenuProps<BSchema>
+) => {
   const [dragHandleMenuOpened, setDragHandleMenuOpened] = useState(false);
 
   const dragHandleRef = useRef<HTMLDivElement>(null);

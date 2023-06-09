@@ -1,9 +1,9 @@
-import { InputRule, mergeAttributes, Node } from "@tiptap/core";
+import { InputRule, mergeAttributes } from "@tiptap/core";
+import { createTipTapBlock } from "../../../api/block";
 import styles from "../../Block.module.css";
 
-export const HeadingBlockContent = Node.create({
+export const HeadingBlockContent = createTipTapBlock<"heading">({
   name: "heading",
-  group: "blockContent",
   content: "inline*",
 
   addAttributes() {
@@ -70,7 +70,7 @@ export const HeadingBlockContent = Node.create({
         class: styles.blockContent,
         "data-content-type": this.name,
       }),
-      ["h" + node.attrs.level, 0],
+      ["h" + node.attrs.level, { class: styles.inlineContent }, 0],
     ];
   },
 });

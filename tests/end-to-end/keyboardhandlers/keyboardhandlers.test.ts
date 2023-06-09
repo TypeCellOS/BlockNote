@@ -8,11 +8,12 @@ import {
 import { compareDocToSnapshot, focusOnEditor } from "../../utils/editor";
 import { insertHeading } from "../../utils/copypaste";
 
+test.describe.configure({ mode: "serial" });
+
 test.beforeEach(async ({ page }) => {
   await page.goto(BASE_URL);
 });
 
-test.describe.configure({ mode: "serial" });
 test.describe("Check Keyboard Handlers' Behaviour", () => {
   test("Check Enter when selection is not empty", async ({ page }) => {
     await focusOnEditor(page);

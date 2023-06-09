@@ -10,8 +10,12 @@ import {
 } from "./SuggestionsMenuFactoryTypes";
 import { SuggestionItem } from "./SuggestionItem";
 import { BlockNoteEditor } from "../../../BlockNoteEditor";
+import { BlockSchema } from "../../../extensions/Blocks/api/blockTypes";
 
-export type SuggestionPluginOptions<T extends SuggestionItem> = {
+export type SuggestionPluginOptions<
+  T extends SuggestionItem,
+  BSchema extends BlockSchema
+> = {
   /**
    * The name of the plugin.
    *
@@ -22,7 +26,7 @@ export type SuggestionPluginOptions<T extends SuggestionItem> = {
   /**
    * The BlockNote editor.
    */
-  editor: BlockNoteEditor;
+  editor: BlockNoteEditor<BSchema>;
 
   /**
    * The character that should trigger the suggestion menu to pop up (e.g. a '/' for commands), when typed by the user.
@@ -38,7 +42,7 @@ export type SuggestionPluginOptions<T extends SuggestionItem> = {
    * this should be done manually. The `editor` and `range` properties passed
    * to the callback function might come in handy when doing this.
    */
-  onSelectItem?: (props: { item: T; editor: BlockNoteEditor }) => void;
+  onSelectItem?: (props: { item: T; editor: BlockNoteEditor<BSchema> }) => void;
 
   /**
    * A function that should supply the plugin with items to suggest, based on a certain query string.
@@ -81,15 +85,21 @@ function getDefaultPluginState<
   };
 }
 
-type SuggestionPluginViewOptions<T extends SuggestionItem> = {
-  editor: BlockNoteEditor;
+type SuggestionPluginViewOptions<
+  T extends SuggestionItem,
+  BSchema extends BlockSchema
+> = {
+  editor: BlockNoteEditor<BSchema>;
   pluginKey: PluginKey;
-  onSelectItem: (props: { item: T; editor: BlockNoteEditor }) => void;
+  onSelectItem: (props: { item: T; editor: BlockNoteEditor<BSchema> }) => void;
   suggestionsMenuFactory: SuggestionsMenuFactory<T>;
 };
 
-class SuggestionPluginView<T extends SuggestionItem> {
-  editor: BlockNoteEditor;
+class SuggestionPluginView<
+  T extends SuggestionItem,
+  BSchema extends BlockSchema
+> {
+  editor: BlockNoteEditor<BSchema>;
   pluginKey: PluginKey;
 
   suggestionsMenu: SuggestionsMenu<T>;
@@ -102,7 +112,7 @@ class SuggestionPluginView<T extends SuggestionItem> {
     pluginKey,
     onSelectItem: selectItemCallback = () => {},
     suggestionsMenuFactory,
-  }: SuggestionPluginViewOptions<T>) {
+  }: SuggestionPluginViewOptions<T, BSchema>) {
     this.editor = editor;
     this.pluginKey = pluginKey;
 
@@ -214,14 +224,17 @@ class SuggestionPluginView<T extends SuggestionItem> {
  * @param options options for configuring the plugin
  * @returns the prosemirror plugin
  */
-export function createSuggestionPlugin<T extends SuggestionItem>({
+export function createSuggestionPlugin<
+  T extends SuggestionItem,
+  BSchema extends BlockSchema
+>({
   pluginKey,
   editor,
   defaultTriggerCharacter,
   suggestionsMenuFactory,
   onSelectItem: selectItemCallback = () => {},
   items = () => [],
-}: SuggestionPluginOptions<T>) {
+}: SuggestionPluginOptions<T, BSchema>) {
   // Assertions
   if (defaultTriggerCharacter.length !== 1) {
     throw new Error("'char' should be a single character");
@@ -236,10 +249,13 @@ export function createSuggestionPlugin<T extends SuggestionItem>({
     key: pluginKey,
 
     view: (view: EditorView) =>
-      new SuggestionPluginView({
+      new SuggestionPluginView<T, BSchema>({
         editor: editor,
         pluginKey: pluginKey,
-        onSelectItem: (props: { item: T; editor: BlockNoteEditor }) => {
+        onSelectItem: (props: {
+          item: T;
+          editor: BlockNoteEditor<BSchema>;
+        }) => {
           deactivate(view);
           selectItemCallback(props);
         },
