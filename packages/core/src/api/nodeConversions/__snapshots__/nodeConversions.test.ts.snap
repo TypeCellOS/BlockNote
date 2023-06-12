@@ -183,6 +183,298 @@ exports[`Simple ProseMirror Node Conversions > Convert simple node to block 1`] 
 }
 `;
 
+exports[`hard breaks > Convert a block with a hard break 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "4",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "textAlignment": "left",
+      },
+      "content": [
+        {
+          "text": "Text1",
+          "type": "text",
+        },
+        {
+          "type": "hardBreak",
+        },
+        {
+          "text": "Text2",
+          "type": "text",
+        },
+      ],
+      "type": "paragraph",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`hard breaks > Convert a block with a hard break and different styles 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "4",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "textAlignment": "left",
+      },
+      "content": [
+        {
+          "text": "Text1",
+          "type": "text",
+        },
+        {
+          "type": "hardBreak",
+        },
+        {
+          "marks": [
+            {
+              "type": "bold",
+            },
+          ],
+          "text": "Text2",
+          "type": "text",
+        },
+      ],
+      "type": "paragraph",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`hard breaks > Convert a block with a hard break at the end 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "4",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "textAlignment": "left",
+      },
+      "content": [
+        {
+          "text": "Text1",
+          "type": "text",
+        },
+        {
+          "type": "hardBreak",
+        },
+      ],
+      "type": "paragraph",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`hard breaks > Convert a block with a hard break at the start 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "4",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "textAlignment": "left",
+      },
+      "content": [
+        {
+          "type": "hardBreak",
+        },
+        {
+          "text": "Text1",
+          "type": "text",
+        },
+      ],
+      "type": "paragraph",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`hard breaks > Convert a block with a hard break between links 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "4",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "textAlignment": "left",
+      },
+      "content": [
+        {
+          "marks": [
+            {
+              "attrs": {
+                "class": null,
+                "href": "https://www.website.com",
+                "target": "_blank",
+              },
+              "type": "link",
+            },
+          ],
+          "text": "Link1",
+          "type": "text",
+        },
+        {
+          "type": "hardBreak",
+        },
+        {
+          "marks": [
+            {
+              "attrs": {
+                "class": null,
+                "href": "https://www.website2.com",
+                "target": "_blank",
+              },
+              "type": "link",
+            },
+          ],
+          "text": "Link2",
+          "type": "text",
+        },
+      ],
+      "type": "paragraph",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`hard breaks > Convert a block with a hard break in a link 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "4",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "textAlignment": "left",
+      },
+      "content": [
+        {
+          "marks": [
+            {
+              "attrs": {
+                "class": null,
+                "href": "https://www.website.com",
+                "target": "_blank",
+              },
+              "type": "link",
+            },
+          ],
+          "text": "Link1",
+          "type": "text",
+        },
+        {
+          "type": "hardBreak",
+        },
+        {
+          "marks": [
+            {
+              "attrs": {
+                "class": null,
+                "href": "https://www.website.com",
+                "target": "_blank",
+              },
+              "type": "link",
+            },
+          ],
+          "text": "Link1",
+          "type": "text",
+        },
+      ],
+      "type": "paragraph",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`hard breaks > Convert a block with multiple hard breaks 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "4",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "textAlignment": "left",
+      },
+      "content": [
+        {
+          "text": "Text1",
+          "type": "text",
+        },
+        {
+          "type": "hardBreak",
+        },
+        {
+          "text": "Text2",
+          "type": "text",
+        },
+        {
+          "type": "hardBreak",
+        },
+        {
+          "text": "Text3",
+          "type": "text",
+        },
+      ],
+      "type": "paragraph",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`hard breaks > Convert a block with only a hard break 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "4",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "textAlignment": "left",
+      },
+      "content": [
+        {
+          "type": "hardBreak",
+        },
+      ],
+      "type": "paragraph",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
 exports[`links > Convert a block with link 1`] = `
 {
   "attrs": {

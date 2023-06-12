@@ -29,27 +29,6 @@ const toggleStyles = new Set<ToggledStyle>([
 ]);
 const colorStyles = new Set<ColorStyle>(["textColor", "backgroundColor"]);
 
-function splitTextByNewline(text: string): string[] {
-  const substrings: string[] = [];
-  let currentSubstring = "";
-
-  for (const char of text) {
-    if (char === "\n") {
-      substrings.push(currentSubstring);
-      substrings.push("\n");
-      currentSubstring = "";
-    } else {
-      currentSubstring += char;
-    }
-  }
-
-  if (currentSubstring) {
-    substrings.push(currentSubstring);
-  }
-
-  return substrings;
-}
-
 /**
  * Convert a StyledText inline element to a
  * prosemirror text node with the appropriate marks
@@ -65,13 +44,22 @@ function styledTextToNodes(styledText: StyledText, schema: Schema): Node[] {
     }
   }
 
-  return splitTextByNewline(styledText.text).map((text) => {
-    if (text === "\n") {
-      return schema.nodes["hardBreak"].create();
-    } else {
-      return schema.text(text, marks);
-    }
-  });
+  return (
+    styledText.text
+      // Splits text & line breaks.
+      .split(/(\n)/g)
+      // If the content ends with a line break, an empty string is added to the
+      // end, which this removes.
+      .filter((text) => text.length > 0)
+      // Converts text & line breaks to nodes.
+      .map((text) => {
+        if (text === "\n") {
+          return schema.nodes["hardBreak"].create();
+        } else {
+          return schema.text(text, marks);
+        }
+      })
+  );
 }
 
 /**
@@ -84,7 +72,11 @@ function linkToNodes(link: PartialLink, schema: Schema): Node[] {
   });
 
   return styledTextArrayToNodes(link.content, schema).map((node) => {
-    return node.mark([...node.marks, linkMark]);
+    if (node.type.name === "text") {
+      return node.mark([...node.marks, linkMark]);
+    }
+
+    return node;
   });
 }
 
@@ -99,7 +91,9 @@ function styledTextArrayToNodes(
   let nodes: Node[] = [];
 
   if (typeof content === "string") {
-    nodes.push(schema.text(content));
+    nodes.push(
+      ...styledTextToNodes({ type: "text", text: content, styles: {} }, schema)
+    );
     return nodes;
   }
 
@@ -203,9 +197,8 @@ function contentNodeToInlineContent(contentNode: Node) {
         }
         // Current content is a link.
         else if (currentContent.type === "link") {
-          const endText = currentContent.content.pop();
-          endText!.text += "\n";
-          currentContent.content.push(endText!);
+          currentContent.content[currentContent.content.length - 1].text +=
+            "\n";
         }
       }
       // Current content does not exist.
@@ -286,9 +279,8 @@ function contentNodeToInlineContent(contentNode: Node) {
                 currentContent.content[currentContent.content.length - 1].styles
               ) === JSON.stringify(styles)
             ) {
-              const endText = currentContent.content.pop();
-              endText!.text += node.textContent;
-              currentContent.content.push(endText!);
+              currentContent.content[currentContent.content.length - 1].text +=
+                node.textContent;
             }
             // Styles are different.
             else {
