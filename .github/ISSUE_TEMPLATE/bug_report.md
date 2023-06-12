@@ -8,11 +8,13 @@ assignees: ''
 ---
 
 **Describe the bug**
+<what's going wrong!?>
 
 **To Reproduce**
-<links to a sandbox or clear steps to reproduce are super helpful!
+<links to a sandbox or clear steps to reproduce are super helpful!>
 
-**System**
-<which node / npm version / blocknote version>
-
-- [] I'm a sponsor and would appreciate if you could look into this sooner than later 💖
+**Misc**
+- Node version:
+- Package manager:
+- Browser: 
+- [ ] I'm a [sponsor](https://github.com/sponsors/YousefED) and would appreciate if you could look into this sooner than later 💖
