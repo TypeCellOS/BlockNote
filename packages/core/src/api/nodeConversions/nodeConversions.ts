@@ -76,7 +76,10 @@ function linkToNodes(link: PartialLink, schema: Schema): Node[] {
       return node.mark([...node.marks, linkMark]);
     }
 
-    return node;
+    if (node.type.name === "hardBreak") {
+      return node;
+    }
+    throw new Error("unexpected node type");
   });
 }
 
@@ -189,20 +192,18 @@ function contentNodeToInlineContent(contentNode: Node) {
     // hardBreak nodes do not have an InlineContent equivalent, instead we
     // add a newline to the previous node.
     if (node.type.name === "hardBreak") {
-      // Current content exists.
       if (currentContent) {
-        // Current content is text.
+        // Current content exists.
         if (currentContent.type === "text") {
+          // Current content is text.
           currentContent.text += "\n";
-        }
-        // Current content is a link.
-        else if (currentContent.type === "link") {
+        } else if (currentContent.type === "link") {
+          // Current content is a link.
           currentContent.content[currentContent.content.length - 1].text +=
             "\n";
         }
-      }
-      // Current content does not exist.
-      else {
+      } else {
+        // Current content does not exist.
         currentContent = {
           type: "text",
           text: "\n",
@@ -233,16 +234,15 @@ function contentNodeToInlineContent(contentNode: Node) {
     if (currentContent) {
       // Current content is text.
       if (currentContent.type === "text") {
-        // Node is text (same type as current content).
         if (!linkMark) {
-          // Styles are the same.
+          // Node is text (same type as current content).
           if (
             JSON.stringify(currentContent.styles) === JSON.stringify(styles)
           ) {
+            // Styles are the same.
             currentContent.text += node.textContent;
-          }
-          // Styles are different.
-          else {
+          } else {
+            // Styles are different.
             content.push(currentContent);
             currentContent = {
               type: "text",
@@ -250,9 +250,8 @@ function contentNodeToInlineContent(contentNode: Node) {
               styles,
             };
           }
-        }
-        // Node is a link (different type to current content).
-        else {
+        } else {
+          // Node is a link (different type to current content).
           content.push(currentContent);
           currentContent = {
             type: "link",
@@ -266,11 +265,10 @@ function contentNodeToInlineContent(contentNode: Node) {
             ],
           };
         }
-      }
-      // Current content is a link.
-      else if (currentContent.type === "link") {
-        // Node is a link (same type as current content).
+      } else if (currentContent.type === "link") {
+        // Current content is a link.
         if (linkMark) {
+          // Node is a link (same type as current content).
           // Link URLs are the same.
           if (currentContent.href === linkMark.attrs.href) {
             // Styles are the same.
@@ -281,18 +279,16 @@ function contentNodeToInlineContent(contentNode: Node) {
             ) {
               currentContent.content[currentContent.content.length - 1].text +=
                 node.textContent;
-            }
-            // Styles are different.
-            else {
+            } else {
+              // Styles are different.
               currentContent.content.push({
                 type: "text",
                 text: node.textContent,
                 styles,
               });
             }
-          }
-          // Link URLs are different.
-          else {
+          } else {
+            // Link URLs are different.
             content.push(currentContent);
             currentContent = {
               type: "link",
@@ -306,9 +302,8 @@ function contentNodeToInlineContent(contentNode: Node) {
               ],
             };
           }
-        }
-        // Node is text (different type to current content).
-        else {
+        } else {
+          // Node is text (different type to current content).
           content.push(currentContent);
           currentContent = {
             type: "text",
