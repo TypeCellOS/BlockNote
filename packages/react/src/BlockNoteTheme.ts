@@ -41,7 +41,7 @@ export const getBlockNoteTheme = (
 
   const sideMenu = useDarkTheme
     ? blockNoteColorScheme[4]
-    : blockNoteColorScheme[3];
+    : blockNoteColorScheme[2];
 
   const primaryBackground = useDarkTheme
     ? blockNoteColorScheme[6]

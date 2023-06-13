@@ -33,7 +33,7 @@ export const featuresCardData: FeaturesCardData[] = [
   {
     title: "Animations",
     description: "",
-    bgImgDark: "/img/features/animations.gif",
+    bgImgDark: "/img/features/animations-dark.gif",
     bgImgLight: "/img/features/animations.gif",
   },
   {
@@ -45,32 +45,32 @@ export const featuresCardData: FeaturesCardData[] = [
   {
     title: "Helpful placeholders",
     description: "",
-    bgImgDark: "/img/features/placeholders.gif",
+    bgImgDark: "/img/features/placeholders-dark.gif",
     bgImgLight: "/img/features/placeholders.gif",
   },
   {
     title: "Nesting & indentation",
     description: "",
-    bgImgDark: "/img/features/nesting.gif",
+    bgImgDark: "/img/features/nesting-dark.gif",
     bgImgLight: "/img/features/nesting.gif",
   },
   {
     title: "Drag and drop blocks",
     description: "",
-    bgImgDark: "/img/features/dragdrop.gif",
+    bgImgDark: "/img/features/dragdrop-dark.gif",
     bgImgLight: "/img/features/dragdrop.gif",
   },
   {
     title: "Customizable slash (/) menu",
     description: "",
-    bgImgDark: "/img/features/slashmenu.gif",
+    bgImgDark: "/img/features/slashmenu-dark.gif",
     bgImgLight: "/img/features/slashmenu.gif",
   },
   {
     title: "Format menu",
     description: "",
-    bgImgDark: "/img/features/selectmenu.gif",
-    bgImgLight: "/img/features/selectmenu.gif",
+    bgImgDark: "/img/features/formattingtoolbar-dark.gif",
+    bgImgLight: "/img/features/formattingtoolbar.gif",
   },
 ];
 
