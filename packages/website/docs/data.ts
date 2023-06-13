@@ -7,17 +7,17 @@ export interface Sponsors {
 export const sponsors: Sponsors[] = [
   {
     name: "Fermat",
-    imgDark: "/img/sponsors/typecell.svg",
+    imgDark: "/img/sponsors/typecell-dark.svg",
     imgLight: "/img/sponsors/typecell.svg",
   },
   {
     name: "NLNet",
-    imgDark: "/img/sponsors/fermat.png",
+    imgDark: "/img/sponsors/fermat-dark.png",
     imgLight: "/img/sponsors/fermat.png",
   },
   {
     name: "TypeCell",
-    imgDark: "/img/sponsors/nlnet.svg",
+    imgDark: "/img/sponsors/nlnet-dark.svg",
     imgLight: "/img/sponsors/nlnet.svg",
   },
 ];
