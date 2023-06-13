@@ -6,9 +6,10 @@ path: /docs/quickstart
 ---
 
 <script setup>
-import { useData } from 'vitepress'
+import { useData } from 'vitepress';
+import { getTheme, getStyles } from "./demoUtils";
 
-const { isDark } = useData()
+const { isDark } = useData();
 </script>
 
 # Quickstart
@@ -59,12 +60,16 @@ import "@blocknote/core/style.css";
 export default function App() {
   // Creates a new editor instance.
   const editor: BlockNoteEditor | null = useBlockNote({
-    theme: {{ isDark ? '"dark"' : '"light"' }}
+    theme: "{{ getTheme(isDark) }}"
   });
 
   // Renders the editor instance using a React component.
   return <BlockNoteView editor={editor} />;
 }
+```
+
+```css-vue /styles.css [hidden]
+{{ getStyles(isDark) }}
 ```
 
 :::

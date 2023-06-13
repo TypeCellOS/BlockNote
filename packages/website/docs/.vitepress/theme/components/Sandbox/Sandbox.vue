@@ -8,6 +8,7 @@
         :template="'react-ts'"
         :light-theme="lightTheme"
         :dark-theme="darkTheme"
+        :theme="isDark ? 'dark' : 'light'"
         :options="{
           ...props, // do not forget it
           showLineNumbers: false,
@@ -18,7 +19,6 @@
           deps: { '@blocknote/react': 'latest' },
         }"
         :code-options="codeOptions"
-        :ignore-isDark-used-to-rerender="isDark"
       >
         <slot />
       </Sandbox>
@@ -29,6 +29,7 @@
 <script setup lang="ts">
 import { useData } from "vitepress";
 import { Sandbox, sandboxProps } from "vitepress-plugin-sandpack";
-const props = defineProps(sandboxProps);
+
 const { isDark } = useData();
+const props = defineProps(sandboxProps);
 </script>
