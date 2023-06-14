@@ -5,6 +5,13 @@ imageTitle: Customizing the Editor
 path: /docs/editor
 ---
 
+<script setup>
+import { useData } from 'vitepress';
+import { getTheme, getStyles } from "./demoUtils";
+
+const { isDark } = useData();
+</script>
+
 # Customizing the Editor
 
 While you can get started with BlockNote in minutes, it's likely that you'll
@@ -61,7 +68,7 @@ In the example below, we use the `onEditorContentChange` option to save the edit
 
 ::: sandbox {template=react-ts}
 
-```typescript /App.tsx
+```typescript-vue /App.tsx
 import { BlockNoteEditor } from "@blocknote/core";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
 import "@blocknote/core/style.css";
@@ -72,6 +79,7 @@ const initialContent: string | null = localStorage.getItem("editorContent");
 export default function App() {
   // Creates a new editor instance.
   const editor: BlockNoteEditor | null = useBlockNote({
+    theme: "{{ getTheme(isDark) }}",
     // If the editor contents were previously saved, restores them.
     initialContent: initialContent ? JSON.parse(initialContent) : undefined,
     // Serializes and saves the editor contents to local storage.
@@ -86,6 +94,10 @@ export default function App() {
   // Renders the editor instance.
   return <BlockNoteView editor={editor} />;
 }
+```
+
+```css-vue /styles.css [hidden]
+{{ getStyles(isDark) }}
 ```
 
 :::
