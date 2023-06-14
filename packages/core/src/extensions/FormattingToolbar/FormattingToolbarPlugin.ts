@@ -110,9 +110,13 @@ export class FormattingToolbarView<BSchema extends BlockSchema> {
       return;
     }
 
+    // Checks if the focus is moving to an element outside the editor. If it is,
+    // the toolbar is hidden.
     if (
+      // An element is clicked.
       event &&
       event.relatedTarget &&
+      // Element is outside the toolbar.
       (this.formattingToolbar.element === (event.relatedTarget as Node) ||
         this.formattingToolbar.element?.contains(event.relatedTarget as Node))
     ) {
