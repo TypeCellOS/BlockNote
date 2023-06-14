@@ -18,7 +18,7 @@ The Slash Menu is the list of commands which shows up whenever you type the "/" 
 
 <!-- ![../public/img/screenshots/slash_menu.png]() -->
 
-<img style="max-width:400px" src="../public/img/screenshots/slash_menu.png" alt="image">
+<img style="max-width:400px" :src="isDark ? '../public/img/screenshots/slash_menu_dark.png' : '../public/img/screenshots/slash_menu.png'" alt="image">
 
 ## Slash Menu Items
 
