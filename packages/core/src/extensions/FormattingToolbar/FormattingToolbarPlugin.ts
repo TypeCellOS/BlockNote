@@ -169,12 +169,6 @@ export class FormattingToolbarView<BSchema extends BlockSchema> {
       this.formattingToolbar.render(this.getDynamicParams(), true);
       this.toolbarIsOpen = true;
 
-      // TODO: Is this necessary? Also for other menu plugins.
-      // Listener stops focus moving to the menu on click.
-      this.formattingToolbar.element!.addEventListener("mousedown", (event) =>
-        event.preventDefault()
-      );
-
       return;
     }
 
@@ -196,12 +190,6 @@ export class FormattingToolbarView<BSchema extends BlockSchema> {
     ) {
       this.formattingToolbar.hide();
       this.toolbarIsOpen = false;
-
-      // Listener stops focus moving to the menu on click.
-      this.formattingToolbar.element!.removeEventListener(
-        "mousedown",
-        (event) => event.preventDefault()
-      );
 
       return;
     }
