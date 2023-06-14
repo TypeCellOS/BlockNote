@@ -383,10 +383,20 @@ export class BlockMenuView<BSchema extends BlockSchema> {
       event.clientY >= editorOuterBoundingBox.top &&
       event.clientY <= editorOuterBoundingBox.bottom;
 
+    // Doesn't update if the mouse hovers an element that's over the editor but
+    // isn't a part of it or the side menu.
     if (
+      // Cursor is within the editor area
       cursorWithinEditor &&
+      // An element is clicked
+      event &&
+      event.target &&
+      // Element is outside the editor
       this.ttEditor.view.dom !== event.target &&
-      !this.ttEditor.view.dom.contains(event.target as HTMLElement)
+      !this.ttEditor.view.dom.contains(event.target as HTMLElement) &&
+      // Element is outside the side menu
+      this.blockMenu.element !== event.target &&
+      !this.blockMenu.element?.contains(event.target as HTMLElement)
     ) {
       if (this.menuOpen) {
         this.menuOpen = false;
