@@ -10,7 +10,6 @@ import { defaultProps } from "../../extensions/Blocks/api/defaultBlocks";
 import {
   ColorStyle,
   InlineContent,
-  Link,
   PartialInlineContent,
   PartialLink,
   StyledText,
@@ -34,7 +33,7 @@ const colorStyles = new Set<ColorStyle>(["textColor", "backgroundColor"]);
  * Convert a StyledText inline element to a
  * prosemirror text node with the appropriate marks
  */
-function styledTextToNode(styledText: StyledText, schema: Schema): Node {
+function styledTextToNodes(styledText: StyledText, schema: Schema): Node[] {
   const marks: Mark[] = [];
 
   for (const [style, value] of Object.entries(styledText.styles)) {
@@ -45,7 +44,22 @@ function styledTextToNode(styledText: StyledText, schema: Schema): Node {
     }
   }
 
-  return schema.text(styledText.text, marks);
+  return (
+    styledText.text
+      // Splits text & line breaks.
+      .split(/(\n)/g)
+      // If the content ends with a line break, an empty string is added to the
+      // end, which this removes.
+      .filter((text) => text.length > 0)
+      // Converts text & line breaks to nodes.
+      .map((text) => {
+        if (text === "\n") {
+          return schema.nodes["hardBreak"].create();
+        } else {
+          return schema.text(text, marks);
+        }
+      })
+  );
 }
 
 /**
@@ -58,7 +72,14 @@ function linkToNodes(link: PartialLink, schema: Schema): Node[] {
   });
 
   return styledTextArrayToNodes(link.content, schema).map((node) => {
-    return node.mark([...node.marks, linkMark]);
+    if (node.type.name === "text") {
+      return node.mark([...node.marks, linkMark]);
+    }
+
+    if (node.type.name === "hardBreak") {
+      return node;
+    }
+    throw new Error("unexpected node type");
   });
 }
 
@@ -73,12 +94,14 @@ function styledTextArrayToNodes(
   let nodes: Node[] = [];
 
   if (typeof content === "string") {
-    nodes.push(schema.text(content));
+    nodes.push(
+      ...styledTextToNodes({ type: "text", text: content, styles: {} }, schema)
+    );
     return nodes;
   }
 
   for (const styledText of content) {
-    nodes.push(styledTextToNode(styledText, schema));
+    nodes.push(...styledTextToNodes(styledText, schema));
   }
   return nodes;
 }
@@ -161,15 +184,39 @@ export function blockToNode<BSchema extends BlockSchema>(
  */
 function contentNodeToInlineContent(contentNode: Node) {
   const content: InlineContent[] = [];
-
-  let currentLink: Link | undefined = undefined;
+  let currentContent: InlineContent | undefined = undefined;
 
   // Most of the logic below is for handling links because in ProseMirror links are marks
   // while in BlockNote links are a type of inline content
   contentNode.content.forEach((node) => {
-    const styles: Styles = {};
+    // hardBreak nodes do not have an InlineContent equivalent, instead we
+    // add a newline to the previous node.
+    if (node.type.name === "hardBreak") {
+      if (currentContent) {
+        // Current content exists.
+        if (currentContent.type === "text") {
+          // Current content is text.
+          currentContent.text += "\n";
+        } else if (currentContent.type === "link") {
+          // Current content is a link.
+          currentContent.content[currentContent.content.length - 1].text +=
+            "\n";
+        }
+      } else {
+        // Current content does not exist.
+        currentContent = {
+          type: "text",
+          text: "\n",
+          styles: {},
+        };
+      }
 
+      return;
+    }
+
+    const styles: Styles = {};
     let linkMark: Mark | undefined;
+
     for (const mark of node.marks) {
       if (mark.type.name === "link") {
         linkMark = mark;
@@ -182,37 +229,121 @@ function contentNodeToInlineContent(contentNode: Node) {
       }
     }
 
-    if (linkMark && currentLink && linkMark.attrs.href === currentLink.href) {
-      // if the node is a link that matches the current link, add it to the current link
-      currentLink.content.push({
-        type: "text",
-        text: node.textContent,
-        styles,
-      });
-    } else if (linkMark) {
-      // if the node is a link that doesn't match the current link, create a new link
-      currentLink = {
-        type: "link",
-        href: linkMark.attrs.href,
-        content: [
-          {
+    // Parsing links and text.
+    // Current content exists.
+    if (currentContent) {
+      // Current content is text.
+      if (currentContent.type === "text") {
+        if (!linkMark) {
+          // Node is text (same type as current content).
+          if (
+            JSON.stringify(currentContent.styles) === JSON.stringify(styles)
+          ) {
+            // Styles are the same.
+            currentContent.text += node.textContent;
+          } else {
+            // Styles are different.
+            content.push(currentContent);
+            currentContent = {
+              type: "text",
+              text: node.textContent,
+              styles,
+            };
+          }
+        } else {
+          // Node is a link (different type to current content).
+          content.push(currentContent);
+          currentContent = {
+            type: "link",
+            href: linkMark.attrs.href,
+            content: [
+              {
+                type: "text",
+                text: node.textContent,
+                styles,
+              },
+            ],
+          };
+        }
+      } else if (currentContent.type === "link") {
+        // Current content is a link.
+        if (linkMark) {
+          // Node is a link (same type as current content).
+          // Link URLs are the same.
+          if (currentContent.href === linkMark.attrs.href) {
+            // Styles are the same.
+            if (
+              JSON.stringify(
+                currentContent.content[currentContent.content.length - 1].styles
+              ) === JSON.stringify(styles)
+            ) {
+              currentContent.content[currentContent.content.length - 1].text +=
+                node.textContent;
+            } else {
+              // Styles are different.
+              currentContent.content.push({
+                type: "text",
+                text: node.textContent,
+                styles,
+              });
+            }
+          } else {
+            // Link URLs are different.
+            content.push(currentContent);
+            currentContent = {
+              type: "link",
+              href: linkMark.attrs.href,
+              content: [
+                {
+                  type: "text",
+                  text: node.textContent,
+                  styles,
+                },
+              ],
+            };
+          }
+        } else {
+          // Node is text (different type to current content).
+          content.push(currentContent);
+          currentContent = {
             type: "text",
             text: node.textContent,
             styles,
-          },
-        ],
-      };
-      content.push(currentLink);
-    } else {
-      // if the node is not a link, add it to the content
-      content.push({
-        type: "text",
-        text: node.textContent,
-        styles,
-      });
-      currentLink = undefined;
+          };
+        }
+      }
+    }
+    // Current content does not exist.
+    else {
+      // Node is text.
+      if (!linkMark) {
+        currentContent = {
+          type: "text",
+          text: node.textContent,
+          styles,
+        };
+      }
+      // Node is a link.
+      else {
+        currentContent = {
+          type: "link",
+          href: linkMark.attrs.href,
+          content: [
+            {
+              type: "text",
+              text: node.textContent,
+              styles,
+            },
+          ],
+        };
+      }
     }
   });
+
+  if (currentContent) {
+    content.push(currentContent);
+  }
+
   return content;
 }
 
