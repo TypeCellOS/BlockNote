@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import container from "markdown-it-container";
 import {
   defineConfig,
+  type DefaultTheme,
   type HeadConfig,
   type TransformContext,
 } from "vitepress";
@@ -161,7 +162,12 @@ export default defineConfig({
     //     "/docs/:path",
     //   text: "Edit this page",
     // },
-    algolia: getAlgoliaConfig(process.env),
+    search: {
+      provider: "algolia",
+      options: getAlgoliaConfig(
+        process.env
+      ) as DefaultTheme.AlgoliaSearchOptions,
+    },
     socialLinks: [
       { icon: "github", link: "https://github.com/TypeCellOS/BlockNote" },
       // { icon: "twitter", link: "https://twitter.com/TypeCellOS" },
