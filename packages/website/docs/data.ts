@@ -39,7 +39,7 @@ export const featuresCardData: FeaturesCardData[] = [
   {
     title: "Real-time collaboration",
     description: "",
-    bgImgDark: "/img/features/collaboration.gif",
+    bgImgDark: "/img/features/collaboration-dark.gif",
     bgImgLight: "/img/features/collaboration.gif",
   },
   {

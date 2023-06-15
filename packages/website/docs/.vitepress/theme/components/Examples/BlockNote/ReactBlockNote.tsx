@@ -38,7 +38,7 @@ const getRandomElement = (list: any[]) =>
 const getRandomColor = () => getRandomElement(colors);
 const getRandomName = () => getRandomElement(names);
 
-export function ReactBlockNote(theme: "light" | "dark") {
+export function ReactBlockNote(props: { theme: "light" | "dark" }) {
   const [doc, provider] = useMemo(() => {
     console.log("create");
     const doc = new Y.Doc();
@@ -55,7 +55,7 @@ export function ReactBlockNote(theme: "light" | "dark") {
       editorDOMAttributes: {
         class: styles.editor,
       },
-      theme: theme,
+      theme: props.theme,
       collaboration: {
         provider,
         fragment: doc.getXmlFragment("blocknote"),
@@ -65,7 +65,7 @@ export function ReactBlockNote(theme: "light" | "dark") {
         },
       },
     },
-    [theme]
+    [props.theme]
   );
 
   useEffect(() => {
