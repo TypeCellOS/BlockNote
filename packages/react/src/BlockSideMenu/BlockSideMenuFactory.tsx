@@ -28,5 +28,22 @@ export const createReactBlockSideMenuFactory = <BSchema extends BlockSchema>(
       animation: "fade",
       offset: [0, 0],
       placement: "left",
+      popperOptions: {
+        modifiers: [
+          {
+            name: "flip",
+            options: {
+              fallbackPlacements: [],
+            },
+          },
+          {
+            name: "preventOverflow",
+            options: {
+              mainAxis: false,
+              altAxis: false,
+            },
+          },
+        ],
+      },
     });
 };

@@ -320,7 +320,7 @@ export class BlockMenuView<BSchema extends BlockSchema> {
   };
 
   /**
-   * If the event is outside of the editor contents,
+   * If the event is outside the editor contents,
    * we dispatch a fake event, so that we can still drop the content
    * when dragging / dropping to the side of the editor
    */
@@ -430,6 +430,14 @@ export class BlockMenuView<BSchema extends BlockSchema> {
   };
 
   onScroll = () => {
+    // Editor itself may have padding or other styling which affects size/position, so we get the boundingRect of
+    // the first child (i.e. the blockGroup that wraps all blocks in the editor) for a more accurate bounding box.
+    const editorBoundingBox = (
+      this.ttEditor.view.dom.firstChild! as HTMLElement
+    ).getBoundingClientRect();
+
+    this.horizontalPosAnchor = editorBoundingBox.x;
+
     if (this.menuOpen) {
       this.blockMenu.render(this.getDynamicParams(), false);
     }
