@@ -388,7 +388,7 @@ export class BlockMenuView<BSchema extends BlockSchema> {
     if (
       // Cursor is within the editor area
       cursorWithinEditor &&
-      // An element is clicked
+      // An element is hovered
       event &&
       event.target &&
       // Element is outside the editor
@@ -453,10 +453,8 @@ export class BlockMenuView<BSchema extends BlockSchema> {
     if (this.editor.isEditable) {
       if (!this.menuOpen) {
         this.menuOpen = true;
-        console.log("RENDER 1");
         this.blockMenu.render(this.getDynamicParams(), true);
       } else {
-        console.log("RENDER 2");
         this.blockMenu.render(this.getDynamicParams(), false);
       }
     }
