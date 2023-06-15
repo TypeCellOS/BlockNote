@@ -1,12 +1,39 @@
 import { Page } from "@playwright/test";
-import { TYPE_DELAY } from "./const";
+import { PASTE_ZONE_SELECTOR, TYPE_DELAY } from "./const";
+import { focusOnEditor } from "./editor";
 
-export async function copyPasteAll(page: Page) {
-  await page.keyboard.press("Control+A");
-  await page.keyboard.press("Control+C");
+export async function copyPasteAll(page: Page, os: "mac" | "linux" = "linux") {
+  const modifierKey = os === "mac" ? "Meta" : "Control";
+
+  await page.keyboard.press(`${modifierKey}+A`);
+  await page.keyboard.press(`${modifierKey}+C`);
   await page.keyboard.press("ArrowDown", { delay: TYPE_DELAY });
   await page.keyboard.press("Enter");
-  await page.keyboard.press("Control+V");
+  await page.keyboard.press(`${modifierKey}+V`);
+}
+
+export async function copyPasteAllExternal(
+  page: Page,
+  os: "mac" | "linux" = "linux"
+) {
+  const modifierKey = os === "mac" ? "Meta" : "Control";
+  await page.keyboard.press(`${modifierKey}+A`);
+  await page.keyboard.press(`${modifierKey}+C`);
+  await focusOnEditor(page);
+
+  const pasteZone = page.locator(PASTE_ZONE_SELECTOR);
+  await pasteZone.click();
+  await page.keyboard.press(`${modifierKey}+V`);
+
+  return await pasteZone.inputValue();
+}
+
+export function removeClassesFromHTML(html: string) {
+  return html.replace(/class="\S*"\s/g, "");
+}
+
+export function removeMetaFromHTML(html: string) {
+  return html.replace(/<meta charset='utf-8'>/g, "");
 }
 
 export async function insertParagraph(page: Page) {

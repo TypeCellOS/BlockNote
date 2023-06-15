@@ -1,3 +1,10 @@
+---
+title: Manipulating Blocks
+description: How to read Blocks from the editor, and how to create / remove / update Blocks.
+imageTitle: Manipulating Blocks
+path: /docs/manipulating-blocks
+---
+
 # Manipulating Blocks
 
 Below, we explain how to read Blocks from the editor, and how to create / remove / update Blocks.

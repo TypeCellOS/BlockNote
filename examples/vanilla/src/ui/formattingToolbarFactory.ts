@@ -1,13 +1,13 @@
-import { FormattingToolbarFactory } from "@blocknote/core";
+import { DefaultBlockSchema, FormattingToolbarFactory } from "@blocknote/core";
 import { createButton } from "./util";
 
 /**
  * This menu is drawn when a piece of text is selected. We can use it to change formatting options
  * such as bold, italic, indentation, etc.
  */
-export const formattingToolbarFactory: FormattingToolbarFactory = (
-  staticParams
-) => {
+export const formattingToolbarFactory: FormattingToolbarFactory<
+  DefaultBlockSchema
+> = (staticParams) => {
   const container = document.createElement("div");
   container.style.background = "gray";
   container.style.position = "absolute";
@@ -35,7 +35,9 @@ export const formattingToolbarFactory: FormattingToolbarFactory = (
       }
 
       boldBtn.text =
-        "bold" in staticParams.editor.getActiveStyles() ? "unset bold" : "set bold";
+        "bold" in staticParams.editor.getActiveStyles()
+          ? "unset bold"
+          : "set bold";
       container.style.top = params.referenceRect.y + "px";
       container.style.left = params.referenceRect.x + "px";
     },

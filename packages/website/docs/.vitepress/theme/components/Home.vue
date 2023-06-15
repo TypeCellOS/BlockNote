@@ -116,7 +116,6 @@ defineProps<{
   align-items: center;
   margin-top: -72px;
   padding-top: 276px;
-  padding-bottom: 64px;
   // min-height: 100lvh;
 
   background: linear-gradient(
@@ -134,7 +133,7 @@ defineProps<{
         180deg,
         rgba(0, 0, 0, 0) 0%,
         rgba(0, 0, 0, 0) 400px,
-        rgb(0, 0, 0) 700px
+        rgb(7, 8, 11) 700px
       ),
       radial-gradient(circle at 15% 35%, #243148, rgba(34, 34, 34, 0) 25%),
       radial-gradient(circle at 85% 20%, #1c2e3c, rgba(34, 34, 34, 0) 25%), #222;
@@ -293,7 +292,7 @@ h4 {
   width: 100%;
   max-width: var(--content-max-width);
   padding: 0 18px;
-  margin: 100px auto 132px;
+  margin: 0 auto 132px;
   text-align: center;
 
   @media (max-width: 1024px) {

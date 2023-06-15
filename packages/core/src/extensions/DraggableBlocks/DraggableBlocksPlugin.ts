@@ -15,6 +15,7 @@ import {
 import { DraggableBlocksOptions } from "./DraggableBlocksExtension";
 import { MultipleNodeSelection } from "./MultipleNodeSelection";
 import { BlockNoteEditor } from "../../BlockNoteEditor";
+import { BlockSchema } from "../Blocks/api/blockTypes";
 
 const serializeForClipboard = (pv as any).__serializeForClipboard;
 // code based on https://github.com/ueberdosis/tiptap/issues/323#issuecomment-506637799
@@ -223,15 +224,15 @@ function dragStart(e: DragEvent, view: EditorView) {
   }
 }
 
-export type BlockMenuViewProps = {
+export type BlockMenuViewProps<BSchema extends BlockSchema> = {
   tiptapEditor: Editor;
-  editor: BlockNoteEditor;
-  blockMenuFactory: BlockSideMenuFactory;
+  editor: BlockNoteEditor<BSchema>;
+  blockMenuFactory: BlockSideMenuFactory<BSchema>;
   horizontalPosAnchoredAtRoot: boolean;
 };
 
-export class BlockMenuView {
-  editor: BlockNoteEditor;
+export class BlockMenuView<BSchema extends BlockSchema> {
+  editor: BlockNoteEditor<BSchema>;
   private ttEditor: Editor;
 
   // When true, the drag handle with be anchored at the same level as root elements
@@ -240,7 +241,7 @@ export class BlockMenuView {
 
   horizontalPosAnchor: number;
 
-  blockMenu: BlockSideMenu;
+  blockMenu: BlockSideMenu<BSchema>;
 
   hoveredBlock: HTMLElement | undefined;
 
@@ -254,7 +255,7 @@ export class BlockMenuView {
     editor,
     blockMenuFactory,
     horizontalPosAnchoredAtRoot,
-  }: BlockMenuViewProps) {
+  }: BlockMenuViewProps<BSchema>) {
     this.editor = editor;
     this.ttEditor = tiptapEditor;
     this.horizontalPosAnchoredAtRoot = horizontalPosAnchoredAtRoot;
@@ -319,7 +320,7 @@ export class BlockMenuView {
   };
 
   /**
-   * If the event is outside of the editor contents,
+   * If the event is outside the editor contents,
    * we dispatch a fake event, so that we can still drop the content
    * when dragging / dropping to the side of the editor
    */
@@ -374,11 +375,45 @@ export class BlockMenuView {
       return;
     }
 
-    // Editor itself may have padding or other styling which affects size/position, so we get the boundingRect of
-    // the first child (i.e. the blockGroup that wraps all blocks in the editor) for a more accurate bounding box.
+    // Editor itself may have padding or other styling which affects
+    // size/position, so we get the boundingRect of the first child (i.e. the
+    // blockGroup that wraps all blocks in the editor) for more accurate side
+    // menu placement.
     const editorBoundingBox = (
       this.ttEditor.view.dom.firstChild! as HTMLElement
     ).getBoundingClientRect();
+    // We want the full area of the editor to check if the cursor is hovering
+    // above it though.
+    const editorOuterBoundingBox =
+      this.ttEditor.view.dom.getBoundingClientRect();
+    const cursorWithinEditor =
+      event.clientX >= editorOuterBoundingBox.left &&
+      event.clientX <= editorOuterBoundingBox.right &&
+      event.clientY >= editorOuterBoundingBox.top &&
+      event.clientY <= editorOuterBoundingBox.bottom;
+
+    // Doesn't update if the mouse hovers an element that's over the editor but
+    // isn't a part of it or the side menu.
+    if (
+      // Cursor is within the editor area
+      cursorWithinEditor &&
+      // An element is hovered
+      event &&
+      event.target &&
+      // Element is outside the editor
+      this.ttEditor.view.dom !== event.target &&
+      !this.ttEditor.view.dom.contains(event.target as HTMLElement) &&
+      // Element is outside the side menu
+      this.blockMenu.element !== event.target &&
+      !this.blockMenu.element?.contains(event.target as HTMLElement)
+    ) {
+      if (this.menuOpen) {
+        this.menuOpen = false;
+        this.blockMenu.hide();
+      }
+
+      return;
+    }
 
     this.horizontalPosAnchor = editorBoundingBox.x;
 
@@ -429,6 +464,14 @@ export class BlockMenuView {
   };
 
   onScroll = () => {
+    // Editor itself may have padding or other styling which affects size/position, so we get the boundingRect of
+    // the first child (i.e. the blockGroup that wraps all blocks in the editor) for a more accurate bounding box.
+    const editorBoundingBox = (
+      this.ttEditor.view.dom.firstChild! as HTMLElement
+    ).getBoundingClientRect();
+
+    this.horizontalPosAnchor = editorBoundingBox.x;
+
     if (this.menuOpen) {
       this.blockMenu.render(this.getDynamicParams(), false);
     }
@@ -497,7 +540,7 @@ export class BlockMenuView {
     );
   }
 
-  getStaticParams(): BlockSideMenuStaticParams {
+  getStaticParams(): BlockSideMenuStaticParams<BSchema> {
     return {
       editor: this.editor,
       addBlock: () => this.addBlock(),
@@ -516,7 +559,7 @@ export class BlockMenuView {
     };
   }
 
-  getDynamicParams(): BlockSideMenuDynamicParams {
+  getDynamicParams(): BlockSideMenuDynamicParams<BSchema> {
     const blockContent = this.hoveredBlock!.firstChild! as HTMLElement;
     const blockContentBoundingBox = blockContent.getBoundingClientRect();
 
@@ -534,8 +577,8 @@ export class BlockMenuView {
   }
 }
 
-export const createDraggableBlocksPlugin = (
-  options: DraggableBlocksOptions
+export const createDraggableBlocksPlugin = <BSchema extends BlockSchema>(
+  options: DraggableBlocksOptions<BSchema>
 ) => {
   return new Plugin({
     key: new PluginKey("DraggableBlocksPlugin"),

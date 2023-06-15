@@ -1,3 +1,10 @@
+---
+title: Usage Without React (Vanilla JS)
+description: BlockNote is mainly designed as a quick and easy drop-in block-based editor for React apps. It comes with built-in UI elements that are designed for React.
+imageTitle: Usage Without React (Vanilla JS)
+path: /docs/vanilla-js
+---
+
 # Usage Without React (Vanilla JS)
 
 BlockNote is mainly designed as a quick and easy drop-in block-based editor for React apps. It comes with built-in UI elements that are designed for React.

@@ -1,20 +1,20 @@
 <template>
-  <BasicPure></BasicPure>
+  <BasicPure :theme="isDark ? 'dark' : 'light'"></BasicPure>
 </template>
 <script>
 import { applyPureReactInVue } from "veaury";
 // This is a React component
 
 import { ReactBlockNote } from "./ReactBlockNote";
-import { ref } from "vue";
+import { useData } from "vitepress";
 
 export default {
   components: {
     BasicPure: applyPureReactInVue(ReactBlockNote),
   },
-  setup() {
+  data() {
     return {
-      // foo: ref("Hello!"),
+      isDark: useData().isDark,
     };
   },
 };

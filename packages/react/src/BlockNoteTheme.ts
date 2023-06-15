@@ -15,15 +15,15 @@ type ColorScheme = [
 
 export const blockNoteColorScheme: ColorScheme = [
   "#FFFFFF",
-  "#EEEEEE",
-  "#DDDDDD",
-  "#CCCCCC",
-  "#999999",
-  "#666666",
-  "#444444",
-  "#333333",
-  "#222222",
-  "#111111",
+  "#EFEFEF",
+  "#CFCFCF",
+  "#AFAFAF",
+  "#7F7F7F",
+  "#3F3F3F",
+  "#1F1F1F",
+  "#161616",
+  "#0F0F0F",
+  "#000000",
 ];
 
 export const getBlockNoteTheme = (
@@ -41,7 +41,7 @@ export const getBlockNoteTheme = (
 
   const sideMenu = useDarkTheme
     ? blockNoteColorScheme[4]
-    : blockNoteColorScheme[3];
+    : blockNoteColorScheme[2];
 
   const primaryBackground = useDarkTheme
     ? blockNoteColorScheme[6]
@@ -52,7 +52,7 @@ export const getBlockNoteTheme = (
 
   const primaryText = useDarkTheme
     ? blockNoteColorScheme[2]
-    : blockNoteColorScheme[6];
+    : blockNoteColorScheme[5];
   const secondaryText = useDarkTheme
     ? blockNoteColorScheme[4]
     : blockNoteColorScheme[4];
@@ -62,11 +62,11 @@ export const getBlockNoteTheme = (
     : blockNoteColorScheme[1];
   const hoveredText = useDarkTheme
     ? blockNoteColorScheme[2]
-    : blockNoteColorScheme[6];
+    : blockNoteColorScheme[5];
 
   const selectedBackground = useDarkTheme
     ? blockNoteColorScheme[8]
-    : blockNoteColorScheme[6];
+    : blockNoteColorScheme[5];
   const selectedText = useDarkTheme
     ? blockNoteColorScheme[2]
     : blockNoteColorScheme[0];

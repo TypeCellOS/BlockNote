@@ -1,3 +1,17 @@
+---
+title: Introduction to Blocks
+description: So, you've set up a BlockNote editor and your users can start writing content, organized in blocks. What are blocks exactly, and how do we access the blocks from code?
+imageTitle: Introduction to Blocks
+path: /docs/blocks
+---
+
+<script setup>
+import { useData } from 'vitepress';
+import { getTheme, getStyles } from "./demoUtils";
+
+const { isDark } = useData();
+</script>
+
 # Introduction to Blocks
 
 So, you've set up a BlockNote editor and your users can start writing content, organized in blocks. What are blocks exactly, and how do we access the blocks from code?
@@ -31,7 +45,7 @@ function App() {
 
 So, BlockNote is centered around the idea of blocks. A block - like a heading, paragraph, or list item - contains a piece of content and optionally nested blocks:
 
-<img src="../public/img/screenshots/block_structure.png" alt="image" style="width: 100%">
+<img :src="isDark ? '../public/img/screenshots/block_structure_dark.png' : '../public/img/screenshots/block_structure.png'" alt="image" style="width: 100%">
 
 In code, the `Block` type is used to describe any given block in the editor:
 
@@ -51,7 +65,7 @@ type Block = {
 
 `props:` The block's properties, which are stored in a set of key/value pairs and specify how the block looks and behaves. Different block types have different props - see [Block Types & Properties](/docs/block-types) for more.
 
-`content:` The block's content, represented as an array of `InlineContent` objects. This does not include content from any nested blocks. For more information on `InlineContent` objects, visit [Inline Content](/docs/inline-content).
+`content:` The block's rich text content, represented as an array of `InlineContent` objects. This does not include content from any nested blocks. For more information on `InlineContent` objects, visit [Inline Content](/docs/inline-content).
 
 `children:` Any blocks nested inside the block. The nested blocks are also represented using `Block` objects.
 
@@ -61,7 +75,7 @@ Now that we know how blocks are represented in code, let's take a look at the li
 
 ::: sandbox {template=react-ts}
 
-```typescript /App.tsx
+```typescript-vue /App.tsx
 import { useState } from "react";
 import { BlockNoteEditor, Block } from "@blocknote/core";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
@@ -73,6 +87,7 @@ export default function App() {
   
   // Creates a new editor instance.
   const editor: BlockNoteEditor | null = useBlockNote({
+    theme: "{{ getTheme(isDark) }}",
     // Listens for when the editor's contents change.
     onEditorContentChange: (editor: BlockNoteEditor) => 
       // Converts the editor's contents to an array of Block objects.
@@ -87,6 +102,14 @@ export default function App() {
       <pre>{JSON.stringify(blocks, null, 2)}</pre>
     </div>
   );
+}
+```
+
+```css-vue /styles.css [hidden]
+{{ getStyles(isDark) }}
+
+pre {
+  color: gray;
 }
 ```
 

@@ -11,9 +11,9 @@ defineProps<{ feature: FeaturesCardData }>();
     <div
       class="feature-card"
       :style="{
-        backgroundImage: `url(${
-          isDark ? feature.bgImgDark : feature.bgImgLight
-        })`,
+        backgroundImage: `linear-gradient(to bottom, transparent 50%, ${
+          isDark ? '#111418' : 'white'
+        } 70%), url(${isDark ? feature.bgImgDark : feature.bgImgLight})`,
       }"
     >
       <h4>{{ feature.title }}</h4>
@@ -21,6 +21,9 @@ defineProps<{ feature: FeaturesCardData }>();
     </div>
   </Card>
 </template>
+
+backgroundImage: `linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255,
+255, 255, 1)), url(${ isDark ? feature.bgImgDark : feature.bgImgLight })`
 
 <style scoped lang="scss">
 .feature-card {
@@ -49,7 +52,7 @@ defineProps<{ feature: FeaturesCardData }>();
     font-weight: 600;
     font-size: 15px;
     line-height: 1.2;
-    background: white;
+    //background: white;
   }
 
   p {

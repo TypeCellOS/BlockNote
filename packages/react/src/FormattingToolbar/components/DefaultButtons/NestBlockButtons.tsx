@@ -1,10 +1,12 @@
 import { formatKeyboardShortcut } from "../../../utils";
 import { RiIndentDecrease, RiIndentIncrease } from "react-icons/ri";
 import { ToolbarButton } from "../../../SharedComponents/Toolbar/components/ToolbarButton";
-import { BlockNoteEditor } from "@blocknote/core";
+import { BlockNoteEditor, BlockSchema } from "@blocknote/core";
 import { useCallback } from "react";
 
-export const NestBlockButton = (props: { editor: BlockNoteEditor }) => {
+export const NestBlockButton = <BSchema extends BlockSchema>(props: {
+  editor: BlockNoteEditor<BSchema>;
+}) => {
   const nestBlock = useCallback(() => {
     props.editor.focus();
     props.editor.nestBlock();
@@ -21,7 +23,9 @@ export const NestBlockButton = (props: { editor: BlockNoteEditor }) => {
   );
 };
 
-export const UnnestBlockButton = (props: { editor: BlockNoteEditor }) => {
+export const UnnestBlockButton = <BSchema extends BlockSchema>(props: {
+  editor: BlockNoteEditor<BSchema>;
+}) => {
   const unnestBlock = useCallback(() => {
     props.editor.focus();
     props.editor.unnestBlock();

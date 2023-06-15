@@ -62,7 +62,6 @@ export const LinkToolbarButton = (props: HyperlinkButtonProps) => {
 
   return (
     <Tippy
-      appendTo={document.body}
       content={creationMenu}
       onShow={updateCreationMenu}
       interactive={true}
