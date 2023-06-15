@@ -5,6 +5,13 @@ imageTitle: Block Types & Properties
 path: /docs/block-types
 ---
 
+<script setup>
+import { useData } from 'vitepress';
+import { getTheme, getStyles } from "./demoUtils";
+
+const { isDark } = useData();
+</script>
+
 # Block Types & Properties
 
 A block's type affects how it looks and behaves in the editor. Each type also comes with its own set of properties, each having a string value, which further affect the block's appearance and behaviour.
@@ -17,7 +24,7 @@ BlockNote includes a number of built-in block types, each with their own set of 
 
 **Appearance**
 
-<img src="../public/img/screenshots/paragraph_type.png" alt="image" style="height: 29px">
+<img :src="isDark ? '../public/img/screenshots/paragraph_type_dark.png' : '../public/img/screenshots/paragraph_type.png'" alt="image" style="height: 29px">
 
 **Type & Props**
 
@@ -35,7 +42,7 @@ type ParagraphBlock = {
 
 **Appearance**
 
-<img src="../public/img/screenshots/heading_type.png" alt="image" style="height: 77px">
+<img :src="isDark ? '../public/img/screenshots/heading_type_dark.png' : '../public/img/screenshots/heading_type.png'" alt="image" style="height: 77px">
 
 **Type & Props**
 
@@ -57,7 +64,7 @@ type HeadingBlock = {
 
 **Appearance**
 
-<img src="../public/img/screenshots/bullet_list_item_type.png" alt="image" style="height: 29px">
+<img :src="isDark ? '../public/img/screenshots/bullet_list_item_type_dark.png' : '../public/img/screenshots/bullet_list_item_type.png'" alt="image" style="height: 29px">
 
 **Type & Props**
 
@@ -75,7 +82,7 @@ type BulletListItemBlock = {
 
 **Appearance**
 
-<img src="../public/img/screenshots/numbered_list_item_type.png" alt="image" style="height: 29px">
+<img :src="isDark ? '../public/img/screenshots/numbered_list_item_type_dark.png' : '../public/img/screenshots/numbered_list_item_type.png'" alt="image" style="height: 29px">
 
 **Type & Props**
 
@@ -113,7 +120,7 @@ In addition to the default block types that BlockNote offers, you can also make 
 
 ::: sandbox {template=react-ts}
 
-```typescript /App.tsx
+```typescript-vue /App.tsx
 import {
   BlockNoteEditor,
   defaultBlockSchema,
@@ -142,15 +149,8 @@ export default function App() {
     },
     containsInlineContent: true,
     render: ({ block }) => (
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-        }}>
+      <div id="image-wrapper">
         <img
-          style={{
-            width: "100%",
-          }}
           src={block.props.src}
           alt={"Image"}
           contentEditable={false}
@@ -188,6 +188,7 @@ export default function App() {
 
   // Creates a new editor instance.
   const editor = useBlockNote({
+    theme: "{{ getTheme(isDark) }}",
     // Tells BlockNote which blocks to use.
     blockSchema: {
       // Adds all default blocks.
@@ -200,6 +201,19 @@ export default function App() {
 
   // Renders the editor instance using a React component.
   return <BlockNoteView editor={editor} />;
+}
+```
+
+```css-vue /styles.css [hidden]
+{{ getStyles(isDark) }}
+
+#image-wrapper {
+  display: "flex";
+  flexDirection: "column";
+}
+
+img {
+  width: "100%";
 }
 ```
 

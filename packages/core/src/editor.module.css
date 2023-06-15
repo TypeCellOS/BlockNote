@@ -56,13 +56,13 @@ Tippy popups that are appended to document.body directly
 }
 
 [data-theme="light"] {
-  background-color: #ffffff;
-  color: #444444;
+  background-color: #FFFFFF;
+  color: #3F3F3F;
 }
 
 [data-theme="dark"] {
-  background-color: #444444;
-  color: #dddddd;
+  background-color: #1F1F1F;
+  color: #CFCFCF;
 }
 
 .dragPreview {

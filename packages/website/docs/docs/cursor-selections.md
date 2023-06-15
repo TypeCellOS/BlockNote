@@ -5,6 +5,13 @@ imageTitle: Cursor & Selections
 path: /docs/cursor-selections
 ---
 
+<script setup>
+import { useData } from 'vitepress';
+import { getTheme, getStyles } from "./demoUtils";
+
+const { isDark } = useData();
+</script>
+
 # Cursor & Selections
 
 If you want to know which block(s) the user is currently editing, you can do so using cursor positions and selections.
@@ -76,7 +83,7 @@ If you need a visualization for which block contains the text cursor, the demo b
 
 ::: sandbox {template=react-ts}
 
-```typescript /App.tsx
+```typescript-vue /App.tsx
 import { BlockNoteEditor, Block } from "@blocknote/core";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
 import "@blocknote/core/style.css";
@@ -84,6 +91,7 @@ import "@blocknote/core/style.css";
 export default function App() {
   // Creates a new editor instance.
   const editor: BlockNoteEditor | null = useBlockNote({
+    theme: "{{ getTheme(isDark) }}",
     // Listens for when the text cursor position changes.
     onTextCursorPositionChange: (editor: BlockNoteEditor) => {
       // Gets the block currently hovered by the text cursor.
@@ -121,6 +129,10 @@ export default function App() {
 }
 ```
 
+```css-vue /styles.css [hidden]
+{{ getStyles(isDark) }}
+```
+
 :::
 
 ## Selections
@@ -155,11 +167,11 @@ const selection = editor.getSelection();
 
 ### Demo: Highlighting Blocks Spanned by Selection
 
-If you need a visualization for which block contains the text cursor, the demo below highlights it in blue in real time.
+If you need a visualization for which blocks the text cursor spans, the demo below highlights them in blue in real time.
 
 ::: sandbox {template=react-ts}
 
-```typescript /App.tsx
+```typescript-vue /App.tsx
 import { BlockNoteEditor, Block } from "@blocknote/core";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
 import "@blocknote/core/style.css";
@@ -167,6 +179,7 @@ import "@blocknote/core/style.css";
 export default function App() {
   // Creates a new editor instance.
   const editor: BlockNoteEditor | null = useBlockNote({
+    theme: "{{ getTheme(isDark) }}",
     // Listens for when the text cursor position changes.
     onTextCursorPositionChange: (editor: BlockNoteEditor) => {
       // Gets the blocks currently spanned by the selection.
@@ -215,6 +228,10 @@ export default function App() {
   // Renders the editor instance.
   return <BlockNoteView editor={editor} />;
 }
+```
+
+```css-vue /styles.css [hidden]
+{{ getStyles(isDark) }}
 ```
 
 :::

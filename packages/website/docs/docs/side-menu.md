@@ -5,15 +5,22 @@ imageTitle: Block Side Menu
 path: /docs/side-menu
 ---
 
+<script setup>
+import { useData } from 'vitepress';
+import { getTheme, getStyles } from "./demoUtils";
+
+const { isDark } = useData();
+</script>
+
 # Block Side Menu
 
 The Block Side Menu appears whenever you hover over a block, and is used to drag & drop the block as well as add new ones below it.
 
-<img style="max-width:500px" src="../public/img/screenshots/side_menu.png" alt="image">
+<img style="max-width:500px" :src="isDark ? '../public/img/screenshots/side_menu_dark.png' : '../public/img/screenshots/side_menu.png'" alt="image">
 
 You can also click the drag handle in the Block Side Menu (`⠿`) to open the Drag Handle Menu.
 
-<img style="max-width:250px" src="../public/img/screenshots/drag_handle_menu.png" alt="image">
+<img style="max-width:250px" :src="isDark ? '../public/img/screenshots/drag_handle_menu_dark.png' : '../public/img/screenshots/drag_handle_menu.png'" alt="image">
 
 ## Custom Drag Handle Menu
 
@@ -21,7 +28,7 @@ BlockNote lets you customize which items appear in the Drag Handle Menu. Have a 
 
 ::: sandbox {template=react-ts}
 
-```typescript /App.tsx
+```typescript-vue /App.tsx
 import { Block, BlockNoteEditor } from "@blocknote/core";
 import {
   BlockNoteView,
@@ -60,6 +67,7 @@ const CustomDragHandleMenu = (props: {
 export default function App() {
   // Creates a new editor instance.
   const editor: BlockNoteEditor = useBlockNote({
+    theme: "{{ getTheme(isDark) }}",
     customElements: {
       // Makes the editor instance use the custom menu.
       dragHandleMenu: CustomDragHandleMenu
@@ -68,6 +76,10 @@ export default function App() {
   // Renders the editor instance.
   return <BlockNoteView editor = {editor}/>;
 }
+```
+
+```css-vue /styles.css [hidden]
+{{ getStyles(isDark) }}
 ```
 
 :::

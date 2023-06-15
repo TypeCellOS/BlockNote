@@ -5,13 +5,20 @@ imageTitle: Slash Menu
 path: /docs/slash-menu
 ---
 
+<script setup>
+import { useData } from 'vitepress';
+import { getTheme, getStyles } from "./demoUtils";
+
+const { isDark } = useData();
+</script>
+
 # Slash Menu
 
 The Slash Menu is the list of commands which shows up whenever you type the "/" (slash) character, or when you click the "+" button in the [Side Menu](/docs/side-menu):
 
 <!-- ![../public/img/screenshots/slash_menu.png]() -->
 
-<img style="max-width:400px" src="../public/img/screenshots/slash_menu.png" alt="image">
+<img style="max-width:400px" :src="isDark ? '../public/img/screenshots/slash_menu_dark.png' : '../public/img/screenshots/slash_menu.png'" alt="image">
 
 ## Slash Menu Items
 
@@ -76,7 +83,7 @@ You can also create your own, custom menu items too, as you can see in the examp
 
 ::: sandbox {template=react-ts}
 
-```typescript /App.tsx
+```typescript-vue /App.tsx
 import { Block, BlockNoteEditor, PartialBlock } from "@blocknote/core";
 import {
   BlockNoteView,
@@ -85,7 +92,7 @@ import {
   useBlockNote,
 } from "@blocknote/react";
 import "@blocknote/core/style.css";
-import { HiOutlineGlobeAlt } from "react-icons/all";
+import { HiOutlineGlobeAlt } from "react-icons/hi";
 
 export default function App() {
   // Command to insert "Hello World" in bold in a new block below.
@@ -115,6 +122,7 @@ export default function App() {
 
   // Creates a new editor instance.
   const editor: BlockNoteEditor = useBlockNote({
+    theme: "{{ getTheme(isDark) }}",
     // Adds all default Slash Menu items as well as our custom one.
     slashCommands: [...defaultReactSlashMenuItems, insertHelloWorldItem],
   });
@@ -122,6 +130,10 @@ export default function App() {
   // Renders the editor instance.
   return <BlockNoteView editor={editor} />;
 }
+```
+
+```css-vue /styles.css [hidden]
+{{ getStyles(isDark) }}
 ```
 
 :::

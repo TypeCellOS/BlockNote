@@ -1,6 +1,6 @@
 import "@blocknote/core/style.css";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import YPartyKitProvider from "y-partykit/provider";
 import * as Y from "yjs";
 import * as styles from "./ReactBlockNote.module.css";
@@ -38,11 +38,7 @@ const getRandomElement = (list: any[]) =>
 const getRandomColor = () => getRandomElement(colors);
 const getRandomName = () => getRandomElement(names);
 
-export function ReactBlockNote() {
-  const [theme, setTheme] = useState<"light" | "dark">(
-    document.lastElementChild!.className === "dark" ? "dark" : "light"
-  );
-
+export function ReactBlockNote(props: { theme: "light" | "dark" }) {
   const [doc, provider] = useMemo(() => {
     console.log("create");
     const doc = new Y.Doc();
@@ -59,7 +55,7 @@ export function ReactBlockNote() {
       editorDOMAttributes: {
         class: styles.editor,
       },
-      theme: theme,
+      theme: props.theme,
       collaboration: {
         provider,
         fragment: doc.getXmlFragment("blocknote"),
@@ -69,7 +65,7 @@ export function ReactBlockNote() {
         },
       },
     },
-    [theme]
+    [props.theme]
   );
 
   useEffect(() => {
@@ -87,21 +83,6 @@ export function ReactBlockNote() {
       editor?.domElement?.removeEventListener("focus", listener);
     };
   }, [editor?.domElement]);
-
-  useEffect(() => {
-    const toggleThemeButton = document.querySelector(`.appearance-action`)!;
-    const toggleTheme = () => {
-      setTheme(
-        document.lastElementChild!.className === "dark" ? "dark" : "light"
-      );
-    };
-
-    toggleThemeButton.addEventListener("click", toggleTheme);
-
-    return () => {
-      toggleThemeButton.removeEventListener("click", toggleTheme);
-    };
-  }, []);
 
   return <BlockNoteView editor={editor} />;
 }
