@@ -375,11 +375,45 @@ export class BlockMenuView<BSchema extends BlockSchema> {
       return;
     }
 
-    // Editor itself may have padding or other styling which affects size/position, so we get the boundingRect of
-    // the first child (i.e. the blockGroup that wraps all blocks in the editor) for a more accurate bounding box.
+    // Editor itself may have padding or other styling which affects
+    // size/position, so we get the boundingRect of the first child (i.e. the
+    // blockGroup that wraps all blocks in the editor) for more accurate side
+    // menu placement.
     const editorBoundingBox = (
       this.ttEditor.view.dom.firstChild! as HTMLElement
     ).getBoundingClientRect();
+    // We want the full area of the editor to check if the cursor is hovering
+    // above it though.
+    const editorOuterBoundingBox =
+      this.ttEditor.view.dom.getBoundingClientRect();
+    const cursorWithinEditor =
+      event.clientX >= editorOuterBoundingBox.left &&
+      event.clientX <= editorOuterBoundingBox.right &&
+      event.clientY >= editorOuterBoundingBox.top &&
+      event.clientY <= editorOuterBoundingBox.bottom;
+
+    // Doesn't update if the mouse hovers an element that's over the editor but
+    // isn't a part of it or the side menu.
+    if (
+      // Cursor is within the editor area
+      cursorWithinEditor &&
+      // An element is hovered
+      event &&
+      event.target &&
+      // Element is outside the editor
+      this.ttEditor.view.dom !== event.target &&
+      !this.ttEditor.view.dom.contains(event.target as HTMLElement) &&
+      // Element is outside the side menu
+      this.blockMenu.element !== event.target &&
+      !this.blockMenu.element?.contains(event.target as HTMLElement)
+    ) {
+      if (this.menuOpen) {
+        this.menuOpen = false;
+        this.blockMenu.hide();
+      }
+
+      return;
+    }
 
     this.horizontalPosAnchor = editorBoundingBox.x;
 

@@ -154,6 +154,10 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
     return this._tiptapEditor.view.dom as HTMLDivElement;
   }
 
+  public isFocused() {
+    return this._tiptapEditor.view.hasFocus();
+  }
+
   public focus() {
     this._tiptapEditor.view.focus();
   }
