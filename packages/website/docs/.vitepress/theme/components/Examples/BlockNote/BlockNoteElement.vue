@@ -1,5 +1,5 @@
 <template>
-  <BasicPure :theme="theme"></BasicPure>
+  <BasicPure :theme="isDark ? 'dark' : 'light'"></BasicPure>
 </template>
 <script>
 import { applyPureReactInVue } from "veaury";
@@ -14,9 +14,8 @@ export default {
   },
   data() {
     return {
-      theme: useData().isDark,
+      isDark: useData().isDark,
     };
   },
-  props: ["theme"],
 };
 </script>
