@@ -60,14 +60,14 @@ NESTED BLOCKS
   .blockGroup
   .blockGroup
   > .blockOuter:not([data-prev-depth-changed])::before {
-  border-left: 1px solid #cccccc;
+  border-left: 1px solid #AFAFAF;
 }
 
 [data-theme="dark"]
   .blockGroup
   .blockGroup
   > .blockOuter:not([data-prev-depth-changed])::before {
-  border-left: 1px solid #999999;
+  border-left: 1px solid #7F7F7F;
 }
 
 .blockGroup .blockGroup > .blockOuter[data-prev-depth-change="-2"]::before {
@@ -250,12 +250,12 @@ NESTED BLOCKS
 
 [data-theme="light"] .isEmpty .inlineContent:before,
 .isFilter .inlineContent:before {
-  color: #cccccc;
+  color: #CFCFCF;
 }
 
 [data-theme="dark"] .isEmpty .inlineContent:before,
 .isFilter .inlineContent:before {
-  color: #999999;
+  color: #7F7F7F;
 }
 
 /* TODO: would be nicer if defined from code */

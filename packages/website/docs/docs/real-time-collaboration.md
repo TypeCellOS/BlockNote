@@ -76,7 +76,7 @@ Below, two editors are connected to each other. Note that anything you type is s
 
 ::: sandbox {template=react-ts}
 
-```typescript /App.tsx
+```typescript-vue /App.tsx
 import { BlockNoteEditor } from "@blocknote/core";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
 import YPartyKitProvider from "y-partykit/provider";
@@ -94,6 +94,7 @@ const provider = new YPartyKitProvider(
 export default function App() {
   // Creates a new editor instance.
   const editor: BlockNoteEditor | null = useBlockNote({
+    theme: "{{ getTheme(isDark) }}",
     collaboration: {
       provider,
       fragment: doc.getXmlFragment("document-store"),
@@ -109,11 +110,15 @@ export default function App() {
 }
 ```
 
+```css-vue /styles.css [hidden]
+{{ getStyles(isDark) }}
+```
+
 :::
 
 ::: sandbox {template=react-ts}
 
-```typescript /App.tsx
+```typescript-vue /App.tsx
 import { BlockNoteEditor } from "@blocknote/core";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
 import YPartyKitProvider from "y-partykit/provider";
@@ -131,6 +136,7 @@ const provider = new YPartyKitProvider(
 export default function App() {
   // Creates a new editor instance.
   const editor: BlockNoteEditor | null = useBlockNote({
+    theme: "{{ getTheme(isDark) }}",
     collaboration: {
       provider,
       fragment: doc.getXmlFragment("document-store"),
@@ -144,6 +150,10 @@ export default function App() {
   // Renders the editor instance using a React component.
   return <BlockNoteView editor={editor} />;
 }
+```
+
+```css-vue /styles.css [hidden]
+{{ getStyles(isDark) }}
 ```
 
 ::: -->

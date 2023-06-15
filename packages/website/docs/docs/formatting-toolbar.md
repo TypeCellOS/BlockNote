@@ -5,11 +5,18 @@ imageTitle: Formatting Toolbar
 path: /docs/formatting-toolbar
 ---
 
+<script setup>
+import { useData } from 'vitepress';
+import { getTheme, getStyles } from "./demoUtils";
+
+const { isDark } = useData();
+</script>
+
 # Formatting Toolbar
 
 The Formatting Toolbar appears whenever you highlight text in the editor, and is mainly used for styling.
 
-<img style="max-width:600px" src="../public/img/screenshots/formatting_toolbar.png" alt="image">
+<img style="max-width:600px" :src="isDark ? '../public/img/screenshots/formatting_toolbar_dark.png' : '../public/img/screenshots/formatting_toolbar.png'" alt="image">
 
 ## Custom Formatting Toolbar
 
@@ -143,7 +150,7 @@ The example below shows a basic custom formatting toolbar with four items. The f
 
 ::: sandbox {template=react-ts}
 
-```typescript /App.tsx
+```typescript-vue /App.tsx
 import { BlockNoteEditor } from "@blocknote/core";
 import {
   BlockNoteView,
@@ -186,6 +193,7 @@ const CustomFormattingToolbar = (props: { editor: BlockNoteEditor }) => {
 export default function App() {
   // Creates a new editor instance.
   const editor: BlockNoteEditor = useBlockNote({
+    theme: "{{ getTheme(isDark) }}",
     customElements: {
       // Makes the editor instance use the custom toolbar.
       formattingToolbar: CustomFormattingToolbar
@@ -195,6 +203,10 @@ export default function App() {
   // Renders the editor instance.
   return <BlockNoteView editor = {editor}/>;
 }
+```
+
+```css-vue /styles.css [hidden]
+{{ getStyles(isDark) }}
 ```
 
 :::

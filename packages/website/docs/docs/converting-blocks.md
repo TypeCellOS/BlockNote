@@ -5,6 +5,13 @@ imageTitle: Markdown & HTML
 path: /docs/converting-blocks
 ---
 
+<script setup>
+import { useData } from 'vitepress';
+import { getTheme, getStyles } from "./demoUtils";
+
+const { isDark } = useData();
+</script>
+
 # Markdown & HTML
 
 It's possible to export or import Blocks to and from Markdown and HTML.
@@ -43,7 +50,7 @@ The output is simplified as Markdown does not support all features of BlockNote 
 
 ::: sandbox {template=react-ts}
 
-```typescript /App.tsx
+```typescript-vue /App.tsx
 import { useState } from "react";
 import { BlockNoteEditor } from "@blocknote/core";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
@@ -55,6 +62,7 @@ export default function App() {
 
   // Creates a new editor instance.
   const editor: BlockNoteEditor | null = useBlockNote({
+    theme: "{{ getTheme(isDark) }}",
     // Listens for when the editor's contents change.
     onEditorContentChange: (editor: BlockNoteEditor) => {
       // Converts the editor's contents from Block objects to Markdown and 
@@ -72,9 +80,18 @@ export default function App() {
   return (
     <div>
       <BlockNoteView editor={editor} />
-      <pre style={{ whiteSpace: "pre-wrap" }}>{markdown}</pre>
+      <pre>{markdown}</pre>
     </div>
   );
+}
+```
+
+```css-vue /styles.css [hidden]
+{{ getStyles(isDark) }}
+
+pre {
+  color: gray;
+  white-space: pre-wrap;
 }
 ```
 
@@ -104,7 +121,7 @@ Tries to create `Block` and `InlineNode` objects based on Markdown syntax, thoug
 
 ::: sandbox {template=react-ts}
 
-```typescript /App.tsx
+```typescript-vue /App.tsx
 import { useEffect, useState } from "react";
 import { BlockNoteEditor, Block } from "@blocknote/core";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
@@ -116,6 +133,7 @@ export default function App() {
   
   // Creates a new editor instance.
   const editor: BlockNoteEditor | null = useBlockNote({
+    theme: "{{ getTheme(isDark) }}",
     // Makes the editor non-editable.
     editable: false
   })
@@ -137,13 +155,23 @@ export default function App() {
   return (
     <div>
       <textarea
-        style={{ width: "100%", height: "100px" }}
         value={markdown}
         onChange={(event) => setMarkdown(event.target.value)}
       />
       <BlockNoteView editor={editor} />
     </div>
   );
+}
+```
+
+```css-vue /styles.css [hidden]
+{{ getStyles(isDark) }}
+
+textarea {
+  color: gray;
+  background-color: #151515;
+  width: 100%;
+  height: 100%;
 }
 ```
 
@@ -177,7 +205,7 @@ To better conform to HTML standards, children of blocks which aren't list items 
 
 ::: sandbox {template=react-ts}
 
-```typescript /App.tsx
+```typescript-vue /App.tsx
 import { useState } from "react";
 import { BlockNoteEditor } from "@blocknote/core";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
@@ -189,6 +217,7 @@ export default function App() {
 
   // Creates a new editor instance.
   const editor: BlockNoteEditor | null = useBlockNote({
+    theme: "{{ getTheme(isDark) }}",
     // Listens for when the editor's contents change.
     onEditorContentChange: (editor: BlockNoteEditor) => {
       // Converts the editor's contents from Block objects to HTML and saves 
@@ -205,9 +234,18 @@ export default function App() {
   return (
     <div>
       <BlockNoteView editor={editor} />
-      <pre style={{ whiteSpace: "pre-wrap" }}>{html}</pre>
+      <pre>{html}</pre>
     </div>
   );
+}
+```
+
+```css-vue /styles.css [hidden]
+{{ getStyles(isDark) }}
+
+pre {
+  color: gray;
+  white-space: pre-wrap;
 }
 ```
 
@@ -237,7 +275,7 @@ Tries to create `Block` objects out of any HTML block-level elements, and `Inlin
 
 ::: sandbox {template=react-ts}
 
-```typescript /App.tsx
+```typescript-vue /App.tsx
 import { useEffect, useState } from "react";
 import { BlockNoteEditor, Block } from "@blocknote/core";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
@@ -249,6 +287,7 @@ export default function App() {
   
   // Creates a new editor instance.
   const editor: BlockNoteEditor | null = useBlockNote({
+    theme: "{{ getTheme(isDark) }}",
     // Makes the editor non-editable.
     editable: false
   })
@@ -270,13 +309,23 @@ export default function App() {
   return (
     <div>
       <textarea
-        style={{ width: "100%", height: "100px" }}
         value={html}
         onChange={(event) => setHTML(event.target.value)}
       />
       <BlockNoteView editor={editor} />
     </div>
   );
+}
+```
+
+```css-vue /styles.css [hidden]
+{{ getStyles(isDark) }}
+
+textarea {
+  color: gray;
+  background-color: #151515;
+  width: 100%;
+  height: 100%;
 }
 ```
 

@@ -1,6 +1,6 @@
 import "@blocknote/core/style.css";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import YPartyKitProvider from "y-partykit/provider";
 import * as Y from "yjs";
 import * as styles from "./ReactBlockNote.module.css";
@@ -38,11 +38,7 @@ const getRandomElement = (list: any[]) =>
 const getRandomColor = () => getRandomElement(colors);
 const getRandomName = () => getRandomElement(names);
 
-export function ReactBlockNote() {
-  const [darkMode, setDarkMode] = useState(
-    document.documentElement.classList.contains("dark")
-  );
-
+export function ReactBlockNote(props: { theme: "light" | "dark" }) {
   const [doc, provider] = useMemo(() => {
     console.log("create");
     const doc = new Y.Doc();
@@ -54,24 +50,27 @@ export function ReactBlockNote() {
     return [doc, provider];
   }, []);
 
-  const editor = useBlockNote({
-    editorDOMAttributes: {
-      class: styles.editor,
-    },
-    theme: darkMode ? "dark" : "light",
-    collaboration: {
-      provider,
-      fragment: doc.getXmlFragment("blocknote"),
-      user: {
-        name: getRandomName(),
-        color: getRandomColor(),
+  const editor = useBlockNote(
+    {
+      editorDOMAttributes: {
+        class: styles.editor,
+      },
+      theme: props.theme,
+      collaboration: {
+        provider,
+        fragment: doc.getXmlFragment("blocknote"),
+        user: {
+          name: getRandomName(),
+          color: getRandomColor(),
+        },
       },
     },
-  });
+    [props.theme]
+  );
 
   useEffect(() => {
     let shownAlert = false;
-    const listener = (e: any) => {
+    const listener = () => {
       if (!shownAlert) {
         alert(
           "Text you enter in this demo is displayed publicly on the internet to show multiplayer features. Be kind :)"
@@ -84,26 +83,6 @@ export function ReactBlockNote() {
       editor?.domElement?.removeEventListener("focus", listener);
     };
   }, [editor?.domElement]);
-
-  useEffect(() => {
-    // Create the mutation observer
-    const observer = new MutationObserver((mutations) => {
-      for (const mutation of mutations) {
-        if (
-          mutation.type === "attributes" &&
-          mutation.attributeName === "class"
-        ) {
-          const hasDarkClass =
-            document.documentElement.classList.contains("dark");
-          setDarkMode(hasDarkClass);
-          // TODO: how to update the editor's theme?
-        }
-      }
-    });
-
-    // Set the observer to watch for changes on the <html> element
-    observer.observe(document.documentElement, { attributes: true });
-  }, []);
 
   return <BlockNoteView editor={editor} />;
 }

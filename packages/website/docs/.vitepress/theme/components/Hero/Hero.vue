@@ -27,7 +27,7 @@ import BlockNote from "@theme/components/Examples/BlockNote/BlockNote.vue";
       <div class="editor-wrapper">
         <ClientOnly><BlockNote /></ClientOnly>
       </div>
-      <div class="try-here-image"/>
+      <div class="try-here-image" />
     </div>
     <!-- features
 sponsors
@@ -100,7 +100,7 @@ header {
 .editor-wrapper {
   border-radius: 12px;
   box-shadow: inset 0 0 0 1px #c4d0d966, inset 0 -1px #ffffff1a,
-  inset 0 1px #84b9f61a;
+    inset 0 1px #84b9f61a;
   // background-image: radial-gradient(
   //   145% 110% at 46% 20%,
   //   #fdfeff 50%,
@@ -112,6 +112,10 @@ header {
   padding: 50px;
   padding-left: 1px;
   overflow-y: scroll;
+}
+
+html.dark .editor-wrapper {
+  background: #111418;
 }
 
 .try-here-image {

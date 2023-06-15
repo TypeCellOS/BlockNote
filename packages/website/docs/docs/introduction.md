@@ -4,6 +4,13 @@ imageTitle: Introduction to BlockNote
 path: /docs/introduction
 ---
 
+<script setup>
+import { useData } from 'vitepress';
+import { getTheme, getStyles } from "./demoUtils";
+
+const { isDark } = useData();
+</script>
+
 # Introduction to BlockNote
 
 <div><a href="https://www.npmjs.com/package/@blocknote/core"><img style="display: inline" alt="NPM" src="https://img.shields.io/npm/v/@blocknote/react"></a> <a href="https://github.com/TypeCellOS/BlockNote"><img style="display: inline" alt="GitHub Repo stars" src="https://img.shields.io/github/stars/TypeCellOS/BlockNote?style=social"></a></div>
@@ -38,18 +45,22 @@ See how to set up your own editor in the [Quickstart](/docs/quickstart). Here's 
 
 ::: sandbox {template=react-ts}
 
-```typescript /App.tsx
+```typescript-vue /App.tsx
 import { BlockNoteEditor } from "@blocknote/core";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
 import "@blocknote/core/style.css";
-
 export default function App() {
   // Creates a new editor instance.
-  const editor: BlockNoteEditor | null = useBlockNote({});
-
+  const editor: BlockNoteEditor | null = useBlockNote({
+    theme: "{{ getTheme(isDark) }}"
+  });
   // Renders the editor instance using a React component.
   return <BlockNoteView editor={editor} />;
 }
+```
+
+```css-vue /styles.css [hidden]
+{{ getStyles(isDark) }}
 ```
 
 :::
