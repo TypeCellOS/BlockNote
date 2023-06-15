@@ -375,6 +375,15 @@ export class BlockMenuView<BSchema extends BlockSchema> {
       return;
     }
 
+    // Editor itself may have padding or other styling which affects
+    // size/position, so we get the boundingRect of the first child (i.e. the
+    // blockGroup that wraps all blocks in the editor) for more accurate side
+    // menu placement.
+    const editorBoundingBox = (
+      this.ttEditor.view.dom.firstChild! as HTMLElement
+    ).getBoundingClientRect();
+    // We want the full area of the editor to check if the cursor is hovering
+    // above it though.
     const editorOuterBoundingBox =
       this.ttEditor.view.dom.getBoundingClientRect();
     const cursorWithinEditor =
@@ -405,12 +414,6 @@ export class BlockMenuView<BSchema extends BlockSchema> {
 
       return;
     }
-
-    // Editor itself may have padding or other styling which affects size/position, so we get the boundingRect of
-    // the first child (i.e. the blockGroup that wraps all blocks in the editor) for a more accurate bounding box.
-    const editorBoundingBox = (
-      this.ttEditor.view.dom.firstChild! as HTMLElement
-    ).getBoundingClientRect();
 
     this.horizontalPosAnchor = editorBoundingBox.x;
 
