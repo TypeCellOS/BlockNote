@@ -11,9 +11,9 @@ defineProps<{ feature: FeaturesCardData }>();
     <div
       class="feature-card"
       :style="{
-        backgroundImage: `linear-gradient(to bottom, transparent 60%, ${
+        backgroundImage: `linear-gradient(to bottom, transparent 50%, ${
           isDark ? '#111418' : 'white'
-        } 80%), url(${isDark ? feature.bgImgDark : feature.bgImgLight})`,
+        } 70%), url(${isDark ? feature.bgImgDark : feature.bgImgLight})`,
       }"
     >
       <h4>{{ feature.title }}</h4>

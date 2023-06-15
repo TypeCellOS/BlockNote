@@ -115,7 +115,7 @@ header {
 }
 
 html.dark .editor-wrapper {
-  background: #1f1f1f;
+  background: #111418;
 }
 
 .try-here-image {
