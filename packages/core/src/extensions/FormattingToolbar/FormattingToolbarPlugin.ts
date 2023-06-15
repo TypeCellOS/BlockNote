@@ -110,11 +110,15 @@ export class FormattingToolbarView<BSchema extends BlockSchema> {
       return;
     }
 
+    // Checks if the focus is moving to an element outside the editor. If it is,
+    // the toolbar is hidden.
     if (
-      event?.relatedTarget &&
-      this.formattingToolbar.element?.parentNode?.contains(
-        event.relatedTarget as Node
-      )
+      // An element is clicked.
+      event &&
+      event.relatedTarget &&
+      // Element is outside the toolbar.
+      (this.formattingToolbar.element === (event.relatedTarget as Node) ||
+        this.formattingToolbar.element?.contains(event.relatedTarget as Node))
     ) {
       return;
     }
@@ -169,12 +173,6 @@ export class FormattingToolbarView<BSchema extends BlockSchema> {
       this.formattingToolbar.render(this.getDynamicParams(), true);
       this.toolbarIsOpen = true;
 
-      // TODO: Is this necessary? Also for other menu plugins.
-      // Listener stops focus moving to the menu on click.
-      this.formattingToolbar.element!.addEventListener("mousedown", (event) =>
-        event.preventDefault()
-      );
-
       return;
     }
 
@@ -196,12 +194,6 @@ export class FormattingToolbarView<BSchema extends BlockSchema> {
     ) {
       this.formattingToolbar.hide();
       this.toolbarIsOpen = false;
-
-      // Listener stops focus moving to the menu on click.
-      this.formattingToolbar.element!.removeEventListener(
-        "mousedown",
-        (event) => event.preventDefault()
-      );
 
       return;
     }

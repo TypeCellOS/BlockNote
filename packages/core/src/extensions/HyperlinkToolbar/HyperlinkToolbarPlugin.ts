@@ -57,6 +57,7 @@ class HyperlinkToolbarView {
     };
 
     this.editor.view.dom.addEventListener("mouseover", this.mouseOverHandler);
+    document.addEventListener("click", this.clickHandler, true);
     document.addEventListener("scroll", this.scrollHandler);
   }
 
@@ -99,6 +100,24 @@ class HyperlinkToolbarView {
     this.startMenuUpdateTimer();
 
     return false;
+  };
+
+  clickHandler = (event: MouseEvent) => {
+    if (
+      // Toolbar is open.
+      this.hyperlinkMark &&
+      // An element is clicked.
+      event &&
+      event.target &&
+      // Element is outside the editor.
+      this.editor.view.dom !== (event.target as Node) &&
+      !this.editor.view.dom.contains(event.target as Node) &&
+      // Element is outside the toolbar.
+      this.hyperlinkToolbar.element !== (event.target as Node) &&
+      !this.hyperlinkToolbar.element?.contains(event.target as Node)
+    ) {
+      this.hyperlinkToolbar.hide();
+    }
   };
 
   scrollHandler = () => {
