@@ -4,7 +4,7 @@ import {
   InlineContent,
   ReactSlashMenuItem,
 } from "@blocknote/react";
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import { RiAlertFill } from "react-icons/ri";
 
 const values = {
@@ -40,7 +40,7 @@ export const ReactAlert = createReactBlockSpec({
   render: (props) => {
     const [type, setType] = useState(props.block.props.type);
 
-    React.useEffect(() => {
+    useEffect(() => {
       console.log("ReactAlert initialize");
       return () => {
         console.log(" ReactAlert cleanup");

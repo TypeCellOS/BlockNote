@@ -308,6 +308,8 @@ For our custom image block, we use a parent `div` which contains the image and c
 
 But what's this `InlineContent` component? Since we set `containsInlineContent` to `true`, it means we want to include an editable rich-text field somewhere in the image block. You should use the `InlineContent` component to represent this field in your `render` component. Since we're using it to create our caption, we add it below the `img` element.
 
+In the DOM, the `InlineContent` component is rendered as a `div` by default, but you can make it use a different element by passing `as={"elementTag"}` as a prop. For example, `as={"p"}` will make the `InlineContent` component get rendered to a paragraph.
+
 While the `InlineContent` component can be put anywhere inside the component you pass to `render`, you should make sure to only have one. If `containsInlineContent` is set to false, `render` shouldn't contain any.
 
 ### Adding Custom Blocks to the Editor
