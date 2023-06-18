@@ -14,14 +14,13 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx"
-    // "paths": {
-    //   "@blocknote/core": ["../../packages/core/src"]
-    // }
+    "jsx": "react-jsx",
+    "composite": true
   },
   "include": ["src"],
   "references": [
-    { "path": "./tsconfig.node.json" }
-    // { "path": "../../packages/core/tsconfig.json" }
+    { "path": "./tsconfig.node.json" },
+    { "path": "../../packages/core/" },
+    { "path": "../../packages/react/" }
   ]
 }
