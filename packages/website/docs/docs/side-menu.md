@@ -16,7 +16,9 @@ const { isDark } = useData();
 
 The Block Side Menu appears whenever you hover over a block, and is used to drag & drop the block as well as add new ones below it.
 
+<ClientOnly>
 <img style="max-width:500px" :src="isDark ? '../public/img/screenshots/side_menu_dark.png' : '../public/img/screenshots/side_menu.png'" alt="image">
+</ClientOnly>
 
 You can also click the drag handle in the Block Side Menu (`⠿`) to open the Drag Handle Menu.
 
