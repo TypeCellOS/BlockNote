@@ -47,10 +47,18 @@ export const ReactElementFactory = <
       // itself, otherwise it's less responsive and isn't able to handle
       // page overflows. Therefore, we want to avoid re-rendering the element
       // when only its position changes.
-      const nextDynamicParamsCopy = { ...dynamicParams };
-      delete nextDynamicParamsCopy.referenceRect;
-      const prevDynamicParamsCopy = { ...prevDynamicParams };
-      delete prevDynamicParamsCopy.referenceRect;
+      const prevDynamicParamsCopy: Record<string, any> = {};
+      for (const key in prevDynamicParams) {
+        if (key !== "referenceRect") {
+          prevDynamicParamsCopy[key] = prevDynamicParams[key];
+        }
+      }
+      const nextDynamicParamsCopy: Record<string, any> = {};
+      for (const key in dynamicParams) {
+        if (key !== "referenceRect") {
+          nextDynamicParamsCopy[key] = dynamicParams[key];
+        }
+      }
 
       prevDynamicParams = dynamicParams;
 

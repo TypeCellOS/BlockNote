@@ -64,7 +64,7 @@ export function EditorElementComponentWrapper<
             ? !contentCleared
               ? getReferenceClientRect
               : undefined
-            : props.staticParams.getReferenceRect
+            : (props.staticParams.getReferenceRect as () => DOMRect)
         }
         interactive={true}
         onShow={onShow}
