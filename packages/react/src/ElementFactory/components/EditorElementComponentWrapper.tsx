@@ -1,6 +1,6 @@
 import { MantineProvider, MantineThemeOverride } from "@mantine/core";
 import Tippy, { TippyProps } from "@tippyjs/react";
-import { RequiredDynamicParams } from "@blocknote/core";
+import { RequiredDynamicParams, RequiredStaticParams } from "@blocknote/core";
 import { FC, useCallback, useState } from "react";
 
 /**
@@ -13,7 +13,7 @@ import { FC, useCallback, useState } from "react";
  * mounted under.
  */
 export function EditorElementComponentWrapper<
-  ElementStaticParams extends Record<string, any>,
+  ElementStaticParams extends RequiredStaticParams,
   ElementDynamicParams extends RequiredDynamicParams
 >(props: {
   rootElement: HTMLElement;
@@ -55,8 +55,16 @@ export function EditorElementComponentWrapper<
             />
           ) : undefined
         }
+        // Tippy automatically reacts to the reference bounding box changing
+        // positions using `staticParams.getReferenceRect`. While the element is
+        // being hidden and animated, it instead uses the last known position.
+        // Otherwise, the position is undefined.
         getReferenceClientRect={
-          !contentCleared ? getReferenceClientRect : undefined
+          !props.isOpen
+            ? !contentCleared
+              ? getReferenceClientRect
+              : undefined
+            : props.staticParams.getReferenceRect
         }
         interactive={true}
         onShow={onShow}

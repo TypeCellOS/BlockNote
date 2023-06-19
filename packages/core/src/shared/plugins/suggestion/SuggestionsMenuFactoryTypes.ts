@@ -3,6 +3,8 @@ import { SuggestionItem } from "./SuggestionItem";
 
 export type SuggestionsMenuStaticParams<T extends SuggestionItem> = {
   itemCallback: (item: T) => void;
+
+  getReferenceRect: () => DOMRect | undefined;
 };
 
 export type SuggestionsMenuDynamicParams<T extends SuggestionItem> = {

@@ -233,6 +233,8 @@ export class FormattingToolbarView<BSchema extends BlockSchema> {
   getStaticParams(): FormattingToolbarStaticParams<BSchema> {
     return {
       editor: this.editor,
+      getReferenceRect: () =>
+        this.toolbarIsOpen ? this.getSelectionBoundingBox() : undefined,
     };
   }
 

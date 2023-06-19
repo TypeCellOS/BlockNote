@@ -255,6 +255,14 @@ class HyperlinkToolbarView {
 
         this.hyperlinkToolbar.hide();
       },
+      getReferenceRect: () =>
+        this.hyperlinkMark
+          ? posToDOMRect(
+              this.editor.view,
+              this.hyperlinkMarkRange!.from,
+              this.hyperlinkMarkRange!.to
+            )
+          : undefined,
     };
   }
 

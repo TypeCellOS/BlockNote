@@ -556,6 +556,23 @@ export class BlockMenuView<BSchema extends BlockSchema> {
       unfreezeMenu: () => {
         this.menuFrozen = false;
       },
+      getReferenceRect: () => {
+        if (!this.menuOpen) {
+          return;
+        }
+
+        const blockContent = this.hoveredBlock!.firstChild! as HTMLElement;
+        const blockContentBoundingBox = blockContent.getBoundingClientRect();
+
+        return new DOMRect(
+          this.horizontalPosAnchoredAtRoot
+            ? this.horizontalPosAnchor
+            : blockContentBoundingBox.x,
+          blockContentBoundingBox.y,
+          blockContentBoundingBox.width,
+          blockContentBoundingBox.height
+        );
+      },
     };
   }
 

@@ -195,6 +195,17 @@ class SuggestionPluginView<
   getStaticParams(): SuggestionsMenuStaticParams<T> {
     return {
       itemCallback: (item: T) => this.itemCallback(item),
+      getReferenceRect: () => {
+        const decorationNode = document.querySelector(
+          `[data-decoration-id="${this.pluginState.decorationId}"]`
+        );
+
+        if (!decorationNode) {
+          return undefined;
+        }
+
+        return decorationNode.getBoundingClientRect();
+      },
     };
   }
 
