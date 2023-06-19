@@ -16,7 +16,7 @@ const { isDark } = useData();
 
 The Formatting Toolbar appears whenever you highlight text in the editor, and is mainly used for styling.
 
-<img style="max-width:600px" :src="isDark ? '../public/img/screenshots/formatting_toolbar_dark.png' : '../public/img/screenshots/formatting_toolbar.png'" alt="image">
+<img style="max-width:600px" :src="isDark ? '/img/screenshots/formatting_toolbar_dark.png' : '/img/screenshots/formatting_toolbar.png'" alt="image">
 
 ## Custom Formatting Toolbar
 
