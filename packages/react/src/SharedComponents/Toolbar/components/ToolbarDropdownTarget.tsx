@@ -1,20 +1,19 @@
 import { Button } from "@mantine/core";
-import { HiChevronDown } from "react-icons/hi";
+import { MouseEventHandler, forwardRef } from "react";
 import { IconType } from "react-icons";
-import { forwardRef } from "react";
+import { HiChevronDown } from "react-icons/hi";
 
 export type ToolbarDropdownTargetProps = {
   text: string;
   icon?: IconType;
   isDisabled?: boolean;
+  onClick?: MouseEventHandler;
 };
 
 export const ToolbarDropdownTarget = forwardRef<
   HTMLButtonElement,
   ToolbarDropdownTargetProps
 >((props: ToolbarDropdownTargetProps, ref) => {
-  const { text, icon, isDisabled, ...others } = props;
-
   const TargetIcon = props.icon;
   return (
     <Button
@@ -23,8 +22,8 @@ export const ToolbarDropdownTarget = forwardRef<
       size={"xs"}
       variant={"subtle"}
       disabled={props.isDisabled}
-      ref={ref}
-      {...others}>
+      onClick={props.onClick}
+      ref={ref}>
       {props.text}
     </Button>
   );
