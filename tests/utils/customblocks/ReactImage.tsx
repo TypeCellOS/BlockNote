@@ -3,7 +3,7 @@ import {
   createReactBlockSpec,
   ReactSlashMenuItem,
 } from "@blocknote/react";
-import { defaultProps } from "@blocknote/core";
+import { BlockSchema, defaultProps } from "@blocknote/core";
 import { RiImage2Fill } from "react-icons/ri";
 
 export const ReactImage = createReactBlockSpec({
@@ -30,15 +30,17 @@ export const ReactImage = createReactBlockSpec({
           alt={"Image"}
           contentEditable={false}
         />
-        <InlineContent />
+        <InlineContent style={{ flexGrow: 1 }} />
       </div>
     );
   },
 });
 
-export const insertReactImage = new ReactSlashMenuItem<{
-  reactImage: typeof ReactImage;
-}>(
+export const insertReactImage = new ReactSlashMenuItem<
+  BlockSchema & {
+    reactImage: typeof ReactImage;
+  }
+>(
   "Insert React Image",
   (editor) => {
     const src = prompt("Enter image URL");

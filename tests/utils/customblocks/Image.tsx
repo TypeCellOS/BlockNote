@@ -1,4 +1,10 @@
-import { BlockSchema, createBlockSpec, defaultProps } from "@blocknote/core";
+import {
+  BlockSchema,
+  BlockSpec,
+  createBlockSpec,
+  defaultProps,
+  PropSchema,
+} from "@blocknote/core";
 import { ReactSlashMenuItem } from "@blocknote/react";
 import { RiImage2Fill } from "react-icons/ri";
 
@@ -16,6 +22,7 @@ export const Image = createBlockSpec({
     image.setAttribute("src", block.props.src);
     image.setAttribute("contenteditable", "false");
     image.setAttribute("style", "width: 100%");
+    image.setAttribute("alt", "Image");
 
     const caption = document.createElement("div");
     caption.setAttribute("style", "flex-grow: 1");
