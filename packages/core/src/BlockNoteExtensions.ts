@@ -21,7 +21,7 @@ import { BackgroundColorExtension } from "./extensions/BackgroundColor/Backgroun
 import { BackgroundColorMark } from "./extensions/BackgroundColor/BackgroundColorMark";
 import { blocks } from "./extensions/Blocks";
 import { BlockSchema } from "./extensions/Blocks/api/blockTypes";
-import { CustomBlockSerializerExtension } from "./extensions/Blocks/api/serialization";
+import { createCustomBlockSerializerExtension } from "./extensions/Blocks/api/serialization";
 import blockStyles from "./extensions/Blocks/nodes/Block.module.css";
 import { BlockSideMenuFactory } from "./extensions/DraggableBlocks/BlockSideMenuFactoryTypes";
 import { createDraggableBlocksExtension } from "./extensions/DraggableBlocks/DraggableBlocksExtension";
@@ -54,7 +54,7 @@ export type UiFactories<BSchema extends BlockSchema> = Partial<{
 export const getBlockNoteExtensions = <BSchema extends BlockSchema>(opts: {
   editor: BlockNoteEditor<BSchema>;
   uiFactories: UiFactories<BSchema>;
-  slashCommands: BaseSlashMenuItem<any>[]; // couldn't fix type, see https://github.com/TypeCellOS/BlockNote/pull/191#discussion_r1210708771
+  slashCommands: BaseSlashMenuItem<BSchema>[]; // couldn't fix type, see https://github.com/TypeCellOS/BlockNote/pull/191#discussion_r1210708771
   blockSchema: BSchema;
   collaboration?: {
     fragment: Y.XmlFragment;
@@ -110,7 +110,7 @@ export const getBlockNoteExtensions = <BSchema extends BlockSchema>(opts: {
     ...Object.values(opts.blockSchema).map((blockSpec) =>
       blockSpec.node.configure({ editor: opts.editor })
     ),
-    CustomBlockSerializerExtension,
+    createCustomBlockSerializerExtension(opts.editor),
 
     Dropcursor.configure({ width: 5, color: "#ddeeff" }),
     // This needs to be at the bottom of this list, because Key events (such as enter, when selecting a /command),

@@ -58,7 +58,7 @@ export type BlockNoteEditorOptions<BSchema extends BlockSchema> = {
    *
    * @default defaultSlashMenuItems from `./extensions/SlashMenu`
    */
-  slashCommands: BaseSlashMenuItem<any>[];
+  slashCommands: BaseSlashMenuItem<BSchema>[];
 
   /**
    * The HTML element that should be used as the parent element for the editor.
@@ -183,7 +183,8 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
     const extensions = getBlockNoteExtensions<BSchema>({
       editor: this,
       uiFactories: newOptions.uiFactories || {},
-      slashCommands: newOptions.slashCommands || defaultSlashMenuItems,
+      // TODO: Fix typing
+      slashCommands: newOptions.slashCommands || (defaultSlashMenuItems as any),
       blockSchema: newOptions.blockSchema,
       collaboration: newOptions.collaboration,
     });

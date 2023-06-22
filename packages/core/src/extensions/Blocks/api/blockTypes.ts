@@ -63,7 +63,7 @@ export type BlockConfig<
   Type extends string,
   PSchema extends PropSchema,
   ContainsInlineContent extends boolean,
-  BSchema extends BlockSchema
+  BSchema extends BlockSchema & { [k in Type]: BlockSpec<Type, PSchema> }
 > = {
   // Attributes to define block in the API as well as a TipTap node.
   type: Type;
@@ -75,16 +75,13 @@ export type BlockConfig<
     /**
      * The custom block to render
      */
-    block: SpecificBlock<
-      BSchema & { [k in Type]: BlockSpec<Type, PSchema> },
-      Type
-    >,
+    block: SpecificBlock<BSchema, Type>,
     /**
      * The BlockNote editor instance
      * This is typed generically. If you want an editor with your custom schema, you need to
      * cast it manually, e.g.: `const e = editor as BlockNoteEditor<typeof mySchema>;`
      */
-    editor: BlockNoteEditor<BSchema & { [k in Type]: BlockSpec<Type, PSchema> }>
+    editor: BlockNoteEditor<BSchema>
     // (note) if we want to fix the manual cast, we need to prevent circular references and separate block definition and render implementations
     // or allow manually passing <BSchema>, but that's not possible without passing the other generics because Typescript doesn't support partial inferred generics
   ) => ContainsInlineContent extends true
@@ -101,9 +98,16 @@ export type BlockConfig<
 // the TipTap node used to implement it. Usually created using `createBlockSpec`
 // though it can also be defined from scratch by providing your own TipTap node,
 // allowing for more advanced custom blocks.
-export type BlockSpec<Type extends string, PSchema extends PropSchema> = {
+export type BlockSpec<BType extends string, PSchema extends PropSchema> = {
   readonly propSchema: PSchema;
-  node: TipTapNode<Type>;
+  node: TipTapNode<BType>;
+  // TODO: Improve schema typing
+  serialize?: BlockConfig<
+    BType,
+    PSchema,
+    boolean,
+    BlockSchema & { [k in BType]: BlockSpec<BType, PSchema> }
+  >["render"];
 };
 
 // Utility type. For a given object block schema, ensures that the key of each
@@ -150,8 +154,8 @@ export type Block<BSchema extends BlockSchema> =
 
 export type SpecificBlock<
   BSchema extends BlockSchema,
-  BlockType extends keyof BSchema
-> = BlocksWithoutChildren<BSchema>[BlockType] & {
+  BType extends keyof BSchema
+> = BlocksWithoutChildren<BSchema>[BType] & {
   children: Block<BSchema>[];
 };
 
