@@ -154,8 +154,6 @@ export function createReactBlockSpec<
     node: node,
     propSchema: blockConfig.propSchema,
     serialize: (block, editor) => {
-      // TODO: This doesn't seem like a great way of doing things - any better
-      //  method for converting a component to HTML?
       const blockContentWrapper = document.createElement("div");
       const BlockContent = reactRenderWithBlockStructure<
         BType,

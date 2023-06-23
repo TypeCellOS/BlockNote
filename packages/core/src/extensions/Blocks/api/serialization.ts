@@ -1,94 +1,79 @@
 import { Extension } from "@tiptap/core";
 import { Plugin } from "prosemirror-state";
-import { DOMSerializer, Fragment, Node, Schema } from "prosemirror-model";
+import { DOMSerializer, Schema } from "prosemirror-model";
 import { nodeToBlock } from "../../../api/nodeConversions/nodeConversions";
 import { BlockNoteEditor } from "../../../BlockNoteEditor";
 import { BlockSchema, SpecificBlock } from "./blockTypes";
-
-function doc(options: { document?: Document }) {
-  return options.document || window.document;
-}
 
 export const customBlockSerializer = <BSchema extends BlockSchema>(
   schema: Schema,
   editor: BlockNoteEditor<BSchema>
 ) => {
-  const customSerializer = DOMSerializer.fromSchema(schema) as DOMSerializer & {
-    serializeNodeInner: (
-      node: Node,
-      options: { document?: Document }
-    ) => HTMLElement;
-  };
+  const defaultSerializer = DOMSerializer.fromSchema(schema);
 
-  customSerializer.serializeNodeInner = (
-    node: Node,
-    options: { document?: Document }
-  ) => {
-    const { dom, contentDOM } = DOMSerializer.renderSpec(
-      doc(options),
-      customSerializer.nodes[node.type.name](node)
-    );
+  // Finds all custom nodes (i.e. those that don't implement
+  // `renderHTML`/`toDOM` as they use `serialize` instead) and assigns them a
+  // function to serialize them to an empty string. This is because we need to
+  // access the outer `blockContainer` node to render them, therefore we also
+  // have to serialize them as part of `blockContainer` nodes, so we shouldn't
+  // serialize them on their own.
+  const customNodes = Object.fromEntries(
+    Object.entries(schema.nodes)
+      .filter(
+        ([name, type]) =>
+          name !== "doc" && name !== "text" && type.spec.toDOM === undefined
+      )
+      .map(([name, _type]) => [name, () => ""])
+  );
+  console.log(customNodes);
 
-    if (contentDOM) {
-      if (node.isLeaf) {
-        throw new RangeError("Content hole not allowed in a leaf node spec");
-      }
-
-      // Checks if the block type is custom. Custom blocks don't implement a
-      // `renderHTML` function in their TipTap node type, so `toDOM` also isn't
-      // implemented in their ProseMirror node type.
-      if (
-        node.type.name === "blockContainer" &&
-        node.firstChild!.type.spec.toDOM === undefined
-      ) {
-        // Renders block content using the custom `blockSpec`'s `serialize`
-        // function.
-        const blockContent = DOMSerializer.renderSpec(
-          doc(options),
-          editor.schema[node.firstChild!.type.name as keyof BSchema].serialize!(
-            nodeToBlock(
-              node,
-              editor.schema,
-              editor.blockCache
-            ) as SpecificBlock<BlockSchema, string>,
-            editor as BlockNoteEditor<BlockSchema>
-          )
+  const customSerializer = new DOMSerializer(
+    {
+      ...defaultSerializer.nodes,
+      ...customNodes,
+      blockContainer: (node) => {
+        // Serializes the `blockContainer` node itself.
+        const blockContainerElement = DOMSerializer.renderSpec(
+          document,
+          node.type.spec.toDOM!(node)
         );
 
-        // Renders inline content.
-        if (blockContent.contentDOM) {
-          if (node.isLeaf) {
-            throw new RangeError(
-              "Content hole not allowed in a leaf node spec"
-            );
-          }
-
-          blockContent.contentDOM.appendChild(
-            customSerializer.serializeFragment(
-              node.firstChild!.content,
-              options
+        // Checks if the `blockContent is custom and the node has to be
+        // serialized manually, or it can be serialized normally using `toDOM`.
+        if (node.firstChild!.type.name in customNodes) {
+          // Serializes the `blockContent` node using the custom `blockSpec`'s
+          // `serialize` function.
+          const blockContentElement = DOMSerializer.renderSpec(
+            document,
+            editor.schema[node.firstChild!.type.name as keyof BSchema]
+              .serialize!(
+              nodeToBlock(
+                node,
+                editor.schema,
+                editor.blockCache
+              ) as SpecificBlock<BlockSchema, string>,
+              editor as BlockNoteEditor<BlockSchema>
             )
           );
-        }
-
-        contentDOM.appendChild(blockContent.dom);
-
-        // Renders nested blocks.
-        if (node.childCount === 2) {
-          customSerializer.serializeFragment(
-            Fragment.from(node.content.lastChild),
-            options,
-            contentDOM
+          blockContainerElement.contentDOM!.appendChild(
+            blockContentElement.dom
           );
-        }
-      } else {
-        // Renders the block normally, i.e. using `toDOM`.
-        customSerializer.serializeFragment(node.content, options, contentDOM);
-      }
-    }
 
-    return dom as HTMLElement;
-  };
+          // Serializes inline content inside the `blockContent` node.
+          if (blockContentElement.contentDOM) {
+            customSerializer.serializeFragment(
+              node.firstChild!.content,
+              {},
+              blockContentElement.contentDOM
+            );
+          }
+        }
+
+        return blockContainerElement;
+      },
+    },
+    defaultSerializer.marks
+  );
 
   return customSerializer;
 };
