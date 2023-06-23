@@ -30,7 +30,7 @@ export type ReactBlockConfig<
   BSchema extends BlockSchema & { [k in BType]: BlockSpec<BType, PSchema> }
 > = Omit<
   BlockConfig<BType, PSchema, ContainsInlineContent, BSchema>,
-  "render"
+  "render" | "serialize"
 > & {
   render: FC<{
     block: Parameters<
@@ -40,6 +40,12 @@ export type ReactBlockConfig<
       BlockConfig<BType, PSchema, ContainsInlineContent, BSchema>["render"]
     >[1];
   }>;
+  serialize: ReactBlockConfig<
+    BType,
+    PSchema,
+    ContainsInlineContent,
+    BSchema
+  >["render"];
 };
 
 // React component that's used instead of declaring a `contentDOM` for React
@@ -160,7 +166,7 @@ export function createReactBlockSpec<
         PSchema,
         ContainsInlineContent,
         BSchema
-      >(blockConfig.render, block, editor as any);
+      >(blockConfig.serialize || blockConfig.render, block, editor as any);
       blockContentWrapper.innerHTML = renderToString(<BlockContent />);
 
       return {

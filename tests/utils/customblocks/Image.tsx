@@ -1,10 +1,4 @@
-import {
-  BlockSchema,
-  BlockSpec,
-  createBlockSpec,
-  defaultProps,
-  PropSchema,
-} from "@blocknote/core";
+import { BlockSchema, createBlockSpec, defaultProps } from "@blocknote/core";
 import { ReactSlashMenuItem } from "@blocknote/react";
 import { RiImage2Fill } from "react-icons/ri";
 
@@ -36,6 +30,18 @@ export const Image = createBlockSpec({
       dom: parent,
       contentDOM: caption,
     };
+  },
+  parse: (element) => {
+    if (element.hasAttribute("src")) {
+      return {
+        type: "image",
+        props: {
+          src: element.getAttribute("src")!,
+        },
+      };
+    }
+
+    return;
   },
 });
 

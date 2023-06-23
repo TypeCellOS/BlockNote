@@ -1,5 +1,7 @@
 import { Attribute, Editor, Node } from "@tiptap/core";
+import { Fragment, ParseRule } from "prosemirror-model";
 import { BlockNoteEditor, SpecificBlock } from "../../..";
+import { inlineContentToNodes } from "../../../api/nodeConversions/nodeConversions";
 import styles from "../nodes/Block.module.css";
 import {
   BlockConfig,
@@ -24,7 +26,7 @@ export function propsToAttributes<
 >(
   blockConfig: Omit<
     BlockConfig<BType, PSchema, ContainsInlineContent, BSchema>,
-    "render"
+    "render" | "serialize"
   >
 ) {
   const tiptapAttributes: Record<string, Attribute> = {};
@@ -60,14 +62,45 @@ export function parse<
 >(
   blockConfig: Omit<
     BlockConfig<BType, PSchema, ContainsInlineContent, BSchema>,
-    "render"
+    "render" | "serialize"
   >
 ) {
-  return [
+  const rules: ParseRule[] = [
     {
       tag: "div[data-content-type=" + blockConfig.type + "]",
     },
   ];
+
+  if (blockConfig.parse) {
+    rules.push({
+      getAttrs(node: string | HTMLElement) {
+        console.log("parse");
+        if (typeof node === "string") {
+          return false;
+        }
+
+        const block = blockConfig.parse!(node);
+
+        return block ? block.props || {} : false;
+      },
+      getContent(node, schema) {
+        console.log("content");
+        const block = blockConfig.parse!(node as HTMLElement);
+
+        if (block && block.content) {
+          return Fragment.from(
+            typeof block.content === "string"
+              ? schema.text(block.content)
+              : inlineContentToNodes(block.content, schema)
+          );
+        }
+
+        return Fragment.empty;
+      },
+    });
+  }
+
+  return rules;
 }
 
 // Function that wraps the `dom` element returned from 'blockConfig.render' in a
@@ -206,8 +239,10 @@ export function createBlockSpec<
     node: node,
     propSchema: blockConfig.propSchema,
     serialize: (block, editor) =>
-      renderWithBlockStructure<BType, PSchema, ContainsInlineContent, BSchema>(
-        blockConfig.render,
+      renderWithBlockStructure<BType, PSchema, boolean, BSchema>(
+        blockConfig.serialize
+          ? (block, editor) => ({ dom: blockConfig.serialize!(block, editor) })
+          : blockConfig.render,
         block,
         // TODO: Fix typing
         editor as any

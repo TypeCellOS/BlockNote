@@ -92,6 +92,13 @@ export type BlockConfig<
     : {
         dom: HTMLElement;
       };
+  serialize?: (
+    block: SpecificBlock<BSchema, Type>,
+    editor: BlockNoteEditor<BSchema>
+  ) => HTMLElement;
+  parse?: (
+    element: HTMLElement
+  ) => SpecificPartialBlock<BSchema, Type> | undefined;
 };
 
 // Defines a single block spec, which includes the props that the block has and
@@ -157,6 +164,13 @@ export type SpecificBlock<
   BType extends keyof BSchema
 > = BlocksWithoutChildren<BSchema>[BType] & {
   children: Block<BSchema>[];
+};
+
+export type SpecificPartialBlock<
+  BSchema extends BlockSchema,
+  BType extends keyof BSchema
+> = PartialBlocksWithoutChildren<BSchema>[BType] & {
+  children?: Block<BSchema>[];
 };
 
 // Same as BlockWithoutChildren, but as a partial type with some changes to make
