@@ -1,16 +1,20 @@
-import { mergeAttributes, Node } from "@tiptap/core";
-import { Fragment, Node as PMNode, Slice } from "prosemirror-model";
-import { TextSelection } from "prosemirror-state";
+import { Fragment, Node, Slice } from "@tiptap/pm/model";
+import { TextSelection } from "@tiptap/pm/state";
+import {
+  ApplySchemaAttributes,
+  CommandFunction,
+  KeyBindingProps,
+  NodeExtension,
+  NodeExtensionSpec,
+} from "remirror";
 import {
   blockToNode,
   inlineContentToNodes,
 } from "../../../api/nodeConversions/nodeConversions";
-
+import { BlockSchema, PartialBlock } from "../api/blockTypes";
 import { getBlockInfoFromPos } from "../helpers/getBlockInfoFromPos";
-import { PreviousBlockTypePlugin } from "../PreviousBlockTypePlugin";
 import styles from "./Block.module.css";
 import BlockAttributes from "./BlockAttributes";
-import { BlockSchema, PartialBlock } from "../api/blockTypes";
 
 // TODO
 export interface IBlock {
@@ -39,85 +43,91 @@ declare module "@tiptap/core" {
 /**
  * The main "Block node" documents consist of
  */
-export const BlockContainer = Node.create<IBlock>({
-  name: "blockContainer",
-  group: "blockContainer",
-  // A block always contains content, and optionally a blockGroup which contains nested blocks
-  content: "blockContent blockGroup?",
-  // Ensures content-specific keyboard handlers trigger first.
-  priority: 50,
-  defining: true,
-
-  addOptions() {
+export class BlockContainerExtension extends NodeExtension {
+  get name() {
+    return "blockContainer" as const;
+  }
+  createNodeSpec(extra: ApplySchemaAttributes): NodeExtensionSpec {
     return {
-      HTMLAttributes: {},
-    };
-  },
-
-  parseHTML() {
-    return [
-      {
-        tag: "div",
-        getAttrs: (element) => {
-          if (typeof element === "string") {
-            return false;
-          }
-
-          const attrs: Record<string, string> = {};
-          for (let [nodeAttr, HTMLAttr] of Object.entries(BlockAttributes)) {
-            if (element.getAttribute(HTMLAttr)) {
-              attrs[nodeAttr] = element.getAttribute(HTMLAttr)!;
-            }
-          }
-
-          if (element.getAttribute("data-node-type") === "blockContainer") {
-            return attrs;
-          }
-
-          return false;
-        },
+      group: "block",
+      content: "blockContent blockGroup?",
+      defining: true,
+      attrs: {
+        ...extra.defaults(),
       },
-    ];
-  },
-
-  renderHTML({ HTMLAttributes }) {
-    return [
-      "div",
-      mergeAttributes(HTMLAttributes, {
-        class: styles.blockOuter,
-        "data-node-type": "block-outer",
-      }),
-      [
-        "div",
-        mergeAttributes(HTMLAttributes, {
-          // TODO: maybe remove html attributes from inner block
-          class: styles.block,
-          "data-node-type": this.name,
-        }),
-        0,
+      parseDOM: [
+        {
+          tag: "div",
+          getAttrs: (node) => {
+            if (node instanceof HTMLElement) {
+              const attrs: Record<string, string> = {};
+              for (let [nodeAttr, HTMLAttr] of Object.entries(
+                BlockAttributes
+              )) {
+                if (node.getAttribute(HTMLAttr)) {
+                  attrs[nodeAttr] = node.getAttribute(HTMLAttr)!;
+                }
+              }
+              return attrs;
+            }
+            return {};
+          },
+        },
       ],
-    ];
-  },
+      toDOM: (node) => {
+        const { HTMLAttributes } = node.attrs;
+        return [
+          "div",
+          {
+            ...HTMLAttributes,
+            class: styles.blockOuter,
+            "data-node-type": "block-outer",
+          },
+          [
+            "div",
+            {
+              // TODO: maybe remove html attributes from inner block
+              class: styles.block,
+              "data-node-type": this.name,
+            },
+            0,
+          ],
+        ];
+      },
+    };
+  }
 
-  addCommands() {
+  // return {
+  //   *       haveFun() {
+  //   *         return ({ state, dispatch }) => {
+  //   *           if (dispatch) {
+  //   *             dispatch(tr.insertText('Have fun!'));
+  //   *           }
+  //   *
+  //   *           return true; // True return signifies that this command is enabled.
+  //   *         }
+  //   *       },
+  //   *     }
+  //   *
+  createCommands() {
     return {
       // Creates a new text block at a given position.
-      BNCreateBlock:
-        (pos) =>
-        ({ state, dispatch }) => {
+      BNCreateBlock(pos: number): CommandFunction {
+        return ({ tr, state, dispatch }) => {
           const newBlock =
             state.schema.nodes["blockContainer"].createAndFill()!;
 
           if (dispatch) {
-            state.tr.insert(pos, newBlock);
+            tr.insert(pos, newBlock);
           }
 
           return true;
-        },
+        };
+      },
+
       // Deletes a block at a given position.
-      BNDeleteBlock:
-        (posInBlock) =>
-        ({ state, dispatch }) => {
+      BNDeleteBlock(posInBlock: number): CommandFunction {
+        return ({ state, dispatch }) => {
           const blockInfo = getBlockInfoFromPos(state.doc, posInBlock);
           if (blockInfo === undefined) {
             return false;
@@ -130,11 +140,11 @@ export const BlockContainer = Node.create<IBlock>({
           }
 
           return true;
-        },
+        };
+      },
       // Updates a block at a given position.
-      BNUpdateBlock:
-        (posInBlock, block) =>
-        ({ state, dispatch }) => {
+      BNUpdateBlock(posInBlock: number, block: any): CommandFunction {
+        return ({ state, dispatch }) => {
           const blockInfo = getBlockInfoFromPos(state.doc, posInBlock);
           if (blockInfo === undefined) {
             return false;
@@ -171,7 +181,7 @@ export const BlockContainer = Node.create<IBlock>({
 
             // Replaces the blockContent node's content if necessary.
             if (block.content !== undefined) {
-              let content: PMNode[] = [];
+              let content: Node[] = [];
 
               // Checks if the provided content is a string or InlineContent[] type.
               if (typeof block.content === "string") {
@@ -213,7 +223,8 @@ export const BlockContainer = Node.create<IBlock>({
           }
 
           return true;
-        },
+        };
+      },
       // Appends the text contents of a block to the nearest previous block, given a position between them. Children of
       // the merged block are moved out of it first, rather than also being merged.
       //
@@ -231,9 +242,8 @@ export const BlockContainer = Node.create<IBlock>({
       //    Block2Block3
       // Block4
       //     Block5
-      BNMergeBlocks:
-        (posBetweenBlocks) =>
-        ({ state, dispatch }) => {
+      BNMergeBlocks(posBetweenBlocks: number): CommandFunction {
+        return ({ state, dispatch }) => {
           const nextNodeIsBlock =
             state.doc.resolve(posBetweenBlocks + 1).node().type.name ===
             "blockContainer";
@@ -291,12 +301,12 @@ export const BlockContainer = Node.create<IBlock>({
           }
 
           return true;
-        },
+        };
+      },
       // Splits a block at a given position. Content after the position is moved to a new block below, at the same
       // nesting level.
-      BNSplitBlock:
-        (posInBlock, keepType) =>
-        ({ state, dispatch }) => {
+      BNSplitBlock(posInBlock: number, keepType: boolean): CommandFunction {
+        return ({ state, dispatch }) => {
           const blockInfo = getBlockInfoFromPos(state.doc, posInBlock);
           if (blockInfo === undefined) {
             return false;
@@ -365,215 +375,215 @@ export const BlockContainer = Node.create<IBlock>({
           }
 
           return true;
-        },
+        };
+      },
     };
-  },
+  }
 
-  addProseMirrorPlugins() {
-    return [PreviousBlockTypePlugin()];
-  },
+  // addProseMirrorPlugins() {
+  //   return [PreviousBlockTypePlugin()];
+  // }
 
-  addKeyboardShortcuts() {
+  createKeymap() {
     // handleBackspace is partially adapted from https://github.com/ueberdosis/tiptap/blob/ed56337470efb4fd277128ab7ef792b37cfae992/packages/core/src/extensions/keymap.ts
-    const handleBackspace = () =>
-      this.editor.commands.first(({ commands }) => [
-        // Deletes the selection if it's not empty.
-        () => commands.deleteSelection(),
-        // Undoes an input rule if one was triggered in the last editor state change.
-        () => commands.undoInputRule(),
-        // Reverts block content type to a paragraph if the selection is at the start of the block.
-        () =>
-          commands.command(({ state }) => {
-            const { contentType } = getBlockInfoFromPos(
-              state.doc,
-              state.selection.from
-            )!;
+    // const handleBackspace = () =>
+    //   this.editor.commands.first(({ commands }) => [
+    //     // Deletes the selection if it's not empty.
+    //     () => commands.deleteSelection(),
+    //     // Undoes an input rule if one was triggered in the last editor state change.
+    //     () => commands.undoInputRule(),
+    //     // Reverts block content type to a paragraph if the selection is at the start of the block.
+    //     () =>
+    //       commands.command(({ state }) => {
+    //         const { contentType } = getBlockInfoFromPos(
+    //           state.doc,
+    //           state.selection.from
+    //         )!;
 
-            const selectionAtBlockStart =
-              state.selection.$anchor.parentOffset === 0;
-            const isParagraph = contentType.name === "paragraph";
+    //         const selectionAtBlockStart =
+    //           state.selection.$anchor.parentOffset === 0;
+    //         const isParagraph = contentType.name === "paragraph";
 
-            if (selectionAtBlockStart && !isParagraph) {
-              return commands.BNUpdateBlock(state.selection.from, {
-                type: "paragraph",
-                props: {},
-              });
-            }
+    //         if (selectionAtBlockStart && !isParagraph) {
+    //           return commands.BNUpdateBlock(state.selection.from, {
+    //             type: "paragraph",
+    //             props: {},
+    //           });
+    //         }
 
-            return false;
-          }),
-        // Removes a level of nesting if the block is indented if the selection is at the start of the block.
-        () =>
-          commands.command(({ state }) => {
-            const selectionAtBlockStart =
-              state.selection.$anchor.parentOffset === 0;
+    //         return false;
+    //       }),
+    //     // Removes a level of nesting if the block is indented if the selection is at the start of the block.
+    //     () =>
+    //       commands.command(({ state }) => {
+    //         const selectionAtBlockStart =
+    //           state.selection.$anchor.parentOffset === 0;
 
-            if (selectionAtBlockStart) {
-              return commands.liftListItem("blockContainer");
-            }
+    //         if (selectionAtBlockStart) {
+    //           return commands.liftListItem("blockContainer");
+    //         }
 
-            return false;
-          }),
-        // Merges block with the previous one if it isn't indented, isn't the first block in the doc, and the selection
-        // is at the start of the block.
-        () =>
-          commands.command(({ state }) => {
-            const { depth, startPos } = getBlockInfoFromPos(
-              state.doc,
-              state.selection.from
-            )!;
+    //         return false;
+    //       }),
+    //     // Merges block with the previous one if it isn't indented, isn't the first block in the doc, and the selection
+    //     // is at the start of the block.
+    //     () =>
+    //       commands.command(({ state }) => {
+    //         const { depth, startPos } = getBlockInfoFromPos(
+    //           state.doc,
+    //           state.selection.from
+    //         )!;
 
-            const selectionAtBlockStart =
-              state.selection.$anchor.parentOffset === 0;
-            const selectionEmpty =
-              state.selection.anchor === state.selection.head;
-            const blockAtDocStart = startPos === 2;
+    //         const selectionAtBlockStart =
+    //           state.selection.$anchor.parentOffset === 0;
+    //         const selectionEmpty =
+    //           state.selection.anchor === state.selection.head;
+    //         const blockAtDocStart = startPos === 2;
 
-            const posBetweenBlocks = startPos - 1;
+    //         const posBetweenBlocks = startPos - 1;
 
-            if (
-              !blockAtDocStart &&
-              selectionAtBlockStart &&
-              selectionEmpty &&
-              depth === 2
-            ) {
-              return commands.BNMergeBlocks(posBetweenBlocks);
-            }
+    //         if (
+    //           !blockAtDocStart &&
+    //           selectionAtBlockStart &&
+    //           selectionEmpty &&
+    //           depth === 2
+    //         ) {
+    //           return commands.BNMergeBlocks(posBetweenBlocks);
+    //         }
 
-            return false;
-          }),
-      ]);
+    //         return false;
+    //       }),
+    //   ]);
 
-    const handleEnter = () =>
-      this.editor.commands.first(({ commands }) => [
-        // Removes a level of nesting if the block is empty & indented, while the selection is also empty & at the start
-        // of the block.
-        () =>
-          commands.command(({ state }) => {
-            const { node, depth } = getBlockInfoFromPos(
-              state.doc,
-              state.selection.from
-            )!;
+    // const handleEnter = ({state}: KeyBindingProps) =>
+    //   this.editor.commands.first(({ commands }) => [
+    //     // Removes a level of nesting if the block is empty & indented, while the selection is also empty & at the start
+    //     // of the block.
+    //     () =>
+    //       commands.command(({ state }) => {
+    //         const { node, depth } = getBlockInfoFromPos(
+    //           state.doc,
+    //           state.selection.from
+    //         )!;
 
-            const selectionAtBlockStart =
-              state.selection.$anchor.parentOffset === 0;
-            const selectionEmpty =
-              state.selection.anchor === state.selection.head;
-            const blockEmpty = node.textContent.length === 0;
-            const blockIndented = depth > 2;
+    //         const selectionAtBlockStart =
+    //           state.selection.$anchor.parentOffset === 0;
+    //         const selectionEmpty =
+    //           state.selection.anchor === state.selection.head;
+    //         const blockEmpty = node.textContent.length === 0;
+    //         const blockIndented = depth > 2;
 
-            if (
-              selectionAtBlockStart &&
-              selectionEmpty &&
-              blockEmpty &&
-              blockIndented
-            ) {
-              return commands.liftListItem("blockContainer");
-            }
+    //         if (
+    //           selectionAtBlockStart &&
+    //           selectionEmpty &&
+    //           blockEmpty &&
+    //           blockIndented
+    //         ) {
+    //           return commands.liftListItem("blockContainer");
+    //         }
 
-            return false;
-          }),
-        // Creates a new block and moves the selection to it if the current one is empty, while the selection is also
-        // empty & at the start of the block.
-        () =>
-          commands.command(({ state, chain }) => {
-            const { node, endPos } = getBlockInfoFromPos(
-              state.doc,
-              state.selection.from
-            )!;
+    //         return false;
+    //       }),
+    //     // Creates a new block and moves the selection to it if the current one is empty, while the selection is also
+    //     // empty & at the start of the block.
+    //     () =>
+    //       commands.command(({ state, chain }) => {
+    //         const { node, endPos } = getBlockInfoFromPos(
+    //           state.doc,
+    //           state.selection.from
+    //         )!;
 
-            const selectionAtBlockStart =
-              state.selection.$anchor.parentOffset === 0;
-            const selectionEmpty =
-              state.selection.anchor === state.selection.head;
-            const blockEmpty = node.textContent.length === 0;
+    //         const selectionAtBlockStart =
+    //           state.selection.$anchor.parentOffset === 0;
+    //         const selectionEmpty =
+    //           state.selection.anchor === state.selection.head;
+    //         const blockEmpty = node.textContent.length === 0;
 
-            if (selectionAtBlockStart && selectionEmpty && blockEmpty) {
-              const newBlockInsertionPos = endPos + 1;
-              const newBlockContentPos = newBlockInsertionPos + 2;
+    //         if (selectionAtBlockStart && selectionEmpty && blockEmpty) {
+    //           const newBlockInsertionPos = endPos + 1;
+    //           const newBlockContentPos = newBlockInsertionPos + 2;
 
-              chain()
-                .BNCreateBlock(newBlockInsertionPos)
-                .setTextSelection(newBlockContentPos)
-                .run();
+    //           chain()
+    //             .BNCreateBlock(newBlockInsertionPos)
+    //             .setTextSelection(newBlockContentPos)
+    //             .run();
 
-              return true;
-            }
+    //           return true;
+    //         }
 
-            return false;
-          }),
-        // Splits the current block, moving content inside that's after the cursor to a new text block below. Also
-        // deletes the selection beforehand, if it's not empty.
-        () =>
-          commands.command(({ state, chain }) => {
-            const { node } = getBlockInfoFromPos(
-              state.doc,
-              state.selection.from
-            )!;
+    //         return false;
+    //       }),
+    //     // Splits the current block, moving content inside that's after the cursor to a new text block below. Also
+    //     // deletes the selection beforehand, if it's not empty.
+    //     () =>
+    //       commands.command(({ state, chain }) => {
+    //         const { node } = getBlockInfoFromPos(
+    //           state.doc,
+    //           state.selection.from
+    //         )!;
 
-            const blockEmpty = node.textContent.length === 0;
+    //         const blockEmpty = node.textContent.length === 0;
 
-            if (!blockEmpty) {
-              chain()
-                .deleteSelection()
-                .BNSplitBlock(state.selection.from, false)
-                .run();
+    //         if (!blockEmpty) {
+    //           chain()
+    //             .deleteSelection()
+    //             .BNSplitBlock(state.selection.from, false)
+    //             .run();
 
-              return true;
-            }
+    //           return true;
+    //         }
 
-            return false;
-          }),
-      ]);
+    //         return false;
+    //       }),
+    //   ]);
 
     return {
-      Backspace: handleBackspace,
-      Enter: handleEnter,
+      // Backspace: handleBackspace,
+      // Enter: handleEnter,
       // Always returning true for tab key presses ensures they're not captured by the browser. Otherwise, they blur the
       // editor since the browser will try to use tab for keyboard navigation.
       Tab: () => {
-        this.editor.commands.sinkListItem("blockContainer");
+        debugger;
+        this.store.commands.sinkListItem("blockContainer");
         return true;
       },
       "Shift-Tab": () => {
-        this.editor.commands.liftListItem("blockContainer");
+        this.store.commands.liftListItem("blockContainer");
         return true;
       },
-      "Mod-Alt-0": () =>
-        this.editor.commands.BNCreateBlock(
-          this.editor.state.selection.anchor + 2
-        ),
-      "Mod-Alt-1": () =>
-        this.editor.commands.BNUpdateBlock(this.editor.state.selection.anchor, {
+      "Mod-Alt-0": ({ state }: KeyBindingProps) =>
+        this.store.commands.BNCreateBlock(state.selection.anchor + 2),
+      "Mod-Alt-1": ({ state }: KeyBindingProps) =>
+        this.store.commands.BNUpdateBlock(state.selection.anchor, {
           type: "heading",
           props: {
             level: "1",
           },
         }),
-      "Mod-Alt-2": () =>
-        this.editor.commands.BNUpdateBlock(this.editor.state.selection.anchor, {
+      "Mod-Alt-2": ({ state }: KeyBindingProps) =>
+        this.store.commands.BNUpdateBlock(state.selection.anchor, {
           type: "heading",
           props: {
             level: "2",
           },
         }),
-      "Mod-Alt-3": () =>
-        this.editor.commands.BNUpdateBlock(this.editor.state.selection.anchor, {
+      "Mod-Alt-3": ({ state }: KeyBindingProps) =>
+        this.store.commands.BNUpdateBlock(state.selection.anchor, {
           type: "heading",
           props: {
             level: "3",
           },
         }),
-      "Mod-Shift-7": () =>
-        this.editor.commands.BNUpdateBlock(this.editor.state.selection.anchor, {
+      "Mod-Shift-7": ({ state }: KeyBindingProps) =>
+        this.store.commands.BNUpdateBlock(state.selection.anchor, {
           type: "bulletListItem",
           props: {},
         }),
-      "Mod-Shift-8": () =>
-        this.editor.commands.BNUpdateBlock(this.editor.state.selection.anchor, {
+      "Mod-Shift-8": ({ state }: KeyBindingProps) =>
+        this.store.commands.BNUpdateBlock(state.selection.anchor, {
           type: "numberedListItem",
           props: {},
         }),
     };
-  },
-});
+  }
+}

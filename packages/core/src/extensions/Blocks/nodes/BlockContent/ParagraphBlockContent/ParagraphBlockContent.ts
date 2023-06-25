@@ -1,29 +1,36 @@
-import { mergeAttributes } from "@tiptap/core";
-import { createTipTapBlock } from "../../../api/block";
+import {
+  ApplySchemaAttributes,
+  NodeExtension,
+  NodeExtensionSpec,
+} from "remirror";
 import styles from "../../Block.module.css";
 
-export const ParagraphBlockContent = createTipTapBlock<"paragraph">({
-  name: "paragraph",
-  content: "inline*",
+export class ParagraphBlockContentExtension extends NodeExtension {
+  get name() {
+    return "paragraph" as const;
+  }
 
-  parseHTML() {
-    return [
-      {
-        tag: "p",
-        priority: 200,
-        node: "paragraph",
+  createNodeSpec(extra: ApplySchemaAttributes): NodeExtensionSpec {
+    return {
+      content: "text*",
+      group: "blockContent",
+      attrs: {
+        ...extra.defaults(),
       },
-    ];
-  },
-
-  renderHTML({ HTMLAttributes }) {
-    return [
-      "div",
-      mergeAttributes(HTMLAttributes, {
-        class: styles.blockContent,
-        "data-content-type": this.name,
-      }),
-      ["p", { class: styles.inlineContent }, 0],
-    ];
-  },
-});
+      toDOM: (node) => {
+        return [
+          "div",
+          { class: styles.blockContent, "data-content-type": this.name },
+          ["p", { class: styles.inlineContent }, 0],
+        ];
+      },
+      parseDOM: [
+        {
+          tag: "p",
+          priority: 200,
+          getAttrs: (node: any) => (node.nodeName === "P" ? {} : false),
+        },
+      ],
+    };
+  }
+}

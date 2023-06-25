@@ -1,5 +1,5 @@
-import { Editor } from "@tiptap/core";
 import { Node } from "prosemirror-model";
+import { RemirrorManager } from "remirror";
 import {
   BlockIdentifier,
   BlockSchema,
@@ -12,7 +12,7 @@ export function insertBlocks<BSchema extends BlockSchema>(
   blocksToInsert: PartialBlock<BSchema>[],
   referenceBlock: BlockIdentifier,
   placement: "before" | "after" | "nested" = "before",
-  editor: Editor
+  editor: RemirrorManager<any>
 ): void {
   const id =
     typeof referenceBlock === "string" ? referenceBlock : referenceBlock.id;
@@ -24,7 +24,7 @@ export function insertBlocks<BSchema extends BlockSchema>(
 
   let insertionPos = -1;
 
-  const { node, posBeforeNode } = getNodeById(id, editor.state.doc);
+  const { node, posBeforeNode } = getNodeById(id, editor.view.state.doc);
 
   if (placement === "before") {
     insertionPos = posBeforeNode;
@@ -39,13 +39,12 @@ export function insertBlocks<BSchema extends BlockSchema>(
     if (node.childCount < 2) {
       insertionPos = posBeforeNode + node.firstChild!.nodeSize + 1;
 
-      const blockGroupNode = editor.state.schema.nodes["blockGroup"].create(
-        {},
-        nodesToInsert
-      );
+      const blockGroupNode = editor.view.state.schema.nodes[
+        "blockGroup"
+      ].create({}, nodesToInsert);
 
       editor.view.dispatch(
-        editor.state.tr.insert(insertionPos, blockGroupNode)
+        editor.view.state.tr.insert(insertionPos, blockGroupNode)
       );
 
       return;
@@ -54,24 +53,27 @@ export function insertBlocks<BSchema extends BlockSchema>(
     insertionPos = posBeforeNode + node.firstChild!.nodeSize + 2;
   }
 
-  editor.view.dispatch(editor.state.tr.insert(insertionPos, nodesToInsert));
+  editor.view.dispatch(
+    editor.view.state.tr.insert(insertionPos, nodesToInsert)
+  );
 }
 
 export function updateBlock<BSchema extends BlockSchema>(
   blockToUpdate: BlockIdentifier,
   update: PartialBlock<BSchema>,
-  editor: Editor
+  editor: RemirrorManager<any>
 ) {
   const id =
     typeof blockToUpdate === "string" ? blockToUpdate : blockToUpdate.id;
-  const { posBeforeNode } = getNodeById(id, editor.state.doc);
+  const { posBeforeNode } = getNodeById(id, editor.view.state.doc);
 
+  // @ts-ignore // TODO
   editor.commands.BNUpdateBlock(posBeforeNode + 1, update);
 }
 
 export function removeBlocks(
   blocksToRemove: BlockIdentifier[],
-  editor: Editor
+  editor: RemirrorManager<any>
 ) {
   const idsOfBlocksToRemove = new Set<string>(
     blocksToRemove.map((block) =>
@@ -81,7 +83,7 @@ export function removeBlocks(
 
   let removedSize = 0;
 
-  editor.state.doc.descendants((node, pos) => {
+  editor.view.state.doc.descendants((node, pos) => {
     // Skips traversing nodes after all target blocks have been removed.
     if (idsOfBlocksToRemove.size === 0) {
       return false;
@@ -96,11 +98,12 @@ export function removeBlocks(
     }
 
     idsOfBlocksToRemove.delete(node.attrs.id);
-    const oldDocSize = editor.state.doc.nodeSize;
+    const oldDocSize = editor.view.state.doc.nodeSize;
 
+    // @ts-ignore // TODO
     editor.commands.BNDeleteBlock(pos - removedSize + 1);
 
-    const newDocSize = editor.state.doc.nodeSize;
+    const newDocSize = editor.view.state.doc.nodeSize;
     removedSize += oldDocSize - newDocSize;
 
     return false;
@@ -119,7 +122,7 @@ export function removeBlocks(
 export function replaceBlocks<BSchema extends BlockSchema>(
   blocksToRemove: BlockIdentifier[],
   blocksToInsert: PartialBlock<BSchema>[],
-  editor: Editor
+  editor: RemirrorManager<any>
 ) {
   insertBlocks(blocksToInsert, blocksToRemove[0], "before", editor);
   removeBlocks(blocksToRemove, editor);

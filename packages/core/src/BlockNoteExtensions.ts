@@ -19,7 +19,7 @@ import * as Y from "yjs";
 import styles from "./editor.module.css";
 import { BackgroundColorExtension } from "./extensions/BackgroundColor/BackgroundColorExtension";
 import { BackgroundColorMark } from "./extensions/BackgroundColor/BackgroundColorMark";
-import { blocks } from "./extensions/Blocks";
+
 import { BlockSchema } from "./extensions/Blocks/api/blockTypes";
 import { CustomBlockSerializerExtension } from "./extensions/Blocks/api/serialization";
 import blockStyles from "./extensions/Blocks/nodes/Block.module.css";
