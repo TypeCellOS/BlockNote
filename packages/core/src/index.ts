@@ -14,3 +14,7 @@ export * from "./shared/plugins/suggestion/SuggestionsMenuFactoryTypes";
 export * from "./extensions/Blocks/api/inlineContentTypes";
 export * from "./extensions/Blocks/api/serialization";
 export * as blockStyles from "./extensions/Blocks/nodes/Block.module.css";
+// export * from "./extensions/Blocks/index"
+export * from "./extensions/Blocks/nodes/BlockContainer"
+export * from "./extensions/Blocks/nodes/BlockGroup"
+export * from "./extensions/Blocks/nodes/BlockContent/ParagraphBlockContent/ParagraphBlockContent"

@@ -54,7 +54,10 @@
     "@mantine/utils": "^6.0.5",
     "@tippyjs/react": "^4.2.6",
     "@tiptap/react": "^2.0.3",
-    "react-icons": "^4.3.1"
+    "react-icons": "^4.3.1",
+    "remirror": "^2.0.32",
+    "@remirror/pm": "^2.0.6",
+    "@remirror/react": "^2.0.29"
   },
   "devDependencies": {
     "@types/react": "^18.0.25",
