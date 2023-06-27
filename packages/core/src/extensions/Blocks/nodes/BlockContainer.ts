@@ -1,4 +1,5 @@
 import { Fragment, Node, Slice } from "@tiptap/pm/model";
+import { liftListItem, sinkListItem } from "@tiptap/pm/schema-list";
 import { TextSelection } from "@tiptap/pm/state";
 import {
   ApplySchemaAttributes,
@@ -6,6 +7,8 @@ import {
   KeyBindingProps,
   NodeExtension,
   NodeExtensionSpec,
+  chainKeyBindingCommands,
+  convertCommand,
 } from "remirror";
 import {
   blockToNode,
@@ -113,21 +116,22 @@ export class BlockContainerExtension extends NodeExtension {
     return {
       // Creates a new text block at a given position.
       BNCreateBlock(pos: number): CommandFunction {
-        return ({ tr, state, dispatch }) => {
+        return convertCommand((state, dispatch) => {
           const newBlock =
             state.schema.nodes["blockContainer"].createAndFill()!;
 
           if (dispatch) {
-            tr.insert(pos, newBlock);
+            state.tr.insert(pos, newBlock);
+            dispatch(state.tr);
           }
 
           return true;
-        };
+        });
       },
 
       // Deletes a block at a given position.
       BNDeleteBlock(posInBlock: number): CommandFunction {
-        return ({ state, dispatch }) => {
+        return convertCommand((state, dispatch) => {
           const blockInfo = getBlockInfoFromPos(state.doc, posInBlock);
           if (blockInfo === undefined) {
             return false;
@@ -137,14 +141,15 @@ export class BlockContainerExtension extends NodeExtension {
 
           if (dispatch) {
             state.tr.deleteRange(startPos, endPos);
+            dispatch(state.tr);
           }
 
           return true;
-        };
+        });
       },
       // Updates a block at a given position.
       BNUpdateBlock(posInBlock: number, block: any): CommandFunction {
-        return ({ state, dispatch }) => {
+        return convertCommand((state, dispatch) => {
           const blockInfo = getBlockInfoFromPos(state.doc, posInBlock);
           if (blockInfo === undefined) {
             return false;
@@ -220,10 +225,11 @@ export class BlockContainerExtension extends NodeExtension {
               ...node.attrs,
               ...block.props,
             });
+            dispatch(state.tr);
           }
 
           return true;
-        };
+        });
       },
       // Appends the text contents of a block to the nearest previous block, given a position between them. Children of
       // the merged block are moved out of it first, rather than also being merged.
@@ -243,9 +249,9 @@ export class BlockContainerExtension extends NodeExtension {
       // Block4
       //     Block5
       BNMergeBlocks(posBetweenBlocks: number): CommandFunction {
-        return ({ state, dispatch }) => {
+        return convertCommand((state, dispatch) => {
           const nextNodeIsBlock =
-            state.doc.resolve(posBetweenBlocks + 1).node().type.name ===
+            state.tr.doc.resolve(posBetweenBlocks + 1).node().type.name ===
             "blockContainer";
           const prevNodeIsBlock =
             state.doc.resolve(posBetweenBlocks - 1).node().type.name ===
@@ -286,6 +292,9 @@ export class BlockContainerExtension extends NodeExtension {
             prevBlockEndPos--;
             prevBlockInfo = getBlockInfoFromPos(state.doc, prevBlockEndPos);
             if (prevBlockInfo === undefined) {
+              if (dispatch) {
+                dispatch(state.tr); // dispatch previous tr change
+              }
               return false;
             }
           }
@@ -298,15 +307,16 @@ export class BlockContainerExtension extends NodeExtension {
             state.tr.setSelection(
               new TextSelection(state.doc.resolve(prevBlockEndPos - 1))
             );
+            dispatch(state.tr);
           }
 
           return true;
-        };
+        });
       },
       // Splits a block at a given position. Content after the position is moved to a new block below, at the same
       // nesting level.
       BNSplitBlock(posInBlock: number, keepType: boolean): CommandFunction {
-        return ({ state, dispatch }) => {
+        return convertCommand((state, dispatch, view) => {
           const blockInfo = getBlockInfoFromPos(state.doc, posInBlock);
           if (blockInfo === undefined) {
             return false;
@@ -372,10 +382,11 @@ export class BlockContainerExtension extends NodeExtension {
                   )
                 : undefined
             );
+            dispatch(state.tr);
           }
 
           return true;
-        };
+        });
       },
     };
   }
@@ -386,170 +397,164 @@ export class BlockContainerExtension extends NodeExtension {
 
   createKeymap() {
     // handleBackspace is partially adapted from https://github.com/ueberdosis/tiptap/blob/ed56337470efb4fd277128ab7ef792b37cfae992/packages/core/src/extensions/keymap.ts
-    // const handleBackspace = () =>
-    //   this.editor.commands.first(({ commands }) => [
-    //     // Deletes the selection if it's not empty.
-    //     () => commands.deleteSelection(),
-    //     // Undoes an input rule if one was triggered in the last editor state change.
-    //     () => commands.undoInputRule(),
-    //     // Reverts block content type to a paragraph if the selection is at the start of the block.
-    //     () =>
-    //       commands.command(({ state }) => {
-    //         const { contentType } = getBlockInfoFromPos(
-    //           state.doc,
-    //           state.selection.from
-    //         )!;
+    const handleBackspace = chainKeyBindingCommands(
+      // Deletes the selection if it's not empty.
+      // this.store.commands.delete,
+      // Undoes an input rule if one was triggered in the last editor state change.
+      // () => commands.undoInputRule(),
+      // Reverts block content type to a paragraph if the selection is at the start of the block.
+      ({ state }: KeyBindingProps) => {
+        const { contentType } = getBlockInfoFromPos(
+          state.doc,
+          state.selection.from
+        )!;
 
-    //         const selectionAtBlockStart =
-    //           state.selection.$anchor.parentOffset === 0;
-    //         const isParagraph = contentType.name === "paragraph";
+        const selectionAtBlockStart =
+          state.selection.$anchor.parentOffset === 0;
+        const isParagraph = contentType.name === "paragraph";
 
-    //         if (selectionAtBlockStart && !isParagraph) {
-    //           return commands.BNUpdateBlock(state.selection.from, {
-    //             type: "paragraph",
-    //             props: {},
-    //           });
-    //         }
+        if (selectionAtBlockStart && !isParagraph) {
+          return this.store.commands.BNUpdateBlock(state.selection.from, {
+            type: "paragraph",
+            props: {},
+          }) as any;
+        }
 
-    //         return false;
-    //       }),
-    //     // Removes a level of nesting if the block is indented if the selection is at the start of the block.
-    //     () =>
-    //       commands.command(({ state }) => {
-    //         const selectionAtBlockStart =
-    //           state.selection.$anchor.parentOffset === 0;
+        return false;
+      },
+      // Removes a level of nesting if the block is indented if the selection is at the start of the block.
+      ({ state, dispatch, view }: KeyBindingProps) => {
+        const selectionAtBlockStart =
+          state.selection.$anchor.parentOffset === 0;
 
-    //         if (selectionAtBlockStart) {
-    //           return commands.liftListItem("blockContainer");
-    //         }
+        if (selectionAtBlockStart) {
+          return liftListItem(this.type)(state, dispatch, view); // TODO: convertcommand?
+          // return this.store.commands.liftListItem("blockContainer");
+        }
 
-    //         return false;
-    //       }),
-    //     // Merges block with the previous one if it isn't indented, isn't the first block in the doc, and the selection
-    //     // is at the start of the block.
-    //     () =>
-    //       commands.command(({ state }) => {
-    //         const { depth, startPos } = getBlockInfoFromPos(
-    //           state.doc,
-    //           state.selection.from
-    //         )!;
+        return false;
+      },
+      // Merges block with the previous one if it isn't indented, isn't the first block in the doc, and the selection
+      // is at the start of the block.
+      (props: KeyBindingProps) => {
+        const { state } = props;
+        const { depth, startPos } = getBlockInfoFromPos(
+          state.doc,
+          state.selection.from
+        )!;
 
-    //         const selectionAtBlockStart =
-    //           state.selection.$anchor.parentOffset === 0;
-    //         const selectionEmpty =
-    //           state.selection.anchor === state.selection.head;
-    //         const blockAtDocStart = startPos === 2;
+        const selectionAtBlockStart =
+          state.selection.$anchor.parentOffset === 0;
+        const selectionEmpty = state.selection.anchor === state.selection.head;
+        const blockAtDocStart = startPos === 2;
 
-    //         const posBetweenBlocks = startPos - 1;
+        const posBetweenBlocks = startPos - 1;
 
-    //         if (
-    //           !blockAtDocStart &&
-    //           selectionAtBlockStart &&
-    //           selectionEmpty &&
-    //           depth === 2
-    //         ) {
-    //           return commands.BNMergeBlocks(posBetweenBlocks);
-    //         }
+        if (
+          !blockAtDocStart &&
+          selectionAtBlockStart &&
+          selectionEmpty &&
+          depth === 2
+        ) {
+          return this.store.commands.BNMergeBlocks.original(posBetweenBlocks)(
+            props
+          );
+          // const chain = this.store.chain.BNMergeBlocks(posBetweenBlocks);
+          // chain.run();
+          // return true; // this doesn't seem right, we should return the return value of BNMergeBlocks? How to properly call the command?
+        }
 
-    //         return false;
-    //       }),
-    //   ]);
+        return false;
+      }
+    );
 
-    // const handleEnter = ({state}: KeyBindingProps) =>
-    //   this.editor.commands.first(({ commands }) => [
-    //     // Removes a level of nesting if the block is empty & indented, while the selection is also empty & at the start
-    //     // of the block.
-    //     () =>
-    //       commands.command(({ state }) => {
-    //         const { node, depth } = getBlockInfoFromPos(
-    //           state.doc,
-    //           state.selection.from
-    //         )!;
+    const handleEnter = chainKeyBindingCommands(
+      // Removes a level of nesting if the block is empty & indented, while the selection is also empty & at the start
+      // of the block.
+      ({ state, dispatch, view }: KeyBindingProps) => {
+        const { node, depth } = getBlockInfoFromPos(
+          state.doc,
+          state.selection.from
+        )!;
 
-    //         const selectionAtBlockStart =
-    //           state.selection.$anchor.parentOffset === 0;
-    //         const selectionEmpty =
-    //           state.selection.anchor === state.selection.head;
-    //         const blockEmpty = node.textContent.length === 0;
-    //         const blockIndented = depth > 2;
+        const selectionAtBlockStart =
+          state.selection.$anchor.parentOffset === 0;
+        const selectionEmpty = state.selection.anchor === state.selection.head;
+        const blockEmpty = node.textContent.length === 0;
+        const blockIndented = depth > 2;
 
-    //         if (
-    //           selectionAtBlockStart &&
-    //           selectionEmpty &&
-    //           blockEmpty &&
-    //           blockIndented
-    //         ) {
-    //           return commands.liftListItem("blockContainer");
-    //         }
+        if (
+          selectionAtBlockStart &&
+          selectionEmpty &&
+          blockEmpty &&
+          blockIndented
+        ) {
+          return liftListItem(this.type)(state, dispatch, view);
+        }
 
-    //         return false;
-    //       }),
-    //     // Creates a new block and moves the selection to it if the current one is empty, while the selection is also
-    //     // empty & at the start of the block.
-    //     () =>
-    //       commands.command(({ state, chain }) => {
-    //         const { node, endPos } = getBlockInfoFromPos(
-    //           state.doc,
-    //           state.selection.from
-    //         )!;
+        return false;
+      },
+      // Creates a new block and moves the selection to it if the current one is empty, while the selection is also
+      // empty & at the start of the block.
+      ({ state }: KeyBindingProps) => {
+        const { node, endPos } = getBlockInfoFromPos(
+          state.doc,
+          state.selection.from
+        )!;
 
-    //         const selectionAtBlockStart =
-    //           state.selection.$anchor.parentOffset === 0;
-    //         const selectionEmpty =
-    //           state.selection.anchor === state.selection.head;
-    //         const blockEmpty = node.textContent.length === 0;
+        const selectionAtBlockStart =
+          state.selection.$anchor.parentOffset === 0;
+        const selectionEmpty = state.selection.anchor === state.selection.head;
+        const blockEmpty = node.textContent.length === 0;
 
-    //         if (selectionAtBlockStart && selectionEmpty && blockEmpty) {
-    //           const newBlockInsertionPos = endPos + 1;
-    //           const newBlockContentPos = newBlockInsertionPos + 2;
+        if (selectionAtBlockStart && selectionEmpty && blockEmpty) {
+          const newBlockInsertionPos = endPos + 1;
+          const newBlockContentPos = newBlockInsertionPos + 2;
+          // this.store.commands.selectText()
+          const chain = this.store.chain.BNCreateBlock(newBlockInsertionPos);
 
-    //           chain()
-    //             .BNCreateBlock(newBlockInsertionPos)
-    //             .setTextSelection(newBlockContentPos)
-    //             .run();
+          chain.selectText(newBlockContentPos);
 
-    //           return true;
-    //         }
+          chain.run();
+          return true;
+        }
 
-    //         return false;
-    //       }),
-    //     // Splits the current block, moving content inside that's after the cursor to a new text block below. Also
-    //     // deletes the selection beforehand, if it's not empty.
-    //     () =>
-    //       commands.command(({ state, chain }) => {
-    //         const { node } = getBlockInfoFromPos(
-    //           state.doc,
-    //           state.selection.from
-    //         )!;
+        return false;
+      },
+      // Splits the current block, moving content inside that's after the cursor to a new text block below. Also
+      // deletes the selection beforehand, if it's not empty.
+      ({ state }: KeyBindingProps) => {
+        const { node } = getBlockInfoFromPos(state.doc, state.selection.from)!;
 
-    //         const blockEmpty = node.textContent.length === 0;
+        const blockEmpty = node.textContent.length === 0;
 
-    //         if (!blockEmpty) {
-    //           chain()
-    //             .deleteSelection()
-    //             .BNSplitBlock(state.selection.from, false)
-    //             .run();
+        if (!blockEmpty) {
+          const chain = this.store.chain.delete();
+          chain.BNSplitBlock(state.selection.from, false);
+          // chain()
+          //   .deleteSelection() TODO
+          //   .BNSplitBlock(state.selection.from, false)
+          //   .run();
+          chain.run();
+          return true;
+        }
 
-    //           return true;
-    //         }
-
-    //         return false;
-    //       }),
-    //   ]);
+        return false;
+      }
+    );
 
     return {
-      // Backspace: handleBackspace,
-      // Enter: handleEnter,
+      Backspace: handleBackspace,
+      Enter: handleEnter,
       // Always returning true for tab key presses ensures they're not captured by the browser. Otherwise, they blur the
       // editor since the browser will try to use tab for keyboard navigation.
-      Tab: () => {
-        debugger;
-        this.store.commands.sinkListItem("blockContainer");
-        return true;
+      Tab: ({ state, dispatch, view }: KeyBindingProps) => {
+        return sinkListItem(this.type)(state, dispatch, view); // TODO: convertcommand?
+        // this.store.commands.sinkListItem("blockContainer");
+        // return true;
       },
-      "Shift-Tab": () => {
-        this.store.commands.liftListItem("blockContainer");
-        return true;
+      "Shift-Tab": ({ state, dispatch, view }: KeyBindingProps) => {
+        return liftListItem(this.type)(state, dispatch, view); // TODO: convertcommand?
       },
       "Mod-Alt-0": ({ state }: KeyBindingProps) =>
         this.store.commands.BNCreateBlock(state.selection.anchor + 2),
