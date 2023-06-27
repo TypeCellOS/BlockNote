@@ -1,4 +1,4 @@
-import { HeadingBlockContent } from "../nodes/BlockContent/HeadingBlockContent/HeadingBlockContent";
+import { HeadingBlockContentExtension } from "../nodes/BlockContent/HeadingBlockContent/HeadingBlockContent";
 import { BulletListItemBlockContent } from "../nodes/BlockContent/ListItemBlockContent/BulletListItemBlockContent/BulletListItemBlockContent";
 import { NumberedListItemBlockContent } from "../nodes/BlockContent/ListItemBlockContent/NumberedListItemBlockContent/NumberedListItemBlockContent";
 import { ParagraphBlockContentExtension } from "../nodes/BlockContent/ParagraphBlockContent/ParagraphBlockContent";
@@ -29,7 +29,7 @@ export const defaultBlockSchema = {
       ...defaultProps,
       level: { default: "1", values: ["1", "2", "3"] as const },
     },
-    node: HeadingBlockContent,
+    node: HeadingBlockContentExtension,
   },
   bulletListItem: {
     propSchema: defaultProps,

@@ -39,6 +39,7 @@ import {
 import { Selection } from "./extensions/Blocks/api/selectionTypes";
 import { getBlockInfoFromPos } from "./extensions/Blocks/helpers/getBlockInfoFromPos";
 import { BlockContainerExtension } from "./extensions/Blocks/nodes/BlockContainer";
+import { HeadingBlockContentExtension } from "./extensions/Blocks/nodes/BlockContent/HeadingBlockContent/HeadingBlockContent";
 import { ParagraphBlockContentExtension } from "./extensions/Blocks/nodes/BlockContent/ParagraphBlockContent/ParagraphBlockContent";
 import { BlockGroupExtension } from "./extensions/Blocks/nodes/BlockGroup";
 import { BaseSlashMenuItem } from "./extensions/SlashMenu";
@@ -244,6 +245,7 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
         }),
         new TextExtension(),
         new ParagraphBlockContentExtension(),
+        new HeadingBlockContentExtension(),
       ],
       {}
     );
