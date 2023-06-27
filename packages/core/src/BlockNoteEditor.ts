@@ -10,13 +10,13 @@ import {
   insertBlocks,
   removeBlocks,
   replaceBlocks,
-  updateBlock
+  updateBlock,
 } from "./api/blockManipulation/blockManipulation";
 import {
+  HTMLToBlocks,
   blocksToHTML,
   blocksToMarkdown,
-  HTMLToBlocks,
-  markdownToBlocks
+  markdownToBlocks,
 } from "./api/formatConversions/formatConversions";
 import { nodeToBlock } from "./api/nodeConversions/nodeConversions";
 import { getNodeById } from "./api/util/nodeUtil";
@@ -24,19 +24,17 @@ import {
   Block,
   BlockIdentifier,
   BlockSchema,
-  PartialBlock
+  PartialBlock,
 } from "./extensions/Blocks/api/blockTypes";
-import {
-  TextCursorPosition
-} from "./extensions/Blocks/api/cursorPositionTypes";
+import { TextCursorPosition } from "./extensions/Blocks/api/cursorPositionTypes";
 import {
   DefaultBlockSchema,
-  defaultBlockSchema
+  defaultBlockSchema,
 } from "./extensions/Blocks/api/defaultBlocks";
 import {
   ColorStyle,
   Styles,
-  ToggledStyle
+  ToggledStyle,
 } from "./extensions/Blocks/api/inlineContentTypes";
 import { Selection } from "./extensions/Blocks/api/selectionTypes";
 import { getBlockInfoFromPos } from "./extensions/Blocks/helpers/getBlockInfoFromPos";
@@ -153,7 +151,7 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
   public readonly _manager: RemirrorManager<any>;
   public blockCache = new WeakMap<Node, Block<BSchema>>();
   public readonly schema: BSchema;
-  private readonly options: Partial<BlockNoteEditorOptions<BSchema>>
+  private readonly options: Partial<BlockNoteEditorOptions<BSchema>>;
 
   public get domElement() {
     return this._manager.view.dom as HTMLDivElement;
@@ -169,10 +167,10 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
 
   constructor(
     options: Partial<BlockNoteEditorOptions<BSchema>> = {},
-    manager?: RemirrorManager<any>,
+    manager?: RemirrorManager<any>
   ) {
     // apply defaults
-    this.options = options
+    this.options = options;
     const newOptions: Omit<typeof options, "defaultStyles" | "blockSchema"> & {
       defaultStyles: boolean;
       blockSchema: BSchema;
@@ -245,17 +243,18 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
       this._manager = manager;
     } else {
       this._manager = RemirrorManager.create(
-        () => [
-          new BlockGroupExtension({ priority: 10 }),
-          new BlockContainerExtension(),
-          new DocExtension({
-            content: "blockGroup",
-          }),
-          new TextExtension(),
-          new ParagraphBlockContentExtension(),
-          new HeadingBlockContentExtension(),
-        ],
-        {},
+        () =>
+          [
+            new BlockGroupExtension({ priority: 10 }),
+            new BlockContainerExtension(),
+            new DocExtension({
+              content: "blockGroup",
+            }),
+            new TextExtension(),
+            new ParagraphBlockContentExtension(),
+            new HeadingBlockContentExtension(),
+          ] as any,
+        {}
       );
       createDomEditor({
         element: newOptions.parentElement!,

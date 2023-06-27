@@ -5,15 +5,13 @@ import {
   BlockNoteEditorOptions,
   BlockSchema,
   DefaultBlockSchema,
-  ParagraphBlockContentExtension
+  ParagraphBlockContentExtension,
 } from "@blocknote/core";
-import { DependencyList, FC, useMemo, useState } from "react";
-import {
-  DragHandleMenuProps
-} from "../BlockSideMenu/components/DragHandleMenu";
-import { useRemirror } from "@remirror/react";
 import { DocExtension } from "@remirror/extension-doc";
 import { TextExtension } from "@remirror/extension-text";
+import { useRemirror } from "@remirror/react";
+import { DependencyList, FC, useMemo, useState } from "react";
+import { DragHandleMenuProps } from "../BlockSideMenu/components/DragHandleMenu";
 
 //based on https://github.com/ueberdosis/tiptap/blob/main/packages/react/src/useEditor.ts
 
@@ -41,21 +39,29 @@ export const useBlockNote = <BSchema extends BlockSchema = DefaultBlockSchema>(
 ) => {
   //const [editor, editorsetEditor] = useState<BlockNoteEditor<BSchema> | null>(null);
 
-  const {manager, state} = useRemirror({
-    extensions: () => [
-      new BlockGroupExtension({ priority: 10 }),
-      new BlockContainerExtension(),
-      new DocExtension({
-        content: "blockGroup",
-      }),
-      new TextExtension(),
-      new ParagraphBlockContentExtension(),
-    ],
-    selection: 'start',
-    stringHandler: 'html',
+  const { manager, state } = useRemirror({
+    extensions: () => {
+      const ret = [
+        new ParagraphBlockContentExtension(),
+        new BlockGroupExtension(),
+        new BlockContainerExtension(),
+        new DocExtension({
+          content: "blockGroup",
+        }),
+        new TextExtension(),
+      ];
+      return ret;
+    },
+    selection: "start",
+    stringHandler: "html",
+    core: {
+      excludeExtensions: ["history", "text", "doc", "paragraph"],
+    },
   });
 
-  const editor = useMemo(() => { return new BlockNoteEditor({}, manager)},[manager])
+  const editor = useMemo(() => {
+    return new BlockNoteEditor({}, manager);
+  }, [manager]);
 
   return editor;
 

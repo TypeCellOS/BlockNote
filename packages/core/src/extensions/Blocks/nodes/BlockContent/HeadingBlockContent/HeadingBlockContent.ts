@@ -73,6 +73,14 @@ export class HeadingBlockContentExtension extends NodeExtension {
           //     },
           //   })
           // Removes the "#" character(s) used to set the heading.
+
+          // TODO
+          // this.store.commands.BNUpdateBlock(state.selection.from, {
+          //   type: "heading",
+          //   props: {
+          //     level: level as "1" | "2" | "3",
+          //   },
+          // })(tr)
           tr.deleteRange(start, end);
           return tr;
         }
