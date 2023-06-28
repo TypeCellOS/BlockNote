@@ -2,13 +2,23 @@
 import "@blocknote/core/style.css";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
 
+import styles2 from "../../../packages/core/src/editor.module.css"; // TODO
+import styles1 from "./App.module.css";
 type WindowWithProseMirror = Window & typeof globalThis & { ProseMirror: any };
 
 function App() {
   const editor = useBlockNote();
 
   return (
-    <BlockNoteView editor={editor} />
+    <BlockNoteView
+      editor={editor}
+      classNames={[
+        styles1.editor,
+        styles2.bnEditor,
+        styles2.bnRoot,
+        styles2.defaultStyles,
+      ]}
+    />
   );
 
   // const editor = useBlockNote({

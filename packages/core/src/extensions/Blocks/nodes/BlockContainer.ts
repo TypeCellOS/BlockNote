@@ -84,6 +84,7 @@ export class BlockContainerExtension extends NodeExtension {
           {
             ...HTMLAttributes,
             class: styles.blockOuter,
+            ...extra.dom(node),
             "data-node-type": "block-outer",
           },
           [
@@ -91,6 +92,7 @@ export class BlockContainerExtension extends NodeExtension {
             {
               // TODO: maybe remove html attributes from inner block
               class: styles.block,
+              ...extra.dom(node),
               "data-node-type": this.name,
             },
             0,

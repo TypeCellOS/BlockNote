@@ -5,12 +5,16 @@ import {
   BlockNoteEditorOptions,
   BlockSchema,
   DefaultBlockSchema,
+  DraggableBlocksExtension,
   ParagraphBlockContentExtension,
 } from "@blocknote/core";
 import { DocExtension } from "@remirror/extension-doc";
 import { TextExtension } from "@remirror/extension-text";
 import { useRemirror } from "@remirror/react";
-import { DependencyList, FC, useMemo, useState } from "react";
+import { DependencyList, FC, useMemo, useRef, useState } from "react";
+import { uniqueId } from "remirror";
+import { getBlockNoteTheme } from "../BlockNoteTheme";
+import { createReactBlockSideMenuFactory } from "../BlockSideMenu/BlockSideMenuFactory";
 import { DragHandleMenuProps } from "../BlockSideMenu/components/DragHandleMenu";
 
 //based on https://github.com/ueberdosis/tiptap/blob/main/packages/react/src/useEditor.ts
@@ -38,19 +42,47 @@ export const useBlockNote = <BSchema extends BlockSchema = DefaultBlockSchema>(
   deps: DependencyList = []
 ) => {
   //const [editor, editorsetEditor] = useState<BlockNoteEditor<BSchema> | null>(null);
-
+  // TODO: This is hacky, now done for DraggableBlocks, should be removed
+  const editorRef = useRef<BlockNoteEditor<BSchema> | null>(null);
   const { manager, state } = useRemirror({
     extensions: () => {
       const ret = [
         new ParagraphBlockContentExtension(),
         new BlockGroupExtension(),
-        new BlockContainerExtension(),
+        new BlockContainerExtension({
+          // TODO: we probably need to replace this with our uniqueId extension (or see what that handles better than this)
+          extraAttributes: {
+            id: {
+              default: () => {
+                debugger;
+                return uniqueId();
+              },
+              parseDOM: (dom) => {
+                return dom.getAttribute("data-id");
+              },
+              toDOM: (attrs) => {
+                return ["data-id", attrs.id] as any;
+              },
+            },
+          },
+        }),
         new DocExtension({
           content: "blockGroup",
         }),
         new TextExtension(),
+        new DraggableBlocksExtension({
+          blockSideMenuFactory: createReactBlockSideMenuFactory(
+            getBlockNoteTheme(false)
+          ),
+          editor: editorRef as any,
+          // editor,
+        }),
+        // createDraggableBlocksExtension<BSchema>().configure({
+        //   editor: opts.editor,
+        //   blockSideMenuFactory: opts.uiFactories.blockSideMenuFactory,
+        // }),
       ];
-      return ret;
+      return ret as any;
     },
     selection: "start",
     stringHandler: "html",
@@ -59,10 +91,10 @@ export const useBlockNote = <BSchema extends BlockSchema = DefaultBlockSchema>(
     },
   });
 
-  const editor = useMemo(() => {
+  const editor: BlockNoteEditor<any> = useMemo(() => {
     return new BlockNoteEditor({}, manager);
   }, [manager]);
-
+  editorRef.current = editor;
   return editor;
 
   // const [editor, setEditor] = useState<BlockNoteEditor<BSchema> | null>(null);

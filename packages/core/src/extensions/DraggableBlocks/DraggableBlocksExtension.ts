@@ -1,12 +1,14 @@
-import { Editor, Extension } from "@tiptap/core";
-import { BlockSideMenuFactory } from "./BlockSideMenuFactoryTypes";
-import { createDraggableBlocksPlugin } from "./DraggableBlocksPlugin";
+import { Extension } from "@tiptap/core";
 import { BlockNoteEditor } from "../../BlockNoteEditor";
 import { BlockSchema } from "../Blocks/api/blockTypes";
+import { BlockSideMenuFactory } from "./BlockSideMenuFactoryTypes";
+import { createDraggableBlocksPlugin } from "./DraggableBlocksPlugin";
 
 export type DraggableBlocksOptions<BSchema extends BlockSchema> = {
-  tiptapEditor: Editor;
-  editor: BlockNoteEditor<BSchema>;
+  // tiptapEditor: Editor;
+  editor: {
+    current?: BlockNoteEditor<BSchema>;
+  };
   blockSideMenuFactory: BlockSideMenuFactory<BSchema>;
 };
 
@@ -28,7 +30,7 @@ export const createDraggableBlocksExtension = <BSchema extends BlockSchema>() =>
       }
       return [
         createDraggableBlocksPlugin({
-          tiptapEditor: this.editor,
+          // tiptapEditor: this.editor as any, // REMOVED
           editor: this.options.editor,
           blockSideMenuFactory: this.options.blockSideMenuFactory,
         }),

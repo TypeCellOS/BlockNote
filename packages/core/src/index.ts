@@ -11,6 +11,7 @@ export * from "./extensions/Blocks/nodes/BlockContainer";
 export * from "./extensions/Blocks/nodes/BlockContent/ParagraphBlockContent/ParagraphBlockContent";
 export * from "./extensions/Blocks/nodes/BlockGroup";
 export * from "./extensions/DraggableBlocks/BlockSideMenuFactoryTypes";
+export * from "./extensions/DraggableBlocks/DraggableBlocksPlugin";
 export * from "./extensions/FormattingToolbar/FormattingToolbarFactoryTypes";
 export * from "./extensions/HyperlinkToolbar/HyperlinkToolbarFactoryTypes";
 export * from "./extensions/SlashMenu/BaseSlashMenuItem";
