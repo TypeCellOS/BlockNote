@@ -46,12 +46,12 @@ export type PropSpec = {
 export type PropSchema = Record<string, PropSpec>;
 
 // Defines Props objects for use in Block objects in the external API. Converts
-// each prop spec into a union type of its possible values, or a string if no
-// values are specified.
+// each prop spec into a union type of its possible values, or the type of the
+//  'default' property if values are not specified.
 export type Props<PSchema extends PropSchema> = {
-  [PType in keyof PSchema]: PSchema[PType]["values"] extends readonly string[]
+  [PType in keyof PSchema]: PSchema[PType]["values"] extends readonly unknown[]
     ? PSchema[PType]["values"][number]
-    : string;
+    : PSchema[PType]["default"];
 };
 
 // Defines the config for a single block. Meant to be used as an argument to
@@ -84,7 +84,7 @@ export type BlockConfig<
      * This is typed generically. If you want an editor with your custom schema, you need to
      * cast it manually, e.g.: `const e = editor as BlockNoteEditor<typeof mySchema>;`
      */
-    editor: BlockNoteEditor<BSchema & { [k in Type]: BlockSpec<Type, PSchema> }>
+    editor: BlockNoteEditor<{ [k in Type]: BlockSpec<Type, PSchema> }>
     // (note) if we want to fix the manual cast, we need to prevent circular references and separate block definition and render implementations
     // or allow manually passing <BSchema>, but that's not possible without passing the other generics because Typescript doesn't support partial inferred generics
   ) => ContainsInlineContent extends true
