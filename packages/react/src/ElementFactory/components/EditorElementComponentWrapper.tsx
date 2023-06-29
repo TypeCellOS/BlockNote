@@ -1,6 +1,6 @@
+import { RequiredDynamicParams } from "@blocknote/core";
 import { MantineProvider, MantineThemeOverride } from "@mantine/core";
 import Tippy, { TippyProps } from "@tippyjs/react";
-import { RequiredDynamicParams } from "@blocknote/core";
 import { FC, useCallback, useState } from "react";
 
 /**
@@ -35,11 +35,11 @@ export function EditorElementComponentWrapper<
 
   const onShow = useCallback(() => {
     setContentCleared(false);
-    document.body.appendChild(props.rootElement);
+    // document.body.appendChild(props.rootElement);
   }, [props.rootElement]);
 
   const onHidden = useCallback(() => {
-    props.rootElement.remove();
+    // props.rootElement.remove();
     setContentCleared(true);
   }, [props.rootElement]);
 

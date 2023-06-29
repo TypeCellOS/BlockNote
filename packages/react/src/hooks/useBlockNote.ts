@@ -8,10 +8,8 @@ import { DependencyList, FC, useEffect, useState } from "react";
 import { getBlockNoteTheme } from "../BlockNoteTheme";
 import { createReactBlockSideMenuFactory } from "../BlockSideMenu/BlockSideMenuFactory";
 import { DragHandleMenuProps } from "../BlockSideMenu/components/DragHandleMenu";
-import { createReactFormattingToolbarFactory } from "../FormattingToolbar/FormattingToolbarFactory";
 import { createReactHyperlinkToolbarFactory } from "../HyperlinkToolbar/HyperlinkToolbarFactory";
 import { defaultReactSlashMenuItems } from "../SlashMenu/defaultReactSlashMenuItems";
-import { createReactSlashMenuFactory } from "../SlashMenu/SlashMenuFactory";
 
 //based on https://github.com/ueberdosis/tiptap/blob/main/packages/react/src/useEditor.ts
 
@@ -57,16 +55,11 @@ export const useBlockNote = <BSchema extends BlockSchema = DefaultBlockSchema>(
     }
 
     let uiFactories = {
-      formattingToolbarFactory: createReactFormattingToolbarFactory(
-        getBlockNoteTheme(newOptions.theme === "dark"),
-        newOptions.customElements?.formattingToolbar
-      ),
+      formattingToolbarFactory: undefined,
       hyperlinkToolbarFactory: createReactHyperlinkToolbarFactory(
         getBlockNoteTheme(newOptions.theme === "dark")
       ),
-      slashMenuFactory: createReactSlashMenuFactory(
-        getBlockNoteTheme(newOptions.theme === "dark")
-      ),
+      slashMenuFactory: undefined,
       blockSideMenuFactory: createReactBlockSideMenuFactory(
         getBlockNoteTheme(newOptions.theme === "dark"),
         newOptions.customElements?.dragHandleMenu

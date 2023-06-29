@@ -1,16 +1,16 @@
 import { Editor, Range } from "@tiptap/core";
 import { EditorState, Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
+import { BlockNoteEditor } from "../../../BlockNoteEditor";
+import { BlockSchema } from "../../../extensions/Blocks/api/blockTypes";
 import { findBlock } from "../../../extensions/Blocks/helpers/findBlock";
+import { SuggestionItem } from "./SuggestionItem";
 import {
   SuggestionsMenu,
   SuggestionsMenuDynamicParams,
   SuggestionsMenuFactory,
   SuggestionsMenuStaticParams,
 } from "./SuggestionsMenuFactoryTypes";
-import { SuggestionItem } from "./SuggestionItem";
-import { BlockNoteEditor } from "../../../BlockNoteEditor";
-import { BlockSchema } from "../../../extensions/Blocks/api/blockTypes";
 
 export type SuggestionPluginOptions<
   T extends SuggestionItem,
@@ -143,7 +143,7 @@ class SuggestionPluginView<
 
   handleScroll = () => {
     if (this.pluginKey.getState(this.editor._tiptapEditor.state).active) {
-      this.suggestionsMenu.render(this.getDynamicParams(), false);
+      // this.suggestionsMenu.render(this.getDynamicParams(), false);
     }
   };
 
