@@ -162,7 +162,7 @@ export function createBlockSpec<
 
         // Gets BlockNote editor instance
         const editor = this.options.editor! as BlockNoteEditor<
-          BSchema & { [k in BType]: BlockSpec<BType, PSchema> }
+          { [k in BType]: BlockSpec<BType, PSchema> }
         >;
         // Gets position of the node
         if (typeof getPos === "boolean") {

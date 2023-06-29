@@ -56,8 +56,8 @@ export const BlockColorsButton = <BSchema extends BlockSchema>(
           style={{ marginLeft: "5px" }}>
           <ColorPicker
             iconSize={18}
-            textColor={props.block.props.textColor || "default"}
-            backgroundColor={props.block.props.backgroundColor || "default"}
+            textColor={props.block.props.textColor as string || "default"}
+            backgroundColor={props.block.props.backgroundColor as string || "default"}
             setTextColor={(color) =>
               props.editor.updateBlock(props.block, {
                 props: { textColor: color },

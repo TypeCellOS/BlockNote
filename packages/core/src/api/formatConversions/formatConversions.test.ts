@@ -35,8 +35,8 @@ beforeEach(() => {
       id: UniqueID.options.generateID(),
       type: "heading",
       props: {
-        backgroundColor: "default",
-        textColor: "default",
+        backgroundColor: "transparent",
+        textColor: "black",
         textAlignment: "left",
         level: "1",
       },
@@ -53,8 +53,8 @@ beforeEach(() => {
       id: UniqueID.options.generateID(),
       type: "paragraph",
       props: {
-        backgroundColor: "default",
-        textColor: "default",
+        backgroundColor: "transparent",
+        textColor: "black",
         textAlignment: "left",
       },
       content: [
@@ -70,8 +70,8 @@ beforeEach(() => {
       id: UniqueID.options.generateID(),
       type: "bulletListItem",
       props: {
-        backgroundColor: "default",
-        textColor: "default",
+        backgroundColor: "transparent",
+        textColor: "black",
         textAlignment: "left",
       },
       content: [
@@ -87,8 +87,8 @@ beforeEach(() => {
       id: UniqueID.options.generateID(),
       type: "numberedListItem",
       props: {
-        backgroundColor: "default",
-        textColor: "default",
+        backgroundColor: "transparent",
+        textColor: "black",
         textAlignment: "left",
       },
       content: [
@@ -116,8 +116,8 @@ Paragraph
       id: UniqueID.options.generateID(),
       type: "heading",
       props: {
-        backgroundColor: "default",
-        textColor: "default",
+        backgroundColor: "transparent",
+        textColor: "black",
         textAlignment: "left",
         level: "1",
       },
@@ -133,8 +133,8 @@ Paragraph
           id: UniqueID.options.generateID(),
           type: "paragraph",
           props: {
-            backgroundColor: "default",
-            textColor: "default",
+            backgroundColor: "transparent",
+            textColor: "black",
             textAlignment: "left",
           },
           content: [
@@ -149,8 +149,8 @@ Paragraph
               id: UniqueID.options.generateID(),
               type: "bulletListItem",
               props: {
-                backgroundColor: "default",
-                textColor: "default",
+                backgroundColor: "transparent",
+                textColor: "black",
                 textAlignment: "left",
               },
               content: [
@@ -165,8 +165,8 @@ Paragraph
                   id: UniqueID.options.generateID(),
                   type: "numberedListItem",
                   props: {
-                    backgroundColor: "default",
-                    textColor: "default",
+                    backgroundColor: "transparent",
+                    textColor: "black",
                     textAlignment: "left",
                   },
                   content: [
@@ -200,8 +200,8 @@ Paragraph
       id: UniqueID.options.generateID(),
       type: "paragraph",
       props: {
-        backgroundColor: "default",
-        textColor: "default",
+        backgroundColor: "transparent",
+        textColor: "black",
         textAlignment: "left",
       },
       content: [
@@ -323,8 +323,8 @@ Paragraph
       id: UniqueID.options.generateID(),
       type: "paragraph",
       props: {
-        backgroundColor: "default",
-        textColor: "default",
+        backgroundColor: "transparent",
+        textColor: "black",
         textAlignment: "left",
       },
       content: [
@@ -343,8 +343,8 @@ Paragraph
       id: UniqueID.options.generateID(),
       type: "paragraph",
       props: {
-        backgroundColor: "default",
-        textColor: "default",
+        backgroundColor: "transparent",
+        textColor: "black",
         textAlignment: "left",
       },
       content: [
@@ -379,8 +379,8 @@ Paragraph
       id: UniqueID.options.generateID(),
       type: "paragraph",
       props: {
-        backgroundColor: "default",
-        textColor: "default",
+        backgroundColor: "transparent",
+        textColor: "black",
         textAlignment: "left",
       },
       content: [
@@ -415,8 +415,8 @@ Paragraph
       id: UniqueID.options.generateID(),
       type: "bulletListItem",
       props: {
-        backgroundColor: "default",
-        textColor: "default",
+        backgroundColor: "transparent",
+        textColor: "black",
         textAlignment: "left",
       },
       content: [
@@ -432,8 +432,8 @@ Paragraph
       id: UniqueID.options.generateID(),
       type: "bulletListItem",
       props: {
-        backgroundColor: "default",
-        textColor: "default",
+        backgroundColor: "transparent",
+        textColor: "black",
         textAlignment: "left",
       },
       content: [
@@ -448,8 +448,8 @@ Paragraph
           id: UniqueID.options.generateID(),
           type: "bulletListItem",
           props: {
-            backgroundColor: "default",
-            textColor: "default",
+            backgroundColor: "transparent",
+            textColor: "black",
             textAlignment: "left",
           },
           content: [
@@ -464,8 +464,8 @@ Paragraph
               id: UniqueID.options.generateID(),
               type: "bulletListItem",
               props: {
-                backgroundColor: "default",
-                textColor: "default",
+                backgroundColor: "transparent",
+                textColor: "black",
                 textAlignment: "left",
               },
               content: [
@@ -481,8 +481,8 @@ Paragraph
               id: UniqueID.options.generateID(),
               type: "paragraph",
               props: {
-                backgroundColor: "default",
-                textColor: "default",
+                backgroundColor: "transparent",
+                textColor: "black",
                 textAlignment: "left",
               },
               content: [
@@ -498,8 +498,8 @@ Paragraph
               id: UniqueID.options.generateID(),
               type: "numberedListItem",
               props: {
-                backgroundColor: "default",
-                textColor: "default",
+                backgroundColor: "transparent",
+                textColor: "black",
                 textAlignment: "left",
               },
               content: [
@@ -515,8 +515,8 @@ Paragraph
               id: UniqueID.options.generateID(),
               type: "numberedListItem",
               props: {
-                backgroundColor: "default",
-                textColor: "default",
+                backgroundColor: "transparent",
+                textColor: "black",
                 textAlignment: "left",
               },
               content: [
@@ -532,8 +532,8 @@ Paragraph
               id: UniqueID.options.generateID(),
               type: "numberedListItem",
               props: {
-                backgroundColor: "default",
-                textColor: "default",
+                backgroundColor: "transparent",
+                textColor: "black",
                 textAlignment: "left",
               },
               content: [
@@ -548,8 +548,8 @@ Paragraph
                   id: UniqueID.options.generateID(),
                   type: "numberedListItem",
                   props: {
-                    backgroundColor: "default",
-                    textColor: "default",
+                    backgroundColor: "transparent",
+                    textColor: "black",
                     textAlignment: "left",
                   },
                   content: [
@@ -567,8 +567,8 @@ Paragraph
               id: UniqueID.options.generateID(),
               type: "bulletListItem",
               props: {
-                backgroundColor: "default",
-                textColor: "default",
+                backgroundColor: "transparent",
+                textColor: "black",
                 textAlignment: "left",
               },
               content: [
@@ -586,8 +586,8 @@ Paragraph
           id: UniqueID.options.generateID(),
           type: "bulletListItem",
           props: {
-            backgroundColor: "default",
-            textColor: "default",
+            backgroundColor: "transparent",
+            textColor: "black",
             textAlignment: "left",
           },
           content: [
@@ -605,8 +605,8 @@ Paragraph
       id: UniqueID.options.generateID(),
       type: "bulletListItem",
       props: {
-        backgroundColor: "default",
-        textColor: "default",
+        backgroundColor: "transparent",
+        textColor: "black",
         textAlignment: "left",
       },
       content: [

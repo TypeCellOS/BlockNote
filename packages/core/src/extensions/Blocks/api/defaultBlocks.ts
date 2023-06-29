@@ -7,9 +7,11 @@ import { PropSchema, TypesMatch } from "./blockTypes";
 export const defaultProps = {
   backgroundColor: {
     default: "transparent" as const,
+    values: ["transparent", "red", "orange", "yellow", "blue"] as const,
   },
   textColor: {
     default: "black" as const, // TODO
+    values: ["black", "red", "orange", "yellow"] as const,
   },
   textAlignment: {
     default: "left" as const,
