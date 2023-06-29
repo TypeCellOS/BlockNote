@@ -34,8 +34,8 @@ export type TipTapNode<
 // Defines a single prop spec, which includes the default value the prop should
 // take and possible values it can take.
 export type PropSpec = {
-  values?: readonly string[];
-  default: string;
+  values?: readonly unknown[];
+  default: unknown;
 };
 
 // Defines multiple block prop specs. The key of each prop is the name of the
