@@ -2,7 +2,9 @@ import { Editor, EditorOptions } from "@tiptap/core";
 import { Node } from "prosemirror-model";
 // import "./blocknote.css";
 import { Editor as TiptapEditor } from "@tiptap/core/dist/packages/core/src/Editor";
+
 import * as Y from "yjs";
+import { UiFactories, getBlockNoteExtensions } from "./BlockNoteExtensions";
 import {
   insertBlocks,
   removeBlocks,
@@ -10,14 +12,13 @@ import {
   updateBlock,
 } from "./api/blockManipulation/blockManipulation";
 import {
+  HTMLToBlocks,
   blocksToHTML,
   blocksToMarkdown,
-  HTMLToBlocks,
   markdownToBlocks,
 } from "./api/formatConversions/formatConversions";
 import { nodeToBlock } from "./api/nodeConversions/nodeConversions";
 import { getNodeById } from "./api/util/nodeUtil";
-import { getBlockNoteExtensions, UiFactories } from "./BlockNoteExtensions";
 import styles from "./editor.module.css";
 import {
   Block,
@@ -39,8 +40,10 @@ import { Selection } from "./extensions/Blocks/api/selectionTypes";
 import { getBlockInfoFromPos } from "./extensions/Blocks/helpers/getBlockInfoFromPos";
 import {
   BaseSlashMenuItem,
+  createSlashMenuExtension,
   defaultSlashMenuItems,
 } from "./extensions/SlashMenu";
+import { EventEmitter } from "./shared/EventEmitter";
 
 export type BlockNoteEditorOptions<BSchema extends BlockSchema> = {
   // TODO: Figure out if enableBlockNoteExtensions/disableHistoryExtension are needed and document them.
@@ -145,7 +148,9 @@ const blockNoteTipTapOptions = {
   enableCoreExtensions: false,
 };
 
-export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
+export class BlockNoteEditor<
+  BSchema extends BlockSchema = DefaultBlockSchema
+> extends EventEmitter<any> {
   public readonly _tiptapEditor: TiptapEditor & { contentComponent: any };
   public blockCache = new WeakMap<Node, Block<BSchema>>();
   public readonly schema: BSchema;
@@ -165,6 +170,7 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
   constructor(
     private readonly options: Partial<BlockNoteEditorOptions<BSchema>> = {}
   ) {
+    super();
     // apply defaults
     const newOptions: Omit<typeof options, "defaultStyles" | "blockSchema"> & {
       defaultStyles: boolean;
@@ -187,6 +193,16 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
       blockSchema: newOptions.blockSchema,
       collaboration: newOptions.collaboration,
     });
+
+    extensions.push(
+      createSlashMenuExtension<BSchema>().configure({
+        editor: this,
+        commands: newOptions.slashCommands,
+        onUpdate: (data: any) => {
+          this.emit("slashMenuUpdate", data);
+        },
+      })
+    );
 
     this.schema = newOptions.blockSchema;
 

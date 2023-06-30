@@ -1,15 +1,14 @@
 import { Extension } from "@tiptap/core";
 import { PluginKey } from "prosemirror-state";
-import { createSuggestionPlugin } from "../../shared/plugins/suggestion/SuggestionPlugin";
-import { SuggestionsMenuFactory } from "../../shared/plugins/suggestion/SuggestionsMenuFactoryTypes";
-import { BaseSlashMenuItem } from "./BaseSlashMenuItem";
 import { BlockNoteEditor } from "../../BlockNoteEditor";
+import { createSuggestionPlugin } from "../../shared/plugins/suggestion/SuggestionPlugin";
 import { BlockSchema } from "../Blocks/api/blockTypes";
+import { BaseSlashMenuItem } from "./BaseSlashMenuItem";
 
 export type SlashMenuOptions<BSchema extends BlockSchema> = {
   editor: BlockNoteEditor<BSchema> | undefined;
   commands: BaseSlashMenuItem<BSchema>[] | undefined;
-  slashMenuFactory: SuggestionsMenuFactory<any> | undefined;
+  onUpdate: any; //SuggestionsMenuFactory<any> | undefined;
 };
 
 export const SlashMenuPluginKey = new PluginKey("suggestions-slash-commands");
@@ -22,12 +21,12 @@ export const createSlashMenuExtension = <BSchema extends BlockSchema>() =>
       return {
         editor: undefined,
         commands: undefined,
-        slashMenuFactory: undefined,
+        onUpdate: undefined,
       };
     },
 
     addProseMirrorPlugins() {
-      if (!this.options.slashMenuFactory || !this.options.commands) {
+      if (!this.options.onUpdate || !this.options.commands) {
         throw new Error("required args not defined for SlashMenuExtension");
       }
 
@@ -38,7 +37,7 @@ export const createSlashMenuExtension = <BSchema extends BlockSchema>() =>
           pluginKey: SlashMenuPluginKey,
           editor: this.options.editor!,
           defaultTriggerCharacter: "/",
-          suggestionsMenuFactory: this.options.slashMenuFactory!,
+          onUpdate: this.options.onUpdate!,
           items: (query) => {
             return commands.filter((cmd: BaseSlashMenuItem<BSchema>) =>
               cmd.match(query)

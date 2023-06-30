@@ -79,15 +79,15 @@ export const useBlockNote = <BSchema extends BlockSchema = DefaultBlockSchema>(
 
     setEditor(instance);
 
-    instance._tiptapEditor.on("transaction", () => {
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          if (isMounted) {
-            forceUpdate();
-          }
-        });
-      });
-    });
+    // instance._tiptapEditor.on("transaction", () => {
+    //   requestAnimationFrame(() => {
+    //     requestAnimationFrame(() => {
+    //       if (isMounted) {
+    //         forceUpdate();
+    //       }
+    //     });
+    //   });
+    // });
 
     return () => {
       instance._tiptapEditor.destroy();

@@ -5,12 +5,6 @@ import { BlockNoteEditor } from "../../../BlockNoteEditor";
 import { BlockSchema } from "../../../extensions/Blocks/api/blockTypes";
 import { findBlock } from "../../../extensions/Blocks/helpers/findBlock";
 import { SuggestionItem } from "./SuggestionItem";
-import {
-  SuggestionsMenu,
-  SuggestionsMenuDynamicParams,
-  SuggestionsMenuFactory,
-  SuggestionsMenuStaticParams,
-} from "./SuggestionsMenuFactoryTypes";
 
 export type SuggestionPluginOptions<
   T extends SuggestionItem,
@@ -33,7 +27,7 @@ export type SuggestionPluginOptions<
    */
   defaultTriggerCharacter: string;
 
-  suggestionsMenuFactory: SuggestionsMenuFactory<T>;
+  onUpdate: any;
 
   /**
    * The callback that gets executed when an item is selected by the user.
@@ -92,7 +86,7 @@ type SuggestionPluginViewOptions<
   editor: BlockNoteEditor<BSchema>;
   pluginKey: PluginKey;
   onSelectItem: (props: { item: T; editor: BlockNoteEditor<BSchema> }) => void;
-  suggestionsMenuFactory: SuggestionsMenuFactory<T>;
+  onUpdate: any;
 };
 
 class SuggestionPluginView<
@@ -102,7 +96,7 @@ class SuggestionPluginView<
   editor: BlockNoteEditor<BSchema>;
   pluginKey: PluginKey;
 
-  suggestionsMenu: SuggestionsMenu<T>;
+  onUpdate: any;
 
   pluginState: SuggestionPluginState<T>;
   itemCallback: (item: T) => void;
@@ -111,11 +105,11 @@ class SuggestionPluginView<
     editor,
     pluginKey,
     onSelectItem: selectItemCallback = () => {},
-    suggestionsMenuFactory,
+    onUpdate,
   }: SuggestionPluginViewOptions<T, BSchema>) {
     this.editor = editor;
     this.pluginKey = pluginKey;
-
+    this.onUpdate = onUpdate;
     this.pluginState = getDefaultPluginState<T>();
 
     this.itemCallback = (item: T) => {
@@ -136,7 +130,7 @@ class SuggestionPluginView<
       });
     };
 
-    this.suggestionsMenu = suggestionsMenuFactory(this.getStaticParams());
+    // this.suggestionsMenu = suggestionsMenuFactory(this.getStaticParams());
 
     document.addEventListener("scroll", this.handleScroll);
   }
@@ -166,25 +160,29 @@ class SuggestionPluginView<
     this.pluginState = stopped ? prev : next;
 
     if (stopped || !this.editor.isEditable) {
-      this.suggestionsMenu.hide();
-
+      this.params.active = false;
+      this.onUpdate(this.params);
+      // this.suggestionsMenu.hide();
       // Listener stops focus moving to the menu on click.
-      this.suggestionsMenu.element!.removeEventListener("mousedown", (event) =>
-        event.preventDefault()
-      );
+      // this.suggestionsMenu.element!.removeEventListener("mousedown", (event) =>
+      //   event.preventDefault()
+      // );
     }
 
     if (changed) {
-      this.suggestionsMenu.render(this.getDynamicParams(), false);
+      this.updateActiveParams();
+      this.onUpdate(this.params);
+      // this.suggestionsMenu.render(this.getDynamicParams(), false);
     }
 
     if (started && this.editor.isEditable) {
-      this.suggestionsMenu.render(this.getDynamicParams(), true);
-
+      // this.suggestionsMenu.render(this.getDynamicParams(), true);
+      this.updateActiveParams();
+      this.onUpdate(this.params);
       // Listener stops focus moving to the menu on click.
-      this.suggestionsMenu.element!.addEventListener("mousedown", (event) =>
-        event.preventDefault()
-      );
+      // this.suggestionsMenu.element!.addEventListener("mousedown", (event) =>
+      //   event.preventDefault()
+      // );
     }
   }
 
@@ -192,22 +190,20 @@ class SuggestionPluginView<
     document.removeEventListener("scroll", this.handleScroll);
   }
 
-  getStaticParams(): SuggestionsMenuStaticParams<T> {
-    return {
-      itemCallback: (item: T) => this.itemCallback(item),
-    };
-  }
+  private params: any = {
+    active: false,
+    itemCallback: (item: T) => this.itemCallback(item),
+  };
 
-  getDynamicParams(): SuggestionsMenuDynamicParams<T> {
+  updateActiveParams(): any {
     const decorationNode = document.querySelector(
       `[data-decoration-id="${this.pluginState.decorationId}"]`
     );
-
-    return {
-      items: this.pluginState.items,
-      keyboardHoveredItemIndex: this.pluginState.keyboardHoveredItemIndex!,
-      referenceRect: decorationNode!.getBoundingClientRect(),
-    };
+    this.params.active = true;
+    this.params.items = this.pluginState.items;
+    this.params.keyboardHoveredItemIndex =
+      this.pluginState.keyboardHoveredItemIndex!;
+    this.params.referenceRect = decorationNode!.getBoundingClientRect();
   }
 }
 
@@ -231,7 +227,7 @@ export function createSuggestionPlugin<
   pluginKey,
   editor,
   defaultTriggerCharacter,
-  suggestionsMenuFactory,
+  onUpdate,
   onSelectItem: selectItemCallback = () => {},
   items = () => [],
 }: SuggestionPluginOptions<T, BSchema>) {
@@ -259,7 +255,7 @@ export function createSuggestionPlugin<
           deactivate(view);
           selectItemCallback(props);
         },
-        suggestionsMenuFactory: suggestionsMenuFactory,
+        onUpdate,
       }),
 
     state: {

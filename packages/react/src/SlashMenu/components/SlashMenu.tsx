@@ -1,18 +1,12 @@
-import {
-  BaseSlashMenuItem,
-  BlockNoteEditor,
-  BlockSchema,
-  createSuggestionPlugin,
-  defaultSlashMenuItems,
-} from "@blocknote/core";
+import { BlockNoteEditor, BlockSchema } from "@blocknote/core";
 import { Menu, createStyles } from "@mantine/core";
 import * as _ from "lodash";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ReactSlashMenuItem } from "../ReactSlashMenuItem";
 import { SlashMenuItem } from "./SlashMenuItem";
 
 import Tippy from "@tippyjs/react";
-import { PluginKey } from "prosemirror-state";
+
 export type SlashMenuProps<BSchema extends BlockSchema> = {
   items: ReactSlashMenuItem<BSchema>[];
   keyboardHoveredItemIndex: number;
@@ -77,95 +71,101 @@ export const SlashMenu2 = <BSchema extends BlockSchema>(props: {
   editor: BlockNoteEditor<BSchema>;
 }) => {
   const [params, setParams] = useState<any>();
-  const [isHidden, setIsHidden] = useState<boolean>(true);
 
-  const elementRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    if (!elementRef.current || !props.editor) {
+    if (!props.editor) {
       return;
     }
+    const cb = (params: any) => {
+      setParams({ ...params });
+    };
+    props.editor.on("slashMenuUpdate", cb);
+    return () => {
+      props.editor.off("slashMenuUpdate", cb);
+    };
+  }, [props.editor]);
 
-    if (props.editor._tiptapEditor.isDestroyed) {
-      return;
-    }
+  // This commented out part can be removed,
+  // but it shows the original way according to tiptap examples where they make the components instantiate
+  // the plugin. We now do this in BlockNoteEditor by default, making the code in the component more concise
 
-    const pluginKey = new PluginKey("SlashMenu2");
+  // useEffect(() => {
+  //   if (!elementRef.current || !props.editor) {
+  //     return;
+  //   }
 
-    const plugin = createSuggestionPlugin<BaseSlashMenuItem<BSchema>, BSchema>({
-      pluginKey,
-      editor: props.editor!,
-      defaultTriggerCharacter: "/",
-      suggestionsMenuFactory: () => ({
-        element: elementRef.current!,
-        render: (params, isHidden) => {
-          console.log("params", params.referenceRect);
-          setParams(params);
-          setIsHidden(false);
-        },
-        hide: () => {
-          setIsHidden(true);
-        },
-      }),
-      items: (query) => {
-        return defaultSlashMenuItems.filter((cmd: BaseSlashMenuItem<BSchema>) =>
-          cmd.match(query)
-        );
-      },
-      onSelectItem: ({ item, editor }) => {
-        item.execute(editor);
-      },
-    });
+  //   if (props.editor._tiptapEditor.isDestroyed) {
+  //     return;
+  //   }
 
-    props.editor._tiptapEditor.registerPlugin(plugin);
-    return () => props.editor._tiptapEditor.unregisterPlugin(pluginKey);
-  }, [props.editor, elementRef.current]);
-  console.log("FormattingToolbar", params, isHidden);
+  //   const pluginKey = new PluginKey("SlashMenu2");
+
+  //   const plugin = createSuggestionPlugin<BaseSlashMenuItem<BSchema>, BSchema>({
+  //     pluginKey,
+  //     editor: props.editor!,
+  //     defaultTriggerCharacter: "/",
+  //     suggestionsMenuFactory: () => ({
+  //       element: elementRef.current!,
+  //       render: (params, isHidden) => {
+  //         console.log("params", params.referenceRect);
+  //         setParams(params);
+  //         setIsHidden(false);
+  //       },
+  //       hide: () => {
+  //         setIsHidden(true);
+  //       },
+  //     }),
+  //     items: (query) => {
+  //       return defaultSlashMenuItems.filter((cmd: BaseSlashMenuItem<BSchema>) =>
+  //         cmd.match(query)
+  //       );
+  //     },
+  //     onSelectItem: ({ item, editor }) => {
+  //       item.execute(editor);
+  //     },
+  //   });
+
+  //   props.editor._tiptapEditor.registerPlugin(plugin);
+  //   return () => props.editor._tiptapEditor.unregisterPlugin(pluginKey);
+  // }, [props.editor, elementRef.current]);
 
   const getReferenceClientRect = useCallback(
     () => params.referenceRect,
     [params]
   );
+  console.log("slashmenu render");
+  if (!props.editor || !params) {
+    return null;
+  }
 
   return (
-    <div ref={elementRef}>
-      {elementRef.current && props.editor && params && (
-        // <EditorElementComponentWrapper
-        //   dynamicParams={params}
-        //   // editor={props.editor}
-        //   // isHidden={isHidden}
-        //   rootElement={elementRef.current!}
-        //   staticParams={{
-        //     editor: props.editor,
-        //   }}
-        //   isOpen={!isHidden}
-        //   theme={getBlockNoteTheme()}
-        //   editorElementComponent={
-        //     SlashMenu as any
-        //   }></EditorElementComponentWrapper>
-        <Tippy
-          appendTo={document.body}
-          content={<SlashMenu editor={props.editor} {...params} />}
-          getReferenceClientRect={getReferenceClientRect}
-          interactive={true}
-          // onShow={onShow}
-          // onHidden={onHidden}
-          visible={true}
-          // popperOptions={{
-          //   modifiers: [
-          //     {
-          //       name: "preventOverflow",
-          //       options: {
-          //         altAxis: true, // false by default
-          //         altBoundary: true,
-          //       },
-          //     },
-          //   ],
-          // }}
-          // {...props.tippyProps}
-        >
-          <div />
-        </Tippy>
-      )}
+    <div
+      onMouseDown={(e) => {
+        // prevent blur
+        e.preventDefault();
+        e.stopPropagation();
+      }}>
+      <Tippy
+        content={<SlashMenu editor={props.editor} {...params} />}
+        getReferenceClientRect={getReferenceClientRect}
+        interactive={true}
+        visible={params.active}
+        popperOptions={{
+          // if the window height is too small, prevent the menu from causing
+          // the body to be scrollable
+          modifiers: [
+            {
+              name: "preventOverflow",
+              options: {
+                altAxis: true,
+              },
+            },
+          ],
+        }}
+        animation="fade"
+        placement="bottom-start">
+        <div></div>
+      </Tippy>
     </div>
   );
 };

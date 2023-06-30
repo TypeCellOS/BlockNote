@@ -30,10 +30,7 @@ import { FormattingToolbarFactory } from "./extensions/FormattingToolbar/Formatt
 import HyperlinkMark from "./extensions/HyperlinkToolbar/HyperlinkMark";
 import { HyperlinkToolbarFactory } from "./extensions/HyperlinkToolbar/HyperlinkToolbarFactoryTypes";
 import { Placeholder } from "./extensions/Placeholder/PlaceholderExtension";
-import {
-  BaseSlashMenuItem,
-  createSlashMenuExtension,
-} from "./extensions/SlashMenu";
+import { BaseSlashMenuItem } from "./extensions/SlashMenu";
 import { TextAlignmentExtension } from "./extensions/TextAlignment/TextAlignmentExtension";
 import { TextColorExtension } from "./extensions/TextColor/TextColorExtension";
 import { TextColorMark } from "./extensions/TextColor/TextColorMark";
@@ -183,15 +180,15 @@ export const getBlockNoteExtensions = <BSchema extends BlockSchema>(opts: {
     ret.push(Link);
   }
 
-  if (opts.uiFactories.slashMenuFactory) {
-    ret.push(
-      createSlashMenuExtension<BSchema>().configure({
-        editor: opts.editor,
-        commands: opts.slashCommands,
-        slashMenuFactory: opts.uiFactories.slashMenuFactory,
-      })
-    );
-  }
+  // if (opts.uiFactories.slashMenuFactory) {
+  //   ret.push(
+  //     createSlashMenuExtension<BSchema>().configure({
+  //       editor: opts.editor,
+  //       commands: opts.slashCommands,
+  //       slashMenuFactory: opts.uiFactories.slashMenuFactory,
+  //     })
+  //   );
+  // }
 
   return ret;
 };
