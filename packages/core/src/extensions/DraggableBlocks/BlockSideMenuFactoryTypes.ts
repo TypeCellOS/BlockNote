@@ -18,8 +18,6 @@ export type BlockSideMenuStaticParams<BSchema extends BlockSchema> = {
 
 export type BlockSideMenuDynamicParams<BSchema extends BlockSchema> = {
   block: Block<BSchema>;
-
-  referenceRect: DOMRect;
 };
 
 export type BlockSideMenu<BSchema extends BlockSchema> = EditorElement<

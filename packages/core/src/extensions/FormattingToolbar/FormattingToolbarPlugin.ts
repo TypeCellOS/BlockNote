@@ -9,7 +9,6 @@ import { EditorView } from "prosemirror-view";
 import { BlockNoteEditor, BlockSchema } from "../..";
 import {
   FormattingToolbar,
-  FormattingToolbarDynamicParams,
   FormattingToolbarFactory,
   FormattingToolbarStaticParams,
 } from "./FormattingToolbarFactoryTypes";
@@ -164,7 +163,7 @@ export class FormattingToolbarView<BSchema extends BlockSchema> {
       !this.preventShow &&
       (shouldShow || this.preventHide)
     ) {
-      this.formattingToolbar.render(this.getDynamicParams(), true);
+      this.formattingToolbar.render({}, true);
       this.toolbarIsOpen = true;
 
       return;
@@ -176,7 +175,7 @@ export class FormattingToolbarView<BSchema extends BlockSchema> {
       !this.preventShow &&
       (shouldShow || this.preventHide)
     ) {
-      this.formattingToolbar.render(this.getDynamicParams(), false);
+      this.formattingToolbar.render({}, false);
       return;
     }
 
@@ -235,12 +234,6 @@ export class FormattingToolbarView<BSchema extends BlockSchema> {
 
         return selectionBoundingBox;
       },
-    };
-  }
-
-  getDynamicParams(): FormattingToolbarDynamicParams {
-    return {
-      referenceRect: this.getSelectionBoundingBox(),
     };
   }
 }

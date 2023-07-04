@@ -273,11 +273,6 @@ class HyperlinkToolbarView {
         this.hyperlinkMarkRange!.from,
         this.hyperlinkMarkRange!.to
       ),
-      referenceRect: posToDOMRect(
-        this.editor.view,
-        this.hyperlinkMarkRange!.from,
-        this.hyperlinkMarkRange!.to
-      ),
     };
   }
 }

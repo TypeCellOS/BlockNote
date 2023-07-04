@@ -204,14 +204,9 @@ class SuggestionPluginView<
   }
 
   getDynamicParams(): SuggestionsMenuDynamicParams<T> {
-    const decorationNode = document.querySelector(
-      `[data-decoration-id="${this.pluginState.decorationId}"]`
-    );
-
     return {
       items: this.pluginState.items,
       keyboardHoveredItemIndex: this.pluginState.keyboardHoveredItemIndex!,
-      referenceRect: decorationNode!.getBoundingClientRect(),
     };
   }
 }

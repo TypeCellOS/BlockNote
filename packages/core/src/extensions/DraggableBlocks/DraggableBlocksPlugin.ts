@@ -562,19 +562,8 @@ export class BlockMenuView<BSchema extends BlockSchema> {
   }
 
   getDynamicParams(): BlockSideMenuDynamicParams<BSchema> {
-    const blockContent = this.hoveredBlock!.firstChild! as HTMLElement;
-    const blockContentBoundingBox = blockContent.getBoundingClientRect();
-
     return {
       block: this.editor.getBlock(this.hoveredBlock!.getAttribute("data-id")!)!,
-      referenceRect: new DOMRect(
-        this.horizontalPosAnchoredAtRoot
-          ? this.horizontalPosAnchor
-          : blockContentBoundingBox.x,
-        blockContentBoundingBox.y,
-        blockContentBoundingBox.width,
-        blockContentBoundingBox.height
-      ),
     };
   }
 }

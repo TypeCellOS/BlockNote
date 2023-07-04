@@ -10,8 +10,6 @@ export type HyperlinkToolbarStaticParams = {
 export type HyperlinkToolbarDynamicParams = {
   url: string;
   text: string;
-
-  referenceRect: DOMRect;
 };
 
 export type HyperlinkToolbar = EditorElement<HyperlinkToolbarDynamicParams>;

@@ -8,9 +8,7 @@ export type FormattingToolbarStaticParams<BSchema extends BlockSchema> = {
   getReferenceRect: () => DOMRect | undefined;
 };
 
-export type FormattingToolbarDynamicParams = {
-  referenceRect: DOMRect;
-};
+export type FormattingToolbarDynamicParams = {};
 
 export type FormattingToolbar = EditorElement<FormattingToolbarDynamicParams>;
 export type FormattingToolbarFactory<BSchema extends BlockSchema> =
