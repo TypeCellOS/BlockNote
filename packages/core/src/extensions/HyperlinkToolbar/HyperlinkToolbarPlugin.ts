@@ -36,6 +36,8 @@ class HyperlinkToolbarView {
   hyperlinkMark: Mark | undefined;
   hyperlinkMarkRange: Range | undefined;
 
+  private lastPosition: DOMRect | undefined;
+
   constructor({ editor, hyperlinkToolbarFactory }: HyperlinkToolbarViewProps) {
     this.editor = editor;
 
@@ -58,7 +60,6 @@ class HyperlinkToolbarView {
 
     this.editor.view.dom.addEventListener("mouseover", this.mouseOverHandler);
     document.addEventListener("click", this.clickHandler, true);
-    document.addEventListener("scroll", this.scrollHandler);
   }
 
   mouseOverHandler = (event: MouseEvent) => {
@@ -117,12 +118,6 @@ class HyperlinkToolbarView {
       !this.hyperlinkToolbar.element?.contains(event.target as Node)
     ) {
       this.hyperlinkToolbar.hide();
-    }
-  };
-
-  scrollHandler = () => {
-    if (this.hyperlinkMark !== undefined) {
-      this.hyperlinkToolbar.render(this.getDynamicParams(), false);
     }
   };
 
@@ -220,7 +215,6 @@ class HyperlinkToolbarView {
       "mouseover",
       this.mouseOverHandler
     );
-    document.removeEventListener("scroll", this.scrollHandler);
   }
 
   getStaticParams(): HyperlinkToolbarStaticParams {
@@ -255,14 +249,20 @@ class HyperlinkToolbarView {
 
         this.hyperlinkToolbar.hide();
       },
-      getReferenceRect: () =>
-        this.hyperlinkMark
-          ? posToDOMRect(
-              this.editor.view,
-              this.hyperlinkMarkRange!.from,
-              this.hyperlinkMarkRange!.to
-            )
-          : undefined,
+      getReferenceRect: () => {
+        if (!this.hyperlinkMark) {
+          return this.lastPosition;
+        }
+
+        const hyperlinkBoundingBox = posToDOMRect(
+          this.editor.view,
+          this.hyperlinkMarkRange!.from,
+          this.hyperlinkMarkRange!.to
+        );
+        this.lastPosition = hyperlinkBoundingBox;
+
+        return hyperlinkBoundingBox;
+      },
     };
   }
 

@@ -28,11 +28,6 @@ export function EditorElementComponentWrapper<
 
   const [contentCleared, setContentCleared] = useState(false);
 
-  const getReferenceClientRect = useCallback(
-    () => props.dynamicParams!.referenceRect,
-    [props.dynamicParams]
-  );
-
   const onShow = useCallback(() => {
     setContentCleared(false);
     document.body.appendChild(props.rootElement);
@@ -55,16 +50,11 @@ export function EditorElementComponentWrapper<
             />
           ) : undefined
         }
-        // Tippy automatically reacts to the reference bounding box changing
-        // positions using `staticParams.getReferenceRect`. While the element is
-        // being hidden and animated, it instead uses the last known position.
-        // Otherwise, the position is undefined.
+        // Type cast is needed as getReferenceRect will return `undefined` when
+        // the editor is initialized but the element hasn't been rendered yet.
+        // Otherwise, it will always return a `DOMRect`.
         getReferenceClientRect={
-          !props.isOpen
-            ? !contentCleared
-              ? getReferenceClientRect
-              : undefined
-            : (props.staticParams.getReferenceRect as () => DOMRect)
+          props.staticParams.getReferenceRect as () => DOMRect
         }
         interactive={true}
         onShow={onShow}

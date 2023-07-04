@@ -44,6 +44,8 @@ export class FormattingToolbarView<BSchema extends BlockSchema> {
 
   public prevWasEditable: boolean | null = null;
 
+  private lastPosition: DOMRect | undefined;
+
   public shouldShow: (props: {
     view: EditorView;
     state: EditorState;
@@ -80,8 +82,6 @@ export class FormattingToolbarView<BSchema extends BlockSchema> {
 
     this.ttEditor.on("focus", this.focusHandler);
     this.ttEditor.on("blur", this.blurHandler);
-
-    document.addEventListener("scroll", this.scrollHandler);
   }
 
   viewMousedownHandler = () => {
@@ -126,12 +126,6 @@ export class FormattingToolbarView<BSchema extends BlockSchema> {
     if (this.toolbarIsOpen) {
       this.formattingToolbar.hide();
       this.toolbarIsOpen = false;
-    }
-  };
-
-  scrollHandler = () => {
-    if (this.toolbarIsOpen) {
-      this.formattingToolbar.render(this.getDynamicParams(), false);
     }
   };
 
@@ -206,8 +200,6 @@ export class FormattingToolbarView<BSchema extends BlockSchema> {
 
     this.ttEditor.off("focus", this.focusHandler);
     this.ttEditor.off("blur", this.blurHandler);
-
-    document.removeEventListener("scroll", this.scrollHandler);
   }
 
   getSelectionBoundingBox() {
@@ -233,8 +225,16 @@ export class FormattingToolbarView<BSchema extends BlockSchema> {
   getStaticParams(): FormattingToolbarStaticParams<BSchema> {
     return {
       editor: this.editor,
-      getReferenceRect: () =>
-        this.toolbarIsOpen ? this.getSelectionBoundingBox() : undefined,
+      getReferenceRect: () => {
+        if (!this.toolbarIsOpen) {
+          return this.lastPosition;
+        }
+
+        const selectionBoundingBox = this.getSelectionBoundingBox();
+        this.lastPosition = selectionBoundingBox;
+
+        return selectionBoundingBox;
+      },
     };
   }
 

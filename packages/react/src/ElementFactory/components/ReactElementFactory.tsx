@@ -38,39 +38,12 @@ export const ReactElementFactory = <
   // element would be immediately cleared, not leaving time for the fade out
   // animation to complete.
   let prevDynamicParams: ElementDynamicParams | undefined = undefined;
-  let isOpen = false;
 
   return {
     element: rootElement,
     render: (dynamicParams: ElementDynamicParams, _isHidden: boolean) => {
-      // Tippy should handle the reference bounding box changing positions
-      // itself, otherwise it's less responsive and isn't able to handle
-      // page overflows. Therefore, we want to avoid re-rendering the element
-      // when only its position changes.
-      const prevDynamicParamsCopy: Record<string, any> = {};
-      for (const key in prevDynamicParams) {
-        if (key !== "referenceRect") {
-          prevDynamicParamsCopy[key] = prevDynamicParams[key];
-        }
-      }
-      const nextDynamicParamsCopy: Record<string, any> = {};
-      for (const key in dynamicParams) {
-        if (key !== "referenceRect") {
-          nextDynamicParamsCopy[key] = dynamicParams[key];
-        }
-      }
-
       prevDynamicParams = dynamicParams;
 
-      if (
-        isOpen &&
-        JSON.stringify(nextDynamicParamsCopy) ===
-          JSON.stringify(prevDynamicParamsCopy)
-      ) {
-        return;
-      }
-
-      isOpen = true;
       root.render(
         <EditorElementComponentWrapper
           rootElement={rootElement}
@@ -84,7 +57,6 @@ export const ReactElementFactory = <
       );
     },
     hide: () => {
-      isOpen = false;
       root.render(
         <EditorElementComponentWrapper
           rootElement={rootElement}

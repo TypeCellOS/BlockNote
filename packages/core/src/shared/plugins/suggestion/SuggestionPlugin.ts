@@ -107,6 +107,8 @@ class SuggestionPluginView<
   pluginState: SuggestionPluginState<T>;
   itemCallback: (item: T) => void;
 
+  private lastPosition: DOMRect | undefined;
+
   constructor({
     editor,
     pluginKey,
@@ -137,15 +139,7 @@ class SuggestionPluginView<
     };
 
     this.suggestionsMenu = suggestionsMenuFactory(this.getStaticParams());
-
-    document.addEventListener("scroll", this.handleScroll);
   }
-
-  handleScroll = () => {
-    if (this.pluginKey.getState(this.editor._tiptapEditor.state).active) {
-      this.suggestionsMenu.render(this.getDynamicParams(), false);
-    }
-  };
 
   update(view: EditorView, prevState: EditorState) {
     const prev = this.pluginKey.getState(prevState);
@@ -188,10 +182,6 @@ class SuggestionPluginView<
     }
   }
 
-  destroy() {
-    document.removeEventListener("scroll", this.handleScroll);
-  }
-
   getStaticParams(): SuggestionsMenuStaticParams<T> {
     return {
       itemCallback: (item: T) => this.itemCallback(item),
@@ -201,10 +191,14 @@ class SuggestionPluginView<
         );
 
         if (!decorationNode) {
-          return undefined;
+          return this.lastPosition;
         }
 
-        return decorationNode.getBoundingClientRect();
+        const triggerCharacterBoundingBox =
+          decorationNode.getBoundingClientRect();
+        this.lastPosition = triggerCharacterBoundingBox;
+
+        return triggerCharacterBoundingBox;
       },
     };
   }
