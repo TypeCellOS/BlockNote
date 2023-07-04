@@ -9,7 +9,6 @@ import { EditorView } from "prosemirror-view";
 import { BlockNoteEditor, BlockSchema } from "../..";
 import {
   FormattingToolbar,
-  FormattingToolbarDynamicParams,
   FormattingToolbarFactory,
   FormattingToolbarStaticParams,
 } from "./FormattingToolbarFactoryTypes";
@@ -43,6 +42,8 @@ export class FormattingToolbarView<BSchema extends BlockSchema> {
   public toolbarIsOpen = false;
 
   public prevWasEditable: boolean | null = null;
+
+  private lastPosition: DOMRect | undefined;
 
   public shouldShow: (props: {
     view: EditorView;
@@ -80,8 +81,6 @@ export class FormattingToolbarView<BSchema extends BlockSchema> {
 
     this.ttEditor.on("focus", this.focusHandler);
     this.ttEditor.on("blur", this.blurHandler);
-
-    document.addEventListener("scroll", this.scrollHandler);
   }
 
   viewMousedownHandler = () => {
@@ -129,12 +128,6 @@ export class FormattingToolbarView<BSchema extends BlockSchema> {
     }
   };
 
-  scrollHandler = () => {
-    if (this.toolbarIsOpen) {
-      this.formattingToolbar.render(this.getDynamicParams(), false);
-    }
-  };
-
   update(view: EditorView, oldState?: EditorState) {
     const { state, composing } = view;
     const { doc, selection } = state;
@@ -170,7 +163,7 @@ export class FormattingToolbarView<BSchema extends BlockSchema> {
       !this.preventShow &&
       (shouldShow || this.preventHide)
     ) {
-      this.formattingToolbar.render(this.getDynamicParams(), true);
+      this.formattingToolbar.render({}, true);
       this.toolbarIsOpen = true;
 
       return;
@@ -182,7 +175,7 @@ export class FormattingToolbarView<BSchema extends BlockSchema> {
       !this.preventShow &&
       (shouldShow || this.preventHide)
     ) {
-      this.formattingToolbar.render(this.getDynamicParams(), false);
+      this.formattingToolbar.render({}, false);
       return;
     }
 
@@ -206,8 +199,6 @@ export class FormattingToolbarView<BSchema extends BlockSchema> {
 
     this.ttEditor.off("focus", this.focusHandler);
     this.ttEditor.off("blur", this.blurHandler);
-
-    document.removeEventListener("scroll", this.scrollHandler);
   }
 
   getSelectionBoundingBox() {
@@ -233,12 +224,22 @@ export class FormattingToolbarView<BSchema extends BlockSchema> {
   getStaticParams(): FormattingToolbarStaticParams<BSchema> {
     return {
       editor: this.editor,
-    };
-  }
+      getReferenceRect: () => {
+        if (!this.toolbarIsOpen) {
+          if (this.lastPosition === undefined) {
+            throw new Error(
+              "Attempted to access selection reference rect before rendering formatting toolbar."
+            );
+          }
 
-  getDynamicParams(): FormattingToolbarDynamicParams {
-    return {
-      referenceRect: this.getSelectionBoundingBox(),
+          return this.lastPosition;
+        }
+
+        const selectionBoundingBox = this.getSelectionBoundingBox();
+        this.lastPosition = selectionBoundingBox;
+
+        return selectionBoundingBox;
+      },
     };
   }
 }

@@ -43,8 +43,8 @@ export const hyperlinkToolbarFactory: HyperlinkToolbarFactory = (
         container.style.display = "block";
       }
 
-      container.style.top = params.referenceRect.y + "px";
-      container.style.left = params.referenceRect.x + "px";
+      container.style.top = staticParams.getReferenceRect()!.y + "px";
+      container.style.left = staticParams.getReferenceRect()!.x + "px";
     },
     hide: () => {
       container.style.display = "none";

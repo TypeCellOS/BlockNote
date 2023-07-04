@@ -1,6 +1,6 @@
 import { MantineProvider, MantineThemeOverride } from "@mantine/core";
 import Tippy, { TippyProps } from "@tippyjs/react";
-import { RequiredDynamicParams } from "@blocknote/core";
+import { RequiredDynamicParams, RequiredStaticParams } from "@blocknote/core";
 import { FC, useCallback, useState } from "react";
 
 /**
@@ -13,7 +13,7 @@ import { FC, useCallback, useState } from "react";
  * mounted under.
  */
 export function EditorElementComponentWrapper<
-  ElementStaticParams extends Record<string, any>,
+  ElementStaticParams extends RequiredStaticParams,
   ElementDynamicParams extends RequiredDynamicParams
 >(props: {
   rootElement: HTMLElement;
@@ -27,11 +27,6 @@ export function EditorElementComponentWrapper<
   const EditorElementComponent = props.editorElementComponent;
 
   const [contentCleared, setContentCleared] = useState(false);
-
-  const getReferenceClientRect = useCallback(
-    () => props.dynamicParams!.referenceRect,
-    [props.dynamicParams]
-  );
 
   const onShow = useCallback(() => {
     setContentCleared(false);
@@ -55,9 +50,10 @@ export function EditorElementComponentWrapper<
             />
           ) : undefined
         }
-        getReferenceClientRect={
-          !contentCleared ? getReferenceClientRect : undefined
-        }
+        // Type cast is needed as getReferenceRect will return `undefined` when
+        // the editor is initialized but the element hasn't been rendered yet.
+        // Otherwise, it will always return a `DOMRect`.
+        getReferenceClientRect={props.staticParams.getReferenceRect}
         interactive={true}
         onShow={onShow}
         onHidden={onHidden}

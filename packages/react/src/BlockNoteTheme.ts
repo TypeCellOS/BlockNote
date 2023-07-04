@@ -268,6 +268,7 @@ export const getBlockNoteTheme = (
       SlashMenu: {
         styles: () => ({
           root: {
+            position: "relative",
             ".mantine-Menu-item": {
               // Icon
               ".mantine-Menu-itemIcon": {

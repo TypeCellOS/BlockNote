@@ -12,12 +12,12 @@ export type BlockSideMenuStaticParams<BSchema extends BlockSchema> = {
 
   freezeMenu: () => void;
   unfreezeMenu: () => void;
+
+  getReferenceRect: () => DOMRect;
 };
 
 export type BlockSideMenuDynamicParams<BSchema extends BlockSchema> = {
   block: Block<BSchema>;
-
-  referenceRect: DOMRect;
 };
 
 export type BlockSideMenu<BSchema extends BlockSchema> = EditorElement<

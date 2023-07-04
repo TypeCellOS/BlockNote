@@ -250,6 +250,8 @@ export class BlockMenuView<BSchema extends BlockSchema> {
   menuOpen = false;
   menuFrozen = false;
 
+  private lastPosition: DOMRect | undefined;
+
   constructor({
     tiptapEditor,
     editor,
@@ -271,9 +273,6 @@ export class BlockMenuView<BSchema extends BlockSchema> {
 
     // Shows or updates menu position whenever the cursor moves, if the menu isn't frozen.
     document.body.addEventListener("mousemove", this.onMouseMove, true);
-
-    // Makes menu scroll with the page.
-    document.addEventListener("scroll", this.onScroll);
 
     // Hides and unfreezes the menu whenever the user selects the editor with the mouse or presses a key.
     // TODO: Better integration with suggestions menu and only editor scope?
@@ -463,20 +462,6 @@ export class BlockMenuView<BSchema extends BlockSchema> {
     }
   };
 
-  onScroll = () => {
-    // Editor itself may have padding or other styling which affects size/position, so we get the boundingRect of
-    // the first child (i.e. the blockGroup that wraps all blocks in the editor) for a more accurate bounding box.
-    const editorBoundingBox = (
-      this.ttEditor.view.dom.firstChild! as HTMLElement
-    ).getBoundingClientRect();
-
-    this.horizontalPosAnchor = editorBoundingBox.x;
-
-    if (this.menuOpen) {
-      this.blockMenu.render(this.getDynamicParams(), false);
-    }
-  };
-
   destroy() {
     if (this.menuOpen) {
       this.menuOpen = false;
@@ -487,7 +472,6 @@ export class BlockMenuView<BSchema extends BlockSchema> {
     this.ttEditor.view.dom.removeEventListener("dragstart", this.onDragStart);
     document.body.removeEventListener("drop", this.onDrop);
     document.body.removeEventListener("mousedown", this.onMouseDown);
-    document.removeEventListener("scroll", this.onScroll);
     document.body.removeEventListener("keydown", this.onKeyDown);
   }
 
@@ -556,23 +540,32 @@ export class BlockMenuView<BSchema extends BlockSchema> {
       unfreezeMenu: () => {
         this.menuFrozen = false;
       },
+      getReferenceRect: () => {
+        if (!this.menuOpen) {
+          if (this.lastPosition === undefined) {
+            throw new Error(
+              "Attempted to access block reference rect before rendering block side menu."
+            );
+          }
+
+          return this.lastPosition;
+        }
+
+        const blockContent = this.hoveredBlock!.firstChild! as HTMLElement;
+        const blockContentBoundingBox = blockContent.getBoundingClientRect();
+        if (this.horizontalPosAnchoredAtRoot) {
+          blockContentBoundingBox.x = this.horizontalPosAnchor;
+        }
+        this.lastPosition = blockContentBoundingBox;
+
+        return blockContentBoundingBox;
+      },
     };
   }
 
   getDynamicParams(): BlockSideMenuDynamicParams<BSchema> {
-    const blockContent = this.hoveredBlock!.firstChild! as HTMLElement;
-    const blockContentBoundingBox = blockContent.getBoundingClientRect();
-
     return {
       block: this.editor.getBlock(this.hoveredBlock!.getAttribute("data-id")!)!,
-      referenceRect: new DOMRect(
-        this.horizontalPosAnchoredAtRoot
-          ? this.horizontalPosAnchor
-          : blockContentBoundingBox.x,
-        blockContentBoundingBox.y,
-        blockContentBoundingBox.width,
-        blockContentBoundingBox.height
-      ),
     };
   }
 }

@@ -37,9 +37,9 @@ export const blockSideMenuFactory: BlockSideMenuFactory<DefaultBlockSchema> = (
         container.style.display = "block";
       }
 
-      container.style.top = params.referenceRect.y + "px";
+      container.style.top = staticParams.getReferenceRect()!.y + "px";
       container.style.left =
-        params.referenceRect.x - container.offsetWidth + "px";
+        staticParams.getReferenceRect()!.x - container.offsetWidth + "px";
     },
     hide: () => {
       container.style.display = "none";
