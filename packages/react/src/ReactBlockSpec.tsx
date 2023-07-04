@@ -16,7 +16,7 @@ import {
   NodeViewWrapper,
   ReactNodeViewRenderer,
 } from "@tiptap/react";
-import { FC, HTMLAttributes } from "react";
+import { ElementType, FC, HTMLProps } from "react";
 
 // extend BlockConfig but use a react render function
 export type ReactBlockConfig<
@@ -38,7 +38,9 @@ export type ReactBlockConfig<
   }>;
 };
 
-export const InlineContent = (props: HTMLAttributes<HTMLDivElement>) => (
+export const InlineContent = <Tag extends ElementType>(
+  props: { as?: Tag } & HTMLProps<Tag>
+) => (
   <NodeViewContent
     {...props}
     className={`${props.className ? props.className + " " : ""}${
