@@ -226,6 +226,12 @@ export class FormattingToolbarView<BSchema extends BlockSchema> {
       editor: this.editor,
       getReferenceRect: () => {
         if (!this.toolbarIsOpen) {
+          if (this.lastPosition === undefined) {
+            throw new Error(
+              "Attempted to access selection reference rect before rendering formatting toolbar."
+            );
+          }
+
           return this.lastPosition;
         }
 

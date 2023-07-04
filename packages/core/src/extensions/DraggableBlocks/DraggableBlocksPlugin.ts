@@ -542,21 +542,23 @@ export class BlockMenuView<BSchema extends BlockSchema> {
       },
       getReferenceRect: () => {
         if (!this.menuOpen) {
+          if (this.lastPosition === undefined) {
+            throw new Error(
+              "Attempted to access block reference rect before rendering block side menu."
+            );
+          }
+
           return this.lastPosition;
         }
 
         const blockContent = this.hoveredBlock!.firstChild! as HTMLElement;
         const blockContentBoundingBox = blockContent.getBoundingClientRect();
+        if (this.horizontalPosAnchoredAtRoot) {
+          blockContentBoundingBox.x = this.horizontalPosAnchor;
+        }
         this.lastPosition = blockContentBoundingBox;
 
-        return new DOMRect(
-          this.horizontalPosAnchoredAtRoot
-            ? this.horizontalPosAnchor
-            : blockContentBoundingBox.x,
-          blockContentBoundingBox.y,
-          blockContentBoundingBox.width,
-          blockContentBoundingBox.height
-        );
+        return blockContentBoundingBox;
       },
     };
   }

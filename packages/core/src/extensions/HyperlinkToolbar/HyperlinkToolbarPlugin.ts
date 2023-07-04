@@ -251,6 +251,12 @@ class HyperlinkToolbarView {
       },
       getReferenceRect: () => {
         if (!this.hyperlinkMark) {
+          if (this.lastPosition === undefined) {
+            throw new Error(
+              "Attempted to access hyperlink reference rect before rendering hyperlink toolbar."
+            );
+          }
+
           return this.lastPosition;
         }
 

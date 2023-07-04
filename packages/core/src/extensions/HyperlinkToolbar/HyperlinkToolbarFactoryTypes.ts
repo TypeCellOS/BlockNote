@@ -4,7 +4,7 @@ export type HyperlinkToolbarStaticParams = {
   editHyperlink: (url: string, text: string) => void;
   deleteHyperlink: () => void;
 
-  getReferenceRect: () => DOMRect | undefined;
+  getReferenceRect: () => DOMRect;
 };
 
 export type HyperlinkToolbarDynamicParams = {

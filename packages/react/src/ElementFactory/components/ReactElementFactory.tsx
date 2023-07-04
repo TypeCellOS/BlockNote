@@ -34,9 +34,8 @@ export const ReactElementFactory = <
   const rootElement = document.createElement("div");
   const root = createRoot(rootElement);
 
-  // Used when hiding the element. If we were to pass in undefined instead, the
-  // element would be immediately cleared, not leaving time for the fade out
-  // animation to complete.
+  // Used when hiding the element. Without being passed a set of dynamic params,
+  // certain menus/toolbars will not render correctly.
   let prevDynamicParams: ElementDynamicParams | undefined = undefined;
 
   return {

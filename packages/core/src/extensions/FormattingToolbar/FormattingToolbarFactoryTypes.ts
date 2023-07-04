@@ -5,7 +5,7 @@ import { BlockSchema } from "../Blocks/api/blockTypes";
 export type FormattingToolbarStaticParams<BSchema extends BlockSchema> = {
   editor: BlockNoteEditor<BSchema>;
 
-  getReferenceRect: () => DOMRect | undefined;
+  getReferenceRect: () => DOMRect;
 };
 
 export type FormattingToolbarDynamicParams = {};

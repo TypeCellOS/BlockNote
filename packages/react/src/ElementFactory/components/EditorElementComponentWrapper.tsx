@@ -53,9 +53,7 @@ export function EditorElementComponentWrapper<
         // Type cast is needed as getReferenceRect will return `undefined` when
         // the editor is initialized but the element hasn't been rendered yet.
         // Otherwise, it will always return a `DOMRect`.
-        getReferenceClientRect={
-          props.staticParams.getReferenceRect as () => DOMRect
-        }
+        getReferenceClientRect={props.staticParams.getReferenceRect}
         interactive={true}
         onShow={onShow}
         onHidden={onHidden}

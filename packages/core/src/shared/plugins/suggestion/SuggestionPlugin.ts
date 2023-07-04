@@ -191,6 +191,12 @@ class SuggestionPluginView<
         );
 
         if (!decorationNode) {
+          if (this.lastPosition === undefined) {
+            throw new Error(
+              "Attempted to access trigger character reference rect before rendering suggestions menu."
+            );
+          }
+
           return this.lastPosition;
         }
 

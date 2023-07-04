@@ -1,5 +1,5 @@
 export type RequiredStaticParams = Record<string, any> & {
-  getReferenceRect: () => DOMRect | undefined;
+  getReferenceRect: () => DOMRect;
 };
 export type RequiredDynamicParams = Record<string, any> & {};
 

@@ -13,7 +13,7 @@ export type BlockSideMenuStaticParams<BSchema extends BlockSchema> = {
   freezeMenu: () => void;
   unfreezeMenu: () => void;
 
-  getReferenceRect: () => DOMRect | undefined;
+  getReferenceRect: () => DOMRect;
 };
 
 export type BlockSideMenuDynamicParams<BSchema extends BlockSchema> = {
