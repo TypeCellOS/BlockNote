@@ -1,7 +1,11 @@
 import { FC } from "react";
 import { TippyProps } from "@tippyjs/react";
 import { createRoot } from "react-dom/client";
-import { EditorElement, RequiredDynamicParams } from "@blocknote/core";
+import {
+  EditorElement,
+  RequiredDynamicParams,
+  RequiredStaticParams,
+} from "@blocknote/core";
 import { EditorElementComponentWrapper } from "./EditorElementComponentWrapper";
 import { MantineThemeOverride } from "@mantine/core";
 
@@ -19,7 +23,7 @@ import { MantineThemeOverride } from "@mantine/core";
  * @param tippyProps Tippy props, which affect the elements' popup behaviour, e.g. popup position, animation, etc.
  */
 export const ReactElementFactory = <
-  ElementStaticParams extends Record<string, any>,
+  ElementStaticParams extends RequiredStaticParams,
   ElementDynamicParams extends RequiredDynamicParams
 >(
   staticParams: ElementStaticParams,
@@ -30,8 +34,8 @@ export const ReactElementFactory = <
   const rootElement = document.createElement("div");
   const root = createRoot(rootElement);
 
-  // Used when hiding the element. If we were to pass in undefined instead, the element would be immediately cleared, not
-  // leaving time for the fade out animation to complete.
+  // Used when hiding the element. Without being passed a set of dynamic params,
+  // certain menus/toolbars will not render correctly.
   let prevDynamicParams: ElementDynamicParams | undefined = undefined;
 
   return {
@@ -63,6 +67,8 @@ export const ReactElementFactory = <
           tippyProps={tippyProps}
         />
       );
+
+      prevDynamicParams = undefined;
     },
   };
 };

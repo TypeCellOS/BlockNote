@@ -1,7 +1,7 @@
-export type RequiredStaticParams = Record<string, any>;
-export type RequiredDynamicParams = Record<string, any> & {
-  referenceRect: DOMRect;
+export type RequiredStaticParams = Record<string, any> & {
+  getReferenceRect: () => DOMRect;
 };
+export type RequiredDynamicParams = Record<string, any> & {};
 
 export type EditorElement<ElementDynamicParams extends RequiredDynamicParams> =
   {
