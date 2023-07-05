@@ -6,7 +6,7 @@ import {
   H_TWO_BLOCK_SELECTOR,
 } from "../../utils/const";
 import { compareDocToSnapshot, focusOnEditor } from "../../utils/editor";
-import { insertHeading } from "../../utils/copypaste";
+import { insertHeading, insertParagraph } from "../../utils/copypaste";
 
 test.describe.configure({ mode: "serial" });
 
@@ -71,5 +71,59 @@ test.describe("Check Keyboard Handlers' Behaviour", () => {
     await page.keyboard.press("Enter");
 
     await compareDocToSnapshot(page, "enterPreservesNestedBlocks.json");
+  });
+  test("Check Backspace at the start of a block", async ({ page }) => {
+    await focusOnEditor(page);
+    await insertHeading(page, 1);
+
+    await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("Control+ArrowLeft");
+    await page.keyboard.press("Backspace");
+
+    await compareDocToSnapshot(page, "backspaceStartOfBlock.json");
+  });
+  test("Check Backspace preserves marks", async ({ page }) => {
+    await focusOnEditor(page);
+    await insertParagraph(page);
+    await insertParagraph(page);
+
+    await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("Control+ArrowLeft");
+
+    for (let i = 0; i < 2; i++) {
+      await page.keyboard.press("ArrowRight");
+    }
+
+    for (let i = 0; i < 5; i++) {
+      await page.keyboard.press("Shift+ArrowRight");
+    }
+
+    await page.locator(ITALIC_BUTTON_SELECTOR).click();
+    await page.waitForTimeout(500);
+
+    await page.keyboard.press("ArrowLeft");
+    await page.keyboard.press("Control+ArrowLeft");
+    await page.keyboard.press("Backspace");
+
+    await compareDocToSnapshot(page, "backspacePreservesMarks.json");
+  });
+  test("Check Backspace preserves nested blocks", async ({ page }) => {
+    await focusOnEditor(page);
+    await insertParagraph(page);
+    await insertParagraph(page);
+    await page.keyboard.press("Tab");
+    await insertParagraph(page);
+    await page.keyboard.press("Tab");
+    await page.keyboard.press("Tab");
+    await insertParagraph(page);
+
+    for (let i = 0; i < 3; i++) {
+      await page.keyboard.press("ArrowUp");
+    }
+
+    await page.keyboard.press("Control+ArrowLeft");
+    await page.keyboard.press("Backspace");
+
+    await compareDocToSnapshot(page, "backspacePreservesNestedBlocks.json");
   });
 });

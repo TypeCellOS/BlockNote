@@ -281,10 +281,19 @@ export const BlockContainer = Node.create<IBlock>({
           }
 
           // Deletes next block and adds its text content to the nearest previous block.
-          // TODO: Use slices.
+
           if (dispatch) {
-            state.tr.deleteRange(startPos, startPos + contentNode.nodeSize);
-            state.tr.insertText(contentNode.textContent, prevBlockEndPos - 1);
+            dispatch(
+              state.tr
+                .deleteRange(startPos, startPos + contentNode.nodeSize)
+                .replace(
+                  prevBlockEndPos - 1,
+                  startPos,
+                  new Slice(contentNode.content, 0, 0)
+                )
+                .scrollIntoView()
+            );
+
             state.tr.setSelection(
               new TextSelection(state.doc.resolve(prevBlockEndPos - 1))
             );
