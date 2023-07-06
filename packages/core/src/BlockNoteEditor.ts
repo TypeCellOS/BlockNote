@@ -149,6 +149,7 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
   public readonly _tiptapEditor: TiptapEditor & { contentComponent: any };
   public blockCache = new WeakMap<Node, Block<BSchema>>();
   public readonly schema: BSchema;
+  private ready = false;
 
   public get domElement() {
     return this._tiptapEditor.view.dom as HTMLDivElement;
@@ -204,11 +205,24 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
         newOptions.onEditorReady?.(this);
         newOptions.initialContent &&
           this.replaceBlocks(this.topLevelBlocks, newOptions.initialContent);
+        this.ready = true;
       },
       onUpdate: () => {
+        // This seems to be necessary due to a bug in TipTap:
+        // https://github.com/ueberdosis/tiptap/issues/2583
+        if (!this.ready) {
+          return;
+        }
+
         newOptions.onEditorContentChange?.(this);
       },
       onSelectionUpdate: () => {
+        // This seems to be necessary due to a bug in TipTap:
+        // https://github.com/ueberdosis/tiptap/issues/2583
+        if (!this.ready) {
+          return;
+        }
+
         newOptions.onTextCursorPositionChange?.(this);
       },
       editable: options.editable === undefined ? true : options.editable,
