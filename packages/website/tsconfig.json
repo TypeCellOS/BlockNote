@@ -18,7 +18,8 @@
     "skipLibCheck": true,
     "paths": {
       "@theme/*": ["./docs/.vitepress/theme/*"]
-    }
+    },
+    "composite": true
   },
   "include": [
     "src",
@@ -28,5 +29,6 @@
     // Also need to explicitly include Markdown files to have TS intellisense work with Volar
     "docs/**/*.md"
   ],
+  "references": [{ "path": "../core/" }, { "path": "../react/" }],
   "exclude": ["node_modules/"]
 }

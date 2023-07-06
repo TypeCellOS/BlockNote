@@ -45,7 +45,7 @@ function App() {
 
 So, BlockNote is centered around the idea of blocks. A block - like a heading, paragraph, or list item - contains a piece of content and optionally nested blocks:
 
-<img :src="isDark ? '../public/img/screenshots/block_structure_dark.png' : '../public/img/screenshots/block_structure.png'" alt="image" style="width: 100%">
+<img :src="isDark ? '/img/screenshots/block_structure_dark.png' : '/img/screenshots/block_structure.png'" alt="image" style="width: 100%">
 
 In code, the `Block` type is used to describe any given block in the editor:
 

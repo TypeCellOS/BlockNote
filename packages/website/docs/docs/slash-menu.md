@@ -16,9 +16,7 @@ const { isDark } = useData();
 
 The Slash Menu is the list of commands which shows up whenever you type the "/" (slash) character, or when you click the "+" button in the [Side Menu](/docs/side-menu):
 
-<!-- ![../public/img/screenshots/slash_menu.png]() -->
-
-<img style="max-width:400px" :src="isDark ? '../public/img/screenshots/slash_menu_dark.png' : '../public/img/screenshots/slash_menu.png'" alt="image">
+<img style="max-width:400px" :src="isDark ? '/img/screenshots/slash_menu_dark.png' : '/img/screenshots/slash_menu.png'" alt="image">
 
 ## Slash Menu Items
 

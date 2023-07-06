@@ -1,0 +1,97 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "blockGroup",
+      "content": [
+        {
+          "type": "blockContainer",
+          "attrs": {
+            "id": "0",
+            "textColor": "default",
+            "backgroundColor": "default"
+          },
+          "content": [
+            {
+              "type": "paragraph",
+              "attrs": {
+                "textAlignment": "left"
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "ParagraphParagraph"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "blockContainer",
+          "attrs": {
+            "id": "2",
+            "textColor": "default",
+            "backgroundColor": "default"
+          },
+          "content": [
+            {
+              "type": "paragraph",
+              "attrs": {
+                "textAlignment": "left"
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Paragraph"
+                }
+              ]
+            },
+            {
+              "type": "blockGroup",
+              "content": [
+                {
+                  "type": "blockContainer",
+                  "attrs": {
+                    "id": "3",
+                    "textColor": "default",
+                    "backgroundColor": "default"
+                  },
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlignment": "left"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Paragraph"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "blockContainer",
+          "attrs": {
+            "id": "4",
+            "textColor": "default",
+            "backgroundColor": "default"
+          },
+          "content": [
+            {
+              "type": "paragraph",
+              "attrs": {
+                "textAlignment": "left"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

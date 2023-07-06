@@ -7,7 +7,7 @@ packages/*/types
 examples/*/types
 /.pnp
 .pnp.js
-
+tsconfig.tsbuildinfo
 # testing
 coverage
 

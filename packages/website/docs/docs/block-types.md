@@ -24,7 +24,7 @@ BlockNote includes a number of built-in block types, each with their own set of 
 
 **Appearance**
 
-<img :src="isDark ? '../public/img/screenshots/paragraph_type_dark.png' : '../public/img/screenshots/paragraph_type.png'" alt="image" style="height: 29px">
+<img :src="isDark ? '/img/screenshots/paragraph_type_dark.png' : '/img/screenshots/paragraph_type.png'" alt="image" style="height: 29px">
 
 **Type & Props**
 
@@ -42,7 +42,7 @@ type ParagraphBlock = {
 
 **Appearance**
 
-<img :src="isDark ? '../public/img/screenshots/heading_type_dark.png' : '../public/img/screenshots/heading_type.png'" alt="image" style="height: 77px">
+<img :src="isDark ? '/img/screenshots/heading_type_dark.png' : '/img/screenshots/heading_type.png'" alt="image" style="height: 77px">
 
 **Type & Props**
 
@@ -64,7 +64,7 @@ type HeadingBlock = {
 
 **Appearance**
 
-<img :src="isDark ? '../public/img/screenshots/bullet_list_item_type_dark.png' : '../public/img/screenshots/bullet_list_item_type.png'" alt="image" style="height: 29px">
+<img :src="isDark ? '/img/screenshots/bullet_list_item_type_dark.png' : '/img/screenshots/bullet_list_item_type.png'" alt="image" style="height: 29px">
 
 **Type & Props**
 
@@ -82,7 +82,7 @@ type BulletListItemBlock = {
 
 **Appearance**
 
-<img :src="isDark ? '../public/img/screenshots/numbered_list_item_type_dark.png' : '../public/img/screenshots/numbered_list_item_type.png'" alt="image" style="height: 29px">
+<img :src="isDark ? '/img/screenshots/numbered_list_item_type_dark.png' : '/img/screenshots/numbered_list_item_type.png'" alt="image" style="height: 29px">
 
 **Type & Props**
 
@@ -307,6 +307,8 @@ This is a React component which defines how your custom block should be rendered
 For our custom image block, we use a parent `div` which contains the image and caption. Since `block` will always be an `image` block, we also know it contains a `src` prop, and can pass it to the child `img` element.
 
 But what's this `InlineContent` component? Since we set `containsInlineContent` to `true`, it means we want to include an editable rich-text field somewhere in the image block. You should use the `InlineContent` component to represent this field in your `render` component. Since we're using it to create our caption, we add it below the `img` element.
+
+In the DOM, the `InlineContent` component is rendered as a `div` by default, but you can make it use a different element by passing `as={"elementTag"}` as a prop. For example, `as={"p"}` will make the `InlineContent` component get rendered to a paragraph.
 
 While the `InlineContent` component can be put anywhere inside the component you pass to `render`, you should make sure to only have one. If `containsInlineContent` is set to false, `render` shouldn't contain any.
 

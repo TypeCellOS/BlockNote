@@ -38,8 +38,8 @@ export const formattingToolbarFactory: FormattingToolbarFactory<
         "bold" in staticParams.editor.getActiveStyles()
           ? "unset bold"
           : "set bold";
-      container.style.top = params.referenceRect.y + "px";
-      container.style.left = params.referenceRect.x + "px";
+      container.style.top = staticParams.getReferenceRect()!.y + "px";
+      container.style.left = staticParams.getReferenceRect()!.x + "px";
     },
     hide: () => {
       container.style.display = "none";
