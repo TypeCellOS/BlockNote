@@ -79,7 +79,6 @@ export const useBlockNote = <BSchema extends BlockSchema = DefaultBlockSchema>(
       uiFactories,
     };
 
-    console.log("create new blocknote instance");
     const instance = new BlockNoteEditor<BSchema>(
       newOptions as Partial<BlockNoteEditorOptions<BSchema>>
     );
