@@ -232,11 +232,19 @@ export const createFormattingToolbar = <BSchema extends BlockSchema>(
     formattingToolbarState: FormattingToolbarState
   ) => void
 ) => {
+  // TODO: Add a way to unregister the plugin.
+  const formattingToolbarView = new FormattingToolbarView(
+    editor,
+    editor._tiptapEditor.view,
+    updateFormattingToolbar
+  );
+  // For some reason, each time `registerPlugin` is called, the previous plugins
+  // which were added are either added again, or `view` is called again,
+  // resulting in duplicate views. This seems like a bug in TipTap?
   editor._tiptapEditor.registerPlugin(
     new Plugin({
       key: formattingToolbarPluginKey,
-      view: (view) =>
-        new FormattingToolbarView(editor, view, updateFormattingToolbar),
+      view: () => formattingToolbarView,
     }),
     (formattingToolbarPlugin, plugins) => {
       plugins.unshift(formattingToolbarPlugin);

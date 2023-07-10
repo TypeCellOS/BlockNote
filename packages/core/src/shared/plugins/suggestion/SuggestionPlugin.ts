@@ -193,6 +193,7 @@ export function createSuggestionPlugin<
   }) => void = () => {},
   items: (query: string) => T[] = () => []
 ) {
+  // TODO: Add a way to unregister the plugin.
   // Assertions
   if (defaultTriggerCharacter.length !== 1) {
     throw new Error("'char' should be a single character");
@@ -202,21 +203,24 @@ export function createSuggestionPlugin<
     view.dispatch(view.state.tr.setMeta(pluginKey, { deactivate: true }));
   };
 
-  // Plugin key is passed in as a parameter, so it can be exported and used in the DraggableBlocksPlugin.
+  const suggestionPluginView = new SuggestionPluginView<T, BSchema>(
+    editor,
+    pluginKey,
+    (props: { item: T; editor: BlockNoteEditor<BSchema> }) => {
+      deactivate(editor._tiptapEditor.view);
+      onSelectItem(props);
+    },
+    updateSuggestionsMenu
+  );
+
+  // For some reason, each time `registerPlugin` is called, the previous plugins
+  // which were added are either added again, or `view` is called again,
+  // resulting in duplicate views. This seems like a bug in TipTap?
   editor._tiptapEditor.registerPlugin(
     new Plugin({
       key: pluginKey,
 
-      view: (view: EditorView) =>
-        new SuggestionPluginView<T, BSchema>(
-          editor,
-          pluginKey,
-          (props: { item: T; editor: BlockNoteEditor<BSchema> }) => {
-            deactivate(view);
-            onSelectItem(props);
-          },
-          updateSuggestionsMenu
-        ),
+      view: () => suggestionPluginView,
 
       state: {
         // Initialize the plugin's internal state.

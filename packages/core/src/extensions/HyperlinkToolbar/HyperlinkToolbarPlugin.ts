@@ -308,10 +308,18 @@ export const createHyperlinkToolbar = <BSchema extends BlockSchema>(
   editor: BlockNoteEditor<BSchema>,
   updateHyperlinkToolbar: (hyperlinkToolbarState: HyperlinkToolbarState) => void
 ) => {
+  // TODO: Add a way to unregister the plugin.
+  const hyperlinkToolbarView = new HyperlinkToolbarView(
+    editor,
+    updateHyperlinkToolbar
+  );
+  // For some reason, each time `registerPlugin` is called, the previous plugins
+  // which were added are either added again, or `view` is called again,
+  // resulting in duplicate views. This seems like a bug in TipTap?
   editor._tiptapEditor.registerPlugin(
     new Plugin({
       key: hyperlinkToolbarPluginKey,
-      view: () => new HyperlinkToolbarView(editor, updateHyperlinkToolbar),
+      view: () => hyperlinkToolbarView,
     }),
     (hyperlinkToolbarPlugin, plugins) => {
       plugins.unshift(hyperlinkToolbarPlugin);

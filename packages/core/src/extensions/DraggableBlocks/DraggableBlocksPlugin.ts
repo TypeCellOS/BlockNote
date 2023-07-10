@@ -229,7 +229,7 @@ function dragStart(e: DragEvent, view: EditorView) {
   }
 }
 
-export class BlockMenuView<BSchema extends BlockSchema> {
+export class SideMenuView<BSchema extends BlockSchema> {
   editor: BlockNoteEditor<BSchema>;
 
   private sideMenuState?: SideMenuState<BSchema>;
@@ -366,16 +366,18 @@ export class BlockMenuView<BSchema extends BlockSchema> {
     // if (this.blockMenu.element?.contains(event.target as HTMLElement)) {
     //   return;
     // }
-
-    if (this.sideMenuState?.show) {
-      this.sideMenuState.show = false;
-      this.updateSideMenu();
-    }
-
-    this.menuFrozen = false;
+    //
+    // if (this.sideMenuState?.show) {
+    //   this.sideMenuState.show = false;
+    //   this.updateSideMenu();
+    // }
+    //
+    // this.menuFrozen = false;
   };
 
   onMouseMove = (event: MouseEvent) => {
+    console.log(this.menuFrozen);
+    console.log(this.sideMenuState);
     if (this.menuFrozen) {
       return;
     }
@@ -489,12 +491,8 @@ export class BlockMenuView<BSchema extends BlockSchema> {
             dragStart(event, this.editor._tiptapEditor.view);
           },
           blockDragEnd: () => unsetDragImage(),
-          freezeMenu: () => {
-            this.menuFrozen = true;
-          },
-          unfreezeMenu: () => {
-            this.menuFrozen = false;
-          },
+          freezeMenu: () => (this.menuFrozen = true),
+          unfreezeMenu: () => (this.menuFrozen = false),
         };
       } else {
         this.sideMenuState.show = true;
@@ -612,10 +610,15 @@ export const createSideMenu = <BSchema extends BlockSchema>(
   editor: BlockNoteEditor<BSchema>,
   updateSideMenu: (sideMenuState: SideMenuState<BSchema>) => void
 ) => {
+  // TODO: Add a way to unregister the plugin.
+  const sideMenuView = new SideMenuView(editor, updateSideMenu);
+  // For some reason, each time `registerPlugin` is called, the previous plugins
+  // which were added are either added again, or `view` is called again,
+  // resulting in duplicate views. This seems like a bug in TipTap?
   editor._tiptapEditor.registerPlugin(
     new Plugin({
       key: sideMenuPluginKey,
-      view: () => new BlockMenuView(editor, updateSideMenu),
+      view: () => sideMenuView,
     }),
     (sideMenuPlugin, plugins) => {
       plugins.unshift(sideMenuPlugin);
