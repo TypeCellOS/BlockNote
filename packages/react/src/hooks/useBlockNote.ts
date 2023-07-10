@@ -24,6 +24,53 @@ function useForceUpdate() {
   return () => setValue((value) => value + 1);
 }
 
+function initEditor<BSchema extends BlockSchema>(
+  options: Partial<
+    BlockNoteEditorOptions<BSchema> & {
+      customElements: CustomElements<BSchema>;
+    }
+  > = {}
+) {
+  // TODO: Fix typing. UiFactories expects only BaseSlashMenuItems, not extended types. Can be fixed with a generic,
+  //  but it would have to be on several different classes (BlockNoteEditor, BlockNoteEditorOptions, UiFactories) and
+  //  gets messy quick.
+  let newOptions: Record<any, any> = {
+    slashCommands: defaultReactSlashMenuItems,
+    ...options,
+  };
+
+  if (newOptions.customElements && newOptions.uiFactories) {
+    console.warn(
+      "BlockNote editor initialized with both `customElements` and `uiFactories` options, prioritizing `uiFactories`."
+    );
+  }
+
+  let uiFactories = {
+    formattingToolbarFactory: undefined,
+    hyperlinkToolbarFactory: createReactHyperlinkToolbarFactory(
+      getBlockNoteTheme(newOptions.theme === "dark")
+    ),
+    slashMenuFactory: undefined,
+    blockSideMenuFactory: createReactBlockSideMenuFactory(
+      getBlockNoteTheme(newOptions.theme === "dark"),
+      newOptions.customElements?.dragHandleMenu
+    ),
+    ...newOptions.uiFactories,
+  };
+
+  newOptions = {
+    ...newOptions,
+    uiFactories,
+  };
+
+  console.log("create new blocknote instance");
+  const instance = new BlockNoteEditor<BSchema>(
+    newOptions as Partial<BlockNoteEditorOptions<BSchema>>
+  );
+
+  return instance;
+}
+
 /**
  * Main hook for importing a BlockNote editor into a React project
  */
@@ -35,66 +82,68 @@ export const useBlockNote = <BSchema extends BlockSchema = DefaultBlockSchema>(
   > = {},
   deps: DependencyList = []
 ) => {
-  const [editor, setEditor] = useState<BlockNoteEditor<BSchema> | null>(null);
-  const forceUpdate = useForceUpdate();
+  // const [editor, setEditor] = useState<BlockNoteEditor<BSchema>>(
+  //   initEditor(options)
+  // );
+  // const forceUpdate = useForceUpdate();
 
-  useEffect(() => {
-    let isMounted = true;
-    // TODO: Fix typing. UiFactories expects only BaseSlashMenuItems, not extended types. Can be fixed with a generic,
-    //  but it would have to be on several different classes (BlockNoteEditor, BlockNoteEditorOptions, UiFactories) and
-    //  gets messy quick.
-    let newOptions: Record<any, any> = {
-      slashCommands: defaultReactSlashMenuItems,
-      ...options,
-    };
+  // useEffect(() => {
+  //   let isMounted = true;
+  //   // TODO: Fix typing. UiFactories expects only BaseSlashMenuItems, not extended types. Can be fixed with a generic,
+  //   //  but it would have to be on several different classes (BlockNoteEditor, BlockNoteEditorOptions, UiFactories) and
+  //   //  gets messy quick.
+  //   let newOptions: Record<any, any> = {
+  //     slashCommands: defaultReactSlashMenuItems,
+  //     ...options,
+  //   };
+  //
+  //   if (newOptions.customElements && newOptions.uiFactories) {
+  //     console.warn(
+  //       "BlockNote editor initialized with both `customElements` and `uiFactories` options, prioritizing `uiFactories`."
+  //     );
+  //   }
+  //
+  //   let uiFactories = {
+  //     formattingToolbarFactory: undefined,
+  //     hyperlinkToolbarFactory: createReactHyperlinkToolbarFactory(
+  //       getBlockNoteTheme(newOptions.theme === "dark")
+  //     ),
+  //     slashMenuFactory: undefined,
+  //     blockSideMenuFactory: createReactBlockSideMenuFactory(
+  //       getBlockNoteTheme(newOptions.theme === "dark"),
+  //       newOptions.customElements?.dragHandleMenu
+  //     ),
+  //     ...newOptions.uiFactories,
+  //   };
+  //
+  //   newOptions = {
+  //     ...newOptions,
+  //     uiFactories,
+  //   };
+  //
+  //   console.log("create new blocknote instance");
+  //   const instance = new BlockNoteEditor<BSchema>(
+  //     newOptions as Partial<BlockNoteEditorOptions<BSchema>>
+  //   );
+  //
+  //   setEditor(instance);
+  //
+  //   // instance._tiptapEditor.on("transaction", () => {
+  //   //   requestAnimationFrame(() => {
+  //   //     requestAnimationFrame(() => {
+  //   //       if (isMounted) {
+  //   //         forceUpdate();
+  //   //       }
+  //   //     });
+  //   //   });
+  //   // });
+  //
+  //   return () => {
+  //     instance._tiptapEditor.destroy();
+  //     isMounted = false;
+  //   };
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, deps);
 
-    if (newOptions.customElements && newOptions.uiFactories) {
-      console.warn(
-        "BlockNote editor initialized with both `customElements` and `uiFactories` options, prioritizing `uiFactories`."
-      );
-    }
-
-    let uiFactories = {
-      formattingToolbarFactory: undefined,
-      hyperlinkToolbarFactory: createReactHyperlinkToolbarFactory(
-        getBlockNoteTheme(newOptions.theme === "dark")
-      ),
-      slashMenuFactory: undefined,
-      blockSideMenuFactory: createReactBlockSideMenuFactory(
-        getBlockNoteTheme(newOptions.theme === "dark"),
-        newOptions.customElements?.dragHandleMenu
-      ),
-      ...newOptions.uiFactories,
-    };
-
-    newOptions = {
-      ...newOptions,
-      uiFactories,
-    };
-
-    console.log("create new blocknote instance");
-    const instance = new BlockNoteEditor<BSchema>(
-      newOptions as Partial<BlockNoteEditorOptions<BSchema>>
-    );
-
-    setEditor(instance);
-
-    // instance._tiptapEditor.on("transaction", () => {
-    //   requestAnimationFrame(() => {
-    //     requestAnimationFrame(() => {
-    //       if (isMounted) {
-    //         forceUpdate();
-    //       }
-    //     });
-    //   });
-    // });
-
-    return () => {
-      instance._tiptapEditor.destroy();
-      isMounted = false;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, deps);
-
-  return editor;
+  return initEditor(options);
 };

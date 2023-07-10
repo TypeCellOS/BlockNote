@@ -1,50 +1,146 @@
-import { Editor, Range } from "@tiptap/core";
 import { EditorState, Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
 import { BlockNoteEditor } from "../../../BlockNoteEditor";
 import { BlockSchema } from "../../../extensions/Blocks/api/blockTypes";
 import { findBlock } from "../../../extensions/Blocks/helpers/findBlock";
 import { SuggestionItem } from "./SuggestionItem";
+import { BaseUiElementState } from "../../EditorElement";
+import {
+  BaseSlashMenuItem,
+  defaultSlashMenuItems,
+} from "../../../extensions/SlashMenu";
+import { DefaultBlockSchema } from "../../../extensions/Blocks/api/defaultBlocks";
+import { ReactSlashMenuItem } from "@blocknote/react";
 
-export type SuggestionPluginOptions<
+export type SuggestionsMenuState<T extends SuggestionItem> =
+  BaseUiElementState & {
+    items: T[];
+    itemCallback: (item: T) => void;
+    keyboardHoveredItemIndex: number;
+  };
+
+class SuggestionPluginView<
   T extends SuggestionItem,
   BSchema extends BlockSchema
-> = {
-  /**
-   * The name of the plugin.
-   *
-   * Used for ensuring that the plugin key is unique when more than one instance of the SuggestionPlugin is used.
-   */
+> {
+  editor: BlockNoteEditor<BSchema>;
   pluginKey: PluginKey;
 
-  /**
-   * The BlockNote editor.
-   */
-  editor: BlockNoteEditor<BSchema>;
+  private suggestionsMenuState?: SuggestionsMenuState<T>;
+  public updateSuggestionsMenu: () => void;
 
-  /**
-   * The character that should trigger the suggestion menu to pop up (e.g. a '/' for commands), when typed by the user.
-   */
-  defaultTriggerCharacter: string;
+  pluginState: SuggestionPluginState<T>;
+  itemCallback: (item: T) => void;
 
-  onUpdate: any;
+  constructor(
+    editor: BlockNoteEditor<BSchema>,
+    pluginKey: PluginKey,
+    onSelectItem: (props: {
+      item: T;
+      editor: BlockNoteEditor<BSchema>;
+    }) => void = () => {},
+    updateSuggestionsMenu: (
+      suggestionsMenuState: SuggestionsMenuState<T>
+    ) => void = () => {}
+  ) {
+    this.editor = editor;
+    this.pluginKey = pluginKey;
+    this.pluginState = getDefaultPluginState<T>();
 
-  /**
-   * The callback that gets executed when an item is selected by the user.
-   *
-   * **NOTE:** The command text is not removed automatically from the editor by this plugin,
-   * this should be done manually. The `editor` and `range` properties passed
-   * to the callback function might come in handy when doing this.
-   */
-  onSelectItem?: (props: { item: T; editor: BlockNoteEditor<BSchema> }) => void;
+    this.updateSuggestionsMenu = () => {
+      if (!this.suggestionsMenuState) {
+        throw new Error("Attempting to update uninitialized suggestions menu");
+      }
 
-  /**
-   * A function that should supply the plugin with items to suggest, based on a certain query string.
-   */
-  items?: (query: string) => T[];
+      updateSuggestionsMenu(this.suggestionsMenuState);
+    };
 
-  allow?: (props: { editor: Editor; range: Range }) => boolean;
-};
+    this.itemCallback = (item: T) => {
+      editor._tiptapEditor
+        .chain()
+        .focus()
+        .deleteRange({
+          from:
+            this.pluginState.queryStartPos! -
+            this.pluginState.triggerCharacter!.length,
+          to: editor._tiptapEditor.state.selection.from,
+        })
+        .run();
+
+      onSelectItem({
+        item: item,
+        editor: editor,
+      });
+    };
+
+    // this.suggestionsMenu = suggestionsMenuFactory(this.getStaticParams());
+
+    document.addEventListener("scroll", this.handleScroll);
+  }
+
+  handleScroll = () => {
+    if (this.suggestionsMenuState?.show) {
+      const decorationNode = document.querySelector(
+        `[data-decoration-id="${this.pluginState.decorationId}"]`
+      );
+      this.suggestionsMenuState.referencePos =
+        decorationNode!.getBoundingClientRect();
+      this.updateSuggestionsMenu();
+    }
+  };
+
+  update(view: EditorView, prevState: EditorState) {
+    const prev = this.pluginKey.getState(prevState);
+    const next = this.pluginKey.getState(view.state);
+
+    // See how the state changed
+    const started = !prev.active && next.active;
+    const stopped = prev.active && !next.active;
+    // TODO: Currently also true for cases in which an update isn't needed so selected list item index updates still
+    //  cause the view to update. May need to be more strict.
+    const changed = prev.active && next.active;
+
+    // Cancel when suggestion isn't active
+    if (!started && !changed && !stopped) {
+      return;
+    }
+
+    this.pluginState = stopped ? prev : next;
+
+    if (stopped || !this.editor.isEditable) {
+      this.suggestionsMenuState!.show = false;
+      this.updateSuggestionsMenu();
+    }
+
+    const decorationNode = document.querySelector(
+      `[data-decoration-id="${this.pluginState.decorationId}"]`
+    );
+
+    if (changed) {
+      this.suggestionsMenuState!.referencePos =
+        decorationNode!.getBoundingClientRect();
+      this.suggestionsMenuState!.items = this.pluginState.items;
+      this.suggestionsMenuState!.keyboardHoveredItemIndex =
+        this.pluginState.keyboardHoveredItemIndex!;
+      this.updateSuggestionsMenu();
+    }
+
+    if (started && this.editor.isEditable) {
+      this.suggestionsMenuState = {
+        show: true,
+        referencePos: decorationNode!.getBoundingClientRect(),
+        items: this.pluginState.items,
+        itemCallback: (item: T) => this.itemCallback(item),
+        keyboardHoveredItemIndex: this.pluginState.keyboardHoveredItemIndex!,
+      };
+      this.updateSuggestionsMenu();
+    }
+  }
+
+  destroy() {
+    document.removeEventListener("scroll", this.handleScroll);
+  }
+}
 
 type SuggestionPluginState<T extends SuggestionItem> = {
   // True when the menu is shown, false when hidden.
@@ -79,134 +175,6 @@ function getDefaultPluginState<
   };
 }
 
-type SuggestionPluginViewOptions<
-  T extends SuggestionItem,
-  BSchema extends BlockSchema
-> = {
-  editor: BlockNoteEditor<BSchema>;
-  pluginKey: PluginKey;
-  onSelectItem: (props: { item: T; editor: BlockNoteEditor<BSchema> }) => void;
-  onUpdate: any;
-};
-
-class SuggestionPluginView<
-  T extends SuggestionItem,
-  BSchema extends BlockSchema
-> {
-  editor: BlockNoteEditor<BSchema>;
-  pluginKey: PluginKey;
-
-  onUpdate: any;
-
-  pluginState: SuggestionPluginState<T>;
-  itemCallback: (item: T) => void;
-
-  constructor({
-    editor,
-    pluginKey,
-    onSelectItem: selectItemCallback = () => {},
-    onUpdate,
-  }: SuggestionPluginViewOptions<T, BSchema>) {
-    this.editor = editor;
-    this.pluginKey = pluginKey;
-    this.onUpdate = onUpdate;
-    this.pluginState = getDefaultPluginState<T>();
-
-    this.itemCallback = (item: T) => {
-      editor._tiptapEditor
-        .chain()
-        .focus()
-        .deleteRange({
-          from:
-            this.pluginState.queryStartPos! -
-            this.pluginState.triggerCharacter!.length,
-          to: editor._tiptapEditor.state.selection.from,
-        })
-        .run();
-
-      selectItemCallback({
-        item: item,
-        editor: editor,
-      });
-    };
-
-    // this.suggestionsMenu = suggestionsMenuFactory(this.getStaticParams());
-
-    document.addEventListener("scroll", this.handleScroll);
-  }
-
-  handleScroll = () => {
-    if (this.pluginKey.getState(this.editor._tiptapEditor.state).active) {
-      // this.suggestionsMenu.render(this.getDynamicParams(), false);
-    }
-  };
-
-  update(view: EditorView, prevState: EditorState) {
-    const prev = this.pluginKey.getState(prevState);
-    const next = this.pluginKey.getState(view.state);
-
-    // See how the state changed
-    const started = !prev.active && next.active;
-    const stopped = prev.active && !next.active;
-    // TODO: Currently also true for cases in which an update isn't needed so selected list item index updates still
-    //  cause the view to update. May need to be more strict.
-    const changed = prev.active && next.active;
-
-    // Cancel when suggestion isn't active
-    if (!started && !changed && !stopped) {
-      return;
-    }
-
-    this.pluginState = stopped ? prev : next;
-
-    if (stopped || !this.editor.isEditable) {
-      this.params.active = false;
-      this.onUpdate(this.params);
-      // this.suggestionsMenu.hide();
-      // Listener stops focus moving to the menu on click.
-      // this.suggestionsMenu.element!.removeEventListener("mousedown", (event) =>
-      //   event.preventDefault()
-      // );
-    }
-
-    if (changed) {
-      this.updateActiveParams();
-      this.onUpdate(this.params);
-      // this.suggestionsMenu.render(this.getDynamicParams(), false);
-    }
-
-    if (started && this.editor.isEditable) {
-      // this.suggestionsMenu.render(this.getDynamicParams(), true);
-      this.updateActiveParams();
-      this.onUpdate(this.params);
-      // Listener stops focus moving to the menu on click.
-      // this.suggestionsMenu.element!.addEventListener("mousedown", (event) =>
-      //   event.preventDefault()
-      // );
-    }
-  }
-
-  destroy() {
-    document.removeEventListener("scroll", this.handleScroll);
-  }
-
-  private params: any = {
-    active: false,
-    itemCallback: (item: T) => this.itemCallback(item),
-  };
-
-  updateActiveParams(): any {
-    const decorationNode = document.querySelector(
-      `[data-decoration-id="${this.pluginState.decorationId}"]`
-    );
-    this.params.active = true;
-    this.params.items = this.pluginState.items;
-    this.params.keyboardHoveredItemIndex =
-      this.pluginState.keyboardHoveredItemIndex!;
-    this.params.referenceRect = decorationNode!.getBoundingClientRect();
-  }
-}
-
 /**
  * A ProseMirror plugin for suggestions, designed to make '/'-commands possible as well as mentions.
  *
@@ -216,25 +184,29 @@ class SuggestionPluginView<
  * - This version supports generic items instead of only strings (to allow for more advanced filtering for example)
  * - This version hides some unnecessary complexity from the user of the plugin.
  * - This version handles key events differently
- *
- * @param options options for configuring the plugin
- * @returns the prosemirror plugin
  */
 export function createSuggestionPlugin<
   T extends SuggestionItem,
   BSchema extends BlockSchema
->({
-  pluginKey,
-  editor,
-  defaultTriggerCharacter,
-  onUpdate,
-  onSelectItem: selectItemCallback = () => {},
-  items = () => [],
-}: SuggestionPluginOptions<T, BSchema>) {
+>(
+  pluginName: string,
+  defaultTriggerCharacter: string,
+  editor: BlockNoteEditor<BSchema>,
+  updateSuggestionsMenu: (
+    suggestionsMenuState: SuggestionsMenuState<T>
+  ) => void,
+  onSelectItem: (props: {
+    item: T;
+    editor: BlockNoteEditor<BSchema>;
+  }) => void = () => {},
+  items: (query: string) => T[] = () => []
+) {
   // Assertions
   if (defaultTriggerCharacter.length !== 1) {
     throw new Error("'char' should be a single character");
   }
+
+  const pluginKey = new PluginKey(pluginName);
 
   const deactivate = (view: EditorView) => {
     view.dispatch(view.state.tr.setMeta(pluginKey, { deactivate: true }));
@@ -245,18 +217,15 @@ export function createSuggestionPlugin<
     key: pluginKey,
 
     view: (view: EditorView) =>
-      new SuggestionPluginView<T, BSchema>({
-        editor: editor,
-        pluginKey: pluginKey,
-        onSelectItem: (props: {
-          item: T;
-          editor: BlockNoteEditor<BSchema>;
-        }) => {
+      new SuggestionPluginView<T, BSchema>(
+        editor,
+        pluginKey,
+        (props: { item: T; editor: BlockNoteEditor<BSchema> }) => {
           deactivate(view);
-          selectItemCallback(props);
+          onSelectItem(props);
         },
-        onUpdate,
-      }),
+        updateSuggestionsMenu
+      ),
 
     state: {
       // Initialize the plugin's internal state.
@@ -418,7 +387,7 @@ export function createSuggestionPlugin<
             })
             .run();
 
-          selectItemCallback({
+          onSelectItem({
             item: items[keyboardHoveredItemIndex],
             editor: editor,
           });
@@ -484,3 +453,27 @@ export function createSuggestionPlugin<
     },
   });
 }
+
+export const createSlashMenu = (
+  editor: BlockNoteEditor,
+  updateSlashMenu: (
+    slashMenuState: SuggestionsMenuState<ReactSlashMenuItem<DefaultBlockSchema>>
+  ) => void
+) => {
+  editor._tiptapEditor.registerPlugin(
+    createSuggestionPlugin<
+      BaseSlashMenuItem<DefaultBlockSchema>,
+      DefaultBlockSchema
+    >(
+      "SlashMenuPlugin",
+      "/",
+      editor,
+      (slashMenuState) => updateSlashMenu(slashMenuState),
+      ({ item, editor }) => item.execute(editor),
+      (query) =>
+        defaultSlashMenuItems.filter(
+          (cmd: BaseSlashMenuItem<DefaultBlockSchema>) => cmd.match(query)
+        )
+    )
+  );
+};

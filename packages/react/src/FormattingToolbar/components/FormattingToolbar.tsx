@@ -1,13 +1,11 @@
 import {
   BlockNoteEditor,
   BlockSchema,
-  createFormattingToolbarPlugin,
+  createFormattingToolbar,
+  FormattingToolbarState,
 } from "@blocknote/core";
 
-import { PluginKey } from "prosemirror-state";
-import { useEffect, useRef, useState } from "react";
-import { getBlockNoteTheme } from "../../BlockNoteTheme";
-import { EditorElementComponentWrapper } from "../../ElementFactory/components/EditorElementComponentWrapper";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Toolbar } from "../../SharedComponents/Toolbar/components/Toolbar";
 import { ColorStyleButton } from "./DefaultButtons/ColorStyleButton";
 import { CreateLinkButton } from "./DefaultButtons/CreateLinkButton";
@@ -18,6 +16,7 @@ import {
 import { TextAlignButton } from "./DefaultButtons/TextAlignButton";
 import { ToggledStyleButton } from "./DefaultButtons/ToggledStyleButton";
 import { BlockTypeDropdown } from "./DefaultDropdowns/BlockTypeDropdown";
+import Tippy from "@tippyjs/react";
 
 export const FormattingToolbarOld = <BSchema extends BlockSchema>(props: {
   editor: BlockNoteEditor<BSchema>;
@@ -48,58 +47,36 @@ export const FormattingToolbarOld = <BSchema extends BlockSchema>(props: {
 export const FormattingToolbar = <BSchema extends BlockSchema>(props: {
   editor: BlockNoteEditor<BSchema>;
 }) => {
-  const [params, setParams] = useState<any>();
-  const [isHidden, setIsHidden] = useState<boolean>(true);
+  const [state, setState] = useState<
+    Omit<FormattingToolbarState, "referencePos"> | undefined
+  >();
+  // Since we're using Tippy, we don't want to trigger re-renders when only the
+  // reference position changes. So we store it in a ref instead of state.
+  const referenceClientRect = useRef<DOMRect | undefined>();
 
-  const elementRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    if (!elementRef.current || !props.editor) {
-      return;
-    }
-
-    if (props.editor._tiptapEditor.isDestroyed) {
-      return;
-    }
-
-    const pluginKey = new PluginKey("FormattingToolbarPlugin2");
-
-    const plugin = createFormattingToolbarPlugin({
-      tiptapEditor: props.editor._tiptapEditor,
-      editor: props.editor,
-      formattingToolbarFactory: () => ({
-        element: elementRef.current!,
-        render: (params, isHidden) => {
-          setParams(params);
-          setIsHidden(false);
-        },
-        hide: () => {
-          setIsHidden(true);
-        },
-      }),
-      pluginKey,
+    createFormattingToolbar(props.editor, ({ referencePos, ...state }) => {
+      setState(state);
+      referenceClientRect.current = referencePos;
     });
+  }, [props.editor]);
 
-    props.editor._tiptapEditor.registerPlugin(plugin);
-    return () => props.editor._tiptapEditor.unregisterPlugin(pluginKey);
-  }, [props.editor, elementRef.current]);
-  console.log("FormattingToolbar", params, isHidden);
+  const getReferenceClientRect = useCallback(
+    () => referenceClientRect.current!,
+    [referenceClientRect]
+  );
+
   return (
-    <div ref={elementRef}>
-      {elementRef.current && props.editor && (
-        <EditorElementComponentWrapper
-          dynamicParams={params}
-          // editor={props.editor}
-          // isHidden={isHidden}
-          rootElement={elementRef.current!}
-          staticParams={{
-            editor: props.editor,
-          }}
-          isOpen={!isHidden}
-          theme={getBlockNoteTheme()}
-          editorElementComponent={
-            FormattingToolbarOld as any
-          }></EditorElementComponentWrapper>
-      )}
-    </div>
+    <Tippy
+      appendTo={props.editor._tiptapEditor.view.dom.parentElement!}
+      content={<FormattingToolbarOld editor={props.editor} />}
+      getReferenceClientRect={
+        referenceClientRect.current && getReferenceClientRect
+      }
+      interactive={true}
+      visible={state?.show || false}
+      animation={"fade"}
+      placement={"top-start"}
+    />
   );
 };

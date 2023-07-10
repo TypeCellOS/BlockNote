@@ -1,24 +1,20 @@
-import { Block, BlockNoteEditor, BlockSchema } from "@blocknote/core";
-import { ActionIcon, Group, Menu } from "@mantine/core";
-import { FC, useEffect, useRef, useState } from "react";
+import {
+  BlockNoteEditor,
+  BlockSchema,
+  createSideMenu,
+  SideMenuState,
+} from "@blocknote/core";
+import { ActionIcon, Menu } from "@mantine/core";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import { MdDragIndicator } from "react-icons/md";
 import { DefaultDragHandleMenu } from "./DefaultDragHandleMenu";
-import { DragHandleMenuProps } from "./DragHandleMenu";
+import Tippy from "@tippyjs/react";
 
-export type BlockSideMenuProps<BSchema extends BlockSchema> = {
-  editor: BlockNoteEditor<BSchema>;
-  block: Block<BSchema>;
-  dragHandleMenu?: FC<DragHandleMenuProps<BSchema>>;
-  addBlock: () => void;
-  blockDragStart: (event: DragEvent) => void;
-  blockDragEnd: () => void;
-  freezeMenu: () => void;
-  unfreezeMenu: () => void;
-};
-
-export const BlockSideMenu = <BSchema extends BlockSchema>(
-  props: BlockSideMenuProps<BSchema>
+export const BlockSideMenuOld = <BSchema extends BlockSchema>(
+  props: Omit<SideMenuState<BSchema>, "referencePos"> & {
+    editor: BlockNoteEditor<BSchema>;
+  }
 ) => {
   const [dragHandleMenuOpened, setDragHandleMenuOpened] = useState(false);
 
@@ -45,10 +41,10 @@ export const BlockSideMenu = <BSchema extends BlockSchema>(
     props.unfreezeMenu();
   };
 
-  const DragHandleMenu = props.dragHandleMenu || DefaultDragHandleMenu;
+  const DragHandleMenu = DefaultDragHandleMenu;
 
   return (
-    <Group spacing={0}>
+    <div style={{ display: "flex", flexDirection: "row" }}>
       <ActionIcon size={24} data-test={"dragHandleAdd"}>
         {
           <AiOutlinePlus
@@ -79,6 +75,61 @@ export const BlockSideMenu = <BSchema extends BlockSchema>(
           closeMenu={closeMenu}
         />
       </Menu>
-    </Group>
+    </div>
+  );
+};
+
+export const SideMenu = <BSchema extends BlockSchema>(props: {
+  editor: BlockNoteEditor<BSchema>;
+}) => {
+  const [state, setState] = useState<
+    Omit<SideMenuState<BSchema>, "referencePos"> | undefined
+  >();
+  // Since we're using Tippy, we don't want to trigger re-renders when only the
+  // reference position changes. So we store it in a ref instead of state.
+  const referenceClientRect = useRef<DOMRect | undefined>();
+
+  useEffect(() => {
+    createSideMenu(props.editor, ({ referencePos, ...state }) => {
+      setState(state);
+      referenceClientRect.current = referencePos;
+    });
+  }, [props.editor]);
+
+  const getReferenceClientRect = useCallback(
+    () => referenceClientRect.current!,
+    [referenceClientRect]
+  );
+
+  return (
+    <Tippy
+      appendTo={props.editor._tiptapEditor.view.dom.parentElement!}
+      content={<BlockSideMenuOld {...state!} editor={props.editor} />}
+      getReferenceClientRect={
+        referenceClientRect.current && getReferenceClientRect
+      }
+      interactive={true}
+      visible={state?.show || false}
+      animation={"fade"}
+      offset={[0, 0]}
+      placement={"left"}
+      popperOptions={{
+        modifiers: [
+          {
+            name: "flip",
+            options: {
+              fallbackPlacements: [],
+            },
+          },
+          {
+            name: "preventOverflow",
+            options: {
+              mainAxis: false,
+              altAxis: false,
+            },
+          },
+        ],
+      }}
+    />
   );
 };

@@ -1,27 +1,26 @@
-import { Editor, getMarkRange, posToDOMRect, Range } from "@tiptap/core";
+import { getMarkRange, posToDOMRect, Range } from "@tiptap/core";
 import { Mark } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
-import {
-  HyperlinkToolbar,
-  HyperlinkToolbarDynamicParams,
-  HyperlinkToolbarFactory,
-  HyperlinkToolbarStaticParams,
-} from "./HyperlinkToolbarFactoryTypes";
-const PLUGIN_KEY = new PluginKey("HyperlinkToolbarPlugin");
+import { BaseUiElementState } from "../../shared/EditorElement";
+import { BlockNoteEditor } from "../../BlockNoteEditor";
+import { BlockSchema } from "../Blocks/api/blockTypes";
 
-export type HyperlinkToolbarPluginProps = {
-  hyperlinkToolbarFactory: HyperlinkToolbarFactory;
+export type HyperlinkToolbarState = BaseUiElementState & {
+  editHyperlink: (url: string, text: string) => void;
+  deleteHyperlink: () => void;
+
+  toolbarMouseEnter: () => void;
+  toolbarMouseLeave: () => void;
+
+  url: string;
+  text: string;
 };
 
-export type HyperlinkToolbarViewProps = {
-  editor: Editor;
-  hyperlinkToolbarFactory: HyperlinkToolbarFactory;
-};
+class HyperlinkToolbarView<BSchema extends BlockSchema> {
+  editor: BlockNoteEditor<BSchema>;
 
-class HyperlinkToolbarView {
-  editor: Editor;
-
-  hyperlinkToolbar: HyperlinkToolbar;
+  private hyperlinkToolbarState?: HyperlinkToolbarState;
+  public updateHyperlinkToolbar: () => void;
 
   menuUpdateTimer: NodeJS.Timeout | undefined;
   startMenuUpdateTimer: () => void;
@@ -36,10 +35,21 @@ class HyperlinkToolbarView {
   hyperlinkMark: Mark | undefined;
   hyperlinkMarkRange: Range | undefined;
 
-  constructor({ editor, hyperlinkToolbarFactory }: HyperlinkToolbarViewProps) {
+  constructor(
+    editor: BlockNoteEditor<BSchema>,
+    updateHyperlinkToolbar: (
+      hyperlinkToolbarState: HyperlinkToolbarState
+    ) => void
+  ) {
     this.editor = editor;
 
-    this.hyperlinkToolbar = hyperlinkToolbarFactory(this.getStaticParams());
+    this.updateHyperlinkToolbar = () => {
+      if (!this.hyperlinkToolbarState) {
+        throw new Error("Attempting to update uninitialized hyperlink toolbar");
+      }
+
+      updateHyperlinkToolbar(this.hyperlinkToolbarState);
+    };
 
     this.startMenuUpdateTimer = () => {
       this.menuUpdateTimer = setTimeout(() => {
@@ -56,7 +66,10 @@ class HyperlinkToolbarView {
       return false;
     };
 
-    this.editor.view.dom.addEventListener("mouseover", this.mouseOverHandler);
+    this.editor._tiptapEditor.view.dom.addEventListener(
+      "mouseover",
+      this.mouseOverHandler
+    );
     document.addEventListener("click", this.clickHandler, true);
     document.addEventListener("scroll", this.scrollHandler);
   }
@@ -76,14 +89,16 @@ class HyperlinkToolbarView {
       // mouseHoveredHyperlinkMarkRange.
       const hoveredHyperlinkElement = event.target;
       const posInHoveredHyperlinkMark =
-        this.editor.view.posAtDOM(hoveredHyperlinkElement, 0) + 1;
-      const resolvedPosInHoveredHyperlinkMark = this.editor.state.doc.resolve(
-        posInHoveredHyperlinkMark
-      );
+        this.editor._tiptapEditor.view.posAtDOM(hoveredHyperlinkElement, 0) + 1;
+      const resolvedPosInHoveredHyperlinkMark =
+        this.editor._tiptapEditor.state.doc.resolve(posInHoveredHyperlinkMark);
       const marksAtPos = resolvedPosInHoveredHyperlinkMark.marks();
 
       for (const mark of marksAtPos) {
-        if (mark.type.name === this.editor.schema.mark("link").type.name) {
+        if (
+          mark.type.name ===
+          this.editor._tiptapEditor.schema.mark("link").type.name
+        ) {
           this.mouseHoveredHyperlinkMark = mark;
           this.mouseHoveredHyperlinkMarkRange =
             getMarkRange(
@@ -103,31 +118,80 @@ class HyperlinkToolbarView {
   };
 
   clickHandler = (event: MouseEvent) => {
+    const editorWrapper = this.editor._tiptapEditor.view.dom.parentElement!;
+
     if (
       // Toolbar is open.
       this.hyperlinkMark &&
       // An element is clicked.
       event &&
       event.target &&
-      // Element is outside the editor.
-      this.editor.view.dom !== (event.target as Node) &&
-      !this.editor.view.dom.contains(event.target as Node) &&
-      // Element is outside the toolbar.
-      this.hyperlinkToolbar.element !== (event.target as Node) &&
-      !this.hyperlinkToolbar.element?.contains(event.target as Node)
+      // The clicked element is not the editor.
+      !(
+        editorWrapper === (event.relatedTarget as Node) ||
+        editorWrapper.contains(event.relatedTarget as Node)
+      )
     ) {
-      this.hyperlinkToolbar.hide();
+      if (this.hyperlinkToolbarState?.show) {
+        this.hyperlinkToolbarState.show = false;
+        this.updateHyperlinkToolbar();
+      }
     }
   };
 
   scrollHandler = () => {
     if (this.hyperlinkMark !== undefined) {
-      this.hyperlinkToolbar.render(this.getDynamicParams(), false);
+      if (this.hyperlinkToolbarState?.show) {
+        this.hyperlinkToolbarState.referencePos = posToDOMRect(
+          this.editor._tiptapEditor.view,
+          this.hyperlinkMarkRange!.from,
+          this.hyperlinkMarkRange!.to
+        );
+        this.updateHyperlinkToolbar();
+      }
     }
   };
 
+  editHyperlink(url: string, text: string) {
+    const tr = this.editor._tiptapEditor.view.state.tr.insertText(
+      text,
+      this.hyperlinkMarkRange!.from,
+      this.hyperlinkMarkRange!.to
+    );
+    tr.addMark(
+      this.hyperlinkMarkRange!.from,
+      this.hyperlinkMarkRange!.from + text.length,
+      this.editor._tiptapEditor.schema.mark("link", { href: url })
+    );
+    this.editor._tiptapEditor.view.dispatch(tr);
+    this.editor._tiptapEditor.view.focus();
+
+    if (this.hyperlinkToolbarState?.show) {
+      this.hyperlinkToolbarState.show = false;
+      this.updateHyperlinkToolbar();
+    }
+  }
+
+  deleteHyperlink() {
+    this.editor._tiptapEditor.view.dispatch(
+      this.editor._tiptapEditor.view.state.tr
+        .removeMark(
+          this.hyperlinkMarkRange!.from,
+          this.hyperlinkMarkRange!.to,
+          this.hyperlinkMark!.type
+        )
+        .setMeta("preventAutolink", true)
+    );
+    this.editor._tiptapEditor.view.focus();
+
+    if (this.hyperlinkToolbarState?.show) {
+      this.hyperlinkToolbarState.show = false;
+      this.updateHyperlinkToolbar();
+    }
+  }
+
   update() {
-    if (!this.editor.view.hasFocus()) {
+    if (!this.editor._tiptapEditor.view.hasFocus()) {
       return;
     }
 
@@ -144,15 +208,19 @@ class HyperlinkToolbarView {
 
     // Finds link mark at the editor selection's position to update keyboardHoveredHyperlinkMark and
     // keyboardHoveredHyperlinkMarkRange.
-    if (this.editor.state.selection.empty) {
-      const marksAtPos = this.editor.state.selection.$from.marks();
+    if (this.editor._tiptapEditor.state.selection.empty) {
+      const marksAtPos =
+        this.editor._tiptapEditor.state.selection.$from.marks();
 
       for (const mark of marksAtPos) {
-        if (mark.type.name === this.editor.schema.mark("link").type.name) {
+        if (
+          mark.type.name ===
+          this.editor._tiptapEditor.schema.mark("link").type.name
+        ) {
           this.keyboardHoveredHyperlinkMark = mark;
           this.keyboardHoveredHyperlinkMarkRange =
             getMarkRange(
-              this.editor.state.selection.$from,
+              this.editor._tiptapEditor.state.selection.$from,
               mark.type,
               mark.attrs
             ) || undefined;
@@ -174,116 +242,73 @@ class HyperlinkToolbarView {
     }
 
     if (this.hyperlinkMark && this.editor.isEditable) {
-      this.getDynamicParams();
-
-      // Shows menu.
-      if (!prevHyperlinkMark) {
-        this.hyperlinkToolbar.render(this.getDynamicParams(), true);
-
-        this.hyperlinkToolbar.element?.addEventListener(
-          "mouseleave",
-          this.startMenuUpdateTimer
+      if (!this.hyperlinkToolbarState) {
+        this.hyperlinkToolbarState = {
+          show: true,
+          referencePos: posToDOMRect(
+            this.editor._tiptapEditor.view,
+            this.hyperlinkMarkRange!.from,
+            this.hyperlinkMarkRange!.to
+          ),
+          url: this.hyperlinkMark!.attrs.href,
+          text: this.editor._tiptapEditor.view.state.doc.textBetween(
+            this.hyperlinkMarkRange!.from,
+            this.hyperlinkMarkRange!.to
+          ),
+          editHyperlink: this.editHyperlink,
+          deleteHyperlink: this.deleteHyperlink,
+          toolbarMouseEnter: this.stopMenuUpdateTimer,
+          toolbarMouseLeave: this.startMenuUpdateTimer,
+        };
+      } else {
+        this.hyperlinkToolbarState.show = true;
+        this.hyperlinkToolbarState.referencePos = posToDOMRect(
+          this.editor._tiptapEditor.view,
+          this.hyperlinkMarkRange!.from,
+          this.hyperlinkMarkRange!.to
         );
-        this.hyperlinkToolbar.element?.addEventListener(
-          "mouseenter",
-          this.stopMenuUpdateTimer
-        );
-
-        return;
+        this.hyperlinkToolbarState.url = this.hyperlinkMark!.attrs.href;
+        this.hyperlinkToolbarState.text =
+          this.editor._tiptapEditor.view.state.doc.textBetween(
+            this.hyperlinkMarkRange!.from,
+            this.hyperlinkMarkRange!.to
+          );
       }
-
-      // Updates menu.
-      this.hyperlinkToolbar.render(this.getDynamicParams(), false);
+      this.updateHyperlinkToolbar();
 
       return;
     }
 
     // Hides menu.
-    if (prevHyperlinkMark && (!this.hyperlinkMark || !this.editor.isEditable)) {
-      this.hyperlinkToolbar.element?.removeEventListener(
-        "mouseleave",
-        this.startMenuUpdateTimer
-      );
-      this.hyperlinkToolbar.element?.removeEventListener(
-        "mouseenter",
-        this.stopMenuUpdateTimer
-      );
-
-      this.hyperlinkToolbar.hide();
+    if (
+      this.hyperlinkToolbarState?.show &&
+      prevHyperlinkMark &&
+      (!this.hyperlinkMark || !this.editor.isEditable)
+    ) {
+      this.hyperlinkToolbarState.show = false;
+      this.updateHyperlinkToolbar();
 
       return;
     }
   }
 
   destroy() {
-    this.editor.view.dom.removeEventListener(
+    this.editor._tiptapEditor.view.dom.removeEventListener(
       "mouseover",
       this.mouseOverHandler
     );
     document.removeEventListener("scroll", this.scrollHandler);
   }
-
-  getStaticParams(): HyperlinkToolbarStaticParams {
-    return {
-      editHyperlink: (url: string, text: string) => {
-        const tr = this.editor.view.state.tr.insertText(
-          text,
-          this.hyperlinkMarkRange!.from,
-          this.hyperlinkMarkRange!.to
-        );
-        tr.addMark(
-          this.hyperlinkMarkRange!.from,
-          this.hyperlinkMarkRange!.from + text.length,
-          this.editor.schema.mark("link", { href: url })
-        );
-        this.editor.view.dispatch(tr);
-        this.editor.view.focus();
-
-        this.hyperlinkToolbar.hide();
-      },
-      deleteHyperlink: () => {
-        this.editor.view.dispatch(
-          this.editor.view.state.tr
-            .removeMark(
-              this.hyperlinkMarkRange!.from,
-              this.hyperlinkMarkRange!.to,
-              this.hyperlinkMark!.type
-            )
-            .setMeta("preventAutolink", true)
-        );
-        this.editor.view.focus();
-
-        this.hyperlinkToolbar.hide();
-      },
-    };
-  }
-
-  getDynamicParams(): HyperlinkToolbarDynamicParams {
-    return {
-      url: this.hyperlinkMark!.attrs.href,
-      text: this.editor.view.state.doc.textBetween(
-        this.hyperlinkMarkRange!.from,
-        this.hyperlinkMarkRange!.to
-      ),
-      referenceRect: posToDOMRect(
-        this.editor.view,
-        this.hyperlinkMarkRange!.from,
-        this.hyperlinkMarkRange!.to
-      ),
-    };
-  }
 }
 
-export const createHyperlinkToolbarPlugin = (
-  editor: Editor,
-  options: HyperlinkToolbarPluginProps
+export const createHyperlinkToolbar = <BSchema extends BlockSchema>(
+  editor: BlockNoteEditor<BSchema>,
+  updateHyperlinkToolbar: (hyperlinkToolbarState: HyperlinkToolbarState) => void
 ) => {
-  return new Plugin({
-    key: PLUGIN_KEY,
-    view: () =>
-      new HyperlinkToolbarView({
-        editor: editor,
-        hyperlinkToolbarFactory: options.hyperlinkToolbarFactory,
-      }),
-  });
+  editor._tiptapEditor.registerPlugin(
+    new Plugin({
+      key: new PluginKey("HyperlinkToolbarPlugin"),
+      view: () => new HyperlinkToolbarView(editor, updateHyperlinkToolbar),
+    })
+  );
 };

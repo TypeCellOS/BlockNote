@@ -1,21 +1,22 @@
 import { BlockNoteEditor, BlockSchema } from "@blocknote/core";
 import { EditorContent } from "@tiptap/react";
 import { FormattingToolbar } from "./FormattingToolbar/components/FormattingToolbar";
-import { SlashMenu2 } from "./SlashMenu/components/SlashMenu";
-// import { BlockNoteTheme } from "./BlockNoteTheme";
-// import { MantineProvider } from "@mantine/core";
+import { SlashMenu } from "./SlashMenu/components/SlashMenu";
+import { HyperlinkToolbar } from "./HyperlinkToolbar/components/HyperlinkToolbar";
+import { SideMenu } from "./BlockSideMenu/components/BlockSideMenu";
+import { getBlockNoteTheme } from "./BlockNoteTheme";
+import { MantineProvider } from "@mantine/core";
 
 export function BlockNoteView<BSchema extends BlockSchema>(props: {
-  editor: BlockNoteEditor<BSchema> | null;
+  editor: BlockNoteEditor<BSchema>;
 }) {
   return (
-    // TODO: Should we wrap editor in MantineProvider? Otherwise we have to duplicate color hex values.
-    // <MantineProvider theme={BlockNoteTheme}>
-    <>
+    <MantineProvider theme={getBlockNoteTheme()}>
       <EditorContent editor={props.editor?._tiptapEditor || null} />
       <FormattingToolbar editor={props.editor!} />
-      <SlashMenu2 editor={props.editor!} />
-    </>
-    // </MantineProvider>
+      <HyperlinkToolbar editor={props.editor!} />
+      <SideMenu editor={props.editor!} />
+      <SlashMenu editor={props.editor!} />
+    </MantineProvider>
   );
 }

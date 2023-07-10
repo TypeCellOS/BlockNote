@@ -1,11 +1,16 @@
 import { BlockNoteEditor, BlockSchema } from "@blocknote/core";
 import { Menu, createStyles } from "@mantine/core";
 import * as _ from "lodash";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ReactSlashMenuItem } from "../ReactSlashMenuItem";
 import { SlashMenuItem } from "./SlashMenuItem";
-
 import Tippy from "@tippyjs/react";
+import {
+  createSuggestionPlugin,
+  DefaultBlockSchema,
+  SuggestionsMenuState,
+} from "@blocknote/core";
+import { defaultReactSlashMenuItems } from "../defaultReactSlashMenuItems";
 
 export type SlashMenuProps<BSchema extends BlockSchema> = {
   items: ReactSlashMenuItem<BSchema>[];
@@ -13,8 +18,11 @@ export type SlashMenuProps<BSchema extends BlockSchema> = {
   itemCallback: (item: ReactSlashMenuItem<BSchema>) => void;
 };
 
-export function SlashMenu<BSchema extends BlockSchema>(
-  props: SlashMenuProps<BSchema>
+export function SlashMenuOld(
+  props: Omit<
+    SuggestionsMenuState<ReactSlashMenuItem<DefaultBlockSchema>>,
+    "referencePos"
+  >
 ) {
   const { classes } = createStyles({ root: {} })(undefined, {
     name: "SlashMenu",
@@ -67,105 +75,68 @@ export function SlashMenu<BSchema extends BlockSchema>(
   );
 }
 
-export const SlashMenu2 = <BSchema extends BlockSchema>(props: {
+// TODO: This whole React/Base item design sucks with the new architecture.
+const createSlashMenu = (
+  editor: BlockNoteEditor,
+  updateSlashMenu: (
+    slashMenuState: SuggestionsMenuState<ReactSlashMenuItem<DefaultBlockSchema>>
+  ) => void
+) => {
+  editor._tiptapEditor.registerPlugin(
+    createSuggestionPlugin<
+      ReactSlashMenuItem<DefaultBlockSchema>,
+      DefaultBlockSchema
+    >(
+      "SlashMenuPlugin",
+      "/",
+      editor,
+      (slashMenuState) => updateSlashMenu(slashMenuState),
+      ({ item, editor }) => item.execute(editor),
+      (query) =>
+        defaultReactSlashMenuItems.filter(
+          (cmd: ReactSlashMenuItem<DefaultBlockSchema>) => cmd.match(query)
+        )
+    )
+  );
+};
+
+export const SlashMenu = <BSchema extends BlockSchema>(props: {
   editor: BlockNoteEditor<BSchema>;
 }) => {
-  const [params, setParams] = useState<any>();
+  const [state, setState] = useState<
+    | Omit<
+        SuggestionsMenuState<ReactSlashMenuItem<DefaultBlockSchema>>,
+        "referencePos"
+      >
+    | undefined
+  >();
+  // Since we're using Tippy, we don't want to trigger re-renders when only the
+  // reference position changes. So we store it in a ref instead of state.
+  const referenceClientRect = useRef<DOMRect | undefined>();
 
   useEffect(() => {
-    if (!props.editor) {
-      return;
-    }
-    const cb = (params: any) => {
-      setParams({ ...params });
-    };
-    props.editor.on("slashMenuUpdate", cb);
-    return () => {
-      props.editor.off("slashMenuUpdate", cb);
-    };
+    createSlashMenu(props.editor as any, ({ referencePos, ...state }) => {
+      setState(state);
+      referenceClientRect.current = referencePos;
+    });
   }, [props.editor]);
 
-  // This commented out part can be removed,
-  // but it shows the original way according to tiptap examples where they make the components instantiate
-  // the plugin. We now do this in BlockNoteEditor by default, making the code in the component more concise
-
-  // useEffect(() => {
-  //   if (!elementRef.current || !props.editor) {
-  //     return;
-  //   }
-
-  //   if (props.editor._tiptapEditor.isDestroyed) {
-  //     return;
-  //   }
-
-  //   const pluginKey = new PluginKey("SlashMenu2");
-
-  //   const plugin = createSuggestionPlugin<BaseSlashMenuItem<BSchema>, BSchema>({
-  //     pluginKey,
-  //     editor: props.editor!,
-  //     defaultTriggerCharacter: "/",
-  //     suggestionsMenuFactory: () => ({
-  //       element: elementRef.current!,
-  //       render: (params, isHidden) => {
-  //         console.log("params", params.referenceRect);
-  //         setParams(params);
-  //         setIsHidden(false);
-  //       },
-  //       hide: () => {
-  //         setIsHidden(true);
-  //       },
-  //     }),
-  //     items: (query) => {
-  //       return defaultSlashMenuItems.filter((cmd: BaseSlashMenuItem<BSchema>) =>
-  //         cmd.match(query)
-  //       );
-  //     },
-  //     onSelectItem: ({ item, editor }) => {
-  //       item.execute(editor);
-  //     },
-  //   });
-
-  //   props.editor._tiptapEditor.registerPlugin(plugin);
-  //   return () => props.editor._tiptapEditor.unregisterPlugin(pluginKey);
-  // }, [props.editor, elementRef.current]);
-
   const getReferenceClientRect = useCallback(
-    () => params.referenceRect,
-    [params]
+    () => referenceClientRect.current!,
+    [referenceClientRect]
   );
-  console.log("slashmenu render");
-  if (!props.editor || !params) {
-    return null;
-  }
 
   return (
-    <div
-      onMouseDown={(e) => {
-        // prevent blur
-        e.preventDefault();
-        e.stopPropagation();
-      }}>
-      <Tippy
-        content={<SlashMenu editor={props.editor} {...params} />}
-        getReferenceClientRect={getReferenceClientRect}
-        interactive={true}
-        visible={params.active}
-        popperOptions={{
-          // if the window height is too small, prevent the menu from causing
-          // the body to be scrollable
-          modifiers: [
-            {
-              name: "preventOverflow",
-              options: {
-                altAxis: true,
-              },
-            },
-          ],
-        }}
-        animation="fade"
-        placement="bottom-start">
-        <div></div>
-      </Tippy>
-    </div>
+    <Tippy
+      appendTo={props.editor._tiptapEditor.view.dom.parentElement!}
+      content={<SlashMenuOld {...state!} />}
+      getReferenceClientRect={
+        referenceClientRect.current && getReferenceClientRect
+      }
+      interactive={true}
+      visible={state?.show || false}
+      animation={"fade"}
+      placement={"bottom-start"}
+    />
   );
 };

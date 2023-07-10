@@ -1,18 +1,20 @@
 export * from "./BlockNoteEditor";
 export * from "./BlockNoteExtensions";
+
 export * from "./extensions/Blocks/api/block";
 export * from "./extensions/Blocks/api/blockTypes";
 export * from "./extensions/Blocks/api/defaultBlocks";
 export * from "./extensions/Blocks/api/inlineContentTypes";
 export * from "./extensions/Blocks/api/serialization";
+
+export * from "./extensions/FormattingToolbar/FormattingToolbarPlugin";
+export * from "./extensions/HyperlinkToolbar/HyperlinkToolbarPlugin";
+export * from "./extensions/DraggableBlocks/DraggableBlocksPlugin";
+export * from "./shared/plugins/suggestion/SuggestionPlugin";
+export * from "./shared/EditorElement";
+
 export * as blockStyles from "./extensions/Blocks/nodes/Block.module.css";
-export * from "./extensions/DraggableBlocks/BlockSideMenuFactoryTypes";
-export * from "./extensions/FormattingToolbar/FormattingToolbarFactoryTypes";
-export { createFormattingToolbarPlugin } from "./extensions/FormattingToolbar/FormattingToolbarPlugin";
-export * from "./extensions/HyperlinkToolbar/HyperlinkToolbarFactoryTypes";
+
 export * from "./extensions/SlashMenu/BaseSlashMenuItem";
 export { defaultSlashMenuItems } from "./extensions/SlashMenu/defaultSlashMenuItems";
-export * from "./shared/EditorElement";
 export type { SuggestionItem } from "./shared/plugins/suggestion/SuggestionItem";
-export { createSuggestionPlugin } from "./shared/plugins/suggestion/SuggestionPlugin";
-export * from "./shared/plugins/suggestion/SuggestionsMenuFactoryTypes";

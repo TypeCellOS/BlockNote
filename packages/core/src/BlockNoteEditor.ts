@@ -4,7 +4,7 @@ import { Node } from "prosemirror-model";
 import { Editor as TiptapEditor } from "@tiptap/core/dist/packages/core/src/Editor";
 
 import * as Y from "yjs";
-import { UiFactories, getBlockNoteExtensions } from "./BlockNoteExtensions";
+import { getBlockNoteExtensions } from "./BlockNoteExtensions";
 import {
   insertBlocks,
   removeBlocks,
@@ -40,7 +40,6 @@ import { Selection } from "./extensions/Blocks/api/selectionTypes";
 import { getBlockInfoFromPos } from "./extensions/Blocks/helpers/getBlockInfoFromPos";
 import {
   BaseSlashMenuItem,
-  createSlashMenuExtension,
   defaultSlashMenuItems,
 } from "./extensions/SlashMenu";
 import { EventEmitter } from "./shared/EventEmitter";
@@ -48,12 +47,6 @@ import { EventEmitter } from "./shared/EventEmitter";
 export type BlockNoteEditorOptions<BSchema extends BlockSchema> = {
   // TODO: Figure out if enableBlockNoteExtensions/disableHistoryExtension are needed and document them.
   enableBlockNoteExtensions: boolean;
-
-  /**
-   * UI element factories for creating a custom UI, including custom positioning
-   * & rendering.
-   */
-  uiFactories: UiFactories<BSchema>;
   /**
    * TODO: why is this called slashCommands and not slashMenuItems?
    *
@@ -188,21 +181,10 @@ export class BlockNoteEditor<
 
     const extensions = getBlockNoteExtensions<BSchema>({
       editor: this,
-      uiFactories: newOptions.uiFactories || {},
       slashCommands: newOptions.slashCommands || defaultSlashMenuItems,
       blockSchema: newOptions.blockSchema,
       collaboration: newOptions.collaboration,
     });
-
-    extensions.push(
-      createSlashMenuExtension<BSchema>().configure({
-        editor: this,
-        commands: newOptions.slashCommands,
-        onUpdate: (data: any) => {
-          this.emit("slashMenuUpdate", data);
-        },
-      })
-    );
 
     this.schema = newOptions.blockSchema;
 

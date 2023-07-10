@@ -1,22 +1,12 @@
 import { BlockNoteEditor } from "@blocknote/core";
 import "./index.css";
-import { blockSideMenuFactory } from "./ui/blockSideMenuFactory";
-import { formattingToolbarFactory } from "./ui/formattingToolbarFactory";
-import { hyperlinkToolbarFactory } from "./ui/hyperlinkToolbarFactory";
-import { slashMenuFactory } from "./ui/slashMenuFactory";
+import { addSideMenu } from "./ui/addSideMenu";
+import { addFormattingToolbar } from "./ui/addFormattingToolbar";
+import { addSlashMenu } from "./ui/addSlashMenu";
+import { addHyperlinkToolbar } from "./ui/addHyperlinkToolbar";
 
 const editor = new BlockNoteEditor({
   parentElement: document.getElementById("root")!,
-  uiFactories: {
-    // Create an example formatting toolbar which just consists of a bold toggle
-    formattingToolbarFactory,
-    // Create an example menu for hyperlinks
-    hyperlinkToolbarFactory,
-    // Create an example menu for the /-menu
-    slashMenuFactory: slashMenuFactory,
-    // Create an example menu for when a block is hovered
-    blockSideMenuFactory,
-  },
   onEditorContentChange: () => {
     console.log(editor.topLevelBlocks);
   },
@@ -26,3 +16,8 @@ const editor = new BlockNoteEditor({
 });
 
 console.log("editor created", editor);
+
+addSideMenu(editor);
+addFormattingToolbar(editor);
+addSlashMenu(editor);
+addHyperlinkToolbar(editor);
