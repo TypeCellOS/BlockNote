@@ -55,6 +55,7 @@ export function SlashMenuOld(
       trigger={"hover"}
       closeDelay={10000000}>
       <Menu.Dropdown
+        // TODO: This should go back in the plugin.
         onMouseDown={(event) => event.preventDefault()}
         className={classes.root}>
         {renderedItems.length > 0 ? (
