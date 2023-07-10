@@ -2,6 +2,7 @@ import {
   BaseSlashMenuItem,
   BlockNoteEditor,
   createSlashMenu,
+  defaultSlashMenuItems,
   DefaultBlockSchema,
 } from "@blocknote/core";
 import { createButton } from "./util";
@@ -29,32 +30,39 @@ export const addSlashMenu = (editor: BlockNoteEditor) => {
     return domItems;
   }
 
-  createSlashMenu(editor, (slashMenuState) => {
-    if (!element) {
-      element = document.createElement("div");
-      element.style.background = "gray";
-      element.style.position = "absolute";
-      element.style.padding = "10px";
-      element.style.opacity = "0.8";
-      element.style.display = "none";
+  createSlashMenu<BaseSlashMenuItem<DefaultBlockSchema>>(
+    editor,
+    (slashMenuState) => {
+      if (!element) {
+        element = document.createElement("div");
+        element.style.background = "gray";
+        element.style.position = "absolute";
+        element.style.padding = "10px";
+        element.style.opacity = "0.8";
+        element.style.display = "none";
 
-      document.getElementById("root")!.appendChild(element);
-    }
+        document.getElementById("root")!.appendChild(element);
+      }
 
-    if (slashMenuState.show) {
-      updateItems(
-        slashMenuState.items,
-        slashMenuState.itemCallback,
-        slashMenuState.keyboardHoveredItemIndex
-      );
+      if (slashMenuState.show) {
+        updateItems(
+          slashMenuState.items,
+          slashMenuState.itemCallback,
+          slashMenuState.keyboardHoveredItemIndex
+        );
 
-      element.style.display = "block";
+        element.style.display = "block";
 
-      element.style.top = slashMenuState.referencePos.top + "px";
-      element.style.left =
-        slashMenuState.referencePos.x - element.offsetWidth + "px";
-    } else {
-      element.style.display = "none";
-    }
-  });
+        element.style.top = slashMenuState.referencePos.top + "px";
+        element.style.left =
+          slashMenuState.referencePos.x - element.offsetWidth + "px";
+      } else {
+        element.style.display = "none";
+      }
+    },
+    (query) =>
+      defaultSlashMenuItems.filter(
+        (cmd: BaseSlashMenuItem<DefaultBlockSchema>) => cmd.match(query)
+      )
+  );
 };

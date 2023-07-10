@@ -301,13 +301,16 @@ class HyperlinkToolbarView<BSchema extends BlockSchema> {
   }
 }
 
+export const hyperlinkToolbarPluginKey = new PluginKey(
+  "HyperlinkToolbarPlugin"
+);
 export const createHyperlinkToolbar = <BSchema extends BlockSchema>(
   editor: BlockNoteEditor<BSchema>,
   updateHyperlinkToolbar: (hyperlinkToolbarState: HyperlinkToolbarState) => void
 ) => {
   editor._tiptapEditor.registerPlugin(
     new Plugin({
-      key: new PluginKey("HyperlinkToolbarPlugin"),
+      key: hyperlinkToolbarPluginKey,
       view: () => new HyperlinkToolbarView(editor, updateHyperlinkToolbar),
     })
   );

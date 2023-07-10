@@ -5,12 +5,6 @@ import { BlockSchema } from "../../../extensions/Blocks/api/blockTypes";
 import { findBlock } from "../../../extensions/Blocks/helpers/findBlock";
 import { SuggestionItem } from "./SuggestionItem";
 import { BaseUiElementState } from "../../EditorElement";
-import {
-  BaseSlashMenuItem,
-  defaultSlashMenuItems,
-} from "../../../extensions/SlashMenu";
-import { DefaultBlockSchema } from "../../../extensions/Blocks/api/defaultBlocks";
-import { ReactSlashMenuItem } from "@blocknote/react";
 
 export type SuggestionsMenuState<T extends SuggestionItem> =
   BaseUiElementState & {
@@ -189,7 +183,7 @@ export function createSuggestionPlugin<
   T extends SuggestionItem,
   BSchema extends BlockSchema
 >(
-  pluginName: string,
+  pluginKey: PluginKey,
   defaultTriggerCharacter: string,
   editor: BlockNoteEditor<BSchema>,
   updateSuggestionsMenu: (
@@ -205,8 +199,6 @@ export function createSuggestionPlugin<
   if (defaultTriggerCharacter.length !== 1) {
     throw new Error("'char' should be a single character");
   }
-
-  const pluginKey = new PluginKey(pluginName);
 
   const deactivate = (view: EditorView) => {
     view.dispatch(view.state.tr.setMeta(pluginKey, { deactivate: true }));
@@ -453,27 +445,3 @@ export function createSuggestionPlugin<
     },
   });
 }
-
-export const createSlashMenu = (
-  editor: BlockNoteEditor,
-  updateSlashMenu: (
-    slashMenuState: SuggestionsMenuState<ReactSlashMenuItem<DefaultBlockSchema>>
-  ) => void
-) => {
-  editor._tiptapEditor.registerPlugin(
-    createSuggestionPlugin<
-      BaseSlashMenuItem<DefaultBlockSchema>,
-      DefaultBlockSchema
-    >(
-      "SlashMenuPlugin",
-      "/",
-      editor,
-      (slashMenuState) => updateSlashMenu(slashMenuState),
-      ({ item, editor }) => item.execute(editor),
-      (query) =>
-        defaultSlashMenuItems.filter(
-          (cmd: BaseSlashMenuItem<DefaultBlockSchema>) => cmd.match(query)
-        )
-    )
-  );
-};

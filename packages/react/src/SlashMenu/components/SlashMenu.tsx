@@ -1,15 +1,11 @@
-import { BlockNoteEditor, BlockSchema } from "@blocknote/core";
+import { BlockNoteEditor, BlockSchema, createSlashMenu } from "@blocknote/core";
 import { Menu, createStyles } from "@mantine/core";
 import * as _ from "lodash";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ReactSlashMenuItem } from "../ReactSlashMenuItem";
 import { SlashMenuItem } from "./SlashMenuItem";
 import Tippy from "@tippyjs/react";
-import {
-  createSuggestionPlugin,
-  DefaultBlockSchema,
-  SuggestionsMenuState,
-} from "@blocknote/core";
+import { DefaultBlockSchema, SuggestionsMenuState } from "@blocknote/core";
 import { defaultReactSlashMenuItems } from "../defaultReactSlashMenuItems";
 
 export type SlashMenuProps<BSchema extends BlockSchema> = {
@@ -75,31 +71,6 @@ export function SlashMenuOld(
   );
 }
 
-// TODO: This whole React/Base item design sucks with the new architecture.
-const createSlashMenu = (
-  editor: BlockNoteEditor,
-  updateSlashMenu: (
-    slashMenuState: SuggestionsMenuState<ReactSlashMenuItem<DefaultBlockSchema>>
-  ) => void
-) => {
-  editor._tiptapEditor.registerPlugin(
-    createSuggestionPlugin<
-      ReactSlashMenuItem<DefaultBlockSchema>,
-      DefaultBlockSchema
-    >(
-      "SlashMenuPlugin",
-      "/",
-      editor,
-      (slashMenuState) => updateSlashMenu(slashMenuState),
-      ({ item, editor }) => item.execute(editor),
-      (query) =>
-        defaultReactSlashMenuItems.filter(
-          (cmd: ReactSlashMenuItem<DefaultBlockSchema>) => cmd.match(query)
-        )
-    )
-  );
-};
-
 export const SlashMenu = <BSchema extends BlockSchema>(props: {
   editor: BlockNoteEditor<BSchema>;
 }) => {
@@ -115,10 +86,17 @@ export const SlashMenu = <BSchema extends BlockSchema>(props: {
   const referenceClientRect = useRef<DOMRect | undefined>();
 
   useEffect(() => {
-    createSlashMenu(props.editor as any, ({ referencePos, ...state }) => {
-      setState(state);
-      referenceClientRect.current = referencePos;
-    });
+    createSlashMenu<ReactSlashMenuItem<DefaultBlockSchema>>(
+      props.editor as any,
+      ({ referencePos, ...state }) => {
+        setState(state);
+        referenceClientRect.current = referencePos;
+      },
+      (query) =>
+        defaultReactSlashMenuItems.filter(
+          (cmd: ReactSlashMenuItem<DefaultBlockSchema>) => cmd.match(query)
+        )
+    );
   }, [props.editor]);
 
   const getReferenceClientRect = useCallback(

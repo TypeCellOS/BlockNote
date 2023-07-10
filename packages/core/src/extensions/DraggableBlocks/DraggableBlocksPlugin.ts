@@ -4,11 +4,11 @@ import * as pv from "prosemirror-view";
 import { EditorView } from "prosemirror-view";
 import styles from "../../editor.module.css";
 import { getBlockInfoFromPos } from "../Blocks/helpers/getBlockInfoFromPos";
-import { SlashMenuPluginKey } from "../SlashMenu/SlashMenuExtension";
 import { MultipleNodeSelection } from "./MultipleNodeSelection";
 import { BlockNoteEditor } from "../../BlockNoteEditor";
 import { Block, BlockSchema } from "../Blocks/api/blockTypes";
 import { BaseUiElementState } from "../../shared/EditorElement";
+import { slashMenuPluginKey } from "../SlashMenu/SlashMenuPlugin";
 
 const serializeForClipboard = (pv as any).__serializeForClipboard;
 // code based on https://github.com/ueberdosis/tiptap/issues/323#issuecomment-506637799
@@ -599,7 +599,7 @@ export class BlockMenuView<BSchema extends BlockSchema> {
     this.editor._tiptapEditor.view.dispatch(
       this.editor._tiptapEditor.view.state.tr
         .scrollIntoView()
-        .setMeta(SlashMenuPluginKey, {
+        .setMeta(slashMenuPluginKey, {
           // TODO import suggestion plugin key
           activate: true,
           type: "drag",
@@ -608,13 +608,14 @@ export class BlockMenuView<BSchema extends BlockSchema> {
   }
 }
 
+export const sideMenuPluginKey = new PluginKey("SideMenuPlugin");
 export const createSideMenu = <BSchema extends BlockSchema>(
   editor: BlockNoteEditor<BSchema>,
   updateSideMenu: (sideMenuState: SideMenuState<BSchema>) => void
 ) => {
   editor._tiptapEditor.registerPlugin(
     new Plugin({
-      key: new PluginKey("DraggableBlocksPlugin"),
+      key: sideMenuPluginKey,
       view: () => new BlockMenuView(editor, updateSideMenu),
     })
   );

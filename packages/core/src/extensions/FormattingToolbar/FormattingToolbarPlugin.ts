@@ -223,6 +223,9 @@ export class FormattingToolbarView<BSchema extends BlockSchema> {
   }
 }
 
+export const formattingToolbarPluginKey = new PluginKey(
+  "FormattingToolbarPlugin"
+);
 export const createFormattingToolbar = <BSchema extends BlockSchema>(
   editor: BlockNoteEditor<BSchema>,
   updateFormattingToolbar: (
@@ -231,7 +234,7 @@ export const createFormattingToolbar = <BSchema extends BlockSchema>(
 ) => {
   editor._tiptapEditor.registerPlugin(
     new Plugin({
-      key: new PluginKey("FormattingToolbarPlugin"),
+      key: formattingToolbarPluginKey,
       view: (view) =>
         new FormattingToolbarView(editor, view, updateFormattingToolbar),
     })
