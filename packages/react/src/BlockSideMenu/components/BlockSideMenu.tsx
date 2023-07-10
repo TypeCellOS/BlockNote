@@ -4,7 +4,7 @@ import {
   createSideMenu,
   SideMenuState,
 } from "@blocknote/core";
-import { ActionIcon, Menu } from "@mantine/core";
+import { ActionIcon, Group, Menu } from "@mantine/core";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import { MdDragIndicator } from "react-icons/md";
@@ -44,7 +44,7 @@ export const BlockSideMenuOld = <BSchema extends BlockSchema>(
   const DragHandleMenu = DefaultDragHandleMenu;
 
   return (
-    <div style={{ display: "flex", flexDirection: "row" }}>
+    <Group spacing={0}>
       <ActionIcon size={24} data-test={"dragHandleAdd"}>
         {
           <AiOutlinePlus
@@ -75,7 +75,7 @@ export const BlockSideMenuOld = <BSchema extends BlockSchema>(
           closeMenu={closeMenu}
         />
       </Menu>
-    </div>
+    </Group>
   );
 };
 

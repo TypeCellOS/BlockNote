@@ -42,7 +42,6 @@ import {
   BaseSlashMenuItem,
   defaultSlashMenuItems,
 } from "./extensions/SlashMenu";
-import { EventEmitter } from "./shared/EventEmitter";
 
 export type BlockNoteEditorOptions<BSchema extends BlockSchema> = {
   // TODO: Figure out if enableBlockNoteExtensions/disableHistoryExtension are needed and document them.
@@ -141,9 +140,7 @@ const blockNoteTipTapOptions = {
   enableCoreExtensions: false,
 };
 
-export class BlockNoteEditor<
-  BSchema extends BlockSchema = DefaultBlockSchema
-> extends EventEmitter<any> {
+export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
   public readonly _tiptapEditor: TiptapEditor & { contentComponent: any };
   public blockCache = new WeakMap<Node, Block<BSchema>>();
   public readonly schema: BSchema;
@@ -163,7 +160,6 @@ export class BlockNoteEditor<
   constructor(
     private readonly options: Partial<BlockNoteEditorOptions<BSchema>> = {}
   ) {
-    super();
     // apply defaults
     const newOptions: Omit<typeof options, "defaultStyles" | "blockSchema"> & {
       defaultStyles: boolean;

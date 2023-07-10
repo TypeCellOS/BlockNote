@@ -25,10 +25,6 @@ export const createSlashMenu = <
       (slashMenuState) => updateSlashMenu(slashMenuState),
       ({ item, editor }) => item.execute(editor),
       items
-      // (query) =>
-      //   defaultSlashMenuItems.filter(
-      //     (cmd: SlashMenuItem) => cmd.match(query)
-      //   )
     )
   );
 };

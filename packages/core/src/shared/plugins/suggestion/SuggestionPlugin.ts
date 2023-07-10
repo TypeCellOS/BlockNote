@@ -67,8 +67,6 @@ class SuggestionPluginView<
       });
     };
 
-    // this.suggestionsMenu = suggestionsMenuFactory(this.getStaticParams());
-
     document.addEventListener("scroll", this.handleScroll);
   }
 
