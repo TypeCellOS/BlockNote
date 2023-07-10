@@ -616,6 +616,10 @@ export const createSideMenu = <BSchema extends BlockSchema>(
     new Plugin({
       key: sideMenuPluginKey,
       view: () => new BlockMenuView(editor, updateSideMenu),
-    })
+    }),
+    (sideMenuPlugin, plugins) => {
+      plugins.unshift(sideMenuPlugin);
+      return plugins;
+    }
   );
 };

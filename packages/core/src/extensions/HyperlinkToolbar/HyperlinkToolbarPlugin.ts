@@ -312,6 +312,10 @@ export const createHyperlinkToolbar = <BSchema extends BlockSchema>(
     new Plugin({
       key: hyperlinkToolbarPluginKey,
       view: () => new HyperlinkToolbarView(editor, updateHyperlinkToolbar),
-    })
+    }),
+    (hyperlinkToolbarPlugin, plugins) => {
+      plugins.unshift(hyperlinkToolbarPlugin);
+      return plugins;
+    }
   );
 };

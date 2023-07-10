@@ -17,14 +17,12 @@ export const createSlashMenu = <
   ) => void,
   items: (query: string) => SlashMenuItem[]
 ) => {
-  editor._tiptapEditor.registerPlugin(
-    createSuggestionPlugin<SlashMenuItem, DefaultBlockSchema>(
-      slashMenuPluginKey,
-      "/",
-      editor,
-      (slashMenuState) => updateSlashMenu(slashMenuState),
-      ({ item, editor }) => item.execute(editor),
-      items
-    )
+  createSuggestionPlugin<SlashMenuItem, DefaultBlockSchema>(
+    slashMenuPluginKey,
+    "/",
+    editor,
+    (slashMenuState) => updateSlashMenu(slashMenuState),
+    ({ item, editor }) => item.execute(editor),
+    items
   );
 };

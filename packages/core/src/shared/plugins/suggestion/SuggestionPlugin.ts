@@ -203,243 +203,253 @@ export function createSuggestionPlugin<
   };
 
   // Plugin key is passed in as a parameter, so it can be exported and used in the DraggableBlocksPlugin.
-  return new Plugin({
-    key: pluginKey,
+  editor._tiptapEditor.registerPlugin(
+    new Plugin({
+      key: pluginKey,
 
-    view: (view: EditorView) =>
-      new SuggestionPluginView<T, BSchema>(
-        editor,
-        pluginKey,
-        (props: { item: T; editor: BlockNoteEditor<BSchema> }) => {
-          deactivate(view);
-          onSelectItem(props);
-        },
-        updateSuggestionsMenu
-      ),
+      view: (view: EditorView) =>
+        new SuggestionPluginView<T, BSchema>(
+          editor,
+          pluginKey,
+          (props: { item: T; editor: BlockNoteEditor<BSchema> }) => {
+            deactivate(view);
+            onSelectItem(props);
+          },
+          updateSuggestionsMenu
+        ),
 
-    state: {
-      // Initialize the plugin's internal state.
-      init(): SuggestionPluginState<T> {
-        return getDefaultPluginState<T>();
-      },
-
-      // Apply changes to the plugin state from an editor transaction.
-      apply(transaction, prev, oldState, newState): SuggestionPluginState<T> {
-        // TODO: More clearly define which transactions should be ignored.
-        if (transaction.getMeta("orderedListIndexing") !== undefined) {
-          return prev;
-        }
-
-        // Checks if the menu should be shown.
-        if (transaction.getMeta(pluginKey)?.activate) {
-          return {
-            active: true,
-            triggerCharacter:
-              transaction.getMeta(pluginKey)?.triggerCharacter || "",
-            queryStartPos: newState.selection.from,
-            items: items(""),
-            keyboardHoveredItemIndex: 0,
-            // TODO: Maybe should be 1 if the menu has no possible items? Probably redundant since a menu with no items
-            //  is useless in practice.
-            notFoundCount: 0,
-            decorationId: `id_${Math.floor(Math.random() * 0xffffffff)}`,
-          };
-        }
-
-        // Checks if the menu is hidden, in which case it doesn't need to be hidden or updated.
-        if (!prev.active) {
-          return prev;
-        }
-
-        const next = { ...prev };
-
-        // Updates which menu items to show by checking which items the current query (the text between the trigger
-        // character and caret) matches with.
-        next.items = items(
-          newState.doc.textBetween(prev.queryStartPos!, newState.selection.from)
-        );
-
-        // Updates notFoundCount if the query doesn't match any items.
-        next.notFoundCount = 0;
-        if (next.items.length === 0) {
-          // Checks how many characters were typed or deleted since the last transaction, and updates the notFoundCount
-          // accordingly. Also ensures the notFoundCount does not become negative.
-          next.notFoundCount = Math.max(
-            0,
-            prev.notFoundCount! +
-              (newState.selection.from - oldState.selection.from)
-          );
-        }
-
-        // Hides the menu. This is done after items and notFoundCount are already updated as notFoundCount is needed to
-        // check if the menu should be hidden.
-        if (
-          // Highlighting text should hide the menu.
-          newState.selection.from !== newState.selection.to ||
-          // Transactions with plugin metadata {deactivate: true} should hide the menu.
-          transaction.getMeta(pluginKey)?.deactivate ||
-          // Certain mouse events should hide the menu.
-          // TODO: Change to global mousedown listener.
-          transaction.getMeta("focus") ||
-          transaction.getMeta("blur") ||
-          transaction.getMeta("pointer") ||
-          // Moving the caret before the character which triggered the menu should hide it.
-          (prev.active && newState.selection.from < prev.queryStartPos!) ||
-          // Entering more than 3 characters, after the last query that matched with at least 1 menu item, should hide
-          // the menu.
-          next.notFoundCount > 3
-        ) {
+      state: {
+        // Initialize the plugin's internal state.
+        init(): SuggestionPluginState<T> {
           return getDefaultPluginState<T>();
-        }
+        },
 
-        // Updates keyboardHoveredItemIndex if necessary.
-        if (
-          transaction.getMeta(pluginKey)?.selectedItemIndexChanged !== undefined
-        ) {
-          let newIndex =
-            transaction.getMeta(pluginKey).selectedItemIndexChanged;
-
-          // Allows selection to jump between first and last items.
-          if (newIndex < 0) {
-            newIndex = prev.items.length - 1;
-          } else if (newIndex >= prev.items.length) {
-            newIndex = 0;
+        // Apply changes to the plugin state from an editor transaction.
+        apply(transaction, prev, oldState, newState): SuggestionPluginState<T> {
+          // TODO: More clearly define which transactions should be ignored.
+          if (transaction.getMeta("orderedListIndexing") !== undefined) {
+            return prev;
           }
 
-          next.keyboardHoveredItemIndex = newIndex;
-        }
-
-        return next;
-      },
-    },
-
-    props: {
-      handleKeyDown(view, event) {
-        const menuIsActive = (this as Plugin).getState(view.state).active;
-
-        // Shows the menu if the default trigger character was pressed and the menu isn't active.
-        if (event.key === defaultTriggerCharacter && !menuIsActive) {
-          view.dispatch(
-            view.state.tr
-              .insertText(defaultTriggerCharacter)
-              .scrollIntoView()
-              .setMeta(pluginKey, {
-                activate: true,
-                triggerCharacter: defaultTriggerCharacter,
-              })
-          );
-
-          return true;
-        }
-
-        // Doesn't handle other keystrokes if the menu isn't active.
-        if (!menuIsActive) {
-          return false;
-        }
-
-        // Handles keystrokes for navigating the menu.
-        const {
-          triggerCharacter,
-          queryStartPos,
-          items,
-          keyboardHoveredItemIndex,
-        } = pluginKey.getState(view.state);
-
-        // Moves the keyboard selection to the previous item.
-        if (event.key === "ArrowUp") {
-          view.dispatch(
-            view.state.tr.setMeta(pluginKey, {
-              selectedItemIndexChanged: keyboardHoveredItemIndex - 1,
-            })
-          );
-          return true;
-        }
-
-        // Moves the keyboard selection to the next item.
-        if (event.key === "ArrowDown") {
-          view.dispatch(
-            view.state.tr.setMeta(pluginKey, {
-              selectedItemIndexChanged: keyboardHoveredItemIndex + 1,
-            })
-          );
-          return true;
-        }
-
-        // Selects an item and closes the menu.
-        if (event.key === "Enter") {
-          deactivate(view);
-          editor._tiptapEditor
-            .chain()
-            .focus()
-            .deleteRange({
-              from: queryStartPos! - triggerCharacter!.length,
-              to: editor._tiptapEditor.state.selection.from,
-            })
-            .run();
-
-          onSelectItem({
-            item: items[keyboardHoveredItemIndex],
-            editor: editor,
-          });
-
-          return true;
-        }
-
-        // Closes the menu.
-        if (event.key === "Escape") {
-          deactivate(view);
-          return true;
-        }
-
-        return false;
-      },
-
-      // Hides menu in cases where mouse click does not cause an editor state change.
-      handleClick(view) {
-        deactivate(view);
-      },
-
-      // Setup decorator on the currently active suggestion.
-      decorations(state) {
-        const { active, decorationId, queryStartPos, triggerCharacter } = (
-          this as Plugin
-        ).getState(state);
-
-        if (!active) {
-          return null;
-        }
-
-        // If the menu was opened programmatically by another extension, it may not use a trigger character. In this
-        // case, the decoration is set on the whole block instead, as the decoration range would otherwise be empty.
-        if (triggerCharacter === "") {
-          const blockNode = findBlock(state.selection);
-          if (blockNode) {
-            return DecorationSet.create(state.doc, [
-              Decoration.node(
-                blockNode.pos,
-                blockNode.pos + blockNode.node.nodeSize,
-                {
-                  nodeName: "span",
-                  class: "suggestion-decorator",
-                  "data-decoration-id": decorationId,
-                }
-              ),
-            ]);
+          // Checks if the menu should be shown.
+          if (transaction.getMeta(pluginKey)?.activate) {
+            return {
+              active: true,
+              triggerCharacter:
+                transaction.getMeta(pluginKey)?.triggerCharacter || "",
+              queryStartPos: newState.selection.from,
+              items: items(""),
+              keyboardHoveredItemIndex: 0,
+              // TODO: Maybe should be 1 if the menu has no possible items? Probably redundant since a menu with no items
+              //  is useless in practice.
+              notFoundCount: 0,
+              decorationId: `id_${Math.floor(Math.random() * 0xffffffff)}`,
+            };
           }
-        }
-        // Creates an inline decoration around the trigger character.
-        return DecorationSet.create(state.doc, [
-          Decoration.inline(
-            queryStartPos - triggerCharacter.length,
-            queryStartPos,
-            {
-              nodeName: "span",
-              class: "suggestion-decorator",
-              "data-decoration-id": decorationId,
+
+          // Checks if the menu is hidden, in which case it doesn't need to be hidden or updated.
+          if (!prev.active) {
+            return prev;
+          }
+
+          const next = { ...prev };
+
+          // Updates which menu items to show by checking which items the current query (the text between the trigger
+          // character and caret) matches with.
+          next.items = items(
+            newState.doc.textBetween(
+              prev.queryStartPos!,
+              newState.selection.from
+            )
+          );
+
+          // Updates notFoundCount if the query doesn't match any items.
+          next.notFoundCount = 0;
+          if (next.items.length === 0) {
+            // Checks how many characters were typed or deleted since the last transaction, and updates the notFoundCount
+            // accordingly. Also ensures the notFoundCount does not become negative.
+            next.notFoundCount = Math.max(
+              0,
+              prev.notFoundCount! +
+                (newState.selection.from - oldState.selection.from)
+            );
+          }
+
+          // Hides the menu. This is done after items and notFoundCount are already updated as notFoundCount is needed to
+          // check if the menu should be hidden.
+          if (
+            // Highlighting text should hide the menu.
+            newState.selection.from !== newState.selection.to ||
+            // Transactions with plugin metadata {deactivate: true} should hide the menu.
+            transaction.getMeta(pluginKey)?.deactivate ||
+            // Certain mouse events should hide the menu.
+            // TODO: Change to global mousedown listener.
+            transaction.getMeta("focus") ||
+            transaction.getMeta("blur") ||
+            transaction.getMeta("pointer") ||
+            // Moving the caret before the character which triggered the menu should hide it.
+            (prev.active && newState.selection.from < prev.queryStartPos!) ||
+            // Entering more than 3 characters, after the last query that matched with at least 1 menu item, should hide
+            // the menu.
+            next.notFoundCount > 3
+          ) {
+            return getDefaultPluginState<T>();
+          }
+
+          // Updates keyboardHoveredItemIndex if necessary.
+          if (
+            transaction.getMeta(pluginKey)?.selectedItemIndexChanged !==
+            undefined
+          ) {
+            let newIndex =
+              transaction.getMeta(pluginKey).selectedItemIndexChanged;
+
+            // Allows selection to jump between first and last items.
+            if (newIndex < 0) {
+              newIndex = prev.items.length - 1;
+            } else if (newIndex >= prev.items.length) {
+              newIndex = 0;
             }
-          ),
-        ]);
+
+            next.keyboardHoveredItemIndex = newIndex;
+          }
+
+          return next;
+        },
       },
-    },
-  });
+
+      props: {
+        handleKeyDown(view, event) {
+          const menuIsActive = (this as Plugin).getState(view.state).active;
+
+          // Shows the menu if the default trigger character was pressed and the menu isn't active.
+          if (event.key === defaultTriggerCharacter && !menuIsActive) {
+            view.dispatch(
+              view.state.tr
+                .insertText(defaultTriggerCharacter)
+                .scrollIntoView()
+                .setMeta(pluginKey, {
+                  activate: true,
+                  triggerCharacter: defaultTriggerCharacter,
+                })
+            );
+
+            return true;
+          }
+
+          // Doesn't handle other keystrokes if the menu isn't active.
+          if (!menuIsActive) {
+            return false;
+          }
+
+          // Handles keystrokes for navigating the menu.
+          const {
+            triggerCharacter,
+            queryStartPos,
+            items,
+            keyboardHoveredItemIndex,
+          } = pluginKey.getState(view.state);
+
+          // Moves the keyboard selection to the previous item.
+          if (event.key === "ArrowUp") {
+            view.dispatch(
+              view.state.tr.setMeta(pluginKey, {
+                selectedItemIndexChanged: keyboardHoveredItemIndex - 1,
+              })
+            );
+            return true;
+          }
+
+          // Moves the keyboard selection to the next item.
+          if (event.key === "ArrowDown") {
+            view.dispatch(
+              view.state.tr.setMeta(pluginKey, {
+                selectedItemIndexChanged: keyboardHoveredItemIndex + 1,
+              })
+            );
+            return true;
+          }
+
+          // Selects an item and closes the menu.
+          if (event.key === "Enter") {
+            deactivate(view);
+            editor._tiptapEditor
+              .chain()
+              .focus()
+              .deleteRange({
+                from: queryStartPos! - triggerCharacter!.length,
+                to: editor._tiptapEditor.state.selection.from,
+              })
+              .run();
+
+            onSelectItem({
+              item: items[keyboardHoveredItemIndex],
+              editor: editor,
+            });
+
+            return true;
+          }
+
+          // Closes the menu.
+          if (event.key === "Escape") {
+            deactivate(view);
+            return true;
+          }
+
+          return false;
+        },
+
+        // Hides menu in cases where mouse click does not cause an editor state change.
+        handleClick(view) {
+          deactivate(view);
+        },
+
+        // Setup decorator on the currently active suggestion.
+        decorations(state) {
+          const { active, decorationId, queryStartPos, triggerCharacter } = (
+            this as Plugin
+          ).getState(state);
+
+          if (!active) {
+            return null;
+          }
+
+          // If the menu was opened programmatically by another extension, it may not use a trigger character. In this
+          // case, the decoration is set on the whole block instead, as the decoration range would otherwise be empty.
+          if (triggerCharacter === "") {
+            const blockNode = findBlock(state.selection);
+            if (blockNode) {
+              return DecorationSet.create(state.doc, [
+                Decoration.node(
+                  blockNode.pos,
+                  blockNode.pos + blockNode.node.nodeSize,
+                  {
+                    nodeName: "span",
+                    class: "suggestion-decorator",
+                    "data-decoration-id": decorationId,
+                  }
+                ),
+              ]);
+            }
+          }
+          // Creates an inline decoration around the trigger character.
+          return DecorationSet.create(state.doc, [
+            Decoration.inline(
+              queryStartPos - triggerCharacter.length,
+              queryStartPos,
+              {
+                nodeName: "span",
+                class: "suggestion-decorator",
+                "data-decoration-id": decorationId,
+              }
+            ),
+          ]);
+        },
+      },
+    }),
+    (suggestionPlugin, plugins) => {
+      plugins.unshift(suggestionPlugin);
+      return plugins;
+    }
+  );
 }

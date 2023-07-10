@@ -237,6 +237,10 @@ export const createFormattingToolbar = <BSchema extends BlockSchema>(
       key: formattingToolbarPluginKey,
       view: (view) =>
         new FormattingToolbarView(editor, view, updateFormattingToolbar),
-    })
+    }),
+    (formattingToolbarPlugin, plugins) => {
+      plugins.unshift(formattingToolbarPlugin);
+      return plugins;
+    }
   );
 };
