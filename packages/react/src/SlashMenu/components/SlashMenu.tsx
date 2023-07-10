@@ -8,12 +8,6 @@ import Tippy from "@tippyjs/react";
 import { DefaultBlockSchema, SuggestionsMenuState } from "@blocknote/core";
 import { defaultReactSlashMenuItems } from "../defaultReactSlashMenuItems";
 
-export type SlashMenuProps<BSchema extends BlockSchema> = {
-  items: ReactSlashMenuItem<BSchema>[];
-  keyboardHoveredItemIndex: number;
-  itemCallback: (item: ReactSlashMenuItem<BSchema>) => void;
-};
-
 export function SlashMenuOld(
   props: Omit<
     SuggestionsMenuState<ReactSlashMenuItem<DefaultBlockSchema>>,
@@ -60,7 +54,9 @@ export function SlashMenuOld(
       defaultOpened={true}
       trigger={"hover"}
       closeDelay={10000000}>
-      <Menu.Dropdown className={classes.root}>
+      <Menu.Dropdown
+        onMouseDown={(event) => event.preventDefault()}
+        className={classes.root}>
         {renderedItems.length > 0 ? (
           renderedItems
         ) : (

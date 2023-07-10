@@ -363,17 +363,16 @@ export class BlockMenuView<BSchema extends BlockSchema> {
 
   onMouseDown = (_event: MouseEvent) => {
     // TODO: Fix
-    return;
     // if (this.blockMenu.element?.contains(event.target as HTMLElement)) {
     //   return;
     // }
-    //
-    // if (this.sideMenuState?.show) {
-    //   this.sideMenuState.show = false;
-    //   this.updateSideMenu();
-    // }
-    //
-    // this.menuFrozen = false;
+
+    if (this.sideMenuState?.show) {
+      this.sideMenuState.show = false;
+      this.updateSideMenu();
+    }
+
+    this.menuFrozen = false;
   };
 
   onMouseMove = (event: MouseEvent) => {
@@ -483,7 +482,7 @@ export class BlockMenuView<BSchema extends BlockSchema> {
           block: this.editor.getBlock(
             this.hoveredBlock!.getAttribute("data-id")!
           )!,
-          addBlock: this.addBlock,
+          addBlock: () => this.addBlock(),
           blockDragStart: (event: DragEvent) => {
             // Sets isDragging when dragging blocks.
             this.isDragging = true;

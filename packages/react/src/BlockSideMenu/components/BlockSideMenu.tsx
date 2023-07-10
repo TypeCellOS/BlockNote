@@ -16,8 +16,6 @@ export const BlockSideMenuOld = <BSchema extends BlockSchema>(
     editor: BlockNoteEditor<BSchema>;
   }
 ) => {
-  const [dragHandleMenuOpened, setDragHandleMenuOpened] = useState(false);
-
   const dragHandleRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -37,7 +35,6 @@ export const BlockSideMenuOld = <BSchema extends BlockSchema>(
   }, [props.blockDragEnd, props.blockDragStart]);
 
   const closeMenu = () => {
-    setDragHandleMenuOpened(false);
     props.unfreezeMenu();
   };
 
@@ -55,14 +52,11 @@ export const BlockSideMenuOld = <BSchema extends BlockSchema>(
           />
         }
       </ActionIcon>
-      <Menu opened={dragHandleMenuOpened} width={100} position={"left"}>
+      <Menu trigger={"click"} width={100} position={"left"}>
         <Menu.Target>
           <div draggable="true" ref={dragHandleRef}>
             <ActionIcon
-              onClick={() => {
-                setDragHandleMenuOpened(true);
-                props.freezeMenu();
-              }}
+              onClick={() => props.freezeMenu()}
               size={24}
               data-test={"dragHandle"}>
               {<MdDragIndicator size={24} />}
