@@ -12,13 +12,6 @@ import {
 import Tippy from "@tippyjs/react";
 // import rootStyles from "../../../root.module.css";
 
-export type HyperlinkToolbarProps = {
-  url: string;
-  text: string;
-  editHyperlink: (url: string, text: string) => void;
-  deleteHyperlink: () => void;
-};
-
 /**
  * Main menu component for the hyperlink extension.
  * Renders a toolbar that appears on hyperlink hover.
