@@ -4,11 +4,8 @@ import {
   BlockSchema,
   DefaultBlockSchema,
 } from "@blocknote/core";
-import { DependencyList, FC, useEffect, useState } from "react";
-import { getBlockNoteTheme } from "../BlockNoteTheme";
-import { createReactBlockSideMenuFactory } from "../BlockSideMenu/BlockSideMenuFactory";
+import { DependencyList, FC } from "react";
 import { DragHandleMenuProps } from "../BlockSideMenu/components/DragHandleMenu";
-import { createReactHyperlinkToolbarFactory } from "../HyperlinkToolbar/HyperlinkToolbarFactory";
 import { defaultReactSlashMenuItems } from "../SlashMenu/defaultReactSlashMenuItems";
 
 //based on https://github.com/ueberdosis/tiptap/blob/main/packages/react/src/useEditor.ts
@@ -18,11 +15,11 @@ type CustomElements<BSchema extends BlockSchema> = Partial<{
   dragHandleMenu: FC<DragHandleMenuProps<BSchema>>;
 }>;
 
-function useForceUpdate() {
-  const [, setValue] = useState(0);
-
-  return () => setValue((value) => value + 1);
-}
+// function useForceUpdate() {
+//   const [, setValue] = useState(0);
+//
+//   return () => setValue((value) => value + 1);
+// }
 
 function initEditor<BSchema extends BlockSchema>(
   options: Partial<
@@ -45,24 +42,6 @@ function initEditor<BSchema extends BlockSchema>(
     );
   }
 
-  let uiFactories = {
-    formattingToolbarFactory: undefined,
-    hyperlinkToolbarFactory: createReactHyperlinkToolbarFactory(
-      getBlockNoteTheme(newOptions.theme === "dark")
-    ),
-    slashMenuFactory: undefined,
-    blockSideMenuFactory: createReactBlockSideMenuFactory(
-      getBlockNoteTheme(newOptions.theme === "dark"),
-      newOptions.customElements?.dragHandleMenu
-    ),
-    ...newOptions.uiFactories,
-  };
-
-  newOptions = {
-    ...newOptions,
-    uiFactories,
-  };
-
   console.log("create new blocknote instance");
   const instance = new BlockNoteEditor<BSchema>(
     newOptions as Partial<BlockNoteEditorOptions<BSchema>>
@@ -80,7 +59,7 @@ export const useBlockNote = <BSchema extends BlockSchema = DefaultBlockSchema>(
       customElements: CustomElements<BSchema>;
     }
   > = {},
-  deps: DependencyList = []
+  _deps: DependencyList = []
 ) => {
   // const [editor, setEditor] = useState<BlockNoteEditor<BSchema>>(
   //   initEditor(options)
