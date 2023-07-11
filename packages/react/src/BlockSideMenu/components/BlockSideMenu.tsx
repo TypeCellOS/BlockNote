@@ -5,11 +5,11 @@ import {
   SideMenuState,
 } from "@blocknote/core";
 import { ActionIcon, Group, Menu } from "@mantine/core";
-import { useCallback, useEffect, useRef, useState } from "react";
+import Tippy from "@tippyjs/react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import { MdDragIndicator } from "react-icons/md";
 import { DefaultDragHandleMenu } from "./DefaultDragHandleMenu";
-import Tippy from "@tippyjs/react";
 
 export const BlockSideMenuOld = <BSchema extends BlockSchema>(
   props: Omit<SideMenuState<BSchema>, "referencePos"> & {
@@ -35,7 +35,8 @@ export const BlockSideMenuOld = <BSchema extends BlockSchema>(
   }, [props.blockDragEnd, props.blockDragStart]);
 
   const closeMenu = () => {
-    props.unfreezeMenu();
+    // TODO: I don't think this is needed / used?
+    // props.unfreezeMenu();
   };
 
   const DragHandleMenu = DefaultDragHandleMenu;
@@ -52,13 +53,15 @@ export const BlockSideMenuOld = <BSchema extends BlockSchema>(
           />
         }
       </ActionIcon>
-      <Menu trigger={"click"} width={100} position={"left"}>
+      <Menu
+        trigger={"click"}
+        onOpen={() => props.freezeMenu()}
+        onClose={() => props.unfreezeMenu()}
+        width={100}
+        position={"left"}>
         <Menu.Target>
           <div draggable="true" ref={dragHandleRef}>
-            <ActionIcon
-              onClick={() => props.freezeMenu()}
-              size={24}
-              data-test={"dragHandle"}>
+            <ActionIcon size={24} data-test={"dragHandle"}>
               {<MdDragIndicator size={24} />}
             </ActionIcon>
           </div>
@@ -76,54 +79,57 @@ export const BlockSideMenuOld = <BSchema extends BlockSchema>(
 export const SideMenu = <BSchema extends BlockSchema>(props: {
   editor: BlockNoteEditor<BSchema>;
 }) => {
-  const [state, setState] = useState<
-    Omit<SideMenuState<BSchema>, "referencePos"> | undefined
-  >();
-  // Since we're using Tippy, we don't want to trigger re-renders when only the
-  // reference position changes. So we store it in a ref instead of state.
-  const referenceClientRect = useRef<DOMRect | undefined>();
+  const [state, setState] = useState<SideMenuState<BSchema>>();
 
   useEffect(() => {
-    createSideMenu(props.editor, ({ referencePos, ...state }) => {
-      setState(state);
-      referenceClientRect.current = referencePos;
+    return createSideMenu(props.editor, (state) => {
+      setState({ ...state });
     });
   }, [props.editor]);
 
-  const getReferenceClientRect = useCallback(
-    () => referenceClientRect.current!,
-    [referenceClientRect]
-  );
+  const getReferenceClientRect = useMemo(() => {
+    // TODO: test
+    console.log(
+      "new reference pos, this should only be triggered when hovering a new block"
+    );
+    if (!state?.referencePos) {
+      return undefined;
+    }
+    return () => state.referencePos;
+  }, [state?.referencePos]);
 
   return (
     <Tippy
-      appendTo={props.editor._tiptapEditor.view.dom.parentElement!}
+      // I got rid of this and added the <div /> below + moved <BlockSideMenu /> to
+      // appendTo={props.editor._tiptapEditor.view.dom.parentElement!}
       content={<BlockSideMenuOld {...state!} editor={props.editor} />}
-      getReferenceClientRect={
-        referenceClientRect.current && getReferenceClientRect
-      }
+      getReferenceClientRect={getReferenceClientRect}
       interactive={true}
       visible={state?.show || false}
       animation={"fade"}
-      offset={[0, 0]}
+      offset={offset}
       placement={"left"}
-      popperOptions={{
-        modifiers: [
-          {
-            name: "flip",
-            options: {
-              fallbackPlacements: [],
-            },
-          },
-          {
-            name: "preventOverflow",
-            options: {
-              mainAxis: false,
-              altAxis: false,
-            },
-          },
-        ],
-      }}
-    />
+      popperOptions={popperOptions}>
+      <div />
+    </Tippy>
   );
+};
+
+const offset: [number, number] = [0, 0];
+const popperOptions = {
+  modifiers: [
+    {
+      name: "flip",
+      options: {
+        fallbackPlacements: [],
+      },
+    },
+    {
+      name: "preventOverflow",
+      options: {
+        mainAxis: false,
+        altAxis: false,
+      },
+    },
+  ],
 };

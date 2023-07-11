@@ -1,11 +1,11 @@
-import { BaseSlashMenuItem } from "./BaseSlashMenuItem";
-import { DefaultBlockSchema } from "../Blocks/api/defaultBlocks";
+import { PluginKey } from "prosemirror-state";
 import { BlockNoteEditor } from "../../BlockNoteEditor";
 import {
   createSuggestionPlugin,
   SuggestionsMenuState,
 } from "../../shared/plugins/suggestion/SuggestionPlugin";
-import { PluginKey } from "prosemirror-state";
+import { DefaultBlockSchema } from "../Blocks/api/defaultBlocks";
+import { BaseSlashMenuItem } from "./BaseSlashMenuItem";
 
 export const slashMenuPluginKey = new PluginKey("SlashMenuPlugin");
 export const createSlashMenu = <
@@ -25,4 +25,5 @@ export const createSlashMenu = <
     ({ item, editor }) => item.execute(editor),
     items
   );
+  return () => editor._tiptapEditor.unregisterPlugin(slashMenuPluginKey);
 };

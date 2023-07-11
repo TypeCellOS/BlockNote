@@ -1,8 +1,8 @@
 import { getMarkRange, posToDOMRect, Range } from "@tiptap/core";
 import { Mark } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
-import { BaseUiElementState } from "../../shared/EditorElement";
 import { BlockNoteEditor } from "../../BlockNoteEditor";
+import { BaseUiElementState } from "../../shared/EditorElement";
 import { BlockSchema } from "../Blocks/api/blockTypes";
 
 export type HyperlinkToolbarState = BaseUiElementState & {
@@ -298,6 +298,7 @@ class HyperlinkToolbarView<BSchema extends BlockSchema> {
       this.mouseOverHandler
     );
     document.removeEventListener("scroll", this.scrollHandler);
+    document.removeEventListener("click", this.clickHandler, true);
   }
 }
 
@@ -308,22 +309,15 @@ export const createHyperlinkToolbar = <BSchema extends BlockSchema>(
   editor: BlockNoteEditor<BSchema>,
   updateHyperlinkToolbar: (hyperlinkToolbarState: HyperlinkToolbarState) => void
 ) => {
-  // TODO: Add a way to unregister the plugin.
-  const hyperlinkToolbarView = new HyperlinkToolbarView(
-    editor,
-    updateHyperlinkToolbar
-  );
-  // For some reason, each time `registerPlugin` is called, the previous plugins
-  // which were added are either added again, or `view` is called again,
-  // resulting in duplicate views. This seems like a bug in TipTap?
   editor._tiptapEditor.registerPlugin(
     new Plugin({
       key: hyperlinkToolbarPluginKey,
-      view: () => hyperlinkToolbarView,
+      view: () => new HyperlinkToolbarView(editor, updateHyperlinkToolbar),
     }),
     (hyperlinkToolbarPlugin, plugins) => {
       plugins.unshift(hyperlinkToolbarPlugin);
       return plugins;
     }
   );
+  return () => editor._tiptapEditor.unregisterPlugin(hyperlinkToolbarPluginKey);
 };

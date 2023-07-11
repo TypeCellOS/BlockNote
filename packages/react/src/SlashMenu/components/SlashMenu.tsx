@@ -1,12 +1,17 @@
-import { BlockNoteEditor, BlockSchema, createSlashMenu } from "@blocknote/core";
+import {
+  BlockNoteEditor,
+  BlockSchema,
+  DefaultBlockSchema,
+  SuggestionsMenuState,
+  createSlashMenu,
+} from "@blocknote/core";
 import { Menu, createStyles } from "@mantine/core";
-import * as _ from "lodash";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { ReactSlashMenuItem } from "../ReactSlashMenuItem";
-import { SlashMenuItem } from "./SlashMenuItem";
 import Tippy from "@tippyjs/react";
-import { DefaultBlockSchema, SuggestionsMenuState } from "@blocknote/core";
+import * as _ from "lodash";
+import { useEffect, useMemo, useState } from "react";
+import { ReactSlashMenuItem } from "../ReactSlashMenuItem";
 import { defaultReactSlashMenuItems } from "../defaultReactSlashMenuItems";
+import { SlashMenuItem } from "./SlashMenuItem";
 
 export function SlashMenuOld(
   props: Omit<
@@ -71,23 +76,14 @@ export function SlashMenuOld(
 export const SlashMenu = <BSchema extends BlockSchema>(props: {
   editor: BlockNoteEditor<BSchema>;
 }) => {
-  const [state, setState] = useState<
-    | Omit<
-        SuggestionsMenuState<ReactSlashMenuItem<DefaultBlockSchema>>,
-        "referencePos"
-      >
-    | undefined
-  >();
-  // Since we're using Tippy, we don't want to trigger re-renders when only the
-  // reference position changes. So we store it in a ref instead of state.
-  const referenceClientRect = useRef<DOMRect | undefined>();
+  const [state, setState] =
+    useState<SuggestionsMenuState<ReactSlashMenuItem<DefaultBlockSchema>>>();
 
   useEffect(() => {
-    createSlashMenu<ReactSlashMenuItem<DefaultBlockSchema>>(
+    return createSlashMenu<ReactSlashMenuItem<DefaultBlockSchema>>(
       props.editor as any,
-      ({ referencePos, ...state }) => {
+      ({ ...state }) => {
         setState(state);
-        referenceClientRect.current = referencePos;
       },
       (query) =>
         defaultReactSlashMenuItems.filter(
@@ -96,22 +92,26 @@ export const SlashMenu = <BSchema extends BlockSchema>(props: {
     );
   }, [props.editor]);
 
-  const getReferenceClientRect = useCallback(
-    () => referenceClientRect.current!,
-    [referenceClientRect]
-  );
+  const getReferenceClientRect = useMemo(() => {
+    // TODO: test and remove
+    console.log(
+      "new reference pos for SLASHMENU, this should only be triggered when slashmenu position changes"
+    );
+    if (!state?.referencePos) {
+      return undefined;
+    }
+    return () => state.referencePos;
+  }, [state?.referencePos]);
 
   return (
     <Tippy
-      appendTo={props.editor._tiptapEditor.view.dom.parentElement!}
       content={<SlashMenuOld {...state!} />}
-      getReferenceClientRect={
-        referenceClientRect.current && getReferenceClientRect
-      }
+      getReferenceClientRect={getReferenceClientRect}
       interactive={true}
       visible={state?.show || false}
       animation={"fade"}
-      placement={"bottom-start"}
-    />
+      placement={"bottom-start"}>
+      <div />
+    </Tippy>
   );
 };
