@@ -165,8 +165,6 @@ export function blockToNode<BSchema extends BlockSchema>(
     contentNode = schema.nodes[type].create(block.props, nodes);
   }
 
-  console.log(contentNode)
-
   const children: Node[] = [];
 
   if (block.children) {

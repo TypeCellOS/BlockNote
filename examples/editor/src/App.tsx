@@ -1,31 +1,31 @@
 // import logo from './logo.svg'
-import "@blocknote/core/style.css";
-import { BlockNoteView, useBlockNote } from "@blocknote/react";
-import styles from "./App.module.css";
-
-import { DefaultBlockSchema, defaultBlockSchema } from '@blocknote/core';
-
 import { z } from 'zod';
-import { createReactBlockSpec, ReactSlashMenuItem, defaultReactSlashMenuItems } from '@blocknote/react';
+import { DefaultBlockSchema, defaultBlockSchema } from '@blocknote/core';
+import { BlockNoteView, useBlockNote, createReactBlockSpec, ReactSlashMenuItem, defaultReactSlashMenuItems } from "@blocknote/react";
+import "@blocknote/core/style.css";
+import styles from "./App.module.css";
 
 export const AccordionBlock = createReactBlockSpec({
   type: 'accordion',
   propSchema: z.object({
-    label: z.string().optional(),
+    label: z.string(),
     autoLayout: z.object({
       enabled: z.boolean(),
-    }),
+    }).optional(),
   }),
   render: ({ editor, block }) => {
-    console.log(block.props)
-
     return (
       <>
-        <h2 className='mb-2'>Accordion</h2>
-        {block.props.autoLayout?.enabled ? (
-          <div className='flex flex-col'>
-            asdfasdf
-            </div>) : <></>}
+        <h2 className='mb-2'>{block.props.label}</h2>
+        {
+          block.props.autoLayout?.enabled ? 
+            (
+              <div className='flex flex-col'>
+                Enabled
+              </div>
+            ) : 
+          <></>
+        }
       </>
     );
   },
@@ -40,12 +40,13 @@ export const insertAccordion = new ReactSlashMenuItem<
   (editor) => {
     editor.insertBlocks(
       [
+        // Default values are set here
         {
           type: 'accordion',
           props: {
-            label: 'Accordion',
+            label: 'Default',
             autoLayout: {
-              enabled: true,
+              enabled: true
             }
           },
         },

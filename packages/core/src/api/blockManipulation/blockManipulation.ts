@@ -19,7 +19,6 @@ export function insertBlocks<BSchema extends BlockSchema>(
 
   const nodesToInsert: Node[] = [];
   for (const blockSpec of blocksToInsert) {
-    console.log(blockSpec)
     nodesToInsert.push(blockToNode(blockSpec, editor.schema));
   }
 
