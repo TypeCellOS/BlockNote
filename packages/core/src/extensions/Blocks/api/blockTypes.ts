@@ -1,4 +1,5 @@
 /** Define the main block types **/
+import { z } from "zod";
 import { Node, NodeConfig } from "@tiptap/core";
 import { BlockNoteEditor } from "../../../BlockNoteEditor";
 import { InlineContent, PartialInlineContent } from "./inlineContentTypes";
@@ -31,28 +32,17 @@ export type TipTapNode<
   group: "blockContent";
 };
 
-// Defines a single prop spec, which includes the default value the prop should
-// take and possible values it can take.
-export type PropSpec<T> = {
-  default: T;
-  values?: readonly T[];
-};
-
 // Defines multiple block prop specs. The key of each prop is the name of the
 // prop, while the value is a corresponding prop spec. This should be included
 // in a block config or schema. From a prop schema, we can derive both the props'
 // internal implementation (as TipTap node attributes) and the type information
 // for the external API.
-export type PropSchema<T = unknown> = Record<string, PropSpec<T>>;
+export type PropSchema = z.SomeZodObject;
 
 // Defines Props objects for use in Block objects in the external API. Converts
 // each prop spec into a union type of its possible values, or the type of the
 //  'default' property if values are not specified.
-export type Props<PSchema extends PropSchema> = {
-  [PType in keyof PSchema]: PSchema[PType]["values"] extends readonly unknown[]
-    ? PSchema[PType]["values"][number]
-    : PSchema[PType]["default"];
-};
+export type Props<PSchema extends PropSchema> = z.infer<PSchema>;
 
 // Defines the config for a single block. Meant to be used as an argument to
 // `createBlockSpec`, which will create a new block spec from it. This is the
@@ -161,7 +151,7 @@ type PartialBlocksWithoutChildren<BSchema extends BlockSchema> = {
   [BType in keyof BSchema]: Partial<{
     id: string;
     type: BType;
-    props: Partial<Props<BSchema[BType]["propSchema"]>>;
+    props: Props<BSchema[BType]["propSchema"]>;
     content: PartialInlineContent[] | string;
   }>;
 };

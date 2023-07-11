@@ -1,4 +1,6 @@
-import { defaultProps } from "@blocknote/core";
+import { z } from "zod";
+import React from "react";
+import { defaultProps, defaultPropSchema } from "@blocknote/core";
 import {
   createReactBlockSpec,
   InlineContent,
@@ -28,13 +30,13 @@ const values = {
 
 export const ReactAlert = createReactBlockSpec({
   type: "reactAlert" as const,
-  propSchema: {
+  propSchema: defaultPropSchema.merge(z.object({
+    type: z.enum(["warning", "error", "info", "success"]),
+  })),
+  props: {
     textAlignment: defaultProps.textAlignment,
     textColor: defaultProps.textColor,
-    type: {
-      default: "warning",
-      values: ["warning", "error", "info", "success"],
-    },
+    type: "warning",
   } as const,
   containsInlineContent: true,
   render: (props) => {

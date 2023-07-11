@@ -1,13 +1,16 @@
+import { z } from "zod";
+import React from "react";
 import { createBlockSpec } from "@blocknote/core";
 import { ReactSlashMenuItem } from "@blocknote/react";
 import { RiLayout5Fill } from "react-icons/ri";
 
 export const Embed = createBlockSpec({
   type: "embed" as const,
-  propSchema: {
-    src: {
-      default: "https://www.youtube.com/embed/wjfuB8Xjhc4",
-    },
+  propSchema: z.object({
+    src: z.string().url(),
+  }),
+  props: {
+    src: "https://www.youtube.com/embed/wjfuB8Xjhc4"
   } as const,
   containsInlineContent: false,
   render: (block) => {

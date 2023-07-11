@@ -1,10 +1,15 @@
-import { createBlockSpec, defaultProps } from "@blocknote/core";
+import { z } from "zod";
+import React from "react";
+import { createBlockSpec, defaultProps, defaultPropSchema } from "@blocknote/core";
 import { ReactSlashMenuItem } from "@blocknote/react";
 import { RiRadioButtonFill } from "react-icons/ri";
 
 export const Button = createBlockSpec({
   type: "button" as const,
-  propSchema: {
+  propSchema: z.object({
+    backgroundColor: defaultPropSchema.shape.backgroundColor,
+  }),
+  props: {
     backgroundColor: defaultProps.backgroundColor,
   } as const,
   containsInlineContent: false,
@@ -15,7 +20,7 @@ export const Button = createBlockSpec({
       editor.insertBlocks(
         [
           {
-            type: "paragraph",
+            type: "button",
             content: "Hello World",
           },
         ],

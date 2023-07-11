@@ -1,3 +1,5 @@
+import { z } from "zod";
+import React from "react";
 import {
   Block,
   BlockSchema,
@@ -43,7 +45,8 @@ function createHeadingElements(block: Block<BlockSchema>) {
 
 export const TableOfContents = createBlockSpec({
   type: "toc" as const,
-  propSchema: {} as const,
+  propSchema: z.object({}),
+  props: {} as const,
   containsInlineContent: false,
   render: (_, editor) => {
     const toc = document.createElement("ol");
@@ -51,7 +54,7 @@ export const TableOfContents = createBlockSpec({
     editor.onEditorContentChange(() => {
       toc.innerHTML = "";
       for (const block of editor.topLevelBlocks) {
-        if (block.type === "heading") {
+        if ((block.type as any) === "heading") {
           toc.appendChild(createHeadingElements(block));
         }
       }

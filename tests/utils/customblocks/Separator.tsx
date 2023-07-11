@@ -1,10 +1,13 @@
+import { z } from "zod";
+import React from "react";
 import { createBlockSpec } from "@blocknote/core";
 import { ReactSlashMenuItem } from "@blocknote/react";
 import { RiSeparator } from "react-icons/ri";
 
 export const Separator = createBlockSpec({
   type: "separator" as const,
-  propSchema: {} as const,
+  propSchema: z.object({}),
+  props: {} as const,
   containsInlineContent: false,
   render: () => {
     const separator = document.createElement("div");

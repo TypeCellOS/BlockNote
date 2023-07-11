@@ -2,6 +2,7 @@ import {
   BlockNoteEditor,
   BlockSchema,
   DefaultBlockSchema,
+  defaultBlockSchema,
 } from "@blocknote/core";
 import { useEffect, useState } from "react";
 import { IconType } from "react-icons";
@@ -25,7 +26,7 @@ const headingIcons: Record<HeadingLevels, IconType> = {
 
 const shouldShow = (schema: BlockSchema) => {
   const paragraph = "paragraph" in schema;
-  const heading = "heading" in schema && "level" in schema.heading.propSchema;
+  const heading = "heading" in schema;
   const bulletListItem = "bulletListItem" in schema;
   const numberedListItem = "numberedListItem" in schema;
 
@@ -52,18 +53,24 @@ export const BlockTypeDropdown = <BSchema extends BlockSchema>(props: {
   // the default block schema is being used
   let editor = props.editor as any as BlockNoteEditor<DefaultBlockSchema>;
 
-  const headingItems = editor.schema.heading.propSchema.level.values.map(
+  const parsedDefaultProps = defaultBlockSchema.heading.propSchema.safeParse(defaultBlockSchema.heading.props)
+
+  if (!parsedDefaultProps.success) {
+    throw new Error("Default heading values are not valid");
+  }
+
+  const headingItems = (['1', '2', '3'] as const).map(
     (level) => ({
       onClick: () => {
         editor.focus();
         editor.updateBlock(block, {
           type: "heading",
-          props: { level: level },
+          props: { ...parsedDefaultProps.data, level: level },
         });
       },
       text: "Heading " + level,
       icon: headingIcons[level],
-      isSelected: block.type === "heading" && block.props.level === level,
+      isSelected: block.type === "heading" && (block.props as any).level === level,
     })
   );
 

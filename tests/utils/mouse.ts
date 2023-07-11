@@ -3,29 +3,29 @@ import { DRAG_HANDLE_SELECTOR } from "./const";
 
 async function getElementLeftCoords(page: Page, element: Locator) {
   const boundingBox = await element.boundingBox();
-  const centerY = boundingBox.y + boundingBox.height / 2;
+  const centerY = boundingBox!.y + boundingBox!.height / 2;
 
-  return { x: boundingBox.x + 1, y: centerY };
+  return { x: boundingBox!.x + 1, y: centerY };
 }
 
 async function getElementRightCoords(page: Page, element: Locator) {
   const boundingBox = await element.boundingBox();
-  const centerY = boundingBox.y + boundingBox.height / 2;
+  const centerY = boundingBox!.y + boundingBox!.height / 2;
 
-  return { x: boundingBox.x + boundingBox.width - 1, y: centerY };
+  return { x: boundingBox!.x + boundingBox!.width - 1, y: centerY };
 }
 
 async function getElementCenterCoords(page: Page, element: Locator) {
   const boundingBox = await element.boundingBox();
-  const centerX = boundingBox.x + boundingBox.width / 2;
-  const centerY = boundingBox.y + boundingBox.height / 2;
+  const centerX = boundingBox!.x + boundingBox!.width / 2;
+  const centerY = boundingBox!.y + boundingBox!.height / 2;
 
   return { x: centerX, y: centerY };
 }
 
 export async function moveMouseOverElement(page: Page, element: Locator) {
   const boundingBox = await element.boundingBox();
-  const coords = { x: boundingBox.x, y: boundingBox.y };
+  const coords = { x: boundingBox!.x, y: boundingBox!.y };
   await page.mouse.move(coords.x, coords.y, { steps: 5 });
 }
 

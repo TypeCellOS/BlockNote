@@ -23,5 +23,5 @@ export async function getDragHandleYCoord(page: Page, selector: string) {
   await moveMouseOverElement(page, element);
   await page.waitForSelector(DRAG_HANDLE_SELECTOR);
   const boundingBox = await page.locator(DRAG_HANDLE_SELECTOR).boundingBox();
-  return boundingBox.y;
+  return boundingBox?.y;
 }

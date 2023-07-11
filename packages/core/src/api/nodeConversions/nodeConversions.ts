@@ -4,6 +4,7 @@ import {
   Block,
   BlockSchema,
   PartialBlock,
+  Props,
 } from "../../extensions/Blocks/api/blockTypes";
 
 import { defaultProps } from "../../extensions/Blocks/api/defaultBlocks";
@@ -148,6 +149,10 @@ export function blockToNode<BSchema extends BlockSchema>(
 
   let contentNode: Node;
 
+  if (!block.props) {
+    throw new Error("Block props are undefined");    
+  }
+
   if (!block.content) {
     contentNode = schema.nodes[type].create(block.props);
   } else if (typeof block.content === "string") {
@@ -159,6 +164,8 @@ export function blockToNode<BSchema extends BlockSchema>(
     const nodes = inlineContentToNodes(block.content, schema);
     contentNode = schema.nodes[type].create(block.props, nodes);
   }
+
+  console.log(contentNode)
 
   const children: Node[] = [];
 
@@ -378,22 +385,24 @@ export function nodeToBlock<BSchema extends BlockSchema>(
     id = UniqueID.options.generateID();
   }
 
-  const props: any = {};
+  const blockSpec = blockSchema[blockInfo.contentType.name];
+  
+  if (!blockSpec) {
+    throw Error(
+      "Block is of an unrecognized type: " + blockInfo.contentType.name
+    );
+  }
+
+  const props: Props<typeof blockSpec.propSchema> = Object.create(null);
+  
   for (const [attr, value] of Object.entries({
     ...blockInfo.node.attrs,
     ...blockInfo.contentNode.attrs,
   })) {
-    const blockSpec = blockSchema[blockInfo.contentType.name];
-    if (!blockSpec) {
-      throw Error(
-        "Block is of an unrecognized type: " + blockInfo.contentType.name
-      );
-    }
-
-    const propSchema = blockSpec.propSchema;
-
-    if (attr in propSchema) {
-      props[attr] = value;
+    if (attr in blockSpec.propSchema.shape) {
+      if (props && typeof props === "object") {
+        props[attr as keyof typeof props] = value as never;
+      }
     }
     // Block ids are stored as node attributes the same way props are, so we
     // need to ensure we don't attempt to read block ids as props.

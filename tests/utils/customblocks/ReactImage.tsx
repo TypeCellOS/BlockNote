@@ -1,18 +1,21 @@
+import { z } from "zod";
+import React from "react";
 import {
   InlineContent,
   createReactBlockSpec,
   ReactSlashMenuItem,
 } from "@blocknote/react";
-import { defaultProps } from "@blocknote/core";
+import { defaultProps, defaultPropSchema } from "@blocknote/core";
 import { RiImage2Fill } from "react-icons/ri";
 
 export const ReactImage = createReactBlockSpec({
   type: "reactImage" as const,
-  propSchema: {
+  propSchema: defaultPropSchema.merge(z.object({
+    src: z.string().url(),
+  })),
+  props: {
     ...defaultProps,
-    src: {
-      default: "https://via.placeholder.com/1000",
-    },
+    src: "https://via.placeholder.com/1000"
   } as const,
   containsInlineContent: true,
   render: ({ block }) => {

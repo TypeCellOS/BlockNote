@@ -29,11 +29,15 @@ export const BlockColorsButton = <BSchema extends BlockSchema>(
     setOpened(true);
   }, []);
 
+  if (!(props.block.props && typeof props.block.props === 'object')) {
+    return <></>;
+  }
+
   if (
     !("textColor" in props.block.props) ||
     !("backgroundColor" in props.block.props)
   ) {
-    return null;
+    return <></>;
   }
 
   return (

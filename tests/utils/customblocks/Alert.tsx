@@ -1,4 +1,6 @@
-import { createBlockSpec, defaultProps } from "@blocknote/core";
+import { z } from "zod";
+import React from "react";
+import { createBlockSpec, defaultProps, defaultPropSchema } from "@blocknote/core";
 import { ReactSlashMenuItem } from "@blocknote/react";
 import { RiAlertFill } from "react-icons/ri";
 
@@ -23,13 +25,15 @@ const values = {
 
 export const Alert = createBlockSpec({
   type: "alert" as const,
-  propSchema: {
+  propSchema: z.object({
+    textAlignment: defaultPropSchema.shape.textAlignment,
+    textColor: defaultPropSchema.shape.textColor,
+    type: z.enum(["warning", "error", "info", "success"]),
+  }),
+  props: {
     textAlignment: defaultProps.textAlignment,
     textColor: defaultProps.textColor,
-    type: {
-      default: "warning",
-      values: ["warning", "error", "info", "success"],
-    },
+    type: "warning",
   } as const,
   containsInlineContent: true,
   render: (block, editor) => {

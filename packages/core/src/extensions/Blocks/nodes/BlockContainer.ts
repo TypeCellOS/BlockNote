@@ -200,7 +200,7 @@ export const BlockContainer = Node.create<IBlock>({
                 : state.schema.nodes[block.type],
               {
                 ...contentNode.attrs,
-                ...block.props,
+                ...block.props!,
               }
             );
 
@@ -208,7 +208,7 @@ export const BlockContainer = Node.create<IBlock>({
             // attributes.
             state.tr.setNodeMarkup(startPos - 1, undefined, {
               ...node.attrs,
-              ...block.props,
+              ...block.props!,
             });
           }
 

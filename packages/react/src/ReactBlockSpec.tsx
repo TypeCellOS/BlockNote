@@ -88,8 +88,9 @@ export function createReactBlockSpec<
 
         // Add props as HTML attributes in kebab-case with "data-" prefix
         const htmlAttributes: Record<string, string> = {};
+
         for (const [attribute, value] of Object.entries(props.node.attrs)) {
-          if (attribute in blockConfig.propSchema) {
+          if (attribute in blockConfig.propSchema.shape) {
             htmlAttributes[camelToDataKebab(attribute)] = value;
           }
         }

@@ -22,9 +22,9 @@ export const FormattingToolbar = <BSchema extends BlockSchema>(props: {
       <ToggledStyleButton editor={props.editor} toggledStyle={"underline"} />
       <ToggledStyleButton editor={props.editor} toggledStyle={"strike"} />
 
-      <TextAlignButton editor={props.editor as any} textAlignment={"left"} />
-      <TextAlignButton editor={props.editor as any} textAlignment={"center"} />
-      <TextAlignButton editor={props.editor as any} textAlignment={"right"} />
+      <TextAlignButton editor={props.editor} textAlignment={"left"} />
+      <TextAlignButton editor={props.editor} textAlignment={"center"} />
+      <TextAlignButton editor={props.editor} textAlignment={"right"} />
 
       <ColorStyleButton editor={props.editor} />
 
