@@ -1,15 +1,15 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { EditHyperlinkMenu } from "../EditHyperlinkMenu/components/EditHyperlinkMenu";
-import { Toolbar } from "../../SharedComponents/Toolbar/components/Toolbar";
-import { ToolbarButton } from "../../SharedComponents/Toolbar/components/ToolbarButton";
-import { RiExternalLinkFill, RiLinkUnlink } from "react-icons/ri";
 import {
   BlockNoteEditor,
   BlockSchema,
-  createHyperlinkToolbar,
   HyperlinkToolbarState,
+  createHyperlinkToolbar,
 } from "@blocknote/core";
 import Tippy from "@tippyjs/react";
+import { useEffect, useMemo, useState } from "react";
+import { RiExternalLinkFill, RiLinkUnlink } from "react-icons/ri";
+import { Toolbar } from "../../SharedComponents/Toolbar/components/Toolbar";
+import { ToolbarButton } from "../../SharedComponents/Toolbar/components/ToolbarButton";
+import { EditHyperlinkMenu } from "../EditHyperlinkMenu/components/EditHyperlinkMenu";
 // import rootStyles from "../../../root.module.css";
 
 /**
@@ -60,37 +60,33 @@ export const HyperlinkToolbarOld = (
 export const HyperlinkToolbar = <BSchema extends BlockSchema>(props: {
   editor: BlockNoteEditor<BSchema>;
 }) => {
-  const [state, setState] = useState<
-    Omit<HyperlinkToolbarState, "referencePos"> | undefined
-  >();
-  // Since we're using Tippy, we don't want to trigger re-renders when only the
-  // reference position changes. So we store it in a ref instead of state.
-  const referenceClientRect = useRef<DOMRect | undefined>();
+  const [state, setState] = useState<HyperlinkToolbarState>();
 
   useEffect(() => {
-    createHyperlinkToolbar(props.editor, ({ referencePos, ...state }) => {
+    return createHyperlinkToolbar(props.editor, ({ ...state }) => {
       setState(state);
-      referenceClientRect.current = referencePos;
     });
   }, [props.editor]);
 
-  const getReferenceClientRect = useCallback(
-    () => referenceClientRect.current!,
-    [referenceClientRect]
-  );
+  const getReferenceClientRect = useMemo(() => {
+    // TODO: test and remove
+    console.log("new reference pos for HYPERLINKTOOLBAR");
+    if (!state?.referencePos) {
+      return undefined;
+    }
+    return () => state.referencePos;
+  }, [state?.referencePos]);
 
   return (
     <Tippy
-      appendTo={props.editor._tiptapEditor.view.dom.parentElement!}
       // TODO: Add onMouseEnter and onMouseLeave handlers from state
       content={<HyperlinkToolbarOld {...state!} />}
-      getReferenceClientRect={
-        referenceClientRect.current && getReferenceClientRect
-      }
+      getReferenceClientRect={getReferenceClientRect}
       interactive={true}
       visible={state?.show || false}
       animation={"fade"}
-      placement={"top-start"}
-    />
+      placement={"top-start"}>
+      <div />
+    </Tippy>
   );
 };

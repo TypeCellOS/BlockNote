@@ -16,7 +16,9 @@ export type ToolbarDropdownProps = {
 };
 
 export function ToolbarDropdown(props: ToolbarDropdownProps) {
-  const activeItem = props.items.filter((p) => p.isSelected)[0];
+  const { isSelected, ...activeItem } = props.items.filter(
+    (p) => p.isSelected
+  )[0];
 
   if (!activeItem) {
     return null;

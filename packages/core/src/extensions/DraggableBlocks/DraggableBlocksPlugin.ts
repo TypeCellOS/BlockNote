@@ -1,20 +1,23 @@
+import { PluginView } from "@tiptap/pm/state";
 import { Node } from "prosemirror-model";
 import { NodeSelection, Plugin, PluginKey, Selection } from "prosemirror-state";
 import * as pv from "prosemirror-view";
 import { EditorView } from "prosemirror-view";
-import styles from "../../editor.module.css";
-import { getBlockInfoFromPos } from "../Blocks/helpers/getBlockInfoFromPos";
-import { MultipleNodeSelection } from "./MultipleNodeSelection";
 import { BlockNoteEditor } from "../../BlockNoteEditor";
-import { Block, BlockSchema } from "../Blocks/api/blockTypes";
+import styles from "../../editor.module.css";
 import { BaseUiElementState } from "../../shared/EditorElement";
+import { Block, BlockSchema } from "../Blocks/api/blockTypes";
+import { getBlockInfoFromPos } from "../Blocks/helpers/getBlockInfoFromPos";
 import { slashMenuPluginKey } from "../SlashMenu/SlashMenuPlugin";
+import { MultipleNodeSelection } from "./MultipleNodeSelection";
 
 const serializeForClipboard = (pv as any).__serializeForClipboard;
 // code based on https://github.com/ueberdosis/tiptap/issues/323#issuecomment-506637799
 
 let dragImageElement: Element | undefined;
 
+// TODO: I think freezeMenu, unfreezeMenu, blockDragStart, blockDragEnd are not "state", but
+// but actions that should be for example returned from createSideMenu
 export type SideMenuState<BSchema extends BlockSchema> = BaseUiElementState & {
   block: Block<BSchema>;
 
@@ -229,9 +232,8 @@ function dragStart(e: DragEvent, view: EditorView) {
   }
 }
 
-export class SideMenuView<BSchema extends BlockSchema> {
+export class SideMenuView<BSchema extends BlockSchema> implements PluginView {
   editor: BlockNoteEditor<BSchema>;
-
   private sideMenuState?: SideMenuState<BSchema>;
   public updateSideMenu: () => void;
 
@@ -357,7 +359,6 @@ export class SideMenuView<BSchema extends BlockSchema> {
       this.sideMenuState.show = false;
       this.updateSideMenu();
     }
-
     this.menuFrozen = false;
   };
 
@@ -376,8 +377,6 @@ export class SideMenuView<BSchema extends BlockSchema> {
   };
 
   onMouseMove = (event: MouseEvent) => {
-    console.log(this.menuFrozen);
-    console.log(this.sideMenuState);
     if (this.menuFrozen) {
       return;
     }
@@ -430,11 +429,12 @@ export class SideMenuView<BSchema extends BlockSchema> {
       left: editorBoundingBox.left + editorBoundingBox.width / 2, // take middle of editor
       top: event.clientY,
     };
+
     const block = getDraggableBlockFromCoords(
       coords,
       this.editor._tiptapEditor.view
     );
-
+    console.log(block);
     // Closes the menu if the mouse cursor is beyond the editor vertically.
     if (!block || !this.editor.isEditable) {
       if (this.sideMenuState?.show) {
@@ -451,6 +451,7 @@ export class SideMenuView<BSchema extends BlockSchema> {
       this.hoveredBlock?.hasAttribute("data-id") &&
       this.hoveredBlock?.getAttribute("data-id") === block.id
     ) {
+      // TODO: this doesn't seem right
       if (this.sideMenuState?.show) {
         this.sideMenuState.show = true;
         this.updateSideMenu();
@@ -491,8 +492,12 @@ export class SideMenuView<BSchema extends BlockSchema> {
             dragStart(event, this.editor._tiptapEditor.view);
           },
           blockDragEnd: () => unsetDragImage(),
-          freezeMenu: () => (this.menuFrozen = true),
-          unfreezeMenu: () => (this.menuFrozen = false),
+          freezeMenu: () => {
+            this.menuFrozen = true;
+          },
+          unfreezeMenu: () => {
+            this.menuFrozen = false;
+          },
         };
       } else {
         this.sideMenuState.show = true;
@@ -535,16 +540,19 @@ export class SideMenuView<BSchema extends BlockSchema> {
       this.sideMenuState.show = false;
       this.updateSideMenu();
     }
-    document.body.removeEventListener("mousemove", this.onMouseMove);
+    // (remove this comment):
+    // the event listeners weren't detached properly because the parameters didn't match
+    // the params passed to addEventListener.
+    document.body.removeEventListener("mousemove", this.onMouseMove, true);
     document.body.removeEventListener("dragover", this.onDragOver);
     this.editor._tiptapEditor.view.dom.removeEventListener(
       "dragstart",
       this.onDragStart
     );
-    document.body.removeEventListener("drop", this.onDrop);
-    document.body.removeEventListener("mousedown", this.onMouseDown);
+    document.body.removeEventListener("drop", this.onDrop, true);
+    document.body.removeEventListener("mousedown", this.onMouseDown, true);
     document.removeEventListener("scroll", this.onScroll);
-    document.body.removeEventListener("keydown", this.onKeyDown);
+    document.body.removeEventListener("keydown", this.onKeyDown, true);
   }
 
   addBlock() {
@@ -610,19 +618,15 @@ export const createSideMenu = <BSchema extends BlockSchema>(
   editor: BlockNoteEditor<BSchema>,
   updateSideMenu: (sideMenuState: SideMenuState<BSchema>) => void
 ) => {
-  // TODO: Add a way to unregister the plugin.
-  const sideMenuView = new SideMenuView(editor, updateSideMenu);
-  // For some reason, each time `registerPlugin` is called, the previous plugins
-  // which were added are either added again, or `view` is called again,
-  // resulting in duplicate views. This seems like a bug in TipTap?
   editor._tiptapEditor.registerPlugin(
     new Plugin({
       key: sideMenuPluginKey,
-      view: () => sideMenuView,
+      view: () => new SideMenuView(editor, updateSideMenu),
     }),
     (sideMenuPlugin, plugins) => {
       plugins.unshift(sideMenuPlugin);
       return plugins;
     }
   );
+  return () => editor._tiptapEditor.unregisterPlugin(sideMenuPluginKey);
 };
