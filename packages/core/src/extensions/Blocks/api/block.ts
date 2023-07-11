@@ -30,24 +30,24 @@ export function propsToAttributes<
   const tiptapAttributes: Record<string, Attribute> = {};
 
   Object.entries(blockConfig.propSchema.shape).forEach(([name, spec]) => {
-    // If the spec schema has a 'default' value,
-    // we use it as the default value for the attribute.
-    // https://zod.dev/?id=default
-    const parsedSpec = spec.safeParse(undefined);
-
     tiptapAttributes[name] = {
-      default: parsedSpec.success && typeof parsedSpec.data === "string" ? parsedSpec.data : '',
+      default: null, // It will be provided by `insertBlocks`
       keepOnSplit: true,
       // Props are displayed in kebab-case as HTML attributes. If a prop's
       // value is the same as its default, we don't display an HTML
       // attribute for it.
       parseHTML: (element) => element.getAttribute(camelToDataKebab(name)),
-      renderHTML: (attributes) =>
-        attributes[camelToDataKebab(name)] !== spec
-          ? {
-              [camelToDataKebab(name)]: attributes[name],
-            }
-          : {},
+      renderHTML: (attributes) => {
+        const parsed = spec.safeParse(attributes[name]);
+
+        if (!parsed.success || attributes[camelToDataKebab(name)] !== parsed.data) {
+          return {
+            [camelToDataKebab(name)]: typeof attributes[name] === 'string' ? attributes[name] : null,
+          }
+        }
+
+        return {}
+      },
     };
   });
 
