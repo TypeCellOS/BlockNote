@@ -12,11 +12,10 @@ export function BlockNoteView<BSchema extends BlockSchema>(props: {
 }) {
   return (
     <MantineProvider theme={getBlockNoteTheme()}>
-      <EditorContent editor={props.editor?._tiptapEditor || null}>
+      <EditorContent editor={props.editor?._tiptapEditor}>
         <SideMenu editor={props.editor!} />
         <FormattingToolbar editor={props.editor!} />
         <HyperlinkToolbar editor={props.editor!} />
-
         <SlashMenu editor={props.editor!} />
       </EditorContent>
     </MantineProvider>

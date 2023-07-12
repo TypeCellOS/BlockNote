@@ -3,6 +3,7 @@ import { BlockNoteEditor } from "../../BlockNoteEditor";
 import {
   createSuggestionPlugin,
   SuggestionsMenuState,
+  SuggestionsPluginCallbacks,
 } from "../../shared/plugins/suggestion/SuggestionPlugin";
 import { DefaultBlockSchema } from "../Blocks/api/defaultBlocks";
 import { BaseSlashMenuItem } from "./BaseSlashMenuItem";
@@ -16,8 +17,8 @@ export const createSlashMenu = <
     slashMenuState: SuggestionsMenuState<SlashMenuItem>
   ) => void,
   items: (query: string) => SlashMenuItem[]
-) => {
-  createSuggestionPlugin<SlashMenuItem, DefaultBlockSchema>(
+): SuggestionsPluginCallbacks<SlashMenuItem> => {
+  return createSuggestionPlugin<SlashMenuItem, DefaultBlockSchema>(
     slashMenuPluginKey,
     "/",
     editor,
@@ -25,5 +26,4 @@ export const createSlashMenu = <
     ({ item, editor }) => item.execute(editor),
     items
   );
-  return () => editor._tiptapEditor.unregisterPlugin(slashMenuPluginKey);
 };

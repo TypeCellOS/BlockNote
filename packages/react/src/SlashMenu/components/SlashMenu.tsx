@@ -4,20 +4,27 @@ import {
   DefaultBlockSchema,
   SuggestionsMenuState,
   createSlashMenu,
+  SuggestionsPluginCallbacks,
+  BaseUiElementState,
+  BaseUiElementCallbacks,
 } from "@blocknote/core";
 import { Menu, createStyles } from "@mantine/core";
 import Tippy from "@tippyjs/react";
 import * as _ from "lodash";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ReactSlashMenuItem } from "../ReactSlashMenuItem";
 import { defaultReactSlashMenuItems } from "../defaultReactSlashMenuItems";
 import { SlashMenuItem } from "./SlashMenuItem";
 
 export function SlashMenuOld(
   props: Omit<
-    SuggestionsMenuState<ReactSlashMenuItem<DefaultBlockSchema>>,
-    "referencePos"
-  >
+    SuggestionsPluginCallbacks<ReactSlashMenuItem<DefaultBlockSchema>>,
+    keyof BaseUiElementCallbacks
+  > &
+    Omit<
+      SuggestionsMenuState<ReactSlashMenuItem<DefaultBlockSchema>>,
+      keyof BaseUiElementState
+    >
 ) {
   const { classes } = createStyles({ root: {} })(undefined, {
     name: "SlashMenu",
@@ -76,39 +83,69 @@ export function SlashMenuOld(
 export const SlashMenu = <BSchema extends BlockSchema>(props: {
   editor: BlockNoteEditor<BSchema>;
 }) => {
-  const [state, setState] =
-    useState<SuggestionsMenuState<ReactSlashMenuItem<DefaultBlockSchema>>>();
+  const [show, setShow] = useState<boolean>(false);
+  const [items, setItems] =
+    useState<ReactSlashMenuItem<DefaultBlockSchema>[]>();
+  const [keyboardHoveredItemIndex, setKeyboardHoveredItemIndex] =
+    useState<number>();
+
+  const referencePos = useRef<DOMRect>();
+  const callbacks =
+    useRef<
+      SuggestionsPluginCallbacks<ReactSlashMenuItem<DefaultBlockSchema>>
+    >();
 
   useEffect(() => {
-    return createSlashMenu<ReactSlashMenuItem<DefaultBlockSchema>>(
+    callbacks.current = createSlashMenu<ReactSlashMenuItem<DefaultBlockSchema>>(
       props.editor as any,
-      ({ ...state }) => {
-        setState(state);
+      (slashMenuState) => {
+        setShow(slashMenuState.show);
+        setItems(slashMenuState.items);
+        setKeyboardHoveredItemIndex(slashMenuState.keyboardHoveredItemIndex);
+
+        referencePos.current = slashMenuState.referencePos;
       },
       (query) =>
         defaultReactSlashMenuItems.filter(
           (cmd: ReactSlashMenuItem<DefaultBlockSchema>) => cmd.match(query)
         )
     );
+
+    return callbacks.current!.destroy;
   }, [props.editor]);
 
   const getReferenceClientRect = useMemo(() => {
-    // TODO: test and remove
-    console.log(
-      "new reference pos for SLASHMENU, this should only be triggered when slashmenu position changes"
-    );
-    if (!state?.referencePos) {
+    if (!referencePos.current) {
       return undefined;
     }
-    return () => state.referencePos;
-  }, [state?.referencePos]);
+
+    return () => referencePos.current!;
+  }, [referencePos.current]);
+
+  const slashMenu = useMemo(() => {
+    if (
+      !items ||
+      keyboardHoveredItemIndex === undefined ||
+      !callbacks.current
+    ) {
+      return null;
+    }
+
+    return (
+      <SlashMenuOld
+        items={items!}
+        itemCallback={(item) => callbacks.current!.itemCallback(item)}
+        keyboardHoveredItemIndex={keyboardHoveredItemIndex!}
+      />
+    );
+  }, [items, keyboardHoveredItemIndex]);
 
   return (
     <Tippy
-      content={<SlashMenuOld {...state!} />}
+      content={slashMenu}
       getReferenceClientRect={getReferenceClientRect}
       interactive={true}
-      visible={state?.show || false}
+      visible={show}
       animation={"fade"}
       placement={"bottom-start"}>
       <div />

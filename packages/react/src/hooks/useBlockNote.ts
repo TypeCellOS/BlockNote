@@ -36,12 +36,6 @@ function initEditor<BSchema extends BlockSchema>(
     ...options,
   };
 
-  if (newOptions.customElements && newOptions.uiFactories) {
-    console.warn(
-      "BlockNote editor initialized with both `customElements` and `uiFactories` options, prioritizing `uiFactories`."
-    );
-  }
-
   console.log("create new blocknote instance");
   const instance = new BlockNoteEditor<BSchema>(
     newOptions as Partial<BlockNoteEditorOptions<BSchema>>

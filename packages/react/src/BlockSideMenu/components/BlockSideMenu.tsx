@@ -1,7 +1,11 @@
 import {
+  BaseUiElementCallbacks,
+  BaseUiElementState,
+  Block,
   BlockNoteEditor,
   BlockSchema,
   createSideMenu,
+  SideMenuCallbacks,
   SideMenuState,
 } from "@blocknote/core";
 import { ActionIcon, Group, Menu } from "@mantine/core";
@@ -12,9 +16,10 @@ import { MdDragIndicator } from "react-icons/md";
 import { DefaultDragHandleMenu } from "./DefaultDragHandleMenu";
 
 export const BlockSideMenuOld = <BSchema extends BlockSchema>(
-  props: Omit<SideMenuState<BSchema>, "referencePos"> & {
-    editor: BlockNoteEditor<BSchema>;
-  }
+  props: Omit<SideMenuCallbacks, keyof BaseUiElementCallbacks> &
+    Omit<SideMenuState<BSchema>, keyof BaseUiElementState> & {
+      editor: BlockNoteEditor<BSchema>;
+    }
 ) => {
   const dragHandleRef = useRef<HTMLDivElement>(null);
 
@@ -34,29 +39,17 @@ export const BlockSideMenuOld = <BSchema extends BlockSchema>(
     return;
   }, [props.blockDragEnd, props.blockDragStart]);
 
-  const closeMenu = () => {
-    // TODO: I don't think this is needed / used?
-    // props.unfreezeMenu();
-  };
-
   const DragHandleMenu = DefaultDragHandleMenu;
 
   return (
     <Group spacing={0}>
       <ActionIcon size={24} data-test={"dragHandleAdd"}>
-        {
-          <AiOutlinePlus
-            size={24}
-            onClick={() => {
-              props.addBlock();
-            }}
-          />
-        }
+        <AiOutlinePlus size={24} onClick={props.addBlock} />
       </ActionIcon>
       <Menu
         trigger={"click"}
-        onOpen={() => props.freezeMenu()}
-        onClose={() => props.unfreezeMenu()}
+        onOpen={props.freezeMenu}
+        onClose={props.unfreezeMenu}
         width={100}
         position={"left"}>
         <Menu.Target>
@@ -66,11 +59,7 @@ export const BlockSideMenuOld = <BSchema extends BlockSchema>(
             </ActionIcon>
           </div>
         </Menu.Target>
-        <DragHandleMenu
-          editor={props.editor}
-          block={props.block}
-          closeMenu={closeMenu}
-        />
+        <DragHandleMenu editor={props.editor} block={props.block} />
       </Menu>
     </Group>
   );
@@ -79,33 +68,57 @@ export const BlockSideMenuOld = <BSchema extends BlockSchema>(
 export const SideMenu = <BSchema extends BlockSchema>(props: {
   editor: BlockNoteEditor<BSchema>;
 }) => {
-  const [state, setState] = useState<SideMenuState<BSchema>>();
+  const [show, setShow] = useState<boolean>(false);
+  const [block, setBlock] = useState<Block<BSchema>>();
+
+  const referencePos = useRef<DOMRect>();
+  const callbacks = useRef<SideMenuCallbacks>();
 
   useEffect(() => {
-    return createSideMenu(props.editor, (state) => {
-      setState({ ...state });
+    callbacks.current = createSideMenu(props.editor, (sideMenuState) => {
+      setShow(sideMenuState.show);
+      setBlock(sideMenuState.block);
+
+      referencePos.current = sideMenuState.referencePos;
     });
+
+    return callbacks.current!.destroy;
   }, [props.editor]);
 
   const getReferenceClientRect = useMemo(() => {
-    // TODO: test
-    console.log(
-      "new reference pos, this should only be triggered when hovering a new block"
-    );
-    if (!state?.referencePos) {
+    if (!referencePos.current) {
       return undefined;
     }
-    return () => state.referencePos;
-  }, [state?.referencePos]);
+
+    return () => referencePos.current!;
+  }, [referencePos.current]);
+
+  const sideMenu = useMemo(() => {
+    if (!block || !callbacks.current) {
+      return null;
+    }
+
+    return (
+      <BlockSideMenuOld
+        block={block}
+        editor={props.editor}
+        blockDragStart={callbacks.current.blockDragStart}
+        blockDragEnd={callbacks.current.blockDragEnd}
+        addBlock={callbacks.current.addBlock}
+        freezeMenu={callbacks.current.freezeMenu}
+        unfreezeMenu={callbacks.current.unfreezeMenu}
+      />
+    );
+  }, [block, props.editor]);
 
   return (
     <Tippy
       // I got rid of this and added the <div /> below + moved <BlockSideMenu /> to
       // appendTo={props.editor._tiptapEditor.view.dom.parentElement!}
-      content={<BlockSideMenuOld {...state!} editor={props.editor} />}
+      content={sideMenu}
       getReferenceClientRect={getReferenceClientRect}
       interactive={true}
-      visible={state?.show || false}
+      visible={show}
       animation={"fade"}
       offset={offset}
       placement={"left"}

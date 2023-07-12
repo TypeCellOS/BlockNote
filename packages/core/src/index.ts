@@ -12,7 +12,7 @@ export * from "./extensions/HyperlinkToolbar/HyperlinkToolbarPlugin";
 export * from "./extensions/DraggableBlocks/DraggableBlocksPlugin";
 export * from "./shared/plugins/suggestion/SuggestionPlugin";
 export * from "./extensions/SlashMenu/SlashMenuPlugin";
-export * from "./shared/EditorElement";
+export * from "./shared/BaseUiElementTypes";
 
 export * as blockStyles from "./extensions/Blocks/nodes/Block.module.css";
 

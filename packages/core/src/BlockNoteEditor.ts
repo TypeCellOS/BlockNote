@@ -325,6 +325,14 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
   }
 
   /**
+   * Executes a callback whenever the editor's selection changes.
+   * @param callback The callback to execute.
+   */
+  public onEditorSelectionChange(callback: () => void) {
+    this._tiptapEditor.on("selectionUpdate", callback);
+  }
+
+  /**
    * Gets a snapshot of the current text cursor position.
    * @returns A snapshot of the current text cursor position.
    */

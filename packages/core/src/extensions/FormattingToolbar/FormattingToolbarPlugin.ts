@@ -6,7 +6,14 @@ import {
 } from "@tiptap/core";
 import { EditorState, Plugin, PluginKey } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
-import { BaseUiElementState, BlockNoteEditor, BlockSchema } from "../..";
+import {
+  BaseUiElementCallbacks,
+  BaseUiElementState,
+  BlockNoteEditor,
+  BlockSchema,
+} from "../..";
+
+export type FormattingToolbarCallbacks = BaseUiElementCallbacks;
 
 export type FormattingToolbarState = BaseUiElementState;
 
@@ -162,16 +169,10 @@ export class FormattingToolbarView<BSchema extends BlockSchema> {
       !this.preventShow &&
       (shouldShow || this.preventHide)
     ) {
-      if (!this.formattingToolbarState) {
-        this.formattingToolbarState = {
-          show: true,
-          referencePos: this.getSelectionBoundingBox(),
-        };
-      } else {
-        this.formattingToolbarState.show = true;
-        this.formattingToolbarState.referencePos =
-          this.getSelectionBoundingBox();
-      }
+      this.formattingToolbarState = {
+        show: true,
+        referencePos: this.getSelectionBoundingBox(),
+      };
 
       this.updateFormattingToolbar();
 
@@ -231,22 +232,34 @@ export const createFormattingToolbar = <BSchema extends BlockSchema>(
   updateFormattingToolbar: (
     formattingToolbarState: FormattingToolbarState
   ) => void
-) => {
+): FormattingToolbarCallbacks => {
+  let formattingToolbarView: FormattingToolbarView<BSchema>;
+
   editor._tiptapEditor.registerPlugin(
     new Plugin({
       key: formattingToolbarPluginKey,
-      view: () =>
-        new FormattingToolbarView(
+      view: () => {
+        if (formattingToolbarView) {
+          formattingToolbarView.destroy();
+        }
+
+        formattingToolbarView = new FormattingToolbarView(
           editor,
           editor._tiptapEditor.view,
           updateFormattingToolbar
-        ),
+        );
+        return formattingToolbarView;
+      },
     }),
+    // Ensures the plugin is loaded at the highest priority so that things like
+    // keyboard handlers work.
     (formattingToolbarPlugin, plugins) => {
       plugins.unshift(formattingToolbarPlugin);
       return plugins;
     }
   );
-  return () =>
-    editor._tiptapEditor.unregisterPlugin(formattingToolbarPluginKey);
+  return {
+    destroy: () =>
+      editor._tiptapEditor.unregisterPlugin(formattingToolbarPluginKey),
+  };
 };

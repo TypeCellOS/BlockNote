@@ -4,7 +4,7 @@ import {
   DefaultProps,
   PartialBlock,
 } from "@blocknote/core";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { IconType } from "react-icons";
 import {
   RiAlignCenter,
@@ -13,6 +13,7 @@ import {
   RiAlignRight,
 } from "react-icons/ri";
 import { ToolbarButton } from "../../../SharedComponents/Toolbar/components/ToolbarButton";
+import { useEditorContentChange } from "../../../hooks/useEditorContentChange";
 
 type TextAlignment = DefaultProps["textAlignment"]["values"][number];
 
@@ -27,6 +28,24 @@ export const TextAlignButton = <BSchema extends BlockSchema>(props: {
   editor: BlockNoteEditor<BSchema>;
   textAlignment: TextAlignment;
 }) => {
+  const [activeTextAlignment, setActiveTextAlignment] = useState(() => {
+    const block = props.editor.getTextCursorPosition().block;
+
+    if ("textAlignment" in block.props) {
+      return block.props.textAlignment as TextAlignment;
+    }
+
+    return;
+  });
+
+  useEditorContentChange(props.editor, () => {
+    const block = props.editor.getTextCursorPosition().block;
+
+    if ("textAlignment" in block.props) {
+      setActiveTextAlignment(block.props.textAlignment as TextAlignment);
+    }
+  });
+
   const show = useMemo(() => {
     const selection = props.editor.getSelection();
 
@@ -77,10 +96,7 @@ export const TextAlignButton = <BSchema extends BlockSchema>(props: {
   return (
     <ToolbarButton
       onClick={() => setTextAlignment(props.textAlignment)}
-      isSelected={
-        props.editor.getTextCursorPosition().block.props.textAlignment ===
-        props.textAlignment
-      }
+      isSelected={activeTextAlignment === props.textAlignment}
       mainTooltip={
         props.textAlignment === "justify"
           ? "Justify Text"
