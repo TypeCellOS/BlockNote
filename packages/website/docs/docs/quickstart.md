@@ -46,6 +46,10 @@ function App() {
 
 As well as `BlockNoteView` and `useBlockNote`, we import `@blocknote/core/style.css` to provide default styling for the editor.
 
+::: warning Next.js usage (or other server-side React frameworks)
+Are you using Next.js (`create-next-app`)? Because BlockNote is a client-only component, make sure to disable server-side rendering of BlockNote. [Read our guide on setting up Next.js + BlockNote](/docs/nextjs)
+:::
+
 ## Demo: Basic App Using BlockNote
 
 Taking the same code, the live preview below turns it into a super simple, working app:

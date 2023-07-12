@@ -75,6 +75,7 @@ const SIDEBAR_DEFAULT = [
         text: "Real-time collaboration",
         link: "/docs/real-time-collaboration",
       },
+      { text: "Next.js", link: "/docs/nextjs" },
       {
         text: "Without React (vanilla JS)",
         link: "/docs/vanilla-js",
