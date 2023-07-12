@@ -1,6 +1,6 @@
 import { DragHandleMenu, DragHandleMenuProps } from "./DragHandleMenu";
-import { RemoveBlockButton } from "./DefaultButtons/RemoveBlockButton";
-import { BlockColorsButton } from "./DefaultButtons/BlockColorsButton";
+import { RemoveBlockButton } from "../DefaultButtons/RemoveBlockButton";
+import { BlockColorsButton } from "../DefaultButtons/BlockColorsButton";
 import { BlockSchema } from "@blocknote/core";
 
 export const DefaultDragHandleMenu = <BSchema extends BlockSchema>(
