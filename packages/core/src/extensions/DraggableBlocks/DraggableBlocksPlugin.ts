@@ -5,7 +5,10 @@ import * as pv from "prosemirror-view";
 import { EditorView } from "prosemirror-view";
 import { BlockNoteEditor } from "../../BlockNoteEditor";
 import styles from "../../editor.module.css";
-import { BaseUiElementState } from "../../shared/EditorElement";
+import {
+  BaseUiElementCallbacks,
+  BaseUiElementState,
+} from "../../shared/BaseUiElementTypes";
 import { Block, BlockSchema } from "../Blocks/api/blockTypes";
 import { getBlockInfoFromPos } from "../Blocks/helpers/getBlockInfoFromPos";
 import { slashMenuPluginKey } from "../SlashMenu/SlashMenuPlugin";
@@ -16,18 +19,25 @@ const serializeForClipboard = (pv as any).__serializeForClipboard;
 
 let dragImageElement: Element | undefined;
 
-// TODO: I think freezeMenu, unfreezeMenu, blockDragStart, blockDragEnd are not "state", but
-// but actions that should be for example returned from createSideMenu
-export type SideMenuState<BSchema extends BlockSchema> = BaseUiElementState & {
-  block: Block<BSchema>;
-
+export type SideMenuCallbacks = BaseUiElementCallbacks & {
+  // If the block is empty, opens the slash menu. If the block has content,
+  // creates a new block below and opens the slash menu in it.
   addBlock: () => void;
 
+  // Freezes/unfreezes the side menu. When frozen, the side menu will stay
+  // attached to the same block regardless of which block is hovered by the
+  // mouse cursor.
   freezeMenu: () => void;
   unfreezeMenu: () => void;
 
+  // Handles drag & drop events for blocks.
   blockDragStart: (event: DragEvent) => void;
   blockDragEnd: () => void;
+};
+
+export type SideMenuState<BSchema extends BlockSchema> = BaseUiElementState & {
+  // The block that the side menu is attached to.
+  block: Block<BSchema>;
 };
 
 function getDraggableBlockFromCoords(
@@ -234,6 +244,7 @@ function dragStart(e: DragEvent, view: EditorView) {
 
 export class SideMenuView<BSchema extends BlockSchema> implements PluginView {
   editor: BlockNoteEditor<BSchema>;
+
   private sideMenuState?: SideMenuState<BSchema>;
   public updateSideMenu: () => void;
 
@@ -252,7 +263,7 @@ export class SideMenuView<BSchema extends BlockSchema> implements PluginView {
 
   constructor(
     editor: BlockNoteEditor<BSchema>,
-    updateSideMenu: (sideMenu: SideMenuState<BSchema>) => void
+    updateSideMenu: (sideMenuState: SideMenuState<BSchema>) => void
   ) {
     this.editor = editor;
     this.horizontalPosAnchoredAtRoot = true;
@@ -434,7 +445,7 @@ export class SideMenuView<BSchema extends BlockSchema> implements PluginView {
       coords,
       this.editor._tiptapEditor.view
     );
-    console.log(block);
+
     // Closes the menu if the mouse cursor is beyond the editor vertically.
     if (!block || !this.editor.isEditable) {
       if (this.sideMenuState?.show) {
@@ -451,11 +462,7 @@ export class SideMenuView<BSchema extends BlockSchema> implements PluginView {
       this.hoveredBlock?.hasAttribute("data-id") &&
       this.hoveredBlock?.getAttribute("data-id") === block.id
     ) {
-      // TODO: this doesn't seem right
-      if (this.sideMenuState?.show) {
-        this.sideMenuState.show = true;
-        this.updateSideMenu();
-      }
+      return;
     }
 
     this.hoveredBlock = block.node;
@@ -471,48 +478,20 @@ export class SideMenuView<BSchema extends BlockSchema> implements PluginView {
     if (this.editor.isEditable) {
       const blockContentBoundingBox = blockContent.getBoundingClientRect();
 
-      if (!this.sideMenuState) {
-        this.sideMenuState = {
-          show: true,
-          referencePos: new DOMRect(
-            this.horizontalPosAnchoredAtRoot
-              ? this.horizontalPosAnchor
-              : blockContentBoundingBox.x,
-            blockContentBoundingBox.y,
-            blockContentBoundingBox.width,
-            blockContentBoundingBox.height
-          ),
-          block: this.editor.getBlock(
-            this.hoveredBlock!.getAttribute("data-id")!
-          )!,
-          addBlock: () => this.addBlock(),
-          blockDragStart: (event: DragEvent) => {
-            // Sets isDragging when dragging blocks.
-            this.isDragging = true;
-            dragStart(event, this.editor._tiptapEditor.view);
-          },
-          blockDragEnd: () => unsetDragImage(),
-          freezeMenu: () => {
-            this.menuFrozen = true;
-          },
-          unfreezeMenu: () => {
-            this.menuFrozen = false;
-          },
-        };
-      } else {
-        this.sideMenuState.show = true;
-        this.sideMenuState.referencePos = new DOMRect(
+      this.sideMenuState = {
+        show: true,
+        referencePos: new DOMRect(
           this.horizontalPosAnchoredAtRoot
             ? this.horizontalPosAnchor
             : blockContentBoundingBox.x,
           blockContentBoundingBox.y,
           blockContentBoundingBox.width,
           blockContentBoundingBox.height
-        );
-        this.sideMenuState.block = this.editor.getBlock(
+        ),
+        block: this.editor.getBlock(
           this.hoveredBlock!.getAttribute("data-id")!
-        )!;
-      }
+        )!,
+      };
 
       this.updateSideMenu();
     }
@@ -614,19 +593,41 @@ export class SideMenuView<BSchema extends BlockSchema> implements PluginView {
 }
 
 export const sideMenuPluginKey = new PluginKey("SideMenuPlugin");
-export const createSideMenu = <BSchema extends BlockSchema>(
+export function createSideMenu<BSchema extends BlockSchema>(
   editor: BlockNoteEditor<BSchema>,
   updateSideMenu: (sideMenuState: SideMenuState<BSchema>) => void
-) => {
+): SideMenuCallbacks {
+  let sideMenuView: SideMenuView<BSchema>;
+
   editor._tiptapEditor.registerPlugin(
     new Plugin({
       key: sideMenuPluginKey,
-      view: () => new SideMenuView(editor, updateSideMenu),
+      view: () => {
+        if (sideMenuView) {
+          sideMenuView.destroy();
+        }
+
+        sideMenuView = new SideMenuView(editor, updateSideMenu);
+        return sideMenuView;
+      },
     }),
+    // Ensures the plugin is loaded at the highest priority so that things like
+    // keyboard handlers work.
     (sideMenuPlugin, plugins) => {
       plugins.unshift(sideMenuPlugin);
       return plugins;
     }
   );
-  return () => editor._tiptapEditor.unregisterPlugin(sideMenuPluginKey);
-};
+
+  return {
+    addBlock: () => sideMenuView.addBlock(),
+    blockDragStart: (event: DragEvent) => {
+      sideMenuView.isDragging = true;
+      dragStart(event, sideMenuView.editor._tiptapEditor.view);
+    },
+    blockDragEnd: () => unsetDragImage(),
+    freezeMenu: () => (sideMenuView.menuFrozen = true),
+    unfreezeMenu: () => (sideMenuView.menuFrozen = false),
+    destroy: () => editor._tiptapEditor.unregisterPlugin(sideMenuPluginKey),
+  };
+}

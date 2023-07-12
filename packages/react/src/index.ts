@@ -20,3 +20,5 @@ export * from "./SlashMenu/components/SlashMenu";
 export * from "./SlashMenu/defaultReactSlashMenuItems";
 export * from "./hooks/useBlockNote";
 export * from "./hooks/useEditorForceUpdate";
+export * from "./hooks/useEditorContentChange";
+export * from "./hooks/useEditorSelectionChange";

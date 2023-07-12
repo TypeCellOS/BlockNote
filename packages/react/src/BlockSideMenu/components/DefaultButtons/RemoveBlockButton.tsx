@@ -9,7 +9,6 @@ export const RemoveBlockButton = <BSchema extends BlockSchema>(
 ) => {
   return (
     <DragHandleMenuItem
-      closeMenu={props.closeMenu}
       onClick={() => props.editor.removeBlocks([props.block])}>
       {props.children}
     </DragHandleMenuItem>

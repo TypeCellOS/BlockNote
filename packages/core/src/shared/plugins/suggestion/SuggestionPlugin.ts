@@ -3,13 +3,23 @@ import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
 import { BlockNoteEditor } from "../../../BlockNoteEditor";
 import { BlockSchema } from "../../../extensions/Blocks/api/blockTypes";
 import { findBlock } from "../../../extensions/Blocks/helpers/findBlock";
-import { BaseUiElementState } from "../../EditorElement";
+import {
+  BaseUiElementCallbacks,
+  BaseUiElementState,
+} from "../../BaseUiElementTypes";
 import { SuggestionItem } from "./SuggestionItem";
+
+export type SuggestionsPluginCallbacks<T extends SuggestionItem> =
+  BaseUiElementCallbacks & {
+    // The function to execute when selecting a suggested item.
+    itemCallback: (item: T) => void;
+  };
 
 export type SuggestionsMenuState<T extends SuggestionItem> =
   BaseUiElementState & {
+    // The suggested items to display.
     items: T[];
-    itemCallback: (item: T) => void;
+    // The index of the suggested item that's currently hovered by the keyboard.
     keyboardHoveredItemIndex: number;
   };
 
@@ -102,29 +112,22 @@ class SuggestionPluginView<
     if (stopped || !this.editor.isEditable) {
       this.suggestionsMenuState!.show = false;
       this.updateSuggestionsMenu();
+
+      return;
     }
 
     const decorationNode = document.querySelector(
       `[data-decoration-id="${this.pluginState.decorationId}"]`
     );
 
-    if (changed) {
-      this.suggestionsMenuState!.referencePos =
-        decorationNode!.getBoundingClientRect();
-      this.suggestionsMenuState!.items = this.pluginState.items;
-      this.suggestionsMenuState!.keyboardHoveredItemIndex =
-        this.pluginState.keyboardHoveredItemIndex!;
-      this.updateSuggestionsMenu();
-    }
-
-    if (started && this.editor.isEditable) {
+    if (this.editor.isEditable) {
       this.suggestionsMenuState = {
         show: true,
         referencePos: decorationNode!.getBoundingClientRect(),
         items: this.pluginState.items,
-        itemCallback: (item: T) => this.itemCallback(item),
         keyboardHoveredItemIndex: this.pluginState.keyboardHoveredItemIndex!,
       };
+
       this.updateSuggestionsMenu();
     }
   }
@@ -192,11 +195,13 @@ export function createSuggestionPlugin<
     editor: BlockNoteEditor<BSchema>;
   }) => void = () => {},
   items: (query: string) => T[] = () => []
-) {
+): SuggestionsPluginCallbacks<T> {
   // Assertions
   if (defaultTriggerCharacter.length !== 1) {
     throw new Error("'char' should be a single character");
   }
+
+  let suggestionsPluginView: SuggestionPluginView<T, BSchema>;
 
   const deactivate = (view: EditorView) => {
     view.dispatch(view.state.tr.setMeta(pluginKey, { deactivate: true }));
@@ -206,8 +211,8 @@ export function createSuggestionPlugin<
     new Plugin({
       key: pluginKey,
 
-      view: () =>
-        new SuggestionPluginView<T, BSchema>(
+      view: () => {
+        suggestionsPluginView = new SuggestionPluginView<T, BSchema>(
           editor,
           pluginKey,
           (props: { item: T; editor: BlockNoteEditor<BSchema> }) => {
@@ -215,7 +220,9 @@ export function createSuggestionPlugin<
             onSelectItem(props);
           },
           updateSuggestionsMenu
-        ),
+        );
+        return suggestionsPluginView;
+      },
 
       state: {
         // Initialize the plugin's internal state.
@@ -295,7 +302,8 @@ export function createSuggestionPlugin<
             return getDefaultPluginState<T>();
           }
 
-          // Updates keyboardHoveredItemIndex if necessary.
+          // Updates keyboardHoveredItemIndex if the up or down arrow key was
+          // pressed, or resets it if the keyboard cursor moved.
           if (
             transaction.getMeta(pluginKey)?.selectedItemIndexChanged !==
             undefined
@@ -311,6 +319,8 @@ export function createSuggestionPlugin<
             }
 
             next.keyboardHoveredItemIndex = newIndex;
+          } else if (oldState.selection.from !== newState.selection.from) {
+            next.keyboardHoveredItemIndex = 0;
           }
 
           return next;
@@ -446,9 +456,32 @@ export function createSuggestionPlugin<
         },
       },
     }),
+    // Ensures the plugin is loaded at the highest priority so that things like
+    // keyboard handlers work.
     (suggestionPlugin, plugins) => {
       plugins.unshift(suggestionPlugin);
       return plugins;
     }
   );
+
+  return {
+    destroy: () => editor._tiptapEditor.unregisterPlugin(pluginKey),
+    itemCallback: (item: T) => {
+      editor._tiptapEditor
+        .chain()
+        .focus()
+        .deleteRange({
+          from:
+            suggestionsPluginView.pluginState.queryStartPos! -
+            suggestionsPluginView.pluginState.triggerCharacter!.length,
+          to: editor._tiptapEditor.state.selection.from,
+        })
+        .run();
+
+      onSelectItem({
+        item: item,
+        editor: editor,
+      });
+    },
+  };
 }

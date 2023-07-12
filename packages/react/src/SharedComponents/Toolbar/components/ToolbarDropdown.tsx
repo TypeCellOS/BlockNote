@@ -27,7 +27,11 @@ export function ToolbarDropdown(props: ToolbarDropdownProps) {
   return (
     <Menu exitTransitionDuration={0} disabled={props.isDisabled}>
       <Menu.Target>
-        <ToolbarDropdownTarget {...activeItem} />
+        <ToolbarDropdownTarget
+          text={activeItem.text}
+          icon={activeItem.icon}
+          isDisabled={activeItem.isDisabled}
+        />
       </Menu.Target>
       <Menu.Dropdown>
         {props.items.map((item) => (

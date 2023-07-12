@@ -1,12 +1,13 @@
 import {
   BlockNoteEditor,
   BlockSchema,
-  FormattingToolbarState,
   createFormattingToolbar,
+  FormattingToolbarCallbacks,
 } from "@blocknote/core";
 
 import Tippy from "@tippyjs/react";
-import { useEffect, useMemo, useState } from "react";
+import { sticky } from "tippy.js";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Toolbar } from "../../SharedComponents/Toolbar/components/Toolbar";
 import { ColorStyleButton } from "./DefaultButtons/ColorStyleButton";
 import { CreateLinkButton } from "./DefaultButtons/CreateLinkButton";
@@ -47,32 +48,42 @@ export const FormattingToolbarOld = <BSchema extends BlockSchema>(props: {
 export const FormattingToolbar = <BSchema extends BlockSchema>(props: {
   editor: BlockNoteEditor<BSchema>;
 }) => {
-  const [state, setState] = useState<FormattingToolbarState>();
+  const [show, setShow] = useState<boolean>(false);
+
+  const referencePos = useRef<DOMRect>();
+  const callbacks = useRef<FormattingToolbarCallbacks>();
+
   useEffect(() => {
-    return createFormattingToolbar(props.editor, (state) => {
-      setState({ ...state });
+    callbacks.current = createFormattingToolbar(props.editor, (state) => {
+      setShow(state.show);
+
+      referencePos.current = state.referencePos;
     });
+
+    return callbacks.current.destroy;
   }, [props.editor]);
 
   const getReferenceClientRect = useMemo(() => {
-    // TODO: test
-    console.log(
-      "new reference pos TOOLBAR, this should only be triggered when selection changes"
-    );
-    if (!state?.referencePos) {
+    if (!referencePos) {
       return undefined;
     }
-    return () => state.referencePos;
-  }, [state?.referencePos]);
+    return () => referencePos.current!;
+  }, [referencePos.current]);
+
+  const formattingToolbar = useMemo(() => {
+    return <FormattingToolbarOld editor={props.editor} />;
+  }, [props.editor]);
 
   return (
     <Tippy
-      content={<FormattingToolbarOld editor={props.editor} />}
+      content={formattingToolbar}
       getReferenceClientRect={getReferenceClientRect}
       interactive={true}
-      visible={state?.show || false}
+      visible={show}
       animation={"fade"}
-      placement={"top-start"}>
+      placement={"top-start"}
+      sticky={true}
+      plugins={[sticky]}>
       <div />
     </Tippy>
   );
