@@ -1,7 +1,8 @@
 import { ReactNode, useCallback, useRef, useState } from "react";
 import { Box, Menu } from "@mantine/core";
-import { BlockSchema, PartialBlock } from "@blocknote/core";
 import { HiChevronRight } from "react-icons/hi";
+import { BlockSchema, PartialBlock } from "@blocknote/core";
+
 import { DragHandleMenuProps } from "../DragHandleMenu/DragHandleMenu";
 import { DragHandleMenuItem } from "../DragHandleMenu/DragHandleMenuItem";
 import { ColorPicker } from "../../../SharedComponents/ColorPicker/components/ColorPicker";

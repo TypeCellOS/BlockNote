@@ -16,7 +16,7 @@ export const createSlashMenu = <
   updateSlashMenu: (
     slashMenuState: SuggestionsMenuState<SlashMenuItem>
   ) => void,
-  items: (query: string) => SlashMenuItem[]
+  items: SlashMenuItem[]
 ): SuggestionsPluginCallbacks<SlashMenuItem> => {
   return createSuggestionPlugin<SlashMenuItem, DefaultBlockSchema>(
     slashMenuPluginKey,
@@ -24,6 +24,6 @@ export const createSlashMenu = <
     editor,
     (slashMenuState) => updateSlashMenu(slashMenuState),
     ({ item, editor }) => item.execute(editor),
-    items
+    (query) => items.filter((item: SlashMenuItem) => item.match(query))
   );
 };

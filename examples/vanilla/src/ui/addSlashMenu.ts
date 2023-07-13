@@ -30,7 +30,7 @@ export const addSlashMenu = (editor: BlockNoteEditor) => {
     return domItems;
   }
 
-  createSlashMenu<BaseSlashMenuItem<DefaultBlockSchema>>(
+  const callbacks = createSlashMenu<BaseSlashMenuItem<DefaultBlockSchema>>(
     editor,
     (slashMenuState) => {
       if (!element) {
@@ -46,8 +46,8 @@ export const addSlashMenu = (editor: BlockNoteEditor) => {
 
       if (slashMenuState.show) {
         updateItems(
-          slashMenuState.items,
-          slashMenuState.itemCallback,
+          slashMenuState.filteredItems,
+          callbacks.itemCallback,
           slashMenuState.keyboardHoveredItemIndex
         );
 
@@ -60,9 +60,6 @@ export const addSlashMenu = (editor: BlockNoteEditor) => {
         element.style.display = "none";
       }
     },
-    (query) =>
-      defaultSlashMenuItems.filter(
-        (cmd: BaseSlashMenuItem<DefaultBlockSchema>) => cmd.match(query)
-      )
+    defaultSlashMenuItems
   );
 };

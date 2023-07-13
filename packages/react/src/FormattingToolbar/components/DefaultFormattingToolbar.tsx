@@ -1,5 +1,6 @@
-import { BlockNoteEditor, BlockSchema } from "@blocknote/core";
+import { BlockSchema } from "@blocknote/core";
 
+import { FormattingToolbarProps } from "./FormattingToolbarWrapper";
 import { Toolbar } from "../../SharedComponents/Toolbar/components/Toolbar";
 import { BlockTypeDropdown } from "./DefaultDropdowns/BlockTypeDropdown";
 import { ToggledStyleButton } from "./DefaultButtons/ToggledStyleButton";
@@ -11,9 +12,9 @@ import {
 } from "./DefaultButtons/NestBlockButtons";
 import { CreateLinkButton } from "./DefaultButtons/CreateLinkButton";
 
-export const DefaultFormattingToolbar = <BSchema extends BlockSchema>(props: {
-  editor: BlockNoteEditor<BSchema>;
-}) => {
+export const DefaultFormattingToolbar = <BSchema extends BlockSchema>(
+  props: FormattingToolbarProps<BSchema>
+) => {
   return (
     <Toolbar>
       <BlockTypeDropdown {...props} />

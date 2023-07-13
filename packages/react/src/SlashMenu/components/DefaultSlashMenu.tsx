@@ -1,40 +1,26 @@
 import { createStyles, Menu } from "@mantine/core";
 import * as _ from "lodash";
-import {
-  BaseUiElementCallbacks,
-  BaseUiElementState,
-  DefaultBlockSchema,
-  SuggestionsMenuState,
-  SuggestionsPluginCallbacks,
-} from "@blocknote/core";
 
-import { ReactSlashMenuItem } from "../ReactSlashMenuItem";
 import { SlashMenuItem } from "./SlashMenuItem";
+import { SlashMenuProps } from "./SlashMenuWrapper";
 
-export function DefaultSlashMenu(
-  props: Omit<
-    SuggestionsPluginCallbacks<ReactSlashMenuItem<DefaultBlockSchema>>,
-    keyof BaseUiElementCallbacks
-  > &
-    Omit<
-      SuggestionsMenuState<ReactSlashMenuItem<DefaultBlockSchema>>,
-      keyof BaseUiElementState
-    >
-) {
+export function DefaultSlashMenu(props: SlashMenuProps) {
   const { classes } = createStyles({ root: {} })(undefined, {
     name: "SlashMenu",
   });
   const renderedItems: any[] = [];
   let index = 0;
 
-  const groups = _.groupBy(props.items, (i) => i.group);
+  const groups = _.groupBy(props.filteredItems, (i) => i.group);
 
-  _.forEach(groups, (el) => {
+  _.forEach(groups, (groupedItems) => {
     renderedItems.push(
-      <Menu.Label key={el[0].group}>{el[0].group}</Menu.Label>
+      <Menu.Label key={groupedItems[0].group}>
+        {groupedItems[0].group}
+      </Menu.Label>
     );
 
-    for (const item of el) {
+    for (const item of groupedItems) {
       renderedItems.push(
         <SlashMenuItem
           key={item.name}

@@ -18,7 +18,7 @@ export type SuggestionsPluginCallbacks<T extends SuggestionItem> =
 export type SuggestionsMenuState<T extends SuggestionItem> =
   BaseUiElementState & {
     // The suggested items to display.
-    items: T[];
+    filteredItems: T[];
     // The index of the suggested item that's currently hovered by the keyboard.
     keyboardHoveredItemIndex: number;
   };
@@ -124,7 +124,7 @@ class SuggestionPluginView<
       this.suggestionsMenuState = {
         show: true,
         referencePos: decorationNode!.getBoundingClientRect(),
-        items: this.pluginState.items,
+        filteredItems: this.pluginState.items,
         keyboardHoveredItemIndex: this.pluginState.keyboardHoveredItemIndex!,
       };
 

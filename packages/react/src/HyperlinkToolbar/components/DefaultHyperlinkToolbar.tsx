@@ -1,28 +1,23 @@
+import { useState } from "react";
 import { RiExternalLinkFill, RiLinkUnlink } from "react-icons/ri";
-import {
-  BaseUiElementCallbacks,
-  BaseUiElementState,
-  HyperlinkToolbarCallbacks,
-  HyperlinkToolbarState,
-} from "@blocknote/core";
 
-import { EditHyperlinkMenu } from "../EditHyperlinkMenu/components/EditHyperlinkMenu";
+import { HyperlinkToolbarProps } from "./HyperlinkToolbarWrapper";
+
 import { Toolbar } from "../../SharedComponents/Toolbar/components/Toolbar";
 import { ToolbarButton } from "../../SharedComponents/Toolbar/components/ToolbarButton";
+import { EditHyperlinkMenu } from "../EditHyperlinkMenu/components/EditHyperlinkMenu";
 
-export const DefaultHyperlinkToolbar = (
-  props: Omit<HyperlinkToolbarCallbacks, keyof BaseUiElementCallbacks> &
-    Omit<HyperlinkToolbarState, keyof BaseUiElementState> & {
-      isEditing: boolean;
-      setIsEditing: (isEditing: boolean) => void;
-    }
-) => {
-  if (props.isEditing) {
+export const DefaultHyperlinkToolbar = (props: HyperlinkToolbarProps) => {
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+
+  if (isEditing) {
     return (
       <EditHyperlinkMenu
         url={props.url}
         text={props.text}
         update={(url, text) => props.editHyperlink(url, text)}
+        // TODO: Better way of waiting for fade out
+        onBlur={() => setTimeout(() => setIsEditing(false), 500)}
       />
     );
   }
@@ -36,7 +31,7 @@ export const DefaultHyperlinkToolbar = (
       <ToolbarButton
         mainTooltip="Edit"
         isSelected={false}
-        onClick={() => props.setIsEditing(true)}>
+        onClick={() => setIsEditing(true)}>
         Edit Link
       </ToolbarButton>
       <ToolbarButton

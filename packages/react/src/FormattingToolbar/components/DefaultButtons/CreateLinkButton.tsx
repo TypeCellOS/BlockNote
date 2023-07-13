@@ -3,7 +3,7 @@ import { BlockNoteEditor, BlockSchema } from "@blocknote/core";
 import { RiLink } from "react-icons/ri";
 import LinkToolbarButton from "../LinkToolbarButton";
 import { formatKeyboardShortcut } from "../../../utils";
-import { useEditorContentChange } from "../../../hooks/useEditorContentChange";
+import { useEditorSelectionChange } from "../../../hooks/useEditorSelectionChange";
 
 export const CreateLinkButton = <BSchema extends BlockSchema>(props: {
   editor: BlockNoteEditor<BSchema>;
@@ -15,7 +15,7 @@ export const CreateLinkButton = <BSchema extends BlockSchema>(props: {
     props.editor.getSelectedText() || ""
   );
 
-  useEditorContentChange(props.editor, () => {
+  useEditorSelectionChange(props.editor, () => {
     setText(props.editor.getSelectedText() || "");
     setUrl(props.editor.getSelectedLinkUrl() || "");
   });

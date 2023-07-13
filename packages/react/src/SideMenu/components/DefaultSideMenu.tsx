@@ -1,23 +1,17 @@
-import { useEffect, useRef } from "react";
+import { FC, useEffect, useRef } from "react";
 import { ActionIcon, Group, Menu } from "@mantine/core";
 import { AiOutlinePlus } from "react-icons/ai";
 import { MdDragIndicator } from "react-icons/md";
-import {
-  BaseUiElementCallbacks,
-  BaseUiElementState,
-  BlockNoteEditor,
-  BlockSchema,
-  SideMenuCallbacks,
-  SideMenuState,
-} from "@blocknote/core";
+import { BlockSchema } from "@blocknote/core";
 
+import { SideMenuProps } from "./SideMenuWrapper";
+import { DragHandleMenuProps } from "./DragHandleMenu/DragHandleMenu";
 import { DefaultDragHandleMenu } from "./DragHandleMenu/DefaultDragHandleMenu";
 
 export const DefaultSideMenu = <BSchema extends BlockSchema>(
-  props: Omit<SideMenuCallbacks, keyof BaseUiElementCallbacks> &
-    Omit<SideMenuState<BSchema>, keyof BaseUiElementState> & {
-      editor: BlockNoteEditor<BSchema>;
-    }
+  props: SideMenuProps<BSchema> & {
+    dragHandleMenu?: FC<DragHandleMenuProps<BSchema>>;
+  }
 ) => {
   const dragHandleRef = useRef<HTMLDivElement>(null);
 
@@ -37,7 +31,7 @@ export const DefaultSideMenu = <BSchema extends BlockSchema>(
     return;
   }, [props.blockDragEnd, props.blockDragStart]);
 
-  const DragHandleMenu = DefaultDragHandleMenu;
+  const DragHandleMenu = props.dragHandleMenu || DefaultDragHandleMenu;
 
   return (
     <Group spacing={0}>

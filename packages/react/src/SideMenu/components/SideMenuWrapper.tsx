@@ -1,17 +1,29 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { FC, useEffect, useMemo, useRef, useState } from "react";
 import Tippy from "@tippyjs/react";
 import {
+  BaseUiElementCallbacks,
+  BaseUiElementState,
   Block,
   BlockNoteEditor,
   BlockSchema,
   createSideMenu,
   SideMenuCallbacks,
+  SideMenuState,
 } from "@blocknote/core";
 
 import { DefaultSideMenu } from "./DefaultSideMenu";
 
+export type SideMenuProps<BSchema extends BlockSchema> = Omit<
+  SideMenuCallbacks,
+  keyof BaseUiElementCallbacks
+> &
+  Omit<SideMenuState<BSchema>, keyof BaseUiElementState> & {
+    editor: BlockNoteEditor<BSchema>;
+  };
+
 export const SideMenuWrapper = <BSchema extends BlockSchema>(props: {
   editor: BlockNoteEditor<BSchema>;
+  sideMenu?: FC<SideMenuProps<BSchema>>;
 }) => {
   const [show, setShow] = useState<boolean>(false);
   const [block, setBlock] = useState<Block<BSchema>>();
@@ -38,13 +50,15 @@ export const SideMenuWrapper = <BSchema extends BlockSchema>(props: {
     return () => referencePos.current!;
   }, [referencePos.current]);
 
-  const sideMenu = useMemo(() => {
+  const sideMenuElement = useMemo(() => {
     if (!block || !callbacks.current) {
       return null;
     }
 
+    const SideMenu = props.sideMenu || DefaultSideMenu;
+
     return (
-      <DefaultSideMenu
+      <SideMenu
         block={block}
         editor={props.editor}
         blockDragStart={callbacks.current.blockDragStart}
@@ -54,13 +68,13 @@ export const SideMenuWrapper = <BSchema extends BlockSchema>(props: {
         unfreezeMenu={callbacks.current.unfreezeMenu}
       />
     );
-  }, [block, props.editor]);
+  }, [block, props.editor, props.sideMenu]);
 
   return (
     <Tippy
       // I got rid of this and added the <div /> below + moved <BlockSideMenu /> to
       // appendTo={props.editor._tiptapEditor.view.dom.parentElement!}
-      content={sideMenu}
+      content={sideMenuElement}
       getReferenceClientRect={getReferenceClientRect}
       interactive={true}
       visible={show}
