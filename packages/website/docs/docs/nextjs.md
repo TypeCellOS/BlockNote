@@ -7,9 +7,7 @@ path: /docs/nextjs
 
 # Next.js and BlockNote
 
-(only for next.js users)
-
-Because BlockNote is a component that should only be rendered client-side (and not on the server), we need to make sure that Next.js does not try to render BlockNote as a server-side component.
+BlockNote is a component that should only be rendered client-side (and not on the server). If you're using Next.js, you need to make sure that Next.js does not try to render BlockNote as a server-side component.
 
 To do this, first see if you're using the modern [App router](https://nextjs.org/docs/app) or the classic [Pages router](https://nextjs.org/docs/pages).
 
