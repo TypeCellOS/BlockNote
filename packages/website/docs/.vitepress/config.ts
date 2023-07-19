@@ -312,7 +312,7 @@ function transformHead({ pageData }: TransformContext): HeadConfig[] {
 function getAlgoliaConfig(env: NodeJS.ProcessEnv) {
   if (env.VITE_ALGOLIA_ID && env.VITE_ALGOLIA_KEY) {
     return {
-      indexName: "blocknote",
+      indexName: "blockjs",
       appId: env.VITE_ALGOLIA_ID,
       apiKey: env.VITE_ALGOLIA_KEY,
     };
