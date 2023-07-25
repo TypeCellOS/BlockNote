@@ -1,10 +1,10 @@
-import { BlockNoteEditor, createHyperlinkToolbar } from "@blocknote/core";
+import { BlockNoteEditor } from "@blocknote/core";
 import { createButton } from "./util";
 
 export const addHyperlinkToolbar = (editor: BlockNoteEditor) => {
   let element: HTMLElement;
 
-  const callbacks = createHyperlinkToolbar(editor, (hyperlinkToolbarState) => {
+  const callbacks = editor.createHyperlinkToolbar((hyperlinkToolbarState) => {
     if (!element) {
       element = document.createElement("div");
       element.style.background = "gray";

@@ -1,7 +1,8 @@
 import {
   BaseSlashMenuItem,
+  BlockSchema,
   DefaultBlockSchema,
-  defaultSlashMenuItems,
+  getDefaultSlashMenuItems,
 } from "@blocknote/core";
 import {
   RiH1,
@@ -13,6 +14,7 @@ import {
 } from "react-icons/ri";
 import { formatKeyboardShortcut } from "../utils";
 import { ReactSlashMenuItem } from "./ReactSlashMenuItem";
+
 const extraFields: Record<
   string,
   Omit<
@@ -58,15 +60,14 @@ const extraFields: Record<
   },
 };
 
-export const defaultReactSlashMenuItems = defaultSlashMenuItems.map(
-  (item) =>
-    new ReactSlashMenuItem<DefaultBlockSchema>(
-      item.name,
-      item.execute,
-      item.aliases,
-      extraFields[item.name].group,
-      extraFields[item.name].icon,
-      extraFields[item.name].hint,
-      extraFields[item.name].shortcut
-    )
-);
+export function getDefaultReactSlashMenuItems<BSchema extends BlockSchema>(
+  schema: BSchema
+): ReactSlashMenuItem<BSchema>[] {
+  const slashMenuItems: BaseSlashMenuItem<BSchema>[] =
+    getDefaultSlashMenuItems(schema);
+
+  return slashMenuItems.map((item) => ({
+    ...item,
+    ...extraFields[item.name],
+  }));
+}

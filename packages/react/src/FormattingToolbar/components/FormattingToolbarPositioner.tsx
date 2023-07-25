@@ -4,7 +4,6 @@ import { sticky } from "tippy.js";
 import {
   BlockNoteEditor,
   BlockSchema,
-  createFormattingToolbar,
   FormattingToolbarCallbacks,
 } from "@blocknote/core";
 
@@ -13,7 +12,9 @@ import { DefaultFormattingToolbar } from "./DefaultFormattingToolbar";
 export type FormattingToolbarProps<BSchema extends BlockSchema> = {
   editor: BlockNoteEditor<BSchema>;
 };
-export const FormattingToolbarWrapper = <BSchema extends BlockSchema>(props: {
+export const FormattingToolbarPositioner = <
+  BSchema extends BlockSchema
+>(props: {
   editor: BlockNoteEditor<BSchema>;
   formattingToolbar?: FC<FormattingToolbarProps<BSchema>>;
 }) => {
@@ -23,7 +24,7 @@ export const FormattingToolbarWrapper = <BSchema extends BlockSchema>(props: {
   const callbacks = useRef<FormattingToolbarCallbacks>();
 
   useEffect(() => {
-    callbacks.current = createFormattingToolbar(props.editor, (state) => {
+    callbacks.current = props.editor.createFormattingToolbar((state) => {
       setShow(state.show);
 
       referencePos.current = state.referencePos;
@@ -48,6 +49,7 @@ export const FormattingToolbarWrapper = <BSchema extends BlockSchema>(props: {
 
   return (
     <Tippy
+      appendTo={props.editor.domElement.parentElement!}
       content={formattingToolbarElement}
       getReferenceClientRect={getReferenceClientRect}
       interactive={true}
@@ -55,8 +57,7 @@ export const FormattingToolbarWrapper = <BSchema extends BlockSchema>(props: {
       animation={"fade"}
       placement={"top-start"}
       sticky={true}
-      plugins={[sticky]}>
-      <div />
-    </Tippy>
+      plugins={[sticky]}
+    />
   );
 };

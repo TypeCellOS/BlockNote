@@ -1,6 +1,6 @@
 import { BlockSchema } from "@blocknote/core";
 
-import { FormattingToolbarProps } from "./FormattingToolbarWrapper";
+import { FormattingToolbarProps } from "./FormattingToolbarPositioner";
 import { Toolbar } from "../../SharedComponents/Toolbar/components/Toolbar";
 import { BlockTypeDropdown } from "./DefaultDropdowns/BlockTypeDropdown";
 import { ToggledStyleButton } from "./DefaultButtons/ToggledStyleButton";

@@ -2,9 +2,12 @@ import { createStyles, Menu } from "@mantine/core";
 import * as _ from "lodash";
 
 import { SlashMenuItem } from "./SlashMenuItem";
-import { SlashMenuProps } from "./SlashMenuWrapper";
+import { SlashMenuProps } from "./SlashMenuPositioner";
+import { BlockSchema } from "@blocknote/core";
 
-export function DefaultSlashMenu(props: SlashMenuProps) {
+export function DefaultSlashMenu<BSchema extends BlockSchema>(
+  props: SlashMenuProps<BSchema>
+) {
   const { classes } = createStyles({ root: {} })(undefined, {
     name: "SlashMenu",
   });

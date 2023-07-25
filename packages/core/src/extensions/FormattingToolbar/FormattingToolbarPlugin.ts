@@ -20,7 +20,6 @@ export type FormattingToolbarState = BaseUiElementState;
 export class FormattingToolbarView<BSchema extends BlockSchema> {
   public editor: BlockNoteEditor<BSchema>;
   private ttEditor: Editor;
-  public view: EditorView;
 
   private formattingToolbarState?: FormattingToolbarState;
   public updateFormattingToolbar: () => void;
@@ -49,14 +48,13 @@ export class FormattingToolbarView<BSchema extends BlockSchema> {
 
   constructor(
     editor: BlockNoteEditor<BSchema>,
-    view: EditorView,
+    tipTapEditor: Editor,
     updateFormattingToolbar: (
       formattingToolbarState: FormattingToolbarState
     ) => void
   ) {
-    this.view = view;
     this.editor = editor;
-    this.ttEditor = editor._tiptapEditor;
+    this.ttEditor = tipTapEditor;
 
     this.updateFormattingToolbar = () => {
       if (!this.formattingToolbarState) {
@@ -68,9 +66,12 @@ export class FormattingToolbarView<BSchema extends BlockSchema> {
       updateFormattingToolbar(this.formattingToolbarState);
     };
 
-    this.view.dom.addEventListener("mousedown", this.viewMousedownHandler);
-    this.view.dom.addEventListener("mouseup", this.viewMouseupHandler);
-    this.view.dom.addEventListener("dragstart", this.dragstartHandler);
+    this.ttEditor.view.dom.addEventListener(
+      "mousedown",
+      this.viewMousedownHandler
+    );
+    this.ttEditor.view.dom.addEventListener("mouseup", this.viewMouseupHandler);
+    this.ttEditor.view.dom.addEventListener("dragstart", this.dragstartHandler);
 
     this.ttEditor.on("focus", this.focusHandler);
     this.ttEditor.on("blur", this.blurHandler);
@@ -193,9 +194,18 @@ export class FormattingToolbarView<BSchema extends BlockSchema> {
   }
 
   destroy() {
-    this.view.dom.removeEventListener("mousedown", this.viewMousedownHandler);
-    this.view.dom.removeEventListener("mouseup", this.viewMouseupHandler);
-    this.view.dom.removeEventListener("dragstart", this.dragstartHandler);
+    this.ttEditor.view.dom.removeEventListener(
+      "mousedown",
+      this.viewMousedownHandler
+    );
+    this.ttEditor.view.dom.removeEventListener(
+      "mouseup",
+      this.viewMouseupHandler
+    );
+    this.ttEditor.view.dom.removeEventListener(
+      "dragstart",
+      this.dragstartHandler
+    );
 
     this.ttEditor.off("focus", this.focusHandler);
     this.ttEditor.off("blur", this.blurHandler);
@@ -227,39 +237,30 @@ export class FormattingToolbarView<BSchema extends BlockSchema> {
 export const formattingToolbarPluginKey = new PluginKey(
   "FormattingToolbarPlugin"
 );
-export const createFormattingToolbar = <BSchema extends BlockSchema>(
+export const setupFormattingToolbar = <BSchema extends BlockSchema>(
   editor: BlockNoteEditor<BSchema>,
+  tiptapEditor: Editor,
   updateFormattingToolbar: (
     formattingToolbarState: FormattingToolbarState
   ) => void
-): FormattingToolbarCallbacks => {
+): {
+  plugin: Plugin;
+  callbacks: Omit<FormattingToolbarCallbacks, "destroy">;
+} => {
   let formattingToolbarView: FormattingToolbarView<BSchema>;
 
-  editor._tiptapEditor.registerPlugin(
-    new Plugin({
+  return {
+    plugin: new Plugin({
       key: formattingToolbarPluginKey,
       view: () => {
-        if (formattingToolbarView) {
-          formattingToolbarView.destroy();
-        }
-
         formattingToolbarView = new FormattingToolbarView(
           editor,
-          editor._tiptapEditor.view,
+          tiptapEditor,
           updateFormattingToolbar
         );
         return formattingToolbarView;
       },
     }),
-    // Ensures the plugin is loaded at the highest priority so that things like
-    // keyboard handlers work.
-    (formattingToolbarPlugin, plugins) => {
-      plugins.unshift(formattingToolbarPlugin);
-      return plugins;
-    }
-  );
-  return {
-    destroy: () =>
-      editor._tiptapEditor.unregisterPlugin(formattingToolbarPluginKey),
+    callbacks: {},
   };
 };

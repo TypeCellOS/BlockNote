@@ -1,29 +1,37 @@
-import { PluginKey } from "prosemirror-state";
+import { Plugin, PluginKey } from "prosemirror-state";
 import { BlockNoteEditor } from "../../BlockNoteEditor";
 import {
-  createSuggestionPlugin,
+  setupSuggestionsMenu,
   SuggestionsMenuState,
-  SuggestionsPluginCallbacks,
+  SuggestionsMenuCallbacks,
 } from "../../shared/plugins/suggestion/SuggestionPlugin";
-import { DefaultBlockSchema } from "../Blocks/api/defaultBlocks";
 import { BaseSlashMenuItem } from "./BaseSlashMenuItem";
+import { Editor } from "@tiptap/core";
+import { BlockSchema } from "../Blocks/api/blockTypes";
 
 export const slashMenuPluginKey = new PluginKey("SlashMenuPlugin");
-export const createSlashMenu = <
-  SlashMenuItem extends BaseSlashMenuItem<DefaultBlockSchema>
+export const setupSlashMenu = <
+  BSchema extends BlockSchema,
+  SlashMenuItem extends BaseSlashMenuItem<BSchema>
 >(
-  editor: BlockNoteEditor,
+  editor: BlockNoteEditor<BSchema>,
+  tiptapEditor: Editor,
   updateSlashMenu: (
     slashMenuState: SuggestionsMenuState<SlashMenuItem>
   ) => void,
   items: SlashMenuItem[]
-): SuggestionsPluginCallbacks<SlashMenuItem> => {
-  return createSuggestionPlugin<SlashMenuItem, DefaultBlockSchema>(
+): {
+  plugin: Plugin;
+  callbacks: Omit<SuggestionsMenuCallbacks<SlashMenuItem>, "destroy">;
+} => {
+  return setupSuggestionsMenu<SlashMenuItem, BSchema>(
+    editor,
+    tiptapEditor,
+    updateSlashMenu,
+
     slashMenuPluginKey,
     "/",
-    editor,
-    (slashMenuState) => updateSlashMenu(slashMenuState),
-    ({ item, editor }) => item.execute(editor),
-    (query) => items.filter((item: SlashMenuItem) => item.match(query))
+    (query) => items.filter((item: SlashMenuItem) => item.match(query)),
+    ({ item, editor }) => item.execute(editor)
   );
 };

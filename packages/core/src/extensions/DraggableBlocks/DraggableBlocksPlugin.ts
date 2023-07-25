@@ -13,6 +13,7 @@ import { Block, BlockSchema } from "../Blocks/api/blockTypes";
 import { getBlockInfoFromPos } from "../Blocks/helpers/getBlockInfoFromPos";
 import { slashMenuPluginKey } from "../SlashMenu/SlashMenuPlugin";
 import { MultipleNodeSelection } from "./MultipleNodeSelection";
+import { Editor } from "@tiptap/core";
 
 const serializeForClipboard = (pv as any).__serializeForClipboard;
 // code based on https://github.com/ueberdosis/tiptap/issues/323#issuecomment-506637799
@@ -244,6 +245,7 @@ function dragStart(e: DragEvent, view: EditorView) {
 
 export class SideMenuView<BSchema extends BlockSchema> implements PluginView {
   editor: BlockNoteEditor<BSchema>;
+  ttEditor: Editor;
 
   private sideMenuState?: SideMenuState<BSchema>;
   public updateSideMenu: () => void;
@@ -263,12 +265,15 @@ export class SideMenuView<BSchema extends BlockSchema> implements PluginView {
 
   constructor(
     editor: BlockNoteEditor<BSchema>,
+    tiptapEditor: Editor,
     updateSideMenu: (sideMenuState: SideMenuState<BSchema>) => void
   ) {
     this.editor = editor;
+    this.ttEditor = tiptapEditor;
+
     this.horizontalPosAnchoredAtRoot = true;
     this.horizontalPosAnchor = (
-      this.editor._tiptapEditor.view.dom.firstChild! as HTMLElement
+      this.ttEditor.view.dom.firstChild! as HTMLElement
     ).getBoundingClientRect().x;
 
     this.updateSideMenu = () => {
@@ -281,10 +286,7 @@ export class SideMenuView<BSchema extends BlockSchema> implements PluginView {
 
     document.body.addEventListener("drop", this.onDrop, true);
     document.body.addEventListener("dragover", this.onDragOver);
-    this.editor._tiptapEditor.view.dom.addEventListener(
-      "dragstart",
-      this.onDragStart
-    );
+    this.ttEditor.view.dom.addEventListener("dragstart", this.onDragStart);
 
     // Shows or updates menu position whenever the cursor moves, if the menu isn't frozen.
     document.body.addEventListener("mousemove", this.onMouseMove, true);
@@ -311,10 +313,13 @@ export class SideMenuView<BSchema extends BlockSchema> implements PluginView {
    * when dragging / dropping to the side of the editor
    */
   onDrop = (event: DragEvent) => {
+    this.ttEditor.commands.blur();
+
     if ((event as any).synthetic || !this.isDragging) {
       return;
     }
-    let pos = this.editor._tiptapEditor.view.posAtCoords({
+
+    let pos = this.ttEditor.view.posAtCoords({
       left: event.clientX,
       top: event.clientY,
     });
@@ -324,7 +329,7 @@ export class SideMenuView<BSchema extends BlockSchema> implements PluginView {
     if (!pos || pos.inside === -1) {
       const evt = new Event("drop", event) as any;
       const editorBoundingBox = (
-        this.editor._tiptapEditor.view.dom.firstChild! as HTMLElement
+        this.ttEditor.view.dom.firstChild! as HTMLElement
       ).getBoundingClientRect();
       evt.clientX = editorBoundingBox.left + editorBoundingBox.width / 2;
       evt.clientY = event.clientY;
@@ -332,7 +337,7 @@ export class SideMenuView<BSchema extends BlockSchema> implements PluginView {
       evt.preventDefault = () => event.preventDefault();
       evt.synthetic = true; // prevent recursion
       // console.log("dispatch fake drop");
-      this.editor._tiptapEditor.view.dom.dispatchEvent(evt);
+      this.ttEditor.view.dom.dispatchEvent(evt);
     }
   };
 
@@ -345,7 +350,7 @@ export class SideMenuView<BSchema extends BlockSchema> implements PluginView {
     if ((event as any).synthetic || !this.isDragging) {
       return;
     }
-    let pos = this.editor._tiptapEditor.view.posAtCoords({
+    let pos = this.ttEditor.view.posAtCoords({
       left: event.clientX,
       top: event.clientY,
     });
@@ -353,7 +358,7 @@ export class SideMenuView<BSchema extends BlockSchema> implements PluginView {
     if (!pos || pos.inside === -1) {
       const evt = new Event("dragover", event) as any;
       const editorBoundingBox = (
-        this.editor._tiptapEditor.view.dom.firstChild! as HTMLElement
+        this.ttEditor.view.dom.firstChild! as HTMLElement
       ).getBoundingClientRect();
       evt.clientX = editorBoundingBox.left + editorBoundingBox.width / 2;
       evt.clientY = event.clientY;
@@ -361,7 +366,7 @@ export class SideMenuView<BSchema extends BlockSchema> implements PluginView {
       evt.preventDefault = () => event.preventDefault();
       evt.synthetic = true; // prevent recursion
       // console.log("dispatch fake dragover");
-      this.editor._tiptapEditor.view.dom.dispatchEvent(evt);
+      this.ttEditor.view.dom.dispatchEvent(evt);
     }
   };
 
@@ -397,19 +402,19 @@ export class SideMenuView<BSchema extends BlockSchema> implements PluginView {
     // blockGroup that wraps all blocks in the editor) for more accurate side
     // menu placement.
     const editorBoundingBox = (
-      this.editor._tiptapEditor.view.dom.firstChild! as HTMLElement
+      this.ttEditor.view.dom.firstChild! as HTMLElement
     ).getBoundingClientRect();
     // We want the full area of the editor to check if the cursor is hovering
     // above it though.
     const editorOuterBoundingBox =
-      this.editor._tiptapEditor.view.dom.getBoundingClientRect();
+      this.ttEditor.view.dom.getBoundingClientRect();
     const cursorWithinEditor =
       event.clientX >= editorOuterBoundingBox.left &&
       event.clientX <= editorOuterBoundingBox.right &&
       event.clientY >= editorOuterBoundingBox.top &&
       event.clientY <= editorOuterBoundingBox.bottom;
 
-    const editorWrapper = this.editor._tiptapEditor.view.dom.parentElement!;
+    const editorWrapper = this.ttEditor.view.dom.parentElement!;
 
     // Doesn't update if the mouse hovers an element that's over the editor but
     // isn't a part of it or the side menu.
@@ -441,10 +446,7 @@ export class SideMenuView<BSchema extends BlockSchema> implements PluginView {
       top: event.clientY,
     };
 
-    const block = getDraggableBlockFromCoords(
-      coords,
-      this.editor._tiptapEditor.view
-    );
+    const block = getDraggableBlockFromCoords(coords, this.ttEditor.view);
 
     // Closes the menu if the mouse cursor is beyond the editor vertically.
     if (!block || !this.editor.isEditable) {
@@ -524,10 +526,7 @@ export class SideMenuView<BSchema extends BlockSchema> implements PluginView {
     // the params passed to addEventListener.
     document.body.removeEventListener("mousemove", this.onMouseMove, true);
     document.body.removeEventListener("dragover", this.onDragOver);
-    this.editor._tiptapEditor.view.dom.removeEventListener(
-      "dragstart",
-      this.onDragStart
-    );
+    this.ttEditor.view.dom.removeEventListener("dragstart", this.onDragStart);
     document.body.removeEventListener("drop", this.onDrop, true);
     document.body.removeEventListener("mousedown", this.onMouseDown, true);
     document.removeEventListener("scroll", this.onScroll);
@@ -545,7 +544,7 @@ export class SideMenuView<BSchema extends BlockSchema> implements PluginView {
     const blockContent = this.hoveredBlock!.firstChild! as HTMLElement;
     const blockContentBoundingBox = blockContent.getBoundingClientRect();
 
-    const pos = this.editor._tiptapEditor.view.posAtCoords({
+    const pos = this.ttEditor.view.posAtCoords({
       left: blockContentBoundingBox.left + blockContentBoundingBox.width / 2,
       top: blockContentBoundingBox.top + blockContentBoundingBox.height / 2,
     });
@@ -553,10 +552,7 @@ export class SideMenuView<BSchema extends BlockSchema> implements PluginView {
       return;
     }
 
-    const blockInfo = getBlockInfoFromPos(
-      this.editor._tiptapEditor.state.doc,
-      pos.pos
-    );
+    const blockInfo = getBlockInfoFromPos(this.ttEditor.state.doc, pos.pos);
     if (blockInfo === undefined) {
       return;
     }
@@ -568,66 +564,57 @@ export class SideMenuView<BSchema extends BlockSchema> implements PluginView {
       const newBlockInsertionPos = endPos + 1;
       const newBlockContentPos = newBlockInsertionPos + 2;
 
-      this.editor._tiptapEditor
+      this.ttEditor
         .chain()
         .BNCreateBlock(newBlockInsertionPos)
         .BNUpdateBlock(newBlockContentPos, { type: "paragraph", props: {} })
         .setTextSelection(newBlockContentPos)
         .run();
     } else {
-      this.editor._tiptapEditor.commands.setTextSelection(endPos);
+      this.ttEditor.commands.setTextSelection(endPos);
     }
 
     // Focuses and activates the suggestion menu.
-    this.editor._tiptapEditor.view.focus();
-    this.editor._tiptapEditor.view.dispatch(
-      this.editor._tiptapEditor.view.state.tr
-        .scrollIntoView()
-        .setMeta(slashMenuPluginKey, {
-          // TODO import suggestion plugin key
-          activate: true,
-          type: "drag",
-        })
+    this.ttEditor.view.focus();
+    this.ttEditor.view.dispatch(
+      this.ttEditor.view.state.tr.scrollIntoView().setMeta(slashMenuPluginKey, {
+        // TODO import suggestion plugin key
+        activate: true,
+        type: "drag",
+      })
     );
   }
 }
 
 export const sideMenuPluginKey = new PluginKey("SideMenuPlugin");
-export function createSideMenu<BSchema extends BlockSchema>(
+
+export function setupSideMenu<BSchema extends BlockSchema>(
   editor: BlockNoteEditor<BSchema>,
+  tiptapEditor: Editor,
   updateSideMenu: (sideMenuState: SideMenuState<BSchema>) => void
-): SideMenuCallbacks {
+): {
+  plugin: Plugin;
+  callbacks: Omit<SideMenuCallbacks, "destroy">;
+} {
   let sideMenuView: SideMenuView<BSchema>;
 
-  editor._tiptapEditor.registerPlugin(
-    new Plugin({
+  return {
+    plugin: new Plugin({
       key: sideMenuPluginKey,
       view: () => {
-        if (sideMenuView) {
-          sideMenuView.destroy();
-        }
-
-        sideMenuView = new SideMenuView(editor, updateSideMenu);
+        sideMenuView = new SideMenuView(editor, tiptapEditor, updateSideMenu);
         return sideMenuView;
       },
     }),
-    // Ensures the plugin is loaded at the highest priority so that things like
-    // keyboard handlers work.
-    (sideMenuPlugin, plugins) => {
-      plugins.unshift(sideMenuPlugin);
-      return plugins;
-    }
-  );
-
-  return {
-    addBlock: () => sideMenuView.addBlock(),
-    blockDragStart: (event: DragEvent) => {
-      sideMenuView.isDragging = true;
-      dragStart(event, sideMenuView.editor._tiptapEditor.view);
+    callbacks: {
+      addBlock: () => sideMenuView.addBlock(),
+      blockDragStart: (event: DragEvent) => {
+        sideMenuView.isDragging = true;
+        dragStart(event, sideMenuView.ttEditor.view);
+      },
+      blockDragEnd: () => unsetDragImage(),
+      freezeMenu: () => (sideMenuView.menuFrozen = true),
+      unfreezeMenu: () => (sideMenuView.menuFrozen = false),
     },
-    blockDragEnd: () => unsetDragImage(),
-    freezeMenu: () => (sideMenuView.menuFrozen = true),
-    unfreezeMenu: () => (sideMenuView.menuFrozen = false),
-    destroy: () => editor._tiptapEditor.unregisterPlugin(sideMenuPluginKey),
   };
 }

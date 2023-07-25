@@ -3,10 +3,10 @@ import { MantineProvider } from "@mantine/core";
 import { EditorContent } from "@tiptap/react";
 import { getBlockNoteTheme } from "./BlockNoteTheme";
 import { ReactNode } from "react";
-import { FormattingToolbarWrapper } from "./FormattingToolbar/components/FormattingToolbarWrapper";
-import { HyperlinkToolbarWrapper } from "./HyperlinkToolbar/components/HyperlinkToolbarWrapper";
-import { SlashMenuWrapper } from "./SlashMenu/components/SlashMenuWrapper";
-import { SideMenuWrapper } from "./SideMenu/components/SideMenuWrapper";
+import { FormattingToolbarPositioner } from "./FormattingToolbar/components/FormattingToolbarPositioner";
+import { HyperlinkToolbarPositioner } from "./HyperlinkToolbar/components/HyperlinkToolbarPositioner";
+import { SlashMenuPositioner } from "./SlashMenu/components/SlashMenuPositioner";
+import { SideMenuPositioner } from "./SideMenu/components/SideMenuPositioner";
 
 export function BlockNoteView<BSchema extends BlockSchema>(props: {
   editor: BlockNoteEditor<BSchema>;
@@ -14,13 +14,16 @@ export function BlockNoteView<BSchema extends BlockSchema>(props: {
 }) {
   return (
     <MantineProvider theme={getBlockNoteTheme()}>
-      <EditorContent editor={props.editor?._tiptapEditor}>
+      <EditorContent
+        editor={props.editor?._tiptapEditor}
+        // TODO: Better class name
+        className={"BlockNote"}>
         {props.children || (
           <>
-            <FormattingToolbarWrapper editor={props.editor} />
-            <HyperlinkToolbarWrapper editor={props.editor} />
-            <SlashMenuWrapper editor={props.editor} />
-            <SideMenuWrapper editor={props.editor} />
+            <FormattingToolbarPositioner editor={props.editor} />
+            <HyperlinkToolbarPositioner editor={props.editor} />
+            <SlashMenuPositioner editor={props.editor} />
+            <SideMenuPositioner editor={props.editor} />
           </>
         )}
       </EditorContent>

@@ -5,7 +5,6 @@ import {
   BaseUiElementState,
   BlockNoteEditor,
   BlockSchema,
-  createHyperlinkToolbar,
   HyperlinkToolbarCallbacks,
   HyperlinkToolbarState,
 } from "@blocknote/core";
@@ -18,7 +17,7 @@ export type HyperlinkToolbarProps = Omit<
 > &
   Omit<HyperlinkToolbarState, keyof BaseUiElementState>;
 
-export const HyperlinkToolbarWrapper = <BSchema extends BlockSchema>(props: {
+export const HyperlinkToolbarPositioner = <BSchema extends BlockSchema>(props: {
   editor: BlockNoteEditor<BSchema>;
   hyperlinkToolbar?: FC<HyperlinkToolbarProps>;
 }) => {
@@ -30,8 +29,7 @@ export const HyperlinkToolbarWrapper = <BSchema extends BlockSchema>(props: {
   const callbacks = useRef<HyperlinkToolbarCallbacks>();
 
   useEffect(() => {
-    callbacks.current = createHyperlinkToolbar(
-      props.editor,
+    callbacks.current = props.editor.createHyperlinkToolbar(
       (hyperlinkToolbarState) => {
         setShow(hyperlinkToolbarState.show);
         setUrl(hyperlinkToolbarState.url);
@@ -73,14 +71,14 @@ export const HyperlinkToolbarWrapper = <BSchema extends BlockSchema>(props: {
 
   return (
     <Tippy
+      appendTo={props.editor.domElement.parentElement!}
       // onHidden={() => setIsEditing(false)}
       content={hyperlinkToolbarElement}
       getReferenceClientRect={getReferenceClientRect}
       interactive={true}
       visible={show}
       animation={"fade"}
-      placement={"top-start"}>
-      <div />
-    </Tippy>
+      placement={"top-start"}
+    />
   );
 };

@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { RiExternalLinkFill, RiLinkUnlink } from "react-icons/ri";
 
-import { HyperlinkToolbarProps } from "./HyperlinkToolbarWrapper";
+import { HyperlinkToolbarProps } from "./HyperlinkToolbarPositioner";
 
 import { Toolbar } from "../../SharedComponents/Toolbar/components/Toolbar";
 import { ToolbarButton } from "../../SharedComponents/Toolbar/components/ToolbarButton";
@@ -9,6 +9,7 @@ import { EditHyperlinkMenu } from "../EditHyperlinkMenu/components/EditHyperlink
 
 export const DefaultHyperlinkToolbar = (props: HyperlinkToolbarProps) => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
+  const editMenuRef = useRef<HTMLDivElement | null>(null);
 
   if (isEditing) {
     return (
@@ -17,7 +18,15 @@ export const DefaultHyperlinkToolbar = (props: HyperlinkToolbarProps) => {
         text={props.text}
         update={(url, text) => props.editHyperlink(url, text)}
         // TODO: Better way of waiting for fade out
-        onBlur={() => setTimeout(() => setIsEditing(false), 500)}
+        onBlur={(event) =>
+          setTimeout(() => {
+            if (editMenuRef.current?.contains(event.relatedTarget)) {
+              return;
+            }
+            setIsEditing(false);
+          }, 500)
+        }
+        ref={editMenuRef}
       />
     );
   }

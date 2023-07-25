@@ -1,8 +1,6 @@
 import {
   BaseSlashMenuItem,
   BlockNoteEditor,
-  createSlashMenu,
-  defaultSlashMenuItems,
   DefaultBlockSchema,
 } from "@blocknote/core";
 import { createButton } from "./util";
@@ -30,36 +28,32 @@ export const addSlashMenu = (editor: BlockNoteEditor) => {
     return domItems;
   }
 
-  const callbacks = createSlashMenu<BaseSlashMenuItem<DefaultBlockSchema>>(
-    editor,
-    (slashMenuState) => {
-      if (!element) {
-        element = document.createElement("div");
-        element.style.background = "gray";
-        element.style.position = "absolute";
-        element.style.padding = "10px";
-        element.style.opacity = "0.8";
-        element.style.display = "none";
+  const callbacks = editor.createSlashMenu((slashMenuState) => {
+    if (!element) {
+      element = document.createElement("div");
+      element.style.background = "gray";
+      element.style.position = "absolute";
+      element.style.padding = "10px";
+      element.style.opacity = "0.8";
+      element.style.display = "none";
 
-        document.getElementById("root")!.appendChild(element);
-      }
+      document.getElementById("root")!.appendChild(element);
+    }
 
-      if (slashMenuState.show) {
-        updateItems(
-          slashMenuState.filteredItems,
-          callbacks.itemCallback,
-          slashMenuState.keyboardHoveredItemIndex
-        );
+    if (slashMenuState.show) {
+      updateItems(
+        slashMenuState.filteredItems,
+        callbacks.itemCallback,
+        slashMenuState.keyboardHoveredItemIndex
+      );
 
-        element.style.display = "block";
+      element.style.display = "block";
 
-        element.style.top = slashMenuState.referencePos.top + "px";
-        element.style.left =
-          slashMenuState.referencePos.x - element.offsetWidth + "px";
-      } else {
-        element.style.display = "none";
-      }
-    },
-    defaultSlashMenuItems
-  );
+      element.style.top = slashMenuState.referencePos.top + "px";
+      element.style.left =
+        slashMenuState.referencePos.x - element.offsetWidth + "px";
+    } else {
+      element.style.display = "none";
+    }
+  });
 };

@@ -1,11 +1,11 @@
-import { BlockNoteEditor, createFormattingToolbar } from "@blocknote/core";
+import { BlockNoteEditor } from "@blocknote/core";
 import { createButton } from "./util";
 
 export const addFormattingToolbar = (editor: BlockNoteEditor) => {
   let element: HTMLElement;
   let boldBtn: HTMLAnchorElement;
 
-  createFormattingToolbar(editor, (formattingToolbarState) => {
+  editor.createFormattingToolbar((formattingToolbarState) => {
     if (!element) {
       element = document.createElement("div");
       element.style.background = "gray";

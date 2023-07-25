@@ -4,7 +4,7 @@ import { AiOutlinePlus } from "react-icons/ai";
 import { MdDragIndicator } from "react-icons/md";
 import { BlockSchema } from "@blocknote/core";
 
-import { SideMenuProps } from "./SideMenuWrapper";
+import { SideMenuProps } from "./SideMenuPositioner";
 import { DragHandleMenuProps } from "./DragHandleMenu/DragHandleMenu";
 import { DefaultDragHandleMenu } from "./DragHandleMenu/DefaultDragHandleMenu";
 

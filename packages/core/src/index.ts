@@ -17,5 +17,5 @@ export * from "./shared/BaseUiElementTypes";
 export * as blockStyles from "./extensions/Blocks/nodes/Block.module.css";
 
 export * from "./extensions/SlashMenu/BaseSlashMenuItem";
-export { defaultSlashMenuItems } from "./extensions/SlashMenu/defaultSlashMenuItems";
+export { getDefaultSlashMenuItems } from "./extensions/SlashMenu/defaultSlashMenuItems";
 export type { SuggestionItem } from "./shared/plugins/suggestion/SuggestionItem";

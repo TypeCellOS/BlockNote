@@ -3,59 +3,51 @@ import Tippy from "@tippyjs/react";
 import {
   BlockNoteEditor,
   BlockSchema,
-  DefaultBlockSchema,
-  createSlashMenu,
-  SuggestionsPluginCallbacks,
   BaseUiElementCallbacks,
   SuggestionsMenuState,
   BaseUiElementState,
+  SuggestionsMenuCallbacks,
 } from "@blocknote/core";
 
 import { ReactSlashMenuItem } from "../ReactSlashMenuItem";
-import { defaultReactSlashMenuItems } from "../defaultReactSlashMenuItems";
 import { DefaultSlashMenu } from "./DefaultSlashMenu";
 
-export type SlashMenuProps = Omit<
-  SuggestionsPluginCallbacks<ReactSlashMenuItem<DefaultBlockSchema>>,
+export type SlashMenuProps<BSchema extends BlockSchema> = Omit<
+  SuggestionsMenuCallbacks<ReactSlashMenuItem<BSchema>>,
   keyof BaseUiElementCallbacks
 > &
   Omit<
-    SuggestionsMenuState<ReactSlashMenuItem<DefaultBlockSchema>>,
+    SuggestionsMenuState<ReactSlashMenuItem<BSchema>>,
     keyof BaseUiElementState
   >;
 
-export const SlashMenuWrapper = <BSchema extends BlockSchema>(props: {
+export const SlashMenuPositioner = <BSchema extends BlockSchema>(props: {
   editor: BlockNoteEditor<BSchema>;
-  slashMenuItems?: ReactSlashMenuItem<DefaultBlockSchema>[];
-  slashMenu?: FC<SlashMenuProps>;
+  slashMenu?: FC<SlashMenuProps<BSchema>>;
 }) => {
   const [show, setShow] = useState<boolean>(false);
   const [filteredItems, setFilteredItems] =
-    useState<ReactSlashMenuItem<DefaultBlockSchema>[]>();
+    useState<ReactSlashMenuItem<BSchema>[]>();
   const [keyboardHoveredItemIndex, setKeyboardHoveredItemIndex] =
     useState<number>();
 
   const referencePos = useRef<DOMRect>();
   const callbacks =
-    useRef<
-      SuggestionsPluginCallbacks<ReactSlashMenuItem<DefaultBlockSchema>>
-    >();
+    useRef<SuggestionsMenuCallbacks<ReactSlashMenuItem<BSchema>>>();
 
   useEffect(() => {
-    callbacks.current = createSlashMenu<ReactSlashMenuItem<DefaultBlockSchema>>(
-      props.editor as any,
-      (slashMenuState) => {
-        setShow(slashMenuState.show);
-        setFilteredItems(slashMenuState.filteredItems);
-        setKeyboardHoveredItemIndex(slashMenuState.keyboardHoveredItemIndex);
+    callbacks.current = props.editor.createSlashMenu((slashMenuState) => {
+      setShow(slashMenuState.show);
+      setFilteredItems(
+        slashMenuState.filteredItems as ReactSlashMenuItem<BSchema>[]
+      );
+      setKeyboardHoveredItemIndex(slashMenuState.keyboardHoveredItemIndex);
 
-        referencePos.current = slashMenuState.referencePos;
-      },
-      props.slashMenuItems || defaultReactSlashMenuItems
-    );
+      referencePos.current = slashMenuState.referencePos;
+    }) as SuggestionsMenuCallbacks<ReactSlashMenuItem<BSchema>>;
 
     return callbacks.current!.destroy;
-  }, [props.editor, props.slashMenuItems]);
+  }, [props.editor]);
 
   const getReferenceClientRect = useMemo(() => {
     if (!referencePos.current) {
@@ -87,13 +79,13 @@ export const SlashMenuWrapper = <BSchema extends BlockSchema>(props: {
 
   return (
     <Tippy
+      appendTo={props.editor.domElement.parentElement!}
       content={slashMenuElement}
       getReferenceClientRect={getReferenceClientRect}
       interactive={true}
       visible={show}
       animation={"fade"}
-      placement={"bottom-start"}>
-      <div />
-    </Tippy>
+      placement={"bottom-start"}
+    />
   );
 };

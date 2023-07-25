@@ -6,7 +6,6 @@ import {
   Block,
   BlockNoteEditor,
   BlockSchema,
-  createSideMenu,
   SideMenuCallbacks,
   SideMenuState,
 } from "@blocknote/core";
@@ -21,7 +20,7 @@ export type SideMenuProps<BSchema extends BlockSchema> = Omit<
     editor: BlockNoteEditor<BSchema>;
   };
 
-export const SideMenuWrapper = <BSchema extends BlockSchema>(props: {
+export const SideMenuPositioner = <BSchema extends BlockSchema>(props: {
   editor: BlockNoteEditor<BSchema>;
   sideMenu?: FC<SideMenuProps<BSchema>>;
 }) => {
@@ -32,7 +31,7 @@ export const SideMenuWrapper = <BSchema extends BlockSchema>(props: {
   const callbacks = useRef<SideMenuCallbacks>();
 
   useEffect(() => {
-    callbacks.current = createSideMenu(props.editor, (sideMenuState) => {
+    callbacks.current = props.editor.createSideMenu((sideMenuState) => {
       setShow(sideMenuState.show);
       setBlock(sideMenuState.block);
 
@@ -72,8 +71,7 @@ export const SideMenuWrapper = <BSchema extends BlockSchema>(props: {
 
   return (
     <Tippy
-      // I got rid of this and added the <div /> below + moved <BlockSideMenu /> to
-      // appendTo={props.editor._tiptapEditor.view.dom.parentElement!}
+      appendTo={props.editor.domElement.parentElement!}
       content={sideMenuElement}
       getReferenceClientRect={getReferenceClientRect}
       interactive={true}
@@ -81,9 +79,8 @@ export const SideMenuWrapper = <BSchema extends BlockSchema>(props: {
       animation={"fade"}
       offset={offset}
       placement={"left"}
-      popperOptions={popperOptions}>
-      <div />
-    </Tippy>
+      popperOptions={popperOptions}
+    />
   );
 };
 

@@ -1,4 +1,4 @@
-import { Editor, EditorOptions } from "@tiptap/core";
+import { Editor, EditorOptions, Extension } from "@tiptap/core";
 import { Node } from "prosemirror-model";
 // import "./blocknote.css";
 import { Editor as TiptapEditor } from "@tiptap/core/dist/packages/core/src/Editor";
@@ -39,9 +39,27 @@ import {
 import { Selection } from "./extensions/Blocks/api/selectionTypes";
 import { getBlockInfoFromPos } from "./extensions/Blocks/helpers/getBlockInfoFromPos";
 import {
-  BaseSlashMenuItem,
-  defaultSlashMenuItems,
-} from "./extensions/SlashMenu";
+  setupFormattingToolbar,
+  FormattingToolbarState,
+  FormattingToolbarCallbacks,
+} from "./extensions/FormattingToolbar/FormattingToolbarPlugin";
+import {
+  HyperlinkToolbarCallbacks,
+  HyperlinkToolbarState,
+  setupHyperlinkToolbar,
+} from "./extensions/HyperlinkToolbar/HyperlinkToolbarPlugin";
+import {
+  SuggestionsMenuCallbacks,
+  SuggestionsMenuState,
+} from "./shared/plugins/suggestion/SuggestionPlugin";
+import { setupSlashMenu } from "./extensions/SlashMenu/SlashMenuPlugin";
+import {
+  setupSideMenu,
+  SideMenuCallbacks,
+  SideMenuState,
+} from "./extensions/DraggableBlocks/DraggableBlocksPlugin";
+import { BaseSlashMenuItem } from "./extensions/SlashMenu/BaseSlashMenuItem";
+import { getDefaultSlashMenuItems } from "./extensions/SlashMenu/defaultSlashMenuItems";
 
 export type BlockNoteEditorOptions<BSchema extends BlockSchema> = {
   // TODO: Figure out if enableBlockNoteExtensions/disableHistoryExtension are needed and document them.
@@ -157,6 +175,82 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
     this._tiptapEditor.view.focus();
   }
 
+  private uiElementCallbacks: {
+    formattingToolbar: FormattingToolbarCallbacks;
+    hyperlinkToolbar: HyperlinkToolbarCallbacks;
+    slashMenu: SuggestionsMenuCallbacks<BaseSlashMenuItem<BSchema>>;
+    sideMenu: SideMenuCallbacks;
+  };
+
+  private uiElementListeners: Partial<{
+    formattingToolbar: (formattingToolbarState: FormattingToolbarState) => void;
+    hyperlinkToolbar: (hyperlinkToolbarState: HyperlinkToolbarState) => void;
+    slashMenu: (
+      slashMenuState: SuggestionsMenuState<BaseSlashMenuItem<BSchema>>
+    ) => void;
+    sideMenu: (sideMenuState: SideMenuState<BSchema>) => void;
+  }> = {};
+
+  public createFormattingToolbar = (
+    updateFormattingToolbar: (
+      formattingToolbarState: FormattingToolbarState
+    ) => void
+  ) => {
+    if ("formattingToolbar" in this.uiElementListeners) {
+      throw Error(
+        "You have already created a Formatting Toolbar. You can only create a single Formatting Toolbar per BlockNote editor instance."
+      );
+    }
+
+    this.uiElementListeners.formattingToolbar = updateFormattingToolbar;
+
+    return this.uiElementCallbacks.formattingToolbar;
+  };
+
+  public createHyperlinkToolbar = (
+    updateHyperlinkToolbar: (
+      hyperlinkToolbarState: HyperlinkToolbarState
+    ) => void
+  ) => {
+    if ("hyperlinkToolbar" in this.uiElementListeners) {
+      throw Error(
+        "You have already created a Hyperlink Toolbar. You can only create a single Hyperlink Toolbar per BlockNote editor instance."
+      );
+    }
+
+    this.uiElementListeners.hyperlinkToolbar = updateHyperlinkToolbar;
+
+    return this.uiElementCallbacks.hyperlinkToolbar;
+  };
+
+  public createSlashMenu = <T extends BaseSlashMenuItem<BSchema>>(
+    updateSlashMenu: (slashMenuState: SuggestionsMenuState<T>) => void
+  ) => {
+    if ("slashMenu" in this.uiElementListeners) {
+      throw Error(
+        "You have already created a Slash Menu. You can only create a single Slash Menu per BlockNote editor instance."
+      );
+    }
+
+    this.uiElementListeners.slashMenu = updateSlashMenu as any;
+
+    return this.uiElementCallbacks.slashMenu;
+  };
+
+  public createSideMenu = (
+    updateSideMenu: (sideMenuState: SideMenuState<BSchema>) => void
+  ) => {
+    if ("sideMenu" in this.uiElementListeners) {
+      throw Error(
+        "You have already created a Side Menu. You can only create a single Side Menu per BlockNote editor instance."
+      );
+    }
+
+    this.uiElementListeners.sideMenu = updateSideMenu;
+
+    return this.uiElementCallbacks.sideMenu;
+  };
+
   constructor(
     private readonly options: Partial<BlockNoteEditorOptions<BSchema>> = {}
   ) {
@@ -175,14 +269,144 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
       ...options,
     };
 
+    const editor = this;
+
     const extensions = getBlockNoteExtensions<BSchema>({
       editor: this,
-      slashCommands: newOptions.slashCommands || defaultSlashMenuItems,
+      slashCommands:
+        newOptions.slashCommands ||
+        getDefaultSlashMenuItems(newOptions.blockSchema),
       blockSchema: newOptions.blockSchema,
       collaboration: newOptions.collaboration,
     });
 
     this.schema = newOptions.blockSchema;
+
+    let formattingToolbarCallbacks: FormattingToolbarCallbacks;
+    const formattingToolbarExtension = Extension.create({
+      name: "FormattingToolbarExtension",
+
+      addProseMirrorPlugins() {
+        const { plugin, callbacks } = setupFormattingToolbar(
+          editor,
+          this.editor,
+          (formattingToolbarState) => {
+            const formattingToolbarListener =
+              editor.uiElementListeners.formattingToolbar;
+
+            if (!formattingToolbarListener) {
+              return;
+            }
+
+            formattingToolbarListener(formattingToolbarState);
+          }
+        );
+
+        formattingToolbarCallbacks = {
+          destroy: () => delete editor.uiElementListeners.formattingToolbar,
+          ...callbacks,
+        };
+
+        return [plugin];
+      },
+    });
+
+    extensions.push(formattingToolbarExtension);
+
+    let hyperlinkToolbarCallbacks: HyperlinkToolbarCallbacks;
+    const hyperlinkToolbarExtension = Extension.create({
+      name: "HyperlinkToolbarExtension",
+
+      addProseMirrorPlugins() {
+        const { plugin, callbacks } = setupHyperlinkToolbar(
+          editor,
+          this.editor,
+          (hyperlinkToolbarState) => {
+            const hyperlinkToolbarListener =
+              editor.uiElementListeners.hyperlinkToolbar;
+
+            if (!hyperlinkToolbarListener) {
+              return;
+            }
+
+            hyperlinkToolbarListener(hyperlinkToolbarState);
+          }
+        );
+
+        hyperlinkToolbarCallbacks = {
+          destroy: () => delete editor.uiElementListeners.hyperlinkToolbar,
+          ...callbacks,
+        };
+
+        return [plugin];
+      },
+    });
+
+    extensions.push(hyperlinkToolbarExtension);
+
+    let slashMenuCallbacks: SuggestionsMenuCallbacks<
+      BaseSlashMenuItem<BSchema>
+    >;
+    const slashMenuExtension = Extension.create({
+      name: "SlashMenuExtension",
+
+      addProseMirrorPlugins() {
+        const { plugin, callbacks } = setupSlashMenu(
+          editor,
+          this.editor,
+          (slashMenuState) => {
+            const slashMenuListener = editor.uiElementListeners.slashMenu;
+
+            if (!slashMenuListener) {
+              return;
+            }
+
+            slashMenuListener(slashMenuState as any);
+          },
+          newOptions.slashCommands ||
+            getDefaultSlashMenuItems(newOptions.blockSchema)
+        );
+
+        slashMenuCallbacks = {
+          destroy: () => delete editor.uiElementListeners.slashMenu,
+          ...callbacks,
+        };
+
+        return [plugin];
+      },
+    });
+
+    extensions.push(slashMenuExtension);
+
+    let sideMenuCallbacks: SideMenuCallbacks;
+    const sideMenuExtension = Extension.create({
+      name: "SideMenuExtension",
+
+      addProseMirrorPlugins() {
+        const { plugin, callbacks } = setupSideMenu(
+          editor,
+          this.editor,
+          (sideMenuState) => {
+            const sideMenuListener = editor.uiElementListeners.sideMenu;
+
+            if (!sideMenuListener) {
+              return;
+            }
+
+            sideMenuListener(sideMenuState as any);
+          }
+        );
+
+        sideMenuCallbacks = {
+          destroy: () => delete editor.uiElementListeners.sideMenu,
+          ...callbacks,
+        };
+
+        return [plugin];
+      },
+    });
+
+    extensions.push(sideMenuExtension);
 
     const tiptapOptions: EditorOptions = {
       // TODO: This approach to setting initial content is "cleaner" but requires the PM editor schema, which is only
@@ -195,6 +419,7 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
       ...blockNoteTipTapOptions,
       ...newOptions._tiptapOptions,
       onCreate: () => {
+        console.log("create");
         newOptions.onEditorReady?.(this);
         newOptions.initialContent &&
           this.replaceBlocks(this.topLevelBlocks, newOptions.initialContent);
@@ -230,6 +455,15 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
 
     this._tiptapEditor = new Editor(tiptapOptions) as Editor & {
       contentComponent: any;
+    };
+
+    // These need to be assigned after the TipTap editor is created as they are
+    // initialized in a plugin, which is only loaded on editor creation.
+    this.uiElementCallbacks = {
+      formattingToolbar: formattingToolbarCallbacks!,
+      hyperlinkToolbar: hyperlinkToolbarCallbacks!,
+      slashMenu: slashMenuCallbacks!,
+      sideMenu: sideMenuCallbacks!,
     };
   }
 

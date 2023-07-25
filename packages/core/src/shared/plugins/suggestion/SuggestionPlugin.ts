@@ -8,8 +8,9 @@ import {
   BaseUiElementState,
 } from "../../BaseUiElementTypes";
 import { SuggestionItem } from "./SuggestionItem";
+import { Editor } from "@tiptap/core";
 
-export type SuggestionsPluginCallbacks<T extends SuggestionItem> =
+export type SuggestionsMenuCallbacks<T extends SuggestionItem> =
   BaseUiElementCallbacks & {
     // The function to execute when selecting a suggested item.
     itemCallback: (item: T) => void;
@@ -23,11 +24,12 @@ export type SuggestionsMenuState<T extends SuggestionItem> =
     keyboardHoveredItemIndex: number;
   };
 
-class SuggestionPluginView<
+class SuggestionsMenuView<
   T extends SuggestionItem,
   BSchema extends BlockSchema
 > {
   editor: BlockNoteEditor<BSchema>;
+  ttEditor: Editor;
   pluginKey: PluginKey;
 
   private suggestionsMenuState?: SuggestionsMenuState<T>;
@@ -38,6 +40,7 @@ class SuggestionPluginView<
 
   constructor(
     editor: BlockNoteEditor<BSchema>,
+    tiptapEditor: Editor,
     pluginKey: PluginKey,
     onSelectItem: (props: {
       item: T;
@@ -48,6 +51,7 @@ class SuggestionPluginView<
     ) => void = () => {}
   ) {
     this.editor = editor;
+    this.ttEditor = tiptapEditor;
     this.pluginKey = pluginKey;
     this.pluginState = getDefaultPluginState<T>();
 
@@ -60,14 +64,14 @@ class SuggestionPluginView<
     };
 
     this.itemCallback = (item: T) => {
-      editor._tiptapEditor
+      this.ttEditor
         .chain()
         .focus()
         .deleteRange({
           from:
             this.pluginState.queryStartPos! -
             this.pluginState.triggerCharacter!.length,
-          to: editor._tiptapEditor.state.selection.from,
+          to: this.ttEditor.state.selection.from,
         })
         .run();
 
@@ -180,43 +184,49 @@ function getDefaultPluginState<
  * - This version hides some unnecessary complexity from the user of the plugin.
  * - This version handles key events differently
  */
-export function createSuggestionPlugin<
+export const setupSuggestionsMenu = <
   T extends SuggestionItem,
   BSchema extends BlockSchema
 >(
-  pluginKey: PluginKey,
-  defaultTriggerCharacter: string,
   editor: BlockNoteEditor<BSchema>,
+  tiptapEditor: Editor,
   updateSuggestionsMenu: (
     suggestionsMenuState: SuggestionsMenuState<T>
   ) => void,
+
+  pluginKey: PluginKey,
+  defaultTriggerCharacter: string,
+  items: (query: string) => T[] = () => [],
   onSelectItem: (props: {
     item: T;
     editor: BlockNoteEditor<BSchema>;
-  }) => void = () => {},
-  items: (query: string) => T[] = () => []
-): SuggestionsPluginCallbacks<T> {
+  }) => void = () => {}
+): {
+  plugin: Plugin;
+  callbacks: Omit<SuggestionsMenuCallbacks<T>, "destroy">;
+} => {
   // Assertions
   if (defaultTriggerCharacter.length !== 1) {
     throw new Error("'char' should be a single character");
   }
 
-  let suggestionsPluginView: SuggestionPluginView<T, BSchema>;
+  let suggestionsPluginView: SuggestionsMenuView<T, BSchema>;
 
   const deactivate = (view: EditorView) => {
     view.dispatch(view.state.tr.setMeta(pluginKey, { deactivate: true }));
   };
 
-  editor._tiptapEditor.registerPlugin(
-    new Plugin({
+  return {
+    plugin: new Plugin({
       key: pluginKey,
 
       view: () => {
-        suggestionsPluginView = new SuggestionPluginView<T, BSchema>(
+        suggestionsPluginView = new SuggestionsMenuView<T, BSchema>(
           editor,
+          tiptapEditor,
           pluginKey,
           (props: { item: T; editor: BlockNoteEditor<BSchema> }) => {
-            deactivate(editor._tiptapEditor.view);
+            deactivate(tiptapEditor.view);
             onSelectItem(props);
           },
           updateSuggestionsMenu
@@ -382,12 +392,12 @@ export function createSuggestionPlugin<
           // Selects an item and closes the menu.
           if (event.key === "Enter") {
             deactivate(view);
-            editor._tiptapEditor
+            tiptapEditor
               .chain()
               .focus()
               .deleteRange({
                 from: queryStartPos! - triggerCharacter!.length,
-                to: editor._tiptapEditor.state.selection.from,
+                to: tiptapEditor.state.selection.from,
               })
               .run();
 
@@ -456,32 +466,24 @@ export function createSuggestionPlugin<
         },
       },
     }),
-    // Ensures the plugin is loaded at the highest priority so that things like
-    // keyboard handlers work.
-    (suggestionPlugin, plugins) => {
-      plugins.unshift(suggestionPlugin);
-      return plugins;
-    }
-  );
+    callbacks: {
+      itemCallback: (item: T) => {
+        tiptapEditor
+          .chain()
+          .focus()
+          .deleteRange({
+            from:
+              suggestionsPluginView.pluginState.queryStartPos! -
+              suggestionsPluginView.pluginState.triggerCharacter!.length,
+            to: tiptapEditor.state.selection.from,
+          })
+          .run();
 
-  return {
-    destroy: () => editor._tiptapEditor.unregisterPlugin(pluginKey),
-    itemCallback: (item: T) => {
-      editor._tiptapEditor
-        .chain()
-        .focus()
-        .deleteRange({
-          from:
-            suggestionsPluginView.pluginState.queryStartPos! -
-            suggestionsPluginView.pluginState.triggerCharacter!.length,
-          to: editor._tiptapEditor.state.selection.from,
-        })
-        .run();
-
-      onSelectItem({
-        item: item,
-        editor: editor,
-      });
+        onSelectItem({
+          item: item,
+          editor: editor,
+        });
+      },
     },
   };
-}
+};
