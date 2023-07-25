@@ -4,18 +4,38 @@ import {
   BlockSchema,
 } from "@blocknote/core";
 
-export class ReactSlashMenuItem<
-  BSchema extends BlockSchema
-> extends BaseSlashMenuItem<BSchema> {
-  constructor(
-    public readonly name: string,
-    public readonly execute: (editor: BlockNoteEditor<BSchema>) => void,
-    public readonly aliases: string[] = [],
-    public readonly group: string,
-    public readonly icon: JSX.Element,
-    public readonly hint?: string,
-    public readonly shortcut?: string
-  ) {
-    super(name, execute, aliases);
-  }
+export type ReactSlashMenuItem<BSchema extends BlockSchema> =
+  BaseSlashMenuItem<BSchema> & {
+    group: string;
+    icon: JSX.Element;
+    hint?: string;
+    shortcut?: string;
+  };
+
+export function createReactSlashMenuItem<BSchema extends BlockSchema>(
+  name: string,
+  execute: (editor: BlockNoteEditor<BSchema>) => void,
+  aliases: string[] = [],
+  group: string,
+  icon: JSX.Element,
+  hint?: string,
+  shortcut?: string
+): ReactSlashMenuItem<BSchema> {
+  return {
+    name,
+    execute,
+    aliases,
+    group,
+    icon,
+    hint,
+    shortcut,
+    match: (query: string): boolean => {
+      return (
+        name.toLowerCase().startsWith(query.toLowerCase()) ||
+        aliases.filter((alias) =>
+          alias.toLowerCase().startsWith(query.toLowerCase())
+        ).length !== 0
+      );
+    },
+  };
 }

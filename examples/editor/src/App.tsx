@@ -2,15 +2,11 @@
 import "@blocknote/core/style.css";
 import {
   BlockNoteView,
-  FormattingToolbarWrapper,
-  SlashMenuWrapper,
-  SideMenuWrapper,
-  HyperlinkToolbarWrapper,
   useBlockNote,
-  defaultReactSlashMenuItems,
-  DefaultSideMenu,
-  DragHandleMenuItem,
-  DragHandleMenu,
+  FormattingToolbarPositioner,
+  HyperlinkToolbarPositioner,
+  SlashMenuPositioner,
+  SideMenuPositioner,
 } from "@blocknote/react";
 import styles from "./App.module.css";
 
@@ -31,24 +27,20 @@ function App() {
   // Give tests a way to get prosemirror instance
   (window as WindowWithProseMirror).ProseMirror = editor?._tiptapEditor;
 
+  // Use mock ID if tests are running.
+  if ((window as any).__TEST_OPTIONS === undefined) {
+    // (window as any).__TEST_OPTIONS = {};
+  }
+
   return (
     <BlockNoteView editor={editor}>
-      <FormattingToolbarWrapper
+      <FormattingToolbarPositioner
         editor={editor}
-        formattingToolbar={() => <div>Formatting Toolbar</div>}
+        // formattingToolbar={() => <div>Formatting Toolbar</div>}
       />
-      <HyperlinkToolbarWrapper
-        editor={editor}
-        hyperlinkToolbar={() => <div>Hyperlink Toolbar</div>}
-      />
-      <SlashMenuWrapper
-        editor={editor}
-        slashMenu={() => <div>Slash Menu</div>}
-        slashMenuItems={defaultReactSlashMenuItems.filter((item) =>
-          item.name.includes("Heading")
-        )}
-      />
-      <SideMenuWrapper editor={editor} sideMenu={() => <div>Side Menu</div>} />
+      <HyperlinkToolbarPositioner editor={editor} />
+      <SlashMenuPositioner editor={editor} />
+      <SideMenuPositioner editor={editor} />
       {/*<SideMenuWrapper*/}
       {/*  editor={editor}*/}
       {/*  sideMenu={(props) => (*/}

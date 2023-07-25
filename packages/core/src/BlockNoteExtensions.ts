@@ -24,7 +24,7 @@ import { BlockSchema } from "./extensions/Blocks/api/blockTypes";
 import { CustomBlockSerializerExtension } from "./extensions/Blocks/api/serialization";
 import blockStyles from "./extensions/Blocks/nodes/Block.module.css";
 import { Placeholder } from "./extensions/Placeholder/PlaceholderExtension";
-import { BaseSlashMenuItem } from "./extensions/SlashMenu";
+import { BaseSlashMenuItem } from "./extensions/SlashMenu/BaseSlashMenuItem";
 import { TextAlignmentExtension } from "./extensions/TextAlignment/TextAlignmentExtension";
 import { TextColorExtension } from "./extensions/TextColor/TextColorExtension";
 import { TextColorMark } from "./extensions/TextColor/TextColorMark";
