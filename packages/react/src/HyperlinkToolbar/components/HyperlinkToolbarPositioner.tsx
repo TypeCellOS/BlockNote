@@ -48,7 +48,7 @@ export const HyperlinkToolbarPositioner = <BSchema extends BlockSchema>(props: {
     }
 
     return () => referencePos.current!;
-  }, []);
+  }, [referencePos.current]);
 
   const hyperlinkToolbarElement = useMemo(() => {
     if (!url || !text || !callbacks.current) {
