@@ -2,7 +2,6 @@ import { Editor, EditorOptions, Extension } from "@tiptap/core";
 import { Node } from "prosemirror-model";
 // import "./blocknote.css";
 import { Editor as TiptapEditor } from "@tiptap/core/dist/packages/core/src/Editor";
-
 import * as Y from "yjs";
 import { getBlockNoteExtensions } from "./BlockNoteExtensions";
 import {
@@ -420,7 +419,6 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
       ...blockNoteTipTapOptions,
       ...newOptions._tiptapOptions,
       onCreate: () => {
-        console.log("create");
         newOptions.onEditorReady?.(this);
         newOptions.initialContent &&
           this.replaceBlocks(this.topLevelBlocks, newOptions.initialContent);

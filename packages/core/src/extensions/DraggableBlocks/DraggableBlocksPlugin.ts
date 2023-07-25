@@ -445,7 +445,6 @@ export class SideMenuView<BSchema extends BlockSchema> implements PluginView {
       left: editorBoundingBox.left + editorBoundingBox.width / 2, // take middle of editor
       top: event.clientY,
     };
-
     const block = getDraggableBlockFromCoords(coords, this.ttEditor.view);
 
     // Closes the menu if the mouse cursor is beyond the editor vertically.
@@ -521,10 +520,7 @@ export class SideMenuView<BSchema extends BlockSchema> implements PluginView {
       this.sideMenuState.show = false;
       this.updateSideMenu();
     }
-    // (remove this comment):
-    // the event listeners weren't detached properly because the parameters didn't match
-    // the params passed to addEventListener.
-    document.body.removeEventListener("mousemove", this.onMouseMove, true);
+    document.body.removeEventListener("mousemove", this.onMouseMove);
     document.body.removeEventListener("dragover", this.onDragOver);
     this.ttEditor.view.dom.removeEventListener("dragstart", this.onDragStart);
     document.body.removeEventListener("drop", this.onDrop, true);

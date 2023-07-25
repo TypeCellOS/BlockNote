@@ -52,6 +52,7 @@ class SuggestionsMenuView<
   ) {
     this.editor = editor;
     this.ttEditor = tiptapEditor;
+
     this.pluginKey = pluginKey;
     this.pluginState = getDefaultPluginState<T>();
 
