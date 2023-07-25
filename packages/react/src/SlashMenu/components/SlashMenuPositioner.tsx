@@ -55,7 +55,7 @@ export const SlashMenuPositioner = <BSchema extends BlockSchema>(props: {
     }
 
     return () => referencePos.current!;
-  }, [referencePos.current]);
+  }, []);
 
   const slashMenuElement = useMemo(() => {
     if (

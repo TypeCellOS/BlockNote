@@ -12,8 +12,7 @@ export function BlockNoteView<BSchema extends BlockSchema>(props: {
   editor: BlockNoteEditor<BSchema>;
   children?: ReactNode;
 }) {
-  const [ready, setReady] = useState(props.editor.ready);
-  console.log(props.editor.ready);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     function checkReady() {
@@ -30,7 +29,7 @@ export function BlockNoteView<BSchema extends BlockSchema>(props: {
     // if (props.editor.ready) {
     //   setReady(true);
     // }
-  }, []);
+  }, [props.editor.ready]);
 
   return (
     <MantineProvider theme={getBlockNoteTheme()}>

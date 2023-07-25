@@ -47,7 +47,7 @@ export const SideMenuPositioner = <BSchema extends BlockSchema>(props: {
     }
 
     return () => referencePos.current!;
-  }, [referencePos.current]);
+  }, []);
 
   const sideMenuElement = useMemo(() => {
     if (!block || !callbacks.current) {

@@ -38,7 +38,7 @@ export const FormattingToolbarPositioner = <
       return undefined;
     }
     return () => referencePos.current!;
-  }, [referencePos.current]);
+  }, []);
 
   const formattingToolbarElement = useMemo(() => {
     const FormattingToolbar =
