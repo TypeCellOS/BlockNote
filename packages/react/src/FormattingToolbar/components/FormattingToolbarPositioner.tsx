@@ -33,12 +33,15 @@ export const FormattingToolbarPositioner = <
     return callbacks.current.destroy;
   }, [props.editor]);
 
-  const getReferenceClientRect = useMemo(() => {
-    if (!referencePos) {
-      return undefined;
-    }
-    return () => referencePos.current!;
-  }, [referencePos.current]);
+  const getReferenceClientRect = useMemo(
+    () => {
+      if (!referencePos) {
+        return undefined;
+      }
+      return () => referencePos.current!;
+    },
+    [referencePos.current] // eslint-disable-line
+  );
 
   const formattingToolbarElement = useMemo(() => {
     const FormattingToolbar =

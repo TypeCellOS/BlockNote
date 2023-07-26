@@ -41,13 +41,16 @@ export const SideMenuPositioner = <BSchema extends BlockSchema>(props: {
     return callbacks.current!.destroy;
   }, [props.editor]);
 
-  const getReferenceClientRect = useMemo(() => {
-    if (!referencePos.current) {
-      return undefined;
-    }
+  const getReferenceClientRect = useMemo(
+    () => {
+      if (!referencePos.current) {
+        return undefined;
+      }
 
-    return () => referencePos.current!;
-  }, [referencePos.current]);
+      return () => referencePos.current!;
+    },
+    [referencePos.current] // eslint-disable-line
+  );
 
   const sideMenuElement = useMemo(() => {
     if (!block || !callbacks.current) {
