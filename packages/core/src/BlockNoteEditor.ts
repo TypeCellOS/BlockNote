@@ -163,18 +163,6 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
   public readonly schema: BSchema;
   public ready = false;
 
-  public get domElement() {
-    return this._tiptapEditor.view.dom as HTMLDivElement;
-  }
-
-  public isFocused() {
-    return this._tiptapEditor.view.hasFocus();
-  }
-
-  public focus() {
-    this._tiptapEditor.view.focus();
-  }
-
   private uiElementCallbacks: {
     formattingToolbar: FormattingToolbarCallbacks;
     hyperlinkToolbar: HyperlinkToolbarCallbacks;
@@ -310,7 +298,6 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
         return [plugin];
       },
     });
-
     extensions.push(formattingToolbarExtension);
 
     let hyperlinkToolbarCallbacks: HyperlinkToolbarCallbacks;
@@ -341,7 +328,6 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
         return [plugin];
       },
     });
-
     extensions.push(hyperlinkToolbarExtension);
 
     let slashMenuCallbacks: SuggestionsMenuCallbacks<
@@ -375,7 +361,6 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
         return [plugin];
       },
     });
-
     extensions.push(slashMenuExtension);
 
     let sideMenuCallbacks: SideMenuCallbacks;
@@ -405,7 +390,6 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
         return [plugin];
       },
     });
-
     extensions.push(sideMenuExtension);
 
     const tiptapOptions: EditorOptions = {
@@ -477,6 +461,18 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
       slashMenu: slashMenuCallbacks!,
       sideMenu: sideMenuCallbacks!,
     };
+  }
+
+  public get domElement() {
+    return this._tiptapEditor.view.dom as HTMLDivElement;
+  }
+
+  public isFocused() {
+    return this._tiptapEditor.view.hasFocus();
+  }
+
+  public focus() {
+    this._tiptapEditor.view.focus();
   }
 
   /**
