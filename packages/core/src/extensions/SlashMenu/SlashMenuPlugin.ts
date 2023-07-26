@@ -31,7 +31,14 @@ export const setupSlashMenu = <
 
     slashMenuPluginKey,
     "/",
-    (query) => items.filter((item: SlashMenuItem) => item.match(query)),
+    (query) =>
+      items.filter(
+        ({ name, aliases }: SlashMenuItem) =>
+          name.toLowerCase().startsWith(query.toLowerCase()) ||
+          aliases.filter((alias) =>
+            alias.toLowerCase().startsWith(query.toLowerCase())
+          ).length !== 0
+      ),
     ({ item, editor }) => item.execute(editor)
   );
 };
