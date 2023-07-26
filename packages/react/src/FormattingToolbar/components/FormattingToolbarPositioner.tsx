@@ -19,6 +19,7 @@ export const FormattingToolbarPositioner = <
   formattingToolbar?: FC<FormattingToolbarProps<BSchema>>;
 }) => {
   const [show, setShow] = useState<boolean>(false);
+  const [_forceUpdate, setForceUpdate] = useState<number>(0);
 
   const referencePos = useRef<DOMRect>();
   const callbacks = useRef<FormattingToolbarCallbacks>();
@@ -28,6 +29,9 @@ export const FormattingToolbarPositioner = <
       setShow(state.show);
 
       referencePos.current = state.referencePos;
+      if (state.positionChangeSource === "other") {
+        setForceUpdate((prev) => prev + 1);
+      }
     });
 
     return callbacks.current.destroy;
@@ -56,8 +60,18 @@ export const FormattingToolbarPositioner = <
       visible={show}
       animation={"fade"}
       placement={"top-start"}
-      sticky={true}
-      plugins={[sticky]}
+      // sticky={true}
+      // plugins={[sticky]}
+      // popperOptions={{
+      //   modifiers: [
+      //     {
+      //       name: "eventListeners",
+      //       options: {
+      //         scroll: false,
+      //       },
+      //     },
+      //   ],
+      // }}
     />
   );
 };

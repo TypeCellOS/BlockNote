@@ -15,7 +15,9 @@ import {
 
 export type FormattingToolbarCallbacks = BaseUiElementCallbacks;
 
-export type FormattingToolbarState = BaseUiElementState;
+export type FormattingToolbarState = BaseUiElementState & {
+  positionChangeSource: "scroll" | "other";
+};
 
 export class FormattingToolbarView<BSchema extends BlockSchema> {
   public editor: BlockNoteEditor<BSchema>;
@@ -92,6 +94,7 @@ export class FormattingToolbarView<BSchema extends BlockSchema> {
   dragstartHandler = () => {
     if (this.formattingToolbarState?.show) {
       this.formattingToolbarState.show = false;
+      this.formattingToolbarState.positionChangeSource = "other";
       this.updateFormattingToolbar();
     }
   };
@@ -125,6 +128,7 @@ export class FormattingToolbarView<BSchema extends BlockSchema> {
 
     if (this.formattingToolbarState?.show) {
       this.formattingToolbarState.show = false;
+      this.formattingToolbarState.positionChangeSource = "other";
       this.updateFormattingToolbar();
     }
   };
@@ -132,6 +136,7 @@ export class FormattingToolbarView<BSchema extends BlockSchema> {
   scrollHandler = () => {
     if (this.formattingToolbarState?.show) {
       this.formattingToolbarState.referencePos = this.getSelectionBoundingBox();
+      this.formattingToolbarState.positionChangeSource = "scroll";
       this.updateFormattingToolbar();
     }
   };
@@ -173,6 +178,7 @@ export class FormattingToolbarView<BSchema extends BlockSchema> {
       this.formattingToolbarState = {
         show: true,
         referencePos: this.getSelectionBoundingBox(),
+        positionChangeSource: "other",
       };
 
       this.updateFormattingToolbar();
@@ -187,6 +193,7 @@ export class FormattingToolbarView<BSchema extends BlockSchema> {
       (!shouldShow || this.preventShow || !this.editor.isEditable)
     ) {
       this.formattingToolbarState.show = false;
+      this.formattingToolbarState.positionChangeSource = "other";
       this.updateFormattingToolbar();
 
       return;
