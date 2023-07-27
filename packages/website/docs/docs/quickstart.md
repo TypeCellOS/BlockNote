@@ -37,7 +37,7 @@ import "@blocknote/core/style.css";
 
 function App() {
   // Creates a new editor instance.
-  const editor: BlockNoteEditor | null = useBlockNote({});
+  const editor: BlockNoteEditor = useBlockNote({});
 
   // Renders the editor instance using a React component.
   return <BlockNoteView editor={editor} />;
@@ -63,7 +63,7 @@ import "@blocknote/core/style.css";
 
 export default function App() {
   // Creates a new editor instance.
-  const editor: BlockNoteEditor | null = useBlockNote({
+  const editor: BlockNoteEditor = useBlockNote({
     theme: "{{ getTheme(isDark) }}"
   });
 

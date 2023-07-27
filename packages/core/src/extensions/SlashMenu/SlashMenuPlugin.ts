@@ -35,9 +35,10 @@ export const setupSlashMenu = <
       items.filter(
         ({ name, aliases }: SlashMenuItem) =>
           name.toLowerCase().startsWith(query.toLowerCase()) ||
-          aliases.filter((alias) =>
-            alias.toLowerCase().startsWith(query.toLowerCase())
-          ).length !== 0
+          (aliases &&
+            aliases.filter((alias) =>
+              alias.toLowerCase().startsWith(query.toLowerCase())
+            ).length !== 0)
       ),
     ({ item, editor }) => item.execute(editor)
   );

@@ -4,16 +4,19 @@ import { sticky } from "tippy.js";
 import {
   BlockNoteEditor,
   BlockSchema,
+  DefaultBlockSchema,
   FormattingToolbarCallbacks,
 } from "@blocknote/core";
 
 import { DefaultFormattingToolbar } from "./DefaultFormattingToolbar";
 
-export type FormattingToolbarProps<BSchema extends BlockSchema> = {
+export type FormattingToolbarProps<
+  BSchema extends BlockSchema = DefaultBlockSchema
+> = {
   editor: BlockNoteEditor<BSchema>;
 };
 export const FormattingToolbarPositioner = <
-  BSchema extends BlockSchema
+  BSchema extends BlockSchema = DefaultBlockSchema
 >(props: {
   editor: BlockNoteEditor<BSchema>;
   formattingToolbar?: FC<FormattingToolbarProps<BSchema>>;

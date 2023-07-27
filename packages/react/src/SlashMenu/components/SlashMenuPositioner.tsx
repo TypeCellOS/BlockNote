@@ -7,21 +7,25 @@ import {
   SuggestionsMenuState,
   BaseUiElementState,
   SuggestionsMenuCallbacks,
+  DefaultBlockSchema,
 } from "@blocknote/core";
 
 import { ReactSlashMenuItem } from "../ReactSlashMenuItem";
 import { DefaultSlashMenu } from "./DefaultSlashMenu";
 
-export type SlashMenuProps<BSchema extends BlockSchema> = Omit<
-  SuggestionsMenuCallbacks<ReactSlashMenuItem<BSchema>>,
-  keyof BaseUiElementCallbacks
-> &
+export type SlashMenuProps<BSchema extends BlockSchema = DefaultBlockSchema> =
   Omit<
-    SuggestionsMenuState<ReactSlashMenuItem<BSchema>>,
-    keyof BaseUiElementState
-  >;
+    SuggestionsMenuCallbacks<ReactSlashMenuItem<BSchema>>,
+    keyof BaseUiElementCallbacks
+  > &
+    Omit<
+      SuggestionsMenuState<ReactSlashMenuItem<BSchema>>,
+      keyof BaseUiElementState
+    >;
 
-export const SlashMenuPositioner = <BSchema extends BlockSchema>(props: {
+export const SlashMenuPositioner = <
+  BSchema extends BlockSchema = DefaultBlockSchema
+>(props: {
   editor: BlockNoteEditor<BSchema>;
   slashMenu?: FC<SlashMenuProps<BSchema>>;
 }) => {

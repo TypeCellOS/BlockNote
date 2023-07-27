@@ -1,6 +1,7 @@
 import { BlockNoteEditor } from "../../BlockNoteEditor";
 import { BlockSchema, PartialBlock } from "../Blocks/api/blockTypes";
 import { BaseSlashMenuItem } from "./BaseSlashMenuItem";
+import { defaultBlockSchema } from "../Blocks/api/defaultBlocks";
 
 function insertOrUpdateBlock<BSchema extends BlockSchema>(
   editor: BlockNoteEditor<BSchema>,
@@ -22,7 +23,11 @@ function insertOrUpdateBlock<BSchema extends BlockSchema>(
 }
 
 export const getDefaultSlashMenuItems = <BSchema extends BlockSchema>(
-  schema: BSchema
+  // This type casting is weird, but it's the best way of doing it, as it allows
+  // the schema type to be automatically inferred if it is defined, or be
+  // inferred as any if it is not defined. I don't think it's possible to make it
+  // infer to DefaultBlockSchema if it is not defined.
+  schema: BSchema = defaultBlockSchema as unknown as BSchema
 ) => {
   const slashMenuItems: BaseSlashMenuItem<BSchema>[] = [];
 

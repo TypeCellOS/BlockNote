@@ -29,9 +29,10 @@ Which you can use to customize the contents of the Slash Menu. Let's take a look
 ```typescript
 type ReactSlashMenuItem = {
   name: string;
-  execute: (editor: BlockNoteEditor) => void;
-  aliases: string[];
   group: string;
+  icon: JSX.Element;
+  execute: (editor: BlockNoteEditor) => void;
+  aliases?: string[];
   hint?: string;
   shortcut?: string;
 };
@@ -39,11 +40,13 @@ type ReactSlashMenuItem = {
 
 `name:` The item's name, which is the same string you see displayed in the menu, e.g. "Heading" or "Paragraph".
 
+`group:` The name of the group the item belongs to, e.g. "Headings" or "Basic Blocks".
+
+`icon:` An element which displays the item's icon.
+
 `execute:` A function that runs when the item is selected.
 
 `aliases:` Other names for the item, which as used as shortcuts for search.
-
-`group:` The name of the group the item belongs to, e.g. "Headings" or "Basic Blocks".
 
 `hint:` A short phrase to describe what the item is for, which is displayed below its name.
 
@@ -58,13 +61,14 @@ If you want to change, remove & reorder the default items , you first import and
 ```typescript
 import {
   BlockNoteView,
-  defaultReactSlashMenuItems,
+  getDefaultReactSlashMenuItems,
   useBlockNote
 } from "@blocknote/react";
 import "@blocknote/core/style.css";
 
 function App() {
-  const newSlashMenuItems: ReactSlashMenuItem[] = defaultReactSlashMenuItems;
+  const newSlashMenuItems: ReactSlashMenuItem[] = 
+    getDefaultReactSlashMenuItems();
 
   // Edit newSlashMenuItems
   ...
@@ -109,20 +113,20 @@ export default function App() {
   };
 
   // Slash Menu item which executes the command.
-  const insertHelloWorldItem = new ReactSlashMenuItem(
-    "Insert Hello World",
-    insertHelloWorld,
-    ["helloworld", "hw"],
-    "Other",
-    <HiOutlineGlobeAlt size={18} />,
-    "Used to insert a block with 'Hello World' below."
-  );
+  const insertHelloWorldItem: ReactSlashMenuItem = {
+    name: "Insert Hello World",
+    group: "Other",
+    icon: <HiOutlineGlobeAlt size={18} />,
+    execute: insertHelloWorld,
+    aliases: ["helloworld", "hw"],
+    hint: "Used to insert a block with 'Hello World' below."
+  };
 
   // Creates a new editor instance.
   const editor: BlockNoteEditor = useBlockNote({
     theme: "{{ getTheme(isDark) }}",
     // Adds all default Slash Menu items as well as our custom one.
-    slashCommands: [...defaultReactSlashMenuItems, insertHelloWorldItem],
+    slashCommands: [...getDefaultReactSlashMenuItems(), insertHelloWorldItem],
   });
 
   // Renders the editor instance.

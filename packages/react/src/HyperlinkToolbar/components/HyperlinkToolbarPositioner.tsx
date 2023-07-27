@@ -5,6 +5,7 @@ import {
   BaseUiElementState,
   BlockNoteEditor,
   BlockSchema,
+  DefaultBlockSchema,
   HyperlinkToolbarCallbacks,
   HyperlinkToolbarState,
 } from "@blocknote/core";
@@ -17,7 +18,9 @@ export type HyperlinkToolbarProps = Omit<
 > &
   Omit<HyperlinkToolbarState, keyof BaseUiElementState>;
 
-export const HyperlinkToolbarPositioner = <BSchema extends BlockSchema>(props: {
+export const HyperlinkToolbarPositioner = <
+  BSchema extends BlockSchema = DefaultBlockSchema
+>(props: {
   editor: BlockNoteEditor<BSchema>;
   hyperlinkToolbar?: FC<HyperlinkToolbarProps>;
 }) => {

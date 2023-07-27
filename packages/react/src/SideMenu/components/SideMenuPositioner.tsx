@@ -6,21 +6,32 @@ import {
   Block,
   BlockNoteEditor,
   BlockSchema,
+  DefaultBlockSchema,
   SideMenuCallbacks,
   SideMenuState,
 } from "@blocknote/core";
 
 import { DefaultSideMenu } from "./DefaultSideMenu";
 
-export type SideMenuProps<BSchema extends BlockSchema> = Omit<
-  SideMenuCallbacks,
-  keyof BaseUiElementCallbacks
-> &
-  Omit<SideMenuState<BSchema>, keyof BaseUiElementState> & {
-    editor: BlockNoteEditor<BSchema>;
-  };
+export type SideMenuProps<BSchema extends BlockSchema = DefaultBlockSchema> =
+  Omit<SideMenuCallbacks, keyof BaseUiElementCallbacks> &
+    Omit<SideMenuState<BSchema>, keyof BaseUiElementState> & {
+      editor: BlockNoteEditor<BSchema>;
+    };
 
-export const SideMenuPositioner = <BSchema extends BlockSchema>(props: {
+// export type a<BSchema extends BlockSchema> = {
+//   callbacks: SideMenuCallbacks;
+//   state: SideMenuState<BSchema>;
+// };
+//
+// export type b<BSchema extends BlockSchema> = {
+//   callbacks: Omit<SideMenuCallbacks, keyof BaseUiElementCallbacks>;
+//   state: SideMenuState<BSchema>;
+// };
+
+export const SideMenuPositioner = <
+  BSchema extends BlockSchema = DefaultBlockSchema
+>(props: {
   editor: BlockNoteEditor<BSchema>;
   sideMenu?: FC<SideMenuProps<BSchema>>;
 }) => {
