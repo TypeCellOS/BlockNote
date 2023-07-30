@@ -106,6 +106,10 @@ blocknote
 
 The codebase is automatically tested using Vitest and Playwright.
 
+# License 📃
+
+BlockNote is licensed under the [MPL 2.0 license](https://fossa.com/blog/open-source-software-licenses-101-mozilla-public-license-2-0/), which allows you to use BlockNote in commercial (and closed-source) applications. If you make changes to the BlockNote source files, you're expected to publish these changes so the wider community can benefit as well.
+
 # Credits ❤️
 
 BlockNote builds directly on two awesome projects; [Prosemirror](https://prosemirror.net/) by Marijn Haverbeke and [Tiptap](https://tiptap.dev/). Consider sponsoring those libraries when using BlockNote: [Prosemirror](https://marijnhaverbeke.nl/fund/), [Tiptap](https://github.com/sponsors/ueberdosis).
