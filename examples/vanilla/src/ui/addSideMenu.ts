@@ -4,7 +4,7 @@ import { createButton } from "./util";
 export const addSideMenu = (editor: BlockNoteEditor) => {
   let element: HTMLElement;
 
-  editor.sideMenu.on("update", (sideMenuState) => {
+  editor.sideMenu.onUpdate((sideMenuState) => {
     if (!element) {
       element = document.createElement("div");
       element.style.background = "gray";

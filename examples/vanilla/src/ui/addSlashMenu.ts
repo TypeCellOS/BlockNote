@@ -28,7 +28,7 @@ export const addSlashMenu = (editor: BlockNoteEditor) => {
     return domItems;
   }
 
-  editor.slashMenu.on("update", (slashMenuState) => {
+  editor.slashMenu.onUpdate((slashMenuState) => {
     if (!element) {
       element = document.createElement("div");
       element.style.background = "gray";

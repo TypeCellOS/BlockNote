@@ -4,7 +4,7 @@ import { createButton } from "./util";
 export const addHyperlinkToolbar = (editor: BlockNoteEditor) => {
   let element: HTMLElement;
 
-  editor.hyperlinkToolbar.on("update", (hyperlinkToolbarState) => {
+  editor.hyperlinkToolbar.onUpdate((hyperlinkToolbarState) => {
     if (!element) {
       element = document.createElement("div");
       element.style.background = "gray";
