@@ -1,25 +1,11 @@
-import { Editor, getMarkRange, posToDOMRect, Range } from "@tiptap/core";
+import { getMarkRange, posToDOMRect, Range } from "@tiptap/core";
+import { EditorView } from "@tiptap/pm/view";
 import { Mark } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { BlockNoteEditor } from "../../BlockNoteEditor";
-import {
-  BaseUiElementCallbacks,
-  BaseUiElementState,
-} from "../../shared/BaseUiElementTypes";
+import { BaseUiElementState } from "../../shared/BaseUiElementTypes";
+import { EventEmitter } from "../../shared/EventEmitter";
 import { BlockSchema } from "../Blocks/api/blockTypes";
-
-export type HyperlinkToolbarCallbacks = BaseUiElementCallbacks & {
-  // Updates or deletes the hovered hyperlink.
-  editHyperlink: (url: string, text: string) => void;
-  deleteHyperlink: () => void;
-
-  // When hovering on/off hyperlinks using the mouse cursor, the hyperlink
-  // toolbar will open & close with a delay. These functions start & stop the
-  // delay timer, and should be used for when the mouse cursor enters & exits
-  // the hyperlink toolbar.
-  startHideTimer: () => void;
-  stopHideTimer: () => void;
-};
 
 export type HyperlinkToolbarState = BaseUiElementState & {
   // The hovered hyperlink's URL, and the text it's displayed with in the
@@ -29,9 +15,6 @@ export type HyperlinkToolbarState = BaseUiElementState & {
 };
 
 class HyperlinkToolbarView<BSchema extends BlockSchema> {
-  editor: BlockNoteEditor<BSchema>;
-  ttEditor: Editor;
-
   private hyperlinkToolbarState?: HyperlinkToolbarState;
   public updateHyperlinkToolbar: () => void;
 
@@ -49,15 +32,12 @@ class HyperlinkToolbarView<BSchema extends BlockSchema> {
   hyperlinkMarkRange: Range | undefined;
 
   constructor(
-    editor: BlockNoteEditor<BSchema>,
-    tiptapEditor: Editor,
+    private readonly editor: BlockNoteEditor<BSchema>,
+    private readonly pmView: EditorView,
     updateHyperlinkToolbar: (
       hyperlinkToolbarState: HyperlinkToolbarState
     ) => void
   ) {
-    this.editor = editor;
-    this.ttEditor = tiptapEditor;
-
     this.updateHyperlinkToolbar = () => {
       if (!this.hyperlinkToolbarState) {
         throw new Error("Attempting to update uninitialized hyperlink toolbar");
@@ -81,7 +61,7 @@ class HyperlinkToolbarView<BSchema extends BlockSchema> {
       return false;
     };
 
-    this.ttEditor.view.dom.addEventListener("mouseover", this.mouseOverHandler);
+    this.pmView.dom.addEventListener("mouseover", this.mouseOverHandler);
     document.addEventListener("click", this.clickHandler, true);
     document.addEventListener("scroll", this.scrollHandler);
   }
@@ -101,14 +81,16 @@ class HyperlinkToolbarView<BSchema extends BlockSchema> {
       // mouseHoveredHyperlinkMarkRange.
       const hoveredHyperlinkElement = event.target;
       const posInHoveredHyperlinkMark =
-        this.ttEditor.view.posAtDOM(hoveredHyperlinkElement, 0) + 1;
-      const resolvedPosInHoveredHyperlinkMark = this.ttEditor.state.doc.resolve(
+        this.pmView.posAtDOM(hoveredHyperlinkElement, 0) + 1;
+      const resolvedPosInHoveredHyperlinkMark = this.pmView.state.doc.resolve(
         posInHoveredHyperlinkMark
       );
       const marksAtPos = resolvedPosInHoveredHyperlinkMark.marks();
 
       for (const mark of marksAtPos) {
-        if (mark.type.name === this.ttEditor.schema.mark("link").type.name) {
+        if (
+          mark.type.name === this.pmView.state.schema.mark("link").type.name
+        ) {
           this.mouseHoveredHyperlinkMark = mark;
           this.mouseHoveredHyperlinkMarkRange =
             getMarkRange(
@@ -128,7 +110,7 @@ class HyperlinkToolbarView<BSchema extends BlockSchema> {
   };
 
   clickHandler = (event: MouseEvent) => {
-    const editorWrapper = this.ttEditor.view.dom.parentElement!;
+    const editorWrapper = this.pmView.dom.parentElement!;
 
     if (
       // Toolbar is open.
@@ -153,7 +135,7 @@ class HyperlinkToolbarView<BSchema extends BlockSchema> {
     if (this.hyperlinkMark !== undefined) {
       if (this.hyperlinkToolbarState?.show) {
         this.hyperlinkToolbarState.referencePos = posToDOMRect(
-          this.ttEditor.view,
+          this.pmView,
           this.hyperlinkMarkRange!.from,
           this.hyperlinkMarkRange!.to
         );
@@ -163,7 +145,7 @@ class HyperlinkToolbarView<BSchema extends BlockSchema> {
   };
 
   editHyperlink(url: string, text: string) {
-    const tr = this.ttEditor.view.state.tr.insertText(
+    const tr = this.pmView.state.tr.insertText(
       text,
       this.hyperlinkMarkRange!.from,
       this.hyperlinkMarkRange!.to
@@ -171,10 +153,10 @@ class HyperlinkToolbarView<BSchema extends BlockSchema> {
     tr.addMark(
       this.hyperlinkMarkRange!.from,
       this.hyperlinkMarkRange!.from + text.length,
-      this.ttEditor.schema.mark("link", { href: url })
+      this.pmView.state.schema.mark("link", { href: url })
     );
-    this.ttEditor.view.dispatch(tr);
-    this.ttEditor.view.focus();
+    this.pmView.dispatch(tr);
+    this.pmView.focus();
 
     if (this.hyperlinkToolbarState?.show) {
       this.hyperlinkToolbarState.show = false;
@@ -183,8 +165,8 @@ class HyperlinkToolbarView<BSchema extends BlockSchema> {
   }
 
   deleteHyperlink() {
-    this.ttEditor.view.dispatch(
-      this.ttEditor.view.state.tr
+    this.pmView.dispatch(
+      this.pmView.state.tr
         .removeMark(
           this.hyperlinkMarkRange!.from,
           this.hyperlinkMarkRange!.to,
@@ -192,7 +174,7 @@ class HyperlinkToolbarView<BSchema extends BlockSchema> {
         )
         .setMeta("preventAutolink", true)
     );
-    this.ttEditor.view.focus();
+    this.pmView.focus();
 
     if (this.hyperlinkToolbarState?.show) {
       this.hyperlinkToolbarState.show = false;
@@ -201,7 +183,7 @@ class HyperlinkToolbarView<BSchema extends BlockSchema> {
   }
 
   update() {
-    if (!this.ttEditor.view.hasFocus()) {
+    if (!this.pmView.hasFocus()) {
       return;
     }
 
@@ -218,15 +200,17 @@ class HyperlinkToolbarView<BSchema extends BlockSchema> {
 
     // Finds link mark at the editor selection's position to update keyboardHoveredHyperlinkMark and
     // keyboardHoveredHyperlinkMarkRange.
-    if (this.ttEditor.state.selection.empty) {
-      const marksAtPos = this.ttEditor.state.selection.$from.marks();
+    if (this.pmView.state.selection.empty) {
+      const marksAtPos = this.pmView.state.selection.$from.marks();
 
       for (const mark of marksAtPos) {
-        if (mark.type.name === this.ttEditor.schema.mark("link").type.name) {
+        if (
+          mark.type.name === this.pmView.state.schema.mark("link").type.name
+        ) {
           this.keyboardHoveredHyperlinkMark = mark;
           this.keyboardHoveredHyperlinkMarkRange =
             getMarkRange(
-              this.ttEditor.state.selection.$from,
+              this.pmView.state.selection.$from,
               mark.type,
               mark.attrs
             ) || undefined;
@@ -251,12 +235,12 @@ class HyperlinkToolbarView<BSchema extends BlockSchema> {
       this.hyperlinkToolbarState = {
         show: true,
         referencePos: posToDOMRect(
-          this.ttEditor.view,
+          this.pmView,
           this.hyperlinkMarkRange!.from,
           this.hyperlinkMarkRange!.to
         ),
         url: this.hyperlinkMark!.attrs.href,
-        text: this.ttEditor.view.state.doc.textBetween(
+        text: this.pmView.state.doc.textBetween(
           this.hyperlinkMarkRange!.from,
           this.hyperlinkMarkRange!.to
         ),
@@ -280,10 +264,7 @@ class HyperlinkToolbarView<BSchema extends BlockSchema> {
   }
 
   destroy() {
-    this.ttEditor.view.dom.removeEventListener(
-      "mouseover",
-      this.mouseOverHandler
-    );
+    this.pmView.dom.removeEventListener("mouseover", this.mouseOverHandler);
     document.removeEventListener("scroll", this.scrollHandler);
     document.removeEventListener("click", this.clickHandler, true);
   }
@@ -292,34 +273,57 @@ class HyperlinkToolbarView<BSchema extends BlockSchema> {
 export const hyperlinkToolbarPluginKey = new PluginKey(
   "HyperlinkToolbarPlugin"
 );
-export const setupHyperlinkToolbar = <BSchema extends BlockSchema>(
-  editor: BlockNoteEditor<BSchema>,
-  tiptapEditor: Editor,
-  updateHyperlinkToolbar: (hyperlinkToolbarState: HyperlinkToolbarState) => void
-): {
-  plugin: Plugin;
-  callbacks: Omit<HyperlinkToolbarCallbacks, "destroy">;
-} => {
-  let hyperlinkToolbarView: HyperlinkToolbarView<BSchema>;
 
-  return {
-    plugin: new Plugin({
+export class HyperlinkToolbarProsemirrorPlugin<
+  BSchema extends BlockSchema
+> extends EventEmitter<any> {
+  private view: HyperlinkToolbarView<BSchema> | undefined;
+  public readonly plugin: Plugin;
+
+  constructor(editor: BlockNoteEditor<BSchema>) {
+    super();
+    this.plugin = new Plugin({
       key: hyperlinkToolbarPluginKey,
-      view: () => {
-        hyperlinkToolbarView = new HyperlinkToolbarView(
-          editor,
-          tiptapEditor,
-          updateHyperlinkToolbar
-        );
-        return hyperlinkToolbarView;
+      view: (editorView) => {
+        this.view = new HyperlinkToolbarView(editor, editorView, (state) => {
+          this.emit("update", state);
+        });
+        return this.view;
       },
-    }),
-    callbacks: {
-      editHyperlink: (url, text) =>
-        hyperlinkToolbarView.editHyperlink(url, text),
-      deleteHyperlink: () => hyperlinkToolbarView.deleteHyperlink(),
-      startHideTimer: () => hyperlinkToolbarView.startMenuUpdateTimer(),
-      stopHideTimer: () => hyperlinkToolbarView.stopMenuUpdateTimer(),
-    },
+    });
+  }
+
+  /**
+   * Edit the currently hovered hyperlink.
+   */
+  public editHyperlink = (url: string, text: string) => {
+    this.view!.editHyperlink(url, text);
   };
-};
+
+  /**
+   * Delete the currently hovered hyperlink.
+   */
+  public deleteHyperlink = () => {
+    this.view!.deleteHyperlink();
+  };
+
+  /**
+   * When hovering on/off hyperlinks using the mouse cursor, the hyperlink
+   * toolbar will open & close with a delay.
+   *
+   * This function starts the delay timer, and should be used for when the mouse cursor enters the hyperlink toolbar.
+   */
+  public startHideTimer = () => {
+    this.view!.startMenuUpdateTimer();
+  };
+
+  /**
+   * When hovering on/off hyperlinks using the mouse cursor, the hyperlink
+   * toolbar will open & close with a delay.
+   *
+   * This function stops the delay timer, and should be used for when the mouse cursor exits the hyperlink toolbar.
+   */
+  public stopHideTimer = () => {
+    this.view!.stopMenuUpdateTimer();
+  };
+}

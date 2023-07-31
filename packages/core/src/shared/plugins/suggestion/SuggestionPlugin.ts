@@ -3,18 +3,8 @@ import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
 import { BlockNoteEditor } from "../../../BlockNoteEditor";
 import { BlockSchema } from "../../../extensions/Blocks/api/blockTypes";
 import { findBlock } from "../../../extensions/Blocks/helpers/findBlock";
-import {
-  BaseUiElementCallbacks,
-  BaseUiElementState,
-} from "../../BaseUiElementTypes";
+import { BaseUiElementState } from "../../BaseUiElementTypes";
 import { SuggestionItem } from "./SuggestionItem";
-import { Editor } from "@tiptap/core";
-
-export type SuggestionsMenuCallbacks<T extends SuggestionItem> =
-  BaseUiElementCallbacks & {
-    // The function to execute when selecting a suggested item.
-    itemCallback: (item: T) => void;
-  };
 
 export type SuggestionsMenuState<T extends SuggestionItem> =
   BaseUiElementState & {
@@ -28,32 +18,18 @@ class SuggestionsMenuView<
   T extends SuggestionItem,
   BSchema extends BlockSchema
 > {
-  editor: BlockNoteEditor<BSchema>;
-  ttEditor: Editor;
-  pluginKey: PluginKey;
-
   private suggestionsMenuState?: SuggestionsMenuState<T>;
   public updateSuggestionsMenu: () => void;
 
   pluginState: SuggestionPluginState<T>;
-  itemCallback: (item: T) => void;
 
   constructor(
-    editor: BlockNoteEditor<BSchema>,
-    tiptapEditor: Editor,
-    pluginKey: PluginKey,
-    onSelectItem: (props: {
-      item: T;
-      editor: BlockNoteEditor<BSchema>;
-    }) => void = () => {},
+    private readonly editor: BlockNoteEditor<BSchema>,
+    private readonly pluginKey: PluginKey,
     updateSuggestionsMenu: (
       suggestionsMenuState: SuggestionsMenuState<T>
     ) => void = () => {}
   ) {
-    this.editor = editor;
-    this.ttEditor = tiptapEditor;
-
-    this.pluginKey = pluginKey;
     this.pluginState = getDefaultPluginState<T>();
 
     this.updateSuggestionsMenu = () => {
@@ -62,24 +38,6 @@ class SuggestionsMenuView<
       }
 
       updateSuggestionsMenu(this.suggestionsMenuState);
-    };
-
-    this.itemCallback = (item: T) => {
-      this.ttEditor
-        .chain()
-        .focus()
-        .deleteRange({
-          from:
-            this.pluginState.queryStartPos! -
-            this.pluginState.triggerCharacter!.length,
-          to: this.ttEditor.state.selection.from,
-        })
-        .run();
-
-      onSelectItem({
-        item: item,
-        editor: editor,
-      });
     };
 
     document.addEventListener("scroll", this.handleScroll);
@@ -190,7 +148,6 @@ export const setupSuggestionsMenu = <
   BSchema extends BlockSchema
 >(
   editor: BlockNoteEditor<BSchema>,
-  tiptapEditor: Editor,
   updateSuggestionsMenu: (
     suggestionsMenuState: SuggestionsMenuState<T>
   ) => void,
@@ -202,10 +159,7 @@ export const setupSuggestionsMenu = <
     item: T;
     editor: BlockNoteEditor<BSchema>;
   }) => void = () => {}
-): {
-  plugin: Plugin;
-  callbacks: Omit<SuggestionsMenuCallbacks<T>, "destroy">;
-} => {
+) => {
   // Assertions
   if (defaultTriggerCharacter.length !== 1) {
     throw new Error("'char' should be a single character");
@@ -224,12 +178,8 @@ export const setupSuggestionsMenu = <
       view: () => {
         suggestionsPluginView = new SuggestionsMenuView<T, BSchema>(
           editor,
-          tiptapEditor,
           pluginKey,
-          (props: { item: T; editor: BlockNoteEditor<BSchema> }) => {
-            deactivate(tiptapEditor.view);
-            onSelectItem(props);
-          },
+
           updateSuggestionsMenu
         );
         return suggestionsPluginView;
@@ -393,12 +343,12 @@ export const setupSuggestionsMenu = <
           // Selects an item and closes the menu.
           if (event.key === "Enter") {
             deactivate(view);
-            tiptapEditor
+            editor._tiptapEditor
               .chain()
               .focus()
               .deleteRange({
                 from: queryStartPos! - triggerCharacter!.length,
-                to: tiptapEditor.state.selection.from,
+                to: editor._tiptapEditor.state.selection.from,
               })
               .run();
 
@@ -467,24 +417,22 @@ export const setupSuggestionsMenu = <
         },
       },
     }),
-    callbacks: {
-      itemCallback: (item: T) => {
-        tiptapEditor
-          .chain()
-          .focus()
-          .deleteRange({
-            from:
-              suggestionsPluginView.pluginState.queryStartPos! -
-              suggestionsPluginView.pluginState.triggerCharacter!.length,
-            to: tiptapEditor.state.selection.from,
-          })
-          .run();
+    itemCallback: (item: T) => {
+      editor._tiptapEditor
+        .chain()
+        .focus()
+        .deleteRange({
+          from:
+            suggestionsPluginView.pluginState.queryStartPos! -
+            suggestionsPluginView.pluginState.triggerCharacter!.length,
+          to: editor._tiptapEditor.state.selection.from,
+        })
+        .run();
 
-        onSelectItem({
-          item: item,
-          editor: editor,
-        });
-      },
+      onSelectItem({
+        item: item,
+        editor: editor,
+      });
     },
   };
 };

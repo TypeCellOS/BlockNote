@@ -1,20 +1,19 @@
-import { FC, useEffect, useMemo, useRef, useState } from "react";
-import Tippy from "@tippyjs/react";
 import {
-  BaseUiElementCallbacks,
   BaseUiElementState,
   BlockNoteEditor,
   BlockSchema,
   DefaultBlockSchema,
-  HyperlinkToolbarCallbacks,
+  HyperlinkToolbarProsemirrorPlugin,
   HyperlinkToolbarState,
 } from "@blocknote/core";
+import Tippy from "@tippyjs/react";
+import { FC, useEffect, useMemo, useRef, useState } from "react";
 
 import { DefaultHyperlinkToolbar } from "./DefaultHyperlinkToolbar";
 
-export type HyperlinkToolbarProps = Omit<
-  HyperlinkToolbarCallbacks,
-  keyof BaseUiElementCallbacks
+export type HyperlinkToolbarProps = Pick<
+  HyperlinkToolbarProsemirrorPlugin<any>,
+  "editHyperlink" | "deleteHyperlink" | "startHideTimer" | "stopHideTimer"
 > &
   Omit<HyperlinkToolbarState, keyof BaseUiElementState>;
 
@@ -29,10 +28,10 @@ export const HyperlinkToolbarPositioner = <
   const [text, setText] = useState<string>();
 
   const referencePos = useRef<DOMRect>();
-  const callbacks = useRef<HyperlinkToolbarCallbacks>();
 
   useEffect(() => {
-    callbacks.current = props.editor.createHyperlinkToolbar(
+    return props.editor.hyperlinkToolbar.on(
+      "update",
       (hyperlinkToolbarState) => {
         setShow(hyperlinkToolbarState.show);
         setUrl(hyperlinkToolbarState.url);
@@ -41,8 +40,6 @@ export const HyperlinkToolbarPositioner = <
         referencePos.current = hyperlinkToolbarState.referencePos;
       }
     );
-
-    return callbacks.current.destroy;
   }, [props.editor]);
 
   const getReferenceClientRect = useMemo(
@@ -57,7 +54,7 @@ export const HyperlinkToolbarPositioner = <
   );
 
   const hyperlinkToolbarElement = useMemo(() => {
-    if (!url || !text || !callbacks.current) {
+    if (!url || !text) {
       return null;
     }
 
@@ -67,13 +64,13 @@ export const HyperlinkToolbarPositioner = <
       <HyperlinkToolbar
         url={url}
         text={text}
-        editHyperlink={callbacks.current.editHyperlink}
-        deleteHyperlink={callbacks.current.deleteHyperlink}
-        startHideTimer={callbacks.current.startHideTimer}
-        stopHideTimer={callbacks.current.stopHideTimer}
+        editHyperlink={props.editor.hyperlinkToolbar.editHyperlink}
+        deleteHyperlink={props.editor.hyperlinkToolbar.deleteHyperlink}
+        startHideTimer={props.editor.hyperlinkToolbar.startHideTimer}
+        stopHideTimer={props.editor.hyperlinkToolbar.stopHideTimer}
       />
     );
-  }, [props.hyperlinkToolbar, text, url]);
+  }, [props.hyperlinkToolbar, props.editor, text, url]);
 
   return (
     <Tippy

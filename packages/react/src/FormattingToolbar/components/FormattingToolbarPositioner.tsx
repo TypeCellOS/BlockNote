@@ -1,12 +1,11 @@
-import { FC, useEffect, useMemo, useRef, useState } from "react";
-import Tippy from "@tippyjs/react";
-import { sticky } from "tippy.js";
 import {
   BlockNoteEditor,
   BlockSchema,
   DefaultBlockSchema,
-  FormattingToolbarCallbacks,
 } from "@blocknote/core";
+import Tippy from "@tippyjs/react";
+import { FC, useEffect, useMemo, useRef, useState } from "react";
+import { sticky } from "tippy.js";
 
 import { DefaultFormattingToolbar } from "./DefaultFormattingToolbar";
 
@@ -15,6 +14,7 @@ export type FormattingToolbarProps<
 > = {
   editor: BlockNoteEditor<BSchema>;
 };
+
 export const FormattingToolbarPositioner = <
   BSchema extends BlockSchema = DefaultBlockSchema
 >(props: {
@@ -24,16 +24,13 @@ export const FormattingToolbarPositioner = <
   const [show, setShow] = useState<boolean>(false);
 
   const referencePos = useRef<DOMRect>();
-  const callbacks = useRef<FormattingToolbarCallbacks>();
 
   useEffect(() => {
-    callbacks.current = props.editor.createFormattingToolbar((state) => {
+    return props.editor.formattingToolbar.on("update", (state) => {
       setShow(state.show);
 
       referencePos.current = state.referencePos;
     });
-
-    return callbacks.current.destroy;
   }, [props.editor]);
 
   const getReferenceClientRect = useMemo(
@@ -63,7 +60,9 @@ export const FormattingToolbarPositioner = <
       animation={"fade"}
       placement={"top-start"}
       sticky={true}
-      plugins={[sticky]}
+      plugins={tippyPlugins}
     />
   );
 };
+
+const tippyPlugins = [sticky];

@@ -1,26 +1,21 @@
-import { FC, useEffect, useMemo, useRef, useState } from "react";
-import Tippy from "@tippyjs/react";
 import {
   BlockNoteEditor,
   BlockSchema,
-  BaseUiElementCallbacks,
-  SuggestionsMenuState,
-  BaseUiElementState,
-  SuggestionsMenuCallbacks,
   DefaultBlockSchema,
+  SlashMenuProsemirrorPlugin,
+  SuggestionsMenuState,
 } from "@blocknote/core";
+import Tippy from "@tippyjs/react";
+import { FC, useEffect, useMemo, useRef, useState } from "react";
 
 import { ReactSlashMenuItem } from "../ReactSlashMenuItem";
 import { DefaultSlashMenu } from "./DefaultSlashMenu";
 
 export type SlashMenuProps<BSchema extends BlockSchema = DefaultBlockSchema> =
-  Omit<
-    SuggestionsMenuCallbacks<ReactSlashMenuItem<BSchema>>,
-    keyof BaseUiElementCallbacks
-  > &
-    Omit<
+  Pick<SlashMenuProsemirrorPlugin<BSchema, any>, "itemCallback"> &
+    Pick<
       SuggestionsMenuState<ReactSlashMenuItem<BSchema>>,
-      keyof BaseUiElementState
+      "filteredItems" | "keyboardHoveredItemIndex"
     >;
 
 export const SlashMenuPositioner = <
@@ -36,21 +31,15 @@ export const SlashMenuPositioner = <
     useState<number>();
 
   const referencePos = useRef<DOMRect>();
-  const callbacks =
-    useRef<SuggestionsMenuCallbacks<ReactSlashMenuItem<BSchema>>>();
 
   useEffect(() => {
-    callbacks.current = props.editor.createSlashMenu((slashMenuState) => {
+    return props.editor.slashMenu.on("update", (slashMenuState) => {
       setShow(slashMenuState.show);
-      setFilteredItems(
-        slashMenuState.filteredItems as ReactSlashMenuItem<BSchema>[]
-      );
+      setFilteredItems(slashMenuState.filteredItems);
       setKeyboardHoveredItemIndex(slashMenuState.keyboardHoveredItemIndex);
 
       referencePos.current = slashMenuState.referencePos;
-    }) as SuggestionsMenuCallbacks<ReactSlashMenuItem<BSchema>>;
-
-    return callbacks.current!.destroy;
+    });
   }, [props.editor]);
 
   const getReferenceClientRect = useMemo(
@@ -65,11 +54,7 @@ export const SlashMenuPositioner = <
   );
 
   const slashMenuElement = useMemo(() => {
-    if (
-      !filteredItems ||
-      keyboardHoveredItemIndex === undefined ||
-      !callbacks.current
-    ) {
+    if (!filteredItems || keyboardHoveredItemIndex === undefined) {
       return null;
     }
 
@@ -77,12 +62,17 @@ export const SlashMenuPositioner = <
 
     return (
       <SlashMenu
-        filteredItems={filteredItems!}
-        itemCallback={(item) => callbacks.current!.itemCallback(item)}
-        keyboardHoveredItemIndex={keyboardHoveredItemIndex!}
+        filteredItems={filteredItems}
+        itemCallback={(item) => props.editor.slashMenu.itemCallback(item)}
+        keyboardHoveredItemIndex={keyboardHoveredItemIndex}
       />
     );
-  }, [filteredItems, keyboardHoveredItemIndex, props.slashMenu]);
+  }, [
+    filteredItems,
+    keyboardHoveredItemIndex,
+    props.editor.slashMenu,
+    props.slashMenu,
+  ]);
 
   return (
     <Tippy

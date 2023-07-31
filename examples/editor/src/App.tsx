@@ -2,11 +2,11 @@
 import "@blocknote/core/style.css";
 import {
   BlockNoteView,
-  useBlockNote,
   FormattingToolbarPositioner,
   HyperlinkToolbarPositioner,
-  SlashMenuPositioner,
   SideMenuPositioner,
+  SlashMenuPositioner,
+  useBlockNote,
 } from "@blocknote/react";
 import styles from "./App.module.css";
 

@@ -1,11 +1,8 @@
 import { BlockNoteEditor, BlockSchema } from "@blocknote/core";
 import { MantineProvider } from "@mantine/core";
 import { EditorContent } from "@tiptap/react";
-import { getBlockNoteTheme } from "./BlockNoteTheme";
 import { ReactNode, useEffect, useState } from "react";
-import { FormattingToolbarPositioner } from "./FormattingToolbar/components/FormattingToolbarPositioner";
-import { HyperlinkToolbarPositioner } from "./HyperlinkToolbar/components/HyperlinkToolbarPositioner";
-import { SlashMenuPositioner } from "./SlashMenu/components/SlashMenuPositioner";
+import { getBlockNoteTheme } from "./BlockNoteTheme";
 import { SideMenuPositioner } from "./SideMenu/components/SideMenuPositioner";
 
 export function BlockNoteView<BSchema extends BlockSchema>(props: {
@@ -40,9 +37,9 @@ export function BlockNoteView<BSchema extends BlockSchema>(props: {
         {ready &&
           (props.children || (
             <>
-              <FormattingToolbarPositioner editor={props.editor} />
+              {/* <FormattingToolbarPositioner editor={props.editor} />
               <HyperlinkToolbarPositioner editor={props.editor} />
-              <SlashMenuPositioner editor={props.editor} />
+              <SlashMenuPositioner editor={props.editor} /> */}
               <SideMenuPositioner editor={props.editor} />
             </>
           ))}
