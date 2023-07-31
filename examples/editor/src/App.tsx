@@ -27,35 +27,7 @@ function App() {
   // Give tests a way to get prosemirror instance
   (window as WindowWithProseMirror).ProseMirror = editor?._tiptapEditor;
 
-  // Use mock ID if tests are running.
-  if ((window as any).__TEST_OPTIONS === undefined) {
-    // (window as any).__TEST_OPTIONS = {};
-  }
-
-  return (
-    <BlockNoteView editor={editor}>
-      <FormattingToolbarPositioner
-        editor={editor}
-        // formattingToolbar={() => <div>Formatting Toolbar</div>}
-      />
-      <HyperlinkToolbarPositioner editor={editor} />
-      <SlashMenuPositioner editor={editor} />
-      <SideMenuPositioner editor={editor} />
-      {/*<SideMenuWrapper*/}
-      {/*  editor={editor}*/}
-      {/*  sideMenu={(props) => (*/}
-      {/*    <DefaultSideMenu*/}
-      {/*      {...props}*/}
-      {/*      dragHandleMenu={() => (*/}
-      {/*        <DragHandleMenu>*/}
-      {/*          <DragHandleMenuItem>Item</DragHandleMenuItem>*/}
-      {/*        </DragHandleMenu>*/}
-      {/*      )}*/}
-      {/*    />*/}
-      {/*  )}*/}
-      {/*/>*/}
-    </BlockNoteView>
-  );
+  return <BlockNoteView editor={editor} />;
 }
 
 export default App;
