@@ -1,9 +1,4 @@
-import {
-  Editor,
-  isNodeSelection,
-  isTextSelection,
-  posToDOMRect,
-} from "@tiptap/core";
+import { isNodeSelection, isTextSelection, posToDOMRect } from "@tiptap/core";
 import { EditorState, Plugin, PluginKey } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 import {
@@ -12,15 +7,13 @@ import {
   BlockNoteEditor,
   BlockSchema,
 } from "../..";
+import { EventEmitter } from "../../shared/EventEmitter";
 
 export type FormattingToolbarCallbacks = BaseUiElementCallbacks;
 
 export type FormattingToolbarState = BaseUiElementState;
 
 export class FormattingToolbarView<BSchema extends BlockSchema> {
-  public editor: BlockNoteEditor<BSchema>;
-  private ttEditor: Editor;
-
   private formattingToolbarState?: FormattingToolbarState;
   public updateFormattingToolbar: () => void;
 
@@ -47,15 +40,12 @@ export class FormattingToolbarView<BSchema extends BlockSchema> {
   };
 
   constructor(
-    editor: BlockNoteEditor<BSchema>,
-    tipTapEditor: Editor,
+    private readonly editor: BlockNoteEditor<BSchema>,
+    private readonly pmView: EditorView,
     updateFormattingToolbar: (
       formattingToolbarState: FormattingToolbarState
     ) => void
   ) {
-    this.editor = editor;
-    this.ttEditor = tipTapEditor;
-
     this.updateFormattingToolbar = () => {
       if (!this.formattingToolbarState) {
         throw new Error(
@@ -66,15 +56,12 @@ export class FormattingToolbarView<BSchema extends BlockSchema> {
       updateFormattingToolbar(this.formattingToolbarState);
     };
 
-    this.ttEditor.view.dom.addEventListener(
-      "mousedown",
-      this.viewMousedownHandler
-    );
-    this.ttEditor.view.dom.addEventListener("mouseup", this.viewMouseupHandler);
-    this.ttEditor.view.dom.addEventListener("dragstart", this.dragstartHandler);
+    pmView.dom.addEventListener("mousedown", this.viewMousedownHandler);
+    pmView.dom.addEventListener("mouseup", this.viewMouseupHandler);
+    pmView.dom.addEventListener("dragstart", this.dragstartHandler);
 
-    this.ttEditor.on("focus", this.focusHandler);
-    this.ttEditor.on("blur", this.blurHandler);
+    pmView.dom.addEventListener("focus", this.focusHandler);
+    pmView.dom.addEventListener("blur", this.blurHandler);
 
     document.addEventListener("scroll", this.scrollHandler);
   }
@@ -85,7 +72,7 @@ export class FormattingToolbarView<BSchema extends BlockSchema> {
 
   viewMouseupHandler = () => {
     this.preventShow = false;
-    setTimeout(() => this.update(this.ttEditor.view));
+    setTimeout(() => this.update(this.pmView));
   };
 
   // For dragging the whole editor.
@@ -98,17 +85,17 @@ export class FormattingToolbarView<BSchema extends BlockSchema> {
 
   focusHandler = () => {
     // we use `setTimeout` to make sure `selection` is already updated
-    setTimeout(() => this.update(this.ttEditor.view));
+    setTimeout(() => this.update(this.pmView));
   };
 
-  blurHandler = ({ event }: { event: FocusEvent }) => {
+  blurHandler = (event: FocusEvent) => {
     if (this.preventHide) {
       this.preventHide = false;
 
       return;
     }
 
-    const editorWrapper = this.ttEditor.view.dom.parentElement!;
+    const editorWrapper = this.pmView.dom.parentElement!;
 
     // Checks if the focus is moving to an element outside the editor. If it is,
     // the toolbar is hidden.
@@ -194,27 +181,18 @@ export class FormattingToolbarView<BSchema extends BlockSchema> {
   }
 
   destroy() {
-    this.ttEditor.view.dom.removeEventListener(
-      "mousedown",
-      this.viewMousedownHandler
-    );
-    this.ttEditor.view.dom.removeEventListener(
-      "mouseup",
-      this.viewMouseupHandler
-    );
-    this.ttEditor.view.dom.removeEventListener(
-      "dragstart",
-      this.dragstartHandler
-    );
+    this.pmView.dom.removeEventListener("mousedown", this.viewMousedownHandler);
+    this.pmView.dom.removeEventListener("mouseup", this.viewMouseupHandler);
+    this.pmView.dom.removeEventListener("dragstart", this.dragstartHandler);
 
-    this.ttEditor.off("focus", this.focusHandler);
-    this.ttEditor.off("blur", this.blurHandler);
+    this.pmView.dom.removeEventListener("focus", this.focusHandler);
+    this.pmView.dom.removeEventListener("blur", this.blurHandler);
 
     document.removeEventListener("scroll", this.scrollHandler);
   }
 
   getSelectionBoundingBox() {
-    const { state } = this.ttEditor.view;
+    const { state } = this.pmView;
     const { selection } = state;
 
     // support for CellSelections
@@ -223,44 +201,41 @@ export class FormattingToolbarView<BSchema extends BlockSchema> {
     const to = Math.max(...ranges.map((range) => range.$to.pos));
 
     if (isNodeSelection(selection)) {
-      const node = this.ttEditor.view.nodeDOM(from) as HTMLElement;
+      const node = this.pmView.nodeDOM(from) as HTMLElement;
 
       if (node) {
         return node.getBoundingClientRect();
       }
     }
 
-    return posToDOMRect(this.ttEditor.view, from, to);
+    return posToDOMRect(this.pmView, from, to);
   }
 }
 
 export const formattingToolbarPluginKey = new PluginKey(
   "FormattingToolbarPlugin"
 );
-export const setupFormattingToolbar = <BSchema extends BlockSchema>(
-  editor: BlockNoteEditor<BSchema>,
-  tiptapEditor: Editor,
-  updateFormattingToolbar: (
-    formattingToolbarState: FormattingToolbarState
-  ) => void
-): {
-  plugin: Plugin;
-  callbacks: Omit<FormattingToolbarCallbacks, "destroy">;
-} => {
-  let formattingToolbarView: FormattingToolbarView<BSchema>;
 
-  return {
-    plugin: new Plugin({
+export class FormattingToolbarProsemirrorPlugin<
+  BSchema extends BlockSchema
+> extends EventEmitter<any> {
+  private view: FormattingToolbarView<BSchema> | undefined;
+  public readonly plugin: Plugin;
+
+  constructor(editor: BlockNoteEditor<BSchema>) {
+    super();
+    this.plugin = new Plugin({
       key: formattingToolbarPluginKey,
-      view: () => {
-        formattingToolbarView = new FormattingToolbarView(
-          editor,
-          tiptapEditor,
-          updateFormattingToolbar
-        );
-        return formattingToolbarView;
+      view: (editorView) => {
+        this.view = new FormattingToolbarView(editor, editorView, (state) => {
+          this.emit("update", state);
+        });
+        return this.view;
       },
-    }),
-    callbacks: {},
-  };
-};
+    });
+  }
+
+  public onUpdate(callback: (state: FormattingToolbarState) => void) {
+    return this.on("update", callback);
+  }
+}

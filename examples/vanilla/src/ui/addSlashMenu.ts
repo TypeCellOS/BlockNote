@@ -28,7 +28,7 @@ export const addSlashMenu = (editor: BlockNoteEditor) => {
     return domItems;
   }
 
-  const callbacks = editor.createSlashMenu((slashMenuState) => {
+  editor.slashMenu.onUpdate((slashMenuState) => {
     if (!element) {
       element = document.createElement("div");
       element.style.background = "gray";
@@ -43,7 +43,7 @@ export const addSlashMenu = (editor: BlockNoteEditor) => {
     if (slashMenuState.show) {
       updateItems(
         slashMenuState.filteredItems,
-        callbacks.itemCallback,
+        editor.slashMenu.itemCallback,
         slashMenuState.keyboardHoveredItemIndex
       );
 

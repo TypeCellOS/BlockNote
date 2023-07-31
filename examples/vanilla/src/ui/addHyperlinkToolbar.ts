@@ -4,7 +4,7 @@ import { createButton } from "./util";
 export const addHyperlinkToolbar = (editor: BlockNoteEditor) => {
   let element: HTMLElement;
 
-  const callbacks = editor.createHyperlinkToolbar((hyperlinkToolbarState) => {
+  editor.hyperlinkToolbar.onUpdate((hyperlinkToolbarState) => {
     if (!element) {
       element = document.createElement("div");
       element.style.background = "gray";
@@ -17,13 +17,13 @@ export const addHyperlinkToolbar = (editor: BlockNoteEditor) => {
 
       const editBtn = createButton("edit", () => {
         const newUrl = prompt("new url") || url;
-        callbacks.editHyperlink(newUrl, text);
+        editor.hyperlinkToolbar.editHyperlink(newUrl, text);
       });
 
       element.appendChild(editBtn);
 
       const removeBtn = createButton("remove", () => {
-        callbacks.deleteHyperlink();
+        editor.hyperlinkToolbar.deleteHyperlink();
       });
 
       element.appendChild(editBtn);

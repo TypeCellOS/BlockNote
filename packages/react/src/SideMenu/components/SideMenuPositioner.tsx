@@ -1,33 +1,27 @@
-import { FC, useEffect, useMemo, useRef, useState } from "react";
-import Tippy from "@tippyjs/react";
 import {
-  BaseUiElementCallbacks,
-  BaseUiElementState,
   Block,
   BlockNoteEditor,
   BlockSchema,
   DefaultBlockSchema,
-  SideMenuCallbacks,
-  SideMenuState,
+  SideMenuProsemirrorPlugin,
 } from "@blocknote/core";
+import Tippy from "@tippyjs/react";
+import { FC, useEffect, useMemo, useRef, useState } from "react";
 
 import { DefaultSideMenu } from "./DefaultSideMenu";
 
 export type SideMenuProps<BSchema extends BlockSchema = DefaultBlockSchema> =
-  Omit<SideMenuCallbacks, keyof BaseUiElementCallbacks> &
-    Omit<SideMenuState<BSchema>, keyof BaseUiElementState> & {
-      editor: BlockNoteEditor<BSchema>;
-    };
-
-// export type a<BSchema extends BlockSchema> = {
-//   callbacks: SideMenuCallbacks;
-//   state: SideMenuState<BSchema>;
-// };
-//
-// export type b<BSchema extends BlockSchema> = {
-//   callbacks: Omit<SideMenuCallbacks, keyof BaseUiElementCallbacks>;
-//   state: SideMenuState<BSchema>;
-// };
+  Pick<
+    SideMenuProsemirrorPlugin<BSchema>,
+    | "blockDragStart"
+    | "blockDragEnd"
+    | "addBlock"
+    | "freezeMenu"
+    | "unfreezeMenu"
+  > & {
+    block: Block<BSchema>;
+    editor: BlockNoteEditor<BSchema>;
+  };
 
 export const SideMenuPositioner = <
   BSchema extends BlockSchema = DefaultBlockSchema
@@ -39,17 +33,13 @@ export const SideMenuPositioner = <
   const [block, setBlock] = useState<Block<BSchema>>();
 
   const referencePos = useRef<DOMRect>();
-  const callbacks = useRef<SideMenuCallbacks>();
 
   useEffect(() => {
-    callbacks.current = props.editor.createSideMenu((sideMenuState) => {
+    return props.editor.sideMenu.onUpdate((sideMenuState) => {
       setShow(sideMenuState.show);
       setBlock(sideMenuState.block);
-
       referencePos.current = sideMenuState.referencePos;
     });
-
-    return callbacks.current!.destroy;
   }, [props.editor]);
 
   const getReferenceClientRect = useMemo(
@@ -64,7 +54,7 @@ export const SideMenuPositioner = <
   );
 
   const sideMenuElement = useMemo(() => {
-    if (!block || !callbacks.current) {
+    if (!block) {
       return null;
     }
 
@@ -74,11 +64,11 @@ export const SideMenuPositioner = <
       <SideMenu
         block={block}
         editor={props.editor}
-        blockDragStart={callbacks.current.blockDragStart}
-        blockDragEnd={callbacks.current.blockDragEnd}
-        addBlock={callbacks.current.addBlock}
-        freezeMenu={callbacks.current.freezeMenu}
-        unfreezeMenu={callbacks.current.unfreezeMenu}
+        blockDragStart={props.editor.sideMenu.blockDragStart}
+        blockDragEnd={props.editor.sideMenu.blockDragEnd}
+        addBlock={props.editor.sideMenu.addBlock}
+        freezeMenu={props.editor.sideMenu.freezeMenu}
+        unfreezeMenu={props.editor.sideMenu.unfreezeMenu}
       />
     );
   }, [block, props.editor, props.sideMenu]);
