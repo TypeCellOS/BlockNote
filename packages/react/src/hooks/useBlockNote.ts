@@ -12,7 +12,7 @@ const initEditor = <BSchema extends BlockSchema>(
   options: Partial<BlockNoteEditorOptions<BSchema>>
 ) =>
   new BlockNoteEditor<BSchema>({
-    slashCommands: getDefaultReactSlashMenuItems<BSchema | DefaultBlockSchema>(
+    slashMenuItems: getDefaultReactSlashMenuItems<BSchema | DefaultBlockSchema>(
       options.blockSchema || defaultBlockSchema
     ),
     ...options,

@@ -44,7 +44,7 @@ export default function Editor() {
       "data-test": "editor",
     },
     blockSchema: blockSchema,
-    slashCommands: [...defaultReactSlashMenuItems, ...slashCommands],
+    slashMenuItems: [...defaultReactSlashMenuItems, ...slashCommands],
   });
 
   console.log(editor);

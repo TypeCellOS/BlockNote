@@ -25,7 +25,9 @@ You can also click the drag handle in the Block Side Menu (`⠿`) to open the Dr
 
 ## Custom Drag Handle Menu
 
-BlockNote lets you customize which items appear in the Drag Handle Menu. Have a look at the example below, in which the color picker item is replaced with a custom item that opens an alert.
+If you want to change the items in the Drag Handle Menu, or replace it altogether, you can do that using a React component.
+
+You can see how this is done in the example below, which has a custom Drag Handle Menu with two items. The first one deletes the selected block, while the second opens an alert.
 
 ::: sandbox {template=react-ts}
 
@@ -33,10 +35,14 @@ BlockNote lets you customize which items appear in the Drag Handle Menu. Have a 
 import { Block, BlockNoteEditor } from "@blocknote/core";
 import {
   BlockNoteView,
-  createReactBlockSideMenuFactory,
+  DefaultSideMenu,
   DragHandleMenu,
   DragHandleMenuItem,
+  FormattingToolbarPositioner,
+  HyperlinkToolbarPositioner,
   RemoveBlockButton,
+  SideMenuPositioner,
+  SlashMenuPositioner,
   useBlockNote,
 } from "@blocknote/react";
 import "@blocknote/core/style.css";
@@ -44,21 +50,13 @@ import "@blocknote/core/style.css";
 const CustomDragHandleMenu = (props: {
   editor: BlockNoteEditor;
   block: Block;
-  closeMenu: () => void;
 }) => {
   return (
     <DragHandleMenu>
-      {/*Default button to remove the block.*/}
-      <RemoveBlockButton {...props}>
-        Delete
-      </RemoveBlockButton>
+      {/*Default item to remove the block.*/}
+      <RemoveBlockButton {...props}>Delete</RemoveBlockButton>
       {/*Custom item which opens an alert when clicked.*/}
-      <DragHandleMenuItem
-        closeMenu={props.closeMenu}
-        onClick={() => {
-          window.alert("Button Pressed!");
-          props.closeMenu();
-        }}>
+      <DragHandleMenuItem onClick={() => window.alert("Button Pressed!")}>
         Open Alert
       </DragHandleMenuItem>
     </DragHandleMenu>
@@ -69,13 +67,22 @@ export default function App() {
   // Creates a new editor instance.
   const editor: BlockNoteEditor = useBlockNote({
     theme: "{{ getTheme(isDark) }}",
-    customElements: {
-      // Makes the editor instance use the custom menu.
-      dragHandleMenu: CustomDragHandleMenu
-    },
   });
+
   // Renders the editor instance.
-  return <BlockNoteView editor = {editor}/>;
+  return (
+    <BlockNoteView editor={editor}>
+      <FormattingToolbarPositioner editor={editor} />
+      <HyperlinkToolbarPositioner editor={editor} />
+      <SlashMenuPositioner editor={editor} />
+      <SideMenuPositioner
+        editor={editor}
+        sideMenu={(props) => (
+          <DefaultSideMenu {...props} dragHandleMenu={CustomDragHandleMenu} />
+        )}
+      />
+    </BlockNoteView>
+  );
 }
 ```
 
@@ -85,67 +92,23 @@ export default function App() {
 
 :::
 
-Let's look at how this is done. We first need to create a custom Drag Handle Menu using a React component. This component should take the following props:
+`CustomDragHandleMenu` is the component we use to replace the default Drag Handle Menu. You can see it's made up of a bunch of other components that are exported by BlockNote. Read on to [Components](/docs/side-menu#components) to find out more about these.
+
+After creating `CustomDragHandleMenu`, we tell BlockNote to use it inside `BlockNoteView`. [Changing UI Elements](/docs/ui-elements) has more information about how this is done.
+
+## Components
+
+It might seem daunting to create your own Formatting Toolbar from scratch, which is why BlockNote provides React components that you can use which match the default styling.
+
+### Default Components
+
+BlockNote exports all components used to create the default layout - both the menu itself and the items in it. Head to the [default Drag Handle Menu's source code](https://github.com/TypeCellOS/BlockNote/blob/main/packages/react/src/SideMenu/components/DragHandleMenu/DefaultDragHandleMenu.tsx) to see all the components that you can use.
+
+### Custom Components
+
+BlockNote also provides components that you can use to make your own menu items, which also match the default styling:
 
 ```typescript
-type CustomDragHandleMenuProps = {
-  editor: BlockNoteEditor;
-  block: Block;
-  closeMenu: () => void;
-};
-const CustomDragHandleMenu = (props: CustomDragHandleMenuProps): JSX.Element => ...;
-```
-
-You can then tell BlockNote to use your custom Drag Handle Menu using
-the `customElements` option in `useBlockNote`:
-
-```typescript
-const editor = useBlockNote({
-  customElements: {
-    blockSideMenuFactory: CustomBlockSideMenu
-  },
-});
-```
-
-## Default Items
-
-It might seem daunting to create your own Drag Handle Menu from scratch, which is why BlockNote provides React components for everything you see in the default layout - both the menu itself and the items in it. Below are all the default components you can use to build your custom menu:
-
-```typescript
-// Menu which wraps all the items.
-type BlockSideMenuProps = {
-  children: ReactNode
-}
-const BlockSideMenu = (props: BlockSideMenuProps) => ...;
-
-// Button which removes the block.
-type RemoveBlockButtonProps = {
-  editor: BlockNoteEditor;
-  block: Block;
-  closeMenu: () => void;
-  children: ReactNode;
-};
-const RemoveBlockButton = (props: RemoveBlockButtonProps) => ...;
-
-// Button which opens a dropdown on hover. The dropdown lets you set the block's color.
-type BlockColorsButtonProps = {
-  editor: BlockNoteEditor;
-  block: Block;
-  closeMenu: () => void;
-  children: ReactNode;
-};
-const BlockColorsButton = (props: BlockColorsButtonProps) => ...;
-```
-
-## Custom Items
-
-BlockNote also provides components that you can use to make your own menu items, which match BlockNote's UI styling:
-
-```typescript
-// Also includes all props of button elements, e.g. onClick.
-type DragHandleMenuItemProps = {
-  // Closes the menu when called.
-  closeMenu: () => void;
-};
-export const DragHandleMenuItem = (props: DragHandleMenuItemProps) => ...;
+// Takes same props as `button` elements, e.g. onClick.
+export const DragHandleMenuItem = (props) => ...;
 ```

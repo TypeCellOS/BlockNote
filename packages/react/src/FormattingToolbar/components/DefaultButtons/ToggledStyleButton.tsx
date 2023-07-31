@@ -11,6 +11,7 @@ import { BlockNoteEditor, BlockSchema, ToggledStyle } from "@blocknote/core";
 import { IconType } from "react-icons";
 import { useState } from "react";
 import { useEditorContentChange } from "../../../hooks/useEditorContentChange";
+import { useEditorSelectionChange } from "../../../hooks/useEditorSelectionChange";
 
 const shortcuts: Record<ToggledStyle, string> = {
   bold: "Mod+B",
@@ -37,6 +38,10 @@ export const ToggledStyleButton = <BSchema extends BlockSchema>(props: {
   );
 
   useEditorContentChange(props.editor, () => {
+    setActive(props.toggledStyle in props.editor.getActiveStyles());
+  });
+
+  useEditorSelectionChange(props.editor, () => {
     setActive(props.toggledStyle in props.editor.getActiveStyles());
   });
 

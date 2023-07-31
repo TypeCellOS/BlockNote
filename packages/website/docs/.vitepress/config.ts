@@ -28,9 +28,10 @@ const SIDEBAR_DEFAULT = [
     collapsed: false,
     items: [
       { text: "Customizing the Editor", link: "/docs/editor" },
-      { text: "Slash Menu", link: "/docs/slash-menu" },
       { text: "Formatting Toolbar", link: "/docs/formatting-toolbar" },
+      { text: "Slash Menu", link: "/docs/slash-menu" },
       { text: "Side Menu", link: "/docs/side-menu" },
+      { text: "Changing UI Elements", link: "/docs/ui-elements" },
     ],
   },
   {

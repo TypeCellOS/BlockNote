@@ -55,7 +55,7 @@ export type BlockNoteEditorOptions<BSchema extends BlockSchema> = {
    *
    * @default defaultSlashMenuItems from `./extensions/SlashMenu`
    */
-  slashCommands: BaseSlashMenuItem<any>[];
+  slashMenuItems: BaseSlashMenuItem<any>[];
 
   /**
    * The HTML element that should be used as the parent element for the editor.
@@ -175,7 +175,7 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
     this.formattingToolbar = new FormattingToolbarProsemirrorPlugin(this);
     this.slashMenu = new SlashMenuProsemirrorPlugin(
       this,
-      newOptions.slashCommands ||
+      newOptions.slashMenuItems ||
         getDefaultSlashMenuItems(newOptions.blockSchema)
     );
     this.hyperlinkToolbar = new HyperlinkToolbarProsemirrorPlugin(this);
