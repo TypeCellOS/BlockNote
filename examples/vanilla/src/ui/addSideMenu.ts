@@ -4,7 +4,7 @@ import { createButton } from "./util";
 export const addSideMenu = (editor: BlockNoteEditor) => {
   let element: HTMLElement;
 
-  const callbacks = editor.createSideMenu((sideMenuState) => {
+  editor.sideMenu.on("update", (sideMenuState) => {
     if (!element) {
       element = document.createElement("div");
       element.style.background = "gray";
@@ -12,7 +12,7 @@ export const addSideMenu = (editor: BlockNoteEditor) => {
       element.style.padding = "10px";
       element.style.opacity = "0.8";
       const addBtn = createButton("+", () => {
-        callbacks.addBlock();
+        editor.sideMenu.addBlock();
       });
       element.appendChild(addBtn);
 
@@ -20,8 +20,8 @@ export const addSideMenu = (editor: BlockNoteEditor) => {
         // TODO: render a submenu with a delete option that calls "props.deleteBlock"
       });
 
-      dragBtn.addEventListener("dragstart", callbacks.blockDragStart);
-      dragBtn.addEventListener("dragend", callbacks.blockDragEnd);
+      dragBtn.addEventListener("dragstart", editor.sideMenu.blockDragStart);
+      dragBtn.addEventListener("dragend", editor.sideMenu.blockDragEnd);
       dragBtn.draggable = true;
       element.style.display = "none";
       element.appendChild(dragBtn);
