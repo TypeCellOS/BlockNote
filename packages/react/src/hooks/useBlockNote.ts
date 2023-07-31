@@ -15,8 +15,6 @@ export const useBlockNote = <BSchema extends BlockSchema = DefaultBlockSchema>(
   options: Partial<BlockNoteEditorOptions<BSchema>> = {},
   _deps: DependencyList = []
 ) => {
-  console.log("create new blocknote instance");
-
   return new BlockNoteEditor<BSchema>({
     slashCommands: getDefaultReactSlashMenuItems<BSchema | DefaultBlockSchema>(
       options.blockSchema || defaultBlockSchema

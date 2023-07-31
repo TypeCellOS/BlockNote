@@ -176,7 +176,10 @@ function unsetDragImage() {
   }
 }
 
-function dragStart(e: DragEvent, view: EditorView) {
+function dragStart(
+  e: { dataTransfer: DataTransfer | null; clientY: number },
+  view: EditorView
+) {
   if (!e.dataTransfer) {
     return;
   }
@@ -262,9 +265,7 @@ export class SideMenuView<BSchema extends BlockSchema> implements PluginView {
     // Makes menu scroll with the page.
     document.addEventListener("scroll", this.onScroll);
 
-    // Hides and unfreezes the menu whenever the user selects the editor with the mouse or presses a key.
-    // TODO: Better integration with suggestions menu and only editor scope?
-    // document.body.addEventListener("mousedown", this.onMouseDown, true);
+    // Hides and unfreezes the menu whenever the user presses a key.
     document.body.addEventListener("keydown", this.onKeyDown, true);
   }
 
@@ -477,7 +478,6 @@ export class SideMenuView<BSchema extends BlockSchema> implements PluginView {
     document.body.removeEventListener("dragover", this.onDragOver);
     this.pmView.dom.removeEventListener("dragstart", this.onDragStart);
     document.body.removeEventListener("drop", this.onDrop, true);
-    // document.body.removeEventListener("mousedown", this.onMouseDown, true);
     document.removeEventListener("scroll", this.onScroll);
     document.body.removeEventListener("keydown", this.onKeyDown, true);
   }
@@ -576,7 +576,10 @@ export class SideMenuProsemirrorPlugin<
   /**
    * Handles drag & drop events for blocks.
    */
-  blockDragStart = (event: DragEvent) => {
+  blockDragStart = (event: {
+    dataTransfer: DataTransfer | null;
+    clientY: number;
+  }) => {
     this.sideMenuView!.isDragging = true;
     dragStart(event, this.editor.prosemirrorView);
   };

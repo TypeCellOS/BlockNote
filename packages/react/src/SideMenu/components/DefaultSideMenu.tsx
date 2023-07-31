@@ -1,4 +1,4 @@
-import { FC, useEffect, useRef } from "react";
+import { FC } from "react";
 import { ActionIcon, Group, Menu } from "@mantine/core";
 import { AiOutlinePlus } from "react-icons/ai";
 import { MdDragIndicator } from "react-icons/md";
@@ -13,24 +13,6 @@ export const DefaultSideMenu = <BSchema extends BlockSchema>(
     dragHandleMenu?: FC<DragHandleMenuProps<BSchema>>;
   }
 ) => {
-  const dragHandleRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const dragHandle = dragHandleRef.current;
-
-    if (dragHandle instanceof HTMLDivElement) {
-      dragHandle.addEventListener("dragstart", props.blockDragStart);
-      dragHandle.addEventListener("dragend", props.blockDragEnd);
-
-      return () => {
-        dragHandle.removeEventListener("dragstart", props.blockDragStart);
-        dragHandle.removeEventListener("dragend", props.blockDragEnd);
-      };
-    }
-
-    return;
-  }, [props.blockDragEnd, props.blockDragStart]);
-
   const DragHandleMenu = props.dragHandleMenu || DefaultDragHandleMenu;
 
   return (
@@ -45,7 +27,10 @@ export const DefaultSideMenu = <BSchema extends BlockSchema>(
         width={100}
         position={"left"}>
         <Menu.Target>
-          <div draggable="true" ref={dragHandleRef}>
+          <div
+            draggable="true"
+            onDragStart={props.blockDragStart}
+            onDragEnd={props.blockDragEnd}>
             <ActionIcon size={24} data-test={"dragHandle"}>
               {<MdDragIndicator size={24} />}
             </ActionIcon>

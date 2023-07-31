@@ -33,8 +33,6 @@ export const DefaultHyperlinkToolbar = (props: HyperlinkToolbarProps) => {
 
   return (
     <Toolbar
-      // TODO: This should go back in the plugin.
-      onMouseDown={(event) => event.preventDefault()}
       onMouseEnter={props.stopHideTimer}
       onMouseLeave={props.startHideTimer}>
       <ToolbarButton
