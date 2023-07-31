@@ -1,8 +1,11 @@
 import { Plugin, PluginKey } from "prosemirror-state";
-import { SuggestionsMenuState } from "../../../types/src";
+
 import { BlockNoteEditor } from "../../BlockNoteEditor";
 import { EventEmitter } from "../../shared/EventEmitter";
-import { setupSuggestionsMenu } from "../../shared/plugins/suggestion/SuggestionPlugin";
+import {
+  SuggestionsMenuState,
+  setupSuggestionsMenu,
+} from "../../shared/plugins/suggestion/SuggestionPlugin";
 import { BlockSchema } from "../Blocks/api/blockTypes";
 import { BaseSlashMenuItem } from "./BaseSlashMenuItem";
 
