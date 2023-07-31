@@ -262,15 +262,6 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
     this._tiptapEditor = new Editor(tiptapOptions) as Editor & {
       contentComponent: any;
     };
-
-    // These need to be assigned after the TipTap editor is created as they are
-    // initialized in a plugin, which is only loaded on editor creation.
-    // this.uiElementCallbacks = {
-    //   formattingToolbar: formattingToolbarCallbacks!,
-    //   hyperlinkToolbar: hyperlinkToolbarCallbacks!,
-    //   slashMenu: slashMenuCallbacks!,
-    //   sideMenu: sideMenuCallbacks!,
-    // };
   }
 
   public get prosemirrorView() {
