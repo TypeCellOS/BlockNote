@@ -5,7 +5,7 @@ export const addFormattingToolbar = (editor: BlockNoteEditor) => {
   let element: HTMLElement;
   let boldBtn: HTMLAnchorElement;
 
-  editor.createFormattingToolbar((formattingToolbarState) => {
+  editor.formattingToolbar.on("update", (formattingToolbarState) => {
     if (!element) {
       element = document.createElement("div");
       element.style.background = "gray";
