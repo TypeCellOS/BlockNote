@@ -35,7 +35,7 @@ export const SideMenuPositioner = <
   const referencePos = useRef<DOMRect>();
 
   useEffect(() => {
-    return props.editor.sideMenu.on("update", (sideMenuState) => {
+    return props.editor.sideMenu.onUpdate((sideMenuState) => {
       setShow(sideMenuState.show);
       setBlock(sideMenuState.block);
       referencePos.current = sideMenuState.referencePos;

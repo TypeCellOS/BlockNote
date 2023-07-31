@@ -293,6 +293,10 @@ export class HyperlinkToolbarProsemirrorPlugin<
     });
   }
 
+  public onUpdate(callback: (state: HyperlinkToolbarState) => void) {
+    return this.on("update", callback);
+  }
+
   /**
    * Edit the currently hovered hyperlink.
    */

@@ -33,7 +33,7 @@ export const SlashMenuPositioner = <
   const referencePos = useRef<DOMRect>();
 
   useEffect(() => {
-    return props.editor.slashMenu.on("update", (slashMenuState) => {
+    return props.editor.slashMenu.onUpdate((slashMenuState) => {
       setShow(slashMenuState.show);
       setFilteredItems(slashMenuState.filteredItems);
       setKeyboardHoveredItemIndex(slashMenuState.keyboardHoveredItemIndex);

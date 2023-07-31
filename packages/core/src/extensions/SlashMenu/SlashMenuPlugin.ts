@@ -1,4 +1,5 @@
 import { Plugin, PluginKey } from "prosemirror-state";
+import { SuggestionsMenuState } from "../../../types/src";
 import { BlockNoteEditor } from "../../BlockNoteEditor";
 import { EventEmitter } from "../../shared/EventEmitter";
 import { setupSuggestionsMenu } from "../../shared/plugins/suggestion/SuggestionPlugin";
@@ -37,5 +38,11 @@ export class SlashMenuProsemirrorPlugin<
 
     this.plugin = suggestions.plugin;
     this.itemCallback = suggestions.itemCallback;
+  }
+
+  public onUpdate(
+    callback: (state: SuggestionsMenuState<SlashMenuItem>) => void
+  ) {
+    return this.on("update", callback);
   }
 }

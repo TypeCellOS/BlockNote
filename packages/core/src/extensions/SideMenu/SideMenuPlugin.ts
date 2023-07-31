@@ -563,6 +563,10 @@ export class SideMenuProsemirrorPlugin<
     });
   }
 
+  public onUpdate(callback: (state: SideMenuState<BSchema>) => void) {
+    return this.on("update", callback);
+  }
+
   /**
    * If the block is empty, opens the slash menu. If the block has content,
    * creates a new block below and opens the slash menu in it.

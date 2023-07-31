@@ -26,7 +26,7 @@ export const FormattingToolbarPositioner = <
   const referencePos = useRef<DOMRect>();
 
   useEffect(() => {
-    return props.editor.formattingToolbar.on("update", (state) => {
+    return props.editor.formattingToolbar.onUpdate((state) => {
       setShow(state.show);
 
       referencePos.current = state.referencePos;

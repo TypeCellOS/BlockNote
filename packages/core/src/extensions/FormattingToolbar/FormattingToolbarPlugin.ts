@@ -234,4 +234,8 @@ export class FormattingToolbarProsemirrorPlugin<
       },
     });
   }
+
+  public onUpdate(callback: (state: FormattingToolbarState) => void) {
+    return this.on("update", callback);
+  }
 }
