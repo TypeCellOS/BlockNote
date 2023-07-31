@@ -24,22 +24,32 @@ Along with the editor itself, BlockNote includes a few additional UI elements in
 
 By default, these are all included in the editor, but you can remove or replace each of them with your own React components.
 
-## Positioner Components
+## Default Setup
 
-Each of the UI elements not only have to show and hide, but also show in the correct positions. This is handled using `Positioner` components. Each UI element has its own `Positioner` component, e.g. the Formatting Toolbar:
+In many of the examples, you'll see we render `BlockNoteView` like so:
 
 ```jsx
-export const FormattingToolbarPositioner = (props: {
-    editor: BlockNoteEditor<BSchema>;
-    formattingToolbar?: FC<FormattingToolbarProps<BSchema>>;
-}): JSX.Element => {
-    ...
-}
+<BlockNoteView editor={} />
 ```
+
+But this is actually shorthand for the following:
+
+```jsx
+<BlockNoteView editor={editor}>
+  <FormattingToolbarPositioner editor={editor} />
+  <HyperlinkToolbarPositioner editor={editor} />
+  <SlashMenuPositioner editor={editor} />
+  <SideMenuPositioner editor={editor} />
+</BlockNoteView>
+```
+
+As you can see, `BlockNoteView` by default renders out four children - one for each UI element. Each child is a `Positioner` component, which controls where and when the UI element is shown.
+
+Explicitly adding `Positioner` components as children of `BlockNoteView` allows you to customize which UI elements to show, and what to show inside them, as you'll see in the upcoming subsections.
 
 ## Removing UI Elements
 
-In the following example, we remove the Side Menu from the editor. This is done by adding `Positioner` components for each UI element except the Side Menu:
+In the following example, we remove the Side Menu from the editor. This is done by adding all `Positioner` components as children of `BlockNoteView`, for each UI element except the Side Menu:
 
 ::: sandbox {template=react-ts}
 

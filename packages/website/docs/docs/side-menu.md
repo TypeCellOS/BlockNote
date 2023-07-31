@@ -19,7 +19,7 @@ The Block Side Menu appears whenever you hover over a block, and is used to drag
 
 <img style="max-width:500px" :src="isDark ? '/img/screenshots/side_menu_dark.png' : '/img/screenshots/side_menu.png'" alt="image">
 
-You can also click the drag handle in the Block Side Menu (`⠿`) to open the Drag Handle Menu.
+You can also click the drag handle (`⠿`) in the Block Side Menu to open the Drag Handle Menu.
 
 <img style="max-width:250px" :src="isDark ? '/img/screenshots/drag_handle_menu_dark.png' : '/img/screenshots/drag_handle_menu.png'" alt="image">
 
@@ -98,7 +98,7 @@ After creating `CustomDragHandleMenu`, we tell BlockNote to use it inside `Block
 
 ## Components
 
-It might seem daunting to create your own Formatting Toolbar from scratch, which is why BlockNote provides React components that you can use which match the default styling.
+It might seem daunting to create your own Side Menu from scratch, which is why BlockNote provides React components that you can use which match the default styling.
 
 ### Default Components
 
