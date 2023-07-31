@@ -1,13 +1,6 @@
 // import logo from './logo.svg'
 import "@blocknote/core/style.css";
-import {
-  BlockNoteView,
-  FormattingToolbarPositioner,
-  HyperlinkToolbarPositioner,
-  SideMenuPositioner,
-  SlashMenuPositioner,
-  useBlockNote,
-} from "@blocknote/react";
+import { BlockNoteView, useBlockNote } from "@blocknote/react";
 import styles from "./App.module.css";
 
 type WindowWithProseMirror = Window & typeof globalThis & { ProseMirror: any };
