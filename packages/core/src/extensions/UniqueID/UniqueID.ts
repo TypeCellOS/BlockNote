@@ -1,7 +1,6 @@
 import {
   combineTransactionSteps,
   Extension,
-  findChildren,
   findChildrenInRange,
   getChangedRanges,
 } from "@tiptap/core";
@@ -88,33 +87,34 @@ const UniqueID = Extension.create({
   },
   // check initial content for missing ids
   onCreate() {
+    return;
     // Don’t do this when the collaboration extension is active
     // because this may update the content, so Y.js tries to merge these changes.
     // This leads to empty block nodes.
     // See: https://github.com/ueberdosis/tiptap/issues/2400
-    if (
-      this.editor.extensionManager.extensions.find(
-        (extension) => extension.name === "collaboration"
-      )
-    ) {
-      return;
-    }
-    const { view, state } = this.editor;
-    const { tr, doc } = state;
-    const { types, attributeName, generateID } = this.options;
-    const nodesWithoutId = findChildren(doc, (node) => {
-      return (
-        types.includes(node.type.name) && node.attrs[attributeName] === null
-      );
-    });
-    nodesWithoutId.forEach(({ node, pos }) => {
-      tr.setNodeMarkup(pos, undefined, {
-        ...node.attrs,
-        [attributeName]: generateID(),
-      });
-    });
-    tr.setMeta("addToHistory", false);
-    view.dispatch(tr);
+    // if (
+    //   this.editor.extensionManager.extensions.find(
+    //     (extension) => extension.name === "collaboration"
+    //   )
+    // ) {
+    //   return;
+    // }
+    // const { view, state } = this.editor;
+    // const { tr, doc } = state;
+    // const { types, attributeName, generateID } = this.options;
+    // const nodesWithoutId = findChildren(doc, (node) => {
+    //   return (
+    //     types.includes(node.type.name) && node.attrs[attributeName] === null
+    //   );
+    // });
+    // nodesWithoutId.forEach(({ node, pos }) => {
+    //   tr.setNodeMarkup(pos, undefined, {
+    //     ...node.attrs,
+    //     [attributeName]: generateID(),
+    //   });
+    // });
+    // tr.setMeta("addToHistory", false);
+    // view.dispatch(tr);
   },
   addProseMirrorPlugins() {
     let dragSourceElement: any = null;
