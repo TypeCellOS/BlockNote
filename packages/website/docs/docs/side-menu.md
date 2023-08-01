@@ -165,7 +165,7 @@ After creating `CustomDragHandleMenu`, we tell BlockNote to use it inside `Block
 
 ## Components
 
-It might seem daunting to create your own Side Menu or Drag Handle Menu from scratch, which is why BlockNote provides React components that you can use which match the default styling.
+BlockNote provides React components that you can reuse, to easily create your menus while matching the default styling.
 
 ### Default Components
 
