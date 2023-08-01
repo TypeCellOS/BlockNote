@@ -1,4 +1,5 @@
 // import logo from './logo.svg'
+import { defaultBlockSchema } from "@blocknote/core";
 import "@blocknote/core/style.css";
 import {
   BlockNoteView,
@@ -6,10 +7,13 @@ import {
   HyperlinkToolbarPositioner,
   SideMenuPositioner,
   SlashMenuPositioner,
+  Table,
+  getDefaultReactSlashMenuItems,
   useBlockNote,
 } from "@blocknote/react";
-import styles from "./App.module.css";
+import "@glideapps/glide-data-grid/dist/index.css";
 
+import styles from "./App.module.css";
 type WindowWithProseMirror = Window & typeof globalThis & { ProseMirror: any };
 
 function App() {
@@ -22,6 +26,28 @@ function App() {
       "data-test": "editor",
     },
     theme: "light",
+    blockSchema: {
+      ...defaultBlockSchema,
+      table: Table,
+    },
+    slashCommands: [
+      ...getDefaultReactSlashMenuItems(),
+      {
+        name: "test",
+        execute: (editor) => {
+          const currentBlock = editor.getTextCursorPosition().block;
+          editor.insertBlocks(
+            [
+              {
+                type: "table",
+              },
+            ],
+            currentBlock,
+            "after"
+          );
+        },
+      },
+    ],
   });
 
   // Give tests a way to get prosemirror instance

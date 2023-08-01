@@ -37,7 +37,7 @@ export function BlockNoteView<BSchema extends BlockSchema>(
   return (
     <MantineProvider theme={getBlockNoteTheme()}>
       <EditorContent editor={props.editor?._tiptapEditor} {...rest}>
-        {ready &&
+        {true &&
           (props.children || (
             <>
               <FormattingToolbarPositioner editor={props.editor} />
