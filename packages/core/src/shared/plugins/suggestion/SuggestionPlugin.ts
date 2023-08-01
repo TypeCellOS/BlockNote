@@ -369,11 +369,6 @@ export const setupSuggestionsMenu = <
           return false;
         },
 
-        // Hides menu in cases where mouse click does not cause an editor state change.
-        handleClick(view) {
-          deactivate(view);
-        },
-
         // Setup decorator on the currently active suggestion.
         decorations(state) {
           const { active, decorationId, queryStartPos, triggerCharacter } = (
@@ -418,6 +413,7 @@ export const setupSuggestionsMenu = <
       },
     }),
     itemCallback: (item: T) => {
+      deactivate(editor._tiptapEditor.view);
       editor._tiptapEditor
         .chain()
         .focus()

@@ -18,8 +18,8 @@ export * from "./SideMenu/components/DefaultSideMenu";
 export * from "./SideMenu/components/DragHandleMenu/DragHandleMenu";
 export * from "./SideMenu/components/DragHandleMenu/DefaultDragHandleMenu";
 export * from "./SideMenu/components/DragHandleMenu/DragHandleMenuItem";
-export * from "./SideMenu/components/DefaultButtons/BlockColorsButton";
-export * from "./SideMenu/components/DefaultButtons/RemoveBlockButton";
+export * from "./SideMenu/components/DragHandleMenu/DefaultButtons/BlockColorsButton";
+export * from "./SideMenu/components/DragHandleMenu/DefaultButtons/RemoveBlockButton";
 
 export * from "./SlashMenu/components/SlashMenuPositioner";
 export * from "./SlashMenu/components/DefaultSlashMenu";
