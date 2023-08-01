@@ -1,15 +1,33 @@
 import { BlockNoteEditor, BlockSchema } from "@blocknote/core";
+import { MantineProvider } from "@mantine/core";
 import { EditorContent } from "@tiptap/react";
-// import { BlockNoteTheme } from "./BlockNoteTheme";
-// import { MantineProvider } from "@mantine/core";
+import { HTMLAttributes, ReactNode } from "react";
+import { getBlockNoteTheme } from "./BlockNoteTheme";
+import { FormattingToolbarPositioner } from "./FormattingToolbar/components/FormattingToolbarPositioner";
+import { HyperlinkToolbarPositioner } from "./HyperlinkToolbar/components/HyperlinkToolbarPositioner";
+import { SideMenuPositioner } from "./SideMenu/components/SideMenuPositioner";
+import { SlashMenuPositioner } from "./SlashMenu/components/SlashMenuPositioner";
 
-export function BlockNoteView<BSchema extends BlockSchema>(props: {
-  editor: BlockNoteEditor<BSchema> | null;
-}) {
+export function BlockNoteView<BSchema extends BlockSchema>(
+  props: {
+    editor: BlockNoteEditor<BSchema>;
+    children?: ReactNode;
+  } & HTMLAttributes<HTMLDivElement>
+) {
+  const { editor, children, ...rest } = props;
+
   return (
-    // TODO: Should we wrap editor in MantineProvider? Otherwise we have to duplicate color hex values.
-    // <MantineProvider theme={BlockNoteTheme}>
-    <EditorContent editor={props.editor?._tiptapEditor || null} />
-    // </MantineProvider>
+    <MantineProvider theme={getBlockNoteTheme()}>
+      <EditorContent editor={props.editor?._tiptapEditor} {...rest}>
+        {props.children || (
+          <>
+            <FormattingToolbarPositioner editor={props.editor} />
+            <HyperlinkToolbarPositioner editor={props.editor} />
+            <SlashMenuPositioner editor={props.editor} />
+            <SideMenuPositioner editor={props.editor} />
+          </>
+        )}
+      </EditorContent>
+    </MantineProvider>
   );
 }

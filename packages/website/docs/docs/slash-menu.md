@@ -18,38 +18,80 @@ The Slash Menu is the list of commands which shows up whenever you type the "/" 
 
 <img style="max-width:400px" :src="isDark ? '/img/screenshots/slash_menu_dark.png' : '/img/screenshots/slash_menu.png'" alt="image">
 
-## Slash Menu Items
+## Custom Slash Menu Item List
 
-In the options passed to `useBlockNote`, there's a field:
+If you want to change the items that appear in the Slash Menu, you can do that using the `slashMenuItems` [editor option](/docs/editor#editor-options).
 
-`slashMenuItems: ReactSlashMenuItem[]`
+You can see how this is done in the example below, which has a custom Slash Menu item list. It includes all the default Slash Menu items, as well as a custom item, which inserts a new block below with "Hello World" in bold.
 
-Which you can use to customize the contents of the Slash Menu. Let's take a look at what's in a `ReactSlashMenuItem`:
+::: sandbox {template=react-ts}
 
-```typescript
-type ReactSlashMenuItem = {
-  name: string;
-  execute: (editor: BlockNoteEditor) => void;
-  aliases: string[];
-  group: string;
-  hint?: string;
-  shortcut?: string;
+```typescript-vue /App.tsx
+import { Block, BlockNoteEditor, PartialBlock } from "@blocknote/core";
+import {
+  BlockNoteView,
+  getDefaultReactSlashMenuItems,
+  ReactSlashMenuItem,
+  useBlockNote,
+} from "@blocknote/react";
+import "@blocknote/core/style.css";
+import { HiOutlineGlobeAlt } from "react-icons/hi";
+
+// Command to insert "Hello World" in bold in a new block below.
+const insertHelloWorld = (editor: BlockNoteEditor) => {
+  // Block that the text cursor is currently in.
+  const currentBlock: Block = editor.getTextCursorPosition().block;
+
+  // New block we want to insert.
+  const helloWorldBlock: PartialBlock = {
+    type: "paragraph",
+    content: [{ type: "text", text: "Hello World", styles: { bold: true } }],
+  };
+
+  // Inserting the new block after the current one.
+  editor.insertBlocks([helloWorldBlock], currentBlock, "after");
 };
+
+// Custom Slash Menu item which executes the above function.
+const insertHelloWorldItem: ReactSlashMenuItem = {
+  name: "Insert Hello World",
+  group: "Other",
+  icon: <HiOutlineGlobeAlt size={18} />,
+  execute: insertHelloWorld,
+  aliases: ["helloworld", "hw"],
+  hint: "Used to insert a block with 'Hello World' below.",
+};
+
+// List containing all default Slash Menu Items, as well as our custom one.
+const customSlashMenuItemList = [
+  ...getDefaultReactSlashMenuItems(),
+  insertHelloWorldItem,
+];
+
+export default function App() {
+  // Creates a new editor instance.
+  const editor: BlockNoteEditor = useBlockNote({
+    theme: "{{ getTheme(isDark) }}",
+    slashCommands: customSlashMenuItemList,
+  });
+
+  // Renders the editor instance.
+  return <BlockNoteView editor={editor} />;
+}
+
 ```
 
-`name:` The item's name, which is the same string you see displayed in the menu, e.g. "Heading" or "Paragraph".
+```css-vue /styles.css [hidden]
+{{ getStyles(isDark) }}
+```
 
-`execute:` A function that runs when the item is selected.
+:::
 
-`aliases:` Other names for the item, which as used as shortcuts for search.
+To find out how to get the default Slash Menu items, as well as how to make custom items, read on to [Slash Menu Items](/docs/slash-menu#slash-menu-items)
 
-`group:` The name of the group the item belongs to, e.g. "Headings" or "Basic Blocks".
+## Slash Menu Items
 
-`hint:` A short phrase to describe what the item is for, which is displayed below its name.
-
-`shortcuts:` A keyboard shortcut which can be used to run the item's `execute` function outside the Slash Menu.
-
-## Default Items
+### Default Items
 
 BlockNote comes with a variety of built-in Slash Menu items, which are used to change the type of the block containing the text cursor. If you don't pass anything to `slashMenuItems`, BlockNote will use these to set the Slash Menu contents.
 
@@ -58,13 +100,15 @@ If you want to change, remove & reorder the default items , you first import and
 ```typescript
 import {
   BlockNoteView,
-  defaultReactSlashMenuItems,
+  getDefaultReactSlashMenuItems,
+  ReactSlashMenuItem,
   useBlockNote
 } from "@blocknote/react";
 import "@blocknote/core/style.css";
 
 function App() {
-  const newSlashMenuItems: ReactSlashMenuItem[] = defaultReactSlashMenuItems;
+  const newSlashMenuItems: ReactSlashMenuItem[] = 
+    getDefaultReactSlashMenuItems();
 
   // Edit newSlashMenuItems
   ...
@@ -75,65 +119,32 @@ function App() {
 }
 ```
 
-## Custom Items
+### Custom Items
 
-You can also create your own, custom menu items too, as you can see in the example below. The new item, with the name "Insert Hello World", inserts a new block below with "Hello World" in bold:
+Creating a custom Slash Menu item is easy! Just declare a plain JavaScript object with the following fields:
 
-::: sandbox {template=react-ts}
-
-```typescript-vue /App.tsx
-import { Block, BlockNoteEditor, PartialBlock } from "@blocknote/core";
-import {
-  BlockNoteView,
-  defaultReactSlashMenuItems,
-  ReactSlashMenuItem,
-  useBlockNote,
-} from "@blocknote/react";
-import "@blocknote/core/style.css";
-import { HiOutlineGlobeAlt } from "react-icons/hi";
-
-export default function App() {
-  // Command to insert "Hello World" in bold in a new block below.
-  const insertHelloWorld = (editor: BlockNoteEditor) => {
-    // Block that the text cursor is currently in.
-    const currentBlock: Block = editor.getTextCursorPosition().block;
-
-    // New block we want to insert.
-    const helloWorldBlock: PartialBlock = {
-      type: "paragraph",
-      content: [{ type: "text", text: "Hello World", styles: { bold: true } }],
-    };
-
-    // Inserting the new block after the current one.
-    editor.insertBlocks([helloWorldBlock], currentBlock, "after");
-  };
-
-  // Slash Menu item which executes the command.
-  const insertHelloWorldItem = new ReactSlashMenuItem(
-    "Insert Hello World",
-    insertHelloWorld,
-    ["helloworld", "hw"],
-    "Other",
-    <HiOutlineGlobeAlt size={18} />,
-    "Used to insert a block with 'Hello World' below."
-  );
-
-  // Creates a new editor instance.
-  const editor: BlockNoteEditor = useBlockNote({
-    theme: "{{ getTheme(isDark) }}",
-    // Adds all default Slash Menu items as well as our custom one.
-    slashCommands: [...defaultReactSlashMenuItems, insertHelloWorldItem],
-  });
-
-  // Renders the editor instance.
-  return <BlockNoteView editor={editor} />;
-}
+```typescript
+type SlashMenuItem = {
+  name: string;
+  group: string;
+  icon: JSX.Element;
+  execute: (editor: BlockNoteEditor) => void;
+  aliases?: string[];
+  hint?: string;
+  shortcut?: string;
+};
 ```
 
-```css-vue /styles.css [hidden]
-{{ getStyles(isDark) }}
-```
+`name:` The item's name, which is the same string you see displayed in the menu, e.g. "Heading" or "Paragraph".
 
-:::
+`group:` The name of the group the item belongs to, e.g. "Headings" or "Basic Blocks".
 
-If you're confused about what's happening inside `execute`, head to [Introduction to Blocks](/docs/blocks), which will guide you through manipulating blocks in the editor using code. When creating your own `ReactSlashMenuItem`s, also make sure you use the class constructor like in the demo.
+`icon:` The item's icon.
+
+`execute:` A function that runs when the item is selected.
+
+`aliases:` Other names for the item, used as shortcuts for search.
+
+`hint:` A short phrase to describe what the item is for, which is displayed below its name.
+
+`shortcuts:` A keyboard shortcut which can be used to run the item's `execute` function without the Slash Menu being open.

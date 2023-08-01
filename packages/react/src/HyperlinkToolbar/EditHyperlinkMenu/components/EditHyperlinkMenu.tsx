@@ -1,5 +1,5 @@
 import { createStyles, Stack } from "@mantine/core";
-import { forwardRef, useState } from "react";
+import { forwardRef, HTMLAttributes, useState } from "react";
 import { RiLink, RiText } from "react-icons/ri";
 import { EditHyperlinkMenuItem } from "./EditHyperlinkMenuItem";
 
@@ -15,33 +15,36 @@ export type EditHyperlinkMenuProps = {
  */
 export const EditHyperlinkMenu = forwardRef<
   HTMLDivElement,
-  EditHyperlinkMenuProps
->((props, ref) => {
+  EditHyperlinkMenuProps & HTMLAttributes<HTMLDivElement>
+>(({ url, text, update, className, ...props }, ref) => {
   const { classes } = createStyles({ root: {} })(undefined, {
     name: "EditHyperlinkMenu",
   });
 
-  const [url, setUrl] = useState(props.url);
-  const [title, setTitle] = useState(props.text);
+  const [currentUrl, setCurrentUrl] = useState(url);
+  const [currentText, setCurrentText] = useState(text);
 
   return (
-    <Stack className={classes.root} ref={ref}>
+    <Stack
+      {...props}
+      className={className ? `${classes.root} ${className}` : classes.root}
+      ref={ref}>
       <EditHyperlinkMenuItem
         icon={RiLink}
         mainIconTooltip={"Edit URL"}
         autofocus={true}
         placeholder={"Edit URL"}
-        value={url}
-        onChange={(value) => setUrl(value)}
-        onSubmit={() => props.update(url, title)}
+        value={currentUrl}
+        onChange={(value) => setCurrentUrl(value)}
+        onSubmit={() => update(currentUrl, currentText)}
       />
       <EditHyperlinkMenuItem
         icon={RiText}
         mainIconTooltip={"Edit Title"}
         placeholder={"Edit Title"}
-        value={title}
-        onChange={(value) => setTitle(value)}
-        onSubmit={() => props.update(url, title)}
+        value={currentText}
+        onChange={(value) => setCurrentText(value)}
+        onSubmit={() => update(url, currentText)}
       />
     </Stack>
   );

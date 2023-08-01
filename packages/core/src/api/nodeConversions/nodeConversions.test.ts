@@ -1,5 +1,4 @@
 import { Editor } from "@tiptap/core";
-import { Node } from "prosemirror-model";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { BlockNoteEditor, PartialBlock } from "../..";
 import UniqueID from "../../extensions/UniqueID/UniqueID";
@@ -13,98 +12,11 @@ import {
 let editor: BlockNoteEditor;
 let tt: Editor;
 
-let simpleBlock: PartialBlock<DefaultBlockSchema>;
-let simpleNode: Node;
-
-let complexBlock: PartialBlock<DefaultBlockSchema>;
-let complexNode: Node;
-
 beforeEach(() => {
   (window as Window & { __TEST_OPTIONS?: {} }).__TEST_OPTIONS = {};
 
   editor = new BlockNoteEditor();
   tt = editor._tiptapEditor;
-
-  simpleBlock = {
-    type: "paragraph",
-  };
-  simpleNode = tt.schema.nodes["blockContainer"].create(
-    { id: UniqueID.options.generateID() },
-    tt.schema.nodes["paragraph"].create()
-  );
-
-  complexBlock = {
-    type: "heading",
-    props: {
-      backgroundColor: "blue",
-      textColor: "yellow",
-      textAlignment: "right",
-      level: "2",
-    },
-    content: [
-      {
-        type: "text",
-        text: "Heading ",
-        styles: {
-          bold: true,
-          underline: true,
-        },
-      },
-      {
-        type: "text",
-        text: "2",
-        styles: {
-          italic: true,
-          strike: true,
-        },
-      },
-    ],
-    children: [
-      {
-        type: "paragraph",
-        props: {
-          backgroundColor: "red",
-        },
-        content: "Paragraph",
-        children: [],
-      },
-      {
-        type: "bulletListItem",
-      },
-    ],
-  };
-  complexNode = tt.schema.nodes["blockContainer"].create(
-    {
-      id: UniqueID.options.generateID(),
-      backgroundColor: "blue",
-      textColor: "yellow",
-    },
-    [
-      tt.schema.nodes["heading"].create(
-        { textAlignment: "right", level: "2" },
-        [
-          tt.schema.text("Heading ", [
-            tt.schema.mark("bold"),
-            tt.schema.mark("underline"),
-          ]),
-          tt.schema.text("2", [
-            tt.schema.mark("italic"),
-            tt.schema.mark("strike"),
-          ]),
-        ]
-      ),
-      tt.schema.nodes["blockGroup"].create({}, [
-        tt.schema.nodes["blockContainer"].create(
-          { id: UniqueID.options.generateID(), backgroundColor: "red" },
-          [tt.schema.nodes["paragraph"].create({}, tt.schema.text("Paragraph"))]
-        ),
-        tt.schema.nodes["blockContainer"].create(
-          { id: UniqueID.options.generateID() },
-          [tt.schema.nodes["bulletListItem"].create()]
-        ),
-      ]),
-    ]
-  );
 });
 
 afterEach(() => {
@@ -117,14 +29,21 @@ afterEach(() => {
 
 describe("Simple ProseMirror Node Conversions", () => {
   it("Convert simple block to node", async () => {
-    const firstNodeConversion = blockToNode(simpleBlock, tt.schema);
+    const block: PartialBlock = {
+      type: "paragraph",
+    };
+    const firstNodeConversion = blockToNode(block, tt.schema);
 
     expect(firstNodeConversion).toMatchSnapshot();
   });
 
   it("Convert simple node to block", async () => {
+    const node = tt.schema.nodes["blockContainer"].create(
+      { id: UniqueID.options.generateID() },
+      tt.schema.nodes["paragraph"].create()
+    );
     const firstBlockConversion = nodeToBlock<DefaultBlockSchema>(
-      simpleNode,
+      node,
       defaultBlockSchema
     );
 
@@ -132,20 +51,97 @@ describe("Simple ProseMirror Node Conversions", () => {
 
     const firstNodeConversion = blockToNode(firstBlockConversion, tt.schema);
 
-    expect(firstNodeConversion).toStrictEqual(simpleNode);
+    expect(firstNodeConversion).toStrictEqual(node);
   });
 });
 
 describe("Complex ProseMirror Node Conversions", () => {
   it("Convert complex block to node", async () => {
-    const firstNodeConversion = blockToNode(complexBlock, tt.schema);
+    const block: PartialBlock = {
+      type: "heading",
+      props: {
+        backgroundColor: "blue",
+        textColor: "yellow",
+        textAlignment: "right",
+        level: "2",
+      },
+      content: [
+        {
+          type: "text",
+          text: "Heading ",
+          styles: {
+            bold: true,
+            underline: true,
+          },
+        },
+        {
+          type: "text",
+          text: "2",
+          styles: {
+            italic: true,
+            strike: true,
+          },
+        },
+      ],
+      children: [
+        {
+          type: "paragraph",
+          props: {
+            backgroundColor: "red",
+          },
+          content: "Paragraph",
+          children: [],
+        },
+        {
+          type: "bulletListItem",
+        },
+      ],
+    };
+    const firstNodeConversion = blockToNode(block, tt.schema);
 
     expect(firstNodeConversion).toMatchSnapshot();
   });
 
   it("Convert complex node to block", async () => {
+    const node = tt.schema.nodes["blockContainer"].create(
+      {
+        id: UniqueID.options.generateID(),
+        backgroundColor: "blue",
+        textColor: "yellow",
+      },
+      [
+        tt.schema.nodes["heading"].create(
+          { textAlignment: "right", level: "2" },
+          [
+            tt.schema.text("Heading ", [
+              tt.schema.mark("bold"),
+              tt.schema.mark("underline"),
+            ]),
+            tt.schema.text("2", [
+              tt.schema.mark("italic"),
+              tt.schema.mark("strike"),
+            ]),
+          ]
+        ),
+        tt.schema.nodes["blockGroup"].create({}, [
+          tt.schema.nodes["blockContainer"].create(
+            { id: UniqueID.options.generateID(), backgroundColor: "red" },
+            [
+              tt.schema.nodes["paragraph"].create(
+                {},
+                tt.schema.text("Paragraph")
+              ),
+            ]
+          ),
+          tt.schema.nodes["blockContainer"].create(
+            { id: UniqueID.options.generateID() },
+            [tt.schema.nodes["bulletListItem"].create()]
+          ),
+        ]),
+      ]
+    );
     const firstBlockConversion = nodeToBlock<DefaultBlockSchema>(
-      complexNode,
+      node,
       defaultBlockSchema
     );
 
@@ -153,7 +149,7 @@ describe("Complex ProseMirror Node Conversions", () => {
 
     const firstNodeConversion = blockToNode(firstBlockConversion, tt.schema);
 
-    expect(firstNodeConversion).toStrictEqual(complexNode);
+    expect(firstNodeConversion).toStrictEqual(node);
   });
 });
 
