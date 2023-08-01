@@ -27,14 +27,12 @@ export const useBlockNote = <BSchema extends BlockSchema = DefaultBlockSchema>(
 ): BlockNoteEditor<BSchema> => {
   const editorRef = useRef<BlockNoteEditor<BSchema>>();
 
-  const ret = useMemo(() => {
+  return useMemo(() => {
     if (editorRef.current) {
       editorRef.current._tiptapEditor.destroy();
     }
 
     editorRef.current = initEditor(options);
     return editorRef.current;
-  }, [deps, options]); //eslint-disable-line react-hooks/exhaustive-deps
-
-  return ret;
+  }, deps); //eslint-disable-line react-hooks/exhaustive-deps
 };
