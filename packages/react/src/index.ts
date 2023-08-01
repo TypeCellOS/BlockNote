@@ -13,17 +13,21 @@ export * from "./FormattingToolbar/components/DefaultButtons/ToggledStyleButton"
 export * from "./HyperlinkToolbar/components/HyperlinkToolbarPositioner";
 
 export * from "./SideMenu/components/SideMenuPositioner";
+export * from "./SideMenu/components/SideMenu";
+export * from "./SideMenu/components/SideMenuButton";
 export * from "./SideMenu/components/DefaultSideMenu";
+export * from "./SideMenu/components/DefaultButtons/AddBlockButton";
+export * from "./SideMenu/components/DefaultButtons/DragHandle";
 
 export * from "./SideMenu/components/DragHandleMenu/DragHandleMenu";
-export * from "./SideMenu/components/DragHandleMenu/DefaultDragHandleMenu";
 export * from "./SideMenu/components/DragHandleMenu/DragHandleMenuItem";
+export * from "./SideMenu/components/DragHandleMenu/DefaultDragHandleMenu";
 export * from "./SideMenu/components/DragHandleMenu/DefaultButtons/BlockColorsButton";
 export * from "./SideMenu/components/DragHandleMenu/DefaultButtons/RemoveBlockButton";
 
 export * from "./SlashMenu/components/SlashMenuPositioner";
-export * from "./SlashMenu/components/DefaultSlashMenu";
 export * from "./SlashMenu/components/SlashMenuItem";
+export * from "./SlashMenu/components/DefaultSlashMenu";
 export * from "./SlashMenu/ReactSlashMenuItem";
 export * from "./SlashMenu/defaultReactSlashMenuItems";
 
