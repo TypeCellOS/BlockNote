@@ -4,7 +4,7 @@ exports[`Complex ProseMirror Node Conversions > Convert complex block to node 1`
 {
   "attrs": {
     "backgroundColor": "blue",
-    "id": "4",
+    "id": "1",
     "textColor": "yellow",
   },
   "content": [
@@ -46,7 +46,7 @@ exports[`Complex ProseMirror Node Conversions > Convert complex block to node 1`
         {
           "attrs": {
             "backgroundColor": "red",
-            "id": "5",
+            "id": "2",
             "textColor": "default",
           },
           "content": [
@@ -68,7 +68,7 @@ exports[`Complex ProseMirror Node Conversions > Convert complex block to node 1`
         {
           "attrs": {
             "backgroundColor": "default",
-            "id": "6",
+            "id": "3",
             "textColor": "default",
           },
           "content": [
@@ -154,7 +154,7 @@ exports[`Simple ProseMirror Node Conversions > Convert simple block to node 1`] 
 {
   "attrs": {
     "backgroundColor": "default",
-    "id": "4",
+    "id": "1",
     "textColor": "default",
   },
   "content": [
@@ -173,7 +173,7 @@ exports[`Simple ProseMirror Node Conversions > Convert simple node to block 1`] 
 {
   "children": [],
   "content": [],
-  "id": "0",
+  "id": "1",
   "props": {
     "backgroundColor": "default",
     "textAlignment": "left",
@@ -187,7 +187,7 @@ exports[`hard breaks > Convert a block with a hard break 1`] = `
 {
   "attrs": {
     "backgroundColor": "default",
-    "id": "4",
+    "id": "1",
     "textColor": "default",
   },
   "content": [
@@ -219,7 +219,7 @@ exports[`hard breaks > Convert a block with a hard break and different styles 1`
 {
   "attrs": {
     "backgroundColor": "default",
-    "id": "4",
+    "id": "1",
     "textColor": "default",
   },
   "content": [
@@ -256,7 +256,7 @@ exports[`hard breaks > Convert a block with a hard break at the end 1`] = `
 {
   "attrs": {
     "backgroundColor": "default",
-    "id": "4",
+    "id": "1",
     "textColor": "default",
   },
   "content": [
@@ -284,7 +284,7 @@ exports[`hard breaks > Convert a block with a hard break at the start 1`] = `
 {
   "attrs": {
     "backgroundColor": "default",
-    "id": "4",
+    "id": "1",
     "textColor": "default",
   },
   "content": [
@@ -312,7 +312,7 @@ exports[`hard breaks > Convert a block with a hard break between links 1`] = `
 {
   "attrs": {
     "backgroundColor": "default",
-    "id": "4",
+    "id": "1",
     "textColor": "default",
   },
   "content": [
@@ -364,7 +364,7 @@ exports[`hard breaks > Convert a block with a hard break in a link 1`] = `
 {
   "attrs": {
     "backgroundColor": "default",
-    "id": "4",
+    "id": "1",
     "textColor": "default",
   },
   "content": [
@@ -416,7 +416,7 @@ exports[`hard breaks > Convert a block with multiple hard breaks 1`] = `
 {
   "attrs": {
     "backgroundColor": "default",
-    "id": "4",
+    "id": "1",
     "textColor": "default",
   },
   "content": [
@@ -455,7 +455,7 @@ exports[`hard breaks > Convert a block with only a hard break 1`] = `
 {
   "attrs": {
     "backgroundColor": "default",
-    "id": "4",
+    "id": "1",
     "textColor": "default",
   },
   "content": [
@@ -479,7 +479,7 @@ exports[`links > Convert a block with link 1`] = `
 {
   "attrs": {
     "backgroundColor": "default",
-    "id": "4",
+    "id": "1",
     "textColor": "default",
   },
   "content": [
@@ -514,7 +514,7 @@ exports[`links > Convert two adjacent links in a block 1`] = `
 {
   "attrs": {
     "backgroundColor": "default",
-    "id": "4",
+    "id": "1",
     "textColor": "default",
   },
   "content": [
