@@ -3,7 +3,7 @@ import {
   BlockSchema,
   DefaultBlockSchema,
 } from "@blocknote/core";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { IconType } from "react-icons";
 import {
   RiH1,
@@ -14,6 +14,8 @@ import {
   RiText,
 } from "react-icons/ri";
 import { ToolbarDropdown } from "../../../SharedComponents/Toolbar/components/ToolbarDropdown";
+import { useEditorSelectionChange } from "../../../hooks/useEditorSelectionChange";
+import { useEditorContentChange } from "../../../hooks/useEditorContentChange";
 
 type HeadingLevels = "1" | "2" | "3";
 
@@ -39,10 +41,13 @@ export const BlockTypeDropdown = <BSchema extends BlockSchema>(props: {
     props.editor.getTextCursorPosition().block
   );
 
-  useEffect(
-    () => setBlock(props.editor.getTextCursorPosition().block),
-    [props]
-  );
+  useEditorContentChange(props.editor, () => {
+    setBlock(props.editor.getTextCursorPosition().block);
+  });
+
+  useEditorSelectionChange(props.editor, () => {
+    setBlock(props.editor.getTextCursorPosition().block);
+  });
 
   if (!shouldShow(props.editor.schema)) {
     return null;
