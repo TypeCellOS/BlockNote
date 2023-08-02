@@ -15,42 +15,42 @@ export type BlockInfo = {
  * Retrieves information regarding the nearest blockContainer node in a
  * ProseMirror doc, relative to a position.
  * @param doc The ProseMirror doc.
- * @param posInBlock An integer position.
+ * @param pos An integer position.
  * @returns A BlockInfo object for the nearest blockContainer node.
  */
-export function getBlockInfoFromPos(doc: Node, posInBlock: number): BlockInfo {
+export function getBlockInfoFromPos(doc: Node, pos: number): BlockInfo {
   // If the position is outside the outer block group, we need to move it to the
   // nearest block. This happens when the collaboration plugin is active, where
   // the selection is placed at the very end of the doc.
   const outerBlockGroupStartPos = 1;
   const outerBlockGroupEndPos = doc.nodeSize - 2;
-  if (posInBlock <= outerBlockGroupStartPos) {
-    posInBlock = outerBlockGroupStartPos + 1;
+  if (pos <= outerBlockGroupStartPos) {
+    pos = outerBlockGroupStartPos + 1;
 
     while (
-      doc.resolve(posInBlock).parent.type.name !== "blockContainer" &&
-      posInBlock < outerBlockGroupEndPos
+      doc.resolve(pos).parent.type.name !== "blockContainer" &&
+      pos < outerBlockGroupEndPos
     ) {
-      posInBlock++;
+      pos++;
     }
-  } else if (posInBlock >= outerBlockGroupEndPos) {
-    posInBlock = outerBlockGroupEndPos - 1;
+  } else if (pos >= outerBlockGroupEndPos) {
+    pos = outerBlockGroupEndPos - 1;
 
     while (
-      doc.resolve(posInBlock).parent.type.name !== "blockContainer" &&
-      posInBlock > outerBlockGroupStartPos
+      doc.resolve(pos).parent.type.name !== "blockContainer" &&
+      pos > outerBlockGroupStartPos
     ) {
-      posInBlock--;
+      pos--;
     }
   }
 
   // This gets triggered when a node selection on a block is active, i.e. when
   // you drag and drop a block.
-  if (doc.resolve(posInBlock).parent.type.name === "blockGroup") {
-    posInBlock++;
+  if (doc.resolve(pos).parent.type.name === "blockGroup") {
+    pos++;
   }
 
-  const $pos = doc.resolve(posInBlock);
+  const $pos = doc.resolve(pos);
 
   const maxDepth = $pos.depth;
   let node = $pos.node(maxDepth);
