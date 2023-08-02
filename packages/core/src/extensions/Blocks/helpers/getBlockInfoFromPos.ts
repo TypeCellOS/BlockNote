@@ -12,18 +12,36 @@ export type BlockInfo = {
 };
 
 /**
- * Retrieves information regarding the most nested block node in a ProseMirror doc, that a given position lies in.
+ * Retrieves information regarding the nearest blockContainer node in a
+ * ProseMirror doc, relative to a position.
  * @param doc The ProseMirror doc.
- * @param posInBlock A position somewhere within a block node.
- * @returns A BlockInfo object for the block the given position is in, or undefined if the position is not in a block
- * for the given doc.
+ * @param posInBlock An integer position.
+ * @returns A BlockInfo object for the nearest blockContainer node.
  */
-export function getBlockInfoFromPos(
-  doc: Node,
-  posInBlock: number
-): BlockInfo | undefined {
-  if (posInBlock < 0 || posInBlock > doc.nodeSize) {
-    return undefined;
+export function getBlockInfoFromPos(doc: Node, posInBlock: number): BlockInfo {
+  // If the position is outside the outer block group, we need to move it to the
+  // nearest block. This happens when the collaboration plugin is active, where
+  // the selection is placed at the very end of the doc.
+  const outerBlockGroupStartPos = 1;
+  const outerBlockGroupEndPos = doc.nodeSize - 2;
+  if (posInBlock <= outerBlockGroupStartPos) {
+    posInBlock = outerBlockGroupStartPos + 1;
+
+    while (
+      doc.resolve(posInBlock).parent.type.name !== "blockContainer" &&
+      posInBlock < outerBlockGroupEndPos
+    ) {
+      posInBlock++;
+    }
+  } else if (posInBlock >= outerBlockGroupEndPos) {
+    posInBlock = outerBlockGroupEndPos - 1;
+
+    while (
+      doc.resolve(posInBlock).parent.type.name !== "blockContainer" &&
+      posInBlock > outerBlockGroupStartPos
+    ) {
+      posInBlock--;
+    }
   }
 
   // This gets triggered when a node selection on a block is active, i.e. when
@@ -40,7 +58,9 @@ export function getBlockInfoFromPos(
 
   while (true) {
     if (depth < 0) {
-      return undefined;
+      throw new Error(
+        "Could not find blockContainer node. This can only happen if the underlying BlockNote schema has been edited."
+      );
     }
 
     if (node.type.name === "blockContainer") {
