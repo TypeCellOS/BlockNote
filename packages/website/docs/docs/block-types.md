@@ -123,6 +123,8 @@ In addition to the default block types that BlockNote offers, you can also make 
 ```typescript-vue /App.tsx
 import {
   BlockNoteEditor,
+  BlockSchema,
+  DefaultBlockSchema,
   defaultBlockSchema,
   defaultProps,
 } from "@blocknote/core";
@@ -132,7 +134,7 @@ import {
   createReactBlockSpec,
   InlineContent,
   ReactSlashMenuItem,
-  defaultReactSlashMenuItems,
+  getDefaultReactSlashMenuItems,
 } from "@blocknote/react";
 import "@blocknote/core/style.css";
 import { RiImage2Fill } from "react-icons/ri";
@@ -146,13 +148,16 @@ export default function App() {
       src: {
         default: "https://via.placeholder.com/1000",
       },
+      alt: {
+        default: "image",
+      },
     },
     containsInlineContent: true,
     render: ({ block }) => (
       <div id="image-wrapper">
         <img
           src={block.props.src}
-          alt={"Image"}
+          alt={block.props.alt}
           contentEditable={false}
         />
         <InlineContent />
@@ -160,19 +165,29 @@ export default function App() {
     ),
   });
 
+  // The custom schema, which includes the default blocks and the custom image
+  // block.
+  const customSchema = {
+    // Adds all default blocks.
+    ...defaultBlockSchema,
+    // Adds the custom image block.
+    image: ImageBlock,
+  } satisfies BlockSchema;
+
   // Creates a slash menu item for inserting an image block.
-  const insertImage = new ReactSlashMenuItem<
-    DefaultBlockSchema & { image: typeof ImageBlock }
-  >(
-    "Insert Image",
-    (editor) => {
+  const insertImage: ReactSlashMenuItem<typeof customSchema> = {
+    name: "Insert Image",
+    execute: (editor) => {
       const src: string | null = prompt("Enter image URL");
+      const alt: string | null = prompt("Enter image alt text");
+
       editor.insertBlocks(
         [
           {
             type: "image",
             props: {
               src: src || "https://via.placeholder.com/1000",
+              alt: alt || "image",
             },
           },
         ],
@@ -180,23 +195,21 @@ export default function App() {
         "after"
       );
     },
-    ["image", "img", "picture", "media"],
-    "Media",
-    <RiImage2Fill />,
-    "Insert an image"
-  );
+    aliases: ["image", "img", "picture", "media"],
+    group: "Media",
+    icon: <RiImage2Fill />,
+    hint: "Insert an image",
+  };
 
   // Creates a new editor instance.
   const editor = useBlockNote({
     theme: "{{ getTheme(isDark) }}",
     // Tells BlockNote which blocks to use.
-    blockSchema: {
-      // Adds all default blocks.
-      ...defaultBlockSchema,
-      // Adds the custom image block.
-      image: ImageBlock,
-    },
-    slashCommands: [...defaultReactSlashMenuItems, insertImage],
+    blockSchema: customSchema,
+    slashMenuItems: [
+      ...getDefaultReactSlashMenuItems(customSchema),
+      insertImage,
+    ],
   });
 
   // Renders the editor instance using a React component.
@@ -213,7 +226,7 @@ export default function App() {
 }
 
 img {
-  width: "100%";
+  width: 100%;
 }
 ```
 
