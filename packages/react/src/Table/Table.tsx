@@ -83,8 +83,10 @@ function MyTable(props: {}) {
 export const Table = createReactBlockSpec({
   containsInlineContent: false,
   propSchema: {},
-  render: ({ node, editor }) => {
+  render: (attrs) => {
     return <MyTable />;
   },
   type: "table",
 });
+debugger;
+Table.node.config.content = "tableRow";

@@ -23,6 +23,8 @@ import { blocks } from "./extensions/Blocks";
 import { BlockSchema } from "./extensions/Blocks/api/blockTypes";
 import { CustomBlockSerializerExtension } from "./extensions/Blocks/api/serialization";
 import blockStyles from "./extensions/Blocks/nodes/Block.module.css";
+import { TableCell } from "./extensions/Blocks/nodes/TableCell";
+import { TableRow } from "./extensions/Blocks/nodes/TableRow";
 import { Placeholder } from "./extensions/Placeholder/PlaceholderExtension";
 import { TextAlignmentExtension } from "./extensions/TextAlignment/TextAlignmentExtension";
 import { TextColorExtension } from "./extensions/TextColor/TextColorExtension";
@@ -97,6 +99,8 @@ export const getBlockNoteExtensions = <BSchema extends BlockSchema>(opts: {
     // This needs to be at the bottom of this list, because Key events (such as enter, when selecting a /command),
     // should be handled before Enter handlers in other components like splitListItem
     TrailingNode,
+    TableCell,
+    TableRow,
   ];
 
   if (opts.collaboration) {
