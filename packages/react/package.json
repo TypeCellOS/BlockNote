@@ -54,18 +54,20 @@
     "@mantine/utils": "^6.0.5",
     "@tippyjs/react": "^4.2.6",
     "@tiptap/react": "^2.0.3",
-    "react-icons": "^4.3.1"
+    "react-icons": "^4.3.1",
+    "tippy.js": "^6.3.7"
   },
   "devDependencies": {
     "@types/react": "^18.0.25",
     "@types/react-dom": "^18.0.9",
-    "@vitejs/plugin-react": "^3.1.0",
+    "@vitejs/plugin-react": "^4.0.4",
     "eslint": "^8.10.0",
     "eslint-config-react-app": "^7.0.0",
     "prettier": "^2.7.1",
     "typescript": "^5.0.4",
-    "vite": "^4.1.4",
-    "vite-plugin-eslint": "^1.8.1"
+    "vite": "^4.4.8",
+    "vite-plugin-eslint": "^1.8.1",
+    "vite-plugin-externalize-deps": "^0.7.0"
   },
   "peerDependencies": {
     "react": "^18",
