@@ -3,10 +3,9 @@ import {
   BlockSchema,
   DefaultBlockSchema,
 } from "@blocknote/core";
-import Tippy from "@tippyjs/react";
-import { FC, useEffect, useMemo, useRef, useState } from "react";
+import { flip, useFloating, useTransitionStyles } from "@floating-ui/react";
+import { FC, useEffect, useRef, useState } from "react";
 import { sticky } from "tippy.js";
-
 import { DefaultFormattingToolbar } from "./DefaultFormattingToolbar";
 
 export type FormattingToolbarProps<
@@ -25,44 +24,57 @@ export const FormattingToolbarPositioner = <
 
   const referencePos = useRef<DOMRect>();
 
+  const { refs, update, context, floatingStyles } = useFloating({
+    open: show,
+    placement: "top-start",
+    middleware: [flip()],
+  });
+
+  const { isMounted, styles } = useTransitionStyles(context);
+
   useEffect(() => {
     return props.editor.formattingToolbar.onUpdate((state) => {
       setShow(state.show);
-
       referencePos.current = state.referencePos;
+      update();
     });
-  }, [props.editor]);
+  }, [props.editor, update]);
 
-  const getReferenceClientRect = useMemo(
-    () => {
-      if (!referencePos) {
-        return undefined;
-      }
-      return () => referencePos.current!;
-    },
-    [referencePos.current] // eslint-disable-line
-  );
+  const FormattingToolbar = props.formattingToolbar || DefaultFormattingToolbar;
 
-  const formattingToolbarElement = useMemo(() => {
-    const FormattingToolbar =
-      props.formattingToolbar || DefaultFormattingToolbar;
+  useEffect(() => {
+    refs.setReference({
+      getBoundingClientRect: () => {
+        console.log(referencePos.current);
+        return referencePos.current!;
+      },
+    });
+  }, [refs]);
 
-    return <FormattingToolbar editor={props.editor} />;
-  }, [props.editor, props.formattingToolbar]);
-
+  if (!isMounted) {
+    return null;
+  }
+  console.log(styles);
   return (
-    <Tippy
-      appendTo={props.editor.domElement.parentElement!}
-      content={formattingToolbarElement}
-      getReferenceClientRect={getReferenceClientRect}
-      interactive={true}
-      visible={show}
-      animation={"fade"}
-      placement={"top-start"}
-      sticky={true}
-      plugins={tippyPlugins}
-    />
+    <div
+      ref={refs.setFloating}
+      style={{ ...styles, ...floatingStyles, zIndex: 10000 }}>
+      <FormattingToolbar editor={props.editor} />
+    </div>
   );
+  // return (
+  //   <Tippy
+  //     appendTo={props.editor.domElement.parentElement!}
+  //     content={formattingToolbarElement}
+  //     getReferenceClientRect={getReferenceClientRect}
+  //     interactive={true}
+  //     visible={show}
+  //     animation={"fade"}
+  //     placement={"top-start"}
+  //     sticky={true}
+  //     plugins={tippyPlugins}
+  //   />
+  // );
 };
 
 // We want Tippy to call `getReferenceClientRect` whenever the reference

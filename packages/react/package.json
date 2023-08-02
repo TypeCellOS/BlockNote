@@ -54,7 +54,8 @@
     "@mantine/utils": "^6.0.5",
     "@tippyjs/react": "^4.2.6",
     "@tiptap/react": "^2.0.3",
-    "react-icons": "^4.3.1"
+    "react-icons": "^4.3.1",
+    "@floating-ui/react": "^0.25.0"
   },
   "devDependencies": {
     "@types/react": "^18.0.25",
