@@ -19,17 +19,12 @@
     "@types/react-dom": "^18.0.9",
     "@vitejs/plugin-react": "^4.0.4",
     "eslint": "^8.10.0",
-    "eslint-config-react-app": "^7.0.0",
     "vite": "^4.4.8",
     "vite-plugin-eslint": "^1.8.1"
   },
   "eslintConfig": {
     "extends": [
-      "react-app",
-      "react-app/jest"
-    ],
-    "rules": {
-      "curly": 1
-    }
+      "../../.eslintrc.js"
+    ]
   }
 }
