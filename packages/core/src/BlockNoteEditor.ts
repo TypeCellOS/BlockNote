@@ -206,14 +206,15 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
     this.schema = newOptions.blockSchema;
 
     const initialContent =
-      newOptions.initialContent || options.collaboration
+      newOptions.initialContent ||
+      (options.collaboration
         ? undefined
         : [
             {
               type: "paragraph",
               id: UniqueID.options.generateID(),
             },
-          ];
+          ]);
 
     const tiptapOptions: EditorOptions = {
       ...blockNoteTipTapOptions,
