@@ -1,27 +1,22 @@
-import { Editor, getMarkRange, posToDOMRect, Range } from "@tiptap/core";
+import { getMarkRange, posToDOMRect, Range } from "@tiptap/core";
+import { EditorView } from "@tiptap/pm/view";
 import { Mark } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
-import {
-  HyperlinkToolbar,
-  HyperlinkToolbarDynamicParams,
-  HyperlinkToolbarFactory,
-  HyperlinkToolbarStaticParams,
-} from "./HyperlinkToolbarFactoryTypes";
-const PLUGIN_KEY = new PluginKey("HyperlinkToolbarPlugin");
+import { BlockNoteEditor } from "../../BlockNoteEditor";
+import { BaseUiElementState } from "../../shared/BaseUiElementTypes";
+import { EventEmitter } from "../../shared/EventEmitter";
+import { BlockSchema } from "../Blocks/api/blockTypes";
 
-export type HyperlinkToolbarPluginProps = {
-  hyperlinkToolbarFactory: HyperlinkToolbarFactory;
+export type HyperlinkToolbarState = BaseUiElementState & {
+  // The hovered hyperlink's URL, and the text it's displayed with in the
+  // editor.
+  url: string;
+  text: string;
 };
 
-export type HyperlinkToolbarViewProps = {
-  editor: Editor;
-  hyperlinkToolbarFactory: HyperlinkToolbarFactory;
-};
-
-class HyperlinkToolbarView {
-  editor: Editor;
-
-  hyperlinkToolbar: HyperlinkToolbar;
+class HyperlinkToolbarView<BSchema extends BlockSchema> {
+  private hyperlinkToolbarState?: HyperlinkToolbarState;
+  public updateHyperlinkToolbar: () => void;
 
   menuUpdateTimer: NodeJS.Timeout | undefined;
   startMenuUpdateTimer: () => void;
@@ -36,12 +31,20 @@ class HyperlinkToolbarView {
   hyperlinkMark: Mark | undefined;
   hyperlinkMarkRange: Range | undefined;
 
-  private lastPosition: DOMRect | undefined;
+  constructor(
+    private readonly editor: BlockNoteEditor<BSchema>,
+    private readonly pmView: EditorView,
+    updateHyperlinkToolbar: (
+      hyperlinkToolbarState: HyperlinkToolbarState
+    ) => void
+  ) {
+    this.updateHyperlinkToolbar = () => {
+      if (!this.hyperlinkToolbarState) {
+        throw new Error("Attempting to update uninitialized hyperlink toolbar");
+      }
 
-  constructor({ editor, hyperlinkToolbarFactory }: HyperlinkToolbarViewProps) {
-    this.editor = editor;
-
-    this.hyperlinkToolbar = hyperlinkToolbarFactory(this.getStaticParams());
+      updateHyperlinkToolbar(this.hyperlinkToolbarState);
+    };
 
     this.startMenuUpdateTimer = () => {
       this.menuUpdateTimer = setTimeout(() => {
@@ -58,8 +61,9 @@ class HyperlinkToolbarView {
       return false;
     };
 
-    this.editor.view.dom.addEventListener("mouseover", this.mouseOverHandler);
+    this.pmView.dom.addEventListener("mouseover", this.mouseOverHandler);
     document.addEventListener("click", this.clickHandler, true);
+    document.addEventListener("scroll", this.scrollHandler);
   }
 
   mouseOverHandler = (event: MouseEvent) => {
@@ -77,14 +81,16 @@ class HyperlinkToolbarView {
       // mouseHoveredHyperlinkMarkRange.
       const hoveredHyperlinkElement = event.target;
       const posInHoveredHyperlinkMark =
-        this.editor.view.posAtDOM(hoveredHyperlinkElement, 0) + 1;
-      const resolvedPosInHoveredHyperlinkMark = this.editor.state.doc.resolve(
+        this.pmView.posAtDOM(hoveredHyperlinkElement, 0) + 1;
+      const resolvedPosInHoveredHyperlinkMark = this.pmView.state.doc.resolve(
         posInHoveredHyperlinkMark
       );
       const marksAtPos = resolvedPosInHoveredHyperlinkMark.marks();
 
       for (const mark of marksAtPos) {
-        if (mark.type.name === this.editor.schema.mark("link").type.name) {
+        if (
+          mark.type.name === this.pmView.state.schema.mark("link").type.name
+        ) {
           this.mouseHoveredHyperlinkMark = mark;
           this.mouseHoveredHyperlinkMarkRange =
             getMarkRange(
@@ -104,25 +110,80 @@ class HyperlinkToolbarView {
   };
 
   clickHandler = (event: MouseEvent) => {
+    const editorWrapper = this.pmView.dom.parentElement!;
+
     if (
       // Toolbar is open.
       this.hyperlinkMark &&
       // An element is clicked.
       event &&
       event.target &&
-      // Element is outside the editor.
-      this.editor.view.dom !== (event.target as Node) &&
-      !this.editor.view.dom.contains(event.target as Node) &&
-      // Element is outside the toolbar.
-      this.hyperlinkToolbar.element !== (event.target as Node) &&
-      !this.hyperlinkToolbar.element?.contains(event.target as Node)
+      // The clicked element is not the editor.
+      !(
+        editorWrapper === (event.target as Node) ||
+        editorWrapper.contains(event.target as Node)
+      )
     ) {
-      this.hyperlinkToolbar.hide();
+      if (this.hyperlinkToolbarState?.show) {
+        this.hyperlinkToolbarState.show = false;
+        this.updateHyperlinkToolbar();
+      }
     }
   };
 
+  scrollHandler = () => {
+    if (this.hyperlinkMark !== undefined) {
+      if (this.hyperlinkToolbarState?.show) {
+        this.hyperlinkToolbarState.referencePos = posToDOMRect(
+          this.pmView,
+          this.hyperlinkMarkRange!.from,
+          this.hyperlinkMarkRange!.to
+        );
+        this.updateHyperlinkToolbar();
+      }
+    }
+  };
+
+  editHyperlink(url: string, text: string) {
+    const tr = this.pmView.state.tr.insertText(
+      text,
+      this.hyperlinkMarkRange!.from,
+      this.hyperlinkMarkRange!.to
+    );
+    tr.addMark(
+      this.hyperlinkMarkRange!.from,
+      this.hyperlinkMarkRange!.from + text.length,
+      this.pmView.state.schema.mark("link", { href: url })
+    );
+    this.pmView.dispatch(tr);
+    this.pmView.focus();
+
+    if (this.hyperlinkToolbarState?.show) {
+      this.hyperlinkToolbarState.show = false;
+      this.updateHyperlinkToolbar();
+    }
+  }
+
+  deleteHyperlink() {
+    this.pmView.dispatch(
+      this.pmView.state.tr
+        .removeMark(
+          this.hyperlinkMarkRange!.from,
+          this.hyperlinkMarkRange!.to,
+          this.hyperlinkMark!.type
+        )
+        .setMeta("preventAutolink", true)
+    );
+    this.pmView.focus();
+
+    if (this.hyperlinkToolbarState?.show) {
+      this.hyperlinkToolbarState.show = false;
+      this.updateHyperlinkToolbar();
+    }
+  }
+
   update() {
-    if (!this.editor.view.hasFocus()) {
+    if (!this.pmView.hasFocus()) {
       return;
     }
 
@@ -139,15 +200,17 @@ class HyperlinkToolbarView {
 
     // Finds link mark at the editor selection's position to update keyboardHoveredHyperlinkMark and
     // keyboardHoveredHyperlinkMarkRange.
-    if (this.editor.state.selection.empty) {
-      const marksAtPos = this.editor.state.selection.$from.marks();
+    if (this.pmView.state.selection.empty) {
+      const marksAtPos = this.pmView.state.selection.$from.marks();
 
       for (const mark of marksAtPos) {
-        if (mark.type.name === this.editor.schema.mark("link").type.name) {
+        if (
+          mark.type.name === this.pmView.state.schema.mark("link").type.name
+        ) {
           this.keyboardHoveredHyperlinkMark = mark;
           this.keyboardHoveredHyperlinkMarkRange =
             getMarkRange(
-              this.editor.state.selection.$from,
+              this.pmView.state.selection.$from,
               mark.type,
               mark.attrs
             ) || undefined;
@@ -169,130 +232,102 @@ class HyperlinkToolbarView {
     }
 
     if (this.hyperlinkMark && this.editor.isEditable) {
-      this.getDynamicParams();
-
-      // Shows menu.
-      if (!prevHyperlinkMark) {
-        this.hyperlinkToolbar.render(this.getDynamicParams(), true);
-
-        this.hyperlinkToolbar.element?.addEventListener(
-          "mouseleave",
-          this.startMenuUpdateTimer
-        );
-        this.hyperlinkToolbar.element?.addEventListener(
-          "mouseenter",
-          this.stopMenuUpdateTimer
-        );
-
-        return;
-      }
-
-      // Updates menu.
-      this.hyperlinkToolbar.render(this.getDynamicParams(), false);
+      this.hyperlinkToolbarState = {
+        show: true,
+        referencePos: posToDOMRect(
+          this.pmView,
+          this.hyperlinkMarkRange!.from,
+          this.hyperlinkMarkRange!.to
+        ),
+        url: this.hyperlinkMark!.attrs.href,
+        text: this.pmView.state.doc.textBetween(
+          this.hyperlinkMarkRange!.from,
+          this.hyperlinkMarkRange!.to
+        ),
+      };
+      this.updateHyperlinkToolbar();
 
       return;
     }
 
     // Hides menu.
-    if (prevHyperlinkMark && (!this.hyperlinkMark || !this.editor.isEditable)) {
-      this.hyperlinkToolbar.element?.removeEventListener(
-        "mouseleave",
-        this.startMenuUpdateTimer
-      );
-      this.hyperlinkToolbar.element?.removeEventListener(
-        "mouseenter",
-        this.stopMenuUpdateTimer
-      );
-
-      this.hyperlinkToolbar.hide();
+    if (
+      this.hyperlinkToolbarState?.show &&
+      prevHyperlinkMark &&
+      (!this.hyperlinkMark || !this.editor.isEditable)
+    ) {
+      this.hyperlinkToolbarState.show = false;
+      this.updateHyperlinkToolbar();
 
       return;
     }
   }
 
   destroy() {
-    this.editor.view.dom.removeEventListener(
-      "mouseover",
-      this.mouseOverHandler
-    );
-  }
-
-  getStaticParams(): HyperlinkToolbarStaticParams {
-    return {
-      editHyperlink: (url: string, text: string) => {
-        const tr = this.editor.view.state.tr.insertText(
-          text,
-          this.hyperlinkMarkRange!.from,
-          this.hyperlinkMarkRange!.to
-        );
-        tr.addMark(
-          this.hyperlinkMarkRange!.from,
-          this.hyperlinkMarkRange!.from + text.length,
-          this.editor.schema.mark("link", { href: url })
-        );
-        this.editor.view.dispatch(tr);
-        this.editor.view.focus();
-
-        this.hyperlinkToolbar.hide();
-      },
-      deleteHyperlink: () => {
-        this.editor.view.dispatch(
-          this.editor.view.state.tr
-            .removeMark(
-              this.hyperlinkMarkRange!.from,
-              this.hyperlinkMarkRange!.to,
-              this.hyperlinkMark!.type
-            )
-            .setMeta("preventAutolink", true)
-        );
-        this.editor.view.focus();
-
-        this.hyperlinkToolbar.hide();
-      },
-      getReferenceRect: () => {
-        if (!this.hyperlinkMark) {
-          if (this.lastPosition === undefined) {
-            throw new Error(
-              "Attempted to access hyperlink reference rect before rendering hyperlink toolbar."
-            );
-          }
-
-          return this.lastPosition;
-        }
-
-        const hyperlinkBoundingBox = posToDOMRect(
-          this.editor.view,
-          this.hyperlinkMarkRange!.from,
-          this.hyperlinkMarkRange!.to
-        );
-        this.lastPosition = hyperlinkBoundingBox;
-
-        return hyperlinkBoundingBox;
-      },
-    };
-  }
-
-  getDynamicParams(): HyperlinkToolbarDynamicParams {
-    return {
-      url: this.hyperlinkMark!.attrs.href,
-      text: this.editor.view.state.doc.textBetween(
-        this.hyperlinkMarkRange!.from,
-        this.hyperlinkMarkRange!.to
-      ),
-    };
+    this.pmView.dom.removeEventListener("mouseover", this.mouseOverHandler);
+    document.removeEventListener("scroll", this.scrollHandler);
+    document.removeEventListener("click", this.clickHandler, true);
   }
 }
 
-export const createHyperlinkToolbarPlugin = (
-  editor: Editor,
-  options: HyperlinkToolbarPluginProps
-) => {
-  return new Plugin({
-    key: PLUGIN_KEY,
-    view: () =>
-      new HyperlinkToolbarView({
-        editor: editor,
-        hyperlinkToolbarFactory: options.hyperlinkToolbarFactory,
-      }),
-  });
-};
+export const hyperlinkToolbarPluginKey = new PluginKey(
+  "HyperlinkToolbarPlugin"
+);
+
+export class HyperlinkToolbarProsemirrorPlugin<
+  BSchema extends BlockSchema
+> extends EventEmitter<any> {
+  private view: HyperlinkToolbarView<BSchema> | undefined;
+  public readonly plugin: Plugin;
+
+  constructor(editor: BlockNoteEditor<BSchema>) {
+    super();
+    this.plugin = new Plugin({
+      key: hyperlinkToolbarPluginKey,
+      view: (editorView) => {
+        this.view = new HyperlinkToolbarView(editor, editorView, (state) => {
+          this.emit("update", state);
+        });
+        return this.view;
+      },
+    });
+  }
+
+  public onUpdate(callback: (state: HyperlinkToolbarState) => void) {
+    return this.on("update", callback);
+  }
+
+  /**
+   * Edit the currently hovered hyperlink.
+   */
+  public editHyperlink = (url: string, text: string) => {
+    this.view!.editHyperlink(url, text);
+  };
+
+  /**
+   * Delete the currently hovered hyperlink.
+   */
+  public deleteHyperlink = () => {
+    this.view!.deleteHyperlink();
+  };
+
+  /**
+   * When hovering on/off hyperlinks using the mouse cursor, the hyperlink
+   * toolbar will open & close with a delay.
+   *
+   * This function starts the delay timer, and should be used for when the mouse cursor enters the hyperlink toolbar.
+   */
+  public startHideTimer = () => {
+    this.view!.startMenuUpdateTimer();
+  };
+
+  /**
+   * When hovering on/off hyperlinks using the mouse cursor, the hyperlink
+   * toolbar will open & close with a delay.
+   *
+   * This function stops the delay timer, and should be used for when the mouse cursor exits the hyperlink toolbar.
+   */
+  public stopHideTimer = () => {
+    this.view!.stopMenuUpdateTimer();
+  };
+}

@@ -2,7 +2,7 @@ import { defaultBlockSchema } from "@blocknote/core";
 import "@blocknote/core/style.css";
 import {
   BlockNoteView,
-  defaultReactSlashMenuItems,
+  getDefaultReactSlashMenuItems,
   useBlockNote,
 } from "@blocknote/react";
 import { Alert, insertAlert } from "../customblocks/Alert";
@@ -29,7 +29,7 @@ export default function Editor() {
     toc: TableOfContents,
   } as const;
 
-  const slashCommands = [
+  const slashMenuItems = [
     insertAlert,
     insertButton,
     insertEmbed,
@@ -44,7 +44,7 @@ export default function Editor() {
       "data-test": "editor",
     },
     blockSchema: blockSchema,
-    slashCommands: [...defaultReactSlashMenuItems, ...slashCommands],
+    slashMenuItems: [...getDefaultReactSlashMenuItems(), ...slashMenuItems],
   });
 
   console.log(editor);

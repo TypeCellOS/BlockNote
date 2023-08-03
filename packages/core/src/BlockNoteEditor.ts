@@ -1,8 +1,9 @@
-import { Editor, EditorOptions } from "@tiptap/core";
+import { Editor, EditorOptions, Extension } from "@tiptap/core";
 import { Node } from "prosemirror-model";
 // import "./blocknote.css";
 import { Editor as TiptapEditor } from "@tiptap/core/dist/packages/core/src/Editor";
 import * as Y from "yjs";
+import { getBlockNoteExtensions } from "./BlockNoteExtensions";
 import {
   insertBlocks,
   removeBlocks,
@@ -10,14 +11,16 @@ import {
   updateBlock,
 } from "./api/blockManipulation/blockManipulation";
 import {
+  HTMLToBlocks,
   blocksToHTML,
   blocksToMarkdown,
-  HTMLToBlocks,
   markdownToBlocks,
 } from "./api/formatConversions/formatConversions";
-import { nodeToBlock } from "./api/nodeConversions/nodeConversions";
+import {
+  blockToNode,
+  nodeToBlock,
+} from "./api/nodeConversions/nodeConversions";
 import { getNodeById } from "./api/util/nodeUtil";
-import { getBlockNoteExtensions, UiFactories } from "./BlockNoteExtensions";
 import styles from "./editor.module.css";
 import {
   Block,
@@ -37,28 +40,25 @@ import {
 } from "./extensions/Blocks/api/inlineContentTypes";
 import { Selection } from "./extensions/Blocks/api/selectionTypes";
 import { getBlockInfoFromPos } from "./extensions/Blocks/helpers/getBlockInfoFromPos";
-import {
-  BaseSlashMenuItem,
-  defaultSlashMenuItems,
-} from "./extensions/SlashMenu";
+
+import { FormattingToolbarProsemirrorPlugin } from "./extensions/FormattingToolbar/FormattingToolbarPlugin";
+import { HyperlinkToolbarProsemirrorPlugin } from "./extensions/HyperlinkToolbar/HyperlinkToolbarPlugin";
+import { SideMenuProsemirrorPlugin } from "./extensions/SideMenu/SideMenuPlugin";
+import { BaseSlashMenuItem } from "./extensions/SlashMenu/BaseSlashMenuItem";
+import { SlashMenuProsemirrorPlugin } from "./extensions/SlashMenu/SlashMenuPlugin";
+import { getDefaultSlashMenuItems } from "./extensions/SlashMenu/defaultSlashMenuItems";
+import { UniqueID } from "./extensions/UniqueID/UniqueID";
 
 export type BlockNoteEditorOptions<BSchema extends BlockSchema> = {
   // TODO: Figure out if enableBlockNoteExtensions/disableHistoryExtension are needed and document them.
   enableBlockNoteExtensions: boolean;
-
   /**
-   * UI element factories for creating a custom UI, including custom positioning
-   * & rendering.
-   */
-  uiFactories: UiFactories<BSchema>;
-  /**
-   * TODO: why is this called slashCommands and not slashMenuItems?
    *
    * (couldn't fix any type, see https://github.com/TypeCellOS/BlockNote/pull/191#discussion_r1210708771)
    *
    * @default defaultSlashMenuItems from `./extensions/SlashMenu`
    */
-  slashCommands: BaseSlashMenuItem<any>[];
+  slashMenuItems: BaseSlashMenuItem<any>[];
 
   /**
    * The HTML element that should be used as the parent element for the editor.
@@ -149,19 +149,12 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
   public readonly _tiptapEditor: TiptapEditor & { contentComponent: any };
   public blockCache = new WeakMap<Node, Block<BSchema>>();
   public readonly schema: BSchema;
-  private ready = false;
+  public ready = false;
 
-  public get domElement() {
-    return this._tiptapEditor.view.dom as HTMLDivElement;
-  }
-
-  public isFocused() {
-    return this._tiptapEditor.view.hasFocus();
-  }
-
-  public focus() {
-    this._tiptapEditor.view.focus();
-  }
+  public readonly sideMenu: SideMenuProsemirrorPlugin<BSchema>;
+  public readonly formattingToolbar: FormattingToolbarProsemirrorPlugin<BSchema>;
+  public readonly slashMenu: SlashMenuProsemirrorPlugin<BSchema, any>;
+  public readonly hyperlinkToolbar: HyperlinkToolbarProsemirrorPlugin<BSchema>;
 
   constructor(
     private readonly options: Partial<BlockNoteEditorOptions<BSchema>> = {}
@@ -181,31 +174,64 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
       ...options,
     };
 
+    this.sideMenu = new SideMenuProsemirrorPlugin(this);
+    this.formattingToolbar = new FormattingToolbarProsemirrorPlugin(this);
+    this.slashMenu = new SlashMenuProsemirrorPlugin(
+      this,
+      newOptions.slashMenuItems ||
+        getDefaultSlashMenuItems(newOptions.blockSchema)
+    );
+    this.hyperlinkToolbar = new HyperlinkToolbarProsemirrorPlugin(this);
+
     const extensions = getBlockNoteExtensions<BSchema>({
       editor: this,
-      uiFactories: newOptions.uiFactories || {},
-      slashCommands: newOptions.slashCommands || defaultSlashMenuItems,
       blockSchema: newOptions.blockSchema,
       collaboration: newOptions.collaboration,
     });
 
+    const blockNoteUIExtension = Extension.create({
+      name: "BlockNoteUIExtension",
+
+      addProseMirrorPlugins: () => {
+        return [
+          this.sideMenu.plugin,
+          this.formattingToolbar.plugin,
+          this.slashMenu.plugin,
+          this.hyperlinkToolbar.plugin,
+        ];
+      },
+    });
+    extensions.push(blockNoteUIExtension);
+
     this.schema = newOptions.blockSchema;
 
+    const initialContent = newOptions.initialContent || [
+      {
+        type: "paragraph",
+        id: UniqueID.options.generateID(),
+      },
+    ];
+
     const tiptapOptions: EditorOptions = {
-      // TODO: This approach to setting initial content is "cleaner" but requires the PM editor schema, which is only
-      //  created after initializing the TipTap editor. Not sure it's feasible.
-      // content:
-      //   options.initialContent &&
-      //   options.initialContent.map((block) =>
-      //     blockToNode(block, this._tiptapEditor.schema).toJSON()
-      //   ),
       ...blockNoteTipTapOptions,
       ...newOptions._tiptapOptions,
       onCreate: () => {
         newOptions.onEditorReady?.(this);
-        newOptions.initialContent &&
-          this.replaceBlocks(this.topLevelBlocks, newOptions.initialContent);
         this.ready = true;
+      },
+      onBeforeCreate(editor) {
+        // we have to set the initial content here, because now we can use the editor schema
+        // which has been created at this point
+        const schema = editor.editor.schema;
+        const ic = initialContent.map((block) => blockToNode(block, schema));
+
+        const root = schema.node(
+          "doc",
+          undefined,
+          schema.node("blockGroup", undefined, ic)
+        );
+        // override the initialcontent
+        editor.editor.options.content = root.toJSON();
       },
       onUpdate: () => {
         // This seems to be necessary due to a bug in TipTap:
@@ -251,6 +277,22 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
     this._tiptapEditor = new Editor(tiptapOptions) as Editor & {
       contentComponent: any;
     };
+  }
+
+  public get prosemirrorView() {
+    return this._tiptapEditor.view;
+  }
+
+  public get domElement() {
+    return this._tiptapEditor.view.dom as HTMLDivElement;
+  }
+
+  public isFocused() {
+    return this._tiptapEditor.view.hasFocus();
+  }
+
+  public focus() {
+    this._tiptapEditor.view.focus();
   }
 
   /**
@@ -342,6 +384,14 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
    */
   public onEditorContentChange(callback: () => void) {
     this._tiptapEditor.on("update", callback);
+  }
+
+  /**
+   * Executes a callback whenever the editor's selection changes.
+   * @param callback The callback to execute.
+   */
+  public onEditorSelectionChange(callback: () => void) {
+    this._tiptapEditor.on("selectionUpdate", callback);
   }
 
   /**

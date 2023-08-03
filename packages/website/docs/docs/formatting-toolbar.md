@@ -20,87 +20,119 @@ The Formatting Toolbar appears whenever you highlight text in the editor, and is
 
 ## Custom Formatting Toolbar
 
-You can create a custom Formatting Toolbar using a React component. This component should take the following props:
+If you want to change the buttons/dropdowns in the Formatting Toolbar, or replace it altogether, you can do that using a React component.
 
-```typescript
-type CustomFormattingToolbarProps = {
-  editor: BlockNoteEditor
+You can see how this is done in the example below, which has a custom Formatting Toolbar with four items. The first three are default items to toggle bold, italic, and underline, while the last one is a custom button which toggles the text and background colors to be blue.
+
+::: sandbox {template=react-ts}
+
+```typescript-vue /App.tsx
+import { BlockNoteEditor } from "@blocknote/core";
+import {
+  BlockNoteView,
+  FormattingToolbarPositioner,
+  HyperlinkToolbarPositioner,
+  SideMenuPositioner,
+  SlashMenuPositioner,
+  ToggledStyleButton,
+  Toolbar,
+  ToolbarButton,
+  useBlockNote,
+  useEditorContentChange,
+  useEditorSelectionChange,
+} from "@blocknote/react";
+import "@blocknote/core/style.css";
+import { useState } from "react";
+
+const CustomFormattingToolbar = (props: { editor: BlockNoteEditor }) => {
+  // Tracks whether the text & background are both blue.
+  const [isSelected, setIsSelected] = useState<boolean>(
+    props.editor.getActiveStyles().textColor === "blue" &&
+      props.editor.getActiveStyles().backgroundColor === "blue"
+  );
+
+  // Updates state on content change.
+  useEditorContentChange(props.editor, () => {
+    setIsSelected(
+      props.editor.getActiveStyles().textColor === "blue" &&
+        props.editor.getActiveStyles().backgroundColor === "blue"
+    );
+  });
+
+  // Updates state on selection change.
+  useEditorSelectionChange(props.editor, () => {
+    setIsSelected(
+      props.editor.getActiveStyles().textColor === "blue" &&
+        props.editor.getActiveStyles().backgroundColor === "blue"
+    );
+  });
+
+  return (
+    <Toolbar>
+      {/*Default button to toggle bold.*/}
+      <ToggledStyleButton editor={props.editor} toggledStyle={"bold"} />
+      {/*Default button to toggle italic.*/}
+      <ToggledStyleButton editor={props.editor} toggledStyle={"italic"} />
+      {/*Default button to toggle underline.*/}
+      <ToggledStyleButton editor={props.editor} toggledStyle={"underline"} />
+      {/*Custom button to toggle blue text & background color.*/}
+      <ToolbarButton
+        mainTooltip={"Blue Text & Background"}
+        onClick={() => {
+          props.editor.toggleStyles({
+            textColor: "blue",
+            backgroundColor: "blue",
+          });
+        }}
+        isSelected={isSelected}>
+        Blue
+      </ToolbarButton>
+    </Toolbar>
+  );
 };
 
-const CustomFormattingToolbar = (props: CustomFormattingToolbarProps): JSX.Element => ...;
+export default function App() {
+  // Creates a new editor instance.
+  const editor: BlockNoteEditor = useBlockNote({
+    theme: "{{ getTheme(isDark) }}",
+  });
+
+  // Renders the editor instance.
+  return (
+    <BlockNoteView editor={editor}>
+      <FormattingToolbarPositioner
+        editor={editor}
+        formattingToolbar={CustomFormattingToolbar}
+      />
+      <HyperlinkToolbarPositioner editor={editor} />
+      <SlashMenuPositioner editor={editor} />
+      <SideMenuPositioner editor={editor} />
+    </BlockNoteView>
+  );
+}
 ```
 
-You can then tell BlockNote to use your custom Formatting Toolbar using
-the `customElements` option in `useBlockNote`:
-
-```typescript
-const editor = useBlockNote({
-  customElements: {
-    formattingToolbar: CustomFormattingToolbar
-  },
-});
+```css-vue /styles.css [hidden]
+{{ getStyles(isDark) }}
 ```
 
-## Default Items
+:::
 
-It might seem daunting to create your own Formatting Toolbar from scratch, which is why BlockNote provides React components for everything you see in the default layout - both the toolbar itself and the items in it. Below are all the default components you can use to build your custom toolbar:
+`CustomFormattingToolbar` is the component we use to replace the default Formatting Toolbar. You can see it's made up of a bunch of other components that are exported by BlockNote. Read on to [Components](/docs/formatting-toolbar#components) to find out more about these.
 
-```typescript
-// Toolbar which wraps all the items.
-type ToolbarProps = {
-  children: ReactNode;
-};
-const Toolbar = (props: ToolbarProps) => ...;
+After creating `CustomFormattingToolbar`, we tell BlockNote to use it inside `BlockNoteView`. [Changing UI Elements](/docs/ui-elements) has more information about how this is done.
 
-// Dropdown which changes the block type.
-type BlockTypeDropdownProps = {
-  editor: BlockNoteEditor
-};
-const BlockTypeDropdown = (props: BlockTypeDropdownProps) => ...;
+## Components
 
-// Button which toggles a simple style on the highlighted text.
-type ToggledStyleButtonProps = {
-  editor: BlockNoteEditor;
-  toggledStyle: "bold" | "italic" | "underline" | "strike" | "code";
-};
-const ToggledStyleButton = (props: ToggledStyleButtonProps) => ...;
+It might seem daunting to create your own Formatting Toolbar from scratch, which is why BlockNote provides React components that you can use which match the default styling.
 
-// Button which sets the text alignment on the block.
-type TextAlignButtonProps = {
-  editor: BlockNoteEditor;
-  textAlignment: "left" | "center" | "right" | "center";
-};
-const TextAlignButton = (props: TextAlignButtonProps) => ...;
+### Default Components
 
-// Button which opens a dropdown on hover. The dropdown lets you set the 
-// highlighted text's color.
-type ColorStyleButtonProps = {
-  editor: BlockNoteEditor
-};
-const ColorStyleButton = (props: ColorStyleButtonProps) => ...;
+BlockNote exports all components used to create the default layout - both the toolbar itself and the items in it. Head to the [default Formatting Toolbar's source code](https://github.com/TypeCellOS/BlockNote/blob/main/packages/react/src/FormattingToolbar/components/DefaultFormattingToolbar.tsx) to see all the components that you can use.
 
-// Button which nests the block, if it can be nested.
-type NestBlockButtonProps = {
-  editor: BlockNoteEditor
-};
-const NestBlockButton = (props: NestBlockButtonProps) => ...;
+### Custom Components
 
-// Button which unnests the block, if it can be nested.
-type UnestBlockButtonProps = {
-  editor: BlockNoteEditor
-};
-const UnestBlockButton = (props: UnestBlockButtonProps) => ...;
-
-// Button which opens a dialog box to create a new link.
-type CreateLinkButtonProps = {
-  editor: BlockNoteEditor
-};
-const CreateLinkButton = (props: CreateLinkButtonProps) => ...;
-```
-
-## Custom Items
-
-BlockNote also provides components that you can use to make your own toolbar items, which match BlockNote's UI styling:
+BlockNote also provides components that you can use to make your own toolbar items, which also match the default styling:
 
 ```typescript
 // Custom dropdown.
@@ -143,72 +175,3 @@ type ToolbarButtonProps = {
 };
 export const ToolbarButton = (props: ToolbarButtonProps) => ...;
 ```
-
-## Demo: Simple Custom Formatting Toolbar
-
-The example below shows a basic custom formatting toolbar with four items. The first three are default items to toggle bold, italic, and underline, while the last one is a custom button which toggles the text and background colors to be blue.
-
-::: sandbox {template=react-ts}
-
-```typescript-vue /App.tsx
-import { BlockNoteEditor } from "@blocknote/core";
-import {
-  BlockNoteView,
-  createReactFormattingToolbarFactory,
-  ToggledStyleButton,
-  Toolbar,
-  ToolbarButton,
-  useBlockNote,
-} from "@blocknote/react";
-import "@blocknote/core/style.css";
-
-const CustomFormattingToolbar = (props: { editor: BlockNoteEditor }) => {
-  return (
-    <Toolbar>
-      {/*Default button to toggle bold.*/}
-      <ToggledStyleButton editor={props.editor} toggledStyle={"bold"} />
-      {/*Default button to toggle italic.*/}
-      <ToggledStyleButton editor={props.editor} toggledStyle={"italic"} />
-      {/*Default button to toggle underline.*/}
-      <ToggledStyleButton editor={props.editor} toggledStyle={"underline"} />
-      {/*Custom button to toggle blue text & background color.*/}
-      <ToolbarButton
-      mainTooltip={"Blue Text & Background"}
-      onClick={() => {
-        props.editor.toggleStyles({
-          textColor: "blue",
-          backgroundColor: "blue",
-        });
-      }}
-      isSelected={
-        props.editor.getActiveStyles().textColor === "blue" &&
-        props.editor.getActiveStyles().backgroundColor === "blue"
-      }>
-        Blue
-      </ToolbarButton>
-    </Toolbar>
-  );
-};
-
-export default function App() {
-  // Creates a new editor instance.
-  const editor: BlockNoteEditor = useBlockNote({
-    theme: "{{ getTheme(isDark) }}",
-    customElements: {
-      // Makes the editor instance use the custom toolbar.
-      formattingToolbar: CustomFormattingToolbar
-    }
-  });
-
-  // Renders the editor instance.
-  return <BlockNoteView editor = {editor}/>;
-}
-```
-
-```css-vue /styles.css [hidden]
-{{ getStyles(isDark) }}
-```
-
-:::
-
-If you're unsure about what's happening inside `onClick` and `isSelected`, head to [Introduction to Blocks](/docs/blocks), which will guide you through reading & manipulating blocks in the editor using code.

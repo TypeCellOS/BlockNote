@@ -30,22 +30,38 @@ export function propsToAttributes<
   const tiptapAttributes: Record<string, Attribute> = {};
 
   Object.entries(blockConfig.propSchema).forEach(([name, spec]) => {
-    if (typeof spec.default === 'string') {
-      tiptapAttributes[name] = {
-        default: spec.default,
-        keepOnSplit: true,
-        // Props are displayed in kebab-case as HTML attributes. If a prop's
-        // value is the same as its default, we don't display an HTML
-        // attribute for it.
-        parseHTML: (element) => element.getAttribute(camelToDataKebab(name)),
-        renderHTML: (attributes) =>
-          attributes[camelToDataKebab(name)] !== spec.default
-            ? {
-                [camelToDataKebab(name)]: attributes[name],
-              }
-            : {},
-      };
+    let defaultValue: string = '';
+
+    if (typeof spec.default === "string") {
+      defaultValue = spec.default;
     }
+
+    if (typeof spec.default === "number") {
+      defaultValue = spec.default.toString();
+    }
+
+    if (typeof spec.default === "boolean") {
+      defaultValue = spec.default ? "true" : "false";
+    }
+
+    if (spec.default && typeof spec.default === "object") {
+      defaultValue = JSON.stringify(spec.default);
+    }
+
+    tiptapAttributes[name] = {
+      default: defaultValue,
+      keepOnSplit: true,
+      // Props are displayed in kebab-case as HTML attributes. If a prop's
+      // value is the same as its default, we don't display an HTML
+      // attribute for it.
+      parseHTML: (element) => element.getAttribute(camelToDataKebab(name)),
+      renderHTML: (attributes) =>
+        attributes[camelToDataKebab(name)] !== defaultValue
+          ? {
+              [camelToDataKebab(name)]: attributes[name],
+            }
+          : {},
+    };
   });
 
   return tiptapAttributes;

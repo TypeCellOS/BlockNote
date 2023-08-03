@@ -37,7 +37,7 @@ import "@blocknote/core/style.css";
 
 function App() {
   // Creates a new editor instance.
-  const editor: BlockNoteEditor | null = useBlockNote({});
+  const editor: BlockNoteEditor = useBlockNote({});
 
   // Renders the editor instance using a React component.
   return <BlockNoteView editor={editor} />;
@@ -45,6 +45,10 @@ function App() {
 ```
 
 As well as `BlockNoteView` and `useBlockNote`, we import `@blocknote/core/style.css` to provide default styling for the editor.
+
+::: warning Next.js usage (or other server-side React frameworks)
+Are you using Next.js (`create-next-app`)? Because BlockNote is a client-only component, make sure to disable server-side rendering of BlockNote. [Read our guide on setting up Next.js + BlockNote](/docs/nextjs)
+:::
 
 ## Demo: Basic App Using BlockNote
 
@@ -59,7 +63,7 @@ import "@blocknote/core/style.css";
 
 export default function App() {
   // Creates a new editor instance.
-  const editor: BlockNoteEditor | null = useBlockNote({
+  const editor: BlockNoteEditor = useBlockNote({
     theme: "{{ getTheme(isDark) }}"
   });
 

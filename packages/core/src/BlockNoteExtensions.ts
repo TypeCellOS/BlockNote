@@ -23,38 +23,18 @@ import { blocks } from "./extensions/Blocks";
 import { BlockSchema } from "./extensions/Blocks/api/blockTypes";
 import { CustomBlockSerializerExtension } from "./extensions/Blocks/api/serialization";
 import blockStyles from "./extensions/Blocks/nodes/Block.module.css";
-import { BlockSideMenuFactory } from "./extensions/DraggableBlocks/BlockSideMenuFactoryTypes";
-import { createDraggableBlocksExtension } from "./extensions/DraggableBlocks/DraggableBlocksExtension";
-import { createFormattingToolbarExtension } from "./extensions/FormattingToolbar/FormattingToolbarExtension";
-import { FormattingToolbarFactory } from "./extensions/FormattingToolbar/FormattingToolbarFactoryTypes";
-import HyperlinkMark from "./extensions/HyperlinkToolbar/HyperlinkMark";
-import { HyperlinkToolbarFactory } from "./extensions/HyperlinkToolbar/HyperlinkToolbarFactoryTypes";
 import { Placeholder } from "./extensions/Placeholder/PlaceholderExtension";
-import {
-  BaseSlashMenuItem,
-  createSlashMenuExtension,
-} from "./extensions/SlashMenu";
 import { TextAlignmentExtension } from "./extensions/TextAlignment/TextAlignmentExtension";
 import { TextColorExtension } from "./extensions/TextColor/TextColorExtension";
 import { TextColorMark } from "./extensions/TextColor/TextColorMark";
 import { TrailingNode } from "./extensions/TrailingNode/TrailingNodeExtension";
 import UniqueID from "./extensions/UniqueID/UniqueID";
-import { SuggestionsMenuFactory } from "./shared/plugins/suggestion/SuggestionsMenuFactoryTypes";
-
-export type UiFactories<BSchema extends BlockSchema> = Partial<{
-  formattingToolbarFactory: FormattingToolbarFactory<BSchema>;
-  hyperlinkToolbarFactory: HyperlinkToolbarFactory;
-  slashMenuFactory: SuggestionsMenuFactory<BaseSlashMenuItem<BSchema>>;
-  blockSideMenuFactory: BlockSideMenuFactory<BSchema>;
-}>;
 
 /**
  * Get all the Tiptap extensions BlockNote is configured with by default
  */
 export const getBlockNoteExtensions = <BSchema extends BlockSchema>(opts: {
   editor: BlockNoteEditor<BSchema>;
-  uiFactories: UiFactories<BSchema>;
-  slashCommands: BaseSlashMenuItem<any>[]; // couldn't fix type, see https://github.com/TypeCellOS/BlockNote/pull/191#discussion_r1210708771
   blockSchema: BSchema;
   collaboration?: {
     fragment: Y.XmlFragment;
@@ -99,6 +79,7 @@ export const getBlockNoteExtensions = <BSchema extends BlockSchema>(opts: {
     Italic,
     Strike,
     Underline,
+    Link,
     TextColorMark,
     TextColorExtension,
     BackgroundColorMark,
@@ -153,44 +134,6 @@ export const getBlockNoteExtensions = <BSchema extends BlockSchema>(opts: {
   } else {
     // disable history extension when collaboration is enabled as Yjs takes care of undo / redo
     ret.push(History);
-  }
-
-  if (opts.uiFactories.blockSideMenuFactory) {
-    ret.push(
-      createDraggableBlocksExtension<BSchema>().configure({
-        editor: opts.editor,
-        blockSideMenuFactory: opts.uiFactories.blockSideMenuFactory,
-      })
-    );
-  }
-
-  if (opts.uiFactories.formattingToolbarFactory) {
-    ret.push(
-      createFormattingToolbarExtension<BSchema>().configure({
-        editor: opts.editor,
-        formattingToolbarFactory: opts.uiFactories.formattingToolbarFactory,
-      })
-    );
-  }
-
-  if (opts.uiFactories.hyperlinkToolbarFactory) {
-    ret.push(
-      HyperlinkMark.configure({
-        hyperlinkToolbarFactory: opts.uiFactories.hyperlinkToolbarFactory,
-      })
-    );
-  } else {
-    ret.push(Link);
-  }
-
-  if (opts.uiFactories.slashMenuFactory) {
-    ret.push(
-      createSlashMenuExtension<BSchema>().configure({
-        editor: opts.editor,
-        commands: opts.slashCommands,
-        slashMenuFactory: opts.uiFactories.slashMenuFactory,
-      })
-    );
   }
 
   return ret;

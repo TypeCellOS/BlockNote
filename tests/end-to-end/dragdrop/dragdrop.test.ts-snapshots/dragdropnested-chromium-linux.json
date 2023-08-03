@@ -30,7 +30,7 @@
                 {
                   "type": "blockContainer",
                   "attrs": {
-                    "id": "6",
+                    "id": "0",
                     "textColor": "default",
                     "backgroundColor": "default"
                   },
@@ -76,7 +76,7 @@
                         {
                           "type": "blockContainer",
                           "attrs": {
-                            "id": "7",
+                            "id": "2",
                             "textColor": "default",
                             "backgroundColor": "default"
                           },
@@ -107,7 +107,7 @@
         {
           "type": "blockContainer",
           "attrs": {
-            "id": "8",
+            "id": "4",
             "textColor": "default",
             "backgroundColor": "default"
           },

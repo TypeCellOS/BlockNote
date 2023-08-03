@@ -5,6 +5,6 @@ import { onConnect } from "y-partykit";
 // preview with npx partykit@beta dev partykitserver.ts
 export default {
   onConnect(ws, room) {
-    return onConnect(ws, room, { persist: true });
+    return onConnect(ws, room, { persist: false, gc: true });
   },
 } satisfies PartyKitServer;

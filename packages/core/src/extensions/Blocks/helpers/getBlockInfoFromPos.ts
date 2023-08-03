@@ -26,6 +26,12 @@ export function getBlockInfoFromPos(
     return undefined;
   }
 
+  // This gets triggered when a node selection on a block is active, i.e. when
+  // you drag and drop a block.
+  if (doc.resolve(posInBlock).parent.type.name === "blockGroup") {
+    posInBlock++;
+  }
+
   const $pos = doc.resolve(posInBlock);
 
   const maxDepth = $pos.depth;
