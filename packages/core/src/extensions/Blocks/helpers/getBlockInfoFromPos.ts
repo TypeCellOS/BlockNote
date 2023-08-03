@@ -12,27 +12,45 @@ export type BlockInfo = {
 };
 
 /**
- * Retrieves information regarding the most nested block node in a ProseMirror doc, that a given position lies in.
+ * Retrieves information regarding the nearest blockContainer node in a
+ * ProseMirror doc, relative to a position.
  * @param doc The ProseMirror doc.
- * @param posInBlock A position somewhere within a block node.
- * @returns A BlockInfo object for the block the given position is in, or undefined if the position is not in a block
- * for the given doc.
+ * @param pos An integer position.
+ * @returns A BlockInfo object for the nearest blockContainer node.
  */
-export function getBlockInfoFromPos(
-  doc: Node,
-  posInBlock: number
-): BlockInfo | undefined {
-  if (posInBlock < 0 || posInBlock > doc.nodeSize) {
-    return undefined;
+export function getBlockInfoFromPos(doc: Node, pos: number): BlockInfo {
+  // If the position is outside the outer block group, we need to move it to the
+  // nearest block. This happens when the collaboration plugin is active, where
+  // the selection is placed at the very end of the doc.
+  const outerBlockGroupStartPos = 1;
+  const outerBlockGroupEndPos = doc.nodeSize - 2;
+  if (pos <= outerBlockGroupStartPos) {
+    pos = outerBlockGroupStartPos + 1;
+
+    while (
+      doc.resolve(pos).parent.type.name !== "blockContainer" &&
+      pos < outerBlockGroupEndPos
+    ) {
+      pos++;
+    }
+  } else if (pos >= outerBlockGroupEndPos) {
+    pos = outerBlockGroupEndPos - 1;
+
+    while (
+      doc.resolve(pos).parent.type.name !== "blockContainer" &&
+      pos > outerBlockGroupStartPos
+    ) {
+      pos--;
+    }
   }
 
   // This gets triggered when a node selection on a block is active, i.e. when
   // you drag and drop a block.
-  if (doc.resolve(posInBlock).parent.type.name === "blockGroup") {
-    posInBlock++;
+  if (doc.resolve(pos).parent.type.name === "blockGroup") {
+    pos++;
   }
 
-  const $pos = doc.resolve(posInBlock);
+  const $pos = doc.resolve(pos);
 
   const maxDepth = $pos.depth;
   let node = $pos.node(maxDepth);
@@ -40,7 +58,9 @@ export function getBlockInfoFromPos(
 
   while (true) {
     if (depth < 0) {
-      return undefined;
+      throw new Error(
+        "Could not find blockContainer node. This can only happen if the underlying BlockNote schema has been edited."
+      );
     }
 
     if (node.type.name === "blockContainer") {
