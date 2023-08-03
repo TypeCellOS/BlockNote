@@ -55,10 +55,10 @@ const insertHelloWorld = (editor: BlockNoteEditor) => {
 // Custom Slash Menu item which executes the above function.
 const insertHelloWorldItem: ReactSlashMenuItem = {
   name: "Insert Hello World",
-  group: "Other",
-  icon: <HiOutlineGlobeAlt size={18} />,
   execute: insertHelloWorld,
   aliases: ["helloworld", "hw"],
+  group: "Other",
+  icon: <HiOutlineGlobeAlt size={18} />,
   hint: "Used to insert a block with 'Hello World' below.",
 };
 
@@ -72,7 +72,7 @@ export default function App() {
   // Creates a new editor instance.
   const editor: BlockNoteEditor = useBlockNote({
     theme: "{{ getTheme(isDark) }}",
-    slashCommands: customSlashMenuItemList,
+    slashMenuItems: customSlashMenuItemList,
   });
 
   // Renders the editor instance.
@@ -126,10 +126,10 @@ Creating a custom Slash Menu item is easy! Just declare a plain JavaScript objec
 ```typescript
 type SlashMenuItem = {
   name: string;
-  group: string;
-  icon: JSX.Element;
   execute: (editor: BlockNoteEditor) => void;
   aliases?: string[];
+  group: string;
+  icon: JSX.Element;
   hint?: string;
   shortcut?: string;
 };
@@ -137,13 +137,13 @@ type SlashMenuItem = {
 
 `name:` The item's name, which is the same string you see displayed in the menu, e.g. "Heading" or "Paragraph".
 
-`group:` The name of the group the item belongs to, e.g. "Headings" or "Basic Blocks".
-
-`icon:` The item's icon.
-
 `execute:` A function that runs when the item is selected.
 
 `aliases:` Other names for the item, used as shortcuts for search.
+
+`group:` The name of the group the item belongs to, e.g. "Headings" or "Basic Blocks".
+
+`icon:` The item's icon.
 
 `hint:` A short phrase to describe what the item is for, which is displayed below its name.
 

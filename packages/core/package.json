@@ -3,7 +3,7 @@
   "homepage": "https://github.com/TypeCellOS/BlockNote",
   "private": false,
   "license": "MPL-2.0",
-  "version": "0.8.3",
+  "version": "0.8.4-alpha.0",
   "files": [
     "dist",
     "types",
@@ -71,6 +71,10 @@
     "@tiptap/pm": "^2.0.3",
     "hast-util-from-dom": "^4.2.0",
     "lodash": "^4.17.21",
+    "prosemirror-model": "^1.18.3",
+    "prosemirror-state": "^1.4.3",
+    "prosemirror-transform": "^1.7.2",
+    "prosemirror-view": "^1.31.4",
     "rehype-parse": "^8.0.4",
     "rehype-remark": "^9.1.2",
     "rehype-stringify": "^9.0.3",
@@ -89,22 +93,17 @@
     "@types/lodash": "^4.14.179",
     "@types/uuid": "^8.3.4",
     "eslint": "^8.10.0",
-    "eslint-config-react-app": "^7.0.0",
     "jsdom": "^21.1.0",
     "prettier": "^2.7.1",
     "typescript": "^5.0.4",
-    "vite": "^4.1.2",
+    "vite": "^4.4.8",
     "vite-plugin-eslint": "^1.8.1",
-    "vitest": "^0.28.5"
+    "vitest": "^0.34.1"
   },
   "eslintConfig": {
     "extends": [
-      "react-app",
-      "react-app/jest"
-    ],
-    "rules": {
-      "curly": 1
-    }
+      "../../.eslintrc.js"
+    ]
   },
   "publishConfig": {
     "access": "public",
