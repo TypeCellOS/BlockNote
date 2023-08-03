@@ -62,7 +62,6 @@
     "@types/react-dom": "^18.0.9",
     "@vitejs/plugin-react": "^4.0.4",
     "eslint": "^8.10.0",
-    "eslint-config-react-app": "^7.0.0",
     "prettier": "^2.7.1",
     "typescript": "^5.0.4",
     "vite": "^4.4.8",
@@ -75,12 +74,8 @@
   },
   "eslintConfig": {
     "extends": [
-      "react-app",
-      "react-app/jest"
-    ],
-    "rules": {
-      "curly": 1
-    }
+      "../../.eslintrc.js"
+    ]
   },
   "publishConfig": {
     "access": "public",
