@@ -205,12 +205,15 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
 
     this.schema = newOptions.blockSchema;
 
-    const initialContent = newOptions.initialContent || [
-      {
-        type: "paragraph",
-        id: UniqueID.options.generateID(),
-      },
-    ];
+    const initialContent =
+      newOptions.initialContent || options.collaboration
+        ? undefined
+        : [
+            {
+              type: "paragraph",
+              id: UniqueID.options.generateID(),
+            },
+          ];
 
     const tiptapOptions: EditorOptions = {
       ...blockNoteTipTapOptions,
@@ -220,6 +223,10 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
         this.ready = true;
       },
       onBeforeCreate(editor) {
+        if (!initialContent) {
+          // when using collaboration
+          return;
+        }
         // we have to set the initial content here, because now we can use the editor schema
         // which has been created at this point
         const schema = editor.editor.schema;
