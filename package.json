@@ -9,6 +9,8 @@
     "@playwright/experimental-ct-react": "^1.33.0",
     "@playwright/test": "^1.33.0",
     "eslint": "^8.22.0",
+    "eslint-plugin-import": "^2.28.0",
+    "eslint-config-react-app": "^7.0.0",
     "lerna": "^5.4.0",
     "patch-package": "^6.4.7",
     "typescript": "^5.0.4"

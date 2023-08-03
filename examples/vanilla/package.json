@@ -1,7 +1,7 @@
 {
   "name": "@blocknote/example-vanilla",
   "private": true,
-  "version": "0.8.3",
+  "version": "0.8.4-alpha.0",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -9,22 +9,17 @@
     "lint": "eslint src --max-warnings 0"
   },
   "dependencies": {
-    "@blocknote/core": "^0.8.3"
+    "@blocknote/core": "^0.8.4-alpha.0"
   },
   "devDependencies": {
     "eslint": "^8.10.0",
-    "eslint-config-react-app": "^7.0.0",
     "typescript": "^5.0.4",
-    "vite": "^4.1.2",
+    "vite": "^4.4.8",
     "vite-plugin-eslint": "^1.8.1"
   },
   "eslintConfig": {
     "extends": [
-      "react-app",
-      "react-app/jest"
-    ],
-    "rules": {
-      "curly": 1
-    }
+      "../../.eslintrc.js"
+    ]
   }
 }

@@ -1,7 +1,7 @@
 {
   "name": "blocknote-website",
   "private": true,
-  "version": "0.8.3",
+  "version": "0.8.4-alpha.0",
   "description": "Website for BlockNote",
   "main": "index.js",
   "scripts": {
@@ -12,7 +12,7 @@
   "author": "",
   "license": "MPL-2.0",
   "dependencies": {
-    "@blocknote/react": "^0.8.3",
+    "@blocknote/react": "^0.8.4-alpha.0",
     "@vercel/og": "^0.5.6",
     "veaury": "^2.3.12",
     "vue-github-button": "^3.1.0",
