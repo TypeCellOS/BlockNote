@@ -122,19 +122,22 @@ export default function App() {
       <SlashMenuPositioner editor={editor} />
       <SideMenuPositioner
         editor={editor}
-        sideMenu={() => <div className={"sideMenu"}>Side Menu</div>}
+        sideMenu={() => (
+          <div className={"sideMenu"}>
+            Side Menu
+          </div>
+        )}
       />
     </BlockNoteView>
   );
 }
-
 ```
 
 ```css-vue /styles.css [hidden]
 {{ getStyles(isDark) }}
 
 .sideMenu {
-  size: 14;
+  font-size: 12px;
 }
 ```
 
