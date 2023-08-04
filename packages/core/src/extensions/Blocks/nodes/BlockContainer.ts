@@ -6,11 +6,11 @@ import {
   inlineContentToNodes,
 } from "../../../api/nodeConversions/nodeConversions";
 
+import { BlockSchema, PartialBlock } from "../api/blockTypes";
 import { getBlockInfoFromPos } from "../helpers/getBlockInfoFromPos";
 import { PreviousBlockTypePlugin } from "../PreviousBlockTypePlugin";
 import styles from "./Block.module.css";
 import BlockAttributes from "./BlockAttributes";
-import { BlockSchema, PartialBlock } from "../api/blockTypes";
 
 // TODO
 export interface IBlock {
@@ -64,7 +64,7 @@ export const BlockContainer = Node.create<IBlock>({
           }
 
           const attrs: Record<string, string> = {};
-          for (let [nodeAttr, HTMLAttr] of Object.entries(BlockAttributes)) {
+          for (const [nodeAttr, HTMLAttr] of Object.entries(BlockAttributes)) {
             if (element.getAttribute(HTMLAttr)) {
               attrs[nodeAttr] = element.getAttribute(HTMLAttr)!;
             }

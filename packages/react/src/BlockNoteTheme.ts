@@ -27,7 +27,7 @@ export const blockNoteColorScheme: ColorScheme = [
 ];
 
 export const getBlockNoteTheme = (
-  useDarkTheme: boolean = false
+  useDarkTheme = false
 ): MantineThemeOverride => {
   const boxShadow = `0px 4px 8px ${
     useDarkTheme ? blockNoteColorScheme[8] : blockNoteColorScheme[2]
