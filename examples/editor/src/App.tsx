@@ -14,13 +14,12 @@ function App() {
       class: styles.editor,
       "data-test": "editor",
     },
-    theme: "light",
   });
 
   // Give tests a way to get prosemirror instance
   (window as WindowWithProseMirror).ProseMirror = editor?._tiptapEditor;
 
-  return <BlockNoteView editor={editor} />;
+  return <BlockNoteView editor={editor} theme={"dark"} />;
 }
 
 export default App;

@@ -11,9 +11,9 @@ import {
   updateBlock,
 } from "./api/blockManipulation/blockManipulation";
 import {
-  HTMLToBlocks,
   blocksToHTML,
   blocksToMarkdown,
+  HTMLToBlocks,
   markdownToBlocks,
 } from "./api/formatConversions/formatConversions";
 import {
@@ -98,12 +98,6 @@ export type BlockNoteEditorOptions<BSchema extends BlockSchema> = {
    * @default true
    */
   defaultStyles: boolean;
-  /**
-   * Whether to use the light or dark theme.
-   *
-   * @default "light"
-   */
-  theme: "light" | "dark";
 
   /**
    * A list of block types that should be available in the editor.
@@ -266,7 +260,6 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
           : [...(newOptions._tiptapOptions?.extensions || []), ...extensions],
       editorProps: {
         attributes: {
-          "data-theme": options.theme || "light",
           ...(newOptions.editorDOMAttributes || {}),
           class: [
             styles.bnEditor,

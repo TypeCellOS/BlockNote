@@ -1,5 +1,5 @@
 import { BlockNoteEditor, BlockSchema } from "@blocknote/core";
-import { MantineProvider } from "@mantine/core";
+import { createStyles, MantineProvider } from "@mantine/core";
 import { EditorContent } from "@tiptap/react";
 import { HTMLAttributes, ReactNode } from "react";
 import { getBlockNoteTheme } from "./BlockNoteTheme";
@@ -11,14 +11,25 @@ import { SlashMenuPositioner } from "./SlashMenu/components/SlashMenuPositioner"
 export function BlockNoteView<BSchema extends BlockSchema>(
   props: {
     editor: BlockNoteEditor<BSchema>;
+    theme?: "light" | "dark";
     children?: ReactNode;
   } & HTMLAttributes<HTMLDivElement>
 ) {
-  const { editor, children, ...rest } = props;
+  const { classes } = createStyles({ root: {} })(undefined, {
+    name: "Editor",
+  });
+
+  const { editor, children, theme, className, ...rest } = props;
 
   return (
-    <MantineProvider theme={getBlockNoteTheme()}>
-      <EditorContent editor={props.editor?._tiptapEditor} {...rest}>
+    <MantineProvider theme={getBlockNoteTheme(props.theme === "dark")}>
+      <EditorContent
+        editor={props.editor?._tiptapEditor}
+        className={
+          props.className ? `${classes.root} ${props.className}` : classes.root
+        }
+        {...rest}>
+        <p>Test</p>
         {props.children || (
           <>
             <FormattingToolbarPositioner editor={props.editor} />
