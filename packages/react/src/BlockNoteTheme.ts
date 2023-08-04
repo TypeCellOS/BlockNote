@@ -1,19 +1,34 @@
 import { MantineThemeOverride } from "@mantine/core";
 
-type ColorScheme = [
-  string,
-  string,
-  string,
-  string,
-  string,
-  string,
-  string,
-  string,
-  string,
-  string
-];
+export type Color = {
+  light: string;
+  dark: string;
+};
 
-export const blockNoteColorScheme: ColorScheme = [
+export type CombinedColor = {
+  text: Color;
+  background: Color;
+};
+
+export type ColorScheme = {
+  editor: CombinedColor;
+  menu: CombinedColor;
+  tooltip: CombinedColor;
+  hovered: CombinedColor;
+  selected: CombinedColor;
+  disabled: CombinedColor;
+  shadow: Color;
+  border: Color;
+  sideMenu: Color;
+};
+
+export type Theme = {
+  colors: ColorScheme;
+  borderRadius: number;
+  fontFamily: string;
+};
+
+export const blockNoteColorScheme = [
   "#FFFFFF",
   "#EFEFEF",
   "#CFCFCF",
@@ -26,32 +41,230 @@ export const blockNoteColorScheme: ColorScheme = [
   "#000000",
 ];
 
+export const blockNoteTheme: Theme = {
+  colors: {
+    editor: {
+      text: {
+        light: blockNoteColorScheme[5],
+        dark: blockNoteColorScheme[2],
+      },
+      background: {
+        light: blockNoteColorScheme[0],
+        dark: blockNoteColorScheme[6],
+      },
+    },
+    menu: {
+      text: {
+        light: blockNoteColorScheme[5],
+        dark: blockNoteColorScheme[2],
+      },
+      background: {
+        light: blockNoteColorScheme[0],
+        dark: blockNoteColorScheme[6],
+      },
+    },
+    tooltip: {
+      text: {
+        light: blockNoteColorScheme[4],
+        dark: blockNoteColorScheme[4],
+      },
+      background: {
+        light: blockNoteColorScheme[1],
+        dark: blockNoteColorScheme[7],
+      },
+    },
+    hovered: {
+      text: {
+        light: blockNoteColorScheme[5],
+        dark: blockNoteColorScheme[2],
+      },
+      background: {
+        light: blockNoteColorScheme[1],
+        dark: blockNoteColorScheme[7],
+      },
+    },
+    selected: {
+      text: {
+        light: blockNoteColorScheme[0],
+        dark: blockNoteColorScheme[2],
+      },
+      background: {
+        light: blockNoteColorScheme[5],
+        dark: blockNoteColorScheme[8],
+      },
+    },
+    disabled: {
+      text: {
+        light: blockNoteColorScheme[3],
+        dark: blockNoteColorScheme[5],
+      },
+      background: {
+        light: blockNoteColorScheme[1],
+        dark: blockNoteColorScheme[7],
+      },
+    },
+    shadow: {
+      light: blockNoteColorScheme[2],
+      dark: blockNoteColorScheme[8],
+    },
+    border: {
+      light: blockNoteColorScheme[1],
+      dark: blockNoteColorScheme[7],
+    },
+    sideMenu: {
+      light: blockNoteColorScheme[2],
+      dark: blockNoteColorScheme[4],
+    },
+  },
+  borderRadius: 6,
+  fontFamily:
+    '"Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Open Sans", "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif',
+};
+
+const custom: Partial<Theme> = {
+  colors: {
+    editor: {
+      text: {
+        light: "#222222",
+        dark: "#ffffff",
+      },
+      background: {
+        light: "#ffffff",
+        dark: "#9b0000",
+      },
+    },
+    menu: {
+      text: {
+        light: "#ffffff",
+        dark: "#ffffff",
+      },
+      background: {
+        light: "#9b0000",
+        dark: "#9b0000",
+      },
+    },
+    tooltip: {
+      text: {
+        light: "#ffffff",
+        dark: "#ffffff",
+      },
+      background: {
+        light: "#b00000",
+        dark: "#b00000",
+      },
+    },
+    hovered: {
+      text: {
+        light: "#ffffff",
+        dark: "#ffffff",
+      },
+      background: {
+        light: "#b00000",
+        dark: "#b00000",
+      },
+    },
+    selected: {
+      text: {
+        light: "#ffffff",
+        dark: "#ffffff",
+      },
+      background: {
+        light: "#c50000",
+        dark: "#c50000",
+      },
+    },
+    disabled: {
+      text: {
+        light: "#9b0000",
+        dark: "#9b0000",
+      },
+      background: {
+        light: "#7d0000",
+        dark: "#7d0000",
+      },
+    },
+    shadow: {
+      light: "#640000",
+      dark: "#640000",
+    },
+    border: {
+      light: "#920000",
+      dark: "#920000",
+    },
+    sideMenu: {
+      light: "#bababa",
+      dark: "#ffffff",
+    },
+  },
+  borderRadius: 4,
+  fontFamily: "Helvetica Neue, sans-serif",
+};
+
 export const getBlockNoteTheme = (
   useDarkTheme: boolean = false,
-  colorScheme: ColorScheme = blockNoteColorScheme
+  theme: Partial<Theme> = custom
 ): MantineThemeOverride => {
-  const boxShadow = `0px 4px 8px ${
-    useDarkTheme ? colorScheme[8] : colorScheme[2]
-  }, 0px 0px 1px ${useDarkTheme ? colorScheme[6] : colorScheme[1]}`;
+  const fullTheme: Theme = { ...blockNoteTheme, ...theme };
 
-  const border = `1px solid ${useDarkTheme ? colorScheme[7] : colorScheme[1]}`;
+  const editorText = useDarkTheme
+    ? fullTheme.colors.editor.text.dark
+    : fullTheme.colors.editor.text.light;
+  const editorBackground = useDarkTheme
+    ? fullTheme.colors.editor.background.dark
+    : fullTheme.colors.editor.background.light;
 
-  const sideMenu = useDarkTheme ? colorScheme[4] : colorScheme[2];
+  const menuText = useDarkTheme
+    ? fullTheme.colors.menu.text.dark
+    : fullTheme.colors.menu.text.light;
+  const menuBackground = useDarkTheme
+    ? fullTheme.colors.menu.background.dark
+    : fullTheme.colors.menu.background.light;
 
-  const primaryBackground = useDarkTheme ? colorScheme[6] : colorScheme[0];
-  const secondaryBackground = useDarkTheme ? colorScheme[7] : colorScheme[1];
+  const tooltipText = useDarkTheme
+    ? fullTheme.colors.tooltip.text.dark
+    : fullTheme.colors.tooltip.text.light;
+  const tooltipBackground = useDarkTheme
+    ? fullTheme.colors.tooltip.background.dark
+    : fullTheme.colors.tooltip.background.light;
 
-  const primaryText = useDarkTheme ? colorScheme[2] : colorScheme[5];
-  const secondaryText = useDarkTheme ? colorScheme[4] : colorScheme[4];
+  const hoveredText = useDarkTheme
+    ? fullTheme.colors.hovered.text.dark
+    : fullTheme.colors.hovered.text.light;
+  const hoveredBackground = useDarkTheme
+    ? fullTheme.colors.hovered.background.dark
+    : fullTheme.colors.hovered.background.light;
 
-  const hoveredBackground = useDarkTheme ? colorScheme[7] : colorScheme[1];
-  const hoveredText = useDarkTheme ? colorScheme[2] : colorScheme[5];
+  const selectedText = useDarkTheme
+    ? fullTheme.colors.selected.text.dark
+    : fullTheme.colors.selected.text.light;
+  const selectedBackground = useDarkTheme
+    ? fullTheme.colors.selected.background.dark
+    : fullTheme.colors.selected.background.light;
 
-  const selectedBackground = useDarkTheme ? colorScheme[8] : colorScheme[5];
-  const selectedText = useDarkTheme ? colorScheme[2] : colorScheme[0];
+  const disabledText = useDarkTheme
+    ? fullTheme.colors.disabled.text.dark
+    : fullTheme.colors.disabled.text.light;
+  const disabledBackground = useDarkTheme
+    ? fullTheme.colors.disabled.background.dark
+    : fullTheme.colors.disabled.background.light;
 
-  const disabledBackground = useDarkTheme ? colorScheme[7] : colorScheme[1];
-  const disabledText = useDarkTheme ? colorScheme[5] : colorScheme[3];
+  const shadow = `0 4px 12px ${
+    useDarkTheme ? fullTheme.colors.shadow.dark : fullTheme.colors.shadow.light
+  }`;
+
+  const border = `1px solid ${
+    useDarkTheme ? fullTheme.colors.border.dark : fullTheme.colors.border.light
+  }`;
+
+  const sideMenu = useDarkTheme
+    ? fullTheme.colors.sideMenu.dark
+    : fullTheme.colors.sideMenu.light;
+
+  const editorBorderRadius = `${Math.max(fullTheme.borderRadius + 2, 1)}px`;
+  const outerBorderRadius = `${fullTheme.borderRadius}px`;
+  const innerBorderRadius = `${Math.max(fullTheme.borderRadius - 2, 1)}px`;
+
+  const fontFamily = fullTheme.fontFamily;
 
   return {
     activeStyles: {
@@ -60,8 +273,8 @@ export const getBlockNoteTheme = (
     },
     colorScheme: useDarkTheme ? "dark" : "light",
     colors: {
-      scheme: colorScheme,
-      dark: colorScheme,
+      scheme: blockNoteColorScheme,
+      dark: blockNoteColorScheme,
       textColors: [
         // primaryText,
         blockNoteColorScheme[6],
@@ -77,7 +290,7 @@ export const getBlockNoteTheme = (
       ],
       backgroundColors: [
         // primaryBackground,
-        colorScheme[0],
+        blockNoteColorScheme[0],
         "#ebeced",
         "#e9e5e3",
         "#fbe4e4",
@@ -102,16 +315,20 @@ export const getBlockNoteTheme = (
       Menu: {
         styles: () => ({
           dropdown: {
-            backgroundColor: primaryBackground,
+            backgroundColor: menuBackground,
             border: border,
-            borderRadius: "6px",
-            boxShadow: boxShadow,
-            color: primaryText,
+            borderRadius: outerBorderRadius,
+            boxShadow: shadow,
+            color: menuText,
             padding: "2px",
+            ".mantine-Menu-label": {
+              backgroundColor: menuBackground,
+              color: menuText,
+            },
             ".mantine-Menu-item": {
-              backgroundColor: primaryBackground,
+              backgroundColor: menuBackground,
               border: "none",
-              color: primaryText,
+              color: menuText,
             },
             ".mantine-Menu-item[data-hovered]": {
               backgroundColor: hoveredBackground,
@@ -134,11 +351,11 @@ export const getBlockNoteTheme = (
       EditHyperlinkMenu: {
         styles: () => ({
           root: {
-            backgroundColor: primaryBackground,
+            backgroundColor: menuBackground,
             border: border,
-            borderRadius: "6px",
-            boxShadow: boxShadow,
-            color: primaryText,
+            borderRadius: outerBorderRadius,
+            boxShadow: shadow,
+            color: menuText,
             gap: "4px",
             minWidth: "145px",
             padding: "2px",
@@ -149,7 +366,7 @@ export const getBlockNoteTheme = (
               paddingInline: "6px",
               // Row icon
               ".mantine-Container-root": {
-                color: primaryText,
+                color: menuText,
                 display: "flex",
                 justifyContent: "center",
                 padding: 0,
@@ -161,7 +378,7 @@ export const getBlockNoteTheme = (
                 ".mantine-TextInput-wrapper": {
                   ".mantine-TextInput-input": {
                     border: "none",
-                    color: primaryText,
+                    color: menuText,
                     fontSize: "12px",
                     padding: 0,
                   },
@@ -174,14 +391,11 @@ export const getBlockNoteTheme = (
       Editor: {
         styles: () => ({
           root: {
-            backgroundColor: "red",
-
-            p: {
-              backgroundColor: "red",
-            },
-
-            '[data-test="editor"]': {
-              backgroundColor: "red",
+            ".ProseMirror": {
+              backgroundColor: editorBackground,
+              borderRadius: editorBorderRadius,
+              color: editorText,
+              fontFamily: fontFamily,
             },
           },
         }),
@@ -189,20 +403,20 @@ export const getBlockNoteTheme = (
       Toolbar: {
         styles: () => ({
           root: {
-            backgroundColor: primaryBackground,
-            boxShadow: boxShadow,
+            backgroundColor: menuBackground,
+            boxShadow: shadow,
             border: border,
-            borderRadius: "6px",
+            borderRadius: outerBorderRadius,
             flexWrap: "nowrap",
             gap: "2px",
             padding: "2px",
             width: "fit-content",
             // Button (including dropdown target)
             ".mantine-UnstyledButton-root": {
-              backgroundColor: primaryBackground,
+              backgroundColor: menuBackground,
               border: "none",
-              borderRadius: "4px",
-              color: primaryText,
+              borderRadius: innerBorderRadius,
+              color: menuText,
             },
             // Hovered button
             ".mantine-UnstyledButton-root:hover": {
@@ -242,15 +456,15 @@ export const getBlockNoteTheme = (
       Tooltip: {
         styles: () => ({
           root: {
-            backgroundColor: primaryBackground,
+            backgroundColor: tooltipBackground,
             border: border,
-            borderRadius: "6px",
-            boxShadow: boxShadow,
-            color: primaryText,
+            borderRadius: outerBorderRadius,
+            boxShadow: shadow,
+            color: tooltipText,
             padding: "4px 10px",
             textAlign: "center",
             "div ~ div": {
-              color: secondaryText,
+              color: tooltipText,
             },
           },
         }),
@@ -262,9 +476,9 @@ export const getBlockNoteTheme = (
             ".mantine-Menu-item": {
               // Icon
               ".mantine-Menu-itemIcon": {
-                backgroundColor: secondaryBackground,
-                borderRadius: "4px",
-                color: primaryText,
+                backgroundColor: tooltipBackground,
+                borderRadius: innerBorderRadius,
+                color: tooltipText,
                 padding: "8px",
               },
               // Text
@@ -277,16 +491,26 @@ export const getBlockNoteTheme = (
               // Badge (keyboard shortcut)
               ".mantine-Menu-itemRightSection": {
                 ".mantine-Badge-root": {
-                  backgroundColor: secondaryBackground,
-                  color: primaryText,
+                  backgroundColor: tooltipBackground,
+                  color: tooltipText,
                 },
               },
             },
           },
         }),
       },
+      SideMenu: {
+        styles: () => ({
+          root: {
+            backgroundColor: "transparent",
+            ".mantine-ActionIcon-root": {
+              color: sideMenu,
+            },
+          },
+        }),
+      },
     },
-    fontFamily: "Inter",
+    fontFamily: fontFamily,
     other: {
       colors: [
         "default",
