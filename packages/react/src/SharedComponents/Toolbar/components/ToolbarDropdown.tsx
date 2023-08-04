@@ -16,28 +16,32 @@ export type ToolbarDropdownProps = {
 };
 
 export function ToolbarDropdown(props: ToolbarDropdownProps) {
-  const { isSelected, ...activeItem } = props.items.filter(
+  const item = props.items.filter(
     (p) => p.isSelected
   )[0];
 
-  if (!activeItem) {
-    return null;
+  if (item) {
+    const { isSelected, ...activeItem } = item;
+
+    if (activeItem) {
+      return (
+        <Menu exitTransitionDuration={0} disabled={props.isDisabled}>
+          <Menu.Target>
+            <ToolbarDropdownTarget
+              text={activeItem.text}
+              icon={activeItem.icon}
+              isDisabled={activeItem.isDisabled}
+            />
+          </Menu.Target>
+          <Menu.Dropdown>
+            {props.items.map((item) => (
+              <ToolbarDropdownItem key={item.text} {...item} />
+            ))}
+          </Menu.Dropdown>
+        </Menu>
+      );
+    }
   }
 
-  return (
-    <Menu exitTransitionDuration={0} disabled={props.isDisabled}>
-      <Menu.Target>
-        <ToolbarDropdownTarget
-          text={activeItem.text}
-          icon={activeItem.icon}
-          isDisabled={activeItem.isDisabled}
-        />
-      </Menu.Target>
-      <Menu.Dropdown>
-        {props.items.map((item) => (
-          <ToolbarDropdownItem key={item.text} {...item} />
-        ))}
-      </Menu.Dropdown>
-    </Menu>
-  );
+  return <></>
 }
