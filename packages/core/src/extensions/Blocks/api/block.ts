@@ -14,6 +14,26 @@ export function camelToDataKebab(str: string): string {
   return "data-" + str.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
 }
 
+export const parseToAttr = (val: unknown) => {
+  if (typeof val === "string") {
+    return val;
+  }
+
+  if (typeof val === "number") {
+    return val.toString();
+  }
+
+  if (typeof val === "boolean") {
+    return val ? "true" : "false";
+  }
+
+  if (val && typeof val === "object") {
+    return JSON.stringify(val);
+  }
+
+  return "";
+}
+
 // Function that uses the 'propSchema' of a blockConfig to create a TipTap
 // node's `addAttributes` property.
 export function propsToAttributes<
@@ -30,23 +50,7 @@ export function propsToAttributes<
   const tiptapAttributes: Record<string, Attribute> = {};
 
   Object.entries(blockConfig.propSchema).forEach(([name, spec]) => {
-    let defaultValue: string = '';
-
-    if (typeof spec.default === "string") {
-      defaultValue = spec.default;
-    }
-
-    if (typeof spec.default === "number") {
-      defaultValue = spec.default.toString();
-    }
-
-    if (typeof spec.default === "boolean") {
-      defaultValue = spec.default ? "true" : "false";
-    }
-
-    if (spec.default && typeof spec.default === "object") {
-      defaultValue = JSON.stringify(spec.default);
-    }
+    const defaultValue = parseToAttr(spec.default);
 
     tiptapAttributes[name] = {
       default: defaultValue,
