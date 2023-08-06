@@ -13,7 +13,7 @@ export const TableRow = Node.create<TableRowOptions>({
     };
   },
 
-  content: "tableCell*",
+  content: "tableCell+",
 
   tableRole: "row",
 

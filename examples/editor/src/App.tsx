@@ -2,12 +2,12 @@
 import { defaultBlockSchema } from "@blocknote/core";
 import "@blocknote/core/style.css";
 import {
+  BNTable,
   BlockNoteView,
   FormattingToolbarPositioner,
   HyperlinkToolbarPositioner,
   SideMenuPositioner,
   SlashMenuPositioner,
-  Table,
   getDefaultReactSlashMenuItems,
   useBlockNote,
 } from "@blocknote/react";
@@ -28,7 +28,10 @@ function App() {
     theme: "light",
     blockSchema: {
       ...defaultBlockSchema,
-      table: Table,
+      table: {
+        node: BNTable as any,
+        propSchema: {},
+      },
     },
     slashCommands: [
       ...getDefaultReactSlashMenuItems(),
@@ -36,15 +39,16 @@ function App() {
         name: "test",
         execute: (editor) => {
           const currentBlock = editor.getTextCursorPosition().block;
-          editor.insertBlocks(
-            [
-              {
-                type: "table",
-              },
-            ],
-            currentBlock,
-            "after"
-          );
+          editor._tiptapEditor.commands.insertTable();
+          // editor.insertBlocks(
+          //   [
+          //     {
+          //       type: "table",
+          //     },
+          //   ],
+          //   currentBlock,
+          //   "after"
+          // );
         },
       },
     ],
