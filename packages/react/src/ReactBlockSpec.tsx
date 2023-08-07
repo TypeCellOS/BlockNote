@@ -86,14 +86,6 @@ export function createReactBlockSpec<
       const BlockContent: FC<NodeViewProps> = (props: NodeViewProps) => {
         const Content = blockConfig.render;
 
-        // Add props as HTML attributes in kebab-case with "data-" prefix
-        const htmlAttributes: Record<string, string> = {};
-        for (const [attribute, value] of Object.entries(props.node.attrs)) {
-          if (attribute in blockConfig.propSchema) {
-            htmlAttributes[camelToDataKebab(attribute)] = value;
-          }
-        }
-
         // Gets BlockNote editor instance
         const editor = this.options.editor!;
         // Gets position of the node
@@ -111,12 +103,35 @@ export function createReactBlockSpec<
           throw new Error("Block type does not match");
         }
 
+        // Access to the parsed props of the node
+        const parsedProps: Record<string, string> = {};
+        // Add props as HTML attributes in kebab-case with "data-" prefix
+        const htmlAttributes: Record<string, string> = {};
+
+        for (const [attribute, value] of Object.entries(props.node.attrs)) {
+          if (attribute in blockConfig.propSchema) {
+            htmlAttributes[camelToDataKebab(attribute)] = value;
+
+            try {
+              parsedProps[attribute] = JSON.parse(value);
+            } catch (e) {
+              parsedProps[attribute] = value;
+            }
+          }
+        }
+
         return (
           <NodeViewWrapper
             className={blockStyles.blockContent}
             data-content-type={blockConfig.type}
             {...htmlAttributes}>
-            <Content block={block} editor={editor} />
+            <Content 
+              editor={editor}
+              block={{
+                ...block,
+                props: parsedProps // needed to pass parsed props with complex data types (objects, arrays, etc).
+              }}
+            />
           </NodeViewWrapper>
         );
       };

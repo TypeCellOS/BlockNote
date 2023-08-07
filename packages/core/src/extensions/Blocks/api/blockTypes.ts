@@ -34,9 +34,9 @@ export type TipTapNode<
 
 // Defines a single prop spec, which includes the default value the prop should
 // take and possible values it can take.
-export type PropSpec = {
-  values?: readonly string[];
-  default: string;
+export type PropSpec<T> = {
+  default: T;
+  values?: readonly T[];
 };
 
 // Defines multiple block prop specs. The key of each prop is the name of the
@@ -44,15 +44,15 @@ export type PropSpec = {
 // in a block config or schema. From a prop schema, we can derive both the props'
 // internal implementation (as TipTap node attributes) and the type information
 // for the external API.
-export type PropSchema = Record<string, PropSpec>;
+export type PropSchema<T = unknown> = Record<string, PropSpec<T>>;
 
 // Defines Props objects for use in Block objects in the external API. Converts
-// each prop spec into a union type of its possible values, or a string if no
-// values are specified.
+// each prop spec into a union type of its possible values, or the type of the
+//  'default' property if values are not specified.
 export type Props<PSchema extends PropSchema> = {
-  [PType in keyof PSchema]: PSchema[PType]["values"] extends readonly string[]
+  [PType in keyof PSchema]: PSchema[PType]["values"] extends readonly unknown[]
     ? PSchema[PType]["values"][number]
-    : string;
+    : PSchema[PType]["default"];
 };
 
 // Defines the config for a single block. Meant to be used as an argument to
@@ -85,7 +85,7 @@ export type BlockConfig<
      * This is typed generically. If you want an editor with your custom schema, you need to
      * cast it manually, e.g.: `const e = editor as BlockNoteEditor<typeof mySchema>;`
      */
-    editor: BlockNoteEditor<BSchema & { [k in Type]: BlockSpec<Type, PSchema> }>
+    editor: BlockNoteEditor<{ [k in Type]: BlockSpec<Type, PSchema> }>
     // (note) if we want to fix the manual cast, we need to prevent circular references and separate block definition and render implementations
     // or allow manually passing <BSchema>, but that's not possible without passing the other generics because Typescript doesn't support partial inferred generics
   ) => ContainsInlineContent extends true

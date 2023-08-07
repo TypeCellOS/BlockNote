@@ -7,6 +7,7 @@ import {
 } from "../../extensions/Blocks/api/blockTypes";
 import { blockToNode } from "../nodeConversions/nodeConversions";
 import { getNodeById } from "../util/nodeUtil";
+import { parseToAttr } from "../..";
 
 export function insertBlocks<BSchema extends BlockSchema>(
   blocksToInsert: PartialBlock<BSchema>[],
@@ -66,7 +67,19 @@ export function updateBlock<BSchema extends BlockSchema>(
     typeof blockToUpdate === "string" ? blockToUpdate : blockToUpdate.id;
   const { posBeforeNode } = getNodeById(id, editor.state.doc);
 
-  editor.commands.BNUpdateBlock(posBeforeNode + 1, update);
+  const parsedProps = Object.create(null);
+
+  if (update.props) {
+    Object.entries(update.props).forEach(([name, value]) => {
+      const parsed = parseToAttr(value);
+      parsedProps[name] = parsed;
+    })
+  }
+
+  editor.commands.BNUpdateBlock(posBeforeNode + 1, {
+    ...update,
+    props: parsedProps
+  });
 }
 
 export function removeBlocks(

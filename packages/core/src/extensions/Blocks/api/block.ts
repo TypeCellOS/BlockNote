@@ -14,6 +14,26 @@ export function camelToDataKebab(str: string): string {
   return "data-" + str.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
 }
 
+export const parseToAttr = (val: unknown) => {
+  if (typeof val === "string") {
+    return val;
+  }
+
+  if (typeof val === "number") {
+    return val.toString();
+  }
+
+  if (typeof val === "boolean") {
+    return val ? "true" : "false";
+  }
+
+  if (val && typeof val === "object") {
+    return JSON.stringify(val);
+  }
+
+  return "";
+}
+
 // Function that uses the 'propSchema' of a blockConfig to create a TipTap
 // node's `addAttributes` property.
 export function propsToAttributes<
@@ -30,15 +50,17 @@ export function propsToAttributes<
   const tiptapAttributes: Record<string, Attribute> = {};
 
   Object.entries(blockConfig.propSchema).forEach(([name, spec]) => {
+    const defaultValue = parseToAttr(spec.default);
+
     tiptapAttributes[name] = {
-      default: spec.default,
+      default: defaultValue,
       keepOnSplit: true,
       // Props are displayed in kebab-case as HTML attributes. If a prop's
       // value is the same as its default, we don't display an HTML
       // attribute for it.
       parseHTML: (element) => element.getAttribute(camelToDataKebab(name)),
       renderHTML: (attributes) =>
-        attributes[name] !== spec.default
+        attributes[camelToDataKebab(name)] !== defaultValue
           ? {
               [camelToDataKebab(name)]: attributes[name],
             }
@@ -162,7 +184,7 @@ export function createBlockSpec<
 
         // Gets BlockNote editor instance
         const editor = this.options.editor! as BlockNoteEditor<
-          BSchema & { [k in BType]: BlockSpec<BType, PSchema> }
+          { [k in BType]: BlockSpec<BType, PSchema> }
         >;
         // Gets position of the node
         if (typeof getPos === "boolean") {

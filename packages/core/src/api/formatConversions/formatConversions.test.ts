@@ -9,8 +9,8 @@ const getNonNestedBlocks = (): Block[] => [
     id: UniqueID.options.generateID(),
     type: "heading",
     props: {
-      backgroundColor: "default",
-      textColor: "default",
+      backgroundColor: "transparent",
+      textColor: "black",
       textAlignment: "left",
       level: "1",
     },
@@ -27,8 +27,8 @@ const getNonNestedBlocks = (): Block[] => [
     id: UniqueID.options.generateID(),
     type: "paragraph",
     props: {
-      backgroundColor: "default",
-      textColor: "default",
+      backgroundColor: "transparent",
+      textColor: "black",
       textAlignment: "left",
     },
     content: [
@@ -44,8 +44,8 @@ const getNonNestedBlocks = (): Block[] => [
     id: UniqueID.options.generateID(),
     type: "bulletListItem",
     props: {
-      backgroundColor: "default",
-      textColor: "default",
+      backgroundColor: "transparent",
+      textColor: "black",
       textAlignment: "left",
     },
     content: [
@@ -61,8 +61,8 @@ const getNonNestedBlocks = (): Block[] => [
     id: UniqueID.options.generateID(),
     type: "numberedListItem",
     props: {
-      backgroundColor: "default",
-      textColor: "default",
+      backgroundColor: "transparent",
+      textColor: "black",
       textAlignment: "left",
     },
     content: [
@@ -81,8 +81,8 @@ const getNestedBlocks = (): Block[] => [
     id: UniqueID.options.generateID(),
     type: "heading",
     props: {
-      backgroundColor: "default",
-      textColor: "default",
+      backgroundColor: "transparent",
+      textColor: "black",
       textAlignment: "left",
       level: "1",
     },
@@ -98,8 +98,8 @@ const getNestedBlocks = (): Block[] => [
         id: UniqueID.options.generateID(),
         type: "paragraph",
         props: {
-          backgroundColor: "default",
-          textColor: "default",
+          backgroundColor: "transparent",
+          textColor: "black",
           textAlignment: "left",
         },
         content: [
@@ -114,8 +114,8 @@ const getNestedBlocks = (): Block[] => [
             id: UniqueID.options.generateID(),
             type: "bulletListItem",
             props: {
-              backgroundColor: "default",
-              textColor: "default",
+              backgroundColor: "transparent",
+              textColor: "black",
               textAlignment: "left",
             },
             content: [
@@ -130,8 +130,8 @@ const getNestedBlocks = (): Block[] => [
                 id: UniqueID.options.generateID(),
                 type: "numberedListItem",
                 props: {
-                  backgroundColor: "default",
-                  textColor: "default",
+                  backgroundColor: "transparent",
+                  textColor: "black",
                   textAlignment: "left",
                 },
                 content: [
@@ -156,8 +156,8 @@ const getStyledBlocks = (): Block[] => [
     id: UniqueID.options.generateID(),
     type: "paragraph",
     props: {
-      backgroundColor: "default",
-      textColor: "default",
+      backgroundColor: "transparent",
+      textColor: "black",
       textAlignment: "left",
     },
     content: [
@@ -277,8 +277,8 @@ const getComplexBlocks = (): Block[] => [
     id: UniqueID.options.generateID(),
     type: "paragraph",
     props: {
-      backgroundColor: "default",
-      textColor: "default",
+      backgroundColor: "transparent",
+      textColor: "black",
       textAlignment: "left",
     },
     content: [
@@ -297,8 +297,8 @@ const getComplexBlocks = (): Block[] => [
     id: UniqueID.options.generateID(),
     type: "paragraph",
     props: {
-      backgroundColor: "default",
-      textColor: "default",
+      backgroundColor: "transparent",
+      textColor: "black",
       textAlignment: "left",
     },
     content: [
@@ -333,8 +333,8 @@ const getComplexBlocks = (): Block[] => [
     id: UniqueID.options.generateID(),
     type: "paragraph",
     props: {
-      backgroundColor: "default",
-      textColor: "default",
+      backgroundColor: "transparent",
+      textColor: "black",
       textAlignment: "left",
     },
     content: [
@@ -369,8 +369,8 @@ const getComplexBlocks = (): Block[] => [
     id: UniqueID.options.generateID(),
     type: "bulletListItem",
     props: {
-      backgroundColor: "default",
-      textColor: "default",
+      backgroundColor: "transparent",
+      textColor: "black",
       textAlignment: "left",
     },
     content: [
@@ -386,8 +386,8 @@ const getComplexBlocks = (): Block[] => [
     id: UniqueID.options.generateID(),
     type: "bulletListItem",
     props: {
-      backgroundColor: "default",
-      textColor: "default",
+      backgroundColor: "transparent",
+      textColor: "black",
       textAlignment: "left",
     },
     content: [
@@ -402,8 +402,8 @@ const getComplexBlocks = (): Block[] => [
         id: UniqueID.options.generateID(),
         type: "bulletListItem",
         props: {
-          backgroundColor: "default",
-          textColor: "default",
+          backgroundColor: "transparent",
+          textColor: "black",
           textAlignment: "left",
         },
         content: [
@@ -418,8 +418,8 @@ const getComplexBlocks = (): Block[] => [
             id: UniqueID.options.generateID(),
             type: "bulletListItem",
             props: {
-              backgroundColor: "default",
-              textColor: "default",
+              backgroundColor: "transparent",
+              textColor: "black",
               textAlignment: "left",
             },
             content: [
@@ -435,8 +435,8 @@ const getComplexBlocks = (): Block[] => [
             id: UniqueID.options.generateID(),
             type: "paragraph",
             props: {
-              backgroundColor: "default",
-              textColor: "default",
+              backgroundColor: "transparent",
+              textColor: "black",
               textAlignment: "left",
             },
             content: [
@@ -452,8 +452,8 @@ const getComplexBlocks = (): Block[] => [
             id: UniqueID.options.generateID(),
             type: "numberedListItem",
             props: {
-              backgroundColor: "default",
-              textColor: "default",
+              backgroundColor: "transparent",
+              textColor: "black",
               textAlignment: "left",
             },
             content: [
@@ -469,8 +469,8 @@ const getComplexBlocks = (): Block[] => [
             id: UniqueID.options.generateID(),
             type: "numberedListItem",
             props: {
-              backgroundColor: "default",
-              textColor: "default",
+              backgroundColor: "transparent",
+              textColor: "black",
               textAlignment: "left",
             },
             content: [
@@ -486,8 +486,8 @@ const getComplexBlocks = (): Block[] => [
             id: UniqueID.options.generateID(),
             type: "numberedListItem",
             props: {
-              backgroundColor: "default",
-              textColor: "default",
+              backgroundColor: "transparent",
+              textColor: "black",
               textAlignment: "left",
             },
             content: [
@@ -502,8 +502,8 @@ const getComplexBlocks = (): Block[] => [
                 id: UniqueID.options.generateID(),
                 type: "numberedListItem",
                 props: {
-                  backgroundColor: "default",
-                  textColor: "default",
+                  backgroundColor: "transparent",
+                  textColor: "black",
                   textAlignment: "left",
                 },
                 content: [
@@ -521,8 +521,8 @@ const getComplexBlocks = (): Block[] => [
             id: UniqueID.options.generateID(),
             type: "bulletListItem",
             props: {
-              backgroundColor: "default",
-              textColor: "default",
+              backgroundColor: "transparent",
+              textColor: "black",
               textAlignment: "left",
             },
             content: [
@@ -540,8 +540,8 @@ const getComplexBlocks = (): Block[] => [
         id: UniqueID.options.generateID(),
         type: "bulletListItem",
         props: {
-          backgroundColor: "default",
-          textColor: "default",
+          backgroundColor: "transparent",
+          textColor: "black",
           textAlignment: "left",
         },
         content: [
@@ -559,8 +559,8 @@ const getComplexBlocks = (): Block[] => [
     id: UniqueID.options.generateID(),
     type: "bulletListItem",
     props: {
-      backgroundColor: "default",
-      textColor: "default",
+      backgroundColor: "transparent",
+      textColor: "black",
       textAlignment: "left",
     },
     content: [
