@@ -1,5 +1,6 @@
-import { ToolbarButton } from "../../../SharedComponents/Toolbar/components/ToolbarButton";
-import { formatKeyboardShortcut } from "../../../utils";
+import { BlockNoteEditor, BlockSchema, ToggledStyle } from "@blocknote/core";
+import { useState } from "react";
+import { IconType } from "react-icons";
 import {
   RiBold,
   RiCodeFill,
@@ -7,10 +8,10 @@ import {
   RiStrikethrough,
   RiUnderline,
 } from "react-icons/ri";
-import { BlockNoteEditor, BlockSchema, ToggledStyle } from "@blocknote/core";
-import { IconType } from "react-icons";
-import { useState } from "react";
+import { ToolbarButton } from "../../../SharedComponents/Toolbar/components/ToolbarButton";
 import { useEditorContentChange } from "../../../hooks/useEditorContentChange";
+import { useEditorSelectionChange } from "../../../hooks/useEditorSelectionChange";
+import { formatKeyboardShortcut } from "../../../utils";
 
 const shortcuts: Record<ToggledStyle, string> = {
   bold: "Mod+B",
@@ -37,6 +38,10 @@ export const ToggledStyleButton = <BSchema extends BlockSchema>(props: {
   );
 
   useEditorContentChange(props.editor, () => {
+    setActive(props.toggledStyle in props.editor.getActiveStyles());
+  });
+
+  useEditorSelectionChange(props.editor, () => {
     setActive(props.toggledStyle in props.editor.getActiveStyles());
   });
 

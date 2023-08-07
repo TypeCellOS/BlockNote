@@ -90,15 +90,15 @@ import "@blocknote/core/style.css";
 
 export default function App() {
   // Creates a new editor instance.
-  const editor: BlockNoteEditor | null = useBlockNote({
+  const editor: BlockNoteEditor = useBlockNote({
     theme: "{{ getTheme(isDark) }}",
     // Listens for when the text cursor position changes.
-    onTextCursorPositionChange: (editor: BlockNoteEditor) => {
+    onTextCursorPositionChange: (editor) => {
       // Gets the block currently hovered by the text cursor.
       const hoveredBlock: Block = editor.getTextCursorPosition().block;
 
       // Traverses all blocks.
-      editor.forEachBlock((block: Block) => {
+      editor.forEachBlock((block) => {
         if (
           block.id === hoveredBlock.id &&
           block.props.backgroundColor !== "blue"
@@ -178,10 +178,10 @@ import "@blocknote/core/style.css";
 
 export default function App() {
   // Creates a new editor instance.
-  const editor: BlockNoteEditor | null = useBlockNote({
+  const editor: BlockNoteEditor = useBlockNote({
     theme: "{{ getTheme(isDark) }}",
     // Listens for when the text cursor position changes.
-    onTextCursorPositionChange: (editor: BlockNoteEditor) => {
+    onTextCursorPositionChange: (editor) => {
       // Gets the blocks currently spanned by the selection.
       const selectedBlocks: Block[] | undefined = editor.getSelection()?.blocks;
       // Converts array of blocks to set of block IDs for more efficient comparison.
@@ -190,7 +190,7 @@ export default function App() {
       );
 
       // Traverses all blocks.
-      editor.forEachBlock((block: Block) => {
+      editor.forEachBlock((block) => {
         // If no selection is active, resets the background color of each block.
         if (selectedBlockIds.size === 0) {
           editor.updateBlock(block, {

@@ -14,6 +14,7 @@ import {
 } from "react-icons/ri";
 import { ToolbarButton } from "../../../SharedComponents/Toolbar/components/ToolbarButton";
 import { useEditorContentChange } from "../../../hooks/useEditorContentChange";
+import { useEditorSelectionChange } from "../../../hooks/useEditorSelectionChange";
 
 type TextAlignment = DefaultProps["textAlignment"]["values"][number];
 
@@ -39,6 +40,14 @@ export const TextAlignButton = <BSchema extends BlockSchema>(props: {
   });
 
   useEditorContentChange(props.editor, () => {
+    const block = props.editor.getTextCursorPosition().block;
+
+    if ("textAlignment" in block.props) {
+      setActiveTextAlignment(block.props.textAlignment as TextAlignment);
+    }
+  });
+
+  useEditorSelectionChange(props.editor, () => {
     const block = props.editor.getTextCursorPosition().block;
 
     if ("textAlignment" in block.props) {

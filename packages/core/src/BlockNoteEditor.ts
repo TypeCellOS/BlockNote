@@ -16,7 +16,10 @@ import {
   blocksToMarkdown,
   markdownToBlocks,
 } from "./api/formatConversions/formatConversions";
-import { nodeToBlock } from "./api/nodeConversions/nodeConversions";
+import {
+  blockToNode,
+  nodeToBlock,
+} from "./api/nodeConversions/nodeConversions";
 import { getNodeById } from "./api/util/nodeUtil";
 import styles from "./editor.module.css";
 import {
@@ -44,18 +47,18 @@ import { SideMenuProsemirrorPlugin } from "./extensions/SideMenu/SideMenuPlugin"
 import { BaseSlashMenuItem } from "./extensions/SlashMenu/BaseSlashMenuItem";
 import { SlashMenuProsemirrorPlugin } from "./extensions/SlashMenu/SlashMenuPlugin";
 import { getDefaultSlashMenuItems } from "./extensions/SlashMenu/defaultSlashMenuItems";
+import { UniqueID } from "./extensions/UniqueID/UniqueID";
 
 export type BlockNoteEditorOptions<BSchema extends BlockSchema> = {
   // TODO: Figure out if enableBlockNoteExtensions/disableHistoryExtension are needed and document them.
   enableBlockNoteExtensions: boolean;
   /**
-   * TODO: why is this called slashCommands and not slashMenuItems?
    *
    * (couldn't fix any type, see https://github.com/TypeCellOS/BlockNote/pull/191#discussion_r1210708771)
    *
    * @default defaultSlashMenuItems from `./extensions/SlashMenu`
    */
-  slashCommands: BaseSlashMenuItem<any>[];
+  slashMenuItems: BaseSlashMenuItem<any>[];
 
   /**
    * The HTML element that should be used as the parent element for the editor.
@@ -175,7 +178,7 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
     this.formattingToolbar = new FormattingToolbarProsemirrorPlugin(this);
     this.slashMenu = new SlashMenuProsemirrorPlugin(
       this,
-      newOptions.slashCommands ||
+      newOptions.slashMenuItems ||
         getDefaultSlashMenuItems(newOptions.blockSchema)
     );
     this.hyperlinkToolbar = new HyperlinkToolbarProsemirrorPlugin(this);
@@ -202,21 +205,41 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
 
     this.schema = newOptions.blockSchema;
 
+    const initialContent =
+      newOptions.initialContent ||
+      (options.collaboration
+        ? undefined
+        : [
+            {
+              type: "paragraph",
+              id: UniqueID.options.generateID(),
+            },
+          ]);
+
     const tiptapOptions: EditorOptions = {
-      // TODO: This approach to setting initial content is "cleaner" but requires the PM editor schema, which is only
-      //  created after initializing the TipTap editor. Not sure it's feasible.
-      // content:
-      //   options.initialContent &&
-      //   options.initialContent.map((block) =>
-      //     blockToNode(block, this._tiptapEditor.schema).toJSON()
-      //   ),
       ...blockNoteTipTapOptions,
       ...newOptions._tiptapOptions,
       onCreate: () => {
         newOptions.onEditorReady?.(this);
-        newOptions.initialContent &&
-          this.replaceBlocks(this.topLevelBlocks, newOptions.initialContent);
         this.ready = true;
+      },
+      onBeforeCreate(editor) {
+        if (!initialContent) {
+          // when using collaboration
+          return;
+        }
+        // we have to set the initial content here, because now we can use the editor schema
+        // which has been created at this point
+        const schema = editor.editor.schema;
+        const ic = initialContent.map((block) => blockToNode(block, schema));
+
+        const root = schema.node(
+          "doc",
+          undefined,
+          schema.node("blockGroup", undefined, ic)
+        );
+        // override the initialcontent
+        editor.editor.options.content = root.toJSON();
       },
       onUpdate: () => {
         // This seems to be necessary due to a bug in TipTap:

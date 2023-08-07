@@ -65,4 +65,8 @@ export const FormattingToolbarPositioner = <
   );
 };
 
+// We want Tippy to call `getReferenceClientRect` whenever the reference
+// DOMRect's position changes. This happens automatically on scroll, but we need
+// the `sticky` plugin to make it happen in all cases. This is most evident
+// when changing the text alignment using the formatting toolbar.
 const tippyPlugins = [sticky];

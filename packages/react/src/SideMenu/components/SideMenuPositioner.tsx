@@ -9,6 +9,7 @@ import Tippy from "@tippyjs/react";
 import { FC, useEffect, useMemo, useRef, useState } from "react";
 
 import { DefaultSideMenu } from "./DefaultSideMenu";
+import { DragHandleMenuProps } from "./DragHandleMenu/DragHandleMenu";
 
 export type SideMenuProps<BSchema extends BlockSchema = DefaultBlockSchema> =
   Pick<
@@ -21,6 +22,7 @@ export type SideMenuProps<BSchema extends BlockSchema = DefaultBlockSchema> =
   > & {
     block: Block<BSchema>;
     editor: BlockNoteEditor<BSchema>;
+    dragHandleMenu?: FC<DragHandleMenuProps<BSchema>>;
   };
 
 export const SideMenuPositioner = <

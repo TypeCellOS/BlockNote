@@ -1,9 +1,14 @@
-import { BaseSlashMenuItem, BlockSchema } from "@blocknote/core";
+import {
+  BaseSlashMenuItem,
+  BlockSchema,
+  DefaultBlockSchema,
+} from "@blocknote/core";
 
-export type ReactSlashMenuItem<BSchema extends BlockSchema> =
-  BaseSlashMenuItem<BSchema> & {
-    group: string;
-    icon: JSX.Element;
-    hint?: string;
-    shortcut?: string;
-  };
+export type ReactSlashMenuItem<
+  BSchema extends BlockSchema = DefaultBlockSchema
+> = BaseSlashMenuItem<BSchema> & {
+  group: string;
+  icon: JSX.Element;
+  hint?: string;
+  shortcut?: string;
+};
