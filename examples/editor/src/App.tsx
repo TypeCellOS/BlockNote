@@ -5,8 +5,8 @@ import { BlockNoteView, useBlockNote, createReactBlockSpec, getDefaultReactSlash
 import "@blocknote/core/style.css";
 import styles from "./App.module.css";
 
-export const AccordionBlock = createReactBlockSpec({
-  type: 'accordion',
+const CustomBlock = createReactBlockSpec({
+  type: 'custom',
   propSchema: {
     label: {
       default: 'Default Label',
@@ -20,7 +20,7 @@ export const AccordionBlock = createReactBlockSpec({
         deep: {
           nested: {
             value: 'Default Value',
-            creepArray: ['why', 'would', 'someone', 'do', 'this', '?']
+            creepyArray: ['why', 'would', 'someone', 'do', 'this', '?']
           }
         }
       }
@@ -124,11 +124,11 @@ export const AccordionBlock = createReactBlockSpec({
 
           <div 
             style={{
-              display: 'flex',
-              gap: '8px'
+              display: "grid",
+              gap: "1rem",
             }}
           > 
-            {block.props.autoLayout?.deep?.nested?.creepArray.map((item, index) => (
+            {block.props.autoLayout?.deep?.nested?.creepyArray.map((item, index) => (
               <span key={index}>{item}</span>
             ))}
           </div>
@@ -136,32 +136,33 @@ export const AccordionBlock = createReactBlockSpec({
       </>
     );
   },
-  containsInlineContent: false,
+  containsInlineContent: true,
 });
 
 const customSchema = {
   ...defaultBlockSchema,
-  accordion: AccordionBlock,
+  custom: CustomBlock,
 } satisfies BlockSchema;
 
-const insertAccordion: ReactSlashMenuItem<typeof customSchema> = {
-  name: 'Insert Accordion',
+const custom: ReactSlashMenuItem<typeof customSchema> = {
+  name: 'Insert Custom',
   execute: (editor) => {
     editor.insertBlocks(
       [
         {
-          type: 'accordion',
+          type: 'custom',
         },
       ],
       editor.getTextCursorPosition().block,
       'before'
     );
   },
-  aliases: ["accordion"],
+  aliases: ["custom"],
   group: "Containers",
   icon: <>+</>,
-  hint: 'Used to group content in an accordion.',
+  hint: 'Nice hint.',
 };
+
 
 type WindowWithProseMirror = Window & typeof globalThis & { ProseMirror: any };
 
@@ -177,9 +178,9 @@ function App() {
     blockSchema: customSchema,
     slashMenuItems: [
       ...getDefaultReactSlashMenuItems(customSchema),
-      insertAccordion,
+      custom,
     ],
-    theme: "light",
+    theme: "dark",
   });
 
   // Give tests a way to get prosemirror instance
