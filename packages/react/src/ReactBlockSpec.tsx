@@ -104,7 +104,7 @@ export function createReactBlockSpec<
         }
 
         // Access to the parsed props of the node
-        const parsedProps = Object.create(null);
+        const parsedProps: Record<string, string> = {};
         // Add props as HTML attributes in kebab-case with "data-" prefix
         const htmlAttributes: Record<string, string> = {};
 
@@ -129,7 +129,7 @@ export function createReactBlockSpec<
               editor={editor}
               block={{
                 ...block,
-                props: parsedProps // needed for complex data types like objects and arrays
+                props: parsedProps // needed to pass parsed props with complex data types (objects, arrays, etc).
               }}
             />
           </NodeViewWrapper>
