@@ -1,17 +1,23 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { NodeViewProps } from "@tiptap/core";
 
-import React, { useCallback } from "react";
+import { Fragment, Slice } from "prosemirror-model";
+import React, { useCallback, useEffect, useMemo } from "react";
 
 import DataEditor, {
+  CompactSelection,
   DataEditorRef,
   EditableGridCell,
   GridCell,
   GridCellKind,
   GridColumn,
+  GridMouseEventArgs,
+  GridSelection,
   Item,
+  Rectangle,
 } from "@glideapps/glide-data-grid";
-import { TableMap, addRow } from "prosemirror-tables";
+import { GetRowThemeCallback } from "@glideapps/glide-data-grid/dist/ts/data-grid/data-grid-render";
+import { CellSelection, TableMap, addRow } from "prosemirror-tables";
 
 const columns: GridColumn[] = [
   { title: "First Name", width: 100 },
@@ -33,6 +39,34 @@ const data: Person[] = [
   { firstName: "John", lastName: "Williams" },
   { firstName: "Jane", lastName: "Williams" },
 ];
+
+function findCellNonExact(map: TableMap, pos: number) {
+  for (let i = 0; i < map.map.length; i++) {
+    let curPos = map.map[i];
+    if (curPos < pos) {
+      continue;
+    } else if (curPos > pos) {
+      i--;
+      curPos = map.map[i];
+    }
+    const left = i % map.width;
+    const top = (i / map.width) | 0;
+    let right = left + 1;
+    let bottom = top + 1;
+    for (let j = 1; right < map.width && map.map[i + j] == curPos; j++) {
+      right++;
+    }
+    for (
+      let j = 1;
+      bottom < map.height && map.map[i + map.width * j] == curPos;
+      j++
+    ) {
+      bottom++;
+    }
+    return { left, top, right, bottom };
+  }
+  throw new RangeError(`No cell with offset ${pos} found`);
+}
 
 function getData([col, row]: Item): GridCell {
   const person = data[row];
@@ -63,6 +97,8 @@ const TableElementComponent = function TableElement(
   props: NodeViewProps & { block: any; selectionHack: any }
 ) {
   const ref = React.useRef<DataEditorRef>(null);
+  const map = TableMap.get(props.node);
+  const { node, getPos, editor } = props;
 
   const getData = useCallback(
     ([col, row]: Item) => {
@@ -80,10 +116,10 @@ const TableElementComponent = function TableElement(
 
       return {
         kind: GridCellKind.Text,
-        data: pmCol.textContent,
+        data: pmCol.textContent || "",
         allowOverlay: true,
         readonly: false,
-        displayData: pmCol.textContent,
+        displayData: pmCol.textContent || "",
       } satisfies GridCell;
     },
     [props.node]
@@ -111,40 +147,124 @@ const TableElementComponent = function TableElement(
   //     }
   //   }, [props.node, props.decorations, models]);
 
-  //   useEffect(() => {
-  //     console.log("selected effect", props.selected);
-  //     if (props.selected) {
-  //       editorRef.current?.focus();
-  //     }
-  //   }, [props.selected]);
+  const [selection, setSelection] = React.useState<GridSelection>({
+    columns: CompactSelection.empty(),
+    rows: CompactSelection.empty(),
+  });
 
-  //   useEffect(() => {
-  //     // console.log("selectionHack effect", props.selectionHack);
-  //     if (!props.selectionHack) {
-  //       return;
-  //     }
-  //     const startPos = models.model.getPositionAt(props.selectionHack.anchor);
-  //     const endPos = models.model.getPositionAt(props.selectionHack.head);
-  //     models.state.isUpdating = true;
-  //     editorRef.current?.setSelection(
-  //       monaco.Selection.fromPositions(startPos, endPos)
-  //     );
-  //     models.state.isUpdating = false;
-  //     editorRef.current?.focus();
-  //   }, [models.model, models.state, props.selectionHack]);
+  useEffect(() => {
+    console.log("selected effect", props.selected);
+    if (props.selected) {
+      ref.current?.focus();
+    }
+  }, [props.selected]);
 
-  const onCellEdited = useCallback((cell: Item, newValue: EditableGridCell) => {
-    if (newValue.kind !== GridCellKind.Text) {
-      // we only have text cells, might as well just die here.
+  // TODO: buggy
+  useEffect(() => {
+    console.log("selectionHack effect", props.selectionHack);
+    if (!props.selectionHack) {
       return;
     }
 
-    const indexes: (keyof Person)[] = ["firstName", "lastName"];
-    const [col, row] = cell;
-    const key = indexes[col];
-    data[row][key] = newValue.data;
-    debugger;
-  }, []);
+    const nodePos = getPos();
+    const head = props.selectionHack.head + nodePos;
+    console.log("selectionHack calc", head);
+    // if (head < nodePos || head > nodePos + node.nodeSize) {
+    //   return;
+    // }
+    // const pos = props.editor.view.state.doc.resolve(head);
+
+    const cell = findCellNonExact(map, props.selectionHack.head - 1);
+    console.log("CELL", cell);
+
+    setSelection({
+      current: {
+        range: {
+          height: 1,
+          width: 1,
+          x: cell.left,
+          y: cell.top,
+        },
+        cell: [cell.left, cell.top],
+        rangeStack: [],
+      },
+      columns: CompactSelection.fromSingleSelection(cell.left),
+      rows: CompactSelection.fromSingleSelection(cell.top),
+    });
+
+    ref.current?.focus();
+  }, [props.selectionHack?.head, map, getPos, props.selectionHack]);
+
+  const onGridSelectionChange = React.useCallback(
+    (selection: GridSelection) => {
+      if (!selection.current) {
+        return;
+      }
+      const pos =
+        map.positionAt(
+          selection.current.cell[1],
+          selection.current.cell[0],
+          node
+        ) +
+        getPos() +
+        1;
+      const tr = editor.view.state.tr;
+      const pmSelection = CellSelection.create(tr.doc, pos);
+
+      // @ts-ignore
+      tr.setSelection(pmSelection);
+      editor.view.dispatch(tr);
+
+      setSelection(selection);
+    },
+    [map, node, editor, getPos]
+  );
+
+  const onCellEdited = useCallback(
+    (cell: Item, newValue: EditableGridCell) => {
+      if (newValue.kind !== GridCellKind.Text) {
+        console.error("wrong new kind");
+        // we only have text cells, might as well just die here.
+        return;
+      }
+      const [col, row] = cell;
+
+      const pmRow = node.child(row);
+      //   const node = props.node;
+
+      if (pmRow.childCount < col + 1) {
+        console.error("wrong col size");
+        return;
+      }
+      const state = editor.view.state;
+      const startPos = getPos() + map.positionAt(row, col, node) + 2;
+
+      const fragmentContent = newValue.data.length
+        ? state.schema.text(newValue.data)
+        : Fragment.empty;
+      const pmCol = pmRow.child(col);
+      console.log(
+        "replace ",
+        startPos,
+        startPos + pmCol.nodeSize - 2,
+        fragmentContent
+      );
+      const tr = state.tr.replace(
+        startPos,
+        startPos + pmCol.nodeSize - 2,
+        new Slice(Fragment.from(fragmentContent), 0, 0)
+      );
+
+      editor.view.dispatch(tr);
+      // props.editor.view.state.tr.replace(pmCol.)
+      // const indexes: (keyof Person)[] = ["firstName", "lastName"];
+      // const [col, row] = cell;
+      // const key = indexes[col];
+      // data[row][key] = newValue.data;
+      // debugger;
+    },
+    [map, node, editor, getPos]
+  );
 
   const onRowAppended = React.useCallback(() => {
     // const newRow = numRows;
@@ -156,23 +276,56 @@ const TableElementComponent = function TableElement(
     // }
     // Tell the data grid there is another row
     // setNumRows((cv) => cv + 1);
-    const map = TableMap.get(props.node);
+
     const tr = addRow(
       props.editor.view.state.tr,
       {
         map,
         table: props.node,
-        tableStart: props.getPos() + 1,
+        tableStart: props.getPos(),
         left: 0,
         top: 0,
         bottom: 0,
         right: 0,
       },
-      0
+      map.height
     );
 
     props.editor.view.dispatch(tr);
-  }, [props.node]);
+  }, [props.node, map, map.height, props.editor, props.getPos]);
+
+  const columns = useMemo(() => {
+    const cols: GridColumn[] = [];
+    for (let i = 0; i < map.width; i++) {
+      cols.push({ id: i + "", title: `Column ${i}`, hasMenu: true });
+    }
+    return cols;
+  }, [map.width]);
+
+  const [hoverRow, setHoverRow] = React.useState<number | undefined>(undefined);
+
+  const onItemHovered = React.useCallback((args: GridMouseEventArgs) => {
+    const [_, row] = args.location;
+    setHoverRow(args.kind !== "cell" ? undefined : row);
+  }, []);
+
+  const getRowThemeOverride = React.useCallback<GetRowThemeCallback>(
+    (row) => {
+      if (row !== hoverRow) return undefined;
+      return {
+        bgCell: "#f7f7f7",
+        bgCellMedium: "#f0f0f0",
+      };
+    },
+    [hoverRow]
+  );
+
+  const onHeaderMenuClick = React.useCallback(
+    (col: number, bounds: Rectangle) => {
+      // setMenu({ col, bounds });
+    },
+    []
+  );
 
   return (
     <div contentEditable={false}>
@@ -180,8 +333,8 @@ const TableElementComponent = function TableElement(
         ref={ref}
         onCellEdited={onCellEdited}
         getCellContent={getData}
-        columns={[{ title: "First Name", width: 100 }]}
-        rows={props.node.childCount}
+        columns={columns}
+        rows={map.height - 1}
         trailingRowOptions={{
           // How to get the trailing row to look right
           sticky: true,
@@ -189,6 +342,11 @@ const TableElementComponent = function TableElement(
           hint: "New row...",
         }}
         onRowAppended={onRowAppended}
+        getRowThemeOverride={getRowThemeOverride}
+        onItemHovered={onItemHovered}
+        onHeaderMenuClick={onHeaderMenuClick}
+        onGridSelectionChange={onGridSelectionChange}
+        gridSelection={selection}
       />
       <div id="portal"></div>
     </div>

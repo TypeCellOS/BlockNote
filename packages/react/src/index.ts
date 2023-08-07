@@ -29,6 +29,7 @@ export * from "./SlashMenu/components/DefaultSlashMenu";
 export * from "./SlashMenu/components/SlashMenuItem";
 export * from "./SlashMenu/components/SlashMenuPositioner";
 export * from "./SlashMenu/defaultReactSlashMenuItems";
+export * from "./Table/Table";
 export * from "./hooks/useBlockNote";
 export * from "./hooks/useEditorContentChange";
 export * from "./hooks/useEditorForceUpdate";

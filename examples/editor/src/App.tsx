@@ -12,12 +12,26 @@ import {
   useBlockNote,
 } from "@blocknote/react";
 import "@glideapps/glide-data-grid/dist/index.css";
-
+import { WebsocketProvider } from "y-websocket";
+import * as Y from "yjs";
 import styles from "./App.module.css";
+
 type WindowWithProseMirror = Window & typeof globalThis & { ProseMirror: any };
+
+const doc = new Y.Doc();
+const provider = new WebsocketProvider("", "test", doc, { connect: false });
+provider.connectBc();
 
 function App() {
   const editor = useBlockNote({
+    collaboration: {
+      user: {
+        color: "#" + Math.random().toString(16).slice(2, 8),
+        name: "Test User" + Math.random().toString(16).slice(2, 8),
+      },
+      provider,
+      fragment: doc.getXmlFragment("prosemirror"),
+    },
     onEditorContentChange: (editor) => {
       console.log(editor.topLevelBlocks);
     },
@@ -33,7 +47,7 @@ function App() {
         propSchema: {},
       },
     },
-    slashCommands: [
+    slashMenuItems: [
       ...getDefaultReactSlashMenuItems(),
       {
         name: "test",

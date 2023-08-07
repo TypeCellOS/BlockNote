@@ -1,17 +1,11 @@
-import { ReactNode, useCallback, useRef, useState } from "react";
-import { Box, Menu } from "@mantine/core";
-import { HiChevronRight } from "react-icons/hi";
 import { BlockSchema, PartialBlock } from "@blocknote/core";
+import { Box, Menu } from "@mantine/core";
+import { ReactNode, useCallback, useRef, useState } from "react";
+import { HiChevronRight } from "react-icons/hi";
 
-<<<<<<<< HEAD:packages/react/src/SideMenu/components/DefaultButtons/BlockColorsButton.tsx
+import { ColorPicker } from "../../../SharedComponents/ColorPicker/components/ColorPicker";
 import { DragHandleMenuProps } from "../DragHandleMenu/DragHandleMenu";
 import { DragHandleMenuItem } from "../DragHandleMenu/DragHandleMenuItem";
-import { ColorPicker } from "../../../SharedComponents/ColorPicker/components/ColorPicker";
-========
-import { DragHandleMenuProps } from "../DragHandleMenu";
-import { DragHandleMenuItem } from "../DragHandleMenuItem";
-import { ColorPicker } from "../../../../SharedComponents/ColorPicker/components/ColorPicker";
->>>>>>>> origin/main:packages/react/src/SideMenu/components/DragHandleMenu/DefaultButtons/BlockColorsButton.tsx
 
 export const BlockColorsButton = <BSchema extends BlockSchema>(
   props: DragHandleMenuProps<BSchema> & { children: ReactNode }
