@@ -1,4 +1,5 @@
 import { MantineThemeOverride } from "@mantine/core";
+import { defaultTheme } from "./defaultTheme";
 
 export type Color = {
   light: string;
@@ -20,6 +21,17 @@ export type ColorScheme = {
   shadow: Color;
   border: Color;
   sideMenu: Color;
+  highlightColors: {
+    gray: CombinedColor;
+    brown: CombinedColor;
+    red: CombinedColor;
+    orange: CombinedColor;
+    yellow: CombinedColor;
+    green: CombinedColor;
+    blue: CombinedColor;
+    purple: CombinedColor;
+    pink: CombinedColor;
+  };
 };
 
 export type Theme = {
@@ -28,183 +40,11 @@ export type Theme = {
   fontFamily: string;
 };
 
-export const blockNoteColorScheme = [
-  "#FFFFFF",
-  "#EFEFEF",
-  "#CFCFCF",
-  "#AFAFAF",
-  "#7F7F7F",
-  "#3F3F3F",
-  "#1F1F1F",
-  "#161616",
-  "#0F0F0F",
-  "#000000",
-];
-
-export const blockNoteTheme: Theme = {
-  colors: {
-    editor: {
-      text: {
-        light: blockNoteColorScheme[5],
-        dark: blockNoteColorScheme[2],
-      },
-      background: {
-        light: blockNoteColorScheme[0],
-        dark: blockNoteColorScheme[6],
-      },
-    },
-    menu: {
-      text: {
-        light: blockNoteColorScheme[5],
-        dark: blockNoteColorScheme[2],
-      },
-      background: {
-        light: blockNoteColorScheme[0],
-        dark: blockNoteColorScheme[6],
-      },
-    },
-    tooltip: {
-      text: {
-        light: blockNoteColorScheme[4],
-        dark: blockNoteColorScheme[4],
-      },
-      background: {
-        light: blockNoteColorScheme[1],
-        dark: blockNoteColorScheme[7],
-      },
-    },
-    hovered: {
-      text: {
-        light: blockNoteColorScheme[5],
-        dark: blockNoteColorScheme[2],
-      },
-      background: {
-        light: blockNoteColorScheme[1],
-        dark: blockNoteColorScheme[7],
-      },
-    },
-    selected: {
-      text: {
-        light: blockNoteColorScheme[0],
-        dark: blockNoteColorScheme[2],
-      },
-      background: {
-        light: blockNoteColorScheme[5],
-        dark: blockNoteColorScheme[8],
-      },
-    },
-    disabled: {
-      text: {
-        light: blockNoteColorScheme[3],
-        dark: blockNoteColorScheme[5],
-      },
-      background: {
-        light: blockNoteColorScheme[1],
-        dark: blockNoteColorScheme[7],
-      },
-    },
-    shadow: {
-      light: blockNoteColorScheme[2],
-      dark: blockNoteColorScheme[8],
-    },
-    border: {
-      light: blockNoteColorScheme[1],
-      dark: blockNoteColorScheme[7],
-    },
-    sideMenu: {
-      light: blockNoteColorScheme[2],
-      dark: blockNoteColorScheme[4],
-    },
-  },
-  borderRadius: 6,
-  fontFamily:
-    '"Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Open Sans", "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif',
-};
-
-const custom: Partial<Theme> = {
-  colors: {
-    editor: {
-      text: {
-        light: "#222222",
-        dark: "#ffffff",
-      },
-      background: {
-        light: "#ffffff",
-        dark: "#9b0000",
-      },
-    },
-    menu: {
-      text: {
-        light: "#ffffff",
-        dark: "#ffffff",
-      },
-      background: {
-        light: "#9b0000",
-        dark: "#9b0000",
-      },
-    },
-    tooltip: {
-      text: {
-        light: "#ffffff",
-        dark: "#ffffff",
-      },
-      background: {
-        light: "#b00000",
-        dark: "#b00000",
-      },
-    },
-    hovered: {
-      text: {
-        light: "#ffffff",
-        dark: "#ffffff",
-      },
-      background: {
-        light: "#b00000",
-        dark: "#b00000",
-      },
-    },
-    selected: {
-      text: {
-        light: "#ffffff",
-        dark: "#ffffff",
-      },
-      background: {
-        light: "#c50000",
-        dark: "#c50000",
-      },
-    },
-    disabled: {
-      text: {
-        light: "#9b0000",
-        dark: "#9b0000",
-      },
-      background: {
-        light: "#7d0000",
-        dark: "#7d0000",
-      },
-    },
-    shadow: {
-      light: "#640000",
-      dark: "#640000",
-    },
-    border: {
-      light: "#920000",
-      dark: "#920000",
-    },
-    sideMenu: {
-      light: "#bababa",
-      dark: "#ffffff",
-    },
-  },
-  borderRadius: 4,
-  fontFamily: "Helvetica Neue, sans-serif",
-};
-
-export const getBlockNoteTheme = (
+export const blockNoteToMantineTheme = (
   useDarkTheme: boolean = false,
-  theme: Partial<Theme> = custom
+  theme: Partial<Theme> = defaultTheme
 ): MantineThemeOverride => {
-  const fullTheme: Theme = { ...blockNoteTheme, ...theme };
+  const fullTheme: Theme = { ...defaultTheme, ...theme };
 
   const editorText = useDarkTheme
     ? fullTheme.colors.editor.text.dark
@@ -273,33 +113,69 @@ export const getBlockNoteTheme = (
     },
     colorScheme: useDarkTheme ? "dark" : "light",
     colors: {
-      scheme: blockNoteColorScheme,
-      dark: blockNoteColorScheme,
       textColors: [
-        // primaryText,
-        blockNoteColorScheme[6],
-        "#9b9a97",
-        "#64473a",
-        "#e03e3e",
-        "#d9730d",
-        "#dfab01",
-        "#4d6461",
-        "#0b6e99",
-        "#6940a5",
-        "#ad1a72",
+        useDarkTheme
+          ? fullTheme.colors.editor.text.dark
+          : fullTheme.colors.editor.text.light,
+        useDarkTheme
+          ? fullTheme.colors.highlightColors.gray.text.dark
+          : fullTheme.colors.highlightColors.gray.text.light,
+        useDarkTheme
+          ? fullTheme.colors.highlightColors.brown.text.dark
+          : fullTheme.colors.highlightColors.brown.text.light,
+        useDarkTheme
+          ? fullTheme.colors.highlightColors.red.text.dark
+          : fullTheme.colors.highlightColors.red.text.light,
+        useDarkTheme
+          ? fullTheme.colors.highlightColors.orange.text.dark
+          : fullTheme.colors.highlightColors.orange.text.light,
+        useDarkTheme
+          ? fullTheme.colors.highlightColors.yellow.text.dark
+          : fullTheme.colors.highlightColors.yellow.text.light,
+        useDarkTheme
+          ? fullTheme.colors.highlightColors.green.text.dark
+          : fullTheme.colors.highlightColors.green.text.light,
+        useDarkTheme
+          ? fullTheme.colors.highlightColors.blue.text.dark
+          : fullTheme.colors.highlightColors.blue.text.light,
+        useDarkTheme
+          ? fullTheme.colors.highlightColors.purple.text.dark
+          : fullTheme.colors.highlightColors.purple.text.light,
+        useDarkTheme
+          ? fullTheme.colors.highlightColors.pink.text.dark
+          : fullTheme.colors.highlightColors.pink.text.light,
       ],
       backgroundColors: [
-        // primaryBackground,
-        blockNoteColorScheme[0],
-        "#ebeced",
-        "#e9e5e3",
-        "#fbe4e4",
-        "#f6e9d9",
-        "#fbf3db",
-        "#ddedea",
-        "#ddebf1",
-        "#eae4f2",
-        "#f4dfeb",
+        useDarkTheme
+          ? fullTheme.colors.editor.background.dark
+          : fullTheme.colors.editor.background.light,
+        useDarkTheme
+          ? fullTheme.colors.highlightColors.gray.background.dark
+          : fullTheme.colors.highlightColors.gray.background.light,
+        useDarkTheme
+          ? fullTheme.colors.highlightColors.brown.background.dark
+          : fullTheme.colors.highlightColors.brown.background.light,
+        useDarkTheme
+          ? fullTheme.colors.highlightColors.red.background.dark
+          : fullTheme.colors.highlightColors.red.background.light,
+        useDarkTheme
+          ? fullTheme.colors.highlightColors.orange.background.dark
+          : fullTheme.colors.highlightColors.orange.background.light,
+        useDarkTheme
+          ? fullTheme.colors.highlightColors.yellow.background.dark
+          : fullTheme.colors.highlightColors.yellow.background.light,
+        useDarkTheme
+          ? fullTheme.colors.highlightColors.green.background.dark
+          : fullTheme.colors.highlightColors.green.background.light,
+        useDarkTheme
+          ? fullTheme.colors.highlightColors.blue.background.dark
+          : fullTheme.colors.highlightColors.blue.background.light,
+        useDarkTheme
+          ? fullTheme.colors.highlightColors.purple.background.dark
+          : fullTheme.colors.highlightColors.purple.background.light,
+        useDarkTheme
+          ? fullTheme.colors.highlightColors.pink.background.dark
+          : fullTheme.colors.highlightColors.pink.background.light,
       ],
     },
     components: {
@@ -335,6 +211,14 @@ export const getBlockNoteTheme = (
               border: "none",
               color: hoveredText,
             },
+          },
+        }),
+      },
+      ColorIcon: {
+        styles: () => ({
+          root: {
+            border: border,
+            borderRadius: innerBorderRadius,
           },
         }),
       },
@@ -512,7 +396,7 @@ export const getBlockNoteTheme = (
     },
     fontFamily: fontFamily,
     other: {
-      colors: [
+      highlightColorNames: [
         "default",
         "gray",
         "brown",
@@ -525,6 +409,5 @@ export const getBlockNoteTheme = (
         "pink",
       ],
     },
-    primaryColor: "scheme",
   };
 };

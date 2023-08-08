@@ -2,7 +2,7 @@ import { BlockNoteEditor, BlockSchema } from "@blocknote/core";
 import { createStyles, MantineProvider } from "@mantine/core";
 import { EditorContent } from "@tiptap/react";
 import { HTMLAttributes, ReactNode } from "react";
-import { getBlockNoteTheme } from "./BlockNoteTheme";
+import { blockNoteToMantineTheme, Theme } from "./BlockNoteTheme";
 import { FormattingToolbarPositioner } from "./FormattingToolbar/components/FormattingToolbarPositioner";
 import { HyperlinkToolbarPositioner } from "./HyperlinkToolbar/components/HyperlinkToolbarPositioner";
 import { SideMenuPositioner } from "./SideMenu/components/SideMenuPositioner";
@@ -42,7 +42,8 @@ function UnThemedBlockNoteView<BSchema extends BlockSchema>(
 export function BlockNoteView<BSchema extends BlockSchema>(
   props: {
     editor: BlockNoteEditor<BSchema>;
-    theme?: "light" | "dark";
+    useDarkTheme?: boolean;
+    customTheme?: Partial<Theme>;
     children?: ReactNode;
   } & HTMLAttributes<HTMLDivElement>
 ) {
@@ -50,10 +51,10 @@ export function BlockNoteView<BSchema extends BlockSchema>(
     name: "Editor",
   });
 
-  const { theme, className, ...rest } = props;
+  const { useDarkTheme, customTheme, className, ...rest } = props;
 
   return (
-    <MantineProvider theme={getBlockNoteTheme(props.theme === "dark")}>
+    <MantineProvider theme={blockNoteToMantineTheme(useDarkTheme, customTheme)}>
       <UnThemedBlockNoteView
         className={
           props.className ? `${classes.root} ${props.className}` : classes.root

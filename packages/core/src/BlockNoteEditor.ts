@@ -25,6 +25,7 @@ import styles from "./editor.module.css";
 import {
   Block,
   BlockIdentifier,
+  BlockNoteDOMAttributes,
   BlockSchema,
   PartialBlock,
 } from "./extensions/Blocks/api/blockTypes";
@@ -71,7 +72,7 @@ export type BlockNoteEditorOptions<BSchema extends BlockSchema> = {
    *
    * @example { class: "my-editor-class" }
    */
-  editorDOMAttributes: Record<string, string>;
+  domAttributes: Partial<BlockNoteDOMAttributes>;
   /**
    *  A callback function that runs when the editor is ready to be used.
    */
@@ -179,6 +180,7 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
 
     const extensions = getBlockNoteExtensions<BSchema>({
       editor: this,
+      domAttributes: newOptions.domAttributes || {},
       blockSchema: newOptions.blockSchema,
       collaboration: newOptions.collaboration,
     });
@@ -260,12 +262,12 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
           : [...(newOptions._tiptapOptions?.extensions || []), ...extensions],
       editorProps: {
         attributes: {
-          ...(newOptions.editorDOMAttributes || {}),
+          ...newOptions.domAttributes?.editor,
           class: [
             styles.bnEditor,
             styles.bnRoot,
             newOptions.defaultStyles ? styles.defaultStyles : "",
-            newOptions.editorDOMAttributes?.class || "",
+            newOptions.domAttributes?.editor?.class || "",
           ].join(" "),
         },
       },

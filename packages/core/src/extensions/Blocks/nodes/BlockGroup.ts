@@ -1,16 +1,13 @@
 import { mergeAttributes, Node } from "@tiptap/core";
 import styles from "./Block.module.css";
+import { BlockNoteDOMAttributes } from "../api/blockTypes";
 
-export const BlockGroup = Node.create({
+export const BlockGroup = Node.create<{
+  domAttributes?: BlockNoteDOMAttributes;
+}>({
   name: "blockGroup",
   group: "blockGroup",
   content: "blockContainer+",
-
-  addOptions() {
-    return {
-      HTMLAttributes: {},
-    };
-  },
 
   parseHTML() {
     return [
@@ -33,12 +30,21 @@ export const BlockGroup = Node.create({
   },
 
   renderHTML({ HTMLAttributes }) {
+    const blockGroupDOMAttributes =
+      this.options.domAttributes?.blockGroup || {};
+
     return [
       "div",
-      mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, {
-        class: styles.blockGroup,
-        "data-node-type": "blockGroup",
-      }),
+      mergeAttributes(
+        {
+          ...blockGroupDOMAttributes,
+          class: blockGroupDOMAttributes.class
+            ? styles.blockGroup + " " + blockGroupDOMAttributes.class
+            : styles.blockGroup,
+          "data-node-type": "blockGroup",
+        },
+        HTMLAttributes
+      ),
       0,
     ];
   },

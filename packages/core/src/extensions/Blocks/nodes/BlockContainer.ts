@@ -10,12 +10,11 @@ import { getBlockInfoFromPos } from "../helpers/getBlockInfoFromPos";
 import { PreviousBlockTypePlugin } from "../PreviousBlockTypePlugin";
 import styles from "./Block.module.css";
 import BlockAttributes from "./BlockAttributes";
-import { BlockSchema, PartialBlock } from "../api/blockTypes";
-
-// TODO
-export interface IBlock {
-  HTMLAttributes: Record<string, any>;
-}
+import {
+  BlockNoteDOMAttributes,
+  BlockSchema,
+  PartialBlock,
+} from "../api/blockTypes";
 
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
@@ -39,7 +38,9 @@ declare module "@tiptap/core" {
 /**
  * The main "Block node" documents consist of
  */
-export const BlockContainer = Node.create<IBlock>({
+export const BlockContainer = Node.create<{
+  domAttributes?: BlockNoteDOMAttributes;
+}>({
   name: "blockContainer",
   group: "blockContainer",
   // A block always contains content, and optionally a blockGroup which contains nested blocks
@@ -47,12 +48,6 @@ export const BlockContainer = Node.create<IBlock>({
   // Ensures content-specific keyboard handlers trigger first.
   priority: 50,
   defining: true,
-
-  addOptions() {
-    return {
-      HTMLAttributes: {},
-    };
-  },
 
   parseHTML() {
     return [
@@ -81,6 +76,8 @@ export const BlockContainer = Node.create<IBlock>({
   },
 
   renderHTML({ HTMLAttributes }) {
+    const domAttributes = this.options.domAttributes?.block || {};
+
     return [
       "div",
       mergeAttributes(HTMLAttributes, {
@@ -89,11 +86,16 @@ export const BlockContainer = Node.create<IBlock>({
       }),
       [
         "div",
-        mergeAttributes(HTMLAttributes, {
-          // TODO: maybe remove html attributes from inner block
-          class: styles.block,
-          "data-node-type": this.name,
-        }),
+        mergeAttributes(
+          {
+            ...domAttributes,
+            class: domAttributes.class
+              ? styles.block + " " + domAttributes.class
+              : styles.block,
+            "data-node-type": this.name,
+          },
+          HTMLAttributes
+        ),
         0,
       ],
     ];
