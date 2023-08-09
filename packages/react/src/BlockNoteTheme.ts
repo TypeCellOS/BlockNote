@@ -1,14 +1,9 @@
 import { MantineThemeOverride } from "@mantine/core";
-import { defaultTheme } from "./defaultTheme";
-
-export type Color = {
-  light: string;
-  dark: string;
-};
+import { darkDefaultTheme, lightDefaultTheme } from "./defaultTheme";
 
 export type CombinedColor = {
-  text: Color;
-  background: Color;
+  text: string;
+  background: string;
 };
 
 export type ColorScheme = {
@@ -18,9 +13,9 @@ export type ColorScheme = {
   hovered: CombinedColor;
   selected: CombinedColor;
   disabled: CombinedColor;
-  shadow: Color;
-  border: Color;
-  sideMenu: Color;
+  shadow: string;
+  border: string;
+  sideMenu: string;
   highlightColors: {
     gray: CombinedColor;
     brown: CombinedColor;
@@ -40,65 +35,67 @@ export type Theme = {
   fontFamily: string;
 };
 
+function shouldUseDarkTheme(
+  theme: Partial<Theme | { light: Partial<Theme>; dark: Partial<Theme> }>
+) {
+  const browserUsesDarkTheme = window.matchMedia(
+    "(prefers-color-scheme: dark)"
+  ).matches;
+
+  if ("light" in theme && "dark" in theme) {
+    return browserUsesDarkTheme;
+  }
+
+  if ("light" in theme) {
+    return false;
+  }
+
+  if ("dark" in theme) {
+    return true;
+  }
+
+  return browserUsesDarkTheme;
+}
+
 export const blockNoteToMantineTheme = (
-  useDarkTheme: boolean = false,
-  theme: Partial<Theme> = defaultTheme
+  theme: Partial<Theme | { light: Partial<Theme>; dark: Partial<Theme> }> = {
+    light: lightDefaultTheme,
+    dark: darkDefaultTheme,
+  }
 ): MantineThemeOverride => {
-  const fullTheme: Theme = { ...defaultTheme, ...theme };
+  const fullTheme: Theme = shouldUseDarkTheme(theme)
+    ? {
+        ...darkDefaultTheme,
+        ...("dark" in theme ? theme.dark : theme),
+      }
+    : {
+        ...lightDefaultTheme,
+        ...("light" in theme ? theme.light : theme),
+      };
 
-  const editorText = useDarkTheme
-    ? fullTheme.colors.editor.text.dark
-    : fullTheme.colors.editor.text.light;
-  const editorBackground = useDarkTheme
-    ? fullTheme.colors.editor.background.dark
-    : fullTheme.colors.editor.background.light;
+  const editorText = fullTheme.colors.editor.text;
+  const editorBackground = fullTheme.colors.editor.background;
 
-  const menuText = useDarkTheme
-    ? fullTheme.colors.menu.text.dark
-    : fullTheme.colors.menu.text.light;
-  const menuBackground = useDarkTheme
-    ? fullTheme.colors.menu.background.dark
-    : fullTheme.colors.menu.background.light;
+  const menuText = fullTheme.colors.menu.text;
+  const menuBackground = fullTheme.colors.menu.background;
 
-  const tooltipText = useDarkTheme
-    ? fullTheme.colors.tooltip.text.dark
-    : fullTheme.colors.tooltip.text.light;
-  const tooltipBackground = useDarkTheme
-    ? fullTheme.colors.tooltip.background.dark
-    : fullTheme.colors.tooltip.background.light;
+  const tooltipText = fullTheme.colors.tooltip.text;
+  const tooltipBackground = fullTheme.colors.tooltip.background;
 
-  const hoveredText = useDarkTheme
-    ? fullTheme.colors.hovered.text.dark
-    : fullTheme.colors.hovered.text.light;
-  const hoveredBackground = useDarkTheme
-    ? fullTheme.colors.hovered.background.dark
-    : fullTheme.colors.hovered.background.light;
+  const hoveredText = fullTheme.colors.hovered.text;
+  const hoveredBackground = fullTheme.colors.hovered.background;
 
-  const selectedText = useDarkTheme
-    ? fullTheme.colors.selected.text.dark
-    : fullTheme.colors.selected.text.light;
-  const selectedBackground = useDarkTheme
-    ? fullTheme.colors.selected.background.dark
-    : fullTheme.colors.selected.background.light;
+  const selectedText = fullTheme.colors.selected.text;
+  const selectedBackground = fullTheme.colors.selected.background;
 
-  const disabledText = useDarkTheme
-    ? fullTheme.colors.disabled.text.dark
-    : fullTheme.colors.disabled.text.light;
-  const disabledBackground = useDarkTheme
-    ? fullTheme.colors.disabled.background.dark
-    : fullTheme.colors.disabled.background.light;
+  const disabledText = fullTheme.colors.disabled.text;
+  const disabledBackground = fullTheme.colors.disabled.background;
 
-  const shadow = `0 4px 12px ${
-    useDarkTheme ? fullTheme.colors.shadow.dark : fullTheme.colors.shadow.light
-  }`;
+  const shadow = `0 4px 12px ${fullTheme.colors.shadow}`;
 
-  const border = `1px solid ${
-    useDarkTheme ? fullTheme.colors.border.dark : fullTheme.colors.border.light
-  }`;
+  const border = `1px solid ${fullTheme.colors.border}`;
 
-  const sideMenu = useDarkTheme
-    ? fullTheme.colors.sideMenu.dark
-    : fullTheme.colors.sideMenu.light;
+  const sideMenu = fullTheme.colors.sideMenu;
 
   const editorBorderRadius = `${Math.max(fullTheme.borderRadius + 2, 1)}px`;
   const outerBorderRadius = `${fullTheme.borderRadius}px`;
@@ -111,71 +108,31 @@ export const blockNoteToMantineTheme = (
       // Removes button press effect.
       transform: "none",
     },
-    colorScheme: useDarkTheme ? "dark" : "light",
+    colorScheme: shouldUseDarkTheme(theme) ? "dark" : "light",
     colors: {
       textColors: [
-        useDarkTheme
-          ? fullTheme.colors.editor.text.dark
-          : fullTheme.colors.editor.text.light,
-        useDarkTheme
-          ? fullTheme.colors.highlightColors.gray.text.dark
-          : fullTheme.colors.highlightColors.gray.text.light,
-        useDarkTheme
-          ? fullTheme.colors.highlightColors.brown.text.dark
-          : fullTheme.colors.highlightColors.brown.text.light,
-        useDarkTheme
-          ? fullTheme.colors.highlightColors.red.text.dark
-          : fullTheme.colors.highlightColors.red.text.light,
-        useDarkTheme
-          ? fullTheme.colors.highlightColors.orange.text.dark
-          : fullTheme.colors.highlightColors.orange.text.light,
-        useDarkTheme
-          ? fullTheme.colors.highlightColors.yellow.text.dark
-          : fullTheme.colors.highlightColors.yellow.text.light,
-        useDarkTheme
-          ? fullTheme.colors.highlightColors.green.text.dark
-          : fullTheme.colors.highlightColors.green.text.light,
-        useDarkTheme
-          ? fullTheme.colors.highlightColors.blue.text.dark
-          : fullTheme.colors.highlightColors.blue.text.light,
-        useDarkTheme
-          ? fullTheme.colors.highlightColors.purple.text.dark
-          : fullTheme.colors.highlightColors.purple.text.light,
-        useDarkTheme
-          ? fullTheme.colors.highlightColors.pink.text.dark
-          : fullTheme.colors.highlightColors.pink.text.light,
+        fullTheme.colors.editor.text,
+        fullTheme.colors.highlightColors.gray.text,
+        fullTheme.colors.highlightColors.brown.text,
+        fullTheme.colors.highlightColors.red.text,
+        fullTheme.colors.highlightColors.orange.text,
+        fullTheme.colors.highlightColors.yellow.text,
+        fullTheme.colors.highlightColors.green.text,
+        fullTheme.colors.highlightColors.blue.text,
+        fullTheme.colors.highlightColors.purple.text,
+        fullTheme.colors.highlightColors.pink.text,
       ],
       backgroundColors: [
-        useDarkTheme
-          ? fullTheme.colors.editor.background.dark
-          : fullTheme.colors.editor.background.light,
-        useDarkTheme
-          ? fullTheme.colors.highlightColors.gray.background.dark
-          : fullTheme.colors.highlightColors.gray.background.light,
-        useDarkTheme
-          ? fullTheme.colors.highlightColors.brown.background.dark
-          : fullTheme.colors.highlightColors.brown.background.light,
-        useDarkTheme
-          ? fullTheme.colors.highlightColors.red.background.dark
-          : fullTheme.colors.highlightColors.red.background.light,
-        useDarkTheme
-          ? fullTheme.colors.highlightColors.orange.background.dark
-          : fullTheme.colors.highlightColors.orange.background.light,
-        useDarkTheme
-          ? fullTheme.colors.highlightColors.yellow.background.dark
-          : fullTheme.colors.highlightColors.yellow.background.light,
-        useDarkTheme
-          ? fullTheme.colors.highlightColors.green.background.dark
-          : fullTheme.colors.highlightColors.green.background.light,
-        useDarkTheme
-          ? fullTheme.colors.highlightColors.blue.background.dark
-          : fullTheme.colors.highlightColors.blue.background.light,
-        useDarkTheme
-          ? fullTheme.colors.highlightColors.purple.background.dark
-          : fullTheme.colors.highlightColors.purple.background.light,
-        useDarkTheme
-          ? fullTheme.colors.highlightColors.pink.background.dark
-          : fullTheme.colors.highlightColors.pink.background.light,
+        fullTheme.colors.editor.background,
+        fullTheme.colors.highlightColors.gray.background,
+        fullTheme.colors.highlightColors.brown.background,
+        fullTheme.colors.highlightColors.red.background,
+        fullTheme.colors.highlightColors.orange.background,
+        fullTheme.colors.highlightColors.yellow.background,
+        fullTheme.colors.highlightColors.green.background,
+        fullTheme.colors.highlightColors.blue.background,
+        fullTheme.colors.highlightColors.purple.background,
+        fullTheme.colors.highlightColors.pink.background,
       ],
     },
     components: {
@@ -204,6 +161,7 @@ export const blockNoteToMantineTheme = (
             ".mantine-Menu-item": {
               backgroundColor: menuBackground,
               border: "none",
+              borderRadius: innerBorderRadius,
               color: menuText,
             },
             ".mantine-Menu-item[data-hovered]": {

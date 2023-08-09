@@ -5,7 +5,8 @@ import {
   getDefaultReactSlashMenuItems,
   useBlockNote,
   Theme,
-  defaultTheme,
+  lightDefaultTheme,
+  darkDefaultTheme,
 } from "@blocknote/react";
 import styles from "./App.module.css";
 import { BlockSchema, defaultBlockSchema } from "@blocknote/core";
@@ -14,88 +15,58 @@ import {
   insertReactImage,
   ReactImage,
 } from "../../../tests/utils/customblocks/ReactImage";
+import { useEffect, useState } from "react";
 
 type WindowWithProseMirror = Window & typeof globalThis & { ProseMirror: any };
 
-const redTheme: Partial<Theme> = {
+const lightRedTheme = {
   colors: {
     editor: {
-      text: {
-        light: "#222222",
-        dark: "#ffffff",
-      },
-      background: {
-        light: "#ffffff",
-        dark: "#9b0000",
-      },
+      text: "#222222",
+      background: "#ffffff",
     },
     menu: {
-      text: {
-        light: "#ffffff",
-        dark: "#ffffff",
-      },
-      background: {
-        light: "#9b0000",
-        dark: "#9b0000",
-      },
+      text: "#ffffff",
+      background: "#9b0000",
     },
     tooltip: {
-      text: {
-        light: "#ffffff",
-        dark: "#ffffff",
-      },
-      background: {
-        light: "#b00000",
-        dark: "#b00000",
-      },
+      text: "#ffffff",
+      background: "#b00000",
     },
     hovered: {
-      text: {
-        light: "#ffffff",
-        dark: "#ffffff",
-      },
-      background: {
-        light: "#b00000",
-        dark: "#b00000",
-      },
+      text: "#ffffff",
+      background: "#b00000",
     },
     selected: {
-      text: {
-        light: "#ffffff",
-        dark: "#ffffff",
-      },
-      background: {
-        light: "#c50000",
-        dark: "#c50000",
-      },
+      text: "#ffffff",
+      background: "#c50000",
     },
     disabled: {
-      text: {
-        light: "#9b0000",
-        dark: "#9b0000",
-      },
-      background: {
-        light: "#7d0000",
-        dark: "#7d0000",
-      },
+      text: "#9b0000",
+      background: "#7d0000",
     },
-    shadow: {
-      light: "#640000",
-      dark: "#640000",
-    },
-    border: {
-      light: "#870000",
-      dark: "#870000",
-    },
-    sideMenu: {
-      light: "#bababa",
-      dark: "#ffffff",
-    },
+    shadow: "#640000",
+    border: "#870000",
+    sideMenu: "#bababa",
     // TODO: Update
-    highlightColors: defaultTheme.colors.highlightColors,
+    highlightColors: lightDefaultTheme.colors.highlightColors,
   },
   borderRadius: 4,
   fontFamily: "Helvetica Neue, sans-serif",
+} satisfies Partial<Theme>;
+
+const darkRedTheme: Partial<Theme> = {
+  ...lightRedTheme,
+  colors: {
+    ...lightRedTheme.colors,
+    editor: {
+      text: "#ffffff",
+      background: "#9b0000",
+    },
+    sideMenu: "#ffffff",
+    // TODO: Update
+    highlightColors: darkDefaultTheme.colors.highlightColors,
+  },
 };
 
 const schema = {
@@ -105,45 +76,64 @@ const schema = {
 } satisfies BlockSchema;
 
 function App() {
-  const editor = useBlockNote({
-    onEditorContentChange: (editor) => {
-      console.log(editor.topLevelBlocks);
+  const [shouldUseDarkTheme, setShouldUseDarkTheme] = useState(
+    window.matchMedia("(prefers-color-scheme: dark)").matches
+  );
+
+  useEffect(() => {
+    const darkThemeMq = window.matchMedia("(prefers-color-scheme: dark)");
+    const mqListener = (e: MediaQueryListEvent) =>
+      setShouldUseDarkTheme(e.matches);
+    darkThemeMq.addEventListener("change", mqListener);
+
+    return () => darkThemeMq.removeEventListener("change", mqListener);
+  }, []);
+
+  const editor = useBlockNote(
+    {
+      onEditorContentChange: (editor) => {
+        console.log(editor.topLevelBlocks);
+      },
+      blockSchema: schema,
+      slashMenuItems: [
+        ...getDefaultReactSlashMenuItems(schema),
+        insertImage,
+        insertReactImage,
+      ],
+      domAttributes: {
+        editor: {
+          class: styles.editor + " customEditorClass",
+          "data-custom-editor-attr": "editor",
+        },
+        block: {
+          class: "customBlockClass",
+          "data-custom-block-attr": "block",
+        },
+        blockGroup: {
+          class: "customBlockGroupClass",
+          "data-custom-block-group-attr": "blockGroup",
+        },
+        blockContent: {
+          class: "customBlockContentClass",
+          "data-custom-block-content-attr": "blockContent",
+        },
+        inlineContent: {
+          class: "customInlineContentClass",
+          "data-custom-inline-content-attr": "inlineContent",
+        },
+      },
     },
-    blockSchema: schema,
-    slashMenuItems: [
-      ...getDefaultReactSlashMenuItems(schema),
-      insertImage,
-      insertReactImage,
-    ],
-    domAttributes: {
-      editor: {
-        class: styles.editor + " customEditorClass",
-        "data-custom-editor-attr": "editor",
-      },
-      block: {
-        class: "customBlockClass",
-        "data-custom-block-attr": "block",
-      },
-      blockGroup: {
-        class: "customBlockGroupClass",
-        "data-custom-block-group-attr": "blockGroup",
-      },
-      blockContent: {
-        class: "customBlockContentClass",
-        "data-custom-block-content-attr": "blockContent",
-      },
-      inlineContent: {
-        class: "customInlineContentClass",
-        "data-custom-inline-content-attr": "inlineContent",
-      },
-    },
-  });
+    [shouldUseDarkTheme]
+  );
 
   // Give tests a way to get prosemirror instance
   (window as WindowWithProseMirror).ProseMirror = editor?._tiptapEditor;
 
   return (
-    <BlockNoteView editor={editor} useDarkTheme={true} customTheme={redTheme} />
+    <BlockNoteView
+      editor={editor}
+      theme={{ light: lightRedTheme, dark: darkRedTheme }}
+    />
   );
 }
 

@@ -42,8 +42,7 @@ function UnThemedBlockNoteView<BSchema extends BlockSchema>(
 export function BlockNoteView<BSchema extends BlockSchema>(
   props: {
     editor: BlockNoteEditor<BSchema>;
-    useDarkTheme?: boolean;
-    customTheme?: Partial<Theme>;
+    theme?: Partial<Theme | { light: Partial<Theme>; dark: Partial<Theme> }>;
     children?: ReactNode;
   } & HTMLAttributes<HTMLDivElement>
 ) {
@@ -51,10 +50,10 @@ export function BlockNoteView<BSchema extends BlockSchema>(
     name: "Editor",
   });
 
-  const { useDarkTheme, customTheme, className, ...rest } = props;
+  const { theme, className, ...rest } = props;
 
   return (
-    <MantineProvider theme={blockNoteToMantineTheme(useDarkTheme, customTheme)}>
+    <MantineProvider theme={blockNoteToMantineTheme(theme)}>
       <UnThemedBlockNoteView
         className={
           props.className ? `${classes.root} ${props.className}` : classes.root

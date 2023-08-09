@@ -13,175 +13,112 @@ export const defaultColorScheme = [
   "#000000",
 ];
 
-export const defaultTheme: Theme = {
+export const lightDefaultTheme: Theme = {
   colors: {
     editor: {
-      text: {
-        light: defaultColorScheme[5],
-        dark: defaultColorScheme[2],
-      },
-      background: {
-        light: defaultColorScheme[0],
-        dark: defaultColorScheme[6],
-      },
+      text: defaultColorScheme[5],
+      background: defaultColorScheme[0],
     },
     menu: {
-      text: {
-        light: defaultColorScheme[5],
-        dark: defaultColorScheme[2],
-      },
-      background: {
-        light: defaultColorScheme[0],
-        dark: defaultColorScheme[6],
-      },
+      text: defaultColorScheme[5],
+      background: defaultColorScheme[0],
     },
     tooltip: {
-      text: {
-        light: defaultColorScheme[5],
-        dark: defaultColorScheme[2],
-      },
-      background: {
-        light: defaultColorScheme[1],
-        dark: defaultColorScheme[7],
-      },
+      text: defaultColorScheme[5],
+      background: defaultColorScheme[1],
     },
     hovered: {
-      text: {
-        light: defaultColorScheme[5],
-        dark: defaultColorScheme[2],
-      },
-      background: {
-        light: defaultColorScheme[1],
-        dark: defaultColorScheme[7],
-      },
+      text: defaultColorScheme[5],
+      background: defaultColorScheme[1],
     },
     selected: {
-      text: {
-        light: defaultColorScheme[0],
-        dark: defaultColorScheme[2],
-      },
-      background: {
-        light: defaultColorScheme[5],
-        dark: defaultColorScheme[8],
-      },
+      text: defaultColorScheme[0],
+      background: defaultColorScheme[5],
     },
     disabled: {
-      text: {
-        light: defaultColorScheme[3],
-        dark: defaultColorScheme[5],
-      },
-      background: {
-        light: defaultColorScheme[1],
-        dark: defaultColorScheme[7],
-      },
+      text: defaultColorScheme[3],
+      background: defaultColorScheme[1],
     },
-    shadow: {
-      light: defaultColorScheme[2],
-      dark: defaultColorScheme[8],
-    },
-    border: {
-      light: defaultColorScheme[1],
-      dark: defaultColorScheme[7],
-    },
-    sideMenu: {
-      light: defaultColorScheme[2],
-      dark: defaultColorScheme[4],
-    },
+    shadow: defaultColorScheme[2],
+    border: defaultColorScheme[1],
+    sideMenu: defaultColorScheme[2],
     // TODO: Fix dark mode colors
     highlightColors: {
       gray: {
-        text: {
-          light: "#9b9a97",
-          dark: "#9b9a97",
-        },
-        background: {
-          light: "#ebeced",
-          dark: "#ebeced",
-        },
+        text: "#9b9a97",
+        background: "#ebeced",
       },
       brown: {
-        text: {
-          light: "#64473a",
-          dark: "#64473a",
-        },
-        background: {
-          light: "#e9e5e3",
-          dark: "#e9e5e3",
-        },
+        text: "#64473a",
+        background: "#e9e5e3",
       },
       red: {
-        text: {
-          light: "#e03e3e",
-          dark: "#e03e3e",
-        },
-        background: {
-          light: "#fbe4e4",
-          dark: "#fbe4e4",
-        },
+        text: "#e03e3e",
+        background: "#fbe4e4",
       },
       orange: {
-        text: {
-          light: "#d9730d",
-          dark: "#d9730d",
-        },
-        background: {
-          light: "#f6e9d9",
-          dark: "#f6e9d9",
-        },
+        text: "#d9730d",
+        background: "#f6e9d9",
       },
       yellow: {
-        text: {
-          light: "#dfab01",
-          dark: "#dfab01",
-        },
-        background: {
-          light: "#fbf3db",
-          dark: "#fbf3db",
-        },
+        text: "#dfab01",
+        background: "#fbf3db",
       },
       green: {
-        text: {
-          light: "#4d6461",
-          dark: "#4d6461",
-        },
-        background: {
-          light: "#ddedea",
-          dark: "#ddedea",
-        },
+        text: "#4d6461",
+        background: "#ddedea",
       },
       blue: {
-        text: {
-          light: "#0b6e99",
-          dark: "#0b6e99",
-        },
-        background: {
-          light: "#ddebf1",
-          dark: "#ddebf1",
-        },
+        text: "#0b6e99",
+        background: "#ddebf1",
       },
       purple: {
-        text: {
-          light: "#6940a5",
-          dark: "#6940a5",
-        },
-        background: {
-          light: "#eae4f2",
-          dark: "#eae4f2",
-        },
+        text: "#6940a5",
+        background: "#eae4f2",
       },
       pink: {
-        text: {
-          light: "#ad1a72",
-          dark: "#ad1a72",
-        },
-        background: {
-          light: "#f4dfeb",
-          dark: "#f4dfeb",
-        },
+        text: "#ad1a72",
+        background: "#f4dfeb",
       },
     },
   },
   borderRadius: 6,
   fontFamily:
     '"Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Open Sans", "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif',
+};
+
+export const darkDefaultTheme: Theme = {
+  colors: {
+    editor: {
+      text: defaultColorScheme[2],
+      background: defaultColorScheme[6],
+    },
+    menu: {
+      text: defaultColorScheme[2],
+      background: defaultColorScheme[6],
+    },
+    tooltip: {
+      text: defaultColorScheme[2],
+      background: defaultColorScheme[7],
+    },
+    hovered: {
+      text: defaultColorScheme[2],
+      background: defaultColorScheme[7],
+    },
+    selected: {
+      text: defaultColorScheme[2],
+      background: defaultColorScheme[8],
+    },
+    disabled: {
+      text: defaultColorScheme[5],
+      background: defaultColorScheme[7],
+    },
+    shadow: defaultColorScheme[8],
+    border: defaultColorScheme[7],
+    sideMenu: defaultColorScheme[4],
+    // TODO: Fix dark mode colors
+    highlightColors: lightDefaultTheme.colors.highlightColors,
+  },
+  borderRadius: lightDefaultTheme.borderRadius,
+  fontFamily: lightDefaultTheme.fontFamily,
 };
