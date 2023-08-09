@@ -1,7 +1,5 @@
 import { Extensions, extensions } from "@tiptap/core";
 
-import { BlockNoteEditor } from "./BlockNoteEditor";
-
 import { Bold } from "@tiptap/extension-bold";
 import { Code } from "@tiptap/extension-code";
 import Collaboration from "@tiptap/extension-collaboration";
@@ -18,6 +16,7 @@ import { TableRow } from "@tiptap/extension-table-row";
 import { Text } from "@tiptap/extension-text";
 import { Underline } from "@tiptap/extension-underline";
 import * as Y from "yjs";
+import { BlockNoteEditor } from "./BlockNoteEditor";
 import styles from "./editor.module.css";
 import { BackgroundColorExtension } from "./extensions/BackgroundColor/BackgroundColorExtension";
 import { BackgroundColorMark } from "./extensions/BackgroundColor/BackgroundColorMark";
@@ -103,6 +102,21 @@ export const getBlockNoteExtensions = <BSchema extends BlockSchema>(opts: {
     TrailingNode,
     TableCell.extend({
       content: "inline*",
+      // addNodeView() {
+      //   return (props) => {
+      //     debugger;
+      //     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      //     // if (!(props.editor as any).contentComponent) {
+      //     //   // same logic as in ReactNodeViewRenderer
+      //     //   return {};
+      //     // }
+
+      //     const ret = ReactNodeViewRenderer(<div>hello</div>, {
+      //       stopEvent: () => true,
+      //     })(props) as NodeView;
+      //     return ret;
+      //   };
+      // },
     }),
     TableHeader.extend({
       content: "inline*",

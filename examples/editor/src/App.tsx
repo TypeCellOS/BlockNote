@@ -21,7 +21,7 @@ type WindowWithProseMirror = Window & typeof globalThis & { ProseMirror: any };
 const doc = new Y.Doc();
 const provider = new WebsocketProvider("", "test", doc, { connect: false });
 provider.connectBc();
-
+(window as any).awareness = provider.awareness;
 function App() {
   const editor = useBlockNote({
     collaboration: {

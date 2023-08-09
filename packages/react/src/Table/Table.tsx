@@ -64,6 +64,7 @@ export const BNTable = Table.extend<any>({
   selectable: true,
   tableRole: "table",
   isolating: true,
+
   group: "blockContent",
   // addAttributes() {
   //   return {
@@ -169,7 +170,7 @@ export const BNTable = Table.extend<any>({
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const oldUpdated = ret.update!.bind(ret);
       ret.update = (node, outerDeco, innerDeco) => {
-        // console.log("update");
+        console.log("update");
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const retAsAny = ret as any;
         let decorations = retAsAny.decorations;

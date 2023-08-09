@@ -99,6 +99,7 @@ const TableElementComponent = function TableElement(
   const ref = React.useRef<DataEditorRef>(null);
   const map = TableMap.get(props.node);
   const { node, getPos, editor } = props;
+  console.log(props.decorations);
 
   const getData = useCallback(
     ([col, row]: Item) => {
@@ -177,22 +178,23 @@ const TableElementComponent = function TableElement(
     const cell = findCellNonExact(map, props.selectionHack.head - 1);
     console.log("CELL", cell);
 
-    setSelection({
-      current: {
-        range: {
-          height: 1,
-          width: 1,
-          x: cell.left,
-          y: cell.top,
-        },
-        cell: [cell.left, cell.top],
-        rangeStack: [],
-      },
-      columns: CompactSelection.fromSingleSelection(cell.left),
-      rows: CompactSelection.fromSingleSelection(cell.top),
-    });
+    // TODO
+    // setSelection({
+    //   current: {
+    //     range: {
+    //       height: 1,
+    //       width: 1,
+    //       x: cell.left,
+    //       y: cell.top,
+    //     },
+    //     cell: [cell.left, cell.top],
+    //     rangeStack: [],
+    //   },
+    //   columns: CompactSelection.fromSingleSelection(cell.left),
+    //   rows: CompactSelection.fromSingleSelection(cell.top),
+    // });
 
-    ref.current?.focus();
+    // ref.current?.focus();
   }, [props.selectionHack?.head, map, getPos, props.selectionHack]);
 
   const onGridSelectionChange = React.useCallback(
@@ -215,7 +217,7 @@ const TableElementComponent = function TableElement(
       tr.setSelection(pmSelection);
       editor.view.dispatch(tr);
 
-      setSelection(selection);
+      // setSelection(selection);
     },
     [map, node, editor, getPos]
   );
