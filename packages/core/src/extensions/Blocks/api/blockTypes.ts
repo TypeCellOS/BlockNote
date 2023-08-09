@@ -6,7 +6,7 @@ import { DefaultBlockSchema } from "./defaultBlocks";
 
 export type BlockNoteDOMElement =
   | "editor"
-  | "block"
+  | "blockContainer"
   | "blockGroup"
   | "blockContent"
   | "inlineContent";

@@ -1,4 +1,4 @@
-import { MantineThemeOverride } from "@mantine/core";
+import { CSSObject, MantineThemeOverride } from "@mantine/core";
 import { darkDefaultTheme, lightDefaultTheme } from "./defaultTheme";
 
 export type CombinedColor = {
@@ -35,6 +35,25 @@ export type Theme = {
   fontFamily: string;
 };
 
+export type BlockNoteComponentStyles = Partial<{
+  // Block Side Menu items, Formatting Toolbar buttons
+  ActionIcon: CSSObject;
+  // Slash Menu, Formatting Toolbar dropdown, color picker dropdown
+  Menu: CSSObject;
+  // Icon in the color picker dropdown (Formatting Toolbar & Drag Handle Menu)
+  ColorIcon: CSSObject;
+  DragHandleMenu: CSSObject;
+  // Menu to edit hyperlinks (in Formatting Toolbar & Hyperlink Toolbar)
+  EditHyperlinkMenu: CSSObject;
+  Editor: CSSObject;
+  // Wraps Formatting Toolbar & Hyperlink Toolbar
+  Toolbar: CSSObject;
+  // Appears on hover for Formatting Toolbar & Hyperlink Toolbar buttons
+  Tooltip: CSSObject;
+  SlashMenu: CSSObject;
+  SideMenu: CSSObject;
+}>;
+
 function shouldUseDarkTheme(
   theme: Partial<Theme | { light: Partial<Theme>; dark: Partial<Theme> }>
 ) {
@@ -61,7 +80,8 @@ export const blockNoteToMantineTheme = (
   theme: Partial<Theme | { light: Partial<Theme>; dark: Partial<Theme> }> = {
     light: lightDefaultTheme,
     dark: darkDefaultTheme,
-  }
+  },
+  componentStyles?: BlockNoteComponentStyles
 ): MantineThemeOverride => {
   const fullTheme: Theme = shouldUseDarkTheme(theme)
     ? {
@@ -141,6 +161,7 @@ export const blockNoteToMantineTheme = (
         styles: () => ({
           root: {
             color: sideMenu,
+            ...componentStyles?.ActionIcon,
           },
         }),
       },
@@ -169,6 +190,7 @@ export const blockNoteToMantineTheme = (
               border: "none",
               color: hoveredText,
             },
+            ...componentStyles?.Menu,
           },
         }),
       },
@@ -177,6 +199,7 @@ export const blockNoteToMantineTheme = (
           root: {
             border: border,
             borderRadius: innerBorderRadius,
+            ...componentStyles?.ColorIcon,
           },
         }),
       },
@@ -187,6 +210,7 @@ export const blockNoteToMantineTheme = (
               fontSize: "12px",
               height: "30px",
             },
+            ...componentStyles?.DragHandleMenu,
           },
         }),
       },
@@ -227,6 +251,7 @@ export const blockNoteToMantineTheme = (
                 },
               },
             },
+            ...componentStyles?.EditHyperlinkMenu,
           },
         }),
       },
@@ -239,6 +264,7 @@ export const blockNoteToMantineTheme = (
               color: editorText,
               fontFamily: fontFamily,
             },
+            ...componentStyles?.Editor,
           },
         }),
       },
@@ -292,6 +318,7 @@ export const blockNoteToMantineTheme = (
                 backgroundColor: hoveredBackground,
               },
             },
+            ...componentStyles?.Toolbar,
           },
         }),
       },
@@ -308,6 +335,7 @@ export const blockNoteToMantineTheme = (
             "div ~ div": {
               color: tooltipText,
             },
+            ...componentStyles?.Tooltip,
           },
         }),
       },
@@ -338,6 +366,7 @@ export const blockNoteToMantineTheme = (
                 },
               },
             },
+            ...componentStyles?.SlashMenu,
           },
         }),
       },
@@ -348,6 +377,7 @@ export const blockNoteToMantineTheme = (
             ".mantine-ActionIcon-root": {
               color: sideMenu,
             },
+            ...componentStyles?.SideMenu,
           },
         }),
       },

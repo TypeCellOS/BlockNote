@@ -76,7 +76,7 @@ export const BlockContainer = Node.create<{
   },
 
   renderHTML({ HTMLAttributes }) {
-    const domAttributes = this.options.domAttributes?.block || {};
+    const domAttributes = this.options.domAttributes?.blockContainer || {};
 
     return [
       "div",

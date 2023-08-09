@@ -55,7 +55,7 @@ const lightRedTheme = {
   fontFamily: "Helvetica Neue, sans-serif",
 } satisfies Partial<Theme>;
 
-const darkRedTheme: Partial<Theme> = {
+const darkRedTheme = {
   ...lightRedTheme,
   colors: {
     ...lightRedTheme.colors,
@@ -67,7 +67,7 @@ const darkRedTheme: Partial<Theme> = {
     // TODO: Update
     highlightColors: darkDefaultTheme.colors.highlightColors,
   },
-};
+} satisfies Partial<Theme>;
 
 const schema = {
   ...defaultBlockSchema,
@@ -76,14 +76,18 @@ const schema = {
 } satisfies BlockSchema;
 
 function App() {
-  const [shouldUseDarkTheme, setShouldUseDarkTheme] = useState(
+  const [theme, setTheme] = useState<
+    typeof darkRedTheme | typeof lightRedTheme
+  >(
     window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? lightRedTheme
+      : darkRedTheme
   );
 
   useEffect(() => {
     const darkThemeMq = window.matchMedia("(prefers-color-scheme: dark)");
     const mqListener = (e: MediaQueryListEvent) =>
-      setShouldUseDarkTheme(e.matches);
+      setTheme(e.matches ? lightRedTheme : darkRedTheme);
     darkThemeMq.addEventListener("change", mqListener);
 
     return () => darkThemeMq.removeEventListener("change", mqListener);
@@ -105,9 +109,9 @@ function App() {
           class: styles.editor + " customEditorClass",
           "data-custom-editor-attr": "editor",
         },
-        block: {
-          class: "customBlockClass",
-          "data-custom-block-attr": "block",
+        blockContainer: {
+          class: "customBlockContainerClass",
+          "data-custom-block-container-attr": "blockContainer",
         },
         blockGroup: {
           class: "customBlockGroupClass",
@@ -123,7 +127,7 @@ function App() {
         },
       },
     },
-    [shouldUseDarkTheme]
+    [theme]
   );
 
   // Give tests a way to get prosemirror instance
@@ -132,7 +136,25 @@ function App() {
   return (
     <BlockNoteView
       editor={editor}
-      theme={{ light: lightRedTheme, dark: darkRedTheme }}
+      theme={{
+        // light: lightRedTheme,
+        dark: darkRedTheme,
+      }}
+      componentStyles={{
+        Editor: {
+          backgroundColor: theme.colors.editor.background,
+          borderRadius: theme.borderRadius,
+          border: `1px solid ${theme.colors.border}`,
+          boxShadow: `0 4px 12px ${theme.colors.shadow}`,
+          height: "100vw",
+          ".ProseMirror": {
+            backgroundColor: theme.colors.editor.background,
+            borderRadius: theme.borderRadius,
+            color: theme.colors.editor.text,
+            fontFamily: theme.fontFamily,
+          },
+        },
+      }}
     />
   );
 }
