@@ -1,7 +1,7 @@
-import { IconType } from "react-icons";
-import Tippy from "@tippyjs/react";
-import { TooltipContent } from "../../../SharedComponents/Tooltip/components/TooltipContent";
 import { Container } from "@mantine/core";
+import Tippy from "@tippyjs/react";
+import { IconType } from "react-icons";
+import { TooltipContent } from "../../../SharedComponents/Tooltip/components/TooltipContent";
 
 export type EditHyperlinkMenuItemIconProps = {
   icon: IconType;
@@ -14,6 +14,7 @@ export function EditHyperlinkMenuItemIcon(
 ) {
   const Icon = props.icon;
 
+  // TODO: replace with Mantine <Tooltip> or floating-ui
   return (
     <Tippy
       content={

@@ -75,6 +75,7 @@ export const SideMenuPositioner = <
     );
   }, [block, props.editor, props.sideMenu]);
 
+  // TODO: replace with floating-ui
   return (
     <Tippy
       appendTo={props.editor.domElement.parentElement!}

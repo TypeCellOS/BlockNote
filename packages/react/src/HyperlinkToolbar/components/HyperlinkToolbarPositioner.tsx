@@ -72,6 +72,7 @@ export const HyperlinkToolbarPositioner = <
     );
   }, [props.hyperlinkToolbar, props.editor, text, url]);
 
+  // TODO: replace with floating-ui
   return (
     <Tippy
       appendTo={props.editor.domElement.parentElement!}
