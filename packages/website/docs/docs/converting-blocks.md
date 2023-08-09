@@ -61,10 +61,10 @@ export default function App() {
   const [markdown, setMarkdown] = useState<string>("");
 
   // Creates a new editor instance.
-  const editor: BlockNoteEditor | null = useBlockNote({
+  const editor: BlockNoteEditor = useBlockNote({
     theme: "{{ getTheme(isDark) }}",
     // Listens for when the editor's contents change.
-    onEditorContentChange: (editor: BlockNoteEditor) => {
+    onEditorContentChange: (editor) => {
       // Converts the editor's contents from Block objects to Markdown and 
       // saves them.
       const saveBlocksAsMarkdown = async () => {
@@ -132,7 +132,7 @@ export default function App() {
   const [markdown, setMarkdown] = useState<string>("");
   
   // Creates a new editor instance.
-  const editor: BlockNoteEditor | null = useBlockNote({
+  const editor: BlockNoteEditor = useBlockNote({
     theme: "{{ getTheme(isDark) }}",
     // Makes the editor non-editable.
     editable: false
@@ -169,7 +169,7 @@ export default function App() {
 
 textarea {
   color: gray;
-  background-color: #151515;
+  background-color: {{ isDark ? "#151515" : "white" }};
   width: 100%;
   height: 100%;
 }
@@ -216,10 +216,10 @@ export default function App() {
   const [html, setHTML] = useState<string>("");
 
   // Creates a new editor instance.
-  const editor: BlockNoteEditor | null = useBlockNote({
+  const editor: BlockNoteEditor = useBlockNote({
     theme: "{{ getTheme(isDark) }}",
     // Listens for when the editor's contents change.
-    onEditorContentChange: (editor: BlockNoteEditor) => {
+    onEditorContentChange: (editor) => {
       // Converts the editor's contents from Block objects to HTML and saves 
       // them.
       const saveBlocksAsHTML = async () => {
@@ -286,7 +286,7 @@ export default function App() {
   const [html, setHTML] = useState<string>("");
   
   // Creates a new editor instance.
-  const editor: BlockNoteEditor | null = useBlockNote({
+  const editor: BlockNoteEditor = useBlockNote({
     theme: "{{ getTheme(isDark) }}",
     // Makes the editor non-editable.
     editable: false
@@ -323,7 +323,7 @@ export default function App() {
 
 textarea {
   color: gray;
-  background-color: #151515;
+  background-color: {{ isDark ? "#151515" : "white" }};
   width: 100%;
   height: 100%;
 }

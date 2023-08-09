@@ -1,9 +1,10 @@
+import { useMemo, useState } from "react";
 import {
+  Block,
   BlockNoteEditor,
   BlockSchema,
-  DefaultBlockSchema,
+  PartialBlock,
 } from "@blocknote/core";
-import { useState } from "react";
 import { IconType } from "react-icons";
 import {
   RiH1,
@@ -13,7 +14,11 @@ import {
   RiListUnordered,
   RiText,
 } from "react-icons/ri";
-import { ToolbarDropdown } from "../../../SharedComponents/Toolbar/components/ToolbarDropdown";
+
+import {
+  ToolbarDropdown,
+  ToolbarDropdownProps,
+} from "../../../SharedComponents/Toolbar/components/ToolbarDropdown";
 import { useEditorSelectionChange } from "../../../hooks/useEditorSelectionChange";
 import { useEditorContentChange } from "../../../hooks/useEditorContentChange";
 
@@ -25,13 +30,20 @@ const headingIcons: Record<HeadingLevels, IconType> = {
   "3": RiH3,
 };
 
-const shouldShow = (schema: BlockSchema) => {
-  const paragraph = "paragraph" in schema;
-  const heading = "heading" in schema && "level" in schema.heading.propSchema;
-  const bulletListItem = "bulletListItem" in schema;
-  const numberedListItem = "numberedListItem" in schema;
+const shouldShow = <BSchema extends BlockSchema>(block: Block<BSchema>) => {
+  if (block.type === "paragraph") {
+    return true;
+  }
 
-  return paragraph && heading && bulletListItem && numberedListItem;
+  if (block.type === "heading" && "level" in block.props) {
+    return true;
+  }
+
+  if (block.type === "bulletListItem") {
+    return true;
+  }
+
+  return block.type === "numberedListItem";
 };
 
 export const BlockTypeDropdown = <BSchema extends BlockSchema>(props: {
@@ -41,6 +53,77 @@ export const BlockTypeDropdown = <BSchema extends BlockSchema>(props: {
     props.editor.getTextCursorPosition().block
   );
 
+  const dropdownItems: ToolbarDropdownProps["items"] = useMemo(() => {
+    const items: ToolbarDropdownProps["items"] = [];
+
+    if ("paragraph" in props.editor.schema) {
+      items.push({
+        onClick: () => {
+          props.editor.focus();
+          props.editor.updateBlock(block, {
+            type: "paragraph",
+            props: {},
+          });
+        },
+        text: "Paragraph",
+        icon: RiText,
+        isSelected: block.type === "paragraph",
+      });
+    }
+
+    if (
+      "heading" in props.editor.schema &&
+      "level" in props.editor.schema.heading.propSchema
+    ) {
+      items.push(
+        ...(["1", "2", "3"] as const).map((level) => ({
+          onClick: () => {
+            props.editor.focus();
+            props.editor.updateBlock(block, {
+              type: "heading",
+              props: { level: level },
+            } as PartialBlock<BSchema>);
+          },
+          text: "Heading " + level,
+          icon: headingIcons[level],
+          isSelected: block.type === "heading" && block.props.level === level,
+        }))
+      );
+    }
+
+    if ("bulletListItem" in props.editor.schema) {
+      items.push({
+        onClick: () => {
+          props.editor.focus();
+          props.editor.updateBlock(block, {
+            type: "bulletListItem",
+            props: {},
+          });
+        },
+        text: "Bullet List",
+        icon: RiListUnordered,
+        isSelected: block.type === "bulletListItem",
+      });
+    }
+
+    if ("numberedListItem" in props.editor.schema) {
+      items.push({
+        onClick: () => {
+          props.editor.focus();
+          props.editor.updateBlock(block, {
+            type: "numberedListItem",
+            props: {},
+          });
+        },
+        text: "Numbered List",
+        icon: RiListOrdered,
+        isSelected: block.type === "numberedListItem",
+      });
+    }
+
+    return items;
+  }, [block, props.editor]);
+
   useEditorContentChange(props.editor, () => {
     setBlock(props.editor.getTextCursorPosition().block);
   });
@@ -49,70 +132,9 @@ export const BlockTypeDropdown = <BSchema extends BlockSchema>(props: {
     setBlock(props.editor.getTextCursorPosition().block);
   });
 
-  if (!shouldShow(props.editor.schema)) {
+  if (!shouldShow(block)) {
     return null;
   }
 
-  // let's cast the editor because "shouldShow" has given us the confidence
-  // the default block schema is being used
-  let editor = props.editor as any as BlockNoteEditor<DefaultBlockSchema>;
-
-  const headingItems = editor.schema.heading.propSchema.level.values.map(
-    (level) => ({
-      onClick: () => {
-        editor.focus();
-        editor.updateBlock(block, {
-          type: "heading",
-          props: { level: level },
-        });
-      },
-      text: "Heading " + level,
-      icon: headingIcons[level],
-      isSelected: block.type === "heading" && block.props.level === level,
-    })
-  );
-
-  return (
-    <ToolbarDropdown
-      items={[
-        {
-          onClick: () => {
-            props.editor.focus();
-            props.editor.updateBlock(block, {
-              type: "paragraph",
-              props: {},
-            });
-          },
-          text: "Paragraph",
-          icon: RiText,
-          isSelected: block.type === "paragraph",
-        },
-        ...headingItems,
-        {
-          onClick: () => {
-            props.editor.focus();
-            props.editor.updateBlock(block, {
-              type: "bulletListItem",
-              props: {},
-            });
-          },
-          text: "Bullet List",
-          icon: RiListUnordered,
-          isSelected: block.type === "bulletListItem",
-        },
-        {
-          onClick: () => {
-            props.editor.focus();
-            props.editor.updateBlock(block, {
-              type: "numberedListItem",
-              props: {},
-            });
-          },
-          text: "Numbered List",
-          icon: RiListOrdered,
-          isSelected: block.type === "numberedListItem",
-        },
-      ]}
-    />
-  );
+  return <ToolbarDropdown items={dropdownItems} />;
 };

@@ -9,13 +9,7 @@ path: /docs/nextjs
 
 BlockNote is a component that should only be rendered client-side (and not on the server). If you're using Next.js, you need to make sure that Next.js does not try to render BlockNote as a server-side component.
 
-To do this, first see if you're using the modern [App router](https://nextjs.org/docs/app) or the classic [Pages router](https://nextjs.org/docs/pages).
-
-(If the component you want to add BlockNote to is in an `app` directory, you're likely to be using the App router. If you're working in a `pages` directory, you're using the pages router).
-
-## App router
-
-Make sure to use BlockNote in a [Client Component](https://nextjs.org/docs/getting-started/react-essentials#client-components). You can do this by creating a separate file for your component, and starting that with `"use client";` [directive](https://react.dev/reference/react/use-client).
+Make sure to use BlockNote in a [Client Component](https://nextjs.org/docs/getting-started/react-essentials#client-components). You can do this by creating a separate file for your component (**make sure this sits outside of your `pages` or `app` directory**), and starting that with `"use client";` [directive](https://react.dev/reference/react/use-client):
 
 ```typescript
 "use client"; // this registers <Editor> as a Client Component
@@ -23,8 +17,8 @@ import { BlockNoteEditor } from "@blocknote/core";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
 import "@blocknote/core/style.css";
 
-// Our <Editor> component that we can now use
-export default Editor() {
+// Our <Editor> component we can reuse later
+export default function Editor() {
   // Creates a new editor instance.
   const editor: BlockNoteEditor | null = useBlockNote({});
 
@@ -33,13 +27,11 @@ export default Editor() {
 }
 ```
 
-## Pages router
+## Import as dynamic
 
-If you're using the classic Pages router (note that Next.js recommends upgrading to the App router) and are running into issues embedding BlockNote directly, you can use [Dynamic Imports](https://nextjs.org/docs/pages/building-your-application/optimizing/lazy-loading) to make sure BlockNote is only imported on the client-side.
+Now, you can use [Dynamic Imports](https://nextjs.org/docs/pages/building-your-application/optimizing/lazy-loading) to make sure BlockNote is only imported on the client-side.
 
-First, create an isolated `<Editor>` component using the snipped above.
-
-Then, you can import this using `next/dynamic` in your page:
+You can import the component we just created above using `next/dynamic` in your page:
 
 ```typescript
 import dynamic from "next/dynamic";
