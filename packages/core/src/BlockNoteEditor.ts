@@ -49,6 +49,7 @@ import { BaseSlashMenuItem } from "./extensions/SlashMenu/BaseSlashMenuItem";
 import { SlashMenuProsemirrorPlugin } from "./extensions/SlashMenu/SlashMenuPlugin";
 import { getDefaultSlashMenuItems } from "./extensions/SlashMenu/defaultSlashMenuItems";
 import { UniqueID } from "./extensions/UniqueID/UniqueID";
+import { mergeCSSClasses } from "./shared/utils";
 
 export type BlockNoteEditorOptions<BSchema extends BlockSchema> = {
   // TODO: Figure out if enableBlockNoteExtensions/disableHistoryExtension are needed and document them.
@@ -68,9 +69,9 @@ export type BlockNoteEditorOptions<BSchema extends BlockSchema> = {
    */
   parentElement: HTMLElement;
   /**
-   * An object containing attributes that should be added to the editor's HTML element.
+   * An object containing attributes that should be added to HTML elements of the editor.
    *
-   * @example { class: "my-editor-class" }
+   * @example { editor: { class: "my-editor-class" } }
    */
   domAttributes: Partial<BlockNoteDOMAttributes>;
   /**
@@ -263,12 +264,12 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
       editorProps: {
         attributes: {
           ...newOptions.domAttributes?.editor,
-          class: [
+          class: mergeCSSClasses(
             styles.bnEditor,
             styles.bnRoot,
             newOptions.defaultStyles ? styles.defaultStyles : "",
-            newOptions.domAttributes?.editor?.class || "",
-          ].join(" "),
+            newOptions.domAttributes?.editor?.class || ""
+          ),
         },
       },
     };

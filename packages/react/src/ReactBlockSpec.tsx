@@ -7,6 +7,7 @@ import {
   blockStyles,
   camelToDataKebab,
   createTipTapBlock,
+  mergeCSSClasses,
   parse,
   PropSchema,
   propsToAttributes,
@@ -57,13 +58,11 @@ export const InlineContent = <Tag extends ElementType>(
 
   const classNames = useMemo(
     () =>
-      [
-        props.className,
+      mergeCSSClasses(
+        props.className || "",
         blockStyles.inlineContent,
-        inlineContentDOMAttributes.class,
-      ]
-        .filter((className) => className)
-        .join(" "),
+        inlineContentDOMAttributes.class
+      ),
     [inlineContentDOMAttributes.class, props.className]
   );
 
@@ -158,13 +157,10 @@ export function createReactBlockSpec<
                 ([key]) => key !== "class"
               )
             )}
-            className={
+            className={mergeCSSClasses(
+              blockStyles.blockContent,
               blockContentDOMAttributes.class
-                ? blockStyles.blockContent +
-                  " " +
-                  blockContentDOMAttributes.class
-                : blockStyles.blockContent
-            }
+            )}
             data-content-type={blockConfig.type}
             {...htmlAttributes}>
             <BlockNoteDOMAttributesContext.Provider

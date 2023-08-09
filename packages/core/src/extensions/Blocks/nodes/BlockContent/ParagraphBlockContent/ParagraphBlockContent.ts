@@ -1,6 +1,7 @@
 import { mergeAttributes } from "@tiptap/core";
 import { createTipTapBlock } from "../../../api/block";
 import styles from "../../Block.module.css";
+import { mergeCSSClasses } from "../../../../../shared/utils";
 
 export const ParagraphBlockContent = createTipTapBlock({
   name: "paragraph",
@@ -27,9 +28,10 @@ export const ParagraphBlockContent = createTipTapBlock({
       mergeAttributes(
         {
           ...blockContentDOMAttributes,
-          class: blockContentDOMAttributes.class
-            ? styles.blockContent + " " + blockContentDOMAttributes.class
-            : styles.blockContent,
+          class: mergeCSSClasses(
+            styles.blockContent,
+            blockContentDOMAttributes.class
+          ),
           "data-content-type": this.name,
         },
         HTMLAttributes
@@ -38,9 +40,10 @@ export const ParagraphBlockContent = createTipTapBlock({
         "p",
         {
           ...inlineContentDOMAttributes,
-          class: inlineContentDOMAttributes.class
-            ? styles.inlineContent + " " + inlineContentDOMAttributes.class
-            : styles.inlineContent,
+          class: mergeCSSClasses(
+            styles.inlineContent,
+            inlineContentDOMAttributes.class
+          ),
         },
         0,
       ],

@@ -15,6 +15,7 @@ import {
   BlockSchema,
   PartialBlock,
 } from "../api/blockTypes";
+import { mergeCSSClasses } from "../../../shared/utils";
 
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
@@ -89,9 +90,7 @@ export const BlockContainer = Node.create<{
         mergeAttributes(
           {
             ...domAttributes,
-            class: domAttributes.class
-              ? styles.block + " " + domAttributes.class
-              : styles.block,
+            class: mergeCSSClasses(styles.block, domAttributes.class),
             "data-node-type": this.name,
           },
           HTMLAttributes

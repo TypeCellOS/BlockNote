@@ -9,6 +9,7 @@ import {
   TipTapNode,
   TipTapNodeConfig,
 } from "./blockTypes";
+import { mergeCSSClasses } from "../../../shared/utils";
 
 export function camelToDataKebab(str: string): string {
   return "data-" + str.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
@@ -162,9 +163,10 @@ export function createBlockSpec<
           }
         }
         // Set blockContent & custom classes
-        blockContent.className = blockContentDOMAttributes.class
-          ? styles.blockContent + " " + blockContentDOMAttributes.class
-          : styles.blockContent;
+        blockContent.className = mergeCSSClasses(
+          styles.blockContent,
+          blockContentDOMAttributes.class
+        );
         // Add blockContent HTML attribute
         blockContent.setAttribute("data-content-type", blockConfig.type);
         // Add props as HTML attributes in kebab-case with "data-" prefix
@@ -198,7 +200,7 @@ export function createBlockSpec<
 
         // Render elements
         const rendered = blockConfig.render(block as any, editor);
-        // Add inlineContent class to inline content
+        // Add HTML attributes to contentDOM
         if ("contentDOM" in rendered) {
           const inlineContentDOMAttributes =
             this.options.domAttributes?.inlineContent || {};
@@ -211,13 +213,11 @@ export function createBlockSpec<
             }
           }
           // Merge existing classes with inlineContent & custom classes
-          rendered.contentDOM.className = [
+          rendered.contentDOM.className = mergeCSSClasses(
             rendered.contentDOM.className,
             styles.inlineContent,
-            inlineContentDOMAttributes.class,
-          ]
-            .filter((className) => className)
-            .join(" ");
+            inlineContentDOMAttributes.class
+          );
         }
         // Add elements to blockContent
         blockContent.appendChild(rendered.dom);

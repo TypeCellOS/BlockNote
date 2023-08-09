@@ -1,4 +1,4 @@
-import { BlockNoteEditor, BlockSchema } from "@blocknote/core";
+import { BlockNoteEditor, BlockSchema, mergeCSSClasses } from "@blocknote/core";
 import { createStyles, MantineProvider } from "@mantine/core";
 import { EditorContent } from "@tiptap/react";
 import { HTMLAttributes, ReactNode } from "react";
@@ -27,9 +27,7 @@ function UnThemedBlockNoteView<BSchema extends BlockSchema>(
   return (
     <EditorContent
       editor={props.editor?._tiptapEditor}
-      className={
-        props.className ? `${classes.root} ${props.className}` : classes.root
-      }
+      className={mergeCSSClasses(classes.root, props.className || "")}
       {...rest}>
       {props.children || (
         <>
@@ -51,20 +49,11 @@ export function BlockNoteView<BSchema extends BlockSchema>(
     children?: ReactNode;
   } & HTMLAttributes<HTMLDivElement>
 ) {
-  const { classes } = createStyles({ root: {} })(undefined, {
-    name: "Editor",
-  });
-
   const { theme, componentStyles, className, ...rest } = props;
 
   return (
     <MantineProvider theme={blockNoteToMantineTheme(theme, componentStyles)}>
-      <UnThemedBlockNoteView
-        className={
-          props.className ? `${classes.root} ${props.className}` : classes.root
-        }
-        {...rest}
-      />
+      <UnThemedBlockNoteView {...rest} />
     </MantineProvider>
   );
 }
