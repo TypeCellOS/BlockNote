@@ -1,5 +1,6 @@
 import { CSSObject, MantineThemeOverride } from "@mantine/core";
 import { darkDefaultTheme, lightDefaultTheme } from "./defaultTheme";
+import { blockStyles } from "@blocknote/core";
 
 export type CombinedColor = {
   text: string;
@@ -92,6 +93,7 @@ export const blockNoteToMantineTheme = (
         ...lightDefaultTheme,
         ...("light" in theme ? theme.light : theme),
       };
+  console.log(`.${blockStyles.isEmpty} .${blockStyles.inlineContent}`);
 
   const editorText = fullTheme.colors.editor.text;
   const editorBackground = fullTheme.colors.editor.background;
@@ -264,6 +266,11 @@ export const blockNoteToMantineTheme = (
               color: editorText,
               fontFamily: fontFamily,
             },
+            // Placeholders
+            [`.${blockStyles.isEmpty} .${blockStyles.inlineContent}:before, .${blockStyles.isFilter} .${blockStyles.inlineContent}:before`]:
+              {
+                color: fullTheme.colors.sideMenu,
+              },
             ...componentStyles?.Editor,
           },
         }),
