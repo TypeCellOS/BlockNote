@@ -14,6 +14,7 @@ export const defaultColorScheme = [
 ];
 
 export const lightDefaultTheme: Theme = {
+  type: "light",
   colors: {
     editor: {
       text: defaultColorScheme[5],
@@ -88,6 +89,7 @@ export const lightDefaultTheme: Theme = {
 };
 
 export const darkDefaultTheme: Theme = {
+  type: "dark",
   colors: {
     editor: {
       text: defaultColorScheme[2],

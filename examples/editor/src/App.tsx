@@ -15,11 +15,11 @@ import {
   insertReactImage,
   ReactImage,
 } from "../../../tests/utils/customblocks/ReactImage";
-import { useEffect, useState } from "react";
 
 type WindowWithProseMirror = Window & typeof globalThis & { ProseMirror: any };
 
 const lightRedTheme = {
+  type: "light",
   colors: {
     editor: {
       text: "#222222",
@@ -57,6 +57,7 @@ const lightRedTheme = {
 
 const darkRedTheme = {
   ...lightRedTheme,
+  type: "dark",
   colors: {
     ...lightRedTheme.colors,
     editor: {
@@ -76,23 +77,6 @@ const schema = {
 } satisfies BlockSchema;
 
 function App() {
-  const [theme, setTheme] = useState<
-    typeof darkRedTheme | typeof lightRedTheme
-  >(
-    window.matchMedia("(prefers-color-scheme: dark)").matches
-      ? lightRedTheme
-      : darkRedTheme
-  );
-
-  useEffect(() => {
-    const darkThemeMq = window.matchMedia("(prefers-color-scheme: dark)");
-    const mqListener = (e: MediaQueryListEvent) =>
-      setTheme(e.matches ? lightRedTheme : darkRedTheme);
-    darkThemeMq.addEventListener("change", mqListener);
-
-    return () => darkThemeMq.removeEventListener("change", mqListener);
-  }, []);
-
   const editor = useBlockNote(
     {
       onEditorContentChange: (editor) => {
@@ -127,7 +111,7 @@ function App() {
         },
       },
     },
-    [theme]
+    []
   );
 
   // Give tests a way to get prosemirror instance
@@ -137,15 +121,21 @@ function App() {
     <BlockNoteView
       editor={editor}
       theme={{
-        // light: lightRedTheme,
+        light: lightRedTheme,
         dark: darkRedTheme,
       }}
-      componentStyles={{
+      componentStyles={(theme) => ({
         Editor: {
           backgroundColor: theme.colors.editor.background,
           borderRadius: theme.borderRadius,
-          border: `1px solid ${theme.colors.border}`,
-          boxShadow: `0 4px 12px ${theme.colors.shadow}`,
+          border:
+            theme.type === "dark"
+              ? `1px solid ${theme.colors.border}`
+              : `1px solid ${theme.colors.sideMenu}`,
+          boxShadow:
+            theme.type === "dark"
+              ? `0 4px 12px ${theme.colors.shadow}`
+              : `0 4px 12px ${theme.colors.sideMenu}`,
           height: "100vw",
           ".ProseMirror": {
             backgroundColor: theme.colors.editor.background,
@@ -154,7 +144,7 @@ function App() {
             fontFamily: theme.fontFamily,
           },
         },
-      }}
+      })}
     />
   );
 }
