@@ -43,7 +43,6 @@ export const lightDefaultTheme: Theme = {
     shadow: defaultColorScheme[2],
     border: defaultColorScheme[1],
     sideMenu: defaultColorScheme[2],
-    // TODO: Fix dark mode colors
     highlightColors: {
       gray: {
         text: "#9b9a97",
@@ -118,8 +117,44 @@ export const darkDefaultTheme: Theme = {
     shadow: defaultColorScheme[8],
     border: defaultColorScheme[7],
     sideMenu: defaultColorScheme[4],
-    // TODO: Fix dark mode colors
-    highlightColors: lightDefaultTheme.colors.highlightColors,
+    highlightColors: {
+      gray: {
+        text: "#bebdb8",
+        background: "#9b9a97",
+      },
+      brown: {
+        text: "#8e6552",
+        background: "#64473a",
+      },
+      red: {
+        text: "#ec4040",
+        background: "#be3434",
+      },
+      orange: {
+        text: "#e3790d",
+        background: "#b7600a",
+      },
+      yellow: {
+        text: "#dfab01",
+        background: "#b58b00",
+      },
+      green: {
+        text: "#6b8b87",
+        background: "#4d6461",
+      },
+      blue: {
+        text: "#0e87bc",
+        background: "#0b6e99",
+      },
+      purple: {
+        text: "#8552d7",
+        background: "#6940a5",
+      },
+      pink: {
+        text: "#da208f",
+        background: "#ad1a72",
+      },
+    },
   },
   borderRadius: lightDefaultTheme.borderRadius,
   fontFamily: lightDefaultTheme.fontFamily,

@@ -37,8 +37,19 @@ export type Theme = {
   fontFamily: string;
 };
 
+export type PartialTheme =
+  | "light"
+  | "dark"
+  | Partial<
+      | Theme
+      | {
+          light: Partial<Theme> & { type: "light" };
+          dark: Partial<Theme> & { type: "dark" };
+        }
+    >;
+
 export type BlockNoteComponentStyles = Partial<{
-  // Block Side Menu items, Formatting Toolbar buttons
+  // Side Menu items, Formatting Toolbar buttons
   ActionIcon: CSSObject;
   // Slash Menu, Formatting Toolbar dropdown, color picker dropdown
   Menu: CSSObject;
@@ -63,6 +74,32 @@ export const blockNoteToMantineTheme = (
   const shadow = `0 4px 12px ${theme.colors.shadow}`;
   const border = `1px solid ${theme.colors.border}`;
 
+  const textColors = {
+    default: theme.colors.editor.text,
+    gray: theme.colors.highlightColors.gray.text,
+    brown: theme.colors.highlightColors.brown.text,
+    red: theme.colors.highlightColors.red.text,
+    orange: theme.colors.highlightColors.orange.text,
+    yellow: theme.colors.highlightColors.yellow.text,
+    green: theme.colors.highlightColors.green.text,
+    blue: theme.colors.highlightColors.blue.text,
+    purple: theme.colors.highlightColors.purple.text,
+    pink: theme.colors.highlightColors.pink.text,
+  };
+
+  const backgroundColors = {
+    default: theme.colors.editor.background,
+    gray: theme.colors.highlightColors.gray.background,
+    brown: theme.colors.highlightColors.brown.background,
+    red: theme.colors.highlightColors.red.background,
+    orange: theme.colors.highlightColors.orange.background,
+    yellow: theme.colors.highlightColors.yellow.background,
+    green: theme.colors.highlightColors.green.background,
+    blue: theme.colors.highlightColors.blue.background,
+    purple: theme.colors.highlightColors.purple.background,
+    pink: theme.colors.highlightColors.pink.background,
+  };
+
   const editorBorderRadius = `${Math.max(theme.borderRadius + 2, 1)}px`;
   const outerBorderRadius = `${theme.borderRadius}px`;
   const innerBorderRadius = `${Math.max(theme.borderRadius - 2, 1)}px`;
@@ -73,32 +110,6 @@ export const blockNoteToMantineTheme = (
       transform: "none",
     },
     colorScheme: theme.type,
-    colors: {
-      textColors: [
-        theme.colors.editor.text,
-        theme.colors.highlightColors.gray.text,
-        theme.colors.highlightColors.brown.text,
-        theme.colors.highlightColors.red.text,
-        theme.colors.highlightColors.orange.text,
-        theme.colors.highlightColors.yellow.text,
-        theme.colors.highlightColors.green.text,
-        theme.colors.highlightColors.blue.text,
-        theme.colors.highlightColors.purple.text,
-        theme.colors.highlightColors.pink.text,
-      ],
-      backgrundColors: [
-        theme.colors.editor.background,
-        theme.colors.highlightColors.gray.background,
-        theme.colors.highlightColors.brown.background,
-        theme.colors.highlightColors.red.background,
-        theme.colors.highlightColors.orange.background,
-        theme.colors.highlightColors.yellow.background,
-        theme.colors.highlightColors.green.background,
-        theme.colors.highlightColors.blue.background,
-        theme.colors.highlightColors.purple.background,
-        theme.colors.highlightColors.pink.background,
-      ],
-    },
     components: {
       // Block Side Menu items
       ActionIcon: {
@@ -224,6 +235,20 @@ export const blockNoteToMantineTheme = (
                 {
                   color: theme.colors.sideMenu,
                 },
+              // Highlight text colors
+              ...(Object.fromEntries(
+                Object.entries(textColors).map(([key, value]) => [
+                  `[data-text-color="${key}"]`,
+                  { color: value },
+                ])
+              ) as CSSObject),
+              // Highlight background colors
+              ...(Object.fromEntries(
+                Object.entries(backgroundColors).map(([key, value]) => [
+                  `[data-background-color="${key}"]`,
+                  { backgroundColor: value },
+                ])
+              ) as CSSObject),
             },
             componentStyles?.Editor || {}
           ),
@@ -353,30 +378,8 @@ export const blockNoteToMantineTheme = (
     },
     fontFamily: theme.fontFamily,
     other: {
-      textColors: {
-        default: theme.colors.editor.text,
-        gray: theme.colors.highlightColors.gray.text,
-        brown: theme.colors.highlightColors.brown.text,
-        red: theme.colors.highlightColors.red.text,
-        orange: theme.colors.highlightColors.orange.text,
-        yellow: theme.colors.highlightColors.yellow.text,
-        green: theme.colors.highlightColors.green.text,
-        blue: theme.colors.highlightColors.blue.text,
-        purple: theme.colors.highlightColors.purple.text,
-        pink: theme.colors.highlightColors.pink.text,
-      },
-      backgroundColors: {
-        default: theme.colors.editor.background,
-        gray: theme.colors.highlightColors.gray.background,
-        brown: theme.colors.highlightColors.brown.background,
-        red: theme.colors.highlightColors.red.background,
-        orange: theme.colors.highlightColors.orange.background,
-        yellow: theme.colors.highlightColors.yellow.background,
-        green: theme.colors.highlightColors.green.background,
-        blue: theme.colors.highlightColors.blue.background,
-        purple: theme.colors.highlightColors.purple.background,
-        pink: theme.colors.highlightColors.pink.background,
-      },
+      textColors: textColors,
+      backgroundColors: backgroundColors,
     },
   };
 };
