@@ -5,6 +5,7 @@ import { HTMLAttributes, ReactNode, useEffect, useState } from "react";
 import {
   BlockNoteComponentStyles,
   blockNoteToMantineTheme,
+  PartialTheme,
   Theme,
 } from "./BlockNoteTheme";
 import { FormattingToolbarPositioner } from "./FormattingToolbar/components/FormattingToolbarPositioner";
@@ -16,28 +17,22 @@ import { darkDefaultTheme, lightDefaultTheme } from "./defaultThemes";
 // Helper function which takes a partial theme provided by the user, and turns
 // it into a full theme. Either the light or dark theme is used, depending on
 // which ones the user provided and the browser settings.
-const getFullTheme = (
-  browserTheme: "light" | "dark",
-  theme:
-    | Partial<
-        | Theme
-        | {
-            light: Partial<Theme> & { type: "light" };
-            dark: Partial<Theme> & { type: "dark" };
-          }
-      >
-    | undefined
-) => {
+const getFullTheme = (baseTheme: "light" | "dark", theme?: PartialTheme) => {
   // No theme is provided -> browser settings determine if default light or
   // dark theme is used.
   if (!theme) {
-    return browserTheme === "dark" ? darkDefaultTheme : lightDefaultTheme;
+    return baseTheme === "dark" ? darkDefaultTheme : lightDefaultTheme;
+  }
+
+  // "light" or "dark" is provided -> use default light or dark theme.
+  if (typeof theme === "string") {
+    return theme === "dark" ? darkDefaultTheme : lightDefaultTheme;
   }
 
   // Both light & dark themes are provided -> browser settings determine if
   // provided light or dark theme is used.
   if ("light" in theme && "dark" in theme) {
-    return browserTheme === "dark"
+    return baseTheme === "dark"
       ? {
           ...darkDefaultTheme,
           ...(theme.dark as Partial<Theme> & { type: "dark" }),
@@ -105,13 +100,7 @@ function UnThemedBlockNoteView<BSchema extends BlockSchema>(
 export function BlockNoteView<BSchema extends BlockSchema>(
   props: {
     editor: BlockNoteEditor<BSchema>;
-    theme?: Partial<
-      | Theme
-      | {
-          light: Partial<Theme> & { type: "light" };
-          dark: Partial<Theme> & { type: "dark" };
-        }
-    >;
+    theme?: PartialTheme;
     componentStyles?: (theme: Theme) => BlockNoteComponentStyles;
     children?: ReactNode;
   } & HTMLAttributes<HTMLDivElement>
