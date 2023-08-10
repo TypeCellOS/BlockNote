@@ -19,14 +19,7 @@ import {
   NodeViewWrapper,
   ReactNodeViewRenderer,
 } from "@tiptap/react";
-import {
-  createContext,
-  ElementType,
-  FC,
-  HTMLProps,
-  useContext,
-  useMemo,
-} from "react";
+import { createContext, ElementType, FC, HTMLProps, useContext } from "react";
 
 // extend BlockConfig but use a React render function
 export type ReactBlockConfig<
@@ -56,14 +49,10 @@ export const InlineContent = <Tag extends ElementType>(
   const inlineContentDOMAttributes =
     useContext(BlockNoteDOMAttributesContext).inlineContent || {};
 
-  const classNames = useMemo(
-    () =>
-      mergeCSSClasses(
-        props.className || "",
-        blockStyles.inlineContent,
-        inlineContentDOMAttributes.class
-      ),
-    [inlineContentDOMAttributes.class, props.className]
+  const classNames = mergeCSSClasses(
+    props.className || "",
+    blockStyles.inlineContent,
+    inlineContentDOMAttributes.class
   );
 
   return (

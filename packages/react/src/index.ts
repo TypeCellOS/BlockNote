@@ -1,7 +1,7 @@
 // TODO: review directories
 export * from "./BlockNoteView";
 export * from "./BlockNoteTheme";
-export * from "./defaultTheme";
+export * from "./defaultThemes";
 
 export * from "./FormattingToolbar/components/FormattingToolbarPositioner";
 export * from "./FormattingToolbar/components/DefaultFormattingToolbar";

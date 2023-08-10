@@ -11,7 +11,7 @@ import { FormattingToolbarPositioner } from "./FormattingToolbar/components/Form
 import { HyperlinkToolbarPositioner } from "./HyperlinkToolbar/components/HyperlinkToolbarPositioner";
 import { SideMenuPositioner } from "./SideMenu/components/SideMenuPositioner";
 import { SlashMenuPositioner } from "./SlashMenu/components/SlashMenuPositioner";
-import { darkDefaultTheme, lightDefaultTheme } from "./defaultTheme";
+import { darkDefaultTheme, lightDefaultTheme } from "./defaultThemes";
 
 // Helper function which takes a partial theme provided by the user, and turns
 // it into a full theme. Either the light or dark theme is used, depending on
