@@ -59,35 +59,12 @@ export const blockNoteToMantineTheme = (
   theme: Theme,
   componentStyles?: BlockNoteComponentStyles
 ): MantineThemeOverride => {
-  const editorText = theme.colors.editor.text;
-  const editorBackground = theme.colors.editor.background;
-
-  const menuText = theme.colors.menu.text;
-  const menuBackground = theme.colors.menu.background;
-
-  const tooltipText = theme.colors.tooltip.text;
-  const tooltipBackground = theme.colors.tooltip.background;
-
-  const hoveredText = theme.colors.hovered.text;
-  const hoveredBackground = theme.colors.hovered.background;
-
-  const selectedText = theme.colors.selected.text;
-  const selectedBackground = theme.colors.selected.background;
-
-  const disabledText = theme.colors.disabled.text;
-  const disabledBackground = theme.colors.disabled.background;
-
   const shadow = `0 4px 12px ${theme.colors.shadow}`;
-
   const border = `1px solid ${theme.colors.border}`;
-
-  const sideMenu = theme.colors.sideMenu;
 
   const editorBorderRadius = `${Math.max(theme.borderRadius + 2, 1)}px`;
   const outerBorderRadius = `${theme.borderRadius}px`;
   const innerBorderRadius = `${Math.max(theme.borderRadius - 2, 1)}px`;
-
-  const fontFamily = theme.fontFamily;
 
   return {
     activeStyles: {
@@ -126,7 +103,7 @@ export const blockNoteToMantineTheme = (
       ActionIcon: {
         styles: () => ({
           root: {
-            color: sideMenu,
+            color: theme.colors.sideMenu,
             ...componentStyles?.ActionIcon,
           },
         }),
@@ -135,26 +112,26 @@ export const blockNoteToMantineTheme = (
       Menu: {
         styles: () => ({
           dropdown: {
-            backgroundColor: menuBackground,
+            backgroundColor: theme.colors.menu.background,
             border: border,
             borderRadius: outerBorderRadius,
             boxShadow: shadow,
-            color: menuText,
+            color: theme.colors.menu.text,
             padding: "2px",
             ".mantine-Menu-label": {
-              backgroundColor: menuBackground,
-              color: menuText,
+              backgroundColor: theme.colors.menu.background,
+              color: theme.colors.menu.text,
             },
             ".mantine-Menu-item": {
-              backgroundColor: menuBackground,
+              backgroundColor: theme.colors.menu.background,
               border: "none",
               borderRadius: innerBorderRadius,
-              color: menuText,
+              color: theme.colors.menu.text,
             },
             ".mantine-Menu-item[data-hovered]": {
-              backgroundColor: hoveredBackground,
+              backgroundColor: theme.colors.hovered.background,
               border: "none",
-              color: hoveredText,
+              color: theme.colors.hovered.text,
             },
             ...componentStyles?.Menu,
           },
@@ -183,11 +160,11 @@ export const blockNoteToMantineTheme = (
       EditHyperlinkMenu: {
         styles: () => ({
           root: {
-            backgroundColor: menuBackground,
+            backgroundColor: theme.colors.menu.background,
             border: border,
             borderRadius: outerBorderRadius,
             boxShadow: shadow,
-            color: menuText,
+            color: theme.colors.menu.text,
             gap: "4px",
             minWidth: "145px",
             padding: "2px",
@@ -198,7 +175,7 @@ export const blockNoteToMantineTheme = (
               paddingInline: "6px",
               // Row icon
               ".mantine-Container-root": {
-                color: menuText,
+                color: theme.colors.menu.text,
                 display: "flex",
                 justifyContent: "center",
                 padding: 0,
@@ -210,7 +187,7 @@ export const blockNoteToMantineTheme = (
                 ".mantine-TextInput-wrapper": {
                   ".mantine-TextInput-input": {
                     border: "none",
-                    color: menuText,
+                    color: theme.colors.menu.text,
                     fontSize: "12px",
                     padding: 0,
                   },
@@ -225,10 +202,10 @@ export const blockNoteToMantineTheme = (
         styles: () => ({
           root: {
             ".ProseMirror": {
-              backgroundColor: editorBackground,
+              backgroundColor: theme.colors.editor.background,
               borderRadius: editorBorderRadius,
-              color: editorText,
-              fontFamily: fontFamily,
+              color: theme.colors.editor.text,
+              fontFamily: theme.fontFamily,
             },
             // Placeholders
             [`.${blockStyles.isEmpty} .${blockStyles.inlineContent}:before, .${blockStyles.isFilter} .${blockStyles.inlineContent}:before`]:
@@ -242,7 +219,7 @@ export const blockNoteToMantineTheme = (
       Toolbar: {
         styles: () => ({
           root: {
-            backgroundColor: menuBackground,
+            backgroundColor: theme.colors.menu.background,
             boxShadow: shadow,
             border: border,
             borderRadius: outerBorderRadius,
@@ -252,28 +229,28 @@ export const blockNoteToMantineTheme = (
             width: "fit-content",
             // Button (including dropdown target)
             ".mantine-UnstyledButton-root": {
-              backgroundColor: menuBackground,
+              backgroundColor: theme.colors.menu.background,
               border: "none",
               borderRadius: innerBorderRadius,
-              color: menuText,
+              color: theme.colors.menu.text,
             },
             // Hovered button
             ".mantine-UnstyledButton-root:hover": {
-              backgroundColor: hoveredBackground,
+              backgroundColor: theme.colors.hovered.background,
               border: "none",
-              color: hoveredText,
+              color: theme.colors.hovered.text,
             },
             // Selected button
             ".mantine-UnstyledButton-root[data-selected]": {
-              backgroundColor: selectedBackground,
+              backgroundColor: theme.colors.selected.background,
               border: "none",
-              color: selectedText,
+              color: theme.colors.selected.text,
             },
             // Disabled button
             ".mantine-UnstyledButton-root[data-disabled]": {
-              backgroundColor: disabledBackground,
+              backgroundColor: theme.colors.disabled.background,
               border: "none",
-              color: disabledText,
+              color: theme.colors.disabled.text,
             },
             // Dropdown
             ".mantine-Menu-dropdown": {
@@ -286,7 +263,7 @@ export const blockNoteToMantineTheme = (
                 },
               },
               ".mantine-Menu-item:hover": {
-                backgroundColor: hoveredBackground,
+                backgroundColor: theme.colors.hovered.background,
               },
             },
             ...componentStyles?.Toolbar,
@@ -296,15 +273,15 @@ export const blockNoteToMantineTheme = (
       Tooltip: {
         styles: () => ({
           root: {
-            backgroundColor: tooltipBackground,
+            backgroundColor: theme.colors.tooltip.background,
             border: border,
             borderRadius: outerBorderRadius,
             boxShadow: shadow,
-            color: tooltipText,
+            color: theme.colors.tooltip.text,
             padding: "4px 10px",
             textAlign: "center",
             "div ~ div": {
-              color: tooltipText,
+              color: theme.colors.tooltip.text,
             },
             ...componentStyles?.Tooltip,
           },
@@ -317,9 +294,9 @@ export const blockNoteToMantineTheme = (
             ".mantine-Menu-item": {
               // Icon
               ".mantine-Menu-itemIcon": {
-                backgroundColor: tooltipBackground,
+                backgroundColor: theme.colors.tooltip.background,
                 borderRadius: innerBorderRadius,
-                color: tooltipText,
+                color: theme.colors.tooltip.text,
                 padding: "8px",
               },
               // Text
@@ -332,8 +309,8 @@ export const blockNoteToMantineTheme = (
               // Badge (keyboard shortcut)
               ".mantine-Menu-itemRightSection": {
                 ".mantine-Badge-root": {
-                  backgroundColor: tooltipBackground,
-                  color: tooltipText,
+                  backgroundColor: theme.colors.tooltip.background,
+                  color: theme.colors.tooltip.text,
                 },
               },
             },
@@ -346,14 +323,14 @@ export const blockNoteToMantineTheme = (
           root: {
             backgroundColor: "transparent",
             ".mantine-ActionIcon-root": {
-              color: sideMenu,
+              color: theme.colors.sideMenu,
             },
             ...componentStyles?.SideMenu,
           },
         }),
       },
     },
-    fontFamily: fontFamily,
+    fontFamily: theme.fontFamily,
     other: {
       highlightColorNames: [
         "default",
