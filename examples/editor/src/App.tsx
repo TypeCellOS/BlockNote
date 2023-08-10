@@ -138,10 +138,7 @@ function App() {
               : `0 4px 12px ${theme.colors.sideMenu}`,
           height: "100vw",
           ".ProseMirror": {
-            backgroundColor: theme.colors.editor.background,
-            borderRadius: theme.borderRadius,
-            color: theme.colors.editor.text,
-            fontFamily: theme.fontFamily,
+            fontFamily: "Comic Sans MS",
           },
         },
       })}

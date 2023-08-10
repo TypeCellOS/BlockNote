@@ -1,5 +1,6 @@
 import { CSSObject, MantineThemeOverride } from "@mantine/core";
 import { blockStyles } from "@blocknote/core";
+import _ from "lodash";
 
 export type CombinedColor = {
   text: string;
@@ -85,7 +86,7 @@ export const blockNoteToMantineTheme = (
         theme.colors.highlightColors.purple.text,
         theme.colors.highlightColors.pink.text,
       ],
-      backgroundColors: [
+      backgrundColors: [
         theme.colors.editor.background,
         theme.colors.highlightColors.gray.background,
         theme.colors.highlightColors.brown.background,
@@ -102,231 +103,251 @@ export const blockNoteToMantineTheme = (
       // Block Side Menu items
       ActionIcon: {
         styles: () => ({
-          root: {
-            color: theme.colors.sideMenu,
-            ...componentStyles?.ActionIcon,
-          },
+          root: _.merge<CSSObject, CSSObject>(
+            {
+              color: theme.colors.sideMenu,
+            },
+            componentStyles?.ActionIcon || {}
+          ),
         }),
       },
       // Slash Menu, Formatting Toolbar dropdown, color picker dropdown
       Menu: {
         styles: () => ({
-          dropdown: {
-            backgroundColor: theme.colors.menu.background,
-            border: border,
-            borderRadius: outerBorderRadius,
-            boxShadow: shadow,
-            color: theme.colors.menu.text,
-            padding: "2px",
-            ".mantine-Menu-label": {
+          dropdown: _.merge<CSSObject, CSSObject>(
+            {
               backgroundColor: theme.colors.menu.background,
+              border: border,
+              borderRadius: outerBorderRadius,
+              boxShadow: shadow,
               color: theme.colors.menu.text,
+              padding: "2px",
+              ".mantine-Menu-label": {
+                backgroundColor: theme.colors.menu.background,
+                color: theme.colors.menu.text,
+              },
+              ".mantine-Menu-item": {
+                backgroundColor: theme.colors.menu.background,
+                border: "none",
+                borderRadius: innerBorderRadius,
+                color: theme.colors.menu.text,
+              },
+              ".mantine-Menu-item[data-hovered]": {
+                backgroundColor: theme.colors.hovered.background,
+                border: "none",
+                color: theme.colors.hovered.text,
+              },
             },
-            ".mantine-Menu-item": {
-              backgroundColor: theme.colors.menu.background,
-              border: "none",
-              borderRadius: innerBorderRadius,
-              color: theme.colors.menu.text,
-            },
-            ".mantine-Menu-item[data-hovered]": {
-              backgroundColor: theme.colors.hovered.background,
-              border: "none",
-              color: theme.colors.hovered.text,
-            },
-            ...componentStyles?.Menu,
-          },
+            componentStyles?.Menu || {}
+          ),
         }),
       },
       ColorIcon: {
         styles: () => ({
-          root: {
-            border: border,
-            borderRadius: innerBorderRadius,
-            ...componentStyles?.ColorIcon,
-          },
+          root: _.merge<CSSObject, CSSObject>(
+            {
+              border: border,
+              borderRadius: innerBorderRadius,
+            },
+            componentStyles?.ColorIcon || {}
+          ),
         }),
       },
       DragHandleMenu: {
         styles: () => ({
-          root: {
-            ".mantine-Menu-item": {
-              fontSize: "12px",
-              height: "30px",
+          root: _.merge<CSSObject, CSSObject>(
+            {
+              ".mantine-Menu-item": {
+                fontSize: "12px",
+                height: "30px",
+              },
             },
-            ...componentStyles?.DragHandleMenu,
-          },
+            componentStyles?.DragHandleMenu || {}
+          ),
         }),
       },
       EditHyperlinkMenu: {
         styles: () => ({
-          root: {
-            backgroundColor: theme.colors.menu.background,
-            border: border,
-            borderRadius: outerBorderRadius,
-            boxShadow: shadow,
-            color: theme.colors.menu.text,
-            gap: "4px",
-            minWidth: "145px",
-            padding: "2px",
-            // Row
-            ".mantine-Group-root": {
-              flexWrap: "nowrap",
-              gap: "8px",
-              paddingInline: "6px",
-              // Row icon
-              ".mantine-Container-root": {
-                color: theme.colors.menu.text,
-                display: "flex",
-                justifyContent: "center",
-                padding: 0,
-                width: "fit-content",
-              },
-              // Row input field
-              ".mantine-TextInput-root": {
-                width: "300px",
-                ".mantine-TextInput-wrapper": {
-                  ".mantine-TextInput-input": {
-                    border: "none",
-                    color: theme.colors.menu.text,
-                    fontSize: "12px",
-                    padding: 0,
+          root: _.merge<CSSObject, CSSObject>(
+            {
+              backgroundColor: theme.colors.menu.background,
+              border: border,
+              borderRadius: outerBorderRadius,
+              boxShadow: shadow,
+              color: theme.colors.menu.text,
+              gap: "4px",
+              minWidth: "145px",
+              padding: "2px",
+              // Row
+              ".mantine-Group-root": {
+                flexWrap: "nowrap",
+                gap: "8px",
+                paddingInline: "6px",
+                // Row icon
+                ".mantine-Container-root": {
+                  color: theme.colors.menu.text,
+                  display: "flex",
+                  justifyContent: "center",
+                  padding: 0,
+                  width: "fit-content",
+                },
+                // Row input field
+                ".mantine-TextInput-root": {
+                  width: "300px",
+                  ".mantine-TextInput-wrapper": {
+                    ".mantine-TextInput-input": {
+                      border: "none",
+                      color: theme.colors.menu.text,
+                      fontSize: "12px",
+                      padding: 0,
+                    },
                   },
                 },
               },
             },
-            ...componentStyles?.EditHyperlinkMenu,
-          },
+            componentStyles?.EditHyperlinkMenu || {}
+          ),
         }),
       },
       Editor: {
         styles: () => ({
-          root: {
-            ".ProseMirror": {
-              backgroundColor: theme.colors.editor.background,
-              borderRadius: editorBorderRadius,
-              color: theme.colors.editor.text,
-              fontFamily: theme.fontFamily,
-            },
-            // Placeholders
-            [`.${blockStyles.isEmpty} .${blockStyles.inlineContent}:before, .${blockStyles.isFilter} .${blockStyles.inlineContent}:before`]:
-              {
-                color: theme.colors.sideMenu,
+          root: _.merge<CSSObject, CSSObject>(
+            {
+              ".ProseMirror": {
+                backgroundColor: theme.colors.editor.background,
+                borderRadius: editorBorderRadius,
+                color: theme.colors.editor.text,
+                fontFamily: theme.fontFamily,
               },
-            ...componentStyles?.Editor,
-          },
+              // Placeholders
+              [`.${blockStyles.isEmpty} .${blockStyles.inlineContent}:before, .${blockStyles.isFilter} .${blockStyles.inlineContent}:before`]:
+                {
+                  color: theme.colors.sideMenu,
+                },
+            },
+            componentStyles?.Editor || {}
+          ),
         }),
       },
       Toolbar: {
         styles: () => ({
-          root: {
-            backgroundColor: theme.colors.menu.background,
-            boxShadow: shadow,
-            border: border,
-            borderRadius: outerBorderRadius,
-            flexWrap: "nowrap",
-            gap: "2px",
-            padding: "2px",
-            width: "fit-content",
-            // Button (including dropdown target)
-            ".mantine-UnstyledButton-root": {
+          root: _.merge<CSSObject, CSSObject>(
+            {
               backgroundColor: theme.colors.menu.background,
-              border: "none",
-              borderRadius: innerBorderRadius,
-              color: theme.colors.menu.text,
-            },
-            // Hovered button
-            ".mantine-UnstyledButton-root:hover": {
-              backgroundColor: theme.colors.hovered.background,
-              border: "none",
-              color: theme.colors.hovered.text,
-            },
-            // Selected button
-            ".mantine-UnstyledButton-root[data-selected]": {
-              backgroundColor: theme.colors.selected.background,
-              border: "none",
-              color: theme.colors.selected.text,
-            },
-            // Disabled button
-            ".mantine-UnstyledButton-root[data-disabled]": {
-              backgroundColor: theme.colors.disabled.background,
-              border: "none",
-              color: theme.colors.disabled.text,
-            },
-            // Dropdown
-            ".mantine-Menu-dropdown": {
-              // Dropdown item
-              ".mantine-Menu-item": {
-                fontSize: "12px",
-                height: "30px",
-                ".mantine-Menu-itemRightSection": {
-                  paddingLeft: "5px",
+              boxShadow: shadow,
+              border: border,
+              borderRadius: outerBorderRadius,
+              flexWrap: "nowrap",
+              gap: "2px",
+              padding: "2px",
+              width: "fit-content",
+              // Button (including dropdown target)
+              ".mantine-UnstyledButton-root": {
+                backgroundColor: theme.colors.menu.background,
+                border: "none",
+                borderRadius: innerBorderRadius,
+                color: theme.colors.menu.text,
+              },
+              // Hovered button
+              ".mantine-UnstyledButton-root:hover": {
+                backgroundColor: theme.colors.hovered.background,
+                border: "none",
+                color: theme.colors.hovered.text,
+              },
+              // Selected button
+              ".mantine-UnstyledButton-root[data-selected]": {
+                backgroundColor: theme.colors.selected.background,
+                border: "none",
+                color: theme.colors.selected.text,
+              },
+              // Disabled button
+              ".mantine-UnstyledButton-root[data-disabled]": {
+                backgroundColor: theme.colors.disabled.background,
+                border: "none",
+                color: theme.colors.disabled.text,
+              },
+              // Dropdown
+              ".mantine-Menu-dropdown": {
+                // Dropdown item
+                ".mantine-Menu-item": {
+                  fontSize: "12px",
+                  height: "30px",
+                  ".mantine-Menu-itemRightSection": {
+                    paddingLeft: "5px",
+                  },
+                },
+                ".mantine-Menu-item:hover": {
+                  backgroundColor: theme.colors.hovered.background,
                 },
               },
-              ".mantine-Menu-item:hover": {
-                backgroundColor: theme.colors.hovered.background,
-              },
             },
-            ...componentStyles?.Toolbar,
-          },
+            componentStyles?.Toolbar || {}
+          ),
         }),
       },
       Tooltip: {
         styles: () => ({
-          root: {
-            backgroundColor: theme.colors.tooltip.background,
-            border: border,
-            borderRadius: outerBorderRadius,
-            boxShadow: shadow,
-            color: theme.colors.tooltip.text,
-            padding: "4px 10px",
-            textAlign: "center",
-            "div ~ div": {
+          root: _.merge<CSSObject, CSSObject>(
+            {
+              backgroundColor: theme.colors.tooltip.background,
+              border: border,
+              borderRadius: outerBorderRadius,
+              boxShadow: shadow,
               color: theme.colors.tooltip.text,
+              padding: "4px 10px",
+              textAlign: "center",
+              "div ~ div": {
+                color: theme.colors.tooltip.text,
+              },
             },
-            ...componentStyles?.Tooltip,
-          },
+            componentStyles?.Tooltip || {}
+          ),
         }),
       },
       SlashMenu: {
         styles: () => ({
-          root: {
-            position: "relative",
-            ".mantine-Menu-item": {
-              // Icon
-              ".mantine-Menu-itemIcon": {
-                backgroundColor: theme.colors.tooltip.background,
-                borderRadius: innerBorderRadius,
-                color: theme.colors.tooltip.text,
-                padding: "8px",
-              },
-              // Text
-              ".mantine-Menu-itemLabel": {
-                paddingRight: "16px",
-                ".mantine-Stack-root": {
-                  gap: "0",
-                },
-              },
-              // Badge (keyboard shortcut)
-              ".mantine-Menu-itemRightSection": {
-                ".mantine-Badge-root": {
+          root: _.merge<CSSObject, CSSObject>(
+            {
+              position: "relative",
+              ".mantine-Menu-item": {
+                // Icon
+                ".mantine-Menu-itemIcon": {
                   backgroundColor: theme.colors.tooltip.background,
+                  borderRadius: innerBorderRadius,
                   color: theme.colors.tooltip.text,
+                  padding: "8px",
+                },
+                // Text
+                ".mantine-Menu-itemLabel": {
+                  paddingRight: "16px",
+                  ".mantine-Stack-root": {
+                    gap: "0",
+                  },
+                },
+                // Badge (keyboard shortcut)
+                ".mantine-Menu-itemRightSection": {
+                  ".mantine-Badge-root": {
+                    backgroundColor: theme.colors.tooltip.background,
+                    color: theme.colors.tooltip.text,
+                  },
                 },
               },
             },
-            ...componentStyles?.SlashMenu,
-          },
+            componentStyles?.SlashMenu || {}
+          ),
         }),
       },
       SideMenu: {
         styles: () => ({
-          root: {
-            backgroundColor: "transparent",
-            ".mantine-ActionIcon-root": {
-              color: theme.colors.sideMenu,
+          root: _.merge<CSSObject, CSSObject>(
+            {
+              backgroundColor: "transparent",
+              ".mantine-ActionIcon-root": {
+                color: theme.colors.sideMenu,
+              },
             },
-            ...componentStyles?.SideMenu,
-          },
+            componentStyles?.SideMenu || {}
+          ),
         }),
       },
     },
