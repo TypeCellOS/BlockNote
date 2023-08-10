@@ -20,14 +20,8 @@ export const ColorIcon = (
       className={classes.root}
       sx={(theme) => {
         return {
-          backgroundColor:
-            theme.colors.backgroundColors[
-              theme.other.highlightColorNames.indexOf(backgroundColor)
-            ],
-          color:
-            theme.colors.textColors[
-              theme.other.highlightColorNames.indexOf(textColor)
-            ],
+          backgroundColor: theme.other.backgroundColors[backgroundColor],
+          color: theme.other.textColors[textColor],
           fontSize: (size * 0.75).toString() + "px",
           height: size.toString() + "px",
           lineHeight: size.toString() + "px",
