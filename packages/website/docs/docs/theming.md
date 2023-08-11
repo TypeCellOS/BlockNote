@@ -70,7 +70,7 @@ const lightRedTheme = {
   },
   borderRadius: 4,
   fontFamily: "Helvetica Neue, sans-serif",
-} satisfies Partial<Theme>;
+} satisfies Theme;
 
 // Custom red dark theme
 const darkRedTheme = {
@@ -86,7 +86,7 @@ const darkRedTheme = {
     // TODO: Update
     highlightColors: darkDefaultTheme.colors.highlightColors,
   },
-} satisfies Partial<Theme>;
+} satisfies Theme;
 
 // Combining the custom themes into a single theme object.
 const redTheme = {
@@ -173,63 +173,61 @@ There are a number of elements that you can set classes for:
 
 `inlineContent:` The wrapper element for a block's rich-text content.
 
-## Overriding CSS
+## Advanced: Overriding CSS
 
-If you want to change the editor's look even more, you can override CSS styles for both the editor, and all menus as well as toolbars. You do this by passing CSS objects for various components to the `componentStyles` prop of `BlockNoteEditor`.
+If you want to change the editor's look even more, you can override CSS styles for both the editor, and all menus as well as toolbars. You do this by creating CSS objects for various components in the `componentStyles` field of your [theme](/docs/theming#theming).
 
-In the demo below, we use it to add some basic styling to the editor, and also make all hovered dropdown & menu items blue:
+In the demo below, we use it to add some basic styling to the editor's default dark theme, and also make all hovered dropdown & menu items blue:
 
 ::: sandbox {template=react-ts}
 
 ```typescript-vue /App.tsx
 import { BlockNoteEditor } from "@blocknote/core";
-import { BlockNoteView, useBlockNote } from "@blocknote/react";
+import {
+  BlockNoteView,
+  darkDefaultTheme,
+  Theme,
+  useBlockNote,
+} from "@blocknote/react";
 import "@blocknote/core/style.css";
+
+// Default dark theme with additional component styles.
+const theme = {
+  ...darkDefaultTheme,
+  componentStyles: (theme) => ({
+    // Adds basic styling to the editor.
+    Editor: {
+      backgroundColor: theme.colors.editor.background,
+      borderRadius: theme.borderRadius,
+      border: `1px solid ${theme.colors.border}`,
+      boxShadow: `0 4px 12px ${theme.colors.shadow}`,
+      ".ProseMirror": {
+        fontFamily: "Comic Sans MS",
+      },
+    },
+    // Makes all hovered dropdown & menu items blue.
+    Menu: {
+      ".mantine-Menu-item[data-hovered], .mantine-Menu-item:hover": {
+        backgroundColor: "blue",
+      },
+    },
+    Toolbar: {
+      ".mantine-Menu-dropdown": {
+        ".mantine-Menu-item:hover": {
+          backgroundColor: "blue",
+        },
+      },
+    },
+  }),
+} satisfies Theme;
 
 export default function App() {
   // Creates a new editor instance.
   const editor: BlockNoteEditor = useBlockNote();
 
   // Renders the editor instance using a React component.
-  return (
-    <BlockNoteView
-      editor={editor}
-      theme={"{{ getTheme(isDark) }}"}
-      componentStyles={(theme) => ({
-        // Adds basic styling to the editor.
-        Editor: {
-          backgroundColor: theme.colors.editor.background,
-          borderRadius: theme.borderRadius,
-          border:
-            theme.type === "dark"
-              ? `1px solid ${theme.colors.border}`
-              : `1px solid ${theme.colors.sideMenu}`,
-          boxShadow:
-            theme.type === "dark"
-              ? `0 4px 12px ${theme.colors.shadow}`
-              : `0 4px 12px ${theme.colors.sideMenu}`,
-          ".ProseMirror": {
-            fontFamily: "Comic Sans MS",
-          },
-        },
-        // Makes all hovered dropdown & menu items blue.
-        Menu: {
-          ".mantine-Menu-item[data-hovered], .mantine-Menu-item:hover": {
-            backgroundColor: "blue",
-          },
-        },
-        Toolbar: {
-          ".mantine-Menu-dropdown": {
-            ".mantine-Menu-item:hover": {
-              backgroundColor: "blue",
-            },
-          },
-        },
-      })}
-    />
-  );
+  return <BlockNoteView editor={editor} theme={theme} />;
 }
-
 ```
 
 ```css-vue /styles.css [hidden]

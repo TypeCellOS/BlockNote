@@ -1,74 +1,16 @@
 import { BlockNoteEditor, BlockSchema, mergeCSSClasses } from "@blocknote/core";
 import { createStyles, MantineProvider } from "@mantine/core";
 import { EditorContent } from "@tiptap/react";
-import { HTMLAttributes, ReactNode, useEffect, useState } from "react";
-import {
-  BlockNoteComponentStyles,
-  blockNoteToMantineTheme,
-  PartialTheme,
-  Theme,
-} from "./BlockNoteTheme";
+import { HTMLAttributes, ReactNode, useEffect, useMemo, useState } from "react";
+import { blockNoteToMantineTheme, Theme } from "./BlockNoteTheme";
 import { FormattingToolbarPositioner } from "./FormattingToolbar/components/FormattingToolbarPositioner";
 import { HyperlinkToolbarPositioner } from "./HyperlinkToolbar/components/HyperlinkToolbarPositioner";
 import { SideMenuPositioner } from "./SideMenu/components/SideMenuPositioner";
 import { SlashMenuPositioner } from "./SlashMenu/components/SlashMenuPositioner";
 import { darkDefaultTheme, lightDefaultTheme } from "./defaultThemes";
 
-// Helper function which takes a partial theme provided by the user, and turns
-// it into a full theme. Either the light or dark theme is used, depending on
-// which ones the user provided and the browser settings.
-const getFullTheme = (baseTheme: "light" | "dark", theme?: PartialTheme) => {
-  // No theme is provided -> browser settings determine if default light or
-  // dark theme is used.
-  if (!theme) {
-    return baseTheme === "dark" ? darkDefaultTheme : lightDefaultTheme;
-  }
-
-  // "light" or "dark" is provided -> use default light or dark theme.
-  if (typeof theme === "string") {
-    return theme === "dark" ? darkDefaultTheme : lightDefaultTheme;
-  }
-
-  // Both light & dark themes are provided -> browser settings determine if
-  // provided light or dark theme is used.
-  if ("light" in theme && "dark" in theme) {
-    return baseTheme === "dark"
-      ? {
-          ...darkDefaultTheme,
-          ...(theme.dark as Partial<Theme> & { type: "dark" }),
-        }
-      : {
-          ...lightDefaultTheme,
-          ...(theme.light as Partial<Theme> & { type: "light" }),
-        };
-  }
-
-  // Only light theme is provided -> use provided light theme.
-  if ("light" in theme) {
-    return {
-      ...lightDefaultTheme,
-      ...(theme.light as Partial<Theme> & { type: "light" }),
-    };
-  }
-
-  // Only dark theme is provided -> use provided dark theme.
-  if ("dark" in theme) {
-    return {
-      ...darkDefaultTheme,
-      ...(theme.dark as Partial<Theme> & { type: "dark" }),
-    };
-  }
-
-  // Only single theme is provided -> use provided theme.
-  return {
-    ...((theme as Theme).type === "light"
-      ? lightDefaultTheme
-      : darkDefaultTheme),
-    ...theme,
-  };
-};
-
-function UnThemedBlockNoteView<BSchema extends BlockSchema>(
+// Renders the editor as well as all menus & toolbars using default styles.
+function BaseBlockNoteView<BSchema extends BlockSchema>(
   props: {
     editor: BlockNoteEditor<BSchema>;
     children?: ReactNode;
@@ -100,37 +42,56 @@ function UnThemedBlockNoteView<BSchema extends BlockSchema>(
 export function BlockNoteView<BSchema extends BlockSchema>(
   props: {
     editor: BlockNoteEditor<BSchema>;
-    theme?: PartialTheme;
-    componentStyles?: (theme: Theme) => BlockNoteComponentStyles;
+    theme?:
+      | "light"
+      | "dark"
+      | Theme
+      | {
+          light: Theme;
+          dark: Theme;
+        };
     children?: ReactNode;
   } & HTMLAttributes<HTMLDivElement>
 ) {
-  const { theme, componentStyles, ...rest } = props;
+  const {
+    theme = { light: lightDefaultTheme, dark: darkDefaultTheme },
+    ...rest
+  } = props;
 
-  const [fullTheme, setFullThemeType] = useState<Theme>(() => {
-    const browserTheme = window.matchMedia("(prefers-color-scheme: dark)")
-      .matches
-      ? "dark"
-      : "light";
-
-    return getFullTheme(browserTheme, theme);
-  });
+  const [browserTheme, setBrowserTheme] = useState<"light" | "dark">(
+    window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
+  );
 
   // Automatically changes theme between light & dark when browser settings
   // change.
   useEffect(() => {
     const darkThemeMq = window.matchMedia("(prefers-color-scheme: dark)");
     const mqListener = (e: MediaQueryListEvent) =>
-      setFullThemeType(getFullTheme(e.matches ? "dark" : "light", theme));
+      setBrowserTheme(e.matches ? "dark" : "light");
     darkThemeMq.addEventListener("change", mqListener);
 
     return () => darkThemeMq.removeEventListener("change", mqListener);
   }, []); //eslint-disable-line react-hooks/exhaustive-deps
 
+  const mantineTheme = useMemo(() => {
+    if (theme === "light") {
+      return blockNoteToMantineTheme(lightDefaultTheme);
+    }
+
+    if (theme === "dark") {
+      return blockNoteToMantineTheme(darkDefaultTheme);
+    }
+
+    if ("light" in theme && "dark" in theme) {
+      return blockNoteToMantineTheme(theme[browserTheme]);
+    }
+
+    return blockNoteToMantineTheme(theme);
+  }, [browserTheme, theme]);
+
   return (
-    <MantineProvider
-      theme={blockNoteToMantineTheme(fullTheme, componentStyles?.(fullTheme))}>
-      <UnThemedBlockNoteView {...rest} />
+    <MantineProvider theme={mantineTheme}>
+      <BaseBlockNoteView {...rest} />
     </MantineProvider>
   );
 }

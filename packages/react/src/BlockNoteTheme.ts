@@ -30,25 +30,7 @@ export type ColorScheme = {
   };
 };
 
-export type Theme = {
-  type: "light" | "dark";
-  colors: ColorScheme;
-  borderRadius: number;
-  fontFamily: string;
-};
-
-export type PartialTheme =
-  | "light"
-  | "dark"
-  | Partial<
-      | Theme
-      | {
-          light: Partial<Theme> & { type: "light" };
-          dark: Partial<Theme> & { type: "dark" };
-        }
-    >;
-
-export type BlockNoteComponentStyles = Partial<{
+export type ComponentStyles = Partial<{
   // Side Menu items, Formatting Toolbar buttons
   ActionIcon: CSSObject;
   // Slash Menu, Formatting Toolbar dropdown, color picker dropdown
@@ -67,10 +49,14 @@ export type BlockNoteComponentStyles = Partial<{
   SideMenu: CSSObject;
 }>;
 
-export const blockNoteToMantineTheme = (
-  theme: Theme,
-  componentStyles?: BlockNoteComponentStyles
-): MantineThemeOverride => {
+export type Theme = {
+  colors: ColorScheme;
+  borderRadius: number;
+  fontFamily: string;
+  componentStyles?: (theme: Theme) => ComponentStyles;
+};
+
+export const blockNoteToMantineTheme = (theme: Theme): MantineThemeOverride => {
   const shadow = `0 4px 12px ${theme.colors.shadow}`;
   const border = `1px solid ${theme.colors.border}`;
 
@@ -109,7 +95,6 @@ export const blockNoteToMantineTheme = (
       // Removes button press effect.
       transform: "none",
     },
-    colorScheme: theme.type,
     components: {
       // Block Side Menu items
       ActionIcon: {
@@ -118,7 +103,7 @@ export const blockNoteToMantineTheme = (
             {
               color: theme.colors.sideMenu,
             },
-            componentStyles?.ActionIcon || {}
+            theme.componentStyles?.(theme).ActionIcon || {}
           ),
         }),
       },
@@ -149,7 +134,7 @@ export const blockNoteToMantineTheme = (
                 color: theme.colors.hovered.text,
               },
             },
-            componentStyles?.Menu || {}
+            theme.componentStyles?.(theme).Menu || {}
           ),
         }),
       },
@@ -160,7 +145,7 @@ export const blockNoteToMantineTheme = (
               border: border,
               borderRadius: innerBorderRadius,
             },
-            componentStyles?.ColorIcon || {}
+            theme.componentStyles?.(theme).ColorIcon || {}
           ),
         }),
       },
@@ -173,7 +158,7 @@ export const blockNoteToMantineTheme = (
                 height: "30px",
               },
             },
-            componentStyles?.DragHandleMenu || {}
+            theme.componentStyles?.(theme).DragHandleMenu || {}
           ),
         }),
       },
@@ -216,7 +201,7 @@ export const blockNoteToMantineTheme = (
                 },
               },
             },
-            componentStyles?.EditHyperlinkMenu || {}
+            theme.componentStyles?.(theme).EditHyperlinkMenu || {}
           ),
         }),
       },
@@ -250,7 +235,7 @@ export const blockNoteToMantineTheme = (
                 ])
               ) as CSSObject),
             },
-            componentStyles?.Editor || {}
+            theme.componentStyles?.(theme).Editor || {}
           ),
         }),
       },
@@ -306,7 +291,7 @@ export const blockNoteToMantineTheme = (
                 },
               },
             },
-            componentStyles?.Toolbar || {}
+            theme.componentStyles?.(theme).Toolbar || {}
           ),
         }),
       },
@@ -325,7 +310,7 @@ export const blockNoteToMantineTheme = (
                 color: theme.colors.tooltip.text,
               },
             },
-            componentStyles?.Tooltip || {}
+            theme.componentStyles?.(theme).Tooltip || {}
           ),
         }),
       },
@@ -358,7 +343,7 @@ export const blockNoteToMantineTheme = (
                 },
               },
             },
-            componentStyles?.SlashMenu || {}
+            theme.componentStyles?.(theme).SlashMenu || {}
           ),
         }),
       },
@@ -371,7 +356,7 @@ export const blockNoteToMantineTheme = (
                 color: theme.colors.sideMenu,
               },
             },
-            componentStyles?.SideMenu || {}
+            theme.componentStyles?.(theme).SideMenu || {}
           ),
         }),
       },
