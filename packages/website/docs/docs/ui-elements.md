@@ -66,13 +66,11 @@ import "@blocknote/core/style.css";
 
 export default function App() {
   // Creates a new editor instance.
-  const editor: BlockNoteEditor = useBlockNote({
-    theme: "{{ getTheme(isDark) }}",
-  });
+  const editor: BlockNoteEditor = useBlockNote();
 
   // Renders the editor instance.
   return (
-    <BlockNoteView editor={editor}>
+    <BlockNoteView editor={editor} theme={"{{ getTheme(isDark) }}"}>
       <FormattingToolbarPositioner editor={editor} />
       <HyperlinkToolbarPositioner editor={editor} />
       <SlashMenuPositioner editor={editor} />
@@ -110,13 +108,11 @@ import "@blocknote/core/style.css";
 
 export default function App() {
   // Creates a new editor instance.
-  const editor: BlockNoteEditor = useBlockNote({
-    theme: "{{ getTheme(isDark) }}",
-  });
+  const editor: BlockNoteEditor = useBlockNote();
 
   // Renders the editor instance.
   return (
-    <BlockNoteView editor={editor}>
+    <BlockNoteView editor={editor} theme={"{{ getTheme(isDark) }}"}>
       <FormattingToolbarPositioner editor={editor} />
       <HyperlinkToolbarPositioner editor={editor} />
       <SlashMenuPositioner editor={editor} />

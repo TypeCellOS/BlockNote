@@ -116,7 +116,7 @@ export default function App() {
 
 :::
 
-If we pass both a light and dark theme to `BlockNoteView`, like in the demo, BlockNote automatically chooses which one to use based on the user's browser settings. However, you can just pass a single theme instead, if you want to use the same one regardless of browser settings.
+If we pass both a light and dark theme to `BlockNoteView`, like in the demo, BlockNote automatically chooses which one to use based on the user's browser settings. However, you can just pass `"light"`/`"dark"` (for the light & dark default themes), or a single custom theme instead, if you want to use the same one regardless of browser settings.
 
 ## Adding DOM Attributes
 

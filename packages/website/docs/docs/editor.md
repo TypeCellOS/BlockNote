@@ -34,7 +34,6 @@ export type BlockNoteEditorOptions = Partial<{
   customElements: CustomElements;
   uiFactories: UiFactories;
   defaultStyles: boolean;
-  theme: "light" | "dark";
 }>;
 ```
 
@@ -58,8 +57,6 @@ export type BlockNoteEditorOptions = Partial<{
 
 `defaultStyles`: Whether to use the default font and reset the styles of `<p>`, `<li>`, `<h1>`, etc. elements that are used in BlockNote. Defaults to true if undefined.
 
-`theme:` Whether to use the light or dark theme.
-
 ## Demo: Saving & Restoring Editor Contents
 
 By default, BlockNote doesn't preserve the editor contents when your app is reopened or refreshed. However, using the editor options, you can change this by using the editor options.
@@ -79,7 +76,6 @@ const initialContent: string | null = localStorage.getItem("editorContent");
 export default function App() {
   // Creates a new editor instance.
   const editor: BlockNoteEditor | null = useBlockNote({
-    theme: "{{ getTheme(isDark) }}",
     // If the editor contents were previously saved, restores them.
     initialContent: initialContent ? JSON.parse(initialContent) : undefined,
     // Serializes and saves the editor contents to local storage.
@@ -92,7 +88,7 @@ export default function App() {
   });
 
   // Renders the editor instance.
-  return <BlockNoteView editor={editor} />;
+  return <BlockNoteView editor={editor} theme={"{{ getTheme(isDark) }}"} />;
 }
 ```
 
