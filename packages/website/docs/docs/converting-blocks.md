@@ -62,7 +62,6 @@ export default function App() {
 
   // Creates a new editor instance.
   const editor: BlockNoteEditor = useBlockNote({
-    theme: "{{ getTheme(isDark) }}",
     // Listens for when the editor's contents change.
     onEditorContentChange: (editor) => {
       // Converts the editor's contents from Block objects to Markdown and 
@@ -79,7 +78,7 @@ export default function App() {
   // Renders the editor instance, and its contents as Markdown below.
   return (
     <div>
-      <BlockNoteView editor={editor} />
+      <BlockNoteView editor={editor} theme={"{{ getTheme(isDark) }}"} />
       <pre>{markdown}</pre>
     </div>
   );
@@ -133,7 +132,6 @@ export default function App() {
   
   // Creates a new editor instance.
   const editor: BlockNoteEditor = useBlockNote({
-    theme: "{{ getTheme(isDark) }}",
     // Makes the editor non-editable.
     editable: false
   })
@@ -158,7 +156,7 @@ export default function App() {
         value={markdown}
         onChange={(event) => setMarkdown(event.target.value)}
       />
-      <BlockNoteView editor={editor} />
+      <BlockNoteView editor={editor} theme={"{{ getTheme(isDark) }}"} />
     </div>
   );
 }
@@ -217,7 +215,6 @@ export default function App() {
 
   // Creates a new editor instance.
   const editor: BlockNoteEditor = useBlockNote({
-    theme: "{{ getTheme(isDark) }}",
     // Listens for when the editor's contents change.
     onEditorContentChange: (editor) => {
       // Converts the editor's contents from Block objects to HTML and saves 
@@ -233,7 +230,7 @@ export default function App() {
   // Renders the editor instance, and its contents as HTML below.
   return (
     <div>
-      <BlockNoteView editor={editor} />
+      <BlockNoteView editor={editor} theme={"{{ getTheme(isDark) }}"} />
       <pre>{html}</pre>
     </div>
   );
@@ -287,7 +284,6 @@ export default function App() {
   
   // Creates a new editor instance.
   const editor: BlockNoteEditor = useBlockNote({
-    theme: "{{ getTheme(isDark) }}",
     // Makes the editor non-editable.
     editable: false
   })
@@ -312,7 +308,7 @@ export default function App() {
         value={html}
         onChange={(event) => setHTML(event.target.value)}
       />
-      <BlockNoteView editor={editor} />
+      <BlockNoteView editor={editor} theme={"{{ getTheme(isDark) }}"} />
     </div>
   );
 }

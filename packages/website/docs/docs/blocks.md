@@ -87,7 +87,6 @@ export default function App() {
   
   // Creates a new editor instance.
   const editor: BlockNoteEditor = useBlockNote({
-    theme: "{{ getTheme(isDark) }}",
     // Listens for when the editor's contents change.
     onEditorContentChange: (editor) => 
       // Converts the editor's contents to an array of Block objects.
@@ -98,7 +97,7 @@ export default function App() {
   // objects, below.
   return (
     <div>
-      <BlockNoteView editor={editor}/>
+      <BlockNoteView editor={editor} theme={"{{ getTheme(isDark) }}"} />
       <pre>{JSON.stringify(blocks, null, 2)}</pre>
     </div>
   );

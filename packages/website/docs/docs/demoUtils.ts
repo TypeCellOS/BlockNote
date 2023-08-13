@@ -15,8 +15,4 @@ export const getStyles = (isDark: Ref<boolean>): string => `body {
   -webkit-touch-callout: none;
   
   background-color: ${isDark ? "#151515" : "white"};
-}
-
-.ProseMirror {
-  background-color: transparent !important;
 }`;

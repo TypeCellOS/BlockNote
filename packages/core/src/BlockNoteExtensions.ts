@@ -19,8 +19,11 @@ import * as Y from "yjs";
 import styles from "./editor.module.css";
 import { BackgroundColorExtension } from "./extensions/BackgroundColor/BackgroundColorExtension";
 import { BackgroundColorMark } from "./extensions/BackgroundColor/BackgroundColorMark";
-import { blocks } from "./extensions/Blocks";
-import { BlockSchema } from "./extensions/Blocks/api/blockTypes";
+import { BlockContainer, BlockGroup, Doc } from "./extensions/Blocks";
+import {
+  BlockNoteDOMAttributes,
+  BlockSchema,
+} from "./extensions/Blocks/api/blockTypes";
 import { CustomBlockSerializerExtension } from "./extensions/Blocks/api/serialization";
 import blockStyles from "./extensions/Blocks/nodes/Block.module.css";
 import { Placeholder } from "./extensions/Placeholder/PlaceholderExtension";
@@ -35,6 +38,7 @@ import UniqueID from "./extensions/UniqueID/UniqueID";
  */
 export const getBlockNoteExtensions = <BSchema extends BlockSchema>(opts: {
   editor: BlockNoteEditor<BSchema>;
+  domAttributes: Partial<BlockNoteDOMAttributes>;
   blockSchema: BSchema;
   collaboration?: {
     fragment: Y.XmlFragment;
@@ -86,10 +90,19 @@ export const getBlockNoteExtensions = <BSchema extends BlockSchema>(opts: {
     BackgroundColorExtension,
     TextAlignmentExtension,
 
-    // custom blocks:
-    ...blocks,
+    // nodes
+    Doc,
+    BlockContainer.configure({
+      domAttributes: opts.domAttributes,
+    }),
+    BlockGroup.configure({
+      domAttributes: opts.domAttributes,
+    }),
     ...Object.values(opts.blockSchema).map((blockSpec) =>
-      blockSpec.node.configure({ editor: opts.editor })
+      blockSpec.node.configure({
+        editor: opts.editor,
+        domAttributes: opts.domAttributes,
+      })
     ),
     CustomBlockSerializerExtension,
 
