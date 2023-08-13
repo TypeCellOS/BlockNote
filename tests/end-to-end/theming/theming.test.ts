@@ -32,7 +32,9 @@ test.describe("Check Dark Theme is Automatically Applied", () => {
 
     await page.waitForTimeout(500);
     await page.pause();
-    expect(await page.screenshot()).toMatchSnapshot("dark-slash-menu.png");
+    expect(await page.screenshot()).toMatchSnapshot(
+      "dark-formatting-toolbar.png"
+    );
   });
   test("Should show dark hyperlink toolbar", async ({ page }) => {
     await focusOnEditor(page);
