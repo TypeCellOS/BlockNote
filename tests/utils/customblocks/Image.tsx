@@ -1,4 +1,4 @@
-import { createBlockSpec, defaultProps } from "@blocknote/core";
+import { BlockSchema, createBlockSpec, defaultProps } from "@blocknote/core";
 import { ReactSlashMenuItem } from "@blocknote/react";
 import { RiImage2Fill } from "react-icons/ri";
 
@@ -32,11 +32,9 @@ export const Image = createBlockSpec({
   },
 });
 
-export const insertImage = new ReactSlashMenuItem<{
-  image: typeof Image;
-}>(
-  "Insert Image",
-  (editor) => {
+export const insertImage = {
+  name: "Insert Image",
+  execute: (editor) => {
     const src = prompt("Enter image URL");
     editor.insertBlocks(
       [
@@ -51,8 +49,8 @@ export const insertImage = new ReactSlashMenuItem<{
       "after"
     );
   },
-  ["image", "img", "picture", "media"],
-  "Media",
-  <RiImage2Fill />,
-  "Insert an image"
-);
+  aliases: ["image", "img", "picture", "media"],
+  group: "Media",
+  icon: <RiImage2Fill />,
+  hint: "Insert an image",
+} satisfies ReactSlashMenuItem<BlockSchema & { image: typeof Image }>;

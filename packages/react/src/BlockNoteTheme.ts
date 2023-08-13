@@ -1,316 +1,361 @@
-import { MantineThemeOverride } from "@mantine/core";
+import { CSSObject, MantineThemeOverride } from "@mantine/core";
+import { blockStyles } from "@blocknote/core";
+import _ from "lodash";
 
-type ColorScheme = [
-  string,
-  string,
-  string,
-  string,
-  string,
-  string,
-  string,
-  string,
-  string,
-  string
-];
+export type CombinedColor = {
+  text: string;
+  background: string;
+};
 
-export const blockNoteColorScheme: ColorScheme = [
-  "#FFFFFF",
-  "#EFEFEF",
-  "#CFCFCF",
-  "#AFAFAF",
-  "#7F7F7F",
-  "#3F3F3F",
-  "#1F1F1F",
-  "#161616",
-  "#0F0F0F",
-  "#000000",
-];
+export type ColorScheme = {
+  editor: CombinedColor;
+  menu: CombinedColor;
+  tooltip: CombinedColor;
+  hovered: CombinedColor;
+  selected: CombinedColor;
+  disabled: CombinedColor;
+  shadow: string;
+  border: string;
+  sideMenu: string;
+  highlightColors: {
+    gray: CombinedColor;
+    brown: CombinedColor;
+    red: CombinedColor;
+    orange: CombinedColor;
+    yellow: CombinedColor;
+    green: CombinedColor;
+    blue: CombinedColor;
+    purple: CombinedColor;
+    pink: CombinedColor;
+  };
+};
 
-export const getBlockNoteTheme = (
-  useDarkTheme: boolean = false
-): MantineThemeOverride => {
-  const boxShadow = `0px 4px 8px ${
-    useDarkTheme ? blockNoteColorScheme[8] : blockNoteColorScheme[2]
-  }, 0px 0px 1px ${
-    useDarkTheme ? blockNoteColorScheme[6] : blockNoteColorScheme[1]
-  }`;
+export type ComponentStyles = Partial<{
+  // Slash Menu, Formatting Toolbar dropdown, color picker dropdown
+  Menu: CSSObject;
+  // Icon in the color picker dropdown (Formatting Toolbar & Drag Handle Menu)
+  ColorIcon: CSSObject;
+  DragHandleMenu: CSSObject;
+  // Menu to edit hyperlinks (in Formatting Toolbar & Hyperlink Toolbar)
+  EditHyperlinkMenu: CSSObject;
+  Editor: CSSObject;
+  // Wraps Formatting Toolbar & Hyperlink Toolbar
+  Toolbar: CSSObject;
+  // Appears on hover for Formatting Toolbar & Hyperlink Toolbar buttons
+  Tooltip: CSSObject;
+  SlashMenu: CSSObject;
+  SideMenu: CSSObject;
+}>;
 
-  const border = `1px solid ${
-    useDarkTheme ? blockNoteColorScheme[7] : blockNoteColorScheme[1]
-  }`;
+export type Theme = {
+  colors: ColorScheme;
+  borderRadius: number;
+  fontFamily: string;
+  componentStyles?: (theme: Theme) => ComponentStyles;
+};
 
-  const sideMenu = useDarkTheme
-    ? blockNoteColorScheme[4]
-    : blockNoteColorScheme[2];
+export const blockNoteToMantineTheme = (theme: Theme): MantineThemeOverride => {
+  const shadow = `0 4px 12px ${theme.colors.shadow}`;
+  const border = `1px solid ${theme.colors.border}`;
 
-  const primaryBackground = useDarkTheme
-    ? blockNoteColorScheme[6]
-    : blockNoteColorScheme[0];
-  const secondaryBackground = useDarkTheme
-    ? blockNoteColorScheme[7]
-    : blockNoteColorScheme[1];
+  const textColors = {
+    default: theme.colors.editor.text,
+    gray: theme.colors.highlightColors.gray.text,
+    brown: theme.colors.highlightColors.brown.text,
+    red: theme.colors.highlightColors.red.text,
+    orange: theme.colors.highlightColors.orange.text,
+    yellow: theme.colors.highlightColors.yellow.text,
+    green: theme.colors.highlightColors.green.text,
+    blue: theme.colors.highlightColors.blue.text,
+    purple: theme.colors.highlightColors.purple.text,
+    pink: theme.colors.highlightColors.pink.text,
+  };
 
-  const primaryText = useDarkTheme
-    ? blockNoteColorScheme[2]
-    : blockNoteColorScheme[5];
-  const secondaryText = useDarkTheme
-    ? blockNoteColorScheme[4]
-    : blockNoteColorScheme[4];
+  const backgroundColors = {
+    default: theme.colors.editor.background,
+    gray: theme.colors.highlightColors.gray.background,
+    brown: theme.colors.highlightColors.brown.background,
+    red: theme.colors.highlightColors.red.background,
+    orange: theme.colors.highlightColors.orange.background,
+    yellow: theme.colors.highlightColors.yellow.background,
+    green: theme.colors.highlightColors.green.background,
+    blue: theme.colors.highlightColors.blue.background,
+    purple: theme.colors.highlightColors.purple.background,
+    pink: theme.colors.highlightColors.pink.background,
+  };
 
-  const hoveredBackground = useDarkTheme
-    ? blockNoteColorScheme[7]
-    : blockNoteColorScheme[1];
-  const hoveredText = useDarkTheme
-    ? blockNoteColorScheme[2]
-    : blockNoteColorScheme[5];
-
-  const selectedBackground = useDarkTheme
-    ? blockNoteColorScheme[8]
-    : blockNoteColorScheme[5];
-  const selectedText = useDarkTheme
-    ? blockNoteColorScheme[2]
-    : blockNoteColorScheme[0];
-
-  const disabledBackground = useDarkTheme
-    ? blockNoteColorScheme[7]
-    : blockNoteColorScheme[1];
-  const disabledText = useDarkTheme
-    ? blockNoteColorScheme[5]
-    : blockNoteColorScheme[3];
+  const editorBorderRadius = `${Math.max(theme.borderRadius + 2, 1)}px`;
+  const outerBorderRadius = `${theme.borderRadius}px`;
+  const innerBorderRadius = `${Math.max(theme.borderRadius - 2, 1)}px`;
 
   return {
     activeStyles: {
       // Removes button press effect.
       transform: "none",
     },
-    colorScheme: useDarkTheme ? "dark" : "light",
-    colors: {
-      scheme: blockNoteColorScheme,
-      dark: blockNoteColorScheme,
-      textColors: [
-        // primaryText,
-        blockNoteColorScheme[6],
-        "#9b9a97",
-        "#64473a",
-        "#e03e3e",
-        "#d9730d",
-        "#dfab01",
-        "#4d6461",
-        "#0b6e99",
-        "#6940a5",
-        "#ad1a72",
-      ],
-      backgroundColors: [
-        // primaryBackground,
-        blockNoteColorScheme[0],
-        "#ebeced",
-        "#e9e5e3",
-        "#fbe4e4",
-        "#f6e9d9",
-        "#fbf3db",
-        "#ddedea",
-        "#ddebf1",
-        "#eae4f2",
-        "#f4dfeb",
-      ],
-    },
     components: {
-      // Block Side Menu items
-      ActionIcon: {
-        styles: () => ({
-          root: {
-            color: sideMenu,
-          },
-        }),
-      },
       // Slash Menu, Formatting Toolbar dropdown, color picker dropdown
       Menu: {
         styles: () => ({
-          dropdown: {
-            backgroundColor: primaryBackground,
-            border: border,
-            borderRadius: "6px",
-            boxShadow: boxShadow,
-            color: primaryText,
-            padding: "2px",
-            ".mantine-Menu-item": {
-              backgroundColor: primaryBackground,
-              border: "none",
-              color: primaryText,
+          dropdown: _.merge<CSSObject, CSSObject>(
+            {
+              backgroundColor: theme.colors.menu.background,
+              border: border,
+              borderRadius: outerBorderRadius,
+              boxShadow: shadow,
+              color: theme.colors.menu.text,
+              padding: "2px",
+              ".mantine-Menu-label": {
+                backgroundColor: theme.colors.menu.background,
+                color: theme.colors.menu.text,
+              },
+              ".mantine-Menu-item": {
+                backgroundColor: theme.colors.menu.background,
+                border: "none",
+                borderRadius: innerBorderRadius,
+                color: theme.colors.menu.text,
+              },
+              ".mantine-Menu-item[data-hovered]": {
+                backgroundColor: theme.colors.hovered.background,
+                border: "none",
+                color: theme.colors.hovered.text,
+              },
             },
-            ".mantine-Menu-item[data-hovered]": {
-              backgroundColor: hoveredBackground,
-              border: "none",
-              color: hoveredText,
+            theme.componentStyles?.(theme).Menu || {}
+          ),
+        }),
+      },
+      ColorIcon: {
+        styles: () => ({
+          root: _.merge<CSSObject, CSSObject>(
+            {
+              border: border,
+              borderRadius: innerBorderRadius,
             },
-          },
+            theme.componentStyles?.(theme).ColorIcon || {}
+          ),
         }),
       },
       DragHandleMenu: {
         styles: () => ({
-          root: {
-            ".mantine-Menu-item": {
-              fontSize: "12px",
-              height: "30px",
+          root: _.merge<CSSObject, CSSObject>(
+            {
+              ".mantine-Menu-item": {
+                fontSize: "12px",
+                height: "30px",
+              },
             },
-          },
+            theme.componentStyles?.(theme).DragHandleMenu || {}
+          ),
         }),
       },
       EditHyperlinkMenu: {
         styles: () => ({
-          root: {
-            backgroundColor: primaryBackground,
-            border: border,
-            borderRadius: "6px",
-            boxShadow: boxShadow,
-            color: primaryText,
-            gap: "4px",
-            minWidth: "145px",
-            padding: "2px",
-            // Row
-            ".mantine-Group-root": {
-              flexWrap: "nowrap",
-              gap: "8px",
-              paddingInline: "6px",
-              // Row icon
-              ".mantine-Container-root": {
-                color: primaryText,
-                display: "flex",
-                justifyContent: "center",
-                padding: 0,
-                width: "fit-content",
-              },
-              // Row input field
-              ".mantine-TextInput-root": {
-                width: "300px",
-                ".mantine-TextInput-wrapper": {
-                  ".mantine-TextInput-input": {
-                    border: "none",
-                    color: primaryText,
-                    fontSize: "12px",
-                    padding: 0,
+          root: _.merge<CSSObject, CSSObject>(
+            {
+              backgroundColor: theme.colors.menu.background,
+              border: border,
+              borderRadius: outerBorderRadius,
+              boxShadow: shadow,
+              color: theme.colors.menu.text,
+              gap: "4px",
+              minWidth: "145px",
+              padding: "2px",
+              // Row
+              ".mantine-Group-root": {
+                flexWrap: "nowrap",
+                gap: "8px",
+                paddingInline: "6px",
+                // Row icon
+                ".mantine-Container-root": {
+                  color: theme.colors.menu.text,
+                  display: "flex",
+                  justifyContent: "center",
+                  padding: 0,
+                  width: "fit-content",
+                },
+                // Row input field
+                ".mantine-TextInput-root": {
+                  width: "300px",
+                  ".mantine-TextInput-wrapper": {
+                    ".mantine-TextInput-input": {
+                      border: "none",
+                      color: theme.colors.menu.text,
+                      fontSize: "12px",
+                      padding: 0,
+                    },
                   },
                 },
               },
             },
-          },
+            theme.componentStyles?.(theme).EditHyperlinkMenu || {}
+          ),
+        }),
+      },
+      Editor: {
+        styles: () => ({
+          root: _.merge<CSSObject, CSSObject>(
+            {
+              ".ProseMirror": {
+                backgroundColor: theme.colors.editor.background,
+                borderRadius: editorBorderRadius,
+                color: theme.colors.editor.text,
+                fontFamily: theme.fontFamily,
+              },
+              // Placeholders
+              [`.${blockStyles.isEmpty} .${blockStyles.inlineContent}:before, .${blockStyles.isFilter} .${blockStyles.inlineContent}:before`]:
+                {
+                  color: theme.colors.sideMenu,
+                },
+              // Highlight text colors
+              ...(Object.fromEntries(
+                Object.entries(textColors).map(([key, value]) => [
+                  `[data-text-color="${key}"]`,
+                  { color: value },
+                ])
+              ) as CSSObject),
+              // Highlight background colors
+              ...(Object.fromEntries(
+                Object.entries(backgroundColors).map(([key, value]) => [
+                  `[data-background-color="${key}"]`,
+                  { backgroundColor: value },
+                ])
+              ) as CSSObject),
+            },
+            theme.componentStyles?.(theme).Editor || {}
+          ),
         }),
       },
       Toolbar: {
         styles: () => ({
-          root: {
-            backgroundColor: primaryBackground,
-            boxShadow: boxShadow,
-            border: border,
-            borderRadius: "6px",
-            flexWrap: "nowrap",
-            gap: "2px",
-            padding: "2px",
-            width: "fit-content",
-            // Button (including dropdown target)
-            ".mantine-UnstyledButton-root": {
-              backgroundColor: primaryBackground,
-              border: "none",
-              borderRadius: "4px",
-              color: primaryText,
-            },
-            // Hovered button
-            ".mantine-UnstyledButton-root:hover": {
-              backgroundColor: hoveredBackground,
-              border: "none",
-              color: hoveredText,
-            },
-            // Selected button
-            ".mantine-UnstyledButton-root[data-selected]": {
-              backgroundColor: selectedBackground,
-              border: "none",
-              color: selectedText,
-            },
-            // Disabled button
-            ".mantine-UnstyledButton-root[data-disabled]": {
-              backgroundColor: disabledBackground,
-              border: "none",
-              color: disabledText,
-            },
-            // Dropdown
-            ".mantine-Menu-dropdown": {
-              // Dropdown item
-              ".mantine-Menu-item": {
-                fontSize: "12px",
-                height: "30px",
-                ".mantine-Menu-itemRightSection": {
-                  paddingLeft: "5px",
+          root: _.merge<CSSObject, CSSObject>(
+            {
+              backgroundColor: theme.colors.menu.background,
+              boxShadow: shadow,
+              border: border,
+              borderRadius: outerBorderRadius,
+              flexWrap: "nowrap",
+              gap: "2px",
+              padding: "2px",
+              width: "fit-content",
+              // Button (including dropdown target)
+              ".mantine-UnstyledButton-root": {
+                backgroundColor: theme.colors.menu.background,
+                border: "none",
+                borderRadius: innerBorderRadius,
+                color: theme.colors.menu.text,
+              },
+              // Hovered button
+              ".mantine-UnstyledButton-root:hover": {
+                backgroundColor: theme.colors.hovered.background,
+                border: "none",
+                color: theme.colors.hovered.text,
+              },
+              // Selected button
+              ".mantine-UnstyledButton-root[data-selected]": {
+                backgroundColor: theme.colors.selected.background,
+                border: "none",
+                color: theme.colors.selected.text,
+              },
+              // Disabled button
+              ".mantine-UnstyledButton-root[data-disabled]": {
+                backgroundColor: theme.colors.disabled.background,
+                border: "none",
+                color: theme.colors.disabled.text,
+              },
+              // Dropdown
+              ".mantine-Menu-dropdown": {
+                // Dropdown item
+                ".mantine-Menu-item": {
+                  fontSize: "12px",
+                  height: "30px",
+                  ".mantine-Menu-itemRightSection": {
+                    paddingLeft: "5px",
+                  },
+                },
+                ".mantine-Menu-item:hover": {
+                  backgroundColor: theme.colors.hovered.background,
                 },
               },
-              ".mantine-Menu-item:hover": {
-                backgroundColor: hoveredBackground,
-              },
             },
-          },
+            theme.componentStyles?.(theme).Toolbar || {}
+          ),
         }),
       },
       Tooltip: {
         styles: () => ({
-          root: {
-            backgroundColor: primaryBackground,
-            border: border,
-            borderRadius: "6px",
-            boxShadow: boxShadow,
-            color: primaryText,
-            padding: "4px 10px",
-            textAlign: "center",
-            "div ~ div": {
-              color: secondaryText,
+          root: _.merge<CSSObject, CSSObject>(
+            {
+              backgroundColor: theme.colors.tooltip.background,
+              border: border,
+              borderRadius: outerBorderRadius,
+              boxShadow: shadow,
+              color: theme.colors.tooltip.text,
+              padding: "4px 10px",
+              textAlign: "center",
+              "div ~ div": {
+                color: theme.colors.tooltip.text,
+              },
             },
-          },
+            theme.componentStyles?.(theme).Tooltip || {}
+          ),
         }),
       },
       SlashMenu: {
         styles: () => ({
-          root: {
-            position: "relative",
-            ".mantine-Menu-item": {
-              // Icon
-              ".mantine-Menu-itemIcon": {
-                backgroundColor: secondaryBackground,
-                borderRadius: "4px",
-                color: primaryText,
-                padding: "8px",
-              },
-              // Text
-              ".mantine-Menu-itemLabel": {
-                paddingRight: "16px",
-                ".mantine-Stack-root": {
-                  gap: "0",
+          root: _.merge<CSSObject, CSSObject>(
+            {
+              position: "relative",
+              ".mantine-Menu-item": {
+                // Icon
+                ".mantine-Menu-itemIcon": {
+                  backgroundColor: theme.colors.tooltip.background,
+                  borderRadius: innerBorderRadius,
+                  color: theme.colors.tooltip.text,
+                  padding: "8px",
                 },
-              },
-              // Badge (keyboard shortcut)
-              ".mantine-Menu-itemRightSection": {
-                ".mantine-Badge-root": {
-                  backgroundColor: secondaryBackground,
-                  color: primaryText,
+                // Text
+                ".mantine-Menu-itemLabel": {
+                  paddingRight: "16px",
+                  ".mantine-Stack-root": {
+                    gap: "0",
+                  },
+                },
+                // Badge (keyboard shortcut)
+                ".mantine-Menu-itemRightSection": {
+                  ".mantine-Badge-root": {
+                    backgroundColor: theme.colors.tooltip.background,
+                    color: theme.colors.tooltip.text,
+                  },
                 },
               },
             },
-          },
+            theme.componentStyles?.(theme).SlashMenu || {}
+          ),
+        }),
+      },
+      SideMenu: {
+        styles: () => ({
+          root: _.merge<CSSObject, CSSObject>(
+            {
+              backgroundColor: "transparent",
+              ".mantine-UnstyledButton-root": {
+                backgroundColor: "transparent",
+                color: theme.colors.sideMenu,
+              },
+              ".mantine-UnstyledButton-root:hover": {
+                backgroundColor: theme.colors.hovered.background,
+              },
+            },
+            theme.componentStyles?.(theme).SideMenu || {}
+          ),
         }),
       },
     },
-    fontFamily: "Inter",
+    fontFamily: theme.fontFamily,
     other: {
-      colors: [
-        "default",
-        "gray",
-        "brown",
-        "red",
-        "orange",
-        "yellow",
-        "green",
-        "blue",
-        "purple",
-        "pink",
-      ],
+      textColors: textColors,
+      backgroundColors: backgroundColors,
     },
-    primaryColor: "scheme",
   };
 };

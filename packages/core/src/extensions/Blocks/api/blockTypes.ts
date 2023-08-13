@@ -4,13 +4,28 @@ import { BlockNoteEditor } from "../../../BlockNoteEditor";
 import { InlineContent, PartialInlineContent } from "./inlineContentTypes";
 import { DefaultBlockSchema } from "./defaultBlocks";
 
+export type BlockNoteDOMElement =
+  | "editor"
+  | "blockContainer"
+  | "blockGroup"
+  | "blockContent"
+  | "inlineContent";
+
+export type BlockNoteDOMAttributes = Partial<{
+  [DOMElement in BlockNoteDOMElement]: Record<string, string>;
+}>;
+
 // A configuration for a TipTap node, but with stricter type constraints on the
 // "name" and "group" properties. The "name" property is now always a string
 // literal type, and the "blockGroup" property cannot be configured as it should
 // always be "blockContent". Used as the parameter in `createTipTapNode`.
 export type TipTapNodeConfig<
   Name extends string,
-  Options = any,
+  Options extends {
+    domAttributes?: BlockNoteDOMAttributes;
+  } = {
+    domAttributes?: BlockNoteDOMAttributes;
+  },
   Storage = any
 > = {
   [K in keyof NodeConfig<Options, Storage>]: K extends "name"
@@ -25,7 +40,11 @@ export type TipTapNodeConfig<
 // "blockGroup" property is now "blockContent". Returned by `createTipTapNode`.
 export type TipTapNode<
   Name extends string,
-  Options = any,
+  Options extends {
+    domAttributes?: BlockNoteDOMAttributes;
+  } = {
+    domAttributes?: BlockNoteDOMAttributes;
+  },
   Storage = any
 > = Node<Options, Storage> & {
   name: Name;
@@ -104,7 +123,7 @@ export type BlockConfig<
 // allowing for more advanced custom blocks.
 export type BlockSpec<Type extends string, PSchema extends PropSchema> = {
   readonly propSchema: PSchema;
-  node: TipTapNode<Type>;
+  node: TipTapNode<Type, any>;
 };
 
 // Utility type. For a given object block schema, ensures that the key of each

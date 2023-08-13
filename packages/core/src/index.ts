@@ -15,3 +15,4 @@ export { getDefaultSlashMenuItems } from "./extensions/SlashMenu/defaultSlashMen
 export * from "./shared/BaseUiElementTypes";
 export type { SuggestionItem } from "./shared/plugins/suggestion/SuggestionItem";
 export * from "./shared/plugins/suggestion/SuggestionPlugin";
+export * from "./shared/utils";

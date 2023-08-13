@@ -91,7 +91,6 @@ import "@blocknote/core/style.css";
 export default function App() {
   // Creates a new editor instance.
   const editor: BlockNoteEditor = useBlockNote({
-    theme: "{{ getTheme(isDark) }}",
     // Listens for when the text cursor position changes.
     onTextCursorPositionChange: (editor) => {
       // Gets the block currently hovered by the text cursor.
@@ -125,7 +124,7 @@ export default function App() {
   })
   
   // Renders the editor instance.
-  return <BlockNoteView editor={editor}/>;
+  return <BlockNoteView editor={editor} theme={ "{{ getTheme(isDark) }}"} />;
 }
 ```
 
@@ -179,7 +178,6 @@ import "@blocknote/core/style.css";
 export default function App() {
   // Creates a new editor instance.
   const editor: BlockNoteEditor = useBlockNote({
-    theme: "{{ getTheme(isDark) }}",
     // Listens for when the text cursor position changes.
     onTextCursorPositionChange: (editor) => {
       // Gets the blocks currently spanned by the selection.
@@ -226,7 +224,7 @@ export default function App() {
   });
 
   // Renders the editor instance.
-  return <BlockNoteView editor={editor} />;
+  return <BlockNoteView editor={editor} theme={"{{ getTheme(isDark) }}"} />;
 }
 ```
 

@@ -10,11 +10,12 @@ function App() {
     onEditorContentChange: (editor) => {
       console.log(editor.topLevelBlocks);
     },
-    editorDOMAttributes: {
-      class: styles.editor,
-      "data-test": "editor",
+    domAttributes: {
+      editor: {
+        class: styles.editor,
+        "data-test": "editor",
+      },
     },
-    theme: "light",
   });
 
   // Give tests a way to get prosemirror instance
