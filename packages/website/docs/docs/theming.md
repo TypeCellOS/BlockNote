@@ -201,9 +201,6 @@ const theme = {
       borderRadius: theme.borderRadius,
       border: `1px solid ${theme.colors.border}`,
       boxShadow: `0 4px 12px ${theme.colors.shadow}`,
-      ".ProseMirror": {
-        fontFamily: "Comic Sans MS",
-      },
     },
     // Makes all hovered dropdown & menu items blue.
     Menu: {

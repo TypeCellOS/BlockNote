@@ -1,7 +1,8 @@
 import { BlockNoteEditor, BlockSchema, mergeCSSClasses } from "@blocknote/core";
 import { createStyles, MantineProvider } from "@mantine/core";
 import { EditorContent } from "@tiptap/react";
-import { HTMLAttributes, ReactNode, useEffect, useMemo, useState } from "react";
+import { HTMLAttributes, ReactNode, useMemo } from "react";
+import usePrefersColorScheme from "use-prefers-color-scheme";
 import { blockNoteToMantineTheme, Theme } from "./BlockNoteTheme";
 import { FormattingToolbarPositioner } from "./FormattingToolbar/components/FormattingToolbarPositioner";
 import { HyperlinkToolbarPositioner } from "./HyperlinkToolbar/components/HyperlinkToolbarPositioner";
@@ -58,20 +59,7 @@ export function BlockNoteView<BSchema extends BlockSchema>(
     ...rest
   } = props;
 
-  const [browserTheme, setBrowserTheme] = useState<"light" | "dark">(
-    window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
-  );
-
-  // Automatically changes theme between light & dark when browser settings
-  // change.
-  useEffect(() => {
-    const darkThemeMq = window.matchMedia("(prefers-color-scheme: dark)");
-    const mqListener = (e: MediaQueryListEvent) =>
-      setBrowserTheme(e.matches ? "dark" : "light");
-    darkThemeMq.addEventListener("change", mqListener);
-
-    return () => darkThemeMq.removeEventListener("change", mqListener);
-  }, []); //eslint-disable-line react-hooks/exhaustive-deps
+  const preferredTheme = usePrefersColorScheme();
 
   const mantineTheme = useMemo(() => {
     if (theme === "light") {
@@ -83,11 +71,13 @@ export function BlockNoteView<BSchema extends BlockSchema>(
     }
 
     if ("light" in theme && "dark" in theme) {
-      return blockNoteToMantineTheme(theme[browserTheme]);
+      return blockNoteToMantineTheme(
+        theme[preferredTheme === "dark" ? "dark" : "light"]
+      );
     }
 
     return blockNoteToMantineTheme(theme);
-  }, [browserTheme, theme]);
+  }, [preferredTheme, theme]);
 
   return (
     <MantineProvider theme={mantineTheme}>
