@@ -31,8 +31,6 @@ export type ColorScheme = {
 };
 
 export type ComponentStyles = Partial<{
-  // Side Menu items, Formatting Toolbar buttons
-  ActionIcon: CSSObject;
   // Slash Menu, Formatting Toolbar dropdown, color picker dropdown
   Menu: CSSObject;
   // Icon in the color picker dropdown (Formatting Toolbar & Drag Handle Menu)
@@ -96,17 +94,6 @@ export const blockNoteToMantineTheme = (theme: Theme): MantineThemeOverride => {
       transform: "none",
     },
     components: {
-      // Block Side Menu items
-      ActionIcon: {
-        styles: () => ({
-          root: _.merge<CSSObject, CSSObject>(
-            {
-              color: theme.colors.sideMenu,
-            },
-            theme.componentStyles?.(theme).ActionIcon || {}
-          ),
-        }),
-      },
       // Slash Menu, Formatting Toolbar dropdown, color picker dropdown
       Menu: {
         styles: () => ({
@@ -352,8 +339,12 @@ export const blockNoteToMantineTheme = (theme: Theme): MantineThemeOverride => {
           root: _.merge<CSSObject, CSSObject>(
             {
               backgroundColor: "transparent",
-              ".mantine-ActionIcon-root": {
+              ".mantine-UnstyledButton-root": {
+                backgroundColor: "transparent",
                 color: theme.colors.sideMenu,
+              },
+              ".mantine-UnstyledButton-root:hover": {
+                backgroundColor: theme.colors.hovered.background,
               },
             },
             theme.componentStyles?.(theme).SideMenu || {}
