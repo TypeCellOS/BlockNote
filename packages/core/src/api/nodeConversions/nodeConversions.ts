@@ -16,7 +16,6 @@ import {
   Styles,
   ToggledStyle,
 } from "../../extensions/Blocks/api/inlineContentTypes";
-import { getBlockInfoFromPos } from "../../extensions/Blocks/helpers/getBlockInfoFromPos";
 import UniqueID from "../../extensions/UniqueID/UniqueID";
 import { UnreachableCaseError } from "../../shared/utils";
 
@@ -369,9 +368,10 @@ export function nodeToBlock<BSchema extends BlockSchema>(
     return cachedBlock;
   }
 
-  const blockInfo = getBlockInfoFromPos(node, 0)!;
-
-  let id = blockInfo.id;
+  let id = node.attrs["id"];
+  const contentNode = node.firstChild!;
+  const contentType = contentNode.type;
+  const numChildBlocks = node.childCount === 2 ? node.lastChild!.childCount : 0;
 
   // Only used for blocks converted from other formats.
   if (id === null) {
@@ -380,14 +380,12 @@ export function nodeToBlock<BSchema extends BlockSchema>(
 
   const props: any = {};
   for (const [attr, value] of Object.entries({
-    ...blockInfo.node.attrs,
-    ...blockInfo.contentNode.attrs,
+    ...node.attrs,
+    ...contentNode.attrs,
   })) {
-    const blockSpec = blockSchema[blockInfo.contentType.name];
+    const blockSpec = blockSchema[contentType.name];
     if (!blockSpec) {
-      throw Error(
-        "Block is of an unrecognized type: " + blockInfo.contentType.name
-      );
+      throw Error("Block is of an unrecognized type: " + contentType.name);
     }
 
     const propSchema = blockSpec.propSchema;
@@ -409,18 +407,18 @@ export function nodeToBlock<BSchema extends BlockSchema>(
     }
   }
 
-  const content = contentNodeToInlineContent(blockInfo.contentNode);
+  const content = contentNodeToInlineContent(contentNode);
 
   const children: Block<BSchema>[] = [];
-  for (let i = 0; i < blockInfo.numChildBlocks; i++) {
+  for (let i = 0; i < numChildBlocks; i++) {
     children.push(
-      nodeToBlock(blockInfo.node.lastChild!.child(i), blockSchema, blockCache)
+      nodeToBlock(node.lastChild!.child(i), blockSchema, blockCache)
     );
   }
 
   const block: Block<BSchema> = {
     id,
-    type: blockInfo.contentType.name,
+    type: contentType.name,
     props,
     content,
     children,
