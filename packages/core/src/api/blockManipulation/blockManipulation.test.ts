@@ -15,9 +15,9 @@ function waitForEditor() {
   });
 }
 
-let singleBlock: PartialBlock<DefaultBlockSchema>;
+let singleBlock: () => PartialBlock<DefaultBlockSchema>;
 
-let multipleBlocks: PartialBlock<DefaultBlockSchema>[];
+let multipleBlocks: () => PartialBlock<DefaultBlockSchema>[];
 
 let insert: (
   placement: "before" | "nested" | "after"
@@ -28,12 +28,12 @@ beforeEach(() => {
 
   editor = new BlockNoteEditor();
 
-  singleBlock = {
+  singleBlock = () => ({
     type: "paragraph",
     content: "Paragraph",
-  };
+  });
 
-  multipleBlocks = [
+  multipleBlocks = () => ([
     {
       type: "heading",
       props: {
@@ -66,11 +66,11 @@ beforeEach(() => {
         },
       ],
     },
-  ];
+  ]);
 
   insert = (placement) => {
     const existingBlock = editor.topLevelBlocks[0];
-    editor.insertBlocks(multipleBlocks, existingBlock, placement);
+    editor.insertBlocks(multipleBlocks(), existingBlock, placement);
 
     return editor.topLevelBlocks;
   };
@@ -114,7 +114,7 @@ describe("Insert, Update, & Delete Blocks", () => {
     await waitForEditor();
 
     const existingBlock = editor.topLevelBlocks[0];
-    editor.insertBlocks([singleBlock], existingBlock);
+    editor.insertBlocks([singleBlock()], existingBlock);
 
     expect(editor.topLevelBlocks).toMatchSnapshot();
 
@@ -141,7 +141,7 @@ describe("Insert, Update, & Delete Blocks", () => {
           },
         },
       ],
-      children: [singleBlock],
+      children: [singleBlock()],
     });
 
     expect(editor.topLevelBlocks).toMatchSnapshot();
@@ -156,7 +156,7 @@ describe("Insert, Update, & Delete Blocks", () => {
     await waitForEditor();
 
     const existingBlock = editor.topLevelBlocks[0];
-    editor.insertBlocks(multipleBlocks, existingBlock);
+    editor.insertBlocks(multipleBlocks(), existingBlock);
 
     expect(editor.topLevelBlocks).toMatchSnapshot();
 

@@ -13,13 +13,15 @@ export function insertBlocks<BSchema extends BlockSchema>(
   referenceBlock: BlockIdentifier,
   placement: "before" | "after" | "nested" = "before",
   editor: Editor
-): void {
+): (PartialBlock<BSchema> & { id: string })[] {
   const id =
     typeof referenceBlock === "string" ? referenceBlock : referenceBlock.id;
 
   const nodesToInsert: Node[] = [];
   for (const blockSpec of blocksToInsert) {
-    nodesToInsert.push(blockToNode(blockSpec, editor.schema));
+    const node = blockToNode(blockSpec, editor.schema);
+    nodesToInsert.push(node);
+    blockSpec.id = node.attrs.id;
   }
 
   let insertionPos = -1;
@@ -48,13 +50,15 @@ export function insertBlocks<BSchema extends BlockSchema>(
         editor.state.tr.insert(insertionPos, blockGroupNode)
       );
 
-      return;
+      return blocksToInsert as (PartialBlock<BSchema> & { id: string })[];
     }
 
     insertionPos = posBeforeNode + node.firstChild!.nodeSize + 2;
   }
 
   editor.view.dispatch(editor.state.tr.insert(insertionPos, nodesToInsert));
+
+  return blocksToInsert as (PartialBlock<BSchema> & { id: string })[];
 }
 
 export function updateBlock<BSchema extends BlockSchema>(
@@ -121,6 +125,7 @@ export function replaceBlocks<BSchema extends BlockSchema>(
   blocksToInsert: PartialBlock<BSchema>[],
   editor: Editor
 ) {
-  insertBlocks(blocksToInsert, blocksToRemove[0], "before", editor);
+  const blocks = insertBlocks(blocksToInsert, blocksToRemove[0], "before", editor);
   removeBlocks(blocksToRemove, editor);
+  return blocks;
 }
