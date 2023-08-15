@@ -141,8 +141,8 @@ const blockNoteTipTapOptions = {
   enableCoreExtensions: false,
 };
 
-export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
-  public readonly _tiptapEditor: TiptapEditor & { contentComponent: any };
+export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema,TEditor extends TiptapEditor = TiptapEditor> {
+  public readonly _tiptapEditor: TEditor & { contentComponent: any };
   public blockCache = new WeakMap<Node, Block<BSchema>>();
   public readonly schema: BSchema;
   public ready = false;
@@ -278,9 +278,9 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
       tiptapOptions.element = newOptions.parentElement;
     }
 
-    this._tiptapEditor = new Editor(tiptapOptions) as Editor & {
+    this._tiptapEditor = this.createEditor(tiptapOptions) as TEditor & {
       contentComponent: any;
-    };
+    }
   }
 
   public get prosemirrorView() {
@@ -289,6 +289,10 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
 
   public get domElement() {
     return this._tiptapEditor.view.dom as HTMLDivElement;
+  }
+
+  protected createEditor(tiptapOptions: EditorOptions): TEditor {
+    return new Editor(tiptapOptions) as TEditor
   }
 
   public isFocused() {
