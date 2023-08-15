@@ -261,7 +261,7 @@ NESTED BLOCKS
 /* TODO: would be nicer if defined from code */
 
 .blockContent.isEmpty.hasAnchor .inlineContent:before {
-  content: "Enter text or type '/' for commands";
+  content: var(--editor-placeholder, "Enter text or type '/' for commands");
 }
 
 .blockContent.isFilter.hasAnchor .inlineContent:before {
