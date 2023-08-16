@@ -7,7 +7,7 @@ path: /docs/side-menu
 
 <script setup>
 import { useData } from 'vitepress';
-import { getTheme, getStyles } from "./demoUtils"; 
+import { getTheme, getStyles } from "../demoUtils"; 
 import {ref} from "vue"; 
 
 const { isDark } = useData();
