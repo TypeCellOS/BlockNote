@@ -125,11 +125,11 @@ const EXAMPLES_SIDEBAR = [
     items: [
       { text: "Block Manipulation", link: "/examples/block-manipulation" },
       {
-        text: "Removing Default Blocks",
-        link: "/examples/removing-default-blocks",
+        text: "Keyboard Shortcuts",
+        link: "/examples/keyboard-shortcuts",
       },
       {
-        text: "Saving & Loading Editor Contents",
+        text: "Saving & Loading",
         link: "/examples/saving-loading",
       },
     ],
