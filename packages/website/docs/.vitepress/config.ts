@@ -119,6 +119,40 @@ const SIDEBAR_DEFAULT = [
   },
 ];
 
+const EXAMPLES_SIDEBAR = [
+  {
+    text: "Basic Examples",
+    items: [
+      { text: "Block Manipulation", link: "/examples/block-manipulation" },
+      {
+        text: "Removing Default Blocks",
+        link: "/examples/removing-default-blocks",
+      },
+      {
+        text: "Saving & Loading Editor Contents",
+        link: "/examples/saving-loading",
+      },
+    ],
+  },
+  {
+    text: "Advanced Examples",
+    items: [
+      {
+        text: "Custom UI",
+        link: "/examples/custom-ui",
+      },
+      {
+        text: "Alert Block",
+        link: "/examples/alert-block",
+      },
+      {
+        text: "Block from TipTap Node",
+        link: "/examples/block-from-tiptap",
+      },
+    ],
+  },
+];
+
 const METADATA_DEFAULT = {
   title: "BlockNote",
   description:
@@ -154,9 +188,13 @@ export default defineConfig({
       light: "/img/logos/banner.svg",
       dark: "/img/logos/banner.dark.svg",
     },
-    nav: [{ text: "Documentation", link: "/docs/introduction" }],
+    nav: [
+      { text: "Documentation", link: "/docs/introduction" },
+      { text: "Examples", link: "/examples/block-manipulation" },
+    ],
     sidebar: {
       "/docs/": SIDEBAR_DEFAULT,
+      "/examples/": EXAMPLES_SIDEBAR,
       // "/tutorial/": SIDEBAR_DEFAULT,
       // "/api": SIDEBAR_DEFAULT,
     },
