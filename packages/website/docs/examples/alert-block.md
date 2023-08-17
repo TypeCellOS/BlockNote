@@ -14,9 +14,9 @@ const { isDark } = useData();
 
 # Alert Block
 
-In this example, we create a custom Alert block which is used to emphasize text.
+In this example, we create a custom `Alert` block which is used to emphasize text.
 
-In addition, we create a Slash Menu item which inserts an Alert block and add an Alert item to the block type dropdown in the Formatting Toolbar.
+In addition, we create a Slash Menu item which inserts an `Alert` block and add an Alert item to the block type dropdown in the Formatting Toolbar.
 
 Finally, we add some theme-based styling to make our new block work nicely for both light and dark mode users.
 
@@ -25,6 +25,7 @@ Finally, we add some theme-based styling to make our new block work nicely for b
 - [Custom Block Types](/docs/block-types#custom-block-types)
 - [Custom Slash Menu Item List](/docs/slash-menu#custom-slash-menu-item-list)
 - [Custom Formatting Toolbar](/docs/formatting-toolbar#custom-formatting-toolbar) & [Components](/docs/formatting-toolbar#components)
+- [Replacing UI Elements](/docs/ui-elements#replacing-ui-elements)
 - [Advanced: Overriding CSS](/docs/theming#advanced-overriding-css)
 
 ::: sandbox {template=react-ts}
@@ -70,7 +71,7 @@ const theme = {
 };
 
 export default function App() {
-  const editor: BlockNoteEditor = useBlockNote({
+  const editor = useBlockNote({
     blockSchema: schemaWithAlert,
     slashMenuItems: [
       ...getDefaultReactSlashMenuItems(schemaWithAlert),
