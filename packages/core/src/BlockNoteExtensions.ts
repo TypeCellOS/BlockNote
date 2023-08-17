@@ -118,32 +118,34 @@ export const getBlockNoteExtensions = <BSchema extends BlockSchema>(opts: {
         fragment: opts.collaboration.fragment,
       })
     );
-    const defaultRender = (user: { color: string; name: string }) => {
-      const cursor = document.createElement("span");
+    if (opts.collaboration.provider?.awareness) {
+      const defaultRender = (user: { color: string; name: string }) => {
+        const cursor = document.createElement("span");
 
-      cursor.classList.add(styles["collaboration-cursor__caret"]);
-      cursor.setAttribute("style", `border-color: ${user.color}`);
+        cursor.classList.add(styles["collaboration-cursor__caret"]);
+        cursor.setAttribute("style", `border-color: ${user.color}`);
 
-      const label = document.createElement("span");
+        const label = document.createElement("span");
 
-      label.classList.add(styles["collaboration-cursor__label"]);
-      label.setAttribute("style", `background-color: ${user.color}`);
-      label.insertBefore(document.createTextNode(user.name), null);
+        label.classList.add(styles["collaboration-cursor__label"]);
+        label.setAttribute("style", `background-color: ${user.color}`);
+        label.insertBefore(document.createTextNode(user.name), null);
 
-      const nonbreakingSpace1 = document.createTextNode("\u2060");
-      const nonbreakingSpace2 = document.createTextNode("\u2060");
-      cursor.insertBefore(nonbreakingSpace1, null);
-      cursor.insertBefore(label, null);
-      cursor.insertBefore(nonbreakingSpace2, null);
-      return cursor;
-    };
-    ret.push(
-      CollaborationCursor.configure({
-        user: opts.collaboration.user,
-        render: opts.collaboration.renderCursor || defaultRender,
-        provider: opts.collaboration.provider,
-      })
-    );
+        const nonbreakingSpace1 = document.createTextNode("\u2060");
+        const nonbreakingSpace2 = document.createTextNode("\u2060");
+        cursor.insertBefore(nonbreakingSpace1, null);
+        cursor.insertBefore(label, null);
+        cursor.insertBefore(nonbreakingSpace2, null);
+        return cursor;
+      };
+      ret.push(
+        CollaborationCursor.configure({
+          user: opts.collaboration.user,
+          render: opts.collaboration.renderCursor || defaultRender,
+          provider: opts.collaboration.provider,
+        })
+      );
+    }
   } else {
     // disable history extension when collaboration is enabled as Yjs takes care of undo / redo
     ret.push(History);
