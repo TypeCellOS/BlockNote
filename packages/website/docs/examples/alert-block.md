@@ -70,7 +70,7 @@ const theme = {
 };
 
 export default function App() {
-  const editor = useBlockNote({
+  const editor: BlockNoteEditor = useBlockNote({
     blockSchema: schemaWithAlert,
     slashMenuItems: [
       ...getDefaultReactSlashMenuItems(schemaWithAlert),
