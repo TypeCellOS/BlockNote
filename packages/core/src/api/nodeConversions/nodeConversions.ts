@@ -369,7 +369,9 @@ export function nodeToBlock<BSchema extends BlockSchema>(
     return cachedBlock;
   }
 
-  let { id, contentNode, contentType, numChildBlocks } = getBlockInfo(node);
+  const blockInfo = getBlockInfo(node);
+
+  let id = blockInfo.id;
 
   // Only used for blocks converted from other formats.
   if (id === null) {
@@ -379,11 +381,13 @@ export function nodeToBlock<BSchema extends BlockSchema>(
   const props: any = {};
   for (const [attr, value] of Object.entries({
     ...node.attrs,
-    ...contentNode.attrs,
+    ...blockInfo.contentNode.attrs,
   })) {
-    const blockSpec = blockSchema[contentType.name];
+    const blockSpec = blockSchema[blockInfo.contentType.name];
     if (!blockSpec) {
-      throw Error("Block is of an unrecognized type: " + contentType.name);
+      throw Error(
+        "Block is of an unrecognized type: " + blockInfo.contentType.name
+      );
     }
 
     const propSchema = blockSpec.propSchema;
@@ -405,10 +409,10 @@ export function nodeToBlock<BSchema extends BlockSchema>(
     }
   }
 
-  const content = contentNodeToInlineContent(contentNode);
+  const content = contentNodeToInlineContent(blockInfo.contentNode);
 
   const children: Block<BSchema>[] = [];
-  for (let i = 0; i < numChildBlocks; i++) {
+  for (let i = 0; i < blockInfo.numChildBlocks; i++) {
     children.push(
       nodeToBlock(node.lastChild!.child(i), blockSchema, blockCache)
     );
@@ -416,7 +420,7 @@ export function nodeToBlock<BSchema extends BlockSchema>(
 
   const block: Block<BSchema> = {
     id,
-    type: contentType.name,
+    type: blockInfo.contentType.name,
     props,
     content,
     children,
