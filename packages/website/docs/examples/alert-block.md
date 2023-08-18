@@ -18,56 +18,36 @@ In this example, we create a custom `Alert` block which is used to emphasize tex
 
 In addition, we create a Slash Menu item which inserts an `Alert` block and add an Alert item to the block type dropdown in the Formatting Toolbar.
 
-Finally, we add some theme-based styling to make our new block work nicely for both light and dark mode users.
-
 **Relevant Docs:**
 
 - [Custom Block Types](/docs/block-types#custom-block-types)
 - [Custom Slash Menu Item List](/docs/slash-menu#custom-slash-menu-item-list)
 - [Custom Formatting Toolbar](/docs/formatting-toolbar#custom-formatting-toolbar) & [Components](/docs/formatting-toolbar#components)
 - [Replacing UI Elements](/docs/ui-elements#replacing-ui-elements)
-- [Advanced: Overriding CSS](/docs/theming#advanced-overriding-css)
 
 ::: sandbox {template=react-ts}
 
 ```typescript-vue /App.tsx
+import { defaultBlockSchema } from "@blocknote/core";
 import "@blocknote/core/style.css";
 import {
   BlockNoteView,
-  darkDefaultTheme,
   getDefaultReactSlashMenuItems,
   HyperlinkToolbarPositioner,
-  lightDefaultTheme,
   SideMenuPositioner,
   SlashMenuPositioner,
-  Theme,
   useBlockNote,
 } from "@blocknote/react";
-import { insertAlert, schemaWithAlert } from "./Alert";
+
+import { createAlertBlock, insertAlert } from "./Alert";
 import { CustomFormattingToolbar } from "./CustomFormattingToolbar";
 
-// Ensures the Alert background color is correct for both light & dark theme
-const componentStyles: Theme["componentStyles"] = (theme) => ({
-  Editor: {
-    ".alert": {
-      backgroundColor: theme.colors.hovered.background,
-      ".alert-icon": {
-        color: theme.colors.hovered.background,
-      },
-    },
-  },
-});
+const theme = "{{ getTheme(isDark) }}";
 
-// Adds the theme-dependent Alert styles to the default theme
-const theme = {
-  light: {
-    ...lightDefaultTheme,
-    componentStyles: componentStyles,
-  } satisfies Theme,
-  dark: {
-    ...darkDefaultTheme,
-    componentStyles: componentStyles,
-  } satisfies Theme,
+// The custom schema, including all default blocks and the custom Alert block
+export const schemaWithAlert = {
+  ...defaultBlockSchema,
+  alert: createAlertBlock(theme),
 };
 
 export default function App() {
@@ -80,7 +60,6 @@ export default function App() {
   });
 
   return (
-    // Theme is applied to the editor
     <BlockNoteView editor={editor} theme={theme}>
       {/*Custom Formatting Toolbar - same as default, but the block type*/}
       {/*dropdown also includes the Alert block*/}
@@ -98,18 +77,17 @@ export default function App() {
 import {
   BlockNoteEditor,
   BlockSpec,
-  defaultBlockSchema,
   DefaultBlockSchema,
   defaultProps,
   PropSchema,
   SpecificBlock,
 } from "@blocknote/core";
-import { useState } from "react";
 import {
   createReactBlockSpec,
   InlineContent,
   ReactSlashMenuItem,
 } from "@blocknote/react";
+import { useState } from "react";
 import { RiAlertFill } from "react-icons/ri";
 import { MdCancel, MdCheckCircle, MdError, MdInfo } from "react-icons/md";
 import { Menu } from "@mantine/core";
@@ -119,18 +97,34 @@ export const alertTypes = {
   warning: {
     icon: MdError,
     color: "#e69819",
+    backgroundColor: {
+      light: "#fff6e6",
+      dark: "#805d20",
+    },
   },
   error: {
     icon: MdCancel,
     color: "#d80d0d",
+    backgroundColor: {
+      light: "#ffe6e6",
+      dark: "#802020",
+    },
   },
   info: {
     icon: MdInfo,
     color: "#507aff",
+    backgroundColor: {
+      light: "#e6ebff",
+      dark: "#203380",
+    },
   },
   success: {
     icon: MdCheckCircle,
     color: "#0bc10b",
+    backgroundColor: {
+      light: "#e6ffe6",
+      dark: "#208020",
+    },
   },
 } as const;
 
@@ -153,30 +147,38 @@ export const Alert = (props: {
   editor: BlockNoteEditor<
     DefaultBlockSchema & { alert: BlockSpec<"alert", typeof alertPropSchema> }
   >;
+  theme: "light" | "dark";
 }) => {
   const [type, setType] = useState(props.block.props.type);
   const Icon = alertTypes[type].icon;
 
   const alertStyles = {
+    backgroundColor: alertTypes[type].backgroundColor[props.theme],
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
     flexGrow: 1,
-    borderRadius: "20px",
+    borderRadius: "4px",
+    height: "48px",
     padding: "4px",
   } as const;
 
-  const alertWrapperStyles = {
+  const alertIconWrapperStyles = {
     backgroundColor: alertTypes[type].color,
     borderRadius: "16px",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    marginRight: "0.5rem",
-    height: "32px",
-    width: "32px",
+    marginLeft: "12px",
+    marginRight: "12px",
+    height: "18px",
+    width: "18px",
     userSelect: "none",
     cursor: "pointer",
+  } as const;
+
+  const alertIconStyles = {
+    color: alertTypes[type].backgroundColor[props.theme],
   } as const;
 
   const inlineContentStyles = {
@@ -190,9 +192,9 @@ export const Alert = (props: {
         <Menu.Target>
           <div
             className={"alert-icon-wrapper"}
-            style={alertWrapperStyles}
+            style={alertIconWrapperStyles}
             contentEditable={false}>
-            <Icon className={"alert-icon"} size={32} />
+            <Icon className={"alert-icon"} style={alertIconStyles} size={32} />
           </div>
         </Menu.Target>
         <Menu.Dropdown>
@@ -218,20 +220,27 @@ export const Alert = (props: {
   );
 };
 
-// The Alert block itself
-export const AlertBlock = createReactBlockSpec({
-  type: "alert" as const,
-  propSchema: {
-    textAlignment: defaultProps.textAlignment,
-    textColor: defaultProps.textColor,
-    type: {
-      default: "warning",
-      values: ["warning", "error", "info", "success"],
-    },
-  } as const,
-  containsInlineContent: true,
-  render: Alert,
-});
+// Function which creates the Alert block itself, where the component is styled
+// correctly with the light & dark theme
+export const createAlertBlock = (theme: "light" | "dark") =>
+  createReactBlockSpec<
+    "alert",
+    typeof alertPropSchema,
+    true,
+    DefaultBlockSchema & { alert: BlockSpec<"alert", typeof alertPropSchema> }
+  >({
+    type: "alert" as const,
+    propSchema: {
+      textAlignment: defaultProps.textAlignment,
+      textColor: defaultProps.textColor,
+      type: {
+        default: "warning",
+        values: ["warning", "error", "info", "success"],
+      },
+    } as const,
+    containsInlineContent: true,
+    render: (props) => <Alert {...props} theme={theme} />,
+  });
 
 // Slash menu item to insert an Alert block
 export const insertAlert = {
@@ -272,12 +281,6 @@ export const insertAlert = {
 } satisfies ReactSlashMenuItem<
   DefaultBlockSchema & { alert: BlockSpec<"alert", typeof alertPropSchema> }
 >;
-
-// The custom schema, including all default blocks and the custom Alert block
-export const schemaWithAlert = {
-  ...defaultBlockSchema,
-  alert: AlertBlock,
-};
 ```
 
 ```typescript-vue /CustomBlockTypeDropdown.tsx
@@ -300,7 +303,7 @@ import {
   RiText,
 } from "react-icons/ri";
 
-import { schemaWithAlert } from "./Alert";
+import { schemaWithAlert } from "./App";
 
 // Code modified from `BlockTypeDropdown.tsx` in @blocknote/react
 // Changed to use a single schema and added alert to dropdown.
@@ -410,7 +413,7 @@ import {
 } from "@blocknote/react";
 
 import { CustomBlockTypeDropdown } from "./CustomBlockTypeDropdown";
-import { schemaWithAlert } from "./Alert";
+import { schemaWithAlert } from "./App";
 
 // Code modified from `DefaultFormattingToolbar.tsx` in @blocknote/react
 // Replaced default dropdown with one that includes our custom Alert block.
