@@ -1,19 +1,19 @@
 import { Editor } from "@tiptap/core";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { BlockNoteEditor, PartialBlock } from "../..";
+import {
+  DefaultBlockSchema,
+  defaultBlockSchema,
+} from "../../extensions/Blocks/api/defaultBlocks";
 import UniqueID from "../../extensions/UniqueID/UniqueID";
 import { blockToNode, nodeToBlock } from "./nodeConversions";
 import { partialBlockToBlockForTesting } from "./testUtil";
-import {
-  defaultBlockSchema,
-  DefaultBlockSchema,
-} from "../../extensions/Blocks/api/defaultBlocks";
 
 let editor: BlockNoteEditor;
 let tt: Editor;
 
 beforeEach(() => {
-  (window as Window & { __TEST_OPTIONS?: {} }).__TEST_OPTIONS = {};
+  (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS = {};
 
   editor = new BlockNoteEditor();
   tt = editor._tiptapEditor;
@@ -24,7 +24,7 @@ afterEach(() => {
   editor = undefined as any;
   tt = undefined as any;
 
-  delete (window as Window & { __TEST_OPTIONS?: {} }).__TEST_OPTIONS;
+  delete (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS;
 });
 
 describe("Simple ProseMirror Node Conversions", () => {

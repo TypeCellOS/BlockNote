@@ -353,7 +353,7 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
    */
   public forEachBlock(
     callback: (block: Block<BSchema>) => boolean,
-    reverse: boolean = false
+    reverse = false
   ): void {
     const blocks = this.topLevelBlocks.slice();
 
@@ -692,7 +692,7 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
       return;
     }
 
-    let { from, to } = this._tiptapEditor.state.selection;
+    const { from, to } = this._tiptapEditor.state.selection;
 
     if (!text) {
       text = this._tiptapEditor.state.doc.textBetween(from, to);

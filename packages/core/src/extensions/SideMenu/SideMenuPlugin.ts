@@ -32,7 +32,7 @@ function getDraggableBlockFromCoords(
     return undefined;
   }
 
-  let pos = view.posAtCoords(coords);
+  const pos = view.posAtCoords(coords);
   if (!pos) {
     return undefined;
   }
@@ -61,12 +61,12 @@ function blockPositionFromCoords(
   coords: { left: number; top: number },
   view: EditorView
 ) {
-  let block = getDraggableBlockFromCoords(coords, view);
+  const block = getDraggableBlockFromCoords(coords, view);
 
   if (block && block.node.nodeType === 1) {
     // TODO: this uses undocumented PM APIs? do we need this / let's add docs?
     const docView = (view as any).docView;
-    let desc = docView.nearestDesc(block.node, true);
+    const desc = docView.nearestDesc(block.node, true);
     if (!desc || desc === docView) {
       return null;
     }
@@ -186,12 +186,12 @@ function dragStart(
 
   const editorBoundingBox = view.dom.getBoundingClientRect();
 
-  let coords = {
+  const coords = {
     left: editorBoundingBox.left + editorBoundingBox.width / 2, // take middle of editor
     top: e.clientY,
   };
 
-  let pos = blockPositionFromCoords(coords, view);
+  const pos = blockPositionFromCoords(coords, view);
   if (pos != null) {
     const selection = view.state.selection;
     const doc = view.state.doc;
@@ -215,8 +215,8 @@ function dragStart(
       setDragImage(view, pos);
     }
 
-    let slice = view.state.selection.content();
-    let { dom, text } = serializeForClipboard(view, slice);
+    const slice = view.state.selection.content();
+    const { dom, text } = serializeForClipboard(view, slice);
 
     e.dataTransfer.clearData();
     e.dataTransfer.setData("text/html", dom.innerHTML);
@@ -288,7 +288,7 @@ export class SideMenuView<BSchema extends BlockSchema> implements PluginView {
       return;
     }
 
-    let pos = this.pmView.posAtCoords({
+    const pos = this.pmView.posAtCoords({
       left: event.clientX,
       top: event.clientY,
     });
@@ -319,7 +319,7 @@ export class SideMenuView<BSchema extends BlockSchema> implements PluginView {
     if ((event as any).synthetic || !this.isDragging) {
       return;
     }
-    let pos = this.pmView.posAtCoords({
+    const pos = this.pmView.posAtCoords({
       left: event.clientX,
       top: event.clientY,
     });

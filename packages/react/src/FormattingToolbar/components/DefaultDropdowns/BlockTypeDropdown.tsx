@@ -1,10 +1,5 @@
 import { useMemo, useState } from "react";
-import {
-  Block,
-  BlockNoteEditor,
-  BlockSchema,
-  PartialBlock,
-} from "@blocknote/core";
+import { BlockNoteEditor, BlockSchema } from "@blocknote/core";
 import { IconType } from "react-icons";
 import {
   RiH1,
@@ -15,114 +10,112 @@ import {
   RiText,
 } from "react-icons/ri";
 
-import {
-  ToolbarDropdown,
-  ToolbarDropdownProps,
-} from "../../../SharedComponents/Toolbar/components/ToolbarDropdown";
+import { ToolbarDropdown } from "../../../SharedComponents/Toolbar/components/ToolbarDropdown";
 import { useEditorSelectionChange } from "../../../hooks/useEditorSelectionChange";
 import { useEditorContentChange } from "../../../hooks/useEditorContentChange";
+import { ToolbarDropdownItemProps } from "../../../SharedComponents/Toolbar/components/ToolbarDropdownItem";
 
-type HeadingLevels = "1" | "2" | "3";
-
-const headingIcons: Record<HeadingLevels, IconType> = {
-  "1": RiH1,
-  "2": RiH2,
-  "3": RiH3,
+export type BlockTypeDropdownItem = {
+  name: string;
+  type: string;
+  props?: Record<string, string>;
+  icon: IconType;
 };
 
-const shouldShow = <BSchema extends BlockSchema>(block: Block<BSchema>) => {
-  if (block.type === "paragraph") {
-    return true;
-  }
-
-  if (block.type === "heading" && "level" in block.props) {
-    return true;
-  }
-
-  if (block.type === "bulletListItem") {
-    return true;
-  }
-
-  return block.type === "numberedListItem";
-};
+export const defaultBlockTypeDropdownItems: BlockTypeDropdownItem[] = [
+  {
+    name: "Paragraph",
+    type: "paragraph",
+    icon: RiText,
+  },
+  {
+    name: "Heading 1",
+    type: "heading",
+    props: { level: "1" },
+    icon: RiH1,
+  },
+  {
+    name: "Heading 2",
+    type: "heading",
+    props: { level: "2" },
+    icon: RiH2,
+  },
+  {
+    name: "Heading 3",
+    type: "heading",
+    props: { level: "3" },
+    icon: RiH3,
+  },
+  {
+    name: "Bullet List",
+    type: "bulletListItem",
+    icon: RiListUnordered,
+  },
+  {
+    name: "Numbered List",
+    type: "numberedListItem",
+    icon: RiListOrdered,
+  },
+];
 
 export const BlockTypeDropdown = <BSchema extends BlockSchema>(props: {
   editor: BlockNoteEditor<BSchema>;
+  items?: BlockTypeDropdownItem[];
 }) => {
   const [block, setBlock] = useState(
     props.editor.getTextCursorPosition().block
   );
 
-  const dropdownItems: ToolbarDropdownProps["items"] = useMemo(() => {
-    const items: ToolbarDropdownProps["items"] = [];
+  const filteredItems: BlockTypeDropdownItem[] = useMemo(() => {
+    return (props.items || defaultBlockTypeDropdownItems).filter((item) => {
+      // Checks if block type exists in the schema
+      if (!(item.type in props.editor.schema)) {
+        return false;
+      }
 
-    if ("paragraph" in props.editor.schema) {
-      items.push({
+      // Checks if props for the block type are valid
+      for (const [prop, value] of Object.entries(item.props || {})) {
+        const propSchema = props.editor.schema[item.type].propSchema;
+
+        // Checks if the prop exists for the block type
+        if (!(prop in propSchema)) {
+          return false;
+        }
+
+        // Checks if the prop's value is valid
+        if (
+          propSchema[prop].values !== undefined &&
+          !propSchema[prop].values!.includes(value)
+        ) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+  }, [props.editor, props.items]);
+
+  const shouldShow: boolean = useMemo(
+    () => filteredItems.find((item) => item.type === block.type) !== undefined,
+    [block.type, filteredItems]
+  );
+
+  const fullItems: ToolbarDropdownItemProps[] = useMemo(
+    () =>
+      filteredItems.map((item) => ({
+        text: item.name,
+        icon: item.icon,
         onClick: () => {
           props.editor.focus();
           props.editor.updateBlock(block, {
-            type: "paragraph",
+            type: item.type,
             props: {},
           });
         },
-        text: "Paragraph",
-        icon: RiText,
-        isSelected: block.type === "paragraph",
-      });
-    }
-
-    if (
-      "heading" in props.editor.schema &&
-      "level" in props.editor.schema.heading.propSchema
-    ) {
-      items.push(
-        ...(["1", "2", "3"] as const).map((level) => ({
-          onClick: () => {
-            props.editor.focus();
-            props.editor.updateBlock(block, {
-              type: "heading",
-              props: { level: level },
-            } as PartialBlock<BSchema>);
-          },
-          text: "Heading " + level,
-          icon: headingIcons[level],
-          isSelected: block.type === "heading" && block.props.level === level,
-        }))
-      );
-    }
-
-    if ("bulletListItem" in props.editor.schema) {
-      items.push({
-        onClick: () => {
-          props.editor.focus();
-          props.editor.updateBlock(block, {
-            type: "bulletListItem",
-            props: {},
-          });
-        },
-        text: "Bullet List",
-        icon: RiListUnordered,
-        isSelected: block.type === "bulletListItem",
-      });
-    }
-
-    if ("numberedListItem" in props.editor.schema) {
-      items.push({
-        onClick: () => {
-          props.editor.focus();
-          props.editor.updateBlock(block, {
-            type: "numberedListItem",
-            props: {},
-          });
-        },
-        text: "Numbered List",
-        icon: RiListOrdered,
-        isSelected: block.type === "numberedListItem",
-      });
-    }
-
-    return items;
-  }, [block, props.editor]);
+        isSelected: block.type === item.type,
+      })),
+    [block, filteredItems, props.editor]
+  );
 
   useEditorContentChange(props.editor, () => {
     setBlock(props.editor.getTextCursorPosition().block);
@@ -132,9 +125,9 @@ export const BlockTypeDropdown = <BSchema extends BlockSchema>(props: {
     setBlock(props.editor.getTextCursorPosition().block);
   });
 
-  if (!shouldShow(block)) {
+  if (!shouldShow) {
     return null;
   }
 
-  return <ToolbarDropdown items={dropdownItems} />;
+  return <ToolbarDropdown items={fullItems} />;
 };

@@ -52,10 +52,11 @@ export function ReactBlockNote(props: { theme: "light" | "dark" }) {
 
   const editor = useBlockNote(
     {
-      editorDOMAttributes: {
-        class: styles.editor,
+      domAttributes: {
+        editor: {
+          class: styles.editor,
+        },
       },
-      theme: props.theme,
       collaboration: {
         provider,
         fragment: doc.getXmlFragment("blocknote"),
@@ -84,5 +85,5 @@ export function ReactBlockNote(props: { theme: "light" | "dark" }) {
     };
   }, [editor?.domElement]);
 
-  return <BlockNoteView editor={editor} />;
+  return <BlockNoteView editor={editor} theme={props.theme} />;
 }
