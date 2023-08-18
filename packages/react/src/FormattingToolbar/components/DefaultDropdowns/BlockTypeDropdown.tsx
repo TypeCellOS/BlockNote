@@ -96,7 +96,7 @@ export const BlockTypeDropdown = <BSchema extends BlockSchema>(props: {
   }, [props.editor, props.items]);
 
   const shouldShow: boolean = useMemo(
-    () => filteredItems.map((item) => item.type).includes(block.type as string),
+    () => filteredItems.find((item) => item.type === block.type) !== undefined,
     [block.type, filteredItems]
   );
 
