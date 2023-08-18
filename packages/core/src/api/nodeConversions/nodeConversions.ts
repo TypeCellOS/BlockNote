@@ -16,9 +16,9 @@ import {
   Styles,
   ToggledStyle,
 } from "../../extensions/Blocks/api/inlineContentTypes";
-import { getBlockInfoFromPos } from "../../extensions/Blocks/helpers/getBlockInfoFromPos";
 import UniqueID from "../../extensions/UniqueID/UniqueID";
 import { UnreachableCaseError } from "../../shared/utils";
+import { getBlockInfo } from "../../extensions/Blocks/helpers/getBlockInfoFromPos";
 
 const toggleStyles = new Set<ToggledStyle>([
   "bold",
@@ -369,7 +369,7 @@ export function nodeToBlock<BSchema extends BlockSchema>(
     return cachedBlock;
   }
 
-  const blockInfo = getBlockInfoFromPos(node, 0)!;
+  const blockInfo = getBlockInfo(node);
 
   let id = blockInfo.id;
 
@@ -380,7 +380,7 @@ export function nodeToBlock<BSchema extends BlockSchema>(
 
   const props: any = {};
   for (const [attr, value] of Object.entries({
-    ...blockInfo.node.attrs,
+    ...node.attrs,
     ...blockInfo.contentNode.attrs,
   })) {
     const blockSpec = blockSchema[blockInfo.contentType.name];
@@ -414,7 +414,7 @@ export function nodeToBlock<BSchema extends BlockSchema>(
   const children: Block<BSchema>[] = [];
   for (let i = 0; i < blockInfo.numChildBlocks; i++) {
     children.push(
-      nodeToBlock(blockInfo.node.lastChild!.child(i), blockSchema, blockCache)
+      nodeToBlock(node.lastChild!.child(i), blockSchema, blockCache)
     );
   }
 

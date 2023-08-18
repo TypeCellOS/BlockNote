@@ -1,15 +1,39 @@
 import { Node, NodeType } from "prosemirror-model";
 
-export type BlockInfo = {
+export type BlockInfoWithoutPositions = {
   id: string;
   node: Node;
   contentNode: Node;
   contentType: NodeType;
   numChildBlocks: number;
+};
+
+export type BlockInfo = BlockInfoWithoutPositions & {
   startPos: number;
   endPos: number;
   depth: number;
 };
+
+/**
+ * Helper function for `getBlockInfoFromPos`, returns information regarding
+ * provided blockContainer node.
+ * @param blockContainer The blockContainer node to retrieve info for.
+ */
+export function getBlockInfo(blockContainer: Node): BlockInfoWithoutPositions {
+  const id = blockContainer.attrs["id"];
+  const contentNode = blockContainer.firstChild!;
+  const contentType = contentNode.type;
+  const numChildBlocks =
+    blockContainer.childCount === 2 ? blockContainer.lastChild!.childCount : 0;
+
+  return {
+    id,
+    node: blockContainer,
+    contentNode,
+    contentType,
+    numChildBlocks,
+  };
+}
 
 /**
  * Retrieves information regarding the nearest blockContainer node in a
@@ -72,10 +96,7 @@ export function getBlockInfoFromPos(doc: Node, pos: number): BlockInfo {
     node = $pos.node(depth);
   }
 
-  const id = node.attrs["id"];
-  const contentNode = node.firstChild!;
-  const contentType = contentNode.type;
-  const numChildBlocks = node.childCount === 2 ? node.lastChild!.childCount : 0;
+  const { id, contentNode, contentType, numChildBlocks } = getBlockInfo(node);
 
   const startPos = $pos.start(depth);
   const endPos = $pos.end(depth);
