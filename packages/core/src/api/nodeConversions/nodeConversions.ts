@@ -18,6 +18,7 @@ import {
 } from "../../extensions/Blocks/api/inlineContentTypes";
 import UniqueID from "../../extensions/UniqueID/UniqueID";
 import { UnreachableCaseError } from "../../shared/utils";
+import { getBlockInfo } from "../../extensions/Blocks/helpers/getBlockInfoFromPos";
 
 const toggleStyles = new Set<ToggledStyle>([
   "bold",
@@ -368,10 +369,7 @@ export function nodeToBlock<BSchema extends BlockSchema>(
     return cachedBlock;
   }
 
-  let id = node.attrs["id"];
-  const contentNode = node.firstChild!;
-  const contentType = contentNode.type;
-  const numChildBlocks = node.childCount === 2 ? node.lastChild!.childCount : 0;
+  let { id, contentNode, contentType, numChildBlocks } = getBlockInfo(node);
 
   // Only used for blocks converted from other formats.
   if (id === null) {
