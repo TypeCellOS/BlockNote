@@ -73,7 +73,7 @@ export default function App() {
 }
 ```
 
-```typescript-vue /Alert.tsx
+```typescript /Alert.tsx
 import {
   BlockNoteEditor,
   BlockSpec,
@@ -152,57 +152,39 @@ export const Alert = (props: {
   const [type, setType] = useState(props.block.props.type);
   const Icon = alertTypes[type].icon;
 
-  const alertStyles = {
-    backgroundColor: alertTypes[type].backgroundColor[props.theme],
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    flexGrow: 1,
-    borderRadius: "4px",
-    height: "48px",
-    padding: "4px",
-  } as const;
-
-  const alertIconWrapperStyles = {
-    backgroundColor: alertTypes[type].color,
-    borderRadius: "16px",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    marginLeft: "12px",
-    marginRight: "12px",
-    height: "18px",
-    width: "18px",
-    userSelect: "none",
-    cursor: "pointer",
-  } as const;
-
-  const alertIconStyles = {
-    color: alertTypes[type].backgroundColor[props.theme],
-  } as const;
-
-  const inlineContentStyles = {
-    flexGrow: "1",
-  };
-
   return (
-    <div className={"alert"} style={alertStyles}>
+    <div
+      className={"alert"}
+      style={{
+        ...alertStyles,
+        backgroundColor: alertTypes[type].backgroundColor[props.theme],
+      }}>
       {/*Icon which opens a menu to choose the Alert type*/}
       <Menu zIndex={99999}>
         <Menu.Target>
+          {/*Icon wrapper to change the color*/}
           <div
             className={"alert-icon-wrapper"}
-            style={alertIconWrapperStyles}
+            style={{
+              ...alertIconWrapperStyles,
+              backgroundColor: alertTypes[type].color,
+            }}
             contentEditable={false}>
-            <Icon className={"alert-icon"} style={alertIconStyles} size={32} />
+            {/*Icon itself*/}
+            <Icon
+              className={"alert-icon"}
+              style={{ color: alertTypes[type].backgroundColor[props.theme] }}
+              size={32}
+            />
           </div>
         </Menu.Target>
+        {/*Dropdown to change the Alert type*/}
         <Menu.Dropdown>
           <Menu.Label>Alert Type</Menu.Label>
           <Menu.Divider />
           {Object.entries(alertTypes).map(([key, value]) => {
             const ItemIcon = value.icon;
-
+    
             return (
               <Menu.Item
                 key={key}
@@ -214,33 +196,33 @@ export const Alert = (props: {
           })}
         </Menu.Dropdown>
       </Menu>
-      {/*Rich text field for user to type in*/}
-      <InlineContent style={inlineContentStyles} />
-    </div>
-  );
+    {/*Rich text field for user to type in*/}
+    <InlineContent style={{ flexGrow: "1" }} />
+  </div>
+);
 };
 
 // Function which creates the Alert block itself, where the component is styled
 // correctly with the light & dark theme
-export const createAlertBlock = (theme: "light" | "dark") =>
-  createReactBlockSpec<
-    "alert",
-    typeof alertPropSchema,
-    true,
-    DefaultBlockSchema & { alert: BlockSpec<"alert", typeof alertPropSchema> }
-  >({
-    type: "alert" as const,
-    propSchema: {
-      textAlignment: defaultProps.textAlignment,
-      textColor: defaultProps.textColor,
-      type: {
-        default: "warning",
-        values: ["warning", "error", "info", "success"],
-      },
-    } as const,
-    containsInlineContent: true,
-    render: (props) => <Alert {...props} theme={theme} />,
-  });
+  export const createAlertBlock = (theme: "light" | "dark") =>
+    createReactBlockSpec<
+      "alert",
+      typeof alertPropSchema,
+      true,
+      DefaultBlockSchema & { alert: BlockSpec<"alert", typeof alertPropSchema> }
+    >({
+      type: "alert" as const,
+      propSchema: {
+        textAlignment: defaultProps.textAlignment,
+        textColor: defaultProps.textColor,
+        type: {
+          default: "warning",
+          values: ["warning", "error", "info", "success"],
+        },
+      } as const,
+      containsInlineContent: true,
+      render: (props) => <Alert {...props} theme={theme} />,
+});
 
 // Slash menu item to insert an Alert block
 export const insertAlert = {
@@ -281,6 +263,29 @@ export const insertAlert = {
 } satisfies ReactSlashMenuItem<
   DefaultBlockSchema & { alert: BlockSpec<"alert", typeof alertPropSchema> }
 >;
+
+const alertStyles = {
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  flexGrow: 1,
+  borderRadius: "4px",
+  height: "48px",
+  padding: "4px",
+} as const;
+
+const alertIconWrapperStyles = {
+  borderRadius: "16px",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  marginLeft: "12px",
+  marginRight: "12px",
+  height: "18px",
+  width: "18px",
+  userSelect: "none",
+  cursor: "pointer",
+} as const;
 ```
 
 ```typescript-vue /CustomBlockTypeDropdown.tsx
