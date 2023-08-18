@@ -56,6 +56,7 @@ export function getBlockInfoFromPos(doc: Node, pos: number): BlockInfo {
   let node = $pos.node(maxDepth);
   let depth = maxDepth;
 
+  // eslint-disable-next-line no-constant-condition
   while (true) {
     if (depth < 0) {
       throw new Error(

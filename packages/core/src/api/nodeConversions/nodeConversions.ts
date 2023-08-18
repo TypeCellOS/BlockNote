@@ -91,7 +91,7 @@ function styledTextArrayToNodes(
   content: string | StyledText[],
   schema: Schema
 ): Node[] {
-  let nodes: Node[] = [];
+  const nodes: Node[] = [];
 
   if (typeof content === "string") {
     nodes.push(
@@ -113,7 +113,7 @@ export function inlineContentToNodes(
   blockContent: PartialInlineContent[],
   schema: Schema
 ): Node[] {
-  let nodes: Node[] = [];
+  const nodes: Node[] = [];
 
   for (const content of blockContent) {
     if (content.type === "link") {

@@ -13,7 +13,9 @@
     "eslint-config-react-app": "^7.0.0",
     "lerna": "^5.4.0",
     "patch-package": "^6.4.7",
-    "typescript": "^5.0.4"
+    "typescript": "^5.0.4",
+    "@typescript-eslint/parser": "^5.5.0",
+    "@typescript-eslint/eslint-plugin": "^5.5.0"
   },
   "scripts": {
     "start": "lerna run --stream --scope @blocknote/example-editor dev",

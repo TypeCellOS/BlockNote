@@ -1,5 +1,5 @@
-import { Selection } from "prosemirror-state";
 import { Fragment, Node, ResolvedPos, Slice } from "prosemirror-model";
+import { Selection } from "prosemirror-state";
 import { Mappable } from "prosemirror-transform";
 
 /**
@@ -64,8 +64,8 @@ export class MultipleNodeSelection extends Selection {
   }
 
   map(doc: Node, mapping: Mappable): Selection {
-    let fromResult = mapping.mapResult(this.from);
-    let toResult = mapping.mapResult(this.to);
+    const fromResult = mapping.mapResult(this.from);
+    const toResult = mapping.mapResult(this.to);
 
     if (toResult.deleted) {
       return Selection.near(doc.resolve(fromResult.pos));

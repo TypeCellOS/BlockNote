@@ -12,8 +12,8 @@ export const addHyperlinkToolbar = (editor: BlockNoteEditor) => {
       element.style.padding = "10px";
       element.style.opacity = "0.8";
 
-      let url = hyperlinkToolbarState.url;
-      let text = hyperlinkToolbarState.text;
+      const url = hyperlinkToolbarState.url;
+      const text = hyperlinkToolbarState.text;
 
       const editBtn = createButton("edit", () => {
         const newUrl = prompt("new url") || url;
