@@ -2,7 +2,7 @@
 title: Alert Block
 description: In this example, we create a custom Alert block which is used to emphasize text.
 imageTitle: Alert Block
-path: /docs/alert-block
+path: /examples/alert-block
 ---
 
 <script setup>
@@ -47,7 +47,7 @@ export default function App() {
   });
 
   return (
-    <BlockNoteView editor={editor}>
+    <BlockNoteView editor={editor} theme={"{{ getTheme(isDark) }}"}>
       {/*Custom Formatting Toolbar - same as default, but the block type*/}
       {/*dropdown also includes the TodoListItem block*/}
       <CustomFormattingToolbar editor={editor} />

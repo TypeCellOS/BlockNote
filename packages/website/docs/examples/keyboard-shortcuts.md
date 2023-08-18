@@ -2,7 +2,7 @@
 title: Keyboard Shortcuts
 description: In this example, we create a keyboard shortcut which cycles the current block type.
 imageTitle: Keyboard Shortcuts
-path: /docs/removing-default-blocks
+path: /examples/removing-default-blocks
 ---
 
 <script setup>
