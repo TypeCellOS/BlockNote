@@ -186,7 +186,7 @@ export const Alert = (props: {
   return (
     <div className={"alert"} style={alertStyles}>
       {/*Icon which opens a menu to choose the Alert type*/}
-      <Menu>
+      <Menu zIndex={99999}>
         <Menu.Target>
           <div
             className={"alert-icon-wrapper"}
