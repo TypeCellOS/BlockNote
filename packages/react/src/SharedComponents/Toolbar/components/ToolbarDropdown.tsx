@@ -1,26 +1,19 @@
 import { Menu } from "@mantine/core";
-import { MouseEvent } from "react";
-import { IconType } from "react-icons";
-import { ToolbarDropdownItem } from "./ToolbarDropdownItem";
+import {
+  ToolbarDropdownItem,
+  ToolbarDropdownItemProps,
+} from "./ToolbarDropdownItem";
 import { ToolbarDropdownTarget } from "./ToolbarDropdownTarget";
 
 export type ToolbarDropdownProps = {
-  items: Array<{
-    onClick?: (e: MouseEvent) => void;
-    text: string;
-    icon?: IconType;
-    isSelected?: boolean;
-    isDisabled?: boolean;
-  }>;
+  items: ToolbarDropdownItemProps[];
   isDisabled?: boolean;
 };
 
 export function ToolbarDropdown(props: ToolbarDropdownProps) {
-  const { isSelected, ...activeItem } = props.items.filter(
-    (p) => p.isSelected
-  )[0];
+  const selectedItem = props.items.filter((p) => p.isSelected)[0];
 
-  if (!activeItem) {
+  if (!selectedItem) {
     return null;
   }
 
@@ -28,9 +21,9 @@ export function ToolbarDropdown(props: ToolbarDropdownProps) {
     <Menu exitTransitionDuration={0} disabled={props.isDisabled}>
       <Menu.Target>
         <ToolbarDropdownTarget
-          text={activeItem.text}
-          icon={activeItem.icon}
-          isDisabled={activeItem.isDisabled}
+          text={selectedItem.text}
+          icon={selectedItem.icon}
+          isDisabled={selectedItem.isDisabled}
         />
       </Menu.Target>
       <Menu.Dropdown>
