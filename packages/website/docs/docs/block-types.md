@@ -203,7 +203,6 @@ export default function App() {
 
   // Creates a new editor instance.
   const editor = useBlockNote({
-    theme: "{{ getTheme(isDark) }}",
     // Tells BlockNote which blocks to use.
     blockSchema: customSchema,
     slashMenuItems: [
@@ -213,7 +212,7 @@ export default function App() {
   });
 
   // Renders the editor instance using a React component.
-  return <BlockNoteView editor={editor} />;
+  return <BlockNoteView editor={editor} theme={"{{ getTheme(isDark) }}"} />;
 }
 ```
 

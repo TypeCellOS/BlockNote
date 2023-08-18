@@ -3,7 +3,6 @@
 .bnEditor {
   outline: none;
   padding-inline: 54px;
-  border-radius: 8px;
 
   /* Define a set of colors to be used throughout the app for consistency
   see https://atlassian.design/foundations/color for more info */
@@ -53,16 +52,6 @@ Tippy popups that are appended to document.body directly
     "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-[data-theme="light"] {
-  background-color: #FFFFFF;
-  color: #3F3F3F;
-}
-
-[data-theme="dark"] {
-  background-color: #1F1F1F;
-  color: #CFCFCF;
 }
 
 .dragPreview {

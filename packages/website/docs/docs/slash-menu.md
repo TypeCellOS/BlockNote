@@ -71,12 +71,11 @@ const customSlashMenuItemList = [
 export default function App() {
   // Creates a new editor instance.
   const editor: BlockNoteEditor = useBlockNote({
-    theme: "{{ getTheme(isDark) }}",
     slashMenuItems: customSlashMenuItemList,
   });
 
   // Renders the editor instance.
-  return <BlockNoteView editor={editor} />;
+  return <BlockNoteView editor={editor} theme={"{{ getTheme(isDark) }}"} />;
 }
 
 ```

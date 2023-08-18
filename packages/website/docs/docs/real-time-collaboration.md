@@ -94,7 +94,6 @@ const provider = new YPartyKitProvider(
 export default function App() {
   // Creates a new editor instance.
   const editor: BlockNoteEditor | null = useBlockNote({
-    theme: "{{ getTheme(isDark) }}",
     collaboration: {
       provider,
       fragment: doc.getXmlFragment("document-store"),
@@ -106,7 +105,7 @@ export default function App() {
   });
 
   // Renders the editor instance using a React component.
-  return <BlockNoteView editor={editor} />;
+  return <BlockNoteView editor={editor} theme={"{{ getTheme(isDark) }}"} />;
 }
 ```
 
@@ -136,7 +135,6 @@ const provider = new YPartyKitProvider(
 export default function App() {
   // Creates a new editor instance.
   const editor: BlockNoteEditor | null = useBlockNote({
-    theme: "{{ getTheme(isDark) }}",
     collaboration: {
       provider,
       fragment: doc.getXmlFragment("document-store"),
@@ -148,7 +146,7 @@ export default function App() {
   });
 
   // Renders the editor instance using a React component.
-  return <BlockNoteView editor={editor} />;
+  return <BlockNoteView editor={editor} theme={"{{ getTheme(isDark) }}"} />;
 }
 ```
 

@@ -260,7 +260,7 @@ NESTED BLOCKS
 
 /* TODO: would be nicer if defined from code */
 
-.isEmpty.hasAnchor .inlineContent:before {
+.blockContent.isEmpty.hasAnchor .inlineContent:before {
   content: "Enter text or type '/' for commands";
 }
 

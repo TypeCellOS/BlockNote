@@ -1,7 +1,7 @@
 {
   "name": "@blocknote/example-vanilla",
   "private": true,
-  "version": "0.8.5",
+  "version": "0.9.0",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -9,7 +9,7 @@
     "lint": "eslint src --max-warnings 0"
   },
   "dependencies": {
-    "@blocknote/core": "^0.8.5"
+    "@blocknote/core": "^0.9.0"
   },
   "devDependencies": {
     "eslint": "^8.10.0",

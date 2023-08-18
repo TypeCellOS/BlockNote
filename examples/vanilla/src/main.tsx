@@ -10,8 +10,10 @@ const editor = new BlockNoteEditor({
   onEditorContentChange: () => {
     console.log(editor.topLevelBlocks);
   },
-  editorDOMAttributes: {
-    class: "editor",
+  domAttributes: {
+    editor: {
+      class: "editor",
+    },
   },
 });
 

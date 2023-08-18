@@ -1,6 +1,7 @@
 import { InputRule, mergeAttributes } from "@tiptap/core";
 import { createTipTapBlock } from "../../../api/block";
 import styles from "../../Block.module.css";
+import { mergeCSSClasses } from "../../../../../shared/utils";
 
 export const HeadingBlockContent = createTipTapBlock<"heading">({
   name: "heading",
@@ -64,13 +65,30 @@ export const HeadingBlockContent = createTipTapBlock<"heading">({
   },
 
   renderHTML({ node, HTMLAttributes }) {
+    const blockContentDOMAttributes =
+      this.options.domAttributes?.blockContent || {};
+    const inlineContentDOMAttributes =
+      this.options.domAttributes?.inlineContent || {};
+
     return [
       "div",
       mergeAttributes(HTMLAttributes, {
-        class: styles.blockContent,
+        class: mergeCSSClasses(
+          styles.blockContent,
+          blockContentDOMAttributes.class
+        ),
         "data-content-type": this.name,
       }),
-      ["h" + node.attrs.level, { class: styles.inlineContent }, 0],
+      [
+        "h" + node.attrs.level,
+        {
+          class: mergeCSSClasses(
+            styles.inlineContent,
+            inlineContentDOMAttributes.class
+          ),
+        },
+        0,
+      ],
     ];
   },
 });
