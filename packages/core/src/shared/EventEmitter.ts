@@ -11,6 +11,7 @@ type CallbackFunction<
 > = (...props: CallbackType<T, EventName>) => any;
 
 export class EventEmitter<T extends Record<string, any>> {
+  // eslint-disable-next-line @typescript-eslint/ban-types
   private callbacks: { [key: string]: Function[] } = {};
 
   public on<EventName extends StringKeyOf<T>>(

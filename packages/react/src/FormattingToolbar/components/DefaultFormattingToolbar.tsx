@@ -2,7 +2,10 @@ import { BlockSchema } from "@blocknote/core";
 
 import { FormattingToolbarProps } from "./FormattingToolbarPositioner";
 import { Toolbar } from "../../SharedComponents/Toolbar/components/Toolbar";
-import { BlockTypeDropdown } from "./DefaultDropdowns/BlockTypeDropdown";
+import {
+  BlockTypeDropdown,
+  BlockTypeDropdownItem,
+} from "./DefaultDropdowns/BlockTypeDropdown";
 import { ToggledStyleButton } from "./DefaultButtons/ToggledStyleButton";
 import { TextAlignButton } from "./DefaultButtons/TextAlignButton";
 import { ColorStyleButton } from "./DefaultButtons/ColorStyleButton";
@@ -13,11 +16,13 @@ import {
 import { CreateLinkButton } from "./DefaultButtons/CreateLinkButton";
 
 export const DefaultFormattingToolbar = <BSchema extends BlockSchema>(
-  props: FormattingToolbarProps<BSchema>
+  props: FormattingToolbarProps<BSchema> & {
+    blockTypeDropdownItems?: BlockTypeDropdownItem[];
+  }
 ) => {
   return (
     <Toolbar>
-      <BlockTypeDropdown {...props} />
+      <BlockTypeDropdown {...props} items={props.blockTypeDropdownItems} />
 
       <ToggledStyleButton editor={props.editor} toggledStyle={"bold"} />
       <ToggledStyleButton editor={props.editor} toggledStyle={"italic"} />

@@ -52,14 +52,15 @@ const UniqueID = Extension.create({
       types: [],
       generateID: () => {
         // Use mock ID if tests are running.
-        if ((window as any).__TEST_OPTIONS) {
-          if ((window as any).__TEST_OPTIONS.mockID === undefined) {
-            (window as any).__TEST_OPTIONS.mockID = 0;
+        if (typeof window !== "undefined" && (window as any).__TEST_OPTIONS) {
+          const testOptions = (window as any).__TEST_OPTIONS;
+          if (testOptions.mockID === undefined) {
+            testOptions.mockID = 0;
           } else {
-            (window as any).__TEST_OPTIONS.mockID++;
+            testOptions.mockID++;
           }
 
-          return (window as any).__TEST_OPTIONS.mockID.toString() as string;
+          return testOptions.mockID.toString() as string;
         }
 
         return v4();
@@ -129,7 +130,7 @@ const UniqueID = Extension.create({
           const filterTransactions =
             this.options.filterTransaction &&
             transactions.some((tr) => {
-              var _a, _b;
+              let _a, _b;
               return !((_b = (_a = this.options).filterTransaction) === null ||
               _b === void 0
                 ? void 0
@@ -161,7 +162,7 @@ const UniqueID = Extension.create({
               .filter((id) => id !== null);
             const duplicatedNewIds = findDuplicates(newIds);
             newNodes.forEach(({ node, pos }) => {
-              var _a;
+              let _a;
               // instead of checking `node.attrs[attributeName]` directly
               // we look at the current state of the node within `tr.doc`.
               // this helps to prevent adding new ids to the same node
@@ -196,7 +197,7 @@ const UniqueID = Extension.create({
         // we register a global drag handler to track the current drag source element
         view(view) {
           const handleDragstart = (event: any) => {
-            var _a;
+            let _a;
             dragSourceElement = (
               (_a = view.dom.parentElement) === null || _a === void 0
                 ? void 0
@@ -219,7 +220,7 @@ const UniqueID = Extension.create({
             // only create new ids for dropped content while holding `alt`
             // or content is dragged from another editor
             drop: (view, event: any) => {
-              var _a;
+              let _a;
               if (
                 dragSourceElement !== view.dom.parentElement ||
                 ((_a = event.dataTransfer) === null || _a === void 0

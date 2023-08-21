@@ -6,15 +6,15 @@ import {
   inlineContentToNodes,
 } from "../../../api/nodeConversions/nodeConversions";
 
-import { getBlockInfoFromPos } from "../helpers/getBlockInfoFromPos";
-import { PreviousBlockTypePlugin } from "../PreviousBlockTypePlugin";
-import styles from "./Block.module.css";
-import BlockAttributes from "./BlockAttributes";
 import {
   BlockNoteDOMAttributes,
   BlockSchema,
   PartialBlock,
 } from "../api/blockTypes";
+import { getBlockInfoFromPos } from "../helpers/getBlockInfoFromPos";
+import { PreviousBlockTypePlugin } from "../PreviousBlockTypePlugin";
+import styles from "./Block.module.css";
+import BlockAttributes from "./BlockAttributes";
 import { mergeCSSClasses } from "../../../shared/utils";
 
 declare module "@tiptap/core" {
@@ -60,7 +60,7 @@ export const BlockContainer = Node.create<{
           }
 
           const attrs: Record<string, string> = {};
-          for (let [nodeAttr, HTMLAttr] of Object.entries(BlockAttributes)) {
+          for (const [nodeAttr, HTMLAttr] of Object.entries(BlockAttributes)) {
             if (element.getAttribute(HTMLAttr)) {
               attrs[nodeAttr] = element.getAttribute(HTMLAttr)!;
             }

@@ -96,7 +96,7 @@ export const PreviousBlockTypePlugin = () => {
         const newNodes = findChildren(newState.doc, (node) => node.attrs.id);
 
         // Traverses all block containers in the new editor state.
-        for (let node of newNodes) {
+        for (const node of newNodes) {
           const oldNode = oldNodesById.get(node.node.attrs.id);
 
           const oldContentNode = oldNode?.node.firstChild;
@@ -192,7 +192,7 @@ export const PreviousBlockTypePlugin = () => {
             pluginState.currentTransactionOldBlockAttrs[node.attrs.id];
           const decorationAttrs: any = {};
 
-          for (let [nodeAttr, val] of Object.entries(prevAttrs)) {
+          for (const [nodeAttr, val] of Object.entries(prevAttrs)) {
             decorationAttrs["data-prev-" + nodeAttributes[nodeAttr]] =
               val || "none";
           }

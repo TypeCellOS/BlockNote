@@ -28,7 +28,9 @@ class SuggestionsMenuView<
     private readonly pluginKey: PluginKey,
     updateSuggestionsMenu: (
       suggestionsMenuState: SuggestionsMenuState<T>
-    ) => void = () => {}
+    ) => void = () => {
+      // noop
+    }
   ) {
     this.pluginState = getDefaultPluginState<T>();
 
@@ -158,7 +160,9 @@ export const setupSuggestionsMenu = <
   onSelectItem: (props: {
     item: T;
     editor: BlockNoteEditor<BSchema>;
-  }) => void = () => {}
+  }) => void = () => {
+    // noop
+  }
 ) => {
   // Assertions
   if (defaultTriggerCharacter.length !== 1) {
