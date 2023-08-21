@@ -5,7 +5,9 @@ imageTitle: Custom UI
 path: /examples/custom-ui
 ---
 
-<script setup>import {useData} from "vitepress";
+<script setup>
+import { useData } from 'vitepress';
+import { getTheme, getStyles } from "../demoUtils";
 
 const { isDark } = useData();
 </script>
@@ -456,7 +458,7 @@ export const CustomSlashMenu = (props: { editor: BlockNoteEditor }) => {
 };
 ```
 
-```typescript-vue /SideMenu.tsx
+```typescript-vue /CustomSideMenu.tsx
 import { BlockNoteEditor } from "@blocknote/core";
 import { SideMenuPositioner } from "@blocknote/react";
 import { RxDragHandleHorizontal } from "react-icons/rx";
@@ -478,7 +480,7 @@ export const CustomSideMenu = (props: { editor: BlockNoteEditor }) => (
 );
 ```
 
-```css /styles.css
+```css-vue /styles.css
 * {
     font-family: "Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont,
     "Open Sans", "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell",
@@ -756,9 +758,7 @@ export const CustomSideMenu = (props: { editor: BlockNoteEditor }) => (
 .hidden {
     display: none;
 }
-```
 
-```css-vue /styles.css [hidden]
 {{ getStyles(isDark) }}
 ```
 
