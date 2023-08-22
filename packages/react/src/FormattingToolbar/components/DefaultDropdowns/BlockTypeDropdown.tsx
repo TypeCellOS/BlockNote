@@ -79,8 +79,8 @@ export const defaultBlockTypeDropdownItems: BlockTypeDropdownItem[] = [
   },
 ];
 
-export const BlockTypeDropdown = (props: {
-  editor: BlockNoteEditor<BlockSchema>;
+export const BlockTypeDropdown = <BSchema extends BlockSchema>(props: {
+  editor: BlockNoteEditor<BSchema>;
   items?: BlockTypeDropdownItem[];
 }) => {
   const [block, setBlock] = useState(
@@ -134,7 +134,7 @@ export const BlockTypeDropdown = (props: {
       text: item.name,
       icon: item.icon,
       onClick: () => onClick(item),
-      isSelected: item.isSelected(block),
+      isSelected: item.isSelected(block as Block<BlockSchema>),
     }));
   }, [block, filteredItems, props.editor]);
 
