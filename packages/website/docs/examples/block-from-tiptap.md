@@ -14,540 +14,379 @@ const { isDark } = useData();
 
 # Block from TipTap Node
 
-In this example, we create a custom `TodoListItem` block from a TipTap node.
+In this example, we create a custom block from TipTap's Image node.
 
-In addition, we create a Slash Menu item which inserts an `TodoListItem` block and add a Todo List item to the block type dropdown in the Formatting Toolbar.
+In addition, we create a Slash Menu item which inserts the block, and add an item to the block type dropdown in the Formatting Toolbar to change to the block.
 
 **Relevant Docs:**
 
 - [Custom Slash Menu Item List](/docs/slash-menu#custom-slash-menu-item-list)
-- [Custom Formatting Toolbar](/docs/formatting-toolbar#custom-formatting-toolbar) & [Components](/docs/formatting-toolbar#components)
+- [Custom Formatting Toolbar](/docs/formatting-toolbar#custom-formatting-toolbar)
 - [Replacing UI Elements](/docs/ui-elements#replacing-ui-elements)
 
 ::: sandbox {template=react-ts}
 
 ```typescript-vue /App.tsx
+import { BlockSchema, defaultBlockSchema } from "@blocknote/core";
 import "@blocknote/core/style.css";
 import {
   BlockNoteView,
+  defaultBlockTypeDropdownItems,
+  DefaultFormattingToolbar,
+  FormattingToolbarPositioner,
+  getDefaultReactSlashMenuItems,
   HyperlinkToolbarPositioner,
+  ReactSlashMenuItem,
   SideMenuPositioner,
   SlashMenuPositioner,
   useBlockNote,
 } from "@blocknote/react";
+import { RiImage2Fill } from "react-icons/ri";
 
-import { schemaWithTodoListItem } from "./TodoListItem";
-import { slashMenuItemsWithTodoListItem } from "./insertTodoListItem";
-import { CustomFormattingToolbar } from "./CustomFormattingToolbar";
+import { Image, imagePropSchema } from "./Image";
+
+// The custom schema, including all default blocks and the custom Alert block
+const schemaWithImage = {
+  ...defaultBlockSchema,
+  image: {
+    propSchema: imagePropSchema,
+    node: Image as any,
+  },
+} satisfies BlockSchema;
+
+// Creates a slash menu item for inserting the image block
+const insertImage: ReactSlashMenuItem<typeof schemaWithImage> = {
+  name: "Insert Image",
+  execute: (editor) => {
+    const src: string | null = prompt("Enter image URL");
+    const alt: string | null = prompt("Enter image alt text");
+
+    editor.insertBlocks(
+      [
+        {
+          type: "image",
+          props: {
+            src: src || "https://via.placeholder.com/1000",
+            alt: alt || "image",
+          },
+        },
+      ],
+      editor.getTextCursorPosition().block,
+      "after"
+    );
+  },
+  aliases: ["image", "img", "picture", "media"],
+  group: "Media",
+  icon: <RiImage2Fill />,
+  hint: "Insert an image",
+};
 
 export default function App() {
   const editor = useBlockNote({
-    blockSchema: schemaWithTodoListItem,
-    slashMenuItems: slashMenuItemsWithTodoListItem,
+    blockSchema: schemaWithImage,
+    slashMenuItems: [
+      ...getDefaultReactSlashMenuItems(schemaWithImage),
+      insertImage,
+    ],
   });
 
   return (
-    <BlockNoteView editor={editor} theme={"{{ getTheme(isDark) }}"}>
-      {/*Custom Formatting Toolbar - same as default, but the block type*/}
-      {/*dropdown also includes the TodoListItem block*/}
-      <CustomFormattingToolbar editor={editor} />
-      {/*Other toolbars & menus are defaults*/}
-      <HyperlinkToolbarPositioner editor={editor} />
-      <SlashMenuPositioner editor={editor} />
-      <SideMenuPositioner editor={editor} />
-    </BlockNoteView>
+    <div>
+      <BlockNoteView editor={editor}>
+        {/*Adds image item to block type dropdown in the Formatting Toolbar.*/}
+        <FormattingToolbarPositioner
+          editor={editor}
+          formattingToolbar={(props) => (
+            <DefaultFormattingToolbar
+              {...props}
+              blockTypeDropdownItems={[
+                ...defaultBlockTypeDropdownItems,
+                {
+                  name: "Image",
+                  type: "image",
+                  props: {
+                    src: "https://via.placeholder.com/1000",
+                    alt: "image",
+                  },
+                  icon: RiImage2Fill,
+                  isSelected: (block) => block.type === "image",
+                },
+              ]}
+            />
+          )}
+        />
+        <HyperlinkToolbarPositioner editor={editor} />
+        <SlashMenuPositioner editor={editor} />
+        <SideMenuPositioner editor={editor} />
+      </BlockNoteView>
+      {/*Button to set the current block to an image.*/}
+      <button
+        onClick={() => {
+          editor._tiptapEditor.commands.setImage({
+            src: "https://preview.redd.it/yrxq9uqd4ijb1.png?width=108&crop=smart&auto=webp&s=376c2c8b380f2d78cee5025f22a7f21631a0aa70",
+          });
+        }}>
+        Set Image
+      </button>
+    </div>
   );
 }
 ```
 
-```typescript-vue /TodoListItem.tsx
+```typescript-vue /Image.ts
+import { mergeAttributes, Node, nodeInputRule } from "@tiptap/core";
 import {
-  BlockNoteEditor,
-  mergeCSSClasses,
-  blockStyles,
-  defaultBlockSchema,
   BlockNoteDOMAttributes,
-  createTipTapBlock,
-  BlockSpec,
-  PropSchema,
+  BlockNoteEditor,
   BlockSchema,
-  camelToDataKebab,
+  BlockSpec,
+  blockStyles as styles,
+  mergeCSSClasses,
+  PropSchema,
 } from "@blocknote/core";
-import "@blocknote/core/style.css";
-import { InlineContent } from "@blocknote/react";
-import {
-  NodeViewProps,
-  NodeViewWrapper,
-  ReactNodeViewRenderer,
-} from "@tiptap/react";
-import { Checkbox } from "@mantine/core";
-import { FC, useState } from "react";
 
-// Defines the block's props
-const todoListItemPropSchema = {
-  checked: {
-    default: "false" as const,
-    values: ["true", "false"] as const,
+export interface ImageOptions {
+  // Blocks cannot be inline, so this option is not needed.
+  // inline: boolean;
+  allowBase64: boolean;
+  HTMLAttributes: Record<string, any>;
+
+  // Each node you turn into a block should have the `domAttributes` option.
+  domAttributes?: BlockNoteDOMAttributes;
+  // You can also add the `editor` option if you need access to the BlockNote
+  // editor instance. This is marked optional here as the Image node uses
+  // `addOptions`, but the BlockNote instance will always pass itself into
+  // blocks provided in the schema, so you can assume it's always defined.
+  editor?: BlockNoteEditor<
+    BlockSchema & { image: BlockSpec<"image", typeof imagePropSchema> }
+  >;
+}
+
+declare module "@tiptap/core" {
+  interface Commands<ReturnType> {
+    image: {
+      /**
+       * Add an image
+       */
+      setImage: (options: {
+        src: string;
+        alt?: string;
+        title?: string;
+      }) => ReturnType;
+    };
+  }
+}
+
+export const inputRegex =
+  /(?:^|\s)(!\[(.+|:?)]\((\S+)(?:(?:\s+)["'](\S+)["'])?\))$/;
+
+// We define the prop schema here, as we want to make sure the props line up with
+// the attributes we define in `addAttributes` below.
+export const imagePropSchema = {
+  src: {
+    default: "" as const,
+  },
+  alt: {
+    default: "" as const,
+  },
+  title: {
+    default: "" as const,
   },
 } satisfies PropSchema;
 
-// You should define your block using the `createTipTapBlock` function. This
-// takes the same config object as TipTap's `Node.create`, but locks the `group`
-// option to "blockContent" and helps with typing.
-const TodoListItem = createTipTapBlock<
-  "todoListItem",
-  {
-    editor: BlockNoteEditor<
-      BlockSchema & {
-        todoListItem: BlockSpec<"todoListItem", typeof todoListItemPropSchema>;
-      }
-    >;
-    domAttributes?: BlockNoteDOMAttributes;
-  }
->({
-  // TipTap node name should be the same as the block name
-  name: "todoListItem",
-  // Content should be "inline*" or "", depending on if the block should have
-  // inline content (i.e. an editable rich text field). Since we want the block
-  // to have editable text, we make it "inline*".
-  content: "inline*",
+export const Image = Node.create<ImageOptions>({
+  name: "image",
 
-  // All props defined in the prop schema should be added to the node's attrs
+  // Each node you turn into a block should have `group` set to "blockContent".
+  group: "blockContent",
+  // Each node you turn into a block should have `content` set to "" if it
+  // doesn't include a content hole/contentDOM in `renderHTML`. Otherwise, it
+  // should be set to "inline*".
+  content: "",
+
+  addOptions() {
+    return {
+      // Once again, blocks cannot be inline, so this option is not needed.
+      // inline: false,
+      allowBase64: false,
+      HTMLAttributes: {},
+
+      domAttributes: undefined,
+      // While the editor is not defined here, you may assume that it will be.
+      editor: undefined,
+    };
+  },
+
+  // Blocks cannot be inline and `group` is set to "blockContent", so this
+  // is not needed.
+  // inline() {
+  //   return this.options.inline;
+  // },
+
+  // group() {
+  //   return this.options.inline ? "inline" : "block";
+  // },
+
+  // When setting `draggable` to `false`, the block will remain draggable via
+  // the drag handle. You can leave it set to `true` if you want to though.
+  draggable: true,
+
+  // Each attribute should be parsed and rendered in kebab case with a "data-"
+  // prefix. The attributes should also take string values only and be defined in
+  // the prop schema.
   addAttributes() {
     return {
-      checked: {
-        default: "false",
-        parseHTML: (element) => element.getAttribute("data-checked"),
-        // All attributes should be rendered in kebab case with "data" prefix
-        renderHTML: (attributes) => {
-          return {
-            "data-checked": attributes.checked,
-          };
-        },
+      src: {
+        default: "",
+        parseHTML: (element) => element.getAttribute("data-src"),
+        renderHTML: (attributes) =>
+          attributes.src !== ""
+            ? {
+                "data-src": attributes.src,
+              }
+            : {},
+      },
+      alt: {
+        default: "",
+        parseHTML: (element) => element.getAttribute("data-alt"),
+        renderHTML: (attributes) =>
+          attributes.alt !== ""
+            ? {
+                "data-alt": attributes.alt,
+              }
+            : {},
+      },
+      title: {
+        default: "",
+        parseHTML: (element) => element.getAttribute("data-title"),
+        renderHTML: (attributes) =>
+          attributes.title !== ""
+            ? {
+                "data-title": attributes.title,
+              }
+            : {},
       },
     };
   },
 
   parseHTML() {
     return [
-      // Ensures the block is pasted properly after being copied
       {
-        tag: '[data-content-type="todoListItem"]',
+        tag: this.options.allowBase64
+          ? "img[src]"
+          : 'img[src]:not([src^="data:"])',
+      },
+      // It's a good idea to add this rule to ensure images copied from within
+      // BlockNote are parsed correctly on paste, though it may not always be
+      // necessary.
+      {
+        tag: "div[data-content-type=" + this.name + "]",
       },
     ];
   },
 
-  // Even though we render the block using a node view, we still need to define
-  // `renderHTML` to ensure the block is properly serialized, e.q. to the
-  // clipboard.
   renderHTML({ node, HTMLAttributes }) {
-    // Each block should be nested in a `blockContent` div for consistent
-    // styling & structure. We need to add several attributes to this
-    // `blockContent` div.
-    const blockContentDOMAttributes = {
-      // Attributes defined in the `domAttributes` editor option except class
-      ...Object.fromEntries(
-        Object.entries(this.options.domAttributes?.blockContent || {}).filter(
-          ([key]) => key !== "class"
-        )
-      ),
-      // Default `blockContent` class & class defined in the `domAttributes`
-      // editor option
-      class: mergeCSSClasses(
-        blockStyles.blockContent,
-        (this.options.domAttributes?.blockContent || {}).class
-      ),
-      // `data-content-type` attribute with the block name
-      "data-content-type": this.name,
-      // Props/node attributes in kebab-case with "data" prefix
-      ...HTMLAttributes,
-    };
+    // Each block's content should be wrapped in a `blockContent` element, as
+    // you will see below.
 
-    // Since we set the content field to "inline*", we need to make sure an
-    // `InlineContent` component is rendered somewhere inside this one. We
-    // also need to add several attributes to this `InlineContent` component.
-    const inlineContentDOMAttributes = {
-      // Attributes defined in the `domAttributes` editor option except class
-      ...(this.options.domAttributes?.inlineContent || {}),
-      // Default `inlineContent` class & class defined in the `domAttributes`
-      // editor option
-      class: mergeCSSClasses(
-        blockStyles.inlineContent,
-        (this.options.domAttributes?.inlineContent || {}).class
-      ),
-    };
+    // These are DOM attributes defined by the `domAttributes` editor option that
+    // should be applied to the `blockContent` element.
+    const blockContentDOMAttributes =
+      this.options.domAttributes?.blockContent || {};
+
+    // If the node were to have a content hole/contentDOM, i.e. an
+    // `inlineContent` element, you would also need to apply the `inlineContent`
+    // DOM attributes to it:
+    // const inlineContentDOMAttributes =
+    //  this.options.domAttributes?.inlineContent || {};
 
     return [
-      // `blockContent` div
+      // The `blockContent` element should be a `div`.
       "div",
-      blockContentDOMAttributes,
-      // Checkbox
-      ["input", { type: "checkbox", checked: node.attrs.checked === "true" }],
-      // `inlineContent` element with content hole
-      ["p", inlineContentDOMAttributes, 0],
-    ];
-  },
-
-  // Since we want to define how the block is rendered using a React component,
-  // and because the checkbox is interactive, we need to define a custom node
-  // view. If you want to render a non-interactive block using vanilla JS, you
-  // can just use the `renderHTML` option.
-  addNodeView() {
-    // React component that renders the block
-    const TodoListItem: FC<NodeViewProps> = (props: NodeViewProps) => {
-      // Each block should be nested in a `blockContent` div for consistent
-      // styling & structure. We need to add several attributes to this
-      // `blockContent` div.
-      const blockContentDOMAttributes = {
-        // Attributes defined in the `domAttributes` editor option except class
-        ...Object.fromEntries(
-          Object.entries(this.options.domAttributes?.blockContent || {}).filter(
-            ([key]) => key !== "class"
+      // The `blockContent` element should have:
+      // - The node's attributes in kebab-case, with a "data-" prefix.
+      // - The DOM attributes defined by the `domAttributes` editor option.
+      // - The `blockContent` CSS class.
+      // - the `data-content-type` attribute set to the block's/node's name.
+      mergeAttributes(HTMLAttributes, {
+        ...blockContentDOMAttributes,
+        class: mergeCSSClasses(
+          styles.blockContent,
+          blockContentDOMAttributes.class
+        ),
+        "data-content-type": this.name,
+      }),
+      // This is just a regular `img` element with the node's attributes as
+      // DOM attributes. Attributes with default values should not be rendered.
+      [
+        "img",
+        mergeAttributes(
+          this.options.HTMLAttributes,
+          Object.fromEntries(
+            Object.entries(node.attrs).filter(([_key, value]) => value !== "")
           )
         ),
-        // Default `blockContent` class & class defined in the `domAttributes`
-        // editor option
-        className: mergeCSSClasses(
-          blockStyles.blockContent,
-          (this.options.domAttributes?.blockContent || {}).class
-        ),
-        // `data-content-type` attribute with the block name
-        "data-content-type": this.name,
-        // Props/node attributes in kebab-case with "data" prefix
-        ...Object.fromEntries(
-          Object.entries(props.node.attrs)
-            .filter(([attribute, value]) => {
-              return (
-                value !==
-                todoListItemPropSchema[
-                  attribute as keyof typeof todoListItemPropSchema
-                ].default
-              );
-            })
-            .map(([attribute, value]) => [camelToDataKebab(attribute), value])
-        ),
-      };
+      ],
+    ];
 
-      // Since we set the content field to "inline*", we need to make sure an
-      // `InlineContent` component is rendered somewhere inside this one. We
-      // also need to add several attributes to this `InlineContent` component.
-      const inlineContentDOMAttributes = {
-        // Attributes defined in the `domAttributes` editor option except class
-        ...(this.options.domAttributes?.inlineContent || {}),
-        // Class defined in the `domAttributes` editor option
-        className: (this.options.domAttributes?.inlineContent || {}).class,
-      };
+    // If your node has a content hole/contentDOM, i.e. an `inlineContent`
+    // element, it should be nested inside the `blockContent` element and take
+    // the DOM attributes defined by the `domAttributes` editor option, as well
+    // as the `inlineContent` CSS class:
+    //[
+    //  "p",
+    //  {
+    //    ...inlineContentDOMAttributes,
+    //    class: mergeCSSClasses(
+    //      styles.inlineContent,
+    //      inlineContentDOMAttributes.class
+    //    ),
+    //  },
+    //  0,
+    //]
+  },
 
-      const todoListItemWrapperStyles = {
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-      } as const;
+  addCommands() {
+    return {
+      setImage:
+        (options) =>
+        ({ commands }) => {
+          // It's not recommended to define commands on the TipTap editor.
+          // However, if you want to do this, you should define the commands
+          // using the BlockNote API rather than using existing TipTap commands.
 
-      const checkboxStyles = {
-        marginRight: "1em",
-        marginLeft: "0",
-      };
+          // return commands.insertContent({
+          //   type: this.name,
+          //   attrs: options,
+          // });
 
-      const inlineContentStyles = {
-        flexGrow: "1",
-      };
+          this.options.editor!.updateBlock(
+            this.options.editor!.getTextCursorPosition().block,
+            {
+              type: "image",
+              props: options,
+            } as any
+          );
 
-      // Gets BlockNote editor instance
-      const editor = this.options.editor! as BlockNoteEditor<
-        BlockSchema & {
-          todoListItem: BlockSpec<
-            "todoListItem",
-            typeof todoListItemPropSchema
-          >;
-        }
-      >;
-      // Gets position of the node
-      const pos =
-        typeof props.getPos === "function" ? props.getPos() : undefined;
-      // Gets TipTap editor instance
-      const tipTapEditor = editor._tiptapEditor;
-      // Gets parent blockContainer node
-      const blockContainer = tipTapEditor.state.doc.resolve(pos!).node();
-      // Gets block identifier
-      const blockIdentifier = blockContainer.attrs.id;
-      // Gets the block
-      const block = editor.getBlock(blockIdentifier)!;
-
-      const [checked, setChecked] = useState(block.props.checked === "true");
-
-      return (
-        // To not unnecessarily create more divs, we use the required
-        // `NodeViewWrapper` component for the `blockContent` div
-        <NodeViewWrapper {...blockContentDOMAttributes}>
-          <div style={todoListItemWrapperStyles}>
-            {/* Checkbox */}
-            <Checkbox
-              checked={checked}
-              onChange={(event) => {
-                setChecked(event.currentTarget.checked);
-                editor.updateBlock(block, {
-                  type: "todoListItem",
-                  props: {
-                    checked: !checked ? "true" : "false",
-                  },
-                });
-              }}
-              style={checkboxStyles}
-            />
-            {/* `InlineContent` component */}
-            <InlineContent
-              {...inlineContentDOMAttributes}
-              style={inlineContentStyles}
-            />
-          </div>
-        </NodeViewWrapper>
-      );
+          return true;
+        },
     };
+  },
 
-    return ReactNodeViewRenderer(TodoListItem, {
-      className: blockStyles.reactNodeViewRenderer,
-    });
+  addInputRules() {
+    return [
+      nodeInputRule({
+        find: inputRegex,
+        type: this.type,
+        getAttributes: (match) => {
+          const [, , alt, src, title] = match;
+
+          return { src, alt, title };
+        },
+      }),
+    ];
   },
 });
-
-export const schemaWithTodoListItem = {
-  ...defaultBlockSchema,
-  // TipTap node name should be the same as the block name
-  todoListItem: {
-    propSchema: todoListItemPropSchema,
-    node: TodoListItem,
-  },
-} satisfies BlockSchema;
-```
-
-```typescript-vue /insertTodoListItem.tsx
-import {
-  getDefaultReactSlashMenuItems,
-  ReactSlashMenuItem,
-} from "@blocknote/react";
-import { RiCheckboxFill } from "react-icons/ri";
-
-import { schemaWithTodoListItem } from "./TodoListItem";
-
-const insertTodoListItem = {
-  name: "Todo List Item",
-  execute: (editor) => {
-    const block = editor.getTextCursorPosition().block;
-    const blockIsEmpty = block.content.length === 0;
-
-    // Updates current block to a TodoListItem if it's empty, otherwise inserts
-    // a new one below
-    if (blockIsEmpty) {
-      editor.updateBlock(block, { type: "todoListItem" });
-    } else {
-      editor.insertBlocks(
-        [
-          {
-            type: "todoListItem",
-          },
-        ],
-        editor.getTextCursorPosition().block,
-        "after"
-      );
-      editor.setTextCursorPosition(editor.getTextCursorPosition().nextBlock!);
-    }
-  },
-  aliases: ["li", "list", "todolist", "todo list"],
-  group: "Basic blocks",
-  icon: <RiCheckboxFill />,
-  hint: "Used to display a todo list",
-} satisfies ReactSlashMenuItem<typeof schemaWithTodoListItem>;
-
-const defaultSlashMenuItems = getDefaultReactSlashMenuItems(
-  schemaWithTodoListItem
-);
-export const slashMenuItemsWithTodoListItem = [
-  defaultSlashMenuItems[0],
-  defaultSlashMenuItems[1],
-  defaultSlashMenuItems[2],
-  defaultSlashMenuItems[3],
-  defaultSlashMenuItems[4],
-  insertTodoListItem,
-  defaultSlashMenuItems[5],
-] satisfies ReactSlashMenuItem<typeof schemaWithTodoListItem>[];
-```
-
-```typescript-vue /CustomBlockTypeDropdown.tsx
-import { BlockNoteEditor } from "@blocknote/core";
-import {
-  ToolbarDropdown,
-  ToolbarDropdownProps,
-  useEditorContentChange,
-  useEditorSelectionChange,
-} from "@blocknote/react";
-import { useMemo, useState } from "react";
-import { IconType } from "react-icons";
-import {
-  RiCheckboxFill,
-  RiH1,
-  RiH2,
-  RiH3,
-  RiListOrdered,
-  RiListUnordered,
-  RiText,
-} from "react-icons/ri";
-
-import { schemaWithTodoListItem } from "./TodoListItem";
-
-// Code modified from `BlockTypeDropdown.tsx` in @blocknote/react
-// Changed to use a single schema and added alert to dropdown.
-type HeadingLevels = "1" | "2" | "3";
-
-const headingIcons: Record<HeadingLevels, IconType> = {
-  "1": RiH1,
-  "2": RiH2,
-  "3": RiH3,
-};
-
-export const CustomBlockTypeDropdown = (props: {
-  editor: BlockNoteEditor<typeof schemaWithTodoListItem>;
-}) => {
-  const [block, setBlock] = useState(
-    props.editor.getTextCursorPosition().block
-  );
-
-  const dropdownItems: ToolbarDropdownProps["items"] = useMemo(() => {
-    return [
-      {
-        onClick: () => {
-          props.editor.focus();
-          props.editor.updateBlock(block, {
-            type: "paragraph",
-            props: {},
-          });
-        },
-        text: "Paragraph",
-        icon: RiText,
-        isSelected: block.type === "paragraph",
-      },
-      ...(["1", "2", "3"] as const).map((level) => ({
-        onClick: () => {
-          props.editor.focus();
-          props.editor.updateBlock(block, {
-            type: "heading",
-            props: { level: level },
-          });
-        },
-        text: "Heading " + level,
-        icon: headingIcons[level],
-        isSelected: block.type === "heading" && block.props.level === level,
-      })),
-      {
-        onClick: () => {
-          props.editor.focus();
-          props.editor.updateBlock(block, {
-            type: "bulletListItem",
-            props: {},
-          });
-        },
-        text: "Bullet List",
-        icon: RiListUnordered,
-        isSelected: block.type === "bulletListItem",
-      },
-      {
-        onClick: () => {
-          props.editor.focus();
-          props.editor.updateBlock(block, {
-            type: "numberedListItem",
-            props: {},
-          });
-        },
-        text: "Numbered List",
-        icon: RiListOrdered,
-        isSelected: block.type === "numberedListItem",
-      },
-      {
-        onClick: () => {
-          props.editor.focus();
-          props.editor.updateBlock(block, {
-            type: "todoListItem",
-            props: {},
-          });
-        },
-        text: "Todo List",
-        icon: RiCheckboxFill,
-        isSelected: block.type === "todoListItem",
-      },
-    ];
-  }, [block, props.editor]);
-
-  useEditorContentChange(props.editor, () => {
-    setBlock(props.editor.getTextCursorPosition().block);
-  });
-
-  useEditorSelectionChange(props.editor, () => {
-    setBlock(props.editor.getTextCursorPosition().block);
-  });
-
-  return <ToolbarDropdown items={dropdownItems} />;
-};
-```
-
-```typescript-vue /CustomFormattingToolbar.tsx
-import { BlockNoteEditor } from "@blocknote/core";
-import {
-  ColorStyleButton,
-  CreateLinkButton,
-  FormattingToolbarPositioner,
-  NestBlockButton,
-  TextAlignButton,
-  ToggledStyleButton,
-  Toolbar,
-  UnnestBlockButton,
-} from "@blocknote/react";
-
-import { CustomBlockTypeDropdown } from "./CustomBlockTypeDropdown";
-import { schemaWithTodoListItem } from "./TodoListItem";
-
-// Code modified from `DefaultFormattingToolbar.tsx` in @blocknote/react
-// Replaced default dropdown with one that includes our custom Alert block.
-export const CustomFormattingToolbar = (props: {
-  editor: BlockNoteEditor<typeof schemaWithTodoListItem>;
-}) => {
-  return (
-    <FormattingToolbarPositioner
-      editor={props.editor}
-      formattingToolbar={(props) => (
-        <Toolbar>
-          <CustomBlockTypeDropdown {...props} />
-
-          <ToggledStyleButton editor={props.editor} toggledStyle={"bold"} />
-          <ToggledStyleButton editor={props.editor} toggledStyle={"italic"} />
-          <ToggledStyleButton
-            editor={props.editor}
-            toggledStyle={"underline"}
-          />
-          <ToggledStyleButton editor={props.editor} toggledStyle={"strike"} />
-
-          <TextAlignButton
-            editor={props.editor as any}
-            textAlignment={"left"}
-          />
-          <TextAlignButton
-            editor={props.editor as any}
-            textAlignment={"center"}
-          />
-          <TextAlignButton
-            editor={props.editor as any}
-            textAlignment={"right"}
-          />
-
-          <ColorStyleButton editor={props.editor} />
-
-          <NestBlockButton editor={props.editor} />
-          <UnnestBlockButton editor={props.editor} />
-
-          <CreateLinkButton editor={props.editor} />
-        </Toolbar>
-      )}></FormattingToolbarPositioner>
-  );
-};
 ```
 
 ```css-vue /styles.css [hidden]
