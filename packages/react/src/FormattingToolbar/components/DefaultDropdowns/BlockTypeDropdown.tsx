@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { BlockNoteEditor, BlockSchema } from "@blocknote/core";
+import { BlockNoteEditor, BlockSchema, PartialBlock } from "@blocknote/core";
 import { IconType } from "react-icons";
 import {
   RiH1,
@@ -100,22 +100,34 @@ export const BlockTypeDropdown = <BSchema extends BlockSchema>(props: {
     [block.type, filteredItems]
   );
 
-  const fullItems: ToolbarDropdownItemProps[] = useMemo(
-    () =>
-      filteredItems.map((item) => ({
-        text: item.name,
-        icon: item.icon,
-        onClick: () => {
-          props.editor.focus();
-          props.editor.updateBlock(block, {
-            type: item.type,
-            props: {},
-          });
-        },
-        isSelected: block.type === item.type,
-      })),
-    [block, filteredItems, props.editor]
-  );
+  const fullItems: ToolbarDropdownItemProps[] = useMemo(() => {
+    const onClick = (item: BlockTypeDropdownItem) => {
+      props.editor.focus();
+      props.editor.updateBlock(block, {
+        type: item.type,
+        props: item.props,
+      } as PartialBlock<BSchema>);
+    };
+
+    const isSelected = (item: BlockTypeDropdownItem) => {
+      let propsMatch = true;
+      for (const [prop, value] of Object.entries(item.props || {})) {
+        if (!(prop in block.props) || block.props[prop] !== value) {
+          propsMatch = false;
+          break;
+        }
+      }
+
+      return block.type === item.type && propsMatch;
+    };
+
+    return filteredItems.map((item) => ({
+      text: item.name,
+      icon: item.icon,
+      onClick: () => onClick(item),
+      isSelected: isSelected(item),
+    }));
+  }, [block, filteredItems, props.editor]);
 
   useEditorContentChange(props.editor, () => {
     setBlock(props.editor.getTextCursorPosition().block);
