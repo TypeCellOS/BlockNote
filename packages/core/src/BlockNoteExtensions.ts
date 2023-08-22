@@ -19,7 +19,13 @@ import * as Y from "yjs";
 import styles from "./editor.module.css";
 import { BackgroundColorExtension } from "./extensions/BackgroundColor/BackgroundColorExtension";
 import { BackgroundColorMark } from "./extensions/BackgroundColor/BackgroundColorMark";
-import { BlockContainer, BlockGroup, Doc } from "./extensions/Blocks";
+import {
+  BlockContainer,
+  BlockGroup,
+  Doc,
+  SlideGroup,
+  Slide,
+} from "./extensions/Blocks";
 import {
   BlockNoteDOMAttributes,
   BlockSchema,
@@ -98,6 +104,12 @@ export const getBlockNoteExtensions = <BSchema extends BlockSchema>(opts: {
     BlockGroup.configure({
       domAttributes: opts.domAttributes,
     }),
+    SlideGroup.configure({
+      domAttributes: opts.domAttributes,
+    }),
+    Slide.configure({
+      domAttributes: opts.domAttributes,
+    }),
     ...Object.values(opts.blockSchema).map((blockSpec) =>
       blockSpec.node.configure({
         editor: opts.editor,
@@ -109,7 +121,7 @@ export const getBlockNoteExtensions = <BSchema extends BlockSchema>(opts: {
     Dropcursor.configure({ width: 5, color: "#ddeeff" }),
     // This needs to be at the bottom of this list, because Key events (such as enter, when selecting a /command),
     // should be handled before Enter handlers in other components like splitListItem
-    TrailingNode,
+    // TrailingNode,
   ];
 
   if (opts.collaboration) {

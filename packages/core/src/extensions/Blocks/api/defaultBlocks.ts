@@ -2,6 +2,7 @@ import { HeadingBlockContent } from "../nodes/BlockContent/HeadingBlockContent/H
 import { BulletListItemBlockContent } from "../nodes/BlockContent/ListItemBlockContent/BulletListItemBlockContent/BulletListItemBlockContent";
 import { NumberedListItemBlockContent } from "../nodes/BlockContent/ListItemBlockContent/NumberedListItemBlockContent/NumberedListItemBlockContent";
 import { ParagraphBlockContent } from "../nodes/BlockContent/ParagraphBlockContent/ParagraphBlockContent";
+import { Slide } from "../nodes/SlideGroup";
 import { PropSchema, TypesMatch } from "./blockTypes";
 
 export const defaultProps = {
@@ -20,6 +21,10 @@ export const defaultProps = {
 export type DefaultProps = typeof defaultProps;
 
 export const defaultBlockSchema = {
+  slide: {
+    propSchema: defaultProps,
+    node: Slide,
+  },
   paragraph: {
     propSchema: defaultProps,
     node: ParagraphBlockContent,

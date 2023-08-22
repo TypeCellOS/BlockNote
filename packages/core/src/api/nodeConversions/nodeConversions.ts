@@ -178,7 +178,19 @@ export function blockToNode<BSchema extends BlockSchema>(
     children.length > 0 ? [contentNode, groupNode] : contentNode
   );
 }
+export function slideToNode<BSchema extends BlockSchema>(
+  contentNode: Node,
+  schema: Schema
+) {
+  let id = UniqueID.options.generateID();
 
+  return schema.nodes["slide"].create(
+    {
+      id: id,
+    },
+    contentNode
+  );
+}
 /**
  * Converts an internal (prosemirror) content node to a BlockNote InlineContent array.
  */

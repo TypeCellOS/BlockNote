@@ -18,6 +18,7 @@ import {
 } from "./api/formatConversions/formatConversions";
 import {
   blockToNode,
+  slideToNode,
   nodeToBlock,
 } from "./api/nodeConversions/nodeConversions";
 import { getNodeById } from "./api/util/nodeUtil";
@@ -228,12 +229,14 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
         // we have to set the initial content here, because now we can use the editor schema
         // which has been created at this point
         const schema = editor.editor.schema;
-        const ic = initialContent.map((block) => blockToNode(block, schema));
+        const ic = initialContent.map((block) =>
+          slideToNode(blockToNode(block, schema), schema)
+        );
 
         const root = schema.node(
           "doc",
           undefined,
-          schema.node("blockGroup", undefined, ic)
+          schema.node("slideGroup", undefined, ic)
         );
         // override the initialcontent
         editor.editor.options.content = root.toJSON();
