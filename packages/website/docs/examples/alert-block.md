@@ -32,17 +32,20 @@ import { defaultBlockSchema } from "@blocknote/core";
 import "@blocknote/core/style.css";
 import {
   BlockNoteView,
+  defaultBlockTypeDropdownItems,
+  DefaultFormattingToolbar,
+  FormattingToolbarPositioner,
   getDefaultReactSlashMenuItems,
   HyperlinkToolbarPositioner,
   SideMenuPositioner,
   SlashMenuPositioner,
   useBlockNote,
 } from "@blocknote/react";
+import { RiAlertFill } from "react-icons/ri";
 
 import { createAlertBlock, insertAlert } from "./Alert";
-import { CustomFormattingToolbar } from "./CustomFormattingToolbar";
 
-const theme = "{{ getTheme(isDark) }}";
+const theme = "light";
 
 // The custom schema, including all default blocks and the custom Alert block
 export const schemaWithAlert = {
@@ -61,9 +64,24 @@ export default function App() {
 
   return (
     <BlockNoteView editor={editor} theme={theme}>
-      {/*Custom Formatting Toolbar - same as default, but the block type*/}
-      {/*dropdown also includes the Alert block*/}
-      <CustomFormattingToolbar editor={editor} />
+      {/*Adds alert item to block type dropdown in the Formatting Toolbar*/}
+      <FormattingToolbarPositioner
+        editor={editor}
+        formattingToolbar={(props) => (
+          <DefaultFormattingToolbar
+            {...props}
+            blockTypeDropdownItems={[
+              ...defaultBlockTypeDropdownItems,
+              {
+                name: "Alert",
+                type: "alert",
+                icon: RiAlertFill,
+                isSelected: (block) => block.type === "alert",
+              },
+            ]}
+          />
+        )}
+      />
       {/*Other toolbars & menus are defaults*/}
       <HyperlinkToolbarPositioner editor={editor} />
       <SlashMenuPositioner editor={editor} />
@@ -286,183 +304,6 @@ const alertIconWrapperStyles = {
   userSelect: "none",
   cursor: "pointer",
 } as const;
-```
-
-```typescript-vue /CustomBlockTypeDropdown.tsx
-import { BlockNoteEditor } from "@blocknote/core";
-import {
-  ToolbarDropdown,
-  ToolbarDropdownProps,
-  useEditorContentChange,
-  useEditorSelectionChange,
-} from "@blocknote/react";
-import { useMemo, useState } from "react";
-import { IconType } from "react-icons";
-import {
-  RiAlertFill,
-  RiH1,
-  RiH2,
-  RiH3,
-  RiListOrdered,
-  RiListUnordered,
-  RiText,
-} from "react-icons/ri";
-
-import { schemaWithAlert } from "./App";
-
-// Code modified from `BlockTypeDropdown.tsx` in @blocknote/react
-// Changed to use a single schema and added alert to dropdown.
-type HeadingLevels = "1" | "2" | "3";
-
-const headingIcons: Record<HeadingLevels, IconType> = {
-  "1": RiH1,
-  "2": RiH2,
-  "3": RiH3,
-};
-
-export const CustomBlockTypeDropdown = (props: {
-  editor: BlockNoteEditor<typeof schemaWithAlert>;
-}) => {
-  const [block, setBlock] = useState(
-    props.editor.getTextCursorPosition().block
-  );
-
-  const dropdownItems: ToolbarDropdownProps["items"] = useMemo(() => {
-    return [
-      {
-        onClick: () => {
-          props.editor.focus();
-          props.editor.updateBlock(block, {
-            type: "paragraph",
-            props: {},
-          });
-        },
-        text: "Paragraph",
-        icon: RiText,
-        isSelected: block.type === "paragraph",
-      },
-      ...(["1", "2", "3"] as const).map((level) => ({
-        onClick: () => {
-          props.editor.focus();
-          props.editor.updateBlock(block, {
-            type: "heading",
-            props: { level: level },
-          });
-        },
-        text: "Heading " + level,
-        icon: headingIcons[level],
-        isSelected: block.type === "heading" && block.props.level === level,
-      })),
-      {
-        onClick: () => {
-          props.editor.focus();
-          props.editor.updateBlock(block, {
-            type: "bulletListItem",
-            props: {},
-          });
-        },
-        text: "Bullet List",
-        icon: RiListUnordered,
-        isSelected: block.type === "bulletListItem",
-      },
-      {
-        onClick: () => {
-          props.editor.focus();
-          props.editor.updateBlock(block, {
-            type: "numberedListItem",
-            props: {},
-          });
-        },
-        text: "Numbered List",
-        icon: RiListOrdered,
-        isSelected: block.type === "numberedListItem",
-      },
-      {
-        onClick: () => {
-          props.editor.focus();
-          props.editor.updateBlock(block, {
-            type: "alert",
-            props: {},
-          });
-        },
-        text: "Alert",
-        icon: RiAlertFill,
-        isSelected: block.type === "alert",
-      },
-    ];
-  }, [block, props.editor]);
-
-  useEditorContentChange(props.editor, () => {
-    setBlock(props.editor.getTextCursorPosition().block);
-  });
-
-  useEditorSelectionChange(props.editor, () => {
-    setBlock(props.editor.getTextCursorPosition().block);
-  });
-
-  return <ToolbarDropdown items={dropdownItems} />;
-};
-```
-
-```typescript-vue /CustomFormattingToolbar.tsx
-import { BlockNoteEditor } from "@blocknote/core";
-import {
-  ColorStyleButton,
-  CreateLinkButton,
-  FormattingToolbarPositioner,
-  NestBlockButton,
-  TextAlignButton,
-  ToggledStyleButton,
-  Toolbar,
-  UnnestBlockButton,
-} from "@blocknote/react";
-
-import { CustomBlockTypeDropdown } from "./CustomBlockTypeDropdown";
-import { schemaWithAlert } from "./App";
-
-// Code modified from `DefaultFormattingToolbar.tsx` in @blocknote/react
-// Replaced default dropdown with one that includes our custom Alert block.
-export const CustomFormattingToolbar = (props: {
-  editor: BlockNoteEditor<typeof schemaWithAlert>;
-}) => {
-  return (
-    <FormattingToolbarPositioner
-      editor={props.editor}
-      formattingToolbar={(props) => (
-        <Toolbar>
-          <CustomBlockTypeDropdown {...props} />
-
-          <ToggledStyleButton editor={props.editor} toggledStyle={"bold"} />
-          <ToggledStyleButton editor={props.editor} toggledStyle={"italic"} />
-          <ToggledStyleButton
-            editor={props.editor}
-            toggledStyle={"underline"}
-          />
-          <ToggledStyleButton editor={props.editor} toggledStyle={"strike"} />
-
-          <TextAlignButton
-            editor={props.editor as any}
-            textAlignment={"left"}
-          />
-          <TextAlignButton
-            editor={props.editor as any}
-            textAlignment={"center"}
-          />
-          <TextAlignButton
-            editor={props.editor as any}
-            textAlignment={"right"}
-          />
-
-          <ColorStyleButton editor={props.editor} />
-
-          <NestBlockButton editor={props.editor} />
-          <UnnestBlockButton editor={props.editor} />
-
-          <CreateLinkButton editor={props.editor} />
-        </Toolbar>
-      )}></FormattingToolbarPositioner>
-  );
-};
 ```
 
 ```css-vue /styles.css [hidden]

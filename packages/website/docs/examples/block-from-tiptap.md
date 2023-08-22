@@ -93,7 +93,7 @@ export default function App() {
   return (
     <div>
       <BlockNoteView editor={editor}>
-        {/*Adds image item to block type dropdown in the Formatting Toolbar.*/}
+        {/*Adds image item to block type dropdown in the Formatting Toolbar*/}
         <FormattingToolbarPositioner
           editor={editor}
           formattingToolbar={(props) => (
