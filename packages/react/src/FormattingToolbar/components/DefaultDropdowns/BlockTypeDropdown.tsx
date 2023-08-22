@@ -1,5 +1,10 @@
 import { useMemo, useState } from "react";
-import { BlockNoteEditor, BlockSchema, PartialBlock } from "@blocknote/core";
+import {
+  Block,
+  BlockNoteEditor,
+  BlockSchema,
+  PartialBlock,
+} from "@blocknote/core";
 import { IconType } from "react-icons";
 import {
   RiH1,
@@ -20,6 +25,7 @@ export type BlockTypeDropdownItem = {
   type: string;
   props?: Record<string, string>;
   icon: IconType;
+  isSelected: (block: Block<BlockSchema>) => boolean;
 };
 
 export const defaultBlockTypeDropdownItems: BlockTypeDropdownItem[] = [
@@ -27,39 +33,54 @@ export const defaultBlockTypeDropdownItems: BlockTypeDropdownItem[] = [
     name: "Paragraph",
     type: "paragraph",
     icon: RiText,
+    isSelected: (block) => block.type === "paragraph",
   },
   {
     name: "Heading 1",
     type: "heading",
     props: { level: "1" },
     icon: RiH1,
+    isSelected: (block) =>
+      block.type === "heading" &&
+      "level" in block.props &&
+      block.props.level === "1",
   },
   {
     name: "Heading 2",
     type: "heading",
     props: { level: "2" },
     icon: RiH2,
+    isSelected: (block) =>
+      block.type === "heading" &&
+      "level" in block.props &&
+      block.props.level === "2",
   },
   {
     name: "Heading 3",
     type: "heading",
     props: { level: "3" },
     icon: RiH3,
+    isSelected: (block) =>
+      block.type === "heading" &&
+      "level" in block.props &&
+      block.props.level === "3",
   },
   {
     name: "Bullet List",
     type: "bulletListItem",
     icon: RiListUnordered,
+    isSelected: (block) => block.type === "bulletListItem",
   },
   {
     name: "Numbered List",
     type: "numberedListItem",
     icon: RiListOrdered,
+    isSelected: (block) => block.type === "numberedListItem",
   },
 ];
 
-export const BlockTypeDropdown = <BSchema extends BlockSchema>(props: {
-  editor: BlockNoteEditor<BSchema>;
+export const BlockTypeDropdown = (props: {
+  editor: BlockNoteEditor<BlockSchema>;
   items?: BlockTypeDropdownItem[];
 }) => {
   const [block, setBlock] = useState(
@@ -106,26 +127,14 @@ export const BlockTypeDropdown = <BSchema extends BlockSchema>(props: {
       props.editor.updateBlock(block, {
         type: item.type,
         props: item.props,
-      } as PartialBlock<BSchema>);
-    };
-
-    const isSelected = (item: BlockTypeDropdownItem) => {
-      let propsMatch = true;
-      for (const [prop, value] of Object.entries(item.props || {})) {
-        if (!(prop in block.props) || block.props[prop] !== value) {
-          propsMatch = false;
-          break;
-        }
-      }
-
-      return block.type === item.type && propsMatch;
+      } as PartialBlock<BlockSchema>);
     };
 
     return filteredItems.map((item) => ({
       text: item.name,
       icon: item.icon,
       onClick: () => onClick(item),
-      isSelected: isSelected(item),
+      isSelected: item.isSelected(block),
     }));
   }, [block, filteredItems, props.editor]);
 
