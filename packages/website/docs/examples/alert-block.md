@@ -202,7 +202,7 @@ export const Alert = (props: {
           <Menu.Divider />
           {Object.entries(alertTypes).map(([key, value]) => {
             const ItemIcon = value.icon;
-    
+
             return (
               <Menu.Item
                 key={key}
@@ -214,33 +214,33 @@ export const Alert = (props: {
           })}
         </Menu.Dropdown>
       </Menu>
-    {/*Rich text field for user to type in*/}
-    <InlineContent style={{ flexGrow: "1" }} />
-  </div>
-);
+      {/*Rich text field for user to type in*/}
+      <InlineContent style={inlineContentStyles} />
+    </div>
+  );
 };
 
 // Function which creates the Alert block itself, where the component is styled
 // correctly with the light & dark theme
-  export const createAlertBlock = (theme: "light" | "dark") =>
-    createReactBlockSpec<
-      "alert",
-      typeof alertPropSchema,
-      true,
-      DefaultBlockSchema & { alert: BlockSpec<"alert", typeof alertPropSchema> }
-    >({
-      type: "alert" as const,
-      propSchema: {
-        textAlignment: defaultProps.textAlignment,
-        textColor: defaultProps.textColor,
-        type: {
-          default: "warning",
-          values: ["warning", "error", "info", "success"],
-        },
-      } as const,
-      containsInlineContent: true,
-      render: (props) => <Alert {...props} theme={theme} />,
-});
+export const createAlertBlock = (theme: "light" | "dark") =>
+  createReactBlockSpec<
+    "alert",
+    typeof alertPropSchema,
+    true,
+    DefaultBlockSchema & { alert: BlockSpec<"alert", typeof alertPropSchema> }
+  >({
+    type: "alert" as const,
+    propSchema: {
+      textAlignment: defaultProps.textAlignment,
+      textColor: defaultProps.textColor,
+      type: {
+        default: "warning",
+        values: ["warning", "error", "info", "success"],
+      },
+    } as const,
+    containsInlineContent: true,
+    render: (props) => <Alert {...props} theme={theme} />,
+  });
 
 // Slash menu item to insert an Alert block
 export const insertAlert = {
@@ -304,6 +304,10 @@ const alertIconWrapperStyles = {
   userSelect: "none",
   cursor: "pointer",
 } as const;
+
+const inlineContentStyles = {
+  flexGrow: "1",
+};
 ```
 
 ```css-vue /styles.css [hidden]

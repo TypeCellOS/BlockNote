@@ -138,7 +138,7 @@ const EXAMPLES_SIDEBAR = [
     text: "Advanced Examples",
     items: [
       {
-        text: "Custom UI",
+        text: "Making UI Elements From Scratch",
         link: "/examples/custom-ui",
       },
       {

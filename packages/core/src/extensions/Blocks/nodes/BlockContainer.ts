@@ -144,97 +144,92 @@ export const BlockContainer = Node.create<{
           const { startPos, endPos, node, contentNode } = blockInfo;
 
           if (dispatch) {
-            // Adds blockGroup node with child blocks if necessary.
-            if (block.children !== undefined) {
-              const childNodes = [];
+            // Creates `inlineContent` nodes for the updated block's inline
+            // content.
+            const inlineContentNodes: PMNode[] =
+              // Checks if inline content is provided.
+              block.content !== undefined
+                ? // Checks if the provided inline content is a string or
+                  // InlineContent[] type.
+                  typeof block.content === "string"
+                  ? // Adds a single text node with no marks.
+                    [state.schema.text(block.content)]
+                  : // Converts the provided inline content into PM nodes.
+                    inlineContentToNodes(block.content, state.schema)
+                : // Adds no `inlineContent` nodes.
+                  [];
 
-              // Creates ProseMirror nodes for each child block, including their descendants.
-              for (const child of block.children) {
-                childNodes.push(blockToNode(child, state.schema));
-              }
+            // Gets the type of the updated block and whether it supports inline
+            // content.
+            const blockType = block.type || contentNode.type.name;
+            const blockContentType =
+              state.schema.nodes[blockType].spec.content!;
 
-              // Checks if a blockGroup node already exists.
-              if (node.childCount === 2) {
-                // Replaces all child nodes in the existing blockGroup with the ones created earlier.
-                state.tr.replace(
-                  startPos + contentNode.nodeSize + 1,
-                  endPos - 1,
-                  new Slice(Fragment.from(childNodes), 0, 0)
-                );
-              } else {
-                // Inserts a new blockGroup containing the child nodes created earlier.
-                state.tr.insert(
-                  startPos + contentNode.nodeSize,
-                  state.schema.nodes["blockGroup"].create({}, childNodes)
-                );
-              }
-            }
+            // Creates a `blockContent` node to place the updated block's inline
+            // content in.
+            const finalContentNode: PMNode = state.schema.nodes[
+              blockType
+            ].create(
+              // Both the existing attributes and provided props are added.
+              {
+                ...contentNode.attrs,
+                ...block.props,
+              },
+              // Checks if the updated block supports inline content.
+              blockContentType === "inline*"
+                ? // Checks if inline content is provided.
+                  inlineContentNodes.length > 0
+                  ? // Adds the provided inline content.
+                    inlineContentNodes
+                  : // Adds the existing inline content.
+                    contentNode.firstChild!
+                : // Adds no inline content.
+                  undefined
+            )!;
 
-            // Replaces the blockContent node's content if necessary.
-            if (block.content !== undefined) {
-              let content: PMNode[] = [];
+            // Creates `blockContainer` nodes for the updated block's children.
+            const finalChildNodes: PMNode[] =
+              // Checks if children are provided.
+              block.children !== undefined
+                ? // Converts the provided children into `blockContainer` nodes.
+                  block.children.map((child) =>
+                    blockToNode(child, state.schema)
+                  )
+                : // Adds no child nodes.
+                  [];
 
-              // Checks if the provided content is a string or InlineContent[] type.
-              if (typeof block.content === "string") {
-                // Adds a single text node with no marks to the content.
-                content.push(state.schema.text(block.content));
-              } else {
-                // Adds a text node with the provided styles converted into marks to the content, for each InlineContent
-                // object.
-                content = inlineContentToNodes(block.content, state.schema);
-              }
+            // Creates a `blockGroup` node to place the block's children in.
+            const finalBlockGroupNode: PMNode | undefined =
+              // Checks if children are provided.
+              finalChildNodes.length > 0
+                ? // Creates a `blockGroup` node with the provided children.
+                  state.schema.nodes["blockGroup"].create({}, finalChildNodes)
+                : // Checks if the existing block contains a `blockGroup` node.
+                node.childCount === 2
+                ? // Adds the existing `blockGroup` node.
+                  node.lastChild!
+                : // Adds no `blockGroup` node.
+                  undefined;
 
-              // Replaces the contents of the blockContent node with the previously created text node(s).
-              state.tr.replace(
-                startPos + 1,
-                startPos + contentNode.nodeSize - 1,
-                new Slice(Fragment.from(content), 0, 0)
-              );
-            }
+            // Creates a `blockContainer` node to place the updated block's
+            // content and children in.
+            const finalBlockNode: PMNode = state.schema.nodes[
+              "blockContainer"
+            ].create(
+              // Both the existing attributes and provided props are added.
+              {
+                ...node.attrs,
+                ...block.props,
+              },
+              // Checks if the updated block contains a `blockGroup` node.
+              finalBlockGroupNode
+                ? // Adds both the `blockContent` and `blockGroup` nodes.
+                  [finalContentNode, finalBlockGroupNode]
+                : // Adds only the `blockContent` node.
+                  finalContentNode
+            );
 
-            // Since some block types contain inline content and others don't,
-            // we either need to call setNodeMarkup to just update type &
-            // attributes, or replaceWith to replace the whole blockContent.
-            const oldType = contentNode.type.name;
-            const newType = block.type || oldType;
-
-            const oldContentType = state.schema.nodes[oldType].spec.content;
-            const newContentType = state.schema.nodes[newType].spec.content;
-
-            if (oldContentType === "inline*" && newContentType === "") {
-              // Replaces the blockContent node with one of the new type and
-              // adds the provided props as attributes. Also preserves all
-              // existing attributes that are compatible with the new type.
-              state.tr.replaceWith(
-                startPos,
-                endPos,
-                state.schema.nodes[newType].create({
-                  ...contentNode.attrs,
-                  ...block.props,
-                })
-              );
-            } else {
-              // Changes the blockContent node type and adds the provided props
-              // as attributes. Also preserves all existing attributes that are
-              // compatible with the new type.
-              state.tr.setNodeMarkup(
-                startPos,
-                block.type === undefined
-                  ? undefined
-                  : state.schema.nodes[block.type],
-                {
-                  ...contentNode.attrs,
-                  ...block.props,
-                }
-              );
-            }
-
-            // Adds all provided props as attributes to the parent blockContainer node too, and also preserves existing
-            // attributes.
-            state.tr.setNodeMarkup(startPos - 1, undefined, {
-              ...node.attrs,
-              ...block.props,
-            });
+            state.tr.replaceWith(startPos - 1, endPos + 1, finalBlockNode);
           }
 
           return true;

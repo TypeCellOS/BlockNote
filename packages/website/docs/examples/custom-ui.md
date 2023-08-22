@@ -1,7 +1,7 @@
 ---
-title: Custom UI
-description: In this example, we create a custom, static Formatting Toolbar, as well as a custom Slash Menu and Side Menu.
-imageTitle: Custom UI
+title: Making UI Elements From Scratch
+description: In this example, we create a custom static Formatting Toolbar from scratch, as well as a Slash Menu and Side Menu.
+imageTitle: Making UI Elements From Scratch
 path: /examples/custom-ui
 ---
 
@@ -12,9 +12,9 @@ import { getTheme, getStyles } from "../demoUtils";
 const { isDark } = useData();
 </script>
 
-# Custom UI
+# Making UI Elements From Scratch
 
-In this example, we create a custom, static Formatting Toolbar, as well as a custom Slash Menu and Side Menu.
+In this example, we create a custom static Formatting Toolbar from scratch, as well as a Slash Menu and Side Menu.
 
 **Relevant Docs:**
 
