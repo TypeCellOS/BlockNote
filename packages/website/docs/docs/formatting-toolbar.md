@@ -120,6 +120,30 @@ export default function App() {
 
 After creating `CustomFormattingToolbar`, we tell BlockNote to use it inside `BlockNoteView`. [Changing UI Elements](/docs/ui-elements) has more information about how this is done.
 
+## Changing the Block Type Dropdown
+
+If you create a [custom block](/docs/block-types#custom-block-types) and want to add it to the block type dropdown in the default Formatting Toolbar, you can do that through the `blockTypeDropdownItems` prop of the `DefaultFormattingToolbar` component:
+
+```jsx
+<DefaultFormattingToolbar
+    {...props}
+    blockTypeDropdownItems={[
+        ...defaultBlockTypeDropdownItems,
+        {
+            name: "Image",
+            type: "image",
+            props: {
+                src: "https://via.placeholder.com/1000",
+                alt: "image",
+            },
+            icon: RiImage2Fill,
+            isSelected: (block) => block.type === "image",
+        },
+    ]}
+```
+
+Find out how to replace the Formatting Toolbar in [Replacing UI Elements](/docs/ui-elements#replacing-ui-elements).
+
 ## Components
 
 It might seem daunting to create your own Formatting Toolbar from scratch, which is why BlockNote provides React components that you can use which match the default styling.
