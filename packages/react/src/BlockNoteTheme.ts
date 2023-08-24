@@ -221,6 +221,15 @@ export const blockNoteToMantineTheme = (theme: Theme): MantineThemeOverride => {
                   { backgroundColor: value },
                 ])
               ) as CSSObject),
+              // Nested block indentation lines
+              '[data-node-type="blockGroup"]': {
+                '[data-node-type="blockGroup"]': {
+                  '[data-node-type="block-outer"]:not([data-prev-depth-changed])::before':
+                    {
+                      borderLeft: `1px solid ${theme.colors.sideMenu}`,
+                    },
+                },
+              },
             },
             theme.componentStyles?.(theme).Editor || {}
           ),

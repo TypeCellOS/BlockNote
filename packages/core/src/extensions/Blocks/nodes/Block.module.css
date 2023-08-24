@@ -56,20 +56,6 @@ NESTED BLOCKS
   transition: all 0.2s 0.1s;
 }
 
-[data-theme="light"]
-  .blockGroup
-  .blockGroup
-  > .blockOuter:not([data-prev-depth-changed])::before {
-  border-left: 1px solid #AFAFAF;
-}
-
-[data-theme="dark"]
-  .blockGroup
-  .blockGroup
-  > .blockOuter:not([data-prev-depth-changed])::before {
-  border-left: 1px solid #7F7F7F;
-}
-
 .blockGroup .blockGroup > .blockOuter[data-prev-depth-change="-2"]::before {
   height: 0;
 }
