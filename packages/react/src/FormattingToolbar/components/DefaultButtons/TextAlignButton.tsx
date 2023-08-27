@@ -1,4 +1,5 @@
 import {
+  Block,
   BlockNoteEditor,
   BlockSchema,
   DefaultProps,
@@ -29,74 +30,60 @@ export const TextAlignButton = <BSchema extends BlockSchema>(props: {
   editor: BlockNoteEditor<BSchema>;
   textAlignment: TextAlignment;
 }) => {
-  const [activeTextAlignment, setActiveTextAlignment] = useState(() => {
-    const block = props.editor.getTextCursorPosition().block;
+  const [selectedBlocks, setSelectedBlocks] = useState<Block<BSchema>[]>(
+    props.editor.getSelection()?.blocks || [
+      props.editor.getTextCursorPosition().block,
+    ]
+  );
+
+  useEditorContentChange(props.editor, () => {
+    setSelectedBlocks(
+      props.editor.getSelection()?.blocks || [
+        props.editor.getTextCursorPosition().block,
+      ]
+    );
+  });
+
+  useEditorSelectionChange(props.editor, () => {
+    setSelectedBlocks(
+      props.editor.getSelection()?.blocks || [
+        props.editor.getTextCursorPosition().block,
+      ]
+    );
+  });
+
+  const textAlignment = useMemo(() => {
+    const block = selectedBlocks[0];
 
     if ("textAlignment" in block.props) {
       return block.props.textAlignment as TextAlignment;
     }
 
     return;
-  });
-
-  useEditorContentChange(props.editor, () => {
-    const block = props.editor.getTextCursorPosition().block;
-
-    if ("textAlignment" in block.props) {
-      setActiveTextAlignment(block.props.textAlignment as TextAlignment);
-    }
-  });
-
-  useEditorSelectionChange(props.editor, () => {
-    const block = props.editor.getTextCursorPosition().block;
-
-    if ("textAlignment" in block.props) {
-      setActiveTextAlignment(block.props.textAlignment as TextAlignment);
-    }
-  });
-
-  const show = useMemo(() => {
-    const selection = props.editor.getSelection();
-
-    if (selection) {
-      for (const block of selection.blocks) {
-        if (!("textAlignment" in block.props)) {
-          return false;
-        }
-      }
-    } else {
-      const block = props.editor.getTextCursorPosition().block;
-
-      if (!("textAlignment" in block.props)) {
-        return false;
-      }
-    }
-
-    return true;
-  }, [props.editor]);
+  }, [selectedBlocks]);
 
   const setTextAlignment = useCallback(
     (textAlignment: TextAlignment) => {
       props.editor.focus();
 
-      const selection = props.editor.getSelection();
-
-      if (selection) {
-        for (const block of selection.blocks) {
-          props.editor.updateBlock(block, {
-            props: { textAlignment: textAlignment },
-          } as PartialBlock<BSchema>);
-        }
-      } else {
-        const block = props.editor.getTextCursorPosition().block;
-
+      for (const block of selectedBlocks) {
         props.editor.updateBlock(block, {
           props: { textAlignment: textAlignment },
         } as PartialBlock<BSchema>);
       }
     },
-    [props.editor]
+    [props.editor, selectedBlocks]
   );
+
+  const show = useMemo(() => {
+    for (const block of selectedBlocks) {
+      if ("textAlignment" in block.props) {
+        return true;
+      }
+    }
+
+    return false;
+  }, [selectedBlocks]);
 
   if (!show) {
     return null;
@@ -105,7 +92,7 @@ export const TextAlignButton = <BSchema extends BlockSchema>(props: {
   return (
     <ToolbarButton
       onClick={() => setTextAlignment(props.textAlignment)}
-      isSelected={activeTextAlignment === props.textAlignment}
+      isSelected={textAlignment === props.textAlignment}
       mainTooltip={
         props.textAlignment === "justify"
           ? "Justify Text"

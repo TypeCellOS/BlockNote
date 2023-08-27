@@ -1,5 +1,5 @@
-import { useCallback, useState } from "react";
-import { BlockNoteEditor, BlockSchema } from "@blocknote/core";
+import { useCallback, useMemo, useState } from "react";
+import { Block, BlockNoteEditor, BlockSchema } from "@blocknote/core";
 import { RiLink } from "react-icons/ri";
 import LinkToolbarButton from "../LinkToolbarButton";
 import { formatKeyboardShortcut } from "../../../utils";
@@ -8,6 +8,11 @@ import { useEditorSelectionChange } from "../../../hooks/useEditorSelectionChang
 export const CreateLinkButton = <BSchema extends BlockSchema>(props: {
   editor: BlockNoteEditor<BSchema>;
 }) => {
+  const [selectedBlocks, setSelectedBlocks] = useState<Block<BSchema>[]>(
+    props.editor.getSelection()?.blocks || [
+      props.editor.getTextCursorPosition().block,
+    ]
+  );
   const [url, setUrl] = useState<string>(
     props.editor.getSelectedLinkUrl() || ""
   );
@@ -16,6 +21,11 @@ export const CreateLinkButton = <BSchema extends BlockSchema>(props: {
   );
 
   useEditorSelectionChange(props.editor, () => {
+    setSelectedBlocks(
+      props.editor.getSelection()?.blocks || [
+        props.editor.getTextCursorPosition().block,
+      ]
+    );
     setText(props.editor.getSelectedText() || "");
     setUrl(props.editor.getSelectedLinkUrl() || "");
   });
@@ -27,6 +37,20 @@ export const CreateLinkButton = <BSchema extends BlockSchema>(props: {
     },
     [props.editor]
   );
+
+  const show = useMemo(() => {
+    for (const block of selectedBlocks) {
+      if (block.content === undefined) {
+        return false;
+      }
+    }
+
+    return true;
+  }, [selectedBlocks]);
+
+  if (!show) {
+    return null;
+  }
 
   return (
     <LinkToolbarButton

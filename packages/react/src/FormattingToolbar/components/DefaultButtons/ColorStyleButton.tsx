@@ -1,6 +1,6 @@
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Menu } from "@mantine/core";
-import { BlockNoteEditor, BlockSchema } from "@blocknote/core";
+import { Block, BlockNoteEditor, BlockSchema } from "@blocknote/core";
 import { ToolbarButton } from "../../../SharedComponents/Toolbar/components/ToolbarButton";
 import { ColorIcon } from "../../../SharedComponents/ColorPicker/components/ColorIcon";
 import { ColorPicker } from "../../../SharedComponents/ColorPicker/components/ColorPicker";
@@ -10,6 +10,11 @@ import { useEditorSelectionChange } from "../../../hooks/useEditorSelectionChang
 export const ColorStyleButton = <BSchema extends BlockSchema>(props: {
   editor: BlockNoteEditor<BSchema>;
 }) => {
+  const [selectedBlocks, setSelectedBlocks] = useState<Block<BSchema>[]>(
+    props.editor.getSelection()?.blocks || [
+      props.editor.getTextCursorPosition().block,
+    ]
+  );
   const [currentTextColor, setCurrentTextColor] = useState<string>(
     props.editor.getActiveStyles().textColor || "default"
   );
@@ -18,6 +23,11 @@ export const ColorStyleButton = <BSchema extends BlockSchema>(props: {
   );
 
   useEditorContentChange(props.editor, () => {
+    setSelectedBlocks(
+      props.editor.getSelection()?.blocks || [
+        props.editor.getTextCursorPosition().block,
+      ]
+    );
     setCurrentTextColor(props.editor.getActiveStyles().textColor || "default");
     setCurrentBackgroundColor(
       props.editor.getActiveStyles().backgroundColor || "default"
@@ -25,6 +35,11 @@ export const ColorStyleButton = <BSchema extends BlockSchema>(props: {
   });
 
   useEditorSelectionChange(props.editor, () => {
+    setSelectedBlocks(
+      props.editor.getSelection()?.blocks || [
+        props.editor.getTextCursorPosition().block,
+      ]
+    );
     setCurrentTextColor(props.editor.getActiveStyles().textColor || "default");
     setCurrentBackgroundColor(
       props.editor.getActiveStyles().backgroundColor || "default"
@@ -51,6 +66,20 @@ export const ColorStyleButton = <BSchema extends BlockSchema>(props: {
     [props.editor]
   );
 
+  const show = useMemo(() => {
+    for (const block of selectedBlocks) {
+      if (block.content !== undefined) {
+        return true;
+      }
+    }
+
+    return false;
+  }, [selectedBlocks]);
+
+  if (!show) {
+    return null;
+  }
+
   return (
     <Menu>
       <Menu.Target>
@@ -65,12 +94,16 @@ export const ColorStyleButton = <BSchema extends BlockSchema>(props: {
           )}
         />
       </Menu.Target>
-      <Menu.Dropdown>
+      <Menu.Dropdown style={{ zIndex: "999999" }}>
         <ColorPicker
-          textColor={currentTextColor}
-          setTextColor={setTextColor}
-          backgroundColor={currentBackgroundColor}
-          setBackgroundColor={setBackgroundColor}
+          text={{
+            color: currentTextColor,
+            setColor: setTextColor,
+          }}
+          background={{
+            color: currentBackgroundColor,
+            setColor: setBackgroundColor,
+          }}
         />
       </Menu.Dropdown>
     </Menu>

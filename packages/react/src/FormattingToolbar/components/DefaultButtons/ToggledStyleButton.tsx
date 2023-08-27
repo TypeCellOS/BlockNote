@@ -7,9 +7,14 @@ import {
   RiStrikethrough,
   RiUnderline,
 } from "react-icons/ri";
-import { BlockNoteEditor, BlockSchema, ToggledStyle } from "@blocknote/core";
+import {
+  Block,
+  BlockNoteEditor,
+  BlockSchema,
+  ToggledStyle,
+} from "@blocknote/core";
 import { IconType } from "react-icons";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useEditorContentChange } from "../../../hooks/useEditorContentChange";
 import { useEditorSelectionChange } from "../../../hooks/useEditorSelectionChange";
 
@@ -33,15 +38,30 @@ export const ToggledStyleButton = <BSchema extends BlockSchema>(props: {
   editor: BlockNoteEditor<BSchema>;
   toggledStyle: ToggledStyle;
 }) => {
+  const [selectedBlocks, setSelectedBlocks] = useState<Block<BSchema>[]>(
+    props.editor.getSelection()?.blocks || [
+      props.editor.getTextCursorPosition().block,
+    ]
+  );
   const [active, setActive] = useState<boolean>(
     props.toggledStyle in props.editor.getActiveStyles()
   );
 
   useEditorContentChange(props.editor, () => {
+    setSelectedBlocks(
+      props.editor.getSelection()?.blocks || [
+        props.editor.getTextCursorPosition().block,
+      ]
+    );
     setActive(props.toggledStyle in props.editor.getActiveStyles());
   });
 
   useEditorSelectionChange(props.editor, () => {
+    setSelectedBlocks(
+      props.editor.getSelection()?.blocks || [
+        props.editor.getTextCursorPosition().block,
+      ]
+    );
     setActive(props.toggledStyle in props.editor.getActiveStyles());
   });
 
@@ -49,6 +69,20 @@ export const ToggledStyleButton = <BSchema extends BlockSchema>(props: {
     props.editor.focus();
     props.editor.toggleStyles({ [style]: true });
   };
+
+  const show = useMemo(() => {
+    for (const block of selectedBlocks) {
+      if (block.content !== undefined) {
+        return true;
+      }
+    }
+
+    return false;
+  }, [selectedBlocks]);
+
+  if (!show) {
+    return null;
+  }
 
   return (
     <ToolbarButton

@@ -20,6 +20,7 @@ export const ColorIcon = (
       className={classes.root}
       sx={(theme) => {
         return {
+          pointerEvents: "none",
           backgroundColor: theme.other.backgroundColors[backgroundColor],
           color: theme.other.textColors[textColor],
           fontSize: (size * 0.75).toString() + "px",

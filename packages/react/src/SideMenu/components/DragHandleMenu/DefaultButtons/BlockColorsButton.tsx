@@ -56,17 +56,27 @@ export const BlockColorsButton = <BSchema extends BlockSchema>(
           style={{ marginLeft: "5px" }}>
           <ColorPicker
             iconSize={18}
-            textColor={props.block.props.textColor || "default"}
-            backgroundColor={props.block.props.backgroundColor || "default"}
-            setTextColor={(color) =>
-              props.editor.updateBlock(props.block, {
-                props: { textColor: color },
-              } as PartialBlock<BSchema>)
+            text={
+              "textColor" in props.block.props
+                ? {
+                    color: props.block.props.textColor,
+                    setColor: (color) =>
+                      props.editor.updateBlock(props.block, {
+                        props: { textColor: color },
+                      } as PartialBlock<BSchema>),
+                  }
+                : undefined
             }
-            setBackgroundColor={(color) =>
-              props.editor.updateBlock(props.block, {
-                props: { backgroundColor: color },
-              } as PartialBlock<BSchema>)
+            background={
+              "backgroundColor" in props.block.props
+                ? {
+                    color: props.block.props.backgroundColor,
+                    setColor: (color) =>
+                      props.editor.updateBlock(props.block, {
+                        props: { backgroundColor: color },
+                      } as PartialBlock<BSchema>),
+                  }
+                : undefined
             }
           />
         </Menu.Dropdown>

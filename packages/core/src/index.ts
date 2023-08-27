@@ -4,6 +4,7 @@ export * from "./extensions/Blocks/api/block";
 export * from "./extensions/Blocks/api/blockTypes";
 export * from "./extensions/Blocks/api/defaultBlocks";
 export * from "./extensions/Blocks/api/inlineContentTypes";
+export * from "./extensions/Blocks/api/selectionTypes";
 export * from "./extensions/Blocks/api/serialization";
 export * as blockStyles from "./extensions/Blocks/nodes/Block.module.css";
 export * from "./extensions/FormattingToolbar/FormattingToolbarPlugin";
