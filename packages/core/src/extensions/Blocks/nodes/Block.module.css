@@ -278,6 +278,10 @@ NESTED BLOCKS
   content: "List";
 }
 
+.isEmpty .blockContent[data-content-type="captionedImage"] .inlineContent:before {
+  content: "Caption";
+}
+
 /* TEXT COLORS */
 [data-text-color="gray"] {
   color: #9b9a97;

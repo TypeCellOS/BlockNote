@@ -42,4 +42,6 @@ export * from "./hooks/useEditorForceUpdate";
 export * from "./hooks/useEditorContentChange";
 export * from "./hooks/useEditorSelectionChange";
 
+export * from "./Image";
+
 export * from "./ReactBlockSpec";
