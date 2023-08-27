@@ -112,7 +112,11 @@ export const BlockTypeDropdown = <BSchema extends BlockSchema>(props: {
             props: {},
           });
         },
-        isSelected: block.type === item.type,
+        isSelected:
+          block.type === item.type &&
+          (block.type === "heading"
+            ? block.props.level === item.props?.level
+            : true),
       })),
     [block, filteredItems, props.editor]
   );
