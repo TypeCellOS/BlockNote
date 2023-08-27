@@ -9,6 +9,12 @@ function insertOrUpdateBlock<BSchema extends BlockSchema>(
 ) {
   const currentBlock = editor.getTextCursorPosition().block;
 
+  if (currentBlock.content === undefined) {
+    throw new Error(
+      "Slash Menu open in a block that doesn't contain inline content."
+    );
+  }
+
   if (
     (currentBlock.content.length === 1 &&
       currentBlock.content[0].type === "text" &&
@@ -101,6 +107,34 @@ export const getDefaultSlashMenuItems = <BSchema extends BlockSchema>(
       execute: (editor) =>
         insertOrUpdateBlock(editor, {
           type: "paragraph",
+        } as PartialBlock<BSchema>),
+    });
+  }
+
+  if (
+    "image" in schema &&
+    "replacing" in schema["image"].propSchema &&
+    schema["image"].propSchema.replacing.values?.includes("true") &&
+    schema["image"].propSchema.replacing.values?.includes("false") &&
+    schema["image"].propSchema.replacing.values?.length === 2
+  ) {
+    slashMenuItems.push({
+      name: "Image",
+      aliases: [
+        "image",
+        "imageUpload",
+        "upload",
+        "img",
+        "picture",
+        "media",
+        "url",
+        "drive",
+        "dropbox",
+      ],
+      execute: (editor) =>
+        insertOrUpdateBlock(editor, {
+          type: "image",
+          props: { replacing: "true" },
         } as PartialBlock<BSchema>),
     });
   }
