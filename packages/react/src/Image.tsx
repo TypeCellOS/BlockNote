@@ -295,6 +295,7 @@ const ImageComponent = <Caption extends boolean>(props: {
         {/*TODO: Alt text?*/}
         <img
           src={props.block.props.src}
+          alt={"placeholder"}
           contentEditable={false}
           style={{
             display: props.block.props.replacing === "true" ? "none" : "block",
