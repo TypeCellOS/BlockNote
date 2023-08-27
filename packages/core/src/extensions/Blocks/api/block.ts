@@ -124,7 +124,7 @@ export function createBlockSpec<
   BSchema extends BlockSchema
 >(
   blockConfig: BlockConfig<BType, PSchema, ContainsInlineContent, BSchema>
-): BlockSpec<BType, PSchema> {
+): BlockSpec<BType, PSchema, ContainsInlineContent> {
   const node = createTipTapBlock<
     BType,
     {
@@ -134,7 +134,7 @@ export function createBlockSpec<
   >({
     name: blockConfig.type,
     content: blockConfig.containsInlineContent ? "inline*" : "",
-    selectable: blockConfig.containsInlineContent,
+    selectable: true,
 
     addAttributes() {
       return propsToAttributes(blockConfig);
@@ -176,7 +176,9 @@ export function createBlockSpec<
 
         // Gets BlockNote editor instance
         const editor = this.options.editor! as BlockNoteEditor<
-          BSchema & { [k in BType]: BlockSpec<BType, PSchema> }
+          BSchema & {
+            [k in BType]: BlockSpec<BType, PSchema, ContainsInlineContent>;
+          }
         >;
         // Gets position of the node
         if (typeof getPos === "boolean") {
@@ -237,6 +239,7 @@ export function createBlockSpec<
   return {
     node: node as TipTapNode<BType>,
     propSchema: blockConfig.propSchema,
+    containsInlineContent: blockConfig.containsInlineContent,
   };
 }
 

@@ -49,7 +49,10 @@ describe("Simple ProseMirror Node Conversions", () => {
 
     expect(firstBlockConversion).toMatchSnapshot();
 
-    const firstNodeConversion = blockToNode(firstBlockConversion, tt.schema);
+    const firstNodeConversion = blockToNode(
+      firstBlockConversion as any,
+      tt.schema
+    );
 
     expect(firstNodeConversion).toStrictEqual(node);
   });
@@ -147,7 +150,10 @@ describe("Complex ProseMirror Node Conversions", () => {
 
     expect(firstBlockConversion).toMatchSnapshot();
 
-    const firstNodeConversion = blockToNode(firstBlockConversion, tt.schema);
+    const firstNodeConversion = blockToNode(
+      firstBlockConversion as any,
+      tt.schema
+    );
 
     expect(firstNodeConversion).toStrictEqual(node);
   });

@@ -460,6 +460,12 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
       posBeforeNode + 2
     )!;
 
+    // For blocks without inline content
+    if (contentNode.type.spec.content === "") {
+      this._tiptapEditor.commands.setNodeSelection(startPos);
+      return;
+    }
+
     if (placement === "start") {
       this._tiptapEditor.commands.setTextSelection(startPos + 1);
     } else {
@@ -475,7 +481,8 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
   public getSelection(): Selection<BSchema> | undefined {
     if (
       this._tiptapEditor.state.selection.from ===
-      this._tiptapEditor.state.selection.to
+        this._tiptapEditor.state.selection.to ||
+      "node" in this._tiptapEditor.state.selection
     ) {
       return undefined;
     }

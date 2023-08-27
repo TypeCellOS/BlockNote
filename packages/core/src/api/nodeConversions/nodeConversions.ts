@@ -409,7 +409,7 @@ export function nodeToBlock<BSchema extends BlockSchema>(
     }
   }
 
-  const content = contentNodeToInlineContent(blockInfo.contentNode);
+  const blockSpec = blockSchema[blockInfo.contentType.name];
 
   const children: Block<BSchema>[] = [];
   for (let i = 0; i < blockInfo.numChildBlocks; i++) {
@@ -420,11 +420,13 @@ export function nodeToBlock<BSchema extends BlockSchema>(
 
   const block: Block<BSchema> = {
     id,
-    type: blockInfo.contentType.name,
+    type: blockSpec.node.name,
     props,
-    content,
+    content: blockSpec.containsInlineContent
+      ? contentNodeToInlineContent(blockInfo.contentNode)
+      : undefined,
     children,
-  };
+  } as Block<BSchema>;
 
   blockCache?.set(node, block);
 
