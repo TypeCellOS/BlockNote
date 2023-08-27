@@ -3,11 +3,13 @@ import {
   BlockSchema,
   DefaultBlockSchema,
 } from "@blocknote/core";
-import Tippy from "@tippyjs/react";
+import Tippy, { tippy } from "@tippyjs/react";
 import { FC, useEffect, useMemo, useRef, useState } from "react";
 import { sticky } from "tippy.js";
 
 import { DefaultFormattingToolbar } from "./DefaultFormattingToolbar";
+import { useEditorContentChange } from "../../hooks/useEditorContentChange";
+import { useEditorSelectionChange } from "../../hooks/useEditorSelectionChange";
 
 export type FormattingToolbarProps<
   BSchema extends BlockSchema = DefaultBlockSchema
@@ -21,11 +23,39 @@ export const FormattingToolbarPositioner = <
   editor: BlockNoteEditor<BSchema>;
   formattingToolbar?: FC<FormattingToolbarProps<BSchema>>;
 }) => {
+  // Placement is dynamic based on the text alignment of the current block.
+  const getPlacement = useMemo(
+    () => () => {
+      const block = props.editor.getTextCursorPosition().block;
+
+      if (!("textAlignment" in block.props)) {
+        return "top-start";
+      }
+
+      switch (block.props.textAlignment) {
+        case "left":
+          return "top-start";
+        case "center":
+          return "top";
+        case "right":
+          return "top-end";
+        default:
+          return "top-start";
+      }
+    },
+    [props.editor]
+  );
+
   const [show, setShow] = useState<boolean>(false);
+  const [placement, setPlacement] = useState<"top-start" | "top" | "top-end">(
+    getPlacement
+  );
 
   const referencePos = useRef<DOMRect>();
 
   useEffect(() => {
+    tippy.setDefaultProps({ maxWidth: "" });
+
     return props.editor.formattingToolbar.onUpdate((state) => {
       setShow(state.show);
 
@@ -33,8 +63,12 @@ export const FormattingToolbarPositioner = <
     });
   }, [props.editor]);
 
+  useEditorContentChange(props.editor, () => setPlacement(getPlacement()));
+  useEditorSelectionChange(props.editor, () => setPlacement(getPlacement()));
+
   const getReferenceClientRect = useMemo(
     () => {
+      console.log("getReferenceClientRect");
       if (!referencePos) {
         return undefined;
       }
@@ -58,7 +92,7 @@ export const FormattingToolbarPositioner = <
       interactive={true}
       visible={show}
       animation={"fade"}
-      placement={"top-start"}
+      placement={placement}
       sticky={true}
       plugins={tippyPlugins}
     />
