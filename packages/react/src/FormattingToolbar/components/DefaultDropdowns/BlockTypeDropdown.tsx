@@ -9,6 +9,7 @@ import {
   RiListUnordered,
   RiText,
 } from "react-icons/ri";
+import { PartialBlock } from "../../../../../core/src/extensions/Blocks/api/blockTypes";
 
 import { ToolbarDropdown } from "../../../SharedComponents/Toolbar/components/ToolbarDropdown";
 import { useEditorSelectionChange } from "../../../hooks/useEditorSelectionChange";
@@ -109,8 +110,8 @@ export const BlockTypeDropdown = <BSchema extends BlockSchema>(props: {
           props.editor.focus();
           props.editor.updateBlock(block, {
             type: item.type,
-            props: {},
-          });
+            props: item.type === "heading" ? { level: item.props?.level } : {},
+          } as PartialBlock<BSchema>);
         },
         isSelected:
           block.type === item.type &&
