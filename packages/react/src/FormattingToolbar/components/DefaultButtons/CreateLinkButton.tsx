@@ -1,9 +1,12 @@
 import { useCallback, useMemo, useState } from "react";
 import { Block, BlockNoteEditor, BlockSchema } from "@blocknote/core";
 import { RiLink } from "react-icons/ri";
-import LinkToolbarButton from "../LinkToolbarButton";
-import { formatKeyboardShortcut } from "../../../utils";
 import { useEditorSelectionChange } from "../../../hooks/useEditorSelectionChange";
+import { ToolbarInputDropdownButton } from "../../../SharedComponents/Toolbar/components/ToolbarInputDropdownButton";
+import { ToolbarButton } from "../../../SharedComponents/Toolbar/components/ToolbarButton";
+import { EditHyperlinkMenu } from "../../../HyperlinkToolbar/components/EditHyperlinkMenu/components/EditHyperlinkMenu";
+import { useEditorContentChange } from "../../../hooks/useEditorContentChange";
+import { formatKeyboardShortcut } from "../../../utils";
 
 export const CreateLinkButton = <BSchema extends BlockSchema>(props: {
   editor: BlockNoteEditor<BSchema>;
@@ -16,9 +19,17 @@ export const CreateLinkButton = <BSchema extends BlockSchema>(props: {
   const [url, setUrl] = useState<string>(
     props.editor.getSelectedLinkUrl() || ""
   );
-  const [text, setText] = useState<string>(
-    props.editor.getSelectedText() || ""
-  );
+  const [text, setText] = useState<string>(props.editor.getSelectedText());
+
+  useEditorContentChange(props.editor, () => {
+    setSelectedBlocks(
+      props.editor.getSelection()?.blocks || [
+        props.editor.getTextCursorPosition().block,
+      ]
+    );
+    setText(props.editor.getSelectedText() || "");
+    setUrl(props.editor.getSelectedLinkUrl() || "");
+  });
 
   useEditorSelectionChange(props.editor, () => {
     setSelectedBlocks(
@@ -30,10 +41,10 @@ export const CreateLinkButton = <BSchema extends BlockSchema>(props: {
     setUrl(props.editor.getSelectedLinkUrl() || "");
   });
 
-  const setLink = useCallback(
-    (url: string, text?: string) => {
-      props.editor.focus();
+  const update = useCallback(
+    (url: string, text: string) => {
       props.editor.createLink(url, text);
+      props.editor.focus();
     },
     [props.editor]
   );
@@ -53,15 +64,13 @@ export const CreateLinkButton = <BSchema extends BlockSchema>(props: {
   }
 
   return (
-    <LinkToolbarButton
-      isSelected={!!url}
-      mainTooltip="Link"
-      secondaryTooltip={formatKeyboardShortcut("Mod+K")}
-      icon={RiLink}
-      hyperlinkIsActive={!!url}
-      activeHyperlinkUrl={url}
-      activeHyperlinkText={text}
-      setHyperlink={setLink}
-    />
+    <ToolbarInputDropdownButton>
+      <ToolbarButton
+        mainTooltip={"Create Link"}
+        secondaryTooltip={formatKeyboardShortcut("Mod+K")}
+        icon={RiLink}
+      />
+      <EditHyperlinkMenu url={url} text={text} update={update} />
+    </ToolbarInputDropdownButton>
   );
 };

@@ -149,49 +149,6 @@ export const blockNoteToMantineTheme = (theme: Theme): MantineThemeOverride => {
           ),
         }),
       },
-      EditHyperlinkMenu: {
-        styles: () => ({
-          root: _.merge<CSSObject, CSSObject>(
-            {
-              backgroundColor: theme.colors.menu.background,
-              border: border,
-              borderRadius: outerBorderRadius,
-              boxShadow: shadow,
-              color: theme.colors.menu.text,
-              gap: "4px",
-              minWidth: "145px",
-              padding: "2px",
-              // Row
-              ".mantine-Group-root": {
-                flexWrap: "nowrap",
-                gap: "8px",
-                paddingInline: "6px",
-                // Row icon
-                ".mantine-Container-root": {
-                  color: theme.colors.menu.text,
-                  display: "flex",
-                  justifyContent: "center",
-                  padding: 0,
-                  width: "fit-content",
-                },
-                // Row input field
-                ".mantine-TextInput-root": {
-                  width: "300px",
-                  ".mantine-TextInput-wrapper": {
-                    ".mantine-TextInput-input": {
-                      border: "none",
-                      color: theme.colors.menu.text,
-                      fontSize: "12px",
-                      padding: 0,
-                    },
-                  },
-                },
-              },
-            },
-            theme.componentStyles?.(theme).EditHyperlinkMenu || {}
-          ),
-        }),
-      },
       Editor: {
         styles: () => ({
           root: _.merge<CSSObject, CSSObject>(
@@ -279,6 +236,49 @@ export const blockNoteToMantineTheme = (theme: Theme): MantineThemeOverride => {
               },
             },
             theme.componentStyles?.(theme).Toolbar || {}
+          ),
+        }),
+      },
+      ToolbarInputDropdown: {
+        styles: () => ({
+          root: _.merge<CSSObject, CSSObject>(
+            {
+              backgroundColor: theme.colors.menu.background,
+              border: border,
+              borderRadius: outerBorderRadius,
+              boxShadow: shadow,
+              color: theme.colors.menu.text,
+              gap: "4px",
+              minWidth: "145px",
+              padding: "2px",
+              // Row
+              ".mantine-Group-root": {
+                flexWrap: "nowrap",
+                gap: "8px",
+                paddingInline: "6px",
+                // Row icon
+                ".mantine-Container-root": {
+                  color: theme.colors.menu.text,
+                  display: "flex",
+                  justifyContent: "center",
+                  padding: 0,
+                  width: "fit-content",
+                },
+                // Row input field
+                ".mantine-TextInput-root": {
+                  width: "300px",
+                  ".mantine-TextInput-wrapper": {
+                    ".mantine-TextInput-input": {
+                      border: "none",
+                      color: theme.colors.menu.text,
+                      fontSize: "12px",
+                      padding: 0,
+                    },
+                  },
+                },
+              },
+            },
+            theme.componentStyles?.(theme).EditHyperlinkMenu || {}
           ),
         }),
       },

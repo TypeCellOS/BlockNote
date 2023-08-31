@@ -15,7 +15,7 @@ import {
 } from "./DefaultButtons/NestBlockButtons";
 import { CreateLinkButton } from "./DefaultButtons/CreateLinkButton";
 import { ReplaceImageButton } from "./DefaultButtons/ReplaceImageButton";
-import { ToggleImageCaptionButton } from "./DefaultButtons/ToggleImageCaptionButton";
+import { ImageCaptionButton } from "./DefaultButtons/ImageCaptionButton";
 
 export const DefaultFormattingToolbar = <BSchema extends BlockSchema>(
   props: FormattingToolbarProps<BSchema> & {
@@ -26,7 +26,7 @@ export const DefaultFormattingToolbar = <BSchema extends BlockSchema>(
     <Toolbar>
       <BlockTypeDropdown {...props} items={props.blockTypeDropdownItems} />
 
-      <ToggleImageCaptionButton editor={props.editor} />
+      <ImageCaptionButton editor={props.editor} />
       <ReplaceImageButton editor={props.editor} />
 
       <ToggledStyleButton editor={props.editor} toggledStyle={"bold"} />
