@@ -111,13 +111,7 @@ export const getDefaultSlashMenuItems = <BSchema extends BlockSchema>(
     });
   }
 
-  if (
-    "image" in schema &&
-    "replacing" in schema["image"].propSchema &&
-    schema["image"].propSchema.replacing.values?.includes("true") &&
-    schema["image"].propSchema.replacing.values?.includes("false") &&
-    schema["image"].propSchema.replacing.values?.length === 2
-  ) {
+  if ("image" in schema && "replacing" in schema["image"].propSchema) {
     slashMenuItems.push({
       name: "Image",
       aliases: [
@@ -134,7 +128,6 @@ export const getDefaultSlashMenuItems = <BSchema extends BlockSchema>(
       execute: (editor) =>
         insertOrUpdateBlock(editor, {
           type: "image",
-          props: { replacing: "true" },
         } as PartialBlock<BSchema>),
     });
   }

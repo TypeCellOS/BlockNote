@@ -3,6 +3,7 @@ import { BulletListItemBlockContent } from "../nodes/BlockContent/ListItemBlockC
 import { NumberedListItemBlockContent } from "../nodes/BlockContent/ListItemBlockContent/NumberedListItemBlockContent/NumberedListItemBlockContent";
 import { ParagraphBlockContent } from "../nodes/BlockContent/ParagraphBlockContent/ParagraphBlockContent";
 import { BlockSchema, PropSchema, TypesMatch } from "./blockTypes";
+import { Image } from "../nodes/BlockContent/ImageBlockContent/ImageBlockContent";
 
 export const defaultProps = {
   backgroundColor: {
@@ -43,6 +44,7 @@ export const defaultBlockSchema = {
     propSchema: defaultProps,
     containsInlineContent: true,
   },
+  image: Image,
 } as const satisfies BlockSchema;
 
 export type DefaultBlockSchema = TypesMatch<typeof defaultBlockSchema>;
