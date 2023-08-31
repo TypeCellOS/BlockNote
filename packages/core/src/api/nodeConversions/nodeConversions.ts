@@ -5,8 +5,7 @@ import {
   BlockSchema,
   PartialBlock,
 } from "../../extensions/Blocks/api/blockTypes";
-
-import { defaultProps } from "../../extensions/Blocks/api/defaultBlocks";
+import { defaultProps } from "../../extensions/Blocks/api/defaultProps";
 import {
   ColorStyle,
   InlineContent,

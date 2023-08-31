@@ -2,23 +2,9 @@ import { HeadingBlockContent } from "../nodes/BlockContent/HeadingBlockContent/H
 import { BulletListItemBlockContent } from "../nodes/BlockContent/ListItemBlockContent/BulletListItemBlockContent/BulletListItemBlockContent";
 import { NumberedListItemBlockContent } from "../nodes/BlockContent/ListItemBlockContent/NumberedListItemBlockContent/NumberedListItemBlockContent";
 import { ParagraphBlockContent } from "../nodes/BlockContent/ParagraphBlockContent/ParagraphBlockContent";
-import { BlockSchema, PropSchema, TypesMatch } from "./blockTypes";
+import { BlockSchema, TypesMatch } from "./blockTypes";
 import { Image } from "../nodes/BlockContent/ImageBlockContent/ImageBlockContent";
-
-export const defaultProps = {
-  backgroundColor: {
-    default: "transparent" as const,
-  },
-  textColor: {
-    default: "black" as const, // TODO
-  },
-  textAlignment: {
-    default: "left" as const,
-    values: ["left", "center", "right", "justify"] as const,
-  },
-} satisfies PropSchema;
-
-export type DefaultProps = typeof defaultProps;
+import { defaultProps } from "./defaultProps";
 
 export const defaultBlockSchema = {
   paragraph: {

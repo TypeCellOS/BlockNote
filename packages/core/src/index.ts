@@ -2,6 +2,7 @@ export * from "./BlockNoteEditor";
 export * from "./BlockNoteExtensions";
 export * from "./extensions/Blocks/api/block";
 export * from "./extensions/Blocks/api/blockTypes";
+export * from "./extensions/Blocks/api/defaultProps";
 export * from "./extensions/Blocks/api/defaultBlocks";
 export * from "./extensions/Blocks/api/inlineContentTypes";
 export * from "./extensions/Blocks/api/selectionTypes";
