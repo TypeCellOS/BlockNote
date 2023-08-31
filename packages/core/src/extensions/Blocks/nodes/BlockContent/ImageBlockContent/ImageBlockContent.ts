@@ -122,6 +122,14 @@ const renderImage = (
   const addImageButtonText = document.createElement("p");
   addImageButtonText.innerText = "Add Image";
 
+  const imageAndCaptionWrapper = document.createElement("div");
+  imageAndCaptionWrapper.style.display =
+    block.props.replacing === "false" && block.props.src !== ""
+      ? "flex"
+      : "none";
+  imageAndCaptionWrapper.style.flexDirection = "column";
+  imageAndCaptionWrapper.style.borderRadius = "4px";
+
   // Wrapper element for the image and resize handles.
   const imageWrapper = document.createElement("div");
   imageWrapper.style.display =
@@ -131,7 +139,6 @@ const renderImage = (
   imageWrapper.style.flexDirection = "row";
   imageWrapper.style.alignItems = "center";
   imageWrapper.style.position = "relative";
-  imageWrapper.style.borderRadius = "4px";
   imageWrapper.style.width = "fit-content";
 
   // Image element.
@@ -169,11 +176,11 @@ const renderImage = (
     if (isSelected) {
       imageUploadDashboard.style.outline = "4px solid rgb(100, 160, 255)";
       addImageButton.style.outline = "4px solid rgb(100, 160, 255)";
-      imageWrapper.style.outline = "4px solid rgb(100, 160, 255)";
+      imageAndCaptionWrapper.style.outline = "4px solid rgb(100, 160, 255)";
     } else {
       imageUploadDashboard.style.outline = "none";
       addImageButton.style.outline = "none";
-      imageWrapper.style.outline = "none";
+      imageAndCaptionWrapper.style.outline = "none";
     }
   };
   editor.onEditorContentChange(handleEditorUpdate);
@@ -405,11 +412,12 @@ const renderImage = (
   wrapper.appendChild(addImageButton);
   addImageButton.appendChild(addImageButtonIcon);
   addImageButton.appendChild(addImageButtonText);
-  wrapper.appendChild(imageWrapper);
+  wrapper.appendChild(imageAndCaptionWrapper);
+  imageAndCaptionWrapper.appendChild(imageWrapper);
   imageWrapper.appendChild(image);
   imageWrapper.appendChild(leftResizeHandle);
   imageWrapper.appendChild(rightResizeHandle);
-  wrapper.appendChild(caption);
+  imageAndCaptionWrapper.appendChild(caption);
 
   window.addEventListener("mousemove", windowMouseMoveHandler);
   window.addEventListener("mouseup", windowMouseUpHandler);
