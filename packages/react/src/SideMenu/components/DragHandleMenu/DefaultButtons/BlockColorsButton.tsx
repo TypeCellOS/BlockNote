@@ -31,7 +31,7 @@ export const BlockColorsButton = <BSchema extends BlockSchema>(
   }, []);
 
   if (
-    !("textColor" in props.block.props) ||
+    !("textColor" in props.block.props) &&
     !("backgroundColor" in props.block.props)
   ) {
     return null;
