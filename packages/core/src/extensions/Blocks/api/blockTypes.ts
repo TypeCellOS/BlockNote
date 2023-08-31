@@ -115,9 +115,11 @@ export type BlockConfig<
     ? {
         dom: HTMLElement;
         contentDOM: HTMLElement;
+        destroy?: () => void;
       }
     : {
         dom: HTMLElement;
+        destroy?: () => void;
       };
 };
 

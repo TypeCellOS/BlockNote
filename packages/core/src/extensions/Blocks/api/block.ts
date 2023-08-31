@@ -1,4 +1,4 @@
-import { Attribute, Node } from "@tiptap/core";
+import { Attribute, Attributes, Node } from "@tiptap/core";
 import { BlockNoteDOMAttributes, BlockNoteEditor } from "../../..";
 import styles from "../nodes/Block.module.css";
 import {
@@ -10,6 +10,7 @@ import {
   TipTapNodeConfig,
 } from "./blockTypes";
 import { mergeCSSClasses } from "../../../shared/utils";
+import { ParseRule } from "prosemirror-model";
 
 export function camelToDataKebab(str: string): string {
   return "data-" + str.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
@@ -27,7 +28,7 @@ export function propsToAttributes<
     BlockConfig<BType, PSchema, ContainsInlineContent, BSchema>,
     "render"
   >
-) {
+): Attributes {
   const tiptapAttributes: Record<string, Attribute> = {};
 
   Object.entries(blockConfig.propSchema).forEach(([name, spec]) => {
@@ -63,7 +64,7 @@ export function parse<
     BlockConfig<BType, PSchema, ContainsInlineContent, BSchema>,
     "render"
   >
-) {
+): ParseRule[] {
   return [
     {
       tag: "div[data-content-type=" + blockConfig.type + "]",
@@ -228,9 +229,11 @@ export function createBlockSpec<
           ? {
               dom: blockContent,
               contentDOM: rendered.contentDOM,
+              destroy: rendered.destroy,
             }
           : {
               dom: blockContent,
+              destroy: rendered.destroy,
             };
       };
     },
