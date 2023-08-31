@@ -35,71 +35,24 @@ export const ReplaceImageButton = <BSchema extends BlockSchema>(props: {
     );
   });
 
-  const show = useMemo(() => {
-    if (selectedBlocks.length > 1) {
-      return false;
-    }
-
-    // Checks if the selected block is an image.
-    if (selectedBlocks[0].type === "image") {
-      // Checks if the image has a src prop which can take any string value.
-      if (
-        !("src" in props.editor.schema["image"].propSchema) ||
-        props.editor.schema["image"].propSchema.src.values !== undefined
-      ) {
-        return false;
-      }
-
-      // Checks if the image has a replacing prop which can take either "true"
+  const show = useMemo(
+    () =>
+      // Checks if only one block is selected.
+      selectedBlocks.length === 1 &&
+      // Checks if the selected block is an image.
+      selectedBlocks[0].type === "image" &&
+      // Checks if the image has a `replacing` prop which can take either "true"
       // or "false".
-      if (
-        !("replacing" in props.editor.schema["image"].propSchema) ||
-        !props.editor.schema["image"].propSchema.replacing.values?.includes(
-          "true"
-        ) ||
-        !props.editor.schema["image"].propSchema.replacing.values?.includes(
-          "false"
-        ) ||
-        props.editor.schema["image"].propSchema.replacing.values?.length !== 2
-      ) {
-        return false;
-      }
-
-      return true;
-    }
-
-    // Checks if the selected block is a captionedImage.
-    if (selectedBlocks[0].type === "captionedImage") {
-      // Checks if the image has a src prop which can take any string value.
-      if (
-        !("src" in props.editor.schema["captionedImage"].propSchema) ||
-        props.editor.schema["captionedImage"].propSchema.src.values !==
-          undefined
-      ) {
-        return false;
-      }
-
-      // Checks if the image has a replacing prop which can take either "true"
-      // or "false".
-      if (
-        !("replacing" in props.editor.schema["captionedImage"].propSchema) ||
-        !props.editor.schema[
-          "captionedImage"
-        ].propSchema.replacing.values?.includes("true") ||
-        !props.editor.schema[
-          "captionedImage"
-        ].propSchema.replacing.values?.includes("false") ||
-        props.editor.schema["captionedImage"].propSchema.replacing.values
-          ?.length !== 2
-      ) {
-        return false;
-      }
-
-      return true;
-    }
-
-    return false;
-  }, [props.editor.schema, selectedBlocks]);
+      "replacing" in props.editor.schema["image"].propSchema &&
+      props.editor.schema["image"].propSchema.replacing.values?.includes(
+        "true"
+      ) &&
+      props.editor.schema["image"].propSchema.replacing.values?.includes(
+        "false"
+      ) &&
+      props.editor.schema["image"].propSchema.replacing.values?.length === 2,
+    [props.editor.schema, selectedBlocks]
+  );
 
   if (!show) {
     return null;
