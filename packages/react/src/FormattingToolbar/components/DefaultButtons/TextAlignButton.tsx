@@ -1,11 +1,10 @@
+import { useCallback, useMemo } from "react";
 import {
-  Block,
   BlockNoteEditor,
   BlockSchema,
   DefaultProps,
   PartialBlock,
 } from "@blocknote/core";
-import { useCallback, useMemo, useState } from "react";
 import { IconType } from "react-icons";
 import {
   RiAlignCenter,
@@ -13,9 +12,9 @@ import {
   RiAlignLeft,
   RiAlignRight,
 } from "react-icons/ri";
+
 import { ToolbarButton } from "../../../SharedComponents/Toolbar/components/ToolbarButton";
-import { useEditorContentChange } from "../../../hooks/useEditorContentChange";
-import { useEditorSelectionChange } from "../../../hooks/useEditorSelectionChange";
+import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
 
 type TextAlignment = DefaultProps["textAlignment"]["values"][number];
 
@@ -30,27 +29,7 @@ export const TextAlignButton = <BSchema extends BlockSchema>(props: {
   editor: BlockNoteEditor<BSchema>;
   textAlignment: TextAlignment;
 }) => {
-  const [selectedBlocks, setSelectedBlocks] = useState<Block<BSchema>[]>(
-    props.editor.getSelection()?.blocks || [
-      props.editor.getTextCursorPosition().block,
-    ]
-  );
-
-  useEditorContentChange(props.editor, () => {
-    setSelectedBlocks(
-      props.editor.getSelection()?.blocks || [
-        props.editor.getTextCursorPosition().block,
-      ]
-    );
-  });
-
-  useEditorSelectionChange(props.editor, () => {
-    setSelectedBlocks(
-      props.editor.getSelection()?.blocks || [
-        props.editor.getTextCursorPosition().block,
-      ]
-    );
-  });
+  const selectedBlocks = useSelectedBlocks(props.editor);
 
   const textAlignment = useMemo(() => {
     const block = selectedBlocks[0];

@@ -11,9 +11,8 @@ import {
 } from "react-icons/ri";
 
 import { ToolbarDropdown } from "../../../SharedComponents/Toolbar/components/ToolbarDropdown";
-import { useEditorSelectionChange } from "../../../hooks/useEditorSelectionChange";
-import { useEditorContentChange } from "../../../hooks/useEditorContentChange";
 import { ToolbarDropdownItemProps } from "../../../SharedComponents/Toolbar/components/ToolbarDropdownItem";
+import { useEditorChange } from "../../../hooks/useEditorChange";
 
 export type BlockTypeDropdownItem = {
   name: string;
@@ -117,11 +116,7 @@ export const BlockTypeDropdown = <BSchema extends BlockSchema>(props: {
     [block, filteredItems, props.editor]
   );
 
-  useEditorContentChange(props.editor, () => {
-    setBlock(props.editor.getTextCursorPosition().block);
-  });
-
-  useEditorSelectionChange(props.editor, () => {
+  useEditorChange(props.editor, () => {
     setBlock(props.editor.getTextCursorPosition().block);
   });
 

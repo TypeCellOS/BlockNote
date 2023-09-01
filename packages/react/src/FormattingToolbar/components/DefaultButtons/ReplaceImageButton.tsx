@@ -1,39 +1,14 @@
-import {
-  Block,
-  BlockNoteEditor,
-  BlockSchema,
-  PartialBlock,
-} from "@blocknote/core";
-import { ToolbarButton } from "../../../SharedComponents/Toolbar/components/ToolbarButton";
-import { useEditorContentChange } from "../../../hooks/useEditorContentChange";
-import { useEditorSelectionChange } from "../../../hooks/useEditorSelectionChange";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { BlockNoteEditor, BlockSchema, PartialBlock } from "@blocknote/core";
 import { RiImageEditFill } from "react-icons/ri";
+
+import { ToolbarButton } from "../../../SharedComponents/Toolbar/components/ToolbarButton";
+import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
 
 export const ReplaceImageButton = <BSchema extends BlockSchema>(props: {
   editor: BlockNoteEditor<BSchema>;
 }) => {
-  const [selectedBlocks, setSelectedBlocks] = useState<Block<BSchema>[]>(
-    props.editor.getSelection()?.blocks || [
-      props.editor.getTextCursorPosition().block,
-    ]
-  );
-
-  useEditorContentChange(props.editor, () => {
-    setSelectedBlocks(
-      props.editor.getSelection()?.blocks || [
-        props.editor.getTextCursorPosition().block,
-      ]
-    );
-  });
-
-  useEditorSelectionChange(props.editor, () => {
-    setSelectedBlocks(
-      props.editor.getSelection()?.blocks || [
-        props.editor.getTextCursorPosition().block,
-      ]
-    );
-  });
+  const selectedBlocks = useSelectedBlocks(props.editor);
 
   const show = useMemo(
     () =>

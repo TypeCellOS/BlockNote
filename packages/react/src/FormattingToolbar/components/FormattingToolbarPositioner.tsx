@@ -8,8 +8,7 @@ import { FC, useEffect, useMemo, useRef, useState } from "react";
 import { sticky } from "tippy.js";
 
 import { DefaultFormattingToolbar } from "./DefaultFormattingToolbar";
-import { useEditorContentChange } from "../../hooks/useEditorContentChange";
-import { useEditorSelectionChange } from "../../hooks/useEditorSelectionChange";
+import { useEditorChange } from "../../hooks/useEditorChange";
 
 export type FormattingToolbarProps<
   BSchema extends BlockSchema = DefaultBlockSchema
@@ -63,8 +62,7 @@ export const FormattingToolbarPositioner = <
     });
   }, [props.editor]);
 
-  useEditorContentChange(props.editor, () => setPlacement(getPlacement()));
-  useEditorSelectionChange(props.editor, () => setPlacement(getPlacement()));
+  useEditorChange(props.editor, () => setPlacement(getPlacement()));
 
   const getReferenceClientRect = useMemo(
     () => {

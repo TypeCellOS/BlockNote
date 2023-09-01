@@ -1,20 +1,18 @@
 import { useCallback, useMemo, useState } from "react";
 import { Menu } from "@mantine/core";
-import { Block, BlockNoteEditor, BlockSchema } from "@blocknote/core";
+import { BlockNoteEditor, BlockSchema } from "@blocknote/core";
+
 import { ToolbarButton } from "../../../SharedComponents/Toolbar/components/ToolbarButton";
 import { ColorIcon } from "../../../SharedComponents/ColorPicker/components/ColorIcon";
 import { ColorPicker } from "../../../SharedComponents/ColorPicker/components/ColorPicker";
-import { useEditorContentChange } from "../../../hooks/useEditorContentChange";
-import { useEditorSelectionChange } from "../../../hooks/useEditorSelectionChange";
+import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
+import { useEditorChange } from "../../../hooks/useEditorChange";
 
 export const ColorStyleButton = <BSchema extends BlockSchema>(props: {
   editor: BlockNoteEditor<BSchema>;
 }) => {
-  const [selectedBlocks, setSelectedBlocks] = useState<Block<BSchema>[]>(
-    props.editor.getSelection()?.blocks || [
-      props.editor.getTextCursorPosition().block,
-    ]
-  );
+  const selectedBlocks = useSelectedBlocks(props.editor);
+
   const [currentTextColor, setCurrentTextColor] = useState<string>(
     props.editor.getActiveStyles().textColor || "default"
   );
@@ -22,24 +20,7 @@ export const ColorStyleButton = <BSchema extends BlockSchema>(props: {
     props.editor.getActiveStyles().backgroundColor || "default"
   );
 
-  useEditorContentChange(props.editor, () => {
-    setSelectedBlocks(
-      props.editor.getSelection()?.blocks || [
-        props.editor.getTextCursorPosition().block,
-      ]
-    );
-    setCurrentTextColor(props.editor.getActiveStyles().textColor || "default");
-    setCurrentBackgroundColor(
-      props.editor.getActiveStyles().backgroundColor || "default"
-    );
-  });
-
-  useEditorSelectionChange(props.editor, () => {
-    setSelectedBlocks(
-      props.editor.getSelection()?.blocks || [
-        props.editor.getTextCursorPosition().block,
-      ]
-    );
+  useEditorChange(props.editor, () => {
     setCurrentTextColor(props.editor.getActiveStyles().textColor || "default");
     setCurrentBackgroundColor(
       props.editor.getActiveStyles().backgroundColor || "default"

@@ -1,42 +1,25 @@
 import { useCallback, useMemo, useState } from "react";
-import { Block, BlockNoteEditor, BlockSchema } from "@blocknote/core";
+import { BlockNoteEditor, BlockSchema } from "@blocknote/core";
 import { RiLink } from "react-icons/ri";
-import { useEditorSelectionChange } from "../../../hooks/useEditorSelectionChange";
+
 import { ToolbarInputDropdownButton } from "../../../SharedComponents/Toolbar/components/ToolbarInputDropdownButton";
 import { ToolbarButton } from "../../../SharedComponents/Toolbar/components/ToolbarButton";
 import { EditHyperlinkMenu } from "../../../HyperlinkToolbar/components/EditHyperlinkMenu/components/EditHyperlinkMenu";
-import { useEditorContentChange } from "../../../hooks/useEditorContentChange";
+import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
+import { useEditorChange } from "../../../hooks/useEditorChange";
 import { formatKeyboardShortcut } from "../../../utils";
 
 export const CreateLinkButton = <BSchema extends BlockSchema>(props: {
   editor: BlockNoteEditor<BSchema>;
 }) => {
-  const [selectedBlocks, setSelectedBlocks] = useState<Block<BSchema>[]>(
-    props.editor.getSelection()?.blocks || [
-      props.editor.getTextCursorPosition().block,
-    ]
-  );
+  const selectedBlocks = useSelectedBlocks(props.editor);
+
   const [url, setUrl] = useState<string>(
     props.editor.getSelectedLinkUrl() || ""
   );
   const [text, setText] = useState<string>(props.editor.getSelectedText());
 
-  useEditorContentChange(props.editor, () => {
-    setSelectedBlocks(
-      props.editor.getSelection()?.blocks || [
-        props.editor.getTextCursorPosition().block,
-      ]
-    );
-    setText(props.editor.getSelectedText() || "");
-    setUrl(props.editor.getSelectedLinkUrl() || "");
-  });
-
-  useEditorSelectionChange(props.editor, () => {
-    setSelectedBlocks(
-      props.editor.getSelection()?.blocks || [
-        props.editor.getTextCursorPosition().block,
-      ]
-    );
+  useEditorChange(props.editor, () => {
     setText(props.editor.getSelectedText() || "");
     setUrl(props.editor.getSelectedLinkUrl() || "");
   });
