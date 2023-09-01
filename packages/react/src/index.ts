@@ -41,6 +41,8 @@ export * from "./hooks/useBlockNote";
 export * from "./hooks/useEditorForceUpdate";
 export * from "./hooks/useEditorContentChange";
 export * from "./hooks/useEditorSelectionChange";
+export * from "./hooks/useEditorChange";
+export * from "./hooks/useSelectedBlocks";
 
 export * from "./Image";
 
