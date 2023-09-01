@@ -479,6 +479,8 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
    * Gets a snapshot of the current selection.
    */
   public getSelection(): Selection<BSchema> | undefined {
+    // Either the TipTap selection is empty, or it's a node selection. In either
+    // case, it only spans one block, so we return undefined.
     if (
       this._tiptapEditor.state.selection.from ===
         this._tiptapEditor.state.selection.to ||
