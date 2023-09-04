@@ -127,6 +127,14 @@ export function createReactBlockSpec<
         // Gets position of the node
         const pos =
           typeof props.getPos === "function" ? props.getPos() : undefined;
+
+        // workaround race condition when re-creating BlockNote from database:
+        // if the position of a node could not be found in a tiptap block, then
+        // the node isn't ready to be rendered
+        if (!pos) {
+          return <></>
+        }
+
         // Gets TipTap editor instance
         const tipTapEditor = editor._tiptapEditor;
         // Gets parent blockContainer node
