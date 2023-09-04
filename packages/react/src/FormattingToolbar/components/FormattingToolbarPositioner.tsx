@@ -66,7 +66,6 @@ export const FormattingToolbarPositioner = <
 
   const getReferenceClientRect = useMemo(
     () => {
-      console.log("getReferenceClientRect");
       if (!referencePos) {
         return undefined;
       }
@@ -93,6 +92,7 @@ export const FormattingToolbarPositioner = <
       placement={placement}
       sticky={true}
       plugins={tippyPlugins}
+      zIndex={3000}
     />
   );
 };

@@ -18,7 +18,7 @@ export function ToolbarDropdown(props: ToolbarDropdownProps) {
   }
 
   return (
-    <Menu exitTransitionDuration={0} disabled={props.isDisabled}>
+    <Menu exitTransitionDuration={0} disabled={props.isDisabled} zIndex={9000}>
       <Menu.Target>
         <ToolbarDropdownTarget
           text={selectedItem.text}

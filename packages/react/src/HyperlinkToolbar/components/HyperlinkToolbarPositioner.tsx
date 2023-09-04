@@ -82,6 +82,7 @@ export const HyperlinkToolbarPositioner = <
       visible={show}
       animation={"fade"}
       placement={"top-start"}
+      zIndex={4000}
     />
   );
 };
