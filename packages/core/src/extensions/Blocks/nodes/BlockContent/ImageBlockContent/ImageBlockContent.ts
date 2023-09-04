@@ -1,9 +1,3 @@
-import Uppy from "@uppy/core";
-import Dashboard from "@uppy/dashboard";
-import Tus from "@uppy/tus";
-import GoogleDrive from "@uppy/google-drive";
-import Url from "@uppy/url";
-
 import {
   BlockNoteEditor,
   BlockSchema,
@@ -62,11 +56,6 @@ const imagePropSchema = {
   width: {
     default: "0.5" as const,
   },
-  // Whether to show the image upload dashboard or the image itself.
-  replacing: {
-    default: "false" as const,
-    values: ["true", "false"] as const,
-  },
 } satisfies PropSchema;
 
 const renderImage = (
@@ -90,22 +79,9 @@ const renderImage = (
   wrapper.style.userSelect = "none";
   wrapper.style.width = "100%";
 
-  // Image upload dashboard.
-  const imageUploadDashboard = document.createElement("div");
-  imageUploadDashboard.id = "uppy-dashboard";
-  imageUploadDashboard.style.display =
-    block.props.replacing === "true" ? "block" : "none";
-  imageUploadDashboard.style.borderRadius = "4px";
-  imageUploadDashboard.style.width = `${Math.min(
-    editor.domElement.firstElementChild!.clientWidth,
-    750
-  )}px`;
-
+  // Button element that opens the image upload dashboard.
   const addImageButton = document.createElement("div");
-  addImageButton.style.display =
-    block.props.replacing === "false" && block.props.src === ""
-      ? "flex"
-      : "none";
+  addImageButton.style.display = block.props.src === "" ? "flex" : "none";
   addImageButton.style.flexDirection = "row";
   addImageButton.style.alignItems = "center";
   addImageButton.style.gap = "8px";
@@ -124,18 +100,13 @@ const renderImage = (
 
   const imageAndCaptionWrapper = document.createElement("div");
   imageAndCaptionWrapper.style.display =
-    block.props.replacing === "false" && block.props.src !== ""
-      ? "flex"
-      : "none";
+    block.props.src !== "" ? "flex" : "none";
   imageAndCaptionWrapper.style.flexDirection = "column";
   imageAndCaptionWrapper.style.borderRadius = "4px";
 
   // Wrapper element for the image and resize handles.
   const imageWrapper = document.createElement("div");
-  imageWrapper.style.display =
-    block.props.replacing === "false" && block.props.src !== ""
-      ? "flex"
-      : "none";
+  imageWrapper.style.display = block.props.src !== "" ? "flex" : "none";
   imageWrapper.style.flexDirection = "row";
   imageWrapper.style.alignItems = "center";
   imageWrapper.style.position = "relative";
@@ -147,6 +118,7 @@ const renderImage = (
   image.alt = "placeholder";
   image.contentEditable = "false";
   image.draggable = false;
+  image.style.borderRadius = "4px";
   image.style.width = `${
     parseFloat(block.props.width) *
     editor.domElement.firstElementChild!.clientWidth
@@ -162,7 +134,8 @@ const renderImage = (
 
   const caption = document.createElement("p");
   caption.innerText = block.props.caption;
-  caption.style.fontSize = "0.8em !important";
+  caption.style.fontSize = "0.8em";
+  caption.style.padding = block.props.caption ? "4px" : "0";
 
   const handleEditorUpdate = () => {
     const selection = editor.getSelection()?.blocks || [];
@@ -174,69 +147,15 @@ const renderImage = (
       ) !== undefined;
 
     if (isSelected) {
-      imageUploadDashboard.style.outline = "4px solid rgb(100, 160, 255)";
       addImageButton.style.outline = "4px solid rgb(100, 160, 255)";
       imageAndCaptionWrapper.style.outline = "4px solid rgb(100, 160, 255)";
     } else {
-      imageUploadDashboard.style.outline = "none";
       addImageButton.style.outline = "none";
       imageAndCaptionWrapper.style.outline = "none";
     }
   };
   editor.onEditorContentChange(handleEditorUpdate);
   editor.onEditorSelectionChange(handleEditorUpdate);
-
-  // Creates an Uppy instance for file uploading and replaces the
-  // imageUploadDashboard element with an Uppy Dashboard.
-  // TODO: Server endpoints/URLs
-  const uppy = new Uppy({ autoProceed: true })
-    .use(Tus, {
-      endpoint: "https://master.tus.io/files/",
-    })
-    .use(GoogleDrive, {
-      companionUrl: "https://companion.uppy.io",
-    })
-    .use(Url, {
-      companionUrl: "https://companion.uppy.io",
-    })
-    .use(Dashboard, {
-      id: block.id,
-      plugins: ["GoogleDrive", "Url"],
-      target: imageUploadDashboard,
-      inline: true,
-      hideProgressAfterFinish: true,
-    });
-  // Throws an error if the user tries to replace the image with more than one
-  // file.
-  uppy.on("upload", (data) => {
-    if (data.fileIDs.length > 1) {
-      throw new Error("Only one file can be uploaded at a time");
-    }
-  });
-  // Throws an error if the user tries to replace the image with more than one
-  // file or if the upload fails. Otherwise, updates the block's `src` prop
-  // with the uploaded image's URL.
-  uppy.on("complete", (result) => {
-    if (result.successful.length + result.failed.length > 1) {
-      throw new Error("Only one file can be uploaded at a time");
-    }
-
-    if (result.failed.length > 0) {
-      throw new Error("Upload failed");
-    }
-
-    // TODO: Timeout is only there to give you time to read the "upload
-    //  complete" message, it's not actually needed. Should it stay?
-    setTimeout(() => {
-      editor.updateBlock(block, {
-        type: "image",
-        props: {
-          src: result.successful[0].response!.uploadURL,
-          replacing: "false",
-        },
-      });
-    }, 2000);
-  });
 
   // Temporary parameters set when the user begins resizing the image, used to
   // calculate the new width of the image.
@@ -337,21 +256,8 @@ const renderImage = (
       parseFloat(block.props.width) *
       editor.domElement.firstElementChild!.clientWidth
     }px`;
-    imageUploadDashboard.style.width = `${Math.min(
-      editor.domElement.firstElementChild!.clientWidth,
-      750
-    )}px`;
   };
 
-  // Displays the image upload dashboard.
-  const addImageButtonClickHandler = () => {
-    editor.updateBlock(block, {
-      type: "image",
-      props: {
-        replacing: "true",
-      },
-    });
-  };
   // Changes the add image button background color on hover.
   const addImageButtonMouseEnterHandler = () => {
     addImageButton.style.backgroundColor = "gainsboro";
@@ -408,7 +314,6 @@ const renderImage = (
     };
   };
 
-  wrapper.appendChild(imageUploadDashboard);
   wrapper.appendChild(addImageButton);
   addImageButton.appendChild(addImageButtonIcon);
   addImageButton.appendChild(addImageButtonText);
@@ -422,7 +327,6 @@ const renderImage = (
   window.addEventListener("mousemove", windowMouseMoveHandler);
   window.addEventListener("mouseup", windowMouseUpHandler);
   window.addEventListener("resize", windowResizeHandler);
-  addImageButton.addEventListener("click", addImageButtonClickHandler);
   addImageButton.addEventListener(
     "mouseenter",
     addImageButtonMouseEnterHandler
@@ -445,11 +349,9 @@ const renderImage = (
   return {
     dom: wrapper,
     destroy: () => {
-      uppy.close();
       window.removeEventListener("mousemove", windowMouseMoveHandler);
       window.removeEventListener("mouseup", windowMouseUpHandler);
       window.removeEventListener("resize", windowResizeHandler);
-      addImageButton.removeEventListener("click", addImageButtonClickHandler);
       addImageButton.removeEventListener(
         "mouseenter",
         addImageButtonMouseEnterHandler

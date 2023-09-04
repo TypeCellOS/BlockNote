@@ -1,36 +1,39 @@
-import { Container, Group, TextInput, TextInputProps } from "@mantine/core";
+import {
+  FileInput,
+  FileInputProps,
+  Group,
+  TextInput,
+  TextInputProps,
+} from "@mantine/core";
 import { IconType } from "react-icons";
-import { TooltipContent } from "../../Tooltip/components/TooltipContent";
-import Tippy from "@tippyjs/react";
 
-export type ToolbarInputDropdownItemProps = {
-  icon: IconType;
-  mainTooltip: string;
-  secondaryTooltip?: string;
+export type InputType = "text" | "file";
 
-  inputProps?: TextInputProps;
+export type InputProps = {
+  text: TextInputProps;
+  file: FileInputProps;
 };
 
-export const ToolbarInputDropdownItem = (
-  props: ToolbarInputDropdownItemProps
+export const inputComponents: Record<InputType, any> = {
+  text: TextInput,
+  file: FileInput,
+};
+
+export type ToolbarInputDropdownItemProps<Type extends InputType> = {
+  type: Type;
+  inputProps: Omit<InputProps[Type], "type">;
+  icon: IconType;
+};
+
+export const ToolbarInputDropdownItem = <Type extends InputType>(
+  props: ToolbarInputDropdownItemProps<Type>
 ) => {
   const Icon = props.icon;
+  const Input = inputComponents[props.type];
 
   return (
     <Group>
-      <Tippy
-        content={
-          <TooltipContent
-            mainTooltip={props.mainTooltip}
-            secondaryTooltip={props.secondaryTooltip}
-          />
-        }
-        placement="left">
-        <Container>
-          <Icon size={16}></Icon>
-        </Container>
-      </Tippy>
-      <TextInput size={"xs"} {...props.inputProps} />
+      <Input size={"xs"} icon={<Icon />} {...props.inputProps} />
     </Group>
   );
 };

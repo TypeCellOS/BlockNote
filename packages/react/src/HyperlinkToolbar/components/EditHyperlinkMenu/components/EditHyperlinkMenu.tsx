@@ -63,8 +63,8 @@ export const EditHyperlinkMenu = forwardRef<
   return (
     <ToolbarInputDropdown {...props} ref={ref}>
       <ToolbarInputDropdownItem
+        type={"text"}
         icon={RiLink}
-        mainTooltip={"Edit URL"}
         inputProps={{
           autoFocus: true,
           placeholder: "Edit URL",
@@ -75,8 +75,8 @@ export const EditHyperlinkMenu = forwardRef<
         }}
       />
       <ToolbarInputDropdownItem
+        type={"text"}
         icon={RiText}
-        mainTooltip={"Edit Title"}
         inputProps={{
           placeholder: "Edit Title",
           value: currentText,

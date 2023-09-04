@@ -254,25 +254,27 @@ export const blockNoteToMantineTheme = (theme: Theme): MantineThemeOverride => {
               // Row
               ".mantine-Group-root": {
                 flexWrap: "nowrap",
-                gap: "8px",
-                paddingInline: "6px",
-                // Row icon
-                ".mantine-Container-root": {
-                  color: theme.colors.menu.text,
-                  display: "flex",
-                  justifyContent: "center",
-                  padding: 0,
-                  width: "fit-content",
-                },
                 // Row input field
-                ".mantine-TextInput-root": {
+                ".mantine-TextInput-root, .mantine-FileInput-root": {
                   width: "300px",
-                  ".mantine-TextInput-wrapper": {
-                    ".mantine-TextInput-input": {
-                      border: "none",
+                  ".mantine-TextInput-wrapper:hover": {
+                    backgroundColor: theme.colors.hovered.background,
+                  },
+                  ".mantine-TextInput-wrapper, .mantine-FileInput-wrapper": {
+                    padding: 0,
+                    borderRadius: "4px",
+                    ".mantine-FileInput-icon": {
                       color: theme.colors.menu.text,
+                    },
+                    ".mantine-TextInput-input, .mantine-FileInput-input": {
+                      border: "none",
                       fontSize: "12px",
-                      padding: 0,
+                      ".mantine-FileInput-placeholder": {
+                        color: theme.colors.menu.text,
+                      },
+                    },
+                    ".mantine-FileInput-input:hover": {
+                      backgroundColor: theme.colors.hovered.background,
                     },
                   },
                 },

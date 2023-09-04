@@ -111,7 +111,7 @@ export const getDefaultSlashMenuItems = <BSchema extends BlockSchema>(
     });
   }
 
-  if ("image" in schema && "replacing" in schema["image"].propSchema) {
+  if ("image" in schema) {
     slashMenuItems.push({
       name: "Image",
       aliases: [

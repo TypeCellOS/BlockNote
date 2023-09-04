@@ -12,8 +12,8 @@ import { RiText } from "react-icons/ri";
 import { ToolbarButton } from "../../../SharedComponents/Toolbar/components/ToolbarButton";
 import { ToolbarInputDropdownButton } from "../../../SharedComponents/Toolbar/components/ToolbarInputDropdownButton";
 import { ToolbarInputDropdown } from "../../../SharedComponents/Toolbar/components/ToolbarInputDropdown";
-import { ToolbarInputDropdownItem } from "../../../SharedComponents/Toolbar/components/ToolbarInputDropdownItem";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
+import { ToolbarInputDropdownItem } from "../../../SharedComponents/Toolbar/components/ToolbarInputDropdownItem";
 
 export const ImageCaptionButton = <BSchema extends BlockSchema>(props: {
   editor: BlockNoteEditor<BSchema>;
@@ -34,19 +34,7 @@ export const ImageCaptionButton = <BSchema extends BlockSchema>(props: {
       "src" in props.editor.schema["image"].propSchema &&
       props.editor.schema["image"].propSchema.src.values === undefined &&
       // Checks if the `src` prop is not set to an empty string.
-      selectedBlocks[0].props.src !== "" &&
-      // Checks if the image has a `replacing` prop which can take either "true"
-      // or "false".
-      "replacing" in props.editor.schema["image"].propSchema &&
-      props.editor.schema["image"].propSchema.replacing.values?.includes(
-        "true"
-      ) &&
-      props.editor.schema["image"].propSchema.replacing.values?.includes(
-        "false"
-      ) &&
-      props.editor.schema["image"].propSchema.replacing.values?.length === 2 &&
-      // Checks if the `replacing` prop is set to "false".
-      selectedBlocks[0].props.replacing === "false",
+      selectedBlocks[0].props.src !== "",
     [props.editor.schema, selectedBlocks]
   );
 
@@ -93,8 +81,8 @@ export const ImageCaptionButton = <BSchema extends BlockSchema>(props: {
       />
       <ToolbarInputDropdown>
         <ToolbarInputDropdownItem
+          type={"text"}
           icon={RiText}
-          mainTooltip={"Edit Caption"}
           inputProps={{
             autoFocus: true,
             placeholder: "Edit Caption",

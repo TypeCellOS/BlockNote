@@ -1,5 +1,5 @@
 import { ToolbarButton } from "./ToolbarButton";
-import Tippy from "@tippyjs/react";
+import Tippy, { TippyProps } from "@tippyjs/react";
 import { ReactElement, useCallback, useState } from "react";
 import { ToolbarInputDropdown } from "./ToolbarInputDropdown";
 
@@ -11,7 +11,8 @@ export type ToolbarInputDropdownButtonProps = {
 };
 
 export const ToolbarInputDropdownButton = (
-  props: ToolbarInputDropdownButtonProps
+  props: ToolbarInputDropdownButtonProps &
+    Omit<Partial<TippyProps>, "content" | "children">
 ) => {
   const [renderDropdown, setRenderDropdown] = useState<boolean>(false);
 
@@ -26,12 +27,20 @@ export const ToolbarInputDropdownButton = (
 
   return (
     <Tippy
-      onShow={createDropdown}
-      onHidden={destroyDropdown}
+      onShow={(instance) => {
+        createDropdown();
+        props.onShow?.(instance);
+      }}
+      onHidden={(instance) => {
+        destroyDropdown();
+        props.onShow?.(instance);
+      }}
       content={renderDropdown ? props.children[1] : null}
-      trigger={"click"}
+      trigger={props.visible === undefined ? "click" : undefined}
       interactive={true}
-      maxWidth={500}>
+      maxWidth={500}
+      zIndex={9000}
+      {...props}>
       {props.children[0]}
     </Tippy>
   );

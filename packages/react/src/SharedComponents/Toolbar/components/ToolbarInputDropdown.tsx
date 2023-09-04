@@ -1,11 +1,12 @@
 import { forwardRef, HTMLAttributes, ReactElement } from "react";
 import { createStyles, Stack } from "@mantine/core";
-import { ToolbarInputDropdownItem } from "./ToolbarInputDropdownItem";
+
+import { InputProps } from "./ToolbarInputDropdownItem";
 
 export type ToolbarInputDropdownProps = {
   children:
-    | ReactElement<typeof ToolbarInputDropdownItem>
-    | Array<ReactElement<typeof ToolbarInputDropdownItem>>;
+    | ReactElement<InputProps[keyof InputProps]>
+    | Array<ReactElement<InputProps[keyof InputProps]>>;
 };
 
 export const ToolbarInputDropdown = forwardRef<
