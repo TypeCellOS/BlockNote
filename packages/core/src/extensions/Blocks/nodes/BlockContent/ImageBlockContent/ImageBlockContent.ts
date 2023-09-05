@@ -27,6 +27,7 @@ const textAlignmentToAlignItems = (
 // Sets generic styles for a resize handle, regardless of whether it's the
 // left or right one.
 const setResizeHandleStyles = (resizeHandle: HTMLDivElement) => {
+  resizeHandle.style.display = "none";
   resizeHandle.style.position = "absolute";
   resizeHandle.style.width = "8px";
   resizeHandle.style.height = "30px";
@@ -36,9 +37,8 @@ const setResizeHandleStyles = (resizeHandle: HTMLDivElement) => {
   resizeHandle.style.cursor = "ew-resize";
 };
 
-// Max & min image widths as a percentage of the editor's width.
-const maxPercentWidth = 1.0;
-const minPercentWidth = 0.1;
+// Min image width in px.
+const minWidth = 64;
 
 const imagePropSchema = {
   textAlignment: defaultProps.textAlignment,
@@ -52,9 +52,9 @@ const imagePropSchema = {
   caption: {
     default: "" as const,
   },
-  // Image width as a percentage of the editor's width.
+  // Image width in px.
   width: {
-    default: "0.5" as const,
+    default: "512" as const,
   },
 } satisfies PropSchema;
 
@@ -79,7 +79,7 @@ const renderImage = (
   wrapper.style.userSelect = "none";
   wrapper.style.width = "100%";
 
-  // Button element that opens the image upload dashboard.
+  // Button element that acts as a placeholder for images with no src.
   const addImageButton = document.createElement("div");
   addImageButton.style.display = block.props.src === "" ? "flex" : "none";
   addImageButton.style.flexDirection = "row";
@@ -90,14 +90,17 @@ const renderImage = (
   addImageButton.style.cursor = "pointer";
   addImageButton.style.padding = "12px";
 
+  // Icon for the add image button.
   const addImageButtonIcon = document.createElement("div");
   addImageButtonIcon.style.backgroundImage = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M20 5H4V19L13.2923 9.70649C13.6828 9.31595 14.3159 9.31591 14.7065 9.70641L20 15.0104V5ZM2 3.9934C2 3.44476 2.45531 3 2.9918 3H21.0082C21.556 3 22 3.44495 22 3.9934V20.0066C22 20.5552 21.5447 21 21.0082 21H2.9918C2.44405 21 2 20.5551 2 20.0066V3.9934ZM8 11C6.89543 11 6 10.1046 6 9C6 7.89543 6.89543 7 8 7C9.10457 7 10 7.89543 10 9C10 10.1046 9.10457 11 8 11Z'%3E%3C/path%3E%3C/svg%3E")`;
   addImageButtonIcon.style.width = "24px";
   addImageButtonIcon.style.height = "24px";
 
+  // Text for the add image button.
   const addImageButtonText = document.createElement("p");
   addImageButtonText.innerText = "Add Image";
 
+  // Wrapper element for the image, resize handles and caption.
   const imageAndCaptionWrapper = document.createElement("div");
   imageAndCaptionWrapper.style.display =
     block.props.src !== "" ? "flex" : "none";
@@ -119,10 +122,10 @@ const renderImage = (
   image.contentEditable = "false";
   image.draggable = false;
   image.style.borderRadius = "4px";
-  image.style.width = `${
-    parseFloat(block.props.width) *
+  image.style.width = `${Math.min(
+    parseFloat(block.props.width),
     editor.domElement.firstElementChild!.clientWidth
-  }px`;
+  )}px`;
 
   // Resize handle elements.
   const leftResizeHandle = document.createElement("div");
@@ -132,11 +135,13 @@ const renderImage = (
   rightResizeHandle.style.right = "4px";
   setResizeHandleStyles(rightResizeHandle);
 
+  // Caption element.
   const caption = document.createElement("p");
   caption.innerText = block.props.caption;
   caption.style.fontSize = "0.8em";
   caption.style.padding = block.props.caption ? "4px" : "0";
 
+  // Adds a light blue outline to selected image blocks.
   const handleEditorUpdate = () => {
     const selection = editor.getSelection()?.blocks || [];
     const currentBlock = editor.getTextCursorPosition().block;
@@ -200,19 +205,13 @@ const renderImage = (
       }
     }
 
-    if (
-      newWidth <
-      minPercentWidth * editor.domElement.firstElementChild!.clientWidth
-    ) {
+    // Ensures the image is not wider than the editor and not smaller than a
+    // predetermined minimum width.
+    if (newWidth < minWidth) {
+      image.style.width = `${minWidth}px`;
+    } else if (newWidth > editor.domElement.firstElementChild!.clientWidth) {
       image.style.width = `${
-        minPercentWidth * editor.domElement.firstElementChild!.clientWidth
-      }px`;
-    } else if (
-      newWidth >
-      maxPercentWidth * editor.domElement.firstElementChild!.clientWidth
-    ) {
-      image.style.width = `${
-        maxPercentWidth * editor.domElement.firstElementChild!.clientWidth
+        editor.domElement.firstElementChild!.clientWidth
       }px`;
     } else {
       image.style.width = `${newWidth}px`;
@@ -237,25 +236,28 @@ const renderImage = (
 
     resizeParams = undefined;
 
-    const percentWidth =
-      parseInt(image.style.width.slice(0, -2)) /
-      editor.domElement.firstElementChild!.clientWidth;
+    editor.updateBlock(block, {
+      type: "image",
+      props: {
+        width: image.style.width.slice(0, -2),
+      },
+    });
+  };
+  // Updates the image width when the viewport is resized.
+  const windowResizeHandler = () => {
+    const width = Math.min(
+      parseFloat(block.props.width),
+      editor.domElement.firstElementChild!.clientWidth
+    );
+
+    image.style.width = `${width}px`;
 
     editor.updateBlock(block, {
       type: "image",
       props: {
-        width: percentWidth.toString(),
+        width: `${width}`,
       },
     });
-  };
-  // Updates the image width when the viewport is resized. By storing the image
-  // width as a fraction of the editor's width, this allows the image to
-  // maintain its size relative to the editor.
-  const windowResizeHandler = () => {
-    image.style.width = `${
-      parseFloat(block.props.width) *
-      editor.domElement.firstElementChild!.clientWidth
-    }px`;
   };
 
   // Changes the add image button background color on hover.
@@ -296,9 +298,7 @@ const renderImage = (
 
     resizeParams = {
       handleUsed: "left",
-      initialWidth:
-        parseFloat(block.props.width) *
-        editor.domElement.firstElementChild!.clientWidth,
+      initialWidth: parseFloat(block.props.width),
       initialClientX: event.clientX,
     };
   };
@@ -307,9 +307,7 @@ const renderImage = (
 
     resizeParams = {
       handleUsed: "right",
-      initialWidth:
-        parseFloat(block.props.width) *
-        editor.domElement.firstElementChild!.clientWidth,
+      initialWidth: parseFloat(block.props.width),
       initialClientX: event.clientX,
     };
   };
