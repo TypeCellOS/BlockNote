@@ -1,12 +1,12 @@
+import { defaultProps } from "../../../api/defaultProps";
 import {
-  BlockNoteEditor,
   BlockSchema,
   BlockSpec,
-  createBlockSpec,
-  defaultProps,
   PropSchema,
   SpecificBlock,
-} from "../../../../../index";
+} from "../../../api/blockTypes";
+import { BlockNoteEditor } from "../../../../../BlockNoteEditor";
+import { createBlockSpec } from "../../../api/block";
 
 // Converts text alignment prop values to the flexbox `align-items` values.
 const textAlignmentToAlignItems = (
