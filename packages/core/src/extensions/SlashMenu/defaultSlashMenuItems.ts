@@ -125,10 +125,13 @@ export const getDefaultSlashMenuItems = <BSchema extends BlockSchema>(
         "drive",
         "dropbox",
       ],
-      execute: (editor) =>
+      execute: (editor) => {
         insertOrUpdateBlock(editor, {
           type: "image",
-        } as PartialBlock<BSchema>),
+        } as PartialBlock<BSchema>);
+        // Don't want to select the add image button
+        editor.setTextCursorPosition(editor.getTextCursorPosition().nextBlock!);
+      },
     });
   }
 

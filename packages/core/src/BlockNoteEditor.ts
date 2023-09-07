@@ -50,6 +50,7 @@ import { SlashMenuProsemirrorPlugin } from "./extensions/SlashMenu/SlashMenuPlug
 import { getDefaultSlashMenuItems } from "./extensions/SlashMenu/defaultSlashMenuItems";
 import { UniqueID } from "./extensions/UniqueID/UniqueID";
 import { mergeCSSClasses } from "./shared/utils";
+import { ImageToolbarProsemirrorPlugin } from "./extensions/ImageToolbar/ImageToolbarPlugin";
 
 export type BlockNoteEditorOptions<BSchema extends BlockSchema> = {
   // TODO: Figure out if enableBlockNoteExtensions/disableHistoryExtension are needed and document them.
@@ -151,6 +152,7 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
   public readonly formattingToolbar: FormattingToolbarProsemirrorPlugin<BSchema>;
   public readonly slashMenu: SlashMenuProsemirrorPlugin<BSchema, any>;
   public readonly hyperlinkToolbar: HyperlinkToolbarProsemirrorPlugin<BSchema>;
+  public readonly imageToolbar: ImageToolbarProsemirrorPlugin<BSchema>;
 
   constructor(
     private readonly options: Partial<BlockNoteEditorOptions<BSchema>> = {}
@@ -178,6 +180,7 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
         getDefaultSlashMenuItems(newOptions.blockSchema)
     );
     this.hyperlinkToolbar = new HyperlinkToolbarProsemirrorPlugin(this);
+    this.imageToolbar = new ImageToolbarProsemirrorPlugin(this);
 
     const extensions = getBlockNoteExtensions<BSchema>({
       editor: this,
@@ -195,6 +198,7 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
           this.formattingToolbar.plugin,
           this.slashMenu.plugin,
           this.hyperlinkToolbar.plugin,
+          this.imageToolbar.plugin,
         ];
       },
     });

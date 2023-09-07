@@ -10,6 +10,7 @@ export * from "./extensions/Blocks/api/serialization";
 export * as blockStyles from "./extensions/Blocks/nodes/Block.module.css";
 export * from "./extensions/FormattingToolbar/FormattingToolbarPlugin";
 export * from "./extensions/HyperlinkToolbar/HyperlinkToolbarPlugin";
+export * from "./extensions/ImageToolbar/ImageToolbarPlugin";
 export * from "./extensions/SideMenu/SideMenuPlugin";
 export * from "./extensions/SlashMenu/BaseSlashMenuItem";
 export * from "./extensions/SlashMenu/SlashMenuPlugin";

@@ -7,6 +7,7 @@ import {
 } from "../../../api/blockTypes";
 import { BlockNoteEditor } from "../../../../../BlockNoteEditor";
 import { createBlockSpec } from "../../../api/block";
+import { imageToolbarPluginKey } from "../../../../ImageToolbar/ImageToolbarPlugin";
 
 // Converts text alignment prop values to the flexbox `align-items` values.
 const textAlignmentToAlignItems = (
@@ -45,7 +46,6 @@ const imagePropSchema = {
   backgroundColor: defaultProps.backgroundColor,
   // Image src.
   src: {
-    // TODO: Better default
     default: "" as const,
   },
   // Image caption.
@@ -89,6 +89,7 @@ const renderImage = (
   addImageButton.style.borderRadius = "4px";
   addImageButton.style.cursor = "pointer";
   addImageButton.style.padding = "12px";
+  addImageButton.style.width = "100%";
 
   // Icon for the add image button.
   const addImageButtonIcon = document.createElement("div");
@@ -260,6 +261,18 @@ const renderImage = (
     });
   };
 
+  // Prevents focus from moving to the button.
+  const addImageButtonMouseDownHandler = (event: MouseEvent) => {
+    event.preventDefault();
+  };
+  // Opens the image toolbar.
+  const addImageButtonClickHandler = () => {
+    editor._tiptapEditor.view.dispatch(
+      editor._tiptapEditor.state.tr.setMeta(imageToolbarPluginKey, {
+        block: block,
+      })
+    );
+  };
   // Changes the add image button background color on hover.
   const addImageButtonMouseEnterHandler = () => {
     addImageButton.style.backgroundColor = "gainsboro";
@@ -325,6 +338,8 @@ const renderImage = (
   window.addEventListener("mousemove", windowMouseMoveHandler);
   window.addEventListener("mouseup", windowMouseUpHandler);
   window.addEventListener("resize", windowResizeHandler);
+  addImageButton.addEventListener("mousedown", addImageButtonMouseDownHandler);
+  addImageButton.addEventListener("click", addImageButtonClickHandler);
   addImageButton.addEventListener(
     "mouseenter",
     addImageButtonMouseEnterHandler
@@ -350,6 +365,11 @@ const renderImage = (
       window.removeEventListener("mousemove", windowMouseMoveHandler);
       window.removeEventListener("mouseup", windowMouseUpHandler);
       window.removeEventListener("resize", windowResizeHandler);
+      addImageButton.removeEventListener(
+        "mousedown",
+        addImageButtonMouseDownHandler
+      );
+      addImageButton.removeEventListener("click", addImageButtonClickHandler);
       addImageButton.removeEventListener(
         "mouseenter",
         addImageButtonMouseEnterHandler

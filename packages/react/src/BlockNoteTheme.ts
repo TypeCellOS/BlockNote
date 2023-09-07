@@ -125,6 +125,47 @@ export const blockNoteToMantineTheme = (theme: Theme): MantineThemeOverride => {
           ),
         }),
       },
+      FileInput: {
+        styles: () => ({
+          root: {},
+          input: {
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
+            border: "none",
+            borderRadius: "4px",
+            "&:hover": {
+              backgroundColor: theme.colors.hovered.background,
+            },
+          },
+          wrapper: {
+            border: `solid ${theme.colors.border} 1px`,
+            borderRadius: "4px",
+            // boxShadow: theme.colors.shadow,
+          },
+          placeholder: {
+            color: `${theme.colors.menu.text} !important`,
+            fontWeight: 600,
+          },
+        }),
+      },
+      TextInput: {
+        styles: () => ({
+          root: {},
+          input: {
+            border: `solid ${theme.colors.border} 1px`,
+            borderRadius: "4px",
+            paddingInline: "8%",
+            height: "32px",
+          },
+          wrapper: {
+            // border: `solid ${theme.colors.border} 1px`,
+            // borderRadius: "4px",
+            minWidth: "0",
+          },
+        }),
+      },
       ColorIcon: {
         styles: () => ({
           root: _.merge<CSSObject, CSSObject>(
