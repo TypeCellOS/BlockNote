@@ -9,10 +9,8 @@ import {
 } from "@blocknote/core";
 import Tippy, { tippy } from "@tippyjs/react";
 import { FC, useEffect, useMemo, useRef, useState } from "react";
-import { sticky } from "tippy.js";
 
 import { DefaultImageToolbar } from "./DefaultImageToolbar";
-import { useEditorChange } from "../../hooks/useEditorChange";
 
 export type ImageToolbarProps<
   BSchema extends BlockSchema = DefaultBlockSchema
@@ -26,29 +24,6 @@ export const ImageToolbarPositioner = <
   editor: BlockNoteEditor<BSchema>;
   imageToolbar?: FC<ImageToolbarProps<BSchema>>;
 }) => {
-  // Placement is dynamic based on the text alignment of the current block.
-  const getPlacement = useMemo(
-    () => () => {
-      const block = props.editor.getTextCursorPosition().block;
-
-      if (!("textAlignment" in block.props)) {
-        return "top-start";
-      }
-
-      switch (block.props.textAlignment) {
-        case "left":
-          return "top-start";
-        case "center":
-          return "top";
-        case "right":
-          return "top-end";
-        default:
-          return "top-start";
-      }
-    },
-    [props.editor]
-  );
-
   const [show, setShow] = useState<boolean>(false);
   const [block, setBlock] = useState<
     SpecificBlock<
@@ -64,9 +39,6 @@ export const ImageToolbarPositioner = <
       "image"
     >
   >();
-  const [placement, setPlacement] = useState<"top-start" | "top" | "top-end">(
-    getPlacement
-  );
 
   const referencePos = useRef<DOMRect>();
 
@@ -80,8 +52,6 @@ export const ImageToolbarPositioner = <
       referencePos.current = imageToolbarState.referencePos;
     });
   }, [props.editor]);
-
-  useEditorChange(props.editor, () => setPlacement(getPlacement()));
 
   const getReferenceClientRect = useMemo(
     () => {
@@ -107,16 +77,8 @@ export const ImageToolbarPositioner = <
       interactive={true}
       visible={show}
       animation={"fade"}
-      placement={placement}
-      sticky={true}
-      plugins={tippyPlugins}
+      placement={"bottom"}
       zIndex={5000}
     />
   );
 };
-
-// We want Tippy to call `getReferenceClientRect` whenever the reference
-// DOMRect's position changes. This happens automatically on scroll, but we need
-// the `sticky` plugin to make it happen in all cases. This is most evident
-// when changing the text alignment using the image toolbar.
-const tippyPlugins = [sticky];
