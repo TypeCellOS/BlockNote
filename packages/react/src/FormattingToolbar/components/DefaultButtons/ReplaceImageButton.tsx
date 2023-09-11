@@ -1,5 +1,5 @@
 import { BlockNoteEditor, BlockSchema } from "@blocknote/core";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { RiImageEditFill } from "react-icons/ri";
 import Tippy from "@tippyjs/react";
 
@@ -13,6 +13,10 @@ export const ReplaceImageButton = <BSchema extends BlockSchema>(props: {
   const selectedBlocks = useSelectedBlocks(props.editor);
 
   const [isOpen, setIsOpen] = useState<boolean>(false);
+
+  useEffect(() => {
+    setIsOpen(false);
+  }, [selectedBlocks]);
 
   const show = useMemo(
     () =>
