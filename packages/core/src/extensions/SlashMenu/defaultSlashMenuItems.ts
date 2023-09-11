@@ -2,6 +2,7 @@ import { BlockNoteEditor } from "../../BlockNoteEditor";
 import { BlockSchema, PartialBlock } from "../Blocks/api/blockTypes";
 import { BaseSlashMenuItem } from "./BaseSlashMenuItem";
 import { defaultBlockSchema } from "../Blocks/api/defaultBlocks";
+import { imageToolbarPluginKey } from "../ImageToolbar/ImageToolbarPlugin";
 
 function insertOrUpdateBlock<BSchema extends BlockSchema>(
   editor: BlockNoteEditor<BSchema>,
@@ -130,7 +131,16 @@ export const getDefaultSlashMenuItems = <BSchema extends BlockSchema>(
           type: "image",
         } as PartialBlock<BSchema>);
         // Don't want to select the add image button
-        editor.setTextCursorPosition(editor.getTextCursorPosition().nextBlock!);
+        editor.setTextCursorPosition(
+          editor.getTextCursorPosition().prevBlock!,
+          "end"
+        );
+        // Immediately open the image toolbar
+        editor._tiptapEditor.view.dispatch(
+          editor._tiptapEditor.state.tr.setMeta(imageToolbarPluginKey, {
+            block: editor.getTextCursorPosition().nextBlock,
+          })
+        );
       },
     });
   }
