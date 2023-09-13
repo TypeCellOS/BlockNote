@@ -192,18 +192,42 @@ export const BlockContainer = Node.create<{
               );
             }
 
-            // Changes the blockContent node type and adds the provided props as attributes. Also preserves all existing
-            // attributes that are compatible with the new type.
-            state.tr.setNodeMarkup(
-              startPos,
-              block.type === undefined
-                ? undefined
-                : state.schema.nodes[block.type],
-              {
-                ...contentNode.attrs,
-                ...block.props,
-              }
-            );
+            // Since some block types contain inline content and others don't,
+            // we either need to call setNodeMarkup to just update type &
+            // attributes, or replaceWith to replace the whole blockContent.
+            const oldType = contentNode.type.name;
+            const newType = block.type || oldType;
+
+            const oldContentType = state.schema.nodes[oldType].spec.content;
+            const newContentType = state.schema.nodes[newType].spec.content;
+
+            if (oldContentType === "inline*" && newContentType === "") {
+              // Replaces the blockContent node with one of the new type and
+              // adds the provided props as attributes. Also preserves all
+              // existing attributes that are compatible with the new type.
+              state.tr.replaceWith(
+                startPos,
+                endPos,
+                state.schema.nodes[newType].create({
+                  ...contentNode.attrs,
+                  ...block.props,
+                })
+              );
+            } else {
+              // Changes the blockContent node type and adds the provided props
+              // as attributes. Also preserves all existing attributes that are
+              // compatible with the new type.
+              state.tr.setNodeMarkup(
+                startPos,
+                block.type === undefined
+                  ? undefined
+                  : state.schema.nodes[block.type],
+                {
+                  ...contentNode.attrs,
+                  ...block.props,
+                }
+              );
+            }
 
             // Adds all provided props as attributes to the parent blockContainer node too, and also preserves existing
             // attributes.

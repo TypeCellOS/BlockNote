@@ -73,6 +73,7 @@ export const HeadingBlockContent = createTipTapBlock<"heading">({
     return [
       "div",
       mergeAttributes(HTMLAttributes, {
+        ...blockContentDOMAttributes,
         class: mergeCSSClasses(
           styles.blockContent,
           blockContentDOMAttributes.class
@@ -82,6 +83,7 @@ export const HeadingBlockContent = createTipTapBlock<"heading">({
       [
         "h" + node.attrs.level,
         {
+          ...inlineContentDOMAttributes,
           class: mergeCSSClasses(
             styles.inlineContent,
             inlineContentDOMAttributes.class

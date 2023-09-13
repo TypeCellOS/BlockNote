@@ -1,5 +1,10 @@
 import { useMemo, useState } from "react";
-import { BlockNoteEditor, BlockSchema } from "@blocknote/core";
+import {
+  Block,
+  BlockNoteEditor,
+  BlockSchema,
+  PartialBlock,
+} from "@blocknote/core";
 import { IconType } from "react-icons";
 import {
   RiH1,
@@ -20,6 +25,7 @@ export type BlockTypeDropdownItem = {
   type: string;
   props?: Record<string, string>;
   icon: IconType;
+  isSelected: (block: Block<BlockSchema>) => boolean;
 };
 
 export const defaultBlockTypeDropdownItems: BlockTypeDropdownItem[] = [
@@ -27,34 +33,49 @@ export const defaultBlockTypeDropdownItems: BlockTypeDropdownItem[] = [
     name: "Paragraph",
     type: "paragraph",
     icon: RiText,
+    isSelected: (block) => block.type === "paragraph",
   },
   {
     name: "Heading 1",
     type: "heading",
     props: { level: "1" },
     icon: RiH1,
+    isSelected: (block) =>
+      block.type === "heading" &&
+      "level" in block.props &&
+      block.props.level === "1",
   },
   {
     name: "Heading 2",
     type: "heading",
     props: { level: "2" },
     icon: RiH2,
+    isSelected: (block) =>
+      block.type === "heading" &&
+      "level" in block.props &&
+      block.props.level === "2",
   },
   {
     name: "Heading 3",
     type: "heading",
     props: { level: "3" },
     icon: RiH3,
+    isSelected: (block) =>
+      block.type === "heading" &&
+      "level" in block.props &&
+      block.props.level === "3",
   },
   {
     name: "Bullet List",
     type: "bulletListItem",
     icon: RiListUnordered,
+    isSelected: (block) => block.type === "bulletListItem",
   },
   {
     name: "Numbered List",
     type: "numberedListItem",
     icon: RiListOrdered,
+    isSelected: (block) => block.type === "numberedListItem",
   },
 ];
 
@@ -100,22 +121,22 @@ export const BlockTypeDropdown = <BSchema extends BlockSchema>(props: {
     [block.type, filteredItems]
   );
 
-  const fullItems: ToolbarDropdownItemProps[] = useMemo(
-    () =>
-      filteredItems.map((item) => ({
-        text: item.name,
-        icon: item.icon,
-        onClick: () => {
-          props.editor.focus();
-          props.editor.updateBlock(block, {
-            type: item.type,
-            props: {},
-          });
-        },
-        isSelected: block.type === item.type,
-      })),
-    [block, filteredItems, props.editor]
-  );
+  const fullItems: ToolbarDropdownItemProps[] = useMemo(() => {
+    const onClick = (item: BlockTypeDropdownItem) => {
+      props.editor.focus();
+      props.editor.updateBlock(block, {
+        type: item.type,
+        props: item.props,
+      } as PartialBlock<BlockSchema>);
+    };
+
+    return filteredItems.map((item) => ({
+      text: item.name,
+      icon: item.icon,
+      onClick: () => onClick(item),
+      isSelected: item.isSelected(block as Block<BlockSchema>),
+    }));
+  }, [block, filteredItems, props.editor]);
 
   useEditorContentChange(props.editor, () => {
     setBlock(props.editor.getTextCursorPosition().block);

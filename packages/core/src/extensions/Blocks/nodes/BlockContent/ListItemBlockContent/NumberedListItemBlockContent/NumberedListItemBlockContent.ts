@@ -115,6 +115,7 @@ export const NumberedListItemBlockContent =
       return [
         "div",
         mergeAttributes(HTMLAttributes, {
+          ...blockContentDOMAttributes,
           class: mergeCSSClasses(
             styles.blockContent,
             blockContentDOMAttributes.class
@@ -126,6 +127,7 @@ export const NumberedListItemBlockContent =
         [
           "p",
           {
+            ...inlineContentDOMAttributes,
             class: mergeCSSClasses(
               styles.inlineContent,
               inlineContentDOMAttributes.class

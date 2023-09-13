@@ -91,6 +91,7 @@ export const BulletListItemBlockContent = createTipTapBlock<"bulletListItem">({
     return [
       "div",
       mergeAttributes(HTMLAttributes, {
+        ...blockContentDOMAttributes,
         class: mergeCSSClasses(
           styles.blockContent,
           blockContentDOMAttributes.class
@@ -100,6 +101,7 @@ export const BulletListItemBlockContent = createTipTapBlock<"bulletListItem">({
       [
         "p",
         {
+          ...inlineContentDOMAttributes,
           class: mergeCSSClasses(
             styles.inlineContent,
             inlineContentDOMAttributes.class
