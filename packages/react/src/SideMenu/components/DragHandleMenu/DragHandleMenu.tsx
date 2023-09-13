@@ -13,6 +13,8 @@ export const DragHandleMenu = (props: { children: ReactNode }) => {
   });
 
   return (
-    <Menu.Dropdown className={classes.root}>{props.children}</Menu.Dropdown>
+    <Menu.Dropdown className={classes.root} style={{ overflow: "visible" }}>
+      {props.children}
+    </Menu.Dropdown>
   );
 };

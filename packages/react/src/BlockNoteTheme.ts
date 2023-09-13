@@ -41,7 +41,8 @@ export type ComponentStyles = Partial<{
   Editor: CSSObject;
   // Wraps Formatting Toolbar & Hyperlink Toolbar
   Toolbar: CSSObject;
-  // Appears on hover for Formatting Toolbar & Hyperlink Toolbar buttons
+  // Appears on hover for Formatting Toolbar
+  // & Hyperlink Toolbar buttons
   Tooltip: CSSObject;
   SlashMenu: CSSObject;
   SideMenu: CSSObject;
@@ -105,6 +106,7 @@ export const blockNoteToMantineTheme = (theme: Theme): MantineThemeOverride => {
               boxShadow: shadow,
               color: theme.colors.menu.text,
               padding: "2px",
+              overflowY: "scroll",
               ".mantine-Menu-label": {
                 backgroundColor: theme.colors.menu.background,
                 color: theme.colors.menu.text,
