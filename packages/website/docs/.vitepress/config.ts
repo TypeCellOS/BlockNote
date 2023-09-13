@@ -145,10 +145,6 @@ const EXAMPLES_SIDEBAR = [
         text: "Alert Block",
         link: "/examples/alert-block",
       },
-      {
-        text: "Block from TipTap Node",
-        link: "/examples/block-from-tiptap",
-      },
     ],
   },
 ];
