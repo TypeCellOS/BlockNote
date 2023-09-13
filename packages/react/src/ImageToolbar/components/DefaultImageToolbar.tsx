@@ -28,8 +28,11 @@ export const DefaultImageToolbar = <BSchema extends BlockSchema>(
   );
 
   return (
-    <Toolbar>
-      <Stack spacing={"xs"} m={2}>
+    <Toolbar
+      style={{
+        width: "300px",
+      }}>
+      <Stack spacing={"xs"} m={6} w={"100%"}>
         <Toolbar>
           <ToolbarButton
             mainTooltip={"Upload From File"}

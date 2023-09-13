@@ -142,7 +142,6 @@ export const blockNoteToMantineTheme = (theme: Theme): MantineThemeOverride => {
           wrapper: {
             border: `solid ${theme.colors.border} 1px`,
             borderRadius: "4px",
-            // boxShadow: theme.colors.shadow,
           },
           placeholder: {
             color: `${theme.colors.menu.text} !important`,
@@ -156,13 +155,7 @@ export const blockNoteToMantineTheme = (theme: Theme): MantineThemeOverride => {
           input: {
             border: `solid ${theme.colors.border} 1px`,
             borderRadius: "4px",
-            paddingInline: "8%",
             height: "32px",
-          },
-          wrapper: {
-            // border: `solid ${theme.colors.border} 1px`,
-            // borderRadius: "4px",
-            minWidth: "0",
           },
         }),
       },
