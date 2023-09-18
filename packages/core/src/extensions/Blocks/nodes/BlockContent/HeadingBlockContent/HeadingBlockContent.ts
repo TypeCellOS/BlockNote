@@ -3,7 +3,7 @@ import { createTipTapBlock } from "../../../api/block";
 import styles from "../../Block.module.css";
 import { mergeCSSClasses } from "../../../../../shared/utils";
 
-export const HeadingBlockContent = createTipTapBlock<"heading">({
+export const HeadingBlockContent = createTipTapBlock<"heading", true>({
   name: "heading",
   content: "inline*",
 

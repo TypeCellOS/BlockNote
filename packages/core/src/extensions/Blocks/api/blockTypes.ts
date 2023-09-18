@@ -16,11 +16,13 @@ export type BlockNoteDOMAttributes = Partial<{
 }>;
 
 // A configuration for a TipTap node, but with stricter type constraints on the
-// "name" and "group" properties. The "name" property is now always a string
-// literal type, and the "blockGroup" property cannot be configured as it should
-// always be "blockContent". Used as the parameter in `createTipTapNode`.
+// "name" and "content" properties. The "name" property is now always a string
+// literal type, and the "content" property can only be "inline*" or "". Used as
+// the parameter in `createTipTapNode`. The "group" is also removed as
+// `createTipTapNode` always sets it to "blockContent"
 export type TipTapNodeConfig<
   Name extends string,
+  ContainsInlineContent extends boolean,
   Options extends {
     domAttributes?: BlockNoteDOMAttributes;
   } = {
@@ -33,22 +35,43 @@ export type TipTapNodeConfig<
     : K extends "group"
     ? never
     : NodeConfig<Options, Storage>[K];
+} & {
+  content: ContainsInlineContent extends true ? "inline*" : "";
 };
 
-// A TipTap node with stricter type constraints on the "name" and "group"
-// properties. The "name" property is now a string literal type, and the
-// "blockGroup" property is now "blockContent". Returned by `createTipTapNode`.
+// A TipTap node with stricter type constraints on the "name", "group", and
+// "content properties. The "name" property is now a string literal type, and
+// the "blockGroup" property is now "blockContent", and the "content" property
+// can only be "inline*" or "". Returned by `createTipTapNode`.
 export type TipTapNode<
   Name extends string,
+  ContainsInlineContent extends boolean,
   Options extends {
     domAttributes?: BlockNoteDOMAttributes;
   } = {
     domAttributes?: BlockNoteDOMAttributes;
   },
   Storage = any
-> = Node<Options, Storage> & {
-  name: Name;
-  group: "blockContent";
+> = {
+  [Key in keyof Node<Options, Storage>]: Key extends "name"
+    ? Name
+    : Key extends "config"
+    ? {
+        [ConfigKey in keyof Node<
+          Options,
+          Storage
+        >["config"]]: ConfigKey extends "group"
+          ? "blockContent"
+          : ConfigKey extends "content"
+          ? ContainsInlineContent extends true
+            ? "inline*"
+            : ""
+          : NodeConfig<Options, Storage>["config"][ConfigKey];
+      } & {
+        group: "blockContent";
+        content: ContainsInlineContent extends true ? "inline*" : "";
+      }
+    : Node<Options, Storage>["config"][Key];
 };
 
 // Defines a single prop spec, which includes the default value the prop should
@@ -132,14 +155,13 @@ export type BlockSpec<
   PSchema extends PropSchema,
   ContainsInlineContent extends boolean
 > = {
-  node: TipTapNode<Type, any>;
+  node: TipTapNode<Type, ContainsInlineContent, any>;
   readonly propSchema: PSchema;
-  containsInlineContent: ContainsInlineContent;
 };
 
 // Utility type. For a given object block schema, ensures that the key of each
 // block spec matches the name of the TipTap node in it.
-export type TypesMatch<
+type NamesMatch<
   Blocks extends Record<string, BlockSpec<string, PropSchema, boolean>>
 > = Blocks extends {
   [Type in keyof Blocks]: Type extends string
@@ -156,7 +178,7 @@ export type TypesMatch<
 // `blocks` option of the BlockNoteEditor. From a block schema, we can derive
 // both the blocks' internal implementation (as TipTap nodes) and the type
 // information for the external API.
-export type BlockSchema = TypesMatch<
+export type BlockSchema = NamesMatch<
   Record<string, BlockSpec<string, PropSchema, boolean>>
 >;
 
@@ -168,7 +190,7 @@ type BlocksWithoutChildren<BSchema extends BlockSchema> = {
     id: string;
     type: BType;
     props: Props<BSchema[BType]["propSchema"]>;
-    content: BSchema[BType]["containsInlineContent"] extends true
+    content: BSchema[BType]["node"]["config"]["content"] extends "inline*"
       ? InlineContent[]
       : undefined;
   };
@@ -195,7 +217,7 @@ type PartialBlocksWithoutChildren<BSchema extends BlockSchema> = {
     id: string;
     type: BType;
     props: Partial<Props<BSchema[BType]["propSchema"]>>;
-    content: BSchema[BType]["containsInlineContent"] extends true
+    content: BSchema[BType]["node"]["config"]["content"] extends "inline*"
       ? PartialInlineContent[] | string
       : undefined;
   }>;

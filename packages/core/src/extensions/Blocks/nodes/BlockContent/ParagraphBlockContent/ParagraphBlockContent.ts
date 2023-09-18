@@ -3,7 +3,7 @@ import { createTipTapBlock } from "../../../api/block";
 import styles from "../../Block.module.css";
 import { mergeCSSClasses } from "../../../../../shared/utils";
 
-export const ParagraphBlockContent = createTipTapBlock({
+export const ParagraphBlockContent = createTipTapBlock<"paragraph", true>({
   name: "paragraph",
   content: "inline*",
 

@@ -121,20 +121,23 @@ export function render<
 export function createBlockSpec<
   BType extends string,
   PSchema extends PropSchema,
-  ContainsInlineContent extends boolean,
+  ContainsInlineContent extends false,
   BSchema extends BlockSchema
 >(
   blockConfig: BlockConfig<BType, PSchema, ContainsInlineContent, BSchema>
 ): BlockSpec<BType, PSchema, ContainsInlineContent> {
   const node = createTipTapBlock<
     BType,
+    ContainsInlineContent,
     {
       editor: BlockNoteEditor<BSchema>;
       domAttributes?: BlockNoteDOMAttributes;
     }
   >({
     name: blockConfig.type,
-    content: blockConfig.containsInlineContent ? "inline*" : "",
+    content: (blockConfig.containsInlineContent
+      ? "inline*"
+      : "") as ContainsInlineContent extends true ? "inline*" : "",
     selectable: true,
 
     addAttributes() {
@@ -204,7 +207,10 @@ export function createBlockSpec<
         // Render elements
         const rendered = blockConfig.render(block as any, editor);
         // Add HTML attributes to contentDOM
-        if ("contentDOM" in rendered) {
+        if (blockConfig.containsInlineContent) {
+          const contentDOM = (rendered as { contentDOM: HTMLElement })
+            .contentDOM;
+
           const inlineContentDOMAttributes =
             this.options.domAttributes?.inlineContent || {};
           // Add custom HTML attributes
@@ -212,12 +218,12 @@ export function createBlockSpec<
             inlineContentDOMAttributes
           )) {
             if (attribute !== "class") {
-              rendered.contentDOM.setAttribute(attribute, value);
+              contentDOM.setAttribute(attribute, value);
             }
           }
           // Merge existing classes with inlineContent & custom classes
-          rendered.contentDOM.className = mergeCSSClasses(
-            rendered.contentDOM.className,
+          contentDOM.className = mergeCSSClasses(
+            contentDOM.className,
             styles.inlineContent,
             inlineContentDOMAttributes.class
           );
@@ -240,14 +246,14 @@ export function createBlockSpec<
   });
 
   return {
-    node: node as TipTapNode<BType>,
+    node: node as TipTapNode<BType, ContainsInlineContent>,
     propSchema: blockConfig.propSchema,
-    containsInlineContent: blockConfig.containsInlineContent,
   };
 }
 
 export function createTipTapBlock<
   Type extends string,
+  ContainsInlineContent extends boolean,
   Options extends {
     domAttributes?: BlockNoteDOMAttributes;
   } = {
@@ -255,8 +261,8 @@ export function createTipTapBlock<
   },
   Storage = any
 >(
-  config: TipTapNodeConfig<Type, Options, Storage>
-): TipTapNode<Type, Options, Storage> {
+  config: TipTapNodeConfig<Type, ContainsInlineContent, Options, Storage>
+): TipTapNode<Type, ContainsInlineContent, Options, Storage> {
   // Type cast is needed as Node.name is mutable, though there is basically no
   // reason to change it after creation. Alternative is to wrap Node in a new
   // class, which I don't think is worth it since we'd only be changing 1
@@ -264,5 +270,6 @@ export function createTipTapBlock<
   return Node.create<Options, Storage>({
     ...config,
     group: "blockContent",
-  }) as TipTapNode<Type, Options, Storage>;
+    content: config.content,
+  }) as TipTapNode<Type, ContainsInlineContent, Options, Storage>;
 }

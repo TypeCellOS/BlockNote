@@ -4,7 +4,10 @@ import { handleEnter } from "../ListItemKeyboardShortcuts";
 import styles from "../../../Block.module.css";
 import { mergeCSSClasses } from "../../../../../../shared/utils";
 
-export const BulletListItemBlockContent = createTipTapBlock<"bulletListItem">({
+export const BulletListItemBlockContent = createTipTapBlock<
+  "bulletListItem",
+  true
+>({
   name: "bulletListItem",
   content: "inline*",
 

@@ -80,13 +80,16 @@ export function createReactBlockSpec<
 ): BlockSpec<BType, PSchema, ContainsInlineContent> {
   const node = createTipTapBlock<
     BType,
+    ContainsInlineContent,
     {
       editor: BlockNoteEditor<BSchema>;
       domAttributes?: BlockNoteDOMAttributes;
     }
   >({
     name: blockConfig.type,
-    content: blockConfig.containsInlineContent ? "inline*" : "",
+    content: (blockConfig.containsInlineContent
+      ? "inline*"
+      : "") as ContainsInlineContent extends true ? "inline*" : "",
     selectable: true,
 
     addAttributes() {
@@ -171,6 +174,5 @@ export function createReactBlockSpec<
   return {
     node: node,
     propSchema: blockConfig.propSchema,
-    containsInlineContent: blockConfig.containsInlineContent,
   };
 }

@@ -421,9 +421,10 @@ export function nodeToBlock<BSchema extends BlockSchema>(
     id,
     type: blockSpec.node.name,
     props,
-    content: blockSpec.containsInlineContent
-      ? contentNodeToInlineContent(blockInfo.contentNode)
-      : undefined,
+    content:
+      blockSpec.node.config.content === "inline*"
+        ? contentNodeToInlineContent(blockInfo.contentNode)
+        : undefined,
     children,
   } as Block<BSchema>;
 
