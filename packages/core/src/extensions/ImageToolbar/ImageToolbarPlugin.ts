@@ -40,7 +40,6 @@ export class ImageToolbarView {
     (state.selection.node as PMNode).attrs.src === "";
 
   constructor(
-    // private readonly editor: BlockNoteEditor<BSchema>,
     private readonly pluginKey: PluginKey,
     private readonly pmView: EditorView,
     updateImageToolbar: (imageToolbarState: ImageToolbarState) => void
@@ -112,13 +111,6 @@ export class ImageToolbarView {
   };
 
   update(view: EditorView, prevState: EditorState) {
-    // if (
-    //   this.prevWasEditable === null ||
-    //   this.prevWasEditable === this.editor.isEditable
-    // ) {
-    //   return;
-    // }
-
     const pluginState: {
       block: SpecificBlock<
         BlockSchema & {

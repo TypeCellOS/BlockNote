@@ -6,7 +6,8 @@ export function useSelectedBlocks<BSchema extends BlockSchema>(
   editor: BlockNoteEditor<BSchema>
 ) {
   const [selectedBlocks, setSelectedBlocks] = useState<Block<BSchema>[]>(
-    editor.getSelection()?.blocks || [editor.getTextCursorPosition().block]
+    () =>
+      editor.getSelection()?.blocks || [editor.getTextCursorPosition().block]
   );
 
   useEditorChange(editor, () =>

@@ -2,6 +2,7 @@ import { forwardRef, HTMLAttributes, ReactElement } from "react";
 import { createStyles, Stack } from "@mantine/core";
 
 import { InputProps } from "./ToolbarInputDropdownItem";
+import { mergeCSSClasses } from "@blocknote/core";
 
 export type ToolbarInputDropdownProps = {
   children:
@@ -20,7 +21,7 @@ export const ToolbarInputDropdown = forwardRef<
   return (
     <Stack
       {...props}
-      className={className ? `${classes.root} ${className}` : classes.root}
+      className={mergeCSSClasses(classes.root, className || "")}
       ref={ref}>
       {props.children}
     </Stack>
