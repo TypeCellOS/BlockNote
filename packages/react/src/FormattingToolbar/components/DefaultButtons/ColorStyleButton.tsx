@@ -75,7 +75,7 @@ export const ColorStyleButton = <BSchema extends BlockSchema>(props: {
           )}
         />
       </Menu.Target>
-      <Menu.Dropdown style={{ zIndex: "999999" }}>
+      <Menu.Dropdown>
         <ColorPicker
           text={{
             color: currentTextColor,
