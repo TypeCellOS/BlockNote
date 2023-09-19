@@ -66,7 +66,7 @@ describe("Complex ProseMirror Node Conversions", () => {
         backgroundColor: "blue",
         textColor: "yellow",
         textAlignment: "right",
-        level: "2",
+        level: 2,
       },
       content: [
         {
@@ -114,7 +114,7 @@ describe("Complex ProseMirror Node Conversions", () => {
       },
       [
         tt.schema.nodes["heading"].create(
-          { textAlignment: "right", level: "2" },
+          { textAlignment: "right", level: 2 },
           [
             tt.schema.text("Heading ", [
               tt.schema.mark("bold"),

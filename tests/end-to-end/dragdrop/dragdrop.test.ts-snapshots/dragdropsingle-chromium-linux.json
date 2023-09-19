@@ -16,7 +16,7 @@
               "type": "heading",
               "attrs": {
                 "textAlignment": "left",
-                "level": "2"
+                "level": 2
               },
               "content": [
                 {
@@ -39,7 +39,7 @@
               "type": "heading",
               "attrs": {
                 "textAlignment": "left",
-                "level": "1"
+                "level": 1
               },
               "content": [
                 {
@@ -62,7 +62,7 @@
               "type": "heading",
               "attrs": {
                 "textAlignment": "left",
-                "level": "3"
+                "level": 3
               },
               "content": [
                 {

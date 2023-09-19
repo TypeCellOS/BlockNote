@@ -40,40 +40,40 @@ export const getDefaultSlashMenuItems = <BSchema extends BlockSchema>(
 
   if ("heading" in schema && "level" in schema.heading.propSchema) {
     // Command for creating a level 1 heading
-    if (schema.heading.propSchema.level.values?.includes("1")) {
+    if (schema.heading.propSchema.level.values?.includes(1)) {
       slashMenuItems.push({
         name: "Heading",
         aliases: ["h", "heading1", "h1"],
         execute: (editor) =>
           insertOrUpdateBlock(editor, {
             type: "heading",
-            props: { level: "1" },
+            props: { level: 1 },
           } as PartialBlock<BSchema>),
       });
     }
 
     // Command for creating a level 2 heading
-    if (schema.heading.propSchema.level.values?.includes("2")) {
+    if (schema.heading.propSchema.level.values?.includes(2)) {
       slashMenuItems.push({
         name: "Heading 2",
         aliases: ["h2", "heading2", "subheading"],
         execute: (editor) =>
           insertOrUpdateBlock(editor, {
             type: "heading",
-            props: { level: "2" },
+            props: { level: 2 },
           } as PartialBlock<BSchema>),
       });
     }
 
     // Command for creating a level 3 heading
-    if (schema.heading.propSchema.level.values?.includes("3")) {
+    if (schema.heading.propSchema.level.values?.includes(3)) {
       slashMenuItems.push({
         name: "Heading 3",
         aliases: ["h3", "heading3", "subheading"],
         execute: (editor) =>
           insertOrUpdateBlock(editor, {
             type: "heading",
-            props: { level: "3" },
+            props: { level: 3 },
           } as PartialBlock<BSchema>),
       });
     }

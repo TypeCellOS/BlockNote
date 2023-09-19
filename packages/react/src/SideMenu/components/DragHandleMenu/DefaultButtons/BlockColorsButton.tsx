@@ -57,7 +57,8 @@ export const BlockColorsButton = <BSchema extends BlockSchema>(
           <ColorPicker
             iconSize={18}
             text={
-              "textColor" in props.block.props
+              "textColor" in props.block.props &&
+              typeof props.block.props.textColor === "string"
                 ? {
                     color: props.block.props.textColor,
                     setColor: (color) =>
@@ -68,7 +69,8 @@ export const BlockColorsButton = <BSchema extends BlockSchema>(
                 : undefined
             }
             background={
-              "backgroundColor" in props.block.props
+              "backgroundColor" in props.block.props &&
+              typeof props.block.props.backgroundColor === "string"
                 ? {
                     color: props.block.props.backgroundColor,
                     setColor: (color) =>

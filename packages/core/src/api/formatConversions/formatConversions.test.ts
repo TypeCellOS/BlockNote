@@ -12,7 +12,7 @@ const getNonNestedBlocks = (): Block[] => [
       backgroundColor: "default",
       textColor: "default",
       textAlignment: "left",
-      level: "1",
+      level: 1,
     },
     content: [
       {
@@ -84,7 +84,7 @@ const getNestedBlocks = (): Block[] => [
       backgroundColor: "default",
       textColor: "default",
       textAlignment: "left",
-      level: "1",
+      level: 1,
     },
     content: [
       {
@@ -224,7 +224,7 @@ const getComplexBlocks = (): Block[] => [
       backgroundColor: "red",
       textColor: "yellow",
       textAlignment: "right",
-      level: "1",
+      level: 1,
     },
     content: [
       {
@@ -241,7 +241,7 @@ const getComplexBlocks = (): Block[] => [
           backgroundColor: "orange",
           textColor: "orange",
           textAlignment: "center",
-          level: "2",
+          level: 2,
         },
         content: [
           {
@@ -258,7 +258,7 @@ const getComplexBlocks = (): Block[] => [
               backgroundColor: "yellow",
               textColor: "red",
               textAlignment: "left",
-              level: "3",
+              level: 3,
             },
             content: [
               {

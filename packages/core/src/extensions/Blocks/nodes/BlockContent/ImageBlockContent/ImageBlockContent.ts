@@ -1,13 +1,25 @@
-import { defaultProps } from "../../../api/defaultProps";
-import {
-  BlockSchema,
-  BlockSpec,
-  PropSchema,
-  SpecificBlock,
-} from "../../../api/blockTypes";
-import { BlockNoteEditor } from "../../../../../BlockNoteEditor";
 import { createBlockSpec } from "../../../api/block";
+import { defaultProps } from "../../../api/defaultProps";
+import { BlockSpec, PropSchema, SpecificBlock } from "../../../api/blockTypes";
+import { BlockNoteEditor } from "../../../../../BlockNoteEditor";
 import { imageToolbarPluginKey } from "../../../../ImageToolbar/ImageToolbarPlugin";
+
+export const imagePropSchema = {
+  textAlignment: defaultProps.textAlignment,
+  backgroundColor: defaultProps.backgroundColor,
+  // Image src.
+  src: {
+    default: "" as const,
+  },
+  // Image caption.
+  caption: {
+    default: "" as const,
+  },
+  // Image width in px.
+  width: {
+    default: 512 as const,
+  },
+} satisfies PropSchema;
 
 // Converts text alignment prop values to the flexbox `align-items` values.
 const textAlignmentToAlignItems = (
@@ -41,31 +53,14 @@ const setResizeHandleStyles = (resizeHandle: HTMLDivElement) => {
 // Min image width in px.
 const minWidth = 64;
 
-const imagePropSchema = {
-  textAlignment: defaultProps.textAlignment,
-  backgroundColor: defaultProps.backgroundColor,
-  // Image src.
-  src: {
-    default: "" as const,
-  },
-  // Image caption.
-  caption: {
-    default: "" as const,
-  },
-  // Image width in px.
-  width: {
-    default: "512" as const,
-  },
-} satisfies PropSchema;
-
 const renderImage = (
   block: SpecificBlock<
-    BlockSchema & { image: BlockSpec<"image", typeof imagePropSchema, false> },
+    { image: BlockSpec<"image", typeof imagePropSchema, false> },
     "image"
   >,
-  editor: BlockNoteEditor<
-    BlockSchema & { image: BlockSpec<"image", typeof imagePropSchema, false> }
-  >
+  editor: BlockNoteEditor<{
+    image: BlockSpec<"image", typeof imagePropSchema, false>;
+  }>
 ) => {
   // Wrapper element to set the image alignment, contains both image/image
   // upload dashboard and caption.
@@ -124,7 +119,7 @@ const renderImage = (
   image.draggable = false;
   image.style.borderRadius = "4px";
   image.style.width = `${Math.min(
-    parseFloat(block.props.width),
+    block.props.width,
     editor.domElement.firstElementChild!.clientWidth
   )}px`;
 
@@ -240,14 +235,15 @@ const renderImage = (
     editor.updateBlock(block, {
       type: "image",
       props: {
-        width: image.style.width.slice(0, -2),
+        // Removes "px" from the end of the width string and converts to float.
+        width: parseFloat(image.style.width.slice(0, -2)),
       },
     });
   };
   // Updates the image width when the viewport is resized.
   const windowResizeHandler = () => {
     const width = Math.min(
-      parseFloat(block.props.width),
+      block.props.width,
       editor.domElement.firstElementChild!.clientWidth
     );
 
@@ -256,7 +252,7 @@ const renderImage = (
     editor.updateBlock(block, {
       type: "image",
       props: {
-        width: `${width}`,
+        width: width,
       },
     });
   };
@@ -311,7 +307,7 @@ const renderImage = (
 
     resizeParams = {
       handleUsed: "left",
-      initialWidth: parseFloat(block.props.width),
+      initialWidth: block.props.width,
       initialClientX: event.clientX,
     };
   };
@@ -320,7 +316,7 @@ const renderImage = (
 
     resizeParams = {
       handleUsed: "right",
-      initialWidth: parseFloat(block.props.width),
+      initialWidth: block.props.width,
       initialClientX: event.clientX,
     };
   };

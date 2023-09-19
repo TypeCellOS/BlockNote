@@ -32,10 +32,15 @@ export type TipTapNodeConfig<
 > = {
   [K in keyof NodeConfig<Options, Storage>]: K extends "name"
     ? Name
+    : K extends "content"
+    ? ContainsInlineContent extends true
+      ? "inline*"
+      : ""
     : K extends "group"
     ? never
     : NodeConfig<Options, Storage>[K];
 } & {
+  name: Name;
   content: ContainsInlineContent extends true ? "inline*" : "";
 };
 
@@ -76,9 +81,9 @@ export type TipTapNode<
 
 // Defines a single prop spec, which includes the default value the prop should
 // take and possible values it can take.
-export type PropSpec = {
-  values?: readonly string[];
-  default: string;
+export type PropSpec<PType extends boolean | number | string> = {
+  values?: readonly PType[];
+  default: PType;
 };
 
 // Defines multiple block prop specs. The key of each prop is the name of the
@@ -86,15 +91,25 @@ export type PropSpec = {
 // in a block config or schema. From a prop schema, we can derive both the props'
 // internal implementation (as TipTap node attributes) and the type information
 // for the external API.
-export type PropSchema = Record<string, PropSpec>;
+export type PropSchema = Record<string, PropSpec<boolean | number | string>>;
 
 // Defines Props objects for use in Block objects in the external API. Converts
 // each prop spec into a union type of its possible values, or a string if no
 // values are specified.
 export type Props<PSchema extends PropSchema> = {
-  [PType in keyof PSchema]: PSchema[PType]["values"] extends readonly string[]
-    ? PSchema[PType]["values"][number]
-    : string;
+  [PName in keyof PSchema]: PSchema[PName]["default"] extends boolean
+    ? PSchema[PName]["values"] extends readonly boolean[]
+      ? PSchema[PName]["values"][number]
+      : boolean
+    : PSchema[PName]["default"] extends number
+    ? PSchema[PName]["values"] extends readonly number[]
+      ? PSchema[PName]["values"][number]
+      : number
+    : PSchema[PName]["default"] extends string
+    ? PSchema[PName]["values"] extends readonly string[]
+      ? PSchema[PName]["values"][number]
+      : string
+    : never;
 };
 
 // Defines the config for a single block. Meant to be used as an argument to

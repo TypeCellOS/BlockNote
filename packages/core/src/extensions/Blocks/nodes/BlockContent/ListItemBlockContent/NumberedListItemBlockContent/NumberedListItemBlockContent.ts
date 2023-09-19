@@ -1,11 +1,17 @@
 import { InputRule, mergeAttributes } from "@tiptap/core";
+import { defaultProps } from "../../../../api/defaultProps";
 import { createTipTapBlock } from "../../../../api/block";
+import { BlockSpec, PropSchema } from "../../../../api/blockTypes";
+import { mergeCSSClasses } from "../../../../../../shared/utils";
 import { handleEnter } from "../ListItemKeyboardShortcuts";
 import { NumberedListIndexingPlugin } from "./NumberedListIndexingPlugin";
 import styles from "../../../Block.module.css";
-import { mergeCSSClasses } from "../../../../../../shared/utils";
 
-export const NumberedListItemBlockContent = createTipTapBlock<
+export const numberedListItemPropSchema = {
+  ...defaultProps,
+} satisfies PropSchema;
+
+const NumberedListItemBlockContent = createTipTapBlock<
   "numberedListItem",
   true
 >({
@@ -47,6 +53,17 @@ export const NumberedListItemBlockContent = createTipTapBlock<
   addKeyboardShortcuts() {
     return {
       Enter: () => handleEnter(this.editor),
+      "Mod-Shift-8": () =>
+        this.editor.commands.BNUpdateBlock<{
+          numberedListItem: BlockSpec<
+            "numberedListItem",
+            typeof numberedListItemPropSchema,
+            true
+          >;
+        }>(this.editor.state.selection.anchor, {
+          type: "numberedListItem",
+          props: {},
+        }),
     };
   },
 
@@ -136,3 +153,12 @@ export const NumberedListItemBlockContent = createTipTapBlock<
     ];
   },
 });
+
+export const NumberedListItem = {
+  node: NumberedListItemBlockContent,
+  propSchema: numberedListItemPropSchema,
+} satisfies BlockSpec<
+  "numberedListItem",
+  typeof numberedListItemPropSchema,
+  true
+>;

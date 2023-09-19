@@ -584,37 +584,6 @@ export const BlockContainer = Node.create<{
         this.editor.commands.BNCreateBlock(
           this.editor.state.selection.anchor + 2
         ),
-      "Mod-Alt-1": () =>
-        this.editor.commands.BNUpdateBlock(this.editor.state.selection.anchor, {
-          type: "heading",
-          props: {
-            level: "1",
-          },
-        }),
-      "Mod-Alt-2": () =>
-        this.editor.commands.BNUpdateBlock(this.editor.state.selection.anchor, {
-          type: "heading",
-          props: {
-            level: "2",
-          },
-        }),
-      "Mod-Alt-3": () =>
-        this.editor.commands.BNUpdateBlock(this.editor.state.selection.anchor, {
-          type: "heading",
-          props: {
-            level: "3",
-          },
-        }),
-      "Mod-Shift-7": () =>
-        this.editor.commands.BNUpdateBlock(this.editor.state.selection.anchor, {
-          type: "bulletListItem",
-          props: {},
-        }),
-      "Mod-Shift-8": () =>
-        this.editor.commands.BNUpdateBlock(this.editor.state.selection.anchor, {
-          type: "numberedListItem",
-          props: {},
-        }),
     };
   },
 });

@@ -29,9 +29,12 @@ export const ImageCaptionButton = <BSchema extends BlockSchema>(props: {
       // Checks if the block has a `caption` prop which can take any string
       // value.
       "caption" in props.editor.schema["image"].propSchema &&
+      typeof props.editor.schema["image"].propSchema.caption.default ===
+        "string" &&
       props.editor.schema["image"].propSchema.caption.values === undefined &&
       // Checks if the block has a `src` prop which can take any string value.
       "src" in props.editor.schema["image"].propSchema &&
+      typeof props.editor.schema["image"].propSchema.src.default === "string" &&
       props.editor.schema["image"].propSchema.src.values === undefined &&
       // Checks if the `src` prop is not set to an empty string.
       selectedBlocks[0].props.src !== "",
@@ -39,11 +42,14 @@ export const ImageCaptionButton = <BSchema extends BlockSchema>(props: {
   );
 
   const [currentCaption, setCurrentCaption] = useState<string>(
-    show ? selectedBlocks[0].props.caption : ""
+    show ? (selectedBlocks[0].props.caption as string) : ""
   );
 
   useEffect(
-    () => setCurrentCaption(show ? selectedBlocks[0].props.caption : ""),
+    () =>
+      setCurrentCaption(
+        show ? (selectedBlocks[0].props.caption as string) : ""
+      ),
     [selectedBlocks, show]
   );
 
