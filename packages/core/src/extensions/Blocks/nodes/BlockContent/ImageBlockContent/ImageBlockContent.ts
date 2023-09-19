@@ -3,6 +3,7 @@ import { defaultProps } from "../../../api/defaultProps";
 import { BlockSpec, PropSchema, SpecificBlock } from "../../../api/blockTypes";
 import { BlockNoteEditor } from "../../../../../BlockNoteEditor";
 import { imageToolbarPluginKey } from "../../../../ImageToolbar/ImageToolbarPlugin";
+import styles from "../../Block.module.css";
 
 export const imagePropSchema = {
   textAlignment: defaultProps.textAlignment,
@@ -37,19 +38,6 @@ const textAlignmentToAlignItems = (
   }
 };
 
-// Sets generic styles for a resize handle, regardless of whether it's the
-// left or right one.
-const setResizeHandleStyles = (resizeHandle: HTMLDivElement) => {
-  resizeHandle.style.display = "none";
-  resizeHandle.style.position = "absolute";
-  resizeHandle.style.width = "8px";
-  resizeHandle.style.height = "30px";
-  resizeHandle.style.backgroundColor = "black";
-  resizeHandle.style.border = "1px solid white";
-  resizeHandle.style.borderRadius = "4px";
-  resizeHandle.style.cursor = "ew-resize";
-};
-
 // Min image width in px.
 const minWidth = 64;
 
@@ -65,59 +53,42 @@ const renderImage = (
   // Wrapper element to set the image alignment, contains both image/image
   // upload dashboard and caption.
   const wrapper = document.createElement("div");
-  wrapper.id = "wrapper";
-  wrapper.style.display = "flex";
-  wrapper.style.flexDirection = "column";
+  wrapper.className = styles.wrapper;
   wrapper.style.alignItems = textAlignmentToAlignItems(
     block.props.textAlignment
   );
-  wrapper.style.userSelect = "none";
-  wrapper.style.width = "100%";
 
   // Button element that acts as a placeholder for images with no src.
   const addImageButton = document.createElement("div");
-  addImageButton.style.display = block.props.src === "" ? "flex" : "none";
-  addImageButton.style.flexDirection = "row";
-  addImageButton.style.alignItems = "center";
-  addImageButton.style.gap = "8px";
-  addImageButton.style.backgroundColor = "whitesmoke";
-  addImageButton.style.borderRadius = "4px";
-  addImageButton.style.cursor = "pointer";
-  addImageButton.style.padding = "12px";
-  addImageButton.style.width = "100%";
+  addImageButton.className = styles.addImageButton;
+  addImageButton.style.display = block.props.src === "" ? "" : "none";
 
   // Icon for the add image button.
   const addImageButtonIcon = document.createElement("div");
-  addImageButtonIcon.style.backgroundImage = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M20 5H4V19L13.2923 9.70649C13.6828 9.31595 14.3159 9.31591 14.7065 9.70641L20 15.0104V5ZM2 3.9934C2 3.44476 2.45531 3 2.9918 3H21.0082C21.556 3 22 3.44495 22 3.9934V20.0066C22 20.5552 21.5447 21 21.0082 21H2.9918C2.44405 21 2 20.5551 2 20.0066V3.9934ZM8 11C6.89543 11 6 10.1046 6 9C6 7.89543 6.89543 7 8 7C9.10457 7 10 7.89543 10 9C10 10.1046 9.10457 11 8 11Z'%3E%3C/path%3E%3C/svg%3E")`;
-  addImageButtonIcon.style.width = "24px";
-  addImageButtonIcon.style.height = "24px";
+  addImageButtonIcon.className = styles.addImageButtonIcon;
 
   // Text for the add image button.
   const addImageButtonText = document.createElement("p");
+  addImageButtonText.className = styles.addImageButtonText;
   addImageButtonText.innerText = "Add Image";
 
   // Wrapper element for the image, resize handles and caption.
   const imageAndCaptionWrapper = document.createElement("div");
-  imageAndCaptionWrapper.style.display =
-    block.props.src !== "" ? "flex" : "none";
-  imageAndCaptionWrapper.style.flexDirection = "column";
-  imageAndCaptionWrapper.style.borderRadius = "4px";
+  imageAndCaptionWrapper.className = styles.imageAndCaptionWrapper;
+  imageAndCaptionWrapper.style.display = block.props.src !== "" ? "" : "none";
 
   // Wrapper element for the image and resize handles.
   const imageWrapper = document.createElement("div");
-  imageWrapper.style.display = block.props.src !== "" ? "flex" : "none";
-  imageWrapper.style.flexDirection = "row";
-  imageWrapper.style.alignItems = "center";
-  imageWrapper.style.position = "relative";
-  imageWrapper.style.width = "fit-content";
+  imageWrapper.className = styles.imageWrapper;
+  imageWrapper.style.display = block.props.src !== "" ? "" : "none";
 
   // Image element.
   const image = document.createElement("img");
+  image.className = styles.image;
   image.src = block.props.src;
   image.alt = "placeholder";
   image.contentEditable = "false";
   image.draggable = false;
-  image.style.borderRadius = "4px";
   image.style.width = `${Math.min(
     block.props.width,
     editor.domElement.firstElementChild!.clientWidth
@@ -125,17 +96,17 @@ const renderImage = (
 
   // Resize handle elements.
   const leftResizeHandle = document.createElement("div");
+  leftResizeHandle.className = styles.resizeHandle;
   leftResizeHandle.style.left = "4px";
-  setResizeHandleStyles(leftResizeHandle);
   const rightResizeHandle = document.createElement("div");
+  rightResizeHandle.className = styles.resizeHandle;
   rightResizeHandle.style.right = "4px";
-  setResizeHandleStyles(rightResizeHandle);
 
   // Caption element.
   const caption = document.createElement("p");
+  caption.className = styles.caption;
   caption.innerText = block.props.caption;
-  caption.style.fontSize = "0.8em";
-  caption.style.padding = block.props.caption ? "4px" : "0";
+  caption.style.padding = block.props.caption ? "4px" : "";
 
   // Adds a light blue outline to selected image blocks.
   const handleEditorUpdate = () => {
@@ -151,8 +122,8 @@ const renderImage = (
       addImageButton.style.outline = "4px solid rgb(100, 160, 255)";
       imageAndCaptionWrapper.style.outline = "4px solid rgb(100, 160, 255)";
     } else {
-      addImageButton.style.outline = "none";
-      imageAndCaptionWrapper.style.outline = "none";
+      addImageButton.style.outline = "";
+      imageAndCaptionWrapper.style.outline = "";
     }
   };
   editor.onEditorContentChange(handleEditorUpdate);
@@ -269,41 +240,14 @@ const renderImage = (
       })
     );
   };
-  // Changes the add image button background color on hover.
-  const addImageButtonMouseEnterHandler = () => {
-    addImageButton.style.backgroundColor = "gainsboro";
-  };
-  const addImageButtonMouseLeaveHandler = () => {
-    addImageButton.style.backgroundColor = "whitesmoke";
-  };
-
-  // Shows the resize handles when hovering over the image with the cursor.
-  const imageMouseEnterHandler = () => {
-    leftResizeHandle.style.display = "block";
-    rightResizeHandle.style.display = "block";
-  };
-  // Hides the resize handles when the cursor leaves the image, unless the
-  // cursor moves to one of the resize handles.
-  const imageMouseLeaveHandler = (event: MouseEvent) => {
-    if (
-      event.relatedTarget === leftResizeHandle ||
-      event.relatedTarget === rightResizeHandle
-    ) {
-      return;
-    }
-
-    if (resizeParams) {
-      return;
-    }
-
-    leftResizeHandle.style.display = "none";
-    rightResizeHandle.style.display = "none";
-  };
 
   // Sets the resize params, allowing the user to begin resizing the image by
   // moving the cursor left or right.
   const leftResizeHandleMouseDownHandler = (event: MouseEvent) => {
     event.preventDefault();
+
+    leftResizeHandle.style.display = "block";
+    rightResizeHandle.style.display = "block";
 
     resizeParams = {
       handleUsed: "left",
@@ -313,6 +257,9 @@ const renderImage = (
   };
   const rightResizeHandleMouseDownHandler = (event: MouseEvent) => {
     event.preventDefault();
+
+    leftResizeHandle.style.display = "block";
+    rightResizeHandle.style.display = "block";
 
     resizeParams = {
       handleUsed: "right",
@@ -336,16 +283,6 @@ const renderImage = (
   window.addEventListener("resize", windowResizeHandler);
   addImageButton.addEventListener("mousedown", addImageButtonMouseDownHandler);
   addImageButton.addEventListener("click", addImageButtonClickHandler);
-  addImageButton.addEventListener(
-    "mouseenter",
-    addImageButtonMouseEnterHandler
-  );
-  addImageButton.addEventListener(
-    "mouseleave",
-    addImageButtonMouseLeaveHandler
-  );
-  image.addEventListener("mouseenter", imageMouseEnterHandler);
-  image.addEventListener("mouseleave", imageMouseLeaveHandler);
   leftResizeHandle.addEventListener(
     "mousedown",
     leftResizeHandleMouseDownHandler
@@ -366,16 +303,6 @@ const renderImage = (
         addImageButtonMouseDownHandler
       );
       addImageButton.removeEventListener("click", addImageButtonClickHandler);
-      addImageButton.removeEventListener(
-        "mouseenter",
-        addImageButtonMouseEnterHandler
-      );
-      addImageButton.removeEventListener(
-        "mouseleave",
-        addImageButtonMouseLeaveHandler
-      );
-      image.removeEventListener("mouseenter", imageMouseEnterHandler);
-      image.removeEventListener("mouseleave", imageMouseLeaveHandler);
       leftResizeHandle.removeEventListener(
         "mousedown",
         leftResizeHandleMouseDownHandler
