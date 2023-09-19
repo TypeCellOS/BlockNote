@@ -52,6 +52,8 @@ import { UniqueID } from "./extensions/UniqueID/UniqueID";
 import { mergeCSSClasses } from "./shared/utils";
 import { ImageToolbarProsemirrorPlugin } from "./extensions/ImageToolbar/ImageToolbarPlugin";
 
+const IMAGE_UPLOAD_API_KEY = "";
+
 export type BlockNoteEditorOptions<BSchema extends BlockSchema> = {
   // TODO: Figure out if enableBlockNoteExtensions/disableHistoryExtension are needed and document them.
   enableBlockNoteExtensions: boolean;
@@ -108,6 +110,13 @@ export type BlockNoteEditorOptions<BSchema extends BlockSchema> = {
   blockSchema: BSchema;
 
   /**
+   * A custom function to handle image uploads for the default image block.
+   * @param file The image file that should be uploaded.
+   * @returns The URL of the uploaded image.
+   */
+  uploadImage: (file: File) => Promise<string>;
+
+  /**
    * When enabled, allows for collaboration between multiple users.
    */
   collaboration: {
@@ -153,6 +162,8 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
   public readonly slashMenu: SlashMenuProsemirrorPlugin<BSchema, any>;
   public readonly hyperlinkToolbar: HyperlinkToolbarProsemirrorPlugin<BSchema>;
   public readonly imageToolbar: ImageToolbarProsemirrorPlugin<BSchema>;
+
+  public readonly imageUpload: (file: File) => Promise<string>;
 
   constructor(
     private readonly options: Partial<BlockNoteEditorOptions<BSchema>> = {}
@@ -205,6 +216,26 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
     extensions.push(blockNoteUIExtension);
 
     this.schema = newOptions.blockSchema;
+
+    this.imageUpload = async (file) => {
+      if (newOptions.uploadImage) {
+        return newOptions.uploadImage(file);
+      }
+
+      // TODO: Proper backend - right now using imgbb.com since you can get an
+      //  API key for free by just making an account.
+      //  https://imgbb.com/
+      const body = new FormData();
+      body.append("key", IMAGE_UPLOAD_API_KEY);
+      body.append("image", file);
+
+      return fetch("https://api.imgbb.com/1/upload?expiration=600", {
+        method: "POST",
+        body: body,
+      })
+        .then((response) => response.json())
+        .then((data) => data.data.url);
+    };
 
     const initialContent =
       newOptions.initialContent ||
