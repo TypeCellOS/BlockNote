@@ -41,10 +41,10 @@ declare module "@tiptap/core" {
  *     - Any text that doesn't include a backtick (captured for marking), followed by
  *     - A closing backtick.
  *  This ensures that any text between backticks is formatted as code,
- *  regardless of the surrounding characters.
+ *  regardless of the surrounding characters (exception being another backtick).
  */
-export const inputRegex = /`([^`]+)`/;
-export const pasteRegex = /`([^`]+)`/g;
+export const inputRegex = /(?<!`)`([^`]+)`(?!`)/;
+export const pasteRegex = /(?<!`)`([^`]+)`(?!`)/g;
 
 export const CustomCodeExtension = Mark.create<CodeOptions>({
   name: "code",
