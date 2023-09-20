@@ -16,7 +16,7 @@ import {
 import { ToolbarButton } from "../../../SharedComponents/Toolbar/components/ToolbarButton";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
 
-type TextAlignment = DefaultProps["textAlignment"]["values"][number];
+type TextAlignment = DefaultProps["textAlignment"];
 
 const icons: Record<TextAlignment, IconType> = {
   left: RiAlignLeft,

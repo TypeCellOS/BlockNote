@@ -2,6 +2,7 @@ import {
   BlockNoteEditor,
   BlockSchema,
   DefaultBlockSchema,
+  DefaultProps,
 } from "@blocknote/core";
 import Tippy, { tippy } from "@tippyjs/react";
 import { FC, useEffect, useMemo, useRef, useState } from "react";
@@ -9,6 +10,21 @@ import { sticky } from "tippy.js";
 
 import { DefaultFormattingToolbar } from "./DefaultFormattingToolbar";
 import { useEditorChange } from "../../hooks/useEditorChange";
+
+const textAlignmentToPlacement = (
+  textAlignment: DefaultProps["textAlignment"]
+) => {
+  switch (textAlignment) {
+    case "left":
+      return "top-start";
+    case "center":
+      return "top";
+    case "right":
+      return "top-end";
+    default:
+      return "top-start";
+  }
+};
 
 export type FormattingToolbarProps<
   BSchema extends BlockSchema = DefaultBlockSchema
@@ -22,32 +38,19 @@ export const FormattingToolbarPositioner = <
   editor: BlockNoteEditor<BSchema>;
   formattingToolbar?: FC<FormattingToolbarProps<BSchema>>;
 }) => {
-  // Placement is dynamic based on the text alignment of the current block.
-  const getPlacement = useMemo(
-    () => () => {
+  const [show, setShow] = useState<boolean>(false);
+  const [placement, setPlacement] = useState<"top-start" | "top" | "top-end">(
+    () => {
       const block = props.editor.getTextCursorPosition().block;
 
       if (!("textAlignment" in block.props)) {
         return "top-start";
       }
 
-      switch (block.props.textAlignment) {
-        case "left":
-          return "top-start";
-        case "center":
-          return "top";
-        case "right":
-          return "top-end";
-        default:
-          return "top-start";
-      }
-    },
-    [props.editor]
-  );
-
-  const [show, setShow] = useState<boolean>(false);
-  const [placement, setPlacement] = useState<"top-start" | "top" | "top-end">(
-    getPlacement
+      return textAlignmentToPlacement(
+        block.props.textAlignment as DefaultProps["textAlignment"]
+      );
+    }
   );
 
   const referencePos = useRef<DOMRect>();
@@ -62,7 +65,19 @@ export const FormattingToolbarPositioner = <
     });
   }, [props.editor]);
 
-  useEditorChange(props.editor, () => setPlacement(getPlacement()));
+  useEditorChange(props.editor, () => {
+    const block = props.editor.getTextCursorPosition().block;
+
+    if (!("textAlignment" in block.props)) {
+      setPlacement("top-start");
+    } else {
+      setPlacement(
+        textAlignmentToPlacement(
+          block.props.textAlignment as DefaultProps["textAlignment"]
+        )
+      );
+    }
+  });
 
   const getReferenceClientRect = useMemo(
     () => {

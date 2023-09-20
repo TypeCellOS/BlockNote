@@ -1,4 +1,4 @@
-import { PropSchema } from "./blockTypes";
+import { Props, PropSchema } from "./blockTypes";
 
 export const defaultProps = {
   backgroundColor: {
@@ -13,4 +13,4 @@ export const defaultProps = {
   },
 } satisfies PropSchema;
 
-export type DefaultProps = typeof defaultProps;
+export type DefaultProps = Props<typeof defaultProps>;
