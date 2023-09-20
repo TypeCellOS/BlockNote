@@ -130,10 +130,11 @@ export const getDefaultSlashMenuItems = <BSchema extends BlockSchema>(
         insertOrUpdateBlock(editor, {
           type: "image",
         } as PartialBlock<BSchema>);
-        // Don't want to select the add image button
+        // Don't want to select the add image button, instead select the block
+        // below it
         editor.setTextCursorPosition(
-          editor.getTextCursorPosition().prevBlock!,
-          "end"
+          editor.getTextCursorPosition().nextBlock!,
+          "start"
         );
         // Immediately open the image toolbar
         editor._tiptapEditor.view.dispatch(
