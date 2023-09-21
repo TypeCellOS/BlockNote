@@ -2,16 +2,8 @@ import { BlockSchema, PartialBlock } from "@blocknote/core";
 
 import { ImageToolbarProps } from "./ImageToolbarPositioner";
 import { Toolbar } from "../../SharedComponents/Toolbar/components/Toolbar";
-import { ToolbarButton } from "../../SharedComponents/Toolbar/components/ToolbarButton";
-import {
-  ChangeEvent,
-  ClipboardEvent,
-  KeyboardEvent,
-  useCallback,
-  useMemo,
-  useState,
-} from "react";
-import { FileInput, Stack, TextInput } from "@mantine/core";
+import { ChangeEvent, KeyboardEvent, useCallback, useState } from "react";
+import { Button, FileInput, Tabs, TextInput } from "@mantine/core";
 
 export const DefaultImageToolbar = <BSchema extends BlockSchema>(
   props: ImageToolbarProps<BSchema>
@@ -56,79 +48,57 @@ export const DefaultImageToolbar = <BSchema extends BlockSchema>(
     [currentURL, props.block, props.editor]
   );
 
-  // TODO: Necessary?
-  const handleURLPaste = useCallback(
-    (event: ClipboardEvent<HTMLInputElement>) => {
-      event.preventDefault();
-      props.editor.updateBlock(props.block, {
-        type: "image",
-        props: {
-          src: event.clipboardData!.getData("text/plain"),
-        },
-      } as PartialBlock<BSchema>);
-    },
-    [props.block, props.editor]
-  );
+  const handleURLClick = useCallback(() => {
+    props.editor.updateBlock(props.block, {
+      type: "image",
+      props: {
+        src: currentURL,
+      },
+    } as PartialBlock<BSchema>);
+  }, [currentURL, props.block, props.editor]);
 
-  const Input = useMemo(
-    () => () => {
-      switch (openTab) {
-        case "upload":
-          return (
-            <FileInput
-              placeholder={"Upload Image"}
-              size={"xs"}
-              value={null}
-              onChange={handleFileChange}
-            />
-          );
-        case "embed":
-          return (
+  return (
+    <Toolbar
+      style={{
+        width: "500px",
+      }}>
+      <Tabs value={openTab} onTabChange={setOpenTab as any}>
+        <Tabs.List>
+          <Tabs.Tab value="upload">Upload</Tabs.Tab>
+          <Tabs.Tab value="embed">Embed</Tabs.Tab>
+        </Tabs.List>
+
+        <Tabs.Panel value="upload">
+          <FileInput
+            placeholder={"Upload Image"}
+            size={"xs"}
+            value={null}
+            onChange={handleFileChange}
+          />
+        </Tabs.Panel>
+        <Tabs.Panel value="embed">
+          <div
+            style={{
+              width: "100%",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: "8px",
+            }}>
             <TextInput
               size={"xs"}
               placeholder={"Enter URL"}
               value={currentURL}
               onChange={handleURLChange}
               onKeyDown={handleURLEnter}
-              onPaste={handleURLPaste}
+              style={{ width: "100%" }}
             />
-          );
-        default:
-          return null;
-      }
-    },
-    [
-      currentURL,
-      handleFileChange,
-      handleURLChange,
-      handleURLEnter,
-      handleURLPaste,
-      openTab,
-    ]
-  );
-
-  return (
-    <Toolbar
-      style={{
-        width: "300px",
-      }}>
-      <Stack spacing={"xs"} m={6} w={"100%"}>
-        <Toolbar>
-          <ToolbarButton
-            mainTooltip={"Upload From File"}
-            isSelected={openTab === "upload"}
-            onClick={() => setOpenTab("upload")}>
-            Upload
-          </ToolbarButton>
-          <ToolbarButton
-            mainTooltip={"Embed From URL"}
-            isSelected={openTab === "embed"}
-            onClick={() => setOpenTab("embed")}>
-            Embed
-          </ToolbarButton>
-        </Toolbar>
-        <Input />
-      </Stack>
+            <Button onClick={handleURLClick} size={"xs"}>
+              Embed Image
+            </Button>
+          </div>
+        </Tabs.Panel>
+      </Tabs>
     </Toolbar>
   );
 };

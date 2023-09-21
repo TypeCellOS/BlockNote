@@ -139,7 +139,7 @@ export const getDefaultSlashMenuItems = <BSchema extends BlockSchema>(
         // Immediately open the image toolbar
         editor._tiptapEditor.view.dispatch(
           editor._tiptapEditor.state.tr.setMeta(imageToolbarPluginKey, {
-            block: editor.getTextCursorPosition().nextBlock,
+            block: editor.getTextCursorPosition().prevBlock,
           })
         );
       },

@@ -267,6 +267,10 @@ NESTED BLOCKS
   height: 24px;
 }
 
+[data-content-type="image"] .addImageButtonText {
+  color: black;
+}
+
 [data-content-type="image"] .imageAndCaptionWrapper {
   display: flex;
   flex-direction: column;

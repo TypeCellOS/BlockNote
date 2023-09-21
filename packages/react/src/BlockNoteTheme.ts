@@ -125,10 +125,48 @@ export const blockNoteToMantineTheme = (theme: Theme): MantineThemeOverride => {
           ),
         }),
       },
+      Tabs: {
+        styles: () => ({
+          root: {
+            width: "100%",
+            backgroundColor: theme.colors.menu.background,
+          },
+          tabsList: {
+            borderColor: theme.colors.hovered.background,
+          },
+          tab: {
+            color: theme.colors.menu.text,
+            borderColor: theme.colors.hovered.background,
+            "&:hover": {
+              color: theme.colors.hovered.text,
+              backgroundColor: theme.colors.hovered.background,
+              borderColor: theme.colors.hovered.background,
+            },
+            "&[data-active], &[data-active]&:hover": {
+              color: theme.colors.menu.text,
+              borderColor: theme.colors.menu.text,
+            },
+          },
+          panel: {
+            padding: "8px",
+            ".mantine-UnstyledButton-root": {
+              width: "60%",
+              border: `solid ${theme.colors.border} 1px`,
+              borderRadius: "4px",
+              height: "32px",
+            },
+            ".mantine-UnstyledButton-root:hover": {
+              color: theme.colors.hovered.text,
+              backgroundColor: theme.colors.hovered.background,
+            },
+          },
+        }),
+      },
       FileInput: {
         styles: () => ({
-          root: {},
           input: {
+            color: theme.colors.menu.text,
+            backgroundColor: theme.colors.menu.background,
             display: "flex",
             flexDirection: "row",
             alignItems: "center",
@@ -151,8 +189,9 @@ export const blockNoteToMantineTheme = (theme: Theme): MantineThemeOverride => {
       },
       TextInput: {
         styles: () => ({
-          root: {},
           input: {
+            color: theme.colors.menu.text,
+            backgroundColor: theme.colors.menu.background,
             border: `solid ${theme.colors.border} 1px`,
             borderRadius: "4px",
             height: "32px",
@@ -230,30 +269,32 @@ export const blockNoteToMantineTheme = (theme: Theme): MantineThemeOverride => {
               padding: "2px",
               width: "fit-content",
               // Button (including dropdown target)
-              ".mantine-UnstyledButton-root": {
+              ".mantine-Button-root, .mantine-ActionIcon-root": {
                 backgroundColor: theme.colors.menu.background,
                 border: "none",
                 borderRadius: innerBorderRadius,
                 color: theme.colors.menu.text,
               },
               // Hovered button
-              ".mantine-UnstyledButton-root:hover": {
+              ".mantine-Button-root:hover, .mantine-ActionIcon-root:hover": {
                 backgroundColor: theme.colors.hovered.background,
                 border: "none",
                 color: theme.colors.hovered.text,
               },
               // Selected button
-              ".mantine-UnstyledButton-root[data-selected]": {
-                backgroundColor: theme.colors.selected.background,
-                border: "none",
-                color: theme.colors.selected.text,
-              },
+              ".mantine-Button-root[data-selected], .mantine-ActionIcon-root[data-selected]":
+                {
+                  backgroundColor: theme.colors.selected.background,
+                  border: "none",
+                  color: theme.colors.selected.text,
+                },
               // Disabled button
-              ".mantine-UnstyledButton-root[data-disabled]": {
-                backgroundColor: theme.colors.disabled.background,
-                border: "none",
-                color: theme.colors.disabled.text,
-              },
+              ".mantine-Button-root[data-disabled], .mantine-ActionIcon-root[data-disabled]":
+                {
+                  backgroundColor: theme.colors.disabled.background,
+                  border: "none",
+                  color: theme.colors.disabled.text,
+                },
               // Dropdown
               ".mantine-Menu-dropdown": {
                 // Dropdown item
