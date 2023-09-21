@@ -1,5 +1,5 @@
 import Tippy from "@tippyjs/react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import {
   ToolbarButton,
   ToolbarButtonProps,
@@ -38,27 +38,9 @@ export const LinkToolbarButton = (props: HyperlinkButtonProps) => {
       />
     );
   }, [props]);
-
-  const handleClick = useCallback(
-    (event: MouseEvent) => {
-      if (buttonRef.current?.contains(event.target as HTMLElement)) {
-        setCreationMenuOpen(!creationMenuOpen);
-        return;
-      }
-
-      if (menuRef.current?.contains(event.target as HTMLElement)) {
-        return;
-      }
-
-      setCreationMenuOpen(false);
-    },
-    [creationMenuOpen]
-  );
-
-  useEffect(() => {
-    document.body.addEventListener("click", handleClick);
-    return () => document.body.removeEventListener("click", handleClick);
-  }, [handleClick]);
+  const handleClick = () => {
+    setCreationMenuOpen(!creationMenuOpen);
+  };
 
   return (
     <Tippy
@@ -68,6 +50,7 @@ export const LinkToolbarButton = (props: HyperlinkButtonProps) => {
       maxWidth={500}
       visible={creationMenuOpen}>
       <ToolbarButton
+        onClick={handleClick}
         isSelected={props.isSelected}
         mainTooltip={props.mainTooltip}
         secondaryTooltip={props.secondaryTooltip}
