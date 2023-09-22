@@ -1,5 +1,5 @@
 import Tippy from "@tippyjs/react";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useState } from "react";
 import {
   ToolbarButton,
   ToolbarButtonProps,
@@ -20,9 +20,6 @@ export const LinkToolbarButton = (props: HyperlinkButtonProps) => {
   const [creationMenu, setCreationMenu] = useState<any>();
   const [creationMenuOpen, setCreationMenuOpen] = useState(false);
 
-  const buttonRef = useRef<HTMLButtonElement>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
-
   // TODO: review code; does this pattern still make sense?
   const updateCreationMenu = useCallback(() => {
     setCreationMenu(
@@ -34,10 +31,12 @@ export const LinkToolbarButton = (props: HyperlinkButtonProps) => {
           props.setHyperlink(url, text);
           setCreationMenuOpen(false);
         }}
-        ref={menuRef}
       />
     );
   }, [props]);
+  const handleHide = () => {
+    setCreationMenuOpen(false);
+  };
   const handleClick = () => {
     setCreationMenuOpen(!creationMenuOpen);
   };
@@ -46,6 +45,7 @@ export const LinkToolbarButton = (props: HyperlinkButtonProps) => {
     <Tippy
       content={creationMenu}
       onShow={updateCreationMenu}
+      onHide={handleHide}
       interactive={true}
       maxWidth={500}
       visible={creationMenuOpen}>
@@ -55,7 +55,6 @@ export const LinkToolbarButton = (props: HyperlinkButtonProps) => {
         mainTooltip={props.mainTooltip}
         secondaryTooltip={props.secondaryTooltip}
         icon={props.icon}
-        ref={buttonRef}
       />
     </Tippy>
   );
