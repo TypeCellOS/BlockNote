@@ -3,23 +3,32 @@ import { BlockSchema, PartialBlock } from "@blocknote/core";
 import { ImageToolbarProps } from "./ImageToolbarPositioner";
 import { Toolbar } from "../../SharedComponents/Toolbar/components/Toolbar";
 import { ChangeEvent, KeyboardEvent, useCallback, useState } from "react";
-import { Button, FileInput, Tabs, TextInput } from "@mantine/core";
+import {
+  Button,
+  FileInput,
+  LoadingOverlay,
+  Tabs,
+  TextInput,
+} from "@mantine/core";
 
 export const DefaultImageToolbar = <BSchema extends BlockSchema>(
   props: ImageToolbarProps<BSchema>
 ) => {
   const [openTab, setOpenTab] = useState<"upload" | "embed">("upload");
+  const [uploading, setUploading] = useState<boolean>(false);
 
   const handleFileChange = useCallback(
     (file: File) => {
-      props.editor.imageUpload(file).then((url) =>
+      setUploading(true);
+      props.editor.imageUpload(file).then((url) => {
         props.editor.updateBlock(props.block, {
           type: "image",
           props: {
             url: url,
           },
-        } as PartialBlock<BSchema>)
-      );
+        } as PartialBlock<BSchema>);
+        setUploading(false);
+      });
     },
     [props.block, props.editor]
   );
@@ -63,6 +72,8 @@ export const DefaultImageToolbar = <BSchema extends BlockSchema>(
         width: "500px",
       }}>
       <Tabs value={openTab} onTabChange={setOpenTab as any}>
+        {uploading && <LoadingOverlay visible={uploading} />}
+
         <Tabs.List>
           <Tabs.Tab value="upload">Upload</Tabs.Tab>
           <Tabs.Tab value="embed">Embed</Tabs.Tab>
