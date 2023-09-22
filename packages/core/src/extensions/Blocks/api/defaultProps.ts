@@ -2,10 +2,10 @@ import { Props, PropSchema } from "./blockTypes";
 
 export const defaultProps = {
   backgroundColor: {
-    default: "transparent" as const,
+    default: "default" as const,
   },
   textColor: {
-    default: "black" as const, // TODO
+    default: "default" as const,
   },
   textAlignment: {
     default: "left" as const,
