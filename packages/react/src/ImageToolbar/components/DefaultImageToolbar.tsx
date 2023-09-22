@@ -12,11 +12,11 @@ export const DefaultImageToolbar = <BSchema extends BlockSchema>(
 
   const handleFileChange = useCallback(
     (file: File) => {
-      props.editor.imageUpload(file).then((src) =>
+      props.editor.imageUpload(file).then((url) =>
         props.editor.updateBlock(props.block, {
           type: "image",
           props: {
-            src: src,
+            url: url,
           },
         } as PartialBlock<BSchema>)
       );
@@ -40,7 +40,7 @@ export const DefaultImageToolbar = <BSchema extends BlockSchema>(
         props.editor.updateBlock(props.block, {
           type: "image",
           props: {
-            src: currentURL,
+            url: currentURL,
           },
         } as PartialBlock<BSchema>);
       }
@@ -52,7 +52,7 @@ export const DefaultImageToolbar = <BSchema extends BlockSchema>(
     props.editor.updateBlock(props.block, {
       type: "image",
       props: {
-        src: currentURL,
+        url: currentURL,
       },
     } as PartialBlock<BSchema>);
   }, [currentURL, props.block, props.editor]);

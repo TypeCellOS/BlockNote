@@ -8,8 +8,8 @@ import styles from "../../Block.module.css";
 export const imagePropSchema = {
   textAlignment: defaultProps.textAlignment,
   backgroundColor: defaultProps.backgroundColor,
-  // Image src.
-  src: {
+  // Image url.
+  url: {
     default: "" as const,
   },
   // Image caption.
@@ -61,7 +61,7 @@ const renderImage = (
   // Button element that acts as a placeholder for images with no src.
   const addImageButton = document.createElement("div");
   addImageButton.className = styles.addImageButton;
-  addImageButton.style.display = block.props.src === "" ? "" : "none";
+  addImageButton.style.display = block.props.url === "" ? "" : "none";
 
   // Icon for the add image button.
   const addImageButtonIcon = document.createElement("div");
@@ -75,17 +75,17 @@ const renderImage = (
   // Wrapper element for the image, resize handles and caption.
   const imageAndCaptionWrapper = document.createElement("div");
   imageAndCaptionWrapper.className = styles.imageAndCaptionWrapper;
-  imageAndCaptionWrapper.style.display = block.props.src !== "" ? "" : "none";
+  imageAndCaptionWrapper.style.display = block.props.url !== "" ? "" : "none";
 
   // Wrapper element for the image and resize handles.
   const imageWrapper = document.createElement("div");
   imageWrapper.className = styles.imageWrapper;
-  imageWrapper.style.display = block.props.src !== "" ? "" : "none";
+  imageWrapper.style.display = block.props.url !== "" ? "" : "none";
 
   // Image element.
   const image = document.createElement("img");
   image.className = styles.image;
-  image.src = block.props.src;
+  image.src = block.props.url;
   image.alt = "placeholder";
   image.contentEditable = "false";
   image.draggable = false;
