@@ -7,7 +7,7 @@ path: /docs/editor
 
 <script setup>
 import { useData } from 'vitepress';
-import { getTheme, getStyles } from "./demoUtils";
+import { getTheme, getStyles } from "../demoUtils";
 
 const { isDark } = useData();
 </script>
@@ -31,8 +31,6 @@ export type BlockNoteEditorOptions = Partial<{
   onEditorContentChange: (editor: BlockNoteEditor) => void;
   onTextCursorPositionChange: (editor: BlockNoteEditor) => void;
   slashMenuItems: ReactSlashMenuItem[];
-  customElements: CustomElements;
-  uiFactories: UiFactories;
   defaultStyles: boolean;
 }>;
 ```
@@ -41,7 +39,7 @@ export type BlockNoteEditorOptions = Partial<{
 
 `initialContent:` The content that should be in the editor when it's created, represented as an array of [partial block objects](/docs/manipulating-blocks#partial-blocks).
 
-`editorDOMAttributes:` An object containing attributes that should be added to the editor's HTML element. For example, you can pass `{ class: "my-editor-class" }` to set a custom class name.
+`domAttributes:` An object containing HTML attributes that should be added to various DOM elements in the editor. See [Adding DOM Attributes](/docs/theming#adding-dom-attributes) for more.
 
 `onEditorReady:` A callback function that runs when the editor is ready to be used.
 
@@ -51,49 +49,4 @@ export type BlockNoteEditorOptions = Partial<{
 
 `slashMenuItems:` The commands that are listed in the editor's [Slash Menu](/docs/slash-menu). If this option isn't defined, a default list of commands is loaded.
 
-`customElements:` React components for a custom [Formatting Toolbar](/docs/formatting-toolbar#custom-formatting-toolbar) and/or [Drag Handle Menu](/docs/side-menu#custom-drag-handle-menu) to use.
-
-`uiFactories:` UI element factories for creating a custom UI, including custom positioning & rendering. You can find out more about UI factories in [Creating Your Own UI Elements](/docs/vanilla-js#creating-your-own-ui-elements).
-
 `defaultStyles`: Whether to use the default font and reset the styles of `<p>`, `<li>`, `<h1>`, etc. elements that are used in BlockNote. Defaults to true if undefined.
-
-## Demo: Saving & Restoring Editor Contents
-
-By default, BlockNote doesn't preserve the editor contents when your app is reopened or refreshed. However, using the editor options, you can change this by using the editor options.
-
-In the example below, we use the `onEditorContentChange` option to save the editor contents in local storage whenever they change, then pass them to `initialContent` whenever the page is reloaded.
-
-::: sandbox {template=react-ts}
-
-```typescript-vue /App.tsx
-import { BlockNoteEditor } from "@blocknote/core";
-import { BlockNoteView, useBlockNote } from "@blocknote/react";
-import "@blocknote/core/style.css";
-
-// Gets the previously stored editor contents.
-const initialContent: string | null = localStorage.getItem("editorContent");
-
-export default function App() {
-  // Creates a new editor instance.
-  const editor: BlockNoteEditor | null = useBlockNote({
-    // If the editor contents were previously saved, restores them.
-    initialContent: initialContent ? JSON.parse(initialContent) : undefined,
-    // Serializes and saves the editor contents to local storage.
-    onEditorContentChange: (editor) => {
-      localStorage.setItem(
-        "editorContent",
-        JSON.stringify(editor.topLevelBlocks)
-      );
-    }
-  });
-
-  // Renders the editor instance.
-  return <BlockNoteView editor={editor} theme={"{{ getTheme(isDark) }}"} />;
-}
-```
-
-```css-vue /styles.css [hidden]
-{{ getStyles(isDark) }}
-```
-
-:::

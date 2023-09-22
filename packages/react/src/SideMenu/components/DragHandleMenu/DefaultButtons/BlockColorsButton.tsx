@@ -6,11 +6,14 @@ import { BlockSchema, PartialBlock } from "@blocknote/core";
 import { DragHandleMenuProps } from "../DragHandleMenu";
 import { DragHandleMenuItem } from "../DragHandleMenuItem";
 import { ColorPicker } from "../../../../SharedComponents/ColorPicker/components/ColorPicker";
+import { usePreventMenuOverflow } from "../../../../hooks/usePreventMenuOverflow";
 
 export const BlockColorsButton = <BSchema extends BlockSchema>(
   props: DragHandleMenuProps<BSchema> & { children: ReactNode }
 ) => {
   const [opened, setOpened] = useState(false);
+
+  const { ref, updateMaxHeight } = usePreventMenuOverflow();
 
   const menuCloseTimer = useRef<NodeJS.Timeout | undefined>();
 
@@ -27,8 +30,13 @@ export const BlockColorsButton = <BSchema extends BlockSchema>(
     if (menuCloseTimer.current) {
       clearTimeout(menuCloseTimer.current);
     }
+
+    if (!opened) {
+      updateMaxHeight();
+    }
+
     setOpened(true);
-  }, []);
+  }, [opened, updateMaxHeight]);
 
   if (
     !("textColor" in props.block.props) ||
@@ -50,26 +58,28 @@ export const BlockColorsButton = <BSchema extends BlockSchema>(
             </Box>
           </div>
         </Menu.Target>
-        <Menu.Dropdown
-          onMouseLeave={startMenuCloseTimer}
-          onMouseOver={stopMenuCloseTimer}
-          style={{ marginLeft: "5px" }}>
-          <ColorPicker
-            iconSize={18}
-            textColor={props.block.props.textColor || "default"}
-            backgroundColor={props.block.props.backgroundColor || "default"}
-            setTextColor={(color) =>
-              props.editor.updateBlock(props.block, {
-                props: { textColor: color },
-              } as PartialBlock<BSchema>)
-            }
-            setBackgroundColor={(color) =>
-              props.editor.updateBlock(props.block, {
-                props: { backgroundColor: color },
-              } as PartialBlock<BSchema>)
-            }
-          />
-        </Menu.Dropdown>
+        <div ref={ref}>
+          <Menu.Dropdown
+            onMouseLeave={startMenuCloseTimer}
+            onMouseOver={stopMenuCloseTimer}
+            style={{ marginLeft: "5px" }}>
+            <ColorPicker
+              iconSize={18}
+              textColor={props.block.props.textColor || "default"}
+              backgroundColor={props.block.props.backgroundColor || "default"}
+              setTextColor={(color) =>
+                props.editor.updateBlock(props.block, {
+                  props: { textColor: color },
+                } as PartialBlock<BSchema>)
+              }
+              setBackgroundColor={(color) =>
+                props.editor.updateBlock(props.block, {
+                  props: { backgroundColor: color },
+                } as PartialBlock<BSchema>)
+              }
+            />
+          </Menu.Dropdown>
+        </div>
       </Menu>
     </DragHandleMenuItem>
   );

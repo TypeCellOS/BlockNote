@@ -6,6 +6,7 @@ import { ColorIcon } from "../../../SharedComponents/ColorPicker/components/Colo
 import { ColorPicker } from "../../../SharedComponents/ColorPicker/components/ColorPicker";
 import { useEditorContentChange } from "../../../hooks/useEditorContentChange";
 import { useEditorSelectionChange } from "../../../hooks/useEditorSelectionChange";
+import { usePreventMenuOverflow } from "../../../hooks/usePreventMenuOverflow";
 
 export const ColorStyleButton = <BSchema extends BlockSchema>(props: {
   editor: BlockNoteEditor<BSchema>;
@@ -51,8 +52,10 @@ export const ColorStyleButton = <BSchema extends BlockSchema>(props: {
     [props.editor]
   );
 
+  const { ref, updateMaxHeight } = usePreventMenuOverflow();
+
   return (
-    <Menu>
+    <Menu onOpen={updateMaxHeight}>
       <Menu.Target>
         <ToolbarButton
           mainTooltip={"Colors"}
@@ -65,14 +68,16 @@ export const ColorStyleButton = <BSchema extends BlockSchema>(props: {
           )}
         />
       </Menu.Target>
-      <Menu.Dropdown>
-        <ColorPicker
-          textColor={currentTextColor}
-          setTextColor={setTextColor}
-          backgroundColor={currentBackgroundColor}
-          setBackgroundColor={setBackgroundColor}
-        />
-      </Menu.Dropdown>
+      <div ref={ref}>
+        <Menu.Dropdown>
+          <ColorPicker
+            textColor={currentTextColor}
+            setTextColor={setTextColor}
+            backgroundColor={currentBackgroundColor}
+            setBackgroundColor={setBackgroundColor}
+          />
+        </Menu.Dropdown>
+      </div>
     </Menu>
   );
 };
