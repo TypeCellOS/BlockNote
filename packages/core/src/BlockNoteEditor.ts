@@ -108,9 +108,9 @@ export type BlockNoteEditorOptions<BSchema extends BlockSchema> = {
   blockSchema: BSchema;
 
   /**
-   * A custom function to handle image uploads for the default image block.
-   * @param file The image file that should be uploaded.
-   * @returns The URL of the uploaded image.
+   * A custom function to handle file uploads.
+   * @param file The file that should be uploaded.
+   * @returns The URL of the uploaded file.
    */
   uploadFile: (file: File) => Promise<string>;
 
