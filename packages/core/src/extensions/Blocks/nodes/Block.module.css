@@ -287,6 +287,7 @@ NESTED BLOCKS
 
 [data-content-type="image"] .image {
   border-radius: 4px;
+  max-width: 100%;
 }
 
 [data-content-type="image"] .resizeHandle {

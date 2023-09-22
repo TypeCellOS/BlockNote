@@ -211,22 +211,6 @@ const renderImage = (
       },
     });
   };
-  // Updates the image width when the viewport is resized.
-  const windowResizeHandler = () => {
-    const width = Math.min(
-      block.props.width,
-      editor.domElement.firstElementChild!.clientWidth
-    );
-
-    image.style.width = `${width}px`;
-
-    editor.updateBlock(block, {
-      type: "image",
-      props: {
-        width: width,
-      },
-    });
-  };
 
   // Prevents focus from moving to the button.
   const addImageButtonMouseDownHandler = (event: MouseEvent) => {
@@ -280,7 +264,6 @@ const renderImage = (
 
   window.addEventListener("mousemove", windowMouseMoveHandler);
   window.addEventListener("mouseup", windowMouseUpHandler);
-  window.addEventListener("resize", windowResizeHandler);
   addImageButton.addEventListener("mousedown", addImageButtonMouseDownHandler);
   addImageButton.addEventListener("click", addImageButtonClickHandler);
   leftResizeHandle.addEventListener(
@@ -297,7 +280,6 @@ const renderImage = (
     destroy: () => {
       window.removeEventListener("mousemove", windowMouseMoveHandler);
       window.removeEventListener("mouseup", windowMouseUpHandler);
-      window.removeEventListener("resize", windowResizeHandler);
       addImageButton.removeEventListener(
         "mousedown",
         addImageButtonMouseDownHandler
