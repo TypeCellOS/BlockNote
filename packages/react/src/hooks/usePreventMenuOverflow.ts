@@ -3,16 +3,19 @@ import { useRef } from "react";
 // This hook is used to stop Mantine Menu.Dropdown components from extending
 // beyond the viewport. It does this by dynamically setting the max height of
 // the dropdown. To use it, set the ref on a Menu.Dropdown's parent div, and
-// call updateMaxHeight() whenever the menu is opened/rendered. Unfortunately,
-// this may mean you have to create an additional parent div, but you cannot set
-// the ref on the Menu or Menu.Dropdown components directly so this is a
-// necessary workaround.
+// call updateMaxHeight() in the Menu's `onOpen` listener. Unfortunately, this
+// may mean you have to create an additional parent div, but you cannot set the
+// ref on the Menu or Menu.Dropdown components directly so this is a necessary
+// workaround.
 export function usePreventMenuOverflow() {
   const ref = useRef<HTMLDivElement>(null);
 
   return {
     ref: ref,
     updateMaxHeight: () => {
+      // Seems a small delay is necessary to get the correct DOM rect - likely
+      // because the menu is not yet fully rendered when the `onOpen` event is
+      // fired.
       setTimeout(() => {
         if (!ref.current) {
           return;
