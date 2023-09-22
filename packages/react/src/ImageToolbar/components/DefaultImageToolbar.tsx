@@ -1,9 +1,9 @@
 import { BlockSchema, PartialBlock } from "@blocknote/core";
 
-import { ImageToolbarProps } from "./ImageToolbarPositioner";
-import { Toolbar } from "../../SharedComponents/Toolbar/components/Toolbar";
-import { ChangeEvent, KeyboardEvent, useCallback, useState } from "react";
 import { Button, FileInput, Tabs, TextInput } from "@mantine/core";
+import { ChangeEvent, KeyboardEvent, useCallback, useState } from "react";
+import { Toolbar } from "../../SharedComponents/Toolbar/components/Toolbar";
+import { ImageToolbarProps } from "./ImageToolbarPositioner";
 
 export const DefaultImageToolbar = <BSchema extends BlockSchema>(
   props: ImageToolbarProps<BSchema>
@@ -11,15 +11,14 @@ export const DefaultImageToolbar = <BSchema extends BlockSchema>(
   const [openTab, setOpenTab] = useState<"upload" | "embed">("upload");
 
   const handleFileChange = useCallback(
-    (file: File) => {
-      props.editor.imageUpload(file).then((src) =>
-        props.editor.updateBlock(props.block, {
-          type: "image",
-          props: {
-            src: src,
-          },
-        } as PartialBlock<BSchema>)
-      );
+    async (file: File) => {
+      const uploaded = await props.editor.uploadFile(file);
+      props.editor.updateBlock(props.block, {
+        type: "image",
+        props: {
+          src: uploaded,
+        },
+      } as PartialBlock<BSchema>);
     },
     [props.block, props.editor]
   );

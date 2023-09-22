@@ -49,8 +49,8 @@ describe("Simple ProseMirror Node Conversions", () => {
 
     expect(firstBlockConversion).toMatchSnapshot();
 
-    const firstNodeConversion = blockToNode(
-      firstBlockConversion as any,
+    const firstNodeConversion = blockToNode<DefaultBlockSchema>(
+      firstBlockConversion,
       tt.schema
     );
 
@@ -150,8 +150,8 @@ describe("Complex ProseMirror Node Conversions", () => {
 
     expect(firstBlockConversion).toMatchSnapshot();
 
-    const firstNodeConversion = blockToNode(
-      firstBlockConversion as any,
+    const firstNodeConversion = blockToNode<DefaultBlockSchema>(
+      firstBlockConversion,
       tt.schema
     );
 

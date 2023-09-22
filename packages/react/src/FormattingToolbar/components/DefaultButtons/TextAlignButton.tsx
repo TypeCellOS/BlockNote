@@ -1,10 +1,10 @@
-import { useCallback, useMemo } from "react";
 import {
   BlockNoteEditor,
   BlockSchema,
   DefaultProps,
   PartialBlock,
 } from "@blocknote/core";
+import { useCallback, useMemo } from "react";
 import { IconType } from "react-icons";
 import {
   RiAlignCenter,
@@ -55,13 +55,7 @@ export const TextAlignButton = <BSchema extends BlockSchema>(props: {
   );
 
   const show = useMemo(() => {
-    for (const block of selectedBlocks) {
-      if ("textAlignment" in block.props) {
-        return true;
-      }
-    }
-
-    return false;
+    return !!selectedBlocks.find((block) => "textAlignment" in block.props);
   }, [selectedBlocks]);
 
   if (!show) {
