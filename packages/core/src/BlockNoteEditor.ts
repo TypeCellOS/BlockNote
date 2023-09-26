@@ -230,7 +230,7 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
           "doc",
           undefined,
           schema.node("blockGroup", undefined, [
-            blockToNode({ type: "paragraph" }, schema),
+            blockToNode({ id: "initialBlock", type: "paragraph" }, schema),
           ])
         );
         editor.editor.options.content = root.toJSON();
