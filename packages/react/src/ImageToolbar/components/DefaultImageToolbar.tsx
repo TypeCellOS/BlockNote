@@ -8,17 +8,21 @@ import { ImageToolbarProps } from "./ImageToolbarPositioner";
 export const DefaultImageToolbar = <BSchema extends BlockSchema>(
   props: ImageToolbarProps<BSchema>
 ) => {
-  const [openTab, setOpenTab] = useState<"upload" | "embed">("upload");
+  const [openTab, setOpenTab] = useState<"upload" | "embed">(
+    props.editor.uploadFile !== undefined ? "upload" : "embed"
+  );
 
   const handleFileChange = useCallback(
     async (file: File) => {
-      const uploaded = await props.editor.uploadFile(file);
-      props.editor.updateBlock(props.block, {
-        type: "image",
-        props: {
-          src: uploaded,
-        },
-      } as PartialBlock<BSchema>);
+      if (props.editor.uploadFile !== undefined) {
+        const uploaded = await props.editor.uploadFile(file);
+        props.editor.updateBlock(props.block, {
+          type: "image",
+          props: {
+            src: uploaded,
+          },
+        } as PartialBlock<BSchema>);
+      }
     },
     [props.block, props.editor]
   );
@@ -63,18 +67,22 @@ export const DefaultImageToolbar = <BSchema extends BlockSchema>(
       }}>
       <Tabs value={openTab} onTabChange={setOpenTab as any}>
         <Tabs.List>
-          <Tabs.Tab value="upload">Upload</Tabs.Tab>
+          {props.editor.uploadFile !== undefined && (
+            <Tabs.Tab value="upload">Upload</Tabs.Tab>
+          )}
           <Tabs.Tab value="embed">Embed</Tabs.Tab>
         </Tabs.List>
 
-        <Tabs.Panel value="upload">
-          <FileInput
-            placeholder={"Upload Image"}
-            size={"xs"}
-            value={null}
-            onChange={handleFileChange}
-          />
-        </Tabs.Panel>
+        {props.editor.uploadFile !== undefined && (
+          <Tabs.Panel value="upload">
+            <FileInput
+              placeholder={"Upload Image"}
+              size={"xs"}
+              value={null}
+              onChange={handleFileChange}
+            />
+          </Tabs.Panel>
+        )}
         <Tabs.Panel value="embed">
           <div
             style={{

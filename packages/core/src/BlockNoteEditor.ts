@@ -161,7 +161,7 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
   public readonly hyperlinkToolbar: HyperlinkToolbarProsemirrorPlugin<BSchema>;
   public readonly imageToolbar: ImageToolbarProsemirrorPlugin<BSchema>;
 
-  public readonly uploadFile: (file: File) => Promise<string>;
+  public readonly uploadFile: ((file: File) => Promise<string>) | undefined;
 
   constructor(
     private readonly options: Partial<BlockNoteEditorOptions<BSchema>> = {}
@@ -215,24 +215,7 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
 
     this.schema = newOptions.blockSchema;
 
-    this.uploadFile =
-      newOptions.uploadFile ||
-      (async (file) => {
-        // TODO: Proper backend - right now using imgbb.com since you can get an
-        //  API key for free by just making an account.
-        //  https://imgbb.com/
-        const body = new FormData();
-        body.append("file", file);
-
-        const ret = await fetch("https://tmpfiles.org/api/v1/upload", {
-          method: "POST",
-          body: body,
-        });
-        return (await ret.json()).data.url.replace(
-          "tmpfiles.org/",
-          "tmpfiles.org/dl/"
-        );
-      });
+    this.uploadFile = newOptions.uploadFile;
 
     const initialContent =
       newOptions.initialContent ||
