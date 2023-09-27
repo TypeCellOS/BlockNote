@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
 import { BlockNoteEditor, BlockSchema, ToggledStyle } from "@blocknote/core";
+import { useMemo, useState } from "react";
 import { IconType } from "react-icons";
 import {
   RiBold,
@@ -10,8 +10,8 @@ import {
 } from "react-icons/ri";
 
 import { ToolbarButton } from "../../../SharedComponents/Toolbar/components/ToolbarButton";
-import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
 import { useEditorChange } from "../../../hooks/useEditorChange";
+import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
 import { formatKeyboardShortcut } from "../../../utils";
 
 const shortcuts: Record<ToggledStyle, string> = {
@@ -50,13 +50,7 @@ export const ToggledStyleButton = <BSchema extends BlockSchema>(props: {
   };
 
   const show = useMemo(() => {
-    for (const block of selectedBlocks) {
-      if (block.content !== undefined) {
-        return true;
-      }
-    }
-
-    return false;
+    return !!selectedBlocks.find((block) => block.content !== undefined);
   }, [selectedBlocks]);
 
   if (!show) {

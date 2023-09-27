@@ -8,6 +8,7 @@ export * from "./extensions/Blocks/api/inlineContentTypes";
 export * from "./extensions/Blocks/api/selectionTypes";
 export * from "./extensions/Blocks/api/serialization";
 export * as blockStyles from "./extensions/Blocks/nodes/Block.module.css";
+export * from "./extensions/Blocks/nodes/BlockContent/ImageBlockContent/uploadToTmpFilesOrg_DEV_ONLY";
 export * from "./extensions/FormattingToolbar/FormattingToolbarPlugin";
 export * from "./extensions/HyperlinkToolbar/HyperlinkToolbarPlugin";
 export * from "./extensions/ImageToolbar/ImageToolbarPlugin";

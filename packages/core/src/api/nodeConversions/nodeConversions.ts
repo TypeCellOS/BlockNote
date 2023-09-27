@@ -15,9 +15,9 @@ import {
   Styles,
   ToggledStyle,
 } from "../../extensions/Blocks/api/inlineContentTypes";
+import { getBlockInfo } from "../../extensions/Blocks/helpers/getBlockInfoFromPos";
 import UniqueID from "../../extensions/UniqueID/UniqueID";
 import { UnreachableCaseError } from "../../shared/utils";
-import { getBlockInfo } from "../../extensions/Blocks/helpers/getBlockInfoFromPos";
 
 const toggleStyles = new Set<ToggledStyle>([
   "bold",

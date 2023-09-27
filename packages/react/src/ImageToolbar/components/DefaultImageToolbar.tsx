@@ -14,21 +14,23 @@ import {
 export const DefaultImageToolbar = <BSchema extends BlockSchema>(
   props: ImageToolbarProps<BSchema>
 ) => {
-  const [openTab, setOpenTab] = useState<"upload" | "embed">("upload");
+  const [openTab, setOpenTab] = useState<"upload" | "embed">(props.editor.uploadFile !== undefined ? "upload" : "embed");
   const [uploading, setUploading] = useState<boolean>(false);
 
+
   const handleFileChange = useCallback(
-    (file: File) => {
+    async (file: File) => {
       setUploading(true);
-      props.editor.imageUpload(file).then((url) => {
+      if (props.editor.uploadFile !== undefined) {
+        const uploaded = await props.editor.uploadFile(file);
         props.editor.updateBlock(props.block, {
           type: "image",
           props: {
-            url: url,
+            url: uploaded,
           },
         } as PartialBlock<BSchema>);
         setUploading(false);
-      });
+      }
     },
     [props.block, props.editor]
   );
@@ -75,18 +77,22 @@ export const DefaultImageToolbar = <BSchema extends BlockSchema>(
         {uploading && <LoadingOverlay visible={uploading} />}
 
         <Tabs.List>
-          <Tabs.Tab value="upload">Upload</Tabs.Tab>
+          {props.editor.uploadFile !== undefined && (
+            <Tabs.Tab value="upload">Upload</Tabs.Tab>
+          )}
           <Tabs.Tab value="embed">Embed</Tabs.Tab>
         </Tabs.List>
 
-        <Tabs.Panel value="upload">
-          <FileInput
-            placeholder={"Upload Image"}
-            size={"xs"}
-            value={null}
-            onChange={handleFileChange}
-          />
-        </Tabs.Panel>
+        {props.editor.uploadFile !== undefined && (
+          <Tabs.Panel value="upload">
+            <FileInput
+              placeholder={"Upload Image"}
+              size={"xs"}
+              value={null}
+              onChange={handleFileChange}
+            />
+          </Tabs.Panel>
+        )}
         <Tabs.Panel value="embed">
           <div
             style={{

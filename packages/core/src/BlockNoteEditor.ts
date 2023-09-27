@@ -11,9 +11,9 @@ import {
   updateBlock,
 } from "./api/blockManipulation/blockManipulation";
 import {
+  HTMLToBlocks,
   blocksToHTML,
   blocksToMarkdown,
-  HTMLToBlocks,
   markdownToBlocks,
 } from "./api/formatConversions/formatConversions";
 import {
@@ -44,15 +44,13 @@ import { getBlockInfoFromPos } from "./extensions/Blocks/helpers/getBlockInfoFro
 
 import { FormattingToolbarProsemirrorPlugin } from "./extensions/FormattingToolbar/FormattingToolbarPlugin";
 import { HyperlinkToolbarProsemirrorPlugin } from "./extensions/HyperlinkToolbar/HyperlinkToolbarPlugin";
+import { ImageToolbarProsemirrorPlugin } from "./extensions/ImageToolbar/ImageToolbarPlugin";
 import { SideMenuProsemirrorPlugin } from "./extensions/SideMenu/SideMenuPlugin";
 import { BaseSlashMenuItem } from "./extensions/SlashMenu/BaseSlashMenuItem";
 import { SlashMenuProsemirrorPlugin } from "./extensions/SlashMenu/SlashMenuPlugin";
 import { getDefaultSlashMenuItems } from "./extensions/SlashMenu/defaultSlashMenuItems";
 import { UniqueID } from "./extensions/UniqueID/UniqueID";
 import { mergeCSSClasses } from "./shared/utils";
-import { ImageToolbarProsemirrorPlugin } from "./extensions/ImageToolbar/ImageToolbarPlugin";
-
-const IMAGE_UPLOAD_API_KEY = "";
 
 export type BlockNoteEditorOptions<BSchema extends BlockSchema> = {
   // TODO: Figure out if enableBlockNoteExtensions/disableHistoryExtension are needed and document them.
@@ -110,11 +108,11 @@ export type BlockNoteEditorOptions<BSchema extends BlockSchema> = {
   blockSchema: BSchema;
 
   /**
-   * A custom function to handle image uploads for the default image block.
-   * @param file The image file that should be uploaded.
-   * @returns The URL of the uploaded image.
+   * A custom function to handle file uploads.
+   * @param file The file that should be uploaded.
+   * @returns The URL of the uploaded file.
    */
-  uploadImage: (file: File) => Promise<string>;
+  uploadFile: (file: File) => Promise<string>;
 
   /**
    * When enabled, allows for collaboration between multiple users.
@@ -163,7 +161,7 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
   public readonly hyperlinkToolbar: HyperlinkToolbarProsemirrorPlugin<BSchema>;
   public readonly imageToolbar: ImageToolbarProsemirrorPlugin<BSchema>;
 
-  public readonly imageUpload: (file: File) => Promise<string>;
+  public readonly uploadFile: ((file: File) => Promise<string>) | undefined;
 
   constructor(
     private readonly options: Partial<BlockNoteEditorOptions<BSchema>> = {}
@@ -217,25 +215,7 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
 
     this.schema = newOptions.blockSchema;
 
-    this.imageUpload = async (file) => {
-      if (newOptions.uploadImage) {
-        return newOptions.uploadImage(file);
-      }
-
-      // TODO: Proper backend - right now using imgbb.com since you can get an
-      //  API key for free by just making an account.
-      //  https://imgbb.com/
-      const body = new FormData();
-      body.append("key", IMAGE_UPLOAD_API_KEY);
-      body.append("image", file);
-
-      return fetch("https://api.imgbb.com/1/upload?expiration=600", {
-        method: "POST",
-        body: body,
-      })
-        .then((response) => response.json())
-        .then((data) => data.data.url);
-    };
+    this.uploadFile = newOptions.uploadFile;
 
     const initialContent =
       newOptions.initialContent ||
