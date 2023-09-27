@@ -28,6 +28,8 @@ export const ColorStyleButton = <BSchema extends BlockSchema>(props: {
     );
   });
 
+  const { ref, updateMaxHeight } = usePreventMenuOverflow();
+
   const setTextColor = useCallback(
     (color: string) => {
       props.editor.focus();
@@ -61,8 +63,6 @@ export const ColorStyleButton = <BSchema extends BlockSchema>(props: {
   if (!show) {
     return null;
   }
-
-  const { ref, updateMaxHeight } = usePreventMenuOverflow();
 
   return (
     <Menu onOpen={updateMaxHeight}>
