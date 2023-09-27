@@ -7,6 +7,7 @@ type WindowWithProseMirror = Window & typeof globalThis & { ProseMirror: any };
 
 function App() {
   const editor = useBlockNote({
+    onlyShowSideMenuWhenHoveringOverEditor: true,
     onEditorContentChange: (editor) => {
       console.log(editor.topLevelBlocks);
     },

@@ -133,6 +133,8 @@ export type BlockNoteEditorOptions<BSchema extends BlockSchema> = {
 
   // tiptap options, undocumented
   _tiptapOptions: any;
+
+  onlyShowSideMenuWhenHoveringOverEditor?: boolean;
 };
 
 const blockNoteTipTapOptions = {
@@ -153,7 +155,7 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
   public readonly hyperlinkToolbar: HyperlinkToolbarProsemirrorPlugin<BSchema>;
 
   constructor(
-    private readonly options: Partial<BlockNoteEditorOptions<BSchema>> = {}
+    public readonly options: Partial<BlockNoteEditorOptions<BSchema>> = {}
   ) {
     // apply defaults
     const newOptions: Omit<typeof options, "defaultStyles" | "blockSchema"> & {

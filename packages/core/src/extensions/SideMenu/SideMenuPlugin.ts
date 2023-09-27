@@ -392,6 +392,14 @@ export class SideMenuView<BSchema extends BlockSchema> implements PluginView {
       return;
     }
 
+    if (this.editor.options.onlyShowSideMenuWhenHoveringOverEditor && !cursorWithinEditor) {
+      if (this.sideMenuState?.show) {
+        this.sideMenuState.show = false;
+        this.updateSideMenu(this.sideMenuState);
+      }
+      return;
+    }
+
     this.horizontalPosAnchor = editorBoundingBox.x;
 
     // Gets block at mouse cursor's vertical position.
