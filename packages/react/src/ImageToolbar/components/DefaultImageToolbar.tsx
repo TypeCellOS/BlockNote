@@ -1,27 +1,35 @@
 import { BlockSchema, PartialBlock } from "@blocknote/core";
 
-import { Button, FileInput, Tabs, TextInput } from "@mantine/core";
-import { ChangeEvent, KeyboardEvent, useCallback, useState } from "react";
-import { Toolbar } from "../../SharedComponents/Toolbar/components/Toolbar";
 import { ImageToolbarProps } from "./ImageToolbarPositioner";
+import { Toolbar } from "../../SharedComponents/Toolbar/components/Toolbar";
+import { ChangeEvent, KeyboardEvent, useCallback, useState } from "react";
+import {
+  Button,
+  FileInput,
+  LoadingOverlay,
+  Tabs,
+  TextInput,
+} from "@mantine/core";
 
 export const DefaultImageToolbar = <BSchema extends BlockSchema>(
   props: ImageToolbarProps<BSchema>
 ) => {
-  const [openTab, setOpenTab] = useState<"upload" | "embed">(
-    props.editor.uploadFile !== undefined ? "upload" : "embed"
-  );
+  const [openTab, setOpenTab] = useState<"upload" | "embed">(props.editor.uploadFile !== undefined ? "upload" : "embed");
+  const [uploading, setUploading] = useState<boolean>(false);
+
 
   const handleFileChange = useCallback(
     async (file: File) => {
+      setUploading(true);
       if (props.editor.uploadFile !== undefined) {
         const uploaded = await props.editor.uploadFile(file);
         props.editor.updateBlock(props.block, {
           type: "image",
           props: {
-            src: uploaded,
+            url: uploaded,
           },
         } as PartialBlock<BSchema>);
+        setUploading(false);
       }
     },
     [props.block, props.editor]
@@ -43,7 +51,7 @@ export const DefaultImageToolbar = <BSchema extends BlockSchema>(
         props.editor.updateBlock(props.block, {
           type: "image",
           props: {
-            src: currentURL,
+            url: currentURL,
           },
         } as PartialBlock<BSchema>);
       }
@@ -55,7 +63,7 @@ export const DefaultImageToolbar = <BSchema extends BlockSchema>(
     props.editor.updateBlock(props.block, {
       type: "image",
       props: {
-        src: currentURL,
+        url: currentURL,
       },
     } as PartialBlock<BSchema>);
   }, [currentURL, props.block, props.editor]);
@@ -66,6 +74,8 @@ export const DefaultImageToolbar = <BSchema extends BlockSchema>(
         width: "500px",
       }}>
       <Tabs value={openTab} onTabChange={setOpenTab as any}>
+        {uploading && <LoadingOverlay visible={uploading} />}
+
         <Tabs.List>
           {props.editor.uploadFile !== undefined && (
             <Tabs.Tab value="upload">Upload</Tabs.Tab>

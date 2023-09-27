@@ -17,7 +17,7 @@ import { useEditorChange } from "../../../hooks/useEditorChange";
 export type BlockTypeDropdownItem = {
   name: string;
   type: string;
-  props?: Record<string, string>;
+  props?: Record<string, boolean | number | string>;
   icon: IconType;
 };
 
@@ -30,19 +30,19 @@ export const defaultBlockTypeDropdownItems: BlockTypeDropdownItem[] = [
   {
     name: "Heading 1",
     type: "heading",
-    props: { level: "1" },
+    props: { level: 1 },
     icon: RiH1,
   },
   {
     name: "Heading 2",
     type: "heading",
-    props: { level: "2" },
+    props: { level: 2 },
     icon: RiH2,
   },
   {
     name: "Heading 3",
     type: "heading",
-    props: { level: "3" },
+    props: { level: 3 },
     icon: RiH3,
   },
   {

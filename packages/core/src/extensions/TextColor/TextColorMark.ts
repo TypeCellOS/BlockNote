@@ -1,4 +1,5 @@
 import { Mark } from "@tiptap/core";
+import { defaultProps } from "../Blocks/api/defaultProps";
 
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
@@ -51,7 +52,7 @@ export const TextColorMark = Mark.create({
       setTextColor:
         (color) =>
         ({ commands }) => {
-          if (color !== "default") {
+          if (color !== defaultProps.textColor.default) {
             return commands.setMark(this.name, { color: color });
           }
 
