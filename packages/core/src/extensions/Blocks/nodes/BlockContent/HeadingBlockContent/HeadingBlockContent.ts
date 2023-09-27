@@ -114,6 +114,7 @@ const HeadingBlockContent = createTipTapBlock<"heading", true>({
     return [
       "div",
       mergeAttributes(HTMLAttributes, {
+        ...blockContentDOMAttributes,
         class: mergeCSSClasses(
           styles.blockContent,
           blockContentDOMAttributes.class
@@ -123,6 +124,7 @@ const HeadingBlockContent = createTipTapBlock<"heading", true>({
       [
         `h${node.attrs.level}`,
         {
+          ...inlineContentDOMAttributes,
           class: mergeCSSClasses(
             styles.inlineContent,
             inlineContentDOMAttributes.class

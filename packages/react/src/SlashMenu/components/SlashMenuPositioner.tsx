@@ -10,6 +10,7 @@ import { FC, useEffect, useMemo, useRef, useState } from "react";
 
 import { ReactSlashMenuItem } from "../ReactSlashMenuItem";
 import { DefaultSlashMenu } from "./DefaultSlashMenu";
+import { usePreventMenuOverflow } from "../../hooks/usePreventMenuOverflow";
 
 export type SlashMenuProps<BSchema extends BlockSchema = DefaultBlockSchema> =
   Pick<SlashMenuProsemirrorPlugin<BSchema, any>, "itemCallback"> &
@@ -53,6 +54,8 @@ export const SlashMenuPositioner = <
     [referencePos.current] // eslint-disable-line
   );
 
+  const { ref, updateMaxHeight } = usePreventMenuOverflow();
+
   const slashMenuElement = useMemo(() => {
     if (!filteredItems || keyboardHoveredItemIndex === undefined) {
       return null;
@@ -61,21 +64,25 @@ export const SlashMenuPositioner = <
     const SlashMenu = props.slashMenu || DefaultSlashMenu;
 
     return (
-      <SlashMenu
-        filteredItems={filteredItems}
-        itemCallback={(item) => props.editor.slashMenu.itemCallback(item)}
-        keyboardHoveredItemIndex={keyboardHoveredItemIndex}
-      />
+      <div ref={ref}>
+        <SlashMenu
+          filteredItems={filteredItems}
+          itemCallback={(item) => props.editor.slashMenu.itemCallback(item)}
+          keyboardHoveredItemIndex={keyboardHoveredItemIndex}
+        />
+      </div>
     );
   }, [
     filteredItems,
     keyboardHoveredItemIndex,
     props.editor.slashMenu,
     props.slashMenu,
+    ref,
   ]);
 
   return (
     <Tippy
+      onShow={updateMaxHeight}
       appendTo={props.editor.domElement.parentElement!}
       content={slashMenuElement}
       getReferenceClientRect={getReferenceClientRect}

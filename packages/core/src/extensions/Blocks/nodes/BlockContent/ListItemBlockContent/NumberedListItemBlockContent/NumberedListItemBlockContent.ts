@@ -132,6 +132,7 @@ const NumberedListItemBlockContent = createTipTapBlock<
     return [
       "div",
       mergeAttributes(HTMLAttributes, {
+        ...blockContentDOMAttributes,
         class: mergeCSSClasses(
           styles.blockContent,
           blockContentDOMAttributes.class
@@ -143,6 +144,7 @@ const NumberedListItemBlockContent = createTipTapBlock<
       [
         "p",
         {
+          ...inlineContentDOMAttributes,
           class: mergeCSSClasses(
             styles.inlineContent,
             inlineContentDOMAttributes.class

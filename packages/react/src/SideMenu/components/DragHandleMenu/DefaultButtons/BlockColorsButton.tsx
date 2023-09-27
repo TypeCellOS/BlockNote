@@ -6,11 +6,14 @@ import { BlockSchema, PartialBlock } from "@blocknote/core";
 import { DragHandleMenuProps } from "../DragHandleMenu";
 import { DragHandleMenuItem } from "../DragHandleMenuItem";
 import { ColorPicker } from "../../../../SharedComponents/ColorPicker/components/ColorPicker";
+import { usePreventMenuOverflow } from "../../../../hooks/usePreventMenuOverflow";
 
 export const BlockColorsButton = <BSchema extends BlockSchema>(
   props: DragHandleMenuProps<BSchema> & { children: ReactNode }
 ) => {
   const [opened, setOpened] = useState(false);
+
+  const { ref, updateMaxHeight } = usePreventMenuOverflow();
 
   const menuCloseTimer = useRef<NodeJS.Timeout | undefined>();
 
@@ -27,8 +30,13 @@ export const BlockColorsButton = <BSchema extends BlockSchema>(
     if (menuCloseTimer.current) {
       clearTimeout(menuCloseTimer.current);
     }
+
+    if (!opened) {
+      updateMaxHeight();
+    }
+
     setOpened(true);
-  }, []);
+  }, [opened, updateMaxHeight]);
 
   if (
     !("textColor" in props.block.props) &&
@@ -50,6 +58,7 @@ export const BlockColorsButton = <BSchema extends BlockSchema>(
             </Box>
           </div>
         </Menu.Target>
+        <div ref={ref}>
         <Menu.Dropdown
           onMouseLeave={startMenuCloseTimer}
           onMouseOver={stopMenuCloseTimer}
@@ -82,6 +91,7 @@ export const BlockColorsButton = <BSchema extends BlockSchema>(
             }
           />
         </Menu.Dropdown>
+        </div>
       </Menu>
     </DragHandleMenuItem>
   );

@@ -64,7 +64,19 @@ export const TrailingNode = Extension.create<TrailingNodeOptions>({
             if (!lastNode || lastNode.type.name !== "blockContainer") {
               throw new Error("Expected blockContainer");
             }
-            return lastNode.nodeSize > 4; // empty <block><content/></block> is length 4
+
+            const lastContentNode = lastNode.firstChild;
+
+            if (!lastContentNode) {
+              throw new Error("Expected blockContent");
+            }
+
+            // If last node is not empty (size > 4) or it doesn't contain
+            // inline content, we need to add a trailing node.
+            return (
+              lastNode.nodeSize > 4 ||
+              lastContentNode.type.spec.content !== "inline*"
+            );
           },
         },
       }),
