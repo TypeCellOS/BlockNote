@@ -1,4 +1,4 @@
-// Vitest Snapshot v1
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`Complex Block/HTML/Markdown Conversions > Convert complex blocks to HTML 1`] = `"<h1>Heading 1</h1><h2>Heading 2</h2><h3>Heading 3</h3><p><span data-text-color=\\"purple\\"><span data-background-color=\\"green\\">Paragraph</span></span></p><p>P<strong>ara</strong><em>grap</em>h</p><p>P<u>ara</u><s>grap</s>h</p><ul><li><p>Bullet List Item</p></li><li><p>Bullet List Item</p><ul><li><p>Bullet List Item</p><ul><li><p>Bullet List Item</p></li></ul><p>Paragraph</p><ol><li><p>Numbered List Item</p></li><li><p>Numbered List Item</p></li><li><p>Numbered List Item</p><ol><li><p>Numbered List Item</p></li></ol></li></ol><ul><li><p>Bullet List Item</p></li></ul></li><li><p>Bullet List Item</p></li></ul></li><li><p>Bullet List Item</p></li></ul>"`;
 
@@ -68,7 +68,7 @@ exports[`Non-Nested Block/HTML/Markdown Conversions > Convert non-nested HTML to
     "id": "1",
     "props": {
       "backgroundColor": "default",
-      "level": "1",
+      "level": 1,
       "textAlignment": "left",
       "textColor": "default",
     },
@@ -142,7 +142,7 @@ exports[`Non-Nested Block/HTML/Markdown Conversions > Convert non-nested Markdow
     "id": "1",
     "props": {
       "backgroundColor": "default",
-      "level": "1",
+      "level": 1,
       "textAlignment": "left",
       "textColor": "default",
     },
