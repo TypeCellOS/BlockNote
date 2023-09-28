@@ -37,6 +37,7 @@ import {
   FormattingToolbarPositioner,
   getDefaultReactSlashMenuItems,
   HyperlinkToolbarPositioner,
+  ImageToolbarPositioner,
   SideMenuPositioner,
   SlashMenuPositioner,
   useBlockNote,
@@ -86,6 +87,7 @@ export default function App() {
       <HyperlinkToolbarPositioner editor={editor} />
       <SlashMenuPositioner editor={editor} />
       <SideMenuPositioner editor={editor} />
+      <ImageToolbarPositioner editor={editor} />
     </BlockNoteView>
   );
 }

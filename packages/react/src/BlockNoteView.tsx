@@ -33,9 +33,9 @@ function BaseBlockNoteView<BSchema extends BlockSchema>(
         <>
           <FormattingToolbarPositioner editor={props.editor} />
           <HyperlinkToolbarPositioner editor={props.editor} />
-          <ImageToolbarPositioner editor={props.editor} />
           <SlashMenuPositioner editor={props.editor} />
           <SideMenuPositioner editor={props.editor} />
+          <ImageToolbarPositioner editor={props.editor} />
         </>
       )}
     </EditorContent>

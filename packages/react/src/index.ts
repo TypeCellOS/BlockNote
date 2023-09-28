@@ -33,6 +33,9 @@ export * from "./SlashMenu/components/DefaultSlashMenu";
 export * from "./SlashMenu/ReactSlashMenuItem";
 export * from "./SlashMenu/defaultReactSlashMenuItems";
 
+export * from "./ImageToolbar/components/ImageToolbarPositioner";
+export * from "./ImageToolbar/components/DefaultImageToolbar";
+
 export * from "./SharedComponents/Toolbar/components/Toolbar";
 export * from "./SharedComponents/Toolbar/components/ToolbarButton";
 export * from "./SharedComponents/Toolbar/components/ToolbarDropdown";
