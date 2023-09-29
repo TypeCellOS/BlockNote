@@ -2,6 +2,7 @@
 import "@blocknote/core/style.css";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
 import styles from "./App.module.css";
+import { uploadToTmpFilesOrg } from "@blocknote/core";
 
 type WindowWithProseMirror = Window & typeof globalThis & { ProseMirror: any };
 
@@ -16,6 +17,7 @@ function App() {
         "data-test": "editor",
       },
     },
+    uploadFile: uploadToTmpFilesOrg,
   });
 
   // Give tests a way to get prosemirror instance

@@ -14,9 +14,10 @@ import {
 export const DefaultImageToolbar = <BSchema extends BlockSchema>(
   props: ImageToolbarProps<BSchema>
 ) => {
-  const [openTab, setOpenTab] = useState<"upload" | "embed">(props.editor.uploadFile !== undefined ? "upload" : "embed");
+  const [openTab, setOpenTab] = useState<"upload" | "embed">(
+    props.editor.uploadFile !== undefined ? "upload" : "embed"
+  );
   const [uploading, setUploading] = useState<boolean>(false);
-
 
   const handleFileChange = useCallback(
     async (file: File) => {
@@ -78,9 +79,13 @@ export const DefaultImageToolbar = <BSchema extends BlockSchema>(
 
         <Tabs.List>
           {props.editor.uploadFile !== undefined && (
-            <Tabs.Tab value="upload">Upload</Tabs.Tab>
+            <Tabs.Tab value="upload" data-test={"upload-tab"}>
+              Upload
+            </Tabs.Tab>
           )}
-          <Tabs.Tab value="embed">Embed</Tabs.Tab>
+          <Tabs.Tab value="embed" data-test={"embed-tab"}>
+            Embed
+          </Tabs.Tab>
         </Tabs.List>
 
         {props.editor.uploadFile !== undefined && (
@@ -90,6 +95,7 @@ export const DefaultImageToolbar = <BSchema extends BlockSchema>(
               size={"xs"}
               value={null}
               onChange={handleFileChange}
+              data-test={"upload-input"}
             />
           </Tabs.Panel>
         )}
@@ -109,8 +115,12 @@ export const DefaultImageToolbar = <BSchema extends BlockSchema>(
               onChange={handleURLChange}
               onKeyDown={handleURLEnter}
               style={{ width: "100%" }}
+              data-test={"embed-input"}
             />
-            <Button onClick={handleURLClick} size={"xs"}>
+            <Button
+              onClick={handleURLClick}
+              size={"xs"}
+              data-test={"embed-input-button"}>
               Embed Image
             </Button>
           </div>

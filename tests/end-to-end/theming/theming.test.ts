@@ -8,6 +8,7 @@ import {
 } from "../../utils/const";
 import { focusOnEditor } from "../../utils/editor";
 import { moveMouseOverElement } from "../../utils/mouse";
+import { executeSlashCommand } from "../../utils/slashmenu";
 
 test.use({
   colorScheme: "dark",
@@ -22,7 +23,6 @@ test.describe("Check Dark Theme is Automatically Applied", () => {
     await focusOnEditor(page);
     await page.keyboard.type("Paragraph");
 
-    await page.pause();
     expect(await page.screenshot()).toMatchSnapshot("dark-editor.png");
   });
   test("Should show dark formatting toolbar", async ({ page }) => {
@@ -31,7 +31,6 @@ test.describe("Check Dark Theme is Automatically Applied", () => {
     await page.keyboard.press("Shift+Home");
 
     await page.waitForTimeout(500);
-    await page.pause();
     expect(await page.screenshot()).toMatchSnapshot(
       "dark-formatting-toolbar.png"
     );
@@ -48,7 +47,6 @@ test.describe("Check Dark Theme is Automatically Applied", () => {
     await page.keyboard.press("Enter");
 
     await page.waitForTimeout(500);
-    await page.pause();
     expect(await page.screenshot()).toMatchSnapshot(
       "dark-hyperlink-toolbar.png"
     );
@@ -58,7 +56,6 @@ test.describe("Check Dark Theme is Automatically Applied", () => {
     await page.keyboard.press("/");
 
     await page.waitForTimeout(500);
-    await page.pause();
     expect(await page.screenshot()).toMatchSnapshot("dark-slash-menu.png");
   });
   test("Should show dark side menu", async ({ page }) => {
@@ -67,7 +64,6 @@ test.describe("Check Dark Theme is Automatically Applied", () => {
     await moveMouseOverElement(page, page.locator(PARAGRAPH_SELECTOR));
 
     await page.waitForTimeout(500);
-    await page.pause();
     expect(await page.screenshot()).toMatchSnapshot("dark-side-menu.png");
   });
   test("Should show drag handle menu", async ({ page }) => {
@@ -82,9 +78,15 @@ test.describe("Check Dark Theme is Automatically Applied", () => {
     await page.mouse.up();
 
     await page.waitForTimeout(500);
-    await page.pause();
     expect(await page.screenshot()).toMatchSnapshot(
       "dark-drag-handle-menu.png"
     );
+  });
+  test("Should show dark image toolbar", async ({ page }) => {
+    await focusOnEditor(page);
+    await executeSlashCommand(page, "image");
+
+    await page.waitForTimeout(500);
+    expect(await page.screenshot()).toMatchSnapshot("dark-image-toolbar.png");
   });
 });
