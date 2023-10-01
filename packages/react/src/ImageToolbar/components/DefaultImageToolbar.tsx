@@ -2,12 +2,19 @@ import { BlockSchema, PartialBlock } from "@blocknote/core";
 
 import { ImageToolbarProps } from "./ImageToolbarPositioner";
 import { Toolbar } from "../../SharedComponents/Toolbar/components/Toolbar";
-import { ChangeEvent, KeyboardEvent, useCallback, useState } from "react";
+import {
+  ChangeEvent,
+  KeyboardEvent,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import {
   Button,
   FileInput,
   LoadingOverlay,
   Tabs,
+  Text,
   TextInput,
 } from "@mantine/core";
 
@@ -18,19 +25,33 @@ export const DefaultImageToolbar = <BSchema extends BlockSchema>(
     props.editor.uploadFile !== undefined ? "upload" : "embed"
   );
   const [uploading, setUploading] = useState<boolean>(false);
+  const [uploadFailed, setUploadFailed] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (uploadFailed) {
+      setTimeout(() => {
+        setUploadFailed(false);
+      }, 3000);
+    }
+  }, [uploadFailed]);
 
   const handleFileChange = useCallback(
     async (file: File) => {
       setUploading(true);
       if (props.editor.uploadFile !== undefined) {
-        const uploaded = await props.editor.uploadFile(file);
-        props.editor.updateBlock(props.block, {
-          type: "image",
-          props: {
-            url: uploaded,
-          },
-        } as PartialBlock<BSchema>);
-        setUploading(false);
+        try {
+          const uploaded = await props.editor.uploadFile(file);
+          props.editor.updateBlock(props.block, {
+            type: "image",
+            props: {
+              url: uploaded,
+            },
+          } as PartialBlock<BSchema>);
+        } catch (e) {
+          setUploadFailed(true);
+        } finally {
+          setUploading(false);
+        }
       }
     },
     [props.block, props.editor]
@@ -90,13 +111,26 @@ export const DefaultImageToolbar = <BSchema extends BlockSchema>(
 
         {props.editor.uploadFile !== undefined && (
           <Tabs.Panel value="upload">
-            <FileInput
-              placeholder={"Upload Image"}
-              size={"xs"}
-              value={null}
-              onChange={handleFileChange}
-              data-test={"upload-input"}
-            />
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "stretch",
+                gap: "8px",
+              }}>
+              <FileInput
+                placeholder={"Upload Image"}
+                size={"xs"}
+                value={null}
+                onChange={handleFileChange}
+                data-test={"upload-input"}
+              />
+              {uploadFailed && (
+                <Text color={"red"} size={12} style={{ textAlign: "center" }}>
+                  Error: Upload failed
+                </Text>
+              )}
+            </div>
           </Tabs.Panel>
         )}
         <Tabs.Panel value="embed">
