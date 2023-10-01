@@ -1,4 +1,4 @@
-export const uploadToTmpFilesOrg = async (file: File) => {
+export const uploadToTmpFilesDotOrg_DEV_ONLY = async (file: File) => {
   const body = new FormData();
   body.append("file", file);
 
