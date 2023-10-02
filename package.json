@@ -6,8 +6,8 @@
     "examples/*"
   ],
   "devDependencies": {
-    "@playwright/experimental-ct-react": "^1.33.0",
-    "@playwright/test": "^1.33.0",
+    "@playwright/experimental-ct-react": "^1.38.1",
+    "@playwright/test": "^1.38.1",
     "eslint": "^8.22.0",
     "eslint-plugin-import": "^2.28.0",
     "eslint-config-react-app": "^7.0.0",
@@ -20,7 +20,7 @@
   "scripts": {
     "start": "lerna run --stream --scope @blocknote/example-editor dev",
     "start:built": "npx serve examples/editor/dist",
-    "test:updateSnaps": "docker run --rm  -e RUN_IN_DOCKER=true --network host -v $(pwd):/work/ -w /work/ -it mcr.microsoft.com/playwright:v1.35.1-focal npx playwright test -u",
+    "test:updateSnaps": "docker run --rm  -e RUN_IN_DOCKER=true --network host -v $(pwd):/work/ -w /work/ -it mcr.microsoft.com/playwright:v1.38.1-focal npx playwright test -u",
     "build": "lerna run --stream build --concurrency 1",
     "build:site": "lerna run --stream docs:build --concurrency 1",
     "lint": "lerna run --stream lint",
