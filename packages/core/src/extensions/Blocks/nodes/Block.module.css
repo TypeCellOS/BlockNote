@@ -56,20 +56,6 @@ NESTED BLOCKS
   transition: all 0.2s 0.1s;
 }
 
-[data-theme="light"]
-  .blockGroup
-  .blockGroup
-  > .blockOuter:not([data-prev-depth-changed])::before {
-  border-left: 1px solid #AFAFAF;
-}
-
-[data-theme="dark"]
-  .blockGroup
-  .blockGroup
-  > .blockOuter:not([data-prev-depth-changed])::before {
-  border-left: 1px solid #7F7F7F;
-}
-
 .blockGroup .blockGroup > .blockOuter[data-prev-depth-change="-2"]::before {
   height: 0;
 }
@@ -246,16 +232,6 @@ NESTED BLOCKS
   /* width: 0; */
   position: absolute;
   font-style: italic;
-}
-
-[data-theme="light"] .isEmpty .inlineContent:before,
-.isFilter .inlineContent:before {
-  color: #CFCFCF;
-}
-
-[data-theme="dark"] .isEmpty .inlineContent:before,
-.isFilter .inlineContent:before {
-  color: #7F7F7F;
 }
 
 /* TODO: would be nicer if defined from code */
