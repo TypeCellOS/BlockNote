@@ -1,0 +1,26 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "blockGroup",
+      "content": [
+        {
+          "type": "blockContainer",
+          "attrs": {
+            "id": "1",
+            "textColor": "default",
+            "backgroundColor": "default"
+          },
+          "content": [
+            {
+              "type": "paragraph",
+              "attrs": {
+                "textAlignment": "left"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
