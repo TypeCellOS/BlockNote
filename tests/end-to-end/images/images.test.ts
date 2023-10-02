@@ -37,6 +37,9 @@ test.describe("Check Image Block and Toolbar functionality", () => {
     await page.click(`[data-test="upload-input"]`);
     await page.waitForSelector(`img[src^="https://tmpfiles.org/"]`);
 
+    await page.click(`img`);
+
+    await page.waitForTimeout(500);
     expect(await page.screenshot()).toMatchSnapshot("upload-image.png");
   });
   test("Should be able to embed image", async ({ page }) => {
@@ -49,6 +52,9 @@ test.describe("Check Image Block and Toolbar functionality", () => {
     await page.click(`[data-test="embed-input-button"]`);
     await page.waitForSelector(`img[src="${IMAGE_EMBED_URL}"]`);
 
+    await page.click(`img`);
+
+    await page.waitForTimeout(500);
     await compareDocToSnapshot(page, "embedImage");
     expect(await page.screenshot()).toMatchSnapshot("embed-image.png");
   });
@@ -61,6 +67,8 @@ test.describe("Check Image Block and Toolbar functionality", () => {
     await page.keyboard.type(IMAGE_EMBED_URL);
     await page.click(`[data-test="embed-input-button"]`);
     await page.waitForSelector(`img[src="${IMAGE_EMBED_URL}"]`);
+
+    await page.click(`img`);
 
     await page.waitForSelector(`[class*="resizeHandle"][style*="right"]`);
     const resizeHandle = page.locator(
@@ -86,6 +94,9 @@ test.describe("Check Image Block and Toolbar functionality", () => {
 
     await page.mouse.up();
 
+    await page.click(`img`);
+
+    await page.waitForTimeout(500);
     await compareDocToSnapshot(page, "resizeImage");
     expect(await page.screenshot()).toMatchSnapshot("resize-image.png");
   });
