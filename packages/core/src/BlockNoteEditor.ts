@@ -236,15 +236,15 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
         editor.editor.options.content = root.toJSON();
       },
       onCreate: () => {
-        newOptions.onEditorReady?.(this);
-        this.ready = true;
-
         // We need to wait for the TipTap editor to init before we can set the
         // initial content, as the schema may contain custom blocks which need
         // it to render.
         if (initialContent !== undefined) {
           this.replaceBlocks(this.topLevelBlocks, initialContent);
         }
+
+        newOptions.onEditorReady?.(this);
+        this.ready = true;
       },
       onUpdate: () => {
         // This seems to be necessary due to a bug in TipTap:
