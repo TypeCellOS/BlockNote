@@ -216,27 +216,35 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
     const tiptapOptions: EditorOptions = {
       ...blockNoteTipTapOptions,
       ...newOptions._tiptapOptions,
-      onCreate: () => {
-        newOptions.onEditorReady?.(this);
-        this.ready = true;
-      },
       onBeforeCreate(editor) {
         if (!initialContent) {
           // when using collaboration
           return;
         }
-        // we have to set the initial content here, because now we can use the editor schema
-        // which has been created at this point
-        const schema = editor.editor.schema;
-        const ic = initialContent.map((block) => blockToNode(block, schema));
 
+        // We always set the initial content to a single paragraph block. This
+        // allows us to easily replace it with the actual initial content once
+        // the TipTap editor is initialized.
+        const schema = editor.editor.schema;
         const root = schema.node(
           "doc",
           undefined,
-          schema.node("blockGroup", undefined, ic)
+          schema.node("blockGroup", undefined, [
+            blockToNode({ id: "initialBlock", type: "paragraph" }, schema),
+          ])
         );
-        // override the initialcontent
         editor.editor.options.content = root.toJSON();
+      },
+      onCreate: () => {
+        // We need to wait for the TipTap editor to init before we can set the
+        // initial content, as the schema may contain custom blocks which need
+        // it to render.
+        if (initialContent !== undefined) {
+          this.replaceBlocks(this.topLevelBlocks, initialContent);
+        }
+
+        newOptions.onEditorReady?.(this);
+        this.ready = true;
       },
       onUpdate: () => {
         // This seems to be necessary due to a bug in TipTap:
