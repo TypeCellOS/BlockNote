@@ -1,7 +1,7 @@
 {
   "name": "@blocknote/example-editor",
   "private": true,
-  "version": "0.9.3",
+  "version": "0.9.4",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -9,8 +9,8 @@
     "lint": "eslint src --max-warnings 0"
   },
   "dependencies": {
-    "@blocknote/core": "^0.9.3",
-    "@blocknote/react": "^0.9.3",
+    "@blocknote/core": "^0.9.4",
+    "@blocknote/react": "^0.9.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
