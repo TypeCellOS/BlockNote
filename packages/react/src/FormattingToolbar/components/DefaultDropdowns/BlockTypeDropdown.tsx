@@ -16,14 +16,13 @@ import {
 } from "react-icons/ri";
 
 import { ToolbarDropdown } from "../../../SharedComponents/Toolbar/components/ToolbarDropdown";
-import { useEditorSelectionChange } from "../../../hooks/useEditorSelectionChange";
-import { useEditorContentChange } from "../../../hooks/useEditorContentChange";
 import { ToolbarDropdownItemProps } from "../../../SharedComponents/Toolbar/components/ToolbarDropdownItem";
+import { useEditorChange } from "../../../hooks/useEditorChange";
 
 export type BlockTypeDropdownItem = {
   name: string;
   type: string;
-  props?: Record<string, string>;
+  props?: Record<string, boolean | number | string>;
   icon: IconType;
   isSelected: (block: Block<BlockSchema>) => boolean;
 };
@@ -38,7 +37,7 @@ export const defaultBlockTypeDropdownItems: BlockTypeDropdownItem[] = [
   {
     name: "Heading 1",
     type: "heading",
-    props: { level: "1" },
+    props: { level: 1 },
     icon: RiH1,
     isSelected: (block) =>
       block.type === "heading" &&
@@ -48,7 +47,7 @@ export const defaultBlockTypeDropdownItems: BlockTypeDropdownItem[] = [
   {
     name: "Heading 2",
     type: "heading",
-    props: { level: "2" },
+    props: { level: 2 },
     icon: RiH2,
     isSelected: (block) =>
       block.type === "heading" &&
@@ -58,7 +57,7 @@ export const defaultBlockTypeDropdownItems: BlockTypeDropdownItem[] = [
   {
     name: "Heading 3",
     type: "heading",
-    props: { level: "3" },
+    props: { level: 3 },
     icon: RiH3,
     isSelected: (block) =>
       block.type === "heading" &&
@@ -138,11 +137,7 @@ export const BlockTypeDropdown = <BSchema extends BlockSchema>(props: {
     }));
   }, [block, filteredItems, props.editor]);
 
-  useEditorContentChange(props.editor, () => {
-    setBlock(props.editor.getTextCursorPosition().block);
-  });
-
-  useEditorSelectionChange(props.editor, () => {
+  useEditorChange(props.editor, () => {
     setBlock(props.editor.getTextCursorPosition().block);
   });
 

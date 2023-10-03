@@ -15,6 +15,7 @@ export const H_THREE_BLOCK_SELECTOR = `[data-content-type=heading][data-level="3
 export const NUMBERED_LIST_SELECTOR = `[data-content-type="numberedListItem"]`;
 export const BULLET_LIST_SELECTOR = `[data-content-type="bulletListItem"]`;
 export const PARAGRAPH_SELECTOR = `[data-content-type="paragraph"]`;
+export const IMAGE_SELECTOR = `[data-content-type="image"]`;
 
 export const DRAG_HANDLE_SELECTOR = `[data-test="dragHandle"]`;
 export const DRAG_HANDLE_ADD_SELECTOR = `[data-test="dragHandleAdd"]`;
@@ -31,6 +32,6 @@ export const BACKGROUND_COLOR_SELECTOR = (color: string) =>
 export const ALIGN_TEXT_RIGHT_BUTTON_SELECTOR = `[data-test="alignTextRight"]`;
 export const NEST_BLOCK_BUTTON_SELECTOR = `[data-test="nestBlock"]`;
 export const UNNEST_BLOCK_BUTTON_SELECTOR = `[data-test="unnestBlock"]`;
-export const LINK_BUTTON_SELECTOR = `[data-test="link"]`;
+export const LINK_BUTTON_SELECTOR = `[data-test="createLink"]`;
 
 export const TYPE_DELAY = 10;

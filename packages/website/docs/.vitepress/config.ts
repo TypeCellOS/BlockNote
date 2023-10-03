@@ -32,6 +32,7 @@ const SIDEBAR_DEFAULT = [
       { text: "Formatting Toolbar", link: "/docs/formatting-toolbar" },
       { text: "Slash Menu", link: "/docs/slash-menu" },
       { text: "Side Menu", link: "/docs/side-menu" },
+      { text: "Image Toolbar", link: "/docs/image-toolbar" },
       { text: "Changing UI Elements", link: "/docs/ui-elements" },
     ],
   },

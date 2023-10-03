@@ -1,13 +1,15 @@
 import { useRef, useState } from "react";
 import { RiExternalLinkFill, RiLinkUnlink } from "react-icons/ri";
+import { BlockSchema } from "@blocknote/core";
 
 import { HyperlinkToolbarProps } from "./HyperlinkToolbarPositioner";
-
 import { Toolbar } from "../../SharedComponents/Toolbar/components/Toolbar";
 import { ToolbarButton } from "../../SharedComponents/Toolbar/components/ToolbarButton";
-import { EditHyperlinkMenu } from "../EditHyperlinkMenu/components/EditHyperlinkMenu";
+import { EditHyperlinkMenu } from "./EditHyperlinkMenu/components/EditHyperlinkMenu";
 
-export const DefaultHyperlinkToolbar = (props: HyperlinkToolbarProps) => {
+export const DefaultHyperlinkToolbar = <BSchema extends BlockSchema>(
+  props: HyperlinkToolbarProps<BSchema>
+) => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const editMenuRef = useRef<HTMLDivElement | null>(null);
 
@@ -16,7 +18,7 @@ export const DefaultHyperlinkToolbar = (props: HyperlinkToolbarProps) => {
       <EditHyperlinkMenu
         url={props.url}
         text={props.text}
-        update={(url, text) => props.editHyperlink(url, text)}
+        update={props.editHyperlink}
         // TODO: Better way of waiting for fade out
         onBlur={(event) =>
           setTimeout(() => {

@@ -32,6 +32,7 @@ export type BlockNoteEditorOptions = Partial<{
   onTextCursorPositionChange: (editor: BlockNoteEditor) => void;
   slashMenuItems: ReactSlashMenuItem[];
   defaultStyles: boolean;
+  uploadFile: (file: File) => Promise<string>
 }>;
 ```
 
@@ -50,3 +51,5 @@ export type BlockNoteEditorOptions = Partial<{
 `slashMenuItems:` The commands that are listed in the editor's [Slash Menu](/docs/slash-menu). If this option isn't defined, a default list of commands is loaded.
 
 `defaultStyles`: Whether to use the default font and reset the styles of `<p>`, `<li>`, `<h1>`, etc. elements that are used in BlockNote. Defaults to true if undefined.
+
+`uploadFile`: A function which handles file uploads and eventually returns the URL to the uploaded file. Used by the [Image Toolbar](/docs/image-toolbar).

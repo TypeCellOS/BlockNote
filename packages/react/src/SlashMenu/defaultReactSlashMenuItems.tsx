@@ -9,6 +9,7 @@ import {
   RiH1,
   RiH2,
   RiH3,
+  RiImage2Fill,
   RiListOrdered,
   RiListUnordered,
   RiText,
@@ -58,6 +59,11 @@ const extraFields: Record<
     icon: <RiText size={18} />,
     hint: "Used for the body of your document",
     shortcut: formatKeyboardShortcut("Mod-Alt-0"),
+  },
+  Image: {
+    group: "Media",
+    icon: <RiImage2Fill />,
+    hint: "Insert an image",
   },
 };
 

@@ -11,9 +11,9 @@ import {
   updateBlock,
 } from "./api/blockManipulation/blockManipulation";
 import {
+  HTMLToBlocks,
   blocksToHTML,
   blocksToMarkdown,
-  HTMLToBlocks,
   markdownToBlocks,
 } from "./api/formatConversions/formatConversions";
 import {
@@ -44,6 +44,7 @@ import { getBlockInfoFromPos } from "./extensions/Blocks/helpers/getBlockInfoFro
 
 import { FormattingToolbarProsemirrorPlugin } from "./extensions/FormattingToolbar/FormattingToolbarPlugin";
 import { HyperlinkToolbarProsemirrorPlugin } from "./extensions/HyperlinkToolbar/HyperlinkToolbarPlugin";
+import { ImageToolbarProsemirrorPlugin } from "./extensions/ImageToolbar/ImageToolbarPlugin";
 import { SideMenuProsemirrorPlugin } from "./extensions/SideMenu/SideMenuPlugin";
 import { BaseSlashMenuItem } from "./extensions/SlashMenu/BaseSlashMenuItem";
 import { SlashMenuProsemirrorPlugin } from "./extensions/SlashMenu/SlashMenuPlugin";
@@ -107,6 +108,13 @@ export type BlockNoteEditorOptions<BSchema extends BlockSchema> = {
   blockSchema: BSchema;
 
   /**
+   * A custom function to handle file uploads.
+   * @param file The file that should be uploaded.
+   * @returns The URL of the uploaded file.
+   */
+  uploadFile: (file: File) => Promise<string>;
+
+  /**
    * When enabled, allows for collaboration between multiple users.
    */
   collaboration: {
@@ -151,6 +159,9 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
   public readonly formattingToolbar: FormattingToolbarProsemirrorPlugin<BSchema>;
   public readonly slashMenu: SlashMenuProsemirrorPlugin<BSchema, any>;
   public readonly hyperlinkToolbar: HyperlinkToolbarProsemirrorPlugin<BSchema>;
+  public readonly imageToolbar: ImageToolbarProsemirrorPlugin<BSchema>;
+
+  public readonly uploadFile: ((file: File) => Promise<string>) | undefined;
 
   constructor(
     private readonly options: Partial<BlockNoteEditorOptions<BSchema>> = {}
@@ -178,6 +189,7 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
         getDefaultSlashMenuItems(newOptions.blockSchema)
     );
     this.hyperlinkToolbar = new HyperlinkToolbarProsemirrorPlugin(this);
+    this.imageToolbar = new ImageToolbarProsemirrorPlugin(this);
 
     const extensions = getBlockNoteExtensions<BSchema>({
       editor: this,
@@ -195,12 +207,15 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
           this.formattingToolbar.plugin,
           this.slashMenu.plugin,
           this.hyperlinkToolbar.plugin,
+          this.imageToolbar.plugin,
         ];
       },
     });
     extensions.push(blockNoteUIExtension);
 
     this.schema = newOptions.blockSchema;
+
+    this.uploadFile = newOptions.uploadFile;
 
     const initialContent =
       newOptions.initialContent ||
@@ -468,6 +483,12 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
       posBeforeNode + 2
     )!;
 
+    // For blocks without inline content
+    if (contentNode.type.spec.content === "") {
+      this._tiptapEditor.commands.setNodeSelection(startPos);
+      return;
+    }
+
     if (placement === "start") {
       this._tiptapEditor.commands.setTextSelection(startPos + 1);
     } else {
@@ -481,9 +502,12 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
    * Gets a snapshot of the current selection.
    */
   public getSelection(): Selection<BSchema> | undefined {
+    // Either the TipTap selection is empty, or it's a node selection. In either
+    // case, it only spans one block, so we return undefined.
     if (
       this._tiptapEditor.state.selection.from ===
-      this._tiptapEditor.state.selection.to
+        this._tiptapEditor.state.selection.to ||
+      "node" in this._tiptapEditor.state.selection
     ) {
       return undefined;
     }

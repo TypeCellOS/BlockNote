@@ -48,14 +48,14 @@ export function partialBlockToBlockForTesting<BSchema extends BlockSchema>(
 ): Block<BSchema> {
   const withDefaults = {
     id: "",
-    type: "paragraph" as any,
+    type: "paragraph",
     // because at this point we don't have an easy way to access default props at runtime,
     // partialBlockToBlockForTesting will not set them.
     props: {} as any,
-    content: [],
+    content: [] as any,
     children: [],
     ...partialBlock,
-  };
+  } satisfies PartialBlock<BSchema>;
 
   return {
     ...withDefaults,

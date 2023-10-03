@@ -247,7 +247,7 @@ There are a number of components that you can override styles for:
 
 `Editor:` The editor itself, excluding menus & toolbars.
 
-`Toolbar:` Component used for the [Formatting Toolbar](/docs/formatting-toolbar) and Hyperlink Toolbar.
+`Toolbar:` Component used for the [Formatting Toolbar](/docs/formatting-toolbar), Hyperlink Toolbar, and [Image Toolbar](/docs/image-toolbar).
 
 `Tooltip:` Component for the tooltip that appears on hover, for Formatting Toolbar & Hyperlink Toolbar buttons.
 

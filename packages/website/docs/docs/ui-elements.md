@@ -21,6 +21,7 @@ Along with the editor itself, BlockNote includes a few additional UI elements in
 - Hyperlink Toolbar
 - [Slash Menu](/docs/slash-menu)
 - [Side Menu](/docs/side-menu)
+- [Image Toolbar](/docs/image-toolbar)
 
 By default, these are all included in the editor, but you can remove or replace each of them with your own React components.
 
@@ -40,6 +41,7 @@ But this is actually shorthand for the following:
   <HyperlinkToolbarPositioner editor={editor} />
   <SlashMenuPositioner editor={editor} />
   <SideMenuPositioner editor={editor} />
+  <ImageToolbarPositioner editor={editor} />
 </BlockNoteView>
 ```
 
@@ -59,6 +61,7 @@ import {
   BlockNoteView,
   FormattingToolbarPositioner,
   HyperlinkToolbarPositioner,
+  ImageToolbarPositioner,
   SlashMenuPositioner,
   useBlockNote,
 } from "@blocknote/react";
@@ -74,10 +77,10 @@ export default function App() {
       <FormattingToolbarPositioner editor={editor} />
       <HyperlinkToolbarPositioner editor={editor} />
       <SlashMenuPositioner editor={editor} />
+      <ImageToolbarPositioner editor={editor} />
     </BlockNoteView>
   );
 }
-
 ```
 
 ```css-vue /styles.css [hidden]
@@ -100,6 +103,7 @@ import {
   BlockNoteView,
   FormattingToolbarPositioner,
   HyperlinkToolbarPositioner,
+  ImageToolbarPositioner,
   SideMenuPositioner,
   SlashMenuPositioner,
   useBlockNote,
@@ -112,18 +116,15 @@ export default function App() {
 
   // Renders the editor instance.
   return (
-    <BlockNoteView editor={editor} theme={"{{ getTheme(isDark) }}"}>
+    <BlockNoteView editor={editor} theme={"light"}>
       <FormattingToolbarPositioner editor={editor} />
       <HyperlinkToolbarPositioner editor={editor} />
       <SlashMenuPositioner editor={editor} />
       <SideMenuPositioner
         editor={editor}
-        sideMenu={() => (
-          <div className={"sideMenu"}>
-            Side Menu
-          </div>
-        )}
+        sideMenu={() => <div className={"sideMenu"}>Side Menu</div>}
       />
+      <ImageToolbarPositioner editor={editor} />
     </BlockNoteView>
   );
 }

@@ -32,7 +32,7 @@ BlockNote includes a number of built-in block types, each with their own set of 
 type ParagraphBlock = {
   id: string;
   type: "paragraph";
-  props: DefaultBlockProps;
+  props: DefaultProps;
   content: InlineContent[];
   children: Block[];
 };
@@ -51,14 +51,14 @@ type HeadingBlock = {
   id: string;
   type: "heading";
   props: {
-    level: "1" | "2" | "3" = "1";
-  } & DefaultBlockProps;
+    level: 1 | 2 | 3 = 1;
+  } & DefaultProps;
   content: InlineContent[];
   children: Block[];
 };
 ```
 
-`level:` The heading level, representing a title (`level: "1"`), heading (`level: "2"`), and subheading (`level: "3"`).
+`level:` The heading level, representing a title (`level: 1`), heading (`level: 2`), and subheading (`level: 3`).
 
 ### Bullet List Item
 
@@ -72,7 +72,7 @@ type HeadingBlock = {
 type BulletListItemBlock = {
   id: string;
   type: "bulletListItem";
-  props: DefaultBlockProps;
+  props: DefaultProps;
   content: InlineContent[];
   children: Block[];
 };
@@ -90,18 +90,46 @@ type BulletListItemBlock = {
 type NumberedListItemBlock = {
   id: string;
   type: "numberedListItem";
-  props: DefaultBlockProps;
+  props: DefaultProps;
   content: InlineContent[];
   children: Block[];
 };
 ```
 
-## Default Block Properties
+### Image
 
-While each type of block can have its own set of properties, there are some properties that all built-in block types have by default, which you can find in the definition for `DefaultBlockProps`:
+**Appearance**
+
+<img :src="isDark ? '/img/screenshots/image_type_dark.png' : '/img/screenshots/image_type.png'" alt="image" style="width: 100%">
+
+**Type & Props**
 
 ```typescript
-type DefaultBlockProps = {
+type ImageBlock = {
+  id: string;
+  type: "image";
+  props: {
+    url: string = "",
+    caption: string = "",
+    width: number = 512;
+  } & Omit<DefaultProps, "textAlignment">
+  content: InlineContent[];
+  children: Block[];
+};
+```
+
+`url:` The image URL.
+
+`caption:` The image caption.
+
+`width:` The image width in pixels.
+
+## Default Block Properties
+
+While each type of block can have its own set of properties, there are some properties that all built-in block types have by default, which you can find in the definition for `DefaultProps`:
+
+```typescript
+type DefaultProps = {
   backgroundColor: string = "default";
   textColor: string = "default";
   textAlignment: "left" | "center" | "right" | "justify" = "left";
