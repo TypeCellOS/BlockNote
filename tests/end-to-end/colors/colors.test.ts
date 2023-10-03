@@ -24,18 +24,15 @@ test.describe("Check Background & Text Color Functionality", () => {
     await insertHeading(page, 2);
     await insertHeading(page, 3);
 
-    const element = await page.locator(H_TWO_BLOCK_SELECTOR);
-    const boundingBox = await element.boundingBox();
-    const { x, y, height } = boundingBox;
-
-    await page.mouse.click(x + 1, y + height / 2, { clickCount: 2 });
+    await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("Control+ArrowLeft");
+    await page.keyboard.press("Control+Shift+ArrowRight");
 
     await page.locator(COLORS_BUTTON_SELECTOR).click();
     await page.locator(TEXT_COLOR_SELECTOR("red")).click();
 
-    await page.mouse.move(x + 1, y + height / 2, { steps: 5 });
-    await page.waitForTimeout(350);
-    await page.mouse.click(x + 1, y + height / 2);
+    await page.keyboard.press("ArrowLeft");
 
     // Waits for formatting toolbar animation to finish.
     await page.waitForTimeout(500);
@@ -49,18 +46,15 @@ test.describe("Check Background & Text Color Functionality", () => {
     await insertHeading(page, 2);
     await insertHeading(page, 3);
 
-    const element = await page.locator(H_TWO_BLOCK_SELECTOR);
-    const boundingBox = await element.boundingBox();
-    const { x, y, height } = boundingBox;
-
-    await page.mouse.click(x + 1, y + height / 2, { clickCount: 2 });
+    await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("Control+ArrowLeft");
+    await page.keyboard.press("Control+Shift+ArrowRight");
 
     await page.locator(COLORS_BUTTON_SELECTOR).click();
     await page.locator(BACKGROUND_COLOR_SELECTOR("red")).click();
 
-    await page.mouse.move(x + 1, y + height / 2, { steps: 5 });
-    await page.waitForTimeout(350);
-    await page.mouse.click(x + 1, y + height / 2);
+    await page.keyboard.press("ArrowLeft");
 
     // Waits for formatting toolbar animation to finish.
     await page.waitForTimeout(500);
