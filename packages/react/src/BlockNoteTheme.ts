@@ -209,6 +209,15 @@ export const blockNoteToMantineTheme = (theme: Theme): MantineThemeOverride => {
                 {
                   color: theme.colors.sideMenu,
                 },
+              // Indent lines
+              [`.${blockStyles.blockGroup}`]: {
+                [`.${blockStyles.blockGroup}`]: {
+                  [`.${blockStyles.blockOuter}:not([data-prev-depth-changed])::before`]:
+                    {
+                      borderLeft: `1px solid ${theme.colors.sideMenu}`,
+                    },
+                },
+              },
               // Highlight text colors
               ...(Object.fromEntries(
                 Object.entries(textColors).map(([key, value]) => [
