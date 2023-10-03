@@ -3,7 +3,9 @@ import { Extensions, extensions } from "@tiptap/core";
 import { BlockNoteEditor } from "./BlockNoteEditor";
 
 import { Bold } from "@tiptap/extension-bold";
-import { Code } from "@tiptap/extension-code";
+// import { Code } from "@tiptap/extension-code";
+import { CustomCodeExtension } from "./extensions/CustomCode/CustomCodeExtension";
+
 import Collaboration from "@tiptap/extension-collaboration";
 import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
 import { Dropcursor } from "@tiptap/extension-dropcursor";
@@ -79,7 +81,8 @@ export const getBlockNoteExtensions = <BSchema extends BlockSchema>(opts: {
 
     // marks:
     Bold,
-    Code,
+    // Code,
+    CustomCodeExtension,
     Italic,
     Strike,
     Underline,
