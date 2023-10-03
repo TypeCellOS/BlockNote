@@ -202,16 +202,17 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
 
     this.schema = newOptions.blockSchema;
 
-    const initialContent =
+
+    const defaultInitialContent = [
+    {
+      type: "paragraph",
+      id: UniqueID.options.generateID(),
+    },
+  ];
+    
+  let initialContent =
       newOptions.initialContent ||
-      (options.collaboration
-        ? undefined
-        : [
-            {
-              type: "paragraph",
-              id: UniqueID.options.generateID(),
-            },
-          ]);
+      (options.collaboration ? undefined : defaultInitialContent);
 
     const tiptapOptions: EditorOptions = {
       ...blockNoteTipTapOptions,
@@ -225,8 +226,43 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
           // when using collaboration
           return;
         }
-        // we have to set the initial content here, because now we can use the editor schema
-        // which has been created at this point
+        if (typeof initialContent === "string") {
+          console.error(
+            "Invalid initialContent: Expected an array of PartialBlock, but received a string.",
+            "If this string is a JSON of the initial content, please ensure to parse it before passing it as initialContent.",
+            "If a string was passed intentionally, please convert it to the appropriate format."
+          );
+          initialContent = defaultInitialContent;
+        } else if (!Array.isArray(initialContent)) {
+          // Check if the processedInitialContent is an array of PartialBlock
+          console.error(
+            "Invalid initialContent: Expected an array of PartialBlock, received",
+            initialContent
+          );
+          initialContent = defaultInitialContent;
+        } else {
+          for (const block of initialContent) {
+            if (typeof block !== "object" || block === null) {
+              console.error(
+                "Invalid block in initialContent: Expected an object of type PartialBlock, received",
+                block
+              );
+              initialContent = defaultInitialContent;
+              break;
+            } else if (
+              !block.hasOwnProperty("type") ||
+              !block.hasOwnProperty("id")
+            ) {
+              console.error(
+                "Invalid block in initialContent: Block is missing required properties 'type' and 'id'",
+                block
+              );
+              initialContent = defaultInitialContent;
+              break;
+            }
+          }
+        }
+
         const schema = editor.editor.schema;
         const ic = initialContent.map((block) => blockToNode(block, schema));
 
@@ -238,6 +274,7 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
         // override the initialcontent
         editor.editor.options.content = root.toJSON();
       },
+
       onUpdate: () => {
         // This seems to be necessary due to a bug in TipTap:
         // https://github.com/ueberdosis/tiptap/issues/2583
