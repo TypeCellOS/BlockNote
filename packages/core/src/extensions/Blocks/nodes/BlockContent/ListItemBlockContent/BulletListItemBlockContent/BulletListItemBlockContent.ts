@@ -1,10 +1,16 @@
 import { InputRule, mergeAttributes } from "@tiptap/core";
+import { defaultProps } from "../../../../api/defaultProps";
 import { createTipTapBlock } from "../../../../api/block";
+import { BlockSpec, PropSchema } from "../../../../api/blockTypes";
+import { mergeCSSClasses } from "../../../../../../shared/utils";
 import { handleEnter } from "../ListItemKeyboardShortcuts";
 import styles from "../../../Block.module.css";
-import { mergeCSSClasses } from "../../../../../../shared/utils";
 
-export const BulletListItemBlockContent = createTipTapBlock<"bulletListItem">({
+export const bulletListItemPropSchema = {
+  ...defaultProps,
+} satisfies PropSchema;
+
+const BulletListItemBlockContent = createTipTapBlock<"bulletListItem", true>({
   name: "bulletListItem",
   content: "inline*",
 
@@ -29,6 +35,17 @@ export const BulletListItemBlockContent = createTipTapBlock<"bulletListItem">({
   addKeyboardShortcuts() {
     return {
       Enter: () => handleEnter(this.editor),
+      "Mod-Shift-7": () =>
+        this.editor.commands.BNUpdateBlock<{
+          bulletListItem: BlockSpec<
+            "bulletListItem",
+            typeof bulletListItemPropSchema,
+            true
+          >;
+        }>(this.editor.state.selection.anchor, {
+          type: "bulletListItem",
+          props: {},
+        }),
     };
   },
 
@@ -112,3 +129,8 @@ export const BulletListItemBlockContent = createTipTapBlock<"bulletListItem">({
     ];
   },
 });
+
+export const BulletListItem = {
+  node: BulletListItemBlockContent,
+  propSchema: bulletListItemPropSchema,
+} satisfies BlockSpec<"bulletListItem", typeof bulletListItemPropSchema, true>;

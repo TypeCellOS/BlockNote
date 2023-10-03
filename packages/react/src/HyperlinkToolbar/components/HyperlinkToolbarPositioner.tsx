@@ -11,8 +11,8 @@ import { FC, useEffect, useMemo, useRef, useState } from "react";
 
 import { DefaultHyperlinkToolbar } from "./DefaultHyperlinkToolbar";
 
-export type HyperlinkToolbarProps = Pick<
-  HyperlinkToolbarProsemirrorPlugin<any>,
+export type HyperlinkToolbarProps<BSchema extends BlockSchema> = Pick<
+  HyperlinkToolbarProsemirrorPlugin<BSchema>,
   "editHyperlink" | "deleteHyperlink" | "startHideTimer" | "stopHideTimer"
 > &
   Omit<HyperlinkToolbarState, keyof BaseUiElementState>;
@@ -21,7 +21,7 @@ export const HyperlinkToolbarPositioner = <
   BSchema extends BlockSchema = DefaultBlockSchema
 >(props: {
   editor: BlockNoteEditor<BSchema>;
-  hyperlinkToolbar?: FC<HyperlinkToolbarProps>;
+  hyperlinkToolbar?: FC<HyperlinkToolbarProps<BSchema>>;
 }) => {
   const [show, setShow] = useState<boolean>(false);
   const [url, setUrl] = useState<string>();
@@ -82,6 +82,7 @@ export const HyperlinkToolbarPositioner = <
       visible={show}
       animation={"fade"}
       placement={"top-start"}
+      zIndex={4000}
     />
   );
 };

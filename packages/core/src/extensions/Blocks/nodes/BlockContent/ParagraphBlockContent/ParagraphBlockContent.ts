@@ -1,9 +1,14 @@
 import { mergeAttributes } from "@tiptap/core";
+import { defaultProps } from "../../../api/defaultProps";
 import { createTipTapBlock } from "../../../api/block";
-import styles from "../../Block.module.css";
 import { mergeCSSClasses } from "../../../../../shared/utils";
+import styles from "../../Block.module.css";
 
-export const ParagraphBlockContent = createTipTapBlock({
+export const paragraphPropSchema = {
+  ...defaultProps,
+};
+
+export const ParagraphBlockContent = createTipTapBlock<"paragraph", true>({
   name: "paragraph",
   content: "inline*",
 
@@ -50,3 +55,8 @@ export const ParagraphBlockContent = createTipTapBlock({
     ];
   },
 });
+
+export const Paragraph = {
+  node: ParagraphBlockContent,
+  propSchema: paragraphPropSchema,
+};

@@ -39,7 +39,7 @@ export const BlockColorsButton = <BSchema extends BlockSchema>(
   }, [opened, updateMaxHeight]);
 
   if (
-    !("textColor" in props.block.props) ||
+    !("textColor" in props.block.props) &&
     !("backgroundColor" in props.block.props)
   ) {
     return null;
@@ -59,26 +59,38 @@ export const BlockColorsButton = <BSchema extends BlockSchema>(
           </div>
         </Menu.Target>
         <div ref={ref}>
-          <Menu.Dropdown
-            onMouseLeave={startMenuCloseTimer}
-            onMouseOver={stopMenuCloseTimer}
-            style={{ marginLeft: "5px" }}>
-            <ColorPicker
-              iconSize={18}
-              textColor={props.block.props.textColor || "default"}
-              backgroundColor={props.block.props.backgroundColor || "default"}
-              setTextColor={(color) =>
-                props.editor.updateBlock(props.block, {
-                  props: { textColor: color },
-                } as PartialBlock<BSchema>)
-              }
-              setBackgroundColor={(color) =>
-                props.editor.updateBlock(props.block, {
-                  props: { backgroundColor: color },
-                } as PartialBlock<BSchema>)
-              }
-            />
-          </Menu.Dropdown>
+        <Menu.Dropdown
+          onMouseLeave={startMenuCloseTimer}
+          onMouseOver={stopMenuCloseTimer}
+          style={{ marginLeft: "5px" }}>
+          <ColorPicker
+            iconSize={18}
+            text={
+              "textColor" in props.block.props &&
+              typeof props.block.props.textColor === "string"
+                ? {
+                    color: props.block.props.textColor,
+                    setColor: (color) =>
+                      props.editor.updateBlock(props.block, {
+                        props: { textColor: color },
+                      } as PartialBlock<BSchema>),
+                  }
+                : undefined
+            }
+            background={
+              "backgroundColor" in props.block.props &&
+              typeof props.block.props.backgroundColor === "string"
+                ? {
+                    color: props.block.props.backgroundColor,
+                    setColor: (color) =>
+                      props.editor.updateBlock(props.block, {
+                        props: { backgroundColor: color },
+                      } as PartialBlock<BSchema>),
+                  }
+                : undefined
+            }
+          />
+        </Menu.Dropdown>
         </div>
       </Menu>
     </DragHandleMenuItem>

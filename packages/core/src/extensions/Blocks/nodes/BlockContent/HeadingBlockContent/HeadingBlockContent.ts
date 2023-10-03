@@ -1,21 +1,28 @@
 import { InputRule, mergeAttributes } from "@tiptap/core";
+import { defaultProps } from "../../../api/defaultProps";
 import { createTipTapBlock } from "../../../api/block";
-import styles from "../../Block.module.css";
+import { BlockSpec, PropSchema } from "../../../api/blockTypes";
 import { mergeCSSClasses } from "../../../../../shared/utils";
+import styles from "../../Block.module.css";
 
-export const HeadingBlockContent = createTipTapBlock<"heading">({
+export const headingPropSchema = {
+  ...defaultProps,
+  level: { default: 1, values: [1, 2, 3] as const },
+} satisfies PropSchema;
+
+const HeadingBlockContent = createTipTapBlock<"heading", true>({
   name: "heading",
   content: "inline*",
 
   addAttributes() {
     return {
       level: {
-        default: "1",
+        default: 1,
         // instead of "level" attributes, use "data-level"
-        parseHTML: (element) => element.getAttribute("data-level"),
+        parseHTML: (element) => element.getAttribute("data-level")!,
         renderHTML: (attributes) => {
           return {
-            "data-level": attributes.level,
+            "data-level": (attributes.level as number).toString(),
           };
         },
       },
@@ -24,16 +31,18 @@ export const HeadingBlockContent = createTipTapBlock<"heading">({
 
   addInputRules() {
     return [
-      ...["1", "2", "3"].map((level) => {
+      ...[1, 2, 3].map((level) => {
         // Creates a heading of appropriate level when starting with "#", "##", or "###".
         return new InputRule({
-          find: new RegExp(`^(#{${parseInt(level)}})\\s$`),
+          find: new RegExp(`^(#{${level}})\\s$`),
           handler: ({ state, chain, range }) => {
             chain()
-              .BNUpdateBlock(state.selection.from, {
+              .BNUpdateBlock<{
+                heading: BlockSpec<"heading", typeof headingPropSchema, true>;
+              }>(state.selection.from, {
                 type: "heading",
                 props: {
-                  level: level as "1" | "2" | "3",
+                  level: level as 1 | 2 | 3,
                 },
               })
               // Removes the "#" character(s) used to set the heading.
@@ -44,21 +53,53 @@ export const HeadingBlockContent = createTipTapBlock<"heading">({
     ];
   },
 
+  addKeyboardShortcuts() {
+    return {
+      "Mod-Alt-1": () =>
+        this.editor.commands.BNUpdateBlock<{
+          heading: BlockSpec<"heading", typeof headingPropSchema, true>;
+        }>(this.editor.state.selection.anchor, {
+          type: "heading",
+          props: {
+            level: 1,
+          },
+        }),
+      "Mod-Alt-2": () =>
+        this.editor.commands.BNUpdateBlock<{
+          heading: BlockSpec<"heading", typeof headingPropSchema, true>;
+        }>(this.editor.state.selection.anchor, {
+          type: "heading",
+          props: {
+            level: 2,
+          },
+        }),
+      "Mod-Alt-3": () =>
+        this.editor.commands.BNUpdateBlock<{
+          heading: BlockSpec<"heading", typeof headingPropSchema, true>;
+        }>(this.editor.state.selection.anchor, {
+          type: "heading",
+          props: {
+            level: 3,
+          },
+        }),
+    };
+  },
+
   parseHTML() {
     return [
       {
         tag: "h1",
-        attrs: { level: "1" },
+        attrs: { level: 1 },
         node: "heading",
       },
       {
         tag: "h2",
-        attrs: { level: "2" },
+        attrs: { level: 2 },
         node: "heading",
       },
       {
         tag: "h3",
-        attrs: { level: "3" },
+        attrs: { level: 3 },
         node: "heading",
       },
     ];
@@ -81,7 +122,7 @@ export const HeadingBlockContent = createTipTapBlock<"heading">({
         "data-content-type": this.name,
       }),
       [
-        "h" + node.attrs.level,
+        `h${node.attrs.level}`,
         {
           ...inlineContentDOMAttributes,
           class: mergeCSSClasses(
@@ -94,3 +135,8 @@ export const HeadingBlockContent = createTipTapBlock<"heading">({
     ];
   },
 });
+
+export const Heading = {
+  node: HeadingBlockContent,
+  propSchema: headingPropSchema,
+} satisfies BlockSpec<"heading", typeof headingPropSchema, true>;

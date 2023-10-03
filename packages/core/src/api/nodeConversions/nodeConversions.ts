@@ -5,8 +5,7 @@ import {
   BlockSchema,
   PartialBlock,
 } from "../../extensions/Blocks/api/blockTypes";
-
-import { defaultProps } from "../../extensions/Blocks/api/defaultBlocks";
+import { defaultProps } from "../../extensions/Blocks/api/defaultProps";
 import {
   ColorStyle,
   InlineContent,
@@ -16,9 +15,9 @@ import {
   Styles,
   ToggledStyle,
 } from "../../extensions/Blocks/api/inlineContentTypes";
+import { getBlockInfo } from "../../extensions/Blocks/helpers/getBlockInfoFromPos";
 import UniqueID from "../../extensions/UniqueID/UniqueID";
 import { UnreachableCaseError } from "../../shared/utils";
-import { getBlockInfo } from "../../extensions/Blocks/helpers/getBlockInfoFromPos";
 
 const toggleStyles = new Set<ToggledStyle>([
   "bold",
@@ -409,7 +408,7 @@ export function nodeToBlock<BSchema extends BlockSchema>(
     }
   }
 
-  const content = contentNodeToInlineContent(blockInfo.contentNode);
+  const blockSpec = blockSchema[blockInfo.contentType.name];
 
   const children: Block<BSchema>[] = [];
   for (let i = 0; i < blockInfo.numChildBlocks; i++) {
@@ -420,11 +419,14 @@ export function nodeToBlock<BSchema extends BlockSchema>(
 
   const block: Block<BSchema> = {
     id,
-    type: blockInfo.contentType.name,
+    type: blockSpec.node.name,
     props,
-    content,
+    content:
+      blockSpec.node.config.content === "inline*"
+        ? contentNodeToInlineContent(blockInfo.contentNode)
+        : undefined,
     children,
-  };
+  } as Block<BSchema>;
 
   blockCache?.set(node, block);
 

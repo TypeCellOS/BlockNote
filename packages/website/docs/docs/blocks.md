@@ -52,7 +52,7 @@ In code, the `Block` type is used to describe any given block in the editor:
 ```typescript
 type Block = {
   id: string;
-  type: string;
+  type: boolean | number | string;
   props: Record<string, string>;
   content: InlineContent[];
   children: Block[];

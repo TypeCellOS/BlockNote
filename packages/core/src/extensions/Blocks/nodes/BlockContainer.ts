@@ -1,6 +1,6 @@
 import { mergeAttributes, Node } from "@tiptap/core";
 import { Fragment, Node as PMNode, Slice } from "prosemirror-model";
-import { TextSelection } from "prosemirror-state";
+import { NodeSelection, TextSelection } from "prosemirror-state";
 import {
   blockToNode,
   inlineContentToNodes,
@@ -16,6 +16,7 @@ import { PreviousBlockTypePlugin } from "../PreviousBlockTypePlugin";
 import styles from "./Block.module.css";
 import BlockAttributes from "./BlockAttributes";
 import { mergeCSSClasses } from "../../../shared/utils";
+import { NonEditableBlockPlugin } from "../NonEditableBlockPlugin";
 
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
@@ -205,14 +206,20 @@ export const BlockContainer = Node.create<{
               // Replaces the blockContent node with one of the new type and
               // adds the provided props as attributes. Also preserves all
               // existing attributes that are compatible with the new type.
-              state.tr.replaceWith(
-                startPos,
-                endPos,
-                state.schema.nodes[newType].create({
-                  ...contentNode.attrs,
-                  ...block.props,
-                })
-              );
+              // Need to reset the selection since replacing the block content
+              // sets it to the next block.
+              state.tr
+                .replaceWith(
+                  startPos,
+                  endPos,
+                  state.schema.nodes[newType].create({
+                    ...contentNode.attrs,
+                    ...block.props,
+                  })
+                )
+                .setSelection(
+                  new NodeSelection(state.tr.doc.resolve(startPos))
+                );
             } else {
               // Changes the blockContent node type and adds the provided props
               // as attributes. Also preserves all existing attributes that are
@@ -404,7 +411,7 @@ export const BlockContainer = Node.create<{
   },
 
   addProseMirrorPlugins() {
-    return [PreviousBlockTypePlugin()];
+    return [PreviousBlockTypePlugin(), NonEditableBlockPlugin()];
   },
 
   addKeyboardShortcuts() {
@@ -577,37 +584,6 @@ export const BlockContainer = Node.create<{
         this.editor.commands.BNCreateBlock(
           this.editor.state.selection.anchor + 2
         ),
-      "Mod-Alt-1": () =>
-        this.editor.commands.BNUpdateBlock(this.editor.state.selection.anchor, {
-          type: "heading",
-          props: {
-            level: "1",
-          },
-        }),
-      "Mod-Alt-2": () =>
-        this.editor.commands.BNUpdateBlock(this.editor.state.selection.anchor, {
-          type: "heading",
-          props: {
-            level: "2",
-          },
-        }),
-      "Mod-Alt-3": () =>
-        this.editor.commands.BNUpdateBlock(this.editor.state.selection.anchor, {
-          type: "heading",
-          props: {
-            level: "3",
-          },
-        }),
-      "Mod-Shift-7": () =>
-        this.editor.commands.BNUpdateBlock(this.editor.state.selection.anchor, {
-          type: "bulletListItem",
-          props: {},
-        }),
-      "Mod-Shift-8": () =>
-        this.editor.commands.BNUpdateBlock(this.editor.state.selection.anchor, {
-          type: "numberedListItem",
-          props: {},
-        }),
     };
   },
 });

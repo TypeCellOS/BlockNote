@@ -1,6 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { Block, BlockNoteEditor, PartialBlock } from "../..";
-import { DefaultBlockSchema } from "../../extensions/Blocks/api/defaultBlocks";
 
 let editor: BlockNoteEditor;
 
@@ -15,13 +14,11 @@ function waitForEditor() {
   });
 }
 
-let singleBlock: PartialBlock<DefaultBlockSchema>;
+let singleBlock: PartialBlock;
 
-let multipleBlocks: PartialBlock<DefaultBlockSchema>[];
+let multipleBlocks: PartialBlock[];
 
-let insert: (
-  placement: "before" | "nested" | "after"
-) => Block<DefaultBlockSchema>[];
+let insert: (placement: "before" | "nested" | "after") => Block[];
 
 beforeEach(() => {
   (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS = {};
@@ -37,14 +34,14 @@ beforeEach(() => {
     {
       type: "heading",
       props: {
-        level: "1",
+        level: 1,
       },
       content: "Heading 1",
       children: [
         {
           type: "heading",
           props: {
-            level: "1",
+            level: 1,
           },
           content: "Nested Heading 1",
         },
@@ -53,14 +50,14 @@ beforeEach(() => {
     {
       type: "heading",
       props: {
-        level: "2",
+        level: 2,
       },
       content: "Heading 2",
       children: [
         {
           type: "heading",
           props: {
-            level: "2",
+            level: 2,
           },
           content: "Nested Heading 2",
         },
@@ -123,7 +120,7 @@ describe("Insert, Update, & Delete Blocks", () => {
       type: "heading",
       props: {
         textAlignment: "right",
-        level: "3",
+        level: 3,
       },
       content: [
         {

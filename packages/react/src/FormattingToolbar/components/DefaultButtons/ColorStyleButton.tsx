@@ -1,16 +1,19 @@
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Menu } from "@mantine/core";
 import { BlockNoteEditor, BlockSchema } from "@blocknote/core";
+
 import { ToolbarButton } from "../../../SharedComponents/Toolbar/components/ToolbarButton";
 import { ColorIcon } from "../../../SharedComponents/ColorPicker/components/ColorIcon";
 import { ColorPicker } from "../../../SharedComponents/ColorPicker/components/ColorPicker";
-import { useEditorContentChange } from "../../../hooks/useEditorContentChange";
-import { useEditorSelectionChange } from "../../../hooks/useEditorSelectionChange";
+import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
+import { useEditorChange } from "../../../hooks/useEditorChange";
 import { usePreventMenuOverflow } from "../../../hooks/usePreventMenuOverflow";
 
 export const ColorStyleButton = <BSchema extends BlockSchema>(props: {
   editor: BlockNoteEditor<BSchema>;
 }) => {
+  const selectedBlocks = useSelectedBlocks(props.editor);
+
   const [currentTextColor, setCurrentTextColor] = useState<string>(
     props.editor.getActiveStyles().textColor || "default"
   );
@@ -18,19 +21,14 @@ export const ColorStyleButton = <BSchema extends BlockSchema>(props: {
     props.editor.getActiveStyles().backgroundColor || "default"
   );
 
-  useEditorContentChange(props.editor, () => {
+  useEditorChange(props.editor, () => {
     setCurrentTextColor(props.editor.getActiveStyles().textColor || "default");
     setCurrentBackgroundColor(
       props.editor.getActiveStyles().backgroundColor || "default"
     );
   });
 
-  useEditorSelectionChange(props.editor, () => {
-    setCurrentTextColor(props.editor.getActiveStyles().textColor || "default");
-    setCurrentBackgroundColor(
-      props.editor.getActiveStyles().backgroundColor || "default"
-    );
-  });
+  const { ref, updateMaxHeight } = usePreventMenuOverflow();
 
   const setTextColor = useCallback(
     (color: string) => {
@@ -52,7 +50,19 @@ export const ColorStyleButton = <BSchema extends BlockSchema>(props: {
     [props.editor]
   );
 
-  const { ref, updateMaxHeight } = usePreventMenuOverflow();
+  const show = useMemo(() => {
+    for (const block of selectedBlocks) {
+      if (block.content !== undefined) {
+        return true;
+      }
+    }
+
+    return false;
+  }, [selectedBlocks]);
+
+  if (!show) {
+    return null;
+  }
 
   return (
     <Menu onOpen={updateMaxHeight}>
@@ -71,10 +81,14 @@ export const ColorStyleButton = <BSchema extends BlockSchema>(props: {
       <div ref={ref}>
         <Menu.Dropdown>
           <ColorPicker
-            textColor={currentTextColor}
-            setTextColor={setTextColor}
-            backgroundColor={currentBackgroundColor}
-            setBackgroundColor={setBackgroundColor}
+            text={{
+              color: currentTextColor,
+              setColor: setTextColor,
+            }}
+            background={{
+              color: currentBackgroundColor,
+              setColor: setBackgroundColor,
+            }}
           />
         </Menu.Dropdown>
       </div>
