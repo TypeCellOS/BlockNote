@@ -177,6 +177,9 @@ type SideMenuButtonProps = {
 }
 export const SideMenuButton = (props: SideMenuButtonProps) => ...;
 
-// Takes same props as `button` elements, e.g. onClick.
-export const DragHandleMenuItem = (props) => ...;
+// Also includes all props of regular `button` elements, e.g. onClick.
+type DragHandleMenuItemProps = {
+  children: JSX.Element;
+}
+export const DragHandleMenuItem = (props: DragHandleMenuItemProps) => ...;
 ```
