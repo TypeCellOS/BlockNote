@@ -179,6 +179,7 @@ export const SideMenuButton = (props: SideMenuButtonProps) => ...;
 
 // Also includes all props of regular `button` elements, e.g. onClick.
 type DragHandleMenuItemProps = {
+  closeMenuOnClick?:boolean;
   children: JSX.Element;
 }
 export const DragHandleMenuItem = (props: DragHandleMenuItemProps) => ...;
