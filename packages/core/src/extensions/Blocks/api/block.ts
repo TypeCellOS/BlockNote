@@ -38,7 +38,35 @@ export function propsToAttributes<
       // Props are displayed in kebab-case as HTML attributes. If a prop's
       // value is the same as its default, we don't display an HTML
       // attribute for it.
-      parseHTML: (element) => element.getAttribute(camelToDataKebab(name)),
+      parseHTML: (element) => {
+        const value = element.getAttribute(camelToDataKebab(name));
+
+        if (value === null) {
+          return null;
+        }
+
+        if (typeof spec.default === "boolean") {
+          if (value === "true") {
+            return true;
+          }
+
+          if (value === "false") {
+            return false;
+          }
+
+          return null;
+        }
+
+        if (typeof spec.default === "number") {
+          if (/^[0-9]+$/.test(value)) {
+            return parseInt(value);
+          }
+
+          return null;
+        }
+
+        return value;
+      },
       renderHTML: (attributes) =>
         attributes[name] !== spec.default
           ? {
