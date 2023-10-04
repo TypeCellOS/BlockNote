@@ -47,7 +47,6 @@ export const BlockColorsButton = <BSchema extends BlockSchema>(
 
   return (
     <DragHandleMenuItem
-      closeMenuOnClick={false}
       onMouseLeave={startMenuCloseTimer}
       onMouseOver={stopMenuCloseTimer}>
       <Menu opened={opened} position={"right"}>
