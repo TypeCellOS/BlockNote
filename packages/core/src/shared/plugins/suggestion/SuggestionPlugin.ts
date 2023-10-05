@@ -346,6 +346,10 @@ export const setupSuggestionsMenu = <
 
           // Selects an item and closes the menu.
           if (event.key === "Enter") {
+            if (items.length === 0) {
+              return true;
+            }
+
             deactivate(view);
             editor._tiptapEditor
               .chain()
