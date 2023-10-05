@@ -58,8 +58,15 @@ export function propsToAttributes<
         }
 
         if (typeof spec.default === "number") {
-          if (/^[0-9]+$/.test(value)) {
-            return parseInt(value);
+          const isNumeric =
+            !isNaN(parseFloat(value)) && isFinite(Number(value));
+
+          if (isNumeric) {
+            if (value.includes(".")) {
+              return parseFloat(value);
+            } else {
+              return parseInt(value);
+            }
           }
 
           return null;
