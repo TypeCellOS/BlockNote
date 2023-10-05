@@ -42,7 +42,7 @@ export const defaultBlockTypeDropdownItems: BlockTypeDropdownItem[] = [
     isSelected: (block) =>
       block.type === "heading" &&
       "level" in block.props &&
-      block.props.level === "1",
+      block.props.level === 1,
   },
   {
     name: "Heading 2",
@@ -52,7 +52,7 @@ export const defaultBlockTypeDropdownItems: BlockTypeDropdownItem[] = [
     isSelected: (block) =>
       block.type === "heading" &&
       "level" in block.props &&
-      block.props.level === "2",
+      block.props.level === 2,
   },
   {
     name: "Heading 3",
@@ -62,7 +62,7 @@ export const defaultBlockTypeDropdownItems: BlockTypeDropdownItem[] = [
     isSelected: (block) =>
       block.type === "heading" &&
       "level" in block.props &&
-      block.props.level === "3",
+      block.props.level === 3,
   },
   {
     name: "Bullet List",
