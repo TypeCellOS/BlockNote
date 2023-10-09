@@ -18,6 +18,7 @@ import {
 import { ToolbarDropdown } from "../../../SharedComponents/Toolbar/components/ToolbarDropdown";
 import { ToolbarDropdownItemProps } from "../../../SharedComponents/Toolbar/components/ToolbarDropdownItem";
 import { useEditorChange } from "../../../hooks/useEditorChange";
+import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
 
 export type BlockTypeDropdownItem = {
   name: string;
@@ -82,6 +83,8 @@ export const BlockTypeDropdown = <BSchema extends BlockSchema>(props: {
   editor: BlockNoteEditor<BSchema>;
   items?: BlockTypeDropdownItem[];
 }) => {
+  const selectedBlocks = useSelectedBlocks(props.editor);
+
   const [block, setBlock] = useState(
     props.editor.getTextCursorPosition().block
   );
@@ -123,10 +126,13 @@ export const BlockTypeDropdown = <BSchema extends BlockSchema>(props: {
   const fullItems: ToolbarDropdownItemProps[] = useMemo(() => {
     const onClick = (item: BlockTypeDropdownItem) => {
       props.editor.focus();
-      props.editor.updateBlock(block, {
-        type: item.type,
-        props: item.props,
-      } as PartialBlock<BlockSchema>);
+
+      for (const block of selectedBlocks) {
+        props.editor.updateBlock(block, {
+          type: item.type,
+          props: item.props,
+        } as PartialBlock<BlockSchema>);
+      }
     };
 
     return filteredItems.map((item) => ({
@@ -135,7 +141,7 @@ export const BlockTypeDropdown = <BSchema extends BlockSchema>(props: {
       onClick: () => onClick(item),
       isSelected: item.isSelected(block as Block<BlockSchema>),
     }));
-  }, [block, filteredItems, props.editor]);
+  }, [block, filteredItems, props.editor, selectedBlocks]);
 
   useEditorChange(props.editor, () => {
     setBlock(props.editor.getTextCursorPosition().block);
