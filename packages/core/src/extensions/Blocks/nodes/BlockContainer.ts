@@ -552,12 +552,14 @@ export const BlockContainer = Node.create<{
               state.selection.from
             )!;
 
+            const selectionAtBlockStart =
+              state.selection.$anchor.parentOffset === 0;
             const blockEmpty = node.textContent.length === 0;
 
             if (!blockEmpty) {
               chain()
                 .deleteSelection()
-                .BNSplitBlock(state.selection.from, false)
+                .BNSplitBlock(state.selection.from, selectionAtBlockStart)
                 .run();
 
               return true;
