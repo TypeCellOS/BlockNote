@@ -30,7 +30,7 @@
                 {
                   "type": "blockContainer",
                   "attrs": {
-                    "id": "6",
+                    "id": "0",
                     "textColor": "default",
                     "backgroundColor": "default"
                   },
@@ -39,7 +39,7 @@
                       "type": "heading",
                       "attrs": {
                         "textAlignment": "left",
-                        "level": "1"
+                        "level": 1
                       },
                       "content": [
                         {
@@ -76,7 +76,7 @@
                         {
                           "type": "blockContainer",
                           "attrs": {
-                            "id": "7",
+                            "id": "2",
                             "textColor": "default",
                             "backgroundColor": "default"
                           },
@@ -85,7 +85,7 @@
                               "type": "heading",
                               "attrs": {
                                 "textAlignment": "left",
-                                "level": "2"
+                                "level": 2
                               },
                               "content": [
                                 {
@@ -107,7 +107,7 @@
         {
           "type": "blockContainer",
           "attrs": {
-            "id": "8",
+            "id": "4",
             "textColor": "default",
             "backgroundColor": "default"
           },
@@ -116,7 +116,7 @@
               "type": "heading",
               "attrs": {
                 "textAlignment": "left",
-                "level": "3"
+                "level": 3
               },
               "content": [
                 {

@@ -11,6 +11,10 @@ export function formatKeyboardShortcut(shortcut: string) {
   }
 }
 
+export function mergeCSSClasses(...classes: string[]) {
+  return classes.filter((c) => c).join(" ");
+}
+
 export class UnreachableCaseError extends Error {
   constructor(val: never) {
     super(`Unreachable case: ${val}`);

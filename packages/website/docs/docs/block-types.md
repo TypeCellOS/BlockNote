@@ -7,7 +7,7 @@ path: /docs/block-types
 
 <script setup>
 import { useData } from 'vitepress';
-import { getTheme, getStyles } from "./demoUtils";
+import { getTheme, getStyles } from "../demoUtils";
 
 const { isDark } = useData();
 </script>
@@ -24,7 +24,7 @@ BlockNote includes a number of built-in block types, each with their own set of 
 
 **Appearance**
 
-<img :src="isDark ? '../public/img/screenshots/paragraph_type_dark.png' : '../public/img/screenshots/paragraph_type.png'" alt="image" style="height: 29px">
+<img :src="isDark ? '/img/screenshots/paragraph_type_dark.png' : '/img/screenshots/paragraph_type.png'" alt="image" style="height: 29px">
 
 **Type & Props**
 
@@ -32,7 +32,7 @@ BlockNote includes a number of built-in block types, each with their own set of 
 type ParagraphBlock = {
   id: string;
   type: "paragraph";
-  props: DefaultBlockProps;
+  props: DefaultProps;
   content: InlineContent[];
   children: Block[];
 };
@@ -42,7 +42,7 @@ type ParagraphBlock = {
 
 **Appearance**
 
-<img :src="isDark ? '../public/img/screenshots/heading_type_dark.png' : '../public/img/screenshots/heading_type.png'" alt="image" style="height: 77px">
+<img :src="isDark ? '/img/screenshots/heading_type_dark.png' : '/img/screenshots/heading_type.png'" alt="image" style="height: 77px">
 
 **Type & Props**
 
@@ -51,20 +51,20 @@ type HeadingBlock = {
   id: string;
   type: "heading";
   props: {
-    level: "1" | "2" | "3" = "1";
-  } & DefaultBlockProps;
+    level: 1 | 2 | 3 = 1;
+  } & DefaultProps;
   content: InlineContent[];
   children: Block[];
 };
 ```
 
-`level:` The heading level, representing a title (`level: "1"`), heading (`level: "2"`), and subheading (`level: "3"`).
+`level:` The heading level, representing a title (`level: 1`), heading (`level: 2`), and subheading (`level: 3`).
 
 ### Bullet List Item
 
 **Appearance**
 
-<img :src="isDark ? '../public/img/screenshots/bullet_list_item_type_dark.png' : '../public/img/screenshots/bullet_list_item_type.png'" alt="image" style="height: 29px">
+<img :src="isDark ? '/img/screenshots/bullet_list_item_type_dark.png' : '/img/screenshots/bullet_list_item_type.png'" alt="image" style="height: 29px">
 
 **Type & Props**
 
@@ -72,7 +72,7 @@ type HeadingBlock = {
 type BulletListItemBlock = {
   id: string;
   type: "bulletListItem";
-  props: DefaultBlockProps;
+  props: DefaultProps;
   content: InlineContent[];
   children: Block[];
 };
@@ -82,7 +82,7 @@ type BulletListItemBlock = {
 
 **Appearance**
 
-<img :src="isDark ? '../public/img/screenshots/numbered_list_item_type_dark.png' : '../public/img/screenshots/numbered_list_item_type.png'" alt="image" style="height: 29px">
+<img :src="isDark ? '/img/screenshots/numbered_list_item_type_dark.png' : '/img/screenshots/numbered_list_item_type.png'" alt="image" style="height: 29px">
 
 **Type & Props**
 
@@ -90,18 +90,46 @@ type BulletListItemBlock = {
 type NumberedListItemBlock = {
   id: string;
   type: "numberedListItem";
-  props: DefaultBlockProps;
+  props: DefaultProps;
   content: InlineContent[];
   children: Block[];
 };
 ```
 
-## Default Block Properties
+### Image
 
-While each type of block can have its own set of properties, there are some properties that all built-in block types have by default, which you can find in the definition for `DefaultBlockProps`:
+**Appearance**
+
+<img :src="isDark ? '/img/screenshots/image_type_dark.png' : '/img/screenshots/image_type.png'" alt="image" style="width: 100%">
+
+**Type & Props**
 
 ```typescript
-type DefaultBlockProps = {
+type ImageBlock = {
+  id: string;
+  type: "image";
+  props: {
+    url: string = "",
+    caption: string = "",
+    width: number = 512;
+  } & Omit<DefaultProps, "textAlignment">
+  content: InlineContent[];
+  children: Block[];
+};
+```
+
+`url:` The image URL.
+
+`caption:` The image caption.
+
+`width:` The image width in pixels.
+
+## Default Block Properties
+
+While each type of block can have its own set of properties, there are some properties that all built-in block types have by default, which you can find in the definition for `DefaultProps`:
+
+```typescript
+type DefaultProps = {
   backgroundColor: string = "default";
   textColor: string = "default";
   textAlignment: "left" | "center" | "right" | "justify" = "left";
@@ -123,6 +151,8 @@ In addition to the default block types that BlockNote offers, you can also make 
 ```typescript-vue /App.tsx
 import {
   BlockNoteEditor,
+  BlockSchema,
+  DefaultBlockSchema,
   defaultBlockSchema,
   defaultProps,
 } from "@blocknote/core";
@@ -132,7 +162,7 @@ import {
   createReactBlockSpec,
   InlineContent,
   ReactSlashMenuItem,
-  defaultReactSlashMenuItems,
+  getDefaultReactSlashMenuItems,
 } from "@blocknote/react";
 import "@blocknote/core/style.css";
 import { RiImage2Fill } from "react-icons/ri";
@@ -146,13 +176,16 @@ export default function App() {
       src: {
         default: "https://via.placeholder.com/1000",
       },
+      alt: {
+        default: "image",
+      },
     },
     containsInlineContent: true,
     render: ({ block }) => (
       <div id="image-wrapper">
         <img
           src={block.props.src}
-          alt={"Image"}
+          alt={block.props.alt}
           contentEditable={false}
         />
         <InlineContent />
@@ -160,19 +193,29 @@ export default function App() {
     ),
   });
 
+  // The custom schema, which includes the default blocks and the custom image
+  // block.
+  const customSchema = {
+    // Adds all default blocks.
+    ...defaultBlockSchema,
+    // Adds the custom image block.
+    image: ImageBlock,
+  } satisfies BlockSchema;
+
   // Creates a slash menu item for inserting an image block.
-  const insertImage = new ReactSlashMenuItem<
-    DefaultBlockSchema & { image: typeof ImageBlock }
-  >(
-    "Insert Image",
-    (editor) => {
+  const insertImage: ReactSlashMenuItem<typeof customSchema> = {
+    name: "Insert Image",
+    execute: (editor) => {
       const src: string | null = prompt("Enter image URL");
+      const alt: string | null = prompt("Enter image alt text");
+
       editor.insertBlocks(
         [
           {
             type: "image",
             props: {
               src: src || "https://via.placeholder.com/1000",
+              alt: alt || "image",
             },
           },
         ],
@@ -180,27 +223,24 @@ export default function App() {
         "after"
       );
     },
-    ["image", "img", "picture", "media"],
-    "Media",
-    <RiImage2Fill />,
-    "Insert an image"
-  );
+    aliases: ["image", "img", "picture", "media"],
+    group: "Media",
+    icon: <RiImage2Fill />,
+    hint: "Insert an image",
+  };
 
   // Creates a new editor instance.
   const editor = useBlockNote({
-    theme: "{{ getTheme(isDark) }}",
     // Tells BlockNote which blocks to use.
-    blockSchema: {
-      // Adds all default blocks.
-      ...defaultBlockSchema,
-      // Adds the custom image block.
-      image: ImageBlock,
-    },
-    slashCommands: [...defaultReactSlashMenuItems, insertImage],
+    blockSchema: customSchema,
+    slashMenuItems: [
+      ...getDefaultReactSlashMenuItems(customSchema),
+      insertImage,
+    ],
   });
 
   // Renders the editor instance using a React component.
-  return <BlockNoteView editor={editor} />;
+  return <BlockNoteView editor={editor} theme={"{{ getTheme(isDark) }}"} />;
 }
 ```
 
@@ -213,7 +253,7 @@ export default function App() {
 }
 
 img {
-  width: "100%";
+  width: 100%;
 }
 ```
 
@@ -307,6 +347,8 @@ This is a React component which defines how your custom block should be rendered
 For our custom image block, we use a parent `div` which contains the image and caption. Since `block` will always be an `image` block, we also know it contains a `src` prop, and can pass it to the child `img` element.
 
 But what's this `InlineContent` component? Since we set `containsInlineContent` to `true`, it means we want to include an editable rich-text field somewhere in the image block. You should use the `InlineContent` component to represent this field in your `render` component. Since we're using it to create our caption, we add it below the `img` element.
+
+In the DOM, the `InlineContent` component is rendered as a `div` by default, but you can make it use a different element by passing `as={"elementTag"}` as a prop. For example, `as={"p"}` will make the `InlineContent` component get rendered to a paragraph.
 
 While the `InlineContent` component can be put anywhere inside the component you pass to `render`, you should make sure to only have one. If `containsInlineContent` is set to false, `render` shouldn't contain any.
 

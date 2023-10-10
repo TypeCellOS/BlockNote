@@ -1,21 +1,22 @@
 import { mergeAttributes, Node } from "@tiptap/core";
 import { Fragment, Node as PMNode, Slice } from "prosemirror-model";
-import { TextSelection } from "prosemirror-state";
+import { NodeSelection, TextSelection } from "prosemirror-state";
 import {
   blockToNode,
   inlineContentToNodes,
 } from "../../../api/nodeConversions/nodeConversions";
 
+import {
+  BlockNoteDOMAttributes,
+  BlockSchema,
+  PartialBlock,
+} from "../api/blockTypes";
 import { getBlockInfoFromPos } from "../helpers/getBlockInfoFromPos";
 import { PreviousBlockTypePlugin } from "../PreviousBlockTypePlugin";
 import styles from "./Block.module.css";
 import BlockAttributes from "./BlockAttributes";
-import { BlockSchema, PartialBlock } from "../api/blockTypes";
-
-// TODO
-export interface IBlock {
-  HTMLAttributes: Record<string, any>;
-}
+import { mergeCSSClasses } from "../../../shared/utils";
+import { NonEditableBlockPlugin } from "../NonEditableBlockPlugin";
 
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
@@ -39,7 +40,9 @@ declare module "@tiptap/core" {
 /**
  * The main "Block node" documents consist of
  */
-export const BlockContainer = Node.create<IBlock>({
+export const BlockContainer = Node.create<{
+  domAttributes?: BlockNoteDOMAttributes;
+}>({
   name: "blockContainer",
   group: "blockContainer",
   // A block always contains content, and optionally a blockGroup which contains nested blocks
@@ -47,12 +50,6 @@ export const BlockContainer = Node.create<IBlock>({
   // Ensures content-specific keyboard handlers trigger first.
   priority: 50,
   defining: true,
-
-  addOptions() {
-    return {
-      HTMLAttributes: {},
-    };
-  },
 
   parseHTML() {
     return [
@@ -64,7 +61,7 @@ export const BlockContainer = Node.create<IBlock>({
           }
 
           const attrs: Record<string, string> = {};
-          for (let [nodeAttr, HTMLAttr] of Object.entries(BlockAttributes)) {
+          for (const [nodeAttr, HTMLAttr] of Object.entries(BlockAttributes)) {
             if (element.getAttribute(HTMLAttr)) {
               attrs[nodeAttr] = element.getAttribute(HTMLAttr)!;
             }
@@ -81,6 +78,8 @@ export const BlockContainer = Node.create<IBlock>({
   },
 
   renderHTML({ HTMLAttributes }) {
+    const domAttributes = this.options.domAttributes?.blockContainer || {};
+
     return [
       "div",
       mergeAttributes(HTMLAttributes, {
@@ -89,11 +88,14 @@ export const BlockContainer = Node.create<IBlock>({
       }),
       [
         "div",
-        mergeAttributes(HTMLAttributes, {
-          // TODO: maybe remove html attributes from inner block
-          class: styles.block,
-          "data-node-type": this.name,
-        }),
+        mergeAttributes(
+          {
+            ...domAttributes,
+            class: mergeCSSClasses(styles.block, domAttributes.class),
+            "data-node-type": this.name,
+          },
+          HTMLAttributes
+        ),
         0,
       ],
     ];
@@ -191,18 +193,48 @@ export const BlockContainer = Node.create<IBlock>({
               );
             }
 
-            // Changes the blockContent node type and adds the provided props as attributes. Also preserves all existing
-            // attributes that are compatible with the new type.
-            state.tr.setNodeMarkup(
-              startPos,
-              block.type === undefined
-                ? undefined
-                : state.schema.nodes[block.type],
-              {
-                ...contentNode.attrs,
-                ...block.props,
-              }
-            );
+            // Since some block types contain inline content and others don't,
+            // we either need to call setNodeMarkup to just update type &
+            // attributes, or replaceWith to replace the whole blockContent.
+            const oldType = contentNode.type.name;
+            const newType = block.type || oldType;
+
+            const oldContentType = state.schema.nodes[oldType].spec.content;
+            const newContentType = state.schema.nodes[newType].spec.content;
+
+            if (oldContentType === "inline*" && newContentType === "") {
+              // Replaces the blockContent node with one of the new type and
+              // adds the provided props as attributes. Also preserves all
+              // existing attributes that are compatible with the new type.
+              // Need to reset the selection since replacing the block content
+              // sets it to the next block.
+              state.tr
+                .replaceWith(
+                  startPos,
+                  endPos,
+                  state.schema.nodes[newType].create({
+                    ...contentNode.attrs,
+                    ...block.props,
+                  })
+                )
+                .setSelection(
+                  new NodeSelection(state.tr.doc.resolve(startPos))
+                );
+            } else {
+              // Changes the blockContent node type and adds the provided props
+              // as attributes. Also preserves all existing attributes that are
+              // compatible with the new type.
+              state.tr.setNodeMarkup(
+                startPos,
+                block.type === undefined
+                  ? undefined
+                  : state.schema.nodes[block.type],
+                {
+                  ...contentNode.attrs,
+                  ...block.props,
+                }
+              );
+            }
 
             // Adds all provided props as attributes to the parent blockContainer node too, and also preserves existing
             // attributes.
@@ -281,10 +313,19 @@ export const BlockContainer = Node.create<IBlock>({
           }
 
           // Deletes next block and adds its text content to the nearest previous block.
-          // TODO: Use slices.
+
           if (dispatch) {
-            state.tr.deleteRange(startPos, startPos + contentNode.nodeSize);
-            state.tr.insertText(contentNode.textContent, prevBlockEndPos - 1);
+            dispatch(
+              state.tr
+                .deleteRange(startPos, startPos + contentNode.nodeSize)
+                .replace(
+                  prevBlockEndPos - 1,
+                  startPos,
+                  new Slice(contentNode.content, 0, 0)
+                )
+                .scrollIntoView()
+            );
+
             state.tr.setSelection(
               new TextSelection(state.doc.resolve(prevBlockEndPos - 1))
             );
@@ -370,7 +411,7 @@ export const BlockContainer = Node.create<IBlock>({
   },
 
   addProseMirrorPlugins() {
-    return [PreviousBlockTypePlugin()];
+    return [PreviousBlockTypePlugin(), NonEditableBlockPlugin()];
   },
 
   addKeyboardShortcuts() {
@@ -511,12 +552,14 @@ export const BlockContainer = Node.create<IBlock>({
               state.selection.from
             )!;
 
+            const selectionAtBlockStart =
+              state.selection.$anchor.parentOffset === 0;
             const blockEmpty = node.textContent.length === 0;
 
             if (!blockEmpty) {
               chain()
                 .deleteSelection()
-                .BNSplitBlock(state.selection.from, false)
+                .BNSplitBlock(state.selection.from, selectionAtBlockStart)
                 .run();
 
               return true;
@@ -543,37 +586,6 @@ export const BlockContainer = Node.create<IBlock>({
         this.editor.commands.BNCreateBlock(
           this.editor.state.selection.anchor + 2
         ),
-      "Mod-Alt-1": () =>
-        this.editor.commands.BNUpdateBlock(this.editor.state.selection.anchor, {
-          type: "heading",
-          props: {
-            level: "1",
-          },
-        }),
-      "Mod-Alt-2": () =>
-        this.editor.commands.BNUpdateBlock(this.editor.state.selection.anchor, {
-          type: "heading",
-          props: {
-            level: "2",
-          },
-        }),
-      "Mod-Alt-3": () =>
-        this.editor.commands.BNUpdateBlock(this.editor.state.selection.anchor, {
-          type: "heading",
-          props: {
-            level: "3",
-          },
-        }),
-      "Mod-Shift-7": () =>
-        this.editor.commands.BNUpdateBlock(this.editor.state.selection.anchor, {
-          type: "bulletListItem",
-          props: {},
-        }),
-      "Mod-Shift-8": () =>
-        this.editor.commands.BNUpdateBlock(this.editor.state.selection.anchor, {
-          type: "numberedListItem",
-          props: {},
-        }),
     };
   },
 });

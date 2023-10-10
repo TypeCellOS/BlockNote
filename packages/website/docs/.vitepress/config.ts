@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import container from "markdown-it-container";
 import {
   defineConfig,
+  type DefaultTheme,
   type HeadConfig,
   type TransformContext,
 } from "vitepress";
@@ -27,9 +28,12 @@ const SIDEBAR_DEFAULT = [
     collapsed: false,
     items: [
       { text: "Customizing the Editor", link: "/docs/editor" },
-      { text: "Slash Menu", link: "/docs/slash-menu" },
+      { text: "Theming & Styling", link: "/docs/theming" },
       { text: "Formatting Toolbar", link: "/docs/formatting-toolbar" },
+      { text: "Slash Menu", link: "/docs/slash-menu" },
       { text: "Side Menu", link: "/docs/side-menu" },
+      { text: "Image Toolbar", link: "/docs/image-toolbar" },
+      { text: "Changing UI Elements", link: "/docs/ui-elements" },
     ],
   },
   {
@@ -75,6 +79,7 @@ const SIDEBAR_DEFAULT = [
         text: "Real-time collaboration",
         link: "/docs/real-time-collaboration",
       },
+      { text: "Next.js", link: "/docs/nextjs" },
       {
         text: "Without React (vanilla JS)",
         link: "/docs/vanilla-js",
@@ -115,6 +120,36 @@ const SIDEBAR_DEFAULT = [
   },
 ];
 
+const EXAMPLES_SIDEBAR = [
+  {
+    text: "Basic Examples",
+    items: [
+      { text: "Block Manipulation", link: "/examples/block-manipulation" },
+      {
+        text: "Keyboard Shortcuts",
+        link: "/examples/keyboard-shortcuts",
+      },
+      {
+        text: "Saving & Loading",
+        link: "/examples/saving-loading",
+      },
+    ],
+  },
+  {
+    text: "Advanced Examples",
+    items: [
+      {
+        text: "Making UI Elements From Scratch",
+        link: "/examples/custom-ui",
+      },
+      {
+        text: "Alert Block",
+        link: "/examples/alert-block",
+      },
+    ],
+  },
+];
+
 const METADATA_DEFAULT = {
   title: "BlockNote",
   description:
@@ -150,9 +185,13 @@ export default defineConfig({
       light: "/img/logos/banner.svg",
       dark: "/img/logos/banner.dark.svg",
     },
-    nav: [{ text: "Documentation", link: "/docs/introduction" }],
+    nav: [
+      { text: "Documentation", link: "/docs/introduction" },
+      { text: "Examples", link: "/examples/block-manipulation" },
+    ],
     sidebar: {
       "/docs/": SIDEBAR_DEFAULT,
+      "/examples/": EXAMPLES_SIDEBAR,
       // "/tutorial/": SIDEBAR_DEFAULT,
       // "/api": SIDEBAR_DEFAULT,
     },
@@ -161,7 +200,12 @@ export default defineConfig({
     //     "/docs/:path",
     //   text: "Edit this page",
     // },
-    algolia: getAlgoliaConfig(process.env),
+    search: {
+      provider: "algolia",
+      options: getAlgoliaConfig(
+        process.env
+      ) as DefaultTheme.AlgoliaSearchOptions,
+    },
     socialLinks: [
       { icon: "github", link: "https://github.com/TypeCellOS/BlockNote" },
       // { icon: "twitter", link: "https://twitter.com/TypeCellOS" },
@@ -305,7 +349,7 @@ function transformHead({ pageData }: TransformContext): HeadConfig[] {
 function getAlgoliaConfig(env: NodeJS.ProcessEnv) {
   if (env.VITE_ALGOLIA_ID && env.VITE_ALGOLIA_KEY) {
     return {
-      indexName: "blocknote",
+      indexName: "blockjs",
       appId: env.VITE_ALGOLIA_ID,
       apiKey: env.VITE_ALGOLIA_KEY,
     };

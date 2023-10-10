@@ -1,3 +1,4 @@
+import { uploadToTmpFilesDotOrg_DEV_ONLY } from "@blocknote/core";
 import "@blocknote/core/style.css";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
 import { useEffect, useMemo } from "react";
@@ -52,10 +53,11 @@ export function ReactBlockNote(props: { theme: "light" | "dark" }) {
 
   const editor = useBlockNote(
     {
-      editorDOMAttributes: {
-        class: styles.editor,
+      domAttributes: {
+        editor: {
+          class: styles.editor,
+        },
       },
-      theme: props.theme,
       collaboration: {
         provider,
         fragment: doc.getXmlFragment("blocknote"),
@@ -64,6 +66,7 @@ export function ReactBlockNote(props: { theme: "light" | "dark" }) {
           color: getRandomColor(),
         },
       },
+      uploadFile: uploadToTmpFilesDotOrg_DEV_ONLY,
     },
     [props.theme]
   );
@@ -84,5 +87,5 @@ export function ReactBlockNote(props: { theme: "light" | "dark" }) {
     };
   }, [editor?.domElement]);
 
-  return <BlockNoteView editor={editor} />;
+  return <BlockNoteView editor={editor} theme={props.theme} />;
 }

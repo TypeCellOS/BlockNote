@@ -5,8 +5,7 @@ import {
   BlockSchema,
   PartialBlock,
 } from "../../extensions/Blocks/api/blockTypes";
-
-import { defaultProps } from "../../extensions/Blocks/api/defaultBlocks";
+import { defaultProps } from "../../extensions/Blocks/api/defaultProps";
 import {
   ColorStyle,
   InlineContent,
@@ -16,7 +15,7 @@ import {
   Styles,
   ToggledStyle,
 } from "../../extensions/Blocks/api/inlineContentTypes";
-import { getBlockInfoFromPos } from "../../extensions/Blocks/helpers/getBlockInfoFromPos";
+import { getBlockInfo } from "../../extensions/Blocks/helpers/getBlockInfoFromPos";
 import UniqueID from "../../extensions/UniqueID/UniqueID";
 import { UnreachableCaseError } from "../../shared/utils";
 
@@ -91,7 +90,7 @@ function styledTextArrayToNodes(
   content: string | StyledText[],
   schema: Schema
 ): Node[] {
-  let nodes: Node[] = [];
+  const nodes: Node[] = [];
 
   if (typeof content === "string") {
     nodes.push(
@@ -113,7 +112,7 @@ export function inlineContentToNodes(
   blockContent: PartialInlineContent[],
   schema: Schema
 ): Node[] {
-  let nodes: Node[] = [];
+  const nodes: Node[] = [];
 
   for (const content of blockContent) {
     if (content.type === "link") {
@@ -369,7 +368,7 @@ export function nodeToBlock<BSchema extends BlockSchema>(
     return cachedBlock;
   }
 
-  const blockInfo = getBlockInfoFromPos(node, 0)!;
+  const blockInfo = getBlockInfo(node);
 
   let id = blockInfo.id;
 
@@ -380,7 +379,7 @@ export function nodeToBlock<BSchema extends BlockSchema>(
 
   const props: any = {};
   for (const [attr, value] of Object.entries({
-    ...blockInfo.node.attrs,
+    ...node.attrs,
     ...blockInfo.contentNode.attrs,
   })) {
     const blockSpec = blockSchema[blockInfo.contentType.name];
@@ -409,22 +408,25 @@ export function nodeToBlock<BSchema extends BlockSchema>(
     }
   }
 
-  const content = contentNodeToInlineContent(blockInfo.contentNode);
+  const blockSpec = blockSchema[blockInfo.contentType.name];
 
   const children: Block<BSchema>[] = [];
   for (let i = 0; i < blockInfo.numChildBlocks; i++) {
     children.push(
-      nodeToBlock(blockInfo.node.lastChild!.child(i), blockSchema, blockCache)
+      nodeToBlock(node.lastChild!.child(i), blockSchema, blockCache)
     );
   }
 
   const block: Block<BSchema> = {
     id,
-    type: blockInfo.contentType.name,
+    type: blockSpec.node.name,
     props,
-    content,
+    content:
+      blockSpec.node.config.content === "inline*"
+        ? contentNodeToInlineContent(blockInfo.contentNode)
+        : undefined,
     children,
-  };
+  } as Block<BSchema>;
 
   blockCache?.set(node, block);
 

@@ -12,9 +12,11 @@ import {
   RiAlignLeft,
   RiAlignRight,
 } from "react-icons/ri";
-import { ToolbarButton } from "../../../SharedComponents/Toolbar/components/ToolbarButton";
 
-type TextAlignment = DefaultProps["textAlignment"]["values"][number];
+import { ToolbarButton } from "../../../SharedComponents/Toolbar/components/ToolbarButton";
+import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
+
+type TextAlignment = DefaultProps["textAlignment"];
 
 const icons: Record<TextAlignment, IconType> = {
   left: RiAlignLeft,
@@ -27,48 +29,34 @@ export const TextAlignButton = <BSchema extends BlockSchema>(props: {
   editor: BlockNoteEditor<BSchema>;
   textAlignment: TextAlignment;
 }) => {
-  const show = useMemo(() => {
-    const selection = props.editor.getSelection();
+  const selectedBlocks = useSelectedBlocks(props.editor);
 
-    if (selection) {
-      for (const block of selection.blocks) {
-        if (!("textAlignment" in block.props)) {
-          return false;
-        }
-      }
-    } else {
-      const block = props.editor.getTextCursorPosition().block;
+  const textAlignment = useMemo(() => {
+    const block = selectedBlocks[0];
 
-      if (!("textAlignment" in block.props)) {
-        return false;
-      }
+    if ("textAlignment" in block.props) {
+      return block.props.textAlignment as TextAlignment;
     }
 
-    return true;
-  }, [props.editor]);
+    return;
+  }, [selectedBlocks]);
 
   const setTextAlignment = useCallback(
     (textAlignment: TextAlignment) => {
       props.editor.focus();
 
-      const selection = props.editor.getSelection();
-
-      if (selection) {
-        for (const block of selection.blocks) {
-          props.editor.updateBlock(block, {
-            props: { textAlignment: textAlignment },
-          } as PartialBlock<BSchema>);
-        }
-      } else {
-        const block = props.editor.getTextCursorPosition().block;
-
+      for (const block of selectedBlocks) {
         props.editor.updateBlock(block, {
           props: { textAlignment: textAlignment },
         } as PartialBlock<BSchema>);
       }
     },
-    [props.editor]
+    [props.editor, selectedBlocks]
   );
+
+  const show = useMemo(() => {
+    return !!selectedBlocks.find((block) => "textAlignment" in block.props);
+  }, [selectedBlocks]);
 
   if (!show) {
     return null;
@@ -77,10 +65,7 @@ export const TextAlignButton = <BSchema extends BlockSchema>(props: {
   return (
     <ToolbarButton
       onClick={() => setTextAlignment(props.textAlignment)}
-      isSelected={
-        props.editor.getTextCursorPosition().block.props.textAlignment ===
-        props.textAlignment
-      }
+      isSelected={textAlignment === props.textAlignment}
       mainTooltip={
         props.textAlignment === "justify"
           ? "Justify Text"

@@ -1,9 +1,16 @@
 import { InputRule, mergeAttributes } from "@tiptap/core";
+import { defaultProps } from "../../../../api/defaultProps";
 import { createTipTapBlock } from "../../../../api/block";
+import { BlockSpec, PropSchema } from "../../../../api/blockTypes";
+import { mergeCSSClasses } from "../../../../../../shared/utils";
 import { handleEnter } from "../ListItemKeyboardShortcuts";
 import styles from "../../../Block.module.css";
 
-export const BulletListItemBlockContent = createTipTapBlock<"bulletListItem">({
+export const bulletListItemPropSchema = {
+  ...defaultProps,
+} satisfies PropSchema;
+
+const BulletListItemBlockContent = createTipTapBlock<"bulletListItem", true>({
   name: "bulletListItem",
   content: "inline*",
 
@@ -28,6 +35,17 @@ export const BulletListItemBlockContent = createTipTapBlock<"bulletListItem">({
   addKeyboardShortcuts() {
     return {
       Enter: () => handleEnter(this.editor),
+      "Mod-Shift-7": () =>
+        this.editor.commands.BNUpdateBlock<{
+          bulletListItem: BlockSpec<
+            "bulletListItem",
+            typeof bulletListItemPropSchema,
+            true
+          >;
+        }>(this.editor.state.selection.anchor, {
+          type: "bulletListItem",
+          props: {},
+        }),
     };
   },
 
@@ -82,13 +100,37 @@ export const BulletListItemBlockContent = createTipTapBlock<"bulletListItem">({
   },
 
   renderHTML({ HTMLAttributes }) {
+    const blockContentDOMAttributes =
+      this.options.domAttributes?.blockContent || {};
+    const inlineContentDOMAttributes =
+      this.options.domAttributes?.inlineContent || {};
+
     return [
       "div",
       mergeAttributes(HTMLAttributes, {
-        class: styles.blockContent,
+        ...blockContentDOMAttributes,
+        class: mergeCSSClasses(
+          styles.blockContent,
+          blockContentDOMAttributes.class
+        ),
         "data-content-type": this.name,
       }),
-      ["p", { class: styles.inlineContent }, 0],
+      [
+        "p",
+        {
+          ...inlineContentDOMAttributes,
+          class: mergeCSSClasses(
+            styles.inlineContent,
+            inlineContentDOMAttributes.class
+          ),
+        },
+        0,
+      ],
     ];
   },
 });
+
+export const BulletListItem = {
+  node: BulletListItemBlockContent,
+  propSchema: bulletListItemPropSchema,
+} satisfies BlockSpec<"bulletListItem", typeof bulletListItemPropSchema, true>;

@@ -1,37 +1,44 @@
 import { Menu } from "@mantine/core";
-import { MouseEvent } from "react";
-import { IconType } from "react-icons";
-import { ToolbarDropdownItem } from "./ToolbarDropdownItem";
+import {
+  ToolbarDropdownItem,
+  ToolbarDropdownItemProps,
+} from "./ToolbarDropdownItem";
 import { ToolbarDropdownTarget } from "./ToolbarDropdownTarget";
+import { usePreventMenuOverflow } from "../../../hooks/usePreventMenuOverflow";
 
 export type ToolbarDropdownProps = {
-  items: Array<{
-    onClick?: (e: MouseEvent) => void;
-    text: string;
-    icon?: IconType;
-    isSelected?: boolean;
-    isDisabled?: boolean;
-  }>;
+  items: ToolbarDropdownItemProps[];
   isDisabled?: boolean;
 };
 
 export function ToolbarDropdown(props: ToolbarDropdownProps) {
-  const activeItem = props.items.filter((p) => p.isSelected)[0];
+  const selectedItem = props.items.filter((p) => p.isSelected)[0];
 
-  if (!activeItem) {
+  const { ref, updateMaxHeight } = usePreventMenuOverflow();
+
+  if (!selectedItem) {
     return null;
   }
 
   return (
-    <Menu exitTransitionDuration={0} disabled={props.isDisabled}>
+    <Menu
+      exitTransitionDuration={0}
+      disabled={props.isDisabled}
+      onOpen={updateMaxHeight}>
       <Menu.Target>
-        <ToolbarDropdownTarget {...activeItem} />
+        <ToolbarDropdownTarget
+          text={selectedItem.text}
+          icon={selectedItem.icon}
+          isDisabled={selectedItem.isDisabled}
+        />
       </Menu.Target>
-      <Menu.Dropdown>
-        {props.items.map((item) => (
-          <ToolbarDropdownItem key={item.text} {...item} />
-        ))}
-      </Menu.Dropdown>
+      <div ref={ref}>
+        <Menu.Dropdown>
+          {props.items.map((item) => (
+            <ToolbarDropdownItem key={item.text} {...item} />
+          ))}
+        </Menu.Dropdown>
+      </div>
     </Menu>
   );
 }

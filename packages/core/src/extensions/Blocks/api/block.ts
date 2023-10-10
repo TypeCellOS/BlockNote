@@ -1,6 +1,6 @@
-import { Attribute, Editor, Node } from "@tiptap/core";
+import { Attribute, Attributes, Editor, Node } from "@tiptap/core";
 import { Fragment, ParseRule } from "prosemirror-model";
-import { BlockNoteEditor, SpecificBlock } from "../../..";
+import { BlockNoteDOMAttributes, BlockNoteEditor, SpecificBlock } from "../../..";
 import { inlineContentToNodes } from "../../../api/nodeConversions/nodeConversions";
 import styles from "../nodes/Block.module.css";
 import {
@@ -11,6 +11,8 @@ import {
   TipTapNode,
   TipTapNodeConfig,
 } from "./blockTypes";
+import { mergeCSSClasses } from "../../../shared/utils";
+import { ParseRule } from "prosemirror-model";
 
 export function camelToDataKebab(str: string): string {
   return "data-" + str.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
@@ -22,13 +24,13 @@ export function propsToAttributes<
   BType extends string,
   PSchema extends PropSchema,
   ContainsInlineContent extends boolean,
-  BSchema extends BlockSchema & { [k in BType]: BlockSpec<BType, PSchema> }
+  BSchema extends BlockSchema
 >(
   blockConfig: Omit<
     BlockConfig<BType, PSchema, ContainsInlineContent, BSchema>,
     "render" | "serialize"
   >
-) {
+): Attributes {
   const tiptapAttributes: Record<string, Attribute> = {};
 
   Object.entries(blockConfig.propSchema).forEach(([name, spec]) => {
@@ -58,7 +60,7 @@ export function parse<
   BType extends string,
   PSchema extends PropSchema,
   ContainsInlineContent extends boolean,
-  BSchema extends BlockSchema & { [k in BType]: BlockSpec<BType, PSchema> }
+  BSchema extends BlockSchema
 >(
   blockConfig: Omit<
     BlockConfig<BType, PSchema, ContainsInlineContent, BSchema>,
@@ -111,7 +113,7 @@ export function renderWithBlockStructure<
   BType extends string,
   PSchema extends PropSchema,
   ContainsInlineContent extends boolean,
-  BSchema extends BlockSchema & { [k in BType]: BlockSpec<BType, PSchema> }
+  BSchema extends BlockSchema
 >(
   render: BlockConfig<BType, PSchema, ContainsInlineContent, BSchema>["render"],
   block: SpecificBlock<BSchema, BType>,
@@ -128,23 +130,22 @@ export function renderWithBlockStructure<
     blockContent.setAttribute(camelToDataKebab(prop), value);
   }
 
-  // Renders elements
-  const rendered = render(block, editor);
-  // Add inlineContent class to inline content
-  if ("contentDOM" in rendered) {
-    rendered.contentDOM.className = `${
-      rendered.contentDOM.className
-        ? rendered.contentDOM.className + " " + styles.inlineContent
-        : styles.inlineContent
-    }`;
+  // TODO: This only works for content copied within BlockNote.
+  // Creates contentDOM element to serialize inline content into.
+  let contentDOM: HTMLDivElement | undefined;
+  if (blockConfig.containsInlineContent) {
+    contentDOM = document.createElement("div");
+    blockContent.appendChild(contentDOM);
+  } else {
+    contentDOM = undefined;
   }
   // Adds elements to blockContent
   blockContent.appendChild(rendered.dom);
 
-  return "contentDOM" in rendered
+  return contentDOM !== undefined
     ? {
         dom: blockContent,
-        contentDOM: rendered.contentDOM,
+        contentDOM: contentDOM,
       }
     : {
         dom: blockContent,
@@ -189,21 +190,24 @@ export function getBlockFromPos<
 export function createBlockSpec<
   BType extends string,
   PSchema extends PropSchema,
-  ContainsInlineContent extends boolean,
-  BSchema extends BlockSchema & { [k in BType]: BlockSpec<BType, PSchema> }
+  ContainsInlineContent extends false,
+  BSchema extends BlockSchema
 >(
   blockConfig: BlockConfig<BType, PSchema, ContainsInlineContent, BSchema>
-): BlockSpec<BType, PSchema> {
-  const node = createTipTapBlock<BType>({
+): BlockSpec<BType, PSchema, ContainsInlineContent> {
+  const node = createTipTapBlock<
+    BType,
+    ContainsInlineContent,
+    {
+      editor: BlockNoteEditor<BSchema>;
+      domAttributes?: BlockNoteDOMAttributes;
+    }
+  >({
     name: blockConfig.type,
-    content: blockConfig.containsInlineContent ? "inline*" : "",
-    selectable: blockConfig.containsInlineContent,
-
-    addOptions() {
-      return {
-        editor: undefined,
-      };
-    },
+    content: (blockConfig.containsInlineContent
+      ? "inline*"
+      : "") as ContainsInlineContent extends true ? "inline*" : "",
+    selectable: true,
 
     addAttributes() {
       return propsToAttributes(blockConfig);
@@ -236,7 +240,7 @@ export function createBlockSpec<
   });
 
   return {
-    node: node,
+    node: node as TipTapNode<BType, ContainsInlineContent>,
     propSchema: blockConfig.propSchema,
     serialize: (block, editor) =>
       renderWithBlockStructure<BType, PSchema, boolean, BSchema>(
@@ -250,15 +254,25 @@ export function createBlockSpec<
   };
 }
 
-export function createTipTapBlock<Type extends string>(
-  config: TipTapNodeConfig<Type>
-): TipTapNode<Type> {
+export function createTipTapBlock<
+  Type extends string,
+  ContainsInlineContent extends boolean,
+  Options extends {
+    domAttributes?: BlockNoteDOMAttributes;
+  } = {
+    domAttributes?: BlockNoteDOMAttributes;
+  },
+  Storage = any
+>(
+  config: TipTapNodeConfig<Type, ContainsInlineContent, Options, Storage>
+): TipTapNode<Type, ContainsInlineContent, Options, Storage> {
   // Type cast is needed as Node.name is mutable, though there is basically no
   // reason to change it after creation. Alternative is to wrap Node in a new
   // class, which I don't think is worth it since we'd only be changing 1
   // attribute to be read only.
-  return Node.create({
+  return Node.create<Options, Storage>({
     ...config,
     group: "blockContent",
-  }) as TipTapNode<Type>;
+    content: config.content,
+  }) as TipTapNode<Type, ContainsInlineContent, Options, Storage>;
 }

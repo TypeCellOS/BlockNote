@@ -7,7 +7,7 @@ path: /docs/converting-blocks
 
 <script setup>
 import { useData } from 'vitepress';
-import { getTheme, getStyles } from "./demoUtils";
+import { getTheme, getStyles } from "../demoUtils";
 
 const { isDark } = useData();
 </script>
@@ -61,10 +61,9 @@ export default function App() {
   const [markdown, setMarkdown] = useState<string>("");
 
   // Creates a new editor instance.
-  const editor: BlockNoteEditor | null = useBlockNote({
-    theme: "{{ getTheme(isDark) }}",
+  const editor: BlockNoteEditor = useBlockNote({
     // Listens for when the editor's contents change.
-    onEditorContentChange: (editor: BlockNoteEditor) => {
+    onEditorContentChange: (editor) => {
       // Converts the editor's contents from Block objects to Markdown and 
       // saves them.
       const saveBlocksAsMarkdown = async () => {
@@ -79,7 +78,7 @@ export default function App() {
   // Renders the editor instance, and its contents as Markdown below.
   return (
     <div>
-      <BlockNoteView editor={editor} />
+      <BlockNoteView editor={editor} theme={"{{ getTheme(isDark) }}"} />
       <pre>{markdown}</pre>
     </div>
   );
@@ -132,8 +131,7 @@ export default function App() {
   const [markdown, setMarkdown] = useState<string>("");
   
   // Creates a new editor instance.
-  const editor: BlockNoteEditor | null = useBlockNote({
-    theme: "{{ getTheme(isDark) }}",
+  const editor: BlockNoteEditor = useBlockNote({
     // Makes the editor non-editable.
     editable: false
   })
@@ -158,7 +156,7 @@ export default function App() {
         value={markdown}
         onChange={(event) => setMarkdown(event.target.value)}
       />
-      <BlockNoteView editor={editor} />
+      <BlockNoteView editor={editor} theme={"{{ getTheme(isDark) }}"} />
     </div>
   );
 }
@@ -169,7 +167,7 @@ export default function App() {
 
 textarea {
   color: gray;
-  background-color: #151515;
+  background-color: {{ isDark ? "#151515" : "white" }};
   width: 100%;
   height: 100%;
 }
@@ -216,10 +214,9 @@ export default function App() {
   const [html, setHTML] = useState<string>("");
 
   // Creates a new editor instance.
-  const editor: BlockNoteEditor | null = useBlockNote({
-    theme: "{{ getTheme(isDark) }}",
+  const editor: BlockNoteEditor = useBlockNote({
     // Listens for when the editor's contents change.
-    onEditorContentChange: (editor: BlockNoteEditor) => {
+    onEditorContentChange: (editor) => {
       // Converts the editor's contents from Block objects to HTML and saves 
       // them.
       const saveBlocksAsHTML = async () => {
@@ -233,7 +230,7 @@ export default function App() {
   // Renders the editor instance, and its contents as HTML below.
   return (
     <div>
-      <BlockNoteView editor={editor} />
+      <BlockNoteView editor={editor} theme={"{{ getTheme(isDark) }}"} />
       <pre>{html}</pre>
     </div>
   );
@@ -286,8 +283,7 @@ export default function App() {
   const [html, setHTML] = useState<string>("");
   
   // Creates a new editor instance.
-  const editor: BlockNoteEditor | null = useBlockNote({
-    theme: "{{ getTheme(isDark) }}",
+  const editor: BlockNoteEditor = useBlockNote({
     // Makes the editor non-editable.
     editable: false
   })
@@ -312,7 +308,7 @@ export default function App() {
         value={html}
         onChange={(event) => setHTML(event.target.value)}
       />
-      <BlockNoteView editor={editor} />
+      <BlockNoteView editor={editor} theme={"{{ getTheme(isDark) }}"} />
     </div>
   );
 }
@@ -323,7 +319,7 @@ export default function App() {
 
 textarea {
   color: gray;
-  background-color: #151515;
+  background-color: {{ isDark ? "#151515" : "white" }};
   width: 100%;
   height: 100%;
 }

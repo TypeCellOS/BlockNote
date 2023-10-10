@@ -1,18 +1,22 @@
 import {
   BaseSlashMenuItem,
+  BlockSchema,
+  defaultBlockSchema,
   DefaultBlockSchema,
-  defaultSlashMenuItems,
+  getDefaultSlashMenuItems,
 } from "@blocknote/core";
 import {
   RiH1,
   RiH2,
   RiH3,
+  RiImage2Fill,
   RiListOrdered,
   RiListUnordered,
   RiText,
 } from "react-icons/ri";
 import { formatKeyboardShortcut } from "../utils";
 import { ReactSlashMenuItem } from "./ReactSlashMenuItem";
+
 const extraFields: Record<
   string,
   Omit<
@@ -56,17 +60,25 @@ const extraFields: Record<
     hint: "Used for the body of your document",
     shortcut: formatKeyboardShortcut("Mod-Alt-0"),
   },
+  Image: {
+    group: "Media",
+    icon: <RiImage2Fill />,
+    hint: "Insert an image",
+  },
 };
 
-export const defaultReactSlashMenuItems = defaultSlashMenuItems.map(
-  (item) =>
-    new ReactSlashMenuItem<DefaultBlockSchema>(
-      item.name,
-      item.execute,
-      item.aliases,
-      extraFields[item.name].group,
-      extraFields[item.name].icon,
-      extraFields[item.name].hint,
-      extraFields[item.name].shortcut
-    )
-);
+export function getDefaultReactSlashMenuItems<BSchema extends BlockSchema>(
+  // This type casting is weird, but it's the best way of doing it, as it allows
+  // the schema type to be automatically inferred if it is defined, or be
+  // inferred as any if it is not defined. I don't think it's possible to make it
+  // infer to DefaultBlockSchema if it is not defined.
+  schema: BSchema = defaultBlockSchema as unknown as BSchema
+): ReactSlashMenuItem<BSchema>[] {
+  const slashMenuItems: BaseSlashMenuItem<BSchema>[] =
+    getDefaultSlashMenuItems(schema);
+
+  return slashMenuItems.map((item) => ({
+    ...item,
+    ...extraFields[item.name],
+  }));
+}

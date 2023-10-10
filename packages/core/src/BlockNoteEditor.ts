@@ -1,8 +1,9 @@
-import { Editor, EditorOptions } from "@tiptap/core";
+import { Editor, EditorOptions, Extension } from "@tiptap/core";
 import { Node } from "prosemirror-model";
 // import "./blocknote.css";
 import { Editor as TiptapEditor } from "@tiptap/core/dist/packages/core/src/Editor";
 import * as Y from "yjs";
+import { getBlockNoteExtensions } from "./BlockNoteExtensions";
 import {
   insertBlocks,
   removeBlocks,
@@ -10,18 +11,21 @@ import {
   updateBlock,
 } from "./api/blockManipulation/blockManipulation";
 import {
+  HTMLToBlocks,
   blocksToHTML,
   blocksToMarkdown,
-  HTMLToBlocks,
   markdownToBlocks,
 } from "./api/formatConversions/formatConversions";
-import { nodeToBlock } from "./api/nodeConversions/nodeConversions";
+import {
+  blockToNode,
+  nodeToBlock,
+} from "./api/nodeConversions/nodeConversions";
 import { getNodeById } from "./api/util/nodeUtil";
-import { getBlockNoteExtensions, UiFactories } from "./BlockNoteExtensions";
 import styles from "./editor.module.css";
 import {
   Block,
   BlockIdentifier,
+  BlockNoteDOMAttributes,
   BlockSchema,
   PartialBlock,
 } from "./extensions/Blocks/api/blockTypes";
@@ -37,28 +41,27 @@ import {
 } from "./extensions/Blocks/api/inlineContentTypes";
 import { Selection } from "./extensions/Blocks/api/selectionTypes";
 import { getBlockInfoFromPos } from "./extensions/Blocks/helpers/getBlockInfoFromPos";
-import {
-  BaseSlashMenuItem,
-  defaultSlashMenuItems,
-} from "./extensions/SlashMenu";
+
+import { FormattingToolbarProsemirrorPlugin } from "./extensions/FormattingToolbar/FormattingToolbarPlugin";
+import { HyperlinkToolbarProsemirrorPlugin } from "./extensions/HyperlinkToolbar/HyperlinkToolbarPlugin";
+import { ImageToolbarProsemirrorPlugin } from "./extensions/ImageToolbar/ImageToolbarPlugin";
+import { SideMenuProsemirrorPlugin } from "./extensions/SideMenu/SideMenuPlugin";
+import { BaseSlashMenuItem } from "./extensions/SlashMenu/BaseSlashMenuItem";
+import { SlashMenuProsemirrorPlugin } from "./extensions/SlashMenu/SlashMenuPlugin";
+import { getDefaultSlashMenuItems } from "./extensions/SlashMenu/defaultSlashMenuItems";
+import { UniqueID } from "./extensions/UniqueID/UniqueID";
+import { mergeCSSClasses } from "./shared/utils";
 
 export type BlockNoteEditorOptions<BSchema extends BlockSchema> = {
   // TODO: Figure out if enableBlockNoteExtensions/disableHistoryExtension are needed and document them.
   enableBlockNoteExtensions: boolean;
-
   /**
-   * UI element factories for creating a custom UI, including custom positioning
-   * & rendering.
-   */
-  uiFactories: UiFactories<BSchema>;
-  /**
-   * TODO: why is this called slashCommands and not slashMenuItems?
    *
    * (couldn't fix any type, see https://github.com/TypeCellOS/BlockNote/pull/191#discussion_r1210708771)
    *
    * @default defaultSlashMenuItems from `./extensions/SlashMenu`
    */
-  slashCommands: BaseSlashMenuItem<BSchema>[];
+  slashMenuItems: BaseSlashMenuItem<any>[];
 
   /**
    * The HTML element that should be used as the parent element for the editor.
@@ -67,11 +70,11 @@ export type BlockNoteEditorOptions<BSchema extends BlockSchema> = {
    */
   parentElement: HTMLElement;
   /**
-   * An object containing attributes that should be added to the editor's HTML element.
+   * An object containing attributes that should be added to HTML elements of the editor.
    *
-   * @example { class: "my-editor-class" }
+   * @example { editor: { class: "my-editor-class" } }
    */
-  editorDOMAttributes: Record<string, string>;
+  domAttributes: Partial<BlockNoteDOMAttributes>;
   /**
    *  A callback function that runs when the editor is ready to be used.
    */
@@ -98,17 +101,18 @@ export type BlockNoteEditorOptions<BSchema extends BlockSchema> = {
    * @default true
    */
   defaultStyles: boolean;
-  /**
-   * Whether to use the light or dark theme.
-   *
-   * @default "light"
-   */
-  theme: "light" | "dark";
 
   /**
    * A list of block types that should be available in the editor.
    */
   blockSchema: BSchema;
+
+  /**
+   * A custom function to handle file uploads.
+   * @param file The file that should be uploaded.
+   * @returns The URL of the uploaded file.
+   */
+  uploadFile: (file: File) => Promise<string>;
 
   /**
    * When enabled, allows for collaboration between multiple users.
@@ -149,18 +153,15 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
   public readonly _tiptapEditor: TiptapEditor & { contentComponent: any };
   public blockCache = new WeakMap<Node, Block<BSchema>>();
   public readonly schema: BSchema;
+  public ready = false;
 
-  public get domElement() {
-    return this._tiptapEditor.view.dom as HTMLDivElement;
-  }
+  public readonly sideMenu: SideMenuProsemirrorPlugin<BSchema>;
+  public readonly formattingToolbar: FormattingToolbarProsemirrorPlugin<BSchema>;
+  public readonly slashMenu: SlashMenuProsemirrorPlugin<BSchema, any>;
+  public readonly hyperlinkToolbar: HyperlinkToolbarProsemirrorPlugin<BSchema>;
+  public readonly imageToolbar: ImageToolbarProsemirrorPlugin<BSchema>;
 
-  public isFocused() {
-    return this._tiptapEditor.view.hasFocus();
-  }
-
-  public focus() {
-    this._tiptapEditor.view.focus();
-  }
+  public readonly uploadFile: ((file: File) => Promise<string>) | undefined;
 
   constructor(
     private readonly options: Partial<BlockNoteEditorOptions<BSchema>> = {}
@@ -180,36 +181,102 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
       ...options,
     };
 
+    this.sideMenu = new SideMenuProsemirrorPlugin(this);
+    this.formattingToolbar = new FormattingToolbarProsemirrorPlugin(this);
+    this.slashMenu = new SlashMenuProsemirrorPlugin(
+      this,
+      newOptions.slashMenuItems ||
+        getDefaultSlashMenuItems(newOptions.blockSchema)
+    );
+    this.hyperlinkToolbar = new HyperlinkToolbarProsemirrorPlugin(this);
+    this.imageToolbar = new ImageToolbarProsemirrorPlugin(this);
+
     const extensions = getBlockNoteExtensions<BSchema>({
       editor: this,
-      uiFactories: newOptions.uiFactories || {},
-      // TODO: Fix typing
-      slashCommands: newOptions.slashCommands || (defaultSlashMenuItems as any),
+      domAttributes: newOptions.domAttributes || {},
       blockSchema: newOptions.blockSchema,
       collaboration: newOptions.collaboration,
     });
 
+    const blockNoteUIExtension = Extension.create({
+      name: "BlockNoteUIExtension",
+
+      addProseMirrorPlugins: () => {
+        return [
+          this.sideMenu.plugin,
+          this.formattingToolbar.plugin,
+          this.slashMenu.plugin,
+          this.hyperlinkToolbar.plugin,
+          this.imageToolbar.plugin,
+        ];
+      },
+    });
+    extensions.push(blockNoteUIExtension);
+
     this.schema = newOptions.blockSchema;
 
+    this.uploadFile = newOptions.uploadFile;
+
+    const initialContent =
+      newOptions.initialContent ||
+      (options.collaboration
+        ? undefined
+        : [
+            {
+              type: "paragraph",
+              id: UniqueID.options.generateID(),
+            },
+          ]);
+
     const tiptapOptions: EditorOptions = {
-      // TODO: This approach to setting initial content is "cleaner" but requires the PM editor schema, which is only
-      //  created after initializing the TipTap editor. Not sure it's feasible.
-      // content:
-      //   options.initialContent &&
-      //   options.initialContent.map((block) =>
-      //     blockToNode(block, this._tiptapEditor.schema).toJSON()
-      //   ),
       ...blockNoteTipTapOptions,
       ...newOptions._tiptapOptions,
+      onBeforeCreate(editor) {
+        if (!initialContent) {
+          // when using collaboration
+          return;
+        }
+
+        // We always set the initial content to a single paragraph block. This
+        // allows us to easily replace it with the actual initial content once
+        // the TipTap editor is initialized.
+        const schema = editor.editor.schema;
+        const root = schema.node(
+          "doc",
+          undefined,
+          schema.node("blockGroup", undefined, [
+            blockToNode({ id: "initialBlock", type: "paragraph" }, schema),
+          ])
+        );
+        editor.editor.options.content = root.toJSON();
+      },
       onCreate: () => {
+        // We need to wait for the TipTap editor to init before we can set the
+        // initial content, as the schema may contain custom blocks which need
+        // it to render.
+        if (initialContent !== undefined) {
+          this.replaceBlocks(this.topLevelBlocks, initialContent);
+        }
+
         newOptions.onEditorReady?.(this);
-        newOptions.initialContent &&
-          this.replaceBlocks(this.topLevelBlocks, newOptions.initialContent);
+        this.ready = true;
       },
       onUpdate: () => {
+        // This seems to be necessary due to a bug in TipTap:
+        // https://github.com/ueberdosis/tiptap/issues/2583
+        if (!this.ready) {
+          return;
+        }
+
         newOptions.onEditorContentChange?.(this);
       },
       onSelectionUpdate: () => {
+        // This seems to be necessary due to a bug in TipTap:
+        // https://github.com/ueberdosis/tiptap/issues/2583
+        if (!this.ready) {
+          return;
+        }
+
         newOptions.onTextCursorPositionChange?.(this);
       },
       editable: options.editable === undefined ? true : options.editable,
@@ -219,14 +286,13 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
           : [...(newOptions._tiptapOptions?.extensions || []), ...extensions],
       editorProps: {
         attributes: {
-          "data-theme": options.theme || "light",
-          ...(newOptions.editorDOMAttributes || {}),
-          class: [
+          ...newOptions.domAttributes?.editor,
+          class: mergeCSSClasses(
             styles.bnEditor,
             styles.bnRoot,
             newOptions.defaultStyles ? styles.defaultStyles : "",
-            newOptions.editorDOMAttributes?.class || "",
-          ].join(" "),
+            newOptions.domAttributes?.editor?.class || ""
+          ),
         },
       },
     };
@@ -238,6 +304,22 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
     this._tiptapEditor = new Editor(tiptapOptions) as Editor & {
       contentComponent: any;
     };
+  }
+
+  public get prosemirrorView() {
+    return this._tiptapEditor.view;
+  }
+
+  public get domElement() {
+    return this._tiptapEditor.view.dom as HTMLDivElement;
+  }
+
+  public isFocused() {
+    return this._tiptapEditor.view.hasFocus();
+  }
+
+  public focus() {
+    this._tiptapEditor.view.focus();
   }
 
   /**
@@ -332,6 +414,14 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
   }
 
   /**
+   * Executes a callback whenever the editor's selection changes.
+   * @param callback The callback to execute.
+   */
+  public onEditorSelectionChange(callback: () => void) {
+    this._tiptapEditor.on("selectionUpdate", callback);
+  }
+
+  /**
    * Gets a snapshot of the current text cursor position.
    * @returns A snapshot of the current text cursor position.
    */
@@ -393,6 +483,12 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
       posBeforeNode + 2
     )!;
 
+    // For blocks without inline content
+    if (contentNode.type.spec.content === "") {
+      this._tiptapEditor.commands.setNodeSelection(startPos);
+      return;
+    }
+
     if (placement === "start") {
       this._tiptapEditor.commands.setTextSelection(startPos + 1);
     } else {
@@ -406,9 +502,12 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
    * Gets a snapshot of the current selection.
    */
   public getSelection(): Selection<BSchema> | undefined {
+    // Either the TipTap selection is empty, or it's a node selection. In either
+    // case, it only spans one block, so we return undefined.
     if (
       this._tiptapEditor.state.selection.from ===
-      this._tiptapEditor.state.selection.to
+        this._tiptapEditor.state.selection.to ||
+      "node" in this._tiptapEditor.state.selection
     ) {
       return undefined;
     }
@@ -625,7 +724,7 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
       return;
     }
 
-    let { from, to } = this._tiptapEditor.state.selection;
+    const { from, to } = this._tiptapEditor.state.selection;
 
     if (!text) {
       text = this._tiptapEditor.state.doc.textBetween(from, to);

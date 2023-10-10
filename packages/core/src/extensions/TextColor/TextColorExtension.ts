@@ -1,5 +1,6 @@
 import { Extension } from "@tiptap/core";
 import { getBlockInfoFromPos } from "../Blocks/helpers/getBlockInfoFromPos";
+import { defaultProps } from "../Blocks/api/defaultProps";
 
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
@@ -18,13 +19,13 @@ export const TextColorExtension = Extension.create({
         types: ["blockContainer"],
         attributes: {
           textColor: {
-            default: "default",
+            default: defaultProps.textColor.default,
             parseHTML: (element) =>
               element.hasAttribute("data-text-color")
                 ? element.getAttribute("data-text-color")
-                : "default",
+                : defaultProps.textColor.default,
             renderHTML: (attributes) =>
-              attributes.textColor !== "default" && {
+              attributes.textColor !== defaultProps.textColor.default && {
                 "data-text-color": attributes.textColor,
               },
           },

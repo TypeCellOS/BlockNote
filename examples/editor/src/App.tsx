@@ -2,6 +2,7 @@
 import "@blocknote/core/style.css";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
 import styles from "./App.module.css";
+import { uploadToTmpFilesDotOrg_DEV_ONLY } from "@blocknote/core";
 
 type WindowWithProseMirror = Window & typeof globalThis & { ProseMirror: any };
 
@@ -10,11 +11,13 @@ function App() {
     onEditorContentChange: (editor) => {
       console.log(editor.topLevelBlocks);
     },
-    editorDOMAttributes: {
-      class: styles.editor,
-      "data-test": "editor",
+    domAttributes: {
+      editor: {
+        class: styles.editor,
+        "data-test": "editor",
+      },
     },
-    theme: "light",
+    uploadFile: uploadToTmpFilesDotOrg_DEV_ONLY,
   });
 
   // Give tests a way to get prosemirror instance

@@ -1,5 +1,6 @@
-import { ToolbarButton } from "../../../SharedComponents/Toolbar/components/ToolbarButton";
-import { formatKeyboardShortcut } from "../../../utils";
+import { BlockNoteEditor, BlockSchema, ToggledStyle } from "@blocknote/core";
+import { useMemo, useState } from "react";
+import { IconType } from "react-icons";
 import {
   RiBold,
   RiCodeFill,
@@ -7,8 +8,11 @@ import {
   RiStrikethrough,
   RiUnderline,
 } from "react-icons/ri";
-import { BlockNoteEditor, BlockSchema, ToggledStyle } from "@blocknote/core";
-import { IconType } from "react-icons";
+
+import { ToolbarButton } from "../../../SharedComponents/Toolbar/components/ToolbarButton";
+import { useEditorChange } from "../../../hooks/useEditorChange";
+import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
+import { formatKeyboardShortcut } from "../../../utils";
 
 const shortcuts: Record<ToggledStyle, string> = {
   bold: "Mod+B",
@@ -30,16 +34,33 @@ export const ToggledStyleButton = <BSchema extends BlockSchema>(props: {
   editor: BlockNoteEditor<BSchema>;
   toggledStyle: ToggledStyle;
 }) => {
+  const selectedBlocks = useSelectedBlocks(props.editor);
+
+  const [active, setActive] = useState<boolean>(
+    props.toggledStyle in props.editor.getActiveStyles()
+  );
+
+  useEditorChange(props.editor, () => {
+    setActive(props.toggledStyle in props.editor.getActiveStyles());
+  });
 
   const toggleStyle = (style: ToggledStyle) => {
     props.editor.focus();
     props.editor.toggleStyles({ [style]: true });
   };
 
+  const show = useMemo(() => {
+    return !!selectedBlocks.find((block) => block.content !== undefined);
+  }, [selectedBlocks]);
+
+  if (!show) {
+    return null;
+  }
+
   return (
     <ToolbarButton
       onClick={() => toggleStyle(props.toggledStyle)}
-      isSelected={props.toggledStyle in props.editor.getActiveStyles()}
+      isSelected={active}
       mainTooltip={
         props.toggledStyle.slice(0, 1).toUpperCase() +
         props.toggledStyle.slice(1)

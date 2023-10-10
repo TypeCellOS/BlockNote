@@ -4,7 +4,7 @@ import rehypeRemark from "rehype-remark";
 import rehypeStringify from "rehype-stringify";
 import remarkGfm from "remark-gfm";
 import remarkParse from "remark-parse";
-import remarkRehype from "remark-rehype";
+import remarkRehype, { defaultHandlers } from "remark-rehype";
 import remarkStringify from "remark-stringify";
 import { unified } from "unified";
 import { Block, BlockSchema } from "../../extensions/Blocks/api/blockTypes";
@@ -47,7 +47,7 @@ export async function HTMLToBlocks<BSchema extends BlockSchema>(
   htmlNode.innerHTML = html.trim();
 
   const parser = DOMParser.fromSchema(schema);
-  const parentNode = parser.parse(htmlNode);
+  const parentNode = parser.parse(htmlNode); //, { preserveWhitespace: "full" });
 
   const blocks: Block<BSchema>[] = [];
 
@@ -73,6 +73,45 @@ export async function blocksToMarkdown<BSchema extends BlockSchema>(
   return markdownString.value as string;
 }
 
+// modefied version of https://github.com/syntax-tree/mdast-util-to-hast/blob/main/lib/handlers/code.js
+// that outputs a data-language attribute instead of a CSS class (e.g.: language-typescript)
+function code(state: any, node: any) {
+  const value = node.value ? node.value + "\n" : "";
+  /** @type {Properties} */
+  const properties: any = {};
+
+  if (node.lang) {
+    // changed line
+    properties["data-language"] = node.lang;
+  }
+
+  // Create `<code>`.
+  /** @type {Element} */
+  let result: any = {
+    type: "element",
+    tagName: "code",
+    properties,
+    children: [{ type: "text", value }],
+  };
+
+  if (node.meta) {
+    result.data = { meta: node.meta };
+  }
+
+  state.patch(node, result);
+  result = state.applyData(node, result);
+
+  // Create `<pre>`.
+  result = {
+    type: "element",
+    tagName: "pre",
+    properties: {},
+    children: [result],
+  };
+  state.patch(node, result);
+  return result;
+}
+
 export async function markdownToBlocks<BSchema extends BlockSchema>(
   markdown: string,
   blockSchema: BSchema,
@@ -81,7 +120,12 @@ export async function markdownToBlocks<BSchema extends BlockSchema>(
   const htmlString = await unified()
     .use(remarkParse)
     .use(remarkGfm)
-    .use(remarkRehype)
+    .use(remarkRehype, {
+      handlers: {
+        ...(defaultHandlers as any),
+        code,
+      },
+    })
     .use(rehypeStringify)
     .process(markdown);
 

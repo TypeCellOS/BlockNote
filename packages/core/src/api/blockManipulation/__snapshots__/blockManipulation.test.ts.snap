@@ -1,4 +1,4 @@
-// Vitest Snapshot v1
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`Insert, Update, & Delete Blocks > Insert, update, & delete multiple blocks 1`] = `
 [
@@ -16,7 +16,7 @@ exports[`Insert, Update, & Delete Blocks > Insert, update, & delete multiple blo
         "id": "2",
         "props": {
           "backgroundColor": "default",
-          "level": "1",
+          "level": 1,
           "textAlignment": "left",
           "textColor": "default",
         },
@@ -33,7 +33,7 @@ exports[`Insert, Update, & Delete Blocks > Insert, update, & delete multiple blo
     "id": "1",
     "props": {
       "backgroundColor": "default",
-      "level": "1",
+      "level": 1,
       "textAlignment": "left",
       "textColor": "default",
     },
@@ -53,7 +53,7 @@ exports[`Insert, Update, & Delete Blocks > Insert, update, & delete multiple blo
         "id": "4",
         "props": {
           "backgroundColor": "default",
-          "level": "2",
+          "level": 2,
           "textAlignment": "left",
           "textColor": "default",
         },
@@ -70,7 +70,7 @@ exports[`Insert, Update, & Delete Blocks > Insert, update, & delete multiple blo
     "id": "3",
     "props": {
       "backgroundColor": "default",
-      "level": "2",
+      "level": 2,
       "textAlignment": "left",
       "textColor": "default",
     },
@@ -106,7 +106,7 @@ exports[`Insert, Update, & Delete Blocks > Insert, update, & delete multiple blo
         "id": "2",
         "props": {
           "backgroundColor": "default",
-          "level": "1",
+          "level": 1,
           "textAlignment": "left",
           "textColor": "default",
         },
@@ -142,7 +142,7 @@ exports[`Insert, Update, & Delete Blocks > Insert, update, & delete multiple blo
         "id": "4",
         "props": {
           "backgroundColor": "default",
-          "level": "2",
+          "level": 2,
           "textAlignment": "left",
           "textColor": "default",
         },
@@ -159,7 +159,7 @@ exports[`Insert, Update, & Delete Blocks > Insert, update, & delete multiple blo
     "id": "3",
     "props": {
       "backgroundColor": "default",
-      "level": "2",
+      "level": 2,
       "textAlignment": "left",
       "textColor": "default",
     },
@@ -286,7 +286,7 @@ exports[`Insert, Update, & Delete Blocks > Insert, update, & delete single block
     "id": "1",
     "props": {
       "backgroundColor": "default",
-      "level": "3",
+      "level": 3,
       "textAlignment": "right",
       "textColor": "default",
     },
@@ -349,7 +349,7 @@ exports[`Inserting Blocks with Different Placements > Insert after existing bloc
         "id": "2",
         "props": {
           "backgroundColor": "default",
-          "level": "1",
+          "level": 1,
           "textAlignment": "left",
           "textColor": "default",
         },
@@ -366,7 +366,7 @@ exports[`Inserting Blocks with Different Placements > Insert after existing bloc
     "id": "1",
     "props": {
       "backgroundColor": "default",
-      "level": "1",
+      "level": 1,
       "textAlignment": "left",
       "textColor": "default",
     },
@@ -386,7 +386,7 @@ exports[`Inserting Blocks with Different Placements > Insert after existing bloc
         "id": "4",
         "props": {
           "backgroundColor": "default",
-          "level": "2",
+          "level": 2,
           "textAlignment": "left",
           "textColor": "default",
         },
@@ -403,7 +403,7 @@ exports[`Inserting Blocks with Different Placements > Insert after existing bloc
     "id": "3",
     "props": {
       "backgroundColor": "default",
-      "level": "2",
+      "level": 2,
       "textAlignment": "left",
       "textColor": "default",
     },
@@ -439,7 +439,7 @@ exports[`Inserting Blocks with Different Placements > Insert before existing blo
         "id": "2",
         "props": {
           "backgroundColor": "default",
-          "level": "1",
+          "level": 1,
           "textAlignment": "left",
           "textColor": "default",
         },
@@ -456,7 +456,7 @@ exports[`Inserting Blocks with Different Placements > Insert before existing blo
     "id": "1",
     "props": {
       "backgroundColor": "default",
-      "level": "1",
+      "level": 1,
       "textAlignment": "left",
       "textColor": "default",
     },
@@ -476,7 +476,7 @@ exports[`Inserting Blocks with Different Placements > Insert before existing blo
         "id": "4",
         "props": {
           "backgroundColor": "default",
-          "level": "2",
+          "level": 2,
           "textAlignment": "left",
           "textColor": "default",
         },
@@ -493,7 +493,7 @@ exports[`Inserting Blocks with Different Placements > Insert before existing blo
     "id": "3",
     "props": {
       "backgroundColor": "default",
-      "level": "2",
+      "level": 2,
       "textAlignment": "left",
       "textColor": "default",
     },
@@ -531,7 +531,7 @@ exports[`Inserting Blocks with Different Placements > Insert nested inside exist
             "id": "2",
             "props": {
               "backgroundColor": "default",
-              "level": "1",
+              "level": 1,
               "textAlignment": "left",
               "textColor": "default",
             },
@@ -548,7 +548,7 @@ exports[`Inserting Blocks with Different Placements > Insert nested inside exist
         "id": "1",
         "props": {
           "backgroundColor": "default",
-          "level": "1",
+          "level": 1,
           "textAlignment": "left",
           "textColor": "default",
         },
@@ -568,7 +568,7 @@ exports[`Inserting Blocks with Different Placements > Insert nested inside exist
             "id": "4",
             "props": {
               "backgroundColor": "default",
-              "level": "2",
+              "level": 2,
               "textAlignment": "left",
               "textColor": "default",
             },
@@ -585,7 +585,7 @@ exports[`Inserting Blocks with Different Placements > Insert nested inside exist
         "id": "3",
         "props": {
           "backgroundColor": "default",
-          "level": "2",
+          "level": 2,
           "textAlignment": "left",
           "textColor": "default",
         },
