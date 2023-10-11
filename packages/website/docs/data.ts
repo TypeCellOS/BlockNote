@@ -20,6 +20,11 @@ export const sponsors: Sponsors[] = [
     imgDark: "/img/sponsors/nlnet-dark.svg",
     imgLight: "/img/sponsors/nlnet.svg",
   },
+  {
+    name: "Twenty",
+    imgDark: "/img/sponsors/twenty-dark.png",
+    imgLight: "/img/sponsors/twenty.png",
+  },
 ];
 
 export interface FeaturesCardData {
