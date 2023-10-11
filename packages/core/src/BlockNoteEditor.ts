@@ -376,7 +376,7 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
    */
   public forEachBlock(
     callback: (block: Block<BSchema>) => boolean,
-    reverse: boolean = false
+    reverse = false
   ): void {
     const blocks = this.topLevelBlocks.slice();
 

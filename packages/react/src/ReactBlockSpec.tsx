@@ -7,11 +7,13 @@ import {
   blockStyles,
   camelToDataKebab,
   createTipTapBlock,
+  getBlockFromPos,
   mergeCSSClasses,
   parse,
   PropSchema,
   propsToAttributes,
   SpecificBlock,
+  wrapInBlockStructure,
 } from "@blocknote/core";
 import {
   NodeViewContent,
@@ -19,7 +21,6 @@ import {
   NodeViewWrapper,
   ReactNodeViewRenderer,
 } from "@tiptap/react";
-import { FC, HTMLAttributes } from "react";
 import { renderToString } from "react-dom/server";
 import { createContext, ElementType, FC, HTMLProps, useContext } from "react";
 
@@ -28,10 +29,12 @@ export type ReactBlockConfig<
   BType extends string,
   PSchema extends PropSchema,
   ContainsInlineContent extends boolean,
-  BSchema extends BlockSchema
+  BSchema extends BlockSchema & {
+    [k in BType]: BlockSpec<BType, PSchema, ContainsInlineContent>;
+  }
 > = Omit<
   BlockConfig<BType, PSchema, ContainsInlineContent, BSchema>,
-  "render" | "serialize"
+  "render"
 > & {
   render: FC<{
     block: Parameters<
@@ -41,12 +44,6 @@ export type ReactBlockConfig<
       BlockConfig<BType, PSchema, ContainsInlineContent, BSchema>["render"]
     >[1];
   }>;
-  serialize: ReactBlockConfig<
-    BType,
-    PSchema,
-    ContainsInlineContent,
-    BSchema
-  >["render"];
 };
 
 const BlockNoteDOMAttributesContext = createContext<BlockNoteDOMAttributes>({});
@@ -79,35 +76,39 @@ export const InlineContent = <Tag extends ElementType>(
 // Function that wraps the React component returned from 'blockConfig.render' in
 // a `NodeViewWrapper` which also acts as a `blockContent` div. It contains the
 // block type and props as HTML attributes.
-export function reactRenderWithBlockStructure<
+export function reactWrapInBlockStructure<
   BType extends string,
   PSchema extends PropSchema,
   ContainsInlineContent extends boolean,
-  BSchema extends BlockSchema & { [k in BType]: BlockSpec<BType, PSchema> }
->(
-  render: ReactBlockConfig<
-    BType,
-    PSchema,
-    ContainsInlineContent,
-    BSchema
-  >["render"],
-  block: SpecificBlock<BSchema, BType>,
-  editor: BlockNoteEditor<BSchema>
-) {
-  const Content = render;
-  // Add props as HTML attributes in kebab-case with "data-" prefix
-  const htmlAttributes: Record<string, string> = {};
-  // Add props as HTML attributes in kebab-case with "data-" prefix
-  for (const [prop, value] of Object.entries(block.props)) {
-    htmlAttributes[camelToDataKebab(prop)] = value;
+  BSchema extends BlockSchema & {
+    [k in BType]: BlockSpec<BType, PSchema, ContainsInlineContent>;
   }
-
+>(
+  element: JSX.Element,
+  block: SpecificBlock<BSchema, BType>,
+  domAttributes?: Record<string, string>
+) {
   return () => (
+    // Creates `blockContent` element
     <NodeViewWrapper
-      className={blockStyles.blockContent}
+      // Adds custom HTML attributes
+      {...Object.fromEntries(
+        Object.entries(domAttributes || {}).filter(([key]) => key !== "class")
+      )}
+      // Sets blockContent class
+      className={mergeCSSClasses(
+        blockStyles.blockContent,
+        domAttributes?.class || ""
+      )}
+      // Sets content type attribute
       data-content-type={block.type}
-      {...htmlAttributes}>
-      <Content block={block} editor={editor} />
+      // Add props as HTML attributes in kebab-case with "data-" prefix
+      {...Object.fromEntries(
+        Object.entries(block.props).map(([prop, value]) => {
+          return [camelToDataKebab(prop), value];
+        })
+      )}>
+      {element}
     </NodeViewWrapper>
   );
 }
@@ -118,7 +119,9 @@ export function createReactBlockSpec<
   BType extends string,
   PSchema extends PropSchema,
   ContainsInlineContent extends boolean,
-  BSchema extends BlockSchema
+  BSchema extends BlockSchema & {
+    [k in BType]: BlockSpec<BType, PSchema, ContainsInlineContent>;
+  }
 >(
   blockConfig: ReactBlockConfig<BType, PSchema, ContainsInlineContent, BSchema>
 ): BlockSpec<BType, PSchema, ContainsInlineContent> {
@@ -145,84 +148,32 @@ export function createReactBlockSpec<
     },
 
     addNodeView() {
-      const BlockContent: FC<NodeViewProps> = (props: NodeViewProps) => {
-        const Content = blockConfig.render;
-
-        // Add custom HTML attributes
-        const blockContentDOMAttributes =
-          this.options.domAttributes?.blockContent || {};
-
-        // Add props as HTML attributes in kebab-case with "data-" prefix
-        const htmlAttributes: Record<string, string> = {};
-        for (const [attribute, value] of Object.entries(props.node.attrs)) {
-          if (
-            attribute in blockConfig.propSchema &&
-            value !== blockConfig.propSchema[attribute].default
-          ) {
-            htmlAttributes[camelToDataKebab(attribute)] = value;
-          }
-        }
-
-        // Gets BlockNote editor instance
-        const editor = this.options.editor! as BlockNoteEditor<
-          BSchema & {
-            [k in BType]: BlockSpec<BType, PSchema, ContainsInlineContent>;
-          }
-        >;
-        // Gets position of the node
-        const pos =
-          typeof props.getPos === "function" ? props.getPos() : undefined;
-        // Gets TipTap editor instance
-        const tipTapEditor = editor._tiptapEditor;
-        // Gets parent blockContainer node
-        const blockContainer = tipTapEditor.state.doc.resolve(pos!).node();
-        // Gets block identifier
-        const blockIdentifier = blockContainer.attrs.id;
-        // Get the block
-        const block = editor.getBlock(blockIdentifier)!;
-        if (block.type !== blockConfig.type) {
-          throw new Error("Block type does not match");
-        }
-
-        return (
-          <NodeViewWrapper
-            {...Object.fromEntries(
-              Object.entries(blockContentDOMAttributes).filter(
-                ([key]) => key !== "class"
-              )
-            )}
-            className={mergeCSSClasses(
-              blockStyles.blockContent,
-              blockContentDOMAttributes.class
-            )}
-            data-content-type={blockConfig.type}
-            {...htmlAttributes}>
-            <BlockNoteDOMAttributesContext.Provider
-              value={this.options.domAttributes || {}}>
-              <Content block={block as any} editor={editor} />
-            </BlockNoteDOMAttributesContext.Provider>
-          </NodeViewWrapper>
-        );
-      };
       return (props) =>
         ReactNodeViewRenderer(
           (props: NodeViewProps) => {
             // Gets the BlockNote editor instance
-            const editor = this.options.editor as BlockNoteEditor<BSchema>;
+            const editor = this.options.editor! as BlockNoteEditor<
+              BSchema & {
+                [k in BType]: BlockSpec<BType, PSchema, ContainsInlineContent>;
+              }
+            >;
             // Gets the block
-            const block = getBlockFromPos<BType, PSchema, BSchema>(
-              props.getPos,
-              editor,
-              this.editor,
-              blockConfig.type
-            );
-
-            const BlockContent = reactRenderWithBlockStructure<
+            const block = getBlockFromPos<
               BType,
               PSchema,
               ContainsInlineContent,
               BSchema
-            >(blockConfig.render, block, this.options.editor);
+            >(props.getPos, editor, this.editor, blockConfig.type);
+            // Gets the custom HTML attributes for `blockContent` nodes
+            const blockContentDOMAttributes =
+              this.options.domAttributes?.blockContent || {};
+
+            const Content = blockConfig.render;
+            const BlockContent = reactWrapInBlockStructure(
+              <Content block={block} editor={editor} />,
+              block,
+              blockContentDOMAttributes
+            );
 
             return <BlockContent />;
           },
@@ -237,21 +188,30 @@ export function createReactBlockSpec<
     node: node,
     propSchema: blockConfig.propSchema,
     serialize: (block, editor) => {
-      const blockContentWrapper = document.createElement("div");
-      const BlockContent = reactRenderWithBlockStructure<
+      const blockContentDOMAttributes =
+        node.options.domAttributes?.blockContent || {};
+
+      let element: HTMLElement;
+
+      if (blockConfig.serialize !== undefined) {
+        element = blockConfig.serialize(block as any, editor as any);
+      } else {
+        const Content = blockConfig.render;
+        const BlockContent = reactWrapInBlockStructure(
+          <Content block={block as any} editor={editor as any} />,
+          block,
+          blockContentDOMAttributes
+        );
+        element = document.createElement("div");
+        element.innerHTML = renderToString(<BlockContent />);
+      }
+
+      return wrapInBlockStructure<
         BType,
         PSchema,
         ContainsInlineContent,
         BSchema
-      >(blockConfig.serialize || blockConfig.render, block, editor as any);
-      blockContentWrapper.innerHTML = renderToString(<BlockContent />);
-
-      return {
-        dom: blockContentWrapper.firstChild! as HTMLElement,
-        contentDOM: blockContentWrapper.getElementsByClassName(
-          blockStyles.inlineContent
-        )[0],
-      };
+      >({ dom: element }, block as any, blockContentDOMAttributes).dom;
     },
   };
 }

@@ -121,7 +121,9 @@ export type BlockConfig<
   Type extends string,
   PSchema extends PropSchema,
   ContainsInlineContent extends boolean,
-  BSchema extends BlockSchema
+  BSchema extends BlockSchema & {
+    [k in Type]: BlockSpec<Type, PSchema, ContainsInlineContent>;
+  }
 > = {
   // Attributes to define block in the API as well as a TipTap node.
   type: Type;
@@ -133,32 +135,20 @@ export type BlockConfig<
     /**
      * The custom block to render
      */
-    block: SpecificBlock<
-      BSchema & {
-        [k in Type]: BlockSpec<Type, PSchema, ContainsInlineContent>;
-      },
-      Type
-    >,
+    block: SpecificBlock<BSchema, Type>,
     /**
      * The BlockNote editor instance
      * This is typed generically. If you want an editor with your custom schema, you need to
      * cast it manually, e.g.: `const e = editor as BlockNoteEditor<typeof mySchema>;`
      */
-    editor: BlockNoteEditor<
-      BSchema & { [k in Type]: BlockSpec<Type, PSchema, ContainsInlineContent> }
-    >
+    editor: BlockNoteEditor<BSchema>
     // (note) if we want to fix the manual cast, we need to prevent circular references and separate block definition and render implementations
     // or allow manually passing <BSchema>, but that's not possible without passing the other generics because Typescript doesn't support partial inferred generics
-  ) => ContainsInlineContent extends true
-    ? {
-        dom: HTMLElement;
-        contentDOM: HTMLElement;
-        destroy?: () => void;
-      }
-    : {
-        dom: HTMLElement;
-        destroy?: () => void;
-      };
+  ) => {
+    dom: HTMLElement;
+    contentDOM?: HTMLElement;
+    destroy?: () => void;
+  };
   serialize?: (
     block: SpecificBlock<BSchema, Type>,
     editor: BlockNoteEditor<BSchema>
@@ -179,13 +169,11 @@ export type BlockSpec<
 > = {
   node: TipTapNode<BType, ContainsInlineContent, any>;
   readonly propSchema: PSchema;
-  // TODO: Improve schema typing
-  serialize?: BlockConfig<
-    BType,
-    PSchema,
-    boolean,
-    BlockSchema & { [k in BType]: BlockSpec<BType, PSchema, ContainsInlineContent> }
-  >["render"];
+  // TODO: Typing
+  serialize?: (
+    block: SpecificBlock<BlockSchema, string>,
+    editor: BlockNoteEditor<BlockSchema>
+  ) => HTMLElement;
 };
 
 // Utility type. For a given object block schema, ensures that the key of each

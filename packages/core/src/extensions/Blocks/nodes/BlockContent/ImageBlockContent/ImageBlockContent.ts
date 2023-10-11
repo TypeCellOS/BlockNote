@@ -302,4 +302,22 @@ export const Image = createBlockSpec({
   propSchema: imagePropSchema,
   containsInlineContent: false,
   render: renderImage,
+  serialize: (block) => {
+    const img = document.createElement("img");
+    img.src = block.props.url;
+
+    return img;
+  },
+  parse: (element) => {
+    if (element.tagName === "IMG") {
+      return {
+        type: "image",
+        props: {
+          url: element.getAttribute("src") || "",
+        },
+      };
+    }
+
+    return;
+  },
 });

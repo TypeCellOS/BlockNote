@@ -1,18 +1,19 @@
 import { Attribute, Attributes, Editor, Node } from "@tiptap/core";
 import { Fragment, ParseRule } from "prosemirror-model";
-import { BlockNoteDOMAttributes, BlockNoteEditor, SpecificBlock } from "../../..";
+import { BlockNoteEditor } from "../../..";
 import { inlineContentToNodes } from "../../../api/nodeConversions/nodeConversions";
 import styles from "../nodes/Block.module.css";
 import {
   BlockConfig,
+  BlockNoteDOMAttributes,
   BlockSchema,
   BlockSpec,
   PropSchema,
+  SpecificBlock,
   TipTapNode,
   TipTapNodeConfig,
 } from "./blockTypes";
 import { mergeCSSClasses } from "../../../shared/utils";
-import { ParseRule } from "prosemirror-model";
 
 export function camelToDataKebab(str: string): string {
   return "data-" + str.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
@@ -24,11 +25,13 @@ export function propsToAttributes<
   BType extends string,
   PSchema extends PropSchema,
   ContainsInlineContent extends boolean,
-  BSchema extends BlockSchema
+  BSchema extends BlockSchema & {
+    [k in BType]: BlockSpec<BType, PSchema, ContainsInlineContent>;
+  }
 >(
   blockConfig: Omit<
     BlockConfig<BType, PSchema, ContainsInlineContent, BSchema>,
-    "render" | "serialize"
+    "render"
   >
 ): Attributes {
   const tiptapAttributes: Record<string, Attribute> = {};
@@ -60,11 +63,13 @@ export function parse<
   BType extends string,
   PSchema extends PropSchema,
   ContainsInlineContent extends boolean,
-  BSchema extends BlockSchema
+  BSchema extends BlockSchema & {
+    [k in BType]: BlockSpec<BType, PSchema, ContainsInlineContent>;
+  }
 >(
   blockConfig: Omit<
     BlockConfig<BType, PSchema, ContainsInlineContent, BSchema>,
-    "render" | "serialize"
+    "render"
   >
 ) {
   const rules: ParseRule[] = [
@@ -75,21 +80,24 @@ export function parse<
 
   if (blockConfig.parse) {
     rules.push({
+      tag: "*",
       getAttrs(node: string | HTMLElement) {
-        console.log("parse");
         if (typeof node === "string") {
           return false;
         }
 
-        const block = blockConfig.parse!(node);
+        const block = blockConfig.parse?.(node);
 
-        return block ? block.props || {} : false;
+        if (block === undefined) {
+          return false;
+        }
+
+        return block.props || {};
       },
       getContent(node, schema) {
-        console.log("content");
-        const block = blockConfig.parse!(node as HTMLElement);
+        const block = blockConfig.parse?.(node as HTMLElement);
 
-        if (block && block.content) {
+        if (block !== undefined && block.content !== undefined) {
           return Fragment.from(
             typeof block.content === "string"
               ? schema.text(block.content)
@@ -105,57 +113,15 @@ export function parse<
   return rules;
 }
 
-// Function that wraps the `dom` element returned from 'blockConfig.render' in a
-// `blockContent` div, which contains the block type and props as HTML
-// attributes. If `blockConfig.render` also returns a `contentDOM`, it also adds
-// an `inlineContent` class to it.
-export function renderWithBlockStructure<
-  BType extends string,
-  PSchema extends PropSchema,
-  ContainsInlineContent extends boolean,
-  BSchema extends BlockSchema
->(
-  render: BlockConfig<BType, PSchema, ContainsInlineContent, BSchema>["render"],
-  block: SpecificBlock<BSchema, BType>,
-  editor: BlockNoteEditor<BSchema>
-) {
-  // Create blockContent element
-  const blockContent = document.createElement("div");
-  // Sets blockContent class
-  blockContent.className = styles.blockContent;
-  // Add blockContent HTML attribute
-  blockContent.setAttribute("data-content-type", block.type);
-  // Add props as HTML attributes in kebab-case with "data-" prefix
-  for (const [prop, value] of Object.entries(block.props)) {
-    blockContent.setAttribute(camelToDataKebab(prop), value);
-  }
-
-  // TODO: This only works for content copied within BlockNote.
-  // Creates contentDOM element to serialize inline content into.
-  let contentDOM: HTMLDivElement | undefined;
-  if (blockConfig.containsInlineContent) {
-    contentDOM = document.createElement("div");
-    blockContent.appendChild(contentDOM);
-  } else {
-    contentDOM = undefined;
-  }
-  // Adds elements to blockContent
-  blockContent.appendChild(rendered.dom);
-
-  return contentDOM !== undefined
-    ? {
-        dom: blockContent,
-        contentDOM: contentDOM,
-      }
-    : {
-        dom: blockContent,
-      };
-}
-
+// Used to figure out which block should be rendered. This block is then used to
+// create the node view.
 export function getBlockFromPos<
   BType extends string,
   PSchema extends PropSchema,
-  BSchema extends BlockSchema & { [k in BType]: BlockSpec<BType, PSchema> }
+  ContainsInlineContent extends boolean,
+  BSchema extends BlockSchema & {
+    [k in BType]: BlockSpec<BType, PSchema, ContainsInlineContent>;
+  }
 >(
   getPos: (() => number) | boolean,
   editor: BlockNoteEditor<BSchema>,
@@ -185,13 +151,76 @@ export function getBlockFromPos<
   return block;
 }
 
+// Function that wraps the `dom` element returned from 'blockConfig.render' in a
+// `blockContent` div, which contains the block type and props as HTML
+// attributes. If `blockConfig.render` also returns a `contentDOM`, it also adds
+// an `inlineContent` class to it.
+export function wrapInBlockStructure<
+  BType extends string,
+  PSchema extends PropSchema,
+  ContainsInlineContent extends boolean,
+  BSchema extends BlockSchema & {
+    [k in BType]: BlockSpec<BType, PSchema, ContainsInlineContent>;
+  }
+>(
+  element: {
+    dom: HTMLElement;
+    contentDOM?: HTMLElement;
+  },
+  block: SpecificBlock<BSchema, BType>,
+  domAttributes?: Record<string, string>
+) {
+  // Creates `blockContent` element
+  const blockContent = document.createElement("div");
+
+  // Adds custom HTML attributes
+  if (domAttributes !== undefined) {
+    for (const [attr, value] of Object.entries(domAttributes)) {
+      if (attr !== "class") {
+        blockContent.setAttribute(attr, value);
+      }
+    }
+  }
+  // Sets blockContent class
+  blockContent.className = mergeCSSClasses(
+    styles.blockContent,
+    domAttributes?.class || ""
+  );
+  // Sets content type attribute
+  blockContent.setAttribute("data-content-type", block.type);
+  // Add props as HTML attributes in kebab-case with "data-" prefix
+  for (const [prop, value] of Object.entries(block.props)) {
+    blockContent.setAttribute(camelToDataKebab(prop), value);
+  }
+
+  blockContent.appendChild(element.dom);
+
+  if (element.contentDOM !== undefined) {
+    element.contentDOM.className = mergeCSSClasses(
+      styles.inlineContent,
+      element.contentDOM.className
+    );
+
+    return {
+      dom: blockContent,
+      contentDOM: element.contentDOM,
+    };
+  }
+
+  return {
+    dom: blockContent,
+  };
+}
+
 // A function to create custom block for API consumers
 // we want to hide the tiptap node from API consumers and provide a simpler API surface instead
 export function createBlockSpec<
   BType extends string,
   PSchema extends PropSchema,
-  ContainsInlineContent extends false,
-  BSchema extends BlockSchema
+  ContainsInlineContent extends boolean,
+  BSchema extends BlockSchema & {
+    [k in BType]: BlockSpec<BType, PSchema, ContainsInlineContent>;
+  }
 >(
   blockConfig: BlockConfig<BType, PSchema, ContainsInlineContent, BSchema>
 ): BlockSpec<BType, PSchema, ContainsInlineContent> {
@@ -220,21 +249,26 @@ export function createBlockSpec<
     addNodeView() {
       return ({ getPos }) => {
         // Gets the BlockNote editor instance
-        const editor = this.options.editor as BlockNoteEditor<BSchema>;
+        const editor = this.options.editor;
         // Gets the block
-        const block = getBlockFromPos<BType, PSchema, BSchema>(
-          getPos,
-          editor,
-          this.editor,
-          blockConfig.type
-        );
-
-        return renderWithBlockStructure<
+        const block = getBlockFromPos<
           BType,
           PSchema,
           ContainsInlineContent,
           BSchema
-        >(blockConfig.render, block, editor);
+        >(getPos, editor, this.editor, blockConfig.type);
+        // Gets the custom HTML attributes for `blockContent` nodes
+        const blockContentDOMAttributes =
+          this.options.domAttributes?.blockContent || {};
+
+        const content = blockConfig.render(block, editor);
+
+        return wrapInBlockStructure<
+          BType,
+          PSchema,
+          ContainsInlineContent,
+          BSchema
+        >(content, block as any, blockContentDOMAttributes);
       };
     },
   });
@@ -242,15 +276,29 @@ export function createBlockSpec<
   return {
     node: node as TipTapNode<BType, ContainsInlineContent>,
     propSchema: blockConfig.propSchema,
-    serialize: (block, editor) =>
-      renderWithBlockStructure<BType, PSchema, boolean, BSchema>(
-        blockConfig.serialize
-          ? (block, editor) => ({ dom: blockConfig.serialize!(block, editor) })
-          : blockConfig.render,
-        block,
-        // TODO: Fix typing
-        editor as any
-      ),
+    serialize: (block, editor) => {
+      const blockContentDOMAttributes =
+        node.options.domAttributes?.blockContent || {};
+
+      let element: {
+        dom: HTMLElement;
+        contentDOM?: HTMLElement;
+      };
+      if (blockConfig.serialize !== undefined) {
+        element = {
+          dom: blockConfig.serialize(block as any, editor as any),
+        };
+      } else {
+        element = blockConfig.render(block as any, editor as any);
+      }
+
+      return wrapInBlockStructure<
+        BType,
+        PSchema,
+        ContainsInlineContent,
+        BSchema
+      >(element, block as any, blockContentDOMAttributes).dom;
+    },
   };
 }
 
