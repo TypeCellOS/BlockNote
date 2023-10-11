@@ -485,6 +485,51 @@ export const BlockContainer = Node.create<{
           }),
       ]);
 
+    const handleDelete = () =>
+      this.editor.commands.first(({ commands }) => [
+        // Deletes the selection if it's not empty.
+        () => commands.deleteSelection(),
+        // Merges block with the next one (at the same nesting level or lower),
+        // if one exists, the block has no children, and the selection is at the
+        // end of the block.
+        () =>
+          commands.command(({ state }) => {
+            const { node, contentNode, depth, endPos } = getBlockInfoFromPos(
+              state.doc,
+              state.selection.from
+            )!;
+
+            const blockAtDocEnd = false;
+            const selectionAtBlockEnd =
+              state.selection.$anchor.parentOffset ===
+              contentNode.firstChild!.nodeSize;
+            const selectionEmpty =
+              state.selection.anchor === state.selection.head;
+            const hasChildBlocks = node.childCount === 2;
+
+            if (
+              !blockAtDocEnd &&
+              selectionAtBlockEnd &&
+              selectionEmpty &&
+              !hasChildBlocks
+            ) {
+              let oldDepth = depth;
+              let newPos = endPos + 2;
+              let newDepth = state.doc.resolve(newPos).depth;
+
+              while (newDepth < oldDepth) {
+                oldDepth = newDepth;
+                newPos += 2;
+                newDepth = state.doc.resolve(newPos).depth;
+              }
+
+              return commands.BNMergeBlocks(newPos - 1);
+            }
+
+            return false;
+          }),
+      ]);
+
     const handleEnter = () =>
       this.editor.commands.first(({ commands }) => [
         // Removes a level of nesting if the block is empty & indented, while the selection is also empty & at the start
@@ -571,6 +616,7 @@ export const BlockContainer = Node.create<{
 
     return {
       Backspace: handleBackspace,
+      Delete: handleDelete,
       Enter: handleEnter,
       // Always returning true for tab key presses ensures they're not captured by the browser. Otherwise, they blur the
       // editor since the browser will try to use tab for keyboard navigation.
