@@ -1,8 +1,8 @@
 ---
-title: Alert Block
-description: In this example, we create a custom Alert block which is used to emphasize text.
-imageTitle: Alert Block
-path: /examples/alert-block
+title: Saving & Loading
+description: In this example, we save the editor contents to local storage whenever a change is made, and load the saved contents when the editor is created.
+imageTitle: Saving & Loading
+path: /examples/saving-loading
 ---
 
 <script setup>
