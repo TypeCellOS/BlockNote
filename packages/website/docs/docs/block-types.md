@@ -262,7 +262,7 @@ img {
 ::: info
 While custom blocks open a lot of doors for what you can do with BlockNote, we're still working on the API and there are a few limitations for the kinds of blocks you can create.
 
-We'd love to hear your feedback on Github or in our Discord community!
+We'd love to hear your feedback on GitHub or in our Discord community!
 :::
 
 ### Creating a Custom Block Type

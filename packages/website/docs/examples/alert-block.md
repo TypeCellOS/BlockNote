@@ -46,12 +46,10 @@ import { RiAlertFill } from "react-icons/ri";
 
 import { createAlertBlock, insertAlert } from "./Alert";
 
-const theme = "light";
-
 // The custom schema, including all default blocks and the custom Alert block
 export const schemaWithAlert = {
   ...defaultBlockSchema,
-  alert: createAlertBlock(theme),
+  alert: createAlertBlock("{{ getTheme(isDark) }}"),
 };
 
 export default function App() {
@@ -64,7 +62,7 @@ export default function App() {
   });
 
   return (
-    <BlockNoteView editor={editor} theme={theme}>
+    <BlockNoteView editor={editor} theme={"{{ getTheme(isDark) }}"}>
       {/*Adds alert item to block type dropdown in the Formatting Toolbar*/}
       <FormattingToolbarPositioner
         editor={editor}
@@ -107,7 +105,6 @@ import {
   InlineContent,
   ReactSlashMenuItem,
 } from "@blocknote/react";
-import { useState } from "react";
 import { RiAlertFill } from "react-icons/ri";
 import { MdCancel, MdCheckCircle, MdError, MdInfo } from "react-icons/md";
 import { Menu } from "@mantine/core";
@@ -161,23 +158,27 @@ export const alertPropSchema = {
 // Component for the Alert block
 export const Alert = (props: {
   block: SpecificBlock<
-    DefaultBlockSchema & { alert: BlockSpec<"alert", typeof alertPropSchema> },
+    DefaultBlockSchema & {
+    alert: BlockSpec<"alert", typeof alertPropSchema, true>;
+  },
     "alert"
   >;
   editor: BlockNoteEditor<
-    DefaultBlockSchema & { alert: BlockSpec<"alert", typeof alertPropSchema> }
+    DefaultBlockSchema & {
+    alert: BlockSpec<"alert", typeof alertPropSchema, true>;
+  }
   >;
   theme: "light" | "dark";
 }) => {
-  const [type, setType] = useState(props.block.props.type);
-  const Icon = alertTypes[type].icon;
+  const Icon = alertTypes[props.block.props.type].icon;
 
   return (
     <div
       className={"alert"}
       style={{
         ...alertStyles,
-        backgroundColor: alertTypes[type].backgroundColor[props.theme],
+        backgroundColor:
+          alertTypes[props.block.props.type].backgroundColor[props.theme],
       }}>
       {/*Icon which opens a menu to choose the Alert type*/}
       <Menu zIndex={99999}>
@@ -187,13 +188,18 @@ export const Alert = (props: {
             className={"alert-icon-wrapper"}
             style={{
               ...alertIconWrapperStyles,
-              backgroundColor: alertTypes[type].color,
+              backgroundColor: alertTypes[props.block.props.type].color,
             }}
             contentEditable={false}>
             {/*Icon itself*/}
             <Icon
               className={"alert-icon"}
-              style={{ color: alertTypes[type].backgroundColor[props.theme] }}
+              style={{
+                color:
+                  alertTypes[props.block.props.type].backgroundColor[
+                    props.theme
+                  ],
+              }}
               size={32}
             />
           </div>
@@ -204,12 +210,17 @@ export const Alert = (props: {
           <Menu.Divider />
           {Object.entries(alertTypes).map(([key, value]) => {
             const ItemIcon = value.icon;
-
+            
             return (
               <Menu.Item
                 key={key}
                 icon={<ItemIcon color={value.color} />}
-                onClick={() => setType(key as keyof typeof alertTypes)}>
+                onClick={() =>
+                  props.editor.updateBlock(props.block, {
+                    type: "alert",
+                    props: { type: key as keyof typeof alertTypes },
+                  })
+                }>
                 {key.slice(0, 1).toUpperCase() + key.slice(1)}
               </Menu.Item>
             );
@@ -229,7 +240,9 @@ export const createAlertBlock = (theme: "light" | "dark") =>
     "alert",
     typeof alertPropSchema,
     true,
-    DefaultBlockSchema & { alert: BlockSpec<"alert", typeof alertPropSchema> }
+    DefaultBlockSchema & {
+      alert: BlockSpec<"alert", typeof alertPropSchema, true>;
+    }
   >({
     type: "alert" as const,
     propSchema: {
@@ -249,7 +262,7 @@ export const insertAlert = {
   name: "Alert",
   execute: (editor) => {
     const block = editor.getTextCursorPosition().block;
-    const blockIsEmpty = block.content.length === 0;
+    const blockIsEmpty = block.content!.length === 0;
 
     // Updates current block to an Alert if it's empty, otherwise inserts a new
     // one below
@@ -281,7 +294,9 @@ export const insertAlert = {
   icon: <RiAlertFill />,
   hint: "Used to emphasize text",
 } satisfies ReactSlashMenuItem<
-  DefaultBlockSchema & { alert: BlockSpec<"alert", typeof alertPropSchema> }
+  DefaultBlockSchema & {
+    alert: BlockSpec<"alert", typeof alertPropSchema, true>;
+  }
 >;
 
 const alertStyles = {
