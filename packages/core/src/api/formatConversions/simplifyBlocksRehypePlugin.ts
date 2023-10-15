@@ -38,6 +38,8 @@ export function simplifyBlocks(options: SimplifyBlocksOptions) {
         blockContent.properties!["dataContentType"] as string
       );
 
+      const isImageBlock = blockContent.properties!["dataContentType"] as string === 'image';
+
       const listItemBlockType = isListItemBlock
         ? options.orderedListItemBlockTypes.has(
             blockContent.properties!["dataContentType"] as string
@@ -104,6 +106,15 @@ export function simplifyBlocks(options: SimplifyBlocksOptions) {
         const numElementsAdded = blockGroup.children.length;
         i += numElementsAdded;
         numChildElements += numElementsAdded;
+      } else if (isImageBlock) {
+        const img = document.createElement("img");
+        img.setAttribute('src', blockContent.properties!['dataUrl'] as string || '');
+        
+        const imgElement = fromDom(
+          img
+        ) as HASTElement;
+
+        tree.children[i] = imgElement;
       } else {
         // Replaces the block with only the content inside it.
         tree.children[i] = blockContent.children[0];
