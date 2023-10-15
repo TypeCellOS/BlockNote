@@ -109,6 +109,7 @@ export function simplifyBlocks(options: SimplifyBlocksOptions) {
       } else if (isImageBlock) {
         const img = document.createElement("img");
         img.setAttribute('src', blockContent.properties!['dataUrl'] as string || '');
+        img.setAttribute('alt', blockContent.properties!['dataCaption'] as string || '');
         
         const imgElement = fromDom(
           img
