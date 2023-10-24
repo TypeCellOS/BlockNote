@@ -23,6 +23,7 @@ BASIC STYLES
   padding: 3px 0;
   flex-grow: 1;
   transition: font-size 0.2s;
+  width: 100%;
   /*
   because the content elements are display: block
   we use flex to position them next to list markers
