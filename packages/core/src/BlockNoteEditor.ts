@@ -284,11 +284,11 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
         newOptions.onTextCursorPositionChange?.(this);
       },
       editable:
-        newOptions._tiptapOptions?.editable !== undefined
+        options.editable !== undefined
+          ? options.editable
+          : newOptions._tiptapOptions?.editable !== undefined
           ? newOptions._tiptapOptions?.editable
-          : options.editable === undefined
-          ? true
-          : options.editable,
+          : true,
       extensions: !newOptions.enableBlockNoteExtensions
         ? newOptions._tiptapOptions?.extensions || []
         : [...(newOptions._tiptapOptions?.extensions || []), ...extensions],
