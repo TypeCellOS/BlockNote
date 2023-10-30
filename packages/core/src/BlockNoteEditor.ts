@@ -289,9 +289,10 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
           : newOptions._tiptapOptions?.editable !== undefined
           ? newOptions._tiptapOptions?.editable
           : true,
-      extensions: !newOptions.enableBlockNoteExtensions
-        ? newOptions._tiptapOptions?.extensions || []
-        : [...(newOptions._tiptapOptions?.extensions || []), ...extensions],
+      extensions:
+        newOptions.enableBlockNoteExtensions === false
+          ? newOptions._tiptapOptions?.extensions || []
+          : [...(newOptions._tiptapOptions?.extensions || []), ...extensions],
       editorProps: {
         ...newOptions._tiptapOptions?.editorProps,
         attributes: {
