@@ -265,6 +265,8 @@ export class SideMenuView<BSchema extends BlockSchema> implements PluginView {
     // Makes menu scroll with the page.
     document.addEventListener("scroll", this.onScroll);
 
+    // Unfreezes the menu whenever the user clicks anywhere.
+    document.body.addEventListener("mousedown", this.onMouseDown, true);
     // Hides and unfreezes the menu whenever the user presses a key.
     document.body.addEventListener("keydown", this.onKeyDown, true);
   }
@@ -342,6 +344,14 @@ export class SideMenuView<BSchema extends BlockSchema> implements PluginView {
   onKeyDown = (_event: KeyboardEvent) => {
     if (this.sideMenuState?.show) {
       this.sideMenuState.show = false;
+      this.updateSideMenu(this.sideMenuState);
+    }
+    this.menuFrozen = false;
+  };
+
+  onMouseDown = (_event: MouseEvent) => {
+    if (this.sideMenuState && !this.sideMenuState.show) {
+      this.sideMenuState.show = true;
       this.updateSideMenu(this.sideMenuState);
     }
     this.menuFrozen = false;
@@ -479,6 +489,7 @@ export class SideMenuView<BSchema extends BlockSchema> implements PluginView {
     this.pmView.dom.removeEventListener("dragstart", this.onDragStart);
     document.body.removeEventListener("drop", this.onDrop, true);
     document.removeEventListener("scroll", this.onScroll);
+    document.body.removeEventListener("mousedown", this.onMouseDown, true);
     document.body.removeEventListener("keydown", this.onKeyDown, true);
   }
 
