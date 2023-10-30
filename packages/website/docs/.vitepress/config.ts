@@ -133,6 +133,10 @@ const EXAMPLES_SIDEBAR = [
         text: "Saving & Loading",
         link: "/examples/saving-loading",
       },
+      {
+        text: "Changing Font",
+        link: "/examples/changing-font",
+      },
     ],
   },
   {

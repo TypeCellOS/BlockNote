@@ -37,7 +37,6 @@ import "@blocknote/core/style.css";
 
 // Custom red light theme
 const lightRedTheme = {
-  type: "light",
   colors: {
     editor: {
       text: "#222222",
@@ -75,7 +74,6 @@ const lightRedTheme = {
 // Custom red dark theme
 const darkRedTheme = {
   ...lightRedTheme,
-  type: "dark",
   colors: {
     ...lightRedTheme.colors,
     editor: {
@@ -246,6 +244,12 @@ There are a number of components that you can override styles for:
 `EditHyperlinkMenu:` Menu to edit hyperlinks, opened from the Formatting Toolbar or Hyperlink Toolbar.
 
 `Editor:` The editor itself, excluding menus & toolbars.
+
+`FileInput:` Component used for file inputs in the Image Toolbar.
+
+`Tabs:` Component used for tabs in the Image Toolbar.
+
+`TextInput:` Component used for text inputs in the Image Toolbar.
 
 `Toolbar:` Component used for the [Formatting Toolbar](/docs/formatting-toolbar), Hyperlink Toolbar, and [Image Toolbar](/docs/image-toolbar).
 

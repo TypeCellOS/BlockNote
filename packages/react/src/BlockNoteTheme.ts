@@ -39,6 +39,10 @@ export type ComponentStyles = Partial<{
   // Menu to edit hyperlinks (in Formatting Toolbar & Hyperlink Toolbar)
   EditHyperlinkMenu: CSSObject;
   Editor: CSSObject;
+  // Used in the Image Toolbar
+  FileInput: CSSObject;
+  Tabs: CSSObject;
+  TextInput: CSSObject;
   // Wraps Formatting Toolbar & Hyperlink Toolbar
   Toolbar: CSSObject;
   // Appears on hover for Formatting Toolbar
@@ -129,10 +133,13 @@ export const blockNoteToMantineTheme = (theme: Theme): MantineThemeOverride => {
       },
       Tabs: {
         styles: () => ({
-          root: {
-            width: "100%",
-            backgroundColor: theme.colors.menu.background,
-          },
+          root: _.merge<CSSObject, CSSObject>(
+            {
+              width: "100%",
+              backgroundColor: theme.colors.menu.background,
+            },
+            theme.componentStyles?.(theme).Tabs || {}
+          ),
           tabsList: {
             borderColor: theme.colors.hovered.background,
           },
@@ -166,6 +173,7 @@ export const blockNoteToMantineTheme = (theme: Theme): MantineThemeOverride => {
       },
       FileInput: {
         styles: () => ({
+          root: theme.componentStyles?.(theme).FileInput || {},
           input: {
             color: theme.colors.menu.text,
             backgroundColor: theme.colors.menu.background,
@@ -191,6 +199,7 @@ export const blockNoteToMantineTheme = (theme: Theme): MantineThemeOverride => {
       },
       TextInput: {
         styles: () => ({
+          root: theme.componentStyles?.(theme).TextInput || {},
           input: {
             color: theme.colors.menu.text,
             backgroundColor: theme.colors.menu.background,

@@ -35,7 +35,10 @@ You can use the provided `uploadToTempFilesOrg` function to as a starting point,
 ::: sandbox {template=react-ts}
 
 ```typescript-vue /App.tsx
-import { BlockNoteEditor, uploadToTmpFilesOrg } from "@blocknote/core";
+import {
+  BlockNoteEditor,
+  uploadToTmpFilesDotOrg_DEV_ONLY,
+} from "@blocknote/core";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
 import "@blocknote/core/style.css";
 
@@ -43,7 +46,7 @@ export default function App() {
   // Creates a new editor instance.
   const editor: BlockNoteEditor = useBlockNote({
     // Sets the example file upload handler.
-    uploadFile: uploadToTmpFilesOrg,
+    uploadFile: uploadToTmpFilesDotOrg_DEV_ONLY,
   });
 
   return <BlockNoteView editor={editor} theme={"{{ getTheme(isDark) }}"} />;
