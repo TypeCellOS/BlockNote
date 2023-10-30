@@ -3,7 +3,7 @@ import { Plugin } from "prosemirror-state";
 import { DOMSerializer, Fragment, Node, Schema } from "prosemirror-model";
 import { nodeToBlock } from "../../../api/nodeConversions/nodeConversions";
 import { BlockNoteEditor } from "../../../BlockNoteEditor";
-import { BlockSchema, SpecificBlock } from "./blockTypes";
+import { Block, BlockSchema, SpecificBlock } from "./blockTypes";
 
 function doc(options: { document?: Document }) {
   return options.document || window.document;
@@ -103,10 +103,73 @@ export const createCustomBlockSerializerExtension = <
       return [
         new Plugin({
           props: {
-            clipboardSerializer: customBlockSerializer(
-              this.editor.schema,
-              editor
-            ),
+            handleDOMEvents: {
+              copy() {
+                // TODO: Fix editor.getSelection().blocks returning child blocks
+                // const blocks = editor.getSelection()?.blocks;
+                const blocks = editor.topLevelBlocks;
+
+                if (blocks === undefined || blocks.length === 1) {
+                  return;
+                }
+
+                async function copyToClipboard(blocks: Block<BSchema>[]) {
+                  const html = await editor.blocksToHTML(blocks);
+                  const markdown = await editor.blocksToMarkdown(blocks);
+                  const blockNoteHTML = await (
+                    await (
+                      await navigator.clipboard.read()
+                    )[0].getType("text/html")
+                  ).text();
+
+                  await navigator.clipboard.write([
+                    new ClipboardItem({
+                      "text/html": new Blob([html], {
+                        type: "text/html",
+                      }),
+                      "text/plain": new Blob([markdown], {
+                        type: "text/plain",
+                      }),
+                      "web blocknote/html": new Blob([blockNoteHTML], {
+                        type: "blocknote/html",
+                      }),
+                    }),
+                  ]);
+
+                  const formats = [
+                    "text/html",
+                    "text/plain",
+                    "web blocknote/html",
+                  ] as const;
+                  const items = await navigator.clipboard.read();
+                  for (const format of formats) {
+                    const blob = await items[0].getType(format);
+                    const text = await blob.text();
+                    console.log(format);
+                    console.log(text);
+                  }
+                }
+
+                copyToClipboard(blocks);
+              },
+              paste(_view, event) {
+                event.preventDefault();
+
+                async function pasteFromClipboard() {
+                  const items = await navigator.clipboard.read();
+                  const format = items[0].types.includes("web blocknote/html")
+                    ? "web blocknote/html"
+                    : "text/html";
+
+                  const blob = await items[0].getType(format);
+                  const text = await blob.text();
+
+                  editor._tiptapEditor.view.pasteHTML(text);
+                }
+
+                pasteFromClipboard();
+              },
+            },
           },
         }),
       ];

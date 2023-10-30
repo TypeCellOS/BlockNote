@@ -514,6 +514,8 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
 
     const blocks: Block<BSchema>[] = [];
 
+    // TODO: This adds all child blocks to the same array. Needs to find min
+    //  depth and only add blocks at that depth.
     this._tiptapEditor.state.doc.descendants((node, pos) => {
       if (node.type.spec.group !== "blockContent") {
         return true;
@@ -784,7 +786,7 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
    * @returns The blocks, serialized as an HTML string.
    */
   public async blocksToHTML(blocks: Block<BSchema>[]): Promise<string> {
-    return blocksToHTML(blocks, this._tiptapEditor.schema);
+    return blocksToHTML(blocks, this._tiptapEditor.schema, this);
   }
 
   /**
@@ -805,7 +807,7 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
    * @returns The blocks, serialized as a Markdown string.
    */
   public async blocksToMarkdown(blocks: Block<BSchema>[]): Promise<string> {
-    return blocksToMarkdown(blocks, this._tiptapEditor.schema);
+    return blocksToMarkdown(blocks, this._tiptapEditor.schema, this);
   }
 
   /**

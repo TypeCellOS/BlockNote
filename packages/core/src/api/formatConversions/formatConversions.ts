@@ -1,4 +1,4 @@
-import { DOMParser, DOMSerializer, Schema } from "prosemirror-model";
+import { DOMParser, Schema } from "prosemirror-model";
 import rehypeParse from "rehype-parse";
 import rehypeRemark from "rehype-remark";
 import rehypeStringify from "rehype-stringify";
@@ -12,16 +12,19 @@ import { Block, BlockSchema } from "../../extensions/Blocks/api/blockTypes";
 import { blockToNode, nodeToBlock } from "../nodeConversions/nodeConversions";
 import { removeUnderlines } from "./removeUnderlinesRehypePlugin";
 import { simplifyBlocks } from "./simplifyBlocksRehypePlugin";
+import { customBlockSerializer } from "../../extensions/Blocks/api/serialization";
+import { BlockNoteEditor } from "../../BlockNoteEditor";
 
 export async function blocksToHTML<BSchema extends BlockSchema>(
   blocks: Block<BSchema>[],
-  schema: Schema
+  schema: Schema,
+  editor: BlockNoteEditor<BSchema>
 ): Promise<string> {
   const htmlParentElement = document.createElement("div");
-  const serializer = DOMSerializer.fromSchema(schema);
+  const serializer = customBlockSerializer(schema, editor);
 
   for (const block of blocks) {
-    const node = blockToNode(block, schema);
+    const node = blockToNode(block, editor._tiptapEditor.schema);
     const htmlNode = serializer.serializeNode(node);
     htmlParentElement.appendChild(htmlNode);
   }
@@ -60,7 +63,8 @@ export async function HTMLToBlocks<BSchema extends BlockSchema>(
 
 export async function blocksToMarkdown<BSchema extends BlockSchema>(
   blocks: Block<BSchema>[],
-  schema: Schema
+  schema: Schema,
+  editor: BlockNoteEditor<BSchema>
 ): Promise<string> {
   const markdownString = await unified()
     .use(rehypeParse, { fragment: true })
@@ -68,7 +72,7 @@ export async function blocksToMarkdown<BSchema extends BlockSchema>(
     .use(rehypeRemark)
     .use(remarkGfm)
     .use(remarkStringify)
-    .process(await blocksToHTML(blocks, schema));
+    .process(await blocksToHTML(blocks, schema, editor));
 
   return markdownString.value as string;
 }
