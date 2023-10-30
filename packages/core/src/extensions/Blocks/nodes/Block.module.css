@@ -288,10 +288,6 @@ NESTED BLOCKS
   cursor: ew-resize;
 }
 
-[data-content-type="image"] .imageWrapper:hover .resizeHandle {
-  display: block;
-}
-
 [data-content-type="image"] .caption {
   font-size: 0.8em
 }
