@@ -784,7 +784,7 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
    * @returns The blocks, serialized as an HTML string.
    */
   public async blocksToHTML(blocks: Block<BSchema>[]): Promise<string> {
-    return blocksToHTML(blocks, this._tiptapEditor.schema);
+    return blocksToHTML(blocks, this._tiptapEditor.schema, this);
   }
 
   /**
@@ -805,7 +805,7 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
    * @returns The blocks, serialized as a Markdown string.
    */
   public async blocksToMarkdown(blocks: Block<BSchema>[]): Promise<string> {
-    return blocksToMarkdown(blocks, this._tiptapEditor.schema);
+    return blocksToMarkdown(blocks, this._tiptapEditor.schema, this);
   }
 
   /**
