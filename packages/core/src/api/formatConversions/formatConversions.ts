@@ -139,15 +139,27 @@ export async function markdownToBlocks<BSchema extends BlockSchema>(
 // Takes structured HTML and makes it comply with the HTML spec using the
 // `simplifyBlocks` plugin.
 // TODO: Remove classes?
-export async function cleanHTML(html: string) {
-  const htmlString = await unified()
+export async function cleanHTML(structuredHTMLString: string) {
+  const cleanHTMLString = await unified()
     .use(rehypeParse, { fragment: true })
     .use(simplifyBlocks, {
       orderedListItemBlockTypes: new Set<string>(["numberedListItem"]),
       unorderedListItemBlockTypes: new Set<string>(["bulletListItem"]),
     })
     .use(rehypeStringify)
-    .process(html);
+    .process(structuredHTMLString);
 
-  return htmlString.value as string;
+  return cleanHTMLString.value as string;
+}
+
+export async function markdown(cleanHTMLString: string) {
+  const markdownString = await unified()
+    .use(rehypeParse, { fragment: true })
+    .use(removeUnderlines)
+    .use(rehypeRemark)
+    .use(remarkGfm)
+    .use(remarkStringify)
+    .process(cleanHTMLString);
+
+  return markdownString.value as string;
 }

@@ -1,9 +1,22 @@
+// TODO: IMO this should be part of the formatConversions file since the custom
+//  serializer is used for all HTML & markdown conversions. I think this would
+//  also clean up testing converting to clean HTML.
 import { Extension } from "@tiptap/core";
 import { Plugin } from "prosemirror-state";
 import { DOMSerializer, Fragment, Node, Schema } from "prosemirror-model";
-import { nodeToBlock } from "../../../api/nodeConversions/nodeConversions";
-import { BlockNoteEditor } from "../../../BlockNoteEditor";
-import { Block, BlockSchema, SpecificBlock } from "./blockTypes";
+import { nodeToBlock } from "../nodeConversions/nodeConversions";
+import { BlockNoteEditor } from "../../BlockNoteEditor";
+import {
+  BlockSchema,
+  SpecificBlock,
+} from "../../extensions/Blocks/api/blockTypes";
+import { cleanHTML, markdown } from "../formatConversions/formatConversions";
+
+const acceptedMIMETypes = [
+  "blocknote/html",
+  "text/html",
+  "text/plain",
+] as const;
 
 function doc(options: { document?: Document }) {
   return options.document || window.document;
@@ -100,74 +113,66 @@ export const createCustomBlockSerializerExtension = <
 ) =>
   Extension.create<{ editor: BlockNoteEditor<BSchema> }, undefined>({
     addProseMirrorPlugins() {
+      const tiptap = this.editor;
+      const schema = this.editor.schema;
       return [
         new Plugin({
           props: {
+            // TODO: Totally broken on Firefox as it outright doesn't allow
+            //  reading from or writing to the clipboard.
             handleDOMEvents: {
-              copy() {
-                // TODO: Fix editor.getSelection().blocks returning child blocks
-                // const blocks = editor.getSelection()?.blocks;
-                const blocks = editor.topLevelBlocks;
+              copy(_view, event) {
+                // Stops the default browser copy behaviour.
+                event.preventDefault();
+                event.clipboardData!.clearData();
 
-                if (blocks === undefined || blocks.length === 1) {
-                  return;
+                async function setClipboardData() {
+                  const serializer = customBlockSerializer(schema, editor);
+
+                  const selectedFragment =
+                    tiptap.state.selection.content().content;
+
+                  const selectedHTML =
+                    serializer.serializeFragment(selectedFragment);
+
+                  const parent = document.createElement("div");
+                  parent.appendChild(selectedHTML);
+
+                  const structured = parent.innerHTML;
+                  const clean = await cleanHTML(structured);
+                  const plain = await markdown(clean);
+
+                  event.clipboardData!.setData("text/plain", plain);
+                  event.clipboardData!.setData("text/html", clean);
+                  // TODO: Writing to other MIME types not working in Safari for
+                  //  some reason.
+                  event.clipboardData!.setData("blocknote/html", structured);
                 }
 
-                async function copyToClipboard(blocks: Block<BSchema>[]) {
-                  const html = await editor.blocksToHTML(blocks);
-                  const markdown = await editor.blocksToMarkdown(blocks);
-                  const blockNoteHTML = await (
-                    await (
-                      await navigator.clipboard.read()
-                    )[0].getType("text/html")
-                  ).text();
+                setClipboardData();
 
-                  await navigator.clipboard.write([
-                    new ClipboardItem({
-                      "text/html": new Blob([html], {
-                        type: "text/html",
-                      }),
-                      "text/plain": new Blob([markdown], {
-                        type: "text/plain",
-                      }),
-                      "web blocknote/html": new Blob([blockNoteHTML], {
-                        type: "blocknote/html",
-                      }),
-                    }),
-                  ]);
-
-                  const formats = [
-                    "text/html",
-                    "text/plain",
-                    "web blocknote/html",
-                  ] as const;
-                  const items = await navigator.clipboard.read();
-                  for (const format of formats) {
-                    const blob = await items[0].getType(format);
-                    const text = await blob.text();
-                    console.log(format);
-                    console.log(text);
-                  }
-                }
-
-                copyToClipboard(blocks);
+                // Prevent default PM handler to be called
+                return true;
               },
               paste(_view, event) {
                 event.preventDefault();
 
-                async function pasteFromClipboard() {
-                  const items = await navigator.clipboard.read();
-                  const format = items[0].types.includes("web blocknote/html")
-                    ? "web blocknote/html"
-                    : "text/html";
+                let format: (typeof acceptedMIMETypes)[number] | null = null;
 
-                  const blob = await items[0].getType(format);
-                  const text = await blob.text();
-
-                  editor._tiptapEditor.view.pasteHTML(text);
+                for (const mimeType of acceptedMIMETypes) {
+                  if (event.clipboardData!.types.includes(mimeType)) {
+                    format = mimeType;
+                    break;
+                  }
                 }
 
-                pasteFromClipboard();
+                if (format !== null) {
+                  editor._tiptapEditor.view.pasteHTML(
+                    event.clipboardData!.getData(format!)
+                  );
+                }
+
+                return true;
               },
             },
           },
