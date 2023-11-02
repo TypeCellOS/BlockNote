@@ -24,7 +24,7 @@ import {
   BlockNoteDOMAttributes,
   BlockSchema,
 } from "./extensions/Blocks/api/blockTypes";
-import { createCustomBlockSerializerExtension } from "./extensions/Blocks/api/serialization";
+import { createCustomBlockSerializerExtension } from "./api/serialization/serialization";
 import blockStyles from "./extensions/Blocks/nodes/Block.module.css";
 import { Placeholder } from "./extensions/Placeholder/PlaceholderExtension";
 import { TextAlignmentExtension } from "./extensions/TextAlignment/TextAlignmentExtension";

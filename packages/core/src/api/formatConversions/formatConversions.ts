@@ -12,7 +12,7 @@ import { Block, BlockSchema } from "../../extensions/Blocks/api/blockTypes";
 import { blockToNode, nodeToBlock } from "../nodeConversions/nodeConversions";
 import { removeUnderlines } from "./removeUnderlinesRehypePlugin";
 import { simplifyBlocks } from "./simplifyBlocksRehypePlugin";
-import { customBlockSerializer } from "../../extensions/Blocks/api/serialization";
+import { customBlockSerializer } from "../serialization/serialization";
 import { BlockNoteEditor } from "../../BlockNoteEditor";
 
 export async function blocksToHTML<BSchema extends BlockSchema>(
@@ -134,4 +134,20 @@ export async function markdownToBlocks<BSchema extends BlockSchema>(
     .process(markdown);
 
   return HTMLToBlocks(htmlString.value as string, blockSchema, schema);
+}
+
+// Takes structured HTML and makes it comply with the HTML spec using the
+// `simplifyBlocks` plugin.
+// TODO: Remove classes?
+export async function cleanHTML(html: string) {
+  const htmlString = await unified()
+    .use(rehypeParse, { fragment: true })
+    .use(simplifyBlocks, {
+      orderedListItemBlockTypes: new Set<string>(["numberedListItem"]),
+      unorderedListItemBlockTypes: new Set<string>(["bulletListItem"]),
+    })
+    .use(rehypeStringify)
+    .process(html);
+
+  return htmlString.value as string;
 }
