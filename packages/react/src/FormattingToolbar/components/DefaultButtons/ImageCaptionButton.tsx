@@ -32,12 +32,12 @@ export const ImageCaptionButton = <BSchema extends BlockSchema>(props: {
       typeof props.editor.schema["image"].propSchema.caption.default ===
         "string" &&
       props.editor.schema["image"].propSchema.caption.values === undefined &&
-      // Checks if the block has a `src` prop which can take any string value.
-      "src" in props.editor.schema["image"].propSchema &&
-      typeof props.editor.schema["image"].propSchema.src.default === "string" &&
-      props.editor.schema["image"].propSchema.src.values === undefined &&
+      // Checks if the block has a `url` prop which can take any string value.
+      "url" in props.editor.schema["image"].propSchema &&
+      typeof props.editor.schema["image"].propSchema.url.default === "string" &&
+      props.editor.schema["image"].propSchema.url.values === undefined &&
       // Checks if the `src` prop is not set to an empty string.
-      selectedBlocks[0].props.src !== "",
+      selectedBlocks[0].props.url !== "",
     [props.editor.schema, selectedBlocks]
   );
 

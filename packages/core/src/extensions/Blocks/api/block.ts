@@ -1,6 +1,6 @@
 import { Attribute, Attributes, Editor, Node } from "@tiptap/core";
 import { Fragment, ParseRule } from "prosemirror-model";
-import { BlockNoteEditor } from "../../..";
+import { BlockNoteEditor, Props } from "../../..";
 import { inlineContentToNodes } from "../../../api/nodeConversions/nodeConversions";
 import styles from "../nodes/Block.module.css";
 import {
@@ -157,17 +157,15 @@ export function getBlockFromPos<
 // an `inlineContent` class to it.
 export function wrapInBlockStructure<
   BType extends string,
-  PSchema extends PropSchema,
-  ContainsInlineContent extends boolean,
-  BSchema extends BlockSchema & {
-    [k in BType]: BlockSpec<BType, PSchema, ContainsInlineContent>;
-  }
+  PSchema extends PropSchema
 >(
   element: {
     dom: HTMLElement;
     contentDOM?: HTMLElement;
   },
-  block: SpecificBlock<BSchema, BType>,
+  blockType: BType,
+  blockProps: Props<PSchema>,
+  propSchema: PSchema,
   domAttributes?: Record<string, string>
 ) {
   // Creates `blockContent` element
@@ -187,10 +185,12 @@ export function wrapInBlockStructure<
     domAttributes?.class || ""
   );
   // Sets content type attribute
-  blockContent.setAttribute("data-content-type", block.type);
+  blockContent.setAttribute("data-content-type", blockType);
   // Add props as HTML attributes in kebab-case with "data-" prefix
-  for (const [prop, value] of Object.entries(block.props)) {
-    blockContent.setAttribute(camelToDataKebab(prop), value);
+  for (const [prop, value] of Object.entries(blockProps)) {
+    if (value !== propSchema[prop].default) {
+      blockContent.setAttribute(camelToDataKebab(prop), value);
+    }
   }
 
   blockContent.appendChild(element.dom);
@@ -263,12 +263,13 @@ export function createBlockSpec<
 
         const content = blockConfig.render(block, editor);
 
-        return wrapInBlockStructure<
-          BType,
-          PSchema,
-          ContainsInlineContent,
-          BSchema
-        >(content, block as any, blockContentDOMAttributes);
+        return wrapInBlockStructure<BType, PSchema>(
+          content,
+          block.type,
+          block.props,
+          blockConfig.propSchema,
+          blockContentDOMAttributes
+        );
       };
     },
   });
@@ -292,12 +293,13 @@ export function createBlockSpec<
         element = blockConfig.render(block as any, editor as any);
       }
 
-      return wrapInBlockStructure<
-        BType,
-        PSchema,
-        ContainsInlineContent,
-        BSchema
-      >(element, block as any, blockContentDOMAttributes).dom;
+      return wrapInBlockStructure<BType, PSchema>(
+        element,
+        block.type as BType,
+        block.props as Props<PSchema>,
+        blockConfig.propSchema,
+        blockContentDOMAttributes
+      ).dom;
     },
   };
 }

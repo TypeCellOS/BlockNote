@@ -41,7 +41,7 @@ const textAlignmentToAlignItems = (
 // Min image width in px.
 const minWidth = 64;
 
-const renderImage = (
+export const renderImage = (
   block: SpecificBlock<
     { image: BlockSpec<"image", typeof imagePropSchema, false> },
     "image"
@@ -303,10 +303,26 @@ export const Image = createBlockSpec({
   containsInlineContent: false,
   render: renderImage,
   serialize: (block) => {
+    if (block.props.url === "") {
+      const div = document.createElement("p");
+      div.innerHTML = "Add Image";
+
+      return div;
+    }
+
+    const figure = document.createElement("figure");
+
     const img = document.createElement("img");
     img.src = block.props.url;
+    figure.appendChild(img);
 
-    return img;
+    if (block.props.caption !== "") {
+      const figcaption = document.createElement("figcaption");
+      figcaption.innerHTML = block.props.caption;
+      figure.appendChild(figcaption);
+    }
+
+    return figure;
   },
   parse: (element) => {
     if (element.tagName === "IMG") {

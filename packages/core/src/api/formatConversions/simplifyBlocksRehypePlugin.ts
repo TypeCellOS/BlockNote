@@ -22,6 +22,19 @@ export function simplifyBlocks(options: SimplifyBlocksOptions) {
   ]);
 
   const simplifyBlocksHelper = (tree: HASTParent) => {
+    // Checks whether blocks in the tree are wrapped by a parent `blockGroup`
+    // element, in which case the `blockGroup`'s children are lifted out, and it
+    // is removed.
+    if (
+      tree.children.length === 1 &&
+      (tree.children[0] as HASTElement).properties?.["dataNodeType"] ===
+        "blockGroup"
+    ) {
+      const blockGroup = tree.children[0] as HASTElement;
+      tree.children.pop();
+      tree.children.push(...blockGroup.children);
+    }
+
     let numChildElements = tree.children.length;
     let activeList: HASTElement | undefined;
 

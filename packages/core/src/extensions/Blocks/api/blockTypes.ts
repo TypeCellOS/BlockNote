@@ -149,6 +149,7 @@ export type BlockConfig<
     contentDOM?: HTMLElement;
     destroy?: () => void;
   };
+  // TODO: Maybe can return undefined to ignore when serializing?
   serialize?: (
     block: SpecificBlock<BSchema, Type>,
     editor: BlockNoteEditor<BSchema>
