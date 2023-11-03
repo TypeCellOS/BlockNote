@@ -1,13 +1,4 @@
 import { Mark } from "@tiptap/core";
-import { defaultProps } from "../Blocks/api/defaultProps";
-
-declare module "@tiptap/core" {
-  interface Commands<ReturnType> {
-    backgroundColor: {
-      setBackgroundColor: (color: string) => ReturnType;
-    };
-  }
-}
 
 export const BackgroundColorMark = Mark.create({
   name: "backgroundColor",
@@ -45,19 +36,5 @@ export const BackgroundColorMark = Mark.create({
 
   renderHTML({ HTMLAttributes }) {
     return ["span", HTMLAttributes, 0];
-  },
-
-  addCommands() {
-    return {
-      setBackgroundColor:
-        (color) =>
-        ({ commands }) => {
-          if (color !== defaultProps.backgroundColor.default) {
-            return commands.setMark(this.name, { color: color });
-          }
-
-          return commands.unsetMark(this.name);
-        },
-    };
   },
 });
