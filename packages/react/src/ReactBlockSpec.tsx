@@ -10,6 +10,7 @@ import {
   getBlockFromPos,
   mergeCSSClasses,
   parse,
+  Props,
   PropSchema,
   propsToAttributes,
   SpecificBlock,
@@ -206,12 +207,13 @@ export function createReactBlockSpec<
         element.innerHTML = renderToString(<BlockContent />);
       }
 
-      return wrapInBlockStructure<
-        BType,
-        PSchema,
-        ContainsInlineContent,
-        BSchema
-      >({ dom: element }, block as any, blockContentDOMAttributes).dom;
+      return wrapInBlockStructure<BType, PSchema>(
+        { dom: element },
+        block.type as BType,
+        block.props as Props<PSchema>,
+        blockConfig.propSchema,
+        blockContentDOMAttributes
+      ).dom;
     },
   };
 }
