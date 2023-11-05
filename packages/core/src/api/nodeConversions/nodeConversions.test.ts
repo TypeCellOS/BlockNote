@@ -13,8 +13,6 @@ let editor: BlockNoteEditor;
 let tt: Editor;
 
 beforeEach(() => {
-  (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS = {};
-
   editor = new BlockNoteEditor();
   tt = editor._tiptapEditor;
 });
@@ -23,8 +21,6 @@ afterEach(() => {
   tt.destroy();
   editor = undefined as any;
   tt = undefined as any;
-
-  delete (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS;
 });
 
 describe("Simple ProseMirror Node Conversions", () => {

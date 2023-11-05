@@ -31,8 +31,6 @@ let editor: BlockNoteEditor<typeof customSchema>;
 let tt: Editor;
 
 beforeEach(() => {
-  (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS = {};
-
   editor = new BlockNoteEditor({
     blockSchema: customSchema,
     uploadFile: uploadToTmpFilesDotOrg_DEV_ONLY,
@@ -51,7 +49,8 @@ afterEach(() => {
 // Tests `serializeNode`, `serializeFragment`, and `cleanHTML` methods.
 async function serializeAndCompareSnapshots(
   serializer: DOMSerializer,
-  blockGroup: Node
+  blockGroup: Node,
+  snapshotName: string
 ) {
   const serializeNodeHTML = (
     serializer.serializeNode(blockGroup) as HTMLElement
@@ -59,15 +58,19 @@ async function serializeAndCompareSnapshots(
   const serializeFragmentHTML = (
     serializer.serializeFragment(Fragment.from(blockGroup)) as HTMLElement
   ).firstElementChild!.outerHTML;
+  const structuredHTMLSnapshotPath =
+    "./__snapshots__/" + snapshotName + "Structured.html";
 
-  expect(serializeNodeHTML).toMatchSnapshot();
-  expect(serializeFragmentHTML).toMatchSnapshot();
+  expect(serializeNodeHTML).toMatchFileSnapshot(structuredHTMLSnapshotPath);
+  expect(serializeFragmentHTML).toMatchFileSnapshot(structuredHTMLSnapshotPath);
 
   const serializeNodeCleanHTML = await cleanHTML(serializeNodeHTML);
   const serializeFragmentCleanHTML = await cleanHTML(serializeFragmentHTML);
+  const cleanHTMLSnapshotPath =
+    "./__snapshots__/" + snapshotName + "Clean.html";
 
-  expect(serializeNodeCleanHTML).toMatchSnapshot();
-  expect(serializeFragmentCleanHTML).toMatchSnapshot();
+  expect(serializeNodeCleanHTML).toMatchFileSnapshot(cleanHTMLSnapshotPath);
+  expect(serializeFragmentCleanHTML).toMatchFileSnapshot(cleanHTMLSnapshotPath);
 }
 
 describe("Convert paragraphs to structured HTML", () => {
@@ -84,7 +87,7 @@ describe("Convert paragraphs to structured HTML", () => {
       blockContainer,
     ]);
 
-    await serializeAndCompareSnapshots(serializer, blockGroup);
+    await serializeAndCompareSnapshots(serializer, blockGroup, "paragraph");
   });
 
   it("Convert styled paragraph to structured HTML", async () => {
@@ -115,7 +118,11 @@ describe("Convert paragraphs to structured HTML", () => {
       blockContainer,
     ]);
 
-    await serializeAndCompareSnapshots(serializer, blockGroup);
+    await serializeAndCompareSnapshots(
+      serializer,
+      blockGroup,
+      "paragraphStyled"
+    );
   });
 
   it("Convert nested paragraph to structured HTML", async () => {
@@ -155,7 +162,11 @@ describe("Convert paragraphs to structured HTML", () => {
       blockContainer,
     ]);
 
-    await serializeAndCompareSnapshots(serializer, blockGroup);
+    await serializeAndCompareSnapshots(
+      serializer,
+      blockGroup,
+      "paragraphNested"
+    );
   });
 });
 
@@ -172,7 +183,7 @@ describe("Convert images to structured HTML", () => {
       blockContainer,
     ]);
 
-    await serializeAndCompareSnapshots(serializer, blockGroup);
+    await serializeAndCompareSnapshots(serializer, blockGroup, "imageButton");
   });
 
   it("Convert image to structured HTML", async () => {
@@ -191,7 +202,7 @@ describe("Convert images to structured HTML", () => {
       blockContainer,
     ]);
 
-    await serializeAndCompareSnapshots(serializer, blockGroup);
+    await serializeAndCompareSnapshots(serializer, blockGroup, "image");
   });
 
   it("Convert nested image to structured HTML", async () => {
@@ -223,7 +234,7 @@ describe("Convert images to structured HTML", () => {
       blockContainer,
     ]);
 
-    await serializeAndCompareSnapshots(serializer, blockGroup);
+    await serializeAndCompareSnapshots(serializer, blockGroup, "imageNested");
   });
 });
 
@@ -240,7 +251,11 @@ describe("Convert simple images to structured HTML", () => {
       blockContainer,
     ]);
 
-    await serializeAndCompareSnapshots(serializer, blockGroup);
+    await serializeAndCompareSnapshots(
+      serializer,
+      blockGroup,
+      "simpleImageButton"
+    );
   });
 
   it("Convert simple image to structured HTML", async () => {
@@ -259,7 +274,7 @@ describe("Convert simple images to structured HTML", () => {
       blockContainer,
     ]);
 
-    await serializeAndCompareSnapshots(serializer, blockGroup);
+    await serializeAndCompareSnapshots(serializer, blockGroup, "simpleImage");
   });
 
   it("Convert nested image to structured HTML", async () => {
@@ -291,6 +306,10 @@ describe("Convert simple images to structured HTML", () => {
       blockContainer,
     ]);
 
-    await serializeAndCompareSnapshots(serializer, blockGroup);
+    await serializeAndCompareSnapshots(
+      serializer,
+      blockGroup,
+      "simpleImageNested"
+    );
   });
 });

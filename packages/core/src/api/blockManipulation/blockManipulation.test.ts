@@ -21,8 +21,6 @@ let multipleBlocks: PartialBlock[];
 let insert: (placement: "before" | "nested" | "after") => Block[];
 
 beforeEach(() => {
-  (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS = {};
-
   editor = new BlockNoteEditor();
 
   singleBlock = {
@@ -76,8 +74,6 @@ beforeEach(() => {
 afterEach(() => {
   editor._tiptapEditor.destroy();
   editor = undefined as any;
-
-  delete (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS;
 });
 
 describe("Inserting Blocks with Different Placements", () => {

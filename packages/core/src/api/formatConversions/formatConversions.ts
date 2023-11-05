@@ -24,7 +24,7 @@ export async function blocksToHTML<BSchema extends BlockSchema>(
   const serializer = customBlockSerializer(schema, editor);
 
   for (const block of blocks) {
-    const node = blockToNode(block, editor._tiptapEditor.schema);
+    const node = blockToNode(block, schema);
     const htmlNode = serializer.serializeNode(node);
     htmlParentElement.appendChild(htmlNode);
   }

@@ -579,16 +579,12 @@ function removeInlineContentClass(html: string) {
 }
 
 beforeEach(() => {
-  (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS = {};
-
   editor = new BlockNoteEditor();
 });
 
 afterEach(() => {
   editor._tiptapEditor.destroy();
   editor = undefined as any;
-
-  delete (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS;
 });
 
 describe("Non-Nested Block/HTML/Markdown Conversions", () => {
