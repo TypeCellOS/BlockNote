@@ -2,7 +2,6 @@ import { Attribute, Attributes, Editor, Node } from "@tiptap/core";
 import { Fragment, ParseRule } from "prosemirror-model";
 import { BlockNoteEditor, Props } from "../../..";
 import { inlineContentToNodes } from "../../../api/nodeConversions/nodeConversions";
-import styles from "../nodes/Block.module.css";
 import {
   BlockConfig,
   BlockNoteDOMAttributes,
@@ -181,7 +180,7 @@ export function wrapInBlockStructure<
   }
   // Sets blockContent class
   blockContent.className = mergeCSSClasses(
-    styles.blockContent,
+    "blockContent",
     domAttributes?.class || ""
   );
   // Sets content type attribute
@@ -197,7 +196,7 @@ export function wrapInBlockStructure<
 
   if (element.contentDOM !== undefined) {
     element.contentDOM.className = mergeCSSClasses(
-      styles.inlineContent,
+      "inlineContent",
       element.contentDOM.className
     );
 

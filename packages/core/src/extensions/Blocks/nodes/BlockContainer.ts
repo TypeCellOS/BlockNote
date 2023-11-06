@@ -13,7 +13,6 @@ import {
 } from "../api/blockTypes";
 import { getBlockInfoFromPos } from "../helpers/getBlockInfoFromPos";
 import { PreviousBlockTypePlugin } from "../PreviousBlockTypePlugin";
-import styles from "./Block.module.css";
 import BlockAttributes from "./BlockAttributes";
 import { mergeCSSClasses } from "../../../shared/utils";
 import { NonEditableBlockPlugin } from "../NonEditableBlockPlugin";
@@ -83,7 +82,7 @@ export const BlockContainer = Node.create<{
     return [
       "div",
       mergeAttributes(HTMLAttributes, {
-        class: styles.blockOuter,
+        class: "blockOuter",
         "data-node-type": "block-outer",
       }),
       [
@@ -91,7 +90,7 @@ export const BlockContainer = Node.create<{
         mergeAttributes(
           {
             ...domAttributes,
-            class: mergeCSSClasses(styles.block, domAttributes.class),
+            class: mergeCSSClasses("block", domAttributes.class),
             "data-node-type": this.name,
           },
           HTMLAttributes

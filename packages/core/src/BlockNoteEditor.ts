@@ -21,7 +21,6 @@ import {
   nodeToBlock,
 } from "./api/nodeConversions/nodeConversions";
 import { getNodeById } from "./api/util/nodeUtil";
-import styles from "./editor.module.css";
 import {
   Block,
   BlockIdentifier,
@@ -51,6 +50,7 @@ import { SlashMenuProsemirrorPlugin } from "./extensions/SlashMenu/SlashMenuPlug
 import { getDefaultSlashMenuItems } from "./extensions/SlashMenu/defaultSlashMenuItems";
 import { UniqueID } from "./extensions/UniqueID/UniqueID";
 import { mergeCSSClasses } from "./shared/utils";
+import "./editor.css";
 
 export type BlockNoteEditorOptions<BSchema extends BlockSchema> = {
   // TODO: Figure out if enableBlockNoteExtensions/disableHistoryExtension are needed and document them.
@@ -288,9 +288,9 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
         attributes: {
           ...newOptions.domAttributes?.editor,
           class: mergeCSSClasses(
-            styles.bnEditor,
-            styles.bnRoot,
-            newOptions.defaultStyles ? styles.defaultStyles : "",
+            "bnEditor",
+            "bnRoot",
+            newOptions.defaultStyles ? "defaultStyles" : "",
             newOptions.domAttributes?.editor?.class || ""
           ),
         },

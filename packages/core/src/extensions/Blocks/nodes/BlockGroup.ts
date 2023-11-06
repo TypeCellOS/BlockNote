@@ -1,5 +1,4 @@
 import { mergeAttributes, Node } from "@tiptap/core";
-import styles from "./Block.module.css";
 import { BlockNoteDOMAttributes } from "../api/blockTypes";
 import { mergeCSSClasses } from "../../../shared/utils";
 
@@ -39,10 +38,7 @@ export const BlockGroup = Node.create<{
       mergeAttributes(
         {
           ...blockGroupDOMAttributes,
-          class: mergeCSSClasses(
-            styles.blockGroup,
-            blockGroupDOMAttributes.class
-          ),
+          class: mergeCSSClasses("blockGroup", blockGroupDOMAttributes.class),
           "data-node-type": "blockGroup",
         },
         HTMLAttributes

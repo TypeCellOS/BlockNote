@@ -3,7 +3,6 @@ import { defaultProps } from "../../../api/defaultProps";
 import { BlockSpec, PropSchema, SpecificBlock } from "../../../api/blockTypes";
 import { BlockNoteEditor } from "../../../../../BlockNoteEditor";
 import { imageToolbarPluginKey } from "../../../../ImageToolbar/ImageToolbarPlugin";
-import styles from "../../Block.module.css";
 
 export const imagePropSchema = {
   textAlignment: defaultProps.textAlignment,
@@ -53,38 +52,38 @@ export const renderImage = (
   // Wrapper element to set the image alignment, contains both image/image
   // upload dashboard and caption.
   const wrapper = document.createElement("div");
-  wrapper.className = styles.wrapper;
+  wrapper.className = "wrapper";
   wrapper.style.alignItems = textAlignmentToAlignItems(
     block.props.textAlignment
   );
 
   // Button element that acts as a placeholder for images with no src.
   const addImageButton = document.createElement("div");
-  addImageButton.className = styles.addImageButton;
+  addImageButton.className = "addImageButton";
   addImageButton.style.display = block.props.url === "" ? "" : "none";
 
   // Icon for the add image button.
   const addImageButtonIcon = document.createElement("div");
-  addImageButtonIcon.className = styles.addImageButtonIcon;
+  addImageButtonIcon.className = "addImageButtonIcon";
 
   // Text for the add image button.
   const addImageButtonText = document.createElement("p");
-  addImageButtonText.className = styles.addImageButtonText;
+  addImageButtonText.className = "addImageButtonText";
   addImageButtonText.innerText = "Add Image";
 
   // Wrapper element for the image, resize handles and caption.
   const imageAndCaptionWrapper = document.createElement("div");
-  imageAndCaptionWrapper.className = styles.imageAndCaptionWrapper;
+  imageAndCaptionWrapper.className = "imageAndCaptionWrapper";
   imageAndCaptionWrapper.style.display = block.props.url !== "" ? "" : "none";
 
   // Wrapper element for the image and resize handles.
   const imageWrapper = document.createElement("div");
-  imageWrapper.className = styles.imageWrapper;
+  imageWrapper.className = "imageWrapper";
   imageWrapper.style.display = block.props.url !== "" ? "" : "none";
 
   // Image element.
   const image = document.createElement("img");
-  image.className = styles.image;
+  image.className = "image";
   image.src = block.props.url;
   image.alt = "placeholder";
   image.contentEditable = "false";
@@ -96,15 +95,15 @@ export const renderImage = (
 
   // Resize handle elements.
   const leftResizeHandle = document.createElement("div");
-  leftResizeHandle.className = styles.resizeHandle;
+  leftResizeHandle.className = "resizeHandle";
   leftResizeHandle.style.left = "4px";
   const rightResizeHandle = document.createElement("div");
-  rightResizeHandle.className = styles.resizeHandle;
+  rightResizeHandle.className = "resizeHandle";
   rightResizeHandle.style.right = "4px";
 
   // Caption element.
   const caption = document.createElement("p");
-  caption.className = styles.caption;
+  caption.className = "caption";
   caption.innerText = block.props.caption;
   caption.style.padding = block.props.caption ? "4px" : "";
 

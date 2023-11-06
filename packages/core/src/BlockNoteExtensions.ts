@@ -16,7 +16,6 @@ import { Strike } from "@tiptap/extension-strike";
 import { Text } from "@tiptap/extension-text";
 import { Underline } from "@tiptap/extension-underline";
 import * as Y from "yjs";
-import styles from "./editor.module.css";
 import { BackgroundColorExtension } from "./extensions/BackgroundColor/BackgroundColorExtension";
 import { BackgroundColorMark } from "./extensions/BackgroundColor/BackgroundColorMark";
 import { BlockContainer, BlockGroup, Doc } from "./extensions/Blocks";
@@ -24,8 +23,7 @@ import {
   BlockNoteDOMAttributes,
   BlockSchema,
 } from "./extensions/Blocks/api/blockTypes";
-import { createCustomBlockSerializerExtension } from "./api/serialization/serialization";
-import blockStyles from "./extensions/Blocks/nodes/Block.module.css";
+import { createClipboardHandlerExtension } from "./api/serialization/serialization";
 import { Placeholder } from "./extensions/Placeholder/PlaceholderExtension";
 import { TextAlignmentExtension } from "./extensions/TextAlignment/TextAlignmentExtension";
 import { TextColorExtension } from "./extensions/TextColor/TextColorExtension";
@@ -62,9 +60,9 @@ export const getBlockNoteExtensions = <BSchema extends BlockSchema>(opts: {
 
     // DropCursor,
     Placeholder.configure({
-      emptyNodeClass: blockStyles.isEmpty,
-      hasAnchorClass: blockStyles.hasAnchor,
-      isFilterClass: blockStyles.isFilter,
+      emptyNodeClass: "isEmpty",
+      hasAnchorClass: "hasAnchor",
+      isFilterClass: "isFilter",
       includeChildren: true,
       showOnlyCurrent: false,
     }),
@@ -104,7 +102,7 @@ export const getBlockNoteExtensions = <BSchema extends BlockSchema>(opts: {
         domAttributes: opts.domAttributes,
       })
     ),
-    createCustomBlockSerializerExtension(opts.editor),
+    createClipboardHandlerExtension(opts.editor),
 
     Dropcursor.configure({ width: 5, color: "#ddeeff" }),
     // This needs to be at the bottom of this list, because Key events (such as enter, when selecting a /command),
@@ -122,12 +120,12 @@ export const getBlockNoteExtensions = <BSchema extends BlockSchema>(opts: {
       const defaultRender = (user: { color: string; name: string }) => {
         const cursor = document.createElement("span");
 
-        cursor.classList.add(styles["collaboration-cursor__caret"]);
+        cursor.classList.add("collaboration-cursor__caret");
         cursor.setAttribute("style", `border-color: ${user.color}`);
 
         const label = document.createElement("span");
 
-        label.classList.add(styles["collaboration-cursor__label"]);
+        label.classList.add("collaboration-cursor__label");
         label.setAttribute("style", `background-color: ${user.color}`);
         label.insertBefore(document.createTextNode(user.name), null);
 

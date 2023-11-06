@@ -1,7 +1,7 @@
 // import logo from './logo.svg'
 import "@blocknote/core/style.css";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
-import styles from "./App.module.css";
+import "./App.css";
 import { uploadToTmpFilesDotOrg_DEV_ONLY } from "@blocknote/core";
 
 type WindowWithProseMirror = Window & typeof globalThis & { ProseMirror: any };
@@ -13,7 +13,7 @@ function App() {
     },
     domAttributes: {
       editor: {
-        class: styles.editor,
+        class: "editor",
         "data-test": "editor",
       },
     },

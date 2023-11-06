@@ -7,7 +7,7 @@ export * from "./extensions/Blocks/api/defaultBlocks";
 export * from "./extensions/Blocks/api/inlineContentTypes";
 export * from "./extensions/Blocks/api/selectionTypes";
 export * from "./api/serialization/serialization";
-export * as blockStyles from "./extensions/Blocks/nodes/Block.module.css";
+export * as blockStyles from "./extensions/Blocks/nodes/Block.css";
 export * from "./extensions/Blocks/nodes/BlockContent/ImageBlockContent/uploadToTmpFilesDotOrg_DEV_ONLY";
 export * from "./extensions/FormattingToolbar/FormattingToolbarPlugin";
 export * from "./extensions/HyperlinkToolbar/HyperlinkToolbarPlugin";

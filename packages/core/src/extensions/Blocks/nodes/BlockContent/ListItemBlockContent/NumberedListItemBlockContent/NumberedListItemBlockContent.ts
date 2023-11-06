@@ -5,7 +5,6 @@ import { BlockSpec, PropSchema } from "../../../../api/blockTypes";
 import { mergeCSSClasses } from "../../../../../../shared/utils";
 import { handleEnter } from "../ListItemKeyboardShortcuts";
 import { NumberedListIndexingPlugin } from "./NumberedListIndexingPlugin";
-import styles from "../../../Block.module.css";
 
 export const numberedListItemPropSchema = {
   ...defaultProps,
@@ -133,10 +132,7 @@ const NumberedListItemBlockContent = createTipTapBlock<
       "div",
       mergeAttributes(HTMLAttributes, {
         ...blockContentDOMAttributes,
-        class: mergeCSSClasses(
-          styles.blockContent,
-          blockContentDOMAttributes.class
-        ),
+        class: mergeCSSClasses("blockContent", blockContentDOMAttributes.class),
         "data-content-type": this.name,
       }),
       // we use a <p> tag, because for <li> tags we'd need to add a <ul> parent for around siblings to be semantically correct,
@@ -146,7 +142,7 @@ const NumberedListItemBlockContent = createTipTapBlock<
         {
           ...inlineContentDOMAttributes,
           class: mergeCSSClasses(
-            styles.inlineContent,
+            "inlineContent",
             inlineContentDOMAttributes.class
           ),
         },

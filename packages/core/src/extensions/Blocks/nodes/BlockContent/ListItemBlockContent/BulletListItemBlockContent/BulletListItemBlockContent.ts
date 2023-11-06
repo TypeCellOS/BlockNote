@@ -4,7 +4,6 @@ import { createTipTapBlock } from "../../../../api/block";
 import { BlockSpec, PropSchema } from "../../../../api/blockTypes";
 import { mergeCSSClasses } from "../../../../../../shared/utils";
 import { handleEnter } from "../ListItemKeyboardShortcuts";
-import styles from "../../../Block.module.css";
 
 export const bulletListItemPropSchema = {
   ...defaultProps,
@@ -109,10 +108,7 @@ const BulletListItemBlockContent = createTipTapBlock<"bulletListItem", true>({
       "div",
       mergeAttributes(HTMLAttributes, {
         ...blockContentDOMAttributes,
-        class: mergeCSSClasses(
-          styles.blockContent,
-          blockContentDOMAttributes.class
-        ),
+        class: mergeCSSClasses("blockContent", blockContentDOMAttributes.class),
         "data-content-type": this.name,
       }),
       [
@@ -120,7 +116,7 @@ const BulletListItemBlockContent = createTipTapBlock<"bulletListItem", true>({
         {
           ...inlineContentDOMAttributes,
           class: mergeCSSClasses(
-            styles.inlineContent,
+            "inlineContent",
             inlineContentDOMAttributes.class
           ),
         },

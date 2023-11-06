@@ -3,7 +3,6 @@ import { defaultProps } from "../../../api/defaultProps";
 import { createTipTapBlock } from "../../../api/block";
 import { BlockSpec, PropSchema } from "../../../api/blockTypes";
 import { mergeCSSClasses } from "../../../../../shared/utils";
-import styles from "../../Block.module.css";
 
 export const headingPropSchema = {
   ...defaultProps,
@@ -115,10 +114,7 @@ const HeadingBlockContent = createTipTapBlock<"heading", true>({
       "div",
       mergeAttributes(HTMLAttributes, {
         ...blockContentDOMAttributes,
-        class: mergeCSSClasses(
-          styles.blockContent,
-          blockContentDOMAttributes.class
-        ),
+        class: mergeCSSClasses("blockContent", blockContentDOMAttributes.class),
         "data-content-type": this.name,
       }),
       [
@@ -126,7 +122,7 @@ const HeadingBlockContent = createTipTapBlock<"heading", true>({
         {
           ...inlineContentDOMAttributes,
           class: mergeCSSClasses(
-            styles.inlineContent,
+            "inlineContent",
             inlineContentDOMAttributes.class
           ),
         },

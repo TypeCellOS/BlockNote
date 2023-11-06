@@ -4,7 +4,6 @@ import { NodeSelection, Plugin, PluginKey, Selection } from "prosemirror-state";
 import * as pv from "prosemirror-view";
 import { EditorView } from "prosemirror-view";
 import { BlockNoteEditor } from "../../BlockNoteEditor";
-import styles from "../../editor.module.css";
 import { BaseUiElementState } from "../../shared/BaseUiElementTypes";
 import { EventEmitter } from "../../shared/EventEmitter";
 import { Block, BlockSchema } from "../Blocks/api/blockTypes";
@@ -160,11 +159,7 @@ function setDragImage(view: EditorView, from: number, to = from) {
     .join(" ");
 
   dragImageElement.className =
-    dragImageElement.className +
-    " " +
-    styles.dragPreview +
-    " " +
-    inheritedClasses;
+    dragImageElement.className + " dragPreview " + inheritedClasses;
 
   document.body.appendChild(dragImageElement);
 }
