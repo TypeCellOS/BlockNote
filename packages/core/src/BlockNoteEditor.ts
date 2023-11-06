@@ -92,6 +92,10 @@ export type BlockNoteEditorOptions<BSchema extends BlockSchema> = {
    */
   editable: boolean;
   /**
+   * Disables block nesting by the user if set to `false`.
+   */
+  canNestBlock: boolean;
+  /**
    * The content that should be in the editor when it's created, represented as an array of partial block objects.
    */
   initialContent: PartialBlock<BSchema>[];
@@ -283,6 +287,8 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
 
         newOptions.onTextCursorPositionChange?.(this);
       },
+      canNestBlock:
+        options.canNestBlock !== undefined ? options.canNestBlock : true,
       editable:
         options.editable !== undefined
           ? options.editable

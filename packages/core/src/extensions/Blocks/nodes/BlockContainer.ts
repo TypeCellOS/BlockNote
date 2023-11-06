@@ -621,11 +621,15 @@ export const BlockContainer = Node.create<{
       // Always returning true for tab key presses ensures they're not captured by the browser. Otherwise, they blur the
       // editor since the browser will try to use tab for keyboard navigation.
       Tab: () => {
-        this.editor.commands.sinkListItem("blockContainer");
+        if (this.editor.options.canNestBlock) {
+          this.editor.commands.sinkListItem("blockContainer");
+        }
         return true;
       },
       "Shift-Tab": () => {
-        this.editor.commands.liftListItem("blockContainer");
+        if (!this.editor.options.canNestBlock) {
+          this.editor.commands.liftListItem("blockContainer");
+        }
         return true;
       },
       "Mod-Alt-0": () =>
