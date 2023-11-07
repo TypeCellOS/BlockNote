@@ -38,7 +38,7 @@ describe("Simple ProseMirror Node Conversions", () => {
       { id: UniqueID.options.generateID() },
       tt.schema.nodes["paragraph"].create()
     );
-    const firstBlockConversion = nodeToBlock<DefaultBlockSchema>(
+    const firstBlockConversion = nodeToBlock<DefaultBlockSchema, "paragraph">(
       node,
       defaultBlockSchema
     );
@@ -139,7 +139,7 @@ describe("Complex ProseMirror Node Conversions", () => {
         ]),
       ]
     );
-    const firstBlockConversion = nodeToBlock<DefaultBlockSchema>(
+    const firstBlockConversion = nodeToBlock<DefaultBlockSchema, "heading">(
       node,
       defaultBlockSchema
     );
@@ -157,7 +157,7 @@ describe("Complex ProseMirror Node Conversions", () => {
 
 describe("links", () => {
   it("Convert a block with link", async () => {
-    const block: PartialBlock<DefaultBlockSchema> = {
+    const block: PartialBlock = {
       id: UniqueID.options.generateID(),
       type: "paragraph",
       content: [
@@ -170,7 +170,7 @@ describe("links", () => {
     };
     const node = blockToNode(block, tt.schema);
     expect(node).toMatchSnapshot();
-    const outputBlock = nodeToBlock<DefaultBlockSchema>(
+    const outputBlock = nodeToBlock<DefaultBlockSchema, "paragraph">(
       node,
       defaultBlockSchema
     );
@@ -185,7 +185,7 @@ describe("links", () => {
   });
 
   it("Convert link block with marks", async () => {
-    const block: PartialBlock<DefaultBlockSchema> = {
+    const block: PartialBlock = {
       id: UniqueID.options.generateID(),
       type: "paragraph",
       content: [
@@ -211,7 +211,7 @@ describe("links", () => {
     };
     const node = blockToNode(block, tt.schema);
     // expect(node).toMatchSnapshot();
-    const outputBlock = nodeToBlock<DefaultBlockSchema>(
+    const outputBlock = nodeToBlock<DefaultBlockSchema, "paragraph">(
       node,
       defaultBlockSchema
     );
@@ -226,7 +226,7 @@ describe("links", () => {
   });
 
   it("Convert two adjacent links in a block", async () => {
-    const block: PartialBlock<DefaultBlockSchema> = {
+    const block: PartialBlock = {
       id: UniqueID.options.generateID(),
       type: "paragraph",
       content: [
@@ -245,7 +245,7 @@ describe("links", () => {
 
     const node = blockToNode(block, tt.schema);
     expect(node).toMatchSnapshot();
-    const outputBlock = nodeToBlock<DefaultBlockSchema>(
+    const outputBlock = nodeToBlock<DefaultBlockSchema, "paragraph">(
       node,
       defaultBlockSchema
     );
@@ -262,7 +262,7 @@ describe("links", () => {
 
 describe("hard breaks", () => {
   it("Convert a block with a hard break", async () => {
-    const block: PartialBlock<DefaultBlockSchema> = {
+    const block: PartialBlock = {
       id: UniqueID.options.generateID(),
       type: "paragraph",
       content: [
@@ -275,7 +275,7 @@ describe("hard breaks", () => {
     };
     const node = blockToNode(block, tt.schema);
     expect(node).toMatchSnapshot();
-    const outputBlock = nodeToBlock<DefaultBlockSchema>(
+    const outputBlock = nodeToBlock<DefaultBlockSchema, "paragraph">(
       node,
       defaultBlockSchema
     );
@@ -290,7 +290,7 @@ describe("hard breaks", () => {
   });
 
   it("Convert a block with multiple hard breaks", async () => {
-    const block: PartialBlock<DefaultBlockSchema> = {
+    const block: PartialBlock = {
       id: UniqueID.options.generateID(),
       type: "paragraph",
       content: [
@@ -303,7 +303,7 @@ describe("hard breaks", () => {
     };
     const node = blockToNode(block, tt.schema);
     expect(node).toMatchSnapshot();
-    const outputBlock = nodeToBlock<DefaultBlockSchema>(
+    const outputBlock = nodeToBlock<DefaultBlockSchema, "paragraph">(
       node,
       defaultBlockSchema
     );
@@ -318,7 +318,7 @@ describe("hard breaks", () => {
   });
 
   it("Convert a block with a hard break at the start", async () => {
-    const block: PartialBlock<DefaultBlockSchema> = {
+    const block: PartialBlock = {
       id: UniqueID.options.generateID(),
       type: "paragraph",
       content: [
@@ -331,7 +331,7 @@ describe("hard breaks", () => {
     };
     const node = blockToNode(block, tt.schema);
     expect(node).toMatchSnapshot();
-    const outputBlock = nodeToBlock<DefaultBlockSchema>(
+    const outputBlock = nodeToBlock<DefaultBlockSchema, "paragraph">(
       node,
       defaultBlockSchema
     );
@@ -346,7 +346,7 @@ describe("hard breaks", () => {
   });
 
   it("Convert a block with a hard break at the end", async () => {
-    const block: PartialBlock<DefaultBlockSchema> = {
+    const block: PartialBlock = {
       id: UniqueID.options.generateID(),
       type: "paragraph",
       content: [
@@ -359,7 +359,7 @@ describe("hard breaks", () => {
     };
     const node = blockToNode(block, tt.schema);
     expect(node).toMatchSnapshot();
-    const outputBlock = nodeToBlock<DefaultBlockSchema>(
+    const outputBlock = nodeToBlock<DefaultBlockSchema, "paragraph">(
       node,
       defaultBlockSchema
     );
@@ -374,7 +374,7 @@ describe("hard breaks", () => {
   });
 
   it("Convert a block with only a hard break", async () => {
-    const block: PartialBlock<DefaultBlockSchema> = {
+    const block: PartialBlock = {
       id: UniqueID.options.generateID(),
       type: "paragraph",
       content: [
@@ -387,7 +387,7 @@ describe("hard breaks", () => {
     };
     const node = blockToNode(block, tt.schema);
     expect(node).toMatchSnapshot();
-    const outputBlock = nodeToBlock<DefaultBlockSchema>(
+    const outputBlock = nodeToBlock<DefaultBlockSchema, "paragraph">(
       node,
       defaultBlockSchema
     );
@@ -402,7 +402,7 @@ describe("hard breaks", () => {
   });
 
   it("Convert a block with a hard break and different styles", async () => {
-    const block: PartialBlock<DefaultBlockSchema> = {
+    const block: PartialBlock = {
       id: UniqueID.options.generateID(),
       type: "paragraph",
       content: [
@@ -420,7 +420,7 @@ describe("hard breaks", () => {
     };
     const node = blockToNode(block, tt.schema);
     expect(node).toMatchSnapshot();
-    const outputBlock = nodeToBlock<DefaultBlockSchema>(
+    const outputBlock = nodeToBlock<DefaultBlockSchema, "paragraph">(
       node,
       defaultBlockSchema
     );
@@ -435,7 +435,7 @@ describe("hard breaks", () => {
   });
 
   it("Convert a block with a hard break in a link", async () => {
-    const block: PartialBlock<DefaultBlockSchema> = {
+    const block: PartialBlock = {
       id: UniqueID.options.generateID(),
       type: "paragraph",
       content: [
@@ -448,7 +448,7 @@ describe("hard breaks", () => {
     };
     const node = blockToNode(block, tt.schema);
     expect(node).toMatchSnapshot();
-    const outputBlock = nodeToBlock<DefaultBlockSchema>(
+    const outputBlock = nodeToBlock<DefaultBlockSchema, "paragraph">(
       node,
       defaultBlockSchema
     );
@@ -463,7 +463,7 @@ describe("hard breaks", () => {
   });
 
   it("Convert a block with a hard break between links", async () => {
-    const block: PartialBlock<DefaultBlockSchema> = {
+    const block: PartialBlock = {
       id: UniqueID.options.generateID(),
       type: "paragraph",
       content: [
@@ -481,7 +481,7 @@ describe("hard breaks", () => {
     };
     const node = blockToNode(block, tt.schema);
     expect(node).toMatchSnapshot();
-    const outputBlock = nodeToBlock<DefaultBlockSchema>(
+    const outputBlock = nodeToBlock<DefaultBlockSchema, "paragraph">(
       node,
       defaultBlockSchema
     );

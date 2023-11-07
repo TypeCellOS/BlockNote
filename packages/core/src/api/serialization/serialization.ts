@@ -6,10 +6,7 @@ import { Plugin } from "prosemirror-state";
 import { DOMSerializer, Fragment, Node, Schema } from "prosemirror-model";
 import { nodeToBlock } from "../nodeConversions/nodeConversions";
 import { BlockNoteEditor } from "../../BlockNoteEditor";
-import {
-  BlockSchema,
-  SpecificBlock,
-} from "../../extensions/Blocks/api/blockTypes";
+import { Block, BlockSchema } from "../../extensions/Blocks/api/blockTypes";
 import { cleanHTML, markdown } from "../formatConversions/formatConversions";
 
 const acceptedMIMETypes = [
@@ -59,11 +56,11 @@ export const customBlockSerializer = <BSchema extends BlockSchema>(
         const blockContent = DOMSerializer.renderSpec(
           doc(options),
           editor.schema[node.firstChild!.type.name as keyof BSchema].serialize!(
-            nodeToBlock(
+            nodeToBlock<BlockSchema, keyof BlockSchema>(
               node,
               editor.schema,
-              editor.blockCache
-            ) as SpecificBlock<BlockSchema, string>,
+              editor.blockCache as WeakMap<Node, Block<BlockSchema>>
+            ),
             editor as BlockNoteEditor<BlockSchema>
           )
         );
