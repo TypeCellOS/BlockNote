@@ -323,16 +323,16 @@ export const Image = createBlockSpec({
 
     return figure;
   },
-  parse: (element) => {
-    if (element.tagName === "IMG") {
-      return {
-        type: "image",
-        props: {
-          url: element.getAttribute("src") || "",
-        },
-      };
-    }
-
-    return;
-  },
+  // parse: (element) => {
+  //   if (element.tagName === "IMG") {
+  //     return {
+  //       type: "image",
+  //       props: {
+  //         url: element.getAttribute("src") || "",
+  //       },
+  //     };
+  //   }
+  //
+  //   return;
+  // },
 });
