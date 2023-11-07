@@ -115,14 +115,15 @@ export const createCustomBlockSerializerExtension = <
       return [
         new Plugin({
           props: {
-            // TODO: Totally broken on Firefox as it outright doesn't allow
-            //  reading from or writing to the clipboard.
             handleDOMEvents: {
               copy(_view, event) {
                 // Stops the default browser copy behaviour.
                 event.preventDefault();
                 event.clipboardData!.clearData();
 
+                // TODO: Firefox doesn't allow you to change the clipboard
+                //  contents outside the copy event, so this function being
+                //  async causes issues.
                 async function setClipboardData() {
                   const serializer = customBlockSerializer(schema, editor);
 
