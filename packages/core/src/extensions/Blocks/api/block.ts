@@ -153,12 +153,17 @@ export function wrapInBlockStructure<
   element: {
     dom: HTMLElement;
     contentDOM?: HTMLElement;
+    destroy?: () => void;
   },
   blockType: BType,
   blockProps: Props<PSchema>,
   propSchema: PSchema,
   domAttributes?: Record<string, string>
-) {
+): {
+  dom: HTMLElement;
+  contentDOM?: HTMLElement;
+  destroy?: () => void;
+} {
   // Creates `blockContent` element
   const blockContent = document.createElement("div");
 
@@ -193,12 +198,13 @@ export function wrapInBlockStructure<
     );
 
     return {
+      ...element,
       dom: blockContent,
-      contentDOM: element.contentDOM,
     };
   }
 
   return {
+    ...element,
     dom: blockContent,
   };
 }
@@ -250,10 +256,8 @@ export function createBlockSpec<
         const blockContentDOMAttributes =
           this.options.domAttributes?.blockContent || {};
 
-        const content = blockConfig.render(block, editor);
-
         return wrapInBlockStructure<BType, PSchema>(
-          content,
+          blockConfig.render(block, editor),
           block.type,
           block.props,
           blockConfig.propSchema,
