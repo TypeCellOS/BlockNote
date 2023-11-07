@@ -1,7 +1,6 @@
 import { Attribute, Attributes, Editor, Node } from "@tiptap/core";
-import { Fragment, ParseRule } from "prosemirror-model";
+import { ParseRule } from "prosemirror-model";
 import { BlockNoteEditor, BlockSchemaWithBlock, Props } from "../../..";
-import { inlineContentToNodes } from "../../../api/nodeConversions/nodeConversions";
 import {
   BlockConfig,
   BlockNoteDOMAttributes,
@@ -72,37 +71,37 @@ export function parse<
     },
   ];
 
-  if (blockConfig.parse) {
-    rules.push({
-      tag: "*",
-      getAttrs(node: string | HTMLElement) {
-        if (typeof node === "string") {
-          return false;
-        }
-
-        const block = blockConfig.parse?.(node);
-
-        if (block === undefined) {
-          return false;
-        }
-
-        return block.props || {};
-      },
-      getContent(node, schema) {
-        const block = blockConfig.parse?.(node as HTMLElement);
-
-        if (block !== undefined && block.content !== undefined) {
-          return Fragment.from(
-            typeof block.content === "string"
-              ? schema.text(block.content)
-              : inlineContentToNodes(block.content, schema)
-          );
-        }
-
-        return Fragment.empty;
-      },
-    });
-  }
+  // if (blockConfig.parse) {
+  //   rules.push({
+  //     tag: "*",
+  //     getAttrs(node: string | HTMLElement) {
+  //       if (typeof node === "string") {
+  //         return false;
+  //       }
+  //
+  //       const block = blockConfig.parse?.(node);
+  //
+  //       if (block === undefined) {
+  //         return false;
+  //       }
+  //
+  //       return block.props || {};
+  //     },
+  //     getContent(node, schema) {
+  //       const block = blockConfig.parse?.(node as HTMLElement);
+  //
+  //       if (block !== undefined && block.content !== undefined) {
+  //         return Fragment.from(
+  //           typeof block.content === "string"
+  //             ? schema.text(block.content)
+  //             : inlineContentToNodes(block.content, schema)
+  //         );
+  //       }
+  //
+  //       return Fragment.empty;
+  //     },
+  //   });
+  // }
 
   return rules;
 }

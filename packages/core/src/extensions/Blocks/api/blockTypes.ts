@@ -154,9 +154,9 @@ export type BlockConfig<
     block: SpecificBlock<BSchema, Type>,
     editor: BlockNoteEditor<BSchema>
   ) => HTMLElement;
-  parse?: (
-    element: HTMLElement
-  ) => SpecificPartialBlock<BSchema, Type> | undefined;
+  // parse?: (
+  //   element: HTMLElement
+  // ) => SpecificPartialBlock<BSchema, Type> | undefined;
 };
 
 // Defines a single block spec, which includes the props that the block has and
