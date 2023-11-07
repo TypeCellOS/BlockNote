@@ -1,11 +1,10 @@
 import { Attribute, Attributes, Editor, Node } from "@tiptap/core";
 import { Fragment, ParseRule } from "prosemirror-model";
-import { BlockNoteEditor, Props } from "../../..";
+import { BlockNoteEditor, BlockSchemaWithBlock, Props } from "../../..";
 import { inlineContentToNodes } from "../../../api/nodeConversions/nodeConversions";
 import {
   BlockConfig,
   BlockNoteDOMAttributes,
-  BlockSchema,
   BlockSpec,
   PropSchema,
   SpecificBlock,
@@ -24,9 +23,7 @@ export function propsToAttributes<
   BType extends string,
   PSchema extends PropSchema,
   ContainsInlineContent extends boolean,
-  BSchema extends BlockSchema & {
-    [k in BType]: BlockSpec<BType, PSchema, ContainsInlineContent>;
-  }
+  BSchema extends BlockSchemaWithBlock<BType, PSchema, ContainsInlineContent>
 >(
   blockConfig: Omit<
     BlockConfig<BType, PSchema, ContainsInlineContent, BSchema>,
@@ -62,9 +59,7 @@ export function parse<
   BType extends string,
   PSchema extends PropSchema,
   ContainsInlineContent extends boolean,
-  BSchema extends BlockSchema & {
-    [k in BType]: BlockSpec<BType, PSchema, ContainsInlineContent>;
-  }
+  BSchema extends BlockSchemaWithBlock<BType, PSchema, ContainsInlineContent>
 >(
   blockConfig: Omit<
     BlockConfig<BType, PSchema, ContainsInlineContent, BSchema>,
@@ -118,9 +113,7 @@ export function getBlockFromPos<
   BType extends string,
   PSchema extends PropSchema,
   ContainsInlineContent extends boolean,
-  BSchema extends BlockSchema & {
-    [k in BType]: BlockSpec<BType, PSchema, ContainsInlineContent>;
-  }
+  BSchema extends BlockSchemaWithBlock<BType, PSchema, ContainsInlineContent>
 >(
   getPos: (() => number) | boolean,
   editor: BlockNoteEditor<BSchema>,
@@ -217,9 +210,7 @@ export function createBlockSpec<
   BType extends string,
   PSchema extends PropSchema,
   ContainsInlineContent extends boolean,
-  BSchema extends BlockSchema & {
-    [k in BType]: BlockSpec<BType, PSchema, ContainsInlineContent>;
-  }
+  BSchema extends BlockSchemaWithBlock<BType, PSchema, ContainsInlineContent>
 >(
   blockConfig: BlockConfig<BType, PSchema, ContainsInlineContent, BSchema>
 ): BlockSpec<BType, PSchema, ContainsInlineContent> {

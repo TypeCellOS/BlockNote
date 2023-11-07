@@ -2,7 +2,7 @@ import {
   BlockConfig,
   BlockNoteDOMAttributes,
   BlockNoteEditor,
-  BlockSchema,
+  BlockSchemaWithBlock,
   BlockSpec,
   blockStyles,
   camelToDataKebab,
@@ -30,9 +30,7 @@ export type ReactBlockConfig<
   BType extends string,
   PSchema extends PropSchema,
   ContainsInlineContent extends boolean,
-  BSchema extends BlockSchema & {
-    [k in BType]: BlockSpec<BType, PSchema, ContainsInlineContent>;
-  }
+  BSchema extends BlockSchemaWithBlock<BType, PSchema, ContainsInlineContent>
 > = Omit<
   BlockConfig<BType, PSchema, ContainsInlineContent, BSchema>,
   "render"
@@ -81,9 +79,7 @@ export function reactWrapInBlockStructure<
   BType extends string,
   PSchema extends PropSchema,
   ContainsInlineContent extends boolean,
-  BSchema extends BlockSchema & {
-    [k in BType]: BlockSpec<BType, PSchema, ContainsInlineContent>;
-  }
+  BSchema extends BlockSchemaWithBlock<BType, PSchema, ContainsInlineContent>
 >(
   element: JSX.Element,
   block: SpecificBlock<BSchema, BType>,
@@ -120,9 +116,7 @@ export function createReactBlockSpec<
   BType extends string,
   PSchema extends PropSchema,
   ContainsInlineContent extends boolean,
-  BSchema extends BlockSchema & {
-    [k in BType]: BlockSpec<BType, PSchema, ContainsInlineContent>;
-  }
+  BSchema extends BlockSchemaWithBlock<BType, PSchema, ContainsInlineContent>
 >(
   blockConfig: ReactBlockConfig<BType, PSchema, ContainsInlineContent, BSchema>
 ): BlockSpec<BType, PSchema, ContainsInlineContent> {

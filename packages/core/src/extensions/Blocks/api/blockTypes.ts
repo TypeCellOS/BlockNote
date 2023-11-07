@@ -235,6 +235,14 @@ export type SpecificPartialBlock<
   children?: Block<BSchema>[];
 };
 
+export type BlockSchemaWithBlock<
+  BType extends string,
+  PSchema extends PropSchema,
+  ContainsInlineContent extends boolean
+> = BlockSchema & {
+  [k in BType]: BlockSpec<BType, PSchema, ContainsInlineContent>;
+};
+
 // Same as BlockWithoutChildren, but as a partial type with some changes to make
 // it easier to create/update blocks in the editor.
 type PartialBlocksWithoutChildren<BSchema extends BlockSchema> = {
