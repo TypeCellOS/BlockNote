@@ -5,7 +5,7 @@ import { BlockSpec, PropSchema } from "../../../../api/blockTypes";
 import { mergeCSSClasses } from "../../../../../../shared/utils";
 import { handleEnter } from "../ListItemKeyboardShortcuts";
 import { NumberedListIndexingPlugin } from "./NumberedListIndexingPlugin";
-import { serializeBlockToHTMLDefault } from "../../../../../../api/serialization/html/shared";
+import { serializeBlockToHTMLDefault } from "../../../../../../api/serialization/html/sharedHTMLConversion";
 
 export const numberedListItemPropSchema = {
   ...defaultProps,

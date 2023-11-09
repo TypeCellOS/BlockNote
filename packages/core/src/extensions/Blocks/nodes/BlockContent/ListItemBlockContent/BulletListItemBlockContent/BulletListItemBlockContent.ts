@@ -4,7 +4,7 @@ import { createTipTapBlock } from "../../../../api/block";
 import { BlockSpec, PropSchema } from "../../../../api/blockTypes";
 import { mergeCSSClasses } from "../../../../../../shared/utils";
 import { handleEnter } from "../ListItemKeyboardShortcuts";
-import { serializeBlockToHTMLDefault } from "../../../../../../api/serialization/html/shared";
+import { serializeBlockToHTMLDefault } from "../../../../../../api/serialization/html/sharedHTMLConversion";
 
 export const bulletListItemPropSchema = {
   ...defaultProps,

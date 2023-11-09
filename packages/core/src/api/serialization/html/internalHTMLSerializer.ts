@@ -1,18 +1,14 @@
-// TODO: IMO this should be part of the formatConversions file since the custom
-//  serializer is used for all HTML & markdown conversions. I think this would
-//  also clean up testing converting to clean HTML.
 import { DOMSerializer, Fragment, Node, Schema } from "prosemirror-model";
-import {
-  blockToNode,
-  nodeToBlock,
-} from "../../nodeConversions/nodeConversions";
 import { BlockNoteEditor } from "../../../BlockNoteEditor";
 import {
-  Block,
   BlockSchema,
   PartialBlock,
 } from "../../../extensions/Blocks/api/blockTypes";
-import { doc } from "./shared";
+import {
+  serializeNodeInner,
+  serializeProseMirrorFragment,
+} from "./sharedHTMLConversion";
+import { blockToNode } from "../../nodeConversions/nodeConversions";
 
 // Used to serialize BlockNote blocks and ProseMirror nodes to HTML without
 // losing data. Blocks are exported using the `toInternalHTML` method in their
@@ -25,22 +21,22 @@ import { doc } from "./shared";
 // loss.
 //
 // The serializer has 2 main methods:
-// `serializeBlocks`: Serializes an array of blocks to HTML.
 // `serializeFragment`: Serializes a ProseMirror fragment to HTML. This is
 // mostly useful if you want to serialize a selection which may not start/end at
 // the start/end of a block.
+// `serializeBlocks`: Serializes an array of blocks to HTML.
 export interface InternalHTMLSerializer<BSchema extends BlockSchema> {
-  serializeBlocks: (blocks: PartialBlock<BSchema>[]) => string;
   // TODO: Ideally we would expand the BlockNote API to support partial
   //  selections so we don't need this.
   serializeProseMirrorFragment: (fragment: Fragment) => string;
+  serializeBlocks: (blocks: PartialBlock<BSchema>[]) => string;
 }
 
 export const createInternalHTMLSerializer = <BSchema extends BlockSchema>(
   schema: Schema,
   editor: BlockNoteEditor<BSchema>
 ): InternalHTMLSerializer<BSchema> => {
-  const customSerializer = DOMSerializer.fromSchema(schema) as DOMSerializer & {
+  const serializer = DOMSerializer.fromSchema(schema) as DOMSerializer & {
     serializeNodeInner: (
       node: Node,
       options: { document?: Document }
@@ -53,76 +49,15 @@ export const createInternalHTMLSerializer = <BSchema extends BlockSchema>(
     ) => string;
   };
 
-  customSerializer.serializeNodeInner = (
+  serializer.serializeNodeInner = (
     node: Node,
     options: { document?: Document }
-  ) => {
-    const { dom, contentDOM } = DOMSerializer.renderSpec(
-      doc(options),
-      customSerializer.nodes[node.type.name](node)
-    );
+  ) => serializeNodeInner(node, options, serializer, editor, false);
 
-    if (contentDOM) {
-      if (node.isLeaf) {
-        throw new RangeError("Content hole not allowed in a leaf node spec");
-      }
+  serializer.serializeProseMirrorFragment = (fragment: Fragment) =>
+    serializeProseMirrorFragment(fragment, serializer);
 
-      // Checks if the block type is custom. Custom blocks don't implement a
-      // `renderHTML` function in their TipTap node type, so `toDOM` also isn't
-      // implemented in their ProseMirror node type.
-      if (node.type.name === "blockContainer") {
-        const blockSpec =
-          editor.schema[node.firstChild!.type.name as keyof BSchema];
-        // Renders block content using the custom `blockSpec`'s `serialize`
-        // function.
-        const blockContent = DOMSerializer.renderSpec(
-          doc(options),
-          blockSpec.toInternalHTML(
-            nodeToBlock<BlockSchema, keyof BlockSchema>(
-              node,
-              editor.schema,
-              editor.blockCache as WeakMap<Node, Block<BlockSchema>>
-            ),
-            editor as BlockNoteEditor<BlockSchema>
-          )
-        );
-
-        // Renders inline content.
-        if (blockContent.contentDOM) {
-          if (node.isLeaf) {
-            throw new RangeError(
-              "Content hole not allowed in a leaf node spec"
-            );
-          }
-
-          blockContent.contentDOM.appendChild(
-            customSerializer.serializeFragment(
-              node.firstChild!.content,
-              options
-            )
-          );
-        }
-
-        contentDOM.appendChild(blockContent.dom);
-
-        // Renders nested blocks.
-        if (node.childCount === 2) {
-          customSerializer.serializeFragment(
-            Fragment.from(node.content.lastChild),
-            options,
-            contentDOM
-          );
-        }
-      } else {
-        // Renders the block normally, i.e. using `toDOM`.
-        customSerializer.serializeFragment(node.content, options, contentDOM);
-      }
-    }
-
-    return dom as HTMLElement;
-  };
-
-  customSerializer.serializeBlocks = (blocks: PartialBlock<BSchema>[]) => {
+  serializer.serializeBlocks = (blocks: PartialBlock<BSchema>[]) => {
     const nodes = blocks.map((block) =>
       blockToNode(block, editor._tiptapEditor.schema)
     );
@@ -131,18 +66,8 @@ export const createInternalHTMLSerializer = <BSchema extends BlockSchema>(
       nodes
     );
 
-    return customSerializer.serializeProseMirrorFragment(
-      Fragment.from(blockGroup)
-    );
+    return serializer.serializeProseMirrorFragment(Fragment.from(blockGroup));
   };
 
-  customSerializer.serializeProseMirrorFragment = (fragment: Fragment) => {
-    const internalHTML = customSerializer.serializeFragment(fragment);
-    const parent = document.createElement("div");
-    parent.appendChild(internalHTML);
-
-    return parent.innerHTML;
-  };
-
-  return customSerializer;
+  return serializer;
 };
