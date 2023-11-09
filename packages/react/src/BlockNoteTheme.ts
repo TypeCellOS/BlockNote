@@ -234,14 +234,14 @@ export const blockNoteToMantineTheme = (theme: Theme): MantineThemeOverride => {
                 fontFamily: theme.fontFamily,
               },
               // Placeholders
-              ".isEmpty .inlineContent:before, .isFilter .inlineContent:before":
+              ".bn-is-empty .bn-inline-content:before, .bn-is-filter .bn-inline-content:before":
                 {
                   color: theme.colors.sideMenu,
                 },
               // Indent lines
-              ".blockGroup": {
-                ".blockGroup": {
-                  ".blockOuter:not([data-prev-depth-changed])::before": {
+              ".bn-block-group": {
+                ".bn-block-group": {
+                  ".bn-block-outer:not([data-prev-depth-changed])::before": {
                     borderLeft: `1px solid ${theme.colors.sideMenu}`,
                   },
                 },

@@ -60,9 +60,6 @@ export const getBlockNoteExtensions = <BSchema extends BlockSchema>(opts: {
 
     // DropCursor,
     Placeholder.configure({
-      emptyNodeClass: "isEmpty",
-      hasAnchorClass: "hasAnchor",
-      isFilterClass: "isFilter",
       includeChildren: true,
       showOnlyCurrent: false,
     }),

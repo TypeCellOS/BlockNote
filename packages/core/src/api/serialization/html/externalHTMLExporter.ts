@@ -58,6 +58,9 @@ export const createExternalHTMLExporter = <BSchema extends BlockSchema>(
     options: { document?: Document }
   ) => serializeNodeInner(node, options, serializer, editor, true);
 
+  // Like the `internalHTMLSerializer`, also uses `serializeProseMirrorFragment`
+  // but additionally runs it through the `simplifyBlocks` rehype plugin to
+  // convert the internal HTML to external.
   serializer.exportProseMirrorFragment = async (fragment) => {
     const externalHTML = await unified()
       .use(rehypeParse, { fragment: true })

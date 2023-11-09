@@ -82,15 +82,15 @@ export const BlockContainer = Node.create<{
     return [
       "div",
       mergeAttributes(HTMLAttributes, {
-        class: "blockOuter",
-        "data-node-type": "block-outer",
+        class: "bn-block-outer",
+        "data-node-type": "blockOuter",
       }),
       [
         "div",
         mergeAttributes(
           {
             ...domAttributes,
-            class: mergeCSSClasses("block", domAttributes.class),
+            class: mergeCSSClasses("bn-block", domAttributes.class),
             "data-node-type": this.name,
           },
           HTMLAttributes

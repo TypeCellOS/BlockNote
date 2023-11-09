@@ -398,7 +398,7 @@ export const setupSuggestionsMenu = <
                   blockNode.pos + blockNode.node.nodeSize,
                   {
                     nodeName: "span",
-                    class: "suggestion-decorator",
+                    class: "bn-suggestion-decorator",
                     "data-decoration-id": decorationId,
                   }
                 ),
@@ -412,7 +412,7 @@ export const setupSuggestionsMenu = <
               queryStartPos,
               {
                 nodeName: "span",
-                class: "suggestion-decorator",
+                class: "bn-suggestion-decorator",
                 "data-decoration-id": decorationId,
               }
             ),

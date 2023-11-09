@@ -152,14 +152,14 @@ function setDragImage(view: EditorView, from: number, to = from) {
   const inheritedClasses = classes
     .filter(
       (className) =>
-        !className.includes("bn") &&
-        !className.includes("ProseMirror") &&
-        !className.includes("editor")
+        className !== "ProseMirror" &&
+        className !== "bn-root" &&
+        className !== "bn-editor"
     )
     .join(" ");
 
   dragImageElement.className =
-    dragImageElement.className + " dragPreview " + inheritedClasses;
+    dragImageElement.className + " bn-drag-preview " + inheritedClasses;
 
   document.body.appendChild(dragImageElement);
 }

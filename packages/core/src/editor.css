@@ -1,6 +1,6 @@
 @import url("./assets/fonts-inter.css");
 
-.bnEditor {
+.bn-editor {
   outline: none;
   padding-inline: 54px;
 
@@ -11,31 +11,31 @@
 }
 
 /*
-bnRoot should be applied to all top-level elements
+bn-root should be applied to all top-level elements
 
 This includes the Prosemirror editor, but also <div> element such as 
 Tippy popups that are appended to document.body directly
 */
-.bnRoot {
+.bn-root {
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
 
-.bnRoot *,
-.bnRoot *::before,
-.bnRoot *::after {
+.bn-root *,
+.bn-root *::before,
+.bn-root *::after {
   -webkit-box-sizing: inherit;
   -moz-box-sizing: inherit;
   box-sizing: inherit;
 }
 
 /* reset styles, they will be set on blockContent */
-.defaultStyles p,
-.defaultStyles h1,
-.defaultStyles h2,
-.defaultStyles h3,
-.defaultStyles li {
+.bn-default-styles p,
+.bn-default-styles h1,
+.bn-default-styles h2,
+.bn-default-styles h3,
+.bn-default-styles li {
   all: unset;
   margin: 0;
   padding: 0;
@@ -44,7 +44,7 @@ Tippy popups that are appended to document.body directly
   min-width: 2px !important;
 }
 
-.defaultStyles {
+.bn-default-styles {
   font-size: 16px;
   font-weight: normal;
   font-family: "Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont,
@@ -54,9 +54,9 @@ Tippy popups that are appended to document.body directly
   -moz-osx-font-smoothing: grayscale;
 }
 
-.dragPreview {
+.bn-drag-preview {
   position: absolute;
-  top: -1000px;
+  left: -100000px;
 }
 
 /* Give a remote user a caret */

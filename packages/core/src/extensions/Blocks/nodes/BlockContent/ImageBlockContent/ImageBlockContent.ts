@@ -56,38 +56,38 @@ export const renderImage = (
   // Wrapper element to set the image alignment, contains both image/image
   // upload dashboard and caption.
   const wrapper = document.createElement("div");
-  wrapper.className = "wrapper";
+  wrapper.className = "bn-image-block-content-wrapper";
   wrapper.style.alignItems = textAlignmentToAlignItems(
     block.props.textAlignment
   );
 
   // Button element that acts as a placeholder for images with no src.
   const addImageButton = document.createElement("div");
-  addImageButton.className = "addImageButton";
+  addImageButton.className = "bn-add-image-button";
   addImageButton.style.display = block.props.url === "" ? "" : "none";
 
   // Icon for the add image button.
   const addImageButtonIcon = document.createElement("div");
-  addImageButtonIcon.className = "addImageButtonIcon";
+  addImageButtonIcon.className = "bn-add-image-button-icon";
 
   // Text for the add image button.
   const addImageButtonText = document.createElement("p");
-  addImageButtonText.className = "addImageButtonText";
+  addImageButtonText.className = "bn-add-image-button-text";
   addImageButtonText.innerText = "Add Image";
 
   // Wrapper element for the image, resize handles and caption.
   const imageAndCaptionWrapper = document.createElement("div");
-  imageAndCaptionWrapper.className = "imageAndCaptionWrapper";
+  imageAndCaptionWrapper.className = "bn-image-and-caption-wrapper";
   imageAndCaptionWrapper.style.display = block.props.url !== "" ? "" : "none";
 
   // Wrapper element for the image and resize handles.
   const imageWrapper = document.createElement("div");
-  imageWrapper.className = "imageWrapper";
+  imageWrapper.className = "bn-image-wrapper";
   imageWrapper.style.display = block.props.url !== "" ? "" : "none";
 
   // Image element.
   const image = document.createElement("img");
-  image.className = "image";
+  image.className = "bn-image";
   image.src = block.props.url;
   image.alt = "placeholder";
   image.contentEditable = "false";
@@ -99,15 +99,15 @@ export const renderImage = (
 
   // Resize handle elements.
   const leftResizeHandle = document.createElement("div");
-  leftResizeHandle.className = "resizeHandle";
+  leftResizeHandle.className = "bn-image-resize-handle";
   leftResizeHandle.style.left = "4px";
   const rightResizeHandle = document.createElement("div");
-  rightResizeHandle.className = "resizeHandle";
+  rightResizeHandle.className = "bn-image-resize-handle";
   rightResizeHandle.style.right = "4px";
 
   // Caption element.
   const caption = document.createElement("p");
-  caption.className = "caption";
+  caption.className = "bn-image-caption";
   caption.innerText = block.props.caption;
   caption.style.padding = block.props.caption ? "4px" : "";
 

@@ -36,10 +36,10 @@ export const Placeholder = Extension.create<PlaceholderOptions>({
 
   addOptions() {
     return {
-      emptyEditorClass: "is-editor-empty",
-      emptyNodeClass: "is-empty",
-      isFilterClass: "is-filter",
-      hasAnchorClass: "has-anchor",
+      emptyEditorClass: "bn-is-editor-empty",
+      emptyNodeClass: "bn-is-empty",
+      isFilterClass: "bn-is-filter",
+      hasAnchorClass: "bn-has-anchor",
       placeholder: "Write something …",
       showOnlyWhenEditable: true,
       showOnlyCurrent: true,

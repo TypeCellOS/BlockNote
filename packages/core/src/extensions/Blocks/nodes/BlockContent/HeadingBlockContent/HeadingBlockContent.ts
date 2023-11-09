@@ -107,7 +107,10 @@ const HeadingBlockContent = createTipTapBlock<"heading", true>({
       "div",
       mergeAttributes(HTMLAttributes, {
         ...blockContentDOMAttributes,
-        class: mergeCSSClasses("blockContent", blockContentDOMAttributes.class),
+        class: mergeCSSClasses(
+          "bn-block-content",
+          blockContentDOMAttributes.class
+        ),
         "data-content-type": this.name,
       }),
       [
@@ -115,7 +118,7 @@ const HeadingBlockContent = createTipTapBlock<"heading", true>({
         {
           ...inlineContentDOMAttributes,
           class: mergeCSSClasses(
-            "inlineContent",
+            "bn-inline-content",
             inlineContentDOMAttributes.class
           ),
         },

@@ -35,7 +35,7 @@ export const ParagraphBlockContent = createTipTapBlock<"paragraph", true>({
         {
           ...blockContentDOMAttributes,
           class: mergeCSSClasses(
-            "blockContent",
+            "bn-block-content",
             blockContentDOMAttributes.class
           ),
           "data-content-type": this.name,
@@ -47,7 +47,7 @@ export const ParagraphBlockContent = createTipTapBlock<"paragraph", true>({
         {
           ...inlineContentDOMAttributes,
           class: mergeCSSClasses(
-            "inlineContent",
+            "bn-inline-content",
             inlineContentDOMAttributes.class
           ),
         },

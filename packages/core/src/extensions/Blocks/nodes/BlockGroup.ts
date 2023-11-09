@@ -38,7 +38,10 @@ export const BlockGroup = Node.create<{
       mergeAttributes(
         {
           ...blockGroupDOMAttributes,
-          class: mergeCSSClasses("blockGroup", blockGroupDOMAttributes.class),
+          class: mergeCSSClasses(
+            "bn-block-group",
+            blockGroupDOMAttributes.class
+          ),
           "data-node-type": "blockGroup",
         },
         HTMLAttributes

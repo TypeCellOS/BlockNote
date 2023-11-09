@@ -127,7 +127,10 @@ const NumberedListItemBlockContent = createTipTapBlock<
       "div",
       mergeAttributes(HTMLAttributes, {
         ...blockContentDOMAttributes,
-        class: mergeCSSClasses("blockContent", blockContentDOMAttributes.class),
+        class: mergeCSSClasses(
+          "bn-block-content",
+          blockContentDOMAttributes.class
+        ),
         "data-content-type": this.name,
       }),
       // we use a <p> tag, because for <li> tags we'd need to add a <ul> parent for around siblings to be semantically correct,
@@ -137,7 +140,7 @@ const NumberedListItemBlockContent = createTipTapBlock<
         {
           ...inlineContentDOMAttributes,
           class: mergeCSSClasses(
-            "inlineContent",
+            "bn-inline-content",
             inlineContentDOMAttributes.class
           ),
         },

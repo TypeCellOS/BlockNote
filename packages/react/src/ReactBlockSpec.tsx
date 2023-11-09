@@ -173,7 +173,7 @@ export function createReactBlockSpec<
             return <BlockContent />;
           },
           {
-            className: blockStyles.reactNodeViewRenderer,
+            className: "bn-react-node-view-renderer",
           }
         )(props);
     },

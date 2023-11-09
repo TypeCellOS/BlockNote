@@ -282,9 +282,9 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
         attributes: {
           ...newOptions.domAttributes?.editor,
           class: mergeCSSClasses(
-            "bnEditor",
-            "bnRoot",
-            newOptions.defaultStyles ? "defaultStyles" : "",
+            "bn-root",
+            "bn-editor",
+            newOptions.defaultStyles ? "bn-default-styles" : "",
             newOptions.domAttributes?.editor?.class || ""
           ),
         },
@@ -773,6 +773,7 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
     this._tiptapEditor.commands.liftListItem("blockContainer");
   }
 
+  // TODO: Fix when implementing HTML/Markdown import & export
   // /**
   //  * Serializes blocks into an HTML string. To better conform to HTML standards, children of blocks which aren't list
   //  * items are un-nested in the output HTML.
