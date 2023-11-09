@@ -121,9 +121,7 @@ export type BlockConfig<
   Type extends string,
   PSchema extends PropSchema,
   ContainsInlineContent extends boolean,
-  BSchema extends BlockSchema & {
-    [k in Type]: BlockSpec<Type, PSchema, ContainsInlineContent>;
-  }
+  BSchema extends BlockSchemaWithBlock<Type, PSchema, ContainsInlineContent>
 > = {
   // Attributes to define block in the API as well as a TipTap node.
   type: Type;
@@ -149,8 +147,11 @@ export type BlockConfig<
     contentDOM?: HTMLElement;
     destroy?: () => void;
   };
+  // Exports block to external HTML. If not defined, the output will be the same
+  // as `render(...).dom`. Used to create clipboard data when pasting outside
+  // BlockNote.
   // TODO: Maybe can return undefined to ignore when serializing?
-  serialize?: (
+  toExternalHTML?: (
     block: SpecificBlock<BSchema, Type>,
     editor: BlockNoteEditor<BSchema>
   ) => HTMLElement;
@@ -171,7 +172,17 @@ export type BlockSpec<
   node: TipTapNode<BType, ContainsInlineContent, any>;
   readonly propSchema: PSchema;
   // TODO: Typing
-  serialize?: (
+  // Serializes block to internal HTML. Used to create clipboard data for
+  // pasting inside BlockNote. Same implementation as `render(...).dom` in this
+  // block's `BlockConfig`.
+  toInternalHTML: (
+    block: SpecificBlock<BlockSchema, string>,
+    editor: BlockNoteEditor<BlockSchema>
+  ) => HTMLElement;
+  // Exports block to external HTML. Used to create clipboard data for pasting
+  // outside BlockNote. Will be the same as `toInternalHTML` if `toExternalHTML`
+  // is not defined in this block's `BlockConfig`.
+  toExternalHTML: (
     block: SpecificBlock<BlockSchema, string>,
     editor: BlockNoteEditor<BlockSchema>
   ) => HTMLElement;
@@ -199,6 +210,14 @@ type NamesMatch<
 export type BlockSchema = NamesMatch<
   Record<string, BlockSpec<string, PropSchema, boolean>>
 >;
+
+export type BlockSchemaWithBlock<
+  BType extends string,
+  PSchema extends PropSchema,
+  ContainsInlineContent extends boolean
+> = BlockSchema & {
+  [k in BType]: BlockSpec<BType, PSchema, ContainsInlineContent>;
+};
 
 // Converts each block spec into a Block object without children. We later merge
 // them into a union type and add a children property to create the Block and
@@ -228,21 +247,6 @@ export type SpecificBlock<
   children: Block<BSchema>[];
 };
 
-export type SpecificPartialBlock<
-  BSchema extends BlockSchema,
-  BType extends keyof BSchema
-> = PartialBlocksWithoutChildren<BSchema>[BType] & {
-  children?: Block<BSchema>[];
-};
-
-export type BlockSchemaWithBlock<
-  BType extends string,
-  PSchema extends PropSchema,
-  ContainsInlineContent extends boolean
-> = BlockSchema & {
-  [k in BType]: BlockSpec<BType, PSchema, ContainsInlineContent>;
-};
-
 // Same as BlockWithoutChildren, but as a partial type with some changes to make
 // it easier to create/update blocks in the editor.
 type PartialBlocksWithoutChildren<BSchema extends BlockSchema> = {
@@ -263,5 +267,12 @@ export type PartialBlock<BSchema extends BlockSchema = DefaultBlockSchema> =
     Partial<{
       children: PartialBlock<BSchema>[];
     }>;
+
+export type SpecificPartialBlock<
+  BSchema extends BlockSchema,
+  BType extends keyof BSchema
+> = PartialBlocksWithoutChildren<BSchema>[BType] & {
+  children?: Block<BSchema>[];
+};
 
 export type BlockIdentifier = { id: string } | string;

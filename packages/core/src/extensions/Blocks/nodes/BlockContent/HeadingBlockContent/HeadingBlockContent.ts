@@ -3,6 +3,7 @@ import { defaultProps } from "../../../api/defaultProps";
 import { createTipTapBlock } from "../../../api/block";
 import { BlockSpec, PropSchema } from "../../../api/blockTypes";
 import { mergeCSSClasses } from "../../../../../shared/utils";
+import { serializeBlockToHTMLDefault } from "../../../../../api/serialization/html/shared";
 
 export const headingPropSchema = {
   ...defaultProps,
@@ -36,12 +37,10 @@ const HeadingBlockContent = createTipTapBlock<"heading", true>({
           find: new RegExp(`^(#{${level}})\\s$`),
           handler: ({ state, chain, range }) => {
             chain()
-              .BNUpdateBlock<{
-                heading: BlockSpec<"heading", typeof headingPropSchema, true>;
-              }>(state.selection.from, {
+              .BNUpdateBlock(state.selection.from, {
                 type: "heading",
                 props: {
-                  level: level as 1 | 2 | 3,
+                  level: level as any,
                 },
               })
               // Removes the "#" character(s) used to set the heading.
@@ -55,30 +54,24 @@ const HeadingBlockContent = createTipTapBlock<"heading", true>({
   addKeyboardShortcuts() {
     return {
       "Mod-Alt-1": () =>
-        this.editor.commands.BNUpdateBlock<{
-          heading: BlockSpec<"heading", typeof headingPropSchema, true>;
-        }>(this.editor.state.selection.anchor, {
+        this.editor.commands.BNUpdateBlock(this.editor.state.selection.anchor, {
           type: "heading",
           props: {
-            level: 1,
+            level: 1 as any,
           },
         }),
       "Mod-Alt-2": () =>
-        this.editor.commands.BNUpdateBlock<{
-          heading: BlockSpec<"heading", typeof headingPropSchema, true>;
-        }>(this.editor.state.selection.anchor, {
+        this.editor.commands.BNUpdateBlock(this.editor.state.selection.anchor, {
           type: "heading",
           props: {
-            level: 2,
+            level: 2 as any,
           },
         }),
       "Mod-Alt-3": () =>
-        this.editor.commands.BNUpdateBlock<{
-          heading: BlockSpec<"heading", typeof headingPropSchema, true>;
-        }>(this.editor.state.selection.anchor, {
+        this.editor.commands.BNUpdateBlock(this.editor.state.selection.anchor, {
           type: "heading",
           props: {
-            level: 3,
+            level: 3 as any,
           },
         }),
     };
@@ -106,9 +99,9 @@ const HeadingBlockContent = createTipTapBlock<"heading", true>({
 
   renderHTML({ node, HTMLAttributes }) {
     const blockContentDOMAttributes =
-      this.options.domAttributes?.blockContent || {};
+      this.options?.domAttributes?.blockContent || {};
     const inlineContentDOMAttributes =
-      this.options.domAttributes?.inlineContent || {};
+      this.options?.domAttributes?.inlineContent || {};
 
     return [
       "div",
@@ -135,4 +128,6 @@ const HeadingBlockContent = createTipTapBlock<"heading", true>({
 export const Heading = {
   node: HeadingBlockContent,
   propSchema: headingPropSchema,
+  toInternalHTML: serializeBlockToHTMLDefault,
+  toExternalHTML: serializeBlockToHTMLDefault,
 } satisfies BlockSpec<"heading", typeof headingPropSchema, true>;

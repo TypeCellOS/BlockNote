@@ -2,6 +2,8 @@ import { mergeAttributes } from "@tiptap/core";
 import { defaultProps } from "../../../api/defaultProps";
 import { createTipTapBlock } from "../../../api/block";
 import { mergeCSSClasses } from "../../../../../shared/utils";
+import { BlockSpec } from "../../../api/blockTypes";
+import { serializeBlockToHTMLDefault } from "../../../../../api/serialization/html/shared";
 
 export const paragraphPropSchema = {
   ...defaultProps,
@@ -58,4 +60,6 @@ export const ParagraphBlockContent = createTipTapBlock<"paragraph", true>({
 export const Paragraph = {
   node: ParagraphBlockContent,
   propSchema: paragraphPropSchema,
-};
+  toInternalHTML: serializeBlockToHTMLDefault,
+  toExternalHTML: serializeBlockToHTMLDefault,
+} satisfies BlockSpec<"paragraph", typeof paragraphPropSchema, true>;

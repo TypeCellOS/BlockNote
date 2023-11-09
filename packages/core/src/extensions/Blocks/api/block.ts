@@ -270,7 +270,21 @@ export function createBlockSpec<
   return {
     node: node as TipTapNode<BType, ContainsInlineContent>,
     propSchema: blockConfig.propSchema,
-    serialize: (block, editor) => {
+    toInternalHTML: (block, editor) => {
+      const blockContentDOMAttributes =
+        node.options.domAttributes?.blockContent || {};
+
+      const element = blockConfig.render(block as any, editor as any);
+
+      return wrapInBlockStructure<BType, PSchema>(
+        element,
+        block.type as BType,
+        block.props as Props<PSchema>,
+        blockConfig.propSchema,
+        blockContentDOMAttributes
+      ).dom;
+    },
+    toExternalHTML: (block, editor) => {
       const blockContentDOMAttributes =
         node.options.domAttributes?.blockContent || {};
 
@@ -278,9 +292,9 @@ export function createBlockSpec<
         dom: HTMLElement;
         contentDOM?: HTMLElement;
       };
-      if (blockConfig.serialize !== undefined) {
+      if (blockConfig.toExternalHTML !== undefined) {
         element = {
-          dom: blockConfig.serialize(block as any, editor as any),
+          dom: blockConfig.toExternalHTML(block as any, editor as any),
         };
       } else {
         element = blockConfig.render(block as any, editor as any);

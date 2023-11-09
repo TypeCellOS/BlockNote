@@ -5,6 +5,7 @@ import { BlockSpec, PropSchema } from "../../../../api/blockTypes";
 import { mergeCSSClasses } from "../../../../../../shared/utils";
 import { handleEnter } from "../ListItemKeyboardShortcuts";
 import { NumberedListIndexingPlugin } from "./NumberedListIndexingPlugin";
+import { serializeBlockToHTMLDefault } from "../../../../../../api/serialization/html/shared";
 
 export const numberedListItemPropSchema = {
   ...defaultProps,
@@ -53,13 +54,7 @@ const NumberedListItemBlockContent = createTipTapBlock<
     return {
       Enter: () => handleEnter(this.editor),
       "Mod-Shift-8": () =>
-        this.editor.commands.BNUpdateBlock<{
-          numberedListItem: BlockSpec<
-            "numberedListItem",
-            typeof numberedListItemPropSchema,
-            true
-          >;
-        }>(this.editor.state.selection.anchor, {
+        this.editor.commands.BNUpdateBlock(this.editor.state.selection.anchor, {
           type: "numberedListItem",
           props: {},
         }),
@@ -155,6 +150,8 @@ const NumberedListItemBlockContent = createTipTapBlock<
 export const NumberedListItem = {
   node: NumberedListItemBlockContent,
   propSchema: numberedListItemPropSchema,
+  toInternalHTML: serializeBlockToHTMLDefault,
+  toExternalHTML: serializeBlockToHTMLDefault,
 } satisfies BlockSpec<
   "numberedListItem",
   typeof numberedListItemPropSchema,

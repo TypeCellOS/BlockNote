@@ -11,12 +11,6 @@ import {
   updateBlock,
 } from "./api/blockManipulation/blockManipulation";
 import {
-  HTMLToBlocks,
-  blocksToHTML,
-  blocksToMarkdown,
-  markdownToBlocks,
-} from "./api/formatConversions/formatConversions";
-import {
   blockToNode,
   nodeToBlock,
 } from "./api/nodeConversions/nodeConversions";
@@ -779,47 +773,47 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
     this._tiptapEditor.commands.liftListItem("blockContainer");
   }
 
-  /**
-   * Serializes blocks into an HTML string. To better conform to HTML standards, children of blocks which aren't list
-   * items are un-nested in the output HTML.
-   * @param blocks An array of blocks that should be serialized into HTML.
-   * @returns The blocks, serialized as an HTML string.
-   */
-  public async blocksToHTML(blocks: Block<BSchema>[]): Promise<string> {
-    return blocksToHTML(blocks, this._tiptapEditor.schema, this);
-  }
-
-  /**
-   * Parses blocks from an HTML string. Tries to create `Block` objects out of any HTML block-level elements, and
-   * `InlineNode` objects from any HTML inline elements, though not all element types are recognized. If BlockNote
-   * doesn't recognize an HTML element's tag, it will parse it as a paragraph or plain text.
-   * @param html The HTML string to parse blocks from.
-   * @returns The blocks parsed from the HTML string.
-   */
-  public async HTMLToBlocks(html: string): Promise<Block<BSchema>[]> {
-    return HTMLToBlocks(html, this.schema, this._tiptapEditor.schema);
-  }
-
-  /**
-   * Serializes blocks into a Markdown string. The output is simplified as Markdown does not support all features of
-   * BlockNote - children of blocks which aren't list items are un-nested and certain styles are removed.
-   * @param blocks An array of blocks that should be serialized into Markdown.
-   * @returns The blocks, serialized as a Markdown string.
-   */
-  public async blocksToMarkdown(blocks: Block<BSchema>[]): Promise<string> {
-    return blocksToMarkdown(blocks, this._tiptapEditor.schema, this);
-  }
-
-  /**
-   * Creates a list of blocks from a Markdown string. Tries to create `Block` and `InlineNode` objects based on
-   * Markdown syntax, though not all symbols are recognized. If BlockNote doesn't recognize a symbol, it will parse it
-   * as text.
-   * @param markdown The Markdown string to parse blocks from.
-   * @returns The blocks parsed from the Markdown string.
-   */
-  public async markdownToBlocks(markdown: string): Promise<Block<BSchema>[]> {
-    return markdownToBlocks(markdown, this.schema, this._tiptapEditor.schema);
-  }
+  // /**
+  //  * Serializes blocks into an HTML string. To better conform to HTML standards, children of blocks which aren't list
+  //  * items are un-nested in the output HTML.
+  //  * @param blocks An array of blocks that should be serialized into HTML.
+  //  * @returns The blocks, serialized as an HTML string.
+  //  */
+  // public async blocksToHTML(blocks: Block<BSchema>[]): Promise<string> {
+  //   return blocksToHTML(blocks, this._tiptapEditor.schema, this);
+  // }
+  //
+  // /**
+  //  * Parses blocks from an HTML string. Tries to create `Block` objects out of any HTML block-level elements, and
+  //  * `InlineNode` objects from any HTML inline elements, though not all element types are recognized. If BlockNote
+  //  * doesn't recognize an HTML element's tag, it will parse it as a paragraph or plain text.
+  //  * @param html The HTML string to parse blocks from.
+  //  * @returns The blocks parsed from the HTML string.
+  //  */
+  // public async HTMLToBlocks(html: string): Promise<Block<BSchema>[]> {
+  //   return HTMLToBlocks(html, this.schema, this._tiptapEditor.schema);
+  // }
+  //
+  // /**
+  //  * Serializes blocks into a Markdown string. The output is simplified as Markdown does not support all features of
+  //  * BlockNote - children of blocks which aren't list items are un-nested and certain styles are removed.
+  //  * @param blocks An array of blocks that should be serialized into Markdown.
+  //  * @returns The blocks, serialized as a Markdown string.
+  //  */
+  // public async blocksToMarkdown(blocks: Block<BSchema>[]): Promise<string> {
+  //   return blocksToMarkdown(blocks, this._tiptapEditor.schema, this);
+  // }
+  //
+  // /**
+  //  * Creates a list of blocks from a Markdown string. Tries to create `Block` and `InlineNode` objects based on
+  //  * Markdown syntax, though not all symbols are recognized. If BlockNote doesn't recognize a symbol, it will parse it
+  //  * as text.
+  //  * @param markdown The Markdown string to parse blocks from.
+  //  * @returns The blocks parsed from the Markdown string.
+  //  */
+  // public async markdownToBlocks(markdown: string): Promise<Block<BSchema>[]> {
+  //   return markdownToBlocks(markdown, this.schema, this._tiptapEditor.schema);
+  // }
 
   /**
    * Updates the user info for the current user that's shown to other collaborators.

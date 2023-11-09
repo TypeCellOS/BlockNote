@@ -4,6 +4,7 @@ import { createTipTapBlock } from "../../../../api/block";
 import { BlockSpec, PropSchema } from "../../../../api/blockTypes";
 import { mergeCSSClasses } from "../../../../../../shared/utils";
 import { handleEnter } from "../ListItemKeyboardShortcuts";
+import { serializeBlockToHTMLDefault } from "../../../../../../api/serialization/html/shared";
 
 export const bulletListItemPropSchema = {
   ...defaultProps,
@@ -35,13 +36,7 @@ const BulletListItemBlockContent = createTipTapBlock<"bulletListItem", true>({
     return {
       Enter: () => handleEnter(this.editor),
       "Mod-Shift-7": () =>
-        this.editor.commands.BNUpdateBlock<{
-          bulletListItem: BlockSpec<
-            "bulletListItem",
-            typeof bulletListItemPropSchema,
-            true
-          >;
-        }>(this.editor.state.selection.anchor, {
+        this.editor.commands.BNUpdateBlock(this.editor.state.selection.anchor, {
           type: "bulletListItem",
           props: {},
         }),
@@ -129,4 +124,6 @@ const BulletListItemBlockContent = createTipTapBlock<"bulletListItem", true>({
 export const BulletListItem = {
   node: BulletListItemBlockContent,
   propSchema: bulletListItemPropSchema,
+  toInternalHTML: serializeBlockToHTMLDefault,
+  toExternalHTML: serializeBlockToHTMLDefault,
 } satisfies BlockSpec<"bulletListItem", typeof bulletListItemPropSchema, true>;

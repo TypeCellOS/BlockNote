@@ -182,14 +182,35 @@ export function createReactBlockSpec<
   return {
     node: node,
     propSchema: blockConfig.propSchema,
-    serialize: (block, editor) => {
+    toInternalHTML: (block, editor) => {
+      const blockContentDOMAttributes =
+        node.options.domAttributes?.blockContent || {};
+
+      const Content = blockConfig.render;
+      const BlockContent = reactWrapInBlockStructure(
+        <Content block={block as any} editor={editor as any} />,
+        block,
+        blockContentDOMAttributes
+      );
+      const element = document.createElement("div");
+      element.innerHTML = renderToString(<BlockContent />);
+
+      return wrapInBlockStructure<BType, PSchema>(
+        { dom: element },
+        block.type as BType,
+        block.props as Props<PSchema>,
+        blockConfig.propSchema,
+        blockContentDOMAttributes
+      ).dom;
+    },
+    toExternalHTML: (block, editor) => {
       const blockContentDOMAttributes =
         node.options.domAttributes?.blockContent || {};
 
       let element: HTMLElement;
 
-      if (blockConfig.serialize !== undefined) {
-        element = blockConfig.serialize(block as any, editor as any);
+      if (blockConfig.toExternalHTML !== undefined) {
+        element = blockConfig.toExternalHTML(block as any, editor as any);
       } else {
         const Content = blockConfig.render;
         const BlockContent = reactWrapInBlockStructure(

@@ -1,6 +1,10 @@
 import { createBlockSpec } from "../../../api/block";
 import { defaultProps } from "../../../api/defaultProps";
-import { BlockSpec, PropSchema, SpecificBlock } from "../../../api/blockTypes";
+import {
+  BlockSchemaWithBlock,
+  PropSchema,
+  SpecificBlock,
+} from "../../../api/blockTypes";
 import { BlockNoteEditor } from "../../../../../BlockNoteEditor";
 import { imageToolbarPluginKey } from "../../../../ImageToolbar/ImageToolbarPlugin";
 
@@ -42,12 +46,12 @@ const minWidth = 64;
 
 export const renderImage = (
   block: SpecificBlock<
-    { image: BlockSpec<"image", typeof imagePropSchema, false> },
+    BlockSchemaWithBlock<"image", typeof imagePropSchema, false>,
     "image"
   >,
-  editor: BlockNoteEditor<{
-    image: BlockSpec<"image", typeof imagePropSchema, false>;
-  }>
+  editor: BlockNoteEditor<
+    BlockSchemaWithBlock<"image", typeof imagePropSchema, false>
+  >
 ) => {
   // Wrapper element to set the image alignment, contains both image/image
   // upload dashboard and caption.
@@ -206,7 +210,7 @@ export const renderImage = (
       type: "image",
       props: {
         // Removes "px" from the end of the width string and converts to float.
-        width: parseFloat(image.style.width.slice(0, -2)),
+        width: parseFloat(image.style.width.slice(0, -2)) as any,
       },
     });
   };
@@ -301,7 +305,7 @@ export const Image = createBlockSpec({
   propSchema: imagePropSchema,
   containsInlineContent: false,
   render: renderImage,
-  serialize: (block) => {
+  toExternalHTML: (block) => {
     if (block.props.url === "") {
       const div = document.createElement("p");
       div.innerHTML = "Add Image";

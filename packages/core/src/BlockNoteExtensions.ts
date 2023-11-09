@@ -29,7 +29,7 @@ import { TextColorExtension } from "./extensions/TextColor/TextColorExtension";
 import { TextColorMark } from "./extensions/TextColor/TextColorMark";
 import { TrailingNode } from "./extensions/TrailingNode/TrailingNodeExtension";
 import UniqueID from "./extensions/UniqueID/UniqueID";
-import { createCustomBlockSerializerExtension } from "./api/serialization/serialization";
+import { createClipboardHandlerExtension } from "./api/serialization/clipboardHandlerExtension";
 
 /**
  * Get all the Tiptap extensions BlockNote is configured with by default
@@ -102,7 +102,7 @@ export const getBlockNoteExtensions = <BSchema extends BlockSchema>(opts: {
         domAttributes: opts.domAttributes,
       })
     ),
-    createCustomBlockSerializerExtension(opts.editor),
+    createClipboardHandlerExtension(opts.editor),
 
     Dropcursor.configure({ width: 5, color: "#ddeeff" }),
     // This needs to be at the bottom of this list, because Key events (such as enter, when selecting a /command),
