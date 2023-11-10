@@ -177,7 +177,7 @@ export function wrapInBlockStructure<
   }
   // Sets blockContent class
   blockContent.className = mergeCSSClasses(
-    "blockContent",
+    "bn-block-content",
     domAttributes?.class || ""
   );
   // Sets content type attribute
@@ -193,7 +193,7 @@ export function wrapInBlockStructure<
 
   if (element.contentDOM !== undefined) {
     element.contentDOM.className = mergeCSSClasses(
-      "inlineContent",
+      "bn-inline-content",
       element.contentDOM.className
     );
 

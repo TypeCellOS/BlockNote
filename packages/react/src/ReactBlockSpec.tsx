@@ -4,7 +4,6 @@ import {
   BlockNoteEditor,
   BlockSchemaWithBlock,
   BlockSpec,
-  blockStyles,
   camelToDataKebab,
   createTipTapBlock,
   getBlockFromPos,
@@ -55,7 +54,7 @@ export const InlineContent = <Tag extends ElementType>(
 
   const classNames = mergeCSSClasses(
     props.className || "",
-    blockStyles.inlineContent,
+    "bn-inline-content",
     inlineContentDOMAttributes.class
   );
 
@@ -94,7 +93,7 @@ export function reactWrapInBlockStructure<
       )}
       // Sets blockContent class
       className={mergeCSSClasses(
-        blockStyles.blockContent,
+        "bn-block-content",
         domAttributes?.class || ""
       )}
       // Sets content type attribute
