@@ -1,7 +1,6 @@
 import { PluginView } from "@tiptap/pm/state";
 import { Node } from "prosemirror-model";
 import { NodeSelection, Plugin, PluginKey, Selection } from "prosemirror-state";
-import * as pv from "prosemirror-view";
 import { EditorView } from "prosemirror-view";
 import { BlockNoteEditor } from "../../BlockNoteEditor";
 import { BaseUiElementState } from "../../shared/BaseUiElementTypes";
@@ -10,9 +9,9 @@ import { Block, BlockSchema } from "../Blocks/api/blockTypes";
 import { getBlockInfoFromPos } from "../Blocks/helpers/getBlockInfoFromPos";
 import { slashMenuPluginKey } from "../SlashMenu/SlashMenuPlugin";
 import { MultipleNodeSelection } from "./MultipleNodeSelection";
-
-const serializeForClipboard = (pv as any).__serializeForClipboard;
-// code based on https://github.com/ueberdosis/tiptap/issues/323#issuecomment-506637799
+import { createInternalHTMLSerializer } from "../../api/serialization/html/internalHTMLSerializer";
+import { createExternalHTMLExporter } from "../../api/serialization/html/externalHTMLExporter";
+import { markdown } from "../../api/formatConversions/formatConversions";
 
 let dragImageElement: Element | undefined;
 
@@ -171,13 +170,15 @@ function unsetDragImage() {
   }
 }
 
-function dragStart(
+function dragStart<BSchema extends BlockSchema>(
   e: { dataTransfer: DataTransfer | null; clientY: number },
-  view: EditorView
+  editor: BlockNoteEditor<BSchema>
 ) {
   if (!e.dataTransfer) {
     return;
   }
+
+  const view = editor.prosemirrorView;
 
   const editorBoundingBox = view.dom.getBoundingClientRect();
 
@@ -210,15 +211,28 @@ function dragStart(
       setDragImage(view, pos);
     }
 
-    const slice = view.state.selection.content();
-    const { dom, text } = serializeForClipboard(view, slice);
+    const selectedSlice = view.state.selection.content();
+    const schema = editor._tiptapEditor.schema;
+
+    const internalHTMLSerializer = createInternalHTMLSerializer(schema, editor);
+    const internalHTML = internalHTMLSerializer.serializeProseMirrorFragment(
+      selectedSlice.content
+    );
+
+    const externalHTMLExporter = createExternalHTMLExporter(schema, editor);
+    const externalHTML = externalHTMLExporter.exportProseMirrorFragment(
+      selectedSlice.content
+    );
+
+    const plainText = markdown(externalHTML);
 
     e.dataTransfer.clearData();
-    e.dataTransfer.setData("text/html", dom.innerHTML);
-    e.dataTransfer.setData("text/plain", text);
+    e.dataTransfer.setData("blocknote/html", internalHTML);
+    e.dataTransfer.setData("text/html", externalHTML);
+    e.dataTransfer.setData("text/plain", plainText);
     e.dataTransfer.effectAllowed = "move";
     e.dataTransfer.setDragImage(dragImageElement!, 0, 0);
-    view.dragging = { slice, move: true };
+    view.dragging = { slice: selectedSlice, move: true };
   }
 }
 
@@ -576,7 +590,7 @@ export class SideMenuProsemirrorPlugin<
     clientY: number;
   }) => {
     this.sideMenuView!.isDragging = true;
-    dragStart(event, this.editor.prosemirrorView);
+    dragStart(event, this.editor);
   };
 
   /**

@@ -58,13 +58,8 @@ export const createInternalHTMLSerializer = <BSchema extends BlockSchema>(
     serializeProseMirrorFragment(fragment, serializer);
 
   serializer.serializeBlocks = (blocks: PartialBlock<BSchema>[]) => {
-    const nodes = blocks.map((block) =>
-      blockToNode(block, editor._tiptapEditor.schema)
-    );
-    const blockGroup = editor._tiptapEditor.schema.nodes["blockGroup"].create(
-      null,
-      nodes
-    );
+    const nodes = blocks.map((block) => blockToNode(block, schema));
+    const blockGroup = schema.nodes["blockGroup"].create(null, nodes);
 
     return serializer.serializeProseMirrorFragment(Fragment.from(blockGroup));
   };

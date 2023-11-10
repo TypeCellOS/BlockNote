@@ -319,7 +319,7 @@ NESTED BLOCKS
   content: "Enter text or type '/' for commands";
 }
 
-.bn-block-content.isFilter.bn-has-anchor .bn-inline-content:before {
+.bn-block-content.bn-is-filter.bn-has-anchor .bn-inline-content:before {
   content: "Type to filter";
 }
 
