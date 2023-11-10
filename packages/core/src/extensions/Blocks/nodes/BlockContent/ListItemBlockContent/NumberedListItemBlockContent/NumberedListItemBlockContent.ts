@@ -4,8 +4,10 @@ import { createTipTapBlock } from "../../../../api/block";
 import { BlockSpec, PropSchema } from "../../../../api/blockTypes";
 import { handleEnter } from "../ListItemKeyboardShortcuts";
 import { NumberedListIndexingPlugin } from "./NumberedListIndexingPlugin";
-import { serializeBlockToHTMLDefault } from "../../../../../../api/serialization/html/sharedHTMLConversion";
-import { defaultRenderHTML } from "../../defaultRenderHTML";
+import {
+  createDefaultBlockDOMOutputSpec,
+  defaultBlockToHTML,
+} from "../../defaultBlockHelpers";
 
 export const numberedListItemPropSchema = {
   ...defaultProps,
@@ -118,7 +120,7 @@ const NumberedListItemBlockContent = createTipTapBlock<
   },
 
   renderHTML({ HTMLAttributes }) {
-    return defaultRenderHTML(
+    return createDefaultBlockDOMOutputSpec(
       this.name,
       // We use a <p> tag, because for <li> tags we'd need an <ol> element to
       // put them in to be semantically correct, which we can't have due to the
@@ -136,8 +138,8 @@ const NumberedListItemBlockContent = createTipTapBlock<
 export const NumberedListItem = {
   node: NumberedListItemBlockContent,
   propSchema: numberedListItemPropSchema,
-  toInternalHTML: serializeBlockToHTMLDefault,
-  toExternalHTML: serializeBlockToHTMLDefault,
+  toInternalHTML: defaultBlockToHTML,
+  toExternalHTML: defaultBlockToHTML,
 } satisfies BlockSpec<
   "numberedListItem",
   typeof numberedListItemPropSchema,

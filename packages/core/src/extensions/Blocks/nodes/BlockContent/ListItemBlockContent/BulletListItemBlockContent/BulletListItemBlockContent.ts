@@ -3,8 +3,10 @@ import { defaultProps } from "../../../../api/defaultProps";
 import { createTipTapBlock } from "../../../../api/block";
 import { BlockSpec, PropSchema } from "../../../../api/blockTypes";
 import { handleEnter } from "../ListItemKeyboardShortcuts";
-import { serializeBlockToHTMLDefault } from "../../../../../../api/serialization/html/sharedHTMLConversion";
-import { defaultRenderHTML } from "../../defaultRenderHTML";
+import {
+  createDefaultBlockDOMOutputSpec,
+  defaultBlockToHTML,
+} from "../../defaultBlockHelpers";
 
 export const bulletListItemPropSchema = {
   ...defaultProps,
@@ -94,10 +96,10 @@ const BulletListItemBlockContent = createTipTapBlock<"bulletListItem", true>({
   },
 
   renderHTML({ HTMLAttributes }) {
-    return defaultRenderHTML(
+    return createDefaultBlockDOMOutputSpec(
       this.name,
-      // We use a <p> tag, because for <li> tags we'd need an <il> element to
-      // put them in to be semantically correct, which we can't have due to the
+      // We use a <p> tag, because for <li> tags we'd need a <ul> element to put
+      // them in to be semantically correct, which we can't have due to the
       // schema.
       "p",
       {
@@ -112,6 +114,6 @@ const BulletListItemBlockContent = createTipTapBlock<"bulletListItem", true>({
 export const BulletListItem = {
   node: BulletListItemBlockContent,
   propSchema: bulletListItemPropSchema,
-  toInternalHTML: serializeBlockToHTMLDefault,
-  toExternalHTML: serializeBlockToHTMLDefault,
+  toInternalHTML: defaultBlockToHTML,
+  toExternalHTML: defaultBlockToHTML,
 } satisfies BlockSpec<"bulletListItem", typeof bulletListItemPropSchema, true>;

@@ -1,8 +1,10 @@
 import { defaultProps } from "../../../api/defaultProps";
 import { createTipTapBlock } from "../../../api/block";
 import { BlockSpec } from "../../../api/blockTypes";
-import { serializeBlockToHTMLDefault } from "../../../../../api/serialization/html/sharedHTMLConversion";
-import { defaultRenderHTML } from "../defaultRenderHTML";
+import {
+  createDefaultBlockDOMOutputSpec,
+  defaultBlockToHTML,
+} from "../defaultBlockHelpers";
 
 export const paragraphPropSchema = {
   ...defaultProps,
@@ -23,7 +25,7 @@ export const ParagraphBlockContent = createTipTapBlock<"paragraph", true>({
   },
 
   renderHTML({ HTMLAttributes }) {
-    return defaultRenderHTML(
+    return createDefaultBlockDOMOutputSpec(
       this.name,
       "p",
       {
@@ -38,6 +40,6 @@ export const ParagraphBlockContent = createTipTapBlock<"paragraph", true>({
 export const Paragraph = {
   node: ParagraphBlockContent,
   propSchema: paragraphPropSchema,
-  toInternalHTML: serializeBlockToHTMLDefault,
-  toExternalHTML: serializeBlockToHTMLDefault,
+  toInternalHTML: defaultBlockToHTML,
+  toExternalHTML: defaultBlockToHTML,
 } satisfies BlockSpec<"paragraph", typeof paragraphPropSchema, true>;
