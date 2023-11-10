@@ -228,6 +228,34 @@ export const renderImage = (
     );
   };
 
+  // Shows the resize handles when hovering over the image with the cursor.
+  const imageMouseEnterHandler = () => {
+    if (editor.isEditable) {
+      leftResizeHandle.style.display = "block";
+      rightResizeHandle.style.display = "block";
+    } else {
+      leftResizeHandle.style.display = "none";
+      rightResizeHandle.style.display = "none";
+    }
+  };
+  // Hides the resize handles when the cursor leaves the image, unless the
+  // cursor moves to one of the resize handles.
+  const imageMouseLeaveHandler = (event: MouseEvent) => {
+    if (
+      event.relatedTarget === leftResizeHandle ||
+      event.relatedTarget === rightResizeHandle
+    ) {
+      return;
+    }
+
+    if (resizeParams) {
+      return;
+    }
+
+    leftResizeHandle.style.display = "none";
+    rightResizeHandle.style.display = "none";
+  };
+
   // Sets the resize params, allowing the user to begin resizing the image by
   // moving the cursor left or right.
   const leftResizeHandleMouseDownHandler = (event: MouseEvent) => {
@@ -269,6 +297,8 @@ export const renderImage = (
   window.addEventListener("mouseup", windowMouseUpHandler);
   addImageButton.addEventListener("mousedown", addImageButtonMouseDownHandler);
   addImageButton.addEventListener("click", addImageButtonClickHandler);
+  image.addEventListener("mouseenter", imageMouseEnterHandler);
+  image.addEventListener("mouseleave", imageMouseLeaveHandler);
   leftResizeHandle.addEventListener(
     "mousedown",
     leftResizeHandleMouseDownHandler

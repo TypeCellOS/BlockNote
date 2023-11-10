@@ -177,6 +177,7 @@ type SideMenuButtonProps = {
 }
 export const SideMenuButton = (props: SideMenuButtonProps) => ...;
 
-// Takes same props as `button` elements, e.g. onClick.
-export const DragHandleMenuItem = (props) => ...;
+// Contains all props that a regular button element would take, as well as all props from the Mantine `Menu.Item` component.
+type DragHandleMenuItemProps = PolymorphicComponentProps<"button"> & MenuItemProps
+export const DragHandleMenuItem = (props: DragHandleMenuItemProps) => ...;
 ```

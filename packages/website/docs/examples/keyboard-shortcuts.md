@@ -62,7 +62,6 @@ export default function App() {
 
   return <BlockNoteView editor={editor} theme={"{{ getTheme(isDark) }}"} />;
 }
-
 ```
 
 ```css-vue /styles.css [hidden]

@@ -23,6 +23,7 @@ BASIC STYLES
   padding: 3px 0;
   flex-grow: 1;
   transition: font-size 0.2s;
+  width: 100%;
   /*
   because the content elements are display: block
   we use flex to position them next to list markers
@@ -292,11 +293,7 @@ NESTED BLOCKS
   cursor: ew-resize;
 }
 
-[data-content-type="image"] .bn-image-wrapper:hover .bn-image-resize-handle {
-  display: block;
-}
-
-[data-content-type="image"] .bn-image-caption {
+[data-content-type="image"] .caption {
   font-size: 0.8em
 }
 

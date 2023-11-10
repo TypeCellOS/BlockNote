@@ -78,7 +78,6 @@ export default function App() {
     </div>
   );
 }
-
 ```
 
 ```css-vue /styles.css [hidden]

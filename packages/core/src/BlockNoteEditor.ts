@@ -134,7 +134,7 @@ export type BlockNoteEditorOptions<BSchema extends BlockSchema> = {
   };
 
   // tiptap options, undocumented
-  _tiptapOptions: any;
+  _tiptapOptions: Partial<EditorOptions>;
 };
 
 const blockNoteTipTapOptions = {
@@ -222,10 +222,11 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
             },
           ]);
 
-    const tiptapOptions: EditorOptions = {
+    const tiptapOptions: Partial<EditorOptions> = {
       ...blockNoteTipTapOptions,
       ...newOptions._tiptapOptions,
       onBeforeCreate(editor) {
+        newOptions._tiptapOptions?.onBeforeCreate?.(editor);
         if (!initialContent) {
           // when using collaboration
           return;
@@ -244,7 +245,8 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
         );
         editor.editor.options.content = root.toJSON();
       },
-      onCreate: () => {
+      onCreate: (editor) => {
+        newOptions._tiptapOptions?.onCreate?.(editor);
         // We need to wait for the TipTap editor to init before we can set the
         // initial content, as the schema may contain custom blocks which need
         // it to render.
@@ -255,7 +257,8 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
         newOptions.onEditorReady?.(this);
         this.ready = true;
       },
-      onUpdate: () => {
+      onUpdate: (editor) => {
+        newOptions._tiptapOptions?.onUpdate?.(editor);
         // This seems to be necessary due to a bug in TipTap:
         // https://github.com/ueberdosis/tiptap/issues/2583
         if (!this.ready) {
@@ -264,7 +267,8 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
 
         newOptions.onEditorContentChange?.(this);
       },
-      onSelectionUpdate: () => {
+      onSelectionUpdate: (editor) => {
+        newOptions._tiptapOptions?.onSelectionUpdate?.(editor);
         // This seems to be necessary due to a bug in TipTap:
         // https://github.com/ueberdosis/tiptap/issues/2583
         if (!this.ready) {
@@ -273,13 +277,20 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
 
         newOptions.onTextCursorPositionChange?.(this);
       },
-      editable: options.editable === undefined ? true : options.editable,
+      editable:
+        options.editable !== undefined
+          ? options.editable
+          : newOptions._tiptapOptions?.editable !== undefined
+          ? newOptions._tiptapOptions?.editable
+          : true,
       extensions:
         newOptions.enableBlockNoteExtensions === false
-          ? newOptions._tiptapOptions?.extensions
+          ? newOptions._tiptapOptions?.extensions || []
           : [...(newOptions._tiptapOptions?.extensions || []), ...extensions],
       editorProps: {
+        ...newOptions._tiptapOptions?.editorProps,
         attributes: {
+          ...newOptions._tiptapOptions?.editorProps?.attributes,
           ...newOptions.domAttributes?.editor,
           class: mergeCSSClasses(
             "bn-root",
