@@ -1,4 +1,4 @@
-import { mergeAttributes, Node } from "@tiptap/core";
+import { Node } from "@tiptap/core";
 import { Fragment, Node as PMNode, Slice } from "prosemirror-model";
 import { NodeSelection, TextSelection } from "prosemirror-state";
 import {
@@ -77,27 +77,34 @@ export const BlockContainer = Node.create<{
   },
 
   renderHTML({ HTMLAttributes }) {
-    const domAttributes = this.options.domAttributes?.blockContainer || {};
+    const blockOuter = document.createElement("div");
+    blockOuter.className = "bn-block-outer";
+    blockOuter.setAttribute("data-node-type", "blockOuter");
+    for (const [attribute, value] of Object.entries(HTMLAttributes)) {
+      if (attribute !== "class") {
+        blockOuter.setAttribute(attribute, value);
+      }
+    }
 
-    return [
-      "div",
-      mergeAttributes(HTMLAttributes, {
-        class: "bn-block-outer",
-        "data-node-type": "blockOuter",
-      }),
-      [
-        "div",
-        mergeAttributes(
-          {
-            ...domAttributes,
-            class: mergeCSSClasses("bn-block", domAttributes.class),
-            "data-node-type": this.name,
-          },
-          HTMLAttributes
-        ),
-        0,
-      ],
-    ];
+    const blockHTMLAttributes = {
+      ...(this.options.domAttributes?.blockContainer || {}),
+      ...HTMLAttributes,
+    };
+    const block = document.createElement("div");
+    block.className = mergeCSSClasses("bn-block", blockHTMLAttributes.class);
+    block.setAttribute("data-node-type", this.name);
+    for (const [attribute, value] of Object.entries(blockHTMLAttributes)) {
+      if (attribute !== "class") {
+        block.setAttribute(attribute, value);
+      }
+    }
+
+    blockOuter.appendChild(block);
+
+    return {
+      dom: blockOuter,
+      contentDOM: block,
+    };
   },
 
   addCommands() {

@@ -1,10 +1,10 @@
-import { InputRule, mergeAttributes } from "@tiptap/core";
+import { InputRule } from "@tiptap/core";
 import { defaultProps } from "../../../../api/defaultProps";
 import { createTipTapBlock } from "../../../../api/block";
 import { BlockSpec, PropSchema } from "../../../../api/blockTypes";
-import { mergeCSSClasses } from "../../../../../../shared/utils";
 import { handleEnter } from "../ListItemKeyboardShortcuts";
 import { serializeBlockToHTMLDefault } from "../../../../../../api/serialization/html/sharedHTMLConversion";
+import { defaultRenderHTML } from "../../defaultRenderHTML";
 
 export const bulletListItemPropSchema = {
   ...defaultProps,
@@ -94,33 +94,18 @@ const BulletListItemBlockContent = createTipTapBlock<"bulletListItem", true>({
   },
 
   renderHTML({ HTMLAttributes }) {
-    const blockContentDOMAttributes =
-      this.options.domAttributes?.blockContent || {};
-    const inlineContentDOMAttributes =
-      this.options.domAttributes?.inlineContent || {};
-
-    return [
-      "div",
-      mergeAttributes(HTMLAttributes, {
-        ...blockContentDOMAttributes,
-        class: mergeCSSClasses(
-          "bn-block-content",
-          blockContentDOMAttributes.class
-        ),
-        "data-content-type": this.name,
-      }),
-      [
-        "p",
-        {
-          ...inlineContentDOMAttributes,
-          class: mergeCSSClasses(
-            "bn-inline-content",
-            inlineContentDOMAttributes.class
-          ),
-        },
-        0,
-      ],
-    ];
+    return defaultRenderHTML(
+      this.name,
+      // We use a <p> tag, because for <li> tags we'd need an <il> element to
+      // put them in to be semantically correct, which we can't have due to the
+      // schema.
+      "p",
+      {
+        ...(this.options.domAttributes?.blockContent || {}),
+        ...HTMLAttributes,
+      },
+      this.options.domAttributes?.inlineContent || {}
+    );
   },
 });
 

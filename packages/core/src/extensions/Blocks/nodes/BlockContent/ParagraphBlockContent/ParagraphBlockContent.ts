@@ -1,9 +1,8 @@
-import { mergeAttributes } from "@tiptap/core";
 import { defaultProps } from "../../../api/defaultProps";
 import { createTipTapBlock } from "../../../api/block";
-import { mergeCSSClasses } from "../../../../../shared/utils";
 import { BlockSpec } from "../../../api/blockTypes";
 import { serializeBlockToHTMLDefault } from "../../../../../api/serialization/html/sharedHTMLConversion";
+import { defaultRenderHTML } from "../defaultRenderHTML";
 
 export const paragraphPropSchema = {
   ...defaultProps,
@@ -24,36 +23,15 @@ export const ParagraphBlockContent = createTipTapBlock<"paragraph", true>({
   },
 
   renderHTML({ HTMLAttributes }) {
-    const blockContentDOMAttributes =
-      this.options.domAttributes?.blockContent || {};
-    const inlineContentDOMAttributes =
-      this.options.domAttributes?.inlineContent || {};
-
-    return [
-      "div",
-      mergeAttributes(
-        {
-          ...blockContentDOMAttributes,
-          class: mergeCSSClasses(
-            "bn-block-content",
-            blockContentDOMAttributes.class
-          ),
-          "data-content-type": this.name,
-        },
-        HTMLAttributes
-      ),
-      [
-        "p",
-        {
-          ...inlineContentDOMAttributes,
-          class: mergeCSSClasses(
-            "bn-inline-content",
-            inlineContentDOMAttributes.class
-          ),
-        },
-        0,
-      ],
-    ];
+    return defaultRenderHTML(
+      this.name,
+      "p",
+      {
+        ...(this.options.domAttributes?.blockContent || {}),
+        ...HTMLAttributes,
+      },
+      this.options.domAttributes?.inlineContent || {}
+    );
   },
 });
 

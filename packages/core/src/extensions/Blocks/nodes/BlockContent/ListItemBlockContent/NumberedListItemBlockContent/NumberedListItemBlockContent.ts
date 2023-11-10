@@ -1,11 +1,11 @@
-import { InputRule, mergeAttributes } from "@tiptap/core";
+import { InputRule } from "@tiptap/core";
 import { defaultProps } from "../../../../api/defaultProps";
 import { createTipTapBlock } from "../../../../api/block";
 import { BlockSpec, PropSchema } from "../../../../api/blockTypes";
-import { mergeCSSClasses } from "../../../../../../shared/utils";
 import { handleEnter } from "../ListItemKeyboardShortcuts";
 import { NumberedListIndexingPlugin } from "./NumberedListIndexingPlugin";
 import { serializeBlockToHTMLDefault } from "../../../../../../api/serialization/html/sharedHTMLConversion";
+import { defaultRenderHTML } from "../../defaultRenderHTML";
 
 export const numberedListItemPropSchema = {
   ...defaultProps,
@@ -118,35 +118,18 @@ const NumberedListItemBlockContent = createTipTapBlock<
   },
 
   renderHTML({ HTMLAttributes }) {
-    const blockContentDOMAttributes =
-      this.options.domAttributes?.blockContent || {};
-    const inlineContentDOMAttributes =
-      this.options.domAttributes?.inlineContent || {};
-
-    return [
-      "div",
-      mergeAttributes(HTMLAttributes, {
-        ...blockContentDOMAttributes,
-        class: mergeCSSClasses(
-          "bn-block-content",
-          blockContentDOMAttributes.class
-        ),
-        "data-content-type": this.name,
-      }),
-      // we use a <p> tag, because for <li> tags we'd need to add a <ul> parent for around siblings to be semantically correct,
-      // which would be quite cumbersome
-      [
-        "p",
-        {
-          ...inlineContentDOMAttributes,
-          class: mergeCSSClasses(
-            "bn-inline-content",
-            inlineContentDOMAttributes.class
-          ),
-        },
-        0,
-      ],
-    ];
+    return defaultRenderHTML(
+      this.name,
+      // We use a <p> tag, because for <li> tags we'd need an <ol> element to
+      // put them in to be semantically correct, which we can't have due to the
+      // schema.
+      "p",
+      {
+        ...(this.options.domAttributes?.blockContent || {}),
+        ...HTMLAttributes,
+      },
+      this.options.domAttributes?.inlineContent || {}
+    );
   },
 });
 
