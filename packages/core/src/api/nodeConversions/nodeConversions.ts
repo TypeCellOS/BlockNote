@@ -4,7 +4,6 @@ import {
   Block,
   BlockSchema,
   PartialBlock,
-  SpecificBlock,
 } from "../../extensions/Blocks/api/blockTypes";
 import { defaultProps } from "../../extensions/Blocks/api/defaultProps";
 import {
@@ -350,14 +349,11 @@ function contentNodeToInlineContent(contentNode: Node) {
 /**
  * Convert a TipTap node to a BlockNote block.
  */
-export function nodeToBlock<
-  BSchema extends BlockSchema,
-  BType extends keyof BSchema
->(
+export function nodeToBlock<BSchema extends BlockSchema>(
   node: Node,
   blockSchema: BSchema,
   blockCache?: WeakMap<Node, Block<BSchema>>
-): SpecificBlock<BSchema, BType> {
+): Block<BSchema> {
   if (node.type.name !== "blockContainer") {
     throw Error(
       "Node must be of type blockContainer, but is of type" +
@@ -366,7 +362,7 @@ export function nodeToBlock<
     );
   }
 
-  const cachedBlock = blockCache?.get(node) as SpecificBlock<BSchema, BType>;
+  const cachedBlock = blockCache?.get(node);
 
   if (cachedBlock) {
     return cachedBlock;
@@ -430,7 +426,7 @@ export function nodeToBlock<
         ? contentNodeToInlineContent(blockInfo.contentNode)
         : undefined,
     children,
-  } as SpecificBlock<BSchema, BType>;
+  } as Block<BSchema>;
 
   blockCache?.set(node, block);
 

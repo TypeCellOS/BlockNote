@@ -1,6 +1,9 @@
 import { nodeToBlock } from "../../nodeConversions/nodeConversions";
 import { DOMSerializer, Fragment, Node } from "prosemirror-model";
-import { Block, BlockSchema } from "../../../extensions/Blocks/api/blockTypes";
+import {
+  BlockSchema,
+  SpecificBlock,
+} from "../../../extensions/Blocks/api/blockTypes";
 import { BlockNoteEditor } from "../../../BlockNoteEditor";
 
 function doc(options: { document?: Document }) {
@@ -42,11 +45,10 @@ export const serializeNodeInner = <BSchema extends BlockSchema>(
       const blockContent = DOMSerializer.renderSpec(
         doc(options),
         toHTML(
-          nodeToBlock<BlockSchema, keyof BlockSchema>(
-            node,
-            editor.schema,
-            editor.blockCache as WeakMap<Node, Block<BlockSchema>>
-          ),
+          nodeToBlock(node, editor.schema, editor.blockCache) as SpecificBlock<
+            BlockSchema,
+            keyof BlockSchema
+          >,
           editor as BlockNoteEditor<BlockSchema>
         )
       );

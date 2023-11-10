@@ -28,7 +28,10 @@ describe("Simple ProseMirror Node Conversions", () => {
     const block: PartialBlock = {
       type: "paragraph",
     };
-    const firstNodeConversion = blockToNode(block, tt.schema);
+    const firstNodeConversion = blockToNode<DefaultBlockSchema>(
+      block,
+      tt.schema
+    );
 
     expect(firstNodeConversion).toMatchSnapshot();
   });
@@ -38,10 +41,7 @@ describe("Simple ProseMirror Node Conversions", () => {
       { id: UniqueID.options.generateID() },
       tt.schema.nodes["paragraph"].create()
     );
-    const firstBlockConversion = nodeToBlock<DefaultBlockSchema, "paragraph">(
-      node,
-      defaultBlockSchema
-    );
+    const firstBlockConversion = nodeToBlock(node, defaultBlockSchema);
 
     expect(firstBlockConversion).toMatchSnapshot();
 
@@ -96,7 +96,10 @@ describe("Complex ProseMirror Node Conversions", () => {
         },
       ],
     };
-    const firstNodeConversion = blockToNode(block, tt.schema);
+    const firstNodeConversion = blockToNode<DefaultBlockSchema>(
+      block,
+      tt.schema
+    );
 
     expect(firstNodeConversion).toMatchSnapshot();
   });
@@ -139,10 +142,7 @@ describe("Complex ProseMirror Node Conversions", () => {
         ]),
       ]
     );
-    const firstBlockConversion = nodeToBlock<DefaultBlockSchema, "heading">(
-      node,
-      defaultBlockSchema
-    );
+    const firstBlockConversion = nodeToBlock(node, defaultBlockSchema);
 
     expect(firstBlockConversion).toMatchSnapshot();
 
@@ -168,12 +168,9 @@ describe("links", () => {
         },
       ],
     };
-    const node = blockToNode(block, tt.schema);
+    const node = blockToNode<DefaultBlockSchema>(block, tt.schema);
     expect(node).toMatchSnapshot();
-    const outputBlock = nodeToBlock<DefaultBlockSchema, "paragraph">(
-      node,
-      defaultBlockSchema
-    );
+    const outputBlock = nodeToBlock(node, defaultBlockSchema);
 
     // Temporary fix to set props to {}, because at this point
     // we don't have an easy way to access default props at runtime,
@@ -209,12 +206,9 @@ describe("links", () => {
         },
       ],
     };
-    const node = blockToNode(block, tt.schema);
+    const node = blockToNode<DefaultBlockSchema>(block, tt.schema);
     // expect(node).toMatchSnapshot();
-    const outputBlock = nodeToBlock<DefaultBlockSchema, "paragraph">(
-      node,
-      defaultBlockSchema
-    );
+    const outputBlock = nodeToBlock(node, defaultBlockSchema);
 
     // Temporary fix to set props to {}, because at this point
     // we don't have an easy way to access default props at runtime,
@@ -243,12 +237,9 @@ describe("links", () => {
       ],
     };
 
-    const node = blockToNode(block, tt.schema);
+    const node = blockToNode<DefaultBlockSchema>(block, tt.schema);
     expect(node).toMatchSnapshot();
-    const outputBlock = nodeToBlock<DefaultBlockSchema, "paragraph">(
-      node,
-      defaultBlockSchema
-    );
+    const outputBlock = nodeToBlock(node, defaultBlockSchema);
 
     // Temporary fix to set props to {}, because at this point
     // we don't have an easy way to access default props at runtime,
@@ -273,12 +264,9 @@ describe("hard breaks", () => {
         },
       ],
     };
-    const node = blockToNode(block, tt.schema);
+    const node = blockToNode<DefaultBlockSchema>(block, tt.schema);
     expect(node).toMatchSnapshot();
-    const outputBlock = nodeToBlock<DefaultBlockSchema, "paragraph">(
-      node,
-      defaultBlockSchema
-    );
+    const outputBlock = nodeToBlock(node, defaultBlockSchema);
 
     // Temporary fix to set props to {}, because at this point
     // we don't have an easy way to access default props at runtime,
@@ -301,12 +289,9 @@ describe("hard breaks", () => {
         },
       ],
     };
-    const node = blockToNode(block, tt.schema);
+    const node = blockToNode<DefaultBlockSchema>(block, tt.schema);
     expect(node).toMatchSnapshot();
-    const outputBlock = nodeToBlock<DefaultBlockSchema, "paragraph">(
-      node,
-      defaultBlockSchema
-    );
+    const outputBlock = nodeToBlock(node, defaultBlockSchema);
 
     // Temporary fix to set props to {}, because at this point
     // we don't have an easy way to access default props at runtime,
@@ -329,12 +314,9 @@ describe("hard breaks", () => {
         },
       ],
     };
-    const node = blockToNode(block, tt.schema);
+    const node = blockToNode<DefaultBlockSchema>(block, tt.schema);
     expect(node).toMatchSnapshot();
-    const outputBlock = nodeToBlock<DefaultBlockSchema, "paragraph">(
-      node,
-      defaultBlockSchema
-    );
+    const outputBlock = nodeToBlock(node, defaultBlockSchema);
 
     // Temporary fix to set props to {}, because at this point
     // we don't have an easy way to access default props at runtime,
@@ -357,12 +339,9 @@ describe("hard breaks", () => {
         },
       ],
     };
-    const node = blockToNode(block, tt.schema);
+    const node = blockToNode<DefaultBlockSchema>(block, tt.schema);
     expect(node).toMatchSnapshot();
-    const outputBlock = nodeToBlock<DefaultBlockSchema, "paragraph">(
-      node,
-      defaultBlockSchema
-    );
+    const outputBlock = nodeToBlock(node, defaultBlockSchema);
 
     // Temporary fix to set props to {}, because at this point
     // we don't have an easy way to access default props at runtime,
@@ -385,12 +364,9 @@ describe("hard breaks", () => {
         },
       ],
     };
-    const node = blockToNode(block, tt.schema);
+    const node = blockToNode<DefaultBlockSchema>(block, tt.schema);
     expect(node).toMatchSnapshot();
-    const outputBlock = nodeToBlock<DefaultBlockSchema, "paragraph">(
-      node,
-      defaultBlockSchema
-    );
+    const outputBlock = nodeToBlock(node, defaultBlockSchema);
 
     // Temporary fix to set props to {}, because at this point
     // we don't have an easy way to access default props at runtime,
@@ -418,12 +394,9 @@ describe("hard breaks", () => {
         },
       ],
     };
-    const node = blockToNode(block, tt.schema);
+    const node = blockToNode<DefaultBlockSchema>(block, tt.schema);
     expect(node).toMatchSnapshot();
-    const outputBlock = nodeToBlock<DefaultBlockSchema, "paragraph">(
-      node,
-      defaultBlockSchema
-    );
+    const outputBlock = nodeToBlock(node, defaultBlockSchema);
 
     // Temporary fix to set props to {}, because at this point
     // we don't have an easy way to access default props at runtime,
@@ -446,12 +419,9 @@ describe("hard breaks", () => {
         },
       ],
     };
-    const node = blockToNode(block, tt.schema);
+    const node = blockToNode<DefaultBlockSchema>(block, tt.schema);
     expect(node).toMatchSnapshot();
-    const outputBlock = nodeToBlock<DefaultBlockSchema, "paragraph">(
-      node,
-      defaultBlockSchema
-    );
+    const outputBlock = nodeToBlock(node, defaultBlockSchema);
 
     // Temporary fix to set props to {}, because at this point
     // we don't have an easy way to access default props at runtime,
@@ -479,12 +449,9 @@ describe("hard breaks", () => {
         },
       ],
     };
-    const node = blockToNode(block, tt.schema);
+    const node = blockToNode<DefaultBlockSchema>(block, tt.schema);
     expect(node).toMatchSnapshot();
-    const outputBlock = nodeToBlock<DefaultBlockSchema, "paragraph">(
-      node,
-      defaultBlockSchema
-    );
+    const outputBlock = nodeToBlock(node, defaultBlockSchema);
 
     // Temporary fix to set props to {}, because at this point
     // we don't have an easy way to access default props at runtime,
