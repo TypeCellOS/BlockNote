@@ -34,8 +34,8 @@ import {
 // useful if you want to export a selection which may not start/end at the
 // start/end of a block.
 export interface ExternalHTMLExporter<BSchema extends BlockSchema> {
-  exportBlocks: (blocks: PartialBlock<BSchema>[]) => Promise<string>;
-  exportProseMirrorFragment: (fragment: Fragment) => Promise<string>;
+  exportBlocks: (blocks: PartialBlock<BSchema>[]) => string;
+  exportProseMirrorFragment: (fragment: Fragment) => string;
 }
 
 export const createExternalHTMLExporter = <BSchema extends BlockSchema>(
@@ -49,8 +49,8 @@ export const createExternalHTMLExporter = <BSchema extends BlockSchema>(
     ) => HTMLElement;
     // TODO: Should not be async, but is since we're using a rehype plugin to
     //  convert internal HTML to external HTML.
-    exportProseMirrorFragment: (fragment: Fragment) => Promise<string>;
-    exportBlocks: (blocks: PartialBlock<BSchema>[]) => Promise<string>;
+    exportProseMirrorFragment: (fragment: Fragment) => string;
+    exportBlocks: (blocks: PartialBlock<BSchema>[]) => string;
   };
 
   serializer.serializeNodeInner = (
@@ -61,20 +61,20 @@ export const createExternalHTMLExporter = <BSchema extends BlockSchema>(
   // Like the `internalHTMLSerializer`, also uses `serializeProseMirrorFragment`
   // but additionally runs it through the `simplifyBlocks` rehype plugin to
   // convert the internal HTML to external.
-  serializer.exportProseMirrorFragment = async (fragment) => {
-    const externalHTML = await unified()
+  serializer.exportProseMirrorFragment = (fragment) => {
+    const externalHTML = unified()
       .use(rehypeParse, { fragment: true })
       .use(simplifyBlocks, {
         orderedListItemBlockTypes: new Set<string>(["numberedListItem"]),
         unorderedListItemBlockTypes: new Set<string>(["bulletListItem"]),
       })
       .use(rehypeStringify)
-      .process(serializeProseMirrorFragment(fragment, serializer));
+      .processSync(serializeProseMirrorFragment(fragment, serializer));
 
     return externalHTML.value as string;
   };
 
-  serializer.exportBlocks = async (blocks: PartialBlock<BSchema>[]) => {
+  serializer.exportBlocks = (blocks: PartialBlock<BSchema>[]) => {
     const nodes = blocks.map((block) =>
       blockToNode(block, editor._tiptapEditor.schema)
     );
@@ -83,9 +83,7 @@ export const createExternalHTMLExporter = <BSchema extends BlockSchema>(
       nodes
     );
 
-    return await serializer.exportProseMirrorFragment(
-      Fragment.from(blockGroup)
-    );
+    return serializer.exportProseMirrorFragment(Fragment.from(blockGroup));
   };
 
   return serializer;

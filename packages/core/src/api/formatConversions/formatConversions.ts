@@ -127,14 +127,14 @@ import { removeUnderlines } from "./removeUnderlinesRehypePlugin";
 //   return HTMLToBlocks(htmlString.value as string, blockSchema, schema);
 // }
 
-export async function markdown(cleanHTMLString: string) {
-  const markdownString = await unified()
+export function markdown(cleanHTMLString: string) {
+  const markdownString = unified()
     .use(rehypeParse, { fragment: true })
     .use(removeUnderlines)
     .use(rehypeRemark)
     .use(remarkGfm)
     .use(remarkStringify)
-    .process(cleanHTMLString);
+    .processSync(cleanHTMLString);
 
   return markdownString.value as string;
 }

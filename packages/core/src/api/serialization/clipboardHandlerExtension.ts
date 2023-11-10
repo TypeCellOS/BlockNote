@@ -28,41 +28,34 @@ export const createClipboardHandlerExtension = <BSchema extends BlockSchema>(
                 event.preventDefault();
                 event.clipboardData!.clearData();
 
-                // TODO: Firefox doesn't allow you to change the clipboard
-                //  contents outside the copy event, so this function being
-                //  async causes issues.
-                async function setClipboardData() {
-                  const selectedFragment =
-                    tiptap.state.selection.content().content;
+                const selectedFragment =
+                  tiptap.state.selection.content().content;
 
-                  const internalHTMLSerializer = createInternalHTMLSerializer(
-                    schema,
-                    editor
+                const internalHTMLSerializer = createInternalHTMLSerializer(
+                  schema,
+                  editor
+                );
+                const internalHTML =
+                  internalHTMLSerializer.serializeProseMirrorFragment(
+                    selectedFragment
                   );
-                  const internalHTML =
-                    internalHTMLSerializer.serializeProseMirrorFragment(
-                      selectedFragment
-                    );
 
-                  const externalHTMLExporter = createExternalHTMLExporter(
-                    schema,
-                    editor
+                const externalHTMLExporter = createExternalHTMLExporter(
+                  schema,
+                  editor
+                );
+                const externalHTML =
+                  externalHTMLExporter.exportProseMirrorFragment(
+                    selectedFragment
                   );
-                  const externalHTML =
-                    await externalHTMLExporter.exportProseMirrorFragment(
-                      selectedFragment
-                    );
 
-                  const plainText = await markdown(externalHTML);
+                const plainText = markdown(externalHTML);
 
-                  // TODO: Writing to other MIME types not working in Safari for
-                  //  some reason.
-                  event.clipboardData!.setData("blocknote/html", internalHTML);
-                  event.clipboardData!.setData("text/html", externalHTML);
-                  event.clipboardData!.setData("text/plain", plainText);
-                }
-
-                setClipboardData();
+                // TODO: Writing to other MIME types not working in Safari for
+                //  some reason.
+                event.clipboardData!.setData("blocknote/html", internalHTML);
+                event.clipboardData!.setData("text/html", externalHTML);
+                event.clipboardData!.setData("text/plain", plainText);
 
                 // Prevent default PM handler to be called
                 return true;
