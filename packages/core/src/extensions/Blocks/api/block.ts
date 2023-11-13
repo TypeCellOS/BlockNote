@@ -1,16 +1,19 @@
 import { Attribute, Attributes, Editor, Node } from "@tiptap/core";
 import { ParseRule } from "prosemirror-model";
-import { BlockNoteEditor, BlockSchemaWithBlock, Props } from "../../..";
 import {
   BlockConfig,
   BlockNoteDOMAttributes,
+  BlockSchemaWithBlock,
   BlockSpec,
+  Props,
   PropSchema,
   SpecificBlock,
   TipTapNode,
   TipTapNodeConfig,
 } from "./blockTypes";
 import { mergeCSSClasses } from "../../../shared/utils";
+import { BlockNoteEditor } from "../../../BlockNoteEditor";
+import { inheritedProps } from "./defaultProps";
 
 export function camelToDataKebab(str: string): string {
   return "data-" + str.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
@@ -26,59 +29,61 @@ export function propsToAttributes<
 >(
   blockConfig: Omit<
     BlockConfig<BType, PSchema, ContainsInlineContent, BSchema>,
-    "render"
+    "render" | "toExternalHTML"
   >
 ): Attributes {
   const tiptapAttributes: Record<string, Attribute> = {};
 
-  Object.entries(blockConfig.propSchema).forEach(([name, spec]) => {
-    tiptapAttributes[name] = {
-      default: spec.default,
-      keepOnSplit: true,
-      // Props are displayed in kebab-case as HTML attributes. If a prop's
-      // value is the same as its default, we don't display an HTML
-      // attribute for it.
-      parseHTML: (element) => {
-        const value = element.getAttribute(camelToDataKebab(name));
+  Object.entries(blockConfig.propSchema)
+    .filter(([name, _spec]) => !inheritedProps.includes(name))
+    .forEach(([name, spec]) => {
+      tiptapAttributes[name] = {
+        default: spec.default,
+        keepOnSplit: true,
+        // Props are displayed in kebab-case as HTML attributes. If a prop's
+        // value is the same as its default, we don't display an HTML
+        // attribute for it.
+        parseHTML: (element) => {
+          const value = element.getAttribute(camelToDataKebab(name));
 
-        if (value === null) {
-          return null;
-        }
-
-        if (typeof spec.default === "boolean") {
-          if (value === "true") {
-            return true;
+          if (value === null) {
+            return null;
           }
 
-          if (value === "false") {
-            return false;
-          }
-
-          return null;
-        }
-
-        if (typeof spec.default === "number") {
-          const asNumber = parseFloat(value);
-          const isNumeric =
-            !Number.isNaN(asNumber) && Number.isFinite(asNumber);
-
-          if (isNumeric) {
-            return asNumber;
-          }
-
-          return null;
-        }
-
-        return value;
-      },
-      renderHTML: (attributes) =>
-        attributes[name] !== spec.default
-          ? {
-              [camelToDataKebab(name)]: attributes[name],
+          if (typeof spec.default === "boolean") {
+            if (value === "true") {
+              return true;
             }
-          : {},
-    };
-  });
+
+            if (value === "false") {
+              return false;
+            }
+
+            return null;
+          }
+
+          if (typeof spec.default === "number") {
+            const asNumber = parseFloat(value);
+            const isNumeric =
+              !Number.isNaN(asNumber) && Number.isFinite(asNumber);
+
+            if (isNumeric) {
+              return asNumber;
+            }
+
+            return null;
+          }
+
+          return value;
+        },
+        renderHTML: (attributes) =>
+          attributes[name] !== spec.default
+            ? {
+                [camelToDataKebab(name)]: attributes[name],
+              }
+            : {},
+      };
+    });
 
   return tiptapAttributes;
 }
@@ -94,7 +99,7 @@ export function parse<
 >(
   blockConfig: Omit<
     BlockConfig<BType, PSchema, ContainsInlineContent, BSchema>,
-    "render"
+    "render" | "toExternalHTML"
   >
 ) {
   const rules: ParseRule[] = [
@@ -216,7 +221,7 @@ export function wrapInBlockStructure<
   blockContent.setAttribute("data-content-type", blockType);
   // Add props as HTML attributes in kebab-case with "data-" prefix
   for (const [prop, value] of Object.entries(blockProps)) {
-    if (value !== propSchema[prop].default) {
+    if (!inheritedProps.includes(prop) && value !== propSchema[prop].default) {
       blockContent.setAttribute(camelToDataKebab(prop), value);
     }
   }
@@ -228,11 +233,6 @@ export function wrapInBlockStructure<
       "bn-inline-content",
       element.contentDOM.className
     );
-
-    return {
-      ...element,
-      dom: blockContent,
-    };
   }
 
   return {
@@ -288,8 +288,10 @@ export function createBlockSpec<
         const blockContentDOMAttributes =
           this.options.domAttributes?.blockContent || {};
 
+        const output = blockConfig.render(block, editor);
+
         return wrapInBlockStructure<BType, PSchema>(
-          blockConfig.render(block, editor),
+          output,
           block.type,
           block.props,
           blockConfig.propSchema,
@@ -320,13 +322,8 @@ export function createBlockSpec<
       const blockContentDOMAttributes =
         node.options.domAttributes?.blockContent || {};
 
-      let output: {
-        dom: HTMLElement;
-        contentDOM?: HTMLElement;
-      };
-      if (blockConfig.toExternalHTML !== undefined) {
-        output = blockConfig.toExternalHTML(block as any, editor as any);
-      } else {
+      let output = blockConfig.toExternalHTML?.(block as any, editor as any);
+      if (output === undefined) {
         output = blockConfig.render(block as any, editor as any);
       }
 

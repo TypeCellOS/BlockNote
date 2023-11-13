@@ -7,13 +7,12 @@ import {
   camelToDataKebab,
   createTipTapBlock,
   getBlockFromPos,
+  inheritedProps,
   mergeCSSClasses,
   parse,
   Props,
   PropSchema,
   propsToAttributes,
-  SpecificBlock,
-  wrapInBlockStructure,
 } from "@blocknote/core";
 import {
   NodeViewContent,
@@ -32,9 +31,17 @@ export type ReactBlockConfig<
   BSchema extends BlockSchemaWithBlock<BType, PSchema, ContainsInlineContent>
 > = Omit<
   BlockConfig<BType, PSchema, ContainsInlineContent, BSchema>,
-  "render"
+  "render" | "toExternalHTML"
 > & {
   render: FC<{
+    block: Parameters<
+      BlockConfig<BType, PSchema, ContainsInlineContent, BSchema>["render"]
+    >[0];
+    editor: Parameters<
+      BlockConfig<BType, PSchema, ContainsInlineContent, BSchema>["render"]
+    >[1];
+  }>;
+  toExternalHTML?: FC<{
     block: Parameters<
       BlockConfig<BType, PSchema, ContainsInlineContent, BSchema>["render"]
     >[0];
@@ -76,12 +83,12 @@ export const InlineContent = <Tag extends ElementType>(
 // block type and props as HTML attributes.
 export function reactWrapInBlockStructure<
   BType extends string,
-  PSchema extends PropSchema,
-  ContainsInlineContent extends boolean,
-  BSchema extends BlockSchemaWithBlock<BType, PSchema, ContainsInlineContent>
+  PSchema extends PropSchema
 >(
   element: JSX.Element,
-  block: SpecificBlock<BSchema, BType>,
+  blockType: BType,
+  blockProps: Props<PSchema>,
+  propSchema: PSchema,
   domAttributes?: Record<string, string>
 ) {
   return () => (
@@ -97,12 +104,18 @@ export function reactWrapInBlockStructure<
         domAttributes?.class || ""
       )}
       // Sets content type attribute
-      data-content-type={block.type}
+      data-content-type={blockType}
       // Add props as HTML attributes in kebab-case with "data-" prefix
       {...Object.fromEntries(
-        Object.entries(block.props).map(([prop, value]) => {
-          return [camelToDataKebab(prop), value];
-        })
+        Object.entries(blockProps)
+          .filter(
+            ([prop, value]) =>
+              !inheritedProps.includes(prop) &&
+              value !== propSchema[prop].default
+          )
+          .map(([prop, value]) => {
+            return [camelToDataKebab(prop), value];
+          })
       )}>
       {element}
     </NodeViewWrapper>
@@ -165,7 +178,9 @@ export function createReactBlockSpec<
             const Content = blockConfig.render;
             const BlockContent = reactWrapInBlockStructure(
               <Content block={block} editor={editor} />,
-              block,
+              block.type,
+              block.props,
+              blockConfig.propSchema,
               blockContentDOMAttributes
             );
 
@@ -188,67 +203,45 @@ export function createReactBlockSpec<
       const Content = blockConfig.render;
       const BlockContent = reactWrapInBlockStructure(
         <Content block={block as any} editor={editor as any} />,
-        block,
-        blockContentDOMAttributes
-      );
-
-      const dom = document.createElement("div");
-      dom.innerHTML = renderToString(<BlockContent />);
-      const contentDOM =
-        (dom.querySelector(".bn-inline-content") as HTMLElement | null) ||
-        undefined;
-
-      const output = {
-        dom,
-        contentDOM,
-      };
-
-      return wrapInBlockStructure<BType, PSchema>(
-        output,
         block.type as BType,
         block.props as Props<PSchema>,
         blockConfig.propSchema,
         blockContentDOMAttributes
       );
+
+      const parent = document.createElement("div");
+      parent.innerHTML = renderToString(<BlockContent />);
+
+      return {
+        dom: parent.firstElementChild! as HTMLElement,
+        contentDOM: (parent.querySelector(".bn-inline-content") ||
+          undefined) as HTMLElement | undefined,
+      };
     },
     toExternalHTML: (block, editor) => {
       const blockContentDOMAttributes =
         node.options.domAttributes?.blockContent || {};
 
-      let output: {
-        dom: HTMLElement;
-        contentDOM?: HTMLElement;
-      };
-
-      if (blockConfig.toExternalHTML !== undefined) {
-        output = blockConfig.toExternalHTML(block as any, editor as any);
-      } else {
-        const Content = blockConfig.render;
-        const BlockContent = reactWrapInBlockStructure(
-          <Content block={block as any} editor={editor as any} />,
-          block,
-          blockContentDOMAttributes
-        );
-
-        const dom = document.createElement("div");
-        dom.innerHTML = renderToString(<BlockContent />);
-        const contentDOM =
-          (dom.querySelector(".bn-inline-content") as HTMLElement | null) ||
-          undefined;
-
-        output = {
-          dom,
-          contentDOM,
-        };
+      let Content = blockConfig.toExternalHTML;
+      if (Content === undefined) {
+        Content = blockConfig.render;
       }
-
-      return wrapInBlockStructure<BType, PSchema>(
-        output,
+      const BlockContent = reactWrapInBlockStructure(
+        <Content block={block as any} editor={editor as any} />,
         block.type as BType,
         block.props as Props<PSchema>,
         blockConfig.propSchema,
         blockContentDOMAttributes
       );
+
+      const parent = document.createElement("div");
+      parent.innerHTML = renderToString(<BlockContent />);
+
+      return {
+        dom: parent.firstElementChild! as HTMLElement,
+        contentDOM: (parent.querySelector(".bn-inline-content") ||
+          undefined) as HTMLElement | undefined,
+      };
     },
   };
 }
