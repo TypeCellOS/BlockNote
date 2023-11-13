@@ -6,6 +6,10 @@ import pkg from "./package.json";
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  test: {
+    environment: "jsdom",
+    setupFiles: ["./vitestSetup.ts"],
+  },
   plugins: [react()],
   build: {
     sourcemap: true,

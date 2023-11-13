@@ -14,6 +14,7 @@ import { Editor } from "@tiptap/core";
 import { uploadToTmpFilesDotOrg_DEV_ONLY } from "../../../extensions/Blocks/nodes/BlockContent/ImageBlockContent/uploadToTmpFilesDotOrg_DEV_ONLY";
 import { createInternalHTMLSerializer } from "./internalHTMLSerializer";
 import { createExternalHTMLExporter } from "./externalHTMLExporter";
+import { defaultProps } from "../../../extensions/Blocks/api/defaultProps";
 
 // This is a modified version of the default image block that does not implement
 // a `serialize` function. It's used to test if the custom serializer by default
@@ -25,9 +26,50 @@ const SimpleImage = createBlockSpec({
   render: renderImage as any,
 });
 
+const CustomParagraph = createBlockSpec({
+  type: "customParagraph",
+  propSchema: defaultProps,
+  containsInlineContent: true,
+  render: () => {
+    const paragraph = document.createElement("p");
+    paragraph.className = "custom-paragraph";
+
+    return {
+      dom: paragraph,
+      contentDOM: paragraph,
+    };
+  },
+  toExternalHTML: () => {
+    const paragraph = document.createElement("p");
+    paragraph.className = "custom-paragraph";
+    paragraph.innerHTML = "Hello World";
+
+    return {
+      dom: paragraph,
+    };
+  },
+});
+
+const SimpleCustomParagraph = createBlockSpec({
+  type: "simpleCustomParagraph",
+  propSchema: defaultProps,
+  containsInlineContent: true,
+  render: () => {
+    const paragraph = document.createElement("p");
+    paragraph.className = "simple-custom-paragraph";
+
+    return {
+      dom: paragraph,
+      contentDOM: paragraph,
+    };
+  },
+});
+
 const customSchema = {
   ...defaultBlockSchema,
   simpleImage: SimpleImage,
+  customParagraph: CustomParagraph,
+  simpleCustomParagraph: SimpleCustomParagraph,
 } satisfies BlockSchema;
 
 let editor: BlockNoteEditor<typeof customSchema>;
@@ -49,7 +91,7 @@ afterEach(() => {
   delete (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS;
 });
 
-async function convertToHTMLAndCompareSnapshots(
+function convertToHTMLAndCompareSnapshots(
   blocks: PartialBlock<typeof customSchema>[],
   snapshotDirectory: string,
   snapshotName: string
@@ -65,7 +107,7 @@ async function convertToHTMLAndCompareSnapshots(
   expect(internalHTML).toMatchFileSnapshot(internalHTMLSnapshotPath);
 
   const exporter = createExternalHTMLExporter(tt.schema, editor);
-  const externalHTML = await exporter.exportBlocks(blocks);
+  const externalHTML = exporter.exportBlocks(blocks);
   const externalHTMLSnapshotPath =
     "./__snapshots__/" +
     snapshotDirectory +
@@ -84,7 +126,7 @@ describe("Convert paragraphs to HTML", () => {
       },
     ];
 
-    await convertToHTMLAndCompareSnapshots(blocks, "paragraph", "basic");
+    convertToHTMLAndCompareSnapshots(blocks, "paragraph", "basic");
   });
 
   it("Convert styled paragraph to HTML", async () => {
@@ -128,7 +170,7 @@ describe("Convert paragraphs to HTML", () => {
       },
     ];
 
-    await convertToHTMLAndCompareSnapshots(blocks, "paragraph", "styled");
+    convertToHTMLAndCompareSnapshots(blocks, "paragraph", "styled");
   });
 
   it("Convert nested paragraph to HTML", async () => {
@@ -149,7 +191,7 @@ describe("Convert paragraphs to HTML", () => {
       },
     ];
 
-    await convertToHTMLAndCompareSnapshots(blocks, "paragraph", "nested");
+    convertToHTMLAndCompareSnapshots(blocks, "paragraph", "nested");
   });
 });
 
@@ -161,7 +203,7 @@ describe("Convert images to HTML", () => {
       },
     ];
 
-    await convertToHTMLAndCompareSnapshots(blocks, "image", "button");
+    convertToHTMLAndCompareSnapshots(blocks, "image", "button");
   });
 
   it("Convert image to HTML", async () => {
@@ -176,7 +218,7 @@ describe("Convert images to HTML", () => {
       },
     ];
 
-    await convertToHTMLAndCompareSnapshots(blocks, "image", "basic");
+    convertToHTMLAndCompareSnapshots(blocks, "image", "basic");
   });
 
   it("Convert nested image to HTML", async () => {
@@ -201,7 +243,7 @@ describe("Convert images to HTML", () => {
       },
     ];
 
-    await convertToHTMLAndCompareSnapshots(blocks, "image", "nested");
+    convertToHTMLAndCompareSnapshots(blocks, "image", "nested");
   });
 });
 
@@ -213,7 +255,7 @@ describe("Convert simple images to HTML", () => {
       },
     ];
 
-    await convertToHTMLAndCompareSnapshots(blocks, "simpleImage", "button");
+    convertToHTMLAndCompareSnapshots(blocks, "simpleImage", "button");
   });
 
   it("Convert simple image to HTML", async () => {
@@ -228,7 +270,7 @@ describe("Convert simple images to HTML", () => {
       },
     ];
 
-    await convertToHTMLAndCompareSnapshots(blocks, "simpleImage", "basic");
+    convertToHTMLAndCompareSnapshots(blocks, "simpleImage", "basic");
   });
 
   it("Convert nested image to HTML", async () => {
@@ -253,6 +295,162 @@ describe("Convert simple images to HTML", () => {
       },
     ];
 
-    await convertToHTMLAndCompareSnapshots(blocks, "simpleImage", "nested");
+    convertToHTMLAndCompareSnapshots(blocks, "simpleImage", "nested");
+  });
+});
+
+describe("Convert custom blocks with inline content to HTML", () => {
+  it("Convert custom block with inline content to HTML", async () => {
+    const blocks: PartialBlock<typeof customSchema>[] = [
+      {
+        type: "customParagraph",
+        content: "Custom Paragraph",
+      },
+    ];
+
+    convertToHTMLAndCompareSnapshots(blocks, "customParagraph", "basic");
+  });
+
+  it("Convert styled custom block with inline content to HTML", async () => {
+    const blocks: PartialBlock<typeof customSchema>[] = [
+      {
+        type: "customParagraph",
+        props: {
+          textAlignment: "center",
+          textColor: "orange",
+          backgroundColor: "pink",
+        },
+        content: [
+          {
+            type: "text",
+            styles: {},
+            text: "Plain ",
+          },
+          {
+            type: "text",
+            styles: {
+              textColor: "red",
+            },
+            text: "Red Text ",
+          },
+          {
+            type: "text",
+            styles: {
+              backgroundColor: "blue",
+            },
+            text: "Blue Background ",
+          },
+          {
+            type: "text",
+            styles: {
+              textColor: "red",
+              backgroundColor: "blue",
+            },
+            text: "Mixed Colors",
+          },
+        ],
+      },
+    ];
+
+    convertToHTMLAndCompareSnapshots(blocks, "customParagraph", "styled");
+  });
+
+  it("Convert nested block with inline content to HTML", async () => {
+    const blocks: PartialBlock<typeof customSchema>[] = [
+      {
+        type: "customParagraph",
+        content: "Custom Paragraph",
+        children: [
+          {
+            type: "customParagraph",
+            content: "Nested Custom Paragraph 1",
+          },
+          {
+            type: "customParagraph",
+            content: "Nested Custom Paragraph 2",
+          },
+        ],
+      },
+    ];
+
+    convertToHTMLAndCompareSnapshots(blocks, "customParagraph", "nested");
+  });
+});
+
+describe("Convert custom blocks with non-exported inline content to HTML", () => {
+  it("Convert custom block with non-exported inline content to HTML", async () => {
+    const blocks: PartialBlock<typeof customSchema>[] = [
+      {
+        type: "simpleCustomParagraph",
+        content: "Custom Paragraph",
+      },
+    ];
+
+    convertToHTMLAndCompareSnapshots(blocks, "simpleCustomParagraph", "basic");
+  });
+
+  it("Convert styled custom block with non-exported inline content to HTML", async () => {
+    const blocks: PartialBlock<typeof customSchema>[] = [
+      {
+        type: "simpleCustomParagraph",
+        props: {
+          textAlignment: "center",
+          textColor: "orange",
+          backgroundColor: "pink",
+        },
+        content: [
+          {
+            type: "text",
+            styles: {},
+            text: "Plain ",
+          },
+          {
+            type: "text",
+            styles: {
+              textColor: "red",
+            },
+            text: "Red Text ",
+          },
+          {
+            type: "text",
+            styles: {
+              backgroundColor: "blue",
+            },
+            text: "Blue Background ",
+          },
+          {
+            type: "text",
+            styles: {
+              textColor: "red",
+              backgroundColor: "blue",
+            },
+            text: "Mixed Colors",
+          },
+        ],
+      },
+    ];
+
+    convertToHTMLAndCompareSnapshots(blocks, "simpleCustomParagraph", "styled");
+  });
+
+  it("Convert nested block with non-exported inline content to HTML", async () => {
+    const blocks: PartialBlock<typeof customSchema>[] = [
+      {
+        type: "simpleCustomParagraph",
+        content: "Custom Paragraph",
+        children: [
+          {
+            type: "simpleCustomParagraph",
+            content: "Nested Custom Paragraph 1",
+          },
+          {
+            type: "simpleCustomParagraph",
+            content: "Nested Custom Paragraph 2",
+          },
+        ],
+      },
+    ];
+
+    convertToHTMLAndCompareSnapshots(blocks, "simpleCustomParagraph", "nested");
   });
 });
