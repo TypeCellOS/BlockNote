@@ -191,25 +191,37 @@ export function createReactBlockSpec<
         block,
         blockContentDOMAttributes
       );
-      const element = document.createElement("div");
-      element.innerHTML = renderToString(<BlockContent />);
+
+      const dom = document.createElement("div");
+      dom.innerHTML = renderToString(<BlockContent />);
+      const contentDOM =
+        (dom.querySelector(".bn-inline-content") as HTMLElement | null) ||
+        undefined;
+
+      const output = {
+        dom,
+        contentDOM,
+      };
 
       return wrapInBlockStructure<BType, PSchema>(
-        { dom: element },
+        output,
         block.type as BType,
         block.props as Props<PSchema>,
         blockConfig.propSchema,
         blockContentDOMAttributes
-      ).dom;
+      );
     },
     toExternalHTML: (block, editor) => {
       const blockContentDOMAttributes =
         node.options.domAttributes?.blockContent || {};
 
-      let element: HTMLElement;
+      let output: {
+        dom: HTMLElement;
+        contentDOM?: HTMLElement;
+      };
 
       if (blockConfig.toExternalHTML !== undefined) {
-        element = blockConfig.toExternalHTML(block as any, editor as any);
+        output = blockConfig.toExternalHTML(block as any, editor as any);
       } else {
         const Content = blockConfig.render;
         const BlockContent = reactWrapInBlockStructure(
@@ -217,17 +229,26 @@ export function createReactBlockSpec<
           block,
           blockContentDOMAttributes
         );
-        element = document.createElement("div");
-        element.innerHTML = renderToString(<BlockContent />);
+
+        const dom = document.createElement("div");
+        dom.innerHTML = renderToString(<BlockContent />);
+        const contentDOM =
+          (dom.querySelector(".bn-inline-content") as HTMLElement | null) ||
+          undefined;
+
+        output = {
+          dom,
+          contentDOM,
+        };
       }
 
       return wrapInBlockStructure<BType, PSchema>(
-        { dom: element },
+        output,
         block.type as BType,
         block.props as Props<PSchema>,
         blockConfig.propSchema,
         blockContentDOMAttributes
-      ).dom;
+      );
     },
   };
 }

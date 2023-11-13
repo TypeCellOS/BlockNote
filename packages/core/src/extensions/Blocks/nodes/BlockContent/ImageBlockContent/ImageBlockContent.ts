@@ -340,7 +340,9 @@ export const Image = createBlockSpec({
       const div = document.createElement("p");
       div.innerHTML = "Add Image";
 
-      return div;
+      return {
+        dom: div,
+      };
     }
 
     const figure = document.createElement("figure");
@@ -355,7 +357,9 @@ export const Image = createBlockSpec({
       figure.appendChild(figcaption);
     }
 
-    return figure;
+    return {
+      dom: figure,
+    };
   },
   // parse: (element) => {
   //   if (element.tagName === "IMG") {

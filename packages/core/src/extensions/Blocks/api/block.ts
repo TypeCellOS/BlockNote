@@ -306,39 +306,37 @@ export function createBlockSpec<
       const blockContentDOMAttributes =
         node.options.domAttributes?.blockContent || {};
 
-      const element = blockConfig.render(block as any, editor as any);
+      const output = blockConfig.render(block as any, editor as any);
 
       return wrapInBlockStructure<BType, PSchema>(
-        element,
+        output,
         block.type as BType,
         block.props as Props<PSchema>,
         blockConfig.propSchema,
         blockContentDOMAttributes
-      ).dom;
+      );
     },
     toExternalHTML: (block, editor) => {
       const blockContentDOMAttributes =
         node.options.domAttributes?.blockContent || {};
 
-      let element: {
+      let output: {
         dom: HTMLElement;
         contentDOM?: HTMLElement;
       };
       if (blockConfig.toExternalHTML !== undefined) {
-        element = {
-          dom: blockConfig.toExternalHTML(block as any, editor as any),
-        };
+        output = blockConfig.toExternalHTML(block as any, editor as any);
       } else {
-        element = blockConfig.render(block as any, editor as any);
+        output = blockConfig.render(block as any, editor as any);
       }
 
       return wrapInBlockStructure<BType, PSchema>(
-        element,
+        output,
         block.type as BType,
         block.props as Props<PSchema>,
         blockConfig.propSchema,
         blockContentDOMAttributes
-      ).dom;
+      );
     },
   };
 }

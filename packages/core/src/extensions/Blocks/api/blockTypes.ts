@@ -154,7 +154,10 @@ export type BlockConfig<
   toExternalHTML?: (
     block: SpecificBlock<BSchema, Type>,
     editor: BlockNoteEditor<BSchema>
-  ) => HTMLElement;
+  ) => {
+    dom: HTMLElement;
+    contentDOM?: HTMLElement;
+  };
   // parse?: (
   //   element: HTMLElement
   // ) => SpecificPartialBlock<BSchema, Type> | undefined;
@@ -178,14 +181,20 @@ export type BlockSpec<
   toInternalHTML: (
     block: SpecificBlock<BlockSchema, string>,
     editor: BlockNoteEditor<BlockSchema>
-  ) => HTMLElement;
+  ) => {
+    dom: HTMLElement;
+    contentDOM?: HTMLElement;
+  };
   // Exports block to external HTML. Used to create clipboard data for pasting
   // outside BlockNote. Will be the same as `toInternalHTML` if `toExternalHTML`
   // is not defined in this block's `BlockConfig`.
   toExternalHTML: (
     block: SpecificBlock<BlockSchema, string>,
     editor: BlockNoteEditor<BlockSchema>
-  ) => HTMLElement;
+  ) => {
+    dom: HTMLElement;
+    contentDOM?: HTMLElement;
+  };
 };
 
 // Utility type. For a given object block schema, ensures that the key of each

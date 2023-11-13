@@ -42,15 +42,12 @@ export const serializeNodeInner = <BSchema extends BlockSchema>(
       const toHTML = toExternalHTML
         ? blockSpec.toExternalHTML
         : blockSpec.toInternalHTML;
-      const blockContent = DOMSerializer.renderSpec(
-        doc(options),
-        toHTML(
-          nodeToBlock(node, editor.schema, editor.blockCache) as SpecificBlock<
-            BlockSchema,
-            keyof BlockSchema
-          >,
-          editor as BlockNoteEditor<BlockSchema>
-        )
+      const blockContent = toHTML(
+        nodeToBlock(node, editor.schema, editor.blockCache) as SpecificBlock<
+          BlockSchema,
+          keyof BlockSchema
+        >,
+        editor as BlockNoteEditor<BlockSchema>
       );
 
       // Converts inline nodes in the `blockContent` node's content to HTML

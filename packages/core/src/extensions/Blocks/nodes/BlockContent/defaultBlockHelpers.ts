@@ -6,7 +6,6 @@ import {
 } from "../../api/blockTypes";
 import { BlockNoteEditor } from "../../../../BlockNoteEditor";
 import { blockToNode } from "../../../../api/nodeConversions/nodeConversions";
-import { DOMSerializer } from "prosemirror-model";
 
 // Function that creates a ProseMirror `DOMOutputSpec` for a default block.
 // Since all default blocks have the same structure (`blockContent` div with a
@@ -68,18 +67,30 @@ export const defaultBlockToHTML = <
   editor: BlockNoteEditor<
     BlockSchemaWithBlock<BType, PSchema, ContainsInlineContent>
   >
-) => {
-  const node = blockToNode(block as any, editor._tiptapEditor.schema);
+): {
+  dom: HTMLElement;
+  contentDOM?: HTMLElement;
+} => {
+  const node = blockToNode(block as any, editor._tiptapEditor.schema)
+    .firstChild!;
+  const toDOM = editor._tiptapEditor.schema.nodes[node.type.name].spec.toDOM;
 
-  if (
-    editor._tiptapEditor.schema.nodes[node.type.name].spec.toDOM === undefined
-  ) {
+  if (toDOM === undefined) {
     throw new Error(
       "This block has no default HTML serialization as its corresponding TipTap node doesn't implement `renderHTML`."
     );
   }
 
-  const serializer = DOMSerializer.fromSchema(editor._tiptapEditor.schema);
+  const renderSpec = toDOM(node);
 
-  return serializer.serializeNode(node.firstChild!) as HTMLElement;
+  if (typeof renderSpec !== "object" || !("dom" in renderSpec)) {
+    throw new Error(
+      "Cannot use this block's default HTML serialization as its corresponding TipTap node's `renderHTML` function does not return an object with the `dom` property."
+    );
+  }
+
+  return renderSpec as {
+    dom: HTMLElement;
+    contentDOM?: HTMLElement;
+  };
 };
