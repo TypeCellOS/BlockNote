@@ -105,7 +105,10 @@ export function reactWrapInBlockStructure<
       )}
       // Sets content type attribute
       data-content-type={blockType}
-      // Add props as HTML attributes in kebab-case with "data-" prefix
+      // Adds props as HTML attributes in kebab-case with "data-" prefix. Skips
+      // props which are already added as HTML attributes to the parent
+      // `blockContent` element (inheritedProps) and props set to their default
+      // values
       {...Object.fromEntries(
         Object.entries(blockProps)
           .filter(

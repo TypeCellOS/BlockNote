@@ -219,7 +219,9 @@ export function wrapInBlockStructure<
   );
   // Sets content type attribute
   blockContent.setAttribute("data-content-type", blockType);
-  // Add props as HTML attributes in kebab-case with "data-" prefix
+  // Adds props as HTML attributes in kebab-case with "data-" prefix. Skips props
+  // which are already added as HTML attributes to the parent `blockContent`
+  // element (inheritedProps) and props set to their default values.
   for (const [prop, value] of Object.entries(blockProps)) {
     if (!inheritedProps.includes(prop) && value !== propSchema[prop].default) {
       blockContent.setAttribute(camelToDataKebab(prop), value);
