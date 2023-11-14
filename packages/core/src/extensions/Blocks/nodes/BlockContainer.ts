@@ -46,7 +46,16 @@ export const BlockContainer = Node.create<{
   name: "blockContainer",
   group: "blockContainer",
   // A block always contains content, and optionally a blockGroup which contains nested blocks
-  content: "blockContent blockGroup?",
+  content() {
+    if (
+      typeof this.editor?.options.enableNestedBlocks === "boolean" &&
+      !this.editor?.options.enableNestedBlocks
+    ) {
+      return "blockContent";
+    }
+
+    return "blockContent blockGroup?";
+  },
   // Ensures content-specific keyboard handlers trigger first.
   priority: 50,
   defining: true,
@@ -621,15 +630,25 @@ export const BlockContainer = Node.create<{
       // Always returning true for tab key presses ensures they're not captured by the browser. Otherwise, they blur the
       // editor since the browser will try to use tab for keyboard navigation.
       Tab: () => {
-        if (this.editor.options.canNestBlock) {
-          this.editor.commands.sinkListItem("blockContainer");
+        if (
+          typeof this.editor.options.enableNestedBlocks === "boolean" &&
+          !this.editor.options.enableNestedBlocks
+        ) {
+          return false;
         }
+
+        this.editor.commands.sinkListItem("blockContainer");
         return true;
       },
       "Shift-Tab": () => {
-        if (!this.editor.options.canNestBlock) {
-          this.editor.commands.liftListItem("blockContainer");
+        if (
+          typeof this.editor.options.enableNestedBlocks === "boolean" &&
+          !this.editor.options.enableNestedBlocks
+        ) {
+          return false;
         }
+
+        this.editor.commands.liftListItem("blockContainer");
         return true;
       },
       "Mod-Alt-0": () =>
