@@ -632,23 +632,21 @@ export const BlockContainer = Node.create<{
       Tab: () => {
         if (
           typeof this.editor.options.enableNestedBlocks === "boolean" &&
-          !this.editor.options.enableNestedBlocks
+          this.editor.options.enableNestedBlocks
         ) {
-          return false;
+          this.editor.commands.sinkListItem("blockContainer");
         }
 
-        this.editor.commands.sinkListItem("blockContainer");
         return true;
       },
       "Shift-Tab": () => {
         if (
           typeof this.editor.options.enableNestedBlocks === "boolean" &&
-          !this.editor.options.enableNestedBlocks
+          this.editor.options.enableNestedBlocks
         ) {
-          return false;
+          this.editor.commands.liftListItem("blockContainer");
         }
 
-        this.editor.commands.liftListItem("blockContainer");
         return true;
       },
       "Mod-Alt-0": () =>
