@@ -130,10 +130,6 @@ function convertToHTMLAndCompareSnapshots(
 
 describe("Convert paragraphs to HTML", () => {
   it("Convert paragraph to HTML", async () => {
-    // customSchema
-    // let b: PartialBlocksWithChildren<typeof customSchema>;
-    // b.
-
     const blocks: PartialBlock<typeof customSchema>[] = [
       {
         type: "paragraph",
