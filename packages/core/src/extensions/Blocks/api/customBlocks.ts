@@ -1,3 +1,4 @@
+import { BlockNoteEditor } from "../../../BlockNoteEditor";
 import {
   createInternalBlockSpec,
   createStronglyTypedTiptapNode,
