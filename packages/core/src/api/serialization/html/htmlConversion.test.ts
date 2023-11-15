@@ -24,7 +24,7 @@ const SimpleImage = createBlockSpec(
   {
     type: "simpleImage" as const,
     propSchema: imagePropSchema,
-    containsInlineContent: false,
+    content: "none",
   },
   { render: renderImage as any }
 );
@@ -33,7 +33,7 @@ const CustomParagraph = createBlockSpec(
   {
     type: "customParagraph" as const,
     propSchema: defaultProps,
-    containsInlineContent: true,
+    content: "inline",
   },
   {
     render: () => {
@@ -61,7 +61,7 @@ const SimpleCustomParagraph = createBlockSpec(
   {
     type: "simpleCustomParagraph" as const,
     propSchema: defaultProps,
-    containsInlineContent: true,
+    content: "inline",
   },
   {
     render: () => {

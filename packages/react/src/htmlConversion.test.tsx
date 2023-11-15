@@ -16,7 +16,7 @@ const ReactCustomParagraph = createReactBlockSpec(
   {
     type: "reactCustomParagraph" as const,
     propSchema: defaultProps,
-    containsInlineContent: true,
+    content: "inline",
   },
   {
     render: () => (
@@ -32,7 +32,7 @@ const SimpleReactCustomParagraph = createReactBlockSpec(
   {
     type: "simpleReactCustomParagraph" as const,
     propSchema: defaultProps,
-    containsInlineContent: true,
+    content: "inline",
   },
   {
     render: () => (

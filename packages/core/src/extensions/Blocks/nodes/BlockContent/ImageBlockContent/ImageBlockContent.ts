@@ -1,12 +1,12 @@
 import { BlockNoteEditor } from "../../../../../BlockNoteEditor";
 import { imageToolbarPluginKey } from "../../../../ImageToolbar/ImageToolbarPlugin";
 
-import { BlockSchemaWithBlock, PropSchema } from "../../../api/blockTypes";
 import {
-  BlockFromCustomBlockConfig,
-  CustomBlockConfig,
-  createBlockSpec,
-} from "../../../api/customBlocks";
+  Block,
+  BlockSchemaWithBlock,
+  PropSchema,
+} from "../../../api/blockTypes";
+import { CustomBlockConfig, createBlockSpec } from "../../../api/customBlocks";
 import { defaultProps } from "../../../api/defaultProps";
 
 export const imagePropSchema = {
@@ -48,11 +48,11 @@ const minWidth = 64;
 const blockConfig = {
   type: "image" as const,
   propSchema: imagePropSchema,
-  containsInlineContent: false,
+  content: "none",
 } satisfies CustomBlockConfig;
 
 export const renderImage = (
-  block: BlockFromCustomBlockConfig<typeof blockConfig>,
+  block: Block<typeof blockConfig>,
   editor: BlockNoteEditor<BlockSchemaWithBlock<"image", typeof imagePropSchema>>
 ) => {
   // Wrapper element to set the image alignment, contains both image/image
@@ -336,7 +336,7 @@ export const Image = createBlockSpec(
   {
     type: "image" as const,
     propSchema: imagePropSchema,
-    containsInlineContent: false,
+    content: "none",
   },
   {
     render: renderImage,
