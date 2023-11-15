@@ -52,12 +52,12 @@ export type Props<PSchema extends PropSchema> = {
 export type BlockConfig = {
   type: string;
   readonly propSchema: PropSchema;
-  content: "inline" | "none" | "table";
+  content: "inline" | "none"; // | "table";
 };
 
 // Block implementation contains the "implementation" info about a Block
 // such as the functions / Nodes required to render and / or serialize it
-export type BlockImplementation<T extends BlockConfig> = {
+export type TiptapBlockImplementation<T extends BlockConfig> = {
   requiredNodes?: Node[];
   node: Node;
   toInternalHTML: (
@@ -80,7 +80,7 @@ export type BlockImplementation<T extends BlockConfig> = {
 // and the type of BlockImplementation is based on that of the config
 export type BlockSpec<T extends BlockConfig> = {
   config: T;
-  implementation: BlockImplementation<T>;
+  implementation: TiptapBlockImplementation<T>;
 };
 
 // Utility type. For a given object block schema, ensures that the key of each

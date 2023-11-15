@@ -5,12 +5,12 @@ import { mergeCSSClasses } from "../../../shared/utils";
 import { defaultBlockToHTML } from "../nodes/BlockContent/defaultBlockHelpers";
 import {
   BlockConfig,
-  BlockImplementation,
   BlockSchemaWithBlock,
   BlockSpec,
   PropSchema,
   Props,
   SpecificBlock,
+  TiptapBlockImplementation,
 } from "./blockTypes";
 import { inheritedProps } from "./defaultProps";
 
@@ -236,7 +236,7 @@ export function createStronglyTypedTiptapNode<
 
 export function createInternalBlockSpec<T extends BlockConfig>(
   config: T,
-  implementation: BlockImplementation<T>
+  implementation: TiptapBlockImplementation<T>
 ) {
   return {
     config,
