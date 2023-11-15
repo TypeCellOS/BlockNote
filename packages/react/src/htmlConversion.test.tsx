@@ -1,33 +1,45 @@
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { createReactBlockSpec, InlineContent } from "./ReactBlockSpec";
 import {
   BlockNoteEditor,
   BlockSchema,
+  PartialBlock,
   createExternalHTMLExporter,
   createInternalHTMLSerializer,
   defaultBlockSchema,
   defaultProps,
-  PartialBlock,
   uploadToTmpFilesDotOrg_DEV_ONLY,
 } from "@blocknote/core";
 import { Editor } from "@tiptap/core";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { InlineContent, createReactBlockSpec } from "./ReactBlockSpec";
 
-const ReactCustomParagraph = createReactBlockSpec({
-  type: "reactCustomParagraph",
-  propSchema: defaultProps,
-  containsInlineContent: true,
-  render: () => <InlineContent as={"p"} className={"react-custom-paragraph"} />,
-  toExternalHTML: () => <p className={"react-custom-paragraph"}>Hello World</p>,
-});
+const ReactCustomParagraph = createReactBlockSpec(
+  {
+    type: "reactCustomParagraph" as const,
+    propSchema: defaultProps,
+    containsInlineContent: true,
+  },
+  {
+    render: () => (
+      <InlineContent as={"p"} className={"react-custom-paragraph"} />
+    ),
+    toExternalHTML: () => (
+      <p className={"react-custom-paragraph"}>Hello World</p>
+    ),
+  }
+);
 
-const SimpleReactCustomParagraph = createReactBlockSpec({
-  type: "simpleReactCustomParagraph",
-  propSchema: defaultProps,
-  containsInlineContent: true,
-  render: () => (
-    <InlineContent as={"p"} className={"simple-react-custom-paragraph"} />
-  ),
-});
+const SimpleReactCustomParagraph = createReactBlockSpec(
+  {
+    type: "simpleReactCustomParagraph" as const,
+    propSchema: defaultProps,
+    containsInlineContent: true,
+  },
+  {
+    render: () => (
+      <InlineContent as={"p"} className={"simple-react-custom-paragraph"} />
+    ),
+  }
+);
 
 const customSchema = {
   ...defaultBlockSchema,

@@ -1,18 +1,17 @@
-import { Attribute, Attributes, Editor, Node } from "@tiptap/core";
+import { Attribute, Attributes, Editor, Node, NodeConfig } from "@tiptap/core";
 import { ParseRule } from "prosemirror-model";
+import { BlockNoteEditor } from "../../../BlockNoteEditor";
+import { mergeCSSClasses } from "../../../shared/utils";
+import { defaultBlockToHTML } from "../nodes/BlockContent/defaultBlockHelpers";
 import {
   BlockConfig,
-  BlockNoteDOMAttributes,
+  BlockImplementation,
   BlockSchemaWithBlock,
   BlockSpec,
-  Props,
   PropSchema,
+  Props,
   SpecificBlock,
-  TipTapNode,
-  TipTapNodeConfig,
 } from "./blockTypes";
-import { mergeCSSClasses } from "../../../shared/utils";
-import { BlockNoteEditor } from "../../../BlockNoteEditor";
 import { inheritedProps } from "./defaultProps";
 
 export function camelToDataKebab(str: string): string {
@@ -21,17 +20,7 @@ export function camelToDataKebab(str: string): string {
 
 // Function that uses the 'propSchema' of a blockConfig to create a TipTap
 // node's `addAttributes` property.
-export function propsToAttributes<
-  BType extends string,
-  PSchema extends PropSchema,
-  ContainsInlineContent extends boolean,
-  BSchema extends BlockSchemaWithBlock<BType, PSchema, ContainsInlineContent>
->(
-  blockConfig: Omit<
-    BlockConfig<BType, PSchema, ContainsInlineContent, BSchema>,
-    "render" | "toExternalHTML"
-  >
-): Attributes {
+export function propsToAttributes(blockConfig: BlockConfig): Attributes {
   const tiptapAttributes: Record<string, Attribute> = {};
 
   Object.entries(blockConfig.propSchema)
@@ -91,17 +80,7 @@ export function propsToAttributes<
 // Function that uses the 'parse' function of a blockConfig to create a
 // TipTap node's `parseHTML` property. This is only used for parsing content
 // from the clipboard.
-export function parse<
-  BType extends string,
-  PSchema extends PropSchema,
-  ContainsInlineContent extends boolean,
-  BSchema extends BlockSchemaWithBlock<BType, PSchema, ContainsInlineContent>
->(
-  blockConfig: Omit<
-    BlockConfig<BType, PSchema, ContainsInlineContent, BSchema>,
-    "render" | "toExternalHTML"
-  >
-) {
+export function parse(blockConfig: BlockConfig) {
   const rules: ParseRule[] = [
     {
       tag: "div[data-content-type=" + blockConfig.type + "]",
@@ -148,8 +127,7 @@ export function parse<
 export function getBlockFromPos<
   BType extends string,
   PSchema extends PropSchema,
-  ContainsInlineContent extends boolean,
-  BSchema extends BlockSchemaWithBlock<BType, PSchema, ContainsInlineContent>
+  BSchema extends BlockSchemaWithBlock<BType, PSchema>
 >(
   getPos: (() => number) | boolean,
   editor: BlockNoteEditor<BSchema>,
@@ -243,122 +221,44 @@ export function wrapInBlockStructure<
   };
 }
 
-// A function to create custom block for API consumers
-// we want to hide the tiptap node from API consumers and provide a simpler API surface instead
-export function createBlockSpec<
-  BType extends string,
-  PSchema extends PropSchema,
-  ContainsInlineContent extends boolean,
-  BSchema extends BlockSchemaWithBlock<BType, PSchema, ContainsInlineContent>
->(
-  blockConfig: BlockConfig<BType, PSchema, ContainsInlineContent, BSchema>
-): BlockSpec<BType, PSchema, ContainsInlineContent> {
-  const node = createTipTapBlock<
-    BType,
-    ContainsInlineContent,
-    {
-      editor: BlockNoteEditor<BSchema>;
-      domAttributes?: BlockNoteDOMAttributes;
-    }
-  >({
-    name: blockConfig.type,
-    content: (blockConfig.containsInlineContent
-      ? "inline*"
-      : "") as ContainsInlineContent extends true ? "inline*" : "",
-    selectable: true,
+// Helper type to keep track of the `name` and `content` properties after calling Node.create.
+type StronglyTypedTipTapNode<
+  Name extends string,
+  Content extends "inline*" | "table" | "tableRow+" | ""
+> = Node & { name: Name; content: Content };
 
-    addAttributes() {
-      return propsToAttributes(blockConfig);
-    },
-
-    parseHTML() {
-      return parse(blockConfig);
-    },
-
-    addNodeView() {
-      return ({ getPos }) => {
-        // Gets the BlockNote editor instance
-        const editor = this.options.editor;
-        // Gets the block
-        const block = getBlockFromPos<
-          BType,
-          PSchema,
-          ContainsInlineContent,
-          BSchema
-        >(getPos, editor, this.editor, blockConfig.type);
-        // Gets the custom HTML attributes for `blockContent` nodes
-        const blockContentDOMAttributes =
-          this.options.domAttributes?.blockContent || {};
-
-        const output = blockConfig.render(block, editor);
-
-        return wrapInBlockStructure<BType, PSchema>(
-          output,
-          block.type,
-          block.props,
-          blockConfig.propSchema,
-          blockContentDOMAttributes
-        );
-      };
-    },
-  });
-
-  return {
-    node: node as TipTapNode<BType, ContainsInlineContent>,
-    propSchema: blockConfig.propSchema,
-    toInternalHTML: (block, editor) => {
-      const blockContentDOMAttributes =
-        node.options.domAttributes?.blockContent || {};
-
-      const output = blockConfig.render(block as any, editor as any);
-
-      return wrapInBlockStructure<BType, PSchema>(
-        output,
-        block.type as BType,
-        block.props as Props<PSchema>,
-        blockConfig.propSchema,
-        blockContentDOMAttributes
-      );
-    },
-    toExternalHTML: (block, editor) => {
-      const blockContentDOMAttributes =
-        node.options.domAttributes?.blockContent || {};
-
-      let output = blockConfig.toExternalHTML?.(block as any, editor as any);
-      if (output === undefined) {
-        output = blockConfig.render(block as any, editor as any);
-      }
-
-      return wrapInBlockStructure<BType, PSchema>(
-        output,
-        block.type as BType,
-        block.props as Props<PSchema>,
-        blockConfig.propSchema,
-        blockContentDOMAttributes
-      );
-    },
-  };
+export function createStronglyTypedTiptapNode<
+  Name extends string,
+  Content extends "inline*" | "table" | "tableRow+" | ""
+>(config: NodeConfig & { name: Name; content: Content }) {
+  return Node.create(config) as StronglyTypedTipTapNode<Name, Content>; // force re-typing (should be safe as it's type-checked from the config)
 }
 
-export function createTipTapBlock<
-  Type extends string,
-  ContainsInlineContent extends boolean,
-  Options extends {
-    domAttributes?: BlockNoteDOMAttributes;
-  } = {
-    domAttributes?: BlockNoteDOMAttributes;
-  },
-  Storage = any
->(
-  config: TipTapNodeConfig<Type, ContainsInlineContent, Options, Storage>
-): TipTapNode<Type, ContainsInlineContent, Options, Storage> {
-  // Type cast is needed as Node.name is mutable, though there is basically no
-  // reason to change it after creation. Alternative is to wrap Node in a new
-  // class, which I don't think is worth it since we'd only be changing 1
-  // attribute to be read only.
-  return Node.create<Options, Storage>({
-    ...config,
-    group: "blockContent",
-    content: config.content,
-  }) as TipTapNode<Type, ContainsInlineContent, Options, Storage>;
+export function createInternalBlockSpec<T extends BlockConfig>(
+  config: T,
+  implementation: BlockImplementation<T>
+) {
+  return {
+    config,
+    implementation,
+  } satisfies BlockSpec<T>;
+}
+
+export function createBlockSpecFromStronglyTypedTiptapNode<
+  T extends Node,
+  P extends PropSchema
+>(node: T, propSchema: P, requiredNodes?: Node[]) {
+  return createInternalBlockSpec(
+    {
+      type: node.name as T["name"],
+      content: "inline",
+      propSchema,
+    },
+    {
+      node,
+      requiredNodes,
+      toInternalHTML: defaultBlockToHTML,
+      toExternalHTML: defaultBlockToHTML,
+    }
+  );
 }

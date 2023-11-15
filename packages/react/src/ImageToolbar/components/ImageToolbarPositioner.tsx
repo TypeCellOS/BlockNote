@@ -1,11 +1,10 @@
 import {
   BaseUiElementState,
+  BlockFromBlockConfig,
   BlockNoteEditor,
   BlockSchema,
-  BlockSpec,
   DefaultBlockSchema,
   ImageToolbarState,
-  SpecificBlock,
 } from "@blocknote/core";
 import Tippy, { tippy } from "@tippyjs/react";
 import { FC, useEffect, useMemo, useRef, useState } from "react";
@@ -25,20 +24,8 @@ export const ImageToolbarPositioner = <
   imageToolbar?: FC<ImageToolbarProps<BSchema>>;
 }) => {
   const [show, setShow] = useState<boolean>(false);
-  const [block, setBlock] = useState<
-    SpecificBlock<
-      BlockSchema & {
-        image: BlockSpec<
-          "image",
-          {
-            src: { default: string };
-          },
-          false
-        >;
-      },
-      "image"
-    >
-  >();
+  const [block, setBlock] =
+    useState<BlockFromBlockConfig<DefaultBlockSchema["image"]["config"]>>();
 
   const referencePos = useRef<DOMRect>();
 

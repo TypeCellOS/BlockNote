@@ -388,14 +388,14 @@ export function nodeToBlock<BSchema extends BlockSchema>(
       );
     }
 
-    const propSchema = blockSpec.propSchema;
+    const propSchema = blockSpec.config.propSchema;
 
     if (attr in propSchema) {
       props[attr] = value;
     }
   }
 
-  const blockSpec = blockSchema[blockInfo.contentType.name];
+  const blockSpec = blockSchema[blockInfo.contentType.name]!;
 
   const children: Block<BSchema>[] = [];
   for (let i = 0; i < blockInfo.numChildBlocks; i++) {
@@ -406,10 +406,10 @@ export function nodeToBlock<BSchema extends BlockSchema>(
 
   const block = {
     id,
-    type: blockSpec.node.name,
+    type: blockSpec.config.type,
     props,
     content:
-      blockSpec.node.config.content === "inline*"
+      blockSpec.config.content === "inline"
         ? contentNodeToInlineContent(blockInfo.contentNode)
         : undefined,
     children,

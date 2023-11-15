@@ -1,21 +1,21 @@
 import { InputRule } from "@tiptap/core";
-import { defaultProps } from "../../../../api/defaultProps";
-import { createTipTapBlock } from "../../../../api/block";
-import { BlockSpec, PropSchema } from "../../../../api/blockTypes";
-import { handleEnter } from "../ListItemKeyboardShortcuts";
 import {
-  createDefaultBlockDOMOutputSpec,
-  defaultBlockToHTML,
-} from "../../defaultBlockHelpers";
+  createBlockSpecFromStronglyTypedTiptapNode,
+  createStronglyTypedTiptapNode,
+} from "../../../../api/block";
+import { PropSchema } from "../../../../api/blockTypes";
+import { defaultProps } from "../../../../api/defaultProps";
+import { createDefaultBlockDOMOutputSpec } from "../../defaultBlockHelpers";
+import { handleEnter } from "../ListItemKeyboardShortcuts";
 
 export const bulletListItemPropSchema = {
   ...defaultProps,
 } satisfies PropSchema;
 
-const BulletListItemBlockContent = createTipTapBlock<"bulletListItem", true>({
+const BulletListItemBlockContent = createStronglyTypedTiptapNode({
   name: "bulletListItem",
   content: "inline*",
-
+  group: "blockContent",
   addInputRules() {
     return [
       // Creates an unordered list when starting with "-", "+", or "*".
@@ -111,9 +111,7 @@ const BulletListItemBlockContent = createTipTapBlock<"bulletListItem", true>({
   },
 });
 
-export const BulletListItem = {
-  node: BulletListItemBlockContent,
-  propSchema: bulletListItemPropSchema,
-  toInternalHTML: defaultBlockToHTML,
-  toExternalHTML: defaultBlockToHTML,
-} satisfies BlockSpec<"bulletListItem", typeof bulletListItemPropSchema, true>;
+export const BulletListItem = createBlockSpecFromStronglyTypedTiptapNode(
+  BulletListItemBlockContent,
+  bulletListItemPropSchema
+);

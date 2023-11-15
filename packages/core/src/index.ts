@@ -1,13 +1,14 @@
 export * from "./BlockNoteEditor";
 export * from "./BlockNoteExtensions";
+export * from "./api/serialization/html/externalHTMLExporter";
+export * from "./api/serialization/html/internalHTMLSerializer";
 export * from "./extensions/Blocks/api/block";
 export * from "./extensions/Blocks/api/blockTypes";
-export * from "./extensions/Blocks/api/defaultProps";
+export * from "./extensions/Blocks/api/customBlocks";
 export * from "./extensions/Blocks/api/defaultBlocks";
+export * from "./extensions/Blocks/api/defaultProps";
 export * from "./extensions/Blocks/api/inlineContentTypes";
 export * from "./extensions/Blocks/api/selectionTypes";
-export * from "./api/serialization/html/internalHTMLSerializer";
-export * from "./api/serialization/html/externalHTMLExporter";
 export * as blockStyles from "./extensions/Blocks/nodes/Block.css";
 export * from "./extensions/Blocks/nodes/BlockContent/ImageBlockContent/uploadToTmpFilesDotOrg_DEV_ONLY";
 export * from "./extensions/FormattingToolbar/FormattingToolbarPlugin";

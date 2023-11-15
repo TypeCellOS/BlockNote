@@ -1,10 +1,7 @@
-import { nodeToBlock } from "../../nodeConversions/nodeConversions";
 import { DOMSerializer, Fragment, Node } from "prosemirror-model";
-import {
-  BlockSchema,
-  SpecificBlock,
-} from "../../../extensions/Blocks/api/blockTypes";
 import { BlockNoteEditor } from "../../../BlockNoteEditor";
+import { BlockSchema } from "../../../extensions/Blocks/api/blockTypes";
+import { nodeToBlock } from "../../nodeConversions/nodeConversions";
 
 function doc(options: { document?: Document }) {
   return options.document || window.document;
@@ -40,14 +37,12 @@ export const serializeNodeInner = <BSchema extends BlockSchema>(
       const blockSpec =
         editor.schema[node.firstChild!.type.name as keyof BSchema];
       const toHTML = toExternalHTML
-        ? blockSpec.toExternalHTML
-        : blockSpec.toInternalHTML;
+        ? blockSpec.implementation.toExternalHTML
+        : blockSpec.implementation.toInternalHTML;
+
       const blockContent = toHTML(
-        nodeToBlock(node, editor.schema, editor.blockCache) as SpecificBlock<
-          BlockSchema,
-          keyof BlockSchema
-        >,
-        editor as BlockNoteEditor<BlockSchema>
+        nodeToBlock(node, editor.schema, editor.blockCache),
+        editor as any
       );
 
       // Converts inline nodes in the `blockContent` node's content to HTML

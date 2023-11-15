@@ -1,21 +1,21 @@
 import { InputRule } from "@tiptap/core";
-import { defaultProps } from "../../../api/defaultProps";
-import { createTipTapBlock } from "../../../api/block";
-import { BlockSpec, PropSchema } from "../../../api/blockTypes";
 import {
-  createDefaultBlockDOMOutputSpec,
-  defaultBlockToHTML,
-} from "../defaultBlockHelpers";
+  createBlockSpecFromStronglyTypedTiptapNode,
+  createStronglyTypedTiptapNode,
+} from "../../../api/block";
+import { PropSchema } from "../../../api/blockTypes";
+import { defaultProps } from "../../../api/defaultProps";
+import { createDefaultBlockDOMOutputSpec } from "../defaultBlockHelpers";
 
 export const headingPropSchema = {
   ...defaultProps,
   level: { default: 1, values: [1, 2, 3] as const },
 } satisfies PropSchema;
 
-const HeadingBlockContent = createTipTapBlock<"heading", true>({
+const HeadingBlockContent = createStronglyTypedTiptapNode({
   name: "heading",
   content: "inline*",
-
+  group: "blockContent",
   addAttributes() {
     return {
       level: {
@@ -112,9 +112,7 @@ const HeadingBlockContent = createTipTapBlock<"heading", true>({
   },
 });
 
-export const Heading = {
-  node: HeadingBlockContent,
-  propSchema: headingPropSchema,
-  toInternalHTML: defaultBlockToHTML,
-  toExternalHTML: defaultBlockToHTML,
-} satisfies BlockSpec<"heading", typeof headingPropSchema, true>;
+export const Heading = createBlockSpecFromStronglyTypedTiptapNode(
+  HeadingBlockContent,
+  headingPropSchema
+);

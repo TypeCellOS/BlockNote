@@ -16,6 +16,7 @@ import { Strike } from "@tiptap/extension-strike";
 import { Text } from "@tiptap/extension-text";
 import { Underline } from "@tiptap/extension-underline";
 import * as Y from "yjs";
+import { createClipboardHandlerExtension } from "./api/serialization/clipboardHandlerExtension";
 import { BackgroundColorExtension } from "./extensions/BackgroundColor/BackgroundColorExtension";
 import { BackgroundColorMark } from "./extensions/BackgroundColor/BackgroundColorMark";
 import { BlockContainer, BlockGroup, Doc } from "./extensions/Blocks";
@@ -29,7 +30,6 @@ import { TextColorExtension } from "./extensions/TextColor/TextColorExtension";
 import { TextColorMark } from "./extensions/TextColor/TextColorMark";
 import { TrailingNode } from "./extensions/TrailingNode/TrailingNodeExtension";
 import UniqueID from "./extensions/UniqueID/UniqueID";
-import { createClipboardHandlerExtension } from "./api/serialization/clipboardHandlerExtension";
 
 /**
  * Get all the Tiptap extensions BlockNote is configured with by default
@@ -93,12 +93,22 @@ export const getBlockNoteExtensions = <BSchema extends BlockSchema>(opts: {
     BlockGroup.configure({
       domAttributes: opts.domAttributes,
     }),
-    ...Object.values(opts.blockSchema).map((blockSpec) =>
-      blockSpec.node.configure({
-        editor: opts.editor,
-        domAttributes: opts.domAttributes,
-      })
-    ),
+    ...Object.values(opts.blockSchema).flatMap((blockSpec) => {
+      return [
+        // dependent nodes (e.g.: tablecell / row)
+        ...(blockSpec.implementation.requiredNodes || []).map((node) =>
+          node.configure({
+            editor: opts.editor,
+            domAttributes: opts.domAttributes,
+          })
+        ),
+        // the actual node itself
+        blockSpec.implementation.node.configure({
+          editor: opts.editor,
+          domAttributes: opts.domAttributes,
+        }),
+      ];
+    }),
     createClipboardHandlerExtension(opts.editor),
 
     Dropcursor.configure({ width: 5, color: "#ddeeff" }),

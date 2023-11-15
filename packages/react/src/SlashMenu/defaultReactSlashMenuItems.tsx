@@ -12,6 +12,7 @@ import {
   RiImage2Fill,
   RiListOrdered,
   RiListUnordered,
+  RiTable2,
   RiText,
 } from "react-icons/ri";
 import { formatKeyboardShortcut } from "../utils";
@@ -59,6 +60,12 @@ const extraFields: Record<
     icon: <RiText size={18} />,
     hint: "Used for the body of your document",
     shortcut: formatKeyboardShortcut("Mod-Alt-0"),
+  },
+  Table: {
+    group: "Advanced",
+    icon: <RiTable2 size={18} />,
+    hint: "Used for for tables",
+    // shortcut: formatKeyboardShortcut("Mod-Alt-0"),
   },
   Image: {
     group: "Media",

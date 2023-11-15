@@ -4,28 +4,16 @@ import { EditorView } from "prosemirror-view";
 import {
   BaseUiElementCallbacks,
   BaseUiElementState,
+  BlockFromBlockConfig,
   BlockNoteEditor,
   BlockSchema,
-  BlockSpec,
-  SpecificBlock,
 } from "../..";
 import { EventEmitter } from "../../shared/EventEmitter";
-
+import { Image } from "../Blocks/nodes/BlockContent/ImageBlockContent/ImageBlockContent";
 export type ImageToolbarCallbacks = BaseUiElementCallbacks;
 
 export type ImageToolbarState = BaseUiElementState & {
-  block: SpecificBlock<
-    BlockSchema & {
-      image: BlockSpec<
-        "image",
-        {
-          src: { default: string };
-        },
-        false
-      >;
-    },
-    "image"
-  >;
+  block: BlockFromBlockConfig<(typeof Image)["config"]>;
 };
 
 export class ImageToolbarView {
@@ -112,18 +100,7 @@ export class ImageToolbarView {
 
   update(view: EditorView, prevState: EditorState) {
     const pluginState: {
-      block: SpecificBlock<
-        BlockSchema & {
-          image: BlockSpec<
-            "image",
-            {
-              src: { default: string };
-            },
-            false
-          >;
-        },
-        "image"
-      >;
+      block: BlockFromBlockConfig<(typeof Image)["config"]>;
     } = this.pluginKey.getState(view.state);
 
     if (!this.imageToolbarState?.show && pluginState.block) {
@@ -176,20 +153,7 @@ export class ImageToolbarProsemirrorPlugin<
   constructor(_editor: BlockNoteEditor<BSchema>) {
     super();
     this.plugin = new Plugin<{
-      block:
-        | SpecificBlock<
-            BlockSchema & {
-              image: BlockSpec<
-                "image",
-                {
-                  src: { default: string };
-                },
-                false
-              >;
-            },
-            "image"
-          >
-        | undefined;
+      block: BlockFromBlockConfig<(typeof Image)["config"]> | undefined;
     }>({
       key: imageToolbarPluginKey,
       view: (editorView) => {
@@ -211,18 +175,7 @@ export class ImageToolbarProsemirrorPlugin<
         },
         apply: (transaction) => {
           const block:
-            | SpecificBlock<
-                BlockSchema & {
-                  image: BlockSpec<
-                    "image",
-                    {
-                      src: { default: string };
-                    },
-                    false
-                  >;
-                },
-                "image"
-              >
+            | BlockFromBlockConfig<(typeof Image)["config"]>
             | undefined = transaction.getMeta(imageToolbarPluginKey)?.block;
 
           return {

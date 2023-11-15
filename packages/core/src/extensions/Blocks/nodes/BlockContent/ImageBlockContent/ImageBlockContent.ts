@@ -1,12 +1,13 @@
-import { createBlockSpec } from "../../../api/block";
-import { defaultProps } from "../../../api/defaultProps";
-import {
-  BlockSchemaWithBlock,
-  PropSchema,
-  SpecificBlock,
-} from "../../../api/blockTypes";
 import { BlockNoteEditor } from "../../../../../BlockNoteEditor";
 import { imageToolbarPluginKey } from "../../../../ImageToolbar/ImageToolbarPlugin";
+
+import { BlockSchemaWithBlock, PropSchema } from "../../../api/blockTypes";
+import {
+  BlockFromCustomBlockConfig,
+  CustomBlockConfig,
+  createBlockSpec,
+} from "../../../api/customBlocks";
+import { defaultProps } from "../../../api/defaultProps";
 
 export const imagePropSchema = {
   textAlignment: defaultProps.textAlignment,
@@ -44,14 +45,15 @@ const textAlignmentToAlignItems = (
 // Min image width in px.
 const minWidth = 64;
 
+const blockConfig = {
+  type: "image" as const,
+  propSchema: imagePropSchema,
+  containsInlineContent: false,
+} satisfies CustomBlockConfig;
+
 export const renderImage = (
-  block: SpecificBlock<
-    BlockSchemaWithBlock<"image", typeof imagePropSchema, false>,
-    "image"
-  >,
-  editor: BlockNoteEditor<
-    BlockSchemaWithBlock<"image", typeof imagePropSchema, false>
-  >
+  block: BlockFromCustomBlockConfig<typeof blockConfig>,
+  editor: BlockNoteEditor<BlockSchemaWithBlock<"image", typeof imagePropSchema>>
 ) => {
   // Wrapper element to set the image alignment, contains both image/image
   // upload dashboard and caption.
@@ -330,37 +332,41 @@ export const renderImage = (
   };
 };
 
-export const Image = createBlockSpec({
-  type: "image",
-  propSchema: imagePropSchema,
-  containsInlineContent: false,
-  render: renderImage,
-  toExternalHTML: (block) => {
-    if (block.props.url === "") {
-      const div = document.createElement("p");
-      div.innerHTML = "Add Image";
+export const Image = createBlockSpec(
+  {
+    type: "image" as const,
+    propSchema: imagePropSchema,
+    containsInlineContent: false,
+  },
+  {
+    render: renderImage,
+    toExternalHTML: (block) => {
+      if (block.props.url === "") {
+        const div = document.createElement("p");
+        div.innerHTML = "Add Image";
+
+        return {
+          dom: div,
+        };
+      }
+
+      const figure = document.createElement("figure");
+
+      const img = document.createElement("img");
+      img.src = block.props.url;
+      figure.appendChild(img);
+
+      if (block.props.caption !== "") {
+        const figcaption = document.createElement("figcaption");
+        figcaption.innerHTML = block.props.caption;
+        figure.appendChild(figcaption);
+      }
 
       return {
-        dom: div,
+        dom: figure,
       };
-    }
-
-    const figure = document.createElement("figure");
-
-    const img = document.createElement("img");
-    img.src = block.props.url;
-    figure.appendChild(img);
-
-    if (block.props.caption !== "") {
-      const figcaption = document.createElement("figcaption");
-      figcaption.innerHTML = block.props.caption;
-      figure.appendChild(figcaption);
-    }
-
-    return {
-      dom: figure,
-    };
-  },
+    },
+  }
   // parse: (element) => {
   //   if (element.tagName === "IMG") {
   //     return {
@@ -373,4 +379,4 @@ export const Image = createBlockSpec({
   //
   //   return;
   // },
-});
+);

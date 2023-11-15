@@ -1,11 +1,13 @@
 import {
-  BlockConfig,
+  BlockConfigFromCustomBlockConfig,
+  BlockFromBlockConfig,
   BlockNoteDOMAttributes,
   BlockNoteEditor,
   BlockSchemaWithBlock,
-  BlockSpec,
   camelToDataKebab,
-  createTipTapBlock,
+  createInternalBlockSpec,
+  createStronglyTypedTiptapNode,
+  CustomBlockConfig,
   getBlockFromPos,
   inheritedProps,
   mergeCSSClasses,
@@ -20,34 +22,20 @@ import {
   NodeViewWrapper,
   ReactNodeViewRenderer,
 } from "@tiptap/react";
-import { renderToString } from "react-dom/server";
 import { createContext, ElementType, FC, HTMLProps, useContext } from "react";
+import { renderToString } from "react-dom/server";
+
+// this file is mostly analogoues to `customBlocks.ts`, but for React blocks
 
 // extend BlockConfig but use a React render function
-export type ReactBlockConfig<
-  BType extends string,
-  PSchema extends PropSchema,
-  ContainsInlineContent extends boolean,
-  BSchema extends BlockSchemaWithBlock<BType, PSchema, ContainsInlineContent>
-> = Omit<
-  BlockConfig<BType, PSchema, ContainsInlineContent, BSchema>,
-  "render" | "toExternalHTML"
-> & {
+export type ReactCustomBlockImplementation<T extends CustomBlockConfig> = {
   render: FC<{
-    block: Parameters<
-      BlockConfig<BType, PSchema, ContainsInlineContent, BSchema>["render"]
-    >[0];
-    editor: Parameters<
-      BlockConfig<BType, PSchema, ContainsInlineContent, BSchema>["render"]
-    >[1];
+    block: BlockFromBlockConfig<BlockConfigFromCustomBlockConfig<T>>;
+    editor: BlockNoteEditor<BlockSchemaWithBlock<T["type"], T["propSchema"]>>;
   }>;
   toExternalHTML?: FC<{
-    block: Parameters<
-      BlockConfig<BType, PSchema, ContainsInlineContent, BSchema>["render"]
-    >[0];
-    editor: Parameters<
-      BlockConfig<BType, PSchema, ContainsInlineContent, BSchema>["render"]
-    >[1];
+    block: BlockFromBlockConfig<BlockConfigFromCustomBlockConfig<T>>;
+    editor: BlockNoteEditor<BlockSchemaWithBlock<T["type"], T["propSchema"]>>;
   }>;
 };
 
@@ -127,26 +115,24 @@ export function reactWrapInBlockStructure<
 
 // A function to create custom block for API consumers
 // we want to hide the tiptap node from API consumers and provide a simpler API surface instead
-export function createReactBlockSpec<
-  BType extends string,
-  PSchema extends PropSchema,
-  ContainsInlineContent extends boolean,
-  BSchema extends BlockSchemaWithBlock<BType, PSchema, ContainsInlineContent>
->(
-  blockConfig: ReactBlockConfig<BType, PSchema, ContainsInlineContent, BSchema>
-): BlockSpec<BType, PSchema, ContainsInlineContent> {
-  const node = createTipTapBlock<
-    BType,
-    ContainsInlineContent,
-    {
-      editor: BlockNoteEditor<BSchema>;
-      domAttributes?: BlockNoteDOMAttributes;
-    }
-  >({
-    name: blockConfig.type,
-    content: (blockConfig.containsInlineContent
+export function createReactBlockSpec<T extends CustomBlockConfig>(
+  customBlockConfig: T,
+  blockImplementation: ReactCustomBlockImplementation<T>
+) {
+  // map from CustomBlockConfig to internal BlockConfig
+  const blockConfig = {
+    ...customBlockConfig,
+    content: (customBlockConfig.containsInlineContent
+      ? "inline"
+      : "none") as T["containsInlineContent"] extends true ? "inline" : "none",
+  } satisfies BlockConfigFromCustomBlockConfig<T>;
+
+  const node = createStronglyTypedTiptapNode({
+    name: blockConfig.type as T["type"],
+    content: (customBlockConfig.containsInlineContent
       ? "inline*"
-      : "") as ContainsInlineContent extends true ? "inline*" : "",
+      : "") as T["containsInlineContent"] extends true ? "inline*" : "",
+    group: "blockContent",
     selectable: true,
 
     addAttributes() {
@@ -162,23 +148,19 @@ export function createReactBlockSpec<
         ReactNodeViewRenderer(
           (props: NodeViewProps) => {
             // Gets the BlockNote editor instance
-            const editor = this.options.editor! as BlockNoteEditor<
-              BSchema & {
-                [k in BType]: BlockSpec<BType, PSchema, ContainsInlineContent>;
-              }
-            >;
+            const editor = this.options.editor! as BlockNoteEditor<any>;
             // Gets the block
-            const block = getBlockFromPos<
-              BType,
-              PSchema,
-              ContainsInlineContent,
-              BSchema
-            >(props.getPos, editor, this.editor, blockConfig.type);
+            const block = getBlockFromPos(
+              props.getPos,
+              editor,
+              this.editor,
+              blockConfig.type
+            ) as any;
             // Gets the custom HTML attributes for `blockContent` nodes
             const blockContentDOMAttributes =
               this.options.domAttributes?.blockContent || {};
 
-            const Content = blockConfig.render;
+            const Content = blockImplementation.render;
             const BlockContent = reactWrapInBlockStructure(
               <Content block={block} editor={editor} />,
               block.type,
@@ -196,18 +178,17 @@ export function createReactBlockSpec<
     },
   });
 
-  return {
+  return createInternalBlockSpec(blockConfig, {
     node: node,
-    propSchema: blockConfig.propSchema,
     toInternalHTML: (block, editor) => {
       const blockContentDOMAttributes =
         node.options.domAttributes?.blockContent || {};
 
-      const Content = blockConfig.render;
+      const Content = blockImplementation.render;
       const BlockContent = reactWrapInBlockStructure(
         <Content block={block as any} editor={editor as any} />,
-        block.type as BType,
-        block.props as Props<PSchema>,
+        block.type,
+        block.props,
         blockConfig.propSchema,
         blockContentDOMAttributes
       );
@@ -225,14 +206,14 @@ export function createReactBlockSpec<
       const blockContentDOMAttributes =
         node.options.domAttributes?.blockContent || {};
 
-      let Content = blockConfig.toExternalHTML;
+      let Content = blockImplementation.toExternalHTML;
       if (Content === undefined) {
-        Content = blockConfig.render;
+        Content = blockImplementation.render;
       }
       const BlockContent = reactWrapInBlockStructure(
         <Content block={block as any} editor={editor as any} />,
-        block.type as BType,
-        block.props as Props<PSchema>,
+        block.type,
+        block.props,
         blockConfig.propSchema,
         blockContentDOMAttributes
       );
@@ -246,5 +227,5 @@ export function createReactBlockSpec<
           undefined) as HTMLElement | undefined,
       };
     },
-  };
+  });
 }

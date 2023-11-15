@@ -6,16 +6,16 @@ import {
   inlineContentToNodes,
 } from "../../../api/nodeConversions/nodeConversions";
 
+import { mergeCSSClasses } from "../../../shared/utils";
+import { NonEditableBlockPlugin } from "../NonEditableBlockPlugin";
+import { PreviousBlockTypePlugin } from "../PreviousBlockTypePlugin";
 import {
   BlockNoteDOMAttributes,
   BlockSchema,
   PartialBlock,
 } from "../api/blockTypes";
 import { getBlockInfoFromPos } from "../helpers/getBlockInfoFromPos";
-import { PreviousBlockTypePlugin } from "../PreviousBlockTypePlugin";
 import BlockAttributes from "./BlockAttributes";
-import { mergeCSSClasses } from "../../../shared/utils";
-import { NonEditableBlockPlugin } from "../NonEditableBlockPlugin";
 
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {

@@ -1,8 +1,8 @@
 /** Define the main block types **/
-import { Node, NodeConfig } from "@tiptap/core";
-import { BlockNoteEditor } from "../../../BlockNoteEditor";
-import { InlineContent, PartialInlineContent } from "./inlineContentTypes";
+import { Node } from "@tiptap/core";
+import { BlockNoteEditor } from "../../..";
 import { DefaultBlockSchema } from "./defaultBlocks";
+import { InlineContent, PartialInlineContent } from "./inlineContentTypes";
 
 export type BlockNoteDOMElement =
   | "editor"
@@ -14,70 +14,6 @@ export type BlockNoteDOMElement =
 export type BlockNoteDOMAttributes = Partial<{
   [DOMElement in BlockNoteDOMElement]: Record<string, string>;
 }>;
-
-// A configuration for a TipTap node, but with stricter type constraints on the
-// "name" and "content" properties. The "name" property is now always a string
-// literal type, and the "content" property can only be "inline*" or "". Used as
-// the parameter in `createTipTapNode`. The "group" is also removed as
-// `createTipTapNode` always sets it to "blockContent"
-export type TipTapNodeConfig<
-  Name extends string,
-  ContainsInlineContent extends boolean,
-  Options extends {
-    domAttributes?: BlockNoteDOMAttributes;
-  } = {
-    domAttributes?: BlockNoteDOMAttributes;
-  },
-  Storage = any
-> = {
-  [K in keyof NodeConfig<Options, Storage>]: K extends "name"
-    ? Name
-    : K extends "content"
-    ? ContainsInlineContent extends true
-      ? "inline*"
-      : ""
-    : K extends "group"
-    ? never
-    : NodeConfig<Options, Storage>[K];
-} & {
-  name: Name;
-  content: ContainsInlineContent extends true ? "inline*" : "";
-};
-
-// A TipTap node with stricter type constraints on the "name", "group", and
-// "content properties. The "name" property is now a string literal type, and
-// the "blockGroup" property is now "blockContent", and the "content" property
-// can only be "inline*" or "". Returned by `createTipTapNode`.
-export type TipTapNode<
-  Name extends string,
-  ContainsInlineContent extends boolean,
-  Options extends {
-    domAttributes?: BlockNoteDOMAttributes;
-  } = {
-    domAttributes?: BlockNoteDOMAttributes;
-  },
-  Storage = any
-> = {
-  [Key in keyof Node<Options, Storage>]: Key extends "name"
-    ? Name
-    : Key extends "config"
-    ? {
-        [ConfigKey in keyof Node<
-          Options,
-          Storage
-        >["config"]]: ConfigKey extends "group"
-          ? "blockContent"
-          : ConfigKey extends "content"
-          ? ContainsInlineContent extends true
-            ? "inline*"
-            : ""
-          : NodeConfig<Options, Storage>["config"][ConfigKey];
-      } & {
-        group: "blockContent";
-        content: ContainsInlineContent extends true ? "inline*" : "";
-      }
-    : Node<Options, Storage>["config"][Key];
-};
 
 // Defines a single prop spec, which includes the default value the prop should
 // take and possible values it can take.
@@ -112,140 +48,98 @@ export type Props<PSchema extends PropSchema> = {
     : never;
 };
 
-// Defines the config for a single block. Meant to be used as an argument to
-// `createBlockSpec`, which will create a new block spec from it. This is the
-// main way we expect people to create custom blocks as consumers don't need to
-// know anything about the TipTap API since the associated nodes are created
-// automatically.
-export type BlockConfig<
-  Type extends string,
-  PSchema extends PropSchema,
-  ContainsInlineContent extends boolean,
-  BSchema extends BlockSchemaWithBlock<Type, PSchema, ContainsInlineContent>
-> = {
-  // Attributes to define block in the API as well as a TipTap node.
-  type: Type;
-  readonly propSchema: PSchema;
-
-  // Additional attributes to help define block as a TipTap node.
-  containsInlineContent: ContainsInlineContent;
-  render: (
-    /**
-     * The custom block to render
-     */
-    block: SpecificBlock<BSchema, Type>,
-    /**
-     * The BlockNote editor instance
-     * This is typed generically. If you want an editor with your custom schema, you need to
-     * cast it manually, e.g.: `const e = editor as BlockNoteEditor<typeof mySchema>;`
-     */
-    editor: BlockNoteEditor<BSchema>
-    // (note) if we want to fix the manual cast, we need to prevent circular references and separate block definition and render implementations
-    // or allow manually passing <BSchema>, but that's not possible without passing the other generics because Typescript doesn't support partial inferred generics
-  ) => {
-    dom: HTMLElement;
-    contentDOM?: HTMLElement;
-    destroy?: () => void;
-  };
-  // Exports block to external HTML. If not defined, the output will be the same
-  // as `render(...).dom`. Used to create clipboard data when pasting outside
-  // BlockNote.
-  // TODO: Maybe can return undefined to ignore when serializing?
-  toExternalHTML?: (
-    block: SpecificBlock<BSchema, Type>,
-    editor: BlockNoteEditor<BSchema>
-  ) => {
-    dom: HTMLElement;
-    contentDOM?: HTMLElement;
-  };
-  // parse?: (
-  //   element: HTMLElement
-  // ) => SpecificPartialBlock<BSchema, Type> | undefined;
+// BlockConfig contains the "schema" info about a Block
+export type BlockConfig = {
+  type: string;
+  readonly propSchema: PropSchema;
+  content: "inline" | "none"; // | "table"
 };
 
-// Defines a single block spec, which includes the props that the block has and
-// the TipTap node used to implement it. Usually created using `createBlockSpec`
-// though it can also be defined from scratch by providing your own TipTap node,
-// allowing for more advanced custom blocks.
-export type BlockSpec<
-  BType extends string,
-  PSchema extends PropSchema,
-  ContainsInlineContent extends boolean
-> = {
-  node: TipTapNode<BType, ContainsInlineContent, any>;
-  readonly propSchema: PSchema;
-  // TODO: Typing
-  // Serializes block to internal HTML. Used to create clipboard data for
-  // pasting inside BlockNote. Same implementation as `render(...).dom` in this
-  // block's `BlockConfig`.
+// Block implementation contains the "implementation" info about a Block
+// such as the functions / Nodes required to render and / or serialize it
+export type BlockImplementation<T extends BlockConfig> = {
+  requiredNodes?: Node[];
+  node: Node;
   toInternalHTML: (
-    block: SpecificBlock<BlockSchema, string>,
-    editor: BlockNoteEditor<BlockSchema>
+    block: BlockFromBlockConfig<T>,
+    editor: BlockNoteEditor<BlockSchemaWithBlock<T["type"], T["propSchema"]>>
   ) => {
     dom: HTMLElement;
     contentDOM?: HTMLElement;
   };
-  // Exports block to external HTML. Used to create clipboard data for pasting
-  // outside BlockNote. Will be the same as `toInternalHTML` if `toExternalHTML`
-  // is not defined in this block's `BlockConfig`.
   toExternalHTML: (
-    block: SpecificBlock<BlockSchema, string>,
-    editor: BlockNoteEditor<BlockSchema>
+    block: BlockFromBlockConfig<T>,
+    editor: BlockNoteEditor<BlockSchemaWithBlock<T["type"], T["propSchema"]>>
   ) => {
     dom: HTMLElement;
     contentDOM?: HTMLElement;
   };
+};
+
+// Container for both the config and implementation of a block,
+// and the type of BlockImplementation is based on that of the config
+export type BlockSpec<T extends BlockConfig> = {
+  config: T;
+  implementation: BlockImplementation<T>;
 };
 
 // Utility type. For a given object block schema, ensures that the key of each
 // block spec matches the name of the TipTap node in it.
-type NamesMatch<
-  Blocks extends Record<string, BlockSpec<string, PropSchema, boolean>>
-> = Blocks extends {
-  [Type in keyof Blocks]: Type extends string
-    ? Blocks[Type] extends BlockSpec<Type, PropSchema, boolean>
-      ? Blocks[Type]
-      : never
+type NamesMatch<Blocks extends Record<string, BlockSpec<any>>> =
+  Blocks extends {
+    [Type in keyof Blocks]: Type extends string
+      ? Blocks[Type]["config"] extends { type: Type }
+        ? Blocks[Type]
+        : never
+      : never;
+  }
+    ? Blocks
     : never;
-}
-  ? Blocks
-  : never;
 
 // Defines multiple block specs. Also ensures that the key of each block schema
 // is the same as name of the TipTap node in it. This should be passed in the
 // `blocks` option of the BlockNoteEditor. From a block schema, we can derive
 // both the blocks' internal implementation (as TipTap nodes) and the type
 // information for the external API.
-export type BlockSchema = NamesMatch<
-  Record<string, BlockSpec<string, PropSchema, boolean>>
->;
+export type BlockSchema = NamesMatch<Record<string, BlockSpec<any>>>;
 
 export type BlockSchemaWithBlock<
   BType extends string,
-  PSchema extends PropSchema,
-  ContainsInlineContent extends boolean
+  PSchema extends PropSchema
 > = BlockSchema & {
-  [k in BType]: BlockSpec<BType, PSchema, ContainsInlineContent>;
+  [k in BType]: BlockConfig & {
+    propSchema: PSchema;
+  };
+};
+
+// A BlockConfig has all the information to get the type of a Block (which is a specific instance of the BlockConfig.
+// i.e.: paragraphConfig: BlockConfig defines what a "paragraph" is / supports, and BlockFromBlockConfig<paragraphConfig> is the shape of a specific paragraph block.
+export type BlockFromBlockConfig<B extends BlockConfig> = {
+  id: string;
+  type: B["type"];
+  props: Props<B["propSchema"]>;
+  content: B["content"] extends "inline"
+    ? InlineContent[]
+    : // : B["content"] extends "table"
+      // ? InlineContent[][]
+      undefined;
+  children: Block<any>[];
 };
 
 // Converts each block spec into a Block object without children. We later merge
 // them into a union type and add a children property to create the Block and
 // PartialBlock objects we use in the external API.
 type BlocksWithoutChildren<BSchema extends BlockSchema> = {
-  [BType in keyof BSchema]: {
-    id: string;
-    type: BType;
-    props: Props<BSchema[BType]["propSchema"]>;
-    content: BSchema[BType]["node"]["config"]["content"] extends "inline*"
-      ? InlineContent[]
-      : undefined;
-  };
+  [BType in keyof BSchema]: Omit<
+    BlockFromBlockConfig<BSchema[BType]["config"]>,
+    "children"
+  >;
 };
 
 // Converts each block spec into a Block object without children, merges them
 // into a union type, and adds a children property
 export type Block<BSchema extends BlockSchema = DefaultBlockSchema> =
-  BlocksWithoutChildren<BSchema>[keyof BlocksWithoutChildren<BSchema>] & {
+  BlocksWithoutChildren<BSchema>[keyof BSchema] & {
     children: Block<BSchema>[];
   };
 
@@ -256,17 +150,27 @@ export type SpecificBlock<
   children: Block<BSchema>[];
 };
 
+/** CODE FOR PARTIAL BLOCKS, analogous to above */
+
+type PartialBlockFromBlockConfig<B extends BlockConfig> = {
+  id?: string;
+  type?: B["type"];
+  props?: Partial<Props<B["propSchema"]>>;
+  content?: B["content"] extends "inline"
+    ? PartialInlineContent[] | string
+    : // : B["content"] extends "table"
+      // ? PartialInlineContent[][]
+      undefined;
+  children?: Block<any>[];
+};
+
 // Same as BlockWithoutChildren, but as a partial type with some changes to make
 // it easier to create/update blocks in the editor.
 type PartialBlocksWithoutChildren<BSchema extends BlockSchema> = {
-  [BType in keyof BSchema]: Partial<{
-    id: string;
-    type: BType;
-    props: Partial<Props<BSchema[BType]["propSchema"]>>;
-    content: BSchema[BType]["node"]["config"]["content"] extends "inline*"
-      ? PartialInlineContent[] | string
-      : undefined;
-  }>;
+  [BType in keyof BSchema]: Omit<
+    PartialBlockFromBlockConfig<BSchema[BType]["config"]>,
+    "children"
+  >;
 };
 
 // Same as Block, but as a partial type with some changes to make it easier to

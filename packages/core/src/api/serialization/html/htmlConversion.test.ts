@@ -1,69 +1,80 @@
+import { Editor } from "@tiptap/core";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { createBlockSpec } from "../../../extensions/Blocks/api/block";
-import {
-  imagePropSchema,
-  renderImage,
-} from "../../../extensions/Blocks/nodes/BlockContent/ImageBlockContent/ImageBlockContent";
-import { defaultBlockSchema } from "../../../extensions/Blocks/api/defaultBlocks";
+import { BlockNoteEditor } from "../../../BlockNoteEditor";
+
 import {
   BlockSchema,
   PartialBlock,
 } from "../../../extensions/Blocks/api/blockTypes";
-import { BlockNoteEditor } from "../../../BlockNoteEditor";
-import { Editor } from "@tiptap/core";
-import { uploadToTmpFilesDotOrg_DEV_ONLY } from "../../../extensions/Blocks/nodes/BlockContent/ImageBlockContent/uploadToTmpFilesDotOrg_DEV_ONLY";
-import { createInternalHTMLSerializer } from "./internalHTMLSerializer";
-import { createExternalHTMLExporter } from "./externalHTMLExporter";
+import { createBlockSpec } from "../../../extensions/Blocks/api/customBlocks";
+import { defaultBlockSchema } from "../../../extensions/Blocks/api/defaultBlocks";
 import { defaultProps } from "../../../extensions/Blocks/api/defaultProps";
+import {
+  imagePropSchema,
+  renderImage,
+} from "../../../extensions/Blocks/nodes/BlockContent/ImageBlockContent/ImageBlockContent";
+import { uploadToTmpFilesDotOrg_DEV_ONLY } from "../../../extensions/Blocks/nodes/BlockContent/ImageBlockContent/uploadToTmpFilesDotOrg_DEV_ONLY";
+import { createExternalHTMLExporter } from "./externalHTMLExporter";
+import { createInternalHTMLSerializer } from "./internalHTMLSerializer";
 
 // This is a modified version of the default image block that does not implement
 // a `serialize` function. It's used to test if the custom serializer by default
 // serializes custom blocks using their `render` function.
-const SimpleImage = createBlockSpec({
-  type: "simpleImage",
-  propSchema: imagePropSchema,
-  containsInlineContent: false,
-  render: renderImage as any,
-});
-
-const CustomParagraph = createBlockSpec({
-  type: "customParagraph",
-  propSchema: defaultProps,
-  containsInlineContent: true,
-  render: () => {
-    const paragraph = document.createElement("p");
-    paragraph.className = "custom-paragraph";
-
-    return {
-      dom: paragraph,
-      contentDOM: paragraph,
-    };
+const SimpleImage = createBlockSpec(
+  {
+    type: "simpleImage" as const,
+    propSchema: imagePropSchema,
+    containsInlineContent: false,
   },
-  toExternalHTML: () => {
-    const paragraph = document.createElement("p");
-    paragraph.className = "custom-paragraph";
-    paragraph.innerHTML = "Hello World";
+  { render: renderImage as any }
+);
 
-    return {
-      dom: paragraph,
-    };
+const CustomParagraph = createBlockSpec(
+  {
+    type: "customParagraph" as const,
+    propSchema: defaultProps,
+    containsInlineContent: true,
   },
-});
+  {
+    render: () => {
+      const paragraph = document.createElement("p");
+      paragraph.className = "custom-paragraph";
 
-const SimpleCustomParagraph = createBlockSpec({
-  type: "simpleCustomParagraph",
-  propSchema: defaultProps,
-  containsInlineContent: true,
-  render: () => {
-    const paragraph = document.createElement("p");
-    paragraph.className = "simple-custom-paragraph";
+      return {
+        dom: paragraph,
+        contentDOM: paragraph,
+      };
+    },
+    toExternalHTML: () => {
+      const paragraph = document.createElement("p");
+      paragraph.className = "custom-paragraph";
+      paragraph.innerHTML = "Hello World";
 
-    return {
-      dom: paragraph,
-      contentDOM: paragraph,
-    };
+      return {
+        dom: paragraph,
+      };
+    },
+  }
+);
+
+const SimpleCustomParagraph = createBlockSpec(
+  {
+    type: "simpleCustomParagraph" as const,
+    propSchema: defaultProps,
+    containsInlineContent: true,
   },
-});
+  {
+    render: () => {
+      const paragraph = document.createElement("p");
+      paragraph.className = "simple-custom-paragraph";
+
+      return {
+        dom: paragraph,
+        contentDOM: paragraph,
+      };
+    },
+  }
+);
 
 const customSchema = {
   ...defaultBlockSchema,
@@ -119,6 +130,10 @@ function convertToHTMLAndCompareSnapshots(
 
 describe("Convert paragraphs to HTML", () => {
   it("Convert paragraph to HTML", async () => {
+    // customSchema
+    // let b: PartialBlocksWithChildren<typeof customSchema>;
+    // b.
+
     const blocks: PartialBlock<typeof customSchema>[] = [
       {
         type: "paragraph",

@@ -1,10 +1,5 @@
+import { Block, BlockNoteEditor, BlockSchema } from "@blocknote/core";
 import { useMemo, useState } from "react";
-import {
-  Block,
-  BlockNoteEditor,
-  BlockSchema,
-  PartialBlock,
-} from "@blocknote/core";
 import { IconType } from "react-icons";
 import {
   RiH1,
@@ -98,7 +93,7 @@ export const BlockTypeDropdown = <BSchema extends BlockSchema>(props: {
 
       // Checks if props for the block type are valid
       for (const [prop, value] of Object.entries(item.props || {})) {
-        const propSchema = props.editor.schema[item.type].propSchema;
+        const propSchema = props.editor.schema[item.type].config.propSchema;
 
         // Checks if the prop exists for the block type
         if (!(prop in propSchema)) {
@@ -129,9 +124,9 @@ export const BlockTypeDropdown = <BSchema extends BlockSchema>(props: {
 
       for (const block of selectedBlocks) {
         props.editor.updateBlock(block, {
-          type: item.type,
-          props: item.props,
-        } as PartialBlock<BlockSchema>);
+          type: item.type as any,
+          props: item.props as any,
+        });
       }
     };
 

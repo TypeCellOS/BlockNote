@@ -1,25 +1,22 @@
 import { InputRule } from "@tiptap/core";
+import {
+  createBlockSpecFromStronglyTypedTiptapNode,
+  createStronglyTypedTiptapNode,
+} from "../../../../api/block";
+import { PropSchema } from "../../../../api/blockTypes";
 import { defaultProps } from "../../../../api/defaultProps";
-import { createTipTapBlock } from "../../../../api/block";
-import { BlockSpec, PropSchema } from "../../../../api/blockTypes";
+import { createDefaultBlockDOMOutputSpec } from "../../defaultBlockHelpers";
 import { handleEnter } from "../ListItemKeyboardShortcuts";
 import { NumberedListIndexingPlugin } from "./NumberedListIndexingPlugin";
-import {
-  createDefaultBlockDOMOutputSpec,
-  defaultBlockToHTML,
-} from "../../defaultBlockHelpers";
 
 export const numberedListItemPropSchema = {
   ...defaultProps,
 } satisfies PropSchema;
 
-const NumberedListItemBlockContent = createTipTapBlock<
-  "numberedListItem",
-  true
->({
+const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
   name: "numberedListItem",
   content: "inline*",
-
+  group: "blockContent",
   addAttributes() {
     return {
       index: {
@@ -135,13 +132,7 @@ const NumberedListItemBlockContent = createTipTapBlock<
   },
 });
 
-export const NumberedListItem = {
-  node: NumberedListItemBlockContent,
-  propSchema: numberedListItemPropSchema,
-  toInternalHTML: defaultBlockToHTML,
-  toExternalHTML: defaultBlockToHTML,
-} satisfies BlockSpec<
-  "numberedListItem",
-  typeof numberedListItemPropSchema,
-  true
->;
+export const NumberedListItem = createBlockSpecFromStronglyTypedTiptapNode(
+  NumberedListItemBlockContent,
+  numberedListItemPropSchema
+);
