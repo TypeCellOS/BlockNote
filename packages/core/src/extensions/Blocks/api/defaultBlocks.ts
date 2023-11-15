@@ -3,7 +3,7 @@ import { Image } from "../nodes/BlockContent/ImageBlockContent/ImageBlockContent
 import { BulletListItem } from "../nodes/BlockContent/ListItemBlockContent/BulletListItemBlockContent/BulletListItemBlockContent";
 import { NumberedListItem } from "../nodes/BlockContent/ListItemBlockContent/NumberedListItemBlockContent/NumberedListItemBlockContent";
 import { Paragraph } from "../nodes/BlockContent/ParagraphBlockContent/ParagraphBlockContent";
-// import { Table } from "../nodes/BlockContent/TableBlockContent/TableBlockContent";
+import { Table } from "../nodes/BlockContent/TableBlockContent/TableBlockContent";
 import { BlockSchema } from "./blockTypes";
 
 export const defaultBlockSchema = {
@@ -12,7 +12,7 @@ export const defaultBlockSchema = {
   bulletListItem: BulletListItem,
   numberedListItem: NumberedListItem,
   image: Image,
-  // table: Table,
+  table: Table,
 } satisfies BlockSchema;
 
 export type DefaultBlockSchema = typeof defaultBlockSchema;

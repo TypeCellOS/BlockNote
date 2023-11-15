@@ -224,12 +224,12 @@ export function wrapInBlockStructure<
 // Helper type to keep track of the `name` and `content` properties after calling Node.create.
 type StronglyTypedTipTapNode<
   Name extends string,
-  Content extends "inline*" | "table" | "tableRow+" | ""
-> = Node & { name: Name; content: Content };
+  Content extends "inline*" | "tableRow+" | ""
+> = Node & { name: Name; config: { content: Content } };
 
 export function createStronglyTypedTiptapNode<
   Name extends string,
-  Content extends "inline*" | "table" | "tableRow+" | ""
+  Content extends "inline*" | "tableRow+" | ""
 >(config: NodeConfig & { name: Name; content: Content }) {
   return Node.create(config) as StronglyTypedTipTapNode<Name, Content>; // force re-typing (should be safe as it's type-checked from the config)
 }
@@ -253,7 +253,15 @@ export function createBlockSpecFromStronglyTypedTiptapNode<
   return createInternalBlockSpec(
     {
       type: node.name as T["name"],
-      content: "inline",
+      content: (node.config.content === "inline*"
+        ? "inline"
+        : node.config.content === "tableRow+"
+        ? "table"
+        : "none") as T["config"]["content"] extends "inline*"
+        ? "inline"
+        : T["config"]["content"] extends "tableRow+"
+        ? "table"
+        : "none",
       propSchema,
     },
     {
