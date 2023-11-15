@@ -52,7 +52,7 @@ export type Props<PSchema extends PropSchema> = {
 export type BlockConfig = {
   type: string;
   readonly propSchema: PropSchema;
-  content: "inline" | "none"; // | "table"
+  content: "inline" | "none" | "table";
 };
 
 // Block implementation contains the "implementation" info about a Block

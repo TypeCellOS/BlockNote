@@ -1,6 +1,5 @@
 import {
   Block,
-  BlockConfigFromCustomBlockConfig,
   BlockNoteDOMAttributes,
   BlockNoteEditor,
   BlockSchemaWithBlock,
@@ -30,11 +29,11 @@ import { renderToString } from "react-dom/server";
 // extend BlockConfig but use a React render function
 export type ReactCustomBlockImplementation<T extends CustomBlockConfig> = {
   render: FC<{
-    block: Block<BlockConfigFromCustomBlockConfig<T>>;
+    block: Block<T>;
     editor: BlockNoteEditor<BlockSchemaWithBlock<T["type"], T["propSchema"]>>;
   }>;
   toExternalHTML?: FC<{
-    block: Block<BlockConfigFromCustomBlockConfig<T>>;
+    block: Block<T>;
     editor: BlockNoteEditor<BlockSchemaWithBlock<T["type"], T["propSchema"]>>;
   }>;
 };
@@ -116,22 +115,14 @@ export function reactWrapInBlockStructure<
 // A function to create custom block for API consumers
 // we want to hide the tiptap node from API consumers and provide a simpler API surface instead
 export function createReactBlockSpec<T extends CustomBlockConfig>(
-  customBlockConfig: T,
+  blockConfig: T,
   blockImplementation: ReactCustomBlockImplementation<T>
 ) {
-  // map from CustomBlockConfig to internal BlockConfig
-  const blockConfig = {
-    ...customBlockConfig,
-    content: (customBlockConfig.containsInlineContent
-      ? "inline"
-      : "none") as T["containsInlineContent"] extends true ? "inline" : "none",
-  } satisfies BlockConfigFromCustomBlockConfig<T>;
-
   const node = createStronglyTypedTiptapNode({
     name: blockConfig.type as T["type"],
-    content: (customBlockConfig.containsInlineContent
+    content: (blockConfig.content === "inline"
       ? "inline*"
-      : "") as T["containsInlineContent"] extends true ? "inline*" : "",
+      : "") as T["content"] extends "inline" ? "inline*" : "",
     group: "blockContent",
     selectable: true,
 

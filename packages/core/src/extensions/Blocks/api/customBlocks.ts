@@ -7,31 +7,19 @@ import {
   propsToAttributes,
   wrapInBlockStructure,
 } from "./block";
-import { Block, BlockSchemaWithBlock, PropSchema } from "./blockTypes";
+import { Block, BlockConfig, BlockSchemaWithBlock } from "./blockTypes";
 
-// Defines the config for a custom block. Meant to be used as an argument to
-// `createBlockSpec`, which will create a new block spec from it.
-export type CustomBlockConfig = {
-  type: string;
-  readonly propSchema: PropSchema;
-  containsInlineContent: boolean;
+// restrict content to "inline" and "none" only
+export type CustomBlockConfig = BlockConfig & {
+  content: "inline" | "none";
 };
-
-export type BlockConfigFromCustomBlockConfig<T extends CustomBlockConfig> =
-  Omit<T, "containsInlineContent"> & {
-    content: T["containsInlineContent"] extends true ? "inline" : "none";
-  };
-
-export type BlockFromCustomBlockConfig<T extends CustomBlockConfig> = Block<
-  BlockConfigFromCustomBlockConfig<T>
->;
 
 export type CustomBlockImplementation<T extends CustomBlockConfig> = {
   render: (
     /**
      * The custom block to render
      */
-    block: Block<BlockConfigFromCustomBlockConfig<T>>,
+    block: Block<T>,
     /**
      * The BlockNote editor instance
      * This is typed generically. If you want an editor with your custom schema, you need to
@@ -50,7 +38,7 @@ export type CustomBlockImplementation<T extends CustomBlockConfig> = {
   // BlockNote.
   // TODO: Maybe can return undefined to ignore when serializing?
   toExternalHTML?: (
-    block: Block<BlockConfigFromCustomBlockConfig<T>>,
+    block: Block<T>,
     editor: BlockNoteEditor<BlockSchemaWithBlock<T["type"], T["propSchema"]>>
   ) => {
     dom: HTMLElement;
@@ -61,22 +49,14 @@ export type CustomBlockImplementation<T extends CustomBlockConfig> = {
 // A function to create custom block for API consumers
 // we want to hide the tiptap node from API consumers and provide a simpler API surface instead
 export function createBlockSpec<T extends CustomBlockConfig>(
-  customBlockConfig: T,
+  blockConfig: T,
   blockImplementation: CustomBlockImplementation<T>
 ) {
-  // map from CustomBlockConfig to internal BlockConfig
-  const blockConfig = {
-    ...customBlockConfig,
-    content: (customBlockConfig.containsInlineContent
-      ? "inline"
-      : "none") as T["containsInlineContent"] extends true ? "inline" : "none",
-  } satisfies BlockConfigFromCustomBlockConfig<T>;
-
   const node = createStronglyTypedTiptapNode({
     name: blockConfig.type as T["type"],
-    content: (customBlockConfig.containsInlineContent
+    content: (blockConfig.content === "inline"
       ? "inline*"
-      : "") as T["containsInlineContent"] extends true ? "inline*" : "",
+      : "") as T["content"] extends "inline" ? "inline*" : "",
     group: "blockContent",
     selectable: true,
 
