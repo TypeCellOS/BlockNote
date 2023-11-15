@@ -2,16 +2,17 @@
 import { defaultBlockSchema } from "@blocknote/core";
 import "@blocknote/core/style.css";
 import {
-  BNTable,
   BlockNoteView,
   FormattingToolbarPositioner,
   HyperlinkToolbarPositioner,
+  PlainTable,
   SideMenuPositioner,
   SlashMenuPositioner,
   getDefaultReactSlashMenuItems,
   useBlockNote,
 } from "@blocknote/react";
 import "@glideapps/glide-data-grid/dist/index.css";
+import "prosemirror-tables/style/tables.css";
 import { WebsocketProvider } from "y-websocket";
 import * as Y from "yjs";
 import styles from "./App.module.css";
@@ -24,14 +25,14 @@ provider.connectBc();
 (window as any).awareness = provider.awareness;
 function App() {
   const editor = useBlockNote({
-    collaboration: {
-      user: {
-        color: "#" + Math.random().toString(16).slice(2, 8),
-        name: "Test User" + Math.random().toString(16).slice(2, 8),
-      },
-      provider,
-      fragment: doc.getXmlFragment("prosemirror"),
-    },
+    // collaboration: {
+    //   user: {
+    //     color: "#" + Math.random().toString(16).slice(2, 8),
+    //     name: "Test User" + Math.random().toString(16).slice(2, 8),
+    //   },
+    //   provider,
+    //   fragment: doc.getXmlFragment("prosemirror"),
+    // },
     onEditorContentChange: (editor) => {
       console.log(editor.topLevelBlocks);
     },
@@ -43,7 +44,7 @@ function App() {
     blockSchema: {
       ...defaultBlockSchema,
       table: {
-        node: BNTable as any,
+        node: PlainTable.configure({ resizable: true }) as any,
         propSchema: {},
       },
     },
@@ -53,7 +54,7 @@ function App() {
         name: "test",
         execute: (editor) => {
           const currentBlock = editor.getTextCursorPosition().block;
-          editor._tiptapEditor.commands.insertTable();
+          editor._tiptapEditor.commands.insertTable({ cols: 2, rows: 2 });
           // editor.insertBlocks(
           //   [
           //     {

@@ -96,8 +96,18 @@ const TableElementComponent = function TableElement(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   props: NodeViewProps & { block: any; selectionHack: any }
 ) {
+  console.log("render with node " + props.node);
   const ref = React.useRef<DataEditorRef>(null);
   const map = TableMap.get(props.node);
+
+  const getLatestState = useCallback(() => {
+    const pos = props.getPos();
+    const node = props.editor.state.doc.nodeAt(pos)!;
+    const map = TableMap.get(node);
+    return { map, node, pos };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.editor.state.doc]);
+
   const { node, getPos, editor } = props;
   console.log(props.decorations);
 
@@ -195,31 +205,37 @@ const TableElementComponent = function TableElement(
     // });
 
     // ref.current?.focus();
-  }, [props.selectionHack?.head, map, getPos, props.selectionHack]);
+  }, [props.selectionHack?.head, getPos, props.selectionHack, map]);
 
   const onGridSelectionChange = React.useCallback(
     (selection: GridSelection) => {
       if (!selection.current) {
         return;
       }
-      const pos =
+
+      const { map, node, pos } = getLatestState();
+      const selPos =
         map.positionAt(
           selection.current.cell[1],
           selection.current.cell[0],
           node
         ) +
-        getPos() +
+        pos +
         1;
       const tr = editor.view.state.tr;
-      const pmSelection = CellSelection.create(tr.doc, pos);
+
+      // const updatedNode = tr.doc.resolve(getPos());
+      // const updatedMap = TableMap.get(updatedNode.nodeAfter!);
+
+      const pmSelection = CellSelection.create(tr.doc, selPos);
 
       // @ts-ignore
       tr.setSelection(pmSelection);
       editor.view.dispatch(tr);
 
-      // setSelection(selection);
+      setSelection(selection);
     },
-    [map, node, editor, getPos]
+    [getLatestState, editor]
   );
 
   const onCellEdited = useCallback(
@@ -231,6 +247,8 @@ const TableElementComponent = function TableElement(
       }
       const [col, row] = cell;
 
+      const { map, node, pos } = getLatestState();
+
       const pmRow = node.child(row);
       //   const node = props.node;
 
@@ -239,7 +257,7 @@ const TableElementComponent = function TableElement(
         return;
       }
       const state = editor.view.state;
-      const startPos = getPos() + map.positionAt(row, col, node) + 2;
+      const startPos = pos + map.positionAt(row, col, node) + 2;
 
       const fragmentContent = newValue.data.length
         ? state.schema.text(newValue.data)
@@ -265,7 +283,7 @@ const TableElementComponent = function TableElement(
       // data[row][key] = newValue.data;
       // debugger;
     },
-    [map, node, editor, getPos]
+    [getLatestState, editor]
   );
 
   const onRowAppended = React.useCallback(() => {
@@ -278,13 +296,13 @@ const TableElementComponent = function TableElement(
     // }
     // Tell the data grid there is another row
     // setNumRows((cv) => cv + 1);
-
+    const { map, node, pos } = getLatestState();
     const tr = addRow(
       props.editor.view.state.tr,
       {
         map,
-        table: props.node,
-        tableStart: props.getPos(),
+        table: node,
+        tableStart: pos,
         left: 0,
         top: 0,
         bottom: 0,
@@ -294,7 +312,7 @@ const TableElementComponent = function TableElement(
     );
 
     props.editor.view.dispatch(tr);
-  }, [props.node, map, map.height, props.editor, props.getPos]);
+  }, [getLatestState, props]);
 
   const columns = useMemo(() => {
     const cols: GridColumn[] = [];
@@ -349,8 +367,10 @@ const TableElementComponent = function TableElement(
         onHeaderMenuClick={onHeaderMenuClick}
         onGridSelectionChange={onGridSelectionChange}
         gridSelection={selection}
+        getCellsForSelection={true}
+        onPaste={true}
       />
-      <div id="portal"></div>
+      {/* <div id="portal"></div> */}
     </div>
   );
 };

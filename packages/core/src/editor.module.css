@@ -56,13 +56,13 @@ Tippy popups that are appended to document.body directly
 }
 
 [data-theme="light"] {
-  background-color: #FFFFFF;
-  color: #3F3F3F;
+  background-color: #ffffff;
+  color: #3f3f3f;
 }
 
 [data-theme="dark"] {
-  background-color: #1F1F1F;
-  color: #CFCFCF;
+  background-color: #1f1f1f;
+  color: #cfcfcf;
 }
 
 .dragPreview {
@@ -95,4 +95,20 @@ Tippy popups that are appended to document.body directly
   top: -1.4em;
   user-select: none;
   white-space: nowrap;
+}
+
+.bnEditor th,
+.bnEditor td {
+  min-width: 1em;
+  border: 1px solid #ddd;
+  padding: 3px 5px;
+}
+
+.bnEditor .tableWrapper {
+  margin: 1em 0;
+}
+
+.bnEditor th {
+  font-weight: bold;
+  text-align: left;
 }

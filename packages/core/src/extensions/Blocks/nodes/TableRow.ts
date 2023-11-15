@@ -17,6 +17,8 @@ export const TableRow = Node.create<TableRowOptions>({
 
   tableRole: "row",
 
+  allowGapCursor: false,
+
   parseHTML() {
     return [{ tag: "tr" }];
   },

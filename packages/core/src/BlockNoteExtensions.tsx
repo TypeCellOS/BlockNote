@@ -101,7 +101,7 @@ export const getBlockNoteExtensions = <BSchema extends BlockSchema>(opts: {
     // should be handled before Enter handlers in other components like splitListItem
     TrailingNode,
     TableCell.extend({
-      content: "inline*",
+      content: "paragraph",
       // addNodeView() {
       //   return (props) => {
       //     debugger;
@@ -119,9 +119,11 @@ export const getBlockNoteExtensions = <BSchema extends BlockSchema>(opts: {
       // },
     }),
     TableHeader.extend({
-      content: "inline*",
+      content: "paragraph",
     }),
-    TableRow,
+    TableRow.extend({
+      allowGapCursor: false,
+    }),
   ];
 
   if (opts.collaboration) {
