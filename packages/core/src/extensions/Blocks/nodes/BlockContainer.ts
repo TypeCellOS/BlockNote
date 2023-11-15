@@ -42,15 +42,13 @@ declare module "@tiptap/core" {
  */
 export const BlockContainer = Node.create<{
   domAttributes?: BlockNoteDOMAttributes;
+  enableNestedBlocks?: boolean;
 }>({
   name: "blockContainer",
   group: "blockContainer",
   // A block always contains content, and optionally a blockGroup which contains nested blocks
   content() {
-    if (
-      typeof this.editor?.options.enableNestedBlocks === "boolean" &&
-      !this.editor?.options.enableNestedBlocks
-    ) {
+    if (!this.options.enableNestedBlocks) {
       return "blockContent";
     }
 
@@ -630,20 +628,14 @@ export const BlockContainer = Node.create<{
       // Always returning true for tab key presses ensures they're not captured by the browser. Otherwise, they blur the
       // editor since the browser will try to use tab for keyboard navigation.
       Tab: () => {
-        if (
-          typeof this.editor.options.enableNestedBlocks === "boolean" &&
-          this.editor.options.enableNestedBlocks
-        ) {
+        if (this.options.enableNestedBlocks) {
           this.editor.commands.sinkListItem("blockContainer");
         }
 
         return true;
       },
       "Shift-Tab": () => {
-        if (
-          typeof this.editor.options.enableNestedBlocks === "boolean" &&
-          this.editor.options.enableNestedBlocks
-        ) {
+        if (this.options.enableNestedBlocks) {
           this.editor.commands.liftListItem("blockContainer");
         }
 

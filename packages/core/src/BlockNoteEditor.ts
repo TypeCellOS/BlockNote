@@ -158,6 +158,7 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
   public blockCache = new WeakMap<Node, Block<BSchema>>();
   public readonly schema: BSchema;
   public ready = false;
+  public enableNestedBlocks = true;
 
   public readonly sideMenu: SideMenuProsemirrorPlugin<BSchema>;
   public readonly formattingToolbar: FormattingToolbarProsemirrorPlugin<BSchema>;
@@ -194,6 +195,10 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
     );
     this.hyperlinkToolbar = new HyperlinkToolbarProsemirrorPlugin(this);
     this.imageToolbar = new ImageToolbarProsemirrorPlugin(this);
+    this.enableNestedBlocks =
+      options.enableNestedBlocks !== undefined
+        ? options.enableNestedBlocks
+        : true;
 
     const extensions = getBlockNoteExtensions<BSchema>({
       editor: this,
@@ -292,10 +297,6 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
           ? options.editable
           : newOptions._tiptapOptions?.editable !== undefined
           ? newOptions._tiptapOptions?.editable
-          : true,
-      enableNestedBlocks:
-        options.enableNestedBlocks !== undefined
-          ? options.enableNestedBlocks
           : true,
       extensions:
         newOptions.enableBlockNoteExtensions === false
@@ -763,10 +764,7 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
    * Checks if the block containing the text cursor can be nested.
    */
   public canNestBlock() {
-    if (
-      typeof this._tiptapEditor.options.enableNestedBlocks === "boolean" &&
-      !this._tiptapEditor.options.enableNestedBlocks
-    ) {
+    if (!this.enableNestedBlocks) {
       return false;
     }
 
@@ -789,10 +787,7 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
    * Checks if the block containing the text cursor is nested.
    */
   public canUnnestBlock() {
-    if (
-      typeof this._tiptapEditor.options.enableNestedBlocks === "boolean" &&
-      !this._tiptapEditor.options.enableNestedBlocks
-    ) {
+    if (!this.enableNestedBlocks) {
       return false;
     }
 
