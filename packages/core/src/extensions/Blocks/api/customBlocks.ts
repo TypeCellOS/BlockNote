@@ -1,14 +1,16 @@
 import {
-  BlockFromBlockConfig,
-  BlockNoteEditor,
   createInternalBlockSpec,
   createStronglyTypedTiptapNode,
   getBlockFromPos,
   parse,
   propsToAttributes,
   wrapInBlockStructure,
-} from "../../..";
-import { BlockSchemaWithBlock, PropSchema } from "./blockTypes";
+} from "./block";
+import {
+  BlockFromBlockConfig,
+  BlockSchemaWithBlock,
+  PropSchema,
+} from "./blockTypes";
 
 // Defines the config for a custom block. Meant to be used as an argument to
 // `createBlockSpec`, which will create a new block spec from it.
