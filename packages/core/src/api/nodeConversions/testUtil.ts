@@ -46,20 +46,20 @@ function partialContentToInlineContent(
 export function partialBlockToBlockForTesting<BSchema extends BlockSchema>(
   partialBlock: PartialBlock<BSchema>
 ): Block<BSchema> {
-  const withDefaults = {
+  const withDefaults: Block<any> = {
     id: "",
     type: "paragraph",
     // because at this point we don't have an easy way to access default props at runtime,
     // partialBlockToBlockForTesting will not set them.
     props: {} as any,
     content: [] as any,
-    children: [],
+    children: [] as any,
     ...partialBlock,
-  } satisfies PartialBlock<BSchema>;
+  };
 
   return {
     ...withDefaults,
     content: partialContentToInlineContent(withDefaults.content),
     children: withDefaults.children.map(partialBlockToBlockForTesting),
-  };
+  } as any;
 }

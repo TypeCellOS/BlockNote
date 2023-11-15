@@ -1,6 +1,6 @@
 import {
+  Block,
   BlockConfigFromCustomBlockConfig,
-  BlockFromBlockConfig,
   BlockNoteDOMAttributes,
   BlockNoteEditor,
   BlockSchemaWithBlock,
@@ -30,11 +30,11 @@ import { renderToString } from "react-dom/server";
 // extend BlockConfig but use a React render function
 export type ReactCustomBlockImplementation<T extends CustomBlockConfig> = {
   render: FC<{
-    block: BlockFromBlockConfig<BlockConfigFromCustomBlockConfig<T>>;
+    block: Block<BlockConfigFromCustomBlockConfig<T>>;
     editor: BlockNoteEditor<BlockSchemaWithBlock<T["type"], T["propSchema"]>>;
   }>;
   toExternalHTML?: FC<{
-    block: BlockFromBlockConfig<BlockConfigFromCustomBlockConfig<T>>;
+    block: Block<BlockConfigFromCustomBlockConfig<T>>;
     editor: BlockNoteEditor<BlockSchemaWithBlock<T["type"], T["propSchema"]>>;
   }>;
 };

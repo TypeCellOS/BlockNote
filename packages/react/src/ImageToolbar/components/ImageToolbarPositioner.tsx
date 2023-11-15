@@ -1,6 +1,6 @@
 import {
   BaseUiElementState,
-  BlockFromBlockConfig,
+  Block,
   BlockNoteEditor,
   BlockSchema,
   DefaultBlockSchema,
@@ -25,7 +25,7 @@ export const ImageToolbarPositioner = <
 }) => {
   const [show, setShow] = useState<boolean>(false);
   const [block, setBlock] =
-    useState<BlockFromBlockConfig<DefaultBlockSchema["image"]["config"]>>();
+    useState<Block<DefaultBlockSchema["image"]["config"]>>();
 
   const referencePos = useRef<DOMRect>();
 

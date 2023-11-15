@@ -61,14 +61,14 @@ export type BlockImplementation<T extends BlockConfig> = {
   requiredNodes?: Node[];
   node: Node;
   toInternalHTML: (
-    block: BlockFromBlockConfig<T>,
+    block: Block<T>,
     editor: BlockNoteEditor<BlockSchemaWithBlock<T["type"], T["propSchema"]>>
   ) => {
     dom: HTMLElement;
     contentDOM?: HTMLElement;
   };
   toExternalHTML: (
-    block: BlockFromBlockConfig<T>,
+    block: Block<T>,
     editor: BlockNoteEditor<BlockSchemaWithBlock<T["type"], T["propSchema"]>>
   ) => {
     dom: HTMLElement;
@@ -114,7 +114,8 @@ export type BlockSchemaWithBlock<
 
 // A BlockConfig has all the information to get the type of a Block (which is a specific instance of the BlockConfig.
 // i.e.: paragraphConfig: BlockConfig defines what a "paragraph" is / supports, and BlockFromBlockConfig<paragraphConfig> is the shape of a specific paragraph block.
-export type BlockFromBlockConfig<B extends BlockConfig> = {
+// (for internal use)
+type BlockFromBlockConfig<B extends BlockConfig> = {
   id: string;
   type: B["type"];
   props: Props<B["propSchema"]>;
@@ -123,24 +124,26 @@ export type BlockFromBlockConfig<B extends BlockConfig> = {
     : // : B["content"] extends "table"
       // ? InlineContent[][]
       undefined;
-  children: Block<any>[];
 };
 
 // Converts each block spec into a Block object without children. We later merge
 // them into a union type and add a children property to create the Block and
 // PartialBlock objects we use in the external API.
 type BlocksWithoutChildren<BSchema extends BlockSchema> = {
-  [BType in keyof BSchema]: Omit<
-    BlockFromBlockConfig<BSchema[BType]["config"]>,
-    "children"
-  >;
+  [BType in keyof BSchema]: BlockFromBlockConfig<BSchema[BType]["config"]>;
 };
 
 // Converts each block spec into a Block object without children, merges them
 // into a union type, and adds a children property
-export type Block<BSchema extends BlockSchema = DefaultBlockSchema> =
-  BlocksWithoutChildren<BSchema>[keyof BSchema] & {
-    children: Block<BSchema>[];
+export type Block<T extends BlockSchema | BlockConfig = DefaultBlockSchema> =
+  (T extends BlockSchema
+    ? BlocksWithoutChildren<T>[keyof T]
+    : T extends BlockConfig
+    ? BlockFromBlockConfig<T>
+    : never) & {
+    children: Block<
+      T extends BlockSchema ? T : any // any should probably be BlockSchemaWithBlock<B["type"], B["propSchema"]>;
+    >[];
   };
 
 export type SpecificBlock<
@@ -161,15 +164,13 @@ type PartialBlockFromBlockConfig<B extends BlockConfig> = {
     : // : B["content"] extends "table"
       // ? PartialInlineContent[][]
       undefined;
-  children?: Block<any>[];
 };
 
 // Same as BlockWithoutChildren, but as a partial type with some changes to make
 // it easier to create/update blocks in the editor.
 type PartialBlocksWithoutChildren<BSchema extends BlockSchema> = {
-  [BType in keyof BSchema]: Omit<
-    PartialBlockFromBlockConfig<BSchema[BType]["config"]>,
-    "children"
+  [BType in keyof BSchema]: PartialBlockFromBlockConfig<
+    BSchema[BType]["config"]
   >;
 };
 

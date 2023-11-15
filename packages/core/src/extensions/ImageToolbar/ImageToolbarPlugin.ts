@@ -4,16 +4,16 @@ import { EditorView } from "prosemirror-view";
 import {
   BaseUiElementCallbacks,
   BaseUiElementState,
-  BlockFromBlockConfig,
   BlockNoteEditor,
   BlockSchema,
 } from "../..";
+import { Block } from "../../extensions/Blocks/api/blockTypes";
 import { EventEmitter } from "../../shared/EventEmitter";
 import { Image } from "../Blocks/nodes/BlockContent/ImageBlockContent/ImageBlockContent";
 export type ImageToolbarCallbacks = BaseUiElementCallbacks;
 
 export type ImageToolbarState = BaseUiElementState & {
-  block: BlockFromBlockConfig<(typeof Image)["config"]>;
+  block: Block<(typeof Image)["config"]>;
 };
 
 export class ImageToolbarView {
@@ -100,7 +100,7 @@ export class ImageToolbarView {
 
   update(view: EditorView, prevState: EditorState) {
     const pluginState: {
-      block: BlockFromBlockConfig<(typeof Image)["config"]>;
+      block: Block<(typeof Image)["config"]>;
     } = this.pluginKey.getState(view.state);
 
     if (!this.imageToolbarState?.show && pluginState.block) {
@@ -153,7 +153,7 @@ export class ImageToolbarProsemirrorPlugin<
   constructor(_editor: BlockNoteEditor<BSchema>) {
     super();
     this.plugin = new Plugin<{
-      block: BlockFromBlockConfig<(typeof Image)["config"]> | undefined;
+      block: Block<(typeof Image)["config"]> | undefined;
     }>({
       key: imageToolbarPluginKey,
       view: (editorView) => {
@@ -174,9 +174,8 @@ export class ImageToolbarProsemirrorPlugin<
           };
         },
         apply: (transaction) => {
-          const block:
-            | BlockFromBlockConfig<(typeof Image)["config"]>
-            | undefined = transaction.getMeta(imageToolbarPluginKey)?.block;
+          const block: Block<(typeof Image)["config"]> | undefined =
+            transaction.getMeta(imageToolbarPluginKey)?.block;
 
           return {
             block,

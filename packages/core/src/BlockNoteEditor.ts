@@ -35,6 +35,7 @@ import {
 import { Selection } from "./extensions/Blocks/api/selectionTypes";
 import { getBlockInfoFromPos } from "./extensions/Blocks/helpers/getBlockInfoFromPos";
 
+import "./editor.css";
 import { FormattingToolbarProsemirrorPlugin } from "./extensions/FormattingToolbar/FormattingToolbarPlugin";
 import { HyperlinkToolbarProsemirrorPlugin } from "./extensions/HyperlinkToolbar/HyperlinkToolbarPlugin";
 import { ImageToolbarProsemirrorPlugin } from "./extensions/ImageToolbar/ImageToolbarPlugin";
@@ -44,7 +45,6 @@ import { SlashMenuProsemirrorPlugin } from "./extensions/SlashMenu/SlashMenuPlug
 import { getDefaultSlashMenuItems } from "./extensions/SlashMenu/defaultSlashMenuItems";
 import { UniqueID } from "./extensions/UniqueID/UniqueID";
 import { mergeCSSClasses } from "./shared/utils";
-import "./editor.css";
 
 export type BlockNoteEditorOptions<BSchema extends BlockSchema> = {
   // TODO: Figure out if enableBlockNoteExtensions/disableHistoryExtension are needed and document them.

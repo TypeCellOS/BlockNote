@@ -7,11 +7,7 @@ import {
   propsToAttributes,
   wrapInBlockStructure,
 } from "./block";
-import {
-  BlockFromBlockConfig,
-  BlockSchemaWithBlock,
-  PropSchema,
-} from "./blockTypes";
+import { Block, BlockSchemaWithBlock, PropSchema } from "./blockTypes";
 
 // Defines the config for a custom block. Meant to be used as an argument to
 // `createBlockSpec`, which will create a new block spec from it.
@@ -26,15 +22,16 @@ export type BlockConfigFromCustomBlockConfig<T extends CustomBlockConfig> =
     content: T["containsInlineContent"] extends true ? "inline" : "none";
   };
 
-export type BlockFromCustomBlockConfig<T extends CustomBlockConfig> =
-  BlockFromBlockConfig<BlockConfigFromCustomBlockConfig<T>>;
+export type BlockFromCustomBlockConfig<T extends CustomBlockConfig> = Block<
+  BlockConfigFromCustomBlockConfig<T>
+>;
 
 export type CustomBlockImplementation<T extends CustomBlockConfig> = {
   render: (
     /**
      * The custom block to render
      */
-    block: BlockFromBlockConfig<BlockConfigFromCustomBlockConfig<T>>,
+    block: Block<BlockConfigFromCustomBlockConfig<T>>,
     /**
      * The BlockNote editor instance
      * This is typed generically. If you want an editor with your custom schema, you need to
@@ -53,7 +50,7 @@ export type CustomBlockImplementation<T extends CustomBlockConfig> = {
   // BlockNote.
   // TODO: Maybe can return undefined to ignore when serializing?
   toExternalHTML?: (
-    block: BlockFromBlockConfig<BlockConfigFromCustomBlockConfig<T>>,
+    block: Block<BlockConfigFromCustomBlockConfig<T>>,
     editor: BlockNoteEditor<BlockSchemaWithBlock<T["type"], T["propSchema"]>>
   ) => {
     dom: HTMLElement;
