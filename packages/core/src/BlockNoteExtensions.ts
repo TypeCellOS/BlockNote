@@ -94,6 +94,7 @@ export const getBlockNoteExtensions = <BSchema extends BlockSchema>(opts: {
     Doc,
     BlockContainer.configure({
       domAttributes: opts.domAttributes,
+      enableNestedBlocks: opts.editor.enableNestedBlocks,
     }),
     BlockGroup.configure({
       domAttributes: opts.domAttributes,
