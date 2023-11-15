@@ -234,6 +234,8 @@ export function createStronglyTypedTiptapNode<
   return Node.create(config) as StronglyTypedTipTapNode<Name, Content>; // force re-typing (should be safe as it's type-checked from the config)
 }
 
+// This helper function helps to instantiate a blockspec with a
+// config and implementation that conform to the type of Config
 export function createInternalBlockSpec<T extends BlockConfig>(
   config: T,
   implementation: TiptapBlockImplementation<T>
