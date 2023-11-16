@@ -436,7 +436,9 @@ export const BlockContainer = Node.create<{
     return [
       PreviousBlockTypePlugin(),
       NonEditableBlockPlugin(),
-      columnResizing(),
+      columnResizing({
+        cellMinWidth: 100,
+      }),
       tableEditing(),
       // keymap({
       //   Tab: goToNextCell(1),

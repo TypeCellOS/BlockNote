@@ -2,9 +2,12 @@ import { Mark } from "@tiptap/pm/model";
 import { Node, Schema } from "prosemirror-model";
 import {
   Block,
+  BlockConfig,
   BlockSchema,
+  BlockSpec,
   PartialBlock,
   PartialTableContent,
+  TableContent,
 } from "../../extensions/Blocks/api/blockTypes";
 import {
   ColorStyle,
@@ -215,6 +218,30 @@ export function blockToNode<BSchema extends BlockSchema>(
 }
 
 /**
+ * Converts an internal (prosemirror) table node contentto a BlockNote Tablecontent
+ */
+function contentNodeToTableContent(contentNode: Node) {
+  const ret: TableContent = {
+    type: "tableContent",
+    rows: [],
+  };
+
+  contentNode.content.forEach((rowNode) => {
+    const row: TableContent["rows"][0] = {
+      cells: [],
+    };
+
+    rowNode.content.forEach((cellNode) => {
+      row.cells.push(contentNodeToInlineContent(cellNode.firstChild!));
+    });
+
+    ret.rows.push(row);
+  });
+
+  return ret;
+}
+
+/**
  * Converts an internal (prosemirror) content node to a BlockNote InlineContent array.
  */
 function contentNodeToInlineContent(contentNode: Node) {
@@ -418,7 +445,10 @@ export function nodeToBlock<BSchema extends BlockSchema>(
     ...node.attrs,
     ...blockInfo.contentNode.attrs,
   })) {
-    const blockSpec = blockSchema[blockInfo.contentType.name];
+    const blockSpec = blockSchema[
+      blockInfo.contentType.name
+    ] as BlockSpec<BlockConfig>; // TODO: fix cast
+
     if (!blockSpec) {
       throw Error(
         "Block is of an unrecognized type: " + blockInfo.contentType.name
@@ -432,7 +462,9 @@ export function nodeToBlock<BSchema extends BlockSchema>(
     }
   }
 
-  const blockSpec = blockSchema[blockInfo.contentType.name]!;
+  const blockSpec = blockSchema[
+    blockInfo.contentType.name
+  ] as BlockSpec<BlockConfig>; // TODO: fix cast
 
   const children: Block<BSchema>[] = [];
   for (let i = 0; i < blockInfo.numChildBlocks; i++) {
@@ -441,14 +473,23 @@ export function nodeToBlock<BSchema extends BlockSchema>(
     );
   }
 
+  let content: Block<any>["content"];
+
+  if (blockSpec.config.content === "inline") {
+    content = contentNodeToInlineContent(blockInfo.contentNode);
+  } else if (blockSpec.config.content === "table") {
+    content = contentNodeToTableContent(blockInfo.contentNode);
+  } else if (blockSpec.config.content === "none") {
+    content = undefined;
+  } else {
+    throw new UnreachableCaseError(blockSpec.config.content);
+  }
+
   const block = {
     id,
     type: blockSpec.config.type,
     props,
-    content:
-      blockSpec.config.content === "inline"
-        ? contentNodeToInlineContent(blockInfo.contentNode)
-        : undefined,
+    content,
     children,
   } as Block<BSchema>;
 

@@ -89,6 +89,10 @@ Tippy popups that are appended to document.body directly
 /**
 TODO: why is this necessary and where to put this table-related styles?
 */
+.bn-editor table {
+  width: auto !important;
+  /* min-width: 300px; */
+}
 .bn-editor th,
 .bn-editor td {
   min-width: 1em;
