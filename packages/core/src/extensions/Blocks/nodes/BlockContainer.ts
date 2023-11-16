@@ -178,63 +178,55 @@ export const BlockContainer = Node.create<{
               }
             }
 
-            // Replaces the blockContent node's content if necessary.
-            if (block.content !== undefined) {
-              let content: PMNode[] = [];
+            const oldType = contentNode.type.name;
+            const newType = block.type || oldType;
 
-              // Checks if the provided content is a string or InlineContent[] type.
+            // The code below determines the new content of the block.
+            // or "keep" to keep as-is
+            let content: PMNode[] | "keep" = "keep";
+
+            // Has there been any custom content provided?
+            if (block.content) {
               if (typeof block.content === "string") {
                 // Adds a single text node with no marks to the content.
-                content.push(state.schema.text(block.content));
+                content = [state.schema.text(block.content)];
               } else if (Array.isArray(block.content)) {
-                // Adds a text node with the provided styles converted into marks to the content, for each InlineContent
-                // object.
+                // Adds a text node with the provided styles converted into marks to the content,
+                // for each InlineContent object.
                 content = inlineContentToNodes(block.content, state.schema);
               } else if (block.content.type === "tableContent") {
                 content = tableContentToNodes(block.content, state.schema);
               } else {
                 throw new UnreachableCaseError(block.content.type);
               }
+            } else {
+              // no custom content has been provided, use existing content IF possible
 
-              // Replaces the contents of the blockContent node with the previously created text node(s).
-              state.tr.replace(
-                startPos + 1,
-                startPos + contentNode.nodeSize - 1,
-                new Slice(Fragment.from(content), 0, 0)
-              );
+              // Since some block types contain inline content and others don't,
+              // we either need to call setNodeMarkup to just update type &
+              // attributes, or replaceWith to replace the whole blockContent.
+              const oldContentType = state.schema.nodes[oldType].spec.content;
+              const newContentType = state.schema.nodes[newType].spec.content;
+
+              if (oldContentType === "") {
+                // keep old content, because it's empty anyway and should be compatible with
+                // any newContentType
+              } else if (newContentType !== oldContentType) {
+                // the content type changed, replace the previous content
+                content = [];
+              } else {
+                // keep old content, because the content type is the same and should be compatible
+              }
             }
 
-            // Since some block types contain inline content and others don't,
-            // we either need to call setNodeMarkup to just update type &
-            // attributes, or replaceWith to replace the whole blockContent.
-            const oldType = contentNode.type.name;
-            const newType = block.type || oldType;
-
-            const oldContentType = state.schema.nodes[oldType].spec.content;
-            const newContentType = state.schema.nodes[newType].spec.content;
-
-            if (oldContentType === "inline*" && newContentType === "") {
-              // Replaces the blockContent node with one of the new type and
-              // adds the provided props as attributes. Also preserves all
-              // existing attributes that are compatible with the new type.
-              // Need to reset the selection since replacing the block content
-              // sets it to the next block.
-              state.tr
-                .replaceWith(
-                  startPos,
-                  endPos,
-                  state.schema.nodes[newType].create({
-                    ...contentNode.attrs,
-                    ...block.props,
-                  })
-                )
-                .setSelection(
-                  new NodeSelection(state.tr.doc.resolve(startPos))
-                );
-            } else {
-              // Changes the blockContent node type and adds the provided props
-              // as attributes. Also preserves all existing attributes that are
-              // compatible with the new type.
+            // Now, changes the blockContent node type and adds the provided props
+            // as attributes. Also preserves all existing attributes that are
+            // compatible with the new type.
+            //
+            // Use either setNodeMarkup or replaceWith depending on whether the
+            // content is being replaced or not.
+            if (content === "keep") {
+              // use setNodeMarkup to only update the type and attributes
               state.tr.setNodeMarkup(
                 startPos,
                 block.type === undefined
@@ -245,6 +237,25 @@ export const BlockContainer = Node.create<{
                   ...block.props,
                 }
               );
+            } else {
+              // use replaceWith to replace the content and the block itself
+              // also  reset the selection since replacing the block content
+              // sets it to the next block.
+              state.tr
+                .replaceWith(
+                  startPos,
+                  endPos,
+                  state.schema.nodes[newType].create(
+                    {
+                      ...contentNode.attrs,
+                      ...block.props,
+                    },
+                    content
+                  )
+                )
+                .setSelection(
+                  new NodeSelection(state.tr.doc.resolve(startPos))
+                );
             }
 
             // Adds all provided props as attributes to the parent blockContainer node too, and also preserves existing
