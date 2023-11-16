@@ -85,3 +85,22 @@ Tippy popups that are appended to document.body directly
   user-select: none;
   white-space: nowrap;
 }
+
+/**
+TODO: why is this necessary and where to put this table-related styles?
+*/
+.bn-editor th,
+.bn-editor td {
+  min-width: 1em;
+  border: 1px solid #ddd;
+  padding: 3px 5px;
+}
+
+.bn-editor .tableWrapper {
+  margin: 1em 0;
+}
+
+.bn-editor th {
+  font-weight: bold;
+  text-align: left;
+}

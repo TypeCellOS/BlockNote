@@ -4,7 +4,7 @@ import {
   Block,
   BlockSchema,
   PartialBlock,
-  TableContent,
+  PartialTableContent,
 } from "../../extensions/Blocks/api/blockTypes";
 import {
   ColorStyle,
@@ -130,7 +130,7 @@ export function inlineContentToNodes(
  * converts an array of inline content elements to prosemirror nodes
  */
 export function tableContentToNodes(
-  tableContent: TableContent,
+  tableContent: PartialTableContent,
   schema: Schema
 ): Node[] {
   const rowNodes: Node[] = [];
@@ -138,8 +138,17 @@ export function tableContentToNodes(
   for (const row of tableContent.rows) {
     const columnNodes: Node[] = [];
     for (const cell of row.cells) {
-      const nodes = inlineContentToNodes(cell, schema);
-      const cellNode = schema.nodes["tableCell"].create({}, nodes);
+      let pNode: Node;
+      if (!cell) {
+        pNode = schema.nodes["tableParagraph"].create({});
+      } else if (typeof cell === "string") {
+        pNode = schema.nodes["tableParagraph"].create({}, schema.text(cell));
+      } else {
+        const textNodes = inlineContentToNodes(cell, schema);
+        pNode = schema.nodes["tableParagraph"].create({}, textNodes);
+      }
+
+      const cellNode = schema.nodes["tableCell"].create({}, pNode);
       columnNodes.push(cellNode);
     }
     const rowNode = schema.nodes["tableRow"].create({}, columnNodes);

@@ -123,28 +123,13 @@ export const getDefaultSlashMenuItems = <BSchema extends BlockSchema>(
             rows: [
               {
                 cells: [
-                  [
-                    {
-                      type: "text",
-                      text: "",
-                      styles: {},
-                    },
-                  ],
-                  [
-                    {
-                      type: "text",
-                      text: "",
-                      styles: {},
-                    },
-                  ],
-                  [
-                    {
-                      type: "text",
-                      text: "",
-                      styles: {},
-                    },
-                  ],
+                  "ab",
+                  [{ type: "text", styles: { bold: true }, text: "hello" }],
+                  "",
                 ],
+              },
+              {
+                cells: ["", "cd", ""],
               },
             ],
           },

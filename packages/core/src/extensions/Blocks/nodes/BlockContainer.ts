@@ -1,12 +1,12 @@
-import { Node } from "@tiptap/core";
+import { Node, callOrReturn, getExtensionField } from "@tiptap/core";
 import { Fragment, Node as PMNode, Slice } from "prosemirror-model";
 import { NodeSelection, TextSelection } from "prosemirror-state";
+import { columnResizing, tableEditing } from "prosemirror-tables";
 import {
   blockToNode,
   inlineContentToNodes,
   tableContentToNodes,
 } from "../../../api/nodeConversions/nodeConversions";
-
 import { UnreachableCaseError, mergeCSSClasses } from "../../../shared/utils";
 import { NonEditableBlockPlugin } from "../NonEditableBlockPlugin";
 import { PreviousBlockTypePlugin } from "../PreviousBlockTypePlugin";
@@ -433,7 +433,16 @@ export const BlockContainer = Node.create<{
   },
 
   addProseMirrorPlugins() {
-    return [PreviousBlockTypePlugin(), NonEditableBlockPlugin()];
+    return [
+      PreviousBlockTypePlugin(),
+      NonEditableBlockPlugin(),
+      columnResizing(),
+      tableEditing(),
+      // keymap({
+      //   Tab: goToNextCell(1),
+      //   "Shift-Tab": goToNextCell(-1),
+      // }),
+    ];
   },
 
   addKeyboardShortcuts() {
@@ -654,6 +663,20 @@ export const BlockContainer = Node.create<{
         this.editor.commands.BNCreateBlock(
           this.editor.state.selection.anchor + 2
         ),
+    };
+  },
+
+  extendNodeSchema(extension) {
+    const context = {
+      name: extension.name,
+      options: extension.options,
+      storage: extension.storage,
+    };
+
+    return {
+      tableRole: callOrReturn(
+        getExtensionField(extension, "tableRole", context)
+      ),
     };
   },
 });

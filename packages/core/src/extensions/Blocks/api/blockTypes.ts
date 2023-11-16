@@ -119,6 +119,13 @@ export type TableContent = {
   }[];
 };
 
+export type PartialTableContent = {
+  type: "tableContent";
+  rows: {
+    cells: (PartialInlineContent[] | string)[];
+  }[];
+};
+
 // A BlockConfig has all the information to get the type of a Block (which is a specific instance of the BlockConfig.
 // i.e.: paragraphConfig: BlockConfig defines what a "paragraph" is / supports, and BlockFromBlockConfig<paragraphConfig> is the shape of a specific paragraph block.
 // (for internal use)
@@ -169,7 +176,7 @@ type PartialBlockFromBlockConfig<B extends BlockConfig> = {
   content?: B["content"] extends "inline"
     ? PartialInlineContent[] | string
     : B["content"] extends "table"
-    ? TableContent
+    ? PartialTableContent
     : undefined;
 };
 
