@@ -3,15 +3,15 @@ import { Node } from "prosemirror-model";
 import { NodeSelection, Plugin, PluginKey, Selection } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 import { BlockNoteEditor } from "../../BlockNoteEditor";
+import { markdown } from "../../api/formatConversions/formatConversions";
+import { createExternalHTMLExporter } from "../../api/serialization/html/externalHTMLExporter";
+import { createInternalHTMLSerializer } from "../../api/serialization/html/internalHTMLSerializer";
 import { BaseUiElementState } from "../../shared/BaseUiElementTypes";
 import { EventEmitter } from "../../shared/EventEmitter";
 import { Block, BlockSchema } from "../Blocks/api/blockTypes";
 import { getBlockInfoFromPos } from "../Blocks/helpers/getBlockInfoFromPos";
 import { slashMenuPluginKey } from "../SlashMenu/SlashMenuPlugin";
 import { MultipleNodeSelection } from "./MultipleNodeSelection";
-import { createInternalHTMLSerializer } from "../../api/serialization/html/internalHTMLSerializer";
-import { createExternalHTMLExporter } from "../../api/serialization/html/externalHTMLExporter";
-import { markdown } from "../../api/formatConversions/formatConversions";
 
 let dragImageElement: Element | undefined;
 
@@ -20,7 +20,7 @@ export type SideMenuState<BSchema extends BlockSchema> = BaseUiElementState & {
   block: Block<BSchema>;
 };
 
-function getDraggableBlockFromCoords(
+export function getDraggableBlockFromCoords(
   coords: { left: number; top: number },
   view: EditorView
 ) {

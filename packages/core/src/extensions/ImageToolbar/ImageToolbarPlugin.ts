@@ -1,4 +1,3 @@
-import { Node as PMNode } from "prosemirror-model";
 import { EditorState, Plugin, PluginKey } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 import {
@@ -21,11 +20,6 @@ export class ImageToolbarView {
   public updateImageToolbar: () => void;
 
   public prevWasEditable: boolean | null = null;
-
-  public shouldShow: (state: EditorState) => boolean = (state) =>
-    "node" in state.selection &&
-    (state.selection.node as PMNode).type.name === "image" &&
-    (state.selection.node as PMNode).attrs.src === "";
 
   constructor(
     private readonly pluginKey: PluginKey,

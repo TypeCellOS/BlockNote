@@ -1,15 +1,16 @@
 import { BlockNoteEditor, BlockSchema, mergeCSSClasses } from "@blocknote/core";
-import { createStyles, MantineProvider } from "@mantine/core";
+import { MantineProvider, createStyles } from "@mantine/core";
 import { EditorContent } from "@tiptap/react";
 import { HTMLAttributes, ReactNode, useMemo } from "react";
 import usePrefersColorScheme from "use-prefers-color-scheme";
-import { blockNoteToMantineTheme, Theme } from "./BlockNoteTheme";
+import { Theme, blockNoteToMantineTheme } from "./BlockNoteTheme";
 import { FormattingToolbarPositioner } from "./FormattingToolbar/components/FormattingToolbarPositioner";
 import { HyperlinkToolbarPositioner } from "./HyperlinkToolbar/components/HyperlinkToolbarPositioner";
+import { ImageToolbarPositioner } from "./ImageToolbar/components/ImageToolbarPositioner";
 import { SideMenuPositioner } from "./SideMenu/components/SideMenuPositioner";
 import { SlashMenuPositioner } from "./SlashMenu/components/SlashMenuPositioner";
+import { TableHandlesPositioner } from "./TableHandles/components/TableHandlePositioner";
 import { darkDefaultTheme, lightDefaultTheme } from "./defaultThemes";
-import { ImageToolbarPositioner } from "./ImageToolbar/components/ImageToolbarPositioner";
 
 // Renders the editor as well as all menus & toolbars using default styles.
 function BaseBlockNoteView<BSchema extends BlockSchema>(
@@ -36,6 +37,7 @@ function BaseBlockNoteView<BSchema extends BlockSchema>(
           <SlashMenuPositioner editor={props.editor} />
           <SideMenuPositioner editor={props.editor} />
           <ImageToolbarPositioner editor={props.editor} />
+          <TableHandlesPositioner editor={props.editor} />
         </>
       )}
     </EditorContent>

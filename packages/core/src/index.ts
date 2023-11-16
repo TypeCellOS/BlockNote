@@ -18,6 +18,7 @@ export * from "./extensions/SideMenu/SideMenuPlugin";
 export * from "./extensions/SlashMenu/BaseSlashMenuItem";
 export * from "./extensions/SlashMenu/SlashMenuPlugin";
 export { getDefaultSlashMenuItems } from "./extensions/SlashMenu/defaultSlashMenuItems";
+export * from "./extensions/TableHandles/TableHandlesPlugin";
 export * from "./shared/BaseUiElementTypes";
 export type { SuggestionItem } from "./shared/plugins/suggestion/SuggestionItem";
 export * from "./shared/plugins/suggestion/SuggestionPlugin";

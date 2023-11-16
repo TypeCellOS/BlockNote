@@ -43,6 +43,7 @@ import { SideMenuProsemirrorPlugin } from "./extensions/SideMenu/SideMenuPlugin"
 import { BaseSlashMenuItem } from "./extensions/SlashMenu/BaseSlashMenuItem";
 import { SlashMenuProsemirrorPlugin } from "./extensions/SlashMenu/SlashMenuPlugin";
 import { getDefaultSlashMenuItems } from "./extensions/SlashMenu/defaultSlashMenuItems";
+import { TableHandlesProsemirrorPlugin } from "./extensions/TableHandles/TableHandlesPlugin";
 import { UniqueID } from "./extensions/UniqueID/UniqueID";
 import { mergeCSSClasses } from "./shared/utils";
 
@@ -154,6 +155,7 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
   public readonly slashMenu: SlashMenuProsemirrorPlugin<BSchema, any>;
   public readonly hyperlinkToolbar: HyperlinkToolbarProsemirrorPlugin<BSchema>;
   public readonly imageToolbar: ImageToolbarProsemirrorPlugin<BSchema>;
+  public readonly tableHandles: TableHandlesProsemirrorPlugin<BSchema>;
 
   public readonly uploadFile: ((file: File) => Promise<string>) | undefined;
 
@@ -184,6 +186,7 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
     );
     this.hyperlinkToolbar = new HyperlinkToolbarProsemirrorPlugin(this);
     this.imageToolbar = new ImageToolbarProsemirrorPlugin(this);
+    this.tableHandles = new TableHandlesProsemirrorPlugin(this);
 
     const extensions = getBlockNoteExtensions<BSchema>({
       editor: this,
@@ -202,6 +205,7 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
           this.slashMenu.plugin,
           this.hyperlinkToolbar.plugin,
           this.imageToolbar.plugin,
+          this.tableHandles.plugin,
         ];
       },
     });
