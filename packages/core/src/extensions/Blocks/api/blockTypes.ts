@@ -112,6 +112,13 @@ export type BlockSchemaWithBlock<
   };
 };
 
+export type TableContent = {
+  type: "tableContent";
+  rows: {
+    cells: InlineContent[][];
+  }[];
+};
+
 // A BlockConfig has all the information to get the type of a Block (which is a specific instance of the BlockConfig.
 // i.e.: paragraphConfig: BlockConfig defines what a "paragraph" is / supports, and BlockFromBlockConfig<paragraphConfig> is the shape of a specific paragraph block.
 // (for internal use)
@@ -121,9 +128,9 @@ type BlockFromBlockConfig<B extends BlockConfig> = {
   props: Props<B["propSchema"]>;
   content: B["content"] extends "inline"
     ? InlineContent[]
-    : // : B["content"] extends "table"
-      // ? InlineContent[][]
-      undefined;
+    : B["content"] extends "table"
+    ? TableContent
+    : undefined;
 };
 
 // Converts each block spec into a Block object without children. We later merge
@@ -161,9 +168,9 @@ type PartialBlockFromBlockConfig<B extends BlockConfig> = {
   props?: Partial<Props<B["propSchema"]>>;
   content?: B["content"] extends "inline"
     ? PartialInlineContent[] | string
-    : // : B["content"] extends "table"
-      // ? PartialInlineContent[][]
-      undefined;
+    : B["content"] extends "table"
+    ? TableContent
+    : undefined;
 };
 
 // Same as BlockWithoutChildren, but as a partial type with some changes to make

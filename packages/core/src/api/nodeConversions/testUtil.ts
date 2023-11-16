@@ -2,6 +2,7 @@ import {
   Block,
   BlockSchema,
   PartialBlock,
+  TableContent,
 } from "../../extensions/Blocks/api/blockTypes";
 import {
   InlineContent,
@@ -25,22 +26,26 @@ function textShorthandToStyledText(
 }
 
 function partialContentToInlineContent(
-  content: string | PartialInlineContent[] = ""
-): InlineContent[] {
+  content: string | PartialInlineContent[] | TableContent = ""
+): InlineContent[] | TableContent {
   if (typeof content === "string") {
     return textShorthandToStyledText(content);
   }
 
-  return content.map((partialContent) => {
-    if (partialContent.type === "link") {
-      return {
-        ...partialContent,
-        content: textShorthandToStyledText(partialContent.content),
-      };
-    } else {
-      return partialContent;
-    }
-  });
+  if (Array.isArray(content)) {
+    return content.map((partialContent) => {
+      if (partialContent.type === "link") {
+        return {
+          ...partialContent,
+          content: textShorthandToStyledText(partialContent.content),
+        };
+      } else {
+        return partialContent;
+      }
+    });
+  }
+
+  return content;
 }
 
 export function partialBlockToBlockForTesting<BSchema extends BlockSchema>(

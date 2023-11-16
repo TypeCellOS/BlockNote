@@ -11,16 +11,15 @@ function insertOrUpdateBlock<BSchema extends BlockSchema>(
   const currentBlock = editor.getTextCursorPosition().block;
 
   if (currentBlock.content === undefined) {
-    throw new Error(
-      "Slash Menu open in a block that doesn't contain inline content."
-    );
+    throw new Error("Slash Menu open in a block that doesn't contain content.");
   }
 
   if (
-    (currentBlock.content.length === 1 &&
+    Array.isArray(currentBlock.content) &&
+    ((currentBlock.content.length === 1 &&
       currentBlock.content[0].type === "text" &&
       currentBlock.content[0].text === "/") ||
-    currentBlock.content.length === 0
+      currentBlock.content.length === 0)
   ) {
     editor.updateBlock(currentBlock, block);
   } else {
@@ -119,6 +118,36 @@ export const getDefaultSlashMenuItems = <BSchema extends BlockSchema>(
       execute: (editor) =>
         insertOrUpdateBlock(editor, {
           type: "table",
+          content: {
+            type: "tableContent",
+            rows: [
+              {
+                cells: [
+                  [
+                    {
+                      type: "text",
+                      text: "",
+                      styles: {},
+                    },
+                  ],
+                  [
+                    {
+                      type: "text",
+                      text: "",
+                      styles: {},
+                    },
+                  ],
+                  [
+                    {
+                      type: "text",
+                      text: "",
+                      styles: {},
+                    },
+                  ],
+                ],
+              },
+            ],
+          },
         } as PartialBlock<BSchema>),
     });
   }

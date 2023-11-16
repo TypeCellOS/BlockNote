@@ -4,6 +4,7 @@ import {
   Block,
   BlockSchema,
   PartialBlock,
+  TableContent,
 } from "../../extensions/Blocks/api/blockTypes";
 import {
   ColorStyle,
@@ -126,6 +127,28 @@ export function inlineContentToNodes(
 }
 
 /**
+ * converts an array of inline content elements to prosemirror nodes
+ */
+export function tableContentToNodes(
+  tableContent: TableContent,
+  schema: Schema
+): Node[] {
+  const rowNodes: Node[] = [];
+
+  for (const row of tableContent.rows) {
+    const columnNodes: Node[] = [];
+    for (const cell of row.cells) {
+      const nodes = inlineContentToNodes(cell, schema);
+      const cellNode = schema.nodes["tableCell"].create({}, nodes);
+      columnNodes.push(cellNode);
+    }
+    const rowNode = schema.nodes["tableRow"].create({}, columnNodes);
+    rowNodes.push(rowNode);
+  }
+  return rowNodes;
+}
+
+/**
  * Converts a BlockNote block to a TipTap node.
  */
 export function blockToNode<BSchema extends BlockSchema>(
@@ -153,9 +176,14 @@ export function blockToNode<BSchema extends BlockSchema>(
       block.props,
       schema.text(block.content)
     );
-  } else {
+  } else if (Array.isArray(block.content)) {
     const nodes = inlineContentToNodes(block.content, schema);
     contentNode = schema.nodes[type].create(block.props, nodes);
+  } else if (block.content.type === "tableContent") {
+    const nodes = tableContentToNodes(block.content, schema);
+    contentNode = schema.nodes[type].create(block.props, nodes);
+  } else {
+    throw new UnreachableCaseError(block.content.type);
   }
 
   const children: Node[] = [];

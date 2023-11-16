@@ -4,9 +4,10 @@ import { NodeSelection, TextSelection } from "prosemirror-state";
 import {
   blockToNode,
   inlineContentToNodes,
+  tableContentToNodes,
 } from "../../../api/nodeConversions/nodeConversions";
 
-import { mergeCSSClasses } from "../../../shared/utils";
+import { UnreachableCaseError, mergeCSSClasses } from "../../../shared/utils";
 import { NonEditableBlockPlugin } from "../NonEditableBlockPlugin";
 import { PreviousBlockTypePlugin } from "../PreviousBlockTypePlugin";
 import {
@@ -185,10 +186,14 @@ export const BlockContainer = Node.create<{
               if (typeof block.content === "string") {
                 // Adds a single text node with no marks to the content.
                 content.push(state.schema.text(block.content));
-              } else {
+              } else if (Array.isArray(block.content)) {
                 // Adds a text node with the provided styles converted into marks to the content, for each InlineContent
                 // object.
                 content = inlineContentToNodes(block.content, state.schema);
+              } else if (block.content.type === "tableContent") {
+                content = tableContentToNodes(block.content, state.schema);
+              } else {
+                throw new UnreachableCaseError(block.content.type);
               }
 
               // Replaces the contents of the blockContent node with the previously created text node(s).
