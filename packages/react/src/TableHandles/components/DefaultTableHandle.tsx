@@ -1,4 +1,4 @@
-import { BlockSchema } from "@blocknote/core";
+import { BlockSchema, TableContent } from "@blocknote/core";
 
 import { Menu } from "@mantine/core";
 import { MdDragIndicator } from "react-icons/md";
@@ -23,9 +23,57 @@ const DefaultTableHandleLeft = <BSchema extends BlockSchema>(
         </div>
       </Menu.Target>
       <Menu.Dropdown>
-        <Menu.Item>Delete row</Menu.Item>
-        <Menu.Item>Add row above</Menu.Item>
-        <Menu.Item>Add row below</Menu.Item>
+        <Menu.Item
+          onClick={() => {
+            const content: TableContent = {
+              type: "tableContent",
+              rows: props.block.content.rows.filter(
+                (_, index) => index !== props.rowIndex
+              ),
+            };
+
+            props.editor.updateBlock(props.block, { content } as any); // TODO: type
+          }}>
+          Delete row
+        </Menu.Item>
+        <Menu.Item
+          onClick={() => {
+            const emptyCol = props.block.content.rows[props.rowIndex].cells.map(
+              () => []
+            );
+            const rows = [...props.block.content.rows];
+            rows.splice(props.rowIndex, 0, {
+              cells: emptyCol,
+            });
+            const content: TableContent = {
+              type: "tableContent",
+              rows,
+            };
+
+            props.editor.updateBlock(props.block, { content } as any); // TODO: type
+          }}>
+          Add row above
+        </Menu.Item>
+        <Menu.Item
+          onClick={() => {
+            const emptyCol = props.block.content.rows[props.rowIndex].cells.map(
+              () => []
+            );
+
+            const rows = [...props.block.content.rows];
+            rows.splice(props.rowIndex + 1, 0, {
+              cells: emptyCol,
+            });
+
+            const content: TableContent = {
+              type: "tableContent",
+              rows,
+            };
+
+            props.editor.updateBlock(props.block, { content } as any); // TODO: type
+          }}>
+          Add row below
+        </Menu.Item>
       </Menu.Dropdown>
     </Menu>
   );
@@ -55,13 +103,47 @@ const DefaultTableHandleTop = <BSchema extends BlockSchema>(
       <Menu.Dropdown>
         <Menu.Item
           onClick={() => {
-            console.log(props.block);
-            debugger;
+            const content: TableContent = {
+              type: "tableContent",
+              rows: props.block.content.rows.map((row) => ({
+                cells: row.cells.filter((_, index) => index !== props.colIndex),
+              })),
+            };
+
+            props.editor.updateBlock(props.block, { content } as any); // TODO: type
           }}>
           Delete column
         </Menu.Item>
-        <Menu.Item>Add column left</Menu.Item>
-        <Menu.Item>Add column right</Menu.Item>
+        <Menu.Item
+          onClick={() => {
+            const content: TableContent = {
+              type: "tableContent",
+              rows: props.block.content.rows.map((row) => {
+                const cells = [...row.cells];
+                cells.splice(props.colIndex, 0, []);
+                return { cells };
+              }),
+            };
+
+            props.editor.updateBlock(props.block, { content } as any); // TODO: type
+          }}>
+          Add column left
+        </Menu.Item>
+        <Menu.Item
+          onClick={() => {
+            const content: TableContent = {
+              type: "tableContent",
+              rows: props.block.content.rows.map((row) => {
+                const cells = [...row.cells];
+                cells.splice(props.colIndex + 1, 0, []);
+                return { cells };
+              }),
+            };
+
+            props.editor.updateBlock(props.block, { content } as any); // TODO: type
+          }}>
+          Add column right
+        </Menu.Item>
       </Menu.Dropdown>
     </Menu>
   );

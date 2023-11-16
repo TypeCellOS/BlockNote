@@ -13,6 +13,8 @@ import { DefaultTableHandle } from "./DefaultTableHandle";
 export type TableHandlesProps<
   BSchema extends BlockSchema = DefaultBlockSchema
 > = Omit<TableHandlesState, keyof BaseUiElementState> & {
+  colIndex: number;
+  rowIndex: number;
   block: Block<BSchema["table"]["config"]>;
   editor: BlockNoteEditor<BSchema>;
   side: "top" | "left";
@@ -26,6 +28,8 @@ export const TableHandlesPositioner = <
 }) => {
   const [show, setShow] = useState<boolean>(false);
   const [block, setBlock] = useState<Block<BSchema["table"]["config"]>>();
+  const [colIndex, setColIndex] = useState<number>();
+  const [rowIndex, setRowIndex] = useState<number>();
   const [_, setForceUpdate] = useState<number>(0);
 
   const referencePosLeft = useRef<TableHandlesState["referencePosLeft"]>();
@@ -38,6 +42,8 @@ export const TableHandlesPositioner = <
       console.log("update", state);
       setShow(state.show);
       setBlock(state.block as any); // TODO: types
+      setColIndex(state.colIndex);
+      setRowIndex(state.rowIndex);
       setForceUpdate(Math.random());
 
       referencePosLeft.current = state.referencePosLeft;
@@ -71,17 +77,29 @@ export const TableHandlesPositioner = <
     const TableHandle = props.tableHandle || DefaultTableHandle;
 
     return (
-      <TableHandle editor={props.editor} side={"top"} block={block as any} />
+      <TableHandle
+        editor={props.editor}
+        side={"top"}
+        rowIndex={rowIndex!}
+        colIndex={colIndex!}
+        block={block as any}
+      />
     );
-  }, [block, props.editor, props.tableHandle]);
+  }, [block, props.editor, props.tableHandle, rowIndex, colIndex]);
 
   const tableHandleElementLeft = useMemo(() => {
     const TableHandle = props.tableHandle || DefaultTableHandle;
 
     return (
-      <TableHandle editor={props.editor} side={"left"} block={block as any} />
+      <TableHandle
+        editor={props.editor}
+        side={"left"}
+        rowIndex={rowIndex!}
+        colIndex={colIndex!}
+        block={block as any}
+      />
     );
-  }, [block, props.editor, props.tableHandle]);
+  }, [block, props.editor, props.tableHandle, rowIndex, colIndex]);
 
   return (
     <>
