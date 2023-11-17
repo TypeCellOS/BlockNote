@@ -24,6 +24,7 @@ import {
   BlockNoteDOMAttributes,
   BlockSchema,
 } from "./extensions/Blocks/api/blockTypes";
+import { TableExtension } from "./extensions/Blocks/nodes/BlockContent/TableBlockContent/TableExtension";
 import { Placeholder } from "./extensions/Placeholder/PlaceholderExtension";
 import { TextAlignmentExtension } from "./extensions/TextAlignment/TextAlignmentExtension";
 import { TextColorExtension } from "./extensions/TextColor/TextColorExtension";
@@ -93,6 +94,7 @@ export const getBlockNoteExtensions = <BSchema extends BlockSchema>(opts: {
     BlockGroup.configure({
       domAttributes: opts.domAttributes,
     }),
+    TableExtension,
     ...Object.values(opts.blockSchema).flatMap((blockSpec) => {
       return [
         // dependent nodes (e.g.: tablecell / row)

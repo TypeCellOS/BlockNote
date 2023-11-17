@@ -1,4 +1,4 @@
-import { Node, callOrReturn, getExtensionField } from "@tiptap/core";
+import { Node } from "@tiptap/core";
 import { Fragment, Node as PMNode, Slice } from "prosemirror-model";
 import { NodeSelection, TextSelection } from "prosemirror-state";
 
@@ -654,20 +654,6 @@ export const BlockContainer = Node.create<{
         this.editor.commands.BNCreateBlock(
           this.editor.state.selection.anchor + 2
         ),
-    };
-  },
-
-  extendNodeSchema(extension) {
-    const context = {
-      name: extension.name,
-      options: extension.options,
-      storage: extension.storage,
-    };
-
-    return {
-      tableRole: callOrReturn(
-        getExtensionField(extension, "tableRole", context)
-      ),
     };
   },
 });
