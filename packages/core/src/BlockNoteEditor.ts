@@ -35,6 +35,7 @@ import {
 import { Selection } from "./extensions/Blocks/api/selectionTypes";
 import { getBlockInfoFromPos } from "./extensions/Blocks/helpers/getBlockInfoFromPos";
 
+import { columnResizing, tableEditing } from "prosemirror-tables";
 import "prosemirror-tables/style/tables.css";
 import "./editor.css";
 import { FormattingToolbarProsemirrorPlugin } from "./extensions/FormattingToolbar/FormattingToolbarPlugin";
@@ -207,6 +208,10 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
           this.hyperlinkToolbar.plugin,
           this.imageToolbar.plugin,
           this.tableHandles.plugin,
+          columnResizing({
+            cellMinWidth: 100,
+          }),
+          tableEditing(),
         ];
       },
     });

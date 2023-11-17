@@ -1,7 +1,7 @@
 import { Node, callOrReturn, getExtensionField } from "@tiptap/core";
 import { Fragment, Node as PMNode, Slice } from "prosemirror-model";
 import { NodeSelection, TextSelection } from "prosemirror-state";
-import { columnResizing, tableEditing } from "prosemirror-tables";
+
 import {
   blockToNode,
   inlineContentToNodes,
@@ -433,18 +433,7 @@ export const BlockContainer = Node.create<{
   },
 
   addProseMirrorPlugins() {
-    return [
-      PreviousBlockTypePlugin(),
-      NonEditableBlockPlugin(),
-      columnResizing({
-        cellMinWidth: 100,
-      }),
-      tableEditing(),
-      // keymap({
-      //   Tab: goToNextCell(1),
-      //   "Shift-Tab": goToNextCell(-1),
-      // }),
-    ];
+    return [PreviousBlockTypePlugin(), NonEditableBlockPlugin()];
   },
 
   addKeyboardShortcuts() {
