@@ -253,8 +253,13 @@ export const BlockContainer = Node.create<{
                     content
                   )
                 )
+                // If the node doesn't contain editable content, we want to
+                // select the whole node. But if it does have editable content,
+                // we want to set the selection to the start of it.
                 .setSelection(
-                  new NodeSelection(state.tr.doc.resolve(startPos))
+                  state.schema.nodes[newType].spec.content === ""
+                    ? new NodeSelection(state.tr.doc.resolve(startPos))
+                    : new TextSelection(state.tr.doc.resolve(startPos))
                 );
             }
 

@@ -1,13 +1,34 @@
 import { BlockNoteEditor } from "../../BlockNoteEditor";
-import { BlockSchema, PartialBlock } from "../Blocks/api/blockTypes";
+import { Block, BlockSchema, PartialBlock } from "../Blocks/api/blockTypes";
 import { defaultBlockSchema } from "../Blocks/api/defaultBlocks";
 import { imageToolbarPluginKey } from "../ImageToolbar/ImageToolbarPlugin";
 import { BaseSlashMenuItem } from "./BaseSlashMenuItem";
 
+function setSelectionToNextContentEditableBlock<BSchema extends BlockSchema>(
+  editor: BlockNoteEditor<BSchema>
+) {
+  let block = editor.getTextCursorPosition().block;
+  let contentType = editor.schema[block.type].config.content as
+    | "inline"
+    | "table"
+    | "none";
+
+  while (contentType === "none") {
+    editor.setTextCursorPosition(block, "start");
+    block = editor.getTextCursorPosition().nextBlock!;
+    contentType = editor.schema[block.type].config.content as
+      | "inline"
+      | "table"
+      | "none";
+  }
+
+  editor.setTextCursorPosition(block, "start");
+}
+
 function insertOrUpdateBlock<BSchema extends BlockSchema>(
   editor: BlockNoteEditor<BSchema>,
   block: PartialBlock<BSchema>
-) {
+): Block<BSchema> {
   const currentBlock = editor.getTextCursorPosition().block;
 
   if (currentBlock.content === undefined) {
@@ -26,6 +47,11 @@ function insertOrUpdateBlock<BSchema extends BlockSchema>(
     editor.insertBlocks([block], currentBlock, "after");
     editor.setTextCursorPosition(editor.getTextCursorPosition().nextBlock!);
   }
+
+  const insertedBlock = editor.getTextCursorPosition().block;
+  setSelectionToNextContentEditableBlock(editor);
+
+  return insertedBlock;
 }
 
 export const getDefaultSlashMenuItems = <BSchema extends BlockSchema>(
@@ -115,7 +141,7 @@ export const getDefaultSlashMenuItems = <BSchema extends BlockSchema>(
     slashMenuItems.push({
       name: "Table",
       aliases: ["table"],
-      execute: (editor) =>
+      execute: (editor) => {
         insertOrUpdateBlock(editor, {
           type: "table",
           content: {
@@ -133,7 +159,8 @@ export const getDefaultSlashMenuItems = <BSchema extends BlockSchema>(
               },
             ],
           },
-        } as PartialBlock<BSchema>),
+        } as PartialBlock<BSchema>);
+      },
     });
   }
 
@@ -152,19 +179,14 @@ export const getDefaultSlashMenuItems = <BSchema extends BlockSchema>(
         "dropbox",
       ],
       execute: (editor) => {
-        insertOrUpdateBlock(editor, {
+        const insertedBlock = insertOrUpdateBlock(editor, {
           type: "image",
         } as PartialBlock<BSchema>);
-        // Don't want to select the add image button, instead select the block
-        // below it
-        editor.setTextCursorPosition(
-          editor.getTextCursorPosition().nextBlock!,
-          "start"
-        );
+
         // Immediately open the image toolbar
         editor._tiptapEditor.view.dispatch(
           editor._tiptapEditor.state.tr.setMeta(imageToolbarPluginKey, {
-            block: editor.getTextCursorPosition().prevBlock,
+            block: insertedBlock,
           })
         );
       },

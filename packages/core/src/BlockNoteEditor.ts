@@ -493,18 +493,34 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
       posBeforeNode + 2
     )!;
 
-    // For blocks without inline content
-    if (contentNode.type.spec.content === "") {
+    const contentType: "none" | "inline" | "table" =
+      this.schema[contentNode.type.name].config.content;
+
+    if (contentType === "none") {
       this._tiptapEditor.commands.setNodeSelection(startPos);
       return;
     }
 
-    if (placement === "start") {
-      this._tiptapEditor.commands.setTextSelection(startPos + 1);
-    } else {
-      this._tiptapEditor.commands.setTextSelection(
-        startPos + contentNode.nodeSize - 1
-      );
+    if (contentType === "inline") {
+      if (placement === "start") {
+        this._tiptapEditor.commands.setTextSelection(startPos + 1);
+      } else {
+        this._tiptapEditor.commands.setTextSelection(
+          startPos + contentNode.nodeSize - 1
+        );
+      }
+    }
+
+    if (contentType === "table") {
+      if (placement === "start") {
+        console.log(startPos + 4);
+        this._tiptapEditor.commands.setTextSelection(startPos + 4);
+      } else {
+        console.log(startPos + contentNode.nodeSize - 4);
+        this._tiptapEditor.commands.setTextSelection(
+          startPos + contentNode.nodeSize - 1
+        );
+      }
     }
   }
 
