@@ -35,6 +35,7 @@ import {
 import { Selection } from "./extensions/Blocks/api/selectionTypes";
 import { getBlockInfoFromPos } from "./extensions/Blocks/helpers/getBlockInfoFromPos";
 
+import "prosemirror-tables/style/tables.css";
 import "./editor.css";
 import { FormattingToolbarProsemirrorPlugin } from "./extensions/FormattingToolbar/FormattingToolbarPlugin";
 import { HyperlinkToolbarProsemirrorPlugin } from "./extensions/HyperlinkToolbar/HyperlinkToolbarPlugin";

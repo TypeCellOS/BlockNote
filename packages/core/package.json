@@ -78,6 +78,7 @@
     "prosemirror-state": "^1.4.3",
     "prosemirror-transform": "^1.7.2",
     "prosemirror-view": "^1.31.4",
+    "prosemirror-tables": "^1.3.4",
     "rehype-parse": "^8.0.4",
     "rehype-remark": "^9.1.2",
     "rehype-stringify": "^9.0.3",

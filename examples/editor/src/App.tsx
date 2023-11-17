@@ -2,7 +2,6 @@
 import { uploadToTmpFilesDotOrg_DEV_ONLY } from "@blocknote/core";
 import "@blocknote/core/style.css";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
-import "prosemirror-tables/style/tables.css"; // TODO: where to put this?
 import "./App.css";
 
 type WindowWithProseMirror = Window & typeof globalThis & { ProseMirror: any };
