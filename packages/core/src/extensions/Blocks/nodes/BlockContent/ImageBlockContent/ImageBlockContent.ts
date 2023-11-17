@@ -361,16 +361,16 @@ export const Image = createBlockSpec({
       dom: figure,
     };
   },
-  // parse: (element) => {
-  //   if (element.tagName === "IMG") {
-  //     return {
-  //       type: "image",
-  //       props: {
-  //         url: element.getAttribute("src") || "",
-  //       },
-  //     };
-  //   }
-  //
-  //   return;
-  // },
+  fromExternalHTML: (element) => {
+    if (element.tagName === "IMG") {
+      return {
+        type: "image",
+        props: {
+          url: element.getAttribute("src") || "",
+        },
+      };
+    }
+
+    return;
+  },
 });

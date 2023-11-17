@@ -47,50 +47,8 @@ const BulletListItemBlockContent = createTipTapBlock<"bulletListItem", true>({
 
   parseHTML() {
     return [
-      // Case for regular HTML list structure.
       {
-        tag: "li",
-        getAttrs: (element) => {
-          if (typeof element === "string") {
-            return false;
-          }
-
-          const parent = element.parentElement;
-
-          if (parent === null) {
-            return false;
-          }
-
-          if (parent.tagName === "UL") {
-            return {};
-          }
-
-          return false;
-        },
-        node: "bulletListItem",
-      },
-      // Case for BlockNote list structure.
-      {
-        tag: "p",
-        getAttrs: (element) => {
-          if (typeof element === "string") {
-            return false;
-          }
-
-          const parent = element.parentElement;
-
-          if (parent === null) {
-            return false;
-          }
-
-          if (parent.getAttribute("data-content-type") === "bulletListItem") {
-            return {};
-          }
-
-          return false;
-        },
-        priority: 300,
-        node: "bulletListItem",
+        tag: "div[data-content-type=" + this.name + "]",
       },
     ];
   },
@@ -116,4 +74,20 @@ export const BulletListItem = {
   propSchema: bulletListItemPropSchema,
   toInternalHTML: defaultBlockToHTML,
   toExternalHTML: defaultBlockToHTML,
+  fromExternalHTML: (element, getInlineContent) => {
+    const parent = element.parentElement;
+
+    if (parent === null) {
+      return undefined;
+    }
+
+    if (parent.tagName === "UL" && element.tagName === "LI") {
+      return {
+        type: "bulletListItem",
+        content: getInlineContent(element) as any,
+      };
+    }
+
+    return undefined;
+  },
 } satisfies BlockSpec<"bulletListItem", typeof bulletListItemPropSchema, true>;

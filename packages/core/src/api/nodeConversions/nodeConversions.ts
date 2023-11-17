@@ -180,7 +180,7 @@ export function blockToNode<BSchema extends BlockSchema>(
 /**
  * Converts an internal (prosemirror) content node to a BlockNote InlineContent array.
  */
-function contentNodeToInlineContent(contentNode: Node) {
+export function contentNodeToInlineContent(contentNode: Node) {
   const content: InlineContent[] = [];
   let currentContent: InlineContent | undefined = undefined;
 

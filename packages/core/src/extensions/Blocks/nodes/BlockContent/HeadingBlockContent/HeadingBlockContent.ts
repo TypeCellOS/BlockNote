@@ -82,19 +82,16 @@ const HeadingBlockContent = createTipTapBlock<"heading", true>({
   parseHTML() {
     return [
       {
-        tag: "h1",
-        attrs: { level: 1 },
-        node: "heading",
-      },
-      {
-        tag: "h2",
-        attrs: { level: 2 },
-        node: "heading",
-      },
-      {
-        tag: "h3",
-        attrs: { level: 3 },
-        node: "heading",
+        tag: "div[data-content-type=" + this.name + "]",
+        getAttrs: (element) => {
+          if (typeof element === "string") {
+            return false;
+          }
+
+          return {
+            level: element.getAttribute("data-level"),
+          };
+        },
       },
     ];
   },
@@ -117,4 +114,19 @@ export const Heading = {
   propSchema: headingPropSchema,
   toInternalHTML: defaultBlockToHTML,
   toExternalHTML: defaultBlockToHTML,
+  fromExternalHTML: (element, getInlineContent) => {
+    for (let level = 1; level <= 3; level++) {
+      if (element.tagName === `H${level}`) {
+        return {
+          type: "heading",
+          props: {
+            level: level,
+          } as any,
+          content: getInlineContent(element) as any,
+        };
+      }
+    }
+
+    return;
+  },
 } satisfies BlockSpec<"heading", typeof headingPropSchema, true>;

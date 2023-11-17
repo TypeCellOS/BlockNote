@@ -1,13 +1,14 @@
 import { Attribute, Attributes, Editor, Node } from "@tiptap/core";
-import { ParseRule } from "prosemirror-model";
 import {
   BlockConfig,
   BlockNoteDOMAttributes,
+  BlockSchema,
   BlockSchemaWithBlock,
   BlockSpec,
   Props,
   PropSchema,
   SpecificBlock,
+  SpecificPartialBlock,
   TipTapNode,
   TipTapNodeConfig,
 } from "./blockTypes";
@@ -102,45 +103,11 @@ export function parse<
     "render" | "toExternalHTML"
   >
 ) {
-  const rules: ParseRule[] = [
+  return [
     {
       tag: "div[data-content-type=" + blockConfig.type + "]",
     },
   ];
-
-  // if (blockConfig.parse) {
-  //   rules.push({
-  //     tag: "*",
-  //     getAttrs(node: string | HTMLElement) {
-  //       if (typeof node === "string") {
-  //         return false;
-  //       }
-  //
-  //       const block = blockConfig.parse?.(node);
-  //
-  //       if (block === undefined) {
-  //         return false;
-  //       }
-  //
-  //       return block.props || {};
-  //     },
-  //     getContent(node, schema) {
-  //       const block = blockConfig.parse?.(node as HTMLElement);
-  //
-  //       if (block !== undefined && block.content !== undefined) {
-  //         return Fragment.from(
-  //           typeof block.content === "string"
-  //             ? schema.text(block.content)
-  //             : inlineContentToNodes(block.content, schema)
-  //         );
-  //       }
-  //
-  //       return Fragment.empty;
-  //     },
-  //   });
-  // }
-
-  return rules;
 }
 
 // Used to figure out which block should be rendered. This block is then used to
@@ -337,6 +304,10 @@ export function createBlockSpec<
         blockContentDOMAttributes
       );
     },
+    fromExternalHTML:
+      (blockConfig.fromExternalHTML as (
+        element: HTMLElement
+      ) => SpecificPartialBlock<BlockSchema, string>) || (() => undefined),
   };
 }
 

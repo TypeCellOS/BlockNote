@@ -2,9 +2,12 @@ import { BlockSchema } from "../../extensions/Blocks/api/blockTypes";
 import { BlockNoteEditor } from "../../BlockNoteEditor";
 import { Extension } from "@tiptap/core";
 import { Plugin } from "prosemirror-state";
+import { Fragment, Slice } from "prosemirror-model";
 import { createInternalHTMLSerializer } from "./html/internalHTMLSerializer";
 import { createExternalHTMLExporter } from "./html/externalHTMLExporter";
 import { markdown } from "../formatConversions/formatConversions";
+import { blockToNode } from "../nodeConversions/nodeConversions";
+import { parseExternalHTML } from "./html/parseExternalHTML";
 
 const acceptedMIMETypes = [
   "blocknote/html",
@@ -73,9 +76,24 @@ export const createClipboardHandlerExtension = <BSchema extends BlockSchema>(
                 }
 
                 if (format !== null) {
-                  editor._tiptapEditor.view.pasteHTML(
-                    event.clipboardData!.getData(format!)
-                  );
+                  // Use custom parser if only text/html is available (i.e. when
+                  // pasting content from external source)
+                  if (format === "text/html") {
+                    const html = event.clipboardData!.getData(format);
+                    const parsedNodes = parseExternalHTML(html, editor).map(
+                      (block) => blockToNode(block, schema)
+                    );
+
+                    editor._tiptapEditor.view.dispatch(
+                      editor._tiptapEditor.view.state.tr.replaceSelection(
+                        new Slice(Fragment.from(parsedNodes), 0, 0)
+                      )
+                    );
+                  } else {
+                    editor._tiptapEditor.view.pasteHTML(
+                      event.clipboardData!.getData(format!)
+                    );
+                  }
                 }
 
                 return true;

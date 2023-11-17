@@ -69,52 +69,8 @@ const NumberedListItemBlockContent = createTipTapBlock<
 
   parseHTML() {
     return [
-      // Case for regular HTML list structure.
-      // (e.g.: when pasting from other apps)
       {
-        tag: "li",
-        getAttrs: (element) => {
-          if (typeof element === "string") {
-            return false;
-          }
-
-          const parent = element.parentElement;
-
-          if (parent === null) {
-            return false;
-          }
-
-          if (parent.tagName === "OL") {
-            return {};
-          }
-
-          return false;
-        },
-        node: "numberedListItem",
-      },
-      // Case for BlockNote list structure.
-      // (e.g.: when pasting from blocknote)
-      {
-        tag: "p",
-        getAttrs: (element) => {
-          if (typeof element === "string") {
-            return false;
-          }
-
-          const parent = element.parentElement;
-
-          if (parent === null) {
-            return false;
-          }
-
-          if (parent.getAttribute("data-content-type") === "numberedListItem") {
-            return {};
-          }
-
-          return false;
-        },
-        priority: 300,
-        node: "numberedListItem",
+        tag: "div[data-content-type=" + this.name + "]",
       },
     ];
   },
@@ -140,6 +96,22 @@ export const NumberedListItem = {
   propSchema: numberedListItemPropSchema,
   toInternalHTML: defaultBlockToHTML,
   toExternalHTML: defaultBlockToHTML,
+  fromExternalHTML: (element, getInlineContent) => {
+    const parent = element.parentElement;
+
+    if (parent === null) {
+      return undefined;
+    }
+
+    if (parent.tagName === "OL" && element.tagName === "LI") {
+      return {
+        type: "numberedListItem",
+        content: getInlineContent(element) as any,
+      };
+    }
+
+    return undefined;
+  },
 } satisfies BlockSpec<
   "numberedListItem",
   typeof numberedListItemPropSchema,

@@ -158,9 +158,9 @@ export type BlockConfig<
     dom: HTMLElement;
     contentDOM?: HTMLElement;
   };
-  // parse?: (
-  //   element: HTMLElement
-  // ) => SpecificPartialBlock<BSchema, Type> | undefined;
+  fromExternalHTML?: (
+    element: HTMLElement
+  ) => SpecificPartialBlock<BSchema, Type> | undefined;
 };
 
 // Defines a single block spec, which includes the props that the block has and
@@ -195,6 +195,10 @@ export type BlockSpec<
     dom: HTMLElement;
     contentDOM?: HTMLElement;
   };
+  fromExternalHTML: (
+    element: HTMLElement,
+    getInlineContent: (element: HTMLElement) => InlineContent[]
+  ) => SpecificPartialBlock<BlockSchema, string> | undefined;
 };
 
 // Utility type. For a given object block schema, ensures that the key of each

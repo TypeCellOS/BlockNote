@@ -17,9 +17,7 @@ export const ParagraphBlockContent = createTipTapBlock<"paragraph", true>({
   parseHTML() {
     return [
       {
-        tag: "p",
-        priority: 200,
-        node: "paragraph",
+        tag: "div[data-content-type=" + this.name + "]",
       },
     ];
   },
@@ -42,4 +40,11 @@ export const Paragraph = {
   propSchema: paragraphPropSchema,
   toInternalHTML: defaultBlockToHTML,
   toExternalHTML: defaultBlockToHTML,
+  fromExternalHTML: (element, getInlineContent) => {
+    if (element.tagName === "P") {
+      return { type: "paragraph", content: getInlineContent(element) as any };
+    }
+
+    return;
+  },
 } satisfies BlockSpec<"paragraph", typeof paragraphPropSchema, true>;
