@@ -1,8 +1,7 @@
 import {
-  BaseUiElementState,
   Block,
   BlockNoteEditor,
-  BlockSchema,
+  BlockSchemaWithBlock,
   DefaultBlockSchema,
   TableHandlesState,
 } from "@blocknote/core";
@@ -10,24 +9,28 @@ import Tippy, { tippy } from "@tippyjs/react";
 import { FC, useEffect, useMemo, useRef, useState } from "react";
 import { DefaultTableHandle } from "./DefaultTableHandle";
 
-export type TableHandlesProps<
-  BSchema extends BlockSchema = DefaultBlockSchema
-> = Omit<TableHandlesState, keyof BaseUiElementState> & {
-  colIndex: number;
-  rowIndex: number;
-  block: Block<BSchema["table"]["config"]>;
-  editor: BlockNoteEditor<BSchema>;
+export type TableHandlesProps = Omit<
+  TableHandlesState,
+  "referencePosLeft" | "referencePosTop" | "show"
+> & {
+  editor: BlockNoteEditor<
+    BlockSchemaWithBlock<"table", DefaultBlockSchema["table"]["config"]>
+  >;
   side: "top" | "left";
 };
 
 export const TableHandlesPositioner = <
-  BSchema extends BlockSchema = DefaultBlockSchema
+  BSchema extends BlockSchemaWithBlock<
+    "table",
+    DefaultBlockSchema["table"]["config"]
+  >
 >(props: {
   editor: BlockNoteEditor<BSchema>;
-  tableHandle?: FC<TableHandlesProps<BSchema>>;
+  tableHandle?: FC<TableHandlesProps>;
 }) => {
   const [show, setShow] = useState<boolean>(false);
-  const [block, setBlock] = useState<Block<BSchema["table"]["config"]>>();
+  const [block, setBlock] =
+    useState<Block<DefaultBlockSchema["table"]["config"]>>();
   const [colIndex, setColIndex] = useState<number>();
   const [rowIndex, setRowIndex] = useState<number>();
   const [_, setForceUpdate] = useState<number>(0);
@@ -41,7 +44,7 @@ export const TableHandlesPositioner = <
     return props.editor.tableHandles.onUpdate((state) => {
       console.log("update", state);
       setShow(state.show);
-      setBlock(state.block as any); // TODO: types
+      setBlock(state.block);
       setColIndex(state.colIndex);
       setRowIndex(state.rowIndex);
       setForceUpdate(Math.random());
@@ -78,11 +81,11 @@ export const TableHandlesPositioner = <
 
     return (
       <TableHandle
-        editor={props.editor}
+        editor={props.editor as any}
         side={"top"}
         rowIndex={rowIndex!}
         colIndex={colIndex!}
-        block={block as any}
+        block={block!}
       />
     );
   }, [block, props.editor, props.tableHandle, rowIndex, colIndex]);
@@ -92,11 +95,12 @@ export const TableHandlesPositioner = <
 
     return (
       <TableHandle
-        editor={props.editor}
+        // This "as any" unfortunately seems complicated to fix
+        editor={props.editor as any}
         side={"left"}
         rowIndex={rowIndex!}
         colIndex={colIndex!}
-        block={block as any}
+        block={block!}
       />
     );
   }, [block, props.editor, props.tableHandle, rowIndex, colIndex]);

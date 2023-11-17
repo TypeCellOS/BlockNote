@@ -53,7 +53,7 @@ const blockConfig = {
 
 export const renderImage = (
   block: Block<typeof blockConfig>,
-  editor: BlockNoteEditor<BlockSchemaWithBlock<"image", typeof imagePropSchema>>
+  editor: BlockNoteEditor<BlockSchemaWithBlock<"image", typeof blockConfig>>
 ) => {
   // Wrapper element to set the image alignment, contains both image/image
   // upload dashboard and caption.

@@ -30,11 +30,11 @@ import { renderToString } from "react-dom/server";
 export type ReactCustomBlockImplementation<T extends CustomBlockConfig> = {
   render: FC<{
     block: Block<T>;
-    editor: BlockNoteEditor<BlockSchemaWithBlock<T["type"], T["propSchema"]>>;
+    editor: BlockNoteEditor<BlockSchemaWithBlock<T["type"], T>>;
   }>;
   toExternalHTML?: FC<{
     block: Block<T>;
-    editor: BlockNoteEditor<BlockSchemaWithBlock<T["type"], T["propSchema"]>>;
+    editor: BlockNoteEditor<BlockSchemaWithBlock<T["type"], T>>;
   }>;
 };
 

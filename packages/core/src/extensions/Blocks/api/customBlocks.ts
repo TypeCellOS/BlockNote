@@ -25,7 +25,7 @@ export type CustomBlockImplementation<T extends CustomBlockConfig> = {
      * This is typed generically. If you want an editor with your custom schema, you need to
      * cast it manually, e.g.: `const e = editor as BlockNoteEditor<typeof mySchema>;`
      */
-    editor: BlockNoteEditor<BlockSchemaWithBlock<T["type"], T["propSchema"]>>
+    editor: BlockNoteEditor<BlockSchemaWithBlock<T["type"], T>>
     // (note) if we want to fix the manual cast, we need to prevent circular references and separate block definition and render implementations
     // or allow manually passing <BSchema>, but that's not possible without passing the other generics because Typescript doesn't support partial inferred generics
   ) => {
@@ -39,7 +39,7 @@ export type CustomBlockImplementation<T extends CustomBlockConfig> = {
   // TODO: Maybe can return undefined to ignore when serializing?
   toExternalHTML?: (
     block: Block<T>,
-    editor: BlockNoteEditor<BlockSchemaWithBlock<T["type"], T["propSchema"]>>
+    editor: BlockNoteEditor<BlockSchemaWithBlock<T["type"], T>>
   ) => {
     dom: HTMLElement;
     contentDOM?: HTMLElement;
