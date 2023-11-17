@@ -1,13 +1,11 @@
-import { BlockSchema, TableContent } from "@blocknote/core";
+import { TableContent } from "@blocknote/core";
 
 import { Menu } from "@mantine/core";
 import { MdDragIndicator } from "react-icons/md";
 import { SideMenuButton } from "../../SideMenu/components/SideMenuButton";
 import { TableHandlesProps } from "./TableHandlePositioner";
 
-const DefaultTableHandleLeft = <BSchema extends BlockSchema>(
-  props: TableHandlesProps<BSchema>
-) => {
+const DefaultTableHandleLeft = (props: TableHandlesProps) => {
   return (
     <Menu
       trigger={"click"}
@@ -32,7 +30,7 @@ const DefaultTableHandleLeft = <BSchema extends BlockSchema>(
               ),
             };
 
-            props.editor.updateBlock(props.block, { content } as any); // TODO: type
+            props.editor.updateBlock(props.block, { type: "table", content });
           }}>
           Delete row
         </Menu.Item>
@@ -45,12 +43,14 @@ const DefaultTableHandleLeft = <BSchema extends BlockSchema>(
             rows.splice(props.rowIndex, 0, {
               cells: emptyCol,
             });
-            const content: TableContent = {
-              type: "tableContent",
-              rows,
-            };
 
-            props.editor.updateBlock(props.block, { content } as any); // TODO: type
+            props.editor.updateBlock(props.block, {
+              type: "table",
+              content: {
+                type: "tableContent",
+                rows,
+              },
+            });
           }}>
           Add row above
         </Menu.Item>
@@ -65,12 +65,12 @@ const DefaultTableHandleLeft = <BSchema extends BlockSchema>(
               cells: emptyCol,
             });
 
-            const content: TableContent = {
-              type: "tableContent",
-              rows,
-            };
-
-            props.editor.updateBlock(props.block, { content } as any); // TODO: type
+            props.editor.updateBlock(props.block, {
+              content: {
+                type: "tableContent",
+                rows,
+              },
+            });
           }}>
           Add row below
         </Menu.Item>
@@ -79,9 +79,7 @@ const DefaultTableHandleLeft = <BSchema extends BlockSchema>(
   );
 };
 
-const DefaultTableHandleTop = <BSchema extends BlockSchema>(
-  props: TableHandlesProps<BSchema>
-) => {
+const DefaultTableHandleTop = (props: TableHandlesProps) => {
   return (
     <Menu
       trigger={"click"}
@@ -110,7 +108,7 @@ const DefaultTableHandleTop = <BSchema extends BlockSchema>(
               })),
             };
 
-            props.editor.updateBlock(props.block, { content } as any); // TODO: type
+            props.editor.updateBlock(props.block, { content });
           }}>
           Delete column
         </Menu.Item>
@@ -125,7 +123,7 @@ const DefaultTableHandleTop = <BSchema extends BlockSchema>(
               }),
             };
 
-            props.editor.updateBlock(props.block, { content } as any); // TODO: type
+            props.editor.updateBlock(props.block, { content });
           }}>
           Add column left
         </Menu.Item>
@@ -140,7 +138,7 @@ const DefaultTableHandleTop = <BSchema extends BlockSchema>(
               }),
             };
 
-            props.editor.updateBlock(props.block, { content } as any); // TODO: type
+            props.editor.updateBlock(props.block, { content });
           }}>
           Add column right
         </Menu.Item>

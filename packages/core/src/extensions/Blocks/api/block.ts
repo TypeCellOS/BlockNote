@@ -126,8 +126,8 @@ export function parse(blockConfig: BlockConfig) {
 // create the node view.
 export function getBlockFromPos<
   BType extends string,
-  PSchema extends PropSchema,
-  BSchema extends BlockSchemaWithBlock<BType, PSchema>
+  Config extends BlockConfig,
+  BSchema extends BlockSchemaWithBlock<BType, Config>
 >(
   getPos: (() => number) | boolean,
   editor: BlockNoteEditor<BSchema>,

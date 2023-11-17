@@ -147,6 +147,7 @@ export const getDefaultSlashMenuItems = <BSchema extends BlockSchema>(
           content: {
             type: "tableContent",
             rows: [
+              // TODO: replace with empty content before merging
               {
                 cells: [
                   "ab",
