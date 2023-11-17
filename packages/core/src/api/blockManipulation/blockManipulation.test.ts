@@ -76,6 +76,52 @@ afterEach(() => {
   editor = undefined as any;
 });
 
+describe("Test strong typing", () => {
+  it("checks that block types are inferred correctly", () => {
+    try {
+      editor.updateBlock(
+        { id: "sdf" },
+        {
+          // @ts-expect-error invalid type
+          type: "non-existing",
+        }
+      );
+    } catch (e) {
+      // id doesn't exists, which is fine, this is a compile-time check
+    }
+  });
+
+  it("checks that block props are inferred correctly", () => {
+    try {
+      editor.updateBlock(
+        { id: "sdf" },
+        {
+          type: "paragraph",
+          props: {
+            // @ts-expect-error level not suitable for paragraph
+            level: 1,
+          },
+        }
+      );
+    } catch (e) {
+      // id doesn't exists, which is fine, this is a compile-time check
+    }
+    try {
+      editor.updateBlock(
+        { id: "sdf" },
+        {
+          type: "heading",
+          props: {
+            level: 1,
+          },
+        }
+      );
+    } catch (e) {
+      // id doesn't exists, which is fine, this is a compile-time check
+    }
+  });
+});
+
 describe("Inserting Blocks with Different Placements", () => {
   it("Insert before existing block", async () => {
     await waitForEditor();
