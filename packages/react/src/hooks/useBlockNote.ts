@@ -4,6 +4,7 @@ import {
   BlockSchema,
   BlockSpecs,
   defaultBlockSpecs,
+  getBlockSchemaFromSpecs,
 } from "@blocknote/core";
 import {
   StyleSchema,
@@ -24,7 +25,9 @@ const initEditor = <
 ) =>
   BlockNoteEditor.create({
     slashMenuItems: getDefaultReactSlashMenuItems<BSchema, SSchema>(
-      options.blockSpecs || (defaultBlockSpecs as any)
+      getBlockSchemaFromSpecs(
+        options.blockSpecs || defaultBlockSpecs
+      ) as BSchema
     ),
     ...options,
   });

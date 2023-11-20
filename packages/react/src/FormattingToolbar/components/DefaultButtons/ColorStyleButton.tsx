@@ -37,6 +37,7 @@ export const ColorStyleButton = <BSchema extends BlockSchema>(props: {
   const setTextColor = useCallback(
     (color: string) => {
       props.editor.focus();
+      debugger;
       color === "default"
         ? props.editor.removeStyles({ textColor: color })
         : props.editor.addStyles({ textColor: color });

@@ -232,13 +232,8 @@ export class BlockNoteEditor<
       styleSpecs: StyleSpecs;
     } = {
       defaultStyles: true,
-      // TODO: There's a lot of annoying typing stuff to deal with here. If
-      //  BSchema is specified, then options.blockSchema should also be required.
-      //  If BSchema is not specified, then options.blockSchema should also not
-      //  be defined. Unfortunately, trying to implement these constraints seems
-      //  to be a huge pain, hence the `as any` casts.
-      blockSpecs: options.blockSpecs || (defaultBlockSchema as any),
-      styleSpecs: options.styleSpecs || (defaultStyleSpecs as any),
+      blockSpecs: options.blockSpecs || defaultBlockSpecs,
+      styleSpecs: options.styleSpecs || defaultStyleSpecs,
       ...options,
     };
 
