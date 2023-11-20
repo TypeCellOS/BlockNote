@@ -16,8 +16,8 @@ export const TextColorExtension = Extension.create({
                 ? element.getAttribute("data-text-color")
                 : defaultProps.textColor.default,
             renderHTML: (attributes) =>
-              attributes.stringValue !== defaultProps.textColor.default && {
-                "data-text-color": attributes.stringValue,
+              attributes.textColor !== defaultProps.textColor.default && {
+                "data-text-color": attributes.textColor,
               },
           },
         },

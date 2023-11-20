@@ -16,9 +16,9 @@ export const BackgroundColorExtension = Extension.create({
                 ? element.getAttribute("data-background-color")
                 : defaultProps.backgroundColor.default,
             renderHTML: (attributes) =>
-              attributes.stringValue !==
+              attributes.backgroundColor !==
                 defaultProps.backgroundColor.default && {
-                "data-background-color": attributes.stringValue,
+                "data-background-color": attributes.backgroundColor,
               },
           },
         },
