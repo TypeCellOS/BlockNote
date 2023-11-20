@@ -46,7 +46,7 @@ import { SlashMenuProsemirrorPlugin } from "./extensions/SlashMenu/SlashMenuPlug
 import { getDefaultSlashMenuItems } from "./extensions/SlashMenu/defaultSlashMenuItems";
 import { TableHandlesProsemirrorPlugin } from "./extensions/TableHandles/TableHandlesPlugin";
 import { UniqueID } from "./extensions/UniqueID/UniqueID";
-import { mergeCSSClasses } from "./shared/utils";
+import { UnreachableCaseError, mergeCSSClasses } from "./shared/utils";
 
 export type BlockNoteEditorOptions<BSchema extends BlockSchema> = {
   // TODO: Figure out if enableBlockNoteExtensions/disableHistoryExtension are needed and document them.
@@ -494,7 +494,7 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
     )!;
 
     const contentType: "none" | "inline" | "table" =
-      this.schema[contentNode.type.name].config.content;
+      this.schema[contentNode.type.name]!.config.content;
 
     if (contentType === "none") {
       this._tiptapEditor.commands.setNodeSelection(startPos);
@@ -509,9 +509,7 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
           startPos + contentNode.nodeSize - 1
         );
       }
-    }
-
-    if (contentType === "table") {
+    } else if (contentType === "table") {
       if (placement === "start") {
         // Need to offset the position as we have to get through the `tableRow`
         // and `tableCell` nodes to get to the `tableParagraph` node we want to
@@ -522,6 +520,8 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
           startPos + contentNode.nodeSize - 4
         );
       }
+    } else {
+      throw new UnreachableCaseError(contentType);
     }
   }
 
