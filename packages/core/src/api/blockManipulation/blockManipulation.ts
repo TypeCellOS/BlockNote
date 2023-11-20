@@ -1,30 +1,39 @@
 import { Editor } from "@tiptap/core";
 import { Node } from "prosemirror-model";
+import { BlockNoteEditor } from "../..";
 import {
   BlockIdentifier,
   BlockSchema,
   PartialBlock,
 } from "../../extensions/Blocks/api/blockTypes";
+import { StyleSchema } from "../../extensions/Blocks/api/styles";
 import { blockToNode } from "../nodeConversions/nodeConversions";
 import { getNodeById } from "../util/nodeUtil";
 
-export function insertBlocks<BSchema extends BlockSchema>(
-  blocksToInsert: PartialBlock<BSchema>[],
+export function insertBlocks<
+  BSchema extends BlockSchema,
+  S extends StyleSchema
+>(
+  blocksToInsert: PartialBlock<BSchema, S>[],
   referenceBlock: BlockIdentifier,
   placement: "before" | "after" | "nested" = "before",
-  editor: Editor
+  editor: BlockNoteEditor<BSchema, S>
 ): void {
+  const ttEditor = editor._tiptapEditor;
+
   const id =
     typeof referenceBlock === "string" ? referenceBlock : referenceBlock.id;
 
   const nodesToInsert: Node[] = [];
   for (const blockSpec of blocksToInsert) {
-    nodesToInsert.push(blockToNode(blockSpec, editor.schema));
+    nodesToInsert.push(
+      blockToNode(blockSpec, ttEditor.schema, editor.styleSchema)
+    );
   }
 
   let insertionPos = -1;
 
-  const { node, posBeforeNode } = getNodeById(id, editor.state.doc);
+  const { node, posBeforeNode } = getNodeById(id, ttEditor.state.doc);
 
   if (placement === "before") {
     insertionPos = posBeforeNode;
@@ -39,13 +48,13 @@ export function insertBlocks<BSchema extends BlockSchema>(
     if (node.childCount < 2) {
       insertionPos = posBeforeNode + node.firstChild!.nodeSize + 1;
 
-      const blockGroupNode = editor.state.schema.nodes["blockGroup"].create(
+      const blockGroupNode = ttEditor.state.schema.nodes["blockGroup"].create(
         {},
         nodesToInsert
       );
 
-      editor.view.dispatch(
-        editor.state.tr.insert(insertionPos, blockGroupNode)
+      ttEditor.view.dispatch(
+        ttEditor.state.tr.insert(insertionPos, blockGroupNode)
       );
 
       return;
@@ -54,12 +63,12 @@ export function insertBlocks<BSchema extends BlockSchema>(
     insertionPos = posBeforeNode + node.firstChild!.nodeSize + 2;
   }
 
-  editor.view.dispatch(editor.state.tr.insert(insertionPos, nodesToInsert));
+  ttEditor.view.dispatch(ttEditor.state.tr.insert(insertionPos, nodesToInsert));
 }
 
-export function updateBlock<BSchema extends BlockSchema>(
+export function updateBlock<BSchema extends BlockSchema, S extends StyleSchema>(
   blockToUpdate: BlockIdentifier,
-  update: PartialBlock<BSchema>,
+  update: PartialBlock<BSchema, S>,
   editor: Editor
 ) {
   const id =
@@ -116,11 +125,14 @@ export function removeBlocks(
   }
 }
 
-export function replaceBlocks<BSchema extends BlockSchema>(
+export function replaceBlocks<
+  BSchema extends BlockSchema,
+  S extends StyleSchema
+>(
   blocksToRemove: BlockIdentifier[],
-  blocksToInsert: PartialBlock<BSchema>[],
-  editor: Editor
+  blocksToInsert: PartialBlock<BSchema, S>[],
+  editor: BlockNoteEditor<BSchema, S>
 ) {
   insertBlocks(blocksToInsert, blocksToRemove[0], "before", editor);
-  removeBlocks(blocksToRemove, editor);
+  removeBlocks(blocksToRemove, editor._tiptapEditor);
 }

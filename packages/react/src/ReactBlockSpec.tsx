@@ -1,5 +1,5 @@
 import {
-  Block,
+  BlockFromConfig,
   BlockNoteDOMAttributes,
   BlockNoteEditor,
   BlockSchemaWithBlock,
@@ -15,6 +15,7 @@ import {
   PropSchema,
   propsToAttributes,
 } from "@blocknote/core";
+import { StyleSchema } from "@blocknote/core/src/extensions/Blocks/api/styles";
 import {
   NodeViewContent,
   NodeViewProps,
@@ -27,14 +28,17 @@ import { renderToString } from "react-dom/server";
 // this file is mostly analogoues to `customBlocks.ts`, but for React blocks
 
 // extend BlockConfig but use a React render function
-export type ReactCustomBlockImplementation<T extends CustomBlockConfig> = {
+export type ReactCustomBlockImplementation<
+  T extends CustomBlockConfig,
+  S extends StyleSchema
+> = {
   render: FC<{
-    block: Block<T>;
-    editor: BlockNoteEditor<BlockSchemaWithBlock<T["type"], T>>;
+    block: BlockFromConfig<T, S>;
+    editor: BlockNoteEditor<BlockSchemaWithBlock<T["type"], T>, S>;
   }>;
   toExternalHTML?: FC<{
-    block: Block<T>;
-    editor: BlockNoteEditor<BlockSchemaWithBlock<T["type"], T>>;
+    block: BlockFromConfig<T, S>;
+    editor: BlockNoteEditor<BlockSchemaWithBlock<T["type"], T>, S>;
   }>;
 };
 
@@ -114,10 +118,10 @@ export function reactWrapInBlockStructure<
 
 // A function to create custom block for API consumers
 // we want to hide the tiptap node from API consumers and provide a simpler API surface instead
-export function createReactBlockSpec<T extends CustomBlockConfig>(
-  blockConfig: T,
-  blockImplementation: ReactCustomBlockImplementation<T>
-) {
+export function createReactBlockSpec<
+  T extends CustomBlockConfig,
+  S extends StyleSchema
+>(blockConfig: T, blockImplementation: ReactCustomBlockImplementation<T, S>) {
   const node = createStronglyTypedTiptapNode({
     name: blockConfig.type as T["type"],
     content: (blockConfig.content === "inline"
@@ -153,7 +157,7 @@ export function createReactBlockSpec<T extends CustomBlockConfig>(
 
             const Content = blockImplementation.render;
             const BlockContent = reactWrapInBlockStructure(
-              <Content block={block} editor={editor} />,
+              <Content block={block} editor={editor as any} />,
               block.type,
               block.props,
               blockConfig.propSchema,

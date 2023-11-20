@@ -1,7 +1,8 @@
-import { Block } from "../../../..";
+import { Block, BlockSchema } from "../../../..";
 import { BlockNoteEditor } from "../../../../BlockNoteEditor";
 import { blockToNode } from "../../../../api/nodeConversions/nodeConversions";
 import { mergeCSSClasses } from "../../../../shared/utils";
+import { StyleSchema } from "../../api/styles";
 
 // Function that creates a ProseMirror `DOMOutputSpec` for a default block.
 // Since all default blocks have the same structure (`blockContent` div with a
@@ -51,14 +52,21 @@ export function createDefaultBlockDOMOutputSpec(
 // Function used to convert default blocks to HTML. It uses the corresponding
 // node's `renderHTML` method to do the conversion by using a default
 // `DOMSerializer`.
-export const defaultBlockToHTML = (
-  block: Block<any>,
-  editor: BlockNoteEditor<any>
+export const defaultBlockToHTML = <
+  BSchema extends BlockSchema,
+  S extends StyleSchema
+>(
+  block: Block<BSchema, S>,
+  editor: BlockNoteEditor<BSchema, S>
 ): {
   dom: HTMLElement;
   contentDOM?: HTMLElement;
 } => {
-  const node = blockToNode(block, editor._tiptapEditor.schema).firstChild!;
+  const node = blockToNode(
+    block,
+    editor._tiptapEditor.schema,
+    editor.styleSchema
+  ).firstChild!;
   const toDOM = editor._tiptapEditor.schema.nodes[node.type.name].spec.toDOM;
 
   if (toDOM === undefined) {

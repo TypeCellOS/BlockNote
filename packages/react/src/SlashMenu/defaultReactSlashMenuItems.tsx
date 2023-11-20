@@ -5,6 +5,7 @@ import {
   DefaultBlockSchema,
   getDefaultSlashMenuItems,
 } from "@blocknote/core";
+import { StyleSchema } from "@blocknote/core/src/extensions/Blocks/api/styles";
 import {
   RiH1,
   RiH2,
@@ -74,14 +75,17 @@ const extraFields: Record<
   },
 };
 
-export function getDefaultReactSlashMenuItems<BSchema extends BlockSchema>(
+export function getDefaultReactSlashMenuItems<
+  BSchema extends BlockSchema,
+  S extends StyleSchema
+>(
   // This type casting is weird, but it's the best way of doing it, as it allows
   // the schema type to be automatically inferred if it is defined, or be
   // inferred as any if it is not defined. I don't think it's possible to make it
   // infer to DefaultBlockSchema if it is not defined.
-  schema: BSchema = defaultBlockSchema as unknown as BSchema
-): ReactSlashMenuItem<BSchema>[] {
-  const slashMenuItems: BaseSlashMenuItem<BSchema>[] =
+  schema: BSchema = defaultBlockSchema as any as BSchema
+): ReactSlashMenuItem<BSchema, S>[] {
+  const slashMenuItems: BaseSlashMenuItem<BSchema, S>[] =
     getDefaultSlashMenuItems(schema);
 
   return slashMenuItems.map((item) => ({

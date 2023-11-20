@@ -1,4 +1,5 @@
 import { BlockNoteEditor, BlockSchema, mergeCSSClasses } from "@blocknote/core";
+import { StyleSchema } from "@blocknote/core/src/extensions/Blocks/api/styles";
 import { MantineProvider, createStyles } from "@mantine/core";
 import { EditorContent } from "@tiptap/react";
 import { HTMLAttributes, ReactNode, useMemo } from "react";
@@ -13,9 +14,12 @@ import { TableHandlesPositioner } from "./TableHandles/components/TableHandlePos
 import { darkDefaultTheme, lightDefaultTheme } from "./defaultThemes";
 
 // Renders the editor as well as all menus & toolbars using default styles.
-function BaseBlockNoteView<BSchema extends BlockSchema>(
+function BaseBlockNoteView<
+  BSchema extends BlockSchema,
+  SSchema extends StyleSchema
+>(
   props: {
-    editor: BlockNoteEditor<BSchema>;
+    editor: BlockNoteEditor<BSchema, SSchema>;
     children?: ReactNode;
   } & HTMLAttributes<HTMLDivElement>
 ) {
@@ -44,9 +48,12 @@ function BaseBlockNoteView<BSchema extends BlockSchema>(
   );
 }
 
-export function BlockNoteView<BSchema extends BlockSchema>(
+export function BlockNoteView<
+  BSchema extends BlockSchema,
+  SSchema extends StyleSchema
+>(
   props: {
-    editor: BlockNoteEditor<BSchema>;
+    editor: BlockNoteEditor<BSchema, SSchema>;
     theme?:
       | "light"
       | "dark"

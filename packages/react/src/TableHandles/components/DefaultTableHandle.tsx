@@ -1,11 +1,21 @@
-import { TableContent } from "@blocknote/core";
+import {
+  BlockSchemaWithBlock,
+  DefaultBlockSchema,
+  TableContent,
+} from "@blocknote/core";
 
+import { StyleSchema } from "@blocknote/core/src/extensions/Blocks/api/styles";
 import { Menu } from "@mantine/core";
 import { MdDragIndicator } from "react-icons/md";
 import { SideMenuButton } from "../../SideMenu/components/SideMenuButton";
 import { TableHandlesProps } from "./TableHandlePositioner";
 
-const DefaultTableHandleLeft = (props: TableHandlesProps) => {
+const DefaultTableHandleLeft = (
+  props: TableHandlesProps<
+    BlockSchemaWithBlock<"table", DefaultBlockSchema["table"]>,
+    StyleSchema
+  >
+) => {
   return (
     <Menu
       trigger={"click"}
@@ -79,7 +89,12 @@ const DefaultTableHandleLeft = (props: TableHandlesProps) => {
   );
 };
 
-const DefaultTableHandleTop = (props: TableHandlesProps) => {
+const DefaultTableHandleTop = (
+  props: TableHandlesProps<
+    BlockSchemaWithBlock<"table", DefaultBlockSchema["table"]>,
+    StyleSchema
+  >
+) => {
   return (
     <Menu
       trigger={"click"}
@@ -147,7 +162,12 @@ const DefaultTableHandleTop = (props: TableHandlesProps) => {
   );
 };
 
-export const DefaultTableHandle = (props: TableHandlesProps) => {
+export const DefaultTableHandle = (
+  props: TableHandlesProps<
+    BlockSchemaWithBlock<"table", DefaultBlockSchema["table"]>,
+    any
+  >
+) => {
   if (props.side === "left") {
     return <DefaultTableHandleLeft {...props} />;
   } else {

@@ -1,6 +1,5 @@
-import { BlockNoteEditor, BlockSchema, ToggledStyle } from "@blocknote/core";
+import { BlockNoteEditor, BlockSchema } from "@blocknote/core";
 import { useMemo, useState } from "react";
-import { IconType } from "react-icons";
 import {
   RiBold,
   RiCodeFill,
@@ -9,12 +8,13 @@ import {
   RiUnderline,
 } from "react-icons/ri";
 
+import { StyleSchema } from "@blocknote/core/src/extensions/Blocks/api/styles";
 import { ToolbarButton } from "../../../SharedComponents/Toolbar/components/ToolbarButton";
 import { useEditorChange } from "../../../hooks/useEditorChange";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
 import { formatKeyboardShortcut } from "../../../utils";
 
-const shortcuts: Record<ToggledStyle, string> = {
+const shortcuts = {
   bold: "Mod+B",
   italic: "Mod+I",
   underline: "Mod+U",
@@ -22,7 +22,7 @@ const shortcuts: Record<ToggledStyle, string> = {
   code: "",
 };
 
-const icons: Record<ToggledStyle, IconType> = {
+const icons = {
   bold: RiBold,
   italic: RiItalic,
   underline: RiUnderline,
@@ -30,9 +30,12 @@ const icons: Record<ToggledStyle, IconType> = {
   code: RiCodeFill,
 };
 
-export const ToggledStyleButton = <BSchema extends BlockSchema>(props: {
-  editor: BlockNoteEditor<BSchema>;
-  toggledStyle: ToggledStyle;
+export const ToggledStyleButton = <
+  BSchema extends BlockSchema,
+  S extends StyleSchema
+>(props: {
+  editor: BlockNoteEditor<BSchema, S>;
+  toggledStyle: keyof typeof shortcuts;
 }) => {
   const selectedBlocks = useSelectedBlocks(props.editor);
 
@@ -44,9 +47,12 @@ export const ToggledStyleButton = <BSchema extends BlockSchema>(props: {
     setActive(props.toggledStyle in props.editor.getActiveStyles());
   });
 
-  const toggleStyle = (style: ToggledStyle) => {
+  const toggleStyle = (style: typeof props.toggledStyle) => {
     props.editor.focus();
-    props.editor.toggleStyles({ [style]: true });
+    if (props.editor.styleSchema[style].propSchema !== "boolean") {
+      throw new Error("can only toggle boolean styles");
+    }
+    props.editor.toggleStyles({ [style]: true } as any);
   };
 
   const show = useMemo(() => {

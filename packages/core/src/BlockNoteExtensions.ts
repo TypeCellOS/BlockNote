@@ -23,7 +23,9 @@ import { BlockContainer, BlockGroup, Doc } from "./extensions/Blocks";
 import {
   BlockNoteDOMAttributes,
   BlockSchema,
+  BlockSpecs,
 } from "./extensions/Blocks/api/blockTypes";
+import { StyleSchema } from "./extensions/Blocks/api/styles";
 import { TableExtension } from "./extensions/Blocks/nodes/BlockContent/TableBlockContent/TableExtension";
 import { Placeholder } from "./extensions/Placeholder/PlaceholderExtension";
 import { TextAlignmentExtension } from "./extensions/TextAlignment/TextAlignmentExtension";
@@ -35,10 +37,14 @@ import UniqueID from "./extensions/UniqueID/UniqueID";
 /**
  * Get all the Tiptap extensions BlockNote is configured with by default
  */
-export const getBlockNoteExtensions = <BSchema extends BlockSchema>(opts: {
-  editor: BlockNoteEditor<BSchema>;
+export const getBlockNoteExtensions = <
+  BSchema extends BlockSchema,
+  S extends StyleSchema
+>(opts: {
+  editor: BlockNoteEditor<BSchema, S>;
   domAttributes: Partial<BlockNoteDOMAttributes>;
   blockSchema: BSchema;
+  blockSpecs: BlockSpecs;
   collaboration?: {
     fragment: Y.XmlFragment;
     user: {
@@ -89,13 +95,14 @@ export const getBlockNoteExtensions = <BSchema extends BlockSchema>(opts: {
     // nodes
     Doc,
     BlockContainer.configure({
+      editor: opts.editor as any,
       domAttributes: opts.domAttributes,
     }),
     BlockGroup.configure({
       domAttributes: opts.domAttributes,
     }),
     TableExtension,
-    ...Object.values(opts.blockSchema).flatMap((blockSpec) => {
+    ...Object.values(opts.blockSpecs).flatMap((blockSpec) => {
       return [
         // dependent nodes (e.g.: tablecell / row)
         ...(blockSpec.implementation.requiredNodes || []).map((node) =>

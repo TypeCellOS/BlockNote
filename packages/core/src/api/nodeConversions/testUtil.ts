@@ -9,10 +9,11 @@ import {
   PartialInlineContent,
   StyledText,
 } from "../../extensions/Blocks/api/inlineContentTypes";
+import { StyleSchema } from "../../extensions/Blocks/api/styles";
 
 function textShorthandToStyledText(
-  content: string | StyledText[] = ""
-): StyledText[] {
+  content: string | StyledText<any>[] = ""
+): StyledText<any>[] {
   if (typeof content === "string") {
     return [
       {
@@ -26,8 +27,8 @@ function textShorthandToStyledText(
 }
 
 function partialContentToInlineContent(
-  content: string | PartialInlineContent[] | TableContent = ""
-): InlineContent[] | TableContent {
+  content: string | PartialInlineContent<any>[] | TableContent<any> = ""
+): InlineContent<any>[] | TableContent<any> {
   if (typeof content === "string") {
     return textShorthandToStyledText(content);
   }
@@ -48,10 +49,11 @@ function partialContentToInlineContent(
   return content;
 }
 
-export function partialBlockToBlockForTesting<BSchema extends BlockSchema>(
-  partialBlock: PartialBlock<BSchema>
-): Block<BSchema> {
-  const withDefaults: Block<any> = {
+export function partialBlockToBlockForTesting<
+  BSchema extends BlockSchema,
+  S extends StyleSchema
+>(partialBlock: PartialBlock<BSchema, S>): Block<BSchema, S> {
+  const withDefaults: Block<BSchema, S> = {
     id: "",
     type: "paragraph",
     // because at this point we don't have an easy way to access default props at runtime,
@@ -65,6 +67,8 @@ export function partialBlockToBlockForTesting<BSchema extends BlockSchema>(
   return {
     ...withDefaults,
     content: partialContentToInlineContent(withDefaults.content),
-    children: withDefaults.children.map(partialBlockToBlockForTesting),
+    children: withDefaults.children.map((c) => {
+      return partialBlockToBlockForTesting(c);
+    }),
   } as any;
 }

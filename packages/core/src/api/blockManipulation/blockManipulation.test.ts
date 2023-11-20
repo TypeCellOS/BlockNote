@@ -21,7 +21,7 @@ let multipleBlocks: PartialBlock[];
 let insert: (placement: "before" | "nested" | "after") => Block[];
 
 beforeEach(() => {
-  editor = new BlockNoteEditor();
+  editor = BlockNoteEditor.create();
 
   singleBlock = {
     type: "paragraph",

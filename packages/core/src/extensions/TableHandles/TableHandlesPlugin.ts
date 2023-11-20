@@ -3,22 +3,25 @@ import { EditorView } from "prosemirror-view";
 import {
   BaseUiElementCallbacks,
   BlockNoteEditor,
-  BlockSchema,
+  BlockSchemaWithBlock,
+  DefaultBlockSchema,
+  SpecificBlock,
   getDraggableBlockFromCoords,
 } from "../..";
 import { EventEmitter } from "../../shared/EventEmitter";
-import { Block } from "../Blocks/api/blockTypes";
-import { Image } from "../Blocks/nodes/BlockContent/ImageBlockContent/ImageBlockContent";
-import { Table } from "../Blocks/nodes/BlockContent/TableBlockContent/TableBlockContent";
+import { StyleSchema } from "../Blocks/api/styles";
 export type TableHandlesCallbacks = BaseUiElementCallbacks;
 
-export type TableHandlesState = {
+export type TableHandlesState<
+  BSchema extends BlockSchemaWithBlock<"table", DefaultBlockSchema["table"]>,
+  S extends StyleSchema
+> = {
   show: boolean;
   referencePosTop: { top: number; left: number };
   referencePosLeft: { top: number; left: number };
   colIndex: number;
   rowIndex: number;
-  block: Block<(typeof Table)["config"]>;
+  block: SpecificBlock<BSchema, "table", S>;
 };
 
 function getChildIndex(node: HTMLElement) {
@@ -34,18 +37,19 @@ function domCellAround(target: HTMLElement | null): HTMLElement | null {
   return target;
 }
 
-export class TableHandlesView {
-  private state?: TableHandlesState;
+export class TableHandlesView<
+  BSchema extends BlockSchemaWithBlock<"table", DefaultBlockSchema["table"]>,
+  S extends StyleSchema
+> {
+  private state?: TableHandlesState<BSchema, S>;
   public updateState: () => void;
 
   public prevWasEditable: boolean | null = null;
 
   constructor(
-    private readonly editor: BlockNoteEditor<any>,
-    // @ts-ignore
-    private readonly pluginKey: PluginKey,
+    private readonly editor: BlockNoteEditor<BSchema, S>,
     private readonly pmView: EditorView,
-    updateState: (state: TableHandlesState) => void
+    updateState: (state: TableHandlesState<BSchema, S>) => void
   ) {
     this.updateState = () => {
       if (!this.state) {
@@ -83,8 +87,10 @@ export class TableHandlesView {
       target.parentElement!.parentElement!.getBoundingClientRect();
 
     const blockEl = getDraggableBlockFromCoords(cellRect, this.pmView);
-    const block = this.editor.getBlock(blockEl!.id)! as Block<
-      (typeof Table)["config"]
+    const block = this.editor.getBlock(blockEl!.id)! as any as SpecificBlock<
+      BSchema,
+      "table",
+      S
     >;
 
     this.state = {
@@ -193,26 +199,22 @@ export class TableHandlesView {
 export const tableHandlesPluginKey = new PluginKey("TableHandlesPlugin");
 
 export class TableHandlesProsemirrorPlugin<
-  BSchema extends BlockSchema
+  BSchema extends BlockSchemaWithBlock<"table", DefaultBlockSchema["table"]>,
+  S extends StyleSchema
 > extends EventEmitter<any> {
-  private view: TableHandlesView | undefined;
+  private view: TableHandlesView<BSchema, S> | undefined;
   public readonly plugin: Plugin;
 
-  constructor(editor: BlockNoteEditor<BSchema>) {
+  constructor(editor: BlockNoteEditor<BSchema, S>) {
     super();
     this.plugin = new Plugin<{
-      block: Block<(typeof Image)["config"]> | undefined;
+      block: SpecificBlock<BSchema, "table", S> | undefined;
     }>({
       key: tableHandlesPluginKey,
       view: (editorView) => {
-        this.view = new TableHandlesView(
-          editor,
-          tableHandlesPluginKey,
-          editorView,
-          (state) => {
-            this.emit("update", state);
-          }
-        );
+        this.view = new TableHandlesView(editor, editorView, (state) => {
+          this.emit("update", state);
+        });
         return this.view;
       },
       state: {
@@ -222,7 +224,7 @@ export class TableHandlesProsemirrorPlugin<
           };
         },
         apply: (transaction) => {
-          const block: Block<(typeof Image)["config"]> | undefined =
+          const block: SpecificBlock<BSchema, "table", S> | undefined =
             transaction.getMeta(tableHandlesPluginKey)?.block;
 
           return {
@@ -233,7 +235,7 @@ export class TableHandlesProsemirrorPlugin<
     });
   }
 
-  public onUpdate(callback: (state: TableHandlesState) => void) {
+  public onUpdate(callback: (state: TableHandlesState<BSchema, S>) => void) {
     return this.on("update", callback);
   }
 }

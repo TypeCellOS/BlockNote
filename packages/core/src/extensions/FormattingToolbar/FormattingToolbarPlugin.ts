@@ -8,12 +8,13 @@ import {
   BlockSchema,
 } from "../..";
 import { EventEmitter } from "../../shared/EventEmitter";
+import { StyleSchema } from "../Blocks/api/styles";
 
 export type FormattingToolbarCallbacks = BaseUiElementCallbacks;
 
 export type FormattingToolbarState = BaseUiElementState;
 
-export class FormattingToolbarView<BSchema extends BlockSchema> {
+export class FormattingToolbarView {
   private formattingToolbarState?: FormattingToolbarState;
   public updateFormattingToolbar: () => void;
 
@@ -40,7 +41,7 @@ export class FormattingToolbarView<BSchema extends BlockSchema> {
   };
 
   constructor(
-    private readonly editor: BlockNoteEditor<BSchema>,
+    private readonly editor: BlockNoteEditor<BlockSchema, StyleSchema>,
     private readonly pmView: EditorView,
     updateFormattingToolbar: (
       formattingToolbarState: FormattingToolbarState
@@ -216,13 +217,11 @@ export const formattingToolbarPluginKey = new PluginKey(
   "FormattingToolbarPlugin"
 );
 
-export class FormattingToolbarProsemirrorPlugin<
-  BSchema extends BlockSchema
-> extends EventEmitter<any> {
-  private view: FormattingToolbarView<BSchema> | undefined;
+export class FormattingToolbarProsemirrorPlugin extends EventEmitter<any> {
+  private view: FormattingToolbarView | undefined;
   public readonly plugin: Plugin;
 
-  constructor(editor: BlockNoteEditor<BSchema>) {
+  constructor(editor: BlockNoteEditor<any, any>) {
     super();
     this.plugin = new Plugin({
       key: formattingToolbarPluginKey,

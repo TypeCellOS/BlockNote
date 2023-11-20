@@ -1,10 +1,11 @@
 import {
   BlockNoteEditor,
-  BlockSchema,
+  BlockSchemaFromSpecs,
+  BlockSpecs,
   PartialBlock,
   createExternalHTMLExporter,
   createInternalHTMLSerializer,
-  defaultBlockSchema,
+  defaultBlockSpecs,
   defaultProps,
   uploadToTmpFilesDotOrg_DEV_ONLY,
 } from "@blocknote/core";
@@ -41,18 +42,18 @@ const SimpleReactCustomParagraph = createReactBlockSpec(
   }
 );
 
-const customSchema = {
-  ...defaultBlockSchema,
+const customSpecs = {
+  ...defaultBlockSpecs,
   reactCustomParagraph: ReactCustomParagraph,
   simpleReactCustomParagraph: SimpleReactCustomParagraph,
-} satisfies BlockSchema;
+} satisfies BlockSpecs;
 
-let editor: BlockNoteEditor<typeof customSchema>;
+let editor: BlockNoteEditor<BlockSchemaFromSpecs<typeof customSpecs>>;
 let tt: Editor;
 
 beforeEach(() => {
-  editor = new BlockNoteEditor({
-    blockSchema: customSchema,
+  editor = BlockNoteEditor.create({
+    blockSpecs: customSpecs,
     uploadFile: uploadToTmpFilesDotOrg_DEV_ONLY,
   });
   tt = editor._tiptapEditor;
@@ -67,7 +68,7 @@ afterEach(() => {
 });
 
 function convertToHTMLAndCompareSnapshots(
-  blocks: PartialBlock<typeof customSchema>[],
+  blocks: PartialBlock<(typeof editor)["blockSchema"]>[],
   snapshotDirectory: string,
   snapshotName: string
 ) {
@@ -94,7 +95,7 @@ function convertToHTMLAndCompareSnapshots(
 
 describe("Convert custom blocks with inline content to HTML", () => {
   it("Convert custom block with inline content to HTML", async () => {
-    const blocks: PartialBlock<typeof customSchema>[] = [
+    const blocks: PartialBlock<(typeof editor)["blockSchema"]>[] = [
       {
         type: "reactCustomParagraph",
         content: "React Custom Paragraph",
@@ -105,7 +106,7 @@ describe("Convert custom blocks with inline content to HTML", () => {
   });
 
   it("Convert styled custom block with inline content to HTML", async () => {
-    const blocks: PartialBlock<typeof customSchema>[] = [
+    const blocks: PartialBlock<(typeof editor)["blockSchema"]>[] = [
       {
         type: "reactCustomParagraph",
         props: {
@@ -149,7 +150,7 @@ describe("Convert custom blocks with inline content to HTML", () => {
   });
 
   it("Convert nested block with inline content to HTML", async () => {
-    const blocks: PartialBlock<typeof customSchema>[] = [
+    const blocks: PartialBlock<(typeof editor)["blockSchema"]>[] = [
       {
         type: "reactCustomParagraph",
         content: "React Custom Paragraph",
@@ -172,7 +173,7 @@ describe("Convert custom blocks with inline content to HTML", () => {
 
 describe("Convert custom blocks with non-exported inline content to HTML", () => {
   it("Convert custom block with non-exported inline content to HTML", async () => {
-    const blocks: PartialBlock<typeof customSchema>[] = [
+    const blocks: PartialBlock<(typeof editor)["blockSchema"]>[] = [
       {
         type: "simpleReactCustomParagraph",
         content: "React Custom Paragraph",
@@ -187,7 +188,7 @@ describe("Convert custom blocks with non-exported inline content to HTML", () =>
   });
 
   it("Convert styled custom block with non-exported inline content to HTML", async () => {
-    const blocks: PartialBlock<typeof customSchema>[] = [
+    const blocks: PartialBlock<(typeof editor)["blockSchema"]>[] = [
       {
         type: "simpleReactCustomParagraph",
         props: {
@@ -235,7 +236,7 @@ describe("Convert custom blocks with non-exported inline content to HTML", () =>
   });
 
   it("Convert nested block with non-exported inline content to HTML", async () => {
-    const blocks: PartialBlock<typeof customSchema>[] = [
+    const blocks: PartialBlock<(typeof editor)["blockSchema"]>[] = [
       {
         type: "simpleReactCustomParagraph",
         content: "Custom React Paragraph",

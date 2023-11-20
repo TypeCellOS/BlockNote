@@ -13,6 +13,7 @@ import {
   TiptapBlockImplementation,
 } from "./blockTypes";
 import { inheritedProps } from "./defaultProps";
+import { StyleSchema } from "./styles";
 
 export function camelToDataKebab(str: string): string {
   return "data-" + str.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
@@ -127,10 +128,11 @@ export function parse(blockConfig: BlockConfig) {
 export function getBlockFromPos<
   BType extends string,
   Config extends BlockConfig,
-  BSchema extends BlockSchemaWithBlock<BType, Config>
+  BSchema extends BlockSchemaWithBlock<BType, Config>,
+  S extends StyleSchema
 >(
   getPos: (() => number) | boolean,
-  editor: BlockNoteEditor<BSchema>,
+  editor: BlockNoteEditor<BSchema, S>,
   tipTapEditor: Editor,
   type: BType
 ) {
@@ -148,7 +150,8 @@ export function getBlockFromPos<
   // Gets the block
   const block = editor.getBlock(blockIdentifier)! as SpecificBlock<
     BSchema,
-    BType
+    BType,
+    S
   >;
   if (block.type !== type) {
     throw new Error("Block type does not match");
@@ -238,12 +241,12 @@ export function createStronglyTypedTiptapNode<
 // config and implementation that conform to the type of Config
 export function createInternalBlockSpec<T extends BlockConfig>(
   config: T,
-  implementation: TiptapBlockImplementation<T>
+  implementation: TiptapBlockImplementation<T, any, StyleSchema>
 ) {
   return {
     config,
     implementation,
-  } satisfies BlockSpec<T>;
+  } satisfies BlockSpec<T, any, StyleSchema>;
 }
 
 export function createBlockSpecFromStronglyTypedTiptapNode<

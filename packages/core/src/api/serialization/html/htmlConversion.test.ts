@@ -3,11 +3,12 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { BlockNoteEditor } from "../../../BlockNoteEditor";
 
 import {
-  BlockSchema,
+  BlockSchemaFromSpecs,
+  BlockSpecs,
   PartialBlock,
 } from "../../../extensions/Blocks/api/blockTypes";
 import { createBlockSpec } from "../../../extensions/Blocks/api/customBlocks";
-import { defaultBlockSchema } from "../../../extensions/Blocks/api/defaultBlocks";
+import { defaultBlockSpecs } from "../../../extensions/Blocks/api/defaultBlocks";
 import { defaultProps } from "../../../extensions/Blocks/api/defaultProps";
 import {
   imagePropSchema,
@@ -76,19 +77,21 @@ const SimpleCustomParagraph = createBlockSpec(
   }
 );
 
-const customSchema = {
-  ...defaultBlockSchema,
+const customSpecs = {
+  ...defaultBlockSpecs,
   simpleImage: SimpleImage,
   customParagraph: CustomParagraph,
   simpleCustomParagraph: SimpleCustomParagraph,
-} satisfies BlockSchema;
+} satisfies BlockSpecs;
 
-let editor: BlockNoteEditor<typeof customSchema>;
+type CustomSchemaType = BlockSchemaFromSpecs<typeof customSpecs>;
+
+let editor: BlockNoteEditor<CustomSchemaType>;
 let tt: Editor;
 
 beforeEach(() => {
-  editor = new BlockNoteEditor({
-    blockSchema: customSchema,
+  editor = BlockNoteEditor.create({
+    blockSpecs: customSpecs,
     uploadFile: uploadToTmpFilesDotOrg_DEV_ONLY,
   });
   tt = editor._tiptapEditor;
@@ -103,7 +106,7 @@ afterEach(() => {
 });
 
 function convertToHTMLAndCompareSnapshots(
-  blocks: PartialBlock<typeof customSchema>[],
+  blocks: PartialBlock<CustomSchemaType>[],
   snapshotDirectory: string,
   snapshotName: string
 ) {
@@ -130,7 +133,7 @@ function convertToHTMLAndCompareSnapshots(
 
 describe("Convert paragraphs to HTML", () => {
   it("Convert paragraph to HTML", async () => {
-    const blocks: PartialBlock<typeof customSchema>[] = [
+    const blocks: PartialBlock<CustomSchemaType>[] = [
       {
         type: "paragraph",
         content: "Paragraph",
@@ -141,7 +144,7 @@ describe("Convert paragraphs to HTML", () => {
   });
 
   it("Convert styled paragraph to HTML", async () => {
-    const blocks: PartialBlock<typeof customSchema>[] = [
+    const blocks: PartialBlock<CustomSchemaType>[] = [
       {
         type: "paragraph",
         props: {
@@ -185,7 +188,7 @@ describe("Convert paragraphs to HTML", () => {
   });
 
   it("Convert nested paragraph to HTML", async () => {
-    const blocks: PartialBlock<typeof customSchema>[] = [
+    const blocks: PartialBlock<CustomSchemaType>[] = [
       {
         type: "paragraph",
         content: "Paragraph",
@@ -208,7 +211,7 @@ describe("Convert paragraphs to HTML", () => {
 
 describe("Convert images to HTML", () => {
   it("Convert add image button to HTML", async () => {
-    const blocks: PartialBlock<typeof customSchema>[] = [
+    const blocks: PartialBlock<CustomSchemaType>[] = [
       {
         type: "image",
       },
@@ -218,7 +221,7 @@ describe("Convert images to HTML", () => {
   });
 
   it("Convert image to HTML", async () => {
-    const blocks: PartialBlock<typeof customSchema>[] = [
+    const blocks: PartialBlock<CustomSchemaType>[] = [
       {
         type: "image",
         props: {
@@ -233,7 +236,7 @@ describe("Convert images to HTML", () => {
   });
 
   it("Convert nested image to HTML", async () => {
-    const blocks: PartialBlock<typeof customSchema>[] = [
+    const blocks: PartialBlock<CustomSchemaType>[] = [
       {
         type: "image",
         props: {
@@ -260,7 +263,7 @@ describe("Convert images to HTML", () => {
 
 describe("Convert simple images to HTML", () => {
   it("Convert simple add image button to HTML", async () => {
-    const blocks: PartialBlock<typeof customSchema>[] = [
+    const blocks: PartialBlock<CustomSchemaType>[] = [
       {
         type: "simpleImage",
       },
@@ -270,7 +273,7 @@ describe("Convert simple images to HTML", () => {
   });
 
   it("Convert simple image to HTML", async () => {
-    const blocks: PartialBlock<typeof customSchema>[] = [
+    const blocks: PartialBlock<CustomSchemaType>[] = [
       {
         type: "simpleImage",
         props: {
@@ -285,7 +288,7 @@ describe("Convert simple images to HTML", () => {
   });
 
   it("Convert nested image to HTML", async () => {
-    const blocks: PartialBlock<typeof customSchema>[] = [
+    const blocks: PartialBlock<CustomSchemaType>[] = [
       {
         type: "simpleImage",
         props: {
@@ -312,7 +315,7 @@ describe("Convert simple images to HTML", () => {
 
 describe("Convert custom blocks with inline content to HTML", () => {
   it("Convert custom block with inline content to HTML", async () => {
-    const blocks: PartialBlock<typeof customSchema>[] = [
+    const blocks: PartialBlock<CustomSchemaType>[] = [
       {
         type: "customParagraph",
         content: "Custom Paragraph",
@@ -323,7 +326,7 @@ describe("Convert custom blocks with inline content to HTML", () => {
   });
 
   it("Convert styled custom block with inline content to HTML", async () => {
-    const blocks: PartialBlock<typeof customSchema>[] = [
+    const blocks: PartialBlock<CustomSchemaType>[] = [
       {
         type: "customParagraph",
         props: {
@@ -367,7 +370,7 @@ describe("Convert custom blocks with inline content to HTML", () => {
   });
 
   it("Convert nested block with inline content to HTML", async () => {
-    const blocks: PartialBlock<typeof customSchema>[] = [
+    const blocks: PartialBlock<CustomSchemaType>[] = [
       {
         type: "customParagraph",
         content: "Custom Paragraph",
@@ -390,7 +393,7 @@ describe("Convert custom blocks with inline content to HTML", () => {
 
 describe("Convert custom blocks with non-exported inline content to HTML", () => {
   it("Convert custom block with non-exported inline content to HTML", async () => {
-    const blocks: PartialBlock<typeof customSchema>[] = [
+    const blocks: PartialBlock<CustomSchemaType>[] = [
       {
         type: "simpleCustomParagraph",
         content: "Custom Paragraph",
@@ -401,7 +404,7 @@ describe("Convert custom blocks with non-exported inline content to HTML", () =>
   });
 
   it("Convert styled custom block with non-exported inline content to HTML", async () => {
-    const blocks: PartialBlock<typeof customSchema>[] = [
+    const blocks: PartialBlock<CustomSchemaType>[] = [
       {
         type: "simpleCustomParagraph",
         props: {
@@ -445,7 +448,7 @@ describe("Convert custom blocks with non-exported inline content to HTML", () =>
   });
 
   it("Convert nested block with non-exported inline content to HTML", async () => {
-    const blocks: PartialBlock<typeof customSchema>[] = [
+    const blocks: PartialBlock<CustomSchemaType>[] = [
       {
         type: "simpleCustomParagraph",
         content: "Custom Paragraph",

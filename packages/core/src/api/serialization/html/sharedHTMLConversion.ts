@@ -1,6 +1,7 @@
 import { DOMSerializer, Fragment, Node } from "prosemirror-model";
 import { BlockNoteEditor } from "../../../BlockNoteEditor";
 import { BlockSchema } from "../../../extensions/Blocks/api/blockTypes";
+import { StyleSchema } from "../../../extensions/Blocks/api/styles";
 import { nodeToBlock } from "../../nodeConversions/nodeConversions";
 
 function doc(options: { document?: Document }) {
@@ -13,11 +14,14 @@ function doc(options: { document?: Document }) {
 // `blockContent` node, the `toInternalHTML` or `toExternalHTML` function of its
 // corresponding block is used for serialization instead of the node's
 // `renderHTML` method.
-export const serializeNodeInner = <BSchema extends BlockSchema>(
+export const serializeNodeInner = <
+  BSchema extends BlockSchema,
+  S extends StyleSchema
+>(
   node: Node,
   options: { document?: Document },
   serializer: DOMSerializer,
-  editor: BlockNoteEditor<BSchema>,
+  editor: BlockNoteEditor<BSchema, S>,
   toExternalHTML: boolean
 ) => {
   const { dom, contentDOM } = DOMSerializer.renderSpec(
@@ -34,14 +38,20 @@ export const serializeNodeInner = <BSchema extends BlockSchema>(
     if (node.type.name === "blockContainer") {
       // Converts `blockContent` node using the custom `blockSpec`'s
       // `toExternalHTML` or `toInternalHTML` function.
-      const blockSpec =
-        editor.schema[node.firstChild!.type.name as keyof BSchema];
+      const blockImpl =
+        editor.blockImplementations[node.firstChild!.type.name as string]
+          .implementation;
       const toHTML = toExternalHTML
-        ? blockSpec.implementation.toExternalHTML
-        : blockSpec.implementation.toInternalHTML;
+        ? blockImpl.toExternalHTML
+        : blockImpl.toInternalHTML;
 
       const blockContent = toHTML(
-        nodeToBlock(node, editor.schema, editor.blockCache),
+        nodeToBlock(
+          node,
+          editor.blockSchema,
+          editor.styleSchema,
+          editor.blockCache
+        ),
         editor as any
       );
 

@@ -4,11 +4,12 @@ import {
   BlockSchema,
   PartialBlock,
 } from "../../../extensions/Blocks/api/blockTypes";
+import { StyleSchema } from "../../../extensions/Blocks/api/styles";
+import { blockToNode } from "../../nodeConversions/nodeConversions";
 import {
   serializeNodeInner,
   serializeProseMirrorFragment,
 } from "./sharedHTMLConversion";
-import { blockToNode } from "../../nodeConversions/nodeConversions";
 
 // Used to serialize BlockNote blocks and ProseMirror nodes to HTML without
 // losing data. Blocks are exported using the `toInternalHTML` method in their
@@ -25,17 +26,23 @@ import { blockToNode } from "../../nodeConversions/nodeConversions";
 // mostly useful if you want to serialize a selection which may not start/end at
 // the start/end of a block.
 // `serializeBlocks`: Serializes an array of blocks to HTML.
-export interface InternalHTMLSerializer<BSchema extends BlockSchema> {
+export interface InternalHTMLSerializer<
+  BSchema extends BlockSchema,
+  S extends StyleSchema
+> {
   // TODO: Ideally we would expand the BlockNote API to support partial
   //  selections so we don't need this.
   serializeProseMirrorFragment: (fragment: Fragment) => string;
-  serializeBlocks: (blocks: PartialBlock<BSchema>[]) => string;
+  serializeBlocks: (blocks: PartialBlock<BSchema, S>[]) => string;
 }
 
-export const createInternalHTMLSerializer = <BSchema extends BlockSchema>(
+export const createInternalHTMLSerializer = <
+  BSchema extends BlockSchema,
+  S extends StyleSchema
+>(
   schema: Schema,
-  editor: BlockNoteEditor<BSchema>
-): InternalHTMLSerializer<BSchema> => {
+  editor: BlockNoteEditor<BSchema, S>
+): InternalHTMLSerializer<BSchema, S> => {
   const serializer = DOMSerializer.fromSchema(schema) as DOMSerializer & {
     serializeNodeInner: (
       node: Node,
@@ -58,7 +65,9 @@ export const createInternalHTMLSerializer = <BSchema extends BlockSchema>(
     serializeProseMirrorFragment(fragment, serializer);
 
   serializer.serializeBlocks = (blocks: PartialBlock<BSchema>[]) => {
-    const nodes = blocks.map((block) => blockToNode(block, schema));
+    const nodes = blocks.map((block) =>
+      blockToNode(block, schema, editor.styleSchema)
+    );
     const blockGroup = schema.nodes["blockGroup"].create(null, nodes);
 
     return serializer.serializeProseMirrorFragment(Fragment.from(blockGroup));

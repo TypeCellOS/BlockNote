@@ -1,47 +1,48 @@
 import {
-  Block,
   BlockNoteEditor,
   BlockSchemaWithBlock,
   DefaultBlockSchema,
+  SpecificBlock,
   TableHandlesState,
 } from "@blocknote/core";
+import { StyleSchema } from "@blocknote/core/src/extensions/Blocks/api/styles";
 import Tippy, { tippy } from "@tippyjs/react";
 import { FC, useEffect, useMemo, useRef, useState } from "react";
 import { DefaultTableHandle } from "./DefaultTableHandle";
 
-export type TableHandlesProps = Omit<
-  TableHandlesState,
+export type TableHandlesProps<
+  BSchema extends BlockSchemaWithBlock<"table", DefaultBlockSchema["table"]>,
+  S extends StyleSchema
+> = Omit<
+  TableHandlesState<BSchema, S>,
   "referencePosLeft" | "referencePosTop" | "show"
 > & {
-  editor: BlockNoteEditor<
-    BlockSchemaWithBlock<"table", DefaultBlockSchema["table"]["config"]>
-  >;
+  editor: BlockNoteEditor<BSchema, S>;
   side: "top" | "left";
 };
 
 export const TableHandlesPositioner = <
-  BSchema extends BlockSchemaWithBlock<
-    "table",
-    DefaultBlockSchema["table"]["config"]
-  >
+  BSchema extends BlockSchemaWithBlock<"table", DefaultBlockSchema["table"]>,
+  S extends StyleSchema
 >(props: {
-  editor: BlockNoteEditor<BSchema>;
-  tableHandle?: FC<TableHandlesProps>;
+  editor: BlockNoteEditor<BSchema, S>;
+  tableHandle?: FC<TableHandlesProps<BSchema, S>>;
 }) => {
   const [show, setShow] = useState<boolean>(false);
-  const [block, setBlock] =
-    useState<Block<DefaultBlockSchema["table"]["config"]>>();
+  const [block, setBlock] = useState<SpecificBlock<BSchema, "table", S>>();
   const [colIndex, setColIndex] = useState<number>();
   const [rowIndex, setRowIndex] = useState<number>();
   const [_, setForceUpdate] = useState<number>(0);
 
-  const referencePosLeft = useRef<TableHandlesState["referencePosLeft"]>();
-  const referencePosTop = useRef<TableHandlesState["referencePosTop"]>();
+  const referencePosLeft =
+    useRef<TableHandlesState<BSchema, S>["referencePosLeft"]>();
+  const referencePosTop =
+    useRef<TableHandlesState<BSchema, S>["referencePosTop"]>();
 
   useEffect(() => {
     tippy.setDefaultProps({ maxWidth: "" });
 
-    return props.editor.tableHandles.onUpdate((state) => {
+    return props.editor.tableHandles!.onUpdate((state) => {
       console.log("update", state);
       setShow(state.show);
       setBlock(state.block);
@@ -77,7 +78,9 @@ export const TableHandlesPositioner = <
   );
 
   const tableHandleElementTop = useMemo(() => {
-    const TableHandle = props.tableHandle || DefaultTableHandle;
+    const TableHandle =
+      props.tableHandle ||
+      (DefaultTableHandle as FC<TableHandlesProps<BSchema, S>>);
 
     return (
       <TableHandle
@@ -91,7 +94,9 @@ export const TableHandlesPositioner = <
   }, [block, props.editor, props.tableHandle, rowIndex, colIndex]);
 
   const tableHandleElementLeft = useMemo(() => {
-    const TableHandle = props.tableHandle || DefaultTableHandle;
+    const TableHandle =
+      props.tableHandle ||
+      (DefaultTableHandle as FC<TableHandlesProps<BSchema, S>>);
 
     return (
       <TableHandle

@@ -87,13 +87,13 @@ export const BlockTypeDropdown = <BSchema extends BlockSchema>(props: {
   const filteredItems: BlockTypeDropdownItem[] = useMemo(() => {
     return (props.items || defaultBlockTypeDropdownItems).filter((item) => {
       // Checks if block type exists in the schema
-      if (!(item.type in props.editor.schema)) {
+      if (!(item.type in props.editor.blockSchema)) {
         return false;
       }
 
       // Checks if props for the block type are valid
       for (const [prop, value] of Object.entries(item.props || {})) {
-        const propSchema = props.editor.schema[item.type].config.propSchema;
+        const propSchema = props.editor.blockSchema[item.type].propSchema;
 
         // Checks if the prop exists for the block type
         if (!(prop in propSchema)) {

@@ -1,14 +1,15 @@
 import { DOMSerializer, Fragment, Node, Schema } from "prosemirror-model";
-import { blockToNode } from "../../nodeConversions/nodeConversions";
+import rehypeParse from "rehype-parse";
+import rehypeStringify from "rehype-stringify";
+import { unified } from "unified";
 import { BlockNoteEditor } from "../../../BlockNoteEditor";
 import {
   BlockSchema,
   PartialBlock,
 } from "../../../extensions/Blocks/api/blockTypes";
-import { unified } from "unified";
-import rehypeParse from "rehype-parse";
+import { StyleSchema } from "../../../extensions/Blocks/api/styles";
 import { simplifyBlocks } from "../../formatConversions/simplifyBlocksRehypePlugin";
-import rehypeStringify from "rehype-stringify";
+import { blockToNode } from "../../nodeConversions/nodeConversions";
 import {
   serializeNodeInner,
   serializeProseMirrorFragment,
@@ -33,15 +34,21 @@ import {
 // `exportFragment`: Exports a ProseMirror fragment to HTML. This is mostly
 // useful if you want to export a selection which may not start/end at the
 // start/end of a block.
-export interface ExternalHTMLExporter<BSchema extends BlockSchema> {
-  exportBlocks: (blocks: PartialBlock<BSchema>[]) => string;
+export interface ExternalHTMLExporter<
+  BSchema extends BlockSchema,
+  S extends StyleSchema
+> {
+  exportBlocks: (blocks: PartialBlock<BSchema, S>[]) => string;
   exportProseMirrorFragment: (fragment: Fragment) => string;
 }
 
-export const createExternalHTMLExporter = <BSchema extends BlockSchema>(
+export const createExternalHTMLExporter = <
+  BSchema extends BlockSchema,
+  S extends StyleSchema
+>(
   schema: Schema,
-  editor: BlockNoteEditor<BSchema>
-): ExternalHTMLExporter<BSchema> => {
+  editor: BlockNoteEditor<BSchema, S>
+): ExternalHTMLExporter<BSchema, S> => {
   const serializer = DOMSerializer.fromSchema(schema) as DOMSerializer & {
     serializeNodeInner: (
       node: Node,
@@ -50,7 +57,7 @@ export const createExternalHTMLExporter = <BSchema extends BlockSchema>(
     // TODO: Should not be async, but is since we're using a rehype plugin to
     //  convert internal HTML to external HTML.
     exportProseMirrorFragment: (fragment: Fragment) => string;
-    exportBlocks: (blocks: PartialBlock<BSchema>[]) => string;
+    exportBlocks: (blocks: PartialBlock<BSchema, S>[]) => string;
   };
 
   serializer.serializeNodeInner = (
@@ -74,8 +81,10 @@ export const createExternalHTMLExporter = <BSchema extends BlockSchema>(
     return externalHTML.value as string;
   };
 
-  serializer.exportBlocks = (blocks: PartialBlock<BSchema>[]) => {
-    const nodes = blocks.map((block) => blockToNode(block, schema));
+  serializer.exportBlocks = (blocks: PartialBlock<BSchema, S>[]) => {
+    const nodes = blocks.map((block) =>
+      blockToNode(block, schema, editor.styleSchema)
+    );
     const blockGroup = schema.nodes["blockGroup"].create(null, nodes);
 
     return serializer.exportProseMirrorFragment(Fragment.from(blockGroup));

@@ -1,36 +1,22 @@
-export type Styles = {
-  bold?: true;
-  italic?: true;
-  underline?: true;
-  strike?: true;
-  code?: true;
-  textColor?: string;
-  backgroundColor?: string;
-};
+import { StyleSchema, Styles } from "./styles";
 
-export type ToggledStyle = {
-  [K in keyof Styles]-?: Required<Styles>[K] extends true ? K : never;
-}[keyof Styles];
-
-export type ColorStyle = {
-  [K in keyof Styles]-?: Required<Styles>[K] extends string ? K : never;
-}[keyof Styles];
-
-export type StyledText = {
+export type StyledText<T extends StyleSchema> = {
   type: "text";
   text: string;
-  styles: Styles;
+  styles: Styles<T>;
 };
 
-export type Link = {
+export type Link<T extends StyleSchema> = {
   type: "link";
   href: string;
-  content: StyledText[];
+  content: StyledText<T>[];
 };
 
-export type PartialLink = Omit<Link, "content"> & {
-  content: string | Link["content"];
+export type PartialLink<T extends StyleSchema> = Omit<Link<T>, "content"> & {
+  content: string | Link<T>["content"];
 };
 
-export type InlineContent = StyledText | Link;
-export type PartialInlineContent = StyledText | PartialLink;
+export type InlineContent<T extends StyleSchema> = StyledText<T> | Link<T>;
+export type PartialInlineContent<T extends StyleSchema> =
+  | StyledText<T>
+  | PartialLink<T>;

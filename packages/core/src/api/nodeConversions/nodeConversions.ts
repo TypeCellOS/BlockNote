@@ -2,47 +2,44 @@ import { Mark } from "@tiptap/pm/model";
 import { Node, Schema } from "prosemirror-model";
 import {
   Block,
-  BlockConfig,
   BlockSchema,
-  BlockSpec,
   PartialBlock,
   PartialTableContent,
   TableContent,
 } from "../../extensions/Blocks/api/blockTypes";
 import {
-  ColorStyle,
   InlineContent,
   PartialInlineContent,
   PartialLink,
   StyledText,
-  Styles,
-  ToggledStyle,
 } from "../../extensions/Blocks/api/inlineContentTypes";
+import { StyleSchema, Styles } from "../../extensions/Blocks/api/styles";
 import { getBlockInfo } from "../../extensions/Blocks/helpers/getBlockInfoFromPos";
 import UniqueID from "../../extensions/UniqueID/UniqueID";
 import { UnreachableCaseError } from "../../shared/utils";
-
-const toggleStyles = new Set<ToggledStyle>([
-  "bold",
-  "italic",
-  "underline",
-  "strike",
-  "code",
-]);
-const colorStyles = new Set<ColorStyle>(["textColor", "backgroundColor"]);
 
 /**
  * Convert a StyledText inline element to a
  * prosemirror text node with the appropriate marks
  */
-function styledTextToNodes(styledText: StyledText, schema: Schema): Node[] {
+function styledTextToNodes<T extends StyleSchema>(
+  styledText: StyledText<T>,
+  schema: Schema,
+  styleSchema: T
+): Node[] {
   const marks: Mark[] = [];
 
   for (const [style, value] of Object.entries(styledText.styles)) {
-    if (toggleStyles.has(style as ToggledStyle)) {
+    const config = styleSchema[style];
+    if (!config) {
+      throw new Error(`style ${style} not found in styleSchema`);
+    }
+    if (config.propSchema === "boolean") {
       marks.push(schema.mark(style));
-    } else if (colorStyles.has(style as ColorStyle)) {
-      marks.push(schema.mark(style, { color: value }));
+    } else if (config.propSchema === "string") {
+      marks.push(schema.mark(style, { stringValue: value }));
+    } else {
+      throw new UnreachableCaseError(config.propSchema);
     }
   }
 
@@ -68,42 +65,53 @@ function styledTextToNodes(styledText: StyledText, schema: Schema): Node[] {
  * Converts a Link inline content element to
  * prosemirror text nodes with the appropriate marks
  */
-function linkToNodes(link: PartialLink, schema: Schema): Node[] {
+function linkToNodes(
+  link: PartialLink<StyleSchema>,
+  schema: Schema,
+  styleSchema: StyleSchema
+): Node[] {
   const linkMark = schema.marks.link.create({
     href: link.href,
   });
 
-  return styledTextArrayToNodes(link.content, schema).map((node) => {
-    if (node.type.name === "text") {
-      return node.mark([...node.marks, linkMark]);
-    }
+  return styledTextArrayToNodes(link.content, schema, styleSchema).map(
+    (node) => {
+      if (node.type.name === "text") {
+        return node.mark([...node.marks, linkMark]);
+      }
 
-    if (node.type.name === "hardBreak") {
-      return node;
+      if (node.type.name === "hardBreak") {
+        return node;
+      }
+      throw new Error("unexpected node type");
     }
-    throw new Error("unexpected node type");
-  });
+  );
 }
 
 /**
  * Converts an array of StyledText inline content elements to
  * prosemirror text nodes with the appropriate marks
  */
-function styledTextArrayToNodes(
-  content: string | StyledText[],
-  schema: Schema
+function styledTextArrayToNodes<S extends StyleSchema>(
+  content: string | StyledText<S>[],
+  schema: Schema,
+  styleSchema: S
 ): Node[] {
   const nodes: Node[] = [];
 
   if (typeof content === "string") {
     nodes.push(
-      ...styledTextToNodes({ type: "text", text: content, styles: {} }, schema)
+      ...styledTextToNodes(
+        { type: "text", text: content, styles: {} },
+        schema,
+        styleSchema
+      )
     );
     return nodes;
   }
 
   for (const styledText of content) {
-    nodes.push(...styledTextToNodes(styledText, schema));
+    nodes.push(...styledTextToNodes(styledText, schema, styleSchema));
   }
   return nodes;
 }
@@ -111,17 +119,18 @@ function styledTextArrayToNodes(
 /**
  * converts an array of inline content elements to prosemirror nodes
  */
-export function inlineContentToNodes(
-  blockContent: PartialInlineContent[],
-  schema: Schema
+export function inlineContentToNodes<S extends StyleSchema>(
+  blockContent: PartialInlineContent<S>[],
+  schema: Schema,
+  styleSchema: S
 ): Node[] {
   const nodes: Node[] = [];
 
   for (const content of blockContent) {
     if (content.type === "link") {
-      nodes.push(...linkToNodes(content, schema));
+      nodes.push(...linkToNodes(content, schema, styleSchema));
     } else if (content.type === "text") {
-      nodes.push(...styledTextArrayToNodes([content], schema));
+      nodes.push(...styledTextArrayToNodes([content], schema, styleSchema));
     } else {
       throw new UnreachableCaseError(content);
     }
@@ -132,9 +141,10 @@ export function inlineContentToNodes(
 /**
  * converts an array of inline content elements to prosemirror nodes
  */
-export function tableContentToNodes(
-  tableContent: PartialTableContent,
-  schema: Schema
+export function tableContentToNodes<S extends StyleSchema>(
+  tableContent: PartialTableContent<S>,
+  schema: Schema,
+  styleSchema: StyleSchema
 ): Node[] {
   const rowNodes: Node[] = [];
 
@@ -147,7 +157,7 @@ export function tableContentToNodes(
       } else if (typeof cell === "string") {
         pNode = schema.nodes["tableParagraph"].create({}, schema.text(cell));
       } else {
-        const textNodes = inlineContentToNodes(cell, schema);
+        const textNodes = inlineContentToNodes(cell, schema, styleSchema);
         pNode = schema.nodes["tableParagraph"].create({}, textNodes);
       }
 
@@ -163,9 +173,10 @@ export function tableContentToNodes(
 /**
  * Converts a BlockNote block to a TipTap node.
  */
-export function blockToNode<BSchema extends BlockSchema>(
+export function blockToNode<BSchema extends BlockSchema, S extends StyleSchema>(
   block: PartialBlock<BSchema>,
-  schema: Schema
+  schema: Schema,
+  styleSchema: S
 ) {
   let id = block.id;
 
@@ -189,10 +200,10 @@ export function blockToNode<BSchema extends BlockSchema>(
       schema.text(block.content)
     );
   } else if (Array.isArray(block.content)) {
-    const nodes = inlineContentToNodes(block.content, schema);
+    const nodes = inlineContentToNodes(block.content, schema, styleSchema);
     contentNode = schema.nodes[type].create(block.props, nodes);
   } else if (block.content.type === "tableContent") {
-    const nodes = tableContentToNodes(block.content, schema);
+    const nodes = tableContentToNodes(block.content, schema, styleSchema);
     contentNode = schema.nodes[type].create(block.props, nodes);
   } else {
     throw new UnreachableCaseError(block.content.type);
@@ -202,7 +213,7 @@ export function blockToNode<BSchema extends BlockSchema>(
 
   if (block.children) {
     for (const child of block.children) {
-      children.push(blockToNode(child, schema));
+      children.push(blockToNode(child, schema, styleSchema));
     }
   }
 
@@ -220,19 +231,24 @@ export function blockToNode<BSchema extends BlockSchema>(
 /**
  * Converts an internal (prosemirror) table node contentto a BlockNote Tablecontent
  */
-function contentNodeToTableContent(contentNode: Node) {
-  const ret: TableContent = {
+function contentNodeToTableContent<S extends StyleSchema>(
+  contentNode: Node,
+  styleSchema: S
+) {
+  const ret: TableContent<S> = {
     type: "tableContent",
     rows: [],
   };
 
   contentNode.content.forEach((rowNode) => {
-    const row: TableContent["rows"][0] = {
+    const row: TableContent<S>["rows"][0] = {
       cells: [],
     };
 
     rowNode.content.forEach((cellNode) => {
-      row.cells.push(contentNodeToInlineContent(cellNode.firstChild!));
+      row.cells.push(
+        contentNodeToInlineContent(cellNode.firstChild!, styleSchema)
+      );
     });
 
     ret.rows.push(row);
@@ -244,9 +260,12 @@ function contentNodeToTableContent(contentNode: Node) {
 /**
  * Converts an internal (prosemirror) content node to a BlockNote InlineContent array.
  */
-function contentNodeToInlineContent(contentNode: Node) {
-  const content: InlineContent[] = [];
-  let currentContent: InlineContent | undefined = undefined;
+function contentNodeToInlineContent<S extends StyleSchema>(
+  contentNode: Node,
+  styleSchema: S
+) {
+  const content: InlineContent<S>[] = [];
+  let currentContent: InlineContent<S> | undefined = undefined;
 
   // Most of the logic below is for handling links because in ProseMirror links are marks
   // while in BlockNote links are a type of inline content
@@ -276,18 +295,24 @@ function contentNodeToInlineContent(contentNode: Node) {
       return;
     }
 
-    const styles: Styles = {};
+    const styles: Styles<S> = {};
     let linkMark: Mark | undefined;
 
     for (const mark of node.marks) {
       if (mark.type.name === "link") {
         linkMark = mark;
-      } else if (toggleStyles.has(mark.type.name as ToggledStyle)) {
-        styles[mark.type.name as ToggledStyle] = true;
-      } else if (colorStyles.has(mark.type.name as ColorStyle)) {
-        styles[mark.type.name as ColorStyle] = mark.attrs.color;
       } else {
-        throw Error("Mark is of an unrecognized type: " + mark.type.name);
+        const config = styleSchema[mark.type.name];
+        if (!config) {
+          throw new Error(`style ${mark.type.name} not found in styleSchema`);
+        }
+        if (config.propSchema === "boolean") {
+          (styles as any)[config.type] = true;
+        } else if (config.propSchema === "string") {
+          (styles as any)[config.type] = mark.attrs.stringValue;
+        } else {
+          throw new UnreachableCaseError(config.propSchema);
+        }
       }
     }
 
@@ -412,11 +437,12 @@ function contentNodeToInlineContent(contentNode: Node) {
 /**
  * Convert a TipTap node to a BlockNote block.
  */
-export function nodeToBlock<BSchema extends BlockSchema>(
+export function nodeToBlock<BSchema extends BlockSchema, S extends StyleSchema>(
   node: Node,
   blockSchema: BSchema,
-  blockCache?: WeakMap<Node, Block<BSchema>>
-): Block<BSchema> {
+  styleSchema: S,
+  blockCache?: WeakMap<Node, Block<BSchema, S>>
+): Block<BSchema, S> {
   if (node.type.name !== "blockContainer") {
     throw Error(
       "Node must be of type blockContainer, but is of type" +
@@ -445,9 +471,7 @@ export function nodeToBlock<BSchema extends BlockSchema>(
     ...node.attrs,
     ...blockInfo.contentNode.attrs,
   })) {
-    const blockSpec = blockSchema[
-      blockInfo.contentType.name
-    ] as BlockSpec<BlockConfig>; // TODO: fix cast
+    const blockSpec = blockSchema[blockInfo.contentType.name];
 
     if (!blockSpec) {
       throw Error(
@@ -455,43 +479,46 @@ export function nodeToBlock<BSchema extends BlockSchema>(
       );
     }
 
-    const propSchema = blockSpec.config.propSchema;
+    const propSchema = blockSpec.propSchema;
 
     if (attr in propSchema) {
       props[attr] = value;
     }
   }
 
-  const blockSpec = blockSchema[
-    blockInfo.contentType.name
-  ] as BlockSpec<BlockConfig>; // TODO: fix cast
+  const blockConfig = blockSchema[blockInfo.contentType.name];
 
-  const children: Block<BSchema>[] = [];
+  const children: Block<BSchema, S>[] = [];
   for (let i = 0; i < blockInfo.numChildBlocks; i++) {
     children.push(
-      nodeToBlock(node.lastChild!.child(i), blockSchema, blockCache)
+      nodeToBlock(
+        node.lastChild!.child(i),
+        blockSchema,
+        styleSchema,
+        blockCache
+      )
     );
   }
 
   let content: Block<any>["content"];
 
-  if (blockSpec.config.content === "inline") {
-    content = contentNodeToInlineContent(blockInfo.contentNode);
-  } else if (blockSpec.config.content === "table") {
-    content = contentNodeToTableContent(blockInfo.contentNode);
-  } else if (blockSpec.config.content === "none") {
+  if (blockConfig.content === "inline") {
+    content = contentNodeToInlineContent(blockInfo.contentNode, styleSchema);
+  } else if (blockConfig.content === "table") {
+    content = contentNodeToTableContent(blockInfo.contentNode, styleSchema);
+  } else if (blockConfig.content === "none") {
     content = undefined;
   } else {
-    throw new UnreachableCaseError(blockSpec.config.content);
+    throw new UnreachableCaseError(blockConfig.content);
   }
 
   const block = {
     id,
-    type: blockSpec.config.type,
+    type: blockConfig.type,
     props,
     content,
     children,
-  } as Block<BSchema>;
+  } as Block<BSchema, S>;
 
   blockCache?.set(node, block);
 

@@ -5,18 +5,24 @@ import {
   BaseUiElementState,
   BlockNoteEditor,
   BlockSchema,
+  SpecificBlock,
 } from "../..";
-import { Block } from "../../extensions/Blocks/api/blockTypes";
 import { EventEmitter } from "../../shared/EventEmitter";
-import { Image } from "../Blocks/nodes/BlockContent/ImageBlockContent/ImageBlockContent";
+import { StyleSchema } from "../Blocks/api/styles";
 export type ImageToolbarCallbacks = BaseUiElementCallbacks;
 
-export type ImageToolbarState = BaseUiElementState & {
-  block: Block<(typeof Image)["config"]>;
+export type ImageToolbarState<
+  B extends BlockSchema,
+  S extends StyleSchema = StyleSchema
+> = BaseUiElementState & {
+  block: SpecificBlock<B, "image", S>;
 };
 
-export class ImageToolbarView {
-  private imageToolbarState?: ImageToolbarState;
+export class ImageToolbarView<
+  BSchema extends BlockSchema,
+  S extends StyleSchema
+> {
+  private imageToolbarState?: ImageToolbarState<BSchema, S>;
   public updateImageToolbar: () => void;
 
   public prevWasEditable: boolean | null = null;
@@ -24,7 +30,9 @@ export class ImageToolbarView {
   constructor(
     private readonly pluginKey: PluginKey,
     private readonly pmView: EditorView,
-    updateImageToolbar: (imageToolbarState: ImageToolbarState) => void
+    updateImageToolbar: (
+      imageToolbarState: ImageToolbarState<BSchema, S>
+    ) => void
   ) {
     this.updateImageToolbar = () => {
       if (!this.imageToolbarState) {
@@ -94,7 +102,7 @@ export class ImageToolbarView {
 
   update(view: EditorView, prevState: EditorState) {
     const pluginState: {
-      block: Block<(typeof Image)["config"]>;
+      block: SpecificBlock<BSchema, "image", S>;
     } = this.pluginKey.getState(view.state);
 
     if (!this.imageToolbarState?.show && pluginState.block) {
@@ -139,15 +147,16 @@ export class ImageToolbarView {
 export const imageToolbarPluginKey = new PluginKey("ImageToolbarPlugin");
 
 export class ImageToolbarProsemirrorPlugin<
-  BSchema extends BlockSchema
+  BSchema extends BlockSchema,
+  S extends StyleSchema
 > extends EventEmitter<any> {
-  private view: ImageToolbarView | undefined;
+  private view: ImageToolbarView<BSchema, S> | undefined;
   public readonly plugin: Plugin;
 
-  constructor(_editor: BlockNoteEditor<BSchema>) {
+  constructor(_editor: BlockNoteEditor<BSchema, S>) {
     super();
     this.plugin = new Plugin<{
-      block: Block<(typeof Image)["config"]> | undefined;
+      block: SpecificBlock<BSchema, "image", S> | undefined;
     }>({
       key: imageToolbarPluginKey,
       view: (editorView) => {
@@ -168,7 +177,7 @@ export class ImageToolbarProsemirrorPlugin<
           };
         },
         apply: (transaction) => {
-          const block: Block<(typeof Image)["config"]> | undefined =
+          const block: SpecificBlock<BSchema, "image", S> | undefined =
             transaction.getMeta(imageToolbarPluginKey)?.block;
 
           return {
@@ -179,7 +188,7 @@ export class ImageToolbarProsemirrorPlugin<
     });
   }
 
-  public onUpdate(callback: (state: ImageToolbarState) => void) {
+  public onUpdate(callback: (state: ImageToolbarState<BSchema, S>) => void) {
     return this.on("update", callback);
   }
 }

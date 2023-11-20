@@ -2,6 +2,7 @@ import { Node } from "@tiptap/core";
 import { Fragment, Node as PMNode, Slice } from "prosemirror-model";
 import { NodeSelection, TextSelection } from "prosemirror-state";
 
+import { BlockNoteEditor } from "../../../BlockNoteEditor";
 import {
   blockToNode,
   inlineContentToNodes,
@@ -15,6 +16,7 @@ import {
   BlockSchema,
   PartialBlock,
 } from "../api/blockTypes";
+import { StyleSchema } from "../api/styles";
 import { getBlockInfoFromPos } from "../helpers/getBlockInfoFromPos";
 import BlockAttributes from "./BlockAttributes";
 
@@ -25,13 +27,16 @@ declare module "@tiptap/core" {
       BNDeleteBlock: (posInBlock: number) => ReturnType;
       BNMergeBlocks: (posBetweenBlocks: number) => ReturnType;
       BNSplitBlock: (posInBlock: number, keepType: boolean) => ReturnType;
-      BNUpdateBlock: <BSchema extends BlockSchema>(
+      BNUpdateBlock: <BSchema extends BlockSchema, S extends StyleSchema>(
         posInBlock: number,
-        block: PartialBlock<BSchema>
+        block: PartialBlock<BSchema, S>
       ) => ReturnType;
-      BNCreateOrUpdateBlock: <BSchema extends BlockSchema>(
+      BNCreateOrUpdateBlock: <
+        BSchema extends BlockSchema,
+        S extends StyleSchema
+      >(
         posInBlock: number,
-        block: PartialBlock<BSchema>
+        block: PartialBlock<BSchema, S>
       ) => ReturnType;
     };
   }
@@ -42,6 +47,7 @@ declare module "@tiptap/core" {
  */
 export const BlockContainer = Node.create<{
   domAttributes?: BlockNoteDOMAttributes;
+  editor: BlockNoteEditor<BlockSchema, StyleSchema>;
 }>({
   name: "blockContainer",
   group: "blockContainer",
@@ -158,7 +164,13 @@ export const BlockContainer = Node.create<{
 
               // Creates ProseMirror nodes for each child block, including their descendants.
               for (const child of block.children) {
-                childNodes.push(blockToNode(child, state.schema));
+                childNodes.push(
+                  blockToNode(
+                    child,
+                    state.schema,
+                    this.options.editor.styleSchema
+                  )
+                );
               }
 
               // Checks if a blockGroup node already exists.
@@ -193,9 +205,17 @@ export const BlockContainer = Node.create<{
               } else if (Array.isArray(block.content)) {
                 // Adds a text node with the provided styles converted into marks to the content,
                 // for each InlineContent object.
-                content = inlineContentToNodes(block.content, state.schema);
+                content = inlineContentToNodes(
+                  block.content,
+                  state.schema,
+                  this.options.editor.styleSchema
+                );
               } else if (block.content.type === "tableContent") {
-                content = tableContentToNodes(block.content, state.schema);
+                content = tableContentToNodes(
+                  block.content,
+                  state.schema,
+                  this.options.editor.styleSchema
+                );
               } else {
                 throw new UnreachableCaseError(block.content.type);
               }

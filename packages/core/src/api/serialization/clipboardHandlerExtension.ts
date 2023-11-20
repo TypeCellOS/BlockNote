@@ -1,10 +1,11 @@
-import { BlockSchema } from "../../extensions/Blocks/api/blockTypes";
-import { BlockNoteEditor } from "../../BlockNoteEditor";
 import { Extension } from "@tiptap/core";
 import { Plugin } from "prosemirror-state";
-import { createInternalHTMLSerializer } from "./html/internalHTMLSerializer";
-import { createExternalHTMLExporter } from "./html/externalHTMLExporter";
+import { BlockNoteEditor } from "../../BlockNoteEditor";
+import { BlockSchema } from "../../extensions/Blocks/api/blockTypes";
+import { StyleSchema } from "../../extensions/Blocks/api/styles";
 import { markdown } from "../formatConversions/formatConversions";
+import { createExternalHTMLExporter } from "./html/externalHTMLExporter";
+import { createInternalHTMLSerializer } from "./html/internalHTMLSerializer";
 
 const acceptedMIMETypes = [
   "blocknote/html",
@@ -12,10 +13,13 @@ const acceptedMIMETypes = [
   "text/plain",
 ] as const;
 
-export const createClipboardHandlerExtension = <BSchema extends BlockSchema>(
-  editor: BlockNoteEditor<BSchema>
+export const createClipboardHandlerExtension = <
+  BSchema extends BlockSchema,
+  SSchema extends StyleSchema
+>(
+  editor: BlockNoteEditor<BSchema, SSchema>
 ) =>
-  Extension.create<{ editor: BlockNoteEditor<BSchema> }, undefined>({
+  Extension.create<{ editor: BlockNoteEditor<BSchema, SSchema> }, undefined>({
     addProseMirrorPlugins() {
       const tiptap = this.editor;
       const schema = this.editor.schema;

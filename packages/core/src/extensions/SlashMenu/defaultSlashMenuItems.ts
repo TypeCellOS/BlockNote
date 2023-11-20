@@ -1,14 +1,15 @@
 import { BlockNoteEditor } from "../../BlockNoteEditor";
 import { Block, BlockSchema, PartialBlock } from "../Blocks/api/blockTypes";
-import { defaultBlockSchema } from "../Blocks/api/defaultBlocks";
+import { StyleSchema } from "../Blocks/api/styles";
 import { imageToolbarPluginKey } from "../ImageToolbar/ImageToolbarPlugin";
 import { BaseSlashMenuItem } from "./BaseSlashMenuItem";
 
-function setSelectionToNextContentEditableBlock<BSchema extends BlockSchema>(
-  editor: BlockNoteEditor<BSchema>
-) {
+function setSelectionToNextContentEditableBlock<
+  BSchema extends BlockSchema,
+  S extends StyleSchema
+>(editor: BlockNoteEditor<BSchema, S>) {
   let block = editor.getTextCursorPosition().block;
-  let contentType = editor.schema[block.type].config.content as
+  let contentType = editor.blockSchema[block.type].content as
     | "inline"
     | "table"
     | "none";
@@ -16,7 +17,7 @@ function setSelectionToNextContentEditableBlock<BSchema extends BlockSchema>(
   while (contentType === "none") {
     editor.setTextCursorPosition(block, "start");
     block = editor.getTextCursorPosition().nextBlock!;
-    contentType = editor.schema[block.type].config.content as
+    contentType = editor.blockSchema[block.type].content as
       | "inline"
       | "table"
       | "none";
@@ -25,10 +26,13 @@ function setSelectionToNextContentEditableBlock<BSchema extends BlockSchema>(
   editor.setTextCursorPosition(block, "start");
 }
 
-function insertOrUpdateBlock<BSchema extends BlockSchema>(
-  editor: BlockNoteEditor<BSchema>,
-  block: PartialBlock<BSchema>
-): Block<BSchema> {
+function insertOrUpdateBlock<
+  BSchema extends BlockSchema,
+  S extends StyleSchema
+>(
+  editor: BlockNoteEditor<BSchema, S>,
+  block: PartialBlock<BSchema, S>
+): Block<BSchema, S> {
   const currentBlock = editor.getTextCursorPosition().block;
 
   if (currentBlock.content === undefined) {
@@ -54,18 +58,21 @@ function insertOrUpdateBlock<BSchema extends BlockSchema>(
   return insertedBlock;
 }
 
-export const getDefaultSlashMenuItems = <BSchema extends BlockSchema>(
+export const getDefaultSlashMenuItems = <
+  BSchema extends BlockSchema,
+  S extends StyleSchema
+>(
   // This type casting is weird, but it's the best way of doing it, as it allows
   // the schema type to be automatically inferred if it is defined, or be
   // inferred as any if it is not defined. I don't think it's possible to make it
   // infer to DefaultBlockSchema if it is not defined.
-  schema: BSchema = defaultBlockSchema as unknown as BSchema
+  schema: BSchema
 ) => {
-  const slashMenuItems: BaseSlashMenuItem<BSchema>[] = [];
+  const slashMenuItems: BaseSlashMenuItem<BSchema, S>[] = [];
 
-  if ("heading" in schema && "level" in schema.heading.config.propSchema) {
+  if ("heading" in schema && "level" in schema.heading.propSchema) {
     // Command for creating a level 1 heading
-    if (schema.heading.config.propSchema.level.values?.includes(1)) {
+    if (schema.heading.propSchema.level.values?.includes(1)) {
       slashMenuItems.push({
         name: "Heading",
         aliases: ["h", "heading1", "h1"],
@@ -78,7 +85,7 @@ export const getDefaultSlashMenuItems = <BSchema extends BlockSchema>(
     }
 
     // Command for creating a level 2 heading
-    if (schema.heading.config.propSchema.level.values?.includes(2)) {
+    if (schema.heading.propSchema.level.values?.includes(2)) {
       slashMenuItems.push({
         name: "Heading 2",
         aliases: ["h2", "heading2", "subheading"],
@@ -91,7 +98,7 @@ export const getDefaultSlashMenuItems = <BSchema extends BlockSchema>(
     }
 
     // Command for creating a level 3 heading
-    if (schema.heading.config.propSchema.level.values?.includes(3)) {
+    if (schema.heading.propSchema.level.values?.includes(3)) {
       slashMenuItems.push({
         name: "Heading 3",
         aliases: ["h3", "heading3", "subheading"],
