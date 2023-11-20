@@ -35,7 +35,7 @@ const BulletListItemBlockContent = createTipTapBlock<"bulletListItem", true>({
   addKeyboardShortcuts() {
     return {
       Enter: () => handleEnter(this.editor),
-      "Mod-Shift-7": () =>
+      "Mod-Shift-8": () =>
         this.editor.commands.BNUpdateBlock<{
           bulletListItem: BlockSpec<
             "bulletListItem",
