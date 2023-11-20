@@ -17,6 +17,11 @@ export type PartialLink<T extends StyleSchema> = Omit<Link<T>, "content"> & {
 };
 
 export type InlineContent<T extends StyleSchema> = StyledText<T> | Link<T>;
-export type PartialInlineContent<T extends StyleSchema> =
+type PartialInlineContentElement<T extends StyleSchema> =
+  | string
   | StyledText<T>
   | PartialLink<T>;
+
+export type PartialInlineContent<T extends StyleSchema> =
+  | PartialInlineContentElement<T>[]
+  | string;

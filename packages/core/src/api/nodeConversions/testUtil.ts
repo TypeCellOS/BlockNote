@@ -27,15 +27,17 @@ function textShorthandToStyledText(
 }
 
 function partialContentToInlineContent(
-  content: string | PartialInlineContent<any>[] | TableContent<any> = ""
+  content: PartialInlineContent<any> | TableContent<any> = ""
 ): InlineContent<any>[] | TableContent<any> {
   if (typeof content === "string") {
     return textShorthandToStyledText(content);
   }
 
   if (Array.isArray(content)) {
-    return content.map((partialContent) => {
-      if (partialContent.type === "link") {
+    return content.flatMap((partialContent) => {
+      if (typeof partialContent === "string") {
+        return textShorthandToStyledText(partialContent);
+      } else if (partialContent.type === "link") {
         return {
           ...partialContent,
           content: textShorthandToStyledText(partialContent.content),

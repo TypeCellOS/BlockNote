@@ -146,7 +146,7 @@ export type TableContent<S extends StyleSchema = StyleSchema> = {
 export type PartialTableContent<S extends StyleSchema = StyleSchema> = {
   type: "tableContent";
   rows: {
-    cells: (PartialInlineContent<S>[] | string)[];
+    cells: PartialInlineContent<S>[];
   }[];
 };
 
@@ -210,7 +210,7 @@ type PartialBlockFromConfigNoChildren<
   type?: B["type"];
   props?: Partial<Props<B["propSchema"]>>;
   content?: B["content"] extends "inline"
-    ? PartialInlineContent<S>[] | string
+    ? PartialInlineContent<S>
     : B["content"] extends "table"
     ? PartialTableContent<S>
     : undefined;

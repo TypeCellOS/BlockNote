@@ -120,14 +120,16 @@ function styledTextArrayToNodes<S extends StyleSchema>(
  * converts an array of inline content elements to prosemirror nodes
  */
 export function inlineContentToNodes<S extends StyleSchema>(
-  blockContent: PartialInlineContent<S>[],
+  blockContent: PartialInlineContent<S>,
   schema: Schema,
   styleSchema: S
 ): Node[] {
   const nodes: Node[] = [];
 
   for (const content of blockContent) {
-    if (content.type === "link") {
+    if (typeof content === "string") {
+      nodes.push(...styledTextArrayToNodes(content, schema, styleSchema));
+    } else if (content.type === "link") {
       nodes.push(...linkToNodes(content, schema, styleSchema));
     } else if (content.type === "text") {
       nodes.push(...styledTextArrayToNodes([content], schema, styleSchema));
