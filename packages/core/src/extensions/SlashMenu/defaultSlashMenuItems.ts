@@ -4,6 +4,10 @@ import { defaultBlockSchema } from "../Blocks/api/defaultBlocks";
 import { imageToolbarPluginKey } from "../ImageToolbar/ImageToolbarPlugin";
 import { BaseSlashMenuItem } from "./BaseSlashMenuItem";
 
+// Sets the editor's text cursor position to the next content editable block,
+// so either a block with inline content or a table. The last block is always a
+// paragraph, so this function won't try to set the cursor position past the
+// last block.
 function setSelectionToNextContentEditableBlock<BSchema extends BlockSchema>(
   editor: BlockNoteEditor<BSchema>
 ) {
@@ -14,17 +18,19 @@ function setSelectionToNextContentEditableBlock<BSchema extends BlockSchema>(
     | "none";
 
   while (contentType === "none") {
-    editor.setTextCursorPosition(block, "start");
+    editor.setTextCursorPosition(block, "end");
     block = editor.getTextCursorPosition().nextBlock!;
     contentType = editor.schema[block.type].config.content as
       | "inline"
       | "table"
       | "none";
   }
-
-  editor.setTextCursorPosition(block, "start");
 }
 
+// Checks if the current block is empty or only contains a slash, and if so,
+// updates the current block instead of inserting a new one below. If the new
+// block doesn't contain editable content, the cursor is moved to the next block
+// that does.
 function insertOrUpdateBlock<BSchema extends BlockSchema>(
   editor: BlockNoteEditor<BSchema>,
   block: PartialBlock<BSchema>
@@ -45,7 +51,10 @@ function insertOrUpdateBlock<BSchema extends BlockSchema>(
     editor.updateBlock(currentBlock, block);
   } else {
     editor.insertBlocks([block], currentBlock, "after");
-    editor.setTextCursorPosition(editor.getTextCursorPosition().nextBlock!);
+    editor.setTextCursorPosition(
+      editor.getTextCursorPosition().nextBlock!,
+      "end"
+    );
   }
 
   const insertedBlock = editor.getTextCursorPosition().block;

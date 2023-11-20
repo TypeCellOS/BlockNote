@@ -513,12 +513,13 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
 
     if (contentType === "table") {
       if (placement === "start") {
-        console.log(startPos + 4);
+        // Need to offset the position as we have to get through the `tableRow`
+        // and `tableCell` nodes to get to the `tableParagraph` node we want to
+        // set the selection in.
         this._tiptapEditor.commands.setTextSelection(startPos + 4);
       } else {
-        console.log(startPos + contentNode.nodeSize - 4);
         this._tiptapEditor.commands.setTextSelection(
-          startPos + contentNode.nodeSize - 1
+          startPos + contentNode.nodeSize - 4
         );
       }
     }
