@@ -54,6 +54,7 @@ export const customReactBlockSchemaTestCases: EditorTestCases<
   name: "custom react block schema",
   createEditor: () => {
     return BlockNoteEditor.create({
+      blockSpecs: customSpecs,
       uploadFile: uploadToTmpFilesDotOrg_DEV_ONLY,
     });
   },

@@ -200,6 +200,10 @@ function blockOrInlineContentToContentNode(
     type = "paragraph";
   }
 
+  if (!schema.nodes[type]) {
+    throw new Error(`node type ${type} not found in schema`);
+  }
+
   if (!block.content) {
     contentNode = schema.nodes[type].create(block.props);
   } else if (typeof block.content === "string") {
