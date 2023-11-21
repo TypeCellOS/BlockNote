@@ -29,8 +29,8 @@ function textShorthandToStyledText(
 }
 
 function partialContentToInlineContent(
-  content: PartialInlineContent<any, any> | TableContent<any> = ""
-): InlineContent<any, any>[] | TableContent<any> {
+  content: PartialInlineContent<any, any> | TableContent<any> | undefined
+): InlineContent<any, any>[] | TableContent<any> | undefined {
   if (typeof content === "string") {
     return textShorthandToStyledText(content);
   }
@@ -66,7 +66,8 @@ export function partialBlockToBlockForTesting<
     id: "",
     type: partialBlock.type!,
     props: {} as any,
-    content: [] as any,
+    content:
+      schema[partialBlock.type!].content === "inline" ? [] : (undefined as any),
     children: [] as any,
     ...partialBlock,
   };

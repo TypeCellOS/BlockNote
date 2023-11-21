@@ -177,16 +177,6 @@ const blockNoteTipTapOptions = {
   enableCoreExtensions: false,
 };
 
-// const ss = {
-//   paragraph: Paragraph,
-// } as const;
-
-// const xa = createEditor({
-//   blockSchema: ss,
-// });
-
-// xa.schema.
-
 export class BlockNoteEditor<
   BSchema extends BlockSchema = DefaultBlockSchema,
   ISchema extends InlineContentSchema = DefaultInlineContentSchema,
