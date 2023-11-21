@@ -33,6 +33,37 @@ exports[`Test BlockNote-Prosemirror conversion > Case: custom style schema > Con
 }
 `;
 
+exports[`Test BlockNote-Prosemirror conversion > Case: custom style schema > Convert mention/basic to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "textAlignment": "left",
+      },
+      "content": [
+        {
+          "text": "I enjoy working with",
+          "type": "text",
+        },
+        {
+          "attrs": {
+            "user": "Matthew",
+          },
+          "type": "mention",
+        },
+      ],
+      "type": "paragraph",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
 exports[`Test BlockNote-Prosemirror conversion > Case: custom style schema > Convert small/basic to/from prosemirror 1`] = `
 {
   "attrs": {
@@ -54,6 +85,40 @@ exports[`Test BlockNote-Prosemirror conversion > Case: custom style schema > Con
           ],
           "text": "This is a small text",
           "type": "text",
+        },
+      ],
+      "type": "paragraph",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test BlockNote-Prosemirror conversion > Case: custom style schema > Convert tag/basic to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "textAlignment": "left",
+      },
+      "content": [
+        {
+          "text": "I love ",
+          "type": "text",
+        },
+        {
+          "content": [
+            {
+              "text": "BlockNote",
+              "type": "text",
+            },
+          ],
+          "type": "tag",
         },
       ],
       "type": "paragraph",

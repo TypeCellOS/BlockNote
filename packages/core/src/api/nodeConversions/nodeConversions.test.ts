@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { BlockNoteEditor, PartialBlock } from "../..";
 import UniqueID from "../../extensions/UniqueID/UniqueID";
+import { customInlineContentTestCases } from "../testCases/cases/customInlineContent";
 import { customStylesTestCases } from "../testCases/cases/customStyles";
 import { defaultSchemaTestCases } from "../testCases/cases/defaultSchema";
 import { blockToNode, nodeToBlock } from "./nodeConversions";
@@ -28,7 +29,12 @@ function validateConversion(
 
   expect(node).toMatchSnapshot();
 
-  const outputBlock = nodeToBlock(node, editor.blockSchema, editor.styleSchema);
+  const outputBlock = nodeToBlock(
+    node,
+    editor.blockSchema,
+    editor.inlineContentSchema,
+    editor.styleSchema
+  );
 
   const fullOriginalBlock = partialBlockToBlockForTesting(
     editor.blockSchema,
@@ -38,7 +44,11 @@ function validateConversion(
   expect(outputBlock).toStrictEqual(fullOriginalBlock);
 }
 
-const testCases = [defaultSchemaTestCases, customStylesTestCases];
+const testCases = [
+  defaultSchemaTestCases,
+  customStylesTestCases,
+  customInlineContentTestCases,
+];
 
 describe("Test BlockNote-Prosemirror conversion", () => {
   for (const testCase of testCases) {

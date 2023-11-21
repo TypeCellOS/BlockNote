@@ -51,6 +51,7 @@ export const serializeNodeInner = <
         nodeToBlock(
           node,
           editor.blockSchema,
+          editor.inlineContentSchema,
           editor.styleSchema,
           editor.blockCache
         ),

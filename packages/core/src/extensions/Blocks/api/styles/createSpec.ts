@@ -1,5 +1,6 @@
 import { Mark } from "@tiptap/core";
 import { UnreachableCaseError } from "../../../../shared/utils";
+import { createInternalStyleSpec } from "./internal";
 import { StyleConfig, StyleSpec } from "./types";
 
 export type CustomStyleImplementation<T extends StyleConfig> = {
@@ -13,6 +14,8 @@ export type CustomStyleImplementation<T extends StyleConfig> = {
         contentDOM?: HTMLElement;
       };
 };
+
+// TODO: support serialization
 
 export function createStyleSpec<T extends StyleConfig>(
   styleConfig: T,
@@ -59,10 +62,7 @@ export function createStyleSpec<T extends StyleConfig>(
     },
   });
 
-  return {
-    config: styleConfig,
-    implementation: {
-      mark,
-    },
-  };
+  return createInternalStyleSpec(styleConfig, {
+    mark,
+  });
 }

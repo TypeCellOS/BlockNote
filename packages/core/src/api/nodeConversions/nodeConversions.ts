@@ -9,8 +9,10 @@ import {
 } from "../../extensions/Blocks/api/blocks/types";
 import {
   InlineContent,
+  InlineContentFromConfig,
   InlineContentSchema,
   PartialInlineContent,
+  PartialInlineContentFromConfig,
   PartialLink,
   StyledText,
   isLinkInlineContent,
@@ -38,9 +40,7 @@ function styledTextToNodes<T extends StyleSchema>(
     if (!config) {
       throw new Error(`style ${style} not found in styleSchema`);
     }
-    if (style === "fontSize") {
-      debugger;
-    }
+
     if (config.propSchema === "boolean") {
       marks.push(schema.mark(style));
     } else if (config.propSchema === "string") {
@@ -144,9 +144,9 @@ export function inlineContentToNodes<
     } else if (isStyledTextInlineContent(content)) {
       nodes.push(...styledTextArrayToNodes([content], schema, styleSchema));
     } else {
-      // TODO
-      // let s = content.type;
-      // throw new UnreachableCaseError(content);
+      nodes.push(
+        blockOrInlineContentToContentNode(content, schema, styleSchema)
+      );
     }
   }
   return nodes;
@@ -187,28 +187,22 @@ export function tableContentToNodes<
   return rowNodes;
 }
 
-/**
- * Converts a BlockNote block to a TipTap node.
- */
-export function blockToNode(
-  block: PartialBlock<any, any, any>,
+function blockOrInlineContentToContentNode(
+  block: PartialBlock<any, any, any> | PartialInlineContentFromConfig<any, any>,
   schema: Schema,
   styleSchema: StyleSchema
 ) {
-  let id = block.id;
-
-  if (id === undefined) {
-    id = UniqueID.options.generateID();
-  }
-
+  let contentNode: Node;
   let type = block.type;
 
+  // TODO: needed? came from previous code
   if (type === undefined) {
     type = "paragraph";
   }
 
-  let contentNode: Node;
-
+  if (type === "tag" || type === "mention") {
+    debugger;
+  }
   if (!block.content) {
     contentNode = schema.nodes[type].create(block.props);
   } else if (typeof block.content === "string") {
@@ -225,6 +219,27 @@ export function blockToNode(
   } else {
     throw new UnreachableCaseError(block.content.type);
   }
+  return contentNode;
+}
+/**
+ * Converts a BlockNote block to a TipTap node.
+ */
+export function blockToNode(
+  block: PartialBlock<any, any, any>,
+  schema: Schema,
+  styleSchema: StyleSchema
+) {
+  let id = block.id;
+
+  if (id === undefined) {
+    id = UniqueID.options.generateID();
+  }
+
+  const contentNode = blockOrInlineContentToContentNode(
+    block,
+    schema,
+    styleSchema
+  );
 
   const children: Node[] = [];
 
@@ -251,7 +266,7 @@ export function blockToNode(
 function contentNodeToTableContent<
   I extends InlineContentSchema,
   S extends StyleSchema
->(contentNode: Node, styleSchema: S) {
+>(contentNode: Node, inlineContentSchema: I, styleSchema: S) {
   const ret: TableContent<I, S> = {
     type: "tableContent",
     rows: [],
@@ -264,7 +279,11 @@ function contentNodeToTableContent<
 
     rowNode.content.forEach((cellNode) => {
       row.cells.push(
-        contentNodeToInlineContent(cellNode.firstChild!, styleSchema)
+        contentNodeToInlineContent(
+          cellNode.firstChild!,
+          inlineContentSchema,
+          styleSchema
+        )
       );
     });
 
@@ -277,10 +296,10 @@ function contentNodeToTableContent<
 /**
  * Converts an internal (prosemirror) content node to a BlockNote InlineContent array.
  */
-function contentNodeToInlineContent<
+export function contentNodeToInlineContent<
   I extends InlineContentSchema,
   S extends StyleSchema
->(contentNode: Node, styleSchema: S) {
+>(contentNode: Node, inlineContentSchema: I, styleSchema: S) {
   const content: InlineContent<I, S>[] = [];
   let currentContent: InlineContent<I, S> | undefined = undefined;
 
@@ -300,7 +319,7 @@ function contentNodeToInlineContent<
           currentContent.content[currentContent.content.length - 1].text +=
             "\n";
         } else {
-          // TODO
+          throw new Error("unexpected");
         }
       } else {
         // Current content does not exist.
@@ -314,6 +333,19 @@ function contentNodeToInlineContent<
       return;
     }
 
+    if (inlineContentSchema[node.type.name]) {
+      if (currentContent) {
+        content.push(currentContent);
+        currentContent = undefined;
+      }
+
+      content.push(
+        nodeToCustomInlineContent(node, inlineContentSchema, styleSchema)
+      );
+
+      return;
+    }
+
     const styles: Styles<S> = {};
     let linkMark: Mark | undefined;
 
@@ -321,9 +353,6 @@ function contentNodeToInlineContent<
       if (mark.type.name === "link") {
         linkMark = mark;
       } else {
-        if (mark.type.name === "fontSize") {
-          debugger;
-        }
         const config = styleSchema[mark.type.name];
         if (!config) {
           throw new Error(`style ${mark.type.name} not found in styleSchema`);
@@ -458,6 +487,44 @@ function contentNodeToInlineContent<
   return content;
 }
 
+export function nodeToCustomInlineContent<
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(node: Node, inlineContentSchema: I, styleSchema: S): InlineContent<I, S> {
+  const props: any = {};
+  const icConfig = inlineContentSchema[node.type.name];
+  for (const [attr, value] of Object.entries(node.attrs)) {
+    if (!icConfig) {
+      throw Error("ic node is of an unrecognized type: " + node.type.name);
+    }
+
+    const propSchema = icConfig.propSchema;
+
+    if (attr in propSchema) {
+      props[attr] = value;
+    }
+  }
+
+  let content: InlineContentFromConfig<any, any>["content"];
+
+  if (icConfig.content === "styled") {
+    content = contentNodeToInlineContent(
+      node,
+      inlineContentSchema,
+      styleSchema
+    ) as any; // TODO: is this safe? could we have Links here that are undesired?
+  } else {
+    content = undefined;
+  }
+
+  const ic = {
+    type: node.type.name,
+    props,
+    content,
+  } as InlineContentFromConfig<I[keyof I], S>;
+  return ic;
+}
+
 /**
  * Convert a TipTap node to a BlockNote block.
  */
@@ -468,6 +535,7 @@ export function nodeToBlock<
 >(
   node: Node,
   blockSchema: BSchema,
+  inlineContentSchema: I,
   styleSchema: S,
   blockCache?: WeakMap<Node, Block<BSchema, I, S>>
 ): Block<BSchema, I, S> {
@@ -522,6 +590,7 @@ export function nodeToBlock<
       nodeToBlock(
         node.lastChild!.child(i),
         blockSchema,
+        inlineContentSchema,
         styleSchema,
         blockCache
       )
@@ -531,9 +600,17 @@ export function nodeToBlock<
   let content: Block<any, any, any>["content"];
 
   if (blockConfig.content === "inline") {
-    content = contentNodeToInlineContent(blockInfo.contentNode, styleSchema);
+    content = contentNodeToInlineContent(
+      blockInfo.contentNode,
+      inlineContentSchema,
+      styleSchema
+    );
   } else if (blockConfig.content === "table") {
-    content = contentNodeToTableContent(blockInfo.contentNode, styleSchema);
+    content = contentNodeToTableContent(
+      blockInfo.contentNode,
+      inlineContentSchema,
+      styleSchema
+    );
   } else if (blockConfig.content === "none") {
     content = undefined;
   } else {

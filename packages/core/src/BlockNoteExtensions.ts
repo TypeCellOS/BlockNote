@@ -19,7 +19,10 @@ import {
   BlockSchema,
   BlockSpecs,
 } from "./extensions/Blocks/api/blocks/types";
-import { InlineContentSchema } from "./extensions/Blocks/api/inlineContent/types";
+import {
+  InlineContentSchema,
+  InlineContentSpecs,
+} from "./extensions/Blocks/api/inlineContent/types";
 import { StyleSchema, StyleSpecs } from "./extensions/Blocks/api/styles/types";
 import { TableExtension } from "./extensions/Blocks/nodes/BlockContent/TableBlockContent/TableExtension";
 import { Placeholder } from "./extensions/Placeholder/PlaceholderExtension";
@@ -40,6 +43,7 @@ export const getBlockNoteExtensions = <
   domAttributes: Partial<BlockNoteDOMAttributes>;
   blockSchema: BSchema;
   blockSpecs: BlockSpecs;
+  inlineContentSpecs: InlineContentSpecs;
   styleSpecs: StyleSpecs;
   collaboration?: {
     fragment: Y.XmlFragment;
@@ -96,6 +100,12 @@ export const getBlockNoteExtensions = <
       domAttributes: opts.domAttributes,
     }),
     TableExtension,
+    ...Object.values(opts.inlineContentSpecs).map((inlineContentSpec) => {
+      return inlineContentSpec.implementation.node.configure({
+        editor: opts.editor as any,
+      });
+    }),
+
     ...Object.values(opts.blockSpecs).flatMap((blockSpec) => {
       return [
         // dependent nodes (e.g.: tablecell / row)

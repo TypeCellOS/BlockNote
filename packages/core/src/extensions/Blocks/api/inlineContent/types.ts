@@ -1,15 +1,18 @@
+import { Node } from "@tiptap/core";
 import { PropSchema, Props } from "../blocks/types";
 import { StyleSchema, Styles } from "../styles/types";
 
 export type InlineContentConfig = {
   type: string;
-  content: "styled" | "raw" | "none";
+  content: "styled" | "none"; // | "plain"
   readonly propSchema: PropSchema;
   // content: "inline" | "none" | "table";
 };
 
 // @ts-ignore
-export type InlineContentImplementation<T extends InlineContentConfig> = any;
+export type InlineContentImplementation<T extends InlineContentConfig> = {
+  node: Node;
+};
 
 // Container for both the config and implementation of a block,
 // and the type of BlockImplementation is based on that of the config
@@ -29,7 +32,7 @@ export type InlineContentSchemaFromSpecs<T extends InlineContentSpecs> = {
   [K in keyof T]: T[K]["config"];
 };
 
-type InlineContentFromConfig<
+export type InlineContentFromConfig<
   I extends InlineContentConfig,
   S extends StyleSchema
 > = {
@@ -37,22 +40,22 @@ type InlineContentFromConfig<
   props: Props<I["propSchema"]>;
   content: I["content"] extends "styled"
     ? StyledText<S>[]
-    : I["content"] extends "raw"
+    : I["content"] extends "plain"
     ? string
     : I["content"] extends "none"
     ? undefined
     : never;
 };
 
-type PartialInlineContentFromConfig<
+export type PartialInlineContentFromConfig<
   I extends InlineContentConfig,
   S extends StyleSchema
 > = {
   type: I["type"];
-  props: Props<I["propSchema"]>;
+  props?: Props<I["propSchema"]>;
   content: I["content"] extends "styled"
     ? StyledText<S>[] | string
-    : I["content"] extends "raw"
+    : I["content"] extends "plain"
     ? string
     : I["content"] extends "none"
     ? undefined
@@ -107,7 +110,7 @@ export function isPartialLinkInlineContent<T extends StyleSchema>(
 }
 
 export function isStyledTextInlineContent<T extends StyleSchema>(
-  content: InlineContent<any, T>
+  content: PartialInlineContentElement<any, T>
 ): content is StyledText<T> {
-  return content.type === "text";
+  return typeof content !== "string" && content.type === "text";
 }

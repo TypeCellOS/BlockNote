@@ -289,8 +289,3 @@ export type SpecificPartialBlock<
 };
 
 export type BlockIdentifier = { id: string } | string;
-
-// export type Schema<B extends BlockSchema, S extends StyleSchema> = {
-//   blocks: B;
-//   styles: S;
-// };

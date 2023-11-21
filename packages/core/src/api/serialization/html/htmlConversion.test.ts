@@ -22,6 +22,7 @@ import {
 } from "../../../extensions/Blocks/nodes/BlockContent/ImageBlockContent/ImageBlockContent";
 import { uploadToTmpFilesDotOrg_DEV_ONLY } from "../../../extensions/Blocks/nodes/BlockContent/ImageBlockContent/uploadToTmpFilesDotOrg_DEV_ONLY";
 import { EditorTestCases } from "../../testCases";
+import { customInlineContentTestCases } from "../../testCases/cases/customInlineContent";
 import { customStylesTestCases } from "../../testCases/cases/customStyles";
 import { defaultSchemaTestCases } from "../../testCases/cases/defaultSchema";
 import { createExternalHTMLExporter } from "./externalHTMLExporter";
@@ -334,6 +335,7 @@ const testCases = [
   defaultSchemaTestCases,
   editorTestCases,
   customStylesTestCases,
+  customInlineContentTestCases,
 ];
 
 describe("Test HTML conversion", () => {

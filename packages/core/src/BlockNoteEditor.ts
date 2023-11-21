@@ -299,6 +299,7 @@ export class BlockNoteEditor<
       blockSchema: this.blockSchema,
       blockSpecs: newOptions.blockSpecs,
       styleSpecs: newOptions.styleSpecs,
+      inlineContentSpecs: newOptions.inlineContentSpecs,
       collaboration: newOptions.collaboration,
     });
 
@@ -454,7 +455,13 @@ export class BlockNoteEditor<
 
     this._tiptapEditor.state.doc.firstChild!.descendants((node) => {
       blocks.push(
-        nodeToBlock(node, this.blockSchema, this.styleSchema, this.blockCache)
+        nodeToBlock(
+          node,
+          this.blockSchema,
+          this.inlineContentSchema,
+          this.styleSchema,
+          this.blockCache
+        )
       );
 
       return false;
@@ -489,6 +496,7 @@ export class BlockNoteEditor<
       newBlock = nodeToBlock(
         node,
         this.blockSchema,
+        this.inlineContentSchema,
         this.styleSchema,
         this.blockCache
       );
@@ -592,6 +600,7 @@ export class BlockNoteEditor<
       block: nodeToBlock(
         node,
         this.blockSchema,
+        this.inlineContentSchema,
         this.styleSchema,
         this.blockCache
       ),
@@ -601,6 +610,7 @@ export class BlockNoteEditor<
           : nodeToBlock(
               prevNode,
               this.blockSchema,
+              this.inlineContentSchema,
               this.styleSchema,
               this.blockCache
             ),
@@ -610,6 +620,7 @@ export class BlockNoteEditor<
           : nodeToBlock(
               nextNode,
               this.blockSchema,
+              this.inlineContentSchema,
               this.styleSchema,
               this.blockCache
             ),
@@ -697,6 +708,7 @@ export class BlockNoteEditor<
         nodeToBlock(
           this._tiptapEditor.state.doc.resolve(pos).node(),
           this.blockSchema,
+          this.inlineContentSchema,
           this.styleSchema,
           this.blockCache
         )

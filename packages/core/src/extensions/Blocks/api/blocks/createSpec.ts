@@ -68,7 +68,7 @@ export function createBlockSpec<
     selectable: true,
 
     addAttributes() {
-      return propsToAttributes(blockConfig);
+      return propsToAttributes(blockConfig.propSchema);
     },
 
     parseHTML() {

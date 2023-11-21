@@ -10,6 +10,7 @@ import {
   PartialInlineContent,
   StyledText,
   isPartialLinkInlineContent,
+  isStyledTextInlineContent,
 } from "../../extensions/Blocks/api/inlineContent/types";
 import { StyleSchema } from "../../extensions/Blocks/api/styles/types";
 
@@ -44,9 +45,16 @@ function partialContentToInlineContent(
           ...partialContent,
           content: textShorthandToStyledText(partialContent.content),
         };
-      } else {
-        // TODO?
+      } else if (isStyledTextInlineContent(partialContent)) {
         return partialContent;
+      } else {
+        // custom inline content
+
+        return {
+          props: {},
+          ...partialContent,
+          content: partialContentToInlineContent(partialContent.content),
+        } as any;
       }
     });
   }

@@ -22,10 +22,11 @@ export function camelToDataKebab(str: string): string {
 
 // Function that uses the 'propSchema' of a blockConfig to create a TipTap
 // node's `addAttributes` property.
-export function propsToAttributes(blockConfig: BlockConfig): Attributes {
+// TODO: extract function
+export function propsToAttributes(propSchema: PropSchema): Attributes {
   const tiptapAttributes: Record<string, Attribute> = {};
 
-  Object.entries(blockConfig.propSchema)
+  Object.entries(propSchema)
     .filter(([name, _spec]) => !inheritedProps.includes(name))
     .forEach(([name, spec]) => {
       tiptapAttributes[name] = {
