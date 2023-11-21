@@ -1,5 +1,5 @@
-import { PropSchema, Props } from "./blockTypes";
-import { StyleSchema, Styles } from "./styles";
+import { PropSchema, Props } from "../blocks/types";
+import { StyleSchema, Styles } from "../styles/types";
 
 export type InlineContentConfig = {
   type: string;

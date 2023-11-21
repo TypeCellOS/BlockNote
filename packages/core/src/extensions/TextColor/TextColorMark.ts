@@ -1,6 +1,7 @@
 import { Mark } from "@tiptap/core";
+import { createStyleSpecFromTipTapMark } from "../Blocks/api/styles/internal";
 
-export const TextColorMark = Mark.create({
+const TextColorMark = Mark.create({
   name: "textColor",
 
   addAttributes() {
@@ -38,3 +39,5 @@ export const TextColorMark = Mark.create({
     return ["span", HTMLAttributes, 0];
   },
 });
+
+export const TextColor = createStyleSpecFromTipTapMark(TextColorMark, "string");

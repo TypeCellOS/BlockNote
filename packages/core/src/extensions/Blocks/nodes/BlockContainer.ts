@@ -15,9 +15,9 @@ import {
   BlockNoteDOMAttributes,
   BlockSchema,
   PartialBlock,
-} from "../api/blockTypes";
-import { InlineContentSchema } from "../api/inlineContentTypes";
-import { StyleSchema } from "../api/styles";
+} from "../api/blocks/types";
+import { InlineContentSchema } from "../api/inlineContent/types";
+import { StyleSchema } from "../api/styles/types";
 import { getBlockInfoFromPos } from "../helpers/getBlockInfoFromPos";
 import BlockAttributes from "./BlockAttributes";
 

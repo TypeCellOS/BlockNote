@@ -6,7 +6,7 @@ import {
   PartialBlock,
   PartialTableContent,
   TableContent,
-} from "../../extensions/Blocks/api/blockTypes";
+} from "../../extensions/Blocks/api/blocks/types";
 import {
   InlineContent,
   InlineContentSchema,
@@ -16,8 +16,8 @@ import {
   isLinkInlineContent,
   isPartialLinkInlineContent,
   isStyledTextInlineContent,
-} from "../../extensions/Blocks/api/inlineContentTypes";
-import { StyleSchema, Styles } from "../../extensions/Blocks/api/styles";
+} from "../../extensions/Blocks/api/inlineContent/types";
+import { StyleSchema, Styles } from "../../extensions/Blocks/api/styles/types";
 import { getBlockInfo } from "../../extensions/Blocks/helpers/getBlockInfoFromPos";
 import UniqueID from "../../extensions/UniqueID/UniqueID";
 import { UnreachableCaseError } from "../../shared/utils";

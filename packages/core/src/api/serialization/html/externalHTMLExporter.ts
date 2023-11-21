@@ -7,8 +7,8 @@ import { BlockNoteEditor } from "../../../BlockNoteEditor";
 import {
   BlockSchema,
   PartialBlock,
-} from "../../../extensions/Blocks/api/blockTypes";
-import { StyleSchema } from "../../../extensions/Blocks/api/styles";
+} from "../../../extensions/Blocks/api/blocks/types";
+import { StyleSchema } from "../../../extensions/Blocks/api/styles/types";
 import { simplifyBlocks } from "../../formatConversions/simplifyBlocksRehypePlugin";
 import { blockToNode } from "../../nodeConversions/nodeConversions";
 import {

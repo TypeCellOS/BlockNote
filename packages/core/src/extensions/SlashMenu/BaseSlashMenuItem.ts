@@ -1,8 +1,8 @@
 import { BlockNoteEditor } from "../../BlockNoteEditor";
 import { SuggestionItem } from "../../shared/plugins/suggestion/SuggestionItem";
-import { BlockSchema } from "../Blocks/api/blockTypes";
-import { InlineContentSchema } from "../Blocks/api/inlineContentTypes";
-import { StyleSchema } from "../Blocks/api/styles";
+import { BlockSchema } from "../Blocks/api/blocks/types";
+import { InlineContentSchema } from "../Blocks/api/inlineContent/types";
+import { StyleSchema } from "../Blocks/api/styles/types";
 
 export type BaseSlashMenuItem<
   BSchema extends BlockSchema,

@@ -9,7 +9,7 @@ import {
   InlineContentSchema,
 } from "../..";
 import { EventEmitter } from "../../shared/EventEmitter";
-import { StyleSchema } from "../Blocks/api/styles";
+import { StyleSchema } from "../Blocks/api/styles/types";
 
 export type FormattingToolbarCallbacks = BaseUiElementCallbacks;
 

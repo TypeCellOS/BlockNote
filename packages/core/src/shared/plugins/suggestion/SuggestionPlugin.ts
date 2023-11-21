@@ -1,9 +1,9 @@
 import { EditorState, Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
 import { BlockNoteEditor } from "../../../BlockNoteEditor";
-import { BlockSchema } from "../../../extensions/Blocks/api/blockTypes";
-import { InlineContentSchema } from "../../../extensions/Blocks/api/inlineContentTypes";
-import { StyleSchema } from "../../../extensions/Blocks/api/styles";
+import { BlockSchema } from "../../../extensions/Blocks/api/blocks/types";
+import { InlineContentSchema } from "../../../extensions/Blocks/api/inlineContent/types";
+import { StyleSchema } from "../../../extensions/Blocks/api/styles/types";
 import { findBlock } from "../../../extensions/Blocks/helpers/findBlock";
 import { BaseUiElementState } from "../../BaseUiElementTypes";
 import { SuggestionItem } from "./SuggestionItem";

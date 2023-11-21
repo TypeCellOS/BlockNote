@@ -1,8 +1,11 @@
 import { Attribute, Attributes, Editor, Node, NodeConfig } from "@tiptap/core";
 import { ParseRule } from "prosemirror-model";
-import { BlockNoteEditor } from "../../../BlockNoteEditor";
-import { mergeCSSClasses } from "../../../shared/utils";
-import { defaultBlockToHTML } from "../nodes/BlockContent/defaultBlockHelpers";
+import { BlockNoteEditor } from "../../../../BlockNoteEditor";
+import { mergeCSSClasses } from "../../../../shared/utils";
+import { defaultBlockToHTML } from "../../nodes/BlockContent/defaultBlockHelpers";
+import { inheritedProps } from "../defaultProps";
+import { InlineContentSchema } from "../inlineContent/types";
+import { StyleSchema } from "../styles/types";
 import {
   BlockConfig,
   BlockSchemaWithBlock,
@@ -11,10 +14,7 @@ import {
   Props,
   SpecificBlock,
   TiptapBlockImplementation,
-} from "./blockTypes";
-import { inheritedProps } from "./defaultProps";
-import { InlineContentSchema } from "./inlineContentTypes";
-import { StyleSchema } from "./styles";
+} from "./types";
 
 export function camelToDataKebab(str: string): string {
   return "data-" + str.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();

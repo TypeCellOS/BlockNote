@@ -1,17 +1,22 @@
+import { Mark } from "@tiptap/core";
+
+export type StylePropSchema = "boolean" | "string"; // TODO: use PropSchema as name? Use objects as type similar to blocks?
+
 export type StyleConfig = {
   type: string;
-  readonly propSchema: "boolean" | "string";
+  readonly propSchema: StylePropSchema;
   // content: "inline" | "none" | "table";
 };
 
-// @ts-ignore
-export type StyleImplementation<T extends StyleConfig> = any;
+export type StyleImplementation = {
+  mark: Mark;
+};
 
 // Container for both the config and implementation of a block,
 // and the type of BlockImplementation is based on that of the config
 export type StyleSpec<T extends StyleConfig> = {
   config: T;
-  implementation: StyleImplementation<T>;
+  implementation: StyleImplementation;
 };
 
 export type StyleSchema = Record<string, StyleConfig>;

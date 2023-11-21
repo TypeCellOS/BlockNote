@@ -1,6 +1,7 @@
 import { Mark } from "@tiptap/core";
+import { createStyleSpecFromTipTapMark } from "../Blocks/api/styles/internal";
 
-export const BackgroundColorMark = Mark.create({
+const BackgroundColorMark = Mark.create({
   name: "backgroundColor",
 
   addAttributes() {
@@ -40,3 +41,8 @@ export const BackgroundColorMark = Mark.create({
     return ["span", HTMLAttributes, 0];
   },
 });
+
+export const BackgroundColor = createStyleSpecFromTipTapMark(
+  BackgroundColorMark,
+  "string"
+);

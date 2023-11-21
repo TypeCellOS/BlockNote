@@ -3,15 +3,15 @@ import {
   BlockSchema,
   PartialBlock,
   TableContent,
-} from "../../extensions/Blocks/api/blockTypes";
+} from "../../extensions/Blocks/api/blocks/types";
 import {
   InlineContent,
   InlineContentSchema,
   PartialInlineContent,
   StyledText,
   isPartialLinkInlineContent,
-} from "../../extensions/Blocks/api/inlineContentTypes";
-import { StyleSchema } from "../../extensions/Blocks/api/styles";
+} from "../../extensions/Blocks/api/inlineContent/types";
+import { StyleSchema } from "../../extensions/Blocks/api/styles/types";
 
 function textShorthandToStyledText(
   content: string | StyledText<any>[] = ""

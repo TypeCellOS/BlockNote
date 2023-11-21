@@ -10,7 +10,7 @@ import {
   getDraggableBlockFromCoords,
 } from "../..";
 import { EventEmitter } from "../../shared/EventEmitter";
-import { StyleSchema } from "../Blocks/api/styles";
+import { StyleSchema } from "../Blocks/api/styles/types";
 export type TableHandlesCallbacks = BaseUiElementCallbacks;
 
 export type TableHandlesState<

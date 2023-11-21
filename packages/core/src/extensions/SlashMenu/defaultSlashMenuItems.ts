@@ -1,10 +1,10 @@
 import { BlockNoteEditor } from "../../BlockNoteEditor";
-import { Block, BlockSchema, PartialBlock } from "../Blocks/api/blockTypes";
+import { Block, BlockSchema, PartialBlock } from "../Blocks/api/blocks/types";
 import {
   InlineContentSchema,
   isStyledTextInlineContent,
-} from "../Blocks/api/inlineContentTypes";
-import { StyleSchema } from "../Blocks/api/styles";
+} from "../Blocks/api/inlineContent/types";
+import { StyleSchema } from "../Blocks/api/styles/types";
 import { imageToolbarPluginKey } from "../ImageToolbar/ImageToolbarPlugin";
 import { BaseSlashMenuItem } from "./BaseSlashMenuItem";
 

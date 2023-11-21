@@ -1,21 +1,21 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { BlockNoteEditor } from "../../../BlockNoteEditor";
 
+import { createBlockSpec } from "../../../extensions/Blocks/api/blocks/createSpec";
 import {
   BlockSchema,
   BlockSchemaFromSpecs,
   BlockSpecs,
   PartialBlock,
-} from "../../../extensions/Blocks/api/blockTypes";
-import { createBlockSpec } from "../../../extensions/Blocks/api/customBlocks";
+} from "../../../extensions/Blocks/api/blocks/types";
 import {
   DefaultInlineContentSchema,
   DefaultStyleSchema,
   defaultBlockSpecs,
 } from "../../../extensions/Blocks/api/defaultBlocks";
 import { defaultProps } from "../../../extensions/Blocks/api/defaultProps";
-import { InlineContentSchema } from "../../../extensions/Blocks/api/inlineContentTypes";
-import { StyleSchema } from "../../../extensions/Blocks/api/styles";
+import { InlineContentSchema } from "../../../extensions/Blocks/api/inlineContent/types";
+import { StyleSchema } from "../../../extensions/Blocks/api/styles/types";
 import {
   imagePropSchema,
   renderImage,

@@ -2,36 +2,29 @@ import { Extensions, extensions } from "@tiptap/core";
 
 import { BlockNoteEditor } from "./BlockNoteEditor";
 
-import { Bold } from "@tiptap/extension-bold";
-import { Code } from "@tiptap/extension-code";
 import Collaboration from "@tiptap/extension-collaboration";
 import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
 import { Dropcursor } from "@tiptap/extension-dropcursor";
 import { Gapcursor } from "@tiptap/extension-gapcursor";
 import { HardBreak } from "@tiptap/extension-hard-break";
 import { History } from "@tiptap/extension-history";
-import { Italic } from "@tiptap/extension-italic";
 import { Link } from "@tiptap/extension-link";
-import { Strike } from "@tiptap/extension-strike";
 import { Text } from "@tiptap/extension-text";
-import { Underline } from "@tiptap/extension-underline";
 import * as Y from "yjs";
 import { createClipboardHandlerExtension } from "./api/serialization/clipboardHandlerExtension";
 import { BackgroundColorExtension } from "./extensions/BackgroundColor/BackgroundColorExtension";
-import { BackgroundColorMark } from "./extensions/BackgroundColor/BackgroundColorMark";
 import { BlockContainer, BlockGroup, Doc } from "./extensions/Blocks";
 import {
   BlockNoteDOMAttributes,
   BlockSchema,
   BlockSpecs,
-} from "./extensions/Blocks/api/blockTypes";
-import { InlineContentSchema } from "./extensions/Blocks/api/inlineContentTypes";
-import { StyleSchema } from "./extensions/Blocks/api/styles";
+} from "./extensions/Blocks/api/blocks/types";
+import { InlineContentSchema } from "./extensions/Blocks/api/inlineContent/types";
+import { StyleSchema, StyleSpecs } from "./extensions/Blocks/api/styles/types";
 import { TableExtension } from "./extensions/Blocks/nodes/BlockContent/TableBlockContent/TableExtension";
 import { Placeholder } from "./extensions/Placeholder/PlaceholderExtension";
 import { TextAlignmentExtension } from "./extensions/TextAlignment/TextAlignmentExtension";
 import { TextColorExtension } from "./extensions/TextColor/TextColorExtension";
-import { TextColorMark } from "./extensions/TextColor/TextColorMark";
 import { TrailingNode } from "./extensions/TrailingNode/TrailingNodeExtension";
 import UniqueID from "./extensions/UniqueID/UniqueID";
 
@@ -47,6 +40,7 @@ export const getBlockNoteExtensions = <
   domAttributes: Partial<BlockNoteDOMAttributes>;
   blockSchema: BSchema;
   blockSpecs: BlockSpecs;
+  styleSpecs: StyleSpecs;
   collaboration?: {
     fragment: Y.XmlFragment;
     user: {
@@ -82,15 +76,13 @@ export const getBlockNoteExtensions = <
     Text,
 
     // marks:
-    Bold,
-    Code,
-    Italic,
-    Strike,
-    Underline,
     Link,
-    TextColorMark,
+    ...Object.values(opts.styleSpecs).map((styleSpec) => {
+      return styleSpec.implementation.mark;
+    }),
+
     TextColorExtension,
-    BackgroundColorMark,
+
     BackgroundColorExtension,
     TextAlignmentExtension,
 

@@ -1,5 +1,6 @@
-import { InlineContentSchema } from "../../..";
-import { BlockNoteEditor } from "../../../BlockNoteEditor";
+import { InlineContentSchema } from "../../../..";
+import { BlockNoteEditor } from "../../../../BlockNoteEditor";
+import { StyleSchema } from "../styles/types";
 import {
   createInternalBlockSpec,
   createStronglyTypedTiptapNode,
@@ -7,13 +8,8 @@ import {
   parse,
   propsToAttributes,
   wrapInBlockStructure,
-} from "./block";
-import {
-  BlockConfig,
-  BlockFromConfig,
-  BlockSchemaWithBlock,
-} from "./blockTypes";
-import { StyleSchema } from "./styles";
+} from "./internal";
+import { BlockConfig, BlockFromConfig, BlockSchemaWithBlock } from "./types";
 
 // restrict content to "inline" and "none" only
 export type CustomBlockConfig = BlockConfig & {

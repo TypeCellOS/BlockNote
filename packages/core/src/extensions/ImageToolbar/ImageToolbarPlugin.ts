@@ -9,7 +9,7 @@ import {
   SpecificBlock,
 } from "../..";
 import { EventEmitter } from "../../shared/EventEmitter";
-import { StyleSchema } from "../Blocks/api/styles";
+import { StyleSchema } from "../Blocks/api/styles/types";
 export type ImageToolbarCallbacks = BaseUiElementCallbacks;
 
 export type ImageToolbarState<

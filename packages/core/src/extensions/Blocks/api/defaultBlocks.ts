@@ -1,15 +1,23 @@
+import Bold from "@tiptap/extension-bold";
+import Code from "@tiptap/extension-code";
+import Italic from "@tiptap/extension-italic";
+import Strike from "@tiptap/extension-strike";
+import Underline from "@tiptap/extension-underline";
+import { BackgroundColor } from "../../BackgroundColor/BackgroundColorMark";
+import { TextColor } from "../../TextColor/TextColorMark";
 import { Heading } from "../nodes/BlockContent/HeadingBlockContent/HeadingBlockContent";
 import { Image } from "../nodes/BlockContent/ImageBlockContent/ImageBlockContent";
 import { BulletListItem } from "../nodes/BlockContent/ListItemBlockContent/BulletListItemBlockContent/BulletListItemBlockContent";
 import { NumberedListItem } from "../nodes/BlockContent/ListItemBlockContent/NumberedListItemBlockContent/NumberedListItemBlockContent";
 import { Paragraph } from "../nodes/BlockContent/ParagraphBlockContent/ParagraphBlockContent";
 import { Table } from "../nodes/BlockContent/TableBlockContent/TableBlockContent";
-import { BlockSchemaFromSpecs, BlockSpecs } from "./blockTypes";
+import { BlockSchemaFromSpecs, BlockSpecs } from "./blocks/types";
 import {
   InlineContentSchemaFromSpecs,
   InlineContentSpecs,
-} from "./inlineContentTypes";
-import { StyleSchemaFromSpecs, StyleSpecs } from "./styles";
+} from "./inlineContent/types";
+import { createStyleSpecFromTipTapMark } from "./styles/internal";
+import { StyleSchemaFromSpecs, StyleSpecs } from "./styles/types";
 
 export const defaultBlockSpecs = {
   paragraph: Paragraph,
@@ -31,55 +39,13 @@ export const defaultBlockSchema = getBlockSchemaFromSpecs(defaultBlockSpecs);
 export type DefaultBlockSchema = typeof defaultBlockSchema;
 
 export const defaultStyleSpecs = {
-  bold: {
-    config: {
-      type: "bold",
-      propSchema: "boolean",
-    },
-    implementation: {},
-  },
-  italic: {
-    config: {
-      type: "italic",
-      propSchema: "boolean",
-    },
-    implementation: {},
-  },
-  underline: {
-    config: {
-      type: "underline",
-      propSchema: "boolean",
-    },
-    implementation: {},
-  },
-  strike: {
-    config: {
-      type: "strike",
-      propSchema: "boolean",
-    },
-    implementation: {},
-  },
-  code: {
-    config: {
-      type: "code",
-      propSchema: "boolean",
-    },
-    implementation: {},
-  },
-  textColor: {
-    config: {
-      type: "textColor",
-      propSchema: "string",
-    },
-    implementation: {},
-  },
-  backgroundColor: {
-    config: {
-      type: "backgroundColor",
-      propSchema: "string",
-    },
-    implementation: {},
-  },
+  bold: createStyleSpecFromTipTapMark(Bold, "boolean"),
+  italic: createStyleSpecFromTipTapMark(Italic, "boolean"),
+  underline: createStyleSpecFromTipTapMark(Underline, "boolean"),
+  strike: createStyleSpecFromTipTapMark(Strike, "boolean"),
+  code: createStyleSpecFromTipTapMark(Code, "boolean"),
+  textColor: TextColor,
+  backgroundColor: BackgroundColor,
 } satisfies StyleSpecs;
 
 export function getStyleSchemaFromSpecs<T extends StyleSpecs>(specs: T) {

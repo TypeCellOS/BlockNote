@@ -5,9 +5,9 @@ import { Plugin, PluginKey } from "prosemirror-state";
 import { BlockNoteEditor } from "../../BlockNoteEditor";
 import { BaseUiElementState } from "../../shared/BaseUiElementTypes";
 import { EventEmitter } from "../../shared/EventEmitter";
-import { BlockSchema } from "../Blocks/api/blockTypes";
-import { InlineContentSchema } from "../Blocks/api/inlineContentTypes";
-import { StyleSchema } from "../Blocks/api/styles";
+import { BlockSchema } from "../Blocks/api/blocks/types";
+import { InlineContentSchema } from "../Blocks/api/inlineContent/types";
+import { StyleSchema } from "../Blocks/api/styles/types";
 
 export type HyperlinkToolbarState = BaseUiElementState & {
   // The hovered hyperlink's URL, and the text it's displayed with in the

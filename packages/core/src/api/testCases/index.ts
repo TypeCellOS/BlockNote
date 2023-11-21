@@ -2,8 +2,8 @@ import { BlockNoteEditor, InlineContentSchema } from "../..";
 import {
   BlockSchema,
   PartialBlock,
-} from "../../extensions/Blocks/api/blockTypes";
-import { StyleSchema } from "../../extensions/Blocks/api/styles";
+} from "../../extensions/Blocks/api/blocks/types";
+import { StyleSchema } from "../../extensions/Blocks/api/styles/types";
 
 export type EditorTestCases<
   B extends BlockSchema,

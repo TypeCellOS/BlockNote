@@ -2,8 +2,8 @@ import { InputRule } from "@tiptap/core";
 import {
   createBlockSpecFromStronglyTypedTiptapNode,
   createStronglyTypedTiptapNode,
-} from "../../../../api/block";
-import { PropSchema } from "../../../../api/blockTypes";
+} from "../../../../api/blocks/internal";
+import { PropSchema } from "../../../../api/blocks/types";
 import { defaultProps } from "../../../../api/defaultProps";
 import { createDefaultBlockDOMOutputSpec } from "../../defaultBlockHelpers";
 import { handleEnter } from "../ListItemKeyboardShortcuts";

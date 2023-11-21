@@ -1,7 +1,7 @@
 import {
   createBlockSpecFromStronglyTypedTiptapNode,
   createStronglyTypedTiptapNode,
-} from "../../../api/block";
+} from "../../../api/blocks/internal";
 import { defaultProps } from "../../../api/defaultProps";
 import { createDefaultBlockDOMOutputSpec } from "../defaultBlockHelpers";
 

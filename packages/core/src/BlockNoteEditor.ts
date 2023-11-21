@@ -22,7 +22,7 @@ import {
   BlockSchema,
   BlockSpecs,
   PartialBlock,
-} from "./extensions/Blocks/api/blockTypes";
+} from "./extensions/Blocks/api/blocks/types";
 import { TextCursorPosition } from "./extensions/Blocks/api/cursorPositionTypes";
 import {
   DefaultBlockSchema,
@@ -41,7 +41,7 @@ import {
   StyleSchema,
   StyleSpecs,
   Styles,
-} from "./extensions/Blocks/api/styles";
+} from "./extensions/Blocks/api/styles/types";
 import { getBlockInfoFromPos } from "./extensions/Blocks/helpers/getBlockInfoFromPos";
 
 import "prosemirror-tables/style/tables.css";
@@ -49,7 +49,7 @@ import "./editor.css";
 import {
   InlineContentSchema,
   InlineContentSpecs,
-} from "./extensions/Blocks/api/inlineContentTypes";
+} from "./extensions/Blocks/api/inlineContent/types";
 import { FormattingToolbarProsemirrorPlugin } from "./extensions/FormattingToolbar/FormattingToolbarPlugin";
 import { HyperlinkToolbarProsemirrorPlugin } from "./extensions/HyperlinkToolbar/HyperlinkToolbarPlugin";
 import { ImageToolbarProsemirrorPlugin } from "./extensions/ImageToolbar/ImageToolbarPlugin";
@@ -298,6 +298,7 @@ export class BlockNoteEditor<
       domAttributes: newOptions.domAttributes || {},
       blockSchema: this.blockSchema,
       blockSpecs: newOptions.blockSpecs,
+      styleSpecs: newOptions.styleSpecs,
       collaboration: newOptions.collaboration,
     });
 

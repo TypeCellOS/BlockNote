@@ -8,9 +8,9 @@ import { createExternalHTMLExporter } from "../../api/serialization/html/externa
 import { createInternalHTMLSerializer } from "../../api/serialization/html/internalHTMLSerializer";
 import { BaseUiElementState } from "../../shared/BaseUiElementTypes";
 import { EventEmitter } from "../../shared/EventEmitter";
-import { Block, BlockSchema } from "../Blocks/api/blockTypes";
-import { InlineContentSchema } from "../Blocks/api/inlineContentTypes";
-import { StyleSchema } from "../Blocks/api/styles";
+import { Block, BlockSchema } from "../Blocks/api/blocks/types";
+import { InlineContentSchema } from "../Blocks/api/inlineContent/types";
+import { StyleSchema } from "../Blocks/api/styles/types";
 import { getBlockInfoFromPos } from "../Blocks/helpers/getBlockInfoFromPos";
 import { slashMenuPluginKey } from "../SlashMenu/SlashMenuPlugin";
 import { MultipleNodeSelection } from "./MultipleNodeSelection";
