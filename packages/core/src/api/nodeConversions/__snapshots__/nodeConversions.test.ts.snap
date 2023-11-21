@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert complex/misc to HTML 1`] = `
+exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert complex/misc to/from prosemirror 1`] = `
 {
   "attrs": {
     "backgroundColor": "blue",
@@ -89,7 +89,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
 }
 `;
 
-exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert hardbreak/basic to HTML 1`] = `
+exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert hardbreak/basic to/from prosemirror 1`] = `
 {
   "attrs": {
     "backgroundColor": "default",
@@ -121,7 +121,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
 }
 `;
 
-exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert hardbreak/between-links to HTML 1`] = `
+exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert hardbreak/between-links to/from prosemirror 1`] = `
 {
   "attrs": {
     "backgroundColor": "default",
@@ -173,7 +173,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
 }
 `;
 
-exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert hardbreak/end to HTML 1`] = `
+exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert hardbreak/end to/from prosemirror 1`] = `
 {
   "attrs": {
     "backgroundColor": "default",
@@ -201,7 +201,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
 }
 `;
 
-exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert hardbreak/link to HTML 1`] = `
+exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert hardbreak/link to/from prosemirror 1`] = `
 {
   "attrs": {
     "backgroundColor": "default",
@@ -253,7 +253,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
 }
 `;
 
-exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert hardbreak/multiple to HTML 1`] = `
+exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert hardbreak/multiple to/from prosemirror 1`] = `
 {
   "attrs": {
     "backgroundColor": "default",
@@ -292,7 +292,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
 }
 `;
 
-exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert hardbreak/only to HTML 1`] = `
+exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert hardbreak/only to/from prosemirror 1`] = `
 {
   "attrs": {
     "backgroundColor": "default",
@@ -316,7 +316,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
 }
 `;
 
-exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert hardbreak/start to HTML 1`] = `
+exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert hardbreak/start to/from prosemirror 1`] = `
 {
   "attrs": {
     "backgroundColor": "default",
@@ -344,7 +344,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
 }
 `;
 
-exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert hardbreak/styles to HTML 1`] = `
+exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert hardbreak/styles to/from prosemirror 1`] = `
 {
   "attrs": {
     "backgroundColor": "default",
@@ -381,7 +381,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
 }
 `;
 
-exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert image/basic to HTML 1`] = `
+exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert image/basic to/from prosemirror 1`] = `
 {
   "attrs": {
     "backgroundColor": "default",
@@ -403,7 +403,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
 }
 `;
 
-exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert image/button to HTML 1`] = `
+exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert image/button to/from prosemirror 1`] = `
 {
   "attrs": {
     "backgroundColor": "default",
@@ -425,7 +425,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
 }
 `;
 
-exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert image/nested to HTML 1`] = `
+exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert image/nested to/from prosemirror 1`] = `
 {
   "attrs": {
     "backgroundColor": "default",
@@ -471,7 +471,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
 }
 `;
 
-exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert link/adjacent to HTML 1`] = `
+exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert link/adjacent to/from prosemirror 1`] = `
 {
   "attrs": {
     "backgroundColor": "default",
@@ -520,7 +520,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
 }
 `;
 
-exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert link/basic to HTML 1`] = `
+exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert link/basic to/from prosemirror 1`] = `
 {
   "attrs": {
     "backgroundColor": "default",
@@ -555,7 +555,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
 }
 `;
 
-exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert link/styled to HTML 1`] = `
+exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert link/styled to/from prosemirror 1`] = `
 {
   "attrs": {
     "backgroundColor": "default",
@@ -607,7 +607,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
 }
 `;
 
-exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert paragraph/basic to HTML 1`] = `
+exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert paragraph/basic to/from prosemirror 1`] = `
 {
   "attrs": {
     "backgroundColor": "default",
@@ -632,7 +632,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
 }
 `;
 
-exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert paragraph/empty to HTML 1`] = `
+exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert paragraph/empty to/from prosemirror 1`] = `
 {
   "attrs": {
     "backgroundColor": "default",
@@ -651,7 +651,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
 }
 `;
 
-exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert paragraph/nested to HTML 1`] = `
+exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert paragraph/nested to/from prosemirror 1`] = `
 {
   "attrs": {
     "backgroundColor": "default",
@@ -725,7 +725,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
 }
 `;
 
-exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert paragraph/styled to HTML 1`] = `
+exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert paragraph/styled to/from prosemirror 1`] = `
 {
   "attrs": {
     "backgroundColor": "pink",

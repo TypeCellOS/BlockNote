@@ -61,7 +61,8 @@ describe("Test BlockNote-Prosemirror conversion", () => {
 
       for (const document of testCase.documents) {
         // eslint-disable-next-line no-loop-func
-        it("Convert " + document.name + " to HTML", () => {
+        it("Convert " + document.name + " to/from prosemirror", () => {
+          // NOTE: only converts first block
           validateConversion(document.blocks[0], editor);
         });
       }
