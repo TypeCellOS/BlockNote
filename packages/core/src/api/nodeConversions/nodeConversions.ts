@@ -200,9 +200,6 @@ function blockOrInlineContentToContentNode(
     type = "paragraph";
   }
 
-  if (type === "tag" || type === "mention") {
-    debugger;
-  }
   if (!block.content) {
     contentNode = schema.nodes[type].create(block.props);
   } else if (typeof block.content === "string") {

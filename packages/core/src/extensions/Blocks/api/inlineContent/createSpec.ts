@@ -58,9 +58,7 @@ export function createInlineContentSpec<
 
     renderHTML({ node }) {
       const editor = this.options.editor;
-      if (node.type.name === "mention") {
-        debugger;
-      }
+
       const output = inlineContentImplementation.render(
         nodeToCustomInlineContent(
           node,

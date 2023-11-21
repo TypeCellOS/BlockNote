@@ -14,8 +14,6 @@ export const defaultSchemaTestCases: EditorTestCases<
 > = {
   name: "default schema",
   createEditor: () => {
-    // debugger;
-
     return BlockNoteEditor.create({
       uploadFile: uploadToTmpFilesDotOrg_DEV_ONLY,
     });

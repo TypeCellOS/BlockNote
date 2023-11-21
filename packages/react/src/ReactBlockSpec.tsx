@@ -15,8 +15,8 @@ import {
   Props,
   PropSchema,
   propsToAttributes,
+  StyleSchema,
 } from "@blocknote/core";
-import { StyleSchema } from "@blocknote/core/src/extensions/Blocks/api/styles";
 import {
   NodeViewContent,
   NodeViewProps,
