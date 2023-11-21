@@ -5,13 +5,11 @@ import {
   BlockSpecs,
   InlineContentSchema,
   InlineContentSpecs,
+  StyleSchema,
+  StyleSpecs,
   defaultBlockSpecs,
   getBlockSchemaFromSpecs,
 } from "@blocknote/core";
-import {
-  StyleSchema,
-  StyleSpecs,
-} from "@blocknote/core/src/extensions/Blocks/api/styles";
 import { DependencyList, useMemo, useRef } from "react";
 import { getDefaultReactSlashMenuItems } from "../SlashMenu/defaultReactSlashMenuItems";
 

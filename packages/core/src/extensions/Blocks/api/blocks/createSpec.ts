@@ -1,5 +1,5 @@
-import { InlineContentSchema } from "../../../..";
 import { BlockNoteEditor } from "../../../../BlockNoteEditor";
+import { InlineContentSchema } from "../inlineContent/types";
 import { StyleSchema } from "../styles/types";
 import {
   createInternalBlockSpec,

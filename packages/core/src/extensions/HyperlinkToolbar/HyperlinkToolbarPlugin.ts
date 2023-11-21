@@ -20,7 +20,7 @@ class HyperlinkToolbarView {
   private hyperlinkToolbarState?: HyperlinkToolbarState;
   public updateHyperlinkToolbar: () => void;
 
-  menuUpdateTimer: NodeJS.Timeout | undefined;
+  menuUpdateTimer: ReturnType<typeof setTimeout> | undefined;
   startMenuUpdateTimer: () => void;
   stopMenuUpdateTimer: () => void;
 

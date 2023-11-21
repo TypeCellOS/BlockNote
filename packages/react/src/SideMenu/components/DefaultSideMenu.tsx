@@ -1,6 +1,6 @@
 import { BlockSchema, InlineContentSchema } from "@blocknote/core";
 
-import { StyleSchema } from "@blocknote/core/src/extensions/Blocks/api/styles";
+import { StyleSchema } from "@blocknote/core";
 import { AddBlockButton } from "./DefaultButtons/AddBlockButton";
 import { DragHandle } from "./DefaultButtons/DragHandle";
 import { SideMenu } from "./SideMenu";

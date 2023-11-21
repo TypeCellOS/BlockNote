@@ -1,16 +1,17 @@
 import { EditorTestCases } from "..";
+
+import { BlockNoteEditor } from "../../../BlockNoteEditor";
 import {
   DefaultBlockSchema,
   DefaultInlineContentSchema,
   defaultStyleSpecs,
-  uploadToTmpFilesDotOrg_DEV_ONLY,
-} from "../../..";
-import { BlockNoteEditor } from "../../../BlockNoteEditor";
+} from "../../../extensions/Blocks/api/defaultBlocks";
 import { createStyleSpec } from "../../../extensions/Blocks/api/styles/createSpec";
 import {
   StyleSchemaFromSpecs,
   StyleSpecs,
 } from "../../../extensions/Blocks/api/styles/types";
+import { uploadToTmpFilesDotOrg_DEV_ONLY } from "../../../extensions/Blocks/nodes/BlockContent/ImageBlockContent/uploadToTmpFilesDotOrg_DEV_ONLY";
 
 const small = createStyleSpec(
   {

@@ -137,7 +137,7 @@ export function createReactBlockSpec<
     selectable: true,
 
     addAttributes() {
-      return propsToAttributes(blockConfig);
+      return propsToAttributes(blockConfig as any); // TODO: cast
     },
 
     parseHTML() {

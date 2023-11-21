@@ -2,6 +2,7 @@ export * from "./BlockNoteEditor";
 export * from "./BlockNoteExtensions";
 export * from "./api/serialization/html/externalHTMLExporter";
 export * from "./api/serialization/html/internalHTMLSerializer";
+export * from "./api/testCases/index";
 export * from "./extensions/Blocks/api/blocks/createSpec";
 export * from "./extensions/Blocks/api/blocks/internal";
 export * from "./extensions/Blocks/api/blocks/types";

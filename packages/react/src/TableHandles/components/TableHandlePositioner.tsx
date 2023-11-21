@@ -4,9 +4,9 @@ import {
   DefaultBlockSchema,
   InlineContentSchema,
   SpecificBlock,
+  StyleSchema,
   TableHandlesState,
 } from "@blocknote/core";
-import { StyleSchema } from "@blocknote/core/src/extensions/Blocks/api/styles";
 import Tippy, { tippy } from "@tippyjs/react";
 import { FC, useEffect, useMemo, useRef, useState } from "react";
 import { DefaultTableHandle } from "./DefaultTableHandle";

@@ -3,8 +3,8 @@ import {
   BlockNoteEditor,
   BlockSchema,
   InlineContentSchema,
+  StyleSchema,
 } from "@blocknote/core";
-import { StyleSchema } from "@blocknote/core/src/extensions/Blocks/api/styles";
 import { useState } from "react";
 import { useEditorChange } from "./useEditorChange";
 

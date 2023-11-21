@@ -1,11 +1,12 @@
 import { EditorTestCases } from "..";
+
+import { BlockNoteEditor } from "../../../BlockNoteEditor";
 import {
   DefaultBlockSchema,
   DefaultInlineContentSchema,
   DefaultStyleSchema,
-  uploadToTmpFilesDotOrg_DEV_ONLY,
-} from "../../..";
-import { BlockNoteEditor } from "../../../BlockNoteEditor";
+} from "../../../extensions/Blocks/api/defaultBlocks";
+import { uploadToTmpFilesDotOrg_DEV_ONLY } from "../../../extensions/Blocks/nodes/BlockContent/ImageBlockContent/uploadToTmpFilesDotOrg_DEV_ONLY";
 
 export const defaultSchemaTestCases: EditorTestCases<
   DefaultBlockSchema,

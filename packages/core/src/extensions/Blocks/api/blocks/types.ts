@@ -1,6 +1,8 @@
 /** Define the main block types **/
 import { Node } from "@tiptap/core";
-import { BlockNoteEditor, DefaultStyleSchema } from "../../../..";
+
+import { BlockNoteEditor } from "../../../../BlockNoteEditor";
+import { DefaultStyleSchema } from "../defaultBlocks";
 import {
   InlineContent,
   InlineContentSchema,

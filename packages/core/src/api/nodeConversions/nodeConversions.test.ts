@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { BlockNoteEditor, PartialBlock } from "../..";
+
+import { BlockNoteEditor } from "../../BlockNoteEditor";
+import { PartialBlock } from "../../extensions/Blocks/api/blocks/types";
 import UniqueID from "../../extensions/UniqueID/UniqueID";
 import { customInlineContentTestCases } from "../testCases/cases/customInlineContent";
 import { customStylesTestCases } from "../testCases/cases/customStyles";

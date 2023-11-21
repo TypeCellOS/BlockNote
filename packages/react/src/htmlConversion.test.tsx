@@ -1,85 +1,31 @@
+// @vitest-environment jsdom
+
 import {
   BlockNoteEditor,
-  BlockSchemaFromSpecs,
-  BlockSpecs,
+  BlockSchema,
+  InlineContentSchema,
   PartialBlock,
+  StyleSchema,
   createExternalHTMLExporter,
   createInternalHTMLSerializer,
-  defaultBlockSpecs,
-  defaultProps,
-  uploadToTmpFilesDotOrg_DEV_ONLY,
 } from "@blocknote/core";
-import { Editor } from "@tiptap/core";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { InlineContent, createReactBlockSpec } from "./ReactBlockSpec";
+import { customReactBlockSchemaTestCases } from "./testCases/customReactBlocks.jsx";
 
-const ReactCustomParagraph = createReactBlockSpec(
-  {
-    type: "reactCustomParagraph" as const,
-    propSchema: defaultProps,
-    content: "inline",
-  },
-  {
-    render: () => (
-      <InlineContent as={"p"} className={"react-custom-paragraph"} />
-    ),
-    toExternalHTML: () => (
-      <p className={"react-custom-paragraph"}>Hello World</p>
-    ),
-  }
-);
-
-const SimpleReactCustomParagraph = createReactBlockSpec(
-  {
-    type: "simpleReactCustomParagraph" as const,
-    propSchema: defaultProps,
-    content: "inline",
-  },
-  {
-    render: () => (
-      <InlineContent as={"p"} className={"simple-react-custom-paragraph"} />
-    ),
-  }
-);
-
-const customSpecs = {
-  ...defaultBlockSpecs,
-  reactCustomParagraph: ReactCustomParagraph,
-  simpleReactCustomParagraph: SimpleReactCustomParagraph,
-} satisfies BlockSpecs;
-
-let editor: BlockNoteEditor<BlockSchemaFromSpecs<typeof customSpecs>>;
-
-type CustomPartialBlock = PartialBlock<
-  (typeof editor)["blockSchema"],
-  (typeof editor)["inlineContentSchema"],
-  (typeof editor)["styleSchema"]
->;
-
-let tt: Editor;
-
-beforeEach(() => {
-  editor = BlockNoteEditor.create({
-    blockSpecs: customSpecs,
-    uploadFile: uploadToTmpFilesDotOrg_DEV_ONLY,
-  });
-  tt = editor._tiptapEditor;
-});
-
-afterEach(() => {
-  tt.destroy();
-  editor = undefined as any;
-  tt = undefined as any;
-
-  delete (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS;
-});
-
-function convertToHTMLAndCompareSnapshots(
-  blocks: CustomPartialBlock[],
+function convertToHTMLAndCompareSnapshots<
+  B extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(
+  editor: BlockNoteEditor<B, I, S>,
+  blocks: PartialBlock<B, I, S>[],
   snapshotDirectory: string,
   snapshotName: string
 ) {
-  const serializer = createInternalHTMLSerializer(tt.schema, editor);
+  const serializer = createInternalHTMLSerializer(
+    editor._tiptapEditor.schema,
+    editor
+  );
   const internalHTML = serializer.serializeBlocks(blocks);
   const internalHTMLSnapshotPath =
     "./__snapshots__/" +
@@ -89,7 +35,10 @@ function convertToHTMLAndCompareSnapshots(
     "/internal.html";
   expect(internalHTML).toMatchFileSnapshot(internalHTMLSnapshotPath);
 
-  const exporter = createExternalHTMLExporter(tt.schema, editor);
+  const exporter = createExternalHTMLExporter(
+    editor._tiptapEditor.schema,
+    editor
+  );
   const externalHTML = exporter.exportBlocks(blocks);
   const externalHTMLSnapshotPath =
     "./__snapshots__/" +
@@ -100,170 +49,36 @@ function convertToHTMLAndCompareSnapshots(
   expect(externalHTML).toMatchFileSnapshot(externalHTMLSnapshotPath);
 }
 
-describe("Convert custom blocks with inline content to HTML", () => {
-  it("Convert custom block with inline content to HTML", async () => {
-    const blocks: CustomPartialBlock[] = [
-      {
-        type: "reactCustomParagraph",
-        content: "React Custom Paragraph",
-      },
-    ];
+const testCases = [customReactBlockSchemaTestCases];
 
-    convertToHTMLAndCompareSnapshots(blocks, "reactCustomParagraph", "basic");
-  });
+describe("Test React HTML conversion", () => {
+  for (const testCase of testCases) {
+    describe("Case: " + testCase.name, () => {
+      let editor: BlockNoteEditor<any, any, any>;
 
-  it("Convert styled custom block with inline content to HTML", async () => {
-    const blocks: CustomPartialBlock[] = [
-      {
-        type: "reactCustomParagraph",
-        props: {
-          textAlignment: "center",
-          textColor: "orange",
-          backgroundColor: "pink",
-        },
-        content: [
-          {
-            type: "text",
-            styles: {},
-            text: "Plain ",
-          },
-          {
-            type: "text",
-            styles: {
-              textColor: "red",
-            },
-            text: "Red Text ",
-          },
-          {
-            type: "text",
-            styles: {
-              backgroundColor: "blue",
-            },
-            text: "Blue Background ",
-          },
-          {
-            type: "text",
-            styles: {
-              textColor: "red",
-              backgroundColor: "blue",
-            },
-            text: "Mixed Colors",
-          },
-        ],
-      },
-    ];
+      beforeEach(() => {
+        editor = testCase.createEditor();
+      });
 
-    convertToHTMLAndCompareSnapshots(blocks, "reactCustomParagraph", "styled");
-  });
+      afterEach(() => {
+        editor._tiptapEditor.destroy();
+        editor = undefined as any;
 
-  it("Convert nested block with inline content to HTML", async () => {
-    const blocks: CustomPartialBlock[] = [
-      {
-        type: "reactCustomParagraph",
-        content: "React Custom Paragraph",
-        children: [
-          {
-            type: "reactCustomParagraph",
-            content: "Nested React Custom Paragraph 1",
-          },
-          {
-            type: "reactCustomParagraph",
-            content: "Nested React Custom Paragraph 2",
-          },
-        ],
-      },
-    ];
+        delete (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS;
+      });
 
-    convertToHTMLAndCompareSnapshots(blocks, "reactCustomParagraph", "nested");
-  });
-});
-
-describe("Convert custom blocks with non-exported inline content to HTML", () => {
-  it("Convert custom block with non-exported inline content to HTML", async () => {
-    const blocks: CustomPartialBlock[] = [
-      {
-        type: "simpleReactCustomParagraph",
-        content: "React Custom Paragraph",
-      },
-    ];
-
-    convertToHTMLAndCompareSnapshots(
-      blocks,
-      "simpleReactCustomParagraph",
-      "basic"
-    );
-  });
-
-  it("Convert styled custom block with non-exported inline content to HTML", async () => {
-    const blocks: CustomPartialBlock[] = [
-      {
-        type: "simpleReactCustomParagraph",
-        props: {
-          textAlignment: "center",
-          textColor: "orange",
-          backgroundColor: "pink",
-        },
-        content: [
-          {
-            type: "text",
-            styles: {},
-            text: "Plain ",
-          },
-          {
-            type: "text",
-            styles: {
-              textColor: "red",
-            },
-            text: "Red Text ",
-          },
-          {
-            type: "text",
-            styles: {
-              backgroundColor: "blue",
-            },
-            text: "Blue Background ",
-          },
-          {
-            type: "text",
-            styles: {
-              textColor: "red",
-              backgroundColor: "blue",
-            },
-            text: "Mixed Colors",
-          },
-        ],
-      },
-    ];
-
-    convertToHTMLAndCompareSnapshots(
-      blocks,
-      "simpleReactCustomParagraph",
-      "styled"
-    );
-  });
-
-  it("Convert nested block with non-exported inline content to HTML", async () => {
-    const blocks: CustomPartialBlock[] = [
-      {
-        type: "simpleReactCustomParagraph",
-        content: "Custom React Paragraph",
-        children: [
-          {
-            type: "simpleReactCustomParagraph",
-            content: "Nested React Custom Paragraph 1",
-          },
-          {
-            type: "simpleReactCustomParagraph",
-            content: "Nested React Custom Paragraph 2",
-          },
-        ],
-      },
-    ];
-
-    convertToHTMLAndCompareSnapshots(
-      blocks,
-      "simpleReactCustomParagraph",
-      "nested"
-    );
-  });
+      for (const document of testCase.documents) {
+        // eslint-disable-next-line no-loop-func
+        it("Convert " + document.name + " to HTML", () => {
+          const nameSplit = document.name.split("/");
+          convertToHTMLAndCompareSnapshots(
+            editor,
+            document.blocks,
+            nameSplit[0],
+            nameSplit[1]
+          );
+        });
+      }
+    });
+  }
 });

@@ -1,14 +1,14 @@
 import { EditorState, Plugin, PluginKey } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
+
+import { BlockNoteEditor } from "../../BlockNoteEditor";
 import {
   BaseUiElementCallbacks,
   BaseUiElementState,
-  BlockNoteEditor,
-  BlockSchema,
-  InlineContentSchema,
-  SpecificBlock,
-} from "../..";
+} from "../../shared/BaseUiElementTypes";
 import { EventEmitter } from "../../shared/EventEmitter";
+import { BlockSchema, SpecificBlock } from "../Blocks/api/blocks/types";
+import { InlineContentSchema } from "../Blocks/api/inlineContent/types";
 import { StyleSchema } from "../Blocks/api/styles/types";
 export type ImageToolbarCallbacks = BaseUiElementCallbacks;
 

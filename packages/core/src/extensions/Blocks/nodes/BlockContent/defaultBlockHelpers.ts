@@ -1,7 +1,8 @@
-import { Block, BlockSchema, InlineContentSchema } from "../../../..";
 import { BlockNoteEditor } from "../../../../BlockNoteEditor";
 import { blockToNode } from "../../../../api/nodeConversions/nodeConversions";
 import { mergeCSSClasses } from "../../../../shared/utils";
+import { Block, BlockSchema } from "../../api/blocks/types";
+import { InlineContentSchema } from "../../api/inlineContent/types";
 import { StyleSchema } from "../../api/styles/types";
 
 // Function that creates a ProseMirror `DOMOutputSpec` for a default block.

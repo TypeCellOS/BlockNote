@@ -5,8 +5,8 @@ import {
   DefaultInlineContentSchema,
   DefaultStyleSchema,
   InlineContentSchema,
+  StyleSchema,
 } from "@blocknote/core";
-import { StyleSchema } from "@blocknote/core/src/extensions/Blocks/api/styles";
 
 export type ReactSlashMenuItem<
   BSchema extends BlockSchema = DefaultBlockSchema,

@@ -11,7 +11,7 @@ import {
 import Tippy from "@tippyjs/react";
 import { FC, useEffect, useMemo, useRef, useState } from "react";
 
-import { StyleSchema } from "@blocknote/core/src/extensions/Blocks/api/styles";
+import { StyleSchema } from "@blocknote/core";
 import { DefaultSideMenu } from "./DefaultSideMenu";
 import { DragHandleMenuProps } from "./DragHandleMenu/DragHandleMenu";
 

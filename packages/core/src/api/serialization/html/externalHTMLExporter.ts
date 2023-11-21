@@ -2,12 +2,13 @@ import { DOMSerializer, Fragment, Node, Schema } from "prosemirror-model";
 import rehypeParse from "rehype-parse";
 import rehypeStringify from "rehype-stringify";
 import { unified } from "unified";
-import { InlineContentSchema } from "../../..";
+
 import { BlockNoteEditor } from "../../../BlockNoteEditor";
 import {
   BlockSchema,
   PartialBlock,
 } from "../../../extensions/Blocks/api/blocks/types";
+import { InlineContentSchema } from "../../../extensions/Blocks/api/inlineContent/types";
 import { StyleSchema } from "../../../extensions/Blocks/api/styles/types";
 import { simplifyBlocks } from "../../formatConversions/simplifyBlocksRehypePlugin";
 import { blockToNode } from "../../nodeConversions/nodeConversions";

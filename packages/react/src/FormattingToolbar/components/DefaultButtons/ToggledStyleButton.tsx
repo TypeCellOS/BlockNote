@@ -12,7 +12,7 @@ import {
   RiUnderline,
 } from "react-icons/ri";
 
-import { StyleSchema } from "@blocknote/core/src/extensions/Blocks/api/styles";
+import { StyleSchema } from "@blocknote/core";
 import { ToolbarButton } from "../../../SharedComponents/Toolbar/components/ToolbarButton";
 import { useEditorChange } from "../../../hooks/useEditorChange";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";

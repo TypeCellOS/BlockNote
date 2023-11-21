@@ -3,8 +3,8 @@ import {
   BlockNoteEditor,
   BlockSchema,
   InlineContentSchema,
+  StyleSchema,
 } from "@blocknote/core";
-import { StyleSchema } from "@blocknote/core/src/extensions/Blocks/api/styles";
 import { Menu, createStyles } from "@mantine/core";
 import { ReactNode } from "react";
 

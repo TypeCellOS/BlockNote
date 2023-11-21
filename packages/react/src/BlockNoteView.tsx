@@ -2,9 +2,9 @@ import {
   BlockNoteEditor,
   BlockSchema,
   InlineContentSchema,
+  StyleSchema,
   mergeCSSClasses,
 } from "@blocknote/core";
-import { StyleSchema } from "@blocknote/core/src/extensions/Blocks/api/styles";
 import { MantineProvider, createStyles } from "@mantine/core";
 import { EditorContent } from "@tiptap/react";
 import { HTMLAttributes, ReactNode, useMemo } from "react";

@@ -5,8 +5,8 @@ import {
   DefaultBlockSchema,
   getDefaultSlashMenuItems,
   InlineContentSchema,
+  StyleSchema,
 } from "@blocknote/core";
-import { StyleSchema } from "@blocknote/core/src/extensions/Blocks/api/styles";
 import {
   RiH1,
   RiH2,

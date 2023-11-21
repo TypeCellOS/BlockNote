@@ -1,16 +1,17 @@
 import { Plugin, PluginKey } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
-import {
-  BaseUiElementCallbacks,
-  BlockNoteEditor,
-  BlockSchemaWithBlock,
-  DefaultBlockSchema,
-  InlineContentSchema,
-  SpecificBlock,
-  getDraggableBlockFromCoords,
-} from "../..";
+
+import { BlockNoteEditor } from "../../BlockNoteEditor";
+import { BaseUiElementCallbacks } from "../../shared/BaseUiElementTypes";
 import { EventEmitter } from "../../shared/EventEmitter";
+import {
+  BlockSchemaWithBlock,
+  SpecificBlock,
+} from "../Blocks/api/blocks/types";
+import { DefaultBlockSchema } from "../Blocks/api/defaultBlocks";
+import { InlineContentSchema } from "../Blocks/api/inlineContent/types";
 import { StyleSchema } from "../Blocks/api/styles/types";
+import { getDraggableBlockFromCoords } from "../SideMenu/SideMenuPlugin";
 export type TableHandlesCallbacks = BaseUiElementCallbacks;
 
 export type TableHandlesState<

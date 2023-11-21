@@ -2,7 +2,7 @@ import { BlockSchema, InlineContentSchema } from "@blocknote/core";
 import { useRef, useState } from "react";
 import { RiExternalLinkFill, RiLinkUnlink } from "react-icons/ri";
 
-import { StyleSchema } from "@blocknote/core/src/extensions/Blocks/api/styles";
+import { StyleSchema } from "@blocknote/core";
 import { Toolbar } from "../../SharedComponents/Toolbar/components/Toolbar";
 import { ToolbarButton } from "../../SharedComponents/Toolbar/components/ToolbarButton";
 import { EditHyperlinkMenu } from "./EditHyperlinkMenu/components/EditHyperlinkMenu";

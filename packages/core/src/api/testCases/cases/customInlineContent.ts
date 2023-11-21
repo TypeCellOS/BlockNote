@@ -1,13 +1,16 @@
 import { EditorTestCases } from "..";
+
+import { BlockNoteEditor } from "../../../BlockNoteEditor";
 import {
   DefaultBlockSchema,
   DefaultStyleSchema,
+} from "../../../extensions/Blocks/api/defaultBlocks";
+import { createInlineContentSpec } from "../../../extensions/Blocks/api/inlineContent/createSpec";
+import {
   InlineContentSchemaFromSpecs,
   InlineContentSpecs,
-  uploadToTmpFilesDotOrg_DEV_ONLY,
-} from "../../..";
-import { BlockNoteEditor } from "../../../BlockNoteEditor";
-import { createInlineContentSpec } from "../../../extensions/Blocks/api/inlineContent/createSpec";
+} from "../../../extensions/Blocks/api/inlineContent/types";
+import { uploadToTmpFilesDotOrg_DEV_ONLY } from "../../../extensions/Blocks/nodes/BlockContent/ImageBlockContent/uploadToTmpFilesDotOrg_DEV_ONLY";
 
 const mention = createInlineContentSpec(
   {

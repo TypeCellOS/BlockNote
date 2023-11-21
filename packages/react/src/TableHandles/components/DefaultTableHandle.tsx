@@ -5,7 +5,7 @@ import {
   TableContent,
 } from "@blocknote/core";
 
-import { StyleSchema } from "@blocknote/core/src/extensions/Blocks/api/styles";
+import { StyleSchema } from "@blocknote/core";
 import { Menu } from "@mantine/core";
 import { MdDragIndicator } from "react-icons/md";
 import { SideMenuButton } from "../../SideMenu/components/SideMenuButton";
