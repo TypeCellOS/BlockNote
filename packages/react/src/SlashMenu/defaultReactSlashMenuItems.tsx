@@ -4,6 +4,7 @@ import {
   defaultBlockSchema,
   DefaultBlockSchema,
   getDefaultSlashMenuItems,
+  InlineContentSchema,
 } from "@blocknote/core";
 import { StyleSchema } from "@blocknote/core/src/extensions/Blocks/api/styles";
 import {
@@ -23,7 +24,7 @@ const extraFields: Record<
   string,
   Omit<
     ReactSlashMenuItem<DefaultBlockSchema>,
-    keyof BaseSlashMenuItem<DefaultBlockSchema>
+    keyof BaseSlashMenuItem<DefaultBlockSchema, any, any>
   >
 > = {
   Heading: {
@@ -77,6 +78,7 @@ const extraFields: Record<
 
 export function getDefaultReactSlashMenuItems<
   BSchema extends BlockSchema,
+  I extends InlineContentSchema,
   S extends StyleSchema
 >(
   // This type casting is weird, but it's the best way of doing it, as it allows
@@ -84,8 +86,8 @@ export function getDefaultReactSlashMenuItems<
   // inferred as any if it is not defined. I don't think it's possible to make it
   // infer to DefaultBlockSchema if it is not defined.
   schema: BSchema = defaultBlockSchema as any as BSchema
-): ReactSlashMenuItem<BSchema, S>[] {
-  const slashMenuItems: BaseSlashMenuItem<BSchema, S>[] =
+): ReactSlashMenuItem<BSchema, I, S>[] {
+  const slashMenuItems: BaseSlashMenuItem<BSchema, I, S>[] =
     getDefaultSlashMenuItems(schema);
 
   return slashMenuItems.map((item) => ({

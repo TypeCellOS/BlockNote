@@ -3,7 +3,9 @@ import {
   BlockNoteEditor,
   BlockSchema,
   DefaultBlockSchema,
+  DefaultInlineContentSchema,
   ImageToolbarState,
+  InlineContentSchema,
   SpecificBlock,
 } from "@blocknote/core";
 import Tippy, { tippy } from "@tippyjs/react";
@@ -12,19 +14,21 @@ import { FC, useEffect, useMemo, useRef, useState } from "react";
 import { DefaultImageToolbar } from "./DefaultImageToolbar";
 
 export type ImageToolbarProps<
-  BSchema extends BlockSchema = DefaultBlockSchema
-> = Omit<ImageToolbarState<BSchema>, keyof BaseUiElementState> & {
-  editor: BlockNoteEditor<BSchema>;
+  BSchema extends BlockSchema = DefaultBlockSchema,
+  I extends InlineContentSchema = DefaultInlineContentSchema
+> = Omit<ImageToolbarState<BSchema, I>, keyof BaseUiElementState> & {
+  editor: BlockNoteEditor<BSchema, I>;
 };
 
 export const ImageToolbarPositioner = <
-  BSchema extends BlockSchema = DefaultBlockSchema
+  BSchema extends BlockSchema = DefaultBlockSchema,
+  I extends InlineContentSchema = DefaultInlineContentSchema
 >(props: {
-  editor: BlockNoteEditor<BSchema, any>;
-  imageToolbar?: FC<ImageToolbarProps<BSchema>>;
+  editor: BlockNoteEditor<BSchema, I, any>;
+  imageToolbar?: FC<ImageToolbarProps<BSchema, I>>;
 }) => {
   const [show, setShow] = useState<boolean>(false);
-  const [block, setBlock] = useState<SpecificBlock<BSchema, "image", any>>();
+  const [block, setBlock] = useState<SpecificBlock<BSchema, "image", I, any>>();
 
   const referencePos = useRef<DOMRect>();
 

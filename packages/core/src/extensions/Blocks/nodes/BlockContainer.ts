@@ -16,6 +16,7 @@ import {
   BlockSchema,
   PartialBlock,
 } from "../api/blockTypes";
+import { InlineContentSchema } from "../api/inlineContentTypes";
 import { StyleSchema } from "../api/styles";
 import { getBlockInfoFromPos } from "../helpers/getBlockInfoFromPos";
 import BlockAttributes from "./BlockAttributes";
@@ -27,16 +28,21 @@ declare module "@tiptap/core" {
       BNDeleteBlock: (posInBlock: number) => ReturnType;
       BNMergeBlocks: (posBetweenBlocks: number) => ReturnType;
       BNSplitBlock: (posInBlock: number, keepType: boolean) => ReturnType;
-      BNUpdateBlock: <BSchema extends BlockSchema, S extends StyleSchema>(
-        posInBlock: number,
-        block: PartialBlock<BSchema, S>
-      ) => ReturnType;
-      BNCreateOrUpdateBlock: <
+      BNUpdateBlock: <
         BSchema extends BlockSchema,
+        I extends InlineContentSchema,
         S extends StyleSchema
       >(
         posInBlock: number,
-        block: PartialBlock<BSchema, S>
+        block: PartialBlock<BSchema, I, S>
+      ) => ReturnType;
+      BNCreateOrUpdateBlock: <
+        BSchema extends BlockSchema,
+        I extends InlineContentSchema,
+        S extends StyleSchema
+      >(
+        posInBlock: number,
+        block: PartialBlock<BSchema, I, S>
       ) => ReturnType;
     };
   }
@@ -47,7 +53,7 @@ declare module "@tiptap/core" {
  */
 export const BlockContainer = Node.create<{
   domAttributes?: BlockNoteDOMAttributes;
-  editor: BlockNoteEditor<BlockSchema, StyleSchema>;
+  editor: BlockNoteEditor<BlockSchema, InlineContentSchema, StyleSchema>;
 }>({
   name: "blockContainer",
   group: "blockContainer",

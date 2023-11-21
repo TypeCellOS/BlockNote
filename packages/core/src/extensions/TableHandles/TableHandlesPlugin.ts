@@ -5,6 +5,7 @@ import {
   BlockNoteEditor,
   BlockSchemaWithBlock,
   DefaultBlockSchema,
+  InlineContentSchema,
   SpecificBlock,
   getDraggableBlockFromCoords,
 } from "../..";
@@ -14,6 +15,7 @@ export type TableHandlesCallbacks = BaseUiElementCallbacks;
 
 export type TableHandlesState<
   BSchema extends BlockSchemaWithBlock<"table", DefaultBlockSchema["table"]>,
+  I extends InlineContentSchema,
   S extends StyleSchema
 > = {
   show: boolean;
@@ -21,7 +23,7 @@ export type TableHandlesState<
   referencePosLeft: { top: number; left: number };
   colIndex: number;
   rowIndex: number;
-  block: SpecificBlock<BSchema, "table", S>;
+  block: SpecificBlock<BSchema, "table", I, S>;
 };
 
 function getChildIndex(node: HTMLElement) {
@@ -39,17 +41,18 @@ function domCellAround(target: HTMLElement | null): HTMLElement | null {
 
 export class TableHandlesView<
   BSchema extends BlockSchemaWithBlock<"table", DefaultBlockSchema["table"]>,
+  I extends InlineContentSchema,
   S extends StyleSchema
 > {
-  private state?: TableHandlesState<BSchema, S>;
+  private state?: TableHandlesState<BSchema, I, S>;
   public updateState: () => void;
 
   public prevWasEditable: boolean | null = null;
 
   constructor(
-    private readonly editor: BlockNoteEditor<BSchema, S>,
+    private readonly editor: BlockNoteEditor<BSchema, I, S>,
     private readonly pmView: EditorView,
-    updateState: (state: TableHandlesState<BSchema, S>) => void
+    updateState: (state: TableHandlesState<BSchema, I, S>) => void
   ) {
     this.updateState = () => {
       if (!this.state) {
@@ -90,6 +93,7 @@ export class TableHandlesView<
     const block = this.editor.getBlock(blockEl!.id)! as any as SpecificBlock<
       BSchema,
       "table",
+      I,
       S
     >;
 
@@ -200,15 +204,16 @@ export const tableHandlesPluginKey = new PluginKey("TableHandlesPlugin");
 
 export class TableHandlesProsemirrorPlugin<
   BSchema extends BlockSchemaWithBlock<"table", DefaultBlockSchema["table"]>,
+  I extends InlineContentSchema,
   S extends StyleSchema
 > extends EventEmitter<any> {
-  private view: TableHandlesView<BSchema, S> | undefined;
+  private view: TableHandlesView<BSchema, I, S> | undefined;
   public readonly plugin: Plugin;
 
-  constructor(editor: BlockNoteEditor<BSchema, S>) {
+  constructor(editor: BlockNoteEditor<BSchema, I, S>) {
     super();
     this.plugin = new Plugin<{
-      block: SpecificBlock<BSchema, "table", S> | undefined;
+      block: SpecificBlock<BSchema, "table", I, S> | undefined;
     }>({
       key: tableHandlesPluginKey,
       view: (editorView) => {
@@ -224,7 +229,7 @@ export class TableHandlesProsemirrorPlugin<
           };
         },
         apply: (transaction) => {
-          const block: SpecificBlock<BSchema, "table", S> | undefined =
+          const block: SpecificBlock<BSchema, "table", I, S> | undefined =
             transaction.getMeta(tableHandlesPluginKey)?.block;
 
           return {
@@ -235,7 +240,7 @@ export class TableHandlesProsemirrorPlugin<
     });
   }
 
-  public onUpdate(callback: (state: TableHandlesState<BSchema, S>) => void) {
+  public onUpdate(callback: (state: TableHandlesState<BSchema, I, S>) => void) {
     return this.on("update", callback);
   }
 }

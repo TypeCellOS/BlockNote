@@ -1,12 +1,12 @@
-import { Menu } from "@mantine/core";
-import { SideMenuButton } from "../SideMenuButton";
-import { MdDragIndicator } from "react-icons/md";
-import { SideMenuProps } from "../SideMenuPositioner";
 import { BlockSchema } from "@blocknote/core";
+import { Menu } from "@mantine/core";
+import { MdDragIndicator } from "react-icons/md";
 import { DefaultDragHandleMenu } from "../DragHandleMenu/DefaultDragHandleMenu";
+import { SideMenuButton } from "../SideMenuButton";
+import { SideMenuProps } from "../SideMenuPositioner";
 
 export const DragHandle = <BSchema extends BlockSchema>(
-  props: SideMenuProps<BSchema>
+  props: SideMenuProps<BSchema, any, any>
 ) => {
   const DragHandleMenu = props.dragHandleMenu || DefaultDragHandleMenu;
 

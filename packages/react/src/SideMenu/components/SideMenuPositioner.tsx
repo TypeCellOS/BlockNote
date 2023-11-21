@@ -3,7 +3,9 @@ import {
   BlockNoteEditor,
   BlockSchema,
   DefaultBlockSchema,
+  DefaultInlineContentSchema,
   DefaultStyleSchema,
+  InlineContentSchema,
   SideMenuProsemirrorPlugin,
 } from "@blocknote/core";
 import Tippy from "@tippyjs/react";
@@ -15,24 +17,27 @@ import { DragHandleMenuProps } from "./DragHandleMenu/DragHandleMenu";
 
 export type SideMenuProps<
   BSchema extends BlockSchema = DefaultBlockSchema,
+  I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema
 > = Pick<
-  SideMenuProsemirrorPlugin<BSchema, S>,
+  SideMenuProsemirrorPlugin<BSchema, I, S>,
   "blockDragStart" | "blockDragEnd" | "addBlock" | "freezeMenu" | "unfreezeMenu"
 > & {
-  block: Block<BSchema>;
-  editor: BlockNoteEditor<BSchema>;
-  dragHandleMenu?: FC<DragHandleMenuProps<BSchema>>;
+  block: Block<BSchema, I, S>;
+  editor: BlockNoteEditor<BSchema, I, S>;
+  dragHandleMenu?: FC<DragHandleMenuProps<BSchema, I, S>>;
 };
 
 export const SideMenuPositioner = <
-  BSchema extends BlockSchema = DefaultBlockSchema
+  BSchema extends BlockSchema = DefaultBlockSchema,
+  I extends InlineContentSchema = DefaultInlineContentSchema,
+  S extends StyleSchema = DefaultStyleSchema
 >(props: {
-  editor: BlockNoteEditor<BSchema, any>;
-  sideMenu?: FC<SideMenuProps<BSchema>>;
+  editor: BlockNoteEditor<BSchema, I, S>;
+  sideMenu?: FC<SideMenuProps<BSchema, I, S>>;
 }) => {
   const [show, setShow] = useState<boolean>(false);
-  const [block, setBlock] = useState<Block<BSchema>>();
+  const [block, setBlock] = useState<Block<BSchema, I, S>>();
 
   const referencePos = useRef<DOMRect>();
 

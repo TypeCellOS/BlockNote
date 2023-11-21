@@ -1,5 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { Block, BlockNoteEditor, PartialBlock } from "../..";
+import {
+  Block,
+  BlockNoteEditor,
+  DefaultBlockSchema,
+  DefaultInlineContentSchema,
+  DefaultStyleSchema,
+  PartialBlock,
+} from "../..";
 
 let editor: BlockNoteEditor;
 
@@ -14,11 +21,25 @@ function waitForEditor() {
   });
 }
 
-let singleBlock: PartialBlock;
+let singleBlock: PartialBlock<
+  DefaultBlockSchema,
+  DefaultInlineContentSchema,
+  DefaultStyleSchema
+>;
 
-let multipleBlocks: PartialBlock[];
+let multipleBlocks: PartialBlock<
+  DefaultBlockSchema,
+  DefaultInlineContentSchema,
+  DefaultStyleSchema
+>[];
 
-let insert: (placement: "before" | "nested" | "after") => Block[];
+let insert: (
+  placement: "before" | "nested" | "after"
+) => Block<
+  DefaultBlockSchema,
+  DefaultInlineContentSchema,
+  DefaultStyleSchema
+>[];
 
 beforeEach(() => {
   editor = BlockNoteEditor.create();

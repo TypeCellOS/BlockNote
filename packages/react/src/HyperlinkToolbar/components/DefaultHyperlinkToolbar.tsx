@@ -1,4 +1,4 @@
-import { BlockSchema } from "@blocknote/core";
+import { BlockSchema, InlineContentSchema } from "@blocknote/core";
 import { useRef, useState } from "react";
 import { RiExternalLinkFill, RiLinkUnlink } from "react-icons/ri";
 
@@ -10,9 +10,10 @@ import { HyperlinkToolbarProps } from "./HyperlinkToolbarPositioner";
 
 export const DefaultHyperlinkToolbar = <
   BSchema extends BlockSchema,
+  I extends InlineContentSchema,
   S extends StyleSchema
 >(
-  props: HyperlinkToolbarProps<BSchema, S>
+  props: HyperlinkToolbarProps<BSchema, I, S>
 ) => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const editMenuRef = useRef<HTMLDivElement | null>(null);

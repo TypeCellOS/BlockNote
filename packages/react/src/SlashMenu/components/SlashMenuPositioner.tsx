@@ -13,7 +13,7 @@ import { ReactSlashMenuItem } from "../ReactSlashMenuItem";
 import { DefaultSlashMenu } from "./DefaultSlashMenu";
 
 export type SlashMenuProps<BSchema extends BlockSchema = DefaultBlockSchema> =
-  Pick<SlashMenuProsemirrorPlugin<BSchema, any, any>, "itemCallback"> &
+  Pick<SlashMenuProsemirrorPlugin<BSchema, any, any, any>, "itemCallback"> &
     Pick<
       SuggestionsMenuState<ReactSlashMenuItem<BSchema>>,
       "filteredItems" | "keyboardHoveredItemIndex"
@@ -22,7 +22,7 @@ export type SlashMenuProps<BSchema extends BlockSchema = DefaultBlockSchema> =
 export const SlashMenuPositioner = <
   BSchema extends BlockSchema = DefaultBlockSchema
 >(props: {
-  editor: BlockNoteEditor<BSchema, any>;
+  editor: BlockNoteEditor<BSchema, any, any>;
   slashMenu?: FC<SlashMenuProps<BSchema>>;
 }) => {
   const [show, setShow] = useState<boolean>(false);

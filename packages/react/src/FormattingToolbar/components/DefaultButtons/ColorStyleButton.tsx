@@ -1,6 +1,7 @@
 import {
   BlockNoteEditor,
   BlockSchema,
+  DefaultInlineContentSchema,
   DefaultStyleSchema,
 } from "@blocknote/core";
 import { Menu } from "@mantine/core";
@@ -14,7 +15,11 @@ import { usePreventMenuOverflow } from "../../../hooks/usePreventMenuOverflow";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
 
 export const ColorStyleButton = <BSchema extends BlockSchema>(props: {
-  editor: BlockNoteEditor<BSchema, DefaultStyleSchema>;
+  editor: BlockNoteEditor<
+    BSchema,
+    DefaultInlineContentSchema,
+    DefaultStyleSchema
+  >;
 }) => {
   const selectedBlocks = useSelectedBlocks(props.editor);
 

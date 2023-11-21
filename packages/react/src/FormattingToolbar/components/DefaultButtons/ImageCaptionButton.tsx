@@ -16,7 +16,7 @@ import { ToolbarInputDropdownItem } from "../../../SharedComponents/Toolbar/comp
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
 
 export const ImageCaptionButton = <BSchema extends BlockSchema>(props: {
-  editor: BlockNoteEditor<BSchema>;
+  editor: BlockNoteEditor<BSchema, any, any>;
 }) => {
   const selectedBlocks = useSelectedBlocks(props.editor);
 
@@ -64,7 +64,7 @@ export const ImageCaptionButton = <BSchema extends BlockSchema>(props: {
           props: {
             caption: currentCaption,
           },
-        } as PartialBlock<BSchema>);
+        } as PartialBlock<BSchema, any, any>);
       }
     },
     [currentCaption, props.editor, selectedBlocks]

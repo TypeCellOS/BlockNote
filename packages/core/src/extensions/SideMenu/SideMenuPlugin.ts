@@ -9,6 +9,7 @@ import { createInternalHTMLSerializer } from "../../api/serialization/html/inter
 import { BaseUiElementState } from "../../shared/BaseUiElementTypes";
 import { EventEmitter } from "../../shared/EventEmitter";
 import { Block, BlockSchema } from "../Blocks/api/blockTypes";
+import { InlineContentSchema } from "../Blocks/api/inlineContentTypes";
 import { StyleSchema } from "../Blocks/api/styles";
 import { getBlockInfoFromPos } from "../Blocks/helpers/getBlockInfoFromPos";
 import { slashMenuPluginKey } from "../SlashMenu/SlashMenuPlugin";
@@ -18,10 +19,11 @@ let dragImageElement: Element | undefined;
 
 export type SideMenuState<
   BSchema extends BlockSchema,
+  I extends InlineContentSchema,
   S extends StyleSchema
 > = BaseUiElementState & {
   // The block that the side menu is attached to.
-  block: Block<BSchema, S>;
+  block: Block<BSchema, I, S>;
 };
 
 export function getDraggableBlockFromCoords(
@@ -174,9 +176,13 @@ function unsetDragImage() {
   }
 }
 
-function dragStart<BSchema extends BlockSchema, S extends StyleSchema>(
+function dragStart<
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(
   e: { dataTransfer: DataTransfer | null; clientY: number },
-  editor: BlockNoteEditor<BSchema, S>
+  editor: BlockNoteEditor<BSchema, I, S>
 ) {
   if (!e.dataTransfer) {
     return;
@@ -240,10 +246,13 @@ function dragStart<BSchema extends BlockSchema, S extends StyleSchema>(
   }
 }
 
-export class SideMenuView<BSchema extends BlockSchema, S extends StyleSchema>
-  implements PluginView
+export class SideMenuView<
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+> implements PluginView
 {
-  private sideMenuState?: SideMenuState<BSchema, S>;
+  private sideMenuState?: SideMenuState<BSchema, I, S>;
 
   // When true, the drag handle with be anchored at the same level as root elements
   // When false, the drag handle with be just to the left of the element
@@ -259,10 +268,10 @@ export class SideMenuView<BSchema extends BlockSchema, S extends StyleSchema>
   public menuFrozen = false;
 
   constructor(
-    private readonly editor: BlockNoteEditor<BSchema, S>,
+    private readonly editor: BlockNoteEditor<BSchema, I, S>,
     private readonly pmView: EditorView,
     private readonly updateSideMenu: (
-      sideMenuState: SideMenuState<BSchema, S>
+      sideMenuState: SideMenuState<BSchema, I, S>
     ) => void
   ) {
     this.horizontalPosAnchoredAtRoot = true;
@@ -568,12 +577,13 @@ export const sideMenuPluginKey = new PluginKey("SideMenuPlugin");
 
 export class SideMenuProsemirrorPlugin<
   BSchema extends BlockSchema,
+  I extends InlineContentSchema,
   S extends StyleSchema
 > extends EventEmitter<any> {
-  private sideMenuView: SideMenuView<BSchema, S> | undefined;
+  private sideMenuView: SideMenuView<BSchema, I, S> | undefined;
   public readonly plugin: Plugin;
 
-  constructor(private readonly editor: BlockNoteEditor<BSchema, S>) {
+  constructor(private readonly editor: BlockNoteEditor<BSchema, I, S>) {
     super();
     this.plugin = new Plugin({
       key: sideMenuPluginKey,
@@ -590,7 +600,7 @@ export class SideMenuProsemirrorPlugin<
     });
   }
 
-  public onUpdate(callback: (state: SideMenuState<BSchema, S>) => void) {
+  public onUpdate(callback: (state: SideMenuState<BSchema, I, S>) => void) {
     return this.on("update", callback);
   }
 

@@ -1,13 +1,18 @@
 import { BlockNoteEditor } from "../../BlockNoteEditor";
 import { Block, BlockSchema, PartialBlock } from "../Blocks/api/blockTypes";
+import {
+  InlineContentSchema,
+  isStyledTextInlineContent,
+} from "../Blocks/api/inlineContentTypes";
 import { StyleSchema } from "../Blocks/api/styles";
 import { imageToolbarPluginKey } from "../ImageToolbar/ImageToolbarPlugin";
 import { BaseSlashMenuItem } from "./BaseSlashMenuItem";
 
 function setSelectionToNextContentEditableBlock<
   BSchema extends BlockSchema,
+  I extends InlineContentSchema,
   S extends StyleSchema
->(editor: BlockNoteEditor<BSchema, S>) {
+>(editor: BlockNoteEditor<BSchema, I, S>) {
   let block = editor.getTextCursorPosition().block;
   let contentType = editor.blockSchema[block.type].content as
     | "inline"
@@ -28,11 +33,12 @@ function setSelectionToNextContentEditableBlock<
 
 function insertOrUpdateBlock<
   BSchema extends BlockSchema,
+  I extends InlineContentSchema,
   S extends StyleSchema
 >(
-  editor: BlockNoteEditor<BSchema, S>,
-  block: PartialBlock<BSchema, S>
-): Block<BSchema, S> {
+  editor: BlockNoteEditor<BSchema, I, S>,
+  block: PartialBlock<BSchema, I, S>
+): Block<BSchema, I, S> {
   const currentBlock = editor.getTextCursorPosition().block;
 
   if (currentBlock.content === undefined) {
@@ -42,6 +48,7 @@ function insertOrUpdateBlock<
   if (
     Array.isArray(currentBlock.content) &&
     ((currentBlock.content.length === 1 &&
+      isStyledTextInlineContent(currentBlock.content[0]) &&
       currentBlock.content[0].type === "text" &&
       currentBlock.content[0].text === "/") ||
       currentBlock.content.length === 0)
@@ -60,6 +67,7 @@ function insertOrUpdateBlock<
 
 export const getDefaultSlashMenuItems = <
   BSchema extends BlockSchema,
+  I extends InlineContentSchema,
   S extends StyleSchema
 >(
   // This type casting is weird, but it's the best way of doing it, as it allows
@@ -68,7 +76,7 @@ export const getDefaultSlashMenuItems = <
   // infer to DefaultBlockSchema if it is not defined.
   schema: BSchema
 ) => {
-  const slashMenuItems: BaseSlashMenuItem<BSchema, S>[] = [];
+  const slashMenuItems: BaseSlashMenuItem<BSchema, I, S>[] = [];
 
   if ("heading" in schema && "level" in schema.heading.propSchema) {
     // Command for creating a level 1 heading
@@ -80,7 +88,7 @@ export const getDefaultSlashMenuItems = <
           insertOrUpdateBlock(editor, {
             type: "heading",
             props: { level: 1 },
-          } as PartialBlock<BSchema>),
+          } as PartialBlock<BSchema, I, S>),
       });
     }
 
@@ -93,7 +101,7 @@ export const getDefaultSlashMenuItems = <
           insertOrUpdateBlock(editor, {
             type: "heading",
             props: { level: 2 },
-          } as PartialBlock<BSchema>),
+          } as PartialBlock<BSchema, I, S>),
       });
     }
 
@@ -106,7 +114,7 @@ export const getDefaultSlashMenuItems = <
           insertOrUpdateBlock(editor, {
             type: "heading",
             props: { level: 3 },
-          } as PartialBlock<BSchema>),
+          } as PartialBlock<BSchema, I, S>),
       });
     }
   }
@@ -118,7 +126,7 @@ export const getDefaultSlashMenuItems = <
       execute: (editor) =>
         insertOrUpdateBlock(editor, {
           type: "bulletListItem",
-        } as PartialBlock<BSchema>),
+        } as PartialBlock<BSchema, I, S>),
     });
   }
 
@@ -129,7 +137,7 @@ export const getDefaultSlashMenuItems = <
       execute: (editor) =>
         insertOrUpdateBlock(editor, {
           type: "numberedListItem",
-        } as PartialBlock<BSchema>),
+        } as PartialBlock<BSchema, I, S>),
     });
   }
 
@@ -140,7 +148,7 @@ export const getDefaultSlashMenuItems = <
       execute: (editor) =>
         insertOrUpdateBlock(editor, {
           type: "paragraph",
-        } as PartialBlock<BSchema>),
+        } as PartialBlock<BSchema, I, S>),
     });
   }
 
@@ -167,7 +175,7 @@ export const getDefaultSlashMenuItems = <
               },
             ],
           },
-        } as PartialBlock<BSchema>);
+        } as PartialBlock<BSchema, I, S>);
       },
     });
   }
@@ -189,7 +197,7 @@ export const getDefaultSlashMenuItems = <
       execute: (editor) => {
         const insertedBlock = insertOrUpdateBlock(editor, {
           type: "image",
-        } as PartialBlock<BSchema>);
+        } as PartialBlock<BSchema, I, S>);
 
         // Immediately open the image toolbar
         editor._tiptapEditor.view.dispatch(

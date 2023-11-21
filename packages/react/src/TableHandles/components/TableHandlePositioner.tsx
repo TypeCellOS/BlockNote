@@ -2,6 +2,7 @@ import {
   BlockNoteEditor,
   BlockSchemaWithBlock,
   DefaultBlockSchema,
+  InlineContentSchema,
   SpecificBlock,
   TableHandlesState,
 } from "@blocknote/core";
@@ -12,32 +13,34 @@ import { DefaultTableHandle } from "./DefaultTableHandle";
 
 export type TableHandlesProps<
   BSchema extends BlockSchemaWithBlock<"table", DefaultBlockSchema["table"]>,
+  I extends InlineContentSchema,
   S extends StyleSchema
 > = Omit<
-  TableHandlesState<BSchema, S>,
+  TableHandlesState<BSchema, I, S>,
   "referencePosLeft" | "referencePosTop" | "show"
 > & {
-  editor: BlockNoteEditor<BSchema, S>;
+  editor: BlockNoteEditor<BSchema, I, S>;
   side: "top" | "left";
 };
 
 export const TableHandlesPositioner = <
   BSchema extends BlockSchemaWithBlock<"table", DefaultBlockSchema["table"]>,
+  I extends InlineContentSchema,
   S extends StyleSchema
 >(props: {
-  editor: BlockNoteEditor<BSchema, S>;
-  tableHandle?: FC<TableHandlesProps<BSchema, S>>;
+  editor: BlockNoteEditor<BSchema, I, S>;
+  tableHandle?: FC<TableHandlesProps<BSchema, I, S>>;
 }) => {
   const [show, setShow] = useState<boolean>(false);
-  const [block, setBlock] = useState<SpecificBlock<BSchema, "table", S>>();
+  const [block, setBlock] = useState<SpecificBlock<BSchema, "table", I, S>>();
   const [colIndex, setColIndex] = useState<number>();
   const [rowIndex, setRowIndex] = useState<number>();
   const [_, setForceUpdate] = useState<number>(0);
 
   const referencePosLeft =
-    useRef<TableHandlesState<BSchema, S>["referencePosLeft"]>();
+    useRef<TableHandlesState<BSchema, I, S>["referencePosLeft"]>();
   const referencePosTop =
-    useRef<TableHandlesState<BSchema, S>["referencePosTop"]>();
+    useRef<TableHandlesState<BSchema, I, S>["referencePosTop"]>();
 
   useEffect(() => {
     tippy.setDefaultProps({ maxWidth: "" });
@@ -80,7 +83,7 @@ export const TableHandlesPositioner = <
   const tableHandleElementTop = useMemo(() => {
     const TableHandle =
       props.tableHandle ||
-      (DefaultTableHandle as FC<TableHandlesProps<BSchema, S>>);
+      (DefaultTableHandle as FC<TableHandlesProps<BSchema, I, S>>);
 
     return (
       <TableHandle
@@ -96,7 +99,7 @@ export const TableHandlesPositioner = <
   const tableHandleElementLeft = useMemo(() => {
     const TableHandle =
       props.tableHandle ||
-      (DefaultTableHandle as FC<TableHandlesProps<BSchema, S>>);
+      (DefaultTableHandle as FC<TableHandlesProps<BSchema, I, S>>);
 
     return (
       <TableHandle

@@ -7,6 +7,7 @@ import {
   setupSuggestionsMenu,
 } from "../../shared/plugins/suggestion/SuggestionPlugin";
 import { BlockSchema } from "../Blocks/api/blockTypes";
+import { InlineContentSchema } from "../Blocks/api/inlineContentTypes";
 import { StyleSchema } from "../Blocks/api/styles";
 import { BaseSlashMenuItem } from "./BaseSlashMenuItem";
 
@@ -14,15 +15,16 @@ export const slashMenuPluginKey = new PluginKey("SlashMenuPlugin");
 
 export class SlashMenuProsemirrorPlugin<
   BSchema extends BlockSchema,
+  I extends InlineContentSchema,
   S extends StyleSchema,
-  SlashMenuItem extends BaseSlashMenuItem<BSchema, S>
+  SlashMenuItem extends BaseSlashMenuItem<BSchema, I, S>
 > extends EventEmitter<any> {
   public readonly plugin: Plugin;
   public readonly itemCallback: (item: SlashMenuItem) => void;
 
-  constructor(editor: BlockNoteEditor<BSchema, S>, items: SlashMenuItem[]) {
+  constructor(editor: BlockNoteEditor<BSchema, I, S>, items: SlashMenuItem[]) {
     super();
-    const suggestions = setupSuggestionsMenu<SlashMenuItem, BSchema, S>(
+    const suggestions = setupSuggestionsMenu<SlashMenuItem, BSchema, I, S>(
       editor,
       (state) => {
         this.emit("update", state);

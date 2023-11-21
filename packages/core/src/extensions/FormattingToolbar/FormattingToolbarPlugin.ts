@@ -6,6 +6,7 @@ import {
   BaseUiElementState,
   BlockNoteEditor,
   BlockSchema,
+  InlineContentSchema,
 } from "../..";
 import { EventEmitter } from "../../shared/EventEmitter";
 import { StyleSchema } from "../Blocks/api/styles";
@@ -41,7 +42,11 @@ export class FormattingToolbarView {
   };
 
   constructor(
-    private readonly editor: BlockNoteEditor<BlockSchema, StyleSchema>,
+    private readonly editor: BlockNoteEditor<
+      BlockSchema,
+      InlineContentSchema,
+      StyleSchema
+    >,
     private readonly pmView: EditorView,
     updateFormattingToolbar: (
       formattingToolbarState: FormattingToolbarState
@@ -221,7 +226,7 @@ export class FormattingToolbarProsemirrorPlugin extends EventEmitter<any> {
   private view: FormattingToolbarView | undefined;
   public readonly plugin: Plugin;
 
-  constructor(editor: BlockNoteEditor<any, any>) {
+  constructor(editor: BlockNoteEditor<any, any, any>) {
     super();
     this.plugin = new Plugin({
       key: formattingToolbarPluginKey,

@@ -9,9 +9,13 @@ import {
 } from "../../extensions/Blocks/api/blockTypes";
 import {
   InlineContent,
+  InlineContentSchema,
   PartialInlineContent,
   PartialLink,
   StyledText,
+  isLinkInlineContent,
+  isPartialLinkInlineContent,
+  isStyledTextInlineContent,
 } from "../../extensions/Blocks/api/inlineContentTypes";
 import { StyleSchema, Styles } from "../../extensions/Blocks/api/styles";
 import { getBlockInfo } from "../../extensions/Blocks/helpers/getBlockInfoFromPos";
@@ -119,8 +123,11 @@ function styledTextArrayToNodes<S extends StyleSchema>(
 /**
  * converts an array of inline content elements to prosemirror nodes
  */
-export function inlineContentToNodes<S extends StyleSchema>(
-  blockContent: PartialInlineContent<S>,
+export function inlineContentToNodes<
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(
+  blockContent: PartialInlineContent<I, S>,
   schema: Schema,
   styleSchema: S
 ): Node[] {
@@ -129,12 +136,14 @@ export function inlineContentToNodes<S extends StyleSchema>(
   for (const content of blockContent) {
     if (typeof content === "string") {
       nodes.push(...styledTextArrayToNodes(content, schema, styleSchema));
-    } else if (content.type === "link") {
+    } else if (isPartialLinkInlineContent(content)) {
       nodes.push(...linkToNodes(content, schema, styleSchema));
-    } else if (content.type === "text") {
+    } else if (isStyledTextInlineContent(content)) {
       nodes.push(...styledTextArrayToNodes([content], schema, styleSchema));
     } else {
-      throw new UnreachableCaseError(content);
+      // TODO
+      // let s = content.type;
+      // throw new UnreachableCaseError(content);
     }
   }
   return nodes;
@@ -143,8 +152,11 @@ export function inlineContentToNodes<S extends StyleSchema>(
 /**
  * converts an array of inline content elements to prosemirror nodes
  */
-export function tableContentToNodes<S extends StyleSchema>(
-  tableContent: PartialTableContent<S>,
+export function tableContentToNodes<
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(
+  tableContent: PartialTableContent<I, S>,
   schema: Schema,
   styleSchema: StyleSchema
 ): Node[] {
@@ -175,10 +187,10 @@ export function tableContentToNodes<S extends StyleSchema>(
 /**
  * Converts a BlockNote block to a TipTap node.
  */
-export function blockToNode<BSchema extends BlockSchema, S extends StyleSchema>(
-  block: PartialBlock<BSchema>,
+export function blockToNode(
+  block: PartialBlock<any, any, any>,
   schema: Schema,
-  styleSchema: S
+  styleSchema: StyleSchema
 ) {
   let id = block.id;
 
@@ -233,17 +245,17 @@ export function blockToNode<BSchema extends BlockSchema, S extends StyleSchema>(
 /**
  * Converts an internal (prosemirror) table node contentto a BlockNote Tablecontent
  */
-function contentNodeToTableContent<S extends StyleSchema>(
-  contentNode: Node,
-  styleSchema: S
-) {
-  const ret: TableContent<S> = {
+function contentNodeToTableContent<
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(contentNode: Node, styleSchema: S) {
+  const ret: TableContent<I, S> = {
     type: "tableContent",
     rows: [],
   };
 
   contentNode.content.forEach((rowNode) => {
-    const row: TableContent<S>["rows"][0] = {
+    const row: TableContent<I, S>["rows"][0] = {
       cells: [],
     };
 
@@ -262,12 +274,12 @@ function contentNodeToTableContent<S extends StyleSchema>(
 /**
  * Converts an internal (prosemirror) content node to a BlockNote InlineContent array.
  */
-function contentNodeToInlineContent<S extends StyleSchema>(
-  contentNode: Node,
-  styleSchema: S
-) {
-  const content: InlineContent<S>[] = [];
-  let currentContent: InlineContent<S> | undefined = undefined;
+function contentNodeToInlineContent<
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(contentNode: Node, styleSchema: S) {
+  const content: InlineContent<I, S>[] = [];
+  let currentContent: InlineContent<I, S> | undefined = undefined;
 
   // Most of the logic below is for handling links because in ProseMirror links are marks
   // while in BlockNote links are a type of inline content
@@ -277,13 +289,15 @@ function contentNodeToInlineContent<S extends StyleSchema>(
     if (node.type.name === "hardBreak") {
       if (currentContent) {
         // Current content exists.
-        if (currentContent.type === "text") {
+        if (isStyledTextInlineContent(currentContent)) {
           // Current content is text.
           currentContent.text += "\n";
-        } else if (currentContent.type === "link") {
+        } else if (isLinkInlineContent(currentContent)) {
           // Current content is a link.
           currentContent.content[currentContent.content.length - 1].text +=
             "\n";
+        } else {
+          // TODO
         }
       } else {
         // Current content does not exist.
@@ -322,7 +336,7 @@ function contentNodeToInlineContent<S extends StyleSchema>(
     // Current content exists.
     if (currentContent) {
       // Current content is text.
-      if (currentContent.type === "text") {
+      if (isStyledTextInlineContent(currentContent)) {
         if (!linkMark) {
           // Node is text (same type as current content).
           if (
@@ -354,7 +368,7 @@ function contentNodeToInlineContent<S extends StyleSchema>(
             ],
           };
         }
-      } else if (currentContent.type === "link") {
+      } else if (isLinkInlineContent(currentContent)) {
         // Current content is a link.
         if (linkMark) {
           // Node is a link (same type as current content).
@@ -400,6 +414,8 @@ function contentNodeToInlineContent<S extends StyleSchema>(
             styles,
           };
         }
+      } else {
+        // TODO
       }
     }
     // Current content does not exist.
@@ -439,12 +455,16 @@ function contentNodeToInlineContent<S extends StyleSchema>(
 /**
  * Convert a TipTap node to a BlockNote block.
  */
-export function nodeToBlock<BSchema extends BlockSchema, S extends StyleSchema>(
+export function nodeToBlock<
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(
   node: Node,
   blockSchema: BSchema,
   styleSchema: S,
-  blockCache?: WeakMap<Node, Block<BSchema, S>>
-): Block<BSchema, S> {
+  blockCache?: WeakMap<Node, Block<BSchema, I, S>>
+): Block<BSchema, I, S> {
   if (node.type.name !== "blockContainer") {
     throw Error(
       "Node must be of type blockContainer, but is of type" +
@@ -490,7 +510,7 @@ export function nodeToBlock<BSchema extends BlockSchema, S extends StyleSchema>(
 
   const blockConfig = blockSchema[blockInfo.contentType.name];
 
-  const children: Block<BSchema, S>[] = [];
+  const children: Block<BSchema, I, S>[] = [];
   for (let i = 0; i < blockInfo.numChildBlocks; i++) {
     children.push(
       nodeToBlock(
@@ -502,7 +522,7 @@ export function nodeToBlock<BSchema extends BlockSchema, S extends StyleSchema>(
     );
   }
 
-  let content: Block<any>["content"];
+  let content: Block<any, any, any>["content"];
 
   if (blockConfig.content === "inline") {
     content = contentNodeToInlineContent(blockInfo.contentNode, styleSchema);
@@ -520,7 +540,7 @@ export function nodeToBlock<BSchema extends BlockSchema, S extends StyleSchema>(
     props,
     content,
     children,
-  } as Block<BSchema, S>;
+  } as Block<BSchema, I, S>;
 
   blockCache?.set(node, block);
 

@@ -1,3 +1,4 @@
+import { InlineContentSchema } from "../../..";
 import { BlockNoteEditor } from "../../../BlockNoteEditor";
 import {
   createInternalBlockSpec,
@@ -21,19 +22,20 @@ export type CustomBlockConfig = BlockConfig & {
 
 export type CustomBlockImplementation<
   T extends CustomBlockConfig,
+  I extends InlineContentSchema,
   S extends StyleSchema
 > = {
   render: (
     /**
      * The custom block to render
      */
-    block: BlockFromConfig<T, S>,
+    block: BlockFromConfig<T, I, S>,
     /**
      * The BlockNote editor instance
      * This is typed generically. If you want an editor with your custom schema, you need to
      * cast it manually, e.g.: `const e = editor as BlockNoteEditor<typeof mySchema>;`
      */
-    editor: BlockNoteEditor<BlockSchemaWithBlock<T["type"], T>, S>
+    editor: BlockNoteEditor<BlockSchemaWithBlock<T["type"], T>, I, S>
     // (note) if we want to fix the manual cast, we need to prevent circular references and separate block definition and render implementations
     // or allow manually passing <BSchema>, but that's not possible without passing the other generics because Typescript doesn't support partial inferred generics
   ) => {
@@ -46,8 +48,8 @@ export type CustomBlockImplementation<
   // BlockNote.
   // TODO: Maybe can return undefined to ignore when serializing?
   toExternalHTML?: (
-    block: BlockFromConfig<T, S>,
-    editor: BlockNoteEditor<BlockSchemaWithBlock<T["type"], T>, S>
+    block: BlockFromConfig<T, I, S>,
+    editor: BlockNoteEditor<BlockSchemaWithBlock<T["type"], T>, I, S>
   ) => {
     dom: HTMLElement;
     contentDOM?: HTMLElement;
@@ -58,8 +60,9 @@ export type CustomBlockImplementation<
 // we want to hide the tiptap node from API consumers and provide a simpler API surface instead
 export function createBlockSpec<
   T extends CustomBlockConfig,
+  I extends InlineContentSchema,
   S extends StyleSchema
->(blockConfig: T, blockImplementation: CustomBlockImplementation<T, S>) {
+>(blockConfig: T, blockImplementation: CustomBlockImplementation<T, I, S>) {
   const node = createStronglyTypedTiptapNode({
     name: blockConfig.type as T["type"],
     content: (blockConfig.content === "inline"

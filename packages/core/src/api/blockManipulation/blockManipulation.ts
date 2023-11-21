@@ -1,6 +1,6 @@
 import { Editor } from "@tiptap/core";
 import { Node } from "prosemirror-model";
-import { BlockNoteEditor } from "../..";
+import { BlockNoteEditor, InlineContentSchema } from "../..";
 import {
   BlockIdentifier,
   BlockSchema,
@@ -12,12 +12,13 @@ import { getNodeById } from "../util/nodeUtil";
 
 export function insertBlocks<
   BSchema extends BlockSchema,
+  I extends InlineContentSchema,
   S extends StyleSchema
 >(
-  blocksToInsert: PartialBlock<BSchema, S>[],
+  blocksToInsert: PartialBlock<BSchema, I, S>[],
   referenceBlock: BlockIdentifier,
   placement: "before" | "after" | "nested" = "before",
-  editor: BlockNoteEditor<BSchema, S>
+  editor: BlockNoteEditor<BSchema, I, S>
 ): void {
   const ttEditor = editor._tiptapEditor;
 
@@ -66,9 +67,13 @@ export function insertBlocks<
   ttEditor.view.dispatch(ttEditor.state.tr.insert(insertionPos, nodesToInsert));
 }
 
-export function updateBlock<BSchema extends BlockSchema, S extends StyleSchema>(
+export function updateBlock<
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(
   blockToUpdate: BlockIdentifier,
-  update: PartialBlock<BSchema, S>,
+  update: PartialBlock<BSchema, I, S>,
   editor: Editor
 ) {
   const id =
@@ -127,11 +132,12 @@ export function removeBlocks(
 
 export function replaceBlocks<
   BSchema extends BlockSchema,
+  I extends InlineContentSchema,
   S extends StyleSchema
 >(
   blocksToRemove: BlockIdentifier[],
-  blocksToInsert: PartialBlock<BSchema, S>[],
-  editor: BlockNoteEditor<BSchema, S>
+  blocksToInsert: PartialBlock<BSchema, I, S>[],
+  editor: BlockNoteEditor<BSchema, I, S>
 ) {
   insertBlocks(blocksToInsert, blocksToRemove[0], "before", editor);
   removeBlocks(blocksToRemove, editor._tiptapEditor);

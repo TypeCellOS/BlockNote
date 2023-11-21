@@ -5,6 +5,7 @@ import {
   BaseUiElementState,
   BlockNoteEditor,
   BlockSchema,
+  InlineContentSchema,
   SpecificBlock,
 } from "../..";
 import { EventEmitter } from "../../shared/EventEmitter";
@@ -13,16 +14,18 @@ export type ImageToolbarCallbacks = BaseUiElementCallbacks;
 
 export type ImageToolbarState<
   B extends BlockSchema,
+  I extends InlineContentSchema,
   S extends StyleSchema = StyleSchema
 > = BaseUiElementState & {
-  block: SpecificBlock<B, "image", S>;
+  block: SpecificBlock<B, "image", I, S>;
 };
 
 export class ImageToolbarView<
   BSchema extends BlockSchema,
+  I extends InlineContentSchema,
   S extends StyleSchema
 > {
-  private imageToolbarState?: ImageToolbarState<BSchema, S>;
+  private imageToolbarState?: ImageToolbarState<BSchema, I, S>;
   public updateImageToolbar: () => void;
 
   public prevWasEditable: boolean | null = null;
@@ -31,7 +34,7 @@ export class ImageToolbarView<
     private readonly pluginKey: PluginKey,
     private readonly pmView: EditorView,
     updateImageToolbar: (
-      imageToolbarState: ImageToolbarState<BSchema, S>
+      imageToolbarState: ImageToolbarState<BSchema, I, S>
     ) => void
   ) {
     this.updateImageToolbar = () => {
@@ -102,7 +105,7 @@ export class ImageToolbarView<
 
   update(view: EditorView, prevState: EditorState) {
     const pluginState: {
-      block: SpecificBlock<BSchema, "image", S>;
+      block: SpecificBlock<BSchema, "image", I, S>;
     } = this.pluginKey.getState(view.state);
 
     if (!this.imageToolbarState?.show && pluginState.block) {
@@ -148,15 +151,16 @@ export const imageToolbarPluginKey = new PluginKey("ImageToolbarPlugin");
 
 export class ImageToolbarProsemirrorPlugin<
   BSchema extends BlockSchema,
+  I extends InlineContentSchema,
   S extends StyleSchema
 > extends EventEmitter<any> {
-  private view: ImageToolbarView<BSchema, S> | undefined;
+  private view: ImageToolbarView<BSchema, I, S> | undefined;
   public readonly plugin: Plugin;
 
-  constructor(_editor: BlockNoteEditor<BSchema, S>) {
+  constructor(_editor: BlockNoteEditor<BSchema, I, S>) {
     super();
     this.plugin = new Plugin<{
-      block: SpecificBlock<BSchema, "image", S> | undefined;
+      block: SpecificBlock<BSchema, "image", I, S> | undefined;
     }>({
       key: imageToolbarPluginKey,
       view: (editorView) => {
@@ -177,7 +181,7 @@ export class ImageToolbarProsemirrorPlugin<
           };
         },
         apply: (transaction) => {
-          const block: SpecificBlock<BSchema, "image", S> | undefined =
+          const block: SpecificBlock<BSchema, "image", I, S> | undefined =
             transaction.getMeta(imageToolbarPluginKey)?.block;
 
           return {
@@ -188,7 +192,7 @@ export class ImageToolbarProsemirrorPlugin<
     });
   }
 
-  public onUpdate(callback: (state: ImageToolbarState<BSchema, S>) => void) {
+  public onUpdate(callback: (state: ImageToolbarState<BSchema, I, S>) => void) {
     return this.on("update", callback);
   }
 }

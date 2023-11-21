@@ -1,4 +1,8 @@
-import { BlockNoteEditor, BlockSchema } from "@blocknote/core";
+import {
+  BlockNoteEditor,
+  BlockSchema,
+  InlineContentSchema,
+} from "@blocknote/core";
 import { useMemo, useState } from "react";
 import {
   RiBold,
@@ -32,9 +36,10 @@ const icons = {
 
 export const ToggledStyleButton = <
   BSchema extends BlockSchema,
+  I extends InlineContentSchema,
   S extends StyleSchema
 >(props: {
-  editor: BlockNoteEditor<BSchema, S>;
+  editor: BlockNoteEditor<BSchema, I, S>;
   toggledStyle: keyof typeof shortcuts;
 }) => {
   const selectedBlocks = useSelectedBlocks(props.editor);

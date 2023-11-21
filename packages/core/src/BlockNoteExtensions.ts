@@ -25,6 +25,7 @@ import {
   BlockSchema,
   BlockSpecs,
 } from "./extensions/Blocks/api/blockTypes";
+import { InlineContentSchema } from "./extensions/Blocks/api/inlineContentTypes";
 import { StyleSchema } from "./extensions/Blocks/api/styles";
 import { TableExtension } from "./extensions/Blocks/nodes/BlockContent/TableBlockContent/TableExtension";
 import { Placeholder } from "./extensions/Placeholder/PlaceholderExtension";
@@ -39,9 +40,10 @@ import UniqueID from "./extensions/UniqueID/UniqueID";
  */
 export const getBlockNoteExtensions = <
   BSchema extends BlockSchema,
+  I extends InlineContentSchema,
   S extends StyleSchema
 >(opts: {
-  editor: BlockNoteEditor<BSchema, S>;
+  editor: BlockNoteEditor<BSchema, I, S>;
   domAttributes: Partial<BlockNoteDOMAttributes>;
   blockSchema: BSchema;
   blockSpecs: BlockSpecs;

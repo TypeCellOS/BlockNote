@@ -9,6 +9,7 @@ import {
   CustomBlockConfig,
   getBlockFromPos,
   inheritedProps,
+  InlineContentSchema,
   mergeCSSClasses,
   parse,
   Props,
@@ -30,15 +31,16 @@ import { renderToString } from "react-dom/server";
 // extend BlockConfig but use a React render function
 export type ReactCustomBlockImplementation<
   T extends CustomBlockConfig,
+  I extends InlineContentSchema,
   S extends StyleSchema
 > = {
   render: FC<{
-    block: BlockFromConfig<T, S>;
-    editor: BlockNoteEditor<BlockSchemaWithBlock<T["type"], T>, S>;
+    block: BlockFromConfig<T, I, S>;
+    editor: BlockNoteEditor<BlockSchemaWithBlock<T["type"], T>, I, S>;
   }>;
   toExternalHTML?: FC<{
-    block: BlockFromConfig<T, S>;
-    editor: BlockNoteEditor<BlockSchemaWithBlock<T["type"], T>, S>;
+    block: BlockFromConfig<T, I, S>;
+    editor: BlockNoteEditor<BlockSchemaWithBlock<T["type"], T>, I, S>;
   }>;
 };
 
@@ -120,8 +122,12 @@ export function reactWrapInBlockStructure<
 // we want to hide the tiptap node from API consumers and provide a simpler API surface instead
 export function createReactBlockSpec<
   T extends CustomBlockConfig,
+  I extends InlineContentSchema,
   S extends StyleSchema
->(blockConfig: T, blockImplementation: ReactCustomBlockImplementation<T, S>) {
+>(
+  blockConfig: T,
+  blockImplementation: ReactCustomBlockImplementation<T, I, S>
+) {
   const node = createStronglyTypedTiptapNode({
     name: blockConfig.type as T["type"],
     content: (blockConfig.content === "inline"

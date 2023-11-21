@@ -1,4 +1,4 @@
-import { Block, BlockSchema } from "../../../..";
+import { Block, BlockSchema, InlineContentSchema } from "../../../..";
 import { BlockNoteEditor } from "../../../../BlockNoteEditor";
 import { blockToNode } from "../../../../api/nodeConversions/nodeConversions";
 import { mergeCSSClasses } from "../../../../shared/utils";
@@ -54,10 +54,11 @@ export function createDefaultBlockDOMOutputSpec(
 // `DOMSerializer`.
 export const defaultBlockToHTML = <
   BSchema extends BlockSchema,
+  I extends InlineContentSchema,
   S extends StyleSchema
 >(
-  block: Block<BSchema, S>,
-  editor: BlockNoteEditor<BSchema, S>
+  block: Block<BSchema, I, S>,
+  editor: BlockNoteEditor<BSchema, I, S>
 ): {
   dom: HTMLElement;
   contentDOM?: HTMLElement;

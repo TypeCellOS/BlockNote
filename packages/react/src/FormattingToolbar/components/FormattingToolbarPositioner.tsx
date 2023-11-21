@@ -29,13 +29,13 @@ const textAlignmentToPlacement = (
 export type FormattingToolbarProps<
   BSchema extends BlockSchema = DefaultBlockSchema
 > = {
-  editor: BlockNoteEditor<BSchema>;
+  editor: BlockNoteEditor<BSchema, any, any>;
 };
 
 export const FormattingToolbarPositioner = <
   BSchema extends BlockSchema = DefaultBlockSchema
 >(props: {
-  editor: BlockNoteEditor<BSchema, any>;
+  editor: BlockNoteEditor<BSchema, any, any>;
   formattingToolbar?: FC<FormattingToolbarProps<BSchema>>;
 }) => {
   const [show, setShow] = useState<boolean>(false);

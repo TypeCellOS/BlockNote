@@ -20,7 +20,7 @@ export type BlockTypeDropdownItem = {
   type: string;
   props?: Record<string, boolean | number | string>;
   icon: IconType;
-  isSelected: (block: Block<BlockSchema>) => boolean;
+  isSelected: (block: Block<BlockSchema, any>) => boolean;
 };
 
 export const defaultBlockTypeDropdownItems: BlockTypeDropdownItem[] = [
@@ -134,7 +134,7 @@ export const BlockTypeDropdown = <BSchema extends BlockSchema>(props: {
       text: item.name,
       icon: item.icon,
       onClick: () => onClick(item),
-      isSelected: item.isSelected(block as Block<BlockSchema>),
+      isSelected: item.isSelected(block as Block<BlockSchema, any, any>),
     }));
   }, [block, filteredItems, props.editor, selectedBlocks]);
 

@@ -5,6 +5,10 @@ import { NumberedListItem } from "../nodes/BlockContent/ListItemBlockContent/Num
 import { Paragraph } from "../nodes/BlockContent/ParagraphBlockContent/ParagraphBlockContent";
 import { Table } from "../nodes/BlockContent/TableBlockContent/TableBlockContent";
 import { BlockSchemaFromSpecs, BlockSpecs } from "./blockTypes";
+import {
+  InlineContentSchemaFromSpecs,
+  InlineContentSpecs,
+} from "./inlineContentTypes";
 import { StyleSchemaFromSpecs, StyleSpecs } from "./styles";
 
 export const defaultBlockSpecs = {
@@ -87,3 +91,19 @@ export function getStyleSchemaFromSpecs<T extends StyleSpecs>(specs: T) {
 export const defaultStyleSchema = getStyleSchemaFromSpecs(defaultStyleSpecs);
 
 export type DefaultStyleSchema = typeof defaultStyleSchema;
+
+export const defaultInlineContentSpecs = {} satisfies InlineContentSpecs;
+
+export function getInlineContentSchemaFromSpecs<T extends InlineContentSpecs>(
+  specs: T
+) {
+  return Object.fromEntries(
+    Object.entries(specs).map(([key, value]) => [key, value.config])
+  ) as InlineContentSchemaFromSpecs<T>;
+}
+
+export const defaultInlineContentSchema = getInlineContentSchemaFromSpecs(
+  defaultInlineContentSpecs
+);
+
+export type DefaultInlineContentSchema = typeof defaultInlineContentSchema;

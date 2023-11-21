@@ -26,11 +26,14 @@ import {
 import { TextCursorPosition } from "./extensions/Blocks/api/cursorPositionTypes";
 import {
   DefaultBlockSchema,
+  DefaultInlineContentSchema,
   DefaultStyleSchema,
   defaultBlockSchema,
   defaultBlockSpecs,
+  defaultInlineContentSpecs,
   defaultStyleSpecs,
   getBlockSchemaFromSpecs,
+  getInlineContentSchemaFromSpecs,
   getStyleSchemaFromSpecs,
 } from "./extensions/Blocks/api/defaultBlocks";
 import { Selection } from "./extensions/Blocks/api/selectionTypes";
@@ -43,6 +46,10 @@ import { getBlockInfoFromPos } from "./extensions/Blocks/helpers/getBlockInfoFro
 
 import "prosemirror-tables/style/tables.css";
 import "./editor.css";
+import {
+  InlineContentSchema,
+  InlineContentSpecs,
+} from "./extensions/Blocks/api/inlineContentTypes";
 import { FormattingToolbarProsemirrorPlugin } from "./extensions/FormattingToolbar/FormattingToolbarPlugin";
 import { HyperlinkToolbarProsemirrorPlugin } from "./extensions/HyperlinkToolbar/HyperlinkToolbarPlugin";
 import { ImageToolbarProsemirrorPlugin } from "./extensions/ImageToolbar/ImageToolbarPlugin";
@@ -56,9 +63,13 @@ import { UnreachableCaseError, mergeCSSClasses } from "./shared/utils";
 
 export type BlockNoteEditorOptions<
   BSpecs extends BlockSpecs,
+  ISpecs extends InlineContentSpecs,
   SSpecs extends StyleSpecs,
   BSchema extends BlockSchema = {
     [key in keyof BSpecs]: BSpecs[key]["config"];
+  },
+  ISchema extends InlineContentSchema = {
+    [key in keyof ISpecs]: ISpecs[key]["config"];
   },
   SSchema extends StyleSchema = { [key in keyof SSpecs]: SSpecs[key]["config"] }
 > = {
@@ -70,7 +81,7 @@ export type BlockNoteEditorOptions<
    *
    * @default defaultSlashMenuItems from `./extensions/SlashMenu`
    */
-  slashMenuItems: BaseSlashMenuItem<any, any>[];
+  slashMenuItems: BaseSlashMenuItem<BSchema, ISchema, SSchema>[];
 
   /**
    * The HTML element that should be used as the parent element for the editor.
@@ -87,16 +98,18 @@ export type BlockNoteEditorOptions<
   /**
    *  A callback function that runs when the editor is ready to be used.
    */
-  onEditorReady: (editor: BlockNoteEditor<BSchema, SSchema>) => void;
+  onEditorReady: (editor: BlockNoteEditor<BSchema, ISchema, SSchema>) => void;
   /**
    * A callback function that runs whenever the editor's contents change.
    */
-  onEditorContentChange: (editor: BlockNoteEditor<BSchema, SSchema>) => void;
+  onEditorContentChange: (
+    editor: BlockNoteEditor<BSchema, ISchema, SSchema>
+  ) => void;
   /**
    * A callback function that runs whenever the text cursor position changes.
    */
   onTextCursorPositionChange: (
-    editor: BlockNoteEditor<BSchema, SSchema>
+    editor: BlockNoteEditor<BSchema, ISchema, SSchema>
   ) => void;
   /**
    * Locks the editor from being editable by the user if set to `false`.
@@ -105,7 +118,7 @@ export type BlockNoteEditorOptions<
   /**
    * The content that should be in the editor when it's created, represented as an array of partial block objects.
    */
-  initialContent: PartialBlock<BSchema, SSchema>[];
+  initialContent: PartialBlock<BSchema, ISchema, SSchema>[];
   /**
    * Use default BlockNote font and reset the styles of <p> <li> <h1> elements etc., that are used in BlockNote.
    *
@@ -119,6 +132,8 @@ export type BlockNoteEditorOptions<
   blockSpecs: BSpecs;
 
   styleSpecs: SSpecs;
+
+  inlineContentSpecs: ISpecs;
 
   /**
    * A custom function to handle file uploads.
@@ -174,44 +189,65 @@ const blockNoteTipTapOptions = {
 
 export class BlockNoteEditor<
   BSchema extends BlockSchema = DefaultBlockSchema,
+  ISchema extends InlineContentSchema = DefaultInlineContentSchema,
   SSchema extends StyleSchema = DefaultStyleSchema
 > {
   public readonly _tiptapEditor: TiptapEditor & { contentComponent: any };
   public blockCache = new WeakMap<Node, Block<any, any>>();
   public readonly blockSchema: BSchema;
+  public readonly inlineContentSchema: ISchema;
   public readonly styleSchema: SSchema;
 
   public readonly blockImplementations: BlockSpecs;
+  public readonly inlineContentImplementations: InlineContentSpecs;
   public readonly styleImplementations: StyleSpecs;
 
   public ready = false;
 
-  public readonly sideMenu: SideMenuProsemirrorPlugin<BSchema, SSchema>;
-  public readonly formattingToolbar: FormattingToolbarProsemirrorPlugin;
-  public readonly slashMenu: SlashMenuProsemirrorPlugin<BSchema, SSchema, any>;
-  public readonly hyperlinkToolbar: HyperlinkToolbarProsemirrorPlugin<
+  public readonly sideMenu: SideMenuProsemirrorPlugin<
     BSchema,
+    ISchema,
     SSchema
   >;
-  public readonly imageToolbar: ImageToolbarProsemirrorPlugin<BSchema, SSchema>;
+  public readonly formattingToolbar: FormattingToolbarProsemirrorPlugin;
+  public readonly slashMenu: SlashMenuProsemirrorPlugin<
+    BSchema,
+    ISchema,
+    SSchema,
+    any
+  >;
+  public readonly hyperlinkToolbar: HyperlinkToolbarProsemirrorPlugin<
+    BSchema,
+    ISchema,
+    SSchema
+  >;
+  public readonly imageToolbar: ImageToolbarProsemirrorPlugin<
+    BSchema,
+    ISchema,
+    SSchema
+  >;
   public readonly tableHandles:
-    | TableHandlesProsemirrorPlugin<any, SSchema>
+    | TableHandlesProsemirrorPlugin<any, ISchema, SSchema>
     | undefined;
 
   public readonly uploadFile: ((file: File) => Promise<string>) | undefined;
 
   public static create<
     BSpecs extends BlockSpecs = typeof defaultBlockSpecs,
+    ISpecs extends InlineContentSpecs = typeof defaultInlineContentSpecs,
     SSpecs extends StyleSpecs = typeof defaultStyleSpecs,
     BSchema extends BlockSchema = {
       [key in keyof BSpecs]: BSpecs[key]["config"];
+    },
+    ISchema extends InlineContentSchema = {
+      [key in keyof ISpecs]: ISpecs[key]["config"];
     },
     SSchema extends StyleSchema = {
       [key in keyof SSpecs]: SSpecs[key]["config"];
     }
   >(
     options: Partial<
-      BlockNoteEditorOptions<BSpecs, SSpecs, BSchema, SSchema>
+      BlockNoteEditorOptions<BSpecs, ISpecs, SSpecs, BSchema, ISchema, SSchema>
     > = {}
   ) {
     return new BlockNoteEditor(options);
@@ -219,32 +255,46 @@ export class BlockNoteEditor<
 
   private constructor(
     private readonly options: Partial<
-      BlockNoteEditorOptions<BlockSpecs, StyleSpecs, BSchema, SSchema>
+      BlockNoteEditorOptions<
+        BlockSpecs,
+        InlineContentSpecs,
+        StyleSpecs,
+        BSchema,
+        ISchema,
+        SSchema
+      >
     >
   ) {
     // apply defaults
     const newOptions: Omit<
       typeof options,
-      "defaultStyles" | "blockSpecs" | "styleSpecs"
+      "defaultStyles" | "blockSpecs" | "styleSpecs" | "inlineContentSpecs"
     > & {
       defaultStyles: boolean;
       blockSpecs: BlockSpecs;
+      inlineContentSpecs: InlineContentSpecs;
       styleSpecs: StyleSpecs;
     } = {
       defaultStyles: true,
       blockSpecs: options.blockSpecs || defaultBlockSpecs,
       styleSpecs: options.styleSpecs || defaultStyleSpecs,
+      inlineContentSpecs:
+        options.inlineContentSpecs || defaultInlineContentSpecs,
       ...options,
     };
 
     this.blockSchema = getBlockSchemaFromSpecs(newOptions.blockSpecs) as any;
+    this.inlineContentSchema = getInlineContentSchemaFromSpecs(
+      newOptions.inlineContentSpecs
+    ) as any;
     this.styleSchema = getStyleSchemaFromSpecs(newOptions.styleSpecs) as any;
 
     this.sideMenu = new SideMenuProsemirrorPlugin(this);
     this.formattingToolbar = new FormattingToolbarProsemirrorPlugin(this);
     this.slashMenu = new SlashMenuProsemirrorPlugin(
       this,
-      newOptions.slashMenuItems || getDefaultSlashMenuItems(this.blockSchema)
+      newOptions.slashMenuItems ||
+        (getDefaultSlashMenuItems(this.blockSchema) as any)
     );
     this.hyperlinkToolbar = new HyperlinkToolbarProsemirrorPlugin(this);
     this.imageToolbar = new ImageToolbarProsemirrorPlugin(this);
@@ -278,6 +328,7 @@ export class BlockNoteEditor<
     extensions.push(blockNoteUIExtension);
 
     this.blockImplementations = newOptions.blockSpecs;
+    this.inlineContentImplementations = newOptions.inlineContentSpecs;
     this.styleImplementations = newOptions.styleSpecs;
 
     this.uploadFile = newOptions.uploadFile;
@@ -407,8 +458,8 @@ export class BlockNoteEditor<
    * Gets a snapshot of all top-level (non-nested) blocks in the editor.
    * @returns A snapshot of all top-level (non-nested) blocks in the editor.
    */
-  public get topLevelBlocks(): Block<BSchema>[] {
-    const blocks: Block<BSchema>[] = [];
+  public get topLevelBlocks(): Block<BSchema, ISchema, SSchema>[] {
+    const blocks: Block<BSchema, ISchema, SSchema>[] = [];
 
     this._tiptapEditor.state.doc.firstChild!.descendants((node) => {
       blocks.push(
@@ -428,12 +479,12 @@ export class BlockNoteEditor<
    */
   public getBlock(
     blockIdentifier: BlockIdentifier
-  ): Block<BSchema> | undefined {
+  ): Block<BSchema, ISchema, SSchema> | undefined {
     const id =
       typeof blockIdentifier === "string"
         ? blockIdentifier
         : blockIdentifier.id;
-    let newBlock: Block<BSchema> | undefined = undefined;
+    let newBlock: Block<BSchema, ISchema, SSchema> | undefined = undefined;
 
     this._tiptapEditor.state.doc.firstChild!.descendants((node) => {
       if (typeof newBlock !== "undefined") {
@@ -463,7 +514,7 @@ export class BlockNoteEditor<
    * @param reverse Whether the blocks should be traversed in reverse order.
    */
   public forEachBlock(
-    callback: (block: Block<BSchema, SSchema>) => boolean,
+    callback: (block: Block<BSchema, ISchema, SSchema>) => boolean,
     reverse = false
   ): void {
     const blocks = this.topLevelBlocks.slice();
@@ -473,7 +524,7 @@ export class BlockNoteEditor<
     }
 
     function traverseBlockArray(
-      blockArray: Block<BSchema, SSchema>[]
+      blockArray: Block<BSchema, ISchema, SSchema>[]
     ): boolean {
       for (const block of blockArray) {
         if (!callback(block)) {
@@ -515,7 +566,11 @@ export class BlockNoteEditor<
    * Gets a snapshot of the current text cursor position.
    * @returns A snapshot of the current text cursor position.
    */
-  public getTextCursorPosition(): TextCursorPosition<BSchema, SSchema> {
+  public getTextCursorPosition(): TextCursorPosition<
+    BSchema,
+    ISchema,
+    SSchema
+  > {
     const { node, depth, startPos, endPos } = getBlockInfoFromPos(
       this._tiptapEditor.state.doc,
       this._tiptapEditor.state.selection.from
@@ -620,7 +675,7 @@ export class BlockNoteEditor<
   /**
    * Gets a snapshot of the current selection.
    */
-  public getSelection(): Selection<BSchema> | undefined {
+  public getSelection(): Selection<BSchema, ISchema, SSchema> | undefined {
     // Either the TipTap selection is empty, or it's a node selection. In either
     // case, it only spans one block, so we return undefined.
     if (
@@ -631,7 +686,7 @@ export class BlockNoteEditor<
       return undefined;
     }
 
-    const blocks: Block<BSchema>[] = [];
+    const blocks: Block<BSchema, ISchema, SSchema>[] = [];
 
     // TODO: This adds all child blocks to the same array. Needs to find min
     //  depth and only add blocks at that depth.
@@ -687,7 +742,7 @@ export class BlockNoteEditor<
    * `referenceBlock`. Inserts the blocks at the start of the existing block's children if "nested" is used.
    */
   public insertBlocks(
-    blocksToInsert: PartialBlock<BSchema, SSchema>[],
+    blocksToInsert: PartialBlock<BSchema, ISchema, SSchema>[],
     referenceBlock: BlockIdentifier,
     placement: "before" | "after" | "nested" = "before"
   ): void {
@@ -703,7 +758,7 @@ export class BlockNoteEditor<
    */
   public updateBlock(
     blockToUpdate: BlockIdentifier,
-    update: PartialBlock<BSchema, SSchema>
+    update: PartialBlock<BSchema, ISchema, SSchema>
   ) {
     updateBlock(blockToUpdate, update, this._tiptapEditor);
   }
@@ -725,7 +780,7 @@ export class BlockNoteEditor<
    */
   public replaceBlocks(
     blocksToRemove: BlockIdentifier[],
-    blocksToInsert: PartialBlock<BSchema, SSchema>[]
+    blocksToInsert: PartialBlock<BSchema, ISchema, SSchema>[]
   ) {
     replaceBlocks(blocksToRemove, blocksToInsert, this);
   }

@@ -8,6 +8,7 @@ import {
 } from "../../../api/blockTypes";
 import { CustomBlockConfig, createBlockSpec } from "../../../api/customBlocks";
 import { defaultProps } from "../../../api/defaultProps";
+import { InlineContentSchema } from "../../../api/inlineContentTypes";
 import { StyleSchema } from "../../../api/styles";
 
 export const imagePropSchema = {
@@ -53,7 +54,7 @@ const blockConfig = {
 } satisfies CustomBlockConfig;
 
 export const renderImage = (
-  block: BlockFromConfig<typeof blockConfig, StyleSchema>,
+  block: BlockFromConfig<typeof blockConfig, InlineContentSchema, StyleSchema>,
   editor: BlockNoteEditor<BlockSchemaWithBlock<"image", typeof blockConfig>>
 ) => {
   // Wrapper element to set the image alignment, contains both image/image

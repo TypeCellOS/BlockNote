@@ -2,6 +2,7 @@ import { EditorState, Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
 import { BlockNoteEditor } from "../../../BlockNoteEditor";
 import { BlockSchema } from "../../../extensions/Blocks/api/blockTypes";
+import { InlineContentSchema } from "../../../extensions/Blocks/api/inlineContentTypes";
 import { StyleSchema } from "../../../extensions/Blocks/api/styles";
 import { findBlock } from "../../../extensions/Blocks/helpers/findBlock";
 import { BaseUiElementState } from "../../BaseUiElementTypes";
@@ -18,6 +19,7 @@ export type SuggestionsMenuState<T extends SuggestionItem> =
 class SuggestionsMenuView<
   T extends SuggestionItem,
   BSchema extends BlockSchema,
+  I extends InlineContentSchema,
   S extends StyleSchema
 > {
   private suggestionsMenuState?: SuggestionsMenuState<T>;
@@ -26,7 +28,7 @@ class SuggestionsMenuView<
   pluginState: SuggestionPluginState<T>;
 
   constructor(
-    private readonly editor: BlockNoteEditor<BSchema, S>,
+    private readonly editor: BlockNoteEditor<BSchema, I, S>,
     private readonly pluginKey: PluginKey,
     updateSuggestionsMenu: (
       suggestionsMenuState: SuggestionsMenuState<T>
@@ -150,9 +152,10 @@ function getDefaultPluginState<
 export const setupSuggestionsMenu = <
   T extends SuggestionItem,
   BSchema extends BlockSchema,
+  I extends InlineContentSchema,
   S extends StyleSchema
 >(
-  editor: BlockNoteEditor<BSchema, S>,
+  editor: BlockNoteEditor<BSchema, I, S>,
   updateSuggestionsMenu: (
     suggestionsMenuState: SuggestionsMenuState<T>
   ) => void,
@@ -162,7 +165,7 @@ export const setupSuggestionsMenu = <
   items: (query: string) => T[] = () => [],
   onSelectItem: (props: {
     item: T;
-    editor: BlockNoteEditor<BSchema, S>;
+    editor: BlockNoteEditor<BSchema, I, S>;
   }) => void = () => {
     // noop
   }
@@ -172,7 +175,7 @@ export const setupSuggestionsMenu = <
     throw new Error("'char' should be a single character");
   }
 
-  let suggestionsPluginView: SuggestionsMenuView<T, BSchema, S>;
+  let suggestionsPluginView: SuggestionsMenuView<T, BSchema, I, S>;
 
   const deactivate = (view: EditorView) => {
     view.dispatch(view.state.tr.setMeta(pluginKey, { deactivate: true }));
@@ -183,7 +186,7 @@ export const setupSuggestionsMenu = <
       key: pluginKey,
 
       view: () => {
-        suggestionsPluginView = new SuggestionsMenuView<T, BSchema, S>(
+        suggestionsPluginView = new SuggestionsMenuView<T, BSchema, I, S>(
           editor,
           pluginKey,
 

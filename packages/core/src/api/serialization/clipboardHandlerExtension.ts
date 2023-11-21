@@ -1,5 +1,6 @@
 import { Extension } from "@tiptap/core";
 import { Plugin } from "prosemirror-state";
+import { InlineContentSchema } from "../..";
 import { BlockNoteEditor } from "../../BlockNoteEditor";
 import { BlockSchema } from "../../extensions/Blocks/api/blockTypes";
 import { StyleSchema } from "../../extensions/Blocks/api/styles";
@@ -15,11 +16,12 @@ const acceptedMIMETypes = [
 
 export const createClipboardHandlerExtension = <
   BSchema extends BlockSchema,
-  SSchema extends StyleSchema
+  I extends InlineContentSchema,
+  S extends StyleSchema
 >(
-  editor: BlockNoteEditor<BSchema, SSchema>
+  editor: BlockNoteEditor<BSchema, I, S>
 ) =>
-  Extension.create<{ editor: BlockNoteEditor<BSchema, SSchema> }, undefined>({
+  Extension.create<{ editor: BlockNoteEditor<BSchema, I, S> }, undefined>({
     addProseMirrorPlugins() {
       const tiptap = this.editor;
       const schema = this.editor.schema;

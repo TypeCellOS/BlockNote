@@ -1,4 +1,5 @@
 import { DOMSerializer, Fragment, Node, Schema } from "prosemirror-model";
+import { InlineContentSchema } from "../../..";
 import { BlockNoteEditor } from "../../../BlockNoteEditor";
 import {
   BlockSchema,
@@ -28,27 +29,29 @@ import {
 // `serializeBlocks`: Serializes an array of blocks to HTML.
 export interface InternalHTMLSerializer<
   BSchema extends BlockSchema,
+  I extends InlineContentSchema,
   S extends StyleSchema
 > {
   // TODO: Ideally we would expand the BlockNote API to support partial
   //  selections so we don't need this.
   serializeProseMirrorFragment: (fragment: Fragment) => string;
-  serializeBlocks: (blocks: PartialBlock<BSchema, S>[]) => string;
+  serializeBlocks: (blocks: PartialBlock<BSchema, I, S>[]) => string;
 }
 
 export const createInternalHTMLSerializer = <
   BSchema extends BlockSchema,
+  I extends InlineContentSchema,
   S extends StyleSchema
 >(
   schema: Schema,
-  editor: BlockNoteEditor<BSchema, S>
-): InternalHTMLSerializer<BSchema, S> => {
+  editor: BlockNoteEditor<BSchema, I, S>
+): InternalHTMLSerializer<BSchema, I, S> => {
   const serializer = DOMSerializer.fromSchema(schema) as DOMSerializer & {
     serializeNodeInner: (
       node: Node,
       options: { document?: Document }
     ) => HTMLElement;
-    serializeBlocks: (blocks: PartialBlock<BSchema>[]) => string;
+    serializeBlocks: (blocks: PartialBlock<BSchema, I, S>[]) => string;
     serializeProseMirrorFragment: (
       fragment: Fragment,
       options?: { document?: Document | undefined } | undefined,
@@ -64,7 +67,7 @@ export const createInternalHTMLSerializer = <
   serializer.serializeProseMirrorFragment = (fragment: Fragment) =>
     serializeProseMirrorFragment(fragment, serializer);
 
-  serializer.serializeBlocks = (blocks: PartialBlock<BSchema>[]) => {
+  serializer.serializeBlocks = (blocks: PartialBlock<BSchema, I, S>[]) => {
     const nodes = blocks.map((block) =>
       blockToNode(block, schema, editor.styleSchema)
     );

@@ -1,6 +1,7 @@
 import {
   BlockSchemaWithBlock,
   DefaultBlockSchema,
+  InlineContentSchema,
   TableContent,
 } from "@blocknote/core";
 
@@ -13,6 +14,7 @@ import { TableHandlesProps } from "./TableHandlePositioner";
 const DefaultTableHandleLeft = (
   props: TableHandlesProps<
     BlockSchemaWithBlock<"table", DefaultBlockSchema["table"]>,
+    InlineContentSchema,
     StyleSchema
   >
 ) => {
@@ -33,7 +35,7 @@ const DefaultTableHandleLeft = (
       <Menu.Dropdown>
         <Menu.Item
           onClick={() => {
-            const content: TableContent = {
+            const content: TableContent<InlineContentSchema> = {
               type: "tableContent",
               rows: props.block.content.rows.filter(
                 (_, index) => index !== props.rowIndex
@@ -92,6 +94,7 @@ const DefaultTableHandleLeft = (
 const DefaultTableHandleTop = (
   props: TableHandlesProps<
     BlockSchemaWithBlock<"table", DefaultBlockSchema["table"]>,
+    InlineContentSchema,
     StyleSchema
   >
 ) => {
@@ -116,7 +119,7 @@ const DefaultTableHandleTop = (
       <Menu.Dropdown>
         <Menu.Item
           onClick={() => {
-            const content: TableContent = {
+            const content: TableContent<InlineContentSchema> = {
               type: "tableContent",
               rows: props.block.content.rows.map((row) => ({
                 cells: row.cells.filter((_, index) => index !== props.colIndex),
@@ -129,7 +132,7 @@ const DefaultTableHandleTop = (
         </Menu.Item>
         <Menu.Item
           onClick={() => {
-            const content: TableContent = {
+            const content: TableContent<InlineContentSchema> = {
               type: "tableContent",
               rows: props.block.content.rows.map((row) => {
                 const cells = [...row.cells];
@@ -144,7 +147,7 @@ const DefaultTableHandleTop = (
         </Menu.Item>
         <Menu.Item
           onClick={() => {
-            const content: TableContent = {
+            const content: TableContent<InlineContentSchema> = {
               type: "tableContent",
               rows: props.block.content.rows.map((row) => {
                 const cells = [...row.cells];
@@ -165,6 +168,7 @@ const DefaultTableHandleTop = (
 export const DefaultTableHandle = (
   props: TableHandlesProps<
     BlockSchemaWithBlock<"table", DefaultBlockSchema["table"]>,
+    any,
     any
   >
 ) => {

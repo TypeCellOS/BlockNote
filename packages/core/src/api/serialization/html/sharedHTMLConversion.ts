@@ -1,4 +1,5 @@
 import { DOMSerializer, Fragment, Node } from "prosemirror-model";
+import { InlineContentSchema } from "../../..";
 import { BlockNoteEditor } from "../../../BlockNoteEditor";
 import { BlockSchema } from "../../../extensions/Blocks/api/blockTypes";
 import { StyleSchema } from "../../../extensions/Blocks/api/styles";
@@ -16,12 +17,13 @@ function doc(options: { document?: Document }) {
 // `renderHTML` method.
 export const serializeNodeInner = <
   BSchema extends BlockSchema,
+  I extends InlineContentSchema,
   S extends StyleSchema
 >(
   node: Node,
   options: { document?: Document },
   serializer: DOMSerializer,
-  editor: BlockNoteEditor<BSchema, S>,
+  editor: BlockNoteEditor<BSchema, I, S>,
   toExternalHTML: boolean
 ) => {
   const { dom, contentDOM } = DOMSerializer.renderSpec(

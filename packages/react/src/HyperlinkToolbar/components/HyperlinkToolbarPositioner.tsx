@@ -3,9 +3,11 @@ import {
   BlockNoteEditor,
   BlockSchema,
   DefaultBlockSchema,
+  DefaultInlineContentSchema,
   DefaultStyleSchema,
   HyperlinkToolbarProsemirrorPlugin,
   HyperlinkToolbarState,
+  InlineContentSchema,
 } from "@blocknote/core";
 import Tippy from "@tippyjs/react";
 import { FC, useEffect, useMemo, useRef, useState } from "react";
@@ -15,19 +17,21 @@ import { DefaultHyperlinkToolbar } from "./DefaultHyperlinkToolbar";
 
 export type HyperlinkToolbarProps<
   BSchema extends BlockSchema,
+  I extends InlineContentSchema,
   S extends StyleSchema
 > = Pick<
-  HyperlinkToolbarProsemirrorPlugin<BSchema, S>,
+  HyperlinkToolbarProsemirrorPlugin<BSchema, I, S>,
   "editHyperlink" | "deleteHyperlink" | "startHideTimer" | "stopHideTimer"
 > &
   Omit<HyperlinkToolbarState, keyof BaseUiElementState>;
 
 export const HyperlinkToolbarPositioner = <
   BSchema extends BlockSchema = DefaultBlockSchema,
+  I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema
 >(props: {
-  editor: BlockNoteEditor<BSchema, S>;
-  hyperlinkToolbar?: FC<HyperlinkToolbarProps<BSchema, S>>;
+  editor: BlockNoteEditor<BSchema, I, S>;
+  hyperlinkToolbar?: FC<HyperlinkToolbarProps<BSchema, I, S>>;
 }) => {
   const [show, setShow] = useState<boolean>(false);
   const [url, setUrl] = useState<string>();
