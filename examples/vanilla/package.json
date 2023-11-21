@@ -14,7 +14,7 @@
   "devDependencies": {
     "eslint": "^8.10.0",
     "typescript": "^5.0.4",
-    "vite": "^4.4.8",
+    "vite": "^5.0.2",
     "vite-plugin-eslint": "^1.8.1"
   },
   "eslintConfig": {

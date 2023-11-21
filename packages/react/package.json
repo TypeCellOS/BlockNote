@@ -54,8 +54,8 @@
     "@mantine/hooks": "^5.6.1",
     "@mantine/utils": "^6.0.5",
     "@tippyjs/react": "^4.2.6",
-    "@tiptap/core": "^2.0.3",
-    "@tiptap/react": "^2.0.3",
+    "@tiptap/core": "2.0.3",
+    "@tiptap/react": "2.0.3",
     "lodash": "^4.17.21",
     "react": "^18",
     "react-dom": "^18.2.0",
@@ -66,14 +66,14 @@
   "devDependencies": {
     "@types/react": "^18.0.25",
     "@types/react-dom": "^18.0.9",
-    "@vitejs/plugin-react": "^4.0.4",
+    "@vitejs/plugin-react": "^4.2.0",
     "eslint": "^8.10.0",
     "prettier": "^2.7.1",
     "typescript": "^5.0.4",
-    "vite": "^4.4.8",
+    "vite": "^5.0.2",
     "vite-plugin-eslint": "^1.8.1",
-    "vite-plugin-externalize-deps": "^0.7.0",
-    "vitest": "^0.34.1"
+    "vitest": "^1.0.0-beta.5",
+    "jsdom": "^22.1.0"
   },
   "peerDependencies": {
     "react": "^18",
