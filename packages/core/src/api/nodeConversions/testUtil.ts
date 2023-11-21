@@ -58,23 +58,32 @@ export function partialBlockToBlockForTesting<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
->(partialBlock: PartialBlock<BSchema, I, S>): Block<BSchema, I, S> {
+>(
+  schema: BSchema,
+  partialBlock: PartialBlock<BSchema, I, S>
+): Block<BSchema, I, S> {
   const withDefaults: Block<BSchema, I, S> = {
     id: "",
-    type: "paragraph",
-    // because at this point we don't have an easy way to access default props at runtime,
-    // partialBlockToBlockForTesting will not set them.
+    type: partialBlock.type!,
     props: {} as any,
     content: [] as any,
     children: [] as any,
     ...partialBlock,
   };
 
+  Object.entries(schema[partialBlock.type!].propSchema).forEach(
+    ([propKey, propValue]) => {
+      if (withDefaults.props[propKey] === undefined) {
+        (withDefaults.props as any)[propKey] = propValue.default;
+      }
+    }
+  );
+
   return {
     ...withDefaults,
     content: partialContentToInlineContent(withDefaults.content),
     children: withDefaults.children.map((c) => {
-      return partialBlockToBlockForTesting(c);
+      return partialBlockToBlockForTesting(schema, c);
     }),
   } as any;
 }
