@@ -38,6 +38,9 @@ function styledTextToNodes<T extends StyleSchema>(
     if (!config) {
       throw new Error(`style ${style} not found in styleSchema`);
     }
+    if (style === "fontSize") {
+      debugger;
+    }
     if (config.propSchema === "boolean") {
       marks.push(schema.mark(style));
     } else if (config.propSchema === "string") {
@@ -318,6 +321,9 @@ function contentNodeToInlineContent<
       if (mark.type.name === "link") {
         linkMark = mark;
       } else {
+        if (mark.type.name === "fontSize") {
+          debugger;
+        }
         const config = styleSchema[mark.type.name];
         if (!config) {
           throw new Error(`style ${mark.type.name} not found in styleSchema`);

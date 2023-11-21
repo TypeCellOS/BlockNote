@@ -1,36 +1,61 @@
 import { Mark } from "@tiptap/core";
+import { UnreachableCaseError } from "../../../../shared/utils";
 import { StyleConfig, StyleSpec } from "./types";
 
-export type CustomStyleImplementation = {
-  render: () => {
-    dom: HTMLElement;
-    contentDOM?: HTMLElement;
-  };
-  // Exports block to external HTML. If not defined, the output will be the same
-  // as `render(...).dom`. Used to create clipboard data when pasting outside
-  // BlockNote.
-  // TODO: Maybe can return undefined to ignore when serializing?
-  // toExternalHTML?: (
-  //   block: BlockFromConfig<T, I, S>,
-  //   editor: BlockNoteEditor<BlockSchemaWithBlock<T["type"], T>, I, S>
-  // ) => {
-  //   dom: HTMLElement;
-  //   contentDOM?: HTMLElement;
-  // };
+export type CustomStyleImplementation<T extends StyleConfig> = {
+  render: T["propSchema"] extends "boolean"
+    ? () => {
+        dom: HTMLElement;
+        contentDOM?: HTMLElement;
+      }
+    : (value: string) => {
+        dom: HTMLElement;
+        contentDOM?: HTMLElement;
+      };
 };
 
 export function createStyleSpec<T extends StyleConfig>(
   styleConfig: T,
-  styleImplementation: CustomStyleImplementation
+  styleImplementation: CustomStyleImplementation<T>
 ): StyleSpec<T> {
   const mark = Mark.create({
     name: styleConfig.type,
-    renderHTML() {
-      const renderResult = styleImplementation.render();
+
+    addAttributes() {
+      if (styleConfig.propSchema === "boolean") {
+        return {};
+      }
       return {
-        dom: renderResult.dom,
-        contentDOM: renderResult.contentDOM,
+        stringValue: {
+          default: undefined,
+          // TODO: parsing
+
+          // parseHTML: (element) =>
+          //   element.getAttribute(`data-${styleConfig.type}`),
+          // renderHTML: (attributes) => ({
+          //   [`data-${styleConfig.type}`]: attributes.stringValue,
+          // }),
+        },
       };
+    },
+
+    renderHTML({ mark }) {
+      let renderResult: {
+        dom: HTMLElement;
+        contentDOM?: HTMLElement;
+      };
+
+      if (styleConfig.propSchema === "boolean") {
+        // @ts-ignore not sure why this is complaining
+        renderResult = styleImplementation.render();
+      } else if (styleConfig.propSchema === "string") {
+        renderResult = styleImplementation.render(mark.attrs.stringValue);
+      } else {
+        throw new UnreachableCaseError(styleConfig.propSchema);
+      }
+
+      // const renderResult = styleImplementation.render();
+      return renderResult;
     },
   });
 

@@ -28,9 +28,27 @@ const small = createStyleSpec(
   }
 );
 
+const fontSize = createStyleSpec(
+  {
+    type: "fontSize",
+    propSchema: "string",
+  },
+  {
+    render: (value) => {
+      const dom = document.createElement("span");
+      dom.setAttribute("style", "font-size: " + value);
+      return {
+        dom,
+        contentDOM: dom,
+      };
+    },
+  }
+);
+
 const customStyles = {
   ...defaultStyleSpecs,
   small,
+  fontSize,
 } satisfies StyleSpecs;
 
 export const customStylesTestCases: EditorTestCases<
@@ -40,8 +58,6 @@ export const customStylesTestCases: EditorTestCases<
 > = {
   name: "custom style schema",
   createEditor: () => {
-    // debugger;
-
     return BlockNoteEditor.create({
       uploadFile: uploadToTmpFilesDotOrg_DEV_ONLY,
       styleSpecs: customStyles,
@@ -59,6 +75,23 @@ export const customStylesTestCases: EditorTestCases<
               text: "This is a small text",
               styles: {
                 small: true,
+              },
+            },
+          ],
+        },
+      ],
+    },
+    {
+      name: "fontSize/basic",
+      blocks: [
+        {
+          type: "paragraph",
+          content: [
+            {
+              type: "text",
+              text: "This is text with a custom fontSize",
+              styles: {
+                fontSize: "18px",
               },
             },
           ],

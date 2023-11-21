@@ -22,6 +22,7 @@ import {
 } from "../../../extensions/Blocks/nodes/BlockContent/ImageBlockContent/ImageBlockContent";
 import { uploadToTmpFilesDotOrg_DEV_ONLY } from "../../../extensions/Blocks/nodes/BlockContent/ImageBlockContent/uploadToTmpFilesDotOrg_DEV_ONLY";
 import { EditorTestCases } from "../../testCases";
+import { customStylesTestCases } from "../../testCases/cases/customStyles";
 import { defaultSchemaTestCases } from "../../testCases/cases/defaultSchema";
 import { createExternalHTMLExporter } from "./externalHTMLExporter";
 import { createInternalHTMLSerializer } from "./internalHTMLSerializer";
@@ -329,7 +330,11 @@ function convertToHTMLAndCompareSnapshots<
   expect(externalHTML).toMatchFileSnapshot(externalHTMLSnapshotPath);
 }
 
-const testCases = [defaultSchemaTestCases, editorTestCases];
+const testCases = [
+  defaultSchemaTestCases,
+  editorTestCases,
+  customStylesTestCases,
+];
 
 describe("Test HTML conversion", () => {
   for (const testCase of testCases) {
