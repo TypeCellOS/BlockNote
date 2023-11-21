@@ -29,3 +29,7 @@ export * from "./shared/BaseUiElementTypes";
 export type { SuggestionItem } from "./shared/plugins/suggestion/SuggestionItem";
 export * from "./shared/plugins/suggestion/SuggestionPlugin";
 export * from "./shared/utils";
+// for testing from react (TODO: move):
+export * from "./api/nodeConversions/nodeConversions";
+export * from "./api/nodeConversions/testUtil";
+export * from "./extensions/UniqueID/UniqueID";
