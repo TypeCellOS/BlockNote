@@ -27,6 +27,9 @@ export const serializeNodeInner = <
   editor: BlockNoteEditor<BSchema, I, S>,
   toExternalHTML: boolean
 ) => {
+  if (!serializer.nodes[node.type.name]) {
+    throw new Error("Serializer is missing a node type: " + node.type.name);
+  }
   const { dom, contentDOM } = DOMSerializer.renderSpec(
     doc(options),
     serializer.nodes[node.type.name](node)

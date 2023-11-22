@@ -9,6 +9,7 @@ import {
   partialBlockToBlockForTesting,
 } from "@blocknote/core";
 import { customReactBlockSchemaTestCases } from "./testCases/customReactBlocks";
+import { customReactInlineContentTestCases } from "./testCases/customReactInlineContent";
 import { customReactStylesTestCases } from "./testCases/customReactStyles";
 
 function addIdsToBlock(block: PartialBlock<any, any, any>) {
@@ -48,7 +49,11 @@ function validateConversion(
   expect(outputBlock).toStrictEqual(fullOriginalBlock);
 }
 
-const testCases = [customReactBlockSchemaTestCases, customReactStylesTestCases];
+const testCases = [
+  customReactBlockSchemaTestCases,
+  customReactStylesTestCases,
+  customReactInlineContentTestCases,
+];
 
 describe("Test React BlockNote-Prosemirror conversion", () => {
   for (const testCase of testCases) {

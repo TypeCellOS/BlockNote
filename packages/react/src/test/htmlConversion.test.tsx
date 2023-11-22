@@ -13,6 +13,7 @@ import { flushSync } from "react-dom";
 import { createRoot } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { customReactBlockSchemaTestCases } from "./testCases/customReactBlocks";
+import { customReactInlineContentTestCases } from "./testCases/customReactInlineContent";
 import { customReactStylesTestCases } from "./testCases/customReactStyles";
 
 function convertToHTMLAndCompareSnapshots<
@@ -52,7 +53,11 @@ function convertToHTMLAndCompareSnapshots<
   expect(externalHTML).toMatchFileSnapshot(externalHTMLSnapshotPath);
 }
 
-const testCases = [customReactBlockSchemaTestCases, customReactStylesTestCases];
+const testCases = [
+  customReactBlockSchemaTestCases,
+  customReactStylesTestCases,
+  customReactInlineContentTestCases,
+];
 
 describe("Test React HTML conversion", () => {
   for (const testCase of testCases) {

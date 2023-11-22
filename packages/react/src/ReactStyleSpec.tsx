@@ -1,10 +1,6 @@
-import {
-  BlockNoteDOMAttributes,
-  createInternalStyleSpec,
-  StyleConfig,
-} from "@blocknote/core";
+import { createInternalStyleSpec, StyleConfig } from "@blocknote/core";
 import { Mark } from "@tiptap/react";
-import { createContext, FC } from "react";
+import { FC } from "react";
 import { flushSync } from "react-dom";
 import { createRoot } from "react-dom/client";
 
@@ -16,8 +12,6 @@ export type ReactCustomStyleImplementation<T extends StyleConfig> = {
     ? FC<{ contentRef: (el: HTMLElement | null) => void }>
     : FC<{ contentRef: (el: HTMLElement | null) => void; value: string }>;
 };
-
-const BlockNoteDOMAttributesContext = createContext<BlockNoteDOMAttributes>({});
 
 // A function to create custom block for API consumers
 // we want to hide the tiptap node from API consumers and provide a simpler API surface instead
@@ -67,9 +61,18 @@ export function createReactStyleSpec<T extends StyleConfig>(
         );
       });
 
+      // clone so we can unmount the react root
+      contentDOM?.setAttribute("data-tmp-find", "true");
+      const cloneRoot = div.cloneNode(true) as HTMLElement;
+      const dom = cloneRoot.firstElementChild! as HTMLElement;
+      const contentDOMClone = cloneRoot.querySelector("[data-tmp-find]");
+      contentDOMClone?.removeAttribute("data-tmp-find");
+
+      root.unmount();
+
       return {
-        dom: div.firstElementChild! as HTMLElement,
-        contentDOM,
+        dom,
+        contentDOM: contentDOMClone,
       };
     },
   });

@@ -47,7 +47,7 @@ export const customReactStylesTestCases: EditorTestCases<
   DefaultInlineContentSchema,
   StyleSchemaFromSpecs<typeof customReactStyles>
 > = {
-  name: "custom style schema",
+  name: "custom react style schema",
   createEditor: () => {
     return BlockNoteEditor.create({
       uploadFile: uploadToTmpFilesDotOrg_DEV_ONLY,

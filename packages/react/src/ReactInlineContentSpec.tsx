@@ -3,11 +3,19 @@ import {
   createStronglyTypedTiptapNode,
   InlineContentConfig,
   InlineContentFromConfig,
+  nodeToCustomInlineContent,
+  propsToAttributes,
   StyleSchema,
 } from "@blocknote/core";
-import { nodeToCustomInlineContent } from "@blocknote/core/src/api/nodeConversions/nodeConversions";
-import { NodeViewProps, ReactNodeViewRenderer } from "@tiptap/react";
+import {
+  NodeViewContent,
+  NodeViewProps,
+  ReactNodeViewRenderer,
+} from "@tiptap/react";
+// import { useReactNodeView } from "@tiptap/react/dist/packages/react/src/useReactNodeView";
 import { FC } from "react";
+import { flushSync } from "react-dom";
+import { createRoot } from "react-dom/client";
 
 // this file is mostly analogoues to `customBlocks.ts`, but for React blocks
 
@@ -19,6 +27,7 @@ export type ReactInlineContentImplementation<
 > = {
   render: FC<{
     inlineContent: InlineContentFromConfig<T, S>;
+    contentRef: (node: HTMLElement | null) => void;
   }>;
   // TODO?
   // toExternalHTML?: FC<{
@@ -43,13 +52,51 @@ export function createReactInlineContentSpec<
       ? "inline*"
       : "") as T["content"] extends "styled" ? "inline*" : "",
 
-    // addAttributes() {
-    //   return propsToAttributes(blockConfig);
-    // },
+    addAttributes() {
+      return propsToAttributes(inlineContentConfig.propSchema);
+    },
 
     // parseHTML() {
     //   return parse(blockConfig);
     // },
+
+    renderHTML({ node }) {
+      const editor = this.options.editor;
+
+      const ic = nodeToCustomInlineContent(
+        node,
+        editor.inlineContentSchema,
+        editor.styleSchema
+      ) as any as InlineContentFromConfig<T, S>; // TODO: fix cast
+
+      const Content = inlineContentImplementation.render;
+
+      let contentDOM: HTMLElement | undefined;
+      const div = document.createElement("div");
+      const root = createRoot(div);
+      flushSync(() => {
+        root.render(
+          <Content
+            inlineContent={ic}
+            contentRef={(el) => (contentDOM = el || undefined)}
+          />
+        );
+      });
+
+      // clone so we can unmount the react root
+      contentDOM?.setAttribute("data-tmp-find", "true");
+      const cloneRoot = div.cloneNode(true) as HTMLElement;
+      const dom = cloneRoot.firstElementChild! as HTMLElement;
+      const contentDOMClone = cloneRoot.querySelector("[data-tmp-find]");
+      contentDOMClone?.removeAttribute("data-tmp-find");
+
+      root.unmount();
+
+      return {
+        dom,
+        contentDOM: contentDOMClone,
+      };
+    },
 
     // TODO: needed?
     addNodeView() {
@@ -58,9 +105,14 @@ export function createReactInlineContentSpec<
       return (props) =>
         ReactNodeViewRenderer(
           (props: NodeViewProps) => {
+            // TODO
+            const test = NodeViewContent({});
+            debugger;
+            // const ctx = useReactNodeView();
             const Content = inlineContentImplementation.render;
             return (
               <Content
+                contentRef={{} as any}
                 inlineContent={
                   nodeToCustomInlineContent(
                     props.node,
