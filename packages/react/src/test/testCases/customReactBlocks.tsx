@@ -9,7 +9,7 @@ import {
   defaultProps,
   uploadToTmpFilesDotOrg_DEV_ONLY,
 } from "@blocknote/core";
-import { InlineContent, createReactBlockSpec } from "../ReactBlockSpec";
+import { InlineContent, createReactBlockSpec } from "../../ReactBlockSpec";
 
 const ReactCustomParagraph = createReactBlockSpec(
   {

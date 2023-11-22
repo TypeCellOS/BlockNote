@@ -331,3 +331,66 @@ exports[`Test React BlockNote-Prosemirror conversion > Case: custom react block 
   "type": "blockContainer",
 }
 `;
+
+exports[`Test React BlockNote-Prosemirror conversion > Case: custom style schema > Convert fontSize/basic to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "textAlignment": "left",
+      },
+      "content": [
+        {
+          "marks": [
+            {
+              "attrs": {
+                "stringValue": "18px",
+              },
+              "type": "fontSize",
+            },
+          ],
+          "text": "This is text with a custom fontSize",
+          "type": "text",
+        },
+      ],
+      "type": "paragraph",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test React BlockNote-Prosemirror conversion > Case: custom style schema > Convert small/basic to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "textAlignment": "left",
+      },
+      "content": [
+        {
+          "marks": [
+            {
+              "type": "small",
+            },
+          ],
+          "text": "This is a small text",
+          "type": "text",
+        },
+      ],
+      "type": "paragraph",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;

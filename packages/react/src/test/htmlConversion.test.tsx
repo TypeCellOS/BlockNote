@@ -9,8 +9,11 @@ import {
   createExternalHTMLExporter,
   createInternalHTMLSerializer,
 } from "@blocknote/core";
+import { flushSync } from "react-dom";
+import { createRoot } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { customReactBlockSchemaTestCases } from "./testCases/customReactBlocks.jsx";
+import { customReactBlockSchemaTestCases } from "./testCases/customReactBlocks";
+import { customReactStylesTestCases } from "./testCases/customReactStyles";
 
 function convertToHTMLAndCompareSnapshots<
   B extends BlockSchema,
@@ -49,7 +52,7 @@ function convertToHTMLAndCompareSnapshots<
   expect(externalHTML).toMatchFileSnapshot(externalHTMLSnapshotPath);
 }
 
-const testCases = [customReactBlockSchemaTestCases];
+const testCases = [customReactBlockSchemaTestCases, customReactStylesTestCases];
 
 describe("Test React HTML conversion", () => {
   for (const testCase of testCases) {
@@ -81,4 +84,15 @@ describe("Test React HTML conversion", () => {
       }
     });
   }
+});
+
+it("test react render", () => {
+  const div = document.createElement("div");
+  const root = createRoot(div);
+  function hello(el: HTMLElement | null) {
+    console.log("ELEMENT", el?.innerHTML);
+  }
+  flushSync(() => {
+    root.render(<div ref={hello}>sdf</div>);
+  });
 });
