@@ -411,12 +411,6 @@ export class SideMenuView<BSchema extends BlockSchema> implements PluginView {
     };
     const block = getDraggableBlockFromCoords(coords, this.pmView);
 
-    if (!block?.id) {
-      // temporary fix for a blank document using collaboration,
-      // in this case it can happen there's a block with no id
-      // TODO: fix root cause
-      return;
-    }
     // Closes the menu if the mouse cursor is beyond the editor vertically.
     if (!block || !this.editor.isEditable) {
       if (this.sideMenuState?.show) {
