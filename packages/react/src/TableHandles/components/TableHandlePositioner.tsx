@@ -1,23 +1,31 @@
 import {
   Block,
   BlockNoteEditor,
+  BlockSchema,
   BlockSchemaWithBlock,
   DefaultBlockSchema,
+  TableHandlesProsemirrorPlugin,
   TableHandlesState,
 } from "@blocknote/core";
 import Tippy, { tippy } from "@tippyjs/react";
 import { FC, useEffect, useMemo, useRef, useState } from "react";
 import { DefaultTableHandle } from "./DefaultTableHandle";
 
-export type TableHandlesProps = Omit<
-  TableHandlesState,
-  "referencePosLeft" | "referencePosTop" | "show"
-> & {
-  editor: BlockNoteEditor<
-    BlockSchemaWithBlock<"table", DefaultBlockSchema["table"]["config"]>
-  >;
-  side: "top" | "left";
-};
+export type TableHandlesProps<
+  BSchema extends BlockSchema = DefaultBlockSchema
+> = Pick<
+  TableHandlesProsemirrorPlugin<BSchema>,
+  "rowDragStart" | "colDragStart" | "dragEnd"
+> &
+  Omit<
+    TableHandlesState,
+    "referencePosCell" | "referencePosTable" | "show" | "isDragging"
+  > & {
+    editor: BlockNoteEditor<
+      BlockSchemaWithBlock<"table", DefaultBlockSchema["table"]["config"]>
+    >;
+    side: "top" | "left";
+  };
 
 export const TableHandlesPositioner = <
   BSchema extends BlockSchemaWithBlock<
@@ -33,47 +41,94 @@ export const TableHandlesPositioner = <
     useState<Block<DefaultBlockSchema["table"]["config"]>>();
   const [colIndex, setColIndex] = useState<number>();
   const [rowIndex, setRowIndex] = useState<number>();
+
+  const [draggedCellOrientation, setDraggedCellOrientation] = useState<
+    "row" | "col" | undefined
+  >(undefined);
+  const [mousePos, setMousePos] = useState<number | undefined>();
+
   const [_, setForceUpdate] = useState<number>(0);
 
-  const referencePosLeft = useRef<TableHandlesState["referencePosLeft"]>();
-  const referencePosTop = useRef<TableHandlesState["referencePosTop"]>();
+  const referencePosCell = useRef<DOMRect>();
+  const referencePosTable = useRef<DOMRect>();
 
   useEffect(() => {
     tippy.setDefaultProps({ maxWidth: "" });
 
     return props.editor.tableHandles.onUpdate((state) => {
-      console.log("update", state);
+      // console.log("update", state);
       setShow(state.show);
       setBlock(state.block);
       setColIndex(state.colIndex);
       setRowIndex(state.rowIndex);
+
+      if (state.isDragging) {
+        setDraggedCellOrientation(state.isDragging.draggedCellOrientation);
+        setMousePos(state.isDragging.mousePos);
+      } else {
+        setDraggedCellOrientation(undefined);
+        setMousePos(undefined);
+      }
+
       setForceUpdate(Math.random());
 
-      referencePosLeft.current = state.referencePosLeft;
-      referencePosTop.current = state.referencePosTop;
+      referencePosCell.current = state.referencePosCell;
+      referencePosTable.current = state.referencePosTable;
     });
   }, [props.editor]);
 
-  const getReferenceClientRectLeft = useMemo(
+  const getReferenceClientRectRow = useMemo(
     () => {
-      if (!referencePosLeft.current) {
+      if (!referencePosCell.current || !referencePosTable.current) {
         return undefined;
       }
+
+      if (draggedCellOrientation === "row") {
+        return () =>
+          new DOMRect(
+            referencePosTable.current!.x,
+            mousePos!,
+            referencePosTable.current!.width,
+            0
+          );
+      }
+
       return () =>
-        ({ ...referencePosLeft.current!, width: 0, height: 0 } as DOMRect);
+        new DOMRect(
+          referencePosTable.current!.x,
+          referencePosCell.current!.y,
+          referencePosTable.current!.width,
+          referencePosCell.current!.height
+        );
     },
-    [referencePosLeft.current] // eslint-disable-line
+    [referencePosTable.current, draggedCellOrientation, mousePos] // eslint-disable-line
   );
 
-  const getReferenceClientRectTop = useMemo(
+  const getReferenceClientRectColumn = useMemo(
     () => {
-      if (!referencePosTop.current) {
+      if (!referencePosCell.current || !referencePosTable.current) {
         return undefined;
       }
+
+      if (draggedCellOrientation === "col") {
+        return () =>
+          new DOMRect(
+            mousePos!,
+            referencePosTable.current!.y,
+            0,
+            referencePosTable.current!.height
+          );
+      }
+
       return () =>
-        ({ ...referencePosTop.current!, width: 0, height: 0 } as DOMRect);
+        new DOMRect(
+          referencePosCell.current!.x,
+          referencePosTable.current!.y,
+          referencePosCell.current!.width,
+          referencePosTable.current!.height
+        );
     },
-    [referencePosTop.current] // eslint-disable-line
+    [referencePosTable.current, draggedCellOrientation, mousePos] // eslint-disable-line
   );
 
   const tableHandleElementTop = useMemo(() => {
@@ -86,6 +141,9 @@ export const TableHandlesPositioner = <
         rowIndex={rowIndex!}
         colIndex={colIndex!}
         block={block!}
+        colDragStart={props.editor.tableHandles.colDragStart}
+        rowDragStart={props.editor.tableHandles.rowDragStart}
+        dragEnd={props.editor.tableHandles.dragEnd}
       />
     );
   }, [block, props.editor, props.tableHandle, rowIndex, colIndex]);
@@ -101,6 +159,9 @@ export const TableHandlesPositioner = <
         rowIndex={rowIndex!}
         colIndex={colIndex!}
         block={block!}
+        rowDragStart={props.editor.tableHandles.rowDragStart}
+        colDragStart={props.editor.tableHandles.colDragStart}
+        dragEnd={props.editor.tableHandles.dragEnd}
       />
     );
   }, [block, props.editor, props.tableHandle, rowIndex, colIndex]);
@@ -110,23 +171,28 @@ export const TableHandlesPositioner = <
       <Tippy
         appendTo={props.editor.domElement.parentElement!}
         content={tableHandleElementLeft}
-        getReferenceClientRect={getReferenceClientRectLeft}
+        getReferenceClientRect={getReferenceClientRectRow}
         interactive={true}
-        visible={show}
+        visible={show && draggedCellOrientation !== "col"}
         animation={"fade"}
         placement={"left"}
+        offset={rowOffset}
         zIndex={5000}
       />
       <Tippy
         appendTo={props.editor.domElement.parentElement!}
         content={tableHandleElementTop}
-        getReferenceClientRect={getReferenceClientRectTop}
+        getReferenceClientRect={getReferenceClientRectColumn}
         interactive={true}
-        visible={show}
+        visible={show && draggedCellOrientation !== "row"}
         animation={"fade"}
         placement={"top"}
+        offset={columnOffset}
         zIndex={5000}
       />
     </>
   );
 };
+
+const rowOffset: [number, number] = [0, -12];
+const columnOffset: [number, number] = [0, -12];

@@ -54,6 +54,13 @@ Tippy popups that are appended to document.body directly
   -moz-osx-font-smoothing: grayscale;
 }
 
+.bn-table-drop-cursor {
+  position: absolute;
+  z-index: 20;
+  background-color: #adf;
+  pointer-events: none;
+}
+
 .bn-drag-preview {
   position: absolute;
   left: -100000px;

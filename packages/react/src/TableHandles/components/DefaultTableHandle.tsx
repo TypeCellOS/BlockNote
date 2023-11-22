@@ -14,7 +14,10 @@ const DefaultTableHandleLeft = (props: TableHandlesProps) => {
 
       position={"right"}>
       <Menu.Target>
-        <div style={{ position: "relative", left: "24px" }}>
+        <div
+          draggable="true"
+          onDragStart={props.rowDragStart}
+          onDragEnd={props.dragEnd}>
           <SideMenuButton>
             <MdDragIndicator size={24} data-test={"dragHandle"} />
           </SideMenuButton>
@@ -88,7 +91,10 @@ const DefaultTableHandleTop = (props: TableHandlesProps) => {
 
       position={"bottom"}>
       <Menu.Target>
-        <div style={{ position: "relative", top: "24px" }}>
+        <div
+          draggable={"true"}
+          onDragStart={props.colDragStart}
+          onDragEnd={props.dragEnd}>
           <SideMenuButton>
             <MdDragIndicator
               size={24}
