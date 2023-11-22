@@ -26,7 +26,7 @@ export const useBlockNote = <BSchema extends BlockSchema = DefaultBlockSchema>(
   deps: DependencyList = []
 ): BlockNoteEditor<BSchema> => {
   const editorRef = useRef<BlockNoteEditor<BSchema>>();
-
+  console.log("USE");
   return useMemo(() => {
     if (editorRef.current) {
       editorRef.current._tiptapEditor.destroy();
