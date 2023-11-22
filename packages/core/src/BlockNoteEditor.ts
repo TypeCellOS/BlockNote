@@ -1,5 +1,5 @@
 import { Editor, EditorOptions, Extension } from "@tiptap/core";
-import { Node } from "prosemirror-model";
+import { Fragment, Node, Slice } from "prosemirror-model";
 // import "./blocknote.css";
 import { Editor as TiptapEditor } from "@tiptap/core/dist/packages/core/src/Editor";
 import * as Y from "yjs";
@@ -17,13 +17,11 @@ import {
 import { getNodeById } from "./api/util/nodeUtil";
 import {
   Block,
-  BlockIdentifier,
   BlockNoteDOMAttributes,
   BlockSchema,
   BlockSpecs,
   PartialBlock,
 } from "./extensions/Blocks/api/blocks/types";
-import { TextCursorPosition } from "./extensions/Blocks/api/cursorPositionTypes";
 import {
   DefaultBlockSchema,
   DefaultInlineContentSchema,
@@ -340,6 +338,7 @@ export class BlockNoteEditor<
     const tiptapOptions: Partial<EditorOptions> = {
       ...blockNoteTipTapOptions,
       ...newOptions._tiptapOptions,
+
       onBeforeCreate(editor) {
         newOptions._tiptapOptions?.onBeforeCreate?.(editor);
         if (!initialContent) {
@@ -417,6 +416,68 @@ export class BlockNoteEditor<
             newOptions.defaultStyles ? "bn-default-styles" : "",
             newOptions.domAttributes?.editor?.class || ""
           ),
+        },
+        handlePaste(view, event, slice) {
+          // debugger;
+        },
+        transformPasted(slice, view) {
+          let f = Fragment.from(slice.content);
+          for (let i = 0; i < f.childCount; i++) {
+            if (f.child(i).type.spec.group === "blockContent") {
+              const container = view.state.schema.nodes.blockContainer.create(
+                undefined,
+                f.child(i)
+              );
+              f = f.replaceChild(i, container);
+            }
+          }
+          // if (f.child(i).type.name === "blockGroup" && i > 0) {
+          //   debugger;
+          //   const nestedContainer =
+          //     view.state.schema.nodes.blockGroup.create();
+          //   f = f.replaceChild(
+          //     i - 1,
+          //     f
+          //       .child(i - 1)
+          //       .copy(
+          //         f
+          //           .child(i - 1)
+          //           .content.append(Fragment.from(nestedContainer))
+          //       )
+          //   );
+          // }
+          // }
+
+          // for (let i = 0; i < f.childCount - 1; i++) {
+          //   let parent = f.child(i);
+          //   if (parent.type.name === "blockContainer") {
+          //     if (f.child(i + 1).type.name === "blockGroup") {
+          //       if (parent.lastChild?.type.name !== "blockGroup") {
+          //         const blockGroup =
+          //           view.state.schema.nodes.blockGroup.create();
+          //         parent = parent.copy(
+          //           parent.content.append(Fragment.from(blockGroup))
+          //         );
+          //       }
+          //       parent = parent.copy(
+          //         parent.content.replaceChild(
+          //           parent.childCount - 1,
+          //           parent.lastChild!.copy(
+          //             parent.lastChild!.content.append(
+          //               Fragment.from(f.child(i + 1).content)
+          //             )
+          //           )
+          //         )
+          //       );
+          //       f = f.replaceChild(i, parent);
+          //     }
+          //   }
+          // }
+
+          debugger;
+          return new Slice(f, slice.openStart, slice.openEnd);
+          // return Slice.maxOpen(f);
+          // return slice;
         },
       },
     };

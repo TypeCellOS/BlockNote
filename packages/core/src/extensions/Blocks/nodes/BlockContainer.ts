@@ -65,6 +65,26 @@ export const BlockContainer = Node.create<{
 
   parseHTML() {
     return [
+      // {
+      //   // closeParent: true,
+      //   tag: "ul",
+      //   getAttrs: (element) => {
+      //     if (typeof element === "string") {
+      //       return false;
+      //     }
+
+      //     if (element.getAttribute("data-node-type") === "blockGroup") {
+      //       // Null means the element matches, but we don't want to add any attributes to the node.
+      //       return null;
+      //     }
+      //     if (element.parentElement?.tagName === "LI") {
+      //       return false;
+      //     }
+      //     // return null;
+
+      //     return false;
+      //   },
+      // },
       {
         tag: "div",
         getAttrs: (element) => {

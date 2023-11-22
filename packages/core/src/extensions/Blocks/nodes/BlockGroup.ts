@@ -8,12 +8,17 @@ export const BlockGroup = Node.create<{
   name: "blockGroup",
   group: "blockGroup",
   content: "blockContainer+",
-
+  defining: true,
   parseHTML() {
     return [
       {
-        tag: "div",
+        tag: "ul",
+        closeParent: true,
+        getContent: (element) => {
+          // create blockcontainer?
+        },
         getAttrs: (element) => {
+          debugger;
           if (typeof element === "string") {
             return false;
           }
@@ -22,6 +27,10 @@ export const BlockGroup = Node.create<{
             // Null means the element matches, but we don't want to add any attributes to the node.
             return null;
           }
+          if (element.parentElement?.tagName === "LI") {
+            return null;
+          }
+          // return null;
 
           return false;
         },
