@@ -36,7 +36,7 @@ const tag = createReactInlineContentSpec(
     render: (props) => {
       return (
         <span>
-          @<span ref={props.contentRef}></span>
+          #<span ref={props.contentRef}></span>
         </span>
       );
     },

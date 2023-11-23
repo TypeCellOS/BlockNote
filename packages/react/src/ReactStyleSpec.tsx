@@ -65,14 +65,15 @@ export function createReactStyleSpec<T extends StyleConfig>(
       contentDOM?.setAttribute("data-tmp-find", "true");
       const cloneRoot = div.cloneNode(true) as HTMLElement;
       const dom = cloneRoot.firstElementChild! as HTMLElement;
-      const contentDOMClone = cloneRoot.querySelector("[data-tmp-find]");
+      const contentDOMClone =
+        (cloneRoot.querySelector("[data-tmp-find]") as HTMLElement) || null;
       contentDOMClone?.removeAttribute("data-tmp-find");
 
       root.unmount();
 
       return {
         dom,
-        contentDOM: contentDOMClone,
+        contentDOM: contentDOMClone || undefined,
       };
     },
   });

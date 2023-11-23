@@ -10,6 +10,7 @@ import {
 import {
   NodeViewContent,
   NodeViewProps,
+  NodeViewWrapper,
   ReactNodeViewRenderer,
 } from "@tiptap/react";
 // import { useReactNodeView } from "@tiptap/react/dist/packages/react/src/useReactNodeView";
@@ -48,6 +49,7 @@ export function createReactInlineContentSpec<
 ) {
   const node = createStronglyTypedTiptapNode({
     name: inlineContentConfig.type as T["type"],
+    inline: true,
     content: (inlineContentConfig.content === "styled"
       ? "inline*"
       : "") as T["content"] extends "styled" ? "inline*" : "",
@@ -87,14 +89,16 @@ export function createReactInlineContentSpec<
       contentDOM?.setAttribute("data-tmp-find", "true");
       const cloneRoot = div.cloneNode(true) as HTMLElement;
       const dom = cloneRoot.firstElementChild! as HTMLElement;
-      const contentDOMClone = cloneRoot.querySelector("[data-tmp-find]");
+      const contentDOMClone = cloneRoot.querySelector(
+        "[data-tmp-find]"
+      ) as HTMLElement | null;
       contentDOMClone?.removeAttribute("data-tmp-find");
 
       root.unmount();
 
       return {
         dom,
-        contentDOM: contentDOMClone,
+        contentDOM: contentDOMClone || undefined,
       };
     },
 
@@ -105,26 +109,29 @@ export function createReactInlineContentSpec<
       return (props) =>
         ReactNodeViewRenderer(
           (props: NodeViewProps) => {
-            // TODO
-            const test = NodeViewContent({});
-            debugger;
-            // const ctx = useReactNodeView();
+            // hacky, should export `useReactNodeView` from tiptap to get access to ref
+            const ref = (NodeViewContent({}) as any).ref;
+
             const Content = inlineContentImplementation.render;
             return (
-              <Content
-                contentRef={{} as any}
-                inlineContent={
-                  nodeToCustomInlineContent(
-                    props.node,
-                    editor.inlineContentSchema,
-                    editor.styleSchema
-                  ) as any as InlineContentFromConfig<T, S> // TODO: fix cast
-                }
-              />
+              <NodeViewWrapper as="span">
+                <Content
+                  contentRef={ref}
+                  inlineContent={
+                    nodeToCustomInlineContent(
+                      props.node,
+                      editor.inlineContentSchema,
+                      editor.styleSchema
+                    ) as any as InlineContentFromConfig<T, S> // TODO: fix cast
+                  }
+                />
+              </NodeViewWrapper>
             );
           },
           {
-            className: "bn-react-node-view-renderer",
+            className: "bn-ic-react-node-view-renderer",
+            as: "span",
+            // contentDOMElementTag: "span", (requires tt upgrade)
           }
         )(props);
     },

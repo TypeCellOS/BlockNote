@@ -9,6 +9,8 @@ import {
 } from "react-router-dom";
 
 import { App } from "../examples/App";
+import { ReactInlineContent } from "../examples/ReactInlineContent";
+import { ReactStyles } from "../examples/ReactStyles";
 import { Two } from "../examples/Two";
 import "./style.css";
 window.React = React;
@@ -38,6 +40,12 @@ function Root() {
             </div>
             <div>
               <Link to={"/two"}>Two</Link>
+            </div>
+            <div>
+              <Link to={"/react-styles"}>React custom styles</Link>
+            </div>
+            <div>
+              <Link to={"/react-inline-content"}>React inline content</Link>
             </div>
             {/* manitne <NavLink
               styles={linkStyles}
@@ -84,6 +92,14 @@ const router = createBrowserRouter([
       {
         path: "two",
         element: <Two />,
+      },
+      {
+        path: "react-styles",
+        element: <ReactStyles />,
+      },
+      {
+        path: "react-inline-content",
+        element: <ReactInlineContent />,
       },
     ],
   },
