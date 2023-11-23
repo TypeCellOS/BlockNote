@@ -1,4 +1,3 @@
-// import logo from './logo.svg'
 import "@blocknote/core/style.css";
 import {
   BlockNoteView,
