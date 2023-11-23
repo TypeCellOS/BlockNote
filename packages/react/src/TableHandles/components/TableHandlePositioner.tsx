@@ -23,7 +23,7 @@ export type TableHandlesProps<
 > &
   Omit<
     TableHandlesState,
-    "referencePosCell" | "referencePosTable" | "show" | "isDragging"
+    "referencePosCell" | "referencePosTable" | "show" | "draggingState"
   > & {
     editor: BlockNoteEditor<
       BlockSchemaWithBlock<"table", DefaultBlockSchema["table"]["config"]>
@@ -70,9 +70,9 @@ export const TableHandlesPositioner = <
       setRowIndex(state.rowIndex);
       setColIndex(state.colIndex);
 
-      if (state.isDragging) {
-        setDraggedCellOrientation(state.isDragging.draggedCellOrientation);
-        setMousePos(state.isDragging.mousePos);
+      if (state.draggingState) {
+        setDraggedCellOrientation(state.draggingState.draggedCellOrientation);
+        setMousePos(state.draggingState.mousePos);
       } else {
         setDraggedCellOrientation(undefined);
         setMousePos(undefined);

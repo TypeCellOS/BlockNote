@@ -39,7 +39,7 @@ export type TableHandlesState = {
   colIndex: number;
   rowIndex: number;
 
-  isDragging:
+  draggingState:
     | {
         draggedCellOrientation: "row" | "col";
         mousePos: number;
@@ -171,7 +171,7 @@ export class TableHandlesView {
       colIndex: colIndex,
       rowIndex: rowIndex,
 
-      isDragging: undefined,
+      draggingState: undefined,
     };
     this.updateState();
 
@@ -179,7 +179,7 @@ export class TableHandlesView {
   };
 
   dragOverHandler = (event: DragEvent) => {
-    if (this.state?.isDragging === undefined) {
+    if (this.state?.draggingState === undefined) {
       return;
     }
 
@@ -229,11 +229,11 @@ export class TableHandlesView {
     // Checks if the drop cursor needs to be updated and updates it. This
     // affects decorations only so it doesn't trigger a state update.
     const oldIndex =
-      this.state.isDragging.draggedCellOrientation === "row"
+      this.state.draggingState.draggedCellOrientation === "row"
         ? this.state.rowIndex
         : this.state.colIndex;
     const newIndex =
-      this.state.isDragging.draggedCellOrientation === "row"
+      this.state.draggingState.draggedCellOrientation === "row"
         ? rowIndex
         : colIndex;
     if (oldIndex !== newIndex) {
@@ -258,11 +258,11 @@ export class TableHandlesView {
     // Checks if the mouse cursor position along the axis that the user is
     // dragging on has changed and updates it.
     const mousePos =
-      this.state.isDragging.draggedCellOrientation === "row"
+      this.state.draggingState.draggedCellOrientation === "row"
         ? boundedMouseCoords.top
         : boundedMouseCoords.left;
-    if (this.state.isDragging.mousePos !== mousePos) {
-      this.state.isDragging.mousePos = mousePos;
+    if (this.state.draggingState.mousePos !== mousePos) {
+      this.state.draggingState.mousePos = mousePos;
 
       emitStateUpdate = true;
     }
@@ -514,7 +514,7 @@ export class TableHandlesProsemirrorPlugin<
       );
     }
 
-    this.view!.state.isDragging = {
+    this.view!.state.draggingState = {
       draggedCellOrientation: "col",
       mousePos: event.clientX,
     };
@@ -523,7 +523,7 @@ export class TableHandlesProsemirrorPlugin<
     this.editor._tiptapEditor.view.dispatch(
       this.editor._tiptapEditor.state.tr.setMeta(tableHandlesPluginKey, {
         draggedCellOrientation:
-          this.view!.state.isDragging.draggedCellOrientation,
+          this.view!.state.draggingState.draggedCellOrientation,
         originalIndex: this.view!.state.colIndex,
         newIndex: this.view!.state.colIndex,
         tablePos: this.view!.tablePos,
@@ -549,7 +549,7 @@ export class TableHandlesProsemirrorPlugin<
       );
     }
 
-    this.view!.state.isDragging = {
+    this.view!.state.draggingState = {
       draggedCellOrientation: "row",
       mousePos: event.clientY,
     };
@@ -558,7 +558,7 @@ export class TableHandlesProsemirrorPlugin<
     this.editor._tiptapEditor.view.dispatch(
       this.editor._tiptapEditor.state.tr.setMeta(tableHandlesPluginKey, {
         draggedCellOrientation:
-          this.view!.state.isDragging.draggedCellOrientation,
+          this.view!.state.draggingState.draggedCellOrientation,
         originalIndex: this.view!.state.rowIndex,
         newIndex: this.view!.state.rowIndex,
         tablePos: this.view!.tablePos,
@@ -581,7 +581,7 @@ export class TableHandlesProsemirrorPlugin<
       );
     }
 
-    this.view!.state.isDragging = undefined;
+    this.view!.state.draggingState = undefined;
     this.view!.updateState();
 
     this.editor._tiptapEditor.view.dispatch(
