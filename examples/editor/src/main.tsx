@@ -11,9 +11,26 @@ import {
 import { App } from "../examples/Basic";
 import { ReactInlineContent } from "../examples/ReactInlineContent";
 import { ReactStyles } from "../examples/ReactStyles";
-import { Two } from "../examples/Two";
 import "./style.css";
 window.React = React;
+
+const editors = [
+  {
+    title: "Basic",
+    path: "/simple",
+    component: App,
+  },
+  {
+    title: "React custom styles",
+    path: "/react-styles",
+    component: ReactStyles,
+  },
+  {
+    title: "React inline content",
+    path: "/react-inline-content",
+    component: ReactInlineContent,
+  },
+];
 
 function Root() {
   // const linkStyles = (theme) => ({
@@ -35,18 +52,12 @@ function Root() {
       navbar={
         <Navbar width={{ base: 300 }} style={{ background: "#f7f7f5" }} p="xs">
           <Navbar.Section grow component={ScrollArea} mx="-xs" px="xs">
-            <div>
-              <Link to={"/simple"}>Simple</Link>
-            </div>
-            <div>
-              <Link to={"/two"}>Two</Link>
-            </div>
-            <div>
-              <Link to={"/react-styles"}>React custom styles</Link>
-            </div>
-            <div>
-              <Link to={"/react-inline-content"}>React inline content</Link>
-            </div>
+            {editors.map((editor, i) => (
+              <div key={i}>
+                <Link to={editor.path}>{editor.title}</Link>
+              </div>
+            ))}
+
             {/* manitne <NavLink
               styles={linkStyles}
               label="Simple"
@@ -84,24 +95,10 @@ const router = createBrowserRouter([
   {
     path: "/",
     element: <Root />,
-    children: [
-      {
-        path: "simple",
-        element: <App key="simple" />,
-      },
-      {
-        path: "two",
-        element: <Two />,
-      },
-      {
-        path: "react-styles",
-        element: <ReactStyles key="simple1" />,
-      },
-      {
-        path: "react-inline-content",
-        element: <ReactInlineContent key="simple2" />,
-      },
-    ],
+    children: editors.map((editor) => ({
+      path: editor.path,
+      element: <editor.component />,
+    })),
   },
 ]);
 
