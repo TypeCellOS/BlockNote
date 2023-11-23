@@ -256,15 +256,7 @@ export class BlockNoteEditor<
     private readonly options: Partial<BlockNoteEditorOptions<any, any, any>>
   ) {
     // apply defaults
-    const newOptions: Omit<
-      typeof options,
-      "defaultStyles" | "blockSpecs" | "styleSpecs" | "inlineContentSpecs"
-    > & {
-      defaultStyles: boolean;
-      blockSpecs: BlockSpecs;
-      inlineContentSpecs: InlineContentSpecs;
-      styleSpecs: StyleSpecs;
-    } = {
+    const newOptions = {
       defaultStyles: true,
       blockSpecs: options.blockSpecs || defaultBlockSpecs,
       styleSpecs: options.styleSpecs || defaultStyleSpecs,
@@ -273,11 +265,14 @@ export class BlockNoteEditor<
       ...options,
     };
 
-    this.blockSchema = getBlockSchemaFromSpecs(newOptions.blockSpecs) as any;
+    this.blockSchema = getBlockSchemaFromSpecs(newOptions.blockSpecs);
     this.inlineContentSchema = getInlineContentSchemaFromSpecs(
       newOptions.inlineContentSpecs
-    ) as any;
-    this.styleSchema = getStyleSchemaFromSpecs(newOptions.styleSpecs) as any;
+    );
+    this.styleSchema = getStyleSchemaFromSpecs(newOptions.styleSpecs);
+    this.blockImplementations = newOptions.blockSpecs;
+    this.inlineContentImplementations = newOptions.inlineContentSpecs;
+    this.styleImplementations = newOptions.styleSpecs;
 
     this.sideMenu = new SideMenuProsemirrorPlugin(this);
     this.formattingToolbar = new FormattingToolbarProsemirrorPlugin(this);
@@ -318,10 +313,6 @@ export class BlockNoteEditor<
       },
     });
     extensions.push(blockNoteUIExtension);
-
-    this.blockImplementations = newOptions.blockSpecs;
-    this.inlineContentImplementations = newOptions.inlineContentSpecs;
-    this.styleImplementations = newOptions.styleSpecs;
 
     this.uploadFile = newOptions.uploadFile;
 

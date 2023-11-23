@@ -70,10 +70,6 @@ export const getDefaultSlashMenuItems = <
   I extends InlineContentSchema,
   S extends StyleSchema
 >(
-  // This type casting is weird, but it's the best way of doing it, as it allows
-  // the schema type to be automatically inferred if it is defined, or be
-  // inferred as any if it is not defined. I don't think it's possible to make it
-  // infer to DefaultBlockSchema if it is not defined.
   schema: BSchema
 ) => {
   const slashMenuItems: BaseSlashMenuItem<BSchema, I, S>[] = [];
@@ -126,7 +122,7 @@ export const getDefaultSlashMenuItems = <
       execute: (editor) =>
         insertOrUpdateBlock(editor, {
           type: "bulletListItem",
-        } as PartialBlock<BSchema, I, S>),
+        }),
     });
   }
 
@@ -137,7 +133,7 @@ export const getDefaultSlashMenuItems = <
       execute: (editor) =>
         insertOrUpdateBlock(editor, {
           type: "numberedListItem",
-        } as PartialBlock<BSchema, I, S>),
+        }),
     });
   }
 
@@ -148,7 +144,7 @@ export const getDefaultSlashMenuItems = <
       execute: (editor) =>
         insertOrUpdateBlock(editor, {
           type: "paragraph",
-        } as PartialBlock<BSchema, I, S>),
+        }),
     });
   }
 
@@ -197,7 +193,7 @@ export const getDefaultSlashMenuItems = <
       execute: (editor) => {
         const insertedBlock = insertOrUpdateBlock(editor, {
           type: "image",
-        } as PartialBlock<BSchema, I, S>);
+        });
 
         // Immediately open the image toolbar
         editor._tiptapEditor.view.dispatch(
