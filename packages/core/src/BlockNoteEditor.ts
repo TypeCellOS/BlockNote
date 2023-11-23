@@ -247,13 +247,20 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
         // This is a hack to make "initial content detection" by y-prosemirror (and also tiptap isEmpty)
         // properly detect whether or not the document has changed.
         // We change the doc.createAndFill function to make sure the initial block id is set, instead of null
+        let cache: any;
         const oldCreateAndFill = schema.nodes.doc.createAndFill;
         (schema.nodes.doc as any).createAndFill = (...args: any) => {
+          if (cache) {
+            return cache;
+          }
           const ret = oldCreateAndFill.apply(schema.nodes.doc, args);
-          const jsonNode = ret!.toJSON();
+
+          // create a copy that we can mutate (otherwise, assigning attrs is not safe and corrupts the pm state)
+          const jsonNode = JSON.parse(JSON.stringify(ret!.toJSON()));
           jsonNode.content[0].content[0].attrs.id = "initialBlockId";
 
-          return Node.fromJSON(schema, jsonNode);
+          cache = Node.fromJSON(schema, jsonNode);
+          return ret;
         };
 
         const root = schema.node(
