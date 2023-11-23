@@ -1,7 +1,6 @@
 import { Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
 import {
-  BaseUiElementCallbacks,
   BlockNoteEditor,
   BlockSchema,
   getDraggableBlockFromCoords,
@@ -10,7 +9,26 @@ import { EventEmitter } from "../../shared/EventEmitter";
 import { Block } from "../Blocks/api/blockTypes";
 import { Table } from "../Blocks/nodes/BlockContent/TableBlockContent/TableBlockContent";
 import { nodeToBlock } from "../../api/nodeConversions/nodeConversions";
-export type TableHandlesCallbacks = BaseUiElementCallbacks;
+
+let dragImageElement: HTMLElement | undefined;
+
+function setHiddenDragImage() {
+  if (dragImageElement) {
+    return;
+  }
+
+  dragImageElement = document.createElement("div");
+  dragImageElement.innerHTML = "_";
+  dragImageElement.style.visibility = "hidden";
+  document.body.appendChild(dragImageElement);
+}
+
+function unsetHiddenDragImage() {
+  if (dragImageElement) {
+    document.body.removeChild(dragImageElement);
+    dragImageElement = undefined;
+  }
+}
 
 export type TableHandlesState = {
   show: boolean;
@@ -29,18 +47,18 @@ export type TableHandlesState = {
     | undefined;
 };
 
-function getChildIndex(node: HTMLElement) {
+function getChildIndex(node: Element) {
   return Array.prototype.indexOf.call(node.parentElement!.childNodes, node);
 }
 
 // Finds the DOM element corresponding to the table cell that the target element
 // is currently in. If the target element is not in a table cell, returns null.
-function domCellAround(target: HTMLElement | null): HTMLElement | null {
+function domCellAround(target: Element | null): Element | null {
   while (target && target.nodeName !== "TD" && target.nodeName !== "TH") {
     target =
       target.classList && target.classList.contains("ProseMirror")
         ? null
-        : (target.parentNode as HTMLElement);
+        : (target.parentNode as Element);
   }
   return target;
 }
@@ -88,6 +106,10 @@ export class TableHandlesView {
   }
 
   mouseMoveHandler = (event: MouseEvent) => {
+    if (this.menuFrozen) {
+      return;
+    }
+
     const target = domCellAround(event.target as HTMLElement);
 
     if (!target) {
@@ -161,84 +183,93 @@ export class TableHandlesView {
       return;
     }
 
+    event.preventDefault();
+    event.dataTransfer!.dropEffect = "move";
+
     hideElementsWithClassNames([
       "column-resize-handle",
       "prosemirror-dropcursor-block",
       "prosemirror-dropcursor-inline",
     ]);
 
-    // The mouse coordinates, bounded to the table's bounding box.
+    // The mouse cursor coordinates, bounded to the table's bounding box. The
+    // bounding box is shrunk by 1px on each side to ensure that the bounded
+    // coordinates are always inside a table cell.
     const boundedMouseCoords = {
       left: Math.min(
-        Math.max(event.clientX, this.state.referencePosTable.left),
-        this.state.referencePosTable.right
+        Math.max(event.clientX, this.state.referencePosTable.left + 1),
+        this.state.referencePosTable.right - 1
       ),
       top: Math.min(
-        Math.max(event.clientY, this.state.referencePosTable.top),
-        this.state.referencePosTable.bottom
+        Math.max(event.clientY, this.state.referencePosTable.top + 1),
+        this.state.referencePosTable.bottom - 1
       ),
     };
-    const mousePos =
-      this.state.isDragging.draggedCellOrientation === "row"
-        ? boundedMouseCoords.top
-        : boundedMouseCoords.left;
 
-    // Gets the ProseMirror position corresponding to the projected mouse
-    // coordinates.
-    let proseMirrorPos = this.pmView.posAtCoords(boundedMouseCoords)!.pos;
-    let resolvedPos = this.pmView.state.doc.resolve(proseMirrorPos);
-
-    // Gets the ProseMirror node type at `proseMirrorPos`. This node will always
-    // be either a `tableParagraph` or `tableCell`.
-    let nodeType = resolvedPos.node().type.name;
-
-    // If the node type is `tableParagraph`, we need to get a position in its
-    // parent node (the `tableCell`). We use `before()` to get this position.
-    if (nodeType === "tableParagraph") {
-      proseMirrorPos = resolvedPos.before();
-      resolvedPos = this.pmView.state.doc.resolve(proseMirrorPos);
-      nodeType = resolvedPos.node().type.name;
+    // Gets the table cell element that the bounded mouse cursor coordinates lie
+    // in.
+    const tableCellElements = document
+      .elementsFromPoint(boundedMouseCoords.left, boundedMouseCoords.top)
+      .filter(
+        (element) => element.tagName === "TD" || element.tagName === "TH"
+      );
+    if (tableCellElements.length === 0) {
+      throw new Error(
+        "Could not find table cell element that the mouse cursor is hovering over."
+      );
     }
+    const tableCellElement = tableCellElements[0];
 
-    // Finally, we get the row/column index corresponding to the mouse position.
-    const rowIndex = resolvedPos.index(resolvedPos.depth - 2);
-    const colIndex = resolvedPos.index(resolvedPos.depth - 1);
+    let emitStateUpdate = false;
+
+    // Gets current row and column index.
+    const rowIndex = getChildIndex(tableCellElement.parentElement!);
+    const colIndex = getChildIndex(tableCellElement);
+
+    // Checks if the drop cursor needs to be updated and updates it. This
+    // affects decorations only so it doesn't trigger a state update.
+    const oldIndex =
+      this.state.isDragging.draggedCellOrientation === "row"
+        ? this.state.rowIndex
+        : this.state.colIndex;
     const newIndex =
       this.state.isDragging.draggedCellOrientation === "row"
         ? rowIndex
         : colIndex;
-
-    const referencePosCell = (
-      this.pmView.nodeDOM(resolvedPos.before()) as HTMLElement
-    ).getBoundingClientRect();
-
-    // Since `dragOver` events continually fire, we want to make sure that
-    // updates only trigger when the fields actually change.
-    const needsUpdate =
-      this.state.rowIndex !== rowIndex ||
-      this.state.colIndex !== colIndex ||
-      this.state.isDragging.mousePos !== mousePos;
-
-    if (needsUpdate) {
-      // TODO: This should always be `tableCell`, but sometimes it's `table`.
-      //  This happens in the topmost and leftmost cells, in the gap between the
-      //  text and the edge of the table. This is a bit of a hack to prevent it
-      //  from making the reference DOMRect incorrect.
-      if (nodeType === "tableCell") {
-        this.state.referencePosCell = referencePosCell;
-      }
-      this.state.rowIndex = rowIndex;
-      this.state.colIndex = colIndex;
-
-      this.state.isDragging.mousePos = mousePos;
-
-      this.updateState();
-
+    if (oldIndex !== newIndex) {
       this.pmView.dispatch(
         this.pmView.state.tr.setMeta(tableHandlesPluginKey, {
           newIndex: newIndex,
         })
       );
+    }
+
+    // Checks if either the hovered cell has changed and updates the row and
+    // column index. Also updates the reference DOMRect.
+    if (this.state.rowIndex !== rowIndex || this.state.colIndex !== colIndex) {
+      this.state.rowIndex = rowIndex;
+      this.state.colIndex = colIndex;
+
+      this.state.referencePosCell = tableCellElement.getBoundingClientRect();
+
+      emitStateUpdate = true;
+    }
+
+    // Checks if the mouse cursor position along the axis that the user is
+    // dragging on has changed and updates it.
+    const mousePos =
+      this.state.isDragging.draggedCellOrientation === "row"
+        ? boundedMouseCoords.top
+        : boundedMouseCoords.left;
+    if (this.state.isDragging.mousePos !== mousePos) {
+      this.state.isDragging.mousePos = mousePos;
+
+      emitStateUpdate = true;
+    }
+
+    // Emits a state update if any of the fields have changed.
+    if (emitStateUpdate) {
+      this.updateState();
     }
   };
 
@@ -484,6 +515,10 @@ export class TableHandlesProsemirrorPlugin<
         tablePos: this.view!.tablePos,
       })
     );
+
+    setHiddenDragImage();
+    event.dataTransfer!.setDragImage(dragImageElement!, 0, 0);
+    event.dataTransfer!.effectAllowed = "move";
   };
 
   rowDragStart = (event: {
@@ -511,6 +546,10 @@ export class TableHandlesProsemirrorPlugin<
         tablePos: this.view!.tablePos,
       })
     );
+
+    setHiddenDragImage();
+    event.dataTransfer!.setDragImage(dragImageElement!, 0, 0);
+    event.dataTransfer!.effectAllowed = "copyMove";
   };
 
   dragEnd = () => {
@@ -526,18 +565,11 @@ export class TableHandlesProsemirrorPlugin<
     this.editor._tiptapEditor.view.dispatch(
       this.editor._tiptapEditor.state.tr.setMeta(tableHandlesPluginKey, null)
     );
+
+    unsetHiddenDragImage();
   };
 
-  // /**
-  //  * Freezes the side menu. When frozen, the side menu will stay
-  //  * attached to the same block regardless of which block is hovered by the
-  //  * mouse cursor.
-  //  */
-  // freezeMenu = () => (this.sideMenuView!.menuFrozen = true);
-  // /**
-  //  * Unfreezes the side menu. When frozen, the side menu will stay
-  //  * attached to the same block regardless of which block is hovered by the
-  //  * mouse cursor.
-  //  */
-  // unfreezeMenu = () => (this.sideMenuView!.menuFrozen = false);
+  freezeMenu = () => (this.view!.menuFrozen = true);
+
+  unfreezeMenu = () => (this.view!.menuFrozen = false);
 }

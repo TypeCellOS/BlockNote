@@ -15,7 +15,7 @@ export type TableHandlesProps<
   BSchema extends BlockSchema = DefaultBlockSchema
 > = Pick<
   TableHandlesProsemirrorPlugin<BSchema>,
-  "rowDragStart" | "colDragStart" | "dragEnd"
+  "rowDragStart" | "colDragStart" | "dragEnd" | "freezeMenu" | "unfreezeMenu"
 > &
   Omit<
     TableHandlesState,
@@ -25,6 +25,8 @@ export type TableHandlesProps<
       BlockSchemaWithBlock<"table", DefaultBlockSchema["table"]["config"]>
     >;
     side: "top" | "left";
+    showOtherSide: () => void;
+    hideOtherSide: () => void;
   };
 
 export const TableHandlesPositioner = <
@@ -37,10 +39,12 @@ export const TableHandlesPositioner = <
   tableHandle?: FC<TableHandlesProps>;
 }) => {
   const [show, setShow] = useState<boolean>(false);
+  const [hideRow, setHideRow] = useState<boolean>(false);
+  const [hideCol, setHideCol] = useState<boolean>(false);
   const [block, setBlock] =
     useState<Block<DefaultBlockSchema["table"]["config"]>>();
-  const [colIndex, setColIndex] = useState<number>();
   const [rowIndex, setRowIndex] = useState<number>();
+  const [colIndex, setColIndex] = useState<number>();
 
   const [draggedCellOrientation, setDraggedCellOrientation] = useState<
     "row" | "col" | undefined
@@ -59,8 +63,8 @@ export const TableHandlesPositioner = <
       // console.log("update", state);
       setShow(state.show);
       setBlock(state.block);
-      setColIndex(state.colIndex);
       setRowIndex(state.rowIndex);
+      setColIndex(state.colIndex);
 
       if (state.isDragging) {
         setDraggedCellOrientation(state.isDragging.draggedCellOrientation);
@@ -141,9 +145,13 @@ export const TableHandlesPositioner = <
         rowIndex={rowIndex!}
         colIndex={colIndex!}
         block={block!}
-        colDragStart={props.editor.tableHandles.colDragStart}
         rowDragStart={props.editor.tableHandles.rowDragStart}
+        colDragStart={props.editor.tableHandles.colDragStart}
         dragEnd={props.editor.tableHandles.dragEnd}
+        freezeMenu={props.editor.tableHandles.freezeMenu}
+        unfreezeMenu={props.editor.tableHandles.unfreezeMenu}
+        showOtherSide={() => setHideRow(false)}
+        hideOtherSide={() => setHideRow(true)}
       />
     );
   }, [block, props.editor, props.tableHandle, rowIndex, colIndex]);
@@ -162,6 +170,10 @@ export const TableHandlesPositioner = <
         rowDragStart={props.editor.tableHandles.rowDragStart}
         colDragStart={props.editor.tableHandles.colDragStart}
         dragEnd={props.editor.tableHandles.dragEnd}
+        freezeMenu={props.editor.tableHandles.freezeMenu}
+        unfreezeMenu={props.editor.tableHandles.unfreezeMenu}
+        showOtherSide={() => setHideCol(false)}
+        hideOtherSide={() => setHideCol(true)}
       />
     );
   }, [block, props.editor, props.tableHandle, rowIndex, colIndex]);
@@ -173,22 +185,22 @@ export const TableHandlesPositioner = <
         content={tableHandleElementLeft}
         getReferenceClientRect={getReferenceClientRectRow}
         interactive={true}
-        visible={show && draggedCellOrientation !== "col"}
+        visible={show && draggedCellOrientation !== "col" && !hideRow}
         animation={"fade"}
         placement={"left"}
         offset={rowOffset}
-        zIndex={5000}
+        zIndex={1000}
       />
       <Tippy
         appendTo={props.editor.domElement.parentElement!}
         content={tableHandleElementTop}
         getReferenceClientRect={getReferenceClientRectColumn}
         interactive={true}
-        visible={show && draggedCellOrientation !== "row"}
+        visible={show && draggedCellOrientation !== "row" && !hideCol}
         animation={"fade"}
         placement={"top"}
         offset={columnOffset}
-        zIndex={5000}
+        zIndex={1000}
       />
     </>
   );

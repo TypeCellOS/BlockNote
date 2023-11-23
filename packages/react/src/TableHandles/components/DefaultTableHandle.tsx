@@ -9,9 +9,14 @@ const DefaultTableHandleLeft = (props: TableHandlesProps) => {
   return (
     <Menu
       trigger={"click"}
-      // onOpen={props.freezeMenu}
-      // onClose={props.unfreezeMenu}
-
+      onOpen={() => {
+        props.freezeMenu();
+        props.hideOtherSide();
+      }}
+      onClose={() => {
+        props.unfreezeMenu();
+        props.showOtherSide();
+      }}
       position={"right"}>
       <Menu.Target>
         <div
@@ -86,9 +91,14 @@ const DefaultTableHandleTop = (props: TableHandlesProps) => {
   return (
     <Menu
       trigger={"click"}
-      // onOpen={props.freezeMenu}
-      // onClose={props.unfreezeMenu}
-
+      onOpen={() => {
+        props.freezeMenu();
+        props.hideOtherSide();
+      }}
+      onClose={() => {
+        props.unfreezeMenu();
+        props.showOtherSide();
+      }}
       position={"bottom"}>
       <Menu.Target>
         <div
