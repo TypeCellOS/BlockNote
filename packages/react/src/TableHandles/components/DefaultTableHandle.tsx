@@ -10,11 +10,11 @@ const DefaultTableHandleLeft = (props: TableHandlesProps) => {
     <Menu
       trigger={"click"}
       onOpen={() => {
-        props.freezeMenu();
+        props.freezeHandles();
         props.hideOtherSide();
       }}
       onClose={() => {
-        props.unfreezeMenu();
+        props.unfreezeHandles();
         props.showOtherSide();
       }}
       position={"right"}>
@@ -92,11 +92,11 @@ const DefaultTableHandleTop = (props: TableHandlesProps) => {
     <Menu
       trigger={"click"}
       onOpen={() => {
-        props.freezeMenu();
+        props.freezeHandles();
         props.hideOtherSide();
       }}
       onClose={() => {
-        props.unfreezeMenu();
+        props.unfreezeHandles();
         props.showOtherSide();
       }}
       position={"bottom"}>

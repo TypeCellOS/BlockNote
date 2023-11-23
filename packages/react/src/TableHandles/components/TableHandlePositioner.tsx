@@ -15,7 +15,11 @@ export type TableHandlesProps<
   BSchema extends BlockSchema = DefaultBlockSchema
 > = Pick<
   TableHandlesProsemirrorPlugin<BSchema>,
-  "rowDragStart" | "colDragStart" | "dragEnd" | "freezeMenu" | "unfreezeMenu"
+  | "rowDragStart"
+  | "colDragStart"
+  | "dragEnd"
+  | "freezeHandles"
+  | "unfreezeHandles"
 > &
   Omit<
     TableHandlesState,
@@ -148,8 +152,8 @@ export const TableHandlesPositioner = <
         rowDragStart={props.editor.tableHandles.rowDragStart}
         colDragStart={props.editor.tableHandles.colDragStart}
         dragEnd={props.editor.tableHandles.dragEnd}
-        freezeMenu={props.editor.tableHandles.freezeMenu}
-        unfreezeMenu={props.editor.tableHandles.unfreezeMenu}
+        freezeHandles={props.editor.tableHandles.freezeHandles}
+        unfreezeHandles={props.editor.tableHandles.unfreezeHandles}
         showOtherSide={() => setHideRow(false)}
         hideOtherSide={() => setHideRow(true)}
       />
@@ -170,8 +174,8 @@ export const TableHandlesPositioner = <
         rowDragStart={props.editor.tableHandles.rowDragStart}
         colDragStart={props.editor.tableHandles.colDragStart}
         dragEnd={props.editor.tableHandles.dragEnd}
-        freezeMenu={props.editor.tableHandles.freezeMenu}
-        unfreezeMenu={props.editor.tableHandles.unfreezeMenu}
+        freezeHandles={props.editor.tableHandles.freezeHandles}
+        unfreezeHandles={props.editor.tableHandles.unfreezeHandles}
         showOtherSide={() => setHideCol(false)}
         hideOtherSide={() => setHideCol(true)}
       />

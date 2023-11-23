@@ -399,6 +399,11 @@ export class TableHandlesProsemirrorPlugin<
                   widget.className = "bn-table-drop-cursor";
                   widget.style.left = "0";
                   widget.style.right = "0";
+                  // This is only necessary because the drop indicator's height
+                  // is an even number of pixels, whereas the border between
+                  // table cells is an odd number of pixels. So this makes the
+                  // positioning slightly more consistent regardless of where
+                  // the row is being dropped.
                   if (pluginState.newIndex > pluginState.originalIndex) {
                     widget.style.bottom = "-2px";
                   } else {
@@ -439,6 +444,11 @@ export class TableHandlesProsemirrorPlugin<
                   widget.className = "bn-table-drop-cursor";
                   widget.style.top = "0";
                   widget.style.bottom = "0";
+                  // This is only necessary because the drop indicator's width
+                  // is an even number of pixels, whereas the border between
+                  // table cells is an odd number of pixels. So this makes the
+                  // positioning slightly more consistent regardless of where
+                  // the column is being dropped.
                   if (pluginState.newIndex > pluginState.originalIndex) {
                     widget.style.right = "-2px";
                   } else {
@@ -490,6 +500,10 @@ export class TableHandlesProsemirrorPlugin<
     return this.on("update", callback);
   }
 
+  /**
+   * Callback that should be set on the `dragStart` event for whichever element
+   * is used as the column drag handle.
+   */
   colDragStart = (event: {
     dataTransfer: DataTransfer | null;
     clientX: number;
@@ -521,6 +535,10 @@ export class TableHandlesProsemirrorPlugin<
     event.dataTransfer!.effectAllowed = "move";
   };
 
+  /**
+   * Callback that should be set on the `dragStart` event for whichever element
+   * is used as the row drag handle.
+   */
   rowDragStart = (event: {
     dataTransfer: DataTransfer | null;
     clientY: number;
@@ -552,6 +570,10 @@ export class TableHandlesProsemirrorPlugin<
     event.dataTransfer!.effectAllowed = "copyMove";
   };
 
+  /**
+   * Callback that should be set on the `dragEnd` event for both the element
+   * used as the row drag handle, and the one used as the column drag handle.
+   */
   dragEnd = () => {
     if (this.view!.state === undefined) {
       throw new Error(
@@ -569,7 +591,15 @@ export class TableHandlesProsemirrorPlugin<
     unsetHiddenDragImage();
   };
 
-  freezeMenu = () => (this.view!.menuFrozen = true);
+  /**
+   * Freezes the drag handles. When frozen, they will stay attached to the same
+   * cell regardless of which cell is hovered by the mouse cursor.
+   */
+  freezeHandles = () => (this.view!.menuFrozen = true);
 
-  unfreezeMenu = () => (this.view!.menuFrozen = false);
+  /**
+   * Unfreezes the drag handles. When frozen, they will stay attached to the
+   * same cell regardless of which cell is hovered by the mouse cursor.
+   */
+  unfreezeHandles = () => (this.view!.menuFrozen = false);
 }
