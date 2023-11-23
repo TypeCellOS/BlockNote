@@ -47,6 +47,7 @@ export function createInlineContentSpec<
   const node = Node.create({
     name: inlineContentConfig.type,
     inline: true,
+    group: "inline",
     content:
       inlineContentConfig.content === "styled"
         ? "inline*"

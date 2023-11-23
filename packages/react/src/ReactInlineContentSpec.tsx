@@ -50,6 +50,7 @@ export function createReactInlineContentSpec<
   const node = createStronglyTypedTiptapNode({
     name: inlineContentConfig.type as T["type"],
     inline: true,
+    group: "inline",
     content: (inlineContentConfig.content === "styled"
       ? "inline*"
       : "") as T["content"] extends "styled" ? "inline*" : "",
