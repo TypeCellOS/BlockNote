@@ -41,7 +41,7 @@ function App() {
   const editor = useBlockNote({
     onEditorContentChange: (editor) => {
       // Log the document to console on every update
-      console.log(editor.getJSON());
+      console.log(editor._tiptapEditor.getJSON());
     },
   });
 
