@@ -48,9 +48,6 @@ export function ReactInlineContent() {
       mention,
       tag,
     },
-    onEditorContentChange: (editor) => {
-      console.log(editor.topLevelBlocks);
-    },
     domAttributes: {
       editor: {
         class: "editor",

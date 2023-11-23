@@ -1,13 +1,15 @@
 import {
   BlockNoteEditor,
   BlockNoteEditorOptions,
-  BlockSchema,
+  BlockSchemaFromSpecs,
   BlockSpecs,
-  InlineContentSchema,
+  InlineContentSchemaFromSpecs,
   InlineContentSpecs,
-  StyleSchema,
+  StyleSchemaFromSpecs,
   StyleSpecs,
   defaultBlockSpecs,
+  defaultInlineContentSpecs,
+  defaultStyleSpecs,
   getBlockSchemaFromSpecs,
 } from "@blocknote/core";
 import { DependencyList, useMemo, useRef } from "react";
@@ -16,22 +18,13 @@ import { getDefaultReactSlashMenuItems } from "../SlashMenu/defaultReactSlashMen
 const initEditor = <
   BSpecs extends BlockSpecs,
   ISpecs extends InlineContentSpecs,
-  SSpecs extends StyleSpecs,
-  BSchema extends BlockSchema = {
-    [key in keyof BSpecs]: BSpecs[key]["config"];
-  },
-  ISchema extends InlineContentSchema = {
-    [key in keyof ISpecs]: ISpecs[key]["config"];
-  },
-  SSchema extends StyleSchema = { [key in keyof SSpecs]: SSpecs[key]["config"] }
+  SSpecs extends StyleSpecs
 >(
   options: Partial<BlockNoteEditorOptions<BSpecs, ISpecs, SSpecs>>
 ) =>
   BlockNoteEditor.create({
-    slashMenuItems: getDefaultReactSlashMenuItems<BSchema, ISchema, SSchema>(
-      getBlockSchemaFromSpecs(
-        options.blockSpecs || defaultBlockSpecs
-      ) as BSchema
+    slashMenuItems: getDefaultReactSlashMenuItems(
+      getBlockSchemaFromSpecs(options.blockSpecs || defaultBlockSpecs)
     ) as any,
     ...options,
   });
@@ -40,32 +33,28 @@ const initEditor = <
  * Main hook for importing a BlockNote editor into a React project
  */
 export const useBlockNote = <
-  BSpecs extends BlockSpecs,
-  ISpecs extends InlineContentSpecs,
-  SSpecs extends StyleSpecs,
-  BSchema extends BlockSchema = {
-    [key in keyof BSpecs]: BSpecs[key]["config"];
-  },
-  ISchema extends InlineContentSchema = {
-    [key in keyof ISpecs]: ISpecs[key]["config"];
-  },
-  SSchema extends StyleSchema = { [key in keyof SSpecs]: SSpecs[key]["config"] }
+  BSpecs extends BlockSpecs = typeof defaultBlockSpecs,
+  ISpecs extends InlineContentSpecs = typeof defaultInlineContentSpecs,
+  SSpecs extends StyleSpecs = typeof defaultStyleSpecs
 >(
   options: Partial<BlockNoteEditorOptions<BSpecs, ISpecs, SSpecs>> = {},
   deps: DependencyList = []
-): BlockNoteEditor<BSchema, ISchema, SSchema> => {
-  const editorRef = useRef<BlockNoteEditor<BSchema, ISchema, SSchema>>();
+) => {
+  const editorRef =
+    useRef<
+      BlockNoteEditor<
+        BlockSchemaFromSpecs<BSpecs>,
+        InlineContentSchemaFromSpecs<ISpecs>,
+        StyleSchemaFromSpecs<SSpecs>
+      >
+    >();
 
   return useMemo(() => {
     if (editorRef.current) {
       editorRef.current._tiptapEditor.destroy();
     }
 
-    editorRef.current = initEditor(options) as BlockNoteEditor<
-      BSchema,
-      ISchema,
-      SSchema
-    >;
-    return editorRef.current;
+    editorRef.current = initEditor(options);
+    return editorRef.current!;
   }, deps); //eslint-disable-line react-hooks/exhaustive-deps
 };

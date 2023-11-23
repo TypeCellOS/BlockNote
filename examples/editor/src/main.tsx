@@ -8,7 +8,7 @@ import {
   createBrowserRouter,
 } from "react-router-dom";
 
-import { App } from "../examples/App";
+import { App } from "../examples/Basic";
 import { ReactInlineContent } from "../examples/ReactInlineContent";
 import { ReactStyles } from "../examples/ReactStyles";
 import { Two } from "../examples/Two";
@@ -87,7 +87,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: "simple",
-        element: <App />,
+        element: <App key="simple" />,
       },
       {
         path: "two",
@@ -95,11 +95,11 @@ const router = createBrowserRouter([
       },
       {
         path: "react-styles",
-        element: <ReactStyles />,
+        element: <ReactStyles key="simple1" />,
       },
       {
         path: "react-inline-content",
-        element: <ReactInlineContent />,
+        element: <ReactInlineContent key="simple2" />,
       },
     ],
   },

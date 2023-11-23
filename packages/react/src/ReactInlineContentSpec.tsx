@@ -86,6 +86,14 @@ export function createReactInlineContentSpec<
         );
       });
 
+      if (!div.childElementCount) {
+        // TODO
+        console.warn("ReactInlineContentSpec: renderHTML() failed");
+        return {
+          dom: document.createElement("span"),
+        };
+      }
+
       // clone so we can unmount the react root
       contentDOM?.setAttribute("data-tmp-find", "true");
       const cloneRoot = div.cloneNode(true) as HTMLElement;

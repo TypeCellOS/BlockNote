@@ -1,13 +1,8 @@
-import {
-  BlockNoteEditor,
-  BlockSchema,
-  InlineContentSchema,
-  StyleSchema,
-} from "@blocknote/core";
+import { BlockNoteEditor } from "@blocknote/core";
 import { useEffect } from "react";
 
 export function useEditorContentChange(
-  editor: BlockNoteEditor<BlockSchema, InlineContentSchema, StyleSchema>,
+  editor: BlockNoteEditor<any, any, any>,
   callback: () => void
 ) {
   useEffect(() => {

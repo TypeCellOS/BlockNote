@@ -20,6 +20,7 @@ import {
   BlockIdentifier,
   BlockNoteDOMAttributes,
   BlockSchema,
+  BlockSchemaFromSpecs,
   BlockSpecs,
   PartialBlock,
 } from "./extensions/Blocks/api/blocks/types";
@@ -39,6 +40,7 @@ import {
 import { Selection } from "./extensions/Blocks/api/selectionTypes";
 import {
   StyleSchema,
+  StyleSchemaFromSpecs,
   StyleSpecs,
   Styles,
 } from "./extensions/Blocks/api/styles/types";
@@ -48,6 +50,7 @@ import "prosemirror-tables/style/tables.css";
 import "./editor.css";
 import {
   InlineContentSchema,
+  InlineContentSchemaFromSpecs,
   InlineContentSpecs,
 } from "./extensions/Blocks/api/inlineContent/types";
 import { FormattingToolbarProsemirrorPlugin } from "./extensions/FormattingToolbar/FormattingToolbarPlugin";
@@ -64,14 +67,7 @@ import { UnreachableCaseError, mergeCSSClasses } from "./shared/utils";
 export type BlockNoteEditorOptions<
   BSpecs extends BlockSpecs,
   ISpecs extends InlineContentSpecs,
-  SSpecs extends StyleSpecs,
-  BSchema extends BlockSchema = {
-    [key in keyof BSpecs]: BSpecs[key]["config"];
-  },
-  ISchema extends InlineContentSchema = {
-    [key in keyof ISpecs]: ISpecs[key]["config"];
-  },
-  SSchema extends StyleSchema = { [key in keyof SSpecs]: SSpecs[key]["config"] }
+  SSpecs extends StyleSpecs
 > = {
   // TODO: Figure out if enableBlockNoteExtensions/disableHistoryExtension are needed and document them.
   enableBlockNoteExtensions: boolean;
@@ -81,7 +77,11 @@ export type BlockNoteEditorOptions<
    *
    * @default defaultSlashMenuItems from `./extensions/SlashMenu`
    */
-  slashMenuItems: BaseSlashMenuItem<BSchema, ISchema, SSchema>[];
+  slashMenuItems: BaseSlashMenuItem<
+    BlockSchemaFromSpecs<BSpecs>,
+    InlineContentSchemaFromSpecs<ISpecs>,
+    StyleSchemaFromSpecs<SSpecs>
+  >[];
 
   /**
    * The HTML element that should be used as the parent element for the editor.
@@ -98,18 +98,32 @@ export type BlockNoteEditorOptions<
   /**
    *  A callback function that runs when the editor is ready to be used.
    */
-  onEditorReady: (editor: BlockNoteEditor<BSchema, ISchema, SSchema>) => void;
+  onEditorReady: (
+    editor: BlockNoteEditor<
+      BlockSchemaFromSpecs<BSpecs>,
+      InlineContentSchemaFromSpecs<ISpecs>,
+      StyleSchemaFromSpecs<SSpecs>
+    >
+  ) => void;
   /**
    * A callback function that runs whenever the editor's contents change.
    */
   onEditorContentChange: (
-    editor: BlockNoteEditor<BSchema, ISchema, SSchema>
+    editor: BlockNoteEditor<
+      BlockSchemaFromSpecs<BSpecs>,
+      InlineContentSchemaFromSpecs<ISpecs>,
+      StyleSchemaFromSpecs<SSpecs>
+    >
   ) => void;
   /**
    * A callback function that runs whenever the text cursor position changes.
    */
   onTextCursorPositionChange: (
-    editor: BlockNoteEditor<BSchema, ISchema, SSchema>
+    editor: BlockNoteEditor<
+      BlockSchemaFromSpecs<BSpecs>,
+      InlineContentSchemaFromSpecs<ISpecs>,
+      StyleSchemaFromSpecs<SSpecs>
+    >
   ) => void;
   /**
    * Locks the editor from being editable by the user if set to `false`.
@@ -118,7 +132,11 @@ export type BlockNoteEditorOptions<
   /**
    * The content that should be in the editor when it's created, represented as an array of partial block objects.
    */
-  initialContent: PartialBlock<BSchema, ISchema, SSchema>[];
+  initialContent: PartialBlock<
+    BlockSchemaFromSpecs<BSpecs>,
+    InlineContentSchemaFromSpecs<ISpecs>,
+    StyleSchemaFromSpecs<SSpecs>
+  >[];
   /**
    * Use default BlockNote font and reset the styles of <p> <li> <h1> elements etc., that are used in BlockNote.
    *
@@ -183,7 +201,7 @@ export class BlockNoteEditor<
   SSchema extends StyleSchema = DefaultStyleSchema
 > {
   public readonly _tiptapEditor: TiptapEditor & { contentComponent: any };
-  public blockCache = new WeakMap<Node, Block<any, any>>();
+  public blockCache = new WeakMap<Node, Block<any, any, any>>();
   public readonly blockSchema: BSchema;
   public readonly inlineContentSchema: ISchema;
   public readonly styleSchema: SSchema;
@@ -225,35 +243,17 @@ export class BlockNoteEditor<
   public static create<
     BSpecs extends BlockSpecs = typeof defaultBlockSpecs,
     ISpecs extends InlineContentSpecs = typeof defaultInlineContentSpecs,
-    SSpecs extends StyleSpecs = typeof defaultStyleSpecs,
-    BSchema extends BlockSchema = {
-      [key in keyof BSpecs]: BSpecs[key]["config"];
-    },
-    ISchema extends InlineContentSchema = {
-      [key in keyof ISpecs]: ISpecs[key]["config"];
-    },
-    SSchema extends StyleSchema = {
-      [key in keyof SSpecs]: SSpecs[key]["config"];
-    }
-  >(
-    options: Partial<
-      BlockNoteEditorOptions<BSpecs, ISpecs, SSpecs, BSchema, ISchema, SSchema>
-    > = {}
-  ) {
-    return new BlockNoteEditor(options);
+    SSpecs extends StyleSpecs = typeof defaultStyleSpecs
+  >(options: Partial<BlockNoteEditorOptions<BSpecs, ISpecs, SSpecs>> = {}) {
+    return new BlockNoteEditor(options) as BlockNoteEditor<
+      BlockSchemaFromSpecs<BSpecs>,
+      InlineContentSchemaFromSpecs<ISpecs>,
+      StyleSchemaFromSpecs<SSpecs>
+    >;
   }
 
   private constructor(
-    private readonly options: Partial<
-      BlockNoteEditorOptions<
-        BlockSpecs,
-        InlineContentSpecs,
-        StyleSpecs,
-        BSchema,
-        ISchema,
-        SSchema
-      >
-    >
+    private readonly options: Partial<BlockNoteEditorOptions<any, any, any>>
   ) {
     // apply defaults
     const newOptions: Omit<
@@ -370,7 +370,7 @@ export class BlockNoteEditor<
         // initial content, as the schema may contain custom blocks which need
         // it to render.
         if (initialContent !== undefined) {
-          this.replaceBlocks(this.topLevelBlocks, initialContent);
+          this.replaceBlocks(this.topLevelBlocks, initialContent as any);
         }
 
         newOptions.onEditorReady?.(this);

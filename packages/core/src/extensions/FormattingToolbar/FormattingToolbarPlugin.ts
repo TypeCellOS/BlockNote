@@ -29,17 +29,14 @@ export class FormattingToolbarView {
     state: EditorState;
     from: number;
     to: number;
-  }) => boolean = ({ view, state, from, to }) => {
-    const { doc, selection } = state;
+  }) => boolean = ({ state }) => {
+    const { selection } = state;
     const { empty } = selection;
 
-    // Sometime check for `empty` is not enough.
-    // Doubleclick an empty paragraph returns a node size of 2.
-    // So we check also for an empty text size.
-    const isEmptyTextBlock =
-      !doc.textBetween(from, to).length && isTextSelection(state.selection);
-
-    return !(!view.hasFocus() || empty || isEmptyTextBlock);
+    if (!isTextSelection(selection)) {
+      return false;
+    }
+    return !empty;
   };
 
   constructor(

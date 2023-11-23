@@ -20,7 +20,7 @@ export type BlockTypeDropdownItem = {
   type: string;
   props?: Record<string, boolean | number | string>;
   icon: IconType;
-  isSelected: (block: Block<BlockSchema, any>) => boolean;
+  isSelected: (block: Block<BlockSchema, any, any>) => boolean;
 };
 
 export const defaultBlockTypeDropdownItems: BlockTypeDropdownItem[] = [

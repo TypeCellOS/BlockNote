@@ -2,7 +2,6 @@
 import { Node } from "@tiptap/core";
 
 import { BlockNoteEditor } from "../../../../BlockNoteEditor";
-import { DefaultStyleSchema } from "../defaultBlocks";
 import {
   InlineContent,
   InlineContentSchema,
@@ -207,7 +206,7 @@ type BlocksWithoutChildren<
 export type Block<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema
+  S extends StyleSchema
 > = BlocksWithoutChildren<BSchema, I, S>[keyof BSchema] & {
   children: Block<BSchema, I, S>[];
 };

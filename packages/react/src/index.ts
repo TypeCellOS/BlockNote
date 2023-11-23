@@ -40,6 +40,7 @@ export * from "./SharedComponents/Toolbar/components/Toolbar";
 export * from "./SharedComponents/Toolbar/components/ToolbarButton";
 export * from "./SharedComponents/Toolbar/components/ToolbarDropdown";
 
+export * from "./hooks/useActiveStyles";
 export * from "./hooks/useBlockNote";
 export * from "./hooks/useEditorChange";
 export * from "./hooks/useEditorContentChange";

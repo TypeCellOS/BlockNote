@@ -61,6 +61,14 @@ export function createReactStyleSpec<T extends StyleConfig>(
         );
       });
 
+      if (!div.childElementCount) {
+        // TODO
+        console.warn("ReactSdtyleSpec: renderHTML() failed");
+        return {
+          dom: document.createElement("span"),
+        };
+      }
+
       // clone so we can unmount the react root
       contentDOM?.setAttribute("data-tmp-find", "true");
       const cloneRoot = div.cloneNode(true) as HTMLElement;
