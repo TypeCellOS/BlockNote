@@ -136,6 +136,7 @@ export class TableHandlesView {
 
     if (
       this.state !== undefined &&
+      this.state.show &&
       this.tableId === blockEl.id &&
       this.state.rowIndex === rowIndex &&
       this.state.colIndex === colIndex
