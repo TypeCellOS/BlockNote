@@ -1,3 +1,4 @@
+import { DragEvent, FC, useEffect, useMemo, useRef, useState } from "react";
 import {
   Block,
   BlockNoteEditor,
@@ -8,30 +9,33 @@ import {
   TableHandlesState,
 } from "@blocknote/core";
 import Tippy, { tippy } from "@tippyjs/react";
-import { FC, useEffect, useMemo, useRef, useState } from "react";
+import { DragHandleMenuProps } from "../../SideMenu/components/DragHandleMenu/DragHandleMenu";
 import { DefaultTableHandle } from "./DefaultTableHandle";
 
-export type TableHandlesProps<
-  BSchema extends BlockSchema = DefaultBlockSchema
-> = Pick<
-  TableHandlesProsemirrorPlugin<BSchema>,
-  | "rowDragStart"
-  | "colDragStart"
-  | "dragEnd"
-  | "freezeHandles"
-  | "unfreezeHandles"
-> &
-  Omit<
-    TableHandlesState,
-    "referencePosCell" | "referencePosTable" | "show" | "draggingState"
-  > & {
-    editor: BlockNoteEditor<
-      BlockSchemaWithBlock<"table", DefaultBlockSchema["table"]["config"]>
-    >;
-    side: "top" | "left";
-    showOtherSide: () => void;
-    hideOtherSide: () => void;
-  };
+export type TableHandleProps<BSchema extends BlockSchema = DefaultBlockSchema> =
+  Pick<
+    TableHandlesProsemirrorPlugin<BSchema>,
+    "dragEnd" | "freezeHandles" | "unfreezeHandles"
+  > &
+    Omit<
+      TableHandlesState,
+      | "rowIndex"
+      | "colIndex"
+      | "referencePosCell"
+      | "referencePosTable"
+      | "show"
+      | "draggingState"
+    > & {
+      orientation: "row" | "column";
+      editor: BlockNoteEditor<
+        BlockSchemaWithBlock<"table", DefaultBlockSchema["table"]["config"]>
+      >;
+      tableHandleMenu?: FC<DragHandleMenuProps<BSchema>>;
+      dragStart: (e: DragEvent<HTMLDivElement>) => void;
+      index: number;
+      showOtherSide: () => void;
+      hideOtherSide: () => void;
+    };
 
 export const TableHandlesPositioner = <
   BSchema extends BlockSchemaWithBlock<
@@ -40,7 +44,7 @@ export const TableHandlesPositioner = <
   >
 >(props: {
   editor: BlockNoteEditor<BSchema>;
-  tableHandle?: FC<TableHandlesProps>;
+  tableHandle?: FC<TableHandleProps<BSchema>>;
 }) => {
   const [show, setShow] = useState<boolean>(false);
   const [hideRow, setHideRow] = useState<boolean>(false);
@@ -64,7 +68,7 @@ export const TableHandlesPositioner = <
     tippy.setDefaultProps({ maxWidth: "" });
 
     return props.editor.tableHandles.onUpdate((state) => {
-      // console.log("update", state);
+      // console.log("update", state.draggingState);
       setShow(state.show);
       setBlock(state.block);
       setRowIndex(state.rowIndex);
@@ -139,18 +143,17 @@ export const TableHandlesPositioner = <
     [referencePosTable.current, draggedCellOrientation, mousePos] // eslint-disable-line
   );
 
-  const tableHandleElementTop = useMemo(() => {
+  const columnTableHandle = useMemo(() => {
     const TableHandle = props.tableHandle || DefaultTableHandle;
 
     return (
       <TableHandle
+        orientation={"column"}
+        // This "as any" unfortunately seems complicated to fix
         editor={props.editor as any}
-        side={"top"}
-        rowIndex={rowIndex!}
-        colIndex={colIndex!}
+        index={colIndex!}
         block={block!}
-        rowDragStart={props.editor.tableHandles.rowDragStart}
-        colDragStart={props.editor.tableHandles.colDragStart}
+        dragStart={props.editor.tableHandles.colDragStart}
         dragEnd={props.editor.tableHandles.dragEnd}
         freezeHandles={props.editor.tableHandles.freezeHandles}
         unfreezeHandles={props.editor.tableHandles.unfreezeHandles}
@@ -158,21 +161,18 @@ export const TableHandlesPositioner = <
         hideOtherSide={() => setHideRow(true)}
       />
     );
-  }, [block, props.editor, props.tableHandle, rowIndex, colIndex]);
+  }, [block, props.editor, props.tableHandle, colIndex]);
 
-  const tableHandleElementLeft = useMemo(() => {
+  const rowTableHandle = useMemo(() => {
     const TableHandle = props.tableHandle || DefaultTableHandle;
 
     return (
       <TableHandle
-        // This "as any" unfortunately seems complicated to fix
+        orientation={"row"}
         editor={props.editor as any}
-        side={"left"}
-        rowIndex={rowIndex!}
-        colIndex={colIndex!}
+        index={rowIndex!}
         block={block!}
-        rowDragStart={props.editor.tableHandles.rowDragStart}
-        colDragStart={props.editor.tableHandles.colDragStart}
+        dragStart={props.editor.tableHandles.rowDragStart}
         dragEnd={props.editor.tableHandles.dragEnd}
         freezeHandles={props.editor.tableHandles.freezeHandles}
         unfreezeHandles={props.editor.tableHandles.unfreezeHandles}
@@ -180,13 +180,13 @@ export const TableHandlesPositioner = <
         hideOtherSide={() => setHideCol(true)}
       />
     );
-  }, [block, props.editor, props.tableHandle, rowIndex, colIndex]);
+  }, [block, props.editor, props.tableHandle, rowIndex]);
 
   return (
     <>
       <Tippy
         appendTo={props.editor.domElement.parentElement!}
-        content={tableHandleElementLeft}
+        content={rowTableHandle}
         getReferenceClientRect={getReferenceClientRectRow}
         interactive={true}
         visible={show && draggedCellOrientation !== "col" && !hideRow}
@@ -197,7 +197,7 @@ export const TableHandlesPositioner = <
       />
       <Tippy
         appendTo={props.editor.domElement.parentElement!}
-        content={tableHandleElementTop}
+        content={columnTableHandle}
         getReferenceClientRect={getReferenceClientRectColumn}
         interactive={true}
         visible={show && draggedCellOrientation !== "row" && !hideCol}
