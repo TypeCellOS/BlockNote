@@ -102,7 +102,7 @@ export class TableHandlesView {
     pmView.dom.addEventListener("mousemove", this.mouseMoveHandler);
     document.addEventListener("dragover", this.dragOverHandler);
 
-    // document.addEventListener("scroll", this.scrollHandler);
+    document.addEventListener("scroll", this.scrollHandler);
   }
 
   mouseMoveHandler = (event: MouseEvent) => {
@@ -112,7 +112,7 @@ export class TableHandlesView {
 
     const target = domCellAround(event.target as HTMLElement);
 
-    if (!target) {
+    if (!target || !this.editor.isEditable) {
       if (this.state?.show) {
         this.state.show = false;
         this.updateState();
@@ -274,56 +274,28 @@ export class TableHandlesView {
     }
   };
 
-  // scrollHandler = () => {
-  //   if (this.imageToolbarState?.show) {
-  //     const blockElement = document.querySelector(
-  //       `[data-node-type="blockContainer"][data-id="${this.imageToolbarState.block.id}"]`
-  //     )!;
+  scrollHandler = () => {
+    if (this.state?.show) {
+      const tableElement = document.querySelector(
+        `[data-node-type="blockContainer"][data-id="${this.tableId}"] table`
+      )!;
+      const cellElement = tableElement.querySelector(
+        `tr:nth-child(${this.state.rowIndex + 1}) > td:nth-child(${
+          this.state.colIndex + 1
+        })`
+      )!;
 
-  //     this.imageToolbarState.referencePos =
-  //       blockElement.getBoundingClientRect();
-  //     this.updateImageToolbar();
-  //   }
-  // };
-
-  // update(view: EditorView, prevState: EditorState) {
-  //   const pluginState: {
-  //     block: Block<(typeof Image)["config"]>;
-  //   } = this.pluginKey.getState(view.state);
-  //
-  // if (!this.imageToolbarState?.show && pluginState.block) {
-  //   const blockElement = document.querySelector(
-  //     `[data-node-type="blockContainer"][data-id="${pluginState.block.id}"]`
-  //   )!;
-  //
-  //   this.imageToolbarState = {
-  //     show: true,
-  //     referencePos: blockElement.getBoundingClientRect(),
-  //     block: pluginState.block,
-  //   };
-  //
-  //   this.updateImageToolbar();
-  //
-  //   return;
-  // }
-
-  // if (
-  //   !view.state.selection.eq(prevState.selection) ||
-  //   !view.state.doc.eq(prevState.doc)
-  // ) {
-  //   if (this.imageToolbarState?.show) {
-  //     this.imageToolbarState.show = false;
-
-  //     this.updateImageToolbar();
-  //   }
-  // }
-  // }
+      this.state.referencePosTable = tableElement.getBoundingClientRect();
+      this.state.referencePosCell = cellElement.getBoundingClientRect();
+      this.updateState();
+    }
+  };
 
   destroy() {
     this.pmView.dom.removeEventListener("mousedown", this.mouseMoveHandler);
     document.removeEventListener("dragover", this.dragOverHandler);
 
-    // document.removeEventListener("scroll", this.scrollHandler);
+    document.removeEventListener("scroll", this.scrollHandler);
   }
 }
 
