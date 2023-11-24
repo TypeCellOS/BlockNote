@@ -9,6 +9,7 @@ import { EventEmitter } from "../../shared/EventEmitter";
 import { Block } from "../Blocks/api/blockTypes";
 import { Table } from "../Blocks/nodes/BlockContent/TableBlockContent/TableBlockContent";
 import { nodeToBlock } from "../../api/nodeConversions/nodeConversions";
+import { PluginView } from "@tiptap/pm/state";
 
 let dragImageElement: HTMLElement | undefined;
 
@@ -73,7 +74,9 @@ function hideElementsWithClassNames(classNames: string[]) {
   });
 }
 
-export class TableHandlesView {
+export class TableHandlesView<BSchema extends BlockSchema>
+  implements PluginView
+{
   public state?: TableHandlesState;
   public updateState: () => void;
 
@@ -85,9 +88,7 @@ export class TableHandlesView {
   public prevWasEditable: boolean | null = null;
 
   constructor(
-    private readonly editor: BlockNoteEditor<any>,
-    // @ts-ignore
-    private readonly pluginKey: PluginKey,
+    private readonly editor: BlockNoteEditor<BSchema>,
     private readonly pmView: EditorView,
     updateState: (state: TableHandlesState) => void
   ) {
@@ -304,7 +305,7 @@ export const tableHandlesPluginKey = new PluginKey("TableHandlesPlugin");
 export class TableHandlesProsemirrorPlugin<
   BSchema extends BlockSchema
 > extends EventEmitter<any> {
-  private view: TableHandlesView | undefined;
+  private view: TableHandlesView<BSchema> | undefined;
   public readonly plugin: Plugin;
 
   constructor(private readonly editor: BlockNoteEditor<BSchema>) {
@@ -312,14 +313,9 @@ export class TableHandlesProsemirrorPlugin<
     this.plugin = new Plugin({
       key: tableHandlesPluginKey,
       view: (editorView) => {
-        this.view = new TableHandlesView(
-          editor,
-          tableHandlesPluginKey,
-          editorView,
-          (state) => {
-            this.emit("update", state);
-          }
-        );
+        this.view = new TableHandlesView(editor, editorView, (state) => {
+          this.emit("update", state);
+        });
         return this.view;
       },
       // We use decorations to render the drop cursor when dragging a table row
