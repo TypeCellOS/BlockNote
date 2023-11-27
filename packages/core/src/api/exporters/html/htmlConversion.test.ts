@@ -319,6 +319,7 @@ async function convertToHTMLAndCompareSnapshots<
     "/internal.html";
   expect(internalHTML).toMatchFileSnapshot(internalHTMLSnapshotPath);
 
+  // turn the internalHTML back into blocks, and make sure no data was lost
   const fullBlocks = partialBlocksToBlocksForTesting(
     editor.blockSchema,
     blocks
@@ -327,6 +328,7 @@ async function convertToHTMLAndCompareSnapshots<
 
   expect(parsed).toStrictEqual(fullBlocks);
 
+  // Create the "external" HTML, which is a cleaned up HTML representation, but lossy
   const exporter = createExternalHTMLExporter(
     editor._tiptapEditor.schema,
     editor
