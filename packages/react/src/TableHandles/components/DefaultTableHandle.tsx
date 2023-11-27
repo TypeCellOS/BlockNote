@@ -12,11 +12,12 @@ export const DefaultTableHandle = <BSchema extends BlockSchema>(
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        width: "16px",
-        height: "24px",
-        overflow: "hidden",
+        // width: "16px",
+        // height: "24px",
+        marginInline: "-4px",
+        overflow: "visible",
       }}>
-      <MdDragIndicator data-test={"tableHandle"} />
+      <MdDragIndicator size={24} data-test={"tableHandle"} />
     </div>
   </TableHandle>
 );
