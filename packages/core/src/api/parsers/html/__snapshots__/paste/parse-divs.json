@@ -1,0 +1,19 @@
+[
+  {
+    "id": "1",
+    "type": "paragraph",
+    "props": {
+      "textColor": "default",
+      "backgroundColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "Single Div",
+        "styles": {}
+      }
+    ],
+    "children": []
+  }
+]

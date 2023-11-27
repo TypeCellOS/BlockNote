@@ -1,5 +1,4 @@
 import { Attribute, Attributes, Editor, Node, NodeConfig } from "@tiptap/core";
-import { ParseRule } from "prosemirror-model";
 import { BlockNoteEditor } from "../../../../BlockNoteEditor";
 import { mergeCSSClasses } from "../../../../shared/utils";
 import { defaultBlockToHTML } from "../../nodes/BlockContent/defaultBlockHelpers";
@@ -80,51 +79,6 @@ export function propsToAttributes(propSchema: PropSchema): Attributes {
     });
 
   return tiptapAttributes;
-}
-
-// Function that uses the 'parse' function of a blockConfig to create a
-// TipTap node's `parseHTML` property. This is only used for parsing content
-// from the clipboard.
-export function parse(blockConfig: BlockConfig) {
-  const rules: ParseRule[] = [
-    {
-      tag: "div[data-content-type=" + blockConfig.type + "]",
-    },
-  ];
-
-  // if (blockConfig.parse) {
-  //   rules.push({
-  //     tag: "*",
-  //     getAttrs(node: string | HTMLElement) {
-  //       if (typeof node === "string") {
-  //         return false;
-  //       }
-  //
-  //       const block = blockConfig.parse?.(node);
-  //
-  //       if (block === undefined) {
-  //         return false;
-  //       }
-  //
-  //       return block.props || {};
-  //     },
-  //     getContent(node, schema) {
-  //       const block = blockConfig.parse?.(node as HTMLElement);
-  //
-  //       if (block !== undefined && block.content !== undefined) {
-  //         return Fragment.from(
-  //           typeof block.content === "string"
-  //             ? schema.text(block.content)
-  //             : inlineContentToNodes(block.content, schema)
-  //         );
-  //       }
-  //
-  //       return Fragment.empty;
-  //     },
-  //   });
-  // }
-
-  return rules;
 }
 
 // Used to figure out which block should be rendered. This block is then used to
@@ -283,6 +237,7 @@ export function createBlockSpecFromStronglyTypedTiptapNode<
       requiredNodes,
       toInternalHTML: defaultBlockToHTML,
       toExternalHTML: defaultBlockToHTML,
+      // parse: () => undefined, // parse rules are in node already
     }
   );
 }

@@ -44,6 +44,8 @@ import {
 import { getBlockInfoFromPos } from "./extensions/Blocks/helpers/getBlockInfoFromPos";
 
 import "prosemirror-tables/style/tables.css";
+
+import { HTMLToBlocks } from "./api/parsers/html/parseHTML";
 import "./editor.css";
 import { getBlockSchemaFromSpecs } from "./extensions/Blocks/api/blocks/internal";
 import { getInlineContentSchemaFromSpecs } from "./extensions/Blocks/api/inlineContent/internal";
@@ -952,16 +954,24 @@ export class BlockNoteEditor<
   //   return blocksToHTML(blocks, this._tiptapEditor.schema, this);
   // }
   //
-  // /**
-  //  * Parses blocks from an HTML string. Tries to create `Block` objects out of any HTML block-level elements, and
-  //  * `InlineNode` objects from any HTML inline elements, though not all element types are recognized. If BlockNote
-  //  * doesn't recognize an HTML element's tag, it will parse it as a paragraph or plain text.
-  //  * @param html The HTML string to parse blocks from.
-  //  * @returns The blocks parsed from the HTML string.
-  //  */
-  // public async HTMLToBlocks(html: string): Promise<Block<BSchema>[]> {
-  //   return HTMLToBlocks(html, this.schema, this._tiptapEditor.schema);
-  // }
+  /**
+   * Parses blocks from an HTML string. Tries to create `Block` objects out of any HTML block-level elements, and
+   * `InlineNode` objects from any HTML inline elements, though not all element types are recognized. If BlockNote
+   * doesn't recognize an HTML element's tag, it will parse it as a paragraph or plain text.
+   * @param html The HTML string to parse blocks from.
+   * @returns The blocks parsed from the HTML string.
+   */
+  public async HTMLToBlocks(
+    html: string
+  ): Promise<Block<BSchema, ISchema, SSchema>[]> {
+    return HTMLToBlocks(
+      html,
+      this.blockSchema,
+      this.inlineContentSchema,
+      this.styleSchema,
+      this._tiptapEditor.schema
+    );
+  }
   //
   // /**
   //  * Serializes blocks into a Markdown string. The output is simplified as Markdown does not support all features of

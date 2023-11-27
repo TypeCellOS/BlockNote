@@ -5,17 +5,11 @@ import { BlockNoteEditor } from "../../BlockNoteEditor";
 import { BlockSchema } from "../../extensions/Blocks/api/blocks/types";
 import { InlineContentSchema } from "../../extensions/Blocks/api/inlineContent/types";
 import { StyleSchema } from "../../extensions/Blocks/api/styles/types";
-import { markdown } from "../formatConversions/formatConversions";
 import { createExternalHTMLExporter } from "./html/externalHTMLExporter";
 import { createInternalHTMLSerializer } from "./html/internalHTMLSerializer";
+import { markdown } from "./markdown/formatConversions";
 
-const acceptedMIMETypes = [
-  "blocknote/html",
-  "text/html",
-  "text/plain",
-] as const;
-
-export const createClipboardHandlerExtension = <
+export const createCopyToClipboardExtension = <
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
@@ -23,6 +17,7 @@ export const createClipboardHandlerExtension = <
   editor: BlockNoteEditor<BSchema, I, S>
 ) =>
   Extension.create<{ editor: BlockNoteEditor<BSchema, I, S> }, undefined>({
+    name: "copyToClipboard",
     addProseMirrorPlugins() {
       const tiptap = this.editor;
       const schema = this.editor.schema;
@@ -65,26 +60,6 @@ export const createClipboardHandlerExtension = <
                 event.clipboardData!.setData("text/plain", plainText);
 
                 // Prevent default PM handler to be called
-                return true;
-              },
-              paste(_view, event) {
-                event.preventDefault();
-
-                let format: (typeof acceptedMIMETypes)[number] | null = null;
-
-                for (const mimeType of acceptedMIMETypes) {
-                  if (event.clipboardData!.types.includes(mimeType)) {
-                    format = mimeType;
-                    break;
-                  }
-                }
-
-                if (format !== null) {
-                  editor._tiptapEditor.view.pasteHTML(
-                    event.clipboardData!.getData(format!)
-                  );
-                }
-
                 return true;
               },
             },

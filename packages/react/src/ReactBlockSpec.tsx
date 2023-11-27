@@ -8,10 +8,11 @@ import {
   createStronglyTypedTiptapNode,
   CustomBlockConfig,
   getBlockFromPos,
+  getParseRules,
   inheritedProps,
   InlineContentSchema,
   mergeCSSClasses,
-  parse,
+  PartialBlockFromConfig,
   Props,
   PropSchema,
   propsToAttributes,
@@ -42,6 +43,7 @@ export type ReactCustomBlockImplementation<
     block: BlockFromConfig<T, I, S>;
     editor: BlockNoteEditor<BlockSchemaWithBlock<T["type"], T>, I, S>;
   }>;
+  parse?: (el: HTMLElement) => PartialBlockFromConfig<T, I, S> | undefined;
 };
 
 const BlockNoteDOMAttributesContext = createContext<BlockNoteDOMAttributes>({});
@@ -141,7 +143,7 @@ export function createReactBlockSpec<
     },
 
     parseHTML() {
-      return parse(blockConfig);
+      return getParseRules(blockConfig, blockImplementation.parse);
     },
 
     addNodeView() {

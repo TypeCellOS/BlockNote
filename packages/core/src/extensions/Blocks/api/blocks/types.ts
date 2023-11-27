@@ -273,4 +273,12 @@ export type SpecificPartialBlock<
   children?: Block<BSchema, I, S>[];
 };
 
+export type PartialBlockFromConfig<
+  B extends BlockConfig,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+> = PartialBlockFromConfigNoChildren<B, I, S> & {
+  children?: Block<BlockSchema, I, S>[];
+};
+
 export type BlockIdentifier = { id: string } | string;

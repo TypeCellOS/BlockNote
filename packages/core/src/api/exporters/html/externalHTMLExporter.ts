@@ -10,12 +10,12 @@ import {
 } from "../../../extensions/Blocks/api/blocks/types";
 import { InlineContentSchema } from "../../../extensions/Blocks/api/inlineContent/types";
 import { StyleSchema } from "../../../extensions/Blocks/api/styles/types";
-import { simplifyBlocks } from "../../formatConversions/simplifyBlocksRehypePlugin";
 import { blockToNode } from "../../nodeConversions/nodeConversions";
 import {
   serializeNodeInner,
   serializeProseMirrorFragment,
-} from "./sharedHTMLConversion";
+} from "./util/sharedHTMLConversion";
+import { simplifyBlocks } from "./util/simplifyBlocksRehypePlugin";
 
 // Used to export BlockNote blocks and ProseMirror nodes to HTML for use outside
 // the editor. Blocks are exported using the `toExternalHTML` method in their
