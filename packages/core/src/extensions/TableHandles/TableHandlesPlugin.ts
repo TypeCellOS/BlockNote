@@ -43,6 +43,7 @@ export type TableHandlesState = {
   draggingState:
     | {
         draggedCellOrientation: "row" | "col";
+        originalIndex: number;
         mousePos: number;
       }
     | undefined;
@@ -228,8 +229,8 @@ export class TableHandlesView<BSchema extends BlockSchema>
     const rowIndex = getChildIndex(tableCellElement.parentElement!);
     const colIndex = getChildIndex(tableCellElement);
 
-    // Checks if the drop cursor needs to be updated and updates it. This
-    // affects decorations only so it doesn't trigger a state update.
+    // Checks if the drop cursor needs to be updated. This affects decorations
+    // only so it doesn't trigger a state update.
     const oldIndex =
       this.state.draggingState.draggedCellOrientation === "row"
         ? this.state.rowIndex
@@ -238,13 +239,7 @@ export class TableHandlesView<BSchema extends BlockSchema>
       this.state.draggingState.draggedCellOrientation === "row"
         ? rowIndex
         : colIndex;
-    if (oldIndex !== newIndex) {
-      this.pmView.dispatch(
-        this.pmView.state.tr.setMeta(tableHandlesPluginKey, {
-          newIndex: newIndex,
-        })
-      );
-    }
+    const dispatchDecorationsTransaction = newIndex !== oldIndex;
 
     // Checks if either the hovered cell has changed and updates the row and
     // column index. Also updates the reference DOMRect.
@@ -272,6 +267,14 @@ export class TableHandlesView<BSchema extends BlockSchema>
     // Emits a state update if any of the fields have changed.
     if (emitStateUpdate) {
       this.updateState();
+    }
+
+    // Dispatches a dummy transaction to force a decorations update if
+    // necessary.
+    if (dispatchDecorationsTransaction) {
+      this.pmView.dispatch(
+        this.pmView.state.tr.setMeta(tableHandlesPluginKey, true)
+      );
     }
   };
 
@@ -322,26 +325,34 @@ export class TableHandlesProsemirrorPlugin<
       // or column. The decorations are updated in the `dragOverHandler` method.
       props: {
         decorations: (state) => {
-          const pluginState = tableHandlesPluginKey.getState(state);
-
-          if (pluginState === undefined) {
+          if (
+            this.view === undefined ||
+            this.view.state === undefined ||
+            this.view.state.draggingState === undefined ||
+            this.view.tablePos === undefined
+          ) {
             return;
           }
 
+          const newIndex =
+            this.view.state.draggingState.draggedCellOrientation === "row"
+              ? this.view.state.rowIndex
+              : this.view.state.colIndex;
+
           const decorations: Decoration[] = [];
 
-          if (pluginState.newIndex === pluginState.originalIndex) {
+          if (newIndex === this.view.state.draggingState.originalIndex) {
             return DecorationSet.create(state.doc, decorations);
           }
 
           // Gets the table to show the drop cursor in.
-          const tableResolvedPos = state.doc.resolve(pluginState.tablePos + 1);
+          const tableResolvedPos = state.doc.resolve(this.view.tablePos + 1);
           const tableNode = tableResolvedPos.node();
 
-          if (pluginState.draggedCellOrientation === "row") {
+          if (this.view.state.draggingState.draggedCellOrientation === "row") {
             // Gets the row at the new index.
             const rowResolvedPos = state.doc.resolve(
-              tableResolvedPos.posAtIndex(pluginState.newIndex) + 1
+              tableResolvedPos.posAtIndex(newIndex) + 1
             );
             const rowNode = rowResolvedPos.node();
 
@@ -358,7 +369,7 @@ export class TableHandlesProsemirrorPlugin<
               // original index.
               const decorationPos =
                 cellResolvedPos.pos +
-                (pluginState.newIndex > pluginState.originalIndex
+                (newIndex > this.view.state.draggingState.originalIndex
                   ? cellNode.nodeSize - 2
                   : 0);
               decorations.push(
@@ -373,7 +384,9 @@ export class TableHandlesProsemirrorPlugin<
                   // table cells is an odd number of pixels. So this makes the
                   // positioning slightly more consistent regardless of where
                   // the row is being dropped.
-                  if (pluginState.newIndex > pluginState.originalIndex) {
+                  if (
+                    newIndex > this.view!.state!.draggingState!.originalIndex
+                  ) {
                     widget.style.bottom = "-2px";
                   } else {
                     widget.style.top = "-3px";
@@ -394,7 +407,7 @@ export class TableHandlesProsemirrorPlugin<
 
               // Gets the cell at the new index in the row.
               const cellResolvedPos = state.doc.resolve(
-                rowResolvedPos.posAtIndex(pluginState.newIndex) + 1
+                rowResolvedPos.posAtIndex(newIndex) + 1
               );
               const cellNode = cellResolvedPos.node();
 
@@ -403,7 +416,7 @@ export class TableHandlesProsemirrorPlugin<
               // original index.
               const decorationPos =
                 cellResolvedPos.pos +
-                (pluginState.newIndex > pluginState.originalIndex
+                (newIndex > this.view.state.draggingState.originalIndex
                   ? cellNode.nodeSize - 2
                   : 0);
               decorations.push(
@@ -418,7 +431,9 @@ export class TableHandlesProsemirrorPlugin<
                   // table cells is an odd number of pixels. So this makes the
                   // positioning slightly more consistent regardless of where
                   // the column is being dropped.
-                  if (pluginState.newIndex > pluginState.originalIndex) {
+                  if (
+                    newIndex > this.view!.state!.draggingState!.originalIndex
+                  ) {
                     widget.style.right = "-2px";
                   } else {
                     widget.style.left = "-3px";
@@ -432,34 +447,6 @@ export class TableHandlesProsemirrorPlugin<
           }
 
           return DecorationSet.create(state.doc, decorations);
-        },
-      },
-      // For the view to be able to pass data to update the decorations, we need
-      // to use a state field, where we store drag & drop information.
-      state: {
-        init() {
-          return undefined;
-        },
-        apply(transaction, prev) {
-          const isDragging = transaction.getMeta(tableHandlesPluginKey);
-
-          // If the transaction contains new table drag & drop information, we
-          // update the existing state with the new information.
-          if (isDragging) {
-            return {
-              // The state may be undefined
-              ...(prev || {}),
-              ...isDragging,
-            };
-          }
-
-          // If the transaction contains null table drag & drop information, we
-          // clear the state.
-          if (isDragging === null) {
-            return undefined;
-          }
-
-          return prev;
         },
       },
     });
@@ -485,6 +472,7 @@ export class TableHandlesProsemirrorPlugin<
 
     this.view!.state.draggingState = {
       draggedCellOrientation: "col",
+      originalIndex: this.view!.state.colIndex,
       mousePos: event.clientX,
     };
     this.view!.updateState();
@@ -520,6 +508,7 @@ export class TableHandlesProsemirrorPlugin<
 
     this.view!.state.draggingState = {
       draggedCellOrientation: "row",
+      originalIndex: this.view!.state.rowIndex,
       mousePos: event.clientY,
     };
     this.view!.updateState();
