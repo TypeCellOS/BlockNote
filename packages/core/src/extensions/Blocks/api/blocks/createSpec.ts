@@ -204,11 +204,3 @@ export function createBlockSpec<
     },
   });
 }
-
-/**
- *
- * - "breaking tests"
- * - organization of files
- * - 2 paragraph bug + test case
- * - nesting
- */
