@@ -4,6 +4,7 @@ import {
   BlockNoteEditor,
   BlockSchema,
   getDraggableBlockFromCoords,
+  PartialBlock,
 } from "../..";
 import { EventEmitter } from "../../shared/EventEmitter";
 import { Block } from "../Blocks/api/blockTypes";
@@ -102,7 +103,9 @@ export class TableHandlesView<BSchema extends BlockSchema>
     };
 
     pmView.dom.addEventListener("mousemove", this.mouseMoveHandler);
+
     document.addEventListener("dragover", this.dragOverHandler);
+    document.addEventListener("drop", this.dropHandler);
 
     document.addEventListener("scroll", this.scrollHandler);
   }
@@ -278,6 +281,38 @@ export class TableHandlesView<BSchema extends BlockSchema>
     }
   };
 
+  dropHandler = (event: DragEvent) => {
+    if (this.state === undefined || this.state.draggingState === undefined) {
+      return;
+    }
+
+    event.preventDefault();
+
+    const rows = this.state.block.content.rows;
+
+    if (this.state.draggingState.draggedCellOrientation === "row") {
+      const rowToMove = rows[this.state.draggingState.originalIndex];
+      rows.splice(this.state.draggingState.originalIndex, 1);
+      rows.splice(this.state.rowIndex, 0, rowToMove);
+    } else {
+      const cellsToMove = rows.map(
+        (row) => row.cells[this.state!.draggingState!.originalIndex]
+      );
+      rows.forEach((row, rowIndex) => {
+        row.cells.splice(this.state!.draggingState!.originalIndex, 1);
+        row.cells.splice(this.state!.colIndex, 0, cellsToMove[rowIndex]);
+      });
+    }
+
+    this.editor.updateBlock(this.state.block, {
+      type: "table",
+      content: {
+        type: "tableContent",
+        rows: rows,
+      },
+    } as PartialBlock<BSchema>);
+  };
+
   scrollHandler = () => {
     if (this.state?.show) {
       const tableElement = document.querySelector(
@@ -297,7 +332,9 @@ export class TableHandlesView<BSchema extends BlockSchema>
 
   destroy() {
     this.pmView.dom.removeEventListener("mousedown", this.mouseMoveHandler);
+
     document.removeEventListener("dragover", this.dragOverHandler);
+    document.removeEventListener("drop", this.dropHandler);
 
     document.removeEventListener("scroll", this.scrollHandler);
   }
