@@ -53,7 +53,8 @@ export type Props<PSchema extends PropSchema> = {
     : never;
 };
 
-// BlockConfig contains the "schema" info about a Block
+// BlockConfig contains the "schema" info about a Block type
+// i.e. what props it supports, what content it supports, etc.
 export type BlockConfig = {
   type: string;
   readonly propSchema: PropSchema;
@@ -90,8 +91,7 @@ export type TiptapBlockImplementation<
   };
 };
 
-// Container for both the config and implementation of a block,
-// and the type of BlockImplementation is based on that of the config
+// A Spec contains both the Config and Implementation
 export type BlockSpec<
   T extends BlockConfig,
   B extends BlockSchema,
@@ -114,11 +114,8 @@ type NamesMatch<Blocks extends Record<string, BlockConfig>> = Blocks extends {
   ? Blocks
   : never;
 
-// Defines multiple block specs. Also ensures that the key of each block schema
-// is the same as name of the TipTap node in it. This should be passed in the
-// `blocks` option of the BlockNoteEditor. From a block schema, we can derive
-// both the blocks' internal implementation (as TipTap nodes) and the type
-// information for the external API.
+// A Schema contains all the types (Configs) supported in an editor
+// The keys are the "type" of a block
 export type BlockSchema = NamesMatch<Record<string, BlockConfig>>;
 
 export type BlockSpecs = Record<
@@ -149,16 +146,6 @@ export type TableContent<
   type: "tableContent";
   rows: {
     cells: InlineContent<I, S>[][];
-  }[];
-};
-
-export type PartialTableContent<
-  I extends InlineContentSchema,
-  S extends StyleSchema = StyleSchema
-> = {
-  type: "tableContent";
-  rows: {
-    cells: PartialInlineContent<I, S>[];
   }[];
 };
 
@@ -220,7 +207,22 @@ export type SpecificBlock<
   children: Block<BSchema, I, S>[];
 };
 
-/** CODE FOR PARTIAL BLOCKS, analogous to above */
+/** CODE FOR PARTIAL BLOCKS, analogous to above
+ *
+ * Partial blocks are convenience-wrappers to make it easier to
+ *create/update blocks in the editor.
+ *
+ */
+
+export type PartialTableContent<
+  I extends InlineContentSchema,
+  S extends StyleSchema = StyleSchema
+> = {
+  type: "tableContent";
+  rows: {
+    cells: PartialInlineContent<I, S>[];
+  }[];
+};
 
 type PartialBlockFromConfigNoChildren<
   B extends BlockConfig,
@@ -237,8 +239,6 @@ type PartialBlockFromConfigNoChildren<
     : undefined;
 };
 
-// Same as BlockWithoutChildren, but as a partial type with some changes to make
-// it easier to create/update blocks in the editor.
 type PartialBlocksWithoutChildren<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
@@ -250,9 +250,6 @@ type PartialBlocksWithoutChildren<
     S
   >;
 };
-
-// Same as Block, but as a partial type with some changes to make it easier to
-// create/update blocks in the editor.
 
 export type PartialBlock<
   BSchema extends BlockSchema,
@@ -266,19 +263,6 @@ export type PartialBlock<
   Partial<{
     children: PartialBlock<BSchema, I, S>[];
   }>;
-
-// export type PartialBlock<T extends BlockSchema | BlockConfig> =
-//   T extends BlockSchema
-//     ? PartialBlocksWithoutChildren<T>[keyof T]
-//     : T extends BlockConfig
-//     ? PartialBlockFromConfigNoChildren<T>
-//     : never;
-
-// & {
-//   children?: PartialBlock<
-//     T extends BlockSchema ? T : any // any should probably be BlockSchemaWithBlock<B["type"], B["propSchema"]>;
-//   >[];
-// };
 
 export type SpecificPartialBlock<
   BSchema extends BlockSchema,

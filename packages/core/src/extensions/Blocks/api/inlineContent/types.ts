@@ -2,6 +2,8 @@ import { Node } from "@tiptap/core";
 import { PropSchema, Props } from "../blocks/types";
 import { StyleSchema, Styles } from "../styles/types";
 
+// InlineContentConfig contains the "schema" info about an InlineContent type
+// i.e. what props it supports, what content it supports, etc.
 export type InlineContentConfig = {
   type: string;
   content: "styled" | "none"; // | "plain"
@@ -9,18 +11,22 @@ export type InlineContentConfig = {
   // content: "inline" | "none" | "table";
 };
 
+// InlineContentImplementation contains the "implementation" info about an InlineContent element
+// such as the functions / Nodes required to render and / or serialize it
 // @ts-ignore
 export type InlineContentImplementation<T extends InlineContentConfig> = {
   node: Node;
 };
 
-// Container for both the config and implementation of a block,
-// and the type of BlockImplementation is based on that of the config
+// Container for both the config and implementation of InlineContent,
+// and the type of `implementation` is based on that of the config
 export type InlineContentSpec<T extends InlineContentConfig> = {
   config: T;
   implementation: InlineContentImplementation<T>;
 };
 
+// A Schema contains all the types (Configs) supported in an editor
+// The keys are the "type" of InlineContent elements
 export type InlineContentSchema = Record<string, InlineContentConfig>;
 
 export type InlineContentSpecs = Record<
