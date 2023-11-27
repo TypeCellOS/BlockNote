@@ -285,7 +285,12 @@ export const BlockContainer = Node.create<{
                 .setSelection(
                   state.schema.nodes[newType].spec.content === ""
                     ? new NodeSelection(state.tr.doc.resolve(startPos))
-                    : new TextSelection(state.tr.doc.resolve(startPos))
+                    : state.schema.nodes[newType].spec.content === "inline*"
+                    ? new TextSelection(state.tr.doc.resolve(startPos))
+                    : // Need to offset the position as we have to get through the
+                      // `tableRow` and `tableCell` nodes to get to the
+                      // `tableParagraph` node we want to set the selection in.
+                      new TextSelection(state.tr.doc.resolve(startPos + 4))
                 );
             }
 

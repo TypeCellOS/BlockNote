@@ -40,6 +40,10 @@ export type ComponentStyles = Partial<{
   Editor: CSSObject;
   // Used in the Image Toolbar
   FileInput: CSSObject;
+  // Handle that appears next to tables and the menu that opens when clicking it
+  TableHandle: CSSObject;
+  TableHandleMenu: CSSObject;
+  // Used in the Image Toolbar
   Tabs: CSSObject;
   TextInput: CSSObject;
   // Wraps Formatting Toolbar & Hyperlink Toolbar
@@ -127,6 +131,39 @@ export const blockNoteToMantineTheme = (theme: Theme): MantineThemeOverride => {
               },
             },
             theme.componentStyles?.(theme).Menu || {}
+          ),
+        }),
+      },
+      TableHandle: {
+        styles: () => ({
+          root: _.merge<CSSObject, CSSObject>(
+            {
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: theme.colors.menu.background,
+              border: border,
+              borderRadius: innerBorderRadius,
+              boxShadow: shadow,
+              color: theme.colors.sideMenu,
+              "div:hover, div.bn-table-handle-dragging": {
+                backgroundColor: theme.colors.hovered.background,
+              },
+            },
+            theme.componentStyles?.(theme).TableHandle || {}
+          ),
+        }),
+      },
+      TableHandleMenu: {
+        styles: () => ({
+          root: _.merge<CSSObject, CSSObject>(
+            {
+              ".mantine-Menu-item": {
+                fontSize: "12px",
+                height: "30px",
+              },
+            },
+            theme.componentStyles?.(theme).TableHandleMenu || {}
           ),
         }),
       },
