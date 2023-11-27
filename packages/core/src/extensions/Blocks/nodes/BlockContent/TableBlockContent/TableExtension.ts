@@ -1,4 +1,4 @@
-import { Extension, callOrReturn, getExtensionField } from "@tiptap/core";
+import { callOrReturn, Extension, getExtensionField } from "@tiptap/core";
 import { columnResizing, tableEditing } from "prosemirror-tables";
 
 export const TableExtension = Extension.create({
@@ -15,6 +15,11 @@ export const TableExtension = Extension.create({
 
   addKeyboardShortcuts() {
     return {
+      // Makes enter create a new line within the cell.
+      Enter: () => {
+        this.editor.commands.setHardBreak();
+        return true;
+      },
       // Ensures that backspace won't delete the table if the text cursor is at
       // the start of a cell and the selection is empty.
       Backspace: () => {
