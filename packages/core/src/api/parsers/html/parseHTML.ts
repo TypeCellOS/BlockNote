@@ -19,6 +19,7 @@ export async function HTMLToBlocks<
 
   const parser = DOMParser.fromSchema(pmSchema);
 
+  // const x = parser.parseSlice(htmlNode);
   const parentNode = parser.parse(htmlNode, {
     topNode: pmSchema.nodes["blockGroup"].create(),
   }); //, { preserveWhitespace: "full" });

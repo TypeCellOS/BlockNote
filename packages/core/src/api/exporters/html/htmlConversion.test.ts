@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { BlockNoteEditor } from "../../../BlockNoteEditor";
 
+import { addIdsToBlocks, partialBlocksToBlocksForTesting } from "../../..";
 import { createBlockSpec } from "../../../extensions/Blocks/api/blocks/createSpec";
 import {
   BlockSchema,
@@ -294,7 +295,7 @@ const editorTestCases: EditorTestCases<
   ],
 };
 
-function convertToHTMLAndCompareSnapshots<
+async function convertToHTMLAndCompareSnapshots<
   B extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
@@ -304,6 +305,7 @@ function convertToHTMLAndCompareSnapshots<
   snapshotDirectory: string,
   snapshotName: string
 ) {
+  addIdsToBlocks(blocks);
   const serializer = createInternalHTMLSerializer(
     editor._tiptapEditor.schema,
     editor
@@ -316,6 +318,14 @@ function convertToHTMLAndCompareSnapshots<
     snapshotName +
     "/internal.html";
   expect(internalHTML).toMatchFileSnapshot(internalHTMLSnapshotPath);
+
+  const fullBlocks = partialBlocksToBlocksForTesting(
+    editor.blockSchema,
+    blocks
+  );
+  const parsed = await editor.HTMLToBlocks(internalHTML);
+
+  expect(parsed).toStrictEqual(fullBlocks);
 
   const exporter = createExternalHTMLExporter(
     editor._tiptapEditor.schema,
@@ -356,9 +366,9 @@ describe("Test HTML conversion", () => {
 
       for (const document of testCase.documents) {
         // eslint-disable-next-line no-loop-func
-        it("Convert " + document.name + " to HTML", () => {
+        it("Convert " + document.name + " to HTML", async () => {
           const nameSplit = document.name.split("/");
-          convertToHTMLAndCompareSnapshots(
+          await convertToHTMLAndCompareSnapshots(
             editor,
             document.blocks,
             nameSplit[0],

@@ -2,21 +2,11 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { BlockNoteEditor } from "../../BlockNoteEditor";
 import { PartialBlock } from "../../extensions/Blocks/api/blocks/types";
-import UniqueID from "../../extensions/UniqueID/UniqueID";
 import { customInlineContentTestCases } from "../testCases/cases/customInlineContent";
 import { customStylesTestCases } from "../testCases/cases/customStyles";
 import { defaultSchemaTestCases } from "../testCases/cases/defaultSchema";
 import { blockToNode, nodeToBlock } from "./nodeConversions";
-import { partialBlockToBlockForTesting } from "./testUtil";
-
-function addIdsToBlock(block: PartialBlock<any, any, any>) {
-  if (!block.id) {
-    block.id = UniqueID.options.generateID();
-  }
-  for (const child of block.children || []) {
-    addIdsToBlock(child);
-  }
-}
+import { addIdsToBlock, partialBlockToBlockForTesting } from "./testUtil";
 
 function validateConversion(
   block: PartialBlock<any, any, any>,

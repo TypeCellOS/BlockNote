@@ -13,6 +13,7 @@ import {
   isStyledTextInlineContent,
 } from "../../extensions/Blocks/api/inlineContent/types";
 import { StyleSchema } from "../../extensions/Blocks/api/styles/types";
+import UniqueID from "../../extensions/UniqueID/UniqueID";
 
 function textShorthandToStyledText(
   content: string | StyledText<any>[] = ""
@@ -62,6 +63,19 @@ function partialContentToInlineContent(
   return content;
 }
 
+export function partialBlocksToBlocksForTesting<
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(
+  schema: BSchema,
+  partialBlocks: Array<PartialBlock<BSchema, I, S>>
+): Array<Block<BSchema, I, S>> {
+  return partialBlocks.map((partialBlock) =>
+    partialBlockToBlockForTesting(schema, partialBlock)
+  );
+}
+
 export function partialBlockToBlockForTesting<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
@@ -95,4 +109,19 @@ export function partialBlockToBlockForTesting<
       return partialBlockToBlockForTesting(schema, c);
     }),
   } as any;
+}
+
+export function addIdsToBlock(block: PartialBlock<any, any, any>) {
+  if (!block.id) {
+    block.id = UniqueID.options.generateID();
+  }
+  if (block.children) {
+    addIdsToBlocks(block.children);
+  }
+}
+
+export function addIdsToBlocks(blocks: PartialBlock<any, any, any>[]) {
+  for (const block of blocks) {
+    addIdsToBlock(block);
+  }
 }

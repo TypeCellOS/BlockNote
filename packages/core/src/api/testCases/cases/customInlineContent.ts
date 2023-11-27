@@ -66,7 +66,7 @@ export const customInlineContentTestCases: EditorTestCases<
   InlineContentSchemaFromSpecs<typeof customInlineContent>,
   DefaultStyleSchema
 > = {
-  name: "custom style schema",
+  name: "custom inline content schema",
   createEditor: () => {
     return BlockNoteEditor.create({
       uploadFile: uploadToTmpFilesDotOrg_DEV_ONLY,
