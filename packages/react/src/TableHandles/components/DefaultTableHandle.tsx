@@ -12,8 +12,6 @@ export const DefaultTableHandle = <BSchema extends BlockSchema>(
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        // width: "16px",
-        // height: "24px",
         marginInline: "-4px",
         overflow: "visible",
       }}>
