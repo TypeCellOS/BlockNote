@@ -7,7 +7,7 @@ import { InlineContentSchema } from "../../extensions/Blocks/api/inlineContent/t
 import { StyleSchema } from "../../extensions/Blocks/api/styles/types";
 import { createExternalHTMLExporter } from "./html/externalHTMLExporter";
 import { createInternalHTMLSerializer } from "./html/internalHTMLSerializer";
-import { markdown } from "./markdown/formatConversions";
+import { cleanHTMLToMarkdown } from "./markdown/markdownExporter";
 
 export const createCopyToClipboardExtension = <
   BSchema extends BlockSchema,
@@ -51,7 +51,7 @@ export const createCopyToClipboardExtension = <
                     selectedFragment
                   );
 
-                const plainText = markdown(externalHTML);
+                const plainText = cleanHTMLToMarkdown(externalHTML);
 
                 // TODO: Writing to other MIME types not working in Safari for
                 //  some reason.

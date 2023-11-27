@@ -45,7 +45,10 @@ import { getBlockInfoFromPos } from "./extensions/Blocks/helpers/getBlockInfoFro
 
 import "prosemirror-tables/style/tables.css";
 
+import { createExternalHTMLExporter } from "./api/exporters/html/externalHTMLExporter";
+import { blocksToMarkdown } from "./api/exporters/markdown/markdownExporter";
 import { HTMLToBlocks } from "./api/parsers/html/parseHTML";
+import { markdownToBlocks } from "./api/parsers/markdown/parseMarkdown";
 import "./editor.css";
 import { getBlockSchemaFromSpecs } from "./extensions/Blocks/api/blocks/internal";
 import { getInlineContentSchemaFromSpecs } from "./extensions/Blocks/api/inlineContent/internal";
@@ -944,16 +947,22 @@ export class BlockNoteEditor<
   }
 
   // TODO: Fix when implementing HTML/Markdown import & export
-  // /**
-  //  * Serializes blocks into an HTML string. To better conform to HTML standards, children of blocks which aren't list
-  //  * items are un-nested in the output HTML.
-  //  * @param blocks An array of blocks that should be serialized into HTML.
-  //  * @returns The blocks, serialized as an HTML string.
-  //  */
-  // public async blocksToHTML(blocks: Block<BSchema>[]): Promise<string> {
-  //   return blocksToHTML(blocks, this._tiptapEditor.schema, this);
-  // }
-  //
+  /**
+   * Serializes blocks into an HTML string. To better conform to HTML standards, children of blocks which aren't list
+   * items are un-nested in the output HTML.
+   * @param blocks An array of blocks that should be serialized into HTML.
+   * @returns The blocks, serialized as an HTML string.
+   */
+  public async blocksToHTMLLossy(
+    blocks = this.topLevelBlocks
+  ): Promise<string> {
+    const exporter = createExternalHTMLExporter(
+      this._tiptapEditor.schema,
+      this
+    );
+    return exporter.exportBlocks(blocks);
+  }
+
   /**
    * Parses blocks from an HTML string. Tries to create `Block` objects out of any HTML block-level elements, and
    * `InlineNode` objects from any HTML inline elements, though not all element types are recognized. If BlockNote
@@ -961,7 +970,7 @@ export class BlockNoteEditor<
    * @param html The HTML string to parse blocks from.
    * @returns The blocks parsed from the HTML string.
    */
-  public async HTMLToBlocks(
+  public async tryParseHTMLToBlocks(
     html: string
   ): Promise<Block<BSchema, ISchema, SSchema>[]> {
     return HTMLToBlocks(
@@ -972,27 +981,37 @@ export class BlockNoteEditor<
       this._tiptapEditor.schema
     );
   }
-  //
-  // /**
-  //  * Serializes blocks into a Markdown string. The output is simplified as Markdown does not support all features of
-  //  * BlockNote - children of blocks which aren't list items are un-nested and certain styles are removed.
-  //  * @param blocks An array of blocks that should be serialized into Markdown.
-  //  * @returns The blocks, serialized as a Markdown string.
-  //  */
-  // public async blocksToMarkdown(blocks: Block<BSchema>[]): Promise<string> {
-  //   return blocksToMarkdown(blocks, this._tiptapEditor.schema, this);
-  // }
-  //
-  // /**
-  //  * Creates a list of blocks from a Markdown string. Tries to create `Block` and `InlineNode` objects based on
-  //  * Markdown syntax, though not all symbols are recognized. If BlockNote doesn't recognize a symbol, it will parse it
-  //  * as text.
-  //  * @param markdown The Markdown string to parse blocks from.
-  //  * @returns The blocks parsed from the Markdown string.
-  //  */
-  // public async markdownToBlocks(markdown: string): Promise<Block<BSchema>[]> {
-  //   return markdownToBlocks(markdown, this.schema, this._tiptapEditor.schema);
-  // }
+
+  /**
+   * Serializes blocks into a Markdown string. The output is simplified as Markdown does not support all features of
+   * BlockNote - children of blocks which aren't list items are un-nested and certain styles are removed.
+   * @param blocks An array of blocks that should be serialized into Markdown.
+   * @returns The blocks, serialized as a Markdown string.
+   */
+  public async blocksToMarkdownLossy(
+    blocks = this.topLevelBlocks
+  ): Promise<string> {
+    return blocksToMarkdown(blocks, this._tiptapEditor.schema, this);
+  }
+
+  /**
+   * Creates a list of blocks from a Markdown string. Tries to create `Block` and `InlineNode` objects based on
+   * Markdown syntax, though not all symbols are recognized. If BlockNote doesn't recognize a symbol, it will parse it
+   * as text.
+   * @param markdown The Markdown string to parse blocks from.
+   * @returns The blocks parsed from the Markdown string.
+   */
+  public async tryParseMarkdownToBlocks(
+    markdown: string
+  ): Promise<Block<BSchema, ISchema, SSchema>[]> {
+    return markdownToBlocks(
+      markdown,
+      this.blockSchema,
+      this.inlineContentSchema,
+      this.styleSchema,
+      this._tiptapEditor.schema
+    );
+  }
 
   /**
    * Updates the user info for the current user that's shown to other collaborators.

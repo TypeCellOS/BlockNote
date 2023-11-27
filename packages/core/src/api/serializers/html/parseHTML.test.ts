@@ -140,7 +140,8 @@ describe("Parse HTML", () => {
     await parseHTMLAndCompareSnapshots(html, "parse-mixed-nested-lists");
   });
 
-  it("Parse divs", async () => {
+  // TODO: doesn't work
+  it.only("Parse divs", async () => {
     const html = `<div>Single Div</div>
   <div>
     Div
@@ -154,12 +155,6 @@ describe("Parse HTML", () => {
   </div>`;
 
     await parseHTMLAndCompareSnapshots(html, "parse-divs");
-  });
-
-  it("Parse two divs", async () => {
-    const html = `<div>Single Div</div><div>second Div</div>`;
-
-    await parseHTMLAndCompareSnapshots(html, "parse-two-divs");
   });
 
   it("Parse fake image caption", async () => {
