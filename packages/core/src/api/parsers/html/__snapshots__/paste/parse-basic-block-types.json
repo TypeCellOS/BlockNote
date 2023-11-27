@@ -1,16 +1,17 @@
 [
   {
     "id": "1",
-    "type": "paragraph",
+    "type": "heading",
     "props": {
       "textColor": "default",
       "backgroundColor": "default",
-      "textAlignment": "left"
+      "textAlignment": "left",
+      "level": 1
     },
     "content": [
       {
         "type": "text",
-        "text": "Single Div",
+        "text": "Heading 1",
         "styles": {}
       }
     ],
@@ -18,16 +19,17 @@
   },
   {
     "id": "2",
-    "type": "paragraph",
+    "type": "heading",
     "props": {
       "textColor": "default",
       "backgroundColor": "default",
-      "textAlignment": "left"
+      "textAlignment": "left",
+      "level": 2
     },
     "content": [
       {
         "type": "text",
-        "text": " Div",
+        "text": "Heading 2",
         "styles": {}
       }
     ],
@@ -35,16 +37,17 @@
   },
   {
     "id": "3",
-    "type": "paragraph",
+    "type": "heading",
     "props": {
       "textColor": "default",
       "backgroundColor": "default",
-      "textAlignment": "left"
+      "textAlignment": "left",
+      "level": 3
     },
     "content": [
       {
         "type": "text",
-        "text": "Nested Div",
+        "text": "Heading 3",
         "styles": {}
       }
     ],
@@ -61,7 +64,7 @@
     "content": [
       {
         "type": "text",
-        "text": "Nested Div",
+        "text": "Paragraph",
         "styles": {}
       }
     ],
@@ -69,19 +72,14 @@
   },
   {
     "id": "5",
-    "type": "paragraph",
+    "type": "image",
     "props": {
-      "textColor": "default",
       "backgroundColor": "default",
-      "textAlignment": "left"
+      "textAlignment": "left",
+      "url": "exampleURL",
+      "caption": "Image Caption",
+      "width": 512
     },
-    "content": [
-      {
-        "type": "text",
-        "text": "Single Div 2",
-        "styles": {}
-      }
-    ],
     "children": []
   },
   {
@@ -95,25 +93,46 @@
     "content": [
       {
         "type": "text",
-        "text": "Nested Div",
+        "text": "None ",
         "styles": {}
-      }
-    ],
-    "children": []
-  },
-  {
-    "id": "7",
-    "type": "paragraph",
-    "props": {
-      "textColor": "default",
-      "backgroundColor": "default",
-      "textAlignment": "left"
-    },
-    "content": [
+      },
       {
         "type": "text",
-        "text": "Nested Div",
-        "styles": {}
+        "text": "Bold ",
+        "styles": {
+          "bold": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "Italic ",
+        "styles": {
+          "italic": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "Underline ",
+        "styles": {
+          "underline": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "Strikethrough ",
+        "styles": {
+          "strike": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "All",
+        "styles": {
+          "bold": true,
+          "italic": true,
+          "underline": true,
+          "strike": true
+        }
       }
     ],
     "children": []

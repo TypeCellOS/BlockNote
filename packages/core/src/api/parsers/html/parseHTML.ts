@@ -18,18 +18,15 @@ export async function HTMLToBlocks<
   htmlNode.innerHTML = html.trim();
 
   const parser = DOMParser.fromSchema(pmSchema);
-  const parentNode = parser.parse(htmlNode); //, { preserveWhitespace: "full" });
 
+  const parentNode = parser.parse(htmlNode, {
+    topNode: pmSchema.nodes["blockGroup"].create(),
+  }); //, { preserveWhitespace: "full" });
   const blocks: Block<BSchema, I, S>[] = [];
 
-  for (let i = 0; i < parentNode.firstChild!.childCount; i++) {
+  for (let i = 0; i < parentNode.childCount; i++) {
     blocks.push(
-      nodeToBlock(
-        parentNode.firstChild!.child(i),
-        blockSchema,
-        icSchema,
-        styleSchema
-      )
+      nodeToBlock(parentNode.child(i), blockSchema, icSchema, styleSchema)
     );
   }
 

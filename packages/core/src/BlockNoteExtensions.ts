@@ -25,7 +25,6 @@ import {
   InlineContentSpecs,
 } from "./extensions/Blocks/api/inlineContent/types";
 import { StyleSchema, StyleSpecs } from "./extensions/Blocks/api/styles/types";
-import { TableExtension } from "./extensions/Blocks/nodes/BlockContent/TableBlockContent/TableExtension";
 import { Placeholder } from "./extensions/Placeholder/PlaceholderExtension";
 import { TextAlignmentExtension } from "./extensions/TextAlignment/TextAlignmentExtension";
 import { TextColorExtension } from "./extensions/TextColor/TextColorExtension";
@@ -100,7 +99,6 @@ export const getBlockNoteExtensions = <
     BlockGroup.configure({
       domAttributes: opts.domAttributes,
     }),
-    TableExtension,
     ...Object.values(opts.inlineContentSpecs).map((inlineContentSpec) => {
       return inlineContentSpec.implementation.node.configure({
         editor: opts.editor as any,
@@ -110,8 +108,8 @@ export const getBlockNoteExtensions = <
     ...Object.values(opts.blockSpecs).flatMap((blockSpec) => {
       return [
         // dependent nodes (e.g.: tablecell / row)
-        ...(blockSpec.implementation.requiredNodes || []).map((node) =>
-          node.configure({
+        ...(blockSpec.implementation.requiredExtensions || []).map((ext) =>
+          ext.configure({
             editor: opts.editor,
             domAttributes: opts.domAttributes,
           })

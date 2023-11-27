@@ -1,4 +1,11 @@
-import { Attribute, Attributes, Editor, Node, NodeConfig } from "@tiptap/core";
+import {
+  Attribute,
+  Attributes,
+  Editor,
+  Extension,
+  Node,
+  NodeConfig,
+} from "@tiptap/core";
 import { BlockNoteEditor } from "../../../../BlockNoteEditor";
 import { mergeCSSClasses } from "../../../../shared/utils";
 import { defaultBlockToHTML } from "../../nodes/BlockContent/defaultBlockHelpers";
@@ -217,7 +224,7 @@ export function createInternalBlockSpec<T extends BlockConfig>(
 export function createBlockSpecFromStronglyTypedTiptapNode<
   T extends Node,
   P extends PropSchema
->(node: T, propSchema: P, requiredNodes?: Node[]) {
+>(node: T, propSchema: P, requiredExtensions?: Array<Extension | Node>) {
   return createInternalBlockSpec(
     {
       type: node.name as T["name"],
@@ -234,7 +241,7 @@ export function createBlockSpecFromStronglyTypedTiptapNode<
     },
     {
       node,
-      requiredNodes,
+      requiredExtensions,
       toInternalHTML: defaultBlockToHTML,
       toExternalHTML: defaultBlockToHTML,
       // parse: () => undefined, // parse rules are in node already

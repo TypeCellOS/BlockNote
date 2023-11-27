@@ -1,7 +1,7 @@
 [
   {
     "id": "1",
-    "type": "paragraph",
+    "type": "bulletListItem",
     "props": {
       "textColor": "default",
       "backgroundColor": "default",
@@ -10,7 +10,7 @@
     "content": [
       {
         "type": "text",
-        "text": "Single Div",
+        "text": "Bullet List Item",
         "styles": {}
       }
     ],
@@ -18,7 +18,7 @@
   },
   {
     "id": "2",
-    "type": "paragraph",
+    "type": "bulletListItem",
     "props": {
       "textColor": "default",
       "backgroundColor": "default",
@@ -27,7 +27,7 @@
     "content": [
       {
         "type": "text",
-        "text": " Div",
+        "text": "Nested Bullet List Item",
         "styles": {}
       }
     ],
@@ -35,7 +35,7 @@
   },
   {
     "id": "3",
-    "type": "paragraph",
+    "type": "bulletListItem",
     "props": {
       "textColor": "default",
       "backgroundColor": "default",
@@ -44,7 +44,7 @@
     "content": [
       {
         "type": "text",
-        "text": "Nested Div",
+        "text": "Nested Bullet List Item",
         "styles": {}
       }
     ],
@@ -52,7 +52,7 @@
   },
   {
     "id": "4",
-    "type": "paragraph",
+    "type": "bulletListItem",
     "props": {
       "textColor": "default",
       "backgroundColor": "default",
@@ -61,7 +61,7 @@
     "content": [
       {
         "type": "text",
-        "text": "Nested Div",
+        "text": "Bullet List Item",
         "styles": {}
       }
     ],
@@ -69,7 +69,7 @@
   },
   {
     "id": "5",
-    "type": "paragraph",
+    "type": "numberedListItem",
     "props": {
       "textColor": "default",
       "backgroundColor": "default",
@@ -78,7 +78,7 @@
     "content": [
       {
         "type": "text",
-        "text": "Single Div 2",
+        "text": "Numbered List Item",
         "styles": {}
       }
     ],
@@ -86,7 +86,7 @@
   },
   {
     "id": "6",
-    "type": "paragraph",
+    "type": "numberedListItem",
     "props": {
       "textColor": "default",
       "backgroundColor": "default",
@@ -95,7 +95,7 @@
     "content": [
       {
         "type": "text",
-        "text": "Nested Div",
+        "text": "Nested Numbered List Item",
         "styles": {}
       }
     ],
@@ -103,7 +103,7 @@
   },
   {
     "id": "7",
-    "type": "paragraph",
+    "type": "numberedListItem",
     "props": {
       "textColor": "default",
       "backgroundColor": "default",
@@ -112,7 +112,24 @@
     "content": [
       {
         "type": "text",
-        "text": "Nested Div",
+        "text": "Nested Numbered List Item",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "8",
+    "type": "numberedListItem",
+    "props": {
+      "textColor": "default",
+      "backgroundColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "Numbered List Item",
         "styles": {}
       }
     ],
