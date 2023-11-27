@@ -11,15 +11,6 @@ export default defineConfig((conf) => ({
     setupFiles: ["./vitestSetup.ts"],
   },
   plugins: [react()],
-  resolve: {
-    alias:
-      conf.command === "build"
-        ? ({} as Record<string, string>)
-        : ({
-            // load live from sources with live reload working
-            "@blocknote/core": path.resolve(__dirname, "../core/src/"),
-          } as Record<string, string>),
-  },
   build: {
     sourcemap: true,
     lib: {

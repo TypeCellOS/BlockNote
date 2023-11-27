@@ -1,5 +1,6 @@
 import { BlockNoteEditor } from "../../BlockNoteEditor";
 import { Block, BlockSchema, PartialBlock } from "../Blocks/api/blocks/types";
+import { defaultBlockSchema } from "../Blocks/api/defaultBlocks";
 import {
   InlineContentSchema,
   isStyledTextInlineContent,
@@ -70,7 +71,7 @@ export const getDefaultSlashMenuItems = <
   I extends InlineContentSchema,
   S extends StyleSchema
 >(
-  schema: BSchema
+  schema: BSchema = defaultBlockSchema as unknown as BSchema
 ) => {
   const slashMenuItems: BaseSlashMenuItem<BSchema, I, S>[] = [];
 

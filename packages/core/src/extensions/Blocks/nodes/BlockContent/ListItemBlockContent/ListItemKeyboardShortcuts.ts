@@ -10,7 +10,6 @@ export const handleEnter = (editor: Editor) => {
   const selectionEmpty =
     editor.state.selection.anchor === editor.state.selection.head;
 
-  debugger;
   if (!contentType.name.endsWith("ListItem") || !selectionEmpty) {
     return false;
   }
