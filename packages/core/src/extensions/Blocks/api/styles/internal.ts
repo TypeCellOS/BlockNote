@@ -3,7 +3,9 @@ import {
   StyleConfig,
   StyleImplementation,
   StylePropSchema,
+  StyleSchemaFromSpecs,
   StyleSpec,
+  StyleSpecs,
 } from "./types";
 
 // This helper function helps to instantiate a stylespec with a
@@ -31,4 +33,10 @@ export function createStyleSpecFromTipTapMark<
       mark,
     }
   );
+}
+
+export function getStyleSchemaFromSpecs<T extends StyleSpecs>(specs: T) {
+  return Object.fromEntries(
+    Object.entries(specs).map(([key, value]) => [key, value.config])
+  ) as StyleSchemaFromSpecs<T>;
 }

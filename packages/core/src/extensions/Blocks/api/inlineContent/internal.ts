@@ -3,7 +3,9 @@ import { PropSchema } from "../blocks/types";
 import {
   InlineContentConfig,
   InlineContentImplementation,
+  InlineContentSchemaFromSpecs,
   InlineContentSpec,
+  InlineContentSpecs,
 } from "./types";
 
 // This helper function helps to instantiate a InlineContentSpec with a
@@ -32,4 +34,12 @@ export function createInlineContentSpecFromTipTapNode<
       node,
     }
   );
+}
+
+export function getInlineContentSchemaFromSpecs<T extends InlineContentSpecs>(
+  specs: T
+) {
+  return Object.fromEntries(
+    Object.entries(specs).map(([key, value]) => [key, value.config])
+  ) as InlineContentSchemaFromSpecs<T>;
 }

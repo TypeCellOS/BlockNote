@@ -11,13 +11,15 @@ import { BulletListItem } from "../nodes/BlockContent/ListItemBlockContent/Bulle
 import { NumberedListItem } from "../nodes/BlockContent/ListItemBlockContent/NumberedListItemBlockContent/NumberedListItemBlockContent";
 import { Paragraph } from "../nodes/BlockContent/ParagraphBlockContent/ParagraphBlockContent";
 import { Table } from "../nodes/BlockContent/TableBlockContent/TableBlockContent";
-import { BlockSchemaFromSpecs, BlockSpecs } from "./blocks/types";
+import { getBlockSchemaFromSpecs } from "./blocks/internal";
+import { BlockSpecs } from "./blocks/types";
+import { getInlineContentSchemaFromSpecs } from "./inlineContent/internal";
+import { InlineContentSpecs } from "./inlineContent/types";
 import {
-  InlineContentSchemaFromSpecs,
-  InlineContentSpecs,
-} from "./inlineContent/types";
-import { createStyleSpecFromTipTapMark } from "./styles/internal";
-import { StyleSchemaFromSpecs, StyleSpecs } from "./styles/types";
+  createStyleSpecFromTipTapMark,
+  getStyleSchemaFromSpecs,
+} from "./styles/internal";
+import { StyleSpecs } from "./styles/types";
 
 export const defaultBlockSpecs = {
   paragraph: Paragraph,
@@ -27,12 +29,6 @@ export const defaultBlockSpecs = {
   image: Image,
   table: Table,
 } satisfies BlockSpecs;
-
-export function getBlockSchemaFromSpecs<T extends BlockSpecs>(specs: T) {
-  return Object.fromEntries(
-    Object.entries(specs).map(([key, value]) => [key, value.config])
-  ) as BlockSchemaFromSpecs<T>;
-}
 
 export const defaultBlockSchema = getBlockSchemaFromSpecs(defaultBlockSpecs);
 
@@ -48,25 +44,11 @@ export const defaultStyleSpecs = {
   backgroundColor: BackgroundColor,
 } satisfies StyleSpecs;
 
-export function getStyleSchemaFromSpecs<T extends StyleSpecs>(specs: T) {
-  return Object.fromEntries(
-    Object.entries(specs).map(([key, value]) => [key, value.config])
-  ) as StyleSchemaFromSpecs<T>;
-}
-
 export const defaultStyleSchema = getStyleSchemaFromSpecs(defaultStyleSpecs);
 
 export type DefaultStyleSchema = typeof defaultStyleSchema;
 
 export const defaultInlineContentSpecs = {} satisfies InlineContentSpecs;
-
-export function getInlineContentSchemaFromSpecs<T extends InlineContentSpecs>(
-  specs: T
-) {
-  return Object.fromEntries(
-    Object.entries(specs).map(([key, value]) => [key, value.config])
-  ) as InlineContentSchemaFromSpecs<T>;
-}
 
 export const defaultInlineContentSchema = getInlineContentSchemaFromSpecs(
   defaultInlineContentSpecs

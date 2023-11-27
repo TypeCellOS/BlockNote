@@ -33,9 +33,6 @@ import {
   defaultBlockSpecs,
   defaultInlineContentSpecs,
   defaultStyleSpecs,
-  getBlockSchemaFromSpecs,
-  getInlineContentSchemaFromSpecs,
-  getStyleSchemaFromSpecs,
 } from "./extensions/Blocks/api/defaultBlocks";
 import { Selection } from "./extensions/Blocks/api/selectionTypes";
 import {
@@ -48,11 +45,14 @@ import { getBlockInfoFromPos } from "./extensions/Blocks/helpers/getBlockInfoFro
 
 import "prosemirror-tables/style/tables.css";
 import "./editor.css";
+import { getBlockSchemaFromSpecs } from "./extensions/Blocks/api/blocks/internal";
+import { getInlineContentSchemaFromSpecs } from "./extensions/Blocks/api/inlineContent/internal";
 import {
   InlineContentSchema,
   InlineContentSchemaFromSpecs,
   InlineContentSpecs,
 } from "./extensions/Blocks/api/inlineContent/types";
+import { getStyleSchemaFromSpecs } from "./extensions/Blocks/api/styles/internal";
 import { FormattingToolbarProsemirrorPlugin } from "./extensions/FormattingToolbar/FormattingToolbarPlugin";
 import { HyperlinkToolbarProsemirrorPlugin } from "./extensions/HyperlinkToolbar/HyperlinkToolbarPlugin";
 import { ImageToolbarProsemirrorPlugin } from "./extensions/ImageToolbar/ImageToolbarPlugin";

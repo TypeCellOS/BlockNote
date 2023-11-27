@@ -8,8 +8,10 @@ import { InlineContentSchema } from "../inlineContent/types";
 import { StyleSchema } from "../styles/types";
 import {
   BlockConfig,
+  BlockSchemaFromSpecs,
   BlockSchemaWithBlock,
   BlockSpec,
+  BlockSpecs,
   PropSchema,
   Props,
   SpecificBlock,
@@ -283,4 +285,10 @@ export function createBlockSpecFromStronglyTypedTiptapNode<
       toExternalHTML: defaultBlockToHTML,
     }
   );
+}
+
+export function getBlockSchemaFromSpecs<T extends BlockSpecs>(specs: T) {
+  return Object.fromEntries(
+    Object.entries(specs).map(([key, value]) => [key, value.config])
+  ) as BlockSchemaFromSpecs<T>;
 }
