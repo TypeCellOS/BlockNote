@@ -21,7 +21,14 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
       level: {
         default: 1,
         // instead of "level" attributes, use "data-level"
-        parseHTML: (element) => element.getAttribute("data-level")!,
+        parseHTML: (element) => {
+          const attr = element.getAttribute("data-level")!;
+          const parsed = parseInt(attr);
+          if (isFinite(parsed)) {
+            return parsed;
+          }
+          return undefined;
+        },
         renderHTML: (attributes) => {
           return {
             "data-level": (attributes.level as number).toString(),
@@ -78,23 +85,20 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
         }),
     };
   },
-
   parseHTML() {
     return [
       {
-        tag: "h1",
-        attrs: { level: 1 },
-        node: "heading",
-      },
-      {
-        tag: "h2",
-        attrs: { level: 2 },
-        node: "heading",
-      },
-      {
-        tag: "h3",
-        attrs: { level: 3 },
-        node: "heading",
+        // TODO: also do for other blocks?
+        tag: "div[data-content-type=" + this.name + "]",
+        getAttrs: (element) => {
+          if (typeof element === "string") {
+            return false;
+          }
+
+          return {
+            level: element.getAttribute("data-level"),
+          };
+        },
       },
     ];
   },
