@@ -3,6 +3,7 @@ import {
   camelToDataKebab,
   createInternalInlineContentSpec,
   createStronglyTypedTiptapNode,
+  getInlineContentParseRules,
   InlineContentConfig,
   InlineContentFromConfig,
   nodeToCustomInlineContent,
@@ -99,11 +100,7 @@ export function createReactInlineContentSpec<
     },
 
     parseHTML() {
-      return [
-        {
-          tag: `.bn-inline-content-section[data-inline-content-type="${inlineContentConfig.type}"]`,
-        },
-      ];
+      return getInlineContentParseRules(inlineContentConfig);
     },
 
     renderHTML({ node }) {

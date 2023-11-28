@@ -1,7 +1,9 @@
 import {
   addStyleAttributes,
   createInternalStyleSpec,
+  getStyleParseRules,
   StyleConfig,
+  stylePropsToAttributes,
 } from "@blocknote/core";
 import { Mark } from "@tiptap/react";
 import { FC } from "react";
@@ -26,29 +28,11 @@ export function createReactStyleSpec<T extends StyleConfig>(
     name: styleConfig.type,
 
     addAttributes() {
-      if (styleConfig.propSchema === "boolean") {
-        return {};
-      }
-      return {
-        stringValue: {
-          default: undefined,
-          parseHTML: (element) => element.getAttribute("data-value"),
-          renderHTML: (attributes) =>
-            attributes.stringValue !== undefined
-              ? {
-                  "data-value": attributes.stringValue,
-                }
-              : {},
-        },
-      };
+      return stylePropsToAttributes(styleConfig.propSchema);
     },
 
     parseHTML() {
-      return [
-        {
-          tag: `.bn-style[data-style-type="${styleConfig.type}"]`,
-        },
-      ];
+      return getStyleParseRules(styleConfig);
     },
 
     renderHTML({ mark }) {

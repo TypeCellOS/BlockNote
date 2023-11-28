@@ -1,4 +1,4 @@
-import { Mark } from "@tiptap/core";
+import { Attributes, Mark } from "@tiptap/core";
 import {
   StyleConfig,
   StyleImplementation,
@@ -8,6 +8,27 @@ import {
   StyleSpecs,
 } from "./types";
 import { mergeCSSClasses } from "../../../../shared/utils";
+
+export function stylePropsToAttributes(
+  propSchema: StylePropSchema
+): Attributes {
+  if (propSchema === "boolean") {
+    return {};
+  }
+  return {
+    stringValue: {
+      default: undefined,
+      keepOnSplit: true,
+      parseHTML: (element) => element.getAttribute("data-value"),
+      renderHTML: (attributes) =>
+        attributes.stringValue !== undefined
+          ? {
+              "data-value": attributes.stringValue,
+            }
+          : {},
+    },
+  };
+}
 
 // Function that adds necessary classes and attributes to the `dom` element
 // returned from a custom style's 'render' function, to ensure no data is lost

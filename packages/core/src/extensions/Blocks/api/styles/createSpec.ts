@@ -1,6 +1,11 @@
 import { Mark } from "@tiptap/core";
+import { ParseRule } from "@tiptap/pm/model";
 import { UnreachableCaseError } from "../../../../shared/utils";
-import { addStyleAttributes, createInternalStyleSpec } from "./internal";
+import {
+  addStyleAttributes,
+  createInternalStyleSpec,
+  stylePropsToAttributes,
+} from "./internal";
 import { StyleConfig, StyleSpec } from "./types";
 
 export type CustomStyleImplementation<T extends StyleConfig> = {
@@ -17,6 +22,14 @@ export type CustomStyleImplementation<T extends StyleConfig> = {
 
 // TODO: support serialization
 
+export function getStyleParseRules(config: StyleConfig): ParseRule[] {
+  return [
+    {
+      tag: `.bn-style[data-style-type="${config.type}"]`,
+    },
+  ];
+}
+
 export function createStyleSpec<T extends StyleConfig>(
   styleConfig: T,
   styleImplementation: CustomStyleImplementation<T>
@@ -25,29 +38,11 @@ export function createStyleSpec<T extends StyleConfig>(
     name: styleConfig.type,
 
     addAttributes() {
-      if (styleConfig.propSchema === "boolean") {
-        return {};
-      }
-      return {
-        stringValue: {
-          default: undefined,
-          parseHTML: (element) => element.getAttribute("data-value"),
-          renderHTML: (attributes) =>
-            attributes.stringValue !== undefined
-              ? {
-                  "data-value": attributes.stringValue,
-                }
-              : {},
-        },
-      };
+      return stylePropsToAttributes(styleConfig.propSchema);
     },
 
     parseHTML() {
-      return [
-        {
-          tag: `.bn-style[data-style-type="${styleConfig.type}"]`,
-        },
-      ];
+      return getStyleParseRules(styleConfig);
     },
 
     renderHTML({ mark }) {

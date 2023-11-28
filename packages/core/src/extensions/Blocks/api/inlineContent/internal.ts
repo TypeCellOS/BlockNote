@@ -12,7 +12,7 @@ import { mergeCSSClasses } from "../../../../shared/utils";
 
 // Function that adds necessary classes and attributes to the `dom` element
 // returned from a custom inline content's 'render' function, to ensure no data
-// is lost on copy & paste.
+// is lost on internal copy & paste.
 export function addInlineContentAttributes<
   IType extends string,
   PSchema extends PropSchema

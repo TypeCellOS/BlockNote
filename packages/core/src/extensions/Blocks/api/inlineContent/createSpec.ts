@@ -1,4 +1,5 @@
 import { Node } from "@tiptap/core";
+import { ParseRule } from "@tiptap/pm/model";
 import { nodeToCustomInlineContent } from "../../../../api/nodeConversions/nodeConversions";
 import { propsToAttributes } from "../blocks/internal";
 import { Props } from "../blocks/types";
@@ -41,6 +42,16 @@ export type CustomInlineContentImplementation<
   };
 };
 
+export function getInlineContentParseRules(
+  config: InlineContentConfig
+): ParseRule[] {
+  return [
+    {
+      tag: `.bn-inline-content-section[data-inline-content-type="${config.type}"]`,
+    },
+  ];
+}
+
 export function createInlineContentSpec<
   T extends InlineContentConfig,
   S extends StyleSchema
@@ -62,11 +73,7 @@ export function createInlineContentSpec<
     },
 
     parseHTML() {
-      return [
-        {
-          tag: `.bn-inline-content-section[data-inline-content-type="${inlineContentConfig.type}"]`,
-        },
-      ];
+      return getInlineContentParseRules(inlineContentConfig);
     },
 
     renderHTML({ node }) {
