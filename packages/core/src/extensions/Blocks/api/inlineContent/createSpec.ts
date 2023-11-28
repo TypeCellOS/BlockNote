@@ -2,13 +2,17 @@ import { Node } from "@tiptap/core";
 import { nodeToCustomInlineContent } from "../../../../api/nodeConversions/nodeConversions";
 import { propsToAttributes } from "../blocks/internal";
 import { StyleSchema } from "../styles/types";
-import { createInlineContentSpecFromTipTapNode } from "./internal";
+import {
+  addInlineContentAttributes,
+  createInlineContentSpecFromTipTapNode,
+} from "./internal";
 import {
   CustomInlineContentConfig,
   InlineContentConfig,
   InlineContentFromConfig,
   InlineContentSpec,
 } from "./types";
+import { Props } from "../blocks/types";
 
 // TODO: support serialization
 
@@ -58,6 +62,14 @@ export function createInlineContentSpec<
       return propsToAttributes(inlineContentConfig.propSchema);
     },
 
+    parseHTML() {
+      return [
+        {
+          tag: `.bn-inline-content-section[data-inline-content-type="${inlineContentConfig.type}"]`,
+        },
+      ];
+    },
+
     renderHTML({ node }) {
       const editor = this.options.editor;
 
@@ -69,7 +81,15 @@ export function createInlineContentSpec<
         ) as any as InlineContentFromConfig<T, S> // TODO: fix cast
       );
 
-      return output;
+      return {
+        dom: addInlineContentAttributes(
+          output.dom,
+          inlineContentConfig.type,
+          node.attrs as Props<T["propSchema"]>,
+          inlineContentConfig.propSchema
+        ),
+        contentDOM: output.contentDOM,
+      };
     },
   });
 

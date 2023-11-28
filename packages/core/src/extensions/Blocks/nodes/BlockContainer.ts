@@ -483,13 +483,12 @@ export const BlockContainer = Node.create<{
         // Reverts block content type to a paragraph if the selection is at the start of the block.
         () =>
           commands.command(({ state }) => {
-            const { contentType } = getBlockInfoFromPos(
+            const { contentType, startPos } = getBlockInfoFromPos(
               state.doc,
               state.selection.from
             )!;
 
-            const selectionAtBlockStart =
-              state.selection.$anchor.parentOffset === 0;
+            const selectionAtBlockStart = state.selection.from === startPos + 1;
             const isParagraph = contentType.name === "paragraph";
 
             if (selectionAtBlockStart && !isParagraph) {
@@ -504,8 +503,12 @@ export const BlockContainer = Node.create<{
         // Removes a level of nesting if the block is indented if the selection is at the start of the block.
         () =>
           commands.command(({ state }) => {
-            const selectionAtBlockStart =
-              state.selection.$anchor.parentOffset === 0;
+            const { startPos } = getBlockInfoFromPos(
+              state.doc,
+              state.selection.from
+            )!;
+
+            const selectionAtBlockStart = state.selection.from === startPos + 1;
 
             if (selectionAtBlockStart) {
               return commands.liftListItem("blockContainer");
@@ -522,10 +525,8 @@ export const BlockContainer = Node.create<{
               state.selection.from
             )!;
 
-            const selectionAtBlockStart =
-              state.selection.$anchor.parentOffset === 0;
-            const selectionEmpty =
-              state.selection.anchor === state.selection.head;
+            const selectionAtBlockStart = state.selection.from === startPos + 1;
+            const selectionEmpty = state.selection.empty;
             const blockAtDocStart = startPos === 2;
 
             const posBetweenBlocks = startPos - 1;
@@ -552,17 +553,14 @@ export const BlockContainer = Node.create<{
         // end of the block.
         () =>
           commands.command(({ state }) => {
-            const { node, contentNode, depth, endPos } = getBlockInfoFromPos(
+            const { node, depth, endPos } = getBlockInfoFromPos(
               state.doc,
               state.selection.from
             )!;
 
             const blockAtDocEnd = false;
-            const selectionAtBlockEnd =
-              state.selection.$anchor.parentOffset ===
-              contentNode.firstChild!.nodeSize;
-            const selectionEmpty =
-              state.selection.anchor === state.selection.head;
+            const selectionAtBlockEnd = state.selection.from === endPos - 1;
+            const selectionEmpty = state.selection.empty;
             const hasChildBlocks = node.childCount === 2;
 
             if (
