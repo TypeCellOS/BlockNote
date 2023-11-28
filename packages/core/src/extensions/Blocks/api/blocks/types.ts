@@ -11,10 +11,12 @@ import { StyleSchema } from "../styles/types";
 
 export type BlockNoteDOMElement =
   | "editor"
-  | "blockContainer"
-  | "blockGroup"
-  | "blockContent"
-  | "inlineContent";
+  | "blockContainer" // Container for block content + child blocks
+  | "blockGroup" // Container for child blocks
+  | "blockContent" // Root element of block content
+  | "blockEditable" // Container for editable field in block content
+  | "inlineContent" // Root element of single inline content
+  | "inlineEditable"; // Container for editable field in inline content
 
 export type BlockNoteDOMAttributes = Partial<{
   [DOMElement in BlockNoteDOMElement]: Record<string, string>;

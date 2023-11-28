@@ -9,13 +9,13 @@ export const EDITOR_SELECTOR = `[data-test="editor"]`;
 export const BLOCK_CONTAINER_SELECTOR = `[data-node-type="blockContainer"]`;
 export const BLOCK_GROUP_SELECTOR = `[data-node-type="blockGroup"]`;
 
-export const H_ONE_BLOCK_SELECTOR = `[data-content-type=heading][data-level="1"]`;
-export const H_TWO_BLOCK_SELECTOR = `[data-content-type=heading][data-level="2"]`;
-export const H_THREE_BLOCK_SELECTOR = `[data-content-type=heading][data-level="3"]`;
-export const NUMBERED_LIST_SELECTOR = `[data-content-type="numberedListItem"]`;
-export const BULLET_LIST_SELECTOR = `[data-content-type="bulletListItem"]`;
-export const PARAGRAPH_SELECTOR = `[data-content-type="paragraph"]`;
-export const IMAGE_SELECTOR = `[data-content-type="image"]`;
+export const H_ONE_BLOCK_SELECTOR = `[data-block-content-type=heading][data-level="1"]`;
+export const H_TWO_BLOCK_SELECTOR = `[data-block-content-type=heading][data-level="2"]`;
+export const H_THREE_BLOCK_SELECTOR = `[data-block-content-type=heading][data-level="3"]`;
+export const NUMBERED_LIST_SELECTOR = `[data-block-content-type="numberedListItem"]`;
+export const BULLET_LIST_SELECTOR = `[data-block-content-type="bulletListItem"]`;
+export const PARAGRAPH_SELECTOR = `[data-block-content-type="paragraph"]`;
+export const IMAGE_SELECTOR = `[data-block-content-type="image"]`;
 
 export const DRAG_HANDLE_SELECTOR = `[data-test="dragHandle"]`;
 export const DRAG_HANDLE_ADD_SELECTOR = `[data-test="dragHandleAdd"]`;

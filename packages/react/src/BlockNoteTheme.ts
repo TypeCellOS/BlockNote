@@ -280,7 +280,7 @@ export const blockNoteToMantineTheme = (theme: Theme): MantineThemeOverride => {
                 fontFamily: theme.fontFamily,
               },
               // Placeholders
-              ".bn-is-empty .bn-inline-content:before, .bn-is-filter .bn-inline-content:before":
+              ".bn-is-empty .bn-block-editable:before, .bn-is-filter .bn-block-editable:before":
                 {
                   color: theme.colors.sideMenu,
                 },

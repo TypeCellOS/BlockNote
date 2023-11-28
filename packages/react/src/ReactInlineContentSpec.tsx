@@ -1,4 +1,5 @@
 import {
+  BlockNoteDOMAttributes,
   camelToDataKebab,
   createInternalInlineContentSpec,
   createStronglyTypedTiptapNode,
@@ -18,9 +19,10 @@ import {
   ReactNodeViewRenderer,
 } from "@tiptap/react";
 // import { useReactNodeView } from "@tiptap/react/dist/packages/react/src/useReactNodeView";
-import { FC } from "react";
+import { ElementType, FC, HTMLProps, useContext } from "react";
 import { flushSync } from "react-dom";
 import { createRoot } from "react-dom/client";
+import { BlockNoteDOMAttributesContext } from "./ReactBlockSpec";
 
 // this file is mostly analogoues to `customBlocks.ts`, but for React blocks
 
@@ -41,6 +43,34 @@ export type ReactInlineContentImplementation<
   // }>;
 };
 
+export const InlineEditable = <Tag extends ElementType>(
+  props: { as?: Tag } & HTMLProps<Tag>
+) => {
+  const { className, ...rest } = props;
+
+  const domAttributes = useContext(BlockNoteDOMAttributesContext) || {};
+
+  return (
+    <NodeViewContent
+      as={"span"}
+      // Adds inline editable & custom classes
+      className={mergeCSSClasses(
+        "bn-inline-editable",
+        className || "",
+        domAttributes.inlineEditable?.class || ""
+      )}
+      // Adds remaining props
+      {...rest}
+      // Adds custom HTML attributes
+      {...Object.fromEntries(
+        Object.entries(domAttributes.inlineEditable || {}).filter(
+          ([key]) => key !== "class"
+        )
+      )}
+    />
+  );
+};
+
 // Function that wraps the React component returned from 'blockConfig.render' in
 // a `NodeViewWrapper` which also acts as a `blockContent` div. It contains the
 // block type and props as HTML attributes.
@@ -52,30 +82,31 @@ export function reactWrapInInlineContentStructure<
   inlineContentType: BType,
   inlineContentProps: Props<PSchema>,
   propSchema: PSchema,
-  domAttributes?: Record<string, string>
+  domAttributes?: BlockNoteDOMAttributes
 ) {
   return () => (
     // Creates `blockContent` element
     <NodeViewWrapper
       as={"span"}
-      // Adds custom HTML attributes
-      {...Object.fromEntries(
-        Object.entries(domAttributes || {}).filter(([key]) => key !== "class")
-      )}
       // Sets blockContent class
-      className={mergeCSSClasses("bn-ic", domAttributes?.class || "")}
+      className={mergeCSSClasses(
+        "bn-inline-content",
+        domAttributes?.inlineContent?.class || ""
+      )}
       // Sets content type attribute
-      data-content-type={inlineContentType}
+      data-inline-content-type={inlineContentType}
       // Adds props as HTML attributes in kebab-case with "data-" prefix. Skips
-      // props which are already added as HTML attributes to the parent
-      // `blockContent` element (inheritedProps) and props set to their default
-      // values
+      // props set to their default values.
       {...Object.fromEntries(
         Object.entries(inlineContentProps)
           .filter(([prop, value]) => value !== propSchema[prop].default)
           .map(([prop, value]) => {
             return [camelToDataKebab(prop), value];
           })
+      )}
+      // Adds custom HTML attributes
+      {...Object.fromEntries(
+        Object.entries(domAttributes || {}).filter(([key]) => key !== "class")
       )}>
       {element}
     </NodeViewWrapper>
@@ -96,6 +127,8 @@ export function createReactInlineContentSpec<
     name: inlineContentConfig.type as T["type"],
     inline: true,
     group: "inline",
+    selectable: inlineContentConfig.content === "styled",
+    atom: inlineContentConfig.content === "none",
     content: (inlineContentConfig.content === "styled"
       ? "inline*"
       : "") as T["content"] extends "styled" ? "inline*" : "",
@@ -107,7 +140,8 @@ export function createReactInlineContentSpec<
     parseHTML() {
       return [
         {
-          tag: `span[data-content-type="${inlineContentConfig.type}"]`,
+          tag: `.bn-inline-content[data-inline-content-type="${inlineContentConfig.type}"]`,
+          contentElement: `.bn-inline-editable`,
         },
       ];
     },
@@ -128,7 +162,7 @@ export function createReactInlineContentSpec<
           contentRef={(el) => (contentDOM = el || undefined)}
         />,
         inlineContentConfig.type,
-        node.attrs,
+        node.attrs as Props<T["propSchema"]>,
         inlineContentConfig.propSchema
       );
 
@@ -152,7 +186,7 @@ export function createReactInlineContentSpec<
       const cloneRoot = div.cloneNode(true) as HTMLElement;
       const dom = cloneRoot.firstElementChild! as HTMLElement;
       const contentDOMClone = cloneRoot.querySelector(
-        "[data-tmp-find]"
+        "[data-node-view-content]"
       ) as HTMLElement | null;
       contentDOMClone?.removeAttribute("data-tmp-find");
 
@@ -162,6 +196,10 @@ export function createReactInlineContentSpec<
         dom,
         contentDOM: contentDOMClone || undefined,
       };
+    },
+
+    onBlur() {
+      console.log("blur");
     },
 
     // TODO: needed?
@@ -187,15 +225,11 @@ export function createReactInlineContentSpec<
                 }
               />,
               inlineContentConfig.type,
-              props.node.attrs,
+              props.node.attrs as Props<T["propSchema"]>,
               inlineContentConfig.propSchema
             );
 
-            return (
-              <NodeViewWrapper as="span">
-                <FullContent />
-              </NodeViewWrapper>
-            );
+            return <FullContent />;
           },
           {
             className: "bn-ic-react-node-view-renderer",

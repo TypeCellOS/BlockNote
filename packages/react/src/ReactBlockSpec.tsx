@@ -44,29 +44,32 @@ export type ReactCustomBlockImplementation<
   }>;
 };
 
-const BlockNoteDOMAttributesContext = createContext<BlockNoteDOMAttributes>({});
+export const BlockNoteDOMAttributesContext =
+  createContext<BlockNoteDOMAttributes>({});
 
-export const InlineContent = <Tag extends ElementType>(
+export const BlockEditable = <Tag extends ElementType>(
   props: { as?: Tag } & HTMLProps<Tag>
 ) => {
-  const inlineContentDOMAttributes =
-    useContext(BlockNoteDOMAttributesContext).inlineContent || {};
+  const { className, ...rest } = props;
 
-  const classNames = mergeCSSClasses(
-    props.className || "",
-    "bn-inline-content",
-    inlineContentDOMAttributes.class
-  );
+  const domAttributes = useContext(BlockNoteDOMAttributesContext) || {};
 
   return (
     <NodeViewContent
+      // Adds block editable & custom classes
+      className={mergeCSSClasses(
+        "bn-block-editable",
+        className || "",
+        domAttributes.blockEditable?.class || ""
+      )}
+      // Adds remaining props
+      {...rest}
+      // Adds custom HTML attributes
       {...Object.fromEntries(
-        Object.entries(inlineContentDOMAttributes).filter(
+        Object.entries(domAttributes.blockEditable || {}).filter(
           ([key]) => key !== "class"
         )
       )}
-      {...props}
-      className={classNames}
     />
   );
 };
@@ -74,7 +77,7 @@ export const InlineContent = <Tag extends ElementType>(
 // Function that wraps the React component returned from 'blockConfig.render' in
 // a `NodeViewWrapper` which also acts as a `blockContent` div. It contains the
 // block type and props as HTML attributes.
-export function reactWrapInBlockStructure<
+export function reactAddBlockContentAttributes<
   BType extends string,
   PSchema extends PropSchema
 >(
@@ -82,26 +85,22 @@ export function reactWrapInBlockStructure<
   blockType: BType,
   blockProps: Props<PSchema>,
   propSchema: PSchema,
-  domAttributes?: Record<string, string>
+  domAttributes?: BlockNoteDOMAttributes
 ) {
   return () => (
     // Creates `blockContent` element
     <NodeViewWrapper
-      // Adds custom HTML attributes
-      {...Object.fromEntries(
-        Object.entries(domAttributes || {}).filter(([key]) => key !== "class")
-      )}
-      // Sets blockContent class
+      // Adds block content & custom classes
       className={mergeCSSClasses(
         "bn-block-content",
-        domAttributes?.class || ""
+        domAttributes?.blockContent?.class || ""
       )}
       // Sets content type attribute
-      data-content-type={blockType}
+      data-block-content-type={blockType}
       // Adds props as HTML attributes in kebab-case with "data-" prefix. Skips
       // props which are already added as HTML attributes to the parent
       // `blockContent` element (inheritedProps) and props set to their default
-      // values
+      // values.
       {...Object.fromEntries(
         Object.entries(blockProps)
           .filter(
@@ -112,6 +111,12 @@ export function reactWrapInBlockStructure<
           .map(([prop, value]) => {
             return [camelToDataKebab(prop), value];
           })
+      )}
+      // Adds custom HTML attributes
+      {...Object.fromEntries(
+        Object.entries(domAttributes?.blockContent || {}).filter(
+          ([key]) => key !== "class"
+        )
       )}>
       {element}
     </NodeViewWrapper>
@@ -162,7 +167,7 @@ export function createReactBlockSpec<
               this.options.domAttributes?.blockContent || {};
 
             const Content = blockImplementation.render;
-            const BlockContent = reactWrapInBlockStructure(
+            const BlockContent = reactAddBlockContentAttributes(
               <Content block={block} editor={editor as any} />,
               block.type,
               block.props,
@@ -186,7 +191,7 @@ export function createReactBlockSpec<
         node.options.domAttributes?.blockContent || {};
 
       const Content = blockImplementation.render;
-      const BlockContent = reactWrapInBlockStructure(
+      const BlockContent = reactAddBlockContentAttributes(
         <Content block={block as any} editor={editor as any} />,
         block.type,
         block.props,
@@ -199,7 +204,7 @@ export function createReactBlockSpec<
 
       return {
         dom: parent.firstElementChild! as HTMLElement,
-        contentDOM: (parent.querySelector(".bn-inline-content") ||
+        contentDOM: (parent.querySelector(".bn-block-editable") ||
           undefined) as HTMLElement | undefined,
       };
     },
@@ -211,7 +216,7 @@ export function createReactBlockSpec<
       if (Content === undefined) {
         Content = blockImplementation.render;
       }
-      const BlockContent = reactWrapInBlockStructure(
+      const BlockContent = reactAddBlockContentAttributes(
         <Content block={block as any} editor={editor as any} />,
         block.type,
         block.props,
@@ -224,7 +229,7 @@ export function createReactBlockSpec<
 
       return {
         dom: parent.firstElementChild! as HTMLElement,
-        contentDOM: (parent.querySelector(".bn-inline-content") ||
+        contentDOM: (parent.querySelector(".bn-block-editable") ||
           undefined) as HTMLElement | undefined,
       };
     },

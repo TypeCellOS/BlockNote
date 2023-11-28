@@ -1,42 +1,43 @@
 import { BlockNoteEditor } from "../../../../BlockNoteEditor";
 import { blockToNode } from "../../../../api/nodeConversions/nodeConversions";
 import { mergeCSSClasses } from "../../../../shared/utils";
-import { Block, BlockSchema } from "../../api/blocks/types";
+import {
+  Block,
+  BlockNoteDOMAttributes,
+  BlockSchema,
+} from "../../api/blocks/types";
 import { InlineContentSchema } from "../../api/inlineContent/types";
 import { StyleSchema } from "../../api/styles/types";
 
 // Function that creates a ProseMirror `DOMOutputSpec` for a default block.
 // Since all default blocks have the same structure (`blockContent` div with a
-// `inlineContent` element inside), this function only needs the block's name
-// for the `data-content-type` attribute of the `blockContent` element and the
-// HTML tag of the `inlineContent` element, as well as any HTML attributes to
-// add to those.
+// `blockEditable` element inside), this function only needs the block's name
+// for the `data-block-content-type` attribute of the `blockContent` element and
+// the HTML tag of the `blockEditable` element, as well as any HTML attributes
+// to add to those.
 export function createDefaultBlockDOMOutputSpec(
   blockName: string,
   htmlTag: string,
-  blockContentHTMLAttributes: Record<string, string>,
-  inlineContentHTMLAttributes: Record<string, string>
+  domAttributes: BlockNoteDOMAttributes
 ) {
   const element = document.createElement(htmlTag);
+
+  // Adds block content, block editable, & custom classes
   element.className = mergeCSSClasses(
     "bn-block-content",
-    blockContentHTMLAttributes.class,
-    "bn-inline-content",
-    inlineContentHTMLAttributes.class
+    domAttributes.blockContent?.class || "",
+    "bn-block-editable",
+    domAttributes.blockEditable?.class || ""
   );
-  element.setAttribute("data-content-type", blockName);
-  for (const [attribute, value] of Object.entries(blockContentHTMLAttributes)) {
-    if (attribute !== "class") {
-      element.setAttribute(attribute, value);
-    }
-  }
-  for (const [attribute, value] of Object.entries(
-    inlineContentHTMLAttributes
-  )) {
-    if (attribute !== "class") {
-      element.setAttribute(attribute, value);
-    }
-  }
+  // Sets content type attribute
+  element.setAttribute("data-block-content-type", blockName);
+  // Adds custom HTML attributes
+  Object.entries({
+    ...domAttributes.blockContent,
+    ...domAttributes.blockEditable,
+  })
+    .filter(([key]) => key !== "class")
+    .forEach(([attr, value]) => element.setAttribute(attr, value));
 
   return {
     dom: element,

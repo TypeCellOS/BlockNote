@@ -2,12 +2,12 @@ import { BlockNoteEditor } from "../../../../BlockNoteEditor";
 import { InlineContentSchema } from "../inlineContent/types";
 import { StyleSchema } from "../styles/types";
 import {
+  addBlockContentAttributes,
   createInternalBlockSpec,
   createStronglyTypedTiptapNode,
   getBlockFromPos,
   parse,
   propsToAttributes,
-  addBlockContentAttributes,
 } from "./internal";
 import { BlockConfig, BlockFromConfig, BlockSchemaWithBlock } from "./types";
 
@@ -77,31 +77,23 @@ export function createBlockSpec<
 
     addNodeView() {
       return ({ getPos }) => {
-        // Gets the BlockNote editor instance
         const editor = this.options.editor;
-        // Gets the block
         const block = getBlockFromPos(
           getPos,
           editor,
           this.editor,
           blockConfig.type
         );
-        // Gets the custom HTML attributes for `blockContent` nodes
-        const blockContentDOMAttributes =
-          this.options.domAttributes?.blockContent || {};
 
         const output = blockImplementation.render(block as any, editor);
 
-        return {
-          dom: addBlockContentAttributes(
-            output.dom,
-            block.type,
-            block.props,
-            blockConfig.propSchema,
-            blockContentDOMAttributes
-          ),
-          contentDOM: output.contentDOM,
-        };
+        return addBlockContentAttributes(
+          output,
+          block.type,
+          block.props,
+          blockConfig.propSchema,
+          this.options.domAttributes
+        );
       };
     },
   });
@@ -115,27 +107,17 @@ export function createBlockSpec<
   return createInternalBlockSpec(blockConfig, {
     node,
     toInternalHTML: (block, editor) => {
-      const blockContentDOMAttributes =
-        node.options.domAttributes?.blockContent || {};
-
       const output = blockImplementation.render(block as any, editor as any);
 
-      return {
-        dom: addBlockContentAttributes(
-          output.dom,
-          block.type,
-          block.props,
-          blockConfig.propSchema,
-          blockContentDOMAttributes
-        ),
-        contentDOM: output.contentDOM,
-        destroy: output.destroy,
-      };
+      return addBlockContentAttributes(
+        output,
+        block.type,
+        block.props,
+        blockConfig.propSchema,
+        node.options.domAttributes
+      );
     },
     toExternalHTML: (block, editor) => {
-      const blockContentDOMAttributes =
-        node.options.domAttributes?.blockContent || {};
-
       let output = blockImplementation.toExternalHTML?.(
         block as any,
         editor as any
@@ -144,16 +126,13 @@ export function createBlockSpec<
         output = blockImplementation.render(block as any, editor as any);
       }
 
-      return {
-        dom: addBlockContentAttributes(
-          output.dom,
-          block.type,
-          block.props,
-          blockConfig.propSchema,
-          blockContentDOMAttributes
-        ),
-        contentDOM: output.contentDOM,
-      };
+      return addBlockContentAttributes(
+        output,
+        block.type,
+        block.props,
+        blockConfig.propSchema,
+        node.options.domAttributes
+      );
     },
   });
 }

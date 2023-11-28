@@ -8,12 +8,13 @@ import { InlineContentSchema } from "../inlineContent/types";
 import { StyleSchema } from "../styles/types";
 import {
   BlockConfig,
+  BlockNoteDOMAttributes,
   BlockSchemaFromSpecs,
   BlockSchemaWithBlock,
   BlockSpec,
   BlockSpecs,
-  PropSchema,
   Props,
+  PropSchema,
   SpecificBlock,
   TiptapBlockImplementation,
 } from "./types";
@@ -88,7 +89,8 @@ export function propsToAttributes(propSchema: PropSchema): Attributes {
 export function parse(blockConfig: BlockConfig) {
   const rules: ParseRule[] = [
     {
-      tag: "div[data-content-type=" + blockConfig.type + "]",
+      tag: `.bn-block-content[data-block-content-type="${blockConfig.type}"]`,
+      contentElement: `.bn-block-editable`,
     },
   ];
 
@@ -174,34 +176,61 @@ export function addBlockContentAttributes<
   BType extends string,
   PSchema extends PropSchema
 >(
-  element: HTMLElement,
+  element: {
+    dom: HTMLElement;
+    contentDOM?: HTMLElement;
+    destroy?: () => void;
+  },
   blockType: BType,
   blockProps: Props<PSchema>,
   propSchema: PSchema,
-  domAttributes?: Record<string, string>
-): HTMLElement {
-  // Adds custom HTML attributes
-  if (domAttributes !== undefined) {
-    for (const [attr, value] of Object.entries(domAttributes)) {
-      if (attr !== "class") {
-        element.setAttribute(attr, value);
-      }
-    }
-  }
-  // Sets blockContent class
-  element.className = mergeCSSClasses(
+  domAttributes?: BlockNoteDOMAttributes
+): {
+  dom: HTMLElement;
+  contentDOM?: HTMLElement;
+  destroy?: () => void;
+} {
+  // Adds block content & custom classes
+  element.dom.className = mergeCSSClasses(
     "bn-block-content",
-    domAttributes?.class || ""
+    element.dom.className,
+    domAttributes?.blockContent?.class || ""
   );
   // Sets content type attribute
-  element.setAttribute("data-content-type", blockType);
-  // Adds props as HTML attributes in kebab-case with "data-" prefix. Skips props
-  // which are already added as HTML attributes to the parent `blockContent`
-  // element (inheritedProps) and props set to their default values.
-  for (const [prop, value] of Object.entries(blockProps)) {
-    if (!inheritedProps.includes(prop) && value !== propSchema[prop].default) {
-      element.setAttribute(camelToDataKebab(prop), value);
-    }
+  element.dom.setAttribute("data-block-content-type", blockType);
+  // Adds props as HTML attributes in kebab-case with "data-" prefix. Skips
+  // props which are already added as HTML attributes to the parent
+  // `blockContent` element (inheritedProps) and props set to their default
+  // values.
+  Object.entries(blockProps)
+    .filter(
+      ([prop, value]) =>
+        !inheritedProps.includes(prop) && value !== propSchema[prop].default
+    )
+    .map(([prop, value]) => {
+      return [camelToDataKebab(prop), value];
+    })
+    .forEach(([prop, value]) => element.dom.setAttribute(prop, value));
+  // Adds custom HTML attributes
+  Object.entries(domAttributes?.blockContent || {})
+    .filter(([key]) => key !== "class")
+    .forEach(([attr, value]) => element.dom.setAttribute(attr, value));
+
+  // Checks if the block contains an editable field
+  if (element.contentDOM !== undefined) {
+    // Adds block editable & custom classes
+    element.contentDOM.className = mergeCSSClasses(
+      "bn-block-editable",
+      element.contentDOM.className,
+      domAttributes?.blockEditable?.class || ""
+    );
+
+    // Adds custom HTML attributes
+    Object.entries(domAttributes?.blockEditable || {})
+      .filter(([key]) => key !== "class")
+      .forEach(([attr, value]) =>
+        element.contentDOM!.setAttribute(attr, value)
+      );
   }
 
   return element;
@@ -216,8 +245,16 @@ type StronglyTypedTipTapNode<
 export function createStronglyTypedTiptapNode<
   Name extends string,
   Content extends "inline*" | "tableRow+" | ""
->(config: NodeConfig & { name: Name; content: Content }) {
-  return Node.create(config) as StronglyTypedTipTapNode<Name, Content>; // force re-typing (should be safe as it's type-checked from the config)
+>(
+  config: NodeConfig<{
+    editor: BlockNoteEditor<any, any, any>;
+    domAttributes: BlockNoteDOMAttributes;
+  }> & { name: Name; content: Content }
+) {
+  return Node.create<{
+    editor: BlockNoteEditor<any, any, any>;
+    domAttributes: BlockNoteDOMAttributes;
+  }>(config) as StronglyTypedTipTapNode<Name, Content>; // force re-typing (should be safe as it's type-checked from the config)
 }
 
 // This helper function helps to instantiate a blockspec with a

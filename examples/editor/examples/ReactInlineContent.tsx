@@ -2,6 +2,7 @@ import "@blocknote/core/style.css";
 import {
   BlockNoteView,
   createReactInlineContentSpec,
+  InlineEditable,
   useBlockNote,
 } from "@blocknote/react";
 
@@ -31,10 +32,11 @@ const tag = createReactInlineContentSpec(
     content: "styled",
   },
   {
-    render: (props) => {
+    render: () => {
       return (
         <span>
-          #<span ref={props.contentRef}></span>
+          <span contentEditable={false}>#</span>
+          <InlineEditable />
         </span>
       );
     },

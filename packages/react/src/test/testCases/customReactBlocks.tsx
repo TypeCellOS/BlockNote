@@ -2,14 +2,15 @@ import {
   BlockNoteEditor,
   BlockSchemaFromSpecs,
   BlockSpecs,
+  defaultBlockSpecs,
   DefaultInlineContentSchema,
+  defaultProps,
   DefaultStyleSchema,
   EditorTestCases,
-  defaultBlockSpecs,
-  defaultProps,
   uploadToTmpFilesDotOrg_DEV_ONLY,
 } from "@blocknote/core";
-import { InlineContent, createReactBlockSpec } from "../../ReactBlockSpec";
+import { createReactBlockSpec } from "../../ReactBlockSpec";
+import { InlineEditable } from "../../ReactInlineContentSpec";
 
 const ReactCustomParagraph = createReactBlockSpec(
   {
@@ -19,7 +20,7 @@ const ReactCustomParagraph = createReactBlockSpec(
   },
   {
     render: () => (
-      <InlineContent as={"p"} className={"react-custom-paragraph"} />
+      <InlineEditable as={"p"} className={"react-custom-paragraph"} />
     ),
     toExternalHTML: () => (
       <p className={"react-custom-paragraph"}>Hello World</p>
@@ -35,7 +36,7 @@ const SimpleReactCustomParagraph = createReactBlockSpec(
   },
   {
     render: () => (
-      <InlineContent as={"p"} className={"simple-react-custom-paragraph"} />
+      <InlineEditable as={"p"} className={"simple-react-custom-paragraph"} />
     ),
   }
 );

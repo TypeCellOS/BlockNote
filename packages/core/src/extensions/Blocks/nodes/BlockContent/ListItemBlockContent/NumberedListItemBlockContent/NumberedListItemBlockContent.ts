@@ -99,7 +99,8 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
           }
 
           if (
-            element.getAttribute("data-content-type") === "numberedListItem"
+            element.getAttribute("data-block-content-type") ===
+            "numberedListItem"
           ) {
             return {};
           }
@@ -120,10 +121,9 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
       // schema.
       "p",
       {
-        ...(this.options.domAttributes?.blockContent || {}),
+        ...(this.options.domAttributes || {}),
         ...HTMLAttributes,
-      },
-      this.options.domAttributes?.inlineContent || {}
+      }
     );
   },
 });

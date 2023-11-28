@@ -100,15 +100,10 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
   },
 
   renderHTML({ node, HTMLAttributes }) {
-    return createDefaultBlockDOMOutputSpec(
-      this.name,
-      `h${node.attrs.level}`,
-      {
-        ...(this.options.domAttributes?.blockContent || {}),
-        ...HTMLAttributes,
-      },
-      this.options.domAttributes?.inlineContent || {}
-    );
+    return createDefaultBlockDOMOutputSpec(this.name, `h${node.attrs.level}`, {
+      ...(this.options.domAttributes || {}),
+      ...HTMLAttributes,
+    });
   },
 });
 

@@ -77,7 +77,9 @@ const BulletListItemBlockContent = createStronglyTypedTiptapNode({
             return false;
           }
 
-          if (element.getAttribute("data-content-type") === "bulletListItem") {
+          if (
+            element.getAttribute("data-block-content-type") === "bulletListItem"
+          ) {
             return {};
           }
 
@@ -97,10 +99,9 @@ const BulletListItemBlockContent = createStronglyTypedTiptapNode({
       // schema.
       "p",
       {
-        ...(this.options.domAttributes?.blockContent || {}),
+        ...(this.options.domAttributes || {}),
         ...HTMLAttributes,
-      },
-      this.options.domAttributes?.inlineContent || {}
+      }
     );
   },
 });

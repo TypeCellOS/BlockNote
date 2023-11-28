@@ -24,15 +24,10 @@ export const ParagraphBlockContent = createStronglyTypedTiptapNode({
   },
 
   renderHTML({ HTMLAttributes }) {
-    return createDefaultBlockDOMOutputSpec(
-      this.name,
-      "p",
-      {
-        ...(this.options.domAttributes?.blockContent || {}),
-        ...HTMLAttributes,
-      },
-      this.options.domAttributes?.inlineContent || {}
-    );
+    return createDefaultBlockDOMOutputSpec(this.name, "p", {
+      ...(this.options.domAttributes || {}),
+      ...HTMLAttributes,
+    });
   },
 });
 

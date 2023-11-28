@@ -40,7 +40,7 @@ export const getBlockNoteExtensions = <
   S extends StyleSchema
 >(opts: {
   editor: BlockNoteEditor<BSchema, I, S>;
-  domAttributes: Partial<BlockNoteDOMAttributes>;
+  domAttributes: BlockNoteDOMAttributes;
   blockSchema: BSchema;
   blockSpecs: BlockSpecs;
   inlineContentSpecs: InlineContentSpecs;

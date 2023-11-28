@@ -1,5 +1,5 @@
 import { Node } from "@tiptap/core";
-import { Props, PropSchema } from "../blocks/types";
+import { BlockNoteDOMAttributes, Props, PropSchema } from "../blocks/types";
 import {
   InlineContentConfig,
   InlineContentImplementation,
@@ -18,34 +18,56 @@ export function addInlineContentAttributes<
   BType extends string,
   PSchema extends PropSchema
 >(
-  element: HTMLElement,
+  element: {
+    dom: HTMLElement;
+    contentDOM?: HTMLElement;
+    // destroy?: () => void;
+  },
   inlineContentType: BType,
   inlineContentProps: Props<PSchema>,
   propSchema: PSchema,
-  domAttributes?: Record<string, string>
-): HTMLElement {
-  // Adds custom HTML attributes
-  if (domAttributes !== undefined) {
-    for (const [attr, value] of Object.entries(domAttributes)) {
-      if (attr !== "class") {
-        element.setAttribute(attr, value);
-      }
-    }
-  }
-  // Sets inlineContent class
-  element.className = mergeCSSClasses(
-    element.className,
+  domAttributes?: BlockNoteDOMAttributes
+): {
+  dom: HTMLElement;
+  contentDOM?: HTMLElement;
+  // destroy?: () => void;
+} {
+  // Sets inline content & custom classes
+  element.dom.className = mergeCSSClasses(
     "bn-inline-content",
-    domAttributes?.class || ""
+    element.dom.className,
+    domAttributes?.inlineContent?.class || ""
   );
   // Sets content type attribute
-  element.setAttribute("data-inline-content-type", inlineContentType);
-  // Adds props as HTML attributes in kebab-case with "data-" prefix. Skips props
-  // set to their default values.
-  for (const [prop, value] of Object.entries(inlineContentProps)) {
-    if (value !== propSchema[prop].default) {
-      element.setAttribute(camelToDataKebab(prop), value);
-    }
+  element.dom.setAttribute("data-inline-content-type", inlineContentType);
+  // Adds props as HTML attributes in kebab-case with "data-" prefix. Skips
+  // props set to their default values.
+  Object.entries(inlineContentProps)
+    .filter(([prop, value]) => value !== propSchema[prop].default)
+    .map(([prop, value]) => {
+      return [camelToDataKebab(prop), value];
+    })
+    .forEach(([prop, value]) => element.dom.setAttribute(prop, value));
+  // Adds custom HTML attributes
+  Object.entries(domAttributes?.inlineContent || {})
+    .filter(([key]) => key !== "class")
+    .forEach(([attr, value]) => element.dom.setAttribute(attr, value));
+
+  // Checks if the inline content contains an editable field
+  if (element.contentDOM !== undefined) {
+    // Adds inline editable & custom classes
+    element.contentDOM.className = mergeCSSClasses(
+      "bn-inline-editable",
+      element.contentDOM.className,
+      domAttributes?.inlineEditable?.class || ""
+    );
+
+    // Adds custom HTML attributes
+    Object.entries(domAttributes?.inlineEditable || {})
+      .filter(([key]) => key !== "class")
+      .forEach(([attr, value]) =>
+        element.contentDOM!.setAttribute(attr, value)
+      );
   }
 
   return element;

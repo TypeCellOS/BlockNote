@@ -26,15 +26,10 @@ export const TableBlockContent = createStronglyTypedTiptapNode({
   },
 
   renderHTML({ HTMLAttributes }) {
-    return createDefaultBlockDOMOutputSpec(
-      this.name,
-      "table",
-      {
-        ...(this.options.domAttributes?.blockContent || {}),
-        ...HTMLAttributes,
-      },
-      this.options.domAttributes?.inlineContent || {}
-    );
+    return createDefaultBlockDOMOutputSpec(this.name, "table", {
+      ...(this.options.domAttributes || {}),
+      ...HTMLAttributes,
+    });
   },
 });
 
