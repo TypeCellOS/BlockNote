@@ -20,8 +20,12 @@ async function parseHTMLAndCompareSnapshots(
   // tryParseHTMLToBlocks directly.
   // The reason is that the prosemirror logic for pasting can be a bit different, because
   // it's related to the context of where the user is pasting exactly (selection)
+  //
+  // The internal difference come that in tryParseHTMLToBlocks, we use DOMParser.parse,
+  // while when pasting, Prosemirror uses DOMParser.parseSlice, and then tries to fit the
+  // slice in the document. This fitting might change the structure / interpretation of the pasted blocks
 
-  // Simulate a paste event
+  // Simulate a paste event (this uses DOMParser.parseSlice internally)
 
   (window as any).__TEST_OPTIONS.mockID = 0; // reset id counter
   const htmlNode = nestedListsToBlockNoteStructure(html);
