@@ -6,15 +6,18 @@ import {
   InlineContentSchema,
   PartialBlock,
   StyleSchema,
+  addIdsToBlocks,
   createExternalHTMLExporter,
   createInternalHTMLSerializer,
+  partialBlocksToBlocksForTesting,
 } from "@blocknote/core";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { customReactBlockSchemaTestCases } from "./testCases/customReactBlocks";
 import { customReactInlineContentTestCases } from "./testCases/customReactInlineContent";
 import { customReactStylesTestCases } from "./testCases/customReactStyles";
 
-function convertToHTMLAndCompareSnapshots<
+// TODO: code same from @blocknote/core, maybe create separate test util package
+async function convertToHTMLAndCompareSnapshots<
   B extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
@@ -24,6 +27,7 @@ function convertToHTMLAndCompareSnapshots<
   snapshotDirectory: string,
   snapshotName: string
 ) {
+  addIdsToBlocks(blocks);
   const serializer = createInternalHTMLSerializer(
     editor._tiptapEditor.schema,
     editor
@@ -37,6 +41,16 @@ function convertToHTMLAndCompareSnapshots<
     "/internal.html";
   expect(internalHTML).toMatchFileSnapshot(internalHTMLSnapshotPath);
 
+  // turn the internalHTML back into blocks, and make sure no data was lost
+  const fullBlocks = partialBlocksToBlocksForTesting(
+    editor.blockSchema,
+    blocks
+  );
+  const parsed = await editor.tryParseHTMLToBlocks(internalHTML);
+
+  expect(parsed).toStrictEqual(fullBlocks);
+
+  // Create the "external" HTML, which is a cleaned up HTML representation, but lossy
   const exporter = createExternalHTMLExporter(
     editor._tiptapEditor.schema,
     editor
@@ -75,9 +89,9 @@ describe("Test React HTML conversion", () => {
 
       for (const document of testCase.documents) {
         // eslint-disable-next-line no-loop-func
-        it("Convert " + document.name + " to HTML", () => {
+        it("Convert " + document.name + " to HTML", async () => {
           const nameSplit = document.name.split("/");
-          convertToHTMLAndCompareSnapshots(
+          await convertToHTMLAndCompareSnapshots(
             editor,
             document.blocks,
             nameSplit[0],
