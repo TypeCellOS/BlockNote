@@ -1,8 +1,7 @@
 import { createInternalStyleSpec, StyleConfig } from "@blocknote/core";
 import { Mark } from "@tiptap/react";
 import { FC } from "react";
-import { flushSync } from "react-dom";
-import { createRoot } from "react-dom/client";
+import { renderToDOMSpec } from "./ReactRenderUtil";
 
 // this file is mostly analogoues to `customBlocks.ts`, but for React blocks
 
@@ -49,40 +48,9 @@ export function createReactStyleSpec<T extends StyleConfig>(
 
       const Content = styleImplementation.render;
 
-      let contentDOM: HTMLElement | undefined;
-      const div = document.createElement("div");
-      const root = createRoot(div);
-      flushSync(() => {
-        root.render(
-          <Content
-            {...props}
-            contentRef={(el) => (contentDOM = el || undefined)}
-          />
-        );
-      });
-
-      if (!div.childElementCount) {
-        // TODO
-        console.warn("ReactSdtyleSpec: renderHTML() failed");
-        return {
-          dom: document.createElement("span"),
-        };
-      }
-
-      // clone so we can unmount the react root
-      contentDOM?.setAttribute("data-tmp-find", "true");
-      const cloneRoot = div.cloneNode(true) as HTMLElement;
-      const dom = cloneRoot.firstElementChild! as HTMLElement;
-      const contentDOMClone =
-        (cloneRoot.querySelector("[data-tmp-find]") as HTMLElement) || null;
-      contentDOMClone?.removeAttribute("data-tmp-find");
-
-      root.unmount();
-
-      return {
-        dom,
-        contentDOM: contentDOMClone || undefined,
-      };
+      return renderToDOMSpec((refCB) => (
+        <Content {...props} contentRef={refCB} />
+      ));
     },
   });
 
