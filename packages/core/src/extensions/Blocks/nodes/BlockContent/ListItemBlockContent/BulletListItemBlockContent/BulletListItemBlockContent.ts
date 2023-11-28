@@ -49,6 +49,19 @@ const BulletListItemBlockContent = createStronglyTypedTiptapNode({
     return [
       // Case for regular HTML list structure.
       {
+        // TODO: also do for other blocks?
+        tag: "div[data-content-type=" + this.name + "]",
+        getAttrs: (element) => {
+          if (typeof element === "string") {
+            return false;
+          }
+
+          return {
+            level: element.getAttribute("data-level"),
+          };
+        },
+      },
+      {
         tag: "li",
         getAttrs: (element) => {
           if (typeof element === "string") {
@@ -61,7 +74,10 @@ const BulletListItemBlockContent = createStronglyTypedTiptapNode({
             return false;
           }
 
-          if (parent.tagName === "UL") {
+          if (
+            parent.tagName === "UL" ||
+            (parent.tagName === "DIV" && parent.parentElement!.tagName === "UL")
+          ) {
             return {};
           }
 

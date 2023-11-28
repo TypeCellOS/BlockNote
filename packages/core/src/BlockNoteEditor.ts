@@ -1,5 +1,5 @@
 import { Editor, EditorOptions, Extension } from "@tiptap/core";
-import { Node } from "prosemirror-model";
+import { Fragment, Node, Slice } from "prosemirror-model";
 // import "./blocknote.css";
 import { Editor as TiptapEditor } from "@tiptap/core/dist/packages/core/src/Editor";
 import * as Y from "yjs";
@@ -24,7 +24,6 @@ import {
   BlockSpecs,
   PartialBlock,
 } from "./extensions/Blocks/api/blocks/types";
-import { TextCursorPosition } from "./extensions/Blocks/api/cursorPositionTypes";
 import {
   DefaultBlockSchema,
   DefaultInlineContentSchema,
@@ -51,6 +50,7 @@ import { HTMLToBlocks } from "./api/parsers/html/parseHTML";
 import { markdownToBlocks } from "./api/parsers/markdown/parseMarkdown";
 import "./editor.css";
 import { getBlockSchemaFromSpecs } from "./extensions/Blocks/api/blocks/internal";
+import { TextCursorPosition } from "./extensions/Blocks/api/cursorPositionTypes";
 import { getInlineContentSchemaFromSpecs } from "./extensions/Blocks/api/inlineContent/internal";
 import {
   InlineContentSchema,
@@ -413,6 +413,50 @@ export class BlockNoteEditor<
             newOptions.defaultStyles ? "bn-default-styles" : "",
             newOptions.domAttributes?.editor?.class || ""
           ),
+        },
+        transformPasted(slice, view) {
+          // helper function
+          function removeChild(node: Fragment, n: number) {
+            const children: any[] = [];
+            node.forEach((child, _, i) => {
+              if (i !== n) {
+                children.push(child);
+              }
+            });
+            return Fragment.from(children);
+          }
+
+          // fix for https://github.com/ProseMirror/prosemirror/issues/1430#issuecomment-1822570821
+          let f = Fragment.from(slice.content);
+          for (let i = 0; i < f.childCount; i++) {
+            if (f.child(i).type.spec.group === "blockContent") {
+              const content = [f.child(i)];
+              if (i + 1 < f.childCount) {
+                // when there is a blockGroup, it should be nested in the new blockcontainer
+                if (f.child(i + 1).type.spec.group === "blockGroup") {
+                  const nestedChild = f
+                    .child(i + 1)
+                    .child(0)
+                    .child(0);
+
+                  if (
+                    nestedChild.type.name === "bulletListItem" ||
+                    nestedChild.type.name === "numberedListItem"
+                  ) {
+                    content.push(f.child(i + 1));
+                    f = removeChild(f, i + 1);
+                  }
+                }
+              }
+              const container = view.state.schema.nodes.blockContainer.create(
+                undefined,
+                content
+              );
+              f = f.replaceChild(i, container);
+            }
+          }
+
+          return new Slice(f, slice.openStart, slice.openEnd);
         },
       },
     };

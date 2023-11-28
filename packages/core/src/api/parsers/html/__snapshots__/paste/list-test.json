@@ -10,46 +10,45 @@
     "content": [
       {
         "type": "text",
-        "text": "Bullet List Item",
+        "text": "First",
         "styles": {}
       }
     ],
-    "children": [
+    "children": []
+  },
+  {
+    "id": "2",
+    "type": "bulletListItem",
+    "props": {
+      "textColor": "default",
+      "backgroundColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
       {
-        "id": "2",
-        "type": "numberedListItem",
-        "props": {
-          "textColor": "default",
-          "backgroundColor": "default",
-          "textAlignment": "left"
-        },
-        "content": [
-          {
-            "type": "text",
-            "text": "Nested Numbered List Item",
-            "styles": {}
-          }
-        ],
-        "children": []
-      },
-      {
-        "id": "3",
-        "type": "numberedListItem",
-        "props": {
-          "textColor": "default",
-          "backgroundColor": "default",
-          "textAlignment": "left"
-        },
-        "content": [
-          {
-            "type": "text",
-            "text": "Nested Numbered List Item",
-            "styles": {}
-          }
-        ],
-        "children": []
+        "type": "text",
+        "text": "Second",
+        "styles": {}
       }
-    ]
+    ],
+    "children": []
+  },
+  {
+    "id": "3",
+    "type": "bulletListItem",
+    "props": {
+      "textColor": "default",
+      "backgroundColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "Third",
+        "styles": {}
+      }
+    ],
+    "children": []
   },
   {
     "id": "4",
@@ -62,28 +61,28 @@
     "content": [
       {
         "type": "text",
-        "text": "Bullet List Item",
-        "styles": {}
-      }
-    ],
-    "children": []
-  },
-  {
-    "id": "5",
-    "type": "numberedListItem",
-    "props": {
-      "textColor": "default",
-      "backgroundColor": "default",
-      "textAlignment": "left"
-    },
-    "content": [
-      {
-        "type": "text",
-        "text": "Numbered List Item",
+        "text": "Five Parent",
         "styles": {}
       }
     ],
     "children": [
+      {
+        "id": "5",
+        "type": "bulletListItem",
+        "props": {
+          "textColor": "default",
+          "backgroundColor": "default",
+          "textAlignment": "left"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Child 1",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
       {
         "id": "6",
         "type": "bulletListItem",
@@ -95,46 +94,12 @@
         "content": [
           {
             "type": "text",
-            "text": "Nested Bullet List Item",
-            "styles": {}
-          }
-        ],
-        "children": []
-      },
-      {
-        "id": "7",
-        "type": "bulletListItem",
-        "props": {
-          "textColor": "default",
-          "backgroundColor": "default",
-          "textAlignment": "left"
-        },
-        "content": [
-          {
-            "type": "text",
-            "text": "Nested Bullet List Item",
+            "text": "Child 2",
             "styles": {}
           }
         ],
         "children": []
       }
     ]
-  },
-  {
-    "id": "8",
-    "type": "numberedListItem",
-    "props": {
-      "textColor": "default",
-      "backgroundColor": "default",
-      "textAlignment": "left"
-    },
-    "content": [
-      {
-        "type": "text",
-        "text": "Numbered List Item",
-        "styles": {}
-      }
-    ],
-    "children": []
   }
 ]

@@ -2,6 +2,7 @@ import { DOMParser, Schema } from "prosemirror-model";
 import { Block, BlockSchema, nodeToBlock } from "../../..";
 import { InlineContentSchema } from "../../../extensions/Blocks/api/inlineContent/types";
 import { StyleSchema } from "../../../extensions/Blocks/api/styles/types";
+import { nestedListsToBlockNoteStructure } from "./util/nestedLists";
 
 export async function HTMLToBlocks<
   BSchema extends BlockSchema,
@@ -14,14 +15,14 @@ export async function HTMLToBlocks<
   styleSchema: S,
   pmSchema: Schema
 ): Promise<Block<BSchema, I, S>[]> {
-  const htmlNode = document.createElement("div");
-  htmlNode.innerHTML = html.trim();
-
+  const htmlNode = nestedListsToBlockNoteStructure(html);
   const parser = DOMParser.fromSchema(pmSchema);
 
-  // const x = parser.parseSlice(htmlNode);
+  // const doc = pmSchema.nodes["doc"].createAndFill()!;
+
   const parentNode = parser.parse(htmlNode, {
     topNode: pmSchema.nodes["blockGroup"].create(),
+    // context: doc.resolve(3),
   }); //, { preserveWhitespace: "full" });
   const blocks: Block<BSchema, I, S>[] = [];
 

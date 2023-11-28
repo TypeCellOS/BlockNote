@@ -5,6 +5,7 @@ import { BlockNoteEditor } from "../../BlockNoteEditor";
 import { BlockSchema } from "../../extensions/Blocks/api/blocks/types";
 import { InlineContentSchema } from "../../extensions/Blocks/api/inlineContent/types";
 import { StyleSchema } from "../../extensions/Blocks/api/styles/types";
+import { nestedListsToBlockNoteStructure } from "./html/util/nestedLists";
 
 const acceptedMIMETypes = [
   "blocknote/html",
@@ -38,9 +39,16 @@ export const createPasteFromClipboardExtension = <
                 }
 
                 if (format !== null) {
-                  editor._tiptapEditor.view.pasteHTML(
-                    event.clipboardData!.getData(format)
-                  );
+                  let data = event.clipboardData!.getData(format);
+                  if (format === "text/html") {
+                    const htmlNode = nestedListsToBlockNoteStructure(
+                      data.trim()
+                    );
+
+                    data = htmlNode.innerHTML;
+                    console.log(data);
+                  }
+                  editor._tiptapEditor.view.pasteHTML(data);
                 }
 
                 return true;

@@ -81,7 +81,10 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
             return false;
           }
 
-          if (parent.tagName === "OL") {
+          if (
+            parent.tagName === "OL" ||
+            (parent.tagName === "DIV" && parent.parentElement!.tagName === "OL")
+          ) {
             return {};
           }
 

@@ -100,6 +100,21 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
           };
         },
       },
+      {
+        tag: "h1",
+        attrs: { level: 1 },
+        node: "heading",
+      },
+      {
+        tag: "h2",
+        attrs: { level: 2 },
+        node: "heading",
+      },
+      {
+        tag: "h3",
+        attrs: { level: 3 },
+        node: "heading",
+      },
     ];
   },
 
