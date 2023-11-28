@@ -5,6 +5,7 @@ import {
   EditorTestCases,
   InlineContentSchemaFromSpecs,
   InlineContentSpecs,
+  defaultInlineContentSpecs,
   uploadToTmpFilesDotOrg_DEV_ONLY,
 } from "@blocknote/core";
 import { createReactInlineContentSpec } from "../../ReactInlineContentSpec";
@@ -44,6 +45,7 @@ const tag = createReactInlineContentSpec(
 );
 
 const customReactInlineContent = {
+  ...defaultInlineContentSpecs,
   tag,
   mention,
 } satisfies InlineContentSpecs;

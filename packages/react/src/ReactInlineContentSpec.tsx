@@ -1,6 +1,7 @@
 import {
   createInternalInlineContentSpec,
   createStronglyTypedTiptapNode,
+  CustomInlineContentConfig,
   InlineContentConfig,
   InlineContentFromConfig,
   nodeToCustomInlineContent,
@@ -40,7 +41,7 @@ export type ReactInlineContentImplementation<
 // A function to create custom block for API consumers
 // we want to hide the tiptap node from API consumers and provide a simpler API surface instead
 export function createReactInlineContentSpec<
-  T extends InlineContentConfig,
+  T extends CustomInlineContentConfig,
   // I extends InlineContentSchema,
   S extends StyleSchema
 >(
@@ -148,5 +149,5 @@ export function createReactInlineContentSpec<
 
   return createInternalInlineContentSpec(inlineContentConfig, {
     node: node,
-  });
+  } as any);
 }

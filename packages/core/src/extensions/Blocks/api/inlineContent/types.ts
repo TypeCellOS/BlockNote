@@ -2,21 +2,25 @@ import { Node } from "@tiptap/core";
 import { PropSchema, Props } from "../blocks/types";
 import { StyleSchema, Styles } from "../styles/types";
 
-// InlineContentConfig contains the "schema" info about an InlineContent type
-// i.e. what props it supports, what content it supports, etc.
-export type InlineContentConfig = {
+export type CustomInlineContentConfig = {
   type: string;
   content: "styled" | "none"; // | "plain"
   readonly propSchema: PropSchema;
   // content: "inline" | "none" | "table";
 };
+// InlineContentConfig contains the "schema" info about an InlineContent type
+// i.e. what props it supports, what content it supports, etc.
+export type InlineContentConfig = CustomInlineContentConfig | "text" | "link";
 
 // InlineContentImplementation contains the "implementation" info about an InlineContent element
 // such as the functions / Nodes required to render and / or serialize it
 // @ts-ignore
-export type InlineContentImplementation<T extends InlineContentConfig> = {
-  node: Node;
-};
+export type InlineContentImplementation<T extends InlineContentConfig> =
+  T extends "link" | "text"
+    ? undefined
+    : {
+        node: Node;
+      };
 
 // Container for both the config and implementation of InlineContent,
 // and the type of `implementation` is based on that of the config
@@ -29,17 +33,17 @@ export type InlineContentSpec<T extends InlineContentConfig> = {
 // The keys are the "type" of InlineContent elements
 export type InlineContentSchema = Record<string, InlineContentConfig>;
 
-export type InlineContentSpecs = Record<
-  string,
-  InlineContentSpec<InlineContentConfig>
->;
+export type InlineContentSpecs = {
+  text: { config: "text"; implementation: undefined };
+  link: { config: "link"; implementation: undefined };
+} & Record<string, InlineContentSpec<InlineContentConfig>>;
 
 export type InlineContentSchemaFromSpecs<T extends InlineContentSpecs> = {
   [K in keyof T]: T[K]["config"];
 };
 
-export type InlineContentFromConfig<
-  I extends InlineContentConfig,
+export type CustomInlineContentFromConfig<
+  I extends CustomInlineContentConfig,
   S extends StyleSchema
 > = {
   type: I["type"];
@@ -53,8 +57,19 @@ export type InlineContentFromConfig<
     : never;
 };
 
-export type PartialInlineContentFromConfig<
+export type InlineContentFromConfig<
   I extends InlineContentConfig,
+  S extends StyleSchema
+> = I extends "text"
+  ? StyledText<S>
+  : I extends "link"
+  ? Link<S>
+  : I extends CustomInlineContentConfig
+  ? CustomInlineContentFromConfig<I, S>
+  : never;
+
+export type PartialCustomInlineContentFromConfig<
+  I extends CustomInlineContentConfig,
   S extends StyleSchema
 > = {
   type: I["type"];
@@ -67,6 +82,17 @@ export type PartialInlineContentFromConfig<
     ? undefined
     : never;
 };
+
+export type PartialInlineContentFromConfig<
+  I extends InlineContentConfig,
+  S extends StyleSchema
+> = I extends "text"
+  ? string | StyledText<S>
+  : I extends "link"
+  ? PartialLink<S>
+  : I extends CustomInlineContentConfig
+  ? PartialCustomInlineContentFromConfig<I, S>
+  : never;
 
 export type StyledText<T extends StyleSchema> = {
   type: "text";
@@ -87,16 +113,12 @@ export type PartialLink<T extends StyleSchema> = Omit<Link<T>, "content"> & {
 export type InlineContent<
   I extends InlineContentSchema,
   T extends StyleSchema
-> = StyledText<T> | Link<T> | InlineContentFromConfig<I[keyof I], T>;
+> = InlineContentFromConfig<I[keyof I], T>;
 
 type PartialInlineContentElement<
   I extends InlineContentSchema,
   T extends StyleSchema
-> =
-  | string
-  | StyledText<T>
-  | PartialLink<T>
-  | PartialInlineContentFromConfig<I[keyof I], T>;
+> = PartialInlineContentFromConfig<I[keyof I], T>;
 
 export type PartialInlineContent<
   I extends InlineContentSchema,

@@ -100,11 +100,13 @@ export const getBlockNoteExtensions = <
       domAttributes: opts.domAttributes,
     }),
     TableExtension,
-    ...Object.values(opts.inlineContentSpecs).map((inlineContentSpec) => {
-      return inlineContentSpec.implementation.node.configure({
-        editor: opts.editor as any,
-      });
-    }),
+    ...Object.values(opts.inlineContentSpecs)
+      .filter((a) => a.config !== "link" && a.config !== "text")
+      .map((inlineContentSpec) => {
+        return inlineContentSpec.implementation!.node.configure({
+          editor: opts.editor as any,
+        });
+      }),
 
     ...Object.values(opts.blockSpecs).flatMap((blockSpec) => {
       return [

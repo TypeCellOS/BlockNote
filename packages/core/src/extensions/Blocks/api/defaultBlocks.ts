@@ -48,7 +48,10 @@ export const defaultStyleSchema = getStyleSchemaFromSpecs(defaultStyleSpecs);
 
 export type DefaultStyleSchema = typeof defaultStyleSchema;
 
-export const defaultInlineContentSpecs = {} satisfies InlineContentSpecs;
+export const defaultInlineContentSpecs = {
+  text: { config: "text", implementation: {} as any },
+  link: { config: "link", implementation: {} as any },
+} satisfies InlineContentSpecs;
 
 export const defaultInlineContentSchema = getInlineContentSchemaFromSpecs(
   defaultInlineContentSpecs

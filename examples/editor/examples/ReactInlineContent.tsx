@@ -1,3 +1,4 @@
+import { defaultInlineContentSpecs } from "@blocknote/core";
 import "@blocknote/core/style.css";
 import {
   BlockNoteView,
@@ -46,6 +47,7 @@ export function ReactInlineContent() {
     inlineContentSpecs: {
       mention,
       tag,
+      ...defaultInlineContentSpecs,
     },
     domAttributes: {
       editor: {

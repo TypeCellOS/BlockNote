@@ -4,6 +4,7 @@ import { propsToAttributes } from "../blocks/internal";
 import { StyleSchema } from "../styles/types";
 import { createInlineContentSpecFromTipTapNode } from "./internal";
 import {
+  CustomInlineContentConfig,
   InlineContentConfig,
   InlineContentFromConfig,
   InlineContentSpec,
@@ -38,7 +39,7 @@ export type CustomInlineContentImplementation<
 };
 
 export function createInlineContentSpec<
-  T extends InlineContentConfig,
+  T extends CustomInlineContentConfig,
   S extends StyleSchema
 >(
   inlineContentConfig: T,
