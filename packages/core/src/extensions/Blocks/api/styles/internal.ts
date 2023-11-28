@@ -7,6 +7,32 @@ import {
   StyleSpec,
   StyleSpecs,
 } from "./types";
+import { mergeCSSClasses } from "../../../../shared/utils";
+
+// Function that adds necessary classes and attributes to the `dom` element
+// returned from a custom style's 'render' function, to ensure no data is lost
+// on internal copy & paste.
+export function addStyleAttributes<
+  SType extends string,
+  PSchema extends StylePropSchema
+>(
+  element: HTMLElement,
+  styleType: SType,
+  styleValue: PSchema extends "boolean" ? undefined : string,
+  propSchema: PSchema
+): HTMLElement {
+  // Sets inline content section class
+  element.className = mergeCSSClasses("bn-style", element.className);
+  // Sets content type attribute
+  element.setAttribute("data-style-type", styleType);
+  // Adds style value as an HTML attribute in kebab-case with "data-" prefix, if
+  // the style takes a string value.
+  if (propSchema === "string") {
+    element.setAttribute("data-value", styleValue as string);
+  }
+
+  return element;
+}
 
 // This helper function helps to instantiate a stylespec with a
 // config and implementation that conform to the type of Config

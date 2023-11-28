@@ -1,4 +1,5 @@
 import {
+  addInlineContentAttributes,
   camelToDataKebab,
   createInternalInlineContentSpec,
   createStronglyTypedTiptapNode,
@@ -39,15 +40,15 @@ export type ReactInlineContentImplementation<
   // }>;
 };
 
-// Function that wraps the React component returned from 'blockConfig.render' in
-// a `NodeViewWrapper` which also acts as a `blockContent` div. It contains the
-// block type and props as HTML attributes.
+// Function that adds a wrapper with necessary classes and attributes to the
+// component returned from a custom inline content's 'render' function, to
+// ensure no data is lost on internal copy & paste.
 export function reactWrapInInlineContentStructure<
-  BType extends string,
+  IType extends string,
   PSchema extends PropSchema
 >(
   element: JSX.Element,
-  inlineContentType: BType,
+  inlineContentType: IType,
   inlineContentProps: Props<PSchema>,
   propSchema: PSchema
 ) {
@@ -114,16 +115,19 @@ export function createReactInlineContentSpec<
         editor.styleSchema
       ) as any as InlineContentFromConfig<T, S>; // TODO: fix cast
       const Content = inlineContentImplementation.render;
+      const output = renderToDOMSpec((refCB) => (
+        <Content inlineContent={ic} contentRef={refCB} />
+      ));
 
-      return renderToDOMSpec((refCB) => {
-        const FullContent = reactWrapInInlineContentStructure(
-          <Content inlineContent={ic} contentRef={refCB} />,
+      return {
+        dom: addInlineContentAttributes(
+          output.dom,
           inlineContentConfig.type,
           node.attrs as Props<T["propSchema"]>,
           inlineContentConfig.propSchema
-        );
-        return <FullContent />;
-      });
+        ),
+        contentDOM: output.contentDOM,
+      };
     },
 
     // TODO: needed?

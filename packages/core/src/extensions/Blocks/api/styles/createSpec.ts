@@ -1,6 +1,6 @@
 import { Mark } from "@tiptap/core";
 import { UnreachableCaseError } from "../../../../shared/utils";
-import { createInternalStyleSpec } from "./internal";
+import { addStyleAttributes, createInternalStyleSpec } from "./internal";
 import { StyleConfig, StyleSpec } from "./types";
 
 export type CustomStyleImplementation<T extends StyleConfig> = {
@@ -31,15 +31,23 @@ export function createStyleSpec<T extends StyleConfig>(
       return {
         stringValue: {
           default: undefined,
-          // TODO: parsing
-
-          // parseHTML: (element) =>
-          //   element.getAttribute(`data-${styleConfig.type}`),
-          // renderHTML: (attributes) => ({
-          //   [`data-${styleConfig.type}`]: attributes.stringValue,
-          // }),
+          parseHTML: (element) => element.getAttribute("data-value"),
+          renderHTML: (attributes) =>
+            attributes.stringValue !== undefined
+              ? {
+                  "data-value": attributes.stringValue,
+                }
+              : {},
         },
       };
+    },
+
+    parseHTML() {
+      return [
+        {
+          tag: `.bn-style[data-style-type="${styleConfig.type}"]`,
+        },
+      ];
     },
 
     renderHTML({ mark }) {
@@ -58,7 +66,15 @@ export function createStyleSpec<T extends StyleConfig>(
       }
 
       // const renderResult = styleImplementation.render();
-      return renderResult;
+      return {
+        dom: addStyleAttributes(
+          renderResult.dom,
+          styleConfig.type,
+          mark.attrs.stringValue,
+          styleConfig.propSchema
+        ),
+        contentDOM: renderResult.contentDOM,
+      };
     },
   });
 

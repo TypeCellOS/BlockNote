@@ -1,4 +1,8 @@
-import { createInternalStyleSpec, StyleConfig } from "@blocknote/core";
+import {
+  addStyleAttributes,
+  createInternalStyleSpec,
+  StyleConfig,
+} from "@blocknote/core";
 import { Mark } from "@tiptap/react";
 import { FC } from "react";
 import { renderToDOMSpec } from "./ReactRenderUtil";
@@ -28,15 +32,23 @@ export function createReactStyleSpec<T extends StyleConfig>(
       return {
         stringValue: {
           default: undefined,
-          // TODO: parsing
-
-          // parseHTML: (element) =>
-          //   element.getAttribute(`data-${styleConfig.type}`),
-          // renderHTML: (attributes) => ({
-          //   [`data-${styleConfig.type}`]: attributes.stringValue,
-          // }),
+          parseHTML: (element) => element.getAttribute("data-value"),
+          renderHTML: (attributes) =>
+            attributes.stringValue !== undefined
+              ? {
+                  "data-value": attributes.stringValue,
+                }
+              : {},
         },
       };
+    },
+
+    parseHTML() {
+      return [
+        {
+          tag: `.bn-style[data-style-type="${styleConfig.type}"]`,
+        },
+      ];
     },
 
     renderHTML({ mark }) {
@@ -47,10 +59,19 @@ export function createReactStyleSpec<T extends StyleConfig>(
       }
 
       const Content = styleImplementation.render;
-
-      return renderToDOMSpec((refCB) => (
+      const renderResult = renderToDOMSpec((refCB) => (
         <Content {...props} contentRef={refCB} />
       ));
+
+      return {
+        dom: addStyleAttributes(
+          renderResult.dom,
+          styleConfig.type,
+          mark.attrs.stringValue,
+          styleConfig.propSchema
+        ),
+        contentDOM: renderResult.contentDOM,
+      };
     },
   });
 
