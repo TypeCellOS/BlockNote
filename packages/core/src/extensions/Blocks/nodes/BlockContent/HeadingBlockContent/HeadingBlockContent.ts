@@ -88,7 +88,6 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
   parseHTML() {
     return [
       {
-        // TODO: also do for other blocks?
         tag: "div[data-content-type=" + this.name + "]",
         getAttrs: (element) => {
           if (typeof element === "string") {
