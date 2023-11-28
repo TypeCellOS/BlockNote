@@ -2,7 +2,10 @@ import { Node } from "@tiptap/core";
 import { nodeToCustomInlineContent } from "../../../../api/nodeConversions/nodeConversions";
 import { propsToAttributes } from "../blocks/internal";
 import { StyleSchema } from "../styles/types";
-import { createInlineContentSpecFromTipTapNode } from "./internal";
+import {
+  addInlineContentAttributes,
+  createInlineContentSpecFromTipTapNode,
+} from "./internal";
 import {
   InlineContentConfig,
   InlineContentFromConfig,
@@ -68,7 +71,15 @@ export function createInlineContentSpec<
         ) as any as InlineContentFromConfig<T, S> // TODO: fix cast
       );
 
-      return output;
+      return {
+        dom: addInlineContentAttributes(
+          output.dom,
+          inlineContentConfig.type,
+          node.attrs,
+          inlineContentConfig.propSchema
+        ),
+        contentDOM: output.contentDOM,
+      };
     },
   });
 

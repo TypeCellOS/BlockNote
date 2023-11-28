@@ -7,7 +7,7 @@ import {
   getBlockFromPos,
   parse,
   propsToAttributes,
-  wrapInBlockStructure,
+  addBlockContentAttributes,
 } from "./internal";
 import { BlockConfig, BlockFromConfig, BlockSchemaWithBlock } from "./types";
 
@@ -92,13 +92,16 @@ export function createBlockSpec<
 
         const output = blockImplementation.render(block as any, editor);
 
-        return wrapInBlockStructure(
-          output,
-          block.type,
-          block.props,
-          blockConfig.propSchema,
-          blockContentDOMAttributes
-        );
+        return {
+          dom: addBlockContentAttributes(
+            output.dom,
+            block.type,
+            block.props,
+            blockConfig.propSchema,
+            blockContentDOMAttributes
+          ),
+          contentDOM: output.contentDOM,
+        };
       };
     },
   });
@@ -117,13 +120,17 @@ export function createBlockSpec<
 
       const output = blockImplementation.render(block as any, editor as any);
 
-      return wrapInBlockStructure(
-        output,
-        block.type,
-        block.props,
-        blockConfig.propSchema,
-        blockContentDOMAttributes
-      );
+      return {
+        dom: addBlockContentAttributes(
+          output.dom,
+          block.type,
+          block.props,
+          blockConfig.propSchema,
+          blockContentDOMAttributes
+        ),
+        contentDOM: output.contentDOM,
+        destroy: output.destroy,
+      };
     },
     toExternalHTML: (block, editor) => {
       const blockContentDOMAttributes =
@@ -137,13 +144,16 @@ export function createBlockSpec<
         output = blockImplementation.render(block as any, editor as any);
       }
 
-      return wrapInBlockStructure(
-        output,
-        block.type,
-        block.props,
-        blockConfig.propSchema,
-        blockContentDOMAttributes
-      );
+      return {
+        dom: addBlockContentAttributes(
+          output.dom,
+          block.type,
+          block.props,
+          blockConfig.propSchema,
+          blockContentDOMAttributes
+        ),
+        contentDOM: output.contentDOM,
+      };
     },
   });
 }

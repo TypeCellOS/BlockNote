@@ -1,5 +1,5 @@
 import { Node } from "@tiptap/core";
-import { PropSchema } from "../blocks/types";
+import { Props, PropSchema } from "../blocks/types";
 import {
   InlineContentConfig,
   InlineContentImplementation,
@@ -7,6 +7,49 @@ import {
   InlineContentSpec,
   InlineContentSpecs,
 } from "./types";
+import { mergeCSSClasses } from "../../../../shared/utils";
+import { camelToDataKebab } from "../blocks/internal";
+
+// Function that wraps the `dom` element returned from 'blockConfig.render' in a
+// `blockContent` div, which contains the block type and props as HTML
+// attributes. If `blockConfig.render` also returns a `contentDOM`, it also adds
+// an `inlineContent` class to it.
+export function addInlineContentAttributes<
+  BType extends string,
+  PSchema extends PropSchema
+>(
+  element: HTMLElement,
+  inlineContentType: BType,
+  inlineContentProps: Props<PSchema>,
+  propSchema: PSchema,
+  domAttributes?: Record<string, string>
+): HTMLElement {
+  // Adds custom HTML attributes
+  if (domAttributes !== undefined) {
+    for (const [attr, value] of Object.entries(domAttributes)) {
+      if (attr !== "class") {
+        element.setAttribute(attr, value);
+      }
+    }
+  }
+  // Sets inlineContent class
+  element.className = mergeCSSClasses(
+    element.className,
+    "bn-inline-content",
+    domAttributes?.class || ""
+  );
+  // Sets content type attribute
+  element.setAttribute("data-inline-content-type", inlineContentType);
+  // Adds props as HTML attributes in kebab-case with "data-" prefix. Skips props
+  // set to their default values.
+  for (const [prop, value] of Object.entries(inlineContentProps)) {
+    if (value !== propSchema[prop].default) {
+      element.setAttribute(camelToDataKebab(prop), value);
+    }
+  }
+
+  return element;
+}
 
 // This helper function helps to instantiate a InlineContentSpec with a
 // config and implementation that conform to the type of Config

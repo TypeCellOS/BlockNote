@@ -170,64 +170,41 @@ export function getBlockFromPos<
 // `blockContent` div, which contains the block type and props as HTML
 // attributes. If `blockConfig.render` also returns a `contentDOM`, it also adds
 // an `inlineContent` class to it.
-export function wrapInBlockStructure<
+export function addBlockContentAttributes<
   BType extends string,
   PSchema extends PropSchema
 >(
-  element: {
-    dom: HTMLElement;
-    contentDOM?: HTMLElement;
-    destroy?: () => void;
-  },
+  element: HTMLElement,
   blockType: BType,
   blockProps: Props<PSchema>,
   propSchema: PSchema,
   domAttributes?: Record<string, string>
-): {
-  dom: HTMLElement;
-  contentDOM?: HTMLElement;
-  destroy?: () => void;
-} {
-  // Creates `blockContent` element
-  const blockContent = document.createElement("div");
-
+): HTMLElement {
   // Adds custom HTML attributes
   if (domAttributes !== undefined) {
     for (const [attr, value] of Object.entries(domAttributes)) {
       if (attr !== "class") {
-        blockContent.setAttribute(attr, value);
+        element.setAttribute(attr, value);
       }
     }
   }
   // Sets blockContent class
-  blockContent.className = mergeCSSClasses(
+  element.className = mergeCSSClasses(
     "bn-block-content",
     domAttributes?.class || ""
   );
   // Sets content type attribute
-  blockContent.setAttribute("data-content-type", blockType);
+  element.setAttribute("data-content-type", blockType);
   // Adds props as HTML attributes in kebab-case with "data-" prefix. Skips props
   // which are already added as HTML attributes to the parent `blockContent`
   // element (inheritedProps) and props set to their default values.
   for (const [prop, value] of Object.entries(blockProps)) {
     if (!inheritedProps.includes(prop) && value !== propSchema[prop].default) {
-      blockContent.setAttribute(camelToDataKebab(prop), value);
+      element.setAttribute(camelToDataKebab(prop), value);
     }
   }
 
-  blockContent.appendChild(element.dom);
-
-  if (element.contentDOM !== undefined) {
-    element.contentDOM.className = mergeCSSClasses(
-      "bn-inline-content",
-      element.contentDOM.className
-    );
-  }
-
-  return {
-    ...element,
-    dom: blockContent,
-  };
+  return element;
 }
 
 // Helper type to keep track of the `name` and `content` properties after calling Node.create.

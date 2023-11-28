@@ -17,36 +17,30 @@ export function createDefaultBlockDOMOutputSpec(
   blockContentHTMLAttributes: Record<string, string>,
   inlineContentHTMLAttributes: Record<string, string>
 ) {
-  const blockContent = document.createElement("div");
-  blockContent.className = mergeCSSClasses(
+  const element = document.createElement(htmlTag);
+  element.className = mergeCSSClasses(
     "bn-block-content",
-    blockContentHTMLAttributes.class
-  );
-  blockContent.setAttribute("data-content-type", blockName);
-  for (const [attribute, value] of Object.entries(blockContentHTMLAttributes)) {
-    if (attribute !== "class") {
-      blockContent.setAttribute(attribute, value);
-    }
-  }
-
-  const inlineContent = document.createElement(htmlTag);
-  inlineContent.className = mergeCSSClasses(
+    blockContentHTMLAttributes.class,
     "bn-inline-content",
     inlineContentHTMLAttributes.class
   );
+  element.setAttribute("data-content-type", blockName);
+  for (const [attribute, value] of Object.entries(blockContentHTMLAttributes)) {
+    if (attribute !== "class") {
+      element.setAttribute(attribute, value);
+    }
+  }
   for (const [attribute, value] of Object.entries(
     inlineContentHTMLAttributes
   )) {
     if (attribute !== "class") {
-      inlineContent.setAttribute(attribute, value);
+      element.setAttribute(attribute, value);
     }
   }
 
-  blockContent.appendChild(inlineContent);
-
   return {
-    dom: blockContent,
-    contentDOM: inlineContent,
+    dom: element,
+    contentDOM: element,
   };
 }
 

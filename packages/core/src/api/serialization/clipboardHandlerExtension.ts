@@ -47,22 +47,22 @@ export const createClipboardHandlerExtension = <
                     selectedFragment
                   );
 
-                const externalHTMLExporter = createExternalHTMLExporter(
-                  schema,
-                  editor
-                );
-                const externalHTML =
-                  externalHTMLExporter.exportProseMirrorFragment(
-                    selectedFragment
-                  );
-
-                const plainText = markdown(externalHTML);
+                // const externalHTMLExporter = createExternalHTMLExporter(
+                //   schema,
+                //   editor
+                // );
+                // const externalHTML =
+                //   externalHTMLExporter.exportProseMirrorFragment(
+                //     selectedFragment
+                //   );
+                //
+                // const plainText = markdown(externalHTML);
 
                 // TODO: Writing to other MIME types not working in Safari for
                 //  some reason.
                 event.clipboardData!.setData("blocknote/html", internalHTML);
-                event.clipboardData!.setData("text/html", externalHTML);
-                event.clipboardData!.setData("text/plain", plainText);
+                // event.clipboardData!.setData("text/html", externalHTML);
+                // event.clipboardData!.setData("text/plain", plainText);
 
                 // Prevent default PM handler to be called
                 return true;
