@@ -11,7 +11,8 @@ import { History } from "@tiptap/extension-history";
 import { Link } from "@tiptap/extension-link";
 import { Text } from "@tiptap/extension-text";
 import * as Y from "yjs";
-import { createClipboardHandlerExtension } from "./api/serialization/clipboardHandlerExtension";
+import { createCopyToClipboardExtension } from "./api/exporters/copyExtension";
+import { createPasteFromClipboardExtension } from "./api/parsers/pasteExtension";
 import { BackgroundColorExtension } from "./extensions/BackgroundColor/BackgroundColorExtension";
 import { BlockContainer, BlockGroup, Doc } from "./extensions/Blocks";
 import {
@@ -24,7 +25,6 @@ import {
   InlineContentSpecs,
 } from "./extensions/Blocks/api/inlineContent/types";
 import { StyleSchema, StyleSpecs } from "./extensions/Blocks/api/styles/types";
-import { TableExtension } from "./extensions/Blocks/nodes/BlockContent/TableBlockContent/TableExtension";
 import { Placeholder } from "./extensions/Placeholder/PlaceholderExtension";
 import { TextAlignmentExtension } from "./extensions/TextAlignment/TextAlignmentExtension";
 import { TextColorExtension } from "./extensions/TextColor/TextColorExtension";
@@ -99,7 +99,6 @@ export const getBlockNoteExtensions = <
     BlockGroup.configure({
       domAttributes: opts.domAttributes,
     }),
-    TableExtension,
     ...Object.values(opts.inlineContentSpecs)
       .filter((a) => a.config !== "link" && a.config !== "text")
       .map((inlineContentSpec) => {
@@ -111,8 +110,8 @@ export const getBlockNoteExtensions = <
     ...Object.values(opts.blockSpecs).flatMap((blockSpec) => {
       return [
         // dependent nodes (e.g.: tablecell / row)
-        ...(blockSpec.implementation.requiredNodes || []).map((node) =>
-          node.configure({
+        ...(blockSpec.implementation.requiredExtensions || []).map((ext) =>
+          ext.configure({
             editor: opts.editor,
             domAttributes: opts.domAttributes,
           })
@@ -124,7 +123,8 @@ export const getBlockNoteExtensions = <
         }),
       ];
     }),
-    createClipboardHandlerExtension(opts.editor),
+    createCopyToClipboardExtension(opts.editor),
+    createPasteFromClipboardExtension(opts.editor),
 
     Dropcursor.configure({ width: 5, color: "#ddeeff" }),
     // This needs to be at the bottom of this list, because Key events (such as enter, when selecting a /command),

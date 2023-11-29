@@ -1,8 +1,13 @@
 import { Node } from "@tiptap/core";
+import { ParseRule } from "@tiptap/pm/model";
 import { nodeToCustomInlineContent } from "../../../../api/nodeConversions/nodeConversions";
 import { propsToAttributes } from "../blocks/internal";
+import { Props } from "../blocks/types";
 import { StyleSchema } from "../styles/types";
-import { createInlineContentSpecFromTipTapNode } from "./internal";
+import {
+  addInlineContentAttributes,
+  createInlineContentSpecFromTipTapNode,
+} from "./internal";
 import {
   CustomInlineContentConfig,
   InlineContentConfig,
@@ -38,6 +43,16 @@ export type CustomInlineContentImplementation<
   };
 };
 
+export function getInlineContentParseRules(
+  config: InlineContentConfig
+): ParseRule[] {
+  return [
+    {
+      tag: `.bn-inline-content-section[data-inline-content-type="${config.type}"]`,
+    },
+  ];
+}
+
 export function createInlineContentSpec<
   T extends CustomInlineContentConfig,
   S extends StyleSchema
@@ -58,6 +73,10 @@ export function createInlineContentSpec<
       return propsToAttributes(inlineContentConfig.propSchema);
     },
 
+    parseHTML() {
+      return getInlineContentParseRules(inlineContentConfig);
+    },
+
     renderHTML({ node }) {
       const editor = this.options.editor;
 
@@ -69,7 +88,15 @@ export function createInlineContentSpec<
         ) as any as InlineContentFromConfig<T, S> // TODO: fix cast
       );
 
-      return output;
+      return {
+        dom: addInlineContentAttributes(
+          output.dom,
+          inlineContentConfig.type,
+          node.attrs as Props<T["propSchema"]>,
+          inlineContentConfig.propSchema
+        ),
+        contentDOM: output.contentDOM,
+      };
     },
   });
 

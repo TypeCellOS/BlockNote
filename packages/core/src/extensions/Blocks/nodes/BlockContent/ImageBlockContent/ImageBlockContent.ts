@@ -371,17 +371,29 @@ export const Image = createBlockSpec(
         dom: figure,
       };
     },
+    parse: (element: HTMLElement) => {
+      if (element.tagName === "FIGURE") {
+        const img = element.querySelector("img");
+        const caption = element.querySelector("figcaption");
+        return {
+          type: "image",
+          props: {
+            url: img?.getAttribute("src") || "",
+            caption:
+              caption?.textContent || img?.getAttribute("alt") || undefined,
+          },
+        };
+      } else if (element.tagName === "IMG") {
+        return {
+          type: "image",
+          props: {
+            url: element.getAttribute("src") || "",
+            caption: element.getAttribute("alt") || undefined,
+          },
+        };
+      }
+
+      return undefined;
+    },
   }
-  // parse: (element) => {
-  //   if (element.tagName === "IMG") {
-  //     return {
-  //       type: "image",
-  //       props: {
-  //         url: element.getAttribute("src") || "",
-  //       },
-  //     };
-  //   }
-  //
-  //   return;
-  // },
 );

@@ -1,5 +1,5 @@
 /** Define the main block types **/
-import { Node } from "@tiptap/core";
+import { Extension, Node } from "@tiptap/core";
 
 import { BlockNoteEditor } from "../../../../BlockNoteEditor";
 import {
@@ -69,7 +69,7 @@ export type TiptapBlockImplementation<
   I extends InlineContentSchema,
   S extends StyleSchema
 > = {
-  requiredNodes?: Node[];
+  requiredExtensions?: Array<Extension | Node>;
   node: Node;
   toInternalHTML: (
     block: BlockFromConfigNoChildren<T, I, S> & {
@@ -271,6 +271,14 @@ export type SpecificPartialBlock<
   S extends StyleSchema
 > = PartialBlocksWithoutChildren<BSchema, I, S>[BType] & {
   children?: Block<BSchema, I, S>[];
+};
+
+export type PartialBlockFromConfig<
+  B extends BlockConfig,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+> = PartialBlockFromConfigNoChildren<B, I, S> & {
+  children?: Block<BlockSchema, I, S>[];
 };
 
 export type BlockIdentifier = { id: string } | string;

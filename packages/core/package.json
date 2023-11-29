@@ -82,6 +82,7 @@
     "rehype-parse": "^8.0.4",
     "rehype-remark": "^9.1.2",
     "rehype-stringify": "^9.0.3",
+    "rehype-format":"^5.0.0",
     "remark-gfm": "^3.0.1",
     "remark-parse": "^10.0.1",
     "remark-rehype": "^10.1.0",

@@ -1,3 +1,4 @@
+import { ParseRule } from "@tiptap/pm/model";
 import { BlockNoteEditor } from "../../../../BlockNoteEditor";
 import { InlineContentSchema } from "../inlineContent/types";
 import { StyleSchema } from "../styles/types";
@@ -5,11 +6,15 @@ import {
   createInternalBlockSpec,
   createStronglyTypedTiptapNode,
   getBlockFromPos,
-  parse,
   propsToAttributes,
   wrapInBlockStructure,
 } from "./internal";
-import { BlockConfig, BlockFromConfig, BlockSchemaWithBlock } from "./types";
+import {
+  BlockConfig,
+  BlockFromConfig,
+  BlockSchemaWithBlock,
+  PartialBlockFromConfig,
+} from "./types";
 
 // restrict content to "inline" and "none" only
 export type CustomBlockConfig = BlockConfig & {
@@ -50,7 +55,59 @@ export type CustomBlockImplementation<
     dom: HTMLElement;
     contentDOM?: HTMLElement;
   };
+
+  parse?: (el: HTMLElement) => PartialBlockFromConfig<T, I, S> | undefined;
 };
+
+// Function that uses the 'parse' function of a blockConfig to create a
+// TipTap node's `parseHTML` property. This is only used for parsing content
+// from the clipboard.
+export function getParseRules(
+  config: BlockConfig,
+  customParseFunction: CustomBlockImplementation<any, any, any>["parse"]
+) {
+  const rules: ParseRule[] = [
+    {
+      tag: "div[data-content-type=" + config.type + "]",
+    },
+  ];
+
+  if (customParseFunction) {
+    rules.push({
+      tag: "*",
+      getAttrs(node: string | HTMLElement) {
+        if (typeof node === "string") {
+          return false;
+        }
+
+        const block = customParseFunction?.(node);
+
+        if (block === undefined) {
+          return false;
+        }
+
+        return block.props || {};
+      },
+    });
+  }
+  //     getContent(node, schema) {
+  //       const block = blockConfig.parse?.(node as HTMLElement);
+  //
+  //       if (block !== undefined && block.content !== undefined) {
+  //         return Fragment.from(
+  //           typeof block.content === "string"
+  //             ? schema.text(block.content)
+  //             : inlineContentToNodes(block.content, schema)
+  //         );
+  //       }
+  //
+  //       return Fragment.empty;
+  //     },
+  //   });
+  // }
+
+  return rules;
+}
 
 // A function to create custom block for API consumers
 // we want to hide the tiptap node from API consumers and provide a simpler API surface instead
@@ -72,7 +129,7 @@ export function createBlockSpec<
     },
 
     parseHTML() {
-      return parse(blockConfig);
+      return getParseRules(blockConfig, blockImplementation.parse);
     },
 
     addNodeView() {

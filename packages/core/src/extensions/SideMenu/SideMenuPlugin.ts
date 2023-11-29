@@ -3,9 +3,9 @@ import { Node } from "prosemirror-model";
 import { NodeSelection, Plugin, PluginKey, Selection } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 import { BlockNoteEditor } from "../../BlockNoteEditor";
-import { markdown } from "../../api/formatConversions/formatConversions";
-import { createExternalHTMLExporter } from "../../api/serialization/html/externalHTMLExporter";
-import { createInternalHTMLSerializer } from "../../api/serialization/html/internalHTMLSerializer";
+import { createExternalHTMLExporter } from "../../api/exporters/html/externalHTMLExporter";
+import { createInternalHTMLSerializer } from "../../api/exporters/html/internalHTMLSerializer";
+import { cleanHTMLToMarkdown } from "../../api/exporters/markdown/markdownExporter";
 import { BaseUiElementState } from "../../shared/BaseUiElementTypes";
 import { EventEmitter } from "../../shared/EventEmitter";
 import { Block, BlockSchema } from "../Blocks/api/blocks/types";
@@ -234,7 +234,7 @@ function dragStart<
       selectedSlice.content
     );
 
-    const plainText = markdown(externalHTML);
+    const plainText = cleanHTMLToMarkdown(externalHTML);
 
     e.dataTransfer.clearData();
     e.dataTransfer.setData("blocknote/html", internalHTML);

@@ -9,7 +9,7 @@ import {
   defaultProps,
   uploadToTmpFilesDotOrg_DEV_ONLY,
 } from "@blocknote/core";
-import { InlineContent, createReactBlockSpec } from "../../ReactBlockSpec";
+import { createReactBlockSpec } from "../../ReactBlockSpec";
 
 const ReactCustomParagraph = createReactBlockSpec(
   {
@@ -18,8 +18,8 @@ const ReactCustomParagraph = createReactBlockSpec(
     content: "inline",
   },
   {
-    render: () => (
-      <InlineContent as={"p"} className={"react-custom-paragraph"} />
+    render: (props) => (
+      <p ref={props.contentRef} className={"react-custom-paragraph"} />
     ),
     toExternalHTML: () => (
       <p className={"react-custom-paragraph"}>Hello World</p>
@@ -34,8 +34,8 @@ const SimpleReactCustomParagraph = createReactBlockSpec(
     content: "inline",
   },
   {
-    render: () => (
-      <InlineContent as={"p"} className={"simple-react-custom-paragraph"} />
+    render: (props) => (
+      <p ref={props.contentRef} className={"simple-react-custom-paragraph"} />
     ),
   }
 );

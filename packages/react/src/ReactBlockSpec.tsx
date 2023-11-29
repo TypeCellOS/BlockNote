@@ -1,6 +1,5 @@
 import {
   BlockFromConfig,
-  BlockNoteDOMAttributes,
   BlockNoteEditor,
   BlockSchemaWithBlock,
   camelToDataKebab,
@@ -8,10 +7,11 @@ import {
   createStronglyTypedTiptapNode,
   CustomBlockConfig,
   getBlockFromPos,
+  getParseRules,
   inheritedProps,
   InlineContentSchema,
   mergeCSSClasses,
-  parse,
+  PartialBlockFromConfig,
   Props,
   PropSchema,
   propsToAttributes,
@@ -23,8 +23,8 @@ import {
   NodeViewWrapper,
   ReactNodeViewRenderer,
 } from "@tiptap/react";
-import { createContext, ElementType, FC, HTMLProps, useContext } from "react";
-import { renderToString } from "react-dom/server";
+import { FC } from "react";
+import { renderToDOMSpec } from "./ReactRenderUtil";
 
 // this file is mostly analogoues to `customBlocks.ts`, but for React blocks
 
@@ -37,38 +37,14 @@ export type ReactCustomBlockImplementation<
   render: FC<{
     block: BlockFromConfig<T, I, S>;
     editor: BlockNoteEditor<BlockSchemaWithBlock<T["type"], T>, I, S>;
+    contentRef: (node: HTMLElement | null) => void;
   }>;
   toExternalHTML?: FC<{
     block: BlockFromConfig<T, I, S>;
     editor: BlockNoteEditor<BlockSchemaWithBlock<T["type"], T>, I, S>;
+    contentRef: (node: HTMLElement | null) => void;
   }>;
-};
-
-const BlockNoteDOMAttributesContext = createContext<BlockNoteDOMAttributes>({});
-
-export const InlineContent = <Tag extends ElementType>(
-  props: { as?: Tag } & HTMLProps<Tag>
-) => {
-  const inlineContentDOMAttributes =
-    useContext(BlockNoteDOMAttributesContext).inlineContent || {};
-
-  const classNames = mergeCSSClasses(
-    props.className || "",
-    "bn-inline-content",
-    inlineContentDOMAttributes.class
-  );
-
-  return (
-    <NodeViewContent
-      {...Object.fromEntries(
-        Object.entries(inlineContentDOMAttributes).filter(
-          ([key]) => key !== "class"
-        )
-      )}
-      {...props}
-      className={classNames}
-    />
-  );
+  parse?: (el: HTMLElement) => PartialBlockFromConfig<T, I, S> | undefined;
 };
 
 // Function that wraps the React component returned from 'blockConfig.render' in
@@ -141,7 +117,7 @@ export function createReactBlockSpec<
     },
 
     parseHTML() {
-      return parse(blockConfig);
+      return getParseRules(blockConfig, blockImplementation.parse);
     },
 
     addNodeView() {
@@ -161,9 +137,12 @@ export function createReactBlockSpec<
             const blockContentDOMAttributes =
               this.options.domAttributes?.blockContent || {};
 
+            // hacky, should export `useReactNodeView` from tiptap to get access to ref
+            const ref = (NodeViewContent({}) as any).ref;
+
             const Content = blockImplementation.render;
             const BlockContent = reactWrapInBlockStructure(
-              <Content block={block} editor={editor as any} />,
+              <Content block={block} editor={editor as any} contentRef={ref} />,
               block.type,
               block.props,
               blockConfig.propSchema,
@@ -186,47 +165,43 @@ export function createReactBlockSpec<
         node.options.domAttributes?.blockContent || {};
 
       const Content = blockImplementation.render;
-      const BlockContent = reactWrapInBlockStructure(
-        <Content block={block as any} editor={editor as any} />,
-        block.type,
-        block.props,
-        blockConfig.propSchema,
-        blockContentDOMAttributes
-      );
 
-      const parent = document.createElement("div");
-      parent.innerHTML = renderToString(<BlockContent />);
-
-      return {
-        dom: parent.firstElementChild! as HTMLElement,
-        contentDOM: (parent.querySelector(".bn-inline-content") ||
-          undefined) as HTMLElement | undefined,
-      };
+      return renderToDOMSpec((refCB) => {
+        const BlockContent = reactWrapInBlockStructure(
+          <Content
+            block={block as any}
+            editor={editor as any}
+            contentRef={refCB}
+          />,
+          block.type,
+          block.props,
+          blockConfig.propSchema,
+          blockContentDOMAttributes
+        );
+        return <BlockContent />;
+      });
     },
     toExternalHTML: (block, editor) => {
       const blockContentDOMAttributes =
         node.options.domAttributes?.blockContent || {};
 
-      let Content = blockImplementation.toExternalHTML;
-      if (Content === undefined) {
-        Content = blockImplementation.render;
-      }
-      const BlockContent = reactWrapInBlockStructure(
-        <Content block={block as any} editor={editor as any} />,
-        block.type,
-        block.props,
-        blockConfig.propSchema,
-        blockContentDOMAttributes
-      );
+      const Content =
+        blockImplementation.toExternalHTML || blockImplementation.render;
 
-      const parent = document.createElement("div");
-      parent.innerHTML = renderToString(<BlockContent />);
-
-      return {
-        dom: parent.firstElementChild! as HTMLElement,
-        contentDOM: (parent.querySelector(".bn-inline-content") ||
-          undefined) as HTMLElement | undefined,
-      };
+      return renderToDOMSpec((refCB) => {
+        const BlockContent = reactWrapInBlockStructure(
+          <Content
+            block={block as any}
+            editor={editor as any}
+            contentRef={refCB}
+          />,
+          block.type,
+          block.props,
+          blockConfig.propSchema,
+          blockContentDOMAttributes
+        );
+        return <BlockContent />;
+      });
     },
   });
 }

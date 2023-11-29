@@ -1,4 +1,4 @@
-import { Paragraph } from "@tiptap/extension-paragraph";
+import { Node, mergeAttributes } from "@tiptap/core";
 import { TableCell } from "@tiptap/extension-table-cell";
 import { TableHeader } from "@tiptap/extension-table-header";
 import { TableRow } from "@tiptap/extension-table-row";
@@ -8,6 +8,7 @@ import {
 } from "../../../api/blocks/internal";
 import { defaultProps } from "../../../api/defaultProps";
 import { createDefaultBlockDOMOutputSpec } from "../defaultBlockHelpers";
+import { TableExtension } from "./TableExtension";
 
 export const tablePropSchema = {
   ...defaultProps,
@@ -38,15 +39,28 @@ export const TableBlockContent = createStronglyTypedTiptapNode({
   },
 });
 
-const TableParagraph = Paragraph.extend({
+const TableParagraph = Node.create({
   name: "tableParagraph",
   group: "tableContent",
+
+  parseHTML() {
+    return [{ tag: "p" }];
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    return [
+      "p",
+      mergeAttributes(this.options.HTMLAttributes, HTMLAttributes),
+      0,
+    ];
+  },
 });
 
 export const Table = createBlockSpecFromStronglyTypedTiptapNode(
   TableBlockContent,
   tablePropSchema,
   [
+    TableExtension,
     TableParagraph,
     TableHeader.extend({
       content: "tableContent",
