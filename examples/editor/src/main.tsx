@@ -6,7 +6,8 @@ window.React = React;
 
 const root = createRoot(document.getElementById("root")!);
 root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
+  // TODO: StrictMode is causing duplicate mounts and conflicts with collaboration
+  // <React.StrictMode>
+  <App />
+  // </React.StrictMode>
 );
