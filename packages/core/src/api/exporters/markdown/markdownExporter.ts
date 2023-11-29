@@ -26,7 +26,6 @@ export function cleanHTMLToMarkdown(cleanHTMLString: string) {
   return markdownString.value as string;
 }
 
-// TODO: add tests
 export function blocksToMarkdown<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,

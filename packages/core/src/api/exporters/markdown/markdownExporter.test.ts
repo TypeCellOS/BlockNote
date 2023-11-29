@@ -1,21 +1,19 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { BlockNoteEditor } from "../../../BlockNoteEditor";
 
-import { addIdsToBlocks, partialBlocksToBlocksForTesting } from "../../..";
 import {
   BlockSchema,
   PartialBlock,
 } from "../../../extensions/Blocks/api/blocks/types";
 import { InlineContentSchema } from "../../../extensions/Blocks/api/inlineContent/types";
 import { StyleSchema } from "../../../extensions/Blocks/api/styles/types";
+import { partialBlocksToBlocksForTesting } from "../../nodeConversions/testUtil";
 import { customBlocksTestCases } from "../../testCases/cases/customBlocks";
 import { customInlineContentTestCases } from "../../testCases/cases/customInlineContent";
 import { customStylesTestCases } from "../../testCases/cases/customStyles";
 import { defaultSchemaTestCases } from "../../testCases/cases/defaultSchema";
-import { createExternalHTMLExporter } from "./externalHTMLExporter";
-import { createInternalHTMLSerializer } from "./internalHTMLSerializer";
 
-async function convertToHTMLAndCompareSnapshots<
+async function convertToMarkdownAndCompareSnapshots<
   B extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
@@ -25,42 +23,18 @@ async function convertToHTMLAndCompareSnapshots<
   snapshotDirectory: string,
   snapshotName: string
 ) {
-  addIdsToBlocks(blocks);
-  const serializer = createInternalHTMLSerializer(
-    editor._tiptapEditor.schema,
-    editor
-  );
-  const internalHTML = serializer.serializeBlocks(blocks);
-  const internalHTMLSnapshotPath =
-    "./__snapshots__/" +
-    snapshotDirectory +
-    "/" +
-    snapshotName +
-    "/internal.html";
-  expect(internalHTML).toMatchFileSnapshot(internalHTMLSnapshotPath);
-
-  // turn the internalHTML back into blocks, and make sure no data was lost
   const fullBlocks = partialBlocksToBlocksForTesting(
     editor.blockSchema,
     blocks
   );
-  const parsed = await editor.tryParseHTMLToBlocks(internalHTML);
-
-  expect(parsed).toStrictEqual(fullBlocks);
-
-  // Create the "external" HTML, which is a cleaned up HTML representation, but lossy
-  const exporter = createExternalHTMLExporter(
-    editor._tiptapEditor.schema,
-    editor
-  );
-  const externalHTML = exporter.exportBlocks(blocks);
-  const externalHTMLSnapshotPath =
+  const md = await editor.blocksToMarkdownLossy(fullBlocks);
+  const snapshotPath =
     "./__snapshots__/" +
     snapshotDirectory +
     "/" +
     snapshotName +
-    "/external.html";
-  expect(externalHTML).toMatchFileSnapshot(externalHTMLSnapshotPath);
+    "/markdown.md";
+  expect(md).toMatchFileSnapshot(snapshotPath);
 }
 
 const testCases = [
@@ -70,7 +44,7 @@ const testCases = [
   customInlineContentTestCases,
 ];
 
-describe("Test HTML conversion", () => {
+describe("markdownExporter", () => {
   for (const testCase of testCases) {
     describe("Case: " + testCase.name, () => {
       let editor: BlockNoteEditor<any, any, any>;
@@ -90,7 +64,7 @@ describe("Test HTML conversion", () => {
         // eslint-disable-next-line no-loop-func
         it("Convert " + document.name + " to HTML", async () => {
           const nameSplit = document.name.split("/");
-          await convertToHTMLAndCompareSnapshots(
+          await convertToMarkdownAndCompareSnapshots(
             editor,
             document.blocks,
             nameSplit[0],
