@@ -15,6 +15,7 @@ export const ParagraphBlockContent = createStronglyTypedTiptapNode({
   group: "blockContent",
   parseHTML() {
     return [
+      { tag: "div[data-content-type=" + this.name + "]" },
       {
         tag: "p",
         priority: 200,

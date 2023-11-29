@@ -24,7 +24,7 @@ export const defaultSchemaTestCases: EditorTestCases<
       name: "paragraph/empty",
       blocks: [
         {
-          type: "paragraph" as const,
+          type: "paragraph",
         },
       ],
     },
@@ -32,7 +32,7 @@ export const defaultSchemaTestCases: EditorTestCases<
       name: "paragraph/basic",
       blocks: [
         {
-          type: "paragraph" as const,
+          type: "paragraph",
           content: "Paragraph",
         },
       ],
@@ -41,12 +41,12 @@ export const defaultSchemaTestCases: EditorTestCases<
       name: "paragraph/styled",
       blocks: [
         {
-          type: "paragraph" as const,
+          type: "paragraph",
           props: {
             textAlignment: "center",
             textColor: "orange",
             backgroundColor: "pink",
-          } as const,
+          },
           content: [
             {
               type: "text",
@@ -83,15 +83,15 @@ export const defaultSchemaTestCases: EditorTestCases<
       name: "paragraph/nested",
       blocks: [
         {
-          type: "paragraph" as const,
+          type: "paragraph",
           content: "Paragraph",
           children: [
             {
-              type: "paragraph" as const,
+              type: "paragraph",
               content: "Nested Paragraph 1",
             },
             {
-              type: "paragraph" as const,
+              type: "paragraph",
               content: "Nested Paragraph 2",
             },
           ],
@@ -102,7 +102,7 @@ export const defaultSchemaTestCases: EditorTestCases<
       name: "image/button",
       blocks: [
         {
-          type: "image" as const,
+          type: "image",
         },
       ],
     },
@@ -110,7 +110,7 @@ export const defaultSchemaTestCases: EditorTestCases<
       name: "image/basic",
       blocks: [
         {
-          type: "image" as const,
+          type: "image",
           props: {
             url: "exampleURL",
             caption: "Caption",
@@ -123,20 +123,20 @@ export const defaultSchemaTestCases: EditorTestCases<
       name: "image/nested",
       blocks: [
         {
-          type: "image" as const,
+          type: "image",
           props: {
             url: "exampleURL",
             caption: "Caption",
             width: 256,
-          } as const,
+          },
           children: [
             {
-              type: "image" as const,
+              type: "image",
               props: {
                 url: "exampleURL",
                 caption: "Caption",
                 width: 256,
-              } as const,
+              },
             },
           ],
         },

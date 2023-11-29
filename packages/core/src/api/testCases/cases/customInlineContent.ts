@@ -87,7 +87,7 @@ export const customInlineContentTestCases: EditorTestCases<
                 user: "Matthew",
               },
               content: undefined,
-            } as any,
+            } as any, // TODO
           ],
         },
       ],
@@ -103,7 +103,7 @@ export const customInlineContentTestCases: EditorTestCases<
               type: "tag",
               // props: {},
               content: "BlockNote",
-            } as any,
+            } as any, // TODO
           ],
         },
       ],
