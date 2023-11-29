@@ -109,10 +109,10 @@ type ImageBlock = {
   id: string;
   type: "image";
   props: {
-    url: string = "",
-    caption: string = "",
+    url: string = "";
+    caption: string = "";
     width: number = 512;
-  } & Omit<DefaultProps, "textAlignment">
+  } & Omit<DefaultProps, "textAlignment">;
   content: InlineContent[];
   children: Block[];
 };
@@ -180,7 +180,7 @@ export default function App() {
         default: "image",
       },
     },
-    containsInlineContent: true,
+    content: "inline",
     render: ({ block }) => (
       <div id="image-wrapper">
         <img
@@ -299,7 +299,7 @@ const ImageBlock = createReactBlockSpec({
       default: "https://via.placeholder.com/1000",
     },
   },
-  containsInlineContent: true,
+  content: "inline",
   render: ({ block }) => (
     <div
       style={{
