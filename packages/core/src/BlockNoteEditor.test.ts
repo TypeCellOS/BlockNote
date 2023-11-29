@@ -6,7 +6,7 @@ import { getBlockInfoFromPos } from "./extensions/Blocks/helpers/getBlockInfoFro
  * @vitest-environment jsdom
  */
 it("creates an editor", () => {
-  const editor = new BlockNoteEditor({});
+  const editor = BlockNoteEditor.create();
   const blockInfo = getBlockInfoFromPos(editor._tiptapEditor.state.doc, 2);
   expect(blockInfo?.contentNode.type.name).toEqual("paragraph");
 });

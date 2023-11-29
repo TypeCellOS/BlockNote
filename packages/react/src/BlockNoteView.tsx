@@ -1,4 +1,10 @@
-import { BlockNoteEditor, BlockSchema, mergeCSSClasses } from "@blocknote/core";
+import {
+  BlockNoteEditor,
+  BlockSchema,
+  InlineContentSchema,
+  StyleSchema,
+  mergeCSSClasses,
+} from "@blocknote/core";
 import { MantineProvider, createStyles } from "@mantine/core";
 import { EditorContent } from "@tiptap/react";
 import { HTMLAttributes, ReactNode, useMemo } from "react";
@@ -13,9 +19,13 @@ import { TableHandlesPositioner } from "./TableHandles/components/TableHandlePos
 import { darkDefaultTheme, lightDefaultTheme } from "./defaultThemes";
 
 // Renders the editor as well as all menus & toolbars using default styles.
-function BaseBlockNoteView<BSchema extends BlockSchema>(
+function BaseBlockNoteView<
+  BSchema extends BlockSchema,
+  ISchema extends InlineContentSchema,
+  SSchema extends StyleSchema
+>(
   props: {
-    editor: BlockNoteEditor<BSchema>;
+    editor: BlockNoteEditor<BSchema, ISchema, SSchema>;
     children?: ReactNode;
   } & HTMLAttributes<HTMLDivElement>
 ) {
@@ -37,16 +47,22 @@ function BaseBlockNoteView<BSchema extends BlockSchema>(
           <SlashMenuPositioner editor={props.editor} />
           <SideMenuPositioner editor={props.editor} />
           <ImageToolbarPositioner editor={props.editor} />
-          <TableHandlesPositioner editor={props.editor as any} />
+          {props.editor.blockSchema.table && (
+            <TableHandlesPositioner editor={props.editor as any} />
+          )}
         </>
       )}
     </EditorContent>
   );
 }
 
-export function BlockNoteView<BSchema extends BlockSchema>(
+export function BlockNoteView<
+  BSchema extends BlockSchema,
+  ISchema extends InlineContentSchema,
+  SSchema extends StyleSchema
+>(
   props: {
-    editor: BlockNoteEditor<BSchema>;
+    editor: BlockNoteEditor<BSchema, ISchema, SSchema>;
     theme?:
       | "light"
       | "dark"

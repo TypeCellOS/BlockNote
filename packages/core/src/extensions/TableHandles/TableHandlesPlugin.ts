@@ -1,16 +1,19 @@
-import { Plugin, PluginKey } from "prosemirror-state";
+import { Plugin, PluginKey, PluginView } from "prosemirror-state";
 import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
 import {
+  Block,
+  BlockFromConfigNoChildren,
   BlockNoteEditor,
-  BlockSchema,
-  getDraggableBlockFromCoords,
+  BlockSchemaWithBlock,
+  DefaultBlockSchema,
+  InlineContentSchema,
   PartialBlock,
+  SpecificBlock,
+  StyleSchema,
+  getDraggableBlockFromCoords,
+  nodeToBlock,
 } from "../..";
 import { EventEmitter } from "../../shared/EventEmitter";
-import { Block } from "../Blocks/api/blockTypes";
-import { Table } from "../Blocks/nodes/BlockContent/TableBlockContent/TableBlockContent";
-import { nodeToBlock } from "../../api/nodeConversions/nodeConversions";
-import { PluginView } from "@tiptap/pm/state";
 
 let dragImageElement: HTMLElement | undefined;
 
@@ -32,12 +35,15 @@ function unsetHiddenDragImage() {
   }
 }
 
-export type TableHandlesState = {
+export type TableHandlesState<
+  I extends InlineContentSchema,
+  S extends StyleSchema
+> = {
   show: boolean;
   referencePosCell: DOMRect;
   referencePosTable: DOMRect;
 
-  block: Block<(typeof Table)["config"]>;
+  block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], I, S>;
   colIndex: number;
   rowIndex: number;
 
@@ -76,10 +82,13 @@ function hideElementsWithClassNames(classNames: string[]) {
   });
 }
 
-export class TableHandlesView<BSchema extends BlockSchema>
-  implements PluginView
+export class TableHandlesView<
+  BSchema extends BlockSchemaWithBlock<"table", DefaultBlockSchema["table"]>,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+> implements PluginView
 {
-  public state?: TableHandlesState;
+  public state?: TableHandlesState<I, S>;
   public updateState: () => void;
 
   public tableId: string | undefined;
@@ -90,9 +99,9 @@ export class TableHandlesView<BSchema extends BlockSchema>
   public prevWasEditable: boolean | null = null;
 
   constructor(
-    private readonly editor: BlockNoteEditor<BSchema>,
+    private readonly editor: BlockNoteEditor<BSchema, I, S>,
     private readonly pmView: EditorView,
-    updateState: (state: TableHandlesState) => void
+    updateState: (state: TableHandlesState<I, S>) => void
   ) {
     this.updateState = () => {
       if (!this.state) {
@@ -149,7 +158,7 @@ export class TableHandlesView<BSchema extends BlockSchema>
       return;
     }
 
-    let block: Block<any> | undefined = undefined;
+    let block: Block<any, any, any> | undefined = undefined;
 
     // Copied from `getBlock`. We don't use `getBlock` since we also need the PM
     // node for the table, so we would effectively be doing the same work twice.
@@ -162,7 +171,13 @@ export class TableHandlesView<BSchema extends BlockSchema>
         return true;
       }
 
-      block = nodeToBlock(node, this.editor.schema, this.editor.blockCache);
+      block = nodeToBlock(
+        node,
+        this.editor.blockSchema,
+        this.editor.inlineContentSchema,
+        this.editor.styleSchema,
+        this.editor.blockCache
+      );
       this.tablePos = pos + 1;
 
       return false;
@@ -173,7 +188,7 @@ export class TableHandlesView<BSchema extends BlockSchema>
       referencePosCell: cellRect,
       referencePosTable: tableRect,
 
-      block: block! as Block<(typeof Table)["config"]>,
+      block: block! as SpecificBlock<BSchema, "table", I, S>,
       colIndex: colIndex,
       rowIndex: rowIndex,
 
@@ -310,7 +325,7 @@ export class TableHandlesView<BSchema extends BlockSchema>
         type: "tableContent",
         rows: rows,
       },
-    } as PartialBlock<BSchema>);
+    } as PartialBlock<BSchema, I, S>);
   };
 
   scrollHandler = () => {
@@ -343,12 +358,14 @@ export class TableHandlesView<BSchema extends BlockSchema>
 export const tableHandlesPluginKey = new PluginKey("TableHandlesPlugin");
 
 export class TableHandlesProsemirrorPlugin<
-  BSchema extends BlockSchema
+  BSchema extends BlockSchemaWithBlock<"table", DefaultBlockSchema["table"]>,
+  I extends InlineContentSchema,
+  S extends StyleSchema
 > extends EventEmitter<any> {
-  private view: TableHandlesView<BSchema> | undefined;
+  private view: TableHandlesView<BSchema, I, S> | undefined;
   public readonly plugin: Plugin;
 
-  constructor(private readonly editor: BlockNoteEditor<BSchema>) {
+  constructor(private readonly editor: BlockNoteEditor<BSchema, I, S>) {
     super();
     this.plugin = new Plugin({
       key: tableHandlesPluginKey,
@@ -489,7 +506,7 @@ export class TableHandlesProsemirrorPlugin<
     });
   }
 
-  public onUpdate(callback: (state: TableHandlesState) => void) {
+  public onUpdate(callback: (state: TableHandlesState<I, S>) => void) {
     return this.on("update", callback);
   }
 

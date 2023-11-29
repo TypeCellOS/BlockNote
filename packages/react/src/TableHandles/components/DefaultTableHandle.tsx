@@ -1,10 +1,12 @@
-import { BlockSchema } from "@blocknote/core";
+import { BlockSchemaWithBlock, DefaultBlockSchema } from "@blocknote/core";
 import { MdDragIndicator } from "react-icons/md";
-import { TableHandleProps } from "./TableHandlePositioner";
 import { TableHandle } from "./TableHandle";
+import { TableHandleProps } from "./TableHandlePositioner";
 
-export const DefaultTableHandle = <BSchema extends BlockSchema>(
-  props: TableHandleProps<BSchema>
+export const DefaultTableHandle = <
+  BSchema extends BlockSchemaWithBlock<"table", DefaultBlockSchema["table"]>
+>(
+  props: TableHandleProps<BSchema, any, any>
 ) => (
   <TableHandle {...props}>
     <div

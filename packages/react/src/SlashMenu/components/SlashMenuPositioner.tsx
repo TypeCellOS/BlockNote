@@ -8,12 +8,12 @@ import {
 import Tippy from "@tippyjs/react";
 import { FC, useEffect, useMemo, useRef, useState } from "react";
 
+import { usePreventMenuOverflow } from "../../hooks/usePreventMenuOverflow";
 import { ReactSlashMenuItem } from "../ReactSlashMenuItem";
 import { DefaultSlashMenu } from "./DefaultSlashMenu";
-import { usePreventMenuOverflow } from "../../hooks/usePreventMenuOverflow";
 
 export type SlashMenuProps<BSchema extends BlockSchema = DefaultBlockSchema> =
-  Pick<SlashMenuProsemirrorPlugin<BSchema, any>, "itemCallback"> &
+  Pick<SlashMenuProsemirrorPlugin<BSchema, any, any, any>, "itemCallback"> &
     Pick<
       SuggestionsMenuState<ReactSlashMenuItem<BSchema>>,
       "filteredItems" | "keyboardHoveredItemIndex"
@@ -22,7 +22,7 @@ export type SlashMenuProps<BSchema extends BlockSchema = DefaultBlockSchema> =
 export const SlashMenuPositioner = <
   BSchema extends BlockSchema = DefaultBlockSchema
 >(props: {
-  editor: BlockNoteEditor<BSchema>;
+  editor: BlockNoteEditor<BSchema, any, any>;
   slashMenu?: FC<SlashMenuProps<BSchema>>;
 }) => {
   const [show, setShow] = useState<boolean>(false);

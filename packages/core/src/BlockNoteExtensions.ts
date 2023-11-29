@@ -2,43 +2,49 @@ import { Extensions, extensions } from "@tiptap/core";
 
 import { BlockNoteEditor } from "./BlockNoteEditor";
 
-import { Bold } from "@tiptap/extension-bold";
-import { Code } from "@tiptap/extension-code";
 import Collaboration from "@tiptap/extension-collaboration";
 import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
 import { Dropcursor } from "@tiptap/extension-dropcursor";
 import { Gapcursor } from "@tiptap/extension-gapcursor";
 import { HardBreak } from "@tiptap/extension-hard-break";
 import { History } from "@tiptap/extension-history";
-import { Italic } from "@tiptap/extension-italic";
 import { Link } from "@tiptap/extension-link";
-import { Strike } from "@tiptap/extension-strike";
 import { Text } from "@tiptap/extension-text";
-import { Underline } from "@tiptap/extension-underline";
 import * as Y from "yjs";
-import { createClipboardHandlerExtension } from "./api/serialization/clipboardHandlerExtension";
+import { createCopyToClipboardExtension } from "./api/exporters/copyExtension";
+import { createPasteFromClipboardExtension } from "./api/parsers/pasteExtension";
 import { BackgroundColorExtension } from "./extensions/BackgroundColor/BackgroundColorExtension";
-import { BackgroundColorMark } from "./extensions/BackgroundColor/BackgroundColorMark";
 import { BlockContainer, BlockGroup, Doc } from "./extensions/Blocks";
 import {
   BlockNoteDOMAttributes,
   BlockSchema,
-} from "./extensions/Blocks/api/blockTypes";
-import { TableExtension } from "./extensions/Blocks/nodes/BlockContent/TableBlockContent/TableExtension";
+  BlockSpecs,
+} from "./extensions/Blocks/api/blocks/types";
+import {
+  InlineContentSchema,
+  InlineContentSpecs,
+} from "./extensions/Blocks/api/inlineContent/types";
+import { StyleSchema, StyleSpecs } from "./extensions/Blocks/api/styles/types";
 import { Placeholder } from "./extensions/Placeholder/PlaceholderExtension";
 import { TextAlignmentExtension } from "./extensions/TextAlignment/TextAlignmentExtension";
 import { TextColorExtension } from "./extensions/TextColor/TextColorExtension";
-import { TextColorMark } from "./extensions/TextColor/TextColorMark";
 import { TrailingNode } from "./extensions/TrailingNode/TrailingNodeExtension";
 import UniqueID from "./extensions/UniqueID/UniqueID";
 
 /**
  * Get all the Tiptap extensions BlockNote is configured with by default
  */
-export const getBlockNoteExtensions = <BSchema extends BlockSchema>(opts: {
-  editor: BlockNoteEditor<BSchema>;
+export const getBlockNoteExtensions = <
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(opts: {
+  editor: BlockNoteEditor<BSchema, I, S>;
   domAttributes: Partial<BlockNoteDOMAttributes>;
   blockSchema: BSchema;
+  blockSpecs: BlockSpecs;
+  inlineContentSpecs: InlineContentSpecs;
+  styleSpecs: StyleSpecs;
   collaboration?: {
     fragment: Y.XmlFragment;
     user: {
@@ -74,32 +80,38 @@ export const getBlockNoteExtensions = <BSchema extends BlockSchema>(opts: {
     Text,
 
     // marks:
-    Bold,
-    Code,
-    Italic,
-    Strike,
-    Underline,
     Link,
-    TextColorMark,
+    ...Object.values(opts.styleSpecs).map((styleSpec) => {
+      return styleSpec.implementation.mark;
+    }),
+
     TextColorExtension,
-    BackgroundColorMark,
+
     BackgroundColorExtension,
     TextAlignmentExtension,
 
     // nodes
     Doc,
     BlockContainer.configure({
+      editor: opts.editor as any,
       domAttributes: opts.domAttributes,
     }),
     BlockGroup.configure({
       domAttributes: opts.domAttributes,
     }),
-    TableExtension,
-    ...Object.values(opts.blockSchema).flatMap((blockSpec) => {
+    ...Object.values(opts.inlineContentSpecs)
+      .filter((a) => a.config !== "link" && a.config !== "text")
+      .map((inlineContentSpec) => {
+        return inlineContentSpec.implementation!.node.configure({
+          editor: opts.editor as any,
+        });
+      }),
+
+    ...Object.values(opts.blockSpecs).flatMap((blockSpec) => {
       return [
         // dependent nodes (e.g.: tablecell / row)
-        ...(blockSpec.implementation.requiredNodes || []).map((node) =>
-          node.configure({
+        ...(blockSpec.implementation.requiredExtensions || []).map((ext) =>
+          ext.configure({
             editor: opts.editor,
             domAttributes: opts.domAttributes,
           })
@@ -111,7 +123,8 @@ export const getBlockNoteExtensions = <BSchema extends BlockSchema>(opts: {
         }),
       ];
     }),
-    createClipboardHandlerExtension(opts.editor),
+    createCopyToClipboardExtension(opts.editor),
+    createPasteFromClipboardExtension(opts.editor),
 
     Dropcursor.configure({ width: 5, color: "#ddeeff" }),
     // This needs to be at the bottom of this list, because Key events (such as enter, when selecting a /command),

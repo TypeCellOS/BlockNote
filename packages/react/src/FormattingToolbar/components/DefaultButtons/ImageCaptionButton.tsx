@@ -16,7 +16,7 @@ import { ToolbarInputDropdownItem } from "../../../SharedComponents/Toolbar/comp
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
 
 export const ImageCaptionButton = <BSchema extends BlockSchema>(props: {
-  editor: BlockNoteEditor<BSchema>;
+  editor: BlockNoteEditor<BSchema, any, any>;
 }) => {
   const selectedBlocks = useSelectedBlocks(props.editor);
 
@@ -28,19 +28,19 @@ export const ImageCaptionButton = <BSchema extends BlockSchema>(props: {
       selectedBlocks[0].type === "image" &&
       // Checks if the block has a `caption` prop which can take any string
       // value.
-      "caption" in props.editor.schema["image"].config.propSchema &&
-      typeof props.editor.schema["image"].config.propSchema.caption.default ===
+      "caption" in props.editor.blockSchema["image"].propSchema &&
+      typeof props.editor.blockSchema["image"].propSchema.caption.default ===
         "string" &&
-      props.editor.schema["image"].config.propSchema.caption.values ===
+      props.editor.blockSchema["image"].propSchema.caption.values ===
         undefined &&
       // Checks if the block has a `url` prop which can take any string value.
-      "url" in props.editor.schema["image"].config.propSchema &&
-      typeof props.editor.schema["image"].config.propSchema.url.default ===
+      "url" in props.editor.blockSchema["image"].propSchema &&
+      typeof props.editor.blockSchema["image"].propSchema.url.default ===
         "string" &&
-      props.editor.schema["image"].config.propSchema.url.values === undefined &&
+      props.editor.blockSchema["image"].propSchema.url.values === undefined &&
       // Checks if the `url` prop is not set to an empty string.
       selectedBlocks[0].props.url !== "",
-    [props.editor.schema, selectedBlocks]
+    [props.editor.blockSchema, selectedBlocks]
   );
 
   const [currentCaption, setCurrentCaption] = useState<string>(
@@ -64,7 +64,7 @@ export const ImageCaptionButton = <BSchema extends BlockSchema>(props: {
           props: {
             caption: currentCaption,
           },
-        } as PartialBlock<BSchema>);
+        } as PartialBlock<BSchema, any, any>);
       }
     },
     [currentCaption, props.editor, selectedBlocks]

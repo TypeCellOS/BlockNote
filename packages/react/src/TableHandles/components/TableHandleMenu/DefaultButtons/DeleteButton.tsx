@@ -3,8 +3,8 @@ import {
   PartialBlock,
   TableContent,
 } from "@blocknote/core";
-import { TableHandleMenuItem } from "../TableHandleMenuItem";
 import { TableHandleMenuProps } from "../TableHandleMenu";
+import { TableHandleMenuItem } from "../TableHandleMenuItem";
 
 export const DeleteRowButton = <
   BSchema extends { table: DefaultBlockSchema["table"] }
@@ -13,7 +13,7 @@ export const DeleteRowButton = <
 ) => (
   <TableHandleMenuItem
     onClick={() => {
-      const content: TableContent = {
+      const content: TableContent<any, any> = {
         type: "tableContent",
         rows: props.block.content.rows.filter(
           (_, index) => index !== props.index
@@ -23,7 +23,7 @@ export const DeleteRowButton = <
       props.editor.updateBlock(props.block, {
         type: "table",
         content,
-      } as PartialBlock<BSchema>);
+      } as PartialBlock<BSchema, any, any>);
     }}>
     Delete row
   </TableHandleMenuItem>
@@ -36,7 +36,7 @@ export const DeleteColumnButton = <
 ) => (
   <TableHandleMenuItem
     onClick={() => {
-      const content: TableContent = {
+      const content: TableContent<any, any> = {
         type: "tableContent",
         rows: props.block.content.rows.map((row) => ({
           cells: row.cells.filter((_, index) => index !== props.index),
@@ -46,7 +46,7 @@ export const DeleteColumnButton = <
       props.editor.updateBlock(props.block, {
         type: "table",
         content,
-      } as PartialBlock<BSchema>);
+      } as PartialBlock<BSchema, any, any>);
     }}>
     Delete column
   </TableHandleMenuItem>

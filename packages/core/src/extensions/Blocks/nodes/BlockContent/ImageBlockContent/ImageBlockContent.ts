@@ -2,12 +2,17 @@ import { BlockNoteEditor } from "../../../../../BlockNoteEditor";
 import { imageToolbarPluginKey } from "../../../../ImageToolbar/ImageToolbarPlugin";
 
 import {
-  Block,
+  CustomBlockConfig,
+  createBlockSpec,
+} from "../../../api/blocks/createSpec";
+import {
+  BlockFromConfig,
   BlockSchemaWithBlock,
   PropSchema,
-} from "../../../api/blockTypes";
-import { CustomBlockConfig, createBlockSpec } from "../../../api/customBlocks";
+} from "../../../api/blocks/types";
 import { defaultProps } from "../../../api/defaultProps";
+import { InlineContentSchema } from "../../../api/inlineContent/types";
+import { StyleSchema } from "../../../api/styles/types";
 
 export const imagePropSchema = {
   textAlignment: defaultProps.textAlignment,
@@ -52,7 +57,7 @@ const blockConfig = {
 } satisfies CustomBlockConfig;
 
 export const renderImage = (
-  block: Block<typeof blockConfig>,
+  block: BlockFromConfig<typeof blockConfig, InlineContentSchema, StyleSchema>,
   editor: BlockNoteEditor<BlockSchemaWithBlock<"image", typeof blockConfig>>
 ) => {
   // Wrapper element to set the image alignment, contains both image/image
@@ -366,17 +371,29 @@ export const Image = createBlockSpec(
         dom: figure,
       };
     },
+    parse: (element: HTMLElement) => {
+      if (element.tagName === "FIGURE") {
+        const img = element.querySelector("img");
+        const caption = element.querySelector("figcaption");
+        return {
+          type: "image",
+          props: {
+            url: img?.getAttribute("src") || "",
+            caption:
+              caption?.textContent || img?.getAttribute("alt") || undefined,
+          },
+        };
+      } else if (element.tagName === "IMG") {
+        return {
+          type: "image",
+          props: {
+            url: element.getAttribute("src") || "",
+            caption: element.getAttribute("alt") || undefined,
+          },
+        };
+      }
+
+      return undefined;
+    },
   }
-  // parse: (element) => {
-  //   if (element.tagName === "IMG") {
-  //     return {
-  //       type: "image",
-  //       props: {
-  //         url: element.getAttribute("src") || "",
-  //       },
-  //     };
-  //   }
-  //
-  //   return;
-  // },
 );

@@ -2,8 +2,8 @@ import { InputRule } from "@tiptap/core";
 import {
   createBlockSpecFromStronglyTypedTiptapNode,
   createStronglyTypedTiptapNode,
-} from "../../../../api/block";
-import { PropSchema } from "../../../../api/blockTypes";
+} from "../../../../api/blocks/internal";
+import { PropSchema } from "../../../../api/blocks/types";
 import { defaultProps } from "../../../../api/defaultProps";
 import { createDefaultBlockDOMOutputSpec } from "../../defaultBlockHelpers";
 import { handleEnter } from "../ListItemKeyboardShortcuts";
@@ -66,6 +66,9 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
 
   parseHTML() {
     return [
+      {
+        tag: "div[data-content-type=" + this.name + "]", // TODO: remove if we can't come up with test case that needs this
+      },
       // Case for regular HTML list structure.
       // (e.g.: when pasting from other apps)
       {
@@ -81,7 +84,10 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
             return false;
           }
 
-          if (parent.tagName === "OL") {
+          if (
+            parent.tagName === "OL" ||
+            (parent.tagName === "DIV" && parent.parentElement!.tagName === "OL")
+          ) {
             return {};
           }
 

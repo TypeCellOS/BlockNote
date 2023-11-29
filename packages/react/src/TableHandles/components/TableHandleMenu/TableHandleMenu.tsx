@@ -1,13 +1,22 @@
+import {
+  BlockNoteEditor,
+  DefaultBlockSchema,
+  SpecificBlock,
+} from "@blocknote/core";
+import { Menu, createStyles } from "@mantine/core";
 import { ReactNode } from "react";
-import { Block, BlockNoteEditor, DefaultBlockSchema } from "@blocknote/core";
-import { createStyles, Menu } from "@mantine/core";
 
 export type TableHandleMenuProps<
   BSchema extends { table: DefaultBlockSchema["table"] }
 > = {
   orientation: "row" | "column";
-  editor: BlockNoteEditor<BSchema>;
-  block: Block<BSchema>;
+  editor: BlockNoteEditor<BSchema, any, any>;
+  block: SpecificBlock<
+    { table: DefaultBlockSchema["table"] },
+    "table",
+    any,
+    any
+  >;
   index: number;
 };
 

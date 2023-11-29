@@ -1,21 +1,21 @@
-import { ReactNode, useCallback, useRef, useState } from "react";
-import { Box, Menu } from "@mantine/core";
-import { HiChevronRight } from "react-icons/hi";
 import { BlockSchema, PartialBlock } from "@blocknote/core";
+import { Box, Menu } from "@mantine/core";
+import { ReactNode, useCallback, useRef, useState } from "react";
+import { HiChevronRight } from "react-icons/hi";
 
-import { DragHandleMenuProps } from "../DragHandleMenu";
-import { DragHandleMenuItem } from "../DragHandleMenuItem";
 import { ColorPicker } from "../../../../SharedComponents/ColorPicker/components/ColorPicker";
 import { usePreventMenuOverflow } from "../../../../hooks/usePreventMenuOverflow";
+import { DragHandleMenuProps } from "../DragHandleMenu";
+import { DragHandleMenuItem } from "../DragHandleMenuItem";
 
 export const BlockColorsButton = <BSchema extends BlockSchema>(
-  props: DragHandleMenuProps<BSchema> & { children: ReactNode }
+  props: DragHandleMenuProps<BSchema, any, any> & { children: ReactNode }
 ) => {
   const [opened, setOpened] = useState(false);
 
   const { ref, updateMaxHeight } = usePreventMenuOverflow();
 
-  const menuCloseTimer = useRef<NodeJS.Timeout | undefined>();
+  const menuCloseTimer = useRef<ReturnType<typeof setTimeout> | undefined>();
 
   const startMenuCloseTimer = useCallback(() => {
     if (menuCloseTimer.current) {
@@ -73,7 +73,7 @@ export const BlockColorsButton = <BSchema extends BlockSchema>(
                       setColor: (color) =>
                         props.editor.updateBlock(props.block, {
                           props: { textColor: color },
-                        } as PartialBlock<BSchema>),
+                        } as PartialBlock<BSchema, any, any>),
                     }
                   : undefined
               }
@@ -85,7 +85,7 @@ export const BlockColorsButton = <BSchema extends BlockSchema>(
                       setColor: (color) =>
                         props.editor.updateBlock(props.block, {
                           props: { backgroundColor: color },
-                        } as PartialBlock<BSchema>),
+                        } as PartialBlock<BSchema, any, any>),
                     }
                   : undefined
               }

@@ -5,7 +5,9 @@ import { Plugin, PluginKey } from "prosemirror-state";
 import { BlockNoteEditor } from "../../BlockNoteEditor";
 import { BaseUiElementState } from "../../shared/BaseUiElementTypes";
 import { EventEmitter } from "../../shared/EventEmitter";
-import { BlockSchema } from "../Blocks/api/blockTypes";
+import { BlockSchema } from "../Blocks/api/blocks/types";
+import { InlineContentSchema } from "../Blocks/api/inlineContent/types";
+import { StyleSchema } from "../Blocks/api/styles/types";
 
 export type HyperlinkToolbarState = BaseUiElementState & {
   // The hovered hyperlink's URL, and the text it's displayed with in the
@@ -14,11 +16,11 @@ export type HyperlinkToolbarState = BaseUiElementState & {
   text: string;
 };
 
-class HyperlinkToolbarView<BSchema extends BlockSchema> {
+class HyperlinkToolbarView {
   private hyperlinkToolbarState?: HyperlinkToolbarState;
   public updateHyperlinkToolbar: () => void;
 
-  menuUpdateTimer: NodeJS.Timeout | undefined;
+  menuUpdateTimer: ReturnType<typeof setTimeout> | undefined;
   startMenuUpdateTimer: () => void;
   stopMenuUpdateTimer: () => void;
 
@@ -32,7 +34,7 @@ class HyperlinkToolbarView<BSchema extends BlockSchema> {
   hyperlinkMarkRange: Range | undefined;
 
   constructor(
-    private readonly editor: BlockNoteEditor<BSchema>,
+    private readonly editor: BlockNoteEditor<any, any, any>,
     private readonly pmView: EditorView,
     updateHyperlinkToolbar: (
       hyperlinkToolbarState: HyperlinkToolbarState
@@ -275,12 +277,14 @@ export const hyperlinkToolbarPluginKey = new PluginKey(
 );
 
 export class HyperlinkToolbarProsemirrorPlugin<
-  BSchema extends BlockSchema
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
 > extends EventEmitter<any> {
-  private view: HyperlinkToolbarView<BSchema> | undefined;
+  private view: HyperlinkToolbarView | undefined;
   public readonly plugin: Plugin;
 
-  constructor(editor: BlockNoteEditor<BSchema>) {
+  constructor(editor: BlockNoteEditor<BSchema, I, S>) {
     super();
     this.plugin = new Plugin({
       key: hyperlinkToolbarPluginKey,

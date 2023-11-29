@@ -3,8 +3,8 @@ import {
   PartialBlock,
   TableContent,
 } from "@blocknote/core";
-import { TableHandleMenuItem } from "../TableHandleMenuItem";
 import { TableHandleMenuProps } from "../TableHandleMenu";
+import { TableHandleMenuItem } from "../TableHandleMenuItem";
 
 export const AddRowButton = <
   BSchema extends { table: DefaultBlockSchema["table"] }
@@ -26,7 +26,7 @@ export const AddRowButton = <
         content: {
           rows,
         },
-      } as PartialBlock<BSchema>);
+      } as PartialBlock<BSchema, any, any>);
     }}>
     {`Add row ${props.side}`}
   </TableHandleMenuItem>
@@ -39,7 +39,7 @@ export const AddColumnButton = <
 ) => (
   <TableHandleMenuItem
     onClick={() => {
-      const content: TableContent = {
+      const content: TableContent<any, any> = {
         type: "tableContent",
         rows: props.block.content.rows.map((row) => {
           const cells = [...row.cells];
@@ -51,7 +51,7 @@ export const AddColumnButton = <
       props.editor.updateBlock(props.block, {
         type: "table",
         content: content,
-      } as PartialBlock<BSchema>);
+      } as PartialBlock<BSchema, any, any>);
     }}>
     {`Add column ${props.side}`}
   </TableHandleMenuItem>

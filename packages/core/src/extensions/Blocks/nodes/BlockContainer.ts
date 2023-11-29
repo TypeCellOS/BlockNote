@@ -2,6 +2,7 @@ import { Node } from "@tiptap/core";
 import { Fragment, Node as PMNode, Slice } from "prosemirror-model";
 import { NodeSelection, TextSelection } from "prosemirror-state";
 
+import { BlockNoteEditor } from "../../../BlockNoteEditor";
 import {
   blockToNode,
   inlineContentToNodes,
@@ -14,7 +15,9 @@ import {
   BlockNoteDOMAttributes,
   BlockSchema,
   PartialBlock,
-} from "../api/blockTypes";
+} from "../api/blocks/types";
+import { InlineContentSchema } from "../api/inlineContent/types";
+import { StyleSchema } from "../api/styles/types";
 import { getBlockInfoFromPos } from "../helpers/getBlockInfoFromPos";
 import BlockAttributes from "./BlockAttributes";
 
@@ -25,13 +28,21 @@ declare module "@tiptap/core" {
       BNDeleteBlock: (posInBlock: number) => ReturnType;
       BNMergeBlocks: (posBetweenBlocks: number) => ReturnType;
       BNSplitBlock: (posInBlock: number, keepType: boolean) => ReturnType;
-      BNUpdateBlock: <BSchema extends BlockSchema>(
+      BNUpdateBlock: <
+        BSchema extends BlockSchema,
+        I extends InlineContentSchema,
+        S extends StyleSchema
+      >(
         posInBlock: number,
-        block: PartialBlock<BSchema>
+        block: PartialBlock<BSchema, I, S>
       ) => ReturnType;
-      BNCreateOrUpdateBlock: <BSchema extends BlockSchema>(
+      BNCreateOrUpdateBlock: <
+        BSchema extends BlockSchema,
+        I extends InlineContentSchema,
+        S extends StyleSchema
+      >(
         posInBlock: number,
-        block: PartialBlock<BSchema>
+        block: PartialBlock<BSchema, I, S>
       ) => ReturnType;
     };
   }
@@ -42,6 +53,7 @@ declare module "@tiptap/core" {
  */
 export const BlockContainer = Node.create<{
   domAttributes?: BlockNoteDOMAttributes;
+  editor: BlockNoteEditor<BlockSchema, InlineContentSchema, StyleSchema>;
 }>({
   name: "blockContainer",
   group: "blockContainer",
@@ -158,7 +170,13 @@ export const BlockContainer = Node.create<{
 
               // Creates ProseMirror nodes for each child block, including their descendants.
               for (const child of block.children) {
-                childNodes.push(blockToNode(child, state.schema));
+                childNodes.push(
+                  blockToNode(
+                    child,
+                    state.schema,
+                    this.options.editor.styleSchema
+                  )
+                );
               }
 
               // Checks if a blockGroup node already exists.
@@ -193,9 +211,17 @@ export const BlockContainer = Node.create<{
               } else if (Array.isArray(block.content)) {
                 // Adds a text node with the provided styles converted into marks to the content,
                 // for each InlineContent object.
-                content = inlineContentToNodes(block.content, state.schema);
+                content = inlineContentToNodes(
+                  block.content,
+                  state.schema,
+                  this.options.editor.styleSchema
+                );
               } else if (block.content.type === "tableContent") {
-                content = tableContentToNodes(block.content, state.schema);
+                content = tableContentToNodes(
+                  block.content,
+                  state.schema,
+                  this.options.editor.styleSchema
+                );
               } else {
                 throw new UnreachableCaseError(block.content.type);
               }
@@ -457,13 +483,12 @@ export const BlockContainer = Node.create<{
         // Reverts block content type to a paragraph if the selection is at the start of the block.
         () =>
           commands.command(({ state }) => {
-            const { contentType } = getBlockInfoFromPos(
+            const { contentType, startPos } = getBlockInfoFromPos(
               state.doc,
               state.selection.from
             )!;
 
-            const selectionAtBlockStart =
-              state.selection.$anchor.parentOffset === 0;
+            const selectionAtBlockStart = state.selection.from === startPos + 1;
             const isParagraph = contentType.name === "paragraph";
 
             if (selectionAtBlockStart && !isParagraph) {
@@ -478,8 +503,12 @@ export const BlockContainer = Node.create<{
         // Removes a level of nesting if the block is indented if the selection is at the start of the block.
         () =>
           commands.command(({ state }) => {
-            const selectionAtBlockStart =
-              state.selection.$anchor.parentOffset === 0;
+            const { startPos } = getBlockInfoFromPos(
+              state.doc,
+              state.selection.from
+            )!;
+
+            const selectionAtBlockStart = state.selection.from === startPos + 1;
 
             if (selectionAtBlockStart) {
               return commands.liftListItem("blockContainer");
@@ -496,10 +525,8 @@ export const BlockContainer = Node.create<{
               state.selection.from
             )!;
 
-            const selectionAtBlockStart =
-              state.selection.$anchor.parentOffset === 0;
-            const selectionEmpty =
-              state.selection.anchor === state.selection.head;
+            const selectionAtBlockStart = state.selection.from === startPos + 1;
+            const selectionEmpty = state.selection.empty;
             const blockAtDocStart = startPos === 2;
 
             const posBetweenBlocks = startPos - 1;
@@ -526,17 +553,14 @@ export const BlockContainer = Node.create<{
         // end of the block.
         () =>
           commands.command(({ state }) => {
-            const { node, contentNode, depth, endPos } = getBlockInfoFromPos(
+            const { node, depth, endPos } = getBlockInfoFromPos(
               state.doc,
               state.selection.from
             )!;
 
             const blockAtDocEnd = false;
-            const selectionAtBlockEnd =
-              state.selection.$anchor.parentOffset ===
-              contentNode.firstChild!.nodeSize;
-            const selectionEmpty =
-              state.selection.anchor === state.selection.head;
+            const selectionAtBlockEnd = state.selection.from === endPos - 1;
+            const selectionEmpty = state.selection.empty;
             const hasChildBlocks = node.childCount === 2;
 
             if (

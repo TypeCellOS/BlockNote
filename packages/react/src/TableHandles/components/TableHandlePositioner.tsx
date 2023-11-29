@@ -1,56 +1,60 @@
-import { DragEvent, FC, useEffect, useMemo, useRef, useState } from "react";
 import {
-  Block,
+  BlockFromConfigNoChildren,
   BlockNoteEditor,
-  BlockSchema,
   BlockSchemaWithBlock,
   DefaultBlockSchema,
+  InlineContentSchema,
+  StyleSchema,
   TableHandlesProsemirrorPlugin,
   TableHandlesState,
 } from "@blocknote/core";
 import Tippy, { tippy } from "@tippyjs/react";
+import { DragEvent, FC, useEffect, useMemo, useRef, useState } from "react";
 import { DragHandleMenuProps } from "../../SideMenu/components/DragHandleMenu/DragHandleMenu";
 import { DefaultTableHandle } from "./DefaultTableHandle";
 
-export type TableHandleProps<BSchema extends BlockSchema = DefaultBlockSchema> =
-  Pick<
-    TableHandlesProsemirrorPlugin<BSchema>,
-    "dragEnd" | "freezeHandles" | "unfreezeHandles"
-  > &
-    Omit<
-      TableHandlesState,
-      | "rowIndex"
-      | "colIndex"
-      | "referencePosCell"
-      | "referencePosTable"
-      | "show"
-      | "draggingState"
-    > & {
-      orientation: "row" | "column";
-      editor: BlockNoteEditor<
-        BlockSchemaWithBlock<"table", DefaultBlockSchema["table"]["config"]>
-      >;
-      tableHandleMenu?: FC<DragHandleMenuProps<BSchema>>;
-      dragStart: (e: DragEvent<HTMLDivElement>) => void;
-      index: number;
-      showOtherSide: () => void;
-      hideOtherSide: () => void;
-    };
+export type TableHandleProps<
+  BSchema extends BlockSchemaWithBlock<"table", DefaultBlockSchema["table"]>,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+> = Pick<
+  TableHandlesProsemirrorPlugin<BSchema, I, S>,
+  "dragEnd" | "freezeHandles" | "unfreezeHandles"
+> &
+  Omit<
+    TableHandlesState<I, S>,
+    | "rowIndex"
+    | "colIndex"
+    | "referencePosCell"
+    | "referencePosTable"
+    | "show"
+    | "draggingState"
+  > & {
+    orientation: "row" | "column";
+    editor: BlockNoteEditor<
+      BlockSchemaWithBlock<"table", DefaultBlockSchema["table"]>
+    >;
+    tableHandleMenu?: FC<DragHandleMenuProps<BSchema, I, S>>;
+    dragStart: (e: DragEvent<HTMLDivElement>) => void;
+    index: number;
+    showOtherSide: () => void;
+    hideOtherSide: () => void;
+  };
 
 export const TableHandlesPositioner = <
-  BSchema extends BlockSchemaWithBlock<
-    "table",
-    DefaultBlockSchema["table"]["config"]
-  >
+  BSchema extends BlockSchemaWithBlock<"table", DefaultBlockSchema["table"]>,
+  I extends InlineContentSchema,
+  S extends StyleSchema
 >(props: {
-  editor: BlockNoteEditor<BSchema>;
-  tableHandle?: FC<TableHandleProps<BSchema>>;
+  editor: BlockNoteEditor<BSchema, I, S>;
+  tableHandle?: FC<TableHandleProps<BSchema, I, S>>;
 }) => {
   const [show, setShow] = useState<boolean>(false);
   const [hideRow, setHideRow] = useState<boolean>(false);
   const [hideCol, setHideCol] = useState<boolean>(false);
   const [block, setBlock] =
-    useState<Block<DefaultBlockSchema["table"]["config"]>>();
+    useState<BlockFromConfigNoChildren<DefaultBlockSchema["table"], I, S>>();
+
   const [rowIndex, setRowIndex] = useState<number>();
   const [colIndex, setColIndex] = useState<number>();
 
@@ -67,7 +71,7 @@ export const TableHandlesPositioner = <
   useEffect(() => {
     tippy.setDefaultProps({ maxWidth: "" });
 
-    return props.editor.tableHandles.onUpdate((state) => {
+    return props.editor.tableHandles!.onUpdate((state) => {
       // console.log("update", state.draggingState);
       setShow(state.show);
       setBlock(state.block);
@@ -153,10 +157,10 @@ export const TableHandlesPositioner = <
         editor={props.editor as any}
         index={colIndex!}
         block={block!}
-        dragStart={props.editor.tableHandles.colDragStart}
-        dragEnd={props.editor.tableHandles.dragEnd}
-        freezeHandles={props.editor.tableHandles.freezeHandles}
-        unfreezeHandles={props.editor.tableHandles.unfreezeHandles}
+        dragStart={props.editor.tableHandles!.colDragStart}
+        dragEnd={props.editor.tableHandles!.dragEnd}
+        freezeHandles={props.editor.tableHandles!.freezeHandles}
+        unfreezeHandles={props.editor.tableHandles!.unfreezeHandles}
         showOtherSide={() => setHideRow(false)}
         hideOtherSide={() => setHideRow(true)}
       />
@@ -172,10 +176,10 @@ export const TableHandlesPositioner = <
         editor={props.editor as any}
         index={rowIndex!}
         block={block!}
-        dragStart={props.editor.tableHandles.rowDragStart}
-        dragEnd={props.editor.tableHandles.dragEnd}
-        freezeHandles={props.editor.tableHandles.freezeHandles}
-        unfreezeHandles={props.editor.tableHandles.unfreezeHandles}
+        dragStart={props.editor.tableHandles!.rowDragStart}
+        dragEnd={props.editor.tableHandles!.dragEnd}
+        freezeHandles={props.editor.tableHandles!.freezeHandles}
+        unfreezeHandles={props.editor.tableHandles!.unfreezeHandles}
         showOtherSide={() => setHideCol(false)}
         hideOtherSide={() => setHideCol(true)}
       />

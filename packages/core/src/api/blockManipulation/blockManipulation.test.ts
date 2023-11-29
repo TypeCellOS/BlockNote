@@ -1,5 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { Block, BlockNoteEditor, PartialBlock } from "../..";
+import { BlockNoteEditor } from "../../BlockNoteEditor";
+import { Block, PartialBlock } from "../../extensions/Blocks/api/blocks/types";
+import {
+  DefaultBlockSchema,
+  DefaultInlineContentSchema,
+  DefaultStyleSchema,
+} from "../../extensions/Blocks/api/defaultBlocks";
 
 let editor: BlockNoteEditor;
 
@@ -14,14 +20,28 @@ function waitForEditor() {
   });
 }
 
-let singleBlock: PartialBlock;
+let singleBlock: PartialBlock<
+  DefaultBlockSchema,
+  DefaultInlineContentSchema,
+  DefaultStyleSchema
+>;
 
-let multipleBlocks: PartialBlock[];
+let multipleBlocks: PartialBlock<
+  DefaultBlockSchema,
+  DefaultInlineContentSchema,
+  DefaultStyleSchema
+>[];
 
-let insert: (placement: "before" | "nested" | "after") => Block[];
+let insert: (
+  placement: "before" | "nested" | "after"
+) => Block<
+  DefaultBlockSchema,
+  DefaultInlineContentSchema,
+  DefaultStyleSchema
+>[];
 
 beforeEach(() => {
-  editor = new BlockNoteEditor();
+  editor = BlockNoteEditor.create();
 
   singleBlock = {
     type: "paragraph",

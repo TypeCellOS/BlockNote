@@ -2,8 +2,8 @@ import { InputRule } from "@tiptap/core";
 import {
   createBlockSpecFromStronglyTypedTiptapNode,
   createStronglyTypedTiptapNode,
-} from "../../../../api/block";
-import { PropSchema } from "../../../../api/blockTypes";
+} from "../../../../api/blocks/internal";
+import { PropSchema } from "../../../../api/blocks/types";
 import { defaultProps } from "../../../../api/defaultProps";
 import { createDefaultBlockDOMOutputSpec } from "../../defaultBlockHelpers";
 import { handleEnter } from "../ListItemKeyboardShortcuts";
@@ -49,6 +49,9 @@ const BulletListItemBlockContent = createStronglyTypedTiptapNode({
     return [
       // Case for regular HTML list structure.
       {
+        tag: "div[data-content-type=" + this.name + "]", // TODO: remove if we can't come up with test case that needs this
+      },
+      {
         tag: "li",
         getAttrs: (element) => {
           if (typeof element === "string") {
@@ -61,7 +64,10 @@ const BulletListItemBlockContent = createStronglyTypedTiptapNode({
             return false;
           }
 
-          if (parent.tagName === "UL") {
+          if (
+            parent.tagName === "UL" ||
+            (parent.tagName === "DIV" && parent.parentElement!.tagName === "UL")
+          ) {
             return {};
           }
 
