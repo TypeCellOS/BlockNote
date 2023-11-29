@@ -42,44 +42,61 @@ export const serializeNodeInner = <
 
     // Handles converting `blockContainer` nodes to HTML.
     if (node.type.name === "blockContainer") {
+      const blockContentNode =
+        node.childCount > 0 &&
+        node.firstChild!.type.spec.group === "blockContent"
+          ? node.firstChild!
+          : undefined;
+      const blockGroupNode =
+        node.childCount > 0 && node.lastChild!.type.spec.group === "blockGroup"
+          ? node.lastChild!
+          : undefined;
+
       // Converts `blockContent` node using the custom `blockSpec`'s
       // `toExternalHTML` or `toInternalHTML` function.
-      const blockImpl =
-        editor.blockImplementations[node.firstChild!.type.name as string]
-          .implementation;
-      const toHTML = toExternalHTML
-        ? blockImpl.toExternalHTML
-        : blockImpl.toInternalHTML;
+      // Note: While `blockContainer` nodes should always contain a
+      // `blockContent` node according to the schema, PM Fragments don't always
+      // conform to the schema. This is unintuitive but important as it occurs
+      // when copying only nested blocks.
+      if (blockContentNode !== undefined) {
+        const impl =
+          editor.blockImplementations[blockContentNode.type.name]
+            .implementation;
+        const toHTML = toExternalHTML
+          ? impl.toExternalHTML
+          : impl.toInternalHTML;
+        const blockContent = toHTML(
+          nodeToBlock(
+            node,
+            editor.blockSchema,
+            editor.inlineContentSchema,
+            editor.styleSchema,
+            editor.blockCache
+          ),
+          editor as any
+        );
 
-      const blockContent = toHTML(
-        nodeToBlock(
-          node,
-          editor.blockSchema,
-          editor.inlineContentSchema,
-          editor.styleSchema,
-          editor.blockCache
-        ),
-        editor as any
-      );
+        // Converts inline nodes in the `blockContent` node's content to HTML
+        // using their `renderHTML` methods.
+        if (blockContent.contentDOM !== undefined) {
+          if (node.isLeaf) {
+            throw new RangeError(
+              "Content hole not allowed in a leaf node spec"
+            );
+          }
 
-      // Converts inline nodes in the `blockContent` node's content to HTML
-      // using their `renderHTML` methods.
-      if (blockContent.contentDOM) {
-        if (node.isLeaf) {
-          throw new RangeError("Content hole not allowed in a leaf node spec");
+          blockContent.contentDOM.appendChild(
+            serializer.serializeFragment(blockContentNode.content, options)
+          );
         }
 
-        blockContent.contentDOM.appendChild(
-          serializer.serializeFragment(node.firstChild!.content, options)
-        );
+        contentDOM.appendChild(blockContent.dom);
       }
 
-      contentDOM.appendChild(blockContent.dom);
-
       // Converts `blockGroup` node to HTML using its `renderHTML` method.
-      if (node.childCount === 2) {
+      if (blockGroupNode !== undefined) {
         serializer.serializeFragment(
-          Fragment.from(node.content.lastChild),
+          Fragment.from(blockGroupNode),
           options,
           contentDOM
         );
