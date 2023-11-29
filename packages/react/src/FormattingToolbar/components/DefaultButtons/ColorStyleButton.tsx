@@ -1,16 +1,25 @@
-import { useCallback, useMemo, useState } from "react";
+import {
+  BlockNoteEditor,
+  BlockSchema,
+  DefaultInlineContentSchema,
+  DefaultStyleSchema,
+} from "@blocknote/core";
 import { Menu } from "@mantine/core";
-import { BlockNoteEditor, BlockSchema } from "@blocknote/core";
+import { useCallback, useMemo, useState } from "react";
 
-import { ToolbarButton } from "../../../SharedComponents/Toolbar/components/ToolbarButton";
 import { ColorIcon } from "../../../SharedComponents/ColorPicker/components/ColorIcon";
 import { ColorPicker } from "../../../SharedComponents/ColorPicker/components/ColorPicker";
-import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
+import { ToolbarButton } from "../../../SharedComponents/Toolbar/components/ToolbarButton";
 import { useEditorChange } from "../../../hooks/useEditorChange";
 import { usePreventMenuOverflow } from "../../../hooks/usePreventMenuOverflow";
+import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
 
 export const ColorStyleButton = <BSchema extends BlockSchema>(props: {
-  editor: BlockNoteEditor<BSchema>;
+  editor: BlockNoteEditor<
+    BSchema,
+    DefaultInlineContentSchema,
+    DefaultStyleSchema
+  >;
 }) => {
   const selectedBlocks = useSelectedBlocks(props.editor);
 

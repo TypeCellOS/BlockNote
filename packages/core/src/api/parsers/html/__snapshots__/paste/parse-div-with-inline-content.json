@@ -1,0 +1,91 @@
+[
+  {
+    "id": "1",
+    "type": "paragraph",
+    "props": {
+      "textColor": "default",
+      "backgroundColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "None ",
+        "styles": {}
+      },
+      {
+        "type": "text",
+        "text": "Bold ",
+        "styles": {
+          "bold": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "Italic ",
+        "styles": {
+          "italic": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "Underline ",
+        "styles": {
+          "underline": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "Strikethrough ",
+        "styles": {
+          "strike": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "All",
+        "styles": {
+          "bold": true,
+          "italic": true,
+          "underline": true,
+          "strike": true
+        }
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "2",
+    "type": "paragraph",
+    "props": {
+      "textColor": "default",
+      "backgroundColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "Nested Div",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "3",
+    "type": "paragraph",
+    "props": {
+      "textColor": "default",
+      "backgroundColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "Nested Paragraph",
+        "styles": {}
+      }
+    ],
+    "children": []
+  }
+]

@@ -1,3 +1,4 @@
+import { BlockNoteEditor, BlockSchema, PartialBlock } from "@blocknote/core";
 import {
   ChangeEvent,
   KeyboardEvent,
@@ -6,17 +7,16 @@ import {
   useMemo,
   useState,
 } from "react";
-import { BlockNoteEditor, BlockSchema, PartialBlock } from "@blocknote/core";
 import { RiText } from "react-icons/ri";
 
 import { ToolbarButton } from "../../../SharedComponents/Toolbar/components/ToolbarButton";
-import { ToolbarInputDropdownButton } from "../../../SharedComponents/Toolbar/components/ToolbarInputDropdownButton";
 import { ToolbarInputDropdown } from "../../../SharedComponents/Toolbar/components/ToolbarInputDropdown";
-import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
+import { ToolbarInputDropdownButton } from "../../../SharedComponents/Toolbar/components/ToolbarInputDropdownButton";
 import { ToolbarInputDropdownItem } from "../../../SharedComponents/Toolbar/components/ToolbarInputDropdownItem";
+import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
 
 export const ImageCaptionButton = <BSchema extends BlockSchema>(props: {
-  editor: BlockNoteEditor<BSchema>;
+  editor: BlockNoteEditor<BSchema, any, any>;
 }) => {
   const selectedBlocks = useSelectedBlocks(props.editor);
 
@@ -28,17 +28,19 @@ export const ImageCaptionButton = <BSchema extends BlockSchema>(props: {
       selectedBlocks[0].type === "image" &&
       // Checks if the block has a `caption` prop which can take any string
       // value.
-      "caption" in props.editor.schema["image"].propSchema &&
-      typeof props.editor.schema["image"].propSchema.caption.default ===
+      "caption" in props.editor.blockSchema["image"].propSchema &&
+      typeof props.editor.blockSchema["image"].propSchema.caption.default ===
         "string" &&
-      props.editor.schema["image"].propSchema.caption.values === undefined &&
+      props.editor.blockSchema["image"].propSchema.caption.values ===
+        undefined &&
       // Checks if the block has a `url` prop which can take any string value.
-      "url" in props.editor.schema["image"].propSchema &&
-      typeof props.editor.schema["image"].propSchema.url.default === "string" &&
-      props.editor.schema["image"].propSchema.url.values === undefined &&
+      "url" in props.editor.blockSchema["image"].propSchema &&
+      typeof props.editor.blockSchema["image"].propSchema.url.default ===
+        "string" &&
+      props.editor.blockSchema["image"].propSchema.url.values === undefined &&
       // Checks if the `url` prop is not set to an empty string.
       selectedBlocks[0].props.url !== "",
-    [props.editor.schema, selectedBlocks]
+    [props.editor.blockSchema, selectedBlocks]
   );
 
   const [currentCaption, setCurrentCaption] = useState<string>(
@@ -62,7 +64,7 @@ export const ImageCaptionButton = <BSchema extends BlockSchema>(props: {
           props: {
             caption: currentCaption,
           },
-        } as PartialBlock<BSchema>);
+        } as PartialBlock<BSchema, any, any>);
       }
     },
     [currentCaption, props.editor, selectedBlocks]

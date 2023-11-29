@@ -1,21 +1,21 @@
 import { InputRule } from "@tiptap/core";
-import { defaultProps } from "../../../../api/defaultProps";
-import { createTipTapBlock } from "../../../../api/block";
-import { BlockSpec, PropSchema } from "../../../../api/blockTypes";
-import { handleEnter } from "../ListItemKeyboardShortcuts";
 import {
-  createDefaultBlockDOMOutputSpec,
-  defaultBlockToHTML,
-} from "../../defaultBlockHelpers";
+  createBlockSpecFromStronglyTypedTiptapNode,
+  createStronglyTypedTiptapNode,
+} from "../../../../api/blocks/internal";
+import { PropSchema } from "../../../../api/blocks/types";
+import { defaultProps } from "../../../../api/defaultProps";
+import { createDefaultBlockDOMOutputSpec } from "../../defaultBlockHelpers";
+import { handleEnter } from "../ListItemKeyboardShortcuts";
 
 export const bulletListItemPropSchema = {
   ...defaultProps,
 } satisfies PropSchema;
 
-const BulletListItemBlockContent = createTipTapBlock<"bulletListItem", true>({
+const BulletListItemBlockContent = createStronglyTypedTiptapNode({
   name: "bulletListItem",
   content: "inline*",
-
+  group: "blockContent",
   addInputRules() {
     return [
       // Creates an unordered list when starting with "-", "+", or "*".
@@ -49,6 +49,9 @@ const BulletListItemBlockContent = createTipTapBlock<"bulletListItem", true>({
     return [
       // Case for regular HTML list structure.
       {
+        tag: "div[data-content-type=" + this.name + "]", // TODO: remove if we can't come up with test case that needs this
+      },
+      {
         tag: "li",
         getAttrs: (element) => {
           if (typeof element === "string") {
@@ -61,7 +64,10 @@ const BulletListItemBlockContent = createTipTapBlock<"bulletListItem", true>({
             return false;
           }
 
-          if (parent.tagName === "UL") {
+          if (
+            parent.tagName === "UL" ||
+            (parent.tagName === "DIV" && parent.parentElement!.tagName === "UL")
+          ) {
             return {};
           }
 
@@ -111,9 +117,7 @@ const BulletListItemBlockContent = createTipTapBlock<"bulletListItem", true>({
   },
 });
 
-export const BulletListItem = {
-  node: BulletListItemBlockContent,
-  propSchema: bulletListItemPropSchema,
-  toInternalHTML: defaultBlockToHTML,
-  toExternalHTML: defaultBlockToHTML,
-} satisfies BlockSpec<"bulletListItem", typeof bulletListItemPropSchema, true>;
+export const BulletListItem = createBlockSpecFromStronglyTypedTiptapNode(
+  BulletListItemBlockContent,
+  bulletListItemPropSchema
+);

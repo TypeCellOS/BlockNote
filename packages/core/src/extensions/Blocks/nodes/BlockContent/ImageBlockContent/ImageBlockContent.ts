@@ -1,12 +1,18 @@
-import { createBlockSpec } from "../../../api/block";
-import { defaultProps } from "../../../api/defaultProps";
-import {
-  BlockSchemaWithBlock,
-  PropSchema,
-  SpecificBlock,
-} from "../../../api/blockTypes";
 import { BlockNoteEditor } from "../../../../../BlockNoteEditor";
 import { imageToolbarPluginKey } from "../../../../ImageToolbar/ImageToolbarPlugin";
+
+import {
+  CustomBlockConfig,
+  createBlockSpec,
+} from "../../../api/blocks/createSpec";
+import {
+  BlockFromConfig,
+  BlockSchemaWithBlock,
+  PropSchema,
+} from "../../../api/blocks/types";
+import { defaultProps } from "../../../api/defaultProps";
+import { InlineContentSchema } from "../../../api/inlineContent/types";
+import { StyleSchema } from "../../../api/styles/types";
 
 export const imagePropSchema = {
   textAlignment: defaultProps.textAlignment,
@@ -44,14 +50,15 @@ const textAlignmentToAlignItems = (
 // Min image width in px.
 const minWidth = 64;
 
+const blockConfig = {
+  type: "image" as const,
+  propSchema: imagePropSchema,
+  content: "none",
+} satisfies CustomBlockConfig;
+
 export const renderImage = (
-  block: SpecificBlock<
-    BlockSchemaWithBlock<"image", typeof imagePropSchema, false>,
-    "image"
-  >,
-  editor: BlockNoteEditor<
-    BlockSchemaWithBlock<"image", typeof imagePropSchema, false>
-  >
+  block: BlockFromConfig<typeof blockConfig, InlineContentSchema, StyleSchema>,
+  editor: BlockNoteEditor<BlockSchemaWithBlock<"image", typeof blockConfig>>
 ) => {
   // Wrapper element to set the image alignment, contains both image/image
   // upload dashboard and caption.
@@ -330,47 +337,63 @@ export const renderImage = (
   };
 };
 
-export const Image = createBlockSpec({
-  type: "image",
-  propSchema: imagePropSchema,
-  containsInlineContent: false,
-  render: renderImage,
-  toExternalHTML: (block) => {
-    if (block.props.url === "") {
-      const div = document.createElement("p");
-      div.innerHTML = "Add Image";
+export const Image = createBlockSpec(
+  {
+    type: "image" as const,
+    propSchema: imagePropSchema,
+    content: "none",
+  },
+  {
+    render: renderImage,
+    toExternalHTML: (block) => {
+      if (block.props.url === "") {
+        const div = document.createElement("p");
+        div.innerHTML = "Add Image";
+
+        return {
+          dom: div,
+        };
+      }
+
+      const figure = document.createElement("figure");
+
+      const img = document.createElement("img");
+      img.src = block.props.url;
+      figure.appendChild(img);
+
+      if (block.props.caption !== "") {
+        const figcaption = document.createElement("figcaption");
+        figcaption.innerHTML = block.props.caption;
+        figure.appendChild(figcaption);
+      }
 
       return {
-        dom: div,
+        dom: figure,
       };
-    }
+    },
+    parse: (element: HTMLElement) => {
+      if (element.tagName === "FIGURE") {
+        const img = element.querySelector("img");
+        const caption = element.querySelector("figcaption");
+        return {
+          type: "image",
+          props: {
+            url: img?.getAttribute("src") || "",
+            caption:
+              caption?.textContent || img?.getAttribute("alt") || undefined,
+          },
+        };
+      } else if (element.tagName === "IMG") {
+        return {
+          type: "image",
+          props: {
+            url: element.getAttribute("src") || "",
+            caption: element.getAttribute("alt") || undefined,
+          },
+        };
+      }
 
-    const figure = document.createElement("figure");
-
-    const img = document.createElement("img");
-    img.src = block.props.url;
-    figure.appendChild(img);
-
-    if (block.props.caption !== "") {
-      const figcaption = document.createElement("figcaption");
-      figcaption.innerHTML = block.props.caption;
-      figure.appendChild(figcaption);
-    }
-
-    return {
-      dom: figure,
-    };
-  },
-  // parse: (element) => {
-  //   if (element.tagName === "IMG") {
-  //     return {
-  //       type: "image",
-  //       props: {
-  //         url: element.getAttribute("src") || "",
-  //       },
-  //     };
-  //   }
-  //
-  //   return;
-  // },
-});
+      return undefined;
+    },
+  }
+);

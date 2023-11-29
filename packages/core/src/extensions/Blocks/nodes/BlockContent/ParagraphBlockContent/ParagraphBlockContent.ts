@@ -1,21 +1,21 @@
-import { defaultProps } from "../../../api/defaultProps";
-import { createTipTapBlock } from "../../../api/block";
-import { BlockSpec } from "../../../api/blockTypes";
 import {
-  createDefaultBlockDOMOutputSpec,
-  defaultBlockToHTML,
-} from "../defaultBlockHelpers";
+  createBlockSpecFromStronglyTypedTiptapNode,
+  createStronglyTypedTiptapNode,
+} from "../../../api/blocks/internal";
+import { defaultProps } from "../../../api/defaultProps";
+import { createDefaultBlockDOMOutputSpec } from "../defaultBlockHelpers";
 
 export const paragraphPropSchema = {
   ...defaultProps,
 };
 
-export const ParagraphBlockContent = createTipTapBlock<"paragraph", true>({
+export const ParagraphBlockContent = createStronglyTypedTiptapNode({
   name: "paragraph",
   content: "inline*",
-
+  group: "blockContent",
   parseHTML() {
     return [
+      { tag: "div[data-content-type=" + this.name + "]" },
       {
         tag: "p",
         priority: 200,
@@ -37,9 +37,7 @@ export const ParagraphBlockContent = createTipTapBlock<"paragraph", true>({
   },
 });
 
-export const Paragraph = {
-  node: ParagraphBlockContent,
-  propSchema: paragraphPropSchema,
-  toInternalHTML: defaultBlockToHTML,
-  toExternalHTML: defaultBlockToHTML,
-} satisfies BlockSpec<"paragraph", typeof paragraphPropSchema, true>;
+export const Paragraph = createBlockSpecFromStronglyTypedTiptapNode(
+  ParagraphBlockContent,
+  paragraphPropSchema
+);

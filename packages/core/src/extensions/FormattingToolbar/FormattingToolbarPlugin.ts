@@ -1,19 +1,22 @@
 import { isNodeSelection, isTextSelection, posToDOMRect } from "@tiptap/core";
 import { EditorState, Plugin, PluginKey } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
+
+import { BlockNoteEditor } from "../../BlockNoteEditor";
 import {
   BaseUiElementCallbacks,
   BaseUiElementState,
-  BlockNoteEditor,
-  BlockSchema,
-} from "../..";
+} from "../../shared/BaseUiElementTypes";
 import { EventEmitter } from "../../shared/EventEmitter";
+import { BlockSchema } from "../Blocks/api/blocks/types";
+import { InlineContentSchema } from "../Blocks/api/inlineContent/types";
+import { StyleSchema } from "../Blocks/api/styles/types";
 
 export type FormattingToolbarCallbacks = BaseUiElementCallbacks;
 
 export type FormattingToolbarState = BaseUiElementState;
 
-export class FormattingToolbarView<BSchema extends BlockSchema> {
+export class FormattingToolbarView {
   private formattingToolbarState?: FormattingToolbarState;
   public updateFormattingToolbar: () => void;
 
@@ -26,21 +29,22 @@ export class FormattingToolbarView<BSchema extends BlockSchema> {
     state: EditorState;
     from: number;
     to: number;
-  }) => boolean = ({ view, state, from, to }) => {
-    const { doc, selection } = state;
+  }) => boolean = ({ state }) => {
+    const { selection } = state;
     const { empty } = selection;
 
-    // Sometime check for `empty` is not enough.
-    // Doubleclick an empty paragraph returns a node size of 2.
-    // So we check also for an empty text size.
-    const isEmptyTextBlock =
-      !doc.textBetween(from, to).length && isTextSelection(state.selection);
-
-    return !(!view.hasFocus() || empty || isEmptyTextBlock);
+    if (!isTextSelection(selection)) {
+      return false;
+    }
+    return !empty;
   };
 
   constructor(
-    private readonly editor: BlockNoteEditor<BSchema>,
+    private readonly editor: BlockNoteEditor<
+      BlockSchema,
+      InlineContentSchema,
+      StyleSchema
+    >,
     private readonly pmView: EditorView,
     updateFormattingToolbar: (
       formattingToolbarState: FormattingToolbarState
@@ -216,13 +220,11 @@ export const formattingToolbarPluginKey = new PluginKey(
   "FormattingToolbarPlugin"
 );
 
-export class FormattingToolbarProsemirrorPlugin<
-  BSchema extends BlockSchema
-> extends EventEmitter<any> {
-  private view: FormattingToolbarView<BSchema> | undefined;
+export class FormattingToolbarProsemirrorPlugin extends EventEmitter<any> {
+  private view: FormattingToolbarView | undefined;
   public readonly plugin: Plugin;
 
-  constructor(editor: BlockNoteEditor<BSchema>) {
+  constructor(editor: BlockNoteEditor<any, any, any>) {
     super();
     this.plugin = new Plugin({
       key: formattingToolbarPluginKey,

@@ -26,7 +26,7 @@ const icons: Record<TextAlignment, IconType> = {
 };
 
 export const TextAlignButton = <BSchema extends BlockSchema>(props: {
-  editor: BlockNoteEditor<BSchema>;
+  editor: BlockNoteEditor<BSchema, any, any>;
   textAlignment: TextAlignment;
 }) => {
   const selectedBlocks = useSelectedBlocks(props.editor);
@@ -48,7 +48,7 @@ export const TextAlignButton = <BSchema extends BlockSchema>(props: {
       for (const block of selectedBlocks) {
         props.editor.updateBlock(block, {
           props: { textAlignment: textAlignment },
-        } as PartialBlock<BSchema>);
+        } as PartialBlock<BSchema, any, any>);
       }
     },
     [props.editor, selectedBlocks]

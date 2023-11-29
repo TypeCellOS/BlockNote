@@ -1,0 +1,31 @@
+[
+  {
+    "id": "1",
+    "type": "image",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "url": "exampleURL",
+      "caption": "",
+      "width": 512
+    },
+    "children": []
+  },
+  {
+    "id": "2",
+    "type": "paragraph",
+    "props": {
+      "textColor": "default",
+      "backgroundColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "Image Caption",
+        "styles": {}
+      }
+    ],
+    "children": []
+  }
+]

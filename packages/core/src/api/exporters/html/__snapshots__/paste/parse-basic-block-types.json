@@ -1,0 +1,140 @@
+[
+  {
+    "id": "1",
+    "type": "heading",
+    "props": {
+      "textColor": "default",
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "level": 1
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "Heading 1",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "2",
+    "type": "heading",
+    "props": {
+      "textColor": "default",
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "level": 2
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "Heading 2",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "3",
+    "type": "heading",
+    "props": {
+      "textColor": "default",
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "level": 3
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "Heading 3",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "4",
+    "type": "paragraph",
+    "props": {
+      "textColor": "default",
+      "backgroundColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "Paragraph",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "5",
+    "type": "image",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "url": "exampleURL",
+      "caption": "Image Caption",
+      "width": 512
+    },
+    "children": []
+  },
+  {
+    "id": "6",
+    "type": "paragraph",
+    "props": {
+      "textColor": "default",
+      "backgroundColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "None ",
+        "styles": {}
+      },
+      {
+        "type": "text",
+        "text": "Bold ",
+        "styles": {
+          "bold": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "Italic ",
+        "styles": {
+          "italic": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "Underline ",
+        "styles": {
+          "underline": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "Strikethrough ",
+        "styles": {
+          "strike": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "All",
+        "styles": {
+          "bold": true,
+          "italic": true,
+          "underline": true,
+          "strike": true
+        }
+      }
+    ],
+    "children": []
+  }
+]

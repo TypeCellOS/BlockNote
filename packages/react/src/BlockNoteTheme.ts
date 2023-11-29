@@ -40,6 +40,10 @@ export type ComponentStyles = Partial<{
   Editor: CSSObject;
   // Used in the Image Toolbar
   FileInput: CSSObject;
+  // Handle that appears next to tables and the menu that opens when clicking it
+  TableHandle: CSSObject;
+  TableHandleMenu: CSSObject;
+  // Used in the Image Toolbar
   Tabs: CSSObject;
   TextInput: CSSObject;
   // Wraps Formatting Toolbar & Hyperlink Toolbar
@@ -60,6 +64,7 @@ export type Theme = {
 
 export const blockNoteToMantineTheme = (theme: Theme): MantineThemeOverride => {
   const shadow = `0 4px 12px ${theme.colors.shadow}`;
+  const lightShadow = `0 2px 6px ${theme.colors.border}`;
   const border = `1px solid ${theme.colors.border}`;
 
   const textColors = {
@@ -127,6 +132,40 @@ export const blockNoteToMantineTheme = (theme: Theme): MantineThemeOverride => {
               },
             },
             theme.componentStyles?.(theme).Menu || {}
+          ),
+        }),
+      },
+      TableHandle: {
+        styles: () => ({
+          root: _.merge<CSSObject, CSSObject>(
+            {
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: theme.colors.menu.background,
+              border: border,
+              borderRadius: innerBorderRadius,
+              boxShadow: lightShadow,
+              color: theme.colors.sideMenu,
+              ":hover, div.bn-table-handle-dragging": {
+                backgroundColor: theme.colors.hovered.background,
+              },
+              cursor: "pointer",
+            },
+            theme.componentStyles?.(theme).TableHandle || {}
+          ),
+        }),
+      },
+      TableHandleMenu: {
+        styles: () => ({
+          root: _.merge<CSSObject, CSSObject>(
+            {
+              ".mantine-Menu-item": {
+                fontSize: "12px",
+                height: "30px",
+              },
+            },
+            theme.componentStyles?.(theme).TableHandleMenu || {}
           ),
         }),
       },

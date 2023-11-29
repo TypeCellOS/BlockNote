@@ -1,25 +1,22 @@
 import { InputRule } from "@tiptap/core";
+import {
+  createBlockSpecFromStronglyTypedTiptapNode,
+  createStronglyTypedTiptapNode,
+} from "../../../../api/blocks/internal";
+import { PropSchema } from "../../../../api/blocks/types";
 import { defaultProps } from "../../../../api/defaultProps";
-import { createTipTapBlock } from "../../../../api/block";
-import { BlockSpec, PropSchema } from "../../../../api/blockTypes";
+import { createDefaultBlockDOMOutputSpec } from "../../defaultBlockHelpers";
 import { handleEnter } from "../ListItemKeyboardShortcuts";
 import { NumberedListIndexingPlugin } from "./NumberedListIndexingPlugin";
-import {
-  createDefaultBlockDOMOutputSpec,
-  defaultBlockToHTML,
-} from "../../defaultBlockHelpers";
 
 export const numberedListItemPropSchema = {
   ...defaultProps,
 } satisfies PropSchema;
 
-const NumberedListItemBlockContent = createTipTapBlock<
-  "numberedListItem",
-  true
->({
+const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
   name: "numberedListItem",
   content: "inline*",
-
+  group: "blockContent",
   addAttributes() {
     return {
       index: {
@@ -69,6 +66,9 @@ const NumberedListItemBlockContent = createTipTapBlock<
 
   parseHTML() {
     return [
+      {
+        tag: "div[data-content-type=" + this.name + "]", // TODO: remove if we can't come up with test case that needs this
+      },
       // Case for regular HTML list structure.
       // (e.g.: when pasting from other apps)
       {
@@ -84,7 +84,10 @@ const NumberedListItemBlockContent = createTipTapBlock<
             return false;
           }
 
-          if (parent.tagName === "OL") {
+          if (
+            parent.tagName === "OL" ||
+            (parent.tagName === "DIV" && parent.parentElement!.tagName === "OL")
+          ) {
             return {};
           }
 
@@ -135,13 +138,7 @@ const NumberedListItemBlockContent = createTipTapBlock<
   },
 });
 
-export const NumberedListItem = {
-  node: NumberedListItemBlockContent,
-  propSchema: numberedListItemPropSchema,
-  toInternalHTML: defaultBlockToHTML,
-  toExternalHTML: defaultBlockToHTML,
-} satisfies BlockSpec<
-  "numberedListItem",
-  typeof numberedListItemPropSchema,
-  true
->;
+export const NumberedListItem = createBlockSpecFromStronglyTypedTiptapNode(
+  NumberedListItemBlockContent,
+  numberedListItemPropSchema
+);

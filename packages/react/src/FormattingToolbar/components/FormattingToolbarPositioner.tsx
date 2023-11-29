@@ -8,8 +8,8 @@ import Tippy, { tippy } from "@tippyjs/react";
 import { FC, useEffect, useMemo, useRef, useState } from "react";
 import { sticky } from "tippy.js";
 
-import { DefaultFormattingToolbar } from "./DefaultFormattingToolbar";
 import { useEditorChange } from "../../hooks/useEditorChange";
+import { DefaultFormattingToolbar } from "./DefaultFormattingToolbar";
 
 const textAlignmentToPlacement = (
   textAlignment: DefaultProps["textAlignment"]
@@ -29,13 +29,13 @@ const textAlignmentToPlacement = (
 export type FormattingToolbarProps<
   BSchema extends BlockSchema = DefaultBlockSchema
 > = {
-  editor: BlockNoteEditor<BSchema>;
+  editor: BlockNoteEditor<BSchema, any, any>;
 };
 
 export const FormattingToolbarPositioner = <
   BSchema extends BlockSchema = DefaultBlockSchema
 >(props: {
-  editor: BlockNoteEditor<BSchema>;
+  editor: BlockNoteEditor<BSchema, any, any>;
   formattingToolbar?: FC<FormattingToolbarProps<BSchema>>;
 }) => {
   const [show, setShow] = useState<boolean>(false);

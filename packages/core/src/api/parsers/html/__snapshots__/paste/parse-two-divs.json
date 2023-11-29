@@ -1,0 +1,36 @@
+[
+  {
+    "id": "1",
+    "type": "paragraph",
+    "props": {
+      "textColor": "default",
+      "backgroundColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "Single Div",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "2",
+    "type": "paragraph",
+    "props": {
+      "textColor": "default",
+      "backgroundColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "second Div",
+        "styles": {}
+      }
+    ],
+    "children": []
+  }
+]
