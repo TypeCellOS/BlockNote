@@ -64,6 +64,7 @@ export type Theme = {
 
 export const blockNoteToMantineTheme = (theme: Theme): MantineThemeOverride => {
   const shadow = `0 4px 12px ${theme.colors.shadow}`;
+  const lightShadow = `0 2px 6px ${theme.colors.border}`;
   const border = `1px solid ${theme.colors.border}`;
 
   const textColors = {
@@ -144,11 +145,12 @@ export const blockNoteToMantineTheme = (theme: Theme): MantineThemeOverride => {
               backgroundColor: theme.colors.menu.background,
               border: border,
               borderRadius: innerBorderRadius,
-              boxShadow: shadow,
+              boxShadow: lightShadow,
               color: theme.colors.sideMenu,
-              "div:hover, div.bn-table-handle-dragging": {
+              ":hover, div.bn-table-handle-dragging": {
                 backgroundColor: theme.colors.hovered.background,
               },
+              cursor: "pointer",
             },
             theme.componentStyles?.(theme).TableHandle || {}
           ),

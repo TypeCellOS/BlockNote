@@ -14,11 +14,10 @@ export const DefaultTableHandle = <
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        width: "16px",
-        height: "24px",
-        overflow: "hidden",
+        marginInline: "-4px",
+        overflow: "visible",
       }}>
-      <MdDragIndicator data-test={"tableHandle"} />
+      <MdDragIndicator size={24} data-test={"tableHandle"} />
     </div>
   </TableHandle>
 );
