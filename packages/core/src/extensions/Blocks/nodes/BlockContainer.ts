@@ -1,19 +1,23 @@
 import { Node } from "@tiptap/core";
 import { Fragment, Node as PMNode, Slice } from "prosemirror-model";
 import { NodeSelection, TextSelection } from "prosemirror-state";
+
+import { BlockNoteEditor } from "../../../BlockNoteEditor";
 import {
   blockToNode,
   inlineContentToNodes,
+  tableContentToNodes,
 } from "../../../api/nodeConversions/nodeConversions";
-
-import { mergeCSSClasses } from "../../../shared/utils";
+import { UnreachableCaseError, mergeCSSClasses } from "../../../shared/utils";
 import { NonEditableBlockPlugin } from "../NonEditableBlockPlugin";
 import { PreviousBlockTypePlugin } from "../PreviousBlockTypePlugin";
 import {
   BlockNoteDOMAttributes,
   BlockSchema,
   PartialBlock,
-} from "../api/blockTypes";
+} from "../api/blocks/types";
+import { InlineContentSchema } from "../api/inlineContent/types";
+import { StyleSchema } from "../api/styles/types";
 import { getBlockInfoFromPos } from "../helpers/getBlockInfoFromPos";
 import BlockAttributes from "./BlockAttributes";
 
@@ -24,13 +28,21 @@ declare module "@tiptap/core" {
       BNDeleteBlock: (posInBlock: number) => ReturnType;
       BNMergeBlocks: (posBetweenBlocks: number) => ReturnType;
       BNSplitBlock: (posInBlock: number, keepType: boolean) => ReturnType;
-      BNUpdateBlock: <BSchema extends BlockSchema>(
+      BNUpdateBlock: <
+        BSchema extends BlockSchema,
+        I extends InlineContentSchema,
+        S extends StyleSchema
+      >(
         posInBlock: number,
-        block: PartialBlock<BSchema>
+        block: PartialBlock<BSchema, I, S>
       ) => ReturnType;
-      BNCreateOrUpdateBlock: <BSchema extends BlockSchema>(
+      BNCreateOrUpdateBlock: <
+        BSchema extends BlockSchema,
+        I extends InlineContentSchema,
+        S extends StyleSchema
+      >(
         posInBlock: number,
-        block: PartialBlock<BSchema>
+        block: PartialBlock<BSchema, I, S>
       ) => ReturnType;
     };
   }
@@ -41,6 +53,7 @@ declare module "@tiptap/core" {
  */
 export const BlockContainer = Node.create<{
   domAttributes?: BlockNoteDOMAttributes;
+  editor: BlockNoteEditor<BlockSchema, InlineContentSchema, StyleSchema>;
 }>({
   name: "blockContainer",
   group: "blockContainer",
@@ -157,7 +170,13 @@ export const BlockContainer = Node.create<{
 
               // Creates ProseMirror nodes for each child block, including their descendants.
               for (const child of block.children) {
-                childNodes.push(blockToNode(child, state.schema));
+                childNodes.push(
+                  blockToNode(
+                    child,
+                    state.schema,
+                    this.options.editor.styleSchema
+                  )
+                );
               }
 
               // Checks if a blockGroup node already exists.
@@ -177,59 +196,63 @@ export const BlockContainer = Node.create<{
               }
             }
 
-            // Replaces the blockContent node's content if necessary.
-            if (block.content !== undefined) {
-              let content: PMNode[] = [];
-
-              // Checks if the provided content is a string or InlineContent[] type.
-              if (typeof block.content === "string") {
-                // Adds a single text node with no marks to the content.
-                content.push(state.schema.text(block.content));
-              } else {
-                // Adds a text node with the provided styles converted into marks to the content, for each InlineContent
-                // object.
-                content = inlineContentToNodes(block.content, state.schema);
-              }
-
-              // Replaces the contents of the blockContent node with the previously created text node(s).
-              state.tr.replace(
-                startPos + 1,
-                startPos + contentNode.nodeSize - 1,
-                new Slice(Fragment.from(content), 0, 0)
-              );
-            }
-
-            // Since some block types contain inline content and others don't,
-            // we either need to call setNodeMarkup to just update type &
-            // attributes, or replaceWith to replace the whole blockContent.
             const oldType = contentNode.type.name;
             const newType = block.type || oldType;
 
-            const oldContentType = state.schema.nodes[oldType].spec.content;
-            const newContentType = state.schema.nodes[newType].spec.content;
+            // The code below determines the new content of the block.
+            // or "keep" to keep as-is
+            let content: PMNode[] | "keep" = "keep";
 
-            if (oldContentType === "inline*" && newContentType === "") {
-              // Replaces the blockContent node with one of the new type and
-              // adds the provided props as attributes. Also preserves all
-              // existing attributes that are compatible with the new type.
-              // Need to reset the selection since replacing the block content
-              // sets it to the next block.
-              state.tr
-                .replaceWith(
-                  startPos,
-                  endPos,
-                  state.schema.nodes[newType].create({
-                    ...contentNode.attrs,
-                    ...block.props,
-                  })
-                )
-                .setSelection(
-                  new NodeSelection(state.tr.doc.resolve(startPos))
+            // Has there been any custom content provided?
+            if (block.content) {
+              if (typeof block.content === "string") {
+                // Adds a single text node with no marks to the content.
+                content = [state.schema.text(block.content)];
+              } else if (Array.isArray(block.content)) {
+                // Adds a text node with the provided styles converted into marks to the content,
+                // for each InlineContent object.
+                content = inlineContentToNodes(
+                  block.content,
+                  state.schema,
+                  this.options.editor.styleSchema
                 );
+              } else if (block.content.type === "tableContent") {
+                content = tableContentToNodes(
+                  block.content,
+                  state.schema,
+                  this.options.editor.styleSchema
+                );
+              } else {
+                throw new UnreachableCaseError(block.content.type);
+              }
             } else {
-              // Changes the blockContent node type and adds the provided props
-              // as attributes. Also preserves all existing attributes that are
-              // compatible with the new type.
+              // no custom content has been provided, use existing content IF possible
+
+              // Since some block types contain inline content and others don't,
+              // we either need to call setNodeMarkup to just update type &
+              // attributes, or replaceWith to replace the whole blockContent.
+              const oldContentType = state.schema.nodes[oldType].spec.content;
+              const newContentType = state.schema.nodes[newType].spec.content;
+
+              if (oldContentType === "") {
+                // keep old content, because it's empty anyway and should be compatible with
+                // any newContentType
+              } else if (newContentType !== oldContentType) {
+                // the content type changed, replace the previous content
+                content = [];
+              } else {
+                // keep old content, because the content type is the same and should be compatible
+              }
+            }
+
+            // Now, changes the blockContent node type and adds the provided props
+            // as attributes. Also preserves all existing attributes that are
+            // compatible with the new type.
+            //
+            // Use either setNodeMarkup or replaceWith depending on whether the
+            // content is being replaced or not.
+            if (content === "keep") {
+              // use setNodeMarkup to only update the type and attributes
               state.tr.setNodeMarkup(
                 startPos,
                 block.type === undefined
@@ -240,6 +263,35 @@ export const BlockContainer = Node.create<{
                   ...block.props,
                 }
               );
+            } else {
+              // use replaceWith to replace the content and the block itself
+              // also  reset the selection since replacing the block content
+              // sets it to the next block.
+              state.tr
+                .replaceWith(
+                  startPos,
+                  endPos,
+                  state.schema.nodes[newType].create(
+                    {
+                      ...contentNode.attrs,
+                      ...block.props,
+                    },
+                    content
+                  )
+                )
+                // If the node doesn't contain editable content, we want to
+                // select the whole node. But if it does have editable content,
+                // we want to set the selection to the start of it.
+                .setSelection(
+                  state.schema.nodes[newType].spec.content === ""
+                    ? new NodeSelection(state.tr.doc.resolve(startPos))
+                    : state.schema.nodes[newType].spec.content === "inline*"
+                    ? new TextSelection(state.tr.doc.resolve(startPos))
+                    : // Need to offset the position as we have to get through the
+                      // `tableRow` and `tableCell` nodes to get to the
+                      // `tableParagraph` node we want to set the selection in.
+                      new TextSelection(state.tr.doc.resolve(startPos + 4))
+                );
             }
 
             // Adds all provided props as attributes to the parent blockContainer node too, and also preserves existing
@@ -431,13 +483,12 @@ export const BlockContainer = Node.create<{
         // Reverts block content type to a paragraph if the selection is at the start of the block.
         () =>
           commands.command(({ state }) => {
-            const { contentType } = getBlockInfoFromPos(
+            const { contentType, startPos } = getBlockInfoFromPos(
               state.doc,
               state.selection.from
             )!;
 
-            const selectionAtBlockStart =
-              state.selection.$anchor.parentOffset === 0;
+            const selectionAtBlockStart = state.selection.from === startPos + 1;
             const isParagraph = contentType.name === "paragraph";
 
             if (selectionAtBlockStart && !isParagraph) {
@@ -452,8 +503,12 @@ export const BlockContainer = Node.create<{
         // Removes a level of nesting if the block is indented if the selection is at the start of the block.
         () =>
           commands.command(({ state }) => {
-            const selectionAtBlockStart =
-              state.selection.$anchor.parentOffset === 0;
+            const { startPos } = getBlockInfoFromPos(
+              state.doc,
+              state.selection.from
+            )!;
+
+            const selectionAtBlockStart = state.selection.from === startPos + 1;
 
             if (selectionAtBlockStart) {
               return commands.liftListItem("blockContainer");
@@ -470,10 +525,8 @@ export const BlockContainer = Node.create<{
               state.selection.from
             )!;
 
-            const selectionAtBlockStart =
-              state.selection.$anchor.parentOffset === 0;
-            const selectionEmpty =
-              state.selection.anchor === state.selection.head;
+            const selectionAtBlockStart = state.selection.from === startPos + 1;
+            const selectionEmpty = state.selection.empty;
             const blockAtDocStart = startPos === 2;
 
             const posBetweenBlocks = startPos - 1;
@@ -500,17 +553,14 @@ export const BlockContainer = Node.create<{
         // end of the block.
         () =>
           commands.command(({ state }) => {
-            const { node, contentNode, depth, endPos } = getBlockInfoFromPos(
+            const { node, depth, endPos } = getBlockInfoFromPos(
               state.doc,
               state.selection.from
             )!;
 
             const blockAtDocEnd = false;
-            const selectionAtBlockEnd =
-              state.selection.$anchor.parentOffset ===
-              contentNode.firstChild!.nodeSize;
-            const selectionEmpty =
-              state.selection.anchor === state.selection.head;
+            const selectionAtBlockEnd = state.selection.from === endPos - 1;
+            const selectionEmpty = state.selection.empty;
             const hasChildBlocks = node.childCount === 2;
 
             if (

@@ -1,14 +1,5 @@
 import { BlockSchema, PartialBlock } from "@blocknote/core";
 
-import { ImageToolbarProps } from "./ImageToolbarPositioner";
-import { Toolbar } from "../../SharedComponents/Toolbar/components/Toolbar";
-import {
-  ChangeEvent,
-  KeyboardEvent,
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
 import {
   Button,
   FileInput,
@@ -17,9 +8,18 @@ import {
   Text,
   TextInput,
 } from "@mantine/core";
+import {
+  ChangeEvent,
+  KeyboardEvent,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
+import { Toolbar } from "../../SharedComponents/Toolbar/components/Toolbar";
+import { ImageToolbarProps } from "./ImageToolbarPositioner";
 
 export const DefaultImageToolbar = <BSchema extends BlockSchema>(
-  props: ImageToolbarProps<BSchema>
+  props: ImageToolbarProps<BSchema, any>
 ) => {
   const [openTab, setOpenTab] = useState<"upload" | "embed">(
     props.editor.uploadFile !== undefined ? "upload" : "embed"
@@ -46,7 +46,7 @@ export const DefaultImageToolbar = <BSchema extends BlockSchema>(
             props: {
               url: uploaded,
             },
-          } as PartialBlock<BSchema>);
+          } as PartialBlock<BSchema, any, any>);
         } catch (e) {
           setUploadFailed(true);
         } finally {
@@ -75,7 +75,7 @@ export const DefaultImageToolbar = <BSchema extends BlockSchema>(
           props: {
             url: currentURL,
           },
-        } as PartialBlock<BSchema>);
+        } as PartialBlock<BSchema, any, any>);
       }
     },
     [currentURL, props.block, props.editor]
@@ -87,7 +87,7 @@ export const DefaultImageToolbar = <BSchema extends BlockSchema>(
       props: {
         url: currentURL,
       },
-    } as PartialBlock<BSchema>);
+    } as PartialBlock<BSchema, any, any>);
   }, [currentURL, props.block, props.editor]);
 
   return (

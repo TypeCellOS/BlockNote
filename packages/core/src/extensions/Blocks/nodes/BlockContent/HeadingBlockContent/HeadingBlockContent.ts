@@ -2,8 +2,8 @@ import { InputRule } from "@tiptap/core";
 import {
   createBlockSpecFromStronglyTypedTiptapNode,
   createStronglyTypedTiptapNode,
-} from "../../../api/block";
-import { PropSchema } from "../../../api/blockTypes";
+} from "../../../api/blocks/internal";
+import { PropSchema } from "../../../api/blocks/types";
 import { defaultProps } from "../../../api/defaultProps";
 import { createDefaultBlockDOMOutputSpec } from "../defaultBlockHelpers";
 
@@ -21,7 +21,14 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
       level: {
         default: 1,
         // instead of "level" attributes, use "data-level"
-        parseHTML: (element) => element.getAttribute("data-level")!,
+        parseHTML: (element) => {
+          const attr = element.getAttribute("data-level")!;
+          const parsed = parseInt(attr);
+          if (isFinite(parsed)) {
+            return parsed;
+          }
+          return undefined;
+        },
         renderHTML: (attributes) => {
           return {
             "data-level": (attributes.level as number).toString(),
@@ -78,9 +85,20 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
         }),
     };
   },
-
   parseHTML() {
     return [
+      {
+        tag: "div[data-content-type=" + this.name + "]",
+        getAttrs: (element) => {
+          if (typeof element === "string") {
+            return false;
+          }
+
+          return {
+            level: element.getAttribute("data-level"),
+          };
+        },
+      },
       {
         tag: "h1",
         attrs: { level: 1 },

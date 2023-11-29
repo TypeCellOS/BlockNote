@@ -1,36 +1,41 @@
-import { Node as PMNode } from "prosemirror-model";
 import { EditorState, Plugin, PluginKey } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
+
+import { BlockNoteEditor } from "../../BlockNoteEditor";
 import {
   BaseUiElementCallbacks,
   BaseUiElementState,
-  BlockNoteEditor,
-  BlockSchema,
-} from "../..";
-import { Block } from "../../extensions/Blocks/api/blockTypes";
+} from "../../shared/BaseUiElementTypes";
 import { EventEmitter } from "../../shared/EventEmitter";
-import { Image } from "../Blocks/nodes/BlockContent/ImageBlockContent/ImageBlockContent";
+import { BlockSchema, SpecificBlock } from "../Blocks/api/blocks/types";
+import { InlineContentSchema } from "../Blocks/api/inlineContent/types";
+import { StyleSchema } from "../Blocks/api/styles/types";
 export type ImageToolbarCallbacks = BaseUiElementCallbacks;
 
-export type ImageToolbarState = BaseUiElementState & {
-  block: Block<(typeof Image)["config"]>;
+export type ImageToolbarState<
+  B extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema = StyleSchema
+> = BaseUiElementState & {
+  block: SpecificBlock<B, "image", I, S>;
 };
 
-export class ImageToolbarView {
-  private imageToolbarState?: ImageToolbarState;
+export class ImageToolbarView<
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+> {
+  private imageToolbarState?: ImageToolbarState<BSchema, I, S>;
   public updateImageToolbar: () => void;
 
   public prevWasEditable: boolean | null = null;
 
-  public shouldShow: (state: EditorState) => boolean = (state) =>
-    "node" in state.selection &&
-    (state.selection.node as PMNode).type.name === "image" &&
-    (state.selection.node as PMNode).attrs.src === "";
-
   constructor(
     private readonly pluginKey: PluginKey,
     private readonly pmView: EditorView,
-    updateImageToolbar: (imageToolbarState: ImageToolbarState) => void
+    updateImageToolbar: (
+      imageToolbarState: ImageToolbarState<BSchema, I, S>
+    ) => void
   ) {
     this.updateImageToolbar = () => {
       if (!this.imageToolbarState) {
@@ -100,7 +105,7 @@ export class ImageToolbarView {
 
   update(view: EditorView, prevState: EditorState) {
     const pluginState: {
-      block: Block<(typeof Image)["config"]>;
+      block: SpecificBlock<BSchema, "image", I, S>;
     } = this.pluginKey.getState(view.state);
 
     if (!this.imageToolbarState?.show && pluginState.block) {
@@ -145,15 +150,17 @@ export class ImageToolbarView {
 export const imageToolbarPluginKey = new PluginKey("ImageToolbarPlugin");
 
 export class ImageToolbarProsemirrorPlugin<
-  BSchema extends BlockSchema
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
 > extends EventEmitter<any> {
-  private view: ImageToolbarView | undefined;
+  private view: ImageToolbarView<BSchema, I, S> | undefined;
   public readonly plugin: Plugin;
 
-  constructor(_editor: BlockNoteEditor<BSchema>) {
+  constructor(_editor: BlockNoteEditor<BSchema, I, S>) {
     super();
     this.plugin = new Plugin<{
-      block: Block<(typeof Image)["config"]> | undefined;
+      block: SpecificBlock<BSchema, "image", I, S> | undefined;
     }>({
       key: imageToolbarPluginKey,
       view: (editorView) => {
@@ -174,7 +181,7 @@ export class ImageToolbarProsemirrorPlugin<
           };
         },
         apply: (transaction) => {
-          const block: Block<(typeof Image)["config"]> | undefined =
+          const block: SpecificBlock<BSchema, "image", I, S> | undefined =
             transaction.getMeta(imageToolbarPluginKey)?.block;
 
           return {
@@ -185,7 +192,7 @@ export class ImageToolbarProsemirrorPlugin<
     });
   }
 
-  public onUpdate(callback: (state: ImageToolbarState) => void) {
+  public onUpdate(callback: (state: ImageToolbarState<BSchema, I, S>) => void) {
     return this.on("update", callback);
   }
 }

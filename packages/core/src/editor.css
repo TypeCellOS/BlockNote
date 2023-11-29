@@ -54,6 +54,13 @@ Tippy popups that are appended to document.body directly
   -moz-osx-font-smoothing: grayscale;
 }
 
+.bn-table-drop-cursor {
+  position: absolute;
+  z-index: 20;
+  background-color: #adf;
+  pointer-events: none;
+}
+
 .bn-drag-preview {
   position: absolute;
   left: -100000px;
@@ -84,4 +91,24 @@ Tippy popups that are appended to document.body directly
   top: -1.4em;
   user-select: none;
   white-space: nowrap;
+}
+
+/* table related: */
+.bn-editor table {
+  width: auto !important;
+}
+.bn-editor th,
+.bn-editor td {
+  min-width: 1em;
+  border: 1px solid #ddd;
+  padding: 3px 5px;
+}
+
+.bn-editor .tableWrapper {
+  margin: 1em 0;
+}
+
+.bn-editor th {
+  font-weight: bold;
+  text-align: left;
 }

@@ -1,0 +1,129 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Lift nested lists > Lifts multiple bullet lists 1`] = `
+"
+<ul>
+  <div>
+    <li>Bullet List Item 1</li>
+    <div data-node-type=\\"blockGroup\\">
+      <ul>
+        <li>Nested Bullet List Item 1</li>
+        <li>Nested Bullet List Item 2</li>
+      </ul>
+      <ul>
+        <li>Nested Bullet List Item 3</li>
+        <li>Nested Bullet List Item 4</li>
+      </ul>
+    </div>
+  </div>
+  <li>Bullet List Item 2</li>
+</ul>
+"
+`;
+
+exports[`Lift nested lists > Lifts multiple bullet lists with content in between 1`] = `
+"
+<ul>
+  <div>
+    <li>Bullet List Item 1</li>
+    <div data-node-type=\\"blockGroup\\">
+      <ul>
+        <li>Nested Bullet List Item 1</li>
+        <li>Nested Bullet List Item 2</li>
+      </ul>
+    </div>
+  </div>
+  <div>
+    <li>In between content</li>
+    <div data-node-type=\\"blockGroup\\">
+      <ul>
+        <li>Nested Bullet List Item 3</li>
+        <li>Nested Bullet List Item 4</li>
+      </ul>
+    </div>
+  </div>
+  <li>Bullet List Item 2</li>
+</ul>
+"
+`;
+
+exports[`Lift nested lists > Lifts nested bullet lists 1`] = `
+"
+<ul>
+  <div>
+    <li>Bullet List Item 1</li>
+    <div data-node-type=\\"blockGroup\\">
+      <ul>
+        <li>Nested Bullet List Item 1</li>
+        <li>Nested Bullet List Item 2</li>
+      </ul>
+    </div>
+  </div>
+  <li>Bullet List Item 2</li>
+</ul>
+"
+`;
+
+exports[`Lift nested lists > Lifts nested bullet lists with content after nested list 1`] = `
+"
+<ul>
+  <div>
+    <li>Bullet List Item 1</li>
+    <div data-node-type=\\"blockGroup\\">
+      <ul>
+        <li>Nested Bullet List Item 1</li>
+        <li>Nested Bullet List Item 2</li>
+      </ul>
+    </div>
+  </div>
+  <li>More content in list item 1</li>
+  <li>Bullet List Item 2</li>
+</ul>
+"
+`;
+
+exports[`Lift nested lists > Lifts nested bullet lists without li 1`] = `
+"
+<ul>Bullet List Item 1
+  <ul>
+    <li>Nested Bullet List Item 1</li>
+    <li>Nested Bullet List Item 2</li>
+  </ul>
+  <li>Bullet List Item 2</li>
+</ul>
+"
+`;
+
+exports[`Lift nested lists > Lifts nested mixed lists 1`] = `
+"
+<ol>
+  <div>
+    <li>Numbered List Item 1</li>
+    <div data-node-type=\\"blockGroup\\">
+      <ul>
+        <li>Bullet List Item 1</li>
+        <li>Bullet List Item 2</li>
+      </ul>
+    </div>
+  </div>
+  <li>Numbered List Item 2</li>
+</ol>
+"
+`;
+
+exports[`Lift nested lists > Lifts nested numbered lists 1`] = `
+"
+<ol>
+  <div>
+    <li>Numbered List Item 1</li>
+    <div data-node-type=\\"blockGroup\\">
+      <ol>
+        <li>Nested Numbered List Item 1</li>
+        <li>Nested Numbered List Item 2</li>
+      </ol>
+    </div>
+  </div>
+  <li>Numbered List Item 2</li>
+</ol>
+"
+`;
