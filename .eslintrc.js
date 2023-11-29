@@ -22,5 +22,6 @@ module.exports = {
     // would be nice to enable these rules later, but they are too noisy right now
     "@typescript-eslint/no-non-null-assertion": "off",
     "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/ban-ts-comment": "off",
   },
 };

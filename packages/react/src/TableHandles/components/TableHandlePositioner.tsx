@@ -37,6 +37,7 @@ export type TableHandleProps<
     tableHandleMenu?: FC<DragHandleMenuProps<BSchema, I, S>>;
     dragStart: (e: DragEvent<HTMLDivElement>) => void;
     index: number;
+    // TODO: document this, explain why we need it
     showOtherSide: () => void;
     hideOtherSide: () => void;
   };
@@ -63,7 +64,7 @@ export const TableHandlesPositioner = <
   >(undefined);
   const [mousePos, setMousePos] = useState<number | undefined>();
 
-  const [_, setForceUpdate] = useState<number>(0);
+  const [, setForceUpdate] = useState<number>(0);
 
   const referencePosCell = useRef<DOMRect>();
   const referencePosTable = useRef<DOMRect>();
