@@ -152,7 +152,7 @@ export type TableContent<
 // A BlockConfig has all the information to get the type of a Block (which is a specific instance of the BlockConfig.
 // i.e.: paragraphConfig: BlockConfig defines what a "paragraph" is / supports, and BlockFromConfigNoChildren<paragraphConfig> is the shape of a specific paragraph block.
 // (for internal use)
-type BlockFromConfigNoChildren<
+export type BlockFromConfigNoChildren<
   B extends BlockConfig,
   I extends InlineContentSchema,
   S extends StyleSchema

@@ -1,9 +1,9 @@
 import {
+  BlockFromConfigNoChildren,
   BlockNoteEditor,
   BlockSchemaWithBlock,
   DefaultBlockSchema,
   InlineContentSchema,
-  SpecificBlock,
   StyleSchema,
   TableHandlesProsemirrorPlugin,
   TableHandlesState,
@@ -22,7 +22,7 @@ export type TableHandleProps<
   "dragEnd" | "freezeHandles" | "unfreezeHandles"
 > &
   Omit<
-    TableHandlesState<BSchema, I, S>,
+    TableHandlesState<I, S>,
     | "rowIndex"
     | "colIndex"
     | "referencePosCell"
@@ -52,7 +52,9 @@ export const TableHandlesPositioner = <
   const [show, setShow] = useState<boolean>(false);
   const [hideRow, setHideRow] = useState<boolean>(false);
   const [hideCol, setHideCol] = useState<boolean>(false);
-  const [block, setBlock] = useState<SpecificBlock<BSchema, "table", I, S>>();
+  const [block, setBlock] =
+    useState<BlockFromConfigNoChildren<DefaultBlockSchema["table"], I, S>>();
+
   const [rowIndex, setRowIndex] = useState<number>();
   const [colIndex, setColIndex] = useState<number>();
 

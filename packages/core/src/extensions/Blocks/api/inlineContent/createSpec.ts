@@ -44,7 +44,7 @@ export type CustomInlineContentImplementation<
 };
 
 export function getInlineContentParseRules(
-  config: InlineContentConfig
+  config: CustomInlineContentConfig
 ): ParseRule[] {
   return [
     {

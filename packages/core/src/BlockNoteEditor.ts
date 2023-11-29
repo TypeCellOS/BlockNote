@@ -21,6 +21,7 @@ import {
   BlockNoteDOMAttributes,
   BlockSchema,
   BlockSchemaFromSpecs,
+  BlockSchemaWithBlock,
   BlockSpecs,
   PartialBlock,
 } from "./extensions/Blocks/api/blocks/types";
@@ -240,7 +241,16 @@ export class BlockNoteEditor<
     SSchema
   >;
   public readonly tableHandles:
-    | TableHandlesProsemirrorPlugin<any, ISchema, SSchema>
+    | TableHandlesProsemirrorPlugin<
+        BSchema extends BlockSchemaWithBlock<
+          "table",
+          DefaultBlockSchema["table"]
+        >
+          ? BSchema
+          : any,
+        ISchema,
+        SSchema
+      >
     | undefined;
 
   public readonly uploadFile: ((file: File) => Promise<string>) | undefined;

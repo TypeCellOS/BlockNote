@@ -2,6 +2,7 @@ import { Plugin, PluginKey, PluginView } from "prosemirror-state";
 import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
 import {
   Block,
+  BlockFromConfigNoChildren,
   BlockNoteEditor,
   BlockSchemaWithBlock,
   DefaultBlockSchema,
@@ -9,7 +10,6 @@ import {
   PartialBlock,
   SpecificBlock,
   StyleSchema,
-  TableContent,
   getDraggableBlockFromCoords,
   nodeToBlock,
 } from "../..";
@@ -36,7 +36,6 @@ function unsetHiddenDragImage() {
 }
 
 export type TableHandlesState<
-  BSchema extends BlockSchemaWithBlock<"table", DefaultBlockSchema["table"]>,
   I extends InlineContentSchema,
   S extends StyleSchema
 > = {
@@ -44,7 +43,7 @@ export type TableHandlesState<
   referencePosCell: DOMRect;
   referencePosTable: DOMRect;
 
-  block: SpecificBlock<BSchema, "table", I, S>;
+  block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], I, S>;
   colIndex: number;
   rowIndex: number;
 
@@ -89,7 +88,7 @@ export class TableHandlesView<
   S extends StyleSchema
 > implements PluginView
 {
-  public state?: TableHandlesState<BSchema, I, S>;
+  public state?: TableHandlesState<I, S>;
   public updateState: () => void;
 
   public tableId: string | undefined;
@@ -102,7 +101,7 @@ export class TableHandlesView<
   constructor(
     private readonly editor: BlockNoteEditor<BSchema, I, S>,
     private readonly pmView: EditorView,
-    updateState: (state: TableHandlesState<BSchema, I, S>) => void
+    updateState: (state: TableHandlesState<I, S>) => void
   ) {
     this.updateState = () => {
       if (!this.state) {
@@ -304,7 +303,7 @@ export class TableHandlesView<
 
     event.preventDefault();
 
-    const rows = (this.state.block.content as TableContent<I, S>).rows;
+    const rows = this.state.block.content.rows;
 
     if (this.state.draggingState.draggedCellOrientation === "row") {
       const rowToMove = rows[this.state.draggingState.originalIndex];
@@ -507,7 +506,7 @@ export class TableHandlesProsemirrorPlugin<
     });
   }
 
-  public onUpdate(callback: (state: TableHandlesState<BSchema, I, S>) => void) {
+  public onUpdate(callback: (state: TableHandlesState<I, S>) => void) {
     return this.on("update", callback);
   }
 
