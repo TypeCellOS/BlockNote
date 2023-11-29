@@ -50,15 +50,19 @@ function Root() {
     <AppShell
       padding={0}
       navbar={
-        <Navbar width={{ base: 300 }} style={{ background: "#f7f7f5" }} p="xs">
-          <Navbar.Section grow component={ScrollArea} mx="-xs" px="xs">
-            {editors.map((editor, i) => (
-              <div key={i}>
-                <Link to={editor.path}>{editor.title}</Link>
-              </div>
-            ))}
+        window.location.search.includes("hideMenu") ? undefined : (
+          <Navbar
+            width={{ base: 300 }}
+            style={{ background: "#f7f7f5" }}
+            p="xs">
+            <Navbar.Section grow component={ScrollArea} mx="-xs" px="xs">
+              {editors.map((editor, i) => (
+                <div key={i}>
+                  <Link to={editor.path}>{editor.title}</Link>
+                </div>
+              ))}
 
-            {/* manitne <NavLink
+              {/* manitne <NavLink
               styles={linkStyles}
               label="Simple"
               
@@ -72,8 +76,9 @@ function Root() {
               // icon={<IconGauge size={16} stroke={1.5} />}
               // rightSection={<IconChevronRight size={12} stroke={1.5} />}
             /> */}
-          </Navbar.Section>
-        </Navbar>
+            </Navbar.Section>
+          </Navbar>
+        )
       }
       header={<></>}
       //   header={<Header height={60} p="xs">

@@ -67,6 +67,7 @@ jobs:
         run: npx playwright install --with-deps
 
       - name: Run Playwright tests
+        working-directory: ./tests
         run: npx playwright test
 
       - uses: actions/upload-artifact@v3
