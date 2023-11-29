@@ -63,7 +63,7 @@ export const TableHandlesPositioner = <
   >(undefined);
   const [mousePos, setMousePos] = useState<number | undefined>();
 
-  const [_, setForceUpdate] = useState<number>(0);
+  const [, setForceUpdate] = useState<number>(0);
 
   const referencePosCell = useRef<DOMRect>();
   const referencePosTable = useRef<DOMRect>();
