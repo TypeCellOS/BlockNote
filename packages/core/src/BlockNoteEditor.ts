@@ -331,6 +331,12 @@ export class BlockNoteEditor<
 
     this.uploadFile = newOptions.uploadFile;
 
+    if (newOptions.collaboration && newOptions.initialContent) {
+      console.warn(
+        "When using Collaboration, initialContent might cause conflicts, because changes should come from the collaboration provider"
+      );
+    }
+
     const initialContent =
       newOptions.initialContent ||
       (options.collaboration
@@ -348,21 +354,36 @@ export class BlockNoteEditor<
       ...newOptions._tiptapOptions,
       onBeforeCreate(editor) {
         newOptions._tiptapOptions?.onBeforeCreate?.(editor);
-        if (!initialContent) {
-          // when using collaboration
-          return;
-        }
-
         // We always set the initial content to a single paragraph block. This
         // allows us to easily replace it with the actual initial content once
         // the TipTap editor is initialized.
         const schema = editor.editor.schema;
+
+        // This is a hack to make "initial content detection" by y-prosemirror (and also tiptap isEmpty)
+        // properly detect whether or not the document has changed.
+        // We change the doc.createAndFill function to make sure the initial block id is set, instead of null
+        let cache: any;
+        const oldCreateAndFill = schema.nodes.doc.createAndFill;
+        (schema.nodes.doc as any).createAndFill = (...args: any) => {
+          if (cache) {
+            return cache;
+          }
+          const ret = oldCreateAndFill.apply(schema.nodes.doc, args);
+
+          // create a copy that we can mutate (otherwise, assigning attrs is not safe and corrupts the pm state)
+          const jsonNode = JSON.parse(JSON.stringify(ret!.toJSON()));
+          jsonNode.content[0].content[0].attrs.id = "initialBlockId";
+
+          cache = Node.fromJSON(schema, jsonNode);
+          return ret;
+        };
+
         const root = schema.node(
           "doc",
           undefined,
           schema.node("blockGroup", undefined, [
             blockToNode(
-              { id: "initialBlock", type: "paragraph" },
+              { id: "initialBlockId", type: "paragraph" },
               schema,
               styleSchema
             ),
