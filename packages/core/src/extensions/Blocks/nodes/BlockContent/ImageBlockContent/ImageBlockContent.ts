@@ -376,20 +376,14 @@ export const Image = createBlockSpec(
         const img = element.querySelector("img");
         const caption = element.querySelector("figcaption");
         return {
-          type: "image",
-          props: {
-            url: img?.getAttribute("src") || "",
-            caption:
-              caption?.textContent || img?.getAttribute("alt") || undefined,
-          },
+          url: img?.getAttribute("src") || "",
+          caption:
+            caption?.textContent || img?.getAttribute("alt") || undefined,
         };
       } else if (element.tagName === "IMG") {
         return {
-          type: "image",
-          props: {
-            url: element.getAttribute("src") || "",
-            caption: element.getAttribute("alt") || undefined,
-          },
+          url: element.getAttribute("src") || "",
+          caption: element.getAttribute("alt") || undefined,
         };
       }
 

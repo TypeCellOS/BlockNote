@@ -56,7 +56,9 @@ export type CustomBlockImplementation<
     contentDOM?: HTMLElement;
   };
 
-  parse?: (el: HTMLElement) => PartialBlockFromConfig<T, I, S> | undefined;
+  parse?: (
+    el: HTMLElement
+  ) => PartialBlockFromConfig<T, I, S>["props"] | undefined;
 };
 
 // Function that uses the 'parse' function of a blockConfig to create a
@@ -80,13 +82,13 @@ export function getParseRules(
           return false;
         }
 
-        const block = customParseFunction?.(node);
+        const props = customParseFunction?.(node);
 
-        if (block === undefined) {
+        if (props === undefined) {
           return false;
         }
 
-        return block.props || {};
+        return props;
       },
     });
   }

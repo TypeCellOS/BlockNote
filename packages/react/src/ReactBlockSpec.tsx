@@ -44,7 +44,9 @@ export type ReactCustomBlockImplementation<
     editor: BlockNoteEditor<BlockSchemaWithBlock<T["type"], T>, I, S>;
     contentRef: (node: HTMLElement | null) => void;
   }>;
-  parse?: (el: HTMLElement) => PartialBlockFromConfig<T, I, S> | undefined;
+  parse?: (
+    el: HTMLElement
+  ) => PartialBlockFromConfig<T, I, S>["props"] | undefined;
 };
 
 // Function that wraps the React component returned from 'blockConfig.render' in
