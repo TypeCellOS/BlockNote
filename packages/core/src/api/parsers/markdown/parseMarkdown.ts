@@ -47,7 +47,7 @@ function code(state: any, node: any) {
 }
 
 // TODO: add tests
-export async function markdownToBlocks<
+export function markdownToBlocks<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
@@ -58,7 +58,7 @@ export async function markdownToBlocks<
   styleSchema: S,
   pmSchema: Schema
 ): Promise<Block<BSchema, I, S>[]> {
-  const htmlString = await unified()
+  const htmlString = unified()
     .use(remarkParse)
     .use(remarkGfm)
     .use(remarkRehype, {
@@ -68,7 +68,7 @@ export async function markdownToBlocks<
       },
     })
     .use(rehypeStringify)
-    .process(markdown);
+    .processSync(markdown);
 
   return HTMLToBlocks(
     htmlString.value as string,
