@@ -9,6 +9,7 @@ import {
   createInlineContentSpecFromTipTapNode,
 } from "./internal";
 import {
+  CustomInlineContentConfig,
   InlineContentConfig,
   InlineContentFromConfig,
   InlineContentSpec,
@@ -53,7 +54,7 @@ export function getInlineContentParseRules(
 }
 
 export function createInlineContentSpec<
-  T extends InlineContentConfig,
+  T extends CustomInlineContentConfig,
   S extends StyleSchema
 >(
   inlineContentConfig: T,

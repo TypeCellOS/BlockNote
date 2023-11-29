@@ -4,6 +4,7 @@ import { BlockNoteEditor } from "../../../BlockNoteEditor";
 import {
   DefaultBlockSchema,
   DefaultStyleSchema,
+  defaultInlineContentSpecs,
 } from "../../../extensions/Blocks/api/defaultBlocks";
 import { createInlineContentSpec } from "../../../extensions/Blocks/api/inlineContent/createSpec";
 import {
@@ -14,7 +15,7 @@ import { uploadToTmpFilesDotOrg_DEV_ONLY } from "../../../extensions/Blocks/node
 
 const mention = createInlineContentSpec(
   {
-    type: "mention",
+    type: "mention" as const,
     propSchema: {
       user: {
         default: "",
@@ -36,7 +37,7 @@ const mention = createInlineContentSpec(
 
 const tag = createInlineContentSpec(
   {
-    type: "tag",
+    type: "tag" as const,
     propSchema: {},
     content: "styled",
   },
@@ -57,6 +58,7 @@ const tag = createInlineContentSpec(
 );
 
 const customInlineContent = {
+  ...defaultInlineContentSpecs,
   mention,
   tag,
 } satisfies InlineContentSpecs;
@@ -87,7 +89,7 @@ export const customInlineContentTestCases: EditorTestCases<
                 user: "Matthew",
               },
               content: undefined,
-            } as any, // TODO
+            },
           ],
         },
       ],
@@ -103,7 +105,7 @@ export const customInlineContentTestCases: EditorTestCases<
               type: "tag",
               // props: {},
               content: "BlockNote",
-            } as any, // TODO
+            },
           ],
         },
       ],

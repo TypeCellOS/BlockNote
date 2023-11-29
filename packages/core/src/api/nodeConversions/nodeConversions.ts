@@ -8,11 +8,13 @@ import {
   TableContent,
 } from "../../extensions/Blocks/api/blocks/types";
 import {
+  CustomInlineContentConfig,
+  CustomInlineContentFromConfig,
   InlineContent,
   InlineContentFromConfig,
   InlineContentSchema,
+  PartialCustomInlineContentFromConfig,
   PartialInlineContent,
-  PartialInlineContentFromConfig,
   PartialLink,
   StyledText,
   isLinkInlineContent,
@@ -188,7 +190,9 @@ export function tableContentToNodes<
 }
 
 function blockOrInlineContentToContentNode(
-  block: PartialBlock<any, any, any> | PartialInlineContentFromConfig<any, any>,
+  block:
+    | PartialBlock<any, any, any>
+    | PartialCustomInlineContentFromConfig<any, any>,
   schema: Schema,
   styleSchema: StyleSchema
 ) {
@@ -301,8 +305,8 @@ export function contentNodeToInlineContent<
   I extends InlineContentSchema,
   S extends StyleSchema
 >(contentNode: Node, inlineContentSchema: I, styleSchema: S) {
-  const content: InlineContent<I, S>[] = [];
-  let currentContent: InlineContent<I, S> | undefined = undefined;
+  const content: InlineContent<any, S>[] = [];
+  let currentContent: InlineContent<any, S> | undefined = undefined;
 
   // Most of the logic below is for handling links because in ProseMirror links are marks
   // while in BlockNote links are a type of inline content
@@ -334,7 +338,11 @@ export function contentNodeToInlineContent<
       return;
     }
 
-    if (inlineContentSchema[node.type.name]) {
+    if (
+      node.type.name !== "link" &&
+      node.type.name !== "text" &&
+      inlineContentSchema[node.type.name]
+    ) {
       if (currentContent) {
         content.push(currentContent);
         currentContent = undefined;
@@ -485,15 +493,20 @@ export function contentNodeToInlineContent<
     content.push(currentContent);
   }
 
-  return content;
+  return content as InlineContent<I, S>[];
 }
 
 export function nodeToCustomInlineContent<
   I extends InlineContentSchema,
   S extends StyleSchema
 >(node: Node, inlineContentSchema: I, styleSchema: S): InlineContent<I, S> {
+  if (node.type.name === "text" || node.type.name === "link") {
+    throw new Error("unexpected");
+  }
   const props: any = {};
-  const icConfig = inlineContentSchema[node.type.name];
+  const icConfig = inlineContentSchema[
+    node.type.name
+  ] as CustomInlineContentConfig;
   for (const [attr, value] of Object.entries(node.attrs)) {
     if (!icConfig) {
       throw Error("ic node is of an unrecognized type: " + node.type.name);
@@ -506,7 +519,7 @@ export function nodeToCustomInlineContent<
     }
   }
 
-  let content: InlineContentFromConfig<any, any>["content"];
+  let content: CustomInlineContentFromConfig<any, any>["content"];
 
   if (icConfig.content === "styled") {
     content = contentNodeToInlineContent(
