@@ -6,6 +6,7 @@ import { executeSlashCommand } from "../utils/slashmenu";
 
 test.describe.configure({ mode: "serial" });
 
+// eslint-disable-next-line no-empty-pattern
 test.beforeEach(async ({}, testInfo) => {
   testInfo.snapshotSuffix = "";
 });

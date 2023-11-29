@@ -1,8 +1,6 @@
-import {
-  BaseSlashMenuItem,
-  BlockSchemaWithBlock,
-  createBlockSpec,
-} from "@blocknote/core";
+import { BlockSchemaWithBlock, createBlockSpec } from "@blocknote/core";
+import { ReactSlashMenuItem } from "@blocknote/react";
+import { RiLayout5Fill } from "react-icons/ri";
 
 export const Embed = createBlockSpec(
   {
@@ -30,7 +28,7 @@ export const Embed = createBlockSpec(
   }
 );
 
-export const insertEmbed: BaseSlashMenuItem<
+export const insertEmbed: ReactSlashMenuItem<
   BlockSchemaWithBlock<"embed", typeof Embed.config>,
   any,
   any
@@ -52,7 +50,7 @@ export const insertEmbed: BaseSlashMenuItem<
     );
   },
   aliases: ["embedded", "website", "site", "link", "url"],
-  // group: "Media",
-  // icon: <RiLayout5Fill />,
-  // hint: "Insert an embedded website"
+  group: "Media",
+  icon: <RiLayout5Fill />,
+  hint: "Insert an embedded website",
 };

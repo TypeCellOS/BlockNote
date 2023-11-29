@@ -1,3 +1,4 @@
+/* eslint-disable jest/valid-title */
 import { test } from "../../setup/setupScript";
 import { BASE_URL } from "../../utils/const";
 import {

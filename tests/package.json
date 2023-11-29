@@ -19,11 +19,12 @@
     "@blocknote/core": "^0.9.6",
     "@blocknote/react": "^0.9.6",
     "@playwright/experimental-ct-react": "^1.38.1",
-    "@playwright/test": "^1.38.1"
+    "@playwright/test": "^1.38.1",
+    "react-icons": "^4.3.1"
   },
   "eslintConfig": {
     "extends": [
-      "../../.eslintrc.js"
+      "../.eslintrc.js"
     ]
   }
 }

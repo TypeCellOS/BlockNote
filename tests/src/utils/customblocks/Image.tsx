@@ -1,10 +1,10 @@
 import {
-  BaseSlashMenuItem,
   BlockSchemaWithBlock,
   createBlockSpec,
   defaultProps,
 } from "@blocknote/core";
-
+import { ReactSlashMenuItem } from "@blocknote/react";
+import { RiImage2Fill } from "react-icons/ri";
 export const Image = createBlockSpec(
   {
     type: "image" as const,
@@ -49,7 +49,7 @@ export const Image = createBlockSpec(
   }
 );
 
-export const insertImage: BaseSlashMenuItem<
+export const insertImage: ReactSlashMenuItem<
   BlockSchemaWithBlock<"image", typeof Image.config>,
   any,
   any
@@ -71,7 +71,7 @@ export const insertImage: BaseSlashMenuItem<
     );
   },
   aliases: ["image", "img", "picture", "media"],
-  // group: "Media",
-  // icon: <RiImage2Fill />,
-  // hint: "Insert an image",
+  group: "Media",
+  icon: <RiImage2Fill />,
+  hint: "Insert an image",
 };

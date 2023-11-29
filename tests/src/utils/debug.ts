@@ -2,9 +2,9 @@ import { Page } from "@playwright/test";
 
 export async function showMouseCursor(page: Page) {
   await page.evaluate(() => {
-    if (window !== window.parent) return;
+    if (window !== window.parent) {return;}
 
-    let cursorStyle = {
+    const cursorStyle = {
       position: "absolute",
       left: "0",
       top: "0",
@@ -20,7 +20,7 @@ export async function showMouseCursor(page: Page) {
     };
 
     let cssString = "";
-    for (let [key, value] of Object.entries(cursorStyle)) {
+    for (const [key, value] of Object.entries(cursorStyle)) {
       cssString += key + ":" + value + ";";
     }
 

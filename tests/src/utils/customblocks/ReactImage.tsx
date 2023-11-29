@@ -26,7 +26,7 @@ export const ReactImage = createReactBlockSpec(
               width: "100%",
             }}
             src={block.props.src}
-            alt={"Image"}
+            alt={"test"}
             contentEditable={false}
           />
           <span ref={contentRef} style={{ flexGrow: 1 }} />

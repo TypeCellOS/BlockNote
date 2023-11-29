@@ -23,7 +23,7 @@ export async function getDoc(page: Page) {
 }
 
 export function removeAttFromDoc(doc: any, att: string) {
-  if (typeof doc !== "object" || doc === null) return;
+  if (typeof doc !== "object" || doc === null) {return;}
   if (Object.keys(doc).includes(att)) {
     delete doc[att];
   }

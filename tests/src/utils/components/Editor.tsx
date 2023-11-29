@@ -10,10 +10,6 @@ import { Button, insertButton } from "../customblocks/Button";
 import { Embed, insertEmbed } from "../customblocks/Embed";
 import { Image, insertImage } from "../customblocks/Image";
 import { Separator, insertSeparator } from "../customblocks/Separator";
-import {
-  TableOfContents,
-  insertTableOfContents,
-} from "../customblocks/TableOfContents";
 import styles from "./Editor.module.css";
 
 type WindowWithProseMirror = Window & typeof globalThis & { ProseMirror: any };
@@ -26,7 +22,7 @@ export default function Editor() {
     embed: Embed,
     image: Image,
     separator: Separator,
-    toc: TableOfContents,
+    // toc: TableOfContents,
   };
 
   const slashMenuItems = [
@@ -35,7 +31,7 @@ export default function Editor() {
     insertEmbed,
     insertImage,
     insertSeparator,
-    insertTableOfContents,
+    // insertTableOfContents,
   ];
 
   const editor = useBlockNote({
@@ -43,7 +39,10 @@ export default function Editor() {
       editor: { class: styles.editor, "data-test": "editor" },
     },
     blockSpecs,
-    slashMenuItems: [...getDefaultReactSlashMenuItems(), ...slashMenuItems],
+    slashMenuItems: [
+      ...getDefaultReactSlashMenuItems(),
+      ...slashMenuItems,
+    ] as any, // TODO
   });
 
   console.log(editor);

@@ -36,7 +36,7 @@ export const ReactAlert = createReactBlockSpec(
     content: "inline",
   },
   {
-    render: (props) => {
+    render: function Render(props) {
       const [type, setType] = useState(props.block.props.type);
 
       useEffect(() => {
@@ -50,11 +50,11 @@ export const ReactAlert = createReactBlockSpec(
 
       // Tests to see if types are correct:
 
-      let test: "reactAlert" = props.block.type;
+      const test: "reactAlert" = props.block.type;
       console.log(test);
 
       // @ts-expect-error
-      let test1: "othertype" = props.block.type;
+      const test1: "othertype" = props.block.type;
       console.log(test1);
 
       return (
