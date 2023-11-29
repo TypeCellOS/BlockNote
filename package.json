@@ -18,7 +18,7 @@
   },
   "scripts": {
     "start": "lerna run --stream --scope @blocknote/example-editor dev",
-    "start:built": "npx serve examples/editor/dist",
+    "start:built": "npx serve examples/editor/dist -c ../serve.json",
     "build": "lerna run --stream build --concurrency 1",
     "build:site": "lerna run --stream docs:build --concurrency 1",
     "lint": "lerna run --stream lint",
