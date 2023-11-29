@@ -48,7 +48,16 @@ export function getInlineContentParseRules(
 ): ParseRule[] {
   return [
     {
-      tag: `.bn-inline-content-section[data-inline-content-type="${config.type}"]`,
+      tag: `[data-inline-content-type="${config.type}"]`,
+      contentElement: (element) => {
+        const htmlElement = element as HTMLElement;
+
+        if (htmlElement.matches("[data-editable]")) {
+          return htmlElement;
+        }
+
+        return htmlElement.querySelector("[data-editable]") || htmlElement;
+      },
     },
   ];
 }
@@ -64,10 +73,11 @@ export function createInlineContentSpec<
     name: inlineContentConfig.type,
     inline: true,
     group: "inline",
-    content:
-      inlineContentConfig.content === "styled"
-        ? "inline*"
-        : ("inline" as T["content"] extends "styled" ? "inline*" : "inline"),
+    selectable: inlineContentConfig.content === "styled",
+    atom: inlineContentConfig.content === "none",
+    content: (inlineContentConfig.content === "styled"
+      ? "inline*"
+      : "") as T["content"] extends "styled" ? "inline*" : "",
 
     addAttributes() {
       return propsToAttributes(inlineContentConfig.propSchema);
@@ -88,15 +98,12 @@ export function createInlineContentSpec<
         ) as any as InlineContentFromConfig<T, S> // TODO: fix cast
       );
 
-      return {
-        dom: addInlineContentAttributes(
-          output.dom,
-          inlineContentConfig.type,
-          node.attrs as Props<T["propSchema"]>,
-          inlineContentConfig.propSchema
-        ),
-        contentDOM: output.contentDOM,
-      };
+      return addInlineContentAttributes(
+        output,
+        inlineContentConfig.type,
+        node.attrs as Props<T["propSchema"]>,
+        inlineContentConfig.propSchema
+      );
     },
   });
 

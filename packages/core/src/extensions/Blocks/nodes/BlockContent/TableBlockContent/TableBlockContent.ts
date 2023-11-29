@@ -1,4 +1,4 @@
-import { Node, mergeAttributes } from "@tiptap/core";
+import { mergeAttributes, Node } from "@tiptap/core";
 import { TableCell } from "@tiptap/extension-table-cell";
 import { TableHeader } from "@tiptap/extension-table-header";
 import { TableRow } from "@tiptap/extension-table-row";
@@ -42,6 +42,7 @@ export const TableBlockContent = createStronglyTypedTiptapNode({
 const TableParagraph = Node.create({
   name: "tableParagraph",
   group: "tableContent",
+  content: "inline*",
 
   parseHTML() {
     return [{ tag: "p" }];

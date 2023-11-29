@@ -47,15 +47,12 @@ export function createReactStyleSpec<T extends StyleConfig>(
         <Content {...props} contentRef={refCB} />
       ));
 
-      return {
-        dom: addStyleAttributes(
-          renderResult.dom,
-          styleConfig.type,
-          mark.attrs.stringValue,
-          styleConfig.propSchema
-        ),
-        contentDOM: renderResult.contentDOM,
-      };
+      return addStyleAttributes(
+        renderResult,
+        styleConfig.type,
+        mark.attrs.stringValue,
+        styleConfig.propSchema
+      );
     },
   });
 

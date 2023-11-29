@@ -70,7 +70,8 @@ export function getParseRules(
 ) {
   const rules: ParseRule[] = [
     {
-      tag: "div[data-content-type=" + config.type + "]",
+      tag: "[data-content-type=" + config.type + "]",
+      contentElement: "[data-editable]",
     },
   ];
 

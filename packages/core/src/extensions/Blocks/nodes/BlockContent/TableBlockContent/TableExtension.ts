@@ -17,8 +17,17 @@ export const TableExtension = Extension.create({
     return {
       // Makes enter create a new line within the cell.
       Enter: () => {
-        this.editor.commands.setHardBreak();
-        return true;
+        if (
+          this.editor.state.selection.empty &&
+          this.editor.state.selection.$head.parent.type.name ===
+            "tableParagraph"
+        ) {
+          this.editor.commands.setHardBreak();
+
+          return true;
+        }
+
+        return false;
       },
       // Ensures that backspace won't delete the table if the text cursor is at
       // the start of a cell and the selection is empty.

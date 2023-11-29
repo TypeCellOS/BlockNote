@@ -7,7 +7,6 @@ import {
   StyleSpec,
   StyleSpecs,
 } from "./types";
-import { mergeCSSClasses } from "../../../../shared/utils";
 
 export function stylePropsToAttributes(
   propSchema: StylePropSchema
@@ -37,19 +36,27 @@ export function addStyleAttributes<
   SType extends string,
   PSchema extends StylePropSchema
 >(
-  element: HTMLElement,
+  element: {
+    dom: HTMLElement;
+    contentDOM?: HTMLElement;
+  },
   styleType: SType,
   styleValue: PSchema extends "boolean" ? undefined : string,
   propSchema: PSchema
-): HTMLElement {
-  // Sets inline content section class
-  element.className = mergeCSSClasses("bn-style", element.className);
+): {
+  dom: HTMLElement;
+  contentDOM?: HTMLElement;
+} {
   // Sets content type attribute
-  element.setAttribute("data-style-type", styleType);
+  element.dom.setAttribute("data-style-type", styleType);
   // Adds style value as an HTML attribute in kebab-case with "data-" prefix, if
   // the style takes a string value.
   if (propSchema === "string") {
-    element.setAttribute("data-value", styleValue as string);
+    element.dom.setAttribute("data-value", styleValue as string);
+  }
+
+  if (element.contentDOM !== undefined) {
+    element.contentDOM.setAttribute("data-editable", "");
   }
 
   return element;

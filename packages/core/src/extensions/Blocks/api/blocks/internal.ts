@@ -18,8 +18,8 @@ import {
   BlockSchemaWithBlock,
   BlockSpec,
   BlockSpecs,
-  PropSchema,
   Props,
+  PropSchema,
   SpecificBlock,
   TiptapBlockImplementation,
 } from "./types";
@@ -183,6 +183,7 @@ export function wrapInBlockStructure<
       "bn-inline-content",
       element.contentDOM.className
     );
+    element.contentDOM.setAttribute("data-editable", "");
   }
 
   return {
