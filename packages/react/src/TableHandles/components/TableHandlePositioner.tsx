@@ -37,6 +37,7 @@ export type TableHandleProps<
     tableHandleMenu?: FC<DragHandleMenuProps<BSchema, I, S>>;
     dragStart: (e: DragEvent<HTMLDivElement>) => void;
     index: number;
+    // TODO: document this, explain why we need it
     showOtherSide: () => void;
     hideOtherSide: () => void;
   };
