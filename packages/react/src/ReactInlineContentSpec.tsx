@@ -1,9 +1,14 @@
 import {
+  addInlineContentAttributes,
+  camelToDataKebab,
   createInternalInlineContentSpec,
   createStronglyTypedTiptapNode,
+  getInlineContentParseRules,
   InlineContentConfig,
   InlineContentFromConfig,
   nodeToCustomInlineContent,
+  Props,
+  PropSchema,
   propsToAttributes,
   StyleSchema,
 } from "@blocknote/core";
@@ -36,6 +41,40 @@ export type ReactInlineContentImplementation<
   // }>;
 };
 
+// Function that adds a wrapper with necessary classes and attributes to the
+// component returned from a custom inline content's 'render' function, to
+// ensure no data is lost on internal copy & paste.
+export function reactWrapInInlineContentStructure<
+  IType extends string,
+  PSchema extends PropSchema
+>(
+  element: JSX.Element,
+  inlineContentType: IType,
+  inlineContentProps: Props<PSchema>,
+  propSchema: PSchema
+) {
+  return () => (
+    // Creates inline content section element
+    <NodeViewWrapper
+      as={"span"}
+      // Sets inline content section class
+      className={"bn-inline-content-section"}
+      // Sets content type attribute
+      data-inline-content-type={inlineContentType}
+      // Adds props as HTML attributes in kebab-case with "data-" prefix. Skips
+      // props set to their default values.
+      {...Object.fromEntries(
+        Object.entries(inlineContentProps)
+          .filter(([prop, value]) => value !== propSchema[prop].default)
+          .map(([prop, value]) => {
+            return [camelToDataKebab(prop), value];
+          })
+      )}>
+      {element}
+    </NodeViewWrapper>
+  );
+}
+
 // A function to create custom block for API consumers
 // we want to hide the tiptap node from API consumers and provide a simpler API surface instead
 export function createReactInlineContentSpec<
@@ -50,6 +89,8 @@ export function createReactInlineContentSpec<
     name: inlineContentConfig.type as T["type"],
     inline: true,
     group: "inline",
+    selectable: inlineContentConfig.content === "styled",
+    atom: inlineContentConfig.content === "none",
     content: (inlineContentConfig.content === "styled"
       ? "inline*"
       : "") as T["content"] extends "styled" ? "inline*" : "",
@@ -58,9 +99,9 @@ export function createReactInlineContentSpec<
       return propsToAttributes(inlineContentConfig.propSchema);
     },
 
-    // parseHTML() {
-    //   return parse(blockConfig);
-    // },
+    parseHTML() {
+      return getInlineContentParseRules(inlineContentConfig);
+    },
 
     renderHTML({ node }) {
       const editor = this.options.editor;
@@ -71,10 +112,19 @@ export function createReactInlineContentSpec<
         editor.styleSchema
       ) as any as InlineContentFromConfig<T, S>; // TODO: fix cast
       const Content = inlineContentImplementation.render;
-
-      return renderToDOMSpec((refCB) => (
+      const output = renderToDOMSpec((refCB) => (
         <Content inlineContent={ic} contentRef={refCB} />
       ));
+
+      return {
+        dom: addInlineContentAttributes(
+          output.dom,
+          inlineContentConfig.type,
+          node.attrs as Props<T["propSchema"]>,
+          inlineContentConfig.propSchema
+        ),
+        contentDOM: output.contentDOM,
+      };
     },
 
     // TODO: needed?
@@ -88,20 +138,22 @@ export function createReactInlineContentSpec<
             const ref = (NodeViewContent({}) as any).ref;
 
             const Content = inlineContentImplementation.render;
-            return (
-              <NodeViewWrapper as="span">
-                <Content
-                  contentRef={ref}
-                  inlineContent={
-                    nodeToCustomInlineContent(
-                      props.node,
-                      editor.inlineContentSchema,
-                      editor.styleSchema
-                    ) as any as InlineContentFromConfig<T, S> // TODO: fix cast
-                  }
-                />
-              </NodeViewWrapper>
+            const FullContent = reactWrapInInlineContentStructure(
+              <Content
+                contentRef={ref}
+                inlineContent={
+                  nodeToCustomInlineContent(
+                    props.node,
+                    editor.inlineContentSchema,
+                    editor.styleSchema
+                  ) as any as InlineContentFromConfig<T, S> // TODO: fix cast
+                }
+              />,
+              inlineContentConfig.type,
+              props.node.attrs as Props<T["propSchema"]>,
+              inlineContentConfig.propSchema
             );
+            return <FullContent />;
           },
           {
             className: "bn-ic-react-node-view-renderer",

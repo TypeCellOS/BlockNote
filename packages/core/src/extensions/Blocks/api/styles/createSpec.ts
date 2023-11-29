@@ -1,6 +1,11 @@
 import { Mark } from "@tiptap/core";
+import { ParseRule } from "@tiptap/pm/model";
 import { UnreachableCaseError } from "../../../../shared/utils";
-import { createInternalStyleSpec } from "./internal";
+import {
+  addStyleAttributes,
+  createInternalStyleSpec,
+  stylePropsToAttributes,
+} from "./internal";
 import { StyleConfig, StyleSpec } from "./types";
 
 export type CustomStyleImplementation<T extends StyleConfig> = {
@@ -17,6 +22,14 @@ export type CustomStyleImplementation<T extends StyleConfig> = {
 
 // TODO: support serialization
 
+export function getStyleParseRules(config: StyleConfig): ParseRule[] {
+  return [
+    {
+      tag: `.bn-style[data-style-type="${config.type}"]`,
+    },
+  ];
+}
+
 export function createStyleSpec<T extends StyleConfig>(
   styleConfig: T,
   styleImplementation: CustomStyleImplementation<T>
@@ -25,21 +38,11 @@ export function createStyleSpec<T extends StyleConfig>(
     name: styleConfig.type,
 
     addAttributes() {
-      if (styleConfig.propSchema === "boolean") {
-        return {};
-      }
-      return {
-        stringValue: {
-          default: undefined,
-          // TODO: parsing
+      return stylePropsToAttributes(styleConfig.propSchema);
+    },
 
-          // parseHTML: (element) =>
-          //   element.getAttribute(`data-${styleConfig.type}`),
-          // renderHTML: (attributes) => ({
-          //   [`data-${styleConfig.type}`]: attributes.stringValue,
-          // }),
-        },
-      };
+    parseHTML() {
+      return getStyleParseRules(styleConfig);
     },
 
     renderHTML({ mark }) {
@@ -58,7 +61,15 @@ export function createStyleSpec<T extends StyleConfig>(
       }
 
       // const renderResult = styleImplementation.render();
-      return renderResult;
+      return {
+        dom: addStyleAttributes(
+          renderResult.dom,
+          styleConfig.type,
+          mark.attrs.stringValue,
+          styleConfig.propSchema
+        ),
+        contentDOM: renderResult.contentDOM,
+      };
     },
   });
 
