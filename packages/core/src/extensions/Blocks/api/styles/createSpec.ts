@@ -26,7 +26,15 @@ export function getStyleParseRules(config: StyleConfig): ParseRule[] {
   return [
     {
       tag: `[data-style-type="${config.type}"]`,
-      contentElement: "[data-editable]",
+      contentElement: (element) => {
+        const htmlElement = element as HTMLElement;
+
+        if (htmlElement.matches("[data-editable]")) {
+          return htmlElement;
+        }
+
+        return htmlElement.querySelector("[data-editable]") || htmlElement;
+      },
     },
   ];
 }
