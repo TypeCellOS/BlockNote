@@ -167,8 +167,7 @@ export function createReactBlockSpec<
         node.options.domAttributes?.blockContent || {};
 
       const Content = blockImplementation.render;
-
-      return renderToDOMSpec((refCB) => {
+      const output = renderToDOMSpec((refCB) => {
         const BlockContent = reactWrapInBlockStructure(
           <Content
             block={block as any}
@@ -182,6 +181,9 @@ export function createReactBlockSpec<
         );
         return <BlockContent />;
       });
+      output.contentDOM?.setAttribute("data-editable", "");
+
+      return output;
     },
     toExternalHTML: (block, editor) => {
       const blockContentDOMAttributes =
@@ -189,8 +191,7 @@ export function createReactBlockSpec<
 
       const Content =
         blockImplementation.toExternalHTML || blockImplementation.render;
-
-      return renderToDOMSpec((refCB) => {
+      const output = renderToDOMSpec((refCB) => {
         const BlockContent = reactWrapInBlockStructure(
           <Content
             block={block as any}
@@ -204,6 +205,9 @@ export function createReactBlockSpec<
         );
         return <BlockContent />;
       });
+      output.contentDOM?.setAttribute("data-editable", "");
+
+      return output;
     },
   });
 }

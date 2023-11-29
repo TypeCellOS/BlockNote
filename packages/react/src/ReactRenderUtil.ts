@@ -20,12 +20,13 @@ export function renderToDOMSpec(
   }
 
   // clone so we can unmount the react root
-  contentDOM?.setAttribute("data-editable", "");
+  contentDOM?.setAttribute("data-tmp-find", "true");
   const cloneRoot = div.cloneNode(true) as HTMLElement;
   const dom = cloneRoot.firstElementChild! as HTMLElement;
   const contentDOMClone = cloneRoot.querySelector(
-    "[data-editable]"
+    "[data-tmp-find]"
   ) as HTMLElement | null;
+  contentDOMClone?.removeAttribute("data-tmp-find");
 
   root.unmount();
 
