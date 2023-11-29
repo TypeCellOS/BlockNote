@@ -17,7 +17,7 @@
     "jsx": "react-jsx",
     "composite": true
   },
-  "include": ["src"],
+  "include": ["src", "examples"],
   "references": [
     { "path": "./tsconfig.node.json" },
     { "path": "../../packages/core/" },

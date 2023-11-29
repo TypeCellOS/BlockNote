@@ -1,9 +1,18 @@
-import { createBlockSpec } from "../../../api/block";
-import { defaultProps } from "../../../api/defaultProps";
-import { BlockSpec, PropSchema, SpecificBlock } from "../../../api/blockTypes";
 import { BlockNoteEditor } from "../../../../../BlockNoteEditor";
 import { imageToolbarPluginKey } from "../../../../ImageToolbar/ImageToolbarPlugin";
-import styles from "../../Block.module.css";
+
+import {
+  CustomBlockConfig,
+  createBlockSpec,
+} from "../../../api/blocks/createSpec";
+import {
+  BlockFromConfig,
+  BlockSchemaWithBlock,
+  PropSchema,
+} from "../../../api/blocks/types";
+import { defaultProps } from "../../../api/defaultProps";
+import { InlineContentSchema } from "../../../api/inlineContent/types";
+import { StyleSchema } from "../../../api/styles/types";
 
 export const imagePropSchema = {
   textAlignment: defaultProps.textAlignment,
@@ -41,50 +50,51 @@ const textAlignmentToAlignItems = (
 // Min image width in px.
 const minWidth = 64;
 
-const renderImage = (
-  block: SpecificBlock<
-    { image: BlockSpec<"image", typeof imagePropSchema, false> },
-    "image"
-  >,
-  editor: BlockNoteEditor<{
-    image: BlockSpec<"image", typeof imagePropSchema, false>;
-  }>
+const blockConfig = {
+  type: "image" as const,
+  propSchema: imagePropSchema,
+  content: "none",
+} satisfies CustomBlockConfig;
+
+export const renderImage = (
+  block: BlockFromConfig<typeof blockConfig, InlineContentSchema, StyleSchema>,
+  editor: BlockNoteEditor<BlockSchemaWithBlock<"image", typeof blockConfig>>
 ) => {
   // Wrapper element to set the image alignment, contains both image/image
   // upload dashboard and caption.
   const wrapper = document.createElement("div");
-  wrapper.className = styles.wrapper;
+  wrapper.className = "bn-image-block-content-wrapper";
   wrapper.style.alignItems = textAlignmentToAlignItems(
     block.props.textAlignment
   );
 
   // Button element that acts as a placeholder for images with no src.
   const addImageButton = document.createElement("div");
-  addImageButton.className = styles.addImageButton;
+  addImageButton.className = "bn-add-image-button";
   addImageButton.style.display = block.props.url === "" ? "" : "none";
 
   // Icon for the add image button.
   const addImageButtonIcon = document.createElement("div");
-  addImageButtonIcon.className = styles.addImageButtonIcon;
+  addImageButtonIcon.className = "bn-add-image-button-icon";
 
   // Text for the add image button.
   const addImageButtonText = document.createElement("p");
-  addImageButtonText.className = styles.addImageButtonText;
+  addImageButtonText.className = "bn-add-image-button-text";
   addImageButtonText.innerText = "Add Image";
 
   // Wrapper element for the image, resize handles and caption.
   const imageAndCaptionWrapper = document.createElement("div");
-  imageAndCaptionWrapper.className = styles.imageAndCaptionWrapper;
+  imageAndCaptionWrapper.className = "bn-image-and-caption-wrapper";
   imageAndCaptionWrapper.style.display = block.props.url !== "" ? "" : "none";
 
   // Wrapper element for the image and resize handles.
   const imageWrapper = document.createElement("div");
-  imageWrapper.className = styles.imageWrapper;
+  imageWrapper.className = "bn-image-wrapper";
   imageWrapper.style.display = block.props.url !== "" ? "" : "none";
 
   // Image element.
   const image = document.createElement("img");
-  image.className = styles.image;
+  image.className = "bn-image";
   image.src = block.props.url;
   image.alt = "placeholder";
   image.contentEditable = "false";
@@ -96,15 +106,15 @@ const renderImage = (
 
   // Resize handle elements.
   const leftResizeHandle = document.createElement("div");
-  leftResizeHandle.className = styles.resizeHandle;
+  leftResizeHandle.className = "bn-image-resize-handle";
   leftResizeHandle.style.left = "4px";
   const rightResizeHandle = document.createElement("div");
-  rightResizeHandle.className = styles.resizeHandle;
+  rightResizeHandle.className = "bn-image-resize-handle";
   rightResizeHandle.style.right = "4px";
 
   // Caption element.
   const caption = document.createElement("p");
-  caption.className = styles.caption;
+  caption.className = "bn-image-caption";
   caption.innerText = block.props.caption;
   caption.style.padding = block.props.caption ? "4px" : "";
 
@@ -207,7 +217,7 @@ const renderImage = (
       type: "image",
       props: {
         // Removes "px" from the end of the width string and converts to float.
-        width: parseFloat(image.style.width.slice(0, -2)),
+        width: parseFloat(image.style.width.slice(0, -2)) as any,
       },
     });
   };
@@ -327,9 +337,63 @@ const renderImage = (
   };
 };
 
-export const Image = createBlockSpec({
-  type: "image",
-  propSchema: imagePropSchema,
-  containsInlineContent: false,
-  render: renderImage,
-});
+export const Image = createBlockSpec(
+  {
+    type: "image" as const,
+    propSchema: imagePropSchema,
+    content: "none",
+  },
+  {
+    render: renderImage,
+    toExternalHTML: (block) => {
+      if (block.props.url === "") {
+        const div = document.createElement("p");
+        div.innerHTML = "Add Image";
+
+        return {
+          dom: div,
+        };
+      }
+
+      const figure = document.createElement("figure");
+
+      const img = document.createElement("img");
+      img.src = block.props.url;
+      figure.appendChild(img);
+
+      if (block.props.caption !== "") {
+        const figcaption = document.createElement("figcaption");
+        figcaption.innerHTML = block.props.caption;
+        figure.appendChild(figcaption);
+      }
+
+      return {
+        dom: figure,
+      };
+    },
+    parse: (element: HTMLElement) => {
+      if (element.tagName === "FIGURE") {
+        const img = element.querySelector("img");
+        const caption = element.querySelector("figcaption");
+        return {
+          type: "image",
+          props: {
+            url: img?.getAttribute("src") || "",
+            caption:
+              caption?.textContent || img?.getAttribute("alt") || undefined,
+          },
+        };
+      } else if (element.tagName === "IMG") {
+        return {
+          type: "image",
+          props: {
+            url: element.getAttribute("src") || "",
+            caption: element.getAttribute("alt") || undefined,
+          },
+        };
+      }
+
+      return undefined;
+    },
+  }
+);

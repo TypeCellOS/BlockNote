@@ -16,6 +16,7 @@ export const Image = createBlockSpec({
     image.setAttribute("src", block.props.src);
     image.setAttribute("contenteditable", "false");
     image.setAttribute("style", "width: 100%");
+    image.setAttribute("alt", "Image");
 
     const caption = document.createElement("div");
     caption.setAttribute("style", "flex-grow: 1");
@@ -29,6 +30,18 @@ export const Image = createBlockSpec({
       dom: parent,
       contentDOM: caption,
     };
+  },
+  parse: (element) => {
+    if (element.hasAttribute("src")) {
+      return {
+        type: "image",
+        props: {
+          src: element.getAttribute("src")!,
+        },
+      };
+    }
+
+    return;
   },
 });
 

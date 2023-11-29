@@ -1,17 +1,21 @@
 import {
-  BlockConfig,
-  BlockNoteDOMAttributes,
+  BlockFromConfig,
   BlockNoteEditor,
-  BlockSchema,
-  BlockSpec,
-  blockStyles,
+  BlockSchemaWithBlock,
   camelToDataKebab,
-  createTipTapBlock,
+  createInternalBlockSpec,
+  createStronglyTypedTiptapNode,
+  CustomBlockConfig,
+  getBlockFromPos,
+  getParseRules,
+  inheritedProps,
+  InlineContentSchema,
   mergeCSSClasses,
-  parse,
+  PartialBlockFromConfig,
+  Props,
   PropSchema,
   propsToAttributes,
-  render,
+  StyleSchema,
 } from "@blocknote/core";
 import {
   NodeViewContent,
@@ -19,160 +23,185 @@ import {
   NodeViewWrapper,
   ReactNodeViewRenderer,
 } from "@tiptap/react";
-import { createContext, ElementType, FC, HTMLProps, useContext } from "react";
+import { FC } from "react";
+import { renderToDOMSpec } from "./ReactRenderUtil";
+
+// this file is mostly analogoues to `customBlocks.ts`, but for React blocks
 
 // extend BlockConfig but use a React render function
-export type ReactBlockConfig<
-  Type extends string,
-  PSchema extends PropSchema,
-  ContainsInlineContent extends boolean,
-  BSchema extends BlockSchema
-> = Omit<
-  BlockConfig<Type, PSchema, ContainsInlineContent, BSchema>,
-  "render"
-> & {
+export type ReactCustomBlockImplementation<
+  T extends CustomBlockConfig,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+> = {
   render: FC<{
-    block: Parameters<
-      BlockConfig<Type, PSchema, ContainsInlineContent, BSchema>["render"]
-    >[0];
-    editor: Parameters<
-      BlockConfig<Type, PSchema, ContainsInlineContent, BSchema>["render"]
-    >[1];
+    block: BlockFromConfig<T, I, S>;
+    editor: BlockNoteEditor<BlockSchemaWithBlock<T["type"], T>, I, S>;
+    contentRef: (node: HTMLElement | null) => void;
   }>;
+  toExternalHTML?: FC<{
+    block: BlockFromConfig<T, I, S>;
+    editor: BlockNoteEditor<BlockSchemaWithBlock<T["type"], T>, I, S>;
+    contentRef: (node: HTMLElement | null) => void;
+  }>;
+  parse?: (el: HTMLElement) => PartialBlockFromConfig<T, I, S> | undefined;
 };
 
-const BlockNoteDOMAttributesContext = createContext<BlockNoteDOMAttributes>({});
-
-export const InlineContent = <Tag extends ElementType>(
-  props: { as?: Tag } & HTMLProps<Tag>
-) => {
-  const inlineContentDOMAttributes =
-    useContext(BlockNoteDOMAttributesContext).inlineContent || {};
-
-  const classNames = mergeCSSClasses(
-    props.className || "",
-    blockStyles.inlineContent,
-    inlineContentDOMAttributes.class
-  );
-
-  return (
-    <NodeViewContent
+// Function that wraps the React component returned from 'blockConfig.render' in
+// a `NodeViewWrapper` which also acts as a `blockContent` div. It contains the
+// block type and props as HTML attributes.
+export function reactWrapInBlockStructure<
+  BType extends string,
+  PSchema extends PropSchema
+>(
+  element: JSX.Element,
+  blockType: BType,
+  blockProps: Props<PSchema>,
+  propSchema: PSchema,
+  domAttributes?: Record<string, string>
+) {
+  return () => (
+    // Creates `blockContent` element
+    <NodeViewWrapper
+      // Adds custom HTML attributes
       {...Object.fromEntries(
-        Object.entries(inlineContentDOMAttributes).filter(
-          ([key]) => key !== "class"
-        )
+        Object.entries(domAttributes || {}).filter(([key]) => key !== "class")
       )}
-      {...props}
-      className={classNames}
-    />
+      // Sets blockContent class
+      className={mergeCSSClasses(
+        "bn-block-content",
+        domAttributes?.class || ""
+      )}
+      // Sets content type attribute
+      data-content-type={blockType}
+      // Adds props as HTML attributes in kebab-case with "data-" prefix. Skips
+      // props which are already added as HTML attributes to the parent
+      // `blockContent` element (inheritedProps) and props set to their default
+      // values
+      {...Object.fromEntries(
+        Object.entries(blockProps)
+          .filter(
+            ([prop, value]) =>
+              !inheritedProps.includes(prop) &&
+              value !== propSchema[prop].default
+          )
+          .map(([prop, value]) => {
+            return [camelToDataKebab(prop), value];
+          })
+      )}>
+      {element}
+    </NodeViewWrapper>
   );
-};
+}
 
 // A function to create custom block for API consumers
 // we want to hide the tiptap node from API consumers and provide a simpler API surface instead
 export function createReactBlockSpec<
-  BType extends string,
-  PSchema extends PropSchema,
-  ContainsInlineContent extends boolean,
-  BSchema extends BlockSchema
+  T extends CustomBlockConfig,
+  I extends InlineContentSchema,
+  S extends StyleSchema
 >(
-  blockConfig: ReactBlockConfig<BType, PSchema, ContainsInlineContent, BSchema>
-): BlockSpec<BType, PSchema, ContainsInlineContent> {
-  const node = createTipTapBlock<
-    BType,
-    ContainsInlineContent,
-    {
-      editor: BlockNoteEditor<BSchema>;
-      domAttributes?: BlockNoteDOMAttributes;
-    }
-  >({
-    name: blockConfig.type,
-    content: (blockConfig.containsInlineContent
+  blockConfig: T,
+  blockImplementation: ReactCustomBlockImplementation<T, I, S>
+) {
+  const node = createStronglyTypedTiptapNode({
+    name: blockConfig.type as T["type"],
+    content: (blockConfig.content === "inline"
       ? "inline*"
-      : "") as ContainsInlineContent extends true ? "inline*" : "",
+      : "") as T["content"] extends "inline" ? "inline*" : "",
+    group: "blockContent",
     selectable: true,
 
     addAttributes() {
-      return propsToAttributes(blockConfig);
+      return propsToAttributes(blockConfig.propSchema);
     },
 
     parseHTML() {
-      return parse(blockConfig);
-    },
-
-    renderHTML({ HTMLAttributes }) {
-      return render(blockConfig, HTMLAttributes);
+      return getParseRules(blockConfig, blockImplementation.parse);
     },
 
     addNodeView() {
-      const BlockContent: FC<NodeViewProps> = (props: NodeViewProps) => {
-        const Content = blockConfig.render;
+      return (props) =>
+        ReactNodeViewRenderer(
+          (props: NodeViewProps) => {
+            // Gets the BlockNote editor instance
+            const editor = this.options.editor! as BlockNoteEditor<any>;
+            // Gets the block
+            const block = getBlockFromPos(
+              props.getPos,
+              editor,
+              this.editor,
+              blockConfig.type
+            ) as any;
+            // Gets the custom HTML attributes for `blockContent` nodes
+            const blockContentDOMAttributes =
+              this.options.domAttributes?.blockContent || {};
 
-        // Add custom HTML attributes
-        const blockContentDOMAttributes =
-          this.options.domAttributes?.blockContent || {};
+            // hacky, should export `useReactNodeView` from tiptap to get access to ref
+            const ref = (NodeViewContent({}) as any).ref;
 
-        // Add props as HTML attributes in kebab-case with "data-" prefix
-        const htmlAttributes: Record<string, string> = {};
-        for (const [attribute, value] of Object.entries(props.node.attrs)) {
-          if (
-            attribute in blockConfig.propSchema &&
-            value !== blockConfig.propSchema[attribute].default
-          ) {
-            htmlAttributes[camelToDataKebab(attribute)] = value;
+            const Content = blockImplementation.render;
+            const BlockContent = reactWrapInBlockStructure(
+              <Content block={block} editor={editor as any} contentRef={ref} />,
+              block.type,
+              block.props,
+              blockConfig.propSchema,
+              blockContentDOMAttributes
+            );
+
+            return <BlockContent />;
+          },
+          {
+            className: "bn-react-node-view-renderer",
           }
-        }
-
-        // Gets BlockNote editor instance
-        const editor = this.options.editor! as BlockNoteEditor<
-          BSchema & {
-            [k in BType]: BlockSpec<BType, PSchema, ContainsInlineContent>;
-          }
-        >;
-        // Gets position of the node
-        const pos =
-          typeof props.getPos === "function" ? props.getPos() : undefined;
-        // Gets TipTap editor instance
-        const tipTapEditor = editor._tiptapEditor;
-        // Gets parent blockContainer node
-        const blockContainer = tipTapEditor.state.doc.resolve(pos!).node();
-        // Gets block identifier
-        const blockIdentifier = blockContainer.attrs.id;
-        // Get the block
-        const block = editor.getBlock(blockIdentifier)!;
-        if (block.type !== blockConfig.type) {
-          throw new Error("Block type does not match");
-        }
-
-        return (
-          <NodeViewWrapper
-            {...Object.fromEntries(
-              Object.entries(blockContentDOMAttributes).filter(
-                ([key]) => key !== "class"
-              )
-            )}
-            className={mergeCSSClasses(
-              blockStyles.blockContent,
-              blockContentDOMAttributes.class
-            )}
-            data-content-type={blockConfig.type}
-            {...htmlAttributes}>
-            <BlockNoteDOMAttributesContext.Provider
-              value={this.options.domAttributes || {}}>
-              <Content block={block as any} editor={editor} />
-            </BlockNoteDOMAttributesContext.Provider>
-          </NodeViewWrapper>
-        );
-      };
-
-      return ReactNodeViewRenderer(BlockContent, {
-        className: blockStyles.reactNodeViewRenderer,
-      });
+        )(props);
     },
   });
 
-  return {
+  return createInternalBlockSpec(blockConfig, {
     node: node,
-    propSchema: blockConfig.propSchema,
-  };
+    toInternalHTML: (block, editor) => {
+      const blockContentDOMAttributes =
+        node.options.domAttributes?.blockContent || {};
+
+      const Content = blockImplementation.render;
+
+      return renderToDOMSpec((refCB) => {
+        const BlockContent = reactWrapInBlockStructure(
+          <Content
+            block={block as any}
+            editor={editor as any}
+            contentRef={refCB}
+          />,
+          block.type,
+          block.props,
+          blockConfig.propSchema,
+          blockContentDOMAttributes
+        );
+        return <BlockContent />;
+      });
+    },
+    toExternalHTML: (block, editor) => {
+      const blockContentDOMAttributes =
+        node.options.domAttributes?.blockContent || {};
+
+      const Content =
+        blockImplementation.toExternalHTML || blockImplementation.render;
+
+      return renderToDOMSpec((refCB) => {
+        const BlockContent = reactWrapInBlockStructure(
+          <Content
+            block={block as any}
+            editor={editor as any}
+            contentRef={refCB}
+          />,
+          block.type,
+          block.props,
+          blockConfig.propSchema,
+          blockContentDOMAttributes
+        );
+        return <BlockContent />;
+      });
+    },
+  });
 }

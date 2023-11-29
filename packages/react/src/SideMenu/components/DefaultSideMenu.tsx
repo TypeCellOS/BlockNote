@@ -1,12 +1,17 @@
-import { BlockSchema } from "@blocknote/core";
+import { BlockSchema, InlineContentSchema } from "@blocknote/core";
 
-import { SideMenuProps } from "./SideMenuPositioner";
-import { SideMenu } from "./SideMenu";
+import { StyleSchema } from "@blocknote/core";
 import { AddBlockButton } from "./DefaultButtons/AddBlockButton";
 import { DragHandle } from "./DefaultButtons/DragHandle";
+import { SideMenu } from "./SideMenu";
+import { SideMenuProps } from "./SideMenuPositioner";
 
-export const DefaultSideMenu = <BSchema extends BlockSchema>(
-  props: SideMenuProps<BSchema>
+export const DefaultSideMenu = <
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(
+  props: SideMenuProps<BSchema, I, S>
 ) => (
   <SideMenu>
     <AddBlockButton {...props} />

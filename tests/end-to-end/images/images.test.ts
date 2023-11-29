@@ -70,9 +70,11 @@ test.describe("Check Image Block and Toolbar functionality", () => {
 
     await page.click(`img`);
 
-    await page.waitForSelector(`[class*="resizeHandle"][style*="right"]`);
+    await page.waitForSelector(
+      `[class*="bn-image-resize-handle"][style*="right"]`
+    );
     const resizeHandle = page.locator(
-      `[class*="resizeHandle"][style*="right"]`
+      `[class*="bn-image-resize-handle"][style*="right"]`
     );
     const resizeHandleBoundingBox = await resizeHandle.boundingBox();
     await page.mouse.move(

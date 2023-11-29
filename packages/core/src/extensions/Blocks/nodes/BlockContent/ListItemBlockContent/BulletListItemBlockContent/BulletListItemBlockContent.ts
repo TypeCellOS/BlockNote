@@ -1,19 +1,21 @@
-import { InputRule, mergeAttributes } from "@tiptap/core";
+import { InputRule } from "@tiptap/core";
+import {
+  createBlockSpecFromStronglyTypedTiptapNode,
+  createStronglyTypedTiptapNode,
+} from "../../../../api/blocks/internal";
+import { PropSchema } from "../../../../api/blocks/types";
 import { defaultProps } from "../../../../api/defaultProps";
-import { createTipTapBlock } from "../../../../api/block";
-import { BlockSpec, PropSchema } from "../../../../api/blockTypes";
-import { mergeCSSClasses } from "../../../../../../shared/utils";
+import { createDefaultBlockDOMOutputSpec } from "../../defaultBlockHelpers";
 import { handleEnter } from "../ListItemKeyboardShortcuts";
-import styles from "../../../Block.module.css";
 
 export const bulletListItemPropSchema = {
   ...defaultProps,
 } satisfies PropSchema;
 
-const BulletListItemBlockContent = createTipTapBlock<"bulletListItem", true>({
+const BulletListItemBlockContent = createStronglyTypedTiptapNode({
   name: "bulletListItem",
   content: "inline*",
-
+  group: "blockContent",
   addInputRules() {
     return [
       // Creates an unordered list when starting with "-", "+", or "*".
@@ -36,13 +38,7 @@ const BulletListItemBlockContent = createTipTapBlock<"bulletListItem", true>({
     return {
       Enter: () => handleEnter(this.editor),
       "Mod-Shift-7": () =>
-        this.editor.commands.BNUpdateBlock<{
-          bulletListItem: BlockSpec<
-            "bulletListItem",
-            typeof bulletListItemPropSchema,
-            true
-          >;
-        }>(this.editor.state.selection.anchor, {
+        this.editor.commands.BNUpdateBlock(this.editor.state.selection.anchor, {
           type: "bulletListItem",
           props: {},
         }),
@@ -52,6 +48,9 @@ const BulletListItemBlockContent = createTipTapBlock<"bulletListItem", true>({
   parseHTML() {
     return [
       // Case for regular HTML list structure.
+      {
+        tag: "div[data-content-type=" + this.name + "]", // TODO: remove if we can't come up with test case that needs this
+      },
       {
         tag: "li",
         getAttrs: (element) => {
@@ -65,7 +64,10 @@ const BulletListItemBlockContent = createTipTapBlock<"bulletListItem", true>({
             return false;
           }
 
-          if (parent.tagName === "UL") {
+          if (
+            parent.tagName === "UL" ||
+            (parent.tagName === "DIV" && parent.parentElement!.tagName === "UL")
+          ) {
             return {};
           }
 
@@ -100,37 +102,22 @@ const BulletListItemBlockContent = createTipTapBlock<"bulletListItem", true>({
   },
 
   renderHTML({ HTMLAttributes }) {
-    const blockContentDOMAttributes =
-      this.options.domAttributes?.blockContent || {};
-    const inlineContentDOMAttributes =
-      this.options.domAttributes?.inlineContent || {};
-
-    return [
-      "div",
-      mergeAttributes(HTMLAttributes, {
-        ...blockContentDOMAttributes,
-        class: mergeCSSClasses(
-          styles.blockContent,
-          blockContentDOMAttributes.class
-        ),
-        "data-content-type": this.name,
-      }),
-      [
-        "p",
-        {
-          ...inlineContentDOMAttributes,
-          class: mergeCSSClasses(
-            styles.inlineContent,
-            inlineContentDOMAttributes.class
-          ),
-        },
-        0,
-      ],
-    ];
+    return createDefaultBlockDOMOutputSpec(
+      this.name,
+      // We use a <p> tag, because for <li> tags we'd need a <ul> element to put
+      // them in to be semantically correct, which we can't have due to the
+      // schema.
+      "p",
+      {
+        ...(this.options.domAttributes?.blockContent || {}),
+        ...HTMLAttributes,
+      },
+      this.options.domAttributes?.inlineContent || {}
+    );
   },
 });
 
-export const BulletListItem = {
-  node: BulletListItemBlockContent,
-  propSchema: bulletListItemPropSchema,
-} satisfies BlockSpec<"bulletListItem", typeof bulletListItemPropSchema, true>;
+export const BulletListItem = createBlockSpecFromStronglyTypedTiptapNode(
+  BulletListItemBlockContent,
+  bulletListItemPropSchema
+);

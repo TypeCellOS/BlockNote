@@ -1,5 +1,4 @@
 import { CSSObject, MantineThemeOverride } from "@mantine/core";
-import { blockStyles } from "@blocknote/core";
 import _ from "lodash";
 
 export type CombinedColor = {
@@ -41,6 +40,10 @@ export type ComponentStyles = Partial<{
   Editor: CSSObject;
   // Used in the Image Toolbar
   FileInput: CSSObject;
+  // Handle that appears next to tables and the menu that opens when clicking it
+  TableHandle: CSSObject;
+  TableHandleMenu: CSSObject;
+  // Used in the Image Toolbar
   Tabs: CSSObject;
   TextInput: CSSObject;
   // Wraps Formatting Toolbar & Hyperlink Toolbar
@@ -61,6 +64,7 @@ export type Theme = {
 
 export const blockNoteToMantineTheme = (theme: Theme): MantineThemeOverride => {
   const shadow = `0 4px 12px ${theme.colors.shadow}`;
+  const lightShadow = `0 2px 6px ${theme.colors.border}`;
   const border = `1px solid ${theme.colors.border}`;
 
   const textColors = {
@@ -128,6 +132,40 @@ export const blockNoteToMantineTheme = (theme: Theme): MantineThemeOverride => {
               },
             },
             theme.componentStyles?.(theme).Menu || {}
+          ),
+        }),
+      },
+      TableHandle: {
+        styles: () => ({
+          root: _.merge<CSSObject, CSSObject>(
+            {
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: theme.colors.menu.background,
+              border: border,
+              borderRadius: innerBorderRadius,
+              boxShadow: lightShadow,
+              color: theme.colors.sideMenu,
+              ":hover, div.bn-table-handle-dragging": {
+                backgroundColor: theme.colors.hovered.background,
+              },
+              cursor: "pointer",
+            },
+            theme.componentStyles?.(theme).TableHandle || {}
+          ),
+        }),
+      },
+      TableHandleMenu: {
+        styles: () => ({
+          root: _.merge<CSSObject, CSSObject>(
+            {
+              ".mantine-Menu-item": {
+                fontSize: "12px",
+                height: "30px",
+              },
+            },
+            theme.componentStyles?.(theme).TableHandleMenu || {}
           ),
         }),
       },
@@ -244,17 +282,16 @@ export const blockNoteToMantineTheme = (theme: Theme): MantineThemeOverride => {
                 fontFamily: theme.fontFamily,
               },
               // Placeholders
-              [`.${blockStyles.isEmpty} .${blockStyles.inlineContent}:before, .${blockStyles.isFilter} .${blockStyles.inlineContent}:before`]:
+              ".bn-is-empty .bn-inline-content:before, .bn-is-filter .bn-inline-content:before":
                 {
                   color: theme.colors.sideMenu,
                 },
               // Indent lines
-              [`.${blockStyles.blockGroup}`]: {
-                [`.${blockStyles.blockGroup}`]: {
-                  [`.${blockStyles.blockOuter}:not([data-prev-depth-changed])::before`]:
-                    {
-                      borderLeft: `1px solid ${theme.colors.sideMenu}`,
-                    },
+              ".bn-block-group": {
+                ".bn-block-group": {
+                  ".bn-block-outer:not([data-prev-depth-changed])::before": {
+                    borderLeft: `1px solid ${theme.colors.sideMenu}`,
+                  },
                 },
               },
               // Highlight text colors

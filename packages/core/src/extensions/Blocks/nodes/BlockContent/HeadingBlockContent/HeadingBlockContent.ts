@@ -1,25 +1,34 @@
-import { InputRule, mergeAttributes } from "@tiptap/core";
+import { InputRule } from "@tiptap/core";
+import {
+  createBlockSpecFromStronglyTypedTiptapNode,
+  createStronglyTypedTiptapNode,
+} from "../../../api/blocks/internal";
+import { PropSchema } from "../../../api/blocks/types";
 import { defaultProps } from "../../../api/defaultProps";
-import { createTipTapBlock } from "../../../api/block";
-import { BlockSpec, PropSchema } from "../../../api/blockTypes";
-import { mergeCSSClasses } from "../../../../../shared/utils";
-import styles from "../../Block.module.css";
+import { createDefaultBlockDOMOutputSpec } from "../defaultBlockHelpers";
 
 export const headingPropSchema = {
   ...defaultProps,
   level: { default: 1, values: [1, 2, 3] as const },
 } satisfies PropSchema;
 
-const HeadingBlockContent = createTipTapBlock<"heading", true>({
+const HeadingBlockContent = createStronglyTypedTiptapNode({
   name: "heading",
   content: "inline*",
-
+  group: "blockContent",
   addAttributes() {
     return {
       level: {
         default: 1,
         // instead of "level" attributes, use "data-level"
-        parseHTML: (element) => element.getAttribute("data-level")!,
+        parseHTML: (element) => {
+          const attr = element.getAttribute("data-level")!;
+          const parsed = parseInt(attr);
+          if (isFinite(parsed)) {
+            return parsed;
+          }
+          return undefined;
+        },
         renderHTML: (attributes) => {
           return {
             "data-level": (attributes.level as number).toString(),
@@ -37,12 +46,10 @@ const HeadingBlockContent = createTipTapBlock<"heading", true>({
           find: new RegExp(`^(#{${level}})\\s$`),
           handler: ({ state, chain, range }) => {
             chain()
-              .BNUpdateBlock<{
-                heading: BlockSpec<"heading", typeof headingPropSchema, true>;
-              }>(state.selection.from, {
+              .BNUpdateBlock(state.selection.from, {
                 type: "heading",
                 props: {
-                  level: level as 1 | 2 | 3,
+                  level: level as any,
                 },
               })
               // Removes the "#" character(s) used to set the heading.
@@ -56,37 +63,42 @@ const HeadingBlockContent = createTipTapBlock<"heading", true>({
   addKeyboardShortcuts() {
     return {
       "Mod-Alt-1": () =>
-        this.editor.commands.BNUpdateBlock<{
-          heading: BlockSpec<"heading", typeof headingPropSchema, true>;
-        }>(this.editor.state.selection.anchor, {
+        this.editor.commands.BNUpdateBlock(this.editor.state.selection.anchor, {
           type: "heading",
           props: {
-            level: 1,
+            level: 1 as any,
           },
         }),
       "Mod-Alt-2": () =>
-        this.editor.commands.BNUpdateBlock<{
-          heading: BlockSpec<"heading", typeof headingPropSchema, true>;
-        }>(this.editor.state.selection.anchor, {
+        this.editor.commands.BNUpdateBlock(this.editor.state.selection.anchor, {
           type: "heading",
           props: {
-            level: 2,
+            level: 2 as any,
           },
         }),
       "Mod-Alt-3": () =>
-        this.editor.commands.BNUpdateBlock<{
-          heading: BlockSpec<"heading", typeof headingPropSchema, true>;
-        }>(this.editor.state.selection.anchor, {
+        this.editor.commands.BNUpdateBlock(this.editor.state.selection.anchor, {
           type: "heading",
           props: {
-            level: 3,
+            level: 3 as any,
           },
         }),
     };
   },
-
   parseHTML() {
     return [
+      {
+        tag: "div[data-content-type=" + this.name + "]",
+        getAttrs: (element) => {
+          if (typeof element === "string") {
+            return false;
+          }
+
+          return {
+            level: element.getAttribute("data-level"),
+          };
+        },
+      },
       {
         tag: "h1",
         attrs: { level: 1 },
@@ -106,37 +118,19 @@ const HeadingBlockContent = createTipTapBlock<"heading", true>({
   },
 
   renderHTML({ node, HTMLAttributes }) {
-    const blockContentDOMAttributes =
-      this.options.domAttributes?.blockContent || {};
-    const inlineContentDOMAttributes =
-      this.options.domAttributes?.inlineContent || {};
-
-    return [
-      "div",
-      mergeAttributes(HTMLAttributes, {
-        ...blockContentDOMAttributes,
-        class: mergeCSSClasses(
-          styles.blockContent,
-          blockContentDOMAttributes.class
-        ),
-        "data-content-type": this.name,
-      }),
-      [
-        `h${node.attrs.level}`,
-        {
-          ...inlineContentDOMAttributes,
-          class: mergeCSSClasses(
-            styles.inlineContent,
-            inlineContentDOMAttributes.class
-          ),
-        },
-        0,
-      ],
-    ];
+    return createDefaultBlockDOMOutputSpec(
+      this.name,
+      `h${node.attrs.level}`,
+      {
+        ...(this.options.domAttributes?.blockContent || {}),
+        ...HTMLAttributes,
+      },
+      this.options.domAttributes?.inlineContent || {}
+    );
   },
 });
 
-export const Heading = {
-  node: HeadingBlockContent,
-  propSchema: headingPropSchema,
-} satisfies BlockSpec<"heading", typeof headingPropSchema, true>;
+export const Heading = createBlockSpecFromStronglyTypedTiptapNode(
+  HeadingBlockContent,
+  headingPropSchema
+);

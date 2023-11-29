@@ -1,7 +1,6 @@
-import { mergeAttributes, Node } from "@tiptap/core";
-import styles from "./Block.module.css";
-import { BlockNoteDOMAttributes } from "../api/blockTypes";
+import { Node } from "@tiptap/core";
 import { mergeCSSClasses } from "../../../shared/utils";
+import { BlockNoteDOMAttributes } from "../api/blocks/types";
 
 export const BlockGroup = Node.create<{
   domAttributes?: BlockNoteDOMAttributes;
@@ -31,23 +30,25 @@ export const BlockGroup = Node.create<{
   },
 
   renderHTML({ HTMLAttributes }) {
-    const blockGroupDOMAttributes =
-      this.options.domAttributes?.blockGroup || {};
+    const blockGroupHTMLAttributes = {
+      ...(this.options.domAttributes?.blockGroup || {}),
+      ...HTMLAttributes,
+    };
+    const blockGroup = document.createElement("div");
+    blockGroup.className = mergeCSSClasses(
+      "bn-block-group",
+      blockGroupHTMLAttributes.class
+    );
+    blockGroup.setAttribute("data-node-type", "blockGroup");
+    for (const [attribute, value] of Object.entries(blockGroupHTMLAttributes)) {
+      if (attribute !== "class") {
+        blockGroup.setAttribute(attribute, value);
+      }
+    }
 
-    return [
-      "div",
-      mergeAttributes(
-        {
-          ...blockGroupDOMAttributes,
-          class: mergeCSSClasses(
-            styles.blockGroup,
-            blockGroupDOMAttributes.class
-          ),
-          "data-node-type": "blockGroup",
-        },
-        HTMLAttributes
-      ),
-      0,
-    ];
+    return {
+      dom: blockGroup,
+      contentDOM: blockGroup,
+    };
   },
 });

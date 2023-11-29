@@ -1,0 +1,13 @@
+.editor {
+  margin: 0 calc((100% - 731px) / 2);
+  height: 100%;
+}
+
+body {
+  margin: 0;
+}
+
+.root {
+  height: 100%;
+  width: 100%;
+}

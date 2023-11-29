@@ -1,19 +1,21 @@
-import { mergeAttributes } from "@tiptap/core";
+import {
+  createBlockSpecFromStronglyTypedTiptapNode,
+  createStronglyTypedTiptapNode,
+} from "../../../api/blocks/internal";
 import { defaultProps } from "../../../api/defaultProps";
-import { createTipTapBlock } from "../../../api/block";
-import { mergeCSSClasses } from "../../../../../shared/utils";
-import styles from "../../Block.module.css";
+import { createDefaultBlockDOMOutputSpec } from "../defaultBlockHelpers";
 
 export const paragraphPropSchema = {
   ...defaultProps,
 };
 
-export const ParagraphBlockContent = createTipTapBlock<"paragraph", true>({
+export const ParagraphBlockContent = createStronglyTypedTiptapNode({
   name: "paragraph",
   content: "inline*",
-
+  group: "blockContent",
   parseHTML() {
     return [
+      { tag: "div[data-content-type=" + this.name + "]" },
       {
         tag: "p",
         priority: 200,
@@ -23,40 +25,19 @@ export const ParagraphBlockContent = createTipTapBlock<"paragraph", true>({
   },
 
   renderHTML({ HTMLAttributes }) {
-    const blockContentDOMAttributes =
-      this.options.domAttributes?.blockContent || {};
-    const inlineContentDOMAttributes =
-      this.options.domAttributes?.inlineContent || {};
-
-    return [
-      "div",
-      mergeAttributes(
-        {
-          ...blockContentDOMAttributes,
-          class: mergeCSSClasses(
-            styles.blockContent,
-            blockContentDOMAttributes.class
-          ),
-          "data-content-type": this.name,
-        },
-        HTMLAttributes
-      ),
-      [
-        "p",
-        {
-          ...inlineContentDOMAttributes,
-          class: mergeCSSClasses(
-            styles.inlineContent,
-            inlineContentDOMAttributes.class
-          ),
-        },
-        0,
-      ],
-    ];
+    return createDefaultBlockDOMOutputSpec(
+      this.name,
+      "p",
+      {
+        ...(this.options.domAttributes?.blockContent || {}),
+        ...HTMLAttributes,
+      },
+      this.options.domAttributes?.inlineContent || {}
+    );
   },
 });
 
-export const Paragraph = {
-  node: ParagraphBlockContent,
-  propSchema: paragraphPropSchema,
-};
+export const Paragraph = createBlockSpecFromStronglyTypedTiptapNode(
+  ParagraphBlockContent,
+  paragraphPropSchema
+);

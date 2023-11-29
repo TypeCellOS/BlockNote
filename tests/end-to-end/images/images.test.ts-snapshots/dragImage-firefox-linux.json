@@ -39,7 +39,6 @@
               "type": "image",
               "attrs": {
                 "textAlignment": "left",
-                "backgroundColor": "default",
                 "url": "",
                 "caption": "",
                 "width": 512

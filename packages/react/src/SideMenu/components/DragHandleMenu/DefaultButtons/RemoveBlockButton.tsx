@@ -1,11 +1,11 @@
-import { ReactNode } from "react";
 import { BlockSchema } from "@blocknote/core";
+import { ReactNode } from "react";
 
 import { DragHandleMenuProps } from "../DragHandleMenu";
 import { DragHandleMenuItem } from "../DragHandleMenuItem";
 
 export const RemoveBlockButton = <BSchema extends BlockSchema>(
-  props: DragHandleMenuProps<BSchema> & { children: ReactNode }
+  props: DragHandleMenuProps<BSchema, any, any> & { children: ReactNode }
 ) => {
   return (
     <DragHandleMenuItem

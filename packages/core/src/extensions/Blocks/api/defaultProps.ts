@@ -1,4 +1,4 @@
-import { Props, PropSchema } from "./blockTypes";
+import { Props, PropSchema } from "./blocks/types";
 
 export const defaultProps = {
   backgroundColor: {
@@ -14,3 +14,8 @@ export const defaultProps = {
 } satisfies PropSchema;
 
 export type DefaultProps = Props<typeof defaultProps>;
+
+// Default props which are set on `blockContainer` nodes rather than
+// `blockContent` nodes. Ensures that they are not redundantly added to
+// a custom block's TipTap node attributes.
+export const inheritedProps = ["backgroundColor", "textColor"];

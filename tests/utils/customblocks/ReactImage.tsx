@@ -30,7 +30,7 @@ export const ReactImage = createReactBlockSpec({
           alt={"Image"}
           contentEditable={false}
         />
-        <InlineContent />
+        <InlineContent style={{ flexGrow: 1 }} />
       </div>
     );
   },
