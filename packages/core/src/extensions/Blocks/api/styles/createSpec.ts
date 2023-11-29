@@ -25,7 +25,8 @@ export type CustomStyleImplementation<T extends StyleConfig> = {
 export function getStyleParseRules(config: StyleConfig): ParseRule[] {
   return [
     {
-      tag: `.bn-style[data-style-type="${config.type}"]`,
+      tag: `[data-style-type="${config.type}"]`,
+      contentElement: "[data-editable]",
     },
   ];
 }
@@ -61,15 +62,12 @@ export function createStyleSpec<T extends StyleConfig>(
       }
 
       // const renderResult = styleImplementation.render();
-      return {
-        dom: addStyleAttributes(
-          renderResult.dom,
-          styleConfig.type,
-          mark.attrs.stringValue,
-          styleConfig.propSchema
-        ),
-        contentDOM: renderResult.contentDOM,
-      };
+      return addStyleAttributes(
+        renderResult,
+        styleConfig.type,
+        mark.attrs.stringValue,
+        styleConfig.propSchema
+      );
     },
   });
 

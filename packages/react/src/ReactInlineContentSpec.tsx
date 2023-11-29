@@ -1,17 +1,17 @@
 import {
-  CustomInlineContentConfig,
-  InlineContentConfig,
-  InlineContentFromConfig,
-  PropSchema,
-  Props,
-  StyleSchema,
   addInlineContentAttributes,
   camelToDataKebab,
   createInternalInlineContentSpec,
   createStronglyTypedTiptapNode,
+  CustomInlineContentConfig,
   getInlineContentParseRules,
+  InlineContentConfig,
+  InlineContentFromConfig,
   nodeToCustomInlineContent,
+  Props,
+  PropSchema,
   propsToAttributes,
+  StyleSchema,
 } from "@blocknote/core";
 import {
   NodeViewContent,
@@ -117,15 +117,12 @@ export function createReactInlineContentSpec<
         <Content inlineContent={ic} contentRef={refCB} />
       ));
 
-      return {
-        dom: addInlineContentAttributes(
-          output.dom,
-          inlineContentConfig.type,
-          node.attrs as Props<T["propSchema"]>,
-          inlineContentConfig.propSchema
-        ),
-        contentDOM: output.contentDOM,
-      };
+      return addInlineContentAttributes(
+        output,
+        inlineContentConfig.type,
+        node.attrs as Props<T["propSchema"]>,
+        inlineContentConfig.propSchema
+      );
     },
 
     // TODO: needed?

@@ -48,7 +48,8 @@ export function getInlineContentParseRules(
 ): ParseRule[] {
   return [
     {
-      tag: `.bn-inline-content-section[data-inline-content-type="${config.type}"]`,
+      tag: `[data-inline-content-type="${config.type}"]`,
+      contentElement: "[data-editable]",
     },
   ];
 }
@@ -88,15 +89,12 @@ export function createInlineContentSpec<
         ) as any as InlineContentFromConfig<T, S> // TODO: fix cast
       );
 
-      return {
-        dom: addInlineContentAttributes(
-          output.dom,
-          inlineContentConfig.type,
-          node.attrs as Props<T["propSchema"]>,
-          inlineContentConfig.propSchema
-        ),
-        contentDOM: output.contentDOM,
-      };
+      return addInlineContentAttributes(
+        output,
+        inlineContentConfig.type,
+        node.attrs as Props<T["propSchema"]>,
+        inlineContentConfig.propSchema
+      );
     },
   });
 
