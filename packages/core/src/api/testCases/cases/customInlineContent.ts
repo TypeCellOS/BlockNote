@@ -82,7 +82,7 @@ export const customInlineContentTestCases: EditorTestCases<
         {
           type: "paragraph",
           content: [
-            "I enjoy working with",
+            "I enjoy working with ",
             {
               type: "mention",
               props: {

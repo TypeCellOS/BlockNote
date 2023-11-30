@@ -1064,7 +1064,7 @@ export class BlockNoteEditor<
    * @returns The blocks, serialized as a Markdown string.
    */
   public async blocksToMarkdownLossy(
-    blocks = this.topLevelBlocks
+    blocks: Block<BSchema, ISchema, SSchema>[] = this.topLevelBlocks
   ): Promise<string> {
     return blocksToMarkdown(blocks, this._tiptapEditor.schema, this);
   }

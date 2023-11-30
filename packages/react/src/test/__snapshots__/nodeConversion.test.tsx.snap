@@ -346,7 +346,7 @@ exports[`Test React BlockNote-Prosemirror conversion > Case: custom react inline
       },
       "content": [
         {
-          "text": "I enjoy working with",
+          "text": "I enjoy working with ",
           "type": "text",
         },
         {
