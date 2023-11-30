@@ -1,0 +1,71 @@
+[
+  {
+    "id": "1",
+    "type": "bulletListItem",
+    "props": {
+      "textColor": "default",
+      "backgroundColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "📝 item1",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "2",
+    "type": "bulletListItem",
+    "props": {
+      "textColor": "default",
+      "backgroundColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "⚙️ item2",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "3",
+    "type": "bulletListItem",
+    "props": {
+      "textColor": "default",
+      "backgroundColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "🔗 item3",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "4",
+    "type": "heading",
+    "props": {
+      "textColor": "default",
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "level": 1
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "h1",
+        "styles": {}
+      }
+    ],
+    "children": []
+  }
+]

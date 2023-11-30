@@ -1,0 +1,3 @@
+![](exampleURL)
+
+Caption

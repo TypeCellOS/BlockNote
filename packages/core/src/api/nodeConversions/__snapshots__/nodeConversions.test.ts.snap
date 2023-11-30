@@ -14,7 +14,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: custom inline content sch
       },
       "content": [
         {
-          "text": "I enjoy working with",
+          "text": "I enjoy working with ",
           "type": "text",
         },
         {
