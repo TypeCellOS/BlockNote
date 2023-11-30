@@ -49,7 +49,15 @@ export function getInlineContentParseRules(
   return [
     {
       tag: `[data-inline-content-type="${config.type}"]`,
-      contentElement: "[data-editable]",
+      contentElement: (element) => {
+        const htmlElement = element as HTMLElement;
+
+        if (htmlElement.matches("[data-editable]")) {
+          return htmlElement;
+        }
+
+        return htmlElement.querySelector("[data-editable]") || htmlElement;
+      },
     },
   ];
 }
@@ -65,10 +73,11 @@ export function createInlineContentSpec<
     name: inlineContentConfig.type,
     inline: true,
     group: "inline",
-    content:
-      inlineContentConfig.content === "styled"
-        ? "inline*"
-        : ("inline" as T["content"] extends "styled" ? "inline*" : "inline"),
+    selectable: inlineContentConfig.content === "styled",
+    atom: inlineContentConfig.content === "none",
+    content: (inlineContentConfig.content === "styled"
+      ? "inline*"
+      : "") as T["content"] extends "styled" ? "inline*" : "",
 
     addAttributes() {
       return propsToAttributes(inlineContentConfig.propSchema);
