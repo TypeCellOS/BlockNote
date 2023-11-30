@@ -1,5 +1,6 @@
 import {
   addInlineContentAttributes,
+  addInlineContentKeyboardShortcuts,
   camelToDataKebab,
   createInternalInlineContentSpec,
   createStronglyTypedTiptapNode,
@@ -98,6 +99,10 @@ export function createReactInlineContentSpec<
 
     addAttributes() {
       return propsToAttributes(inlineContentConfig.propSchema);
+    },
+
+    addKeyboardShortcuts() {
+      return addInlineContentKeyboardShortcuts(inlineContentConfig);
     },
 
     parseHTML() {

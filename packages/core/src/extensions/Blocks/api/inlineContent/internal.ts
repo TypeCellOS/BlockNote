@@ -1,7 +1,8 @@
-import { Node } from "@tiptap/core";
+import { KeyboardShortcutCommand, Node } from "@tiptap/core";
 import { camelToDataKebab } from "../blocks/internal";
 import { Props, PropSchema } from "../blocks/types";
 import {
+  CustomInlineContentConfig,
   InlineContentConfig,
   InlineContentImplementation,
   InlineContentSchemaFromSpecs,
@@ -43,6 +44,26 @@ export function addInlineContentAttributes<
   }
 
   return element;
+}
+
+export function addInlineContentKeyboardShortcuts<
+  T extends CustomInlineContentConfig
+>(
+  config: T
+): {
+  [p: string]: KeyboardShortcutCommand;
+} {
+  return {
+    Backspace: ({ editor }) => {
+      const resolvedPos = editor.state.selection.$from;
+
+      return (
+        editor.state.selection.empty &&
+        resolvedPos.node().type.name === config.type &&
+        resolvedPos.parentOffset === 0
+      );
+    },
+  };
 }
 
 // This helper function helps to instantiate a InlineContentSpec with a
