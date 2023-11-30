@@ -2,16 +2,20 @@ import { AppShell, Navbar, ScrollArea } from "@mantine/core";
 import React from "react";
 import { createRoot } from "react-dom/client";
 import {
+  createBrowserRouter,
   Link,
   Outlet,
   RouterProvider,
-  createBrowserRouter,
 } from "react-router-dom";
 
 import { App } from "../examples/Basic";
 import { ReactInlineContent } from "../examples/ReactInlineContent";
 import { ReactStyles } from "../examples/ReactStyles";
+import { ReactCustomBlocks } from "../examples/ReactBlocks";
 import "./style.css";
+import { CustomBlocks } from "../examples/Blocks";
+import { InlineContent } from "../examples/InlineContent";
+
 window.React = React;
 
 const editors = [
@@ -26,9 +30,24 @@ const editors = [
     component: ReactStyles,
   },
   {
+    title: "Inline content",
+    path: "/inline-content",
+    component: InlineContent,
+  },
+  {
     title: "React inline content",
     path: "/react-inline-content",
     component: ReactInlineContent,
+  },
+  {
+    title: "Custom blocks",
+    path: "/custom-blocks",
+    component: CustomBlocks,
+  },
+  {
+    title: "React custom blocks",
+    path: "/react-blocks",
+    component: ReactCustomBlocks,
   },
 ];
 
