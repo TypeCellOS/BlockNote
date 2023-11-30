@@ -135,6 +135,17 @@ export function createBlockSpec<
       return getParseRules(blockConfig, blockImplementation.parse);
     },
 
+    renderHTML() {
+      // renderHTML is not really used, as we always use a nodeView, and we use toExternalHTML / toInternalHTML for serialization
+      // There's an edge case when this gets called nevertheless; before the nodeviews have been mounted
+      // this is why we implement it with a temporary placeholder
+      const div = document.createElement("div");
+      div.setAttribute("data-tmp-placeholder", "true");
+      return {
+        dom: div,
+      };
+    },
+
     addNodeView() {
       return ({ getPos }) => {
         // Gets the BlockNote editor instance
