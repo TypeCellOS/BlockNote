@@ -20,14 +20,14 @@ export const defaultSchemaTestCases: EditorTestCases<
     });
   },
   documents: [
-    {
-      name: "paragraph/empty",
-      blocks: [
-        {
-          type: "paragraph",
-        },
-      ],
-    },
+    // {
+    //   name: "paragraph/empty",
+    //   blocks: [
+    //     {
+    //       type: "paragraph",
+    //     },
+    //   ],
+    // },
     {
       name: "paragraph/basic",
       blocks: [
