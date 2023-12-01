@@ -14,24 +14,24 @@
         "styles": {}
       }
     ],
-    "children": []
-  },
-  {
-    "id": "2",
-    "type": "bulletListItem",
-    "props": {
-      "textColor": "default",
-      "backgroundColor": "default",
-      "textAlignment": "left"
-    },
-    "content": [
-      {
-        "type": "text",
-        "text": "Bullet List Item",
-        "styles": {}
-      }
-    ],
     "children": [
+      {
+        "id": "2",
+        "type": "bulletListItem",
+        "props": {
+          "textColor": "default",
+          "backgroundColor": "default",
+          "textAlignment": "left"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Nested Bullet List Item",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
       {
         "id": "3",
         "type": "bulletListItem",
@@ -48,28 +48,11 @@
           }
         ],
         "children": []
-      },
-      {
-        "id": "4",
-        "type": "bulletListItem",
-        "props": {
-          "textColor": "default",
-          "backgroundColor": "default",
-          "textAlignment": "left"
-        },
-        "content": [
-          {
-            "type": "text",
-            "text": "Nested Bullet List Item",
-            "styles": {}
-          }
-        ],
-        "children": []
       }
     ]
   },
   {
-    "id": "5",
+    "id": "4",
     "type": "bulletListItem",
     "props": {
       "textColor": "default",
@@ -86,7 +69,7 @@
     "children": []
   },
   {
-    "id": "6",
+    "id": "5",
     "type": "numberedListItem",
     "props": {
       "textColor": "default",
@@ -102,7 +85,7 @@
     ],
     "children": [
       {
-        "id": "7",
+        "id": "6",
         "type": "numberedListItem",
         "props": {
           "textColor": "default",
@@ -119,7 +102,7 @@
         "children": []
       },
       {
-        "id": "8",
+        "id": "7",
         "type": "numberedListItem",
         "props": {
           "textColor": "default",
@@ -138,7 +121,7 @@
     ]
   },
   {
-    "id": "9",
+    "id": "8",
     "type": "numberedListItem",
     "props": {
       "textColor": "default",
