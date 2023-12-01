@@ -34,6 +34,7 @@ async function convertToMarkdownAndCompareSnapshots<
     "/" +
     snapshotName +
     "/markdown.md";
+  console.log(md);
   expect(md).toMatchFileSnapshot(snapshotPath);
 }
 
