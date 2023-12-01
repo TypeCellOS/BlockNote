@@ -1,21 +1,12 @@
+import { defaultStyleSpecs } from "@blocknote/core";
 import "@blocknote/core/style.css";
 import {
   BlockNoteView,
-  FormattingToolbarPositioner,
-  Toolbar,
-  ToolbarButton,
   createReactStyleSpec,
-  useActiveStyles,
+  FormattingToolbarPositioner,
   useBlockNote,
 } from "@blocknote/react";
-
-import {
-  BlockNoteEditor,
-  DefaultBlockSchema,
-  DefaultInlineContentSchema,
-  StyleSchemaFromSpecs,
-  defaultStyleSpecs,
-} from "@blocknote/core";
+import { CustomFormattingToolbar } from "../vanilla-custom-styles/App";
 
 type WindowWithProseMirror = Window & typeof globalThis & { ProseMirror: any };
 
@@ -49,41 +40,6 @@ const customReactStyles = {
   ...defaultStyleSpecs,
   small,
   fontSize,
-};
-
-type MyEditorType = BlockNoteEditor<
-  DefaultBlockSchema,
-  DefaultInlineContentSchema,
-  StyleSchemaFromSpecs<typeof customReactStyles>
->;
-
-const CustomFormattingToolbar = (props: { editor: MyEditorType }) => {
-  const activeStyles = useActiveStyles(props.editor);
-
-  return (
-    <Toolbar>
-      <ToolbarButton
-        mainTooltip={"small"}
-        onClick={() => {
-          props.editor.toggleStyles({
-            small: true,
-          });
-        }}
-        isSelected={activeStyles.small}>
-        Small
-      </ToolbarButton>
-      <ToolbarButton
-        mainTooltip={"font size"}
-        onClick={() => {
-          props.editor.toggleStyles({
-            fontSize: "30px",
-          });
-        }}
-        isSelected={!!activeStyles.fontSize}>
-        Font size
-      </ToolbarButton>
-    </Toolbar>
-  );
 };
 
 export function ReactStyles() {

@@ -5,6 +5,7 @@ import {
 } from "@blocknote/core";
 import "@blocknote/core/style.css";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
+import "./style.css";
 
 type WindowWithProseMirror = Window & typeof globalThis & { ProseMirror: any };
 
@@ -48,9 +49,7 @@ const alertBlock = createBlockSpec(
   {
     render: (block, editor) => {
       const alert = document.createElement("div");
-      Object.entries(alertStyles).forEach(([key, value]) => {
-        alert.style[key as any] = value;
-      });
+      alert.className = "alert";
       alert.style.backgroundColor =
         alertTypes[block.props.type].backgroundColor;
 
@@ -110,16 +109,30 @@ const alertBlock = createBlockSpec(
   }
 );
 
-// TODO: use CSS?
-const alertStyles = {
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  flexGrow: "1",
-  height: "48px",
-  padding: "4px",
-  maxWidth: "100%",
-};
+const simpleImageBlock = createBlockSpec(
+  {
+    type: "simpleImage",
+    propSchema: {
+      src: {
+        default:
+          "https://www.pulsecarshalton.co.uk/wp-content/uploads/2016/08/jk-placeholder-image.jpg",
+      },
+    },
+    content: "none",
+  },
+  {
+    render: (block) => {
+      const image = document.createElement("img");
+      image.className = "simple-image";
+      image.src = block.props.src;
+      image.alt = "placeholder";
+
+      return {
+        dom: image,
+      };
+    },
+  }
+);
 
 const bracketsParagraphBlock = createBlockSpec(
   {
@@ -132,9 +145,7 @@ const bracketsParagraphBlock = createBlockSpec(
   {
     render: () => {
       const bracketsParagraph = document.createElement("div");
-      Object.entries(bracketsParagraphStyles).forEach(([key, value]) => {
-        bracketsParagraph.style[key as any] = value;
-      });
+      bracketsParagraph.className = "brackets-paragraph";
 
       const leftBracket = document.createElement("div");
       leftBracket.contentEditable = "false";
@@ -146,7 +157,7 @@ const bracketsParagraphBlock = createBlockSpec(
       bracketsParagraph.appendChild(leftCurlyBracket);
 
       const inlineContent = document.createElement("div");
-      inlineContent.style.flexGrow = "1";
+      inlineContent.className = "inline-content";
 
       bracketsParagraph.appendChild(inlineContent);
 
@@ -167,17 +178,6 @@ const bracketsParagraphBlock = createBlockSpec(
   }
 );
 
-// TODO: use CSS
-const bracketsParagraphStyles = {
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  flexGrow: "1",
-  height: "48px",
-  padding: "4px",
-  maxWidth: "100%",
-};
-
 export function CustomBlocks() {
   const editor = useBlockNote({
     domAttributes: {
@@ -190,6 +190,7 @@ export function CustomBlocks() {
       ...defaultBlockSpecs,
       alert: alertBlock,
       bracketsParagraph: bracketsParagraphBlock,
+      simpleImage: simpleImageBlock,
     },
     initialContent: [
       {
@@ -198,6 +199,12 @@ export function CustomBlocks() {
           type: "success",
         },
         content: ["Alert"],
+      },
+      {
+        type: "simpleImage",
+        props: {
+          src: "https://t3.ftcdn.net/jpg/02/48/42/64/360_F_248426448_NVKLywWqArG2ADUxDq6QprtIzsF82dMF.jpg",
+        },
       },
       {
         type: "bracketsParagraph",
