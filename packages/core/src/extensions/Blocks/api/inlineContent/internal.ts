@@ -1,6 +1,6 @@
 import { KeyboardShortcutCommand, Node } from "@tiptap/core";
 import { camelToDataKebab } from "../blocks/internal";
-import { Props, PropSchema } from "../blocks/types";
+import { PropSchema, Props } from "../blocks/types";
 import {
   CustomInlineContentConfig,
   InlineContentConfig,
@@ -46,6 +46,7 @@ export function addInlineContentAttributes<
   return element;
 }
 
+// see https://github.com/TypeCellOS/BlockNote/pull/435
 export function addInlineContentKeyboardShortcuts<
   T extends CustomInlineContentConfig
 >(
