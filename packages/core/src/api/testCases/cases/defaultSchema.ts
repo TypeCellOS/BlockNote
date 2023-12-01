@@ -20,14 +20,14 @@ export const defaultSchemaTestCases: EditorTestCases<
     });
   },
   documents: [
-    // {
-    //   name: "paragraph/empty",
-    //   blocks: [
-    //     {
-    //       type: "paragraph",
-    //     },
-    //   ],
-    // },
+    {
+      name: "paragraph/empty",
+      blocks: [
+        {
+          type: "paragraph",
+        },
+      ],
+    },
     {
       name: "paragraph/basic",
       blocks: [
@@ -272,22 +272,22 @@ export const defaultSchemaTestCases: EditorTestCases<
         },
       ],
     },
-    // {
-    //   name: "hardbreak/only",
-    //   blocks: [
-    //     {
-    //       // id: UniqueID.options.generateID(),
-    //       type: "paragraph",
-    //       content: [
-    //         {
-    //           type: "text",
-    //           text: "\n",
-    //           styles: {},
-    //         },
-    //       ],
-    //     },
-    //   ],
-    // },
+    {
+      name: "hardbreak/only",
+      blocks: [
+        {
+          // id: UniqueID.options.generateID(),
+          type: "paragraph",
+          content: [
+            {
+              type: "text",
+              text: "\n",
+              styles: {},
+            },
+          ],
+        },
+      ],
+    },
     {
       name: "hardbreak/styles",
       blocks: [
