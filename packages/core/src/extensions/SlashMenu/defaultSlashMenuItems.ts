@@ -165,16 +165,11 @@ export const getDefaultSlashMenuItems = <
           content: {
             type: "tableContent",
             rows: [
-              // TODO: replace with empty content before merging
               {
-                cells: [
-                  "ab",
-                  [{ type: "text", styles: { bold: true }, text: "hello" }],
-                  "",
-                ],
+                cells: ["", "", ""],
               },
               {
-                cells: ["", "cd", ""],
+                cells: ["", "", ""],
               },
             ],
           },
