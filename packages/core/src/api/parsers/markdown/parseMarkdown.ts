@@ -46,7 +46,6 @@ function code(state: any, node: any) {
   return result;
 }
 
-// TODO: add tests
 export function markdownToBlocks<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
