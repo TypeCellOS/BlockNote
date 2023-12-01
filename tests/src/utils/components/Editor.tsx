@@ -39,10 +39,7 @@ export default function Editor() {
       editor: { class: styles.editor, "data-test": "editor" },
     },
     blockSpecs,
-    slashMenuItems: [
-      ...getDefaultReactSlashMenuItems(),
-      ...slashMenuItems,
-    ] as any, // TODO
+    slashMenuItems: [...getDefaultReactSlashMenuItems(), ...slashMenuItems],
   });
 
   console.log(editor);

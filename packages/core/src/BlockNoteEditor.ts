@@ -84,11 +84,7 @@ export type BlockNoteEditorOptions<
    *
    * @default defaultSlashMenuItems from `./extensions/SlashMenu`
    */
-  slashMenuItems: BaseSlashMenuItem<
-    BlockSchemaFromSpecs<BSpecs>,
-    InlineContentSchemaFromSpecs<ISpecs>,
-    StyleSchemaFromSpecs<SSpecs>
-  >[];
+  slashMenuItems: BaseSlashMenuItem<any, any, any>[];
 
   /**
    * The HTML element that should be used as the parent element for the editor.

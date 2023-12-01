@@ -25,7 +25,7 @@ const initEditor = <
   BlockNoteEditor.create({
     slashMenuItems: getDefaultReactSlashMenuItems(
       getBlockSchemaFromSpecs(options.blockSpecs || defaultBlockSpecs)
-    ) as any,
+    ),
     ...options,
   });
 
