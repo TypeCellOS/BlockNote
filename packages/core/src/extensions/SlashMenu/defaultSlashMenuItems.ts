@@ -19,18 +19,15 @@ function setSelectionToNextContentEditableBlock<
   S extends StyleSchema
 >(editor: BlockNoteEditor<BSchema, I, S>) {
   let block = editor.getTextCursorPosition().block;
-  let contentType = editor.blockSchema[block.type].content as
-    | "inline"
-    | "table"
-    | "none";
+  let contentType = editor.blockSchema[block.type].content;
 
   while (contentType === "none") {
-    editor.setTextCursorPosition(block, "end");
     block = editor.getTextCursorPosition().nextBlock!;
     contentType = editor.blockSchema[block.type].content as
       | "inline"
       | "table"
       | "none";
+    editor.setTextCursorPosition(block, "end");
   }
 }
 

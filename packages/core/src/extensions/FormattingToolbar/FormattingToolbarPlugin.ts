@@ -1,4 +1,4 @@
-import { isNodeSelection, isTextSelection, posToDOMRect } from "@tiptap/core";
+import { isNodeSelection, posToDOMRect } from "@tiptap/core";
 import { EditorState, Plugin, PluginKey } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 
@@ -29,15 +29,7 @@ export class FormattingToolbarView {
     state: EditorState;
     from: number;
     to: number;
-  }) => boolean = ({ state }) => {
-    const { selection } = state;
-    const { empty } = selection;
-
-    if (!isTextSelection(selection)) {
-      return false;
-    }
-    return !empty;
-  };
+  }) => boolean = ({ state }) => !state.selection.empty;
 
   constructor(
     private readonly editor: BlockNoteEditor<
