@@ -6,6 +6,7 @@ import { Props } from "../blocks/types";
 import { StyleSchema } from "../styles/types";
 import {
   addInlineContentAttributes,
+  addInlineContentKeyboardShortcuts,
   createInlineContentSpecFromTipTapNode,
 } from "./internal";
 import {
@@ -81,6 +82,10 @@ export function createInlineContentSpec<
 
     addAttributes() {
       return propsToAttributes(inlineContentConfig.propSchema);
+    },
+
+    addKeyboardShortcuts() {
+      return addInlineContentKeyboardShortcuts(inlineContentConfig);
     },
 
     parseHTML() {
