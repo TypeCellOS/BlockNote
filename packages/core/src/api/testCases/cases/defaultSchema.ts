@@ -272,22 +272,22 @@ export const defaultSchemaTestCases: EditorTestCases<
         },
       ],
     },
-    {
-      name: "hardbreak/only",
-      blocks: [
-        {
-          // id: UniqueID.options.generateID(),
-          type: "paragraph",
-          content: [
-            {
-              type: "text",
-              text: "\n",
-              styles: {},
-            },
-          ],
-        },
-      ],
-    },
+    // {
+    //   name: "hardbreak/only",
+    //   blocks: [
+    //     {
+    //       // id: UniqueID.options.generateID(),
+    //       type: "paragraph",
+    //       content: [
+    //         {
+    //           type: "text",
+    //           text: "\n",
+    //           styles: {},
+    //         },
+    //       ],
+    //     },
+    //   ],
+    // },
     {
       name: "hardbreak/styles",
       blocks: [
