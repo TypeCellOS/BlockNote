@@ -1,6 +1,7 @@
+import fs from "node:fs";
+import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { BlockNoteEditor } from "../../../BlockNoteEditor";
-
 import {
   BlockSchema,
   PartialBlock,
@@ -34,6 +35,16 @@ async function convertToMarkdownAndCompareSnapshots<
     "/" +
     snapshotName +
     "/markdown.md";
+
+  // vitest empty snapshots are broken on CI. might be fixed on next vitest, use workaround for now
+  if (!md.length && process.env.CI) {
+    if (
+      fs.readFileSync(path.join(__dirname, snapshotPath), "utf8").length === 0
+    ) {
+      // both are empty, so it's fine
+      return;
+    }
+  }
   expect(md).toMatchFileSnapshot(snapshotPath);
 }
 

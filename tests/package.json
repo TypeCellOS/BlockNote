@@ -1,0 +1,30 @@
+{
+  "name": "@blocknote/tests",
+  "private": true,
+  "version": "0.9.6",
+  "scripts": {
+    "build": "tsc",
+    "lint": "eslint src --max-warnings 0",
+    "playwright": "npx playwright test",
+    "test:updateSnaps": "docker run --rm  -e RUN_IN_DOCKER=true --network host -v $(pwd)/..:/work/ -w /work/tests -it mcr.microsoft.com/playwright:v1.38.1-focal npx playwright test -u",
+    "test-ct": "playwright test -c playwright-ct.config.ts --headed",
+    "test-ct:updateSnaps": "docker run --rm  -e RUN_IN_DOCKER=true --network host -v $(pwd)/..:/work/ -w /work/tests -it mcr.microsoft.com/playwright:v1.35.1-focal npm install && playwright test -c playwright-ct.config.ts -u"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.10.0",
+    "@blocknote/core": "^0.9.6",
+    "@blocknote/react": "^0.9.6",
+    "@playwright/experimental-ct-react": "^1.38.1",
+    "@playwright/test": "^1.38.1",
+    "react-icons": "^4.3.1"
+  },
+  "eslintConfig": {
+    "extends": [
+      "../.eslintrc.js"
+    ]
+  }
+}
