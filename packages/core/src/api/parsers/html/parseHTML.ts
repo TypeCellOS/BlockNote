@@ -18,12 +18,14 @@ export async function HTMLToBlocks<
   const htmlNode = nestedListsToBlockNoteStructure(html);
   const parser = DOMParser.fromSchema(pmSchema);
 
+  // Other approach might be to use
   // const doc = pmSchema.nodes["doc"].createAndFill()!;
+  // and context: doc.resolve(3),
 
   const parentNode = parser.parse(htmlNode, {
     topNode: pmSchema.nodes["blockGroup"].create(),
-    // context: doc.resolve(3),
-  }); //, { preserveWhitespace: "full" });
+  });
+
   const blocks: Block<BSchema, I, S>[] = [];
 
   for (let i = 0; i < parentNode.childCount; i++) {

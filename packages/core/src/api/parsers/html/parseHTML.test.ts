@@ -6,6 +6,8 @@ async function parseHTMLAndCompareSnapshots(
   html: string,
   snapshotName: string
 ) {
+  // use a dynamic import because we want to access
+  // __parseFromClipboard which is not exposed in types
   const view: any = await import("prosemirror-view");
 
   const editor = BlockNoteEditor.create();
