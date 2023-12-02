@@ -7,9 +7,11 @@ path: /docs/inline-content
 
 # Inline Content
 
+## Inline Content Types
+
 An array of `InlineContent` objects is used to describe the rich text content inside a block. Inline content can either be styled text or a link, and we'll go over both these in the upcoming sections.
 
-## Styled Text
+### Styled Text
 
 Styled text is a type of `InlineContent` used to display pieces of text with styles, and is defined using a `StyledText` object:
 
@@ -25,7 +27,7 @@ type StyledText = {
 
 `styles:` The styles that are applied to the text.
 
-### Styles Object
+**Styles Object**
 
 `StyledText` supports a variety of styles, including bold, underline, and text color, which are represented using a `Styles` object:
 
@@ -40,7 +42,7 @@ type Styles = Partial<{
 }>;
 ```
 
-## Links
+### Links
 
 Links are a type of `InlineContent` used to create clickable hyperlinks that go to some URL, and are made up of `StyledText`. They're defined using `Link` objects:
 
@@ -55,6 +57,20 @@ type Link = {
 `content:` The styled text used to display the link.
 
 `href:` The URL that opens when clicking the link.
+
+## Table Content
+
+While most blocks use an array of `InlineContent` objects to describe their content, tables are slightly different. They use a single `TableContent` object, which allows each table cell to be represented as an array of `InlineContent` objects instead:
+
+
+```typescript
+type TableContent = {
+  type: "tableContent";
+  rows: {
+    cells: InlineContent[][];
+  }[];
+};
+```
 
 ## Editor Functions
 
