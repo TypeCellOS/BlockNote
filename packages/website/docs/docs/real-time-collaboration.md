@@ -57,7 +57,7 @@ When a user edits the document, an incremental change (or "update") is captured 
 For development purposes, you can use our Partykit server to test collaborative features. Replace the `WebrtcProvider` provider in the example below with a `YPartyKitProvider`:
 
 ```typescript
-// npm install y-partykit@beta
+// npm install y-partykit
 import YPartyKitProvider from "y-partykit/provider";
 
 const provider = new YPartyKitProvider(

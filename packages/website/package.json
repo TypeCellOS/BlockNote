@@ -16,7 +16,7 @@
     "@vercel/og": "^0.5.6",
     "veaury": "^2.3.12",
     "vue-github-button": "^3.1.0",
-    "y-partykit": "^0.0.0-4d484bc",
+    "y-partykit": "^0.0.10",
     "yjs": "^13.6.1"
   },
   "devDependencies": {
