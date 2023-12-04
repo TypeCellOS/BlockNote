@@ -1,24 +1,16 @@
 import { Mark } from "@tiptap/core";
-import { defaultProps } from "../Blocks/api/defaultProps";
+import { createStyleSpecFromTipTapMark } from "../../schema";
 
-declare module "@tiptap/core" {
-  interface Commands<ReturnType> {
-    backgroundColor: {
-      setBackgroundColor: (color: string) => ReturnType;
-    };
-  }
-}
-
-export const BackgroundColorMark = Mark.create({
+const BackgroundColorMark = Mark.create({
   name: "backgroundColor",
 
   addAttributes() {
     return {
-      color: {
+      stringValue: {
         default: undefined,
         parseHTML: (element) => element.getAttribute("data-background-color"),
         renderHTML: (attributes) => ({
-          "data-background-color": attributes.color,
+          "data-background-color": attributes.stringValue,
         }),
       },
     };
@@ -34,7 +26,9 @@ export const BackgroundColorMark = Mark.create({
           }
 
           if (element.hasAttribute("data-background-color")) {
-            return { color: element.getAttribute("data-background-color") };
+            return {
+              stringValue: element.getAttribute("data-background-color"),
+            };
           }
 
           return false;
@@ -46,18 +40,9 @@ export const BackgroundColorMark = Mark.create({
   renderHTML({ HTMLAttributes }) {
     return ["span", HTMLAttributes, 0];
   },
-
-  addCommands() {
-    return {
-      setBackgroundColor:
-        (color) =>
-        ({ commands }) => {
-          if (color !== defaultProps.backgroundColor.default) {
-            return commands.setMark(this.name, { color: color });
-          }
-
-          return commands.unsetMark(this.name);
-        },
-    };
-  },
 });
+
+export const BackgroundColor = createStyleSpecFromTipTapMark(
+  BackgroundColorMark,
+  "string"
+);

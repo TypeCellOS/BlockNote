@@ -6,8 +6,22 @@ import pkg from "./package.json";
 // import eslintPlugin from "vite-plugin-eslint";
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig((conf) => ({
+  test: {
+    environment: "jsdom",
+    setupFiles: ["./vitestSetup.ts"],
+  },
   plugins: [react(), webpackStats()],
+  // used so that vitest resolves the core package from the sources instead of the built version
+  resolve: {
+    alias:
+      conf.command === "build"
+        ? ({} as Record<string, string>)
+        : ({
+            // load live from sources with live reload working
+            "@blocknote/core": path.resolve(__dirname, "../core/src/"),
+          } as Record<string, string>),
+  },
   build: {
     sourcemap: true,
     lib: {
@@ -34,4 +48,4 @@ export default defineConfig({
       },
     },
   },
-});
+}));

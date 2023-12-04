@@ -313,4 +313,3 @@ const UniqueID = Extension.create({
 });
 
 export { UniqueID as default, UniqueID };
-//# sourceMappingURL=tiptap-extension-unique-id.esm.js.map

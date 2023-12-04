@@ -5,9 +5,6 @@ on:
       - main
   pull_request:
     types: [opened, synchronize, reopened, edited]
-    branches:
-      - main
-      - "project/**"
 
 jobs:
   build:
@@ -70,13 +67,14 @@ jobs:
         run: npx playwright install --with-deps
 
       - name: Run Playwright tests
+        working-directory: ./tests
         run: npx playwright test
 
       - uses: actions/upload-artifact@v3
         if: always()
         with:
           name: playwright-report
-          path: playwright-report/
+          path: tests/playwright-report/
           retention-days: 30
 
       - name: Upload webpack stats artifact (editor)
