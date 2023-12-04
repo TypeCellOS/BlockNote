@@ -25,7 +25,7 @@ import {
 } from "../../schema/inlineContent/types";
 import { StyleSchema, Styles } from "../../schema/styles/types";
 
-import {UnreachableCaseError} from "../../@util/typescript";
+import {UnreachableCaseError} from "../../util/typescript";
 
 /**
  * Convert a StyledText inline element to a

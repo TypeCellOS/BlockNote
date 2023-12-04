@@ -2,7 +2,7 @@ import { PluginView } from "@tiptap/pm/state";
 import { Node } from "prosemirror-model";
 import { NodeSelection, Plugin, PluginKey, Selection } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
-import { EventEmitter } from "../../@util/EventEmitter";
+import { EventEmitter } from "../../util/EventEmitter";
 import { createExternalHTMLExporter } from "../../api/exporters/html/externalHTMLExporter";
 import { createInternalHTMLSerializer } from "../../api/exporters/html/internalHTMLSerializer";
 import { cleanHTMLToMarkdown } from "../../api/exporters/markdown/markdownExporter";
@@ -11,7 +11,7 @@ import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import { Block, BlockSchema } from "../../schema/blocks/types";
 import { InlineContentSchema } from "../../schema/inlineContent/types";
 import { StyleSchema } from "../../schema/styles/types";
-import { BaseUiElementState } from "../@shared/BaseUiElementTypes";
+import { BaseUiElementState } from "../../extensions-shared/BaseUiElementTypes";
 import { slashMenuPluginKey } from "../SlashMenu/SlashMenuPlugin";
 import { MultipleNodeSelection } from "./MultipleNodeSelection";
 

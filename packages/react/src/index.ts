@@ -36,9 +36,9 @@ export * from "./slashMenuItems/defaultReactSlashMenuItems";
 export * from "./components/ImageToolbar/DefaultImageToolbar";
 export * from "./components/ImageToolbar/ImageToolbarPositioner";
 
-export * from "./components/@shared/Toolbar/Toolbar";
-export * from "./components/@shared/Toolbar/ToolbarButton";
-export * from "./components/@shared/Toolbar/ToolbarDropdown";
+export * from "./components-shared/Toolbar/Toolbar";
+export * from "./components-shared/Toolbar/ToolbarButton";
+export * from "./components-shared/Toolbar/ToolbarDropdown";
 
 export * from "./hooks/useActiveStyles";
 export * from "./hooks/useBlockNote";

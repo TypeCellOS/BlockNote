@@ -17,12 +17,12 @@ export * from "./extensions/SlashMenu/SlashMenuPlugin";
 export { getDefaultSlashMenuItems } from "./extensions/SlashMenu/defaultSlashMenuItems";
 export * from "./extensions/TableHandles/TableHandlesPlugin";
 export * from "./schema";
-export * from "./extensions/@shared/BaseUiElementTypes";
-export type { SuggestionItem } from "./extensions/@shared/suggestion/SuggestionItem";
-export * from "./extensions/@shared/suggestion/SuggestionPlugin";
-export * from "./@util/browser";
+export * from "./extensions-shared/BaseUiElementTypes";
+export type { SuggestionItem } from "./extensions-shared/suggestion/SuggestionItem";
+export * from "./extensions-shared/suggestion/SuggestionPlugin";
+export * from "./util/browser";
 // for testing from react (TODO: move):
 export * from "./api/nodeConversions/nodeConversions";
 export * from "./api/testUtil/partialBlockTestUtil";
 export * from "./extensions/UniqueID/UniqueID";
-export {UnreachableCaseError} from "./@util/typescript";
+export {UnreachableCaseError} from "./util/typescript";

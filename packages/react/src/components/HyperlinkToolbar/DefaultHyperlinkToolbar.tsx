@@ -3,8 +3,8 @@ import { useRef, useState } from "react";
 import { RiExternalLinkFill, RiLinkUnlink } from "react-icons/ri";
 
 import { StyleSchema } from "@blocknote/core";
-import { Toolbar } from "../@shared/Toolbar/Toolbar";
-import { ToolbarButton } from "../@shared/Toolbar/ToolbarButton";
+import { Toolbar } from "../../components-shared/Toolbar/Toolbar";
+import { ToolbarButton } from "../../components-shared/Toolbar/ToolbarButton";
 import { EditHyperlinkMenu } from "./EditHyperlinkMenu/components/EditHyperlinkMenu";
 import type { HyperlinkToolbarProps } from "./HyperlinkToolbarPositioner";
 

@@ -2,7 +2,7 @@ import { useCallback, useState } from "react";
 import { BlockNoteEditor, BlockSchema } from "@blocknote/core";
 import { RiIndentDecrease, RiIndentIncrease } from "react-icons/ri";
 
-import { ToolbarButton } from "../../@shared/Toolbar/ToolbarButton";
+import { ToolbarButton } from "../../../components-shared/Toolbar/ToolbarButton";
 import { useEditorChange } from "../../../hooks/useEditorChange";
 import { formatKeyboardShortcut } from "@blocknote/core";
 

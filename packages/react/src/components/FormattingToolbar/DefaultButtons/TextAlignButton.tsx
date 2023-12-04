@@ -13,7 +13,7 @@ import {
   RiAlignRight,
 } from "react-icons/ri";
 
-import { ToolbarButton } from "../../@shared/Toolbar/ToolbarButton";
+import { ToolbarButton } from "../../../components-shared/Toolbar/ToolbarButton";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
 
 type TextAlignment = DefaultProps["textAlignment"];

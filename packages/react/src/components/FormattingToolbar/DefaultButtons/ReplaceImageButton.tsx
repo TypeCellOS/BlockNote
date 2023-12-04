@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { RiImageEditFill } from "react-icons/ri";
 
 import { DefaultImageToolbar } from "../../ImageToolbar/DefaultImageToolbar";
-import { ToolbarButton } from "../../@shared/Toolbar/ToolbarButton";
+import { ToolbarButton } from "../../../components-shared/Toolbar/ToolbarButton";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
 
 export const ReplaceImageButton = <BSchema extends BlockSchema>(props: {

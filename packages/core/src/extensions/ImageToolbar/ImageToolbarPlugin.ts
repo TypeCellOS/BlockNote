@@ -1,7 +1,7 @@
 import { EditorState, Plugin, PluginKey } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 
-import { EventEmitter } from "../../@util/EventEmitter";
+import { EventEmitter } from "../../util/EventEmitter";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import {
   BlockSchema,
@@ -12,7 +12,7 @@ import {
 import {
   BaseUiElementCallbacks,
   BaseUiElementState,
-} from "../@shared/BaseUiElementTypes";
+} from "../../extensions-shared/BaseUiElementTypes";
 export type ImageToolbarCallbacks = BaseUiElementCallbacks;
 
 export type ImageToolbarState<

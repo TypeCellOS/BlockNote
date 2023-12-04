@@ -1,6 +1,6 @@
 import { Plugin, PluginKey } from "prosemirror-state";
 
-import { EventEmitter } from "../../@util/EventEmitter";
+import { EventEmitter } from "../../util/EventEmitter";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import { BlockSchema } from "../../schema/blocks/types";
 import { InlineContentSchema } from "../../schema/inlineContent/types";
@@ -8,7 +8,7 @@ import { StyleSchema } from "../../schema/styles/types";
 import {
   SuggestionsMenuState,
   setupSuggestionsMenu,
-} from "../@shared/suggestion/SuggestionPlugin";
+} from "../../extensions-shared/suggestion/SuggestionPlugin";
 import { BaseSlashMenuItem } from "./BaseSlashMenuItem";
 
 export const slashMenuPluginKey = new PluginKey("SlashMenuPlugin");

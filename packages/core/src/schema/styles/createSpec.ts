@@ -6,7 +6,7 @@ import {
   stylePropsToAttributes,
 } from "./internal";
 import { StyleConfig, StyleSpec } from "./types";
-import {UnreachableCaseError} from "../../@util/typescript";
+import {UnreachableCaseError} from "../../util/typescript";
 
 export type CustomStyleImplementation<T extends StyleConfig> = {
   render: T["propSchema"] extends "boolean"

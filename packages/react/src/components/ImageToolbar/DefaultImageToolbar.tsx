@@ -15,7 +15,7 @@ import {
   useEffect,
   useState,
 } from "react";
-import { Toolbar } from "../@shared/Toolbar/Toolbar";
+import { Toolbar } from "../../components-shared/Toolbar/Toolbar";
 import type { ImageToolbarProps } from "./ImageToolbarPositioner";
 
 export const DefaultImageToolbar = <BSchema extends BlockSchema>(

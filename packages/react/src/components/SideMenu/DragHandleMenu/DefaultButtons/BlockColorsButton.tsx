@@ -4,7 +4,7 @@ import { ReactNode, useCallback, useRef, useState } from "react";
 import { HiChevronRight } from "react-icons/hi";
 
 import { usePreventMenuOverflow } from "../../../../hooks/usePreventMenuOverflow";
-import { ColorPicker } from "../../../@shared/ColorPicker/ColorPicker";
+import { ColorPicker } from "../../../../components-shared/ColorPicker/ColorPicker";
 import type { DragHandleMenuProps } from "../DragHandleMenu";
 import { DragHandleMenuItem } from "../DragHandleMenuItem";
 

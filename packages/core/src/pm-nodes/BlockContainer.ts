@@ -2,8 +2,8 @@ import { Node } from "@tiptap/core";
 import { Fragment, Node as PMNode, Slice } from "prosemirror-model";
 import { NodeSelection, TextSelection } from "prosemirror-state";
 
-import { mergeCSSClasses } from "../@util/browser";
-import { UnreachableCaseError } from "../@util/typescript";
+import { mergeCSSClasses } from "../util/browser";
+import { UnreachableCaseError } from "../util/typescript";
 import { getBlockInfoFromPos } from "../api/getBlockInfoFromPos";
 import {
   blockToNode,

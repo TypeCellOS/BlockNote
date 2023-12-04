@@ -12,8 +12,8 @@ import {
 
 import { useEditorChange } from "../../../hooks/useEditorChange";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
-import { ToolbarDropdown } from "../../@shared/Toolbar/ToolbarDropdown";
-import type { ToolbarDropdownItemProps } from "../../@shared/Toolbar/ToolbarDropdownItem";
+import { ToolbarDropdown } from "../../../components-shared/Toolbar/ToolbarDropdown";
+import type { ToolbarDropdownItemProps } from "../../../components-shared/Toolbar/ToolbarDropdownItem";
 
 export type BlockTypeDropdownItem = {
   name: string;

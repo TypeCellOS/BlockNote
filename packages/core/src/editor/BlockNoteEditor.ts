@@ -68,9 +68,9 @@ import {
   InlineContentSpecs,
 } from "../schema/inlineContent/types";
 import { getStyleSchemaFromSpecs } from "../schema/styles/internal";
-import { mergeCSSClasses } from "../@util/browser";
+import { mergeCSSClasses } from "../util/browser";
 import { transformPasted } from "./transformPasted";
-import {UnreachableCaseError} from "../@util/typescript";
+import {UnreachableCaseError} from "../util/typescript";
 
 export type BlockNoteEditorOptions<
   BSpecs extends BlockSpecs,

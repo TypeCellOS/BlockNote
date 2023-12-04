@@ -1,6 +1,6 @@
 import { BlockSchema } from "@blocknote/core";
 
-import { Toolbar } from "../@shared/Toolbar/Toolbar";
+import { Toolbar } from "../../components-shared/Toolbar/Toolbar";
 import { ColorStyleButton } from "./DefaultButtons/ColorStyleButton";
 import { CreateLinkButton } from "./DefaultButtons/CreateLinkButton";
 import { ImageCaptionButton } from "./DefaultButtons/ImageCaptionButton";

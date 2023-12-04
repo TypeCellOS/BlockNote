@@ -13,7 +13,7 @@ import {
 } from "react-icons/ri";
 
 import { StyleSchema } from "@blocknote/core";
-import { ToolbarButton } from "../../@shared/Toolbar/ToolbarButton";
+import { ToolbarButton } from "../../../components-shared/Toolbar/ToolbarButton";
 import { useEditorChange } from "../../../hooks/useEditorChange";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
 import { formatKeyboardShortcut } from "@blocknote/core";

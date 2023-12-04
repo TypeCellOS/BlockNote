@@ -9,10 +9,10 @@ import {
 } from "react";
 import { RiText } from "react-icons/ri";
 
-import { ToolbarButton } from "../../@shared/Toolbar/ToolbarButton";
-import { ToolbarInputDropdown } from "../../@shared/Toolbar/ToolbarInputDropdown";
-import { ToolbarInputDropdownButton } from "../../@shared/Toolbar/ToolbarInputDropdownButton";
-import { ToolbarInputDropdownItem } from "../../@shared/Toolbar/ToolbarInputDropdownItem";
+import { ToolbarButton } from "../../../components-shared/Toolbar/ToolbarButton";
+import { ToolbarInputDropdown } from "../../../components-shared/Toolbar/ToolbarInputDropdown";
+import { ToolbarInputDropdownButton } from "../../../components-shared/Toolbar/ToolbarInputDropdownButton";
+import { ToolbarInputDropdownItem } from "../../../components-shared/Toolbar/ToolbarInputDropdownItem";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
 
 export const ImageCaptionButton = <BSchema extends BlockSchema>(props: {

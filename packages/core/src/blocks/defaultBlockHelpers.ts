@@ -1,4 +1,4 @@
-import { mergeCSSClasses } from "../@util/browser";
+import { mergeCSSClasses } from "../util/browser";
 import { blockToNode } from "../api/nodeConversions/nodeConversions";
 import type { BlockNoteEditor } from "../editor/BlockNoteEditor";
 import { Block, BlockSchema } from "../schema/blocks/types";

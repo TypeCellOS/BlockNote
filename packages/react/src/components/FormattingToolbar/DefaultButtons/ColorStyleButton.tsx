@@ -7,9 +7,9 @@ import {
 import { Menu } from "@mantine/core";
 import { useCallback, useMemo, useState } from "react";
 
-import { ColorIcon } from "../../@shared/ColorPicker/ColorIcon";
-import { ColorPicker } from "../../@shared/ColorPicker/ColorPicker";
-import { ToolbarButton } from "../../@shared/Toolbar/ToolbarButton";
+import { ColorIcon } from "../../../components-shared/ColorPicker/ColorIcon";
+import { ColorPicker } from "../../../components-shared/ColorPicker/ColorPicker";
+import { ToolbarButton } from "../../../components-shared/Toolbar/ToolbarButton";
 import { useEditorChange } from "../../../hooks/useEditorChange";
 import { usePreventMenuOverflow } from "../../../hooks/usePreventMenuOverflow";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
