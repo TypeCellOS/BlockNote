@@ -1,5 +1,6 @@
 import react from "@vitejs/plugin-react";
 import * as path from "path";
+import { webpackStats } from "rollup-plugin-webpack-stats";
 import { defineConfig } from "vite";
 import pkg from "./package.json";
 // import eslintPlugin from "vite-plugin-eslint";
@@ -10,7 +11,7 @@ export default defineConfig((conf) => ({
     environment: "jsdom",
     setupFiles: ["./vitestSetup.ts"],
   },
-  plugins: [react()],
+  plugins: [react(), webpackStats()],
   // used so that vitest resolves the core package from the sources instead of the built version
   resolve: {
     alias:
