@@ -78,3 +78,13 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 30
+
+      - name: Upload webpack stats artifact (core)
+        uses: relative-ci/agent-upload-artifact-action@v1
+        with:
+          webpackStatsFile: ./packages/core/dist/webpack-stats.json
+
+      - name: Upload webpack stats artifact (react)
+        uses: relative-ci/agent-upload-artifact-action@v1
+        with:
+          webpackStatsFile: ./packages/react/dist/webpack-stats.json
