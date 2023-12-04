@@ -2,16 +2,19 @@ import { PluginView } from "@tiptap/pm/state";
 import { Node } from "prosemirror-model";
 import { NodeSelection, Plugin, PluginKey, Selection } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
-import { BlockNoteEditor } from "../../BlockNoteEditor";
 import { createExternalHTMLExporter } from "../../api/exporters/html/externalHTMLExporter";
 import { createInternalHTMLSerializer } from "../../api/exporters/html/internalHTMLSerializer";
 import { cleanHTMLToMarkdown } from "../../api/exporters/markdown/markdownExporter";
-import { BaseUiElementState } from "../../shared/BaseUiElementTypes";
-import { EventEmitter } from "../../shared/EventEmitter";
-import { Block, BlockSchema } from "../Blocks/api/blocks/types";
-import { InlineContentSchema } from "../Blocks/api/inlineContent/types";
-import { StyleSchema } from "../Blocks/api/styles/types";
-import { getBlockInfoFromPos } from "../Blocks/helpers/getBlockInfoFromPos";
+import { getBlockInfoFromPos } from "../../api/getBlockInfoFromPos";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
+import { BaseUiElementState } from "../../extensions-shared/BaseUiElementTypes";
+import {
+  Block,
+  BlockSchema,
+  InlineContentSchema,
+  StyleSchema,
+} from "../../schema";
+import { EventEmitter } from "../../util/EventEmitter";
 import { slashMenuPluginKey } from "../SlashMenu/SlashMenuPlugin";
 import { MultipleNodeSelection } from "./MultipleNodeSelection";
 

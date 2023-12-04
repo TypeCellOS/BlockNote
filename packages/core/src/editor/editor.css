@@ -1,0 +1,114 @@
+@import url("../assets/fonts-inter.css");
+
+.bn-editor {
+  outline: none;
+  padding-inline: 54px;
+
+  /* Define a set of colors to be used throughout the app for consistency
+  see https://atlassian.design/foundations/color for more info */
+  --N800: #172b4d; /* Dark neutral used for tooltips and text on light background */
+  --N40: #dfe1e6; /* Light neutral used for subtle borders and text on dark background */
+}
+
+/*
+bn-root should be applied to all top-level elements
+
+This includes the Prosemirror editor, but also <div> element such as 
+Tippy popups that are appended to document.body directly
+*/
+.bn-root {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+.bn-root *,
+.bn-root *::before,
+.bn-root *::after {
+  -webkit-box-sizing: inherit;
+  -moz-box-sizing: inherit;
+  box-sizing: inherit;
+}
+
+/* reset styles, they will be set on blockContent */
+.bn-default-styles p,
+.bn-default-styles h1,
+.bn-default-styles h2,
+.bn-default-styles h3,
+.bn-default-styles li {
+  all: unset;
+  margin: 0;
+  padding: 0;
+  font-size: inherit;
+  /* min width to make sure cursor is always visible */
+  min-width: 2px !important;
+}
+
+.bn-default-styles {
+  font-size: 16px;
+  font-weight: normal;
+  font-family: "Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont,
+    "Open Sans", "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell",
+    "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.bn-table-drop-cursor {
+  position: absolute;
+  z-index: 20;
+  background-color: #adf;
+  pointer-events: none;
+}
+
+.bn-drag-preview {
+  position: absolute;
+  left: -100000px;
+}
+
+/* Give a remote user a caret */
+.collaboration-cursor__caret {
+  border-left: 1px solid #0d0d0d;
+  border-right: 1px solid #0d0d0d;
+  margin-left: -1px;
+  margin-right: -1px;
+  pointer-events: none;
+  position: relative;
+  word-break: normal;
+}
+
+/* Render the username above the caret */
+.collaboration-cursor__label {
+  border-radius: 3px 3px 3px 0;
+  color: #0d0d0d;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 600;
+  left: -1px;
+  line-height: normal;
+  padding: 0.1rem 0.3rem;
+  position: absolute;
+  top: -1.4em;
+  user-select: none;
+  white-space: nowrap;
+}
+
+/* table related: */
+.bn-editor table {
+  width: auto !important;
+}
+.bn-editor th,
+.bn-editor td {
+  min-width: 1em;
+  border: 1px solid #ddd;
+  padding: 3px 5px;
+}
+
+.bn-editor .tableWrapper {
+  margin: 1em 0;
+}
+
+.bn-editor th {
+  font-weight: bold;
+  text-align: left;
+}
