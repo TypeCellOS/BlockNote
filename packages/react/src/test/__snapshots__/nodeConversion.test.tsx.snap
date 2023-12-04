@@ -1,0 +1,461 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Test React BlockNote-Prosemirror conversion > Case: custom react block schema > Convert reactCustomParagraph/basic to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "textAlignment": "left",
+      },
+      "content": [
+        {
+          "text": "React Custom Paragraph",
+          "type": "text",
+        },
+      ],
+      "type": "reactCustomParagraph",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test React BlockNote-Prosemirror conversion > Case: custom react block schema > Convert reactCustomParagraph/nested to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "textAlignment": "left",
+      },
+      "content": [
+        {
+          "text": "React Custom Paragraph",
+          "type": "text",
+        },
+      ],
+      "type": "reactCustomParagraph",
+    },
+    {
+      "content": [
+        {
+          "attrs": {
+            "backgroundColor": "default",
+            "id": "2",
+            "textColor": "default",
+          },
+          "content": [
+            {
+              "attrs": {
+                "textAlignment": "left",
+              },
+              "content": [
+                {
+                  "text": "Nested React Custom Paragraph 1",
+                  "type": "text",
+                },
+              ],
+              "type": "reactCustomParagraph",
+            },
+          ],
+          "type": "blockContainer",
+        },
+        {
+          "attrs": {
+            "backgroundColor": "default",
+            "id": "3",
+            "textColor": "default",
+          },
+          "content": [
+            {
+              "attrs": {
+                "textAlignment": "left",
+              },
+              "content": [
+                {
+                  "text": "Nested React Custom Paragraph 2",
+                  "type": "text",
+                },
+              ],
+              "type": "reactCustomParagraph",
+            },
+          ],
+          "type": "blockContainer",
+        },
+      ],
+      "type": "blockGroup",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test React BlockNote-Prosemirror conversion > Case: custom react block schema > Convert reactCustomParagraph/styled to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "pink",
+    "id": "1",
+    "textColor": "orange",
+  },
+  "content": [
+    {
+      "attrs": {
+        "textAlignment": "center",
+      },
+      "content": [
+        {
+          "text": "Plain ",
+          "type": "text",
+        },
+        {
+          "marks": [
+            {
+              "attrs": {
+                "stringValue": "red",
+              },
+              "type": "textColor",
+            },
+          ],
+          "text": "Red Text ",
+          "type": "text",
+        },
+        {
+          "marks": [
+            {
+              "attrs": {
+                "stringValue": "blue",
+              },
+              "type": "backgroundColor",
+            },
+          ],
+          "text": "Blue Background ",
+          "type": "text",
+        },
+        {
+          "marks": [
+            {
+              "attrs": {
+                "stringValue": "red",
+              },
+              "type": "textColor",
+            },
+            {
+              "attrs": {
+                "stringValue": "blue",
+              },
+              "type": "backgroundColor",
+            },
+          ],
+          "text": "Mixed Colors",
+          "type": "text",
+        },
+      ],
+      "type": "reactCustomParagraph",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test React BlockNote-Prosemirror conversion > Case: custom react block schema > Convert simpleReactCustomParagraph/basic to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "textAlignment": "left",
+      },
+      "content": [
+        {
+          "text": "React Custom Paragraph",
+          "type": "text",
+        },
+      ],
+      "type": "simpleReactCustomParagraph",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test React BlockNote-Prosemirror conversion > Case: custom react block schema > Convert simpleReactCustomParagraph/nested to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "textAlignment": "left",
+      },
+      "content": [
+        {
+          "text": "Custom React Paragraph",
+          "type": "text",
+        },
+      ],
+      "type": "simpleReactCustomParagraph",
+    },
+    {
+      "content": [
+        {
+          "attrs": {
+            "backgroundColor": "default",
+            "id": "2",
+            "textColor": "default",
+          },
+          "content": [
+            {
+              "attrs": {
+                "textAlignment": "left",
+              },
+              "content": [
+                {
+                  "text": "Nested React Custom Paragraph 1",
+                  "type": "text",
+                },
+              ],
+              "type": "simpleReactCustomParagraph",
+            },
+          ],
+          "type": "blockContainer",
+        },
+        {
+          "attrs": {
+            "backgroundColor": "default",
+            "id": "3",
+            "textColor": "default",
+          },
+          "content": [
+            {
+              "attrs": {
+                "textAlignment": "left",
+              },
+              "content": [
+                {
+                  "text": "Nested React Custom Paragraph 2",
+                  "type": "text",
+                },
+              ],
+              "type": "simpleReactCustomParagraph",
+            },
+          ],
+          "type": "blockContainer",
+        },
+      ],
+      "type": "blockGroup",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test React BlockNote-Prosemirror conversion > Case: custom react block schema > Convert simpleReactCustomParagraph/styled to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "pink",
+    "id": "1",
+    "textColor": "orange",
+  },
+  "content": [
+    {
+      "attrs": {
+        "textAlignment": "center",
+      },
+      "content": [
+        {
+          "text": "Plain ",
+          "type": "text",
+        },
+        {
+          "marks": [
+            {
+              "attrs": {
+                "stringValue": "red",
+              },
+              "type": "textColor",
+            },
+          ],
+          "text": "Red Text ",
+          "type": "text",
+        },
+        {
+          "marks": [
+            {
+              "attrs": {
+                "stringValue": "blue",
+              },
+              "type": "backgroundColor",
+            },
+          ],
+          "text": "Blue Background ",
+          "type": "text",
+        },
+        {
+          "marks": [
+            {
+              "attrs": {
+                "stringValue": "red",
+              },
+              "type": "textColor",
+            },
+            {
+              "attrs": {
+                "stringValue": "blue",
+              },
+              "type": "backgroundColor",
+            },
+          ],
+          "text": "Mixed Colors",
+          "type": "text",
+        },
+      ],
+      "type": "simpleReactCustomParagraph",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test React BlockNote-Prosemirror conversion > Case: custom react inline content schema > Convert mention/basic to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "textAlignment": "left",
+      },
+      "content": [
+        {
+          "text": "I enjoy working with ",
+          "type": "text",
+        },
+        {
+          "attrs": {
+            "user": "Matthew",
+          },
+          "type": "mention",
+        },
+      ],
+      "type": "paragraph",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test React BlockNote-Prosemirror conversion > Case: custom react inline content schema > Convert tag/basic to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "textAlignment": "left",
+      },
+      "content": [
+        {
+          "text": "I love ",
+          "type": "text",
+        },
+        {
+          "content": [
+            {
+              "text": "BlockNote",
+              "type": "text",
+            },
+          ],
+          "type": "tag",
+        },
+      ],
+      "type": "paragraph",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test React BlockNote-Prosemirror conversion > Case: custom react style schema > Convert fontSize/basic to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "textAlignment": "left",
+      },
+      "content": [
+        {
+          "marks": [
+            {
+              "attrs": {
+                "stringValue": "18px",
+              },
+              "type": "fontSize",
+            },
+          ],
+          "text": "This is text with a custom fontSize",
+          "type": "text",
+        },
+      ],
+      "type": "paragraph",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test React BlockNote-Prosemirror conversion > Case: custom react style schema > Convert small/basic to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "textAlignment": "left",
+      },
+      "content": [
+        {
+          "marks": [
+            {
+              "type": "small",
+            },
+          ],
+          "text": "This is a small text",
+          "type": "text",
+        },
+      ],
+      "type": "paragraph",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;

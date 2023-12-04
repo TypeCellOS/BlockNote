@@ -1,501 +1,70 @@
-import { Editor } from "@tiptap/core";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { BlockNoteEditor, PartialBlock } from "../..";
-import {
-  DefaultBlockSchema,
-  defaultBlockSchema,
-} from "../../extensions/Blocks/api/defaultBlocks";
-import UniqueID from "../../extensions/UniqueID/UniqueID";
+
+import { BlockNoteEditor } from "../../editor/BlockNoteEditor";
+import { PartialBlock } from "../../schema/blocks/types";
+import { customInlineContentTestCases } from "../testUtil/cases/customInlineContent";
+import { customStylesTestCases } from "../testUtil/cases/customStyles";
+import { defaultSchemaTestCases } from "../testUtil/cases/defaultSchema";
 import { blockToNode, nodeToBlock } from "./nodeConversions";
-import { partialBlockToBlockForTesting } from "./testUtil";
+import { addIdsToBlock, partialBlockToBlockForTesting } from "../testUtil/partialBlockTestUtil";
 
-let editor: BlockNoteEditor;
-let tt: Editor;
+function validateConversion(
+  block: PartialBlock<any, any, any>,
+  editor: BlockNoteEditor<any, any, any>
+) {
+  addIdsToBlock(block);
+  const node = blockToNode(
+    block,
+    editor._tiptapEditor.schema,
+    editor.styleSchema
+  );
 
-beforeEach(() => {
-  (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS = {};
+  expect(node).toMatchSnapshot();
 
-  editor = new BlockNoteEditor();
-  tt = editor._tiptapEditor;
-});
+  const outputBlock = nodeToBlock(
+    node,
+    editor.blockSchema,
+    editor.inlineContentSchema,
+    editor.styleSchema
+  );
 
-afterEach(() => {
-  tt.destroy();
-  editor = undefined as any;
-  tt = undefined as any;
+  const fullOriginalBlock = partialBlockToBlockForTesting(
+    editor.blockSchema,
+    block
+  );
 
-  delete (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS;
-});
+  expect(outputBlock).toStrictEqual(fullOriginalBlock);
+}
 
-describe("Simple ProseMirror Node Conversions", () => {
-  it("Convert simple block to node", async () => {
-    const block: PartialBlock = {
-      type: "paragraph",
-    };
-    const firstNodeConversion = blockToNode(block, tt.schema);
+const testCases = [
+  defaultSchemaTestCases,
+  customStylesTestCases,
+  customInlineContentTestCases,
+];
 
-    expect(firstNodeConversion).toMatchSnapshot();
-  });
+describe("Test BlockNote-Prosemirror conversion", () => {
+  for (const testCase of testCases) {
+    describe("Case: " + testCase.name, () => {
+      let editor: BlockNoteEditor<any, any, any>;
 
-  it("Convert simple node to block", async () => {
-    const node = tt.schema.nodes["blockContainer"].create(
-      { id: UniqueID.options.generateID() },
-      tt.schema.nodes["paragraph"].create()
-    );
-    const firstBlockConversion = nodeToBlock<DefaultBlockSchema>(
-      node,
-      defaultBlockSchema
-    );
+      beforeEach(() => {
+        editor = testCase.createEditor();
+      });
 
-    expect(firstBlockConversion).toMatchSnapshot();
+      afterEach(() => {
+        editor._tiptapEditor.destroy();
+        editor = undefined as any;
 
-    const firstNodeConversion = blockToNode<DefaultBlockSchema>(
-      firstBlockConversion,
-      tt.schema
-    );
+        delete (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS;
+      });
 
-    expect(firstNodeConversion).toStrictEqual(node);
-  });
-});
-
-describe("Complex ProseMirror Node Conversions", () => {
-  it("Convert complex block to node", async () => {
-    const block: PartialBlock = {
-      type: "heading",
-      props: {
-        backgroundColor: "blue",
-        textColor: "yellow",
-        textAlignment: "right",
-        level: 2,
-      },
-      content: [
-        {
-          type: "text",
-          text: "Heading ",
-          styles: {
-            bold: true,
-            underline: true,
-          },
-        },
-        {
-          type: "text",
-          text: "2",
-          styles: {
-            italic: true,
-            strike: true,
-          },
-        },
-      ],
-      children: [
-        {
-          type: "paragraph",
-          props: {
-            backgroundColor: "red",
-          },
-          content: "Paragraph",
-          children: [],
-        },
-        {
-          type: "bulletListItem",
-        },
-      ],
-    };
-    const firstNodeConversion = blockToNode(block, tt.schema);
-
-    expect(firstNodeConversion).toMatchSnapshot();
-  });
-
-  it("Convert complex node to block", async () => {
-    const node = tt.schema.nodes["blockContainer"].create(
-      {
-        id: UniqueID.options.generateID(),
-        backgroundColor: "blue",
-        textColor: "yellow",
-      },
-      [
-        tt.schema.nodes["heading"].create(
-          { textAlignment: "right", level: 2 },
-          [
-            tt.schema.text("Heading ", [
-              tt.schema.mark("bold"),
-              tt.schema.mark("underline"),
-            ]),
-            tt.schema.text("2", [
-              tt.schema.mark("italic"),
-              tt.schema.mark("strike"),
-            ]),
-          ]
-        ),
-        tt.schema.nodes["blockGroup"].create({}, [
-          tt.schema.nodes["blockContainer"].create(
-            { id: UniqueID.options.generateID(), backgroundColor: "red" },
-            [
-              tt.schema.nodes["paragraph"].create(
-                {},
-                tt.schema.text("Paragraph")
-              ),
-            ]
-          ),
-          tt.schema.nodes["blockContainer"].create(
-            { id: UniqueID.options.generateID() },
-            [tt.schema.nodes["bulletListItem"].create()]
-          ),
-        ]),
-      ]
-    );
-    const firstBlockConversion = nodeToBlock<DefaultBlockSchema>(
-      node,
-      defaultBlockSchema
-    );
-
-    expect(firstBlockConversion).toMatchSnapshot();
-
-    const firstNodeConversion = blockToNode<DefaultBlockSchema>(
-      firstBlockConversion,
-      tt.schema
-    );
-
-    expect(firstNodeConversion).toStrictEqual(node);
-  });
-});
-
-describe("links", () => {
-  it("Convert a block with link", async () => {
-    const block: PartialBlock<DefaultBlockSchema> = {
-      id: UniqueID.options.generateID(),
-      type: "paragraph",
-      content: [
-        {
-          type: "link",
-          href: "https://www.website.com",
-          content: "Website",
-        },
-      ],
-    };
-    const node = blockToNode(block, tt.schema);
-    expect(node).toMatchSnapshot();
-    const outputBlock = nodeToBlock<DefaultBlockSchema>(
-      node,
-      defaultBlockSchema
-    );
-
-    // Temporary fix to set props to {}, because at this point
-    // we don't have an easy way to access default props at runtime,
-    // so partialBlockToBlockForTesting will not set them.
-    (outputBlock as any).props = {};
-    const fullOriginalBlock = partialBlockToBlockForTesting(block);
-
-    expect(outputBlock).toStrictEqual(fullOriginalBlock);
-  });
-
-  it("Convert link block with marks", async () => {
-    const block: PartialBlock<DefaultBlockSchema> = {
-      id: UniqueID.options.generateID(),
-      type: "paragraph",
-      content: [
-        {
-          type: "link",
-          href: "https://www.website.com",
-          content: [
-            {
-              type: "text",
-              text: "Web",
-              styles: {
-                bold: true,
-              },
-            },
-            {
-              type: "text",
-              text: "site",
-              styles: {},
-            },
-          ],
-        },
-      ],
-    };
-    const node = blockToNode(block, tt.schema);
-    // expect(node).toMatchSnapshot();
-    const outputBlock = nodeToBlock<DefaultBlockSchema>(
-      node,
-      defaultBlockSchema
-    );
-
-    // Temporary fix to set props to {}, because at this point
-    // we don't have an easy way to access default props at runtime,
-    // so partialBlockToBlockForTesting will not set them.
-    (outputBlock as any).props = {};
-    const fullOriginalBlock = partialBlockToBlockForTesting(block);
-
-    expect(outputBlock).toStrictEqual(fullOriginalBlock);
-  });
-
-  it("Convert two adjacent links in a block", async () => {
-    const block: PartialBlock<DefaultBlockSchema> = {
-      id: UniqueID.options.generateID(),
-      type: "paragraph",
-      content: [
-        {
-          type: "link",
-          href: "https://www.website.com",
-          content: "Website",
-        },
-        {
-          type: "link",
-          href: "https://www.website2.com",
-          content: "Website2",
-        },
-      ],
-    };
-
-    const node = blockToNode(block, tt.schema);
-    expect(node).toMatchSnapshot();
-    const outputBlock = nodeToBlock<DefaultBlockSchema>(
-      node,
-      defaultBlockSchema
-    );
-
-    // Temporary fix to set props to {}, because at this point
-    // we don't have an easy way to access default props at runtime,
-    // so partialBlockToBlockForTesting will not set them.
-    (outputBlock as any).props = {};
-    const fullOriginalBlock = partialBlockToBlockForTesting(block);
-
-    expect(outputBlock).toStrictEqual(fullOriginalBlock);
-  });
-});
-
-describe("hard breaks", () => {
-  it("Convert a block with a hard break", async () => {
-    const block: PartialBlock<DefaultBlockSchema> = {
-      id: UniqueID.options.generateID(),
-      type: "paragraph",
-      content: [
-        {
-          type: "text",
-          text: "Text1\nText2",
-          styles: {},
-        },
-      ],
-    };
-    const node = blockToNode(block, tt.schema);
-    expect(node).toMatchSnapshot();
-    const outputBlock = nodeToBlock<DefaultBlockSchema>(
-      node,
-      defaultBlockSchema
-    );
-
-    // Temporary fix to set props to {}, because at this point
-    // we don't have an easy way to access default props at runtime,
-    // so partialBlockToBlockForTesting will not set them.
-    (outputBlock as any).props = {};
-    const fullOriginalBlock = partialBlockToBlockForTesting(block);
-
-    expect(outputBlock).toStrictEqual(fullOriginalBlock);
-  });
-
-  it("Convert a block with multiple hard breaks", async () => {
-    const block: PartialBlock<DefaultBlockSchema> = {
-      id: UniqueID.options.generateID(),
-      type: "paragraph",
-      content: [
-        {
-          type: "text",
-          text: "Text1\nText2\nText3",
-          styles: {},
-        },
-      ],
-    };
-    const node = blockToNode(block, tt.schema);
-    expect(node).toMatchSnapshot();
-    const outputBlock = nodeToBlock<DefaultBlockSchema>(
-      node,
-      defaultBlockSchema
-    );
-
-    // Temporary fix to set props to {}, because at this point
-    // we don't have an easy way to access default props at runtime,
-    // so partialBlockToBlockForTesting will not set them.
-    (outputBlock as any).props = {};
-    const fullOriginalBlock = partialBlockToBlockForTesting(block);
-
-    expect(outputBlock).toStrictEqual(fullOriginalBlock);
-  });
-
-  it("Convert a block with a hard break at the start", async () => {
-    const block: PartialBlock<DefaultBlockSchema> = {
-      id: UniqueID.options.generateID(),
-      type: "paragraph",
-      content: [
-        {
-          type: "text",
-          text: "\nText1",
-          styles: {},
-        },
-      ],
-    };
-    const node = blockToNode(block, tt.schema);
-    expect(node).toMatchSnapshot();
-    const outputBlock = nodeToBlock<DefaultBlockSchema>(
-      node,
-      defaultBlockSchema
-    );
-
-    // Temporary fix to set props to {}, because at this point
-    // we don't have an easy way to access default props at runtime,
-    // so partialBlockToBlockForTesting will not set them.
-    (outputBlock as any).props = {};
-    const fullOriginalBlock = partialBlockToBlockForTesting(block);
-
-    expect(outputBlock).toStrictEqual(fullOriginalBlock);
-  });
-
-  it("Convert a block with a hard break at the end", async () => {
-    const block: PartialBlock<DefaultBlockSchema> = {
-      id: UniqueID.options.generateID(),
-      type: "paragraph",
-      content: [
-        {
-          type: "text",
-          text: "Text1\n",
-          styles: {},
-        },
-      ],
-    };
-    const node = blockToNode(block, tt.schema);
-    expect(node).toMatchSnapshot();
-    const outputBlock = nodeToBlock<DefaultBlockSchema>(
-      node,
-      defaultBlockSchema
-    );
-
-    // Temporary fix to set props to {}, because at this point
-    // we don't have an easy way to access default props at runtime,
-    // so partialBlockToBlockForTesting will not set them.
-    (outputBlock as any).props = {};
-    const fullOriginalBlock = partialBlockToBlockForTesting(block);
-
-    expect(outputBlock).toStrictEqual(fullOriginalBlock);
-  });
-
-  it("Convert a block with only a hard break", async () => {
-    const block: PartialBlock<DefaultBlockSchema> = {
-      id: UniqueID.options.generateID(),
-      type: "paragraph",
-      content: [
-        {
-          type: "text",
-          text: "\n",
-          styles: {},
-        },
-      ],
-    };
-    const node = blockToNode(block, tt.schema);
-    expect(node).toMatchSnapshot();
-    const outputBlock = nodeToBlock<DefaultBlockSchema>(
-      node,
-      defaultBlockSchema
-    );
-
-    // Temporary fix to set props to {}, because at this point
-    // we don't have an easy way to access default props at runtime,
-    // so partialBlockToBlockForTesting will not set them.
-    (outputBlock as any).props = {};
-    const fullOriginalBlock = partialBlockToBlockForTesting(block);
-
-    expect(outputBlock).toStrictEqual(fullOriginalBlock);
-  });
-
-  it("Convert a block with a hard break and different styles", async () => {
-    const block: PartialBlock<DefaultBlockSchema> = {
-      id: UniqueID.options.generateID(),
-      type: "paragraph",
-      content: [
-        {
-          type: "text",
-          text: "Text1\n",
-          styles: {},
-        },
-        {
-          type: "text",
-          text: "Text2",
-          styles: { bold: true },
-        },
-      ],
-    };
-    const node = blockToNode(block, tt.schema);
-    expect(node).toMatchSnapshot();
-    const outputBlock = nodeToBlock<DefaultBlockSchema>(
-      node,
-      defaultBlockSchema
-    );
-
-    // Temporary fix to set props to {}, because at this point
-    // we don't have an easy way to access default props at runtime,
-    // so partialBlockToBlockForTesting will not set them.
-    (outputBlock as any).props = {};
-    const fullOriginalBlock = partialBlockToBlockForTesting(block);
-
-    expect(outputBlock).toStrictEqual(fullOriginalBlock);
-  });
-
-  it("Convert a block with a hard break in a link", async () => {
-    const block: PartialBlock<DefaultBlockSchema> = {
-      id: UniqueID.options.generateID(),
-      type: "paragraph",
-      content: [
-        {
-          type: "link",
-          href: "https://www.website.com",
-          content: "Link1\nLink1",
-        },
-      ],
-    };
-    const node = blockToNode(block, tt.schema);
-    expect(node).toMatchSnapshot();
-    const outputBlock = nodeToBlock<DefaultBlockSchema>(
-      node,
-      defaultBlockSchema
-    );
-
-    // Temporary fix to set props to {}, because at this point
-    // we don't have an easy way to access default props at runtime,
-    // so partialBlockToBlockForTesting will not set them.
-    (outputBlock as any).props = {};
-    const fullOriginalBlock = partialBlockToBlockForTesting(block);
-
-    expect(outputBlock).toStrictEqual(fullOriginalBlock);
-  });
-
-  it("Convert a block with a hard break between links", async () => {
-    const block: PartialBlock<DefaultBlockSchema> = {
-      id: UniqueID.options.generateID(),
-      type: "paragraph",
-      content: [
-        {
-          type: "link",
-          href: "https://www.website.com",
-          content: "Link1\n",
-        },
-        {
-          type: "link",
-          href: "https://www.website2.com",
-          content: "Link2",
-        },
-      ],
-    };
-    const node = blockToNode(block, tt.schema);
-    expect(node).toMatchSnapshot();
-    const outputBlock = nodeToBlock<DefaultBlockSchema>(
-      node,
-      defaultBlockSchema
-    );
-
-    // Temporary fix to set props to {}, because at this point
-    // we don't have an easy way to access default props at runtime,
-    // so partialBlockToBlockForTesting will not set them.
-    (outputBlock as any).props = {};
-    const fullOriginalBlock = partialBlockToBlockForTesting(block);
-
-    expect(outputBlock).toStrictEqual(fullOriginalBlock);
-  });
+      for (const document of testCase.documents) {
+        // eslint-disable-next-line no-loop-func
+        it("Convert " + document.name + " to/from prosemirror", () => {
+          // NOTE: only converts first block
+          validateConversion(document.blocks[0], editor);
+        });
+      }
+    });
+  }
 });

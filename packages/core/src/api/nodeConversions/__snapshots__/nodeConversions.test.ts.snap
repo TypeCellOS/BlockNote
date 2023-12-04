@@ -1,6 +1,134 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Complex ProseMirror Node Conversions > Convert complex block to node 1`] = `
+exports[`Test BlockNote-Prosemirror conversion > Case: custom inline content schema > Convert mention/basic to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "textAlignment": "left",
+      },
+      "content": [
+        {
+          "text": "I enjoy working with ",
+          "type": "text",
+        },
+        {
+          "attrs": {
+            "user": "Matthew",
+          },
+          "type": "mention",
+        },
+      ],
+      "type": "paragraph",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test BlockNote-Prosemirror conversion > Case: custom inline content schema > Convert tag/basic to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "textAlignment": "left",
+      },
+      "content": [
+        {
+          "text": "I love ",
+          "type": "text",
+        },
+        {
+          "content": [
+            {
+              "text": "BlockNote",
+              "type": "text",
+            },
+          ],
+          "type": "tag",
+        },
+      ],
+      "type": "paragraph",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test BlockNote-Prosemirror conversion > Case: custom style schema > Convert fontSize/basic to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "textAlignment": "left",
+      },
+      "content": [
+        {
+          "marks": [
+            {
+              "attrs": {
+                "stringValue": "18px",
+              },
+              "type": "fontSize",
+            },
+          ],
+          "text": "This is text with a custom fontSize",
+          "type": "text",
+        },
+      ],
+      "type": "paragraph",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test BlockNote-Prosemirror conversion > Case: custom style schema > Convert small/basic to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "textAlignment": "left",
+      },
+      "content": [
+        {
+          "marks": [
+            {
+              "type": "small",
+            },
+          ],
+          "text": "This is a small text",
+          "type": "text",
+        },
+      ],
+      "type": "paragraph",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert complex/misc to/from prosemirror 1`] = `
 {
   "attrs": {
     "backgroundColor": "blue",
@@ -89,101 +217,7 @@ exports[`Complex ProseMirror Node Conversions > Convert complex block to node 1`
 }
 `;
 
-exports[`Complex ProseMirror Node Conversions > Convert complex node to block 1`] = `
-{
-  "children": [
-    {
-      "children": [],
-      "content": [
-        {
-          "styles": {},
-          "text": "Paragraph",
-          "type": "text",
-        },
-      ],
-      "id": "2",
-      "props": {
-        "backgroundColor": "red",
-        "textAlignment": "left",
-        "textColor": "default",
-      },
-      "type": "paragraph",
-    },
-    {
-      "children": [],
-      "content": [],
-      "id": "3",
-      "props": {
-        "backgroundColor": "default",
-        "textAlignment": "left",
-        "textColor": "default",
-      },
-      "type": "bulletListItem",
-    },
-  ],
-  "content": [
-    {
-      "styles": {
-        "bold": true,
-        "underline": true,
-      },
-      "text": "Heading ",
-      "type": "text",
-    },
-    {
-      "styles": {
-        "italic": true,
-        "strike": true,
-      },
-      "text": "2",
-      "type": "text",
-    },
-  ],
-  "id": "1",
-  "props": {
-    "backgroundColor": "blue",
-    "level": 2,
-    "textAlignment": "right",
-    "textColor": "yellow",
-  },
-  "type": "heading",
-}
-`;
-
-exports[`Simple ProseMirror Node Conversions > Convert simple block to node 1`] = `
-{
-  "attrs": {
-    "backgroundColor": "default",
-    "id": "1",
-    "textColor": "default",
-  },
-  "content": [
-    {
-      "attrs": {
-        "textAlignment": "left",
-      },
-      "type": "paragraph",
-    },
-  ],
-  "type": "blockContainer",
-}
-`;
-
-exports[`Simple ProseMirror Node Conversions > Convert simple node to block 1`] = `
-{
-  "children": [],
-  "content": [],
-  "id": "1",
-  "props": {
-    "backgroundColor": "default",
-    "textAlignment": "left",
-    "textColor": "default",
-  },
-  "type": "paragraph",
-}
-`;
-
-exports[`hard breaks > Convert a block with a hard break 1`] = `
+exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert hardbreak/basic to/from prosemirror 1`] = `
 {
   "attrs": {
     "backgroundColor": "default",
@@ -215,100 +249,7 @@ exports[`hard breaks > Convert a block with a hard break 1`] = `
 }
 `;
 
-exports[`hard breaks > Convert a block with a hard break and different styles 1`] = `
-{
-  "attrs": {
-    "backgroundColor": "default",
-    "id": "1",
-    "textColor": "default",
-  },
-  "content": [
-    {
-      "attrs": {
-        "textAlignment": "left",
-      },
-      "content": [
-        {
-          "text": "Text1",
-          "type": "text",
-        },
-        {
-          "type": "hardBreak",
-        },
-        {
-          "marks": [
-            {
-              "type": "bold",
-            },
-          ],
-          "text": "Text2",
-          "type": "text",
-        },
-      ],
-      "type": "paragraph",
-    },
-  ],
-  "type": "blockContainer",
-}
-`;
-
-exports[`hard breaks > Convert a block with a hard break at the end 1`] = `
-{
-  "attrs": {
-    "backgroundColor": "default",
-    "id": "1",
-    "textColor": "default",
-  },
-  "content": [
-    {
-      "attrs": {
-        "textAlignment": "left",
-      },
-      "content": [
-        {
-          "text": "Text1",
-          "type": "text",
-        },
-        {
-          "type": "hardBreak",
-        },
-      ],
-      "type": "paragraph",
-    },
-  ],
-  "type": "blockContainer",
-}
-`;
-
-exports[`hard breaks > Convert a block with a hard break at the start 1`] = `
-{
-  "attrs": {
-    "backgroundColor": "default",
-    "id": "1",
-    "textColor": "default",
-  },
-  "content": [
-    {
-      "attrs": {
-        "textAlignment": "left",
-      },
-      "content": [
-        {
-          "type": "hardBreak",
-        },
-        {
-          "text": "Text1",
-          "type": "text",
-        },
-      ],
-      "type": "paragraph",
-    },
-  ],
-  "type": "blockContainer",
-}
-`;
-
-exports[`hard breaks > Convert a block with a hard break between links 1`] = `
+exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert hardbreak/between-links to/from prosemirror 1`] = `
 {
   "attrs": {
     "backgroundColor": "default",
@@ -360,7 +301,35 @@ exports[`hard breaks > Convert a block with a hard break between links 1`] = `
 }
 `;
 
-exports[`hard breaks > Convert a block with a hard break in a link 1`] = `
+exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert hardbreak/end to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "textAlignment": "left",
+      },
+      "content": [
+        {
+          "text": "Text1",
+          "type": "text",
+        },
+        {
+          "type": "hardBreak",
+        },
+      ],
+      "type": "paragraph",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert hardbreak/link to/from prosemirror 1`] = `
 {
   "attrs": {
     "backgroundColor": "default",
@@ -412,7 +381,7 @@ exports[`hard breaks > Convert a block with a hard break in a link 1`] = `
 }
 `;
 
-exports[`hard breaks > Convert a block with multiple hard breaks 1`] = `
+exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert hardbreak/multiple to/from prosemirror 1`] = `
 {
   "attrs": {
     "backgroundColor": "default",
@@ -451,7 +420,7 @@ exports[`hard breaks > Convert a block with multiple hard breaks 1`] = `
 }
 `;
 
-exports[`hard breaks > Convert a block with only a hard break 1`] = `
+exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert hardbreak/only to/from prosemirror 1`] = `
 {
   "attrs": {
     "backgroundColor": "default",
@@ -475,7 +444,7 @@ exports[`hard breaks > Convert a block with only a hard break 1`] = `
 }
 `;
 
-exports[`links > Convert a block with link 1`] = `
+exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert hardbreak/start to/from prosemirror 1`] = `
 {
   "attrs": {
     "backgroundColor": "default",
@@ -489,17 +458,10 @@ exports[`links > Convert a block with link 1`] = `
       },
       "content": [
         {
-          "marks": [
-            {
-              "attrs": {
-                "class": null,
-                "href": "https://www.website.com",
-                "target": "_blank",
-              },
-              "type": "link",
-            },
-          ],
-          "text": "Website",
+          "type": "hardBreak",
+        },
+        {
+          "text": "Text1",
           "type": "text",
         },
       ],
@@ -510,7 +472,134 @@ exports[`links > Convert a block with link 1`] = `
 }
 `;
 
-exports[`links > Convert two adjacent links in a block 1`] = `
+exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert hardbreak/styles to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "textAlignment": "left",
+      },
+      "content": [
+        {
+          "text": "Text1",
+          "type": "text",
+        },
+        {
+          "type": "hardBreak",
+        },
+        {
+          "marks": [
+            {
+              "type": "bold",
+            },
+          ],
+          "text": "Text2",
+          "type": "text",
+        },
+      ],
+      "type": "paragraph",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert image/basic to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "caption": "Caption",
+        "textAlignment": "left",
+        "url": "exampleURL",
+        "width": 256,
+      },
+      "type": "image",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert image/button to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "caption": "",
+        "textAlignment": "left",
+        "url": "",
+        "width": 512,
+      },
+      "type": "image",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert image/nested to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "caption": "Caption",
+        "textAlignment": "left",
+        "url": "exampleURL",
+        "width": 256,
+      },
+      "type": "image",
+    },
+    {
+      "content": [
+        {
+          "attrs": {
+            "backgroundColor": "default",
+            "id": "2",
+            "textColor": "default",
+          },
+          "content": [
+            {
+              "attrs": {
+                "caption": "Caption",
+                "textAlignment": "left",
+                "url": "exampleURL",
+                "width": 256,
+              },
+              "type": "image",
+            },
+          ],
+          "type": "blockContainer",
+        },
+      ],
+      "type": "blockGroup",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert link/adjacent to/from prosemirror 1`] = `
 {
   "attrs": {
     "backgroundColor": "default",
@@ -549,6 +638,278 @@ exports[`links > Convert two adjacent links in a block 1`] = `
             },
           ],
           "text": "Website2",
+          "type": "text",
+        },
+      ],
+      "type": "paragraph",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert link/basic to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "textAlignment": "left",
+      },
+      "content": [
+        {
+          "marks": [
+            {
+              "attrs": {
+                "class": null,
+                "href": "https://www.website.com",
+                "target": "_blank",
+              },
+              "type": "link",
+            },
+          ],
+          "text": "Website",
+          "type": "text",
+        },
+      ],
+      "type": "paragraph",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert link/styled to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "textAlignment": "left",
+      },
+      "content": [
+        {
+          "marks": [
+            {
+              "type": "bold",
+            },
+            {
+              "attrs": {
+                "class": null,
+                "href": "https://www.website.com",
+                "target": "_blank",
+              },
+              "type": "link",
+            },
+          ],
+          "text": "Web",
+          "type": "text",
+        },
+        {
+          "marks": [
+            {
+              "attrs": {
+                "class": null,
+                "href": "https://www.website.com",
+                "target": "_blank",
+              },
+              "type": "link",
+            },
+          ],
+          "text": "site",
+          "type": "text",
+        },
+      ],
+      "type": "paragraph",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert paragraph/basic to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "textAlignment": "left",
+      },
+      "content": [
+        {
+          "text": "Paragraph",
+          "type": "text",
+        },
+      ],
+      "type": "paragraph",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert paragraph/empty to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "textAlignment": "left",
+      },
+      "type": "paragraph",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert paragraph/nested to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "textAlignment": "left",
+      },
+      "content": [
+        {
+          "text": "Paragraph",
+          "type": "text",
+        },
+      ],
+      "type": "paragraph",
+    },
+    {
+      "content": [
+        {
+          "attrs": {
+            "backgroundColor": "default",
+            "id": "2",
+            "textColor": "default",
+          },
+          "content": [
+            {
+              "attrs": {
+                "textAlignment": "left",
+              },
+              "content": [
+                {
+                  "text": "Nested Paragraph 1",
+                  "type": "text",
+                },
+              ],
+              "type": "paragraph",
+            },
+          ],
+          "type": "blockContainer",
+        },
+        {
+          "attrs": {
+            "backgroundColor": "default",
+            "id": "3",
+            "textColor": "default",
+          },
+          "content": [
+            {
+              "attrs": {
+                "textAlignment": "left",
+              },
+              "content": [
+                {
+                  "text": "Nested Paragraph 2",
+                  "type": "text",
+                },
+              ],
+              "type": "paragraph",
+            },
+          ],
+          "type": "blockContainer",
+        },
+      ],
+      "type": "blockGroup",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert paragraph/styled to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "pink",
+    "id": "1",
+    "textColor": "orange",
+  },
+  "content": [
+    {
+      "attrs": {
+        "textAlignment": "center",
+      },
+      "content": [
+        {
+          "text": "Plain ",
+          "type": "text",
+        },
+        {
+          "marks": [
+            {
+              "attrs": {
+                "stringValue": "red",
+              },
+              "type": "textColor",
+            },
+          ],
+          "text": "Red Text ",
+          "type": "text",
+        },
+        {
+          "marks": [
+            {
+              "attrs": {
+                "stringValue": "blue",
+              },
+              "type": "backgroundColor",
+            },
+          ],
+          "text": "Blue Background ",
+          "type": "text",
+        },
+        {
+          "marks": [
+            {
+              "attrs": {
+                "stringValue": "red",
+              },
+              "type": "textColor",
+            },
+            {
+              "attrs": {
+                "stringValue": "blue",
+              },
+              "type": "backgroundColor",
+            },
+          ],
+          "text": "Mixed Colors",
           "type": "text",
         },
       ],
