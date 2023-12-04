@@ -67,6 +67,7 @@
     "@vitejs/plugin-react": "^4.0.4",
     "eslint": "^8.10.0",
     "prettier": "^2.7.1",
+    "rollup-plugin-webpack-stats": "^0.2.2",
     "typescript": "^5.0.4",
     "vite": "^4.4.8",
     "vite-plugin-eslint": "^1.8.1",

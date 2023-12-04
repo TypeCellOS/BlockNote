@@ -1,0 +1,32 @@
+name: RelativeCI
+
+on:
+  workflow_run:
+    workflows: ["build"]
+    types:
+      - completed
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send bundle stats and build information to RelativeCI (core)
+        uses: relative-ci/agent-action@v2
+        with:
+          artifactName: relative-ci-artifacts-core
+          key: ${{ secrets.RELATIVE_CI_KEY }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Send bundle stats and build information to RelativeCI (react)
+        uses: relative-ci/agent-action@v2
+        with:
+          artifactName: relative-ci-artifacts-react
+          key: ${{ secrets.RELATIVE_CI_KEY }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Send bundle stats and build information to RelativeCI (editor)
+        uses: relative-ci/agent-action@v2
+        with:
+          artifactName: relative-ci-artifacts-editor
+          key: ${{ secrets.RELATIVE_CI_KEY }}
+          token: ${{ secrets.GITHUB_TOKEN }}

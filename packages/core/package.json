@@ -98,6 +98,7 @@
     "typescript": "^5.0.4",
     "vite": "^4.4.8",
     "vite-plugin-eslint": "^1.8.1",
+    "rollup-plugin-webpack-stats": "^0.2.2",
     "vitest": "^0.34.1"
   },
   "eslintConfig": {

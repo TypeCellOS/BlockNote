@@ -1,10 +1,11 @@
 import react from "@vitejs/plugin-react";
 import * as path from "path";
+import { webpackStats } from "rollup-plugin-webpack-stats";
 import { defineConfig } from "vite";
 // import eslintPlugin from "vite-plugin-eslint";
 // https://vitejs.dev/config/
 export default defineConfig((conf) => ({
-  plugins: [react()],
+  plugins: [react(), webpackStats()],
   optimizeDeps: {
     // link: ['vite-react-ts-components'],
   },
