@@ -9,12 +9,16 @@ import {
   replaceBlocks,
   updateBlock,
 } from "../api/blockManipulation/blockManipulation";
+import { createExternalHTMLExporter } from "../api/exporters/html/externalHTMLExporter";
+import { blocksToMarkdown } from "../api/exporters/markdown/markdownExporter";
 import { getBlockInfoFromPos } from "../api/getBlockInfoFromPos";
 import {
   blockToNode,
   nodeToBlock,
 } from "../api/nodeConversions/nodeConversions";
 import { getNodeById } from "../api/nodeUtil";
+import { HTMLToBlocks } from "../api/parsers/html/parseHTML";
+import { markdownToBlocks } from "../api/parsers/markdown/parseMarkdown";
 import {
   DefaultBlockSchema,
   DefaultInlineContentSchema,
@@ -24,29 +28,6 @@ import {
   defaultInlineContentSpecs,
   defaultStyleSpecs,
 } from "../blocks/defaultBlocks";
-import {
-  Block,
-  BlockIdentifier,
-  BlockNoteDOMAttributes,
-  BlockSchema,
-  BlockSchemaFromSpecs,
-  BlockSchemaWithBlock,
-  BlockSpecs,
-  PartialBlock,
-  StyleSchema,
-  StyleSchemaFromSpecs,
-  StyleSpecs,
-  Styles,
-} from "../schema";
-import { getBlockNoteExtensions } from "./BlockNoteExtensions";
-import { Selection } from "./selectionTypes";
-
-import "prosemirror-tables/style/tables.css";
-
-import { createExternalHTMLExporter } from "../api/exporters/html/externalHTMLExporter";
-import { blocksToMarkdown } from "../api/exporters/markdown/markdownExporter";
-import { HTMLToBlocks } from "../api/parsers/html/parseHTML";
-import { markdownToBlocks } from "../api/parsers/markdown/parseMarkdown";
 import { FormattingToolbarProsemirrorPlugin } from "../extensions/FormattingToolbar/FormattingToolbarPlugin";
 import { HyperlinkToolbarProsemirrorPlugin } from "../extensions/HyperlinkToolbar/HyperlinkToolbarPlugin";
 import { ImageToolbarProsemirrorPlugin } from "../extensions/ImageToolbar/ImageToolbarPlugin";
@@ -57,18 +38,38 @@ import { getDefaultSlashMenuItems } from "../extensions/SlashMenu/defaultSlashMe
 import { TableHandlesProsemirrorPlugin } from "../extensions/TableHandles/TableHandlesPlugin";
 import { UniqueID } from "../extensions/UniqueID/UniqueID";
 import {
+  Block,
+  BlockIdentifier,
+  BlockNoteDOMAttributes,
+  BlockSchema,
+  BlockSchemaFromSpecs,
+  BlockSchemaWithBlock,
+  BlockSpecs,
   InlineContentSchema,
   InlineContentSchemaFromSpecs,
   InlineContentSpecs,
+  PartialBlock,
+  StyleSchema,
+  StyleSchemaFromSpecs,
+  StyleSpecs,
+  Styles,
   getBlockSchemaFromSpecs,
   getInlineContentSchemaFromSpecs,
   getStyleSchemaFromSpecs,
 } from "../schema";
 import { mergeCSSClasses } from "../util/browser";
 import { UnreachableCaseError } from "../util/typescript";
+
+import { getBlockNoteExtensions } from "./BlockNoteExtensions";
 import { TextCursorPosition } from "./cursorPositionTypes";
-import "./editor.css";
+
+import { Selection } from "./selectionTypes";
 import { transformPasted } from "./transformPasted";
+
+// CSS
+import "prosemirror-tables/style/tables.css";
+import "./Block.css";
+import "./editor.css";
 
 export type BlockNoteEditorOptions<
   BSpecs extends BlockSpecs,

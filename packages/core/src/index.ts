@@ -4,7 +4,6 @@ export * from "./api/testUtil";
 export * from "./blocks/ImageBlockContent/uploadToTmpFilesDotOrg_DEV_ONLY";
 export * from "./blocks/defaultBlocks";
 export * from "./blocks/defaultProps";
-export * as blockStyles from "./editor/Block.css";
 export * from "./editor/BlockNoteEditor";
 export * from "./editor/BlockNoteExtensions";
 export * from "./editor/selectionTypes";
