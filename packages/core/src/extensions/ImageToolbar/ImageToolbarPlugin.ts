@@ -8,7 +8,7 @@ import { StyleSchema } from "../../schema";
 import {
   BaseUiElementCallbacks,
   BaseUiElementState,
-} from "../@util/BaseUiElementTypes";
+} from "../@shared/BaseUiElementTypes";
 import { EventEmitter } from "../../@util/EventEmitter";
 export type ImageToolbarCallbacks = BaseUiElementCallbacks;
 

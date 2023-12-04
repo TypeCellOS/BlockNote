@@ -17,9 +17,9 @@ export * from "./extensions/SlashMenu/SlashMenuPlugin";
 export { getDefaultSlashMenuItems } from "./extensions/SlashMenu/defaultSlashMenuItems";
 export * from "./extensions/TableHandles/TableHandlesPlugin";
 export * from "./schema";
-export * from "./extensions/@util/BaseUiElementTypes";
-export type { SuggestionItem } from "./extensions/@util/suggestion/SuggestionItem";
-export * from "./extensions/@util/suggestion/SuggestionPlugin";
+export * from "./extensions/@shared/BaseUiElementTypes";
+export type { SuggestionItem } from "./extensions/@shared/suggestion/SuggestionItem";
+export * from "./extensions/@shared/suggestion/SuggestionPlugin";
 export * from "./@util/browser";
 // for testing from react (TODO: move):
 export * from "./api/nodeConversions/nodeConversions";

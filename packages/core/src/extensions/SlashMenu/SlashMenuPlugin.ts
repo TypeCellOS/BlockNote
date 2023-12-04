@@ -8,7 +8,7 @@ import { EventEmitter } from "../../@util/EventEmitter";
 import {
   SuggestionsMenuState,
   setupSuggestionsMenu,
-} from "../@util/suggestion/SuggestionPlugin";
+} from "../@shared/suggestion/SuggestionPlugin";
 import { BaseSlashMenuItem } from "./BaseSlashMenuItem";
 
 export const slashMenuPluginKey = new PluginKey("SlashMenuPlugin");

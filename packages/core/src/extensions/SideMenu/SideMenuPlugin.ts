@@ -9,7 +9,7 @@ import { cleanHTMLToMarkdown } from "../../api/exporters/markdown/markdownExport
 import { Block, BlockSchema } from "../../schema/blocks/types";
 import { InlineContentSchema } from "../../schema/inlineContent/types";
 import { StyleSchema } from "../../schema/styles/types";
-import { BaseUiElementState } from "../@util/BaseUiElementTypes";
+import { BaseUiElementState } from "../@shared/BaseUiElementTypes";
 import { EventEmitter } from "../../@util/EventEmitter";
 import { getBlockInfoFromPos } from "../../api/getBlockInfoFromPos";
 import { slashMenuPluginKey } from "../SlashMenu/SlashMenuPlugin";

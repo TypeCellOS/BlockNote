@@ -9,7 +9,7 @@ import { StyleSchema } from "../../schema/styles/types";
 import {
   BaseUiElementCallbacks,
   BaseUiElementState,
-} from "../@util/BaseUiElementTypes";
+} from "../@shared/BaseUiElementTypes";
 import { EventEmitter } from "../../@util/EventEmitter";
 
 export type FormattingToolbarCallbacks = BaseUiElementCallbacks;
