@@ -1,5 +1,5 @@
 import { CSSObject, MantineThemeOverride } from "@mantine/core";
-import merge from "lodash/merge";
+import merge from "lodash.merge";
 
 export type CombinedColor = {
   text: string;
