@@ -45,7 +45,7 @@ export type BlockNoteEditorOptions<
   inlineContentSpecs: ISpecs;
 };
 
-// TODO: naming
+// TODO: naming, what's a good name for this?
 export class BlockNoteContext<
   BSchema extends BlockSchema = DefaultBlockSchema,
   ISchema extends InlineContentSchema = DefaultInlineContentSchema,
@@ -103,7 +103,8 @@ export class BlockNoteContext<
     this.pmSchema = getSchema(exts);
   }
 
-  // TODO: is there a way to do this without depending on creating prosemirror nodes?
+  // TODO: is there a way to do this without creating prosemirror nodes?
+  // This would reduce quite some dependencies (at least for this operation), as we wouldn't have to instantiate the schema and extensions
   // i.e.: can we directly transform the JSON to blocknote JSON instead?
   public prosemirrorJSONToBlocks(json: any) {
     const doc = this.pmSchema.nodeFromJSON(json);
