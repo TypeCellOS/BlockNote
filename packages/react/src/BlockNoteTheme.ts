@@ -1,5 +1,5 @@
 import { CSSObject, MantineThemeOverride } from "@mantine/core";
-import _ from "lodash";
+import merge from "lodash/merge";
 
 export type CombinedColor = {
   text: string;
@@ -106,7 +106,7 @@ export const blockNoteToMantineTheme = (theme: Theme): MantineThemeOverride => {
       // Slash Menu, Formatting Toolbar dropdown, color picker dropdown
       Menu: {
         styles: () => ({
-          dropdown: _.merge<CSSObject, CSSObject>(
+          dropdown: merge<CSSObject, CSSObject>(
             {
               backgroundColor: theme.colors.menu.background,
               border: border,
@@ -137,7 +137,7 @@ export const blockNoteToMantineTheme = (theme: Theme): MantineThemeOverride => {
       },
       TableHandle: {
         styles: () => ({
-          root: _.merge<CSSObject, CSSObject>(
+          root: merge<CSSObject, CSSObject>(
             {
               display: "flex",
               alignItems: "center",
@@ -158,7 +158,7 @@ export const blockNoteToMantineTheme = (theme: Theme): MantineThemeOverride => {
       },
       TableHandleMenu: {
         styles: () => ({
-          root: _.merge<CSSObject, CSSObject>(
+          root: merge<CSSObject, CSSObject>(
             {
               ".mantine-Menu-item": {
                 fontSize: "12px",
@@ -171,7 +171,7 @@ export const blockNoteToMantineTheme = (theme: Theme): MantineThemeOverride => {
       },
       Tabs: {
         styles: () => ({
-          root: _.merge<CSSObject, CSSObject>(
+          root: merge<CSSObject, CSSObject>(
             {
               width: "100%",
               backgroundColor: theme.colors.menu.background,
@@ -249,7 +249,7 @@ export const blockNoteToMantineTheme = (theme: Theme): MantineThemeOverride => {
       },
       ColorIcon: {
         styles: () => ({
-          root: _.merge<CSSObject, CSSObject>(
+          root: merge<CSSObject, CSSObject>(
             {
               border: border,
               borderRadius: innerBorderRadius,
@@ -260,7 +260,7 @@ export const blockNoteToMantineTheme = (theme: Theme): MantineThemeOverride => {
       },
       DragHandleMenu: {
         styles: () => ({
-          root: _.merge<CSSObject, CSSObject>(
+          root: merge<CSSObject, CSSObject>(
             {
               ".mantine-Menu-item": {
                 fontSize: "12px",
@@ -273,7 +273,7 @@ export const blockNoteToMantineTheme = (theme: Theme): MantineThemeOverride => {
       },
       Editor: {
         styles: () => ({
-          root: _.merge<CSSObject, CSSObject>(
+          root: merge<CSSObject, CSSObject>(
             {
               ".ProseMirror": {
                 backgroundColor: theme.colors.editor.background,
@@ -315,7 +315,7 @@ export const blockNoteToMantineTheme = (theme: Theme): MantineThemeOverride => {
       },
       Toolbar: {
         styles: () => ({
-          root: _.merge<CSSObject, CSSObject>(
+          root: merge<CSSObject, CSSObject>(
             {
               backgroundColor: theme.colors.menu.background,
               boxShadow: shadow,
@@ -373,7 +373,7 @@ export const blockNoteToMantineTheme = (theme: Theme): MantineThemeOverride => {
       },
       ToolbarInputDropdown: {
         styles: () => ({
-          root: _.merge<CSSObject, CSSObject>(
+          root: merge<CSSObject, CSSObject>(
             {
               backgroundColor: theme.colors.menu.background,
               border: border,
@@ -418,7 +418,7 @@ export const blockNoteToMantineTheme = (theme: Theme): MantineThemeOverride => {
       },
       Tooltip: {
         styles: () => ({
-          root: _.merge<CSSObject, CSSObject>(
+          root: merge<CSSObject, CSSObject>(
             {
               backgroundColor: theme.colors.tooltip.background,
               border: border,
@@ -437,7 +437,7 @@ export const blockNoteToMantineTheme = (theme: Theme): MantineThemeOverride => {
       },
       SlashMenu: {
         styles: () => ({
-          root: _.merge<CSSObject, CSSObject>(
+          root: merge<CSSObject, CSSObject>(
             {
               position: "relative",
               ".mantine-Menu-item": {
@@ -470,7 +470,7 @@ export const blockNoteToMantineTheme = (theme: Theme): MantineThemeOverride => {
       },
       SideMenu: {
         styles: () => ({
-          root: _.merge<CSSObject, CSSObject>(
+          root: merge<CSSObject, CSSObject>(
             {
               backgroundColor: "transparent",
               ".mantine-UnstyledButton-root": {
