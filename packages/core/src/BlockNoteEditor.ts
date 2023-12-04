@@ -92,6 +92,10 @@ export type BlockNoteEditorOptions<BSchema extends BlockSchema> = {
    */
   editable: boolean;
   /**
+   * Disables block nesting by the user if set to `false`.
+   */
+  enableNestedBlocks: boolean;
+  /**
    * The content that should be in the editor when it's created, represented as an array of partial block objects.
    */
   initialContent: PartialBlock<BSchema>[];
@@ -154,6 +158,7 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
   public blockCache = new WeakMap<Node, Block<BSchema>>();
   public readonly schema: BSchema;
   public ready = false;
+  public enableNestedBlocks = true;
 
   public readonly sideMenu: SideMenuProsemirrorPlugin<BSchema>;
   public readonly formattingToolbar: FormattingToolbarProsemirrorPlugin<BSchema>;
@@ -190,6 +195,10 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
     );
     this.hyperlinkToolbar = new HyperlinkToolbarProsemirrorPlugin(this);
     this.imageToolbar = new ImageToolbarProsemirrorPlugin(this);
+    this.enableNestedBlocks =
+      options.enableNestedBlocks !== undefined
+        ? options.enableNestedBlocks
+        : true;
 
     const extensions = getBlockNoteExtensions<BSchema>({
       editor: this,
@@ -776,6 +785,10 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
    * Checks if the block containing the text cursor can be nested.
    */
   public canNestBlock() {
+    if (!this.enableNestedBlocks) {
+      return false;
+    }
+
     const { startPos, depth } = getBlockInfoFromPos(
       this._tiptapEditor.state.doc,
       this._tiptapEditor.state.selection.from
@@ -795,6 +808,10 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
    * Checks if the block containing the text cursor is nested.
    */
   public canUnnestBlock() {
+    if (!this.enableNestedBlocks) {
+      return false;
+    }
+
     const { depth } = getBlockInfoFromPos(
       this._tiptapEditor.state.doc,
       this._tiptapEditor.state.selection.from

@@ -42,11 +42,18 @@ declare module "@tiptap/core" {
  */
 export const BlockContainer = Node.create<{
   domAttributes?: BlockNoteDOMAttributes;
+  enableNestedBlocks?: boolean;
 }>({
   name: "blockContainer",
   group: "blockContainer",
   // A block always contains content, and optionally a blockGroup which contains nested blocks
-  content: "blockContent blockGroup?",
+  content() {
+    if (!this.options.enableNestedBlocks) {
+      return "blockContent";
+    }
+
+    return "blockContent blockGroup?";
+  },
   // Ensures content-specific keyboard handlers trigger first.
   priority: 50,
   defining: true,
@@ -621,11 +628,17 @@ export const BlockContainer = Node.create<{
       // Always returning true for tab key presses ensures they're not captured by the browser. Otherwise, they blur the
       // editor since the browser will try to use tab for keyboard navigation.
       Tab: () => {
-        this.editor.commands.sinkListItem("blockContainer");
+        if (this.options.enableNestedBlocks) {
+          this.editor.commands.sinkListItem("blockContainer");
+        }
+
         return true;
       },
       "Shift-Tab": () => {
-        this.editor.commands.liftListItem("blockContainer");
+        if (this.options.enableNestedBlocks) {
+          this.editor.commands.liftListItem("blockContainer");
+        }
+
         return true;
       },
       "Mod-Alt-0": () =>
