@@ -1,9 +1,11 @@
 import { DOMSerializer, Fragment, Node } from "prosemirror-model";
 
 import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor";
-import { BlockSchema } from "../../../../schema/blocks/types";
-import { InlineContentSchema } from "../../../../schema/inlineContent/types";
-import { StyleSchema } from "../../../../schema/styles/types";
+import {
+  BlockSchema,
+  InlineContentSchema,
+  StyleSchema,
+} from "../../../../schema";
 import { nodeToBlock } from "../../../nodeConversions/nodeConversions";
 
 function doc(options: { document?: Document }) {

@@ -1,11 +1,11 @@
 import { InputRule } from "@tiptap/core";
 import {
+  PropSchema,
   createBlockSpecFromStronglyTypedTiptapNode,
   createStronglyTypedTiptapNode,
-} from "../../../schema/blocks/internal";
-import { PropSchema } from "../../../schema/blocks/types";
-import { defaultProps } from "../../defaultProps";
+} from "../../../schema";
 import { createDefaultBlockDOMOutputSpec } from "../../defaultBlockHelpers";
+import { defaultProps } from "../../defaultProps";
 import { handleEnter } from "../ListItemKeyboardShortcuts";
 
 export const bulletListItemPropSchema = {

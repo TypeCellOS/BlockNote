@@ -2,7 +2,7 @@ import { Node } from "@tiptap/core";
 import { ParseRule } from "@tiptap/pm/model";
 import { nodeToCustomInlineContent } from "../../api/nodeConversions/nodeConversions";
 import { propsToAttributes } from "../blocks/internal";
-import { Props } from "../blocks/types";
+import { Props } from "../propTypes";
 import { StyleSchema } from "../styles/types";
 import {
   addInlineContentAttributes,

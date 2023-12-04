@@ -1,5 +1,5 @@
 import { Node } from "@tiptap/core";
-import { BlockNoteDOMAttributes } from "../schema/blocks/types";
+import { BlockNoteDOMAttributes } from "../schema";
 import { mergeCSSClasses } from "../util/browser";
 
 export const BlockGroup = Node.create<{

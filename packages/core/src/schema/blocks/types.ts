@@ -7,7 +7,7 @@ import {
   InlineContentSchema,
   PartialInlineContent,
 } from "../inlineContent/types";
-import { PropSchema } from "../propTypes";
+import { PropSchema, Props } from "../propTypes";
 import { StyleSchema } from "../styles/types";
 
 export type BlockNoteDOMElement =

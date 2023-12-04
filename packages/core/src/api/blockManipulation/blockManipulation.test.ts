@@ -4,7 +4,7 @@ import {
   DefaultInlineContentSchema,
   DefaultStyleSchema,
 } from "../../blocks/defaultBlocks";
-import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
+import { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import { Block, PartialBlock } from "../../schema/blocks/types";
 
 let editor: BlockNoteEditor;

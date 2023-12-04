@@ -4,6 +4,7 @@ export * from "./blocks/types";
 export * from "./inlineContent/createSpec";
 export * from "./inlineContent/internal";
 export * from "./inlineContent/types";
+export * from "./propTypes";
 export * from "./styles/createSpec";
 export * from "./styles/internal";
 export * from "./styles/types";

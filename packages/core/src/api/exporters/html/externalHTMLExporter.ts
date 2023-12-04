@@ -4,9 +4,12 @@ import rehypeStringify from "rehype-stringify";
 import { unified } from "unified";
 
 import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
-import { BlockSchema, PartialBlock } from "../../../schema/blocks/types";
-import { InlineContentSchema } from "../../../schema/inlineContent/types";
-import { StyleSchema } from "../../../schema/styles/types";
+import {
+  BlockSchema,
+  InlineContentSchema,
+  PartialBlock,
+  StyleSchema,
+} from "../../../schema";
 import { blockToNode } from "../../nodeConversions/nodeConversions";
 import {
   serializeNodeInner,

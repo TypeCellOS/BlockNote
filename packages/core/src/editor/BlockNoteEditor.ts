@@ -3,13 +3,13 @@ import { Node } from "prosemirror-model";
 // import "./blocknote.css";
 import { Editor as TiptapEditor } from "@tiptap/core/dist/packages/core/src/Editor";
 import * as Y from "yjs";
-import { getBlockNoteExtensions } from "./BlockNoteExtensions";
 import {
   insertBlocks,
   removeBlocks,
   replaceBlocks,
   updateBlock,
 } from "../api/blockManipulation/blockManipulation";
+import { getBlockInfoFromPos } from "../api/getBlockInfoFromPos";
 import {
   blockToNode,
   nodeToBlock,
@@ -24,8 +24,6 @@ import {
   defaultInlineContentSpecs,
   defaultStyleSpecs,
 } from "../blocks/defaultBlocks";
-import { Selection } from "./selectionTypes";
-import { getBlockInfoFromPos } from "../api/getBlockInfoFromPos";
 import {
   Block,
   BlockIdentifier,
@@ -35,13 +33,13 @@ import {
   BlockSchemaWithBlock,
   BlockSpecs,
   PartialBlock,
-} from "../schema/blocks/types";
-import {
   StyleSchema,
   StyleSchemaFromSpecs,
   StyleSpecs,
   Styles,
-} from "../schema/styles/types";
+} from "../schema";
+import { getBlockNoteExtensions } from "./BlockNoteExtensions";
+import { Selection } from "./selectionTypes";
 
 import "prosemirror-tables/style/tables.css";
 
@@ -49,8 +47,6 @@ import { createExternalHTMLExporter } from "../api/exporters/html/externalHTMLEx
 import { blocksToMarkdown } from "../api/exporters/markdown/markdownExporter";
 import { HTMLToBlocks } from "../api/parsers/html/parseHTML";
 import { markdownToBlocks } from "../api/parsers/markdown/parseMarkdown";
-import "./editor.css";
-import { TextCursorPosition } from "./cursorPositionTypes";
 import { FormattingToolbarProsemirrorPlugin } from "../extensions/FormattingToolbar/FormattingToolbarPlugin";
 import { HyperlinkToolbarProsemirrorPlugin } from "../extensions/HyperlinkToolbar/HyperlinkToolbarPlugin";
 import { ImageToolbarProsemirrorPlugin } from "../extensions/ImageToolbar/ImageToolbarPlugin";
@@ -60,17 +56,19 @@ import { SlashMenuProsemirrorPlugin } from "../extensions/SlashMenu/SlashMenuPlu
 import { getDefaultSlashMenuItems } from "../extensions/SlashMenu/defaultSlashMenuItems";
 import { TableHandlesProsemirrorPlugin } from "../extensions/TableHandles/TableHandlesPlugin";
 import { UniqueID } from "../extensions/UniqueID/UniqueID";
-import { getBlockSchemaFromSpecs } from "../schema/blocks/internal";
-import { getInlineContentSchemaFromSpecs } from "../schema/inlineContent/internal";
 import {
   InlineContentSchema,
   InlineContentSchemaFromSpecs,
   InlineContentSpecs,
-} from "../schema/inlineContent/types";
-import { getStyleSchemaFromSpecs } from "../schema/styles/internal";
+  getBlockSchemaFromSpecs,
+  getInlineContentSchemaFromSpecs,
+  getStyleSchemaFromSpecs,
+} from "../schema";
 import { mergeCSSClasses } from "../util/browser";
+import { UnreachableCaseError } from "../util/typescript";
+import { TextCursorPosition } from "./cursorPositionTypes";
+import "./editor.css";
 import { transformPasted } from "./transformPasted";
-import {UnreachableCaseError} from "../util/typescript";
 
 export type BlockNoteEditorOptions<
   BSpecs extends BlockSpecs,

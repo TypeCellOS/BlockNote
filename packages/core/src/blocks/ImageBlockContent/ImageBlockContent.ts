@@ -2,16 +2,14 @@ import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import { imageToolbarPluginKey } from "../../extensions/ImageToolbar/ImageToolbarPlugin";
 
 import {
-  CustomBlockConfig,
-  createBlockSpec,
-} from "../../schema/blocks/createSpec";
-import {
   BlockFromConfig,
   BlockSchemaWithBlock,
+  CustomBlockConfig,
+  InlineContentSchema,
   PropSchema,
-} from "../../schema/blocks/types";
-import { InlineContentSchema } from "../../schema/inlineContent/types";
-import { StyleSchema } from "../../schema/styles/types";
+  StyleSchema,
+  createBlockSpec,
+} from "../../schema";
 import { defaultProps } from "../defaultProps";
 
 export const imagePropSchema = {

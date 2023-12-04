@@ -2,9 +2,7 @@ import { Extension } from "@tiptap/core";
 import { Plugin } from "prosemirror-state";
 
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
-import { BlockSchema } from "../../schema/blocks/types";
-import { InlineContentSchema } from "../../schema/inlineContent/types";
-import { StyleSchema } from "../../schema/styles/types";
+import { BlockSchema, InlineContentSchema, StyleSchema } from "../../schema";
 import { createExternalHTMLExporter } from "./html/externalHTMLExporter";
 import { createInternalHTMLSerializer } from "./html/internalHTMLSerializer";
 import { cleanHTMLToMarkdown } from "./markdown/markdownExporter";

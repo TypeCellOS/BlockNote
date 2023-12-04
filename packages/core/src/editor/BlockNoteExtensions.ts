@@ -24,12 +24,11 @@ import {
   BlockNoteDOMAttributes,
   BlockSchema,
   BlockSpecs,
-} from "../schema/blocks/types";
-import {
   InlineContentSchema,
   InlineContentSpecs,
-} from "../schema/inlineContent/types";
-import { StyleSchema, StyleSpecs } from "../schema/styles/types";
+  StyleSchema,
+  StyleSpecs,
+} from "../schema";
 
 /**
  * Get all the Tiptap extensions BlockNote is configured with by default

@@ -3,17 +3,17 @@ import Code from "@tiptap/extension-code";
 import Italic from "@tiptap/extension-italic";
 import Strike from "@tiptap/extension-strike";
 import Underline from "@tiptap/extension-underline";
-import { getBlockSchemaFromSpecs } from "../schema/blocks/internal";
-import { BlockSpecs } from "../schema/blocks/types";
-import { getInlineContentSchemaFromSpecs } from "../schema/inlineContent/internal";
-import { InlineContentSpecs } from "../schema/inlineContent/types";
-import {
-  createStyleSpecFromTipTapMark,
-  getStyleSchemaFromSpecs,
-} from "../schema/styles/internal";
-import { StyleSpecs } from "../schema/styles/types";
 import { BackgroundColor } from "../extensions/BackgroundColor/BackgroundColorMark";
 import { TextColor } from "../extensions/TextColor/TextColorMark";
+import {
+  BlockSpecs,
+  InlineContentSpecs,
+  StyleSpecs,
+  createStyleSpecFromTipTapMark,
+  getBlockSchemaFromSpecs,
+  getInlineContentSchemaFromSpecs,
+  getStyleSchemaFromSpecs,
+} from "../schema";
 import { Heading } from "./HeadingBlockContent/HeadingBlockContent";
 import { Image } from "./ImageBlockContent/ImageBlockContent";
 import { BulletListItem } from "./ListItemBlockContent/BulletListItemBlockContent/BulletListItemBlockContent";

@@ -1,5 +1,5 @@
 import { Mark } from "@tiptap/core";
-import { createStyleSpecFromTipTapMark } from "../../schema/styles/internal";
+import { createStyleSpecFromTipTapMark } from "../../schema";
 
 const TextColorMark = Mark.create({
   name: "textColor",

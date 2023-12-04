@@ -1,4 +1,7 @@
-import { Props, PropSchema } from "../schema/blocks/types";
+import type { Props, PropSchema } from "../schema";
+
+// TODO: this system should probably be moved / refactored.
+// The dependency from schema on this file doesn't make sense
 
 export const defaultProps = {
   backgroundColor: {

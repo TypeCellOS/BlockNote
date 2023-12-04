@@ -2,9 +2,7 @@ import { findParentNode } from "@tiptap/core";
 import { EditorState, Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
-import { BlockSchema } from "../../schema/blocks/types";
-import { InlineContentSchema } from "../../schema/inlineContent/types";
-import { StyleSchema } from "../../schema/styles/types";
+import { BlockSchema, InlineContentSchema, StyleSchema } from "../../schema";
 import { BaseUiElementState } from "../BaseUiElementTypes";
 import { SuggestionItem } from "./SuggestionItem";
 

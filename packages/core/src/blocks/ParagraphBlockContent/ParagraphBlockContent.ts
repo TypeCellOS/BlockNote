@@ -1,9 +1,9 @@
 import {
   createBlockSpecFromStronglyTypedTiptapNode,
   createStronglyTypedTiptapNode,
-} from "../../schema/blocks/internal";
-import { defaultProps } from "../defaultProps";
+} from "../../schema";
 import { createDefaultBlockDOMOutputSpec } from "../defaultBlockHelpers";
+import { defaultProps } from "../defaultProps";
 
 export const paragraphPropSchema = {
   ...defaultProps,

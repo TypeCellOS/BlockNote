@@ -1,9 +1,12 @@
-import { mergeCSSClasses } from "../util/browser";
 import { blockToNode } from "../api/nodeConversions/nodeConversions";
 import type { BlockNoteEditor } from "../editor/BlockNoteEditor";
-import { Block, BlockSchema } from "../schema/blocks/types";
-import { InlineContentSchema } from "../schema/inlineContent/types";
-import { StyleSchema } from "../schema/styles/types";
+import type {
+  Block,
+  BlockSchema,
+  InlineContentSchema,
+  StyleSchema,
+} from "../schema";
+import { mergeCSSClasses } from "../util/browser";
 
 // Function that creates a ProseMirror `DOMOutputSpec` for a default block.
 // Since all default blocks have the same structure (`blockContent` div with a

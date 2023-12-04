@@ -6,11 +6,13 @@ import {
   Node,
   NodeConfig,
 } from "@tiptap/core";
-import { mergeCSSClasses } from "../../util/browser";
 import { defaultBlockToHTML } from "../../blocks/defaultBlockHelpers";
 import { inheritedProps } from "../../blocks/defaultProps";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
+import { mergeCSSClasses } from "../../util/browser";
+import { camelToDataKebab } from "../../util/string";
 import { InlineContentSchema } from "../inlineContent/types";
+import { PropSchema, Props } from "../propTypes";
 import { StyleSchema } from "../styles/types";
 import {
   BlockConfig,
@@ -18,15 +20,9 @@ import {
   BlockSchemaWithBlock,
   BlockSpec,
   BlockSpecs,
-  PropSchema,
-  Props,
   SpecificBlock,
   TiptapBlockImplementation,
 } from "./types";
-
-export function camelToDataKebab(str: string): string {
-  return "data-" + str.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
-}
 
 // Function that uses the 'propSchema' of a blockConfig to create a TipTap
 // node's `addAttributes` property.

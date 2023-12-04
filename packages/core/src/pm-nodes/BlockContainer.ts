@@ -2,8 +2,6 @@ import { Node } from "@tiptap/core";
 import { Fragment, Node as PMNode, Slice } from "prosemirror-model";
 import { NodeSelection, TextSelection } from "prosemirror-state";
 
-import { mergeCSSClasses } from "../util/browser";
-import { UnreachableCaseError } from "../util/typescript";
 import { getBlockInfoFromPos } from "../api/getBlockInfoFromPos";
 import {
   blockToNode,
@@ -16,10 +14,12 @@ import { PreviousBlockTypePlugin } from "../extensions/PreviousBlockType/Previou
 import {
   BlockNoteDOMAttributes,
   BlockSchema,
+  InlineContentSchema,
   PartialBlock,
-} from "../schema/blocks/types";
-import { InlineContentSchema } from "../schema/inlineContent/types";
-import { StyleSchema } from "../schema/styles/types";
+  StyleSchema,
+} from "../schema";
+import { mergeCSSClasses } from "../util/browser";
+import { UnreachableCaseError } from "../util/typescript";
 
 // Object containing all possible block attributes.
 const BlockAttributes: Record<string, string> = {
