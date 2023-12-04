@@ -61,7 +61,7 @@ type MyEditorType = BlockNoteEditor<
   }
 >;
 
-export const CustomFormattingToolbar = (props: { editor: MyEditorType }) => {
+const CustomFormattingToolbar = (props: { editor: MyEditorType }) => {
   const activeStyles = useActiveStyles(props.editor);
 
   return (
