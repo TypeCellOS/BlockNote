@@ -1,7 +1,7 @@
 {
   "name": "@blocknote/example-editor",
   "private": true,
-  "version": "0.9.6",
+  "version": "0.10.0",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -9,8 +9,8 @@
     "lint": "eslint src --max-warnings 0"
   },
   "dependencies": {
-    "@blocknote/core": "^0.9.6",
-    "@blocknote/react": "^0.9.6",
+    "@blocknote/core": "^0.10.0",
+    "@blocknote/react": "^0.10.0",
     "@mantine/core": "^5.6.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -23,9 +23,9 @@
     "@types/react-dom": "^18.0.9",
     "@vitejs/plugin-react": "^4.0.4",
     "eslint": "^8.10.0",
+    "rollup-plugin-webpack-stats": "^0.2.2",
     "vite": "^4.4.8",
-    "vite-plugin-eslint": "^1.8.1",
-    "rollup-plugin-webpack-stats": "^0.2.2"
+    "vite-plugin-eslint": "^1.8.1"
   },
   "eslintConfig": {
     "extends": [
