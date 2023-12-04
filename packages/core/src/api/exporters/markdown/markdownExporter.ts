@@ -4,14 +4,14 @@ import rehypeRemark from "rehype-remark";
 import remarkGfm from "remark-gfm";
 import remarkStringify from "remark-stringify";
 import { unified } from "unified";
+import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
 import {
   Block,
-  BlockNoteEditor,
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
-  createExternalHTMLExporter,
-} from "../../..";
+} from "../../../schema";
+import { createExternalHTMLExporter } from "../html/externalHTMLExporter";
 import { removeUnderlines } from "./removeUnderlinesRehypePlugin";
 
 export function cleanHTMLToMarkdown(cleanHTMLString: string) {

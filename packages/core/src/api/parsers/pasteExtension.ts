@@ -1,7 +1,7 @@
 import { Extension } from "@tiptap/core";
 import { Plugin } from "prosemirror-state";
 
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import { BlockSchema } from "../../schema/blocks/types";
 import { InlineContentSchema } from "../../schema/inlineContent/types";
 import { StyleSchema } from "../../schema/styles/types";

@@ -1,21 +1,21 @@
 import { BlockSchema } from "@blocknote/core";
 
-import { FormattingToolbarProps } from "./FormattingToolbarPositioner";
 import { Toolbar } from "../@shared/Toolbar/Toolbar";
-import {
-  BlockTypeDropdown,
-  BlockTypeDropdownItem,
-} from "./DefaultDropdowns/BlockTypeDropdown";
-import { ToggledStyleButton } from "./DefaultButtons/ToggledStyleButton";
-import { TextAlignButton } from "./DefaultButtons/TextAlignButton";
 import { ColorStyleButton } from "./DefaultButtons/ColorStyleButton";
+import { CreateLinkButton } from "./DefaultButtons/CreateLinkButton";
+import { ImageCaptionButton } from "./DefaultButtons/ImageCaptionButton";
 import {
   NestBlockButton,
   UnnestBlockButton,
 } from "./DefaultButtons/NestBlockButtons";
-import { CreateLinkButton } from "./DefaultButtons/CreateLinkButton";
 import { ReplaceImageButton } from "./DefaultButtons/ReplaceImageButton";
-import { ImageCaptionButton } from "./DefaultButtons/ImageCaptionButton";
+import { TextAlignButton } from "./DefaultButtons/TextAlignButton";
+import { ToggledStyleButton } from "./DefaultButtons/ToggledStyleButton";
+import {
+  BlockTypeDropdown,
+  BlockTypeDropdownItem,
+} from "./DefaultDropdowns/BlockTypeDropdown";
+import type { FormattingToolbarProps } from "./FormattingToolbarPositioner";
 
 export const DefaultFormattingToolbar = <BSchema extends BlockSchema>(
   props: FormattingToolbarProps<BSchema> & {

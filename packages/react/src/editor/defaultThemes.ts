@@ -1,4 +1,4 @@
-import { Theme } from "../index";
+import { Theme } from "./BlockNoteTheme";
 
 export const defaultColorScheme = [
   "#FFFFFF",

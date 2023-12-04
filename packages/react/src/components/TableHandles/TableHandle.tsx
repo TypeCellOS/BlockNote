@@ -2,7 +2,7 @@ import { BlockSchemaWithBlock, DefaultBlockSchema } from "@blocknote/core";
 import { Menu, createStyles } from "@mantine/core";
 import { ReactNode, useState } from "react";
 import { DefaultTableHandleMenu } from "./TableHandleMenu/DefaultTableHandleMenu";
-import { TableHandleProps } from "./TableHandlePositioner";
+import type { TableHandleProps } from "./TableHandlePositioner";
 
 export const TableHandle = <
   BSchema extends BlockSchemaWithBlock<"table", DefaultBlockSchema["table"]>

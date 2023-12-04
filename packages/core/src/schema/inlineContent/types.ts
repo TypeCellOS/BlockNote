@@ -1,5 +1,5 @@
 import { Node } from "@tiptap/core";
-import { PropSchema, Props } from "../blocks/types";
+import { PropSchema, Props } from "../propTypes";
 import { StyleSchema, Styles } from "../styles/types";
 
 export type CustomInlineContentConfig = {

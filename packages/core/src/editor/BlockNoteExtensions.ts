@@ -1,6 +1,6 @@
 import { Extensions, extensions } from "@tiptap/core";
 
-import { BlockNoteEditor } from "./BlockNoteEditor";
+import type { BlockNoteEditor } from "./BlockNoteEditor";
 
 import Collaboration from "@tiptap/extension-collaboration";
 import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
@@ -14,12 +14,12 @@ import * as Y from "yjs";
 import { createCopyToClipboardExtension } from "../api/exporters/copyExtension";
 import { createPasteFromClipboardExtension } from "../api/parsers/pasteExtension";
 import { BackgroundColorExtension } from "../extensions/BackgroundColor/BackgroundColorExtension";
-import { BlockContainer, BlockGroup, Doc } from "../pm-nodes";
 import { Placeholder } from "../extensions/Placeholder/PlaceholderExtension";
 import { TextAlignmentExtension } from "../extensions/TextAlignment/TextAlignmentExtension";
 import { TextColorExtension } from "../extensions/TextColor/TextColorExtension";
 import { TrailingNode } from "../extensions/TrailingNode/TrailingNodeExtension";
 import UniqueID from "../extensions/UniqueID/UniqueID";
+import { BlockContainer, BlockGroup, Doc } from "../pm-nodes";
 import {
   BlockNoteDOMAttributes,
   BlockSchema,

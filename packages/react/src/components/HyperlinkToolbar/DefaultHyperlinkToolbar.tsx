@@ -6,7 +6,7 @@ import { StyleSchema } from "@blocknote/core";
 import { Toolbar } from "../@shared/Toolbar/Toolbar";
 import { ToolbarButton } from "../@shared/Toolbar/ToolbarButton";
 import { EditHyperlinkMenu } from "./EditHyperlinkMenu/components/EditHyperlinkMenu";
-import { HyperlinkToolbarProps } from "./HyperlinkToolbarPositioner";
+import type { HyperlinkToolbarProps } from "./HyperlinkToolbarPositioner";
 
 export const DefaultHyperlinkToolbar = <
   BSchema extends BlockSchema,

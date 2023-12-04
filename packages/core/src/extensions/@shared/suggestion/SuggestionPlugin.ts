@@ -1,16 +1,14 @@
+import { findParentNode } from "@tiptap/core";
 import { EditorState, Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
-import { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
+import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
 import { BlockSchema } from "../../../schema/blocks/types";
 import { InlineContentSchema } from "../../../schema/inlineContent/types";
 import { StyleSchema } from "../../../schema/styles/types";
 import { BaseUiElementState } from "../BaseUiElementTypes";
 import { SuggestionItem } from "./SuggestionItem";
-import {findParentNode} from "@tiptap/core";
 
-const findBlock = findParentNode(
-    (node) => node.type.name === "blockContainer"
-);
+const findBlock = findParentNode((node) => node.type.name === "blockContainer");
 
 export type SuggestionsMenuState<T extends SuggestionItem> =
   BaseUiElementState & {

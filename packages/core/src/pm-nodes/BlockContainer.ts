@@ -2,12 +2,17 @@ import { Node } from "@tiptap/core";
 import { Fragment, Node as PMNode, Slice } from "prosemirror-model";
 import { NodeSelection, TextSelection } from "prosemirror-state";
 
-import { BlockNoteEditor } from "../editor/BlockNoteEditor";
+import { mergeCSSClasses } from "../@util/browser";
+import { UnreachableCaseError } from "../@util/typescript";
+import { getBlockInfoFromPos } from "../api/getBlockInfoFromPos";
 import {
   blockToNode,
   inlineContentToNodes,
   tableContentToNodes,
 } from "../api/nodeConversions/nodeConversions";
+import type { BlockNoteEditor } from "../editor/BlockNoteEditor";
+import { NonEditableBlockPlugin } from "../extensions/NonEditableBlocks/NonEditableBlockPlugin";
+import { PreviousBlockTypePlugin } from "../extensions/PreviousBlockType/PreviousBlockTypePlugin";
 import {
   BlockNoteDOMAttributes,
   BlockSchema,
@@ -15,19 +20,14 @@ import {
 } from "../schema/blocks/types";
 import { InlineContentSchema } from "../schema/inlineContent/types";
 import { StyleSchema } from "../schema/styles/types";
-import { mergeCSSClasses } from "../@util/browser";
-import { NonEditableBlockPlugin } from "../extensions/NonEditableBlocks/NonEditableBlockPlugin";
-import { PreviousBlockTypePlugin } from "../extensions/PreviousBlockType/PreviousBlockTypePlugin";
-import { getBlockInfoFromPos } from "../api/getBlockInfoFromPos";
-import {UnreachableCaseError} from "../@util/typescript";
 
 // Object containing all possible block attributes.
 const BlockAttributes: Record<string, string> = {
-    blockColor: "data-block-color",
-    blockStyle: "data-block-style",
-    id: "data-id",
-    depth: "data-depth",
-    depthChange: "data-depth-change",
+  blockColor: "data-block-color",
+  blockStyle: "data-block-style",
+  id: "data-id",
+  depth: "data-depth",
+  depthChange: "data-depth-change",
 };
 
 declare module "@tiptap/core" {

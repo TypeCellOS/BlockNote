@@ -10,10 +10,10 @@ import {
   RiText,
 } from "react-icons/ri";
 
-import { ToolbarDropdown } from "../../@shared/Toolbar/ToolbarDropdown";
-import { ToolbarDropdownItemProps } from "../../@shared/Toolbar/ToolbarDropdownItem";
 import { useEditorChange } from "../../../hooks/useEditorChange";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
+import { ToolbarDropdown } from "../../@shared/Toolbar/ToolbarDropdown";
+import type { ToolbarDropdownItemProps } from "../../@shared/Toolbar/ToolbarDropdownItem";
 
 export type BlockTypeDropdownItem = {
   name: string;

@@ -1,4 +1,4 @@
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import { imageToolbarPluginKey } from "../../extensions/ImageToolbar/ImageToolbarPlugin";
 
 import {

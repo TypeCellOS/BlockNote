@@ -1,5 +1,5 @@
 import { ParseRule } from "@tiptap/pm/model";
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import { InlineContentSchema } from "../inlineContent/types";
 import { StyleSchema } from "../styles/types";
 import {

@@ -1,11 +1,11 @@
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor";
+import { defaultBlockSchema } from "../../blocks/defaultBlocks";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import { Block, BlockSchema, PartialBlock } from "../../schema/blocks/types";
 import {
   InlineContentSchema,
   isStyledTextInlineContent,
 } from "../../schema/inlineContent/types";
 import { StyleSchema } from "../../schema/styles/types";
-import { defaultBlockSchema } from "../../blocks/defaultBlocks";
 import { imageToolbarPluginKey } from "../ImageToolbar/ImageToolbarPlugin";
 import { BaseSlashMenuItem } from "./BaseSlashMenuItem";
 

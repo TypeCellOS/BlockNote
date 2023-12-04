@@ -3,9 +3,9 @@ import { Box, Menu } from "@mantine/core";
 import { ReactNode, useCallback, useRef, useState } from "react";
 import { HiChevronRight } from "react-icons/hi";
 
-import { ColorPicker } from "../../../@shared/ColorPicker/ColorPicker";
 import { usePreventMenuOverflow } from "../../../../hooks/usePreventMenuOverflow";
-import { DragHandleMenuProps } from "../DragHandleMenu";
+import { ColorPicker } from "../../../@shared/ColorPicker/ColorPicker";
+import type { DragHandleMenuProps } from "../DragHandleMenu";
 import { DragHandleMenuItem } from "../DragHandleMenuItem";
 
 export const BlockColorsButton = <BSchema extends BlockSchema>(

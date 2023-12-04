@@ -1,10 +1,10 @@
 import { Plugin, PluginKey } from "prosemirror-state";
 
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor";
+import { EventEmitter } from "../../@util/EventEmitter";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import { BlockSchema } from "../../schema/blocks/types";
 import { InlineContentSchema } from "../../schema/inlineContent/types";
 import { StyleSchema } from "../../schema/styles/types";
-import { EventEmitter } from "../../@util/EventEmitter";
 import {
   SuggestionsMenuState,
   setupSuggestionsMenu,

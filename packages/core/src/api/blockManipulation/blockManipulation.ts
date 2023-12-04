@@ -1,12 +1,12 @@
 import { Editor } from "@tiptap/core";
 import { Node } from "prosemirror-model";
 
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import {
   BlockIdentifier,
   BlockSchema,
   PartialBlock,
-} from "../../schema/blocks/types";
+} from "../../../types/src/schema/blocks/types";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import { InlineContentSchema } from "../../schema/inlineContent/types";
 import { StyleSchema } from "../../schema/styles/types";
 import { blockToNode } from "../nodeConversions/nodeConversions";

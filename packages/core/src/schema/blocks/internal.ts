@@ -6,10 +6,10 @@ import {
   Node,
   NodeConfig,
 } from "@tiptap/core";
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor";
-import { inheritedProps } from "../../blocks/defaultProps";
-import { defaultBlockToHTML } from "../../blocks/defaultBlockHelpers";
 import { mergeCSSClasses } from "../../@util/browser";
+import { defaultBlockToHTML } from "../../blocks/defaultBlockHelpers";
+import { inheritedProps } from "../../blocks/defaultProps";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import { InlineContentSchema } from "../inlineContent/types";
 import { StyleSchema } from "../styles/types";
 import {
