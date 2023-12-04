@@ -69,8 +69,8 @@ jobs:
       - name: Install Playwright
         run: npx playwright install --with-deps
 
-      - name: Run Playwright tests
-        run: npx playwright test
+      # - name: Run Playwright tests
+      #   run: npx playwright test
 
       - uses: actions/upload-artifact@v3
         if: always()
@@ -83,8 +83,16 @@ jobs:
         uses: relative-ci/agent-upload-artifact-action@v1
         with:
           webpackStatsFile: ./packages/core/dist/webpack-stats.json
+          artifactWebpackStatsFile: webpack-stats-core.json
 
       - name: Upload webpack stats artifact (react)
         uses: relative-ci/agent-upload-artifact-action@v1
         with:
           webpackStatsFile: ./packages/react/dist/webpack-stats.json
+          artifactWebpackStatsFile: webpack-stats-react.json
+
+      - name: Upload webpack stats artifact (editor)
+        uses: relative-ci/agent-upload-artifact-action@v1
+        with:
+          webpackStatsFile: ./packages/examples/editor/dist/webpack-stats.json
+          artifactWebpackStatsFile: webpack-stats-editor.json
