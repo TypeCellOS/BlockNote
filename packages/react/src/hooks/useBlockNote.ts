@@ -13,7 +13,7 @@ import {
   getBlockSchemaFromSpecs,
 } from "@blocknote/core";
 import { DependencyList, useMemo, useRef } from "react";
-import { getDefaultReactSlashMenuItems } from "../SlashMenu/defaultReactSlashMenuItems";
+import { getDefaultReactSlashMenuItems } from "../slashMenuItems/defaultReactSlashMenuItems";
 
 const initEditor = <
   BSpecs extends BlockSpecs,

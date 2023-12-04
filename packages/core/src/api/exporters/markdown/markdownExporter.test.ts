@@ -1,18 +1,15 @@
 import fs from "node:fs";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { BlockNoteEditor } from "../../../BlockNoteEditor";
-import {
-  BlockSchema,
-  PartialBlock,
-} from "../../../extensions/Blocks/api/blocks/types";
-import { InlineContentSchema } from "../../../extensions/Blocks/api/inlineContent/types";
-import { StyleSchema } from "../../../extensions/Blocks/api/styles/types";
-import { partialBlocksToBlocksForTesting } from "../../nodeConversions/testUtil";
-import { customBlocksTestCases } from "../../testCases/cases/customBlocks";
-import { customInlineContentTestCases } from "../../testCases/cases/customInlineContent";
-import { customStylesTestCases } from "../../testCases/cases/customStyles";
-import { defaultSchemaTestCases } from "../../testCases/cases/defaultSchema";
+import { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
+import { BlockSchema, PartialBlock } from "../../../schema/blocks/types";
+import { InlineContentSchema } from "../../../schema/inlineContent/types";
+import { StyleSchema } from "../../../schema/styles/types";
+import { partialBlocksToBlocksForTesting } from "../../testUtil/partialBlockTestUtil";
+import { customBlocksTestCases } from "../../testUtil/cases/customBlocks";
+import { customInlineContentTestCases } from "../../testUtil/cases/customInlineContent";
+import { customStylesTestCases } from "../../testUtil/cases/customStyles";
+import { defaultSchemaTestCases } from "../../testUtil/cases/defaultSchema";
 
 async function convertToMarkdownAndCompareSnapshots<
   B extends BlockSchema,

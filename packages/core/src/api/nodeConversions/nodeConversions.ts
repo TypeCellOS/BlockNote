@@ -1,30 +1,32 @@
-import { Mark } from "@tiptap/pm/model";
-import { Node, Schema } from "prosemirror-model";
-import {
+import { Mark, Node, Schema } from "@tiptap/pm/model";
+
+import UniqueID from "../../extensions/UniqueID/UniqueID";
+import type {
   Block,
   BlockSchema,
-  PartialBlock,
-  PartialTableContent,
-  TableContent,
-} from "../../extensions/Blocks/api/blocks/types";
-import {
   CustomInlineContentConfig,
   CustomInlineContentFromConfig,
   InlineContent,
   InlineContentFromConfig,
   InlineContentSchema,
+  PartialBlock,
   PartialCustomInlineContentFromConfig,
   PartialInlineContent,
   PartialLink,
+  PartialTableContent,
+  StyleSchema,
   StyledText,
+  Styles,
+  TableContent,
+} from "../../schema";
+import { getBlockInfo } from "../getBlockInfoFromPos";
+
+import {
   isLinkInlineContent,
   isPartialLinkInlineContent,
   isStyledTextInlineContent,
-} from "../../extensions/Blocks/api/inlineContent/types";
-import { StyleSchema, Styles } from "../../extensions/Blocks/api/styles/types";
-import { getBlockInfo } from "../../extensions/Blocks/helpers/getBlockInfoFromPos";
-import UniqueID from "../../extensions/UniqueID/UniqueID";
-import { UnreachableCaseError } from "../../shared/utils";
+} from "../../schema/inlineContent/types";
+import { UnreachableCaseError } from "../../util/typescript";
 
 /**
  * Convert a StyledText inline element to a

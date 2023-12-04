@@ -1,9 +1,13 @@
 import { DOMParser, Schema } from "prosemirror-model";
-import { Block, BlockSchema, nodeToBlock } from "../../..";
-import { InlineContentSchema } from "../../../extensions/Blocks/api/inlineContent/types";
-import { StyleSchema } from "../../../extensions/Blocks/api/styles/types";
-import { nestedListsToBlockNoteStructure } from "./util/nestedLists";
+import {
+  Block,
+  BlockSchema,
+  InlineContentSchema,
+  StyleSchema,
+} from "../../../schema";
 
+import { nodeToBlock } from "../../nodeConversions/nodeConversions";
+import { nestedListsToBlockNoteStructure } from "./util/nestedLists";
 export async function HTMLToBlocks<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,

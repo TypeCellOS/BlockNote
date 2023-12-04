@@ -1,17 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { BlockNoteEditor } from "../../../BlockNoteEditor";
+import { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
 
 import { addIdsToBlocks, partialBlocksToBlocksForTesting } from "../../..";
-import {
-  BlockSchema,
-  PartialBlock,
-} from "../../../extensions/Blocks/api/blocks/types";
-import { InlineContentSchema } from "../../../extensions/Blocks/api/inlineContent/types";
-import { StyleSchema } from "../../../extensions/Blocks/api/styles/types";
-import { customBlocksTestCases } from "../../testCases/cases/customBlocks";
-import { customInlineContentTestCases } from "../../testCases/cases/customInlineContent";
-import { customStylesTestCases } from "../../testCases/cases/customStyles";
-import { defaultSchemaTestCases } from "../../testCases/cases/defaultSchema";
+import { BlockSchema, PartialBlock } from "../../../schema/blocks/types";
+import { InlineContentSchema } from "../../../schema/inlineContent/types";
+import { StyleSchema } from "../../../schema/styles/types";
+import { customBlocksTestCases } from "../../testUtil/cases/customBlocks";
+import { customInlineContentTestCases } from "../../testUtil/cases/customInlineContent";
+import { customStylesTestCases } from "../../testUtil/cases/customStyles";
+import { defaultSchemaTestCases } from "../../testUtil/cases/defaultSchema";
 import { createExternalHTMLExporter } from "./externalHTMLExporter";
 import { createInternalHTMLSerializer } from "./internalHTMLSerializer";
 

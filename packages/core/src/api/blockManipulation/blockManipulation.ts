@@ -1,16 +1,16 @@
 import { Editor } from "@tiptap/core";
 import { Node } from "prosemirror-model";
 
-import { BlockNoteEditor } from "../../BlockNoteEditor";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import {
   BlockIdentifier,
   BlockSchema,
+  InlineContentSchema,
   PartialBlock,
-} from "../../extensions/Blocks/api/blocks/types";
-import { InlineContentSchema } from "../../extensions/Blocks/api/inlineContent/types";
-import { StyleSchema } from "../../extensions/Blocks/api/styles/types";
+  StyleSchema,
+} from "../../schema";
 import { blockToNode } from "../nodeConversions/nodeConversions";
-import { getNodeById } from "../util/nodeUtil";
+import { getNodeById } from "../nodeUtil";
 
 export function insertBlocks<
   BSchema extends BlockSchema,
