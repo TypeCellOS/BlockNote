@@ -24,6 +24,7 @@ export const AddRowButton = <
       props.editor.updateBlock(props.block, {
         type: "table",
         content: {
+          type: "tableContent",
           rows,
         },
       } as PartialBlock<BSchema, any, any>);
