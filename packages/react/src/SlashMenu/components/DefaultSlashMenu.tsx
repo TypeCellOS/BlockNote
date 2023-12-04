@@ -1,9 +1,10 @@
 import { createStyles, Menu } from "@mantine/core";
-import * as _ from "lodash";
+import foreach from "lodash.foreach";
+import groupBy from "lodash.groupby";
 
+import { BlockSchema } from "@blocknote/core";
 import { SlashMenuItem } from "./SlashMenuItem";
 import { SlashMenuProps } from "./SlashMenuPositioner";
-import { BlockSchema } from "@blocknote/core";
 
 export function DefaultSlashMenu<BSchema extends BlockSchema>(
   props: SlashMenuProps<BSchema>
@@ -14,9 +15,9 @@ export function DefaultSlashMenu<BSchema extends BlockSchema>(
   const renderedItems: any[] = [];
   let index = 0;
 
-  const groups = _.groupBy(props.filteredItems, (i) => i.group);
+  const groups = groupBy(props.filteredItems, (i) => i.group);
 
-  _.forEach(groups, (groupedItems) => {
+  foreach(groups, (groupedItems) => {
     renderedItems.push(
       <Menu.Label key={groupedItems[0].group}>
         {groupedItems[0].group}
