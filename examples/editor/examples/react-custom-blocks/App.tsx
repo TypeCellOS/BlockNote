@@ -5,6 +5,7 @@ import {
   createReactBlockSpec,
   useBlockNote,
 } from "@blocknote/react";
+import "../vanilla-custom-blocks/style.css";
 
 type WindowWithProseMirror = Window & typeof globalThis & { ProseMirror: any };
 
@@ -48,14 +49,8 @@ export const alertBlock = createReactBlockSpec(
   {
     render: (props) => (
       <div
+        className={"alert"}
         style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          flexGrow: "1",
-          height: "48px",
-          padding: "4px",
-          maxWidth: "100%",
           backgroundColor: alertTypes[props.block.props.type].backgroundColor,
         }}>
         <select
@@ -72,8 +67,30 @@ export const alertBlock = createReactBlockSpec(
           <option value="info">{alertTypes["info"].icon}</option>
           <option value="success">{alertTypes["success"].icon}</option>
         </select>
-        <div style={{ flexGrow: 1 }} ref={props.contentRef} />
+        <div className={"inline-content"} ref={props.contentRef} />
       </div>
+    ),
+  }
+);
+
+const simpleImageBlock = createReactBlockSpec(
+  {
+    type: "simpleImage",
+    propSchema: {
+      src: {
+        default:
+          "https://www.pulsecarshalton.co.uk/wp-content/uploads/2016/08/jk-placeholder-image.jpg",
+      },
+    },
+    content: "none",
+  },
+  {
+    render: (props) => (
+      <img
+        className={"simple-image"}
+        src={props.block.props.src}
+        alt="placeholder"
+      />
     ),
   }
 );
@@ -88,19 +105,10 @@ export const bracketsParagraphBlock = createReactBlockSpec(
   },
   {
     render: (props) => (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          flexGrow: "1",
-          height: "48px",
-          padding: "4px",
-          maxWidth: "100%",
-        }}>
+      <div className={"brackets-paragraph"}>
         <div contentEditable={"false"}>{"["}</div>
         <span contentEditable={"false"}>{"{"}</span>
-        <div style={{ flexGrow: 1 }} ref={props.contentRef} />
+        <div className={"inline-content"} ref={props.contentRef} />
         <span contentEditable={"false"}>{"}"}</span>
         <div contentEditable={"false"}>{"]"}</div>
       </div>
@@ -119,6 +127,7 @@ export function ReactCustomBlocks() {
     blockSpecs: {
       ...defaultBlockSpecs,
       alert: alertBlock,
+      simpleImage: simpleImageBlock,
       bracketsParagraph: bracketsParagraphBlock,
     },
     initialContent: [
@@ -128,6 +137,12 @@ export function ReactCustomBlocks() {
           type: "success",
         },
         content: "Alert",
+      },
+      {
+        type: "simpleImage",
+        props: {
+          src: "https://t3.ftcdn.net/jpg/02/48/42/64/360_F_248426448_NVKLywWqArG2ADUxDq6QprtIzsF82dMF.jpg",
+        },
       },
       {
         type: "bracketsParagraph",

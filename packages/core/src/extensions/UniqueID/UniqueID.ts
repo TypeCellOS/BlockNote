@@ -172,6 +172,33 @@ const UniqueID = Extension.create({
                   ? void 0
                   : _a.attrs[attributeName];
               if (id === null) {
+                // edge case, when using collaboration, yjs will set the id to null in `_forceRerender`
+                // when loading the editor
+                // this checks for this case and keeps it at initialBlockId so there will be no change
+                const initialDoc = oldState.doc.type.createAndFill()!.content;
+                const wasInitial =
+                  oldState.doc.content.findDiffStart(initialDoc) === null;
+
+                if (wasInitial) {
+                  // the old state was the "initial content"
+                  const jsonNode = JSON.parse(
+                    JSON.stringify(newState.doc.toJSON())
+                  );
+                  jsonNode.content[0].content[0].attrs.id = "initialBlockId";
+                  // would the new state with the fix also be the "initial content"?
+                  if (
+                    JSON.stringify(jsonNode.content) ===
+                    JSON.stringify(initialDoc.toJSON())
+                  ) {
+                    // yes, apply the fix
+                    tr.setNodeMarkup(pos, undefined, {
+                      ...node.attrs,
+                      [attributeName]: "initialBlockId",
+                    });
+                    return;
+                  }
+                }
+
                 tr.setNodeMarkup(pos, undefined, {
                   ...node.attrs,
                   [attributeName]: generateID(),
@@ -285,5 +312,5 @@ const UniqueID = Extension.create({
   },
 });
 
-export { UniqueID, UniqueID as default };
+export { UniqueID as default, UniqueID };
 //# sourceMappingURL=tiptap-extension-unique-id.esm.js.map

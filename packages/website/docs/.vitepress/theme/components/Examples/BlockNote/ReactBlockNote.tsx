@@ -45,7 +45,8 @@ export function ReactBlockNote(props: { theme: "light" | "dark" }) {
     const doc = new Y.Doc();
     const provider = new YPartyKitProvider(
       "blocknote.yousefed.partykit.dev",
-      "homepage-1",
+      // "127.0.0.1:1999", // (dev server)
+      "homepage-2",
       doc
     );
     return [doc, provider];
