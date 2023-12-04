@@ -103,6 +103,8 @@ export class BlockNoteContext<
     this.pmSchema = getSchema(exts);
   }
 
+  // TODO: is there a way to do this without depending on creating prosemirror nodes?
+  // i.e.: can we directly transform the JSON to blocknote JSON instead?
   public prosemirrorJSONToBlocks(json: any) {
     const doc = this.pmSchema.nodeFromJSON(json);
 
