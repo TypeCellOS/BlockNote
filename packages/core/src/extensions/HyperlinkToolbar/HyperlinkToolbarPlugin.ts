@@ -2,12 +2,12 @@ import { getMarkRange, posToDOMRect, Range } from "@tiptap/core";
 import { EditorView } from "@tiptap/pm/view";
 import { Mark } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
-import { BlockNoteEditor } from "../../BlockNoteEditor";
-import { BaseUiElementState } from "../../shared/BaseUiElementTypes";
-import { EventEmitter } from "../../shared/EventEmitter";
-import { BlockSchema } from "../Blocks/api/blocks/types";
-import { InlineContentSchema } from "../Blocks/api/inlineContent/types";
-import { StyleSchema } from "../Blocks/api/styles/types";
+import { BlockNoteEditor } from "../../editor/BlockNoteEditor";
+import { BlockSchema } from "../../schema/blocks/types";
+import { InlineContentSchema } from "../../schema/inlineContent/types";
+import { StyleSchema } from "../../schema/styles/types";
+import { BaseUiElementState } from "../@util/BaseUiElementTypes";
+import { EventEmitter } from "../../@util/EventEmitter";
 
 export type HyperlinkToolbarState = BaseUiElementState & {
   // The hovered hyperlink's URL, and the text it's displayed with in the

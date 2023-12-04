@@ -2,15 +2,15 @@ import { isNodeSelection, posToDOMRect } from "@tiptap/core";
 import { EditorState, Plugin, PluginKey } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 
-import { BlockNoteEditor } from "../../BlockNoteEditor";
+import { BlockNoteEditor } from "../../editor/BlockNoteEditor";
+import { BlockSchema } from "../../schema/blocks/types";
+import { InlineContentSchema } from "../../schema/inlineContent/types";
+import { StyleSchema } from "../../schema/styles/types";
 import {
   BaseUiElementCallbacks,
   BaseUiElementState,
-} from "../../shared/BaseUiElementTypes";
-import { EventEmitter } from "../../shared/EventEmitter";
-import { BlockSchema } from "../Blocks/api/blocks/types";
-import { InlineContentSchema } from "../Blocks/api/inlineContent/types";
-import { StyleSchema } from "../Blocks/api/styles/types";
+} from "../@util/BaseUiElementTypes";
+import { EventEmitter } from "../../@util/EventEmitter";
 
 export type FormattingToolbarCallbacks = BaseUiElementCallbacks;
 

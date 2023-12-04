@@ -1,11 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { BlockNoteEditor } from "../../BlockNoteEditor";
-import { Block, PartialBlock } from "../../extensions/Blocks/api/blocks/types";
+import { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import {
   DefaultBlockSchema,
   DefaultInlineContentSchema,
   DefaultStyleSchema,
-} from "../../extensions/Blocks/api/defaultBlocks";
+} from "../../blocks/defaultBlocks";
+import { Block, PartialBlock } from "../../schema/blocks/types";
 
 let editor: BlockNoteEditor;
 

@@ -1,12 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { BlockNoteEditor } from "../../BlockNoteEditor";
-import { PartialBlock } from "../../extensions/Blocks/api/blocks/types";
-import { customInlineContentTestCases } from "../testCases/cases/customInlineContent";
-import { customStylesTestCases } from "../testCases/cases/customStyles";
-import { defaultSchemaTestCases } from "../testCases/cases/defaultSchema";
+import { BlockNoteEditor } from "../../editor/BlockNoteEditor";
+import { PartialBlock } from "../../schema/blocks/types";
+import { customInlineContentTestCases } from "../testUtil/cases/customInlineContent";
+import { customStylesTestCases } from "../testUtil/cases/customStyles";
+import { defaultSchemaTestCases } from "../testUtil/cases/defaultSchema";
 import { blockToNode, nodeToBlock } from "./nodeConversions";
-import { addIdsToBlock, partialBlockToBlockForTesting } from "./testUtil";
+import { addIdsToBlock, partialBlockToBlockForTesting } from "../testUtil/partialBlockTestUtil";
 
 function validateConversion(
   block: PartialBlock<any, any, any>,

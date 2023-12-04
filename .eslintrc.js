@@ -23,5 +23,17 @@ module.exports = {
     "@typescript-eslint/no-non-null-assertion": "off",
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/ban-ts-comment": "off",
+    "import/no-restricted-paths": [
+      "error",
+      {
+        zones: [
+          {
+            target: "types/**/*",
+            from: "src/**/*",
+            message: "Import from this module to types is not allowed.",
+          },
+        ],
+      },
+    ],
   },
 };

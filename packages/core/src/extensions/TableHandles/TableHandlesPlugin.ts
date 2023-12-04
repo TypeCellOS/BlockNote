@@ -13,7 +13,7 @@ import {
   getDraggableBlockFromCoords,
   nodeToBlock,
 } from "../..";
-import { EventEmitter } from "../../shared/EventEmitter";
+import { EventEmitter } from "../../@util/EventEmitter";
 
 let dragImageElement: HTMLElement | undefined;
 
