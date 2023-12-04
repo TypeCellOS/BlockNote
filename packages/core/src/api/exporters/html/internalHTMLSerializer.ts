@@ -34,8 +34,14 @@ export interface InternalHTMLSerializer<
 > {
   // TODO: Ideally we would expand the BlockNote API to support partial
   //  selections so we don't need this.
-  serializeProseMirrorFragment: (fragment: Fragment) => string;
-  serializeBlocks: (blocks: PartialBlock<BSchema, I, S>[]) => string;
+  serializeProseMirrorFragment: (
+    fragment: Fragment,
+    options: { document?: Document }
+  ) => string;
+  serializeBlocks: (
+    blocks: PartialBlock<BSchema, I, S>[],
+    options: { document?: Document }
+  ) => string;
 }
 
 export const createInternalHTMLSerializer = <
@@ -51,7 +57,10 @@ export const createInternalHTMLSerializer = <
       node: Node,
       options: { document?: Document }
     ) => HTMLElement;
-    serializeBlocks: (blocks: PartialBlock<BSchema, I, S>[]) => string;
+    serializeBlocks: (
+      blocks: PartialBlock<BSchema, I, S>[],
+      options: { document?: Document }
+    ) => string;
     serializeProseMirrorFragment: (
       fragment: Fragment,
       options?: { document?: Document | undefined } | undefined,
@@ -64,16 +73,22 @@ export const createInternalHTMLSerializer = <
     options: { document?: Document }
   ) => serializeNodeInner(node, options, serializer, editor, false);
 
-  serializer.serializeProseMirrorFragment = (fragment: Fragment) =>
-    serializeProseMirrorFragment(fragment, serializer);
+  serializer.serializeProseMirrorFragment = (fragment: Fragment, options) =>
+    serializeProseMirrorFragment(fragment, serializer, options);
 
-  serializer.serializeBlocks = (blocks: PartialBlock<BSchema, I, S>[]) => {
+  serializer.serializeBlocks = (
+    blocks: PartialBlock<BSchema, I, S>[],
+    options
+  ) => {
     const nodes = blocks.map((block) =>
       blockToNode(block, schema, editor.styleSchema)
     );
     const blockGroup = schema.nodes["blockGroup"].create(null, nodes);
 
-    return serializer.serializeProseMirrorFragment(Fragment.from(blockGroup));
+    return serializer.serializeProseMirrorFragment(
+      Fragment.from(blockGroup),
+      options
+    );
   };
 
   return serializer;

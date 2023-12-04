@@ -32,7 +32,7 @@ async function convertToHTMLAndCompareSnapshots<
     editor._tiptapEditor.schema,
     editor
   );
-  const internalHTML = serializer.serializeBlocks(blocks);
+  const internalHTML = serializer.serializeBlocks(blocks, {});
   const internalHTMLSnapshotPath =
     "./__snapshots__/" +
     snapshotDirectory +
@@ -55,7 +55,7 @@ async function convertToHTMLAndCompareSnapshots<
     editor._tiptapEditor.schema,
     editor
   );
-  const externalHTML = exporter.exportBlocks(blocks);
+  const externalHTML = exporter.exportBlocks(blocks, {});
   const externalHTMLSnapshotPath =
     "./__snapshots__/" +
     snapshotDirectory +

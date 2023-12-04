@@ -37,7 +37,8 @@ export const createCopyToClipboardExtension = <
                 );
                 const internalHTML =
                   internalHTMLSerializer.serializeProseMirrorFragment(
-                    selectedFragment
+                    selectedFragment,
+                    {}
                   );
 
                 const externalHTMLExporter = createExternalHTMLExporter(
@@ -46,7 +47,8 @@ export const createCopyToClipboardExtension = <
                 );
                 const externalHTML =
                   externalHTMLExporter.exportProseMirrorFragment(
-                    selectedFragment
+                    selectedFragment,
+                    {}
                   );
 
                 const plainText = cleanHTMLToMarkdown(externalHTML);
