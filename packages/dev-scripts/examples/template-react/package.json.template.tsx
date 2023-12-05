@@ -1,8 +1,11 @@
-const template = () => ({
-  name: "",
+import type { Project } from "../gen";
+
+const template = (project: Project) => ({
+  name: "@blocknote/example-" + project.name,
   private: true,
   version: "0.10.0",
   scripts: {
+    start: "vite",
     dev: "vite",
     build: "tsc && vite build",
     preview: "vite preview",
