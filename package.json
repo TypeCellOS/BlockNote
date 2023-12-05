@@ -29,7 +29,7 @@
     "deploy": "lerna publish -- --access public",
     "prepublishOnly": "npm run build && cp README.md packages/core/README.md && cp README.md packages/react/README.md",
     "postpublish": "rm -rf packages/core/README.md && rm -rf packages/react/README.md",
-    "clean": "rimraf dist && rimraf types"
+    "clean": "lerna run --stream clean"
   },
   "overrides": {
     "react": "18.2.0",
