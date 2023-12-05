@@ -283,7 +283,6 @@ NESTED BLOCKS
 }
 
 [data-content-type="image"] .bn-image-resize-handle {
-  display: none;
   position: absolute;
   width: 8px;
   height: 30px;
