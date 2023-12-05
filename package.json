@@ -3,7 +3,7 @@
   "private": true,
   "workspaces": [
     "packages/*",
-    "examples/*",
+    "playground/*",
     "tests"
   ],
   "devDependencies": {
@@ -14,7 +14,8 @@
     "patch-package": "^6.4.7",
     "typescript": "^5.2.2",
     "@typescript-eslint/parser": "^5.5.0",
-    "@typescript-eslint/eslint-plugin": "^5.5.0"
+    "@typescript-eslint/eslint-plugin": "^5.5.0",
+    "glob": "^10.3.10"
   },
   "scripts": {
     "start": "lerna run --stream --scope @blocknote/example-editor dev",
