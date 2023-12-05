@@ -181,6 +181,90 @@ export const setupSuggestionsMenu = <
     view.dispatch(view.state.tr.setMeta(pluginKey, { deactivate: true }));
   };
 
+  const handleMenuInteraction = (
+    plugin: Plugin<SuggestionPluginState<T>>,
+    view: EditorView,
+    key: string
+  ): boolean => {
+    const menuIsActive = (plugin as Plugin).getState(view.state).active;
+
+    // Shows the menu if the default trigger character was pressed and the menu isn't active.
+    if (key === defaultTriggerCharacter && !menuIsActive) {
+      view.dispatch(
+        view.state.tr
+          .insertText(defaultTriggerCharacter)
+          .scrollIntoView()
+          .setMeta(pluginKey, {
+            activate: true,
+            triggerCharacter: defaultTriggerCharacter,
+          })
+      );
+
+      return true;
+    }
+
+    // Doesn't handle other keystrokes if the menu isn't active.
+    if (!menuIsActive) {
+      return false;
+    }
+
+    // Handles keystrokes for navigating the menu.
+    const { triggerCharacter, queryStartPos, items, keyboardHoveredItemIndex } =
+      pluginKey.getState(view.state);
+
+    // Moves the keyboard selection to the previous item.
+    if (key === "ArrowUp") {
+      view.dispatch(
+        view.state.tr.setMeta(pluginKey, {
+          selectedItemIndexChanged: keyboardHoveredItemIndex - 1,
+        })
+      );
+      return true;
+    }
+
+    // Moves the keyboard selection to the next item.
+    if (key === "ArrowDown") {
+      view.dispatch(
+        view.state.tr.setMeta(pluginKey, {
+          selectedItemIndexChanged: keyboardHoveredItemIndex + 1,
+        })
+      );
+      return true;
+    }
+
+    // Selects an item and closes the menu.
+    if (key === "Enter") {
+      if (items.length === 0) {
+        return true;
+      }
+
+      deactivate(view);
+      editor._tiptapEditor
+        .chain()
+        .focus()
+        .deleteRange({
+          from: queryStartPos! - triggerCharacter!.length,
+          to: editor._tiptapEditor.state.selection.from,
+        })
+        .run();
+
+      onSelectItem({
+        item: items[keyboardHoveredItemIndex],
+        editor: editor,
+      });
+
+      return true;
+    }
+
+    // Closes the menu.
+    if (key === "Escape") {
+      deactivate(view);
+      return true;
+    }
+
+    return false;
+  };
+
   return {
     plugin: new Plugin({
       key: pluginKey,
@@ -301,170 +385,10 @@ export const setupSuggestionsMenu = <
       props: {
         // this is needed to work slash plugin in android chrome browser
         handleTextInput(view, _, __, text) {
-          const menuIsActive = (this as Plugin).getState(view.state).active;
-
-          // Shows the menu if the default trigger character was pressed and the menu isn't active.
-          if (text === defaultTriggerCharacter && !menuIsActive) {
-            view.dispatch(
-              view.state.tr
-                .insertText(defaultTriggerCharacter)
-                .scrollIntoView()
-                .setMeta(pluginKey, {
-                  activate: true,
-                  triggerCharacter: defaultTriggerCharacter,
-                })
-            );
-
-            return true;
-          }
-
-          // Doesn't handle other keystrokes if the menu isn't active.
-          if (!menuIsActive) {
-            return false;
-          }
-
-          // Handles keystrokes for navigating the menu.
-          const {
-            triggerCharacter,
-            queryStartPos,
-            items,
-            keyboardHoveredItemIndex,
-          } = pluginKey.getState(view.state);
-
-          // Moves the keyboard selection to the previous item.
-          if (text === "ArrowUp") {
-            view.dispatch(
-              view.state.tr.setMeta(pluginKey, {
-                selectedItemIndexChanged: keyboardHoveredItemIndex - 1,
-              })
-            );
-            return true;
-          }
-
-          // Moves the keyboard selection to the next item.
-          if (text === "ArrowDown") {
-            view.dispatch(
-              view.state.tr.setMeta(pluginKey, {
-                selectedItemIndexChanged: keyboardHoveredItemIndex + 1,
-              })
-            );
-            return true;
-          }
-
-          // Selects an item and closes the menu.
-          if (text === "Enter") {
-            if (items.length === 0) {
-              return true;
-            }
-
-            deactivate(view);
-            editor._tiptapEditor
-              .chain()
-              .focus()
-              .deleteRange({
-                from: queryStartPos! - triggerCharacter!.length,
-                to: editor._tiptapEditor.state.selection.from,
-              })
-              .run();
-
-            onSelectItem({
-              item: items[keyboardHoveredItemIndex],
-              editor: editor,
-            });
-
-            return true;
-          }
-
-          // Closes the menu.
-          if (text === "Escape") {
-            deactivate(view);
-            return true;
-          }
-
-          return false;
+          return handleMenuInteraction(this, view, text);
         },
         handleKeyDown(view, event) {
-          const menuIsActive = (this as Plugin).getState(view.state).active;
-
-          // Shows the menu if the default trigger character was pressed and the menu isn't active.
-          if (event.key === defaultTriggerCharacter && !menuIsActive) {
-            view.dispatch(
-              view.state.tr
-                .insertText(defaultTriggerCharacter)
-                .scrollIntoView()
-                .setMeta(pluginKey, {
-                  activate: true,
-                  triggerCharacter: defaultTriggerCharacter,
-                })
-            );
-
-            return true;
-          }
-
-          // Doesn't handle other keystrokes if the menu isn't active.
-          if (!menuIsActive) {
-            return false;
-          }
-
-          // Handles keystrokes for navigating the menu.
-          const {
-            triggerCharacter,
-            queryStartPos,
-            items,
-            keyboardHoveredItemIndex,
-          } = pluginKey.getState(view.state);
-
-          // Moves the keyboard selection to the previous item.
-          if (event.key === "ArrowUp") {
-            view.dispatch(
-              view.state.tr.setMeta(pluginKey, {
-                selectedItemIndexChanged: keyboardHoveredItemIndex - 1,
-              })
-            );
-            return true;
-          }
-
-          // Moves the keyboard selection to the next item.
-          if (event.key === "ArrowDown") {
-            view.dispatch(
-              view.state.tr.setMeta(pluginKey, {
-                selectedItemIndexChanged: keyboardHoveredItemIndex + 1,
-              })
-            );
-            return true;
-          }
-
-          // Selects an item and closes the menu.
-          if (event.key === "Enter") {
-            if (items.length === 0) {
-              return true;
-            }
-
-            deactivate(view);
-            editor._tiptapEditor
-              .chain()
-              .focus()
-              .deleteRange({
-                from: queryStartPos! - triggerCharacter!.length,
-                to: editor._tiptapEditor.state.selection.from,
-              })
-              .run();
-
-            onSelectItem({
-              item: items[keyboardHoveredItemIndex],
-              editor: editor,
-            });
-
-            return true;
-          }
-
-          // Closes the menu.
-          if (event.key === "Escape") {
-            deactivate(view);
-            return true;
-          }
-
-          return false;
+          return handleMenuInteraction(this, view, event.key);
         },
 
         // Setup decorator on the currently active suggestion.
