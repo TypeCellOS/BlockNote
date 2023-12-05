@@ -1,4 +1,6 @@
-const template = () => ({
+import type { Project } from "../gen";
+
+const template = (project: Project) => ({
   compilerOptions: {
     target: "ESNext",
     useDefineForClassFields: true,

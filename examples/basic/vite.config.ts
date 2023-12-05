@@ -1,8 +1,4 @@
-import type { Project } from "../gen";
-
-const template = (
-  project: Project
-) => `import react from "@vitejs/plugin-react";
+import react from "@vitejs/plugin-react";
 import * as path from "path";
 import { defineConfig } from "vite";
 // import eslintPlugin from "vite-plugin-eslint";
@@ -30,6 +26,4 @@ export default defineConfig((conf) => ({
             ),
           },
   },
-}));`;
-
-export default template;
+}));
