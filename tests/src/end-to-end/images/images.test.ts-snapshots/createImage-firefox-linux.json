@@ -1,0 +1,45 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "blockGroup",
+      "content": [
+        {
+          "type": "blockContainer",
+          "attrs": {
+            "id": "0",
+            "textColor": "default",
+            "backgroundColor": "default"
+          },
+          "content": [
+            {
+              "type": "image",
+              "attrs": {
+                "textAlignment": "left",
+                "url": "",
+                "caption": "",
+                "width": 512
+              }
+            }
+          ]
+        },
+        {
+          "type": "blockContainer",
+          "attrs": {
+            "id": "1",
+            "textColor": "default",
+            "backgroundColor": "default"
+          },
+          "content": [
+            {
+              "type": "paragraph",
+              "attrs": {
+                "textAlignment": "left"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

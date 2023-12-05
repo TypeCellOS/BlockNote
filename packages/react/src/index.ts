@@ -1,50 +1,53 @@
 // TODO: review directories
-export * from "./BlockNoteView";
-export * from "./BlockNoteTheme";
-export * from "./defaultThemes";
+export * from "./editor/BlockNoteTheme";
+export * from "./editor/BlockNoteView";
+export * from "./editor/defaultThemes";
 
-export * from "./FormattingToolbar/components/FormattingToolbarPositioner";
-export * from "./FormattingToolbar/components/DefaultFormattingToolbar";
-export * from "./FormattingToolbar/components/DefaultDropdowns/BlockTypeDropdown";
-export * from "./FormattingToolbar/components/DefaultButtons/ColorStyleButton";
-export * from "./FormattingToolbar/components/DefaultButtons/CreateLinkButton";
-export * from "./FormattingToolbar/components/DefaultButtons/NestBlockButtons";
-export * from "./FormattingToolbar/components/DefaultButtons/TextAlignButton";
-export * from "./FormattingToolbar/components/DefaultButtons/ToggledStyleButton";
+export * from "./components/FormattingToolbar/DefaultButtons/ColorStyleButton";
+export * from "./components/FormattingToolbar/DefaultButtons/CreateLinkButton";
+export * from "./components/FormattingToolbar/DefaultButtons/NestBlockButtons";
+export * from "./components/FormattingToolbar/DefaultButtons/TextAlignButton";
+export * from "./components/FormattingToolbar/DefaultButtons/ToggledStyleButton";
+export * from "./components/FormattingToolbar/DefaultDropdowns/BlockTypeDropdown";
+export * from "./components/FormattingToolbar/DefaultFormattingToolbar";
+export * from "./components/FormattingToolbar/FormattingToolbarPositioner";
 
-export * from "./HyperlinkToolbar/components/HyperlinkToolbarPositioner";
+export * from "./components/HyperlinkToolbar/HyperlinkToolbarPositioner";
 
-export * from "./SideMenu/components/SideMenuPositioner";
-export * from "./SideMenu/components/SideMenu";
-export * from "./SideMenu/components/SideMenuButton";
-export * from "./SideMenu/components/DefaultSideMenu";
-export * from "./SideMenu/components/DefaultButtons/AddBlockButton";
-export * from "./SideMenu/components/DefaultButtons/DragHandle";
+export * from "./components/SideMenu/DefaultButtons/AddBlockButton";
+export * from "./components/SideMenu/DefaultButtons/DragHandle";
+export * from "./components/SideMenu/DefaultSideMenu";
+export * from "./components/SideMenu/SideMenu";
+export * from "./components/SideMenu/SideMenuButton";
+export * from "./components/SideMenu/SideMenuPositioner";
 
-export * from "./SideMenu/components/DragHandleMenu/DragHandleMenu";
-export * from "./SideMenu/components/DragHandleMenu/DragHandleMenuItem";
-export * from "./SideMenu/components/DragHandleMenu/DefaultDragHandleMenu";
-export * from "./SideMenu/components/DragHandleMenu/DefaultButtons/BlockColorsButton";
-export * from "./SideMenu/components/DragHandleMenu/DefaultButtons/RemoveBlockButton";
+export * from "./components/SideMenu/DragHandleMenu/DefaultButtons/BlockColorsButton";
+export * from "./components/SideMenu/DragHandleMenu/DefaultButtons/RemoveBlockButton";
+export * from "./components/SideMenu/DragHandleMenu/DefaultDragHandleMenu";
+export * from "./components/SideMenu/DragHandleMenu/DragHandleMenu";
+export * from "./components/SideMenu/DragHandleMenu/DragHandleMenuItem";
 
-export * from "./SlashMenu/components/SlashMenuPositioner";
-export * from "./SlashMenu/components/SlashMenuItem";
-export * from "./SlashMenu/components/DefaultSlashMenu";
-export * from "./SlashMenu/ReactSlashMenuItem";
-export * from "./SlashMenu/defaultReactSlashMenuItems";
+export * from "./slashMenuItems/ReactSlashMenuItem";
+export * from "./components/SlashMenu/DefaultSlashMenu";
+export * from "./components/SlashMenu/SlashMenuItem";
+export * from "./components/SlashMenu/SlashMenuPositioner";
+export * from "./slashMenuItems/defaultReactSlashMenuItems";
 
-export * from "./ImageToolbar/components/ImageToolbarPositioner";
-export * from "./ImageToolbar/components/DefaultImageToolbar";
+export * from "./components/ImageToolbar/DefaultImageToolbar";
+export * from "./components/ImageToolbar/ImageToolbarPositioner";
 
-export * from "./SharedComponents/Toolbar/components/Toolbar";
-export * from "./SharedComponents/Toolbar/components/ToolbarButton";
-export * from "./SharedComponents/Toolbar/components/ToolbarDropdown";
+export * from "./components-shared/Toolbar/Toolbar";
+export * from "./components-shared/Toolbar/ToolbarButton";
+export * from "./components-shared/Toolbar/ToolbarDropdown";
 
+export * from "./hooks/useActiveStyles";
 export * from "./hooks/useBlockNote";
-export * from "./hooks/useEditorForceUpdate";
-export * from "./hooks/useEditorContentChange";
-export * from "./hooks/useEditorSelectionChange";
 export * from "./hooks/useEditorChange";
+export * from "./hooks/useEditorContentChange";
+export * from "./hooks/useEditorForceUpdate";
+export * from "./hooks/useEditorSelectionChange";
 export * from "./hooks/useSelectedBlocks";
 
-export * from "./ReactBlockSpec";
+export * from "./schema/ReactBlockSpec";
+export * from "./schema/ReactInlineContentSpec";
+export * from "./schema/ReactStyleSpec";

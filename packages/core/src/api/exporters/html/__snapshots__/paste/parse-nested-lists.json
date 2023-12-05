@@ -1,0 +1,70 @@
+[
+  {
+    "id": "1",
+    "type": "bulletListItem",
+    "props": {
+      "textColor": "default",
+      "backgroundColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "Bullet List Item",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "2",
+    "type": "bulletListItem",
+    "props": {
+      "textColor": "default",
+      "backgroundColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "Nested Bullet List Item",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "3",
+    "type": "bulletListItem",
+    "props": {
+      "textColor": "default",
+      "backgroundColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "Nested Bullet List Item",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "4",
+    "type": "bulletListItem",
+    "props": {
+      "textColor": "default",
+      "backgroundColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "Bullet List Item",
+        "styles": {}
+      }
+    ],
+    "children": []
+  }
+]

@@ -1,4 +1,5 @@
 import * as path from "path";
+import { webpackStats } from "rollup-plugin-webpack-stats";
 import { defineConfig } from "vite";
 import pkg from "./package.json";
 // import eslintPlugin from "vite-plugin-eslint";
@@ -9,8 +10,9 @@ const deps = Object.keys(pkg.dependencies);
 export default defineConfig({
   test: {
     environment: "jsdom",
+    setupFiles: ["./vitestSetup.ts"],
   },
-  plugins: [],
+  plugins: [webpackStats()],
   build: {
     sourcemap: true,
     lib: {

@@ -109,10 +109,10 @@ type ImageBlock = {
   id: string;
   type: "image";
   props: {
-    url: string = "",
-    caption: string = "",
+    url: string = "";
+    caption: string = "";
     width: number = 512;
-  } & Omit<DefaultProps, "textAlignment">
+  } & Omit<DefaultProps, "textAlignment">;
   content: InlineContent[];
   children: Block[];
 };
@@ -123,6 +123,24 @@ type ImageBlock = {
 `caption:` The image caption.
 
 `width:` The image width in pixels.
+
+### Table
+
+**Appearance**
+
+<img :src="isDark ? '/img/screenshots/table_type_dark.png' : '/img/screenshots/table_type.png'" alt="image" style="width: 70%">
+
+**Type & Props**
+
+```typescript
+type TableBlock = {
+  id: string;
+  type: "table";
+  props: DefaultProps;
+  content: TableContent[];
+  children: Block[];
+};
+```
 
 ## Default Block Properties
 
@@ -144,78 +162,93 @@ type DefaultProps = {
 
 ## Custom Block Types
 
-In addition to the default block types that BlockNote offers, you can also make your own custom blocks. Take a look at the demo below, in which we add a custom block containing an image and caption to a BlockNote editor, as well as a custom [Slash Menu Item](/docs/slash-menu#custom-items) to insert it.
+In addition to the default block types that BlockNote offers, you can also make your own custom blocks. Take a look at the demo below, in which we add a custom block containing a paragraph with a different font to a BlockNote editor, as well as a custom [Slash Menu Item](/docs/slash-menu#custom-items) to insert it.
 
 ::: sandbox {template=react-ts}
 
 ```typescript-vue /App.tsx
 import {
-  BlockNoteEditor,
-  BlockSchema,
-  DefaultBlockSchema,
   defaultBlockSchema,
+  defaultBlockSpecs,
   defaultProps,
 } from "@blocknote/core";
 import {
   BlockNoteView,
   useBlockNote,
   createReactBlockSpec,
-  InlineContent,
   ReactSlashMenuItem,
   getDefaultReactSlashMenuItems,
 } from "@blocknote/react";
 import "@blocknote/core/style.css";
-import { RiImage2Fill } from "react-icons/ri";
+import { RiText } from "react-icons/ri";
 
 export default function App() {
-  // Creates a custom image block.
-  const ImageBlock = createReactBlockSpec({
-    type: "image",
-    propSchema: {
-      ...defaultProps,
-      src: {
-        default: "https://via.placeholder.com/1000",
+  // Creates a paragraph block with custom font.
+  const FontParagraphBlock = createReactBlockSpec(
+    {
+      type: "fontParagraph",
+      propSchema: {
+        ...defaultProps,
+        font: {
+          default: "Comic Sans MS",
+        },
       },
-      alt: {
-        default: "image",
-      },
+      content: "inline",
     },
-    containsInlineContent: true,
-    render: ({ block }) => (
-      <div id="image-wrapper">
-        <img
-          src={block.props.src}
-          alt={block.props.alt}
-          contentEditable={false}
-        />
-        <InlineContent />
-      </div>
-    ),
-  });
+    {
+      render: ({ block, contentRef }) => {
+        const style = {
+          fontFamily: block.props.font
+        };
+      
+        return (
+          <p ref={contentRef} style={style} />
+        );
+      },
+      toExternalHTML: ({ contentRef }) => <p ref={contentRef} />,
+      parse: (element) => {
+        const font = element.style.fontFamily;
+        
+        if (font === "") {
+          return;
+        }
+        
+        return {
+          font: font || undefined,
+        };
+      },
+    }
+  );
 
-  // The custom schema, which includes the default blocks and the custom image
-  // block.
-  const customSchema = {
+  // Our block schema, which contains the configs for blocks that we want our
+  // editor to use.
+  const blockSchema = {
     // Adds all default blocks.
     ...defaultBlockSchema,
-    // Adds the custom image block.
-    image: ImageBlock,
-  } satisfies BlockSchema;
+    // Adds the font paragraph.
+    fontParagraph: FontParagraphBlock.config,
+  };
+  // Our block specs, which contain the configs and implementations for blocks
+  // that we want our editor to use.
+  const blockSpecs = {
+    // Adds all default blocks.
+    ...defaultBlockSpecs,
+    // Adds the font paragraph.
+    fontParagraph: FontParagraphBlock,
+  };
 
-  // Creates a slash menu item for inserting an image block.
-  const insertImage: ReactSlashMenuItem<typeof customSchema> = {
-    name: "Insert Image",
+  // Creates a slash menu item for inserting a font paragraph block.
+  const insertFontParagraph: ReactSlashMenuItem<typeof blockSchema> = {
+    name: "Insert Font Paragraph",
     execute: (editor) => {
-      const src: string | null = prompt("Enter image URL");
-      const alt: string | null = prompt("Enter image alt text");
+      const font = prompt("Enter font name");
 
       editor.insertBlocks(
         [
           {
-            type: "image",
+            type: "fontParagraph",
             props: {
-              src: src || "https://via.placeholder.com/1000",
-              alt: alt || "image",
+              font: font || undefined,
             },
           },
         ],
@@ -223,19 +256,18 @@ export default function App() {
         "after"
       );
     },
-    aliases: ["image", "img", "picture", "media"],
-    group: "Media",
-    icon: <RiImage2Fill />,
-    hint: "Insert an image",
+    aliases: ["p", "paragraph", "font"],
+    group: "Other",
+    icon: <RiText />,
   };
 
   // Creates a new editor instance.
   const editor = useBlockNote({
     // Tells BlockNote which blocks to use.
-    blockSchema: customSchema,
+    blockSpecs: blockSpecs,
     slashMenuItems: [
-      ...getDefaultReactSlashMenuItems(customSchema),
-      insertImage,
+      ...getDefaultReactSlashMenuItems(blockSchema),
+      insertFontParagraph,
     ],
   });
 
@@ -270,105 +302,143 @@ We'd love to hear your feedback on GitHub or in our Discord community!
 To define a custom block type, we use the `createReactBlockSpec` function, for which you can see the definition below:
 
 ```typescript
-type PropSchema = Record<
+type PropSchema<
+  PrimitiveType extends "boolean" | "number" | "string"
+> = Record<
   string,
   {
-    default: string;
-    values?: string[];
+    default: PrimitiveType;
+    values?: PrimitiveType[];
   };
 >
 
-function createReactBlockSpec(config: {
-  type: string;
-  propSchema: PropSchema;
-  containsInlineContent: boolean;
-  render: (props: {
-    block: Block,
-    editor: BlockNoteEditor
-  }) => JSX.Element;
-}): BlockType;
+function createReactBlockSpec(
+  blockConfig: {
+    type: string;
+    propSchema: PropSchema<"boolean" | "number" | "string">;
+    content: "inline" | "none"
+  },
+  blockImplementation: {
+    render: React.FC<{
+      block: Block;
+      editor: BlockNoteEditor;
+      contentRef: (node: HTMLElement | null) => void;
+    }>,
+    toExternalHTML?: React.FC<{
+      block: Block;
+      editor: BlockNoteEditor;
+      contentRef: (node: HTMLElement | null) => void;
+    }>,
+    parse?: (
+      element: HTMLElement
+    ) => PartialBlock["props"] | undefined;
+  }
+): BlockType;
 ```
 
 Let's look at our custom image block from the demo, and go over each field in-depth to explain how it works:
 
 ```typescript jsx
-const ImageBlock = createReactBlockSpec({
-  type: "image",
-  propSchema: {
-    src: {
-      default: "https://via.placeholder.com/1000",
+const FontparagraphBlock = createReactBlockSpec(
+  {
+    type: "fontParagraph",
+    propSchema: {
+      ...defaultProps,
+      font: {
+        default: "Comic Sans MS",
+      },
     },
+    content: "inline",
   },
-  containsInlineContent: true,
-  render: ({ block }) => (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-      }}>
-      <img
-        style={{
-          width: "100%",
-        }}
-        src={block.props.src}
-        alt={"Image"}
-        contentEditable={false}
-      />
-      <InlineContent />
-    </div>
-  ),
-});
+  {
+    render: ({ block, contentRef }) => {
+      const style = {
+        fontFamily: block.props.font
+      };
+
+      return (
+        <p ref={contentRef} style={style} />
+      );
+    },
+    parse: (element) => {
+      const font = element.style.fontFamily;
+      return {
+        font: font || undefined,
+      };
+    },
+  }
+);
 ```
 
-#### `type`
+You can see that `createReactBlockSpec` takes two object arguments:
+
+#### `blockConfig`
+
+This defines the block's type, properties, and content type. It allows BlockNote to know how to handle manipulating the block internally and provide typing.
+
+**`type`**
 
 Defines the name of the block, in this case, `image`.
 
-#### `propSchema`
+**`content`**
 
-This is an object which defines the props that the block should have. In this case, we want the block to have a `src` prop for the URL of the image, so we add a `src` key. We also want basic styling options for the image block, so we also add the [Default Block Properties](/docs/block-types#default-block-properties) using `defaultProps`. The value of each key is an object with a mandatory `default` field and an optional `values` field:
+As we saw in [Block Objects](/docs/blocks#block-objects), blocks can contain editable rich text which is represented as [Inline Content](/docs/inline-content). The `content` field allows your custom block to contain an editable rich-text field. Since we want to be able to type in our paragraph, we set it to `"inline"`.
 
-`default:` Stores the prop's default value, so we use a placeholder image URL for `src` if no URL is provided.
+**`propSchema`**
 
-`values:` Stores an array of strings that the prop can take. If `values` is not defined, BlockNote assumes the prop can be any string, which makes sense for `src`, since it can be any image URL.
+This is an object which defines the props that the block should have. In this case, we want the block to have a `font` prop for the font that we want the paragraph to use, so we add a `font` key. We also want basic styling options, so we add the [Default Block Properties](/docs/block-types#default-block-properties) using `defaultProps`. The value of each key is an object with a mandatory `default` field and an optional `values` field:
 
-#### `containsInlineContent`
+`default:` Stores the prop's default value, in this case the Comic Sans MS font.
 
-As we saw in [Block Objects](/docs/blocks#block-objects), blocks can contain editable rich text which is represented as [Inline Content](/docs/inline-content). The `containsInlineContent` field allows your custom block to contain an editable rich-text field. For the custom image block, we use an inline content field to create our caption, so it's set to `true`.
+`values:` Stores an array of strings that the prop can take. If `values` is not defined, BlockNote assumes the prop can be any string, which makes sense for `font`, since we don't want to list every possible font name.
 
-#### `render`
+#### `blockImplementation`
 
-This is a React component which defines how your custom block should be rendered in the editor, and takes two props:
+This defines how the block should be rendered in the editor, and how it should be parsed from and converted to HTML.
 
-`block:` The block that should be rendered.
+**`render`**
+
+This is a React component which defines how your custom block should be rendered in the editor, and takes three props:
+
+`block:` The block that should be rendered. This will always have the same type, props, and content as defined in the block's config.
 
 `editor:` The BlockNote editor instance that the block is in.
 
-For our custom image block, we use a parent `div` which contains the image and caption. Since `block` will always be an `image` block, we also know it contains a `src` prop, and can pass it to the child `img` element.
+`contentRef:` A React `ref` that marks which element in your block is editable, This is only useful if your block config contains `content: "inline"`.
 
-But what's this `InlineContent` component? Since we set `containsInlineContent` to `true`, it means we want to include an editable rich-text field somewhere in the image block. You should use the `InlineContent` component to represent this field in your `render` component. Since we're using it to create our caption, we add it below the `img` element.
+**`toExternalHTML`**
 
-In the DOM, the `InlineContent` component is rendered as a `div` by default, but you can make it use a different element by passing `as={"elementTag"}` as a prop. For example, `as={"p"}` will make the `InlineContent` component get rendered to a paragraph.
+This is identical in definition as `render`, but is used whenever the block is being exported to HTML for use outside BlockNote, namely when copying it to the clipboard. If it's not defined, BlockNote will just use `render` for the HTML conversion.
 
-While the `InlineContent` component can be put anywhere inside the component you pass to `render`, you should make sure to only have one. If `containsInlineContent` is set to false, `render` shouldn't contain any.
+**`parse`**
+
+This is a function that allows you to define which HTML elements should be parsed into your block when importing HTML from outside BlockNote, namely when pasting it from the clipboard. If the element should be parsed into your custom block, you should return the props that the block should be given. Otherwise, return `undefined`.
+
+`element`: The HTML element that's being parsed.
 
 ### Adding Custom Blocks to the Editor
 
-Now, we need to tell BlockNote to use our custom image block by passing it to the editor in the `blockSchema` option. Let's again look at the image block from the demo as an example:
+Now, we need to tell BlockNote to use our font paragraph block by passing it to the editor in the `blockSpecs` option. Let's again look at the image block from the demo as an example:
 
 ```typescript jsx
+// Our block specs, which contain the configs and implementations for blocks
+// that we want our editor to use.
+const blockSpecs = {
+  // Adds all default blocks.
+  ...defaultBlockSpecs,
+  // Adds the font paragraph.
+  fontParagraph: FontParagraphBlock,
+};
+
+...
+
 // Creates a new editor instance.
 const editor = useBlockNote({
   // Tells BlockNote which blocks to use.
-  blockSchema: {
-    // Adds all default blocks.
-    ...defaultBlockSchema,
-    // Adds the custom image block.
-    image: ImageBlock,
-  },
+  blockSpecs: blockSpecs,
 });
 ```
 
-Since we still want the editor to use the [Built-In Block Types](/docs/block-types#built-in-block-types), we add `defaultBlockSchema` to our custom block schema. The key which we use for the custom image block is the same string we use for its type. Make sure that this is always the case for your own custom blocks.
+Since we still want the editor to use the [Built-In Block Types](/docs/block-types#built-in-block-types), we add `defaultBlockSpecs` too. The key which we use for the font paragraph block should also be the same string we use for its type. Make sure that this is always the case for your own custom blocks.
 
 And we're done! You now know how to create custom blocks and add them to the editor. Head to [Manipulating Blocks](/docs/manipulating-blocks) to see what you can do with them in the editor.

@@ -159,14 +159,14 @@ export const alertPropSchema = {
 export const Alert = (props: {
   block: SpecificBlock<
     DefaultBlockSchema & {
-    alert: BlockSpec<"alert", typeof alertPropSchema, true>;
-  },
+      alert: BlockSpec<"alert", typeof alertPropSchema, true>;
+    },
     "alert"
   >;
   editor: BlockNoteEditor<
     DefaultBlockSchema & {
-    alert: BlockSpec<"alert", typeof alertPropSchema, true>;
-  }
+      alert: BlockSpec<"alert", typeof alertPropSchema, true>;
+    }
   >;
   theme: "light" | "dark";
 }) => {
@@ -210,7 +210,7 @@ export const Alert = (props: {
           <Menu.Divider />
           {Object.entries(alertTypes).map(([key, value]) => {
             const ItemIcon = value.icon;
-            
+
             return (
               <Menu.Item
                 key={key}
@@ -253,7 +253,7 @@ export const createAlertBlock = (theme: "light" | "dark") =>
         values: ["warning", "error", "info", "success"],
       },
     } as const,
-    containsInlineContent: true,
+    content: "inline",
     render: (props) => <Alert {...props} theme={theme} />,
   });
 
