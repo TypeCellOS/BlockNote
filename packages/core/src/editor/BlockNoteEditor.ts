@@ -21,11 +21,11 @@ import { HTMLToBlocks } from "../api/parsers/html/parseHTML";
 import { markdownToBlocks } from "../api/parsers/markdown/parseMarkdown";
 import {
   DefaultBlockSchema,
-  DefaultInlineContentSchema,
-  DefaultStyleSchema,
   defaultBlockSchema,
   defaultBlockSpecs,
+  DefaultInlineContentSchema,
   defaultInlineContentSpecs,
+  DefaultStyleSchema,
   defaultStyleSpecs,
 } from "../blocks/defaultBlocks";
 import { FormattingToolbarProsemirrorPlugin } from "../extensions/FormattingToolbar/FormattingToolbarPlugin";
@@ -45,17 +45,17 @@ import {
   BlockSchemaFromSpecs,
   BlockSchemaWithBlock,
   BlockSpecs,
+  getBlockSchemaFromSpecs,
+  getInlineContentSchemaFromSpecs,
+  getStyleSchemaFromSpecs,
   InlineContentSchema,
   InlineContentSchemaFromSpecs,
   InlineContentSpecs,
   PartialBlock,
+  Styles,
   StyleSchema,
   StyleSchemaFromSpecs,
   StyleSpecs,
-  Styles,
-  getBlockSchemaFromSpecs,
-  getInlineContentSchemaFromSpecs,
-  getStyleSchemaFromSpecs,
 } from "../schema";
 import { mergeCSSClasses } from "../util/browser";
 import { UnreachableCaseError } from "../util/typescript";
@@ -135,11 +135,19 @@ export type BlockNoteEditorOptions<
   /**
    * The content that should be in the editor when it's created, represented as an array of partial block objects.
    */
-  initialContent: PartialBlock<
-    BlockSchemaFromSpecs<BSpecs>,
-    InlineContentSchemaFromSpecs<ISpecs>,
-    StyleSchemaFromSpecs<SSpecs>
-  >[];
+  initialContent:
+    | PartialBlock<
+        BlockSchemaFromSpecs<BSpecs>,
+        InlineContentSchemaFromSpecs<ISpecs>,
+        StyleSchemaFromSpecs<SSpecs>
+      >[]
+    | (() => Promise<
+        PartialBlock<
+          BlockSchemaFromSpecs<BSpecs>,
+          InlineContentSchemaFromSpecs<ISpecs>,
+          StyleSchemaFromSpecs<SSpecs>
+        >[]
+      >);
   /**
    * Use default BlockNote font and reset the styles of <p> <li> <h1> elements etc., that are used in BlockNote.
    *
@@ -388,13 +396,23 @@ export class BlockNoteEditor<
         );
         editor.editor.options.content = root.toJSON();
       },
-      onCreate: (editor) => {
-        newOptions._tiptapOptions?.onCreate?.(editor);
+      onCreate: ({ editor }) => {
+        newOptions._tiptapOptions?.onCreate?.({ editor });
         // We need to wait for the TipTap editor to init before we can set the
         // initial content, as the schema may contain custom blocks which need
         // it to render.
         if (initialContent !== undefined) {
-          this.replaceBlocks(this.topLevelBlocks, initialContent as any);
+          if (typeof initialContent === "function") {
+            editor.setEditable(false);
+            initialContent().then((content) => {
+              this.replaceBlocks(this.topLevelBlocks, content as any);
+              if (newOptions.editable !== false) {
+                editor.setEditable(true);
+              }
+            });
+          } else {
+            this.replaceBlocks(this.topLevelBlocks, initialContent as any);
+          }
         }
 
         newOptions.onEditorReady?.(this);
