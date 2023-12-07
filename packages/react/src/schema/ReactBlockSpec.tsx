@@ -52,46 +52,48 @@ export type ReactCustomBlockImplementation<
 // Function that wraps the React component returned from 'blockConfig.render' in
 // a `NodeViewWrapper` which also acts as a `blockContent` div. It contains the
 // block type and props as HTML attributes.
-export function reactWrapInBlockStructure<
+export function Wrapper<
   BType extends string,
   PSchema extends PropSchema
->(
-  element: JSX.Element,
-  blockType: BType,
-  blockProps: Props<PSchema>,
-  propSchema: PSchema,
-  domAttributes?: Record<string, string>
-) {
-  return () => (
-    // Creates `blockContent` element
+>(props: {
+  children: JSX.Element;
+  blockType: BType;
+  blockProps: Props<PSchema>;
+  propSchema: PSchema;
+  domAttributes?: Record<string, string>;
+}) {
+  // Creates `blockContent` element
+  return (
     <NodeViewWrapper
       // Adds custom HTML attributes
       {...Object.fromEntries(
-        Object.entries(domAttributes || {}).filter(([key]) => key !== "class")
+        Object.entries(props.domAttributes || {}).filter(
+          ([key]) => key !== "class"
+        )
       )}
       // Sets blockContent class
       className={mergeCSSClasses(
         "bn-block-content",
-        domAttributes?.class || ""
+        props.domAttributes?.class || ""
       )}
       // Sets content type attribute
-      data-content-type={blockType}
+      data-content-type={props.blockType}
       // Adds props as HTML attributes in kebab-case with "data-" prefix. Skips
       // props which are already added as HTML attributes to the parent
       // `blockContent` element (inheritedProps) and props set to their default
       // values
       {...Object.fromEntries(
-        Object.entries(blockProps)
+        Object.entries(props.blockProps)
           .filter(
             ([prop, value]) =>
               !inheritedProps.includes(prop) &&
-              value !== propSchema[prop].default
+              value !== props.propSchema[prop].default
           )
           .map(([prop, value]) => {
             return [camelToDataKebab(prop), value];
           })
       )}>
-      {element}
+      {props.children}
     </NodeViewWrapper>
   );
 }
@@ -134,40 +136,40 @@ export function createReactBlockSpec<
     },
 
     addNodeView() {
-      return (props) =>
-        ReactNodeViewRenderer(
-          (props: NodeViewProps) => {
-            // Gets the BlockNote editor instance
-            const editor = this.options.editor! as BlockNoteEditor<any>;
-            // Gets the block
-            const block = getBlockFromPos(
-              props.getPos,
-              editor,
-              this.editor,
-              blockConfig.type
-            ) as any;
-            // Gets the custom HTML attributes for `blockContent` nodes
-            const blockContentDOMAttributes =
-              this.options.domAttributes?.blockContent || {};
+      return ReactNodeViewRenderer(
+        (props: NodeViewProps) => {
+          // Gets the BlockNote editor instance
+          const editor = this.options.editor! as BlockNoteEditor<any>;
+          // Gets the block
+          const block = getBlockFromPos(
+            props.getPos,
+            editor,
+            this.editor,
+            blockConfig.type
+          ) as any;
+          // Gets the custom HTML attributes for `blockContent` nodes
+          const blockContentDOMAttributes =
+            this.options.domAttributes?.blockContent || {};
 
-            // hacky, should export `useReactNodeView` from tiptap to get access to ref
-            const ref = (NodeViewContent({}) as any).ref;
+          // hacky, should export `useReactNodeView` from tiptap to get access to ref
+          const ref = (NodeViewContent({}) as any).ref;
 
-            const Content = blockImplementation.render;
-            const BlockContent = reactWrapInBlockStructure(
-              <Content block={block} editor={editor as any} contentRef={ref} />,
-              block.type,
-              block.props,
-              blockConfig.propSchema,
-              blockContentDOMAttributes
-            );
+          const Content = blockImplementation.render;
 
-            return <BlockContent />;
-          },
-          {
-            className: "bn-react-node-view-renderer",
-          }
-        )(props);
+          return (
+            <Wrapper
+              blockProps={block.props}
+              blockType={block.type}
+              propSchema={blockConfig.propSchema}
+              domAttributes={blockContentDOMAttributes}>
+              <Content block={block} editor={editor as any} contentRef={ref} />
+            </Wrapper>
+          );
+        },
+        {
+          className: "bn-react-node-view-renderer",
+        }
+      );
     },
   });
 
@@ -179,6 +181,7 @@ export function createReactBlockSpec<
 
       const Content = blockImplementation.render;
       const output = renderToDOMSpec((refCB) => {
+        // TODO
         const BlockContent = reactWrapInBlockStructure(
           <Content
             block={block as any}
@@ -203,6 +206,7 @@ export function createReactBlockSpec<
       const Content =
         blockImplementation.toExternalHTML || blockImplementation.render;
       const output = renderToDOMSpec((refCB) => {
+        // TODO
         const BlockContent = reactWrapInBlockStructure(
           <Content
             block={block as any}
