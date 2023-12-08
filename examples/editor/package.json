@@ -1,7 +1,7 @@
 {
   "name": "@blocknote/example-editor",
   "private": true,
-  "version": "0.10.0",
+  "version": "0.10.1",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -10,8 +10,8 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "@blocknote/core": "^0.10.0",
-    "@blocknote/react": "^0.10.0",
+    "@blocknote/core": "^0.10.1",
+    "@blocknote/react": "^0.10.1",
     "@mantine/core": "^5.6.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

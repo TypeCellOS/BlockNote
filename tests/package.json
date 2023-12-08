@@ -1,7 +1,7 @@
 {
   "name": "@blocknote/tests",
   "private": true,
-  "version": "0.10.0",
+  "version": "0.10.1",
   "scripts": {
     "build": "tsc",
     "lint": "eslint src --max-warnings 0",
@@ -16,8 +16,8 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@blocknote/core": "^0.10.0",
-    "@blocknote/react": "^0.10.0",
+    "@blocknote/core": "^0.10.1",
+    "@blocknote/react": "^0.10.1",
     "@playwright/experimental-ct-react": "^1.38.1",
     "@playwright/test": "^1.38.1",
     "eslint": "^8.10.0",
