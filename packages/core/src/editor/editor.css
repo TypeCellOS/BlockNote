@@ -1,4 +1,5 @@
 @import url("../assets/fonts-inter.css");
+@import url("prosemirror-tables/style/tables.css");
 
 .bn-editor {
   outline: none;
