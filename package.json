@@ -19,7 +19,7 @@
   "scripts": {
     "start": "lerna run --stream --scope @blocknote/example-editor dev",
     "start:built": "npx serve examples/editor/dist -c ../serve.json",
-    "build": "lerna run --stream build --concurrency 1",
+    "build": "npm run clean && lerna run --stream build --concurrency 1",
     "build:site": "lerna run --stream docs:build --concurrency 1",
     "lint": "lerna run --stream lint",
     "bootstrap": "lerna bootstrap --ci -- --force && patch-package",
@@ -28,7 +28,8 @@
     "install-playwright": "npx playwright install --with-deps",
     "deploy": "lerna publish -- --access public",
     "prepublishOnly": "npm run build && cp README.md packages/core/README.md && cp README.md packages/react/README.md",
-    "postpublish": "rm -rf packages/core/README.md && rm -rf packages/react/README.md"
+    "postpublish": "rm -rf packages/core/README.md && rm -rf packages/react/README.md",
+    "clean": "lerna run --stream clean"
   },
   "overrides": {
     "react": "18.2.0",

@@ -46,7 +46,8 @@
     "preview": "vite preview",
     "lint": "eslint src --max-warnings 0",
     "test": "vitest --run",
-    "test-watch": "vitest watch"
+    "test-watch": "vitest watch",
+    "clean": "rimraf dist && rimraf types"
   },
   "dependencies": {
     "@emotion/cache": "^11.10.5",
@@ -98,6 +99,7 @@
     "eslint": "^8.10.0",
     "jsdom": "^21.1.0",
     "prettier": "^2.7.1",
+    "rimraf": "^5.0.5",
     "rollup-plugin-webpack-stats": "^0.2.2",
     "typescript": "^5.0.4",
     "vite": "^4.4.8",

@@ -8,7 +8,8 @@
     "playwright": "npx playwright test",
     "test:updateSnaps": "docker run --rm  -e RUN_IN_DOCKER=true --network host -v $(pwd)/..:/work/ -w /work/tests -it mcr.microsoft.com/playwright:v1.38.1-focal npx playwright test -u",
     "test-ct": "playwright test -c playwright-ct.config.ts --headed",
-    "test-ct:updateSnaps": "docker run --rm  -e RUN_IN_DOCKER=true --network host -v $(pwd)/..:/work/ -w /work/tests -it mcr.microsoft.com/playwright:v1.35.1-focal npm install && playwright test -c playwright-ct.config.ts -u"
+    "test-ct:updateSnaps": "docker run --rm  -e RUN_IN_DOCKER=true --network host -v $(pwd)/..:/work/ -w /work/tests -it mcr.microsoft.com/playwright:v1.35.1-focal npm install && playwright test -c playwright-ct.config.ts -u",
+    "clean": "rimraf dist"
   },
   "dependencies": {
     "react": "^18.2.0",
@@ -20,7 +21,8 @@
     "@playwright/experimental-ct-react": "^1.38.1",
     "@playwright/test": "^1.38.1",
     "eslint": "^8.10.0",
-    "react-icons": "^4.3.1"
+    "react-icons": "^4.3.1",
+    "rimraf": "^5.0.5"
   },
   "eslintConfig": {
     "extends": [
