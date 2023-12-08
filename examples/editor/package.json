@@ -6,7 +6,8 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "lint": "eslint src --max-warnings 0"
+    "lint": "eslint src --max-warnings 0",
+    "clean": "rimraf dist"
   },
   "dependencies": {
     "@blocknote/core": "^0.10.0",
@@ -23,6 +24,7 @@
     "@types/react-dom": "^18.0.9",
     "@vitejs/plugin-react": "^4.0.4",
     "eslint": "^8.10.0",
+    "rimraf": "^5.0.5",
     "rollup-plugin-webpack-stats": "^0.2.2",
     "vite": "^4.4.8",
     "vite-plugin-eslint": "^1.8.1"

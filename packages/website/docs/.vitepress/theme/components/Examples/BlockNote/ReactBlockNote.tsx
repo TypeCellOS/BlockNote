@@ -39,6 +39,19 @@ const getRandomElement = (list: any[]) =>
 const getRandomColor = () => getRandomElement(colors);
 const getRandomName = () => getRandomElement(names);
 
+function getUTCDateYYYYMMDD() {
+  const now = new Date();
+  const year = now.getUTCFullYear();
+  const month = now.getUTCMonth() + 1; // January is 0
+  const day = now.getUTCDate();
+
+  // Add leading zeros to month and day if needed
+  const formattedMonth = month < 10 ? `0${month}` : `${month}`;
+  const formattedDay = day < 10 ? `0${day}` : `${day}`;
+
+  return `${year}${formattedMonth}${formattedDay}`;
+}
+
 export function ReactBlockNote(props: { theme: "light" | "dark" }) {
   const [doc, provider] = useMemo(() => {
     console.log("create");
@@ -46,7 +59,7 @@ export function ReactBlockNote(props: { theme: "light" | "dark" }) {
     const provider = new YPartyKitProvider(
       "blocknote.yousefed.partykit.dev",
       // "127.0.0.1:1999", // (dev server)
-      "homepage-2",
+      "homepage-" + getUTCDateYYYYMMDD(),
       doc
     );
     return [doc, provider];
