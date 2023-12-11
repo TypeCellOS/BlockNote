@@ -9,6 +9,7 @@ import {
   type TransformContext,
 } from "vitepress";
 import { renderSandbox } from "vitepress-plugin-sandpack";
+import { EXAMPLES_SIDEBAR } from "./sidebar-examples";
 // import * as data from "../data";
 // @ts-check
 /** @type {import('vitepress').UserConfig} */
@@ -120,40 +121,6 @@ const SIDEBAR_DEFAULT = [
   },
 ];
 
-const EXAMPLES_SIDEBAR = [
-  {
-    text: "Basic Examples",
-    items: [
-      { text: "Block Manipulation", link: "/examples/block-manipulation" },
-      {
-        text: "Keyboard Shortcuts",
-        link: "/examples/keyboard-shortcuts",
-      },
-      {
-        text: "Saving & Loading",
-        link: "/examples/saving-loading",
-      },
-      {
-        text: "Changing Font",
-        link: "/examples/changing-font",
-      },
-    ],
-  },
-  {
-    text: "Advanced Examples",
-    items: [
-      {
-        text: "Making UI Elements From Scratch",
-        link: "/examples/custom-ui",
-      },
-      {
-        text: "Alert Block",
-        link: "/examples/alert-block",
-      },
-    ],
-  },
-];
-
 const METADATA_DEFAULT = {
   title: "BlockNote",
   description:
@@ -191,7 +158,10 @@ export default defineConfig({
     },
     nav: [
       { text: "Documentation", link: "/docs/introduction" },
-      { text: "Examples", link: "/examples/block-manipulation" },
+      {
+        text: "Examples",
+        link: Object.values(EXAMPLES_SIDEBAR)[0].items[0].link,
+      },
     ],
     sidebar: {
       "/docs/": SIDEBAR_DEFAULT,
