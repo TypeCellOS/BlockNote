@@ -1,5 +1,5 @@
 {
-  "name": "@blocknote/example-basic",
+  "name": "@blocknote/example-saving-loading",
   "private": true,
   "version": "0.10.0",
   "scripts": {

@@ -5,9 +5,7 @@ import {
   createReactBlockSpec,
   useBlockNote,
 } from "@blocknote/react";
-import "../vanilla-custom-blocks/style.css";
-
-type WindowWithProseMirror = Window & typeof globalThis & { ProseMirror: any };
+// import "../vanilla-custom-blocks/style.css";
 
 // The types of alerts that users can choose from
 const alertTypes = {
@@ -116,7 +114,7 @@ export const bracketsParagraphBlock = createReactBlockSpec(
   }
 );
 
-export function ReactCustomBlocks() {
+export default function App() {
   const editor = useBlockNote({
     domAttributes: {
       editor: {
@@ -150,9 +148,6 @@ export function ReactCustomBlocks() {
       },
     ],
   });
-
-  // Give tests a way to get prosemirror instance
-  (window as WindowWithProseMirror).ProseMirror = editor?._tiptapEditor;
 
   return <BlockNoteView className="root" editor={editor} />;
 }

@@ -55,6 +55,10 @@ export const useBlockNote = <
     }
 
     editorRef.current = initEditor(options);
+    if (window) {
+      // for testing / dev purposes
+      (window as any).ProseMirror = editorRef.current._tiptapEditor;
+    }
     return editorRef.current!;
   }, deps); //eslint-disable-line react-hooks/exhaustive-deps
 };

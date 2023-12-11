@@ -378,4 +378,8 @@ img {
 .love .star {
   margin-bottom: 52px;
 }
+
+.VPHome {
+  padding-bottom: 0 !important;
+}
 </style>

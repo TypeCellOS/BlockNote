@@ -12,8 +12,6 @@ import { Image, insertImage } from "../customblocks/Image";
 import { Separator, insertSeparator } from "../customblocks/Separator";
 import styles from "./Editor.module.css";
 
-type WindowWithProseMirror = Window & typeof globalThis & { ProseMirror: any };
-
 export default function Editor() {
   const blockSpecs = {
     ...defaultBlockSpecs,
@@ -45,7 +43,7 @@ export default function Editor() {
   console.log(editor);
 
   // Give tests a way to get prosemirror instance
-  (window as WindowWithProseMirror).ProseMirror = editor?._tiptapEditor;
+  (window as any).ProseMirror = editor?._tiptapEditor;
 
   return <BlockNoteView editor={editor} />;
 }

@@ -1,7 +1,7 @@
-import type { Project } from "../gen";
+import type { Project } from "../util";
 
 const template = (project: Project) => ({
-  name: "@blocknote/example-" + project.name,
+  name: "@blocknote/example-" + project.slug,
   private: true,
   version: "0.10.0",
   scripts: {
