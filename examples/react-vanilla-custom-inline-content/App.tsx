@@ -1,12 +1,11 @@
-import { defaultInlineContentSpecs } from "@blocknote/core";
-import "@blocknote/core/style.css";
 import {
-  BlockNoteView,
-  createReactInlineContentSpec,
-  useBlockNote,
-} from "@blocknote/react";
+  createInlineContentSpec,
+  defaultInlineContentSpecs,
+} from "@blocknote/core";
+import "@blocknote/core/style.css";
+import { BlockNoteView, useBlockNote } from "@blocknote/react";
 
-const mention = createReactInlineContentSpec(
+const mention = createInlineContentSpec(
   {
     type: "mention",
     propSchema: {
@@ -17,30 +16,40 @@ const mention = createReactInlineContentSpec(
     content: "none",
   },
   {
-    render: (props) => {
-      return <span>@{props.inlineContent.props.user}</span>;
+    render: (inlineContent) => {
+      const mention = document.createElement("span");
+      mention.textContent = `@${inlineContent.props.user}`;
+
+      return {
+        dom: mention,
+      };
     },
   }
 );
 
-const tag = createReactInlineContentSpec(
+const tag = createInlineContentSpec(
   {
     type: "tag",
     propSchema: {},
     content: "styled",
   },
   {
-    render: (props) => {
-      return (
-        <span>
-          #<span ref={props.contentRef}></span>
-        </span>
-      );
+    render: () => {
+      const tag = document.createElement("span");
+      tag.textContent = "#";
+
+      const content = document.createElement("span");
+      tag.appendChild(content);
+
+      return {
+        dom: tag,
+        contentDOM: content,
+      };
     },
   }
 );
 
-export default function ReactInlineContent() {
+export default function App() {
   const editor = useBlockNote({
     inlineContentSpecs: {
       mention,

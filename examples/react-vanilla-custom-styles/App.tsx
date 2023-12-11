@@ -1,5 +1,6 @@
 import {
   BlockNoteEditor,
+  createStyleSpec,
   DefaultBlockSchema,
   DefaultInlineContentSchema,
   defaultStyleSpecs,
@@ -10,33 +11,41 @@ import {
   FormattingToolbarPositioner,
   Toolbar,
   ToolbarButton,
-  createReactStyleSpec,
   useActiveStyles,
   useBlockNote,
 } from "@blocknote/react";
 
-const small = createReactStyleSpec(
+const small = createStyleSpec(
   {
     type: "small",
     propSchema: "boolean",
   },
   {
-    render: (props) => {
-      return <small ref={props.contentRef}></small>;
+    render: () => {
+      const small = document.createElement("small");
+
+      return {
+        dom: small,
+        contentDOM: small,
+      };
     },
   }
 );
 
-const fontSize = createReactStyleSpec(
+const fontSize = createStyleSpec(
   {
     type: "fontSize",
     propSchema: "string",
   },
   {
-    render: (props) => {
-      return (
-        <span ref={props.contentRef} style={{ fontSize: props.value }}></span>
-      );
+    render: (value) => {
+      const span = document.createElement("span");
+      span.style.fontSize = value;
+
+      return {
+        dom: span,
+        contentDOM: span,
+      };
     },
   }
 );
@@ -79,16 +88,14 @@ const CustomFormattingToolbar = (props: { editor: MyEditorType }) => {
   );
 };
 
-const customReactStyles = {
-  ...defaultStyleSpecs,
-  small,
-  fontSize,
-};
-
 export default function App() {
   const editor = useBlockNote(
     {
-      styleSpecs: customReactStyles,
+      styleSpecs: {
+        ...defaultStyleSpecs,
+        small,
+        fontSize,
+      },
       onEditorContentChange: (editor) => {
         console.log(editor.topLevelBlocks);
       },

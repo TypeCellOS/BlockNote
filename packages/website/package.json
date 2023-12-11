@@ -24,7 +24,7 @@
     "sass": "^1.58.0",
     "vitepress": "^1.0.0-rc.31",
     "vitepress-plugin-sandpack": "^1.1.4",
-    "sandpack-vue3":"^3.1.9",
+    "sandpack-vue3": "^3.1.9",
     "vue": "^3.3.10",
     "markdown-it-container": "^3.0.0"
   }

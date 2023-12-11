@@ -3,7 +3,7 @@
   "private": true,
   "workspaces": [
     "packages/*",
-    "playground/*",
+    "playground",
     "tests"
   ],
   "devDependencies": {
@@ -19,8 +19,9 @@
   },
   "scripts": {
     "start": "lerna run --stream --scope @blocknote/example-editor dev",
+    "gen": "lerna run --stream --scope @blocknote/dev-scripts gen",
     "start:built": "npx serve examples/editor/dist -c ../serve.json",
-    "build": "npm run clean && lerna run --stream build --concurrency 1",
+    "build": "npm run clean && npm run gen && lerna run --stream build --concurrency 1",
     "build:site": "lerna run --stream docs:build --concurrency 1",
     "lint": "lerna run --stream lint",
     "bootstrap": "lerna bootstrap --ci -- --force && patch-package",

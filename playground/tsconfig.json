@@ -2,11 +2,7 @@
   "compilerOptions": {
     "target": "ESNext",
     "useDefineForClassFields": true,
-    "lib": [
-      "DOM",
-      "DOM.Iterable",
-      "ESNext"
-    ],
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "allowJs": false,
     "skipLibCheck": true,
     "esModuleInterop": false,
@@ -19,17 +15,13 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "composite": true
+    "composite": true,
+    "rootDir": ".."
   },
-  "include": [
-    "."
-  ],
+  "include": ["src", "../examples"],
   "references": [
-    {
-      "path": "../../packages/core/"
-    },
-    {
-      "path": "../../packages/react/"
-    }
+    { "path": "./tsconfig.node.json" },
+    { "path": "../packages/core/" },
+    { "path": "../packages/react/" }
   ]
 }
