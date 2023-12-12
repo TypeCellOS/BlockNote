@@ -41,7 +41,7 @@ export function groupProjects(projects: Project[]) {
  */
 export function getExampleProjects(): Project[] {
   const examples = glob
-    .sync(path.resolve(dir, "../../../examples/*/"))
+    .sync(path.join(dir, "../../../examples/*/"), {})
     .map((val) => {
       let config: any = undefined;
       const configPath = path.join(val, ".bnexample.json");

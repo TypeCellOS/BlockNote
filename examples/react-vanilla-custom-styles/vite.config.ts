@@ -1,3 +1,4 @@
+// AUTO-GENERATED FILE, DO NOT EDIT DIRECTLY
 import react from "@vitejs/plugin-react";
 import * as fs from "fs";
 import * as path from "path";

@@ -1,4 +1,5 @@
 {
+  "__comment": "AUTO-GENERATED FILE, DO NOT EDIT DIRECTLY",
   "compilerOptions": {
     "target": "ESNext",
     "useDefineForClassFields": true,
