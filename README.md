@@ -25,9 +25,9 @@ rich text editor. Easily add a modern text editing experience to your app.
 
 # Live demo
 
-Play with the editor @ [https://blocknote-main.vercel.app/](https://blocknote-main.vercel.app/).
+Play with the editor @ [https://playground.blocknotejs.org/](https://playground.blocknotejs.org/).
 
-(Source in [examples/editor](/examples/editor))
+(Source in [examples](/examples))
 
 # Example code (React)
 
@@ -99,8 +99,8 @@ Directory structure:
 blocknote
 ├── packages/core       - The core of the editor
 ├── packages/react      - The main library for use in React apps
-├── examples/editor     - Example React app that embeds the editor
-├── examples/vanilla    - An advanced example if you don't want to use React or want to build your own UI components
+├── examples            - Example apps
+├── playground          - App to browse the example apps (https://playground.blocknotejs.org)
 └── tests               - Playwright end to end tests
 ```
 
