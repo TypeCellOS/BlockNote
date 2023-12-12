@@ -67,7 +67,6 @@ import { Selection } from "./selectionTypes";
 import { transformPasted } from "./transformPasted";
 
 // CSS
-import "prosemirror-tables/style/tables.css";
 import "./Block.css";
 import "./editor.css";
 

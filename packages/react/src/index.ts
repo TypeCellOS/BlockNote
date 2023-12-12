@@ -5,7 +5,9 @@ export * from "./editor/defaultThemes";
 
 export * from "./components/FormattingToolbar/DefaultButtons/ColorStyleButton";
 export * from "./components/FormattingToolbar/DefaultButtons/CreateLinkButton";
+export * from "./components/FormattingToolbar/DefaultButtons/ImageCaptionButton";
 export * from "./components/FormattingToolbar/DefaultButtons/NestBlockButtons";
+export * from "./components/FormattingToolbar/DefaultButtons/ReplaceImageButton";
 export * from "./components/FormattingToolbar/DefaultButtons/TextAlignButton";
 export * from "./components/FormattingToolbar/DefaultButtons/ToggledStyleButton";
 export * from "./components/FormattingToolbar/DefaultDropdowns/BlockTypeDropdown";
@@ -35,6 +37,9 @@ export * from "./slashMenuItems/defaultReactSlashMenuItems";
 
 export * from "./components/ImageToolbar/DefaultImageToolbar";
 export * from "./components/ImageToolbar/ImageToolbarPositioner";
+
+export * from "./components/TableHandles/DefaultTableHandle";
+export * from "./components/TableHandles/TableHandlePositioner";
 
 export * from "./components-shared/Toolbar/Toolbar";
 export * from "./components-shared/Toolbar/ToolbarButton";
