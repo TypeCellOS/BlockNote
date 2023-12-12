@@ -13,6 +13,8 @@ export type Project = {
     docs: boolean;
     group: string;
     order: number;
+    dependencies: any;
+    devDependencies: any;
   };
 };
 

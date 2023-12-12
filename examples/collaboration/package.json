@@ -7,13 +7,15 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "lint": "eslint src --max-warnings 0"
+    "lint": "eslint . --max-warnings 0"
   },
   "dependencies": {
     "@blocknote/core": "^0.10.0",
     "@blocknote/react": "^0.10.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "y-partykit": "^0.0.10",
+    "yjs": "^13.6.1"
   },
   "devDependencies": {
     "@types/react": "^18.0.25",
@@ -24,7 +26,10 @@
   },
   "eslintConfig": {
     "extends": [
-      "../.eslintrc.js"
+      "../../.eslintrc.js"
     ]
-  }
+  },
+  "eslintIgnore": [
+    "dist"
+  ]
 }

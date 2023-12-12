@@ -26,7 +26,7 @@ export default function App() {
       // The Yjs Provider responsible for transporting updates:
       provider,
       // Where to store BlockNote data in the Y.Doc:
-      fragment: doc.getXmlFragment("document-storesss"),
+      fragment: doc.getXmlFragment("document-store"),
       // Information (name and color) for this user:
       user: {
         name: "My Username",
