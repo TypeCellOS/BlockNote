@@ -9,13 +9,14 @@ const template = (project: Project) => ({
     dev: "vite",
     build: "tsc && vite build",
     preview: "vite preview",
-    lint: "eslint src --max-warnings 0",
+    lint: "eslint . --max-warnings 0",
   },
   dependencies: {
     "@blocknote/core": "^0.10.0",
     "@blocknote/react": "^0.10.0",
     react: "^18.2.0",
     "react-dom": "^18.2.0",
+    ...(project.config?.dependencies || {}),
   },
   devDependencies: {
     "@types/react": "^18.0.25",
@@ -23,10 +24,12 @@ const template = (project: Project) => ({
     "@vitejs/plugin-react": "^4.0.4",
     eslint: "^8.10.0",
     vite: "^4.4.8",
+    ...(project.config?.devDependencies || {}),
   },
   eslintConfig: {
-    extends: ["../.eslintrc.js"],
+    extends: ["../../.eslintrc.js"],
   },
+  eslintIgnore: ["dist"],
 });
 
 export default template;
