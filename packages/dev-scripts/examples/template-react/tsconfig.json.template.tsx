@@ -1,6 +1,7 @@
 import type { Project } from "../gen";
 
 const template = (project: Project) => ({
+  __comment: "AUTO-GENERATED FILE, DO NOT EDIT DIRECTLY",
   compilerOptions: {
     target: "ESNext",
     useDefineForClassFields: true,
