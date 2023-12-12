@@ -36,6 +36,9 @@ export function groupProjects(projects: Project[]) {
   return grouped;
 }
 
+/**
+ * Get the list of example Projects based on the /examples folder
+ */
 export function getExampleProjects(): Project[] {
   const examples = glob
     .sync(path.resolve(dir, "../../../examples/*/"))
