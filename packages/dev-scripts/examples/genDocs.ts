@@ -2,6 +2,11 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import { Project, getExampleProjects, groupProjects } from "./util";
 
+/*
+ `genDocs` generates the Sandpack Playgrounds for the website. 
+ Note that these files are not checked in to the repo, so this command should always be run before running / building the site
+ */
+
 const dir = path.parse(import.meta.url.replace("file://", "")).dir;
 
 const template = (project: Project, readme: string) => `---

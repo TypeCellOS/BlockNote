@@ -6,6 +6,17 @@ import React from "react";
 import ReactDOM from "react-dom/server";
 import { Project, getExampleProjects, groupProjects } from "./util";
 
+/**
+ * This script reads the examples in the /examples folder. These folders initially only need an App.tsx, .bnexample.json and README.md file.
+ *
+ * This script then generates a full project, for each example (e.g.: vite.config / tsconfig / package.json files, see the `template-react` dir).
+ * It also generates playground/src/examples.gen.tsx that has the metadata for all examples combined and is used in the playground.
+ *
+ * All of these files are checked in to source control.
+ *
+ * (The downside of this is that we have some almost duplicate, generated files in the repo,
+ * but the upside is anyone can run npm start in any of the examples (and that we can point a codesandbox / repl to the examples directory))
+ */
 const dir = path.parse(import.meta.url.replace("file://", "")).dir;
 
 async function writeTemplate(project: Project, templateFile: string) {
