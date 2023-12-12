@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "lint": "eslint src --max-warnings 0"
+    "lint": "eslint . --max-warnings 0"
   },
   "dependencies": {
     "@blocknote/core": "^0.10.0",
@@ -24,7 +24,10 @@
   },
   "eslintConfig": {
     "extends": [
-      "../.eslintrc.js"
+      "../../.eslintrc.js"
     ]
-  }
+  },
+  "eslintIgnore": [
+    "dist"
+  ]
 }
