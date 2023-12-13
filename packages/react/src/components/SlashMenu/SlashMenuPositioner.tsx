@@ -5,10 +5,9 @@ import {
   SlashMenuProsemirrorPlugin,
   SuggestionsMenuState,
 } from "@blocknote/core";
-import Tippy from "@tippyjs/react";
-import { FC, useEffect, useMemo, useRef, useState } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 
-import { usePreventMenuOverflow } from "../../hooks/usePreventMenuOverflow";
+import { flip, useFloating, useTransitionStyles } from "@floating-ui/react";
 import { ReactSlashMenuItem } from "../../slashMenuItems/ReactSlashMenuItem";
 import { DefaultSlashMenu } from "./DefaultSlashMenu";
 
@@ -33,6 +32,14 @@ export const SlashMenuPositioner = <
 
   const referencePos = useRef<DOMRect>();
 
+  const { refs, update, context, floatingStyles } = useFloating({
+    open: show,
+    placement: "bottom-start",
+    middleware: [flip()],
+  });
+
+  const { isMounted, styles } = useTransitionStyles(context);
+
   useEffect(() => {
     return props.editor.slashMenu.onUpdate((slashMenuState) => {
       setShow(slashMenuState.show);
@@ -40,57 +47,42 @@ export const SlashMenuPositioner = <
       setKeyboardHoveredItemIndex(slashMenuState.keyboardHoveredItemIndex);
 
       referencePos.current = slashMenuState.referencePos;
+      update();
     });
-  }, [props.editor]);
+  }, [props.editor, update]);
 
-  const getReferenceClientRect = useMemo(
-    () => {
-      if (!referencePos.current) {
-        return undefined;
-      }
+  // const { ref, updateMaxHeight } = usePreventMenuOverflow(); // TODO, needed?
 
-      return () => referencePos.current!;
-    },
-    [referencePos.current] // eslint-disable-line
-  );
+  useEffect(() => {
+    refs.setReference({
+      getBoundingClientRect: () => {
+        console.log(referencePos.current);
+        return referencePos.current!;
+      },
+    });
+  }, [refs]);
 
-  const { ref, updateMaxHeight } = usePreventMenuOverflow();
+  useEffect(() => {
+    refs.setReference({
+      getBoundingClientRect: () => referencePos.current!,
+    });
+  }, [refs]);
 
-  const slashMenuElement = useMemo(() => {
-    if (!filteredItems || keyboardHoveredItemIndex === undefined) {
-      return null;
-    }
+  if (!isMounted || !filteredItems || keyboardHoveredItemIndex === undefined) {
+    return null;
+  }
 
-    const SlashMenu = props.slashMenu || DefaultSlashMenu;
-
-    return (
-      <div ref={ref}>
-        <SlashMenu
-          filteredItems={filteredItems}
-          itemCallback={(item) => props.editor.slashMenu.itemCallback(item)}
-          keyboardHoveredItemIndex={keyboardHoveredItemIndex}
-        />
-      </div>
-    );
-  }, [
-    filteredItems,
-    keyboardHoveredItemIndex,
-    props.editor.slashMenu,
-    props.slashMenu,
-    ref,
-  ]);
+  const SlashMenu = props.slashMenu || DefaultSlashMenu;
 
   return (
-    <Tippy
-      onShow={updateMaxHeight}
-      appendTo={props.editor.domElement.parentElement!}
-      content={slashMenuElement}
-      getReferenceClientRect={getReferenceClientRect}
-      interactive={true}
-      visible={show}
-      animation={"fade"}
-      placement={"bottom-start"}
-      zIndex={2000}
-    />
+    <div
+      ref={refs.setFloating}
+      style={{ ...styles, ...floatingStyles, zIndex: 10000 }}>
+      <SlashMenu
+        filteredItems={filteredItems}
+        itemCallback={(item) => props.editor.slashMenu.itemCallback(item)}
+        keyboardHoveredItemIndex={keyboardHoveredItemIndex}
+      />
+    </div>
   );
 };
