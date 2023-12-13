@@ -65,7 +65,8 @@
     "react-dom": "^18.2.0",
     "react-icons": "^4.3.1",
     "tippy.js": "^6.3.7",
-    "use-prefers-color-scheme": "^1.1.3"
+    "use-prefers-color-scheme": "^1.1.3",
+    "@floating-ui/react": "^0.26.4"
   },
   "devDependencies": {
     "@types/lodash.foreach": "^4.5.9",
