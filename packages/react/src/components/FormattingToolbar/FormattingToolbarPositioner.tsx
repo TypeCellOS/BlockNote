@@ -4,10 +4,9 @@ import {
   DefaultBlockSchema,
   DefaultProps,
 } from "@blocknote/core";
-import Tippy, { tippy } from "@tippyjs/react";
-import { FC, useEffect, useMemo, useRef, useState } from "react";
+import { flip, useFloating, useTransitionStyles } from "@floating-ui/react";
+import { FC, useEffect, useRef, useState } from "react";
 import { sticky } from "tippy.js";
-
 import { useEditorChange } from "../../hooks/useEditorChange";
 import { DefaultFormattingToolbar } from "./DefaultFormattingToolbar";
 
@@ -55,15 +54,23 @@ export const FormattingToolbarPositioner = <
 
   const referencePos = useRef<DOMRect>();
 
+  const { refs, update, context, floatingStyles } = useFloating({
+    open: show,
+    placement,
+    middleware: [flip()],
+  });
+
+  const { isMounted, styles } = useTransitionStyles(context);
+
   useEffect(() => {
-    tippy.setDefaultProps({ maxWidth: "" });
+    // tippy.setDefaultProps({ maxWidth: "" });
 
     return props.editor.formattingToolbar.onUpdate((state) => {
       setShow(state.show);
-
       referencePos.current = state.referencePos;
+      update();
     });
-  }, [props.editor]);
+  }, [props.editor, update]);
 
   useEditorChange(props.editor, () => {
     const block = props.editor.getTextCursorPosition().block;
@@ -79,36 +86,24 @@ export const FormattingToolbarPositioner = <
     }
   });
 
-  const getReferenceClientRect = useMemo(
-    () => {
-      if (!referencePos) {
-        return undefined;
-      }
-      return () => referencePos.current!;
-    },
-    [referencePos.current] // eslint-disable-line
-  );
+  useEffect(() => {
+    refs.setReference({
+      getBoundingClientRect: () => referencePos.current!,
+    });
+  }, [refs]);
 
-  const formattingToolbarElement = useMemo(() => {
-    const FormattingToolbar =
-      props.formattingToolbar || DefaultFormattingToolbar;
+  const FormattingToolbar = props.formattingToolbar || DefaultFormattingToolbar;
 
-    return <FormattingToolbar editor={props.editor} />;
-  }, [props.editor, props.formattingToolbar]);
+  if (!isMounted) {
+    return null;
+  }
 
   return (
-    <Tippy
-      appendTo={props.editor.domElement.parentElement!}
-      content={formattingToolbarElement}
-      getReferenceClientRect={getReferenceClientRect}
-      interactive={true}
-      visible={show}
-      animation={"fade"}
-      placement={placement}
-      sticky={true}
-      plugins={tippyPlugins}
-      zIndex={3000}
-    />
+    <div
+      ref={refs.setFloating}
+      style={{ ...styles, ...floatingStyles, zIndex: 10000 }}>
+      <FormattingToolbar editor={props.editor} />
+    </div>
   );
 };
 

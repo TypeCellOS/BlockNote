@@ -1,8 +1,8 @@
 import { ActionIcon, Button } from "@mantine/core";
 import Tippy from "@tippyjs/react";
-import { ForwardedRef, forwardRef, MouseEvent } from "react";
-import { TooltipContent } from "../Tooltip/TooltipContent";
+import { ForwardedRef, MouseEvent, forwardRef } from "react";
 import { IconType } from "react-icons";
+import { TooltipContent } from "../Tooltip/TooltipContent";
 
 export type ToolbarButtonProps = {
   onClick?: (e: MouseEvent) => void;
@@ -20,6 +20,8 @@ export type ToolbarButtonProps = {
 export const ToolbarButton = forwardRef(
   (props: ToolbarButtonProps, ref: ForwardedRef<HTMLButtonElement>) => {
     const ButtonIcon = props.icon;
+
+    // TODO: replace with Mantine <Tooltip> or floating-ui
     return (
       <Tippy
         content={
