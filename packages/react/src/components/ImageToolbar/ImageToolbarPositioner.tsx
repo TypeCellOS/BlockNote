@@ -68,6 +68,7 @@ export const ImageToolbarPositioner = <
       visible={show}
       animation={"fade"}
       placement={"bottom"}
+      maxWidth={"none"}
       zIndex={5000}
     />
   );

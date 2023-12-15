@@ -12,6 +12,7 @@ export const DragHandle = <BSchema extends BlockSchema>(
 
   return (
     <Menu
+      withinPortal={false}
       trigger={"click"}
       onOpen={props.freezeMenu}
       onClose={props.unfreezeMenu}
@@ -21,7 +22,8 @@ export const DragHandle = <BSchema extends BlockSchema>(
         <div
           draggable="true"
           onDragStart={props.blockDragStart}
-          onDragEnd={props.blockDragEnd}>
+          onDragEnd={props.blockDragEnd}
+          style={{ height: "24px", width: "24px" }}>
           <SideMenuButton>
             <MdDragIndicator size={24} data-test={"dragHandle"} />
           </SideMenuButton>

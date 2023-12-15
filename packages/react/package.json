@@ -51,9 +51,8 @@
   },
   "dependencies": {
     "@blocknote/core": "^0.10.1",
-    "@emotion/react": "^11.10.5",
-    "@mantine/core": "^5.6.1",
-    "@mantine/hooks": "^5.6.1",
+    "@mantine/core": "^7.3.1",
+    "@mantine/hooks": "^7.3.1",
     "@mantine/utils": "^6.0.5",
     "@tippyjs/react": "^4.2.6",
     "@tiptap/core": "^2.0.3",

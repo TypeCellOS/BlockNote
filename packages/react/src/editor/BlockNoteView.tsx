@@ -2,14 +2,14 @@ import {
   BlockNoteEditor,
   BlockSchema,
   InlineContentSchema,
-  StyleSchema,
   mergeCSSClasses,
+  StyleSchema,
 } from "@blocknote/core";
-import { MantineProvider, createStyles } from "@mantine/core";
+import { MantineProvider } from "@mantine/core";
 import { EditorContent } from "@tiptap/react";
-import { HTMLAttributes, ReactNode, useMemo } from "react";
+import { HTMLAttributes, ReactNode, useEffect } from "react";
 import usePrefersColorScheme from "use-prefers-color-scheme";
-import { Theme, blockNoteToMantineTheme } from "./BlockNoteTheme";
+import { Theme, themeToCSSVariables } from "./BlockNoteTheme";
 import { FormattingToolbarPositioner } from "../components/FormattingToolbar/FormattingToolbarPositioner";
 import { HyperlinkToolbarPositioner } from "../components/HyperlinkToolbar/HyperlinkToolbarPositioner";
 import { ImageToolbarPositioner } from "../components/ImageToolbar/ImageToolbarPositioner";
@@ -17,6 +17,8 @@ import { SideMenuPositioner } from "../components/SideMenu/SideMenuPositioner";
 import { SlashMenuPositioner } from "../components/SlashMenu/SlashMenuPositioner";
 import { TableHandlesPositioner } from "../components/TableHandles/TableHandlePositioner";
 import { darkDefaultTheme, lightDefaultTheme } from "./defaultThemes";
+import "@mantine/core/styles.css";
+import "./styles.css";
 
 // Renders the editor as well as all menus & toolbars using default styles.
 function BaseBlockNoteView<
@@ -29,16 +31,12 @@ function BaseBlockNoteView<
     children?: ReactNode;
   } & HTMLAttributes<HTMLDivElement>
 ) {
-  const { classes } = createStyles({ root: {} })(undefined, {
-    name: "Editor",
-  });
-
   const { editor, children, className, ...rest } = props;
 
   return (
     <EditorContent
       editor={props.editor?._tiptapEditor}
-      className={mergeCSSClasses(classes.root, props.className || "")}
+      className={mergeCSSClasses("bn-editor-wrapper", props.className || "")}
       {...rest}>
       {props.children || (
         <>
@@ -55,6 +53,11 @@ function BaseBlockNoteView<
     </EditorContent>
   );
 }
+
+const mantineTheme = {
+  // Removes button press effect
+  activeClassName: "",
+};
 
 export function BlockNoteView<
   BSchema extends BlockSchema,
@@ -81,22 +84,18 @@ export function BlockNoteView<
 
   const preferredTheme = usePrefersColorScheme();
 
-  const mantineTheme = useMemo(() => {
+  useEffect(() => {
     if (theme === "light") {
-      return blockNoteToMantineTheme(lightDefaultTheme);
+      themeToCSSVariables(lightDefaultTheme);
     }
 
     if (theme === "dark") {
-      return blockNoteToMantineTheme(darkDefaultTheme);
+      themeToCSSVariables(darkDefaultTheme);
     }
 
-    if ("light" in theme && "dark" in theme) {
-      return blockNoteToMantineTheme(
-        theme[preferredTheme === "dark" ? "dark" : "light"]
-      );
+    if (typeof theme === "object" && "light" in theme && "dark" in theme) {
+      themeToCSSVariables(theme[preferredTheme === "dark" ? "dark" : "light"]);
     }
-
-    return blockNoteToMantineTheme(theme);
   }, [preferredTheme, theme]);
 
   return (

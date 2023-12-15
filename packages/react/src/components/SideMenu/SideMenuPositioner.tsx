@@ -91,6 +91,7 @@ export const SideMenuPositioner = <
       offset={offset}
       placement={"left"}
       popperOptions={popperOptions}
+      maxWidth={"none"}
       zIndex={1000}
     />
   );

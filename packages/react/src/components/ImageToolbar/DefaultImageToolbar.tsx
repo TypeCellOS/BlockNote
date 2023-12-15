@@ -36,23 +36,32 @@ export const DefaultImageToolbar = <BSchema extends BlockSchema>(
   }, [uploadFailed]);
 
   const handleFileChange = useCallback(
-    async (file: File) => {
-      setUploading(true);
-      if (props.editor.uploadFile !== undefined) {
-        try {
-          const uploaded = await props.editor.uploadFile(file);
-          props.editor.updateBlock(props.block, {
-            type: "image",
-            props: {
-              url: uploaded,
-            },
-          } as PartialBlock<BSchema, any, any>);
-        } catch (e) {
-          setUploadFailed(true);
-        } finally {
-          setUploading(false);
+    (file: File | null) => {
+      if (file === null) {
+        return;
+      }
+
+      async function upload(file: File) {
+        setUploading(true);
+
+        if (props.editor.uploadFile !== undefined) {
+          try {
+            const uploaded = await props.editor.uploadFile(file);
+            props.editor.updateBlock(props.block, {
+              type: "image",
+              props: {
+                url: uploaded,
+              },
+            } as PartialBlock<BSchema, any, any>);
+          } catch (e) {
+            setUploadFailed(true);
+          } finally {
+            setUploading(false);
+          }
         }
       }
+
+      upload(file);
     },
     [props.block, props.editor]
   );
@@ -95,7 +104,7 @@ export const DefaultImageToolbar = <BSchema extends BlockSchema>(
       style={{
         width: "500px",
       }}>
-      <Tabs value={openTab} onTabChange={setOpenTab as any}>
+      <Tabs value={openTab} onChange={setOpenTab as any}>
         {uploading && <LoadingOverlay visible={uploading} />}
 
         <Tabs.List>
@@ -126,7 +135,7 @@ export const DefaultImageToolbar = <BSchema extends BlockSchema>(
                 data-test={"upload-input"}
               />
               {uploadFailed && (
-                <Text color={"red"} size={12} style={{ textAlign: "center" }}>
+                <Text c={"red"} size={"12px"} style={{ textAlign: "center" }}>
                   Error: Upload failed
                 </Text>
               )}
@@ -152,6 +161,7 @@ export const DefaultImageToolbar = <BSchema extends BlockSchema>(
               data-test={"embed-input"}
             />
             <Button
+              className={"bn-embed-image-button"}
               onClick={handleURLClick}
               size={"xs"}
               data-test={"embed-input-button"}>

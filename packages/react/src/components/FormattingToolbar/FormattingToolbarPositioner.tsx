@@ -107,6 +107,7 @@ export const FormattingToolbarPositioner = <
       placement={placement}
       sticky={true}
       plugins={tippyPlugins}
+      maxWidth={"none"}
       zIndex={3000}
     />
   );

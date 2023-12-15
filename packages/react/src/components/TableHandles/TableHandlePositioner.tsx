@@ -198,6 +198,7 @@ export const TableHandlesPositioner = <
         animation={"fade"}
         placement={"left"}
         offset={rowOffset}
+        maxWidth={"none"}
         zIndex={1000}
       />
       <Tippy
@@ -209,6 +210,7 @@ export const TableHandlesPositioner = <
         animation={"fade"}
         placement={"top"}
         offset={columnOffset}
+        maxWidth={"none"}
         zIndex={1000}
       />
     </>

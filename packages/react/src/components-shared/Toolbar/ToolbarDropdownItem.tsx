@@ -18,7 +18,7 @@ export function ToolbarDropdownItem(props: ToolbarDropdownItemProps) {
     <Menu.Item
       key={props.text}
       onClick={props.onClick}
-      icon={ItemIcon && <ItemIcon size={16} />}
+      leftSection={ItemIcon && <ItemIcon size={16} />}
       rightSection={
         props.isSelected ? (
           <TiTick size={16} />

@@ -92,6 +92,7 @@ export const HyperlinkToolbarPositioner = <
       visible={show}
       animation={"fade"}
       placement={"top-start"}
+      maxWidth={"none"}
       zIndex={4000}
     />
   );

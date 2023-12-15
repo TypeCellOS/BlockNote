@@ -90,6 +90,7 @@ export const SlashMenuPositioner = <
       visible={show}
       animation={"fade"}
       placement={"bottom-start"}
+      maxWidth={"none"}
       zIndex={2000}
     />
   );
