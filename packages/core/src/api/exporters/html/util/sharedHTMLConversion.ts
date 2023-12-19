@@ -33,34 +33,6 @@ export const serializeNodeInner = <
     throw new Error("Serializer is missing a node type: " + node.type.name);
   }
 
-  // Case for if only a `blockContent` node is selected and being copied. This
-  // is only the case for blocks without inline content, as those can be
-  // selected as a NodeSelection. This means that calling `selection.content()`
-  // will contain just the `blockContent` node, unlike for blocks with inline
-  // content, which will be in the context of a `blockContainer`/`blockGroup`
-  // node.
-  // TODO: We can move the `blockContainer` wrapping to `copyExtension` and
-  //  leave this file unchanged, not sure what we prefer.
-  if (node.type.spec.group === "blockContent") {
-    const blockContainer = editor._tiptapEditor.schema.nodes[
-      "blockContainer"
-    ].create(null, node);
-    const impl = editor.blockImplementations[node.type.name].implementation;
-    const toHTML = toExternalHTML ? impl.toExternalHTML : impl.toInternalHTML;
-    const blockContent = toHTML(
-      nodeToBlock(
-        blockContainer,
-        editor.blockSchema,
-        editor.inlineContentSchema,
-        editor.styleSchema,
-        editor.blockCache
-      ),
-      editor as any
-    );
-
-    return blockContent.dom;
-  }
-
   const { dom, contentDOM } = DOMSerializer.renderSpec(
     doc(options),
     serializer.nodes[node.type.name](node)
