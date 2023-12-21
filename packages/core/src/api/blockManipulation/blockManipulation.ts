@@ -141,6 +141,68 @@ export function replaceBlocks<
   blocksToInsert: PartialBlock<BSchema, I, S>[],
   editor: BlockNoteEditor<BSchema, I, S>
 ) {
-  insertBlocks(blocksToInsert, blocksToRemove[0], "before", editor);
-  removeBlocks(blocksToRemove, editor._tiptapEditor);
+  const ttEditor = editor._tiptapEditor;
+  const tr = ttEditor.state.tr;
+
+  const nodesToInsert: Node[] = [];
+  for (const blockSpec of blocksToInsert) {
+    nodesToInsert.push(
+      blockToNode(blockSpec, ttEditor.schema, editor.styleSchema)
+    );
+  }
+
+  const idsOfBlocksToRemove = new Set<string>(
+    blocksToRemove.map((block) =>
+      typeof block === "string" ? block : block.id
+    )
+  );
+
+  let removedSize = 0;
+
+  ttEditor.state.doc.descendants((node, pos) => {
+    // Skips traversing nodes after all target blocks have been removed.
+    if (idsOfBlocksToRemove.size === 0) {
+      return false;
+    }
+
+    // Keeps traversing nodes if block with target ID has not been found.
+    if (
+      node.type.name !== "blockContainer" ||
+      !idsOfBlocksToRemove.has(node.attrs.id)
+    ) {
+      return true;
+    }
+
+    if (
+      node.attrs.id ===
+      (typeof blocksToRemove[0] === "string"
+        ? blocksToRemove[0]
+        : blocksToRemove[0].id)
+    ) {
+      const oldDocSize = tr.doc.nodeSize;
+      tr.insert(pos, nodesToInsert);
+      const newDocSize = tr.doc.nodeSize;
+      removedSize += oldDocSize - newDocSize;
+    }
+
+    idsOfBlocksToRemove.delete(node.attrs.id);
+
+    const oldDocSize = tr.doc.nodeSize;
+    tr.delete(pos - removedSize, pos - removedSize + node.nodeSize);
+    const newDocSize = tr.doc.nodeSize;
+    removedSize += oldDocSize - newDocSize;
+
+    return false;
+  });
+
+  if (idsOfBlocksToRemove.size > 0) {
+    const notFoundIds = [...idsOfBlocksToRemove].join("\n");
+
+    throw Error(
+      "Blocks with the following IDs could not be found in the editor: " +
+        notFoundIds
+    );
+  }
+
+  ttEditor.view.dispatch(tr);
 }
