@@ -66,10 +66,10 @@
     display: flex;
     flex-direction: row;
     justify-content: center;
+}
 
-    &:hover {
-        background-color: var(--bn-color-hovered-background);
-    }
+.mantine-FileInput-input:hover {
+    background-color: var(--bn-color-hovered-background);
 }
 
 .mantine-FileInput-wrapper {
@@ -103,12 +103,12 @@
     border: none;
     border-radius: var(--bn-border-radius-small);
     color: var(--bn-color-menu-text);
+}
 
-    &[data-hovered] {
-        background-color: var(--bn-color-hovered-background);
-        border: none;
-        color: var(--bn-color-hovered-text);
-    }
+.mantine-Menu-item[data-hovered] {
+    background-color: var(--bn-color-hovered-background);
+    border: none;
+    color: var(--bn-color-hovered-text);
 }
 
 /* Mantine Tabs component base styles */
@@ -124,17 +124,17 @@
 .mantine-Tabs-tab {
     color: var(--bn-color-menu-text);
     border-color: var(--bn-color-hovered-background);
+}
 
-    &:hover {
-        background-color: var(--bn-color-hovered-background);
-        border-color: var(--bn-color-hovered-background);
-        color: var(--bn-color-hovered-text);
-    }
+.mantine-Tabs-tab:hover {
+    background-color: var(--bn-color-hovered-background);
+    border-color: var(--bn-color-hovered-background);
+    color: var(--bn-color-hovered-text);
+}
 
-    &[data-active], &[data-active]:hover {
-        border-color: var(--bn-color-menu-text);
-        color: var(--bn-color-menu-text);
-    }
+.mantine-Tabs-tab[data-active], .mantine-Tabs-tab[data-active]:hover {
+    border-color: var(--bn-color-menu-text);
+    color: var(--bn-color-menu-text);
 }
 
 .mantine-Tabs-panel {
@@ -241,47 +241,50 @@
     gap: 2px;
     padding: 2px;
     width: fit-content;
+}
 
-    & .mantine-Button-root, .mantine-ActionIcon-root {
-        background-color: var(--bn-color-menu-background);
-        border: none;
-        border-radius: var(--bn-border-radius-small);
-        color: var(--bn-color-menu-text);
+.bn-toolbar .mantine-Button-root, .bn-toolbar .mantine-ActionIcon-root {
+    background-color: var(--bn-color-menu-background);
+    border: none;
+    border-radius: var(--bn-border-radius-small);
+    color: var(--bn-color-menu-text);
+}
 
-        &:hover {
-            background-color: var(--bn-color-hovered-background);
-            border: none;
-            color: var(--bn-color-hovered-text);
-        }
+.bn-toolbar .mantine-Button-root:hover,
+.bn-toolbar .mantine-ActionIcon-root:hover {
+    background-color: var(--bn-color-hovered-background);
+    border: none;
+    color: var(--bn-color-hovered-text);
+}
 
-        &[data-selected] {
-            background-color: var(--bn-color-selected-background);
-            border: none;
-            color: var(--bn-color-selected-text);
-        }
+.bn-toolbar .mantine-Button-root[data-selected],
+.bn-toolbar .mantine-ActionIcon-root[data-selected] {
+    background-color: var(--bn-color-selected-background);
+    border: none;
+    color: var(--bn-color-selected-text);
+}
 
-        &[data-disabled] {
-            background-color: var(--bn-color-disabled-background);
-            border: none;
-            color: var(--bn-color-disabled-text);
-        }
-    }
+.bn-toolbar .mantine-Button-root[data-disabled],
+.bn-toolbar .mantine-ActionIcon-root[data-disabled] {
+    background-color: var(--bn-color-disabled-background);
+    border: none;
+    color: var(--bn-color-disabled-text);
+}
 
-    & .mantine-Menu-dropdown .mantine-Menu-item {
-        font-size: 12px;
-        height: 30px;
+.bn-toolbar .mantine-Menu-dropdown .mantine-Menu-item {
+    font-size: 12px;
+    height: 30px;
+}
 
-        &:hover {
-            background-color: var(--bn-color-hovered-background);
-        }
-    }
+.bn-toolbar .mantine-Menu-dropdown .mantine-Menu-item:hover {
+    background-color: var(--bn-color-hovered-background);
+}
 
-    & .bn-embed-image-button {
-        border: solid var(--bn-color-border) 1px;
-        border-radius: var(--bn-border-radius-small);
-        height: 32px;
-        width: 60%;
-    }
+.bn-toolbar .bn-embed-image-button {
+    border: solid var(--bn-color-border) 1px;
+    border-radius: var(--bn-border-radius-small);
+    height: 32px;
+    width: 60%;
 }
 
 .bn-toolbar-input-dropdown {
@@ -293,79 +296,80 @@
     gap: 4px;
     min-width: 145px;
     padding: 2px;
+}
 
-    & .mantine-Group-root {
-        flex-wrap: nowrap;
+.bn-toolbar-input-dropdown .mantine-Group-root {
+    flex-wrap: nowrap;
+}
 
-        & .mantine-TextInput-root, &.mantine-FileInput-root {
-            width: 300px;
+.bn-toolbar-input-dropdown .mantine-TextInput-root,
+.bn-toolbar-input-dropdown .mantine-FileInput-root {
+    width: 300px;
+}
 
-            & .mantine-TextInput-wrapper:hover {
-                background-color: var(--bn-color-hovered-background);
-            }
+.bn-toolbar-input-dropdown .mantine-TextInput-wrapper,
+.bn-toolbar-input-dropdown .mantine-FileInput-wrapper {
+    padding: 0;
+    border-radius: 4px;
+}
 
-            & .mantine-TextInput-wrapper, & .mantine-FileInput-wrapper {
-                padding: 0;
-                border-radius: 4px;
+.bn-toolbar-input-dropdown .mantine-TextInput-wrapper:hover {
+    background-color: var(--bn-color-hovered-background);
+}
 
-                & .mantine-FileInput-section[data-position="left"] {
-                    color: var(--bn-color-menu-text);
-                }
+.bn-toolbar-input-dropdown .mantine-TextInput-input,
+.bn-toolbar-input-dropdown .mantine-FileInput-input {
+    border: none;
+    font-size: 12px;
+}
 
-                & .mantine-TextInput-input, .mantine-FileInput-input {
-                    border: none;
-                    font-size: 12px;
+.bn-toolbar-input-dropdown .mantine-FileInput-input:hover {
+    background-color: var(--bn-color-hovered-background);
+}
 
-                    &.mantine-FileInput-placeholder {
-                        color: var(--bn-color-menu-text);
-                    }
-                }
+.bn-toolbar-input-dropdown .mantine-FileInput-section[data-position="left"] {
+    color: var(--bn-color-menu-text);
+}
 
-                & .mantine-FileInput-input:hover {
-                    background-color: var(--bn-color-hovered-background);
-                }
-            }
-        }
-    }
+.bn-toolbar-input-dropdown .mantine-FileInput-placeholder {
+    color: var(--bn-color-menu-text);
 }
 
 /* Slash Menu styling*/
 .bn-slash-menu {
     position: relative;
+}
 
-    & .mantine-Menu-item {
-        & .mantine-Menu-itemSection {
-            color: var(--bn-color-tooltip-text);
+.bn-slash-menu .mantine-Menu-itemSection {
+    color: var(--bn-color-tooltip-text);
+}
 
-            &[data-position="left"] {
-                background-color: var(--bn-color-tooltip-background);
-                border-radius: var(--bn-border-radius-small);
-                padding: 8px;
-            }
-        }
+.bn-slash-menu .mantine-Menu-itemSection[data-position="left"] {
+    background-color: var(--bn-color-tooltip-background);
+    border-radius: var(--bn-border-radius-small);
+    padding: 8px;
+}
 
-        & .mantine-Menu-itemLabel {
-            padding-right: 16px;
+.bn-slash-menu .mantine-Menu-itemLabel {
+    padding-right: 16px;
+}
 
-            & .mantine-Stack-root {
-                gap: 0;
-            }
-        }
-    }
+.bn-slash-menu .mantine-Menu-itemLabel .mantine-Stack-root {
+    gap: 0;
 }
 
 /* Side Menu styling */
 .bn-side-menu {
     background-color: transparent;
+}
 
-    & .mantine-UnstyledButton-root {
-        background-color: transparent;
-        color: var(--bn-color-side-menu);
+.bn-side-menu .mantine-UnstyledButton-root {
+    background-color: transparent;
+    color: var(--bn-color-side-menu);
+}
 
-        &:hover {
-            background-color: var(--bn-color-hovered-background);
-        }
-    }
+.bn-side-menu .mantine-UnstyledButton-root:hover {
+    background-color: var(--bn-color-hovered-background);
 }
 
 /* Table Handle styling */
@@ -379,10 +383,10 @@
     cursor: pointer;
     display: flex;
     justify-content: center;
+}
 
-    &:hover div.bn-table-handle-dragging {
-        background-color: var(--bn-color-hovered-background);
-    }
+.bn-table-handle:hover .bn-table-handle-dragging {
+    background-color: var(--bn-color-hovered-background);
 }
 
 /* Drag Handle Menu styling */
