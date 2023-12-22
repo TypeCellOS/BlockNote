@@ -67,12 +67,9 @@ export const defaultBlockToHTML = <
   dom: HTMLElement;
   contentDOM?: HTMLElement;
 } => {
-  const node = blockToNode(
-    block,
-    editor._tiptapEditor.schema,
-    editor.styleSchema
-  ).firstChild!;
-  const toDOM = editor._tiptapEditor.schema.nodes[node.type.name].spec.toDOM;
+  const node = blockToNode(block, editor.pmSchema, editor.styleSchema)
+    .firstChild!;
+  const toDOM = editor.pmSchema.nodes[node.type.name].spec.toDOM;
 
   if (toDOM === undefined) {
     throw new Error(

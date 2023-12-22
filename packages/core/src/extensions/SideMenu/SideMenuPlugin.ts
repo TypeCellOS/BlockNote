@@ -229,12 +229,14 @@ function dragStart<
 
     const internalHTMLSerializer = createInternalHTMLSerializer(schema, editor);
     const internalHTML = internalHTMLSerializer.serializeProseMirrorFragment(
-      selectedSlice.content
+      selectedSlice.content,
+      {}
     );
 
     const externalHTMLExporter = createExternalHTMLExporter(schema, editor);
     const externalHTML = externalHTMLExporter.exportProseMirrorFragment(
-      selectedSlice.content
+      selectedSlice.content,
+      {}
     );
 
     const plainText = cleanHTMLToMarkdown(externalHTML);

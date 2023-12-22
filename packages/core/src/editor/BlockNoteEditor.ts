@@ -251,6 +251,10 @@ export class BlockNoteEditor<
 
   public readonly uploadFile: ((file: File) => Promise<string>) | undefined;
 
+  public get pmSchema() {
+    return this._tiptapEditor.schema;
+  }
+
   public static create<
     BSpecs extends BlockSpecs = typeof defaultBlockSpecs,
     ISpecs extends InlineContentSpecs = typeof defaultInlineContentSpecs,
@@ -302,7 +306,6 @@ export class BlockNoteEditor<
     const extensions = getBlockNoteExtensions({
       editor: this,
       domAttributes: newOptions.domAttributes || {},
-      blockSchema: this.blockSchema,
       blockSpecs: newOptions.blockSpecs,
       styleSpecs: newOptions.styleSpecs,
       inlineContentSpecs: newOptions.inlineContentSpecs,
@@ -974,7 +977,6 @@ export class BlockNoteEditor<
     this._tiptapEditor.commands.liftListItem("blockContainer");
   }
 
-  // TODO: Fix when implementing HTML/Markdown import & export
   /**
    * Serializes blocks into an HTML string. To better conform to HTML standards, children of blocks which aren't list
    * items are un-nested in the output HTML.
@@ -988,7 +990,7 @@ export class BlockNoteEditor<
       this._tiptapEditor.schema,
       this
     );
-    return exporter.exportBlocks(blocks);
+    return exporter.exportBlocks(blocks, {});
   }
 
   /**
@@ -1019,7 +1021,7 @@ export class BlockNoteEditor<
   public async blocksToMarkdownLossy(
     blocks: Block<BSchema, ISchema, SSchema>[] = this.topLevelBlocks
   ): Promise<string> {
-    return blocksToMarkdown(blocks, this._tiptapEditor.schema, this);
+    return blocksToMarkdown(blocks, this._tiptapEditor.schema, this, {});
   }
 
   /**

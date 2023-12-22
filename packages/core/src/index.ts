@@ -21,8 +21,14 @@ export * from "./extensions/TableHandles/TableHandlesPlugin";
 export * from "./schema";
 export * from "./util/browser";
 export * from "./util/string";
+export * from "./util/typescript";
+
 // for testing from react (TODO: move):
 export * from "./api/nodeConversions/nodeConversions";
 export * from "./api/testUtil/partialBlockTestUtil";
 export * from "./extensions/UniqueID/UniqueID";
-export { UnreachableCaseError } from "./util/typescript";
+
+// for server-util, maybe change dependency graph?
+export * from "./api/exporters/markdown/markdownExporter";
+export * from "./api/parsers/html/parseHTML";
+export * from "./api/parsers/markdown/parseMarkdown";
