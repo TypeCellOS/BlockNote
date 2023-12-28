@@ -25,7 +25,7 @@ export const SlashMenuPositioner = <
 >(props: {
   editor: BlockNoteEditor<BSchema, any, any>;
   slashMenu?: FC<SlashMenuProps<BSchema>>;
-  queryManager: SlashMenuQue
+  queryManager: SlashMenuQuery
 }) => {
   const [show, setShow] = useState<boolean>(false);
   const [filteredItems, setFilteredItems] =
