@@ -3,6 +3,7 @@ import {
   BlockSchema,
   DefaultBlockSchema,
   SlashMenuProsemirrorPlugin,
+  SlashMenuProsemirrorPlugin
   SuggestionsMenuState,
 } from "@blocknote/core";
 import Tippy from "@tippyjs/react";
@@ -24,6 +25,7 @@ export const SlashMenuPositioner = <
 >(props: {
   editor: BlockNoteEditor<BSchema, any, any>;
   slashMenu?: FC<SlashMenuProps<BSchema>>;
+  queryManager: SlashMenuQue
 }) => {
   const [show, setShow] = useState<boolean>(false);
   const [filteredItems, setFilteredItems] =
