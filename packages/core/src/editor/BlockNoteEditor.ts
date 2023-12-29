@@ -95,8 +95,18 @@ export type BlockNoteEditorOptions<
    *    ```
    *      class SlashMenuFetchQuery extends SlashMenuQuery<any, any, any, any> {
    *          async query(q: string, items: SlashMenuItem[]): SlashMenuItem[] {
-   *            return 
+g   *            return []
    *          }
+   * 
+   *          async execute({
+   *              item,
+   *              editor,
+   *          }: {
+   *             item: SlashMenuItem;
+   *            editor: BlockNoteEditor<BSchema, I, S>;
+   *         }) {
+   *           return item.execute(editor);
+   *        }
    *      }
    *  
    */
