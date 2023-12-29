@@ -3,7 +3,7 @@ import { Plugin, PluginKey } from "prosemirror-state";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import {
   SuggestionsMenuState,
-  setupSuggestionsMenu
+  setupSuggestionsMenu,
 } from "../../extensions-shared/suggestion/SuggestionPlugin";
 import { BlockSchema, InlineContentSchema, StyleSchema } from "../../schema";
 import { EventEmitter } from "../../util/EventEmitter";
@@ -11,21 +11,32 @@ import { BaseSlashMenuItem } from "./BaseSlashMenuItem";
 
 export const slashMenuPluginKey = new PluginKey("SlashMenuPlugin");
 
-export class SlashMenuQuery {
-  constructor(public queryChar: string = "/"){}
+export class SlashMenuQuery<
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema,
+  SlashMenuItem extends BaseSlashMenuItem<BSchema, I, S>
+> {
+  constructor(public queryChar: string = "/") {}
 
-  query(q : string, items: SlashMenuItem[]) : Array<SlashMenuItem>{
+  async query(q: string, items: SlashMenuItem[]): Promise<SlashMenuItem[]> {
     return items.filter(
       ({ name, aliases }: SlashMenuItem) =>
-        name.toLowerCase().startsWith(query.toLowerCase()) ||
+        name.toLowerCase().startsWith(q.toLowerCase()) ||
         (aliases &&
           aliases.filter((alias) =>
-            alias.toLowerCase().startsWith(query.toLowerCase())
+            alias.toLowerCase().startsWith(q.toLowerCase())
           ).length !== 0)
-    )
+    );
   }
 
-  execute({ item : SlashMenuItem, editor: BlockNoteEditor }) {
+  async execute({
+    item,
+    editor,
+  }: {
+    item: SlashMenuItem;
+    editor: BlockNoteEditor<BSchema, I, S>;
+  }) {
     return item.execute(editor);
   }
 }
@@ -39,7 +50,16 @@ export class SlashMenuProsemirrorPlugin<
   public readonly plugin: Plugin;
   public readonly itemCallback: (item: SlashMenuItem) => void;
 
-  constructor(editor: BlockNoteEditor<BSchema, I, S>, items: SlashMenuItem[], queryManager : SlashMenuQuery = new SlashMenuQuery()) {
+  constructor(
+    editor: BlockNoteEditor<BSchema, I, S>,
+    items: SlashMenuItem[],
+    queryManager: SlashMenuQuery<
+      BSchema,
+      I,
+      S,
+      SlashMenuItem
+    > = new SlashMenuQuery()
+  ) {
     super();
     const suggestions = setupSuggestionsMenu<SlashMenuItem, BSchema, I, S>(
       editor,
@@ -49,7 +69,7 @@ export class SlashMenuProsemirrorPlugin<
       slashMenuPluginKey,
       queryManager.queryChar,
       (query) => queryManager.query(query, items),
-      ({ item, editor }) => queryManager.execute({item, editor})
+      ({ item, editor }) => queryManager.execute({ item, editor })
     );
     this.plugin = suggestions.plugin;
     this.itemCallback = suggestions.itemCallback;

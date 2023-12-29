@@ -33,7 +33,10 @@ import { HyperlinkToolbarProsemirrorPlugin } from "../extensions/HyperlinkToolba
 import { ImageToolbarProsemirrorPlugin } from "../extensions/ImageToolbar/ImageToolbarPlugin";
 import { SideMenuProsemirrorPlugin } from "../extensions/SideMenu/SideMenuPlugin";
 import { BaseSlashMenuItem } from "../extensions/SlashMenu/BaseSlashMenuItem";
-import { SlashMenuProsemirrorPlugin } from "../extensions/SlashMenu/SlashMenuPlugin";
+import {
+  SlashMenuProsemirrorPlugin,
+  SlashMenuQuery,
+} from "../extensions/SlashMenu/SlashMenuPlugin";
 import { getDefaultSlashMenuItems } from "../extensions/SlashMenu/defaultSlashMenuItems";
 import { TableHandlesProsemirrorPlugin } from "../extensions/TableHandles/TableHandlesPlugin";
 import { UniqueID } from "../extensions/UniqueID/UniqueID";
@@ -84,6 +87,20 @@ export type BlockNoteEditorOptions<
    * @default defaultSlashMenuItems from `./extensions/SlashMenu`
    */
   slashMenuItems: BaseSlashMenuItem<any, any, any>[];
+
+  /**
+   *  A query manager that handles the slash menu.
+   *  @default new SlashMenuQuery()
+   *  @example
+   *    ```
+   *      class SlashMenuFetchQuery extends SlashMenuQuery<any, any, any, any> {
+   *          async query(q: string, items: SlashMenuItem[]): SlashMenuItem[] {
+   *            return 
+   *          }
+   *      }
+   *  
+   */
+  slashMenuQueryManager?: SlashMenuQuery<any, any, any, any>;
 
   /**
    * The HTML element that should be used as the parent element for the editor.
