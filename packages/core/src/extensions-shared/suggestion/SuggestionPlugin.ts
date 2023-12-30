@@ -5,7 +5,6 @@ import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import { BlockSchema, InlineContentSchema, StyleSchema } from "../../schema";
 import { BaseUiElementState } from "../BaseUiElementTypes";
 import { SuggestionItem } from "./SuggestionItem";
-import { EventEmitter } from "../../util/EventEmitter";
 
 const findBlock = findParentNode((node) => node.type.name === "blockContainer");
 
@@ -331,10 +330,6 @@ export const setupSuggestionsMenu = <
           ) {
             const newIndex =
               transaction.getMeta(pluginKey).selectedItemIndexChanged;
-            console.log(
-              transaction.getMeta(pluginKey).selectedItemIndexChanged,
-              oldState
-            );
             // Allows selection to jump between first and last items.
             // if (newIndex < 0) {
             //   newIndex = prev.items.length - 1;
