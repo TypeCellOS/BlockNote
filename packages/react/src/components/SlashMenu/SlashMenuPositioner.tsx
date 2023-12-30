@@ -34,7 +34,6 @@ export const SlashMenuPositioner = <
     useState<number>();
 
   const referencePos = useRef<DOMRect>();
-  console.log(show, filteredItems);
   useEffect(() => {
     return props.editor.slashMenu.onUpdate((slashMenuState) => {
       setShow(slashMenuState.show);
