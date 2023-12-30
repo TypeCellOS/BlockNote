@@ -3,8 +3,8 @@ import {
   BlockSchema,
   DefaultBlockSchema,
   SlashMenuProsemirrorPlugin,
-  SlashMenuProsemirrorPlugin
   SuggestionsMenuState,
+  SlashMenuQuery,
 } from "@blocknote/core";
 import Tippy from "@tippyjs/react";
 import { FC, useEffect, useMemo, useRef, useState } from "react";
@@ -25,22 +25,21 @@ export const SlashMenuPositioner = <
 >(props: {
   editor: BlockNoteEditor<BSchema, any, any>;
   slashMenu?: FC<SlashMenuProps<BSchema>>;
-  queryManager: SlashMenuQuery
+  queryManager?: SlashMenuQuery<any, any, any, any>;
 }) => {
-  const [show, setShow] = useState<boolean>(false);
+  const [show, setShow] = useState<boolean>(true);
   const [filteredItems, setFilteredItems] =
     useState<ReactSlashMenuItem<BSchema>[]>();
   const [keyboardHoveredItemIndex, setKeyboardHoveredItemIndex] =
     useState<number>();
 
   const referencePos = useRef<DOMRect>();
-
+  console.log(show, filteredItems);
   useEffect(() => {
     return props.editor.slashMenu.onUpdate((slashMenuState) => {
       setShow(slashMenuState.show);
       setFilteredItems(slashMenuState.filteredItems);
       setKeyboardHoveredItemIndex(slashMenuState.keyboardHoveredItemIndex);
-
       referencePos.current = slashMenuState.referencePos;
     });
   }, [props.editor]);

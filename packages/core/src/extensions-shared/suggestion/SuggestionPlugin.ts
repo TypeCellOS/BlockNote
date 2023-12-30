@@ -5,6 +5,7 @@ import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import { BlockSchema, InlineContentSchema, StyleSchema } from "../../schema";
 import { BaseUiElementState } from "../BaseUiElementTypes";
 import { SuggestionItem } from "./SuggestionItem";
+import { EventEmitter } from "../../util/EventEmitter";
 
 const findBlock = findParentNode((node) => node.type.name === "blockContainer");
 
@@ -26,6 +27,7 @@ class SuggestionsMenuView<
   public updateSuggestionsMenu: () => void;
 
   pluginState: SuggestionPluginState<T>;
+  private cancellationSource: { cancel: () => void; token: Promise<T> };
 
   constructor(
     private readonly editor: BlockNoteEditor<BSchema, I, S>,
@@ -46,6 +48,8 @@ class SuggestionsMenuView<
       updateSuggestionsMenu(this.suggestionsMenuState);
     };
 
+    this.cancellationSource = this.createCancellationTokenSource();
+
     document.addEventListener("scroll", this.handleScroll);
   }
 
@@ -60,7 +64,15 @@ class SuggestionsMenuView<
     }
   };
 
-  update(view: EditorView, prevState: EditorState) {
+  private createCancellationTokenSource() {
+    let cancel!: () => void;
+    const token = new Promise<T>((resolve, reject) => {
+      cancel = () => reject(new Error("Cancelled"));
+    });
+    return { cancel, token };
+  }
+
+  async update(view: EditorView, prevState: EditorState) {
     const prev = this.pluginKey.getState(prevState);
     const next = this.pluginKey.getState(view.state);
 
@@ -89,12 +101,39 @@ class SuggestionsMenuView<
       `[data-decoration-id="${this.pluginState.decorationId}"]`
     );
 
+    this.cancellationSource.cancel();
+    this.cancellationSource = this.createCancellationTokenSource();
+
+    let items: T[];
+    try {
+      items = (await Promise.race([
+        this.pluginState.items,
+        this.cancellationSource.token,
+      ])) as T[];
+
+      if (!items) {
+        items = [];
+      }
+
+      if (items.length === 0) {
+        this.pluginState.notFoundCount =
+          (this.pluginState.notFoundCount || 0) + 1;
+      } else {
+        this.pluginState.notFoundCount = 0;
+      }
+    } catch (e) {
+      console.log(this.pluginState.notFoundCount);
+      items = [];
+    }
+
     if (this.editor.isEditable) {
       this.suggestionsMenuState = {
         show: true,
         referencePos: decorationNode!.getBoundingClientRect(),
-        filteredItems: this.pluginState.items,
-        keyboardHoveredItemIndex: this.pluginState.keyboardHoveredItemIndex!,
+        filteredItems: items,
+        keyboardHoveredItemIndex:
+          Math.max(0, this.pluginState.keyboardHoveredItemIndex!) %
+          items.length,
       };
 
       this.updateSuggestionsMenu();
@@ -115,13 +154,12 @@ type SuggestionPluginState<T extends SuggestionItem> = {
   // The editor position just after the trigger character, i.e. where the user query begins. Used to figure out
   // which menu items to show and can also be used to delete the trigger character.
   queryStartPos: number | undefined;
-  // The promise that resolves to the items that should be shown in the menu. This is used to handle asynchronous
-  // item fetching.
-  itemsPromise: Promise<T[]>;
   // The items that should be shown in the menu.
-  items: T[];
+  items: Promise<T[]>;
   // The index of the item in the menu that's currently hovered using the keyboard.
   keyboardHoveredItemIndex: number | undefined;
+  // The text between the trigger character and the caret.
+  queryText: string;
   // The number of characters typed after the last query that matched with at least 1 item. Used to close the
   // menu if the user keeps entering queries that don't return any results.
   notFoundCount: number | undefined;
@@ -135,8 +173,8 @@ function getDefaultPluginState<
     active: false,
     triggerCharacter: undefined,
     queryStartPos: undefined,
-    itemsPromise: Promise.resolve([]),
-    items: [] as T[],
+    items: Promise.resolve([]) as Promise<T[]>,
+    queryText: "",
     keyboardHoveredItemIndex: undefined,
     notFoundCount: 0,
     decorationId: undefined,
@@ -185,30 +223,15 @@ export const setupSuggestionsMenu = <
     view.dispatch(view.state.tr.setMeta(pluginKey, { deactivate: true }));
   };
 
-  const getItems = async (view: EditorView, query: string) => {
-    view.dispatch(
-      view.state.tr.setMeta(pluginKey, {
-        itemsLoading: true,
-      })
-    );
-    const i = await items(query);
-    view.dispatch(
-      view.state.tr.setMeta(pluginKey, {
-        itemsLoading: false,
-        items: i,
-      })
-    );
-
-    return i;
-  };
-
   return {
     plugin: new Plugin({
       key: pluginKey,
+
       view: () => {
         suggestionsPluginView = new SuggestionsMenuView<T, BSchema, I, S>(
           editor,
           pluginKey,
+
           updateSuggestionsMenu
         );
         return suggestionsPluginView;
@@ -234,9 +257,9 @@ export const setupSuggestionsMenu = <
               triggerCharacter:
                 transaction.getMeta(pluginKey)?.triggerCharacter || "",
               queryStartPos: newState.selection.from,
-              itemsPromise: getItems(editor._tiptapEditor.view, ""),
-              items: prev.items,
+              items: items(""),
               keyboardHoveredItemIndex: 0,
+              queryText: "",
               // TODO: Maybe should be 1 if the menu has no possible items? Probably redundant since a menu with no items
               //  is useless in practice.
               notFoundCount: 0,
@@ -249,27 +272,23 @@ export const setupSuggestionsMenu = <
             return prev;
           }
 
-          if (transaction.getMeta(pluginKey)?.itemsLoading) {
-            return prev;
-          }
-
           const next = { ...prev };
 
+          next.queryText = newState.doc.textBetween(
+            prev.queryStartPos!,
+            newState.selection.from
+          );
           // Updates which menu items to show by checking which items the current query (the text between the trigger
           // character and caret) matches with.
-          next.itemsPromise = getItems(
-            editor._tiptapEditor.view,
-            newState.doc.textBetween(
-              prev.queryStartPos!,
-              newState.selection.from
-            )
-          );
 
-          if (!transaction.getMeta(pluginKey)?.items) {
-            return next;
+          if (prev.queryText !== next.queryText) {
+            next.items = items(
+              newState.doc.textBetween(
+                prev.queryStartPos!,
+                newState.selection.from
+              )
+            );
           }
-          
-          next.items = transaction.getMeta(pluginKey)?.items;
 
           // Updates notFoundCount if the query doesn't match any items.
           next.notFoundCount = 0;
@@ -310,16 +329,18 @@ export const setupSuggestionsMenu = <
             transaction.getMeta(pluginKey)?.selectedItemIndexChanged !==
             undefined
           ) {
-            let newIndex =
+            const newIndex =
               transaction.getMeta(pluginKey).selectedItemIndexChanged;
-
+            console.log(
+              transaction.getMeta(pluginKey).selectedItemIndexChanged,
+              oldState
+            );
             // Allows selection to jump between first and last items.
-            if (newIndex < 0) {
-              newIndex = prev.items.length - 1;
-            } else if (newIndex >= prev.items.length) {
-              newIndex = 0;
-            }
-
+            // if (newIndex < 0) {
+            //   newIndex = prev.items.length - 1;
+            // } else if (newIndex >= prev.items.length) {
+            //   newIndex = 0;
+            // }
             next.keyboardHoveredItemIndex = newIndex;
           } else if (oldState.selection.from !== newState.selection.from) {
             next.keyboardHoveredItemIndex = 0;
