@@ -399,7 +399,7 @@ export const setupSuggestionsMenu = <
 
           // Selects an item and closes the menu.
           if (event.key === "Enter") {
-            items.then((items: []) => {
+            items.then((items: T[]) => {
               if (items.length === 0) {
                 return true;
               }
@@ -417,6 +417,8 @@ export const setupSuggestionsMenu = <
                 item: items[keyboardHoveredItemIndex],
                 editor: editor,
               });
+
+              return true;
             });
 
             return true;
