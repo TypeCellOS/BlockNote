@@ -35,8 +35,5 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "prosemirror-model": "1.18.3"
-  },
-  "dependencies": {
-    "prosemirror-async-query": "^0.0.4"
   }
 }
