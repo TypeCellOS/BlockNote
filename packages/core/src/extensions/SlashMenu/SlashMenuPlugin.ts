@@ -20,10 +20,6 @@ export class SlashMenuQuery<
   constructor(public queryChar: string = "/") {}
 
   async query(q: string, items: SlashMenuItem[]): Promise<SlashMenuItem[]> {
-    // Write a promise that resolves in 5 seconds
-    const sleep = (ms: number) =>
-      new Promise((resolve) => setTimeout(resolve, ms));
-    await sleep(5000);
     return items.filter(
       ({ name, aliases }: SlashMenuItem) =>
         name.toLowerCase().startsWith(q.toLowerCase()) ||
