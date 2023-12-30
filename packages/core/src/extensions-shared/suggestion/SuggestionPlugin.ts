@@ -399,23 +399,24 @@ export const setupSuggestionsMenu = <
 
           // Selects an item and closes the menu.
           if (event.key === "Enter") {
-            if (items.length === 0) {
-              return true;
-            }
+            items.then((items: []) => {
+              if (items.length === 0) {
+                return true;
+              }
+              deactivate(view);
+              editor._tiptapEditor
+                .chain()
+                .focus()
+                .deleteRange({
+                  from: queryStartPos! - triggerCharacter!.length,
+                  to: editor._tiptapEditor.state.selection.from,
+                })
+                .run();
 
-            deactivate(view);
-            editor._tiptapEditor
-              .chain()
-              .focus()
-              .deleteRange({
-                from: queryStartPos! - triggerCharacter!.length,
-                to: editor._tiptapEditor.state.selection.from,
-              })
-              .run();
-
-            onSelectItem({
-              item: items[keyboardHoveredItemIndex],
-              editor: editor,
+              onSelectItem({
+                item: items[keyboardHoveredItemIndex],
+                editor: editor,
+              });
             });
 
             return true;

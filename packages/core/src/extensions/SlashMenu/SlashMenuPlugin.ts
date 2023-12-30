@@ -37,6 +37,7 @@ export class SlashMenuQuery<
     item: SlashMenuItem;
     editor: BlockNoteEditor<BSchema, I, S>;
   }) {
+    console.log("execute", item);
     return item.execute(editor);
   }
 }
