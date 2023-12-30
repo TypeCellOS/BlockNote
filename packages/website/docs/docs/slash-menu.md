@@ -105,7 +105,7 @@ import {
 import "@blocknote/core/style.css";
 
 function App() {
-  const newSlashMenuItems: ReactSlashMenuItem[] = 
+  const newSlashMenuItems: ReactSlashMenuItem[] =
     getDefaultReactSlashMenuItems();
 
   // Edit newSlashMenuItems
@@ -146,3 +146,51 @@ type SlashMenuItem = {
 `hint:` A short phrase to describe what the item is for, which is displayed below its name.
 
 `shortcuts:` A keyboard shortcut which can be used to run the item's `execute` function without the Slash Menu being open.
+
+## Adding Custom Search For Slash Menu Items
+
+Often, you'll want to add custom search for your Slash Menu items. For example if you need to have a search through a list of users, or a list of tags or have items that need to be searched through and api.
+
+To do this, you can use the `search` option in `useBlockNote`:
+
+```typescript
+import {
+  BlockNoteView,
+  getDefaultReactSlashMenuItems,
+  ReactSlashMenuItem,
+  useBlockNote
+} from "@blocknote/react";
+
+function App() {
+  const newSlashMenuItems: ReactSlashMenuItem[] =
+    getDefaultReactSlashMenuItems();
+
+  // Edit newSlashMenuItems
+  ...
+
+  const editor = useBlockNote({
+    slashMenuItems: newSlashMenuItems,
+    slashMenuQuery: {
+      triggerChar: "/",
+      query: async (query: string, items) : Promise<SlashMenuItem[]> => {
+        const results = await fetch(`https://example.com/api/search?q=${query}`);
+        return results.map((v)=>{
+          name: v.name,
+          execute: (editor: BlockNoteEditor) => {
+            // Do something with the result
+          },
+        })
+      },
+      execute: ({editor, item}:{
+        editor: BlockNoteEditor,
+        item: SlashMenuItem
+      }) => {
+        // Do something with the result
+        return item.execute(editor);
+      }
+    }
+  });
+
+  return <BlockNoteView editor={editor} />;
+}
+```
