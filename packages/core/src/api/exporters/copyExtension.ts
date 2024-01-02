@@ -62,7 +62,9 @@ export const createCopyToClipboardExtension = <
                 event.clipboardData!.clearData();
 
                 // Checks if a `blockContent` node is being copied and expands
-                // the selection to the parent `blockContainer` node.
+                // the selection to the parent `blockContainer` node. This is
+                // for the use-case in which only a block without content is
+                // selected, e.g. an image block.
                 if (
                   "node" in view.state.selection &&
                   (view.state.selection.node as Node).type.spec.group ===
@@ -89,6 +91,9 @@ export const createCopyToClipboardExtension = <
                 // Prevent default PM handler to be called
                 return true;
               },
+              // This is for the use-case in which only a block without content
+              // is selected, e.g. an image block, and dragged (not using the
+              // drag handle).
               dragstart(view, event) {
                 // Checks if a `NodeSelection` is active.
                 if (!("node" in view.state.selection)) {
