@@ -126,7 +126,7 @@ function removeBlocksWithCallback(
     idsOfBlocksToRemove.delete(node.attrs.id);
 
     const oldDocSize = tr.doc.nodeSize;
-    tr.delete(pos - removedSize, pos - removedSize + node.nodeSize);
+    tr.delete(pos - removedSize - 1, pos - removedSize + node.nodeSize + 1);
     const newDocSize = tr.doc.nodeSize;
     removedSize += oldDocSize - newDocSize;
 
