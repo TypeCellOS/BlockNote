@@ -87,14 +87,16 @@ export function BlockNoteView<
   useEffect(() => {
     if (theme === "light") {
       themeToCSSVariables(lightDefaultTheme);
-    }
-
-    if (theme === "dark") {
+    } else if (theme === "dark") {
       themeToCSSVariables(darkDefaultTheme);
-    }
-
-    if (typeof theme === "object" && "light" in theme && "dark" in theme) {
+    } else if (
+      typeof theme === "object" &&
+      "light" in theme &&
+      "dark" in theme
+    ) {
       themeToCSSVariables(theme[preferredTheme === "dark" ? "dark" : "light"]);
+    } else {
+      themeToCSSVariables(theme);
     }
   }, [preferredTheme, theme]);
 

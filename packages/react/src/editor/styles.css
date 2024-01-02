@@ -49,6 +49,10 @@
     --bn-border-radius-large: max(var(--bn-border-radius) + 2px, 1px);
 }
 
+.bn-editor-wrapper * {
+    font-family: var(--bn-font-family);
+}
+
 /* Mantine base styles*/
 
 .mantine-Badge-root {
@@ -338,6 +342,10 @@
 /* Slash Menu styling*/
 .bn-slash-menu {
     position: relative;
+}
+
+.mantine-Menu-item {
+    height: 52px;
 }
 
 .bn-slash-menu .mantine-Menu-itemSection {
