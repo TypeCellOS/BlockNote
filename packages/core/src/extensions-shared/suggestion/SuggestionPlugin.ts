@@ -314,10 +314,10 @@ export const setupSuggestionsMenu = <
             transaction.getMeta("blur") ||
             transaction.getMeta("pointer") ||
             // Moving the caret before the character which triggered the menu should hide it.
-            (prev.active && newState.selection.from < prev.queryStartPos!) ||
+            (prev.active && newState.selection.from < prev.queryStartPos!)
             // Entering more than 3 characters, after the last query that matched with at least 1 menu item, should hide
             // the menu.
-            next.notFoundCount > 3
+            // next.notFoundCount > 3
           ) {
             return getDefaultPluginState<T>();
           }
