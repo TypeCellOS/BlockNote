@@ -34,60 +34,50 @@ export function insertBlocks<
     );
   }
 
-  let insertionPos = -1;
-
   const { node, posBeforeNode } = getNodeById(id, ttEditor.state.doc);
 
   if (placement === "before") {
-    insertionPos = posBeforeNode;
     ttEditor.view.dispatch(
-      ttEditor.state.tr.insert(insertionPos, nodesToInsert)
+      ttEditor.state.tr.insert(posBeforeNode, nodesToInsert)
     );
   }
 
   if (placement === "after") {
-    insertionPos = posBeforeNode + node.nodeSize;
     ttEditor.view.dispatch(
-      ttEditor.state.tr.insert(insertionPos, nodesToInsert)
+      ttEditor.state.tr.insert(posBeforeNode + node.nodeSize, nodesToInsert)
     );
   }
 
   if (placement === "nested") {
     // Case if block doesn't already have children.
     if (node.childCount < 2) {
-      insertionPos = posBeforeNode + node.firstChild!.nodeSize + 1;
-
       const blockGroupNode = ttEditor.state.schema.nodes["blockGroup"].create(
         {},
         nodesToInsert
       );
 
       ttEditor.view.dispatch(
-        ttEditor.state.tr.insert(insertionPos, blockGroupNode)
+        ttEditor.state.tr.insert(
+          posBeforeNode + node.firstChild!.nodeSize + 1,
+          blockGroupNode
+        )
       );
-
-      insertionPos++;
-    } else {
-      insertionPos = posBeforeNode + node.firstChild!.nodeSize + 2;
     }
   }
 
+  // Now that the `PartialBlock`s have been converted to nodes, we can
+  // re-convert them into full `Block`s.
   const insertedBlocks: Block<BSchema, I, S>[] = [];
-  let pos = insertionPos + 1;
-
-  for (let i = 0; i < nodesToInsert.length; i++) {
-    const blockContainerNode = ttEditor.state.doc.resolve(pos).node();
+  for (const node of nodesToInsert) {
     insertedBlocks.push(
       nodeToBlock(
-        blockContainerNode,
+        node,
         editor.blockSchema,
         editor.inlineContentSchema,
         editor.styleSchema,
         editor.blockCache
       )
     );
-
-    pos += blockContainerNode.nodeSize;
   }
 
   return insertedBlocks;
