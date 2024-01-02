@@ -11,6 +11,7 @@ import {
 } from "../../schema";
 import { blockToNode } from "../nodeConversions/nodeConversions";
 import { getNodeById } from "../nodeUtil";
+import { Transaction } from "prosemirror-state";
 
 export function insertBlocks<
   BSchema extends BlockSchema,
@@ -85,10 +86,19 @@ export function updateBlock<
   editor.commands.BNUpdateBlock(posBeforeNode + 1, update);
 }
 
-export function removeBlocks(
+function removeBlocksWithCallback(
   blocksToRemove: BlockIdentifier[],
-  editor: Editor
+  editor: Editor,
+  // Should return new removedSize.
+  callback?: (
+    node: Node,
+    pos: number,
+    tr: Transaction,
+    removedSize: number
+  ) => number
 ) {
+  const tr = editor.state.tr;
+
   const idsOfBlocksToRemove = new Set<string>(
     blocksToRemove.map((block) =>
       typeof block === "string" ? block : block.id
@@ -111,79 +121,7 @@ export function removeBlocks(
       return true;
     }
 
-    idsOfBlocksToRemove.delete(node.attrs.id);
-    const oldDocSize = editor.state.doc.nodeSize;
-
-    editor.commands.BNDeleteBlock(pos - removedSize + 1);
-
-    const newDocSize = editor.state.doc.nodeSize;
-    removedSize += oldDocSize - newDocSize;
-
-    return false;
-  });
-
-  if (idsOfBlocksToRemove.size > 0) {
-    const notFoundIds = [...idsOfBlocksToRemove].join("\n");
-
-    throw Error(
-      "Blocks with the following IDs could not be found in the editor: " +
-        notFoundIds
-    );
-  }
-}
-
-export function replaceBlocks<
-  BSchema extends BlockSchema,
-  I extends InlineContentSchema,
-  S extends StyleSchema
->(
-  blocksToRemove: BlockIdentifier[],
-  blocksToInsert: PartialBlock<BSchema, I, S>[],
-  editor: BlockNoteEditor<BSchema, I, S>
-) {
-  const ttEditor = editor._tiptapEditor;
-  const tr = ttEditor.state.tr;
-
-  const nodesToInsert: Node[] = [];
-  for (const blockSpec of blocksToInsert) {
-    nodesToInsert.push(
-      blockToNode(blockSpec, ttEditor.schema, editor.styleSchema)
-    );
-  }
-
-  const idsOfBlocksToRemove = new Set<string>(
-    blocksToRemove.map((block) =>
-      typeof block === "string" ? block : block.id
-    )
-  );
-
-  let removedSize = 0;
-
-  ttEditor.state.doc.descendants((node, pos) => {
-    // Skips traversing nodes after all target blocks have been removed.
-    if (idsOfBlocksToRemove.size === 0) {
-      return false;
-    }
-
-    // Keeps traversing nodes if block with target ID has not been found.
-    if (
-      node.type.name !== "blockContainer" ||
-      !idsOfBlocksToRemove.has(node.attrs.id)
-    ) {
-      return true;
-    }
-
-    if (
-      node.attrs.id ===
-      (typeof blocksToRemove[0] === "string"
-        ? blocksToRemove[0]
-        : blocksToRemove[0].id)
-    ) {
-      const oldDocSize = tr.doc.nodeSize;
-      tr.insert(pos, nodesToInsert);
-      const newDocSize = tr.doc.nodeSize;
-      removedSize += oldDocSize - newDocSize;
-    }
+    removedSize = callback?.(node, pos, tr, removedSize) || removedSize;
 
     idsOfBlocksToRemove.delete(node.attrs.id);
 
@@ -204,5 +142,52 @@ export function replaceBlocks<
     );
   }
 
-  ttEditor.view.dispatch(tr);
+  editor.view.dispatch(tr);
+}
+
+export function removeBlocks(
+  blocksToRemove: BlockIdentifier[],
+  editor: Editor
+) {
+  removeBlocksWithCallback(blocksToRemove, editor);
+}
+
+export function replaceBlocks<
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(
+  blocksToRemove: BlockIdentifier[],
+  blocksToInsert: PartialBlock<BSchema, I, S>[],
+  editor: BlockNoteEditor<BSchema, I, S>
+) {
+  const ttEditor = editor._tiptapEditor;
+
+  const nodesToInsert: Node[] = [];
+  for (const blockSpec of blocksToInsert) {
+    nodesToInsert.push(
+      blockToNode(blockSpec, ttEditor.schema, editor.styleSchema)
+    );
+  }
+
+  const idOfFirstBlock =
+    typeof blocksToRemove[0] === "string"
+      ? blocksToRemove[0]
+      : blocksToRemove[0].id;
+
+  removeBlocksWithCallback(
+    blocksToRemove,
+    ttEditor,
+    (node, pos, tr, removedSize) => {
+      if (node.attrs.id === idOfFirstBlock) {
+        const oldDocSize = tr.doc.nodeSize;
+        tr.insert(pos, nodesToInsert);
+        const newDocSize = tr.doc.nodeSize;
+
+        return removedSize + oldDocSize - newDocSize;
+      }
+
+      return removedSize;
+    }
+  );
 }
