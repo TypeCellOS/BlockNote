@@ -65,7 +65,7 @@ class SuggestionsMenuView<
 
   private createCancellationTokenSource() {
     let cancel!: () => void;
-    const token = new Promise<T>((resolve, reject) => {
+    const token = new Promise<T>((_, reject) => {
       cancel = () => reject(new Error("Cancelled"));
     });
     return { cancel, token };
@@ -114,12 +114,12 @@ class SuggestionsMenuView<
         items = [];
       }
 
-      if (items.length === 0) {
-        this.pluginState.notFoundCount =
-          (this.pluginState.notFoundCount || 0) + 1;
-      } else {
-        this.pluginState.notFoundCount = 0;
-      }
+      // if (items.length === 0) {
+      //   this.pluginState.notFoundCount =
+      //     (this.pluginState.notFoundCount || 0) + 1;
+      // } else {
+      //   this.pluginState.notFoundCount = 0;
+      // }
     } catch (e) {
       console.log(this.pluginState.notFoundCount);
       items = [];
@@ -290,16 +290,16 @@ export const setupSuggestionsMenu = <
           }
 
           // Updates notFoundCount if the query doesn't match any items.
-          next.notFoundCount = 0;
-          if (next.items.length === 0) {
-            // Checks how many characters were typed or deleted since the last transaction, and updates the notFoundCount
-            // accordingly. Also ensures the notFoundCount does not become negative.
-            next.notFoundCount = Math.max(
-              0,
-              prev.notFoundCount! +
-                (newState.selection.from - oldState.selection.from)
-            );
-          }
+          // next.notFoundCount = 0;
+          // if (next.items.length === 0) {
+          //   // Checks how many characters were typed or deleted since the last transaction, and updates the notFoundCount
+          //   // accordingly. Also ensures the notFoundCount does not become negative.
+          //   next.notFoundCount = Math.max(
+          //     0,
+          //     prev.notFoundCount! +
+          //       (newState.selection.from - oldState.selection.from)
+          //   );
+          // }
 
           // Hides the menu. This is done after items and notFoundCount are already updated as notFoundCount is needed to
           // check if the menu should be hidden.

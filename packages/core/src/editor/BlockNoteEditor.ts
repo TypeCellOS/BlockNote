@@ -253,6 +253,12 @@ export class BlockNoteEditor<
     SSchema,
     any
   >;
+  // public readonly slashMenuQueryManager: SlashMenuQuery<
+  //   BSchema,
+  //   ISchema,
+  //   SSchema,
+  //   any
+  // >;
   public readonly hyperlinkToolbar: HyperlinkToolbarProsemirrorPlugin<
     BSchema,
     ISchema,
@@ -317,7 +323,8 @@ export class BlockNoteEditor<
     this.slashMenu = new SlashMenuProsemirrorPlugin(
       this,
       newOptions.slashMenuItems ||
-        (getDefaultSlashMenuItems(this.blockSchema) as any)
+        (getDefaultSlashMenuItems(this.blockSchema) as any),
+      newOptions.slashMenuQueryManager
     );
     this.hyperlinkToolbar = new HyperlinkToolbarProsemirrorPlugin(this);
     this.imageToolbar = new ImageToolbarProsemirrorPlugin(this);
