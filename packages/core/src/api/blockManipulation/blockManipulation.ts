@@ -11,6 +11,7 @@ import {
 } from "../../schema";
 import { blockToNode, nodeToBlock } from "../nodeConversions/nodeConversions";
 import { getNodeById } from "../nodeUtil";
+import { Transaction } from "prosemirror-state";
 
 export function insertBlocks<
   BSchema extends BlockSchema,
@@ -113,22 +114,30 @@ export function updateBlock<
   );
 }
 
-export function removeBlocks<
+function removeBlocksWithCallback<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
 >(
   blocksToRemove: BlockIdentifier[],
-  editor: BlockNoteEditor<BSchema, I, S>
+  editor: BlockNoteEditor<BSchema, I, S>,
+  // Should return new removedSize.
+  callback?: (
+    node: Node,
+    pos: number,
+    tr: Transaction,
+    removedSize: number
+  ) => number
 ): Block<BSchema, I, S>[] {
   const ttEditor = editor._tiptapEditor;
+
+  const tr = ttEditor.state.tr;
 
   const idsOfBlocksToRemove = new Set<string>(
     blocksToRemove.map((block) =>
       typeof block === "string" ? block : block.id
     )
   );
-
   const removedBlocks: Block<BSchema, I, S>[] = [];
   let removedSize = 0;
 
@@ -146,9 +155,6 @@ export function removeBlocks<
       return true;
     }
 
-    idsOfBlocksToRemove.delete(node.attrs.id);
-    const oldDocSize = ttEditor.state.doc.nodeSize;
-
     removedBlocks.push(
       nodeToBlock(
         node,
@@ -158,9 +164,12 @@ export function removeBlocks<
         editor.blockCache
       )
     );
-    ttEditor.commands.BNDeleteBlock(pos - removedSize + 1);
+    idsOfBlocksToRemove.delete(node.attrs.id);
 
-    const newDocSize = ttEditor.state.doc.nodeSize;
+    removedSize = callback?.(node, pos, tr, removedSize) || removedSize;
+    const oldDocSize = tr.doc.nodeSize;
+    tr.delete(pos - removedSize - 1, pos - removedSize + node.nodeSize + 1);
+    const newDocSize = tr.doc.nodeSize;
     removedSize += oldDocSize - newDocSize;
 
     return false;
@@ -171,11 +180,24 @@ export function removeBlocks<
 
     throw Error(
       "Blocks with the following IDs could not be found in the editor: " +
-        notFoundIds
+      notFoundIds
     );
   }
 
+  ttEditor.view.dispatch(tr);
+
   return removedBlocks;
+}
+
+export function removeBlocks<
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(
+  blocksToRemove: BlockIdentifier[],
+  editor: BlockNoteEditor<BSchema, I, S>
+): Block<BSchema, I, S>[] {
+  return removeBlocksWithCallback(blocksToRemove, editor);
 }
 
 export function replaceBlocks<
@@ -190,13 +212,49 @@ export function replaceBlocks<
   insertedBlocks: Block<BSchema, I, S>[];
   removedBlocks: Block<BSchema, I, S>[];
 } {
-  const insertedBlocks = insertBlocks(
-    blocksToInsert,
-    blocksToRemove[0],
-    "before",
-    editor
-  );
-  const removedBlocks = removeBlocks(blocksToRemove, editor);
+  const ttEditor = editor._tiptapEditor;
 
-  return { insertedBlocks, removedBlocks };
+  const nodesToInsert: Node[] = [];
+  for (const blockSpec of blocksToInsert) {
+    nodesToInsert.push(
+      blockToNode(blockSpec, ttEditor.schema, editor.styleSchema)
+    );
+  }
+
+  const idOfFirstBlock =
+    typeof blocksToRemove[0] === "string"
+      ? blocksToRemove[0]
+      : blocksToRemove[0].id;
+  const removedBlocks = removeBlocksWithCallback(
+    blocksToRemove,
+    editor,
+    (node, pos, tr, removedSize) => {
+      if (node.attrs.id === idOfFirstBlock) {
+        const oldDocSize = tr.doc.nodeSize;
+        tr.insert(pos, nodesToInsert);
+        const newDocSize = tr.doc.nodeSize;
+
+        return removedSize + oldDocSize - newDocSize;
+      }
+
+      return removedSize;
+    }
+  );
+
+  // Now that the `PartialBlock`s have been converted to nodes, we can
+  // re-convert them into full `Block`s.
+  const insertedBlocks: Block<BSchema, I, S>[] = [];
+  for (const node of nodesToInsert) {
+    insertedBlocks.push(
+      nodeToBlock(
+        node,
+        editor.blockSchema,
+        editor.inlineContentSchema,
+        editor.styleSchema,
+        editor.blockCache
+      )
+    );
+  }
+
+  return { insertedBlocks, removedBlocks }
 }
