@@ -130,7 +130,6 @@ function removeBlocksWithCallback<
   ) => number
 ): Block<BSchema, I, S>[] {
   const ttEditor = editor._tiptapEditor;
-
   const tr = ttEditor.state.tr;
 
   const idsOfBlocksToRemove = new Set<string>(
@@ -155,6 +154,7 @@ function removeBlocksWithCallback<
       return true;
     }
 
+    // Saves the block that is being deleted.
     removedBlocks.push(
       nodeToBlock(
         node,
@@ -166,6 +166,7 @@ function removeBlocksWithCallback<
     );
     idsOfBlocksToRemove.delete(node.attrs.id);
 
+    // Removes the block and calculates the change in document size.
     removedSize = callback?.(node, pos, tr, removedSize) || removedSize;
     const oldDocSize = tr.doc.nodeSize;
     tr.delete(pos - removedSize - 1, pos - removedSize + node.nodeSize + 1);
@@ -175,12 +176,13 @@ function removeBlocksWithCallback<
     return false;
   });
 
+  // Throws an error if now all blocks could be found.
   if (idsOfBlocksToRemove.size > 0) {
     const notFoundIds = [...idsOfBlocksToRemove].join("\n");
 
     throw Error(
       "Blocks with the following IDs could not be found in the editor: " +
-      notFoundIds
+        notFoundIds
     );
   }
 
@@ -215,10 +217,8 @@ export function replaceBlocks<
   const ttEditor = editor._tiptapEditor;
 
   const nodesToInsert: Node[] = [];
-  for (const blockSpec of blocksToInsert) {
-    nodesToInsert.push(
-      blockToNode(blockSpec, ttEditor.schema, editor.styleSchema)
-    );
+  for (const block of blocksToInsert) {
+    nodesToInsert.push(blockToNode(block, ttEditor.schema, editor.styleSchema));
   }
 
   const idOfFirstBlock =
@@ -256,5 +256,5 @@ export function replaceBlocks<
     );
   }
 
-  return { insertedBlocks, removedBlocks }
+  return { insertedBlocks, removedBlocks };
 }
