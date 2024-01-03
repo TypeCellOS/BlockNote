@@ -186,8 +186,6 @@ test.describe("Check Copy/Paste Functionality", () => {
 
     await page.mouse.up();
 
-    await page.click(`img`);
-
     await copyPaste(page);
 
     await compareDocToSnapshot(page, "images.json");
