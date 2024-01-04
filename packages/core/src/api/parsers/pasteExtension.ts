@@ -44,7 +44,6 @@ export const createPasteFromClipboardExtension = <
                     );
 
                     data = htmlNode.innerHTML;
-                    console.log(data);
                   }
                   editor._tiptapEditor.view.pasteHTML(data);
                 }
