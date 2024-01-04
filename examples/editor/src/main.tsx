@@ -81,10 +81,7 @@ function Root() {
           },
         })}>
         {window.location.search.includes("hideMenu") ? undefined : (
-          <AppShell.Navbar
-            w={{ base: 300 }}
-            style={{ background: "#f7f7f5" }}
-            p="xs">
+          <AppShell.Navbar w={{ base: 300 }} p="xs">
             <AppShell.Section grow component={ScrollArea} mx="-xs" px="xs">
               {editors.map((editor, i) => (
                 <div key={i}>

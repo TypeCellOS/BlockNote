@@ -100,10 +100,7 @@ export const DefaultImageToolbar = <BSchema extends BlockSchema>(
   }, [currentURL, props.block, props.editor]);
 
   return (
-    <Toolbar
-      style={{
-        width: "500px",
-      }}>
+    <Toolbar className={"bn-image-toolbar"}>
       <Tabs value={openTab} onChange={setOpenTab as any}>
         {uploading && <LoadingOverlay visible={uploading} />}
 
@@ -119,14 +116,8 @@ export const DefaultImageToolbar = <BSchema extends BlockSchema>(
         </Tabs.List>
 
         {props.editor.uploadFile !== undefined && (
-          <Tabs.Panel value="upload">
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "stretch",
-                gap: "8px",
-              }}>
+          <Tabs.Panel className={"bn-upload-image-panel"} value="upload">
+            <div>
               <FileInput
                 placeholder={"Upload Image"}
                 size={"xs"}
@@ -135,29 +126,21 @@ export const DefaultImageToolbar = <BSchema extends BlockSchema>(
                 data-test={"upload-input"}
               />
               {uploadFailed && (
-                <Text c={"red"} size={"12px"} style={{ textAlign: "center" }}>
+                <Text c={"red"} size={"12px"}>
                   Error: Upload failed
                 </Text>
               )}
             </div>
           </Tabs.Panel>
         )}
-        <Tabs.Panel value="embed">
-          <div
-            style={{
-              width: "100%",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: "8px",
-            }}>
+        <Tabs.Panel className={"bn-embed-image-panel"} value="embed">
+          <div>
             <TextInput
               size={"xs"}
               placeholder={"Enter URL"}
               value={currentURL}
               onChange={handleURLChange}
               onKeyDown={handleURLEnter}
-              style={{ width: "100%" }}
               data-test={"embed-input"}
             />
             <Button

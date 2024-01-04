@@ -1,5 +1,4 @@
 import { uploadToTmpFilesDotOrg_DEV_ONLY } from "@blocknote/core";
-import "@blocknote/core/style.css";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
 import "@blocknote/react/style.css";
 

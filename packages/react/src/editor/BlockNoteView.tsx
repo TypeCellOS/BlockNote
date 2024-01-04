@@ -7,52 +7,16 @@ import {
 } from "@blocknote/core";
 import { MantineProvider } from "@mantine/core";
 import { EditorContent } from "@tiptap/react";
-import { HTMLAttributes, ReactNode, useEffect } from "react";
+import { HTMLAttributes, ReactNode, useMemo } from "react";
 import usePrefersColorScheme from "use-prefers-color-scheme";
-import { Theme, themeToCSSVariables } from "./BlockNoteTheme";
+import { Theme, applyCSSVariablesFromTheme } from "./BlockNoteTheme";
 import { FormattingToolbarPositioner } from "../components/FormattingToolbar/FormattingToolbarPositioner";
 import { HyperlinkToolbarPositioner } from "../components/HyperlinkToolbar/HyperlinkToolbarPositioner";
 import { ImageToolbarPositioner } from "../components/ImageToolbar/ImageToolbarPositioner";
 import { SideMenuPositioner } from "../components/SideMenu/SideMenuPositioner";
 import { SlashMenuPositioner } from "../components/SlashMenu/SlashMenuPositioner";
 import { TableHandlesPositioner } from "../components/TableHandles/TableHandlePositioner";
-import { darkDefaultTheme, lightDefaultTheme } from "./defaultThemes";
-import "@mantine/core/styles.css";
 import "./styles.css";
-
-// Renders the editor as well as all menus & toolbars using default styles.
-function BaseBlockNoteView<
-  BSchema extends BlockSchema,
-  ISchema extends InlineContentSchema,
-  SSchema extends StyleSchema
->(
-  props: {
-    editor: BlockNoteEditor<BSchema, ISchema, SSchema>;
-    children?: ReactNode;
-  } & HTMLAttributes<HTMLDivElement>
-) {
-  const { editor, children, className, ...rest } = props;
-
-  return (
-    <EditorContent
-      editor={props.editor?._tiptapEditor}
-      className={mergeCSSClasses("bn-editor-wrapper", props.className || "")}
-      {...rest}>
-      {props.children || (
-        <>
-          <FormattingToolbarPositioner editor={props.editor} />
-          <HyperlinkToolbarPositioner editor={props.editor} />
-          <SlashMenuPositioner editor={props.editor} />
-          <SideMenuPositioner editor={props.editor} />
-          <ImageToolbarPositioner editor={props.editor} />
-          {props.editor.blockSchema.table && (
-            <TableHandlesPositioner editor={props.editor as any} />
-          )}
-        </>
-      )}
-    </EditorContent>
-  );
-}
 
 const mantineTheme = {
   // Removes button press effect
@@ -77,32 +41,55 @@ export function BlockNoteView<
     children?: ReactNode;
   } & HTMLAttributes<HTMLDivElement>
 ) {
-  const {
-    theme = { light: lightDefaultTheme, dark: darkDefaultTheme },
-    ...rest
-  } = props;
+  const { editor, className, theme, children, ...rest } = props;
 
-  const preferredTheme = usePrefersColorScheme();
+  const systemColorScheme = usePrefersColorScheme();
 
-  useEffect(() => {
+  const editorColorScheme = useMemo(() => {
     if (theme === "light") {
-      themeToCSSVariables(lightDefaultTheme);
-    } else if (theme === "dark") {
-      themeToCSSVariables(darkDefaultTheme);
-    } else if (
-      typeof theme === "object" &&
-      "light" in theme &&
-      "dark" in theme
-    ) {
-      themeToCSSVariables(theme[preferredTheme === "dark" ? "dark" : "light"]);
-    } else {
-      themeToCSSVariables(theme);
+      return "light";
     }
-  }, [preferredTheme, theme]);
+
+    if (theme === "dark") {
+      return "dark";
+    }
+
+    if (typeof theme === "object" && "light" in theme && "dark" in theme) {
+      if ("light" in theme && "dark" in theme) {
+        applyCSSVariablesFromTheme(
+          theme[systemColorScheme === "dark" ? "dark" : "light"],
+          editor.domElement.parentElement!
+        );
+        return systemColorScheme === "dark" ? "dark" : "light";
+      }
+
+      applyCSSVariablesFromTheme(theme, editor.domElement.parentElement!);
+      return undefined;
+    }
+
+    return systemColorScheme === "dark" ? "dark" : "light";
+  }, [systemColorScheme, editor.domElement, theme]);
 
   return (
     <MantineProvider theme={mantineTheme}>
-      <BaseBlockNoteView {...rest} />
+      <EditorContent
+        editor={editor._tiptapEditor}
+        className={mergeCSSClasses("bn-editor-wrapper", className || "")}
+        data-color-scheme={editorColorScheme}
+        {...rest}>
+        {children || (
+          <>
+            <FormattingToolbarPositioner editor={editor} />
+            <HyperlinkToolbarPositioner editor={editor} />
+            <SlashMenuPositioner editor={editor} />
+            <SideMenuPositioner editor={editor} />
+            <ImageToolbarPositioner editor={editor} />
+            {editor.blockSchema.table && (
+              <TableHandlesPositioner editor={editor as any} />
+            )}
+          </>
+        )}
+      </EditorContent>
     </MantineProvider>
   );
 }

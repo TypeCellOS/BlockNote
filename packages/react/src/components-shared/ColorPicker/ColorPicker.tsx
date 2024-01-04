@@ -40,9 +40,9 @@ export const ColorPicker = (props: {
             leftSection={<ColorIcon textColor={color} size={props.iconSize} />}
             rightSection={
               props.text!.color === color ? (
-                <TiTick size={20} style={{ paddingLeft: "8px" }} />
+                <TiTick size={20} className={"bn-tick-icon"} />
               ) : (
-                <div style={{ width: "20px", padding: "0" }} />
+                <div className={"bn-tick-space"} />
               )
             }
             key={"text-color-" + color}>
@@ -81,9 +81,9 @@ export const ColorPicker = (props: {
             key={"background-color-" + color}
             rightSection={
               props.background!.color === color ? (
-                <TiTick size={20} style={{ paddingLeft: "8px" }} />
+                <TiTick size={20} className={"bn-tick-icon"} />
               ) : (
-                <div style={{ width: "20px", padding: "0" }} />
+                <div className={"bn-tick-space"} />
               )
             }>
             {color.charAt(0).toUpperCase() + color.slice(1)}

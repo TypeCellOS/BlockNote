@@ -20,10 +20,10 @@ export const DragHandle = <BSchema extends BlockSchema>(
       position={"left"}>
       <Menu.Target>
         <div
+          className={"bn-drag-handle"}
           draggable="true"
           onDragStart={props.blockDragStart}
-          onDragEnd={props.blockDragEnd}
-          style={{ height: "24px", width: "24px" }}>
+          onDragEnd={props.blockDragEnd}>
           <SideMenuButton>
             <MdDragIndicator size={24} data-test={"dragHandle"} />
           </SideMenuButton>

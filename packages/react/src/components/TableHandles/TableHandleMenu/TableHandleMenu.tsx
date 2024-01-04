@@ -21,9 +21,7 @@ export type TableHandleMenuProps<
 };
 
 export const TableHandleMenu = (props: { children: ReactNode }) => (
-  <Menu.Dropdown
-    className={"bn-table-handle-menu"}
-    style={{ overflow: "visible" }}>
+  <Menu.Dropdown className={"bn-table-handle-menu"}>
     {props.children}
   </Menu.Dropdown>
 );

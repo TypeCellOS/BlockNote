@@ -18,9 +18,7 @@ export type DragHandleMenuProps<
 };
 
 export const DragHandleMenu = (props: { children: ReactNode }) => (
-  <Menu.Dropdown
-    className={"bn-drag-handle-menu"}
-    style={{ overflow: "visible" }}>
+  <Menu.Dropdown className={"bn-drag-handle-menu"}>
     {props.children}
   </Menu.Dropdown>
 );

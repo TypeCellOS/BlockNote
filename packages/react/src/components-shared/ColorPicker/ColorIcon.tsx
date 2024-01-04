@@ -1,4 +1,5 @@
-import { Box } from "@mantine/core";
+import { Box, MantineStyleProp } from "@mantine/core";
+import { useMemo } from "react";
 
 export const ColorIcon = (
   props: Partial<{
@@ -11,21 +12,24 @@ export const ColorIcon = (
   const backgroundColor = props.backgroundColor || "default";
   const size = props.size || 16;
 
+  const style: MantineStyleProp = useMemo(
+    () => ({
+      pointerEvents: "none",
+      fontSize: (size * 0.75).toString() + "px",
+      height: size.toString() + "px",
+      lineHeight: size.toString() + "px",
+      textAlign: "center",
+      width: size.toString() + "px",
+    }),
+    [size]
+  );
+
   return (
     <Box
       className={"bn-color-icon"}
       data-background-color={backgroundColor}
       data-text-color={textColor}
-      style={() => {
-        return {
-          pointerEvents: "none",
-          fontSize: (size * 0.75).toString() + "px",
-          height: size.toString() + "px",
-          lineHeight: size.toString() + "px",
-          textAlign: "center",
-          width: size.toString() + "px",
-        };
-      }}>
+      style={style}>
       A
     </Box>
   );

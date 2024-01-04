@@ -1,4 +1,8 @@
-import { BlockSchemaWithBlock, DefaultBlockSchema } from "@blocknote/core";
+import {
+  BlockSchemaWithBlock,
+  DefaultBlockSchema,
+  mergeCSSClasses,
+} from "@blocknote/core";
 import { Menu } from "@mantine/core";
 import { ReactNode, useState } from "react";
 import { DefaultTableHandleMenu } from "./TableHandleMenu/DefaultTableHandleMenu";
@@ -28,7 +32,10 @@ export const TableHandle = <
       position={"right"}>
       <Menu.Target>
         <div
-          className={"bn-table-handle"}
+          className={mergeCSSClasses(
+            "bn-table-handle",
+            isDragging ? "bn-table-handle-dragging" : ""
+          )}
           draggable="true"
           onDragStart={(e) => {
             setIsDragging(true);
@@ -43,9 +50,7 @@ export const TableHandle = <
               ? { transform: "rotate(0.25turn)" }
               : undefined
           }>
-          <div className={isDragging ? "bn-table-handle-dragging" : undefined}>
-            {props.children}
-          </div>
+          {props.children}
         </div>
       </Menu.Target>
       <TableHandleMenu
