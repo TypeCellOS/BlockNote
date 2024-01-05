@@ -32,133 +32,165 @@ export type Theme = {
   fontFamily: string;
 };
 
-export const applyCSSVariablesFromTheme = (
+const camelCaseToKebabCase = (str: string) =>
+  str.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
+
+const cssVariablesHelper = (
+  theme: Theme,
+  editorDOM: HTMLElement,
+  unset = false
+) => {
+  // Colors
+  for (const [colorSchemeKey, colorSchemeValue] of Object.entries(
+    theme.colors
+  )) {
+    if (typeof colorSchemeValue === "string") {
+      // Case for single colors
+      const property = "--bn-colors-" + camelCaseToKebabCase(colorSchemeKey);
+      if (unset) {
+        editorDOM.style.removeProperty(property);
+      } else {
+        editorDOM.style.setProperty(property, colorSchemeValue);
+      }
+    } else if (typeof colorSchemeValue === "object") {
+      if ("text" in colorSchemeValue && "background" in colorSchemeValue) {
+        // Case for combined colors
+        const textProperty =
+          "--bn-colors-" + camelCaseToKebabCase(colorSchemeKey) + "-text";
+        const backgroundProperty =
+          "--bn-colors-" + camelCaseToKebabCase(colorSchemeKey) + "-background";
+        if (unset) {
+          editorDOM.style.removeProperty(textProperty);
+          editorDOM.style.removeProperty(backgroundProperty);
+        } else {
+          editorDOM.style.setProperty(textProperty, colorSchemeValue.text);
+          editorDOM.style.setProperty(
+            backgroundProperty,
+            colorSchemeValue.background
+          );
+        }
+      } else {
+        // Case for highlights
+        for (const [highlightColorKey, highlightColorValue] of Object.entries(
+          colorSchemeValue
+        )) {
+          const textProperty =
+            "--bn-colors-" +
+            camelCaseToKebabCase(colorSchemeKey) +
+            "-" +
+            camelCaseToKebabCase(highlightColorKey) +
+            "-text";
+          const backgroundProperty =
+            "--bn-colors-" +
+            camelCaseToKebabCase(colorSchemeKey) +
+            "-" +
+            camelCaseToKebabCase(highlightColorKey) +
+            "-background";
+          if (unset) {
+            editorDOM.style.removeProperty(textProperty);
+            editorDOM.style.removeProperty(backgroundProperty);
+          } else {
+            editorDOM.style.setProperty(textProperty, highlightColorValue.text);
+            editorDOM.style.setProperty(
+              backgroundProperty,
+              highlightColorValue.background
+            );
+          }
+        }
+      }
+    }
+  }
+
+  if (unset) {
+    editorDOM.style.removeProperty("--bn-font-family");
+    editorDOM.style.removeProperty("--bn-border-radius");
+  } else {
+    editorDOM.style.setProperty("--bn-font-family", theme.fontFamily);
+    editorDOM.style.setProperty(
+      "--bn-border-radius",
+      `${theme.borderRadius}px`
+    );
+  }
+};
+
+export const applyBlockNoteCSSVariablesFromTheme = (
   theme: Theme,
   editorDOM: HTMLElement
-) => {
-  editorDOM.style.setProperty(
-    "--bn-color-editor-text",
-    theme.colors.editor.text
-  );
-  editorDOM.style.setProperty(
-    "--bn-color-editor-background",
-    theme.colors.editor.background
-  );
-  editorDOM.style.setProperty("--bn-color-menu-text", theme.colors.menu.text);
-  editorDOM.style.setProperty(
-    "--bn-color-menu-background",
-    theme.colors.menu.background
-  );
-  editorDOM.style.setProperty(
-    "--bn-color-tooltip-text",
-    theme.colors.tooltip.text
-  );
-  editorDOM.style.setProperty(
-    "--bn-color-tooltip-background",
-    theme.colors.tooltip.background
-  );
-  editorDOM.style.setProperty(
-    "--bn-color-hovered-text",
-    theme.colors.hovered.text
-  );
-  editorDOM.style.setProperty(
-    "--bn-color-hovered-background",
-    theme.colors.hovered.background
-  );
-  editorDOM.style.setProperty(
-    "--bn-color-selected-text",
-    theme.colors.selected.text
-  );
-  editorDOM.style.setProperty(
-    "--bn-color-selected-background",
-    theme.colors.selected.background
-  );
-  editorDOM.style.setProperty(
-    "--bn-color-disabled-text",
-    theme.colors.disabled.text
-  );
-  editorDOM.style.setProperty(
-    "--bn-color-disabled-background",
-    theme.colors.disabled.background
-  );
+) => cssVariablesHelper(theme, editorDOM);
 
-  editorDOM.style.setProperty("--bn-color-shadow", theme.colors.shadow);
-  editorDOM.style.setProperty("--bn-color-border", theme.colors.border);
-  editorDOM.style.setProperty("--bn-color-side-menu", theme.colors.sideMenu);
-
-  editorDOM.style.setProperty(
-    "--bn-color-highlight-text-gray",
-    theme.colors.highlights.gray.text
-  );
-  editorDOM.style.setProperty(
-    "--bn-color-highlight-background-gray",
-    theme.colors.highlights.gray.background
-  );
-  editorDOM.style.setProperty(
-    "--bn-color-highlight-text-brown",
-    theme.colors.highlights.brown.text
-  );
-  editorDOM.style.setProperty(
-    "--bn-color-highlight-background-brown",
-    theme.colors.highlights.brown.background
-  );
-  editorDOM.style.setProperty(
-    "--bn-color-highlight-text-red",
-    theme.colors.highlights.red.text
-  );
-  editorDOM.style.setProperty(
-    "--bn-color-highlight-background-red",
-    theme.colors.highlights.red.background
-  );
-  editorDOM.style.setProperty(
-    "--bn-color-highlight-text-orange",
-    theme.colors.highlights.orange.text
-  );
-  editorDOM.style.setProperty(
-    "--bn-color-highlight-background-orange",
-    theme.colors.highlights.orange.background
-  );
-  editorDOM.style.setProperty(
-    "--bn-color-highlight-text-yellow",
-    theme.colors.highlights.yellow.text
-  );
-  editorDOM.style.setProperty(
-    "--bn-color-highlight-background-yellow",
-    theme.colors.highlights.yellow.background
-  );
-  editorDOM.style.setProperty(
-    "--bn-color-highlight-text-green",
-    theme.colors.highlights.green.text
-  );
-  editorDOM.style.setProperty(
-    "--bn-color-highlight-background-green",
-    theme.colors.highlights.green.background
-  );
-  editorDOM.style.setProperty(
-    "--bn-color-highlight-text-blue",
-    theme.colors.highlights.blue.text
-  );
-  editorDOM.style.setProperty(
-    "--bn-color-highlight-background-blue",
-    theme.colors.highlights.blue.background
-  );
-  editorDOM.style.setProperty(
-    "--bn-color-highlight-text-purple",
-    theme.colors.highlights.purple.text
-  );
-  editorDOM.style.setProperty(
-    "--bn-color-highlight-background-purple",
-    theme.colors.highlights.purple.background
-  );
-  editorDOM.style.setProperty(
-    "--bn-color-highlight-text-pink",
-    theme.colors.highlights.pink.text
-  );
-  editorDOM.style.setProperty(
-    "--bn-color-highlight-background-pink",
-    theme.colors.highlights.pink.background
-  );
-
-  editorDOM.style.setProperty("--bn-font-family", theme.fontFamily);
-  editorDOM.style.setProperty("--bn-border-radius", `${theme.borderRadius}px`);
+// We don't need a theme to remove the CSS variables, but having access to a
+// theme object allows us to use the same logic to set/unset them, so this
+// placeholder theme is used.
+const placeholderTheme: Theme = {
+  colors: {
+    editor: {
+      text: undefined as any,
+      background: undefined as any,
+    },
+    menu: {
+      text: undefined as any,
+      background: undefined as any,
+    },
+    tooltip: {
+      text: undefined as any,
+      background: undefined as any,
+    },
+    hovered: {
+      text: undefined as any,
+      background: undefined as any,
+    },
+    selected: {
+      text: undefined as any,
+      background: undefined as any,
+    },
+    disabled: {
+      text: undefined as any,
+      background: undefined as any,
+    },
+    shadow: undefined as any,
+    border: undefined as any,
+    sideMenu: undefined as any,
+    highlights: {
+      gray: {
+        text: undefined as any,
+        background: undefined as any,
+      },
+      brown: {
+        text: undefined as any,
+        background: undefined as any,
+      },
+      red: {
+        text: undefined as any,
+        background: undefined as any,
+      },
+      orange: {
+        text: undefined as any,
+        background: undefined as any,
+      },
+      yellow: {
+        text: undefined as any,
+        background: undefined as any,
+      },
+      green: {
+        text: undefined as any,
+        background: undefined as any,
+      },
+      blue: {
+        text: undefined as any,
+        background: undefined as any,
+      },
+      purple: {
+        text: undefined as any,
+        background: undefined as any,
+      },
+      pink: {
+        text: undefined as any,
+        background: undefined as any,
+      },
+    },
+  },
+  borderRadius: undefined as any,
+  fontFamily: undefined as any,
 };
+export const removeBlockNoteCSSVariables = (editorDOM: HTMLElement) =>
+  cssVariablesHelper(placeholderTheme, editorDOM, true);

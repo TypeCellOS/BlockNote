@@ -7,9 +7,13 @@ import {
 } from "@blocknote/core";
 import { MantineProvider } from "@mantine/core";
 import { EditorContent } from "@tiptap/react";
-import { HTMLAttributes, ReactNode, useMemo } from "react";
+import { HTMLAttributes, ReactNode, useEffect, useState } from "react";
 import usePrefersColorScheme from "use-prefers-color-scheme";
-import { Theme, applyCSSVariablesFromTheme } from "./BlockNoteTheme";
+import {
+  Theme,
+  applyBlockNoteCSSVariablesFromTheme,
+  removeBlockNoteCSSVariables,
+} from "./BlockNoteTheme";
 import { FormattingToolbarPositioner } from "../components/FormattingToolbar/FormattingToolbarPositioner";
 import { HyperlinkToolbarPositioner } from "../components/HyperlinkToolbar/HyperlinkToolbarPositioner";
 import { ImageToolbarPositioner } from "../components/ImageToolbar/ImageToolbarPositioner";
@@ -45,29 +49,42 @@ export function BlockNoteView<
 
   const systemColorScheme = usePrefersColorScheme();
 
-  const editorColorScheme = useMemo(() => {
+  const [editorColorScheme, setEditorColorScheme] = useState<
+    "light" | "dark" | undefined
+  >(undefined);
+
+  useEffect(() => {
+    removeBlockNoteCSSVariables(editor.domElement.parentElement!);
+
     if (theme === "light") {
-      return "light";
+      setEditorColorScheme("light");
+      return;
     }
 
     if (theme === "dark") {
-      return "dark";
+      setEditorColorScheme("dark");
+      return;
     }
 
-    if (typeof theme === "object" && "light" in theme && "dark" in theme) {
+    if (typeof theme === "object") {
       if ("light" in theme && "dark" in theme) {
-        applyCSSVariablesFromTheme(
+        applyBlockNoteCSSVariablesFromTheme(
           theme[systemColorScheme === "dark" ? "dark" : "light"],
           editor.domElement.parentElement!
         );
-        return systemColorScheme === "dark" ? "dark" : "light";
+        setEditorColorScheme(systemColorScheme === "dark" ? "dark" : "light");
+        return;
       }
 
-      applyCSSVariablesFromTheme(theme, editor.domElement.parentElement!);
-      return undefined;
+      applyBlockNoteCSSVariablesFromTheme(
+        theme,
+        editor.domElement.parentElement!
+      );
+      setEditorColorScheme(undefined);
+      return;
     }
 
-    return systemColorScheme === "dark" ? "dark" : "light";
+    setEditorColorScheme(systemColorScheme === "dark" ? "dark" : "light");
   }, [systemColorScheme, editor.domElement, theme]);
 
   return (
