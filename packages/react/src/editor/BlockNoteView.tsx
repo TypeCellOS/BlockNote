@@ -91,7 +91,7 @@ export function BlockNoteView<
     <MantineProvider theme={mantineTheme}>
       <EditorContent
         editor={editor._tiptapEditor}
-        className={mergeCSSClasses("bn-editor-wrapper", className || "")}
+        className={mergeCSSClasses("bn-container", className || "")}
         data-color-scheme={editorColorScheme}
         {...rest}>
         {children || (

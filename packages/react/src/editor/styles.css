@@ -3,7 +3,7 @@
 @import url("@blocknote/core/style.css");
 
 /* Default theme params */
-.bn-editor-wrapper {
+.bn-container {
     --bn-colors-editor-text: #3F3F3F;
     --bn-colors-editor-background: #FFFFFF;
     --bn-colors-menu-text: #3F3F3F;
@@ -52,7 +52,7 @@
     --bn-border-radius-large: max(var(--bn-border-radius) + 2px, 1px);
 }
 
-.bn-editor-wrapper[data-color-scheme="dark"] {
+.bn-container[data-color-scheme="dark"] {
     --bn-colors-editor-text: #CFCFCF;
     --bn-colors-editor-background: #1F1F1F;
     --bn-colors-menu-text: #CFCFCF;
@@ -90,7 +90,7 @@
     --bn-colors-highlights-pink-background: #ad1a72;
 }
 
-.bn-editor-wrapper * {
+.bn-container * {
     font-family: var(--bn-font-family);
 }
 
