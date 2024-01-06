@@ -8,7 +8,12 @@ import {
   InlineContentSchema,
   SpecificBlock,
 } from "@blocknote/core";
-import { flip, useFloating, useTransitionStyles } from "@floating-ui/react";
+import {
+  flip,
+  offset,
+  useFloating,
+  useTransitionStyles,
+} from "@floating-ui/react";
 import { FC, useEffect, useRef, useState } from "react";
 
 import { DefaultImageToolbar } from "./DefaultImageToolbar";
@@ -35,7 +40,7 @@ export const ImageToolbarPositioner = <
   const { refs, update, context, floatingStyles } = useFloating({
     open: show,
     placement: "bottom",
-    middleware: [flip()],
+    middleware: [offset(10), flip()],
   });
 
   const { isMounted, styles } = useTransitionStyles(context);

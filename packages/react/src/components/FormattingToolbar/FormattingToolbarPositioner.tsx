@@ -4,7 +4,12 @@ import {
   DefaultBlockSchema,
   DefaultProps,
 } from "@blocknote/core";
-import { flip, useFloating, useTransitionStyles } from "@floating-ui/react";
+import {
+  flip,
+  offset,
+  useFloating,
+  useTransitionStyles,
+} from "@floating-ui/react";
 import { FC, useEffect, useRef, useState } from "react";
 
 import { useEditorChange } from "../../hooks/useEditorChange";
@@ -57,7 +62,7 @@ export const FormattingToolbarPositioner = <
   const { refs, update, context, floatingStyles } = useFloating({
     open: show,
     placement,
-    middleware: [flip()],
+    middleware: [offset(10), flip()],
   });
 
   const { isMounted, styles } = useTransitionStyles(context);

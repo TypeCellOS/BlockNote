@@ -8,7 +8,7 @@ import {
   TableHandlesProsemirrorPlugin,
   TableHandlesState,
 } from "@blocknote/core";
-import { useFloating, useTransitionStyles } from "@floating-ui/react";
+import { offset, useFloating, useTransitionStyles } from "@floating-ui/react";
 import { DragEvent, FC, useEffect, useRef, useState } from "react";
 
 import { DragHandleMenuProps } from "../SideMenu/DragHandleMenu/DragHandleMenu";
@@ -73,10 +73,12 @@ export const TableHandlesPositioner = <
   const rowFloating = useFloating({
     open: show,
     placement: "left",
+    middleware: [offset(-10)],
   });
   const colFloating = useFloating({
     open: show,
     placement: "top",
+    middleware: [offset(-12)],
   });
 
   const rowTransitionStyles = useTransitionStyles(rowFloating.context);
@@ -212,6 +214,3 @@ export const TableHandlesPositioner = <
     </>
   );
 };
-
-// const rowOffset: [number, number] = [0, -12];
-// const columnOffset: [number, number] = [0, -12];

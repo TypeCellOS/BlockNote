@@ -7,6 +7,7 @@ import {
 } from "@blocknote/core";
 import {
   flip,
+  offset,
   size,
   useFloating,
   useTransitionStyles,
@@ -41,6 +42,7 @@ export const SlashMenuPositioner = <
     open: show,
     placement: "bottom-start",
     middleware: [
+      offset(10),
       size({
         apply({ availableHeight, elements }) {
           Object.assign(elements.floating.style, {
@@ -88,7 +90,6 @@ export const SlashMenuPositioner = <
       style={{
         ...styles,
         ...floatingStyles,
-        height: "fit-content",
         zIndex: 2000,
       }}>
       <SlashMenu
