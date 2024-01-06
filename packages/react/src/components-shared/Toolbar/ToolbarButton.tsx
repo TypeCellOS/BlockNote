@@ -1,8 +1,8 @@
-import { ActionIcon, Button } from "@mantine/core";
-import Tippy from "@tippyjs/react";
-import { ForwardedRef, forwardRef, MouseEvent } from "react";
-import { TooltipContent } from "../Tooltip/TooltipContent";
+import { ActionIcon, Button, Tooltip } from "@mantine/core";
+import { ForwardedRef, MouseEvent, forwardRef } from "react";
 import { IconType } from "react-icons";
+
+import { TooltipContent } from "../Tooltip/TooltipContent";
 
 export type ToolbarButtonProps = {
   onClick?: (e: MouseEvent) => void;
@@ -20,15 +20,16 @@ export type ToolbarButtonProps = {
 export const ToolbarButton = forwardRef(
   (props: ToolbarButtonProps, ref: ForwardedRef<HTMLButtonElement>) => {
     const ButtonIcon = props.icon;
+
     return (
-      <Tippy
-        content={
+      <Tooltip
+        withinPortal={false}
+        label={
           <TooltipContent
             mainTooltip={props.mainTooltip}
             secondaryTooltip={props.secondaryTooltip}
           />
-        }
-        trigger={"mouseenter"}>
+        }>
         {/*Creates an ActionIcon instead of a Button if only an icon is provided as content.*/}
         {props.children ? (
           <Button
@@ -58,7 +59,7 @@ export const ToolbarButton = forwardRef(
             {ButtonIcon && <ButtonIcon />}
           </ActionIcon>
         )}
-      </Tippy>
+      </Tooltip>
     );
   }
 );

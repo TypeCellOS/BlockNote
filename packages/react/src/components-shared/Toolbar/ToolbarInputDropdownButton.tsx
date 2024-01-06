@@ -1,7 +1,7 @@
 import { ToolbarButton } from "./ToolbarButton";
-import Tippy, { TippyProps } from "@tippyjs/react";
 import { ReactElement, useCallback, useState } from "react";
 import { ToolbarInputDropdown } from "./ToolbarInputDropdown";
+import { Popover } from "@mantine/core";
 
 export type ToolbarInputDropdownButtonProps = {
   children: [
@@ -11,8 +11,7 @@ export type ToolbarInputDropdownButtonProps = {
 };
 
 export const ToolbarInputDropdownButton = (
-  props: ToolbarInputDropdownButtonProps &
-    Omit<Partial<TippyProps>, "content" | "children">
+  props: ToolbarInputDropdownButtonProps
 ) => {
   const [renderDropdown, setRenderDropdown] = useState<boolean>(false);
 
@@ -26,22 +25,20 @@ export const ToolbarInputDropdownButton = (
   }, []);
 
   return (
-    <Tippy
-      onShow={(instance) => {
+    <Popover
+      withinPortal={false}
+      onOpen={() => {
         createDropdown();
-        props.onShow?.(instance);
       }}
-      onHidden={(instance) => {
+      onClose={() => {
         destroyDropdown();
-        props.onShow?.(instance);
       }}
-      content={renderDropdown ? props.children[1] : null}
-      trigger={props.visible === undefined ? "click" : undefined}
-      interactive={true}
-      maxWidth={500}
-      zIndex={9000}
+      zIndex={10000}
       {...props}>
-      {props.children[0]}
-    </Tippy>
+      <Popover.Target>{props.children[0]}</Popover.Target>
+      <Popover.Dropdown>
+        {renderDropdown ? props.children[1] : null}
+      </Popover.Dropdown>
+    </Popover>
   );
 };

@@ -137,8 +137,8 @@
     border-radius: var(--bn-border-radius-medium);
     box-shadow: var(--bn-shadow-medium);
     color: var(--bn-colors-menu-text);
-    padding: 2px;
     overflow-y: scroll;
+    padding: 2px;
 }
 
 .mantine-Menu-label {
@@ -157,6 +157,12 @@
     background-color: var(--bn-colors-hovered-background);
     border: none;
     color: var(--bn-colors-hovered-text);
+}
+
+/* Mantine Popover component base styles */
+.mantine-Popover-dropdown {
+    all: revert;
+    position: absolute;
 }
 
 /* Mantine Tabs component base styles */
@@ -196,6 +202,13 @@
     border-radius: 4px;
     color: var(--bn-colors-menu-text);
     height: 32px;
+}
+
+/* Mantine Tooltip component base styles */
+.mantine-Tooltip-tooltip {
+    all: revert;
+    position: absolute;
+    user-select: none;
 }
 
 
@@ -412,7 +425,7 @@
 
 /* Slash Menu styling*/
 .bn-slash-menu {
-    position: relative;
+    height: 100%;
 }
 
 .bn-slash-menu .mantine-Menu-item {
