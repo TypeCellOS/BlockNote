@@ -32,85 +32,42 @@ export type Theme = {
   fontFamily: string;
 };
 
-const camelCaseToKebabCase = (str: string) =>
-  str.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
+type NestedObject = { [key: string]: number | string | NestedObject };
 
 const cssVariablesHelper = (
   theme: Theme,
   editorDOM: HTMLElement,
   unset = false
 ) => {
-  // Colors
-  for (const [colorSchemeKey, colorSchemeValue] of Object.entries(
-    theme.colors
-  )) {
-    if (typeof colorSchemeValue === "string") {
-      // Case for single colors
-      const property = "--bn-colors-" + camelCaseToKebabCase(colorSchemeKey);
-      if (unset) {
-        editorDOM.style.removeProperty(property);
-      } else {
-        editorDOM.style.setProperty(property, colorSchemeValue);
-      }
-    } else if (typeof colorSchemeValue === "object") {
-      if ("text" in colorSchemeValue && "background" in colorSchemeValue) {
-        // Case for combined colors
-        const textProperty =
-          "--bn-colors-" + camelCaseToKebabCase(colorSchemeKey) + "-text";
-        const backgroundProperty =
-          "--bn-colors-" + camelCaseToKebabCase(colorSchemeKey) + "-background";
+  const result: string[] = [];
+
+  function traverse(current: NestedObject, currentKey = "--bn") {
+    for (const key in current) {
+      const kebabCaseKey = key
+        .replace(/([a-z])([A-Z])/g, "$1-$2")
+        .toLowerCase();
+      const fullKey = `${currentKey}-${kebabCaseKey}`;
+
+      if (typeof current[key] !== "object") {
+        // Convert numbers to px
+        if (typeof current[key] === "number") {
+          current[key] = `${current[key]}px`;
+        }
+
         if (unset) {
-          editorDOM.style.removeProperty(textProperty);
-          editorDOM.style.removeProperty(backgroundProperty);
+          editorDOM.style.removeProperty(fullKey);
         } else {
-          editorDOM.style.setProperty(textProperty, colorSchemeValue.text);
-          editorDOM.style.setProperty(
-            backgroundProperty,
-            colorSchemeValue.background
-          );
+          editorDOM.style.setProperty(fullKey, current[key].toString());
         }
       } else {
-        // Case for highlights
-        for (const [highlightColorKey, highlightColorValue] of Object.entries(
-          colorSchemeValue
-        )) {
-          const textProperty =
-            "--bn-colors-" +
-            camelCaseToKebabCase(colorSchemeKey) +
-            "-" +
-            camelCaseToKebabCase(highlightColorKey) +
-            "-text";
-          const backgroundProperty =
-            "--bn-colors-" +
-            camelCaseToKebabCase(colorSchemeKey) +
-            "-" +
-            camelCaseToKebabCase(highlightColorKey) +
-            "-background";
-          if (unset) {
-            editorDOM.style.removeProperty(textProperty);
-            editorDOM.style.removeProperty(backgroundProperty);
-          } else {
-            editorDOM.style.setProperty(textProperty, highlightColorValue.text);
-            editorDOM.style.setProperty(
-              backgroundProperty,
-              highlightColorValue.background
-            );
-          }
-        }
+        traverse(current[key] as NestedObject, fullKey);
       }
     }
   }
 
-  if (unset) {
-    editorDOM.style.removeProperty("--bn-font-family");
-    editorDOM.style.removeProperty("--bn-border-radius");
-  } else {
-    editorDOM.style.setProperty("--bn-font-family", theme.fontFamily);
-    editorDOM.style.setProperty(
-      "--bn-border-radius",
-      `${theme.borderRadius}px`
-    );
-  }
+  traverse(theme);
+
+  return result;
 };
 
 export const applyBlockNoteCSSVariablesFromTheme = (
