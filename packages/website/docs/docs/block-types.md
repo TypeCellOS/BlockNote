@@ -179,7 +179,7 @@ import {
   ReactSlashMenuItem,
   getDefaultReactSlashMenuItems,
 } from "@blocknote/react";
-import "@blocknote/core/style.css";
+import "@blocknote/react/style.css";
 import { RiText } from "react-icons/ri";
 
 export default function App() {

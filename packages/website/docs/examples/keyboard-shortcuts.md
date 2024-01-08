@@ -26,8 +26,8 @@ In this example, we create a keyboard shortcut which cycles the current block ty
 
 ```typescript-vue /App.tsx
 import { Block, BlockNoteEditor } from "@blocknote/core";
-import "@blocknote/core/style.css";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
+import "@blocknote/react/style.css";
 
 const cycleBlocksShortcut = (event: KeyboardEvent, editor: BlockNoteEditor) => {
   // Checks for Ctrl+G shortcut

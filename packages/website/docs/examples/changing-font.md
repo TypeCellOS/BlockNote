@@ -23,7 +23,6 @@ In this example, we override some of the default editor CSS to change the font.
 ::: sandbox {template=react-ts}
 
 ```typescript-vue /App.tsx
-import "@blocknote/core/style.css";
 import {
   BlockNoteView,
   darkDefaultTheme,
@@ -31,6 +30,7 @@ import {
   Theme,
   useBlockNote,
 } from "@blocknote/react";
+import "@blocknote/react/style.css";
 
 const componentStyles = (theme: Theme) => ({
   Editor: {

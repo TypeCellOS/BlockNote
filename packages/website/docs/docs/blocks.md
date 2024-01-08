@@ -23,7 +23,7 @@ We'll go through the full API later in this section, but let's start with a simp
 
 ```typescript
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
-import "@blocknote/core/style.css";
+import "@blocknote/react/style.css";
 
 function App() {
   // Creates a new editor instance.
@@ -79,7 +79,7 @@ Now that we know how blocks are represented in code, let's take a look at the li
 import { useState } from "react";
 import { BlockNoteEditor, Block } from "@blocknote/core";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
-import "@blocknote/core/style.css";
+import "@blocknote/react/style.css";
 
 export default function App() {
   // Stores the editor's contents as an array of Block objects.
