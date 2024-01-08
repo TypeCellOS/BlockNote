@@ -16,13 +16,50 @@ const { isDark } = useData();
 
 BlockNote allows you to change how the editor UI looks. You can change the theme of the default UI, or override its CSS styles.
 
-BlockNote has both light and dark default themes, which are used based on the user's system settings.
+## CSS Styles
 
-## Theming & Styling in CSS
+BlockNote's styling is defined in CSS, and you can find the default styles in the [`editor.css` stylesheet](https://github.com/TypeCellOS/BlockNote/blob/main/packages/react/src/editor/styles.css). This means you can override CSS styles for the editor, as well as all menus and toolbars.
 
-### Theming
+In the demo below, we create additional CSS rules to add some basic styling to the editor, and also make all hovered slash menu items blue:
 
-By defining a set of CSS variables, you can easily change BlockNote's light & dark themes, which include colors, border radii, and font family. The example below shows each of the CSS variables you can set for BlockNote, with values from the default light theme:
+::: sandbox {template=react-ts}
+
+```typescript-vue /App.tsx
+import { BlockNoteEditor } from "@blocknote/core";
+import { BlockNoteView, useBlockNote } from "@blocknote/react";
+import "@blocknote/react/style.css";
+
+export default function App() {
+  // Creates a new editor instance.
+  const editor: BlockNoteEditor = useBlockNote();
+
+  // Renders the editor instance using a React component.
+  return <BlockNoteView editor={editor} theme={"{{ getTheme(isDark) }}"} />;
+}
+```
+
+```css-vue /styles.css
+{{ getStyles(isDark) }}
+
+/* Adds border and shadow to editor */
+.bn-container .bn-editor {
+  border-radius: var(--bn-border-radius-medium);
+  box-shadow: var(--bn-shadow-medium);
+}
+
+/* Makes slash menu hovered items blue */
+.bn-container .bn-slash-menu .mantine-Menu-item[data-hovered] {
+  background-color: blue;
+}
+```
+
+:::
+
+## Theme CSS Variables
+
+BlockNote uses several CSS variables to define the light and dark editor themes. The theme is selected based on the user's system theme, and includes color, border, shadow, and font styles. By overwriting these variables, you can quickly change the look of the editor.
+
+The example below shows each of the CSS variables you can set for BlockNote, with values from the default light theme:
 
 ```
 --bn-colors-editor-text: #3F3F3F;
@@ -120,57 +157,18 @@ export default function App() {
 
 :::
 
-### Styling
+### Changing CSS Variables Through Code
 
-If you want to change the editor's look even more, you can override CSS styles for the editor, as well as all menus and toolbars.
+The `theme` prop in `BlockNoteView` allows you to change the editor's theme through code. By passing in `"light"` or `"dark"` to the `theme` prop, you can force BlockNote to always use the light or dark theme.
 
-In the demo below, we create additional CSS rules to add some basic styling to the editor, and also make all hovered slash menu items blue:
-
-::: sandbox {template=react-ts}
-
-```typescript-vue /App.tsx
-import { BlockNoteEditor } from "@blocknote/core";
-import { BlockNoteView, useBlockNote } from "@blocknote/react";
-import "@blocknote/react/style.css";
-
-export default function App() {
-  // Creates a new editor instance.
-  const editor: BlockNoteEditor = useBlockNote();
-
-  // Renders the editor instance using a React component.
-  return <BlockNoteView editor={editor} theme={"{{ getTheme(isDark) }}"} />;
-}
-```
-
-```css-vue /styles.css
-{{ getStyles(isDark) }}
-
-/* Adds border and shadow to editor */
-.bn-container .bn-editor {
-  border-radius: var(--bn-border-radius-medium);
-  box-shadow: var(--bn-shadow-medium);
-}
-
-/* Makes slash menu hovered items blue */
-.bn-container .bn-slash-menu .mantine-Menu-item[data-hovered] {
-  background-color: blue;
-}
-```
-
-:::
-
-## Theming in Code
-
-BlockNote also allows you to change the editor theme via the `theme` prop in `BlockNoteView`, which allows you to force one of the default themes by passing in `"light"` or `"dark"`.
-
-However, you can also override the default themes using `Theme` objects, much like you can [with CSS](/docs/theming#theming):
+However, using `Theme` objects, you can also override the theme CSS variables through code:
 ```ts
-type CombinedColor = {
+type CombinedColor = Partial<{
   text: string;
   background: string;
-};
+}>;
 
-type ColorScheme = {
+type ColorScheme = Partial<{
   editor: CombinedColor;
   menu: CombinedColor;
   tooltip: CombinedColor;
@@ -180,7 +178,7 @@ type ColorScheme = {
   shadow: string;
   border: string;
   sideMenu: string;
-  highlights: {
+  highlights: Partial<{
     gray: CombinedColor;
     brown: CombinedColor;
     red: CombinedColor;
@@ -190,17 +188,17 @@ type ColorScheme = {
     blue: CombinedColor;
     purple: CombinedColor;
     pink: CombinedColor;
-  };
-};
+  }>;
+}>;
 
-type Theme = {
+type Theme = Partial<{
   colors: ColorScheme;
   borderRadius: number;
   fontFamily: string;
-};
+}>;
 ```
 
-You can pass a `Theme` object to the `theme` prop in `BlockNoteView` to set a single custom theme regardless of light/dark mode being used. Alternatively, you can specify themes for both light and dark mode by passing the following object:
+You can pass a `Theme` object to the `theme` prop in `BlockNoteView` to set the same CSS variables regardless of light/dark mode being used. Alternatively, you can set CSS variables for light and dark mode separately by passing the following object:
 
 ```ts
 type LightAndDarkThemes = {
@@ -209,9 +207,7 @@ type LightAndDarkThemes = {
 }
 ```
 
-Note that this will also override any theme set via CSS variables.
-
-In the demo below, we create the same red theme as from the [CSS demo](/docs/theming#css-theming-styling), but this time we set it via the `theme` prop in `BlockNoteView`:
+In the demo below, we create the same red theme as from the previous demo, but this time we set it via the `theme` prop in `BlockNoteView`:
 
 ::: sandbox {template=react-ts}
 
@@ -301,8 +297,6 @@ export default function App() {
 ```
 
 :::
-
-If we pass both a light and dark theme to `BlockNoteView`, like in the demo, BlockNote automatically chooses which one to use based on the user's browser settings. However, you can just pass `"light"`/`"dark"` (for the light & dark default themes), or a single custom theme instead, if you want to use the same one regardless of browser settings.
 
 ## Adding DOM Attributes
 
