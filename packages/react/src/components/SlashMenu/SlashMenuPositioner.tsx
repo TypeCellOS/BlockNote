@@ -43,17 +43,15 @@ export const SlashMenuPositioner = <
     placement: "bottom-start",
     middleware: [
       offset(10),
+      // Flips the slash menu placement to maximize the space available, and
+      // prevents the menu from being cut off by the confines of the screen.
+      flip(),
       size({
         apply({ availableHeight, elements }) {
           Object.assign(elements.floating.style, {
-            // Minimum acceptable height is 200px.
-            // `flip` will then take over.
-            height: `${Math.max(200, availableHeight - 10)}px`,
+            maxHeight: `${availableHeight - 10}px`,
           });
         },
-      }),
-      flip({
-        fallbackStrategy: "initialPlacement",
       }),
     ],
   });
@@ -88,6 +86,7 @@ export const SlashMenuPositioner = <
     <div
       ref={refs.setFloating}
       style={{
+        display: "flex",
         ...styles,
         ...floatingStyles,
         zIndex: 2000,

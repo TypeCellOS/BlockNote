@@ -9,7 +9,7 @@ import { formatKeyboardShortcut } from "@blocknote/core";
 export const NestBlockButton = <BSchema extends BlockSchema>(props: {
   editor: BlockNoteEditor<BSchema>;
 }) => {
-  const [canNestBlock, setCanNestBlock] = useState<boolean>(
+  const [canNestBlock, setCanNestBlock] = useState<boolean>(() =>
     props.editor.canNestBlock()
   );
 
@@ -37,7 +37,7 @@ export const NestBlockButton = <BSchema extends BlockSchema>(props: {
 export const UnnestBlockButton = <BSchema extends BlockSchema>(props: {
   editor: BlockNoteEditor<BSchema>;
 }) => {
-  const [canUnnestBlock, setCanUnnestBlock] = useState<boolean>(
+  const [canUnnestBlock, setCanUnnestBlock] = useState<boolean>(() =>
     props.editor.canUnnestBlock()
   );
 

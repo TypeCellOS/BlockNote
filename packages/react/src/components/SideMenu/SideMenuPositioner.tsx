@@ -87,6 +87,3 @@ export const SideMenuPositioner = <
     </div>
   );
 };
-
-// TODO: anything from below needed?
-// const offset: [number, number] = [0, 0];

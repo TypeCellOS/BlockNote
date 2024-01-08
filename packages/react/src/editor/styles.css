@@ -162,8 +162,11 @@
 
 /* Mantine Popover component base styles */
 .mantine-Popover-dropdown {
-    all: revert;
-    position: absolute;
+    background-color: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0;
 }
 
 /* Mantine Tabs component base styles */
@@ -207,9 +210,11 @@
 
 /* Mantine Tooltip component base styles */
 .mantine-Tooltip-tooltip {
-    all: revert;
-    position: absolute;
-    user-select: none;
+    background-color: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0;
 }
 
 
@@ -426,8 +431,8 @@
 
 /* Slash Menu styling*/
 .bn-slash-menu {
-    height: fit-content;
     max-height: 100%;
+    position: relative;
 }
 
 .bn-slash-menu .mantine-Menu-item {

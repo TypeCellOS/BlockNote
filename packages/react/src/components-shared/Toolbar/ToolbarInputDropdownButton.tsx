@@ -4,10 +4,8 @@ import { ToolbarInputDropdown } from "./ToolbarInputDropdown";
 import { Popover } from "@mantine/core";
 
 export type ToolbarInputDropdownButtonProps = {
-  children: [
-    ReactElement<typeof ToolbarButton>,
-    ReactElement<typeof ToolbarInputDropdown>
-  ];
+  target: ReactElement<typeof ToolbarButton>;
+  dropdown: ReactElement<typeof ToolbarInputDropdown>;
 };
 
 export const ToolbarInputDropdownButton = (
@@ -35,9 +33,9 @@ export const ToolbarInputDropdownButton = (
       }}
       zIndex={10000}
       {...props}>
-      <Popover.Target>{props.children[0]}</Popover.Target>
+      <Popover.Target>{props.target}</Popover.Target>
       <Popover.Dropdown>
-        {renderDropdown ? props.children[1] : null}
+        {renderDropdown ? props.dropdown : null}
       </Popover.Dropdown>
     </Popover>
   );
