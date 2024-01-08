@@ -21,11 +21,11 @@ import { HTMLToBlocks } from "../api/parsers/html/parseHTML";
 import { markdownToBlocks } from "../api/parsers/markdown/parseMarkdown";
 import {
   DefaultBlockSchema,
-  DefaultInlineContentSchema,
-  DefaultStyleSchema,
   defaultBlockSchema,
   defaultBlockSpecs,
+  DefaultInlineContentSchema,
   defaultInlineContentSpecs,
+  DefaultStyleSchema,
   defaultStyleSpecs,
 } from "../blocks/defaultBlocks";
 import { FormattingToolbarProsemirrorPlugin } from "../extensions/FormattingToolbar/FormattingToolbarPlugin";
@@ -45,17 +45,17 @@ import {
   BlockSchemaFromSpecs,
   BlockSchemaWithBlock,
   BlockSpecs,
+  getBlockSchemaFromSpecs,
+  getInlineContentSchemaFromSpecs,
+  getStyleSchemaFromSpecs,
   InlineContentSchema,
   InlineContentSchemaFromSpecs,
   InlineContentSpecs,
   PartialBlock,
+  Styles,
   StyleSchema,
   StyleSchemaFromSpecs,
   StyleSpecs,
-  Styles,
-  getBlockSchemaFromSpecs,
-  getInlineContentSchemaFromSpecs,
-  getStyleSchemaFromSpecs,
 } from "../schema";
 import { mergeCSSClasses } from "../util/browser";
 import { UnreachableCaseError } from "../util/typescript";
@@ -775,8 +775,8 @@ export class BlockNoteEditor<
     blocksToInsert: PartialBlock<BSchema, ISchema, SSchema>[],
     referenceBlock: BlockIdentifier,
     placement: "before" | "after" | "nested" = "before"
-  ): void {
-    insertBlocks(blocksToInsert, referenceBlock, placement, this);
+  ) {
+    return insertBlocks(blocksToInsert, referenceBlock, placement, this);
   }
 
   /**
@@ -790,7 +790,7 @@ export class BlockNoteEditor<
     blockToUpdate: BlockIdentifier,
     update: PartialBlock<BSchema, ISchema, SSchema>
   ) {
-    updateBlock(blockToUpdate, update, this._tiptapEditor);
+    return updateBlock(blockToUpdate, update, this);
   }
 
   /**
@@ -798,7 +798,7 @@ export class BlockNoteEditor<
    * @param blocksToRemove An array of identifiers for existing blocks that should be removed.
    */
   public removeBlocks(blocksToRemove: BlockIdentifier[]) {
-    removeBlocks(blocksToRemove, this._tiptapEditor);
+    return removeBlocks(blocksToRemove, this);
   }
 
   /**
@@ -812,7 +812,7 @@ export class BlockNoteEditor<
     blocksToRemove: BlockIdentifier[],
     blocksToInsert: PartialBlock<BSchema, ISchema, SSchema>[]
   ) {
-    replaceBlocks(blocksToRemove, blocksToInsert, this);
+    return replaceBlocks(blocksToRemove, blocksToInsert, this);
   }
 
   /**

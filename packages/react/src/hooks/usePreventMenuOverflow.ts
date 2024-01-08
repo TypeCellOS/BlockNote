@@ -30,7 +30,7 @@ export function usePreventMenuOverflow() {
           const domRect =
             ref.current.firstElementChild!.getBoundingClientRect();
 
-          // Set the menu max height, based on the Tippy position. Checking if
+          // Set the menu max height, based on the element position. Checking if
           // the top of the menu is above the viewport (position < 0) is a quick
           // way to check if the placement is "top" or "bottom".
           (

@@ -70,28 +70,6 @@
           },
           "content": [
             {
-              "type": "paragraph",
-              "attrs": {
-                "textAlignment": "left"
-              },
-              "content": [
-                {
-                  "type": "text",
-                  "text": "paragraph"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "type": "blockContainer",
-          "attrs": {
-            "id": "5",
-            "textColor": "default",
-            "backgroundColor": "default"
-          },
-          "content": [
-            {
               "type": "image",
               "attrs": {
                 "textAlignment": "left",
@@ -105,7 +83,7 @@
         {
           "type": "blockContainer",
           "attrs": {
-            "id": "6",
+            "id": "5",
             "textColor": "default",
             "backgroundColor": "default"
           },
