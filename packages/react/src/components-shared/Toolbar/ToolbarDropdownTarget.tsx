@@ -17,8 +17,8 @@ export const ToolbarDropdownTarget = forwardRef<
   const TargetIcon = props.icon;
   return (
     <Button
-      leftIcon={TargetIcon && <TargetIcon size={16} />}
-      rightIcon={<HiChevronDown />}
+      leftSection={TargetIcon && <TargetIcon size={16} />}
+      rightSection={<HiChevronDown />}
       size={"xs"}
       variant={"subtle"}
       disabled={props.isDisabled}

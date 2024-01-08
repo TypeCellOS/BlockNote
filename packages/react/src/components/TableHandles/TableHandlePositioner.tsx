@@ -8,8 +8,9 @@ import {
   TableHandlesProsemirrorPlugin,
   TableHandlesState,
 } from "@blocknote/core";
-import Tippy, { tippy } from "@tippyjs/react";
-import { DragEvent, FC, useEffect, useMemo, useRef, useState } from "react";
+import { offset, useFloating, useTransitionStyles } from "@floating-ui/react";
+import { DragEvent, FC, useEffect, useRef, useState } from "react";
+
 import { DragHandleMenuProps } from "../SideMenu/DragHandleMenu/DragHandleMenu";
 import { DefaultTableHandle } from "./DefaultTableHandle";
 
@@ -69,9 +70,21 @@ export const TableHandlesPositioner = <
   const referencePosCell = useRef<DOMRect>();
   const referencePosTable = useRef<DOMRect>();
 
-  useEffect(() => {
-    tippy.setDefaultProps({ maxWidth: "" });
+  const rowFloating = useFloating({
+    open: show,
+    placement: "left",
+    middleware: [offset(-10)],
+  });
+  const colFloating = useFloating({
+    open: show,
+    placement: "top",
+    middleware: [offset(-12)],
+  });
 
+  const rowTransitionStyles = useTransitionStyles(rowFloating.context);
+  const colTransitionStyles = useTransitionStyles(colFloating.context);
+
+  useEffect(() => {
     return props.editor.tableHandles!.onUpdate((state) => {
       // console.log("update", state.draggingState);
       setShow(state.show);
@@ -91,129 +104,113 @@ export const TableHandlesPositioner = <
 
       referencePosCell.current = state.referencePosCell;
       referencePosTable.current = state.referencePosTable;
+
+      rowFloating.update();
+      colFloating.update();
     });
-  }, [props.editor]);
+  }, [colFloating, props.editor, rowFloating]);
 
-  const getReferenceClientRectRow = useMemo(
-    () => {
-      if (!referencePosCell.current || !referencePosTable.current) {
-        return undefined;
-      }
-
-      if (draggedCellOrientation === "row") {
-        return () =>
-          new DOMRect(
+  useEffect(() => {
+    rowFloating.refs.setReference({
+      getBoundingClientRect: () => {
+        if (draggedCellOrientation === "row") {
+          return new DOMRect(
             referencePosTable.current!.x,
             mousePos!,
             referencePosTable.current!.width,
             0
           );
-      }
+        }
 
-      return () =>
-        new DOMRect(
+        return new DOMRect(
           referencePosTable.current!.x,
           referencePosCell.current!.y,
           referencePosTable.current!.width,
           referencePosCell.current!.height
         );
-    },
-    [referencePosTable.current, draggedCellOrientation, mousePos] // eslint-disable-line
-  );
+      },
+    });
+  }, [draggedCellOrientation, mousePos, rowFloating.refs]);
 
-  const getReferenceClientRectColumn = useMemo(
-    () => {
-      if (!referencePosCell.current || !referencePosTable.current) {
-        return undefined;
-      }
-
-      if (draggedCellOrientation === "col") {
-        return () =>
-          new DOMRect(
+  useEffect(() => {
+    colFloating.refs.setReference({
+      getBoundingClientRect: () => {
+        if (draggedCellOrientation === "col") {
+          return new DOMRect(
             mousePos!,
             referencePosTable.current!.y,
             0,
             referencePosTable.current!.height
           );
-      }
+        }
 
-      return () =>
-        new DOMRect(
+        return new DOMRect(
           referencePosCell.current!.x,
           referencePosTable.current!.y,
           referencePosCell.current!.width,
           referencePosTable.current!.height
         );
-    },
-    [referencePosTable.current, draggedCellOrientation, mousePos] // eslint-disable-line
-  );
+      },
+    });
+  }, [colFloating.refs, draggedCellOrientation, mousePos]);
 
-  const columnTableHandle = useMemo(() => {
-    const TableHandle = props.tableHandle || DefaultTableHandle;
+  const TableHandle = props.tableHandle || DefaultTableHandle;
 
-    return (
-      <TableHandle
-        orientation={"column"}
-        // This "as any" unfortunately seems complicated to fix
-        editor={props.editor as any}
-        index={colIndex!}
-        block={block!}
-        dragStart={props.editor.tableHandles!.colDragStart}
-        dragEnd={props.editor.tableHandles!.dragEnd}
-        freezeHandles={props.editor.tableHandles!.freezeHandles}
-        unfreezeHandles={props.editor.tableHandles!.unfreezeHandles}
-        showOtherSide={() => setHideRow(false)}
-        hideOtherSide={() => setHideRow(true)}
-      />
-    );
-  }, [block, props.editor, props.tableHandle, colIndex]);
-
-  const rowTableHandle = useMemo(() => {
-    const TableHandle = props.tableHandle || DefaultTableHandle;
-
-    return (
-      <TableHandle
-        orientation={"row"}
-        editor={props.editor as any}
-        index={rowIndex!}
-        block={block!}
-        dragStart={props.editor.tableHandles!.rowDragStart}
-        dragEnd={props.editor.tableHandles!.dragEnd}
-        freezeHandles={props.editor.tableHandles!.freezeHandles}
-        unfreezeHandles={props.editor.tableHandles!.unfreezeHandles}
-        showOtherSide={() => setHideCol(false)}
-        hideOtherSide={() => setHideCol(true)}
-      />
-    );
-  }, [block, props.editor, props.tableHandle, rowIndex]);
+  if (
+    !rowTransitionStyles.isMounted ||
+    !colTransitionStyles.isMounted ||
+    (hideRow && hideCol)
+  ) {
+    return null;
+  }
 
   return (
     <>
-      <Tippy
-        appendTo={props.editor.domElement.parentElement!}
-        content={rowTableHandle}
-        getReferenceClientRect={getReferenceClientRectRow}
-        interactive={true}
-        visible={show && draggedCellOrientation !== "col" && !hideRow}
-        animation={"fade"}
-        placement={"left"}
-        offset={rowOffset}
-        zIndex={1000}
-      />
-      <Tippy
-        appendTo={props.editor.domElement.parentElement!}
-        content={columnTableHandle}
-        getReferenceClientRect={getReferenceClientRectColumn}
-        interactive={true}
-        visible={show && draggedCellOrientation !== "row" && !hideCol}
-        animation={"fade"}
-        placement={"top"}
-        offset={columnOffset}
-        zIndex={1000}
-      />
+      {!hideRow && (
+        <div
+          ref={rowFloating.refs.setFloating}
+          style={{
+            ...rowTransitionStyles.styles,
+            ...rowFloating.floatingStyles,
+            zIndex: 10000,
+          }}>
+          <TableHandle
+            orientation={"row"}
+            // This "as any" unfortunately seems complicated to fix
+            editor={props.editor as any}
+            index={rowIndex!}
+            block={block!}
+            dragStart={props.editor.tableHandles!.rowDragStart}
+            dragEnd={props.editor.tableHandles!.dragEnd}
+            freezeHandles={props.editor.tableHandles!.freezeHandles}
+            unfreezeHandles={props.editor.tableHandles!.unfreezeHandles}
+            showOtherSide={() => setHideCol(false)}
+            hideOtherSide={() => setHideCol(true)}
+          />
+        </div>
+      )}
+      {!hideCol && (
+        <div
+          ref={colFloating.refs.setFloating}
+          style={{
+            ...colTransitionStyles.styles,
+            ...colFloating.floatingStyles,
+            zIndex: 10000,
+          }}>
+          <TableHandle
+            orientation={"column"}
+            editor={props.editor as any}
+            index={colIndex!}
+            block={block!}
+            dragStart={props.editor.tableHandles!.colDragStart}
+            dragEnd={props.editor.tableHandles!.dragEnd}
+            freezeHandles={props.editor.tableHandles!.freezeHandles}
+            unfreezeHandles={props.editor.tableHandles!.unfreezeHandles}
+            showOtherSide={() => setHideRow(false)}
+            hideOtherSide={() => setHideRow(true)}
+          />
+        </div>
+      )}
     </>
   );
 };
-
-const rowOffset: [number, number] = [0, -12];
-const columnOffset: [number, number] = [0, -12];

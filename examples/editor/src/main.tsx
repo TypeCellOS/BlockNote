@@ -1,4 +1,4 @@
-import { AppShell, Navbar, ScrollArea } from "@mantine/core";
+import { AppShell, MantineProvider, ScrollArea } from "@mantine/core";
 import React from "react";
 import { createRoot } from "react-dom/client";
 import {
@@ -66,15 +66,23 @@ function Root() {
   //   // "root:hover": { background: "blue" },
   // });
   return (
-    <AppShell
-      padding={0}
-      navbar={
-        window.location.search.includes("hideMenu") ? undefined : (
-          <Navbar
-            width={{ base: 300 }}
-            style={{ background: "#f7f7f5" }}
-            p="xs">
-            <Navbar.Section grow component={ScrollArea} mx="-xs" px="xs">
+    <MantineProvider>
+      <AppShell
+        padding={0}
+        //   header={<Header height={60} p="xs">
+        //   {/* Header content */}
+        // </Header>}
+        styles={() => ({
+          main: {
+            backgroundColor: "white",
+            // theme.colorScheme === "dark"
+            //   ? theme.colors.dark[8]
+            //   : theme.colors.gray[0],
+          },
+        })}>
+        {window.location.search.includes("hideMenu") ? undefined : (
+          <AppShell.Navbar w={{ base: 300 }} p="xs">
+            <AppShell.Section grow component={ScrollArea} mx="-xs" px="xs">
               {editors.map((editor, i) => (
                 <div key={i}>
                   <Link to={editor.path}>{editor.title}</Link>
@@ -95,24 +103,12 @@ function Root() {
               // icon={<IconGauge size={16} stroke={1.5} />}
               // rightSection={<IconChevronRight size={12} stroke={1.5} />}
             /> */}
-            </Navbar.Section>
-          </Navbar>
-        )
-      }
-      header={<></>}
-      //   header={<Header height={60} p="xs">
-      //   {/* Header content */}
-      // </Header>}
-      styles={(theme) => ({
-        main: {
-          backgroundColor: "white",
-          // theme.colorScheme === "dark"
-          //   ? theme.colors.dark[8]
-          //   : theme.colors.gray[0],
-        },
-      })}>
-      <Outlet />
-    </AppShell>
+            </AppShell.Section>
+          </AppShell.Navbar>
+        )}
+        <Outlet />
+      </AppShell>
+    </MantineProvider>
   );
 }
 const router = createBrowserRouter([

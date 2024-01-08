@@ -18,13 +18,13 @@ export function ToolbarDropdownItem(props: ToolbarDropdownItemProps) {
     <Menu.Item
       key={props.text}
       onClick={props.onClick}
-      icon={ItemIcon && <ItemIcon size={16} />}
+      leftSection={ItemIcon && <ItemIcon size={16} />}
       rightSection={
         props.isSelected ? (
-          <TiTick size={16} />
+          <TiTick size={20} className={"bn-tick-icon"} />
         ) : (
           // Ensures space for tick even if item isn't currently selected.
-          <div style={{ width: "16px", padding: "0" }} />
+          <div className={"bn-tick-space"} />
         )
       }
       disabled={props.isDisabled}>

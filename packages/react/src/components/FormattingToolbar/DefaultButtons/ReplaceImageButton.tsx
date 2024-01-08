@@ -1,5 +1,5 @@
 import { BlockNoteEditor, BlockSchema } from "@blocknote/core";
-import Tippy from "@tippyjs/react";
+import { Popover } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { RiImageEditFill } from "react-icons/ri";
 
@@ -29,21 +29,21 @@ export const ReplaceImageButton = <BSchema extends BlockSchema>(props: {
   }
 
   return (
-    <Tippy
-      visible={isOpen}
-      interactive={true}
-      content={
+    <Popover withinPortal={false} opened={isOpen} position={"bottom"}>
+      <Popover.Target>
+        <ToolbarButton
+          onClick={() => setIsOpen(!isOpen)}
+          isSelected={isOpen}
+          mainTooltip={"Replace Image"}
+          icon={RiImageEditFill}
+        />
+      </Popover.Target>
+      <Popover.Dropdown>
         <DefaultImageToolbar
           block={selectedBlocks[0] as any}
           editor={props.editor}
         />
-      }>
-      <ToolbarButton
-        onClick={() => setIsOpen(!isOpen)}
-        isSelected={isOpen}
-        mainTooltip={"Replace Image"}
-        icon={RiImageEditFill}
-      />
-    </Tippy>
+      </Popover.Dropdown>
+    </Popover>
   );
 };

@@ -1,5 +1,9 @@
-import { BlockSchemaWithBlock, DefaultBlockSchema } from "@blocknote/core";
-import { Menu, createStyles } from "@mantine/core";
+import {
+  BlockSchemaWithBlock,
+  DefaultBlockSchema,
+  mergeCSSClasses,
+} from "@blocknote/core";
+import { Menu } from "@mantine/core";
 import { ReactNode, useState } from "react";
 import { DefaultTableHandleMenu } from "./TableHandleMenu/DefaultTableHandleMenu";
 import type { TableHandleProps } from "./TableHandlePositioner";
@@ -9,16 +13,13 @@ export const TableHandle = <
 >(
   props: TableHandleProps<BSchema, any, any> & { children: ReactNode }
 ) => {
-  const { classes } = createStyles({ root: {} })(undefined, {
-    name: "TableHandle",
-  });
-
   const TableHandleMenu = props.tableHandleMenu || DefaultTableHandleMenu;
 
   const [isDragging, setIsDragging] = useState(false);
 
   return (
     <Menu
+      withinPortal={false}
       trigger={"click"}
       onOpen={() => {
         props.freezeHandles();
@@ -31,7 +32,10 @@ export const TableHandle = <
       position={"right"}>
       <Menu.Target>
         <div
-          className={classes.root}
+          className={mergeCSSClasses(
+            "bn-table-handle",
+            isDragging ? "bn-table-handle-dragging" : ""
+          )}
           draggable="true"
           onDragStart={(e) => {
             setIsDragging(true);
@@ -46,9 +50,7 @@ export const TableHandle = <
               ? { transform: "rotate(0.25turn)" }
               : undefined
           }>
-          <div className={isDragging ? "bn-table-handle-dragging" : undefined}>
-            {props.children}
-          </div>
+          {props.children}
         </div>
       </Menu.Target>
       <TableHandleMenu

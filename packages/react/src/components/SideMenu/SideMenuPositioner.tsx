@@ -7,11 +7,11 @@ import {
   DefaultStyleSchema,
   InlineContentSchema,
   SideMenuProsemirrorPlugin,
+  StyleSchema,
 } from "@blocknote/core";
-import Tippy from "@tippyjs/react";
-import { FC, useEffect, useMemo, useRef, useState } from "react";
+import { useFloating, useTransitionStyles } from "@floating-ui/react";
+import { FC, useEffect, useRef, useState } from "react";
 
-import { StyleSchema } from "@blocknote/core";
 import { DefaultSideMenu } from "./DefaultSideMenu";
 import { DragHandleMenuProps } from "./DragHandleMenu/DragHandleMenu";
 
@@ -41,33 +41,40 @@ export const SideMenuPositioner = <
 
   const referencePos = useRef<DOMRect>();
 
+  const { refs, update, context, floatingStyles } = useFloating({
+    open: show,
+    placement: "left",
+  });
+
+  const { isMounted, styles } = useTransitionStyles(context);
+
   useEffect(() => {
     return props.editor.sideMenu.onUpdate((sideMenuState) => {
       setShow(sideMenuState.show);
       setBlock(sideMenuState.block);
+
       referencePos.current = sideMenuState.referencePos;
+
+      update();
     });
-  }, [props.editor]);
+  }, [props.editor, update]);
 
-  const getReferenceClientRect = useMemo(
-    () => {
-      if (!referencePos.current) {
-        return undefined;
-      }
+  useEffect(() => {
+    refs.setReference({
+      getBoundingClientRect: () => referencePos.current!,
+    });
+  }, [refs]);
 
-      return () => referencePos.current!;
-    },
-    [referencePos.current] // eslint-disable-line
-  );
+  if (!block || !isMounted) {
+    return null;
+  }
 
-  const sideMenuElement = useMemo(() => {
-    if (!block) {
-      return null;
-    }
+  const SideMenu = props.sideMenu || DefaultSideMenu;
 
-    const SideMenu = props.sideMenu || DefaultSideMenu;
-
-    return (
+  return (
+    <div
+      ref={refs.setFloating}
+      style={{ ...styles, ...floatingStyles, zIndex: 1000 }}>
       <SideMenu
         block={block}
         editor={props.editor}
@@ -77,40 +84,6 @@ export const SideMenuPositioner = <
         freezeMenu={props.editor.sideMenu.freezeMenu}
         unfreezeMenu={props.editor.sideMenu.unfreezeMenu}
       />
-    );
-  }, [block, props.editor, props.sideMenu]);
-
-  return (
-    <Tippy
-      appendTo={props.editor.domElement.parentElement!}
-      content={sideMenuElement}
-      getReferenceClientRect={getReferenceClientRect}
-      interactive={true}
-      visible={show}
-      animation={"fade"}
-      offset={offset}
-      placement={"left"}
-      popperOptions={popperOptions}
-      zIndex={1000}
-    />
+    </div>
   );
-};
-
-const offset: [number, number] = [0, 0];
-const popperOptions = {
-  modifiers: [
-    {
-      name: "flip",
-      options: {
-        fallbackPlacements: [],
-      },
-    },
-    {
-      name: "preventOverflow",
-      options: {
-        mainAxis: false,
-        altAxis: false,
-      },
-    },
-  ],
 };

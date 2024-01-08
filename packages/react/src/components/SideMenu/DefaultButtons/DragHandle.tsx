@@ -12,6 +12,7 @@ export const DragHandle = <BSchema extends BlockSchema>(
 
   return (
     <Menu
+      withinPortal={false}
       trigger={"click"}
       onOpen={props.freezeMenu}
       onClose={props.unfreezeMenu}
@@ -19,6 +20,7 @@ export const DragHandle = <BSchema extends BlockSchema>(
       position={"left"}>
       <Menu.Target>
         <div
+          className={"bn-drag-handle"}
           draggable="true"
           onDragStart={props.blockDragStart}
           onDragEnd={props.blockDragEnd}>

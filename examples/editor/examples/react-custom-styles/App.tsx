@@ -4,7 +4,6 @@ import {
   DefaultInlineContentSchema,
   defaultStyleSpecs,
 } from "@blocknote/core";
-import "@blocknote/core/style.css";
 import {
   BlockNoteView,
   createReactStyleSpec,
@@ -14,6 +13,7 @@ import {
   useActiveStyles,
   useBlockNote,
 } from "@blocknote/react";
+import "@blocknote/react/style.css";
 
 type WindowWithProseMirror = Window & typeof globalThis & { ProseMirror: any };
 

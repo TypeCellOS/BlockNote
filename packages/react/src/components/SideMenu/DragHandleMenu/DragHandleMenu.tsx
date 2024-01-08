@@ -5,7 +5,7 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { Menu, createStyles } from "@mantine/core";
+import { Menu } from "@mantine/core";
 import { ReactNode } from "react";
 
 export type DragHandleMenuProps<
@@ -17,14 +17,8 @@ export type DragHandleMenuProps<
   block: Block<BSchema, I, S>;
 };
 
-export const DragHandleMenu = (props: { children: ReactNode }) => {
-  const { classes } = createStyles({ root: {} })(undefined, {
-    name: "DragHandleMenu",
-  });
-
-  return (
-    <Menu.Dropdown className={classes.root} style={{ overflow: "visible" }}>
-      {props.children}
-    </Menu.Dropdown>
-  );
-};
+export const DragHandleMenu = (props: { children: ReactNode }) => (
+  <Menu.Dropdown className={"bn-drag-handle-menu"}>
+    {props.children}
+  </Menu.Dropdown>
+);
