@@ -63,7 +63,7 @@
 
     --bn-colors-tooltip-background: #161616;
     --bn-colors-hovered-background: #161616;
-    --bn-colors-selected-text: var(--bn-colors-text);
+    --bn-colors-selected-text: #CFCFCF;
     --bn-colors-selected-background: #0F0F0F;
     --bn-colors-disabled-text: #3F3F3F;
     --bn-colors-disabled-background: #161616;
@@ -99,13 +99,13 @@
 /* Mantine base styles*/
 
 /* Mantine Badge component base styles */
-.mantine-Badge-root {
+.bn-container .mantine-Badge-root {
     background-color: var(--bn-colors-tooltip-background);
     color: var(--bn-colors-tooltip-text);
 }
 
 /* Mantine FileInput component base styles */
-.mantine-FileInput-input {
+.bn-container .mantine-FileInput-input {
     align-items: center;
     background-color: var(--bn-colors-menu-background);
     border: none;
@@ -116,22 +116,22 @@
     justify-content: center;
 }
 
-.mantine-FileInput-input:hover {
+.bn-container .mantine-FileInput-input:hover {
     background-color: var(--bn-colors-hovered-background);
 }
 
-.mantine-FileInput-wrapper {
+.bn-container .mantine-FileInput-wrapper {
     border: solid var(--bn-colors-border) 1px;
     border-radius: 4px;
 }
 
-.mantine-InputPlaceholder-placeholder {
+.bn-container .mantine-InputPlaceholder-placeholder {
     color: var(--bn-colors-menu-text);
     font-weight: 600;
 }
 
 /* Mantine Menu component base styles */
-.mantine-Menu-dropdown {
+.bn-container .mantine-Menu-dropdown {
     background-color: var(--bn-colors-menu-background);
     border: var(--bn-border);
     border-radius: var(--bn-border-radius-medium);
@@ -141,56 +141,57 @@
     overflow-y: scroll;
 }
 
-.mantine-Menu-label {
+.bn-container .mantine-Menu-label {
     background-color: var(--bn-colors-menu-background);
     color: var(--bn-colors-menu-text);
 }
 
-.mantine-Menu-item {
+.bn-container .mantine-Menu-item {
     background-color: var(--bn-colors-menu-background);
     border: none;
     border-radius: var(--bn-border-radius-small);
     color: var(--bn-colors-menu-text);
 }
 
-.mantine-Menu-item[data-hovered] {
+.bn-container .mantine-Menu-item[data-hovered] {
     background-color: var(--bn-colors-hovered-background);
     border: none;
     color: var(--bn-colors-hovered-text);
 }
 
 /* Mantine Tabs component base styles */
-.mantine-Tabs-root {
+.bn-container .mantine-Tabs-root {
     width: 100%;
     background-color: var(--bn-colors-menu-background);
 }
 
-.mantine-Tabs-list:before {
+.bn-container .mantine-Tabs-list:before {
     border-color: var(--bn-colors-hovered-background);
 }
 
-.mantine-Tabs-tab {
+.bn-container .mantine-Tabs-tab {
     color: var(--bn-colors-menu-text);
     border-color: var(--bn-colors-hovered-background);
 }
 
-.mantine-Tabs-tab:hover {
+.bn-container .mantine-Tabs-tab:hover {
     background-color: var(--bn-colors-hovered-background);
     border-color: var(--bn-colors-hovered-background);
     color: var(--bn-colors-hovered-text);
 }
 
-.mantine-Tabs-tab[data-active], .mantine-Tabs-tab[data-active]:hover {
+.bn-container .mantine-Tabs-tab[data-active],
+.bn-container .mantine-Tabs-tab[data-active]:hover {
     border-color: var(--bn-colors-menu-text);
     color: var(--bn-colors-menu-text);
 }
 
-.mantine-Tabs-panel {
+.bn-container .mantine-Tabs-panel {
     padding: 8px;
 }
 
 /* Mantine TextInput component base styles */
-.mantine-TextInput-input {
+.bn-container .mantine-TextInput-input {
     background-color: var(--bn-colors-menu-background);
     border: solid var(--bn-colors-border) 1px;
     border-radius: 4px;
