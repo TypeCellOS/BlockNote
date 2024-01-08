@@ -1,8 +1,10 @@
-import { Editor, Extension } from "@tiptap/core";
-import { Node as ProsemirrorNode } from "prosemirror-model";
+import { Extension } from "@tiptap/core";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
 import { slashMenuPluginKey } from "../SlashMenu/SlashMenuPlugin";
+import { nodeToBlock } from "../../api/nodeConversions/nodeConversions";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
+import { Block } from "../../schema";
 
 const PLUGIN_KEY = new PluginKey(`blocknote-placeholder`);
 
@@ -14,21 +16,12 @@ const PLUGIN_KEY = new PluginKey(`blocknote-placeholder`);
  *
  */
 export interface PlaceholderOptions {
-  emptyEditorClass: string;
-  emptyNodeClass: string;
-  isFilterClass: string;
-  hasAnchorClass: string;
-  placeholder:
-    | ((PlaceholderProps: {
-        editor: Editor;
-        node: ProsemirrorNode;
-        pos: number;
-        hasAnchor: boolean;
-      }) => string)
-    | string;
-  showOnlyWhenEditable: boolean;
-  showOnlyCurrent: boolean;
-  includeChildren: boolean;
+  editor: BlockNoteEditor<any, any, any> | undefined;
+  placeholder: (
+    block: Block<any, any, any>,
+    containsCursor: boolean,
+    isFilter: boolean
+  ) => string | undefined;
 }
 
 export const Placeholder = Extension.create<PlaceholderOptions>({
@@ -36,14 +29,29 @@ export const Placeholder = Extension.create<PlaceholderOptions>({
 
   addOptions() {
     return {
-      emptyEditorClass: "bn-is-editor-empty",
-      emptyNodeClass: "bn-is-empty",
-      isFilterClass: "bn-is-filter",
-      hasAnchorClass: "bn-has-anchor",
-      placeholder: "Write something …",
-      showOnlyWhenEditable: true,
-      showOnlyCurrent: true,
-      includeChildren: false,
+      editor: undefined,
+      placeholder: (block, containsCursor, isFilter) => {
+        if (block.type === "heading") {
+          return "Heading";
+        }
+
+        if (
+          block.type === "bulletListItem" ||
+          block.type === "numberedListItem"
+        ) {
+          return "List";
+        }
+
+        if (isFilter) {
+          return "Filter blocks";
+        }
+
+        if (containsCursor) {
+          return 'Type "/" for commands';
+        }
+
+        return undefined;
+      },
     };
   },
 
@@ -56,8 +64,7 @@ export const Placeholder = Extension.create<PlaceholderOptions>({
             const { doc, selection } = state;
             // Get state of slash menu
             const menuState = slashMenuPluginKey.getState(state);
-            const active =
-              this.editor.isEditable || !this.options.showOnlyWhenEditable;
+            const active = this.editor.isEditable;
             const { anchor } = selection;
             const decorations: Decoration[] = [];
 
@@ -66,25 +73,48 @@ export const Placeholder = Extension.create<PlaceholderOptions>({
             }
 
             doc.descendants((node, pos) => {
-              const hasAnchor = anchor >= pos && anchor <= pos + node.nodeSize;
+              if (
+                node.type.spec.group !== "blockContent" ||
+                node.type.spec.content === ""
+              ) {
+                return true;
+              }
+
               const isEmpty = !node.isLeaf && !node.childCount;
 
-              if ((hasAnchor || !this.options.showOnlyCurrent) && isEmpty) {
-                const classes = [this.options.emptyNodeClass];
+              if (isEmpty) {
+                const blockContainer = state.doc.resolve(pos).node();
+                const block = nodeToBlock(
+                  blockContainer,
+                  this.options.editor!.blockSchema,
+                  this.options.editor!.inlineContentSchema,
+                  this.options.editor!.styleSchema,
+                  this.options.editor!.blockCache
+                );
 
-                // TODO: Doesn't work?
-                if (this.editor.isEmpty) {
-                  classes.push(this.options.emptyEditorClass);
+                const containsCursor =
+                  anchor >= pos && anchor <= pos + node.nodeSize;
+                const isFilter =
+                  menuState?.triggerCharacter === "" && menuState?.active;
+
+                const placeholder = this.options.placeholder(
+                  block,
+                  containsCursor,
+                  isFilter
+                );
+
+                if (placeholder !== undefined) {
+                  // Because we cannot set a decoration on the inline content
+                  // element itself (it's only counted as a distinct node in the
+                  // DOM, not in the PM schema), this is a hack to get the
+                  // placeholder value inside CSS.
+                  const decoration = Decoration.node(pos, pos + node.nodeSize, {
+                    style: `--placeholder: '${placeholder}'`,
+                    "data-placeholder": "",
+                  });
+                  decorations.push(decoration);
                 }
 
-                if (hasAnchor) {
-                  classes.push(this.options.hasAnchorClass);
-                }
-
-                // If slash menu is of drag type and active, show the filter placeholder
-                if (menuState?.triggerCharacter === "" && menuState?.active) {
-                  classes.push(this.options.isFilterClass);
-                }
                 // using widget, didn't work (caret position bug)
                 // const decoration = Decoration.widget(
                 //   pos + 1,
@@ -95,31 +125,10 @@ export const Placeholder = Extension.create<PlaceholderOptions>({
                 //   },
                 //   { side: 0 }
 
-                // Code that sets variables / classes
-                // const ph =
-                //   typeof this.options.placeholder === "function"
-                //     ? this.options.placeholder({
-                //         editor: this.editor,
-                //         node,
-                //         pos,
-                //         hasAnchor,
-                //       })
-                //     : this.options.placeholder;
-                // const decoration = Decoration.node(pos, pos + node.nodeSize, {
-                //   class: classes.join(" "),
-                //   style: `--placeholder:'${ph.replaceAll("'", "\\'")}';`,
-                //   "data-placeholder": ph,
-                // });
-
-                // Latest version, only set isEmpty and hasAnchor, rest is done via CSS
-
-                const decoration = Decoration.node(pos, pos + node.nodeSize, {
-                  class: classes.join(" "),
-                });
-                decorations.push(decoration);
+                return false;
               }
 
-              return this.options.includeChildren;
+              return true;
             });
 
             return DecorationSet.create(doc, decorations);

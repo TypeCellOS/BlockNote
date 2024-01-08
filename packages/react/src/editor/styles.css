@@ -237,7 +237,7 @@
 }
 
 /* Placeholder styling */
-.bn-is-empty .bn-inline-content:before, .bn-is-filter .bn-inline-content:before {
+.bn-block-content[data-placeholder] .bn-inline-content:before {
     color: var(--bn-colors-side-menu);
 }
 

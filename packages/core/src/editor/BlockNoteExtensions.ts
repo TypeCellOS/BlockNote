@@ -21,6 +21,7 @@ import { TrailingNode } from "../extensions/TrailingNode/TrailingNodeExtension";
 import UniqueID from "../extensions/UniqueID/UniqueID";
 import { BlockContainer, BlockGroup, Doc } from "../pm-nodes";
 import {
+  Block,
   BlockNoteDOMAttributes,
   BlockSchema,
   BlockSpecs,
@@ -39,6 +40,11 @@ export const getBlockNoteExtensions = <
   S extends StyleSchema
 >(opts: {
   editor: BlockNoteEditor<BSchema, I, S>;
+  placeholder?: (
+    block: Block<any, any, any>,
+    containsCursor: boolean,
+    isFilter: boolean
+  ) => string | undefined;
   domAttributes: Partial<BlockNoteDOMAttributes>;
   blockSchema: BSchema;
   blockSpecs: BlockSpecs;
@@ -66,8 +72,11 @@ export const getBlockNoteExtensions = <
 
     // DropCursor,
     Placeholder.configure({
-      includeChildren: true,
-      showOnlyCurrent: false,
+      editor: opts.editor,
+      // TODO: This shorthand is kind of ugly
+      ...(opts.placeholder !== undefined
+        ? { placeholder: opts.placeholder }
+        : {}),
     }),
     UniqueID.configure({
       types: ["blockContainer"],
