@@ -47,13 +47,15 @@ export const CreateLinkButton = <BSchema extends BlockSchema>(props: {
   }
 
   return (
-    <ToolbarInputDropdownButton>
-      <ToolbarButton
-        mainTooltip={"Create Link"}
-        secondaryTooltip={formatKeyboardShortcut("Mod+K")}
-        icon={RiLink}
-      />
-      <EditHyperlinkMenu url={url} text={text} update={update} />
-    </ToolbarInputDropdownButton>
+    <ToolbarInputDropdownButton
+      target={
+        <ToolbarButton
+          mainTooltip={"Create Link"}
+          secondaryTooltip={formatKeyboardShortcut("Mod+K")}
+          icon={RiLink}
+        />
+      }
+      dropdown={<EditHyperlinkMenu url={url} text={text} update={update} />}
+    />
   );
 };
