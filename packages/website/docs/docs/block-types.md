@@ -137,7 +137,7 @@ type TableBlock = {
   id: string;
   type: "table";
   props: DefaultProps;
-  content: TableContent[];
+  content: TableContent;
   children: Block[];
 };
 ```
