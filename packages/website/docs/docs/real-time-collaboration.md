@@ -81,7 +81,7 @@ import { BlockNoteEditor } from "@blocknote/core";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
 import YPartyKitProvider from "y-partykit/provider";
 import * as Y from "yjs";
-import "@blocknote/core/style.css";
+import "@blocknote/react/style.css";
 
 const doc = new Y.Doc();
 const provider = new YPartyKitProvider(
@@ -122,7 +122,7 @@ import { BlockNoteEditor } from "@blocknote/core";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
 import YPartyKitProvider from "y-partykit/provider";
 import * as Y from "yjs";
-import "@blocknote/core/style.css";
+import "@blocknote/react/style.css";
 
 const doc = new Y.Doc();
 const provider = new YPartyKitProvider(

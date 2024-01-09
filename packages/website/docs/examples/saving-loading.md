@@ -27,8 +27,8 @@ See this in action by typing in the editor and reloading the page!
 
 ```typescript-vue /App.tsx
 import { BlockNoteEditor } from "@blocknote/core";
-import "@blocknote/core/style.css";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
+import "@blocknote/react/style.css";
 
 // Gets the previously stored editor contents.
 const initialContent: string | null = localStorage.getItem("editorContent");

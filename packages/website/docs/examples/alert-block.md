@@ -29,7 +29,6 @@ In addition, we create a Slash Menu item which inserts an `Alert` block and add 
 
 ```typescript-vue /App.tsx
 import { defaultBlockSchema } from "@blocknote/core";
-import "@blocknote/core/style.css";
 import {
   BlockNoteView,
   defaultBlockTypeDropdownItems,
@@ -42,6 +41,7 @@ import {
   SlashMenuPositioner,
   useBlockNote,
 } from "@blocknote/react";
+import "@blocknote/react/style.css";
 import { RiAlertFill } from "react-icons/ri";
 
 import { createAlertBlock, insertAlert } from "./Alert";

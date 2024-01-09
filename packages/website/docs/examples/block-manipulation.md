@@ -25,8 +25,8 @@ In this example, we create 4 buttons under the editor to manipulate the currentl
 
 ```typescript-vue /App.tsx
 import { BlockNoteEditor } from "@blocknote/core";
-import "@blocknote/core/style.css";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
+import "@blocknote/react/style.css";
 
 export default function App() {
   const editor: BlockNoteEditor = useBlockNote();

@@ -48,7 +48,7 @@ See how to set up your own editor in the [Quickstart](/docs/quickstart). Here's 
 ```typescript-vue /App.tsx
 import { BlockNoteEditor } from "@blocknote/core";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
-import "@blocknote/core/style.css";
+import "@blocknote/react/style.css";
 
 export default function App() {
   // Creates a new editor instance.

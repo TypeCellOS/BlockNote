@@ -1,24 +1,18 @@
 @import url("@mantine/core/styles.css");
-/* TODO: Cannot resolve file? */
 @import url("@blocknote/core/style.css");
 
 /* Default theme params */
 .bn-container {
-    /* TODO: Do we want this? If yes, we should probably have a similar
-         shorthand in the Theme object */
-    --bn-colors-text: #3F3F3F;
-    --bn-colors-background: #FFFFFF;
-
-    --bn-colors-editor-text: var(--bn-colors-text);
-    --bn-colors-editor-background: var(--bn-colors-background);
-    --bn-colors-menu-text: var(--bn-colors-text);
-    --bn-colors-menu-background: var(--bn-colors-background);
-    --bn-colors-tooltip-text: var(--bn-colors-text);
+    --bn-colors-editor-text: #3F3F3F;
+    --bn-colors-editor-background: #FFFFFF;
+    --bn-colors-menu-text: #3F3F3F;
+    --bn-colors-menu-background: #FFFFFF;
+    --bn-colors-tooltip-text: #3F3F3F;
     --bn-colors-tooltip-background: #EFEFEF;
-    --bn-colors-hovered-text: var(--bn-colors-text);
+    --bn-colors-hovered-text: #3F3F3F;
     --bn-colors-hovered-background: #EFEFEF;
     --bn-colors-selected-text: #FFFFFF;
-    --bn-colors-selected-background: var(--bn-colors-text);
+    --bn-colors-selected-background: #3F3F3F;
     --bn-colors-disabled-text: #AFAFAF;
     --bn-colors-disabled-background: #EFEFEF;
 
@@ -58,10 +52,13 @@
 }
 
 .bn-container[data-color-scheme="dark"] {
-    --bn-colors-text: #CFCFCF;
-    --bn-colors-background: #1F1F1F;
-
+    --bn-colors-editor-text: #CFCFCF;
+    --bn-colors-editor-background: #1F1F1F;
+    --bn-colors-menu-text: #CFCFCF;
+    --bn-colors-menu-background: #1F1F1F;
+    --bn-colors-tooltip-text: #CFCFCF;
     --bn-colors-tooltip-background: #161616;
+    --bn-colors-hovered-text: #CFCFCF;
     --bn-colors-hovered-background: #161616;
     --bn-colors-selected-text: #CFCFCF;
     --bn-colors-selected-background: #0F0F0F;

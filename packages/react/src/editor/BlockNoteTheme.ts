@@ -1,9 +1,9 @@
-export type CombinedColor = {
+export type CombinedColor = Partial<{
   text: string;
   background: string;
-};
+}>;
 
-export type ColorScheme = {
+export type ColorScheme = Partial<{
   editor: CombinedColor;
   menu: CombinedColor;
   tooltip: CombinedColor;
@@ -13,7 +13,7 @@ export type ColorScheme = {
   shadow: string;
   border: string;
   sideMenu: string;
-  highlights: {
+  highlights: Partial<{
     gray: CombinedColor;
     brown: CombinedColor;
     red: CombinedColor;
@@ -23,14 +23,14 @@ export type ColorScheme = {
     blue: CombinedColor;
     purple: CombinedColor;
     pink: CombinedColor;
-  };
-};
+  }>;
+}>;
 
-export type Theme = {
+export type Theme = Partial<{
   colors: ColorScheme;
   borderRadius: number;
   fontFamily: string;
-};
+}>;
 
 type NestedObject = { [key: string]: number | string | NestedObject };
 
