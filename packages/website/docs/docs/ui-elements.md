@@ -65,7 +65,7 @@ import {
   SlashMenuPositioner,
   useBlockNote,
 } from "@blocknote/react";
-import "@blocknote/core/style.css";
+import "@blocknote/react/style.css";
 
 export default function App() {
   // Creates a new editor instance.
@@ -108,7 +108,7 @@ import {
   SlashMenuPositioner,
   useBlockNote,
 } from "@blocknote/react";
-import "@blocknote/core/style.css";
+import "@blocknote/react/style.css";
 
 export default function App() {
   // Creates a new editor instance.

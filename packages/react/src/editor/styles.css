@@ -1,0 +1,545 @@
+@import url("@mantine/core/styles.css");
+@import url("@blocknote/core/style.css");
+
+/* Default theme params */
+.bn-container {
+    --bn-colors-editor-text: #3F3F3F;
+    --bn-colors-editor-background: #FFFFFF;
+    --bn-colors-menu-text: #3F3F3F;
+    --bn-colors-menu-background: #FFFFFF;
+    --bn-colors-tooltip-text: #3F3F3F;
+    --bn-colors-tooltip-background: #EFEFEF;
+    --bn-colors-hovered-text: #3F3F3F;
+    --bn-colors-hovered-background: #EFEFEF;
+    --bn-colors-selected-text: #FFFFFF;
+    --bn-colors-selected-background: #3F3F3F;
+    --bn-colors-disabled-text: #AFAFAF;
+    --bn-colors-disabled-background: #EFEFEF;
+
+    --bn-colors-shadow: #CFCFCF;
+    --bn-colors-border: #EFEFEF;
+    --bn-colors-side-menu: #CFCFCF;
+
+    --bn-colors-highlights-gray-text: #9b9a97;
+    --bn-colors-highlights-gray-background: #ebeced;
+    --bn-colors-highlights-brown-text: #64473a;
+    --bn-colors-highlights-brown-background: #e9e5e3;
+    --bn-colors-highlights-red-text: #e03e3e;
+    --bn-colors-highlights-red-background: #fbe4e4;
+    --bn-colors-highlights-orange-text: #d9730d;
+    --bn-colors-highlights-orange-background: #f6e9d9;
+    --bn-colors-highlights-yellow-text: #dfab01;
+    --bn-colors-highlights-yellow-background: #fbf3db;
+    --bn-colors-highlights-green-text: #4d6461;
+    --bn-colors-highlights-green-background: #ddedea;
+    --bn-colors-highlights-blue-text: #0b6e99;
+    --bn-colors-highlights-blue-background: #ddebf1;
+    --bn-colors-highlights-purple-text: #6940a5;
+    --bn-colors-highlights-purple-background: #eae4f2;
+    --bn-colors-highlights-pink-text: #ad1a72;
+    --bn-colors-highlights-pink-background: #f4dfeb;
+
+    --bn-font-family: "Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Open Sans", "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+    --bn-border-radius: 6px;
+
+    /* Derived values */
+    --bn-shadow-medium: 0 4px 12px var(--bn-colors-shadow);
+    --bn-shadow-light: 0 2px 6px var(--bn-colors-border);
+    --bn-border: 1px solid var(--bn-colors-border);
+    --bn-border-radius-small: max(var(--bn-border-radius) - 2px, 1px);
+    --bn-border-radius-medium: var(--bn-border-radius);
+    --bn-border-radius-large: max(var(--bn-border-radius) + 2px, 1px);
+}
+
+.bn-container[data-color-scheme="dark"] {
+    --bn-colors-editor-text: #CFCFCF;
+    --bn-colors-editor-background: #1F1F1F;
+    --bn-colors-menu-text: #CFCFCF;
+    --bn-colors-menu-background: #1F1F1F;
+    --bn-colors-tooltip-text: #CFCFCF;
+    --bn-colors-tooltip-background: #161616;
+    --bn-colors-hovered-text: #CFCFCF;
+    --bn-colors-hovered-background: #161616;
+    --bn-colors-selected-text: #CFCFCF;
+    --bn-colors-selected-background: #0F0F0F;
+    --bn-colors-disabled-text: #3F3F3F;
+    --bn-colors-disabled-background: #161616;
+
+    --bn-colors-shadow: #0F0F0F;
+    --bn-colors-border: #161616;
+    --bn-colors-side-menu: #7F7F7F;
+
+    --bn-colors-highlights-gray-text: #bebdb8;
+    --bn-colors-highlights-gray-background: #9b9a97;
+    --bn-colors-highlights-brown-text: #8e6552;
+    --bn-colors-highlights-brown-background: #64473a;
+    --bn-colors-highlights-red-text: #ec4040;
+    --bn-colors-highlights-red-background: #be3434;
+    --bn-colors-highlights-orange-text: #e3790d;
+    --bn-colors-highlights-orange-background: #b7600a;
+    --bn-colors-highlights-yellow-text: #dfab01;
+    --bn-colors-highlights-yellow-background: #b58b00;
+    --bn-colors-highlights-green-text: #6b8b87;
+    --bn-colors-highlights-green-background: #4d6461;
+    --bn-colors-highlights-blue-text: #0e87bc;
+    --bn-colors-highlights-blue-background: #0b6e99;
+    --bn-colors-highlights-purple-text: #8552d7;
+    --bn-colors-highlights-purple-background: #6940a5;
+    --bn-colors-highlights-pink-text: #da208f;
+    --bn-colors-highlights-pink-background: #ad1a72;
+}
+
+.bn-container * {
+    font-family: var(--bn-font-family);
+}
+
+/* Mantine base styles*/
+
+/* Mantine Badge component base styles */
+.bn-container .mantine-Badge-root {
+    background-color: var(--bn-colors-tooltip-background);
+    color: var(--bn-colors-tooltip-text);
+}
+
+/* Mantine FileInput component base styles */
+.bn-container .mantine-FileInput-input {
+    align-items: center;
+    background-color: var(--bn-colors-menu-background);
+    border: none;
+    border-radius: 4px;
+    color: var(--bn-colors-menu-text);
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.bn-container .mantine-FileInput-input:hover {
+    background-color: var(--bn-colors-hovered-background);
+}
+
+.bn-container .mantine-FileInput-wrapper {
+    border: solid var(--bn-colors-border) 1px;
+    border-radius: 4px;
+}
+
+.bn-container .mantine-InputPlaceholder-placeholder {
+    color: var(--bn-colors-menu-text);
+    font-weight: 600;
+}
+
+/* Mantine Menu component base styles */
+.bn-container .mantine-Menu-dropdown {
+    background-color: var(--bn-colors-menu-background);
+    border: var(--bn-border);
+    border-radius: var(--bn-border-radius-medium);
+    box-shadow: var(--bn-shadow-medium);
+    box-sizing: border-box;
+    color: var(--bn-colors-menu-text);
+    overflow-y: scroll;
+    padding: 2px;
+}
+
+.bn-container .mantine-Menu-label {
+    background-color: var(--bn-colors-menu-background);
+    color: var(--bn-colors-menu-text);
+}
+
+.bn-container .mantine-Menu-item {
+    background-color: var(--bn-colors-menu-background);
+    border: none;
+    border-radius: var(--bn-border-radius-small);
+    color: var(--bn-colors-menu-text);
+}
+
+.bn-container .mantine-Menu-item[data-hovered] {
+    background-color: var(--bn-colors-hovered-background);
+    border: none;
+    color: var(--bn-colors-hovered-text);
+}
+
+/* Mantine Popover component base styles */
+.mantine-Popover-dropdown {
+    background-color: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0;
+}
+
+/* Mantine Tabs component base styles */
+.bn-container .mantine-Tabs-root {
+    width: 100%;
+    background-color: var(--bn-colors-menu-background);
+}
+
+.bn-container .mantine-Tabs-list:before {
+    border-color: var(--bn-colors-hovered-background);
+}
+
+.bn-container .mantine-Tabs-tab {
+    color: var(--bn-colors-menu-text);
+    border-color: var(--bn-colors-hovered-background);
+}
+
+.bn-container .mantine-Tabs-tab:hover {
+    background-color: var(--bn-colors-hovered-background);
+    border-color: var(--bn-colors-hovered-background);
+    color: var(--bn-colors-hovered-text);
+}
+
+.bn-container .mantine-Tabs-tab[data-active],
+.bn-container .mantine-Tabs-tab[data-active]:hover {
+    border-color: var(--bn-colors-menu-text);
+    color: var(--bn-colors-menu-text);
+}
+
+.bn-container .mantine-Tabs-panel {
+    padding: 8px;
+}
+
+/* Mantine TextInput component base styles */
+.bn-container .mantine-TextInput-input {
+    background-color: var(--bn-colors-menu-background);
+    border: solid var(--bn-colors-border) 1px;
+    border-radius: 4px;
+    color: var(--bn-colors-menu-text);
+    height: 32px;
+}
+
+/* Mantine Tooltip component base styles */
+.mantine-Tooltip-tooltip {
+    background-color: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0;
+}
+
+
+/* Editor body styling */
+
+/* Editor styling */
+.bn-editor {
+    background-color: var(--bn-colors-editor-background);
+    border-radius: var(--bn-border-radius-large);
+    color: var(--bn-colors-editor-text);
+    font-family: var(--bn-font-family);
+}
+
+/* Indent line styling */
+.bn-block-group
+.bn-block-group
+.bn-block-outer:not([data-prev-depth-changed])::before {
+    border-left: 1px solid var(--bn-colors-side-menu)
+}
+
+/* Placeholder styling */
+.bn-is-empty .bn-inline-content:before, .bn-is-filter .bn-inline-content:before {
+    color: var(--bn-colors-side-menu);
+}
+
+/* Highlight color styling */
+[data-text-color="gray"] {
+    color: var(--bn-colors-highlights-gray-text);
+}
+[data-text-color="brown"] {
+    color: var(--bn-colors-highlights-brown-text);
+}
+[data-text-color="red"] {
+    color: var(--bn-colors-highlights-red-text);
+}
+[data-text-color="orange"] {
+    color: var(--bn-colors-highlights-orange-text);
+}
+[data-text-color="yellow"] {
+    color: var(--bn-colors-highlights-yellow-text);
+}
+[data-text-color="green"] {
+    color: var(--bn-colors-highlights-green-text);
+}
+[data-text-color="blue"] {
+    color: var(--bn-colors-highlights-blue-text);
+}
+[data-text-color="purple"] {
+    color: var(--bn-colors-highlights-purple-text);
+}
+[data-text-color="pink"] {
+    color: var(--bn-colors-highlights-pink-text);
+}
+[data-background-color="gray"] {
+    background-color: var(--bn-colors-highlights-gray-background);
+}
+[data-background-color="brown"] {
+    background-color: var(--bn-colors-highlights-brown-background);
+}
+[data-background-color="red"] {
+    background-color: var(--bn-colors-highlights-red-background);
+}
+[data-background-color="orange"] {
+    background-color: var(--bn-colors-highlights-orange-background);
+}
+[data-background-color="yellow"] {
+    background-color: var(--bn-colors-highlights-yellow-background);
+}
+[data-background-color="green"] {
+    background-color: var(--bn-colors-highlights-green-background);
+}
+[data-background-color="blue"] {
+    background-color: var(--bn-colors-highlights-blue-background);
+}
+[data-background-color="purple"] {
+    background-color: var(--bn-colors-highlights-purple-background);
+}
+[data-background-color="pink"] {
+    background-color: var(--bn-colors-highlights-pink-background);
+}
+
+/* UI element styling */
+
+/* Toolbar styling */
+.bn-container .bn-toolbar {
+    background-color: var(--bn-colors-menu-background);
+    border: var(--bn-border);
+    border-radius: var(--bn-border-radius-medium);
+    box-shadow: var(--bn-shadow-medium);
+    flex-wrap: nowrap;
+    gap: 2px;
+    padding: 2px;
+    width: fit-content;
+}
+
+.bn-container .bn-toolbar .mantine-Button-root,
+.bn-container .bn-toolbar .mantine-ActionIcon-root {
+    background-color: var(--bn-colors-menu-background);
+    border: none;
+    border-radius: var(--bn-border-radius-small);
+    color: var(--bn-colors-menu-text);
+}
+
+.bn-container .bn-toolbar .mantine-Button-root:hover,
+.bn-container .bn-toolbar .mantine-ActionIcon-root:hover {
+    background-color: var(--bn-colors-hovered-background);
+    border: none;
+    color: var(--bn-colors-hovered-text);
+}
+
+.bn-container .bn-toolbar .mantine-Button-root[data-selected],
+.bn-container .bn-toolbar .mantine-ActionIcon-root[data-selected] {
+    background-color: var(--bn-colors-selected-background);
+    border: none;
+    color: var(--bn-colors-selected-text);
+}
+
+.bn-container .bn-toolbar .mantine-Button-root[data-disabled],
+.bn-container .bn-toolbar .mantine-ActionIcon-root[data-disabled] {
+    background-color: var(--bn-colors-disabled-background);
+    border: none;
+    color: var(--bn-colors-disabled-text);
+}
+
+.bn-container .bn-toolbar .mantine-Menu-dropdown .mantine-Menu-item {
+    font-size: 12px;
+    height: 30px;
+}
+
+.bn-container .bn-toolbar .mantine-Menu-dropdown .mantine-Menu-item:hover {
+    background-color: var(--bn-colors-hovered-background);
+}
+
+.bn-container .bn-toolbar .bn-embed-image-button {
+    border: solid var(--bn-colors-border) 1px;
+    border-radius: var(--bn-border-radius-small);
+    height: 32px;
+    width: 60%;
+}
+
+.bn-container .bn-toolbar-input-dropdown {
+    background-color: var(--bn-colors-menu-background);
+    border: var(--bn-border);
+    border-radius: var(--bn-border-radius-medium);
+    box-shadow: var(--bn-shadow-medium);
+    color: var(--bn-colors-menu-text);
+    gap: 4px;
+    min-width: 145px;
+    padding: 2px;
+}
+
+.bn-container .bn-toolbar-input-dropdown .mantine-Group-root {
+    flex-wrap: nowrap;
+}
+
+.bn-container .bn-toolbar-input-dropdown .mantine-TextInput-root,
+.bn-container .bn-toolbar-input-dropdown .mantine-FileInput-root {
+    width: 300px;
+}
+
+.bn-container .bn-toolbar-input-dropdown .mantine-TextInput-wrapper,
+.bn-container .bn-toolbar-input-dropdown .mantine-FileInput-wrapper {
+    padding: 0;
+    border-radius: 4px;
+}
+
+.bn-container .bn-toolbar-input-dropdown .mantine-TextInput-wrapper:hover {
+    background-color: var(--bn-colors-hovered-background);
+}
+
+.bn-container .bn-toolbar-input-dropdown .mantine-TextInput-input,
+.bn-container .bn-toolbar-input-dropdown .mantine-FileInput-input {
+    border: none;
+    font-size: 12px;
+}
+
+.bn-container .bn-toolbar-input-dropdown .mantine-FileInput-input:hover {
+    background-color: var(--bn-colors-hovered-background);
+}
+
+.bn-container .bn-toolbar-input-dropdown
+.mantine-FileInput-section[data-position="left"] {
+    color: var(--bn-colors-menu-text);
+}
+
+.bn-container .bn-toolbar-input-dropdown .mantine-FileInput-placeholder {
+    color: var(--bn-colors-menu-text);
+}
+
+.bn-container .bn-image-toolbar {
+    width: 500px
+}
+
+.bn-container .bn-image-toolbar .bn-upload-image-panel > div {
+    align-items: stretch;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.bn-container
+.bn-image-toolbar
+.bn-upload-image-panel
+> div
+> .mantine-Text-root {
+    text-align: center;
+}
+
+.bn-container .bn-image-toolbar .bn-embed-image-panel > div {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+
+.bn-container .bn-image-toolbar .bn-embed-image-panel > div .mantine-TextInput-root {
+    width: 100%;
+}
+
+/* Slash Menu styling*/
+.bn-container .bn-slash-menu {
+    max-height: 100%;
+    position: relative;
+}
+
+.bn-container .bn-slash-menu .mantine-Menu-item {
+    height: 52px;
+}
+
+.bn-container .bn-slash-menu .mantine-Menu-itemSection {
+    color: var(--bn-colors-tooltip-text);
+}
+
+.bn-container .bn-slash-menu .mantine-Menu-itemSection[data-position="left"] {
+    background-color: var(--bn-colors-tooltip-background);
+    border-radius: var(--bn-border-radius-small);
+    padding: 8px;
+}
+
+.bn-container .bn-slash-menu .mantine-Menu-itemLabel {
+    padding-right: 16px;
+}
+
+.bn-container .bn-slash-menu .mantine-Menu-itemLabel .mantine-Stack-root {
+    gap: 0;
+}
+
+/* Side Menu & Drag Handle styling */
+.bn-container .bn-side-menu {
+    background-color: transparent;
+}
+
+.bn-container .bn-side-menu .mantine-UnstyledButton-root {
+    background-color: transparent;
+    color: var(--bn-colors-side-menu);
+}
+
+.bn-container .bn-side-menu .mantine-UnstyledButton-root:hover {
+    background-color: var(--bn-colors-hovered-background);
+}
+
+.bn-container .bn-drag-handle {
+    height: 24px;
+    width: 24px;
+}
+
+/* Table Handle styling */
+.bn-container .bn-table-handle {
+    align-items: center;
+    background-color: var(--bn-colors-menu-background);
+    border: var(--bn-border);
+    border-radius: var(--bn-border-radius-small);
+    box-shadow: var(--bn-shadow-light);
+    color: var(--bn-colors-side-menu);
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    overflow: visible;
+}
+
+.bn-container .bn-table-handle > svg {
+    margin-inline: -4px;
+}
+
+.bn-container .bn-table-handle:hover, .bn-container .bn-table-handle-dragging {
+    background-color: var(--bn-colors-hovered-background);
+}
+
+/* Drag Handle & Table Handle Menu styling */
+.bn-container .bn-drag-handle-menu, .bn-container .bn-table-handle-menu {
+    overflow: visible;
+}
+
+.bn-container .bn-drag-handle-menu .mantine-Menu-item,
+.bn-container .bn-table-handle-menu .mantine-Menu-item {
+    color: var(--bn-colors-menu-text);
+    font-size: 12px;
+    height: 30px;
+}
+
+/* Tooltip styling */
+.bn-container .bn-tooltip {
+    background-color: var(--bn-colors-tooltip-background);
+    border: var(--bn-border);
+    border-radius: var(--bn-border-radius-medium);
+    box-shadow: var(--bn-shadow-medium);
+    color: var(--bn-colors-tooltip-text);
+    padding: 4px 10px;
+    text-align: center;
+}
+
+/* Color Icon styling */
+.bn-container .bn-color-icon {
+    align-items: center;
+    border: var(--bn-border);
+    border-radius: var(--bn-border-radius-small);
+    display: flex;
+    justify-content: center;
+}
+
+/* Tick styling */
+.bn-container .bn-tick-icon {
+    padding-left: 8px;
+}
+
+.bn-container .bn-tick-space {
+    padding: 0;
+    width: 20px;
+}

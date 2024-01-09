@@ -22,7 +22,10 @@ export function ToolbarDropdown(props: ToolbarDropdownProps) {
 
   return (
     <Menu
-      exitTransitionDuration={0}
+      withinPortal={false}
+      transitionProps={{
+        exitDuration: 0,
+      }}
       disabled={props.isDisabled}
       onOpen={updateMaxHeight}>
       <Menu.Target>

@@ -34,7 +34,7 @@ import {
   ReactSlashMenuItem,
   useBlockNote,
 } from "@blocknote/react";
-import "@blocknote/core/style.css";
+import "@blocknote/react/style.css";
 import { HiOutlineGlobeAlt } from "react-icons/hi";
 
 // Command to insert "Hello World" in bold in a new block below.
@@ -102,7 +102,7 @@ import {
   ReactSlashMenuItem,
   useBlockNote
 } from "@blocknote/react";
-import "@blocknote/core/style.css";
+import "@blocknote/react/style.css";
 
 function App() {
   const newSlashMenuItems: ReactSlashMenuItem[] = 

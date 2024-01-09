@@ -8,8 +8,13 @@ import {
   InlineContentSchema,
   SpecificBlock,
 } from "@blocknote/core";
-import Tippy, { tippy } from "@tippyjs/react";
-import { FC, useEffect, useMemo, useRef, useState } from "react";
+import {
+  flip,
+  offset,
+  useFloating,
+  useTransitionStyles,
+} from "@floating-ui/react";
+import { FC, useEffect, useRef, useState } from "react";
 
 import { DefaultImageToolbar } from "./DefaultImageToolbar";
 
@@ -32,43 +37,42 @@ export const ImageToolbarPositioner = <
 
   const referencePos = useRef<DOMRect>();
 
-  useEffect(() => {
-    tippy.setDefaultProps({ maxWidth: "" });
+  const { refs, update, context, floatingStyles } = useFloating({
+    open: show,
+    placement: "bottom",
+    middleware: [offset(10), flip()],
+  });
 
+  const { isMounted, styles } = useTransitionStyles(context);
+
+  useEffect(() => {
     return props.editor.imageToolbar.onUpdate((imageToolbarState) => {
       setShow(imageToolbarState.show);
       setBlock(imageToolbarState.block);
 
       referencePos.current = imageToolbarState.referencePos;
+
+      update();
     });
-  }, [props.editor]);
+  }, [props.editor, update]);
 
-  const getReferenceClientRect = useMemo(
-    () => {
-      if (!referencePos) {
-        return undefined;
-      }
-      return () => referencePos.current!;
-    },
-    [referencePos.current] // eslint-disable-line
-  );
+  useEffect(() => {
+    refs.setReference({
+      getBoundingClientRect: () => referencePos.current!,
+    });
+  }, [refs]);
 
-  const imageToolbarElement = useMemo(() => {
-    const ImageToolbar = props.imageToolbar || DefaultImageToolbar;
+  const ImageToolbar = props.imageToolbar || DefaultImageToolbar;
 
-    return <ImageToolbar editor={props.editor} block={block!} />;
-  }, [block, props.editor, props.imageToolbar]);
+  if (!isMounted) {
+    return null;
+  }
 
   return (
-    <Tippy
-      appendTo={props.editor.domElement.parentElement!}
-      content={imageToolbarElement}
-      getReferenceClientRect={getReferenceClientRect}
-      interactive={true}
-      visible={show}
-      animation={"fade"}
-      placement={"bottom"}
-      zIndex={5000}
-    />
+    <div
+      ref={refs.setFloating}
+      style={{ ...styles, ...floatingStyles, zIndex: 5000 }}>
+      <ImageToolbar editor={props.editor} block={block!} />
+    </div>
   );
 };

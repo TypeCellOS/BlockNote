@@ -16,11 +16,198 @@ const { isDark } = useData();
 
 BlockNote allows you to change how the editor UI looks. You can change the theme of the default UI, or override its CSS styles.
 
-## Theming
+## CSS Styles
 
-If you want to make small adjustments to BlockNote's UI, you can create a custom theme, which will let you change colors, fonts, and border radii. You can do this by passing partial `Theme` objects to `BlockNoteView`.
+BlockNote's styling is defined in CSS, and you can find the default styles in the [`editor.css` stylesheet](https://github.com/TypeCellOS/BlockNote/blob/main/packages/react/src/editor/styles.css). This means you can override CSS styles for the editor, as well as all menus and toolbars.
 
-Take a look at how this is done in the demo below:
+In the demo below, we create additional CSS rules to add some basic styling to the editor, and also make all hovered slash menu items blue:
+
+::: sandbox {template=react-ts}
+
+```typescript-vue /App.tsx
+import { BlockNoteEditor } from "@blocknote/core";
+import { BlockNoteView, useBlockNote } from "@blocknote/react";
+import "@blocknote/react/style.css";
+
+export default function App() {
+  // Creates a new editor instance.
+  const editor: BlockNoteEditor = useBlockNote();
+
+  // Renders the editor instance using a React component.
+  return <BlockNoteView editor={editor} theme={"{{ getTheme(isDark) }}"} />;
+}
+```
+
+```css-vue /styles.css
+{{ getStyles(isDark) }}
+
+/* Adds border and shadow to editor */
+.bn-container .bn-editor {
+  border-radius: var(--bn-border-radius-medium);
+  box-shadow: var(--bn-shadow-medium);
+}
+
+/* Makes slash menu hovered items blue */
+.bn-container .bn-slash-menu .mantine-Menu-item[data-hovered] {
+  background-color: blue;
+}
+```
+
+:::
+
+## Theme CSS Variables
+
+BlockNote uses several CSS variables to define the light and dark editor themes. The theme is selected based on the user's system theme, and includes color, border, shadow, and font styles. By overwriting these variables, you can quickly change the look of the editor.
+
+The example below shows each of the CSS variables you can set for BlockNote, with values from the default light theme:
+
+```
+--bn-colors-editor-text: #3F3F3F;
+--bn-colors-editor-background: #FFFFFF;
+--bn-colors-menu-text: #3F3F3F;
+--bn-colors-menu-background: #FFFFFF;
+--bn-colors-tooltip-text: #3F3F3F;
+--bn-colors-tooltip-background: #EFEFEF;
+--bn-colors-hovered-text: #3F3F3F;
+--bn-colors-hovered-background: #EFEFEF;
+--bn-colors-selected-text: #FFFFFF;
+--bn-colors-selected-background: #3F3F3F;
+--bn-colors-disabled-text: #AFAFAF;
+--bn-colors-disabled-background: #EFEFEF;
+
+--bn-colors-shadow: #CFCFCF;
+--bn-colors-border: #EFEFEF;
+--bn-colors-side-menu: #CFCFCF;
+
+--bn-colors-highlights-gray-text: #9b9a97;
+--bn-colors-highlights-gray-background: #ebeced;
+--bn-colors-highlights-brown-text: #64473a;
+--bn-colors-highlights-brown-background: #e9e5e3;
+--bn-colors-highlights-red-text: #e03e3e;
+--bn-colors-highlights-red-background: #fbe4e4;
+--bn-colors-highlights-orange-text: #d9730d;
+--bn-colors-highlights-orange-background: #f6e9d9;
+--bn-colors-highlights-yellow-text: #dfab01;
+--bn-colors-highlights-yellow-background: #fbf3db;
+--bn-colors-highlights-green-text: #4d6461;
+--bn-colors-highlights-green-background: #ddedea;
+--bn-colors-highlights-blue-text: #0b6e99;
+--bn-colors-highlights-blue-background: #ddebf1;
+--bn-colors-highlights-purple-text: #6940a5;
+--bn-colors-highlights-purple-background: #eae4f2;
+--bn-colors-highlights-pink-text: #ad1a72;
+--bn-colors-highlights-pink-background: #f4dfeb;
+
+--bn-font-family: "Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Open Sans", "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+--bn-border-radius: 6px;
+```
+
+Setting these variables on the `.bn-container[data-color-scheme]` selector will apply them to the editor. You can also specify them separately for light & dark mode based on the value of `data-color-scheme` (`"light"` or `"dark"`).
+
+In the demo below, we set a red theme for the editor which changes based on if light or dark mode is used:
+
+::: sandbox {template=react-ts}
+
+```typescript-vue /App.tsx
+import { BlockNoteEditor } from "@blocknote/core";
+import { BlockNoteView, useBlockNote } from "@blocknote/react";
+import "@blocknote/react/style.css";
+
+export default function App() {
+  // Creates a new editor instance.
+  const editor: BlockNoteEditor = useBlockNote();
+
+  // Renders the editor instance using a React component.
+  return <BlockNoteView editor={editor} theme={"{{ getTheme(isDark) }}"} />;
+}
+```
+
+```css-vue /styles.css
+{{ getStyles(isDark) }}
+
+/* Base theme */
+.bn-container[data-color-scheme] {
+  --bn-colors-editor-text: #222222;
+  --bn-colors-editor-background: #ffffff;
+  --bn-colors-menu-text: #ffffff;
+  --bn-colors-menu-background: #9b0000;
+  --bn-colors-tooltip-text: #ffffff;
+  --bn-colors-tooltip-background: #b00000;
+  --bn-colors-hovered-text: #ffffff;
+  --bn-colors-hovered-background: #b00000;
+  --bn-colors-selected-text: #ffffff;
+  --bn-colors-selected-background: #c50000;
+  --bn-colors-disabled-text: #9b0000;
+  --bn-colors-disabled-background: #7d0000;
+  --bn-colors-shadow: #640000;
+  --bn-colors-border: #870000;
+  --bn-colors-side-menu: #bababa;
+  --bn-color-highlight-colors: #ffffff;
+  --bn-border-radius: 4px;
+  --bn-font-family: Helvetica Neue, sans-serif;
+}
+
+/* Changes for dark mode */
+.bn-container[data-color-scheme="dark"] {
+  --bn-colors-editor-text: #ffffff;
+  --bn-colors-editor-background: #9b0000;
+  --bn-colors-side-menu: #ffffff;
+}
+```
+
+:::
+
+### Changing CSS Variables Through Code
+
+The `theme` prop in `BlockNoteView` allows you to change the editor's theme through code. By passing in `"light"` or `"dark"` to the `theme` prop, you can force BlockNote to always use the light or dark theme.
+
+However, using `Theme` objects, you can also override the theme CSS variables through code:
+```ts
+type CombinedColor = Partial<{
+  text: string;
+  background: string;
+}>;
+
+type ColorScheme = Partial<{
+  editor: CombinedColor;
+  menu: CombinedColor;
+  tooltip: CombinedColor;
+  hovered: CombinedColor;
+  selected: CombinedColor;
+  disabled: CombinedColor;
+  shadow: string;
+  border: string;
+  sideMenu: string;
+  highlights: Partial<{
+    gray: CombinedColor;
+    brown: CombinedColor;
+    red: CombinedColor;
+    orange: CombinedColor;
+    yellow: CombinedColor;
+    green: CombinedColor;
+    blue: CombinedColor;
+    purple: CombinedColor;
+    pink: CombinedColor;
+  }>;
+}>;
+
+type Theme = Partial<{
+  colors: ColorScheme;
+  borderRadius: number;
+  fontFamily: string;
+}>;
+```
+
+You can pass a `Theme` object to the `theme` prop in `BlockNoteView` to set the same CSS variables regardless of light/dark mode being used. Alternatively, you can set CSS variables for light and dark mode separately by passing the following object:
+
+```ts
+type LightAndDarkThemes = {
+  light: Theme;
+  dark: Theme;
+}
+```
+
+In the demo below, we create the same red theme as from the previous demo, but this time we set it via the `theme` prop in `BlockNoteView`:
 
 ::: sandbox {template=react-ts}
 
@@ -33,9 +220,9 @@ import {
   Theme,
   useBlockNote,
 } from "@blocknote/react";
-import "@blocknote/core/style.css";
+import "@blocknote/react/style.css";
 
-// Custom red light theme
+// Base theme
 const lightRedTheme = {
   colors: {
     editor: {
@@ -65,13 +252,13 @@ const lightRedTheme = {
     shadow: "#640000",
     border: "#870000",
     sideMenu: "#bababa",
-    highlightColors: lightDefaultTheme.colors.highlightColors,
+    highlights: lightDefaultTheme.colors.highlights,
   },
   borderRadius: 4,
   fontFamily: "Helvetica Neue, sans-serif",
 } satisfies Theme;
 
-// Custom red dark theme
+// Changes for dark mode
 const darkRedTheme = {
   ...lightRedTheme,
   colors: {
@@ -81,12 +268,10 @@ const darkRedTheme = {
       background: "#9b0000",
     },
     sideMenu: "#ffffff",
-    // TODO: Update
-    highlightColors: darkDefaultTheme.colors.highlightColors,
+    highlights: darkDefaultTheme.colors.highlights,
   },
 } satisfies Theme;
 
-// Combining the custom themes into a single theme object.
 const redTheme = {
   light: lightRedTheme,
   dark: darkRedTheme,
@@ -100,8 +285,7 @@ export default function App() {
   return (
     <BlockNoteView
       editor={editor}
-      // Adding the custom themes. The editor will use the browser settings to
-      // determine if the light or dark theme is used.
+      // Sets the red theme
       theme={redTheme}
     />
   );
@@ -114,8 +298,6 @@ export default function App() {
 
 :::
 
-If we pass both a light and dark theme to `BlockNoteView`, like in the demo, BlockNote automatically chooses which one to use based on the user's browser settings. However, you can just pass `"light"`/`"dark"` (for the light & dark default themes), or a single custom theme instead, if you want to use the same one regardless of browser settings.
-
 ## Adding DOM Attributes
 
 You can set additional HTML attributes on most DOM elements inside the editor, which let you change the way that blocks are styled.
@@ -127,7 +309,7 @@ In the demo below, we set a custom class on the `blockContainer` element to add 
 ```typescript-vue /App.tsx
 import { BlockNoteEditor } from "@blocknote/core";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
-import "@blocknote/core/style.css";
+import "@blocknote/react/style.css";
 
 export default function App() {
   // Creates a new editor instance.
@@ -170,91 +352,3 @@ There are a number of elements that you can set classes for:
 `blockContent:` The wrapper element for a block's content.
 
 `inlineContent:` The wrapper element for a block's rich-text content.
-
-## Advanced: Overriding CSS
-
-If you want to change the editor's look even more, you can override CSS styles for both the editor, and all menus as well as toolbars. You do this by creating CSS objects for various components in the `componentStyles` field of your [theme](/docs/theming#theming).
-
-In the demo below, we use it to add some basic styling to the editor's default dark theme, and also make all hovered dropdown & menu items blue:
-
-::: sandbox {template=react-ts}
-
-```typescript-vue /App.tsx
-import { BlockNoteEditor } from "@blocknote/core";
-import {
-  BlockNoteView,
-  darkDefaultTheme,
-  Theme,
-  useBlockNote,
-} from "@blocknote/react";
-import "@blocknote/core/style.css";
-
-// Default dark theme with additional component styles.
-const theme = {
-  ...darkDefaultTheme,
-  componentStyles: (theme) => ({
-    // Adds basic styling to the editor.
-    Editor: {
-      backgroundColor: theme.colors.editor.background,
-      borderRadius: theme.borderRadius,
-      border: `1px solid ${theme.colors.border}`,
-      boxShadow: `0 4px 12px ${theme.colors.shadow}`,
-    },
-    // Makes all hovered dropdown & menu items blue.
-    Menu: {
-      ".mantine-Menu-item[data-hovered], .mantine-Menu-item:hover": {
-        backgroundColor: "blue",
-      },
-    },
-    Toolbar: {
-      ".mantine-Menu-dropdown": {
-        ".mantine-Menu-item:hover": {
-          backgroundColor: "blue",
-        },
-      },
-    },
-  }),
-} satisfies Theme;
-
-export default function App() {
-  // Creates a new editor instance.
-  const editor: BlockNoteEditor = useBlockNote();
-
-  // Renders the editor instance using a React component.
-  return <BlockNoteView editor={editor} theme={theme} />;
-}
-```
-
-```css-vue /styles.css [hidden]
-{{ getStyles(isDark) }}
-```
-
-:::
-
-There are a number of components that you can override styles for:
-
-`ActionIcon:` Generic component used for Side Menu items & Formatting Toolbar buttons.
-
-`Menu:` Generic component used for the Slash Menu, Formatting Toolbar dropdowns, and color picker dropdown.
-
-`ColorIcon:` Icon in the color picker dropdown (Formatting Toolbar & Drag Handle Menu).
-
-`DragHandleMenu:` Component used for the [Drag Handle Menu](/docs/side-menu)
-
-`EditHyperlinkMenu:` Menu to edit hyperlinks, opened from the Formatting Toolbar or Hyperlink Toolbar.
-
-`Editor:` The editor itself, excluding menus & toolbars.
-
-`FileInput:` Component used for file inputs in the Image Toolbar.
-
-`Tabs:` Component used for tabs in the Image Toolbar.
-
-`TextInput:` Component used for text inputs in the Image Toolbar.
-
-`Toolbar:` Component used for the [Formatting Toolbar](/docs/formatting-toolbar), Hyperlink Toolbar, and [Image Toolbar](/docs/image-toolbar).
-
-`Tooltip:` Component for the tooltip that appears on hover, for Formatting Toolbar & Hyperlink Toolbar buttons.
-
-`SlashMenu:` Component used for the [Slash Menu](/docs/slash-menu).
-
-`SideMenu:` Component used for the [Side Menu](/docs/side-menu).

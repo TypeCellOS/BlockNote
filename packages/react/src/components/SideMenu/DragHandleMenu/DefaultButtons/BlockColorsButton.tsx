@@ -49,7 +49,7 @@ export const BlockColorsButton = <BSchema extends BlockSchema>(
     <DragHandleMenuItem
       onMouseLeave={startMenuCloseTimer}
       onMouseOver={stopMenuCloseTimer}>
-      <Menu opened={opened} position={"right"}>
+      <Menu withinPortal={false} opened={opened} position={"right"}>
         <Menu.Target>
           <div style={{ display: "flex", alignItems: "center" }}>
             <div style={{ flex: 1 }}>{props.children}</div>

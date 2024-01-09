@@ -9,15 +9,6 @@ export const DefaultTableHandle = <
   props: TableHandleProps<BSchema, any, any>
 ) => (
   <TableHandle {...props}>
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        marginInline: "-4px",
-        overflow: "visible",
-      }}>
-      <MdDragIndicator size={24} data-test={"tableHandle"} />
-    </div>
+    <MdDragIndicator size={24} data-test={"tableHandle"} />
   </TableHandle>
 );

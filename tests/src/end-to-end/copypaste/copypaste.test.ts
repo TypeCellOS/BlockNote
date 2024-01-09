@@ -2,6 +2,7 @@
 import { test } from "../../setup/setupScript";
 import { BASE_URL } from "../../utils/const";
 import {
+  copyPaste,
   copyPasteAll,
   insertHeading,
   insertListItems,
@@ -185,12 +186,7 @@ test.describe("Check Copy/Paste Functionality", () => {
 
     await page.mouse.up();
 
-    await page.click(`img`);
-    await page.keyboard.press("ArrowDown");
-    await page.pause();
-
-    await copyPasteAll(page);
-    await page.pause();
+    await copyPaste(page);
 
     await compareDocToSnapshot(page, "images.json");
   });

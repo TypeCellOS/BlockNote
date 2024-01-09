@@ -22,7 +22,7 @@
   "devDependencies": {
     "@vue/tsconfig": "^0.1.3",
     "sass": "^1.58.0",
-    "vitepress": "^1.0.0-alpha.46",
+    "vitepress": "1.0.0-beta.1",
     "vitepress-plugin-sandpack": "^0.2.2",
     "vue": "^3.2.47"
   }

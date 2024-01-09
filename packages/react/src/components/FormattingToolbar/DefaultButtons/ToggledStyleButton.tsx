@@ -1,7 +1,9 @@
 import {
   BlockNoteEditor,
   BlockSchema,
+  formatKeyboardShortcut,
   InlineContentSchema,
+  StyleSchema,
 } from "@blocknote/core";
 import { useMemo, useState } from "react";
 import {
@@ -12,11 +14,9 @@ import {
   RiUnderline,
 } from "react-icons/ri";
 
-import { StyleSchema } from "@blocknote/core";
 import { ToolbarButton } from "../../../components-shared/Toolbar/ToolbarButton";
 import { useEditorChange } from "../../../hooks/useEditorChange";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
-import { formatKeyboardShortcut } from "@blocknote/core";
 
 const shortcuts = {
   bold: "Mod+B",

@@ -567,7 +567,7 @@ export const BlockContainer = Node.create<{
               state.selection.from
             )!;
 
-            const blockAtDocEnd = false;
+            const blockAtDocEnd = endPos === state.doc.nodeSize - 4;
             const selectionAtBlockEnd = state.selection.from === endPos - 1;
             const selectionEmpty = state.selection.empty;
             const hasChildBlocks = node.childCount === 2;

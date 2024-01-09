@@ -8,11 +8,16 @@ import {
   HyperlinkToolbarProsemirrorPlugin,
   HyperlinkToolbarState,
   InlineContentSchema,
+  StyleSchema,
 } from "@blocknote/core";
-import Tippy from "@tippyjs/react";
-import { FC, useEffect, useMemo, useRef, useState } from "react";
+import {
+  flip,
+  offset,
+  useFloating,
+  useTransitionStyles,
+} from "@floating-ui/react";
+import { FC, useEffect, useRef, useState } from "react";
 
-import { StyleSchema } from "@blocknote/core";
 import { DefaultHyperlinkToolbar } from "./DefaultHyperlinkToolbar";
 
 export type HyperlinkToolbarProps<
@@ -39,6 +44,14 @@ export const HyperlinkToolbarPositioner = <
 
   const referencePos = useRef<DOMRect>();
 
+  const { refs, update, context, floatingStyles } = useFloating({
+    open: show,
+    placement: "top-start",
+    middleware: [offset(10), flip()],
+  });
+
+  const { isMounted, styles } = useTransitionStyles(context);
+
   useEffect(() => {
     return props.editor.hyperlinkToolbar.on(
       "update",
@@ -48,29 +61,28 @@ export const HyperlinkToolbarPositioner = <
         setText(hyperlinkToolbarState.text);
 
         referencePos.current = hyperlinkToolbarState.referencePos;
+
+        update();
       }
     );
-  }, [props.editor]);
+  }, [props.editor, update]);
 
-  const getReferenceClientRect = useMemo(
-    () => {
-      if (!referencePos.current) {
-        return undefined;
-      }
+  useEffect(() => {
+    refs.setReference({
+      getBoundingClientRect: () => referencePos.current!,
+    });
+  }, [refs]);
 
-      return () => referencePos.current!;
-    },
-    [referencePos.current] // eslint-disable-line
-  );
+  if (!url || !text || !isMounted) {
+    return null;
+  }
 
-  const hyperlinkToolbarElement = useMemo(() => {
-    if (!url || !text) {
-      return null;
-    }
+  const HyperlinkToolbar = props.hyperlinkToolbar || DefaultHyperlinkToolbar;
 
-    const HyperlinkToolbar = props.hyperlinkToolbar || DefaultHyperlinkToolbar;
-
-    return (
+  return (
+    <div
+      ref={refs.setFloating}
+      style={{ ...styles, ...floatingStyles, zIndex: 4000 }}>
       <HyperlinkToolbar
         url={url}
         text={text}
@@ -79,20 +91,6 @@ export const HyperlinkToolbarPositioner = <
         startHideTimer={props.editor.hyperlinkToolbar.startHideTimer}
         stopHideTimer={props.editor.hyperlinkToolbar.stopHideTimer}
       />
-    );
-  }, [props.hyperlinkToolbar, props.editor, text, url]);
-
-  return (
-    <Tippy
-      appendTo={props.editor.domElement.parentElement!}
-      // onHidden={() => setIsEditing(false)}
-      content={hyperlinkToolbarElement}
-      getReferenceClientRect={getReferenceClientRect}
-      interactive={true}
-      visible={show}
-      animation={"fade"}
-      placement={"top-start"}
-      zIndex={4000}
-    />
+    </div>
   );
 };

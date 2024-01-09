@@ -24,7 +24,9 @@ function setHiddenDragImage() {
 
   dragImageElement = document.createElement("div");
   dragImageElement.innerHTML = "_";
-  dragImageElement.style.visibility = "hidden";
+  dragImageElement.style.opacity = "0";
+  dragImageElement.style.height = "1px";
+  dragImageElement.style.width = "1px";
   document.body.appendChild(dragImageElement);
 }
 

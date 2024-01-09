@@ -4,9 +4,13 @@ import {
   DefaultBlockSchema,
   DefaultProps,
 } from "@blocknote/core";
-import Tippy, { tippy } from "@tippyjs/react";
-import { FC, useEffect, useMemo, useRef, useState } from "react";
-import { sticky } from "tippy.js";
+import {
+  flip,
+  offset,
+  useFloating,
+  useTransitionStyles,
+} from "@floating-ui/react";
+import { FC, useEffect, useRef, useState } from "react";
 
 import { useEditorChange } from "../../hooks/useEditorChange";
 import { DefaultFormattingToolbar } from "./DefaultFormattingToolbar";
@@ -55,15 +59,23 @@ export const FormattingToolbarPositioner = <
 
   const referencePos = useRef<DOMRect>();
 
-  useEffect(() => {
-    tippy.setDefaultProps({ maxWidth: "" });
+  const { refs, update, context, floatingStyles } = useFloating({
+    open: show,
+    placement,
+    middleware: [offset(10), flip()],
+  });
 
+  const { isMounted, styles } = useTransitionStyles(context);
+
+  useEffect(() => {
     return props.editor.formattingToolbar.onUpdate((state) => {
       setShow(state.show);
 
       referencePos.current = state.referencePos;
+
+      update();
     });
-  }, [props.editor]);
+  }, [props.editor, update]);
 
   useEditorChange(props.editor, () => {
     const block = props.editor.getTextCursorPosition().block;
@@ -79,41 +91,23 @@ export const FormattingToolbarPositioner = <
     }
   });
 
-  const getReferenceClientRect = useMemo(
-    () => {
-      if (!referencePos) {
-        return undefined;
-      }
-      return () => referencePos.current!;
-    },
-    [referencePos.current] // eslint-disable-line
-  );
+  useEffect(() => {
+    refs.setReference({
+      getBoundingClientRect: () => referencePos.current!,
+    });
+  }, [refs]);
 
-  const formattingToolbarElement = useMemo(() => {
-    const FormattingToolbar =
-      props.formattingToolbar || DefaultFormattingToolbar;
+  const FormattingToolbar = props.formattingToolbar || DefaultFormattingToolbar;
 
-    return <FormattingToolbar editor={props.editor} />;
-  }, [props.editor, props.formattingToolbar]);
+  if (!isMounted) {
+    return null;
+  }
 
   return (
-    <Tippy
-      appendTo={props.editor.domElement.parentElement!}
-      content={formattingToolbarElement}
-      getReferenceClientRect={getReferenceClientRect}
-      interactive={true}
-      visible={show}
-      animation={"fade"}
-      placement={placement}
-      sticky={true}
-      plugins={tippyPlugins}
-      zIndex={3000}
-    />
+    <div
+      ref={refs.setFloating}
+      style={{ ...styles, ...floatingStyles, zIndex: 3000 }}>
+      <FormattingToolbar editor={props.editor} />
+    </div>
   );
 };
-
-// We want Tippy to call `getReferenceClientRect` whenever the reference
-// DOMRect's position changes. This happens automatically on scroll, but we need
-// the `sticky` plugin to make it happen in all cases. This is most evident
-// when changing the text alignment using the formatting toolbar.
-const tippyPlugins = [sticky];

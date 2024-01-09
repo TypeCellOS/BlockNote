@@ -35,7 +35,7 @@ Play with the editor @ [https://blocknote-main.vercel.app/](https://blocknote-ma
 
 ```typescript
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
-import "@blocknote/core/style.css";
+import "@blocknote/react/style.css";
 
 function App() {
   const editor = useBlockNote({

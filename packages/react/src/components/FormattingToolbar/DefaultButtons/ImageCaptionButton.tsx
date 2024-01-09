@@ -81,25 +81,29 @@ export const ImageCaptionButton = <BSchema extends BlockSchema>(props: {
   }
 
   return (
-    <ToolbarInputDropdownButton>
-      <ToolbarButton
-        mainTooltip={"Edit Caption"}
-        icon={RiText}
-        isSelected={selectedBlocks[0].props.caption !== ""}
-      />
-      <ToolbarInputDropdown>
-        <ToolbarInputDropdownItem
-          type={"text"}
+    <ToolbarInputDropdownButton
+      target={
+        <ToolbarButton
+          mainTooltip={"Edit Caption"}
           icon={RiText}
-          inputProps={{
-            autoFocus: true,
-            placeholder: "Edit Caption",
-            value: currentCaption,
-            onKeyDown: handleEnter,
-            onChange: handleChange,
-          }}
+          isSelected={selectedBlocks[0].props.caption !== ""}
         />
-      </ToolbarInputDropdown>
-    </ToolbarInputDropdownButton>
+      }
+      dropdown={
+        <ToolbarInputDropdown>
+          <ToolbarInputDropdownItem
+            type={"text"}
+            icon={RiText}
+            inputProps={{
+              autoFocus: true,
+              placeholder: "Edit Caption",
+              value: currentCaption,
+              onKeyDown: handleEnter,
+              onChange: handleChange,
+            }}
+          />
+        </ToolbarInputDropdown>
+      }
+    />
   );
 };

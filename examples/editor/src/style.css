@@ -1,14 +1,11 @@
-.editor {
-  margin: 0 calc((100% - 731px) / 2);
-  margin-top: 8px;
-  /* height: 100%; */
-}
-
 body {
-  margin: 0;
+  height: auto;
 }
 
-/* .root {
-  height: 100%;
-  width: 100%;
-} */
+.editor {
+  margin: 8px calc((100% - 731px) / 2) 0;
+}
+
+.mantine-AppShell-navbar {
+  background-color: #f7f7f5;
+}

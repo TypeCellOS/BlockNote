@@ -3,8 +3,8 @@ import {
   defaultBlockSpecs,
   defaultProps,
 } from "@blocknote/core";
-import "@blocknote/core/style.css";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
+import "@blocknote/react/style.css";
 import "./style.css";
 
 type WindowWithProseMirror = Window & typeof globalThis & { ProseMirror: any };

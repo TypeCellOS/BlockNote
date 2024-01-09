@@ -37,15 +37,15 @@ export const ColorPicker = (props: {
             }}
             component={"div"}
             data-test={"text-color-" + color}
-            icon={<ColorIcon textColor={color} size={props.iconSize} />}
-            key={"text-color-" + color}
+            leftSection={<ColorIcon textColor={color} size={props.iconSize} />}
             rightSection={
               props.text!.color === color ? (
-                <TiTick size={16} style={{ paddingLeft: "8px" }} />
+                <TiTick size={20} className={"bn-tick-icon"} />
               ) : (
-                <div style={{ width: "24px", padding: "0" }} />
+                <div className={"bn-tick-space"} />
               )
-            }>
+            }
+            key={"text-color-" + color}>
             {color.charAt(0).toUpperCase() + color.slice(1)}
           </Menu.Item>
         ))}
@@ -75,13 +75,15 @@ export const ColorPicker = (props: {
             }}
             component={"div"}
             data-test={"background-color-" + color}
-            icon={<ColorIcon backgroundColor={color} size={props.iconSize} />}
+            leftSection={
+              <ColorIcon backgroundColor={color} size={props.iconSize} />
+            }
             key={"background-color-" + color}
             rightSection={
               props.background!.color === color ? (
-                <TiTick size={16} style={{ paddingLeft: "8px" }} />
+                <TiTick size={20} className={"bn-tick-icon"} />
               ) : (
-                <div style={{ width: "24px", padding: "0" }} />
+                <div className={"bn-tick-space"} />
               )
             }>
             {color.charAt(0).toUpperCase() + color.slice(1)}

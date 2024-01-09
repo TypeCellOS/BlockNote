@@ -33,7 +33,7 @@ BlockNote is meant for use with React, so creating an editor in an existing Reac
 ```typescript
 import { BlockNoteEditor } from "@blocknote/core";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
-import "@blocknote/core/style.css";
+import "@blocknote/react/style.css";
 
 function App() {
   // Creates a new editor instance.
@@ -59,7 +59,7 @@ Taking the same code, the live preview below turns it into a super simple, worki
 ```typescript-vue /App.tsx
 import { BlockNoteEditor } from "@blocknote/core";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
-import "@blocknote/core/style.css";
+import "@blocknote/react/style.css";
 
 export default function App() {
   // Creates a new editor instance.

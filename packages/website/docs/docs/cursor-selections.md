@@ -86,7 +86,7 @@ If you need a visualization for which block contains the text cursor, the demo b
 ```typescript-vue /App.tsx
 import { BlockNoteEditor, Block } from "@blocknote/core";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
-import "@blocknote/core/style.css";
+import "@blocknote/react/style.css";
 
 export default function App() {
   // Creates a new editor instance.
@@ -173,7 +173,7 @@ If you need a visualization for which blocks the text cursor spans, the demo bel
 ```typescript-vue /App.tsx
 import { BlockNoteEditor, Block } from "@blocknote/core";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
-import "@blocknote/core/style.css";
+import "@blocknote/react/style.css";
 
 export default function App() {
   // Creates a new editor instance.

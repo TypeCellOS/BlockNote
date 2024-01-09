@@ -45,7 +45,7 @@ import {
   SlashMenuPositioner,
   useBlockNote,
 } from "@blocknote/react";
-import "@blocknote/core/style.css";
+import "@blocknote/react/style.css";
 import { MdDelete } from "react-icons/md";
 
 const CustomSideMenu = (props: SideMenuProps) => (
@@ -108,7 +108,7 @@ import {
   SlashMenuPositioner,
   useBlockNote,
 } from "@blocknote/react";
-import "@blocknote/core/style.css";
+import "@blocknote/react/style.css";
 
 const CustomDragHandleMenu = (props: {
   editor: BlockNoteEditor;

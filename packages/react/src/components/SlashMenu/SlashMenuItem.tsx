@@ -1,4 +1,4 @@
-import { Badge, createStyles, Menu, Stack, Text } from "@mantine/core";
+import { Badge, Menu, Stack, Text } from "@mantine/core";
 import { useEffect, useRef } from "react";
 
 const MIN_LEFT_MARGIN = 5;
@@ -14,9 +14,6 @@ export type SlashMenuItemProps = {
 
 export function SlashMenuItem(props: SlashMenuItemProps) {
   const itemRef = useRef<HTMLButtonElement>(null);
-  const { classes } = createStyles({ root: {} })(undefined, {
-    name: "SuggestionListItem",
-  });
 
   function isSelected() {
     const isKeyboardSelected = props.isSelected;
@@ -54,8 +51,7 @@ export function SlashMenuItem(props: SlashMenuItemProps) {
 
   return (
     <Menu.Item
-      className={classes.root}
-      icon={props.icon}
+      className={"bn-slash-menu-item"}
       onClick={props.set}
       closeMenuOnClick={false}
       // Ensures an item selected with both mouse & keyboard doesn't get deselected on mouse leave.
@@ -64,16 +60,19 @@ export function SlashMenuItem(props: SlashMenuItemProps) {
           updateSelection();
         }, 1);
       }}
-      ref={itemRef}
+      leftSection={props.icon}
       rightSection={
         props.shortcut && <Badge size={"xs"}>{props.shortcut}</Badge>
-      }>
+      }
+      ref={itemRef}>
       <Stack>
         {/*Might need separate classes.*/}
-        <Text size={14} weight={500}>
+        <Text lh={"20px"} size={"14px"} fw={500}>
           {props.name}
         </Text>
-        <Text size={10}>{props.hint}</Text>
+        <Text lh={"16px"} size={"10px"}>
+          {props.hint}
+        </Text>
       </Stack>
     </Menu.Item>
   );
