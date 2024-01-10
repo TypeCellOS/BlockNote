@@ -5,13 +5,12 @@ import {
 } from "@blocknote/core";
 import { createButton } from "./util";
 
-export const addSlashMenu = (editor: BlockNoteEditor) => {
+export const addSlashMenu = async (editor: BlockNoteEditor) => {
   let element: HTMLElement;
 
   function updateItems(
     items: BaseSlashMenuItem<DefaultBlockSchema, any, any>[],
-    onClick: (item: BaseSlashMenuItem<DefaultBlockSchema, any, any>) => void,
-    selected: number
+    onClick: (item: BaseSlashMenuItem<DefaultBlockSchema, any, any>) => void
   ) {
     element.innerHTML = "";
     const domItems = items.map((val, i) => {
@@ -19,16 +18,13 @@ export const addSlashMenu = (editor: BlockNoteEditor) => {
         onClick(val);
       });
       element.style.display = "block";
-      if (selected === i) {
-        element.style.fontWeight = "bold";
-      }
       return element;
     });
     element.append(...domItems);
     return domItems;
   }
 
-  editor.slashMenu.onUpdate((slashMenuState) => {
+  editor.slashMenu.onUpdate(async (slashMenuState) => {
     if (!element) {
       element = document.createElement("div");
       element.style.background = "gray";
@@ -41,11 +37,7 @@ export const addSlashMenu = (editor: BlockNoteEditor) => {
     }
 
     if (slashMenuState.show) {
-      updateItems(
-        slashMenuState.filteredItems,
-        editor.slashMenu.itemCallback,
-        slashMenuState.keyboardHoveredItemIndex
-      );
+      updateItems(await slashMenuState.items, editor.slashMenu.executeItem);
 
       element.style.display = "block";
 
