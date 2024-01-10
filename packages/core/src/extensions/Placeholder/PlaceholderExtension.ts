@@ -43,11 +43,11 @@ export const Placeholder = Extension.create<PlaceholderOptions>({
         }
 
         if (isFilter) {
-          return "Filter blocks";
+          return "Type to filter";
         }
 
         if (containsCursor) {
-          return 'Type "/" for commands';
+          return 'Enter text or type "/" for commands';
         }
 
         return undefined;
