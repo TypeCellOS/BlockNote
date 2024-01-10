@@ -5,37 +5,137 @@ import groupBy from "lodash.groupby";
 import { BlockSchema } from "@blocknote/core";
 import { SlashMenuItem } from "./SlashMenuItem";
 import type { SlashMenuProps } from "./SlashMenuPositioner";
+import { useEffect, useRef, useState } from "react";
+import { ReactSlashMenuItem } from "../../slashMenuItems/ReactSlashMenuItem";
 
 export function DefaultSlashMenu<BSchema extends BlockSchema>(
   props: SlashMenuProps<BSchema>
 ) {
-  const renderedItems: any[] = [];
-  let index = 0;
+  const [orderedItems, setOrderedItems] = useState<
+    ReactSlashMenuItem<BSchema>[] | undefined
+  >(undefined);
+  const [renderedItems, setRenderedItems] = useState<JSX.Element[] | undefined>(
+    undefined
+  );
+  const [selectedIndex, setSelectedIndex] = useState<number>(0);
+  const notFoundCount = useRef(0);
 
-  const groups = groupBy(props.filteredItems, (i) => i.group);
+  // Sets the items to render.
+  useEffect(() => {
+    props.items.then((items) => {
+      const orderedItems: ReactSlashMenuItem<BSchema>[] = [];
+      const renderedItems: JSX.Element[] = [];
+      let itemIndex = 0;
 
-  foreach(groups, (groupedItems) => {
-    renderedItems.push(
-      <Menu.Label key={groupedItems[0].group}>
-        {groupedItems[0].group}
-      </Menu.Label>
+      const groups = groupBy(items, (item) => item.group);
+
+      foreach(groups, (groupedItems) => {
+        renderedItems.push(
+          <Menu.Label key={groupedItems[0].group}>
+            {groupedItems[0].group}
+          </Menu.Label>
+        );
+
+        for (const item of groupedItems) {
+          orderedItems.push(item);
+          renderedItems.push(
+            <SlashMenuItem
+              key={item.name}
+              name={item.name}
+              icon={item.icon}
+              hint={item.hint}
+              shortcut={item.shortcut}
+              isSelected={selectedIndex === itemIndex}
+              set={() => {
+                props.closeMenu();
+                props.clearQuery();
+                props.executeItem(item);
+              }}
+            />
+          );
+          itemIndex++;
+        }
+      });
+
+      setOrderedItems(orderedItems);
+      setRenderedItems(renderedItems);
+
+      // Closes menu if query does not match any items after 3 tries.
+      // TODO: Not quite the right behaviour - should actually close if 3
+      //  characters are added to the first query that does not match any items.
+      if (orderedItems.length === 0) {
+        if (notFoundCount.current >= 3) {
+          props.closeMenu();
+        } else {
+          notFoundCount.current++;
+        }
+      }
+    });
+  }, [props, selectedIndex]);
+
+  // Handles keyboard navigation.
+  useEffect(() => {
+    const preventMenuNavigationKeys = (event: KeyboardEvent) => {
+      console.log(event.key);
+      if (event.key === "ArrowUp") {
+        event.preventDefault();
+
+        if (orderedItems !== undefined) {
+          setSelectedIndex(
+            (selectedIndex - 1 + orderedItems!.length) % orderedItems!.length
+          );
+        }
+
+        return true;
+      }
+
+      if (event.key === "ArrowDown") {
+        event.preventDefault();
+
+        if (orderedItems !== undefined) {
+          setSelectedIndex((selectedIndex + 1) % orderedItems!.length);
+        }
+
+        return true;
+      }
+
+      if (event.key === "Enter") {
+        event.preventDefault();
+
+        if (orderedItems !== undefined) {
+          props.closeMenu();
+          props.clearQuery();
+          props.executeItem(orderedItems[selectedIndex]);
+        }
+
+        return true;
+      }
+
+      if (event.key === "Escape") {
+        event.preventDefault();
+
+        props.closeMenu();
+
+        return true;
+      }
+
+      return false;
+    };
+
+    props.editor.domElement.addEventListener(
+      "keydown",
+      preventMenuNavigationKeys,
+      true
     );
 
-    for (const item of groupedItems) {
-      renderedItems.push(
-        <SlashMenuItem
-          key={item.name}
-          name={item.name}
-          icon={item.icon}
-          hint={item.hint}
-          shortcut={item.shortcut}
-          isSelected={props.keyboardHoveredItemIndex === index}
-          set={() => props.itemCallback(item)}
-        />
+    return () => {
+      props.editor.domElement.removeEventListener(
+        "keydown",
+        preventMenuNavigationKeys,
+        true
       );
-      index++;
-    }
-  });
+    };
+  }, [selectedIndex, orderedItems, props.editor.domElement, props]);
 
   return (
     <Menu
@@ -51,13 +151,16 @@ export function DefaultSlashMenu<BSchema extends BlockSchema>(
       trigger={"hover"}
       closeDelay={10000000}>
       <Menu.Dropdown
-        // TODO: This should go back in the plugin.
         onMouseDown={(event) => event.preventDefault()}
         className={"bn-slash-menu"}>
-        {renderedItems.length > 0 ? (
-          renderedItems
+        {renderedItems ? (
+          renderedItems.length > 0 ? (
+            renderedItems
+          ) : (
+            <Menu.Item>No match found</Menu.Item>
+          )
         ) : (
-          <Menu.Item>No match found</Menu.Item>
+          <Menu.Item>Loading...</Menu.Item>
         )}
       </Menu.Dropdown>
     </Menu>

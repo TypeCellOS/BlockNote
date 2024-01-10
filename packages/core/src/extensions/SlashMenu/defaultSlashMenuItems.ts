@@ -74,13 +74,11 @@ function insertOrUpdateBlock<
   return insertedBlock;
 }
 
-export const getDefaultSlashMenuItems = <
+export async function getDefaultSlashMenuItems<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
->(
-  schema: BSchema = defaultBlockSchema as unknown as BSchema
-) => {
+>(query: string, schema: BSchema = defaultBlockSchema as unknown as BSchema) {
   const slashMenuItems: BaseSlashMenuItem<BSchema, I, S>[] = [];
 
   if ("heading" in schema && "level" in schema.heading.propSchema) {
@@ -209,5 +207,12 @@ export const getDefaultSlashMenuItems = <
     });
   }
 
-  return slashMenuItems;
-};
+  return slashMenuItems.filter(
+    ({ name, aliases }) =>
+      name.toLowerCase().startsWith(query.toLowerCase()) ||
+      (aliases &&
+        aliases.filter((alias) =>
+          alias.toLowerCase().startsWith(query.toLowerCase())
+        ).length !== 0)
+  );
+}

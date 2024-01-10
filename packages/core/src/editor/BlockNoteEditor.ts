@@ -83,7 +83,9 @@ export type BlockNoteEditorOptions<
    *
    * @default defaultSlashMenuItems from `./extensions/SlashMenu`
    */
-  slashMenuItems: BaseSlashMenuItem<any, any, any>[];
+  slashMenuItems: (
+    query: string
+  ) => Promise<BaseSlashMenuItem<any, any, any>[]>;
 
   /**
    * The HTML element that should be used as the parent element for the editor.
@@ -290,7 +292,7 @@ export class BlockNoteEditor<
     this.slashMenu = new SlashMenuProsemirrorPlugin(
       this,
       newOptions.slashMenuItems ||
-        (getDefaultSlashMenuItems(this.blockSchema) as any)
+        ((query) => getDefaultSlashMenuItems(query, this.blockSchema) as any)
     );
     this.hyperlinkToolbar = new HyperlinkToolbarProsemirrorPlugin(this);
     this.imageToolbar = new ImageToolbarProsemirrorPlugin(this);

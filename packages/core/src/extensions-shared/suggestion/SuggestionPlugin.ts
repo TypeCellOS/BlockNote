@@ -10,10 +10,8 @@ const findBlock = findParentNode((node) => node.type.name === "blockContainer");
 
 export type SuggestionsMenuState<T extends SuggestionItem> =
   BaseUiElementState & {
-    // The suggested items to display.
-    filteredItems: T[];
-    // The index of the suggested item that's currently hovered by the keyboard.
-    keyboardHoveredItemIndex: number;
+    // The items that should be shown in the menu.
+    items: Promise<T[]>;
   };
 
 class SuggestionsMenuView<
@@ -93,8 +91,7 @@ class SuggestionsMenuView<
       this.suggestionsMenuState = {
         show: true,
         referencePos: decorationNode!.getBoundingClientRect(),
-        filteredItems: this.pluginState.items,
-        keyboardHoveredItemIndex: this.pluginState.keyboardHoveredItemIndex!,
+        items: this.pluginState.items,
       };
 
       this.updateSuggestionsMenu();
@@ -116,12 +113,7 @@ type SuggestionPluginState<T extends SuggestionItem> = {
   // which menu items to show and can also be used to delete the trigger character.
   queryStartPos: number | undefined;
   // The items that should be shown in the menu.
-  items: T[];
-  // The index of the item in the menu that's currently hovered using the keyboard.
-  keyboardHoveredItemIndex: number | undefined;
-  // The number of characters typed after the last query that matched with at least 1 item. Used to close the
-  // menu if the user keeps entering queries that don't return any results.
-  notFoundCount: number | undefined;
+  items: Promise<T[]>;
   decorationId: string | undefined;
 };
 
@@ -132,9 +124,7 @@ function getDefaultPluginState<
     active: false,
     triggerCharacter: undefined,
     queryStartPos: undefined,
-    items: [] as T[],
-    keyboardHoveredItemIndex: undefined,
-    notFoundCount: 0,
+    items: new Promise<T[]>((resolve) => resolve([])),
     decorationId: undefined,
   };
 }
@@ -162,7 +152,8 @@ export const setupSuggestionsMenu = <
 
   pluginKey: PluginKey,
   defaultTriggerCharacter: string,
-  items: (query: string) => T[] = () => [],
+  getItems: (query: string) => Promise<T[]> = () =>
+    new Promise((resolve) => resolve([])),
   onSelectItem: (props: {
     item: T;
     editor: BlockNoteEditor<BSchema, I, S>;
@@ -202,7 +193,12 @@ export const setupSuggestionsMenu = <
         },
 
         // Apply changes to the plugin state from an editor transaction.
-        apply(transaction, prev, oldState, newState): SuggestionPluginState<T> {
+        apply(
+          transaction,
+          prev,
+          _oldState,
+          newState
+        ): SuggestionPluginState<T> {
           // TODO: More clearly define which transactions should be ignored.
           if (transaction.getMeta("orderedListIndexing") !== undefined) {
             return prev;
@@ -215,11 +211,7 @@ export const setupSuggestionsMenu = <
               triggerCharacter:
                 transaction.getMeta(pluginKey)?.triggerCharacter || "",
               queryStartPos: newState.selection.from,
-              items: items(""),
-              keyboardHoveredItemIndex: 0,
-              // TODO: Maybe should be 1 if the menu has no possible items? Probably redundant since a menu with no items
-              //  is useless in practice.
-              notFoundCount: 0,
+              items: getItems(""),
               decorationId: `id_${Math.floor(Math.random() * 0xffffffff)}`,
             };
           }
@@ -229,31 +221,7 @@ export const setupSuggestionsMenu = <
             return prev;
           }
 
-          const next = { ...prev };
-
-          // Updates which menu items to show by checking which items the current query (the text between the trigger
-          // character and caret) matches with.
-          next.items = items(
-            newState.doc.textBetween(
-              prev.queryStartPos!,
-              newState.selection.from
-            )
-          );
-
-          // Updates notFoundCount if the query doesn't match any items.
-          next.notFoundCount = 0;
-          if (next.items.length === 0) {
-            // Checks how many characters were typed or deleted since the last transaction, and updates the notFoundCount
-            // accordingly. Also ensures the notFoundCount does not become negative.
-            next.notFoundCount = Math.max(
-              0,
-              prev.notFoundCount! +
-                (newState.selection.from - oldState.selection.from)
-            );
-          }
-
-          // Hides the menu. This is done after items and notFoundCount are already updated as notFoundCount is needed to
-          // check if the menu should be hidden.
+          // Checks if the menu should be hidden.
           if (
             // Highlighting text should hide the menu.
             newState.selection.from !== newState.selection.to ||
@@ -265,34 +233,21 @@ export const setupSuggestionsMenu = <
             transaction.getMeta("blur") ||
             transaction.getMeta("pointer") ||
             // Moving the caret before the character which triggered the menu should hide it.
-            (prev.active && newState.selection.from < prev.queryStartPos!) ||
-            // Entering more than 3 characters, after the last query that matched with at least 1 menu item, should hide
-            // the menu.
-            next.notFoundCount > 3
+            (prev.active && newState.selection.from < prev.queryStartPos!)
           ) {
             return getDefaultPluginState<T>();
           }
 
-          // Updates keyboardHoveredItemIndex if the up or down arrow key was
-          // pressed, or resets it if the keyboard cursor moved.
-          if (
-            transaction.getMeta(pluginKey)?.selectedItemIndexChanged !==
-            undefined
-          ) {
-            let newIndex =
-              transaction.getMeta(pluginKey).selectedItemIndexChanged;
+          const next = { ...prev };
 
-            // Allows selection to jump between first and last items.
-            if (newIndex < 0) {
-              newIndex = prev.items.length - 1;
-            } else if (newIndex >= prev.items.length) {
-              newIndex = 0;
-            }
-
-            next.keyboardHoveredItemIndex = newIndex;
-          } else if (oldState.selection.from !== newState.selection.from) {
-            next.keyboardHoveredItemIndex = 0;
-          }
+          // Updates which menu items to show by checking which items the current query (the text between the trigger
+          // character and caret) matches with.
+          next.items = getItems(
+            newState.doc.textBetween(
+              prev.queryStartPos!,
+              newState.selection.from
+            )
+          );
 
           return next;
         },
@@ -314,69 +269,6 @@ export const setupSuggestionsMenu = <
                 })
             );
 
-            return true;
-          }
-
-          // Doesn't handle other keystrokes if the menu isn't active.
-          if (!menuIsActive) {
-            return false;
-          }
-
-          // Handles keystrokes for navigating the menu.
-          const {
-            triggerCharacter,
-            queryStartPos,
-            items,
-            keyboardHoveredItemIndex,
-          } = pluginKey.getState(view.state);
-
-          // Moves the keyboard selection to the previous item.
-          if (event.key === "ArrowUp") {
-            view.dispatch(
-              view.state.tr.setMeta(pluginKey, {
-                selectedItemIndexChanged: keyboardHoveredItemIndex - 1,
-              })
-            );
-            return true;
-          }
-
-          // Moves the keyboard selection to the next item.
-          if (event.key === "ArrowDown") {
-            view.dispatch(
-              view.state.tr.setMeta(pluginKey, {
-                selectedItemIndexChanged: keyboardHoveredItemIndex + 1,
-              })
-            );
-            return true;
-          }
-
-          // Selects an item and closes the menu.
-          if (event.key === "Enter") {
-            if (items.length === 0) {
-              return true;
-            }
-
-            deactivate(view);
-            editor._tiptapEditor
-              .chain()
-              .focus()
-              .deleteRange({
-                from: queryStartPos! - triggerCharacter!.length,
-                to: editor._tiptapEditor.state.selection.from,
-              })
-              .run();
-
-            onSelectItem({
-              item: items[keyboardHoveredItemIndex],
-              editor: editor,
-            });
-
-            return true;
-          }
-
-          // Closes the menu.
-          if (event.key === "Escape") {
-            deactivate(view);
             return true;
           }
 
@@ -426,8 +318,11 @@ export const setupSuggestionsMenu = <
         },
       },
     }),
-    itemCallback: (item: T) => {
-      deactivate(editor._tiptapEditor.view);
+    executeItem: (item: T) => {
+      onSelectItem({ item, editor });
+    },
+    closeMenu: () => deactivate(editor._tiptapEditor.view),
+    clearQuery: () =>
       editor._tiptapEditor
         .chain()
         .focus()
@@ -437,12 +332,6 @@ export const setupSuggestionsMenu = <
             suggestionsPluginView.pluginState.triggerCharacter!.length,
           to: editor._tiptapEditor.state.selection.from,
         })
-        .run();
-
-      onSelectItem({
-        item: item,
-        editor: editor,
-      });
-    },
+        .run(),
   };
 };

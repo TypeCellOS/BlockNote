@@ -18,11 +18,13 @@ import { ReactSlashMenuItem } from "../../slashMenuItems/ReactSlashMenuItem";
 import { DefaultSlashMenu } from "./DefaultSlashMenu";
 
 export type SlashMenuProps<BSchema extends BlockSchema = DefaultBlockSchema> =
-  Pick<SlashMenuProsemirrorPlugin<BSchema, any, any, any>, "itemCallback"> &
-    Pick<
-      SuggestionsMenuState<ReactSlashMenuItem<BSchema>>,
-      "filteredItems" | "keyboardHoveredItemIndex"
-    >;
+  Pick<
+    SlashMenuProsemirrorPlugin<BSchema, any, any, any>,
+    "executeItem" | "closeMenu" | "clearQuery"
+  > &
+    Pick<SuggestionsMenuState<ReactSlashMenuItem<BSchema>>, "items"> & {
+      editor: BlockNoteEditor<BSchema, any, any>;
+    };
 
 export const SlashMenuPositioner = <
   BSchema extends BlockSchema = DefaultBlockSchema
@@ -31,10 +33,9 @@ export const SlashMenuPositioner = <
   slashMenu?: FC<SlashMenuProps<BSchema>>;
 }) => {
   const [show, setShow] = useState<boolean>(false);
-  const [filteredItems, setFilteredItems] =
-    useState<ReactSlashMenuItem<BSchema>[]>();
-  const [keyboardHoveredItemIndex, setKeyboardHoveredItemIndex] =
-    useState<number>();
+  const [items, setItems] = useState<Promise<ReactSlashMenuItem<BSchema>[]>>(
+    new Promise((resolve) => resolve([]))
+  );
 
   const referencePos = useRef<DOMRect>();
 
@@ -61,8 +62,7 @@ export const SlashMenuPositioner = <
   useEffect(() => {
     return props.editor.slashMenu.onUpdate((slashMenuState) => {
       setShow(slashMenuState.show);
-      setFilteredItems(slashMenuState.filteredItems);
-      setKeyboardHoveredItemIndex(slashMenuState.keyboardHoveredItemIndex);
+      setItems(slashMenuState.items);
 
       referencePos.current = slashMenuState.referencePos;
 
@@ -76,7 +76,7 @@ export const SlashMenuPositioner = <
     });
   }, [refs]);
 
-  if (!isMounted || !filteredItems || keyboardHoveredItemIndex === undefined) {
+  if (!isMounted || !items === undefined) {
     return null;
   }
 
@@ -92,9 +92,11 @@ export const SlashMenuPositioner = <
         zIndex: 2000,
       }}>
       <SlashMenu
-        filteredItems={filteredItems}
-        itemCallback={(item) => props.editor.slashMenu.itemCallback(item)}
-        keyboardHoveredItemIndex={keyboardHoveredItemIndex}
+        editor={props.editor}
+        items={items}
+        executeItem={props.editor.slashMenu.executeItem}
+        closeMenu={props.editor.slashMenu.closeMenu}
+        clearQuery={props.editor.slashMenu.clearQuery}
       />
     </div>
   );
