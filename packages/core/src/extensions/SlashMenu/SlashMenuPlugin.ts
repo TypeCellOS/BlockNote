@@ -18,13 +18,24 @@ export class SlashMenuProsemirrorPlugin<
   SlashMenuItem extends BaseSlashMenuItem<BSchema, I, S>
 > extends EventEmitter<any> {
   public readonly plugin: Plugin;
+  public readonly getItems: (
+    query: string,
+    token: {
+      cancel: (() => void) | undefined;
+    }
+  ) => Promise<SlashMenuItem[]>;
   public readonly executeItem: (item: SlashMenuItem) => void;
   public readonly closeMenu: () => void;
   public readonly clearQuery: () => void;
 
   constructor(
     editor: BlockNoteEditor<BSchema, I, S>,
-    getItems: (query: string) => Promise<SlashMenuItem[]>
+    getItems: (
+      query: string,
+      token: {
+        cancel: (() => void) | undefined;
+      }
+    ) => Promise<SlashMenuItem[]>
   ) {
     super();
     const suggestions = setupSuggestionsMenu<SlashMenuItem, BSchema, I, S>(
@@ -39,14 +50,13 @@ export class SlashMenuProsemirrorPlugin<
     );
 
     this.plugin = suggestions.plugin;
+    this.getItems = getItems;
     this.executeItem = suggestions.executeItem;
     this.closeMenu = suggestions.closeMenu;
     this.clearQuery = suggestions.clearQuery;
   }
 
-  public onUpdate(
-    callback: (state: SuggestionsMenuState<SlashMenuItem>) => void
-  ) {
+  public onUpdate(callback: (state: SuggestionsMenuState) => void) {
     return this.on("update", callback);
   }
 }

@@ -14,15 +14,14 @@ import {
 } from "@floating-ui/react";
 import { FC, useEffect, useRef, useState } from "react";
 
-import { ReactSlashMenuItem } from "../../slashMenuItems/ReactSlashMenuItem";
 import { DefaultSlashMenu } from "./DefaultSlashMenu";
 
 export type SlashMenuProps<BSchema extends BlockSchema = DefaultBlockSchema> =
   Pick<
     SlashMenuProsemirrorPlugin<BSchema, any, any, any>,
-    "executeItem" | "closeMenu" | "clearQuery"
+    "getItems" | "executeItem" | "closeMenu" | "clearQuery"
   > &
-    Pick<SuggestionsMenuState<ReactSlashMenuItem<BSchema>>, "items"> & {
+    Pick<SuggestionsMenuState, "query"> & {
       editor: BlockNoteEditor<BSchema, any, any>;
     };
 
@@ -33,9 +32,7 @@ export const SlashMenuPositioner = <
   slashMenu?: FC<SlashMenuProps<BSchema>>;
 }) => {
   const [show, setShow] = useState<boolean>(false);
-  const [items, setItems] = useState<Promise<ReactSlashMenuItem<BSchema>[]>>(
-    new Promise((resolve) => resolve([]))
-  );
+  const [query, setQuery] = useState<string>("");
 
   const referencePos = useRef<DOMRect>();
 
@@ -62,7 +59,7 @@ export const SlashMenuPositioner = <
   useEffect(() => {
     return props.editor.slashMenu.onUpdate((slashMenuState) => {
       setShow(slashMenuState.show);
-      setItems(slashMenuState.items);
+      setQuery(slashMenuState.query);
 
       referencePos.current = slashMenuState.referencePos;
 
@@ -76,7 +73,7 @@ export const SlashMenuPositioner = <
     });
   }, [refs]);
 
-  if (!isMounted || !items === undefined) {
+  if (!isMounted || !query === undefined) {
     return null;
   }
 
@@ -93,7 +90,8 @@ export const SlashMenuPositioner = <
       }}>
       <SlashMenu
         editor={props.editor}
-        items={items}
+        query={query}
+        getItems={props.editor.slashMenu.getItems}
         executeItem={props.editor.slashMenu.executeItem}
         closeMenu={props.editor.slashMenu.closeMenu}
         clearQuery={props.editor.slashMenu.clearQuery}

@@ -461,6 +461,15 @@
     gap: 0;
 }
 
+.bn-container .bn-slash-menu .bn-slash-menu-loader {
+    height: 20px;
+    width: 100%;
+}
+
+.bn-container .bn-slash-menu .bn-slash-menu-loader span {
+    background-color: var(--bn-colors-side-menu);
+}
+
 /* Side Menu & Drag Handle styling */
 .bn-container .bn-side-menu {
     background-color: transparent;

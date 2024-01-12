@@ -1,4 +1,4 @@
-import { Menu } from "@mantine/core";
+import { Loader, Menu } from "@mantine/core";
 import foreach from "lodash.foreach";
 import groupBy from "lodash.groupby";
 
@@ -14,15 +14,37 @@ export function DefaultSlashMenu<BSchema extends BlockSchema>(
   const [orderedItems, setOrderedItems] = useState<
     ReactSlashMenuItem<BSchema>[] | undefined
   >(undefined);
-  const [renderedItems, setRenderedItems] = useState<JSX.Element[] | undefined>(
-    undefined
+  const [renderedItems, setRenderedItems] = useState<JSX.Element[] | null>(
+    null
   );
+  const [loader, setLoader] = useState<JSX.Element | null>(null);
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
-  const notFoundCount = useRef(0);
+
+  // Used to cancel old queries. This is needed in case the time to retrieve
+  // items varies, and an old query evaluates after a newer one.
+  const prevQueryToken = useRef<{ cancel: (() => void) | undefined }>({
+    cancel: undefined,
+  });
+  // Used to close the menu if the query is >3 characters longer than the last
+  // query that returned any results.
+  const lastUsefulQueryLength = useRef(0);
 
   // Sets the items to render.
   useEffect(() => {
-    props.items.then((items) => {
+    // TODO: Does this pattern make sense? https://stackoverflow.com/questions/30233302/promise-is-it-possible-to-force-cancel-a-promise
+    // Cancels the previous query since it has changed.
+    if (prevQueryToken.current.cancel !== undefined) {
+      prevQueryToken.current.cancel();
+      prevQueryToken.current.cancel = undefined;
+    }
+
+    setLoader(<Loader className={"bn-slash-menu-loader"} type="dots" />);
+
+    props.getItems(props.query, prevQueryToken.current).then((items) => {
+      prevQueryToken.current.cancel = () => {
+        return;
+      };
+
       const orderedItems: ReactSlashMenuItem<BSchema>[] = [];
       const renderedItems: JSX.Element[] = [];
       let itemIndex = 0;
@@ -59,16 +81,12 @@ export function DefaultSlashMenu<BSchema extends BlockSchema>(
 
       setOrderedItems(orderedItems);
       setRenderedItems(renderedItems);
+      setLoader(null);
 
-      // Closes menu if query does not match any items after 3 tries.
-      // TODO: Not quite the right behaviour - should actually close if 3
-      //  characters are added to the first query that does not match any items.
-      if (orderedItems.length === 0) {
-        if (notFoundCount.current >= 3) {
-          props.closeMenu();
-        } else {
-          notFoundCount.current++;
-        }
+      if (orderedItems.length > 0) {
+        lastUsefulQueryLength.current = props.query.length;
+      } else if (props.query.length - lastUsefulQueryLength.current > 3) {
+        props.closeMenu();
       }
     });
   }, [props, selectedIndex]);
@@ -76,7 +94,6 @@ export function DefaultSlashMenu<BSchema extends BlockSchema>(
   // Handles keyboard navigation.
   useEffect(() => {
     const preventMenuNavigationKeys = (event: KeyboardEvent) => {
-      console.log(event.key);
       if (event.key === "ArrowUp") {
         event.preventDefault();
 
@@ -153,15 +170,11 @@ export function DefaultSlashMenu<BSchema extends BlockSchema>(
       <Menu.Dropdown
         onMouseDown={(event) => event.preventDefault()}
         className={"bn-slash-menu"}>
-        {renderedItems ? (
-          renderedItems.length > 0 ? (
-            renderedItems
-          ) : (
-            <Menu.Item>No match found</Menu.Item>
-          )
-        ) : (
-          <Menu.Item>Loading...</Menu.Item>
-        )}
+        {renderedItems === null
+          ? loader
+          : renderedItems.length > 0
+          ? [...renderedItems, loader]
+          : [<Menu.Item>No match found</Menu.Item>, loader]}
       </Menu.Dropdown>
     </Menu>
   );

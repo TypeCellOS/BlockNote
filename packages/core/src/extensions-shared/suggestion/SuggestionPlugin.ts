@@ -8,33 +8,30 @@ import { SuggestionItem } from "./SuggestionItem";
 
 const findBlock = findParentNode((node) => node.type.name === "blockContainer");
 
-export type SuggestionsMenuState<T extends SuggestionItem> =
-  BaseUiElementState & {
-    // The items that should be shown in the menu.
-    items: Promise<T[]>;
-  };
+export type SuggestionsMenuState = BaseUiElementState & {
+  query: string;
+};
 
 class SuggestionsMenuView<
-  T extends SuggestionItem,
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
 > {
-  private suggestionsMenuState?: SuggestionsMenuState<T>;
+  private suggestionsMenuState?: SuggestionsMenuState;
   public updateSuggestionsMenu: () => void;
 
-  pluginState: SuggestionPluginState<T>;
+  pluginState: SuggestionPluginState;
 
   constructor(
     private readonly editor: BlockNoteEditor<BSchema, I, S>,
     private readonly pluginKey: PluginKey,
     updateSuggestionsMenu: (
-      suggestionsMenuState: SuggestionsMenuState<T>
+      suggestionsMenuState: SuggestionsMenuState
     ) => void = () => {
       // noop
     }
   ) {
-    this.pluginState = getDefaultPluginState<T>();
+    this.pluginState = getDefaultPluginState();
 
     this.updateSuggestionsMenu = () => {
       if (!this.suggestionsMenuState) {
@@ -91,7 +88,7 @@ class SuggestionsMenuView<
       this.suggestionsMenuState = {
         show: true,
         referencePos: decorationNode!.getBoundingClientRect(),
-        items: this.pluginState.items,
+        query: this.pluginState.query,
       };
 
       this.updateSuggestionsMenu();
@@ -103,7 +100,7 @@ class SuggestionsMenuView<
   }
 }
 
-type SuggestionPluginState<T extends SuggestionItem> = {
+type SuggestionPluginState = {
   // True when the menu is shown, false when hidden.
   active: boolean;
   // The character that triggered the menu being shown. Allowing the trigger to be different to the default
@@ -112,19 +109,16 @@ type SuggestionPluginState<T extends SuggestionItem> = {
   // The editor position just after the trigger character, i.e. where the user query begins. Used to figure out
   // which menu items to show and can also be used to delete the trigger character.
   queryStartPos: number | undefined;
-  // The items that should be shown in the menu.
-  items: Promise<T[]>;
+  query: string;
   decorationId: string | undefined;
 };
 
-function getDefaultPluginState<
-  T extends SuggestionItem
->(): SuggestionPluginState<T> {
+function getDefaultPluginState(): SuggestionPluginState {
   return {
     active: false,
     triggerCharacter: undefined,
     queryStartPos: undefined,
-    items: new Promise<T[]>((resolve) => resolve([])),
+    query: "",
     decorationId: undefined,
   };
 }
@@ -146,14 +140,16 @@ export const setupSuggestionsMenu = <
   S extends StyleSchema
 >(
   editor: BlockNoteEditor<BSchema, I, S>,
-  updateSuggestionsMenu: (
-    suggestionsMenuState: SuggestionsMenuState<T>
-  ) => void,
+  updateSuggestionsMenu: (suggestionsMenuState: SuggestionsMenuState) => void,
 
   pluginKey: PluginKey,
   defaultTriggerCharacter: string,
-  getItems: (query: string) => Promise<T[]> = () =>
-    new Promise((resolve) => resolve([])),
+  getItems: (
+    query: string,
+    token: {
+      cancel: (() => void) | undefined;
+    }
+  ) => Promise<T[]> = () => new Promise((resolve) => resolve([])),
   onSelectItem: (props: {
     item: T;
     editor: BlockNoteEditor<BSchema, I, S>;
@@ -166,7 +162,7 @@ export const setupSuggestionsMenu = <
     throw new Error("'char' should be a single character");
   }
 
-  let suggestionsPluginView: SuggestionsMenuView<T, BSchema, I, S>;
+  let suggestionsPluginView: SuggestionsMenuView<BSchema, I, S>;
 
   const deactivate = (view: EditorView) => {
     view.dispatch(view.state.tr.setMeta(pluginKey, { deactivate: true }));
@@ -177,7 +173,7 @@ export const setupSuggestionsMenu = <
       key: pluginKey,
 
       view: () => {
-        suggestionsPluginView = new SuggestionsMenuView<T, BSchema, I, S>(
+        suggestionsPluginView = new SuggestionsMenuView<BSchema, I, S>(
           editor,
           pluginKey,
 
@@ -188,17 +184,12 @@ export const setupSuggestionsMenu = <
 
       state: {
         // Initialize the plugin's internal state.
-        init(): SuggestionPluginState<T> {
-          return getDefaultPluginState<T>();
+        init(): SuggestionPluginState {
+          return getDefaultPluginState();
         },
 
         // Apply changes to the plugin state from an editor transaction.
-        apply(
-          transaction,
-          prev,
-          _oldState,
-          newState
-        ): SuggestionPluginState<T> {
+        apply(transaction, prev, _oldState, newState): SuggestionPluginState {
           // TODO: More clearly define which transactions should be ignored.
           if (transaction.getMeta("orderedListIndexing") !== undefined) {
             return prev;
@@ -211,7 +202,7 @@ export const setupSuggestionsMenu = <
               triggerCharacter:
                 transaction.getMeta(pluginKey)?.triggerCharacter || "",
               queryStartPos: newState.selection.from,
-              items: getItems(""),
+              query: "",
               decorationId: `id_${Math.floor(Math.random() * 0xffffffff)}`,
             };
           }
@@ -235,18 +226,15 @@ export const setupSuggestionsMenu = <
             // Moving the caret before the character which triggered the menu should hide it.
             (prev.active && newState.selection.from < prev.queryStartPos!)
           ) {
-            return getDefaultPluginState<T>();
+            return getDefaultPluginState();
           }
 
           const next = { ...prev };
 
-          // Updates which menu items to show by checking which items the current query (the text between the trigger
-          // character and caret) matches with.
-          next.items = getItems(
-            newState.doc.textBetween(
-              prev.queryStartPos!,
-              newState.selection.from
-            )
+          // Updates the current query.
+          next.query = newState.doc.textBetween(
+            prev.queryStartPos!,
+            newState.selection.from
           );
 
           return next;
@@ -318,6 +306,7 @@ export const setupSuggestionsMenu = <
         },
       },
     }),
+    getItems: getItems,
     executeItem: (item: T) => {
       onSelectItem({ item, editor });
     },
