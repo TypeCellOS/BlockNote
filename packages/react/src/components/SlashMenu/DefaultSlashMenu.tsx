@@ -5,7 +5,7 @@ import groupBy from "lodash.groupby";
 import { BlockSchema } from "@blocknote/core";
 import { SlashMenuItem } from "./SlashMenuItem";
 import type { SlashMenuProps } from "./SlashMenuPositioner";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ReactSlashMenuItem } from "../../slashMenuItems/ReactSlashMenuItem";
 
 export function DefaultSlashMenu<BSchema extends BlockSchema>(
@@ -14,12 +14,10 @@ export function DefaultSlashMenu<BSchema extends BlockSchema>(
   const [orderedItems, setOrderedItems] = useState<
     ReactSlashMenuItem<BSchema>[] | undefined
   >(undefined);
-  const [renderedItems, setRenderedItems] = useState<JSX.Element[] | null>(
-    null
-  );
   const [loader, setLoader] = useState<JSX.Element | null>(null);
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
 
+  const prevQuery = useRef<string | undefined>(undefined);
   // Used to cancel old queries. This is needed in case the time to retrieve
   // items varies, and an old query evaluates after a newer one.
   const prevQueryToken = useRef<{ cancel: (() => void) | undefined }>({
@@ -29,8 +27,13 @@ export function DefaultSlashMenu<BSchema extends BlockSchema>(
   // query that returned any results.
   const lastUsefulQueryLength = useRef(0);
 
-  // Sets the items to render.
+  // Gets the items to display and orders them by group.
   useEffect(() => {
+    if (props.query === prevQuery.current) {
+      return;
+    }
+    prevQuery.current = props.query;
+
     // TODO: Does this pattern make sense? https://stackoverflow.com/questions/30233302/promise-is-it-possible-to-force-cancel-a-promise
     // Cancels the previous query since it has changed.
     if (prevQueryToken.current.cancel !== undefined) {
@@ -41,55 +44,72 @@ export function DefaultSlashMenu<BSchema extends BlockSchema>(
     setLoader(<Loader className={"bn-slash-menu-loader"} type="dots" />);
 
     props.getItems(props.query, prevQueryToken.current).then((items) => {
-      prevQueryToken.current.cancel = () => {
-        return;
-      };
+      prevQueryToken.current.cancel = undefined;
 
       const orderedItems: ReactSlashMenuItem<BSchema>[] = [];
-      const renderedItems: JSX.Element[] = [];
-      let itemIndex = 0;
 
       const groups = groupBy(items, (item) => item.group);
 
       foreach(groups, (groupedItems) => {
-        renderedItems.push(
-          <Menu.Label key={groupedItems[0].group}>
-            {groupedItems[0].group}
-          </Menu.Label>
-        );
-
         for (const item of groupedItems) {
           orderedItems.push(item);
-          renderedItems.push(
-            <SlashMenuItem
-              key={item.name}
-              name={item.name}
-              icon={item.icon}
-              hint={item.hint}
-              shortcut={item.shortcut}
-              isSelected={selectedIndex === itemIndex}
-              set={() => {
-                props.closeMenu();
-                props.clearQuery();
-                props.executeItem(item);
-              }}
-            />
-          );
-          itemIndex++;
         }
       });
-
-      setOrderedItems(orderedItems);
-      setRenderedItems(renderedItems);
-      setLoader(null);
 
       if (orderedItems.length > 0) {
         lastUsefulQueryLength.current = props.query.length;
       } else if (props.query.length - lastUsefulQueryLength.current > 3) {
         props.closeMenu();
       }
+
+      setOrderedItems(orderedItems);
+      setLoader(null);
     });
-  }, [props, selectedIndex]);
+  }, [props]);
+
+  // Creates the JSX elements to render.
+  const renderedItems = useMemo(() => {
+    if (orderedItems === undefined) {
+      return null;
+    }
+
+    if (orderedItems.length === 0) {
+      return [];
+    }
+
+    const renderedItems: JSX.Element[] = [];
+    let currentGroup = undefined;
+    let itemIndex = 0;
+
+    for (const item of orderedItems) {
+      if (item.group !== currentGroup) {
+        currentGroup = item.group;
+        renderedItems.push(
+          <Menu.Label key={currentGroup}>{currentGroup}</Menu.Label>
+        );
+      }
+
+      renderedItems.push(
+        <SlashMenuItem
+          key={item.name}
+          name={item.name}
+          icon={item.icon}
+          hint={item.hint}
+          shortcut={item.shortcut}
+          isSelected={selectedIndex === itemIndex}
+          set={() => {
+            props.closeMenu();
+            props.clearQuery();
+            props.executeItem(item);
+          }}
+        />
+      );
+
+      itemIndex++;
+    }
+
+    return renderedItems;
+  }, [orderedItems, props, selectedIndex]);
 
   // Handles keyboard navigation.
   useEffect(() => {
