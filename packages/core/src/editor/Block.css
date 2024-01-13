@@ -314,31 +314,31 @@ NESTED BLOCKS
 }
 
 /* TODO: would be nicer if defined from code */
+.bn-container {
+  --bn-default-placeholder: "Enter text or type '/' for commands";
+  --bn-filter-placeholder: "Type to filter";
+  --bn-heading-placeholder: "Heading";
+  --bn-list-placeholder: "List";
+}
 
 .bn-block-content.bn-is-empty.bn-has-anchor .bn-inline-content:before {
-  content: "Enter text or type '/' for commands";
+  content: var(--bn-default-placeholder);
 }
 
 .bn-block-content.bn-is-filter.bn-has-anchor .bn-inline-content:before {
-  content: "Type to filter";
+  content: var(--bn-filter-placeholder);
 }
 
 .bn-block-content[data-content-type="heading"].bn-is-empty
   .bn-inline-content:before {
-  content: "Heading";
+  content: var(--bn-heading-placeholder);
 }
 
 .bn-block-content[data-content-type="bulletListItem"].bn-is-empty
   .bn-inline-content:before,
 .bn-block-content[data-content-type="numberedListItem"].bn-is-empty
   .bn-inline-content:before {
-  content: "List";
-}
-
-.bn-is-empty
-  .bn-block-content[data-content-type="captionedImage"]
-  .bn-inline-content:before {
-  content: "Caption";
+  content: var(--bn-list-placeholder);
 }
 
 /* TEXT COLORS */
