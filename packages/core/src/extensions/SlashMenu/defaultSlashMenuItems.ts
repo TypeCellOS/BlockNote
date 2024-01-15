@@ -9,7 +9,7 @@ import {
   isStyledTextInlineContent,
 } from "../../schema";
 import { imageToolbarPluginKey } from "../ImageToolbar/ImageToolbarPlugin";
-import { BaseSlashMenuItem } from "./BaseSlashMenuItem";
+import { SuggestionItem } from "../../extensions-shared/suggestion/SuggestionItem";
 
 // Sets the editor's text cursor position to the next content editable block,
 // so either a block with inline content or a table. The last block is always a
@@ -79,7 +79,7 @@ export async function getDefaultSlashMenuItems<
   I extends InlineContentSchema,
   S extends StyleSchema
 >(query: string, schema: BSchema = defaultBlockSchema as unknown as BSchema) {
-  const slashMenuItems: BaseSlashMenuItem<BSchema, I, S>[] = [];
+  const slashMenuItems: SuggestionItem<BSchema, I, S>[] = [];
 
   if ("heading" in schema && "level" in schema.heading.propSchema) {
     // Command for creating a level 1 heading

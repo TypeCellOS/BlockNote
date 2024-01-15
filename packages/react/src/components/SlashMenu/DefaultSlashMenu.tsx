@@ -2,19 +2,23 @@ import { Loader, Menu } from "@mantine/core";
 import foreach from "lodash.foreach";
 import groupBy from "lodash.groupby";
 
-import { BlockSchema } from "@blocknote/core";
+import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ReactSlashMenuItem } from "../../slashMenuItems/ReactSlashMenuItem";
 import { SlashMenuItem } from "./SlashMenuItem";
-import type { SlashMenuProps } from "./SlashMenuPositioner";
+import { SuggestionMenuProps } from "../../components-shared/SuggestionMenu/SuggestionMenuPositioner";
 
-export function DefaultSlashMenu<BSchema extends BlockSchema>(
-  props: SlashMenuProps<BSchema>
+export function DefaultSlashMenu<
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(
+  props: SuggestionMenuProps<ReactSlashMenuItem<BSchema, I, S>, BSchema, I, S>
 ) {
   const { query, getItems, closeMenu, executeItem, clearQuery, editor } = props;
 
   const [orderedItems, setOrderedItems] = useState<
-    ReactSlashMenuItem<BSchema>[] | undefined
+    ReactSlashMenuItem<BSchema, I, S>[] | undefined
   >(undefined);
   const [loading, setLoading] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
@@ -39,7 +43,7 @@ export function DefaultSlashMenu<BSchema extends BlockSchema>(
         return;
       }
 
-      const orderedItems: ReactSlashMenuItem<BSchema>[] = [];
+      const orderedItems: ReactSlashMenuItem<BSchema, I, S>[] = [];
 
       const groups = groupBy(items, (item) => item.group);
 

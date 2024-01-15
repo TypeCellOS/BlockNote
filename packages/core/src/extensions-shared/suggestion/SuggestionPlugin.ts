@@ -5,6 +5,7 @@ import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import { BlockSchema, InlineContentSchema, StyleSchema } from "../../schema";
 import { BaseUiElementState } from "../BaseUiElementTypes";
 import { SuggestionItem } from "./SuggestionItem";
+import { EventEmitter } from "../../util/EventEmitter";
 
 const findBlock = findParentNode((node) => node.type.name === "blockContainer");
 
@@ -12,7 +13,7 @@ export type SuggestionsMenuState = BaseUiElementState & {
   query: string;
 };
 
-class SuggestionsMenuView<
+class SuggestionMenuView<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
@@ -133,14 +134,14 @@ function getDefaultPluginState(): SuggestionPluginState {
  * - This version hides some unnecessary complexity from the user of the plugin.
  * - This version handles key events differently
  */
-export const setupSuggestionsMenu = <
-  T extends SuggestionItem,
+export const setupSuggestionMenu = <
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
+  T extends SuggestionItem<BSchema, I, S>
 >(
   editor: BlockNoteEditor<BSchema, I, S>,
-  updateSuggestionsMenu: (suggestionsMenuState: SuggestionsMenuState) => void,
+  updateSuggestionMenu: (suggestionMenuState: SuggestionsMenuState) => void,
 
   pluginKey: PluginKey,
   defaultTriggerCharacter: string,
@@ -158,7 +159,7 @@ export const setupSuggestionsMenu = <
     throw new Error("'char' should be a single character");
   }
 
-  let suggestionsPluginView: SuggestionsMenuView<BSchema, I, S>;
+  let suggestionPluginView: SuggestionMenuView<BSchema, I, S>;
 
   const deactivate = (view: EditorView) => {
     view.dispatch(view.state.tr.setMeta(pluginKey, { deactivate: true }));
@@ -169,13 +170,13 @@ export const setupSuggestionsMenu = <
       key: pluginKey,
 
       view: () => {
-        suggestionsPluginView = new SuggestionsMenuView<BSchema, I, S>(
+        suggestionPluginView = new SuggestionMenuView<BSchema, I, S>(
           editor,
           pluginKey,
 
-          updateSuggestionsMenu
+          updateSuggestionMenu
         );
-        return suggestionsPluginView;
+        return suggestionPluginView;
       },
 
       state: {
@@ -313,10 +314,77 @@ export const setupSuggestionsMenu = <
         .focus()
         .deleteRange({
           from:
-            suggestionsPluginView.pluginState.queryStartPos! -
-            suggestionsPluginView.pluginState.triggerCharacter!.length,
+            suggestionPluginView.pluginState.queryStartPos! -
+            suggestionPluginView.pluginState.triggerCharacter!.length,
           to: editor._tiptapEditor.state.selection.from,
         })
         .run(),
   };
 };
+
+export class SuggestionMenuProseMirrorPlugin<
+  Item extends SuggestionItem<BSchema, I, S>,
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+> extends EventEmitter<any> {
+  public readonly plugin: Plugin;
+  public readonly getItems: (query: string) => Promise<Item[]>;
+  public readonly executeItem: (item: Item) => void;
+  public readonly closeMenu: () => void;
+  public readonly clearQuery: () => void;
+
+  constructor(
+    editor: BlockNoteEditor<BSchema, I, S>,
+    name: string,
+    triggerCharacter: string,
+    getItems: (query: string) => Promise<Item[]>
+  ) {
+    if (triggerCharacter.length !== 1) {
+      throw new Error(
+        `The trigger character must be a single character, but received ${triggerCharacter}`
+      );
+    }
+
+    super();
+    const suggestionMenu = setupSuggestionMenu<BSchema, I, S, Item>(
+      editor,
+      (state) => {
+        this.emit("update", state);
+      },
+      new PluginKey(name),
+      triggerCharacter,
+      getItems,
+      ({ item, editor }) => item.execute(editor)
+    );
+
+    this.plugin = suggestionMenu.plugin;
+    this.getItems = getItems;
+    this.executeItem = suggestionMenu.executeItem;
+    this.closeMenu = suggestionMenu.closeMenu;
+    this.clearQuery = suggestionMenu.clearQuery;
+  }
+
+  public onUpdate(callback: (state: SuggestionsMenuState) => void) {
+    return this.on("update", callback);
+  }
+}
+
+export function createSuggestionMenu<
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema,
+  SuggestionMenuItem extends SuggestionItem<BSchema, I, S>
+>(
+  name: string,
+  triggerCharacter: string,
+  getItems: (query: string) => Promise<SuggestionMenuItem[]>
+) {
+  return (editor: BlockNoteEditor<BSchema, I, S>) =>
+    new SuggestionMenuProseMirrorPlugin(
+      editor,
+      name,
+      triggerCharacter,
+      getItems
+    );
+}

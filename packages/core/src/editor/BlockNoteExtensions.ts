@@ -66,6 +66,7 @@ export const getBlockNoteExtensions = <
 
     // DropCursor,
     Placeholder.configure({
+      editor: opts.editor,
       includeChildren: true,
       showOnlyCurrent: false,
     }),

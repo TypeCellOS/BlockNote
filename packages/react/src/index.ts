@@ -41,6 +41,7 @@ export * from "./components/ImageToolbar/ImageToolbarPositioner";
 export * from "./components/TableHandles/DefaultTableHandle";
 export * from "./components/TableHandles/TableHandlePositioner";
 
+export * from "./components-shared/SuggestionMenu/SuggestionMenuPositioner";
 export * from "./components-shared/Toolbar/Toolbar";
 export * from "./components-shared/Toolbar/ToolbarButton";
 export * from "./components-shared/Toolbar/ToolbarDropdown";

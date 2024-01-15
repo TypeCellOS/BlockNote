@@ -32,8 +32,6 @@ import { FormattingToolbarProsemirrorPlugin } from "../extensions/FormattingTool
 import { HyperlinkToolbarProsemirrorPlugin } from "../extensions/HyperlinkToolbar/HyperlinkToolbarPlugin";
 import { ImageToolbarProsemirrorPlugin } from "../extensions/ImageToolbar/ImageToolbarPlugin";
 import { SideMenuProsemirrorPlugin } from "../extensions/SideMenu/SideMenuPlugin";
-import { BaseSlashMenuItem } from "../extensions/SlashMenu/BaseSlashMenuItem";
-import { SlashMenuProsemirrorPlugin } from "../extensions/SlashMenu/SlashMenuPlugin";
 import { getDefaultSlashMenuItems } from "../extensions/SlashMenu/defaultSlashMenuItems";
 import { TableHandlesProsemirrorPlugin } from "../extensions/TableHandles/TableHandlesPlugin";
 import { UniqueID } from "../extensions/UniqueID/UniqueID";
@@ -69,6 +67,11 @@ import { transformPasted } from "./transformPasted";
 // CSS
 import "./Block.css";
 import "./editor.css";
+import {
+  createSuggestionMenu,
+  SuggestionMenuProseMirrorPlugin,
+} from "../extensions-shared/suggestion/SuggestionPlugin";
+import { SuggestionItem } from "../extensions-shared/suggestion/SuggestionItem";
 
 export type BlockNoteEditorOptions<
   BSpecs extends BlockSpecs,
@@ -83,9 +86,15 @@ export type BlockNoteEditorOptions<
    *
    * @default defaultSlashMenuItems from `./extensions/SlashMenu`
    */
-  slashMenuItems: (
-    query: string
-  ) => Promise<BaseSlashMenuItem<any, any, any>[]>;
+  slashMenuItems: (query: string) => Promise<SuggestionItem<any, any, any>[]>;
+
+  extraSuggestionMenus: {
+    name: string;
+    triggerCharacter: string;
+    getItems: <Item extends SuggestionItem<any, any, any>>(
+      query: string
+    ) => Promise<Item[]>;
+  }[];
 
   /**
    * The HTML element that should be used as the parent element for the editor.
@@ -222,12 +231,6 @@ export class BlockNoteEditor<
     SSchema
   >;
   public readonly formattingToolbar: FormattingToolbarProsemirrorPlugin;
-  public readonly slashMenu: SlashMenuProsemirrorPlugin<
-    BSchema,
-    ISchema,
-    SSchema,
-    any
-  >;
   public readonly hyperlinkToolbar: HyperlinkToolbarProsemirrorPlugin<
     BSchema,
     ISchema,
@@ -250,6 +253,16 @@ export class BlockNoteEditor<
         SSchema
       >
     | undefined;
+
+  public readonly suggestionMenus: Record<
+    string | "slashMenu",
+    SuggestionMenuProseMirrorPlugin<
+      SuggestionItem<BSchema, ISchema, SSchema>,
+      BSchema,
+      ISchema,
+      SSchema
+    >
+  > = {};
 
   public readonly uploadFile: ((file: File) => Promise<string>) | undefined;
 
@@ -289,11 +302,32 @@ export class BlockNoteEditor<
 
     this.sideMenu = new SideMenuProsemirrorPlugin(this);
     this.formattingToolbar = new FormattingToolbarProsemirrorPlugin(this);
-    this.slashMenu = new SlashMenuProsemirrorPlugin(
-      this,
+
+    this.suggestionMenus.slashMenu = createSuggestionMenu<
+      BSchema,
+      ISchema,
+      SSchema,
+      SuggestionItem<BSchema, ISchema, SSchema>
+    >(
+      "slashMenu",
+      "/",
       newOptions.slashMenuItems ||
         ((query) => getDefaultSlashMenuItems(query, this.blockSchema) as any)
-    );
+    )(this);
+
+    for (const extraSuggestionMenu of newOptions.extraSuggestionMenus || []) {
+      this.suggestionMenus[extraSuggestionMenu.name] = createSuggestionMenu<
+        BSchema,
+        ISchema,
+        SSchema,
+        SuggestionItem<BSchema, ISchema, SSchema>
+      >(
+        extraSuggestionMenu.name,
+        extraSuggestionMenu.triggerCharacter,
+        extraSuggestionMenu.getItems
+      )(this);
+    }
+
     this.hyperlinkToolbar = new HyperlinkToolbarProsemirrorPlugin(this);
     this.imageToolbar = new ImageToolbarProsemirrorPlugin(this);
 
@@ -318,10 +352,10 @@ export class BlockNoteEditor<
         return [
           this.sideMenu.plugin,
           this.formattingToolbar.plugin,
-          this.slashMenu.plugin,
           this.hyperlinkToolbar.plugin,
           this.imageToolbar.plugin,
           ...(this.tableHandles ? [this.tableHandles.plugin] : []),
+          ...Object.values(this.suggestionMenus).map((menu) => menu.plugin),
         ];
       },
     });

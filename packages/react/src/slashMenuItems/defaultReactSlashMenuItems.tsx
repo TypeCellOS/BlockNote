@@ -1,11 +1,11 @@
 import {
-  BaseSlashMenuItem,
   BlockSchema,
   defaultBlockSchema,
   DefaultBlockSchema,
   getDefaultSlashMenuItems,
   InlineContentSchema,
   StyleSchema,
+  SuggestionItem,
 } from "@blocknote/core";
 import {
   RiH1,
@@ -22,10 +22,7 @@ import { ReactSlashMenuItem } from "./ReactSlashMenuItem";
 
 const extraFields: Record<
   string,
-  Omit<
-    ReactSlashMenuItem<DefaultBlockSchema>,
-    keyof BaseSlashMenuItem<DefaultBlockSchema, any, any>
-  >
+  Omit<ReactSlashMenuItem, keyof SuggestionItem<DefaultBlockSchema, any, any>>
 > = {
   Heading: {
     group: "Headings",
@@ -88,7 +85,7 @@ export async function getDefaultReactSlashMenuItems<
   // infer to DefaultBlockSchema if it is not defined.
   schema: BSchema = defaultBlockSchema as any as BSchema
 ): Promise<ReactSlashMenuItem<BSchema, I, S>[]> {
-  const slashMenuItems: BaseSlashMenuItem<BSchema, I, S>[] =
+  const slashMenuItems: SuggestionItem<BSchema, I, S>[] =
     await getDefaultSlashMenuItems(query, schema);
 
   return slashMenuItems.map((item) => ({

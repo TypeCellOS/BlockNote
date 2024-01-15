@@ -15,7 +15,6 @@ import {
   StyleSchema,
 } from "../../schema";
 import { EventEmitter } from "../../util/EventEmitter";
-import { slashMenuPluginKey } from "../SlashMenu/SlashMenuPlugin";
 import { MultipleNodeSelection } from "./MultipleNodeSelection";
 
 let dragImageElement: Element | undefined;
@@ -567,11 +566,13 @@ export class SideMenuView<
     // Focuses and activates the suggestion menu.
     this.pmView.focus();
     this.pmView.dispatch(
-      this.pmView.state.tr.scrollIntoView().setMeta(slashMenuPluginKey, {
-        // TODO import suggestion plugin key
-        activate: true,
-        type: "drag",
-      })
+      this.pmView.state.tr
+        .scrollIntoView()
+        .setMeta(this.editor.suggestionMenus.slashMenu.plugin.spec.key!, {
+          // TODO import suggestion plugin key
+          activate: true,
+          type: "drag",
+        })
     );
   }
 }
