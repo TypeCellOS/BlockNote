@@ -3,35 +3,39 @@ import foreach from "lodash.foreach";
 import groupBy from "lodash.groupby";
 
 import { BlockSchema } from "@blocknote/core";
-import { SlashMenuItem } from "./SlashMenuItem";
-import type { SlashMenuProps } from "./SlashMenuPositioner";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ReactSlashMenuItem } from "../../slashMenuItems/ReactSlashMenuItem";
+import { SlashMenuItem } from "./SlashMenuItem";
+import type { SlashMenuProps } from "./SlashMenuPositioner";
 
 export function DefaultSlashMenu<BSchema extends BlockSchema>(
   props: SlashMenuProps<BSchema>
 ) {
+  const { query, getItems, closeMenu, executeItem, clearQuery, editor } = props;
+
   const [orderedItems, setOrderedItems] = useState<
     ReactSlashMenuItem<BSchema>[] | undefined
   >(undefined);
-  const [loader, setLoader] = useState<JSX.Element | null>(null);
+  const [loading, setLoading] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
 
   // Used to ignore the previous query if a new one is made before it returns.
-  const currentQuery = useRef<string | undefined>(undefined);
+  const currentQuery = useRef<string | undefined>();
+
   // Used to close the menu if the query is >3 characters longer than the last
   // query that returned any results.
   const lastUsefulQueryLength = useRef(0);
 
   // Gets the items to display and orders them by group.
   useEffect(() => {
-    const thisQuery = props.query;
-    currentQuery.current = props.query;
+    const thisQuery = query;
+    currentQuery.current = query;
 
-    setLoader(<Loader className={"bn-slash-menu-loader"} type="dots" />);
+    setLoading(true);
 
-    props.getItems(props.query).then((items) => {
+    getItems(query).then((items) => {
       if (currentQuery.current !== thisQuery) {
+        // outdated query returned, ignore the result
         return;
       }
 
@@ -46,15 +50,15 @@ export function DefaultSlashMenu<BSchema extends BlockSchema>(
       });
 
       if (orderedItems.length > 0) {
-        lastUsefulQueryLength.current = props.query.length;
-      } else if (props.query.length - lastUsefulQueryLength.current > 3) {
-        props.closeMenu();
+        lastUsefulQueryLength.current = query.length;
+      } else if (query.length - lastUsefulQueryLength.current > 3) {
+        closeMenu();
       }
 
       setOrderedItems(orderedItems);
-      setLoader(null);
+      setLoading(false);
     });
-  }, [props]);
+  }, [query, getItems, closeMenu]);
 
   // Creates the JSX elements to render.
   const renderedItems = useMemo(() => {
@@ -87,9 +91,9 @@ export function DefaultSlashMenu<BSchema extends BlockSchema>(
           shortcut={item.shortcut}
           isSelected={selectedIndex === itemIndex}
           set={() => {
-            props.closeMenu();
-            props.clearQuery();
-            props.executeItem(item);
+            closeMenu();
+            clearQuery();
+            executeItem(item);
           }}
         />
       );
@@ -98,7 +102,7 @@ export function DefaultSlashMenu<BSchema extends BlockSchema>(
     }
 
     return renderedItems;
-  }, [orderedItems, props, selectedIndex]);
+  }, [closeMenu, executeItem, clearQuery, orderedItems, selectedIndex]);
 
   // Handles keyboard navigation.
   useEffect(() => {
@@ -129,9 +133,9 @@ export function DefaultSlashMenu<BSchema extends BlockSchema>(
         event.preventDefault();
 
         if (orderedItems !== undefined) {
-          props.closeMenu();
-          props.clearQuery();
-          props.executeItem(orderedItems[selectedIndex]);
+          closeMenu();
+          clearQuery();
+          executeItem(orderedItems[selectedIndex]);
         }
 
         return true;
@@ -140,7 +144,7 @@ export function DefaultSlashMenu<BSchema extends BlockSchema>(
       if (event.key === "Escape") {
         event.preventDefault();
 
-        props.closeMenu();
+        closeMenu();
 
         return true;
       }
@@ -148,20 +152,31 @@ export function DefaultSlashMenu<BSchema extends BlockSchema>(
       return false;
     };
 
-    props.editor.domElement.addEventListener(
+    editor.domElement.addEventListener(
       "keydown",
       preventMenuNavigationKeys,
       true
     );
 
     return () => {
-      props.editor.domElement.removeEventListener(
+      editor.domElement.removeEventListener(
         "keydown",
         preventMenuNavigationKeys,
         true
       );
     };
-  }, [selectedIndex, orderedItems, props.editor.domElement, props]);
+  }, [
+    selectedIndex,
+    orderedItems,
+    editor.domElement,
+    closeMenu,
+    clearQuery,
+    executeItem,
+  ]);
+
+  const loader = loading ? (
+    <Loader className={"bn-slash-menu-loader"} type="dots" />
+  ) : null;
 
   return (
     <Menu
