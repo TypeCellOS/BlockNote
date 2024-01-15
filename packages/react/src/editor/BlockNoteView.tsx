@@ -18,9 +18,9 @@ import { FormattingToolbarPositioner } from "../components/FormattingToolbar/For
 import { HyperlinkToolbarPositioner } from "../components/HyperlinkToolbar/HyperlinkToolbarPositioner";
 import { ImageToolbarPositioner } from "../components/ImageToolbar/ImageToolbarPositioner";
 import { SideMenuPositioner } from "../components/SideMenu/SideMenuPositioner";
-import { SlashMenuPositioner } from "../components/SlashMenu/SlashMenuPositioner";
 import { TableHandlesPositioner } from "../components/TableHandles/TableHandlePositioner";
 import "./styles.css";
+import { MantineSlashMenuPositioner } from "../components/SlashMenu/MantineSlashMenuPositioner";
 
 const mantineTheme = {
   // Removes button press effect
@@ -98,7 +98,7 @@ export function BlockNoteView<
           <>
             <FormattingToolbarPositioner editor={editor} />
             <HyperlinkToolbarPositioner editor={editor} />
-            <SlashMenuPositioner editor={editor} />
+            <MantineSlashMenuPositioner editor={editor} />
             <SideMenuPositioner editor={editor} />
             <ImageToolbarPositioner editor={editor} />
             {editor.blockSchema.table && (

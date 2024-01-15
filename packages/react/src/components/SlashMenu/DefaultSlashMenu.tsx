@@ -1,6 +1,5 @@
 import {
   Combobox,
-  Menu,
   Popover,
   useCombobox,
   useComboboxTargetProps,
@@ -9,68 +8,57 @@ import foreach from "lodash.foreach";
 import groupBy from "lodash.groupby";
 
 import { BlockSchema } from "@blocknote/core";
-import { useEffect, useRef, useState } from "react";
-import { ReactSlashMenuItem } from "../../slashMenuItems/ReactSlashMenuItem";
+import { SyntheticEvent, useEffect, useRef, useState } from "react";
 import { SlashMenuItem } from "./SlashMenuItem";
 import type { SlashMenuProps } from "./SlashMenuPositioner";
 
 export function DefaultSlashMenu<BSchema extends BlockSchema>(
-  props: SlashMenuProps<BSchema>
+  props: SlashMenuProps<BSchema> & { referencePos: DOMRect }
 ) {
-  const [orderedItems, setOrderedItems] = useState<
-    ReactSlashMenuItem<BSchema>[] | undefined
-  >(undefined);
   const [renderedItems, setRenderedItems] = useState<JSX.Element[] | undefined>(
     undefined
   );
-  const [selectedIndex, setSelectedIndex] = useState<number>(0);
+  const itemCallbacks = useRef<Record<string, () => void>>({});
   const notFoundCount = useRef(0);
 
   // Sets the items to render.
   // TODO: remove?
   useEffect(() => {
     props.items.then((items) => {
-      const orderedItems: ReactSlashMenuItem<BSchema>[] = [];
       const renderedItems: JSX.Element[] = [];
-      let itemIndex = 0;
 
       const groups = groupBy(items, (item) => item.group);
 
       foreach(groups, (groupedItems) => {
         renderedItems.push(
-          <Menu.Label key={groupedItems[0].group}>
-            {groupedItems[0].group}
-          </Menu.Label>
+          <Combobox.Group label={groupedItems[0].group}>
+            {groupedItems.map((item) => (
+              <Combobox.Option value={item.name}>
+                <SlashMenuItem
+                  name={item.name}
+                  icon={item.icon}
+                  hint={item.hint}
+                  shortcut={item.shortcut}
+                />
+              </Combobox.Option>
+            ))}
+          </Combobox.Group>
         );
-
-        for (const item of groupedItems) {
-          orderedItems.push(item);
-          renderedItems.push(
-            <SlashMenuItem
-              key={item.name}
-              name={item.name}
-              icon={item.icon}
-              hint={item.hint}
-              shortcut={item.shortcut}
-              isSelected={selectedIndex === itemIndex}
-              set={() => {
-                props.closeMenu();
-                props.clearQuery();
-                props.executeItem(item);
-              }}
-            />
-          );
-          itemIndex++;
-        }
+        groupedItems.forEach((item) => {
+          itemCallbacks.current[item.name] = () => {
+            props.closeMenu();
+            props.clearQuery();
+            props.executeItem(item);
+          };
+        });
       });
 
-      setOrderedItems(orderedItems);
       setRenderedItems(renderedItems);
 
       // Closes menu if query does not match any items after 3 tries.
       // TODO: Not quite the right behaviour - should actually close if 3
       //  characters are added to the first query that does not match any items.
-      if (orderedItems.length === 0) {
+      if (items.length === 0) {
         if (notFoundCount.current >= 3) {
           props.closeMenu();
         } else {
@@ -78,123 +66,53 @@ export function DefaultSlashMenu<BSchema extends BlockSchema>(
         }
       }
     });
-  }, [props, selectedIndex]);
-
-  // Handles keyboard navigation.
-  // TODO: remove
-  useEffect(() => {
-    const preventMenuNavigationKeys = (event: KeyboardEvent) => {
-      console.log(event.key);
-      if (event.key === "ArrowUp") {
-        event.preventDefault();
-
-        if (orderedItems !== undefined) {
-          setSelectedIndex(
-            (selectedIndex - 1 + orderedItems!.length) % orderedItems!.length
-          );
-        }
-
-        return true;
-      }
-
-      if (event.key === "ArrowDown") {
-        event.preventDefault();
-
-        if (orderedItems !== undefined) {
-          setSelectedIndex((selectedIndex + 1) % orderedItems!.length);
-        }
-
-        return true;
-      }
-
-      if (event.key === "Enter") {
-        event.preventDefault();
-
-        if (orderedItems !== undefined) {
-          props.closeMenu();
-          props.clearQuery();
-          props.executeItem(orderedItems[selectedIndex]);
-        }
-
-        return true;
-      }
-
-      if (event.key === "Escape") {
-        event.preventDefault();
-
-        props.closeMenu();
-
-        return true;
-      }
-
-      return false;
-    };
-
-    return () => {
-      props.editor.domElement.removeEventListener(
-        "keydown",
-        preventMenuNavigationKeys,
-        true
-      );
-    };
-  }, [selectedIndex, orderedItems, props.editor.domElement, props]);
+  }, [props]);
 
   const combobox = useCombobox({
     onDropdownClose: () => combobox.resetSelectedOption(),
     opened: true,
   });
 
-  const options = renderedItems?.map((item, i) => (
-    <Combobox.Option value={i + ""} key={i}>
-      item {i}
-    </Combobox.Option>
-  ));
-
   return (
     <Combobox
+      middlewares={{
+        flip: true,
+        shift: false,
+        inline: false,
+        size: true,
+      }}
+      position={"bottom-start"}
+      offset={0}
+      width={"400px"}
+      withinPortal={false}
       store={combobox}
-      onOptionSubmit={(val) => {
-        // setValue(val);
+      onOptionSubmit={(value) => {
         combobox.closeDropdown();
+        itemCallbacks.current[value]();
       }}>
-      <CustomComboboxTarget editor={props.editor} />
-      <Combobox.Dropdown>
-        <Combobox.Options>{options}</Combobox.Options>
+      <CustomComboboxTarget
+        editor={props.editor}
+        referenceRect={props.referencePos}
+      />
+      {/* TODO: Not quite working properly with flip/size middleware */}
+      {/* i.e. when the menu needs to be flipped but not resized */}
+      <Combobox.Dropdown className={"bn-slash-menu"}>
+        <Combobox.Options
+          style={{
+            maxHeight: "100%",
+            position: "relative",
+            overflow: "scroll",
+          }}>
+          {renderedItems}
+        </Combobox.Options>
       </Combobox.Dropdown>
     </Combobox>
-
-    // <Menu
-    //   withinPortal={false}
-    //   trapFocus={true}
-    //   /** Hacky fix to get the desired menu behaviour. The trigger="hover"
-    //    * attribute allows focus to remain on the editor, allowing for suggestion
-    //    * filtering. The closeDelay=10000000 attribute allows the menu to stay open
-    //    * practically indefinitely, as normally hovering off it would cause it to
-    //    * close due to trigger="hover".
-    //    */
-    //   defaultOpened={true}
-    //   trigger={"click"}
-    //   closeDelay={10000000}>
-    //   <Menu.Dropdown
-    //     onMouseDown={(event) => event.preventDefault()}
-    //     className={"bn-slash-menu"}>
-    //     {renderedItems ? (
-    //       renderedItems.length > 0 ? (
-    //         renderedItems
-    //       ) : (
-    //         <Menu.Item>No match found</Menu.Item>
-    //       )
-    //     ) : (
-    //       <Menu.Item>Loading...</Menu.Item>
-    //     )}
-    //   </Menu.Dropdown>
-    // </Menu>
   );
 }
 
 // Our replacement for Mantines Combobox.Target
 // We don't really have a Target element, as our editor functions as the target
-function CustomComboboxTarget(props: { editor: any }) {
+function CustomComboboxTarget(props: { editor: any; referenceRect: DOMRect }) {
   const p = useComboboxTargetProps({
     onKeyDown: undefined,
     targetType: undefined,
@@ -214,10 +132,18 @@ function CustomComboboxTarget(props: { editor: any }) {
     return () => {
       props.editor.domElement.removeEventListener("keydown", f, true);
     };
-  }, [props.editor.domElement]);
+  }, [p, props.editor.domElement]);
   return (
     <Popover.Target>
-      <div />
+      <div
+        style={{
+          position: "absolute",
+          top: props.referenceRect.top,
+          left: props.referenceRect.left,
+          width: props.referenceRect.width,
+          height: props.referenceRect.height,
+        }}
+      />
     </Popover.Target>
   );
 }
@@ -225,7 +151,7 @@ function CustomComboboxTarget(props: { editor: any }) {
 // helper to convert a native event to a react style event
 export const createSyntheticEvent = <T extends Element, E extends Event>(
   event: E
-): React.SyntheticEvent<T, E> => {
+): SyntheticEvent<T, E> => {
   let isDefaultPrevented = false;
   let isPropagationStopped = false;
   const preventDefault = () => {
@@ -249,7 +175,9 @@ export const createSyntheticEvent = <T extends Element, E extends Event>(
     isDefaultPrevented: () => isDefaultPrevented,
     stopPropagation,
     isPropagationStopped: () => isPropagationStopped,
-    persist: () => {},
+    persist: () => {
+      return;
+    },
     timeStamp: event.timeStamp,
     type: event.type,
   };

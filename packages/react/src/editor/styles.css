@@ -435,12 +435,19 @@
 
 /* Slash Menu styling*/
 .bn-container .bn-slash-menu {
-    max-height: 100%;
-    position: relative;
+    display: flex;
+    /*overflow: scroll;*/
+    /*max-height: 100%;*/
+    /*position: relative;*/
+    /*width: 400px;*/
 }
 
 .bn-container .bn-slash-menu .mantine-Menu-item {
     height: 52px;
+}
+
+.bn-container .bn-slash-menu .mantine-Menu-item .bn-slash-menu-item-text {
+    flex-grow: 1;
 }
 
 .bn-container .bn-slash-menu .mantine-Menu-itemSection {
