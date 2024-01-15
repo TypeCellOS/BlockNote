@@ -13,10 +13,7 @@ export const addSlashMenu = async (editor: BlockNoteEditor) => {
   async function updateItems(
     query: string,
     getItems: (
-      query: string,
-      token: {
-        cancel: (() => void) | undefined;
-      }
+      query: string
     ) => Promise<
       BaseSlashMenuItem<
         DefaultBlockSchema,
@@ -33,11 +30,7 @@ export const addSlashMenu = async (editor: BlockNoteEditor) => {
     ) => void
   ) {
     element.innerHTML = "";
-    const items = await getItems(query, {
-      cancel: () => {
-        return;
-      },
-    });
+    const items = await getItems(query);
     const domItems = items.map((val, i) => {
       const element = createButton(val.name, () => {
         onClick(val);

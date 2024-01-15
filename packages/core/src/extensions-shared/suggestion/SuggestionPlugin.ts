@@ -144,12 +144,8 @@ export const setupSuggestionsMenu = <
 
   pluginKey: PluginKey,
   defaultTriggerCharacter: string,
-  getItems: (
-    query: string,
-    token: {
-      cancel: (() => void) | undefined;
-    }
-  ) => Promise<T[]> = () => new Promise((resolve) => resolve([])),
+  getItems: (query: string) => Promise<T[]> = () =>
+    new Promise((resolve) => resolve([])),
   onSelectItem: (props: {
     item: T;
     editor: BlockNoteEditor<BSchema, I, S>;

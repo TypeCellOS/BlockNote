@@ -17,34 +17,23 @@ export function DefaultSlashMenu<BSchema extends BlockSchema>(
   const [loader, setLoader] = useState<JSX.Element | null>(null);
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
 
-  const prevQuery = useRef<string | undefined>(undefined);
-  // Used to cancel old queries. This is needed in case the time to retrieve
-  // items varies, and an old query evaluates after a newer one.
-  const prevQueryToken = useRef<{ cancel: (() => void) | undefined }>({
-    cancel: undefined,
-  });
+  // Used to ignore the previous query if a new one is made before it returns.
+  const currentQuery = useRef<string | undefined>(undefined);
   // Used to close the menu if the query is >3 characters longer than the last
   // query that returned any results.
   const lastUsefulQueryLength = useRef(0);
 
   // Gets the items to display and orders them by group.
   useEffect(() => {
-    if (props.query === prevQuery.current) {
-      return;
-    }
-    prevQuery.current = props.query;
-
-    // TODO: Does this pattern make sense? https://stackoverflow.com/questions/30233302/promise-is-it-possible-to-force-cancel-a-promise
-    // Cancels the previous query since it has changed.
-    if (prevQueryToken.current.cancel !== undefined) {
-      prevQueryToken.current.cancel();
-      prevQueryToken.current.cancel = undefined;
-    }
+    const thisQuery = props.query;
+    currentQuery.current = props.query;
 
     setLoader(<Loader className={"bn-slash-menu-loader"} type="dots" />);
 
-    props.getItems(props.query, prevQueryToken.current).then((items) => {
-      prevQueryToken.current.cancel = undefined;
+    props.getItems(props.query).then((items) => {
+      if (currentQuery.current !== thisQuery) {
+        return;
+      }
 
       const orderedItems: ReactSlashMenuItem<BSchema>[] = [];
 

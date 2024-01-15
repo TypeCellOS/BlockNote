@@ -84,10 +84,7 @@ export type BlockNoteEditorOptions<
    * @default defaultSlashMenuItems from `./extensions/SlashMenu`
    */
   slashMenuItems: (
-    query: string,
-    token: {
-      cancel: (() => void) | undefined;
-    }
+    query: string
   ) => Promise<BaseSlashMenuItem<any, any, any>[]>;
 
   /**
