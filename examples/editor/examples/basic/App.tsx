@@ -1,9 +1,18 @@
-import { uploadToTmpFilesDotOrg_DEV_ONLY } from "@blocknote/core";
+import {
+  BlockNoteEditor,
+  DefaultBlockSchema,
+  defaultInlineContentSchema,
+  defaultInlineContentSpecs,
+  DefaultStyleSchema,
+  InlineContentSchema,
+  InlineContentSpecs,
+  uploadToTmpFilesDotOrg_DEV_ONLY,
+} from "@blocknote/core";
 import {
   BlockNoteView,
+  createReactInlineContentSpec,
   DefaultSlashMenu,
   FormattingToolbarPositioner,
-  getDefaultReactSlashMenuItems,
   HyperlinkToolbarPositioner,
   ImageToolbarPositioner,
   SideMenuPositioner,
@@ -16,8 +25,68 @@ import "@blocknote/react/style.css";
 
 type WindowWithProseMirror = Window & typeof globalThis & { ProseMirror: any };
 
+const MentionInlineContent = createReactInlineContentSpec(
+  {
+    type: "mention",
+    propSchema: {
+      user: {
+        default: "Unknown",
+      },
+    },
+    content: "none",
+  },
+  {
+    render: (props) => (
+      <span style={{ backgroundColor: "#8400ff33" }}>
+        @{props.inlineContent.props.user}
+      </span>
+    ),
+  }
+);
+
+const customInlineContentSpecs = {
+  ...defaultInlineContentSpecs,
+  mention: MentionInlineContent,
+} satisfies InlineContentSpecs;
+const customInlineContentSchema = {
+  ...defaultInlineContentSchema,
+  mention: MentionInlineContent.config,
+} satisfies InlineContentSchema;
+
+async function getMentionMenuItems(query: string) {
+  const users = ["Steve", "Bob", "Joe", "Mike"];
+  const items = users.map((user) => ({
+    name: user,
+    execute: (
+      editor: BlockNoteEditor<
+        DefaultBlockSchema,
+        typeof customInlineContentSchema,
+        DefaultStyleSchema
+      >
+    ) => {
+      editor._tiptapEditor.commands.insertContent({
+        type: "mention",
+        attrs: {
+          user: user,
+        },
+      });
+    },
+    aliases: [] as string[],
+  }));
+
+  return items.filter(
+    ({ name, aliases }) =>
+      name.toLowerCase().startsWith(query.toLowerCase()) ||
+      (aliases &&
+        aliases.filter((alias) =>
+          alias.toLowerCase().startsWith(query.toLowerCase())
+        ).length !== 0)
+  );
+}
+
 export function App() {
   const editor = useBlockNote({
+    inlineContentSpecs: customInlineContentSpecs,
     domAttributes: {
       editor: {
         class: "editor",
@@ -29,7 +98,7 @@ export function App() {
       {
         name: "mentions",
         triggerCharacter: "@",
-        getItems: getDefaultReactSlashMenuItems,
+        getItems: getMentionMenuItems,
       },
     ],
   });

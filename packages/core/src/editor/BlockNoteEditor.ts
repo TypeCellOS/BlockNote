@@ -91,9 +91,7 @@ export type BlockNoteEditorOptions<
   extraSuggestionMenus: {
     name: string;
     triggerCharacter: string;
-    getItems: <Item extends SuggestionItem<any, any, any>>(
-      query: string
-    ) => Promise<Item[]>;
+    getItems: (query: string) => Promise<SuggestionItem<any, any, any>[]>;
   }[];
 
   /**
