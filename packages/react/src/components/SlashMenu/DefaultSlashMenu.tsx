@@ -3,7 +3,7 @@ import foreach from "lodash.foreach";
 import groupBy from "lodash.groupby";
 
 import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ReactSlashMenuItem } from "../../slashMenuItems/ReactSlashMenuItem";
 import { SlashMenuItem } from "./SlashMenuItem";
 import { SuggestionMenuProps } from "../../components-shared/SuggestionMenu/SuggestionMenuPositioner";
@@ -12,10 +12,8 @@ export function DefaultSlashMenu<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
->(
-  props: SuggestionMenuProps<ReactSlashMenuItem<BSchema, I, S>, BSchema, I, S>
-) {
-  const { query, getItems, closeMenu, executeItem, clearQuery, editor } = props;
+>(props: SuggestionMenuProps<BSchema, I, S>) {
+  const { query, getItems, closeMenu, clearQuery, editor } = props;
 
   const [orderedItems, setOrderedItems] = useState<
     ReactSlashMenuItem<BSchema, I, S>[] | undefined
@@ -29,6 +27,15 @@ export function DefaultSlashMenu<
   // Used to close the menu if the query is >3 characters longer than the last
   // query that returned any results.
   const lastUsefulQueryLength = useRef(0);
+
+  const executeItem = useCallback(
+    (item: ReactSlashMenuItem<BSchema, I, S>) => {
+      closeMenu();
+      clearQuery();
+      item.execute(editor);
+    },
+    [clearQuery, closeMenu, editor]
+  );
 
   // Gets the items to display and orders them by group.
   useEffect(() => {
@@ -62,7 +69,7 @@ export function DefaultSlashMenu<
       setOrderedItems(orderedItems);
       setLoading(false);
     });
-  }, [query, getItems, closeMenu]);
+  }, [closeMenu, getItems, props, query]);
 
   // Creates the JSX elements to render.
   const renderedItems = useMemo(() => {
@@ -94,11 +101,7 @@ export function DefaultSlashMenu<
           hint={item.hint}
           shortcut={item.shortcut}
           isSelected={selectedIndex === itemIndex}
-          set={() => {
-            closeMenu();
-            clearQuery();
-            executeItem(item);
-          }}
+          onClick={() => executeItem(item)}
         />
       );
 
@@ -106,7 +109,7 @@ export function DefaultSlashMenu<
     }
 
     return renderedItems;
-  }, [closeMenu, executeItem, clearQuery, orderedItems, selectedIndex]);
+  }, [orderedItems, selectedIndex, executeItem]);
 
   // Handles keyboard navigation.
   useEffect(() => {
@@ -137,8 +140,6 @@ export function DefaultSlashMenu<
         event.preventDefault();
 
         if (orderedItems !== undefined) {
-          closeMenu();
-          clearQuery();
           executeItem(orderedItems[selectedIndex]);
         }
 

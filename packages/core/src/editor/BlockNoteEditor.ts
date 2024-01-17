@@ -32,7 +32,6 @@ import { FormattingToolbarProsemirrorPlugin } from "../extensions/FormattingTool
 import { HyperlinkToolbarProsemirrorPlugin } from "../extensions/HyperlinkToolbar/HyperlinkToolbarPlugin";
 import { ImageToolbarProsemirrorPlugin } from "../extensions/ImageToolbar/ImageToolbarPlugin";
 import { SideMenuProsemirrorPlugin } from "../extensions/SideMenu/SideMenuPlugin";
-import { getDefaultSlashMenuItems } from "../extensions/SlashMenu/defaultSlashMenuItems";
 import { TableHandlesProsemirrorPlugin } from "../extensions/TableHandles/TableHandlesPlugin";
 import { UniqueID } from "../extensions/UniqueID/UniqueID";
 import {
@@ -71,7 +70,7 @@ import {
   createSuggestionMenu,
   SuggestionMenuProseMirrorPlugin,
 } from "../extensions-shared/suggestion/SuggestionPlugin";
-import { SuggestionItem } from "../extensions-shared/suggestion/SuggestionItem";
+import { getDefaultSlashMenuItems } from "../extensions/SlashMenu/defaultSlashMenuItems";
 
 export type BlockNoteEditorOptions<
   BSpecs extends BlockSpecs,
@@ -86,12 +85,12 @@ export type BlockNoteEditorOptions<
    *
    * @default defaultSlashMenuItems from `./extensions/SlashMenu`
    */
-  slashMenuItems: (query: string) => Promise<SuggestionItem<any, any, any>[]>;
+  slashMenuItems: (query: string) => Promise<any[]>;
 
   extraSuggestionMenus: {
     name: string;
     triggerCharacter: string;
-    getItems: (query: string) => Promise<SuggestionItem<any, any, any>[]>;
+    getItems: (query: string) => Promise<any[]>;
   }[];
 
   /**
@@ -252,15 +251,11 @@ export class BlockNoteEditor<
       >
     | undefined;
 
-  public readonly suggestionMenus: Record<
-    string | "slashMenu",
-    SuggestionMenuProseMirrorPlugin<
-      SuggestionItem<BSchema, ISchema, SSchema>,
-      BSchema,
-      ISchema,
-      SSchema
-    >
-  > = {};
+  public readonly suggestionMenus: SuggestionMenuProseMirrorPlugin<
+    BSchema,
+    ISchema,
+    SSchema
+  >;
 
   public readonly uploadFile: ((file: File) => Promise<string>) | undefined;
 
@@ -301,30 +296,7 @@ export class BlockNoteEditor<
     this.sideMenu = new SideMenuProsemirrorPlugin(this);
     this.formattingToolbar = new FormattingToolbarProsemirrorPlugin(this);
 
-    this.suggestionMenus.slashMenu = createSuggestionMenu<
-      BSchema,
-      ISchema,
-      SSchema,
-      SuggestionItem<BSchema, ISchema, SSchema>
-    >(
-      "slashMenu",
-      "/",
-      newOptions.slashMenuItems ||
-        ((query) => getDefaultSlashMenuItems(query, this.blockSchema) as any)
-    )(this);
-
-    for (const extraSuggestionMenu of newOptions.extraSuggestionMenus || []) {
-      this.suggestionMenus[extraSuggestionMenu.name] = createSuggestionMenu<
-        BSchema,
-        ISchema,
-        SSchema,
-        SuggestionItem<BSchema, ISchema, SSchema>
-      >(
-        extraSuggestionMenu.name,
-        extraSuggestionMenu.triggerCharacter,
-        extraSuggestionMenu.getItems
-      )(this);
-    }
+    this.suggestionMenus = new SuggestionMenuProseMirrorPlugin(this);
 
     this.hyperlinkToolbar = new HyperlinkToolbarProsemirrorPlugin(this);
     this.imageToolbar = new ImageToolbarProsemirrorPlugin(this);
@@ -352,8 +324,8 @@ export class BlockNoteEditor<
           this.formattingToolbar.plugin,
           this.hyperlinkToolbar.plugin,
           this.imageToolbar.plugin,
+          this.suggestionMenus.plugin,
           ...(this.tableHandles ? [this.tableHandles.plugin] : []),
-          ...Object.values(this.suggestionMenus).map((menu) => menu.plugin),
         ];
       },
     });
@@ -486,6 +458,22 @@ export class BlockNoteEditor<
     this._tiptapEditor = new Editor(tiptapOptions) as Editor & {
       contentComponent: any;
     };
+
+    createSuggestionMenu(
+      this._tiptapEditor,
+      "slashMenu",
+      "/",
+      newOptions.slashMenuItems || getDefaultSlashMenuItems
+    );
+
+    newOptions.extraSuggestionMenus?.map((suggestionMenu) =>
+      createSuggestionMenu(
+        this._tiptapEditor,
+        suggestionMenu.name,
+        suggestionMenu.triggerCharacter,
+        suggestionMenu.getItems
+      )
+    );
   }
 
   public get prosemirrorView() {

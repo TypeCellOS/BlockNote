@@ -3,6 +3,7 @@ import {
   DefaultBlockSchema,
   DefaultInlineContentSchema,
   DefaultStyleSchema,
+  getDefaultSlashMenuItems,
   SuggestionItem,
 } from "@blocknote/core";
 import { createButton } from "./util";
@@ -20,20 +21,13 @@ export const addSlashMenu = async (editor: BlockNoteEditor) => {
         DefaultInlineContentSchema,
         DefaultStyleSchema
       >[]
-    >,
-    onClick: (
-      item: SuggestionItem<
-        DefaultBlockSchema,
-        DefaultInlineContentSchema,
-        DefaultStyleSchema
-      >
-    ) => void
+    >
   ) {
     element.innerHTML = "";
     const items = await getItems(query);
     const domItems = items.map((val, i) => {
       const element = createButton(val.name, () => {
-        onClick(val);
+        val.execute(editor);
       });
       element.style.display = "block";
       return element;
@@ -42,7 +36,7 @@ export const addSlashMenu = async (editor: BlockNoteEditor) => {
     return domItems;
   }
 
-  editor.suggestionMenus.slashMenu.onUpdate(async (slashMenuState) => {
+  editor.suggestionMenus.onUpdate("slashMenu", async (slashMenuState) => {
     if (!element) {
       element = document.createElement("div");
       element.style.background = "gray";
@@ -55,11 +49,7 @@ export const addSlashMenu = async (editor: BlockNoteEditor) => {
     }
 
     if (slashMenuState.show) {
-      await updateItems(
-        slashMenuState.query,
-        editor.suggestionMenus.slashMenu.getItems,
-        editor.suggestionMenus.slashMenu.executeItem
-      );
+      await updateItems(slashMenuState.query, getDefaultSlashMenuItems);
 
       element.style.display = "block";
 

@@ -9,7 +9,7 @@ export type SlashMenuItemProps = {
   hint: string | undefined;
   shortcut?: string;
   isSelected: boolean;
-  set: () => void;
+  onClick: () => void;
 };
 
 export function SlashMenuItem(props: SlashMenuItemProps) {
@@ -52,7 +52,7 @@ export function SlashMenuItem(props: SlashMenuItemProps) {
   return (
     <Menu.Item
       className={"bn-slash-menu-item"}
-      onClick={props.set}
+      onClick={props.onClick}
       closeMenuOnClick={false}
       // Ensures an item selected with both mouse & keyboard doesn't get deselected on mouse leave.
       onMouseLeave={() => {

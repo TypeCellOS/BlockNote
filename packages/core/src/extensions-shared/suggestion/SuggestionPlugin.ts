@@ -1,16 +1,16 @@
-import { findParentNode } from "@tiptap/core";
+import { Editor, findParentNode } from "@tiptap/core";
 import { EditorState, Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import { BlockSchema, InlineContentSchema, StyleSchema } from "../../schema";
 import { BaseUiElementState } from "../BaseUiElementTypes";
-import { SuggestionItem } from "./SuggestionItem";
 import { EventEmitter } from "../../util/EventEmitter";
 
 const findBlock = findParentNode((node) => node.type.name === "blockContainer");
 
 export type SuggestionsMenuState = BaseUiElementState & {
   query: string;
+  getItems: (query: string) => Promise<any[]>;
 };
 
 class SuggestionMenuView<
@@ -19,27 +19,25 @@ class SuggestionMenuView<
   S extends StyleSchema
 > {
   private suggestionsMenuState?: SuggestionsMenuState;
-  public updateSuggestionsMenu: () => void;
+  public updateSuggestionsMenu: (menuName: string) => void;
 
   pluginState: SuggestionPluginState;
 
   constructor(
     private readonly editor: BlockNoteEditor<BSchema, I, S>,
-    private readonly pluginKey: PluginKey,
     updateSuggestionsMenu: (
+      menuName: string,
       suggestionsMenuState: SuggestionsMenuState
-    ) => void = () => {
-      // noop
-    }
+    ) => void
   ) {
     this.pluginState = getDefaultPluginState();
 
-    this.updateSuggestionsMenu = () => {
+    this.updateSuggestionsMenu = (menuName: string) => {
       if (!this.suggestionsMenuState) {
         throw new Error("Attempting to update uninitialized suggestions menu");
       }
 
-      updateSuggestionsMenu(this.suggestionsMenuState);
+      updateSuggestionsMenu(menuName, this.suggestionsMenuState);
     };
 
     document.addEventListener("scroll", this.handleScroll);
@@ -52,20 +50,27 @@ class SuggestionMenuView<
       );
       this.suggestionsMenuState.referencePos =
         decorationNode!.getBoundingClientRect();
-      this.updateSuggestionsMenu();
+      this.updateSuggestionsMenu(this.pluginState.activeSuggestionMenuName!);
     }
   };
 
   update(view: EditorView, prevState: EditorState) {
-    const prev = this.pluginKey.getState(prevState);
-    const next = this.pluginKey.getState(view.state);
+    const prev: SuggestionPluginState =
+      suggestionMenuPluginKey.getState(prevState);
+    const next: SuggestionPluginState = suggestionMenuPluginKey.getState(
+      view.state
+    );
 
     // See how the state changed
-    const started = !prev.active && next.active;
-    const stopped = prev.active && !next.active;
-    // TODO: Currently also true for cases in which an update isn't needed so selected list item index updates still
-    //  cause the view to update. May need to be more strict.
-    const changed = prev.active && next.active;
+    const started =
+      prev.activeSuggestionMenuName === undefined &&
+      next.activeSuggestionMenuName !== undefined;
+    const stopped =
+      prev.activeSuggestionMenuName !== undefined &&
+      next.activeSuggestionMenuName === undefined;
+    const changed =
+      prev.activeSuggestionMenuName !== undefined &&
+      next.activeSuggestionMenuName !== undefined;
 
     // Cancel when suggestion isn't active
     if (!started && !changed && !stopped) {
@@ -76,7 +81,7 @@ class SuggestionMenuView<
 
     if (stopped || !this.editor.isEditable) {
       this.suggestionsMenuState!.show = false;
-      this.updateSuggestionsMenu();
+      this.updateSuggestionsMenu(this.pluginState.activeSuggestionMenuName!);
 
       return;
     }
@@ -89,10 +94,14 @@ class SuggestionMenuView<
       this.suggestionsMenuState = {
         show: true,
         referencePos: decorationNode!.getBoundingClientRect(),
-        query: this.pluginState.query,
+        query: this.pluginState.query!,
+        getItems:
+          this.pluginState.suggestionMenus[
+            this.pluginState.activeSuggestionMenuName!
+          ].getItems,
       };
 
-      this.updateSuggestionsMenu();
+      this.updateSuggestionsMenu(this.pluginState.activeSuggestionMenuName!);
     }
   }
 
@@ -101,28 +110,55 @@ class SuggestionMenuView<
   }
 }
 
+type SuggestionPluginRegisterTransactionMeta = {
+  type: "register";
+  name: string;
+  triggerCharacter: string;
+  getItems: (query: string) => Promise<any[]>;
+};
+
+type SuggestionPluginShowTransactionMeta = {
+  type: "show";
+  name: string;
+  triggerCharacter: string;
+};
+
+type SuggestionPluginHideTransactionMeta = {
+  type: "hide";
+};
+
+type SuggestionPluginTransactionMeta =
+  | SuggestionPluginRegisterTransactionMeta
+  | SuggestionPluginShowTransactionMeta
+  | SuggestionPluginHideTransactionMeta;
+
 type SuggestionPluginState = {
-  // True when the menu is shown, false when hidden.
-  active: boolean;
-  // The character that triggered the menu being shown. Allowing the trigger to be different to the default
-  // trigger allows other extensions to open it programmatically.
+  activeSuggestionMenuName: string | undefined;
   triggerCharacter: string | undefined;
-  // The editor position just after the trigger character, i.e. where the user query begins. Used to figure out
-  // which menu items to show and can also be used to delete the trigger character.
   queryStartPos: number | undefined;
-  query: string;
+  query: string | undefined;
   decorationId: string | undefined;
+  suggestionMenus: Record<
+    string,
+    {
+      triggerCharacter: string;
+      getItems: (query: string) => Promise<any[]>;
+    }
+  >;
 };
 
 function getDefaultPluginState(): SuggestionPluginState {
   return {
-    active: false,
+    activeSuggestionMenuName: undefined,
     triggerCharacter: undefined,
     queryStartPos: undefined,
-    query: "",
+    query: undefined,
     decorationId: undefined,
+    suggestionMenus: {},
   };
 }
+
+export const suggestionMenuPluginKey = new PluginKey("SuggestionMenuPlugin");
 
 /**
  * A ProseMirror plugin for suggestions, designed to make '/'-commands possible as well as mentions.
@@ -137,43 +173,23 @@ function getDefaultPluginState(): SuggestionPluginState {
 export const setupSuggestionMenu = <
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema,
-  T extends SuggestionItem<BSchema, I, S>
+  S extends StyleSchema
 >(
   editor: BlockNoteEditor<BSchema, I, S>,
-  updateSuggestionMenu: (suggestionMenuState: SuggestionsMenuState) => void,
-
-  pluginKey: PluginKey,
-  defaultTriggerCharacter: string,
-  getItems: (query: string) => Promise<T[]> = () =>
-    new Promise((resolve) => resolve([])),
-  onSelectItem: (props: {
-    item: T;
-    editor: BlockNoteEditor<BSchema, I, S>;
-  }) => void = () => {
-    // noop
-  }
+  updateSuggestionMenu: (
+    menuName: string,
+    suggestionMenuState: SuggestionsMenuState
+  ) => void
 ) => {
-  // Assertions
-  if (defaultTriggerCharacter.length !== 1) {
-    throw new Error("'char' should be a single character");
-  }
-
   let suggestionPluginView: SuggestionMenuView<BSchema, I, S>;
-
-  const deactivate = (view: EditorView) => {
-    view.dispatch(view.state.tr.setMeta(pluginKey, { deactivate: true }));
-  };
 
   return {
     plugin: new Plugin({
-      key: pluginKey,
+      key: suggestionMenuPluginKey,
 
       view: () => {
         suggestionPluginView = new SuggestionMenuView<BSchema, I, S>(
           editor,
-          pluginKey,
-
           updateSuggestionMenu
         );
         return suggestionPluginView;
@@ -192,20 +208,45 @@ export const setupSuggestionMenu = <
             return prev;
           }
 
-          // Checks if the menu should be shown.
-          if (transaction.getMeta(pluginKey)?.activate) {
-            return {
-              active: true,
+          const suggestionPluginTransactionMeta:
+            | SuggestionPluginTransactionMeta
+            | undefined =
+            typeof transaction.getMeta(suggestionMenuPluginKey) === "object" &&
+            "type" in transaction.getMeta(suggestionMenuPluginKey)
+              ? transaction.getMeta(suggestionMenuPluginKey)
+              : undefined;
+
+          if (
+            suggestionPluginTransactionMeta !== undefined &&
+            suggestionPluginTransactionMeta.type === "register"
+          ) {
+            const next = { ...prev };
+            next.suggestionMenus[suggestionPluginTransactionMeta.name] = {
               triggerCharacter:
-                transaction.getMeta(pluginKey)?.triggerCharacter || "",
+                suggestionPluginTransactionMeta.triggerCharacter,
+              getItems: suggestionPluginTransactionMeta.getItems,
+            };
+          }
+
+          // Only opens a menu of no menu is already open, i.e. `query` is
+          // not defined.
+          if (
+            suggestionPluginTransactionMeta?.type === "show" &&
+            prev.query === undefined
+          ) {
+            return {
+              activeSuggestionMenuName: suggestionPluginTransactionMeta.name,
+              triggerCharacter:
+                suggestionPluginTransactionMeta.triggerCharacter,
               queryStartPos: newState.selection.from,
               query: "",
               decorationId: `id_${Math.floor(Math.random() * 0xffffffff)}`,
+              suggestionMenus: prev.suggestionMenus,
             };
           }
 
           // Checks if the menu is hidden, in which case it doesn't need to be hidden or updated.
-          if (!prev.active) {
+          if (prev.activeSuggestionMenuName === undefined) {
             return prev;
           }
 
@@ -213,17 +254,25 @@ export const setupSuggestionMenu = <
           if (
             // Highlighting text should hide the menu.
             newState.selection.from !== newState.selection.to ||
-            // Transactions with plugin metadata {deactivate: true} should hide the menu.
-            transaction.getMeta(pluginKey)?.deactivate ||
+            // Transactions with plugin metadata should hide the menu.
+            suggestionPluginTransactionMeta?.type === "hide" ||
             // Certain mouse events should hide the menu.
             // TODO: Change to global mousedown listener.
             transaction.getMeta("focus") ||
             transaction.getMeta("blur") ||
             transaction.getMeta("pointer") ||
             // Moving the caret before the character which triggered the menu should hide it.
-            (prev.active && newState.selection.from < prev.queryStartPos!)
+            (prev.activeSuggestionMenuName !== undefined &&
+              newState.selection.from < prev.queryStartPos!)
           ) {
-            return getDefaultPluginState();
+            return {
+              activeSuggestionMenuName: undefined,
+              triggerCharacter: undefined,
+              queryStartPos: undefined,
+              query: undefined,
+              decorationId: undefined,
+              suggestionMenus: prev.suggestionMenus,
+            };
           }
 
           const next = { ...prev };
@@ -240,39 +289,56 @@ export const setupSuggestionMenu = <
 
       props: {
         handleKeyDown(view, event) {
-          const menuIsActive = (this as Plugin).getState(view.state).active;
+          const suggestionPluginState: SuggestionPluginState = (
+            this as Plugin
+          ).getState(view.state);
 
-          // Shows the menu if the default trigger character was pressed and the menu isn't active.
-          if (event.key === defaultTriggerCharacter && !menuIsActive) {
-            view.dispatch(
-              view.state.tr
-                .insertText(defaultTriggerCharacter)
-                .scrollIntoView()
-                .setMeta(pluginKey, {
-                  activate: true,
-                  triggerCharacter: defaultTriggerCharacter,
-                })
-            );
+          const keyDownHandler = (name: string, triggerCharacter: string) => {
+            if (
+              event.key === triggerCharacter &&
+              suggestionPluginState.activeSuggestionMenuName === undefined
+            ) {
+              event.preventDefault();
 
-            return true;
+              const transactionMeta: SuggestionPluginShowTransactionMeta = {
+                type: "show",
+                name: name,
+                triggerCharacter: triggerCharacter,
+              };
+
+              view.dispatch(
+                view.state.tr
+                  .insertText(triggerCharacter)
+                  .scrollIntoView()
+                  .setMeta(suggestionMenuPluginKey, transactionMeta)
+              );
+
+              return true;
+            }
+
+            return false;
+          };
+
+          for (const [name, info] of Object.entries(
+            suggestionPluginState.suggestionMenus
+          )) {
+            keyDownHandler(name, info.triggerCharacter);
           }
-
-          return false;
         },
 
         // Setup decorator on the currently active suggestion.
         decorations(state) {
-          const { active, decorationId, queryStartPos, triggerCharacter } = (
+          const suggestionPluginState: SuggestionPluginState = (
             this as Plugin
           ).getState(state);
 
-          if (!active) {
+          if (suggestionPluginState.activeSuggestionMenuName === undefined) {
             return null;
           }
 
           // If the menu was opened programmatically by another extension, it may not use a trigger character. In this
           // case, the decoration is set on the whole block instead, as the decoration range would otherwise be empty.
-          if (triggerCharacter === "") {
+          if (suggestionPluginState.triggerCharacter === "") {
             const blockNode = findBlock(state.selection);
             if (blockNode) {
               return DecorationSet.create(state.doc, [
@@ -282,7 +348,7 @@ export const setupSuggestionMenu = <
                   {
                     nodeName: "span",
                     class: "bn-suggestion-decorator",
-                    "data-decoration-id": decorationId,
+                    "data-decoration-id": suggestionPluginState.decorationId,
                   }
                 ),
               ]);
@@ -291,23 +357,30 @@ export const setupSuggestionMenu = <
           // Creates an inline decoration around the trigger character.
           return DecorationSet.create(state.doc, [
             Decoration.inline(
-              queryStartPos - triggerCharacter.length,
-              queryStartPos,
+              suggestionPluginState.queryStartPos! -
+                suggestionPluginState.triggerCharacter!.length,
+              suggestionPluginState.queryStartPos!,
               {
                 nodeName: "span",
                 class: "bn-suggestion-decorator",
-                "data-decoration-id": decorationId,
+                "data-decoration-id": suggestionPluginState.decorationId,
               }
             ),
           ]);
         },
       },
     }),
-    getItems: getItems,
-    executeItem: (item: T) => {
-      onSelectItem({ item, editor });
+    closeMenu: () => {
+      const transactionMeta: SuggestionPluginHideTransactionMeta = {
+        type: "hide",
+      };
+      editor._tiptapEditor.view.dispatch(
+        editor._tiptapEditor.view.state.tr.setMeta(
+          suggestionMenuPluginKey,
+          transactionMeta
+        )
+      );
     },
-    closeMenu: () => deactivate(editor._tiptapEditor.view),
     clearQuery: () =>
       editor._tiptapEditor
         .chain()
@@ -323,68 +396,53 @@ export const setupSuggestionMenu = <
 };
 
 export class SuggestionMenuProseMirrorPlugin<
-  Item extends SuggestionItem<BSchema, I, S>,
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
 > extends EventEmitter<any> {
   public readonly plugin: Plugin;
-  public readonly getItems: (query: string) => Promise<Item[]>;
-  public readonly executeItem: (item: Item) => void;
   public readonly closeMenu: () => void;
   public readonly clearQuery: () => void;
 
-  constructor(
-    editor: BlockNoteEditor<BSchema, I, S>,
-    name: string,
-    triggerCharacter: string,
-    getItems: (query: string) => Promise<Item[]>
-  ) {
-    if (triggerCharacter.length !== 1) {
-      throw new Error(
-        `The trigger character must be a single character, but received ${triggerCharacter}`
-      );
-    }
-
+  constructor(editor: BlockNoteEditor<BSchema, I, S>) {
     super();
-    const suggestionMenu = setupSuggestionMenu<BSchema, I, S, Item>(
+    const suggestionMenu = setupSuggestionMenu<BSchema, I, S>(
       editor,
-      (state) => {
-        this.emit("update", state);
-      },
-      new PluginKey(name),
-      triggerCharacter,
-      getItems,
-      ({ item, editor }) => item.execute(editor)
+      (menuName: string, suggestionMenuState) => {
+        this.emit(`update ${menuName}`, suggestionMenuState);
+      }
     );
 
     this.plugin = suggestionMenu.plugin;
-    this.getItems = getItems;
-    this.executeItem = suggestionMenu.executeItem;
     this.closeMenu = suggestionMenu.closeMenu;
     this.clearQuery = suggestionMenu.clearQuery;
   }
 
-  public onUpdate(callback: (state: SuggestionsMenuState) => void) {
-    return this.on("update", callback);
+  public onUpdate(
+    menuName: string,
+    callback: (state: SuggestionsMenuState) => void
+  ) {
+    return this.on(`update ${menuName}`, callback);
   }
 }
 
-export function createSuggestionMenu<
-  BSchema extends BlockSchema,
-  I extends InlineContentSchema,
-  S extends StyleSchema,
-  SuggestionMenuItem extends SuggestionItem<BSchema, I, S>
->(
+export function createSuggestionMenu(
+  tiptapEditor: Editor,
   name: string,
   triggerCharacter: string,
-  getItems: (query: string) => Promise<SuggestionMenuItem[]>
+  getItems: (query: string) => Promise<any[]>
 ) {
-  return (editor: BlockNoteEditor<BSchema, I, S>) =>
-    new SuggestionMenuProseMirrorPlugin(
-      editor,
-      name,
-      triggerCharacter,
-      getItems
-    );
+  const transactionMeta: SuggestionPluginRegisterTransactionMeta = {
+    type: "register",
+    name: name,
+    triggerCharacter: triggerCharacter,
+    getItems: getItems,
+  };
+
+  tiptapEditor.view.dispatch(
+    tiptapEditor.state.tr
+      .insertText(triggerCharacter)
+      .scrollIntoView()
+      .setMeta(suggestionMenuPluginKey, transactionMeta)
+  );
 }

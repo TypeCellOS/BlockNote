@@ -6,7 +6,6 @@ import {
   DefaultStyleSchema,
   InlineContentSchema,
   StyleSchema,
-  SuggestionItem,
   SuggestionMenuProseMirrorPlugin,
   SuggestionsMenuState,
 } from "@blocknote/core";
@@ -20,30 +19,30 @@ import {
 import { FC, useEffect, useRef, useState } from "react";
 
 export type SuggestionMenuProps<
-  Item extends SuggestionItem<BSchema, I, S>,
   BSchema extends BlockSchema = DefaultBlockSchema,
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema
 > = Pick<
-  SuggestionMenuProseMirrorPlugin<Item, BSchema, I, S>,
-  "getItems" | "executeItem" | "closeMenu" | "clearQuery"
+  SuggestionMenuProseMirrorPlugin<BSchema, I, S>,
+  "closeMenu" | "clearQuery"
 > &
-  Pick<SuggestionsMenuState, "query"> & {
+  Pick<SuggestionsMenuState, "query" | "getItems"> & {
     editor: BlockNoteEditor<BSchema, any, any>;
   };
 
 export const SuggestionMenuPositioner = <
-  Item extends SuggestionItem<BSchema, I, S>,
   BSchema extends BlockSchema = DefaultBlockSchema,
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema
 >(props: {
   editor: BlockNoteEditor<BSchema, I, S>;
   suggestionsMenuName: string;
-  suggestionsMenuComponent: FC<SuggestionMenuProps<Item, BSchema, I, S>>;
+  suggestionsMenuComponent: FC<SuggestionMenuProps<BSchema, I, S>>;
 }) => {
   const [show, setShow] = useState<boolean>(false);
   const [query, setQuery] = useState<string>("");
+
+  const getItems = useRef<(query: string) => Promise<any[]>>();
 
   const referencePos = useRef<DOMRect>();
 
@@ -68,10 +67,15 @@ export const SuggestionMenuPositioner = <
   const { isMounted, styles } = useTransitionStyles(context);
 
   useEffect(() => {
-    return props.editor.suggestionMenus[props.suggestionsMenuName].onUpdate(
+    return props.editor.suggestionMenus.onUpdate(
+      props.suggestionsMenuName,
       (suggestionsMenuState) => {
         setShow(suggestionsMenuState.show);
         setQuery(suggestionsMenuState.query);
+
+        if (getItems.current === undefined) {
+          getItems.current = suggestionsMenuState.getItems;
+        }
 
         referencePos.current = suggestionsMenuState.referencePos;
 
@@ -86,7 +90,7 @@ export const SuggestionMenuPositioner = <
     });
   }, [refs]);
 
-  if (!isMounted || !query === undefined) {
+  if (!isMounted) {
     return null;
   }
 
@@ -104,21 +108,9 @@ export const SuggestionMenuPositioner = <
       <SuggestionsMenu
         editor={props.editor}
         query={query}
-        getItems={
-          // TODO: Annoying type cast - don't think we can nicely pass the item
-          //  types of all suggestion menus to BlockNoteEditor.
-          props.editor.suggestionMenus[props.suggestionsMenuName]
-            .getItems as any
-        }
-        executeItem={
-          props.editor.suggestionMenus[props.suggestionsMenuName].executeItem
-        }
-        closeMenu={
-          props.editor.suggestionMenus[props.suggestionsMenuName].closeMenu
-        }
-        clearQuery={
-          props.editor.suggestionMenus[props.suggestionsMenuName].clearQuery
-        }
+        getItems={getItems.current!}
+        closeMenu={props.editor.suggestionMenus.closeMenu}
+        clearQuery={props.editor.suggestionMenus.clearQuery}
       />
     </div>
   );
