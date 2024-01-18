@@ -17,9 +17,9 @@ import {
   ImageToolbarPositioner,
   SideMenuPositioner,
   SlashMenuPositioner,
-  SuggestionMenuPositioner,
   TableHandlesPositioner,
   useBlockNote,
+  useSuggestionMenu,
 } from "@blocknote/react";
 import "@blocknote/react/style.css";
 
@@ -84,6 +84,31 @@ async function getMentionMenuItems(query: string) {
   );
 }
 
+function MentionMenu(props: {
+  editor: BlockNoteEditor<
+    DefaultBlockSchema,
+    typeof customInlineContentSchema,
+    DefaultStyleSchema
+  >;
+}) {
+  const { isMounted, suggestionMenuProps, positionerProps } = useSuggestionMenu(
+    props.editor,
+    "mentions",
+    "@",
+    getMentionMenuItems
+  )!;
+
+  if (!isMounted) {
+    return null;
+  }
+
+  return (
+    <div ref={positionerProps.ref} style={positionerProps.styles}>
+      <DefaultSlashMenu editor={props.editor} {...suggestionMenuProps} />
+    </div>
+  );
+}
+
 export function App() {
   const editor = useBlockNote({
     inlineContentSpecs: customInlineContentSpecs,
@@ -116,11 +141,7 @@ export function App() {
       {editor.blockSchema.table && (
         <TableHandlesPositioner editor={editor as any} />
       )}
-      <SuggestionMenuPositioner
-        editor={editor as any}
-        suggestionsMenuName={"mentions"}
-        suggestionsMenuComponent={DefaultSlashMenu}
-      />
+      <MentionMenu editor={editor} />
     </BlockNoteView>
   );
 }

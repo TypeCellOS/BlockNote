@@ -53,6 +53,7 @@ export * from "./hooks/useEditorContentChange";
 export * from "./hooks/useEditorForceUpdate";
 export * from "./hooks/useEditorSelectionChange";
 export * from "./hooks/useSelectedBlocks";
+export * from "./hooks/useSuggestionMenu";
 
 export * from "./schema/ReactBlockSpec";
 export * from "./schema/ReactInlineContentSpec";
