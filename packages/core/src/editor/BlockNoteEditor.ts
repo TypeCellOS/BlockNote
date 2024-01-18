@@ -79,25 +79,16 @@ export type BlockNoteEditorOptions<
   enableBlockNoteExtensions: boolean;
   /**
    *
-   * (couldn't fix any type, see https://github.com/TypeCellOS/BlockNote/pull/191#discussion_r1210708771)
+   * // (couldn't fix any type, see https://github.com/TypeCellOS/BlockNote/pull/191#discussion_r1210708771)
    *
    * @default defaultSlashMenuItems from `./extensions/SlashMenu`
    */
   slashMenuItems: Array<
     BaseSlashMenuItem<
-      // BlockSchema,
       BlockSchemaFromSpecs<NoInfer<BSpecs>>,
-      // Omit<BlockSchemaFromSpecs<NoInfer<BSpecs>>, keyof DefaultBlockSchema>,
       any,
       any
     > 
-    // | 
-    // BaseSlashMenuItem<
-    //   BlockSchema,
-    //   // BlockSchemaFromSpecs<NoInfer<BSpecs>>,
-    //   any,
-    //   any
-    // > 
   >;
 
   /**
