@@ -52,7 +52,7 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
   addKeyboardShortcuts() {
     return {
       Enter: () => handleEnter(this.editor),
-      "Mod-Shift-8": () =>
+      "Mod-Shift-7": () =>
         this.editor.commands.BNUpdateBlock(this.editor.state.selection.anchor, {
           type: "numberedListItem",
           props: {},
