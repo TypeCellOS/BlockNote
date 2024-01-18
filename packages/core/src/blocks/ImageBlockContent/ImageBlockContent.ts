@@ -235,9 +235,6 @@ export const renderImage = (
     if (editor.isEditable) {
       imageWrapper.appendChild(leftResizeHandle);
       imageWrapper.appendChild(rightResizeHandle);
-    } else {
-      imageWrapper.removeChild(leftResizeHandle);
-      imageWrapper.removeChild(rightResizeHandle);
     }
   };
   // Hides the resize handles when the cursor leaves the image, unless the
@@ -254,8 +251,10 @@ export const renderImage = (
       return;
     }
 
-    imageWrapper.removeChild(leftResizeHandle);
-    imageWrapper.removeChild(rightResizeHandle);
+    if (editor.isEditable) {
+      imageWrapper.removeChild(leftResizeHandle);
+      imageWrapper.removeChild(rightResizeHandle);
+    }
   };
 
   // Sets the resize params, allowing the user to begin resizing the image by
