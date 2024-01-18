@@ -8,6 +8,7 @@ import {
   StyleSchema,
   isStyledTextInlineContent,
 } from "../../schema";
+import { Equal } from "../../util/typescript";
 import { imageToolbarPluginKey } from "../ImageToolbar/ImageToolbarPlugin";
 import { BaseSlashMenuItem } from "./BaseSlashMenuItem";
 
@@ -81,7 +82,7 @@ export const getDefaultSlashMenuItems = <
 >(
   schema: BSchema = defaultBlockSchema as unknown as BSchema
 ) => {
-  const slashMenuItems: BaseSlashMenuItem<BSchema, I, S>[] = [];
+  const slashMenuItems: BaseSlashMenuItem<Equal<BSchema, BlockSchema> extends true ? any : BSchema, I, S>[] = [];
 
   if ("heading" in schema && "level" in schema.heading.propSchema) {
     // Command for creating a level 1 heading

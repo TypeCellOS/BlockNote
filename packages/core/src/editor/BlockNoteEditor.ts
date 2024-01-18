@@ -58,7 +58,7 @@ import {
   StyleSpecs,
 } from "../schema";
 import { mergeCSSClasses } from "../util/browser";
-import { UnreachableCaseError } from "../util/typescript";
+import { NoInfer, UnreachableCaseError } from "../util/typescript";
 
 import { getBlockNoteExtensions } from "./BlockNoteExtensions";
 import { TextCursorPosition } from "./cursorPositionTypes";
@@ -83,7 +83,22 @@ export type BlockNoteEditorOptions<
    *
    * @default defaultSlashMenuItems from `./extensions/SlashMenu`
    */
-  slashMenuItems: BaseSlashMenuItem<any, any, any>[];
+  slashMenuItems: Array<
+    BaseSlashMenuItem<
+      // BlockSchema,
+      BlockSchemaFromSpecs<NoInfer<BSpecs>>,
+      // Omit<BlockSchemaFromSpecs<NoInfer<BSpecs>>, keyof DefaultBlockSchema>,
+      any,
+      any
+    > 
+    // | 
+    // BaseSlashMenuItem<
+    //   BlockSchema,
+    //   // BlockSchemaFromSpecs<NoInfer<BSpecs>>,
+    //   any,
+    //   any
+    // > 
+  >;
 
   /**
    * The HTML element that should be used as the parent element for the editor.
