@@ -158,7 +158,7 @@
 }
 
 /* Mantine Popover component base styles */
-.mantine-Popover-dropdown {
+.bn-container .mantine-Popover-dropdown {
     background-color: transparent;
     border: none;
     border-radius: 0;
