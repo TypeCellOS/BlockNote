@@ -1,6 +1,59 @@
 @import url("@mantine/core/styles.css");
 @import url("@blocknote/core/style.css");
 
+/* Move Mantine global styles to the scope of bn-container */
+body, html {
+    height: unset;
+}
+
+*, :after, :before {
+    box-sizing: unset;
+}
+.bn-container *, .bn-container :after, .bn-container :before {
+    box-sizing: border-box;
+}
+
+button, input ,select ,textarea {
+    font: unset;
+}
+
+button, select {
+    text-transform: unset;
+}
+.bn-container button, .bn-container select {
+    text-transform: none;
+}
+
+body {
+    -webkit-font-smoothing: unset;
+    -moz-osx-font-smoothing: unset;
+    background-color: unset;
+    color: unset;
+    font-family: unset;
+    font-size: unset;
+    line-height: unset;
+    margin: unset
+}
+.bn-container {
+    -webkit-font-smoothing: var(--mantine-webkit-font-smoothing);
+    -moz-osx-font-smoothing: var(--mantine-moz-font-smoothing);
+    background-color: var(--mantine-color-body);
+    color: var(--mantine-color-text);
+    font-family: var(--mantine-font-family);
+    font-size: var(--mantine-font-size-md);
+    line-height: var(--mantine-line-height);
+    margin: 0
+}
+
+@media screen and (max-device-width:500px) {
+    body {
+        -webkit-text-size-adjust: unset;
+    }
+    .bn-container body {
+        -webkit-text-size-adjust: 100%
+    }
+}
+
 /* Default theme params */
 .bn-container {
     --bn-colors-editor-text: #3F3F3F;
