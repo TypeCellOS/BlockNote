@@ -52,7 +52,8 @@ export class FormattingToolbarView {
 
     pmView.dom.addEventListener("mousedown", this.viewMousedownHandler);
     pmView.dom.addEventListener("mouseup", this.viewMouseupHandler);
-    pmView.dom.addEventListener("dragstart", this.dragstartHandler);
+    pmView.dom.addEventListener("dragstart", this.dragHandler);
+    pmView.dom.addEventListener("dragover", this.dragHandler);
 
     pmView.dom.addEventListener("focus", this.focusHandler);
     pmView.dom.addEventListener("blur", this.blurHandler);
@@ -70,7 +71,7 @@ export class FormattingToolbarView {
   };
 
   // For dragging the whole editor.
-  dragstartHandler = () => {
+  dragHandler = () => {
     if (this.formattingToolbarState?.show) {
       this.formattingToolbarState.show = false;
       this.updateFormattingToolbar();
@@ -177,7 +178,7 @@ export class FormattingToolbarView {
   destroy() {
     this.pmView.dom.removeEventListener("mousedown", this.viewMousedownHandler);
     this.pmView.dom.removeEventListener("mouseup", this.viewMouseupHandler);
-    this.pmView.dom.removeEventListener("dragstart", this.dragstartHandler);
+    this.pmView.dom.removeEventListener("dragstart", this.dragHandler);
 
     this.pmView.dom.removeEventListener("focus", this.focusHandler);
     this.pmView.dom.removeEventListener("blur", this.blurHandler);
