@@ -3,7 +3,7 @@ import { BlockNoteEditor } from "./BlockNoteEditor";
 import { getBlockInfoFromPos } from "../api/getBlockInfoFromPos";
 import { createBlockSpec } from "../schema/blocks/createSpec";
 import { DefaultBlockSchema, defaultBlockSchema, defaultBlockSpecs } from "../blocks/defaultBlocks";
-import { BlockSchemaFromSpecs } from "../schema/blocks/types";
+import { BlockSchemaFromSpecs, PartialBlock } from "../schema/blocks/types";
 import { getDefaultSlashMenuItems, } from '../extensions/SlashMenu/defaultSlashMenuItems'
 import { BaseSlashMenuItem } from "../extensions/SlashMenu/BaseSlashMenuItem";
 /**
@@ -52,6 +52,29 @@ it("support custom block", () => {
           assertType<BlockNoteEditor<DefaultBlockSchema & BlockSchemaFromSpecs<{
             test: typeof testBlock
           }>>>(_editor)
+
+          const currentBlock = editor.getTextCursorPosition().block;
+
+          const _errorHelloWorldBlock = {
+            // @ts-expect-error type should be "testBlock"
+            type: "test",
+            props: {
+              content: "Hello World",
+            },
+          } satisfies PartialBlock<BlockSchemaFromSpecs<{
+            test: typeof testBlock
+          }>, any, any>
+
+          const helloWorldBlock = {
+            type: "testBlock",
+            props: {
+              content: "Hello World",
+            },
+          } satisfies PartialBlock<BlockSchemaFromSpecs<{
+            test: typeof testBlock
+          }>, any, any>
+
+          editor.insertBlocks([helloWorldBlock], currentBlock, "after");
         },
       },
     ],
