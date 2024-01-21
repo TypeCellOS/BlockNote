@@ -49,13 +49,13 @@ const extraFields: Record<
     group: "Basic blocks",
     icon: <RiListOrdered size={18} />,
     hint: "Used to display a numbered list",
-    shortcut: formatKeyboardShortcut("Mod-Alt-7"),
+    shortcut: formatKeyboardShortcut("Mod-Shift-7"),
   },
   "Bullet List": {
     group: "Basic blocks",
     icon: <RiListUnordered size={18} />,
     hint: "Used to display an unordered list",
-    shortcut: formatKeyboardShortcut("Mod-Alt-9"),
+    shortcut: formatKeyboardShortcut("Mod-Shift-8"),
   },
   Paragraph: {
     group: "Basic blocks",
