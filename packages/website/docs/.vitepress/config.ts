@@ -137,6 +137,10 @@ const EXAMPLES_SIDEBAR = [
         text: "Changing Font",
         link: "/examples/changing-font",
       },
+      {
+        text: "Formatting Toolbar Buttons",
+        link: "/examples/formatting-toolbar-buttons",
+      },
     ],
   },
   {
