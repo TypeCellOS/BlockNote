@@ -52,9 +52,9 @@
   "dependencies": {
     "@blocknote/core": "^0.11.0",
     "@floating-ui/react": "^0.26.4",
-    "@mantine/core": "^7.3.1",
-    "@mantine/hooks": "^7.3.1",
-    "@mantine/utils": "^6.0.5",
+    "@mantine/core": "^7.4.2",
+    "@mantine/hooks": "7.4.2",
+    "@mantine/utils": "^6.0.21",
     "@tiptap/core": "^2.0.3",
     "@tiptap/react": "^2.0.3",
     "lodash.foreach": "^4.5.0",
