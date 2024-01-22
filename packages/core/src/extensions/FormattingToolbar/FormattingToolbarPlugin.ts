@@ -179,6 +179,7 @@ export class FormattingToolbarView {
     this.pmView.dom.removeEventListener("mousedown", this.viewMousedownHandler);
     this.pmView.dom.removeEventListener("mouseup", this.viewMouseupHandler);
     this.pmView.dom.removeEventListener("dragstart", this.dragHandler);
+    this.pmView.dom.removeEventListener("dragover", this.dragHandler);
 
     this.pmView.dom.removeEventListener("focus", this.focusHandler);
     this.pmView.dom.removeEventListener("blur", this.blurHandler);
