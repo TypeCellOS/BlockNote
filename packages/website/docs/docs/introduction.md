@@ -37,7 +37,7 @@ On top of that, it comes with a modern block-based design. This gives documents 
 
 ## Community
 
-BlockNote is currently in early beta. We'd love your feedback! If you have questions, need help, or want to contribute reach out to the community on [Discord](https://discord.gg/Qc2QTTH5dF) and [GitHub](https://github.com/TypeCellOS/BlockNote).
+We'd love your feedback! If you have questions, need help, or want to contribute reach out to the community on [Discord](https://discord.gg/Qc2QTTH5dF) and [GitHub](https://github.com/TypeCellOS/BlockNote).
 
 ## Next: Set up BlockNote
 
@@ -53,7 +53,7 @@ import "@blocknote/core/style.css";
 export default function App() {
   // Creates a new editor instance.
   const editor: BlockNoteEditor = useBlockNote();
-  
+
   // Renders the editor instance using a React component.
   return <BlockNoteView editor={editor} theme={"{{ getTheme(isDark) }}"} />;
 }
