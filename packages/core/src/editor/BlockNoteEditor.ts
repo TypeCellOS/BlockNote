@@ -21,11 +21,11 @@ import { HTMLToBlocks } from "../api/parsers/html/parseHTML";
 import { markdownToBlocks } from "../api/parsers/markdown/parseMarkdown";
 import {
   DefaultBlockSchema,
+  DefaultInlineContentSchema,
+  DefaultStyleSchema,
   defaultBlockSchema,
   defaultBlockSpecs,
-  DefaultInlineContentSchema,
   defaultInlineContentSpecs,
-  DefaultStyleSchema,
   defaultStyleSpecs,
 } from "../blocks/defaultBlocks";
 import { FormattingToolbarProsemirrorPlugin } from "../extensions/FormattingToolbar/FormattingToolbarPlugin";
@@ -45,17 +45,17 @@ import {
   BlockSchemaFromSpecs,
   BlockSchemaWithBlock,
   BlockSpecs,
-  getBlockSchemaFromSpecs,
-  getInlineContentSchemaFromSpecs,
-  getStyleSchemaFromSpecs,
   InlineContentSchema,
   InlineContentSchemaFromSpecs,
   InlineContentSpecs,
   PartialBlock,
-  Styles,
   StyleSchema,
   StyleSchemaFromSpecs,
   StyleSpecs,
+  Styles,
+  getBlockSchemaFromSpecs,
+  getInlineContentSchemaFromSpecs,
+  getStyleSchemaFromSpecs,
 } from "../schema";
 import { mergeCSSClasses } from "../util/browser";
 import { UnreachableCaseError } from "../util/typescript";
@@ -371,7 +371,7 @@ export class BlockNoteEditor<
           jsonNode.content[0].content[0].attrs.id = "initialBlockId";
 
           cache = Node.fromJSON(schema, jsonNode);
-          return ret;
+          return cache;
         };
 
         const root = schema.node(
