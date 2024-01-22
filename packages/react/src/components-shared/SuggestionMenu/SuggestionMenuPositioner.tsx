@@ -7,7 +7,6 @@ import {
   InlineContentSchema,
   StyleSchema,
   SuggestionMenuProseMirrorPlugin,
-  SuggestionsMenuState,
 } from "@blocknote/core";
 import {
   flip,
@@ -25,10 +24,11 @@ export type SuggestionMenuProps<
 > = Pick<
   SuggestionMenuProseMirrorPlugin<BSchema, I, S>,
   "closeMenu" | "clearQuery"
-> &
-  Pick<SuggestionsMenuState, "query" | "getItems"> & {
-    editor: BlockNoteEditor<BSchema, any, any>;
-  };
+> & {
+  query: string;
+  getItems: (query: string) => Promise<any[]>;
+  editor: BlockNoteEditor<BSchema, any, any>;
+};
 
 export const SuggestionMenuPositioner = <
   BSchema extends BlockSchema = DefaultBlockSchema,

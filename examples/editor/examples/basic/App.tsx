@@ -93,10 +93,8 @@ function MentionMenu(props: {
 }) {
   const { isMounted, suggestionMenuProps, positionerProps } = useSuggestionMenu(
     props.editor,
-    "mentions",
-    "@",
-    getMentionMenuItems
-  )!;
+    "@"
+  );
 
   if (!isMounted) {
     return null;
@@ -104,7 +102,11 @@ function MentionMenu(props: {
 
   return (
     <div ref={positionerProps.ref} style={positionerProps.styles}>
-      <DefaultSlashMenu editor={props.editor} {...suggestionMenuProps} />
+      <DefaultSlashMenu
+        editor={props.editor}
+        getItems={getMentionMenuItems}
+        {...suggestionMenuProps}
+      />
     </div>
   );
 }
@@ -141,6 +143,7 @@ export function App() {
       {editor.blockSchema.table && (
         <TableHandlesPositioner editor={editor as any} />
       )}
+      {/* TODO: add high level API? */}
       <MentionMenu editor={editor} />
     </BlockNoteView>
   );

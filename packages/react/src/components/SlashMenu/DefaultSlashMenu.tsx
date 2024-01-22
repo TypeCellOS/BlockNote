@@ -4,9 +4,9 @@ import groupBy from "lodash.groupby";
 
 import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { SuggestionMenuProps } from "../../components-shared/SuggestionMenu/SuggestionMenuPositioner";
 import { ReactSlashMenuItem } from "../../slashMenuItems/ReactSlashMenuItem";
 import { SlashMenuItem } from "./SlashMenuItem";
-import { SuggestionMenuProps } from "../../components-shared/SuggestionMenu/SuggestionMenuPositioner";
 
 export function DefaultSlashMenu<
   BSchema extends BlockSchema,
@@ -72,6 +72,7 @@ export function DefaultSlashMenu<
   }, [closeMenu, getItems, props, query]);
 
   // Creates the JSX elements to render.
+  // TODO: extract
   const renderedItems = useMemo(() => {
     if (orderedItems === undefined) {
       return null;

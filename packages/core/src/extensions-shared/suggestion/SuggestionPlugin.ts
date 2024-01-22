@@ -1,16 +1,15 @@
-import { Editor, findParentNode } from "@tiptap/core";
+import { findParentNode } from "@tiptap/core";
 import { EditorState, Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import { BlockSchema, InlineContentSchema, StyleSchema } from "../../schema";
-import { BaseUiElementState } from "../BaseUiElementTypes";
 import { EventEmitter } from "../../util/EventEmitter";
-
+import { BaseUiElementState } from "../BaseUiElementTypes";
+// TODO: clean file
 const findBlock = findParentNode((node) => node.type.name === "blockContainer");
 
 export type SuggestionsMenuState = BaseUiElementState & {
   query: string;
-  getItems: (query: string) => Promise<any[]>;
 };
 
 class SuggestionMenuView<
@@ -19,7 +18,7 @@ class SuggestionMenuView<
   S extends StyleSchema
 > {
   private suggestionsMenuState?: SuggestionsMenuState;
-  public updateSuggestionsMenu: (menuName: string) => void;
+  public updateSuggestionsMenu: (triggerCharacter: string) => void;
 
   pluginState: SuggestionPluginState;
 
@@ -50,7 +49,7 @@ class SuggestionMenuView<
       );
       this.suggestionsMenuState.referencePos =
         decorationNode!.getBoundingClientRect();
-      this.updateSuggestionsMenu(this.pluginState.activeSuggestionMenuName!);
+      this.updateSuggestionsMenu(this.pluginState.triggerCharacter!);
     }
   };
 
@@ -63,14 +62,14 @@ class SuggestionMenuView<
 
     // See how the state changed
     const started =
-      prev.activeSuggestionMenuName === undefined &&
-      next.activeSuggestionMenuName !== undefined;
+      prev.triggerCharacter === undefined &&
+      next.triggerCharacter !== undefined;
     const stopped =
-      prev.activeSuggestionMenuName !== undefined &&
-      next.activeSuggestionMenuName === undefined;
+      prev.triggerCharacter !== undefined &&
+      next.triggerCharacter === undefined;
     const changed =
-      prev.activeSuggestionMenuName !== undefined &&
-      next.activeSuggestionMenuName !== undefined;
+      prev.triggerCharacter !== undefined &&
+      next.triggerCharacter !== undefined;
 
     // Cancel when suggestion isn't active
     if (!started && !changed && !stopped) {
@@ -81,7 +80,7 @@ class SuggestionMenuView<
 
     if (stopped || !this.editor.isEditable) {
       this.suggestionsMenuState!.show = false;
-      this.updateSuggestionsMenu(this.pluginState.activeSuggestionMenuName!);
+      this.updateSuggestionsMenu(this.pluginState.triggerCharacter!);
 
       return;
     }
@@ -95,13 +94,9 @@ class SuggestionMenuView<
         show: true,
         referencePos: decorationNode!.getBoundingClientRect(),
         query: this.pluginState.query!,
-        getItems:
-          this.pluginState.suggestionMenus[
-            this.pluginState.activeSuggestionMenuName!
-          ].getItems,
       };
 
-      this.updateSuggestionsMenu(this.pluginState.activeSuggestionMenuName!);
+      this.updateSuggestionsMenu(this.pluginState.triggerCharacter!);
     }
   }
 
@@ -110,16 +105,15 @@ class SuggestionMenuView<
   }
 }
 
-type SuggestionPluginRegisterTransactionMeta = {
-  type: "register";
-  name: string;
-  triggerCharacter: string;
-  getItems: (query: string) => Promise<any[]>;
-};
+// type SuggestionPluginRegisterTransactionMeta = {
+//   type: "register";
+//   name: string;
+//   triggerCharacter: string;
+//   getItems: (query: string) => Promise<any[]>;
+// };
 
 type SuggestionPluginShowTransactionMeta = {
   type: "show";
-  name: string;
   triggerCharacter: string;
 };
 
@@ -128,33 +122,32 @@ type SuggestionPluginHideTransactionMeta = {
 };
 
 type SuggestionPluginTransactionMeta =
-  | SuggestionPluginRegisterTransactionMeta
   | SuggestionPluginShowTransactionMeta
   | SuggestionPluginHideTransactionMeta;
 
-type SuggestionPluginState = {
-  activeSuggestionMenuName: string | undefined;
-  triggerCharacter: string | undefined;
-  queryStartPos: number | undefined;
-  query: string | undefined;
-  decorationId: string | undefined;
-  suggestionMenus: Record<
-    string,
-    {
+type SuggestionPluginState =
+  | {
+      // activeSuggestionMenuName: string | undefined;
       triggerCharacter: string;
-      getItems: (query: string) => Promise<any[]>;
+      queryStartPos: number;
+      query: string;
+      decorationId: string;
     }
-  >;
-};
+  // TODO: maybe change to | undefined
+  | {
+      triggerCharacter: undefined;
+      queryStartPos: undefined;
+      query: undefined;
+      decorationId: undefined;
+    };
 
 function getDefaultPluginState(): SuggestionPluginState {
   return {
-    activeSuggestionMenuName: undefined,
+    // activeSuggestionMenuName: undefined,
     triggerCharacter: undefined,
     queryStartPos: undefined,
     query: undefined,
     decorationId: undefined,
-    suggestionMenus: {},
   };
 }
 
@@ -182,8 +175,11 @@ export const setupSuggestionMenu = <
   ) => void
 ) => {
   let suggestionPluginView: SuggestionMenuView<BSchema, I, S>;
-
+  const triggerCharacters: string[] = [];
   return {
+    addTriggerCharacter: (triggerCharacter: string) => {
+      triggerCharacters.push(triggerCharacter);
+    },
     plugin: new Plugin({
       key: suggestionMenuPluginKey,
 
@@ -216,17 +212,17 @@ export const setupSuggestionMenu = <
               ? transaction.getMeta(suggestionMenuPluginKey)
               : undefined;
 
-          if (
-            suggestionPluginTransactionMeta !== undefined &&
-            suggestionPluginTransactionMeta.type === "register"
-          ) {
-            const next = { ...prev };
-            next.suggestionMenus[suggestionPluginTransactionMeta.name] = {
-              triggerCharacter:
-                suggestionPluginTransactionMeta.triggerCharacter,
-              getItems: suggestionPluginTransactionMeta.getItems,
-            };
-          }
+          // if (
+          //   suggestionPluginTransactionMeta !== undefined &&
+          //   suggestionPluginTransactionMeta.type === "register"
+          // ) {
+          //   const next = { ...prev };
+          //   next.suggestionMenus[suggestionPluginTransactionMeta.name] = {
+          //     triggerCharacter:
+          //       suggestionPluginTransactionMeta.triggerCharacter,
+          //     getItems: suggestionPluginTransactionMeta.getItems,
+          //   };
+          // }
 
           // Only opens a menu of no menu is already open, i.e. `query` is
           // not defined.
@@ -235,18 +231,16 @@ export const setupSuggestionMenu = <
             prev.query === undefined
           ) {
             return {
-              activeSuggestionMenuName: suggestionPluginTransactionMeta.name,
               triggerCharacter:
                 suggestionPluginTransactionMeta.triggerCharacter,
               queryStartPos: newState.selection.from,
               query: "",
               decorationId: `id_${Math.floor(Math.random() * 0xffffffff)}`,
-              suggestionMenus: prev.suggestionMenus,
             };
           }
 
           // Checks if the menu is hidden, in which case it doesn't need to be hidden or updated.
-          if (prev.activeSuggestionMenuName === undefined) {
+          if (prev.triggerCharacter === undefined) {
             return prev;
           }
 
@@ -262,16 +256,14 @@ export const setupSuggestionMenu = <
             transaction.getMeta("blur") ||
             transaction.getMeta("pointer") ||
             // Moving the caret before the character which triggered the menu should hide it.
-            (prev.activeSuggestionMenuName !== undefined &&
+            (prev.triggerCharacter !== undefined &&
               newState.selection.from < prev.queryStartPos!)
           ) {
             return {
-              activeSuggestionMenuName: undefined,
               triggerCharacter: undefined,
               queryStartPos: undefined,
               query: undefined,
               decorationId: undefined,
-              suggestionMenus: prev.suggestionMenus,
             };
           }
 
@@ -293,37 +285,35 @@ export const setupSuggestionMenu = <
             this as Plugin
           ).getState(view.state);
 
-          const keyDownHandler = (name: string, triggerCharacter: string) => {
-            if (
-              event.key === triggerCharacter &&
-              suggestionPluginState.activeSuggestionMenuName === undefined
-            ) {
-              event.preventDefault();
+          if (
+            triggerCharacters.includes(event.key) &&
+            suggestionPluginState.triggerCharacter === undefined
+          ) {
+            event.preventDefault();
 
-              const transactionMeta: SuggestionPluginShowTransactionMeta = {
-                type: "show",
-                name: name,
-                triggerCharacter: triggerCharacter,
-              };
+            const transactionMeta: SuggestionPluginShowTransactionMeta = {
+              type: "show",
+              triggerCharacter: event.key,
+            };
 
-              view.dispatch(
-                view.state.tr
-                  .insertText(triggerCharacter)
-                  .scrollIntoView()
-                  .setMeta(suggestionMenuPluginKey, transactionMeta)
-              );
+            view.dispatch(
+              view.state.tr
+                .insertText(event.key)
+                .scrollIntoView()
+                .setMeta(suggestionMenuPluginKey, transactionMeta)
+            );
 
-              return true;
-            }
-
-            return false;
-          };
-
-          for (const [name, info] of Object.entries(
-            suggestionPluginState.suggestionMenus
-          )) {
-            keyDownHandler(name, info.triggerCharacter);
+            return true;
           }
+
+          return false;
+          // };
+
+          // for (const [name, info] of Object.entries(
+          //   suggestionPluginState.suggestionMenus
+          // )) {
+          //   keyDownHandler(name, info.triggerCharacter);
+          // }
         },
 
         // Setup decorator on the currently active suggestion.
@@ -332,7 +322,7 @@ export const setupSuggestionMenu = <
             this as Plugin
           ).getState(state);
 
-          if (suggestionPluginState.activeSuggestionMenuName === undefined) {
+          if (suggestionPluginState.triggerCharacter === undefined) {
             return null;
           }
 
@@ -403,46 +393,50 @@ export class SuggestionMenuProseMirrorPlugin<
   public readonly plugin: Plugin;
   public readonly closeMenu: () => void;
   public readonly clearQuery: () => void;
+  private readonly suggestionMenu: ReturnType<typeof setupSuggestionMenu>;
 
   constructor(editor: BlockNoteEditor<BSchema, I, S>) {
     super();
-    const suggestionMenu = setupSuggestionMenu<BSchema, I, S>(
+    this.suggestionMenu = setupSuggestionMenu<BSchema, I, S>(
       editor,
       (menuName: string, suggestionMenuState) => {
         this.emit(`update ${menuName}`, suggestionMenuState);
       }
     );
 
-    this.plugin = suggestionMenu.plugin;
-    this.closeMenu = suggestionMenu.closeMenu;
-    this.clearQuery = suggestionMenu.clearQuery;
+    this.plugin = this.suggestionMenu.plugin;
+    this.closeMenu = this.suggestionMenu.closeMenu;
+    this.clearQuery = this.suggestionMenu.clearQuery;
   }
 
   public onUpdate(
-    menuName: string,
+    triggerCharacter: string,
     callback: (state: SuggestionsMenuState) => void
   ) {
-    return this.on(`update ${menuName}`, callback);
+    this.suggestionMenu.addTriggerCharacter(triggerCharacter);
+    // TODO: be able to remove the triggerCharacter
+    return this.on(`update ${triggerCharacter}`, callback);
   }
 }
 
-export function createSuggestionMenu(
-  tiptapEditor: Editor,
-  name: string,
-  triggerCharacter: string,
-  getItems: (query: string) => Promise<any[]>
-) {
-  const transactionMeta: SuggestionPluginRegisterTransactionMeta = {
-    type: "register",
-    name: name,
-    triggerCharacter: triggerCharacter,
-    getItems: getItems,
-  };
+// export function createSuggestionMenu(
+//   tiptapEditor: Editor,
+//   name: string,
+//   triggerCharacter: string,
+//   getItems: (query: string) => Promise<any[]>
+// ) {
+//   const transactionMeta: SuggestionPluginRegisterTransactionMeta = {
+//     type: "register",
+//     name: name,
+//     triggerCharacter: triggerCharacter,
+//     getItems: getItems,
+//   };
 
-  tiptapEditor.view.dispatch(
-    tiptapEditor.state.tr
-      .insertText(triggerCharacter)
-      .scrollIntoView()
-      .setMeta(suggestionMenuPluginKey, transactionMeta)
-  );
-}
+//   // TODO: needs to be done via state?
+//   tiptapEditor.view.dispatch(
+//     tiptapEditor.state.tr
+//       .insertText(triggerCharacter) // WHY?
+//       .scrollIntoView()
+//       .setMeta(suggestionMenuPluginKey, transactionMeta)
+//   );
+// }

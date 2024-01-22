@@ -21,11 +21,11 @@ import { HTMLToBlocks } from "../api/parsers/html/parseHTML";
 import { markdownToBlocks } from "../api/parsers/markdown/parseMarkdown";
 import {
   DefaultBlockSchema,
+  DefaultInlineContentSchema,
+  DefaultStyleSchema,
   defaultBlockSchema,
   defaultBlockSpecs,
-  DefaultInlineContentSchema,
   defaultInlineContentSpecs,
-  DefaultStyleSchema,
   defaultStyleSpecs,
 } from "../blocks/defaultBlocks";
 import { FormattingToolbarProsemirrorPlugin } from "../extensions/FormattingToolbar/FormattingToolbarPlugin";
@@ -42,17 +42,17 @@ import {
   BlockSchemaFromSpecs,
   BlockSchemaWithBlock,
   BlockSpecs,
-  getBlockSchemaFromSpecs,
-  getInlineContentSchemaFromSpecs,
-  getStyleSchemaFromSpecs,
   InlineContentSchema,
   InlineContentSchemaFromSpecs,
   InlineContentSpecs,
   PartialBlock,
-  Styles,
   StyleSchema,
   StyleSchemaFromSpecs,
   StyleSpecs,
+  Styles,
+  getBlockSchemaFromSpecs,
+  getInlineContentSchemaFromSpecs,
+  getStyleSchemaFromSpecs,
 } from "../schema";
 import { mergeCSSClasses } from "../util/browser";
 import { UnreachableCaseError } from "../util/typescript";
@@ -64,13 +64,9 @@ import { Selection } from "./selectionTypes";
 import { transformPasted } from "./transformPasted";
 
 // CSS
+import { SuggestionMenuProseMirrorPlugin } from "../extensions-shared/suggestion/SuggestionPlugin";
 import "./Block.css";
 import "./editor.css";
-import {
-  createSuggestionMenu,
-  SuggestionMenuProseMirrorPlugin,
-} from "../extensions-shared/suggestion/SuggestionPlugin";
-import { getDefaultSlashMenuItems } from "../extensions/SlashMenu/defaultSlashMenuItems";
 
 export type BlockNoteEditorOptions<
   BSpecs extends BlockSpecs,
@@ -459,21 +455,22 @@ export class BlockNoteEditor<
       contentComponent: any;
     };
 
-    createSuggestionMenu(
-      this._tiptapEditor,
-      "slashMenu",
-      "/",
-      newOptions.slashMenuItems || getDefaultSlashMenuItems
-    );
+    // TODO:
+    // createSuggestionMenu(
+    //   this._tiptapEditor,
+    //   "slashMenu",
+    //   "/",
+    //   newOptions.slashMenuItems || getDefaultSlashMenuItems
+    // );
 
-    newOptions.extraSuggestionMenus?.map((suggestionMenu) =>
-      createSuggestionMenu(
-        this._tiptapEditor,
-        suggestionMenu.name,
-        suggestionMenu.triggerCharacter,
-        suggestionMenu.getItems
-      )
-    );
+    // newOptions.extraSuggestionMenus?.map((suggestionMenu) =>
+    //   createSuggestionMenu(
+    //     this._tiptapEditor,
+    //     suggestionMenu.name,
+    //     suggestionMenu.triggerCharacter,
+    //     suggestionMenu.getItems
+    //   )
+    // );
   }
 
   public get prosemirrorView() {

@@ -1,14 +1,12 @@
 import {
   BlockNoteEditor,
   BlockSchema,
-  createSuggestionMenu,
   DefaultBlockSchema,
   DefaultInlineContentSchema,
   DefaultStyleSchema,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { useEffect, useRef, useState } from "react";
 import {
   flip,
   offset,
@@ -16,26 +14,14 @@ import {
   useFloating,
   useTransitionStyles,
 } from "@floating-ui/react";
+import { useEffect, useRef, useState } from "react";
 
+// TODO: maybe separate the positioning part (floating ui)
 export function useSuggestionMenu<
   BSchema extends BlockSchema = DefaultBlockSchema,
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema
->(
-  editor: BlockNoteEditor<BSchema, I, S>,
-  menuName: string,
-  triggerCharacter: string,
-  getItems: (query: string) => Promise<any[]>
-) {
-  useEffect(() => {
-    createSuggestionMenu(
-      editor._tiptapEditor,
-      menuName,
-      triggerCharacter,
-      getItems
-    );
-  }, [editor._tiptapEditor, getItems, menuName, triggerCharacter]);
-
+>(editor: BlockNoteEditor<BSchema, I, S>, triggerCharacter: string) {
   const [show, setShow] = useState<boolean>(false);
   const [query, setQuery] = useState<string>("");
 
@@ -62,15 +48,18 @@ export function useSuggestionMenu<
   const { isMounted, styles } = useTransitionStyles(context);
 
   useEffect(() => {
-    return editor.suggestionMenus.onUpdate(menuName, (suggestionsMenuState) => {
-      setShow(suggestionsMenuState.show);
-      setQuery(suggestionsMenuState.query);
+    return editor.suggestionMenus.onUpdate(
+      triggerCharacter,
+      (suggestionsMenuState) => {
+        setShow(suggestionsMenuState.show);
+        setQuery(suggestionsMenuState.query);
 
-      referencePos.current = suggestionsMenuState.referencePos;
+        referencePos.current = suggestionsMenuState.referencePos;
 
-      update();
-    });
-  }, [editor.suggestionMenus, menuName, show, update]);
+        update();
+      }
+    );
+  }, [editor.suggestionMenus, triggerCharacter, show, update]);
 
   useEffect(() => {
     refs.setReference({
@@ -82,7 +71,6 @@ export function useSuggestionMenu<
     isMounted: isMounted,
     suggestionMenuProps: {
       query,
-      getItems,
       closeMenu: editor.suggestionMenus.closeMenu,
       clearQuery: editor.suggestionMenus.clearQuery,
     },
