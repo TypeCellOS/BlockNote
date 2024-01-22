@@ -12,7 +12,7 @@
   "dependencies": {
     "@blocknote/core": "^0.11.0",
     "@blocknote/react": "^0.11.0",
-    "@mantine/core": "^7.3.1",
+    "@mantine/core": "^7.4.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.20.0",
