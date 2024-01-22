@@ -7,7 +7,9 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "search.exclude": {
-    "packages/editor/public/types": true
+    "packages/editor/public/types": true,
+    "packages/website/docs/.vitepress": false,
+    "**/.*": false
   },
   "typescript.tsdk": "node_modules/typescript/lib"
 }
