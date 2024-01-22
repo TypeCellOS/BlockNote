@@ -1,12 +1,47 @@
 import { Loader, Menu } from "@mantine/core";
-import foreach from "lodash.foreach";
-import groupBy from "lodash.groupby";
 
 import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { SuggestionMenuProps } from "../../components-shared/SuggestionMenu/SuggestionMenuPositioner";
 import { ReactSlashMenuItem } from "../../slashMenuItems/ReactSlashMenuItem";
 import { SlashMenuItem } from "./SlashMenuItem";
+
+function useLoadItems<T>(
+  query: string,
+  getItems: (query: string) => Promise<T[]>,
+  onNoResults: () => void
+) {
+  // Used to close the menu if the query is >3 characters longer than the last
+  // query that returned any results.
+  const lastUsefulQueryLength = useRef(0);
+
+  const [loading, setLoading] = useState(false);
+  const [items, setItems] = useState<T[]>([]);
+  const currentQuery = useRef<string | undefined>();
+
+  useEffect(() => {
+    const thisQuery = query;
+    currentQuery.current = query;
+
+    setLoading(true);
+    getItems(query).then((items) => {
+      if (currentQuery.current !== thisQuery) {
+        // outdated query returned, ignore the result
+        return;
+      }
+      if (!items) {
+        lastUsefulQueryLength.current = query.length;
+      } else if (query.length - lastUsefulQueryLength.current > 3) {
+        onNoResults();
+      }
+
+      setItems(items);
+      setLoading(false);
+    });
+  }, [query, getItems, onNoResults]);
+
+  return { loading, items };
+}
 
 export function DefaultSlashMenu<
   BSchema extends BlockSchema,
@@ -15,18 +50,10 @@ export function DefaultSlashMenu<
 >(props: SuggestionMenuProps<BSchema, I, S>) {
   const { query, getItems, closeMenu, clearQuery, editor } = props;
 
-  const [orderedItems, setOrderedItems] = useState<
-    ReactSlashMenuItem<BSchema, I, S>[] | undefined
-  >(undefined);
-  const [loading, setLoading] = useState(false);
+  // const [orderedItems, setOrderedItems] = useState<
+  //   ReactSlashMenuItem<BSchema, I, S>[] | undefined
+  // >(undefined);
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
-
-  // Used to ignore the previous query if a new one is made before it returns.
-  const currentQuery = useRef<string | undefined>();
-
-  // Used to close the menu if the query is >3 characters longer than the last
-  // query that returned any results.
-  const lastUsefulQueryLength = useRef(0);
 
   const executeItem = useCallback(
     (item: ReactSlashMenuItem<BSchema, I, S>) => {
@@ -37,80 +64,7 @@ export function DefaultSlashMenu<
     [clearQuery, closeMenu, editor]
   );
 
-  // Gets the items to display and orders them by group.
-  useEffect(() => {
-    const thisQuery = query;
-    currentQuery.current = query;
-
-    setLoading(true);
-
-    getItems(query).then((items) => {
-      if (currentQuery.current !== thisQuery) {
-        // outdated query returned, ignore the result
-        return;
-      }
-
-      const orderedItems: ReactSlashMenuItem<BSchema, I, S>[] = [];
-
-      const groups = groupBy(items, (item) => item.group);
-
-      foreach(groups, (groupedItems) => {
-        for (const item of groupedItems) {
-          orderedItems.push(item);
-        }
-      });
-
-      if (orderedItems.length > 0) {
-        lastUsefulQueryLength.current = query.length;
-      } else if (query.length - lastUsefulQueryLength.current > 3) {
-        closeMenu();
-      }
-
-      setOrderedItems(orderedItems);
-      setLoading(false);
-    });
-  }, [closeMenu, getItems, props, query]);
-
-  // Creates the JSX elements to render.
-  // TODO: extract
-  const renderedItems = useMemo(() => {
-    if (orderedItems === undefined) {
-      return null;
-    }
-
-    if (orderedItems.length === 0) {
-      return [];
-    }
-
-    const renderedItems: JSX.Element[] = [];
-    let currentGroup = undefined;
-    let itemIndex = 0;
-
-    for (const item of orderedItems) {
-      if (item.group !== currentGroup) {
-        currentGroup = item.group;
-        renderedItems.push(
-          <Menu.Label key={currentGroup}>{currentGroup}</Menu.Label>
-        );
-      }
-
-      renderedItems.push(
-        <SlashMenuItem
-          key={item.name}
-          name={item.name}
-          icon={item.icon}
-          hint={item.hint}
-          shortcut={item.shortcut}
-          isSelected={selectedIndex === itemIndex}
-          onClick={() => executeItem(item)}
-        />
-      );
-
-      itemIndex++;
-    }
-
-    return renderedItems;
-  }, [orderedItems, selectedIndex, executeItem]);
+  const { loading, items } = useLoadItems(query, getItems, () => closeMenu());
 
   // Handles keyboard navigation.
   useEffect(() => {
@@ -118,10 +72,8 @@ export function DefaultSlashMenu<
       if (event.key === "ArrowUp") {
         event.preventDefault();
 
-        if (orderedItems !== undefined) {
-          setSelectedIndex(
-            (selectedIndex - 1 + orderedItems!.length) % orderedItems!.length
-          );
+        if (items.length) {
+          setSelectedIndex((selectedIndex - 1 + items!.length) % items!.length);
         }
 
         return true;
@@ -130,8 +82,8 @@ export function DefaultSlashMenu<
       if (event.key === "ArrowDown") {
         event.preventDefault();
 
-        if (orderedItems !== undefined) {
-          setSelectedIndex((selectedIndex + 1) % orderedItems!.length);
+        if (items.length) {
+          setSelectedIndex((selectedIndex + 1) % items!.length);
         }
 
         return true;
@@ -140,8 +92,8 @@ export function DefaultSlashMenu<
       if (event.key === "Enter") {
         event.preventDefault();
 
-        if (orderedItems !== undefined) {
-          executeItem(orderedItems[selectedIndex]);
+        if (items.length) {
+          executeItem(items[selectedIndex]);
         }
 
         return true;
@@ -173,16 +125,96 @@ export function DefaultSlashMenu<
     };
   }, [
     selectedIndex,
-    orderedItems,
+    items,
     editor.domElement,
     closeMenu,
     clearQuery,
     executeItem,
   ]);
 
-  const loader = loading ? (
-    <Loader className={"bn-slash-menu-loader"} type="dots" />
-  ) : null;
+  return (
+    <MenuComponent
+      items={items}
+      executeItem={executeItem}
+      loading={loading}
+      selectedIndex={selectedIndex}
+      // TODO
+    />
+  );
+}
+
+function defaultRenderItems(
+  items: ReactSlashMenuItem<any, any, any>[],
+  selectedIndex: number,
+  executeItem: (item: ReactSlashMenuItem<any, any, any>) => void
+) {
+  if (items === undefined) {
+    return null;
+  }
+
+  if (items.length === 0) {
+    return [];
+  }
+
+  const renderedItems: JSX.Element[] = [];
+  let currentGroup = undefined;
+  let itemIndex = 0;
+
+  // TODO, move to getItems?
+  // const orderedItems: ReactSlashMenuItem<BSchema, I, S>[] = [];
+
+  // const groups = groupBy(items, (item) => item.group);
+
+  // foreach(groups, (groupedItems) => {
+  //   for (const item of groupedItems) {
+  //     orderedItems.push(item);
+  //   }
+  // });
+
+  for (const item of items) {
+    if (item.group !== currentGroup) {
+      currentGroup = item.group;
+      renderedItems.push(
+        <Menu.Label key={currentGroup}>{currentGroup}</Menu.Label>
+      );
+    }
+
+    renderedItems.push(
+      <SlashMenuItem
+        key={item.name}
+        name={item.name}
+        icon={item.icon}
+        hint={item.hint}
+        shortcut={item.shortcut}
+        isSelected={selectedIndex === itemIndex}
+        onClick={() => executeItem(item)}
+      />
+    );
+
+    itemIndex++;
+  }
+
+  return renderedItems;
+}
+
+function MenuComponent<T>(props: {
+  loadingState: "loading-initial" | "loading" | "loaded";
+  items: T[];
+  selectedIndex: number;
+  executeItem: (item: T) => void;
+  renderItems: (
+    items: T[],
+    selectedIndex: number,
+    executeItem: (item: T) => void
+  ) => JSX.Element;
+}) {
+  const { items, selectedIndex, executeItem } = props;
+  // Creates the JSX elements to render.
+
+  const loader =
+    props.loadingState !== "loaded" ? (
+      <Loader className={"bn-slash-menu-loader"} type="dots" />
+    ) : null;
 
   return (
     <Menu
@@ -200,11 +232,11 @@ export function DefaultSlashMenu<
       <Menu.Dropdown
         onMouseDown={(event) => event.preventDefault()}
         className={"bn-slash-menu"}>
-        {renderedItems === null
-          ? loader
-          : renderedItems.length > 0
-          ? [...renderedItems, loader]
-          : [<Menu.Item>No match found</Menu.Item>, loader]}
+        {props.renderItems(items, selectedIndex, executeItem)}
+        {items.length === 0 && props.loadingState !== "loading-initial" && (
+          <Menu.Item>No match found</Menu.Item>
+        )}
+        {loader}
       </Menu.Dropdown>
     </Menu>
   );

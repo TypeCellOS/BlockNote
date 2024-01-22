@@ -11,7 +11,6 @@ import {
 import {
   BlockNoteView,
   createReactInlineContentSpec,
-  DefaultSlashMenu,
   FormattingToolbarPositioner,
   HyperlinkToolbarPositioner,
   ImageToolbarPositioner,
@@ -84,6 +83,13 @@ async function getMentionMenuItems(query: string) {
   );
 }
 
+{
+  /*
+maybe highest level?
+
+<BuiltInMentionMenu triggerCharacter="@" /> */
+}
+
 function MentionMenu(props: {
   editor: BlockNoteEditor<
     DefaultBlockSchema,
@@ -102,11 +108,21 @@ function MentionMenu(props: {
 
   return (
     <div ref={positionerProps.ref} style={positionerProps.styles}>
-      <DefaultSlashMenu
+      {/* 
+      1. change the way items are rendered / change what type items "are"
+      2. change the way the entire menu is rendered
+
+      -->
+
+      1. getItems without icon / hint / whatever
+      2. different UI library
+      */}
+      {/* <DefaultSlashMenu
         editor={props.editor}
         getItems={getMentionMenuItems}
         {...suggestionMenuProps}
-      />
+        renderMenu={(props) => <MantineMenu renderItems />}
+      /> */}
     </div>
   );
 }
