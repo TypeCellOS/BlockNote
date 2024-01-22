@@ -55,6 +55,8 @@ it("support custom block", () => {
 
           const currentBlock = editor.getTextCursorPosition().block;
 
+          // @ts-ignore
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const _errorHelloWorldBlock = {
             // @ts-expect-error type should be "testBlock"
             type: "test",
