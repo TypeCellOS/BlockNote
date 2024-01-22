@@ -25,7 +25,7 @@ type TextCursorPosition = {
   block: Block;
   prevBlock: Block | undefined;
   nextBlock: Block | undefined;
-}
+};
 ```
 
 `block:` The block currently containing the text cursor. If the cursor is in a nested block, this is the block at the deepest possible nesting level.
@@ -61,7 +61,7 @@ You can set the text cursor position to the start or end of an existing block us
 class BlockNoteEditor {
 ...
   public setTextCursorPosition(
-    targetBlock: BlockIdentifier, 
+    targetBlock: BlockIdentifier,
     placement: "start" | "end" = "start"
   ): void;
 ...
@@ -94,7 +94,7 @@ export default function App() {
     // Listens for when the text cursor position changes.
     onTextCursorPositionChange: (editor) => {
       // Gets the block currently hovered by the text cursor.
-      const hoveredBlock: Block = editor.getTextCursorPosition().block;
+      const hoveredBlock = editor.getTextCursorPosition().block;
 
       // Traverses all blocks.
       editor.forEachBlock((block) => {
@@ -102,7 +102,7 @@ export default function App() {
           block.id === hoveredBlock.id &&
           block.props.backgroundColor !== "blue"
         ) {
-          // If the block is currently hovered by the text cursor, makes its 
+          // If the block is currently hovered by the text cursor, makes its
           // background blue if it isn't already.
           editor.updateBlock(block, {
             props: {backgroundColor: "blue"},
@@ -111,18 +111,18 @@ export default function App() {
           block.id !== hoveredBlock.id &&
           block.props.backgroundColor === "blue"
         ) {
-          // If the block is not currently hovered by the text cursor, resets 
+          // If the block is not currently hovered by the text cursor, resets
           // its background if it's blue.
           editor.updateBlock(block, {
             props: {backgroundColor: "default"},
           });
         }
-        
+
         return true;
       });
     }
   })
-  
+
   // Renders the editor instance.
   return <BlockNoteView editor={editor} theme={ "{{ getTheme(isDark) }}"} />;
 }
@@ -141,7 +141,7 @@ When you highlight content using the mouse or keyboard, this is called a selecti
 ```typescript
 type Selection = {
   blocks: Block[];
-}
+};
 ```
 
 `blocks:` The blocks currently spanned by the selection, including nested blocks.
