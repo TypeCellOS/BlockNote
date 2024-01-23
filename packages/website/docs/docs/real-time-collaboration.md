@@ -55,57 +55,15 @@ When a user edits the document, an incremental change (or "update") is captured 
 
 ## Liveblocks
 
-Liveblocks provides a hosted back-end for Yjs which allows you to download and set up a real-time multiplayer BlockNote example with one command. 
+Liveblocks provides a hosted back-end for Yjs which allows you to download and set up a real-time multiplayer BlockNote example with one command.
 
 ```shell
 npx create-liveblocks-app@latest --example nextjs-yjs-blocknote-advanced
 ```
 
-You can also try the same example in a [live demo](https://liveblocks.io/examples/collaborative-text-editor-advanced/nextjs-yjs-blocknote-advanced). To start with Liveblocks and BlockNote make sure to follow their [getting started guide](https://liveblocks.io/docs/get-started/yjs-blocknote-react).
+<img src="/img/screenshots/liveblocks_blocknote_example.png" alt="Liveblocks BlockNote example">
 
-```tsx
-function Editor() {
-  const room = useRoom();
-  const [doc, setDoc] = useState();
-  const [provider, setProvider] = useState();
-
-  // Set up Liveblocks Yjs provider
-  useEffect(() => {
-    const yDoc = new Y.Doc();
-    const yProvider = new LiveblocksProvider(room, yDoc);
-    setDoc(yDoc);
-    setProvider(yProvider);
-
-    return () => {
-      yDoc?.destroy();
-      yProvider?.destroy();
-    };
-  }, [room]);
-
-  if (!doc || !provider) {
-    return null;
-  }
-
-  return <BlockNote doc={doc} provider={provider} />;
-}
-
-// Attach provider and doc to BlockNote
-function BlockNote({ doc, provider }: EditorProps) {
-  const editor: BlockNoteEditor = useBlockNote({
-    collaboration: {
-      provider,
-      fragment: doc.getXmlFragment("document-store"),
-      user: {
-        name: "My Username",
-        color: "#ff0000",
-      },
-    },
-  });
-
-  return <BlockNoteView editor={editor} />;
-}
-```
-
+You can also try the same example in a [live demo](https://liveblocks.io/examples/collaborative-text-editor-advanced/nextjs-yjs-blocknote-advanced). To start with Liveblocks and BlockNote make sure to follow their [getting started guide](https://liveblocks.io/docs/get-started/yjs-blocknote-react). 
 
 ## Partykit
 
