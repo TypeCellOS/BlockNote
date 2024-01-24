@@ -78,18 +78,14 @@ export type BlockNoteEditorOptions<
   // TODO: Figure out if enableBlockNoteExtensions/disableHistoryExtension are needed and document them.
   enableBlockNoteExtensions: boolean;
 
-  /**
-   * Determines if/what placeholder should be rendered for a given block.
-   * @param block The block to render a placeholder for.
-   * @param containsCursor Whether the text cursor is inside the block.
-   * @param isFilter Whether the block was created using the add block button.
-   * @return The placeholder string, or `undefined` if one should not be rendered.
-   */
-  placeholder: (
-    block: Block<any, any, any>,
-    containsCursor: boolean,
-    isFilter: boolean
-  ) => string | undefined;
+  placeholder: Record<
+    string | "default" | "addBlock",
+    | string
+    | {
+        placeholder: string;
+        mustBeFocused: boolean;
+      }
+  >;
 
   /**
    *

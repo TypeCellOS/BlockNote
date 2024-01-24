@@ -1,8 +1,6 @@
 import { Extension } from "@tiptap/core";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
-import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
-import { Block } from "../../schema";
 import { slashMenuPluginKey } from "../SlashMenu/SlashMenuPlugin";
 
 const PLUGIN_KEY = new PluginKey(`blocknote-placeholder`);
@@ -15,12 +13,14 @@ const PLUGIN_KEY = new PluginKey(`blocknote-placeholder`);
  *
  */
 export interface PlaceholderOptions {
-  editor: BlockNoteEditor<any, any, any> | undefined;
-  placeholder: (
-    block: Block<any, any, any>,
-    containsCursor: boolean,
-    isFilter: boolean
-  ) => string | undefined;
+  placeholder: Record<
+    string | "default" | "addBlock",
+    | string
+    | {
+        placeholder: string;
+        mustBeFocused: boolean;
+      }
+  >;
 }
 
 export const Placeholder = Extension.create<PlaceholderOptions>({
@@ -28,33 +28,85 @@ export const Placeholder = Extension.create<PlaceholderOptions>({
 
   addOptions() {
     return {
-      editor: undefined,
-      placeholder: (block, containsCursor, isFilter) => {
-        if (block.type === "heading") {
-          return "Heading";
-        }
-
-        if (
-          block.type === "bulletListItem" ||
-          block.type === "numberedListItem"
-        ) {
-          return "List";
-        }
-
-        if (isFilter) {
-          return "Type to filter";
-        }
-
-        if (containsCursor) {
-          return 'Enter text or type "/" for commands';
-        }
-
-        return undefined;
+      placeholder: {
+        default: "Enter text or type '/' for commands",
+        addBlock: "Type to filter",
+        heading: {
+          placeholder: "Heading",
+          mustBeFocused: false,
+        },
+        bulletListItem: {
+          placeholder: "List",
+          mustBeFocused: false,
+        },
+        numberedListItem: {
+          placeholder: "List",
+          mustBeFocused: false,
+        },
       },
     };
   },
 
   addProseMirrorPlugins() {
+    const styleEl = document.createElement("style");
+
+    // Append <style> element to <head>
+    document.head.appendChild(styleEl);
+
+    // Grab style element's sheet
+    const styleSheet = styleEl.sheet!;
+
+    const getBaseSelector = (additionalSelectors = "") =>
+      `.bn-block-content${additionalSelectors} .bn-inline-content:has(> .ProseMirror-trailingBreak):before`;
+
+    const getSelector = (
+      blockType: string | "default" | "addBlock",
+      mustBeFocused = true
+    ) => {
+      const mustBeFocusedSelector = mustBeFocused
+        ? `[data-is-empty-and-focused]`
+        : ``;
+
+      if (blockType === "default") {
+        return getBaseSelector(mustBeFocusedSelector);
+      }
+
+      if (blockType === "addBlock") {
+        const addBlockSelector = "[data-is-filter]";
+        return getBaseSelector(addBlockSelector);
+      }
+
+      const blockTypeSelector = `[data-content-type="${blockType}"]`;
+      return getBaseSelector(mustBeFocusedSelector + blockTypeSelector);
+    };
+
+    for (const [blockType, placeholderRule] of Object.entries(
+      this.options.placeholder
+    )) {
+      const placeholder =
+        typeof placeholderRule === "string"
+          ? placeholderRule
+          : placeholderRule.placeholder;
+      const mustBeFocused =
+        typeof placeholderRule === "string"
+          ? true
+          : placeholderRule.mustBeFocused;
+
+      styleSheet.insertRule(
+        `${getSelector(blockType, mustBeFocused)}{ content: "${placeholder}"; }`
+      );
+
+      // For some reason, the placeholders which show when the block is focused
+      // take priority over ones which show depending on block type, so we need
+      // to make sure the block specific ones are also used when the block is
+      // focused.
+      if (!mustBeFocused) {
+        styleSheet.insertRule(
+          `${getSelector(blockType, true)}{ content: "${placeholder}"; }`
+        );
+      }
+    }
+
     return [
       new Plugin({
         key: PLUGIN_KEY,
@@ -65,6 +117,8 @@ export const Placeholder = Extension.create<PlaceholderOptions>({
 
             // TODO: fix slash menu ("type to filter")
             const menuState = slashMenuPluginKey.getState(state);
+            const isFilter =
+              menuState?.triggerCharacter === "" && menuState?.active;
 
             const active = this.editor.isEditable;
 
@@ -85,8 +139,11 @@ export const Placeholder = Extension.create<PlaceholderOptions>({
 
             const before = $pos.before();
 
+            const attr = isFilter
+              ? "data-is-filter"
+              : "data-is-empty-and-focused";
             const dec = Decoration.node(before, before + node.nodeSize, {
-              "data-is-empty-and-focused": "true",
+              [attr]: "true",
             });
 
             return DecorationSet.create(doc, [dec]);

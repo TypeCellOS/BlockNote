@@ -237,6 +237,11 @@
   border-left: 1px solid var(--bn-colors-side-menu);
 }
 
+/* Placeholder styling */
+.bn-inline-content:has(> .ProseMirror-trailingBreak):before {
+  color: var(--bn-colors-side-menu);
+}
+
 /* Highlight color styling */
 [data-text-color="gray"] {
   color: var(--bn-colors-highlights-gray-text);

@@ -301,31 +301,14 @@ NESTED BLOCKS
 }
 
 /* PLACEHOLDERS*/
-
-.bn-block-content[data-is-empty-and-focused]
-  .bn-inline-content:has(> .ProseMirror-trailingBreak):before {
+/* TODO: Move to extension? */
+.bn-inline-content:has(> .ProseMirror-trailingBreak):before {
   /*float: left; */
   pointer-events: none;
   height: 0;
   /* width: 0; */
   position: absolute;
   font-style: italic;
-
-  content: "empty and focused"; /* TODO: make customizable */
-
-  color: var(--bn-colors-side-menu); /* TODO: should this be here? */
-}
-
-.bn-block-content .bn-inline-content:has(> .ProseMirror-trailingBreak):before {
-  /*float: left; */
-  pointer-events: none;
-  height: 0;
-  /* width: 0; */
-  position: absolute;
-  font-style: italic;
-
-  content: "empty"; /* TODO: make customizable */
-  color: var(--bn-colors-side-menu); /* TODO: should this be here? */
 }
 
 /* TODO: should this be here? */
