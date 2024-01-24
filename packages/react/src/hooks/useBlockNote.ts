@@ -14,13 +14,29 @@ import {
 } from "@blocknote/core";
 import { DependencyList, useMemo, useRef } from "react";
 import { getDefaultReactSlashMenuItems } from "../slashMenuItems/defaultReactSlashMenuItems";
+import { ReactSlashMenuItem } from "../slashMenuItems/ReactSlashMenuItem";
+import { NoInfer } from "@blocknote/core/src/util/typescript";
+
+type ReactBlockNoteEditorOptions<
+  BSpecs extends BlockSpecs,
+  ISpecs extends InlineContentSpecs,
+  SSpecs extends StyleSpecs
+> = Omit<BlockNoteEditorOptions<BSpecs, ISpecs, SSpecs>, 'slashMenuItems'> & {
+  slashMenuItems: Array<
+    ReactSlashMenuItem<
+      BlockSchemaFromSpecs<NoInfer<BSpecs>>,
+      any,
+      any
+    >
+  >
+};
 
 const initEditor = <
   BSpecs extends BlockSpecs,
   ISpecs extends InlineContentSpecs,
   SSpecs extends StyleSpecs
 >(
-  options: Partial<BlockNoteEditorOptions<BSpecs, ISpecs, SSpecs>>
+  options: Partial<ReactBlockNoteEditorOptions<BSpecs, ISpecs, SSpecs>>
 ) =>
   BlockNoteEditor.create({
     slashMenuItems: getDefaultReactSlashMenuItems(
@@ -37,7 +53,7 @@ export const useBlockNote = <
   ISpecs extends InlineContentSpecs = typeof defaultInlineContentSpecs,
   SSpecs extends StyleSpecs = typeof defaultStyleSpecs
 >(
-  options: Partial<BlockNoteEditorOptions<BSpecs, ISpecs, SSpecs>> = {},
+  options: Partial<ReactBlockNoteEditorOptions<BSpecs, ISpecs, SSpecs>> = {},
   deps: DependencyList = []
 ) => {
   const editorRef =

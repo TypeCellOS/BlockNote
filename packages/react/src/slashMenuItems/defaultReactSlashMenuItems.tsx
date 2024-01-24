@@ -86,7 +86,7 @@ export function getDefaultReactSlashMenuItems<
   // inferred as any if it is not defined. I don't think it's possible to make it
   // infer to DefaultBlockSchema if it is not defined.
   schema: BSchema = defaultBlockSchema as unknown as BSchema
-): ReactSlashMenuItem<BSchema, I, S>[] {
+): ReactSlashMenuItem<BlockSchema extends BSchema ? any : BSchema, I, S>[] {
   const slashMenuItems : BaseSlashMenuItem<BSchema, I, S>[] =
     getDefaultSlashMenuItems(schema);
 

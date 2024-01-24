@@ -1,4 +1,4 @@
-import { BlockSchema, createBlockSpec, defaultProps } from "@blocknote/core";
+import { BlockSchemaWithBlock, createBlockSpec, defaultProps } from "@blocknote/core";
 import { ReactSlashMenuItem } from "@blocknote/react";
 import { RiAlertFill } from "react-icons/ri";
 const values = {
@@ -120,7 +120,12 @@ export const Alert = createBlockSpec(
   }
 );
 
-export const insertAlert: ReactSlashMenuItem<BlockSchema, any, any> = {
+
+export const insertAlert: ReactSlashMenuItem<
+  BlockSchemaWithBlock<"alert", typeof Alert.config>,
+  any,
+  any
+> = {
   name: "Insert Alert",
   execute: (editor) => {
     // editor.topLevelBlocks[0]
