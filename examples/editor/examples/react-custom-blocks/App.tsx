@@ -44,6 +44,12 @@ export const alertBlock = createReactBlockSpec(
         values: ["warning", "error", "info", "success"] as const,
       },
     },
+    inputRule: [
+      {input: "[]w", prop: { type: "warning"} },
+      {input: "[]e", prop: { type: "error"} },
+      {input: "[]i", prop: { type: "info"} },
+      {input: "[]s", prop: { type: "success"} },
+    ],
     content: "inline",
   },
   {

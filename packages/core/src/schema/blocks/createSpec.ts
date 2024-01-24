@@ -15,10 +15,12 @@ import {
   BlockSchemaWithBlock,
   PartialBlockFromConfig,
 } from "./types";
+import { InputRule } from "@tiptap/core";
 
 // restrict content to "inline" and "none" only
 export type CustomBlockConfig = BlockConfig & {
   content: "inline" | "none";
+  inputRule?: {input: string, prop: any}[] | undefined;
 };
 
 export type CustomBlockImplementation<
@@ -126,6 +128,27 @@ export function createBlockSpec<
       : "") as T["content"] extends "inline" ? "inline*" : "",
     group: "blockContent",
     selectable: true,
+
+    addInputRules() {
+      if (blockConfig.inputRule) {
+        return blockConfig.inputRule.map(({input, prop}) =>
+         new InputRule({
+            find: new RegExp(`${input.replace(/([()[{*+.$^\\|?])/g, '\\$1')}\\s$`),
+            handler: ({ state, chain, range }) => {
+              chain()
+                .BNUpdateBlock(state.selection.from, {
+                  type: blockConfig.type,
+                  props: prop,
+                })
+                .deleteRange({ from: range.from, to: range.to });
+            }
+          })
+        );
+      }
+      else {
+        return [];
+      }
+    },
 
     addAttributes() {
       return propsToAttributes(blockConfig.propSchema);

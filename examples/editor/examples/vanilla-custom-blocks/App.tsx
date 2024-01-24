@@ -45,6 +45,12 @@ const alertBlock = createBlockSpec(
       },
     },
     content: "inline",
+    inputRule: [
+      {input: "[]w", prop: { type: "warning"} },
+      {input: "[]e", prop: { type: "error"} },
+      {input: "[]i", prop: { type: "info"} },
+      {input: "[]s", prop: { type: "success"} },
+    ],
   },
   {
     render: (block, editor) => {

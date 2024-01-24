@@ -18,6 +18,7 @@ import {
   StyleSchema,
 } from "@blocknote/core";
 import {
+  InputRule,
   NodeViewContent,
   NodeViewProps,
   NodeViewWrapper,
@@ -116,6 +117,27 @@ export function createReactBlockSpec<
     group: "blockContent",
     selectable: true,
 
+    addInputRules() {
+      if (blockConfig.inputRule) {
+        return blockConfig.inputRule.map(({input, prop}) =>
+         new InputRule({
+            find: new RegExp(`${input.replace(/([()[{*+.$^\\|?])/g, '\\$1')}\\s$`),
+            handler: ({ state, chain, range }) => {
+              chain()
+                .BNUpdateBlock(state.selection.from, {
+                  type: blockConfig.type,
+                  props: prop,
+                })
+                .deleteRange({ from: range.from, to: range.to });
+            }
+          })
+        );
+      }
+      else {
+        return [];
+      }
+    },
+    
     addAttributes() {
       return propsToAttributes(blockConfig.propSchema);
     },
