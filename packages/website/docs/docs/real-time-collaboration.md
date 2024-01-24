@@ -61,7 +61,7 @@ Liveblocks provides a hosted back-end for Yjs which allows you to download and s
 npx create-liveblocks-app@latest --example nextjs-yjs-blocknote-advanced
 ```
 
-<img src="/img/screenshots/liveblocks_blocknote_example.png" alt="Liveblocks BlockNote example">
+<video src="/img/screenshots/liveblocks_blocknote_example.mp4" aria-label="BlockNote example using Liveblocks Yjs, showing collaboration and DevTools">
 
 You can also try the same example in a [live demo](https://liveblocks.io/examples/collaborative-text-editor-advanced/nextjs-yjs-blocknote-advanced). To start with Liveblocks and BlockNote make sure to follow their [getting started guide](https://liveblocks.io/docs/get-started/yjs-blocknote-react). 
 
