@@ -302,7 +302,8 @@ NESTED BLOCKS
 
 /* PLACEHOLDERS*/
 
-.bn-block-content[data-placeholder] .bn-inline-content:before {
+.bn-block-content[data-is-empty-and-focused]
+  .bn-inline-content:has(> .ProseMirror-trailingBreak):before {
   /*float: left; */
   pointer-events: none;
   height: 0;
@@ -310,8 +311,24 @@ NESTED BLOCKS
   position: absolute;
   font-style: italic;
 
-  content: var(--placeholder);
+  content: "empty and focused"; /* TODO: make customizable */
+
+  color: var(--bn-colors-side-menu); /* TODO: should this be here? */
 }
+
+.bn-block-content .bn-inline-content:has(> .ProseMirror-trailingBreak):before {
+  /*float: left; */
+  pointer-events: none;
+  height: 0;
+  /* width: 0; */
+  position: absolute;
+  font-style: italic;
+
+  content: "empty"; /* TODO: make customizable */
+  color: var(--bn-colors-side-menu); /* TODO: should this be here? */
+}
+
+/* TODO: should this be here? */
 
 /* TEXT COLORS */
 [data-text-color="gray"] {
