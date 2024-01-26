@@ -32,6 +32,7 @@ import { FormattingToolbarProsemirrorPlugin } from "../extensions/FormattingTool
 import { HyperlinkToolbarProsemirrorPlugin } from "../extensions/HyperlinkToolbar/HyperlinkToolbarPlugin";
 import { ImageToolbarProsemirrorPlugin } from "../extensions/ImageToolbar/ImageToolbarPlugin";
 import { SideMenuProsemirrorPlugin } from "../extensions/SideMenu/SideMenuPlugin";
+import { SuggestionMenuProseMirrorPlugin } from "../extensions-shared/suggestion/SuggestionPlugin";
 import { TableHandlesProsemirrorPlugin } from "../extensions/TableHandles/TableHandlesPlugin";
 import { UniqueID } from "../extensions/UniqueID/UniqueID";
 import {
@@ -64,7 +65,6 @@ import { Selection } from "./selectionTypes";
 import { transformPasted } from "./transformPasted";
 
 // CSS
-import { SuggestionMenuProseMirrorPlugin } from "../extensions-shared/suggestion/SuggestionPlugin";
 import "./Block.css";
 import "./editor.css";
 
@@ -75,19 +75,6 @@ export type BlockNoteEditorOptions<
 > = {
   // TODO: Figure out if enableBlockNoteExtensions/disableHistoryExtension are needed and document them.
   enableBlockNoteExtensions: boolean;
-  /**
-   *
-   * (couldn't fix any type, see https://github.com/TypeCellOS/BlockNote/pull/191#discussion_r1210708771)
-   *
-   * @default defaultSlashMenuItems from `./extensions/SlashMenu`
-   */
-  slashMenuItems: (query: string) => Promise<any[]>;
-
-  extraSuggestionMenus: {
-    name: string;
-    triggerCharacter: string;
-    getItems: (query: string) => Promise<any[]>;
-  }[];
 
   /**
    * The HTML element that should be used as the parent element for the editor.
@@ -454,23 +441,6 @@ export class BlockNoteEditor<
     this._tiptapEditor = new Editor(tiptapOptions) as Editor & {
       contentComponent: any;
     };
-
-    // TODO:
-    // createSuggestionMenu(
-    //   this._tiptapEditor,
-    //   "slashMenu",
-    //   "/",
-    //   newOptions.slashMenuItems || getDefaultSlashMenuItems
-    // );
-
-    // newOptions.extraSuggestionMenus?.map((suggestionMenu) =>
-    //   createSuggestionMenu(
-    //     this._tiptapEditor,
-    //     suggestionMenu.name,
-    //     suggestionMenu.triggerCharacter,
-    //     suggestionMenu.getItems
-    //   )
-    // );
   }
 
   public get prosemirrorView() {

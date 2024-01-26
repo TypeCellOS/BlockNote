@@ -18,7 +18,7 @@ import { FormattingToolbarPositioner } from "../components/FormattingToolbar/For
 import { HyperlinkToolbarPositioner } from "../components/HyperlinkToolbar/HyperlinkToolbarPositioner";
 import { ImageToolbarPositioner } from "../components/ImageToolbar/ImageToolbarPositioner";
 import { SideMenuPositioner } from "../components/SideMenu/SideMenuPositioner";
-import { SlashMenuPositioner } from "../components/SlashMenu/SlashMenuPositioner";
+import { DefaultPositionedSuggestionMenu } from "../components/SuggestionMenu/DefaultSuggestionMenu";
 import { TableHandlesPositioner } from "../components/TableHandles/TableHandlePositioner";
 import "./styles.css";
 
@@ -98,7 +98,7 @@ export function BlockNoteView<
           <>
             <FormattingToolbarPositioner editor={editor} />
             <HyperlinkToolbarPositioner editor={editor} />
-            <SlashMenuPositioner editor={editor} />
+            <DefaultPositionedSuggestionMenu editor={editor} />
             <SideMenuPositioner editor={editor} />
             <ImageToolbarPositioner editor={editor} />
             {editor.blockSchema.table && (

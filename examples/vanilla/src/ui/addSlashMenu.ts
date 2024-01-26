@@ -1,11 +1,4 @@
-import {
-  BlockNoteEditor,
-  DefaultBlockSchema,
-  DefaultInlineContentSchema,
-  DefaultStyleSchema,
-  getDefaultSlashMenuItems,
-  SuggestionItem,
-} from "@blocknote/core";
+import { BlockNoteEditor } from "@blocknote/core";
 import { createButton } from "./util";
 
 export const addSlashMenu = async (editor: BlockNoteEditor) => {
@@ -13,21 +6,13 @@ export const addSlashMenu = async (editor: BlockNoteEditor) => {
 
   async function updateItems(
     query: string,
-    getItems: (
-      query: string
-    ) => Promise<
-      SuggestionItem<
-        DefaultBlockSchema,
-        DefaultInlineContentSchema,
-        DefaultStyleSchema
-      >[]
-    >
+    getItems: (query: string) => Promise<any[]>
   ) {
     element.innerHTML = "";
     const items = await getItems(query);
-    const domItems = items.map((val, i) => {
-      const element = createButton(val.name, () => {
-        val.execute(editor);
+    const domItems = items.map((val) => {
+      const element = createButton(val.text, () => {
+        val.executeItem();
       });
       element.style.display = "block";
       return element;
@@ -49,7 +34,75 @@ export const addSlashMenu = async (editor: BlockNoteEditor) => {
     }
 
     if (slashMenuState.show) {
-      await updateItems(slashMenuState.query, getDefaultSlashMenuItems);
+      const getItems = async (query: string) => {
+        const items = [
+          {
+            text: "Heading",
+            aliases: ["h", "heading1", "h1"],
+            executeItem: () => {
+              editor.suggestionMenus.closeMenu();
+              editor.suggestionMenus.clearQuery();
+
+              editor.insertBlocks(
+                [
+                  {
+                    type: "heading",
+                  },
+                ],
+                editor.getTextCursorPosition().block,
+                "after"
+              );
+            },
+          },
+          {
+            text: "List",
+            aliases: ["ul", "li", "list", "bulletlist", "bullet list"],
+            executeItem: () => {
+              editor.suggestionMenus.closeMenu();
+              editor.suggestionMenus.clearQuery();
+
+              editor.insertBlocks(
+                [
+                  {
+                    type: "bulletListItem",
+                  },
+                ],
+                editor.getTextCursorPosition().block,
+                "after"
+              );
+            },
+          },
+          {
+            text: "Paragraph",
+            aliases: ["p", "paragraph"],
+            executeItem: () => {
+              editor.suggestionMenus.closeMenu();
+              editor.suggestionMenus.clearQuery();
+
+              editor.insertBlocks(
+                [
+                  {
+                    type: "paragraph",
+                  },
+                ],
+                editor.getTextCursorPosition().block,
+                "after"
+              );
+            },
+          },
+        ];
+
+        return items.filter(
+          ({ text, aliases }) =>
+            text.toLowerCase().startsWith(query.toLowerCase()) ||
+            (aliases &&
+              aliases.filter((alias) =>
+                alias.toLowerCase().startsWith(query.toLowerCase())
+              ).length !== 0)
+        );
+      };
+
+      await updateItems(slashMenuState.query, getItems);
 
       element.style.display = "block";
 

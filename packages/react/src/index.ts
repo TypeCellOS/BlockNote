@@ -29,11 +29,12 @@ export * from "./components/SideMenu/DragHandleMenu/DefaultDragHandleMenu";
 export * from "./components/SideMenu/DragHandleMenu/DragHandleMenu";
 export * from "./components/SideMenu/DragHandleMenu/DragHandleMenuItem";
 
-export * from "./slashMenuItems/ReactSlashMenuItem";
-export * from "./components/SlashMenu/DefaultSlashMenu";
-export * from "./components/SlashMenu/SlashMenuItem";
-export * from "./components/SlashMenu/SlashMenuPositioner";
-export * from "./slashMenuItems/defaultReactSlashMenuItems";
+export * from "./components/SuggestionMenu/SuggestionMenu";
+export * from "./components/SuggestionMenu/SuggestionMenuItem";
+export * from "./components/SuggestionMenu/SuggestionMenuLabel";
+export * from "./components/SuggestionMenu/DefaultSuggestionMenu";
+export * from "./components/SuggestionMenu/defaultGetItems";
+export * from "./components/SuggestionMenu/DefaultRenderItems";
 
 export * from "./components/ImageToolbar/DefaultImageToolbar";
 export * from "./components/ImageToolbar/ImageToolbarPositioner";
@@ -41,19 +42,21 @@ export * from "./components/ImageToolbar/ImageToolbarPositioner";
 export * from "./components/TableHandles/DefaultTableHandle";
 export * from "./components/TableHandles/TableHandlePositioner";
 
-export * from "./components-shared/SuggestionMenu/SuggestionMenuPositioner";
 export * from "./components-shared/Toolbar/Toolbar";
 export * from "./components-shared/Toolbar/ToolbarButton";
 export * from "./components-shared/Toolbar/ToolbarDropdown";
 
 export * from "./hooks/useActiveStyles";
 export * from "./hooks/useBlockNote";
+export * from "./hooks/useCloseSuggestionMenuNoItems";
 export * from "./hooks/useEditorChange";
 export * from "./hooks/useEditorContentChange";
 export * from "./hooks/useEditorForceUpdate";
 export * from "./hooks/useEditorSelectionChange";
+export * from "./hooks/useLoadSuggestionMenuItems";
 export * from "./hooks/useSelectedBlocks";
 export * from "./hooks/useSuggestionMenu";
+export * from "./hooks/useSuggestionMenuKeyboardNavigation";
 
 export * from "./schema/ReactBlockSpec";
 export * from "./schema/ReactInlineContentSpec";

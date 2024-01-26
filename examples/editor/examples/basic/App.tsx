@@ -11,14 +11,14 @@ import {
 import {
   BlockNoteView,
   createReactInlineContentSpec,
+  DefaultPositionedSuggestionMenu,
   FormattingToolbarPositioner,
   HyperlinkToolbarPositioner,
   ImageToolbarPositioner,
   SideMenuPositioner,
-  SlashMenuPositioner,
+  SuggestionMenuItemProps,
   TableHandlesPositioner,
   useBlockNote,
-  useSuggestionMenu,
 } from "@blocknote/react";
 import "@blocknote/react/style.css";
 
@@ -52,17 +52,23 @@ const customInlineContentSchema = {
   mention: MentionInlineContent.config,
 } satisfies InlineContentSchema;
 
-async function getMentionMenuItems(query: string) {
+async function getMentionMenuItems(
+  editor: BlockNoteEditor<
+    DefaultBlockSchema,
+    typeof customInlineContentSchema,
+    DefaultStyleSchema
+  >,
+  query: string,
+  closeMenu: () => void,
+  clearQuery: () => void
+): Promise<SuggestionMenuItemProps[]> {
   const users = ["Steve", "Bob", "Joe", "Mike"];
-  const items = users.map((user) => ({
-    name: user,
-    execute: (
-      editor: BlockNoteEditor<
-        DefaultBlockSchema,
-        typeof customInlineContentSchema,
-        DefaultStyleSchema
-      >
-    ) => {
+  const items: SuggestionMenuItemProps[] = users.map((user) => ({
+    text: user,
+    executeItem: () => {
+      closeMenu();
+      clearQuery();
+
       editor._tiptapEditor.commands.insertContent({
         type: "mention",
         attrs: {
@@ -74,56 +80,12 @@ async function getMentionMenuItems(query: string) {
   }));
 
   return items.filter(
-    ({ name, aliases }) =>
-      name.toLowerCase().startsWith(query.toLowerCase()) ||
+    ({ text, aliases }) =>
+      text.toLowerCase().startsWith(query.toLowerCase()) ||
       (aliases &&
         aliases.filter((alias) =>
           alias.toLowerCase().startsWith(query.toLowerCase())
         ).length !== 0)
-  );
-}
-
-{
-  /*
-maybe highest level?
-
-<BuiltInMentionMenu triggerCharacter="@" /> */
-}
-
-function MentionMenu(props: {
-  editor: BlockNoteEditor<
-    DefaultBlockSchema,
-    typeof customInlineContentSchema,
-    DefaultStyleSchema
-  >;
-}) {
-  const { isMounted, suggestionMenuProps, positionerProps } = useSuggestionMenu(
-    props.editor,
-    "@"
-  );
-
-  if (!isMounted) {
-    return null;
-  }
-
-  return (
-    <div ref={positionerProps.ref} style={positionerProps.styles}>
-      {/* 
-      1. change the way items are rendered / change what type items "are"
-      2. change the way the entire menu is rendered
-
-      -->
-
-      1. getItems without icon / hint / whatever
-      2. different UI library
-      */}
-      {/* <DefaultSlashMenu
-        editor={props.editor}
-        getItems={getMentionMenuItems}
-        {...suggestionMenuProps}
-        renderMenu={(props) => <MantineMenu renderItems />}
-      /> */}
-    </div>
   );
 }
 
@@ -137,13 +99,6 @@ export function App() {
       },
     },
     uploadFile: uploadToTmpFilesDotOrg_DEV_ONLY,
-    extraSuggestionMenus: [
-      {
-        name: "mentions",
-        triggerCharacter: "@",
-        getItems: getMentionMenuItems,
-      },
-    ],
   });
 
   // Give tests a way to get prosemirror instance
@@ -153,14 +108,19 @@ export function App() {
     <BlockNoteView className="root" editor={editor}>
       <FormattingToolbarPositioner editor={editor} />
       <HyperlinkToolbarPositioner editor={editor} />
-      <SlashMenuPositioner editor={editor} />
       <SideMenuPositioner editor={editor} />
+      <DefaultPositionedSuggestionMenu editor={editor} />
       <ImageToolbarPositioner editor={editor} />
       {editor.blockSchema.table && (
         <TableHandlesPositioner editor={editor as any} />
       )}
-      {/* TODO: add high level API? */}
-      <MentionMenu editor={editor} />
+      <DefaultPositionedSuggestionMenu
+        editor={editor}
+        triggerCharacter={"@"}
+        getItems={(query, closeMenu, clearQuery) =>
+          getMentionMenuItems(editor, query, closeMenu, clearQuery)
+        }
+      />
     </BlockNoteView>
   );
 }
