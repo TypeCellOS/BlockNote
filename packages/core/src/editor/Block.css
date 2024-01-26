@@ -301,7 +301,6 @@ NESTED BLOCKS
 }
 
 /* PLACEHOLDERS*/
-/* TODO: Move to extension? */
 .bn-inline-content:has(> .ProseMirror-trailingBreak):before {
   /*float: left; */
   pointer-events: none;

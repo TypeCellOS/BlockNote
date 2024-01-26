@@ -78,14 +78,7 @@ export type BlockNoteEditorOptions<
   // TODO: Figure out if enableBlockNoteExtensions/disableHistoryExtension are needed and document them.
   enableBlockNoteExtensions: boolean;
 
-  placeholder: Record<
-    string | "default" | "addBlock",
-    | string
-    | {
-        placeholder: string;
-        mustBeFocused: boolean;
-      }
-  >;
+  placeholders: Record<string | "default", string>;
 
   /**
    *
@@ -311,7 +304,7 @@ export class BlockNoteEditor<
 
     const extensions = getBlockNoteExtensions({
       editor: this,
-      placeholder: newOptions.placeholder,
+      placeholders: newOptions.placeholders,
       domAttributes: newOptions.domAttributes || {},
       blockSchema: this.blockSchema,
       blockSpecs: newOptions.blockSpecs,

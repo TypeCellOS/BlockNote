@@ -1,7 +1,6 @@
 import { Extension } from "@tiptap/core";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
-import { slashMenuPluginKey } from "../SlashMenu/SlashMenuPlugin";
 
 const PLUGIN_KEY = new PluginKey(`blocknote-placeholder`);
 
@@ -13,54 +12,42 @@ const PLUGIN_KEY = new PluginKey(`blocknote-placeholder`);
  *
  */
 export interface PlaceholderOptions {
-  placeholder: Record<
-    string | "default" | "addBlock",
-    | string
-    | {
-        placeholder: string;
-        mustBeFocused: boolean;
-      }
-  >;
+  placeholders: Record<string | "default", string>;
 }
 
-export const Placeholder = Extension.create<PlaceholderOptions>({
+export const Placeholder = Extension.create<
+  PlaceholderOptions,
+  { styleEl: HTMLStyleElement }
+>({
   name: "placeholder",
+
+  addStorage() {
+    return {
+      styleEl: document.createElement("style"),
+    };
+  },
 
   addOptions() {
     return {
-      placeholder: {
+      placeholders: {
         default: "Enter text or type '/' for commands",
-        addBlock: "Type to filter",
-        heading: {
-          placeholder: "Heading",
-          mustBeFocused: false,
-        },
-        bulletListItem: {
-          placeholder: "List",
-          mustBeFocused: false,
-        },
-        numberedListItem: {
-          placeholder: "List",
-          mustBeFocused: false,
-        },
+        heading: "Heading",
+        bulletListItem: "List",
+        numberedListItem: "List",
       },
     };
   },
 
-  addProseMirrorPlugins() {
-    const styleEl = document.createElement("style");
-
-    // Append <style> element to <head>
+  onCreate() {
+    const styleEl = this.storage.styleEl;
     document.head.appendChild(styleEl);
-
-    // Grab style element's sheet
     const styleSheet = styleEl.sheet!;
 
     const getBaseSelector = (additionalSelectors = "") =>
       `.bn-block-content${additionalSelectors} .bn-inline-content:has(> .ProseMirror-trailingBreak):before`;
 
     const getSelector = (
-      blockType: string | "default" | "addBlock",
+      blockType: string | "default",
       mustBeFocused = true
     ) => {
       const mustBeFocusedSelector = mustBeFocused
@@ -71,26 +58,14 @@ export const Placeholder = Extension.create<PlaceholderOptions>({
         return getBaseSelector(mustBeFocusedSelector);
       }
 
-      if (blockType === "addBlock") {
-        const addBlockSelector = "[data-is-filter]";
-        return getBaseSelector(addBlockSelector);
-      }
-
       const blockTypeSelector = `[data-content-type="${blockType}"]`;
       return getBaseSelector(mustBeFocusedSelector + blockTypeSelector);
     };
 
-    for (const [blockType, placeholderRule] of Object.entries(
-      this.options.placeholder
+    for (const [blockType, placeholder] of Object.entries(
+      this.options.placeholders
     )) {
-      const placeholder =
-        typeof placeholderRule === "string"
-          ? placeholderRule
-          : placeholderRule.placeholder;
-      const mustBeFocused =
-        typeof placeholderRule === "string"
-          ? true
-          : placeholderRule.mustBeFocused;
+      const mustBeFocused = blockType === "default";
 
       styleSheet.insertRule(
         `${getSelector(blockType, mustBeFocused)}{ content: "${placeholder}"; }`
@@ -106,7 +81,14 @@ export const Placeholder = Extension.create<PlaceholderOptions>({
         );
       }
     }
+  },
 
+  onDestroy() {
+    const styleEl = this.storage.styleEl;
+    document.head.removeChild(styleEl);
+  },
+
+  addProseMirrorPlugins() {
     return [
       new Plugin({
         key: PLUGIN_KEY,
@@ -114,11 +96,6 @@ export const Placeholder = Extension.create<PlaceholderOptions>({
           // TODO: maybe also add placeholder for empty document ("e.g.: start writing..")
           decorations: (state) => {
             const { doc, selection } = state;
-
-            // TODO: fix slash menu ("type to filter")
-            const menuState = slashMenuPluginKey.getState(state);
-            const isFilter =
-              menuState?.triggerCharacter === "" && menuState?.active;
 
             const active = this.editor.isEditable;
 
@@ -139,11 +116,8 @@ export const Placeholder = Extension.create<PlaceholderOptions>({
 
             const before = $pos.before();
 
-            const attr = isFilter
-              ? "data-is-filter"
-              : "data-is-empty-and-focused";
             const dec = Decoration.node(before, before + node.nodeSize, {
-              [attr]: "true",
+              "data-is-empty-and-focused": "true",
             });
 
             return DecorationSet.create(doc, [dec]);
