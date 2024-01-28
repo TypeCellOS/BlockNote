@@ -1,6 +1,7 @@
 import { Sandpack } from "sandpack-vue3";
 import { useData } from "vitepress";
 import { defineComponent, h } from "vue";
+import { generateStyles } from "./fileUtils";
 export interface PlaygroundProps {
   name: string;
   files: Record<string, { hidden: boolean; code: string }>;
@@ -78,6 +79,12 @@ export const Playground = defineComponent<PlaygroundProps>(
             },
             files: {
               ...f,
+              "styles.css": generateStyles(
+                isDark.value,
+                "/styles.css" in props.files
+                  ? props.files["/styles.css"].code
+                  : undefined
+              ),
               // ...props.files,
             },
             options: {
