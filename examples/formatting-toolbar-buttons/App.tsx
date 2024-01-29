@@ -1,5 +1,4 @@
 import { BlockNoteEditor } from "@blocknote/core";
-import "@blocknote/core/style.css";
 import {
   BlockNoteView,
   BlockTypeDropdown,
@@ -21,6 +20,7 @@ import {
   UnnestBlockButton,
   useBlockNote,
 } from "@blocknote/react";
+import "@blocknote/react/style.css";
 
 // From https://github.com/TypeCellOS/BlockNote/blob/main/packages/react/src/components/FormattingToolbar/DefaultFormattingToolbar.tsx
 function CustomFormattingToolbar(props: FormattingToolbarProps) {

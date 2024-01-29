@@ -7,7 +7,7 @@ export default function App() {
 
   return (
     <div>
-      <BlockNoteView editor={editor} theme={"light"} />
+      <BlockNoteView editor={editor} />
       {/*Inserts a new block below the currently selected block.*/}
       <button
         onClick={() =>

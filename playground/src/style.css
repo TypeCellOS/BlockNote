@@ -2,6 +2,6 @@ body {
   height: auto;
 }
 
-.editor {
-  margin: 8px calc((100% - 731px) / 2) 0;
+.bn-container {
+  margin-top: 8px;
 }

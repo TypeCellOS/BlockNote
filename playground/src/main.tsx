@@ -34,6 +34,7 @@ function Root() {
   return (
     <MantineProvider>
       <AppShell
+        navbar={{ width: 300, breakpoint: 0 }}
         padding={0}
         //   header={<Header height={60} p="xs">
         //   {/* Header content */}
@@ -47,7 +48,7 @@ function Root() {
           },
         })}>
         {window.location.search.includes("hideMenu") ? undefined : (
-          <AppShell.Navbar w={{ base: 300 }} p="xs">
+          <AppShell.Navbar p="xs">
             <AppShell.Section grow component={ScrollArea} mx="-xs" px="xs">
               {editors
                 .flatMap((g) => g.projects)
@@ -74,7 +75,9 @@ function Root() {
             </AppShell.Section>
           </AppShell.Navbar>
         )}
-        <Outlet />
+        <AppShell.Main>
+          <Outlet />
+        </AppShell.Main>
       </AppShell>
     </MantineProvider>
   );

@@ -1,5 +1,6 @@
-import "@blocknote/core/style.css";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
+import "@blocknote/react/style.css";
+
 import { CustomFormattingToolbar } from "./CustomFormattingToolbar";
 import { CustomSlashMenu } from "./CustomSlashMenu";
 import { CustomSideMenu } from "./CustomSideMenu";

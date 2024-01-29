@@ -5,6 +5,7 @@ import {
   useBlockNote,
 } from "@blocknote/react";
 import "@blocknote/react/style.css";
+
 import "../react-vanilla-custom-blocks/styles.css";
 
 // The types of alerts that users can choose from
