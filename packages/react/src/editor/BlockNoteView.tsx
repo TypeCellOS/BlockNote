@@ -14,13 +14,8 @@ import {
   applyBlockNoteCSSVariablesFromTheme,
   removeBlockNoteCSSVariables,
 } from "./BlockNoteTheme";
-import { FormattingToolbarPositioner } from "../components/FormattingToolbar/FormattingToolbarPositioner";
-import { HyperlinkToolbarPositioner } from "../components/HyperlinkToolbar/HyperlinkToolbarPositioner";
-import { ImageToolbarPositioner } from "../components/ImageToolbar/ImageToolbarPositioner";
-import { SideMenuPositioner } from "../components/SideMenu/SideMenuPositioner";
-import { DefaultPositionedSuggestionMenu } from "../components/SuggestionMenu/DefaultSuggestionMenu";
-import { TableHandlesPositioner } from "../components/TableHandles/TableHandlePositioner";
 import "./styles.css";
+import { BlockNoteDefaultUI } from "./BlockNoteDefaultUI";
 
 const mantineTheme = {
   // Removes button press effect
@@ -94,18 +89,7 @@ export function BlockNoteView<
         className={mergeCSSClasses("bn-container", className || "")}
         data-color-scheme={editorColorScheme}
         {...rest}>
-        {children || (
-          <>
-            <FormattingToolbarPositioner editor={editor} />
-            <HyperlinkToolbarPositioner editor={editor} />
-            <DefaultPositionedSuggestionMenu editor={editor} />
-            <SideMenuPositioner editor={editor} />
-            <ImageToolbarPositioner editor={editor} />
-            {editor.blockSchema.table && (
-              <TableHandlesPositioner editor={editor as any} />
-            )}
-          </>
-        )}
+        {children || <BlockNoteDefaultUI editor={editor} />}
       </EditorContent>
     </MantineProvider>
   );

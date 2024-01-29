@@ -8,9 +8,9 @@ import {
 
 import { SuggestionMenuLabelProps } from "./SuggestionMenuLabel";
 import { SuggestionMenuItemProps } from "./SuggestionMenuItem";
-import { useLoadSuggestionMenuItems } from "../../hooks/useLoadSuggestionMenuItems";
-import { useCloseSuggestionMenuNoItems } from "../../hooks/useCloseSuggestionMenuNoItems";
-import { useSuggestionMenuKeyboardNavigation } from "../../hooks/useSuggestionMenuKeyboardNavigation";
+import { useLoadSuggestionMenuItems } from "./hooks/useLoadSuggestionMenuItems";
+import { useCloseSuggestionMenuNoItems } from "./hooks/useCloseSuggestionMenuNoItems";
+import { useSuggestionMenuKeyboardNavigation } from "./hooks/useSuggestionMenuKeyboardNavigation";
 import { useSuggestionMenu } from "../../hooks/useSuggestionMenu";
 import {
   DefaultRenderItems,
@@ -26,9 +26,7 @@ export function DefaultPositionedSuggestionMenu<
   editor: BlockNoteEditor<BSchema, I, S>;
   triggerCharacter?: string;
   getItems?: (
-    query: string,
-    closeMenu: () => void,
-    clearQuery: () => void
+    query: string
   ) => Promise<(SuggestionMenuItemProps | SuggestionMenuLabelProps)[]>;
   renderItems?: FC<SuggestionMenuItemsProps>;
 }) {
@@ -63,6 +61,8 @@ export function DefaultPositionedSuggestionMenu<
 //  that the menu plugins currently send both position and state data in the
 //  same update, as we can't separate `useSuggestionMenu` into 2 hooks, one for
 //  state and one for position.
+// TODO: Make renderItems accept any item type if getItems also returns an
+//  arbitrary data type.
 export function DefaultSuggestionMenu<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
@@ -73,9 +73,7 @@ export function DefaultSuggestionMenu<
   closeMenu: () => void;
   clearQuery: () => void;
   getItems?: (
-    query: string,
-    closeMenu: () => void,
-    clearQuery: () => void
+    query: string
   ) => Promise<(SuggestionMenuItemProps | SuggestionMenuLabelProps)[]>;
   renderItems?: FC<SuggestionMenuItemsProps>;
 }) {
@@ -83,10 +81,8 @@ export function DefaultSuggestionMenu<
 
   const getItemsForLoading = useMemo(
     () => (query: string) =>
-      getItems !== undefined
-        ? getItems(query, closeMenu, clearQuery)
-        : defaultGetItems(editor, query, closeMenu, clearQuery),
-    [clearQuery, closeMenu, editor, getItems]
+      getItems !== undefined ? getItems(query) : defaultGetItems(editor, query),
+    [editor, getItems]
   );
 
   const { items, usedQuery, loadingState } = useLoadSuggestionMenuItems(
@@ -96,9 +92,27 @@ export function DefaultSuggestionMenu<
 
   useCloseSuggestionMenuNoItems(items, usedQuery, closeMenu);
 
+  const itemsWithMenuClose = useMemo(
+    () =>
+      items.map((item) =>
+        !("label" in item)
+          ? {
+              ...item,
+              executeItem: () => {
+                console.log("cume");
+                closeMenu();
+                clearQuery();
+                item.executeItem();
+              },
+            }
+          : item
+      ),
+    [clearQuery, closeMenu, items]
+  );
+
   const selectedIndex = useSuggestionMenuKeyboardNavigation(
     editor,
-    items.filter((item) => !("label" in item)),
+    itemsWithMenuClose.filter((item) => !("label" in item)),
     (item) => (item as SuggestionMenuItemProps).executeItem(),
     closeMenu
   );
@@ -107,7 +121,7 @@ export function DefaultSuggestionMenu<
 
   return (
     <SuggestionMenuItems
-      items={items}
+      items={itemsWithMenuClose}
       loadingState={loadingState}
       selectedIndex={selectedIndex}
     />

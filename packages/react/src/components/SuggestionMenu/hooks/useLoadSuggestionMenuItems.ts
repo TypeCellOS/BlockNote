@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 
+// Hook which loads the items for a suggestion menu and returns them along with
+// information whether the current query is still being processed, and the
+// query that was used to retrieve the last set of items.
 export function useLoadSuggestionMenuItems<T>(
   query: string,
   getItems: (query: string) => Promise<T[]>

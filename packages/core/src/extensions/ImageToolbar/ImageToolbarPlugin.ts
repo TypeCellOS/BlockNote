@@ -12,7 +12,7 @@ import {
 import {
   BaseUiElementCallbacks,
   BaseUiElementState,
-} from "../../extensions-shared/BaseUiElementTypes";
+} from "../SuggestionMenu/BaseUiElementTypes";
 export type ImageToolbarCallbacks = BaseUiElementCallbacks;
 
 export type ImageToolbarState<

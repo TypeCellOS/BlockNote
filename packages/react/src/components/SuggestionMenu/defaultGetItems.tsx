@@ -99,9 +99,7 @@ export async function defaultGetItems<
   S extends StyleSchema = DefaultStyleSchema
 >(
   editor: BlockNoteEditor<BSchema, I, S>,
-  query: string,
-  closeMenu: () => void,
-  clearQuery: () => void
+  query: string
 ): Promise<(SuggestionMenuItemProps | SuggestionMenuLabelProps)[]> {
   const groups: Record<string, SuggestionMenuItemProps[]> = {
     Headings: [
@@ -112,9 +110,6 @@ export async function defaultGetItems<
         badge: formatKeyboardShortcut("Mod-Alt-1"),
         aliases: ["h", "heading1", "h1"],
         executeItem: () => {
-          closeMenu();
-          clearQuery();
-
           insertOrUpdateBlock(editor, {
             type: "heading",
             props: { level: 1 },
@@ -128,9 +123,6 @@ export async function defaultGetItems<
         badge: formatKeyboardShortcut("Mod-Alt-2"),
         aliases: ["h2", "heading2", "subheading"],
         executeItem: () => {
-          closeMenu();
-          clearQuery();
-
           insertOrUpdateBlock(editor, {
             type: "heading",
             props: { level: 2 },
@@ -144,9 +136,6 @@ export async function defaultGetItems<
         badge: formatKeyboardShortcut("Mod-Alt-3"),
         aliases: ["h3", "heading3", "subheading"],
         executeItem: () => {
-          closeMenu();
-          clearQuery();
-
           insertOrUpdateBlock(editor, {
             type: "heading",
             props: { level: 3 },
@@ -162,9 +151,6 @@ export async function defaultGetItems<
         badge: formatKeyboardShortcut("Mod-Alt-9"),
         aliases: ["ul", "li", "list", "bulletlist", "bullet list"],
         executeItem: () => {
-          closeMenu();
-          clearQuery();
-
           insertOrUpdateBlock(editor, { type: "bulletListItem" });
         },
       } satisfies SuggestionMenuItemProps,
@@ -175,9 +161,6 @@ export async function defaultGetItems<
         badge: formatKeyboardShortcut("Mod-Alt-7"),
         aliases: ["ol", "li", "list", "numberedlist", "numbered list"],
         executeItem: () => {
-          closeMenu();
-          clearQuery();
-
           insertOrUpdateBlock(editor, { type: "numberedListItem" });
         },
       } satisfies SuggestionMenuItemProps,
@@ -188,9 +171,6 @@ export async function defaultGetItems<
         badge: formatKeyboardShortcut("Mod-Alt-0"),
         aliases: ["p", "paragraph"],
         executeItem: () => {
-          closeMenu();
-          clearQuery();
-
           insertOrUpdateBlock(editor, { type: "paragraph" });
         },
       } satisfies SuggestionMenuItemProps,
@@ -202,9 +182,6 @@ export async function defaultGetItems<
         icon: <RiTable2 size={18} />,
         aliases: ["table"],
         executeItem: () => {
-          closeMenu();
-          clearQuery();
-
           insertOrUpdateBlock(editor, {
             type: "table",
             content: {
@@ -239,9 +216,6 @@ export async function defaultGetItems<
           "dropbox",
         ],
         executeItem: () => {
-          closeMenu();
-          clearQuery();
-
           const insertedBlock = insertOrUpdateBlock(editor, {
             type: "image",
           });

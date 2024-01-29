@@ -22,12 +22,13 @@ export function DefaultRenderItems(props: SuggestionMenuItemsProps) {
       {props.items.map((item, index) => {
         if ("label" in item) {
           numLabels++;
-          return <SuggestionMenuLabel {...item} />;
+          return <SuggestionMenuLabel {...item} key={item.label} />;
         } else {
           return (
             <SuggestionMenuItem
               {...item}
               isSelected={props.selectedIndex === index - numLabels}
+              key={item.text}
             />
           );
         }

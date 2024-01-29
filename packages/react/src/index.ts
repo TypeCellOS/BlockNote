@@ -1,4 +1,5 @@
 // TODO: review directories
+export * from "./editor/BlockNoteDefaultUI";
 export * from "./editor/BlockNoteTheme";
 export * from "./editor/BlockNoteView";
 export * from "./editor/defaultThemes";
@@ -35,6 +36,9 @@ export * from "./components/SuggestionMenu/SuggestionMenuLabel";
 export * from "./components/SuggestionMenu/DefaultSuggestionMenu";
 export * from "./components/SuggestionMenu/defaultGetItems";
 export * from "./components/SuggestionMenu/DefaultRenderItems";
+export * from "./components/SuggestionMenu/hooks/useCloseSuggestionMenuNoItems";
+export * from "./components/SuggestionMenu/hooks/useLoadSuggestionMenuItems";
+export * from "./components/SuggestionMenu/hooks/useSuggestionMenuKeyboardNavigation";
 
 export * from "./components/ImageToolbar/DefaultImageToolbar";
 export * from "./components/ImageToolbar/ImageToolbarPositioner";
@@ -48,15 +52,12 @@ export * from "./components-shared/Toolbar/ToolbarDropdown";
 
 export * from "./hooks/useActiveStyles";
 export * from "./hooks/useBlockNote";
-export * from "./hooks/useCloseSuggestionMenuNoItems";
 export * from "./hooks/useEditorChange";
 export * from "./hooks/useEditorContentChange";
 export * from "./hooks/useEditorForceUpdate";
 export * from "./hooks/useEditorSelectionChange";
-export * from "./hooks/useLoadSuggestionMenuItems";
 export * from "./hooks/useSelectedBlocks";
 export * from "./hooks/useSuggestionMenu";
-export * from "./hooks/useSuggestionMenuKeyboardNavigation";
 
 export * from "./schema/ReactBlockSpec";
 export * from "./schema/ReactInlineContentSpec";

@@ -34,6 +34,7 @@ export const addSlashMenu = async (editor: BlockNoteEditor) => {
     }
 
     if (slashMenuState.show) {
+      // TODO: Default vanilla getItems data type?
       const getItems = async (query: string) => {
         const items = [
           {

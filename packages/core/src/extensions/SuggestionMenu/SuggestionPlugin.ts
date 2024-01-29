@@ -4,7 +4,7 @@ import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import { BlockSchema, InlineContentSchema, StyleSchema } from "../../schema";
 import { EventEmitter } from "../../util/EventEmitter";
-import { BaseUiElementState } from "../BaseUiElementTypes";
+import { BaseUiElementState } from "./BaseUiElementTypes";
 // TODO: clean file
 const findBlock = findParentNode((node) => node.type.name === "blockContainer");
 

@@ -7,7 +7,7 @@ import { createInternalHTMLSerializer } from "../../api/exporters/html/internalH
 import { cleanHTMLToMarkdown } from "../../api/exporters/markdown/markdownExporter";
 import { getBlockInfoFromPos } from "../../api/getBlockInfoFromPos";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
-import { BaseUiElementState } from "../../extensions-shared/BaseUiElementTypes";
+import { BaseUiElementState } from "../SuggestionMenu/BaseUiElementTypes";
 import {
   Block,
   BlockSchema,
@@ -16,7 +16,7 @@ import {
 } from "../../schema";
 import { EventEmitter } from "../../util/EventEmitter";
 import { MultipleNodeSelection } from "./MultipleNodeSelection";
-import { suggestionMenuPluginKey } from "../../extensions-shared/suggestion/SuggestionPlugin";
+import { suggestionMenuPluginKey } from "../SuggestionMenu/SuggestionPlugin";
 
 let dragImageElement: Element | undefined;
 

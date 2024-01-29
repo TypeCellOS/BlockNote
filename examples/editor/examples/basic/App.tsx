@@ -9,15 +9,11 @@ import {
   uploadToTmpFilesDotOrg_DEV_ONLY,
 } from "@blocknote/core";
 import {
+  BlockNoteDefaultUI,
   BlockNoteView,
   createReactInlineContentSpec,
   DefaultPositionedSuggestionMenu,
-  FormattingToolbarPositioner,
-  HyperlinkToolbarPositioner,
-  ImageToolbarPositioner,
-  SideMenuPositioner,
   SuggestionMenuItemProps,
-  TableHandlesPositioner,
   useBlockNote,
 } from "@blocknote/react";
 import "@blocknote/react/style.css";
@@ -58,17 +54,12 @@ async function getMentionMenuItems(
     typeof customInlineContentSchema,
     DefaultStyleSchema
   >,
-  query: string,
-  closeMenu: () => void,
-  clearQuery: () => void
+  query: string
 ): Promise<SuggestionMenuItemProps[]> {
   const users = ["Steve", "Bob", "Joe", "Mike"];
   const items: SuggestionMenuItemProps[] = users.map((user) => ({
     text: user,
     executeItem: () => {
-      closeMenu();
-      clearQuery();
-
       editor._tiptapEditor.commands.insertContent({
         type: "mention",
         attrs: {
@@ -104,22 +95,14 @@ export function App() {
   // Give tests a way to get prosemirror instance
   (window as WindowWithProseMirror).ProseMirror = editor?._tiptapEditor;
 
+  // TODO: Figure out cleaner API for adding/changing/removing menus & toolbars
   return (
     <BlockNoteView className="root" editor={editor}>
-      <FormattingToolbarPositioner editor={editor} />
-      <HyperlinkToolbarPositioner editor={editor} />
-      <SideMenuPositioner editor={editor} />
-      <DefaultPositionedSuggestionMenu editor={editor} />
-      <ImageToolbarPositioner editor={editor} />
-      {editor.blockSchema.table && (
-        <TableHandlesPositioner editor={editor as any} />
-      )}
+      <BlockNoteDefaultUI editor={editor} />
       <DefaultPositionedSuggestionMenu
         editor={editor}
         triggerCharacter={"@"}
-        getItems={(query, closeMenu, clearQuery) =>
-          getMentionMenuItems(editor, query, closeMenu, clearQuery)
-        }
+        getItems={(query) => getMentionMenuItems(editor, query)}
       />
     </BlockNoteView>
   );

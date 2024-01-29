@@ -3,7 +3,7 @@ import { Node as ProsemirrorNode } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor";
-import { suggestionMenuPluginKey } from "../../extensions-shared/suggestion/SuggestionPlugin";
+import { suggestionMenuPluginKey } from "../SuggestionMenu/SuggestionPlugin";
 
 const PLUGIN_KEY = new PluginKey(`blocknote-placeholder`);
 
