@@ -149,8 +149,5 @@ export default function App() {
     ],
   });
 
-  // Give tests a way to get prosemirror instance
-  (window as WindowWithProseMirror).ProseMirror = editor?._tiptapEditor;
-
   return <BlockNoteView className="root" editor={editor} />;
 }

@@ -4,6 +4,6 @@
   "group": "Advanced Examples",
   "order": 1,
   "dependencies": {
-    "@mantine/core": "^5.6.1"
+    "@mantine/core": "^7.4.2"
   }
 }

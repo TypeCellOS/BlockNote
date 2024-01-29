@@ -4,7 +4,7 @@ const template = (project: Project) => ({
   name: "@blocknote/example-" + project.slug,
   description: "AUTO-GENERATED FILE, DO NOT EDIT DIRECTLY",
   private: true,
-  version: "0.10.0",
+  version: "0.11.1",
   scripts: {
     start: "vite",
     dev: "vite",
@@ -13,8 +13,8 @@ const template = (project: Project) => ({
     lint: "eslint . --max-warnings 0",
   },
   dependencies: {
-    "@blocknote/core": "^0.10.0",
-    "@blocknote/react": "^0.10.0",
+    "@blocknote/core": "^0.11.1",
+    "@blocknote/react": "^0.11.1",
     react: "^18.2.0",
     "react-dom": "^18.2.0",
     ...(project.config?.dependencies || {}),

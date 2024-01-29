@@ -14,17 +14,16 @@ import {
 } from "@blocknote/react";
 import { RiAlertFill } from "react-icons/ri";
 
-import { createAlertBlock, insertAlert } from "./Alert";
+import { Alert, insertAlert } from "./Alert";
 
 // The custom schema, including all default blocks and the custom Alert block
 export const blockSpecsWithAlert = {
   ...defaultBlockSpecs,
-  // TODO: Fix when main is merged
-  alert: createAlertBlock("dark"),
+  alert: Alert,
 };
 export const blockSchemaWithAlert = {
   ...defaultBlockSchema,
-  alert: createAlertBlock("dark").config,
+  alert: Alert.config,
 };
 
 export default function App() {

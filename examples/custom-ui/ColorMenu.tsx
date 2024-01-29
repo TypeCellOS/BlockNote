@@ -5,11 +5,6 @@ import {
 } from "@blocknote/react";
 import { HTMLAttributes, useState } from "react";
 import { MdFormatColorText } from "react-icons/md";
-import {
-  DefaultBlockSchema,
-  DefaultInlineContentSchema,
-  DefaultStyleSchema,
-} from "@blocknote/core";
 
 export const colors = [
   "default",
@@ -23,34 +18,34 @@ export const colors = [
 
 // Formatting Toolbar sub menu for changing text and background color
 export const ColorMenu = (
-  props: FormattingToolbarProps<
-    DefaultBlockSchema,
-    DefaultInlineContentSchema,
-    DefaultStyleSchema
-  > &
-    HTMLAttributes<HTMLDivElement>
+  props: FormattingToolbarProps & HTMLAttributes<HTMLDivElement>
 ) => {
   const { editor, className, ...rest } = props;
 
   // Colors of the currently selected text
+  // TODO: Vite doesn't seem to be live-updating core & react?
   const [textColor, setTextColor] = useState<string>(
-    props.editor.getActiveStyles().textColor || "default"
+    (props.editor.getActiveStyles().textColor as string) || "default"
   );
   const [backgroundColor, setCurrentColor] = useState<string>(
-    props.editor.getActiveStyles().backgroundColor || "default"
+    (props.editor.getActiveStyles().backgroundColor as string) || "default"
   );
 
   // Update the colors when the editor content or selection changes
   useEditorContentChange(props.editor, () => {
-    setTextColor(props.editor.getActiveStyles().textColor || "default");
+    setTextColor(
+      (props.editor.getActiveStyles().textColor as string) || "default"
+    );
     setCurrentColor(
-      props.editor.getActiveStyles().backgroundColor || "default"
+      (props.editor.getActiveStyles().backgroundColor as string) || "default"
     );
   });
   useEditorSelectionChange(props.editor, () => {
-    setTextColor(props.editor.getActiveStyles().textColor || "default");
+    setTextColor(
+      (props.editor.getActiveStyles().textColor as string) || "default"
+    );
     setCurrentColor(
-      props.editor.getActiveStyles().backgroundColor || "default"
+      (props.editor.getActiveStyles().backgroundColor as string) || "default"
     );
   });
 
