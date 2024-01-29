@@ -34,19 +34,19 @@ import {
   ReactSlashMenuItem,
   useBlockNote,
 } from "@blocknote/react";
-import "@blocknote/core/style.css";
+import "@blocknote/react/style.css";
 import { HiOutlineGlobeAlt } from "react-icons/hi";
 
 // Command to insert "Hello World" in bold in a new block below.
 const insertHelloWorld = (editor: BlockNoteEditor) => {
   // Block that the text cursor is currently in.
-  const currentBlock: Block = editor.getTextCursorPosition().block;
+  const currentBlock = editor.getTextCursorPosition().block;
 
   // New block we want to insert.
-  const helloWorldBlock: PartialBlock = {
-    type: "paragraph",
+  const helloWorldBlock = {
+    type: "paragraph" as const,
     content: [{ type: "text", text: "Hello World", styles: { bold: true } }],
-  };
+  } as const;
 
   // Inserting the new block after the current one.
   editor.insertBlocks([helloWorldBlock], currentBlock, "after");
@@ -102,10 +102,10 @@ import {
   ReactSlashMenuItem,
   useBlockNote
 } from "@blocknote/react";
-import "@blocknote/core/style.css";
+import "@blocknote/react/style.css";
 
 function App() {
-  const newSlashMenuItems: ReactSlashMenuItem[] = 
+  const newSlashMenuItems: ReactSlashMenuItem[] =
     getDefaultReactSlashMenuItems();
 
   // Edit newSlashMenuItems

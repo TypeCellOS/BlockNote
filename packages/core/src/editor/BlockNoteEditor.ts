@@ -371,7 +371,7 @@ export class BlockNoteEditor<
           jsonNode.content[0].content[0].attrs.id = "initialBlockId";
 
           cache = Node.fromJSON(schema, jsonNode);
-          return ret;
+          return cache;
         };
 
         const root = schema.node(
@@ -775,8 +775,8 @@ export class BlockNoteEditor<
     blocksToInsert: PartialBlock<BSchema, ISchema, SSchema>[],
     referenceBlock: BlockIdentifier,
     placement: "before" | "after" | "nested" = "before"
-  ): void {
-    insertBlocks(blocksToInsert, referenceBlock, placement, this);
+  ) {
+    return insertBlocks(blocksToInsert, referenceBlock, placement, this);
   }
 
   /**
@@ -790,7 +790,7 @@ export class BlockNoteEditor<
     blockToUpdate: BlockIdentifier,
     update: PartialBlock<BSchema, ISchema, SSchema>
   ) {
-    updateBlock(blockToUpdate, update, this._tiptapEditor);
+    return updateBlock(blockToUpdate, update, this);
   }
 
   /**
@@ -798,7 +798,7 @@ export class BlockNoteEditor<
    * @param blocksToRemove An array of identifiers for existing blocks that should be removed.
    */
   public removeBlocks(blocksToRemove: BlockIdentifier[]) {
-    removeBlocks(blocksToRemove, this._tiptapEditor);
+    return removeBlocks(blocksToRemove, this);
   }
 
   /**
@@ -812,7 +812,7 @@ export class BlockNoteEditor<
     blocksToRemove: BlockIdentifier[],
     blocksToInsert: PartialBlock<BSchema, ISchema, SSchema>[]
   ) {
-    replaceBlocks(blocksToRemove, blocksToInsert, this);
+    return replaceBlocks(blocksToRemove, blocksToInsert, this);
   }
 
   /**

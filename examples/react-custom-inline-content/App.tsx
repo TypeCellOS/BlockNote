@@ -1,10 +1,10 @@
 import { defaultInlineContentSpecs } from "@blocknote/core";
-import "@blocknote/core/style.css";
 import {
   BlockNoteView,
   createReactInlineContentSpec,
   useBlockNote,
 } from "@blocknote/react";
+import "@blocknote/react/style.css";
 
 const mention = createReactInlineContentSpec(
   {

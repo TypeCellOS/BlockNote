@@ -5,7 +5,6 @@ import {
   DefaultInlineContentSchema,
   defaultStyleSpecs,
 } from "@blocknote/core";
-import "@blocknote/core/style.css";
 import {
   BlockNoteView,
   FormattingToolbarPositioner,
@@ -14,6 +13,7 @@ import {
   useActiveStyles,
   useBlockNote,
 } from "@blocknote/react";
+import "@blocknote/react/style.css";
 
 const small = createStyleSpec(
   {

@@ -1,10 +1,10 @@
 import { defaultBlockSpecs, defaultProps } from "@blocknote/core";
-import "@blocknote/core/style.css";
 import {
   BlockNoteView,
   createReactBlockSpec,
   useBlockNote,
 } from "@blocknote/react";
+import "@blocknote/react/style.css";
 import "../react-vanilla-custom-blocks/styles.css";
 
 // The types of alerts that users can choose from
@@ -148,6 +148,9 @@ export default function App() {
       },
     ],
   });
+
+  // Give tests a way to get prosemirror instance
+  (window as WindowWithProseMirror).ProseMirror = editor?._tiptapEditor;
 
   return <BlockNoteView className="root" editor={editor} />;
 }

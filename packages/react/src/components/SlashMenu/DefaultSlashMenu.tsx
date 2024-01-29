@@ -1,4 +1,4 @@
-import { createStyles, Menu } from "@mantine/core";
+import { Menu } from "@mantine/core";
 import foreach from "lodash.foreach";
 import groupBy from "lodash.groupby";
 
@@ -9,9 +9,6 @@ import type { SlashMenuProps } from "./SlashMenuPositioner";
 export function DefaultSlashMenu<BSchema extends BlockSchema>(
   props: SlashMenuProps<BSchema>
 ) {
-  const { classes } = createStyles({ root: {} })(undefined, {
-    name: "SlashMenu",
-  });
   const renderedItems: any[] = [];
   let index = 0;
 
@@ -42,6 +39,8 @@ export function DefaultSlashMenu<BSchema extends BlockSchema>(
 
   return (
     <Menu
+      withinPortal={false}
+      trapFocus={false}
       /** Hacky fix to get the desired menu behaviour. The trigger="hover"
        * attribute allows focus to remain on the editor, allowing for suggestion
        * filtering. The closeDelay=10000000 attribute allows the menu to stay open
@@ -54,7 +53,7 @@ export function DefaultSlashMenu<BSchema extends BlockSchema>(
       <Menu.Dropdown
         // TODO: This should go back in the plugin.
         onMouseDown={(event) => event.preventDefault()}
-        className={classes.root}>
+        className={"bn-slash-menu"}>
         {renderedItems.length > 0 ? (
           renderedItems
         ) : (

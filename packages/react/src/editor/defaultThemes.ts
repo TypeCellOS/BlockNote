@@ -42,7 +42,7 @@ export const lightDefaultTheme: Theme = {
     shadow: defaultColorScheme[2],
     border: defaultColorScheme[1],
     sideMenu: defaultColorScheme[2],
-    highlightColors: {
+    highlights: {
       gray: {
         text: "#9b9a97",
         background: "#ebeced",
@@ -115,7 +115,7 @@ export const darkDefaultTheme: Theme = {
     shadow: defaultColorScheme[8],
     border: defaultColorScheme[7],
     sideMenu: defaultColorScheme[4],
-    highlightColors: {
+    highlights: {
       gray: {
         text: "#bebdb8",
         background: "#9b9a97",

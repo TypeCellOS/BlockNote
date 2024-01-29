@@ -42,7 +42,7 @@ import {
   useEditorContentChange,
   useEditorSelectionChange,
 } from "@blocknote/react";
-import "@blocknote/core/style.css";
+import "@blocknote/react/style.css";
 
 const CustomFormattingToolbar = (props: { editor: BlockNoteEditor }) => {
   // Tracks whether the text & background are both blue.

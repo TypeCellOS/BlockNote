@@ -54,7 +54,7 @@ The output is simplified as Markdown does not support all features of BlockNote 
 import { useState } from "react";
 import { BlockNoteEditor } from "@blocknote/core";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
-import "@blocknote/core/style.css";
+import "@blocknote/react/style.css";
 
 export default function App() {
   // Stores the editor's contents as Markdown.
@@ -124,7 +124,7 @@ Tries to create `Block` and `InlineNode` objects based on Markdown syntax, thoug
 import { useEffect, useState } from "react";
 import { BlockNoteEditor, Block } from "@blocknote/core";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
-import "@blocknote/core/style.css";
+import "@blocknote/react/style.css";
 
 export default function App() {
   // Stores the current Markdown content.
@@ -207,7 +207,7 @@ To better conform to HTML standards, children of blocks which aren't list items 
 import { useState } from "react";
 import { BlockNoteEditor } from "@blocknote/core";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
-import "@blocknote/core/style.css";
+import "@blocknote/react/style.css";
 
 export default function App() {
   // Stores the editor's contents as HTML.
@@ -276,7 +276,7 @@ Tries to create `Block` objects out of any HTML block-level elements, and `Inlin
 import { useEffect, useState } from "react";
 import { BlockNoteEditor, Block } from "@blocknote/core";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
-import "@blocknote/core/style.css";
+import "@blocknote/react/style.css";
 
 export default function App() {
   // Stores the current HTML content.

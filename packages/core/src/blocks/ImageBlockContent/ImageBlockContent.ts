@@ -69,7 +69,6 @@ export const renderImage = (
   // Button element that acts as a placeholder for images with no src.
   const addImageButton = document.createElement("div");
   addImageButton.className = "bn-add-image-button";
-  addImageButton.style.display = block.props.url === "" ? "" : "none";
 
   // Icon for the add image button.
   const addImageButtonIcon = document.createElement("div");
@@ -83,12 +82,10 @@ export const renderImage = (
   // Wrapper element for the image, resize handles and caption.
   const imageAndCaptionWrapper = document.createElement("div");
   imageAndCaptionWrapper.className = "bn-image-and-caption-wrapper";
-  imageAndCaptionWrapper.style.display = block.props.url !== "" ? "" : "none";
 
   // Wrapper element for the image and resize handles.
   const imageWrapper = document.createElement("div");
   imageWrapper.className = "bn-image-wrapper";
-  imageWrapper.style.display = block.props.url !== "" ? "" : "none";
 
   // Image element.
   const image = document.createElement("img");
@@ -151,6 +148,15 @@ export const renderImage = (
   // offset from when the resize began, and which resize handle is being used.
   const windowMouseMoveHandler = (event: MouseEvent) => {
     if (!resizeParams) {
+      if (
+        !editor.isEditable &&
+        imageWrapper.contains(leftResizeHandle) &&
+        imageWrapper.contains(rightResizeHandle)
+      ) {
+        imageWrapper.removeChild(leftResizeHandle);
+        imageWrapper.removeChild(rightResizeHandle);
+      }
+
       return;
     }
 
@@ -195,18 +201,20 @@ export const renderImage = (
   // Stops mouse movements from resizing the image and updates the block's
   // `width` prop to the new value.
   const windowMouseUpHandler = (event: MouseEvent) => {
-    if (!resizeParams) {
-      return;
-    }
-
     // Hides the drag handles if the cursor is no longer over the image.
     if (
-      (!event.target || !imageWrapper.contains(event.target as Node)) &&
+      (!event.target ||
+        !imageWrapper.contains(event.target as Node) ||
+        !editor.isEditable) &&
       imageWrapper.contains(leftResizeHandle) &&
       imageWrapper.contains(rightResizeHandle)
     ) {
-      leftResizeHandle.style.display = "none";
-      rightResizeHandle.style.display = "none";
+      imageWrapper.removeChild(leftResizeHandle);
+      imageWrapper.removeChild(rightResizeHandle);
+    }
+
+    if (!resizeParams) {
+      return;
     }
 
     resizeParams = undefined;
@@ -236,11 +244,8 @@ export const renderImage = (
   // Shows the resize handles when hovering over the image with the cursor.
   const imageMouseEnterHandler = () => {
     if (editor.isEditable) {
-      leftResizeHandle.style.display = "block";
-      rightResizeHandle.style.display = "block";
-    } else {
-      leftResizeHandle.style.display = "none";
-      rightResizeHandle.style.display = "none";
+      imageWrapper.appendChild(leftResizeHandle);
+      imageWrapper.appendChild(rightResizeHandle);
     }
   };
   // Hides the resize handles when the cursor leaves the image, unless the
@@ -257,8 +262,14 @@ export const renderImage = (
       return;
     }
 
-    leftResizeHandle.style.display = "none";
-    rightResizeHandle.style.display = "none";
+    if (
+      editor.isEditable &&
+      imageWrapper.contains(leftResizeHandle) &&
+      imageWrapper.contains(rightResizeHandle)
+    ) {
+      imageWrapper.removeChild(leftResizeHandle);
+      imageWrapper.removeChild(rightResizeHandle);
+    }
   };
 
   // Sets the resize params, allowing the user to begin resizing the image by
@@ -266,8 +277,8 @@ export const renderImage = (
   const leftResizeHandleMouseDownHandler = (event: MouseEvent) => {
     event.preventDefault();
 
-    leftResizeHandle.style.display = "block";
-    rightResizeHandle.style.display = "block";
+    imageWrapper.appendChild(leftResizeHandle);
+    imageWrapper.appendChild(rightResizeHandle);
 
     resizeParams = {
       handleUsed: "left",
@@ -278,8 +289,8 @@ export const renderImage = (
   const rightResizeHandleMouseDownHandler = (event: MouseEvent) => {
     event.preventDefault();
 
-    leftResizeHandle.style.display = "block";
-    rightResizeHandle.style.display = "block";
+    imageWrapper.appendChild(leftResizeHandle);
+    imageWrapper.appendChild(rightResizeHandle);
 
     resizeParams = {
       handleUsed: "right",
@@ -288,15 +299,18 @@ export const renderImage = (
     };
   };
 
-  wrapper.appendChild(addImageButton);
   addImageButton.appendChild(addImageButtonIcon);
   addImageButton.appendChild(addImageButtonText);
-  wrapper.appendChild(imageAndCaptionWrapper);
+
   imageAndCaptionWrapper.appendChild(imageWrapper);
   imageWrapper.appendChild(image);
-  imageWrapper.appendChild(leftResizeHandle);
-  imageWrapper.appendChild(rightResizeHandle);
   imageAndCaptionWrapper.appendChild(caption);
+
+  if (block.props.url === "") {
+    wrapper.appendChild(addImageButton);
+  } else {
+    wrapper.appendChild(imageAndCaptionWrapper);
+  }
 
   window.addEventListener("mousemove", windowMouseMoveHandler);
   window.addEventListener("mouseup", windowMouseUpHandler);
