@@ -33,7 +33,7 @@ const textAlignmentToPlacement = (
 export type FormattingToolbarProps<
   BSchema extends BlockSchema = DefaultBlockSchema
 > = {
-  editor: BlockNoteEditor<BSchema>;
+  editor: BlockNoteEditor<BSchema, any, any>;
 };
 
 export const FormattingToolbarPositioner = <

@@ -2,6 +2,7 @@ import {
   BlockNoteEditor,
   DefaultBlockSchema,
   DefaultInlineContentSchema,
+  StyleSchemaFromSpecs,
   defaultStyleSpecs,
 } from "@blocknote/core";
 import {
@@ -17,7 +18,7 @@ import "@blocknote/react/style.css";
 
 const small = createReactStyleSpec(
   {
-    type: "small",
+    type: "small" as const,
     propSchema: "boolean",
   },
   {
@@ -29,7 +30,7 @@ const small = createReactStyleSpec(
 
 const fontSize = createReactStyleSpec(
   {
-    type: "fontSize",
+    type: "fontSize" as const,
     propSchema: "string",
   },
   {
@@ -41,13 +42,16 @@ const fontSize = createReactStyleSpec(
   }
 );
 
+const customReactStyles = {
+  ...defaultStyleSpecs,
+  small,
+  fontSize,
+};
+
 type MyEditorType = BlockNoteEditor<
   DefaultBlockSchema,
   DefaultInlineContentSchema,
-  {
-    small: (typeof small)["config"];
-    fontSize: (typeof fontSize)["config"];
-  }
+  StyleSchemaFromSpecs<typeof customReactStyles>
 >;
 
 const CustomFormattingToolbar = (props: { editor: MyEditorType }) => {
@@ -77,12 +81,6 @@ const CustomFormattingToolbar = (props: { editor: MyEditorType }) => {
       </ToolbarButton>
     </Toolbar>
   );
-};
-
-const customReactStyles = {
-  ...defaultStyleSpecs,
-  small,
-  fontSize,
 };
 
 export default function App() {
