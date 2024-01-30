@@ -44,6 +44,7 @@ const editor = useBlockNote({
 
 When a user edits the document, an incremental change (or "update") is captured and can be shared between users of your app. You can share these updates by setting up a _Yjs Provider_. In the snipped above, we use [y-webrtc](https://github.com/yjs/y-webrtc) which shares updates over WebRTC (and BroadcastChannel), but you might be interested in different providers for production-ready use cases.
 
+- [Liveblocks](https://liveblocks.io/yjs) A fully hosted WebSocket infrastructure and persisted data store for Yjs documents. Includes webhooks, REST API, and browser DevTools, all for Yjs
 - [PartyKit](https://www.partykit.io/) A serverless provider that runs on Cloudflare
 - [Hocuspocus](https://www.hocuspocus.dev/) open source and extensible Node.js server with pluggable storage (scales with Redis)
 - [y-websocket](https://github.com/yjs/y-websocket) provider that you can connect to your own websocket server
@@ -51,6 +52,18 @@ When a user edits the document, an incremental change (or "update") is captured 
 - [y-webrtc](https://github.com/yjs/y-webrtc) transmits updates over WebRTC
 - [Matrix-CRDT](https://github.com/yousefED/matrix-crdt) syncs updates over Matrix (experimental)
 - [Nostr-CRDT](https://github.com/yousefED/nostr-crdt) syncs updates over Nostr (experimental)
+
+## Liveblocks
+
+Liveblocks provides a hosted back-end for Yjs which allows you to download and set up a real-time multiplayer BlockNote example with one command.
+
+```shell
+npx create-liveblocks-app@latest --example nextjs-yjs-blocknote-advanced
+```
+
+<video autoplay loop src="/img/screenshots/liveblocks_blocknote_example.mp4" aria-label="BlockNote example using Liveblocks Yjs, showing collaboration and DevTools" />
+
+You can also try the same example in a [live demo](https://liveblocks.io/examples/collaborative-text-editor-advanced/nextjs-yjs-blocknote-advanced). To start with Liveblocks and BlockNote make sure to follow their [getting started guide](https://liveblocks.io/docs/get-started/yjs-blocknote-react). 
 
 ## Partykit
 
