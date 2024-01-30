@@ -7,7 +7,7 @@ import { createInternalHTMLSerializer } from "../../api/exporters/html/internalH
 import { cleanHTMLToMarkdown } from "../../api/exporters/markdown/markdownExporter";
 import { getBlockInfoFromPos } from "../../api/getBlockInfoFromPos";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
-import { BaseUiElementState } from "../SuggestionMenu/BaseUiElementTypes";
+import { BaseUiElementState } from "../../extensions-shared/BaseUiElementTypes";
 import {
   Block,
   BlockSchema,

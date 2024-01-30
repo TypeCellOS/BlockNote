@@ -54,12 +54,17 @@ async function getMentionMenuItems(
     typeof customInlineContentSchema,
     DefaultStyleSchema
   >,
-  query: string
+  query: string,
+  closeMenu: () => void,
+  clearQuery: () => void
 ): Promise<SuggestionMenuItemProps[]> {
   const users = ["Steve", "Bob", "Joe", "Mike"];
   const items: SuggestionMenuItemProps[] = users.map((user) => ({
-    text: user,
-    executeItem: () => {
+    name: user,
+    execute: () => {
+      closeMenu();
+      clearQuery();
+
       editor._tiptapEditor.commands.insertContent({
         type: "mention",
         attrs: {
@@ -71,8 +76,8 @@ async function getMentionMenuItems(
   }));
 
   return items.filter(
-    ({ text, aliases }) =>
-      text.toLowerCase().startsWith(query.toLowerCase()) ||
+    ({ name, aliases }) =>
+      name.toLowerCase().startsWith(query.toLowerCase()) ||
       (aliases &&
         aliases.filter((alias) =>
           alias.toLowerCase().startsWith(query.toLowerCase())
@@ -102,7 +107,9 @@ export function App() {
       <DefaultPositionedSuggestionMenu
         editor={editor}
         triggerCharacter={"@"}
-        getItems={(query) => getMentionMenuItems(editor, query)}
+        getItems={(query, closeMenu, clearQuery) =>
+          getMentionMenuItems(editor, query, closeMenu, clearQuery)
+        }
       />
     </BlockNoteView>
   );

@@ -30,12 +30,10 @@ export * from "./components/SideMenu/DragHandleMenu/DefaultDragHandleMenu";
 export * from "./components/SideMenu/DragHandleMenu/DragHandleMenu";
 export * from "./components/SideMenu/DragHandleMenu/DragHandleMenuItem";
 
-export * from "./components/SuggestionMenu/SuggestionMenu";
-export * from "./components/SuggestionMenu/SuggestionMenuItem";
-export * from "./components/SuggestionMenu/SuggestionMenuLabel";
+export * from "./components/SuggestionMenu/MantineSuggestionMenu";
+export * from "./components/SuggestionMenu/MantineSuggestionMenuItem";
 export * from "./components/SuggestionMenu/DefaultSuggestionMenu";
 export * from "./components/SuggestionMenu/defaultGetItems";
-export * from "./components/SuggestionMenu/DefaultRenderItems";
 export * from "./components/SuggestionMenu/hooks/useCloseSuggestionMenuNoItems";
 export * from "./components/SuggestionMenu/hooks/useLoadSuggestionMenuItems";
 export * from "./components/SuggestionMenu/hooks/useSuggestionMenuKeyboardNavigation";

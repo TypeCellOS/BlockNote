@@ -6,31 +6,36 @@ import {
   StyleSchema,
 } from "@blocknote/core";
 
-import { SuggestionMenuLabelProps } from "./SuggestionMenuLabel";
-import { SuggestionMenuItemProps } from "./SuggestionMenuItem";
+import { SuggestionMenuItemProps } from "./MantineSuggestionMenuItem";
 import { useLoadSuggestionMenuItems } from "./hooks/useLoadSuggestionMenuItems";
 import { useCloseSuggestionMenuNoItems } from "./hooks/useCloseSuggestionMenuNoItems";
 import { useSuggestionMenuKeyboardNavigation } from "./hooks/useSuggestionMenuKeyboardNavigation";
 import { useSuggestionMenu } from "../../hooks/useSuggestionMenu";
-import {
-  DefaultRenderItems,
-  SuggestionMenuItemsProps,
-} from "./DefaultRenderItems";
 import { defaultGetItems } from "./defaultGetItems";
+import {
+  MantineSuggestionMenu,
+  SuggestionMenuProps,
+} from "./MantineSuggestionMenu";
 
 export function DefaultPositionedSuggestionMenu<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
+  Item extends {
+    name: string;
+    execute: () => void;
+  } = SuggestionMenuItemProps
 >(props: {
   editor: BlockNoteEditor<BSchema, I, S>;
   triggerCharacter?: string;
   getItems?: (
-    query: string
-  ) => Promise<(SuggestionMenuItemProps | SuggestionMenuLabelProps)[]>;
-  renderItems?: FC<SuggestionMenuItemsProps>;
+    query: string,
+    closeMenu: () => void,
+    clearQuery: () => void
+  ) => Promise<Item[]>;
+  suggestionMenuComponent?: FC<SuggestionMenuProps<Item>>;
 }) {
-  const { editor, triggerCharacter, getItems, renderItems } = props;
+  const { editor, triggerCharacter, getItems, suggestionMenuComponent } = props;
 
   const { isMounted, suggestionMenuProps, positionerProps } = useSuggestionMenu(
     editor,
@@ -47,7 +52,7 @@ export function DefaultPositionedSuggestionMenu<
         editor={editor}
         {...suggestionMenuProps}
         getItems={getItems}
-        renderItems={renderItems}
+        suggestionMenuComponent={suggestionMenuComponent}
       />
     </div>
   );
@@ -66,62 +71,61 @@ export function DefaultPositionedSuggestionMenu<
 export function DefaultSuggestionMenu<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
+  Item extends {
+    name: string;
+    execute: () => void;
+  } = SuggestionMenuItemProps
 >(props: {
   editor: BlockNoteEditor<BSchema, I, S>;
   query: string;
   closeMenu: () => void;
   clearQuery: () => void;
   getItems?: (
-    query: string
-  ) => Promise<(SuggestionMenuItemProps | SuggestionMenuLabelProps)[]>;
-  renderItems?: FC<SuggestionMenuItemsProps>;
+    query: string,
+    closeMenu: () => void,
+    clearQuery: () => void
+  ) => Promise<Item[]>;
+  suggestionMenuComponent?: FC<SuggestionMenuProps<Item>>;
 }) {
-  const { editor, query, closeMenu, clearQuery, getItems, renderItems } = props;
+  const {
+    editor,
+    query,
+    closeMenu,
+    clearQuery,
+    getItems,
+    suggestionMenuComponent,
+  } = props;
 
-  const getItemsForLoading = useMemo(
+  const getItemsForLoading = useMemo<(query: string) => Promise<Item[]>>(
     () => (query: string) =>
-      getItems !== undefined ? getItems(query) : defaultGetItems(editor, query),
-    [editor, getItems]
+      getItems !== undefined
+        ? getItems(query, closeMenu, clearQuery)
+        : (defaultGetItems(editor, query, closeMenu, clearQuery) as Promise<
+            Item[]
+          >),
+    [clearQuery, closeMenu, editor, getItems]
   );
 
-  const { items, usedQuery, loadingState } = useLoadSuggestionMenuItems(
+  const { items, usedQuery, loadingState } = useLoadSuggestionMenuItems<Item>(
     query,
     getItemsForLoading
   );
 
   useCloseSuggestionMenuNoItems(items, usedQuery, closeMenu);
 
-  const itemsWithMenuClose = useMemo(
-    () =>
-      items.map((item) =>
-        !("label" in item)
-          ? {
-              ...item,
-              executeItem: () => {
-                console.log("cume");
-                closeMenu();
-                clearQuery();
-                item.executeItem();
-              },
-            }
-          : item
-      ),
-    [clearQuery, closeMenu, items]
-  );
-
   const selectedIndex = useSuggestionMenuKeyboardNavigation(
     editor,
-    itemsWithMenuClose.filter((item) => !("label" in item)),
-    (item) => (item as SuggestionMenuItemProps).executeItem(),
+    items,
     closeMenu
   );
 
-  const SuggestionMenuItems = renderItems || DefaultRenderItems;
+  const SuggestionMenu: FC<SuggestionMenuProps<Item>> =
+    suggestionMenuComponent || MantineSuggestionMenu;
 
   return (
-    <SuggestionMenuItems
-      items={itemsWithMenuClose}
+    <SuggestionMenu
+      items={items}
       loadingState={loadingState}
       selectedIndex={selectedIndex}
     />

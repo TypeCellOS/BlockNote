@@ -6,7 +6,7 @@ import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import {
   BaseUiElementCallbacks,
   BaseUiElementState,
-} from "../SuggestionMenu/BaseUiElementTypes";
+} from "../../extensions-shared/BaseUiElementTypes";
 import { BlockSchema, InlineContentSchema, StyleSchema } from "../../schema";
 import { EventEmitter } from "../../util/EventEmitter";
 
