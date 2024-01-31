@@ -88,7 +88,7 @@ export function BlockNoteView<
   }, [systemColorScheme, editor.domElement, theme]);
 
   return (
-    <MantineProvider theme={mantineTheme}>
+    <MantineProvider theme={mantineTheme} cssVariablesSelector=".bn-container">
       <EditorContent
         editor={editor._tiptapEditor}
         className={mergeCSSClasses("bn-container", className || "")}

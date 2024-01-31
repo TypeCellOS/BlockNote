@@ -1,21 +1,5 @@
-@import url("@mantine/core/styles.css");
+@import url("./mantineStyles.css");
 @import url("@blocknote/core/style.css");
-
-/* Seems to be the recommended way of changing global styles: */
-/* https://mantine.dev/styles/global-styles/#add-global-styles-in-your-application */
-/* TODO: Is there a better way to reset these? This will still reset previously
-    set styles. */
-body {
-    --mantine-global-style-reset: "";
-
-    -webkit-font-smoothing: var(--mantine-global-style-reset);
-    -moz-osx-font-smoothing: var(--mantine-global-style-reset);
-    background-color: var(--mantine-global-style-reset);
-    color: var(--mantine-global-style-reset);
-    font-family: var(--mantine-global-style-reset);
-    font-size: var(--mantine-global-style-reset);
-    line-height: var(--mantine-global-style-reset);
-}
 
 /* Default theme params */
 .bn-container {
@@ -258,54 +242,71 @@ body {
 [data-text-color="gray"] {
     color: var(--bn-colors-highlights-gray-text);
 }
+
 [data-text-color="brown"] {
     color: var(--bn-colors-highlights-brown-text);
 }
+
 [data-text-color="red"] {
     color: var(--bn-colors-highlights-red-text);
 }
+
 [data-text-color="orange"] {
     color: var(--bn-colors-highlights-orange-text);
 }
+
 [data-text-color="yellow"] {
     color: var(--bn-colors-highlights-yellow-text);
 }
+
 [data-text-color="green"] {
     color: var(--bn-colors-highlights-green-text);
 }
+
 [data-text-color="blue"] {
     color: var(--bn-colors-highlights-blue-text);
 }
+
 [data-text-color="purple"] {
     color: var(--bn-colors-highlights-purple-text);
 }
+
 [data-text-color="pink"] {
     color: var(--bn-colors-highlights-pink-text);
 }
+
 [data-background-color="gray"] {
     background-color: var(--bn-colors-highlights-gray-background);
 }
+
 [data-background-color="brown"] {
     background-color: var(--bn-colors-highlights-brown-background);
 }
+
 [data-background-color="red"] {
     background-color: var(--bn-colors-highlights-red-background);
 }
+
 [data-background-color="orange"] {
     background-color: var(--bn-colors-highlights-orange-background);
 }
+
 [data-background-color="yellow"] {
     background-color: var(--bn-colors-highlights-yellow-background);
 }
+
 [data-background-color="green"] {
     background-color: var(--bn-colors-highlights-green-background);
 }
+
 [data-background-color="blue"] {
     background-color: var(--bn-colors-highlights-blue-background);
 }
+
 [data-background-color="purple"] {
     background-color: var(--bn-colors-highlights-purple-background);
 }
+
 [data-background-color="pink"] {
     background-color: var(--bn-colors-highlights-pink-background);
 }
