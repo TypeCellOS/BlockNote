@@ -1,6 +1,22 @@
 @import url("@mantine/core/styles.css");
 @import url("@blocknote/core/style.css");
 
+/* Seems to be the recommended way of changing global styles: */
+/* https://mantine.dev/styles/global-styles/#add-global-styles-in-your-application */
+/* TODO: Is there a better way to reset these? This will still reset previously
+    set styles. */
+body {
+    --mantine-global-style-reset: "";
+
+    -webkit-font-smoothing: var(--mantine-global-style-reset);
+    -moz-osx-font-smoothing: var(--mantine-global-style-reset);
+    background-color: var(--mantine-global-style-reset);
+    color: var(--mantine-global-style-reset);
+    font-family: var(--mantine-global-style-reset);
+    font-size: var(--mantine-global-style-reset);
+    line-height: var(--mantine-global-style-reset);
+}
+
 /* Default theme params */
 .bn-container {
     --bn-colors-editor-text: #3F3F3F;
