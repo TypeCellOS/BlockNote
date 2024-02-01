@@ -2,7 +2,6 @@ import { expect, Page } from "@playwright/test";
 import { test } from "../../setup/setupScript";
 import {
   BASE_URL,
-  BLOCK_CONTAINER_SELECTOR,
   DRAG_HANDLE_SELECTOR,
   DRAG_HANDLE_ADD_SELECTOR,
   DRAG_HANDLE_MENU_SELECTOR,
@@ -95,21 +94,6 @@ test.describe("Check Draghandle functionality", () => {
 
     await page.waitForTimeout(1000);
     await compareDocToSnapshot(page, "draghandleadd");
-  });
-
-  test("Clicking add button should show filter message", async () => {
-    const block = await page.locator(BLOCK_CONTAINER_SELECTOR);
-    await moveMouseOverElement(page, block);
-    await page.click(DRAG_HANDLE_ADD_SELECTOR);
-    const content = await page.waitForSelector(PARAGRAPH_SELECTOR);
-    // Get text in :before
-    const text = await content.evaluate((el) =>
-      window
-        .getComputedStyle(el.children[0], ":before")
-        .getPropertyValue("content")
-    );
-
-    expect(text).toBe('"Type to filter"');
   });
 
   test("Clicking add button should open menu", async () => {

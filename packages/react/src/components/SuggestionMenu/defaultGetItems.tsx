@@ -155,20 +155,6 @@ export async function defaultGetItems<
       group: "Headings",
     },
     {
-      name: "Bullet List",
-      execute: () => {
-        closeMenu();
-        clearQuery();
-
-        insertOrUpdateBlock(editor, { type: "bulletListItem" });
-      },
-      subtext: "Used to display an unordered list",
-      icon: <RiListUnordered size={18} />,
-      badge: formatKeyboardShortcut("Mod-Alt-9"),
-      aliases: ["ul", "li", "list", "bulletlist", "bullet list"],
-      group: "Basic blocks",
-    },
-    {
       name: "Numbered List",
       execute: () => {
         closeMenu();
@@ -178,8 +164,22 @@ export async function defaultGetItems<
       },
       subtext: "Used to display a numbered list",
       icon: <RiListOrdered size={18} />,
-      badge: formatKeyboardShortcut("Mod-Alt-7"),
+      badge: formatKeyboardShortcut("Mod-Shift-7"),
       aliases: ["ol", "li", "list", "numberedlist", "numbered list"],
+      group: "Basic blocks",
+    },
+    {
+      name: "Bullet List",
+      execute: () => {
+        closeMenu();
+        clearQuery();
+
+        insertOrUpdateBlock(editor, { type: "bulletListItem" });
+      },
+      subtext: "Used to display an unordered list",
+      icon: <RiListUnordered size={18} />,
+      badge: formatKeyboardShortcut("Mod-Shift-8"),
+      aliases: ["ul", "li", "list", "bulletlist", "bullet list"],
       group: "Basic blocks",
     },
     {
