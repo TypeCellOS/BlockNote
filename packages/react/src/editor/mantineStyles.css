@@ -1,3 +1,8 @@
+/* Based on https://github.com/orgs/mantinedev/discussions/5685 */
+
+/* We need all the Mantine styles except the global styles, so unfortunately our
+ only option is to import all the component styles separately. Could consider
+  importing only styles for components used in BlockNote in the future. */
 @import url("@mantine/core/styles/ScrollArea.css");
 @import url("@mantine/core/styles/UnstyledButton.css");
 @import url("@mantine/core/styles/VisuallyHidden.css");
@@ -79,6 +84,8 @@
 @import url("@mantine/core/styles/TypographyStylesProvider.css");
 
 /* Mantine global styles, scoped to bn-container */
+/* Based on @mantine/core/styles/global.css but with styles set on `body` and
+`html` instead set on `bn-container`, as well as other minor changes. */
 .bn-container *, .bn-container :after, .bn-container :before {
     box-sizing: border-box
 }
