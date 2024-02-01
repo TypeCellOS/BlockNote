@@ -1,0 +1,28 @@
+{
+  "*": {
+    "type": "page"
+  },
+  "index": {
+    "type": "page",
+    "display": "hidden",
+    "theme": {
+      "layout": "raw",
+      "sidebar": false,
+      "toc": true
+    }
+  },
+  "docs": {
+    "title": "Docs",
+    "display": "children"
+  },
+  "Learn": {
+    "type": "menu",
+    "items": {
+      "docs": {},
+      "examples": {},
+      "open-source-notion": {}
+    }
+  },
+  "partner": "Partner",
+  "contact": "Contact us"
+}

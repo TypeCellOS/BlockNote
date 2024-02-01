@@ -4,6 +4,7 @@
   "workspaces": [
     "packages/*",
     "playground",
+    "docs",
     "tests"
   ],
   "devDependencies": {

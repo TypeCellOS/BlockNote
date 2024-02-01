@@ -1,0 +1,10 @@
+/* Adds border and shadow to editor */
+.bn-container .bn-editor {
+  border-radius: var(--bn-border-radius-medium);
+  box-shadow: var(--bn-shadow-medium);
+}
+
+/* Makes slash menu hovered items blue */
+.bn-container .bn-slash-menu .mantine-Menu-item[data-hovered] {
+  background-color: blue;
+}

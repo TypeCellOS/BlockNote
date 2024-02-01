@@ -1,0 +1,44 @@
+{
+  "index": "introduction",
+  "-- Getting started": {
+    "type": "separator",
+    "title": "Getting started"
+  },
+  "introduction": "",
+  "quickstart": "",
+  "-- Editor setup": {
+    "type": "separator",
+    "title": "Editor setup"
+  },
+  "editor": "",
+  "theming": "",
+  "formatting-toolbar": "",
+  "slash-menu": "",
+  "side-menu": "",
+  "image-toolbar": "",
+  "ui-elements": "",
+
+  "-- Working with Blocks": {
+    "type": "separator",
+    "title": "Working with Blocks"
+  },
+  "blocks": "",
+  "block-types": "",
+  "manipulating-blocks": "",
+  "inline-content": "",
+  "cursor-selections": "",
+  "converting-blocks": "",
+  "-- Advanced": {
+    "type": "separator",
+    "title": "Advanced"
+  },
+  "real-time-collaboration": "",
+  "nextjs": "",
+  "vanilla-js": "",
+
+  "discord-link": {
+    "title": "Community ↗",
+    "href": "https://discord.gg/Qc2QTTH5dF",
+    "newWindow": true
+  }
+}

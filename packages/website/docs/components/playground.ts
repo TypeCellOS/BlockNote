@@ -92,6 +92,7 @@ export const Playground = defineComponent<PlaygroundProps>(
               showLineNumbers: true,
               editorHeight: "100%",
               showTabs: true,
+              // bundlerURL: "https://sandpack-bundler.pages.dev",
             },
           }),
         ]

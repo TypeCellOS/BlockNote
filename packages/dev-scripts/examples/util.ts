@@ -1,4 +1,4 @@
-import * as glob from "glob";
+import glob from "fast-glob";
 import * as fs from "node:fs";
 import * as path from "node:path";
 
@@ -36,12 +36,44 @@ export function groupProjects(projects: Project[]) {
   return grouped;
 }
 
+export type Files = Record<
+  string,
+  {
+    filename: string;
+    code: string;
+    hidden: boolean;
+  }
+>;
+
+export function getProjectFiles(project: Project): Files {
+  const dir = path.resolve("../../", project.pathFromRoot);
+  const files = glob.globSync(dir + "/**/*", {
+    ignore: ["**/node_modules/**/*", "**/dist/**/*"],
+  });
+  const passedFiles = Object.fromEntries(
+    files.map((fullPath) => {
+      const filename = fullPath.substring(dir.length);
+      return [
+        filename,
+        {
+          filename,
+          code: fs.readFileSync(fullPath, "utf-8"),
+          hidden:
+            !(filename.endsWith(".tsx") || filename.endsWith(".css")) ||
+            filename.endsWith("main.tsx"),
+        },
+      ];
+    })
+  );
+  return passedFiles;
+}
+
 /**
  * Get the list of example Projects based on the /examples folder
  */
 export function getExampleProjects(): Project[] {
   const examples = glob
-    .sync(path.join(dir, "../../../examples/*/"), {})
+    .globSync(path.join(dir, "../../../examples/*/"), { onlyDirectories: true })
     .map((val) => {
       let config: any = undefined;
       const configPath = path.join(val, ".bnexample.json");
