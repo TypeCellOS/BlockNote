@@ -68,7 +68,9 @@ export function insertOrUpdateBlock<
   if (
     Array.isArray(currentBlock.content) &&
     ((currentBlock.content.length === 1 &&
-      isStyledTextInlineContent(currentBlock.content[0])) ||
+      isStyledTextInlineContent(currentBlock.content[0]) &&
+      currentBlock.content[0].type === "text" &&
+      currentBlock.content[0].text === "/") ||
       currentBlock.content.length === 0)
   ) {
     editor.updateBlock(currentBlock, block);
