@@ -360,7 +360,7 @@ export class BlockNoteEditor<
           jsonNode.content[0].content[0].attrs.id = "initialBlockId";
 
           cache = Node.fromJSON(schema, jsonNode);
-          return ret;
+          return cache;
         };
 
         const root = schema.node(

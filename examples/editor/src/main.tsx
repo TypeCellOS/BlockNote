@@ -8,13 +8,13 @@ import {
   createBrowserRouter,
 } from "react-router-dom";
 
+import "./style.css";
 import { App } from "../examples/basic/App";
 import { ReactCustomBlocks } from "../examples/react-custom-blocks/App";
 import { ReactInlineContent } from "../examples/react-custom-inline-content/App";
 import { ReactStyles } from "../examples/react-custom-styles/App";
 import { CustomBlocks } from "../examples/vanilla-custom-blocks/App";
 import { InlineContent } from "../examples/vanilla-custom-inline-content/App";
-import "./style.css";
 
 window.React = React;
 

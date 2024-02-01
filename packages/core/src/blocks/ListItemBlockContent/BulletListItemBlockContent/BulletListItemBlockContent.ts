@@ -37,7 +37,7 @@ const BulletListItemBlockContent = createStronglyTypedTiptapNode({
   addKeyboardShortcuts() {
     return {
       Enter: () => handleEnter(this.editor),
-      "Mod-Shift-7": () =>
+      "Mod-Shift-8": () =>
         this.editor.commands.BNUpdateBlock(this.editor.state.selection.anchor, {
           type: "bulletListItem",
           props: {},
