@@ -560,7 +560,7 @@ export class SideMenuView<
       this.editor._tiptapEditor
         .chain()
         .BNCreateBlock(newBlockInsertionPos)
-        .BNUpdateBlock(newBlockContentPos, { type: "paragraph", props: {} })
+        // .BNUpdateBlock(newBlockContentPos, { type: "paragraph", props: {} })
         .setTextSelection(newBlockContentPos)
         .run();
     } else {
@@ -571,9 +571,8 @@ export class SideMenuView<
     this.pmView.focus();
     this.pmView.dispatch(
       this.pmView.state.tr.scrollIntoView().setMeta(suggestionMenuPluginKey, {
-        // TODO import suggestion plugin key
-        activate: true,
-        type: "drag",
+        triggerCharacter: "/",
+        fromUserInput: false,
       })
     );
   }

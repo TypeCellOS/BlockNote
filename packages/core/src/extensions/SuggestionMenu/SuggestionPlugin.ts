@@ -108,7 +108,7 @@ class SuggestionMenuView<
   };
 
   clearQuery = () => {
-    if (this.pluginState === undefined) {
+    if (this.pluginState === undefined || !this.pluginState.fromUserInput) {
       return;
     }
 
@@ -128,6 +128,7 @@ class SuggestionMenuView<
 type SuggestionPluginState =
   | {
       triggerCharacter: string;
+      fromUserInput: boolean;
       queryStartPos: number;
       query: string;
       decorationId: string;
@@ -187,16 +188,22 @@ export class SuggestionMenuProseMirrorPlugin<
 
           // Either contains the trigger character if the menu should be shown,
           // or null if it should be hidden.
-          const suggestionPluginTransactionMeta: string | null =
-            transaction.getMeta(suggestionMenuPluginKey);
+          const suggestionPluginTransactionMeta: {
+            triggerCharacter: string;
+            fromUserInput?: boolean;
+          } | null = transaction.getMeta(suggestionMenuPluginKey);
 
           // Only opens a menu of no menu is already open
           if (
-            typeof suggestionPluginTransactionMeta === "string" &&
+            typeof suggestionPluginTransactionMeta === "object" &&
+            suggestionPluginTransactionMeta !== null &&
             prev === undefined
           ) {
             return {
-              triggerCharacter: suggestionPluginTransactionMeta,
+              triggerCharacter:
+                suggestionPluginTransactionMeta.triggerCharacter,
+              fromUserInput:
+                suggestionPluginTransactionMeta.fromUserInput !== false,
               queryStartPos: newState.selection.from,
               query: "",
               decorationId: `id_${Math.floor(Math.random() * 0xffffffff)}`,
@@ -254,7 +261,9 @@ export class SuggestionMenuProseMirrorPlugin<
               view.state.tr
                 .insertText(event.key)
                 .scrollIntoView()
-                .setMeta(suggestionMenuPluginKey, event.key)
+                .setMeta(suggestionMenuPluginKey, {
+                  triggerCharacter: event.key,
+                })
             );
 
             return true;
@@ -275,7 +284,7 @@ export class SuggestionMenuProseMirrorPlugin<
 
           // If the menu was opened programmatically by another extension, it may not use a trigger character. In this
           // case, the decoration is set on the whole block instead, as the decoration range would otherwise be empty.
-          if (suggestionPluginState.triggerCharacter === "") {
+          if (!suggestionPluginState.fromUserInput) {
             const blockNode = findBlock(state.selection);
             if (blockNode) {
               return DecorationSet.create(state.doc, [
