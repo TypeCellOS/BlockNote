@@ -1,5 +1,15 @@
-import { BlockSchemaWithBlock, defaultProps } from "@blocknote/core";
-import { ReactSlashMenuItem, createReactBlockSpec } from "@blocknote/react";
+import {
+  BlockNoteEditor,
+  BlockSchema,
+  defaultProps,
+  InlineContentSchema,
+  PartialBlock,
+  StyleSchema,
+} from "@blocknote/core";
+import {
+  createReactBlockSpec,
+  SuggestionMenuItemProps,
+} from "@blocknote/react";
 import { RiImage2Fill } from "react-icons/ri";
 
 export const ReactImage = createReactBlockSpec(
@@ -36,35 +46,46 @@ export const ReactImage = createReactBlockSpec(
   }
 );
 
-export const insertReactImage: ReactSlashMenuItem<
-  BlockSchemaWithBlock<"reactImage", typeof ReactImage.config>
-> = {
-  name: "Insert React Image",
-  execute: (editor) => {
-    const src = prompt("Enter image URL") || "https://via.placeholder.com/1000";
-    editor.insertBlocks(
-      [
-        {
-          type: "reactImage",
-          props: {
-            src,
-          },
-        },
-      ],
-      editor.getTextCursorPosition().block,
-      "after"
-    );
-  },
-  aliases: [
-    "react",
-    "reactImage",
-    "react image",
-    "image",
-    "img",
-    "picture",
-    "media",
-  ],
-  group: "Media",
-  icon: <RiImage2Fill />,
-  hint: "Insert an image",
-};
+export const insertReactImage = <
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(
+  editor: BlockNoteEditor<BSchema, I, S>,
+  closeMenu: () => void,
+  clearQuery: () => void
+) =>
+  ({
+    name: "Insert React Image",
+    execute: () => {
+      closeMenu();
+      clearQuery();
+
+      const src =
+        prompt("Enter image URL") || "https://via.placeholder.com/1000";
+      editor.insertBlocks(
+        [
+          {
+            type: "reactImage",
+            props: {
+              src,
+            },
+          } as PartialBlock<BSchema, I, S>,
+        ],
+        editor.getTextCursorPosition().block,
+        "after"
+      );
+    },
+    subtext: "Insert an image",
+    icon: <RiImage2Fill />,
+    aliases: [
+      "react",
+      "reactImage",
+      "react image",
+      "image",
+      "img",
+      "picture",
+      "media",
+    ],
+    group: "Media",
+  } satisfies SuggestionMenuItemProps);

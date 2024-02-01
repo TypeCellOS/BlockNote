@@ -2,7 +2,7 @@ import { Editor, Extension } from "@tiptap/core";
 import { Node as ProsemirrorNode } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import { suggestionMenuPluginKey } from "../SuggestionMenu/SuggestionPlugin";
 
 const PLUGIN_KEY = new PluginKey(`blocknote-placeholder`);

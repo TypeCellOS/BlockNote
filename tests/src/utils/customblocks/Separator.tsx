@@ -1,5 +1,11 @@
-import { BlockSchemaWithBlock, createBlockSpec } from "@blocknote/core";
-import { ReactSlashMenuItem } from "@blocknote/react";
+import {
+  BlockNoteEditor,
+  BlockSchema,
+  createBlockSpec,
+  InlineContentSchema,
+  StyleSchema,
+} from "@blocknote/core";
+import { SuggestionMenuItemProps } from "@blocknote/react";
 import { RiSeparator } from "react-icons/ri";
 
 export const Separator = createBlockSpec(
@@ -30,24 +36,33 @@ export const Separator = createBlockSpec(
   }
 );
 
-export const insertSeparator: ReactSlashMenuItem<
-  BlockSchemaWithBlock<"separator", typeof Separator.config>
-> = {
-  name: "Insert Separator",
-  execute: (editor) => {
-    editor.insertBlocks(
-      [
-        {
-          type: "separator",
-        },
-      ],
-      editor.getTextCursorPosition().block,
-      "after"
-    );
-  },
+export const insertSeparator = <
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(
+  editor: BlockNoteEditor<BSchema, I, S>,
+  closeMenu: () => void,
+  clearQuery: () => void
+) =>
+  ({
+    name: "Insert Separator",
+    execute: () => {
+      closeMenu();
+      clearQuery();
 
-  aliases: ["separator", "horizontal", "line", "rule"],
-  group: "Media",
-  icon: <RiSeparator />,
-  hint: "Insert a button which inserts a block below it",
-};
+      editor.insertBlocks(
+        [
+          {
+            type: "separator",
+          },
+        ],
+        editor.getTextCursorPosition().block,
+        "after"
+      );
+    },
+    subtext: "Insert a button which inserts a block below it",
+    icon: <RiSeparator />,
+    aliases: ["separator", "horizontal", "line", "rule"],
+    group: "Other",
+  } satisfies SuggestionMenuItemProps);

@@ -1,5 +1,12 @@
-import { BlockSchemaWithBlock, createBlockSpec } from "@blocknote/core";
-import { ReactSlashMenuItem } from "@blocknote/react";
+import {
+  BlockNoteEditor,
+  BlockSchema,
+  createBlockSpec,
+  InlineContentSchema,
+  PartialBlock,
+  StyleSchema,
+} from "@blocknote/core";
+import { SuggestionMenuItemProps } from "@blocknote/react";
 import { RiLayout5Fill } from "react-icons/ri";
 
 export const Embed = createBlockSpec(
@@ -28,29 +35,37 @@ export const Embed = createBlockSpec(
   }
 );
 
-export const insertEmbed: ReactSlashMenuItem<
-  BlockSchemaWithBlock<"embed", typeof Embed.config>,
-  any,
-  any
-> = {
-  name: "Insert Embedded Website",
-  execute: (editor) => {
-    const src = prompt("Enter website URL");
-    editor.insertBlocks(
-      [
-        {
-          type: "embed",
-          props: {
-            src: src || "https://www.youtube.com/embed/wjfuB8Xjhc4",
-          },
-        },
-      ],
-      editor.getTextCursorPosition().block,
-      "after"
-    );
-  },
-  aliases: ["embedded", "website", "site", "link", "url"],
-  group: "Media",
-  icon: <RiLayout5Fill />,
-  hint: "Insert an embedded website",
-};
+export const insertEmbed = <
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(
+  editor: BlockNoteEditor<BSchema, I, S>,
+  closeMenu: () => void,
+  clearQuery: () => void
+) =>
+  ({
+    name: "Insert Embedded Website",
+    execute: () => {
+      closeMenu();
+      clearQuery();
+
+      const src = prompt("Enter website URL");
+      editor.insertBlocks(
+        [
+          {
+            type: "embed",
+            props: {
+              src: src || "https://www.youtube.com/embed/wjfuB8Xjhc4",
+            },
+          } as PartialBlock<BSchema, I, S>,
+        ],
+        editor.getTextCursorPosition().block,
+        "after"
+      );
+    },
+    subtext: "Insert an embedded website",
+    icon: <RiLayout5Fill />,
+    aliases: ["embedded", "website", "site", "link", "url"],
+    group: "Other",
+  } satisfies SuggestionMenuItemProps);
