@@ -2,3 +2,24 @@
   background: transparent !important;
   height: 500px;
 }
+
+/* From Vitepress base styles, to overwrite Mantine globals */
+body {
+  margin: 0;
+  width: 100%;
+  min-width: 320px;
+  min-height: 100vh;
+  line-height: 24px;
+  font-family: var(--vp-font-family-base);
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--vp-c-text-1);
+  background-color: var(--vp-c-bg);
+  direction: ltr;
+  font-synthesis: style;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+
