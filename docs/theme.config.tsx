@@ -15,13 +15,20 @@ import { Navigation } from "./components/Navigation";
 //     ssr: false,
 //   }
 // );
-const SITE_ROOT = "https://turbo.build";
+const SITE_ROOT = "https://www.blocknotejs.org";
+
+const METADATA_DEFAULT = {
+  title: "BlockNote",
+  description:
+    "A beautiful text editor that just works. Easily add an editor to your app that users will love. Customize it with your own functionality like custom blocks or AI tooling.",
+  image: SITE_ROOT + "/api/og",
+};
 
 interface Frontmatter {
   title: string;
   overrideTitle: string;
   description: string;
-  ogImage: string;
+  imageTitle: string;
 }
 
 const config: DocsThemeConfig = {
@@ -29,39 +36,96 @@ const config: DocsThemeConfig = {
     defaultMenuCollapseLevel: 1,
     toggleButton: true,
   },
-  docsRepositoryBase: "https://github.com/vercel/turbo/blob/main/docs",
+  docsRepositoryBase: "https://github.com/TypeCellOS/BlockNote/blob/main/docs",
   useNextSeoProps: function SEO() {
     const router = useRouter();
+    const { systemTheme = "dark" } = useTheme();
     const nextraConfig = useConfig();
+
+    const fullUrl =
+      router.asPath === "/" ? SITE_ROOT : `${SITE_ROOT}${router.asPath}`;
 
     const frontMatter = nextraConfig.frontMatter as Frontmatter;
 
-    let section = "Turbo";
-    if (router.pathname.startsWith("/pack")) {
-      section = "Turbopack";
+    // const defaultTitle = frontMatter.overrideTitle || "BlockNote";
+    {
+      /* <meta content={ogUrl} property="twitter:title" />
+        <meta content={ogUrl} property="twitter:description" />
+        <meta content={ogUrl} property="twitter:image" /> */
     }
-    if (router.pathname.startsWith("/repo")) {
-      section = "Turborepo";
-    }
+    // console.log(nextraConfig.title, frontMatter.overrideTitle);
 
-    // only show section if we're not on a landing page (these show as "Index")
-    let titleTemplate = `%s – ${section}`;
-    if (router.pathname === "/repo") {
-      titleTemplate = `Turborepo`;
-    }
-    if (router.pathname === "/pack") {
-      titleTemplate = `Turbopack`;
-    }
-    if (router.pathname === "/") {
-      titleTemplate = `Turbo`;
-    }
+    const title = frontMatter.overrideTitle
+      ? frontMatter.overrideTitle
+      : nextraConfig.title
+      ? nextraConfig.title + " - BlockNote"
+      : "BlockNote";
 
-    const defaultTitle = frontMatter.overrideTitle || section;
+    const imageUrl = frontMatter.imageTitle
+      ? `${SITE_ROOT}/api/og?title=${encodeURIComponent(
+          frontMatter.imageTitle
+        )}`
+      : METADATA_DEFAULT.image;
 
     return {
       description: frontMatter.description,
-      defaultTitle,
-      titleTemplate,
+      title,
+      // defaultTitle,
+      // titleTemplate: "%s – BlockNote",
+      canonical: fullUrl,
+      twitter: {
+        handle: "@TypeCellOS",
+        site: "@TypeCellOS",
+        cardType: "summary_large_image",
+      },
+      openGraph: {
+        type: "website",
+        url: fullUrl,
+        title,
+        description: frontMatter.description,
+        images: [
+          {
+            url: imageUrl,
+          },
+        ],
+        siteName: "BlockNote",
+        locale: "en_US",
+      },
+      additionalMetaTags: [
+        {
+          property: "twitter:title",
+          content: title,
+        },
+        {
+          property: "twitter:description",
+          content: frontMatter.description,
+        },
+        {
+          property: "twitter:image",
+          content: imageUrl,
+        },
+        {
+          name: "viewport",
+          content: "width=device-width, initial-scale=1.0",
+        },
+      ],
+      additionalLinkTags: [
+        {
+          as: "document",
+          href: "/docs",
+          rel: "prefetch",
+        },
+        {
+          rel: "icon",
+          href: `/img/logos/icon_light_400.png`,
+          type: "image/png",
+        },
+        {
+          rel: "icon",
+          href: `/img/logos/icon_light_400.svg`,
+          type: "image/svg",
+        },
+      ],
     };
   },
   gitTimestamp({ timestamp }) {
@@ -96,93 +160,17 @@ const config: DocsThemeConfig = {
   logo: Logo,
   logoLink: false,
   head: function Head() {
-    const router = useRouter();
-    const { systemTheme = "dark" } = useTheme();
-    const nextraConfig = useConfig();
+    // const router = useRouter();
+    // const { systemTheme = "dark" } = useTheme();
+    // const nextraConfig = useConfig();
 
-    const frontMatter = nextraConfig.frontMatter as Frontmatter;
-    const fullUrl =
-      router.asPath === "/" ? SITE_ROOT : `${SITE_ROOT}${router.asPath}`;
+    // const frontMatter = nextraConfig.frontMatter as Frontmatter;
+    // const fullUrl =
+    //   router.asPath === "/" ? SITE_ROOT : `${SITE_ROOT}${router.asPath}`;
 
-    const asPath = router.asPath;
+    // const asPath = router.asPath;
 
-    let ogUrl: string;
-
-    if (asPath === "/") {
-      ogUrl = `${SITE_ROOT}/api/og`;
-    } else if (frontMatter.ogImage) {
-      ogUrl = `${SITE_ROOT}${frontMatter.ogImage}`;
-    } else {
-      const type = () => {
-        if (asPath.startsWith("/repo")) {
-          return "repo";
-        }
-
-        if (asPath.startsWith("/pack")) {
-          return "pack";
-        }
-        return "";
-      };
-      const title = frontMatter.title
-        ? `&title=${encodeURIComponent(frontMatter.title)}`
-        : "";
-
-      ogUrl = `${SITE_ROOT}/api/og?type=${type()}${title}`;
-    }
-
-    return (
-      <>
-        <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-        <link
-          href={`/images/favicon-${systemTheme}/apple-touch-icon.png`}
-          rel="apple-touch-icon"
-          sizes="180x180"
-        />
-        <link
-          href={`/images/favicon-${systemTheme}/favicon-32x32.png`}
-          rel="icon"
-          sizes="32x32"
-          type="image/png"
-        />
-        <link
-          href={`/images/favicon-${systemTheme}/favicon-16x16.png`}
-          rel="icon"
-          sizes="16x16"
-          type="image/png"
-        />
-        <link
-          color="#000000"
-          href={`/images/favicon-${systemTheme}/safari-pinned-tab.svg`}
-          rel="mask-icon"
-        />
-        <link
-          href={`/images/favicon-${systemTheme}/favicon.ico`}
-          rel="shortcut icon"
-        />
-        <meta content="#000000" name="msapplication-TileColor" />
-        <meta content="#000" name="theme-color" />
-        <meta content="summary_large_image" name="twitter:card" />
-        <meta content="@turborepo" name="twitter:site" />
-        <meta content="@turborepo" name="twitter:creator" />
-        <meta content="website" property="og:type" />
-        <meta content={fullUrl} property="og:url" />
-        <link href={fullUrl} rel="canonical" />
-        <meta content={ogUrl} property="twitter:image" />
-        <meta content={ogUrl} property="og:image" />
-        <meta content="en_IE" property="og:locale" />
-        <meta content="Turbo" property="og:site_name" />
-        <link as="document" href="/repo" rel="prefetch" />
-        <link as="document" href="/repo/docs" rel="prefetch" />
-        <link as="document" href="/pack" rel="prefetch" />
-        <link as="document" href="/pack/docs" rel="prefetch" />
-        <link
-          href="https://turbo.build/feed.xml"
-          rel="alternate"
-          title="Turbo Blog"
-          type="application/rss+xml"
-        />
-      </>
-    );
+    return <></>;
   },
   i18n: [],
   editLink: {

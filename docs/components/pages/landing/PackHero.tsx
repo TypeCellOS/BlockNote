@@ -49,31 +49,17 @@ export function PackHero() {
             functionality like custom blocks or AI tooling.
           </SectionSubtext>
         </div>
-        <div className="header-media">
-          <div className="editor-wrapper">helloa</div>
-          {/* <div class="try-here-image" /> */}
-        </div>
       </FadeIn>
       <FadeIn
         className="z-50 flex flex-col items-center w-full max-w-md gap-5 px-6"
         delay={0.3}>
         <div className="flex flex-col w-full gap-3 md:!flex-row">
           <CTAButton>
-            <Link className="block py-3" href="/pack/docs">
+            <Link className="block py-3" href="/docs">
               Get Started
             </Link>
           </CTAButton>
-          <CTAButton outline>
-            <a
-              className="block py-3"
-              href="https://github.com/vercel/turbo"
-              rel="noreferrer"
-              target="_blank">
-              GitHub
-            </a>
-          </CTAButton>
         </div>
-        <p className="text-sm text-[#666666]">License: MPL-2.0</p>
       </FadeIn>
       <FadeIn className="relative w-full" delay={0.5}>
         <div className="absolute bottom-0 w-full dark:from-black from-white to-transparent h-72 bg-gradient-to-t" />
