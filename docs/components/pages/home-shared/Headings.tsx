@@ -12,7 +12,7 @@ export function HeroText({
 }) {
   const combinedClassname = cn(
     gradients.heroHeading,
-    "font-bold tracking-[-0.04em] leading-none text-[40px] md:text-5xl lg:text-[80px] text-transparent",
+    "tracking-[-0.04em] leading-none text-[40px] md:text-5xl lg:text-[80px] text-transparent",
     className
   );
 
