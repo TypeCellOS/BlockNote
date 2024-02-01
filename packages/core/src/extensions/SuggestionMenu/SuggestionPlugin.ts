@@ -108,7 +108,7 @@ class SuggestionMenuView<
   };
 
   clearQuery = () => {
-    if (this.pluginState === undefined || !this.pluginState.fromUserInput) {
+    if (this.pluginState === undefined) {
       return;
     }
 
@@ -118,7 +118,9 @@ class SuggestionMenuView<
       .deleteRange({
         from:
           this.pluginState.queryStartPos! -
-          this.pluginState.triggerCharacter!.length,
+          (this.pluginState.fromUserInput
+            ? this.pluginState.triggerCharacter!.length
+            : 0),
         to: this.editor._tiptapEditor.state.selection.from,
       })
       .run();
