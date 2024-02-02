@@ -1,10 +1,9 @@
 {
-  "index": "introduction",
   "-- Getting started": {
     "type": "separator",
     "title": "Getting started"
   },
-  "introduction": "",
+  "index": "Introduction",
   "quickstart": "",
   "-- Editor setup": {
     "type": "separator",
