@@ -1,5 +1,10 @@
 import type Image from "next/image";
-import { FeaturesBento } from "../home-shared/FeaturesBento";
+import { FadeIn } from "@/components/pages/home-shared/FadeIn";
+import {
+  SectionHeader,
+  SectionSubtext,
+} from "@/components/pages/home-shared/Headings";
+import { FeatureBox } from "@/components/pages/home-shared/FeatureBox";
 
 type NextImageSrc = Parameters<typeof Image>[0]["src"];
 
@@ -57,10 +62,23 @@ export const featuresCardData: FeaturesCardData[] = [
 
 export function PackFeatures() {
   return (
-    <FeaturesBento
-      body="With a "
-      features={featuresCardData}
-      header="Why BlockNote?"
-    />
+    <section className="relative flex flex-col items-center px-6 py-16 pb-16 font-sans md:pb-24 lg:pb-32 gap-9 lg:gap-14">
+      <FadeIn className="flex flex-col items-center gap-5 md:gap-6">
+        <SectionHeader>{"Why BlockNote?"}</SectionHeader>
+        <SectionSubtext>{"With a "}</SectionSubtext>
+      </FadeIn>
+      <div className="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-x-6 lg:gap-y-6 max-w-[1200px]">
+        {featuresCardData.map((feature) => (
+          <FadeIn className="flex" key={feature.title}>
+            <FeatureBox
+              description={feature.description}
+              iconDark={feature.bgImgDark}
+              iconLight={feature.bgImgLight}
+              name={feature.title}
+            />
+          </FadeIn>
+        ))}
+      </div>
+    </section>
   );
 }

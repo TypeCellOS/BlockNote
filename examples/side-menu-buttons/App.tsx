@@ -1,4 +1,3 @@
-import { BlockNoteEditor } from "@blocknote/core";
 import {
   BlockNoteView,
   FormattingToolbarPositioner,
@@ -8,22 +7,20 @@ import {
   useBlockNote,
 } from "@blocknote/react";
 import "@blocknote/react/style.css";
-import { CustomFormattingToolbar } from "./CustomFormattingToolbar";
+
+import { CustomSideMenu } from "./CustomSideMenu";
 
 export default function App() {
   // Creates a new editor instance.
-  const editor: BlockNoteEditor = useBlockNote();
+  const editor = useBlockNote();
 
   // Renders the editor instance.
   return (
-    <BlockNoteView editor={editor}>
-      <FormattingToolbarPositioner
-        editor={editor}
-        formattingToolbar={CustomFormattingToolbar}
-      />
+    <BlockNoteView editor={editor} theme={"light"}>
+      <FormattingToolbarPositioner editor={editor} />
       <HyperlinkToolbarPositioner editor={editor} />
       <SlashMenuPositioner editor={editor} />
-      <SideMenuPositioner editor={editor} />
+      <SideMenuPositioner editor={editor} sideMenu={CustomSideMenu} />
     </BlockNoteView>
   );
 }

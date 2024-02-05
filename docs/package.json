@@ -14,9 +14,12 @@
     "next": "14.1.0",
     "nextra": "^2.13.2",
     "nextra-theme-docs": "^2.13.2",
+    "partykit": "^0.0.84",
     "raw-loader": "^4.0.2",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "y-partykit": "^0.0.10",
+    "yjs": "^13.6.1"
   },
   "devDependencies": {
     "@types/node": "^20",

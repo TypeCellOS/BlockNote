@@ -2,5 +2,8 @@
   "playground": true,
   "docs": true,
   "group": "Basic Examples",
-  "order": 1
+  "order": 1,
+  "dependencies": {
+    "react-icons": "^4.3.1"
+  }
 }

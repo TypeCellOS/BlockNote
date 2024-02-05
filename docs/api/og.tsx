@@ -9,7 +9,7 @@ const font = fetch(
   new URL("../docs/public/fonts/Gilroy-Regular.ttf", import.meta.url)
 ).then((res) => res.arrayBuffer());
 
-export default async function handler(request) {
+export default async function handler(request: { url: string }) {
   try {
     const { searchParams } = new URL(request.url);
     let title = searchParams.get("title");

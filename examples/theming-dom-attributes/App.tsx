@@ -15,5 +15,5 @@ export default function App() {
   });
 
   // Renders the editor instance using a React component.
-  return <BlockNoteView editor={editor} theme={"{{ getTheme(isDark) }}"} />;
+  return <BlockNoteView editor={editor} />;
 }

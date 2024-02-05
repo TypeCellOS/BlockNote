@@ -10,14 +10,14 @@ export function PackLetter() {
   return (
     <section className="relative flex flex-col items-center px-6 py-16 font-sans md:py-24 lg:py-32 gap-14">
       <FadeIn>
-        <HeroText>Let's build</HeroText>
+        <HeroText>Let&apos;s build</HeroText>
       </FadeIn>
       <div className="flex flex-col max-w-xl leading-6 md:text-lg lg:text-lg">
         <FadeIn className="opacity-70">
           <p>
             When we started building an Open Source Notion alternative, we
-            figured: "How hard can it be?". Pretty hard, it turns out. Text
-            editors in 2024? More complex than we thought.
+            figured: &quot;How hard can it be?&quot;. Pretty hard, it turns out.
+            Text editors in 2024? More complex than we thought.
           </p>
           <br />
           <p>
@@ -29,7 +29,7 @@ export function PackLetter() {
           </p>
           <br />
           <p>
-            We're excited to share BlockNote with you. No more dealing with
+            We&apos;re excited to share BlockNote with you. No more dealing with
             low-level positions; use the strongly typed, block-based API to work
             with your editor and documents. No need to build all interface
             elements from scratch; it comes with modern UI components
@@ -38,10 +38,10 @@ export function PackLetter() {
           </p>
           <br />
           <p>
-            It's early days, but the excitement is real. We're seeing a mix of
-            companies, enthusiasts, and community heroes jumping in. As a
-            community-led open source project, we're looking forward to your
-            contributions, feedback, or collaboration!
+            It&apos;s early days, but the excitement is real. We&apos;re seeing
+            a mix of companies, enthusiasts, and community heroes jumping in. As
+            a community-led open source project, we&apos;re looking forward to
+            your contributions, feedback, or collaboration!
           </p>
         </FadeIn>
         <FadeIn

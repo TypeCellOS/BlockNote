@@ -1,6 +1,6 @@
-# Formatting Toolbar Buttons
+# Adding Formatting Toolbar Buttons
 
-In this example, we add a code style toggle button to the Formatting Toolbar.
+In this example, we add a blue text/background color and code style button to the Formatting Toolbar.
 
 **Relevant Docs:**
 

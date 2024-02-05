@@ -1,5 +1,4 @@
-import { defaultBlockSchema, defaultBlockSpecs } from "@blocknote/core";
-import "@blocknote/core/style.css";
+import { defaultBlockSpecs } from "@blocknote/core";
 import {
   BlockNoteView,
   defaultBlockTypeDropdownItems,
@@ -12,27 +11,27 @@ import {
   SlashMenuPositioner,
   useBlockNote,
 } from "@blocknote/react";
+import "@blocknote/react/style.css";
 import { RiAlertFill } from "react-icons/ri";
 
 import { Alert, insertAlert } from "./Alert";
 
-// The custom schema, including all default blocks and the custom Alert block
-export const blockSpecsWithAlert = {
+// Our block specs, which contain the configs and implementations for blocks
+// that we want our editor to use.
+const blockSpecsWithAlert = {
+  // Adds all default blocks.
   ...defaultBlockSpecs,
+  // Adds the font paragraph.
   alert: Alert,
-};
-export const blockSchemaWithAlert = {
-  ...defaultBlockSchema,
-  alert: Alert.config,
 };
 
 export default function App() {
+  // Creates a new editor instance.
   const editor = useBlockNote({
+    // Tells BlockNote which blocks to use.
     blockSpecs: blockSpecsWithAlert,
-    slashMenuItems: [
-      ...getDefaultReactSlashMenuItems(blockSchemaWithAlert),
-      insertAlert,
-    ],
+    // Adds slash menu item to insert alert block.
+    slashMenuItems: [...getDefaultReactSlashMenuItems(), insertAlert],
   });
 
   return (

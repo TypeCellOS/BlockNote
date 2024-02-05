@@ -1,8 +1,4 @@
-import {
-  CustomBlockConfig,
-  DefaultBlockSchema,
-  defaultProps,
-} from "@blocknote/core";
+import { DefaultBlockSchema, defaultProps } from "@blocknote/core";
 import { createReactBlockSpec, ReactSlashMenuItem } from "@blocknote/react";
 import { RiAlertFill } from "react-icons/ri";
 import { MdCancel, MdCheckCircle, MdError, MdInfo } from "react-icons/md";
@@ -45,74 +41,75 @@ export const alertTypes = {
   },
 } as const;
 
-const alertBlockConfig = {
-  type: "alert" as const,
-  propSchema: {
-    textAlignment: defaultProps.textAlignment,
-    textColor: defaultProps.textColor,
-    type: {
-      default: "warning",
-      values: ["warning", "error", "info", "success"],
-    },
-  } as const,
-  content: "inline",
-} satisfies CustomBlockConfig;
-
 // Function which creates the Alert block itself, where the component is styled
 // correctly with the light & dark theme
-export const Alert = createReactBlockSpec(alertBlockConfig, {
-  render: (props) => {
-    const Icon = alertTypes[props.block.props.type].icon;
-
-    return (
-      <div className={"alert"} data-alert-type={props.block.props.type}>
-        {/*Icon which opens a menu to choose the Alert type*/}
-        <Menu withinPortal={false} zIndex={99999}>
-          <Menu.Target>
-            {/*Icon wrapper to change the color*/}
-            <div className={"alert-icon-wrapper"} contentEditable={false}>
-              {/*Icon itself*/}
-              <Icon
-                className={"alert-icon"}
-                data-alert-icon-type={props.block.props.type}
-                size={32}
-              />
-            </div>
-          </Menu.Target>
-          {/*Dropdown to change the Alert type*/}
-          <Menu.Dropdown>
-            <Menu.Label>Alert Type</Menu.Label>
-            <Menu.Divider />
-            {Object.entries(alertTypes).map(([key, value]) => {
-              const ItemIcon = value.icon;
-
-              return (
-                <Menu.Item
-                  key={key}
-                  leftSection={
-                    <ItemIcon
-                      className={"alert-icon"}
-                      data-alert-icon-type={key}
-                    />
-                  }
-                  onClick={() =>
-                    props.editor.updateBlock(props.block, {
-                      type: "alert",
-                      props: { type: key as keyof typeof alertTypes },
-                    })
-                  }>
-                  {key.slice(0, 1).toUpperCase() + key.slice(1)}
-                </Menu.Item>
-              );
-            })}
-          </Menu.Dropdown>
-        </Menu>
-        {/*Rich text field for user to type in*/}
-        <div className={"inline-content"} ref={props.contentRef} />
-      </div>
-    );
+export const Alert = createReactBlockSpec(
+  {
+    type: "alert" as const,
+    propSchema: {
+      textAlignment: defaultProps.textAlignment,
+      textColor: defaultProps.textColor,
+      type: {
+        default: "warning",
+        values: ["warning", "error", "info", "success"],
+      },
+    } as const,
+    content: "inline",
   },
-});
+  {
+    render: (props) => {
+      const Icon = alertTypes[props.block.props.type].icon;
+
+      return (
+        <div className={"alert"} data-alert-type={props.block.props.type}>
+          {/*Icon which opens a menu to choose the Alert type*/}
+          <Menu withinPortal={false} zIndex={99999}>
+            <Menu.Target>
+              {/*Icon wrapper to change the color*/}
+              <div className={"alert-icon-wrapper"} contentEditable={false}>
+                {/*Icon itself*/}
+                <Icon
+                  className={"alert-icon"}
+                  data-alert-icon-type={props.block.props.type}
+                  size={32}
+                />
+              </div>
+            </Menu.Target>
+            {/*Dropdown to change the Alert type*/}
+            <Menu.Dropdown>
+              <Menu.Label>Alert Type</Menu.Label>
+              <Menu.Divider />
+              {Object.entries(alertTypes).map(([key, value]) => {
+                const ItemIcon = value.icon;
+
+                return (
+                  <Menu.Item
+                    key={key}
+                    leftSection={
+                      <ItemIcon
+                        className={"alert-icon"}
+                        data-alert-icon-type={key}
+                      />
+                    }
+                    onClick={() =>
+                      props.editor.updateBlock(props.block, {
+                        type: "alert",
+                        props: { type: key as keyof typeof alertTypes },
+                      })
+                    }>
+                    {key.slice(0, 1).toUpperCase() + key.slice(1)}
+                  </Menu.Item>
+                );
+              })}
+            </Menu.Dropdown>
+          </Menu>
+          {/*Rich text field for user to type in*/}
+          <div className={"inline-content"} ref={props.contentRef} />
+        </div>
+      );
+    },
+  }
+);
 
 // Slash menu item to insert an Alert block
 export const insertAlert = {

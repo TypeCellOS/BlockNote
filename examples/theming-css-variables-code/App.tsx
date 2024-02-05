@@ -38,7 +38,7 @@ const lightRedTheme = {
     shadow: "#640000",
     border: "#870000",
     sideMenu: "#bababa",
-    highlights: lightDefaultTheme.colors.highlights,
+    highlights: lightDefaultTheme.colors!.highlights,
   },
   borderRadius: 4,
   fontFamily: "Helvetica Neue, sans-serif",
@@ -54,7 +54,7 @@ const darkRedTheme = {
       background: "#9b0000",
     },
     sideMenu: "#ffffff",
-    highlights: darkDefaultTheme.colors.highlights,
+    highlights: darkDefaultTheme.colors!.highlights,
   },
 } satisfies Theme;
 

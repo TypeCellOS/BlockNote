@@ -5,116 +5,21 @@ imageTitle: Formatting Toolbar
 path: /docs/formatting-toolbar
 ---
 
-<script setup>
-import { useData } from 'vitepress';
-import { getTheme, getStyles } from "../demoUtils";
-
-const { isDark } = useData();
-</script>
+import { Example } from "../../components/example";
 
 # Formatting Toolbar
 
 The Formatting Toolbar appears whenever you highlight text in the editor, and is mainly used for styling.
 
-<img style="max-width:600px" :src="isDark ? '/img/screenshots/formatting_toolbar_dark.png' : '/img/screenshots/formatting_toolbar.png'" alt="image">
+<img style="max-width:600px" src="/img/screenshots/formatting_toolbar.png" alt="image" />
 
 ## Custom Formatting Toolbar
 
 If you want to change the buttons/dropdowns in the Formatting Toolbar, or replace it altogether, you can do that using a React component.
 
-You can see how this is done in the example below, which has a custom Formatting Toolbar with four items. The first three are default items to toggle bold, italic, and underline, while the last one is a custom button which toggles the text and background colors to be blue.
+You can see how this is done in the example below, which has a custom Formatting Toolbar. It contains the same items as the default Formatting Toolbar, with and added blue text/background color and code style button.
 
-::: sandbox {template=react-ts}
-
-```typescript-vue /App.tsx
-import { useState } from "react";
-import { BlockNoteEditor } from "@blocknote/core";
-import {
-  BlockNoteView,
-  FormattingToolbarPositioner,
-  HyperlinkToolbarPositioner,
-  SideMenuPositioner,
-  SlashMenuPositioner,
-  ToggledStyleButton,
-  Toolbar,
-  ToolbarButton,
-  useBlockNote,
-  useEditorContentChange,
-  useEditorSelectionChange,
-} from "@blocknote/react";
-import "@blocknote/react/style.css";
-
-const CustomFormattingToolbar = (props: { editor: BlockNoteEditor }) => {
-  // Tracks whether the text & background are both blue.
-  const [isSelected, setIsSelected] = useState<boolean>(
-    props.editor.getActiveStyles().textColor === "blue" &&
-      props.editor.getActiveStyles().backgroundColor === "blue"
-  );
-
-  // Updates state on content change.
-  useEditorContentChange(props.editor, () => {
-    setIsSelected(
-      props.editor.getActiveStyles().textColor === "blue" &&
-        props.editor.getActiveStyles().backgroundColor === "blue"
-    );
-  });
-
-  // Updates state on selection change.
-  useEditorSelectionChange(props.editor, () => {
-    setIsSelected(
-      props.editor.getActiveStyles().textColor === "blue" &&
-        props.editor.getActiveStyles().backgroundColor === "blue"
-    );
-  });
-
-  return (
-    <Toolbar>
-      {/*Default button to toggle bold.*/}
-      <ToggledStyleButton editor={props.editor} toggledStyle={"bold"} />
-      {/*Default button to toggle italic.*/}
-      <ToggledStyleButton editor={props.editor} toggledStyle={"italic"} />
-      {/*Default button to toggle underline.*/}
-      <ToggledStyleButton editor={props.editor} toggledStyle={"underline"} />
-      {/*Custom button to toggle blue text & background color.*/}
-      <ToolbarButton
-        mainTooltip={"Blue Text & Background"}
-        onClick={() => {
-          props.editor.toggleStyles({
-            textColor: "blue",
-            backgroundColor: "blue",
-          });
-        }}
-        isSelected={isSelected}>
-        Blue
-      </ToolbarButton>
-    </Toolbar>
-  );
-};
-
-export default function App() {
-  // Creates a new editor instance.
-  const editor: BlockNoteEditor = useBlockNote();
-
-  // Renders the editor instance.
-  return (
-    <BlockNoteView editor={editor} theme={"{{ getTheme(isDark) }}"}>
-      <FormattingToolbarPositioner
-        editor={editor}
-        formattingToolbar={CustomFormattingToolbar}
-      />
-      <HyperlinkToolbarPositioner editor={editor} />
-      <SlashMenuPositioner editor={editor} />
-      <SideMenuPositioner editor={editor} />
-    </BlockNoteView>
-  );
-}
-```
-
-```css-vue /styles.css [hidden]
-{{ getStyles(isDark) }}
-```
-
-:::
+<Example name="formatting-toolbar-buttons" />
 
 `CustomFormattingToolbar` is the component we use to replace the default Formatting Toolbar. You can see it's made up of a bunch of other components that are exported by BlockNote. Read on to [Components](/docs/formatting-toolbar#components) to find out more about these.
 
