@@ -8,14 +8,14 @@ const classes = {
     "nx-not-prose" // for nextra-theme-docs
   ),
   card: cn(
-    "nextra-card nx-group nx-flex nx-flex-col nx-justify-start nx-overflow-hidden nx-rounded-lg nx-border nx-border-gray-200",
+    "nextra-card nx-group nx-flex nx-flex-col nx-justify-between nx-overflow-hidden nx-rounded-lg nx-border nx-border-gray-200",
     "nx-text-current nx-no-underline dark:nx-shadow-none",
     "hover:nx-shadow-gray-100 dark:hover:nx-shadow-none nx-shadow-gray-100",
     "active:nx-shadow-sm active:nx-shadow-gray-200",
     "nx-transition-all nx-duration-200 hover:nx-border-gray-300"
   ),
   title: cn(
-    "nx-flex nx-font-semibold nx-items-start nx-gap-2 nx-p-4 nx-text-gray-700 hover:nx-text-gray-900"
+    "nx-flex nx-font-semibold nx-items-start nx-text-gray-700 hover:nx-text-gray-900"
   ),
 };
 
@@ -32,14 +32,18 @@ export function Card({
   image,
   arrow,
   href,
+  authorImage,
+  authorName,
   ...props
 }: {
-  children: ReactNode;
+  children?: ReactNode;
   title: string;
-  icon: ReactNode;
+  icon?: ReactNode;
   image?: boolean;
   arrow?: boolean;
   href: string;
+  authorImage?: string;
+  authorName?: string;
 }) {
   const animatedArrow = arrow ? arrowEl : null;
 
@@ -73,7 +77,8 @@ export function Card({
       href={href}
       className={cn(
         classes.card,
-        "nx-bg-transparent nx-shadow-sm dark:nx-border-neutral-800 hover:nx-bg-slate-50 hover:nx-shadow-md dark:hover:nx-border-neutral-700 dark:hover:nx-bg-neutral-900"
+        "nx-bg-transparent nx-shadow-sm dark:nx-border-neutral-800 hover:nx-bg-slate-50 hover:nx-shadow-md dark:hover:nx-border-neutral-700 dark:hover:nx-bg-neutral-900",
+        "nx-flex  nx-items-start nx-gap-2 nx-p-4 nx-text-gray-700"
       )}
       {...props}>
       <span
@@ -85,8 +90,12 @@ export function Card({
         {title}
         {animatedArrow}
       </span>
-      <div className="nx-flex  nx-items-start nx-gap-2 nx-p-4 nx-text-gray-700 hover:nx-text-gray-900 nx-items-right">
-        test
+      {/* <div className="hover:nx-text-gray-900 nx-items-right">test</div> */}
+      <div className="text-xs nx-flex nx-items-center nx-gap-2">
+        {authorImage && <img className="rounded-md size-5" src={authorImage} />}{" "}
+        {authorName && <span>{authorName}</span>}
+        {/* <span>·</span>
+        <span>💖</span> */}
       </div>
       {/* {children} */}
     </NextLink>

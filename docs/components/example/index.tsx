@@ -1,6 +1,6 @@
 // import * as App from "../../../../examples/basic/App";
 
-import { examples } from "./generated/examples.gen";
+import { examples } from "./generated/exampleComponents.gen";
 
 // const App = dynamic(
 //   () =>

@@ -1,4 +1,4 @@
-import { examples } from "./generated/examples.gen";
+import { examples } from "./generated/exampleComponents.gen";
 
 export function ExampleBlock(props: {
   name: keyof typeof examples;
