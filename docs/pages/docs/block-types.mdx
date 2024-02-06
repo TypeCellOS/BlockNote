@@ -20,7 +20,7 @@ BlockNote includes a number of built-in block types, each with their own set of 
 
 **Appearance**
 
-<img src="/img/screenshots/paragraph_type.png" alt="image" style="height: 29px" />
+<img src="/img/screenshots/paragraph_type.png" alt="image" style={{height: "29px"}} />
 
 **Type & Props**
 
@@ -38,7 +38,7 @@ type ParagraphBlock = {
 
 **Appearance**
 
-<img src="/img/screenshots/heading_type.png" alt="image" style="height: 77px" />
+<img src="/img/screenshots/heading_type.png" alt="image" style={{height: "77px"}} />
 
 **Type & Props**
 
@@ -60,7 +60,7 @@ type HeadingBlock = {
 
 **Appearance**
 
-<img src="/img/screenshots/bullet_list_item_type.png" alt="image" style="height: 29px" />
+<img src="/img/screenshots/bullet_list_item_type.png" alt="image" style={{height: "29px"}} />
 
 **Type & Props**
 
@@ -78,7 +78,7 @@ type BulletListItemBlock = {
 
 **Appearance**
 
-<img src="/img/screenshots/numbered_list_item_type.png" alt="image" style="height: 29px" />
+<img src="/img/screenshots/numbered_list_item_type.png" alt="image" style={{height: "29px"}} />
 
 **Type & Props**
 
@@ -96,7 +96,7 @@ type NumberedListItemBlock = {
 
 **Appearance**
 
-<img src="/img/screenshots/image_type.png" alt="image" style="width: 100%" />
+<img src="/img/screenshots/image_type.png" alt="image" style={{width: "100%"}} />
 
 **Type & Props**
 
@@ -124,7 +124,7 @@ type ImageBlock = {
 
 **Appearance**
 
-<img src="/img/screenshots/table_type.png" alt="image" style="width: 70%" />
+<img src="/img/screenshots/table_type.png" alt="image" style={{width: "70%"}} />
 
 **Type & Props**
 
@@ -205,7 +205,7 @@ function createReactBlockSpec(
 
 Let's look at our custom alert block from the demo, and go over each field in-depth to explain how it works:
 
-```typescript jsx
+```typescript
 const Alert = createReactBlockSpec(
   {
     type: "alert" as const,
@@ -277,7 +277,7 @@ This is a function that allows you to define which HTML elements should be parse
 
 Now, we need to tell BlockNote to use our font paragraph block by passing it to the editor in the `blockSpecs` option. Let's again look at the alert block from the demo as an example:
 
-```typescript jsx
+```typescript
 // Our block specs, which contain the configs and implementations for blocks
 // that we want our editor to use.
 const blockSpecsWithAlert = {

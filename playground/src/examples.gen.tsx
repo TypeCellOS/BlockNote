@@ -46,7 +46,7 @@
           "group": "Basic Examples",
           "order": 1
         },
-        "title": "basic"
+        "title": "Basic Editor Setup"
       },
       {
         "slug": "block-manipulation",
@@ -68,7 +68,73 @@
           "group": "Basic Examples",
           "order": 1
         },
-        "title": "blocks-block-objects"
+        "title": "Displaying Block Objects"
+      },
+      {
+        "slug": "converting-blocks-from-html",
+        "pathFromRoot": "examples/converting-blocks-from-html",
+        "config": {
+          "playground": true,
+          "docs": false,
+          "group": "Basic Examples",
+          "order": 1
+        },
+        "title": "Converting HTML to Blocks"
+      },
+      {
+        "slug": "converting-blocks-from-md",
+        "pathFromRoot": "examples/converting-blocks-from-md",
+        "config": {
+          "playground": true,
+          "docs": false,
+          "group": "Basic Examples",
+          "order": 1
+        },
+        "title": "Converting Markdown to Blocks"
+      },
+      {
+        "slug": "converting-blocks-to-html",
+        "pathFromRoot": "examples/converting-blocks-to-html",
+        "config": {
+          "playground": true,
+          "docs": false,
+          "group": "Basic Examples",
+          "order": 1
+        },
+        "title": "Converting Blocks to HTML"
+      },
+      {
+        "slug": "converting-blocks-to-md",
+        "pathFromRoot": "examples/converting-blocks-to-md",
+        "config": {
+          "playground": true,
+          "docs": false,
+          "group": "Basic Examples",
+          "order": 1
+        },
+        "title": "Converting Blocks to Markdown"
+      },
+      {
+        "slug": "cursor-selections-selection-blocks",
+        "pathFromRoot": "examples/cursor-selections-selection-blocks",
+        "config": {
+          "playground": true,
+          "docs": false,
+          "group": "Basic Examples",
+          "order": 1
+        },
+        "title": "Highlighting Blocks in Selection"
+      },
+      {
+        "slug": "cursor-selections-text-cursor-block",
+        "pathFromRoot": "examples/cursor-selections-text-cursor-block",
+        "config": {
+          "playground": true,
+          "docs": false,
+          "group": "Basic Examples",
+          "order": 1
+        },
+        "title": "Highlighting Block with the Text Cursor"
       },
       {
         "slug": "formatting-toolbar-buttons",
@@ -174,7 +240,7 @@
             "yjs": "^13.6.1"
           }
         },
-        "title": "collaboration"
+        "title": "Collaboration"
       }
     ]
   },
@@ -190,7 +256,7 @@
           "group": "Custom Specs",
           "order": 2
         },
-        "title": "react-custom-blocks"
+        "title": "Custom Blocks - React API"
       },
       {
         "slug": "react-custom-inline-content",
@@ -201,7 +267,7 @@
           "group": "Custom Specs",
           "order": 2
         },
-        "title": "react-custom-inline-content"
+        "title": "Custom Inline Content - React API"
       },
       {
         "slug": "react-custom-styles",
@@ -212,7 +278,7 @@
           "group": "Custom Specs",
           "order": 2
         },
-        "title": "react-custom-styles"
+        "title": "Custom Styles - React API"
       },
       {
         "slug": "react-vanilla-custom-blocks",
@@ -223,7 +289,7 @@
           "group": "Custom Specs",
           "order": 2
         },
-        "title": "react-vanilla-custom-blocks"
+        "title": "Custom Blocks - Vanilla JS API"
       },
       {
         "slug": "react-vanilla-custom-inline-content",
@@ -234,7 +300,7 @@
           "group": "Custom Specs",
           "order": 2
         },
-        "title": "react-vanilla-custom-inline-content"
+        "title": "Custom Inline Content - Vanilla JS API"
       },
       {
         "slug": "react-vanilla-custom-styles",
@@ -245,7 +311,7 @@
           "group": "Custom Specs",
           "order": 2
         },
-        "title": "react-vanilla-custom-styles"
+        "title": "Custom Styles - Vanilla JS API"
       }
     ]
   }

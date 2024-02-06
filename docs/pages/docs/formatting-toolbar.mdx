@@ -11,7 +11,7 @@ import { Example } from "../../components/example";
 
 The Formatting Toolbar appears whenever you highlight text in the editor, and is mainly used for styling.
 
-<img style="max-width:600px" src="/img/screenshots/formatting_toolbar.png" alt="image" />
+<img style={{maxWidth: "600px"}} src="/img/screenshots/formatting_toolbar.png" alt="image" />
 
 ## Custom Formatting Toolbar
 
@@ -29,7 +29,7 @@ After creating `CustomFormattingToolbar`, we tell BlockNote to use it inside `Bl
 
 If you create a [custom block](/docs/block-types#custom-block-types) and want to add it to the block type dropdown in the default Formatting Toolbar, you can do that through the `blockTypeDropdownItems` prop of the `DefaultFormattingToolbar` component:
 
-```jsx
+```typescript jsx
 <DefaultFormattingToolbar
     {...props}
     blockTypeDropdownItems={[
@@ -45,6 +45,7 @@ If you create a [custom block](/docs/block-types#custom-block-types) and want to
             isSelected: (block) => block.type === "image",
         },
     ]}
+/>
 ```
 
 Find out how to replace the Formatting Toolbar in [Replacing UI Elements](/docs/ui-elements#replacing-ui-elements).

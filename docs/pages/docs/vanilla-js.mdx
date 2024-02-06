@@ -5,15 +5,17 @@ imageTitle: Usage Without React (Vanilla JS)
 path: /docs/vanilla-js
 ---
 
+import { Callout } from "nextra/components";
+
 # Usage Without React (Vanilla JS)
 
 BlockNote is mainly designed as a quick and easy drop-in block-based editor for React apps. It comes with built-in UI elements that are designed for React.
 
 It is also possible to use BlockNote without using React; for example in "Vanilla JS" applications or if you prefer to use a different framework. However, this does involve writing your own UI elements.
 
-::: warning
-We recommend using BlockNote with React so you can use the built-in UI components. This document will explain how you can use BlockNote without React, and write your own components, but this is not recommended as you'll lose the easy-to-use built-in components. The API for non-React applications is also likely to change.
-:::
+<Callout type={"warning"}>
+    We recommend using BlockNote with React so you can use the built-in UI components. This document will explain how you can use BlockNote without React, and write your own components, but this is not recommended as you'll lose the easy-to-use built-in components. The API for non-React applications is also likely to change.
+</Callout>
 
 ## Installing
 
@@ -23,8 +25,9 @@ Instead of `@blocknote/react`, you'll need to install and use `@blocknote/core`.
 
 This is how to create a new BlockNote editor:
 
-```
+``` typescript
 import { BlockNoteEditor } from "@blocknote/core";
+
 const editor = BlockNoteEditor.create({
   element: document.getElementById("root")!, // element to append the editor to
   onUpdate: ({ editor }) => {
@@ -46,7 +49,7 @@ Because we can't use the built-in React elements, you'll need to create and regi
 
 You can do this by passing custom component factories as `uiFactories`, e.g.:
 
-```
+``` typescript
 const editor = BlockNoteEditor.create({
   element: document.getElementById("root")!,
   uiFactories: {

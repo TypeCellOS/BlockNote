@@ -5,13 +5,7 @@ imageTitle: Changing UI Elements
 path: /docs/ui-elements
 ---
 
-
-<script setup>
-import { useData } from 'vitepress';
-import { getTheme, getStyles } from "../demoUtils";
-
-const { isDark } = useData();
-</script>
+import { Example } from "../../components/example";
 
 # Changing UI Elements
 
@@ -29,13 +23,13 @@ By default, these are all included in the editor, but you can remove or replace 
 
 In many of the examples, you'll see we render `BlockNoteView` like so:
 
-```jsx
-<BlockNoteView editor={} />
+```typescript jsx
+<BlockNoteView editor={editor} />
 ```
 
 But this is actually shorthand for the following:
 
-```jsx
+```typescript jsx
 <BlockNoteView editor={editor}>
   <FormattingToolbarPositioner editor={editor} />
   <HyperlinkToolbarPositioner editor={editor} />
@@ -53,41 +47,7 @@ Explicitly adding `Positioner` components as children of `BlockNoteView` allows 
 
 In the following example, we remove the Side Menu from the editor. This is done by adding all `Positioner` components as children of `BlockNoteView`, for each UI element except the Side Menu:
 
-::: sandbox {template=react-ts}
-
-```typescript-vue /App.tsx
-import { BlockNoteEditor } from "@blocknote/core";
-import {
-  BlockNoteView,
-  FormattingToolbarPositioner,
-  HyperlinkToolbarPositioner,
-  ImageToolbarPositioner,
-  SlashMenuPositioner,
-  useBlockNote,
-} from "@blocknote/react";
-import "@blocknote/react/style.css";
-
-export default function App() {
-  // Creates a new editor instance.
-  const editor: BlockNoteEditor = useBlockNote();
-
-  // Renders the editor instance.
-  return (
-    <BlockNoteView editor={editor} theme={"{{ getTheme(isDark) }}"}>
-      <FormattingToolbarPositioner editor={editor} />
-      <HyperlinkToolbarPositioner editor={editor} />
-      <SlashMenuPositioner editor={editor} />
-      <ImageToolbarPositioner editor={editor} />
-    </BlockNoteView>
-  );
-}
-```
-
-```css-vue /styles.css [hidden]
-{{ getStyles(isDark) }}
-```
-
-:::
+<Example name="ui-elements-remove" />
 
 Each further `Positioner` component you remove will remove its corresponding UI element from the editor. If you only want to keep the editor itself, add only an empty fragment (`<></>`) to `BlockNoteView`'s children.
 
@@ -95,50 +55,7 @@ Each further `Positioner` component you remove will remove its corresponding UI 
 
 In the following example, the Side Menu is replaced with a simple component which just displays the name of the element:
 
-::: sandbox {template=react-ts}
-
-```typescript-vue /App.tsx
-import { BlockNoteEditor } from "@blocknote/core";
-import {
-  BlockNoteView,
-  FormattingToolbarPositioner,
-  HyperlinkToolbarPositioner,
-  ImageToolbarPositioner,
-  SideMenuPositioner,
-  SlashMenuPositioner,
-  useBlockNote,
-} from "@blocknote/react";
-import "@blocknote/react/style.css";
-
-export default function App() {
-  // Creates a new editor instance.
-  const editor: BlockNoteEditor = useBlockNote();
-
-  // Renders the editor instance.
-  return (
-    <BlockNoteView editor={editor} theme={"{{ getTheme(isDark) }}"}>
-      <FormattingToolbarPositioner editor={editor} />
-      <HyperlinkToolbarPositioner editor={editor} />
-      <SlashMenuPositioner editor={editor} />
-      <SideMenuPositioner
-        editor={editor}
-        sideMenu={() => <div className={"sideMenu"}>Side Menu</div>}
-      />
-      <ImageToolbarPositioner editor={editor} />
-    </BlockNoteView>
-  );
-}
-```
-
-```css-vue /styles.css [hidden]
-{{ getStyles(isDark) }}
-
-.sideMenu {
-  font-size: 12px;
-}
-```
-
-:::
+<Example name="ui-elements-replace" />
 
 As you can see, this is done by passing a React component to the `sideMenu` prop of `SideMenuPositioner`. Each `Positioner` element has a prop through which you can pass the component you want to render (`formattingToolbar` for the Formatting Toolbar, etc.). If nothing is passed, the `Positioner` will render the default UI element.
 

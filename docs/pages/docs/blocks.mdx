@@ -16,7 +16,7 @@ So, you've set up a BlockNote editor and your users can start writing content, o
 The `editor` returned from `useBlockNote` exposes functions to access and update blocks.
 We'll go through the full API later in this section, but let's start with a simple example - logging all blocks in the editor whenever its contents change:
 
-```typescript
+```typescript jsx
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
 import "@blocknote/react/style.css";
 
@@ -40,7 +40,7 @@ function App() {
 
 So, BlockNote is centered around the idea of blocks. A block - like a heading, paragraph, or list item - contains a piece of content and optionally nested blocks:
 
-<img src="/img/screenshots/block_structure.png" alt="image" style="width: 100%" />
+<img src="/img/screenshots/block_structure.png" alt="image" style={{width: "100%"}} />
 
 In code, the `Block` type is used to describe any given block in the editor:
 

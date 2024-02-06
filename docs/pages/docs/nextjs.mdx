@@ -11,16 +11,15 @@ BlockNote is a component that should only be rendered client-side (and not on th
 
 Make sure to use BlockNote in a [Client Component](https://nextjs.org/docs/getting-started/react-essentials#client-components). You can do this by creating a separate file for your component (**make sure this sits outside of your `pages` or `app` directory**), and starting that with `"use client";` [directive](https://react.dev/reference/react/use-client):
 
-```typescript
+```typescript jsx
 "use client"; // this registers <Editor> as a Client Component
-import { BlockNoteEditor } from "@blocknote/core";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
 import "@blocknote/react/style.css";
 
 // Our <Editor> component we can reuse later
 export default function Editor() {
   // Creates a new editor instance.
-  const editor: BlockNoteEditor | null = useBlockNote({});
+  const editor = useBlockNote({});
 
   // Renders the editor instance using a React component.
   return <BlockNoteView editor={editor} />;
@@ -33,7 +32,7 @@ Now, you can use [Dynamic Imports](https://nextjs.org/docs/pages/building-your-a
 
 You can import the component we just created above using `next/dynamic` in your page:
 
-```typescript
+```typescript jsx
 import dynamic from "next/dynamic";
 
 const Editor = dynamic(() => import("./editor"), { ssr: false });
