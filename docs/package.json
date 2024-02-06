@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "classnames": "2.3.2",
+    "clsx": "^2.1.0",
     "framer-motion": "^10.16.16",
     "next": "14.1.0",
     "nextra": "^2.13.2",
