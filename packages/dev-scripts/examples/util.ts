@@ -8,7 +8,7 @@ export type Project = {
   title: string;
   slug: string;
   pathFromRoot: string;
-  config?: {
+  config: {
     playground: boolean;
     docs: boolean;
     group: string;

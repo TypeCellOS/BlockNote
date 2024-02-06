@@ -21,9 +21,9 @@ import { Tabs } from "nextra/components";
       .map(
         ([filename, file]) =>
           `<Tabs.Tab>
-      \`\`\`typescript 
-      ${file.code}
-      \`\`\`
+\`\`\`typescript 
+${file.code}
+\`\`\`
       </Tabs.Tab>`
       )
       .join("")}
@@ -50,16 +50,20 @@ ${projects
   .join("\n")}  
 };`;
 
+const templatePageForExample = (
+  project: Project,
+  readme: string
+) => `import { Example } from "../../../components/example";
+
+${readme}
+
+<Example name="${project.slug}" />`;
+
 async function generateCodeForExample(project: Project) {
   const target = path.resolve(
     dir,
     "../../../docs/components/example/generated/mdx/" + project.slug + ".mdx"
   );
-
-  // const codeFile = fs.readFileSync(
-  //   path.join("../../", project.pathFromRoot, "/App.tsx"),
-  //   "utf-8"
-  // );
 
   const files = getProjectFiles(project);
   const filtered = Object.fromEntries(
@@ -71,7 +75,35 @@ async function generateCodeForExample(project: Project) {
   fs.writeFileSync(target, code);
 }
 
-async function generateSidebar(projects: Project[]) {
+async function generatePageForExample(project: Project) {
+  let groupSlug = project.config.group.toLocaleLowerCase().replace(" ", "-");
+  if (groupSlug.endsWith("-examples")) {
+    groupSlug = groupSlug.replace("-examples", "");
+  }
+
+  if (
+    !fs.existsSync(
+      path.resolve(dir, "../../../docs/pages/examples/" + groupSlug)
+    )
+  ) {
+    fs.mkdirSync(
+      path.resolve(dir, "../../../docs/pages/examples/" + groupSlug)
+    );
+  }
+
+  const target = path.resolve(
+    dir,
+    "../../../docs/pages/examples/" + groupSlug + "/" + project.slug + ".mdx"
+  );
+
+  const files = getProjectFiles(project);
+
+  const code = templatePageForExample(project, files["/README.md"]!.code);
+
+  fs.writeFileSync(target, code);
+}
+
+async function generateExampleList(projects: Project[]) {
   const target = path.resolve(
     dir,
     "../../../docs/components/example/generated/examples.gen.ts"
@@ -87,6 +119,7 @@ const projects = getExampleProjects(); // TODO: .filter((p) => p.config?.docs ==
 for (const project of projects) {
   console.log("generating code for example", project);
   await generateCodeForExample(project);
+  await generatePageForExample(project);
 }
 
-await generateSidebar(projects);
+await generateExampleList(projects);

@@ -15,13 +15,9 @@
     "title": "Docs",
     "display": "children"
   },
-  "Learn": {
-    "type": "menu",
-    "items": {
-      "docs": {},
-      "examples": {},
-      "open-source-notion": {}
-    }
+  "examples": {
+    "title": "Examples",
+    "display": "children"
   },
   "partner": "Partner",
   "contact": "Contact us"
