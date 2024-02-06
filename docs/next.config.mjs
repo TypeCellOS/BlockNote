@@ -13,6 +13,13 @@ const nextConfig = withNextra({
   experimental: {
     externalDir: true,
   },
+  webpack: (config, { isServer }) => {
+    config.externals.push({
+      // "@blocknote/core": "bncore",
+      // "@blocknote/react": "bnreact",
+      // ...
+    });
+  },
 });
 
 export default nextConfig;

@@ -39,9 +39,10 @@ export const examples = {
 ${projects
   .map(
     (p) => `  "${p.slug}": {
-    App: dynamic(() => import("../../../../examples/${p.slug}/App"), {
-      ssr: false,
-    }),
+    App: () => <div>hello</div>,
+    // App: dynamic(() => import("../../../../examples/${p.slug}/App"), {
+    //   ssr: false,
+    // }),
     ExampleWithCode: dynamic(() => import("./mdx/${p.slug}.mdx"), {
       // ssr: false,
     }),
@@ -106,7 +107,7 @@ async function generatePageForExample(project: Project) {
 async function generateExampleList(projects: Project[]) {
   const target = path.resolve(
     dir,
-    "../../../docs/components/example/generated/examples.gen.ts"
+    "../../../docs/components/example/generated/examples.gen.tsx"
   );
 
   const code = templateExamples(projects);
