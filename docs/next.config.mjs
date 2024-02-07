@@ -1,4 +1,5 @@
 /** @type {import('next').NextConfig} */
+import analyzer from "@next/bundle-analyzer";
 import nextra from "nextra";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -15,25 +16,38 @@ const withNextra = nextra({
   defaultShowCopyCode: true,
 });
 
-const nextConfig = withNextra({
-  experimental: {
-    externalDir: true,
-  },
-  webpack: (config, { isServer }) => {
-    config.externals.push({
-      // "@blocknote/core": "bncore",
-      // "@blocknote/react": "bnreact",
-      // ...
-    });
-    const alias = config.resolve.alias;
-    config.resolve.alias = {
-      ...alias,
-      // Comment out the lines below to load a built version of blocknote
-      // or, keep as is to load live from sources with live reload working
-      // "@blocknote/core": path.resolve(__dirname, "../packages/core/src/"),
-      // "@blocknote/react": path.resolve(__dirname, "../packages/react/src/"),
-    };
-  },
-});
+const withAnalyzer = analyzer({ enabled: false });
+
+const nextConfig = withAnalyzer(
+  withNextra({
+    experimental: {
+      externalDir: true,
+    },
+    webpack: (config, { isServer }) => {
+      config.externals.push({
+        // "@blocknote/core": "bncore",
+        // "@blocknote/react": "bnreact",
+        // ...
+      });
+
+      if (config.mode === "development") {
+        // makes sure the local blocknote dependencies get their own chunk, and are not included in every page bundle
+        // in prod mode this should be handled ok by webpack (check with analyzer)
+        config.optimization.splitChunks = {
+          chunks: "all",
+        };
+      }
+
+      const alias = config.resolve.alias;
+      config.resolve.alias = {
+        ...alias,
+        // Comment out the lines below to load a built version of blocknote
+        // or, keep as is to load live from sources with live reload working
+        // "@blocknote/core": path.resolve(__dirname, "../packages/core/src/"),
+        // "@blocknote/react": path.resolve(__dirname, "../packages/react/src/"),
+      };
+    },
+  })
+);
 
 export default nextConfig;

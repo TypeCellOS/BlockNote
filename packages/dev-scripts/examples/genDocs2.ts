@@ -45,12 +45,12 @@ export const examples = {
 ${projects
   .map(
     (p) => `  "${p.slug}": {
-    App: () => <div>hello</div>,
-    // App: dynamic(() => import("../../../../examples/${p.slug}/App"), {
-    //   ssr: false,
-    // }),
+    // App: () => <div>hello</div>,
+    App: dynamic(() => import("../../../../examples/${p.slug}/App"), {
+      ssr: false,
+    }),
     ExampleWithCode: dynamic(() => import("./mdx/${p.slug}.mdx"), {
-      // ssr: false,
+      //ssr: false,
     }),
   },`
   )
