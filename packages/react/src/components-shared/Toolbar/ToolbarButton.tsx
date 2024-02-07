@@ -1,6 +1,6 @@
 import { ActionIcon, Button, Tooltip } from "@mantine/core";
 import { ForwardedRef, MouseEvent, forwardRef } from "react";
-import { IconType } from "react-icons";
+import type { IconType } from "react-icons";
 
 import { TooltipContent } from "../Tooltip/TooltipContent";
 

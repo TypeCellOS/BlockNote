@@ -1,6 +1,6 @@
 import { Block, BlockNoteEditor, BlockSchema } from "@blocknote/core";
 import { useMemo, useState } from "react";
-import { IconType } from "react-icons";
+import type { IconType } from "react-icons";
 import {
   RiH1,
   RiH2,
@@ -10,10 +10,10 @@ import {
   RiText,
 } from "react-icons/ri";
 
-import { useEditorChange } from "../../../hooks/useEditorChange";
-import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
 import { ToolbarDropdown } from "../../../components-shared/Toolbar/ToolbarDropdown";
 import type { ToolbarDropdownItemProps } from "../../../components-shared/Toolbar/ToolbarDropdownItem";
+import { useEditorChange } from "../../../hooks/useEditorChange";
+import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
 
 export type BlockTypeDropdownItem = {
   name: string;

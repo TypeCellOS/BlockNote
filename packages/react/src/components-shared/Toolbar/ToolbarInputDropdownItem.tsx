@@ -5,7 +5,7 @@ import {
   TextInput,
   TextInputProps,
 } from "@mantine/core";
-import { IconType } from "react-icons";
+import type { IconType } from "react-icons";
 
 export type InputType = "text" | "file";
 
