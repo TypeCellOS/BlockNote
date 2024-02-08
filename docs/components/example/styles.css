@@ -1,0 +1,25 @@
+pre {
+    background-color: transparent !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+code > span {
+    padding: 0 !important;
+}
+
+/* Prettier always adds an extra line when formatting code, looks better if we
+don't show it though */
+code > span:last-child {
+    display: none;
+}
+
+.bn-container, .bn-editor {
+    /* Removes focus outline */
+    box-shadow: none !important;
+    min-height: 16rem;
+}
+
+.bn-editor {
+    padding-block: 1rem
+}

@@ -15,30 +15,34 @@ import {
 
 const dir = path.parse(import.meta.url.replace("file://", "")).dir;
 
+const getLanguageFromFileName = (fileName: string) => fileName.split(".").pop();
+
+// TODO: Can't we add the tabs and stuff in the `ExampleBlock` component itself?
 const templateExample = (
   project: Project,
-  files: Files
+  files: Files,
 ) => `import { ExampleBlock } from "../../ExampleBlock";
 import { Tabs } from "nextra/components";
 
 <ExampleBlock name="${project.slug}">
-  <Tabs items={${JSON.stringify(Object.keys(files))}}>
+  <Tabs items={${JSON.stringify(Object.keys(files).map((fileName) => fileName.slice(1)))}}>
     ${Object.entries(files)
       .map(
         ([filename, file]) =>
           `<Tabs.Tab>
-\`\`\`typescript 
+            <div className={"max-h-96 overflow-scroll rounded-lg overscroll-contain"}>
+\`\`\`${getLanguageFromFileName(filename)} 
 ${file.code}
 \`\`\`
-      </Tabs.Tab>`
+            </div>
+          </Tabs.Tab>`,
       )
       .join("")}
   </Tabs>
 </ExampleBlock>`;
-// TODO: language
 
 const templateExamples = (
-  projects: Project[]
+  projects: Project[],
 ) => `import dynamic from "next/dynamic";
   
 export const examples = {
@@ -52,14 +56,14 @@ ${projects
     ExampleWithCode: dynamic(() => import("./mdx/${p.slug}.mdx"), {
       //ssr: false,
     }),
-  },`
+  },`,
   )
   .join("\n")}  
 };`;
 
 const templatePageForExample = (
   project: Project,
-  readme: string
+  readme: string,
 ) => `import { Example } from "../../../components/example";
 
 ${readme}
@@ -69,13 +73,16 @@ ${readme}
 async function generateCodeForExample(project: Project) {
   const target = path.resolve(
     dir,
-    "../../../docs/components/example/generated/mdx/" + project.slug + ".mdx"
+    "../../../docs/components/example/generated/mdx/" + project.slug + ".mdx",
   );
 
   const files = getProjectFiles(project);
   const filtered = Object.fromEntries(
-    Object.entries(files).filter(([filename, file]) => !file.hidden)
+    Object.entries(files).filter(([filename, file]) => !file.hidden),
   );
+
+  console.log("generating code for example", project);
+  console.log("AAAAAAAAAAAAAA:", filtered);
 
   const code = templateExample(project, filtered);
 
@@ -90,17 +97,17 @@ async function generatePageForExample(project: Project) {
 
   if (
     !fs.existsSync(
-      path.resolve(dir, "../../../docs/pages/examples/" + groupSlug)
+      path.resolve(dir, "../../../docs/pages/examples/" + groupSlug),
     )
   ) {
     fs.mkdirSync(
-      path.resolve(dir, "../../../docs/pages/examples/" + groupSlug)
+      path.resolve(dir, "../../../docs/pages/examples/" + groupSlug),
     );
   }
 
   const target = path.resolve(
     dir,
-    "../../../docs/pages/examples/" + groupSlug + "/" + project.slug + ".mdx"
+    "../../../docs/pages/examples/" + groupSlug + "/" + project.slug + ".mdx",
   );
 
   const files = getProjectFiles(project);
@@ -113,7 +120,7 @@ async function generatePageForExample(project: Project) {
 async function generateExampleList(projects: Project[]) {
   const target = path.resolve(
     dir,
-    "../../../docs/components/example/generated/exampleList.gen.ts"
+    "../../../docs/components/example/generated/exampleList.gen.ts",
   );
 
   const groups = groupProjects(projects);
@@ -139,7 +146,7 @@ async function generateExampleList(projects: Project[]) {
 async function generateExampleComponents(projects: Project[]) {
   const target = path.resolve(
     dir,
-    "../../../docs/components/example/generated/exampleComponents.gen.tsx"
+    "../../../docs/components/example/generated/exampleComponents.gen.tsx",
   );
 
   const code = templateExamples(projects);
@@ -150,7 +157,7 @@ async function generateExampleComponents(projects: Project[]) {
 const projects = getExampleProjects(); // TODO: .filter((p) => p.config?.docs === true);
 
 for (const project of projects) {
-  console.log("generating code for example", project);
+  // console.log(files);
   await generateCodeForExample(project);
   await generatePageForExample(project);
 }

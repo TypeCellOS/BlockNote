@@ -1,0 +1,7 @@
+.bn-editor {
+    background-color: transparent !important;
+    border-radius: 0 !important;
+    /* Removes focus outline */
+    box-shadow: none !important;
+    padding-block: 1rem
+}
