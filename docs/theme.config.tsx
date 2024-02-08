@@ -1,3 +1,4 @@
+import NextLink from "next/link";
 import { useRouter } from "next/router";
 import { useConfig, useTheme, type DocsThemeConfig } from "nextra-theme-docs";
 import { useEffect, useState } from "react";
@@ -5,6 +6,7 @@ import { useEffect, useState } from "react";
 // import { Footer } from "./components/Footer";
 // import { HeaderLogo } from "./components/HeaderLogo";
 // import { Main } from "./components/Main";
+import { AuthNavButton } from "./components/AuthNavButton";
 import { Logo } from "./components/Logo";
 import { Navigation } from "./components/Navigation";
 // import { Search } from "./components/Search";
@@ -178,6 +180,19 @@ const config: DocsThemeConfig = {
   },
   navbar: {
     component: Navigation,
+    extraContent: () => {
+      return (
+        <>
+          {/* TODO: design */}
+          <NextLink
+            href="https://github.com/TypeCellOS/BlockNote"
+            className="nx-p-2 nx-text-current">
+            GH
+          </NextLink>
+          <AuthNavButton />
+        </>
+      );
+    },
     //   extraContent: (): JSX.Element => {
     //     // eslint-disable-next-line react-hooks/rules-of-hooks -- Nextra does not infer the type of extraContent correctly.
     //     const router = useRouter();
@@ -287,7 +302,7 @@ const config: DocsThemeConfig = {
     //   },
     // },
   },
-  // main: (props) => <Main>{props.children}</Main>,
+  // main: (props) => <div>sdfdf </div>,
   search: {
     // component: Search,
     placeholder: "Search documentation…",
