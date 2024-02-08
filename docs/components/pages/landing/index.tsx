@@ -4,18 +4,31 @@ import { PackFeatures } from "./PackFeatures";
 import { PackHero } from "./PackHero";
 import { PackLetter } from "./PackLetter";
 
+import "./gradient.css";
+import { FadeIn } from "@/components/pages/home-shared/FadeIn";
+
+// TODO: Cleanup
 export function BlockNoteHome() {
   return (
     <>
       <LandingPageGlobalStyles />
       <main className="relative">
         <PackHero />
-        <GradientSectionBorder>
-          <PackFeatures />
-        </GradientSectionBorder>
-        <GradientSectionBorder>
-          <PackLetter />
-        </GradientSectionBorder>
+        <FadeIn noVertical>
+          <div className={"section-border"} />
+        </FadeIn>
+        {/*<GradientSectionBorder>*/}
+        <PackFeatures />
+        <FadeIn noVertical>
+          <div className={"section-border"} />
+        </FadeIn>
+        {/*</GradientSectionBorder>*/}
+        {/*<GradientSectionBorder>*/}
+        <PackLetter />
+        <FadeIn noVertical>
+          <div className={"section-border"} />
+        </FadeIn>
+        {/*</GradientSectionBorder>*/}
       </main>
     </>
   );
