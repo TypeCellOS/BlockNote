@@ -1,8 +1,8 @@
 // import "../custom.css";
-import "../styles.css";
-
+import { SessionProvider } from "next-auth/react";
 import type { AppProps } from "next/app";
 import { type ReactNode } from "react";
+import "../styles.css";
 
 type NextraAppProps = AppProps & {
   Component: AppProps["Component"] & {
@@ -15,7 +15,9 @@ export default function Nextra({ Component, pageProps }: NextraAppProps) {
 
   return (
     <>
-      <Component {...pageProps} />
+      <SessionProvider>
+        <Component {...pageProps} />
+      </SessionProvider>
     </>
   );
 }
