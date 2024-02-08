@@ -2,36 +2,39 @@
 
 import { FadeIn } from "../home-shared/FadeIn";
 import { HeroText, SectionSubtext } from "../home-shared/Headings";
+import dynamic from "next/dynamic";
+
+const Demo = dynamic(() => import("./demo/Demo"), { ssr: false });
 
 export function PackHero() {
   return (
-    <div className="overflow-hidden py-20 sm:py-32 lg:pb-32 xl:pb-36">
-      <div className="nx-mx-auto nx-flex nx-max-w-[90rem] nx-pl-[max(env(safe-area-inset-left),1.5rem)] nx-pr-[max(env(safe-area-inset-right),1.5rem)]">
-        <div className="lg:grid lg:grid-cols-12 lg:gap-x-8 lg:gap-y-20">
-          <FadeIn className="relative z-10 mx-auto max-w-2xl lg:col-span-7 lg:max-w-none lg:pt-6 xl:col-span-6">
-            <div className="flex flex-col lg:gap-6 gap-5">
-              <HeroText h1>
-                The open source <strong>Block-Based</strong>
-                <br />
-                rich text editor
-              </HeroText>
-              <SectionSubtext hero>
-                A beautiful text editor that just works. Easily add an editor to
-                your app that users will love. Customize it with your own
-                functionality like custom blocks or AI tooling.
-              </SectionSubtext>
-              <div className="flex flex-wrap gap-x-6 gap-y-4">
-                <a
-                  className="rounded-full bg-slate-800 py-2 px-4 text-lg font-medium text-white hover:bg-slate-700 focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/50 active:text-slate-400"
-                  href="/docs">
-                  Get Started
-                </a>
-                {/* <a
+    <div className="flex h-fit w-full items-center justify-center py-36">
+      <div className="grid grid-cols-1 items-center gap-y-16 px-16 md:max-w-screen-md xl:max-w-screen-xl xl:grid-cols-2 xl:gap-x-16">
+        <FadeIn className="flex h-fit w-full flex-col items-center justify-center gap-5 text-center xl:items-start xl:text-left">
+          <HeroText h1>
+            The open source
+            <br />
+            <strong>Block-Based</strong>
+            <br />
+            rich text editor
+          </HeroText>
+          <SectionSubtext hero>
+            A beautiful text editor that just works. Easily add an editor to
+            your app that users will love. Customize it with your own
+            functionality like custom blocks or AI tooling.
+          </SectionSubtext>
+          <div className="flex flex-wrap gap-x-6 gap-y-4">
+            <a
+              className="rounded-full bg-slate-800 px-4 py-2 text-lg font-medium text-white hover:bg-slate-700 focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/50 active:text-slate-400"
+              href="/docs">
+              Get Started
+            </a>
+            {/* <a
                 className="rounded-full bg-slate-800 py-2 px-4 text-sm font-medium text-white hover:bg-slate-700 focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/50 active:text-slate-400"
                 href="/">
                 Get Started
               </a> */}
-                {/* <AppStoreLink />
+            {/* <AppStoreLink />
           <Button
             href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
             variant="outline"
@@ -39,28 +42,28 @@ export function PackHero() {
             <PlayIcon className="h-6 w-6 flex-none" />
             <span className="ml-2.5">Watch the video</span>
           </Button> */}
-              </div>
-            </div>
-          </FadeIn>
-          <div className="relative mt-10 sm:mt-20 lg:col-span-5 lg:row-span-2 lg:mt-0 xl:col-span-6">
-            hello
-            {/* <BackgroundIllustration className="absolute left-1/2 top-4 h-[1026px] w-[1026px] -translate-x-1/3 stroke-gray-300/70 [mask-image:linear-gradient(to_bottom,white_20%,transparent_75%)] sm:top-16 sm:-translate-x-1/2 lg:-top-16 lg:ml-12 xl:-top-14 xl:ml-0" />
+          </div>
+        </FadeIn>
+        <div className="h-144 relative overflow-scroll overscroll-contain rounded-lg border">
+          {/* TODO: Wait for editor & collab content to load before rendering. Show placeholder or delay loading?*/}
+          <Demo />
+          {/* <BackgroundIllustration className="absolute left-1/2 top-4 h-[1026px] w-[1026px] -translate-x-1/3 stroke-gray-300/70 [mask-image:linear-gradient(to_bottom,white_20%,transparent_75%)] sm:top-16 sm:-translate-x-1/2 lg:-top-16 lg:ml-12 xl:-top-14 xl:ml-0" />
         <div className="-mx-4 h-[448px] px-9 [mask-image:linear-gradient(to_bottom,white_60%,transparent)] sm:mx-0 lg:absolute lg:-inset-x-10 lg:-bottom-20 lg:-top-10 lg:h-auto lg:px-0 lg:pt-10 xl:-bottom-32">
           <PhoneFrame className="mx-auto max-w-[366px]" priority>
             <AppDemo />
           </PhoneFrame>
         </div> */}
-          </div>
-          {/* <div className="relative -mt-4 lg:col-span-7 lg:mt-0 xl:col-span-6">
+        </div>
+        {/* <div className="relative -mt-4 lg:col-span-7 lg:mt-0 xl:col-span-6">
             <p className="text-center text-sm font-semibold text-gray-900 lg:text-left">
               As featured in
             </p>
           </div> */}
-        </div>
       </div>
     </div>
   );
 }
+
 //     /*
 // return (
 //   <FadeIn

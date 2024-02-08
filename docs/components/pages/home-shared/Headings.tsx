@@ -13,7 +13,7 @@ export function HeroText({
   const combinedClassname = cn(
     gradients.heroHeading,
     "tracking-[-0.04em] leading-none text-[40px] md:text-5xl lg:text-[80px] text-transparent",
-    className
+    className,
   );
 
   if (h1) {
@@ -27,7 +27,7 @@ export function SectionHeader({ children }: { children: React.ReactNode }) {
     <h2
       className={cn(
         gradients.heroHeading,
-        "font-bold tracking-[-0.01em] pb-1 text-[32px] md:text-4xl lg:text-[40px] max-w-sm md:max-w-md lg:max-w-2xl text-center text-transparent"
+        "max-w-sm pb-1 text-center text-[32px] font-bold tracking-[-0.01em] text-transparent md:max-w-md md:text-4xl lg:max-w-2xl lg:text-[40px]",
       )}>
       {children}
     </h2>
@@ -47,7 +47,7 @@ export function SectionSubtext({
 
   return (
     <p
-      className={`font-space-grotesk leading-snug dark:text-[#FFFFFFB2] text-[#00000080] ${textClasses} max-w-md md:max-w-xl lg:max-w-[640px]`}>
+      className={`font-space-grotesk leading-snug text-[#00000080] dark:text-[#FFFFFFB2] ${textClasses}`}>
       {children}
     </p>
   );
