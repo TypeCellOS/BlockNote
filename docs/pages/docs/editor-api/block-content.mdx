@@ -1,19 +1,26 @@
 ---
-title: Inline Content
-description: An array of InlineContent objects is used to describe the rich text content inside a block. Inline content can either be styled text or a link, and we'll go over both these in the upcoming sections.
-imageTitle: Inline Content
-path: /docs/inline-content
+title: Block Content
+description: TODO
+imageTitle: Block Content
+path: /docs/block-content
 ---
 
-# Inline Content
+# Block Content
 
-## Inline Content Types
+The `content` field of a `Block` describes the content of the block. For all blocks except tables, this field is an array of `InlineContent` objects and describes the rich text content typed inside the block.
 
-An array of `InlineContent` objects is used to describe the rich text content inside a block. Inline content can either be styled text or a link, and we'll go over both these in the upcoming sections.
+In the example below, you can see how a sentence like "Hello __there__, [BlockNote](https://www.blocknotejs.org)" is represented as an array of `InlineContent` objects:
+
+TODO: DEMO
+
+
+## `InlineContent` Types
+
+`InlineContent` can be styled text (rich text), a link, or a mention:
 
 ### Styled Text
 
-Styled text is a type of `InlineContent` used to display pieces of text with styles, and is defined using a `StyledText` object:
+`StyledText` is a type of `InlineContent` used to display pieces of text with styles:
 
 ```typescript
 type StyledText = {
@@ -44,7 +51,7 @@ type Styles = Partial<{
 
 ### Links
 
-Links are a type of `InlineContent` used to create clickable hyperlinks that go to some URL, and are made up of `StyledText`. They're defined using `Link` objects:
+`Link` objects represent links to a URL:
 
 ```typescript
 type Link = {
@@ -58,9 +65,17 @@ type Link = {
 
 `href:` The URL that opens when clicking the link.
 
-## Table Content
+### Mentions
 
-While most blocks use an array of `InlineContent` objects to describe their content, tables are slightly different. They use a single `TableContent` object, which allows each table cell to be represented as an array of `InlineContent` objects instead:
+TODO
+
+### Custom `InlineContent` and `Styles`
+
+You can create your own types of `InlineContent` and `Styles` using React. Skip to the Advanced "custom schemas" section to learn more about extending the editor. (TODO: link)
+
+## TableContent
+
+Most blocks use an array of `InlineContent` objects to describe their content, but tables are slightly different. Table blocks have `TableContent` as their content, in which each row contains an array of cells, that
 
 
 ```typescript
@@ -74,6 +89,8 @@ type TableContent = {
 
 ## Editor Functions
 
+TODO: where should this be?
+
 While `InlineContent` objects are used to describe a block's content, they can be cumbersome to work with directly. Therefore, BlockNote exposes functions which make it easier to edit block contents.
 
 ### Accessing Styles
@@ -81,12 +98,7 @@ While `InlineContent` objects are used to describe a block's content, they can b
 You can get the styles at the current [Text Cursor Position](/docs/cursor-selections#text-cursor) using the following function:
 
 ```typescript
-// Definition
-class BlockNoteEditor {
-...
-  public getActiveStyles(): Styles;
-...
-}
+getActiveStyles(): Styles;
 
 // Usage
 const styles = editor.getActiveStyles();
@@ -99,12 +111,7 @@ If a [Selection](/docs/cursor-selections#selections) is active, this function re
 You can add styles to the currently selected text using the following function:
 
 ```typescript
-// Definition
-class BlockNoteEditor {
-...
-  public addStyles(styles: Styles): void;
-...
-}
+addStyles(styles: Styles): void;
 
 // Usage
 editor.addStyles({ textColor: "red" });
@@ -115,12 +122,7 @@ editor.addStyles({ textColor: "red" });
 You can remove styles from the currently selected text using the following function:
 
 ```typescript
-// Definition
-class BlockNoteEditor {
-...
-  public removeStyles(styles: Styles): void;
-...
-}
+removeStyles(styles: Styles): void;
 
 // Usage
 editor.removeStyles({ bold: true });
@@ -131,12 +133,7 @@ editor.removeStyles({ bold: true });
 You can toggle styles on the currently selected text using the following function:
 
 ```typescript
-// Definition
-class BlockNoteEditor {
-...
-  public toggleStyles(styles: Styles): void;
-...
-}
+toggleStyles(styles: Styles): void;
 
 // Usage
 editor.toggleStyles({ bold: true, italic: true });
@@ -147,12 +144,7 @@ editor.toggleStyles({ bold: true, italic: true });
 You can get the currently selected text using the following function:
 
 ```typescript
-// Definition
-class BlockNoteEditor {
-...
-  public getSelectedText(): string;
-...
-}
+getSelectedText(): string;
 
 // Usage
 const text = editor.getSelectedText();
@@ -163,12 +155,7 @@ const text = editor.getSelectedText();
 You can get the URL of the link in the current selection the following function:
 
 ```typescript
-// Definition
-class BlockNoteEditor {
-...
-  public getSelectedLink(): string | undefined;
-...
-}
+getSelectedLink(): string | undefined;
 
 // Usage
 const linkUrl = editor.getSelectedLink();
@@ -181,12 +168,7 @@ If there are multiple links in the selection, this function only returns the las
 You can create a new link using the following function:
 
 ```typescript
-// Definition
-class BlockNoteEditor {
-...
-  public createLink(url: string, text?: string): void;
-...
-}
+createLink(url: string, text?: string): void;
 
 // Usage
 editor.createLink("https://www.blocknotejs.org/", "BlockNote");

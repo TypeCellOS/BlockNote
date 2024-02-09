@@ -56,9 +56,36 @@ export function groupBy<T>(arr: T[], key: (el: T) => string) {
 }
 
 export function groupProjects(projects: Project[]) {
-  const grouped = groupBy(projects, (p) => p.group.pathFromRoot);
+  const grouped = groupBy(projects, (p) => p.group.slug);
 
-  return grouped;
+  // read group titles from /pages/examples/_meta.json
+  const meta = JSON.parse(
+    fs.readFileSync(
+      path.resolve(dir, "../../../docs/pages/examples/_meta.json"),
+      "utf-8"
+    )
+  );
+
+  const groupsWithTitles = Object.fromEntries(
+    Object.entries(grouped).map(([key, projects]) => {
+      const group = projects[0].group;
+      const title = meta[key];
+      if (!title) {
+        throw new Error(
+          `Missing group title for ${key}, add to examples/_meta.json?`
+        );
+      }
+      return [
+        key,
+        {
+          ...group,
+          title,
+          projects,
+        },
+      ];
+    })
+  );
+  return groupsWithTitles;
 }
 
 export type Files = Record<

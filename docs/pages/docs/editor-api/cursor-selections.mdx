@@ -5,9 +5,12 @@ imageTitle: Cursor & Selections
 path: /docs/cursor-selections
 ---
 
-import { Example } from "../../components/example";
+import { Example } from "@/components/example";
 
 # Cursor & Selections
+
+TODO: refactor to use hooks?
+TODO: are these examples really useful / can we come up with something better?
 
 If you want to know which block(s) the user is currently editing, you can do so using cursor positions and selections.
 
@@ -34,12 +37,7 @@ type TextCursorPosition = {
 You can get a snapshot of the current text cursor position using the following call:
 
 ```typescript
-// Definition
-class BlockNoteEditor {
-...
-  public getTextCursorPosition(): TextCursorPosition;
-...
-}
+getTextCursorPosition(): TextCursorPosition;
 
 // Usage
 const textCursorPosition = editor.getTextCursorPosition();
@@ -52,15 +50,10 @@ const textCursorPosition = editor.getTextCursorPosition();
 You can set the text cursor position to the start or end of an existing block using the following call:
 
 ```typescript
-// Definition
-class BlockNoteEditor {
-...
-  public setTextCursorPosition(
-    targetBlock: BlockIdentifier,
-    placement: "start" | "end" = "start"
-  ): void;
-...
-}
+setTextCursorPosition(
+  targetBlock: BlockIdentifier,
+  placement: "start" | "end" = "start"
+): void;
 
 // Usage
 editor.setTextCursorPosition(targetBlock, placement);
@@ -76,7 +69,7 @@ Throws an error if the target block could not be found.
 
 If you need a visualization for which block contains the text cursor, the demo below highlights it in blue in real time.
 
-<Example name="cursor-selections-text-cursor-block" />
+<Example name="cursor-selections/text-cursor-block" />
 
 ## Selections
 
@@ -95,12 +88,7 @@ type Selection = {
 You can get a snapshot of the current selection using the following call:
 
 ```typescript
-// Definition
-class BlockNoteEditor {
-...
-  public getSelection(): Selection | undefined;
-...
-}
+getSelection(): Selection | undefined;
 
 // Usage
 const selection = editor.getSelection();
@@ -112,4 +100,4 @@ const selection = editor.getSelection();
 
 If you need a visualization for which blocks the text cursor spans, the demo below highlights them in blue in real time.
 
-<Example name="cursor-selections-selection-blocks" />
+<Example name="cursor-selections/selection-blocks" />

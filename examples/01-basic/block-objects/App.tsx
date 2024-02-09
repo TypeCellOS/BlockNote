@@ -1,24 +1,21 @@
-import { useState } from "react";
 import {
-  BlockNoteEditor,
   Block,
+  BlockNoteEditor,
   DefaultBlockSchema,
   DefaultInlineContentSchema,
   DefaultStyleSchema,
 } from "@blocknote/core";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
 import "@blocknote/react/style.css";
+import { useState } from "react";
 
 export default function App() {
   // Stores the editor's contents as an array of Block objects.
   const [blocks, setBlocks] = useState<
-    | Block<
-        DefaultBlockSchema,
-        DefaultInlineContentSchema,
-        DefaultStyleSchema
-      >[]
-    | null
-  >(null);
+    Block<DefaultBlockSchema, DefaultInlineContentSchema, DefaultStyleSchema>[]
+  >([]);
+
+  // TODO: revise API to use a simple hook?
 
   // Creates a new editor instance.
   const editor: BlockNoteEditor = useBlockNote({
@@ -33,6 +30,7 @@ export default function App() {
   return (
     <div>
       <BlockNoteView editor={editor} />
+      <p>Document JSON:</p>
       <pre>{JSON.stringify(blocks, null, 2)}</pre>
     </div>
   );
