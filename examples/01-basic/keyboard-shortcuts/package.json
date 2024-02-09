@@ -25,7 +25,7 @@
   },
   "eslintConfig": {
     "extends": [
-      "../../.eslintrc.js"
+      "../../../.eslintrc.js"
     ]
   },
   "eslintIgnore": [

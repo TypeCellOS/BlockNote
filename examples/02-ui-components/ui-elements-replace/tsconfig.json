@@ -27,10 +27,10 @@
   ],
   "references": [
     {
-      "path": "../../packages/core/"
+      "path": "../../../packages/core/"
     },
     {
-      "path": "../../packages/react/"
+      "path": "../../../packages/react/"
     }
   ]
 }
