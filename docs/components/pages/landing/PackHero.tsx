@@ -8,9 +8,12 @@ const Demo = dynamic(() => import("./demo/Demo"), { ssr: false });
 
 export function PackHero() {
   return (
-    <div className="flex h-fit w-full items-center justify-center py-36">
-      <div className="grid grid-cols-1 items-center gap-y-16 px-16 md:max-w-screen-md xl:max-w-screen-xl xl:grid-cols-2 xl:gap-x-16">
-        <FadeIn className="flex h-fit w-full flex-col items-center justify-center gap-5 text-center xl:items-start xl:text-left">
+    <div className="relative flex h-fit w-full items-center justify-center py-36">
+      <FadeIn noVertical className={"absolute h-full w-full"}>
+        <div className={"section-hero h-full w-full"} />
+      </FadeIn>
+      <div className="flex w-screen max-w-full flex-col items-center justify-between gap-16 px-6 md:max-w-screen-md xl:max-w-[1440px] xl:flex-row">
+        <FadeIn className="flex h-fit flex-col items-center justify-center gap-5 text-center xl:w-[584px] xl:items-start xl:text-left">
           <HeroText h1>
             The open source
             <br />
@@ -18,7 +21,7 @@ export function PackHero() {
             <br />
             rich text editor
           </HeroText>
-          <SectionSubtext hero>
+          <SectionSubtext>
             A beautiful text editor that just works. Easily add an editor to
             your app that users will love. Customize it with your own
             functionality like custom blocks or AI tooling.
@@ -44,15 +47,21 @@ export function PackHero() {
           </Button> */}
           </div>
         </FadeIn>
-        <div className="h-144 relative overflow-scroll overscroll-contain rounded-lg border">
-          {/* TODO: Wait for editor & collab content to load before rendering. Show placeholder or delay loading?*/}
-          <Demo />
-          {/* <BackgroundIllustration className="absolute left-1/2 top-4 h-[1026px] w-[1026px] -translate-x-1/3 stroke-gray-300/70 [mask-image:linear-gradient(to_bottom,white_20%,transparent_75%)] sm:top-16 sm:-translate-x-1/2 lg:-top-16 lg:ml-12 xl:-top-14 xl:ml-0" />
+        <div className="h-144 w-full shrink-0 grow-0 rounded-lg xl:w-[584px]">
+          <div className="h-full w-full overflow-scroll overscroll-contain rounded-lg">
+            {/* TODO: Wait for editor & collab content to load before rendering. Show placeholder or delay loading?*/}
+            <Demo />
+            {/* <BackgroundIllustration className="absolute left-1/2 top-4 h-[1026px] w-[1026px] -translate-x-1/3 stroke-gray-300/70 [mask-image:linear-gradient(to_bottom,white_20%,transparent_75%)] sm:top-16 sm:-translate-x-1/2 lg:-top-16 lg:ml-12 xl:-top-14 xl:ml-0" />
         <div className="-mx-4 h-[448px] px-9 [mask-image:linear-gradient(to_bottom,white_60%,transparent)] sm:mx-0 lg:absolute lg:-inset-x-10 lg:-bottom-20 lg:-top-10 lg:h-auto lg:px-0 lg:pt-10 xl:-bottom-32">
           <PhoneFrame className="mx-auto max-w-[366px]" priority>
             <AppDemo />
           </PhoneFrame>
         </div> */}
+          </div>
+          <img
+            src={"./img/assets/try.svg"}
+            className={"relative bottom-24 left-10 z-30 float-right size-56"}
+          />
         </div>
         {/* <div className="relative -mt-4 lg:col-span-7 lg:mt-0 xl:col-span-6">
             <p className="text-center text-sm font-semibold text-gray-900 lg:text-left">

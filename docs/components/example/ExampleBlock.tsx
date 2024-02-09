@@ -20,7 +20,7 @@ export function ExampleBlock(props: {
   const App = example.App;
 
   return (
-    <div className="nx-bg-primary-700/5 dark:nx-bg-primary-300/10 rounded-lg p-4">
+    <div className="nx-bg-primary-700/5 dark:nx-bg-primary-300/10 mt-6 rounded-lg p-4">
       <div className={"flex flex-row gap-6 pb-4"}>
         <button
           className={

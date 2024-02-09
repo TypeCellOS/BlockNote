@@ -12,7 +12,7 @@ export function HeroText({
 }) {
   const combinedClassname = cn(
     gradients.heroHeading,
-    "tracking-[-0.04em] leading-none text-[40px] md:text-5xl lg:text-[80px] text-transparent",
+    "tracking-[-0.04em] leading-none text-7xl sm:text-[80px] text-transparent",
     className,
   );
 
@@ -35,19 +35,14 @@ export function SectionHeader({ children }: { children: React.ReactNode }) {
 }
 
 export function SectionSubtext({
-  hero,
   children,
 }: {
   hero?: boolean;
   children: React.ReactNode;
 }) {
-  const textClasses = hero
-    ? "text-[20px] lg:text-xl"
-    : "text-[16px] lg:text-[20px]";
-
   return (
     <p
-      className={`font-space-grotesk leading-snug text-[#00000080] dark:text-[#FFFFFFB2] ${textClasses}`}>
+      className={`font-space-grotesk text-lg leading-snug text-[#00000080] sm:text-xl dark:text-[#FFFFFFB2]`}>
       {children}
     </p>
   );

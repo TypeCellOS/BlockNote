@@ -13,7 +13,7 @@ export function FeatureBox({
   description: ReactNode;
 }) {
   return (
-    <div className="relative box-border flex w-full flex-col gap-5 overflow-hidden rounded-xl border p-8 text-black no-underline dark:border-neutral-800 dark:text-white">
+    <div className="relative box-border flex w-full flex-col gap-5 overflow-hidden rounded-xl border bg-white p-8 text-black no-underline dark:border-neutral-800 dark:bg-black dark:text-white">
       <Image
         alt=""
         aria-hidden="true"

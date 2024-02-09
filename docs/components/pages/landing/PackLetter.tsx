@@ -8,11 +8,14 @@ import gradients from "../home-shared/gradients.module.css";
 
 export function PackLetter() {
   return (
-    <section className="relative flex flex-col items-center px-6 py-16 font-sans md:py-24 lg:py-32 gap-14">
+    <section className="relative flex flex-col items-center gap-14 px-6 py-16 font-sans md:py-24 lg:py-32">
+      <FadeIn noVertical className={"absolute top-0 h-full w-full"}>
+        <div className={"section-letter h-full w-full"} />
+      </FadeIn>
       <FadeIn>
         <HeroText>Let&apos;s build</HeroText>
       </FadeIn>
-      <div className="flex flex-col max-w-xl leading-6 md:text-lg lg:text-lg">
+      <div className="flex max-w-xl flex-col leading-6 md:text-lg lg:text-lg">
         <FadeIn className="opacity-70">
           <p>
             When we started building an Open Source Notion alternative, we
@@ -50,8 +53,8 @@ export function PackLetter() {
           viewTriggerOffset>
           <span
             className={cn(
-              "w-full h-[1px] -bottom-8 md:-bottom-4 lg:-bottom-4 absolute",
-              gradients.letterLine
+              "absolute -bottom-8 h-[1px] w-full md:-bottom-4 lg:-bottom-4",
+              gradients.letterLine,
             )}
           />
         </FadeIn>
@@ -92,20 +95,20 @@ export function PackLetter() {
           </div>
         </FadeIn> */}
       </div>
-      <FadeIn className="relative flex justify-center w-full mt-16" noVertical>
-        <div className="max-w-[180px] w-full">
+      <FadeIn className="relative mt-16 flex w-full justify-center" noVertical>
+        <div className="w-full max-w-[180px]">
           <CTAButton>
             <Link className="block py-3 font-sans" href="/pack/docs">
               Start Building
             </Link>
           </CTAButton>
         </div>
-        <Gradient
-          className="bottom-[-200px] -z-10 opacity-20"
-          conic
-          height={300}
-          width={1200}
-        />
+        {/*<Gradient*/}
+        {/*  className="bottom-[-200px] -z-10 opacity-20"*/}
+        {/*  conic*/}
+        {/*  height={300}*/}
+        {/*  width={1200}*/}
+        {/*/>*/}
       </FadeIn>
     </section>
   );

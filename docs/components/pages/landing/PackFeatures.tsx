@@ -62,7 +62,10 @@ export const featuresCardData: FeaturesCardData[] = [
 
 export function PackFeatures() {
   return (
-    <section className="relative flex flex-col items-center gap-9 py-16 pb-16 font-sans md:pb-24 lg:gap-14 lg:pb-32">
+    <div className="relative flex flex-col items-center gap-9 py-16 pb-16 font-sans md:pb-24 lg:gap-14 lg:pb-32">
+      <FadeIn noVertical className={"absolute top-0 h-full w-full"}>
+        <div className={"section-features h-full w-full"} />
+      </FadeIn>
       <FadeIn className="flex flex-col items-center gap-5 md:gap-6">
         <SectionHeader>{"Why BlockNote?"}</SectionHeader>
         <SectionSubtext>{"With a "}</SectionSubtext>
@@ -79,6 +82,6 @@ export function PackFeatures() {
           </FadeIn>
         ))}
       </div>
-    </section>
+    </div>
   );
 }

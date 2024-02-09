@@ -1,0 +1,41 @@
+.section-hero {
+    --demo-top: 60%;
+    --demo-bottom: 75%;
+    --demo-left: calc(50% - 120px);
+    --demo-right: calc(50% + 120px);
+}
+
+@media (width >= 1280px) {
+    .section-hero {
+        --demo-top: 40%;
+        --demo-bottom: 60%;
+        --demo-left: calc(100% - 407px);
+        --demo-right: calc(100% - 223px);
+    }
+}
+
+@media (width >= 1440px) {
+    .section-hero {
+        --demo-left: calc(50% + 313px);
+        --demo-right: calc(50% + 497px);
+    }
+}
+
+.section-hero {
+    background:
+            radial-gradient(circle at var(--demo-left) var(--demo-bottom), #00b7ff20 250px, transparent 700px),
+            radial-gradient(circle at var(--demo-right) var(--demo-top), #1100ff20 250px, transparent 700px)
+}
+
+.section-features, .section-letter {
+    background:
+            radial-gradient(ellipse at 10% 100%, #00b7ff20 10%, transparent 40%),
+            radial-gradient(ellipse at 90% 100%, #1100ff20 10%, transparent 40%);
+}
+
+.section-border {
+    width: 100%;
+    height: 1px;
+    background:
+            linear-gradient(90deg, #00b7ff70, #00b7ff80 15%, #00b7ff50 40%, #1100ff50 60%, #1100ff80 85%, #1100ff70);
+}
