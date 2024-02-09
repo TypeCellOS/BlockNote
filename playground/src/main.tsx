@@ -13,7 +13,7 @@ import "./style.css";
 
 window.React = React;
 
-const modules = import.meta.glob("../../examples/*/App.tsx");
+const modules = import.meta.glob("../../examples/**/*/App.tsx");
 
 const editors = examples;
 
@@ -50,11 +50,11 @@ function Root() {
         {window.location.search.includes("hideMenu") ? undefined : (
           <AppShell.Navbar p="xs">
             <AppShell.Section grow component={ScrollArea} mx="-xs" px="xs">
-              {editors
+              {Object.values(editors)
                 .flatMap((g) => g.projects)
                 .map((editor, i) => (
                   <div key={i}>
-                    <Link to={editor.slug}>{editor.title}</Link>
+                    <Link to={editor.fullSlug}>{editor.title}</Link>
                   </div>
                 ))}
 
@@ -83,12 +83,13 @@ function Root() {
   );
 }
 
-const App = (props: { project: (typeof examples)[0]["projects"][0] }) => {
+const App = (props: { project: (typeof examples.basic)["projects"][0] }) => {
   const [ExampleComponent, setExampleComponent] = React.useState<any>(null);
 
   React.useEffect(() => {
     (async () => {
       // load app async
+      console.log("../../" + props.project.pathFromRoot + "/App.tsx");
       const c: any = await modules[
         "../../" + props.project.pathFromRoot + "/App.tsx"
       ]();
@@ -106,10 +107,10 @@ const router = createBrowserRouter([
   {
     path: "/",
     element: <Root />,
-    children: editors
+    children: Object.values(editors)
       .flatMap((g) => g.projects)
       .map((editor) => ({
-        path: editor.slug,
+        path: editor.fullSlug,
         element: <App project={editor} />,
       })),
   },
