@@ -1,6 +1,7 @@
-import { EditorOptions, Extension } from "@tiptap/core";
+import { Editor, EditorOptions, Extension } from "@tiptap/core";
 import { Node } from "prosemirror-model";
 // import "./blocknote.css";
+import { Editor as TiptapEditor } from "@tiptap/core/dist/packages/core/src/Editor";
 import * as Y from "yjs";
 import {
   insertBlocks,
@@ -67,7 +68,6 @@ import { transformPasted } from "./transformPasted";
 
 // CSS
 import "./Block.css";
-import { BlockNoteTipTapEditor } from "./BlockNoteTipTapEditor";
 import "./editor.css";
 
 export type BlockNoteEditorOptions<
@@ -202,9 +202,7 @@ export class BlockNoteEditor<
   ISchema extends InlineContentSchema = DefaultInlineContentSchema,
   SSchema extends StyleSchema = DefaultStyleSchema
 > {
-  public readonly _tiptapEditor: BlockNoteTipTapEditor & {
-    contentComponent: any;
-  };
+  public readonly _tiptapEditor: TiptapEditor & { contentComponent: any };
   public blockCache = new WeakMap<Node, Block<any, any, any>>();
   public readonly blockSchema: BSchema;
   public readonly inlineContentSchema: ISchema;
@@ -451,13 +449,7 @@ export class BlockNoteEditor<
       tiptapOptions.element = newOptions.parentElement;
     }
 
-    // (Editor.prototype as any).createView = () => {
-    //   // no op
-    // };
-
-    this._tiptapEditor = new BlockNoteTipTapEditor(
-      tiptapOptions
-    ) as BlockNoteTipTapEditor & {
+    this._tiptapEditor = new Editor(tiptapOptions) as Editor & {
       contentComponent: any;
     };
   }

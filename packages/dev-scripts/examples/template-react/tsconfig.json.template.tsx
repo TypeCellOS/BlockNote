@@ -23,10 +23,10 @@ const template = (project: Project) => ({
   include: ["."],
   references: [
     {
-      path: "../../../packages/core/",
+      path: "../../packages/core/",
     },
     {
-      path: "../../../packages/react/",
+      path: "../../packages/react/",
     },
   ],
 });
