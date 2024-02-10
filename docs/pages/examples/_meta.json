@@ -1,6 +1,11 @@
 {
   "index": "Overview",
   "basic": "Basic",
-  "advanced": "Advanced",
-  "custom-specs": "Custom specs"
+  "cursor-selections": "Cursors & selections",
+  "custom-schema": "Custom schemas",
+  "interoperability": "Interoperability",
+  "theming": "Theming",
+  "ui-components": "UI components",
+  "vanilla-js": "Vanilla JS",
+  "collaboration": "Collaboration"
 }

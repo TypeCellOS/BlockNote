@@ -1,7 +1,7 @@
 import type { Project } from "../util";
 
 const template = (project: Project) => ({
-  name: "@blocknote/example-" + project.slug,
+  name: "@blocknote/example-" + project.projectSlug,
   description: "AUTO-GENERATED FILE, DO NOT EDIT DIRECTLY",
   private: true,
   version: "0.11.1",

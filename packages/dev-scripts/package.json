@@ -9,7 +9,7 @@
   "scripts": {
     "gen": "npm run gen:examples && npm run gen:docs",
     "gen:examples": "tsx examples/gen.ts",
-    "gen:docs": "tsx examples/genDocs2.ts",
+    "gen:docs": "tsx examples/genDocs.ts",
     "build": "tsc",
     "lint": "eslint src --max-warnings 0"
   },

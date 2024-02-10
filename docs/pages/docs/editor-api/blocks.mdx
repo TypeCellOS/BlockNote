@@ -1,0 +1,52 @@
+---
+title: Introduction to Blocks
+description: So, you've set up a BlockNote editor and your users can start writing content, organized in blocks. What are blocks exactly, and how do we access the blocks from code?
+imageTitle: Introduction to Blocks
+---
+
+import { Example } from "@/components/example";
+
+# Introduction to Blocks
+
+So, you've set up a BlockNote editor and your users can start writing content, organized in blocks. What are blocks exactly, and how do we access the blocks from code?
+
+## Editor Functions
+
+The `editor` returned from `useBlockNote` exposes functions to access and update blocks.
+We'll go through the full API later, but let's start with a simple example that shows the document (a list of blocks) in JSON.
+Play around with the editor to see how blocks are represented in JSON.
+
+<Example name="basic/block-objects" />
+
+## Block Objects
+
+So, BlockNote is centered around the idea of blocks. A block - like a heading, paragraph, or list item - contains a piece of content and optionally nested blocks:
+
+<img src="/img/screenshots/block_structure.png" alt="image" style={{width: "100%"}} />
+
+In code, the `Block` type is used to describe any given block in the editor:
+
+```typescript
+type Block = {
+  id: string;
+  type: string; // the block type, e.g. 'paragraph', 'heading'
+  props: Record<string, any>; // exact props depends on the Block type
+  content: InlineContent[] | TableContent;
+  children: Block[];
+};
+
+```
+
+
+
+
+
+`id:` The block's ID. Multiple blocks cannot share a single ID, and a block will keep the same ID from when it's created until it's removed.
+
+`type:` The block's type, such as a paragraph, heading, or list item. For an overview of built-in block types, see [Built-In Block Types](/docs/block-types#built-in-block-types).
+
+`props:` The block's properties, which are stored in a set of key/value pairs and specify how the block looks and behaves. Different block types have different props - see [Block Types & Properties](/docs/block-types) for more.
+
+`content:` The block's rich text content, represented as an array of `InlineContent` objects. This does not include content from any nested blocks. [Table](/docs/block-types#table) blocks are slightly different, as they contain `TableContent`, where each table cell is represented as an array of `InlineContent` objects. For more information on `InlineContent` and `TableContent` objects, visit [Inline Content](/docs/inline-content).
+
+`children:` Any blocks nested inside the block. The nested blocks are also represented using `Block` objects.
