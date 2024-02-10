@@ -2,24 +2,25 @@ import {
   BlockNoteEditor,
   BlockSchema,
   InlineContentSchema,
-  mergeCSSClasses,
   StyleSchema,
+  mergeCSSClasses,
 } from "@blocknote/core";
 import { MantineProvider } from "@mantine/core";
-import { EditorContent } from "@tiptap/react";
-import { HTMLAttributes, ReactNode, useEffect, useState } from "react";
+
+import { HTMLAttributes, ReactNode, useCallback, useState } from "react";
 import usePrefersColorScheme from "use-prefers-color-scheme";
-import {
-  Theme,
-  applyBlockNoteCSSVariablesFromTheme,
-  removeBlockNoteCSSVariables,
-} from "./BlockNoteTheme";
 import { FormattingToolbarPositioner } from "../components/FormattingToolbar/FormattingToolbarPositioner";
 import { HyperlinkToolbarPositioner } from "../components/HyperlinkToolbar/HyperlinkToolbarPositioner";
 import { ImageToolbarPositioner } from "../components/ImageToolbar/ImageToolbarPositioner";
 import { SideMenuPositioner } from "../components/SideMenu/SideMenuPositioner";
 import { SlashMenuPositioner } from "../components/SlashMenu/SlashMenuPositioner";
 import { TableHandlesPositioner } from "../components/TableHandles/TableHandlePositioner";
+import {
+  Theme,
+  applyBlockNoteCSSVariablesFromTheme,
+  removeBlockNoteCSSVariables,
+} from "./BlockNoteTheme";
+import { EditorContent } from "./EditorContent";
 import "./styles.css";
 
 const mantineTheme = {
@@ -53,61 +54,70 @@ export function BlockNoteView<
     "light" | "dark" | undefined
   >(undefined);
 
-  useEffect(() => {
-    removeBlockNoteCSSVariables(editor.domElement.parentElement!);
+  const containerRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      editor._tiptapEditor.mount(node); // maybe cleaner to use "mergeRefs"
 
-    if (theme === "light") {
-      setEditorColorScheme("light");
-      return;
-    }
-
-    if (theme === "dark") {
-      setEditorColorScheme("dark");
-      return;
-    }
-
-    if (typeof theme === "object") {
-      if ("light" in theme && "dark" in theme) {
-        applyBlockNoteCSSVariablesFromTheme(
-          theme[systemColorScheme === "dark" ? "dark" : "light"],
-          editor.domElement.parentElement!
-        );
-        setEditorColorScheme(systemColorScheme === "dark" ? "dark" : "light");
+      if (!node) {
+        // todo: clean variables?
         return;
       }
 
-      applyBlockNoteCSSVariablesFromTheme(
-        theme,
-        editor.domElement.parentElement!
-      );
-      setEditorColorScheme(undefined);
-      return;
-    }
+      removeBlockNoteCSSVariables(node);
 
-    setEditorColorScheme(systemColorScheme === "dark" ? "dark" : "light");
-  }, [systemColorScheme, editor.domElement, theme]);
+      if (theme === "light") {
+        setEditorColorScheme("light");
+        return;
+      }
+
+      if (theme === "dark") {
+        setEditorColorScheme("dark");
+        return;
+      }
+
+      if (typeof theme === "object") {
+        if ("light" in theme && "dark" in theme) {
+          applyBlockNoteCSSVariablesFromTheme(
+            theme[systemColorScheme === "dark" ? "dark" : "light"],
+            node
+          );
+          setEditorColorScheme(systemColorScheme === "dark" ? "dark" : "light");
+          return;
+        }
+
+        applyBlockNoteCSSVariablesFromTheme(theme, node);
+        setEditorColorScheme(undefined);
+        return;
+      }
+
+      setEditorColorScheme(systemColorScheme === "dark" ? "dark" : "light");
+    },
+    [systemColorScheme, theme, editor._tiptapEditor]
+  );
 
   return (
     // `cssVariablesSelector` scopes Mantine CSS variables to only the editor,
     // as proposed here:  https://github.com/orgs/mantinedev/discussions/5685
     <MantineProvider theme={mantineTheme} cssVariablesSelector=".bn-container">
-      <EditorContent
-        editor={editor._tiptapEditor}
-        className={mergeCSSClasses("bn-container", className || "")}
-        data-color-scheme={editorColorScheme}
-        {...rest}>
-        {children || (
-          <>
-            <FormattingToolbarPositioner editor={editor} />
-            <HyperlinkToolbarPositioner editor={editor} />
-            <SlashMenuPositioner editor={editor} />
-            <SideMenuPositioner editor={editor} />
-            <ImageToolbarPositioner editor={editor} />
-            {editor.blockSchema.table && (
-              <TableHandlesPositioner editor={editor as any} />
-            )}
-          </>
-        )}
+      <EditorContent editor={editor}>
+        <div
+          className={mergeCSSClasses("bn-container", className || "")}
+          data-color-scheme={editorColorScheme}
+          {...rest}
+          ref={containerRef}>
+          {children || (
+            <>
+              <FormattingToolbarPositioner editor={editor} />
+              <HyperlinkToolbarPositioner editor={editor} />
+              <SlashMenuPositioner editor={editor} />
+              <SideMenuPositioner editor={editor} />
+              <ImageToolbarPositioner editor={editor} />
+              {editor.blockSchema.table && (
+                <TableHandlesPositioner editor={editor as any} />
+              )}
+            </>
+          )}
+        </div>
       </EditorContent>
     </MantineProvider>
   );
