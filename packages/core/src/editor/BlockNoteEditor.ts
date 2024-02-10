@@ -86,12 +86,6 @@ export type BlockNoteEditorOptions<
   slashMenuItems: BaseSlashMenuItem<any, any, any>[];
 
   /**
-   * The HTML element that should be used as the parent element for the editor.
-   *
-   * @default: undefined, the editor is not attached to the DOM
-   */
-  parentElement: HTMLElement;
-  /**
    * An object containing attributes that should be added to HTML elements of the editor.
    *
    * @example { editor: { class: "my-editor-class" } }
@@ -130,7 +124,7 @@ export type BlockNoteEditorOptions<
   /**
    * Locks the editor from being editable by the user if set to `false`.
    */
-  editable: boolean;
+  editable: boolean; // TODO
   /**
    * The content that should be in the editor when it's created, represented as an array of partial block objects.
    */
@@ -395,9 +389,11 @@ export class BlockNoteEditor<
         // initial content, as the schema may contain custom blocks which need
         // it to render.
         if (initialContent !== undefined) {
+          // TODO: we can probably get rid of this now
           this.replaceBlocks(this.topLevelBlocks, initialContent as any);
         }
 
+        // TODO: remove?
         newOptions.onEditorReady?.(this);
         this.ready = true;
       },
@@ -409,8 +405,10 @@ export class BlockNoteEditor<
           return;
         }
 
+        // TODO: move to hook
         newOptions.onEditorContentChange?.(this);
       },
+
       onSelectionUpdate: (editor) => {
         newOptions._tiptapOptions?.onSelectionUpdate?.(editor);
         // This seems to be necessary due to a bug in TipTap:
@@ -419,8 +417,10 @@ export class BlockNoteEditor<
           return;
         }
 
+        // TODO: move to hook
         newOptions.onTextCursorPositionChange?.(this);
       },
+      // TODO: move to view prop and / or hook
       editable:
         options.editable !== undefined
           ? options.editable
@@ -437,7 +437,7 @@ export class BlockNoteEditor<
           ...newOptions._tiptapOptions?.editorProps?.attributes,
           ...newOptions.domAttributes?.editor,
           class: mergeCSSClasses(
-            "bn-root",
+            "bn-root", // TODO: remove this class?
             "bn-editor",
             newOptions.defaultStyles ? "bn-default-styles" : "",
             newOptions.domAttributes?.editor?.class || ""
@@ -447,19 +447,20 @@ export class BlockNoteEditor<
       },
     };
 
-    if (newOptions.parentElement) {
-      tiptapOptions.element = newOptions.parentElement;
-    }
-
-    // (Editor.prototype as any).createView = () => {
-    //   // no op
-    // };
-
     this._tiptapEditor = new BlockNoteTipTapEditor(
       tiptapOptions
     ) as BlockNoteTipTapEditor & {
       contentComponent: any;
     };
+  }
+
+  /**
+   * Mount the editor to a parent DOM element. Call mount(undefined) to clean up
+   *
+   * @warning Not needed for React, use BlockNoteView to take care of this
+   */
+  public mount(parentElement?: HTMLElement | null) {
+    this._tiptapEditor.mount(parentElement);
   }
 
   public get prosemirrorView() {
