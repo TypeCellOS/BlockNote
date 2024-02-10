@@ -3,7 +3,7 @@
   "homepage": "https://github.com/TypeCellOS/BlockNote",
   "private": false,
   "license": "MPL-2.0",
-  "version": "0.11.1",
+  "version": "0.11.2",
   "files": [
     "dist",
     "types",
@@ -86,7 +86,7 @@
     "remark-stringify": "^10.0.2",
     "unified": "^10.1.2",
     "uuid": "^8.3.2",
-    "y-prosemirror": "1.0.20",
+    "y-prosemirror": "1.2.1",
     "y-protocols": "^1.0.5",
     "yjs": "^13.6.1"
   },
