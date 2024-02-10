@@ -5,83 +5,110 @@ import {
   SectionSubtext,
 } from "@/components/pages/home-shared/Headings";
 import { FeatureBox } from "@/components/pages/home-shared/FeatureBox";
-
-type NextImageSrc = Parameters<typeof Image>[0]["src"];
+import {
+  RiSpeedUpFill,
+  RiMenuAddFill,
+  RiMoonFill,
+  RiPaintBrushFill,
+  RiLayout4Fill,
+  RiTeamFill,
+  RiMarkdownFill,
+  RiJavascriptFill,
+  RiInputCursorMove,
+} from "react-icons/ri";
+import { IconType } from "react-icons";
 
 export interface FeaturesCardData {
   title: string;
   description: string;
-  bgImgDark: NextImageSrc;
-  bgImgLight: NextImageSrc;
+  icon: IconType;
+  thumbnail?: Parameters<typeof Image>[0]["src"];
 }
 
 export const featuresCardData: FeaturesCardData[] = [
   {
-    title: "Animations",
-    description: "",
-    bgImgDark: "/img/features/animations-dark.gif",
-    bgImgLight: "/img/features/animations.gif",
+    title: "Extensibility",
+    description:
+      "Want something more fancy? An easy to use API lets you add additional block types.",
+    icon: RiMenuAddFill,
+    thumbnail: "/img/screenshots/slash_menu.png",
   },
   {
-    title: "Real-time collaboration",
-    description: "",
-    bgImgDark: "/img/features/collaboration-dark.gif",
-    bgImgLight: "/img/features/collaboration.gif",
+    title: "Theming",
+    description: "Add a splash of colour to the editor with your own themes.",
+    icon: RiPaintBrushFill,
+    thumbnail: "/img/screenshots/slash_menu.png",
   },
   {
-    title: "Helpful placeholders",
-    description: "",
-    bgImgDark: "/img/features/placeholders-dark.gif",
-    bgImgLight: "/img/features/placeholders.gif",
+    title: "UI Components",
+    description:
+      "Replace any menus & toolbars with your own React components, or remove them entirely.",
+    icon: RiLayout4Fill,
+    thumbnail: "/img/screenshots/slash_menu.png",
   },
   {
-    title: "Nesting & indentation",
-    description: "",
-    bgImgDark: "/img/features/nesting-dark.gif",
-    bgImgLight: "/img/features/nesting.gif",
+    title: "Quick & Easy Setup",
+    description:
+      "Works and looks great out-of-the-box, while setup takes only a few lines of code.",
+    icon: RiSpeedUpFill,
   },
   {
-    title: "Drag and drop blocks",
-    description: "",
-    bgImgDark: "/img/features/dragdrop-dark.gif",
-    bgImgLight: "/img/features/dragdrop.gif",
+    title: "Polished UX",
+    description:
+      "Editing documents is a breeze thanks to block indentation, animations, and more.",
+    icon: RiInputCursorMove,
   },
   {
-    title: "Customizable slash (/) menu",
-    description: "",
-    bgImgDark: "/img/features/slashmenu-dark.gif",
-    bgImgLight: "/img/features/slashmenu.gif",
+    title: "Light & Dark Modes",
+    description:
+      "Automatically switches between light & dark modes based on system preference.",
+    icon: RiMoonFill,
+  },
+
+  {
+    title: "Collaboration",
+    description:
+      "Work on the same document with your team, in real-time, for maximum productivity.",
+    icon: RiTeamFill,
   },
   {
-    title: "Format menu",
-    description: "",
-    bgImgDark: "/img/features/formattingtoolbar-dark.gif",
-    bgImgLight: "/img/features/formattingtoolbar.gif",
+    title: "Markdown & HTML",
+    description:
+      "Switching to other formats is no problem with built-in Markdown & HTML conversion.",
+    icon: RiMarkdownFill,
+  },
+  {
+    title: "Vanilla JS",
+    description:
+      "Not using React? BlockNote also works with vanilla JS for use with other frameworks.",
+    icon: RiJavascriptFill,
   },
 ];
 
 export function PackFeatures() {
   return (
-    <div className="relative flex flex-col items-center gap-9 py-16 pb-16 font-sans md:pb-24 lg:gap-14 lg:pb-32">
-      <FadeIn noVertical className={"absolute top-0 h-full w-full"}>
+    <section className="relative flex flex-col items-center gap-9 overflow-hidden py-16 pb-16 font-sans md:pb-24 lg:gap-14 lg:pb-32">
+      <FadeIn noVertical className={"absolute top-0 z-10 h-full w-full"}>
         <div className={"section-features h-full w-full"} />
       </FadeIn>
-      <FadeIn className="flex flex-col items-center gap-5 md:gap-6">
-        <SectionHeader>{"Why BlockNote?"}</SectionHeader>
-        <SectionSubtext>{"With a "}</SectionSubtext>
-      </FadeIn>
-      <div className="grid max-w-screen-lg grid-cols-1 gap-x-4 gap-y-4 px-16 sm:grid-cols-2 lg:grid-cols-3 lg:gap-x-6 lg:gap-y-6 xl:max-w-screen-xl">
-        {featuresCardData.map((feature) => (
-          <FadeIn className="flex" key={feature.title}>
-            <FeatureBox
-              description={feature.description}
-              iconDark={feature.bgImgDark}
-              iconLight={feature.bgImgLight}
-              name={feature.title}
-            />
-          </FadeIn>
-        ))}
+      <div
+        className={
+          "z-20 flex max-w-full flex-col items-center gap-12 px-4 md:max-w-screen-md xl:max-w-none"
+        }>
+        <FadeIn className="flex max-w-full flex-col items-center gap-2 text-center md:max-w-screen-md md:gap-4">
+          <SectionHeader>{"Why BlockNote?"}</SectionHeader>
+          <SectionSubtext>
+            {
+              "Whether you want deep customization or a great out-of-the-box experience, BlockNote has you covered with features for any use case."
+            }
+          </SectionSubtext>
+        </FadeIn>
+        <FadeIn className="grid max-w-full grid-cols-1 gap-4 md:max-w-screen-md md:grid-cols-2 xl:max-w-none xl:grid-cols-3 xl:gap-6 xl:p-0">
+          {featuresCardData.map((feature) => (
+            <FeatureBox key={feature.title} {...feature} />
+          ))}
+        </FadeIn>
       </div>
-    </div>
+    </section>
   );
 }

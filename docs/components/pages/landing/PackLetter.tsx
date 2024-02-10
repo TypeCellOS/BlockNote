@@ -2,20 +2,19 @@ import cn from "classnames";
 import Link from "next/link";
 import { CTAButton } from "../home-shared/CTAButton";
 import { FadeIn } from "../home-shared/FadeIn";
-import { Gradient } from "../home-shared/Gradient";
 import { HeroText } from "../home-shared/Headings";
 import gradients from "../home-shared/gradients.module.css";
 
 export function PackLetter() {
   return (
     <section className="relative flex flex-col items-center gap-14 px-6 py-16 font-sans md:py-24 lg:py-32">
-      <FadeIn noVertical className={"absolute top-0 h-full w-full"}>
+      <FadeIn noVertical className={"absolute top-0 z-10 h-full w-full"}>
         <div className={"section-letter h-full w-full"} />
       </FadeIn>
-      <FadeIn>
+      <FadeIn className={"z-20"}>
         <HeroText>Let&apos;s build</HeroText>
       </FadeIn>
-      <div className="flex max-w-xl flex-col leading-6 md:text-lg lg:text-lg">
+      <div className="z-20 flex max-w-xl flex-col leading-6 md:text-lg lg:text-lg">
         <FadeIn className="opacity-70">
           <p>
             When we started building an Open Source Notion alternative, we
@@ -95,7 +94,9 @@ export function PackLetter() {
           </div>
         </FadeIn> */}
       </div>
-      <FadeIn className="relative mt-16 flex w-full justify-center" noVertical>
+      <FadeIn
+        className="relative z-20 mt-16 flex w-full justify-center"
+        noVertical>
         <div className="w-full max-w-[180px]">
           <CTAButton>
             <Link className="block py-3 font-sans" href="/pack/docs">
