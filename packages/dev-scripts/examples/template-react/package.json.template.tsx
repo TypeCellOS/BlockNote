@@ -28,7 +28,7 @@ const template = (project: Project) => ({
     ...(project.config?.devDependencies || {}),
   },
   eslintConfig: {
-    extends: ["../../.eslintrc.js"],
+    extends: ["../../../.eslintrc.js"],
   },
   eslintIgnore: ["dist"],
 });
