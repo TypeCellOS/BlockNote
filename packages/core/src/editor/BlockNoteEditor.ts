@@ -11,10 +11,7 @@ import {
 import { createExternalHTMLExporter } from "../api/exporters/html/externalHTMLExporter";
 import { blocksToMarkdown } from "../api/exporters/markdown/markdownExporter";
 import { getBlockInfoFromPos } from "../api/getBlockInfoFromPos";
-import {
-  blockToNode,
-  nodeToBlock,
-} from "../api/nodeConversions/nodeConversions";
+import { nodeToBlock } from "../api/nodeConversions/nodeConversions";
 import { getNodeById } from "../api/nodeUtil";
 import { HTMLToBlocks } from "../api/parsers/html/parseHTML";
 import { markdownToBlocks } from "../api/parsers/markdown/parseMarkdown";
@@ -67,7 +64,10 @@ import { transformPasted } from "./transformPasted";
 
 // CSS
 import "./Block.css";
-import { BlockNoteTipTapEditor } from "./BlockNoteTipTapEditor";
+import {
+  BlockNoteTipTapEditor,
+  BlockNoteTipTapEditorOptions,
+} from "./BlockNoteTipTapEditor";
 import "./editor.css";
 
 export type BlockNoteEditorOptions<
@@ -91,16 +91,7 @@ export type BlockNoteEditorOptions<
    * @example { editor: { class: "my-editor-class" } }
    */
   domAttributes: Partial<BlockNoteDOMAttributes>;
-  /**
-   *  A callback function that runs when the editor is ready to be used.
-   */
-  onEditorReady: (
-    editor: BlockNoteEditor<
-      BlockSchemaFromSpecs<BSpecs>,
-      InlineContentSchemaFromSpecs<ISpecs>,
-      StyleSchemaFromSpecs<SSpecs>
-    >
-  ) => void;
+
   /**
    * A callback function that runs whenever the editor's contents change.
    */
@@ -207,8 +198,6 @@ export class BlockNoteEditor<
   public readonly blockImplementations: BlockSpecs;
   public readonly inlineContentImplementations: InlineContentSpecs;
   public readonly styleImplementations: StyleSpecs;
-
-  public ready = false;
 
   public readonly sideMenu: SideMenuProsemirrorPlugin<
     BSchema,
@@ -332,91 +321,31 @@ export class BlockNoteEditor<
     const initialContent =
       newOptions.initialContent ||
       (options.collaboration
-        ? undefined
+        ? [
+            {
+              type: "paragraph",
+              id: "initialBlockId",
+            },
+          ]
         : [
             {
               type: "paragraph",
               id: UniqueID.options.generateID(),
             },
           ]);
-    const styleSchema = this.styleSchema;
 
-    const tiptapOptions: Partial<EditorOptions> = {
+    const tiptapOptions: BlockNoteTipTapEditorOptions = {
       ...blockNoteTipTapOptions,
       ...newOptions._tiptapOptions,
-      onBeforeCreate(editor) {
-        newOptions._tiptapOptions?.onBeforeCreate?.(editor);
-        // We always set the initial content to a single paragraph block. This
-        // allows us to easily replace it with the actual initial content once
-        // the TipTap editor is initialized.
-        const schema = editor.editor.schema;
-
-        // This is a hack to make "initial content detection" by y-prosemirror (and also tiptap isEmpty)
-        // properly detect whether or not the document has changed.
-        // We change the doc.createAndFill function to make sure the initial block id is set, instead of null
-        let cache: any;
-        const oldCreateAndFill = schema.nodes.doc.createAndFill;
-        (schema.nodes.doc as any).createAndFill = (...args: any) => {
-          if (cache) {
-            return cache;
-          }
-          const ret = oldCreateAndFill.apply(schema.nodes.doc, args);
-
-          // create a copy that we can mutate (otherwise, assigning attrs is not safe and corrupts the pm state)
-          const jsonNode = JSON.parse(JSON.stringify(ret!.toJSON()));
-          jsonNode.content[0].content[0].attrs.id = "initialBlockId";
-
-          cache = Node.fromJSON(schema, jsonNode);
-          return cache;
-        };
-
-        const root = schema.node(
-          "doc",
-          undefined,
-          schema.node("blockGroup", undefined, [
-            blockToNode(
-              { id: "initialBlockId", type: "paragraph" },
-              schema,
-              styleSchema
-            ),
-          ])
-        );
-        editor.editor.options.content = root.toJSON();
-      },
-      onCreate: (editor) => {
-        newOptions._tiptapOptions?.onCreate?.(editor);
-        // We need to wait for the TipTap editor to init before we can set the
-        // initial content, as the schema may contain custom blocks which need
-        // it to render.
-        if (initialContent !== undefined) {
-          // TODO: we can probably get rid of this now
-          this.replaceBlocks(this.topLevelBlocks, initialContent as any);
-        }
-
-        // TODO: remove?
-        newOptions.onEditorReady?.(this);
-        this.ready = true;
-      },
+      content: initialContent,
       onUpdate: (editor) => {
         newOptions._tiptapOptions?.onUpdate?.(editor);
-        // This seems to be necessary due to a bug in TipTap:
-        // https://github.com/ueberdosis/tiptap/issues/2583
-        if (!this.ready) {
-          return;
-        }
-
         // TODO: move to hook
         newOptions.onEditorContentChange?.(this);
       },
 
       onSelectionUpdate: (editor) => {
         newOptions._tiptapOptions?.onSelectionUpdate?.(editor);
-        // This seems to be necessary due to a bug in TipTap:
-        // https://github.com/ueberdosis/tiptap/issues/2583
-        if (!this.ready) {
-          return;
-        }
-
         // TODO: move to hook
         newOptions.onTextCursorPositionChange?.(this);
       },
@@ -448,7 +377,8 @@ export class BlockNoteEditor<
     };
 
     this._tiptapEditor = new BlockNoteTipTapEditor(
-      tiptapOptions
+      tiptapOptions,
+      this.styleSchema
     ) as BlockNoteTipTapEditor & {
       contentComponent: any;
     };
