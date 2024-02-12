@@ -1,9 +1,8 @@
-import { BlockNoteEditor } from "@blocknote/core";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
 import "@blocknote/react/style.css";
 
 export default function App() {
-  const editor: BlockNoteEditor = useBlockNote();
+  const editor = useBlockNote();
 
   return (
     <div>

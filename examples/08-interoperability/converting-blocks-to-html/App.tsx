@@ -21,7 +21,7 @@ export default function App() {
   // Renders the editor instance, and its contents as HTML below.
   return (
     <div>
-      <BlockNoteView editor={editor} onChange={onChange} theme={"light"} />
+      <BlockNoteView editor={editor} onChange={onChange} />
       <pre>{html}</pre>
     </div>
   );

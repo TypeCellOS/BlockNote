@@ -7,9 +7,10 @@ import {
 } from "@blocknote/core";
 import { MantineProvider } from "@mantine/core";
 
-import {
+import React, {
   HTMLAttributes,
   ReactNode,
+  Ref,
   useCallback,
   useEffect,
   useMemo,
@@ -24,6 +25,7 @@ import { SlashMenuPositioner } from "../components/SlashMenu/SlashMenuPositioner
 import { TableHandlesPositioner } from "../components/TableHandles/TableHandlePositioner";
 import { useEditorChange } from "../hooks/useEditorChange";
 import { useEditorSelectionChange } from "../hooks/useEditorSelectionChange";
+import { mergeRefs } from "../util/mergeRefs";
 import { BlockNoteContext, useBlockNoteContext } from "./BlockNoteContext";
 import {
   Theme,
@@ -42,13 +44,14 @@ const emptyFn = (_editor: any) => {
   // noop
 };
 
-export function BlockNoteView<
+function BlockNoteViewComponent<
   BSchema extends BlockSchema,
   ISchema extends InlineContentSchema,
   SSchema extends StyleSchema
 >(
   props: {
     editor: BlockNoteEditor<BSchema, ISchema, SSchema>;
+
     theme?:
       | "light"
       | "dark"
@@ -74,10 +77,13 @@ export function BlockNoteView<
     onChange?: (editor: BlockNoteEditor<BSchema, ISchema, SSchema>) => void;
 
     children?: ReactNode;
+
+    ref?: Ref<HTMLDivElement> | undefined; // only here to get types working with the generics. Regular form doesn't work
   } & Omit<
     HTMLAttributes<HTMLDivElement>,
     "onChange" | "onSelectionChange" | "children"
-  >
+  >,
+  ref: React.Ref<HTMLDivElement>
 ) {
   const {
     editor,
@@ -102,8 +108,6 @@ export function BlockNoteView<
 
   const containerRef = useCallback(
     (node: HTMLDivElement | null) => {
-      editor._tiptapEditor.mount(node); // maybe cleaner to use "mergeRefs"
-
       if (!node) {
         // todo: clean variables?
         return;
@@ -140,7 +144,7 @@ export function BlockNoteView<
 
       setEditorColorScheme(defaultColorScheme === "dark" ? "dark" : "light");
     },
-    [defaultColorScheme, theme, editor._tiptapEditor]
+    [defaultColorScheme, theme]
   );
 
   useEditorChange(onChange || emptyFn, editor);
@@ -178,6 +182,10 @@ export function BlockNoteView<
     };
   }, [existingContext, editor]);
 
+  const refs = useMemo(() => {
+    return mergeRefs([containerRef, editor._tiptapEditor.mount, ref]);
+  }, [containerRef, editor._tiptapEditor.mount, ref]);
+
   return (
     // `cssVariablesSelector` scopes Mantine CSS variables to only the editor,
     // as proposed here:  https://github.com/orgs/mantinedev/discussions/5685
@@ -188,7 +196,7 @@ export function BlockNoteView<
             className={mergeCSSClasses("bn-container", className || "")}
             data-color-scheme={editorColorScheme}
             {...rest}
-            ref={containerRef}>
+            ref={refs}>
             {renderChildren}
           </div>
         </EditorContent>
@@ -196,3 +204,7 @@ export function BlockNoteView<
     </MantineProvider>
   );
 }
+
+export const BlockNoteView = React.forwardRef(
+  BlockNoteViewComponent
+) as typeof BlockNoteViewComponent; // need hack to get types working with generics

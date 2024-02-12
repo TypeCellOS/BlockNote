@@ -8,7 +8,10 @@ import {
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
 import "@blocknote/react/style.css";
 
-const cycleBlocksShortcut = (event: KeyboardEvent, editor: BlockNoteEditor) => {
+const cycleBlocksShortcut = (
+  event: React.KeyboardEvent,
+  editor: BlockNoteEditor
+) => {
   // Checks for Ctrl+G shortcut
   if (event.ctrlKey && event.key === "g") {
     // Needs type cast as Object.keys doesn't preserve type
@@ -32,14 +35,14 @@ const cycleBlocksShortcut = (event: KeyboardEvent, editor: BlockNoteEditor) => {
 };
 
 export default function App() {
-  const editor: BlockNoteEditor = useBlockNote({
-    // Adds event handler on key down when the editor is ready
-    // TODO: useful?
-    // onEditorReady: (editor) =>
-    //   editor.domElement.addEventListener("keydown", (event) =>
-    //     cycleBlocksShortcut(event, editor)
-    //   ),
-  });
+  const editor = useBlockNote({});
 
-  return <BlockNoteView editor={editor} theme={"light"} />;
+  const onKeyDown = (event: React.KeyboardEvent) => {
+    cycleBlocksShortcut(event, editor);
+  };
+  const r = (el: any) => {
+    console.log("EL", el);
+  };
+
+  return <BlockNoteView editor={editor} ref={r} onKeyDown={onKeyDown} />;
 }

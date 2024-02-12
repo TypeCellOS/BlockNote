@@ -1,6 +1,5 @@
 import {
   Block,
-  BlockNoteEditor,
   DefaultBlockSchema,
   DefaultInlineContentSchema,
   DefaultStyleSchema,
@@ -15,7 +14,7 @@ export default function App() {
     Block<DefaultBlockSchema, DefaultInlineContentSchema, DefaultStyleSchema>[]
   >([]);
   // Creates a new editor instance.
-  const editor: BlockNoteEditor = useBlockNote({});
+  const editor = useBlockNote({});
 
   // Renders the editor instance and its contents, as an array of Block
   // objects, below.
