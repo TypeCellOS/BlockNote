@@ -17,13 +17,8 @@ export function useBlockNoteContext<
   BSchema extends BlockSchema = DefaultBlockSchema,
   ISchema extends InlineContentSchema = DefaultInlineContentSchema,
   SSchema extends StyleSchema = DefaultStyleSchema
->(): BlockNoteEditor<BSchema, ISchema, SSchema> {
+>(): BlockNoteEditor<BSchema, ISchema, SSchema> | undefined {
   const context = useContext(BlockNoteContext);
 
-  if (!context) {
-    throw new Error(
-      "useBlockNoteContext must be used within a BlockNoteProvider"
-    );
-  }
   return context;
 }
