@@ -114,13 +114,19 @@ export type BlockNoteEditorOptions<
   defaultStyles: boolean;
 
   /**
-   * A list of block types that should be available in the editor.
+   * A list of custom block types that should be available in the editor.
    */
   blockSpecs: BSpecs;
 
-  styleSpecs: SSpecs;
-
+  /**
+   * A list of custom InlineContent types that should be available in the editor.
+   */
   inlineContentSpecs: ISpecs;
+
+  /**
+   * A list of custom Styles that should be available in the editor.
+   */
+  styleSpecs: SSpecs;
 
   /**
    * A custom function to handle file uploads.

@@ -1,17 +1,19 @@
 ---
-title: Customizing the Editor
+title: Editor Setup
 description: While you can get started with BlockNote in minutes, it's likely that you'll want to customize its features and functionality to better suit your app.
 imageTitle: Customizing the Editor
 path: /docs/editor
 ---
 
 TODO:
-- review API
-- what needs to be part of useBlockNote vs the component? 
-- expose / document hooks
-- controlled / uncontrolled
+[x] review API
+[x] what needs to be part of useBlockNote vs the component? 
+[ ] document instantiation / useBlockNote
+[ ] expose / document hooks
+[ ] document events
+[ ] explain controlled / uncontrolled
 
-# Customizing the Editor
+# Editor Setup
 
 While you can get started with BlockNote in minutes, it's likely that you'll
 want to customize its features and functionality to better suit your app.
@@ -23,15 +25,15 @@ can use to customize the editor. You can find the full list of these below:
 
 ```typescript
 export type BlockNoteEditorOptions = Partial<{
-  editable: boolean;
   initialContent: PartialBlock[];
-  editorDOMAttributes: Record<string, string>;
-  onEditorReady: (editor: BlockNoteEditor) => void;
-  onEditorContentChange: (editor: BlockNoteEditor) => void;
-  onTextCursorPositionChange: (editor: BlockNoteEditor) => void;
+  domAttributes: Record<string, string>;
   slashMenuItems: ReactSlashMenuItem[];
   defaultStyles: boolean;
-  uploadFile: (file: File) => Promise<string>
+  uploadFile: (file: File) => Promise<string>;
+  collaboration: CollaborationOptions;
+  blockSpecs: BlockSpecs;
+  inlineContentSpecs: InlineContentSpecs;
+  styleSpecs: StyleSpecs;
 }>;
 ```
 
@@ -44,3 +46,20 @@ export type BlockNoteEditorOptions = Partial<{
 `defaultStyles`: Whether to use the default font and reset the styles of `<p>`, `<li>`, `<h1>`, etc. elements that are used in BlockNote. Defaults to true if undefined.
 
 `uploadFile`: A function which handles file uploads and eventually returns the URL to the uploaded file. Used by the [Image Toolbar](/docs/image-toolbar).
+
+`collaboration`: Options for enabling real-time collaboration. See [Collaboration](/docs/collaboration) for more info.
+
+`blockSpecs` (_advanced_): _advanced_ Specifications for Custom Blocks. See [Block Specs](/docs/block-specs) more info. 
+
+`inlineContentSpecs` (_advanced_): Specifications for Custom Inline Content. See [Inline Content Specs](/docs/inline-content-specs) for more info.
+
+`styleSpecs` (_advanced_): Specifications for Custom Styles. See [Style Specs](/docs/style-specs) for more info.
+
+
+## `useBlockNote`
+
+## `BlockNoteView`
+
+- editable
+- events
+
