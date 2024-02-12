@@ -47,12 +47,6 @@ export default function ReactInlineContent() {
       tag,
       ...defaultInlineContentSpecs,
     },
-    domAttributes: {
-      editor: {
-        class: "editor",
-        "data-test": "editor",
-      },
-    },
     initialContent: [
       {
         type: "paragraph",

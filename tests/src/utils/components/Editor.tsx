@@ -10,7 +10,6 @@ import { Button, insertButton } from "../customblocks/Button";
 import { Embed, insertEmbed } from "../customblocks/Embed";
 import { Image, insertImage } from "../customblocks/Image";
 import { Separator, insertSeparator } from "../customblocks/Separator";
-import styles from "./Editor.module.css";
 
 export default function Editor() {
   const blockSpecs = {
@@ -33,9 +32,6 @@ export default function Editor() {
   ];
 
   const editor = useBlockNote({
-    domAttributes: {
-      editor: { class: styles.editor, "data-test": "editor" },
-    },
     blockSpecs,
     slashMenuItems: [...getDefaultReactSlashMenuItems(), ...slashMenuItems],
   });

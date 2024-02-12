@@ -87,12 +87,6 @@ export default function App() {
   const editor = useBlockNote(
     {
       styleSpecs: customReactStyles,
-      domAttributes: {
-        editor: {
-          class: "editor",
-          "data-test": "editor",
-        },
-      },
       initialContent: [
         {
           type: "paragraph",

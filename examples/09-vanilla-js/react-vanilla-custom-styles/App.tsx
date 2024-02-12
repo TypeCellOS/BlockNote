@@ -96,12 +96,6 @@ export default function App() {
         small,
         fontSize,
       },
-      domAttributes: {
-        editor: {
-          class: "editor",
-          "data-test": "editor",
-        },
-      },
       initialContent: [
         {
           type: "paragraph",

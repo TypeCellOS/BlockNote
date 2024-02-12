@@ -179,12 +179,6 @@ const bracketsParagraphBlock = createBlockSpec(
 
 export default function App() {
   const editor = useBlockNote({
-    domAttributes: {
-      editor: {
-        class: "editor",
-        "data-test": "editor",
-      },
-    },
     blockSpecs: {
       ...defaultBlockSpecs,
       alert: alertBlock,

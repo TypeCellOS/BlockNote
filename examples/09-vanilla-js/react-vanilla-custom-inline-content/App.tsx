@@ -56,12 +56,6 @@ export default function App() {
       tag,
       ...defaultInlineContentSpecs,
     },
-    domAttributes: {
-      editor: {
-        class: "editor",
-        "data-test": "editor",
-      },
-    },
     initialContent: [
       {
         type: "paragraph",

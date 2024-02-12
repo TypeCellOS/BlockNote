@@ -5,12 +5,6 @@ import "@blocknote/react/style.css";
 export default function App() {
   // Creates a new editor instance.
   const editor = useBlockNote({
-    domAttributes: {
-      editor: {
-        class: "editor",
-        "data-test": "editor",
-      },
-    },
     uploadFile: uploadToTmpFilesDotOrg_DEV_ONLY,
   });
 

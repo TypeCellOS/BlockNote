@@ -16,12 +16,6 @@ const provider = new YPartyKitProvider(
 
 export default function App() {
   const editor = useBlockNote({
-    domAttributes: {
-      editor: {
-        class: "editor",
-        "data-test": "editor",
-      },
-    },
     collaboration: {
       // The Yjs Provider responsible for transporting updates:
       provider,
