@@ -30,5 +30,5 @@ export default function App() {
     uploadFile: uploadToTmpFilesDotOrg_DEV_ONLY,
   });
 
-  return <BlockNoteView className="root" editor={editor} />;
+  return <BlockNoteView editor={editor} />;
 }

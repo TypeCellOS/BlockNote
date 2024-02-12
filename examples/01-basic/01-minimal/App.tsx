@@ -9,5 +9,5 @@ export default function App() {
   });
 
   // Renders the editor instance using a React component.
-  return <BlockNoteView className="root" editor={editor} />;
+  return <BlockNoteView editor={editor} />;
 }

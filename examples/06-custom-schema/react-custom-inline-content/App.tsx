@@ -74,5 +74,5 @@ export default function ReactInlineContent() {
     ],
   });
 
-  return <BlockNoteView className="root" editor={editor} />;
+  return <BlockNoteView editor={editor} />;
 }

@@ -83,5 +83,5 @@ export default function App() {
     ],
   });
 
-  return <BlockNoteView className="root" editor={editor} />;
+  return <BlockNoteView editor={editor} />;
 }
