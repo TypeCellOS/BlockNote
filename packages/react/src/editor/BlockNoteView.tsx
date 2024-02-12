@@ -24,7 +24,7 @@ import { SlashMenuPositioner } from "../components/SlashMenu/SlashMenuPositioner
 import { TableHandlesPositioner } from "../components/TableHandles/TableHandlePositioner";
 import { useEditorChange } from "../hooks/useEditorChange";
 import { useEditorSelectionChange } from "../hooks/useEditorSelectionChange";
-import { BlockNoteContext } from "./BlockNoteContext";
+import { BlockNoteContext, useBlockNoteContext } from "./BlockNoteContext";
 import {
   Theme,
   applyBlockNoteCSSVariablesFromTheme,
@@ -90,7 +90,11 @@ export function BlockNoteView<
     ...rest
   } = props;
 
+  const existingContext = useBlockNoteContext();
+
   const systemColorScheme = usePrefersColorScheme();
+  const defaultColorScheme =
+    existingContext?.colorSchemePreference || systemColorScheme;
 
   const [editorColorScheme, setEditorColorScheme] = useState<
     "light" | "dark" | undefined
@@ -120,10 +124,12 @@ export function BlockNoteView<
       if (typeof theme === "object") {
         if ("light" in theme && "dark" in theme) {
           applyBlockNoteCSSVariablesFromTheme(
-            theme[systemColorScheme === "dark" ? "dark" : "light"],
+            theme[defaultColorScheme === "dark" ? "dark" : "light"],
             node
           );
-          setEditorColorScheme(systemColorScheme === "dark" ? "dark" : "light");
+          setEditorColorScheme(
+            defaultColorScheme === "dark" ? "dark" : "light"
+          );
           return;
         }
 
@@ -132,9 +138,9 @@ export function BlockNoteView<
         return;
       }
 
-      setEditorColorScheme(systemColorScheme === "dark" ? "dark" : "light");
+      setEditorColorScheme(defaultColorScheme === "dark" ? "dark" : "light");
     },
-    [systemColorScheme, theme, editor._tiptapEditor]
+    [defaultColorScheme, theme, editor._tiptapEditor]
   );
 
   useEditorChange(onChange || emptyFn, editor);
@@ -165,11 +171,18 @@ export function BlockNoteView<
     );
   }, [editor, children]);
 
+  const context = useMemo(() => {
+    return {
+      ...existingContext,
+      editor,
+    };
+  }, [existingContext, editor]);
+
   return (
     // `cssVariablesSelector` scopes Mantine CSS variables to only the editor,
     // as proposed here:  https://github.com/orgs/mantinedev/discussions/5685
     <MantineProvider theme={mantineTheme} cssVariablesSelector=".bn-container">
-      <BlockNoteContext.Provider value={editor}>
+      <BlockNoteContext.Provider value={context as any}>
         <EditorContent editor={editor}>
           <div
             className={mergeCSSClasses("bn-container", className || "")}

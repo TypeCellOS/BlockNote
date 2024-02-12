@@ -1,13 +1,19 @@
-import { AiFillGithub, AiFillCodeSandboxCircle } from "react-icons/ai";
+import dynamic from "next/dynamic";
+import { AiFillCodeSandboxCircle, AiFillGithub } from "react-icons/ai";
 
 import { examples } from "./generated/exampleComponents.gen";
 import "./styles.css";
+
 
 const baseGitHubURL =
   "https://github.com/TypeCellOS/BlockNote/tree/main/examples/";
 const baseCodeSandboxURL =
   "https://githubbox.com/TypeCellOS/BlockNote/tree/main/examples/";
 
+const ExampleWrapper = dynamic(() => import("./ExampleWrapper"), {
+  ssr: false,
+});
+  
 export function ExampleBlock(props: {
   name: keyof typeof examples;
   children: any;
@@ -16,8 +22,7 @@ export function ExampleBlock(props: {
   // if (!example) {
   //   throw new Error("invalid example");
   // }
-  const example = examples[props.name];
-  const App = example.App;
+  
 
   return (
     <div className="nx-bg-primary-700/5 dark:nx-bg-primary-300/10 mt-6 rounded-lg p-4">
@@ -40,7 +45,7 @@ export function ExampleBlock(props: {
         </button>
       </div>
       <div className={"h-64 overflow-scroll rounded-lg"}>
-        <App />
+          <ExampleWrapper name={props.name} />
       </div>
       {props.children}
     </div>

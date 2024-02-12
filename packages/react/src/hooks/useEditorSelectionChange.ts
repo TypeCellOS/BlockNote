@@ -8,7 +8,7 @@ export function useEditorSelectionChange(
 ) {
   const editorContext = useBlockNoteContext();
   if (!editor) {
-    editor = editorContext;
+    editor = editorContext?.editor;
   }
 
   useEffect(() => {

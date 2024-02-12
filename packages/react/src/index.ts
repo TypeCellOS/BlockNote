@@ -1,4 +1,5 @@
 // TODO: review directories
+export * from "./editor/BlockNoteContext";
 export * from "./editor/BlockNoteTheme";
 export * from "./editor/BlockNoteView";
 export * from "./editor/defaultThemes";

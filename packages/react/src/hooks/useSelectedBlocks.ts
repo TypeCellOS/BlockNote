@@ -16,7 +16,7 @@ export function useSelectedBlocks<
 >(editor?: BlockNoteEditor<BSchema, ISchema, SSchema>) {
   const editorContext = useBlockNoteContext<BSchema, ISchema, SSchema>();
   if (!editor) {
-    editor = editorContext;
+    editor = editorContext?.editor;
   }
 
   if (!editor) {
