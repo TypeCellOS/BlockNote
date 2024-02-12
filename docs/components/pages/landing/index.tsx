@@ -1,11 +1,11 @@
 import { LandingPageGlobalStyles } from "../home-shared/GlobalStyles";
-import { GradientSectionBorder } from "../home-shared/GradientSectionBorder";
+
 import { PackFeatures } from "./PackFeatures";
 import { PackHero } from "./PackHero";
 import { PackLetter } from "./PackLetter";
 
-import "./gradient.css";
 import { FadeIn } from "@/components/pages/home-shared/FadeIn";
+import "./gradient.css";
 
 // TODO: Cleanup
 export function BlockNoteHome() {

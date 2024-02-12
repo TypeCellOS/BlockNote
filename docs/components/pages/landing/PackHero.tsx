@@ -1,8 +1,9 @@
 // import { PackLogo } from "../../logos/PackLogo";
 
+import dynamic from "next/dynamic";
+import Image from "next/image";
 import { FadeIn } from "../home-shared/FadeIn";
 import { HeroText, SectionSubtext } from "../home-shared/Headings";
-import dynamic from "next/dynamic";
 
 const Demo = dynamic(() => import("./demo/Demo"), { ssr: false });
 
@@ -58,9 +59,10 @@ export function PackHero() {
           </PhoneFrame>
         </div> */}
           </div>
-          <img
+          <Image
             src={"./img/assets/try.svg"}
             className={"relative bottom-24 left-10 z-30 float-right size-56"}
+            alt="Try it out"
           />
         </div>
         {/* <div className="relative -mt-4 lg:col-span-7 lg:mt-0 xl:col-span-6">

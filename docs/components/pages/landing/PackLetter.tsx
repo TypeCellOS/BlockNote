@@ -2,7 +2,6 @@ import cn from "classnames";
 import Link from "next/link";
 import { CTAButton } from "../home-shared/CTAButton";
 import { FadeIn } from "../home-shared/FadeIn";
-import { Gradient } from "../home-shared/Gradient";
 import { HeroText } from "../home-shared/Headings";
 import gradients from "../home-shared/gradients.module.css";
 

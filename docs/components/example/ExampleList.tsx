@@ -12,6 +12,7 @@ export function ExampleGroup(props: { examples: (typeof EXAMPLES_LIST)[0] }) {
           const user = i % 2 === 0 ? "yousefed" : "matthewlipski"; // TODO
           return (
             <Card
+              key={i}
               title={project.text}
               href={project.link}
               authorName={user}
@@ -24,7 +25,7 @@ export function ExampleGroup(props: { examples: (typeof EXAMPLES_LIST)[0] }) {
   );
 }
 
-export function ExampleList(props: {}) {
+export function ExampleList(props: any) {
   return EXAMPLES_LIST.map((group) => (
     <ExampleGroup key={group.text} examples={group} />
   ));
