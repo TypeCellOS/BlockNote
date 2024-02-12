@@ -1,22 +1,23 @@
-import type Image from "next/image";
 import { FadeIn } from "@/components/pages/home-shared/FadeIn";
+import { FeatureBox } from "@/components/pages/home-shared/FeatureBox";
 import {
   SectionHeader,
   SectionSubtext,
 } from "@/components/pages/home-shared/Headings";
-import { FeatureBox } from "@/components/pages/home-shared/FeatureBox";
+import type Image from "next/image";
+import { IconType } from "react-icons";
 import {
-  RiSpeedUpFill,
+  RiInputCursorMove,
+  RiJavascriptFill,
+  RiLayout4Fill,
+  RiMarkdownFill,
   RiMenuAddFill,
   RiMoonFill,
   RiPaintBrushFill,
-  RiLayout4Fill,
+  RiSpeedUpFill,
   RiTeamFill,
-  RiMarkdownFill,
-  RiJavascriptFill,
-  RiInputCursorMove,
 } from "react-icons/ri";
-import { IconType } from "react-icons";
+import slashMenuImage from "../../../public/img/screenshots/slash_menu.png";
 
 export interface FeaturesCardData {
   title: string;
@@ -31,20 +32,20 @@ export const featuresCardData: FeaturesCardData[] = [
     description:
       "Want something more fancy? An easy to use API lets you add additional block types.",
     icon: RiMenuAddFill,
-    thumbnail: "/img/screenshots/slash_menu.png",
+    thumbnail: slashMenuImage,
   },
   {
     title: "Theming",
     description: "Add a splash of colour to the editor with your own themes.",
     icon: RiPaintBrushFill,
-    thumbnail: "/img/screenshots/slash_menu.png",
+    thumbnail: slashMenuImage,
   },
   {
     title: "UI Components",
     description:
       "Replace any menus & toolbars with your own React components, or remove them entirely.",
     icon: RiLayout4Fill,
-    thumbnail: "/img/screenshots/slash_menu.png",
+    thumbnail: slashMenuImage,
   },
   {
     title: "Quick & Easy Setup",

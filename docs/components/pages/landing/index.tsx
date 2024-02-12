@@ -5,7 +5,7 @@ import { PackHero } from "./PackHero";
 import { PackLetter } from "./PackLetter";
 
 import { FadeIn } from "@/components/pages/home-shared/FadeIn";
-import "./gradient.css";
+import "./gradients.css";
 
 // TODO: Cleanup
 export function BlockNoteHome() {

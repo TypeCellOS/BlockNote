@@ -1,4 +1,4 @@
-import type Image from "next/image";
+import Image from "next/image";
 import { IconType } from "react-icons";
 
 export function FeatureBox(props: {
@@ -15,7 +15,7 @@ export function FeatureBox(props: {
       className={`card relative w-[360px] max-w-full flex-col overflow-hidden rounded-lg border ${props.thumbnail ? "row-span-2" : "row-span-1"}`}>
       {props.thumbnail && (
         <div className={"thumbnail aspect-video w-full overflow-hidden"}>
-          <img className={"w-full"} src={props.thumbnail} />
+          <Image className={"w-full"} src={props.thumbnail} alt={props.title} />
         </div>
       )}
       <div className={`flex flex-col gap-8 p-8`}>

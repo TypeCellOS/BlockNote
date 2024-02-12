@@ -20,6 +20,16 @@ const withAnalyzer = analyzer({ enabled: false });
 
 const nextConfig = withAnalyzer(
   withNextra({
+    images: {
+      remotePatterns: [
+        {
+          protocol: 'https',
+          hostname: 'avatars.githubusercontent.com',
+          port: '',
+          pathname: '/u/**',
+        },
+      ],
+    },
     experimental: {
       externalDir: true,
     },

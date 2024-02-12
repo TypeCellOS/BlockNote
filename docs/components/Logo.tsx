@@ -6,12 +6,14 @@ export function Logo() {
   const Img =
     theme === "dark" ? (
       <Image
-        style={{ height: 32 }}
+      height={32} 
+      width={170}
         src="/img/logos/banner.dark.svg"
         alt="BlockNote"
       />
     ) : (
-      <Image style={{ height: 32 }} src="/img/logos/banner.svg" alt="BlockNote" />
+      <Image height={32} 
+      width={170} src="/img/logos/banner.svg" alt="BlockNote" />
     );
 
   return <a href="/">{Img}</a>;

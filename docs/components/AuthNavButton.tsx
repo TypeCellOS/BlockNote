@@ -36,6 +36,8 @@ export function AuthNavButton(props: any) {
         className="rounded-md size-5"
         src={session.data.user!.image!}
         alt={session.data.user!.name!}
+        width={50}
+        height={50}
       />
     </NavbarMenu>
   ) : (
