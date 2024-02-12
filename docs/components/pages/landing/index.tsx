@@ -15,7 +15,8 @@ export function BlockNoteHome() {
       <main className="relative">
         <PackHero />
         <FadeIn noVertical>
-          <div className={"section-border"} />
+          {/* TODO: Fix border color */}
+          <div className={"h-px w-full bg-gray-500 opacity-20"} />
         </FadeIn>
         {/*<GradientSectionBorder>*/}
         <PackFeatures />

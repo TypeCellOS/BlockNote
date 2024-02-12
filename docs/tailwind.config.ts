@@ -23,9 +23,6 @@ const config: Config = {
         red: colors.red,
         yellow: colors.yellow,
       },
-      height: {
-        144: "36rem",
-      },
     },
   },
   plugins: [],
