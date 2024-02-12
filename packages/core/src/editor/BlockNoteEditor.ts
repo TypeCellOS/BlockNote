@@ -982,7 +982,7 @@ export class BlockNoteEditor<
    * @returns The blocks, serialized as an HTML string.
    */
   public async blocksToHTMLLossy(
-    blocks = this.topLevelBlocks
+    blocks: Block<BSchema, ISchema, SSchema>[] = this.topLevelBlocks
   ): Promise<string> {
     const exporter = createExternalHTMLExporter(
       this._tiptapEditor.schema,
