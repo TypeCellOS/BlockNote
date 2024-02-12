@@ -23,7 +23,28 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
   private _state: EditorState;
 
   constructor(options: BlockNoteTipTapEditorOptions, styleSchema: StyleSchema) {
+    // possible fix for next.js server side rendering
+    // const d = globalThis.document;
+    // const w = globalThis.window;
+    // if (!globalThis.document) {
+    //   globalThis.document = {
+    //     createElement: () => {},
+    //   };
+    // }
+    // if (!globalThis.window) {
+    //   globalThis.window = {
+    //     setTimeout: () => {},
+    //   };
+    // }
+    // options.injectCSS = false
     super({ ...options, content: undefined });
+
+    // try {
+    //   globalThis.window = w;
+    //   } catch(e) {}
+    //   try {
+    //     globalThis.document = d;
+    //     } catch(e) {}
 
     // This is a hack to make "initial content detection" by y-prosemirror (and also tiptap isEmpty)
     // properly detect whether or not the document has changed.

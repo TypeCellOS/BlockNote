@@ -54,7 +54,7 @@ const nextConfig = withAnalyzer(
           cacheGroups: {
             vendor: {
               test: (module) => {
-                console.log(module.resource);
+                // console.log(module.resource);
                 if (module.resource?.includes("blocknote") || module.resource?.includes("mantine")) {
 
                   return true;
