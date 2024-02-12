@@ -1,18 +1,18 @@
 // import { PackLogo } from "../../logos/PackLogo";
 
+import dynamic from "next/dynamic";
 import { FadeIn } from "../home-shared/FadeIn";
 import { HeroText, SectionSubtext } from "../home-shared/Headings";
-import dynamic from "next/dynamic";
 
 const Demo = dynamic(() => import("./demo/Demo"), { ssr: false });
 
 export function PackHero() {
   return (
-    <div className="relative flex h-fit w-full items-center justify-center py-36">
-      <FadeIn noVertical className={"absolute h-full w-full"}>
+    <section className="relative flex h-fit w-full items-center justify-center overflow-hidden py-36">
+      <FadeIn noVertical className={"absolute z-10 h-full w-full"}>
         <div className={"section-hero h-full w-full"} />
       </FadeIn>
-      <div className="flex w-screen max-w-full flex-col items-center justify-between gap-16 px-6 md:max-w-screen-md xl:max-w-[1440px] xl:flex-row">
+      <div className="z-20 flex w-screen max-w-full flex-col items-center justify-between gap-16 px-6 md:max-w-screen-md xl:max-w-[1440px] xl:flex-row">
         <FadeIn className="flex h-fit flex-col items-center justify-center gap-5 text-center xl:w-[584px] xl:items-start xl:text-left">
           <HeroText h1>
             The open source
@@ -47,7 +47,7 @@ export function PackHero() {
           </Button> */}
           </div>
         </FadeIn>
-        <div className="h-144 w-full shrink-0 grow-0 rounded-lg xl:w-[584px]">
+        <div className="h-[36rem] w-full shrink-0 grow-0 rounded-lg xl:w-[584px]">
           <div className="h-full w-full overflow-scroll overscroll-contain rounded-lg">
             {/* TODO: Wait for editor & collab content to load before rendering. Show placeholder or delay loading?*/}
             <Demo />
@@ -61,6 +61,7 @@ export function PackHero() {
           <img
             src={"./img/assets/try.svg"}
             className={"relative bottom-24 left-10 z-30 float-right size-56"}
+            alt="Try it out"
           />
         </div>
         {/* <div className="relative -mt-4 lg:col-span-7 lg:mt-0 xl:col-span-6">
@@ -69,7 +70,7 @@ export function PackHero() {
             </p>
           </div> */}
       </div>
-    </div>
+    </section>
   );
 }
 

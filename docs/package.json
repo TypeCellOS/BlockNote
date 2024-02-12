@@ -9,10 +9,12 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@vercel/og":"^0.6.2",
     "@blocknote/core": "*",
     "@blocknote/react": "*",
     "@mantine/core": "^7.4.2",
     "@next/bundle-analyzer": "^14.1.0",
+    "@headlessui/react":"^1.7.18",
     "classnames": "2.3.2",
     "clsx": "^2.1.0",
     "framer-motion": "^10.16.16",

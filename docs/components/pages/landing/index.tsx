@@ -1,11 +1,11 @@
 import { LandingPageGlobalStyles } from "../home-shared/GlobalStyles";
-import { GradientSectionBorder } from "../home-shared/GradientSectionBorder";
+
 import { PackFeatures } from "./PackFeatures";
 import { PackHero } from "./PackHero";
 import { PackLetter } from "./PackLetter";
 
-import "./gradient.css";
 import { FadeIn } from "@/components/pages/home-shared/FadeIn";
+import "./gradients.css";
 
 // TODO: Cleanup
 export function BlockNoteHome() {
@@ -15,7 +15,8 @@ export function BlockNoteHome() {
       <main className="relative">
         <PackHero />
         <FadeIn noVertical>
-          <div className={"section-border"} />
+          {/* TODO: Fix border color */}
+          <div className={"h-px w-full bg-gray-500 opacity-20"} />
         </FadeIn>
         {/*<GradientSectionBorder>*/}
         <PackFeatures />

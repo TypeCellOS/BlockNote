@@ -1,4 +1,5 @@
 import cn from "clsx";
+import Image from "next/image";
 import NextLink from "next/link";
 import type { ComponentProps, CSSProperties, ReactNode } from "react";
 
@@ -92,7 +93,7 @@ export function Card({
       </span>
       {/* <div className="hover:nx-text-gray-900 nx-items-right">test</div> */}
       <div className="text-xs nx-flex nx-items-center nx-gap-2">
-        {authorImage && <img className="rounded-md size-5" src={authorImage} />}{" "}
+        {authorImage && <Image className="rounded-md size-5" width={50} height={50} src={authorImage} alt={authorName + " profile image"} />}{" "}
         {authorName && <span>{authorName}</span>}
         {/* <span>·</span>
         <span>💖</span> */}

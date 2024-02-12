@@ -1,9 +1,10 @@
 import { Menu, Transition } from "@headlessui/react";
 import clsx from "clsx";
 import { signIn, signOut, useSession } from "next-auth/react";
+import Image from 'next/image';
 import { ReactElement, ReactNode } from "react";
 
-export function AuthNavButton(props: {}) {
+export function AuthNavButton(props: any) {
   const session = useSession();
 
   return session.status === "authenticated" ? (
@@ -31,10 +32,12 @@ export function AuthNavButton(props: {}) {
           </button>
         </Menu.Item>,
       ]}>
-      <img
+      <Image
         className="rounded-md size-5"
         src={session.data.user!.image!}
         alt={session.data.user!.name!}
+        width={50}
+        height={50}
       />
     </NavbarMenu>
   ) : (
