@@ -14,22 +14,20 @@ export default function App() {
   const [blocks, setBlocks] = useState<
     Block<DefaultBlockSchema, DefaultInlineContentSchema, DefaultStyleSchema>[]
   >([]);
-
-  // TODO: revise API to use a simple hook?
-
   // Creates a new editor instance.
-  const editor: BlockNoteEditor = useBlockNote({
-    // Listens for when the editor's contents change.
-    onEditorContentChange: (editor) =>
-      // Converts the editor's contents to an array of Block objects.
-      setBlocks(editor.topLevelBlocks),
-  });
+  const editor: BlockNoteEditor = useBlockNote({});
 
   // Renders the editor instance and its contents, as an array of Block
   // objects, below.
   return (
     <div>
-      <BlockNoteView editor={editor} />
+      <BlockNoteView
+        editor={editor}
+        onChange={() => {
+          // Converts the editor's contents to an array of Block objects.
+          setBlocks(editor.topLevelBlocks);
+        }}
+      />
       <p>Document JSON:</p>
       <pre>{JSON.stringify(blocks, null, 2)}</pre>
     </div>

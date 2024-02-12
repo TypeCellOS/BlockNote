@@ -34,10 +34,11 @@ const cycleBlocksShortcut = (event: KeyboardEvent, editor: BlockNoteEditor) => {
 export default function App() {
   const editor: BlockNoteEditor = useBlockNote({
     // Adds event handler on key down when the editor is ready
-    onEditorReady: (editor) =>
-      editor.domElement.addEventListener("keydown", (event) =>
-        cycleBlocksShortcut(event, editor)
-      ),
+    // TODO: useful?
+    // onEditorReady: (editor) =>
+    //   editor.domElement.addEventListener("keydown", (event) =>
+    //     cycleBlocksShortcut(event, editor)
+    //   ),
   });
 
   return <BlockNoteView editor={editor} theme={"light"} />;

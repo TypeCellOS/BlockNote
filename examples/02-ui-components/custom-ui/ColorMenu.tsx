@@ -1,6 +1,6 @@
 import {
   FormattingToolbarProps,
-  useEditorContentChange,
+  useEditorChange,
   useEditorSelectionChange,
 } from "@blocknote/react";
 import { HTMLAttributes, useState } from "react";
@@ -32,22 +32,23 @@ export const ColorMenu = (
   );
 
   // Update the colors when the editor content or selection changes
-  useEditorContentChange(props.editor, () => {
+  useEditorChange(() => {
     setTextColor(
       (props.editor.getActiveStyles().textColor as string) || "default"
     );
     setCurrentColor(
       (props.editor.getActiveStyles().backgroundColor as string) || "default"
     );
-  });
-  useEditorSelectionChange(props.editor, () => {
+  }, props.editor);
+
+  useEditorSelectionChange(() => {
     setTextColor(
       (props.editor.getActiveStyles().textColor as string) || "default"
     );
     setCurrentColor(
       (props.editor.getActiveStyles().backgroundColor as string) || "default"
     );
-  });
+  }, props.editor);
 
   return (
     <div {...rest} className={`color-menu${className ? " " + className : ""}`}>

@@ -87,9 +87,6 @@ export default function App() {
   const editor = useBlockNote(
     {
       styleSpecs: customReactStyles,
-      onEditorContentChange: (editor) => {
-        console.log(editor.topLevelBlocks);
-      },
       domAttributes: {
         editor: {
           class: "editor",

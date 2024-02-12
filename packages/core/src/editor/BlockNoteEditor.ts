@@ -93,37 +93,19 @@ export type BlockNoteEditorOptions<
   domAttributes: Partial<BlockNoteDOMAttributes>;
 
   /**
-   * A callback function that runs whenever the editor's contents change.
-   */
-  onEditorContentChange: (
-    editor: BlockNoteEditor<
-      BlockSchemaFromSpecs<BSpecs>,
-      InlineContentSchemaFromSpecs<ISpecs>,
-      StyleSchemaFromSpecs<SSpecs>
-    >
-  ) => void;
-  /**
-   * A callback function that runs whenever the text cursor position changes.
-   */
-  onTextCursorPositionChange: (
-    editor: BlockNoteEditor<
-      BlockSchemaFromSpecs<BSpecs>,
-      InlineContentSchemaFromSpecs<ISpecs>,
-      StyleSchemaFromSpecs<SSpecs>
-    >
-  ) => void;
-  /**
-   * Locks the editor from being editable by the user if set to `false`.
-   */
-  editable: boolean; // TODO
-  /**
    * The content that should be in the editor when it's created, represented as an array of partial block objects.
    */
-  initialContent: PartialBlock<
-    BlockSchemaFromSpecs<BSpecs>,
-    InlineContentSchemaFromSpecs<ISpecs>,
-    StyleSchemaFromSpecs<SSpecs>
-  >[];
+  initialContent:
+    | PartialBlock<
+        BlockSchemaFromSpecs<BSpecs>,
+        InlineContentSchemaFromSpecs<ISpecs>,
+        StyleSchemaFromSpecs<SSpecs>
+      >[]
+    | Block<
+        BlockSchemaFromSpecs<BSpecs>,
+        InlineContentSchemaFromSpecs<ISpecs>,
+        StyleSchemaFromSpecs<SSpecs>
+      >[];
   /**
    * Use default BlockNote font and reset the styles of <p> <li> <h1> elements etc., that are used in BlockNote.
    *
@@ -251,6 +233,25 @@ export class BlockNoteEditor<
   private constructor(
     private readonly options: Partial<BlockNoteEditorOptions<any, any, any>>
   ) {
+    const anyOpts = options as any;
+    if (anyOpts.onEditorContentChange) {
+      throw new Error(
+        "onEditorContentChange initialization option is deprecated, use <BlockNoteView onChange={...} />, the useEditorChange(...) hook, or editor.onChange(...)"
+      );
+    }
+
+    if (anyOpts.onTextCursorPositionChange) {
+      throw new Error(
+        "onTextCursorPositionChange initialization option is deprecated, use <BlockNoteView onSelectionChange={...} />, the useEditorSelectionChange(...) hook, or editor.onSelectionChange(...)"
+      );
+    }
+
+    if (anyOpts.editable) {
+      throw new Error(
+        "editable initialization option is deprecated, use <BlockNoteView editable={true/false} />, or alternatively editor.isEditable = true/false"
+      );
+    }
+
     // apply defaults
     const newOptions = {
       defaultStyles: true,
@@ -338,24 +339,6 @@ export class BlockNoteEditor<
       ...blockNoteTipTapOptions,
       ...newOptions._tiptapOptions,
       content: initialContent,
-      onUpdate: (editor) => {
-        newOptions._tiptapOptions?.onUpdate?.(editor);
-        // TODO: move to hook
-        newOptions.onEditorContentChange?.(this);
-      },
-
-      onSelectionUpdate: (editor) => {
-        newOptions._tiptapOptions?.onSelectionUpdate?.(editor);
-        // TODO: move to hook
-        newOptions.onTextCursorPositionChange?.(this);
-      },
-      // TODO: move to view prop and / or hook
-      editable:
-        options.editable !== undefined
-          ? options.editable
-          : newOptions._tiptapOptions?.editable !== undefined
-          ? newOptions._tiptapOptions?.editable
-          : true,
       extensions:
         newOptions.enableBlockNoteExtensions === false
           ? newOptions._tiptapOptions?.extensions || []
@@ -990,5 +973,45 @@ export class BlockNoteEditor<
       );
     }
     this._tiptapEditor.commands.updateUser(user);
+  }
+
+  /**
+   * A callback function that runs whenever the editor's contents change.
+   *
+   * @param callback The callback to execute.
+   * @returns A function to remove the callback.
+   */
+  public onChange(
+    callback: (editor: BlockNoteEditor<BSchema, ISchema, SSchema>) => void
+  ) {
+    const cb = () => {
+      callback(this);
+    };
+
+    this._tiptapEditor.on("update", cb);
+
+    return () => {
+      this._tiptapEditor.off("update", cb);
+    };
+  }
+
+  /**
+   * A callback function that runs whenever the text cursor position or selection changes.
+   *
+   * @param callback The callback to execute.
+   * @returns A function to remove the callback.
+   */
+  public onSelectionChange(
+    callback: (editor: BlockNoteEditor<BSchema, ISchema, SSchema>) => void
+  ) {
+    const cb = () => {
+      callback(this);
+    };
+
+    this._tiptapEditor.on("selectionUpdate", cb);
+
+    return () => {
+      this._tiptapEditor.off("selectionUpdate", cb);
+    };
   }
 }

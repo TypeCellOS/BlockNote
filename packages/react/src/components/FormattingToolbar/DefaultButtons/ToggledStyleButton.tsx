@@ -15,7 +15,7 @@ import {
 } from "react-icons/ri";
 
 import { ToolbarButton } from "../../../components-shared/Toolbar/ToolbarButton";
-import { useEditorChange } from "../../../hooks/useEditorChange";
+import { useEditorContentOrSelectionChange } from "../../../hooks/useEditorContentOrSelectionChange";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
 
 const shortcuts = {
@@ -48,9 +48,9 @@ export const ToggledStyleButton = <
     props.toggledStyle in props.editor.getActiveStyles()
   );
 
-  useEditorChange(props.editor, () => {
+  useEditorContentOrSelectionChange(() => {
     setActive(props.toggledStyle in props.editor.getActiveStyles());
-  });
+  }, props.editor);
 
   const toggleStyle = (style: typeof props.toggledStyle) => {
     props.editor.focus();

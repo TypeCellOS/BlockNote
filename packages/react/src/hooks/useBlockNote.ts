@@ -12,7 +12,8 @@ import {
 import { DependencyList, useMemo } from "react";
 import { getDefaultReactSlashMenuItems } from "../slashMenuItems/defaultReactSlashMenuItems";
 
-const initEditor = <
+// TODO: document in docs
+export const createBlockNoteEditor = <
   BSpecs extends BlockSpecs,
   ISpecs extends InlineContentSpecs,
   SSpecs extends StyleSpecs
@@ -28,6 +29,8 @@ const initEditor = <
 
 /**
  * Main hook for importing a BlockNote editor into a React project
+ *
+ * TODO: document in docs
  */
 export const useBlockNote = <
   BSpecs extends BlockSpecs = typeof defaultBlockSpecs,
@@ -38,7 +41,7 @@ export const useBlockNote = <
   deps: DependencyList = []
 ) => {
   return useMemo(() => {
-    const editor = initEditor(options);
+    const editor = createBlockNoteEditor(options);
     if (window) {
       // for testing / dev purposes
       (window as any).ProseMirror = editor._tiptapEditor;

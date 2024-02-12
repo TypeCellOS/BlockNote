@@ -32,7 +32,6 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
     let cache: any;
     const oldCreateAndFill = schema.nodes.doc.createAndFill;
     (schema.nodes.doc as any).createAndFill = (...args: any) => {
-      console.log("createandfill");
       if (cache) {
         return cache;
       }

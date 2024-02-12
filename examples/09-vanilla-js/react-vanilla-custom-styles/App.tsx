@@ -96,9 +96,6 @@ export default function App() {
         small,
         fontSize,
       },
-      onEditorContentChange: (editor) => {
-        console.log(editor.topLevelBlocks);
-      },
       domAttributes: {
         editor: {
           class: "editor",

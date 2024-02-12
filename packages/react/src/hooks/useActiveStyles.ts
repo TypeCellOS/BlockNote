@@ -1,6 +1,6 @@
 import { BlockNoteEditor, StyleSchema } from "@blocknote/core";
 import { useState } from "react";
-import { useEditorContentChange } from "./useEditorContentChange";
+import { useEditorChange } from "./useEditorChange";
 import { useEditorSelectionChange } from "./useEditorSelectionChange";
 
 export function useActiveStyles<T extends StyleSchema>(
@@ -9,14 +9,14 @@ export function useActiveStyles<T extends StyleSchema>(
   const [styles, setStyles] = useState(() => editor.getActiveStyles());
 
   // Updates state on editor content change.
-  useEditorContentChange(editor, () => {
+  useEditorChange((editor) => {
     setStyles(editor.getActiveStyles());
-  });
+  }, editor);
 
   // Updates state on selection change.
-  useEditorSelectionChange(editor, () => {
+  useEditorSelectionChange(() => {
     setStyles(editor.getActiveStyles());
-  });
+  }, editor);
 
   return styles;
 }

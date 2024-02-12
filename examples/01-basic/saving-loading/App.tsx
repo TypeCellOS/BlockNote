@@ -1,24 +1,50 @@
-import { BlockNoteEditor } from "@blocknote/core";
-import { BlockNoteView, useBlockNote } from "@blocknote/react";
+import { PartialBlock } from "@blocknote/core";
+import { BlockNoteView, createBlockNoteEditor } from "@blocknote/react";
 import "@blocknote/react/style.css";
+import { useEffect, useMemo, useState } from "react";
 
-// Gets the previously stored editor contents.
-const initialContent: string | null = localStorage.getItem("editorContent");
+async function saveToStorage(jsonBlocks: any[]) {
+  // Save contents to local storage. You might want to debounce this or replace with a call to your API / database
+  localStorage.setItem("editorContent", JSON.stringify(jsonBlocks));
+}
+
+async function loadFromStorage() {
+  // Gets the previously stored editor contents
+  return JSON.parse(localStorage.getItem("editorContent") || "[]");
+}
 
 export default function App() {
+  const [initialContent, setInitialContent] = useState<
+    PartialBlock<any, any, any>[] | undefined
+  >();
+
+  // Loads the previously stored editor contents
+  useEffect(() => {
+    loadFromStorage().then((content) => {
+      setInitialContent(content);
+    });
+  }, []);
+
   // Creates a new editor instance.
-  const editor: BlockNoteEditor = useBlockNote({
-    // If the editor contents were previously saved, restores them.
-    initialContent: initialContent ? JSON.parse(initialContent) : undefined,
-    // Serializes and saves the editor contents to local storage.
-    onEditorContentChange: (editor) => {
-      localStorage.setItem(
-        "editorContent",
-        JSON.stringify(editor.topLevelBlocks)
-      );
-    },
-  });
+  // We use useMemo + createBlockNoteEditor instead of useBlockNote so we can delay the creation of the editor until the initial content is loaded.
+  const editor = useMemo(() => {
+    if (initialContent === undefined) {
+      return undefined;
+    }
+    return createBlockNoteEditor({ initialContent });
+  }, [initialContent]);
+
+  if (editor === undefined) {
+    return "Loading content...";
+  }
 
   // Renders the editor instance.
-  return <BlockNoteView editor={editor} />;
+  return (
+    <BlockNoteView
+      editor={editor}
+      onChange={(editor) => {
+        saveToStorage(editor.topLevelBlocks);
+      }}
+    />
+  );
 }

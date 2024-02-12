@@ -1,10 +1,10 @@
-import { useState } from "react";
 import { BlockNoteEditor } from "@blocknote/core";
 import {
   ToolbarButton,
-  useEditorContentChange,
+  useEditorChange,
   useEditorSelectionChange,
 } from "@blocknote/react";
+import { useState } from "react";
 
 export const CustomButton = (props: { editor: BlockNoteEditor }) => {
   // Tracks whether the text & background are both blue.
@@ -14,20 +14,20 @@ export const CustomButton = (props: { editor: BlockNoteEditor }) => {
   );
 
   // Updates state on content change.
-  useEditorContentChange(props.editor, () => {
+  useEditorChange(() => {
     setIsSelected(
       props.editor.getActiveStyles().textColor === "blue" &&
         props.editor.getActiveStyles().backgroundColor === "blue"
     );
-  });
+  }, props.editor);
 
   // Updates state on selection change.
-  useEditorSelectionChange(props.editor, () => {
+  useEditorSelectionChange(() => {
     setIsSelected(
       props.editor.getActiveStyles().textColor === "blue" &&
         props.editor.getActiveStyles().backgroundColor === "blue"
     );
-  });
+  }, props.editor);
 
   return (
     <ToolbarButton

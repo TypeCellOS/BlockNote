@@ -12,7 +12,7 @@ import {
 } from "@floating-ui/react";
 import { FC, useEffect, useRef, useState } from "react";
 
-import { useEditorChange } from "../../hooks/useEditorChange";
+import { useEditorContentOrSelectionChange } from "../../hooks/useEditorContentOrSelectionChange";
 import { DefaultFormattingToolbar } from "./DefaultFormattingToolbar";
 
 const textAlignmentToPlacement = (
@@ -77,7 +77,7 @@ export const FormattingToolbarPositioner = <
     });
   }, [props.editor, update]);
 
-  useEditorChange(props.editor, () => {
+  useEditorContentOrSelectionChange(() => {
     const block = props.editor.getTextCursorPosition().block;
 
     if (!("textAlignment" in block.props)) {
@@ -89,7 +89,7 @@ export const FormattingToolbarPositioner = <
         )
       );
     }
-  });
+  }, props.editor);
 
   useEffect(() => {
     refs.setReference({
