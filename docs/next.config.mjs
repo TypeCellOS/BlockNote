@@ -28,6 +28,12 @@ const nextConfig = withAnalyzer(
           port: '',
           pathname: '/u/**',
         },
+        {
+          protocol: 'https',
+          hostname: 'github.com',
+          port: '',
+          pathname: '/**',
+        },
       ],
     },
     experimental: {
@@ -44,7 +50,21 @@ const nextConfig = withAnalyzer(
         // makes sure the local blocknote dependencies get their own chunk, and are not included in every page bundle
         // in prod mode this should be handled ok by webpack (check with analyzer)
         config.optimization.splitChunks = {
-          chunks: "all",
+          // chunks: "all",
+          cacheGroups: {
+            vendor: {
+              test: (module) => {
+                console.log(module.resource);
+                if (module.resource?.includes("blocknote") || module.resource?.includes("mantine")) {
+
+                  return true;
+                }
+                return false;
+              },
+              name: 'blocknotechunk',
+              chunks: 'all',
+            },
+          },
         };
       }
 
