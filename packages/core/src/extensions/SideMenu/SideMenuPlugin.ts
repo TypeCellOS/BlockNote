@@ -7,7 +7,7 @@ import { createInternalHTMLSerializer } from "../../api/exporters/html/internalH
 import { cleanHTMLToMarkdown } from "../../api/exporters/markdown/markdownExporter";
 import { getBlockInfoFromPos } from "../../api/getBlockInfoFromPos";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
-import { BaseUiElementState } from "../../extensions-shared/BaseUiElementTypes";
+import { UiElementPosition } from "../../extensions-shared/UiElementPosition";
 import {
   Block,
   BlockSchema,
@@ -20,11 +20,11 @@ import { suggestionMenuPluginKey } from "../SuggestionMenu/SuggestionPlugin";
 
 let dragImageElement: Element | undefined;
 
-export type SideMenuState<
+export type SideMenuData<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
-> = BaseUiElementState & {
+> = {
   // The block that the side menu is attached to.
   block: Block<BSchema, I, S>;
 };
@@ -255,7 +255,10 @@ export class SideMenuView<
   S extends StyleSchema
 > implements PluginView
 {
-  private sideMenuState?: SideMenuState<BSchema, I, S>;
+  private data?: SideMenuData<BSchema, I, S>;
+  private position?: UiElementPosition;
+  private readonly updateData: () => void;
+  private readonly updatePosition: () => void;
 
   // When true, the drag handle with be anchored at the same level as root elements
   // When false, the drag handle with be just to the left of the element
@@ -273,10 +276,25 @@ export class SideMenuView<
   constructor(
     private readonly editor: BlockNoteEditor<BSchema, I, S>,
     private readonly pmView: EditorView,
-    private readonly updateSideMenu: (
-      sideMenuState: SideMenuState<BSchema, I, S>
-    ) => void
+    updateData: (data: SideMenuData<BSchema, I, S>) => void,
+    updatePosition: (position: UiElementPosition) => void
   ) {
+    this.updateData = () => {
+      if (!this.data) {
+        throw new Error("Attempting to update uninitialized side menu");
+      }
+
+      updateData(this.data);
+    };
+
+    this.updatePosition = () => {
+      if (!this.position) {
+        throw new Error("Attempting to update uninitialized side menu");
+      }
+
+      updatePosition(this.position);
+    };
+
     this.horizontalPosAnchoredAtRoot = true;
     this.horizontalPosAnchor = (
       this.pmView.dom.firstChild! as HTMLElement
@@ -369,17 +387,17 @@ export class SideMenuView<
   };
 
   onKeyDown = (_event: KeyboardEvent) => {
-    if (this.sideMenuState?.show) {
-      this.sideMenuState.show = false;
-      this.updateSideMenu(this.sideMenuState);
+    if (this.position?.show) {
+      this.position.show = false;
+      this.updatePosition();
     }
     this.menuFrozen = false;
   };
 
   onMouseDown = (_event: MouseEvent) => {
-    if (this.sideMenuState && !this.sideMenuState.show) {
-      this.sideMenuState.show = true;
-      this.updateSideMenu(this.sideMenuState);
+    if (this.position && !this.position.show) {
+      this.position.show = true;
+      this.updatePosition();
     }
     this.menuFrozen = false;
   };
@@ -421,9 +439,9 @@ export class SideMenuView<
         editorWrapper.contains(event.target as HTMLElement)
       )
     ) {
-      if (this.sideMenuState?.show) {
-        this.sideMenuState.show = false;
-        this.updateSideMenu(this.sideMenuState);
+      if (this.position?.show) {
+        this.position.show = false;
+        this.updatePosition();
       }
 
       return;
@@ -440,9 +458,9 @@ export class SideMenuView<
 
     // Closes the menu if the mouse cursor is beyond the editor vertically.
     if (!block || !this.editor.isEditable) {
-      if (this.sideMenuState?.show) {
-        this.sideMenuState.show = false;
-        this.updateSideMenu(this.sideMenuState);
+      if (this.position?.show) {
+        this.position.show = false;
+        this.updatePosition();
       }
 
       return;
@@ -450,7 +468,7 @@ export class SideMenuView<
 
     // Doesn't update if the menu is already open and the mouse cursor is still hovering the same block.
     if (
-      this.sideMenuState?.show &&
+      this.position?.show &&
       this.hoveredBlock?.hasAttribute("data-id") &&
       this.hoveredBlock?.getAttribute("data-id") === block.id
     ) {
@@ -470,7 +488,12 @@ export class SideMenuView<
     if (this.editor.isEditable) {
       const blockContentBoundingBox = blockContent.getBoundingClientRect();
 
-      this.sideMenuState = {
+      this.data = {
+        block: this.editor.getBlock(
+          this.hoveredBlock!.getAttribute("data-id")!
+        )!,
+      };
+      this.position = {
         show: true,
         referencePos: new DOMRect(
           this.horizontalPosAnchoredAtRoot
@@ -480,21 +503,19 @@ export class SideMenuView<
           blockContentBoundingBox.width,
           blockContentBoundingBox.height
         ),
-        block: this.editor.getBlock(
-          this.hoveredBlock!.getAttribute("data-id")!
-        )!,
       };
 
-      this.updateSideMenu(this.sideMenuState);
+      this.updateData();
+      this.updatePosition();
     }
   };
 
   onScroll = () => {
-    if (this.sideMenuState?.show) {
+    if (this.position?.show) {
       const blockContent = this.hoveredBlock!.firstChild as HTMLElement;
       const blockContentBoundingBox = blockContent.getBoundingClientRect();
 
-      this.sideMenuState.referencePos = new DOMRect(
+      this.position.referencePos = new DOMRect(
         this.horizontalPosAnchoredAtRoot
           ? this.horizontalPosAnchor
           : blockContentBoundingBox.x,
@@ -502,14 +523,14 @@ export class SideMenuView<
         blockContentBoundingBox.width,
         blockContentBoundingBox.height
       );
-      this.updateSideMenu(this.sideMenuState);
+      this.updatePosition();
     }
   };
 
   destroy() {
-    if (this.sideMenuState?.show) {
-      this.sideMenuState.show = false;
-      this.updateSideMenu(this.sideMenuState);
+    if (this.position?.show) {
+      this.position.show = false;
+      this.updatePosition();
     }
     document.body.removeEventListener("mousemove", this.onMouseMove);
     document.body.removeEventListener("dragover", this.onDragOver);
@@ -521,9 +542,9 @@ export class SideMenuView<
   }
 
   addBlock() {
-    if (this.sideMenuState?.show) {
-      this.sideMenuState.show = false;
-      this.updateSideMenu(this.sideMenuState);
+    if (this.position?.show) {
+      this.position.show = false;
+      this.updatePosition();
     }
 
     this.menuFrozen = true;
@@ -596,8 +617,11 @@ export class SideMenuProsemirrorPlugin<
         this.sideMenuView = new SideMenuView(
           editor,
           editorView,
-          (sideMenuState) => {
-            this.emit("update", sideMenuState);
+          (data) => {
+            this.emit("update data", data);
+          },
+          (position) => {
+            this.emit("update position", position);
           }
         );
         return this.sideMenuView;
@@ -605,8 +629,12 @@ export class SideMenuProsemirrorPlugin<
     });
   }
 
-  public onUpdate(callback: (state: SideMenuState<BSchema, I, S>) => void) {
-    return this.on("update", callback);
+  public onDataUpdate(callback: (data: SideMenuData<BSchema, I, S>) => void) {
+    return this.on("update data", callback);
+  }
+
+  public onPositionUpdate(callback: (position: UiElementPosition) => void) {
+    return this.on("update position", callback);
   }
 
   /**

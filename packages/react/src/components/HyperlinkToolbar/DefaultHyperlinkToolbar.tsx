@@ -1,29 +1,42 @@
-import { BlockSchema, InlineContentSchema } from "@blocknote/core";
+import {
+  BlockNoteEditor,
+  BlockSchema,
+  InlineContentSchema,
+  StyleSchema,
+} from "@blocknote/core";
 import { useRef, useState } from "react";
 import { RiExternalLinkFill, RiLinkUnlink } from "react-icons/ri";
 
-import { StyleSchema } from "@blocknote/core";
+import { useHyperlinkToolbarData } from "./hooks/useHyperlinkToolbarData";
 import { Toolbar } from "../../components-shared/Toolbar/Toolbar";
 import { ToolbarButton } from "../../components-shared/Toolbar/ToolbarButton";
 import { EditHyperlinkMenu } from "./EditHyperlinkMenu/components/EditHyperlinkMenu";
-import type { HyperlinkToolbarProps } from "./HyperlinkToolbarPositioner";
 
 export const DefaultHyperlinkToolbar = <
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
->(
-  props: HyperlinkToolbarProps<BSchema, I, S>
-) => {
+>(props: {
+  editor: BlockNoteEditor<BSchema, I, S>;
+}) => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const editMenuRef = useRef<HTMLDivElement | null>(null);
+
+  const {
+    text,
+    url,
+    deleteHyperlink,
+    editHyperlink,
+    startHideTimer,
+    stopHideTimer,
+  } = useHyperlinkToolbarData(props.editor);
 
   if (isEditing) {
     return (
       <EditHyperlinkMenu
-        url={props.url}
-        text={props.text}
-        update={props.editHyperlink}
+        url={url}
+        text={text}
+        update={editHyperlink}
         // TODO: Better way of waiting for fade out
         onBlur={(event) =>
           setTimeout(() => {
@@ -39,9 +52,7 @@ export const DefaultHyperlinkToolbar = <
   }
 
   return (
-    <Toolbar
-      onMouseEnter={props.stopHideTimer}
-      onMouseLeave={props.startHideTimer}>
+    <Toolbar onMouseEnter={stopHideTimer} onMouseLeave={startHideTimer}>
       <ToolbarButton
         mainTooltip="Edit"
         isSelected={false}
@@ -52,14 +63,14 @@ export const DefaultHyperlinkToolbar = <
         mainTooltip="Open in new tab"
         isSelected={false}
         onClick={() => {
-          window.open(props.url, "_blank");
+          window.open(url, "_blank");
         }}
         icon={RiExternalLinkFill}
       />
       <ToolbarButton
         mainTooltip="Remove link"
         isSelected={false}
-        onClick={props.deleteHyperlink}
+        onClick={deleteHyperlink}
         icon={RiLinkUnlink}
       />
     </Toolbar>

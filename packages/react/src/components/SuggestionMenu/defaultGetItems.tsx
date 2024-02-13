@@ -23,7 +23,7 @@ import {
   RiText,
 } from "react-icons/ri";
 
-import { SuggestionMenuItemProps } from "./MantineSuggestionMenuItem";
+import { SuggestionMenuItemProps } from "./MantineDefaults/MantineSuggestionMenuItem";
 
 // Sets the editor's text cursor position to the next content editable block,
 // so either a block with inline content or a table. The last block is always a
@@ -88,10 +88,7 @@ export function insertOrUpdateBlock<
   return insertedBlock;
 }
 
-// TODO: Not sure on the return type of this. I think it's nice that the items
-//  can just be plugged as props into SuggestionMenuLabel and SuggestionMenuItem
-//  components, but the labels make the keyboard selection code more complex.
-// TODO: Also probably want an easier way of customizing the items list.
+// TODO: Probably want an easier way of customizing the items list.
 export async function defaultGetItems<
   BSchema extends BlockSchema = DefaultBlockSchema,
   I extends InlineContentSchema = DefaultInlineContentSchema,

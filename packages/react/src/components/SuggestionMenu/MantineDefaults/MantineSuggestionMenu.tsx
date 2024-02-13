@@ -5,14 +5,14 @@ import {
   SuggestionMenuItemProps,
 } from "./MantineSuggestionMenuItem";
 
-export type SuggestionMenuProps<T> = {
+export type SuggestionMenuComponentProps<T> = {
   items: T[];
   loadingState: "loading-initial" | "loading" | "loaded";
   selectedIndex: number;
 };
 
 export function MantineSuggestionMenu(
-  props: SuggestionMenuProps<SuggestionMenuItemProps>
+  props: SuggestionMenuComponentProps<SuggestionMenuItemProps>
 ) {
   const { items, loadingState, selectedIndex } = props;
 

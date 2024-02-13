@@ -1,6 +1,6 @@
 import { BlockNoteEditor } from "@blocknote/core";
 import { useEffect, useState } from "react";
-import { SuggestionMenuItemProps } from "../MantineSuggestionMenuItem";
+import { SuggestionMenuItemProps } from "../MantineDefaults/MantineSuggestionMenuItem";
 
 // Hook which handles keyboard navigation of a suggestion menu. Arrow keys are
 // used to select a menu item, enter to execute it, and escape to close the

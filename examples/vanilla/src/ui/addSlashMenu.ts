@@ -3,6 +3,73 @@ import { createButton } from "./util";
 
 export const addSlashMenu = async (editor: BlockNoteEditor) => {
   let element: HTMLElement;
+  const getItems = async (query: string) => {
+    const items = [
+      {
+        text: "Heading",
+        aliases: ["h", "heading1", "h1"],
+        executeItem: () => {
+          editor.suggestionMenus.closeMenu();
+          editor.suggestionMenus.clearQuery();
+
+          editor.insertBlocks(
+            [
+              {
+                type: "heading",
+              },
+            ],
+            editor.getTextCursorPosition().block,
+            "after"
+          );
+        },
+      },
+      {
+        text: "List",
+        aliases: ["ul", "li", "list", "bulletlist", "bullet list"],
+        executeItem: () => {
+          editor.suggestionMenus.closeMenu();
+          editor.suggestionMenus.clearQuery();
+
+          editor.insertBlocks(
+            [
+              {
+                type: "bulletListItem",
+              },
+            ],
+            editor.getTextCursorPosition().block,
+            "after"
+          );
+        },
+      },
+      {
+        text: "Paragraph",
+        aliases: ["p", "paragraph"],
+        executeItem: () => {
+          editor.suggestionMenus.closeMenu();
+          editor.suggestionMenus.clearQuery();
+
+          editor.insertBlocks(
+            [
+              {
+                type: "paragraph",
+              },
+            ],
+            editor.getTextCursorPosition().block,
+            "after"
+          );
+        },
+      },
+    ];
+
+    return items.filter(
+      ({ text, aliases }) =>
+        text.toLowerCase().startsWith(query.toLowerCase()) ||
+        (aliases &&
+          aliases.filter((alias) =>
+            alias.toLowerCase().startsWith(query.toLowerCase())
+          ).length !== 0)
+    );
+  };
 
   async function updateItems(
     query: string,
@@ -21,7 +88,7 @@ export const addSlashMenu = async (editor: BlockNoteEditor) => {
     return domItems;
   }
 
-  editor.suggestionMenus.onUpdate("slashMenu", async (slashMenuState) => {
+  editor.suggestionMenus.onDataUpdate("/", async (slashMenuData) => {
     if (!element) {
       element = document.createElement("div");
       element.style.background = "gray";
@@ -33,83 +100,16 @@ export const addSlashMenu = async (editor: BlockNoteEditor) => {
       document.getElementById("root")!.appendChild(element);
     }
 
-    if (slashMenuState.show) {
-      // TODO: Default vanilla getItems data type?
-      const getItems = async (query: string) => {
-        const items = [
-          {
-            text: "Heading",
-            aliases: ["h", "heading1", "h1"],
-            executeItem: () => {
-              editor.suggestionMenus.closeMenu();
-              editor.suggestionMenus.clearQuery();
+    await updateItems(slashMenuData.query, getItems);
+  });
 
-              editor.insertBlocks(
-                [
-                  {
-                    type: "heading",
-                  },
-                ],
-                editor.getTextCursorPosition().block,
-                "after"
-              );
-            },
-          },
-          {
-            text: "List",
-            aliases: ["ul", "li", "list", "bulletlist", "bullet list"],
-            executeItem: () => {
-              editor.suggestionMenus.closeMenu();
-              editor.suggestionMenus.clearQuery();
-
-              editor.insertBlocks(
-                [
-                  {
-                    type: "bulletListItem",
-                  },
-                ],
-                editor.getTextCursorPosition().block,
-                "after"
-              );
-            },
-          },
-          {
-            text: "Paragraph",
-            aliases: ["p", "paragraph"],
-            executeItem: () => {
-              editor.suggestionMenus.closeMenu();
-              editor.suggestionMenus.clearQuery();
-
-              editor.insertBlocks(
-                [
-                  {
-                    type: "paragraph",
-                  },
-                ],
-                editor.getTextCursorPosition().block,
-                "after"
-              );
-            },
-          },
-        ];
-
-        return items.filter(
-          ({ text, aliases }) =>
-            text.toLowerCase().startsWith(query.toLowerCase()) ||
-            (aliases &&
-              aliases.filter((alias) =>
-                alias.toLowerCase().startsWith(query.toLowerCase())
-              ).length !== 0)
-        );
-      };
-
-      await updateItems(slashMenuState.query, getItems);
-
+  editor.suggestionMenus.onPositionUpdate("/", (slashMenuPosition) => {
+    if (slashMenuPosition.show) {
       element.style.display = "block";
 
-      element.style.top = slashMenuState.referencePos.top + "px";
+      element.style.top = slashMenuPosition.referencePos.top + "px";
       element.style.left =
-        slashMenuState.referencePos.x - element.offsetWidth + "px";
+        slashMenuPosition.referencePos.x - element.offsetWidth + "px";
     } else {
       element.style.display = "none";
     }

@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { SuggestionMenuItemProps } from "../MantineSuggestionMenuItem";
+import { SuggestionMenuItemProps } from "../MantineDefaults/MantineSuggestionMenuItem";
 
 // Hook which closes the suggestion after a certain number of consecutive
 // invalid queries are made. An invalid query is one which returns no items, and

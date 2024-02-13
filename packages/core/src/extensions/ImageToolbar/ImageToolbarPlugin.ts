@@ -9,17 +9,13 @@ import {
   SpecificBlock,
   StyleSchema,
 } from "../../schema";
-import {
-  BaseUiElementCallbacks,
-  BaseUiElementState,
-} from "../../extensions-shared/BaseUiElementTypes";
-export type ImageToolbarCallbacks = BaseUiElementCallbacks;
+import { UiElementPosition } from "../../extensions-shared/UiElementPosition";
 
-export type ImageToolbarState<
+export type ImageToolbarData<
   B extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema = StyleSchema
-> = BaseUiElementState & {
+> = {
   block: SpecificBlock<B, "image", I, S>;
 };
 
@@ -28,24 +24,33 @@ export class ImageToolbarView<
   I extends InlineContentSchema,
   S extends StyleSchema
 > {
-  private imageToolbarState?: ImageToolbarState<BSchema, I, S>;
-  public updateImageToolbar: () => void;
+  private data?: ImageToolbarData<BSchema, I, S>;
+  private position?: UiElementPosition;
+  private readonly updateData: () => void;
+  private readonly updatePosition: () => void;
 
   public prevWasEditable: boolean | null = null;
 
   constructor(
     private readonly pluginKey: PluginKey,
     private readonly pmView: EditorView,
-    updateImageToolbar: (
-      imageToolbarState: ImageToolbarState<BSchema, I, S>
-    ) => void
+    updateData: (data: ImageToolbarData<BSchema, I, S>) => void,
+    updatePosition: (position: UiElementPosition) => void
   ) {
-    this.updateImageToolbar = () => {
-      if (!this.imageToolbarState) {
+    this.updateData = () => {
+      if (!this.data) {
         throw new Error("Attempting to update uninitialized image toolbar");
       }
 
-      updateImageToolbar(this.imageToolbarState);
+      updateData(this.data);
+    };
+
+    this.updatePosition = () => {
+      if (!this.position) {
+        throw new Error("Attempting to update uninitialized image toolbar");
+      }
+
+      updatePosition(this.position);
     };
 
     pmView.dom.addEventListener("mousedown", this.mouseDownHandler);
@@ -58,17 +63,17 @@ export class ImageToolbarView<
   }
 
   mouseDownHandler = () => {
-    if (this.imageToolbarState?.show) {
-      this.imageToolbarState.show = false;
-      this.updateImageToolbar();
+    if (this.position?.show) {
+      this.position.show = false;
+      this.updatePosition();
     }
   };
 
   // For dragging the whole editor.
   dragstartHandler = () => {
-    if (this.imageToolbarState?.show) {
-      this.imageToolbarState.show = false;
-      this.updateImageToolbar();
+    if (this.position?.show) {
+      this.position.show = false;
+      this.updatePosition();
     }
   };
 
@@ -88,21 +93,20 @@ export class ImageToolbarView<
       return;
     }
 
-    if (this.imageToolbarState?.show) {
-      this.imageToolbarState.show = false;
-      this.updateImageToolbar();
+    if (this.position?.show) {
+      this.position.show = false;
+      this.updatePosition();
     }
   };
 
   scrollHandler = () => {
-    if (this.imageToolbarState?.show) {
+    if (this.position?.show) {
       const blockElement = document.querySelector(
-        `[data-node-type="blockContainer"][data-id="${this.imageToolbarState.block.id}"]`
+        `[data-node-type="blockContainer"][data-id="${this.data!.block.id}"]`
       )!;
 
-      this.imageToolbarState.referencePos =
-        blockElement.getBoundingClientRect();
-      this.updateImageToolbar();
+      this.position.referencePos = blockElement.getBoundingClientRect();
+      this.updatePosition();
     }
   };
 
@@ -111,18 +115,21 @@ export class ImageToolbarView<
       block: SpecificBlock<BSchema, "image", I, S>;
     } = this.pluginKey.getState(view.state);
 
-    if (!this.imageToolbarState?.show && pluginState.block) {
+    if (!this.position?.show && pluginState.block) {
       const blockElement = document.querySelector(
         `[data-node-type="blockContainer"][data-id="${pluginState.block.id}"]`
       )!;
 
-      this.imageToolbarState = {
-        show: true,
-        referencePos: blockElement.getBoundingClientRect(),
+      this.data = {
         block: pluginState.block,
       };
+      this.position = {
+        show: true,
+        referencePos: blockElement.getBoundingClientRect(),
+      };
 
-      this.updateImageToolbar();
+      this.updateData();
+      this.updatePosition();
 
       return;
     }
@@ -131,10 +138,10 @@ export class ImageToolbarView<
       !view.state.selection.eq(prevState.selection) ||
       !view.state.doc.eq(prevState.doc)
     ) {
-      if (this.imageToolbarState?.show) {
-        this.imageToolbarState.show = false;
+      if (this.position?.show) {
+        this.position.show = false;
 
-        this.updateImageToolbar();
+        this.updatePosition();
       }
     }
   }
@@ -171,8 +178,11 @@ export class ImageToolbarProsemirrorPlugin<
           // editor,
           imageToolbarPluginKey,
           editorView,
-          (state) => {
-            this.emit("update", state);
+          (data) => {
+            this.emit("update data", data);
+          },
+          (position) => {
+            this.emit("update position", position);
           }
         );
         return this.view;
@@ -195,7 +205,13 @@ export class ImageToolbarProsemirrorPlugin<
     });
   }
 
-  public onUpdate(callback: (state: ImageToolbarState<BSchema, I, S>) => void) {
-    return this.on("update", callback);
+  public onDataUpdate(
+    callback: (data: ImageToolbarData<BSchema, I, S>) => void
+  ) {
+    return this.on("update data", callback);
+  }
+
+  public onPositionUpdate(callback: (position: UiElementPosition) => void) {
+    return this.on("update position", callback);
   }
 }

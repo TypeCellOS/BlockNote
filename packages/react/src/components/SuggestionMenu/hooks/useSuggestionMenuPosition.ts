@@ -16,14 +16,12 @@ import {
 } from "@floating-ui/react";
 import { useEffect, useRef, useState } from "react";
 
-// TODO: maybe separate the positioning part (floating ui)
-export function useSuggestionMenu<
+export function useSuggestionMenuPosition<
   BSchema extends BlockSchema = DefaultBlockSchema,
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema
 >(editor: BlockNoteEditor<BSchema, I, S>, triggerCharacter: string) {
   const [show, setShow] = useState<boolean>(false);
-  const [query, setQuery] = useState<string>("");
 
   const referencePos = useRef<DOMRect>();
 
@@ -48,14 +46,11 @@ export function useSuggestionMenu<
   const { isMounted, styles } = useTransitionStyles(context);
 
   useEffect(() => {
-    return editor.suggestionMenus.onUpdate(
+    return editor.suggestionMenus.onPositionUpdate(
       triggerCharacter,
-      (suggestionsMenuState) => {
-        setShow(suggestionsMenuState.show);
-        setQuery(suggestionsMenuState.query);
-
-        referencePos.current = suggestionsMenuState.referencePos;
-
+      (position) => {
+        setShow(position.show);
+        referencePos.current = position.referencePos;
         update();
       }
     );
@@ -69,19 +64,12 @@ export function useSuggestionMenu<
 
   return {
     isMounted: isMounted,
-    suggestionMenuProps: {
-      query,
-      closeMenu: editor.suggestionMenus.closeMenu,
-      clearQuery: editor.suggestionMenus.clearQuery,
-    },
-    positionerProps: {
-      ref: refs.setFloating,
-      styles: {
-        display: "flex",
-        ...styles,
-        ...floatingStyles,
-        zIndex: 2000,
-      },
+    ref: refs.setFloating,
+    style: {
+      display: "flex",
+      ...styles,
+      ...floatingStyles,
+      zIndex: 2000,
     },
   };
 }

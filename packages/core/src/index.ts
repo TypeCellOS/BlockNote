@@ -13,7 +13,7 @@ export * from "./extensions/ImageToolbar/ImageToolbarPlugin";
 export * from "./extensions/SuggestionMenu/SuggestionPlugin";
 export * from "./extensions/SideMenu/SideMenuPlugin";
 export * from "./extensions/TableHandles/TableHandlesPlugin";
-export * from "./extensions-shared/BaseUiElementTypes";
+export * from "./extensions-shared/UiElementPosition";
 export * from "./schema";
 export * from "./util/browser";
 export * from "./util/string";
