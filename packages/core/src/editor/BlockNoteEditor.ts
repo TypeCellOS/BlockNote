@@ -347,6 +347,13 @@ export class BlockNoteEditor<
             },
           ]);
 
+    if (!Array.isArray(initialContent) || initialContent.length === 0) {
+      throw new Error(
+        "initialContent must be a non-empty array of blocks, received: " +
+          initialContent
+      );
+    }
+
     const tiptapOptions: BlockNoteTipTapEditorOptions = {
       ...blockNoteTipTapOptions,
       ...newOptions._tiptapOptions,

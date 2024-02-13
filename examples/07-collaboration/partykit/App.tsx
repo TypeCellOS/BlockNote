@@ -1,4 +1,3 @@
-import { uploadToTmpFilesDotOrg_DEV_ONLY } from "@blocknote/core";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
 import "@blocknote/react/style.css";
 
@@ -27,7 +26,6 @@ export default function App() {
         color: "#ff0000",
       },
     },
-    uploadFile: uploadToTmpFilesDotOrg_DEV_ONLY,
   });
 
   return <BlockNoteView editor={editor} />;

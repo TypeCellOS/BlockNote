@@ -1,5 +1,7 @@
 # Keyboard Shortcuts
 
+TODO: useful example? Non-basic?
+
 In this example, we create a keyboard shortcut which cycles the current block type when Ctrl+G is pressed.
 
 **Relevant Docs:**

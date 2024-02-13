@@ -1,1 +1,0 @@
-# Displaying Block Objects

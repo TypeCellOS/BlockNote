@@ -40,9 +40,6 @@ export default function App() {
   const onKeyDown = (event: React.KeyboardEvent) => {
     cycleBlocksShortcut(event, editor);
   };
-  const r = (el: any) => {
-    console.log("EL", el);
-  };
 
-  return <BlockNoteView editor={editor} ref={r} onKeyDown={onKeyDown} />;
+  return <BlockNoteView editor={editor} onKeyDown={onKeyDown} />;
 }

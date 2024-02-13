@@ -10,13 +10,16 @@ async function saveToStorage(jsonBlocks: any[]) {
 
 async function loadFromStorage() {
   // Gets the previously stored editor contents
-  return JSON.parse(localStorage.getItem("editorContent") || "[]");
+  const storageString = localStorage.getItem("editorContent");
+  return storageString
+    ? (JSON.parse(storageString) as PartialBlock[])
+    : undefined;
 }
 
 export default function App() {
   const [initialContent, setInitialContent] = useState<
-    PartialBlock<any, any, any>[] | undefined
-  >();
+    PartialBlock[] | undefined | "loading"
+  >("loading");
 
   // Loads the previously stored editor contents
   useEffect(() => {
@@ -28,7 +31,7 @@ export default function App() {
   // Creates a new editor instance.
   // We use useMemo + createBlockNoteEditor instead of useBlockNote so we can delay the creation of the editor until the initial content is loaded.
   const editor = useMemo(() => {
-    if (initialContent === undefined) {
+    if (initialContent === "loading") {
       return undefined;
     }
     return createBlockNoteEditor({ initialContent });
