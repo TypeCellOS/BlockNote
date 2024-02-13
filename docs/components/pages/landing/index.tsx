@@ -1,31 +1,29 @@
-import { LandingPageGlobalStyles } from "../home-shared/GlobalStyles";
+import { Features } from "./features/Features";
+import { Hero } from "./hero/Hero";
+import { Letter } from "./letter/Letter";
 
-import { PackFeatures } from "./PackFeatures";
-import { PackHero } from "./PackHero";
-import { PackLetter } from "./PackLetter";
-
-import { FadeIn } from "@/components/pages/home-shared/FadeIn";
+import { FadeIn } from "@/components/pages/landing/shared/FadeIn";
+import "./styles.css";
 import "./gradients.css";
 
 // TODO: Cleanup
 export function BlockNoteHome() {
   return (
     <>
-      <LandingPageGlobalStyles />
       <main className="relative">
-        <PackHero />
+        <Hero />
         <FadeIn noVertical>
           {/* TODO: Fix border color */}
           <div className={"h-px w-full bg-gray-500 opacity-20"} />
         </FadeIn>
         {/*<GradientSectionBorder>*/}
-        <PackFeatures />
+        <Features />
         <FadeIn noVertical>
           <div className={"section-border"} />
         </FadeIn>
         {/*</GradientSectionBorder>*/}
         {/*<GradientSectionBorder>*/}
-        <PackLetter />
+        <Letter />
         <FadeIn noVertical>
           <div className={"section-border"} />
         </FadeIn>

@@ -1,3 +1,12 @@
+.dark footer,
+.dark body {
+    background-color: black !important;
+}
+
+.dark .nextra-nav-container .nextra-nav-container-blur  {
+    background-color: rgba(0,0,0,.5) !important;
+}
+
 .nextra-nav-container {
     z-index: 30;
 }
@@ -12,5 +21,5 @@
     aspect-ratio: 16/9;
     display: block;
     position: absolute;
-    background: linear-gradient(transparent 75%, var(--bg-color));
+    background: linear-gradient(transparent 50%, var(--bg-color));
 }

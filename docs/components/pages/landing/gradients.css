@@ -2,13 +2,8 @@ section {
     --text-color: #000000;
     --bg-color: #FFFFFF;
 
-    --demo-center-x: 50%;
-    --demo-center-y: 68%;
-
-    --demo-top: 60%;
-    --demo-bottom: 75%;
-    --demo-left: calc(50% - 120px);
-    --demo-right: calc(50% + 120px);
+    --glow-blue: 185, 100%, 50%;
+    --glow-purple: 261, 100%, 50%;
 }
 
 .dark section {
@@ -16,48 +11,96 @@ section {
     --bg-color: #000000;
 }
 
-@media (width >= 1280px) {
-    section {
-        --demo-center-x: calc(100% - 315px);
-        --demo-center-y: 50%;
+.editor-glow {
+    --glow-opacity: 0.4;
+    background:
+            conic-gradient(
+                    from 33deg at 50% 50%,
+                    hsla(var(--glow-blue), var(--glow-opacity)),
+                    hsla(var(--glow-purple), var(--glow-opacity)),
+                    hsla(var(--glow-blue), var(--glow-opacity))
+            );
+    filter: blur(120px);
+}
 
-        --demo-top: 40%;
-        --demo-bottom: 60%;
-        --demo-left: calc(100% - 407px);
-        --demo-right: calc(100% - 223px);
+@property --button-glow-angle {
+    syntax: '<angle>';
+    inherits: false;
+    initial-value: 33deg;
+}
+@keyframes button-glow-rotation {
+    from {
+        --button-glow-angle: 0deg;
+    }
+
+    to {
+        --button-glow-angle: 360deg;
     }
 }
+@property --button-glow-position {
+    syntax: '<percentage>';
+    inherits: false;
+    initial-value: 0%;
+}
+@keyframes button-glow-translation {
+    from {
+        --button-glow-position: 0%;
+    }
 
-@media (width >= 1440px) {
-    section {
-        --demo-center-x: calc(50% + 405px);
-
-        --demo-left: calc(50% + 313px);
-        --demo-right: calc(50% + 497px);
+    to {
+        --button-glow-position: 200%;
     }
 }
-
-.section-hero {
+.button-glow {
+    --glow-opacity: 0.6;
+    animation: button-glow-rotation 10s linear infinite;
     background:
-            radial-gradient(circle at var(--demo-left) var(--demo-bottom), transparent 250px, var(--bg-color) 600px),
-            radial-gradient(circle at var(--demo-right) var(--demo-top), transparent 250px, var(--bg-color) 600px),
-            conic-gradient(from 33deg at var(--demo-center-x) var(--demo-center-y), #00eaff80, #5900ff80, #00eaff80);
-    filter: blur(100px);
+            conic-gradient(
+                    from var(--button-glow-angle) at 50% 50%,
+                    hsla(var(--glow-blue), var(--glow-opacity)),
+                    hsla(var(--glow-purple), var(--glow-opacity)),
+                    hsla(var(--glow-blue), var(--glow-opacity))
+            );
+    /*animation: button-glow-translation 10s linear infinite;*/
+    /*background:*/
+    /*        linear-gradient(*/
+    /*                90deg,*/
+    /*                hsla(var(--glow-purple), var(--glow-opacity)) calc(-200% + var(--button-glow-position)),*/
+    /*                hsla(var(--glow-blue), var(--glow-opacity)) calc(-100% + var(--button-glow-position)),*/
+    /*                hsla(var(--glow-purple), var(--glow-opacity)) calc(0% + var(--button-glow-position)),*/
+    /*                hsla(var(--glow-blue), var(--glow-opacity)) calc(100% + var(--button-glow-position))*/
+    /*        );*/
+    filter: blur(20px);
+    opacity: 0;
+    transition: opacity 0.2s linear;
+}
+.button-glow-parent:hover .button-glow {
+    opacity: 1;
+    transition: opacity 0.2s linear;
 }
 
-.section-features, .section-letter {
+.section-glow {
+    --glow-opacity: 0.15;
     background:
-            linear-gradient(var(--bg-color) 80%, transparent),
-            linear-gradient(90deg, #5900ff30, #00eaff30);
+            linear-gradient(
+                    var(--bg-color) 80%,
+                    transparent
+            ),
+            linear-gradient(
+                    90deg,
+                    hsla(var(--glow-purple), var(--glow-opacity)),
+                    hsla(var(--glow-blue), var(--glow-opacity))
+            );
 }
 
 .section-border {
     width: 100%;
     height: 1px;
-    background:
-            linear-gradient(90deg, #5900ff60, #00eaff60);
+    background: linear-gradient(90deg, #5900ff60, #00eaff60);
 }
 
 .feature-icon {
     background: conic-gradient(from 33deg, #00eaff80, #5900ff80, #00eaff80);
 }
+
+

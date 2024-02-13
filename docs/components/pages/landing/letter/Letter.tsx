@@ -1,15 +1,16 @@
 import cn from "classnames";
 import Link from "next/link";
-import { CTAButton } from "../home-shared/CTAButton";
-import { FadeIn } from "../home-shared/FadeIn";
-import { HeroText } from "../home-shared/Headings";
-import gradients from "../home-shared/gradients.module.css";
 
-export function PackLetter() {
+import { CTAButton } from "../../home-shared/CTAButton";
+import { FadeIn } from "../shared/FadeIn";
+import { HeroText } from "../../home-shared/Headings";
+import gradients from "../../home-shared/gradients.module.css";
+
+export function Letter() {
   return (
     <section className="relative flex flex-col items-center gap-14 px-6 py-16 font-sans md:py-24 lg:py-32">
       <FadeIn noVertical className={"absolute top-0 z-10 h-full w-full"}>
-        <div className={"section-letter h-full w-full"} />
+        <div className={"section-glow h-full w-full"} />
       </FadeIn>
       <FadeIn className={"z-20"}>
         <HeroText>Let&apos;s build</HeroText>

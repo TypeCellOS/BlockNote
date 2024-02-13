@@ -1,11 +1,12 @@
-import { FadeIn } from "@/components/pages/home-shared/FadeIn";
-import { FeatureBox } from "@/components/pages/home-shared/FeatureBox";
+import { FadeIn } from "@/components/pages/landing/shared/FadeIn";
+import {
+  FeatureCard,
+  FeatureCardProps,
+} from "@/components/pages/landing/features/FeatureCard";
 import {
   SectionHeader,
   SectionSubtext,
 } from "@/components/pages/home-shared/Headings";
-import type Image from "next/image";
-import { IconType } from "react-icons";
 import {
   RiInputCursorMove,
   RiJavascriptFill,
@@ -17,35 +18,39 @@ import {
   RiSpeedUpFill,
   RiTeamFill,
 } from "react-icons/ri";
-import slashMenuImage from "../../../public/img/screenshots/slash_menu.png";
 
-export interface FeaturesCardData {
-  title: string;
-  description: string;
-  icon: IconType;
-  thumbnail?: Parameters<typeof Image>[0]["src"];
-}
+import slashMenuImageLight from "../../../../public/img/screenshots/slash_menu.png";
+import slashMenuImageDark from "../../../../public/img/screenshots/slash_menu_dark.png";
 
-export const featuresCardData: FeaturesCardData[] = [
+export const featuresCardData: FeatureCardProps[] = [
   {
     title: "Extensibility",
     description:
       "Want something more fancy? An easy to use API lets you add additional block types.",
     icon: RiMenuAddFill,
-    thumbnail: slashMenuImage,
+    thumbnail: {
+      light: slashMenuImageLight,
+      dark: slashMenuImageDark,
+    },
   },
   {
     title: "Theming",
     description: "Add a splash of colour to the editor with your own themes.",
     icon: RiPaintBrushFill,
-    thumbnail: slashMenuImage,
+    thumbnail: {
+      light: slashMenuImageLight,
+      dark: slashMenuImageDark,
+    },
   },
   {
     title: "UI Components",
     description:
       "Replace any menus & toolbars with your own React components, or remove them entirely.",
     icon: RiLayout4Fill,
-    thumbnail: slashMenuImage,
+    thumbnail: {
+      light: slashMenuImageLight,
+      dark: slashMenuImageDark,
+    },
   },
   {
     title: "Quick & Easy Setup",
@@ -86,11 +91,11 @@ export const featuresCardData: FeaturesCardData[] = [
   },
 ];
 
-export function PackFeatures() {
+export function Features() {
   return (
     <section className="relative flex flex-col items-center gap-9 overflow-hidden py-16 pb-16 font-sans md:pb-24 lg:gap-14 lg:pb-32">
       <FadeIn noVertical className={"absolute top-0 z-10 h-full w-full"}>
-        <div className={"section-features h-full w-full"} />
+        <div className={"section-glow h-full w-full"} />
       </FadeIn>
       <div
         className={
@@ -106,7 +111,7 @@ export function PackFeatures() {
         </FadeIn>
         <FadeIn className="grid max-w-full grid-cols-1 gap-4 md:max-w-screen-md md:grid-cols-2 xl:max-w-none xl:grid-cols-3 xl:gap-6 xl:p-0">
           {featuresCardData.map((feature) => (
-            <FeatureBox key={feature.title} {...feature} />
+            <FeatureCard key={feature.title} {...feature} />
           ))}
         </FadeIn>
       </div>

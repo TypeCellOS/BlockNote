@@ -1,13 +1,17 @@
 import Image from "next/image";
 import { IconType } from "react-icons";
 
-export function FeatureBox(props: {
+export type FeatureCardProps = {
   title: string;
   description: string;
   icon: IconType;
-  thumbnail?: Parameters<typeof Image>[0]["src"];
-  fadeIn?: boolean;
-}) {
+  thumbnail?: {
+    light: Parameters<typeof Image>[0]["src"];
+    dark: Parameters<typeof Image>[0]["src"];
+  };
+};
+
+export function FeatureCard(props: FeatureCardProps) {
   const Icon = props.icon;
 
   return (
@@ -15,7 +19,16 @@ export function FeatureBox(props: {
       className={`card relative w-[360px] max-w-full flex-col overflow-hidden rounded-lg border ${props.thumbnail ? "row-span-2" : "row-span-1"}`}>
       {props.thumbnail && (
         <div className={"thumbnail aspect-video w-full overflow-hidden"}>
-          <Image className={"w-full"} src={props.thumbnail} alt={props.title} />
+          <Image
+            className={"block w-full dark:hidden"}
+            src={props.thumbnail.light}
+            alt={props.title}
+          />
+          <Image
+            className={"hidden w-full dark:block"}
+            src={props.thumbnail.dark}
+            alt={props.title}
+          />
         </div>
       )}
       <div className={`flex flex-col gap-8 p-8`}>
