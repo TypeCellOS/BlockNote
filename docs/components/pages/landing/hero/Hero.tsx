@@ -3,6 +3,10 @@
 import dynamic from "next/dynamic";
 import { FadeIn } from "../shared/FadeIn";
 import { HeroText, SectionSubtext } from "../../home-shared/Headings";
+import Image from "next/image";
+
+import tryHereImageLight from "../../../../public/img/assets/try.svg";
+import tryHereImageDark from "../../../../public/img/assets/try.dark.svg";
 
 const Demo = dynamic(() => import("@/components/pages/landing/hero/Demo"), {
   ssr: false,
@@ -66,9 +70,18 @@ export function Hero() {
           </PhoneFrame>
         </div> */}
           </div>
-          <img
-            src={"./img/assets/try.svg"}
-            className={"relative bottom-24 left-10 z-30 float-right size-56"}
+          <Image
+            src={tryHereImageLight}
+            className={
+              "relative bottom-24 left-10 z-30 float-right block size-56 dark:hidden"
+            }
+            alt="Try it out"
+          />
+          <Image
+            src={tryHereImageDark}
+            className={
+              "relative bottom-24 left-10 z-30 float-right hidden size-56 dark:block"
+            }
             alt="Try it out"
           />
         </div>

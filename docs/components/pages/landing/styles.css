@@ -3,14 +3,6 @@
     background-color: black !important;
 }
 
-.dark .light-theme-element, .dark-theme-element {
-    display: none;
-}
-
-.dark .dark-theme-element, .light-theme-element {
-    display: unset;
-}
-
 .dark .nextra-nav-container .nextra-nav-container-blur  {
     background-color: rgba(0,0,0,.5) !important;
 }

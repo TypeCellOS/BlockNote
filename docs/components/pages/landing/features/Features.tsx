@@ -7,7 +7,6 @@ import {
   SectionHeader,
   SectionSubtext,
 } from "@/components/pages/home-shared/Headings";
-import type Image from "next/image";
 import {
   RiInputCursorMove,
   RiJavascriptFill,

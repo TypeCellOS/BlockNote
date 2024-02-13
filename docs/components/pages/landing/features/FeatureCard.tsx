@@ -20,12 +20,12 @@ export function FeatureCard(props: FeatureCardProps) {
       {props.thumbnail && (
         <div className={"thumbnail aspect-video w-full overflow-hidden"}>
           <Image
-            className={"light-theme-element w-full"}
+            className={"block w-full dark:hidden"}
             src={props.thumbnail.light}
             alt={props.title}
           />
           <Image
-            className={"dark-theme-element w-full"}
+            className={"hidden w-full dark:block"}
             src={props.thumbnail.dark}
             alt={props.title}
           />
