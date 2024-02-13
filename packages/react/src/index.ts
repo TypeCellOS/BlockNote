@@ -15,6 +15,8 @@ export * from "./components/FormattingToolbar/DefaultFormattingToolbar";
 export * from "./components/FormattingToolbar/FormattingToolbarPositioner";
 
 export * from "./components/HyperlinkToolbar/HyperlinkToolbarPositioner";
+export * from "./components/HyperlinkToolbar/DefaultHyperlinkToolbar";
+export * from "./components/HyperlinkToolbar/EditHyperlinkMenu/components/EditHyperlinkMenu";
 
 export * from "./components/SideMenu/DefaultButtons/AddBlockButton";
 export * from "./components/SideMenu/DefaultButtons/DragHandle";
