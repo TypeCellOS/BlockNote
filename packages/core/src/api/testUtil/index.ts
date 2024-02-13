@@ -1,5 +1,6 @@
+import { PartialBlock } from "../../blocks/defaultBlocks";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor";
-import { BlockSchema, PartialBlock } from "../../schema/blocks/types";
+import { BlockSchema } from "../../schema/blocks/types";
 import { InlineContentSchema } from "../../schema/inlineContent/types";
 import { StyleSchema } from "../../schema/styles/types";
 

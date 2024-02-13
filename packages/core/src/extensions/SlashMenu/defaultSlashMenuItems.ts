@@ -1,10 +1,12 @@
-import { defaultBlockSchema } from "../../blocks/defaultBlocks";
-import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import {
   Block,
+  PartialBlock,
+  defaultBlockSchema,
+} from "../../blocks/defaultBlocks";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
+import {
   BlockSchema,
   InlineContentSchema,
-  PartialBlock,
   StyleSchema,
   isStyledTextInlineContent,
 } from "../../schema";

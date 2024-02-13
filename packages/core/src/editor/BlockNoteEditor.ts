@@ -16,9 +16,11 @@ import { getNodeById } from "../api/nodeUtil";
 import { HTMLToBlocks } from "../api/parsers/html/parseHTML";
 import { markdownToBlocks } from "../api/parsers/markdown/parseMarkdown";
 import {
+  Block,
   DefaultBlockSchema,
   DefaultInlineContentSchema,
   DefaultStyleSchema,
+  PartialBlock,
   defaultBlockSchema,
   defaultBlockSpecs,
   defaultInlineContentSpecs,
@@ -34,7 +36,6 @@ import { getDefaultSlashMenuItems } from "../extensions/SlashMenu/defaultSlashMe
 import { TableHandlesProsemirrorPlugin } from "../extensions/TableHandles/TableHandlesPlugin";
 import { UniqueID } from "../extensions/UniqueID/UniqueID";
 import {
-  Block,
   BlockIdentifier,
   BlockNoteDOMAttributes,
   BlockSchema,
@@ -44,7 +45,6 @@ import {
   InlineContentSchema,
   InlineContentSchemaFromSpecs,
   InlineContentSpecs,
-  PartialBlock,
   StyleSchema,
   StyleSchemaFromSpecs,
   StyleSpecs,

@@ -6,7 +6,8 @@ import { EditorView } from "@tiptap/pm/view";
 import { EditorState } from "prosemirror-state";
 
 import { blockToNode } from "../api/nodeConversions/nodeConversions";
-import { PartialBlock, StyleSchema } from "../schema";
+import { PartialBlock } from "../blocks/defaultBlocks";
+import { StyleSchema } from "../schema";
 
 export type BlockNoteTipTapEditorOptions = Partial<
   Omit<EditorOptions, "content">
