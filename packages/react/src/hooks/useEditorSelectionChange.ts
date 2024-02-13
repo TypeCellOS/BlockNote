@@ -1,15 +1,22 @@
 import type { BlockNoteEditor } from "@blocknote/core";
 import { useEffect } from "react";
+import { useBlockNoteContext } from "../editor/BlockNoteContext";
 
 export function useEditorSelectionChange(
-  editor: BlockNoteEditor<any, any, any>,
-  callback: () => void
+  callback: (editor: BlockNoteEditor<any, any, any>) => void,
+  editor?: BlockNoteEditor<any, any, any>
 ) {
-  useEffect(() => {
-    editor._tiptapEditor.on("selectionUpdate", callback);
+  const editorContext = useBlockNoteContext();
+  if (!editor) {
+    editor = editorContext?.editor;
+  }
 
-    return () => {
-      editor._tiptapEditor.off("selectionUpdate", callback);
-    };
-  }, [callback, editor._tiptapEditor]);
+  useEffect(() => {
+    if (!editor) {
+      throw new Error(
+        "'editor' is required, either from BlockNoteContext or as a function argument"
+      );
+    }
+    return editor.onSelectionChange(callback);
+  }, [callback, editor]);
 }

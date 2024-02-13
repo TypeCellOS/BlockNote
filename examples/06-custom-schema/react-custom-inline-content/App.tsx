@@ -47,12 +47,6 @@ export default function ReactInlineContent() {
       tag,
       ...defaultInlineContentSpecs,
     },
-    domAttributes: {
-      editor: {
-        class: "editor",
-        "data-test": "editor",
-      },
-    },
     initialContent: [
       {
         type: "paragraph",
@@ -80,5 +74,5 @@ export default function ReactInlineContent() {
     ],
   });
 
-  return <BlockNoteView className="root" editor={editor} />;
+  return <BlockNoteView editor={editor} />;
 }

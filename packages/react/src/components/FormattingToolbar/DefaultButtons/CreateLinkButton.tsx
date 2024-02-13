@@ -1,13 +1,13 @@
-import { useCallback, useMemo, useState } from "react";
 import { BlockNoteEditor, BlockSchema } from "@blocknote/core";
+import { useCallback, useMemo, useState } from "react";
 import { RiLink } from "react-icons/ri";
 
-import { ToolbarInputDropdownButton } from "../../../components-shared/Toolbar/ToolbarInputDropdownButton";
-import { ToolbarButton } from "../../../components-shared/Toolbar/ToolbarButton";
-import { EditHyperlinkMenu } from "../../HyperlinkToolbar/EditHyperlinkMenu/components/EditHyperlinkMenu";
-import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
-import { useEditorChange } from "../../../hooks/useEditorChange";
 import { formatKeyboardShortcut } from "@blocknote/core";
+import { ToolbarButton } from "../../../components-shared/Toolbar/ToolbarButton";
+import { ToolbarInputDropdownButton } from "../../../components-shared/Toolbar/ToolbarInputDropdownButton";
+import { useEditorContentOrSelectionChange } from "../../../hooks/useEditorContentOrSelectionChange";
+import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
+import { EditHyperlinkMenu } from "../../HyperlinkToolbar/EditHyperlinkMenu/components/EditHyperlinkMenu";
 
 export const CreateLinkButton = <BSchema extends BlockSchema>(props: {
   editor: BlockNoteEditor<BSchema>;
@@ -19,10 +19,10 @@ export const CreateLinkButton = <BSchema extends BlockSchema>(props: {
   );
   const [text, setText] = useState<string>(props.editor.getSelectedText());
 
-  useEditorChange(props.editor, () => {
+  useEditorContentOrSelectionChange(() => {
     setText(props.editor.getSelectedText() || "");
     setUrl(props.editor.getSelectedLinkUrl() || "");
-  });
+  }, props.editor);
 
   const update = useCallback(
     (url: string, text: string) => {

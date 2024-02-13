@@ -1,4 +1,3 @@
-import { uploadToTmpFilesDotOrg_DEV_ONLY } from "@blocknote/core";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
 import "@blocknote/react/style.css";
 
@@ -16,12 +15,6 @@ const provider = new YPartyKitProvider(
 
 export default function App() {
   const editor = useBlockNote({
-    domAttributes: {
-      editor: {
-        class: "editor",
-        "data-test": "editor",
-      },
-    },
     collaboration: {
       // The Yjs Provider responsible for transporting updates:
       provider,
@@ -33,8 +26,7 @@ export default function App() {
         color: "#ff0000",
       },
     },
-    uploadFile: uploadToTmpFilesDotOrg_DEV_ONLY,
   });
 
-  return <BlockNoteView className="root" editor={editor} />;
+  return <BlockNoteView editor={editor} />;
 }

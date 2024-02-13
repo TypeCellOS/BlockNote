@@ -118,9 +118,7 @@ const router = createBrowserRouter([
 
 const root = createRoot(document.getElementById("root")!);
 root.render(
-  // TODO: StrictMode is causing duplicate mounts and conflicts with collaboration
-  // <React.StrictMode>
-  // <App />
-  <RouterProvider router={router} />
-  // </React.StrictMode>
+  <React.StrictMode>
+    <RouterProvider router={router} />
+  </React.StrictMode>
 );

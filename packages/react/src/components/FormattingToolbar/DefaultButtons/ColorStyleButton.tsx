@@ -5,7 +5,7 @@ import { useCallback, useMemo, useState } from "react";
 import { ColorIcon } from "../../../components-shared/ColorPicker/ColorIcon";
 import { ColorPicker } from "../../../components-shared/ColorPicker/ColorPicker";
 import { ToolbarButton } from "../../../components-shared/Toolbar/ToolbarButton";
-import { useEditorChange } from "../../../hooks/useEditorChange";
+import { useEditorContentOrSelectionChange } from "../../../hooks/useEditorContentOrSelectionChange";
 import { usePreventMenuOverflow } from "../../../hooks/usePreventMenuOverflow";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
 
@@ -21,12 +21,12 @@ export const ColorStyleButton = <BSchema extends BlockSchema>(props: {
     props.editor.getActiveStyles().backgroundColor || "default"
   );
 
-  useEditorChange(props.editor, () => {
+  useEditorContentOrSelectionChange(() => {
     setCurrentTextColor(props.editor.getActiveStyles().textColor || "default");
     setCurrentBackgroundColor(
       props.editor.getActiveStyles().backgroundColor || "default"
     );
-  });
+  }, props.editor);
 
   const { ref, updateMaxHeight } = usePreventMenuOverflow();
 

@@ -82,16 +82,6 @@ ${readme}
  * Consists of the contents of the readme + the interactive example
  */
 async function generatePageForExample(project: Project) {
-  if (
-    !fs.existsSync(
-      path.resolve(dir, "../../../docs/pages/examples/" + project.group.slug)
-    )
-  ) {
-    fs.mkdirSync(
-      path.resolve(dir, "../../../docs/pages/examples/" + project.group.slug)
-    );
-  }
-
   const target = path.resolve(
     dir,
     "../../../docs/pages/examples/" + project.fullSlug + ".mdx"
@@ -112,6 +102,16 @@ async function generateMetaForExampleGroup(group: {
   slug: string;
   projects: Project[];
 }) {
+  if (
+    !fs.existsSync(
+      path.resolve(dir, "../../../docs/pages/examples/" + group.slug)
+    )
+  ) {
+    fs.mkdirSync(
+      path.resolve(dir, "../../../docs/pages/examples/" + group.slug)
+    );
+  }
+
   const target = path.resolve(
     dir,
     "../../../docs/pages/examples/" + group.slug + "/_meta.json"

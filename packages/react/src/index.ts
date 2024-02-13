@@ -1,4 +1,5 @@
 // TODO: review directories
+export * from "./editor/BlockNoteContext";
 export * from "./editor/BlockNoteTheme";
 export * from "./editor/BlockNoteView";
 export * from "./editor/defaultThemes";
@@ -29,10 +30,10 @@ export * from "./components/SideMenu/DragHandleMenu/DefaultDragHandleMenu";
 export * from "./components/SideMenu/DragHandleMenu/DragHandleMenu";
 export * from "./components/SideMenu/DragHandleMenu/DragHandleMenuItem";
 
-export * from "./slashMenuItems/ReactSlashMenuItem";
 export * from "./components/SlashMenu/DefaultSlashMenu";
 export * from "./components/SlashMenu/SlashMenuItem";
 export * from "./components/SlashMenu/SlashMenuPositioner";
+export * from "./slashMenuItems/ReactSlashMenuItem";
 export * from "./slashMenuItems/defaultReactSlashMenuItems";
 
 export * from "./components/ImageToolbar/DefaultImageToolbar";
@@ -48,7 +49,7 @@ export * from "./components-shared/Toolbar/ToolbarDropdown";
 export * from "./hooks/useActiveStyles";
 export * from "./hooks/useBlockNote";
 export * from "./hooks/useEditorChange";
-export * from "./hooks/useEditorContentChange";
+export * from "./hooks/useEditorContentOrSelectionChange";
 export * from "./hooks/useEditorForceUpdate";
 export * from "./hooks/useEditorSelectionChange";
 export * from "./hooks/useSelectedBlocks";

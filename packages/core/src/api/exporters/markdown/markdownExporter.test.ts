@@ -1,15 +1,16 @@
 import fs from "node:fs";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { PartialBlock } from "../../../blocks/defaultBlocks";
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
-import { BlockSchema, PartialBlock } from "../../../schema/blocks/types";
+import { BlockSchema } from "../../../schema/blocks/types";
 import { InlineContentSchema } from "../../../schema/inlineContent/types";
 import { StyleSchema } from "../../../schema/styles/types";
-import { partialBlocksToBlocksForTesting } from "../../testUtil/partialBlockTestUtil";
 import { customBlocksTestCases } from "../../testUtil/cases/customBlocks";
 import { customInlineContentTestCases } from "../../testUtil/cases/customInlineContent";
 import { customStylesTestCases } from "../../testUtil/cases/customStyles";
 import { defaultSchemaTestCases } from "../../testUtil/cases/defaultSchema";
+import { partialBlocksToBlocksForTesting } from "../../testUtil/partialBlockTestUtil";
 
 async function convertToMarkdownAndCompareSnapshots<
   B extends BlockSchema,

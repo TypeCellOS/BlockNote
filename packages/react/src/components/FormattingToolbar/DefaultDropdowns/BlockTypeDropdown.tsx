@@ -12,7 +12,7 @@ import {
 
 import { ToolbarDropdown } from "../../../components-shared/Toolbar/ToolbarDropdown";
 import type { ToolbarDropdownItemProps } from "../../../components-shared/Toolbar/ToolbarDropdownItem";
-import { useEditorChange } from "../../../hooks/useEditorChange";
+import { useEditorContentOrSelectionChange } from "../../../hooks/useEditorContentOrSelectionChange";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
 
 export type BlockTypeDropdownItem = {
@@ -138,9 +138,9 @@ export const BlockTypeDropdown = <BSchema extends BlockSchema>(props: {
     }));
   }, [block, filteredItems, props.editor, selectedBlocks]);
 
-  useEditorChange(props.editor, () => {
+  useEditorContentOrSelectionChange(() => {
     setBlock(props.editor.getTextCursorPosition().block);
-  });
+  }, props.editor);
 
   if (!shouldShow) {
     return null;

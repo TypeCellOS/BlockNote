@@ -8,6 +8,7 @@ import {
   inlineContentToNodes,
   tableContentToNodes,
 } from "../api/nodeConversions/nodeConversions";
+import { PartialBlock } from "../blocks/defaultBlocks";
 import type { BlockNoteEditor } from "../editor/BlockNoteEditor";
 import { NonEditableBlockPlugin } from "../extensions/NonEditableBlocks/NonEditableBlockPlugin";
 import { PreviousBlockTypePlugin } from "../extensions/PreviousBlockType/PreviousBlockTypePlugin";
@@ -15,7 +16,6 @@ import {
   BlockNoteDOMAttributes,
   BlockSchema,
   InlineContentSchema,
-  PartialBlock,
   StyleSchema,
 } from "../schema";
 import { mergeCSSClasses } from "../util/browser";

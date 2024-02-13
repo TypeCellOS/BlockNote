@@ -2,7 +2,8 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
 
 import { addIdsToBlocks, partialBlocksToBlocksForTesting } from "../../..";
-import { BlockSchema, PartialBlock } from "../../../schema/blocks/types";
+import { PartialBlock } from "../../../blocks/defaultBlocks";
+import { BlockSchema } from "../../../schema/blocks/types";
 import { InlineContentSchema } from "../../../schema/inlineContent/types";
 import { StyleSchema } from "../../../schema/styles/types";
 import { customBlocksTestCases } from "../../testUtil/cases/customBlocks";

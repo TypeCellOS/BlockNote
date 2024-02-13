@@ -117,12 +117,6 @@ export const bracketsParagraphBlock = createReactBlockSpec(
 
 export default function App() {
   const editor = useBlockNote({
-    domAttributes: {
-      editor: {
-        class: "editor",
-        "data-test": "editor",
-      },
-    },
     blockSpecs: {
       ...defaultBlockSpecs,
       alert: alertBlock,
@@ -150,5 +144,5 @@ export default function App() {
     ],
   });
 
-  return <BlockNoteView className="root" editor={editor} />;
+  return <BlockNoteView editor={editor} />;
 }

@@ -1,4 +1,3 @@
-import { BlockNoteEditor } from "@blocknote/core";
 import {
   BlockNoteView,
   FormattingToolbarPositioner,
@@ -12,7 +11,7 @@ import { CustomFormattingToolbar } from "./CustomFormattingToolbar";
 
 export default function App() {
   // Creates a new editor instance.
-  const editor: BlockNoteEditor = useBlockNote();
+  const editor = useBlockNote();
 
   // Renders the editor instance.
   return (

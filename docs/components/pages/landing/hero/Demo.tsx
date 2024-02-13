@@ -1,14 +1,11 @@
 import { uploadToTmpFilesDotOrg_DEV_ONLY } from "@blocknote/core";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
 import "@blocknote/react/style.css";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import YPartyKitProvider from "y-partykit/provider";
 import * as Y from "yjs";
 
 import "./styles.css";
-
-const html = document.getElementsByTagName("html")[0];
-const getTheme = () => (html.className.includes("dark") ? "dark" : "light");
 
 const colors = [
   "#958DF1",
@@ -56,8 +53,10 @@ function getUTCDateYYYYMMDD() {
   return `${year}${formattedMonth}${formattedDay}`;
 }
 
-export function ReactBlockNote() {
-  const [theme, setTheme] = useState<"dark" | "light">(() => getTheme());
+export function ReactBlockNote(props: {
+  theme: "light" | "dark";
+}) {
+
 
   const [doc, provider] = useMemo(() => {
     console.log("create");
@@ -86,39 +85,24 @@ export function ReactBlockNote() {
     [],
   );
 
-  useEffect(() => {
-    let shownAlert = false;
-    const listener = () => {
-      if (!shownAlert) {
-        alert(
-          "Text you enter in this demo is displayed publicly on the internet to show multiplayer features. Be kind :)",
-        );
-        shownAlert = true;
-      }
-    };
-    editor?.domElement?.addEventListener("focus", listener);
-    return () => {
-      editor?.domElement?.removeEventListener("focus", listener);
-    };
-  }, [editor?.domElement]);
+  // TODO
+  // useEffect(() => {
+  //   let shownAlert = false;
+  //   const listener = () => {
+  //     if (!shownAlert) {
+  //       alert(
+  //         "Text you enter in this demo is displayed publicly on the internet to show multiplayer features. Be kind :)",
+  //       );
+  //       shownAlert = true;
+  //     }
+  //   };
+  //   editor?.domElement?.addEventListener("focus", listener);
+  //   return () => {
+  //     editor?.domElement?.removeEventListener("focus", listener);
+  //   };
+  // }, [editor?.domElement]);
 
-  useEffect(() => {
-    const observer = new MutationObserver((mutationList) => {
-      mutationList.forEach(function (mutation) {
-        if (
-          mutation.type === "attributes" &&
-          mutation.attributeName === "class"
-        ) {
-          setTheme(getTheme());
-        }
-      });
-    });
-    observer.observe(html, { attributes: true });
-
-    return () => observer.disconnect();
-  }, []);
-
-  return <BlockNoteView editor={editor} theme={theme} />;
+  return <BlockNoteView editor={editor} theme={props.theme} />;
 }
 
 export default ReactBlockNote;

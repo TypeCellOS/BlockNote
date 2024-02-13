@@ -11,9 +11,7 @@
         "pathFromRoot": "examples/01-basic/01-minimal",
         "config": {
           "playground": true,
-          "docs": false,
-          "group": "Basic Examples",
-          "order": 1
+          "docs": true
         },
         "title": "Basic Editor Setup",
         "group": {
@@ -22,30 +20,12 @@
         }
       },
       {
-        "projectSlug": "block-manipulation",
-        "fullSlug": "basic/block-manipulation",
-        "pathFromRoot": "examples/01-basic/block-manipulation",
-        "config": {
-          "playground": true,
-          "docs": true,
-          "group": "Basic Examples",
-          "order": 1
-        },
-        "title": "Block Manipulation",
-        "group": {
-          "pathFromRoot": "examples/01-basic",
-          "slug": "basic"
-        }
-      },
-      {
         "projectSlug": "block-objects",
         "fullSlug": "basic/block-objects",
-        "pathFromRoot": "examples/01-basic/block-objects",
+        "pathFromRoot": "examples/01-basic/02-block-objects",
         "config": {
           "playground": true,
-          "docs": false,
-          "group": "Basic Examples",
-          "order": 1
+          "docs": true
         },
         "title": "Displaying Block Objects",
         "group": {
@@ -54,16 +34,14 @@
         }
       },
       {
-        "projectSlug": "keyboard-shortcuts",
-        "fullSlug": "basic/keyboard-shortcuts",
-        "pathFromRoot": "examples/01-basic/keyboard-shortcuts",
+        "projectSlug": "block-manipulation",
+        "fullSlug": "basic/block-manipulation",
+        "pathFromRoot": "examples/01-basic/03-block-manipulation",
         "config": {
           "playground": true,
-          "docs": true,
-          "group": "Basic Examples",
-          "order": 5
+          "docs": true
         },
-        "title": "Keyboard Shortcuts",
+        "title": "Block Manipulation",
         "group": {
           "pathFromRoot": "examples/01-basic",
           "slug": "basic"
@@ -72,14 +50,40 @@
       {
         "projectSlug": "saving-loading",
         "fullSlug": "basic/saving-loading",
-        "pathFromRoot": "examples/01-basic/saving-loading",
+        "pathFromRoot": "examples/01-basic/04-saving-loading",
         "config": {
           "playground": true,
-          "docs": true,
-          "group": "Basic Examples",
-          "order": 2
+          "docs": true
         },
         "title": "Saving & Loading",
+        "group": {
+          "pathFromRoot": "examples/01-basic",
+          "slug": "basic"
+        }
+      },
+      {
+        "projectSlug": "file-uploading",
+        "fullSlug": "basic/file-uploading",
+        "pathFromRoot": "examples/01-basic/05-file-uploading",
+        "config": {
+          "playground": true,
+          "docs": true
+        },
+        "title": "File / image uploading",
+        "group": {
+          "pathFromRoot": "examples/01-basic",
+          "slug": "basic"
+        }
+      },
+      {
+        "projectSlug": "keyboard-shortcuts",
+        "fullSlug": "basic/keyboard-shortcuts",
+        "pathFromRoot": "examples/01-basic/06-keyboard-shortcuts",
+        "config": {
+          "playground": true,
+          "docs": true
+        },
+        "title": "Keyboard Shortcuts",
         "group": {
           "pathFromRoot": "examples/01-basic",
           "slug": "basic"
@@ -356,46 +360,12 @@
     "title": "Interoperability",
     "projects": [
       {
-        "projectSlug": "converting-blocks-from-html",
-        "fullSlug": "interoperability/converting-blocks-from-html",
-        "pathFromRoot": "examples/08-interoperability/converting-blocks-from-html",
-        "config": {
-          "playground": true,
-          "docs": false,
-          "group": "Basic Examples",
-          "order": 1
-        },
-        "title": "Converting HTML to Blocks",
-        "group": {
-          "pathFromRoot": "examples/08-interoperability",
-          "slug": "interoperability"
-        }
-      },
-      {
-        "projectSlug": "converting-blocks-from-md",
-        "fullSlug": "interoperability/converting-blocks-from-md",
-        "pathFromRoot": "examples/08-interoperability/converting-blocks-from-md",
-        "config": {
-          "playground": true,
-          "docs": false,
-          "group": "Basic Examples",
-          "order": 1
-        },
-        "title": "Converting Markdown to Blocks",
-        "group": {
-          "pathFromRoot": "examples/08-interoperability",
-          "slug": "interoperability"
-        }
-      },
-      {
         "projectSlug": "converting-blocks-to-html",
         "fullSlug": "interoperability/converting-blocks-to-html",
-        "pathFromRoot": "examples/08-interoperability/converting-blocks-to-html",
+        "pathFromRoot": "examples/08-interoperability/01-converting-blocks-to-html",
         "config": {
           "playground": true,
-          "docs": false,
-          "group": "Basic Examples",
-          "order": 1
+          "docs": true
         },
         "title": "Converting Blocks to HTML",
         "group": {
@@ -404,16 +374,42 @@
         }
       },
       {
-        "projectSlug": "converting-blocks-to-md",
-        "fullSlug": "interoperability/converting-blocks-to-md",
-        "pathFromRoot": "examples/08-interoperability/converting-blocks-to-md",
+        "projectSlug": "converting-blocks-from-html",
+        "fullSlug": "interoperability/converting-blocks-from-html",
+        "pathFromRoot": "examples/08-interoperability/02-converting-blocks-from-html",
         "config": {
           "playground": true,
-          "docs": false,
-          "group": "Basic Examples",
-          "order": 1
+          "docs": true
+        },
+        "title": "Parsing HTML to Blocks",
+        "group": {
+          "pathFromRoot": "examples/08-interoperability",
+          "slug": "interoperability"
+        }
+      },
+      {
+        "projectSlug": "converting-blocks-to-md",
+        "fullSlug": "interoperability/converting-blocks-to-md",
+        "pathFromRoot": "examples/08-interoperability/03-converting-blocks-to-md",
+        "config": {
+          "playground": true,
+          "docs": true
         },
         "title": "Converting Blocks to Markdown",
+        "group": {
+          "pathFromRoot": "examples/08-interoperability",
+          "slug": "interoperability"
+        }
+      },
+      {
+        "projectSlug": "converting-blocks-from-md",
+        "fullSlug": "interoperability/converting-blocks-from-md",
+        "pathFromRoot": "examples/08-interoperability/04-converting-blocks-from-md",
+        "config": {
+          "playground": true,
+          "docs": true
+        },
+        "title": "Parsing Markdown to Blocks",
         "group": {
           "pathFromRoot": "examples/08-interoperability",
           "slug": "interoperability"

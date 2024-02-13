@@ -6,14 +6,10 @@ import { createExternalHTMLExporter } from "../../api/exporters/html/externalHTM
 import { createInternalHTMLSerializer } from "../../api/exporters/html/internalHTMLSerializer";
 import { cleanHTMLToMarkdown } from "../../api/exporters/markdown/markdownExporter";
 import { getBlockInfoFromPos } from "../../api/getBlockInfoFromPos";
+import { Block } from "../../blocks/defaultBlocks";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import { BaseUiElementState } from "../../extensions-shared/BaseUiElementTypes";
-import {
-  Block,
-  BlockSchema,
-  InlineContentSchema,
-  StyleSchema,
-} from "../../schema";
+import { BlockSchema, InlineContentSchema, StyleSchema } from "../../schema";
 import { EventEmitter } from "../../util/EventEmitter";
 import { slashMenuPluginKey } from "../SlashMenu/SlashMenuPlugin";
 import { MultipleNodeSelection } from "./MultipleNodeSelection";

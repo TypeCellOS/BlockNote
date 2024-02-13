@@ -1,6 +1,6 @@
 import {
   FormattingToolbarProps,
-  useEditorContentChange,
+  useEditorChange,
   useEditorSelectionChange,
 } from "@blocknote/react";
 import { useState } from "react";
@@ -77,8 +77,8 @@ export const CustomFormattingToolbar = (props: FormattingToolbarProps) => {
   const [linkMenuOpen, setLinkMenuOpen] = useState(false);
 
   // Updates toolbar state when the editor content or selection changes
-  useEditorContentChange(props.editor, () => setState(getState()));
-  useEditorSelectionChange(props.editor, () => setState(getState()));
+  useEditorChange(() => setState(getState()), props.editor);
+  useEditorSelectionChange(() => setState(getState()), props.editor);
 
   return (
     <div className={"formatting-toolbar"}>

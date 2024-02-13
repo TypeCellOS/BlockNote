@@ -17,7 +17,7 @@ export default function App() {
 
   // Renders the editor instance.
   return (
-    <BlockNoteView editor={editor} theme={"light"}>
+    <BlockNoteView editor={editor}>
       <FormattingToolbarPositioner editor={editor} />
       <HyperlinkToolbarPositioner editor={editor} />
       <SlashMenuPositioner editor={editor} />

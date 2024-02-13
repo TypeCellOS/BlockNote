@@ -96,15 +96,6 @@ export default function App() {
         small,
         fontSize,
       },
-      onEditorContentChange: (editor) => {
-        console.log(editor.topLevelBlocks);
-      },
-      domAttributes: {
-        editor: {
-          class: "editor",
-          "data-test": "editor",
-        },
-      },
       initialContent: [
         {
           type: "paragraph",
@@ -131,7 +122,7 @@ export default function App() {
   );
 
   return (
-    <BlockNoteView className="root" editor={editor}>
+    <BlockNoteView editor={editor}>
       <FormattingToolbarPositioner
         editor={editor}
         formattingToolbar={CustomFormattingToolbar}

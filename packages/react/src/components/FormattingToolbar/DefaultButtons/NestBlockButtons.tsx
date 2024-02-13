@@ -1,10 +1,10 @@
-import { useCallback, useState } from "react";
 import { BlockNoteEditor, BlockSchema } from "@blocknote/core";
+import { useCallback, useState } from "react";
 import { RiIndentDecrease, RiIndentIncrease } from "react-icons/ri";
 
-import { ToolbarButton } from "../../../components-shared/Toolbar/ToolbarButton";
-import { useEditorChange } from "../../../hooks/useEditorChange";
 import { formatKeyboardShortcut } from "@blocknote/core";
+import { ToolbarButton } from "../../../components-shared/Toolbar/ToolbarButton";
+import { useEditorContentOrSelectionChange } from "../../../hooks/useEditorContentOrSelectionChange";
 
 export const NestBlockButton = <BSchema extends BlockSchema>(props: {
   editor: BlockNoteEditor<BSchema>;
@@ -13,10 +13,10 @@ export const NestBlockButton = <BSchema extends BlockSchema>(props: {
     props.editor.canNestBlock()
   );
 
-  useEditorChange(props.editor, () => {
+  useEditorContentOrSelectionChange(() => {
     props.editor.canNestBlock();
     setCanNestBlock(props.editor.canNestBlock());
-  });
+  }, props.editor);
 
   const nestBlock = useCallback(() => {
     props.editor.focus();
@@ -41,9 +41,9 @@ export const UnnestBlockButton = <BSchema extends BlockSchema>(props: {
     props.editor.canUnnestBlock()
   );
 
-  useEditorChange(props.editor, () => {
+  useEditorContentOrSelectionChange(() => {
     setCanUnnestBlock(props.editor.canUnnestBlock());
-  });
+  }, props.editor);
 
   const unnestBlock = useCallback(() => {
     props.editor.focus();

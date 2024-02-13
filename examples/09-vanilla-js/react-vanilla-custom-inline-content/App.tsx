@@ -56,12 +56,6 @@ export default function App() {
       tag,
       ...defaultInlineContentSpecs,
     },
-    domAttributes: {
-      editor: {
-        class: "editor",
-        "data-test": "editor",
-      },
-    },
     initialContent: [
       {
         type: "paragraph",
@@ -89,5 +83,5 @@ export default function App() {
     ],
   });
 
-  return <BlockNoteView className="root" editor={editor} />;
+  return <BlockNoteView editor={editor} />;
 }
