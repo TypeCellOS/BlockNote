@@ -360,46 +360,12 @@
     "title": "Interoperability",
     "projects": [
       {
-        "projectSlug": "converting-blocks-from-html",
-        "fullSlug": "interoperability/converting-blocks-from-html",
-        "pathFromRoot": "examples/08-interoperability/converting-blocks-from-html",
-        "config": {
-          "playground": true,
-          "docs": false,
-          "group": "Basic Examples",
-          "order": 1
-        },
-        "title": "Converting HTML to Blocks",
-        "group": {
-          "pathFromRoot": "examples/08-interoperability",
-          "slug": "interoperability"
-        }
-      },
-      {
-        "projectSlug": "converting-blocks-from-md",
-        "fullSlug": "interoperability/converting-blocks-from-md",
-        "pathFromRoot": "examples/08-interoperability/converting-blocks-from-md",
-        "config": {
-          "playground": true,
-          "docs": false,
-          "group": "Basic Examples",
-          "order": 1
-        },
-        "title": "Converting Markdown to Blocks",
-        "group": {
-          "pathFromRoot": "examples/08-interoperability",
-          "slug": "interoperability"
-        }
-      },
-      {
         "projectSlug": "converting-blocks-to-html",
         "fullSlug": "interoperability/converting-blocks-to-html",
-        "pathFromRoot": "examples/08-interoperability/converting-blocks-to-html",
+        "pathFromRoot": "examples/08-interoperability/01-converting-blocks-to-html",
         "config": {
           "playground": true,
-          "docs": false,
-          "group": "Basic Examples",
-          "order": 1
+          "docs": true
         },
         "title": "Converting Blocks to HTML",
         "group": {
@@ -408,16 +374,42 @@
         }
       },
       {
-        "projectSlug": "converting-blocks-to-md",
-        "fullSlug": "interoperability/converting-blocks-to-md",
-        "pathFromRoot": "examples/08-interoperability/converting-blocks-to-md",
+        "projectSlug": "converting-blocks-from-html",
+        "fullSlug": "interoperability/converting-blocks-from-html",
+        "pathFromRoot": "examples/08-interoperability/02-converting-blocks-from-html",
         "config": {
           "playground": true,
-          "docs": false,
-          "group": "Basic Examples",
-          "order": 1
+          "docs": true
+        },
+        "title": "Parsing HTML to Blocks",
+        "group": {
+          "pathFromRoot": "examples/08-interoperability",
+          "slug": "interoperability"
+        }
+      },
+      {
+        "projectSlug": "converting-blocks-to-md",
+        "fullSlug": "interoperability/converting-blocks-to-md",
+        "pathFromRoot": "examples/08-interoperability/03-converting-blocks-to-md",
+        "config": {
+          "playground": true,
+          "docs": true
         },
         "title": "Converting Blocks to Markdown",
+        "group": {
+          "pathFromRoot": "examples/08-interoperability",
+          "slug": "interoperability"
+        }
+      },
+      {
+        "projectSlug": "converting-blocks-from-md",
+        "fullSlug": "interoperability/converting-blocks-from-md",
+        "pathFromRoot": "examples/08-interoperability/04-converting-blocks-from-md",
+        "config": {
+          "playground": true,
+          "docs": true
+        },
+        "title": "Parsing Markdown to Blocks",
         "group": {
           "pathFromRoot": "examples/08-interoperability",
           "slug": "interoperability"

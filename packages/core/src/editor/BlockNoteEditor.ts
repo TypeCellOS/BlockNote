@@ -70,6 +70,9 @@ import {
 } from "./BlockNoteTipTapEditor";
 import "./editor.css";
 
+// TODO: change for built-in version of typescript 5.4 after upgrade
+export type NoInfer<T> = [T][T extends any ? 0 : never];
+
 export type BlockNoteEditorOptions<
   BSpecs extends BlockSpecs,
   ISpecs extends InlineContentSpecs,
@@ -95,17 +98,11 @@ export type BlockNoteEditorOptions<
   /**
    * The content that should be in the editor when it's created, represented as an array of partial block objects.
    */
-  initialContent:
-    | PartialBlock<
-        BlockSchemaFromSpecs<BSpecs>,
-        InlineContentSchemaFromSpecs<ISpecs>,
-        StyleSchemaFromSpecs<SSpecs>
-      >[]
-    | Block<
-        BlockSchemaFromSpecs<BSpecs>,
-        InlineContentSchemaFromSpecs<ISpecs>,
-        StyleSchemaFromSpecs<SSpecs>
-      >[];
+  initialContent: PartialBlock<
+    BlockSchemaFromSpecs<NoInfer<BSpecs>>,
+    InlineContentSchemaFromSpecs<NoInfer<ISpecs>>,
+    StyleSchemaFromSpecs<NoInfer<SSpecs>>
+  >[];
   /**
    * Use default BlockNote font and reset the styles of <p> <li> <h1> elements etc., that are used in BlockNote.
    *

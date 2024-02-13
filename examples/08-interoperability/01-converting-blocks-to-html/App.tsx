@@ -2,20 +2,34 @@ import { BlockNoteView, useBlockNote } from "@blocknote/react";
 import "@blocknote/react/style.css";
 import { useState } from "react";
 
+// TODO: better design?
 export default function App() {
   // Stores the editor's contents as HTML.
   const [html, setHTML] = useState<string>("");
 
-  // Creates a new editor instance.
-  const editor = useBlockNote({});
+  // Creates a new editor instance with some initial content.
+  const editor = useBlockNote({
+    initialContent: [
+      {
+        type: "paragraph",
+        content: [
+          "Hello, ",
+          {
+            type: "text",
+            text: "world!",
+            styles: {
+              bold: true,
+            },
+          },
+        ],
+      },
+    ],
+  });
 
-  const onChange = () => {
-    // Converts the editor's contents from Block objects to HTML and saves them.
-    const saveBlocksAsHTML = async () => {
-      const html = await editor.blocksToHTMLLossy(editor.topLevelBlocks);
-      setHTML(html);
-    };
-    saveBlocksAsHTML();
+  const onChange = async () => {
+    // Converts the editor's contents from Block objects to HTML and store to state.
+    const html = await editor.blocksToHTMLLossy(editor.topLevelBlocks);
+    setHTML(html);
   };
 
   // Renders the editor instance, and its contents as HTML below.
