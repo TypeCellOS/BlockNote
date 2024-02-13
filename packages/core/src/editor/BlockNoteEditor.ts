@@ -252,6 +252,12 @@ export class BlockNoteEditor<
       );
     }
 
+    if (anyOpts.onEditorReady) {
+      throw new Error(
+        "onEditorReady is deprecated. Editor is immediately ready for use after creation."
+      );
+    }
+
     if (anyOpts.editable) {
       throw new Error(
         "editable initialization option is deprecated, use <BlockNoteView editable={true/false} />, or alternatively editor.isEditable = true/false"

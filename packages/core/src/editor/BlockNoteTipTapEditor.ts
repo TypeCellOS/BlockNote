@@ -66,24 +66,35 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
       return cache;
     };
 
-    const pmNodes = options?.content.map((b) =>
-      blockToNode(b, this.schema, styleSchema).toJSON()
-    );
+    let doc: Node;
 
-    const doc = createDocument(
-      {
-        type: "doc",
-        content: [
-          {
-            type: "blockGroup",
-            content: pmNodes,
-          },
-        ],
-      },
-      this.schema,
-      this.options.parseOptions
-    );
-    console.log("create state");
+    try {
+      const pmNodes = options?.content.map((b) =>
+        blockToNode(b, this.schema, styleSchema).toJSON()
+      );
+      doc = createDocument(
+        {
+          type: "doc",
+          content: [
+            {
+              type: "blockGroup",
+              content: pmNodes,
+            },
+          ],
+        },
+        this.schema,
+        this.options.parseOptions
+      );
+    } catch (e) {
+      console.error(
+        "Error creating document from blocks passed as `initialContent`. Caused by exception: ",
+        e
+      );
+      throw new Error(
+        "Error creating document from blocks passed as `initialContent`:\n" +
+          +JSON.stringify(options.content)
+      );
+    }
 
     // Create state immediately, so that it's available independently from the View,
     // the way Prosemirror "intends it to be". This also makes sure that we can access
