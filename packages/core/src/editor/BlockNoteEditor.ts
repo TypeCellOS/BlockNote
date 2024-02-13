@@ -18,13 +18,13 @@ import { markdownToBlocks } from "../api/parsers/markdown/parseMarkdown";
 import {
   Block,
   DefaultBlockSchema,
-  DefaultInlineContentSchema,
-  DefaultStyleSchema,
-  PartialBlock,
   defaultBlockSchema,
   defaultBlockSpecs,
+  DefaultInlineContentSchema,
   defaultInlineContentSpecs,
+  DefaultStyleSchema,
   defaultStyleSpecs,
+  PartialBlock,
 } from "../blocks/defaultBlocks";
 import { FormattingToolbarProsemirrorPlugin } from "../extensions/FormattingToolbar/FormattingToolbarPlugin";
 import { HyperlinkToolbarProsemirrorPlugin } from "../extensions/HyperlinkToolbar/HyperlinkToolbarPlugin";
@@ -42,16 +42,16 @@ import {
   BlockSchemaFromSpecs,
   BlockSchemaWithBlock,
   BlockSpecs,
-  InlineContentSchema,
-  InlineContentSchemaFromSpecs,
-  InlineContentSpecs,
-  StyleSchema,
-  StyleSchemaFromSpecs,
-  StyleSpecs,
-  Styles,
   getBlockSchemaFromSpecs,
   getInlineContentSchemaFromSpecs,
   getStyleSchemaFromSpecs,
+  InlineContentSchema,
+  InlineContentSchemaFromSpecs,
+  InlineContentSpecs,
+  Styles,
+  StyleSchema,
+  StyleSchemaFromSpecs,
+  StyleSpecs,
 } from "../schema";
 import { mergeCSSClasses } from "../util/browser";
 import { UnreachableCaseError } from "../util/typescript";
@@ -365,7 +365,6 @@ export class BlockNoteEditor<
           ...newOptions._tiptapOptions?.editorProps?.attributes,
           ...newOptions.domAttributes?.editor,
           class: mergeCSSClasses(
-            "bn-root", // TODO: remove this class?
             "bn-editor",
             newOptions.defaultStyles ? "bn-default-styles" : "",
             newOptions.domAttributes?.editor?.class || ""
