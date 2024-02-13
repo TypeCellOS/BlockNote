@@ -1,11 +1,14 @@
 import { uploadToTmpFilesDotOrg_DEV_ONLY } from "@blocknote/core";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
 import "@blocknote/react/style.css";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import YPartyKitProvider from "y-partykit/provider";
 import * as Y from "yjs";
 
 import "./styles.css";
+
+const html = document.getElementsByTagName("html")[0];
+const getTheme = () => (html.className.includes("dark") ? "dark" : "light");
 
 const colors = [
   "#958DF1",
@@ -53,7 +56,9 @@ function getUTCDateYYYYMMDD() {
   return `${year}${formattedMonth}${formattedDay}`;
 }
 
-export function ReactBlockNote(props: { theme?: "light" | "dark" }) {
+export function ReactBlockNote() {
+  const [theme, setTheme] = useState<"dark" | "light">(() => getTheme());
+
   const [doc, provider] = useMemo(() => {
     console.log("create");
     const doc = new Y.Doc();
@@ -78,7 +83,7 @@ export function ReactBlockNote(props: { theme?: "light" | "dark" }) {
       },
       uploadFile: uploadToTmpFilesDotOrg_DEV_ONLY,
     },
-    [props.theme],
+    [],
   );
 
   useEffect(() => {
@@ -97,7 +102,23 @@ export function ReactBlockNote(props: { theme?: "light" | "dark" }) {
     };
   }, [editor?.domElement]);
 
-  return <BlockNoteView editor={editor} theme={props.theme} />;
+  useEffect(() => {
+    const observer = new MutationObserver((mutationList) => {
+      mutationList.forEach(function (mutation) {
+        if (
+          mutation.type === "attributes" &&
+          mutation.attributeName === "class"
+        ) {
+          setTheme(getTheme());
+        }
+      });
+    });
+    observer.observe(html, { attributes: true });
+
+    return () => observer.disconnect();
+  }, []);
+
+  return <BlockNoteView editor={editor} theme={theme} />;
 }
 
 export default ReactBlockNote;

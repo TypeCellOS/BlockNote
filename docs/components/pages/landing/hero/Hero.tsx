@@ -1,17 +1,16 @@
 // import { PackLogo } from "../../logos/PackLogo";
 
 import dynamic from "next/dynamic";
-import { FadeIn } from "../home-shared/FadeIn";
-import { HeroText, SectionSubtext } from "../home-shared/Headings";
+import { FadeIn } from "../shared/FadeIn";
+import { HeroText, SectionSubtext } from "../../home-shared/Headings";
 
-const Demo = dynamic(() => import("./demo/Demo"), { ssr: false });
+const Demo = dynamic(() => import("@/components/pages/landing/hero/Demo"), {
+  ssr: false,
+});
 
-export function PackHero() {
+export function Hero() {
   return (
     <section className="relative flex h-fit w-full items-center justify-center overflow-hidden py-36">
-      <FadeIn noVertical className={"absolute z-10 h-full w-full"}>
-        <div className={"section-hero h-full w-full"} />
-      </FadeIn>
       <div className="z-20 flex w-screen max-w-full flex-col items-center justify-between gap-16 px-6 md:max-w-screen-md xl:max-w-[1440px] xl:flex-row">
         <FadeIn className="flex h-fit flex-col items-center justify-center gap-5 text-center xl:w-[584px] xl:items-start xl:text-left">
           <HeroText h1>
@@ -26,12 +25,18 @@ export function PackHero() {
             your app that users will love. Customize it with your own
             functionality like custom blocks or AI tooling.
           </SectionSubtext>
-          <div className="flex flex-wrap gap-x-6 gap-y-4">
+          <div className="button-glow-parent relative flex h-fit w-fit flex-wrap gap-x-6 gap-y-4">
             <a
-              className="rounded-full bg-slate-800 px-4 py-2 text-lg font-medium text-white hover:bg-slate-700 focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/50 active:text-slate-400"
+              className={
+                "rounded-full bg-slate-800 px-4 py-2 text-lg font-medium text-white"
+              }
               href="/docs">
               Get Started
             </a>
+            <div
+              className={"button-glow absolute z-10 h-full w-full rounded-full"}
+            />
+
             {/* <a
                 className="rounded-full bg-slate-800 py-2 px-4 text-sm font-medium text-white hover:bg-slate-700 focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/50 active:text-slate-400"
                 href="/">
@@ -47,8 +52,11 @@ export function PackHero() {
           </Button> */}
           </div>
         </FadeIn>
-        <div className="h-[36rem] w-full shrink-0 grow-0 rounded-lg xl:w-[584px]">
-          <div className="h-full w-full overflow-scroll overscroll-contain rounded-lg">
+        <div className="relative h-[36rem] w-full shrink-0 grow-0 rounded-lg xl:w-[584px]">
+          <FadeIn noVertical className={"absolute z-10 h-full w-full"}>
+            <div className={"editor-glow h-full w-full"} />
+          </FadeIn>
+          <div className="relative z-20 h-full w-full overflow-scroll overscroll-contain rounded-lg">
             {/* TODO: Wait for editor & collab content to load before rendering. Show placeholder or delay loading?*/}
             <Demo />
             {/* <BackgroundIllustration className="absolute left-1/2 top-4 h-[1026px] w-[1026px] -translate-x-1/3 stroke-gray-300/70 [mask-image:linear-gradient(to_bottom,white_20%,transparent_75%)] sm:top-16 sm:-translate-x-1/2 lg:-top-16 lg:ml-12 xl:-top-14 xl:ml-0" />
