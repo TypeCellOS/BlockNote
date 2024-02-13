@@ -16,6 +16,7 @@ import {
 } from "../../schema";
 import { EventEmitter } from "../../util/EventEmitter";
 import { MultipleNodeSelection } from "./MultipleNodeSelection";
+import { suggestionMenuPluginKey } from "../SuggestionMenu/SuggestionPlugin";
 
 let dragImageElement: Element | undefined;
 
@@ -549,14 +550,17 @@ export class SideMenuView<
     const { contentNode, startPos, endPos } = blockInfo;
 
     // Creates a new block if current one is not empty for the suggestion menu to open in.
-    if (contentNode.textContent.length !== 0) {
+    if (
+      contentNode.type.spec.content !== "inline*" ||
+      contentNode.textContent.length !== 0
+    ) {
       const newBlockInsertionPos = endPos + 1;
       const newBlockContentPos = newBlockInsertionPos + 2;
 
       this.editor._tiptapEditor
         .chain()
         .BNCreateBlock(newBlockInsertionPos)
-        .BNUpdateBlock(newBlockContentPos, { type: "paragraph", props: {} })
+        // .BNUpdateBlock(newBlockContentPos, { type: "paragraph", props: {} })
         .setTextSelection(newBlockContentPos)
         .run();
     } else {
@@ -566,13 +570,10 @@ export class SideMenuView<
     // Focuses and activates the suggestion menu.
     this.pmView.focus();
     this.pmView.dispatch(
-      this.pmView.state.tr
-        .scrollIntoView()
-        .setMeta(this.editor.suggestionMenus.slashMenu.plugin.spec.key!, {
-          // TODO import suggestion plugin key
-          activate: true,
-          type: "drag",
-        })
+      this.pmView.state.tr.scrollIntoView().setMeta(suggestionMenuPluginKey, {
+        triggerCharacter: "/",
+        fromUserInput: false,
+      })
     );
   }
 }

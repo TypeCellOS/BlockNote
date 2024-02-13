@@ -9,16 +9,11 @@ import {
   uploadToTmpFilesDotOrg_DEV_ONLY,
 } from "@blocknote/core";
 import {
+  BlockNoteDefaultUI,
   BlockNoteView,
   createReactInlineContentSpec,
-  DefaultSlashMenu,
-  FormattingToolbarPositioner,
-  HyperlinkToolbarPositioner,
-  ImageToolbarPositioner,
-  SideMenuPositioner,
-  SlashMenuPositioner,
-  SuggestionMenuPositioner,
-  TableHandlesPositioner,
+  DefaultPositionedSuggestionMenu,
+  SuggestionMenuItemProps,
   useBlockNote,
 } from "@blocknote/react";
 import "@blocknote/react/style.css";
@@ -53,17 +48,23 @@ const customInlineContentSchema = {
   mention: MentionInlineContent.config,
 } satisfies InlineContentSchema;
 
-async function getMentionMenuItems(query: string) {
+async function getMentionMenuItems(
+  editor: BlockNoteEditor<
+    DefaultBlockSchema,
+    typeof customInlineContentSchema,
+    DefaultStyleSchema
+  >,
+  query: string,
+  closeMenu: () => void,
+  clearQuery: () => void
+): Promise<SuggestionMenuItemProps[]> {
   const users = ["Steve", "Bob", "Joe", "Mike"];
-  const items = users.map((user) => ({
+  const items: SuggestionMenuItemProps[] = users.map((user) => ({
     name: user,
-    execute: (
-      editor: BlockNoteEditor<
-        DefaultBlockSchema,
-        typeof customInlineContentSchema,
-        DefaultStyleSchema
-      >
-    ) => {
+    execute: () => {
+      closeMenu();
+      clearQuery();
+
       editor._tiptapEditor.commands.insertContent({
         type: "mention",
         attrs: {
@@ -94,32 +95,21 @@ export function App() {
       },
     },
     uploadFile: uploadToTmpFilesDotOrg_DEV_ONLY,
-    extraSuggestionMenus: [
-      {
-        name: "mentions",
-        triggerCharacter: "@",
-        getItems: getMentionMenuItems,
-      },
-    ],
   });
 
   // Give tests a way to get prosemirror instance
   (window as WindowWithProseMirror).ProseMirror = editor?._tiptapEditor;
 
+  // TODO: Figure out cleaner API for adding/changing/removing menus & toolbars
   return (
     <BlockNoteView className="root" editor={editor}>
-      <FormattingToolbarPositioner editor={editor} />
-      <HyperlinkToolbarPositioner editor={editor} />
-      <SlashMenuPositioner editor={editor} />
-      <SideMenuPositioner editor={editor} />
-      <ImageToolbarPositioner editor={editor} />
-      {editor.blockSchema.table && (
-        <TableHandlesPositioner editor={editor as any} />
-      )}
-      <SuggestionMenuPositioner
-        editor={editor as any}
-        suggestionsMenuName={"mentions"}
-        suggestionsMenuComponent={DefaultSlashMenu}
+      <BlockNoteDefaultUI editor={editor} />
+      <DefaultPositionedSuggestionMenu
+        editor={editor}
+        triggerCharacter={"@"}
+        getItems={(query, closeMenu, clearQuery) =>
+          getMentionMenuItems(editor, query, closeMenu, clearQuery)
+        }
       />
     </BlockNoteView>
   );

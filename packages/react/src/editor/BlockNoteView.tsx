@@ -14,13 +14,8 @@ import {
   applyBlockNoteCSSVariablesFromTheme,
   removeBlockNoteCSSVariables,
 } from "./BlockNoteTheme";
-import { FormattingToolbarPositioner } from "../components/FormattingToolbar/FormattingToolbarPositioner";
-import { HyperlinkToolbarPositioner } from "../components/HyperlinkToolbar/HyperlinkToolbarPositioner";
-import { ImageToolbarPositioner } from "../components/ImageToolbar/ImageToolbarPositioner";
-import { SideMenuPositioner } from "../components/SideMenu/SideMenuPositioner";
-import { SlashMenuPositioner } from "../components/SlashMenu/SlashMenuPositioner";
-import { TableHandlesPositioner } from "../components/TableHandles/TableHandlePositioner";
 import "./styles.css";
+import { BlockNoteDefaultUI } from "./BlockNoteDefaultUI";
 
 const mantineTheme = {
   // Removes button press effect
@@ -88,24 +83,15 @@ export function BlockNoteView<
   }, [systemColorScheme, editor.domElement, theme]);
 
   return (
-    <MantineProvider theme={mantineTheme}>
+    // `cssVariablesSelector` scopes Mantine CSS variables to only the editor,
+    // as proposed here:  https://github.com/orgs/mantinedev/discussions/5685
+    <MantineProvider theme={mantineTheme} cssVariablesSelector=".bn-container">
       <EditorContent
         editor={editor._tiptapEditor}
         className={mergeCSSClasses("bn-container", className || "")}
         data-color-scheme={editorColorScheme}
         {...rest}>
-        {children || (
-          <>
-            <FormattingToolbarPositioner editor={editor} />
-            <HyperlinkToolbarPositioner editor={editor} />
-            <SlashMenuPositioner editor={editor} />
-            <SideMenuPositioner editor={editor} />
-            <ImageToolbarPositioner editor={editor} />
-            {editor.blockSchema.table && (
-              <TableHandlesPositioner editor={editor as any} />
-            )}
-          </>
-        )}
+        {children || <BlockNoteDefaultUI editor={editor} />}
       </EditorContent>
     </MantineProvider>
   );

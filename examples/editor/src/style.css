@@ -1,6 +1,4 @@
-body {
-  height: auto;
-}
+@import url("@mantine/core/styles.css");
 
 .editor {
   margin: 8px calc((100% - 731px) / 2) 0;

@@ -1,4 +1,5 @@
 // TODO: review directories
+export * from "./editor/BlockNoteDefaultUI";
 export * from "./editor/BlockNoteTheme";
 export * from "./editor/BlockNoteView";
 export * from "./editor/defaultThemes";
@@ -29,11 +30,13 @@ export * from "./components/SideMenu/DragHandleMenu/DefaultDragHandleMenu";
 export * from "./components/SideMenu/DragHandleMenu/DragHandleMenu";
 export * from "./components/SideMenu/DragHandleMenu/DragHandleMenuItem";
 
-export * from "./slashMenuItems/ReactSlashMenuItem";
-export * from "./components/SlashMenu/DefaultSlashMenu";
-export * from "./components/SlashMenu/SlashMenuItem";
-export * from "./components/SlashMenu/SlashMenuPositioner";
-export * from "./slashMenuItems/defaultReactSlashMenuItems";
+export * from "./components/SuggestionMenu/MantineSuggestionMenu";
+export * from "./components/SuggestionMenu/MantineSuggestionMenuItem";
+export * from "./components/SuggestionMenu/DefaultSuggestionMenu";
+export * from "./components/SuggestionMenu/defaultGetItems";
+export * from "./components/SuggestionMenu/hooks/useCloseSuggestionMenuNoItems";
+export * from "./components/SuggestionMenu/hooks/useLoadSuggestionMenuItems";
+export * from "./components/SuggestionMenu/hooks/useSuggestionMenuKeyboardNavigation";
 
 export * from "./components/ImageToolbar/DefaultImageToolbar";
 export * from "./components/ImageToolbar/ImageToolbarPositioner";
@@ -41,7 +44,6 @@ export * from "./components/ImageToolbar/ImageToolbarPositioner";
 export * from "./components/TableHandles/DefaultTableHandle";
 export * from "./components/TableHandles/TableHandlePositioner";
 
-export * from "./components-shared/SuggestionMenu/SuggestionMenuPositioner";
 export * from "./components-shared/Toolbar/Toolbar";
 export * from "./components-shared/Toolbar/ToolbarButton";
 export * from "./components-shared/Toolbar/ToolbarDropdown";
@@ -53,6 +55,7 @@ export * from "./hooks/useEditorContentChange";
 export * from "./hooks/useEditorForceUpdate";
 export * from "./hooks/useEditorSelectionChange";
 export * from "./hooks/useSelectedBlocks";
+export * from "./hooks/useSuggestionMenu";
 
 export * from "./schema/ReactBlockSpec";
 export * from "./schema/ReactInlineContentSpec";

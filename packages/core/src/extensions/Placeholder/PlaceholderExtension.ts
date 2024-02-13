@@ -2,7 +2,8 @@ import { Editor, Extension } from "@tiptap/core";
 import { Node as ProsemirrorNode } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
+import { suggestionMenuPluginKey } from "../SuggestionMenu/SuggestionPlugin";
 
 const PLUGIN_KEY = new PluginKey(`blocknote-placeholder`);
 
@@ -57,10 +58,7 @@ export const Placeholder = Extension.create<PlaceholderOptions>({
           decorations: (state) => {
             const { doc, selection } = state;
             // Get state of slash menu
-            const menuState =
-              this.options.editor!.suggestionMenus.slashMenu.plugin.getState(
-                state
-              );
+            const menuState = suggestionMenuPluginKey.getState(state);
             const active =
               this.editor.isEditable || !this.options.showOnlyWhenEditable;
             const { anchor } = selection;

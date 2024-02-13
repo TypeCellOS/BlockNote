@@ -65,6 +65,10 @@ NESTED BLOCKS
   height: 0;
 }
 
+.bn-inline-content code {
+  font-family: monospace;
+}
+
 /* NESTED BLOCK ANIMATIONS (change in indent) */
 
 [data-prev-depth-change="1"] {

@@ -1,5 +1,14 @@
-import { BlockSchemaWithBlock, defaultProps } from "@blocknote/core";
-import { ReactSlashMenuItem, createReactBlockSpec } from "@blocknote/react";
+import {
+  BlockNoteEditor,
+  BlockSchema,
+  defaultProps,
+  InlineContentSchema,
+  StyleSchema,
+} from "@blocknote/core";
+import {
+  createReactBlockSpec,
+  SuggestionMenuItemProps,
+} from "@blocknote/react";
 import { useEffect, useState } from "react";
 import { RiAlertFill } from "react-icons/ri";
 
@@ -113,34 +122,44 @@ export const ReactAlert = createReactBlockSpec(
     },
   }
 );
-export const insertReactAler: ReactSlashMenuItem<
-  BlockSchemaWithBlock<"reactAlert", typeof ReactAlert.config>
-> = {
-  name: "Insert React Alert",
-  execute: (editor) => {
-    editor.insertBlocks(
-      [
-        {
-          type: "reactAlert",
-        },
-      ],
-      editor.getTextCursorPosition().block,
-      "after"
-    );
-  },
-  aliases: [
-    "react",
-    "reactAlert",
-    "react alert",
-    "alert",
-    "notification",
-    "emphasize",
-    "warning",
-    "error",
-    "info",
-    "success",
-  ],
-  group: "Media",
-  icon: <RiAlertFill />,
-  hint: "Insert an alert block to emphasize text",
-};
+export const insertReactAlert = <
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(
+  editor: BlockNoteEditor<BSchema, I, S>,
+  closeMenu: () => void,
+  clearQuery: () => void
+) =>
+  ({
+    name: "Insert React Alert",
+    execute: () => {
+      closeMenu();
+      clearQuery();
+
+      editor.insertBlocks(
+        [
+          {
+            type: "reactAlert",
+          },
+        ],
+        editor.getTextCursorPosition().block,
+        "after"
+      );
+    },
+    subtext: "Insert an alert block to emphasize text",
+    icon: <RiAlertFill />,
+    aliases: [
+      "react",
+      "reactAlert",
+      "react alert",
+      "alert",
+      "notification",
+      "emphasize",
+      "warning",
+      "error",
+      "info",
+      "success",
+    ],
+    group: "Other",
+  } satisfies SuggestionMenuItemProps);

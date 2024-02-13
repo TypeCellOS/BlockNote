@@ -148,6 +148,15 @@ export const renderImage = (
   // offset from when the resize began, and which resize handle is being used.
   const windowMouseMoveHandler = (event: MouseEvent) => {
     if (!resizeParams) {
+      if (
+        !editor.isEditable &&
+        imageWrapper.contains(leftResizeHandle) &&
+        imageWrapper.contains(rightResizeHandle)
+      ) {
+        imageWrapper.removeChild(leftResizeHandle);
+        imageWrapper.removeChild(rightResizeHandle);
+      }
+
       return;
     }
 
@@ -192,18 +201,20 @@ export const renderImage = (
   // Stops mouse movements from resizing the image and updates the block's
   // `width` prop to the new value.
   const windowMouseUpHandler = (event: MouseEvent) => {
-    if (!resizeParams) {
-      return;
-    }
-
     // Hides the drag handles if the cursor is no longer over the image.
     if (
-      (!event.target || !imageWrapper.contains(event.target as Node)) &&
+      (!event.target ||
+        !imageWrapper.contains(event.target as Node) ||
+        !editor.isEditable) &&
       imageWrapper.contains(leftResizeHandle) &&
       imageWrapper.contains(rightResizeHandle)
     ) {
       imageWrapper.removeChild(leftResizeHandle);
       imageWrapper.removeChild(rightResizeHandle);
+    }
+
+    if (!resizeParams) {
+      return;
     }
 
     resizeParams = undefined;
@@ -235,9 +246,6 @@ export const renderImage = (
     if (editor.isEditable) {
       imageWrapper.appendChild(leftResizeHandle);
       imageWrapper.appendChild(rightResizeHandle);
-    } else {
-      imageWrapper.removeChild(leftResizeHandle);
-      imageWrapper.removeChild(rightResizeHandle);
     }
   };
   // Hides the resize handles when the cursor leaves the image, unless the
@@ -254,8 +262,14 @@ export const renderImage = (
       return;
     }
 
-    imageWrapper.removeChild(leftResizeHandle);
-    imageWrapper.removeChild(rightResizeHandle);
+    if (
+      editor.isEditable &&
+      imageWrapper.contains(leftResizeHandle) &&
+      imageWrapper.contains(rightResizeHandle)
+    ) {
+      imageWrapper.removeChild(leftResizeHandle);
+      imageWrapper.removeChild(rightResizeHandle);
+    }
   };
 
   // Sets the resize params, allowing the user to begin resizing the image by

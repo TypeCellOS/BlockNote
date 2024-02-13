@@ -21,18 +21,18 @@ import { HTMLToBlocks } from "../api/parsers/html/parseHTML";
 import { markdownToBlocks } from "../api/parsers/markdown/parseMarkdown";
 import {
   DefaultBlockSchema,
+  DefaultInlineContentSchema,
+  DefaultStyleSchema,
   defaultBlockSchema,
   defaultBlockSpecs,
-  DefaultInlineContentSchema,
   defaultInlineContentSpecs,
-  DefaultStyleSchema,
   defaultStyleSpecs,
 } from "../blocks/defaultBlocks";
 import { FormattingToolbarProsemirrorPlugin } from "../extensions/FormattingToolbar/FormattingToolbarPlugin";
 import { HyperlinkToolbarProsemirrorPlugin } from "../extensions/HyperlinkToolbar/HyperlinkToolbarPlugin";
 import { ImageToolbarProsemirrorPlugin } from "../extensions/ImageToolbar/ImageToolbarPlugin";
 import { SideMenuProsemirrorPlugin } from "../extensions/SideMenu/SideMenuPlugin";
-import { getDefaultSlashMenuItems } from "../extensions/SlashMenu/defaultSlashMenuItems";
+import { SuggestionMenuProseMirrorPlugin } from "../extensions/SuggestionMenu/SuggestionPlugin";
 import { TableHandlesProsemirrorPlugin } from "../extensions/TableHandles/TableHandlesPlugin";
 import { UniqueID } from "../extensions/UniqueID/UniqueID";
 import {
@@ -43,17 +43,17 @@ import {
   BlockSchemaFromSpecs,
   BlockSchemaWithBlock,
   BlockSpecs,
-  getBlockSchemaFromSpecs,
-  getInlineContentSchemaFromSpecs,
-  getStyleSchemaFromSpecs,
   InlineContentSchema,
   InlineContentSchemaFromSpecs,
   InlineContentSpecs,
   PartialBlock,
-  Styles,
   StyleSchema,
   StyleSchemaFromSpecs,
   StyleSpecs,
+  Styles,
+  getBlockSchemaFromSpecs,
+  getInlineContentSchemaFromSpecs,
+  getStyleSchemaFromSpecs,
 } from "../schema";
 import { mergeCSSClasses } from "../util/browser";
 import { UnreachableCaseError } from "../util/typescript";
@@ -67,11 +67,6 @@ import { transformPasted } from "./transformPasted";
 // CSS
 import "./Block.css";
 import "./editor.css";
-import {
-  createSuggestionMenu,
-  SuggestionMenuProseMirrorPlugin,
-} from "../extensions-shared/suggestion/SuggestionPlugin";
-import { SuggestionItem } from "../extensions-shared/suggestion/SuggestionItem";
 
 export type BlockNoteEditorOptions<
   BSpecs extends BlockSpecs,
@@ -80,19 +75,6 @@ export type BlockNoteEditorOptions<
 > = {
   // TODO: Figure out if enableBlockNoteExtensions/disableHistoryExtension are needed and document them.
   enableBlockNoteExtensions: boolean;
-  /**
-   *
-   * (couldn't fix any type, see https://github.com/TypeCellOS/BlockNote/pull/191#discussion_r1210708771)
-   *
-   * @default defaultSlashMenuItems from `./extensions/SlashMenu`
-   */
-  slashMenuItems: (query: string) => Promise<SuggestionItem<any, any, any>[]>;
-
-  extraSuggestionMenus: {
-    name: string;
-    triggerCharacter: string;
-    getItems: (query: string) => Promise<SuggestionItem<any, any, any>[]>;
-  }[];
 
   /**
    * The HTML element that should be used as the parent element for the editor.
@@ -252,15 +234,11 @@ export class BlockNoteEditor<
       >
     | undefined;
 
-  public readonly suggestionMenus: Record<
-    string | "slashMenu",
-    SuggestionMenuProseMirrorPlugin<
-      SuggestionItem<BSchema, ISchema, SSchema>,
-      BSchema,
-      ISchema,
-      SSchema
-    >
-  > = {};
+  public readonly suggestionMenus: SuggestionMenuProseMirrorPlugin<
+    BSchema,
+    ISchema,
+    SSchema
+  >;
 
   public readonly uploadFile: ((file: File) => Promise<string>) | undefined;
 
@@ -301,30 +279,7 @@ export class BlockNoteEditor<
     this.sideMenu = new SideMenuProsemirrorPlugin(this);
     this.formattingToolbar = new FormattingToolbarProsemirrorPlugin(this);
 
-    this.suggestionMenus.slashMenu = createSuggestionMenu<
-      BSchema,
-      ISchema,
-      SSchema,
-      SuggestionItem<BSchema, ISchema, SSchema>
-    >(
-      "slashMenu",
-      "/",
-      newOptions.slashMenuItems ||
-        ((query) => getDefaultSlashMenuItems(query, this.blockSchema) as any)
-    )(this);
-
-    for (const extraSuggestionMenu of newOptions.extraSuggestionMenus || []) {
-      this.suggestionMenus[extraSuggestionMenu.name] = createSuggestionMenu<
-        BSchema,
-        ISchema,
-        SSchema,
-        SuggestionItem<BSchema, ISchema, SSchema>
-      >(
-        extraSuggestionMenu.name,
-        extraSuggestionMenu.triggerCharacter,
-        extraSuggestionMenu.getItems
-      )(this);
-    }
+    this.suggestionMenus = new SuggestionMenuProseMirrorPlugin(this);
 
     this.hyperlinkToolbar = new HyperlinkToolbarProsemirrorPlugin(this);
     this.imageToolbar = new ImageToolbarProsemirrorPlugin(this);
@@ -352,8 +307,8 @@ export class BlockNoteEditor<
           this.formattingToolbar.plugin,
           this.hyperlinkToolbar.plugin,
           this.imageToolbar.plugin,
+          this.suggestionMenus.plugin,
           ...(this.tableHandles ? [this.tableHandles.plugin] : []),
-          ...Object.values(this.suggestionMenus).map((menu) => menu.plugin),
         ];
       },
     });
@@ -405,7 +360,7 @@ export class BlockNoteEditor<
           jsonNode.content[0].content[0].attrs.id = "initialBlockId";
 
           cache = Node.fromJSON(schema, jsonNode);
-          return ret;
+          return cache;
         };
 
         const root = schema.node(

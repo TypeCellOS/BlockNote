@@ -1,4 +1,4 @@
-@import url("@mantine/core/styles.css");
+@import url("./mantineStyles.css");
 @import url("@blocknote/core/style.css");
 
 /* Default theme params */
@@ -158,7 +158,7 @@
 }
 
 /* Mantine Popover component base styles */
-.mantine-Popover-dropdown {
+.bn-container .mantine-Popover-dropdown {
     background-color: transparent;
     border: none;
     border-radius: 0;
@@ -242,54 +242,71 @@
 [data-text-color="gray"] {
     color: var(--bn-colors-highlights-gray-text);
 }
+
 [data-text-color="brown"] {
     color: var(--bn-colors-highlights-brown-text);
 }
+
 [data-text-color="red"] {
     color: var(--bn-colors-highlights-red-text);
 }
+
 [data-text-color="orange"] {
     color: var(--bn-colors-highlights-orange-text);
 }
+
 [data-text-color="yellow"] {
     color: var(--bn-colors-highlights-yellow-text);
 }
+
 [data-text-color="green"] {
     color: var(--bn-colors-highlights-green-text);
 }
+
 [data-text-color="blue"] {
     color: var(--bn-colors-highlights-blue-text);
 }
+
 [data-text-color="purple"] {
     color: var(--bn-colors-highlights-purple-text);
 }
+
 [data-text-color="pink"] {
     color: var(--bn-colors-highlights-pink-text);
 }
+
 [data-background-color="gray"] {
     background-color: var(--bn-colors-highlights-gray-background);
 }
+
 [data-background-color="brown"] {
     background-color: var(--bn-colors-highlights-brown-background);
 }
+
 [data-background-color="red"] {
     background-color: var(--bn-colors-highlights-red-background);
 }
+
 [data-background-color="orange"] {
     background-color: var(--bn-colors-highlights-orange-background);
 }
+
 [data-background-color="yellow"] {
     background-color: var(--bn-colors-highlights-yellow-background);
 }
+
 [data-background-color="green"] {
     background-color: var(--bn-colors-highlights-green-background);
 }
+
 [data-background-color="blue"] {
     background-color: var(--bn-colors-highlights-blue-background);
 }
+
 [data-background-color="purple"] {
     background-color: var(--bn-colors-highlights-purple-background);
 }
+
 [data-background-color="pink"] {
     background-color: var(--bn-colors-highlights-pink-background);
 }

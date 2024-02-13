@@ -10,10 +10,8 @@ import {
   defaultBlockSpecs,
   defaultInlineContentSpecs,
   defaultStyleSpecs,
-  getBlockSchemaFromSpecs,
 } from "@blocknote/core";
 import { DependencyList, useMemo, useRef } from "react";
-import { getDefaultReactSlashMenuItems } from "../slashMenuItems/defaultReactSlashMenuItems";
 
 const initEditor = <
   BSpecs extends BlockSpecs,
@@ -21,15 +19,7 @@ const initEditor = <
   SSpecs extends StyleSpecs
 >(
   options: Partial<BlockNoteEditorOptions<BSpecs, ISpecs, SSpecs>>
-) =>
-  BlockNoteEditor.create({
-    slashMenuItems: (query) =>
-      getDefaultReactSlashMenuItems(
-        query,
-        getBlockSchemaFromSpecs(options.blockSpecs || defaultBlockSpecs)
-      ),
-    ...options,
-  });
+) => BlockNoteEditor.create(options);
 
 /**
  * Main hook for importing a BlockNote editor into a React project
