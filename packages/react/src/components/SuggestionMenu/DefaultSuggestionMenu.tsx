@@ -43,13 +43,13 @@ export type SuggestionMenuProps<
   >;
 
 export function DefaultSuggestionMenu<
-  BSchema extends BlockSchema,
-  I extends InlineContentSchema,
-  S extends StyleSchema,
+  BSchema extends BlockSchema = DefaultBlockSchema,
+  I extends InlineContentSchema = DefaultInlineContentSchema,
+  S extends StyleSchema = DefaultStyleSchema,
   Item extends {
     name: string;
     execute: () => void;
-  }
+  } = MantineSuggestionMenuItemProps
 >(props: SuggestionMenuProps<BSchema, I, S, Item>) {
   const {
     editor,

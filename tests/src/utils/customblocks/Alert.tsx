@@ -7,7 +7,7 @@ import {
   StyleSchema,
 } from "@blocknote/core";
 import { RiAlertFill } from "react-icons/ri";
-import { SuggestionMenuItemProps } from "@blocknote/react";
+import { MantineSuggestionMenuItemProps } from "@blocknote/react";
 const values = {
   warning: {
     icon: "⚠️",
@@ -164,4 +164,4 @@ export const insertAlert = <
       "success",
     ],
     group: "Other",
-  } satisfies SuggestionMenuItemProps);
+  } satisfies MantineSuggestionMenuItemProps);

@@ -4,6 +4,7 @@ import {
   useTransitionStyles,
 } from "@floating-ui/react";
 import { useEffect, useMemo } from "react";
+
 import { UiComponentPosition } from "../components-shared/UiComponentTypes";
 
 export function useUiElementPosition(
@@ -25,11 +26,13 @@ export function useUiElementPosition(
 
   useEffect(() => {
     // TODO: Maybe throw error instead if null
-    if (referencePos !== null) {
-      refs.setReference({
-        getBoundingClientRect: () => referencePos,
-      });
+    if (referencePos === null) {
+      return;
     }
+
+    refs.setReference({
+      getBoundingClientRect: () => referencePos,
+    });
   }, [referencePos, refs]);
 
   return useMemo(
@@ -43,6 +46,6 @@ export function useUiElementPosition(
         zIndex: zIndex,
       },
     }),
-    [isMounted, styles, floatingStyles, zIndex, refs]
+    [floatingStyles, isMounted, refs.setFloating, styles, zIndex]
   );
 }

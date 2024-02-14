@@ -6,7 +6,7 @@ import {
   PartialBlock,
   StyleSchema,
 } from "@blocknote/core";
-import { SuggestionMenuItemProps } from "@blocknote/react";
+import { MantineSuggestionMenuItemProps } from "@blocknote/react";
 import { RiLayout5Fill } from "react-icons/ri";
 
 export const Embed = createBlockSpec(
@@ -68,4 +68,4 @@ export const insertEmbed = <
     icon: <RiLayout5Fill />,
     aliases: ["embedded", "website", "site", "link", "url"],
     group: "Other",
-  } satisfies SuggestionMenuItemProps);
+  } satisfies MantineSuggestionMenuItemProps);

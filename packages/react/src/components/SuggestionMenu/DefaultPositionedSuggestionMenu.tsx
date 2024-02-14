@@ -1,6 +1,9 @@
 import {
   BlockNoteEditor,
   BlockSchema,
+  DefaultBlockSchema,
+  DefaultInlineContentSchema,
+  DefaultStyleSchema,
   InlineContentSchema,
   StyleSchema,
   SuggestionMenuState,
@@ -15,9 +18,9 @@ import { MantineSuggestionMenuProps } from "./MantineDefaults/MantineSuggestionM
 import { MantineSuggestionMenuItemProps } from "./MantineDefaults/MantineSuggestionMenuItem";
 
 export function DefaultPositionedSuggestionMenu<
-  BSchema extends BlockSchema,
-  I extends InlineContentSchema,
-  S extends StyleSchema,
+  BSchema extends BlockSchema = DefaultBlockSchema,
+  I extends InlineContentSchema = DefaultInlineContentSchema,
+  S extends StyleSchema = DefaultStyleSchema,
   Item extends {
     name: string;
     execute: () => void;

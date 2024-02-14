@@ -3,7 +3,7 @@ import { DefaultPositionedHyperlinkToolbar } from "../components/HyperlinkToolba
 import { DefaultPositionedSuggestionMenu } from "../components/SuggestionMenu/DefaultPositionedSuggestionMenu";
 import { DefaultPositionedSideMenu } from "../components/SideMenu/DefaultPositionedSideMenu";
 import { DefaultPositionedImageToolbar } from "../components/ImageToolbar/DefaultPositionedImageToolbar";
-import { TableHandlesPositioner } from "../components/TableHandles/TableHandlePositioner";
+import { DefaultPositionedTableHandles } from "../components/TableHandles/DefaultPositionedTableHandles";
 import {
   BlockNoteEditor,
   BlockSchema,
@@ -42,7 +42,7 @@ export function BlockNoteDefaultUI<
         <DefaultPositionedImageToolbar editor={props.editor} />
       )}
       {props.editor.blockSchema.table && props.tableHandles !== false && (
-        <TableHandlesPositioner editor={props.editor as any} />
+        <DefaultPositionedTableHandles editor={props.editor as any} />
       )}
     </>
   );

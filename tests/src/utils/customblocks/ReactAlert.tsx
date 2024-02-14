@@ -7,7 +7,7 @@ import {
 } from "@blocknote/core";
 import {
   createReactBlockSpec,
-  SuggestionMenuItemProps,
+  MantineSuggestionMenuItemProps,
 } from "@blocknote/react";
 import { useEffect, useState } from "react";
 import { RiAlertFill } from "react-icons/ri";
@@ -162,4 +162,4 @@ export const insertReactAlert = <
       "success",
     ],
     group: "Other",
-  } satisfies SuggestionMenuItemProps);
+  } satisfies MantineSuggestionMenuItemProps);

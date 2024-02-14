@@ -1,139 +1,148 @@
-import {
-  BlockNoteEditor,
-  BlockSchema,
-  DefaultBlockSchema,
-  DefaultInlineContentSchema,
-  DefaultStyleSchema,
-  InlineContentSchema,
-  StyleSchema,
-} from "@blocknote/core";
-import { UiComponentPosition } from "../../../components-shared/UiComponentTypes";
-import { useEffect, useRef, useState } from "react";
 import { offset, useFloating, useTransitionStyles } from "@floating-ui/react";
+import { useEffect, useMemo, useState } from "react";
 
-export function useTableHandlesPosition<
-  BSchema extends BlockSchema = DefaultBlockSchema,
-  I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema
->(
-  editor: BlockNoteEditor<BSchema, I, S>
+import { UiComponentPosition } from "../../../components-shared/UiComponentTypes";
+
+function getBoundingClientRectRow(
+  referencePosCell: DOMRect | null,
+  referencePosTable: DOMRect | null,
+  draggingState?: {
+    draggedCellOrientation: "row" | "col";
+    mousePos: number;
+  }
+) {
+  if (draggingState && draggingState.draggedCellOrientation === "row") {
+    return new DOMRect(
+      referencePosTable!.x,
+      draggingState.mousePos,
+      referencePosTable!.width,
+      0
+    );
+  }
+
+  return new DOMRect(
+    referencePosTable!.x,
+    referencePosCell!.y,
+    referencePosTable!.width,
+    referencePosCell!.height
+  );
+}
+
+function getBoundingClientRectCol(
+  referencePosCell: DOMRect | null,
+  referencePosTable: DOMRect | null,
+  draggingState?: {
+    draggedCellOrientation: "row" | "col";
+    mousePos: number;
+  }
+) {
+  if (draggingState && draggingState.draggedCellOrientation === "col") {
+    return new DOMRect(
+      draggingState.mousePos,
+      referencePosTable!.y,
+      0,
+      referencePosTable!.height
+    );
+  }
+
+  return new DOMRect(
+    referencePosCell!.x,
+    referencePosTable!.y,
+    referencePosCell!.width,
+    referencePosTable!.height
+  );
+}
+
+function useTableHandlePosition(
+  orientation: "row" | "col",
+  show: boolean,
+  referencePosCell: DOMRect | null,
+  referencePosTable: DOMRect | null,
+  draggingState?: {
+    draggedCellOrientation: "row" | "col";
+    mousePos: number;
+  }
+): UiComponentPosition {
+  // TODO: What is this for? Disabling it doesn't seem to break anything
+  const [, setForceUpdate] = useState<number>(0);
+
+  const { refs, update, context, floatingStyles } = useFloating({
+    open: show,
+    placement: orientation === "row" ? "left" : "top",
+    middleware: [offset(orientation === "row" ? -10 : -12)],
+  });
+
+  const { isMounted, styles } = useTransitionStyles(context);
+
+  useEffect(() => {
+    setForceUpdate(Math.random());
+    update();
+  }, [referencePosCell, referencePosTable, update]);
+
+  useEffect(() => {
+    // TODO: Maybe throw error instead if null
+    if (referencePosCell === null || referencePosTable === null) {
+      return;
+    }
+
+    refs.setReference({
+      getBoundingClientRect: () => {
+        const fn =
+          orientation === "row"
+            ? getBoundingClientRectRow
+            : getBoundingClientRectCol;
+        return fn(referencePosCell, referencePosTable, draggingState);
+      },
+    });
+  }, [draggingState, orientation, referencePosCell, referencePosTable, refs]);
+
+  return useMemo(
+    () => ({
+      isMounted: isMounted,
+      ref: refs.setFloating,
+      style: {
+        display: "flex",
+        ...styles,
+        ...floatingStyles,
+        zIndex: 10000,
+      },
+    }),
+    [floatingStyles, isMounted, refs.setFloating, styles]
+  );
+}
+
+export function useTableHandlesPosition(
+  show: boolean,
+  referencePosCell: DOMRect | null,
+  referencePosTable: DOMRect | null,
+  draggingState?: {
+    draggedCellOrientation: "row" | "col";
+    mousePos: number;
+  }
 ): {
   rowHandle: UiComponentPosition;
   colHandle: UiComponentPosition;
 } {
-  const [show, setShow] = useState<boolean>(false);
+  const rowHandle = useTableHandlePosition(
+    "row",
+    show,
+    referencePosCell,
+    referencePosTable,
+    draggingState
+  );
+  const colHandle = useTableHandlePosition(
+    "col",
+    show,
+    referencePosCell,
+    referencePosTable,
+    draggingState
+  );
 
-  const [draggedCellOrientation, setDraggedCellOrientation] = useState<
-    "row" | "col" | undefined
-  >(undefined);
-  const [mousePos, setMousePos] = useState<number | undefined>();
-
-  const [, setForceUpdate] = useState<number>(0);
-
-  const referencePosCell = useRef<DOMRect>();
-  const referencePosTable = useRef<DOMRect>();
-
-  const rowFloating = useFloating({
-    open: show,
-    placement: "left",
-    middleware: [offset(-10)],
-  });
-  const colFloating = useFloating({
-    open: show,
-    placement: "top",
-    middleware: [offset(-12)],
-  });
-
-  const rowTransitionStyles = useTransitionStyles(rowFloating.context);
-  const colTransitionStyles = useTransitionStyles(colFloating.context);
-
-  useEffect(() => {
-    return editor.tableHandles!.onPositionUpdate((position) => {
-      // console.log("update", state.draggingState);
-      setShow(position.show);
-      setForceUpdate(Math.random());
-
-      if (position.draggingState) {
-        setDraggedCellOrientation(
-          position.draggingState.draggedCellOrientation
-        );
-        setMousePos(position.draggingState.mousePos);
-      } else {
-        setDraggedCellOrientation(undefined);
-        setMousePos(undefined);
-      }
-
-      referencePosCell.current = position.referencePosCell;
-      referencePosTable.current = position.referencePosTable;
-      rowFloating.update();
-      colFloating.update();
-    });
-  }, [colFloating, editor.tableHandles, rowFloating]);
-
-  useEffect(() => {
-    rowFloating.refs.setReference({
-      getBoundingClientRect: () => {
-        if (draggedCellOrientation === "row") {
-          return new DOMRect(
-            referencePosTable.current!.x,
-            mousePos!,
-            referencePosTable.current!.width,
-            0
-          );
-        }
-
-        return new DOMRect(
-          referencePosTable.current!.x,
-          referencePosCell.current!.y,
-          referencePosTable.current!.width,
-          referencePosCell.current!.height
-        );
-      },
-    });
-  }, [draggedCellOrientation, mousePos, rowFloating.refs]);
-
-  useEffect(() => {
-    colFloating.refs.setReference({
-      getBoundingClientRect: () => {
-        if (draggedCellOrientation === "col") {
-          return new DOMRect(
-            mousePos!,
-            referencePosTable.current!.y,
-            0,
-            referencePosTable.current!.height
-          );
-        }
-
-        return new DOMRect(
-          referencePosCell.current!.x,
-          referencePosTable.current!.y,
-          referencePosCell.current!.width,
-          referencePosTable.current!.height
-        );
-      },
-    });
-  }, [colFloating.refs, draggedCellOrientation, mousePos]);
-
-  return {
-    rowHandle: {
-      isMounted: rowTransitionStyles.isMounted,
-      ref: rowFloating.refs.setFloating,
-      style: {
-        display: "flex",
-        ...rowTransitionStyles.styles,
-        ...rowFloating.floatingStyles,
-        zIndex: 10000,
-      },
-    },
-    colHandle: {
-      isMounted: colTransitionStyles.isMounted,
-      ref: colFloating.refs.setFloating,
-      style: {
-        display: "flex",
-        ...colTransitionStyles.styles,
-        ...colFloating.floatingStyles,
-        zIndex: 10000,
-      },
-    },
-  };
+  return useMemo(
+    () => ({
+      rowHandle,
+      colHandle,
+    }),
+    [colHandle, rowHandle]
+  );
 }

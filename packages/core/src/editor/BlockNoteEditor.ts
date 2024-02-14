@@ -41,7 +41,6 @@ import {
   BlockNoteDOMAttributes,
   BlockSchema,
   BlockSchemaFromSpecs,
-  BlockSchemaWithBlock,
   BlockSpecs,
   InlineContentSchema,
   InlineContentSchemaFromSpecs,
@@ -222,16 +221,7 @@ export class BlockNoteEditor<
     SSchema
   >;
   public readonly tableHandles:
-    | TableHandlesProsemirrorPlugin<
-        BSchema extends BlockSchemaWithBlock<
-          "table",
-          DefaultBlockSchema["table"]
-        >
-          ? BSchema
-          : any,
-        ISchema,
-        SSchema
-      >
+    | TableHandlesProsemirrorPlugin<ISchema, SSchema>
     | undefined;
 
   public readonly suggestionMenus: SuggestionMenuProseMirrorPlugin<
