@@ -1,13 +1,12 @@
 import {
   BlockNoteEditor,
-  BlockSchema,
+  BlockSchemaWithBlock,
+  PartialBlock,
   createBlockSpec,
   defaultProps,
-  InlineContentSchema,
-  StyleSchema,
 } from "@blocknote/core";
+
 import { RiAlertFill } from "react-icons/ri";
-import { SuggestionMenuItemProps } from "@blocknote/react";
 const values = {
   warning: {
     icon: "⚠️",
@@ -127,41 +126,29 @@ export const Alert = createBlockSpec(
   }
 );
 
-export const insertAlert = <
-  BSchema extends BlockSchema,
-  I extends InlineContentSchema,
-  S extends StyleSchema
->(
-  editor: BlockNoteEditor<BSchema, I, S>,
-  closeMenu: () => void,
-  clearQuery: () => void
-) =>
-  ({
-    name: "Insert Alert",
-    execute: () => {
-      closeMenu();
-      clearQuery();
+export const insertAlert = {
+  title: "Insert Alert",
+  onItemClick: (editor: BlockNoteEditor<any, any, any>) => {
+    const block: PartialBlock<
+      BlockSchemaWithBlock<"alert", (typeof Alert)["config"]>,
+      any,
+      any
+    > = {
+      type: "alert",
+    };
 
-      editor.insertBlocks(
-        [
-          {
-            type: "alert",
-          },
-        ],
-        editor.getTextCursorPosition().block,
-        "after"
-      );
-    },
-    subtext: "Insert an alert block to emphasize text",
-    icon: <RiAlertFill />,
-    aliases: [
-      "alert",
-      "notification",
-      "emphasize",
-      "warning",
-      "error",
-      "info",
-      "success",
-    ],
-    group: "Other",
-  } satisfies SuggestionMenuItemProps);
+    editor.insertBlocks([block], editor.getTextCursorPosition().block, "after");
+  },
+  subtext: "Insert an alert block to emphasize text",
+  icon: <RiAlertFill />,
+  aliases: [
+    "alert",
+    "notification",
+    "emphasize",
+    "warning",
+    "error",
+    "info",
+    "success",
+  ],
+  group: "Other",
+};

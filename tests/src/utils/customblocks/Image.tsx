@@ -1,13 +1,9 @@
 import {
   BlockNoteEditor,
-  BlockSchema,
   createBlockSpec,
   defaultProps,
-  InlineContentSchema,
-  PartialBlock,
-  StyleSchema,
 } from "@blocknote/core";
-import { SuggestionMenuItemProps } from "@blocknote/react";
+
 import { RiImage2Fill } from "react-icons/ri";
 export const Image = createBlockSpec(
   {
@@ -53,38 +49,25 @@ export const Image = createBlockSpec(
   }
 );
 
-export const insertImage = <
-  BSchema extends BlockSchema,
-  I extends InlineContentSchema,
-  S extends StyleSchema
->(
-  editor: BlockNoteEditor<BSchema, I, S>,
-  closeMenu: () => void,
-  clearQuery: () => void
-) =>
-  ({
-    name: "Insert Image",
-    execute: () => {
-      closeMenu();
-      clearQuery();
-
-      const src =
-        prompt("Enter image URL") || "https://via.placeholder.com/1000";
-      editor.insertBlocks(
-        [
-          {
-            type: "image",
-            props: {
-              src,
-            },
-          } as PartialBlock<BSchema, I, S>,
-        ],
-        editor.getTextCursorPosition().block,
-        "after"
-      );
-    },
-    subtext: "Insert an image",
-    icon: <RiImage2Fill />,
-    aliases: ["image", "img", "picture", "media"],
-    group: "Other",
-  } satisfies SuggestionMenuItemProps);
+export const insertImage = {
+  title: "Insert Image",
+  onItemClick: (editor: BlockNoteEditor<any, any, any>) => {
+    const src = prompt("Enter image URL") || "https://via.placeholder.com/1000";
+    editor.insertBlocks(
+      [
+        {
+          type: "image",
+          props: {
+            src,
+          },
+        },
+      ],
+      editor.getTextCursorPosition().block,
+      "after"
+    );
+  },
+  subtext: "Insert an image",
+  icon: <RiImage2Fill />,
+  aliases: ["image", "img", "picture", "media"],
+  group: "Other",
+};

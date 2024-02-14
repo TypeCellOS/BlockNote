@@ -1,12 +1,5 @@
-import {
-  BlockNoteEditor,
-  BlockSchema,
-  createBlockSpec,
-  InlineContentSchema,
-  PartialBlock,
-  StyleSchema,
-} from "@blocknote/core";
-import { SuggestionMenuItemProps } from "@blocknote/react";
+import { createBlockSpec } from "@blocknote/core";
+
 import { RiLayout5Fill } from "react-icons/ri";
 
 export const Embed = createBlockSpec(
@@ -35,37 +28,25 @@ export const Embed = createBlockSpec(
   }
 );
 
-export const insertEmbed = <
-  BSchema extends BlockSchema,
-  I extends InlineContentSchema,
-  S extends StyleSchema
->(
-  editor: BlockNoteEditor<BSchema, I, S>,
-  closeMenu: () => void,
-  clearQuery: () => void
-) =>
-  ({
-    name: "Insert Embedded Website",
-    execute: () => {
-      closeMenu();
-      clearQuery();
-
-      const src = prompt("Enter website URL");
-      editor.insertBlocks(
-        [
-          {
-            type: "embed",
-            props: {
-              src: src || "https://www.youtube.com/embed/wjfuB8Xjhc4",
-            },
-          } as PartialBlock<BSchema, I, S>,
-        ],
-        editor.getTextCursorPosition().block,
-        "after"
-      );
-    },
-    subtext: "Insert an embedded website",
-    icon: <RiLayout5Fill />,
-    aliases: ["embedded", "website", "site", "link", "url"],
-    group: "Other",
-  } satisfies SuggestionMenuItemProps);
+export const insertEmbed = {
+  title: "Insert Embedded Website",
+  onItemClick: (editor: BlockNoteEditor<any, any, any>) => {
+    const src = prompt("Enter website URL");
+    editor.insertBlocks(
+      [
+        {
+          type: "embed",
+          props: {
+            src: src || "https://www.youtube.com/embed/wjfuB8Xjhc4",
+          },
+        },
+      ],
+      editor.getTextCursorPosition().block,
+      "after"
+    );
+  },
+  subtext: "Insert an embedded website",
+  icon: <RiLayout5Fill />,
+  aliases: ["embedded", "website", "site", "link", "url"],
+  group: "Other",
+};

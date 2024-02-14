@@ -101,9 +101,9 @@ export function BlockContentWrapper<
 // A function to create custom block for API consumers
 // we want to hide the tiptap node from API consumers and provide a simpler API surface instead
 export function createReactBlockSpec<
-  T extends CustomBlockConfig,
-  I extends InlineContentSchema,
-  S extends StyleSchema
+  const T extends CustomBlockConfig,
+  const I extends InlineContentSchema,
+  const S extends StyleSchema
 >(
   blockConfig: T,
   blockImplementation: ReactCustomBlockImplementation<T, I, S>

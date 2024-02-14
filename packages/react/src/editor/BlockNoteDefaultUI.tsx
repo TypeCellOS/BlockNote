@@ -1,15 +1,19 @@
-import { FormattingToolbarPositioner } from "../components/FormattingToolbar/FormattingToolbarPositioner";
-import { HyperlinkToolbarPositioner } from "../components/HyperlinkToolbar/HyperlinkToolbarPositioner";
-import { DefaultPositionedSuggestionMenu } from "../components/SuggestionMenu/DefaultSuggestionMenu";
-import { SideMenuPositioner } from "../components/SideMenu/SideMenuPositioner";
-import { ImageToolbarPositioner } from "../components/ImageToolbar/ImageToolbarPositioner";
-import { TableHandlesPositioner } from "../components/TableHandles/TableHandlePositioner";
 import {
   BlockNoteEditor,
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
+import { FormattingToolbarPositioner } from "../components/FormattingToolbar/FormattingToolbarPositioner";
+import { HyperlinkToolbarPositioner } from "../components/HyperlinkToolbar/HyperlinkToolbarPositioner";
+import { ImageToolbarPositioner } from "../components/ImageToolbar/ImageToolbarPositioner";
+import { SideMenuPositioner } from "../components/SideMenu/SideMenuPositioner";
+import { DefaultPositionedSuggestionMenu } from "../components/SuggestionMenu/DefaultSuggestionMenu";
+import {
+  filterSuggestionItems,
+  getDefaultReactSlashMenuItems,
+} from "../components/SuggestionMenu/defaultGetItems";
+import { TableHandlesPositioner } from "../components/TableHandles/TableHandlePositioner";
 
 export function BlockNoteDefaultUI<
   BSchema extends BlockSchema,
@@ -33,7 +37,16 @@ export function BlockNoteDefaultUI<
         <HyperlinkToolbarPositioner editor={props.editor} />
       )}
       {props.slashMenu !== false && (
-        <DefaultPositionedSuggestionMenu editor={props.editor} />
+        <DefaultPositionedSuggestionMenu
+          editor={props.editor}
+          getItems={async (query) =>
+            filterSuggestionItems(getDefaultReactSlashMenuItems(), query)
+          }
+          // suggestionMenuComponent={MantineSuggestionMenu}
+          onItemClick={(item) => {
+            item.onItemClick(props.editor);
+          }}
+        />
       )}
       {props.sideMenu !== false && <SideMenuPositioner editor={props.editor} />}
       {props.imageToolbar !== false && (

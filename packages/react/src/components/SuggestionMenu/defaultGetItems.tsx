@@ -2,9 +2,6 @@ import {
   Block,
   BlockNoteEditor,
   BlockSchema,
-  DefaultBlockSchema,
-  DefaultInlineContentSchema,
-  DefaultStyleSchema,
   formatKeyboardShortcut,
   imageToolbarPluginKey,
   InlineContentSchema,
@@ -22,8 +19,6 @@ import {
   RiTable2,
   RiText,
 } from "react-icons/ri";
-
-import { SuggestionMenuItemProps } from "./MantineSuggestionMenuItem";
 
 // Sets the editor's text cursor position to the next content editable block,
 // so either a block with inline content or a table. The last block is always a
@@ -92,27 +87,15 @@ export function insertOrUpdateBlock<
 //  can just be plugged as props into SuggestionMenuLabel and SuggestionMenuItem
 //  components, but the labels make the keyboard selection code more complex.
 // TODO: Also probably want an easier way of customizing the items list.
-export async function defaultGetItems<
-  BSchema extends BlockSchema = DefaultBlockSchema,
-  I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema
->(
-  editor: BlockNoteEditor<BSchema, I, S>,
-  query: string,
-  closeMenu: () => void,
-  clearQuery: () => void
-): Promise<SuggestionMenuItemProps[]> {
-  const items: SuggestionMenuItemProps[] = [
+export function getDefaultReactSlashMenuItems() {
+  const items = [
     {
-      name: "Heading 1",
-      execute: () => {
-        closeMenu();
-        clearQuery();
-
+      title: "Heading 1",
+      onItemClick: (editor: BlockNoteEditor<any, any, any>) => {
         insertOrUpdateBlock(editor, {
           type: "heading",
           props: { level: 1 },
-        } as PartialBlock<BSchema, I, S>);
+        });
       },
       subtext: "Used for a top-level heading",
       icon: <RiH1 size={18} />,
@@ -121,15 +104,12 @@ export async function defaultGetItems<
       group: "Headings",
     },
     {
-      name: "Heading 2",
-      execute: () => {
-        closeMenu();
-        clearQuery();
-
+      title: "Heading 2",
+      onItemClick: (editor: BlockNoteEditor<any, any, any>) => {
         insertOrUpdateBlock(editor, {
           type: "heading",
           props: { level: 2 },
-        } as PartialBlock<BSchema, I, S>);
+        });
       },
       subtext: "Used for key sections",
       icon: <RiH2 size={18} />,
@@ -138,15 +118,12 @@ export async function defaultGetItems<
       group: "Headings",
     },
     {
-      name: "Heading 3",
-      execute: () => {
-        closeMenu();
-        clearQuery();
-
+      title: "Heading 3",
+      onItemClick: (editor: BlockNoteEditor<any, any, any>) => {
         insertOrUpdateBlock(editor, {
           type: "heading",
           props: { level: 3 },
-        } as PartialBlock<BSchema, I, S>);
+        });
       },
       subtext: "Used for subsections and group headings",
       icon: <RiH3 size={18} />,
@@ -155,11 +132,8 @@ export async function defaultGetItems<
       group: "Headings",
     },
     {
-      name: "Numbered List",
-      execute: () => {
-        closeMenu();
-        clearQuery();
-
+      title: "Numbered List",
+      onItemClick: (editor: BlockNoteEditor<any, any, any>) => {
         insertOrUpdateBlock(editor, { type: "numberedListItem" });
       },
       subtext: "Used to display a numbered list",
@@ -169,11 +143,8 @@ export async function defaultGetItems<
       group: "Basic blocks",
     },
     {
-      name: "Bullet List",
-      execute: () => {
-        closeMenu();
-        clearQuery();
-
+      title: "Bullet List",
+      onItemClick: (editor: BlockNoteEditor<any, any, any>) => {
         insertOrUpdateBlock(editor, { type: "bulletListItem" });
       },
       subtext: "Used to display an unordered list",
@@ -183,11 +154,8 @@ export async function defaultGetItems<
       group: "Basic blocks",
     },
     {
-      name: "Paragraph",
-      execute: () => {
-        closeMenu();
-        clearQuery();
-
+      title: "Paragraph",
+      onItemClick: (editor: BlockNoteEditor<any, any, any>) => {
         insertOrUpdateBlock(editor, { type: "paragraph" });
       },
       subtext: "Used for the body of your document",
@@ -197,11 +165,8 @@ export async function defaultGetItems<
       group: "Basic blocks",
     },
     {
-      name: "Table",
-      execute: () => {
-        closeMenu();
-        clearQuery();
-
+      title: "Table",
+      onItemClick: (editor: BlockNoteEditor<any, any, any>) => {
         insertOrUpdateBlock(editor, {
           type: "table",
           content: {
@@ -215,19 +180,17 @@ export async function defaultGetItems<
               },
             ],
           },
-        } as PartialBlock<BSchema, I, S>);
+        });
       },
       subtext: "Used for for tables",
       icon: <RiTable2 size={18} />,
       aliases: ["table"],
       group: "Advanced",
+      badge: undefined,
     },
     {
-      name: "Image",
-      execute: () => {
-        closeMenu();
-        clearQuery();
-
+      title: "Image",
+      onItemClick: (editor: BlockNoteEditor<any, any, any>) => {
         const insertedBlock = insertOrUpdateBlock(editor, {
           type: "image",
         });
@@ -253,8 +216,8 @@ export async function defaultGetItems<
         "dropbox",
       ],
       group: "Media",
-    } satisfies SuggestionMenuItemProps,
-  ];
+    },
+  ]; // satisfies (DefaultSuggestionItem & { onItemClick: any; aliases: any })[];
 
   // For testing async
   // return new Promise((resolve) => {
@@ -273,9 +236,15 @@ export async function defaultGetItems<
   //   }, 1000);
   // });
 
+  return items;
+}
+
+export function filterSuggestionItems<
+  T extends { title: string; aliases?: string[] }
+>(items: T[], query: string) {
   return items.filter(
-    ({ name, aliases }) =>
-      name.toLowerCase().startsWith(query.toLowerCase()) ||
+    ({ title, aliases }) =>
+      title.toLowerCase().startsWith(query.toLowerCase()) ||
       (aliases &&
         aliases.filter((alias) =>
           alias.toLowerCase().startsWith(query.toLowerCase())
