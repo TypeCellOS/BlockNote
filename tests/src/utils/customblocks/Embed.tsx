@@ -1,4 +1,4 @@
-import { createBlockSpec } from "@blocknote/core";
+import { BlockNoteEditor, createBlockSpec } from "@blocknote/core";
 
 import { RiLayout5Fill } from "react-icons/ri";
 

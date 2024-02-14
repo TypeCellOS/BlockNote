@@ -1,9 +1,7 @@
 import {
-  defaultInlineContentSchema,
   defaultInlineContentSpecs,
-  InlineContentSchema,
   InlineContentSpecs,
-  uploadToTmpFilesDotOrg_DEV_ONLY
+  uploadToTmpFilesDotOrg_DEV_ONLY,
 } from "@blocknote/core";
 import {
   BlockNoteDefaultUI,
@@ -40,15 +38,8 @@ const customInlineContentSpecs = {
   ...defaultInlineContentSpecs,
   mention: MentionInlineContent,
 } satisfies InlineContentSpecs;
-const customInlineContentSchema = {
-  ...defaultInlineContentSchema,
-  mention: MentionInlineContent.config,
-} satisfies InlineContentSchema;
 
-async function getMentionMenuItems(
-  
-  query: string
-) {
+async function getMentionMenuItems(query: string) {
   const users = ["Steve", "Bob", "Joe", "Mike"];
   const items = users.map((user) => ({
     title: user,
@@ -57,7 +48,6 @@ async function getMentionMenuItems(
   }));
 
   return filterSuggestionItems(items, query);
-  );
 }
 
 export function App() {

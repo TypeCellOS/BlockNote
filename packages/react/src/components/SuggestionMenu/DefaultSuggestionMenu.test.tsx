@@ -31,4 +31,7 @@ it("has good typing", () => {
       }}
     />
   );
+
+  // prevent typescript unused error
+  console.log("menu", menu);
 });
