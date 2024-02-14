@@ -16,10 +16,15 @@ import {
 } from "./DefaultButtons/NestBlockButtons";
 import { CreateLinkButton } from "./DefaultButtons/CreateLinkButton";
 
-export const DefaultFormattingToolbar = <BSchema extends BlockSchema>(props: {
+export type FormattingToolbarProps<BSchema extends BlockSchema> = {
   editor: BlockNoteEditor<BSchema, any, any>;
-  blockTypeDropdownItems?: BlockTypeDropdownItem[];
-}) => {
+};
+
+export const DefaultFormattingToolbar = <BSchema extends BlockSchema>(
+  props: FormattingToolbarProps<BSchema> & {
+    blockTypeDropdownItems?: BlockTypeDropdownItem[];
+  }
+) => {
   return (
     <Toolbar>
       <BlockTypeDropdown {...props} items={props.blockTypeDropdownItems} />

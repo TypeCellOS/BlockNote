@@ -3,13 +3,15 @@ import { EditorState, Plugin, PluginKey } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
-import { UiElementPosition } from "../../extensions-shared/UiElementPosition";
 import { BlockSchema, InlineContentSchema, StyleSchema } from "../../schema";
+import { UiElementPosition } from "../../extensions-shared/UiElementPosition";
 import { EventEmitter } from "../../util/EventEmitter";
 
+export type FormattingToolbarState = UiElementPosition;
+
 export class FormattingToolbarView {
-  private position?: UiElementPosition;
-  private readonly updatePosition: () => void;
+  public state?: FormattingToolbarState;
+  public emitUpdate: () => void;
 
   public preventHide = false;
   public preventShow = false;
@@ -29,16 +31,16 @@ export class FormattingToolbarView {
       StyleSchema
     >,
     private readonly pmView: EditorView,
-    updatePosition: (position: UiElementPosition) => void
+    emitUpdate: (state: FormattingToolbarState) => void
   ) {
-    this.updatePosition = () => {
-      if (!this.position) {
+    this.emitUpdate = () => {
+      if (!this.state) {
         throw new Error(
           "Attempting to update uninitialized formatting toolbar"
         );
       }
 
-      updatePosition(this.position);
+      emitUpdate(this.state);
     };
 
     pmView.dom.addEventListener("mousedown", this.viewMousedownHandler);
@@ -63,9 +65,9 @@ export class FormattingToolbarView {
 
   // For dragging the whole editor.
   dragHandler = () => {
-    if (this.position?.show) {
-      this.position.show = false;
-      this.updatePosition();
+    if (this.state?.show) {
+      this.state.show = false;
+      this.emitUpdate();
     }
   };
 
@@ -96,16 +98,16 @@ export class FormattingToolbarView {
       return;
     }
 
-    if (this.position?.show) {
-      this.position.show = false;
-      this.updatePosition();
+    if (this.state?.show) {
+      this.state.show = false;
+      this.emitUpdate();
     }
   };
 
   scrollHandler = () => {
-    if (this.position?.show) {
-      this.position.referencePos = this.getSelectionBoundingBox();
-      this.updatePosition();
+    if (this.state?.show) {
+      this.state.referencePos = this.getSelectionBoundingBox();
+      this.emitUpdate();
     }
   };
 
@@ -143,24 +145,24 @@ export class FormattingToolbarView {
       !this.preventShow &&
       (shouldShow || this.preventHide)
     ) {
-      this.position = {
+      this.state = {
         show: true,
         referencePos: this.getSelectionBoundingBox(),
       };
 
-      this.updatePosition();
+      this.emitUpdate();
 
       return;
     }
 
     // Checks if menu should be hidden.
     if (
-      this.position?.show &&
+      this.state?.show &&
       !this.preventHide &&
       (!shouldShow || this.preventShow || !this.editor.isEditable)
     ) {
-      this.position.show = false;
-      this.updatePosition();
+      this.state.show = false;
+      this.emitUpdate();
 
       return;
     }
@@ -212,19 +214,15 @@ export class FormattingToolbarProsemirrorPlugin extends EventEmitter<any> {
     this.plugin = new Plugin({
       key: formattingToolbarPluginKey,
       view: (editorView) => {
-        this.view = new FormattingToolbarView(
-          editor,
-          editorView,
-          (position) => {
-            this.emit("update position", position);
-          }
-        );
+        this.view = new FormattingToolbarView(editor, editorView, (state) => {
+          this.emit("update", state);
+        });
         return this.view;
       },
     });
   }
 
-  public onPositionUpdate(callback: (position: UiElementPosition) => void) {
-    return this.on("update position", callback);
+  public onUpdate(callback: (state: FormattingToolbarState) => void) {
+    return this.on("update", callback);
   }
 }

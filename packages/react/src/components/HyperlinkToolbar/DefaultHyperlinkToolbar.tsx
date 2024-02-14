@@ -1,24 +1,25 @@
 import {
   BlockNoteEditor,
-  BlockSchema,
-  InlineContentSchema,
-  StyleSchema,
+  HyperlinkToolbarState,
+  UiElementPosition,
 } from "@blocknote/core";
 import { useRef, useState } from "react";
 import { RiExternalLinkFill, RiLinkUnlink } from "react-icons/ri";
 
-import { useHyperlinkToolbarData } from "./hooks/useHyperlinkToolbarData";
 import { Toolbar } from "../../components-shared/Toolbar/Toolbar";
 import { ToolbarButton } from "../../components-shared/Toolbar/ToolbarButton";
 import { EditHyperlinkMenu } from "./EditHyperlinkMenu/components/EditHyperlinkMenu";
 
-export const DefaultHyperlinkToolbar = <
-  BSchema extends BlockSchema,
-  I extends InlineContentSchema,
-  S extends StyleSchema
->(props: {
-  editor: BlockNoteEditor<BSchema, I, S>;
-}) => {
+export type HyperlinkToolbarProps = Omit<
+  HyperlinkToolbarState,
+  keyof UiElementPosition
+> &
+  Pick<
+    BlockNoteEditor<any, any, any>["hyperlinkToolbar"],
+    "deleteHyperlink" | "editHyperlink" | "startHideTimer" | "stopHideTimer"
+  >;
+
+export const DefaultHyperlinkToolbar = (props: HyperlinkToolbarProps) => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const editMenuRef = useRef<HTMLDivElement | null>(null);
 
@@ -29,7 +30,7 @@ export const DefaultHyperlinkToolbar = <
     editHyperlink,
     startHideTimer,
     stopHideTimer,
-  } = useHyperlinkToolbarData(props.editor);
+  } = props;
 
   if (isEditing) {
     return (

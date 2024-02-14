@@ -2,21 +2,82 @@ import {
   BlockNoteEditor,
   BlockSchema,
   DefaultBlockSchema,
+  DefaultProps,
 } from "@blocknote/core";
-import { FC } from "react";
+import { flip, offset } from "@floating-ui/react";
+import { FC, useState } from "react";
 
-import { useFormattingToolbarPosition } from "./hooks/useFormattingToolbarPosition";
-import { DefaultFormattingToolbar } from "./DefaultFormattingToolbar";
+import { useUiElement } from "../../hooks/useUiElement";
+import { useUiElementPosition } from "../../hooks/useUiElementPosition";
+import { useEditorChange } from "../../hooks/useEditorChange";
+import {
+  DefaultFormattingToolbar,
+  FormattingToolbarProps,
+} from "./DefaultFormattingToolbar";
+
+const textAlignmentToPlacement = (
+  textAlignment: DefaultProps["textAlignment"]
+) => {
+  switch (textAlignment) {
+    case "left":
+      return "top-start";
+    case "center":
+      return "top";
+    case "right":
+      return "top-end";
+    default:
+      return "top-start";
+  }
+};
 
 export const DefaultPositionedFormattingToolbar = <
   BSchema extends BlockSchema = DefaultBlockSchema
 >(props: {
   editor: BlockNoteEditor<BSchema, any, any>;
-  formattingToolbar?: FC<{ editor: BlockNoteEditor<BSchema, any, any> }>;
+  formattingToolbar?: FC<FormattingToolbarProps<BSchema>>;
 }) => {
-  const { isMounted, ref, style } = useFormattingToolbarPosition(props.editor);
+  const [placement, setPlacement] = useState<"top-start" | "top" | "top-end">(
+    () => {
+      const block = props.editor.getTextCursorPosition().block;
 
-  if (!isMounted) {
+      if (!("textAlignment" in block.props)) {
+        return "top-start";
+      }
+
+      return textAlignmentToPlacement(
+        block.props.textAlignment as DefaultProps["textAlignment"]
+      );
+    }
+  );
+
+  useEditorChange(props.editor, () => {
+    const block = props.editor.getTextCursorPosition().block;
+
+    if (!("textAlignment" in block.props)) {
+      setPlacement("top-start");
+    } else {
+      setPlacement(
+        textAlignmentToPlacement(
+          block.props.textAlignment as DefaultProps["textAlignment"]
+        )
+      );
+    }
+  });
+
+  const state = useUiElement(
+    props.editor.formattingToolbar.onUpdate.bind(props.editor.formattingToolbar)
+  );
+  const { isMounted, ref, style } = useUiElementPosition(
+    state?.show || false,
+    state?.referencePos || null,
+    3000,
+    {
+      placement,
+      middleware: [offset(10), flip()],
+    }
+  );
+
+  if (!isMounted || !state) {
     return null;
   }
 

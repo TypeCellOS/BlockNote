@@ -1,12 +1,15 @@
-import { FC } from "react";
 import {
   BlockNoteEditor,
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
+  SuggestionMenuState,
 } from "@blocknote/core";
+import { flip, offset, size } from "@floating-ui/react";
+import { FC } from "react";
 
-import { useSuggestionMenuPosition } from "./hooks/useSuggestionMenuPosition";
+import { useUiElement } from "../../hooks/useUiElement";
+import { useUiElementPosition } from "../../hooks/useUiElementPosition";
 import { DefaultSuggestionMenu } from "./DefaultSuggestionMenu";
 import { SuggestionMenuComponentProps } from "./MantineDefaults/MantineSuggestionMenu";
 import { SuggestionMenuItemProps } from "./MantineDefaults/MantineSuggestionMenuItem";
@@ -29,23 +32,53 @@ export function DefaultPositionedSuggestionMenu<
   ) => Promise<Item[]>;
   suggestionMenuComponent?: FC<SuggestionMenuComponentProps<Item>>;
 }) {
-  const { editor, triggerCharacter, getItems, suggestionMenuComponent } = props;
+  const callbacks = {
+    closeMenu: props.editor.suggestionMenus.closeMenu,
+    clearQuery: props.editor.suggestionMenus.clearQuery,
+  };
 
-  const { isMounted, ref, style } = useSuggestionMenuPosition(
-    editor,
-    triggerCharacter || "/"
+  const state = useUiElement((callback: (state: SuggestionMenuState) => void) =>
+    props.editor.suggestionMenus.onUpdate.bind(props.editor.suggestionMenus)(
+      props.triggerCharacter || "/",
+      callback
+    )
+  );
+  const { isMounted, ref, style } = useUiElementPosition(
+    state?.show || false,
+    state?.referencePos || null,
+    2000,
+    {
+      placement: "bottom-start",
+      middleware: [
+        offset(10),
+        // Flips the menu placement to maximize the space available, and prevents
+        // the menu from being cut off by the confines of the screen.
+        flip(),
+        size({
+          apply({ availableHeight, elements }) {
+            Object.assign(elements.floating.style, {
+              maxHeight: `${availableHeight - 10}px`,
+            });
+          },
+        }),
+      ],
+    }
   );
 
-  if (!isMounted) {
+  if (!isMounted || !state) {
     return null;
   }
+
+  const { show, referencePos, ...data } = state;
 
   return (
     <div ref={ref} style={style}>
       <DefaultSuggestionMenu
-        editor={editor}
-        getItems={getItems}
-        suggestionMenuComponent={suggestionMenuComponent}
+        editor={props.editor}
+        getItems={props.getItems}
+        suggestionMenuComponent={props.suggestionMenuComponent}
+        {...data}
+        {...callbacks}
       />
     </div>
   );

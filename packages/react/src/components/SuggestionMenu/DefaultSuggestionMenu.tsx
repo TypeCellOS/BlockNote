@@ -4,9 +4,9 @@ import {
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
+  SuggestionMenuState,
+  UiElementPosition,
 } from "@blocknote/core";
-
-import { useSuggestionMenuData } from "./hooks/useSuggestionMenuData";
 import { useLoadSuggestionMenuItems } from "./hooks/useLoadSuggestionMenuItems";
 import { useCloseSuggestionMenuNoItems } from "./hooks/useCloseSuggestionMenuNoItems";
 import { useSuggestionMenuKeyboardNavigation } from "./hooks/useSuggestionMenuKeyboardNavigation";
@@ -21,20 +21,20 @@ export type SuggestionMenuProps<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema,
-  Item extends {
-    name: string;
-    execute: () => void;
-  } = SuggestionMenuItemProps
+  Item
 > = {
   editor: BlockNoteEditor<BSchema, I, S>;
-  triggerCharacter?: string;
   getItems?: (
     query: string,
     closeMenu: () => void,
     clearQuery: () => void
   ) => Promise<Item[]>;
   suggestionMenuComponent?: FC<SuggestionMenuComponentProps<Item>>;
-};
+} & Omit<SuggestionMenuState, keyof UiElementPosition> &
+  Pick<
+    BlockNoteEditor<any, any, any>["suggestionMenus"],
+    "closeMenu" | "clearQuery"
+  >;
 
 export function DefaultSuggestionMenu<
   BSchema extends BlockSchema,
@@ -45,12 +45,14 @@ export function DefaultSuggestionMenu<
     execute: () => void;
   } = SuggestionMenuItemProps
 >(props: SuggestionMenuProps<BSchema, I, S, Item>) {
-  const { editor, triggerCharacter, getItems, suggestionMenuComponent } = props;
-
-  const { query, closeMenu, clearQuery } = useSuggestionMenuData(
+  const {
     editor,
-    triggerCharacter || "/"
-  );
+    getItems,
+    suggestionMenuComponent,
+    query,
+    closeMenu,
+    clearQuery,
+  } = props;
 
   const getItemsForLoading = useMemo<(query: string) => Promise<Item[]>>(
     () => (query: string) =>

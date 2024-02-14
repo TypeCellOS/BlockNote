@@ -2,45 +2,46 @@ import {
   BlockNoteEditor,
   BlockSchema,
   InlineContentSchema,
+  SideMenuState,
+  StyleSchema,
+  UiElementPosition,
 } from "@blocknote/core";
-
-import { StyleSchema } from "@blocknote/core";
 import { AddBlockButton } from "./DefaultButtons/AddBlockButton";
 import { DragHandle } from "./DefaultButtons/DragHandle";
 import { SideMenu } from "./SideMenu";
-import { useSideMenuData } from "./hooks/useSideMenuData";
 import { FC } from "react";
 import type { DragHandleMenuProps } from "./DragHandleMenu/DragHandleMenu";
+
+export type SideMenuProps<
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+> = {
+  editor: BlockNoteEditor<BSchema, I, S>;
+  dragHandleMenu?: FC<DragHandleMenuProps<BSchema, I, S>>;
+} & Omit<SideMenuState<BSchema, I, S>, keyof UiElementPosition> &
+  Pick<
+    BlockNoteEditor<BSchema, I, S>["sideMenu"],
+    | "addBlock"
+    | "blockDragStart"
+    | "blockDragEnd"
+    | "freezeMenu"
+    | "unfreezeMenu"
+  >;
 
 export const DefaultSideMenu = <
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
->(props: {
-  editor: BlockNoteEditor<BSchema, I, S>;
-  dragHandleMenu?: FC<DragHandleMenuProps<BSchema, I, S>>;
-}) => {
-  const {
-    block,
-    addBlock,
-    blockDragStart,
-    blockDragEnd,
-    freezeMenu,
-    unfreezeMenu,
-  } = useSideMenuData(props.editor);
+>(
+  props: SideMenuProps<BSchema, I, S>
+) => {
+  const { addBlock, ...rest } = props;
 
   return (
     <SideMenu>
       <AddBlockButton addBlock={addBlock} />
-      <DragHandle
-        editor={props.editor}
-        block={block}
-        blockDragStart={blockDragStart}
-        blockDragEnd={blockDragEnd}
-        freezeMenu={freezeMenu}
-        unfreezeMenu={unfreezeMenu}
-        dragHandleMenu={props.dragHandleMenu}
-      />
+      <DragHandle {...rest} />
     </SideMenu>
   );
 };

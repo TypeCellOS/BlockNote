@@ -1,14 +1,15 @@
 import { findParentNode } from "@tiptap/core";
 import { EditorState, Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
+
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import { BlockSchema, InlineContentSchema, StyleSchema } from "../../schema";
-import { EventEmitter } from "../../util/EventEmitter";
 import { UiElementPosition } from "../../extensions-shared/UiElementPosition";
+import { EventEmitter } from "../../util/EventEmitter";
 
 const findBlock = findParentNode((node) => node.type.name === "blockContainer");
 
-export type SuggestionMenuData = {
+export type SuggestionMenuState = UiElementPosition & {
   query: string;
 };
 
@@ -17,49 +18,35 @@ class SuggestionMenuView<
   I extends InlineContentSchema,
   S extends StyleSchema
 > {
-  private data?: SuggestionMenuData;
-  private position?: UiElementPosition;
-  public updateData: (triggerCharacter: string) => void;
-  public updatePosition: (triggerCharacter: string) => void;
+  private state?: SuggestionMenuState;
+  public emitUpdate: (triggerCharacter: string) => void;
 
   pluginState: SuggestionPluginState;
 
   constructor(
     private readonly editor: BlockNoteEditor<BSchema, I, S>,
-    updateData: (triggerCharacter: string, data: SuggestionMenuData) => void,
-    updatePosition: (
-      triggerCharacter: string,
-      position: UiElementPosition
-    ) => void
+    emitUpdate: (menuName: string, state: SuggestionMenuState) => void
   ) {
     this.pluginState = undefined;
 
-    this.updateData = (triggerCharacter: string) => {
-      if (!this.data) {
+    this.emitUpdate = (menuName: string) => {
+      if (!this.state) {
         throw new Error("Attempting to update uninitialized suggestions menu");
       }
 
-      updateData(triggerCharacter, this.data);
-    };
-
-    this.updatePosition = (triggerCharacter: string) => {
-      if (!this.position) {
-        throw new Error("Attempting to update uninitialized suggestions menu");
-      }
-
-      updatePosition(triggerCharacter, this.position);
+      emitUpdate(menuName, this.state);
     };
 
     document.addEventListener("scroll", this.handleScroll);
   }
 
   handleScroll = () => {
-    if (this.position?.show) {
+    if (this.state?.show) {
       const decorationNode = document.querySelector(
         `[data-decoration-id="${this.pluginState!.decorationId}"]`
       );
-      this.position.referencePos = decorationNode!.getBoundingClientRect();
-      this.updatePosition(this.pluginState!.triggerCharacter!);
+      this.state.referencePos = decorationNode!.getBoundingClientRect();
+      this.emitUpdate(this.pluginState!.triggerCharacter!);
     }
   };
 
@@ -83,8 +70,8 @@ class SuggestionMenuView<
     this.pluginState = stopped ? prev : next;
 
     if (stopped || !this.editor.isEditable) {
-      this.position!.show = false;
-      this.updatePosition(this.pluginState!.triggerCharacter);
+      this.state!.show = false;
+      this.emitUpdate(this.pluginState!.triggerCharacter);
 
       return;
     }
@@ -94,20 +81,13 @@ class SuggestionMenuView<
     );
 
     if (this.editor.isEditable) {
-      this.data = {
+      this.state = {
+        show: true,
+        referencePos: decorationNode!.getBoundingClientRect(),
         query: this.pluginState!.query,
       };
 
-      this.updateData(this.pluginState!.triggerCharacter!);
-
-      if (started) {
-        this.position = {
-          show: true,
-          referencePos: decorationNode!.getBoundingClientRect(),
-        };
-
-        this.updatePosition(this.pluginState!.triggerCharacter);
-      }
+      this.emitUpdate(this.pluginState!.triggerCharacter!);
     }
   }
 
@@ -185,14 +165,8 @@ export class SuggestionMenuProseMirrorPlugin<
       view: () => {
         this.view = new SuggestionMenuView<BSchema, I, S>(
           editor,
-          (triggerCharacter, suggestionMenuData) => {
-            this.emit(`update data ${triggerCharacter}`, suggestionMenuData);
-          },
-          (triggerCharacter, suggestionMenuPosition) => {
-            this.emit(
-              `update position ${triggerCharacter}`,
-              suggestionMenuPosition
-            );
+          (triggerCharacter, state) => {
+            this.emit(`update ${triggerCharacter}`, state);
           }
         );
         return this.view;
@@ -343,25 +317,15 @@ export class SuggestionMenuProseMirrorPlugin<
     });
   }
 
-  public onDataUpdate(
+  public onUpdate(
     triggerCharacter: string,
-    callback: (data: SuggestionMenuData) => void
+    callback: (state: SuggestionMenuState) => void
   ) {
     if (!this.triggerCharacters.includes(triggerCharacter)) {
       this.addTriggerCharacter(triggerCharacter);
     }
     // TODO: be able to remove the triggerCharacter
-    return this.on(`update data ${triggerCharacter}`, callback);
-  }
-
-  public onPositionUpdate(
-    triggerCharacter: string,
-    callback: (position: UiElementPosition) => void
-  ) {
-    if (!this.triggerCharacters.includes(triggerCharacter)) {
-      this.addTriggerCharacter(triggerCharacter);
-    }
-    return this.on(`update position ${triggerCharacter}`, callback);
+    return this.on(`update ${triggerCharacter}`, callback);
   }
 
   addTriggerCharacter = (triggerCharacter: string) => {

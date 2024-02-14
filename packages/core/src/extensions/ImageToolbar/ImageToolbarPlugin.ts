@@ -1,7 +1,6 @@
 import { EditorState, Plugin, PluginKey } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 
-import { EventEmitter } from "../../util/EventEmitter";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import {
   BlockSchema,
@@ -10,12 +9,13 @@ import {
   StyleSchema,
 } from "../../schema";
 import { UiElementPosition } from "../../extensions-shared/UiElementPosition";
+import { EventEmitter } from "../../util/EventEmitter";
 
-export type ImageToolbarData<
+export type ImageToolbarState<
   B extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema = StyleSchema
-> = {
+  S extends StyleSchema
+> = UiElementPosition & {
   block: SpecificBlock<B, "image", I, S>;
 };
 
@@ -24,33 +24,22 @@ export class ImageToolbarView<
   I extends InlineContentSchema,
   S extends StyleSchema
 > {
-  private data?: ImageToolbarData<BSchema, I, S>;
-  private position?: UiElementPosition;
-  private readonly updateData: () => void;
-  private readonly updatePosition: () => void;
+  public state?: ImageToolbarState<BSchema, I, S>;
+  public emitUpdate: () => void;
 
   public prevWasEditable: boolean | null = null;
 
   constructor(
     private readonly pluginKey: PluginKey,
     private readonly pmView: EditorView,
-    updateData: (data: ImageToolbarData<BSchema, I, S>) => void,
-    updatePosition: (position: UiElementPosition) => void
+    emitUpdate: (state: ImageToolbarState<BSchema, I, S>) => void
   ) {
-    this.updateData = () => {
-      if (!this.data) {
+    this.emitUpdate = () => {
+      if (!this.state) {
         throw new Error("Attempting to update uninitialized image toolbar");
       }
 
-      updateData(this.data);
-    };
-
-    this.updatePosition = () => {
-      if (!this.position) {
-        throw new Error("Attempting to update uninitialized image toolbar");
-      }
-
-      updatePosition(this.position);
+      emitUpdate(this.state);
     };
 
     pmView.dom.addEventListener("mousedown", this.mouseDownHandler);
@@ -63,17 +52,17 @@ export class ImageToolbarView<
   }
 
   mouseDownHandler = () => {
-    if (this.position?.show) {
-      this.position.show = false;
-      this.updatePosition();
+    if (this.state?.show) {
+      this.state.show = false;
+      this.emitUpdate();
     }
   };
 
   // For dragging the whole editor.
   dragstartHandler = () => {
-    if (this.position?.show) {
-      this.position.show = false;
-      this.updatePosition();
+    if (this.state?.show) {
+      this.state.show = false;
+      this.emitUpdate();
     }
   };
 
@@ -93,20 +82,20 @@ export class ImageToolbarView<
       return;
     }
 
-    if (this.position?.show) {
-      this.position.show = false;
-      this.updatePosition();
+    if (this.state?.show) {
+      this.state.show = false;
+      this.emitUpdate();
     }
   };
 
   scrollHandler = () => {
-    if (this.position?.show) {
+    if (this.state?.show) {
       const blockElement = document.querySelector(
-        `[data-node-type="blockContainer"][data-id="${this.data!.block.id}"]`
+        `[data-node-type="blockContainer"][data-id="${this.state.block.id}"]`
       )!;
 
-      this.position.referencePos = blockElement.getBoundingClientRect();
-      this.updatePosition();
+      this.state.referencePos = blockElement.getBoundingClientRect();
+      this.emitUpdate();
     }
   };
 
@@ -115,21 +104,18 @@ export class ImageToolbarView<
       block: SpecificBlock<BSchema, "image", I, S>;
     } = this.pluginKey.getState(view.state);
 
-    if (!this.position?.show && pluginState.block) {
+    if (!this.state?.show && pluginState.block) {
       const blockElement = document.querySelector(
         `[data-node-type="blockContainer"][data-id="${pluginState.block.id}"]`
       )!;
 
-      this.data = {
-        block: pluginState.block,
-      };
-      this.position = {
+      this.state = {
         show: true,
         referencePos: blockElement.getBoundingClientRect(),
+        block: pluginState.block,
       };
 
-      this.updateData();
-      this.updatePosition();
+      this.emitUpdate();
 
       return;
     }
@@ -138,10 +124,10 @@ export class ImageToolbarView<
       !view.state.selection.eq(prevState.selection) ||
       !view.state.doc.eq(prevState.doc)
     ) {
-      if (this.position?.show) {
-        this.position.show = false;
+      if (this.state?.show) {
+        this.state.show = false;
 
-        this.updatePosition();
+        this.emitUpdate();
       }
     }
   }
@@ -178,11 +164,8 @@ export class ImageToolbarProsemirrorPlugin<
           // editor,
           imageToolbarPluginKey,
           editorView,
-          (data) => {
-            this.emit("update data", data);
-          },
-          (position) => {
-            this.emit("update position", position);
+          (state) => {
+            this.emit("update", state);
           }
         );
         return this.view;
@@ -205,13 +188,7 @@ export class ImageToolbarProsemirrorPlugin<
     });
   }
 
-  public onDataUpdate(
-    callback: (data: ImageToolbarData<BSchema, I, S>) => void
-  ) {
-    return this.on("update data", callback);
-  }
-
-  public onPositionUpdate(callback: (position: UiElementPosition) => void) {
-    return this.on("update position", callback);
+  public onUpdate(callback: (state: ImageToolbarState<BSchema, I, S>) => void) {
+    return this.on("update", callback);
   }
 }

@@ -1,4 +1,10 @@
-import { BlockNoteEditor, BlockSchema, PartialBlock } from "@blocknote/core";
+import {
+  BlockNoteEditor,
+  BlockSchema,
+  ImageToolbarState,
+  PartialBlock,
+  UiElementPosition,
+} from "@blocknote/core";
 import {
   Button,
   FileInput,
@@ -15,19 +21,20 @@ import {
   useState,
 } from "react";
 
-import { useImageToolbarData } from "./hooks/useImageToolbarData";
 import { Toolbar } from "../../components-shared/Toolbar/Toolbar";
 
-export const DefaultImageToolbar = <BSchema extends BlockSchema>(props: {
+export type ImageToolbarProps<BSchema extends BlockSchema> = {
   editor: BlockNoteEditor<BSchema, any>;
-}) => {
+} & Omit<ImageToolbarState<BSchema, any, any>, keyof UiElementPosition>;
+
+export const DefaultImageToolbar = <BSchema extends BlockSchema>(
+  props: ImageToolbarProps<BSchema>
+) => {
   const [openTab, setOpenTab] = useState<"upload" | "embed">(
     props.editor.uploadFile !== undefined ? "upload" : "embed"
   );
   const [uploading, setUploading] = useState<boolean>(false);
   const [uploadFailed, setUploadFailed] = useState<boolean>(false);
-
-  const { block } = useImageToolbarData(props.editor);
 
   useEffect(() => {
     if (uploadFailed) {
@@ -49,7 +56,7 @@ export const DefaultImageToolbar = <BSchema extends BlockSchema>(props: {
         if (props.editor.uploadFile !== undefined) {
           try {
             const uploaded = await props.editor.uploadFile(file);
-            props.editor.updateBlock(block, {
+            props.editor.updateBlock(props.block, {
               type: "image",
               props: {
                 url: uploaded,
@@ -65,7 +72,7 @@ export const DefaultImageToolbar = <BSchema extends BlockSchema>(props: {
 
       upload(file);
     },
-    [block, props.editor]
+    [props.block, props.editor]
   );
 
   const [currentURL, setCurrentURL] = useState<string>("");
@@ -81,7 +88,7 @@ export const DefaultImageToolbar = <BSchema extends BlockSchema>(props: {
     (event: KeyboardEvent) => {
       if (event.key === "Enter") {
         event.preventDefault();
-        props.editor.updateBlock(block, {
+        props.editor.updateBlock(props.block, {
           type: "image",
           props: {
             url: currentURL,
@@ -89,17 +96,17 @@ export const DefaultImageToolbar = <BSchema extends BlockSchema>(props: {
         } as PartialBlock<BSchema, any, any>);
       }
     },
-    [currentURL, block, props.editor]
+    [currentURL, props.block, props.editor]
   );
 
   const handleURLClick = useCallback(() => {
-    props.editor.updateBlock(block, {
+    props.editor.updateBlock(props.block, {
       type: "image",
       props: {
         url: currentURL,
       },
     } as PartialBlock<BSchema, any, any>);
-  }, [currentURL, block, props.editor]);
+  }, [currentURL, props.block, props.editor]);
 
   return (
     <Toolbar className={"bn-image-toolbar"}>

@@ -9,8 +9,9 @@ import {
 } from "@blocknote/core";
 import { FC } from "react";
 
+import { useUiElement } from "../../hooks/useUiElement";
+import { useUiElementPosition } from "../../hooks/useUiElementPosition";
 import { DefaultSideMenu } from "./DefaultSideMenu";
-import { useSideMenuPosition } from "./hooks/useSideMenuPosition";
 
 export const DefaultPositionedSideMenu = <
   BSchema extends BlockSchema = DefaultBlockSchema,
@@ -22,17 +23,37 @@ export const DefaultPositionedSideMenu = <
     editor: BlockNoteEditor<BSchema, I, S>;
   }>;
 }) => {
-  const { isMounted, ref, style } = useSideMenuPosition(props.editor);
+  const callbacks = {
+    addBlock: props.editor.sideMenu.addBlock,
+    blockDragStart: props.editor.sideMenu.blockDragStart,
+    blockDragEnd: props.editor.sideMenu.blockDragEnd,
+    freezeMenu: props.editor.sideMenu.freezeMenu,
+    unfreezeMenu: props.editor.sideMenu.unfreezeMenu,
+  };
 
-  if (!isMounted) {
+  const state = useUiElement(
+    props.editor.sideMenu.onUpdate.bind(props.editor.sideMenu)
+  );
+  const { isMounted, ref, style } = useUiElementPosition(
+    state?.show || false,
+    state?.referencePos || null,
+    1000,
+    {
+      placement: "left",
+    }
+  );
+
+  if (!isMounted || !state) {
     return null;
   }
+
+  const { show, referencePos, ...data } = state;
 
   const SideMenu = props.sideMenu || DefaultSideMenu;
 
   return (
     <div ref={ref} style={style}>
-      <SideMenu editor={props.editor} />
+      <SideMenu editor={props.editor} {...data} {...callbacks} />
     </div>
   );
 };

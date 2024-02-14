@@ -4,7 +4,6 @@ export * from "./editor/BlockNoteTheme";
 export * from "./editor/BlockNoteView";
 export * from "./editor/defaultThemes";
 
-export * from "./components/FormattingToolbar/hooks/useFormattingToolbarPosition";
 export * from "./components/FormattingToolbar/DefaultButtons/ColorStyleButton";
 export * from "./components/FormattingToolbar/DefaultButtons/CreateLinkButton";
 export * from "./components/FormattingToolbar/DefaultButtons/ImageCaptionButton";
@@ -16,13 +15,9 @@ export * from "./components/FormattingToolbar/DefaultDropdowns/BlockTypeDropdown
 export * from "./components/FormattingToolbar/DefaultFormattingToolbar";
 export * from "./components/FormattingToolbar/DefaultPositionedFormattingToolbar";
 
-export * from "./components/HyperlinkToolbar/hooks/useHyperlinkToolbarData";
-export * from "./components/HyperlinkToolbar/hooks/useHyperlinkToolbarPosition";
 export * from "./components/HyperlinkToolbar/DefaultHyperlinkToolbar";
 export * from "./components/HyperlinkToolbar/DefaultPositionedHyperlinkToolbar";
 
-export * from "./components/SideMenu/hooks/useSideMenuData";
-export * from "./components/SideMenu/hooks/useSideMenuPosition";
 export * from "./components/SideMenu/DefaultButtons/AddBlockButton";
 export * from "./components/SideMenu/DefaultButtons/DragHandle";
 export * from "./components/SideMenu/SideMenu";
@@ -36,8 +31,6 @@ export * from "./components/SideMenu/DragHandleMenu/DefaultDragHandleMenu";
 export * from "./components/SideMenu/DragHandleMenu/DragHandleMenu";
 export * from "./components/SideMenu/DragHandleMenu/DragHandleMenuItem";
 
-export * from "./components/SuggestionMenu/hooks/useSuggestionMenuData";
-export * from "./components/SuggestionMenu/hooks/useSuggestionMenuPosition";
 export * from "./components/SuggestionMenu/hooks/useLoadSuggestionMenuItems";
 export * from "./components/SuggestionMenu/hooks/useCloseSuggestionMenuNoItems";
 export * from "./components/SuggestionMenu/hooks/useSuggestionMenuKeyboardNavigation";
@@ -47,8 +40,6 @@ export * from "./components/SuggestionMenu/defaultGetItems";
 export * from "./components/SuggestionMenu/DefaultSuggestionMenu";
 export * from "./components/SuggestionMenu/DefaultPositionedSuggestionMenu";
 
-export * from "./components/ImageToolbar/hooks/useImageToolbarData";
-export * from "./components/ImageToolbar/hooks/useImageToolbarPosition";
 export * from "./components/ImageToolbar/DefaultImageToolbar";
 export * from "./components/ImageToolbar/DefaultPositionedImageToolbar";
 
