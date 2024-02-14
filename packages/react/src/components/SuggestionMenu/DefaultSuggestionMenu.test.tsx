@@ -3,6 +3,7 @@ import { it } from "vitest";
 import { DefaultPositionedSuggestionMenu } from "./DefaultSuggestionMenu";
 
 it("has good typing", () => {
+  // invalid, because DefaultSuggestionItem doesn't have a title property, so the default MantineSuggestionMenu doesn't wrok
   let menu = (
     // @ts-expect-error
     <DefaultPositionedSuggestionMenu
