@@ -1,6 +1,7 @@
 import {
   BlockNoteEditor,
   BlockSchema,
+  DefaultBlockSchema,
   ImageToolbarState,
   PartialBlock,
   UiElementPosition,
@@ -23,7 +24,9 @@ import {
 
 import { Toolbar } from "../../components-shared/Toolbar/Toolbar";
 
-export type ImageToolbarProps<BSchema extends BlockSchema> = {
+export type ImageToolbarProps<
+  BSchema extends BlockSchema = DefaultBlockSchema
+> = {
   editor: BlockNoteEditor<BSchema, any>;
 } & Omit<ImageToolbarState<BSchema, any, any>, keyof UiElementPosition>;
 

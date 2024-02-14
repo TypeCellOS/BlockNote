@@ -11,8 +11,8 @@ import { FC } from "react";
 import { useUiElement } from "../../hooks/useUiElement";
 import { useUiElementPosition } from "../../hooks/useUiElementPosition";
 import { DefaultSuggestionMenu } from "./DefaultSuggestionMenu";
-import { SuggestionMenuComponentProps } from "./MantineDefaults/MantineSuggestionMenu";
-import { SuggestionMenuItemProps } from "./MantineDefaults/MantineSuggestionMenuItem";
+import { MantineSuggestionMenuProps } from "./MantineDefaults/MantineSuggestionMenu";
+import { MantineSuggestionMenuItemProps } from "./MantineDefaults/MantineSuggestionMenuItem";
 
 export function DefaultPositionedSuggestionMenu<
   BSchema extends BlockSchema,
@@ -21,7 +21,7 @@ export function DefaultPositionedSuggestionMenu<
   Item extends {
     name: string;
     execute: () => void;
-  } = SuggestionMenuItemProps
+  } = MantineSuggestionMenuItemProps
 >(props: {
   editor: BlockNoteEditor<BSchema, I, S>;
   triggerCharacter?: string;
@@ -30,7 +30,7 @@ export function DefaultPositionedSuggestionMenu<
     closeMenu: () => void,
     clearQuery: () => void
   ) => Promise<Item[]>;
-  suggestionMenuComponent?: FC<SuggestionMenuComponentProps<Item>>;
+  suggestionMenuComponent?: FC<MantineSuggestionMenuProps<Item>>;
 }) {
   const callbacks = {
     closeMenu: props.editor.suggestionMenus.closeMenu,

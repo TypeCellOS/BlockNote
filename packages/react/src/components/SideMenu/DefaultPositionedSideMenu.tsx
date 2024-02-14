@@ -11,7 +11,7 @@ import { FC } from "react";
 
 import { useUiElement } from "../../hooks/useUiElement";
 import { useUiElementPosition } from "../../hooks/useUiElementPosition";
-import { DefaultSideMenu } from "./DefaultSideMenu";
+import { DefaultSideMenu, SideMenuProps } from "./DefaultSideMenu";
 
 export const DefaultPositionedSideMenu = <
   BSchema extends BlockSchema = DefaultBlockSchema,
@@ -19,9 +19,7 @@ export const DefaultPositionedSideMenu = <
   S extends StyleSchema = DefaultStyleSchema
 >(props: {
   editor: BlockNoteEditor<BSchema, I, S>;
-  sideMenu?: FC<{
-    editor: BlockNoteEditor<BSchema, I, S>;
-  }>;
+  sideMenu?: FC<SideMenuProps<BSchema, I, S>>;
 }) => {
   const callbacks = {
     addBlock: props.editor.sideMenu.addBlock,

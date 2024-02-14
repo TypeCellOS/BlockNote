@@ -1,6 +1,9 @@
 import {
   BlockNoteEditor,
   BlockSchema,
+  DefaultBlockSchema,
+  DefaultInlineContentSchema,
+  DefaultStyleSchema,
   InlineContentSchema,
   SideMenuState,
   StyleSchema,
@@ -13,9 +16,9 @@ import { FC } from "react";
 import type { DragHandleMenuProps } from "./DragHandleMenu/DragHandleMenu";
 
 export type SideMenuProps<
-  BSchema extends BlockSchema,
-  I extends InlineContentSchema,
-  S extends StyleSchema
+  BSchema extends BlockSchema = DefaultBlockSchema,
+  I extends InlineContentSchema = DefaultInlineContentSchema,
+  S extends StyleSchema = DefaultStyleSchema
 > = {
   editor: BlockNoteEditor<BSchema, I, S>;
   dragHandleMenu?: FC<DragHandleMenuProps<BSchema, I, S>>;
@@ -30,9 +33,9 @@ export type SideMenuProps<
   >;
 
 export const DefaultSideMenu = <
-  BSchema extends BlockSchema,
-  I extends InlineContentSchema,
-  S extends StyleSchema
+  BSchema extends BlockSchema = DefaultBlockSchema,
+  I extends InlineContentSchema = DefaultInlineContentSchema,
+  S extends StyleSchema = DefaultStyleSchema
 >(
   props: SideMenuProps<BSchema, I, S>
 ) => {

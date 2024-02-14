@@ -3,7 +3,7 @@ import {
   UseFloatingOptions,
   useTransitionStyles,
 } from "@floating-ui/react";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { UiComponentPosition } from "../components-shared/UiComponentTypes";
 
 export function useUiElementPosition(
@@ -32,14 +32,17 @@ export function useUiElementPosition(
     }
   }, [referencePos, refs]);
 
-  return {
-    isMounted: isMounted,
-    ref: refs.setFloating,
-    style: {
-      display: "flex",
-      ...styles,
-      ...floatingStyles,
-      zIndex: zIndex,
-    },
-  };
+  return useMemo(
+    () => ({
+      isMounted,
+      ref: refs.setFloating,
+      style: {
+        display: "flex",
+        ...styles,
+        ...floatingStyles,
+        zIndex: zIndex,
+      },
+    }),
+    [isMounted, styles, floatingStyles, zIndex, refs]
+  );
 }

@@ -1,4 +1,8 @@
-import { BlockNoteEditor, BlockSchema } from "@blocknote/core";
+import {
+  BlockNoteEditor,
+  BlockSchema,
+  DefaultBlockSchema,
+} from "@blocknote/core";
 
 import { Toolbar } from "../../components-shared/Toolbar/Toolbar";
 import {
@@ -20,7 +24,9 @@ export type FormattingToolbarProps<BSchema extends BlockSchema> = {
   editor: BlockNoteEditor<BSchema, any, any>;
 };
 
-export const DefaultFormattingToolbar = <BSchema extends BlockSchema>(
+export const DefaultFormattingToolbar = <
+  BSchema extends BlockSchema = DefaultBlockSchema
+>(
   props: FormattingToolbarProps<BSchema> & {
     blockTypeDropdownItems?: BlockTypeDropdownItem[];
   }

@@ -23,7 +23,7 @@ import {
   RiText,
 } from "react-icons/ri";
 
-import { SuggestionMenuItemProps } from "./MantineDefaults/MantineSuggestionMenuItem";
+import { MantineSuggestionMenuItemProps } from "./MantineDefaults/MantineSuggestionMenuItem";
 
 // Sets the editor's text cursor position to the next content editable block,
 // so either a block with inline content or a table. The last block is always a
@@ -98,8 +98,8 @@ export async function defaultGetItems<
   query: string,
   closeMenu: () => void,
   clearQuery: () => void
-): Promise<SuggestionMenuItemProps[]> {
-  const items: SuggestionMenuItemProps[] = [
+): Promise<MantineSuggestionMenuItemProps[]> {
+  const items: MantineSuggestionMenuItemProps[] = [
     {
       name: "Heading 1",
       execute: () => {
@@ -250,7 +250,7 @@ export async function defaultGetItems<
         "dropbox",
       ],
       group: "Media",
-    } satisfies SuggestionMenuItemProps,
+    } satisfies MantineSuggestionMenuItemProps,
   ];
 
   // For testing async

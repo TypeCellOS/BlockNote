@@ -2,6 +2,9 @@ import { FC, useMemo } from "react";
 import {
   BlockNoteEditor,
   BlockSchema,
+  DefaultBlockSchema,
+  DefaultInlineContentSchema,
+  DefaultStyleSchema,
   InlineContentSchema,
   StyleSchema,
   SuggestionMenuState,
@@ -13,15 +16,18 @@ import { useSuggestionMenuKeyboardNavigation } from "./hooks/useSuggestionMenuKe
 import { defaultGetItems } from "./defaultGetItems";
 import {
   MantineSuggestionMenu,
-  SuggestionMenuComponentProps,
+  MantineSuggestionMenuProps,
 } from "./MantineDefaults/MantineSuggestionMenu";
-import { SuggestionMenuItemProps } from "./MantineDefaults/MantineSuggestionMenuItem";
+import { MantineSuggestionMenuItemProps } from "./MantineDefaults/MantineSuggestionMenuItem";
 
 export type SuggestionMenuProps<
-  BSchema extends BlockSchema,
-  I extends InlineContentSchema,
-  S extends StyleSchema,
-  Item
+  BSchema extends BlockSchema = DefaultBlockSchema,
+  I extends InlineContentSchema = DefaultInlineContentSchema,
+  S extends StyleSchema = DefaultStyleSchema,
+  Item extends {
+    name: string;
+    execute: () => void;
+  } = MantineSuggestionMenuItemProps
 > = {
   editor: BlockNoteEditor<BSchema, I, S>;
   getItems?: (
@@ -29,7 +35,7 @@ export type SuggestionMenuProps<
     closeMenu: () => void,
     clearQuery: () => void
   ) => Promise<Item[]>;
-  suggestionMenuComponent?: FC<SuggestionMenuComponentProps<Item>>;
+  suggestionMenuComponent?: FC<MantineSuggestionMenuProps<Item>>;
 } & Omit<SuggestionMenuState, keyof UiElementPosition> &
   Pick<
     BlockNoteEditor<any, any, any>["suggestionMenus"],
@@ -43,7 +49,7 @@ export function DefaultSuggestionMenu<
   Item extends {
     name: string;
     execute: () => void;
-  } = SuggestionMenuItemProps
+  }
 >(props: SuggestionMenuProps<BSchema, I, S, Item>) {
   const {
     editor,
@@ -77,7 +83,7 @@ export function DefaultSuggestionMenu<
     closeMenu
   );
 
-  const SuggestionMenuComponent: FC<SuggestionMenuComponentProps<Item>> =
+  const SuggestionMenuComponent: FC<MantineSuggestionMenuProps<Item>> =
     suggestionMenuComponent || MantineSuggestionMenu;
 
   return (
