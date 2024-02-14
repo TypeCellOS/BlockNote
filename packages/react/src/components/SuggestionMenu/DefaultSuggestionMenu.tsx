@@ -76,35 +76,21 @@ export function DefaultPositionedSuggestionMenu<
     return null;
   }
 
-  if (suggestionMenuComponent) {
-    return (
-      <div ref={positionerProps.ref} style={positionerProps.styles}>
-        <DefaultSuggestionMenu
-          suggestionMenuComponent={suggestionMenuComponent}
-          editor={editor}
-          getItems={getItems}
-          onItemClick={clickHandler}
-          query={suggestionMenuProps.query}
-          closeMenu={suggestionMenuProps.closeMenu}
-          clearQuery={suggestionMenuProps.clearQuery}
-        />
-      </div>
-    );
-  } else {
-    return (
-      <div ref={positionerProps.ref} style={positionerProps.styles}>
-        <DefaultSuggestionMenu
-          suggestionMenuComponent={MantineSuggestionMenu}
-          editor={editor}
-          getItems={getItems}
-          onItemClick={onItemClick}
-          query={suggestionMenuProps.query}
-          closeMenu={suggestionMenuProps.closeMenu}
-          clearQuery={suggestionMenuProps.clearQuery}
-        />
-      </div>
-    );
-  }
+  return (
+    <div ref={positionerProps.ref} style={positionerProps.styles}>
+      <DefaultSuggestionMenu
+        suggestionMenuComponent={
+          suggestionMenuComponent || MantineSuggestionMenu
+        }
+        editor={editor}
+        getItems={getItems}
+        onItemClick={clickHandler}
+        query={suggestionMenuProps.query}
+        closeMenu={suggestionMenuProps.closeMenu}
+        clearQuery={suggestionMenuProps.clearQuery}
+      />
+    </div>
+  );
 }
 
 export function DefaultSuggestionMenu<

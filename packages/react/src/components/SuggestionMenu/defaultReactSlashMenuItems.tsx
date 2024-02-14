@@ -2,6 +2,7 @@ import {
   Block,
   BlockNoteEditor,
   BlockSchema,
+  DefaultBlockSchema,
   formatKeyboardShortcut,
   imageToolbarPluginKey,
   InlineContentSchema,
@@ -24,6 +25,7 @@ import {
 // so either a block with inline content or a table. The last block is always a
 // paragraph, so this function won't try to set the cursor position past the
 // last block.
+// TODO: move to core?
 function setSelectionToNextContentEditableBlock<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
@@ -46,6 +48,7 @@ function setSelectionToNextContentEditableBlock<
 // updates the current block instead of inserting a new one below. If the new
 // block doesn't contain editable content, the cursor is moved to the next block
 // that does.
+// TODO: move to core?
 export function insertOrUpdateBlock<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
@@ -83,19 +86,18 @@ export function insertOrUpdateBlock<
   return insertedBlock;
 }
 
-// TODO: Not sure on the return type of this. I think it's nice that the items
-//  can just be plugged as props into SuggestionMenuLabel and SuggestionMenuItem
-//  components, but the labels make the keyboard selection code more complex.
-// TODO: Also probably want an easier way of customizing the items list.
 export function getDefaultReactSlashMenuItems() {
   const items = [
     {
       title: "Heading 1",
+      // Unfortunately, we can't use a more specific BlockNoteEditor type here,
+      // Typescript seems to get in the way there
+      // This means that we don't have type checking for calling insertOrUpdateBlock etc. :(
       onItemClick: (editor: BlockNoteEditor<any, any, any>) => {
         insertOrUpdateBlock(editor, {
           type: "heading",
           props: { level: 1 },
-        });
+        } satisfies PartialBlock<DefaultBlockSchema, any, any>);
       },
       subtext: "Used for a top-level heading",
       icon: <RiH1 size={18} />,
@@ -109,7 +111,7 @@ export function getDefaultReactSlashMenuItems() {
         insertOrUpdateBlock(editor, {
           type: "heading",
           props: { level: 2 },
-        });
+        } satisfies PartialBlock<DefaultBlockSchema, any, any>);
       },
       subtext: "Used for key sections",
       icon: <RiH2 size={18} />,
@@ -123,7 +125,7 @@ export function getDefaultReactSlashMenuItems() {
         insertOrUpdateBlock(editor, {
           type: "heading",
           props: { level: 3 },
-        });
+        } satisfies PartialBlock<DefaultBlockSchema, any, any>);
       },
       subtext: "Used for subsections and group headings",
       icon: <RiH3 size={18} />,
@@ -134,7 +136,9 @@ export function getDefaultReactSlashMenuItems() {
     {
       title: "Numbered List",
       onItemClick: (editor: BlockNoteEditor<any, any, any>) => {
-        insertOrUpdateBlock(editor, { type: "numberedListItem" });
+        insertOrUpdateBlock(editor, {
+          type: "numberedListItem",
+        } satisfies PartialBlock<DefaultBlockSchema, any, any>);
       },
       subtext: "Used to display a numbered list",
       icon: <RiListOrdered size={18} />,
@@ -145,7 +149,9 @@ export function getDefaultReactSlashMenuItems() {
     {
       title: "Bullet List",
       onItemClick: (editor: BlockNoteEditor<any, any, any>) => {
-        insertOrUpdateBlock(editor, { type: "bulletListItem" });
+        insertOrUpdateBlock(editor, {
+          type: "bulletListItem",
+        } satisfies PartialBlock<DefaultBlockSchema, any, any>);
       },
       subtext: "Used to display an unordered list",
       icon: <RiListUnordered size={18} />,
@@ -156,7 +162,9 @@ export function getDefaultReactSlashMenuItems() {
     {
       title: "Paragraph",
       onItemClick: (editor: BlockNoteEditor<any, any, any>) => {
-        insertOrUpdateBlock(editor, { type: "paragraph" });
+        insertOrUpdateBlock(editor, {
+          type: "paragraph",
+        } satisfies PartialBlock<DefaultBlockSchema, any, any>);
       },
       subtext: "Used for the body of your document",
       icon: <RiText size={18} />,
@@ -180,7 +188,7 @@ export function getDefaultReactSlashMenuItems() {
               },
             ],
           },
-        });
+        } satisfies PartialBlock<DefaultBlockSchema, any, any>);
       },
       subtext: "Used for for tables",
       icon: <RiTable2 size={18} />,
@@ -193,7 +201,7 @@ export function getDefaultReactSlashMenuItems() {
       onItemClick: (editor: BlockNoteEditor<any, any, any>) => {
         const insertedBlock = insertOrUpdateBlock(editor, {
           type: "image",
-        });
+        } satisfies PartialBlock<DefaultBlockSchema, any, any>);
 
         // Immediately open the image toolbar
         editor._tiptapEditor.view.dispatch(

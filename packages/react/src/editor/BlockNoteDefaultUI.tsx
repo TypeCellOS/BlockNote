@@ -12,7 +12,7 @@ import { DefaultPositionedSuggestionMenu } from "../components/SuggestionMenu/De
 import {
   filterSuggestionItems,
   getDefaultReactSlashMenuItems,
-} from "../components/SuggestionMenu/defaultGetItems";
+} from "../components/SuggestionMenu/defaultReactSlashMenuItems";
 import { TableHandlesPositioner } from "../components/TableHandles/TableHandlePositioner";
 
 export function BlockNoteDefaultUI<
