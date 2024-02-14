@@ -24,12 +24,12 @@ export const addSideMenu = (editor: BlockNoteEditor) => {
 
   document.getElementById("root")!.appendChild(element);
 
-  editor.sideMenu.onPositionUpdate((position) => {
-    if (position.show) {
+  editor.sideMenu.onUpdate((state) => {
+    if (state.show) {
       element.style.display = "block";
 
-      element.style.top = position.referencePos.top + "px";
-      element.style.left = position.referencePos.x - element.offsetWidth + "px";
+      element.style.top = state.referencePos.top + "px";
+      element.style.left = state.referencePos.x - element.offsetWidth + "px";
     } else {
       element.style.display = "none";
     }

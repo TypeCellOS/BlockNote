@@ -2,7 +2,13 @@ import { BlockNoteEditor } from "@blocknote/core";
 import { createButton } from "./util";
 
 export const addSlashMenu = async (editor: BlockNoteEditor) => {
-  let element: HTMLElement;
+  const element = document.createElement("div");
+  element.style.background = "gray";
+  element.style.display = "none";
+  element.style.opacity = "0.8";
+  element.style.padding = "10px";
+  element.style.position = "absolute";
+
   const getItems = async (query: string) => {
     const items = [
       {
@@ -88,28 +94,14 @@ export const addSlashMenu = async (editor: BlockNoteEditor) => {
     return domItems;
   }
 
-  editor.suggestionMenus.onDataUpdate("/", async (slashMenuData) => {
-    if (!element) {
-      element = document.createElement("div");
-      element.style.background = "gray";
-      element.style.position = "absolute";
-      element.style.padding = "10px";
-      element.style.opacity = "0.8";
-      element.style.display = "none";
+  editor.suggestionMenus.onUpdate("/", async (state) => {
+    if (state.show) {
+      await updateItems(state.query, getItems);
 
-      document.getElementById("root")!.appendChild(element);
-    }
-
-    await updateItems(slashMenuData.query, getItems);
-  });
-
-  editor.suggestionMenus.onPositionUpdate("/", (slashMenuPosition) => {
-    if (slashMenuPosition.show) {
       element.style.display = "block";
 
-      element.style.top = slashMenuPosition.referencePos.top + "px";
-      element.style.left =
-        slashMenuPosition.referencePos.x - element.offsetWidth + "px";
+      element.style.top = state.referencePos.top + "px";
+      element.style.left = state.referencePos.x - element.offsetWidth + "px";
     } else {
       element.style.display = "none";
     }

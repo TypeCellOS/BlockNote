@@ -21,14 +21,14 @@ export const addFormattingToolbar = (editor: BlockNoteEditor) => {
 
   document.getElementById("root")!.appendChild(element);
 
-  editor.formattingToolbar.onPositionUpdate((position) => {
-    if (position.show) {
+  editor.formattingToolbar.onUpdate((state) => {
+    if (state.show) {
       element.style.display = "block";
 
       boldBtn.text =
         "bold" in editor.getActiveStyles() ? "unset bold" : "set bold";
-      element.style.top = position.referencePos.top + "px";
-      element.style.left = position.referencePos.x - element.offsetWidth + "px";
+      element.style.top = state.referencePos.top + "px";
+      element.style.left = state.referencePos.x - element.offsetWidth + "px";
     } else {
       element.style.display = "none";
     }

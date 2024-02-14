@@ -25,19 +25,17 @@ export const addHyperlinkToolbar = (editor: BlockNoteEditor) => {
 
   document.getElementById("root")!.appendChild(element);
 
-  editor.hyperlinkToolbar.onPositionUpdate((position) => {
-    if (position.show) {
+  editor.hyperlinkToolbar.onUpdate((state) => {
+    if (state.show) {
+      url = state.url;
+      text = state.text;
+
       element.style.display = "block";
 
-      element.style.top = position.referencePos.top + "px";
-      element.style.left = position.referencePos.x - element.offsetWidth + "px";
+      element.style.top = state.referencePos.top + "px";
+      element.style.left = state.referencePos.x - element.offsetWidth + "px";
     } else {
       element.style.display = "none";
     }
-  });
-
-  editor.hyperlinkToolbar.onDataUpdate((data) => {
-    url = data.url;
-    text = data.text;
   });
 };
