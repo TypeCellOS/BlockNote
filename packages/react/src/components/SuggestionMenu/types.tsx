@@ -9,3 +9,13 @@ export type DefaultSuggestionItem = {
   icon?: JSX.Element;
   badge?: string;
 };
+
+/**
+ * Props passed to a suggestion menu component
+ */
+export type SuggestionMenuProps<T> = {
+  items: T[];
+  loadingState: "loading-initial" | "loading" | "loaded";
+  selectedIndex: number;
+  onItemClick?: (item: T) => void;
+};

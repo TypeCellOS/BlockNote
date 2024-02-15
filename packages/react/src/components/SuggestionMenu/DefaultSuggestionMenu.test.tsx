@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { it } from "vitest";
-import { DefaultPositionedSuggestionMenu } from "./DefaultSuggestionMenu";
+import { DefaultPositionedSuggestionMenu } from "./DefaultPositionedSuggestionMenu";
 
 it("has good typing", () => {
   // invalid, because DefaultSuggestionItem doesn't have a title property, so the default MantineSuggestionMenu doesn't wrok

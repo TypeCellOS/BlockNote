@@ -4,16 +4,16 @@ import {
   DefaultBlockSchema,
   DefaultProps,
 } from "@blocknote/core";
-import {
-  flip,
-  offset,
-  useFloating,
-  useTransitionStyles,
-} from "@floating-ui/react";
-import { FC, useEffect, useRef, useState } from "react";
+import { flip, offset } from "@floating-ui/react";
+import { FC, useState } from "react";
 
+import { useUiElement } from "../../hooks/useUiElement";
+import { useUiElementPosition } from "../../hooks/useUiElementPosition";
 import { useEditorChange } from "../../hooks/useEditorChange";
-import { DefaultFormattingToolbar } from "./DefaultFormattingToolbar";
+import {
+  DefaultFormattingToolbar,
+  FormattingToolbarProps,
+} from "./DefaultFormattingToolbar";
 
 const textAlignmentToPlacement = (
   textAlignment: DefaultProps["textAlignment"]
@@ -30,19 +30,12 @@ const textAlignmentToPlacement = (
   }
 };
 
-export type FormattingToolbarProps<
-  BSchema extends BlockSchema = DefaultBlockSchema
-> = {
-  editor: BlockNoteEditor<BSchema, any, any>;
-};
-
-export const FormattingToolbarPositioner = <
+export const DefaultPositionedFormattingToolbar = <
   BSchema extends BlockSchema = DefaultBlockSchema
 >(props: {
   editor: BlockNoteEditor<BSchema, any, any>;
   formattingToolbar?: FC<FormattingToolbarProps<BSchema>>;
 }) => {
-  const [show, setShow] = useState<boolean>(false);
   const [placement, setPlacement] = useState<"top-start" | "top" | "top-end">(
     () => {
       const block = props.editor.getTextCursorPosition().block;
@@ -56,26 +49,6 @@ export const FormattingToolbarPositioner = <
       );
     }
   );
-
-  const referencePos = useRef<DOMRect>();
-
-  const { refs, update, context, floatingStyles } = useFloating({
-    open: show,
-    placement,
-    middleware: [offset(10), flip()],
-  });
-
-  const { isMounted, styles } = useTransitionStyles(context);
-
-  useEffect(() => {
-    return props.editor.formattingToolbar.onUpdate((state) => {
-      setShow(state.show);
-
-      referencePos.current = state.referencePos;
-
-      update();
-    });
-  }, [props.editor, update]);
 
   useEditorChange(props.editor, () => {
     const block = props.editor.getTextCursorPosition().block;
@@ -91,22 +64,27 @@ export const FormattingToolbarPositioner = <
     }
   });
 
-  useEffect(() => {
-    refs.setReference({
-      getBoundingClientRect: () => referencePos.current!,
-    });
-  }, [refs]);
+  const state = useUiElement(
+    props.editor.formattingToolbar.onUpdate.bind(props.editor.formattingToolbar)
+  );
+  const { isMounted, ref, style } = useUiElementPosition(
+    state?.show || false,
+    state?.referencePos || null,
+    3000,
+    {
+      placement,
+      middleware: [offset(10), flip()],
+    }
+  );
 
-  const FormattingToolbar = props.formattingToolbar || DefaultFormattingToolbar;
-
-  if (!isMounted) {
+  if (!isMounted || !state) {
     return null;
   }
 
+  const FormattingToolbar = props.formattingToolbar || DefaultFormattingToolbar;
+
   return (
-    <div
-      ref={refs.setFloating}
-      style={{ ...styles, ...floatingStyles, zIndex: 3000 }}>
+    <div ref={ref} style={style}>
       <FormattingToolbar editor={props.editor} />
     </div>
   );

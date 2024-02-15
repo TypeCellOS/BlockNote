@@ -3,7 +3,6 @@ import {
   createBlockSpec,
   defaultProps,
 } from "@blocknote/core";
-
 import { RiRadioButtonFill } from "react-icons/ri";
 
 export const Button = createBlockSpec(

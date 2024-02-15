@@ -4,16 +4,16 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { FormattingToolbarPositioner } from "../components/FormattingToolbar/FormattingToolbarPositioner";
-import { HyperlinkToolbarPositioner } from "../components/HyperlinkToolbar/HyperlinkToolbarPositioner";
-import { ImageToolbarPositioner } from "../components/ImageToolbar/ImageToolbarPositioner";
-import { SideMenuPositioner } from "../components/SideMenu/SideMenuPositioner";
-import { DefaultPositionedSuggestionMenu } from "../components/SuggestionMenu/DefaultSuggestionMenu";
+import { DefaultPositionedFormattingToolbar } from "../components/FormattingToolbar/DefaultPositionedFormattingToolbar";
+import { DefaultPositionedHyperlinkToolbar } from "../components/HyperlinkToolbar/DefaultPositionedHyperlinkToolbar";
+import { DefaultPositionedImageToolbar } from "../components/ImageToolbar/DefaultPositionedImageToolbar";
+import { DefaultPositionedSideMenu } from "../components/SideMenu/DefaultPositionedSideMenu";
+import { DefaultPositionedSuggestionMenu } from "../components/SuggestionMenu/DefaultPositionedSuggestionMenu";
 import {
   filterSuggestionItems,
   getDefaultReactSlashMenuItems,
 } from "../components/SuggestionMenu/defaultReactSlashMenuItems";
-import { TableHandlesPositioner } from "../components/TableHandles/TableHandlePositioner";
+import { DefaultPositionedTableHandles } from "../components/TableHandles/DefaultPositionedTableHandles";
 
 export function BlockNoteDefaultUI<
   BSchema extends BlockSchema,
@@ -31,10 +31,10 @@ export function BlockNoteDefaultUI<
   return (
     <>
       {props.formattingToolbar !== false && (
-        <FormattingToolbarPositioner editor={props.editor} />
+        <DefaultPositionedFormattingToolbar editor={props.editor} />
       )}
       {props.hyperlinkToolbar !== false && (
-        <HyperlinkToolbarPositioner editor={props.editor} />
+        <DefaultPositionedHyperlinkToolbar editor={props.editor} />
       )}
       {props.slashMenu !== false && (
         <DefaultPositionedSuggestionMenu
@@ -48,12 +48,14 @@ export function BlockNoteDefaultUI<
           }}
         />
       )}
-      {props.sideMenu !== false && <SideMenuPositioner editor={props.editor} />}
+      {props.sideMenu !== false && (
+        <DefaultPositionedSideMenu editor={props.editor} />
+      )}
       {props.imageToolbar !== false && (
-        <ImageToolbarPositioner editor={props.editor} />
+        <DefaultPositionedImageToolbar editor={props.editor} />
       )}
       {props.editor.blockSchema.table && props.tableHandles !== false && (
-        <TableHandlesPositioner editor={props.editor as any} />
+        <DefaultPositionedTableHandles editor={props.editor as any} />
       )}
     </>
   );

@@ -1,14 +1,7 @@
 import { Loader, Menu } from "@mantine/core";
 import { Children, useMemo } from "react";
-import { DefaultSuggestionItem } from "./DefaultSuggestionItem";
+import { DefaultSuggestionItem, SuggestionMenuProps } from "../types";
 import { MantineSuggestionMenuItem } from "./MantineSuggestionMenuItem";
-
-export type SuggestionMenuProps<T> = {
-  items: T[];
-  loadingState: "loading-initial" | "loading" | "loaded";
-  selectedIndex: number;
-  onItemClick?: (item: T) => void;
-};
 
 export function MantineSuggestionMenu<T extends DefaultSuggestionItem>(
   props: SuggestionMenuProps<T>
