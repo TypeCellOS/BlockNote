@@ -9,6 +9,7 @@ it("has good typing", () => {
     <DefaultPositionedSuggestionMenu
       getItems={async () => [{ name: "hello" }]}
       editor={undefined as any}
+      triggerCharacter="/"
     />
   );
 
@@ -17,6 +18,7 @@ it("has good typing", () => {
     <DefaultPositionedSuggestionMenu
       getItems={async () => [{ title: "hello" }]}
       editor={undefined as any}
+      triggerCharacter="/"
     />
   );
 
@@ -29,6 +31,7 @@ it("has good typing", () => {
       onItemClick={(item) => {
         console.log(item.hello);
       }}
+      triggerCharacter="/"
     />
   );
 

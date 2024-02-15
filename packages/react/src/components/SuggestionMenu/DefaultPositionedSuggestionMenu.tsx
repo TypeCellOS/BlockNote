@@ -6,10 +6,10 @@ import {
   SuggestionMenuState,
 } from "@blocknote/core";
 import { flip, offset, size } from "@floating-ui/react";
-import { FC, useCallback } from "react";
+import { FC } from "react";
 
-import { useUIPluginState } from "../../hooks/useUIPluginState";
 import { useUIElementPositioning } from "../../hooks/useUIElementPositioning";
+import { useUIPluginState } from "../../hooks/useUIPluginState";
 import { DefaultSuggestionMenu } from "./DefaultSuggestionMenu";
 import { MantineSuggestionMenu } from "./mantine/MantineSuggestionMenu";
 import { DefaultSuggestionItem, SuggestionMenuProps } from "./types";
@@ -29,7 +29,7 @@ export function DefaultPositionedSuggestionMenu<
 >(
   props: {
     editor: BlockNoteEditor<BSchema, I, S>;
-    triggerCharacter?: string;
+    triggerCharacter: string;
     getItems: GetItemsType;
     onItemClick?: (item: ItemType<GetItemsType>) => void;
   } & (ItemType<GetItemsType> extends DefaultSuggestionItem
@@ -62,7 +62,7 @@ export function DefaultPositionedSuggestionMenu<
   const state = useUIPluginState(
     (callback: (state: SuggestionMenuState) => void) =>
       props.editor.suggestionMenus.onUpdate.bind(editor.suggestionMenus)(
-        triggerCharacter || "/",
+        triggerCharacter,
         callback
       )
   );
@@ -88,15 +88,6 @@ export function DefaultPositionedSuggestionMenu<
     }
   );
 
-  const clickHandler = useCallback(
-    (item: ItemType<GetItemsType>) => {
-      editor.suggestionMenus.closeMenu();
-      editor.suggestionMenus.clearQuery();
-      onItemClick?.(item);
-    },
-    [onItemClick, editor.suggestionMenus]
-  );
-
   if (!isMounted || !state) {
     return null;
   }
@@ -111,7 +102,7 @@ export function DefaultPositionedSuggestionMenu<
         suggestionMenuComponent={
           suggestionMenuComponent || MantineSuggestionMenu
         }
-        onItemClick={clickHandler}
+        onItemClick={onItemClick}
         {...data}
         {...callbacks}
       />

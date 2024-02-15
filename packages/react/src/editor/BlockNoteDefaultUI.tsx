@@ -44,6 +44,7 @@ export function BlockNoteDefaultUI<
           onItemClick={(item) => {
             item.onItemClick(props.editor);
           }}
+          triggerCharacter="/"
         />
       )}
       {props.sideMenu !== false && (

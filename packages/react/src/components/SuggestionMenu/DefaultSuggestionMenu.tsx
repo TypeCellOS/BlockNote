@@ -4,7 +4,7 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { FC } from "react";
+import { FC, useCallback } from "react";
 
 import { useCloseSuggestionMenuNoItems } from "./hooks/useCloseSuggestionMenuNoItems";
 import { useLoadSuggestionMenuItems } from "./hooks/useLoadSuggestionMenuItems";
@@ -30,9 +30,19 @@ export function DefaultSuggestionMenu<
     getItems,
     suggestionMenuComponent,
     query,
+    clearQuery,
     closeMenu,
     onItemClick,
   } = props;
+
+  const clickHandler = useCallback(
+    (item: Item) => {
+      closeMenu();
+      clearQuery();
+      onItemClick?.(item);
+    },
+    [onItemClick, closeMenu, clearQuery]
+  );
 
   const { items, usedQuery, loadingState } = useLoadSuggestionMenuItems(
     query,
@@ -52,7 +62,7 @@ export function DefaultSuggestionMenu<
   return (
     <Comp
       items={items}
-      onItemClick={onItemClick}
+      onItemClick={clickHandler}
       loadingState={loadingState}
       selectedIndex={selectedIndex}
     />
