@@ -1,20 +1,12 @@
 import { Loader, Menu } from "@mantine/core";
 import { Children, useMemo } from "react";
-import {
-  MantineSuggestionMenuItem,
-  MantineSuggestionMenuItemProps,
-} from "./MantineSuggestionMenuItem";
+import { DefaultSuggestionItem, SuggestionMenuProps } from "../types";
+import { MantineSuggestionMenuItem } from "./MantineSuggestionMenuItem";
 
-export type MantineSuggestionMenuProps<T> = {
-  items: T[];
-  loadingState: "loading-initial" | "loading" | "loaded";
-  selectedIndex: number;
-};
-
-export function MantineSuggestionMenu(
-  props: MantineSuggestionMenuProps<MantineSuggestionMenuItemProps>
+export function MantineSuggestionMenu<T extends DefaultSuggestionItem>(
+  props: SuggestionMenuProps<T>
 ) {
-  const { items, loadingState, selectedIndex } = props;
+  const { items, loadingState, selectedIndex, onItemClick } = props;
 
   const loader =
     loadingState === "loading-initial" || loadingState === "loading" ? (
@@ -26,8 +18,9 @@ export function MantineSuggestionMenu(
     const renderedItems = [];
 
     for (let i = 0; i < items.length; i++) {
-      if (items[i].group !== currentGroup) {
-        currentGroup = items[i].group;
+      const item = items[i];
+      if (item.group !== currentGroup) {
+        currentGroup = item.group;
         renderedItems.push(
           <Menu.Label key={currentGroup}>{currentGroup}</Menu.Label>
         );
@@ -35,15 +28,16 @@ export function MantineSuggestionMenu(
 
       renderedItems.push(
         <MantineSuggestionMenuItem
-          {...items[i]}
+          {...item}
           isSelected={i === selectedIndex}
-          key={items[i].name}
+          key={item.title}
+          onClick={() => onItemClick?.(item)}
         />
       );
     }
 
     return renderedItems;
-  }, [items, selectedIndex]);
+  }, [items, selectedIndex, onItemClick]);
 
   return (
     <Menu

@@ -7,7 +7,7 @@ import { FC } from "react";
 import { flip, offset } from "@floating-ui/react";
 
 import { useUIPluginState } from "../../hooks/useUIPluginState";
-import { useUiElementPositioning } from "../../hooks/useUiElementPositioning";
+import { useUIElementPositioning } from "../../hooks/useUIElementPositioning";
 import { DefaultImageToolbar, ImageToolbarProps } from "./DefaultImageToolbar";
 
 export const DefaultPositionedImageToolbar = <
@@ -19,7 +19,7 @@ export const DefaultPositionedImageToolbar = <
   const state = useUIPluginState(
     props.editor.imageToolbar.onUpdate.bind(props.editor.imageToolbar)
   );
-  const { isMounted, ref, style } = useUiElementPositioning(
+  const { isMounted, ref, style } = useUIElementPositioning(
     state?.show || false,
     state?.referencePos || null,
     5000,

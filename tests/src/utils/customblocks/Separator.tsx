@@ -1,11 +1,5 @@
-import {
-  BlockNoteEditor,
-  BlockSchema,
-  createBlockSpec,
-  InlineContentSchema,
-  StyleSchema,
-} from "@blocknote/core";
-import { MantineSuggestionMenuItemProps } from "@blocknote/react";
+import { BlockNoteEditor, createBlockSpec } from "@blocknote/core";
+
 import { RiSeparator } from "react-icons/ri";
 
 export const Separator = createBlockSpec(
@@ -36,33 +30,21 @@ export const Separator = createBlockSpec(
   }
 );
 
-export const insertSeparator = <
-  BSchema extends BlockSchema,
-  I extends InlineContentSchema,
-  S extends StyleSchema
->(
-  editor: BlockNoteEditor<BSchema, I, S>,
-  closeMenu: () => void,
-  clearQuery: () => void
-) =>
-  ({
-    name: "Insert Separator",
-    execute: () => {
-      closeMenu();
-      clearQuery();
-
-      editor.insertBlocks(
-        [
-          {
-            type: "separator",
-          },
-        ],
-        editor.getTextCursorPosition().block,
-        "after"
-      );
-    },
-    subtext: "Insert a button which inserts a block below it",
-    icon: <RiSeparator />,
-    aliases: ["separator", "horizontal", "line", "rule"],
-    group: "Other",
-  } satisfies MantineSuggestionMenuItemProps);
+export const insertSeparator = {
+  title: "Insert Separator",
+  onItemClick: (editor: BlockNoteEditor<any, any, any>) => {
+    editor.insertBlocks(
+      [
+        {
+          type: "separator",
+        },
+      ],
+      editor.getTextCursorPosition().block,
+      "after"
+    );
+  },
+  subtext: "Insert a button which inserts a block below it",
+  icon: <RiSeparator />,
+  aliases: ["separator", "horizontal", "line", "rule"],
+  group: "Other",
+};

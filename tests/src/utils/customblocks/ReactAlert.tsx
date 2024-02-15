@@ -1,14 +1,5 @@
-import {
-  BlockNoteEditor,
-  BlockSchema,
-  defaultProps,
-  InlineContentSchema,
-  StyleSchema,
-} from "@blocknote/core";
-import {
-  createReactBlockSpec,
-  MantineSuggestionMenuItemProps,
-} from "@blocknote/react";
+import { BlockNoteEditor, defaultProps } from "@blocknote/core";
+import { createReactBlockSpec } from "@blocknote/react";
 import { useEffect, useState } from "react";
 import { RiAlertFill } from "react-icons/ri";
 
@@ -122,44 +113,32 @@ export const ReactAlert = createReactBlockSpec(
     },
   }
 );
-export const insertReactAlert = <
-  BSchema extends BlockSchema,
-  I extends InlineContentSchema,
-  S extends StyleSchema
->(
-  editor: BlockNoteEditor<BSchema, I, S>,
-  closeMenu: () => void,
-  clearQuery: () => void
-) =>
-  ({
-    name: "Insert React Alert",
-    execute: () => {
-      closeMenu();
-      clearQuery();
-
-      editor.insertBlocks(
-        [
-          {
-            type: "reactAlert",
-          },
-        ],
-        editor.getTextCursorPosition().block,
-        "after"
-      );
-    },
-    subtext: "Insert an alert block to emphasize text",
-    icon: <RiAlertFill />,
-    aliases: [
-      "react",
-      "reactAlert",
-      "react alert",
-      "alert",
-      "notification",
-      "emphasize",
-      "warning",
-      "error",
-      "info",
-      "success",
-    ],
-    group: "Other",
-  } satisfies MantineSuggestionMenuItemProps);
+export const insertReactAlert = {
+  title: "Insert React Alert",
+  onItemClick: (editor: BlockNoteEditor<any, any, any>) => {
+    editor.insertBlocks(
+      [
+        {
+          type: "reactAlert",
+        },
+      ],
+      editor.getTextCursorPosition().block,
+      "after"
+    );
+  },
+  subtext: "Insert an alert block to emphasize text",
+  icon: <RiAlertFill />,
+  aliases: [
+    "react",
+    "reactAlert",
+    "react alert",
+    "alert",
+    "notification",
+    "emphasize",
+    "warning",
+    "error",
+    "info",
+    "success",
+  ],
+  group: "Other",
+};

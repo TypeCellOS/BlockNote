@@ -11,7 +11,7 @@ import { flip, offset } from "@floating-ui/react";
 import { FC } from "react";
 
 import { useUIPluginState } from "../../hooks/useUIPluginState";
-import { useUiElementPositioning } from "../../hooks/useUiElementPositioning";
+import { useUIElementPositioning } from "../../hooks/useUIElementPositioning";
 import {
   DefaultHyperlinkToolbar,
   HyperlinkToolbarProps,
@@ -35,7 +35,7 @@ export const DefaultPositionedHyperlinkToolbar = <
   const state = useUIPluginState(
     props.editor.hyperlinkToolbar.onUpdate.bind(props.editor.hyperlinkToolbar)
   );
-  const { isMounted, ref, style } = useUiElementPositioning(
+  const { isMounted, ref, style } = useUIElementPositioning(
     state?.show || false,
     state?.referencePos || null,
     4000,

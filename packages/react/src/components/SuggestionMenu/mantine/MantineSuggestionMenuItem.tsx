@@ -1,23 +1,16 @@
-import { useEffect, useRef } from "react";
 import { Badge, Menu, Stack, Text } from "@mantine/core";
+import { useEffect, useRef } from "react";
 
 const MIN_LEFT_MARGIN = 5;
 
-export type MantineSuggestionMenuItemProps = {
-  name: string;
-  execute: () => void;
+export function MantineSuggestionMenuItem(props: {
+  title: string;
+  onClick: () => void;
   subtext?: string;
   icon?: JSX.Element;
   badge?: string;
   isSelected?: boolean;
-
-  aliases?: string[];
-  group?: string;
-};
-
-export function MantineSuggestionMenuItem(
-  props: MantineSuggestionMenuItemProps
-) {
+}) {
   const itemRef = useRef<HTMLButtonElement>(null);
 
   function isSelected() {
@@ -57,7 +50,7 @@ export function MantineSuggestionMenuItem(
   return (
     <Menu.Item
       className={"bn-slash-menu-item"}
-      onClick={props.execute}
+      onClick={props.onClick}
       closeMenuOnClick={false}
       // Ensures an item selected with both mouse & keyboard doesn't get deselected on mouse leave.
       onMouseLeave={() => {
@@ -71,7 +64,7 @@ export function MantineSuggestionMenuItem(
       <Stack>
         {/*Might need separate classes.*/}
         <Text lh={"20px"} size={"14px"} fw={500}>
-          {props.name}
+          {props.title}
         </Text>
         <Text lh={"16px"} size={"10px"}>
           {props.subtext}

@@ -1,19 +1,14 @@
 import { BlockNoteEditor } from "@blocknote/core";
 import { useEffect, useState } from "react";
-import { MantineSuggestionMenuItemProps } from "../MantineDefaults/MantineSuggestionMenuItem";
 
 // Hook which handles keyboard navigation of a suggestion menu. Arrow keys are
 // used to select a menu item, enter to execute it, and escape to close the
 // menu.
-export function useSuggestionMenuKeyboardNavigation<
-  Item extends {
-    name: string;
-    execute: () => void;
-  } = MantineSuggestionMenuItemProps
->(
+export function useSuggestionMenuKeyboardNavigation<Item>(
   editor: BlockNoteEditor<any, any, any>,
   items: Item[],
-  closeMenu: () => void
+  closeMenu: () => void,
+  onItemClick?: (item: Item) => void
 ) {
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
 
@@ -43,7 +38,7 @@ export function useSuggestionMenuKeyboardNavigation<
         event.preventDefault();
 
         if (items.length) {
-          items[selectedIndex].execute();
+          onItemClick?.(items[selectedIndex]);
         }
 
         return true;
@@ -73,7 +68,7 @@ export function useSuggestionMenuKeyboardNavigation<
         true
       );
     };
-  }, [closeMenu, editor.domElement, items, selectedIndex]);
+  }, [closeMenu, editor.domElement, items, selectedIndex, onItemClick]);
 
   return selectedIndex;
 }

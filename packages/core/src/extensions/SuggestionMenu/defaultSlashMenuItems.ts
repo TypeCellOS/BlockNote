@@ -1,29 +1,15 @@
 import {
   Block,
-  BlockNoteEditor,
   BlockSchema,
-  DefaultBlockSchema,
-  DefaultInlineContentSchema,
-  DefaultStyleSchema,
-  formatKeyboardShortcut,
-  imageToolbarPluginKey,
   InlineContentSchema,
   isStyledTextInlineContent,
   PartialBlock,
   StyleSchema,
-} from "@blocknote/core";
-import {
-  RiH1,
-  RiH2,
-  RiH3,
-  RiImage2Fill,
-  RiListOrdered,
-  RiListUnordered,
-  RiTable2,
-  RiText,
-} from "react-icons/ri";
-
-import { MantineSuggestionMenuItemProps } from "./MantineDefaults/MantineSuggestionMenuItem";
+} from "../../schema";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
+import { DefaultBlockSchema } from "../../blocks/defaultBlocks";
+import { formatKeyboardShortcut } from "../../util/browser";
+import { imageToolbarPluginKey } from "../ImageToolbar/ImageToolbarPlugin";
 
 // Sets the editor's text cursor position to the next content editable block,
 // so either a block with inline content or a table. The last block is always a
@@ -88,117 +74,89 @@ export function insertOrUpdateBlock<
   return insertedBlock;
 }
 
-// TODO: Probably want an easier way of customizing the items list.
-export async function defaultGetItems<
-  BSchema extends BlockSchema = DefaultBlockSchema,
-  I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema
->(
-  editor: BlockNoteEditor<BSchema, I, S>,
-  query: string,
-  closeMenu: () => void,
-  clearQuery: () => void
-): Promise<MantineSuggestionMenuItemProps[]> {
-  const items: MantineSuggestionMenuItemProps[] = [
+export function getDefaultSlashMenuItems() {
+  return [
     {
-      name: "Heading 1",
-      execute: () => {
-        closeMenu();
-        clearQuery();
-
+      title: "Heading 1",
+      // Unfortunately, we can't use a more specific BlockNoteEditor type here,
+      // Typescript seems to get in the way there
+      // This means that we don't have type checking for calling insertOrUpdateBlock etc. :(
+      onItemClick: (editor: BlockNoteEditor<any, any, any>) => {
         insertOrUpdateBlock(editor, {
           type: "heading",
           props: { level: 1 },
-        } as PartialBlock<BSchema, I, S>);
+        } satisfies PartialBlock<DefaultBlockSchema, any, any>);
       },
       subtext: "Used for a top-level heading",
-      icon: <RiH1 size={18} />,
       badge: formatKeyboardShortcut("Mod-Alt-1"),
       aliases: ["h", "heading1", "h1"],
       group: "Headings",
     },
     {
-      name: "Heading 2",
-      execute: () => {
-        closeMenu();
-        clearQuery();
-
+      title: "Heading 2",
+      onItemClick: (editor: BlockNoteEditor<any, any, any>) => {
         insertOrUpdateBlock(editor, {
           type: "heading",
           props: { level: 2 },
-        } as PartialBlock<BSchema, I, S>);
+        } satisfies PartialBlock<DefaultBlockSchema, any, any>);
       },
       subtext: "Used for key sections",
-      icon: <RiH2 size={18} />,
       badge: formatKeyboardShortcut("Mod-Alt-2"),
       aliases: ["h2", "heading2", "subheading"],
       group: "Headings",
     },
     {
-      name: "Heading 3",
-      execute: () => {
-        closeMenu();
-        clearQuery();
-
+      title: "Heading 3",
+      onItemClick: (editor: BlockNoteEditor<any, any, any>) => {
         insertOrUpdateBlock(editor, {
           type: "heading",
           props: { level: 3 },
-        } as PartialBlock<BSchema, I, S>);
+        } satisfies PartialBlock<DefaultBlockSchema, any, any>);
       },
       subtext: "Used for subsections and group headings",
-      icon: <RiH3 size={18} />,
       badge: formatKeyboardShortcut("Mod-Alt-3"),
       aliases: ["h3", "heading3", "subheading"],
       group: "Headings",
     },
     {
-      name: "Numbered List",
-      execute: () => {
-        closeMenu();
-        clearQuery();
-
-        insertOrUpdateBlock(editor, { type: "numberedListItem" });
+      title: "Numbered List",
+      onItemClick: (editor: BlockNoteEditor<any, any, any>) => {
+        insertOrUpdateBlock(editor, {
+          type: "numberedListItem",
+        } satisfies PartialBlock<DefaultBlockSchema, any, any>);
       },
       subtext: "Used to display a numbered list",
-      icon: <RiListOrdered size={18} />,
       badge: formatKeyboardShortcut("Mod-Shift-7"),
       aliases: ["ol", "li", "list", "numberedlist", "numbered list"],
       group: "Basic blocks",
     },
     {
-      name: "Bullet List",
-      execute: () => {
-        closeMenu();
-        clearQuery();
-
-        insertOrUpdateBlock(editor, { type: "bulletListItem" });
+      title: "Bullet List",
+      onItemClick: (editor: BlockNoteEditor<any, any, any>) => {
+        insertOrUpdateBlock(editor, {
+          type: "bulletListItem",
+        } satisfies PartialBlock<DefaultBlockSchema, any, any>);
       },
       subtext: "Used to display an unordered list",
-      icon: <RiListUnordered size={18} />,
       badge: formatKeyboardShortcut("Mod-Shift-8"),
       aliases: ["ul", "li", "list", "bulletlist", "bullet list"],
       group: "Basic blocks",
     },
     {
-      name: "Paragraph",
-      execute: () => {
-        closeMenu();
-        clearQuery();
-
-        insertOrUpdateBlock(editor, { type: "paragraph" });
+      title: "Paragraph",
+      onItemClick: (editor: BlockNoteEditor<any, any, any>) => {
+        insertOrUpdateBlock(editor, {
+          type: "paragraph",
+        } satisfies PartialBlock<DefaultBlockSchema, any, any>);
       },
       subtext: "Used for the body of your document",
-      icon: <RiText size={18} />,
       badge: formatKeyboardShortcut("Mod-Alt-0"),
       aliases: ["p", "paragraph"],
       group: "Basic blocks",
     },
     {
-      name: "Table",
-      execute: () => {
-        closeMenu();
-        clearQuery();
-
+      title: "Table",
+      onItemClick: (editor: BlockNoteEditor<any, any, any>) => {
         insertOrUpdateBlock(editor, {
           type: "table",
           content: {
@@ -212,22 +170,19 @@ export async function defaultGetItems<
               },
             ],
           },
-        } as PartialBlock<BSchema, I, S>);
+        } satisfies PartialBlock<DefaultBlockSchema, any, any>);
       },
       subtext: "Used for for tables",
-      icon: <RiTable2 size={18} />,
       aliases: ["table"],
       group: "Advanced",
+      badge: undefined,
     },
     {
-      name: "Image",
-      execute: () => {
-        closeMenu();
-        clearQuery();
-
+      title: "Image",
+      onItemClick: (editor: BlockNoteEditor<any, any, any>) => {
         const insertedBlock = insertOrUpdateBlock(editor, {
           type: "image",
-        });
+        } satisfies PartialBlock<DefaultBlockSchema, any, any>);
 
         // Immediately open the image toolbar
         editor._tiptapEditor.view.dispatch(
@@ -237,7 +192,6 @@ export async function defaultGetItems<
         );
       },
       subtext: "Insert an image",
-      icon: <RiImage2Fill />,
       aliases: [
         "image",
         "imageUpload",
@@ -250,29 +204,16 @@ export async function defaultGetItems<
         "dropbox",
       ],
       group: "Media",
-    } satisfies MantineSuggestionMenuItemProps,
-  ];
+    },
+  ] as const;
+}
 
-  // For testing async
-  // return new Promise((resolve) => {
-  //   setTimeout(() => {
-  //     console.log("return items");
-  //     resolve(
-  //       items.filter(
-  //         ({ name, aliases }) =>
-  //           name.toLowerCase().startsWith(query.toLowerCase()) ||
-  //           (aliases &&
-  //             aliases.filter((alias) =>
-  //               alias.toLowerCase().startsWith(query.toLowerCase())
-  //             ).length !== 0)
-  //       )
-  //     );
-  //   }, 1000);
-  // });
-
+export function filterSuggestionItems<
+  T extends { title: string; aliases?: readonly string[] }
+>(items: T[], query: string) {
   return items.filter(
-    ({ name, aliases }) =>
-      name.toLowerCase().startsWith(query.toLowerCase()) ||
+    ({ title, aliases }) =>
+      title.toLowerCase().startsWith(query.toLowerCase()) ||
       (aliases &&
         aliases.filter((alias) =>
           alias.toLowerCase().startsWith(query.toLowerCase())

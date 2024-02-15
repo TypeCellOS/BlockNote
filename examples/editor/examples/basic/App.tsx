@@ -1,10 +1,6 @@
 import {
-  BlockNoteEditor,
-  DefaultBlockSchema,
-  defaultInlineContentSchema,
   defaultInlineContentSpecs,
-  DefaultStyleSchema,
-  InlineContentSchema,
+  filterSuggestionItems,
   InlineContentSpecs,
   uploadToTmpFilesDotOrg_DEV_ONLY,
 } from "@blocknote/core";
@@ -13,7 +9,6 @@ import {
   BlockNoteView,
   createReactInlineContentSpec,
   DefaultPositionedSuggestionMenu,
-  MantineSuggestionMenuItemProps,
   useBlockNote,
 } from "@blocknote/react";
 import "@blocknote/react/style.css";
@@ -43,46 +38,16 @@ const customInlineContentSpecs = {
   ...defaultInlineContentSpecs,
   mention: MentionInlineContent,
 } satisfies InlineContentSpecs;
-const customInlineContentSchema = {
-  ...defaultInlineContentSchema,
-  mention: MentionInlineContent.config,
-} satisfies InlineContentSchema;
 
-async function getMentionMenuItems(
-  editor: BlockNoteEditor<
-    DefaultBlockSchema,
-    typeof customInlineContentSchema,
-    DefaultStyleSchema
-  >,
-  query: string,
-  closeMenu: () => void,
-  clearQuery: () => void
-): Promise<MantineSuggestionMenuItemProps[]> {
+async function getMentionMenuItems(query: string) {
   const users = ["Steve", "Bob", "Joe", "Mike"];
-  const items: MantineSuggestionMenuItemProps[] = users.map((user) => ({
-    name: user,
-    execute: () => {
-      closeMenu();
-      clearQuery();
+  const items = users.map((user) => ({
+    title: user,
 
-      editor._tiptapEditor.commands.insertContent({
-        type: "mention",
-        attrs: {
-          user: user,
-        },
-      });
-    },
     aliases: [] as string[],
   }));
 
-  return items.filter(
-    ({ name, aliases }) =>
-      name.toLowerCase().startsWith(query.toLowerCase()) ||
-      (aliases &&
-        aliases.filter((alias) =>
-          alias.toLowerCase().startsWith(query.toLowerCase())
-        ).length !== 0)
-  );
+  return filterSuggestionItems(items, query);
 }
 
 export function App() {
@@ -107,9 +72,15 @@ export function App() {
       <DefaultPositionedSuggestionMenu
         editor={editor}
         triggerCharacter={"@"}
-        getItems={(query, closeMenu, clearQuery) =>
-          getMentionMenuItems(editor, query, closeMenu, clearQuery)
-        }
+        getItems={async (query) => getMentionMenuItems(query)}
+        onItemClick={(item) => {
+          editor._tiptapEditor.commands.insertContent({
+            type: "mention",
+            attrs: {
+              user: item.title,
+            },
+          });
+        }}
       />
     </BlockNoteView>
   );

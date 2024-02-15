@@ -1,78 +1,52 @@
-import { FC, useMemo } from "react";
 import {
   BlockNoteEditor,
   BlockSchema,
-  DefaultBlockSchema,
-  DefaultInlineContentSchema,
-  DefaultStyleSchema,
   InlineContentSchema,
   StyleSchema,
-  SuggestionMenuState,
-  UiElementPosition,
 } from "@blocknote/core";
-import { useLoadSuggestionMenuItems } from "./hooks/useLoadSuggestionMenuItems";
-import { useCloseSuggestionMenuNoItems } from "./hooks/useCloseSuggestionMenuNoItems";
-import { useSuggestionMenuKeyboardNavigation } from "./hooks/useSuggestionMenuKeyboardNavigation";
-import { defaultGetItems } from "./defaultGetItems";
-import {
-  MantineSuggestionMenu,
-  MantineSuggestionMenuProps,
-} from "./MantineDefaults/MantineSuggestionMenu";
-import { MantineSuggestionMenuItemProps } from "./MantineDefaults/MantineSuggestionMenuItem";
+import { FC, useCallback } from "react";
 
-export type SuggestionMenuProps<
-  BSchema extends BlockSchema = DefaultBlockSchema,
-  I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema,
-  Item extends {
-    name: string;
-    execute: () => void;
-  } = MantineSuggestionMenuItemProps
-> = {
-  editor: BlockNoteEditor<BSchema, I, S>;
-  getItems?: (
-    query: string,
-    closeMenu: () => void,
-    clearQuery: () => void
-  ) => Promise<Item[]>;
-  suggestionMenuComponent?: FC<MantineSuggestionMenuProps<Item>>;
-} & Omit<SuggestionMenuState, keyof UiElementPosition> &
-  Pick<
-    BlockNoteEditor<any, any, any>["suggestionMenus"],
-    "closeMenu" | "clearQuery"
-  >;
+import { useCloseSuggestionMenuNoItems } from "./hooks/useCloseSuggestionMenuNoItems";
+import { useLoadSuggestionMenuItems } from "./hooks/useLoadSuggestionMenuItems";
+import { useSuggestionMenuKeyboardNavigation } from "./hooks/useSuggestionMenuKeyboardNavigation";
+import { SuggestionMenuProps } from "./types";
 
 export function DefaultSuggestionMenu<
-  BSchema extends BlockSchema = DefaultBlockSchema,
-  I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema,
-  Item extends {
-    name: string;
-    execute: () => void;
-  } = MantineSuggestionMenuItemProps
->(props: SuggestionMenuProps<BSchema, I, S, Item>) {
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema,
+  Item
+>(props: {
+  editor: BlockNoteEditor<BSchema, I, S>;
+  query: string;
+  closeMenu: () => void;
+  clearQuery: () => void;
+  getItems: (query: string) => Promise<Item[]>;
+  onItemClick?: (item: Item) => void;
+  suggestionMenuComponent: FC<SuggestionMenuProps<Item>>;
+}) {
   const {
     editor,
     getItems,
     suggestionMenuComponent,
     query,
-    closeMenu,
     clearQuery,
+    closeMenu,
+    onItemClick,
   } = props;
 
-  const getItemsForLoading = useMemo<(query: string) => Promise<Item[]>>(
-    () => (query: string) =>
-      getItems !== undefined
-        ? getItems(query, closeMenu, clearQuery)
-        : (defaultGetItems(editor, query, closeMenu, clearQuery) as Promise<
-            Item[]
-          >),
-    [clearQuery, closeMenu, editor, getItems]
+  const clickHandler = useCallback(
+    (item: Item) => {
+      closeMenu();
+      clearQuery();
+      onItemClick?.(item);
+    },
+    [onItemClick, closeMenu, clearQuery]
   );
 
-  const { items, usedQuery, loadingState } = useLoadSuggestionMenuItems<Item>(
+  const { items, usedQuery, loadingState } = useLoadSuggestionMenuItems(
     query,
-    getItemsForLoading
+    getItems
   );
 
   useCloseSuggestionMenuNoItems(items, usedQuery, closeMenu);
@@ -80,15 +54,15 @@ export function DefaultSuggestionMenu<
   const selectedIndex = useSuggestionMenuKeyboardNavigation(
     editor,
     items,
-    closeMenu
+    closeMenu,
+    onItemClick
   );
 
-  const SuggestionMenuComponent: FC<MantineSuggestionMenuProps<Item>> =
-    suggestionMenuComponent || MantineSuggestionMenu;
-
+  const Comp = suggestionMenuComponent;
   return (
-    <SuggestionMenuComponent
+    <Comp
       items={items}
+      onItemClick={clickHandler}
       loadingState={loadingState}
       selectedIndex={selectedIndex}
     />

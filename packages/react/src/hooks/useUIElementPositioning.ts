@@ -7,7 +7,7 @@ import { useEffect, useMemo } from "react";
 
 import { UiComponentPosition } from "../components-shared/UiComponentTypes";
 
-export function useUiElementPositioning(
+export function useUIElementPositioning(
   show: boolean,
   referencePos: DOMRect | null,
   zIndex: number,

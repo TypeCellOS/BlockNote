@@ -1,15 +1,17 @@
-import { DefaultPositionedFormattingToolbar } from "../components/FormattingToolbar/DefaultPositionedFormattingToolbar";
-import { DefaultPositionedHyperlinkToolbar } from "../components/HyperlinkToolbar/DefaultPositionedHyperlinkToolbar";
-import { DefaultPositionedSuggestionMenu } from "../components/SuggestionMenu/DefaultPositionedSuggestionMenu";
-import { DefaultPositionedSideMenu } from "../components/SideMenu/DefaultPositionedSideMenu";
-import { DefaultPositionedImageToolbar } from "../components/ImageToolbar/DefaultPositionedImageToolbar";
-import { DefaultPositionedTableHandles } from "../components/TableHandles/DefaultPositionedTableHandles";
 import {
   BlockNoteEditor,
   BlockSchema,
+  filterSuggestionItems,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
+import { DefaultPositionedFormattingToolbar } from "../components/FormattingToolbar/DefaultPositionedFormattingToolbar";
+import { DefaultPositionedHyperlinkToolbar } from "../components/HyperlinkToolbar/DefaultPositionedHyperlinkToolbar";
+import { DefaultPositionedImageToolbar } from "../components/ImageToolbar/DefaultPositionedImageToolbar";
+import { DefaultPositionedSideMenu } from "../components/SideMenu/DefaultPositionedSideMenu";
+import { DefaultPositionedSuggestionMenu } from "../components/SuggestionMenu/DefaultPositionedSuggestionMenu";
+import { getDefaultReactSlashMenuItems } from "../components/SuggestionMenu/defaultReactSlashMenuItems";
+import { DefaultPositionedTableHandles } from "../components/TableHandles/DefaultPositionedTableHandles";
 
 export function BlockNoteDefaultUI<
   BSchema extends BlockSchema,
@@ -33,7 +35,17 @@ export function BlockNoteDefaultUI<
         <DefaultPositionedHyperlinkToolbar editor={props.editor} />
       )}
       {props.slashMenu !== false && (
-        <DefaultPositionedSuggestionMenu editor={props.editor} />
+        <DefaultPositionedSuggestionMenu
+          editor={props.editor}
+          getItems={async (query) =>
+            filterSuggestionItems(getDefaultReactSlashMenuItems(), query)
+          }
+          // suggestionMenuComponent={MantineSuggestionMenu}
+          onItemClick={(item) => {
+            item.onItemClick(props.editor);
+          }}
+          triggerCharacter="/"
+        />
       )}
       {props.sideMenu !== false && (
         <DefaultPositionedSideMenu editor={props.editor} />
