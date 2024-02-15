@@ -39,10 +39,7 @@ export const ReplaceImageButton = <BSchema extends BlockSchema>(props: {
         />
       </Popover.Target>
       <Popover.Dropdown>
-        <DefaultImageToolbar
-          block={selectedBlocks[0] as any}
-          editor={props.editor}
-        />
+        <DefaultImageToolbar editor={props.editor} block={selectedBlocks[0]} />
       </Popover.Dropdown>
     </Popover>
   );

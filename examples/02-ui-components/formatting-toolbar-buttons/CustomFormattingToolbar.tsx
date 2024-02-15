@@ -13,7 +13,7 @@ import {
 } from "@blocknote/react";
 import { CustomButton } from "./CustomButton";
 
-export function CustomFormattingToolbar(props: FormattingToolbarProps) {
+export function CustomFormattingToolbar(props: FormattingToolbarProps<any>) {
   return (
     <Toolbar>
       <BlockTypeDropdown {...props} />

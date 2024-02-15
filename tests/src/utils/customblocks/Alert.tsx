@@ -1,5 +1,11 @@
-import { BlockSchema, createBlockSpec, defaultProps } from "@blocknote/core";
-import { ReactSlashMenuItem } from "@blocknote/react";
+import {
+  BlockNoteEditor,
+  BlockSchemaWithBlock,
+  PartialBlock,
+  createBlockSpec,
+  defaultProps,
+} from "@blocknote/core";
+
 import { RiAlertFill } from "react-icons/ri";
 const values = {
   warning: {
@@ -120,20 +126,21 @@ export const Alert = createBlockSpec(
   }
 );
 
-export const insertAlert: ReactSlashMenuItem<BlockSchema, any, any> = {
-  name: "Insert Alert",
-  execute: (editor) => {
-    // editor.topLevelBlocks[0]
-    editor.insertBlocks(
-      [
-        {
-          type: "alert",
-        },
-      ],
-      editor.getTextCursorPosition().block,
-      "after"
-    );
+export const insertAlert = {
+  title: "Insert Alert",
+  onItemClick: (editor: BlockNoteEditor<any, any, any>) => {
+    const block: PartialBlock<
+      BlockSchemaWithBlock<"alert", (typeof Alert)["config"]>,
+      any,
+      any
+    > = {
+      type: "alert",
+    };
+
+    editor.insertBlocks([block], editor.getTextCursorPosition().block, "after");
   },
+  subtext: "Insert an alert block to emphasize text",
+  icon: <RiAlertFill />,
   aliases: [
     "alert",
     "notification",
@@ -143,7 +150,5 @@ export const insertAlert: ReactSlashMenuItem<BlockSchema, any, any> = {
     "info",
     "success",
   ],
-  group: "Media",
-  icon: <RiAlertFill />,
-  hint: "Insert an alert block to emphasize text",
+  group: "Other",
 };

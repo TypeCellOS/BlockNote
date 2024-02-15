@@ -3,7 +3,7 @@ import { HTMLAttributes, useState } from "react";
 
 // Formatting Toolbar sub menu for creating links
 export const LinkMenu = (
-  props: FormattingToolbarProps & HTMLAttributes<HTMLDivElement>
+  props: FormattingToolbarProps<any> & HTMLAttributes<HTMLDivElement>
 ) => {
   const { editor, className, ...rest } = props;
 

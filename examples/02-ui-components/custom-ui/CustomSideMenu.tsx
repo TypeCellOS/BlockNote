@@ -1,9 +1,9 @@
 import { BlockNoteEditor } from "@blocknote/core";
-import { SideMenuPositioner } from "@blocknote/react";
+import { DefaultPositionedSideMenu } from "@blocknote/react";
 import { RxDragHandleHorizontal } from "react-icons/rx";
 
 export const CustomSideMenu = (props: { editor: BlockNoteEditor }) => (
-  <SideMenuPositioner
+  <DefaultPositionedSideMenu
     editor={props.editor}
     sideMenu={(props) => (
       // Side menu consists of only a drag handle

@@ -1,45 +1,63 @@
-import { defaultBlockSpecs } from "@blocknote/core";
+import { filterSuggestionItems } from "@blocknote/core";
 import "@blocknote/core/style.css";
 import {
+  BlockNoteDefaultUI,
   BlockNoteView,
+  DefaultPositionedSuggestionMenu,
   getDefaultReactSlashMenuItems,
   useBlockNote,
 } from "@blocknote/react";
 import { Alert, insertAlert } from "../customblocks/Alert";
-import { Button, insertButton } from "../customblocks/Button";
-import { Embed, insertEmbed } from "../customblocks/Embed";
-import { Image, insertImage } from "../customblocks/Image";
-import { Separator, insertSeparator } from "../customblocks/Separator";
+import { Button } from "../customblocks/Button";
+
+type WindowWithProseMirror = Window & typeof globalThis & { ProseMirror: any };
+
+const blockSpecs = {
+  // ...defaultBlockSpecs,
+  alert: Alert,
+  button: Button,
+  // embed: Embed,
+  // image: Image,
+  // separator: Separator,
+  // toc: TableOfContents,
+};
+
+const defaultItems = getDefaultReactSlashMenuItems();
+
+const customItems = [
+  insertAlert,
+  // insertButton,
+  // insertEmbed,
+  // insertImage,
+  // insertSeparator,
+  // insertTableOfContents,
+];
+
+const allItems = [...defaultItems, ...customItems];
 
 export default function Editor() {
-  const blockSpecs = {
-    ...defaultBlockSpecs,
-    alert: Alert,
-    button: Button,
-    embed: Embed,
-    image: Image,
-    separator: Separator,
-    // toc: TableOfContents,
-  };
-
-  const slashMenuItems = [
-    insertAlert,
-    insertButton,
-    insertEmbed,
-    insertImage,
-    insertSeparator,
-    // insertTableOfContents,
-  ];
-
   const editor = useBlockNote({
     blockSpecs,
-    slashMenuItems: [...getDefaultReactSlashMenuItems(), ...slashMenuItems],
   });
 
   console.log(editor);
 
   // Give tests a way to get prosemirror instance
-  (window as any).ProseMirror = editor?._tiptapEditor;
-
-  return <BlockNoteView editor={editor} />;
+  (window as WindowWithProseMirror).ProseMirror = editor?._tiptapEditor;
+  // editor.insertBlocks([{
+  //   type:""
+  // }])
+  // TODO: how to customize slashmenu
+  return (
+    <BlockNoteView editor={editor}>
+      <BlockNoteDefaultUI editor={editor} slashMenu={false} />
+      <DefaultPositionedSuggestionMenu
+        editor={editor}
+        getItems={async (query) => filterSuggestionItems(allItems, query)}
+        onItemClick={(i) => i.onItemClick(editor)}
+        // suggestionMenuComponent={MantineSuggestionMenu}
+        triggerCharacter="/"
+      />
+    </BlockNoteView>
+  );
 }

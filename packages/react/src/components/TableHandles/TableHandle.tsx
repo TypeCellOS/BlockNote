@@ -1,17 +1,21 @@
 import {
-  BlockSchemaWithBlock,
-  DefaultBlockSchema,
+  DefaultInlineContentSchema,
+  DefaultStyleSchema,
+  InlineContentSchema,
   mergeCSSClasses,
+  StyleSchema,
 } from "@blocknote/core";
 import { Menu } from "@mantine/core";
 import { ReactNode, useState } from "react";
+
+import type { TableHandleProps } from "./DefaultPositionedTableHandles";
 import { DefaultTableHandleMenu } from "./TableHandleMenu/DefaultTableHandleMenu";
-import type { TableHandleProps } from "./TableHandlePositioner";
 
 export const TableHandle = <
-  BSchema extends BlockSchemaWithBlock<"table", DefaultBlockSchema["table"]>
+  I extends InlineContentSchema = DefaultInlineContentSchema,
+  S extends StyleSchema = DefaultStyleSchema
 >(
-  props: TableHandleProps<BSchema, any, any> & { children: ReactNode }
+  props: TableHandleProps<I, S> & { children: ReactNode }
 ) => {
   const TableHandleMenu = props.tableHandleMenu || DefaultTableHandleMenu;
 

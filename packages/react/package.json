@@ -57,8 +57,6 @@
     "@mantine/utils": "^6.0.21",
     "@tiptap/core": "^2.0.3",
     "@tiptap/react": "^2.0.3",
-    "lodash.foreach": "^4.5.0",
-    "lodash.groupby": "^4.6.0",
     "lodash.merge": "^4.6.2",
     "react": "^18",
     "react-dom": "^18.2.0",

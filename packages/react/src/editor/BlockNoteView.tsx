@@ -17,16 +17,11 @@ import React, {
   useState,
 } from "react";
 import usePrefersColorScheme from "use-prefers-color-scheme";
-import { FormattingToolbarPositioner } from "../components/FormattingToolbar/FormattingToolbarPositioner";
-import { HyperlinkToolbarPositioner } from "../components/HyperlinkToolbar/HyperlinkToolbarPositioner";
-import { ImageToolbarPositioner } from "../components/ImageToolbar/ImageToolbarPositioner";
-import { SideMenuPositioner } from "../components/SideMenu/SideMenuPositioner";
-import { SlashMenuPositioner } from "../components/SlashMenu/SlashMenuPositioner";
-import { TableHandlesPositioner } from "../components/TableHandles/TableHandlePositioner";
 import { useEditorChange } from "../hooks/useEditorChange";
 import { useEditorSelectionChange } from "../hooks/useEditorSelectionChange";
 import { mergeRefs } from "../util/mergeRefs";
 import { BlockNoteContext, useBlockNoteContext } from "./BlockNoteContext";
+import { BlockNoteDefaultUI } from "./BlockNoteDefaultUI";
 import {
   Theme,
   applyBlockNoteCSSVariablesFromTheme,
@@ -159,20 +154,7 @@ function BlockNoteViewComponent<
   }, [editable, editor]);
 
   const renderChildren = useMemo(() => {
-    return (
-      children || (
-        <>
-          <FormattingToolbarPositioner editor={editor} />
-          <HyperlinkToolbarPositioner editor={editor} />
-          <SlashMenuPositioner editor={editor} />
-          <SideMenuPositioner editor={editor} />
-          <ImageToolbarPositioner editor={editor} />
-          {editor.blockSchema.table && (
-            <TableHandlesPositioner editor={editor as any} />
-          )}
-        </>
-      )
-    );
+    return children || <BlockNoteDefaultUI editor={editor} />;
   }, [editor, children]);
 
   const context = useMemo(() => {

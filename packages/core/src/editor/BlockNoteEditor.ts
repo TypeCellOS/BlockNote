@@ -30,9 +30,7 @@ import { FormattingToolbarProsemirrorPlugin } from "../extensions/FormattingTool
 import { HyperlinkToolbarProsemirrorPlugin } from "../extensions/HyperlinkToolbar/HyperlinkToolbarPlugin";
 import { ImageToolbarProsemirrorPlugin } from "../extensions/ImageToolbar/ImageToolbarPlugin";
 import { SideMenuProsemirrorPlugin } from "../extensions/SideMenu/SideMenuPlugin";
-import { BaseSlashMenuItem } from "../extensions/SlashMenu/BaseSlashMenuItem";
-import { SlashMenuProsemirrorPlugin } from "../extensions/SlashMenu/SlashMenuPlugin";
-import { getDefaultSlashMenuItems } from "../extensions/SlashMenu/defaultSlashMenuItems";
+import { SuggestionMenuProseMirrorPlugin } from "../extensions/SuggestionMenu/SuggestionPlugin";
 import { TableHandlesProsemirrorPlugin } from "../extensions/TableHandles/TableHandlesPlugin";
 import { UniqueID } from "../extensions/UniqueID/UniqueID";
 import {
@@ -40,7 +38,6 @@ import {
   BlockNoteDOMAttributes,
   BlockSchema,
   BlockSchemaFromSpecs,
-  BlockSchemaWithBlock,
   BlockSpecs,
   getBlockSchemaFromSpecs,
   getInlineContentSchemaFromSpecs,
@@ -80,13 +77,6 @@ export type BlockNoteEditorOptions<
 > = {
   // TODO: Figure out if enableBlockNoteExtensions/disableHistoryExtension are needed and document them.
   enableBlockNoteExtensions: boolean;
-  /**
-   *
-   * (couldn't fix any type, see https://github.com/TypeCellOS/BlockNote/pull/191#discussion_r1210708771)
-   *
-   * @default defaultSlashMenuItems from `./extensions/SlashMenu`
-   */
-  slashMenuItems: BaseSlashMenuItem<any, any, any>[];
 
   /**
    * An object containing attributes that should be added to HTML elements of the editor.
@@ -190,12 +180,6 @@ export class BlockNoteEditor<
     SSchema
   >;
   public readonly formattingToolbar: FormattingToolbarProsemirrorPlugin;
-  public readonly slashMenu: SlashMenuProsemirrorPlugin<
-    BSchema,
-    ISchema,
-    SSchema,
-    any
-  >;
   public readonly hyperlinkToolbar: HyperlinkToolbarProsemirrorPlugin<
     BSchema,
     ISchema,
@@ -207,17 +191,14 @@ export class BlockNoteEditor<
     SSchema
   >;
   public readonly tableHandles:
-    | TableHandlesProsemirrorPlugin<
-        BSchema extends BlockSchemaWithBlock<
-          "table",
-          DefaultBlockSchema["table"]
-        >
-          ? BSchema
-          : any,
-        ISchema,
-        SSchema
-      >
+    | TableHandlesProsemirrorPlugin<ISchema, SSchema>
     | undefined;
+
+  public readonly suggestionMenus: SuggestionMenuProseMirrorPlugin<
+    BSchema,
+    ISchema,
+    SSchema
+  >;
 
   public readonly uploadFile: ((file: File) => Promise<string>) | undefined;
 
@@ -282,11 +263,9 @@ export class BlockNoteEditor<
 
     this.sideMenu = new SideMenuProsemirrorPlugin(this);
     this.formattingToolbar = new FormattingToolbarProsemirrorPlugin(this);
-    this.slashMenu = new SlashMenuProsemirrorPlugin(
-      this,
-      newOptions.slashMenuItems ||
-        (getDefaultSlashMenuItems(this.blockSchema) as any)
-    );
+
+    this.suggestionMenus = new SuggestionMenuProseMirrorPlugin(this);
+
     this.hyperlinkToolbar = new HyperlinkToolbarProsemirrorPlugin(this);
     this.imageToolbar = new ImageToolbarProsemirrorPlugin(this);
 
@@ -311,9 +290,9 @@ export class BlockNoteEditor<
         return [
           this.sideMenu.plugin,
           this.formattingToolbar.plugin,
-          this.slashMenu.plugin,
           this.hyperlinkToolbar.plugin,
           this.imageToolbar.plugin,
+          this.suggestionMenus.plugin,
           ...(this.tableHandles ? [this.tableHandles.plugin] : []),
         ];
       },

@@ -30,7 +30,7 @@ type CustomFormattingToolbarState = {
   backgroundColor: string;
 };
 
-export const CustomFormattingToolbar = (props: FormattingToolbarProps) => {
+export const CustomFormattingToolbar = (props: FormattingToolbarProps<any>) => {
   // Function to get the state of toolbar buttons (active/inactive)
   const getState = (): CustomFormattingToolbarState => {
     const block = props.editor.getTextCursorPosition().block;

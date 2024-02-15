@@ -1,20 +1,8 @@
 import { defaultBlockSpecs } from "@blocknote/core";
-import {
-  BlockNoteView,
-  defaultBlockTypeDropdownItems,
-  DefaultFormattingToolbar,
-  FormattingToolbarPositioner,
-  getDefaultReactSlashMenuItems,
-  HyperlinkToolbarPositioner,
-  ImageToolbarPositioner,
-  SideMenuPositioner,
-  SlashMenuPositioner,
-  useBlockNote,
-} from "@blocknote/react";
+import { BlockNoteView, useBlockNote } from "@blocknote/react";
 import "@blocknote/react/style.css";
-import { RiAlertFill } from "react-icons/ri";
 
-import { Alert, insertAlert } from "./Alert";
+import { Alert } from "./Alert";
 
 // Our block specs, which contain the configs and implementations for blocks
 // that we want our editor to use.
@@ -31,13 +19,14 @@ export default function App() {
     // Tells BlockNote which blocks to use.
     blockSpecs: blockSpecsWithAlert,
     // Adds slash menu item to insert alert block.
-    slashMenuItems: [...getDefaultReactSlashMenuItems(), insertAlert],
+    // slashMenuItems: [...getDefaultReactSlashMenuItems(), insertAlert], TODO
   });
 
   return (
     <BlockNoteView editor={editor}>
       {/*Adds alert item to block type dropdown in the Formatting Toolbar*/}
-      <FormattingToolbarPositioner
+      {/* TODO */}
+      {/* <FormattingToolbarPositioner
         editor={editor}
         formattingToolbar={(props) => (
           <DefaultFormattingToolbar
@@ -53,12 +42,13 @@ export default function App() {
             ]}
           />
         )}
-      />
+      /> */}
       {/*Other toolbars & menus are defaults*/}
-      <HyperlinkToolbarPositioner editor={editor} />
+
+      {/* <HyperlinkToolbarPositioner editor={editor} />
       <SlashMenuPositioner editor={editor} />
       <SideMenuPositioner editor={editor} />
-      <ImageToolbarPositioner editor={editor} />
+      <ImageToolbarPositioner editor={editor} /> */}
     </BlockNoteView>
   );
 }

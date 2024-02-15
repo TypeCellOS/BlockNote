@@ -7,7 +7,7 @@ import {
 } from "@blocknote/core";
 import {
   BlockNoteView,
-  FormattingToolbarPositioner,
+  DefaultPositionedFormattingToolbar,
   Toolbar,
   ToolbarButton,
   useActiveStyles,
@@ -122,8 +122,8 @@ export default function App() {
   );
 
   return (
-    <BlockNoteView editor={editor}>
-      <FormattingToolbarPositioner
+    <BlockNoteView className="root" editor={editor}>
+      <DefaultPositionedFormattingToolbar
         editor={editor}
         formattingToolbar={CustomFormattingToolbar}
       />

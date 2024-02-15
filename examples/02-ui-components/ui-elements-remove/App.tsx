@@ -1,9 +1,9 @@
 import {
   BlockNoteView,
-  FormattingToolbarPositioner,
-  HyperlinkToolbarPositioner,
-  ImageToolbarPositioner,
-  SlashMenuPositioner,
+  // FormattingToolbarPositioner,
+  // HyperlinkToolbarPositioner,
+  // ImageToolbarPositioner,
+  // SlashMenuPositioner,
   useBlockNote,
 } from "@blocknote/react";
 import "@blocknote/react/style.css";
@@ -15,10 +15,11 @@ export default function App() {
   // Renders the editor instance.
   return (
     <BlockNoteView editor={editor}>
+      {/* TODO
       <FormattingToolbarPositioner editor={editor} />
       <HyperlinkToolbarPositioner editor={editor} />
       <SlashMenuPositioner editor={editor} />
-      <ImageToolbarPositioner editor={editor} />
+      <ImageToolbarPositioner editor={editor} /> */}
     </BlockNoteView>
   );
 }

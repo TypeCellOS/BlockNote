@@ -1,8 +1,8 @@
-import { DefaultBlockSchema, defaultProps } from "@blocknote/core";
-import { createReactBlockSpec, ReactSlashMenuItem } from "@blocknote/react";
-import { RiAlertFill } from "react-icons/ri";
-import { MdCancel, MdCheckCircle, MdError, MdInfo } from "react-icons/md";
+import { BlockNoteEditor, defaultProps } from "@blocknote/core";
+import { createReactBlockSpec } from "@blocknote/react";
 import { Menu } from "@mantine/core";
+import { MdCancel, MdCheckCircle, MdError, MdInfo } from "react-icons/md";
+import { RiAlertFill } from "react-icons/ri";
 import "./styles.css";
 
 // The types of alerts that users can choose from
@@ -114,7 +114,7 @@ export const Alert = createReactBlockSpec(
 // Slash menu item to insert an Alert block
 export const insertAlert = {
   name: "Alert",
-  execute: (editor) => {
+  execute: (editor: BlockNoteEditor<any, any, any>) => {
     const block = editor.getTextCursorPosition().block;
     const blockIsEmpty =
       Array.isArray(block) && (block.content as any[]).length === 0;
@@ -148,8 +148,4 @@ export const insertAlert = {
   group: "Other",
   icon: <RiAlertFill />,
   hint: "Used to emphasize text",
-} satisfies ReactSlashMenuItem<
-  DefaultBlockSchema & {
-    alert: (typeof Alert)["config"];
-  }
->;
+};

@@ -1,7 +1,6 @@
 import { EditorState, Plugin, PluginKey } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 
-import { EventEmitter } from "../../util/EventEmitter";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import {
   BlockSchema,
@@ -9,17 +8,14 @@ import {
   SpecificBlock,
   StyleSchema,
 } from "../../schema";
-import {
-  BaseUiElementCallbacks,
-  BaseUiElementState,
-} from "../../extensions-shared/BaseUiElementTypes";
-export type ImageToolbarCallbacks = BaseUiElementCallbacks;
+import { UiElementPosition } from "../../extensions-shared/UiElementPosition";
+import { EventEmitter } from "../../util/EventEmitter";
 
 export type ImageToolbarState<
   B extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema = StyleSchema
-> = BaseUiElementState & {
+  S extends StyleSchema
+> = UiElementPosition & {
   block: SpecificBlock<B, "image", I, S>;
 };
 
@@ -28,24 +24,22 @@ export class ImageToolbarView<
   I extends InlineContentSchema,
   S extends StyleSchema
 > {
-  private imageToolbarState?: ImageToolbarState<BSchema, I, S>;
-  public updateImageToolbar: () => void;
+  public state?: ImageToolbarState<BSchema, I, S>;
+  public emitUpdate: () => void;
 
   public prevWasEditable: boolean | null = null;
 
   constructor(
     private readonly pluginKey: PluginKey,
     private readonly pmView: EditorView,
-    updateImageToolbar: (
-      imageToolbarState: ImageToolbarState<BSchema, I, S>
-    ) => void
+    emitUpdate: (state: ImageToolbarState<BSchema, I, S>) => void
   ) {
-    this.updateImageToolbar = () => {
-      if (!this.imageToolbarState) {
+    this.emitUpdate = () => {
+      if (!this.state) {
         throw new Error("Attempting to update uninitialized image toolbar");
       }
 
-      updateImageToolbar(this.imageToolbarState);
+      emitUpdate(this.state);
     };
 
     pmView.dom.addEventListener("mousedown", this.mouseDownHandler);
@@ -58,17 +52,17 @@ export class ImageToolbarView<
   }
 
   mouseDownHandler = () => {
-    if (this.imageToolbarState?.show) {
-      this.imageToolbarState.show = false;
-      this.updateImageToolbar();
+    if (this.state?.show) {
+      this.state.show = false;
+      this.emitUpdate();
     }
   };
 
   // For dragging the whole editor.
   dragstartHandler = () => {
-    if (this.imageToolbarState?.show) {
-      this.imageToolbarState.show = false;
-      this.updateImageToolbar();
+    if (this.state?.show) {
+      this.state.show = false;
+      this.emitUpdate();
     }
   };
 
@@ -88,21 +82,20 @@ export class ImageToolbarView<
       return;
     }
 
-    if (this.imageToolbarState?.show) {
-      this.imageToolbarState.show = false;
-      this.updateImageToolbar();
+    if (this.state?.show) {
+      this.state.show = false;
+      this.emitUpdate();
     }
   };
 
   scrollHandler = () => {
-    if (this.imageToolbarState?.show) {
+    if (this.state?.show) {
       const blockElement = document.querySelector(
-        `[data-node-type="blockContainer"][data-id="${this.imageToolbarState.block.id}"]`
+        `[data-node-type="blockContainer"][data-id="${this.state.block.id}"]`
       )!;
 
-      this.imageToolbarState.referencePos =
-        blockElement.getBoundingClientRect();
-      this.updateImageToolbar();
+      this.state.referencePos = blockElement.getBoundingClientRect();
+      this.emitUpdate();
     }
   };
 
@@ -111,18 +104,18 @@ export class ImageToolbarView<
       block: SpecificBlock<BSchema, "image", I, S>;
     } = this.pluginKey.getState(view.state);
 
-    if (!this.imageToolbarState?.show && pluginState.block) {
+    if (!this.state?.show && pluginState.block) {
       const blockElement = document.querySelector(
         `[data-node-type="blockContainer"][data-id="${pluginState.block.id}"]`
       )!;
 
-      this.imageToolbarState = {
+      this.state = {
         show: true,
         referencePos: blockElement.getBoundingClientRect(),
         block: pluginState.block,
       };
 
-      this.updateImageToolbar();
+      this.emitUpdate();
 
       return;
     }
@@ -131,10 +124,10 @@ export class ImageToolbarView<
       !view.state.selection.eq(prevState.selection) ||
       !view.state.doc.eq(prevState.doc)
     ) {
-      if (this.imageToolbarState?.show) {
-        this.imageToolbarState.show = false;
+      if (this.state?.show) {
+        this.state.show = false;
 
-        this.updateImageToolbar();
+        this.emitUpdate();
       }
     }
   }

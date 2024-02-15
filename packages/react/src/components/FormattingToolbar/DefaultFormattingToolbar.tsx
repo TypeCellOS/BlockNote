@@ -1,23 +1,32 @@
-import { BlockSchema } from "@blocknote/core";
+import {
+  BlockNoteEditor,
+  BlockSchema,
+  DefaultBlockSchema,
+} from "@blocknote/core";
 
 import { Toolbar } from "../../components-shared/Toolbar/Toolbar";
-import { ColorStyleButton } from "./DefaultButtons/ColorStyleButton";
-import { CreateLinkButton } from "./DefaultButtons/CreateLinkButton";
-import { ImageCaptionButton } from "./DefaultButtons/ImageCaptionButton";
-import {
-  NestBlockButton,
-  UnnestBlockButton,
-} from "./DefaultButtons/NestBlockButtons";
-import { ReplaceImageButton } from "./DefaultButtons/ReplaceImageButton";
-import { TextAlignButton } from "./DefaultButtons/TextAlignButton";
-import { ToggledStyleButton } from "./DefaultButtons/ToggledStyleButton";
 import {
   BlockTypeDropdown,
   BlockTypeDropdownItem,
 } from "./DefaultDropdowns/BlockTypeDropdown";
-import type { FormattingToolbarProps } from "./FormattingToolbarPositioner";
+import { ImageCaptionButton } from "./DefaultButtons/ImageCaptionButton";
+import { ReplaceImageButton } from "./DefaultButtons/ReplaceImageButton";
+import { ToggledStyleButton } from "./DefaultButtons/ToggledStyleButton";
+import { TextAlignButton } from "./DefaultButtons/TextAlignButton";
+import { ColorStyleButton } from "./DefaultButtons/ColorStyleButton";
+import {
+  NestBlockButton,
+  UnnestBlockButton,
+} from "./DefaultButtons/NestBlockButtons";
+import { CreateLinkButton } from "./DefaultButtons/CreateLinkButton";
 
-export const DefaultFormattingToolbar = <BSchema extends BlockSchema>(
+export type FormattingToolbarProps<BSchema extends BlockSchema> = {
+  editor: BlockNoteEditor<BSchema, any, any>;
+};
+
+export const DefaultFormattingToolbar = <
+  BSchema extends BlockSchema = DefaultBlockSchema
+>(
   props: FormattingToolbarProps<BSchema> & {
     blockTypeDropdownItems?: BlockTypeDropdownItem[];
   }

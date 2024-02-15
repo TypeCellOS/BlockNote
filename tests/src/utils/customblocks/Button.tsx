@@ -1,9 +1,8 @@
 import {
-  BlockSchemaWithBlock,
+  BlockNoteEditor,
   createBlockSpec,
   defaultProps,
 } from "@blocknote/core";
-import { ReactSlashMenuItem } from "@blocknote/react";
 import { RiRadioButtonFill } from "react-icons/ri";
 
 export const Button = createBlockSpec(
@@ -38,13 +37,9 @@ export const Button = createBlockSpec(
   }
 );
 
-export const insertButton: ReactSlashMenuItem<
-  BlockSchemaWithBlock<"button", typeof Button.config>,
-  any,
-  any
-> = {
-  name: "Insert Button",
-  execute: (editor) => {
+export const insertButton = {
+  title: "Insert Button",
+  onItemClick: (editor: BlockNoteEditor<any, any, any>) => {
     editor.insertBlocks(
       [
         {
@@ -55,8 +50,8 @@ export const insertButton: ReactSlashMenuItem<
       "after"
     );
   },
-  aliases: ["button", "click", "action"],
-  group: "Media",
+  subtext: "Insert a button which inserts a block below it",
   icon: <RiRadioButtonFill />,
-  hint: "Insert a button which inserts a block below it",
+  aliases: ["button", "click", "action"],
+  group: "Other",
 };

@@ -18,7 +18,7 @@ export const colors = [
 
 // Formatting Toolbar sub menu for changing text and background color
 export const ColorMenu = (
-  props: FormattingToolbarProps & HTMLAttributes<HTMLDivElement>
+  props: FormattingToolbarProps<any> & HTMLAttributes<HTMLDivElement>
 ) => {
   const { editor, className, ...rest } = props;
 
