@@ -9,8 +9,8 @@ import {
 } from "@blocknote/core";
 import { FC } from "react";
 
-import { useUiElement } from "../../hooks/useUiElement";
-import { useUiElementPosition } from "../../hooks/useUiElementPosition";
+import { useUIPluginState } from "../../hooks/useUIPluginState";
+import { useUiElementPositioning } from "../../hooks/useUiElementPositioning";
 import { DefaultSideMenu, SideMenuProps } from "./DefaultSideMenu";
 
 export const DefaultPositionedSideMenu = <
@@ -29,10 +29,10 @@ export const DefaultPositionedSideMenu = <
     unfreezeMenu: props.editor.sideMenu.unfreezeMenu,
   };
 
-  const state = useUiElement(
+  const state = useUIPluginState(
     props.editor.sideMenu.onUpdate.bind(props.editor.sideMenu)
   );
-  const { isMounted, ref, style } = useUiElementPosition(
+  const { isMounted, ref, style } = useUiElementPositioning(
     state?.show || false,
     state?.referencePos || null,
     1000,

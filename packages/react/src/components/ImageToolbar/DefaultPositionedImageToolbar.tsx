@@ -6,8 +6,8 @@ import {
 import { FC } from "react";
 import { flip, offset } from "@floating-ui/react";
 
-import { useUiElement } from "../../hooks/useUiElement";
-import { useUiElementPosition } from "../../hooks/useUiElementPosition";
+import { useUIPluginState } from "../../hooks/useUIPluginState";
+import { useUiElementPositioning } from "../../hooks/useUiElementPositioning";
 import { DefaultImageToolbar, ImageToolbarProps } from "./DefaultImageToolbar";
 
 export const DefaultPositionedImageToolbar = <
@@ -16,10 +16,10 @@ export const DefaultPositionedImageToolbar = <
   editor: BlockNoteEditor<BSchema, any, any>;
   imageToolbar?: FC<ImageToolbarProps<BSchema>>;
 }) => {
-  const state = useUiElement(
+  const state = useUIPluginState(
     props.editor.imageToolbar.onUpdate.bind(props.editor.imageToolbar)
   );
-  const { isMounted, ref, style } = useUiElementPosition(
+  const { isMounted, ref, style } = useUiElementPositioning(
     state?.show || false,
     state?.referencePos || null,
     5000,

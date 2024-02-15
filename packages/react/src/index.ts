@@ -45,7 +45,7 @@ export * from "./components/ImageToolbar/DefaultPositionedImageToolbar";
 
 export * from "./components/TableHandles/DefaultPositionedTableHandles";
 export * from "./components/TableHandles/DefaultTableHandle";
-export * from "./components/TableHandles/hooks/useTableHandlesPosition";
+export * from "./components/TableHandles/hooks/useTableHandlesPositioning";
 
 export * from "./components-shared/Toolbar/Toolbar";
 export * from "./components-shared/Toolbar/ToolbarButton";
