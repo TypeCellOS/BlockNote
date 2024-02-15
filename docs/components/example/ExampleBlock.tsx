@@ -10,7 +10,7 @@ const baseGitHubURL =
 const baseCodeSandboxURL =
   "https://githubbox.com/TypeCellOS/BlockNote/tree/main/examples/";
 
-const ExampleWrapper = dynamic(() => import("./ExampleWrapper"), {
+const ThemedExample = dynamic(() => import("./ThemedExample"), {
   ssr: false,
 });
   
@@ -45,7 +45,7 @@ export function ExampleBlock(props: {
         </button>
       </div>
       <div className={"h-64 overflow-scroll rounded-lg"}>
-          <ExampleWrapper name={props.name} />
+          <ThemedExample name={props.name} />
       </div>
       {props.children}
     </div>
