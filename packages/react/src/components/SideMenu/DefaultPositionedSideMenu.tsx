@@ -10,7 +10,7 @@ import {
 import { FC } from "react";
 
 import { useUIPluginState } from "../../hooks/useUIPluginState";
-import { useUiElementPositioning } from "../../hooks/useUiElementPositioning";
+import { useUIElementPositioning } from "../../hooks/useUIElementPositioning";
 import { DefaultSideMenu, SideMenuProps } from "./DefaultSideMenu";
 
 export const DefaultPositionedSideMenu = <
@@ -32,7 +32,7 @@ export const DefaultPositionedSideMenu = <
   const state = useUIPluginState(
     props.editor.sideMenu.onUpdate.bind(props.editor.sideMenu)
   );
-  const { isMounted, ref, style } = useUiElementPositioning(
+  const { isMounted, ref, style } = useUIElementPositioning(
     state?.show || false,
     state?.referencePos || null,
     1000,
