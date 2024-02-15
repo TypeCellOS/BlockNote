@@ -2,99 +2,62 @@ import { FC, useMemo } from "react";
 import {
   BlockNoteEditor,
   BlockSchema,
+  DefaultBlockSchema,
+  DefaultInlineContentSchema,
+  DefaultStyleSchema,
   InlineContentSchema,
   StyleSchema,
+  SuggestionMenuState,
+  UiElementPosition,
 } from "@blocknote/core";
-
-import { SuggestionMenuItemProps } from "./MantineSuggestionMenuItem";
 import { useLoadSuggestionMenuItems } from "./hooks/useLoadSuggestionMenuItems";
 import { useCloseSuggestionMenuNoItems } from "./hooks/useCloseSuggestionMenuNoItems";
 import { useSuggestionMenuKeyboardNavigation } from "./hooks/useSuggestionMenuKeyboardNavigation";
-import { useSuggestionMenu } from "../../hooks/useSuggestionMenu";
 import { defaultGetItems } from "./defaultGetItems";
 import {
   MantineSuggestionMenu,
-  SuggestionMenuProps,
-} from "./MantineSuggestionMenu";
+  MantineSuggestionMenuProps,
+} from "./MantineDefaults/MantineSuggestionMenu";
+import { MantineSuggestionMenuItemProps } from "./MantineDefaults/MantineSuggestionMenuItem";
 
-export function DefaultPositionedSuggestionMenu<
-  BSchema extends BlockSchema,
-  I extends InlineContentSchema,
-  S extends StyleSchema,
+export type SuggestionMenuProps<
+  BSchema extends BlockSchema = DefaultBlockSchema,
+  I extends InlineContentSchema = DefaultInlineContentSchema,
+  S extends StyleSchema = DefaultStyleSchema,
   Item extends {
     name: string;
     execute: () => void;
-  } = SuggestionMenuItemProps
->(props: {
+  } = MantineSuggestionMenuItemProps
+> = {
   editor: BlockNoteEditor<BSchema, I, S>;
-  triggerCharacter?: string;
   getItems?: (
     query: string,
     closeMenu: () => void,
     clearQuery: () => void
   ) => Promise<Item[]>;
-  suggestionMenuComponent?: FC<SuggestionMenuProps<Item>>;
-}) {
-  const { editor, triggerCharacter, getItems, suggestionMenuComponent } = props;
+  suggestionMenuComponent?: FC<MantineSuggestionMenuProps<Item>>;
+} & Omit<SuggestionMenuState, keyof UiElementPosition> &
+  Pick<
+    BlockNoteEditor<any, any, any>["suggestionMenus"],
+    "closeMenu" | "clearQuery"
+  >;
 
-  const { isMounted, suggestionMenuProps, positionerProps } = useSuggestionMenu(
-    editor,
-    triggerCharacter || "/"
-  );
-
-  if (!isMounted) {
-    return null;
-  }
-
-  return (
-    <div ref={positionerProps.ref} style={positionerProps.styles}>
-      <DefaultSuggestionMenu
-        editor={editor}
-        {...suggestionMenuProps}
-        getItems={getItems}
-        suggestionMenuComponent={suggestionMenuComponent}
-      />
-    </div>
-  );
-}
-
-// TODO: The reason these 2 components are split is because the hooks in
-//  `DefaultSuggestionMenu` assume that the menu is open. Therefore, they should
-//  only be run when the menu is open (you cannot conditionally run hooks).
-//  We could add a `show` param to each hook, but I feel like that is less
-//  "React-ish" than splitting the components. I think that it might be an issue
-//  that the menu plugins currently send both position and state data in the
-//  same update, as we can't separate `useSuggestionMenu` into 2 hooks, one for
-//  state and one for position.
-// TODO: Make renderItems accept any item type if getItems also returns an
-//  arbitrary data type.
 export function DefaultSuggestionMenu<
-  BSchema extends BlockSchema,
-  I extends InlineContentSchema,
-  S extends StyleSchema,
+  BSchema extends BlockSchema = DefaultBlockSchema,
+  I extends InlineContentSchema = DefaultInlineContentSchema,
+  S extends StyleSchema = DefaultStyleSchema,
   Item extends {
     name: string;
     execute: () => void;
-  } = SuggestionMenuItemProps
->(props: {
-  editor: BlockNoteEditor<BSchema, I, S>;
-  query: string;
-  closeMenu: () => void;
-  clearQuery: () => void;
-  getItems?: (
-    query: string,
-    closeMenu: () => void,
-    clearQuery: () => void
-  ) => Promise<Item[]>;
-  suggestionMenuComponent?: FC<SuggestionMenuProps<Item>>;
-}) {
+  } = MantineSuggestionMenuItemProps
+>(props: SuggestionMenuProps<BSchema, I, S, Item>) {
   const {
     editor,
+    getItems,
+    suggestionMenuComponent,
     query,
     closeMenu,
     clearQuery,
-    getItems,
-    suggestionMenuComponent,
   } = props;
 
   const getItemsForLoading = useMemo<(query: string) => Promise<Item[]>>(
@@ -120,11 +83,11 @@ export function DefaultSuggestionMenu<
     closeMenu
   );
 
-  const SuggestionMenu: FC<SuggestionMenuProps<Item>> =
+  const SuggestionMenuComponent: FC<MantineSuggestionMenuProps<Item>> =
     suggestionMenuComponent || MantineSuggestionMenu;
 
   return (
-    <SuggestionMenu
+    <SuggestionMenuComponent
       items={items}
       loadingState={loadingState}
       selectedIndex={selectedIndex}

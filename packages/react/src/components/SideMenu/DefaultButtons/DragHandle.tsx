@@ -1,13 +1,23 @@
-import { BlockSchema } from "@blocknote/core";
+import { Block, BlockNoteEditor, BlockSchema } from "@blocknote/core";
 import { Menu } from "@mantine/core";
 import { MdDragIndicator } from "react-icons/md";
 import { DefaultDragHandleMenu } from "../DragHandleMenu/DefaultDragHandleMenu";
 import { SideMenuButton } from "../SideMenuButton";
-import type { SideMenuProps } from "../SideMenuPositioner";
+import { FC } from "react";
+import type { DragHandleMenuProps } from "../DragHandleMenu/DragHandleMenu";
 
-export const DragHandle = <BSchema extends BlockSchema>(
-  props: SideMenuProps<BSchema, any, any>
-) => {
+export const DragHandle = <BSchema extends BlockSchema>(props: {
+  editor: BlockNoteEditor<BSchema, any, any>;
+  block: Block<BSchema, any, any>;
+  blockDragStart: (event: {
+    dataTransfer: DataTransfer | null;
+    clientY: number;
+  }) => void;
+  blockDragEnd: () => void;
+  freezeMenu: () => void;
+  unfreezeMenu: () => void;
+  dragHandleMenu?: FC<DragHandleMenuProps<BSchema, any, any>>;
+}) => {
   const DragHandleMenu = props.dragHandleMenu || DefaultDragHandleMenu;
 
   return (

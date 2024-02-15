@@ -1,5 +1,11 @@
-import { BlockSchema, PartialBlock } from "@blocknote/core";
-
+import {
+  BlockNoteEditor,
+  BlockSchema,
+  DefaultBlockSchema,
+  ImageToolbarState,
+  PartialBlock,
+  UiElementPosition,
+} from "@blocknote/core";
 import {
   Button,
   FileInput,
@@ -15,11 +21,17 @@ import {
   useEffect,
   useState,
 } from "react";
+
 import { Toolbar } from "../../components-shared/Toolbar/Toolbar";
-import type { ImageToolbarProps } from "./ImageToolbarPositioner";
+
+export type ImageToolbarProps<
+  BSchema extends BlockSchema = DefaultBlockSchema
+> = {
+  editor: BlockNoteEditor<BSchema, any>;
+} & Omit<ImageToolbarState<BSchema, any, any>, keyof UiElementPosition>;
 
 export const DefaultImageToolbar = <BSchema extends BlockSchema>(
-  props: ImageToolbarProps<BSchema, any>
+  props: ImageToolbarProps<BSchema>
 ) => {
   const [openTab, setOpenTab] = useState<"upload" | "embed">(
     props.editor.uploadFile !== undefined ? "upload" : "embed"

@@ -7,7 +7,7 @@ import {
 import {
   BlockNoteView,
   createReactStyleSpec,
-  FormattingToolbarPositioner,
+  DefaultPositionedFormattingToolbar,
   Toolbar,
   ToolbarButton,
   useActiveStyles,
@@ -130,7 +130,7 @@ export function ReactStyles() {
 
   return (
     <BlockNoteView className="root" editor={editor}>
-      <FormattingToolbarPositioner
+      <DefaultPositionedFormattingToolbar
         editor={editor}
         formattingToolbar={CustomFormattingToolbar}
       />

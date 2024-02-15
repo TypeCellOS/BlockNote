@@ -3,7 +3,7 @@ import { Badge, Menu, Stack, Text } from "@mantine/core";
 
 const MIN_LEFT_MARGIN = 5;
 
-export type SuggestionMenuItemProps = {
+export type MantineSuggestionMenuItemProps = {
   name: string;
   execute: () => void;
   subtext?: string;
@@ -15,7 +15,9 @@ export type SuggestionMenuItemProps = {
   group?: string;
 };
 
-export function MantineSuggestionMenuItem(props: SuggestionMenuItemProps) {
+export function MantineSuggestionMenuItem(
+  props: MantineSuggestionMenuItemProps
+) {
   const itemRef = useRef<HTMLButtonElement>(null);
 
   function isSelected() {

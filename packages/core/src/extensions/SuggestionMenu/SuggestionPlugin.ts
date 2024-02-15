@@ -1,14 +1,15 @@
 import { findParentNode } from "@tiptap/core";
 import { EditorState, Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
+
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import { BlockSchema, InlineContentSchema, StyleSchema } from "../../schema";
+import { UiElementPosition } from "../../extensions-shared/UiElementPosition";
 import { EventEmitter } from "../../util/EventEmitter";
-import { BaseUiElementState } from "../../extensions-shared/BaseUiElementTypes";
-// TODO: clean file
+
 const findBlock = findParentNode((node) => node.type.name === "blockContainer");
 
-export type SuggestionsMenuState = BaseUiElementState & {
+export type SuggestionMenuState = UiElementPosition & {
   query: string;
 };
 
@@ -17,39 +18,35 @@ class SuggestionMenuView<
   I extends InlineContentSchema,
   S extends StyleSchema
 > {
-  private suggestionsMenuState?: SuggestionsMenuState;
-  public updateSuggestionsMenu: (triggerCharacter: string) => void;
+  private state?: SuggestionMenuState;
+  public emitUpdate: (triggerCharacter: string) => void;
 
   pluginState: SuggestionPluginState;
 
   constructor(
     private readonly editor: BlockNoteEditor<BSchema, I, S>,
-    updateSuggestionsMenu: (
-      menuName: string,
-      suggestionsMenuState: SuggestionsMenuState
-    ) => void
+    emitUpdate: (menuName: string, state: SuggestionMenuState) => void
   ) {
     this.pluginState = undefined;
 
-    this.updateSuggestionsMenu = (menuName: string) => {
-      if (!this.suggestionsMenuState) {
+    this.emitUpdate = (menuName: string) => {
+      if (!this.state) {
         throw new Error("Attempting to update uninitialized suggestions menu");
       }
 
-      updateSuggestionsMenu(menuName, this.suggestionsMenuState);
+      emitUpdate(menuName, this.state);
     };
 
     document.addEventListener("scroll", this.handleScroll);
   }
 
   handleScroll = () => {
-    if (this.suggestionsMenuState?.show) {
+    if (this.state?.show) {
       const decorationNode = document.querySelector(
         `[data-decoration-id="${this.pluginState!.decorationId}"]`
       );
-      this.suggestionsMenuState.referencePos =
-        decorationNode!.getBoundingClientRect();
-      this.updateSuggestionsMenu(this.pluginState!.triggerCharacter!);
+      this.state.referencePos = decorationNode!.getBoundingClientRect();
+      this.emitUpdate(this.pluginState!.triggerCharacter!);
     }
   };
 
@@ -73,8 +70,8 @@ class SuggestionMenuView<
     this.pluginState = stopped ? prev : next;
 
     if (stopped || !this.editor.isEditable) {
-      this.suggestionsMenuState!.show = false;
-      this.updateSuggestionsMenu(this.pluginState!.triggerCharacter);
+      this.state!.show = false;
+      this.emitUpdate(this.pluginState!.triggerCharacter);
 
       return;
     }
@@ -84,13 +81,13 @@ class SuggestionMenuView<
     );
 
     if (this.editor.isEditable) {
-      this.suggestionsMenuState = {
+      this.state = {
         show: true,
         referencePos: decorationNode!.getBoundingClientRect(),
         query: this.pluginState!.query,
       };
 
-      this.updateSuggestionsMenu(this.pluginState!.triggerCharacter!);
+      this.emitUpdate(this.pluginState!.triggerCharacter!);
     }
   }
 
@@ -168,8 +165,8 @@ export class SuggestionMenuProseMirrorPlugin<
       view: () => {
         this.view = new SuggestionMenuView<BSchema, I, S>(
           editor,
-          (triggerCharacter, suggestionsMenuState) => {
-            this.emit(`update ${triggerCharacter}`, suggestionsMenuState);
+          (triggerCharacter, state) => {
+            this.emit(`update ${triggerCharacter}`, state);
           }
         );
         return this.view;
@@ -322,7 +319,7 @@ export class SuggestionMenuProseMirrorPlugin<
 
   public onUpdate(
     triggerCharacter: string,
-    callback: (state: SuggestionsMenuState) => void
+    callback: (state: SuggestionMenuState) => void
   ) {
     if (!this.triggerCharacters.includes(triggerCharacter)) {
       this.addTriggerCharacter(triggerCharacter);
@@ -333,6 +330,13 @@ export class SuggestionMenuProseMirrorPlugin<
 
   addTriggerCharacter = (triggerCharacter: string) => {
     this.triggerCharacters.push(triggerCharacter);
+  };
+
+  // TODO: Should this be called automatically when listeners are removed?
+  removeTriggerCharacter = (triggerCharacter: string) => {
+    this.triggerCharacters = this.triggerCharacters.filter(
+      (c) => c !== triggerCharacter
+    );
   };
 
   closeMenu = () => this.view!.closeMenu();

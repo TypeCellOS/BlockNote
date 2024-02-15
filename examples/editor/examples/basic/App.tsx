@@ -13,7 +13,7 @@ import {
   BlockNoteView,
   createReactInlineContentSpec,
   DefaultPositionedSuggestionMenu,
-  SuggestionMenuItemProps,
+  MantineSuggestionMenuItemProps,
   useBlockNote,
 } from "@blocknote/react";
 import "@blocknote/react/style.css";
@@ -57,9 +57,9 @@ async function getMentionMenuItems(
   query: string,
   closeMenu: () => void,
   clearQuery: () => void
-): Promise<SuggestionMenuItemProps[]> {
+): Promise<MantineSuggestionMenuItemProps[]> {
   const users = ["Steve", "Bob", "Joe", "Mike"];
-  const items: SuggestionMenuItemProps[] = users.map((user) => ({
+  const items: MantineSuggestionMenuItemProps[] = users.map((user) => ({
     name: user,
     execute: () => {
       closeMenu();

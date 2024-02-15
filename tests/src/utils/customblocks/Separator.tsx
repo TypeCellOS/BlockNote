@@ -5,7 +5,7 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { SuggestionMenuItemProps } from "@blocknote/react";
+import { MantineSuggestionMenuItemProps } from "@blocknote/react";
 import { RiSeparator } from "react-icons/ri";
 
 export const Separator = createBlockSpec(
@@ -65,4 +65,4 @@ export const insertSeparator = <
     icon: <RiSeparator />,
     aliases: ["separator", "horizontal", "line", "rule"],
     group: "Other",
-  } satisfies SuggestionMenuItemProps);
+  } satisfies MantineSuggestionMenuItemProps);

@@ -2,17 +2,17 @@ import { Loader, Menu } from "@mantine/core";
 import { Children, useMemo } from "react";
 import {
   MantineSuggestionMenuItem,
-  SuggestionMenuItemProps,
+  MantineSuggestionMenuItemProps,
 } from "./MantineSuggestionMenuItem";
 
-export type SuggestionMenuProps<T> = {
+export type MantineSuggestionMenuProps<T> = {
   items: T[];
   loadingState: "loading-initial" | "loading" | "loaded";
   selectedIndex: number;
 };
 
 export function MantineSuggestionMenu(
-  props: SuggestionMenuProps<SuggestionMenuItemProps>
+  props: MantineSuggestionMenuProps<MantineSuggestionMenuItemProps>
 ) {
   const { items, loadingState, selectedIndex } = props;
 

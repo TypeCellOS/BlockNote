@@ -7,7 +7,7 @@ import {
   PartialBlock,
   StyleSchema,
 } from "@blocknote/core";
-import { SuggestionMenuItemProps } from "@blocknote/react";
+import { MantineSuggestionMenuItemProps } from "@blocknote/react";
 import { RiImage2Fill } from "react-icons/ri";
 export const Image = createBlockSpec(
   {
@@ -87,4 +87,4 @@ export const insertImage = <
     icon: <RiImage2Fill />,
     aliases: ["image", "img", "picture", "media"],
     group: "Other",
-  } satisfies SuggestionMenuItemProps);
+  } satisfies MantineSuggestionMenuItemProps);

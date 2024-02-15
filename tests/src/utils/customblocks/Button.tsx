@@ -6,7 +6,7 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { SuggestionMenuItemProps } from "@blocknote/react";
+import { MantineSuggestionMenuItemProps } from "@blocknote/react";
 import { RiRadioButtonFill } from "react-icons/ri";
 
 export const Button = createBlockSpec(
@@ -70,4 +70,4 @@ export const insertButton = <
     icon: <RiRadioButtonFill />,
     aliases: ["button", "click", "action"],
     group: "Other",
-  } satisfies SuggestionMenuItemProps);
+  } satisfies MantineSuggestionMenuItemProps);

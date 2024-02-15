@@ -9,33 +9,12 @@ import {
   BlockFromConfigNoChildren,
   BlockSchemaWithBlock,
   InlineContentSchema,
-  PartialBlock,
   SpecificBlock,
   StyleSchema,
 } from "../../schema";
 import { getDraggableBlockFromCoords } from "../SideMenu/SideMenuPlugin";
 
 let dragImageElement: HTMLElement | undefined;
-
-function setHiddenDragImage() {
-  if (dragImageElement) {
-    return;
-  }
-
-  dragImageElement = document.createElement("div");
-  dragImageElement.innerHTML = "_";
-  dragImageElement.style.opacity = "0";
-  dragImageElement.style.height = "1px";
-  dragImageElement.style.width = "1px";
-  document.body.appendChild(dragImageElement);
-}
-
-function unsetHiddenDragImage() {
-  if (dragImageElement) {
-    document.body.removeChild(dragImageElement);
-    dragImageElement = undefined;
-  }
-}
 
 export type TableHandlesState<
   I extends InlineContentSchema,
@@ -57,6 +36,26 @@ export type TableHandlesState<
       }
     | undefined;
 };
+
+function setHiddenDragImage() {
+  if (dragImageElement) {
+    return;
+  }
+
+  dragImageElement = document.createElement("div");
+  dragImageElement.innerHTML = "_";
+  dragImageElement.style.opacity = "0";
+  dragImageElement.style.height = "1px";
+  dragImageElement.style.width = "1px";
+  document.body.appendChild(dragImageElement);
+}
+
+function unsetHiddenDragImage() {
+  if (dragImageElement) {
+    document.body.removeChild(dragImageElement);
+    dragImageElement = undefined;
+  }
+}
 
 function getChildIndex(node: Element) {
   return Array.prototype.indexOf.call(node.parentElement!.childNodes, node);
@@ -91,7 +90,7 @@ export class TableHandlesView<
 > implements PluginView
 {
   public state?: TableHandlesState<I, S>;
-  public updateState: () => void;
+  public emitUpdate: () => void;
 
   public tableId: string | undefined;
   public tablePos: number | undefined;
@@ -101,16 +100,20 @@ export class TableHandlesView<
   public prevWasEditable: boolean | null = null;
 
   constructor(
-    private readonly editor: BlockNoteEditor<BSchema, I, S>,
+    private readonly editor: BlockNoteEditor<
+      BlockSchemaWithBlock<"table", DefaultBlockSchema["table"]>,
+      I,
+      S
+    >,
     private readonly pmView: EditorView,
-    updateState: (state: TableHandlesState<I, S>) => void
+    emitUpdate: (state: TableHandlesState<I, S>) => void
   ) {
-    this.updateState = () => {
+    this.emitUpdate = () => {
       if (!this.state) {
         throw new Error("Attempting to update uninitialized image toolbar");
       }
 
-      updateState(this.state);
+      emitUpdate(this.state);
     };
 
     pmView.dom.addEventListener("mousemove", this.mouseMoveHandler);
@@ -131,7 +134,7 @@ export class TableHandlesView<
     if (!target || !this.editor.isEditable) {
       if (this.state?.show) {
         this.state.show = false;
-        this.updateState();
+        this.emitUpdate();
       }
       return;
     }
@@ -196,7 +199,7 @@ export class TableHandlesView<
 
       draggingState: undefined,
     };
-    this.updateState();
+    this.emitUpdate();
 
     return false;
   };
@@ -286,7 +289,7 @@ export class TableHandlesView<
 
     // Emits a state update if any of the fields have changed.
     if (emitStateUpdate) {
-      this.updateState();
+      this.emitUpdate();
     }
 
     // Dispatches a dummy transaction to force a decorations update if
@@ -327,7 +330,7 @@ export class TableHandlesView<
         type: "tableContent",
         rows: rows,
       },
-    } as PartialBlock<BSchema, I, S>);
+    });
   };
 
   scrollHandler = () => {
@@ -343,7 +346,7 @@ export class TableHandlesView<
 
       this.state.referencePosTable = tableElement.getBoundingClientRect();
       this.state.referencePosCell = cellElement.getBoundingClientRect();
-      this.updateState();
+      this.emitUpdate();
     }
   };
 
@@ -360,14 +363,25 @@ export class TableHandlesView<
 export const tableHandlesPluginKey = new PluginKey("TableHandlesPlugin");
 
 export class TableHandlesProsemirrorPlugin<
-  BSchema extends BlockSchemaWithBlock<"table", DefaultBlockSchema["table"]>,
   I extends InlineContentSchema,
   S extends StyleSchema
 > extends EventEmitter<any> {
-  private view: TableHandlesView<BSchema, I, S> | undefined;
+  private view:
+    | TableHandlesView<
+        BlockSchemaWithBlock<"table", DefaultBlockSchema["table"]>,
+        I,
+        S
+      >
+    | undefined;
   public readonly plugin: Plugin;
 
-  constructor(private readonly editor: BlockNoteEditor<BSchema, I, S>) {
+  constructor(
+    private readonly editor: BlockNoteEditor<
+      BlockSchemaWithBlock<"table", DefaultBlockSchema["table"]>,
+      I,
+      S
+    >
+  ) {
     super();
     this.plugin = new Plugin({
       key: tableHandlesPluginKey,
@@ -531,7 +545,7 @@ export class TableHandlesProsemirrorPlugin<
       originalIndex: this.view!.state.colIndex,
       mousePos: event.clientX,
     };
-    this.view!.updateState();
+    this.view!.emitUpdate();
 
     this.editor._tiptapEditor.view.dispatch(
       this.editor._tiptapEditor.state.tr.setMeta(tableHandlesPluginKey, {
@@ -567,7 +581,7 @@ export class TableHandlesProsemirrorPlugin<
       originalIndex: this.view!.state.rowIndex,
       mousePos: event.clientY,
     };
-    this.view!.updateState();
+    this.view!.emitUpdate();
 
     this.editor._tiptapEditor.view.dispatch(
       this.editor._tiptapEditor.state.tr.setMeta(tableHandlesPluginKey, {
@@ -596,7 +610,7 @@ export class TableHandlesProsemirrorPlugin<
     }
 
     this.view!.state.draggingState = undefined;
-    this.view!.updateState();
+    this.view!.emitUpdate();
 
     this.editor._tiptapEditor.view.dispatch(
       this.editor._tiptapEditor.state.tr.setMeta(tableHandlesPluginKey, null)
@@ -609,11 +623,15 @@ export class TableHandlesProsemirrorPlugin<
    * Freezes the drag handles. When frozen, they will stay attached to the same
    * cell regardless of which cell is hovered by the mouse cursor.
    */
-  freezeHandles = () => (this.view!.menuFrozen = true);
+  freezeHandles = () => {
+    this.view!.menuFrozen = true;
+  };
 
   /**
    * Unfreezes the drag handles. When frozen, they will stay attached to the
    * same cell regardless of which cell is hovered by the mouse cursor.
    */
-  unfreezeHandles = () => (this.view!.menuFrozen = false);
+  unfreezeHandles = () => {
+    this.view!.menuFrozen = false;
+  };
 }

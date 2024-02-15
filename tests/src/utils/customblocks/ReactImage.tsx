@@ -8,7 +8,7 @@ import {
 } from "@blocknote/core";
 import {
   createReactBlockSpec,
-  SuggestionMenuItemProps,
+  MantineSuggestionMenuItemProps,
 } from "@blocknote/react";
 import { RiImage2Fill } from "react-icons/ri";
 
@@ -88,4 +88,4 @@ export const insertReactImage = <
       "media",
     ],
     group: "Media",
-  } satisfies SuggestionMenuItemProps);
+  } satisfies MantineSuggestionMenuItemProps);
