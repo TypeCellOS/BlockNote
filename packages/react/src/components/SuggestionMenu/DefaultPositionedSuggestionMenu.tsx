@@ -11,8 +11,8 @@ import {
 import { flip, offset, size } from "@floating-ui/react";
 import { FC } from "react";
 
-import { useUiElement } from "../../hooks/useUiElement";
-import { useUiElementPosition } from "../../hooks/useUiElementPosition";
+import { useUIPluginState } from "../../hooks/useUIPluginState";
+import { useUiElementPositioning } from "../../hooks/useUiElementPositioning";
 import { DefaultSuggestionMenu } from "./DefaultSuggestionMenu";
 import { MantineSuggestionMenuProps } from "./MantineDefaults/MantineSuggestionMenu";
 import { MantineSuggestionMenuItemProps } from "./MantineDefaults/MantineSuggestionMenuItem";
@@ -40,13 +40,14 @@ export function DefaultPositionedSuggestionMenu<
     clearQuery: props.editor.suggestionMenus.clearQuery,
   };
 
-  const state = useUiElement((callback: (state: SuggestionMenuState) => void) =>
-    props.editor.suggestionMenus.onUpdate.bind(props.editor.suggestionMenus)(
-      props.triggerCharacter || "/",
-      callback
-    )
+  const state = useUIPluginState(
+    (callback: (state: SuggestionMenuState) => void) =>
+      props.editor.suggestionMenus.onUpdate.bind(props.editor.suggestionMenus)(
+        props.triggerCharacter || "/",
+        callback
+      )
   );
-  const { isMounted, ref, style } = useUiElementPosition(
+  const { isMounted, ref, style } = useUiElementPositioning(
     state?.show || false,
     state?.referencePos || null,
     2000,

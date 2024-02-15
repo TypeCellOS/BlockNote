@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-export function useUiElement<State>(
+export function useUIPluginState<State>(
   onUpdate: (callback: (state: State) => void) => void
 ): State | undefined {
   const [state, setState] = useState<State>();

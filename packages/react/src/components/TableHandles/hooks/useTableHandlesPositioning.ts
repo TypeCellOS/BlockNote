@@ -1,5 +1,5 @@
 import { offset, useFloating, useTransitionStyles } from "@floating-ui/react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 
 import { UiComponentPosition } from "../../../components-shared/UiComponentTypes";
 
@@ -63,9 +63,6 @@ function useTableHandlePosition(
     mousePos: number;
   }
 ): UiComponentPosition {
-  // TODO: What is this for? Disabling it doesn't seem to break anything
-  const [, setForceUpdate] = useState<number>(0);
-
   const { refs, update, context, floatingStyles } = useFloating({
     open: show,
     placement: orientation === "row" ? "left" : "top",
@@ -75,7 +72,6 @@ function useTableHandlePosition(
   const { isMounted, styles } = useTransitionStyles(context);
 
   useEffect(() => {
-    setForceUpdate(Math.random());
     update();
   }, [referencePosCell, referencePosTable, update]);
 
@@ -111,7 +107,7 @@ function useTableHandlePosition(
   );
 }
 
-export function useTableHandlesPosition(
+export function useTableHandlesPositioning(
   show: boolean,
   referencePosCell: DOMRect | null,
   referencePosTable: DOMRect | null,

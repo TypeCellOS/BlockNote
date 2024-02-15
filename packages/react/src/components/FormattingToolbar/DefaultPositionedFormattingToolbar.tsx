@@ -7,8 +7,8 @@ import {
 import { flip, offset } from "@floating-ui/react";
 import { FC, useState } from "react";
 
-import { useUiElement } from "../../hooks/useUiElement";
-import { useUiElementPosition } from "../../hooks/useUiElementPosition";
+import { useUIPluginState } from "../../hooks/useUIPluginState";
+import { useUiElementPositioning } from "../../hooks/useUiElementPositioning";
 import { useEditorChange } from "../../hooks/useEditorChange";
 import {
   DefaultFormattingToolbar,
@@ -64,10 +64,10 @@ export const DefaultPositionedFormattingToolbar = <
     }
   });
 
-  const state = useUiElement(
+  const state = useUIPluginState(
     props.editor.formattingToolbar.onUpdate.bind(props.editor.formattingToolbar)
   );
-  const { isMounted, ref, style } = useUiElementPosition(
+  const { isMounted, ref, style } = useUiElementPositioning(
     state?.show || false,
     state?.referencePos || null,
     3000,

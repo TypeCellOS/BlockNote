@@ -43,7 +43,7 @@ export * from "./components/SuggestionMenu/DefaultPositionedSuggestionMenu";
 export * from "./components/ImageToolbar/DefaultImageToolbar";
 export * from "./components/ImageToolbar/DefaultPositionedImageToolbar";
 
-export * from "./components/TableHandles/hooks/useTableHandlesPosition";
+export * from "./components/TableHandles/hooks/useTableHandlesPositioning";
 export * from "./components/TableHandles/DefaultTableHandle";
 export * from "./components/TableHandles/DefaultPositionedTableHandles";
 

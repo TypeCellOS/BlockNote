@@ -9,8 +9,8 @@ import {
 import { DragEvent, FC, useState } from "react";
 
 import { DragHandleMenuProps } from "../SideMenu/DragHandleMenu/DragHandleMenu";
-import { useUiElement } from "../../hooks/useUiElement";
-import { useTableHandlesPosition } from "./hooks/useTableHandlesPosition";
+import { useUIPluginState } from "../../hooks/useUIPluginState";
+import { useTableHandlesPositioning } from "./hooks/useTableHandlesPositioning";
 import { DefaultTableHandle } from "./DefaultTableHandle";
 import { BlockSchemaWithTable } from "./BlockSchemaWithTable";
 
@@ -48,10 +48,10 @@ export const DefaultPositionedTableHandles = <
     unfreezeHandles: props.editor.tableHandles!.unfreezeHandles,
   };
 
-  const state = useUiElement(
+  const state = useUIPluginState(
     props.editor.tableHandles!.onUpdate.bind(props.editor.tableHandles)
   );
-  const { rowHandle, colHandle } = useTableHandlesPosition(
+  const { rowHandle, colHandle } = useTableHandlesPositioning(
     state?.show || false,
     state?.referencePosCell || null,
     state?.referencePosTable || null,
