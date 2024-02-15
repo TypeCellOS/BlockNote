@@ -1,5 +1,6 @@
 import {
   defaultInlineContentSpecs,
+  filterSuggestionItems,
   InlineContentSpecs,
   uploadToTmpFilesDotOrg_DEV_ONLY,
 } from "@blocknote/core";
@@ -8,7 +9,6 @@ import {
   BlockNoteView,
   createReactInlineContentSpec,
   DefaultPositionedSuggestionMenu,
-  filterSuggestionItems,
   useBlockNote,
 } from "@blocknote/react";
 import "@blocknote/react/style.css";

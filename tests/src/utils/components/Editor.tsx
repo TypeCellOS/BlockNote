@@ -3,13 +3,13 @@ import {
   BlockNoteDefaultUI,
   BlockNoteView,
   DefaultPositionedSuggestionMenu,
-  filterSuggestionItems,
   getDefaultReactSlashMenuItems,
   useBlockNote,
 } from "@blocknote/react";
 import { Alert, insertAlert } from "../customblocks/Alert";
 import { Button } from "../customblocks/Button";
 import styles from "./Editor.module.css";
+import { filterSuggestionItems } from "@blocknote/core";
 
 type WindowWithProseMirror = Window & typeof globalThis & { ProseMirror: any };
 

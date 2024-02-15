@@ -1,6 +1,7 @@
 import {
   BlockNoteEditor,
   BlockSchema,
+  filterSuggestionItems,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
@@ -9,10 +10,7 @@ import { DefaultPositionedHyperlinkToolbar } from "../components/HyperlinkToolba
 import { DefaultPositionedImageToolbar } from "../components/ImageToolbar/DefaultPositionedImageToolbar";
 import { DefaultPositionedSideMenu } from "../components/SideMenu/DefaultPositionedSideMenu";
 import { DefaultPositionedSuggestionMenu } from "../components/SuggestionMenu/DefaultPositionedSuggestionMenu";
-import {
-  filterSuggestionItems,
-  getDefaultReactSlashMenuItems,
-} from "../components/SuggestionMenu/defaultReactSlashMenuItems";
+import { getDefaultReactSlashMenuItems } from "../components/SuggestionMenu/defaultReactSlashMenuItems";
 import { DefaultPositionedTableHandles } from "../components/TableHandles/DefaultPositionedTableHandles";
 
 export function BlockNoteDefaultUI<
