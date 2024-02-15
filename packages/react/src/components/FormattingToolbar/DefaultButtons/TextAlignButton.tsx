@@ -5,7 +5,7 @@ import {
   PartialBlock,
 } from "@blocknote/core";
 import { useCallback, useMemo } from "react";
-import { IconType } from "react-icons";
+import type { IconType } from "react-icons";
 import {
   RiAlignCenter,
   RiAlignJustify,

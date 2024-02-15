@@ -1,0 +1,75 @@
+---
+title: Quickstart
+description: Getting started with BlockNote is quick and easy. All you need to do is install the package and add the React component to your app!
+imageTitle: Quickstart
+path: /docs/quickstart
+---
+
+import { Example } from "@/components/example";
+import { Callout } from "nextra/components";
+
+
+# Quickstart
+
+Getting started with BlockNote is quick and easy. Install the required packages and add the React component to your app.
+
+## Installing with NPM
+
+To install BlockNote with [NPM](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm), run:
+
+```console
+npm install @blocknote/core @blocknote/react
+```
+
+## Creating an Editor
+
+With the `useBlockNote` hook, we can create a new editor instance, then use the`BlockNoteView` component to render it. See below:
+
+```typescript jsx
+import { BlockNoteView, useBlockNote } from "@blocknote/react";
+import "@blocknote/react/style.css";
+
+function App() {
+  // Creates a new editor instance.
+  const editor = useBlockNote({});
+
+  // Renders the editor instance using a React component.
+  return <BlockNoteView editor={editor} />;
+}
+```
+
+As well as `BlockNoteView` and `useBlockNote`, we import `@blocknote/react/style.css` to provide default styling for the editor.
+
+<Callout type="warning" emoji={""}>
+  <strong>Next.js usage (or other server-side React frameworks)</strong>
+  <p>Are you using Next.js (`create-next-app`)? Because BlockNote is a client-only component,
+  make sure to disable server-side rendering of BlockNote. [Read our guide on setting
+  up Next.js + BlockNote](/docs/nextjs)</p>
+</Callout>
+
+<Callout type="warning" emoji={""}>
+  <strong>Using BlockNote without React</strong>
+  <p>It's also possible to use BlockNote without React, using "vanilla" JavaScript or other frameworks. [Read our guide on using BlockNote without React](/docs/vanilla-js) </p>
+</Callout>
+
+## Demo: Basic App Using BlockNote
+
+Taking the same code, the live preview below turns it into a super simple, working app:
+
+<Example name="basic/minimal" />
+
+## Next steps
+
+You now know how to integrate BlockNote into your React app! However, this is just scratching the surface of what you can do with BlockNote.
+
+### Editor API
+
+TODO: Learn about how to interact with the editor, documents and blocks from code.
+
+### UI Components
+
+TODO: BlockNote comes with a default UI. Learn how to customize them, or create your own components.
+
+### Custom schemas
+
+TODO: A document consists of blocks, inline content and styles that the user can edit. Learn how to create your own Custom Blocks, inline content and styles. 

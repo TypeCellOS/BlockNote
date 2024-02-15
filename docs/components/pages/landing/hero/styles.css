@@ -1,0 +1,11 @@
+.bn-container {
+    height: 100%
+}
+
+.bn-editor {
+    min-height: 100%;
+    border-radius: 0 !important;
+    /* Removes focus outline */
+    box-shadow: none !important;
+    padding-block: 1rem
+}

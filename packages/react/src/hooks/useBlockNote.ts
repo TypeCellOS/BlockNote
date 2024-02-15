@@ -1,19 +1,17 @@
 import {
   BlockNoteEditor,
   BlockNoteEditorOptions,
-  BlockSchemaFromSpecs,
   BlockSpecs,
-  InlineContentSchemaFromSpecs,
   InlineContentSpecs,
-  StyleSchemaFromSpecs,
   StyleSpecs,
   defaultBlockSpecs,
   defaultInlineContentSpecs,
   defaultStyleSpecs,
 } from "@blocknote/core";
-import { DependencyList, useMemo, useRef } from "react";
+import { DependencyList, useMemo } from "react";
 
-const initEditor = <
+// TODO: document in docs
+export const createBlockNoteEditor = <
   BSpecs extends BlockSpecs,
   ISpecs extends InlineContentSpecs,
   SSpecs extends StyleSpecs
@@ -23,6 +21,8 @@ const initEditor = <
 
 /**
  * Main hook for importing a BlockNote editor into a React project
+ *
+ * TODO: document in docs
  */
 export const useBlockNote = <
   BSpecs extends BlockSpecs = typeof defaultBlockSpecs,
@@ -32,21 +32,12 @@ export const useBlockNote = <
   options: Partial<BlockNoteEditorOptions<BSpecs, ISpecs, SSpecs>> = {},
   deps: DependencyList = []
 ) => {
-  const editorRef =
-    useRef<
-      BlockNoteEditor<
-        BlockSchemaFromSpecs<BSpecs>,
-        InlineContentSchemaFromSpecs<ISpecs>,
-        StyleSchemaFromSpecs<SSpecs>
-      >
-    >();
-
   return useMemo(() => {
-    if (editorRef.current) {
-      editorRef.current._tiptapEditor.destroy();
+    const editor = createBlockNoteEditor(options);
+    if (window) {
+      // for testing / dev purposes
+      (window as any).ProseMirror = editor._tiptapEditor;
     }
-
-    editorRef.current = initEditor(options);
-    return editorRef.current!;
+    return editor;
   }, deps); //eslint-disable-line react-hooks/exhaustive-deps
 };

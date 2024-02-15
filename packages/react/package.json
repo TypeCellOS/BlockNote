@@ -74,7 +74,7 @@
     "prettier": "^2.7.1",
     "rimraf": "^5.0.5",
     "rollup-plugin-webpack-stats": "^0.2.2",
-    "typescript": "^5.0.4",
+    "typescript": "^5.3.3",
     "vite": "^4.4.8",
     "vite-plugin-eslint": "^1.8.1",
     "vite-plugin-externalize-deps": "^0.7.0",

@@ -1,0 +1,148 @@
+import { Callout } from "nextra/components";
+import { Example } from "@/components/example";
+
+## Custom Block Types
+
+In addition to the default block types that BlockNote offers, you can also make your own custom blocks. Take a look at the demo below, in which we add a custom alert block to a BlockNote editor, as well as a custom [Slash Menu Item](/docs/slash-menu#custom-items) to insert it.
+
+<Example name="custom-schema/alert-block" />
+
+<Callout type={"info"}>While custom blocks open a lot of doors for what you can do with BlockNote, we're still working on the API and there are a few limitations for the kinds of blocks you can create. We'd love to hear your feedback on GitHub or in our Discord community!</Callout>
+
+### Creating a Custom Block Type
+
+To define a custom block type, we use the `createReactBlockSpec` function, for which you can see the definition below:
+
+```typescript
+type PropSchema<
+  PrimitiveType extends "boolean" | "number" | "string"
+> = Record<
+  string,
+  {
+    default: PrimitiveType;
+    values?: PrimitiveType[];
+  };
+>
+
+function createReactBlockSpec(
+  blockConfig: {
+    type: string;
+    propSchema: PropSchema<"boolean" | "number" | "string">;
+    content: "inline" | "none"
+  },
+  blockImplementation: {
+    render: React.FC<{
+      block: Block;
+      editor: BlockNoteEditor;
+      contentRef: (node: HTMLElement | null) => void;
+    }>,
+    toExternalHTML?: React.FC<{
+      block: Block;
+      editor: BlockNoteEditor;
+      contentRef: (node: HTMLElement | null) => void;
+    }>,
+    parse?: (
+      element: HTMLElement
+    ) => PartialBlock["props"] | undefined;
+  }
+): BlockType;
+```
+
+Let's look at our custom alert block from the demo, and go over each field in-depth to explain how it works:
+
+```typescript
+const Alert = createReactBlockSpec(
+  {
+    type: "alert" as const,
+    propSchema: {
+      textAlignment: defaultProps.textAlignment,
+      textColor: defaultProps.textColor,
+      type: {
+        default: "warning",
+        values: ["warning", "error", "info", "success"],
+      },
+    } as const,
+    content: "inline",
+  },
+  {
+    render: (props) => {
+      ...
+    },
+  }
+);
+```
+
+You can see that `createReactBlockSpec` takes two object arguments:
+
+#### `blockConfig`
+
+This defines the block's type, properties, and content type. It allows BlockNote to know how to handle manipulating the block internally and provide typing.
+
+**`type`**
+
+Defines the name of the block, in this case, `alert`.
+
+**`content`**
+
+As we saw in [Block Objects](/docs/blocks#block-objects), blocks can contain editable rich text which is represented as [Inline Content](/docs/inline-content). The `content` field allows your custom block to contain an editable rich-text field. Since we want to be able to type in our alert, we set it to `"inline"`.
+
+**`propSchema`**
+
+This is an object which defines the props that the block should have. In this case, we want the block to have a `type` prop for the type of alert that we want (warning/error/info/success), so we add a `type` key. We also want basic styling options, so we add text alignment and text color from the [Default Block Properties](/docs/block-types#default-block-properties), using `defaultProps`. The value of each key is an object with a mandatory `default` field and an optional `values` field:
+
+`default:` Stores the prop's default value, in this case `"warning"` for the default alert type.
+
+`values:` Stores an array of strings that the prop can take. If `values` is not defined, BlockNote assumes the prop can be any string, so we want to make sure it can only take our 4 alert types.
+
+#### `blockImplementation`
+
+This defines how the block should be rendered in the editor, and how it should be parsed from and converted to HTML.
+
+**`render`**
+
+This is a React component which defines how your custom block should be rendered in the editor, and takes three props:
+
+`block:` The block that should be rendered. This will always have the same type, props, and content as defined in the block's config.
+
+`editor:` The BlockNote editor instance that the block is in.
+
+`contentRef:` A React `ref` that marks which element in your block is editable, This is only useful if your block config contains `content: "inline"`.
+
+**`toExternalHTML`**
+
+This is identical in definition as `render`, but is used whenever the block is being exported to HTML for use outside BlockNote, namely when copying it to the clipboard. If it's not defined, BlockNote will just use `render` for the HTML conversion.
+
+**`parse`**
+
+This is a function that allows you to define which HTML elements should be parsed into your block when importing HTML from outside BlockNote, namely when pasting it from the clipboard. If the element should be parsed into your custom block, you should return the props that the block should be given. Otherwise, return `undefined`.
+
+`element`: The HTML element that's being parsed.
+
+### Adding Custom Blocks to the Editor
+
+Now, we need to tell BlockNote to use our font paragraph block by passing it to the editor in the `blockSpecs` option. Let's again look at the alert block from the demo as an example:
+
+```typescript
+// Our block specs, which contain the configs and implementations for blocks
+// that we want our editor to use.
+const blockSpecsWithAlert = {
+  // Adds all default blocks.
+  ...defaultBlockSpecs,
+  // Adds the font paragraph.
+  alert: Alert,
+};
+
+...
+
+// Creates a new editor instance.
+const editor = useBlockNote({
+  // Tells BlockNote which blocks to use.
+  blockSpecs: blockSpecsWithAlert,
+});
+```
+
+Since we still want the editor to use the [Built-In Block Types](/docs/block-types#built-in-block-types), we add `defaultBlockSpecs` too. The key which we use for the alert block should also be the same string we use for its type. Make sure that this is always the case for your own custom blocks.
+
+The remaining code in this demo is for adding the alert block to the [Block Type Dropdown](/docs/formatting-toolbar#changing-the-block-type-dropdown) and [Slash Menu](/docs/slash-menu#custom-slash-menu-item-list), see those pages for more information.
+
+And we're done! You now know how to create custom blocks and add them to the editor. Head to [Manipulating Blocks](/docs/manipulating-blocks) to see what you can do with them in the editor.

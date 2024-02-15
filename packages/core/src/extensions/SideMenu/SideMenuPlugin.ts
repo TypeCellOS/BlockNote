@@ -3,21 +3,17 @@ import { Node } from "prosemirror-model";
 import { NodeSelection, Plugin, PluginKey, Selection } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 
-import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
-import {
-  Block,
-  BlockSchema,
-  InlineContentSchema,
-  StyleSchema,
-} from "../../schema";
-import { UiElementPosition } from "../../extensions-shared/UiElementPosition";
-import { EventEmitter } from "../../util/EventEmitter";
 import { createExternalHTMLExporter } from "../../api/exporters/html/externalHTMLExporter";
 import { createInternalHTMLSerializer } from "../../api/exporters/html/internalHTMLSerializer";
 import { cleanHTMLToMarkdown } from "../../api/exporters/markdown/markdownExporter";
 import { getBlockInfoFromPos } from "../../api/getBlockInfoFromPos";
-import { MultipleNodeSelection } from "./MultipleNodeSelection";
+import { Block } from "../../blocks/defaultBlocks";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
+import { UiElementPosition } from "../../extensions-shared/UiElementPosition";
+import { BlockSchema, InlineContentSchema, StyleSchema } from "../../schema";
+import { EventEmitter } from "../../util/EventEmitter";
 import { suggestionMenuPluginKey } from "../SuggestionMenu/SuggestionPlugin";
+import { MultipleNodeSelection } from "./MultipleNodeSelection";
 
 let dragImageElement: Element | undefined;
 

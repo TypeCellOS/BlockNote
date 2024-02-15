@@ -1,0 +1,25 @@
+/* 
+TODO: this broke the "plain" code blocks in docs files that don't have an example
+pre {
+    background-color: transparent !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+code > span {
+    padding: 0 !important;
+}
+
+code > span:last-child {
+    display: none;
+}
+
+.bn-container, .bn-editor {
+
+    box-shadow: none !important;
+    min-height: 16rem;
+}
+
+.bn-editor {
+    padding-block: 1rem
+} */

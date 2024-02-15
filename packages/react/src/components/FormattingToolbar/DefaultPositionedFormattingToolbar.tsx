@@ -7,9 +7,9 @@ import {
 import { flip, offset } from "@floating-ui/react";
 import { FC, useState } from "react";
 
-import { useUIPluginState } from "../../hooks/useUIPluginState";
+import { useEditorContentOrSelectionChange } from "../../hooks/useEditorContentOrSelectionChange";
 import { useUIElementPositioning } from "../../hooks/useUIElementPositioning";
-import { useEditorChange } from "../../hooks/useEditorChange";
+import { useUIPluginState } from "../../hooks/useUIPluginState";
 import {
   DefaultFormattingToolbar,
   FormattingToolbarProps,
@@ -50,7 +50,7 @@ export const DefaultPositionedFormattingToolbar = <
     }
   );
 
-  useEditorChange(props.editor, () => {
+  useEditorContentOrSelectionChange(() => {
     const block = props.editor.getTextCursorPosition().block;
 
     if (!("textAlignment" in block.props)) {
@@ -62,7 +62,7 @@ export const DefaultPositionedFormattingToolbar = <
         )
       );
     }
-  });
+  }, props.editor);
 
   const state = useUIPluginState(
     props.editor.formattingToolbar.onUpdate.bind(props.editor.formattingToolbar)

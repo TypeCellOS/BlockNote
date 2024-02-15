@@ -1,0 +1,61 @@
+---
+title: Changing UI Elements
+description: Along with the editor itself, BlockNote includes menus and toolbars which you can replace or remove.
+imageTitle: Changing UI Elements
+path: /docs/ui-elements
+---
+
+import { Example } from "@/components/example";
+
+# Changing UI Elements
+
+Along with the editor itself, BlockNote includes a few additional UI elements in the forms of menus and toolbars:
+
+- [Formatting Toolbar](/docs/formatting-toolbar)
+- Hyperlink Toolbar
+- [Slash Menu](/docs/slash-menu)
+- [Side Menu](/docs/side-menu)
+- [Image Toolbar](/docs/image-toolbar)
+
+By default, these are all included in the editor, but you can remove or replace each of them with your own React components.
+
+## Default Setup
+
+In many of the examples, you'll see we render `BlockNoteView` like so:
+
+```typescript jsx
+<BlockNoteView editor={editor} />
+```
+
+But this is actually shorthand for the following:
+
+```typescript jsx
+<BlockNoteView editor={editor}>
+  <FormattingToolbarPositioner editor={editor} />
+  <HyperlinkToolbarPositioner editor={editor} />
+  <SlashMenuPositioner editor={editor} />
+  <SideMenuPositioner editor={editor} />
+  <ImageToolbarPositioner editor={editor} />
+</BlockNoteView>
+```
+
+As you can see, `BlockNoteView` by default renders out four children - one for each UI element. Each child is a `Positioner` component, which controls where and when the UI element is shown.
+
+Explicitly adding `Positioner` components as children of `BlockNoteView` allows you to customize which UI elements to show, and what to show inside them, as you'll see in the upcoming subsections.
+
+## Removing UI Elements
+
+In the following example, we remove the Side Menu from the editor. This is done by adding all `Positioner` components as children of `BlockNoteView`, for each UI element except the Side Menu:
+
+<Example name="ui-components/ui-elements-remove" />
+
+Each further `Positioner` component you remove will remove its corresponding UI element from the editor. If you only want to keep the editor itself, add only an empty fragment (`<></>`) to `BlockNoteView`'s children.
+
+## Replacing UI Elements
+
+In the following example, the Side Menu is replaced with a simple component which just displays the name of the element:
+
+<Example name="ui-components/ui-elements-replace" />
+
+As you can see, this is done by passing a React component to the `sideMenu` prop of `SideMenuPositioner`. Each `Positioner` element has a prop through which you can pass the component you want to render (`formattingToolbar` for the Formatting Toolbar, etc.). If nothing is passed, the `Positioner` will render the default UI element.
+

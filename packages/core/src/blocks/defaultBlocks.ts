@@ -6,8 +6,13 @@ import Underline from "@tiptap/extension-underline";
 import { BackgroundColor } from "../extensions/BackgroundColor/BackgroundColorMark";
 import { TextColor } from "../extensions/TextColor/TextColorMark";
 import {
+  BlockNoDefaults,
+  BlockSchema,
   BlockSpecs,
+  InlineContentSchema,
   InlineContentSpecs,
+  PartialBlockNoDefaults,
+  StyleSchema,
   StyleSpecs,
   createStyleSpecFromTipTapMark,
   getBlockSchemaFromSpecs,
@@ -58,3 +63,15 @@ export const defaultInlineContentSchema = getInlineContentSchemaFromSpecs(
 );
 
 export type DefaultInlineContentSchema = typeof defaultInlineContentSchema;
+
+export type PartialBlock<
+  BSchema extends BlockSchema = DefaultBlockSchema,
+  I extends InlineContentSchema = DefaultInlineContentSchema,
+  S extends StyleSchema = DefaultStyleSchema
+> = PartialBlockNoDefaults<BSchema, I, S>;
+
+export type Block<
+  BSchema extends BlockSchema = DefaultBlockSchema,
+  I extends InlineContentSchema = DefaultInlineContentSchema,
+  S extends StyleSchema = DefaultStyleSchema
+> = BlockNoDefaults<BSchema, I, S>;

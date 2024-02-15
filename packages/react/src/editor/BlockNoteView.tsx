@@ -2,33 +2,51 @@ import {
   BlockNoteEditor,
   BlockSchema,
   InlineContentSchema,
-  mergeCSSClasses,
   StyleSchema,
+  mergeCSSClasses,
 } from "@blocknote/core";
 import { MantineProvider } from "@mantine/core";
-import { EditorContent } from "@tiptap/react";
-import { HTMLAttributes, ReactNode, useEffect, useState } from "react";
+
+import React, {
+  HTMLAttributes,
+  ReactNode,
+  Ref,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import usePrefersColorScheme from "use-prefers-color-scheme";
+import { useEditorChange } from "../hooks/useEditorChange";
+import { useEditorSelectionChange } from "../hooks/useEditorSelectionChange";
+import { mergeRefs } from "../util/mergeRefs";
+import { BlockNoteContext, useBlockNoteContext } from "./BlockNoteContext";
+import { BlockNoteDefaultUI } from "./BlockNoteDefaultUI";
 import {
   Theme,
   applyBlockNoteCSSVariablesFromTheme,
   removeBlockNoteCSSVariables,
 } from "./BlockNoteTheme";
+import { EditorContent } from "./EditorContent";
 import "./styles.css";
-import { BlockNoteDefaultUI } from "./BlockNoteDefaultUI";
 
 const mantineTheme = {
   // Removes button press effect
   activeClassName: "",
 };
 
-export function BlockNoteView<
+const emptyFn = (_editor: any) => {
+  // noop
+};
+
+function BlockNoteViewComponent<
   BSchema extends BlockSchema,
   ISchema extends InlineContentSchema,
   SSchema extends StyleSchema
 >(
   props: {
     editor: BlockNoteEditor<BSchema, ISchema, SSchema>;
+
     theme?:
       | "light"
       | "dark"
@@ -37,62 +55,138 @@ export function BlockNoteView<
           light: Theme;
           dark: Theme;
         };
+    /**
+     * Locks the editor from being editable by the user if set to `false`.
+     */
+    editable?: boolean;
+    /**
+     * A callback function that runs whenever the text cursor position or selection changes.
+     */
+    onSelectionChange?: (
+      editor: BlockNoteEditor<BSchema, ISchema, SSchema>
+    ) => void;
+
+    /**
+     * A callback function that runs whenever the editor's contents change.
+     */
+    onChange?: (editor: BlockNoteEditor<BSchema, ISchema, SSchema>) => void;
+
     children?: ReactNode;
-  } & HTMLAttributes<HTMLDivElement>
+
+    ref?: Ref<HTMLDivElement> | undefined; // only here to get types working with the generics. Regular form doesn't work
+  } & Omit<
+    HTMLAttributes<HTMLDivElement>,
+    "onChange" | "onSelectionChange" | "children"
+  >,
+  ref: React.Ref<HTMLDivElement>
 ) {
-  const { editor, className, theme, children, ...rest } = props;
+  const {
+    editor,
+    className,
+    theme,
+    children,
+    editable,
+    onSelectionChange,
+    onChange,
+    ...rest
+  } = props;
+
+  const existingContext = useBlockNoteContext();
 
   const systemColorScheme = usePrefersColorScheme();
+  const defaultColorScheme =
+    existingContext?.colorSchemePreference || systemColorScheme;
 
   const [editorColorScheme, setEditorColorScheme] = useState<
     "light" | "dark" | undefined
   >(undefined);
 
-  useEffect(() => {
-    removeBlockNoteCSSVariables(editor.domElement.parentElement!);
-
-    if (theme === "light") {
-      setEditorColorScheme("light");
-      return;
-    }
-
-    if (theme === "dark") {
-      setEditorColorScheme("dark");
-      return;
-    }
-
-    if (typeof theme === "object") {
-      if ("light" in theme && "dark" in theme) {
-        applyBlockNoteCSSVariablesFromTheme(
-          theme[systemColorScheme === "dark" ? "dark" : "light"],
-          editor.domElement.parentElement!
-        );
-        setEditorColorScheme(systemColorScheme === "dark" ? "dark" : "light");
+  const containerRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (!node) {
+        // todo: clean variables?
         return;
       }
 
-      applyBlockNoteCSSVariablesFromTheme(
-        theme,
-        editor.domElement.parentElement!
-      );
-      setEditorColorScheme(undefined);
-      return;
-    }
+      removeBlockNoteCSSVariables(node);
 
-    setEditorColorScheme(systemColorScheme === "dark" ? "dark" : "light");
-  }, [systemColorScheme, editor.domElement, theme]);
+      if (theme === "light") {
+        setEditorColorScheme("light");
+        return;
+      }
+
+      if (theme === "dark") {
+        setEditorColorScheme("dark");
+        return;
+      }
+
+      if (typeof theme === "object") {
+        if ("light" in theme && "dark" in theme) {
+          applyBlockNoteCSSVariablesFromTheme(
+            theme[defaultColorScheme === "dark" ? "dark" : "light"],
+            node
+          );
+          setEditorColorScheme(
+            defaultColorScheme === "dark" ? "dark" : "light"
+          );
+          return;
+        }
+
+        applyBlockNoteCSSVariablesFromTheme(theme, node);
+        setEditorColorScheme(undefined);
+        return;
+      }
+
+      setEditorColorScheme(defaultColorScheme === "dark" ? "dark" : "light");
+    },
+    [defaultColorScheme, theme]
+  );
+
+  useEditorChange(onChange || emptyFn, editor);
+  useEditorSelectionChange(onSelectionChange || emptyFn, editor);
+
+  useEffect(() => {
+    if (editable === false) {
+      editor.isEditable = false;
+    } else {
+      editor.isEditable = true;
+    }
+  }, [editable, editor]);
+
+  const renderChildren = useMemo(() => {
+    return children || <BlockNoteDefaultUI editor={editor} />;
+  }, [editor, children]);
+
+  const context = useMemo(() => {
+    return {
+      ...existingContext,
+      editor,
+    };
+  }, [existingContext, editor]);
+
+  const refs = useMemo(() => {
+    return mergeRefs([containerRef, editor._tiptapEditor.mount, ref]);
+  }, [containerRef, editor._tiptapEditor.mount, ref]);
 
   return (
     // `cssVariablesSelector` scopes Mantine CSS variables to only the editor,
     // as proposed here:  https://github.com/orgs/mantinedev/discussions/5685
     <MantineProvider theme={mantineTheme} cssVariablesSelector=".bn-container">
-      <EditorContent
-        editor={editor._tiptapEditor}
-        className={mergeCSSClasses("bn-container", className || "")}
-        data-color-scheme={editorColorScheme}
-        {...rest}>
-        {children || <BlockNoteDefaultUI editor={editor} />}
-      </EditorContent>
+      <BlockNoteContext.Provider value={context as any}>
+        <EditorContent editor={editor}>
+          <div
+            className={mergeCSSClasses("bn-container", className || "")}
+            data-color-scheme={editorColorScheme}
+            {...rest}
+            ref={refs}>
+            {renderChildren}
+          </div>
+        </EditorContent>
+      </BlockNoteContext.Provider>
     </MantineProvider>
   );
 }
+
+export const BlockNoteView = React.forwardRef(
+  BlockNoteViewComponent
+) as typeof BlockNoteViewComponent; // need hack to get types working with generics

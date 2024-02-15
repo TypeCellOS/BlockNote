@@ -1,0 +1,163 @@
+---
+title: Default Blocks
+description: Overview of all default block types and their properties in BlockNote.
+imageTitle: Default Blocks
+---
+
+import { Example } from "@/components/example";
+
+# Default blocks
+
+TBD: move to a separate "reference" section?
+
+BlockNote includes a number of built-in block types. The demo editor below displays all of them:
+
+TODO: demo
+
+## Reference
+
+Here's an overview of all default blocks and the properties they support:
+
+### Paragraph
+
+**Appearance**
+
+<img src="/img/screenshots/paragraph_type.png" alt="image" style={{height: "29px"}} />
+
+**Type & Props**
+
+```typescript
+type ParagraphBlock = {
+  id: string;
+  type: "paragraph";
+  props: DefaultProps;
+  content: InlineContent[];
+  children: Block[];
+};
+```
+
+### Heading
+
+**Appearance**
+
+<img src="/img/screenshots/heading_type.png" alt="image" style={{height: "77px"}} />
+
+**Type & Props**
+
+```typescript
+type HeadingBlock = {
+  id: string;
+  type: "heading";
+  props: {
+    level: 1 | 2 | 3 = 1;
+  } & DefaultProps;
+  content: InlineContent[];
+  children: Block[];
+};
+```
+
+`level:` The heading level, representing a title (`level: 1`), heading (`level: 2`), and subheading (`level: 3`).
+
+### Bullet List Item
+
+**Appearance**
+
+<img src="/img/screenshots/bullet_list_item_type.png" alt="image" style={{height: "29px"}} />
+
+**Type & Props**
+
+```typescript
+type BulletListItemBlock = {
+  id: string;
+  type: "bulletListItem";
+  props: DefaultProps;
+  content: InlineContent[];
+  children: Block[];
+};
+```
+
+### Numbered List Item
+
+**Appearance**
+
+<img src="/img/screenshots/numbered_list_item_type.png" alt="image" style={{height: "29px"}} />
+
+**Type & Props**
+
+```typescript
+type NumberedListItemBlock = {
+  id: string;
+  type: "numberedListItem";
+  props: DefaultProps;
+  content: InlineContent[];
+  children: Block[];
+};
+```
+
+### Image
+
+**Appearance**
+
+<img src="/img/screenshots/image_type.png" alt="image" style={{width: "100%"}} />
+
+**Type & Props**
+
+```typescript
+type ImageBlock = {
+  id: string;
+  type: "image";
+  props: {
+    url: string = "";
+    caption: string = "";
+    width: number = 512;
+  } & Omit<DefaultProps, "textAlignment">;
+  content: InlineContent[];
+  children: Block[];
+};
+```
+
+`url:` The image URL.
+
+`caption:` The image caption.
+
+`width:` The image width in pixels.
+
+### Table
+
+**Appearance**
+
+<img src="/img/screenshots/table_type.png" alt="image" style={{width: "70%"}} />
+
+**Type & Props**
+
+```typescript
+type TableBlock = {
+  id: string;
+  type: "table";
+  props: DefaultProps;
+  content: TableContent[];
+  children: Block[];
+};
+```
+
+## Default Block Properties
+
+While each type of block can have its own set of properties, there are some properties that all built-in block types have by default, which you can find in the definition for `DefaultProps`:
+
+```typescript
+type DefaultProps = {
+  backgroundColor: string = "default";
+  textColor: string = "default";
+  textAlignment: "left" | "center" | "right" | "justify" = "left";
+};
+```
+
+`backgroundColor:` The background color of the block, which also applies to nested blocks.
+
+`textColor:` The text color of the block, which also applies to nested blocks.
+
+`textAlignment:` The text alignment of the block.
+
+## Creating your own blocks
+
+You can create your own custom blocks using React. Skip to the Advanced "custom schemas" section to learn more about extending the editor. (TODO: link)

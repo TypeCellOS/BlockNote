@@ -1,4 +1,5 @@
 // TODO: review directories
+export * from "./editor/BlockNoteContext";
 export * from "./editor/BlockNoteDefaultUI";
 export * from "./editor/BlockNoteTheme";
 export * from "./editor/BlockNoteView";
@@ -54,7 +55,7 @@ export * from "./components-shared/Toolbar/ToolbarDropdown";
 export * from "./hooks/useActiveStyles";
 export * from "./hooks/useBlockNote";
 export * from "./hooks/useEditorChange";
-export * from "./hooks/useEditorContentChange";
+export * from "./hooks/useEditorContentOrSelectionChange";
 export * from "./hooks/useEditorForceUpdate";
 export * from "./hooks/useEditorSelectionChange";
 export * from "./hooks/useSelectedBlocks";

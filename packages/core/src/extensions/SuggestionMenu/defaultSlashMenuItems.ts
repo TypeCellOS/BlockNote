@@ -1,13 +1,15 @@
 import {
   Block,
+  DefaultBlockSchema,
+  PartialBlock,
+} from "../../blocks/defaultBlocks";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
+import {
   BlockSchema,
   InlineContentSchema,
-  isStyledTextInlineContent,
-  PartialBlock,
   StyleSchema,
+  isStyledTextInlineContent,
 } from "../../schema";
-import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
-import { DefaultBlockSchema } from "../../blocks/defaultBlocks";
 import { formatKeyboardShortcut } from "../../util/browser";
 import { imageToolbarPluginKey } from "../ImageToolbar/ImageToolbarPlugin";
 

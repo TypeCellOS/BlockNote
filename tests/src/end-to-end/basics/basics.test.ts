@@ -1,6 +1,6 @@
 import { expect } from "@playwright/test";
 import { test } from "../../setup/setupScript";
-import { BASE_URL } from "../../utils/const";
+import { BASE_URL, EDITOR_SELECTOR } from "../../utils/const";
 
 test.beforeEach(async ({ page }) => {
   await page.goto(BASE_URL);
@@ -9,7 +9,10 @@ test.beforeEach(async ({ page }) => {
 test.describe("Basic typing functionality", () => {
   test("should allow me to type content", async ({ page }) => {
     const editor = await page.waitForSelector("[data-test='editor']");
-    await page.locator('[data-test="editor"] div').nth(3).click();
+    await page
+      .locator(EDITOR_SELECTOR + " div")
+      .nth(3)
+      .click();
     await page.keyboard.insertText("hello world");
     // await page.pause();
     expect(await editor.textContent()).toBe("hello world");

@@ -1,0 +1,65 @@
+---
+title: Editor Setup
+description: While you can get started with BlockNote in minutes, it's likely that you'll want to customize its features and functionality to better suit your app.
+imageTitle: Customizing the Editor
+path: /docs/editor
+---
+
+TODO:
+[x] review API
+[x] what needs to be part of useBlockNote vs the component? 
+[ ] document instantiation / useBlockNote
+[ ] expose / document hooks
+[ ] document events
+[ ] explain controlled / uncontrolled
+
+# Editor Setup
+
+While you can get started with BlockNote in minutes, it's likely that you'll
+want to customize its features and functionality to better suit your app.
+
+## Editor Options
+
+There are a number of options that you can pass to `useBlockNote()`, which you
+can use to customize the editor. You can find the full list of these below:
+
+```typescript
+export type BlockNoteEditorOptions = Partial<{
+  initialContent: PartialBlock[];
+  domAttributes: Record<string, string>;
+  slashMenuItems: ReactSlashMenuItem[];
+  defaultStyles: boolean;
+  uploadFile: (file: File) => Promise<string>;
+  collaboration: CollaborationOptions;
+  blockSpecs: BlockSpecs;
+  inlineContentSpecs: InlineContentSpecs;
+  styleSpecs: StyleSpecs;
+}>;
+```
+
+`initialContent:` The content that should be in the editor when it's created, represented as an array of [partial block objects](/docs/manipulating-blocks#partial-blocks).
+
+`domAttributes:` An object containing HTML attributes that should be added to various DOM elements in the editor. See [Adding DOM Attributes](/docs/theming#adding-dom-attributes) for more.
+
+`slashMenuItems:` The commands that are listed in the editor's [Slash Menu](/docs/slash-menu). If this option isn't defined, a default list of commands is loaded.
+
+`defaultStyles`: Whether to use the default font and reset the styles of `<p>`, `<li>`, `<h1>`, etc. elements that are used in BlockNote. Defaults to true if undefined.
+
+`uploadFile`: A function which handles file uploads and eventually returns the URL to the uploaded file. Used by the [Image Toolbar](/docs/image-toolbar).
+
+`collaboration`: Options for enabling real-time collaboration. See [Collaboration](/docs/collaboration) for more info.
+
+`blockSpecs` (_advanced_): _advanced_ Specifications for Custom Blocks. See [Block Specs](/docs/block-specs) more info. 
+
+`inlineContentSpecs` (_advanced_): Specifications for Custom Inline Content. See [Inline Content Specs](/docs/inline-content-specs) for more info.
+
+`styleSpecs` (_advanced_): Specifications for Custom Styles. See [Style Specs](/docs/style-specs) for more info.
+
+
+## `useBlockNote`
+
+## `BlockNoteView`
+
+- editable
+- events
+
