@@ -21,7 +21,10 @@ import { useEditorChange } from "../hooks/useEditorChange";
 import { useEditorSelectionChange } from "../hooks/useEditorSelectionChange";
 import { mergeRefs } from "../util/mergeRefs";
 import { BlockNoteContext, useBlockNoteContext } from "./BlockNoteContext";
-import { BlockNoteDefaultUI } from "./BlockNoteDefaultUI";
+import {
+  BlockNoteDefaultUI,
+  BlockNoteDefaultUIProps,
+} from "./BlockNoteDefaultUI";
 import {
   Theme,
   applyBlockNoteCSSVariablesFromTheme,
@@ -77,7 +80,8 @@ function BlockNoteViewComponent<
   } & Omit<
     HTMLAttributes<HTMLDivElement>,
     "onChange" | "onSelectionChange" | "children"
-  >,
+  > &
+    BlockNoteDefaultUIProps,
   ref: React.Ref<HTMLDivElement>
 ) {
   const {
@@ -88,6 +92,12 @@ function BlockNoteViewComponent<
     editable,
     onSelectionChange,
     onChange,
+    formattingToolbar,
+    hyperlinkToolbar,
+    slashMenu,
+    sideMenu,
+    imageToolbar,
+    tableHandles,
     ...rest
   } = props;
 
@@ -154,8 +164,28 @@ function BlockNoteViewComponent<
   }, [editable, editor]);
 
   const renderChildren = useMemo(() => {
-    return children || <BlockNoteDefaultUI editor={editor} />;
-  }, [editor, children]);
+    return (
+      <>
+        {children}
+        <BlockNoteDefaultUI
+          formattingToolbar={formattingToolbar}
+          hyperlinkToolbar={hyperlinkToolbar}
+          slashMenu={slashMenu}
+          sideMenu={sideMenu}
+          imageToolbar={imageToolbar}
+          tableHandles={tableHandles}
+        />
+      </>
+    );
+  }, [
+    children,
+    formattingToolbar,
+    hyperlinkToolbar,
+    imageToolbar,
+    sideMenu,
+    slashMenu,
+    tableHandles,
+  ]);
 
   const context = useMemo(() => {
     return {

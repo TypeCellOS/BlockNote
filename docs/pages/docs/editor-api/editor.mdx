@@ -12,6 +12,7 @@ TODO:
 [ ] expose / document hooks
 [ ] document events
 [ ] explain controlled / uncontrolled
+[ ] Maybe move outside of "Editor API"?
 
 # Editor Setup
 
@@ -62,4 +63,15 @@ export type BlockNoteEditorOptions = Partial<{
 
 - editable
 - events
+
+
+### Removing UI Elements
+ 
+TODO: probably just explain the props of BlockNoteView
+
+In the following example, we remove the Side Menu from the editor. This is done by adding all `Positioner` components as children of `BlockNoteView`, for each UI element except the Side Menu:
+
+<Example name="ui-components/ui-elements-remove" />
+
+Each further `Positioner` component you remove will remove its corresponding UI element from the editor. If you only want to keep the editor itself, add only an empty fragment (`<></>`) to `BlockNoteView`'s children.
 
