@@ -8,7 +8,6 @@ it("has good typing", () => {
     // @ts-expect-error
     <DefaultPositionedSuggestionMenu
       getItems={async () => [{ name: "hello" }]}
-      editor={undefined as any}
       triggerCharacter="/"
     />
   );
@@ -17,7 +16,6 @@ it("has good typing", () => {
   menu = (
     <DefaultPositionedSuggestionMenu
       getItems={async () => [{ title: "hello" }]}
-      editor={undefined as any}
       triggerCharacter="/"
     />
   );
@@ -27,7 +25,6 @@ it("has good typing", () => {
     <DefaultPositionedSuggestionMenu
       suggestionMenuComponent={undefined as any}
       getItems={async () => [{ hello: "hello" }]}
-      editor={undefined as any}
       onItemClick={(item) => {
         console.log(item.hello);
       }}

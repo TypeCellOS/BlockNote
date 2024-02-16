@@ -1,8 +1,5 @@
-import {
-  FormattingToolbarProps,
-  useEditorChange,
-  useEditorSelectionChange,
-} from "@blocknote/react";
+import { BlockNoteEditor } from "@blocknote/core";
+import { useEditorChange, useEditorSelectionChange } from "@blocknote/react";
 import { useState } from "react";
 import {
   MdAddLink,
@@ -30,7 +27,7 @@ type CustomFormattingToolbarState = {
   backgroundColor: string;
 };
 
-export const CustomFormattingToolbar = (props: FormattingToolbarProps<any>) => {
+export const CustomFormattingToolbar = (props: { editor: BlockNoteEditor }) => {
   // Function to get the state of toolbar buttons (active/inactive)
   const getState = (): CustomFormattingToolbarState => {
     const block = props.editor.getTextCursorPosition().block;

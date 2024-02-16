@@ -1,14 +1,5 @@
-import {
-  BlockNoteEditor,
-  DefaultBlockSchema,
-  DefaultInlineContentSchema,
-  DefaultStyleSchema,
-  PartialBlock,
-} from "@blocknote/core";
-import {
-  getDefaultReactSlashMenuItems,
-  ReactSlashMenuItem,
-} from "@blocknote/react";
+import { BlockNoteEditor, PartialBlock } from "@blocknote/core";
+import { getDefaultReactSlashMenuItems } from "@blocknote/react";
 import { HiOutlineGlobeAlt } from "react-icons/hi";
 
 // Command to insert "Hello World" in bold in a new block below.
@@ -17,11 +8,7 @@ const insertHelloWorld = (editor: BlockNoteEditor) => {
   const currentBlock = editor.getTextCursorPosition().block;
 
   // New block we want to insert.
-  const helloWorldBlock: PartialBlock<
-    DefaultBlockSchema,
-    DefaultInlineContentSchema,
-    DefaultStyleSchema
-  > = {
+  const helloWorldBlock: PartialBlock = {
     type: "paragraph",
     content: [{ type: "text", text: "Hello World", styles: { bold: true } }],
   };
@@ -31,13 +18,13 @@ const insertHelloWorld = (editor: BlockNoteEditor) => {
 };
 
 // Custom Slash Menu item which executes the above function.
-const insertHelloWorldItem: ReactSlashMenuItem = {
-  name: "Insert Hello World",
-  execute: insertHelloWorld,
+const insertHelloWorldItem = {
+  title: "Insert Hello World",
+  onItemClick: insertHelloWorld,
   aliases: ["helloworld", "hw"],
   group: "Other",
   icon: <HiOutlineGlobeAlt size={18} />,
-  hint: "Used to insert a block with 'Hello World' below.",
+  subtext: "Used to insert a block with 'Hello World' below.",
 };
 
 // List containing all default Slash Menu Items, as well as our custom one.

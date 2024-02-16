@@ -1,27 +1,36 @@
-import { BlockNoteEditor, BlockSchema } from "@blocknote/core";
+import {
+  BlockSchema,
+  formatKeyboardShortcut,
+  InlineContentSchema,
+  StyleSchema,
+} from "@blocknote/core";
 import { useCallback, useState } from "react";
 import { RiIndentDecrease, RiIndentIncrease } from "react-icons/ri";
 
-import { formatKeyboardShortcut } from "@blocknote/core";
 import { ToolbarButton } from "../../../components-shared/Toolbar/ToolbarButton";
 import { useEditorContentOrSelectionChange } from "../../../hooks/useEditorContentOrSelectionChange";
+import { useBlockNoteEditor } from "../../../editor/BlockNoteContext";
 
-export const NestBlockButton = <BSchema extends BlockSchema>(props: {
-  editor: BlockNoteEditor<BSchema>;
-}) => {
+export const NestBlockButton = () => {
+  const editor = useBlockNoteEditor<
+    BlockSchema,
+    InlineContentSchema,
+    StyleSchema
+  >();
+
   const [canNestBlock, setCanNestBlock] = useState<boolean>(() =>
-    props.editor.canNestBlock()
+    editor.canNestBlock()
   );
 
   useEditorContentOrSelectionChange(() => {
-    props.editor.canNestBlock();
-    setCanNestBlock(props.editor.canNestBlock());
-  }, props.editor);
+    editor.canNestBlock();
+    setCanNestBlock(editor.canNestBlock());
+  }, editor);
 
   const nestBlock = useCallback(() => {
-    props.editor.focus();
-    props.editor.nestBlock();
-  }, [props.editor]);
+    editor.focus();
+    editor.nestBlock();
+  }, [editor]);
 
   return (
     <ToolbarButton
@@ -34,21 +43,21 @@ export const NestBlockButton = <BSchema extends BlockSchema>(props: {
   );
 };
 
-export const UnnestBlockButton = <BSchema extends BlockSchema>(props: {
-  editor: BlockNoteEditor<BSchema>;
-}) => {
+export const UnnestBlockButton = () => {
+  const editor = useBlockNoteEditor<any, any, any>();
+
   const [canUnnestBlock, setCanUnnestBlock] = useState<boolean>(() =>
-    props.editor.canUnnestBlock()
+    editor.canUnnestBlock()
   );
 
   useEditorContentOrSelectionChange(() => {
-    setCanUnnestBlock(props.editor.canUnnestBlock());
-  }, props.editor);
+    setCanUnnestBlock(editor.canUnnestBlock());
+  }, editor);
 
   const unnestBlock = useCallback(() => {
-    props.editor.focus();
-    props.editor.unnestBlock();
-  }, [props]);
+    editor.focus();
+    editor.unnestBlock();
+  }, [editor]);
 
   return (
     <ToolbarButton

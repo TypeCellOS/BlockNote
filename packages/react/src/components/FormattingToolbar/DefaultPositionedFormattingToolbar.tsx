@@ -1,8 +1,8 @@
 import {
-  BlockNoteEditor,
   BlockSchema,
-  DefaultBlockSchema,
   DefaultProps,
+  InlineContentSchema,
+  StyleSchema,
 } from "@blocknote/core";
 import { flip, offset } from "@floating-ui/react";
 import { FC, useState } from "react";
@@ -10,10 +10,8 @@ import { FC, useState } from "react";
 import { useEditorContentOrSelectionChange } from "../../hooks/useEditorContentOrSelectionChange";
 import { useUIElementPositioning } from "../../hooks/useUIElementPositioning";
 import { useUIPluginState } from "../../hooks/useUIPluginState";
-import {
-  DefaultFormattingToolbar,
-  FormattingToolbarProps,
-} from "./DefaultFormattingToolbar";
+import { DefaultFormattingToolbar } from "./DefaultFormattingToolbar";
+import { useBlockNoteEditor } from "../../editor/BlockNoteContext";
 
 const textAlignmentToPlacement = (
   textAlignment: DefaultProps["textAlignment"]
@@ -30,15 +28,18 @@ const textAlignmentToPlacement = (
   }
 };
 
-export const DefaultPositionedFormattingToolbar = <
-  BSchema extends BlockSchema = DefaultBlockSchema
->(props: {
-  editor: BlockNoteEditor<BSchema, any, any>;
-  formattingToolbar?: FC<FormattingToolbarProps<BSchema>>;
+export const DefaultPositionedFormattingToolbar = (props: {
+  formattingToolbar?: FC;
 }) => {
+  const editor = useBlockNoteEditor<
+    BlockSchema,
+    InlineContentSchema,
+    StyleSchema
+  >();
+
   const [placement, setPlacement] = useState<"top-start" | "top" | "top-end">(
     () => {
-      const block = props.editor.getTextCursorPosition().block;
+      const block = editor.getTextCursorPosition().block;
 
       if (!("textAlignment" in block.props)) {
         return "top-start";
@@ -51,7 +52,7 @@ export const DefaultPositionedFormattingToolbar = <
   );
 
   useEditorContentOrSelectionChange(() => {
-    const block = props.editor.getTextCursorPosition().block;
+    const block = editor.getTextCursorPosition().block;
 
     if (!("textAlignment" in block.props)) {
       setPlacement("top-start");
@@ -62,10 +63,10 @@ export const DefaultPositionedFormattingToolbar = <
         )
       );
     }
-  }, props.editor);
+  }, editor);
 
   const state = useUIPluginState(
-    props.editor.formattingToolbar.onUpdate.bind(props.editor.formattingToolbar)
+    editor.formattingToolbar.onUpdate.bind(editor.formattingToolbar)
   );
   const { isMounted, ref, style } = useUIElementPositioning(
     state?.show || false,
@@ -85,7 +86,7 @@ export const DefaultPositionedFormattingToolbar = <
 
   return (
     <div ref={ref} style={style}>
-      <FormattingToolbar editor={props.editor} />
+      <FormattingToolbar />
     </div>
   );
 };

@@ -1,6 +1,5 @@
 import {
   Block,
-  BlockNoteEditor,
   BlockSchema,
   DefaultBlockSchema,
   DefaultInlineContentSchema,
@@ -16,7 +15,6 @@ export type DragHandleMenuProps<
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema
 > = {
-  editor: BlockNoteEditor<BSchema, I, S>;
   block: Block<BSchema, I, S>;
 };
 

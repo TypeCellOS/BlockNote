@@ -30,14 +30,13 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
   return (
     <>
       {props.formattingToolbar !== false && (
-        <DefaultPositionedFormattingToolbar editor={editor} />
+        <DefaultPositionedFormattingToolbar />
       )}
       {props.hyperlinkToolbar !== false && (
-        <DefaultPositionedHyperlinkToolbar editor={editor} />
+        <DefaultPositionedHyperlinkToolbar />
       )}
       {props.slashMenu !== false && (
         <DefaultPositionedSuggestionMenu
-          editor={editor}
           getItems={async (query) =>
             filterSuggestionItems(getDefaultReactSlashMenuItems(), query)
           }
@@ -48,12 +47,8 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
           triggerCharacter="/"
         />
       )}
-      {props.sideMenu !== false && (
-        <DefaultPositionedSideMenu editor={editor} />
-      )}
-      {props.imageToolbar !== false && (
-        <DefaultPositionedImageToolbar editor={editor} />
-      )}
+      {props.sideMenu !== false && <DefaultPositionedSideMenu />}
+      {props.imageToolbar !== false && <DefaultPositionedImageToolbar />}
       {editor.blockSchema.table && props.tableHandles !== false && (
         <DefaultPositionedTableHandles editor={editor as any} />
       )}

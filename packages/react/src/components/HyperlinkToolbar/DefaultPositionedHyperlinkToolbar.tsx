@@ -1,12 +1,4 @@
-import {
-  BlockNoteEditor,
-  BlockSchema,
-  DefaultBlockSchema,
-  DefaultInlineContentSchema,
-  DefaultStyleSchema,
-  InlineContentSchema,
-  StyleSchema,
-} from "@blocknote/core";
+import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
 import { flip, offset } from "@floating-ui/react";
 import { FC } from "react";
 
@@ -16,24 +8,26 @@ import {
   DefaultHyperlinkToolbar,
   HyperlinkToolbarProps,
 } from "./DefaultHyperlinkToolbar";
+import { useBlockNoteEditor } from "../../editor/BlockNoteContext";
 
-export const DefaultPositionedHyperlinkToolbar = <
-  BSchema extends BlockSchema = DefaultBlockSchema,
-  I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema
->(props: {
-  editor: BlockNoteEditor<BSchema, I, S>;
+export const DefaultPositionedHyperlinkToolbar = (props: {
   hyperlinkToolbar?: FC<HyperlinkToolbarProps>;
 }) => {
+  const editor = useBlockNoteEditor<
+    BlockSchema,
+    InlineContentSchema,
+    StyleSchema
+  >();
+
   const callbacks = {
-    deleteHyperlink: props.editor.hyperlinkToolbar.deleteHyperlink,
-    editHyperlink: props.editor.hyperlinkToolbar.editHyperlink,
-    startHideTimer: props.editor.hyperlinkToolbar.startHideTimer,
-    stopHideTimer: props.editor.hyperlinkToolbar.stopHideTimer,
+    deleteHyperlink: editor.hyperlinkToolbar.deleteHyperlink,
+    editHyperlink: editor.hyperlinkToolbar.editHyperlink,
+    startHideTimer: editor.hyperlinkToolbar.startHideTimer,
+    stopHideTimer: editor.hyperlinkToolbar.stopHideTimer,
   };
 
   const state = useUIPluginState(
-    props.editor.hyperlinkToolbar.onUpdate.bind(props.editor.hyperlinkToolbar)
+    editor.hyperlinkToolbar.onUpdate.bind(editor.hyperlinkToolbar)
   );
   const { isMounted, ref, style } = useUIElementPositioning(
     state?.show || false,

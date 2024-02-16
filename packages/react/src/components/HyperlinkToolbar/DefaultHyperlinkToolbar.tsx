@@ -1,6 +1,9 @@
 import {
   BlockNoteEditor,
+  BlockSchema,
   HyperlinkToolbarState,
+  InlineContentSchema,
+  StyleSchema,
   UiElementPosition,
 } from "@blocknote/core";
 import { useRef, useState } from "react";
@@ -15,7 +18,11 @@ export type HyperlinkToolbarProps = Omit<
   keyof UiElementPosition
 > &
   Pick<
-    BlockNoteEditor<any, any, any>["hyperlinkToolbar"],
+    BlockNoteEditor<
+      BlockSchema,
+      InlineContentSchema,
+      StyleSchema
+    >["hyperlinkToolbar"],
     "deleteHyperlink" | "editHyperlink" | "startHideTimer" | "stopHideTimer"
   >;
 

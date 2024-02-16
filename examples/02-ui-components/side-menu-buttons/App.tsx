@@ -1,5 +1,11 @@
-import { BlockNoteView, useBlockNote } from "@blocknote/react";
+import {
+  BlockNoteView,
+  DefaultPositionedSideMenu,
+  useBlockNote,
+} from "@blocknote/react";
 import "@blocknote/react/style.css";
+
+import { CustomSideMenu } from "./CustomSideMenu";
 
 export default function App() {
   // Creates a new editor instance.
@@ -7,12 +13,10 @@ export default function App() {
 
   // Renders the editor instance.
   return (
-    <BlockNoteView editor={editor}>
-      {/* TODO
-      <FormattingToolbarPositioner editor={editor} />
-      <HyperlinkToolbarPositioner editor={editor} />
-      <SlashMenuPositioner editor={editor} />
-      <SideMenuPositioner editor={editor} sideMenu={CustomSideMenu} /> */}
+    <BlockNoteView editor={editor} sideMenu={false}>
+      <DefaultPositionedSideMenu
+        sideMenu={(props) => <CustomSideMenu editor={editor} {...props} />}
+      />
     </BlockNoteView>
   );
 }

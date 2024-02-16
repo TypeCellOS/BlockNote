@@ -1,9 +1,3 @@
-import {
-  BlockNoteEditor,
-  BlockSchema,
-  DefaultBlockSchema,
-} from "@blocknote/core";
-
 import { Toolbar } from "../../components-shared/Toolbar/Toolbar";
 import {
   BlockTypeDropdown,
@@ -11,7 +5,7 @@ import {
 } from "./DefaultDropdowns/BlockTypeDropdown";
 import { ImageCaptionButton } from "./DefaultButtons/ImageCaptionButton";
 import { ReplaceImageButton } from "./DefaultButtons/ReplaceImageButton";
-import { ToggledStyleButton } from "./DefaultButtons/ToggledStyleButton";
+import { BasicTextStyleButton } from "./DefaultButtons/BasicTextStyleButton";
 import { TextAlignButton } from "./DefaultButtons/TextAlignButton";
 import { ColorStyleButton } from "./DefaultButtons/ColorStyleButton";
 import {
@@ -20,39 +14,31 @@ import {
 } from "./DefaultButtons/NestBlockButtons";
 import { CreateLinkButton } from "./DefaultButtons/CreateLinkButton";
 
-export type FormattingToolbarProps<BSchema extends BlockSchema> = {
-  editor: BlockNoteEditor<BSchema, any, any>;
-};
-
-export const DefaultFormattingToolbar = <
-  BSchema extends BlockSchema = DefaultBlockSchema
->(
-  props: FormattingToolbarProps<BSchema> & {
-    blockTypeDropdownItems?: BlockTypeDropdownItem[];
-  }
-) => {
+export const DefaultFormattingToolbar = (props: {
+  blockTypeDropdownItems?: BlockTypeDropdownItem[];
+}) => {
   return (
     <Toolbar>
       <BlockTypeDropdown {...props} items={props.blockTypeDropdownItems} />
 
-      <ImageCaptionButton editor={props.editor} />
-      <ReplaceImageButton editor={props.editor} />
+      <ImageCaptionButton />
+      <ReplaceImageButton />
 
-      <ToggledStyleButton editor={props.editor} toggledStyle={"bold"} />
-      <ToggledStyleButton editor={props.editor} toggledStyle={"italic"} />
-      <ToggledStyleButton editor={props.editor} toggledStyle={"underline"} />
-      <ToggledStyleButton editor={props.editor} toggledStyle={"strike"} />
+      <BasicTextStyleButton basicTextStyle={"bold"} />
+      <BasicTextStyleButton basicTextStyle={"italic"} />
+      <BasicTextStyleButton basicTextStyle={"underline"} />
+      <BasicTextStyleButton basicTextStyle={"strike"} />
 
-      <TextAlignButton editor={props.editor as any} textAlignment={"left"} />
-      <TextAlignButton editor={props.editor as any} textAlignment={"center"} />
-      <TextAlignButton editor={props.editor as any} textAlignment={"right"} />
+      <TextAlignButton textAlignment={"left"} />
+      <TextAlignButton textAlignment={"center"} />
+      <TextAlignButton textAlignment={"right"} />
 
-      <ColorStyleButton editor={props.editor} />
+      <ColorStyleButton />
 
-      <NestBlockButton editor={props.editor} />
-      <UnnestBlockButton editor={props.editor} />
+      <NestBlockButton />
+      <UnnestBlockButton />
 
-      <CreateLinkButton editor={props.editor} />
+      <CreateLinkButton />
     </Toolbar>
   );
 };

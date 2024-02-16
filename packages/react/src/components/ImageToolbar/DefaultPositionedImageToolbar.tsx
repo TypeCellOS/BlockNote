@@ -1,23 +1,34 @@
-import {
-  BlockNoteEditor,
-  BlockSchema,
-  DefaultBlockSchema,
-} from "@blocknote/core";
 import { FC } from "react";
 import { flip, offset } from "@floating-ui/react";
 
 import { useUIPluginState } from "../../hooks/useUIPluginState";
 import { useUIElementPositioning } from "../../hooks/useUIElementPositioning";
 import { DefaultImageToolbar, ImageToolbarProps } from "./DefaultImageToolbar";
+import { useBlockNoteEditor } from "../../editor/BlockNoteContext";
+import {
+  BlockSchema,
+  DefaultBlockSchema,
+  DefaultInlineContentSchema,
+  DefaultStyleSchema,
+  InlineContentSchema,
+  StyleSchema,
+} from "@blocknote/core";
 
 export const DefaultPositionedImageToolbar = <
-  BSchema extends BlockSchema = DefaultBlockSchema
+  BSchema extends BlockSchema = DefaultBlockSchema,
+  I extends InlineContentSchema = DefaultInlineContentSchema,
+  S extends StyleSchema = DefaultStyleSchema
 >(props: {
-  editor: BlockNoteEditor<BSchema, any, any>;
-  imageToolbar?: FC<ImageToolbarProps<BSchema>>;
+  imageToolbar?: FC<ImageToolbarProps<BSchema, I, S>>;
 }) => {
+  const editor = useBlockNoteEditor<
+    BlockSchema,
+    InlineContentSchema,
+    StyleSchema
+  >();
+
   const state = useUIPluginState(
-    props.editor.imageToolbar.onUpdate.bind(props.editor.imageToolbar)
+    editor.imageToolbar.onUpdate.bind(editor.imageToolbar)
   );
   const { isMounted, ref, style } = useUIElementPositioning(
     state?.show || false,
@@ -39,7 +50,7 @@ export const DefaultPositionedImageToolbar = <
 
   return (
     <div ref={ref} style={style}>
-      <ImageToolbar editor={props.editor} {...data} />
+      <ImageToolbar {...data} />
     </div>
   );
 };

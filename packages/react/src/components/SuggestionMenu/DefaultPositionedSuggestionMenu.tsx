@@ -1,5 +1,4 @@
 import {
-  BlockNoteEditor,
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
@@ -13,6 +12,7 @@ import { useUIPluginState } from "../../hooks/useUIPluginState";
 import { DefaultSuggestionMenu } from "./DefaultSuggestionMenu";
 import { MantineSuggestionMenu } from "./mantine/MantineSuggestionMenu";
 import { DefaultSuggestionItem, SuggestionMenuProps } from "./types";
+import { useBlockNoteEditor } from "../../editor/BlockNoteContext";
 
 type ArrayElement<A> = A extends readonly (infer T)[] ? T : never;
 
@@ -20,15 +20,11 @@ type ItemType<GetItemsType extends (query: string) => Promise<any[]>> =
   ArrayElement<Awaited<ReturnType<GetItemsType>>>;
 
 export function DefaultPositionedSuggestionMenu<
-  BSchema extends BlockSchema,
-  I extends InlineContentSchema,
-  S extends StyleSchema,
   // This is a bit hacky, but only way I found to make types work so the optionality
   // of suggestionMenuComponent depends on the return type of getItems
   GetItemsType extends (query: string) => Promise<any[]>
 >(
   props: {
-    editor: BlockNoteEditor<BSchema, I, S>;
     triggerCharacter: string;
     getItems: GetItemsType;
     onItemClick?: (item: ItemType<GetItemsType>) => void;
@@ -46,13 +42,14 @@ export function DefaultPositionedSuggestionMenu<
         >;
       })
 ) {
-  const {
-    editor,
-    triggerCharacter,
-    onItemClick,
-    getItems,
-    suggestionMenuComponent,
-  } = props;
+  const editor = useBlockNoteEditor<
+    BlockSchema,
+    InlineContentSchema,
+    StyleSchema
+  >();
+
+  const { triggerCharacter, onItemClick, getItems, suggestionMenuComponent } =
+    props;
 
   const callbacks = {
     closeMenu: editor.suggestionMenus.closeMenu,
@@ -61,7 +58,7 @@ export function DefaultPositionedSuggestionMenu<
 
   const state = useUIPluginState(
     (callback: (state: SuggestionMenuState) => void) =>
-      props.editor.suggestionMenus.onUpdate.bind(editor.suggestionMenus)(
+      editor.suggestionMenus.onUpdate.bind(editor.suggestionMenus)(
         triggerCharacter,
         callback
       )
@@ -97,7 +94,6 @@ export function DefaultPositionedSuggestionMenu<
   return (
     <div ref={ref} style={style}>
       <DefaultSuggestionMenu
-        editor={editor}
         getItems={getItems}
         suggestionMenuComponent={
           suggestionMenuComponent || MantineSuggestionMenu

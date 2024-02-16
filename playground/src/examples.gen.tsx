@@ -106,7 +106,8 @@
           "group": "Advanced Examples",
           "order": 1,
           "dependencies": {
-            "@mantine/core": "^7.4.2"
+            "@mantine/core": "^7.4.2",
+            "react-icons": "^4.3.1"
           }
         },
         "title": "Making UI Elements From Scratch",

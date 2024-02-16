@@ -1,8 +1,12 @@
 import {
+  Block,
+  BlockFromConfig,
   BlockNoteEditor,
   BlockSchema,
+  defaultProps,
   DefaultProps,
-  PartialBlock,
+  InlineContentSchema,
+  StyleSchema,
 } from "@blocknote/core";
 import { useCallback, useMemo } from "react";
 import type { IconType } from "react-icons";
@@ -15,8 +19,75 @@ import {
 
 import { ToolbarButton } from "../../../components-shared/Toolbar/ToolbarButton";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
+import { useBlockNoteEditor } from "../../../editor/BlockNoteContext";
 
 type TextAlignment = DefaultProps["textAlignment"];
+
+type BlockConfigWithTextAlignment = {
+  type: string;
+  propSchema: {
+    textAlignment: {
+      default: TextAlignment;
+      values: typeof defaultProps.textAlignment.values;
+    };
+  };
+  content: "inline" | "table" | "none";
+};
+
+const checkTextAlignmentValues = (
+  values: readonly string[]
+): values is typeof defaultProps.textAlignment.values => {
+  return (
+    values.length === defaultProps.textAlignment.values.length &&
+    values.every((value) =>
+      defaultProps.textAlignment.values.includes(value as TextAlignment)
+    )
+  );
+};
+
+function checkBlockTypeHasTextAlignment(
+  blockType: string,
+  editor: BlockNoteEditor<BlockSchema, InlineContentSchema, StyleSchema>
+) {
+  return (
+    // Block type has textAlignment prop
+    blockType in editor.blockSchema &&
+    "textAlignment" in editor.blockSchema[blockType].propSchema &&
+    // Default textAlignment value is valid
+    defaultProps.textAlignment.values.includes(
+      editor.blockSchema[blockType].propSchema.textAlignment
+        .default as TextAlignment
+    ) &&
+    // textAlignment values are valid
+    "values" in editor.blockSchema[blockType].propSchema.textAlignment &&
+    checkTextAlignmentValues(
+      editor.blockSchema[blockType].propSchema.textAlignment.values as string[]
+    )
+  );
+}
+
+function checkBlockHasTextAlignment(
+  block: Block<BlockSchema, InlineContentSchema, StyleSchema>,
+  editor: BlockNoteEditor<BlockSchema, InlineContentSchema, StyleSchema>
+): block is BlockFromConfig<
+  BlockConfigWithTextAlignment,
+  InlineContentSchema,
+  StyleSchema
+> {
+  return checkBlockTypeHasTextAlignment(block.type, editor);
+}
+
+function checkAllBlocksHaveTextAlignment(
+  editor: BlockNoteEditor<any, InlineContentSchema, StyleSchema>
+): editor is BlockNoteEditor<
+  Record<string, BlockConfigWithTextAlignment>,
+  InlineContentSchema,
+  StyleSchema
+> {
+  return Object.keys(editor.blockSchema).every((blockType) => {
+    return checkBlockTypeHasTextAlignment(blockType, editor);
+  });
+}
 
 const icons: Record<TextAlignment, IconType> = {
   left: RiAlignLeft,
@@ -25,33 +96,38 @@ const icons: Record<TextAlignment, IconType> = {
   justify: RiAlignJustify,
 };
 
-export const TextAlignButton = <BSchema extends BlockSchema>(props: {
-  editor: BlockNoteEditor<BSchema, any, any>;
-  textAlignment: TextAlignment;
-}) => {
-  const selectedBlocks = useSelectedBlocks(props.editor);
+export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
+  const editor = useBlockNoteEditor<
+    BlockSchema,
+    InlineContentSchema,
+    StyleSchema
+  >();
+
+  const selectedBlocks = useSelectedBlocks(editor);
 
   const textAlignment = useMemo(() => {
     const block = selectedBlocks[0];
 
-    if ("textAlignment" in block.props) {
-      return block.props.textAlignment as TextAlignment;
+    if (checkBlockHasTextAlignment(block, editor)) {
+      return block.props.textAlignment;
     }
 
     return;
-  }, [selectedBlocks]);
+  }, [editor, selectedBlocks]);
 
   const setTextAlignment = useCallback(
     (textAlignment: TextAlignment) => {
-      props.editor.focus();
+      editor.focus();
 
       for (const block of selectedBlocks) {
-        props.editor.updateBlock(block, {
-          props: { textAlignment: textAlignment },
-        } as PartialBlock<BSchema, any, any>);
+        if (checkAllBlocksHaveTextAlignment(editor)) {
+          editor.updateBlock(block, {
+            props: { textAlignment: textAlignment },
+          });
+        }
       }
     },
-    [props.editor, selectedBlocks]
+    [editor, selectedBlocks]
   );
 
   const show = useMemo(() => {

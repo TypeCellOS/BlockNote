@@ -156,11 +156,7 @@ function BlockNoteViewComponent<
   useEditorSelectionChange(onSelectionChange || emptyFn, editor);
 
   useEffect(() => {
-    if (editable === false) {
-      editor.isEditable = false;
-    } else {
-      editor.isEditable = true;
-    }
+    editor.isEditable = editable !== false;
   }, [editable, editor]);
 
   const renderChildren = useMemo(() => {

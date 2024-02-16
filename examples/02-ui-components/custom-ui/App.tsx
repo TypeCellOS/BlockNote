@@ -10,11 +10,14 @@ export default function App() {
   const editor = useBlockNote();
 
   return (
-    <BlockNoteView editor={editor}>
-      {/*Adding custom UI elements*/}
+    <BlockNoteView
+      editor={editor}
+      formattingToolbar={false}
+      slashMenu={false}
+      sideMenu={false}>
       <CustomFormattingToolbar editor={editor} />
       <CustomSlashMenu editor={editor} />
-      <CustomSideMenu editor={editor} />
+      <CustomSideMenu />
     </BlockNoteView>
   );
 }

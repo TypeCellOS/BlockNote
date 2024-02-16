@@ -31,3 +31,19 @@ export function useBlockNoteContext<
 
   return context;
 }
+
+export function useBlockNoteEditor<
+  BSchema extends BlockSchema = DefaultBlockSchema,
+  ISchema extends InlineContentSchema = DefaultInlineContentSchema,
+  SSchema extends StyleSchema = DefaultStyleSchema
+>(): BlockNoteEditor<BSchema, ISchema, SSchema> {
+  const context = useContext(BlockNoteContext);
+
+  if (!context) {
+    throw new Error(
+      "useBlockNoteEditor was called outside of a BlockNoteContext provider or BlockNoteView component"
+    );
+  }
+
+  return context.editor as any;
+}

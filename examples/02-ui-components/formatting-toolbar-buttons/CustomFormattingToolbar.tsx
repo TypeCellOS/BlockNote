@@ -1,46 +1,46 @@
 import {
+  BasicTextStyleButton,
   BlockTypeDropdown,
   ColorStyleButton,
   CreateLinkButton,
-  FormattingToolbarProps,
   ImageCaptionButton,
   NestBlockButton,
   ReplaceImageButton,
   TextAlignButton,
-  ToggledStyleButton,
   Toolbar,
   UnnestBlockButton,
 } from "@blocknote/react";
 import { CustomButton } from "./CustomButton";
+import { BlockNoteEditor } from "@blocknote/core";
 
-export function CustomFormattingToolbar(props: FormattingToolbarProps<any>) {
+export function CustomFormattingToolbar(props: { editor: BlockNoteEditor }) {
   return (
     <Toolbar>
-      <BlockTypeDropdown {...props} />
+      <BlockTypeDropdown />
 
       {/*Custom button to toggle blue text & background color.*/}
       <CustomButton editor={props.editor} />
 
-      <ImageCaptionButton editor={props.editor} />
-      <ReplaceImageButton editor={props.editor} />
+      <ImageCaptionButton />
+      <ReplaceImageButton />
 
-      <ToggledStyleButton editor={props.editor} toggledStyle={"bold"} />
-      <ToggledStyleButton editor={props.editor} toggledStyle={"italic"} />
-      <ToggledStyleButton editor={props.editor} toggledStyle={"underline"} />
-      <ToggledStyleButton editor={props.editor} toggledStyle={"strike"} />
+      <BasicTextStyleButton basicTextStyle={"bold"} />
+      <BasicTextStyleButton basicTextStyle={"italic"} />
+      <BasicTextStyleButton basicTextStyle={"underline"} />
+      <BasicTextStyleButton basicTextStyle={"strike"} />
       {/* Added code toggle button */}
-      <ToggledStyleButton editor={props.editor} toggledStyle={"code"} />
+      <BasicTextStyleButton basicTextStyle={"code"} />
 
-      <TextAlignButton editor={props.editor as any} textAlignment={"left"} />
-      <TextAlignButton editor={props.editor as any} textAlignment={"center"} />
-      <TextAlignButton editor={props.editor as any} textAlignment={"right"} />
+      <TextAlignButton textAlignment={"left"} />
+      <TextAlignButton textAlignment={"center"} />
+      <TextAlignButton textAlignment={"right"} />
 
-      <ColorStyleButton editor={props.editor} />
+      <ColorStyleButton />
 
-      <NestBlockButton editor={props.editor} />
-      <UnnestBlockButton editor={props.editor} />
+      <NestBlockButton />
+      <UnnestBlockButton />
 
-      <CreateLinkButton editor={props.editor} />
+      <CreateLinkButton />
     </Toolbar>
   );
 }

@@ -1,23 +1,13 @@
-import {
-  BlockNoteEditor,
-  BlockSchema,
-  InlineContentSchema,
-  StyleSchema,
-} from "@blocknote/core";
 import { FC, useCallback } from "react";
 
 import { useCloseSuggestionMenuNoItems } from "./hooks/useCloseSuggestionMenuNoItems";
 import { useLoadSuggestionMenuItems } from "./hooks/useLoadSuggestionMenuItems";
 import { useSuggestionMenuKeyboardNavigation } from "./hooks/useSuggestionMenuKeyboardNavigation";
 import { SuggestionMenuProps } from "./types";
+import { useBlockNoteEditor } from "../../editor/BlockNoteContext";
+import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
 
-export function DefaultSuggestionMenu<
-  BSchema extends BlockSchema,
-  I extends InlineContentSchema,
-  S extends StyleSchema,
-  Item
->(props: {
-  editor: BlockNoteEditor<BSchema, I, S>;
+export function DefaultSuggestionMenu<Item>(props: {
   query: string;
   closeMenu: () => void;
   clearQuery: () => void;
@@ -25,8 +15,13 @@ export function DefaultSuggestionMenu<
   onItemClick?: (item: Item) => void;
   suggestionMenuComponent: FC<SuggestionMenuProps<Item>>;
 }) {
+  const editor = useBlockNoteEditor<
+    BlockSchema,
+    InlineContentSchema,
+    StyleSchema
+  >();
+
   const {
-    editor,
     getItems,
     suggestionMenuComponent,
     query,

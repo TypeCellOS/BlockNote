@@ -1,4 +1,12 @@
-import { BlockNoteEditor, BlockSchema, PartialBlock } from "@blocknote/core";
+import { useBlockNoteEditor } from "../../../editor/BlockNoteContext";
+import {
+  Block,
+  BlockFromConfig,
+  BlockNoteEditor,
+  BlockSchema,
+  InlineContentSchema,
+  StyleSchema,
+} from "@blocknote/core";
 import {
   ChangeEvent,
   KeyboardEvent,
@@ -15,59 +23,102 @@ import { ToolbarInputDropdownButton } from "../../../components-shared/Toolbar/T
 import { ToolbarInputDropdownItem } from "../../../components-shared/Toolbar/ToolbarInputDropdownItem";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
 
-export const ImageCaptionButton = <BSchema extends BlockSchema>(props: {
-  editor: BlockNoteEditor<BSchema, any, any>;
-}) => {
-  const selectedBlocks = useSelectedBlocks(props.editor);
+type BaseImageBlockConfig = {
+  type: "image";
+  propSchema: {
+    caption: {
+      default: string;
+    };
+    url: {
+      default: string;
+    };
+  };
+  content: "none";
+};
 
-  const show = useMemo(
-    () =>
-      // Checks if only one block is selected.
-      selectedBlocks.length === 1 &&
-      // Checks if the selected block is an image.
-      selectedBlocks[0].type === "image" &&
-      // Checks if the block has a `caption` prop which can take any string
-      // value.
-      "caption" in props.editor.blockSchema["image"].propSchema &&
-      typeof props.editor.blockSchema["image"].propSchema.caption.default ===
-        "string" &&
-      props.editor.blockSchema["image"].propSchema.caption.values ===
-        undefined &&
-      // Checks if the block has a `url` prop which can take any string value.
-      "url" in props.editor.blockSchema["image"].propSchema &&
-      typeof props.editor.blockSchema["image"].propSchema.url.default ===
-        "string" &&
-      props.editor.blockSchema["image"].propSchema.url.values === undefined &&
-      // Checks if the `url` prop is not set to an empty string.
-      selectedBlocks[0].props.url !== "",
-    [props.editor.blockSchema, selectedBlocks]
+function checkImageInSchema(
+  // TODO: Fix any, should be BlockSchema but smth is broken
+  editor: BlockNoteEditor<any, InlineContentSchema, StyleSchema>
+): editor is BlockNoteEditor<
+  { image: BaseImageBlockConfig },
+  InlineContentSchema,
+  StyleSchema
+> {
+  return (
+    // Checks if the block has a `caption` prop which can take any string
+    // value.
+    "caption" in editor.blockSchema["image"].propSchema &&
+    typeof editor.blockSchema["image"].propSchema.caption.default ===
+      "string" &&
+    !("values" in editor.blockSchema["image"].propSchema.caption) &&
+    // Checks if the block has a `url` prop which can take any string value.
+    "url" in editor.blockSchema["image"].propSchema &&
+    typeof editor.blockSchema["image"].propSchema.url.default === "string" &&
+    !("values" in editor.blockSchema["image"].propSchema.url) === undefined
   );
+}
+
+export function checkBlockIsImage(
+  // TODO: Fix any, should be BlockSchema but smth is broken
+  block: Block<any, InlineContentSchema, StyleSchema>,
+  editor: BlockNoteEditor<any, InlineContentSchema, StyleSchema>
+): block is BlockFromConfig<
+  BaseImageBlockConfig,
+  InlineContentSchema,
+  StyleSchema
+> {
+  return (
+    // Checks if the selected block is an image.
+    block.type === "image" && checkImageInSchema(editor)
+  );
+}
+
+export const ImageCaptionButton = () => {
+  const editor = useBlockNoteEditor<
+    BlockSchema,
+    InlineContentSchema,
+    StyleSchema
+  >();
+
+  const selectedBlocks = useSelectedBlocks(editor);
+
+  const imageBlock = useMemo(() => {
+    // Checks if only one block is selected.
+    if (selectedBlocks.length !== 1) {
+      return undefined;
+    }
+
+    const block = selectedBlocks[0];
+
+    if (checkBlockIsImage(block, editor)) {
+      return block;
+    }
+
+    return undefined;
+  }, [editor, selectedBlocks]);
 
   const [currentCaption, setCurrentCaption] = useState<string>(
-    show ? (selectedBlocks[0].props.caption as string) : ""
+    imageBlock ? imageBlock.props.caption : ""
   );
 
   useEffect(
-    () =>
-      setCurrentCaption(
-        show ? (selectedBlocks[0].props.caption as string) : ""
-      ),
-    [selectedBlocks, show]
+    () => setCurrentCaption(imageBlock ? imageBlock.props.caption : ""),
+    [selectedBlocks, imageBlock]
   );
 
   const handleEnter = useCallback(
     (event: KeyboardEvent) => {
-      if (event.key === "Enter") {
+      if (imageBlock && checkImageInSchema(editor) && event.key === "Enter") {
         event.preventDefault();
-        props.editor.updateBlock(selectedBlocks[0], {
+        editor.updateBlock(imageBlock, {
           type: "image",
           props: {
             caption: currentCaption,
           },
-        } as PartialBlock<BSchema, any, any>);
+        });
       }
     },
-    [currentCaption, props.editor, selectedBlocks]
+    [currentCaption, editor, imageBlock]
   );
 
   const handleChange = useCallback(
@@ -76,7 +127,7 @@ export const ImageCaptionButton = <BSchema extends BlockSchema>(props: {
     []
   );
 
-  if (!show) {
+  if (!imageBlock) {
     return null;
   }
 
@@ -86,7 +137,7 @@ export const ImageCaptionButton = <BSchema extends BlockSchema>(props: {
         <ToolbarButton
           mainTooltip={"Edit Caption"}
           icon={RiText}
-          isSelected={selectedBlocks[0].props.caption !== ""}
+          isSelected={imageBlock.props.caption !== ""}
         />
       }
       dropdown={

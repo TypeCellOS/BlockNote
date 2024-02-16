@@ -1,4 +1,9 @@
-import { Block, BlockNoteEditor, BlockSchema } from "@blocknote/core";
+import {
+  Block,
+  BlockSchema,
+  InlineContentSchema,
+  StyleSchema,
+} from "@blocknote/core";
 import { useMemo, useState } from "react";
 import type { IconType } from "react-icons";
 import {
@@ -14,13 +19,16 @@ import { ToolbarDropdown } from "../../../components-shared/Toolbar/ToolbarDropd
 import type { ToolbarDropdownItemProps } from "../../../components-shared/Toolbar/ToolbarDropdownItem";
 import { useEditorContentOrSelectionChange } from "../../../hooks/useEditorContentOrSelectionChange";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
+import { useBlockNoteEditor } from "../../../editor/BlockNoteContext";
 
 export type BlockTypeDropdownItem = {
   name: string;
   type: string;
   props?: Record<string, boolean | number | string>;
   icon: IconType;
-  isSelected: (block: Block<BlockSchema, any, any>) => boolean;
+  isSelected: (
+    block: Block<BlockSchema, InlineContentSchema, StyleSchema>
+  ) => boolean;
 };
 
 export const defaultBlockTypeDropdownItems: BlockTypeDropdownItem[] = [
@@ -74,26 +82,29 @@ export const defaultBlockTypeDropdownItems: BlockTypeDropdownItem[] = [
   },
 ];
 
-export const BlockTypeDropdown = <BSchema extends BlockSchema>(props: {
-  editor: BlockNoteEditor<BSchema>;
+export const BlockTypeDropdown = (props: {
   items?: BlockTypeDropdownItem[];
 }) => {
-  const selectedBlocks = useSelectedBlocks(props.editor);
+  const editor = useBlockNoteEditor<
+    BlockSchema,
+    InlineContentSchema,
+    StyleSchema
+  >();
 
-  const [block, setBlock] = useState(
-    props.editor.getTextCursorPosition().block
-  );
+  const selectedBlocks = useSelectedBlocks(editor);
+
+  const [block, setBlock] = useState(editor.getTextCursorPosition().block);
 
   const filteredItems: BlockTypeDropdownItem[] = useMemo(() => {
     return (props.items || defaultBlockTypeDropdownItems).filter((item) => {
       // Checks if block type exists in the schema
-      if (!(item.type in props.editor.blockSchema)) {
+      if (!(item.type in editor.blockSchema)) {
         return false;
       }
 
       // Checks if props for the block type are valid
       for (const [prop, value] of Object.entries(item.props || {})) {
-        const propSchema = props.editor.blockSchema[item.type].propSchema;
+        const propSchema = editor.blockSchema[item.type].propSchema;
 
         // Checks if the prop exists for the block type
         if (!(prop in propSchema)) {
@@ -111,7 +122,7 @@ export const BlockTypeDropdown = <BSchema extends BlockSchema>(props: {
 
       return true;
     });
-  }, [props.editor, props.items]);
+  }, [editor, props.items]);
 
   const shouldShow: boolean = useMemo(
     () => filteredItems.find((item) => item.type === block.type) !== undefined,
@@ -120,10 +131,10 @@ export const BlockTypeDropdown = <BSchema extends BlockSchema>(props: {
 
   const fullItems: ToolbarDropdownItemProps[] = useMemo(() => {
     const onClick = (item: BlockTypeDropdownItem) => {
-      props.editor.focus();
+      editor.focus();
 
       for (const block of selectedBlocks) {
-        props.editor.updateBlock(block, {
+        editor.updateBlock(block, {
           type: item.type as any,
           props: item.props as any,
         });
@@ -134,13 +145,13 @@ export const BlockTypeDropdown = <BSchema extends BlockSchema>(props: {
       text: item.name,
       icon: item.icon,
       onClick: () => onClick(item),
-      isSelected: item.isSelected(block as Block<BlockSchema, any, any>),
+      isSelected: item.isSelected(block),
     }));
-  }, [block, filteredItems, props.editor, selectedBlocks]);
+  }, [block, filteredItems, editor, selectedBlocks]);
 
   useEditorContentOrSelectionChange(() => {
-    setBlock(props.editor.getTextCursorPosition().block);
-  }, props.editor);
+    setBlock(editor.getTextCursorPosition().block);
+  }, editor);
 
   if (!shouldShow) {
     return null;

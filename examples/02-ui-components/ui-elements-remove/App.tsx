@@ -14,12 +14,13 @@ export default function App() {
 
   // Renders the editor instance.
   return (
-    <BlockNoteView editor={editor}>
-      {/* TODO
-      <FormattingToolbarPositioner editor={editor} />
-      <HyperlinkToolbarPositioner editor={editor} />
-      <SlashMenuPositioner editor={editor} />
-      <ImageToolbarPositioner editor={editor} /> */}
-    </BlockNoteView>
+    <BlockNoteView
+      editor={editor}
+      hyperlinkToolbar={false}
+      imageToolbar={false}
+      sideMenu={false}
+      slashMenu={false}
+      tableHandles={false}
+    />
   );
 }

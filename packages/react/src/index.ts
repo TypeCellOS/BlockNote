@@ -11,7 +11,7 @@ export * from "./components/FormattingToolbar/DefaultButtons/ImageCaptionButton"
 export * from "./components/FormattingToolbar/DefaultButtons/NestBlockButtons";
 export * from "./components/FormattingToolbar/DefaultButtons/ReplaceImageButton";
 export * from "./components/FormattingToolbar/DefaultButtons/TextAlignButton";
-export * from "./components/FormattingToolbar/DefaultButtons/ToggledStyleButton";
+export * from "./components/FormattingToolbar/DefaultButtons/BasicTextStyleButton";
 export * from "./components/FormattingToolbar/DefaultDropdowns/BlockTypeDropdown";
 export * from "./components/FormattingToolbar/DefaultFormattingToolbar";
 export * from "./components/FormattingToolbar/DefaultPositionedFormattingToolbar";

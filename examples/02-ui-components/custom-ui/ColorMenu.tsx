@@ -1,8 +1,5 @@
-import {
-  FormattingToolbarProps,
-  useEditorChange,
-  useEditorSelectionChange,
-} from "@blocknote/react";
+import { BlockNoteEditor } from "@blocknote/core";
+import { useEditorChange, useEditorSelectionChange } from "@blocknote/react";
 import { HTMLAttributes, useState } from "react";
 import { MdFormatColorText } from "react-icons/md";
 
@@ -18,7 +15,7 @@ export const colors = [
 
 // Formatting Toolbar sub menu for changing text and background color
 export const ColorMenu = (
-  props: FormattingToolbarProps<any> & HTMLAttributes<HTMLDivElement>
+  props: { editor: BlockNoteEditor } & HTMLAttributes<HTMLDivElement>
 ) => {
   const { editor, className, ...rest } = props;
 

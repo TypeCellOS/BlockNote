@@ -1,9 +1,9 @@
-import { FormattingToolbarProps } from "@blocknote/react";
 import { HTMLAttributes, useState } from "react";
+import { BlockNoteEditor } from "@blocknote/core";
 
 // Formatting Toolbar sub menu for creating links
 export const LinkMenu = (
-  props: FormattingToolbarProps<any> & HTMLAttributes<HTMLDivElement>
+  props: { editor: BlockNoteEditor } & HTMLAttributes<HTMLDivElement>
 ) => {
   const { editor, className, ...rest } = props;
 

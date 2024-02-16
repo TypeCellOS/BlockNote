@@ -1,4 +1,3 @@
-import { BlockNoteEditor, BlockSchema } from "@blocknote/core";
 import { Menu } from "@mantine/core";
 import { useCallback, useMemo, useState } from "react";
 
@@ -8,49 +7,110 @@ import { ToolbarButton } from "../../../components-shared/Toolbar/ToolbarButton"
 import { useEditorContentOrSelectionChange } from "../../../hooks/useEditorContentOrSelectionChange";
 import { usePreventMenuOverflow } from "../../../hooks/usePreventMenuOverflow";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
+import { useBlockNoteEditor } from "../../../editor/BlockNoteContext";
+import {
+  BlockNoteEditor,
+  BlockSchema,
+  InlineContentSchema,
+  StyleSchema,
+} from "@blocknote/core";
 
-export const ColorStyleButton = <BSchema extends BlockSchema>(props: {
-  editor: BlockNoteEditor<BSchema>;
-}) => {
-  const selectedBlocks = useSelectedBlocks(props.editor);
+function checkColorInSchema<Color extends "text" | "background">(
+  color: Color,
+  editor: BlockNoteEditor<BlockSchema, InlineContentSchema, StyleSchema>
+): editor is BlockNoteEditor<
+  BlockSchema,
+  InlineContentSchema,
+  Color extends "text"
+    ? {
+        textColor: {
+          type: "textColor";
+          propSchema: "string";
+        };
+      }
+    : {
+        backgroundColor: {
+          type: "backgroundColor";
+          propSchema: "string";
+        };
+      }
+> {
+  return (
+    `${color}Color` in editor.styleSchema &&
+    editor.styleSchema[`${color}Color`].type === `${color}Color` &&
+    editor.styleSchema[`${color}Color`].propSchema === "string"
+  );
+}
+
+export const ColorStyleButton = () => {
+  const editor = useBlockNoteEditor<
+    BlockSchema,
+    InlineContentSchema,
+    StyleSchema
+  >();
+
+  const textColorInSchema = checkColorInSchema("text", editor);
+  const backgroundColorInSchema = checkColorInSchema("background", editor);
+
+  const selectedBlocks = useSelectedBlocks(editor);
 
   const [currentTextColor, setCurrentTextColor] = useState<string>(
-    props.editor.getActiveStyles().textColor || "default"
+    textColorInSchema
+      ? editor.getActiveStyles().textColor || "default"
+      : "default"
   );
   const [currentBackgroundColor, setCurrentBackgroundColor] = useState<string>(
-    props.editor.getActiveStyles().backgroundColor || "default"
+    backgroundColorInSchema
+      ? editor.getActiveStyles().backgroundColor || "default"
+      : "default"
   );
 
   useEditorContentOrSelectionChange(() => {
-    setCurrentTextColor(props.editor.getActiveStyles().textColor || "default");
-    setCurrentBackgroundColor(
-      props.editor.getActiveStyles().backgroundColor || "default"
-    );
-  }, props.editor);
+    if (textColorInSchema) {
+      setCurrentTextColor(editor.getActiveStyles().textColor || "default");
+    }
+    if (backgroundColorInSchema) {
+      setCurrentBackgroundColor(
+        editor.getActiveStyles().backgroundColor || "default"
+      );
+    }
+  }, editor);
 
   const { ref, updateMaxHeight } = usePreventMenuOverflow();
 
   const setTextColor = useCallback(
     (color: string) => {
-      props.editor.focus();
+      if (!textColorInSchema) {
+        return;
+      }
+
+      editor.focus();
       color === "default"
-        ? props.editor.removeStyles({ textColor: color })
-        : props.editor.addStyles({ textColor: color });
+        ? editor.removeStyles({ textColor: color })
+        : editor.addStyles({ textColor: color });
     },
-    [props.editor]
+    [editor, textColorInSchema]
   );
 
   const setBackgroundColor = useCallback(
     (color: string) => {
-      props.editor.focus();
+      if (!backgroundColorInSchema) {
+        return;
+      }
+
+      editor.focus();
       color === "default"
-        ? props.editor.removeStyles({ backgroundColor: color })
-        : props.editor.addStyles({ backgroundColor: color });
+        ? editor.removeStyles({ backgroundColor: color })
+        : editor.addStyles({ backgroundColor: color });
     },
-    [props.editor]
+    [backgroundColorInSchema, editor]
   );
 
   const show = useMemo(() => {
+    if (!textColorInSchema && !backgroundColorInSchema) {
+      return false;
+    }
+
     for (const block of selectedBlocks) {
       if (block.content !== undefined) {
         return true;
@@ -58,7 +118,7 @@ export const ColorStyleButton = <BSchema extends BlockSchema>(props: {
     }
 
     return false;
-  }, [selectedBlocks]);
+  }, [backgroundColorInSchema, selectedBlocks, textColorInSchema]);
 
   if (!show) {
     return null;
@@ -81,14 +141,22 @@ export const ColorStyleButton = <BSchema extends BlockSchema>(props: {
       <div ref={ref}>
         <Menu.Dropdown>
           <ColorPicker
-            text={{
-              color: currentTextColor,
-              setColor: setTextColor,
-            }}
-            background={{
-              color: currentBackgroundColor,
-              setColor: setBackgroundColor,
-            }}
+            text={
+              textColorInSchema
+                ? {
+                    color: currentTextColor,
+                    setColor: setTextColor,
+                  }
+                : undefined
+            }
+            background={
+              backgroundColorInSchema
+                ? {
+                    color: currentBackgroundColor,
+                    setColor: setBackgroundColor,
+                  }
+                : undefined
+            }
           />
         </Menu.Dropdown>
       </div>

@@ -2,8 +2,11 @@ import {
   BlockNoteEditor,
   BlockSchema,
   DefaultBlockSchema,
+  DefaultInlineContentSchema,
+  DefaultStyleSchema,
   ImageToolbarState,
-  PartialBlock,
+  InlineContentSchema,
+  StyleSchema,
   UiElementPosition,
 } from "@blocknote/core";
 import {
@@ -23,18 +26,55 @@ import {
 } from "react";
 
 import { Toolbar } from "../../components-shared/Toolbar/Toolbar";
+import { useBlockNoteEditor } from "../../editor/BlockNoteContext";
+
+type BaseImageBlockConfig = {
+  type: "image";
+  propSchema: {
+    url: {
+      default: string;
+    };
+  };
+  content: "none";
+};
+
+function checkImageInSchema(
+  // TODO: Fix any, should be BlockSchema but smth is broken
+  editor: BlockNoteEditor<any, InlineContentSchema, StyleSchema>
+): editor is BlockNoteEditor<
+  {
+    image: BaseImageBlockConfig;
+  },
+  InlineContentSchema,
+  StyleSchema
+> {
+  return (
+    // Checks if the block has a `url` prop which can take any string value.
+    "url" in editor.blockSchema["image"].propSchema &&
+    typeof editor.blockSchema["image"].propSchema.url.default === "string" &&
+    !("values" in editor.blockSchema["image"].propSchema.url) === undefined
+  );
+}
 
 export type ImageToolbarProps<
-  BSchema extends BlockSchema = DefaultBlockSchema
-> = {
-  editor: BlockNoteEditor<BSchema, any>;
-} & Omit<ImageToolbarState<BSchema, any, any>, keyof UiElementPosition>;
+  BSchema extends BlockSchema = DefaultBlockSchema,
+  I extends InlineContentSchema = DefaultInlineContentSchema,
+  S extends StyleSchema = DefaultStyleSchema
+> = Omit<ImageToolbarState<BSchema, I, S>, keyof UiElementPosition>;
 
-export const DefaultImageToolbar = <BSchema extends BlockSchema>(
-  props: ImageToolbarProps<BSchema>
+export const DefaultImageToolbar = (
+  props: ImageToolbarProps<BlockSchema, InlineContentSchema, StyleSchema>
 ) => {
+  const editor = useBlockNoteEditor<
+    BlockSchema,
+    InlineContentSchema,
+    StyleSchema
+  >();
+
+  const imageInSchema = checkImageInSchema(editor);
+
   const [openTab, setOpenTab] = useState<"upload" | "embed">(
-    props.editor.uploadFile !== undefined ? "upload" : "embed"
+    editor.uploadFile !== undefined ? "upload" : "embed"
   );
   const [uploading, setUploading] = useState<boolean>(false);
   const [uploadFailed, setUploadFailed] = useState<boolean>(false);
@@ -56,15 +96,15 @@ export const DefaultImageToolbar = <BSchema extends BlockSchema>(
       async function upload(file: File) {
         setUploading(true);
 
-        if (props.editor.uploadFile !== undefined) {
+        if (imageInSchema && editor.uploadFile !== undefined) {
           try {
-            const uploaded = await props.editor.uploadFile(file);
-            props.editor.updateBlock(props.block, {
+            const uploaded = await editor.uploadFile(file);
+            editor.updateBlock(props.block, {
               type: "image",
               props: {
                 url: uploaded,
               },
-            } as PartialBlock<BSchema, any, any>);
+            });
           } catch (e) {
             setUploadFailed(true);
           } finally {
@@ -75,7 +115,7 @@ export const DefaultImageToolbar = <BSchema extends BlockSchema>(
 
       upload(file);
     },
-    [props.block, props.editor]
+    [editor, imageInSchema, props.block]
   );
 
   const [currentURL, setCurrentURL] = useState<string>("");
@@ -89,27 +129,29 @@ export const DefaultImageToolbar = <BSchema extends BlockSchema>(
 
   const handleURLEnter = useCallback(
     (event: KeyboardEvent) => {
-      if (event.key === "Enter") {
+      if (imageInSchema && event.key === "Enter") {
         event.preventDefault();
-        props.editor.updateBlock(props.block, {
+        editor.updateBlock(props.block, {
           type: "image",
           props: {
             url: currentURL,
           },
-        } as PartialBlock<BSchema, any, any>);
+        });
       }
     },
-    [currentURL, props.block, props.editor]
+    [imageInSchema, editor, props.block, currentURL]
   );
 
   const handleURLClick = useCallback(() => {
-    props.editor.updateBlock(props.block, {
-      type: "image",
-      props: {
-        url: currentURL,
-      },
-    } as PartialBlock<BSchema, any, any>);
-  }, [currentURL, props.block, props.editor]);
+    if (imageInSchema) {
+      editor.updateBlock(props.block, {
+        type: "image",
+        props: {
+          url: currentURL,
+        },
+      });
+    }
+  }, [imageInSchema, editor, props.block, currentURL]);
 
   return (
     <Toolbar className={"bn-image-toolbar"}>
@@ -117,7 +159,7 @@ export const DefaultImageToolbar = <BSchema extends BlockSchema>(
         {uploading && <LoadingOverlay visible={uploading} />}
 
         <Tabs.List>
-          {props.editor.uploadFile !== undefined && (
+          {editor.uploadFile !== undefined && (
             <Tabs.Tab value="upload" data-test={"upload-tab"}>
               Upload
             </Tabs.Tab>
@@ -127,7 +169,7 @@ export const DefaultImageToolbar = <BSchema extends BlockSchema>(
           </Tabs.Tab>
         </Tabs.List>
 
-        {props.editor.uploadFile !== undefined && (
+        {editor.uploadFile !== undefined && (
           <Tabs.Panel className={"bn-upload-image-panel"} value="upload">
             <div>
               <FileInput

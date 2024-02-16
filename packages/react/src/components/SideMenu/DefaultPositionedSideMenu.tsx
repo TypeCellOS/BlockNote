@@ -1,5 +1,4 @@
 import {
-  BlockNoteEditor,
   BlockSchema,
   DefaultBlockSchema,
   DefaultInlineContentSchema,
@@ -12,25 +11,27 @@ import { FC } from "react";
 import { useUIPluginState } from "../../hooks/useUIPluginState";
 import { useUIElementPositioning } from "../../hooks/useUIElementPositioning";
 import { DefaultSideMenu, SideMenuProps } from "./DefaultSideMenu";
+import { useBlockNoteEditor } from "../../editor/BlockNoteContext";
 
 export const DefaultPositionedSideMenu = <
   BSchema extends BlockSchema = DefaultBlockSchema,
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema
 >(props: {
-  editor: BlockNoteEditor<BSchema, I, S>;
   sideMenu?: FC<SideMenuProps<BSchema, I, S>>;
 }) => {
+  const editor = useBlockNoteEditor<BSchema, I, S>();
+
   const callbacks = {
-    addBlock: props.editor.sideMenu.addBlock,
-    blockDragStart: props.editor.sideMenu.blockDragStart,
-    blockDragEnd: props.editor.sideMenu.blockDragEnd,
-    freezeMenu: props.editor.sideMenu.freezeMenu,
-    unfreezeMenu: props.editor.sideMenu.unfreezeMenu,
+    addBlock: editor.sideMenu.addBlock,
+    blockDragStart: editor.sideMenu.blockDragStart,
+    blockDragEnd: editor.sideMenu.blockDragEnd,
+    freezeMenu: editor.sideMenu.freezeMenu,
+    unfreezeMenu: editor.sideMenu.unfreezeMenu,
   };
 
   const state = useUIPluginState(
-    props.editor.sideMenu.onUpdate.bind(props.editor.sideMenu)
+    editor.sideMenu.onUpdate.bind(editor.sideMenu)
   );
   const { isMounted, ref, style } = useUIElementPositioning(
     state?.show || false,
@@ -51,7 +52,7 @@ export const DefaultPositionedSideMenu = <
 
   return (
     <div ref={ref} style={style}>
-      <SideMenu editor={props.editor} {...data} {...callbacks} />
+      <SideMenu {...data} {...callbacks} />
     </div>
   );
 };

@@ -1,35 +1,43 @@
-import { BlockNoteEditor, BlockSchema } from "@blocknote/core";
 import { useCallback, useMemo, useState } from "react";
 import { RiLink } from "react-icons/ri";
 
-import { formatKeyboardShortcut } from "@blocknote/core";
+import {
+  BlockSchema,
+  formatKeyboardShortcut,
+  InlineContentSchema,
+  StyleSchema,
+} from "@blocknote/core";
 import { ToolbarButton } from "../../../components-shared/Toolbar/ToolbarButton";
 import { ToolbarInputDropdownButton } from "../../../components-shared/Toolbar/ToolbarInputDropdownButton";
 import { useEditorContentOrSelectionChange } from "../../../hooks/useEditorContentOrSelectionChange";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
 import { EditHyperlinkMenu } from "../../HyperlinkToolbar/EditHyperlinkMenu/components/EditHyperlinkMenu";
+import { useBlockNoteEditor } from "../../../editor/BlockNoteContext";
 
-export const CreateLinkButton = <BSchema extends BlockSchema>(props: {
-  editor: BlockNoteEditor<BSchema>;
-}) => {
-  const selectedBlocks = useSelectedBlocks(props.editor);
+// TODO: Make sure Link is in inline content schema
+export const CreateLinkButton = () => {
+  const editor = useBlockNoteEditor<
+    BlockSchema,
+    InlineContentSchema,
+    StyleSchema
+  >();
 
-  const [url, setUrl] = useState<string>(
-    props.editor.getSelectedLinkUrl() || ""
-  );
-  const [text, setText] = useState<string>(props.editor.getSelectedText());
+  const selectedBlocks = useSelectedBlocks(editor);
+
+  const [url, setUrl] = useState<string>(editor.getSelectedLinkUrl() || "");
+  const [text, setText] = useState<string>(editor.getSelectedText());
 
   useEditorContentOrSelectionChange(() => {
-    setText(props.editor.getSelectedText() || "");
-    setUrl(props.editor.getSelectedLinkUrl() || "");
-  }, props.editor);
+    setText(editor.getSelectedText() || "");
+    setUrl(editor.getSelectedLinkUrl() || "");
+  }, editor);
 
   const update = useCallback(
     (url: string, text: string) => {
-      props.editor.createLink(url, text);
-      props.editor.focus();
+      editor.createLink(url, text);
+      editor.focus();
     },
-    [props.editor]
+    [editor]
   );
 
   const show = useMemo(() => {
