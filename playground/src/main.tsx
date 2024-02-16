@@ -99,7 +99,10 @@ const App = (props: { project: (typeof examples)[0]["projects"][0] }) => {
   if (!ExampleComponent) {
     return <div>Loading...</div>;
   }
-  return <ExampleComponent.default />;
+
+  const LoadedExampleComponent = ExampleComponent.default;
+
+  return <LoadedExampleComponent />;
 };
 
 const router = createBrowserRouter([

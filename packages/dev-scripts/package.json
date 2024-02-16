@@ -11,17 +11,20 @@
     "gen:examples": "tsx examples/gen.ts",
     "gen:docs": "tsx examples/genDocs.ts",
     "build": "tsc",
-    "lint": "eslint src --max-warnings 0"
+    "lint": "eslint **/*.ts{,x} --max-warnings 0"
   },
-  "dependencies": {},
   "devDependencies": {
     "@types/react": "^18.0.25",
     "@types/react-dom": "^18.0.9",
     "eslint": "^8.10.0",
+    "glob": "^10.3.10",
     "prettier": "^2.7.1",
-    "typescript": "^5.0.4",
     "tsx": "^4.6.2",
-    "glob": "^10.3.10"
+    "typescript": "^5.0.4"
+  },
+  "dependencies": {
+    "react": "^18",
+    "react-dom": "^18"
   },
   "peerDependencies": {
     "react": "^18",

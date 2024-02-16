@@ -50,7 +50,9 @@ async function writeTemplate(project: Project, templateFile: string) {
 
   try {
     // fs.unlinkSync(targetFilePath);
-  } catch (e) {}
+  } catch (e) {
+    // ignore any errors
+  }
   console.log("written", targetFilePath);
 }
 
