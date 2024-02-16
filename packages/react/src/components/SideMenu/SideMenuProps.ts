@@ -9,11 +9,9 @@ import {
   StyleSchema,
   UiElementPosition,
 } from "@blocknote/core";
-import { AddBlockButton } from "./DefaultButtons/AddBlockButton";
-import { DragHandle } from "./DefaultButtons/DragHandle";
-import { SideMenu } from "./SideMenu";
 import { FC } from "react";
-import type { DragHandleMenuProps } from "./DragHandleMenu/DragHandleMenu";
+
+import { DragHandleMenuProps } from "./DragHandleMenu/DragHandleMenuProps";
 
 export type SideMenuProps<
   BSchema extends BlockSchema = DefaultBlockSchema,
@@ -30,20 +28,3 @@ export type SideMenuProps<
     | "freezeMenu"
     | "unfreezeMenu"
   >;
-
-export const DefaultSideMenu = <
-  BSchema extends BlockSchema = DefaultBlockSchema,
-  I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema
->(
-  props: SideMenuProps<BSchema, I, S>
-) => {
-  const { addBlock, ...rest } = props;
-
-  return (
-    <SideMenu>
-      <AddBlockButton addBlock={addBlock} />
-      <DragHandle {...rest} />
-    </SideMenu>
-  );
-};

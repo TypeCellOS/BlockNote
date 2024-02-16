@@ -3,7 +3,8 @@ import {
   PartialBlock,
   TableContent,
 } from "@blocknote/core";
-import { TableHandleMenuProps } from "../TableHandleMenu";
+
+import { TableHandleMenuProps } from "../TableHandleMenuProps";
 import { TableHandleMenuItem } from "../TableHandleMenuItem";
 
 export const DeleteRowButton = <
