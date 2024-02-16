@@ -1,8 +1,8 @@
+import { mergeCSSClasses } from "@blocknote/core";
 import { Group } from "@mantine/core";
 import { forwardRef, HTMLAttributes } from "react";
-import { mergeCSSClasses } from "@blocknote/core";
 
-export const Toolbar = forwardRef<
+export const ToolbarWrapper = forwardRef<
   HTMLDivElement,
   HTMLAttributes<HTMLDivElement>
 >((props, ref) => {

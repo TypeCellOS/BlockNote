@@ -9,7 +9,7 @@ import {
   StyleSchema,
 } from "@blocknote/core";
 import { useCallback, useMemo } from "react";
-import type { IconType } from "react-icons";
+import { IconType } from "react-icons";
 import {
   RiAlignCenter,
   RiAlignJustify,
@@ -17,9 +17,9 @@ import {
   RiAlignRight,
 } from "react-icons/ri";
 
-import { ToolbarButton } from "../../../components-shared/Toolbar/ToolbarButton";
-import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
 import { useBlockNoteEditor } from "../../../editor/BlockNoteContext";
+import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
+import { ToolbarButton } from "../../../components-shared/Toolbar/ToolbarButton";
 
 type TextAlignment = DefaultProps["textAlignment"];
 

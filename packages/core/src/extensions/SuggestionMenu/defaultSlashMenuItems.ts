@@ -1,6 +1,8 @@
 import {
   Block,
   DefaultBlockSchema,
+  DefaultInlineContentSchema,
+  DefaultStyleSchema,
   PartialBlock,
 } from "../../blocks/defaultBlocks";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
@@ -11,7 +13,6 @@ import {
   isStyledTextInlineContent,
 } from "../../schema";
 import { formatKeyboardShortcut } from "../../util/browser";
-import { imageToolbarPluginKey } from "../ImageToolbar/ImageToolbarPlugin";
 
 // Sets the editor's text cursor position to the next content editable block,
 // so either a block with inline content or a table. The last block is always a
@@ -76,18 +77,21 @@ export function insertOrUpdateBlock<
   return insertedBlock;
 }
 
-export function getDefaultSlashMenuItems() {
+export function getDefaultSlashMenuItems<
+  I extends InlineContentSchema = DefaultInlineContentSchema,
+  S extends StyleSchema = DefaultStyleSchema
+>() {
   return [
     {
       title: "Heading 1",
       // Unfortunately, we can't use a more specific BlockNoteEditor type here,
       // Typescript seems to get in the way there
       // This means that we don't have type checking for calling insertOrUpdateBlock etc. :(
-      onItemClick: (editor: BlockNoteEditor<any, any, any>) => {
+      onItemClick: (editor: BlockNoteEditor<DefaultBlockSchema, I, S>) => {
         insertOrUpdateBlock(editor, {
           type: "heading",
           props: { level: 1 },
-        } satisfies PartialBlock<DefaultBlockSchema, any, any>);
+        } satisfies PartialBlock<DefaultBlockSchema, I, S>);
       },
       subtext: "Used for a top-level heading",
       badge: formatKeyboardShortcut("Mod-Alt-1"),
@@ -96,11 +100,11 @@ export function getDefaultSlashMenuItems() {
     },
     {
       title: "Heading 2",
-      onItemClick: (editor: BlockNoteEditor<any, any, any>) => {
+      onItemClick: (editor: BlockNoteEditor<DefaultBlockSchema, I, S>) => {
         insertOrUpdateBlock(editor, {
           type: "heading",
           props: { level: 2 },
-        } satisfies PartialBlock<DefaultBlockSchema, any, any>);
+        } satisfies PartialBlock<DefaultBlockSchema, I, S>);
       },
       subtext: "Used for key sections",
       badge: formatKeyboardShortcut("Mod-Alt-2"),
@@ -109,11 +113,11 @@ export function getDefaultSlashMenuItems() {
     },
     {
       title: "Heading 3",
-      onItemClick: (editor: BlockNoteEditor<any, any, any>) => {
+      onItemClick: (editor: BlockNoteEditor<DefaultBlockSchema, I, S>) => {
         insertOrUpdateBlock(editor, {
           type: "heading",
           props: { level: 3 },
-        } satisfies PartialBlock<DefaultBlockSchema, any, any>);
+        } satisfies PartialBlock<DefaultBlockSchema, I, S>);
       },
       subtext: "Used for subsections and group headings",
       badge: formatKeyboardShortcut("Mod-Alt-3"),
@@ -122,10 +126,10 @@ export function getDefaultSlashMenuItems() {
     },
     {
       title: "Numbered List",
-      onItemClick: (editor: BlockNoteEditor<any, any, any>) => {
+      onItemClick: (editor: BlockNoteEditor<DefaultBlockSchema, I, S>) => {
         insertOrUpdateBlock(editor, {
           type: "numberedListItem",
-        } satisfies PartialBlock<DefaultBlockSchema, any, any>);
+        } satisfies PartialBlock<DefaultBlockSchema, I, S>);
       },
       subtext: "Used to display a numbered list",
       badge: formatKeyboardShortcut("Mod-Shift-7"),
@@ -134,10 +138,10 @@ export function getDefaultSlashMenuItems() {
     },
     {
       title: "Bullet List",
-      onItemClick: (editor: BlockNoteEditor<any, any, any>) => {
+      onItemClick: (editor: BlockNoteEditor<DefaultBlockSchema, I, S>) => {
         insertOrUpdateBlock(editor, {
           type: "bulletListItem",
-        } satisfies PartialBlock<DefaultBlockSchema, any, any>);
+        } satisfies PartialBlock<DefaultBlockSchema, I, S>);
       },
       subtext: "Used to display an unordered list",
       badge: formatKeyboardShortcut("Mod-Shift-8"),
@@ -146,10 +150,10 @@ export function getDefaultSlashMenuItems() {
     },
     {
       title: "Paragraph",
-      onItemClick: (editor: BlockNoteEditor<any, any, any>) => {
+      onItemClick: (editor: BlockNoteEditor<DefaultBlockSchema, I, S>) => {
         insertOrUpdateBlock(editor, {
           type: "paragraph",
-        } satisfies PartialBlock<DefaultBlockSchema, any, any>);
+        } satisfies PartialBlock);
       },
       subtext: "Used for the body of your document",
       badge: formatKeyboardShortcut("Mod-Alt-0"),
@@ -158,7 +162,7 @@ export function getDefaultSlashMenuItems() {
     },
     {
       title: "Table",
-      onItemClick: (editor: BlockNoteEditor<any, any, any>) => {
+      onItemClick: (editor: BlockNoteEditor<DefaultBlockSchema, I, S>) => {
         insertOrUpdateBlock(editor, {
           type: "table",
           content: {
@@ -172,7 +176,7 @@ export function getDefaultSlashMenuItems() {
               },
             ],
           },
-        } satisfies PartialBlock<DefaultBlockSchema, any, any>);
+        } satisfies PartialBlock);
       },
       subtext: "Used for for tables",
       aliases: ["table"],
@@ -181,14 +185,14 @@ export function getDefaultSlashMenuItems() {
     },
     {
       title: "Image",
-      onItemClick: (editor: BlockNoteEditor<any, any, any>) => {
+      onItemClick: (editor: BlockNoteEditor<DefaultBlockSchema, I, S>) => {
         const insertedBlock = insertOrUpdateBlock(editor, {
           type: "image",
-        } satisfies PartialBlock<DefaultBlockSchema, any, any>);
+        } satisfies PartialBlock<DefaultBlockSchema, I, S>);
 
         // Immediately open the image toolbar
         editor._tiptapEditor.view.dispatch(
-          editor._tiptapEditor.state.tr.setMeta(imageToolbarPluginKey, {
+          editor._tiptapEditor.state.tr.setMeta(editor.imageToolbar!.plugin, {
             block: insertedBlock,
           })
         );

@@ -1,39 +1,41 @@
-import { BlockNoteEditor } from "@blocknote/core";
 import {
   ToolbarButton,
+  useBlockNoteEditor,
   useEditorChange,
   useEditorSelectionChange,
 } from "@blocknote/react";
 import { useState } from "react";
 
-export const CustomButton = (props: { editor: BlockNoteEditor }) => {
+export function CustomButton() {
+  const editor = useBlockNoteEditor();
+
   // Tracks whether the text & background are both blue.
   const [isSelected, setIsSelected] = useState<boolean>(
-    props.editor.getActiveStyles().textColor === "blue" &&
-      props.editor.getActiveStyles().backgroundColor === "blue"
+    editor.getActiveStyles().textColor === "blue" &&
+      editor.getActiveStyles().backgroundColor === "blue"
   );
 
   // Updates state on content change.
   useEditorChange(() => {
     setIsSelected(
-      props.editor.getActiveStyles().textColor === "blue" &&
-        props.editor.getActiveStyles().backgroundColor === "blue"
+      editor.getActiveStyles().textColor === "blue" &&
+        editor.getActiveStyles().backgroundColor === "blue"
     );
-  }, props.editor);
+  }, editor);
 
   // Updates state on selection change.
   useEditorSelectionChange(() => {
     setIsSelected(
-      props.editor.getActiveStyles().textColor === "blue" &&
-        props.editor.getActiveStyles().backgroundColor === "blue"
+      editor.getActiveStyles().textColor === "blue" &&
+        editor.getActiveStyles().backgroundColor === "blue"
     );
-  }, props.editor);
+  }, editor);
 
   return (
     <ToolbarButton
       mainTooltip={"Blue Text & Background"}
       onClick={() => {
-        props.editor.toggleStyles({
+        editor.toggleStyles({
           textColor: "blue",
           backgroundColor: "blue",
         });
@@ -42,4 +44,4 @@ export const CustomButton = (props: { editor: BlockNoteEditor }) => {
       Blue
     </ToolbarButton>
   );
-};
+}

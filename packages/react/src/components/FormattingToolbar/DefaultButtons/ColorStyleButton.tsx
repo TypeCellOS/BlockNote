@@ -1,19 +1,19 @@
-import { Menu } from "@mantine/core";
-import { useCallback, useMemo, useState } from "react";
-
-import { ColorIcon } from "../../../components-shared/ColorPicker/ColorIcon";
-import { ColorPicker } from "../../../components-shared/ColorPicker/ColorPicker";
-import { ToolbarButton } from "../../../components-shared/Toolbar/ToolbarButton";
-import { useEditorContentOrSelectionChange } from "../../../hooks/useEditorContentOrSelectionChange";
-import { usePreventMenuOverflow } from "../../../hooks/usePreventMenuOverflow";
-import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
-import { useBlockNoteEditor } from "../../../editor/BlockNoteContext";
 import {
   BlockNoteEditor,
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
+import { Menu } from "@mantine/core";
+import { useCallback, useMemo, useState } from "react";
+
+import { useBlockNoteEditor } from "../../../editor/BlockNoteContext";
+import { useEditorContentOrSelectionChange } from "../../../hooks/useEditorContentOrSelectionChange";
+import { usePreventMenuOverflow } from "../../../hooks/usePreventMenuOverflow";
+import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
+import { ColorIcon } from "../../../components-shared/ColorPicker/ColorIcon";
+import { ColorPicker } from "../../../components-shared/ColorPicker/ColorPicker";
+import { ToolbarButton } from "../../../components-shared/Toolbar/ToolbarButton";
 
 function checkColorInSchema<Color extends "text" | "background">(
   color: Color,

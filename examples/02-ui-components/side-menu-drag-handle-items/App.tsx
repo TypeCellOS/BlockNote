@@ -1,7 +1,7 @@
 import {
   BlockNoteView,
-  DefaultPositionedSideMenu,
-  DefaultSideMenu,
+  SideMenu,
+  SideMenuController,
   useBlockNote,
 } from "@blocknote/react";
 import "@blocknote/react/style.css";
@@ -15,12 +15,9 @@ export default function App() {
   // Renders the editor instance.
   return (
     <BlockNoteView editor={editor} sideMenu={false}>
-      <DefaultPositionedSideMenu
+      <SideMenuController
         sideMenu={(props) => (
-          <DefaultSideMenu
-            {...props}
-            dragHandleMenu={(props) => <CustomDragHandleMenu {...props} />}
-          />
+          <SideMenu {...props} dragHandleMenu={CustomDragHandleMenu} />
         )}
       />
     </BlockNoteView>

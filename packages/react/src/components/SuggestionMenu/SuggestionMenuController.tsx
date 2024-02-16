@@ -7,19 +7,19 @@ import {
 import { flip, offset, size } from "@floating-ui/react";
 import { FC } from "react";
 
-import { useUIElementPositioning } from "../../hooks/useUIElementPositioning";
-import { useUIPluginState } from "../../hooks/useUIPluginState";
-import { DefaultSuggestionMenu } from "./DefaultSuggestionMenu";
-import { MantineSuggestionMenu } from "./mantine/MantineSuggestionMenu";
-import { DefaultSuggestionItem, SuggestionMenuProps } from "./types";
 import { useBlockNoteEditor } from "../../editor/BlockNoteContext";
+import { useUIPluginState } from "../../hooks/useUIPluginState";
+import { useUIElementPositioning } from "../../hooks/useUIElementPositioning";
+import { DefaultSuggestionItem, SuggestionMenuProps } from "./types";
+import { SuggestionMenuWrapper } from "./SuggestionMenuWrapper";
+import { SuggestionMenu } from "./mantine/SuggestionMenu";
 
 type ArrayElement<A> = A extends readonly (infer T)[] ? T : never;
 
 type ItemType<GetItemsType extends (query: string) => Promise<any[]>> =
   ArrayElement<Awaited<ReturnType<GetItemsType>>>;
 
-export function DefaultPositionedSuggestionMenu<
+export function SuggestionMenuController<
   // This is a bit hacky, but only way I found to make types work so the optionality
   // of suggestionMenuComponent depends on the return type of getItems
   GetItemsType extends (query: string) => Promise<any[]>
@@ -89,18 +89,15 @@ export function DefaultPositionedSuggestionMenu<
     return null;
   }
 
-  const { show, referencePos, ...data } = state;
-
   return (
     <div ref={ref} style={style}>
-      <DefaultSuggestionMenu
+      <SuggestionMenuWrapper
+        query={state.query}
+        closeMenu={callbacks.closeMenu}
+        clearQuery={callbacks.clearQuery}
         getItems={getItems}
-        suggestionMenuComponent={
-          suggestionMenuComponent || MantineSuggestionMenu
-        }
+        suggestionMenuComponent={suggestionMenuComponent || SuggestionMenu}
         onItemClick={onItemClick}
-        {...data}
-        {...callbacks}
       />
     </div>
   );

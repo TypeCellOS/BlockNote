@@ -1,5 +1,4 @@
 import {
-  Block,
   BlockSchema,
   DefaultBlockSchema,
   DefaultInlineContentSchema,
@@ -9,27 +8,19 @@ import {
 } from "@blocknote/core";
 import { Menu } from "@mantine/core";
 import { MdDragIndicator } from "react-icons/md";
-import { DefaultDragHandleMenu } from "../DragHandleMenu/DefaultDragHandleMenu";
+
+import { SideMenuProps } from "../SideMenuProps";
 import { SideMenuButton } from "../SideMenuButton";
-import { FC } from "react";
-import type { DragHandleMenuProps } from "../DragHandleMenu/DragHandleMenu";
+import { DragHandleMenu } from "../DragHandleMenu/DragHandleMenu";
 
 export const DragHandle = <
   BSchema extends BlockSchema = DefaultBlockSchema,
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema
->(props: {
-  block: Block<BSchema, I, S>;
-  blockDragStart: (event: {
-    dataTransfer: DataTransfer | null;
-    clientY: number;
-  }) => void;
-  blockDragEnd: () => void;
-  freezeMenu: () => void;
-  unfreezeMenu: () => void;
-  dragHandleMenu?: FC<DragHandleMenuProps<BSchema, I, S>>;
-}) => {
-  const DragHandleMenu = props.dragHandleMenu || DefaultDragHandleMenu;
+>(
+  props: Omit<SideMenuProps<BSchema, I, S>, "addBlock">
+) => {
+  const Component = props.dragHandleMenu || DragHandleMenu;
 
   return (
     <Menu
@@ -50,7 +41,7 @@ export const DragHandle = <
           </SideMenuButton>
         </div>
       </Menu.Target>
-      <DragHandleMenu block={props.block} />
+      <Component block={props.block} />
     </Menu>
   );
 };

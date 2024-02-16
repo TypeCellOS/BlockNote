@@ -1,23 +1,28 @@
-import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
+import {
+  BlockSchema,
+  DefaultBlockSchema,
+  DefaultInlineContentSchema,
+  DefaultStyleSchema,
+  InlineContentSchema,
+  StyleSchema,
+} from "@blocknote/core";
 import { flip, offset } from "@floating-ui/react";
 import { FC } from "react";
 
+import { useBlockNoteEditor } from "../../editor/BlockNoteContext";
 import { useUIPluginState } from "../../hooks/useUIPluginState";
 import { useUIElementPositioning } from "../../hooks/useUIElementPositioning";
-import {
-  DefaultHyperlinkToolbar,
-  HyperlinkToolbarProps,
-} from "./DefaultHyperlinkToolbar";
-import { useBlockNoteEditor } from "../../editor/BlockNoteContext";
+import { HyperlinkToolbarProps } from "./HyperlinkToolbarProps";
+import { HyperlinkToolbar } from "./HyperlinkToolbar";
 
-export const DefaultPositionedHyperlinkToolbar = (props: {
+export const HyperlinkToolbarController = <
+  BSchema extends BlockSchema = DefaultBlockSchema,
+  I extends InlineContentSchema = DefaultInlineContentSchema,
+  S extends StyleSchema = DefaultStyleSchema
+>(props: {
   hyperlinkToolbar?: FC<HyperlinkToolbarProps>;
 }) => {
-  const editor = useBlockNoteEditor<
-    BlockSchema,
-    InlineContentSchema,
-    StyleSchema
-  >();
+  const editor = useBlockNoteEditor<BSchema, I, S>();
 
   const callbacks = {
     deleteHyperlink: editor.hyperlinkToolbar.deleteHyperlink,
@@ -45,11 +50,11 @@ export const DefaultPositionedHyperlinkToolbar = (props: {
 
   const { show, referencePos, ...data } = state;
 
-  const HyperlinkToolbar = props.hyperlinkToolbar || DefaultHyperlinkToolbar;
+  const Component = props.hyperlinkToolbar || HyperlinkToolbar;
 
   return (
     <div ref={ref} style={style}>
-      <HyperlinkToolbar {...data} {...callbacks} />
+      <Component {...data} {...callbacks} />
     </div>
   );
 };

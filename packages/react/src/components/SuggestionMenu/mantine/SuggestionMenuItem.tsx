@@ -3,7 +3,7 @@ import { useEffect, useRef } from "react";
 
 const MIN_LEFT_MARGIN = 5;
 
-export function MantineSuggestionMenuItem(props: {
+export function SuggestionMenuItem(props: {
   title: string;
   onClick: () => void;
   subtext?: string;

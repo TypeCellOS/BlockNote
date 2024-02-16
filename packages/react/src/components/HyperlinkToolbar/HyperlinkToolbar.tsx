@@ -1,32 +1,12 @@
-import {
-  BlockNoteEditor,
-  BlockSchema,
-  HyperlinkToolbarState,
-  InlineContentSchema,
-  StyleSchema,
-  UiElementPosition,
-} from "@blocknote/core";
 import { useRef, useState } from "react";
 import { RiExternalLinkFill, RiLinkUnlink } from "react-icons/ri";
 
-import { Toolbar } from "../../components-shared/Toolbar/Toolbar";
-import { ToolbarButton } from "../../components-shared/Toolbar/ToolbarButton";
+import { HyperlinkToolbarProps } from "./HyperlinkToolbarProps";
 import { EditHyperlinkMenu } from "./EditHyperlinkMenu/components/EditHyperlinkMenu";
+import { ToolbarWrapper } from "../../components-shared/Toolbar/ToolbarWrapper";
+import { ToolbarButton } from "../../components-shared/Toolbar/ToolbarButton";
 
-export type HyperlinkToolbarProps = Omit<
-  HyperlinkToolbarState,
-  keyof UiElementPosition
-> &
-  Pick<
-    BlockNoteEditor<
-      BlockSchema,
-      InlineContentSchema,
-      StyleSchema
-    >["hyperlinkToolbar"],
-    "deleteHyperlink" | "editHyperlink" | "startHideTimer" | "stopHideTimer"
-  >;
-
-export const DefaultHyperlinkToolbar = (props: HyperlinkToolbarProps) => {
+export const HyperlinkToolbar = (props: HyperlinkToolbarProps) => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const editMenuRef = useRef<HTMLDivElement | null>(null);
 
@@ -60,7 +40,7 @@ export const DefaultHyperlinkToolbar = (props: HyperlinkToolbarProps) => {
   }
 
   return (
-    <Toolbar onMouseEnter={stopHideTimer} onMouseLeave={startHideTimer}>
+    <ToolbarWrapper onMouseEnter={stopHideTimer} onMouseLeave={startHideTimer}>
       <ToolbarButton
         mainTooltip="Edit"
         isSelected={false}
@@ -81,6 +61,6 @@ export const DefaultHyperlinkToolbar = (props: HyperlinkToolbarProps) => {
         onClick={deleteHyperlink}
         icon={RiLinkUnlink}
       />
-    </Toolbar>
+    </ToolbarWrapper>
   );
 };

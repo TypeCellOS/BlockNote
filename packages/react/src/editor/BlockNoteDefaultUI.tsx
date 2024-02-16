@@ -1,12 +1,12 @@
 import { filterSuggestionItems } from "@blocknote/core";
-import { DefaultPositionedFormattingToolbar } from "../components/FormattingToolbar/DefaultPositionedFormattingToolbar";
-import { DefaultPositionedHyperlinkToolbar } from "../components/HyperlinkToolbar/DefaultPositionedHyperlinkToolbar";
-import { DefaultPositionedImageToolbar } from "../components/ImageToolbar/DefaultPositionedImageToolbar";
-import { DefaultPositionedSideMenu } from "../components/SideMenu/DefaultPositionedSideMenu";
-import { DefaultPositionedSuggestionMenu } from "../components/SuggestionMenu/DefaultPositionedSuggestionMenu";
-import { getDefaultReactSlashMenuItems } from "../components/SuggestionMenu/defaultReactSlashMenuItems";
-import { DefaultPositionedTableHandles } from "../components/TableHandles/DefaultPositionedTableHandles";
 import { useBlockNoteContext } from "./BlockNoteContext";
+import { FormattingToolbarController } from "../components/FormattingToolbar/FormattingToolbarController";
+import { HyperlinkToolbarController } from "../components/HyperlinkToolbar/HyperlinkToolbarController";
+import { ImageToolbarController } from "../components/ImageToolbar/ImageToolbarController";
+import { SideMenuController } from "../components/SideMenu/SideMenuController";
+import { SuggestionMenuController } from "../components/SuggestionMenu/SuggestionMenuController";
+import { getDefaultReactSlashMenuItems } from "../components/SuggestionMenu/defaultReactSlashMenuItems";
+import { TableHandlesController } from "../components/TableHandles/TableHandlesController";
 
 export type BlockNoteDefaultUIProps = {
   formattingToolbar?: boolean;
@@ -26,17 +26,12 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
     );
   }
 
-  // TODO also remove editor passing to each component, use context
   return (
     <>
-      {props.formattingToolbar !== false && (
-        <DefaultPositionedFormattingToolbar />
-      )}
-      {props.hyperlinkToolbar !== false && (
-        <DefaultPositionedHyperlinkToolbar />
-      )}
+      {props.formattingToolbar !== false && <FormattingToolbarController />}
+      {props.hyperlinkToolbar !== false && <HyperlinkToolbarController />}
       {props.slashMenu !== false && (
-        <DefaultPositionedSuggestionMenu
+        <SuggestionMenuController
           getItems={async (query) =>
             filterSuggestionItems(getDefaultReactSlashMenuItems(), query)
           }
@@ -47,10 +42,12 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
           triggerCharacter="/"
         />
       )}
-      {props.sideMenu !== false && <DefaultPositionedSideMenu />}
-      {props.imageToolbar !== false && <DefaultPositionedImageToolbar />}
-      {editor.blockSchema.table && props.tableHandles !== false && (
-        <DefaultPositionedTableHandles editor={editor as any} />
+      {props.sideMenu !== false && <SideMenuController />}
+      {editor.imageToolbar && props.imageToolbar !== false && (
+        <ImageToolbarController />
+      )}
+      {editor.tableHandles && props.tableHandles !== false && (
+        <TableHandlesController />
       )}
     </>
   );

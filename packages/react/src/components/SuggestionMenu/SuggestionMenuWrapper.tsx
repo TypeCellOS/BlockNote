@@ -1,13 +1,13 @@
+import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
 import { FC, useCallback } from "react";
 
+import { useBlockNoteEditor } from "../../editor/BlockNoteContext";
 import { useCloseSuggestionMenuNoItems } from "./hooks/useCloseSuggestionMenuNoItems";
 import { useLoadSuggestionMenuItems } from "./hooks/useLoadSuggestionMenuItems";
 import { useSuggestionMenuKeyboardNavigation } from "./hooks/useSuggestionMenuKeyboardNavigation";
 import { SuggestionMenuProps } from "./types";
-import { useBlockNoteEditor } from "../../editor/BlockNoteContext";
-import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
 
-export function DefaultSuggestionMenu<Item>(props: {
+export function SuggestionMenuWrapper<Item>(props: {
   query: string;
   closeMenu: () => void;
   clearQuery: () => void;
@@ -30,7 +30,7 @@ export function DefaultSuggestionMenu<Item>(props: {
     onItemClick,
   } = props;
 
-  const clickHandler = useCallback(
+  const onItemClickCloseMenu = useCallback(
     (item: Item) => {
       closeMenu();
       clearQuery();
@@ -50,14 +50,15 @@ export function DefaultSuggestionMenu<Item>(props: {
     editor,
     items,
     closeMenu,
-    onItemClick
+    onItemClickCloseMenu
   );
 
-  const Comp = suggestionMenuComponent;
+  const Component = suggestionMenuComponent;
+
   return (
-    <Comp
+    <Component
       items={items}
-      onItemClick={clickHandler}
+      onItemClick={onItemClickCloseMenu}
       loadingState={loadingState}
       selectedIndex={selectedIndex}
     />

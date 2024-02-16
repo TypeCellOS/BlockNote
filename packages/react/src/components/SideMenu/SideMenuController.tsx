@@ -8,12 +8,13 @@ import {
 } from "@blocknote/core";
 import { FC } from "react";
 
+import { useBlockNoteEditor } from "../../editor/BlockNoteContext";
 import { useUIPluginState } from "../../hooks/useUIPluginState";
 import { useUIElementPositioning } from "../../hooks/useUIElementPositioning";
-import { DefaultSideMenu, SideMenuProps } from "./DefaultSideMenu";
-import { useBlockNoteEditor } from "../../editor/BlockNoteContext";
+import { SideMenuProps } from "./SideMenuProps";
+import { SideMenu } from "./SideMenu";
 
-export const DefaultPositionedSideMenu = <
+export const SideMenuController = <
   BSchema extends BlockSchema = DefaultBlockSchema,
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema
@@ -48,11 +49,11 @@ export const DefaultPositionedSideMenu = <
 
   const { show, referencePos, ...data } = state;
 
-  const SideMenu = props.sideMenu || DefaultSideMenu;
+  const Component = props.sideMenu || SideMenu;
 
   return (
     <div ref={ref} style={style}>
-      <SideMenu {...data} {...callbacks} />
+      <Component {...data} {...callbacks} />
     </div>
   );
 };

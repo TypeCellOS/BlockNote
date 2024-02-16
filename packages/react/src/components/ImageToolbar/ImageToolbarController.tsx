@@ -1,31 +1,36 @@
-import { FC } from "react";
-import { flip, offset } from "@floating-ui/react";
-
-import { useUIPluginState } from "../../hooks/useUIPluginState";
-import { useUIElementPositioning } from "../../hooks/useUIElementPositioning";
-import { DefaultImageToolbar, ImageToolbarProps } from "./DefaultImageToolbar";
-import { useBlockNoteEditor } from "../../editor/BlockNoteContext";
 import {
-  BlockSchema,
   DefaultBlockSchema,
   DefaultInlineContentSchema,
   DefaultStyleSchema,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
+import { flip, offset } from "@floating-ui/react";
+import { FC } from "react";
 
-export const DefaultPositionedImageToolbar = <
-  BSchema extends BlockSchema = DefaultBlockSchema,
+import { useBlockNoteEditor } from "../../editor/BlockNoteContext";
+import { useUIPluginState } from "../../hooks/useUIPluginState";
+import { useUIElementPositioning } from "../../hooks/useUIElementPositioning";
+import { ImageToolbarProps } from "./ImageToolbarProps";
+import { ImageToolbar } from "./ImageToolbar";
+
+export const ImageToolbarController = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema
 >(props: {
-  imageToolbar?: FC<ImageToolbarProps<BSchema, I, S>>;
+  imageToolbar?: FC<ImageToolbarProps<I, S>>;
 }) => {
   const editor = useBlockNoteEditor<
-    BlockSchema,
-    InlineContentSchema,
-    StyleSchema
+    { image: DefaultBlockSchema["image"] },
+    I,
+    S
   >();
+
+  if (!editor.imageToolbar) {
+    throw new Error(
+      "ImageToolbarController can only be used when BlockNote editor schema contains image block"
+    );
+  }
 
   const state = useUIPluginState(
     editor.imageToolbar.onUpdate.bind(editor.imageToolbar)
@@ -46,11 +51,11 @@ export const DefaultPositionedImageToolbar = <
 
   const { show, referencePos, ...data } = state;
 
-  const ImageToolbar = props.imageToolbar || DefaultImageToolbar;
+  const Component = props.imageToolbar || ImageToolbar;
 
   return (
     <div ref={ref} style={style}>
-      <ImageToolbar {...data} />
+      <Component {...data} />
     </div>
   );
 };

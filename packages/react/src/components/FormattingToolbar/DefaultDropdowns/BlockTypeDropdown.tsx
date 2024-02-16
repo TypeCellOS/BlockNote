@@ -15,11 +15,11 @@ import {
   RiText,
 } from "react-icons/ri";
 
-import { ToolbarDropdown } from "../../../components-shared/Toolbar/ToolbarDropdown";
-import type { ToolbarDropdownItemProps } from "../../../components-shared/Toolbar/ToolbarDropdownItem";
+import { useBlockNoteEditor } from "../../../editor/BlockNoteContext";
 import { useEditorContentOrSelectionChange } from "../../../hooks/useEditorContentOrSelectionChange";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
-import { useBlockNoteEditor } from "../../../editor/BlockNoteContext";
+import { ToolbarDropdownItemProps } from "../../../components-shared/Toolbar/ToolbarDropdownItem";
+import { ToolbarDropdown } from "../../../components-shared/Toolbar/ToolbarDropdown";
 
 export type BlockTypeDropdownItem = {
   name: string;
@@ -31,7 +31,7 @@ export type BlockTypeDropdownItem = {
   ) => boolean;
 };
 
-export const defaultBlockTypeDropdownItems: BlockTypeDropdownItem[] = [
+export const blockTypeDropdownItems: BlockTypeDropdownItem[] = [
   {
     name: "Paragraph",
     type: "paragraph",
@@ -96,7 +96,7 @@ export const BlockTypeDropdown = (props: {
   const [block, setBlock] = useState(editor.getTextCursorPosition().block);
 
   const filteredItems: BlockTypeDropdownItem[] = useMemo(() => {
-    return (props.items || defaultBlockTypeDropdownItems).filter((item) => {
+    return (props.items || blockTypeDropdownItems).filter((item) => {
       // Checks if block type exists in the schema
       if (!(item.type in editor.blockSchema)) {
         return false;

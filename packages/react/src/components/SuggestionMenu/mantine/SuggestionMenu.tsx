@@ -1,9 +1,10 @@
 import { Loader, Menu } from "@mantine/core";
 import { Children, useMemo } from "react";
-import { DefaultSuggestionItem, SuggestionMenuProps } from "../types";
-import { MantineSuggestionMenuItem } from "./MantineSuggestionMenuItem";
 
-export function MantineSuggestionMenu<T extends DefaultSuggestionItem>(
+import { DefaultSuggestionItem, SuggestionMenuProps } from "../types";
+import { SuggestionMenuItem } from "./SuggestionMenuItem";
+
+export function SuggestionMenu<T extends DefaultSuggestionItem>(
   props: SuggestionMenuProps<T>
 ) {
   const { items, loadingState, selectedIndex, onItemClick } = props;
@@ -27,7 +28,7 @@ export function MantineSuggestionMenu<T extends DefaultSuggestionItem>(
       }
 
       renderedItems.push(
-        <MantineSuggestionMenuItem
+        <SuggestionMenuItem
           {...item}
           isSelected={i === selectedIndex}
           key={item.title}

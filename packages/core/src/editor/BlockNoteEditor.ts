@@ -18,7 +18,6 @@ import { markdownToBlocks } from "../api/parsers/markdown/parseMarkdown";
 import {
   Block,
   DefaultBlockSchema,
-  defaultBlockSchema,
   defaultBlockSpecs,
   DefaultInlineContentSchema,
   defaultInlineContentSpecs,
@@ -66,6 +65,45 @@ import {
   BlockNoteTipTapEditorOptions,
 } from "./BlockNoteTipTapEditor";
 import "./editor.css";
+
+export function checkImageInSchema<
+  I extends InlineContentSchema = DefaultInlineContentSchema,
+  S extends StyleSchema = DefaultStyleSchema
+>(
+  // TODO: Fix any, should be BSchema but smth is broken
+  editor: BlockNoteEditor<any, I, S>
+): editor is BlockNoteEditor<{ image: DefaultBlockSchema["image"] }, I, S> {
+  return (
+    // Checks if block schema contains an image block.
+    "image" in editor.blockSchema &&
+    // Checks if block takes no content.
+    editor.blockSchema.image.content === "none" &&
+    // Checks if the block has a `caption` prop which can take any string
+    // value.
+    "caption" in editor.blockSchema["image"].propSchema &&
+    typeof editor.blockSchema["image"].propSchema.caption.default ===
+      "string" &&
+    !("values" in editor.blockSchema["image"].propSchema.caption) &&
+    // Checks if the block has a `url` prop which can take any string value.
+    "url" in editor.blockSchema["image"].propSchema &&
+    typeof editor.blockSchema["image"].propSchema.url.default === "string" &&
+    !("values" in editor.blockSchema["image"].propSchema.url)
+  );
+}
+export function checkTableInSchema<
+  I extends InlineContentSchema = DefaultInlineContentSchema,
+  S extends StyleSchema = DefaultStyleSchema
+>(
+  // TODO: Fix any, should be BSchema but smth is broken
+  editor: BlockNoteEditor<any, I, S>
+): editor is BlockNoteEditor<{ table: DefaultBlockSchema["table"] }, I, S> {
+  return (
+    // Checks if block schema contains a table block.
+    "table" in editor.blockSchema &&
+    // Checks if block takes table content.
+    editor.blockSchema.table.content === "table"
+  );
+}
 
 // TODO: change for built-in version of typescript 5.4 after upgrade
 export type NoInfer<T> = [T][T extends any ? 0 : never];
@@ -174,28 +212,27 @@ export class BlockNoteEditor<
   public readonly inlineContentImplementations: InlineContentSpecs;
   public readonly styleImplementations: StyleSpecs;
 
-  public readonly sideMenu: SideMenuProsemirrorPlugin<
-    BSchema,
-    ISchema,
-    SSchema
-  >;
   public readonly formattingToolbar: FormattingToolbarProsemirrorPlugin;
   public readonly hyperlinkToolbar: HyperlinkToolbarProsemirrorPlugin<
     BSchema,
     ISchema,
     SSchema
   >;
-  public readonly imageToolbar: ImageToolbarProsemirrorPlugin<
+  public readonly sideMenu: SideMenuProsemirrorPlugin<
     BSchema,
     ISchema,
     SSchema
   >;
-  public readonly tableHandles:
-    | TableHandlesProsemirrorPlugin<ISchema, SSchema>
-    | undefined;
-
   public readonly suggestionMenus: SuggestionMenuProseMirrorPlugin<
     BSchema,
+    ISchema,
+    SSchema
+  >;
+  public readonly imageToolbar?: ImageToolbarProsemirrorPlugin<
+    ISchema,
+    SSchema
+  >;
+  public readonly tableHandles?: TableHandlesProsemirrorPlugin<
     ISchema,
     SSchema
   >;
@@ -261,16 +298,15 @@ export class BlockNoteEditor<
     this.inlineContentImplementations = newOptions.inlineContentSpecs;
     this.styleImplementations = newOptions.styleSpecs;
 
-    this.sideMenu = new SideMenuProsemirrorPlugin(this);
     this.formattingToolbar = new FormattingToolbarProsemirrorPlugin(this);
-
-    this.suggestionMenus = new SuggestionMenuProseMirrorPlugin(this);
-
     this.hyperlinkToolbar = new HyperlinkToolbarProsemirrorPlugin(this);
-    this.imageToolbar = new ImageToolbarProsemirrorPlugin(this);
-
-    if (this.blockSchema.table === defaultBlockSchema.table) {
-      this.tableHandles = new TableHandlesProsemirrorPlugin(this as any);
+    this.sideMenu = new SideMenuProsemirrorPlugin(this);
+    this.suggestionMenus = new SuggestionMenuProseMirrorPlugin(this);
+    if (checkImageInSchema(this)) {
+      this.imageToolbar = new ImageToolbarProsemirrorPlugin(this);
+    }
+    if (checkTableInSchema(this)) {
+      this.tableHandles = new TableHandlesProsemirrorPlugin(this);
     }
 
     const extensions = getBlockNoteExtensions({
@@ -288,11 +324,11 @@ export class BlockNoteEditor<
 
       addProseMirrorPlugins: () => {
         return [
-          this.sideMenu.plugin,
           this.formattingToolbar.plugin,
           this.hyperlinkToolbar.plugin,
-          this.imageToolbar.plugin,
+          this.sideMenu.plugin,
           this.suggestionMenus.plugin,
+          ...(this.imageToolbar ? [this.imageToolbar.plugin] : []),
           ...(this.tableHandles ? [this.tableHandles.plugin] : []),
         ];
       },

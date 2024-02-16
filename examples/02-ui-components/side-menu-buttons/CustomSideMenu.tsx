@@ -1,23 +1,25 @@
 import {
   DragHandle,
-  SideMenu,
   SideMenuButton,
   SideMenuProps,
+  SideMenuWrapper,
+  useBlockNoteEditor,
 } from "@blocknote/react";
 import "@blocknote/react/style.css";
 import { MdDelete } from "react-icons/md";
-import { BlockNoteEditor } from "@blocknote/core";
 
-export const CustomSideMenu = (
-  props: { editor: BlockNoteEditor } & SideMenuProps
-) => (
-  <SideMenu>
-    <SideMenuButton>
-      <MdDelete
-        size={24}
-        onClick={() => props.editor.removeBlocks([props.block])}
-      />
-    </SideMenuButton>
-    <DragHandle {...props} />
-  </SideMenu>
-);
+export function CustomSideMenu(props: SideMenuProps) {
+  const editor = useBlockNoteEditor();
+
+  return (
+    <SideMenuWrapper>
+      <SideMenuButton>
+        <MdDelete
+          size={24}
+          onClick={() => editor.removeBlocks([props.block])}
+        />
+      </SideMenuButton>
+      <DragHandle {...props} />
+    </SideMenuWrapper>
+  );
+}

@@ -15,8 +15,8 @@ export default function App() {
       formattingToolbar={false}
       slashMenu={false}
       sideMenu={false}>
-      <CustomFormattingToolbar editor={editor} />
-      <CustomSlashMenu editor={editor} />
+      <CustomFormattingToolbar />
+      <CustomSlashMenu />
       <CustomSideMenu />
     </BlockNoteView>
   );

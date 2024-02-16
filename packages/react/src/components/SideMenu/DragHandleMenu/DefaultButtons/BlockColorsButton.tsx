@@ -16,9 +16,9 @@ import { HiChevronRight } from "react-icons/hi";
 
 import { useBlockNoteEditor } from "../../../../editor/BlockNoteContext";
 import { usePreventMenuOverflow } from "../../../../hooks/usePreventMenuOverflow";
-import { ColorPicker } from "../../../../components-shared/ColorPicker/ColorPicker";
-import type { DragHandleMenuProps } from "../DragHandleMenu";
+import { DragHandleMenuProps } from "../DragHandleMenuProps";
 import { DragHandleMenuItem } from "../DragHandleMenuItem";
+import { ColorPicker } from "../../../../components-shared/ColorPicker/ColorPicker";
 
 type BlockConfigWithColor<
   Color extends "text" | "background",

@@ -1,14 +1,16 @@
-import { BlockNoteEditor, filterSuggestionItems } from "@blocknote/core";
+import { filterSuggestionItems } from "@blocknote/core";
 import {
-  DefaultPositionedSuggestionMenu,
   getDefaultReactSlashMenuItems,
+  SuggestionMenuController,
+  useBlockNoteEditor,
 } from "@blocknote/react";
 
-export const CustomSlashMenu = (props: { editor: BlockNoteEditor }) => {
-  const editor = props.editor;
+export function CustomSlashMenu() {
+  const editor = useBlockNoteEditor();
 
   return (
-    <DefaultPositionedSuggestionMenu
+    // TODO: Type not being inferred from getItems?
+    <SuggestionMenuController
       triggerCharacter={"/"}
       getItems={async (query) =>
         filterSuggestionItems(getDefaultReactSlashMenuItems(), query)
@@ -72,4 +74,4 @@ export const CustomSlashMenu = (props: { editor: BlockNoteEditor }) => {
       }}
     />
   );
-};
+}

@@ -1,11 +1,4 @@
-import {
-  BlockNoteView,
-  // FormattingToolbarPositioner,
-  // HyperlinkToolbarPositioner,
-  // ImageToolbarPositioner,
-  // SlashMenuPositioner,
-  useBlockNote,
-} from "@blocknote/react";
+import { BlockNoteView, useBlockNote } from "@blocknote/react";
 import "@blocknote/react/style.css";
 
 export default function App() {

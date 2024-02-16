@@ -6,24 +6,10 @@ import {
   RemoveBlockButton,
 } from "@blocknote/react";
 import "@blocknote/react/style.css";
-import {
-  BlockSchema,
-  DefaultBlockSchema,
-  DefaultInlineContentSchema,
-  DefaultStyleSchema,
-  InlineContentSchema,
-  StyleSchema,
-} from "@blocknote/core";
 
-export const CustomDragHandleMenu = <
-  BSchema extends BlockSchema = DefaultBlockSchema,
-  I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema
->(
-  props: DragHandleMenuProps<BSchema, I, S>
-) => {
+export function CustomDragHandleMenu(props: DragHandleMenuProps) {
   return (
-    <DragHandleMenu>
+    <DragHandleMenu {...props}>
       <RemoveBlockButton {...props}>Delete</RemoveBlockButton>
       <BlockColorsButton {...props}>Colors</BlockColorsButton>
       {/*Custom item which opens an alert when clicked.*/}
@@ -32,4 +18,4 @@ export const CustomDragHandleMenu = <
       </DragHandleMenuItem>
     </DragHandleMenu>
   );
-};
+}

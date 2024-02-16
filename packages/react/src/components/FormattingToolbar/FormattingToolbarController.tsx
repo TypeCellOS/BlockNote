@@ -7,11 +7,12 @@ import {
 import { flip, offset } from "@floating-ui/react";
 import { FC, useState } from "react";
 
+import { useBlockNoteEditor } from "../../editor/BlockNoteContext";
 import { useEditorContentOrSelectionChange } from "../../hooks/useEditorContentOrSelectionChange";
 import { useUIElementPositioning } from "../../hooks/useUIElementPositioning";
 import { useUIPluginState } from "../../hooks/useUIPluginState";
-import { DefaultFormattingToolbar } from "./DefaultFormattingToolbar";
-import { useBlockNoteEditor } from "../../editor/BlockNoteContext";
+import { FormattingToolbarProps } from "./FormattingToolbarProps";
+import { FormattingToolbar } from "./FormattingToolbar";
 
 const textAlignmentToPlacement = (
   textAlignment: DefaultProps["textAlignment"]
@@ -28,8 +29,8 @@ const textAlignmentToPlacement = (
   }
 };
 
-export const DefaultPositionedFormattingToolbar = (props: {
-  formattingToolbar?: FC;
+export const FormattingToolbarController = (props: {
+  formattingToolbar?: FC<FormattingToolbarProps>;
 }) => {
   const editor = useBlockNoteEditor<
     BlockSchema,
@@ -82,11 +83,11 @@ export const DefaultPositionedFormattingToolbar = (props: {
     return null;
   }
 
-  const FormattingToolbar = props.formattingToolbar || DefaultFormattingToolbar;
+  const Component = props.formattingToolbar || FormattingToolbar;
 
   return (
     <div ref={ref} style={style}>
-      <FormattingToolbar />
+      <Component />
     </div>
   );
 };

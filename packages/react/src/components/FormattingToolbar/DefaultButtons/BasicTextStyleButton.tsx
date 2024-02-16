@@ -13,12 +13,12 @@ import {
   RiStrikethrough,
   RiUnderline,
 } from "react-icons/ri";
+import { IconType } from "react-icons";
 
-import { ToolbarButton } from "../../../components-shared/Toolbar/ToolbarButton";
+import { useBlockNoteEditor } from "../../../editor/BlockNoteContext";
 import { useEditorContentOrSelectionChange } from "../../../hooks/useEditorContentOrSelectionChange";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
-import { useBlockNoteEditor } from "../../../editor/BlockNoteContext";
-import { IconType } from "react-icons";
+import { ToolbarButton } from "../../../components-shared/Toolbar/ToolbarButton";
 
 type BasicTextStyle = "bold" | "italic" | "underline" | "strike" | "code";
 

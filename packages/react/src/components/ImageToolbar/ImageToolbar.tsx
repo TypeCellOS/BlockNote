@@ -1,13 +1,9 @@
 import {
-  BlockNoteEditor,
-  BlockSchema,
   DefaultBlockSchema,
   DefaultInlineContentSchema,
   DefaultStyleSchema,
-  ImageToolbarState,
   InlineContentSchema,
   StyleSchema,
-  UiElementPosition,
 } from "@blocknote/core";
 import {
   Button,
@@ -25,53 +21,21 @@ import {
   useState,
 } from "react";
 
-import { Toolbar } from "../../components-shared/Toolbar/Toolbar";
 import { useBlockNoteEditor } from "../../editor/BlockNoteContext";
+import { ImageToolbarProps } from "./ImageToolbarProps";
+import { ToolbarWrapper } from "../../components-shared/Toolbar/ToolbarWrapper";
 
-type BaseImageBlockConfig = {
-  type: "image";
-  propSchema: {
-    url: {
-      default: string;
-    };
-  };
-  content: "none";
-};
-
-function checkImageInSchema(
-  // TODO: Fix any, should be BlockSchema but smth is broken
-  editor: BlockNoteEditor<any, InlineContentSchema, StyleSchema>
-): editor is BlockNoteEditor<
-  {
-    image: BaseImageBlockConfig;
-  },
-  InlineContentSchema,
-  StyleSchema
-> {
-  return (
-    // Checks if the block has a `url` prop which can take any string value.
-    "url" in editor.blockSchema["image"].propSchema &&
-    typeof editor.blockSchema["image"].propSchema.url.default === "string" &&
-    !("values" in editor.blockSchema["image"].propSchema.url) === undefined
-  );
-}
-
-export type ImageToolbarProps<
-  BSchema extends BlockSchema = DefaultBlockSchema,
+export const ImageToolbar = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema
-> = Omit<ImageToolbarState<BSchema, I, S>, keyof UiElementPosition>;
-
-export const DefaultImageToolbar = (
-  props: ImageToolbarProps<BlockSchema, InlineContentSchema, StyleSchema>
+>(
+  props: ImageToolbarProps<I, S>
 ) => {
   const editor = useBlockNoteEditor<
-    BlockSchema,
-    InlineContentSchema,
-    StyleSchema
+    { image: DefaultBlockSchema["image"] },
+    I,
+    S
   >();
-
-  const imageInSchema = checkImageInSchema(editor);
 
   const [openTab, setOpenTab] = useState<"upload" | "embed">(
     editor.uploadFile !== undefined ? "upload" : "embed"
@@ -96,7 +60,7 @@ export const DefaultImageToolbar = (
       async function upload(file: File) {
         setUploading(true);
 
-        if (imageInSchema && editor.uploadFile !== undefined) {
+        if (editor.uploadFile !== undefined) {
           try {
             const uploaded = await editor.uploadFile(file);
             editor.updateBlock(props.block, {
@@ -115,7 +79,7 @@ export const DefaultImageToolbar = (
 
       upload(file);
     },
-    [editor, imageInSchema, props.block]
+    [editor, props.block]
   );
 
   const [currentURL, setCurrentURL] = useState<string>("");
@@ -129,7 +93,7 @@ export const DefaultImageToolbar = (
 
   const handleURLEnter = useCallback(
     (event: KeyboardEvent) => {
-      if (imageInSchema && event.key === "Enter") {
+      if (event.key === "Enter") {
         event.preventDefault();
         editor.updateBlock(props.block, {
           type: "image",
@@ -139,22 +103,20 @@ export const DefaultImageToolbar = (
         });
       }
     },
-    [imageInSchema, editor, props.block, currentURL]
+    [editor, props.block, currentURL]
   );
 
   const handleURLClick = useCallback(() => {
-    if (imageInSchema) {
-      editor.updateBlock(props.block, {
-        type: "image",
-        props: {
-          url: currentURL,
-        },
-      });
-    }
-  }, [imageInSchema, editor, props.block, currentURL]);
+    editor.updateBlock(props.block, {
+      type: "image",
+      props: {
+        url: currentURL,
+      },
+    });
+  }, [editor, props.block, currentURL]);
 
   return (
-    <Toolbar className={"bn-image-toolbar"}>
+    <ToolbarWrapper className={"bn-image-toolbar"}>
       <Tabs value={openTab} onChange={setOpenTab as any}>
         {uploading && <LoadingOverlay visible={uploading} />}
 
@@ -207,6 +169,6 @@ export const DefaultImageToolbar = (
           </div>
         </Tabs.Panel>
       </Tabs>
-    </Toolbar>
+    </ToolbarWrapper>
   );
 };

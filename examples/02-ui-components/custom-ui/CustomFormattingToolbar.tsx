@@ -1,5 +1,8 @@
-import { BlockNoteEditor } from "@blocknote/core";
-import { useEditorChange, useEditorSelectionChange } from "@blocknote/react";
+import {
+  useBlockNoteEditor,
+  useEditorChange,
+  useEditorSelectionChange,
+} from "@blocknote/react";
 import { useState } from "react";
 import {
   MdAddLink,
@@ -27,11 +30,13 @@ type CustomFormattingToolbarState = {
   backgroundColor: string;
 };
 
-export const CustomFormattingToolbar = (props: { editor: BlockNoteEditor }) => {
+export function CustomFormattingToolbar() {
+  const editor = useBlockNoteEditor();
+
   // Function to get the state of toolbar buttons (active/inactive)
   const getState = (): CustomFormattingToolbarState => {
-    const block = props.editor.getTextCursorPosition().block;
-    const activeStyles = props.editor.getActiveStyles();
+    const block = editor.getTextCursorPosition().block;
+    const activeStyles = editor.getActiveStyles();
 
     return {
       bold: (activeStyles.bold as boolean) || false,
@@ -49,18 +54,18 @@ export const CustomFormattingToolbar = (props: { editor: BlockNoteEditor }) => {
   const setTextAlignment = (
     textAlignment: CustomFormattingToolbarState["textAlignment"]
   ) => {
-    const selection = props.editor.getSelection();
+    const selection = editor.getSelection();
 
     if (selection) {
       for (const block of selection.blocks) {
-        props.editor.updateBlock(block, {
+        editor.updateBlock(block, {
           props: { textAlignment: textAlignment },
         });
       }
     } else {
-      const block = props.editor.getTextCursorPosition().block;
+      const block = editor.getTextCursorPosition().block;
 
-      props.editor.updateBlock(block, {
+      editor.updateBlock(block, {
         props: { textAlignment: textAlignment },
       });
     }
@@ -74,8 +79,8 @@ export const CustomFormattingToolbar = (props: { editor: BlockNoteEditor }) => {
   const [linkMenuOpen, setLinkMenuOpen] = useState(false);
 
   // Updates toolbar state when the editor content or selection changes
-  useEditorChange(() => setState(getState()), props.editor);
-  useEditorSelectionChange(() => setState(getState()), props.editor);
+  useEditorChange(() => setState(getState()), editor);
+  useEditorSelectionChange(() => setState(getState()), editor);
 
   return (
     <div className={"formatting-toolbar"}>
@@ -84,7 +89,7 @@ export const CustomFormattingToolbar = (props: { editor: BlockNoteEditor }) => {
         {/*Toggle bold button*/}
         <button
           className={`formatting-toolbar-button${state.bold ? " active" : ""}`}
-          onClick={() => props.editor.toggleStyles({ bold: true })}>
+          onClick={() => editor.toggleStyles({ bold: true })}>
           <MdFormatBold />
         </button>
         {/*Toggle italic button*/}
@@ -92,7 +97,7 @@ export const CustomFormattingToolbar = (props: { editor: BlockNoteEditor }) => {
           className={`formatting-toolbar-button${
             state.italic ? " active" : ""
           }`}
-          onClick={() => props.editor.toggleStyles({ italic: true })}>
+          onClick={() => editor.toggleStyles({ italic: true })}>
           <MdFormatItalic />
         </button>
         {/*Toggle underline button*/}
@@ -100,7 +105,7 @@ export const CustomFormattingToolbar = (props: { editor: BlockNoteEditor }) => {
           className={`formatting-toolbar-button${
             state.underline ? " active" : ""
           }`}
-          onClick={() => props.editor.toggleStyles({ underline: true })}>
+          onClick={() => editor.toggleStyles({ underline: true })}>
           <MdFormatUnderlined />
         </button>
       </div>
@@ -149,10 +154,7 @@ export const CustomFormattingToolbar = (props: { editor: BlockNoteEditor }) => {
             onClick={() => setColorMenuOpen(!colorMenuOpen)}>
             <MdFormatColorText />
           </button>
-          <ColorMenu
-            editor={props.editor}
-            className={!colorMenuOpen ? "hidden" : undefined}
-          />
+          <ColorMenu className={!colorMenuOpen ? "hidden" : undefined} />
         </div>
       </div>
       {/*Button group for link menu*/}
@@ -166,11 +168,11 @@ export const CustomFormattingToolbar = (props: { editor: BlockNoteEditor }) => {
             <MdAddLink />
           </button>
           <LinkMenu
-            editor={props.editor}
+            editor={editor}
             className={!linkMenuOpen ? "hidden" : undefined}
           />
         </div>
       </div>
     </div>
   );
-};
+}

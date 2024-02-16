@@ -8,9 +8,9 @@ import {
 } from "@blocknote/core";
 import { ReactNode } from "react";
 
-import type { DragHandleMenuProps } from "../DragHandleMenu";
-import { DragHandleMenuItem } from "../DragHandleMenuItem";
 import { useBlockNoteEditor } from "../../../../editor/BlockNoteContext";
+import { DragHandleMenuProps } from "../DragHandleMenuProps";
+import { DragHandleMenuItem } from "../DragHandleMenuItem";
 
 export const RemoveBlockButton = <
   BSchema extends BlockSchema = DefaultBlockSchema,

@@ -1,55 +1,42 @@
 import {
-  BlockNoteEditor,
+  BlockSchema,
   DefaultInlineContentSchema,
   DefaultStyleSchema,
   InlineContentSchema,
   StyleSchema,
-  TableHandlesState,
 } from "@blocknote/core";
-import { DragEvent, FC, useState } from "react";
+import { FC, useState } from "react";
 
-import { DragHandleMenuProps } from "../SideMenu/DragHandleMenu/DragHandleMenu";
+import { useBlockNoteEditor } from "../../editor/BlockNoteContext";
 import { useUIPluginState } from "../../hooks/useUIPluginState";
 import { useTableHandlesPositioning } from "./hooks/useTableHandlesPositioning";
-import { DefaultTableHandle } from "./DefaultTableHandle";
-import { BlockSchemaWithTable } from "./BlockSchemaWithTable";
+import { TableHandleProps } from "./TableHandleProps";
+import { TableHandle } from "./TableHandle";
 
-type NonUndefined<T> = T extends undefined ? never : T;
-
-export type TableHandleProps<
-  I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema
-> = {
-  editor: BlockNoteEditor<BlockSchemaWithTable, I, S>;
-  orientation: "row" | "column";
-  index: number;
-  dragStart: (e: DragEvent<HTMLDivElement>) => void;
-  showOtherSide: () => void;
-  hideOtherSide: () => void;
-  tableHandleMenu?: FC<DragHandleMenuProps<BlockSchemaWithTable, I, S>>;
-} & Pick<TableHandlesState<I, S>, "block"> &
-  Pick<
-    NonUndefined<BlockNoteEditor<BlockSchemaWithTable, I, S>["tableHandles"]>,
-    "dragEnd" | "freezeHandles" | "unfreezeHandles"
-  >;
-
-export const DefaultPositionedTableHandles = <
+export const TableHandlesController = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema
 >(props: {
-  editor: BlockNoteEditor<BlockSchemaWithTable, I, S>;
   tableHandle?: FC<TableHandleProps<I, S>>;
 }) => {
+  const editor = useBlockNoteEditor<BlockSchema, I, S>();
+
+  if (!editor.tableHandles) {
+    throw new Error(
+      "TableHandlesController can only be used when BlockNote editor schema contains table block"
+    );
+  }
+
   const callbacks = {
-    rowDragStart: props.editor.tableHandles!.rowDragStart,
-    colDragStart: props.editor.tableHandles!.colDragStart,
-    dragEnd: props.editor.tableHandles!.dragEnd,
-    freezeHandles: props.editor.tableHandles!.freezeHandles,
-    unfreezeHandles: props.editor.tableHandles!.unfreezeHandles,
+    rowDragStart: editor.tableHandles.rowDragStart,
+    colDragStart: editor.tableHandles.colDragStart,
+    dragEnd: editor.tableHandles.dragEnd,
+    freezeHandles: editor.tableHandles.freezeHandles,
+    unfreezeHandles: editor.tableHandles.unfreezeHandles,
   };
 
   const state = useUIPluginState(
-    props.editor.tableHandles!.onUpdate.bind(props.editor.tableHandles)
+    editor.tableHandles.onUpdate.bind(editor.tableHandles)
   );
   const { rowHandle, colHandle } = useTableHandlesPositioning(
     state?.show || false,
@@ -62,9 +49,6 @@ export const DefaultPositionedTableHandles = <
         }
       : undefined
   );
-  console.log(state);
-  console.log(rowHandle);
-  console.log(colHandle);
 
   const [hideRow, setHideRow] = useState<boolean>(false);
   const [hideCol, setHideCol] = useState<boolean>(false);
@@ -73,15 +57,15 @@ export const DefaultPositionedTableHandles = <
     return null;
   }
 
-  const TableHandle = props.tableHandle || DefaultTableHandle;
+  const Component = props.tableHandle || TableHandle;
 
   return (
     <>
       {!hideRow && (
         <div ref={rowHandle.ref} style={rowHandle.style}>
-          <TableHandle
+          <Component
             // This "as any" unfortunately seems complicated to fix
-            editor={props.editor as any}
+            editor={editor as any}
             orientation={"row"}
             showOtherSide={() => setHideCol(false)}
             hideOtherSide={() => setHideCol(true)}
@@ -96,8 +80,8 @@ export const DefaultPositionedTableHandles = <
       )}
       {!hideCol && (
         <div ref={colHandle.ref} style={colHandle.style}>
-          <TableHandle
-            editor={props.editor as any}
+          <Component
+            editor={editor as any}
             orientation={"column"}
             showOtherSide={() => setHideRow(false)}
             hideOtherSide={() => setHideRow(true)}

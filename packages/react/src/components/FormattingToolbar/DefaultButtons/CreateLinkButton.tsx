@@ -7,12 +7,13 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { ToolbarButton } from "../../../components-shared/Toolbar/ToolbarButton";
-import { ToolbarInputDropdownButton } from "../../../components-shared/Toolbar/ToolbarInputDropdownButton";
+
+import { useBlockNoteEditor } from "../../../editor/BlockNoteContext";
 import { useEditorContentOrSelectionChange } from "../../../hooks/useEditorContentOrSelectionChange";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
+import { ToolbarButton } from "../../../components-shared/Toolbar/ToolbarButton";
+import { ToolbarInputDropdownButton } from "../../../components-shared/Toolbar/ToolbarInputDropdownButton";
 import { EditHyperlinkMenu } from "../../HyperlinkToolbar/EditHyperlinkMenu/components/EditHyperlinkMenu";
-import { useBlockNoteEditor } from "../../../editor/BlockNoteContext";
 
 // TODO: Make sure Link is in inline content schema
 export const CreateLinkButton = () => {
