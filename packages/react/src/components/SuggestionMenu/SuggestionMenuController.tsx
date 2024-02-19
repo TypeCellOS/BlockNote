@@ -10,7 +10,7 @@ import { FC } from "react";
 import { useBlockNoteEditor } from "../../editor/BlockNoteContext";
 import { useUIPluginState } from "../../hooks/useUIPluginState";
 import { useUIElementPositioning } from "../../hooks/useUIElementPositioning";
-import { DefaultSuggestionItem, SuggestionMenuProps } from "./types";
+import { ReactSuggestionItem, SuggestionMenuProps } from "./types";
 import { SuggestionMenuWrapper } from "./SuggestionMenuWrapper";
 import { SuggestionMenu } from "./mantine/SuggestionMenu";
 
@@ -28,7 +28,7 @@ export function SuggestionMenuController<
     triggerCharacter: string;
     getItems: GetItemsType;
     onItemClick?: (item: ItemType<GetItemsType>) => void;
-  } & (ItemType<GetItemsType> extends DefaultSuggestionItem
+  } & (ItemType<GetItemsType> extends ReactSuggestionItem<any, any, any>
     ? {
         // can be undefined
         suggestionMenuComponent?: FC<

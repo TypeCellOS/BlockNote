@@ -1,3 +1,10 @@
+import { BlockNoteEditor } from "../../editor/BlockNoteEditor";
+import {
+  BlockSchema,
+  InlineContentSchema,
+  isStyledTextInlineContent,
+  StyleSchema,
+} from "../../schema";
 import {
   Block,
   DefaultBlockSchema,
@@ -5,13 +12,8 @@ import {
   DefaultStyleSchema,
   PartialBlock,
 } from "../../blocks/defaultBlocks";
-import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
-import {
-  BlockSchema,
-  InlineContentSchema,
-  StyleSchema,
-  isStyledTextInlineContent,
-} from "../../schema";
+import { SuggestionItem } from "./SuggestionItem";
+import { checkDefaultBlockTypeInSchema } from "../../blocks/defaultBlockTypeGuards";
 import { formatKeyboardShortcut } from "../../util/browser";
 
 // Sets the editor's text cursor position to the next content editable block,
@@ -77,92 +79,136 @@ export function insertOrUpdateBlock<
   return insertedBlock;
 }
 
-export function getDefaultSlashMenuItems<
+export function getSlashMenuItems<
+  BSchema extends BlockSchema = DefaultBlockSchema,
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema
->() {
-  return [
-    {
-      title: "Heading 1",
-      // Unfortunately, we can't use a more specific BlockNoteEditor type here,
-      // Typescript seems to get in the way there
-      // This means that we don't have type checking for calling insertOrUpdateBlock etc. :(
-      onItemClick: (editor: BlockNoteEditor<DefaultBlockSchema, I, S>) => {
-        insertOrUpdateBlock(editor, {
-          type: "heading",
-          props: { level: 1 },
-        } satisfies PartialBlock<DefaultBlockSchema, I, S>);
-      },
-      subtext: "Used for a top-level heading",
-      badge: formatKeyboardShortcut("Mod-Alt-1"),
-      aliases: ["h", "heading1", "h1"],
-      group: "Headings",
-    },
-    {
-      title: "Heading 2",
-      onItemClick: (editor: BlockNoteEditor<DefaultBlockSchema, I, S>) => {
-        insertOrUpdateBlock(editor, {
-          type: "heading",
-          props: { level: 2 },
-        } satisfies PartialBlock<DefaultBlockSchema, I, S>);
-      },
-      subtext: "Used for key sections",
-      badge: formatKeyboardShortcut("Mod-Alt-2"),
-      aliases: ["h2", "heading2", "subheading"],
-      group: "Headings",
-    },
-    {
-      title: "Heading 3",
-      onItemClick: (editor: BlockNoteEditor<DefaultBlockSchema, I, S>) => {
-        insertOrUpdateBlock(editor, {
-          type: "heading",
-          props: { level: 3 },
-        } satisfies PartialBlock<DefaultBlockSchema, I, S>);
-      },
-      subtext: "Used for subsections and group headings",
-      badge: formatKeyboardShortcut("Mod-Alt-3"),
-      aliases: ["h3", "heading3", "subheading"],
-      group: "Headings",
-    },
-    {
+>(editor: BlockNoteEditor<BSchema, I, S>) {
+  const items: SuggestionItem<BSchema, I, S>[] = [];
+
+  if (checkDefaultBlockTypeInSchema("heading", editor)) {
+    items.push(
+      {
+        title: "Heading 1",
+        onItemClick: (editor) => {
+          insertOrUpdateBlock(editor, {
+            type: "heading",
+            props: { level: 1 },
+          });
+        },
+        subtext: "Used for a top-level heading",
+        badge: formatKeyboardShortcut("Mod-Alt-1"),
+        aliases: ["h", "heading1", "h1"],
+        group: "Headings",
+      } satisfies SuggestionItem<
+        { heading: DefaultBlockSchema["heading"] },
+        I,
+        S
+      > as SuggestionItem<any, I, S>,
+      {
+        title: "Heading 2",
+        onItemClick: (editor) => {
+          insertOrUpdateBlock(editor, {
+            type: "heading",
+            props: { level: 2 },
+          });
+        },
+        subtext: "Used for key sections",
+        badge: formatKeyboardShortcut("Mod-Alt-2"),
+        aliases: ["h2", "heading2", "subheading"],
+        group: "Headings",
+      } satisfies SuggestionItem<
+        { heading: DefaultBlockSchema["heading"] },
+        I,
+        S
+      > as SuggestionItem<any, I, S>,
+      {
+        title: "Heading 3",
+        onItemClick: (editor) => {
+          insertOrUpdateBlock(editor, {
+            type: "heading",
+            props: { level: 3 },
+          });
+        },
+        subtext: "Used for subsections and group headings",
+        badge: formatKeyboardShortcut("Mod-Alt-3"),
+        aliases: ["h3", "heading3", "subheading"],
+        group: "Headings",
+      } satisfies SuggestionItem<
+        { heading: DefaultBlockSchema["heading"] },
+        I,
+        S
+      > as SuggestionItem<any, I, S>
+    );
+  }
+
+  if (checkDefaultBlockTypeInSchema("numberedListItem", editor)) {
+    items.push({
       title: "Numbered List",
-      onItemClick: (editor: BlockNoteEditor<DefaultBlockSchema, I, S>) => {
+      onItemClick: (editor) => {
         insertOrUpdateBlock(editor, {
           type: "numberedListItem",
-        } satisfies PartialBlock<DefaultBlockSchema, I, S>);
+        });
       },
       subtext: "Used to display a numbered list",
       badge: formatKeyboardShortcut("Mod-Shift-7"),
       aliases: ["ol", "li", "list", "numberedlist", "numbered list"],
       group: "Basic blocks",
-    },
-    {
+    } satisfies SuggestionItem<
+      {
+        numberedListItem: DefaultBlockSchema["numberedListItem"];
+      },
+      I,
+      S
+    > as SuggestionItem<any, I, S>);
+  }
+
+  if (checkDefaultBlockTypeInSchema("bulletListItem", editor)) {
+    items.push({
       title: "Bullet List",
-      onItemClick: (editor: BlockNoteEditor<DefaultBlockSchema, I, S>) => {
+      onItemClick: (editor) => {
         insertOrUpdateBlock(editor, {
           type: "bulletListItem",
-        } satisfies PartialBlock<DefaultBlockSchema, I, S>);
+        });
       },
       subtext: "Used to display an unordered list",
       badge: formatKeyboardShortcut("Mod-Shift-8"),
       aliases: ["ul", "li", "list", "bulletlist", "bullet list"],
       group: "Basic blocks",
-    },
-    {
+    } satisfies SuggestionItem<
+      {
+        bulletListItem: DefaultBlockSchema["bulletListItem"];
+      },
+      I,
+      S
+    > as SuggestionItem<any, I, S>);
+  }
+
+  if (checkDefaultBlockTypeInSchema("paragraph", editor)) {
+    items.push({
       title: "Paragraph",
-      onItemClick: (editor: BlockNoteEditor<DefaultBlockSchema, I, S>) => {
+      onItemClick: (editor) => {
         insertOrUpdateBlock(editor, {
           type: "paragraph",
-        } satisfies PartialBlock);
+        });
       },
       subtext: "Used for the body of your document",
       badge: formatKeyboardShortcut("Mod-Alt-0"),
       aliases: ["p", "paragraph"],
       group: "Basic blocks",
-    },
-    {
+    } satisfies SuggestionItem<
+      {
+        paragraph: DefaultBlockSchema["paragraph"];
+      },
+      I,
+      S
+    > as SuggestionItem<any, I, S>);
+  }
+
+  if (checkDefaultBlockTypeInSchema("table", editor)) {
+    items.push({
       title: "Table",
-      onItemClick: (editor: BlockNoteEditor<DefaultBlockSchema, I, S>) => {
+      onItemClick: (editor) => {
         insertOrUpdateBlock(editor, {
           type: "table",
           content: {
@@ -176,19 +222,28 @@ export function getDefaultSlashMenuItems<
               },
             ],
           },
-        } satisfies PartialBlock);
+        });
       },
       subtext: "Used for for tables",
       aliases: ["table"],
       group: "Advanced",
       badge: undefined,
-    },
-    {
+    } satisfies SuggestionItem<
+      {
+        table: DefaultBlockSchema["table"];
+      },
+      I,
+      S
+    > as SuggestionItem<any, I, S>);
+  }
+
+  if (checkDefaultBlockTypeInSchema("image", editor)) {
+    items.push({
       title: "Image",
-      onItemClick: (editor: BlockNoteEditor<DefaultBlockSchema, I, S>) => {
+      onItemClick: (editor) => {
         const insertedBlock = insertOrUpdateBlock(editor, {
           type: "image",
-        } satisfies PartialBlock<DefaultBlockSchema, I, S>);
+        });
 
         // Immediately open the image toolbar
         editor._tiptapEditor.view.dispatch(
@@ -210,8 +265,16 @@ export function getDefaultSlashMenuItems<
         "dropbox",
       ],
       group: "Media",
-    },
-  ] as const;
+    } satisfies SuggestionItem<
+      {
+        image: DefaultBlockSchema["image"];
+      },
+      I,
+      S
+    > as SuggestionItem<any, I, S>);
+  }
+
+  return items;
 }
 
 export function filterSuggestionItems<

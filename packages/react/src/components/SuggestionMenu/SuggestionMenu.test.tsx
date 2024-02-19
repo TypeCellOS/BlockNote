@@ -15,7 +15,14 @@ it("has good typing", () => {
   // valid, because getItems returns DefaultSuggestionItem so suggestionMenuComponent is optional
   menu = (
     <SuggestionMenuController
-      getItems={async () => [{ title: "hello" }]}
+      getItems={async () => [
+        {
+          title: "hello",
+          onItemClick: () => {
+            return;
+          },
+        },
+      ]}
       triggerCharacter="/"
     />
   );

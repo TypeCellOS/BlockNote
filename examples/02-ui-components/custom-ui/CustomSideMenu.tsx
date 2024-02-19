@@ -1,19 +1,14 @@
-import { SideMenuController } from "@blocknote/react";
+import { SideMenuProps } from "@blocknote/react";
 import { RxDragHandleHorizontal } from "react-icons/rx";
 
-export function CustomSideMenu() {
+export function CustomSideMenu(props: SideMenuProps) {
   return (
-    <SideMenuController
-      sideMenu={(props) => (
-        // Side menu consists of only a drag handle
-        <div
-          className={"side-menu"}
-          draggable="true"
-          onDragStart={props.blockDragStart}
-          onDragEnd={props.blockDragEnd}>
-          <RxDragHandleHorizontal />
-        </div>
-      )}
-    />
+    <div
+      className={"side-menu"}
+      draggable="true"
+      onDragStart={props.blockDragStart}
+      onDragEnd={props.blockDragEnd}>
+      <RxDragHandleHorizontal />
+    </div>
   );
 }

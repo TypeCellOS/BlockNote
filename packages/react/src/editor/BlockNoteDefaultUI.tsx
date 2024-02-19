@@ -1,11 +1,16 @@
-import { filterSuggestionItems } from "@blocknote/core";
-import { useBlockNoteContext } from "./BlockNoteContext";
+import {
+  BlockSchema,
+  filterSuggestionItems,
+  InlineContentSchema,
+  StyleSchema,
+} from "@blocknote/core";
+import { useBlockNoteEditor } from "./BlockNoteContext";
 import { FormattingToolbarController } from "../components/FormattingToolbar/FormattingToolbarController";
 import { HyperlinkToolbarController } from "../components/HyperlinkToolbar/HyperlinkToolbarController";
 import { ImageToolbarController } from "../components/ImageToolbar/ImageToolbarController";
 import { SideMenuController } from "../components/SideMenu/SideMenuController";
 import { SuggestionMenuController } from "../components/SuggestionMenu/SuggestionMenuController";
-import { getDefaultReactSlashMenuItems } from "../components/SuggestionMenu/defaultReactSlashMenuItems";
+import { getReactSlashMenuItems } from "../components/SuggestionMenu/getReactSlashMenuItems";
 import { TableHandlesController } from "../components/TableHandles/TableHandlesController";
 
 export type BlockNoteDefaultUIProps = {
@@ -18,7 +23,11 @@ export type BlockNoteDefaultUIProps = {
 };
 
 export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
-  const editor = useBlockNoteContext()?.editor;
+  const editor = useBlockNoteEditor<
+    BlockSchema,
+    InlineContentSchema,
+    StyleSchema
+  >();
 
   if (!editor) {
     throw new Error(
@@ -33,7 +42,7 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
       {props.slashMenu !== false && (
         <SuggestionMenuController
           getItems={async (query) =>
-            filterSuggestionItems(getDefaultReactSlashMenuItems(), query)
+            filterSuggestionItems(getReactSlashMenuItems(editor), query)
           }
           // suggestionMenuComponent={MantineSuggestionMenu}
           onItemClick={(item) => {

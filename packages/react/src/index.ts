@@ -36,7 +36,7 @@ export * from "./components/SideMenu/DragHandleMenu/DragHandleMenuProps";
 export * from "./components/SideMenu/DragHandleMenu/DragHandleMenuWrapper";
 export * from "./components/SideMenu/DragHandleMenu/DragHandleMenuItem";
 
-export * from "./components/SuggestionMenu/defaultReactSlashMenuItems";
+export * from "./components/SuggestionMenu/getReactSlashMenuItems";
 export * from "./components/SuggestionMenu/hooks/useCloseSuggestionMenuNoItems";
 export * from "./components/SuggestionMenu/hooks/useLoadSuggestionMenuItems";
 export * from "./components/SuggestionMenu/hooks/useSuggestionMenuKeyboardNavigation";
@@ -44,6 +44,7 @@ export * from "./components/SuggestionMenu/SuggestionMenuWrapper";
 export * from "./components/SuggestionMenu/SuggestionMenuController";
 export * from "./components/SuggestionMenu/mantine/SuggestionMenu";
 export * from "./components/SuggestionMenu/mantine/SuggestionMenuItem";
+export * from "./components/SuggestionMenu/types";
 
 export * from "./components/ImageToolbar/ImageToolbar";
 export * from "./components/ImageToolbar/ImageToolbarProps";

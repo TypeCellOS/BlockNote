@@ -1,3 +1,4 @@
+import { filterSuggestionItems } from "@blocknote/core";
 import {
   BlockNoteView,
   SuggestionMenuController,
@@ -5,7 +6,7 @@ import {
 } from "@blocknote/react";
 import "@blocknote/react/style.css";
 
-import { customSlashMenuItems } from "./CustomSlashMenuItems";
+import { getCustomSlashMenuItems } from "./CustomSlashMenuItems";
 
 export default function App() {
   // Creates a new editor instance.
@@ -14,10 +15,11 @@ export default function App() {
   // Renders the editor instance.
   return (
     <BlockNoteView editor={editor} slashMenu={false}>
-      {/*TODO*/}
       <SuggestionMenuController
         triggerCharacter={"/"}
-        getItems={customSlashMenuItems}
+        getItems={async (query) =>
+          filterSuggestionItems(getCustomSlashMenuItems(editor), query)
+        }
       />
     </BlockNoteView>
   );

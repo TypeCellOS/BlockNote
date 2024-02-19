@@ -1,9 +1,17 @@
-import { BlockNoteView, useBlockNote } from "@blocknote/react";
+import { filterSuggestionItems } from "@blocknote/core";
+import {
+  BlockNoteView,
+  getReactSlashMenuItems,
+  SideMenuController,
+  SuggestionMenuController,
+  useBlockNote,
+} from "@blocknote/react";
 import "@blocknote/react/style.css";
 
 import { CustomFormattingToolbar } from "./CustomFormattingToolbar";
-import { CustomSlashMenu } from "./CustomSlashMenu";
 import { CustomSideMenu } from "./CustomSideMenu";
+import { CustomSlashMenu } from "./CustomSlashMenu";
+
 import "./styles.css";
 
 export default function App() {
@@ -16,8 +24,18 @@ export default function App() {
       slashMenu={false}
       sideMenu={false}>
       <CustomFormattingToolbar />
-      <CustomSlashMenu />
-      <CustomSideMenu />
+      <SideMenuController sideMenu={CustomSideMenu} />
+      {/* TODO: Shorthand for async function (array with built in filtering) */}
+      {/* TODO: Props type not inferred correctly */}
+      {/* TODO: Maybe no onItemClick prop if items contain onItemClick? Since
+           the behaviour is already defined */}
+      <SuggestionMenuController
+        triggerCharacter={"/"}
+        getItems={async (query) =>
+          filterSuggestionItems(getReactSlashMenuItems(editor), query)
+        }
+        suggestionMenuComponent={CustomSlashMenu}
+      />
     </BlockNoteView>
   );
 }

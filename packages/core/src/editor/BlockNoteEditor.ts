@@ -65,45 +65,7 @@ import {
   BlockNoteTipTapEditorOptions,
 } from "./BlockNoteTipTapEditor";
 import "./editor.css";
-
-export function checkImageInSchema<
-  I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema
->(
-  // TODO: Fix any, should be BSchema but smth is broken
-  editor: BlockNoteEditor<any, I, S>
-): editor is BlockNoteEditor<{ image: DefaultBlockSchema["image"] }, I, S> {
-  return (
-    // Checks if block schema contains an image block.
-    "image" in editor.blockSchema &&
-    // Checks if block takes no content.
-    editor.blockSchema.image.content === "none" &&
-    // Checks if the block has a `caption` prop which can take any string
-    // value.
-    "caption" in editor.blockSchema["image"].propSchema &&
-    typeof editor.blockSchema["image"].propSchema.caption.default ===
-      "string" &&
-    !("values" in editor.blockSchema["image"].propSchema.caption) &&
-    // Checks if the block has a `url` prop which can take any string value.
-    "url" in editor.blockSchema["image"].propSchema &&
-    typeof editor.blockSchema["image"].propSchema.url.default === "string" &&
-    !("values" in editor.blockSchema["image"].propSchema.url)
-  );
-}
-export function checkTableInSchema<
-  I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema
->(
-  // TODO: Fix any, should be BSchema but smth is broken
-  editor: BlockNoteEditor<any, I, S>
-): editor is BlockNoteEditor<{ table: DefaultBlockSchema["table"] }, I, S> {
-  return (
-    // Checks if block schema contains a table block.
-    "table" in editor.blockSchema &&
-    // Checks if block takes table content.
-    editor.blockSchema.table.content === "table"
-  );
-}
+import { checkDefaultBlockTypeInSchema } from "../blocks/defaultBlockTypeGuards";
 
 // TODO: change for built-in version of typescript 5.4 after upgrade
 export type NoInfer<T> = [T][T extends any ? 0 : never];
@@ -302,11 +264,12 @@ export class BlockNoteEditor<
     this.hyperlinkToolbar = new HyperlinkToolbarProsemirrorPlugin(this);
     this.sideMenu = new SideMenuProsemirrorPlugin(this);
     this.suggestionMenus = new SuggestionMenuProseMirrorPlugin(this);
-    if (checkImageInSchema(this)) {
-      this.imageToolbar = new ImageToolbarProsemirrorPlugin(this);
+    if (checkDefaultBlockTypeInSchema("image", this)) {
+      // Type guards only work on `const`s? Not working for `this`
+      this.imageToolbar = new ImageToolbarProsemirrorPlugin(this as any);
     }
-    if (checkTableInSchema(this)) {
-      this.tableHandles = new TableHandlesProsemirrorPlugin(this);
+    if (checkDefaultBlockTypeInSchema("table", this)) {
+      this.tableHandles = new TableHandlesProsemirrorPlugin(this as any);
     }
 
     const extensions = getBlockNoteExtensions({
