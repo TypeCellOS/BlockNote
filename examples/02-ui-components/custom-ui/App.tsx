@@ -1,7 +1,7 @@
 import { filterSuggestionItems } from "@blocknote/core";
 import {
   BlockNoteView,
-  getReactSlashMenuItems,
+  getDefaultReactSlashMenuItems,
   SideMenuController,
   SuggestionMenuController,
   useBlockNote,
@@ -29,7 +29,7 @@ export default function App() {
       <SuggestionMenuController
         triggerCharacter={"/"}
         getItems={async (query) =>
-          filterSuggestionItems(getReactSlashMenuItems(editor), query)
+          filterSuggestionItems(getDefaultReactSlashMenuItems(editor), query)
         }
         suggestionMenuComponent={CustomSlashMenu}
       />

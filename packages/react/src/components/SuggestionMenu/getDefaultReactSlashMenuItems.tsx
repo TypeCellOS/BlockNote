@@ -1,7 +1,7 @@
 import {
   BlockNoteEditor,
   BlockSchema,
-  getSlashMenuItems,
+  getDefaultSlashMenuItems,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
@@ -29,14 +29,14 @@ const icons: Record<string, IconType> = {
   Image: RiImage2Fill,
 };
 
-export function getReactSlashMenuItems<
+export function getDefaultReactSlashMenuItems<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
 >(
   editor: BlockNoteEditor<BSchema, I, S>
 ): DefaultReactSuggestionItem<BSchema, I, S>[] {
-  return getSlashMenuItems(editor).map((item) => {
+  return getDefaultSlashMenuItems(editor).map((item) => {
     const Icon = icons[item.title];
     return {
       ...item,

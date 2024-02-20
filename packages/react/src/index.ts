@@ -36,7 +36,7 @@ export * from "./components/SideMenu/DragHandleMenu/DragHandleMenuProps";
 export * from "./components/SideMenu/DragHandleMenu/DragHandleMenuWrapper";
 export * from "./components/SideMenu/DragHandleMenu/DragHandleMenuItem";
 
-export * from "./components/SuggestionMenu/getReactSlashMenuItems";
+export * from "./components/SuggestionMenu/getDefaultReactSlashMenuItems";
 export * from "./components/SuggestionMenu/hooks/useCloseSuggestionMenuNoItems";
 export * from "./components/SuggestionMenu/hooks/useLoadSuggestionMenuItems";
 export * from "./components/SuggestionMenu/hooks/useSuggestionMenuKeyboardNavigation";

@@ -79,7 +79,7 @@ export function insertOrUpdateBlock<
   return insertedBlock;
 }
 
-export function getSlashMenuItems<
+export function getDefaultSlashMenuItems<
   BSchema extends BlockSchema = DefaultBlockSchema,
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema

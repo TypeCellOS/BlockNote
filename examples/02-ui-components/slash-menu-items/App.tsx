@@ -5,7 +5,7 @@ import {
 } from "@blocknote/core";
 import {
   BlockNoteView,
-  getReactSlashMenuItems,
+  getDefaultReactSlashMenuItems,
   SuggestionMenuController,
   useBlockNote,
 } from "@blocknote/react";
@@ -39,7 +39,7 @@ const insertHelloWorldItem = {
 
 // List containing all default Slash Menu Items, as well as our custom one.
 export const getCustomSlashMenuItems = (editor: BlockNoteEditor) => [
-  ...getReactSlashMenuItems(editor),
+  ...getDefaultReactSlashMenuItems(editor),
   insertHelloWorldItem,
 ];
 

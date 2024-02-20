@@ -11,7 +11,7 @@ export * from "./editor/selectionTypes";
 export * from "./extensions/FormattingToolbar/FormattingToolbarPlugin";
 export * from "./extensions/HyperlinkToolbar/HyperlinkToolbarPlugin";
 export * from "./extensions/ImageToolbar/ImageToolbarPlugin";
-export * from "./extensions/SuggestionMenu/getSlashMenuItems";
+export * from "./extensions/SuggestionMenu/getDefaultSlashMenuItems";
 export * from "./extensions/SuggestionMenu/DefaultSuggestionItem";
 export * from "./extensions/SuggestionMenu/SuggestionPlugin";
 export * from "./extensions/SideMenu/SideMenuPlugin";

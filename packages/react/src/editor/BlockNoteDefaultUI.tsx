@@ -10,7 +10,7 @@ import { HyperlinkToolbarController } from "../components/HyperlinkToolbar/Hyper
 import { ImageToolbarController } from "../components/ImageToolbar/ImageToolbarController";
 import { SideMenuController } from "../components/SideMenu/SideMenuController";
 import { SuggestionMenuController } from "../components/SuggestionMenu/SuggestionMenuController";
-import { getReactSlashMenuItems } from "../components/SuggestionMenu/getReactSlashMenuItems";
+import { getDefaultReactSlashMenuItems } from "../components/SuggestionMenu/getDefaultReactSlashMenuItems";
 import { TableHandlesController } from "../components/TableHandles/TableHandlesController";
 
 export type BlockNoteDefaultUIProps = {
@@ -42,7 +42,7 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
       {props.slashMenu !== false && (
         <SuggestionMenuController
           getItems={async (query) =>
-            filterSuggestionItems(getReactSlashMenuItems(editor), query)
+            filterSuggestionItems(getDefaultReactSlashMenuItems(editor), query)
           }
           // suggestionMenuComponent={MantineSuggestionMenu}
           onItemClick={(item) => {

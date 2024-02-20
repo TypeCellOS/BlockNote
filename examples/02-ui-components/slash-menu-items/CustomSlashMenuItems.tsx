@@ -1,5 +1,5 @@
 import { BlockNoteEditor, PartialBlock } from "@blocknote/core";
-import { getReactSlashMenuItems } from "@blocknote/react";
+import { getDefaultReactSlashMenuItems } from "@blocknote/react";
 import { HiOutlineGlobeAlt } from "react-icons/hi";
 
 // Command to insert "Hello World" in bold in a new block below.
@@ -29,6 +29,6 @@ const insertHelloWorldItem = {
 
 // List containing all default Slash Menu Items, as well as our custom one.
 export const getCustomSlashMenuItems = (editor: BlockNoteEditor) => [
-  ...getReactSlashMenuItems(editor),
+  ...getDefaultReactSlashMenuItems(editor),
   insertHelloWorldItem,
 ];
