@@ -66,6 +66,15 @@ export function Sponsors() {
                 alt="Twenty"
               />
             </div>
+            <div className="bg-gray-400/5 p-6 sm:p-10">
+              <ThemedImage
+                height={32}
+                width={170}
+                src="/img/sponsors/noteplan.png"
+                darkImage={"/img/sponsors/noteplan-dark.png"}
+                alt="Noteplan"
+              />{" "}
+            </div>
           </div>
         </div>
       </div>
