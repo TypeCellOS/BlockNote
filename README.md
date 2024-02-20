@@ -1,3 +1,5 @@
+TODO: update readme.md
+
 <p align="center">
   <a href="https://www.blocknotejs.org">
     <img alt="TypeCell" src="https://github.com/TypeCellOS/BlockNote/raw/main/packages/website/docs/public/img/logos/banner.svg?raw=true" width="300" />
