@@ -1,20 +1,15 @@
-import Image from "next/image";
-import { useTheme } from "nextra-theme-docs";
+import { ThemedImage } from "./ThemedImage";
 
 export function Logo() {
-  const { theme } = useTheme();
-  const Img =
-    theme === "dark" ? (
-      <Image
-      height={32} 
-      width={170}
-        src="/img/logos/banner.dark.svg"
+  return (
+    <a href="/">
+      <ThemedImage
+        height={32}
+        width={170}
+        src="/img/logos/banner.svg"
+        darkImage={"/img/logos/banner.dark.svg"}
         alt="BlockNote"
       />
-    ) : (
-      <Image height={32} 
-      width={170} src="/img/logos/banner.svg" alt="BlockNote" />
-    );
-
-  return <a href="/">{Img}</a>;
+    </a>
+  );
 }

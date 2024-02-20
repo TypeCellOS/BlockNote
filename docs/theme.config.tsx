@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 // import { Footer } from "./components/Footer";
 // import { HeaderLogo } from "./components/HeaderLogo";
 // import { Main } from "./components/Main";
+import { DiscordIcon, GitHubIcon } from "nextra/icons";
 import { AuthNavButton } from "./components/AuthNavButton";
 import { Footer } from "./components/Footer";
 import { Logo } from "./components/Logo";
@@ -184,11 +185,17 @@ const config: DocsThemeConfig = {
     extraContent: () => {
       return (
         <>
-          {/* TODO: design */}
           <NextLink
             href="https://github.com/TypeCellOS/BlockNote"
-            className="nx-p-2 nx-text-current">
-            GH
+            className="generic-hover">
+            <span className="sr-only">GitHub</span>
+            <GitHubIcon />
+          </NextLink>
+          <NextLink
+            href="https://discord.gg/Qc2QTTH5dF"
+            className="generic-hover">
+            <span className="sr-only">Discord</span>
+            <DiscordIcon />
           </NextLink>
           <AuthNavButton />
         </>
