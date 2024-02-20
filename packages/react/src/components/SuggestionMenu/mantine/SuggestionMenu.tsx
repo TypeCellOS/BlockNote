@@ -1,12 +1,12 @@
 import { Loader, Menu } from "@mantine/core";
 import { Children, useMemo } from "react";
 
-import { ReactSuggestionItem, SuggestionMenuProps } from "../types";
+import { DefaultReactSuggestionItem, SuggestionMenuProps } from "../types";
 import { SuggestionMenuItem } from "./SuggestionMenuItem";
 
-export function SuggestionMenu<T extends ReactSuggestionItem<any, any, any>>(
-  props: SuggestionMenuProps<T>
-) {
+export function SuggestionMenu<
+  T extends DefaultReactSuggestionItem<any, any, any>
+>(props: SuggestionMenuProps<T>) {
   const { items, loadingState, selectedIndex, onItemClick } = props;
 
   const loader =

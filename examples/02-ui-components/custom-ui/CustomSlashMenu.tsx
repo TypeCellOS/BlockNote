@@ -1,21 +1,23 @@
 import {
-  ReactSuggestionItem,
+  DefaultReactSuggestionItem,
   SuggestionMenuProps,
   useBlockNoteEditor,
 } from "@blocknote/react";
 
 export function CustomSlashMenu(
-  props: SuggestionMenuProps<Required<ReactSuggestionItem>>
+  props: SuggestionMenuProps<DefaultReactSuggestionItem>
 ) {
   const editor = useBlockNoteEditor();
 
-  const groups: Record<string, Required<ReactSuggestionItem>[]> = {};
+  const groups: Record<string, DefaultReactSuggestionItem[]> = {};
   for (const item of props.items) {
-    if (!groups[item.group]) {
-      groups[item.group] = [];
+    const group = item.group || item.title;
+
+    if (!groups[group]) {
+      groups[group] = [];
     }
 
-    groups[item.group].push(item);
+    groups[group].push(item);
   }
 
   // If query matches no items, show "No matches" message
@@ -32,7 +34,7 @@ export function CustomSlashMenu(
           <div className={"slash-menu-label"}>{group}</div>
           {/*Group items*/}
           <div className={"slash-menu-item-group"}>
-            {items.map((item: Required<ReactSuggestionItem>) => {
+            {items.map((item: DefaultReactSuggestionItem) => {
               const Icon = item.icon;
               return (
                 <button
@@ -43,7 +45,7 @@ export function CustomSlashMenu(
                       : ""
                   }`}
                   onClick={() => {
-                    item.onItemClick(editor);
+                    props.onItemClick?.(item);
                     editor.focus();
                   }}>
                   {Icon}

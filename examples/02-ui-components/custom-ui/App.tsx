@@ -26,9 +26,6 @@ export default function App() {
       <CustomFormattingToolbar />
       <SideMenuController sideMenu={CustomSideMenu} />
       {/* TODO: Shorthand for async function (array with built in filtering) */}
-      {/* TODO: Props type not inferred correctly */}
-      {/* TODO: Maybe no onItemClick prop if items contain onItemClick? Since
-           the behaviour is already defined */}
       <SuggestionMenuController
         triggerCharacter={"/"}
         getItems={async (query) =>

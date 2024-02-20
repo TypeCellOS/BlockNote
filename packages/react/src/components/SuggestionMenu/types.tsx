@@ -3,20 +3,20 @@ import {
   DefaultBlockSchema,
   DefaultInlineContentSchema,
   DefaultStyleSchema,
+  DefaultSuggestionItem,
   InlineContentSchema,
   StyleSchema,
-  SuggestionItem,
 } from "@blocknote/core";
 
 /**
  * Although any arbitrary data can be passed as suggestion items, the built-in
  * UI components such as `MantineSuggestionMenu` expect a shape that conforms to DefaultSuggestionItem
  */
-export type ReactSuggestionItem<
+export type DefaultReactSuggestionItem<
   BSchema extends BlockSchema = DefaultBlockSchema,
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema
-> = SuggestionItem<BSchema, I, S> & {
+> = DefaultSuggestionItem<BSchema, I, S> & {
   icon?: JSX.Element;
 };
 

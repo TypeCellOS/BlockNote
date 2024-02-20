@@ -12,7 +12,7 @@ import { useUIElementPositioning } from "../../hooks/useUIElementPositioning";
 import { useUIPluginState } from "../../hooks/useUIPluginState";
 import { SuggestionMenuWrapper } from "./SuggestionMenuWrapper";
 import { SuggestionMenu } from "./mantine/SuggestionMenu";
-import { ReactSuggestionItem, SuggestionMenuProps } from "./types";
+import { DefaultReactSuggestionItem, SuggestionMenuProps } from "./types";
 
 type ArrayElement<A> = A extends readonly (infer T)[] ? T : never;
 
@@ -27,7 +27,7 @@ export function SuggestionMenuController<
   props: {
     triggerCharacter: string;
     getItems: GetItemsType;
-  } & (ItemType<GetItemsType> extends ReactSuggestionItem<any, any, any>
+  } & (ItemType<GetItemsType> extends DefaultReactSuggestionItem<any, any, any>
     ? {
         // can be undefined
         suggestionMenuComponent?: FC<

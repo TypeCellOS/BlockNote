@@ -12,7 +12,7 @@ import {
   DefaultStyleSchema,
   PartialBlock,
 } from "../../blocks/defaultBlocks";
-import { SuggestionItem } from "./SuggestionItem";
+import { DefaultSuggestionItem } from "./DefaultSuggestionItem";
 import { checkDefaultBlockTypeInSchema } from "../../blocks/defaultBlockTypeGuards";
 import { formatKeyboardShortcut } from "../../util/browser";
 
@@ -84,7 +84,7 @@ export function getSlashMenuItems<
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema
 >(editor: BlockNoteEditor<BSchema, I, S>) {
-  const items: SuggestionItem<BSchema, I, S>[] = [];
+  const items: DefaultSuggestionItem<BSchema, I, S>[] = [];
 
   if (checkDefaultBlockTypeInSchema("heading", editor)) {
     items.push(
@@ -100,11 +100,11 @@ export function getSlashMenuItems<
         badge: formatKeyboardShortcut("Mod-Alt-1"),
         aliases: ["h", "heading1", "h1"],
         group: "Headings",
-      } satisfies SuggestionItem<
+      } satisfies DefaultSuggestionItem<
         { heading: DefaultBlockSchema["heading"] },
         I,
         S
-      > as SuggestionItem<any, I, S>,
+      > as DefaultSuggestionItem<any, I, S>,
       {
         title: "Heading 2",
         onItemClick: (editor) => {
@@ -117,11 +117,11 @@ export function getSlashMenuItems<
         badge: formatKeyboardShortcut("Mod-Alt-2"),
         aliases: ["h2", "heading2", "subheading"],
         group: "Headings",
-      } satisfies SuggestionItem<
+      } satisfies DefaultSuggestionItem<
         { heading: DefaultBlockSchema["heading"] },
         I,
         S
-      > as SuggestionItem<any, I, S>,
+      > as DefaultSuggestionItem<any, I, S>,
       {
         title: "Heading 3",
         onItemClick: (editor) => {
@@ -134,11 +134,11 @@ export function getSlashMenuItems<
         badge: formatKeyboardShortcut("Mod-Alt-3"),
         aliases: ["h3", "heading3", "subheading"],
         group: "Headings",
-      } satisfies SuggestionItem<
+      } satisfies DefaultSuggestionItem<
         { heading: DefaultBlockSchema["heading"] },
         I,
         S
-      > as SuggestionItem<any, I, S>
+      > as DefaultSuggestionItem<any, I, S>
     );
   }
 
@@ -154,13 +154,13 @@ export function getSlashMenuItems<
       badge: formatKeyboardShortcut("Mod-Shift-7"),
       aliases: ["ol", "li", "list", "numberedlist", "numbered list"],
       group: "Basic blocks",
-    } satisfies SuggestionItem<
+    } satisfies DefaultSuggestionItem<
       {
         numberedListItem: DefaultBlockSchema["numberedListItem"];
       },
       I,
       S
-    > as SuggestionItem<any, I, S>);
+    > as DefaultSuggestionItem<any, I, S>);
   }
 
   if (checkDefaultBlockTypeInSchema("bulletListItem", editor)) {
@@ -175,13 +175,13 @@ export function getSlashMenuItems<
       badge: formatKeyboardShortcut("Mod-Shift-8"),
       aliases: ["ul", "li", "list", "bulletlist", "bullet list"],
       group: "Basic blocks",
-    } satisfies SuggestionItem<
+    } satisfies DefaultSuggestionItem<
       {
         bulletListItem: DefaultBlockSchema["bulletListItem"];
       },
       I,
       S
-    > as SuggestionItem<any, I, S>);
+    > as DefaultSuggestionItem<any, I, S>);
   }
 
   if (checkDefaultBlockTypeInSchema("paragraph", editor)) {
@@ -196,13 +196,13 @@ export function getSlashMenuItems<
       badge: formatKeyboardShortcut("Mod-Alt-0"),
       aliases: ["p", "paragraph"],
       group: "Basic blocks",
-    } satisfies SuggestionItem<
+    } satisfies DefaultSuggestionItem<
       {
         paragraph: DefaultBlockSchema["paragraph"];
       },
       I,
       S
-    > as SuggestionItem<any, I, S>);
+    > as DefaultSuggestionItem<any, I, S>);
   }
 
   if (checkDefaultBlockTypeInSchema("table", editor)) {
@@ -228,13 +228,13 @@ export function getSlashMenuItems<
       aliases: ["table"],
       group: "Advanced",
       badge: undefined,
-    } satisfies SuggestionItem<
+    } satisfies DefaultSuggestionItem<
       {
         table: DefaultBlockSchema["table"];
       },
       I,
       S
-    > as SuggestionItem<any, I, S>);
+    > as DefaultSuggestionItem<any, I, S>);
   }
 
   if (checkDefaultBlockTypeInSchema("image", editor)) {
@@ -265,13 +265,13 @@ export function getSlashMenuItems<
         "dropbox",
       ],
       group: "Media",
-    } satisfies SuggestionItem<
+    } satisfies DefaultSuggestionItem<
       {
         image: DefaultBlockSchema["image"];
       },
       I,
       S
-    > as SuggestionItem<any, I, S>);
+    > as DefaultSuggestionItem<any, I, S>);
   }
 
   return items;

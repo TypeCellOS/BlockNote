@@ -6,7 +6,7 @@ import {
   DefaultStyleSchema,
 } from "../../blocks/defaultBlocks";
 
-export type SuggestionItem<
+export type DefaultSuggestionItem<
   BSchema extends BlockSchema = DefaultBlockSchema,
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema
