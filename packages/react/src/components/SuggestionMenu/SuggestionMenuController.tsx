@@ -8,11 +8,11 @@ import { flip, offset, size } from "@floating-ui/react";
 import { FC } from "react";
 
 import { useBlockNoteEditor } from "../../editor/BlockNoteContext";
-import { useUIPluginState } from "../../hooks/useUIPluginState";
 import { useUIElementPositioning } from "../../hooks/useUIElementPositioning";
-import { ReactSuggestionItem, SuggestionMenuProps } from "./types";
+import { useUIPluginState } from "../../hooks/useUIPluginState";
 import { SuggestionMenuWrapper } from "./SuggestionMenuWrapper";
 import { SuggestionMenu } from "./mantine/SuggestionMenu";
+import { ReactSuggestionItem, SuggestionMenuProps } from "./types";
 
 type ArrayElement<A> = A extends readonly (infer T)[] ? T : never;
 
@@ -27,19 +27,20 @@ export function SuggestionMenuController<
   props: {
     triggerCharacter: string;
     getItems: GetItemsType;
-    onItemClick?: (item: ItemType<GetItemsType>) => void;
   } & (ItemType<GetItemsType> extends ReactSuggestionItem<any, any, any>
     ? {
         // can be undefined
         suggestionMenuComponent?: FC<
           SuggestionMenuProps<ItemType<GetItemsType>>
         >;
+        onItemClick?: (item: ItemType<GetItemsType>) => void;
       }
     : {
         // getItems doesn't return DefaultSuggestionItem, so suggestionMenuComponent is required
         suggestionMenuComponent: FC<
           SuggestionMenuProps<ItemType<GetItemsType>>
         >;
+        onItemClick: (item: ItemType<GetItemsType>) => void;
       })
 ) {
   const editor = useBlockNoteEditor<
@@ -48,8 +49,15 @@ export function SuggestionMenuController<
     StyleSchema
   >();
 
-  const { triggerCharacter, onItemClick, getItems, suggestionMenuComponent } =
-    props;
+  const { triggerCharacter, getItems, suggestionMenuComponent } = props;
+
+  let { onItemClick } = props;
+
+  if (!onItemClick) {
+    onItemClick = (item: ItemType<GetItemsType>) => {
+      item.onItemClick(editor);
+    };
+  }
 
   const callbacks = {
     closeMenu: editor.suggestionMenus.closeMenu,
