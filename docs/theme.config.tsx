@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 // import { HeaderLogo } from "./components/HeaderLogo";
 // import { Main } from "./components/Main";
 import { AuthNavButton } from "./components/AuthNavButton";
+import { Footer } from "./components/Footer";
 import { Logo } from "./components/Logo";
 import { Navigation } from "./components/Navigation";
 // import { Search } from "./components/Search";
@@ -60,12 +61,12 @@ const config: DocsThemeConfig = {
     const title = frontMatter.overrideTitle
       ? frontMatter.overrideTitle
       : nextraConfig.title
-      ? nextraConfig.title + " - BlockNote"
-      : "BlockNote";
+        ? nextraConfig.title + " - BlockNote"
+        : "BlockNote";
 
     const imageUrl = frontMatter.imageTitle
       ? `${SITE_ROOT}/api/og?title=${encodeURIComponent(
-          frontMatter.imageTitle
+          frontMatter.imageTitle,
         )}`
       : METADATA_DEFAULT.image;
 
@@ -142,7 +143,7 @@ const config: DocsThemeConfig = {
             day: "numeric",
             month: "long",
             year: "numeric",
-          })
+          }),
         );
       } catch (e) {
         // Ignore errors here; they get the ISO string.
@@ -308,7 +309,7 @@ const config: DocsThemeConfig = {
     placeholder: "Search documentation…",
   },
   footer: {
-    // component: Footer,
+    component: Footer,
   },
   nextThemes: {
     // defaultTheme: "dark",
