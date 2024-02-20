@@ -32,6 +32,7 @@ export function useBlockNoteContext<
   return context;
 }
 
+// TODO: think about naming, too close to `useBlockNote`?
 export function useBlockNoteEditor<
   BSchema extends BlockSchema = DefaultBlockSchema,
   ISchema extends InlineContentSchema = DefaultInlineContentSchema,
