@@ -15,11 +15,11 @@ import {
   RiText,
 } from "react-icons/ri";
 
-import { useBlockNoteEditor } from "../../../editor/BlockNoteContext";
-import { useEditorContentOrSelectionChange } from "../../../hooks/useEditorContentOrSelectionChange";
-import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
-import { ToolbarDropdownItemProps } from "../../../components-shared/Toolbar/ToolbarDropdownItem";
-import { ToolbarDropdown } from "../../../components-shared/Toolbar/ToolbarDropdown";
+import { useBlockNoteEditor } from "../../../../editor/BlockNoteContext";
+import { useEditorContentOrSelectionChange } from "../../../../hooks/useEditorContentOrSelectionChange";
+import { useSelectedBlocks } from "../../../../hooks/useSelectedBlocks";
+import { ToolbarDropdownItemProps } from "../../../../components-shared/Toolbar/ToolbarDropdownItem";
+import { ToolbarDropdown } from "../../../../components-shared/Toolbar/ToolbarDropdown";
 
 export type BlockTypeDropdownItem = {
   name: string;

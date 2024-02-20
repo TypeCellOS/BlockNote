@@ -21,9 +21,9 @@ import {
   useState,
 } from "react";
 
-import { useBlockNoteEditor } from "../../editor/BlockNoteContext";
-import { ImageToolbarProps } from "./ImageToolbarProps";
-import { ToolbarWrapper } from "../../components-shared/Toolbar/ToolbarWrapper";
+import { useBlockNoteEditor } from "../../../editor/BlockNoteContext";
+import { ImageToolbarProps } from "../ImageToolbarProps";
+import { ToolbarWrapper } from "../../../components-shared/Toolbar/ToolbarWrapper";
 
 export const ImageToolbar = <
   I extends InlineContentSchema = DefaultInlineContentSchema,

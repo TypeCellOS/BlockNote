@@ -4,7 +4,7 @@ import {
   TableContent,
 } from "@blocknote/core";
 
-import { TableHandleMenuProps } from "../TableHandleMenuProps";
+import { TableHandleMenuProps } from "../../TableHandleMenuProps";
 import { TableHandleMenuItem } from "../TableHandleMenuItem";
 
 export const DeleteRowButton = <

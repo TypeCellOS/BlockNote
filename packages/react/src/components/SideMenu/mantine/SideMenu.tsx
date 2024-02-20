@@ -7,7 +7,7 @@ import {
   StyleSchema,
 } from "@blocknote/core";
 
-import { SideMenuProps } from "./SideMenuProps";
+import { SideMenuProps } from "../SideMenuProps";
 import { SideMenuWrapper } from "./SideMenuWrapper";
 import { AddBlockButton } from "./DefaultButtons/AddBlockButton";
 import { DragHandle } from "./DefaultButtons/DragHandle";

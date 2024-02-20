@@ -12,7 +12,7 @@ import { useBlockNoteEditor } from "../../editor/BlockNoteContext";
 import { useUIPluginState } from "../../hooks/useUIPluginState";
 import { useUIElementPositioning } from "../../hooks/useUIElementPositioning";
 import { ImageToolbarProps } from "./ImageToolbarProps";
-import { ImageToolbar } from "./ImageToolbar";
+import { ImageToolbar } from "./mantine/ImageToolbar";
 
 export const ImageToolbarController = <
   I extends InlineContentSchema = DefaultInlineContentSchema,

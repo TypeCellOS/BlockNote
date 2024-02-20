@@ -15,9 +15,9 @@ import {
   RiAlignRight,
 } from "react-icons/ri";
 
-import { useBlockNoteEditor } from "../../../editor/BlockNoteContext";
-import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
-import { ToolbarButton } from "../../../components-shared/Toolbar/ToolbarButton";
+import { useBlockNoteEditor } from "../../../../editor/BlockNoteContext";
+import { useSelectedBlocks } from "../../../../hooks/useSelectedBlocks";
+import { ToolbarButton } from "../../../../components-shared/Toolbar/ToolbarButton";
 
 type TextAlignment = DefaultProps["textAlignment"];
 

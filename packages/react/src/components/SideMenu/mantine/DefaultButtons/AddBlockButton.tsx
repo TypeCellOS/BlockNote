@@ -8,7 +8,7 @@ import {
 } from "@blocknote/core";
 import { AiOutlinePlus } from "react-icons/ai";
 
-import { SideMenuProps } from "../SideMenuProps";
+import { SideMenuProps } from "../../SideMenuProps";
 import { SideMenuButton } from "../SideMenuButton";
 
 export const AddBlockButton = <

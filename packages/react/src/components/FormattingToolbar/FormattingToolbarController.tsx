@@ -12,7 +12,7 @@ import { useEditorContentOrSelectionChange } from "../../hooks/useEditorContentO
 import { useUIElementPositioning } from "../../hooks/useUIElementPositioning";
 import { useUIPluginState } from "../../hooks/useUIPluginState";
 import { FormattingToolbarProps } from "./FormattingToolbarProps";
-import { FormattingToolbar } from "./FormattingToolbar";
+import { FormattingToolbar } from "./mantine/FormattingToolbar";
 
 const textAlignmentToPlacement = (
   textAlignment: DefaultProps["textAlignment"]

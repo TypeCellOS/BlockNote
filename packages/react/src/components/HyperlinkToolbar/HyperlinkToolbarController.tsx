@@ -13,7 +13,7 @@ import { useBlockNoteEditor } from "../../editor/BlockNoteContext";
 import { useUIPluginState } from "../../hooks/useUIPluginState";
 import { useUIElementPositioning } from "../../hooks/useUIElementPositioning";
 import { HyperlinkToolbarProps } from "./HyperlinkToolbarProps";
-import { HyperlinkToolbar } from "./HyperlinkToolbar";
+import { HyperlinkToolbar } from "./mantine/HyperlinkToolbar";
 
 export const HyperlinkToolbarController = <
   BSchema extends BlockSchema = DefaultBlockSchema,

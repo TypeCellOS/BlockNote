@@ -1,5 +1,5 @@
-import { FormattingToolbarProps } from "./FormattingToolbarProps";
-import { ToolbarWrapper } from "../../components-shared/Toolbar/ToolbarWrapper";
+import { FormattingToolbarProps } from "../FormattingToolbarProps";
+import { ToolbarWrapper } from "../../../components-shared/Toolbar/ToolbarWrapper";
 import {
   BlockTypeDropdown,
   BlockTypeDropdownItem,

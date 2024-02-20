@@ -1,10 +1,10 @@
 import { useRef, useState } from "react";
 import { RiExternalLinkFill, RiLinkUnlink } from "react-icons/ri";
 
-import { HyperlinkToolbarProps } from "./HyperlinkToolbarProps";
-import { EditHyperlinkMenu } from "./EditHyperlinkMenu/components/EditHyperlinkMenu";
-import { ToolbarWrapper } from "../../components-shared/Toolbar/ToolbarWrapper";
-import { ToolbarButton } from "../../components-shared/Toolbar/ToolbarButton";
+import { HyperlinkToolbarProps } from "../HyperlinkToolbarProps";
+import { EditHyperlinkMenu } from "./EditHyperlinkMenu/EditHyperlinkMenu";
+import { ToolbarWrapper } from "../../../components-shared/Toolbar/ToolbarWrapper";
+import { ToolbarButton } from "../../../components-shared/Toolbar/ToolbarButton";
 
 export const HyperlinkToolbar = (props: HyperlinkToolbarProps) => {
   const [isEditing, setIsEditing] = useState<boolean>(false);

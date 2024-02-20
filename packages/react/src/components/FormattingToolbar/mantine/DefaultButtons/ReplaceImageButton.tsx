@@ -8,10 +8,10 @@ import { Popover } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { RiImageEditFill } from "react-icons/ri";
 
-import { useBlockNoteEditor } from "../../../editor/BlockNoteContext";
-import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
-import { ToolbarButton } from "../../../components-shared/Toolbar/ToolbarButton";
-import { ImageToolbar } from "../../ImageToolbar/ImageToolbar";
+import { useBlockNoteEditor } from "../../../../editor/BlockNoteContext";
+import { useSelectedBlocks } from "../../../../hooks/useSelectedBlocks";
+import { ToolbarButton } from "../../../../components-shared/Toolbar/ToolbarButton";
+import { ImageToolbar } from "../../../ImageToolbar/mantine/ImageToolbar";
 
 export const ReplaceImageButton = () => {
   const editor = useBlockNoteEditor<

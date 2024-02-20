@@ -7,7 +7,7 @@ import {
   StyleSchema,
 } from "@blocknote/core";
 
-import { DragHandleMenuProps } from "./DragHandleMenuProps";
+import { DragHandleMenuProps } from "../DragHandleMenuProps";
 import { DragHandleMenuWrapper } from "./DragHandleMenuWrapper";
 import { BlockColorsButton } from "./DefaultButtons/BlockColorsButton";
 import { RemoveBlockButton } from "./DefaultButtons/RemoveBlockButton";

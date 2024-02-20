@@ -8,8 +8,8 @@ import {
 import { Menu } from "@mantine/core";
 import { ReactNode, useState } from "react";
 
-import { TableHandleProps } from "./TableHandleProps";
-import { DefaultTableHandleMenu } from "./TableHandleMenu/DefaultTableHandleMenu";
+import { TableHandleProps } from "../TableHandleProps";
+import { DefaultTableHandleMenu } from "../TableHandleMenu/mantine/DefaultTableHandleMenu";
 
 export const TableHandleWrapper = <
   I extends InlineContentSchema = DefaultInlineContentSchema,

@@ -7,9 +7,9 @@ import {
 import { useCallback, useState } from "react";
 import { RiIndentDecrease, RiIndentIncrease } from "react-icons/ri";
 
-import { useBlockNoteEditor } from "../../../editor/BlockNoteContext";
-import { useEditorContentOrSelectionChange } from "../../../hooks/useEditorContentOrSelectionChange";
-import { ToolbarButton } from "../../../components-shared/Toolbar/ToolbarButton";
+import { useBlockNoteEditor } from "../../../../editor/BlockNoteContext";
+import { useEditorContentOrSelectionChange } from "../../../../hooks/useEditorContentOrSelectionChange";
+import { ToolbarButton } from "../../../../components-shared/Toolbar/ToolbarButton";
 
 export const NestBlockButton = () => {
   const editor = useBlockNoteEditor<

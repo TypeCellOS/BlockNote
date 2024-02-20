@@ -11,7 +11,7 @@ import { useBlockNoteEditor } from "../../editor/BlockNoteContext";
 import { useUIPluginState } from "../../hooks/useUIPluginState";
 import { useTableHandlesPositioning } from "./hooks/useTableHandlesPositioning";
 import { TableHandleProps } from "./TableHandleProps";
-import { TableHandle } from "./TableHandle";
+import { TableHandle } from "./mantine/TableHandle";
 
 export const TableHandlesController = <
   I extends InlineContentSchema = DefaultInlineContentSchema,

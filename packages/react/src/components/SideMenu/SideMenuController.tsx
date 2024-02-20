@@ -12,7 +12,7 @@ import { useBlockNoteEditor } from "../../editor/BlockNoteContext";
 import { useUIPluginState } from "../../hooks/useUIPluginState";
 import { useUIElementPositioning } from "../../hooks/useUIElementPositioning";
 import { SideMenuProps } from "./SideMenuProps";
-import { SideMenu } from "./SideMenu";
+import { SideMenu } from "./mantine/SideMenu";
 
 export const SideMenuController = <
   BSchema extends BlockSchema = DefaultBlockSchema,

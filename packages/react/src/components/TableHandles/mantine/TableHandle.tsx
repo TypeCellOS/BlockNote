@@ -6,7 +6,7 @@ import {
 } from "@blocknote/core";
 import { MdDragIndicator } from "react-icons/md";
 
-import { TableHandleProps } from "./TableHandleProps";
+import { TableHandleProps } from "../TableHandleProps";
 import { TableHandleWrapper } from "./TableHandleWrapper";
 
 export const TableHandle = <
