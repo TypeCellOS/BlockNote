@@ -5,15 +5,21 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { KeyboardEvent, useCallback, useMemo, useRef } from "react";
+import {
+  ChangeEvent,
+  KeyboardEvent,
+  useCallback,
+  useMemo,
+  useState,
+} from "react";
 import { RiText } from "react-icons/ri";
 
-import { useBlockNoteEditor } from "../../../editor/BlockNoteContext";
-import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
 import { ToolbarButton } from "../../../components-shared/Toolbar/ToolbarButton";
 import { ToolbarInputDropdown } from "../../../components-shared/Toolbar/ToolbarInputDropdown";
 import { ToolbarInputDropdownButton } from "../../../components-shared/Toolbar/ToolbarInputDropdownButton";
 import { ToolbarInputDropdownItem } from "../../../components-shared/Toolbar/ToolbarInputDropdownItem";
+import { useBlockNoteEditor } from "../../../editor/BlockNoteContext";
+import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
 
 export const ImageCaptionButton = () => {
   const editor = useBlockNoteEditor<
@@ -21,6 +27,8 @@ export const ImageCaptionButton = () => {
     InlineContentSchema,
     StyleSchema
   >();
+
+  const [currentEditingCaption, setCurrentEditingCaption] = useState<string>();
 
   const selectedBlocks = useSelectedBlocks(editor);
 
@@ -39,8 +47,6 @@ export const ImageCaptionButton = () => {
     return undefined;
   }, [editor, selectedBlocks]);
 
-  const ref = useRef<HTMLInputElement>(null);
-
   const handleEnter = useCallback(
     (event: KeyboardEvent) => {
       if (
@@ -52,12 +58,18 @@ export const ImageCaptionButton = () => {
         editor.updateBlock(imageBlock, {
           type: "image",
           props: {
-            caption: ref.current!.value,
+            caption: currentEditingCaption,
           },
         });
       }
     },
-    [editor, imageBlock]
+    [currentEditingCaption, editor, imageBlock]
+  );
+
+  const handleChange = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) =>
+      setCurrentEditingCaption(event.currentTarget.value),
+    []
   );
 
   if (!imageBlock) {
@@ -79,12 +91,14 @@ export const ImageCaptionButton = () => {
             type={"text"}
             icon={RiText}
             inputProps={{
+              // TODO: weird pattern of props passing?
+              value: currentEditingCaption,
               autoFocus: true,
               placeholder: "Edit Caption",
               onKeyDown: handleEnter,
               defaultValue: imageBlock.props.caption,
+              onChange: handleChange,
             }}
-            ref={ref}
           />
         </ToolbarInputDropdown>
       }
