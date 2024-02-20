@@ -65,7 +65,7 @@ export function FooterContent() {
       </h2>
       <div className="mx-auto w-full py-8">
         <div className="xl:grid xl:grid-cols-3 xl:gap-16">
-          <div className="mt-12 xl:!mt-0">
+          <div className="">
             {/* <FooterHeader>Subscribe to our newsletter</FooterHeader> */}
             <Logo />
             <p className="mt-4 text-sm text-gray-600 dark:text-[#888888]">
@@ -77,7 +77,7 @@ export function FooterContent() {
           </div>
           <div className="grid grid-cols-1 gap-8 xl:col-span-2">
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 md:gap-8">
-              <div className="mt-12 md:!mt-0">
+              <div className="mt-12 xl:!mt-0">
                 <FooterHeader>Learn</FooterHeader>
                 <ul className="ml-0 mt-4 list-none space-y-1.5">
                   {navigation.general.map((item) => (
@@ -87,7 +87,7 @@ export function FooterContent() {
                   ))}
                 </ul>
               </div>
-              <div className="mt-12 md:!mt-0">
+              <div className="mt-12 xl:!mt-0">
                 <FooterHeader>Collaborate</FooterHeader>
                 <ul className="ml-0 mt-4 list-none space-y-1.5">
                   {navigation.collaborate().map((item) => (
@@ -97,7 +97,7 @@ export function FooterContent() {
                   ))}
                 </ul>
               </div>
-              <div className="mt-12 md:!mt-0">
+              <div className="mt-12 xl:!mt-0">
                 <FooterHeader>Community</FooterHeader>
                 <ul className="ml-0 mt-4 list-none space-y-1.5">
                   {navigation.community.map((item) => (
@@ -107,7 +107,7 @@ export function FooterContent() {
                   ))}
                 </ul>
               </div>
-              <div className="mt-12 md:!mt-0">
+              <div className="mt-12 xl:!mt-0">
                 <FooterHeader>Theme</FooterHeader>
                 <ul className="ml-0 mt-4 list-none space-y-1.5">
                   <li>
