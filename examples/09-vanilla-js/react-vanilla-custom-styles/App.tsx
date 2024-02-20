@@ -7,10 +7,10 @@ import {
 } from "@blocknote/core";
 import {
   BlockNoteView,
+  FormattingToolbar,
   FormattingToolbarController,
   FormattingToolbarProps,
   ToolbarButton,
-  ToolbarWrapper,
   useActiveStyles,
   useBlockNote,
   useBlockNoteEditor,
@@ -67,7 +67,7 @@ const CustomFormattingToolbar = (props: FormattingToolbarProps) => {
   const activeStyles = useActiveStyles(editor);
 
   return (
-    <ToolbarWrapper>
+    <FormattingToolbar>
       <ToolbarButton
         mainTooltip={"small"}
         onClick={() => {
@@ -88,7 +88,7 @@ const CustomFormattingToolbar = (props: FormattingToolbarProps) => {
         isSelected={!!activeStyles.fontSize}>
         Font size
       </ToolbarButton>
-    </ToolbarWrapper>
+    </FormattingToolbar>
   );
 };
 

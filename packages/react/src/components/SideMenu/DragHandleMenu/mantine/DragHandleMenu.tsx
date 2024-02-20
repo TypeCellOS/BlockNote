@@ -7,8 +7,8 @@ import {
   StyleSchema,
 } from "@blocknote/core";
 
+import { Menu } from "@mantine/core";
 import { DragHandleMenuProps } from "../DragHandleMenuProps";
-import { DragHandleMenuWrapper } from "./DragHandleMenuWrapper";
 import { BlockColorsButton } from "./DefaultButtons/BlockColorsButton";
 import { RemoveBlockButton } from "./DefaultButtons/RemoveBlockButton";
 
@@ -17,10 +17,14 @@ export const DragHandleMenu = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema
 >(
-  props: DragHandleMenuProps<BSchema, I, S>
+  props: DragHandleMenuProps<BSchema, I, S> & { children?: React.ReactNode }
 ) => (
-  <DragHandleMenuWrapper>
-    <RemoveBlockButton {...props}>Delete</RemoveBlockButton>
-    <BlockColorsButton {...props}>Colors</BlockColorsButton>
-  </DragHandleMenuWrapper>
+  <Menu.Dropdown className={"bn-drag-handle-menu"}>
+    {props.children || (
+      <>
+        <RemoveBlockButton {...props}>Delete</RemoveBlockButton>
+        <BlockColorsButton {...props}>Colors</BlockColorsButton>
+      </>
+    )}
+  </Menu.Dropdown>
 );

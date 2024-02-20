@@ -7,8 +7,8 @@ import {
   StyleSchema,
 } from "@blocknote/core";
 
+import { Group } from "@mantine/core";
 import { SideMenuProps } from "../SideMenuProps";
-import { SideMenuWrapper } from "./SideMenuWrapper";
 import { AddBlockButton } from "./DefaultButtons/AddBlockButton";
 import { DragHandle } from "./DefaultButtons/DragHandle";
 
@@ -17,14 +17,18 @@ export const SideMenu = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema
 >(
-  props: SideMenuProps<BSchema, I, S>
+  props: SideMenuProps<BSchema, I, S> & { children?: React.ReactNode }
 ) => {
   const { addBlock, ...rest } = props;
 
   return (
-    <SideMenuWrapper>
-      <AddBlockButton addBlock={addBlock} />
-      <DragHandle {...rest} />
-    </SideMenuWrapper>
+    <Group className={"bn-side-menu"} gap={0}>
+      {props.children || (
+        <>
+          <AddBlockButton addBlock={addBlock} />
+          <DragHandle {...rest} />
+        </>
+      )}
+    </Group>
   );
 };
