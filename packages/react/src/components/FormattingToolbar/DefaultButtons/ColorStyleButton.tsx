@@ -81,7 +81,9 @@ export const ColorStyleButton = () => {
   const setTextColor = useCallback(
     (color: string) => {
       if (!textColorInSchema) {
-        return;
+        throw Error(
+          "Tried to set text color, but style does not exist in editor schema."
+        );
       }
 
       editor.focus();
@@ -95,7 +97,9 @@ export const ColorStyleButton = () => {
   const setBackgroundColor = useCallback(
     (color: string) => {
       if (!backgroundColorInSchema) {
-        return;
+        throw Error(
+          "Tried to set background color, but style does not exist in editor schema."
+        );
       }
 
       editor.focus();

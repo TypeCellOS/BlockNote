@@ -3,8 +3,8 @@ import { EditorView } from "prosemirror-view";
 
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import type {
+  BlockFromConfig,
   InlineContentSchema,
-  SpecificBlock,
   StyleSchema,
 } from "../../schema";
 import { UiElementPosition } from "../../extensions-shared/UiElementPosition";
@@ -16,7 +16,7 @@ export type ImageToolbarState<
   S extends StyleSchema
 > = UiElementPosition & {
   // TODO: This typing is not quite right (children should be from BSchema)
-  block: SpecificBlock<{ image: DefaultBlockSchema["image"] }, "image", I, S>;
+  block: BlockFromConfig<DefaultBlockSchema["image"], I, S>;
 };
 
 export class ImageToolbarView<
@@ -100,12 +100,7 @@ export class ImageToolbarView<
 
   update(view: EditorView, prevState: EditorState) {
     const pluginState: {
-      block: SpecificBlock<
-        { image: DefaultBlockSchema["image"] },
-        "image",
-        I,
-        S
-      >;
+      block: BlockFromConfig<DefaultBlockSchema["image"], I, S>;
     } = this.pluginKey.getState(view.state);
 
     if (!this.state?.show && pluginState.block) {
@@ -161,9 +156,7 @@ export class ImageToolbarProsemirrorPlugin<
   ) {
     super();
     this.plugin = new Plugin<{
-      block:
-        | SpecificBlock<{ image: DefaultBlockSchema["image"] }, "image", I, S>
-        | undefined;
+      block: BlockFromConfig<DefaultBlockSchema["image"], I, S> | undefined;
     }>({
       key: imageToolbarPluginKey,
       view: (editorView) => {
@@ -185,12 +178,7 @@ export class ImageToolbarProsemirrorPlugin<
         },
         apply: (transaction) => {
           const block:
-            | SpecificBlock<
-                { image: DefaultBlockSchema["image"] },
-                "image",
-                I,
-                S
-              >
+            | BlockFromConfig<DefaultBlockSchema["image"], I, S>
             | undefined = transaction.getMeta(imageToolbarPluginKey)?.block;
 
           return {

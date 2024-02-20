@@ -1,11 +1,7 @@
 import {
-  Block,
-  BlockNoteEditor,
   BlockSchema,
-  checkImageInSchema,
-  DefaultBlockSchema,
+  checkBlockIsDefaultType,
   InlineContentSchema,
-  SpecificBlock,
   StyleSchema,
 } from "@blocknote/core";
 import { Popover } from "@mantine/core";
@@ -16,22 +12,6 @@ import { useBlockNoteEditor } from "../../../editor/BlockNoteContext";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
 import { ToolbarButton } from "../../../components-shared/Toolbar/ToolbarButton";
 import { ImageToolbar } from "../../ImageToolbar/ImageToolbar";
-
-export function checkBlockIsImage(
-  // TODO: Fix any, should be BlockSchema but smth is broken
-  block: Block<any, InlineContentSchema, StyleSchema>,
-  editor: BlockNoteEditor<BlockSchema, InlineContentSchema, StyleSchema>
-): block is SpecificBlock<
-  { image: DefaultBlockSchema["image"] },
-  "image",
-  InlineContentSchema,
-  StyleSchema
-> {
-  return (
-    // Checks if the selected block is an image.
-    block.type === "image" && checkImageInSchema(editor)
-  );
-}
 
 export const ReplaceImageButton = () => {
   const editor = useBlockNoteEditor<
@@ -50,7 +30,11 @@ export const ReplaceImageButton = () => {
 
   const block = selectedBlocks.length === 1 ? selectedBlocks[0] : undefined;
 
-  if (block === undefined || !checkBlockIsImage(block, editor)) {
+  if (
+    block === undefined ||
+    block.type !== "image" ||
+    !checkBlockIsDefaultType("image", block, editor)
+  ) {
     return null;
   }
 

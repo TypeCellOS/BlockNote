@@ -1,9 +1,7 @@
 import {
-  Block,
-  BlockFromConfig,
-  BlockNoteEditor,
   BlockSchema,
-  defaultProps,
+  checkBlockHasDefaultProp,
+  checkBlockTypeHasDefaultProp,
   DefaultProps,
   InlineContentSchema,
   StyleSchema,
@@ -22,72 +20,6 @@ import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
 import { ToolbarButton } from "../../../components-shared/Toolbar/ToolbarButton";
 
 type TextAlignment = DefaultProps["textAlignment"];
-
-type BlockConfigWithTextAlignment = {
-  type: string;
-  propSchema: {
-    textAlignment: {
-      default: TextAlignment;
-      values: typeof defaultProps.textAlignment.values;
-    };
-  };
-  content: "inline" | "table" | "none";
-};
-
-const checkTextAlignmentValues = (
-  values: readonly string[]
-): values is typeof defaultProps.textAlignment.values => {
-  return (
-    values.length === defaultProps.textAlignment.values.length &&
-    values.every((value) =>
-      defaultProps.textAlignment.values.includes(value as TextAlignment)
-    )
-  );
-};
-
-function checkBlockTypeHasTextAlignment(
-  blockType: string,
-  editor: BlockNoteEditor<BlockSchema, InlineContentSchema, StyleSchema>
-) {
-  return (
-    // Block type has textAlignment prop
-    blockType in editor.blockSchema &&
-    "textAlignment" in editor.blockSchema[blockType].propSchema &&
-    // Default textAlignment value is valid
-    defaultProps.textAlignment.values.includes(
-      editor.blockSchema[blockType].propSchema.textAlignment
-        .default as TextAlignment
-    ) &&
-    // textAlignment values are valid
-    "values" in editor.blockSchema[blockType].propSchema.textAlignment &&
-    checkTextAlignmentValues(
-      editor.blockSchema[blockType].propSchema.textAlignment.values as string[]
-    )
-  );
-}
-
-function checkBlockHasTextAlignment(
-  block: Block<BlockSchema, InlineContentSchema, StyleSchema>,
-  editor: BlockNoteEditor<BlockSchema, InlineContentSchema, StyleSchema>
-): block is BlockFromConfig<
-  BlockConfigWithTextAlignment,
-  InlineContentSchema,
-  StyleSchema
-> {
-  return checkBlockTypeHasTextAlignment(block.type, editor);
-}
-
-function checkAllBlocksHaveTextAlignment(
-  editor: BlockNoteEditor<any, InlineContentSchema, StyleSchema>
-): editor is BlockNoteEditor<
-  Record<string, BlockConfigWithTextAlignment>,
-  InlineContentSchema,
-  StyleSchema
-> {
-  return Object.keys(editor.blockSchema).every((blockType) => {
-    return checkBlockTypeHasTextAlignment(blockType, editor);
-  });
-}
 
 const icons: Record<TextAlignment, IconType> = {
   left: RiAlignLeft,
@@ -108,7 +40,7 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
   const textAlignment = useMemo(() => {
     const block = selectedBlocks[0];
 
-    if (checkBlockHasTextAlignment(block, editor)) {
+    if (checkBlockHasDefaultProp("textAlignment", block, editor)) {
       return block.props.textAlignment;
     }
 
@@ -120,7 +52,7 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
       editor.focus();
 
       for (const block of selectedBlocks) {
-        if (checkAllBlocksHaveTextAlignment(editor)) {
+        if (checkBlockTypeHasDefaultProp("textAlignment", block.type, editor)) {
           editor.updateBlock(block, {
             props: { textAlignment: textAlignment },
           });

@@ -1,13 +1,11 @@
 import {
-  Block,
-  BlockFromConfig,
-  BlockNoteEditor,
   BlockSchema,
+  checkBlockHasDefaultProp,
+  checkBlockTypeHasDefaultProp,
   DefaultBlockSchema,
   DefaultInlineContentSchema,
   DefaultStyleSchema,
   InlineContentSchema,
-  PropSchema,
   StyleSchema,
 } from "@blocknote/core";
 import { Box, Menu } from "@mantine/core";
@@ -19,79 +17,6 @@ import { usePreventMenuOverflow } from "../../../../hooks/usePreventMenuOverflow
 import { DragHandleMenuProps } from "../DragHandleMenuProps";
 import { DragHandleMenuItem } from "../DragHandleMenuItem";
 import { ColorPicker } from "../../../../components-shared/ColorPicker/ColorPicker";
-
-type BlockConfigWithColor<
-  Color extends "text" | "background",
-  T extends string = string,
-  PS extends PropSchema = PropSchema,
-  C extends "inline" | "table" | "none" = "inline" | "table" | "none"
-> = {
-  type: T;
-  propSchema: PS & Color extends "text"
-    ? {
-        textColor: {
-          default: string;
-        };
-      }
-    : {
-        backgroundColor: {
-          default: string;
-        };
-      };
-  content: C;
-};
-
-function checkBlockTypeHasColor<
-  Color extends "text" | "background",
-  BSchema extends BlockSchema = DefaultBlockSchema,
-  I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema
->(color: Color, blockType: string, editor: BlockNoteEditor<BSchema, I, S>) {
-  return (
-    // Block type has color prop
-    blockType in editor.blockSchema &&
-    `${color}Color` in editor.blockSchema[blockType].propSchema &&
-    // Default textAlignment value is valid
-    !("values" in editor.blockSchema[blockType].propSchema[`${color}Color`])
-  );
-}
-
-function checkBlockHasColor<
-  Color extends "text" | "background",
-  BSchema extends BlockSchema = DefaultBlockSchema,
-  I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema
->(
-  color: Color,
-  block: Block<BSchema, I, S>,
-  editor: BlockNoteEditor<BSchema, I, S>
-): block is BlockFromConfig<BlockConfigWithColor<Color>, I, S> {
-  return checkBlockTypeHasColor(color, block.type, editor);
-}
-
-function checkBlockCanHaveColor<
-  Color extends "text" | "background",
-  BSchema extends BlockSchema = DefaultBlockSchema,
-  I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema
->(
-  color: Color,
-  block: Block<BSchema, I, S>,
-  editor: BlockNoteEditor<any, I, S>
-): editor is BlockNoteEditor<
-  {
-    [k in string]: BlockConfigWithColor<
-      Color,
-      BSchema[k]["type"],
-      BSchema[k]["propSchema"],
-      BSchema[k]["content"]
-    >;
-  },
-  I,
-  S
-> {
-  return checkBlockTypeHasColor(color, block.type, editor);
-}
 
 export const BlockColorsButton = <
   BSchema extends BlockSchema = DefaultBlockSchema,
@@ -132,8 +57,8 @@ export const BlockColorsButton = <
   }, [opened, updateMaxHeight]);
 
   if (
-    !checkBlockCanHaveColor("text", props.block, editor) &&
-    !checkBlockCanHaveColor("background", props.block, editor)
+    !checkBlockTypeHasDefaultProp("textColor", props.block.type, editor) &&
+    !checkBlockTypeHasDefaultProp("backgroundColor", props.block.type, editor)
   ) {
     return null;
   }
@@ -159,20 +84,28 @@ export const BlockColorsButton = <
             <ColorPicker
               iconSize={18}
               text={
-                checkBlockHasColor("text", props.block, editor) &&
-                checkBlockCanHaveColor("text", props.block, editor)
+                checkBlockTypeHasDefaultProp(
+                  "textColor",
+                  props.block.type,
+                  editor
+                ) && checkBlockHasDefaultProp("textColor", props.block, editor)
                   ? {
                       color: props.block.props.textColor,
                       setColor: (color) =>
                         editor.updateBlock(props.block, {
+                          type: props.block.type,
                           props: { textColor: color },
                         }),
                     }
                   : undefined
               }
               background={
-                checkBlockHasColor("background", props.block, editor) &&
-                checkBlockCanHaveColor("background", props.block, editor)
+                checkBlockTypeHasDefaultProp(
+                  "backgroundColor",
+                  props.block.type,
+                  editor
+                ) &&
+                checkBlockHasDefaultProp("backgroundColor", props.block, editor)
                   ? {
                       color: props.block.props.backgroundColor,
                       setColor: (color) =>

@@ -100,7 +100,7 @@ export const BasicTextStyleButton = <Style extends BasicTextStyle>(props: {
     if (!basicTextStyleInSchema) {
       return false;
     }
-
+    // Also don't show when none of the selected blocks have text content
     return !!selectedBlocks.find((block) => block.content !== undefined);
   }, [basicTextStyleInSchema, selectedBlocks]);
 

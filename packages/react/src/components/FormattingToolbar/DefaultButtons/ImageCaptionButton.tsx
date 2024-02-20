@@ -1,17 +1,11 @@
 import {
   BlockSchema,
-  checkImageInSchema,
+  checkBlockIsDefaultType,
+  checkDefaultBlockTypeInSchema,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import {
-  ChangeEvent,
-  KeyboardEvent,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { KeyboardEvent, useCallback, useMemo, useRef } from "react";
 import { RiText } from "react-icons/ri";
 
 import { useBlockNoteEditor } from "../../../editor/BlockNoteContext";
@@ -20,7 +14,6 @@ import { ToolbarButton } from "../../../components-shared/Toolbar/ToolbarButton"
 import { ToolbarInputDropdown } from "../../../components-shared/Toolbar/ToolbarInputDropdown";
 import { ToolbarInputDropdownButton } from "../../../components-shared/Toolbar/ToolbarInputDropdownButton";
 import { ToolbarInputDropdownItem } from "../../../components-shared/Toolbar/ToolbarInputDropdownItem";
-import { checkBlockIsImage } from "./ReplaceImageButton";
 
 export const ImageCaptionButton = () => {
   const editor = useBlockNoteEditor<
@@ -39,41 +32,32 @@ export const ImageCaptionButton = () => {
 
     const block = selectedBlocks[0];
 
-    if (checkBlockIsImage(block, editor)) {
+    if (checkBlockIsDefaultType("image", block, editor)) {
       return block;
     }
 
     return undefined;
   }, [editor, selectedBlocks]);
 
-  const [currentCaption, setCurrentCaption] = useState<string>(
-    imageBlock ? imageBlock.props.caption : ""
-  );
-
-  useEffect(
-    () => setCurrentCaption(imageBlock ? imageBlock.props.caption : ""),
-    [selectedBlocks, imageBlock]
-  );
+  const ref = useRef<HTMLInputElement>(null);
 
   const handleEnter = useCallback(
     (event: KeyboardEvent) => {
-      if (imageBlock && checkImageInSchema(editor) && event.key === "Enter") {
+      if (
+        imageBlock &&
+        checkDefaultBlockTypeInSchema("image", editor) &&
+        event.key === "Enter"
+      ) {
         event.preventDefault();
         editor.updateBlock(imageBlock, {
           type: "image",
           props: {
-            caption: currentCaption,
+            caption: ref.current!.value,
           },
         });
       }
     },
-    [currentCaption, editor, imageBlock]
-  );
-
-  const handleChange = useCallback(
-    (event: ChangeEvent<HTMLInputElement>) =>
-      setCurrentCaption(event.currentTarget.value),
-    []
+    [editor, imageBlock]
   );
 
   if (!imageBlock) {
@@ -97,10 +81,10 @@ export const ImageCaptionButton = () => {
             inputProps={{
               autoFocus: true,
               placeholder: "Edit Caption",
-              value: currentCaption,
               onKeyDown: handleEnter,
-              onChange: handleChange,
+              defaultValue: imageBlock.props.caption,
             }}
+            ref={ref}
           />
         </ToolbarInputDropdown>
       }
