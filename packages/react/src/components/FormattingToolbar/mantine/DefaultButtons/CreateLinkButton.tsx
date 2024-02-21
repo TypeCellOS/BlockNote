@@ -11,8 +11,8 @@ import {
 import { useBlockNoteEditor } from "../../../../editor/BlockNoteContext";
 import { useEditorContentOrSelectionChange } from "../../../../hooks/useEditorContentOrSelectionChange";
 import { useSelectedBlocks } from "../../../../hooks/useSelectedBlocks";
-import { ToolbarButton } from "../../../../components-shared/Toolbar/ToolbarButton";
-import { ToolbarInputDropdownButton } from "../../../../components-shared/Toolbar/ToolbarInputDropdownButton";
+import { ToolbarButton } from "../../../mantine-shared/Toolbar/ToolbarButton";
+import { ToolbarInputDropdownButton } from "../../../mantine-shared/Toolbar/ToolbarInputDropdownButton";
 import { EditHyperlinkMenu } from "../../../HyperlinkToolbar/mantine/EditHyperlinkMenu/EditHyperlinkMenu";
 
 // TODO: Make sure Link is in inline content schema

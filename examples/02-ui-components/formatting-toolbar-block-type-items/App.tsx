@@ -7,8 +7,8 @@ import {
   useBlockNote,
 } from "@blocknote/react";
 import "@blocknote/react/style.css";
+import { RiImage2Fill } from "react-icons/ri";
 
-// TODO: Fix
 export default function App() {
   // Creates a new editor instance.
   const editor = useBlockNote();
@@ -19,7 +19,7 @@ export default function App() {
       <FormattingToolbarController
         formattingToolbar={() => (
           <FormattingToolbar
-            blockTypeDropdownItems={() => [
+            blockTypeDropdownItems={[
               ...blockTypeDropdownItems,
               {
                 name: "Specific Image",

@@ -23,7 +23,7 @@ import {
 
 import { useBlockNoteEditor } from "../../../editor/BlockNoteContext";
 import { ImageToolbarProps } from "../ImageToolbarProps";
-import { ToolbarWrapper } from "../../../components-shared/Toolbar/ToolbarWrapper";
+import { Toolbar } from "../../mantine-shared/Toolbar/Toolbar";
 
 export const ImageToolbar = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
@@ -116,7 +116,7 @@ export const ImageToolbar = <
   }, [editor, props.block, currentURL]);
 
   return (
-    <ToolbarWrapper className={"bn-image-toolbar"}>
+    <Toolbar className={"bn-image-toolbar"}>
       <Tabs value={openTab} onChange={setOpenTab as any}>
         {uploading && <LoadingOverlay visible={uploading} />}
 
@@ -169,6 +169,6 @@ export const ImageToolbar = <
           </div>
         </Tabs.Panel>
       </Tabs>
-    </ToolbarWrapper>
+    </Toolbar>
   );
 };

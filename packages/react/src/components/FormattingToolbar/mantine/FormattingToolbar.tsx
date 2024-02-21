@@ -1,19 +1,19 @@
+import { Toolbar } from "../../mantine-shared/Toolbar/Toolbar";
 import { FormattingToolbarProps } from "../FormattingToolbarProps";
-import { ToolbarWrapper } from "../../../components-shared/Toolbar/ToolbarWrapper";
-import {
-  BlockTypeDropdown,
-  BlockTypeDropdownItem,
-} from "./DefaultDropdowns/BlockTypeDropdown";
-import { ImageCaptionButton } from "./DefaultButtons/ImageCaptionButton";
-import { ReplaceImageButton } from "./DefaultButtons/ReplaceImageButton";
 import { BasicTextStyleButton } from "./DefaultButtons/BasicTextStyleButton";
-import { TextAlignButton } from "./DefaultButtons/TextAlignButton";
 import { ColorStyleButton } from "./DefaultButtons/ColorStyleButton";
+import { CreateLinkButton } from "./DefaultButtons/CreateLinkButton";
+import { ImageCaptionButton } from "./DefaultButtons/ImageCaptionButton";
 import {
   NestBlockButton,
   UnnestBlockButton,
 } from "./DefaultButtons/NestBlockButtons";
-import { CreateLinkButton } from "./DefaultButtons/CreateLinkButton";
+import { ReplaceImageButton } from "./DefaultButtons/ReplaceImageButton";
+import { TextAlignButton } from "./DefaultButtons/TextAlignButton";
+import {
+  BlockTypeDropdown,
+  BlockTypeDropdownItem,
+} from "./DefaultDropdowns/BlockTypeDropdown";
 
 export const getFormattingToolbarItems = (
   blockTypeDropdownItems?: BlockTypeDropdownItem[]
@@ -41,10 +41,13 @@ export const getFormattingToolbarItems = (
 ];
 
 // TODO: This is basically the same as `ToolbarWrapper`, seems pretty useless
-export const FormattingToolbar = (props: FormattingToolbarProps) => {
+export const FormattingToolbar = (
+  props: FormattingToolbarProps & { children?: React.ReactNode }
+) => {
   return (
-    <ToolbarWrapper>
-      {props.items || getFormattingToolbarItems()}
-    </ToolbarWrapper>
+    <Toolbar>
+      {props.children ||
+        getFormattingToolbarItems(props.blockTypeDropdownItems)}
+    </Toolbar>
   );
 };

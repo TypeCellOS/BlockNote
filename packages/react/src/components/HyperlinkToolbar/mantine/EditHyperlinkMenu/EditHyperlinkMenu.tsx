@@ -9,8 +9,8 @@ import {
 } from "react";
 import { RiLink, RiText } from "react-icons/ri";
 
-import { ToolbarInputDropdown } from "../../../../components-shared/Toolbar/ToolbarInputDropdown";
-import { ToolbarInputDropdownItem } from "../../../../components-shared/Toolbar/ToolbarInputDropdownItem";
+import { ToolbarInputDropdown } from "../../../mantine-shared/Toolbar/ToolbarInputDropdown";
+import { ToolbarInputDropdownItem } from "../../../mantine-shared/Toolbar/ToolbarInputDropdownItem";
 
 export type EditHyperlinkMenuProps = {
   url: string;

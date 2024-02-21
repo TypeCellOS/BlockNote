@@ -1,7 +1,7 @@
 import { offset, useFloating, useTransitionStyles } from "@floating-ui/react";
 import { useEffect, useMemo } from "react";
 
-import { UiComponentPosition } from "../../../components-shared/UiComponentTypes";
+import { UiComponentPosition } from "../../../hooks/UiComponentPosition";
 
 function getBoundingClientRectRow(
   referencePosCell: DOMRect | null,

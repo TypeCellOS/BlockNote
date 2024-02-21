@@ -14,10 +14,10 @@ import {
 } from "react";
 import { RiText } from "react-icons/ri";
 
-import { ToolbarButton } from "../../../../components-shared/Toolbar/ToolbarButton";
-import { ToolbarInputDropdown } from "../../../../components-shared/Toolbar/ToolbarInputDropdown";
-import { ToolbarInputDropdownButton } from "../../../../components-shared/Toolbar/ToolbarInputDropdownButton";
-import { ToolbarInputDropdownItem } from "../../../../components-shared/Toolbar/ToolbarInputDropdownItem";
+import { ToolbarButton } from "../../../mantine-shared/Toolbar/ToolbarButton";
+import { ToolbarInputDropdown } from "../../../mantine-shared/Toolbar/ToolbarInputDropdown";
+import { ToolbarInputDropdownButton } from "../../../mantine-shared/Toolbar/ToolbarInputDropdownButton";
+import { ToolbarInputDropdownItem } from "../../../mantine-shared/Toolbar/ToolbarInputDropdownItem";
 import { useBlockNoteEditor } from "../../../../editor/BlockNoteContext";
 import { useSelectedBlocks } from "../../../../hooks/useSelectedBlocks";
 

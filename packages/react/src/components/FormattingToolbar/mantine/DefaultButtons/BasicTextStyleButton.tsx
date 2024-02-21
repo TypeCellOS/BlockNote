@@ -18,7 +18,7 @@ import { IconType } from "react-icons";
 import { useBlockNoteEditor } from "../../../../editor/BlockNoteContext";
 import { useEditorContentOrSelectionChange } from "../../../../hooks/useEditorContentOrSelectionChange";
 import { useSelectedBlocks } from "../../../../hooks/useSelectedBlocks";
-import { ToolbarButton } from "../../../../components-shared/Toolbar/ToolbarButton";
+import { ToolbarButton } from "../../../mantine-shared/Toolbar/ToolbarButton";
 
 type BasicTextStyle = "bold" | "italic" | "underline" | "strike" | "code";
 

@@ -3,11 +3,11 @@ import {
   BlockTypeDropdown,
   ColorStyleButton,
   CreateLinkButton,
+  FormattingToolbar,
   ImageCaptionButton,
   NestBlockButton,
   ReplaceImageButton,
   TextAlignButton,
-  ToolbarWrapper,
   UnnestBlockButton,
 } from "@blocknote/react";
 
@@ -15,7 +15,7 @@ import { CustomButton } from "./CustomButton";
 
 export function CustomFormattingToolbar() {
   return (
-    <ToolbarWrapper>
+    <FormattingToolbar>
       <BlockTypeDropdown key={"blockTypeDropdown"} />
 
       <CustomButton key={"customButton"} />
@@ -48,6 +48,6 @@ export function CustomFormattingToolbar() {
       <UnnestBlockButton key={"unnestBlockButton"} />
 
       <CreateLinkButton key={"createLinkButton"} />
-    </ToolbarWrapper>
+    </FormattingToolbar>
   );
 }

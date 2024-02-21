@@ -16,7 +16,7 @@ import { useBlockNoteEditor } from "../../../../../editor/BlockNoteContext";
 import { usePreventMenuOverflow } from "../../../../../hooks/usePreventMenuOverflow";
 import { DragHandleMenuProps } from "../../DragHandleMenuProps";
 import { DragHandleMenuItem } from "../DragHandleMenuItem";
-import { ColorPicker } from "../../../../../components-shared/ColorPicker/ColorPicker";
+import { ColorPicker } from "../../../../mantine-shared/ColorPicker/ColorPicker";
 
 export const BlockColorsButton = <
   BSchema extends BlockSchema = DefaultBlockSchema,

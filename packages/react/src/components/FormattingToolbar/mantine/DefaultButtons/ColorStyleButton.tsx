@@ -11,9 +11,9 @@ import { useBlockNoteEditor } from "../../../../editor/BlockNoteContext";
 import { useEditorContentOrSelectionChange } from "../../../../hooks/useEditorContentOrSelectionChange";
 import { usePreventMenuOverflow } from "../../../../hooks/usePreventMenuOverflow";
 import { useSelectedBlocks } from "../../../../hooks/useSelectedBlocks";
-import { ColorIcon } from "../../../../components-shared/ColorPicker/ColorIcon";
-import { ColorPicker } from "../../../../components-shared/ColorPicker/ColorPicker";
-import { ToolbarButton } from "../../../../components-shared/Toolbar/ToolbarButton";
+import { ColorIcon } from "../../../mantine-shared/ColorPicker/ColorIcon";
+import { ColorPicker } from "../../../mantine-shared/ColorPicker/ColorPicker";
+import { ToolbarButton } from "../../../mantine-shared/Toolbar/ToolbarButton";
 
 function checkColorInSchema<Color extends "text" | "background">(
   color: Color,

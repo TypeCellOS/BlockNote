@@ -1,10 +1,11 @@
-import { filterSuggestionItems } from "@blocknote/core";
+import { BlockSchemaFromSpecs, filterSuggestionItems } from "@blocknote/core";
 import "@blocknote/core/style.css";
 import {
   BlockNoteDefaultUI,
   BlockNoteView,
-  DefaultPositionedSuggestionMenu,
+  DefaultReactSuggestionItem,
   getDefaultReactSlashMenuItems,
+  SuggestionMenuController,
   useBlockNote,
 } from "@blocknote/react";
 import { Alert, insertAlert } from "../customblocks/Alert";
@@ -22,8 +23,6 @@ const blockSpecs = {
   // toc: TableOfContents,
 };
 
-const defaultItems = getDefaultReactSlashMenuItems();
-
 const customItems = [
   insertAlert,
   // insertButton,
@@ -32,8 +31,6 @@ const customItems = [
   // insertSeparator,
   // insertTableOfContents,
 ];
-
-const allItems = [...defaultItems, ...customItems];
 
 export default function Editor() {
   const editor = useBlockNote({
@@ -50,11 +47,19 @@ export default function Editor() {
   // TODO: how to customize slashmenu
   return (
     <BlockNoteView editor={editor}>
-      <BlockNoteDefaultUI editor={editor} slashMenu={false} />
-      <DefaultPositionedSuggestionMenu
-        editor={editor}
-        getItems={async (query) => filterSuggestionItems(allItems, query)}
-        onItemClick={(i) => i.onItemClick(editor)}
+      <BlockNoteDefaultUI slashMenu={false} />
+      <SuggestionMenuController
+        getItems={async (query) =>
+          filterSuggestionItems(
+            [
+              ...getDefaultReactSlashMenuItems(editor),
+              ...customItems,
+            ] satisfies DefaultReactSuggestionItem<
+              BlockSchemaFromSpecs<typeof blockSpecs>
+            >[],
+            query
+          )
+        }
         // suggestionMenuComponent={MantineSuggestionMenu}
         triggerCharacter="/"
       />
