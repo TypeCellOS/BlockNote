@@ -8,6 +8,7 @@ import {
   defaultStyleSpecs,
   uploadToTmpFilesDotOrg_DEV_ONLY,
 } from "@blocknote/core";
+import { BlockNoteSchema } from "@blocknote/core/src/editor/BlockNoteSchema";
 import { createReactStyleSpec } from "../../schema/ReactStyleSpec";
 
 const small = createReactStyleSpec(
@@ -51,7 +52,9 @@ export const customReactStylesTestCases: EditorTestCases<
   createEditor: () => {
     return BlockNoteEditor.create({
       uploadFile: uploadToTmpFilesDotOrg_DEV_ONLY,
-      styleSpecs: customReactStyles,
+      schema: BlockNoteSchema.create({
+        styleSpecs: customReactStyles,
+      }),
     });
   },
   documents: [

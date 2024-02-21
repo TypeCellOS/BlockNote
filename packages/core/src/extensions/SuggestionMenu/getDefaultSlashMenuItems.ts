@@ -1,3 +1,9 @@
+import {
+  Block,
+  DefaultBlockSchema,
+  PartialBlock,
+} from "../../blocks/defaultBlocks";
+import { checkDefaultBlockTypeInSchema } from "../../blocks/defaultBlockTypeGuards";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import {
   BlockSchema,
@@ -5,16 +11,8 @@ import {
   isStyledTextInlineContent,
   StyleSchema,
 } from "../../schema";
-import {
-  Block,
-  DefaultBlockSchema,
-  DefaultInlineContentSchema,
-  DefaultStyleSchema,
-  PartialBlock,
-} from "../../blocks/defaultBlocks";
-import { DefaultSuggestionItem } from "./DefaultSuggestionItem";
-import { checkDefaultBlockTypeInSchema } from "../../blocks/defaultBlockTypeGuards";
 import { formatKeyboardShortcut } from "../../util/browser";
+import { DefaultSuggestionItem } from "./DefaultSuggestionItem";
 
 // Sets the editor's text cursor position to the next content editable block,
 // so either a block with inline content or a table. The last block is always a
@@ -26,11 +24,11 @@ function setSelectionToNextContentEditableBlock<
   S extends StyleSchema
 >(editor: BlockNoteEditor<BSchema, I, S>) {
   let block = editor.getTextCursorPosition().block;
-  let contentType = editor.blockSchema[block.type].content;
+  let contentType = editor.schema.blockSchema[block.type].content;
 
   while (contentType === "none") {
     block = editor.getTextCursorPosition().nextBlock!;
-    contentType = editor.blockSchema[block.type].content as
+    contentType = editor.schema.blockSchema[block.type].content as
       | "inline"
       | "table"
       | "none";
@@ -80,9 +78,9 @@ export function insertOrUpdateBlock<
 }
 
 export function getDefaultSlashMenuItems<
-  BSchema extends BlockSchema = DefaultBlockSchema,
-  I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
 >(editor: BlockNoteEditor<BSchema, I, S>) {
   const items: DefaultSuggestionItem<BSchema, I, S>[] = [];
 

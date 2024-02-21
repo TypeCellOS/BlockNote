@@ -4,8 +4,8 @@
   "workspaces": [
     "packages/*",
     "playground",
-    "docs",
-    "tests"
+    "tests",
+    "docs"
   ],
   "devDependencies": {
     "eslint": "^8.22.0",

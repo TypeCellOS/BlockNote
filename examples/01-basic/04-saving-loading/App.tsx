@@ -1,5 +1,5 @@
-import { PartialBlock } from "@blocknote/core";
-import { BlockNoteView, createBlockNoteEditor } from "@blocknote/react";
+import { BlockNoteEditor, PartialBlock } from "@blocknote/core";
+import { BlockNoteView } from "@blocknote/react";
 import "@blocknote/react/style.css";
 import { useEffect, useMemo, useState } from "react";
 
@@ -34,7 +34,7 @@ export default function App() {
     if (initialContent === "loading") {
       return undefined;
     }
-    return createBlockNoteEditor({ initialContent });
+    return BlockNoteEditor.create({ initialContent });
   }, [initialContent]);
 
   if (editor === undefined) {

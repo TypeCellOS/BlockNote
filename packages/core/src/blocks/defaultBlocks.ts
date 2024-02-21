@@ -37,7 +37,8 @@ export const defaultBlockSpecs = {
 
 export const defaultBlockSchema = getBlockSchemaFromSpecs(defaultBlockSpecs);
 
-export type DefaultBlockSchema = typeof defaultBlockSchema;
+export type _DefaultBlockSchema = typeof defaultBlockSchema;
+export type DefaultBlockSchema = _DefaultBlockSchema;
 
 export const defaultStyleSpecs = {
   bold: createStyleSpecFromTipTapMark(Bold, "boolean"),
@@ -51,7 +52,8 @@ export const defaultStyleSpecs = {
 
 export const defaultStyleSchema = getStyleSchemaFromSpecs(defaultStyleSpecs);
 
-export type DefaultStyleSchema = typeof defaultStyleSchema;
+export type _DefaultStyleSchema = typeof defaultStyleSchema;
+export type DefaultStyleSchema = _DefaultStyleSchema;
 
 export const defaultInlineContentSpecs = {
   text: { config: "text", implementation: {} as any },
@@ -62,7 +64,8 @@ export const defaultInlineContentSchema = getInlineContentSchemaFromSpecs(
   defaultInlineContentSpecs
 );
 
-export type DefaultInlineContentSchema = typeof defaultInlineContentSchema;
+export type _DefaultInlineContentSchema = typeof defaultInlineContentSchema;
+export type DefaultInlineContentSchema = _DefaultInlineContentSchema;
 
 export type PartialBlock<
   BSchema extends BlockSchema = DefaultBlockSchema,

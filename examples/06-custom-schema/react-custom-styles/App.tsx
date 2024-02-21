@@ -1,10 +1,4 @@
-import {
-  BlockNoteEditor,
-  DefaultBlockSchema,
-  DefaultInlineContentSchema,
-  StyleSchemaFromSpecs,
-  defaultStyleSpecs,
-} from "@blocknote/core";
+import { BlockNoteSchema, defaultStyleSpecs } from "@blocknote/core";
 import {
   BlockNoteView,
   FormattingToolbar,
@@ -44,21 +38,16 @@ const fontSize = createReactStyleSpec(
   }
 );
 
-const customReactStyles = {
-  ...defaultStyleSpecs,
-  small,
-  fontSize,
-};
-
-type MyEditorType = BlockNoteEditor<
-  DefaultBlockSchema,
-  DefaultInlineContentSchema,
-  StyleSchemaFromSpecs<typeof customReactStyles>
->;
+export const schema = BlockNoteSchema.create({
+  styleSpecs: {
+    ...defaultStyleSpecs,
+    small,
+    fontSize,
+  },
+});
 
 const CustomFormattingToolbar = (props: FormattingToolbarProps) => {
-  // TODO, :any
-  const editor: any = useBlockNoteEditor();
+  const editor = useBlockNoteEditor();
   const activeStyles = useActiveStyles(editor);
 
   return (
@@ -90,7 +79,7 @@ const CustomFormattingToolbar = (props: FormattingToolbarProps) => {
 export default function App() {
   const editor = useBlockNote(
     {
-      styleSpecs: customReactStyles,
+      schema,
       initialContent: [
         {
           type: "paragraph",

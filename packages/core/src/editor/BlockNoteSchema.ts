@@ -1,0 +1,80 @@
+import {
+  defaultBlockSpecs,
+  defaultInlineContentSpecs,
+  defaultStyleSpecs,
+} from "../blocks/defaultBlocks";
+import {
+  BlockSchema,
+  BlockSchemaFromSpecs,
+  BlockSpecs,
+  InlineContentSchema,
+  InlineContentSchemaFromSpecs,
+  InlineContentSpecs,
+  StyleSchema,
+  StyleSchemaFromSpecs,
+  StyleSpecs,
+  getBlockSchemaFromSpecs,
+  getInlineContentSchemaFromSpecs,
+  getStyleSchemaFromSpecs,
+} from "../schema";
+
+export class BlockNoteSchema<
+  BSchema extends BlockSchema,
+  ISchema extends InlineContentSchema,
+  SSchema extends StyleSchema
+> {
+  public readonly blockSpecs: BlockSpecs;
+  public readonly inlineContentSpecs: InlineContentSpecs;
+  public readonly styleSpecs: StyleSpecs;
+
+  public readonly blockSchema: BSchema;
+  public readonly inlineContentSchema: ISchema;
+  public readonly styleSchema: SSchema;
+
+  public static create<
+    BSpecs extends BlockSpecs = typeof defaultBlockSpecs,
+    ISpecs extends InlineContentSpecs = typeof defaultInlineContentSpecs,
+    SSpecs extends StyleSpecs = typeof defaultStyleSpecs
+  >(options?: {
+    /**
+     * A list of custom block types that should be available in the editor.
+     */
+    blockSpecs?: BSpecs;
+    /**
+     * A list of custom InlineContent types that should be available in the editor.
+     */
+    inlineContentSpecs?: ISpecs;
+    /**
+     * A list of custom Styles that should be available in the editor.
+     */
+    styleSpecs?: SSpecs;
+  }) {
+    return new BlockNoteSchema<
+      BlockSchemaFromSpecs<BSpecs>,
+      InlineContentSchemaFromSpecs<ISpecs>,
+      StyleSchemaFromSpecs<SSpecs>
+    >(options);
+    // as BlockNoteSchema<
+    // BlockSchemaFromSpecs<BSpecs>,
+    // InlineContentSchemaFromSpecs<ISpecs>,
+    // StyleSchemaFromSpecs<SSpecs>
+    // >;
+  }
+
+  constructor(opts?: {
+    blockSpecs?: BlockSpecs;
+    inlineContentSpecs?: InlineContentSpecs;
+    styleSpecs?: StyleSpecs;
+  }) {
+    this.blockSpecs = opts?.blockSpecs || defaultBlockSpecs;
+    this.inlineContentSpecs =
+      opts?.inlineContentSpecs || defaultInlineContentSpecs;
+    this.styleSpecs = opts?.styleSpecs || defaultStyleSpecs;
+
+    this.blockSchema = getBlockSchemaFromSpecs(this.blockSpecs) as any;
+    this.inlineContentSchema = getInlineContentSchemaFromSpecs(
+      this.inlineContentSpecs
+    ) as any;
+    this.styleSchema = getStyleSchemaFromSpecs(this.styleSpecs) as any;
+  }
+}

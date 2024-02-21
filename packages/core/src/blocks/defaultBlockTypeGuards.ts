@@ -1,6 +1,6 @@
-import { BlockFromConfig, InlineContentSchema, StyleSchema } from "../schema";
 import type { BlockNoteEditor } from "../editor/BlockNoteEditor";
-import { Block, defaultBlockSchema, DefaultBlockSchema } from "./defaultBlocks";
+import { BlockFromConfig, InlineContentSchema, StyleSchema } from "../schema";
+import { Block, DefaultBlockSchema, defaultBlockSchema } from "./defaultBlocks";
 import { defaultProps } from "./defaultProps";
 
 export function checkDefaultBlockTypeInSchema<
@@ -12,8 +12,8 @@ export function checkDefaultBlockTypeInSchema<
   editor: BlockNoteEditor<any, I, S>
 ): editor is BlockNoteEditor<{ Type: DefaultBlockSchema[BlockType] }, I, S> {
   return (
-    blockType in editor.blockSchema &&
-    editor.blockSchema[blockType] === defaultBlockSchema[blockType]
+    blockType in editor.schema.blockSchema &&
+    editor.schema.blockSchema[blockType] === defaultBlockSchema[blockType]
   );
 }
 
@@ -28,7 +28,7 @@ export function checkBlockIsDefaultType<
 ): block is BlockFromConfig<DefaultBlockSchema[BlockType], I, S> {
   return (
     block.type === blockType &&
-    block.type in editor.blockSchema &&
+    block.type in editor.schema.blockSchema &&
     checkDefaultBlockTypeInSchema(block.type, editor)
   );
 }
@@ -55,9 +55,9 @@ export function checkBlockTypeHasDefaultProp<
   S
 > {
   return (
-    blockType in editor.blockSchema &&
-    prop in editor.blockSchema[blockType].propSchema &&
-    editor.blockSchema[blockType].propSchema[prop] === defaultProps[prop]
+    blockType in editor.schema.blockSchema &&
+    prop in editor.schema.blockSchema[blockType].propSchema &&
+    editor.schema.blockSchema[blockType].propSchema[prop] === defaultProps[prop]
   );
 }
 

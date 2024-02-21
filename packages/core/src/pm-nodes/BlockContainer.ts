@@ -183,7 +183,7 @@ export const BlockContainer = Node.create<{
                   blockToNode(
                     child,
                     state.schema,
-                    this.options.editor.styleSchema
+                    this.options.editor.schema.styleSchema
                   )
                 );
               }
@@ -223,13 +223,13 @@ export const BlockContainer = Node.create<{
                 content = inlineContentToNodes(
                   block.content,
                   state.schema,
-                  this.options.editor.styleSchema
+                  this.options.editor.schema.styleSchema
                 );
               } else if (block.content.type === "tableContent") {
                 content = tableContentToNodes(
                   block.content,
                   state.schema,
-                  this.options.editor.styleSchema
+                  this.options.editor.schema.styleSchema
                 );
               } else {
                 throw new UnreachableCaseError(block.content.type);

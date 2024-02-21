@@ -83,7 +83,7 @@ export const createExternalHTMLExporter = <
 
   serializer.exportBlocks = (blocks: PartialBlock<BSchema, I, S>[]) => {
     const nodes = blocks.map((block) =>
-      blockToNode(block, schema, editor.styleSchema)
+      blockToNode(block, schema, editor.schema.styleSchema)
     );
     const blockGroup = schema.nodes["blockGroup"].create(null, nodes);
 

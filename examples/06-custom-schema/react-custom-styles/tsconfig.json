@@ -3,11 +3,7 @@
   "compilerOptions": {
     "target": "ESNext",
     "useDefineForClassFields": true,
-    "lib": [
-      "DOM",
-      "DOM.Iterable",
-      "ESNext"
-    ],
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "allowJs": false,
     "skipLibCheck": true,
     "esModuleInterop": false,
@@ -18,13 +14,14 @@
     "moduleResolution": "Node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true,
+    "noEmit": false,
     "jsx": "react-jsx",
-    "composite": true
+    "composite": false,
+    "outDir": "dist",
+    "declarationDir": "types",
+    "declaration": true
   },
-  "include": [
-    "."
-  ],
+  "include": [".", "main.tsx", "App.tsx"],
   "references": [
     {
       "path": "../../../packages/core/"

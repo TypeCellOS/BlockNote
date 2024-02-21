@@ -8,7 +8,7 @@ export function CustomSlashMenu(
   props: SuggestionMenuProps<DefaultReactSuggestionItem>
 ) {
   const editor = useBlockNoteEditor();
-
+  // let x = editor.schema.styleSchema.small;
   const groups: Record<string, DefaultReactSuggestionItem[]> = {};
   for (const item of props.items) {
     const group = item.group || item.title;

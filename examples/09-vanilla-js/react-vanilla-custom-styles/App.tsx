@@ -1,5 +1,6 @@
 import {
   BlockNoteEditor,
+  BlockNoteSchema,
   createStyleSpec,
   DefaultBlockSchema,
   DefaultInlineContentSchema,
@@ -95,11 +96,14 @@ const CustomFormattingToolbar = (props: FormattingToolbarProps) => {
 export default function App() {
   const editor = useBlockNote(
     {
-      styleSpecs: {
-        ...defaultStyleSpecs,
-        small,
-        fontSize,
-      },
+      schema: BlockNoteSchema.create({
+        styleSpecs: {
+          ...defaultStyleSpecs,
+          small,
+          fontSize,
+        },
+      }),
+
       initialContent: [
         {
           type: "paragraph",

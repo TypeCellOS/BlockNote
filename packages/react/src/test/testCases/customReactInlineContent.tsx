@@ -1,10 +1,12 @@
 import {
   BlockNoteEditor,
+  BlockNoteSchema,
   DefaultBlockSchema,
   DefaultStyleSchema,
   EditorTestCases,
   InlineContentSchemaFromSpecs,
   InlineContentSpecs,
+  PartialBlock,
   defaultInlineContentSpecs,
   uploadToTmpFilesDotOrg_DEV_ONLY,
 } from "@blocknote/core";
@@ -50,6 +52,26 @@ const customReactInlineContent = {
   mention,
 } satisfies InlineContentSpecs;
 
+// @ts-ignore
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const x: PartialBlock<
+  DefaultBlockSchema,
+  InlineContentSchemaFromSpecs<typeof customReactInlineContent>,
+  DefaultStyleSchema
+> = {
+  type: "paragraph",
+  content: [
+    "I enjoy working with ",
+    {
+      type: "mentiosfn",
+      props: {
+        user: "Matthew",
+      },
+      content: undefined,
+    } as const,
+  ],
+};
+
 export const customReactInlineContentTestCases: EditorTestCases<
   DefaultBlockSchema,
   InlineContentSchemaFromSpecs<typeof customReactInlineContent>,
@@ -59,7 +81,9 @@ export const customReactInlineContentTestCases: EditorTestCases<
   createEditor: () => {
     return BlockNoteEditor.create({
       uploadFile: uploadToTmpFilesDotOrg_DEV_ONLY,
-      inlineContentSpecs: customReactInlineContent,
+      schema: BlockNoteSchema.create({
+        inlineContentSpecs: customReactInlineContent,
+      }),
     });
   },
   documents: [
@@ -71,12 +95,12 @@ export const customReactInlineContentTestCases: EditorTestCases<
           content: [
             "I enjoy working with ",
             {
-              type: "mention",
+              type: "mentdfion",
               props: {
                 user: "Matthew",
               },
               content: undefined,
-            } as any,
+            } as const,
           ],
         },
       ],
@@ -92,7 +116,7 @@ export const customReactInlineContentTestCases: EditorTestCases<
               type: "tag",
               // props: {},
               content: "BlockNote",
-            } as any,
+            } as const,
           ],
         },
       ],

@@ -129,7 +129,7 @@
             "react-icons": "^4.3.1"
           }
         },
-        "title": "Adding Formatting Toolbar Buttons",
+        "title": "TODO",
         "group": {
           "pathFromRoot": "examples/02-ui-components",
           "slug": "ui-components"

@@ -29,20 +29,20 @@ function validateConversion(
   const node = blockToNode(
     block,
     editor._tiptapEditor.schema,
-    editor.styleSchema
+    editor.schema.styleSchema
   );
 
   expect(node).toMatchSnapshot();
 
   const outputBlock = nodeToBlock(
     node,
-    editor.blockSchema,
-    editor.inlineContentSchema,
-    editor.styleSchema
+    editor.schema.blockSchema,
+    editor.schema.inlineContentSchema,
+    editor.schema.styleSchema
   );
 
   const fullOriginalBlock = partialBlockToBlockForTesting(
-    editor.blockSchema,
+    editor.schema.blockSchema,
     block
   );
 

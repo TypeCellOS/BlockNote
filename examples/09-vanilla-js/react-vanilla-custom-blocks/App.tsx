@@ -1,4 +1,5 @@
 import {
+  BlockNoteSchema,
   createBlockSpec,
   defaultBlockSpecs,
   defaultProps,
@@ -179,12 +180,14 @@ const bracketsParagraphBlock = createBlockSpec(
 
 export default function App() {
   const editor = useBlockNote({
-    blockSpecs: {
-      ...defaultBlockSpecs,
-      alert: alertBlock,
-      bracketsParagraph: bracketsParagraphBlock,
-      simpleImage: simpleImageBlock,
-    },
+    schema: BlockNoteSchema.create({
+      blockSpecs: {
+        ...defaultBlockSpecs,
+        alert: alertBlock,
+        bracketsParagraph: bracketsParagraphBlock,
+        simpleImage: simpleImageBlock,
+      },
+    }),
     initialContent: [
       {
         type: "alert",

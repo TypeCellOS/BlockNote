@@ -3,12 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "build:tsc": "tsc --build",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
+    "@blocknote/example-react-custom-styles": "file:../examples/06-custom-schema/react-custom-styles",
     "@blocknote/core": "*",
     "@blocknote/react": "*",
     "@headlessui/react": "^1.7.18",

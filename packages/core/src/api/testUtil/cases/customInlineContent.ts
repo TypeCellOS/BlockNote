@@ -1,12 +1,13 @@
 import { EditorTestCases } from "../index";
 
-import { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
+import { uploadToTmpFilesDotOrg_DEV_ONLY } from "../../../blocks/ImageBlockContent/uploadToTmpFilesDotOrg_DEV_ONLY";
 import {
   DefaultBlockSchema,
   DefaultStyleSchema,
   defaultInlineContentSpecs,
 } from "../../../blocks/defaultBlocks";
-import { uploadToTmpFilesDotOrg_DEV_ONLY } from "../../../blocks/ImageBlockContent/uploadToTmpFilesDotOrg_DEV_ONLY";
+import { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
+import { BlockNoteSchema } from "../../../editor/BlockNoteSchema";
 import { createInlineContentSpec } from "../../../schema/inlineContent/createSpec";
 import {
   InlineContentSchemaFromSpecs,
@@ -72,7 +73,9 @@ export const customInlineContentTestCases: EditorTestCases<
   createEditor: () => {
     return BlockNoteEditor.create({
       uploadFile: uploadToTmpFilesDotOrg_DEV_ONLY,
-      inlineContentSpecs: customInlineContent,
+      schema: BlockNoteSchema.create({
+        inlineContentSpecs: customInlineContent,
+      }),
     });
   },
   documents: [

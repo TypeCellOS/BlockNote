@@ -30,7 +30,7 @@ export function insertBlocks<
   const nodesToInsert: Node[] = [];
   for (const blockSpec of blocksToInsert) {
     nodesToInsert.push(
-      blockToNode(blockSpec, ttEditor.schema, editor.styleSchema)
+      blockToNode(blockSpec, ttEditor.schema, editor.schema.styleSchema)
     );
   }
 
@@ -72,9 +72,9 @@ export function insertBlocks<
     insertedBlocks.push(
       nodeToBlock(
         node,
-        editor.blockSchema,
-        editor.inlineContentSchema,
-        editor.styleSchema,
+        editor.schema.blockSchema,
+        editor.schema.inlineContentSchema,
+        editor.schema.styleSchema,
         editor.blockCache
       )
     );
@@ -106,9 +106,9 @@ export function updateBlock<
 
   return nodeToBlock(
     blockContainerNode,
-    editor.blockSchema,
-    editor.inlineContentSchema,
-    editor.styleSchema,
+    editor.schema.blockSchema,
+    editor.schema.inlineContentSchema,
+    editor.schema.styleSchema,
     editor.blockCache
   );
 }
@@ -157,9 +157,9 @@ function removeBlocksWithCallback<
     removedBlocks.push(
       nodeToBlock(
         node,
-        editor.blockSchema,
-        editor.inlineContentSchema,
-        editor.styleSchema,
+        editor.schema.blockSchema,
+        editor.schema.inlineContentSchema,
+        editor.schema.styleSchema,
         editor.blockCache
       )
     );
@@ -217,7 +217,9 @@ export function replaceBlocks<
 
   const nodesToInsert: Node[] = [];
   for (const block of blocksToInsert) {
-    nodesToInsert.push(blockToNode(block, ttEditor.schema, editor.styleSchema));
+    nodesToInsert.push(
+      blockToNode(block, ttEditor.schema, editor.schema.styleSchema)
+    );
   }
 
   const idOfFirstBlock =
@@ -247,9 +249,9 @@ export function replaceBlocks<
     insertedBlocks.push(
       nodeToBlock(
         node,
-        editor.blockSchema,
-        editor.inlineContentSchema,
-        editor.styleSchema,
+        editor.schema.blockSchema,
+        editor.schema.inlineContentSchema,
+        editor.schema.styleSchema,
         editor.blockCache
       )
     );

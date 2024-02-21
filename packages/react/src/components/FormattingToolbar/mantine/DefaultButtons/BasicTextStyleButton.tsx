@@ -6,6 +6,7 @@ import {
   StyleSchema,
 } from "@blocknote/core";
 import { useMemo, useState } from "react";
+import { IconType } from "react-icons";
 import {
   RiBold,
   RiCodeFill,
@@ -13,7 +14,6 @@ import {
   RiStrikethrough,
   RiUnderline,
 } from "react-icons/ri";
-import { IconType } from "react-icons";
 
 import { useBlockNoteEditor } from "../../../../editor/BlockNoteContext";
 import { useEditorContentOrSelectionChange } from "../../../../hooks/useEditorContentOrSelectionChange";
@@ -52,9 +52,9 @@ function checkBasicTextStyleInSchema<Style extends BasicTextStyle>(
   }
 > {
   return (
-    style in editor.styleSchema &&
-    editor.styleSchema[style].type === style &&
-    editor.styleSchema[style].propSchema === "boolean"
+    style in editor.schema.styleSchema &&
+    editor.schema.styleSchema[style].type === style &&
+    editor.schema.styleSchema[style].propSchema === "boolean"
   );
 }
 
@@ -90,7 +90,7 @@ export const BasicTextStyleButton = <Style extends BasicTextStyle>(props: {
     }
 
     editor.focus();
-    if (editor.styleSchema[style].propSchema !== "boolean") {
+    if (editor.schema.styleSchema[style].propSchema !== "boolean") {
       throw new Error("can only toggle boolean styles");
     }
     editor.toggleStyles({ [style]: true } as any);

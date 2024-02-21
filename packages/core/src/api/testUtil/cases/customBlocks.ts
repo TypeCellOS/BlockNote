@@ -1,17 +1,18 @@
 import { EditorTestCases } from "../index";
 
-import { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
+import {
+  imagePropSchema,
+  renderImage,
+} from "../../../blocks/ImageBlockContent/ImageBlockContent";
+import { uploadToTmpFilesDotOrg_DEV_ONLY } from "../../../blocks/ImageBlockContent/uploadToTmpFilesDotOrg_DEV_ONLY";
 import {
   DefaultInlineContentSchema,
   DefaultStyleSchema,
   defaultBlockSpecs,
 } from "../../../blocks/defaultBlocks";
 import { defaultProps } from "../../../blocks/defaultProps";
-import {
-  imagePropSchema,
-  renderImage,
-} from "../../../blocks/ImageBlockContent/ImageBlockContent";
-import { uploadToTmpFilesDotOrg_DEV_ONLY } from "../../../blocks/ImageBlockContent/uploadToTmpFilesDotOrg_DEV_ONLY";
+import { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
+import { BlockNoteSchema } from "../../../editor/BlockNoteSchema";
 import { createBlockSpec } from "../../../schema/blocks/createSpec";
 import { BlockSchemaFromSpecs, BlockSpecs } from "../../../schema/blocks/types";
 
@@ -89,7 +90,9 @@ export const customBlocksTestCases: EditorTestCases<
   name: "custom blocks schema",
   createEditor: () => {
     return BlockNoteEditor.create({
-      blockSpecs: customSpecs,
+      schema: BlockNoteSchema.create({
+        blockSpecs: customSpecs,
+      }),
       uploadFile: uploadToTmpFilesDotOrg_DEV_ONLY,
     });
   },
@@ -98,7 +101,7 @@ export const customBlocksTestCases: EditorTestCases<
       name: "simpleImage/button",
       blocks: [
         {
-          type: "simpleImage" as const,
+          type: "simpleImage",
         },
       ],
     },

@@ -1,23 +1,14 @@
 import {
   BlockNoteEditor,
   BlockNoteEditorOptions,
-  BlockSpecs,
-  InlineContentSpecs,
-  StyleSpecs,
-  defaultBlockSpecs,
-  defaultInlineContentSpecs,
-  defaultStyleSpecs,
+  BlockSchema,
+  DefaultBlockSchema,
+  DefaultInlineContentSchema,
+  DefaultStyleSchema,
+  InlineContentSchema,
+  StyleSchema,
 } from "@blocknote/core";
 import { DependencyList, useMemo } from "react";
-
-// TODO: document in docs
-export const createBlockNoteEditor = <
-  BSpecs extends BlockSpecs,
-  ISpecs extends InlineContentSpecs,
-  SSpecs extends StyleSpecs
->(
-  options: Partial<BlockNoteEditorOptions<BSpecs, ISpecs, SSpecs>>
-) => BlockNoteEditor.create(options);
 
 /**
  * Main hook for importing a BlockNote editor into a React project
@@ -25,15 +16,15 @@ export const createBlockNoteEditor = <
  * TODO: document in docs
  */
 export const useBlockNote = <
-  BSpecs extends BlockSpecs = typeof defaultBlockSpecs,
-  ISpecs extends InlineContentSpecs = typeof defaultInlineContentSpecs,
-  SSpecs extends StyleSpecs = typeof defaultStyleSpecs
+  BSchema extends BlockSchema = DefaultBlockSchema,
+  ISchema extends InlineContentSchema = DefaultInlineContentSchema,
+  SSchema extends StyleSchema = DefaultStyleSchema
 >(
-  options: Partial<BlockNoteEditorOptions<BSpecs, ISpecs, SSpecs>> = {},
+  options: Partial<BlockNoteEditorOptions<BSchema, ISchema, SSchema>> = {},
   deps: DependencyList = []
 ) => {
   return useMemo(() => {
-    const editor = createBlockNoteEditor(options);
+    const editor = BlockNoteEditor.create<BSchema, ISchema, SSchema>(options);
     if (window) {
       // for testing / dev purposes
       (window as any).ProseMirror = editor._tiptapEditor;

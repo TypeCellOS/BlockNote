@@ -1,12 +1,13 @@
 import { EditorTestCases } from "../index";
 
-import { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
+import { uploadToTmpFilesDotOrg_DEV_ONLY } from "../../../blocks/ImageBlockContent/uploadToTmpFilesDotOrg_DEV_ONLY";
 import {
   DefaultBlockSchema,
   DefaultInlineContentSchema,
   defaultStyleSpecs,
 } from "../../../blocks/defaultBlocks";
-import { uploadToTmpFilesDotOrg_DEV_ONLY } from "../../../blocks/ImageBlockContent/uploadToTmpFilesDotOrg_DEV_ONLY";
+import { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
+import { BlockNoteSchema } from "../../../editor/BlockNoteSchema";
 import { createStyleSpec } from "../../../schema/styles/createSpec";
 import { StyleSchemaFromSpecs, StyleSpecs } from "../../../schema/styles/types";
 
@@ -58,7 +59,9 @@ export const customStylesTestCases: EditorTestCases<
   createEditor: () => {
     return BlockNoteEditor.create({
       uploadFile: uploadToTmpFilesDotOrg_DEV_ONLY,
-      styleSpecs: customStyles,
+      schema: BlockNoteSchema.create({
+        styleSpecs: customStyles,
+      }),
     });
   },
   documents: [
