@@ -3,8 +3,8 @@ import { RiExternalLinkFill, RiLinkUnlink } from "react-icons/ri";
 
 import { HyperlinkToolbarProps } from "../HyperlinkToolbarProps";
 import { EditHyperlinkMenu } from "./EditHyperlinkMenu/EditHyperlinkMenu";
-import { ToolbarWrapper } from "../../../components-shared/Toolbar/ToolbarWrapper";
-import { ToolbarButton } from "../../../components-shared/Toolbar/ToolbarButton";
+import { Toolbar } from "../../mantine-shared/Toolbar/Toolbar";
+import { ToolbarButton } from "../../mantine-shared/Toolbar/ToolbarButton";
 
 export const HyperlinkToolbar = (props: HyperlinkToolbarProps) => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
@@ -40,7 +40,7 @@ export const HyperlinkToolbar = (props: HyperlinkToolbarProps) => {
   }
 
   return (
-    <ToolbarWrapper onMouseEnter={stopHideTimer} onMouseLeave={startHideTimer}>
+    <Toolbar onMouseEnter={stopHideTimer} onMouseLeave={startHideTimer}>
       <ToolbarButton
         mainTooltip="Edit"
         isSelected={false}
@@ -61,6 +61,6 @@ export const HyperlinkToolbar = (props: HyperlinkToolbarProps) => {
         onClick={deleteHyperlink}
         icon={RiLinkUnlink}
       />
-    </ToolbarWrapper>
+    </Toolbar>
   );
 };

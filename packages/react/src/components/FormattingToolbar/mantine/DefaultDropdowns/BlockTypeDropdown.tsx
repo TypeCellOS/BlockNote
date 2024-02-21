@@ -18,8 +18,8 @@ import {
 import { useBlockNoteEditor } from "../../../../editor/BlockNoteContext";
 import { useEditorContentOrSelectionChange } from "../../../../hooks/useEditorContentOrSelectionChange";
 import { useSelectedBlocks } from "../../../../hooks/useSelectedBlocks";
-import { ToolbarDropdownItemProps } from "../../../../components-shared/Toolbar/ToolbarDropdownItem";
-import { ToolbarDropdown } from "../../../../components-shared/Toolbar/ToolbarDropdown";
+import { ToolbarDropdownItemProps } from "../../../mantine-shared/Toolbar/ToolbarDropdownItem";
+import { ToolbarDropdown } from "../../../mantine-shared/Toolbar/ToolbarDropdown";
 
 export type BlockTypeDropdownItem = {
   name: string;
@@ -31,7 +31,7 @@ export type BlockTypeDropdownItem = {
   ) => boolean;
 };
 
-// TODO: Filtering from schema should be done here, not in component
+// TODO: Filtering from schema should be done here, not in component?
 export const blockTypeDropdownItems: BlockTypeDropdownItem[] = [
   {
     name: "Paragraph",

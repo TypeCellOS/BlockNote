@@ -4,7 +4,7 @@ import {
   ToolbarDropdownItemProps,
 } from "./ToolbarDropdownItem";
 import { ToolbarDropdownTarget } from "./ToolbarDropdownTarget";
-import { usePreventMenuOverflow } from "../../hooks/usePreventMenuOverflow";
+import { usePreventMenuOverflow } from "../../../hooks/usePreventMenuOverflow";
 
 export type ToolbarDropdownProps = {
   items: ToolbarDropdownItemProps[];

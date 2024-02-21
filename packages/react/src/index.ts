@@ -53,8 +53,8 @@ export * from "./components/TableHandles/TableHandlesController";
 export * from "./components/TableHandles/hooks/useTableHandlesPositioning";
 export * from "./components/TableHandles/mantine/TableHandle";
 
-export * from "./components-shared/Toolbar/ToolbarButton";
-export * from "./components-shared/Toolbar/ToolbarDropdown";
+export * from "./components/mantine-shared/Toolbar/ToolbarButton";
+export * from "./components/mantine-shared/Toolbar/ToolbarDropdown";
 
 export * from "./hooks/useActiveStyles";
 export * from "./hooks/useBlockNote";

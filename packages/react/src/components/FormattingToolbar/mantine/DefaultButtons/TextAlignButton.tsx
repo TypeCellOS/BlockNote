@@ -17,7 +17,7 @@ import {
 
 import { useBlockNoteEditor } from "../../../../editor/BlockNoteContext";
 import { useSelectedBlocks } from "../../../../hooks/useSelectedBlocks";
-import { ToolbarButton } from "../../../../components-shared/Toolbar/ToolbarButton";
+import { ToolbarButton } from "../../../mantine-shared/Toolbar/ToolbarButton";
 
 type TextAlignment = DefaultProps["textAlignment"];
 

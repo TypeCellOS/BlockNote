@@ -1,4 +1,4 @@
-import { ToolbarWrapper } from "../../../components-shared/Toolbar/ToolbarWrapper";
+import { Toolbar } from "../../mantine-shared/Toolbar/Toolbar";
 import { FormattingToolbarProps } from "../FormattingToolbarProps";
 import { BasicTextStyleButton } from "./DefaultButtons/BasicTextStyleButton";
 import { ColorStyleButton } from "./DefaultButtons/ColorStyleButton";
@@ -45,8 +45,9 @@ export const FormattingToolbar = (
   props: FormattingToolbarProps & { children?: React.ReactNode }
 ) => {
   return (
-    <ToolbarWrapper>
-      {props.children || getFormattingToolbarItems()}
-    </ToolbarWrapper>
+    <Toolbar>
+      {props.children ||
+        getFormattingToolbarItems(props.blockTypeDropdownItems)}
+    </Toolbar>
   );
 };

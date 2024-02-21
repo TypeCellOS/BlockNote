@@ -1,3 +1,5 @@
+import { BlockTypeDropdownItem } from "./mantine/DefaultDropdowns/BlockTypeDropdown";
+
 export type FormattingToolbarProps = {
-  items?: JSX.Element[];
+  blockTypeDropdownItems?: BlockTypeDropdownItem[];
 };
