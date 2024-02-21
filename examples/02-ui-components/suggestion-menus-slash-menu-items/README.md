@@ -4,4 +4,4 @@ In this example, we add an item to the Slash Menu, which adds a new block below 
 
 **Relevant Docs:**
 
-- [Custom Slash Menu Item List](/docs/slash-menu#custom-slash-menu-item-list)
+- [Changing Slash Menu Items](/docs/ui-components/slash-menu#changing-slash-menu-items)

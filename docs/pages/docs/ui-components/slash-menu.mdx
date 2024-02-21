@@ -1,82 +1,57 @@
 ---
-title: Slash Menu
-description: The Slash Menu is the list of commands which shows up whenever you type the "/" (slash) character, or when you click the "+" button in the Side Menu.
-imageTitle: Slash Menu
+title: Suggestion Menus
+description: Suggestion Menus appear when the user enters a trigger character, and text after the character is used to filter the menu items.
+imageTitle: Suggestion Menus
 path: /docs/slash-menu
 ---
 
+import { Callout } from "nextra/components";
 import { Example } from "@/components/example";
 
-# Slash Menu
+# Suggestion Menus
 
-The Slash Menu is the list of commands which shows up whenever you type the "/" (slash) character, or when you click the "+" button in the [Side Menu](/docs/side-menu):
+Suggestion Menus appear when the user enters a trigger character, and text after the character is used to filter the menu items.
+
+## Slash Menu
+
+The Slash Menu is a Suggestion Menu that opens with the "/" character, and when clicking the "+" button in the [Block Side Menu](/docs/ui-components/side-menu).
 
 <img style={{maxWidth: "400px"}} src="/img/screenshots/slash_menu.png" alt="image" />
 
-## Custom Slash Menu Item List
+### Changing Slash Menu Items
 
-If you want to change the items that appear in the Slash Menu, you can do that using the `slashMenuItems` [editor option](/docs/editor#editor-options).
+You can change the items in the Slash Menu. The demo below adds an item that inserts a new block below, with "Hello World" in bold.
 
-You can see how this is done in the example below, which has a custom Slash Menu item list. It includes all the default Slash Menu items, as well as a custom item, which inserts a new block below with "Hello World" in bold.
+<Example name="ui-components/suggestion-menus-slash-menu-items" />
 
-<Example name="ui-components/slash-menu-items" />
+The `SuggestionMenuController` is a component which controls where a Suggestion Menu is positioned and when it opens. Passing `triggerCharacter={"/"}` means it controls the Slash Menu.
 
-To find out how to get the default Slash Menu items, as well as how to make custom items, read on to [Slash Menu Items](/docs/slash-menu#slash-menu-items)
+The array passed to `getItems` are the items that should be included in the Slash Menu. If you want to filter the items yourself, you can instead pass an `async` function which returns the items:
 
-## Slash Menu Items
-
-### Default Items
-
-BlockNote comes with a variety of built-in Slash Menu items, which are used to change the type of the block containing the text cursor. If you don't pass anything to `slashMenuItems`, BlockNote will use these to set the Slash Menu contents.
-
-If you want to change, remove & reorder the default items , you first import and copy them to a new array. From there, you can edit the array how you like, then pass it to `useBlockNote`:
-
-```typescript jsx
-import {
-  BlockNoteView,
-  getDefaultReactSlashMenuItems,
-  useBlockNote
-} from "@blocknote/react";
-import "@blocknote/react/style.css";
-
-function App() {
-  const newSlashMenuItems = getDefaultReactSlashMenuItems();
-
-  // Edit newSlashMenuItems
-  ...
-
-  const editor = useBlockNote({ slashMenuItems: newSlashMenuItems });
-
-  return <BlockNoteView editor={editor} />;
-}
+```ts
+async (query: string) => Promise<DefaultReactSuggestionItem[]>
 ```
 
-### Custom Items
+Passing `slashMenu={false}` to `BlockNoteView` tells BlockNote not to show the default Slash Menu. Adding the `SuggestionMenuController` with `triggerCharacter={"/"}` as a child of `BlockNoteView`, tells BlockNote to show one with custom items instead.
 
-Creating a custom Slash Menu item is easy! Just declare a plain JavaScript object with the following fields:
+### Replacing the Slash Menu Component
 
-```typescript
-type SlashMenuItem = {
-  name: string;
-  execute: (editor: BlockNoteEditor) => void;
-  aliases?: string[];
-  group: string;
-  icon: JSX.Element;
-  hint?: string;
-  shortcut?: string;
-};
-```
+You can replace the React component used for the Slash Menu with your own, as you can see in the demo below.
 
-`name:` The item's name, which is the same string you see displayed in the menu, e.g. "Heading" or "Paragraph".
+<Example name="ui-components/suggestion-menus-slash-menu-component" />
 
-`execute:` A function that runs when the item is selected.
+The `SuggestionMenuController` is a component which controls where a Suggestion Menu is positioned and when it opens. Passing `triggerCharacter={"/"}` means it controls the Slash Menu. We also pass the `CustomSlashMenu` component to it, so that its rendered instead of the default one.
 
-`aliases:` Other names for the item, used as shortcuts for search.
+The array passed to `getItems` are the items that should be included in the Slash Menu, in this case the default items.
 
-`group:` The name of the group the item belongs to, e.g. "Headings" or "Basic Blocks".
+<Callout type={"info"}>
+    If you replace the Slash Menu component as well as [change the items in it](/docs/ui-components/slash-menu#changing-slash-menu-items), you no longer have to use the `DefaultReactSuggestionItem` type. The items can be any type you want, just make sure you use the same one for your component's props.
+</Callout>
 
-`icon:` The item's icon.
+## Creating Suggestion Menus
 
-`hint:` A short phrase to describe what the item is for, which is displayed below its name.
+You can add additional Suggestion Menus to the editor, which can use any trigger character. The demo below adds an example Suggestion Menu for mentions, which opens with the "@" character.
 
-`shortcuts:` A keyboard shortcut which can be used to run the item's `execute` function without the Slash Menu being open.
+<Example name="ui-components/suggestion-menus-mentions" />
+
+Changing the items in the new Suggestion Menu or the component used to render it is done the same way as for the [Slash Menu](/docs/ui-components/slash-menu#slash-menu). For more information about creating mentions tags yourself, see [Custom Inline Content](TODO).
