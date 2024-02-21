@@ -31,6 +31,7 @@ export type BlockTypeDropdownItem = {
   ) => boolean;
 };
 
+// TODO: Filtering from schema should be done here, not in component
 export const blockTypeDropdownItems: BlockTypeDropdownItem[] = [
   {
     name: "Paragraph",

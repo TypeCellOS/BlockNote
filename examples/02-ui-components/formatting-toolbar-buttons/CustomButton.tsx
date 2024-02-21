@@ -1,8 +1,7 @@
 import {
   ToolbarButton,
   useBlockNoteEditor,
-  useEditorChange,
-  useEditorSelectionChange,
+  useEditorContentOrSelectionChange,
 } from "@blocknote/react";
 import { useState } from "react";
 
@@ -15,16 +14,8 @@ export function CustomButton() {
       editor.getActiveStyles().backgroundColor === "blue"
   );
 
-  // Updates state on content change.
-  useEditorChange(() => {
-    setIsSelected(
-      editor.getActiveStyles().textColor === "blue" &&
-        editor.getActiveStyles().backgroundColor === "blue"
-    );
-  }, editor);
-
-  // Updates state on selection change.
-  useEditorSelectionChange(() => {
+  // Updates state on content or selection change.
+  useEditorContentOrSelectionChange(() => {
     setIsSelected(
       editor.getActiveStyles().textColor === "blue" &&
         editor.getActiveStyles().backgroundColor === "blue"
