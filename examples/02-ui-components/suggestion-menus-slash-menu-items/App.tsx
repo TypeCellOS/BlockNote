@@ -1,5 +1,16 @@
-import { BlockNoteEditor, PartialBlock } from "@blocknote/core";
-import { getDefaultReactSlashMenuItems } from "@blocknote/react";
+import {
+  BlockNoteEditor,
+  filterSuggestionItems,
+  PartialBlock,
+} from "@blocknote/core";
+import {
+  BlockNoteView,
+  DefaultReactSuggestionItem,
+  getDefaultReactSlashMenuItems,
+  SuggestionMenuController,
+  useBlockNote,
+} from "@blocknote/react";
+import "@blocknote/react/style.css";
 import { HiOutlineGlobeAlt } from "react-icons/hi";
 
 // Command to insert "Hello World" in bold in a new block below.
@@ -25,10 +36,30 @@ const insertHelloWorldItem = {
   group: "Other",
   icon: <HiOutlineGlobeAlt size={18} />,
   subtext: "Used to insert a block with 'Hello World' below.",
-};
+} satisfies DefaultReactSuggestionItem;
 
 // List containing all default Slash Menu Items, as well as our custom one.
-export const getCustomSlashMenuItems = (editor: BlockNoteEditor) => [
+const getCustomSlashMenuItems = (
+  editor: BlockNoteEditor
+): DefaultReactSuggestionItem[] => [
   ...getDefaultReactSlashMenuItems(editor),
   insertHelloWorldItem,
 ];
+
+export default function App() {
+  // Creates a new editor instance.
+  const editor = useBlockNote();
+
+  // Renders the editor instance.
+  // TODO: Shorthand to just pass the array
+  return (
+    <BlockNoteView editor={editor} slashMenu={false}>
+      <SuggestionMenuController
+        triggerCharacter={"/"}
+        getItems={async (query) =>
+          filterSuggestionItems(getCustomSlashMenuItems(editor), query)
+        }
+      />
+    </BlockNoteView>
+  );
+}

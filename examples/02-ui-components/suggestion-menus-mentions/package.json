@@ -1,5 +1,5 @@
 {
-  "name": "@blocknote/example-slash-menu-items",
+  "name": "@blocknote/example-suggestion-menus-mentions",
   "description": "AUTO-GENERATED FILE, DO NOT EDIT DIRECTLY",
   "private": true,
   "version": "0.11.1",
@@ -14,8 +14,7 @@
     "@blocknote/core": "^0.11.1",
     "@blocknote/react": "^0.11.1",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-icons": "^4.3.1"
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@types/react": "^18.0.25",
