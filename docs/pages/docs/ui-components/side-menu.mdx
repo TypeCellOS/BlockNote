@@ -1,6 +1,6 @@
 ---
 title: Block Side Menu
-description: The Block Side Menu appears whenever you hover over a block, and is used to drag & drop the block as well as add new ones below it.
+description: The Block Side Menu appears on the left side whenever you hover a block.
 imageTitle: Block Side Menu
 path: /docs/side-menu
 ---
@@ -31,7 +31,7 @@ Passing `sideMenu={false}` to `BlockNoteView` tells BlockNote not to show the de
 
 Head to [Components](/docs/ui-components/side-menu#components) and [Hooks](TODO) to find out more about the contents of `CustomSideMenu` and `CustomButton`.
 
-## Changing the Drag Handle Menu
+## Changing Drag Handle Menu Items
 
 You can change the items in the Drag Handle Menu. The demo below adds an item to it that opens a browser alert.
 
@@ -45,7 +45,7 @@ If you want to change the default Block Side Menu or Drag Handle Menu, BlockNote
 
 ### Default Components
 
-BlockNote exports all components used to create the default layouts - both the menus themselves and the items in them. Head to the [default Side Menu's source code](https://github.com/TypeCellOS/BlockNote/blob/main/packages/react/src/SideMenu/components/DefaultSideMenu.tsx) and [default Drag Handle Menu's source code](https://github.com/TypeCellOS/BlockNote/blob/main/packages/react/src/SideMenu/components/DragHandleMenu/DefaultDragHandleMenu.tsx) to see all the components that you can use.
+BlockNote exports all components used to create the default layouts - both the menus themselves and the items in them. Head to the [default Side Menu's source code](https://github.com/TypeCellOS/BlockNote/blob/main/packages/react/src/components/SideMenu/mantine/SideMenu.tsx) and [default Drag Handle Menu's source code](https://github.com/TypeCellOS/BlockNote/blob/main/packages/react/src/components/SideMenu/DragHandleMenu/mantine/DragHandleMenu.tsx) to see all the components that you can use.
 
 ### Custom Components
 

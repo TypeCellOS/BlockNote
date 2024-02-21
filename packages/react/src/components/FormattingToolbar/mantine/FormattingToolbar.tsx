@@ -40,7 +40,8 @@ export const getFormattingToolbarItems = (
   <CreateLinkButton key={"createLinkButton"} />,
 ];
 
-// TODO: This is basically the same as `ToolbarWrapper`, seems pretty useless
+// TODO: props.blockTypeDropdownItems should only be available if no children
+//  are passed
 export const FormattingToolbar = (
   props: FormattingToolbarProps & { children?: React.ReactNode }
 ) => {

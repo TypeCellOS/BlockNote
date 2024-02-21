@@ -1,6 +1,6 @@
 ---
 title: Formatting Toolbar
-description: The Formatting Toolbar appears whenever you highlight text in the editor, and is mainly used for styling.
+description: The Formatting Toolbar appears whenever you highlight text in the editor.
 imageTitle: Formatting Toolbar
 path: /docs/formatting-toolbar
 ---
@@ -19,13 +19,13 @@ You can modify or replace the Formatting Toolbar with your own React component. 
 
 <Example name="ui-components/formatting-toolbar-buttons" />
 
-The default Formatting Toolbar is replaced with the `CustomFormattingToolbar` component. It's passed as a prop to `FormattingToolbarController`, which controls where it's positioned and when it opens.
+The default Formatting Toolbar is replaced with the `CustomHyperlinkToolbar` component. It's passed as a prop to `FormattingToolbarController`, which controls where it's positioned and when it opens.
 
 Passing `formattingToolbar={false}` to `BlockNoteView` tells BlockNote not to show the default Formatting Toolbar. Adding the `FormattingToolbarController` as a child of `BlockNoteView` tells BlockNote to show the custom one instead.
 
-Head to [Components](/docs/ui-components/formatting-toolbar#components) and [Hooks](TODO) to find out more about the contents of `CustomFormattingToolbar` and `CustomButton`.
+Head to [Components](/docs/ui-components/formatting-toolbar#components) and [Hooks](TODO) to find out more about the contents of `CustomHyperlinkToolbar` and `CustomButton`.
 
-## Changing the Block Type Dropdown Items
+## Changing Block Type Dropdown Items
 
 The first element in the default Formatting Toolbar is the Block Type Dropdown, and you can change the items in it. The demo below adds an item that inserts an image with a different URL.
 
@@ -41,7 +41,7 @@ If you want to change the default Formatting Toolbar, BlockNote provides React c
 
 ### Default Components
 
-BlockNote exports all components used to create the default layout - both the toolbar itself and the items in it. Head to the [default Formatting Toolbar's source code](https://github.com/TypeCellOS/BlockNote/blob/main/packages/react/src/FormattingToolbar/components/DefaultFormattingToolbar.tsx) to see all the components that you can use.
+BlockNote exports all components used to create the default layout - both the toolbar itself and the items in it. Head to the [default Formatting Toolbar's source code](https://github.com/TypeCellOS/BlockNote/blob/main/packages/react/src/components/FormattingToolbar/mantine/FormattingToolbar.tsx) to see all the components that you can use.
 
 ### Custom Components
 

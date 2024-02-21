@@ -4,4 +4,4 @@ In this example, we add an item to the Drag Handle Menu, which opens an alert in
 
 **Relevant Docs:**
 
-- [Custom Drag Handle Menu](/docs/side-menu#custom-drag-handle-menu)
+- [Changing Drag Handle Menu Items](/docs/ui-components/side-menu#changing-drag-handle-menu-items)

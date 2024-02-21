@@ -4,4 +4,4 @@ In this example, we add a blue text/background color and code style button to th
 
 **Relevant Docs:**
 
-- [Custom Formatting Toolbar](/docs/formatting-toolbar#custom-formatting-toolbar)
+- [Changing the Formatting Toolbar](/docs/ui-components/formatting-toolbar#changing-the-formatting-toolbar)

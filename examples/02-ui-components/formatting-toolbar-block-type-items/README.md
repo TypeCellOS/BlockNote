@@ -1,8 +1,7 @@
-# TODO
-# Adding Formatting Toolbar Buttons
+# Adding Block Type Dropdown Items
 
-In this example, we add a blue text/background color and code style button to the Formatting Toolbar.
+In this example, we make the Block Type Dropdown work for image blocks by adding an item to it.
 
 **Relevant Docs:**
 
-- [Custom Formatting Toolbar](/docs/formatting-toolbar#custom-formatting-toolbar)
+- [Changing Block Type Dropdown Items](/docs/ui-components/formatting-toolbar#changing-block-type-dropdown-items)

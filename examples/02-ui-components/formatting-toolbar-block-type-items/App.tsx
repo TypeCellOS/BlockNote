@@ -22,12 +22,8 @@ export default function App() {
             blockTypeDropdownItems={[
               ...blockTypeDropdownItems,
               {
-                name: "Specific Image",
+                name: "Image",
                 type: "image",
-                props: {
-                  src: "TODO",
-                  alt: "image",
-                },
                 icon: RiImage2Fill,
                 isSelected: (block) => block.type === "image",
               } satisfies BlockTypeDropdownItem,
