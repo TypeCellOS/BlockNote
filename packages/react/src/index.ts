@@ -23,27 +23,27 @@ export * from "./components/HyperlinkToolbar/HyperlinkToolbarController";
 
 export * from "./components/SideMenu/mantine/DefaultButtons/AddBlockButton";
 export * from "./components/SideMenu/mantine/DefaultButtons/DragHandle";
+export * from "./components/SideMenu/mantine/SideMenuButton";
+export * from "./components/SideMenu/mantine/SideMenuWrapper";
 export * from "./components/SideMenu/mantine/SideMenu";
 export * from "./components/SideMenu/SideMenuProps";
 export * from "./components/SideMenu/SideMenuController";
-export * from "./components/SideMenu/mantine/SideMenuWrapper";
-export * from "./components/SideMenu/mantine/SideMenuButton";
 
 export * from "./components/SideMenu/DragHandleMenu/mantine/DefaultButtons/BlockColorsButton";
 export * from "./components/SideMenu/DragHandleMenu/mantine/DefaultButtons/RemoveBlockButton";
-export * from "./components/SideMenu/DragHandleMenu/mantine/DragHandleMenu";
-export * from "./components/SideMenu/DragHandleMenu/DragHandleMenuProps";
 export * from "./components/SideMenu/DragHandleMenu/mantine/DragHandleMenuWrapper";
 export * from "./components/SideMenu/DragHandleMenu/mantine/DragHandleMenuItem";
+export * from "./components/SideMenu/DragHandleMenu/mantine/DragHandleMenu";
+export * from "./components/SideMenu/DragHandleMenu/DragHandleMenuProps";
 
-export * from "./components/SuggestionMenu/getDefaultReactSlashMenuItems";
 export * from "./components/SuggestionMenu/hooks/useCloseSuggestionMenuNoItems";
 export * from "./components/SuggestionMenu/hooks/useLoadSuggestionMenuItems";
 export * from "./components/SuggestionMenu/hooks/useSuggestionMenuKeyboardNavigation";
+export * from "./components/SuggestionMenu/mantine/SuggestionMenuItem";
+export * from "./components/SuggestionMenu/mantine/SuggestionMenu";
 export * from "./components/SuggestionMenu/SuggestionMenuWrapper";
 export * from "./components/SuggestionMenu/SuggestionMenuController";
-export * from "./components/SuggestionMenu/mantine/SuggestionMenu";
-export * from "./components/SuggestionMenu/mantine/SuggestionMenuItem";
+export * from "./components/SuggestionMenu/getDefaultReactSlashMenuItems";
 export * from "./components/SuggestionMenu/types";
 
 export * from "./components/ImageToolbar/mantine/ImageToolbar";

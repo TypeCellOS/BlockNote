@@ -9,50 +9,35 @@ import { Example } from "@/components/example";
 
 # Formatting Toolbar
 
-The Formatting Toolbar appears whenever you highlight text in the editor, and is mainly used for styling.
+The Formatting Toolbar appears whenever you highlight text in the editor.
 
 <img style={{maxWidth: "600px"}} src="/img/screenshots/formatting_toolbar.png" alt="image" />
 
-## Custom Formatting Toolbar
+## Changing the Formatting Toolbar
 
-If you want to change the buttons/dropdowns in the Formatting Toolbar, or replace it altogether, you can do that using a React component.
-
-You can see how this is done in the example below, which has a custom Formatting Toolbar. It contains the same items as the default Formatting Toolbar, with and added blue text/background color and code style button.
+You can modify or replace the Formatting Toolbar with your own React component. In the demo below, 2 buttons are added to the default Formatting Toolbar - one to add a blue text/background, and one to toggle code styles.
 
 <Example name="ui-components/formatting-toolbar-buttons" />
 
-`CustomFormattingToolbar` is the component we use to replace the default Formatting Toolbar. You can see it's made up of a bunch of other components that are exported by BlockNote. Read on to [Components](/docs/formatting-toolbar#components) to find out more about these.
+The default Formatting Toolbar is replaced with the `CustomFormattingToolbar` component. It's passed as a prop to `FormattingToolbarController`, which controls where it's positioned and when it opens.
 
-After creating `CustomFormattingToolbar`, we tell BlockNote to use it inside `BlockNoteView`. [Changing UI Elements](/docs/ui-elements) has more information about how this is done.
+Passing `formattingToolbar={false}` to `BlockNoteView` tells BlockNote not to show the default Formatting Toolbar. Adding the `FormattingToolbarController` as a child of `BlockNoteView` tells BlockNote to show the custom one instead.
 
-## Changing the Block Type Dropdown
+Head to [Components](/docs/ui-components/formatting-toolbar#components) and [Hooks](TODO) to find out more about the contents of `CustomFormattingToolbar` and `CustomButton`.
 
-If you create a [custom block](/docs/block-types#custom-block-types) and want to add it to the block type dropdown in the default Formatting Toolbar, you can do that through the `blockTypeDropdownItems` prop of the `DefaultFormattingToolbar` component:
+## Changing the Block Type Dropdown Items
 
-```typescript jsx
-<DefaultFormattingToolbar
-    {...props}
-    blockTypeDropdownItems={[
-        ...defaultBlockTypeDropdownItems,
-        {
-            name: "Image",
-            type: "image",
-            props: {
-                src: "https://via.placeholder.com/1000",
-                alt: "image",
-            },
-            icon: RiImage2Fill,
-            isSelected: (block) => block.type === "image",
-        },
-    ]}
-/>
-```
+The first element in the default Formatting Toolbar is the Block Type Dropdown, and you can change the items in it. The demo below adds an item that inserts an image with a different URL.
 
-Find out how to replace the Formatting Toolbar in [Replacing UI Elements](/docs/ui-elements#replacing-ui-elements).
+TODO Example
+
+[//]: # (<Example name="ui-components/formatting-toolbar-block-type-buttons" />)
+
+By using the `FormattingToolbar` component and setting its `blockTypeDropdownItems` prop, you create a modified Formatting Toolbar with the chosen Block Type Dropdown items. You can then replace the default Formatting Toolbar with your modified one as in the [previous demo](/docs/ui-components/formatting-toolbar#changing-the-formatting-toolbar).
 
 ## Components
 
-It might seem daunting to create your own Formatting Toolbar from scratch, which is why BlockNote provides React components that you can use which match the default styling.
+If you want to change the default Formatting Toolbar, BlockNote provides React components you can use, which match the default styling.
 
 ### Default Components
 
@@ -60,7 +45,7 @@ BlockNote exports all components used to create the default layout - both the to
 
 ### Custom Components
 
-BlockNote also provides components that you can use to make your own toolbar items, which also match the default styling:
+BlockNote also provides components you can use to make your own toolbar items, which also match the default styling:
 
 ```typescript
 // Custom dropdown.

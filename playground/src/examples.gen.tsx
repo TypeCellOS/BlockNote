@@ -117,6 +117,25 @@
         }
       },
       {
+        "projectSlug": "formatting-toolbar-block-type-items",
+        "fullSlug": "ui-components/formatting-toolbar-block-type-items",
+        "pathFromRoot": "examples/02-ui-components/formatting-toolbar-block-type-items",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "group": "Basic Examples",
+          "order": 1,
+          "dependencies": {
+            "react-icons": "^4.3.1"
+          }
+        },
+        "title": "Adding Formatting Toolbar Buttons",
+        "group": {
+          "pathFromRoot": "examples/02-ui-components",
+          "slug": "ui-components"
+        }
+      },
+      {
         "projectSlug": "formatting-toolbar-buttons",
         "fullSlug": "ui-components/formatting-toolbar-buttons",
         "pathFromRoot": "examples/02-ui-components/formatting-toolbar-buttons",
