@@ -1,16 +1,12 @@
-import {
-  DragHandle,
-  SideMenu,
-  SideMenuProps,
-} from "@blocknote/react";
+import { DragHandle, SideMenu, SideMenuProps } from "@blocknote/react";
 import "@blocknote/react/style.css";
 
-import { CustomButton } from "./CustomButton";
+import { RemoveBlockButton } from "./RemoveBlockButton";
 
 export function CustomSideMenu(props: SideMenuProps) {
   return (
     <SideMenu {...props}>
-      <CustomButton {...props} />
+      <RemoveBlockButton {...props} />
       <DragHandle {...props} />
     </SideMenu>
   );

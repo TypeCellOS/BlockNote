@@ -11,7 +11,11 @@ import { Example } from "@/components/example";
 
 The Formatting Toolbar appears whenever you highlight text in the editor.
 
-<img style={{maxWidth: "600px"}} src="/img/screenshots/formatting_toolbar.png" alt="image" />
+<img
+  style={{ maxWidth: "600px" }}
+  src="/img/screenshots/formatting_toolbar.png"
+  alt="image"
+/>
 
 ## Changing the Formatting Toolbar
 
@@ -26,6 +30,8 @@ Passing `formattingToolbar={false}` to `BlockNoteView` tells BlockNote not to sh
 Head to [Components](/docs/ui-components/formatting-toolbar#components) and [Hooks](TODO) to find out more about the contents of `CustomHyperlinkToolbar` and `CustomButton`.
 
 ## Changing Block Type Dropdown Items
+
+TODO: I think this is too specific for this page. We can just describe the components below, and link to an example that makes more sense ("image" doesn't)
 
 The first element in the default Formatting Toolbar is the Block Type Dropdown, and you can change the items in it. The demo makes the Block Type Dropdown work for image blocks by adding an item to it.
 
@@ -80,7 +86,7 @@ type ToolbarButtonProps = {
   isSelected?: boolean;
   // Whether the item should be clickable.
   isDisabled?: boolean;
-  // Child components, usually just the button text. If no children are 
+  // Child components, usually just the button text. If no children are
   // given, make sure to provide an icon.
   children?: any;
 };

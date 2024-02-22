@@ -5,7 +5,7 @@ import {
 } from "@blocknote/react";
 import { useState } from "react";
 
-export function CustomButton() {
+export function BlueButton() {
   const editor = useBlockNoteEditor();
 
   // Tracks whether the text & background are both blue.
