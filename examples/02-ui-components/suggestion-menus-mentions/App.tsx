@@ -43,6 +43,37 @@ function getMentionMenuItems(
 export function App() {
   const editor = useCreateBlockNote({
     schema,
+    initialContent: [
+      {
+        type: "paragraph",
+        content: "Welcome to this demo!",
+      },
+      {
+        type: "paragraph",
+        content: [
+          {
+            type: "mention",
+            props: {
+              user: "Steve",
+            },
+            // TODO: Typing needs fix
+            content: undefined,
+          },
+          {
+            type: "text",
+            text: " <- This is an example mention",
+            styles: {},
+          },
+        ],
+      },
+      {
+        type: "paragraph",
+        content: "Press the '@' key to open the mention menu and add another",
+      },
+      {
+        type: "paragraph",
+      },
+    ],
   });
 
   return (

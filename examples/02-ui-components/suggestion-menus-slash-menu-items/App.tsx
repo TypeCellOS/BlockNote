@@ -45,7 +45,25 @@ const getCustomSlashMenuItems = (
 
 export default function App() {
   // Creates a new editor instance.
-  const editor = useCreateBlockNote();
+  const editor = useCreateBlockNote({
+    initialContent: [
+      {
+        type: "paragraph",
+        content: "Welcome to this demo!",
+      },
+      {
+        type: "paragraph",
+        content: "Press the '/' key to open the Slash Menu",
+      },
+      {
+        type: "paragraph",
+        content: "Notice the new 'Insert Hello World' item - try it out!",
+      },
+      {
+        type: "paragraph",
+      },
+    ],
+  });
 
   // Renders the editor instance.
   // TODO: Shorthand to just pass the array
