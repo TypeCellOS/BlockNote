@@ -1,9 +1,10 @@
 import {
+  BlockNoteSchema,
   createBlockSpec,
   defaultBlockSpecs,
   defaultProps,
 } from "@blocknote/core";
-import { BlockNoteView, useBlockNote } from "@blocknote/react";
+import { BlockNoteView, useCreateBlockNote } from "@blocknote/react";
 import "@blocknote/react/style.css";
 
 import "./styles.css";
@@ -176,15 +177,18 @@ const bracketsParagraphBlock = createBlockSpec(
     },
   }
 );
+const schema = BlockNoteSchema.create({
+  blockSpecs: {
+    ...defaultBlockSpecs,
+    alert: alertBlock,
+    bracketsParagraph: bracketsParagraphBlock,
+    simpleImage: simpleImageBlock,
+  },
+});
 
 export default function App() {
-  const editor = useBlockNote({
-    blockSpecs: {
-      ...defaultBlockSpecs,
-      alert: alertBlock,
-      bracketsParagraph: bracketsParagraphBlock,
-      simpleImage: simpleImageBlock,
-    },
+  const editor = useCreateBlockNote({
+    schema,
     initialContent: [
       {
         type: "alert",

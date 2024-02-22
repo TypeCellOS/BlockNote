@@ -1,3 +1,5 @@
+import { Block, PartialBlock } from "../../blocks/defaultBlocks";
+import { checkDefaultBlockTypeInSchema } from "../../blocks/defaultBlockTypeGuards";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import {
   BlockSchema,
@@ -5,16 +7,8 @@ import {
   isStyledTextInlineContent,
   StyleSchema,
 } from "../../schema";
-import {
-  Block,
-  DefaultBlockSchema,
-  DefaultInlineContentSchema,
-  DefaultStyleSchema,
-  PartialBlock,
-} from "../../blocks/defaultBlocks";
-import { DefaultSuggestionItem } from "./DefaultSuggestionItem";
-import { checkDefaultBlockTypeInSchema } from "../../blocks/defaultBlockTypeGuards";
 import { formatKeyboardShortcut } from "../../util/browser";
+import { DefaultSuggestionItem } from "./DefaultSuggestionItem";
 
 // Sets the editor's text cursor position to the next content editable block,
 // so either a block with inline content or a table. The last block is always a
@@ -26,11 +20,11 @@ function setSelectionToNextContentEditableBlock<
   S extends StyleSchema
 >(editor: BlockNoteEditor<BSchema, I, S>) {
   let block = editor.getTextCursorPosition().block;
-  let contentType = editor.blockSchema[block.type].content;
+  let contentType = editor.schema.blockSchema[block.type].content;
 
   while (contentType === "none") {
     block = editor.getTextCursorPosition().nextBlock!;
-    contentType = editor.blockSchema[block.type].content as
+    contentType = editor.schema.blockSchema[block.type].content as
       | "inline"
       | "table"
       | "none";
@@ -80,17 +74,17 @@ export function insertOrUpdateBlock<
 }
 
 export function getDefaultSlashMenuItems<
-  BSchema extends BlockSchema = DefaultBlockSchema,
-  I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
 >(editor: BlockNoteEditor<BSchema, I, S>) {
-  const items: DefaultSuggestionItem<BSchema, I, S>[] = [];
+  const items: DefaultSuggestionItem[] = [];
 
   if (checkDefaultBlockTypeInSchema("heading", editor)) {
     items.push(
       {
         title: "Heading 1",
-        onItemClick: (editor) => {
+        onItemClick: () => {
           insertOrUpdateBlock(editor, {
             type: "heading",
             props: { level: 1 },
@@ -100,14 +94,10 @@ export function getDefaultSlashMenuItems<
         badge: formatKeyboardShortcut("Mod-Alt-1"),
         aliases: ["h", "heading1", "h1"],
         group: "Headings",
-      } satisfies DefaultSuggestionItem<
-        { heading: DefaultBlockSchema["heading"] },
-        I,
-        S
-      > as DefaultSuggestionItem<any, I, S>,
+      },
       {
         title: "Heading 2",
-        onItemClick: (editor) => {
+        onItemClick: () => {
           insertOrUpdateBlock(editor, {
             type: "heading",
             props: { level: 2 },
@@ -117,14 +107,10 @@ export function getDefaultSlashMenuItems<
         badge: formatKeyboardShortcut("Mod-Alt-2"),
         aliases: ["h2", "heading2", "subheading"],
         group: "Headings",
-      } satisfies DefaultSuggestionItem<
-        { heading: DefaultBlockSchema["heading"] },
-        I,
-        S
-      > as DefaultSuggestionItem<any, I, S>,
+      },
       {
         title: "Heading 3",
-        onItemClick: (editor) => {
+        onItemClick: () => {
           insertOrUpdateBlock(editor, {
             type: "heading",
             props: { level: 3 },
@@ -134,18 +120,14 @@ export function getDefaultSlashMenuItems<
         badge: formatKeyboardShortcut("Mod-Alt-3"),
         aliases: ["h3", "heading3", "subheading"],
         group: "Headings",
-      } satisfies DefaultSuggestionItem<
-        { heading: DefaultBlockSchema["heading"] },
-        I,
-        S
-      > as DefaultSuggestionItem<any, I, S>
+      }
     );
   }
 
   if (checkDefaultBlockTypeInSchema("numberedListItem", editor)) {
     items.push({
       title: "Numbered List",
-      onItemClick: (editor) => {
+      onItemClick: () => {
         insertOrUpdateBlock(editor, {
           type: "numberedListItem",
         });
@@ -154,19 +136,13 @@ export function getDefaultSlashMenuItems<
       badge: formatKeyboardShortcut("Mod-Shift-7"),
       aliases: ["ol", "li", "list", "numberedlist", "numbered list"],
       group: "Basic blocks",
-    } satisfies DefaultSuggestionItem<
-      {
-        numberedListItem: DefaultBlockSchema["numberedListItem"];
-      },
-      I,
-      S
-    > as DefaultSuggestionItem<any, I, S>);
+    });
   }
 
   if (checkDefaultBlockTypeInSchema("bulletListItem", editor)) {
     items.push({
       title: "Bullet List",
-      onItemClick: (editor) => {
+      onItemClick: () => {
         insertOrUpdateBlock(editor, {
           type: "bulletListItem",
         });
@@ -175,19 +151,13 @@ export function getDefaultSlashMenuItems<
       badge: formatKeyboardShortcut("Mod-Shift-8"),
       aliases: ["ul", "li", "list", "bulletlist", "bullet list"],
       group: "Basic blocks",
-    } satisfies DefaultSuggestionItem<
-      {
-        bulletListItem: DefaultBlockSchema["bulletListItem"];
-      },
-      I,
-      S
-    > as DefaultSuggestionItem<any, I, S>);
+    });
   }
 
   if (checkDefaultBlockTypeInSchema("paragraph", editor)) {
     items.push({
       title: "Paragraph",
-      onItemClick: (editor) => {
+      onItemClick: () => {
         insertOrUpdateBlock(editor, {
           type: "paragraph",
         });
@@ -196,19 +166,13 @@ export function getDefaultSlashMenuItems<
       badge: formatKeyboardShortcut("Mod-Alt-0"),
       aliases: ["p", "paragraph"],
       group: "Basic blocks",
-    } satisfies DefaultSuggestionItem<
-      {
-        paragraph: DefaultBlockSchema["paragraph"];
-      },
-      I,
-      S
-    > as DefaultSuggestionItem<any, I, S>);
+    });
   }
 
   if (checkDefaultBlockTypeInSchema("table", editor)) {
     items.push({
       title: "Table",
-      onItemClick: (editor) => {
+      onItemClick: () => {
         insertOrUpdateBlock(editor, {
           type: "table",
           content: {
@@ -228,25 +192,19 @@ export function getDefaultSlashMenuItems<
       aliases: ["table"],
       group: "Advanced",
       badge: undefined,
-    } satisfies DefaultSuggestionItem<
-      {
-        table: DefaultBlockSchema["table"];
-      },
-      I,
-      S
-    > as DefaultSuggestionItem<any, I, S>);
+    });
   }
 
   if (checkDefaultBlockTypeInSchema("image", editor)) {
     items.push({
       title: "Image",
-      onItemClick: (editor) => {
+      onItemClick: () => {
         const insertedBlock = insertOrUpdateBlock(editor, {
           type: "image",
         });
 
         // Immediately open the image toolbar
-        editor._tiptapEditor.view.dispatch(
+        editor.prosemirrorView.dispatch(
           editor._tiptapEditor.state.tr.setMeta(editor.imageToolbar!.plugin, {
             block: insertedBlock,
           })
@@ -265,13 +223,7 @@ export function getDefaultSlashMenuItems<
         "dropbox",
       ],
       group: "Media",
-    } satisfies DefaultSuggestionItem<
-      {
-        image: DefaultBlockSchema["image"];
-      },
-      I,
-      S
-    > as DefaultSuggestionItem<any, I, S>);
+    });
   }
 
   return items;

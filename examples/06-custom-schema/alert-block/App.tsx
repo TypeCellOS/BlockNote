@@ -1,23 +1,25 @@
-import { defaultBlockSpecs } from "@blocknote/core";
-import { BlockNoteView, useBlockNote } from "@blocknote/react";
+import { BlockNoteSchema, defaultBlockSpecs } from "@blocknote/core";
+import { BlockNoteView, useCreateBlockNote } from "@blocknote/react";
 import "@blocknote/react/style.css";
 
 import { Alert } from "./Alert";
 
-// Our block specs, which contain the configs and implementations for blocks
+// Our schema with block specs, which contain the configs and implementations for blocks
 // that we want our editor to use.
-const blockSpecsWithAlert = {
-  // Adds all default blocks.
-  ...defaultBlockSpecs,
-  // Adds the font paragraph.
-  alert: Alert,
-};
+const schema = BlockNoteSchema.create({
+  blockSpecs: {
+    // Adds all default blocks.
+    ...defaultBlockSpecs,
+    // Adds the font paragraph.
+    alert: Alert,
+  },
+});
 
 export default function App() {
   // Creates a new editor instance.
-  const editor = useBlockNote({
-    // Tells BlockNote which blocks to use.
-    blockSpecs: blockSpecsWithAlert,
+  const editor = useCreateBlockNote({
+    schema,
+
     // Adds slash menu item to insert alert block.
     // slashMenuItems: [...getDefaultReactSlashMenuItems(), insertAlert], TODO
   });

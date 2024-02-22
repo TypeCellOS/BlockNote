@@ -15,11 +15,11 @@ import {
   RiText,
 } from "react-icons/ri";
 
-import { useBlockNoteEditor } from "../../../../editor/BlockNoteContext";
+import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor";
 import { useEditorContentOrSelectionChange } from "../../../../hooks/useEditorContentOrSelectionChange";
 import { useSelectedBlocks } from "../../../../hooks/useSelectedBlocks";
-import { ToolbarDropdownItemProps } from "../../../mantine-shared/Toolbar/ToolbarDropdownItem";
 import { ToolbarDropdown } from "../../../mantine-shared/Toolbar/ToolbarDropdown";
+import { ToolbarDropdownItemProps } from "../../../mantine-shared/Toolbar/ToolbarDropdownItem";
 
 export type BlockTypeDropdownItem = {
   name: string;
@@ -99,13 +99,13 @@ export const BlockTypeDropdown = (props: {
   const filteredItems: BlockTypeDropdownItem[] = useMemo(() => {
     return (props.items || blockTypeDropdownItems).filter((item) => {
       // Checks if block type exists in the schema
-      if (!(item.type in editor.blockSchema)) {
+      if (!(item.type in editor.schema.blockSchema)) {
         return false;
       }
 
       // Checks if props for the block type are valid
       for (const [prop, value] of Object.entries(item.props || {})) {
-        const propSchema = editor.blockSchema[item.type].propSchema;
+        const propSchema = editor.schema.blockSchema[item.type].propSchema;
 
         // Checks if the prop exists for the block type
         if (!(prop in propSchema)) {

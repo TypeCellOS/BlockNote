@@ -5,6 +5,7 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
+import { IconType } from "react-icons";
 import {
   RiH1,
   RiH2,
@@ -15,7 +16,6 @@ import {
   RiTable2,
   RiText,
 } from "react-icons/ri";
-import { IconType } from "react-icons";
 import { DefaultReactSuggestionItem } from "./types";
 
 const icons: Record<string, IconType> = {
@@ -33,9 +33,7 @@ export function getDefaultReactSlashMenuItems<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
->(
-  editor: BlockNoteEditor<BSchema, I, S>
-): DefaultReactSuggestionItem<BSchema, I, S>[] {
+>(editor: BlockNoteEditor<BSchema, I, S>): DefaultReactSuggestionItem[] {
   return getDefaultSlashMenuItems(editor).map((item) => {
     const Icon = icons[item.title];
     return {

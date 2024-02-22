@@ -7,7 +7,7 @@ import {
 import { flip, offset } from "@floating-ui/react";
 import { FC, useState } from "react";
 
-import { useBlockNoteEditor } from "../../editor/BlockNoteContext";
+import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor";
 import { useEditorContentOrSelectionChange } from "../../hooks/useEditorContentOrSelectionChange";
 import { useUIElementPositioning } from "../../hooks/useUIElementPositioning";
 import { useUIPluginState } from "../../hooks/useUIPluginState";

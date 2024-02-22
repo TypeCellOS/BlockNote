@@ -1,5 +1,5 @@
-import { PartialBlock } from "@blocknote/core";
-import { BlockNoteView, createBlockNoteEditor } from "@blocknote/react";
+import { BlockNoteEditor, PartialBlock } from "@blocknote/core";
+import { BlockNoteView } from "@blocknote/react";
 import "@blocknote/react/style.css";
 import { useEffect, useMemo, useState } from "react";
 
@@ -29,12 +29,12 @@ export default function App() {
   }, []);
 
   // Creates a new editor instance.
-  // We use useMemo + createBlockNoteEditor instead of useBlockNote so we can delay the creation of the editor until the initial content is loaded.
+  // We use useMemo + createBlockNoteEditor instead of useCreateBlockNote so we can delay the creation of the editor until the initial content is loaded.
   const editor = useMemo(() => {
     if (initialContent === "loading") {
       return undefined;
     }
-    return createBlockNoteEditor({ initialContent });
+    return BlockNoteEditor.create({ initialContent });
   }, [initialContent]);
 
   if (editor === undefined) {
@@ -45,7 +45,7 @@ export default function App() {
   return (
     <BlockNoteView
       editor={editor}
-      onChange={(editor) => {
+      onChange={() => {
         saveToStorage(editor.topLevelBlocks);
       }}
     />

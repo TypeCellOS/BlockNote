@@ -1,7 +1,7 @@
 import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
 import { FC, useCallback } from "react";
 
-import { useBlockNoteEditor } from "../../editor/BlockNoteContext";
+import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor";
 import { useCloseSuggestionMenuNoItems } from "./hooks/useCloseSuggestionMenuNoItems";
 import { useLoadSuggestionMenuItems } from "./hooks/useLoadSuggestionMenuItems";
 import { useSuggestionMenuKeyboardNavigation } from "./hooks/useSuggestionMenuKeyboardNavigation";

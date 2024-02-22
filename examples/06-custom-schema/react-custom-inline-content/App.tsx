@@ -1,8 +1,8 @@
-import { defaultInlineContentSpecs } from "@blocknote/core";
+import { BlockNoteSchema, defaultInlineContentSpecs } from "@blocknote/core";
 import {
   BlockNoteView,
   createReactInlineContentSpec,
-  useBlockNote,
+  useCreateBlockNote,
 } from "@blocknote/react";
 import "@blocknote/react/style.css";
 
@@ -40,13 +40,17 @@ const tag = createReactInlineContentSpec(
   }
 );
 
+const schema = BlockNoteSchema.create({
+  inlineContentSpecs: {
+    mention,
+    tag,
+    ...defaultInlineContentSpecs,
+  },
+});
+
 export default function ReactInlineContent() {
-  const editor = useBlockNote({
-    inlineContentSpecs: {
-      mention,
-      tag,
-      ...defaultInlineContentSpecs,
-    },
+  const editor = useCreateBlockNote({
+    schema,
     initialContent: [
       {
         type: "paragraph",
@@ -58,7 +62,7 @@ export default function ReactInlineContent() {
               user: "Matthew",
             },
             content: undefined,
-          } as any,
+          },
         ],
       },
       {
@@ -68,7 +72,7 @@ export default function ReactInlineContent() {
           {
             type: "tag",
             content: "BlockNote",
-          } as any,
+          },
         ],
       },
     ],

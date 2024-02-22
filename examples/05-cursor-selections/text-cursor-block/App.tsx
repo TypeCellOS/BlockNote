@@ -1,4 +1,4 @@
-import { BlockNoteView, useBlockNote } from "@blocknote/react";
+import { BlockNoteView, useCreateBlockNote } from "@blocknote/react";
 import "@blocknote/react/style.css";
 
 import "@blocknote/react/style.css";
@@ -6,7 +6,7 @@ import { useCallback } from "react";
 
 export default function App() {
   // Creates a new editor instance.
-  const editor = useBlockNote({});
+  const editor = useCreateBlockNote();
 
   const onSelectionChange = useCallback(() => {
     // Gets the block currently hovered by the text cursor.

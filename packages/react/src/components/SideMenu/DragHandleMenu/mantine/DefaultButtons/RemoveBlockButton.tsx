@@ -8,7 +8,7 @@ import {
 } from "@blocknote/core";
 import { ReactNode } from "react";
 
-import { useBlockNoteEditor } from "../../../../../editor/BlockNoteContext";
+import { useBlockNoteEditor } from "../../../../../hooks/useBlockNoteEditor";
 import { DragHandleMenuProps } from "../../DragHandleMenuProps";
 import { DragHandleMenuItem } from "../DragHandleMenuItem";
 

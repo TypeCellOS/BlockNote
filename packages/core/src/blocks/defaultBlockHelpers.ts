@@ -70,7 +70,7 @@ export const defaultBlockToHTML = <
   const node = blockToNode(
     block,
     editor._tiptapEditor.schema,
-    editor.styleSchema
+    editor.schema.styleSchema
   ).firstChild!;
   const toDOM = editor._tiptapEditor.schema.nodes[node.type.name].spec.toDOM;
 

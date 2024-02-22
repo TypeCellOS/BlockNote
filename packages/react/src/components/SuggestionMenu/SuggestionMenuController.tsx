@@ -7,7 +7,7 @@ import {
 import { flip, offset, size } from "@floating-ui/react";
 import { FC } from "react";
 
-import { useBlockNoteEditor } from "../../editor/BlockNoteContext";
+import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor";
 import { useUIElementPositioning } from "../../hooks/useUIElementPositioning";
 import { useUIPluginState } from "../../hooks/useUIPluginState";
 import { SuggestionMenuWrapper } from "./SuggestionMenuWrapper";
@@ -27,7 +27,7 @@ export function SuggestionMenuController<
   props: {
     triggerCharacter: string;
     getItems: GetItemsType;
-  } & (ItemType<GetItemsType> extends DefaultReactSuggestionItem<any, any, any>
+  } & (ItemType<GetItemsType> extends DefaultReactSuggestionItem
     ? {
         // can be undefined
         suggestionMenuComponent?: FC<

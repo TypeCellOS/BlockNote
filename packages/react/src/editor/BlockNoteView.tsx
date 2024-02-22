@@ -38,7 +38,7 @@ const mantineTheme = {
   activeClassName: "",
 };
 
-const emptyFn = (_editor: any) => {
+const emptyFn = () => {
   // noop
 };
 
@@ -65,14 +65,12 @@ function BlockNoteViewComponent<
     /**
      * A callback function that runs whenever the text cursor position or selection changes.
      */
-    onSelectionChange?: (
-      editor: BlockNoteEditor<BSchema, ISchema, SSchema>
-    ) => void;
+    onSelectionChange?: () => void;
 
     /**
      * A callback function that runs whenever the editor's contents change.
      */
-    onChange?: (editor: BlockNoteEditor<BSchema, ISchema, SSchema>) => void;
+    onChange?: () => void;
 
     children?: ReactNode;
 

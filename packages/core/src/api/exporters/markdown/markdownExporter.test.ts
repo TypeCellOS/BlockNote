@@ -23,7 +23,7 @@ async function convertToMarkdownAndCompareSnapshots<
   snapshotName: string
 ) {
   const fullBlocks = partialBlocksToBlocksForTesting(
-    editor.blockSchema,
+    editor.schema.blockSchema,
     blocks
   );
   const md = await editor.blocksToMarkdownLossy(fullBlocks);

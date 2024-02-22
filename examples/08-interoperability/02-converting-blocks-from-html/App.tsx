@@ -1,4 +1,4 @@
-import { BlockNoteView, useBlockNote } from "@blocknote/react";
+import { BlockNoteView, useCreateBlockNote } from "@blocknote/react";
 import "@blocknote/react/style.css";
 import { ChangeEvent, useCallback, useEffect } from "react";
 
@@ -7,7 +7,7 @@ const initialHTML = "<p>Hello, <strong>world!</strong></p>";
 // TODO: better design?
 export default function App() {
   // Creates a new editor instance.
-  const editor = useBlockNote();
+  const editor = useCreateBlockNote();
 
   const htmlInputChanged = useCallback(
     async (e: ChangeEvent<HTMLTextAreaElement>) => {

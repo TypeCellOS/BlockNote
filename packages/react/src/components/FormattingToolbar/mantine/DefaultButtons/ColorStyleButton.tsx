@@ -7,7 +7,7 @@ import {
 import { Menu } from "@mantine/core";
 import { useCallback, useMemo, useState } from "react";
 
-import { useBlockNoteEditor } from "../../../../editor/BlockNoteContext";
+import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor";
 import { useEditorContentOrSelectionChange } from "../../../../hooks/useEditorContentOrSelectionChange";
 import { usePreventMenuOverflow } from "../../../../hooks/usePreventMenuOverflow";
 import { useSelectedBlocks } from "../../../../hooks/useSelectedBlocks";
@@ -36,9 +36,9 @@ function checkColorInSchema<Color extends "text" | "background">(
       }
 > {
   return (
-    `${color}Color` in editor.styleSchema &&
-    editor.styleSchema[`${color}Color`].type === `${color}Color` &&
-    editor.styleSchema[`${color}Color`].propSchema === "string"
+    `${color}Color` in editor.schema.styleSchema &&
+    editor.schema.styleSchema[`${color}Color`].type === `${color}Color` &&
+    editor.schema.styleSchema[`${color}Color`].propSchema === "string"
   );
 }
 

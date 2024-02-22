@@ -7,7 +7,7 @@ import {
 import { useCallback, useState } from "react";
 import { RiIndentDecrease, RiIndentIncrease } from "react-icons/ri";
 
-import { useBlockNoteEditor } from "../../../../editor/BlockNoteContext";
+import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor";
 import { useEditorContentOrSelectionChange } from "../../../../hooks/useEditorContentOrSelectionChange";
 import { ToolbarButton } from "../../../mantine-shared/Toolbar/ToolbarButton";
 

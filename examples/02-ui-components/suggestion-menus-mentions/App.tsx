@@ -1,34 +1,29 @@
 import {
-  BlockNoteEditor,
-  DefaultBlockSchema,
+  BlockNoteSchema,
   defaultInlineContentSpecs,
   filterSuggestionItems,
-  InlineContentSchemaFromSpecs,
-  InlineContentSpecs,
 } from "@blocknote/core";
 import {
   BlockNoteDefaultUI,
   BlockNoteView,
   DefaultReactSuggestionItem,
   SuggestionMenuController,
-  useBlockNote,
+  useCreateBlockNote,
 } from "@blocknote/react";
 import "@blocknote/react/style.css";
 
 import { MentionInlineContent } from "./MentionInlineContent";
 
-const customInlineContentSpecs = {
-  ...defaultInlineContentSpecs,
-  mention: MentionInlineContent,
-} satisfies InlineContentSpecs;
-
-type CustomInlineContentSchema = InlineContentSchemaFromSpecs<
-  typeof customInlineContentSpecs
->;
+const schema = BlockNoteSchema.create({
+  inlineContentSpecs: {
+    ...defaultInlineContentSpecs,
+    mention: MentionInlineContent,
+  },
+});
 
 function getMentionMenuItems(
-  editor: BlockNoteEditor<DefaultBlockSchema, CustomInlineContentSchema>
-): DefaultReactSuggestionItem<DefaultBlockSchema, CustomInlineContentSchema>[] {
+  editor: typeof schema.BlockNoteEditor
+): DefaultReactSuggestionItem[] {
   const users = ["Steve", "Bob", "Joe", "Mike"];
 
   return users.map((user) => ({
@@ -46,8 +41,8 @@ function getMentionMenuItems(
 }
 
 export function App() {
-  const editor = useBlockNote({
-    inlineContentSpecs: customInlineContentSpecs,
+  const editor = useCreateBlockNote({
+    schema,
   });
 
   return (

@@ -4,19 +4,17 @@ import {
   getDefaultReactSlashMenuItems,
   SideMenuController,
   SuggestionMenuController,
-  useBlockNote,
+  useCreateBlockNote,
 } from "@blocknote/react";
 import "@blocknote/react/style.css";
 
 import { CustomFormattingToolbar } from "./CustomFormattingToolbar";
 import { CustomSideMenu } from "./CustomSideMenu";
 import { CustomSlashMenu } from "./CustomSlashMenu";
-
 import "./styles.css";
 
 export default function App() {
-  // Creates a new editor instance.
-  const editor = useBlockNote();
+  const editor = useCreateBlockNote();
 
   // Renders the editor instance.
   return (
@@ -34,6 +32,7 @@ export default function App() {
           filterSuggestionItems(getDefaultReactSlashMenuItems(editor), query)
         }
         suggestionMenuComponent={CustomSlashMenu}
+        onItemClick={(i) => i.onItemClick()}
       />
     </BlockNoteView>
   );

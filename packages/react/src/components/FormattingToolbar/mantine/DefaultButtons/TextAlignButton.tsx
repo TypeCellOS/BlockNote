@@ -15,7 +15,7 @@ import {
   RiAlignRight,
 } from "react-icons/ri";
 
-import { useBlockNoteEditor } from "../../../../editor/BlockNoteContext";
+import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor";
 import { useSelectedBlocks } from "../../../../hooks/useSelectedBlocks";
 import { ToolbarButton } from "../../../mantine-shared/Toolbar/ToolbarButton";
 

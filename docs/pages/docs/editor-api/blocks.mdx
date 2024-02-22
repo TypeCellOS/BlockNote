@@ -14,7 +14,7 @@ So, you've set up a BlockNote editor and your users can start writing content, o
 
 ## Editor Functions
 
-The `editor` returned from `useBlockNote` exposes functions to access and update blocks.
+The `editor` returned from `useCreateBlockNote` exposes functions to access and update blocks.
 We'll go through the full API later, but let's start with a simple example that shows the document (a list of blocks) in JSON.
 Play around with the editor to see how blocks are represented in JSON.
 
@@ -24,7 +24,11 @@ Play around with the editor to see how blocks are represented in JSON.
 
 So, BlockNote is centered around the idea of blocks. A block - like a heading, paragraph, or list item - contains a piece of content and optionally nested blocks:
 
-<img src="/img/screenshots/block_structure.png" alt="image" style={{width: "100%"}} />
+<img
+  src="/img/screenshots/block_structure.png"
+  alt="image"
+  style={{ width: "100%" }}
+/>
 
 In code, the `Block` type is used to describe any given block in the editor:
 
@@ -36,12 +40,7 @@ type Block = {
   content: InlineContent[] | TableContent;
   children: Block[];
 };
-
 ```
-
-
-
-
 
 `id:` The block's ID. Multiple blocks cannot share a single ID, and a block will keep the same ID from when it's created until it's removed.
 

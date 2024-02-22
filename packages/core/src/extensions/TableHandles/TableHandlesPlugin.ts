@@ -177,9 +177,9 @@ export class TableHandlesView<
 
       block = nodeToBlock(
         node,
-        this.editor.blockSchema,
-        this.editor.inlineContentSchema,
-        this.editor.styleSchema,
+        this.editor.schema.blockSchema,
+        this.editor.schema.inlineContentSchema,
+        this.editor.schema.styleSchema,
         this.editor.blockCache
       );
       this.tablePos = pos + 1;

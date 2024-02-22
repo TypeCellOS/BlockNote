@@ -8,9 +8,9 @@ import {
 } from "@blocknote/core";
 import { FC } from "react";
 
-import { useBlockNoteEditor } from "../../editor/BlockNoteContext";
-import { useUIPluginState } from "../../hooks/useUIPluginState";
+import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor";
 import { useUIElementPositioning } from "../../hooks/useUIElementPositioning";
+import { useUIPluginState } from "../../hooks/useUIPluginState";
 import { SideMenuProps } from "./SideMenuProps";
 import { SideMenu } from "./mantine/SideMenu";
 

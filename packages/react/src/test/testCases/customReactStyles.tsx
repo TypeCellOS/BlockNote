@@ -3,11 +3,10 @@ import {
   DefaultBlockSchema,
   DefaultInlineContentSchema,
   EditorTestCases,
-  StyleSchemaFromSpecs,
-  StyleSpecs,
   defaultStyleSpecs,
   uploadToTmpFilesDotOrg_DEV_ONLY,
 } from "@blocknote/core";
+import { BlockNoteSchema } from "@blocknote/core/src/editor/BlockNoteSchema";
 import { createReactStyleSpec } from "../../schema/ReactStyleSpec";
 
 const small = createReactStyleSpec(
@@ -36,22 +35,24 @@ const fontSize = createReactStyleSpec(
   }
 );
 
-const customReactStyles = {
-  ...defaultStyleSpecs,
-  small,
-  fontSize,
-} satisfies StyleSpecs;
+const schema = BlockNoteSchema.create({
+  styleSpecs: {
+    ...defaultStyleSpecs,
+    small,
+    fontSize,
+  },
+});
 
 export const customReactStylesTestCases: EditorTestCases<
   DefaultBlockSchema,
   DefaultInlineContentSchema,
-  StyleSchemaFromSpecs<typeof customReactStyles>
+  typeof schema.styleSchema
 > = {
   name: "custom react style schema",
   createEditor: () => {
     return BlockNoteEditor.create({
       uploadFile: uploadToTmpFilesDotOrg_DEV_ONLY,
-      styleSpecs: customReactStyles,
+      schema,
     });
   },
   documents: [

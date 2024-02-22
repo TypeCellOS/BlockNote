@@ -1,4 +1,4 @@
-import { BlockNoteView, useBlockNote } from "@blocknote/react";
+import { BlockNoteView, useCreateBlockNote } from "@blocknote/react";
 import "@blocknote/react/style.css";
 
 import YPartyKitProvider from "y-partykit/provider";
@@ -14,7 +14,7 @@ const provider = new YPartyKitProvider(
 );
 
 export default function App() {
-  const editor = useBlockNote({
+  const editor = useCreateBlockNote({
     collaboration: {
       // The Yjs Provider responsible for transporting updates:
       provider,
