@@ -40,6 +40,7 @@ export type Project = {
     dependencies?: any;
     devDependencies?: any;
     author: string;
+    isolatedBuild?: boolean;
   };
 };
 

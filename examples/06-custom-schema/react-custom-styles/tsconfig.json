@@ -3,7 +3,11 @@
   "compilerOptions": {
     "target": "ESNext",
     "useDefineForClassFields": true,
-    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "lib": [
+      "DOM",
+      "DOM.Iterable",
+      "ESNext"
+    ],
     "allowJs": false,
     "skipLibCheck": true,
     "esModuleInterop": false,
@@ -19,9 +23,12 @@
     "composite": false,
     "outDir": "dist",
     "declarationDir": "types",
-    "declaration": true
+    "declaration": true,
+    "declarationMap": true
   },
-  "include": [".", "main.tsx", "App.tsx"],
+  "include": [
+    "."
+  ],
   "references": [
     {
       "path": "../../../packages/core/"

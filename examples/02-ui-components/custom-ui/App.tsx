@@ -8,7 +8,6 @@ import {
 } from "@blocknote/react";
 import "@blocknote/react/style.css";
 
-import "./blocknote.d.ts";
 import { CustomFormattingToolbar } from "./CustomFormattingToolbar";
 import { CustomSideMenu } from "./CustomSideMenu";
 import { CustomSlashMenu } from "./CustomSlashMenu";

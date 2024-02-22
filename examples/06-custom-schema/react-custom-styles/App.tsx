@@ -1,8 +1,6 @@
 import { BlockNoteSchema, defaultStyleSpecs } from "@blocknote/core";
 import {
-  BlockNoteView,
   FormattingToolbar,
-  FormattingToolbarController,
   FormattingToolbarProps,
   ToolbarButton,
   createReactStyleSpec,
@@ -105,11 +103,5 @@ export default function App() {
     []
   );
 
-  return (
-    <BlockNoteView className="root" editor={editor}>
-      <FormattingToolbarController
-        formattingToolbar={CustomFormattingToolbar}
-      />
-    </BlockNoteView>
-  );
+  return <div>hello</div>;
 }

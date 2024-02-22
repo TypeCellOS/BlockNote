@@ -133,17 +133,21 @@ import dynamic from "next/dynamic";
   
 export const examples = {
 ${projects
-  .map(
-    (p) => `  "${p.fullSlug}": {
+  .map((p) => {
+    const importPath = p.config.isolatedBuild
+      ? "@blocknote/example-" + p.projectSlug
+      : `../../../../${p.pathFromRoot}/App`;
+
+    return `  "${p.fullSlug}": {
     // App: () => <div>hello</div>,
-    App: dynamic(() => import("../../../../${p.pathFromRoot}/App"), {
+    App: dynamic(() => import(${JSON.stringify(importPath)}), {
       ssr: false,
     }),
     ExampleWithCode: dynamic(() => import("./mdx/${p.fullSlug}.mdx"), {
       //ssr: false,
     }),
-  },`
-  )
+  },`;
+  })
   .join("\n")}  
 };`;
 

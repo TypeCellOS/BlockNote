@@ -3,12 +3,14 @@
   "description": "AUTO-GENERATED FILE, DO NOT EDIT DIRECTLY",
   "private": true,
   "version": "0.11.1",
-  "main": "dist/main.js",
-  "types": "types/main.d.ts",
+  "export": {
+    ".": "./dist/App.js"
+  },
+  "types": "./types/App.d.ts",
   "scripts": {
     "start": "vite",
     "dev": "vite",
-    "build": "tsc -p .",
+    "build": "tsc && vite build",
     "preview": "vite preview",
     "lint": "eslint . --max-warnings 0"
   },
