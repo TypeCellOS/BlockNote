@@ -4,7 +4,7 @@
 node_modules
 dist
 packages/*/types
-examples/*/types
+examples/**/types
 /.pnp
 .pnp.js
 tsconfig.tsbuildinfo

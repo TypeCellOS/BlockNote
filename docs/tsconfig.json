@@ -22,13 +22,5 @@
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules", "**/blocknote.d.ts"],
-  "references": [
-    {
-      "path": "../examples/06-custom-schema/react-custom-styles/"
-    },
-    {
-      "path": "../examples/02-ui-components/custom-ui/"
-    }
-  ]
+  "exclude": ["node_modules"]
 }
