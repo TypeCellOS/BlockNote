@@ -37,6 +37,8 @@ export const defaultBlockSpecs = {
 
 export const defaultBlockSchema = getBlockSchemaFromSpecs(defaultBlockSpecs);
 
+// underscore is used that in case a user overrides DefaultBlockSchema,
+// they can still access the original default block schema
 export type _DefaultBlockSchema = typeof defaultBlockSchema;
 export type DefaultBlockSchema = _DefaultBlockSchema;
 
@@ -52,6 +54,8 @@ export const defaultStyleSpecs = {
 
 export const defaultStyleSchema = getStyleSchemaFromSpecs(defaultStyleSpecs);
 
+// underscore is used that in case a user overrides DefaultStyleSchema,
+// they can still access the original default style schema
 export type _DefaultStyleSchema = typeof defaultStyleSchema;
 export type DefaultStyleSchema = _DefaultStyleSchema;
 
@@ -64,6 +68,8 @@ export const defaultInlineContentSchema = getInlineContentSchemaFromSpecs(
   defaultInlineContentSpecs
 );
 
+// underscore is used that in case a user overrides DefaultInlineContentSchema,
+// they can still access the original default inline content schema
 export type _DefaultInlineContentSchema = typeof defaultInlineContentSchema;
 export type DefaultInlineContentSchema = _DefaultInlineContentSchema;
 

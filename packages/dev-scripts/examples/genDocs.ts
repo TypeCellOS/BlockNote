@@ -134,9 +134,7 @@ import dynamic from "next/dynamic";
 export const examples = {
 ${projects
   .map((p) => {
-    const importPath = p.config.isolatedBuild
-      ? "@blocknote/example-" + p.projectSlug
-      : `../../../../${p.pathFromRoot}/App`;
+    const importPath = `../../../../${p.pathFromRoot}/App`;
 
     return `  "${p.fullSlug}": {
     // App: () => <div>hello</div>,
