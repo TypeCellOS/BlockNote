@@ -1,6 +1,16 @@
+/*
+ * Experimental!
+ * You can use a file like this (blocknote.d.ts) to automatically override types with your custom schema.
+ * This way, you can just use types like `PartialBlock`, `Block`, `BlockNoteEditor` and they'll automatically
+ * use the types from your custom schema.
+ *
+ * (the reason is that this is not used in the examples, is that we use multiple BlockNote instances in the website / example projects. This method does not work well with that.)
+ */
 import "@blocknote/core";
+import type { schema } from "./App";
 
 declare module "@blocknote/core" {
+  // Override the default schema types
   type DefaultStyleSchema = typeof schema.styleSchema;
   type DefaultBlockSchema = typeof schema.blockSchema;
   type DefaultInlineContentSchema = typeof schema.inlineContentSchema;
