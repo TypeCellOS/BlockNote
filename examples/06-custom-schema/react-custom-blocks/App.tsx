@@ -119,16 +119,18 @@ export const bracketsParagraphBlock = createReactBlockSpec(
   }
 );
 
+const schema = BlockNoteSchema.create({
+  blockSpecs: {
+    ...defaultBlockSpecs,
+    alert: alertBlock,
+    simpleImage: simpleImageBlock,
+    bracketsParagraph: bracketsParagraphBlock,
+  },
+});
+
 export default function App() {
   const editor = useCreateBlockNote({
-    schema: BlockNoteSchema.create({
-      blockSpecs: {
-        ...defaultBlockSpecs,
-        alert: alertBlock,
-        simpleImage: simpleImageBlock,
-        bracketsParagraph: bracketsParagraphBlock,
-      },
-    }),
+    schema,
     initialContent: [
       {
         type: "alert",

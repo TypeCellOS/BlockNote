@@ -50,15 +50,17 @@ const tag = createInlineContentSpec(
   }
 );
 
+const schema = BlockNoteSchema.create({
+  inlineContentSpecs: {
+    mention,
+    tag,
+    ...defaultInlineContentSpecs,
+  },
+});
+
 export default function App() {
   const editor = useCreateBlockNote({
-    schema: BlockNoteSchema.create({
-      inlineContentSpecs: {
-        mention,
-        tag,
-        ...defaultInlineContentSpecs,
-      },
-    }),
+    schema,
     initialContent: [
       {
         type: "paragraph",

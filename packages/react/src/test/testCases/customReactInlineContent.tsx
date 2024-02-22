@@ -4,9 +4,6 @@ import {
   DefaultBlockSchema,
   DefaultStyleSchema,
   EditorTestCases,
-  InlineContentSchemaFromSpecs,
-  InlineContentSpecs,
-  PartialBlock,
   defaultInlineContentSpecs,
   uploadToTmpFilesDotOrg_DEV_ONLY,
 } from "@blocknote/core";
@@ -46,45 +43,24 @@ const tag = createReactInlineContentSpec(
   }
 );
 
-const customReactInlineContent = {
-  ...defaultInlineContentSpecs,
-  tag,
-  mention,
-} satisfies InlineContentSpecs;
-
-// TODO
-// @ts-ignore
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const x: PartialBlock<
-  DefaultBlockSchema,
-  InlineContentSchemaFromSpecs<typeof customReactInlineContent>,
-  DefaultStyleSchema
-> = {
-  type: "paragraph",
-  content: [
-    "I enjoy working with ",
-    {
-      type: "mention",
-      props: {
-        user: "Matthew",
-      },
-      content: undefined,
-    } as const,
-  ],
-};
+const schema = BlockNoteSchema.create({
+  inlineContentSpecs: {
+    ...defaultInlineContentSpecs,
+    tag,
+    mention,
+  },
+});
 
 export const customReactInlineContentTestCases: EditorTestCases<
   DefaultBlockSchema,
-  InlineContentSchemaFromSpecs<typeof customReactInlineContent>,
+  typeof schema.inlineContentSchema,
   DefaultStyleSchema
 > = {
   name: "custom react inline content schema",
   createEditor: () => {
     return BlockNoteEditor.create({
       uploadFile: uploadToTmpFilesDotOrg_DEV_ONLY,
-      schema: BlockNoteSchema.create({
-        inlineContentSpecs: customReactInlineContent,
-      }),
+      schema,
     });
   },
   documents: [
