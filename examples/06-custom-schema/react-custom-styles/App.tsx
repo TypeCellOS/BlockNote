@@ -7,8 +7,8 @@ import {
   ToolbarButton,
   createReactStyleSpec,
   useActiveStyles,
-  useBlockNote,
   useBlockNoteEditor,
+  useCreateBlockNote,
 } from "@blocknote/react";
 import "@blocknote/react/style.css";
 
@@ -47,7 +47,7 @@ export const schema = BlockNoteSchema.create({
 });
 
 const CustomFormattingToolbar = (props: FormattingToolbarProps) => {
-  const editor = useBlockNoteEditor();
+  const editor = useBlockNoteEditor(schema);
   const activeStyles = useActiveStyles(editor);
 
   return (
@@ -56,7 +56,7 @@ const CustomFormattingToolbar = (props: FormattingToolbarProps) => {
         mainTooltip={"small"}
         onClick={() => {
           editor.toggleStyles({
-            smnall: true,
+            small: true,
           });
         }}
         isSelected={activeStyles.small}>
@@ -77,7 +77,7 @@ const CustomFormattingToolbar = (props: FormattingToolbarProps) => {
 };
 
 export default function App() {
-  const editor = useBlockNote(
+  const editor = useCreateBlockNote(
     {
       schema,
       initialContent: [

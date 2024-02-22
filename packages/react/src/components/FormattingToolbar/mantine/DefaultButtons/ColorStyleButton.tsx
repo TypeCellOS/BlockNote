@@ -7,7 +7,7 @@ import {
 import { Menu } from "@mantine/core";
 import { useCallback, useMemo, useState } from "react";
 
-import { useBlockNoteEditor } from "../../../../editor/BlockNoteContext";
+import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor";
 import { useEditorContentOrSelectionChange } from "../../../../hooks/useEditorContentOrSelectionChange";
 import { usePreventMenuOverflow } from "../../../../hooks/usePreventMenuOverflow";
 import { useSelectedBlocks } from "../../../../hooks/useSelectedBlocks";

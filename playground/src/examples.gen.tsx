@@ -338,7 +338,7 @@
           "docs": false,
           "group": "Custom Specs",
           "order": 2,
-          "isolatedBuild": true
+          "isolatedBuild": false
         },
         "title": "Custom Styles - React API",
         "group": {

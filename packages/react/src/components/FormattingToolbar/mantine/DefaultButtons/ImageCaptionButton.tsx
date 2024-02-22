@@ -14,12 +14,12 @@ import {
 } from "react";
 import { RiText } from "react-icons/ri";
 
+import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor";
+import { useSelectedBlocks } from "../../../../hooks/useSelectedBlocks";
 import { ToolbarButton } from "../../../mantine-shared/Toolbar/ToolbarButton";
 import { ToolbarInputDropdown } from "../../../mantine-shared/Toolbar/ToolbarInputDropdown";
 import { ToolbarInputDropdownButton } from "../../../mantine-shared/Toolbar/ToolbarInputDropdownButton";
 import { ToolbarInputDropdownItem } from "../../../mantine-shared/Toolbar/ToolbarInputDropdownItem";
-import { useBlockNoteEditor } from "../../../../editor/BlockNoteContext";
-import { useSelectedBlocks } from "../../../../hooks/useSelectedBlocks";
 
 export const ImageCaptionButton = () => {
   const editor = useBlockNoteEditor<

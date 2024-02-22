@@ -1,7 +1,7 @@
 import {
   BlockNoteView,
   FormattingToolbarController,
-  useBlockNote,
+  useCreateBlockNote,
 } from "@blocknote/react";
 import "@blocknote/react/style.css";
 
@@ -9,7 +9,7 @@ import { CustomFormattingToolbar } from "./CustomFormattingToolbar";
 
 export default function App() {
   // Creates a new editor instance.
-  const editor = useBlockNote();
+  const editor = useCreateBlockNote();
 
   // Renders the editor instance.
   return (

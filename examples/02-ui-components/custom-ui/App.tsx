@@ -4,7 +4,7 @@ import {
   getDefaultReactSlashMenuItems,
   SideMenuController,
   SuggestionMenuController,
-  useBlockNote,
+  useCreateBlockNote,
 } from "@blocknote/react";
 import "@blocknote/react/style.css";
 
@@ -14,7 +14,7 @@ import { CustomSlashMenu } from "./CustomSlashMenu";
 import "./styles.css";
 
 export default function App() {
-  const editor = useBlockNote();
+  const editor = useCreateBlockNote();
 
   return (
     <BlockNoteView

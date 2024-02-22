@@ -4,9 +4,8 @@ import {
   BlockNoteDefaultUI,
   BlockNoteView,
   DefaultReactSuggestionItem,
-  getDefaultReactSlashMenuItems,
   SuggestionMenuController,
-  useBlockNote,
+  getDefaultReactSlashMenuItems,
 } from "@blocknote/react";
 import { Alert, insertAlert } from "../customblocks/Alert";
 import { Button } from "../customblocks/Button";
@@ -33,9 +32,7 @@ const customItems = [
 ];
 
 export default function Editor() {
-  const editor = useBlockNote({
-    blockSpecs,
-  });
+  const editor = useCreateBlockNote({ blockSpecs });
 
   console.log(editor);
 

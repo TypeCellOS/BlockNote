@@ -11,7 +11,11 @@ import { Example } from "@/components/example";
 
 The Slash Menu is the list of commands which shows up whenever you type the "/" (slash) character, or when you click the "+" button in the [Side Menu](/docs/side-menu):
 
-<img style={{maxWidth: "400px"}} src="/img/screenshots/slash_menu.png" alt="image" />
+<img
+  style={{ maxWidth: "400px" }}
+  src="/img/screenshots/slash_menu.png"
+  alt="image"
+/>
 
 ## Custom Slash Menu Item List
 
@@ -45,7 +49,7 @@ function App() {
   // Edit newSlashMenuItems
   ...
 
-  const editor = useBlockNote({ slashMenuItems: newSlashMenuItems });
+  const editor = useCreateBlockNote( slashMenuItems: newSlashMenuItems });
 
   return <BlockNoteView editor={editor} />;
 }

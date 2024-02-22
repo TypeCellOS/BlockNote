@@ -1,5 +1,5 @@
 import { Block } from "@blocknote/core";
-import { BlockNoteView, useBlockNote } from "@blocknote/react";
+import { BlockNoteView, useCreateBlockNote } from "@blocknote/react";
 import "@blocknote/react/style.css";
 import { useState } from "react";
 
@@ -7,7 +7,7 @@ export default function App() {
   // Stores the editor's contents as an array of Block objects.
   const [blocks, setBlocks] = useState<Block[]>([]);
   // Creates a new editor instance.
-  const editor = useBlockNote({});
+  const editor = useCreateBlockNote();
 
   // Renders the editor instance and its contents, as an array of Block
   // objects, below.

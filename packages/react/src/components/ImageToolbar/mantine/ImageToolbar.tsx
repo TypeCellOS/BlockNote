@@ -21,9 +21,9 @@ import {
   useState,
 } from "react";
 
-import { useBlockNoteEditor } from "../../../editor/BlockNoteContext";
-import { ImageToolbarProps } from "../ImageToolbarProps";
+import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
 import { Toolbar } from "../../mantine-shared/Toolbar/Toolbar";
+import { ImageToolbarProps } from "../ImageToolbarProps";
 
 export const ImageToolbar = <
   I extends InlineContentSchema = DefaultInlineContentSchema,

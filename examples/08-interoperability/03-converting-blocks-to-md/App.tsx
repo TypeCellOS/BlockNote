@@ -1,4 +1,4 @@
-import { BlockNoteView, useBlockNote } from "@blocknote/react";
+import { BlockNoteView, useCreateBlockNote } from "@blocknote/react";
 import "@blocknote/react/style.css";
 import { useState } from "react";
 
@@ -8,7 +8,7 @@ export default function App() {
   const [markdown, setMarkdown] = useState<string>("");
 
   // Creates a new editor instance with some initial content.
-  const editor = useBlockNote({
+  const editor = useCreateBlockNote({
     initialContent: [
       {
         type: "paragraph",

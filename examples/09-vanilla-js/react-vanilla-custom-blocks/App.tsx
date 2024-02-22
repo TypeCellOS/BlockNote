@@ -4,7 +4,7 @@ import {
   defaultBlockSpecs,
   defaultProps,
 } from "@blocknote/core";
-import { BlockNoteView, useBlockNote } from "@blocknote/react";
+import { BlockNoteView, useCreateBlockNote } from "@blocknote/react";
 import "@blocknote/react/style.css";
 
 import "./styles.css";
@@ -179,7 +179,7 @@ const bracketsParagraphBlock = createBlockSpec(
 );
 
 export default function App() {
-  const editor = useBlockNote({
+  const editor = useCreateBlockNote({
     schema: BlockNoteSchema.create({
       blockSpecs: {
         ...defaultBlockSpecs,

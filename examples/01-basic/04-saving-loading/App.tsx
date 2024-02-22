@@ -29,7 +29,7 @@ export default function App() {
   }, []);
 
   // Creates a new editor instance.
-  // We use useMemo + createBlockNoteEditor instead of useBlockNote so we can delay the creation of the editor until the initial content is loaded.
+  // We use useMemo + createBlockNoteEditor instead of useCreateBlockNote so we can delay the creation of the editor until the initial content is loaded.
   const editor = useMemo(() => {
     if (initialContent === "loading") {
       return undefined;
@@ -45,7 +45,7 @@ export default function App() {
   return (
     <BlockNoteView
       editor={editor}
-      onChange={(editor) => {
+      onChange={() => {
         saveToStorage(editor.topLevelBlocks);
       }}
     />

@@ -7,7 +7,7 @@ import {
   BlockNoteView,
   getDefaultReactSlashMenuItems,
   SuggestionMenuController,
-  useBlockNote,
+  useCreateBlockNote,
 } from "@blocknote/react";
 import "@blocknote/react/style.css";
 import { HiOutlineGlobeAlt } from "react-icons/hi";
@@ -45,7 +45,7 @@ export const getCustomSlashMenuItems = (editor: BlockNoteEditor) => [
 
 export default function App() {
   // Creates a new editor instance.
-  const editor = useBlockNote();
+  const editor = useCreateBlockNote();
 
   // Renders the editor instance.
   return (

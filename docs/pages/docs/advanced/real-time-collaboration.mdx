@@ -9,7 +9,11 @@ path: /docs/real-time-collaboration
 
 Let's see how you can add Multiplayer capabilities to your BlockNote setup, and allow real-time collaboration between users (similar to Google Docs):
 
-<img style={{maxWidth: "300px", border: "1px solid gray"}} src="/img/features/collaboration.gif" alt="text editing collaboration" />
+<img
+  style={{ maxWidth: "300px", border: "1px solid gray" }}
+  src="/img/features/collaboration.gif"
+  alt="text editing collaboration"
+/>
 
 _Try the live demo on the [homepage](https://www.blocknotejs.org)_
 
@@ -23,7 +27,7 @@ import { WebrtcProvider } from "y-webrtc";
 const doc = new Y.Doc();
 
 const provider = new WebrtcProvider("my-document-id", doc); // setup a yjs provider (explained below)
-const editor = useBlockNote({
+const editor = useCreateBlockNote({
   // ...
   collaboration: {
     // The Yjs Provider responsible for transporting updates:
@@ -61,9 +65,14 @@ Liveblocks provides a hosted back-end for Yjs which allows you to download and s
 npx create-liveblocks-app@latest --example nextjs-yjs-blocknote-advanced
 ```
 
-<video autoplay loop src="/img/screenshots/liveblocks_blocknote_example.mp4" aria-label="BlockNote example using Liveblocks Yjs, showing collaboration and DevTools" />
+<video
+  autoplay
+  loop
+  src="/img/screenshots/liveblocks_blocknote_example.mp4"
+  aria-label="BlockNote example using Liveblocks Yjs, showing collaboration and DevTools"
+/>
 
-You can also try the same example in a [live demo](https://liveblocks.io/examples/collaborative-text-editor-advanced/nextjs-yjs-blocknote-advanced). To start with Liveblocks and BlockNote make sure to follow their [getting started guide](https://liveblocks.io/docs/get-started/yjs-blocknote-react). 
+You can also try the same example in a [live demo](https://liveblocks.io/examples/collaborative-text-editor-advanced/nextjs-yjs-blocknote-advanced). To start with Liveblocks and BlockNote make sure to follow their [getting started guide](https://liveblocks.io/docs/get-started/yjs-blocknote-react).
 
 ## Partykit
 
@@ -77,163 +86,94 @@ const provider = new YPartyKitProvider(
   "blocknote-dev.yousefed.partykit.dev",
   // use a unique name as a "room" for your application:
   "your-project-name",
-  doc
+  doc,
 );
 ```
 
 To learn how to set up your own development / production servers, check out the [PartyKit docs](https://github.com/partykit/partykit) and the [BlockNote + Partykit example](https://github.com/partykit/partykit/tree/main/examples/blocknote).
 
-[//]: # (# Live demo)
-
-[//]: # ()
-[//]: # (Below, two editors are connected to each other. Note that anything you type is shared live with other visitors of this webpage, so be friendly ;&#41;)
-
-[//]: # ()
-[//]: # (::: sandbox {template=react-ts})
-
-[//]: # ()
-[//]: # (```typescript-vue /App.tsx)
-
-[//]: # (import { BlockNoteEditor } from "@blocknote/core";)
-
-[//]: # (import { BlockNoteView, useBlockNote } from "@blocknote/react";)
-
-[//]: # (import YPartyKitProvider from "y-partykit/provider";)
-
-[//]: # (import * as Y from "yjs";)
-
-[//]: # (import "@blocknote/react/style.css";)
-
-[//]: # ()
-[//]: # (const doc = new Y.Doc&#40;&#41;;)
-
-[//]: # (const provider = new YPartyKitProvider&#40;)
-
-[//]: # (  "blocknote-dev.yousefed.partykit.dev",)
-
-[//]: # (  // use a unique name as a "room" for your application:)
-
-[//]: # (  "docs-demo",)
-
-[//]: # (  doc)
-
-[//]: # (&#41;;)
-
-[//]: # ()
-[//]: # (export default function App&#40;&#41; {)
-
-[//]: # (  // Creates a new editor instance.)
-
-[//]: # (  const editor: BlockNoteEditor | null = useBlockNote&#40;{)
-
-[//]: # (    collaboration: {)
-
-[//]: # (      provider,)
-
-[//]: # (      fragment: doc.getXmlFragment&#40;"document-store"&#41;,)
-
-[//]: # (      user: {)
-
-[//]: # (        name: "User 1",)
-
-[//]: # (        color: "#ff0000",)
-
-[//]: # (      },)
-
-[//]: # (    },)
-
-[//]: # (  }&#41;;)
-
-[//]: # ()
-[//]: # (  // Renders the editor instance using a React component.)
-
-[//]: # (  return <BlockNoteView editor={editor} theme={"{{ getTheme&#40;isDark&#41; }}"} />;)
-
-[//]: # (})
-
-[//]: # (```)
-
-[//]: # ()
-[//]: # (```css-vue /styles.css [hidden])
-
-[//]: # ({{ getStyles&#40;isDark&#41; }})
-
-[//]: # (```)
-
-[//]: # ()
-[//]: # (:::)
-
-[//]: # ()
-[//]: # (::: sandbox {template=react-ts})
-
-[//]: # ()
-[//]: # (```typescript-vue /App.tsx)
-
-[//]: # (import { BlockNoteEditor } from "@blocknote/core";)
-
-[//]: # (import { BlockNoteView, useBlockNote } from "@blocknote/react";)
-
-[//]: # (import YPartyKitProvider from "y-partykit/provider";)
-
-[//]: # (import * as Y from "yjs";)
-
-[//]: # (import "@blocknote/react/style.css";)
-
-[//]: # ()
-[//]: # (const doc = new Y.Doc&#40;&#41;;)
-
-[//]: # (const provider = new YPartyKitProvider&#40;)
-
-[//]: # (  "blocknote-dev.yousefed.partykit.dev",)
-
-[//]: # (  // use a unique name as a "room" for your application:)
-
-[//]: # (  "docs-demo",)
-
-[//]: # (  doc)
-
-[//]: # (&#41;;)
-
-[//]: # ()
-[//]: # (export default function App&#40;&#41; {)
-
-[//]: # (  // Creates a new editor instance.)
-
-[//]: # (  const editor: BlockNoteEditor | null = useBlockNote&#40;{)
-
-[//]: # (    collaboration: {)
-
-[//]: # (      provider,)
-
-[//]: # (      fragment: doc.getXmlFragment&#40;"document-store"&#41;,)
-
-[//]: # (      user: {)
-
-[//]: # (        name: "User 2",)
-
-[//]: # (        color: "#00ff00",)
-
-[//]: # (      },)
-
-[//]: # (    },)
-
-[//]: # (  }&#41;;)
-
-[//]: # ()
-[//]: # (  // Renders the editor instance using a React component.)
-
-[//]: # (  return <BlockNoteView editor={editor} theme={"{{ getTheme&#40;isDark&#41; }}"} />;)
-
-[//]: # (})
-
-[//]: # (```)
-
-[//]: # ()
-[//]: # (```css-vue /styles.css [hidden])
-
-[//]: # ({{ getStyles&#40;isDark&#41; }})
-
-[//]: # (```)
-
-[//]: # ()
-[//]: # (:::)
+[//]: # "# Live demo"
+[//]: #
+[//]: # "Below, two editors are connected to each other. Note that anything you type is shared live with other visitors of this webpage, so be friendly ;)"
+[//]: #
+[//]: # "::: sandbox {template=react-ts}"
+[//]: #
+[//]: # "```typescript-vue /App.tsx"
+[//]: # 'import { BlockNoteEditor } from "@blocknote/core";'
+[//]: # 'import { BlockNoteView, useCreateBlockNote } from "@blocknote/react";'
+[//]: # 'import YPartyKitProvider from "y-partykit/provider";'
+[//]: # 'import * as Y from "yjs";'
+[//]: # 'import "@blocknote/react/style.css";'
+[//]: #
+[//]: # "const doc = new Y.Doc();"
+[//]: # "const provider = new YPartyKitProvider("
+[//]: # '  "blocknote-dev.yousefed.partykit.dev",'
+[//]: # '  // use a unique name as a "room" for your application:'
+[//]: # '  "docs-demo",'
+[//]: # "  doc"
+[//]: # ");"
+[//]: #
+[//]: # "export default function App() {"
+[//]: # "  // Creates a new editor instance."
+[//]: # "  const editor: BlockNoteEditor | null = useBlockNote({"
+[//]: # "    collaboration: {"
+[//]: # "      provider,"
+[//]: # '      fragment: doc.getXmlFragment("document-store"),'
+[//]: # "      user: {"
+[//]: # '        name: "User 1",'
+[//]: # '        color: "#ff0000",'
+[//]: # "      },"
+[//]: # "    },"
+[//]: # "  });"
+[//]: #
+[//]: # "  // Renders the editor instance using a React component."
+[//]: # '  return <BlockNoteView editor={editor} theme={"{{ getTheme(isDark) }}"} />;'
+[//]: # "}"
+[//]: # "```"
+[//]: #
+[//]: # "```css-vue /styles.css [hidden]"
+[//]: # "{{ getStyles(isDark) }}"
+[//]: # "```"
+[//]: #
+[//]: # ":::"
+[//]: #
+[//]: # "::: sandbox {template=react-ts}"
+[//]: #
+[//]: # "```typescript-vue /App.tsx"
+[//]: # 'import { BlockNoteEditor } from "@blocknote/core";'
+[//]: # 'import { BlockNoteView, useCreateBlockNote } from "@blocknote/react";'
+[//]: # 'import YPartyKitProvider from "y-partykit/provider";'
+[//]: # 'import * as Y from "yjs";'
+[//]: # 'import "@blocknote/react/style.css";'
+[//]: #
+[//]: # "const doc = new Y.Doc();"
+[//]: # "const provider = new YPartyKitProvider("
+[//]: # '  "blocknote-dev.yousefed.partykit.dev",'
+[//]: # '  // use a unique name as a "room" for your application:'
+[//]: # '  "docs-demo",'
+[//]: # "  doc"
+[//]: # ");"
+[//]: #
+[//]: # "export default function App() {"
+[//]: # "  // Creates a new editor instance."
+[//]: # "  const editor: BlockNoteEditor | null = useBlockNote({"
+[//]: # "    collaboration: {"
+[//]: # "      provider,"
+[//]: # '      fragment: doc.getXmlFragment("document-store"),'
+[//]: # "      user: {"
+[//]: # '        name: "User 2",'
+[//]: # '        color: "#00ff00",'
+[//]: # "      },"
+[//]: # "    },"
+[//]: # "  });"
+[//]: #
+[//]: # "  // Renders the editor instance using a React component."
+[//]: # '  return <BlockNoteView editor={editor} theme={"{{ getTheme(isDark) }}"} />;'
+[//]: # "}"
+[//]: # "```"
+[//]: #
+[//]: # "```css-vue /styles.css [hidden]"
+[//]: # "{{ getStyles(isDark) }}"
+[//]: # "```"
+[//]: #
+[//]: # ":::"

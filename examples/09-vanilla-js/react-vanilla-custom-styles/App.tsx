@@ -13,8 +13,8 @@ import {
   FormattingToolbarProps,
   ToolbarButton,
   useActiveStyles,
-  useBlockNote,
   useBlockNoteEditor,
+  useCreateBlockNote,
 } from "@blocknote/react";
 import "@blocknote/react/style.css";
 
@@ -94,7 +94,7 @@ const CustomFormattingToolbar = (props: FormattingToolbarProps) => {
 };
 
 export default function App() {
-  const editor = useBlockNote(
+  const editor = useCreateBlockNote(
     {
       schema: BlockNoteSchema.create({
         styleSpecs: {

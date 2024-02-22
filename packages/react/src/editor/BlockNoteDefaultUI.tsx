@@ -1,9 +1,4 @@
-import {
-  BlockSchema,
-  filterSuggestionItems,
-  InlineContentSchema,
-  StyleSchema,
-} from "@blocknote/core";
+import { filterSuggestionItems } from "@blocknote/core";
 import { FormattingToolbarController } from "../components/FormattingToolbar/FormattingToolbarController";
 import { HyperlinkToolbarController } from "../components/HyperlinkToolbar/HyperlinkToolbarController";
 import { ImageToolbarController } from "../components/ImageToolbar/ImageToolbarController";
@@ -11,7 +6,7 @@ import { SideMenuController } from "../components/SideMenu/SideMenuController";
 import { getDefaultReactSlashMenuItems } from "../components/SuggestionMenu/getDefaultReactSlashMenuItems";
 import { SuggestionMenuController } from "../components/SuggestionMenu/SuggestionMenuController";
 import { TableHandlesController } from "../components/TableHandles/TableHandlesController";
-import { useBlockNoteEditor } from "./BlockNoteContext";
+import { useBlockNoteEditor } from "../hooks/useBlockNoteEditor";
 
 export type BlockNoteDefaultUIProps = {
   formattingToolbar?: boolean;
@@ -23,11 +18,7 @@ export type BlockNoteDefaultUIProps = {
 };
 
 export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
-  const editor = useBlockNoteEditor<
-    BlockSchema,
-    InlineContentSchema,
-    StyleSchema
-  >();
+  const editor = useBlockNoteEditor();
 
   if (!editor) {
     throw new Error(

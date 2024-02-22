@@ -15,7 +15,7 @@ import { DependencyList, useMemo } from "react";
  *
  * TODO: document in docs
  */
-export const useBlockNote = <
+export const useCreateBlockNote = <
   BSchema extends BlockSchema = DefaultBlockSchema,
   ISchema extends InlineContentSchema = DefaultInlineContentSchema,
   SSchema extends StyleSchema = DefaultStyleSchema
@@ -32,3 +32,8 @@ export const useBlockNote = <
     return editor;
   }, deps); //eslint-disable-line react-hooks/exhaustive-deps
 };
+
+/**
+ * @deprecated use useCreateBlockNote instead
+ */
+export const useBlockNote = useCreateBlockNote;

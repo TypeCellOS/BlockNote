@@ -8,7 +8,6 @@ path: /docs/quickstart
 import { Example } from "@/components/example";
 import { Callout } from "nextra/components";
 
-
 # Quickstart
 
 Getting started with BlockNote is quick and easy. Install the required packages and add the React component to your app.
@@ -26,12 +25,12 @@ npm install @blocknote/core @blocknote/react
 With the `useBlockNote` hook, we can create a new editor instance, then use the`BlockNoteView` component to render it. See below:
 
 ```typescript jsx
-import { BlockNoteView, useBlockNote } from "@blocknote/react";
+import { BlockNoteView, useCreateBlockNote } from "@blocknote/react";
 import "@blocknote/react/style.css";
 
 function App() {
   // Creates a new editor instance.
-  const editor = useBlockNote({});
+  const editor = useCreateBlockNote();
 
   // Renders the editor instance using a React component.
   return <BlockNoteView editor={editor} />;
@@ -42,14 +41,20 @@ As well as `BlockNoteView` and `useBlockNote`, we import `@blocknote/react/style
 
 <Callout type="warning" emoji={""}>
   <strong>Next.js usage (or other server-side React frameworks)</strong>
-  <p>Are you using Next.js (`create-next-app`)? Because BlockNote is a client-only component,
-  make sure to disable server-side rendering of BlockNote. [Read our guide on setting
-  up Next.js + BlockNote](/docs/nextjs)</p>
+  <p>
+    Are you using Next.js (`create-next-app`)? Because BlockNote is a
+    client-only component, make sure to disable server-side rendering of
+    BlockNote. [Read our guide on setting up Next.js + BlockNote](/docs/nextjs)
+  </p>
 </Callout>
 
 <Callout type="warning" emoji={""}>
   <strong>Using BlockNote without React</strong>
-  <p>It's also possible to use BlockNote without React, using "vanilla" JavaScript or other frameworks. [Read our guide on using BlockNote without React](/docs/vanilla-js) </p>
+  <p>
+    It's also possible to use BlockNote without React, using "vanilla"
+    JavaScript or other frameworks. [Read our guide on using BlockNote without
+    React](/docs/vanilla-js){" "}
+  </p>
 </Callout>
 
 ## Demo: Basic App Using BlockNote
@@ -72,4 +77,4 @@ TODO: BlockNote comes with a default UI. Learn how to customize them, or create 
 
 ### Custom schemas
 
-TODO: A document consists of blocks, inline content and styles that the user can edit. Learn how to create your own Custom Blocks, inline content and styles. 
+TODO: A document consists of blocks, inline content and styles that the user can edit. Learn how to create your own Custom Blocks, inline content and styles.

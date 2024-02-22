@@ -7,10 +7,10 @@ import {
 } from "@blocknote/core";
 import { FC, useState } from "react";
 
-import { useBlockNoteEditor } from "../../editor/BlockNoteContext";
+import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor";
 import { useUIPluginState } from "../../hooks/useUIPluginState";
-import { useTableHandlesPositioning } from "./hooks/useTableHandlesPositioning";
 import { TableHandleProps } from "./TableHandleProps";
+import { useTableHandlesPositioning } from "./hooks/useTableHandlesPositioning";
 import { TableHandle } from "./mantine/TableHandle";
 
 export const TableHandlesController = <

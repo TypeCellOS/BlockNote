@@ -1,5 +1,5 @@
 import { uploadToTmpFilesDotOrg_DEV_ONLY } from "@blocknote/core";
-import { BlockNoteView, useBlockNote } from "@blocknote/react";
+import { BlockNoteView, useCreateBlockNote } from "@blocknote/react";
 import "@blocknote/react/style.css";
 import { useMemo } from "react";
 import YPartyKitProvider from "y-partykit/provider";
@@ -53,11 +53,7 @@ function getUTCDateYYYYMMDD() {
   return `${year}${formattedMonth}${formattedDay}`;
 }
 
-export function ReactBlockNote(props: {
-  theme: "light" | "dark";
-}) {
-
-
+export function ReactBlockNote(props: { theme: "light" | "dark" }) {
   const [doc, provider] = useMemo(() => {
     console.log("create");
     const doc = new Y.Doc();
@@ -70,7 +66,7 @@ export function ReactBlockNote(props: {
     return [doc, provider];
   }, []);
 
-  const editor = useBlockNote(
+  const editor = useCreateBlockNote(
     {
       collaboration: {
         provider,

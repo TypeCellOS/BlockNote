@@ -5,7 +5,7 @@ import {
   DefaultInlineContentSchema,
   DefaultStyleSchema,
 } from "@blocknote/core";
-import { BlockNoteView, useBlockNote } from "@blocknote/react";
+import { BlockNoteView, useCreateBlockNote } from "@blocknote/react";
 import "@blocknote/react/style.css";
 
 const cycleBlocksShortcut = (
@@ -35,7 +35,7 @@ const cycleBlocksShortcut = (
 };
 
 export default function App() {
-  const editor = useBlockNote({});
+  const editor = useCreateBlockNote();
 
   const onKeyDown = (event: React.KeyboardEvent) => {
     cycleBlocksShortcut(event, editor);

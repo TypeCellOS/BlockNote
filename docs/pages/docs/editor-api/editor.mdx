@@ -9,7 +9,7 @@ import { Example } from "@/components/example";
 
 TODO:
 [x] review API
-[x] what needs to be part of useBlockNote vs the component? 
+[x] what needs to be part of useBlockNote vs the component?
 [ ] document instantiation / useBlockNote
 [ ] expose / document hooks
 [ ] document events
@@ -23,7 +23,7 @@ want to customize its features and functionality to better suit your app.
 
 ## Editor Options
 
-There are a number of options that you can pass to `useBlockNote()`, which you
+There are a number of options that you can pass to `useCreateBlockNote()`, which you
 can use to customize the editor. You can find the full list of these below:
 
 ```typescript
@@ -52,12 +52,11 @@ export type BlockNoteEditorOptions = Partial<{
 
 `collaboration`: Options for enabling real-time collaboration. See [Collaboration](/docs/collaboration) for more info.
 
-`blockSpecs` (_advanced_): _advanced_ Specifications for Custom Blocks. See [Block Specs](/docs/block-specs) more info. 
+`blockSpecs` (_advanced_): _advanced_ Specifications for Custom Blocks. See [Block Specs](/docs/block-specs) more info.
 
 `inlineContentSpecs` (_advanced_): Specifications for Custom Inline Content. See [Inline Content Specs](/docs/inline-content-specs) for more info.
 
 `styleSpecs` (_advanced_): Specifications for Custom Styles. See [Style Specs](/docs/style-specs) for more info.
-
 
 ## `useBlockNote`
 
@@ -66,9 +65,8 @@ export type BlockNoteEditorOptions = Partial<{
 - editable
 - events
 
-
 ### Removing UI Elements
- 
+
 TODO: probably just explain the props of BlockNoteView
 
 In the following example, we remove the Side Menu from the editor. This is done by adding all `Positioner` components as children of `BlockNoteView`, for each UI element except the Side Menu:
@@ -76,4 +74,3 @@ In the following example, we remove the Side Menu from the editor. This is done 
 <Example name="ui-components/ui-elements-remove" />
 
 Each further `Positioner` component you remove will remove its corresponding UI element from the editor. If you only want to keep the editor itself, add only an empty fragment (`<></>`) to `BlockNoteView`'s children.
-

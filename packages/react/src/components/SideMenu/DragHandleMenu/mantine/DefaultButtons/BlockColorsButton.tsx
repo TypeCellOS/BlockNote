@@ -12,11 +12,11 @@ import { Box, Menu } from "@mantine/core";
 import { ReactNode, useCallback, useRef, useState } from "react";
 import { HiChevronRight } from "react-icons/hi";
 
-import { useBlockNoteEditor } from "../../../../../editor/BlockNoteContext";
+import { useBlockNoteEditor } from "../../../../../hooks/useBlockNoteEditor";
 import { usePreventMenuOverflow } from "../../../../../hooks/usePreventMenuOverflow";
+import { ColorPicker } from "../../../../mantine-shared/ColorPicker/ColorPicker";
 import { DragHandleMenuProps } from "../../DragHandleMenuProps";
 import { DragHandleMenuItem } from "../DragHandleMenuItem";
-import { ColorPicker } from "../../../../mantine-shared/ColorPicker/ColorPicker";
 
 export const BlockColorsButton = <
   BSchema extends BlockSchema = DefaultBlockSchema,

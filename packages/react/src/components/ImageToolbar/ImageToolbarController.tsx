@@ -8,9 +8,9 @@ import {
 import { flip, offset } from "@floating-ui/react";
 import { FC } from "react";
 
-import { useBlockNoteEditor } from "../../editor/BlockNoteContext";
-import { useUIPluginState } from "../../hooks/useUIPluginState";
+import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor";
 import { useUIElementPositioning } from "../../hooks/useUIElementPositioning";
+import { useUIPluginState } from "../../hooks/useUIPluginState";
 import { ImageToolbarProps } from "./ImageToolbarProps";
 import { ImageToolbar } from "./mantine/ImageToolbar";
 
