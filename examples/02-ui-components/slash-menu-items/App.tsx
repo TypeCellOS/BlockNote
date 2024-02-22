@@ -13,7 +13,7 @@ import "@blocknote/react/style.css";
 import { HiOutlineGlobeAlt } from "react-icons/hi";
 
 // Command to insert "Hello World" in bold in a new block below.
-const insertHelloWorld = (editor: BlockNoteEditor) => {
+const insertHelloWorld = (editor: BlockNoteEditor) => () => {
   // Block that the text cursor is currently in.
   const currentBlock = editor.getTextCursorPosition().block;
 
@@ -28,19 +28,19 @@ const insertHelloWorld = (editor: BlockNoteEditor) => {
 };
 
 // Custom Slash Menu item which executes the above function.
-const insertHelloWorldItem = {
+const insertHelloWorldItem = (editor: BlockNoteEditor) => ({
   title: "Insert Hello World",
-  onItemClick: insertHelloWorld,
+  onItemClick: insertHelloWorld(editor),
   aliases: ["helloworld", "hw"],
   group: "Other",
   icon: <HiOutlineGlobeAlt size={18} />,
   subtext: "Used to insert a block with 'Hello World' below.",
-};
+});
 
 // List containing all default Slash Menu Items, as well as our custom one.
 export const getCustomSlashMenuItems = (editor: BlockNoteEditor) => [
   ...getDefaultReactSlashMenuItems(editor),
-  insertHelloWorldItem,
+  insertHelloWorldItem(editor),
 ];
 
 export default function App() {

@@ -10,7 +10,6 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@blocknote/example-react-custom-styles": "file:../examples/06-custom-schema/react-custom-styles",
     "@blocknote/core": "*",
     "@blocknote/react": "*",
     "@headlessui/react": "^1.7.18",

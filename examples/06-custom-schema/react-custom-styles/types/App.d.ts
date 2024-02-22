@@ -300,3 +300,4 @@ export declare const schema: BlockNoteSchema<import("@blocknote/core").BlockSche
     };
 }>>;
 export default function App(): import("react/jsx-runtime").JSX.Element;
+//# sourceMappingURL=App.d.ts.map

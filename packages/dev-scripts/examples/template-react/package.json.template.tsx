@@ -5,10 +5,6 @@ const template = (project: Project) => ({
   description: "AUTO-GENERATED FILE, DO NOT EDIT DIRECTLY",
   private: true,
   version: "0.11.1",
-  export: {
-    ".": "./dist/App.js",
-  },
-  types: "./types/App.d.ts",
   scripts: {
     start: "vite",
     dev: "vite",

@@ -31,7 +31,7 @@ export default function App() {
           filterSuggestionItems(getDefaultReactSlashMenuItems(editor), query)
         }
         suggestionMenuComponent={CustomSlashMenu}
-        onItemClick={(i) => i.onItemClick(editor)}
+        onItemClick={(i) => i.onItemClick()}
       />
     </BlockNoteView>
   );

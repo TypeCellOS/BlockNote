@@ -52,6 +52,7 @@ const customReactInlineContent = {
   mention,
 } satisfies InlineContentSpecs;
 
+// TODO
 // @ts-ignore
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const x: PartialBlock<
@@ -63,7 +64,7 @@ const x: PartialBlock<
   content: [
     "I enjoy working with ",
     {
-      type: "mentiosfn",
+      type: "mention",
       props: {
         user: "Matthew",
       },

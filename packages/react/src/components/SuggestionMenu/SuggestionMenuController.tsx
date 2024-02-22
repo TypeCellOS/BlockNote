@@ -27,7 +27,7 @@ export function SuggestionMenuController<
   props: {
     triggerCharacter: string;
     getItems: GetItemsType;
-  } & (ItemType<GetItemsType> extends DefaultReactSuggestionItem<any, any, any>
+  } & (ItemType<GetItemsType> extends DefaultReactSuggestionItem
     ? {
         // can be undefined
         suggestionMenuComponent?: FC<

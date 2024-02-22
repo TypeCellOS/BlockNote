@@ -20,19 +20,20 @@ const withAnalyzer = analyzer({ enabled: false });
 
 const nextConfig = withAnalyzer(
   withNextra({
+    // transpilePackages: ["@blocknote/example-react-custom-styles"],
     images: {
       remotePatterns: [
         {
-          protocol: 'https',
-          hostname: 'avatars.githubusercontent.com',
-          port: '',
-          pathname: '/u/**',
+          protocol: "https",
+          hostname: "avatars.githubusercontent.com",
+          port: "",
+          pathname: "/u/**",
         },
         {
-          protocol: 'https',
-          hostname: 'github.com',
-          port: '',
-          pathname: '/**',
+          protocol: "https",
+          hostname: "github.com",
+          port: "",
+          pathname: "/**",
         },
       ],
     },
@@ -55,14 +56,16 @@ const nextConfig = withAnalyzer(
             vendor: {
               test: (module) => {
                 // console.log(module.resource);
-                if (module.resource?.includes("blocknote") || module.resource?.includes("mantine")) {
-
+                if (
+                  module.resource?.includes("blocknote") ||
+                  module.resource?.includes("mantine")
+                ) {
                   return true;
                 }
                 return false;
               },
-              name: 'blocknotechunk',
-              chunks: 'all',
+              name: "blocknotechunk",
+              chunks: "all",
             },
           },
         };
@@ -77,7 +80,7 @@ const nextConfig = withAnalyzer(
         // "@blocknote/react": path.resolve(__dirname, "../packages/react/src/"),
       };
     },
-  })
+  }),
 );
 
 export default nextConfig;

@@ -4,14 +4,14 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { useBlockNoteEditor } from "./BlockNoteContext";
 import { FormattingToolbarController } from "../components/FormattingToolbar/FormattingToolbarController";
 import { HyperlinkToolbarController } from "../components/HyperlinkToolbar/HyperlinkToolbarController";
 import { ImageToolbarController } from "../components/ImageToolbar/ImageToolbarController";
 import { SideMenuController } from "../components/SideMenu/SideMenuController";
-import { SuggestionMenuController } from "../components/SuggestionMenu/SuggestionMenuController";
 import { getDefaultReactSlashMenuItems } from "../components/SuggestionMenu/getDefaultReactSlashMenuItems";
+import { SuggestionMenuController } from "../components/SuggestionMenu/SuggestionMenuController";
 import { TableHandlesController } from "../components/TableHandles/TableHandlesController";
+import { useBlockNoteEditor } from "./BlockNoteContext";
 
 export type BlockNoteDefaultUIProps = {
   formattingToolbar?: boolean;
@@ -46,7 +46,7 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
           }
           // suggestionMenuComponent={MantineSuggestionMenu}
           onItemClick={(item) => {
-            item.onItemClick(editor);
+            item.onItemClick();
           }}
           triggerCharacter="/"
         />

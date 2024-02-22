@@ -4,9 +4,9 @@ import { Children, useMemo } from "react";
 import { DefaultReactSuggestionItem, SuggestionMenuProps } from "../types";
 import { SuggestionMenuItem } from "./SuggestionMenuItem";
 
-export function SuggestionMenu<
-  T extends DefaultReactSuggestionItem<any, any, any>
->(props: SuggestionMenuProps<T>) {
+export function SuggestionMenu<T extends DefaultReactSuggestionItem>(
+  props: SuggestionMenuProps<T>
+) {
   const { items, loadingState, selectedIndex, onItemClick } = props;
 
   const loader =
