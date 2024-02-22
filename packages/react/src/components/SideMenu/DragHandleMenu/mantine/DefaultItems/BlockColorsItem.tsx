@@ -18,7 +18,7 @@ import { ColorPicker } from "../../../../mantine-shared/ColorPicker/ColorPicker"
 import { DragHandleMenuProps } from "../../DragHandleMenuProps";
 import { DragHandleMenuItem } from "../DragHandleMenuItem";
 
-export const BlockColorsButton = <
+export const BlockColorsItem = <
   BSchema extends BlockSchema = DefaultBlockSchema,
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema

@@ -12,7 +12,7 @@ import { useBlockNoteEditor } from "../../../../../hooks/useBlockNoteEditor";
 import { DragHandleMenuProps } from "../../DragHandleMenuProps";
 import { DragHandleMenuItem } from "../DragHandleMenuItem";
 
-export const RemoveBlockButton = <
+export const RemoveBlockItem = <
   BSchema extends BlockSchema = DefaultBlockSchema,
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema

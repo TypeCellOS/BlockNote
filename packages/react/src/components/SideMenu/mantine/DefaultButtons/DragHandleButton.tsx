@@ -13,7 +13,7 @@ import { SideMenuProps } from "../../SideMenuProps";
 import { SideMenuButton } from "../SideMenuButton";
 import { DragHandleMenu } from "../../DragHandleMenu/mantine/DragHandleMenu";
 
-export const DragHandle = <
+export const DragHandleButton = <
   BSchema extends BlockSchema = DefaultBlockSchema,
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema

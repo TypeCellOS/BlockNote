@@ -5,8 +5,6 @@ imageTitle: Block Side Menu
 path: /docs/side-menu
 ---
 
-
-
 import { Example } from "@/components/example";
 
 # Block Side Menu
@@ -33,19 +31,18 @@ You can change or replace the Block Side Menu with your own React component. In 
 
 <Example name="ui-components/side-menu-buttons" />
 
-We use the `SideMenu` component to create a custom Block Side Menu. By specifying its children, we can replace the default buttons in the menu by our own.
+We use the `SideMenu` component to create a custom Block Side Menu. By specifying its children, we can replace the default buttons in the menu with our own.
 
-This custom Side Menu is passed to a `SideMenuController`, which controls the position and visibility of the side menu (it makes sure it's shown next to hovered blocks).
+This custom Side Menu is passed to a `SideMenuController`, which controls its position and visibility (on the left side when you hover a block).
 
 Setting `sideMenu={false}` on `BlockNoteView` tells BlockNote not to show the default Block Side Menu.
 
 <div className="nx-mt-6 nx-leading-7 first:nx-mt-0">
   <small>
-    <strong>Tip:</strong> when you pass children to customize the `SideMenu`
-    component, you can re-use the default buttons (i.e.: `AddBlockButton`,
-    `DragHandleButton`) and / or add your custom buttons (`SideMenuButton`).
-    Head to the [default Side Menu's source code](link) to see all the
-    components that you can use.
+    <strong>Tip:</strong> The children you pass to the `SideMenu` component
+    should be default buttons (e.g. `DragHandleButton`) or custom buttons
+    (`SideMenuButton`). To see all the components you can use, head to the
+    [Side Menu's source code](link).
   </small>
 </div>
 
@@ -55,13 +52,13 @@ You can also change the items in the Drag Handle Menu. The demo below adds an it
 
 <Example name="ui-components/side-menu-drag-handle-items" />
 
-Here, we use the `SideMenu` component but keep the default buttons (we don't pass any children).
-Instead, we pass our customized Drag Handle Menu using the `dragHandleMenu` prop to change the items in the Drag Handle Menu (`⠿`).
+Here, we use the `SideMenu` component but keep the default buttons (we don't pass any children). Instead, we pass our customized Drag Handle Menu using the `dragHandleMenu` prop.
 
 <div className="nx-mt-6 nx-leading-7 first:nx-mt-0">
   <small>
-    <strong>Tip:</strong> ...
+    <strong>Tip:</strong> The children you pass to the `DragHandleMenu` component
+    should be default items (e.g. `RemoveBlockItem`) or custom items
+    (`DragHandleMenuItem`). To see all the components you can use, head to the
+    [Drag Handle Menu's source code](link).
   </small>
 </div>
-
-TODO: rename DragHandle DragHandleButton

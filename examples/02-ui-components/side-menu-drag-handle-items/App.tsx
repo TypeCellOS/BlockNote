@@ -1,9 +1,9 @@
 import {
-  BlockColorsButton,
+  BlockColorsItem,
   BlockNoteView,
   DragHandleMenu,
   DragHandleMenuItem,
-  RemoveBlockButton,
+  RemoveBlockItem,
   SideMenu,
   SideMenuController,
   useCreateBlockNote,
@@ -42,8 +42,8 @@ export default function App() {
             {...props}
             dragHandleMenu={(props) => (
               <DragHandleMenu {...props}>
-                <RemoveBlockButton {...props}>Delete</RemoveBlockButton>
-                <BlockColorsButton {...props}>Colors</BlockColorsButton>
+                <RemoveBlockItem {...props}>Delete</RemoveBlockItem>
+                <BlockColorsItem {...props}>Colors</BlockColorsItem>
                 {/*Custom item which resets the hovered block's type.*/}
                 <DragHandleMenuItem
                   onClick={() => {
