@@ -11,6 +11,8 @@ export type DefaultReactSuggestionItem = DefaultSuggestionItem & {
 /**
  * Props passed to a suggestion menu component
  */
+// TODO: onItemClick should be required when T extends
+//  DefaultReactSuggestionItem
 export type SuggestionMenuProps<T> = {
   items: T[];
   loadingState: "loading-initial" | "loading" | "loaded";

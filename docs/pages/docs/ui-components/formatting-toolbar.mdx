@@ -1,6 +1,6 @@
 ---
 title: Formatting Toolbar
-description: The Formatting Toolbar appears whenever you highlight text in the editor, and is mainly used for styling.
+description: The Formatting Toolbar appears whenever you highlight text in the editor.
 imageTitle: Formatting Toolbar
 path: /docs/formatting-toolbar
 ---
@@ -11,7 +11,11 @@ import { Example } from "@/components/example";
 
 The Formatting Toolbar appears whenever you highlight text in the editor.
 
-<img style={{maxWidth: "600px"}} src="/img/screenshots/formatting_toolbar.png" alt="image" />
+<img
+  style={{ maxWidth: "600px" }}
+  src="/img/screenshots/formatting_toolbar.png"
+  alt="image"
+/>
 
 ## Changing the Formatting Toolbar
 
@@ -19,19 +23,19 @@ You can modify or replace the Formatting Toolbar with your own React component. 
 
 <Example name="ui-components/formatting-toolbar-buttons" />
 
-The default Formatting Toolbar is replaced with the `CustomFormattingToolbar` component. It's passed as a prop to `FormattingToolbarController`, which controls where it's positioned and when it opens.
+The default Formatting Toolbar is replaced with the `CustomHyperlinkToolbar` component. It's passed as a prop to `FormattingToolbarController`, which controls where it's positioned and when it opens.
 
 Passing `formattingToolbar={false}` to `BlockNoteView` tells BlockNote not to show the default Formatting Toolbar. Adding the `FormattingToolbarController` as a child of `BlockNoteView` tells BlockNote to show the custom one instead.
 
-Head to [Components](/docs/ui-components/formatting-toolbar#components) and [Hooks](TODO) to find out more about the contents of `CustomFormattingToolbar` and `CustomButton`.
+Head to [Components](/docs/ui-components/formatting-toolbar#components) and [Hooks](TODO) to find out more about the contents of `CustomHyperlinkToolbar` and `CustomButton`.
 
-## Changing the Block Type Dropdown Items
+## Changing Block Type Dropdown Items
 
-The first element in the default Formatting Toolbar is the Block Type Dropdown, and you can change the items in it. The demo below adds an item that inserts an image with a different URL.
+TODO: I think this is too specific for this page. We can just describe the components below, and link to an example that makes more sense ("image" doesn't)
 
-TODO Example
+The first element in the default Formatting Toolbar is the Block Type Dropdown, and you can change the items in it. The demo makes the Block Type Dropdown work for image blocks by adding an item to it.
 
-[//]: # (<Example name="ui-components/formatting-toolbar-block-type-buttons" />)
+<Example name="ui-components/formatting-toolbar-block-type-items" />
 
 By using the `FormattingToolbar` component and setting its `blockTypeDropdownItems` prop, you create a modified Formatting Toolbar with the chosen Block Type Dropdown items. You can then replace the default Formatting Toolbar with your modified one as in the [previous demo](/docs/ui-components/formatting-toolbar#changing-the-formatting-toolbar).
 
@@ -41,7 +45,7 @@ If you want to change the default Formatting Toolbar, BlockNote provides React c
 
 ### Default Components
 
-BlockNote exports all components used to create the default layout - both the toolbar itself and the items in it. Head to the [default Formatting Toolbar's source code](https://github.com/TypeCellOS/BlockNote/blob/main/packages/react/src/FormattingToolbar/components/DefaultFormattingToolbar.tsx) to see all the components that you can use.
+BlockNote exports all components used to create the default layout - both the toolbar itself and the items in it. Head to the [default Formatting Toolbar's source code](https://github.com/TypeCellOS/BlockNote/blob/main/packages/react/src/components/FormattingToolbar/mantine/FormattingToolbar.tsx) to see all the components that you can use.
 
 ### Custom Components
 
@@ -82,7 +86,7 @@ type ToolbarButtonProps = {
   isSelected?: boolean;
   // Whether the item should be clickable.
   isDisabled?: boolean;
-  // Child components, usually just the button text. If no children are 
+  // Child components, usually just the button text. If no children are
   // given, make sure to provide an icon.
   children?: any;
 };

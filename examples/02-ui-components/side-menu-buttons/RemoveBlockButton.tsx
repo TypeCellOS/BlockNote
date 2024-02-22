@@ -5,7 +5,7 @@ import {
 } from "@blocknote/react";
 import { MdDelete } from "react-icons/md";
 
-export function CustomButton(props: SideMenuProps) {
+export function RemoveBlockButton(props: SideMenuProps) {
   const editor = useBlockNoteEditor();
 
   return (

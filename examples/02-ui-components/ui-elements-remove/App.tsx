@@ -9,6 +9,7 @@ export default function App() {
   return (
     <BlockNoteView
       editor={editor}
+      formattingToolbar={false}
       hyperlinkToolbar={false}
       imageToolbar={false}
       sideMenu={false}

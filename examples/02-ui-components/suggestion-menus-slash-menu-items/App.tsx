@@ -5,6 +5,7 @@ import {
 } from "@blocknote/core";
 import {
   BlockNoteView,
+  DefaultReactSuggestionItem,
   getDefaultReactSlashMenuItems,
   SuggestionMenuController,
   useCreateBlockNote,
@@ -12,25 +13,22 @@ import {
 import "@blocknote/react/style.css";
 import { HiOutlineGlobeAlt } from "react-icons/hi";
 
-// Command to insert "Hello World" in bold in a new block below.
-const insertHelloWorld = (editor: BlockNoteEditor) => () => {
-  // Block that the text cursor is currently in.
-  const currentBlock = editor.getTextCursorPosition().block;
-
-  // New block we want to insert.
-  const helloWorldBlock: PartialBlock = {
-    type: "paragraph",
-    content: [{ type: "text", text: "Hello World", styles: { bold: true } }],
-  };
-
-  // Inserting the new block after the current one.
-  editor.insertBlocks([helloWorldBlock], currentBlock, "after");
-};
-
 // Custom Slash Menu item which executes the above function.
 const insertHelloWorldItem = (editor: BlockNoteEditor) => ({
   title: "Insert Hello World",
-  onItemClick: insertHelloWorld(editor),
+  onItemClick: () => {
+    // Block that the text cursor is currently in.
+    const currentBlock = editor.getTextCursorPosition().block;
+
+    // New block we want to insert.
+    const helloWorldBlock: PartialBlock = {
+      type: "paragraph",
+      content: [{ type: "text", text: "Hello World", styles: { bold: true } }],
+    };
+
+    // Inserting the new block after the current one.
+    editor.insertBlocks([helloWorldBlock], currentBlock, "after");
+  },
   aliases: ["helloworld", "hw"],
   group: "Other",
   icon: <HiOutlineGlobeAlt size={18} />,
@@ -38,7 +36,9 @@ const insertHelloWorldItem = (editor: BlockNoteEditor) => ({
 });
 
 // List containing all default Slash Menu Items, as well as our custom one.
-export const getCustomSlashMenuItems = (editor: BlockNoteEditor) => [
+const getCustomSlashMenuItems = (
+  editor: BlockNoteEditor
+): DefaultReactSuggestionItem[] => [
   ...getDefaultReactSlashMenuItems(editor),
   insertHelloWorldItem(editor),
 ];
@@ -48,6 +48,7 @@ export default function App() {
   const editor = useCreateBlockNote();
 
   // Renders the editor instance.
+  // TODO: Shorthand to just pass the array
   return (
     <BlockNoteView editor={editor} slashMenu={false}>
       <SuggestionMenuController

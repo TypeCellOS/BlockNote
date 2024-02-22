@@ -11,14 +11,15 @@ import {
   UnnestBlockButton,
 } from "@blocknote/react";
 
-import { CustomButton } from "./CustomButton";
+import { BlueButton } from "./BlueButton";
 
 export function CustomFormattingToolbar() {
   return (
     <FormattingToolbar>
       <BlockTypeDropdown key={"blockTypeDropdown"} />
 
-      <CustomButton key={"customButton"} />
+      {/* extra button specific to our CustomFormattingToolbar */}
+      <BlueButton key={"customButton"} />
 
       <ImageCaptionButton key={"imageCaptionButton"} />
       <ReplaceImageButton key={"replaceImageButton"} />
@@ -36,6 +37,8 @@ export function CustomFormattingToolbar() {
         basicTextStyle={"strike"}
         key={"strikeStyleButton"}
       />
+
+      {/* extra code style button specific to our CustomFormattingToolbar */}
       <BasicTextStyleButton key={"codeStyleButton"} basicTextStyle={"code"} />
 
       <TextAlignButton textAlignment={"left"} key={"textAlignLeftButton"} />

@@ -4,7 +4,6 @@ In this example, we create a custom static Formatting Toolbar from scratch, as w
 
 **Relevant Docs:**
 
-- [Formatting Toolbar](/docs/formatting-toolbar)
-- [Slash Menu](/docs/slash-menu)
-- [Side Menu](/docs/side-menu)
-- [Replacing UI Elements](/docs/ui-elements#replacing-ui-elements)
+- [Formatting Toolbar](/docs/ui-components/formatting-toolbar)
+- [Slash Menu](/docs/ui-components/slash-menu)
+- [Side Menu](/docs/ui-components/side-menu)

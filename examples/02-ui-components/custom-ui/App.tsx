@@ -16,6 +16,7 @@ import "./styles.css";
 export default function App() {
   const editor = useCreateBlockNote();
 
+  // Renders the editor instance.
   return (
     <BlockNoteView
       editor={editor}

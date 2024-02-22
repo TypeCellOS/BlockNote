@@ -129,7 +129,7 @@
             "react-icons": "^4.3.1"
           }
         },
-        "title": "TODO",
+        "title": "Adding Block Type Dropdown Items",
         "group": {
           "pathFromRoot": "examples/02-ui-components",
           "slug": "ui-components"
@@ -152,6 +152,22 @@
         }
       },
       {
+        "projectSlug": "hyperlink-toolbar-buttons",
+        "fullSlug": "ui-components/hyperlink-toolbar-buttons",
+        "pathFromRoot": "examples/02-ui-components/hyperlink-toolbar-buttons",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "group": "Basic Examples",
+          "order": 1
+        },
+        "title": "Adding Hyperlink Toolbar Buttons",
+        "group": {
+          "pathFromRoot": "examples/02-ui-components",
+          "slug": "ui-components"
+        }
+      },
+      {
         "projectSlug": "side-menu-buttons",
         "fullSlug": "ui-components/side-menu-buttons",
         "pathFromRoot": "examples/02-ui-components/side-menu-buttons",
@@ -164,7 +180,7 @@
             "react-icons": "^4.3.1"
           }
         },
-        "title": "Adding Side Menu Buttons",
+        "title": "Adding Block Side Menu Buttons",
         "group": {
           "pathFromRoot": "examples/02-ui-components",
           "slug": "ui-components"
@@ -190,9 +206,41 @@
         }
       },
       {
-        "projectSlug": "slash-menu-items",
-        "fullSlug": "ui-components/slash-menu-items",
-        "pathFromRoot": "examples/02-ui-components/slash-menu-items",
+        "projectSlug": "suggestion-menus-mentions",
+        "fullSlug": "ui-components/suggestion-menus-mentions",
+        "pathFromRoot": "examples/02-ui-components/suggestion-menus-mentions",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "group": "Basic Examples",
+          "order": 1
+        },
+        "title": "Adding Suggestion Menu",
+        "group": {
+          "pathFromRoot": "examples/02-ui-components",
+          "slug": "ui-components"
+        }
+      },
+      {
+        "projectSlug": "suggestion-menus-slash-menu-component",
+        "fullSlug": "ui-components/suggestion-menus-slash-menu-component",
+        "pathFromRoot": "examples/02-ui-components/suggestion-menus-slash-menu-component",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "group": "Basic Examples",
+          "order": 1
+        },
+        "title": "Replacing Slash Menu Component",
+        "group": {
+          "pathFromRoot": "examples/02-ui-components",
+          "slug": "ui-components"
+        }
+      },
+      {
+        "projectSlug": "suggestion-menus-slash-menu-items",
+        "fullSlug": "ui-components/suggestion-menus-slash-menu-items",
+        "pathFromRoot": "examples/02-ui-components/suggestion-menus-slash-menu-items",
         "config": {
           "playground": true,
           "docs": true,

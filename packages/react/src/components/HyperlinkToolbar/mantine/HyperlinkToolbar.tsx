@@ -6,9 +6,15 @@ import { EditHyperlinkMenu } from "./EditHyperlinkMenu/EditHyperlinkMenu";
 import { Toolbar } from "../../mantine-shared/Toolbar/Toolbar";
 import { ToolbarButton } from "../../mantine-shared/Toolbar/ToolbarButton";
 
-export const HyperlinkToolbar = (props: HyperlinkToolbarProps) => {
+export const HyperlinkToolbar = (
+  props: HyperlinkToolbarProps & { children?: React.ReactNode }
+) => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const editMenuRef = useRef<HTMLDivElement | null>(null);
+
+  if (props.children) {
+    return <Toolbar>{props.children}</Toolbar>;
+  }
 
   const {
     text,

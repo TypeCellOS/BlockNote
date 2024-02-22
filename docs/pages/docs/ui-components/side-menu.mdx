@@ -1,6 +1,6 @@
 ---
 title: Block Side Menu
-description: The Block Side Menu appears whenever you hover over a block, and is used to drag & drop the block as well as add new ones below it.
+description: The Block Side Menu appears on the left side whenever you hover a block.
 imageTitle: Block Side Menu
 path: /docs/side-menu
 ---
@@ -9,55 +9,62 @@ import { Example } from "@/components/example";
 
 # Block Side Menu
 
-The Block Side Menu appears on the left side whenever you hover a block.
+The Block Side Menu appears on the left side whenever you hover a block. By default, it consists of a `+` button and a drag handle (`⠿`):
 
-<img style={{maxWidth: "500px"}} src="/img/screenshots/side_menu.png" alt="image" />
+<img
+  style={{ maxWidth: "500px" }}
+  src="/img/screenshots/side_menu.png"
+  alt="Side menu"
+/>
 
-The drag handle (`⠿`) in the Block Side Menu also opens the Drag Handle Menu.
+Clicking the drag handle (`⠿`) in the Block Side Menu opens the Drag Handle Menu:
 
-<img style={{maxWidth: "250px"}} src="/img/screenshots/drag_handle_menu.png" alt="image" />
+<img
+  style={{ maxWidth: "250px" }}
+  src="/img/screenshots/drag_handle_menu.png"
+  alt="image"
+/>
 
 ## Changing the Block Side Menu
 
 You can change or replace the Block Side Menu with your own React component. In the demo below, the button to add a new block is replaced with one to remove the hovered block.
 
-TODO: Change name in code to block side menu?
+TODO: add default content
+TODO: remove CustomSideMenu to be inline
 
 <Example name="ui-components/side-menu-buttons" />
 
-The default Block Side Menu is replaced with the `CustomSideMenu` component. It's passed as a prop to `SideMenuController`, which controls where it's positioned and when it opens.
+We use the `SideMenu` component to create a custom Block Side Menu. By specifying its children, we can replace the default buttons in the menu by our own.
 
-Passing `sideMenu={false}` to `BlockNoteView` tells BlockNote not to show the default Block Side Menu. Adding the `SideMenuController` as a child of `BlockNoteView` tells BlockNote to show the custom one instead.
+This custom Side Menu is passed to a `SideMenuController`, which controls the position and visibility of the side menu (it makes sure it's shown next to hovered blocks).
 
-Head to [Components](/docs/ui-components/side-menu#components) and [Hooks](TODO) to find out more about the contents of `CustomSideMenu` and `CustomButton`.
+Setting `sideMenu={false}` on `BlockNoteView` tells BlockNote not to show the default Block Side Menu.
 
-## Changing the Drag Handle Menu
+<div className="nx-mt-6 nx-leading-7 first:nx-mt-0">
+  <small>
+    <strong>Tip:</strong> when you pass children to customize the `SideMenu`
+    component, you can re-use the default buttons (i.e.: `AddBlockButton`,
+    `DragHandleButton`) and / or add your custom buttons (`SideMenuButton`).
+    Head to the [default Side Menu's source code](link) to see all the
+    components that you can use.
+  </small>
+</div>
 
-You can change the items in the Drag Handle Menu. The demo below adds an item to it that opens a browser alert.
+## Changing Drag Handle Menu Items
+
+You can also change the items in the Drag Handle Menu. The demo below adds an item that resets the block type to a paragraph.
+
+TODO: add default content
 
 <Example name="ui-components/side-menu-drag-handle-items" />
 
-By using the `SideMenu` component and setting its `dragHandleMenu` prop, you create a modified Block Side Menu with your custom Drag Handle Menu. You can then replace the default Block Side Menu with your modified one as in the [previous demo](/docs/ui-components/side-menu#changing-the-side-menu).
+Here, we use the `SideMenu` component but keep the default buttons (we don't pass any children).
+Instead, we pass our customized Drag Handle Menu using the `dragHandleMenu` prop to change the items in the Drag Handle Menu (`⠿`).
 
-## Components
+<div className="nx-mt-6 nx-leading-7 first:nx-mt-0">
+  <small>
+    <strong>Tip:</strong> ...
+  </small>
+</div>
 
-If you want to change the default Block Side Menu or Drag Handle Menu, BlockNote provides React components you can use, which match the default styling.
-
-### Default Components
-
-BlockNote exports all components used to create the default layouts - both the menus themselves and the items in them. Head to the [default Side Menu's source code](https://github.com/TypeCellOS/BlockNote/blob/main/packages/react/src/SideMenu/components/DefaultSideMenu.tsx) and [default Drag Handle Menu's source code](https://github.com/TypeCellOS/BlockNote/blob/main/packages/react/src/SideMenu/components/DragHandleMenu/DefaultDragHandleMenu.tsx) to see all the components that you can use.
-
-### Custom Components
-
-BlockNote also provides components that you can use to make your own menu items, which also match the default styling:
-
-```typescript
-type SideMenuButtonProps = {
-  children: JSX.Element;
-}
-export const SideMenuButton = (props: SideMenuButtonProps) => ...;
-
-// Contains all props that a regular button element would take, as well as all props from the Mantine `Menu.Item` component.
-type DragHandleMenuItemProps = PolymorphicComponentProps<"button"> & MenuItemProps
-export const DragHandleMenuItem = (props: DragHandleMenuItemProps) => ...;
-```
+TODO: rename DragHandle DragHandleButton

@@ -17,6 +17,7 @@ import {
   getInlineContentSchemaFromSpecs,
   getStyleSchemaFromSpecs,
 } from "../schema";
+import type { BlockNoteEditor } from "./BlockNoteEditor";
 
 export class BlockNoteSchema<
   BSchema extends BlockSchema,
@@ -30,6 +31,10 @@ export class BlockNoteSchema<
   public readonly blockSchema: BSchema;
   public readonly inlineContentSchema: ISchema;
   public readonly styleSchema: SSchema;
+
+  // Helper so that you can use typeof schema.BlockNoteEditor
+  public readonly BlockNoteEditor: BlockNoteEditor<BSchema, ISchema, SSchema> =
+    "only for types" as any;
 
   public static create<
     BSpecs extends BlockSpecs = typeof defaultBlockSpecs,
