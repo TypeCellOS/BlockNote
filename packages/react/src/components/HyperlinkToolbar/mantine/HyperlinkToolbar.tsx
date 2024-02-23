@@ -6,6 +6,17 @@ import { EditHyperlinkMenu } from "./EditHyperlinkMenu/EditHyperlinkMenu";
 import { Toolbar } from "../../mantine-shared/Toolbar/Toolbar";
 import { ToolbarButton } from "../../mantine-shared/Toolbar/ToolbarButton";
 
+/**
+ * By default, the HyperlinkToolbar component will render with default buttons.
+ * However, you can override the dropdowns/buttons to render by passing
+ * children. The children you pass should be:
+ *
+ * TODO: Refactor and export default buttons
+ * - Custom dropdowns: The `ToolbarDropdown` component in the
+ * `components/mantine-shared/Toolbar` directory.
+ * - Custom buttons: The `ToolbarButton` component in the
+ * `components/mantine-shared/Toolbar` directory.
+ */
 export const HyperlinkToolbar = (
   props: HyperlinkToolbarProps & { children?: React.ReactNode }
 ) => {

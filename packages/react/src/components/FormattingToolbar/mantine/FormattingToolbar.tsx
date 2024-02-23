@@ -42,6 +42,18 @@ export const getFormattingToolbarItems = (
 
 // TODO: props.blockTypeDropdownItems should only be available if no children
 //  are passed
+/**
+ * By default, the FormattingToolbar component will render with default
+ * dropdowns/buttons. However, you can override the dropdowns/buttons to render
+ * by passing children. The children you pass should be:
+ *
+ * - Default dropdowns: Components found within the `/DefaultDropdowns` directory.
+ * - Default buttons: Components found within the `/DefaultButtons` directory.
+ * - Custom dropdowns: The `ToolbarDropdown` component in the
+ * `components/mantine-shared/Toolbar` directory.
+ * - Custom buttons: The `ToolbarButton` component in the
+ * `components/mantine-shared/Toolbar` directory.
+ */
 export const FormattingToolbar = (
   props: FormattingToolbarProps & { children?: React.ReactNode }
 ) => {

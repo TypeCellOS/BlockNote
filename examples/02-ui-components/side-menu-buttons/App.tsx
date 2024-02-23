@@ -1,6 +1,6 @@
 import {
   BlockNoteView,
-  DragHandle,
+  DragHandleButton,
   SideMenu,
   SideMenuController,
   useCreateBlockNote,
@@ -39,7 +39,7 @@ export default function App() {
           <SideMenu {...props}>
             {/*Custom button which removes the hovered block.*/}
             <RemoveBlockButton {...props} />
-            <DragHandle {...props} />
+            <DragHandleButton {...props} />
           </SideMenu>
         )}
       />

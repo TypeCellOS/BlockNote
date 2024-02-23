@@ -10,10 +10,17 @@ import {
 import { Group } from "@mantine/core";
 import { SideMenuProps } from "../SideMenuProps";
 import { AddBlockButton } from "./DefaultButtons/AddBlockButton";
-import { DragHandle } from "./DefaultButtons/DragHandle";
+import { DragHandleButton } from "./DefaultButtons/DragHandleButton";
 
 // TODO: props.dragHandleMenu should only be available if no children are passed
-// TODO: explain what you can pass as children and possibility of using SideMenuButton
+/**
+ * By default, the SideMenu component will render with default buttons. However,
+ * you can override the buttons to render by passing children. The children you
+ * pass should be:
+ *
+ * - Default buttons: Components found within the `/DefaultButtons` directory.
+ * - Custom buttons: The `SideMenuButton` component.
+ */
 export const SideMenu = <
   BSchema extends BlockSchema = DefaultBlockSchema,
   I extends InlineContentSchema = DefaultInlineContentSchema,
@@ -28,7 +35,7 @@ export const SideMenu = <
       {props.children || (
         <>
           <AddBlockButton addBlock={addBlock} />
-          <DragHandle {...rest} />
+          <DragHandleButton {...rest} />
         </>
       )}
     </Group>

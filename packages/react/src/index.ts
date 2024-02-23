@@ -24,13 +24,13 @@ export * from "./components/HyperlinkToolbar/mantine/HyperlinkToolbar";
 export * from "./components/SideMenu/SideMenuController";
 export * from "./components/SideMenu/SideMenuProps";
 export * from "./components/SideMenu/mantine/DefaultButtons/AddBlockButton";
-export * from "./components/SideMenu/mantine/DefaultButtons/DragHandle";
+export * from "./components/SideMenu/mantine/DefaultButtons/DragHandleButton";
 export * from "./components/SideMenu/mantine/SideMenu";
 export * from "./components/SideMenu/mantine/SideMenuButton";
 
 export * from "./components/SideMenu/DragHandleMenu/DragHandleMenuProps";
-export * from "./components/SideMenu/DragHandleMenu/mantine/DefaultButtons/BlockColorsButton";
-export * from "./components/SideMenu/DragHandleMenu/mantine/DefaultButtons/RemoveBlockButton";
+export * from "./components/SideMenu/DragHandleMenu/mantine/DefaultItems/BlockColorsItem";
+export * from "./components/SideMenu/DragHandleMenu/mantine/DefaultItems/RemoveBlockItem";
 export * from "./components/SideMenu/DragHandleMenu/mantine/DragHandleMenu";
 export * from "./components/SideMenu/DragHandleMenu/mantine/DragHandleMenuItem";
 

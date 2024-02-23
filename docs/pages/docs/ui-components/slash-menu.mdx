@@ -28,7 +28,7 @@ You can change the items in the Slash Menu. The demo below adds an item that ins
 
 <Example name="ui-components/suggestion-menus-slash-menu-items" />
 
-The `SuggestionMenuController` is a component which controls where a Suggestion Menu is positioned and when it opens. Passing `triggerCharacter={"/"}` means it controls the Slash Menu.
+The `SuggestionMenuController` controls a Suggestion Menu's position and visibility (below the trigger character). Passing `triggerCharacter={"/"}` makes it control the Slash Menu.
 
 The array passed to `getItems` are the items that should be included in the Slash Menu. If you want to filter the items yourself, you can instead pass an `async` function which returns the items:
 
@@ -36,7 +36,7 @@ The array passed to `getItems` are the items that should be included in the Slas
 async (query: string) => Promise<DefaultReactSuggestionItem[]>;
 ```
 
-Passing `slashMenu={false}` to `BlockNoteView` tells BlockNote not to show the default Slash Menu. Adding the `SuggestionMenuController` with `triggerCharacter={"/"}` as a child of `BlockNoteView`, tells BlockNote to show one with custom items instead.
+Passing `slashMenu={false}` to `BlockNoteView` tells BlockNote not to show the default Slash Menu. Adding the `SuggestionMenuController` with `triggerCharacter={"/"}` as a child tells BlockNote to show one with custom items instead.
 
 ### Replacing the Slash Menu Component
 
@@ -44,9 +44,7 @@ You can replace the React component used for the Slash Menu with your own, as yo
 
 <Example name="ui-components/suggestion-menus-slash-menu-component" />
 
-The `SuggestionMenuController` is a component which controls where a Suggestion Menu is positioned and when it opens. Passing `triggerCharacter={"/"}` means it controls the Slash Menu. We also pass the `CustomSlashMenu` component to it, so that its rendered instead of the default one.
-
-The array passed to `getItems` are the items that should be included in the Slash Menu, in this case the default items.
+Again, we use the `SuggestionMenuController` component with `triggerCharacter={"/"}`, but just use pass the default items to `getItems`. Instead, pass a component to its `suggestionMenuComponent` prop, which will be used to render the items.
 
 <Callout type={"info"}>
   If you replace the Slash Menu component as well as [change the items in
@@ -61,4 +59,4 @@ You can add additional Suggestion Menus to the editor, which can use any trigger
 
 <Example name="ui-components/suggestion-menus-mentions" />
 
-Changing the items in the new Suggestion Menu or the component used to render it is done the same way as for the [Slash Menu](/docs/ui-components/slash-menu#slash-menu). For more information about creating mentions tags yourself, see [Custom Inline Content](TODO).
+Changing the items in the new Suggestion Menu, or the component used to render it, is done the same way as for the [Slash Menu](/docs/ui-components/slash-menu#slash-menu). For more information about how the mentions tags work, see [Custom Inline Content](TODO).
