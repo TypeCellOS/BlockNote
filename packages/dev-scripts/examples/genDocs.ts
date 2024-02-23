@@ -118,7 +118,14 @@ async function generateMetaForExampleGroup(group: {
   );
 
   const meta = Object.fromEntries(
-    group.projects.map((project) => [project.projectSlug, ""])
+    group.projects.map((project) => [
+      project.projectSlug,
+      {
+        ...(project.config.shortTitle
+          ? { title: project.config.shortTitle }
+          : {}),
+      },
+    ])
   );
 
   const code = JSON.stringify(meta, undefined, 2);

@@ -3,6 +3,7 @@ import {
   InlineContentSchema,
   StyleSchema,
   SuggestionMenuState,
+  filterSuggestionItems,
 } from "@blocknote/core";
 import { flip, offset, size } from "@floating-ui/react";
 import { FC } from "react";
@@ -11,6 +12,7 @@ import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor";
 import { useUIElementPositioning } from "../../hooks/useUIElementPositioning";
 import { useUIPluginState } from "../../hooks/useUIPluginState";
 import { SuggestionMenuWrapper } from "./SuggestionMenuWrapper";
+import { getDefaultReactSlashMenuItems } from "./getDefaultReactSlashMenuItems";
 import { SuggestionMenu } from "./mantine/SuggestionMenu";
 import { DefaultReactSuggestionItem, SuggestionMenuProps } from "./types";
 
@@ -22,11 +24,13 @@ type ItemType<GetItemsType extends (query: string) => Promise<any[]>> =
 export function SuggestionMenuController<
   // This is a bit hacky, but only way I found to make types work so the optionality
   // of suggestionMenuComponent depends on the return type of getItems
-  GetItemsType extends (query: string) => Promise<any[]>
+  GetItemsType extends (query: string) => Promise<any[]> = (
+    query: string
+  ) => Promise<DefaultReactSuggestionItem[]>
 >(
   props: {
     triggerCharacter: string;
-    getItems: GetItemsType;
+    getItems?: GetItemsType;
   } & (ItemType<GetItemsType> extends DefaultReactSuggestionItem
     ? {
         // can be undefined
@@ -49,9 +53,9 @@ export function SuggestionMenuController<
     StyleSchema
   >();
 
-  const { triggerCharacter, getItems, suggestionMenuComponent } = props;
+  const { triggerCharacter, suggestionMenuComponent } = props;
 
-  let { onItemClick } = props;
+  let { onItemClick, getItems } = props;
 
   if (!onItemClick) {
     onItemClick = (item: ItemType<GetItemsType>) => {
@@ -97,13 +101,21 @@ export function SuggestionMenuController<
     return null;
   }
 
+  if (!getItems) {
+    getItems = (async (query: string) =>
+      filterSuggestionItems(
+        getDefaultReactSlashMenuItems(editor),
+        query
+      )) as any;
+  }
+
   return (
     <div ref={ref} style={style}>
       <SuggestionMenuWrapper
         query={state.query}
         closeMenu={callbacks.closeMenu}
         clearQuery={callbacks.clearQuery}
-        getItems={getItems}
+        getItems={getItems!}
         suggestionMenuComponent={suggestionMenuComponent || SuggestionMenu}
         onItemClick={onItemClick}
       />

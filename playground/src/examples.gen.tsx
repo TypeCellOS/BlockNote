@@ -53,9 +53,10 @@
         "pathFromRoot": "examples/01-basic/04-saving-loading",
         "config": {
           "playground": true,
-          "docs": true
+          "docs": true,
+          "shortTitle": "Saving & Loading"
         },
-        "title": "Saving & Loading",
+        "title": "Saving & Loading data",
         "group": {
           "pathFromRoot": "examples/01-basic",
           "slug": "basic"
@@ -259,14 +260,14 @@
     ]
   },
   "theming": {
-    "pathFromRoot": "examples/04-theming",
+    "pathFromRoot": "examples/03-theming",
     "slug": "theming",
     "title": "Theming",
     "projects": [
       {
         "projectSlug": "changing-font",
         "fullSlug": "theming/changing-font",
-        "pathFromRoot": "examples/04-theming/changing-font",
+        "pathFromRoot": "examples/03-theming/changing-font",
         "config": {
           "playground": true,
           "docs": true,
@@ -275,21 +276,21 @@
         },
         "title": "Changing Font",
         "group": {
-          "pathFromRoot": "examples/04-theming",
+          "pathFromRoot": "examples/03-theming",
           "slug": "theming"
         }
       }
     ]
   },
   "cursor-selections": {
-    "pathFromRoot": "examples/05-cursor-selections",
+    "pathFromRoot": "examples/04-cursor-selections",
     "slug": "cursor-selections",
     "title": "Cursors & selections",
     "projects": [
       {
         "projectSlug": "selection-blocks",
         "fullSlug": "cursor-selections/selection-blocks",
-        "pathFromRoot": "examples/05-cursor-selections/selection-blocks",
+        "pathFromRoot": "examples/04-cursor-selections/selection-blocks",
         "config": {
           "playground": true,
           "docs": false,
@@ -298,14 +299,14 @@
         },
         "title": "Highlighting Blocks in Selection",
         "group": {
-          "pathFromRoot": "examples/05-cursor-selections",
+          "pathFromRoot": "examples/04-cursor-selections",
           "slug": "cursor-selections"
         }
       },
       {
         "projectSlug": "text-cursor-block",
         "fullSlug": "cursor-selections/text-cursor-block",
-        "pathFromRoot": "examples/05-cursor-selections/text-cursor-block",
+        "pathFromRoot": "examples/04-cursor-selections/text-cursor-block",
         "config": {
           "playground": true,
           "docs": false,
@@ -314,21 +315,21 @@
         },
         "title": "Highlighting Block with the Text Cursor",
         "group": {
-          "pathFromRoot": "examples/05-cursor-selections",
+          "pathFromRoot": "examples/04-cursor-selections",
           "slug": "cursor-selections"
         }
       }
     ]
   },
   "custom-schema": {
-    "pathFromRoot": "examples/06-custom-schema",
+    "pathFromRoot": "examples/05-custom-schema",
     "slug": "custom-schema",
     "title": "Custom schemas",
     "projects": [
       {
         "projectSlug": "alert-block",
         "fullSlug": "custom-schema/alert-block",
-        "pathFromRoot": "examples/06-custom-schema/alert-block",
+        "pathFromRoot": "examples/05-custom-schema/alert-block",
         "config": {
           "playground": true,
           "docs": true,
@@ -341,14 +342,14 @@
         },
         "title": "Alert Block",
         "group": {
-          "pathFromRoot": "examples/06-custom-schema",
+          "pathFromRoot": "examples/05-custom-schema",
           "slug": "custom-schema"
         }
       },
       {
         "projectSlug": "react-custom-blocks",
         "fullSlug": "custom-schema/react-custom-blocks",
-        "pathFromRoot": "examples/06-custom-schema/react-custom-blocks",
+        "pathFromRoot": "examples/05-custom-schema/react-custom-blocks",
         "config": {
           "playground": true,
           "docs": false,
@@ -357,14 +358,14 @@
         },
         "title": "Custom Blocks - React API",
         "group": {
-          "pathFromRoot": "examples/06-custom-schema",
+          "pathFromRoot": "examples/05-custom-schema",
           "slug": "custom-schema"
         }
       },
       {
         "projectSlug": "react-custom-inline-content",
         "fullSlug": "custom-schema/react-custom-inline-content",
-        "pathFromRoot": "examples/06-custom-schema/react-custom-inline-content",
+        "pathFromRoot": "examples/05-custom-schema/react-custom-inline-content",
         "config": {
           "playground": true,
           "docs": false,
@@ -373,14 +374,14 @@
         },
         "title": "Custom Inline Content - React API",
         "group": {
-          "pathFromRoot": "examples/06-custom-schema",
+          "pathFromRoot": "examples/05-custom-schema",
           "slug": "custom-schema"
         }
       },
       {
         "projectSlug": "react-custom-styles",
         "fullSlug": "custom-schema/react-custom-styles",
-        "pathFromRoot": "examples/06-custom-schema/react-custom-styles",
+        "pathFromRoot": "examples/05-custom-schema/react-custom-styles",
         "config": {
           "playground": true,
           "docs": false,
@@ -389,21 +390,21 @@
         },
         "title": "Custom Styles - React API",
         "group": {
-          "pathFromRoot": "examples/06-custom-schema",
+          "pathFromRoot": "examples/05-custom-schema",
           "slug": "custom-schema"
         }
       }
     ]
   },
   "collaboration": {
-    "pathFromRoot": "examples/07-collaboration",
+    "pathFromRoot": "examples/06-collaboration",
     "slug": "collaboration",
     "title": "Collaboration",
     "projects": [
       {
         "projectSlug": "partykit",
         "fullSlug": "collaboration/partykit",
-        "pathFromRoot": "examples/07-collaboration/partykit",
+        "pathFromRoot": "examples/06-collaboration/partykit",
         "config": {
           "playground": true,
           "docs": false,
@@ -416,84 +417,84 @@
         },
         "title": "Collaboration",
         "group": {
-          "pathFromRoot": "examples/07-collaboration",
+          "pathFromRoot": "examples/06-collaboration",
           "slug": "collaboration"
         }
       }
     ]
   },
   "interoperability": {
-    "pathFromRoot": "examples/08-interoperability",
+    "pathFromRoot": "examples/07-interoperability",
     "slug": "interoperability",
     "title": "Interoperability",
     "projects": [
       {
         "projectSlug": "converting-blocks-to-html",
         "fullSlug": "interoperability/converting-blocks-to-html",
-        "pathFromRoot": "examples/08-interoperability/01-converting-blocks-to-html",
+        "pathFromRoot": "examples/07-interoperability/01-converting-blocks-to-html",
         "config": {
           "playground": true,
           "docs": true
         },
         "title": "Converting Blocks to HTML",
         "group": {
-          "pathFromRoot": "examples/08-interoperability",
+          "pathFromRoot": "examples/07-interoperability",
           "slug": "interoperability"
         }
       },
       {
         "projectSlug": "converting-blocks-from-html",
         "fullSlug": "interoperability/converting-blocks-from-html",
-        "pathFromRoot": "examples/08-interoperability/02-converting-blocks-from-html",
+        "pathFromRoot": "examples/07-interoperability/02-converting-blocks-from-html",
         "config": {
           "playground": true,
           "docs": true
         },
         "title": "Parsing HTML to Blocks",
         "group": {
-          "pathFromRoot": "examples/08-interoperability",
+          "pathFromRoot": "examples/07-interoperability",
           "slug": "interoperability"
         }
       },
       {
         "projectSlug": "converting-blocks-to-md",
         "fullSlug": "interoperability/converting-blocks-to-md",
-        "pathFromRoot": "examples/08-interoperability/03-converting-blocks-to-md",
+        "pathFromRoot": "examples/07-interoperability/03-converting-blocks-to-md",
         "config": {
           "playground": true,
           "docs": true
         },
         "title": "Converting Blocks to Markdown",
         "group": {
-          "pathFromRoot": "examples/08-interoperability",
+          "pathFromRoot": "examples/07-interoperability",
           "slug": "interoperability"
         }
       },
       {
         "projectSlug": "converting-blocks-from-md",
         "fullSlug": "interoperability/converting-blocks-from-md",
-        "pathFromRoot": "examples/08-interoperability/04-converting-blocks-from-md",
+        "pathFromRoot": "examples/07-interoperability/04-converting-blocks-from-md",
         "config": {
           "playground": true,
           "docs": true
         },
         "title": "Parsing Markdown to Blocks",
         "group": {
-          "pathFromRoot": "examples/08-interoperability",
+          "pathFromRoot": "examples/07-interoperability",
           "slug": "interoperability"
         }
       }
     ]
   },
   "vanilla-js": {
-    "pathFromRoot": "examples/09-vanilla-js",
+    "pathFromRoot": "examples/08-vanilla-js",
     "slug": "vanilla-js",
     "title": "Vanilla JS",
     "projects": [
       {
         "projectSlug": "react-vanilla-custom-blocks",
         "fullSlug": "vanilla-js/react-vanilla-custom-blocks",
-        "pathFromRoot": "examples/09-vanilla-js/react-vanilla-custom-blocks",
+        "pathFromRoot": "examples/08-vanilla-js/react-vanilla-custom-blocks",
         "config": {
           "playground": true,
           "docs": false,
@@ -502,14 +503,14 @@
         },
         "title": "Custom Blocks - Vanilla JS API",
         "group": {
-          "pathFromRoot": "examples/09-vanilla-js",
+          "pathFromRoot": "examples/08-vanilla-js",
           "slug": "vanilla-js"
         }
       },
       {
         "projectSlug": "react-vanilla-custom-inline-content",
         "fullSlug": "vanilla-js/react-vanilla-custom-inline-content",
-        "pathFromRoot": "examples/09-vanilla-js/react-vanilla-custom-inline-content",
+        "pathFromRoot": "examples/08-vanilla-js/react-vanilla-custom-inline-content",
         "config": {
           "playground": true,
           "docs": false,
@@ -518,14 +519,14 @@
         },
         "title": "Custom Inline Content - Vanilla JS API",
         "group": {
-          "pathFromRoot": "examples/09-vanilla-js",
+          "pathFromRoot": "examples/08-vanilla-js",
           "slug": "vanilla-js"
         }
       },
       {
         "projectSlug": "react-vanilla-custom-styles",
         "fullSlug": "vanilla-js/react-vanilla-custom-styles",
-        "pathFromRoot": "examples/09-vanilla-js/react-vanilla-custom-styles",
+        "pathFromRoot": "examples/08-vanilla-js/react-vanilla-custom-styles",
         "config": {
           "playground": true,
           "docs": false,
@@ -534,7 +535,7 @@
         },
         "title": "Custom Styles - Vanilla JS API",
         "group": {
-          "pathFromRoot": "examples/09-vanilla-js",
+          "pathFromRoot": "examples/08-vanilla-js",
           "slug": "vanilla-js"
         }
       }

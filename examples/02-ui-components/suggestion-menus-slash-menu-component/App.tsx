@@ -1,8 +1,6 @@
-import { filterSuggestionItems } from "@blocknote/core";
 import {
   BlockNoteView,
   DefaultReactSuggestionItem,
-  getDefaultReactSlashMenuItems,
   SuggestionMenuController,
   SuggestionMenuProps,
   useCreateBlockNote,
@@ -56,15 +54,10 @@ export default function App() {
   });
 
   // Renders the editor instance.
-  // TODO: Shorthand to just pass the array
   return (
     <BlockNoteView editor={editor} slashMenu={false}>
       <SuggestionMenuController
         triggerCharacter={"/"}
-        getItems={async (query) =>
-          // TODO: Shorthand and/or make optional
-          filterSuggestionItems(getDefaultReactSlashMenuItems(editor), query)
-        }
         suggestionMenuComponent={CustomSlashMenu}
       />
     </BlockNoteView>
