@@ -106,7 +106,7 @@
           "group": "Advanced Examples",
           "order": 1,
           "dependencies": {
-            "@mantine/core": "^7.4.2",
+            "@mantine/core": "^7.5.0",
             "react-icons": "^4.3.1"
           }
         },
@@ -335,7 +335,7 @@
           "group": "Advanced Examples",
           "order": 1,
           "dependencies": {
-            "@mantine/core": "^7.4.2",
+            "@mantine/core": "^7.5.0",
             "react-icons": "^4.3.1"
           }
         },

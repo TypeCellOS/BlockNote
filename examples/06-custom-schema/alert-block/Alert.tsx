@@ -1,13 +1,14 @@
-import { BlockNoteEditor, defaultProps } from "@blocknote/core";
+import { defaultProps } from "@blocknote/core";
 import { createReactBlockSpec } from "@blocknote/react";
 import { Menu } from "@mantine/core";
 import { MdCancel, MdCheckCircle, MdError, MdInfo } from "react-icons/md";
-import { RiAlertFill } from "react-icons/ri";
 import "./styles.css";
 
 // The types of alerts that users can choose from
-export const alertTypes = {
-  warning: {
+export const alertTypes = [
+  {
+    title: "Warning",
+    value: "warning",
     icon: MdError,
     color: "#e69819",
     backgroundColor: {
@@ -15,7 +16,9 @@ export const alertTypes = {
       dark: "#805d20",
     },
   },
-  error: {
+  {
+    title: "Error",
+    value: "error",
     icon: MdCancel,
     color: "#d80d0d",
     backgroundColor: {
@@ -23,7 +26,9 @@ export const alertTypes = {
       dark: "#802020",
     },
   },
-  info: {
+  {
+    title: "Info",
+    value: "info",
     icon: MdInfo,
     color: "#507aff",
     backgroundColor: {
@@ -31,7 +36,9 @@ export const alertTypes = {
       dark: "#203380",
     },
   },
-  success: {
+  {
+    title: "Success",
+    value: "success",
     icon: MdCheckCircle,
     color: "#0bc10b",
     backgroundColor: {
@@ -39,13 +46,11 @@ export const alertTypes = {
       dark: "#208020",
     },
   },
-} as const;
+] as const;
 
-// Function which creates the Alert block itself, where the component is styled
-// correctly with the light & dark theme
 export const Alert = createReactBlockSpec(
   {
-    type: "alert" as const,
+    type: "alert",
     propSchema: {
       textAlignment: defaultProps.textAlignment,
       textColor: defaultProps.textColor,
@@ -53,21 +58,21 @@ export const Alert = createReactBlockSpec(
         default: "warning",
         values: ["warning", "error", "info", "success"],
       },
-    } as const,
+    },
     content: "inline",
   },
   {
     render: (props) => {
-      const Icon = alertTypes[props.block.props.type].icon;
-
+      const alertType = alertTypes.find(
+        (a) => a.value === props.block.props.type
+      )!;
+      const Icon = alertType.icon;
       return (
         <div className={"alert"} data-alert-type={props.block.props.type}>
           {/*Icon which opens a menu to choose the Alert type*/}
-          <Menu withinPortal={false} zIndex={99999}>
+          <Menu withinPortal={false} zIndex={999999}>
             <Menu.Target>
-              {/*Icon wrapper to change the color*/}
               <div className={"alert-icon-wrapper"} contentEditable={false}>
-                {/*Icon itself*/}
                 <Icon
                   className={"alert-icon"}
                   data-alert-icon-type={props.block.props.type}
@@ -79,25 +84,25 @@ export const Alert = createReactBlockSpec(
             <Menu.Dropdown>
               <Menu.Label>Alert Type</Menu.Label>
               <Menu.Divider />
-              {Object.entries(alertTypes).map(([key, value]) => {
-                const ItemIcon = value.icon;
+              {alertTypes.map((type) => {
+                const ItemIcon = type.icon;
 
                 return (
                   <Menu.Item
-                    key={key}
+                    key={type.value}
                     leftSection={
                       <ItemIcon
                         className={"alert-icon"}
-                        data-alert-icon-type={key}
+                        data-alert-icon-type={type.value}
                       />
                     }
                     onClick={() =>
                       props.editor.updateBlock(props.block, {
                         type: "alert",
-                        props: { type: key as keyof typeof alertTypes },
+                        props: { type: type.value },
                       })
                     }>
-                    {key.slice(0, 1).toUpperCase() + key.slice(1)}
+                    {type.title}
                   </Menu.Item>
                 );
               })}
@@ -110,42 +115,3 @@ export const Alert = createReactBlockSpec(
     },
   }
 );
-
-// Slash menu item to insert an Alert block
-export const insertAlert = {
-  name: "Alert",
-  execute: (editor: BlockNoteEditor<any, any, any>) => {
-    const block = editor.getTextCursorPosition().block;
-    const blockIsEmpty =
-      Array.isArray(block) && (block.content as any[]).length === 0;
-
-    // Updates current block to an Alert if it's empty, otherwise inserts a new
-    // one below
-    if (blockIsEmpty) {
-      editor.updateBlock(block, { type: "alert" });
-    } else {
-      editor.insertBlocks(
-        [
-          {
-            type: "alert",
-          },
-        ],
-        editor.getTextCursorPosition().block,
-        "after"
-      );
-      editor.setTextCursorPosition(editor.getTextCursorPosition().nextBlock!);
-    }
-  },
-  aliases: [
-    "alert",
-    "notification",
-    "emphasize",
-    "warning",
-    "error",
-    "info",
-    "success",
-  ],
-  group: "Other",
-  icon: <RiAlertFill />,
-  hint: "Used to emphasize text",
-};

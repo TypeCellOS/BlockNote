@@ -35,8 +35,8 @@ interface Frontmatter {
 
 const config: DocsThemeConfig = {
   sidebar: {
-    defaultMenuCollapseLevel: 2,
-    toggleButton: true,
+    defaultMenuCollapseLevel: 1,
+    toggleButton: false,
   },
   docsRepositoryBase: "https://github.com/TypeCellOS/BlockNote/blob/main/docs",
   useNextSeoProps: function SEO() {
@@ -60,12 +60,12 @@ const config: DocsThemeConfig = {
     const title = frontMatter.overrideTitle
       ? frontMatter.overrideTitle
       : nextraConfig.title
-      ? nextraConfig.title + " - BlockNote"
-      : "BlockNote";
+        ? nextraConfig.title + " - BlockNote"
+        : "BlockNote";
 
     const imageUrl = frontMatter.imageTitle
       ? `${SITE_ROOT}/api/og?title=${encodeURIComponent(
-          frontMatter.imageTitle
+          frontMatter.imageTitle,
         )}`
       : METADATA_DEFAULT.image;
 
@@ -142,7 +142,7 @@ const config: DocsThemeConfig = {
             day: "numeric",
             month: "long",
             year: "numeric",
-          })
+          }),
         );
       } catch (e) {
         // Ignore errors here; they get the ISO string.

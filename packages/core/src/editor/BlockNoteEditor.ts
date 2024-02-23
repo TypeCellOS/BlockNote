@@ -218,11 +218,7 @@ export class BlockNoteEditor<
       ...options,
     };
 
-    // this.blockSchema = getBlockSchemaFromSpecs(newOptions.blockSpecs);
-    // this.inlineContentSchema = getInlineContentSchemaFromSpecs(
-    //   newOptions.inlineContentSpecs
-    // );
-    // this.styleSchema = getStyleSchemaFromSpecs(newOptions.styleSpecs);
+    // @ts-ignore
     this.schema = newOptions.schema;
     this.blockImplementations = newOptions.schema.blockSpecs;
     this.inlineContentImplementations = newOptions.schema.inlineContentSpecs;

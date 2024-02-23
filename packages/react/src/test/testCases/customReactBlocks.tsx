@@ -12,7 +12,7 @@ import { createReactBlockSpec } from "../../schema/ReactBlockSpec";
 
 const ReactCustomParagraph = createReactBlockSpec(
   {
-    type: "reactCustomParagraph" as const,
+    type: "reactCustomParagraph",
     propSchema: defaultProps,
     content: "inline",
   },
@@ -28,7 +28,7 @@ const ReactCustomParagraph = createReactBlockSpec(
 
 const SimpleReactCustomParagraph = createReactBlockSpec(
   {
-    type: "simpleReactCustomParagraph" as const,
+    type: "simpleReactCustomParagraph",
     propSchema: defaultProps,
     content: "inline",
   },

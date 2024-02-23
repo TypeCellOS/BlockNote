@@ -4,7 +4,8 @@
  * This way, you can just use types like `PartialBlock`, `Block`, `BlockNoteEditor` and they'll automatically
  * use the types from your custom schema.
  *
- * (the reason is that this is not used in the examples, is that we use multiple BlockNote instances in the website / example projects. This method does not work well with that.)
+ * (the reason is that this is not used in the examples, is that we use multiple BlockNote instances in the website / example project with different shemas.
+ * This method only works if you use one custom schema in your app)
  */
 import "@blocknote/core";
 import type { schema } from "./App";

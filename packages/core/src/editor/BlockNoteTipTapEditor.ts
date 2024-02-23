@@ -148,7 +148,6 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
    * @param element DOM element to mount to, ur null / undefined to destroy
    */
   public mount = (element?: HTMLElement | null) => {
-    console.log("mount", element);
     if (!element) {
       this.destroy();
     } else {
