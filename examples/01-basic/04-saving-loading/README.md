@@ -1,4 +1,4 @@
-# Saving & Loading
+# Saving & Loading data
 
 This example shows how to save the editor contents to local storage whenever a change is made, and load the saved contents when the editor is created.
 
