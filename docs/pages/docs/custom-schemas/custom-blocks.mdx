@@ -43,10 +43,10 @@ const Alert = createReactBlockSpec(
 
 #### Block Config (`CustomBlockConfig`)
 
-The Block Config describes the shape of the Block, it's type and the properties it supports:
+The Block Config describes the shape of your custom blocks. Use it to specify the type, properties (props) and content your custom blocks should support:
 
 ```typescript
-type BlockConfig = {
+type CustomBlockConfig = {
   type: string;
   content: "inline" | "none";
   readonly propSchema: PropSchema;
@@ -65,7 +65,7 @@ _In the alert demo, we want the user to be able to type text in our alert, so we
 
 **`propSchema`**
 
-The `PropSchema` specifies the props that the block supports. The props of a block is data that is associated with your Block, and can be used to customize the block's appearance or behavior.
+The `PropSchema` specifies the props that the block supports. Block props (properties) are data stored with your Block in the document, and can be used to customize a block's appearance or behavior.
 
 ```typescript
 type PropSchema<
