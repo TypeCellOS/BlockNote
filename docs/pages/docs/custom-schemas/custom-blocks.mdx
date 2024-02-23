@@ -2,7 +2,7 @@ import { Example } from "@/components/example";
 
 ## Custom Block Types
 
-In addition to the default block types that BlockNote offers, you can also make your own custom blocks using React components. Take a look at the demo below, in which we add a custom alert block to a BlockNote editor, as well as a custom [Slash Menu Item](/docs/slash-menu#custom-items) to insert it.
+In addition to the default block types that BlockNote offers, you can also make your own custom blocks using React components. Take a look at the demo below, in which we add a custom alert block to a BlockNote editor, as well as a custom [Slash Menu Item](/docs/ui-components/suggestion-menus#changing-slash-menu-items) to insert it.
 
 <Example name="custom-schema/alert-block" />
 
@@ -61,11 +61,11 @@ Defines the identifier of the custom block.
 
 `inline` if your custom block should support rich text content, `none` if not.
 
-_In the alert demo, we want the user to be able to type text in our alert, we set it to `"inline"`._
+_In the alert demo, we want the user to be able to type text in our alert, so we set it to `"inline"`._
 
 **`propSchema`**
 
-The `PropSchema` specifices the props that the block supports. The props of a block is data that is associated with your Block, and can be used to customize the block's appearance or behavior.
+The `PropSchema` specifies the props that the block supports. The props of a block is data that is associated with your Block, and can be used to customize the block's appearance or behavior.
 
 ```typescript
 type PropSchema<
@@ -111,7 +111,7 @@ type ReactCustomBlockImplementation = {
 
 This is your React component which defines how your custom block should be rendered in the editor, and takes three React props:
 
-`block:` The block that should be rendered. Its type and props will match the type and PropSchema defined in the BlockConfig.
+`block:` The block that should be rendered. Its type and props will match the type and PropSchema defined in the Block Config.
 
 `editor:` The BlockNote editor instance that the block is in.
 

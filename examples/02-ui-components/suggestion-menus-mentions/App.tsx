@@ -11,12 +11,12 @@ import {
 } from "@blocknote/react";
 import "@blocknote/react/style.css";
 
-import { MentionInlineContent } from "./MentionInlineContent";
+import { Mention } from "./Mention";
 
 const schema = BlockNoteSchema.create({
   inlineContentSpecs: {
     ...defaultInlineContentSpecs,
-    mention: MentionInlineContent,
+    mention: Mention,
   },
 });
 

@@ -1,6 +1,6 @@
 import { createReactInlineContentSpec } from "@blocknote/react";
 
-export const MentionInlineContent = createReactInlineContentSpec(
+export const Mention = createReactInlineContentSpec(
   {
     type: "mention",
     propSchema: {

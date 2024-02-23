@@ -1,7 +1,7 @@
 {
 
   "index": "Introduction",
-  "quickstart":"",
+  "quickstart": "Quickstart",
   "editor-api": "Editor API",
   "ui-components": "UI Components",
   "custom-schemas": "Custom Schemas",
