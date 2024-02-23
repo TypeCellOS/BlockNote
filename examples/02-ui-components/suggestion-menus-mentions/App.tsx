@@ -4,7 +4,6 @@ import {
   filterSuggestionItems,
 } from "@blocknote/core";
 import {
-  BlockNoteDefaultUI,
   BlockNoteView,
   DefaultReactSuggestionItem,
   SuggestionMenuController,
@@ -78,7 +77,6 @@ export function App() {
 
   return (
     <BlockNoteView editor={editor}>
-      <BlockNoteDefaultUI />
       <SuggestionMenuController
         triggerCharacter={"@"}
         getItems={async (query) =>
