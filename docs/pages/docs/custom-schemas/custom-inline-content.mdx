@@ -8,7 +8,7 @@ In addition to the default inline content types that BlockNote offers, you can a
 
 ### Creating a Custom Inline Content Type
 
-Use the `createReactInlineContentSpec` function to create a custom block type. This function takes two arguments:
+Use the `createReactInlineContentSpec` function to create a custom inline content type. This function takes two arguments:
 
 ```typescript
 function createReactInlineContentSpec(
@@ -17,7 +17,7 @@ function createReactInlineContentSpec(
 );
 ```
 
-Let's look at our custom alert block from the demo, and go over each field to explain how it works:
+Let's look at our custom mentions tag from the demo, and go over each field to explain how it works:
 
 ```typescript
 const Mention = createReactInlineContentSpec(
@@ -40,10 +40,10 @@ const Mention = createReactInlineContentSpec(
 
 #### Inline Content Config (`CustomInlineContentConfig`)
 
-The Inline Content Config describes the shape of the Inline Content, it's type and the properties it supports:
+The Inline Content Config describes the shape of your custom inline content. Use it to specify the type, properties (props) and content your custom inline content should support:
 
 ```typescript
-type InlineContentConfig = {
+type CustomInlineContentConfig = {
   type: string;
   content: "styled" | "none";
   readonly propSchema: PropSchema;
@@ -62,7 +62,7 @@ _In the mentions demo, we want each mention to be a single, non-editable element
 
 **`propSchema`**
 
-The `PropSchema` specifies the props that the inline content supports. The props of inline content is data that is associated with your Inline Content, and can be used to customize the inline content's appearance or behavior.
+The `PropSchema` specifies the props that the inline content supports. Inline content props (properties) are data stored with your inline content in the document, and can be used to customize its appearance or behavior.
 
 ```typescript
 type PropSchema<
@@ -86,7 +86,7 @@ _In the mentions demo, we add a `user` prop for the user that's being mentioned.
 
 #### Inline Content Implementation (`ReactCustomInlineContentImplementation`)
 
-The Inline Content Implementation defines how the block should be rendered in the editor, and how it should be parsed from and converted to HTML.
+The Inline Content Implementation defines how the inline content should be rendered to HTML.
 
 ```typescript
 type ReactCustomInlineContentImplementation = {
@@ -99,13 +99,13 @@ type ReactCustomInlineContentImplementation = {
 
 **`render`**
 
-This is your React component which defines how your custom block should be rendered in the editor, and takes three React props:
+This is your React component which defines how your custom inline content should be rendered, and takes three React props:
 
 `inlineContent:` The inline content that should be rendered. Its type and props will match the type and PropSchema defined in the Inline Content Config.
 
-`contentRef:` A React `ref` you can use to mark which element in your block is editable, this is only available if your block config contains `content: "styled"`.
+`contentRef:` A React `ref` you can use to mark which element in your inline content is editable, this is only available if your inline content config contains `content: "styled"`.
 
-_Note that since inline content is, by definition, inline, your component should also return a HTML inline element._
+_Note that since inline content is, by definition, inline, your component should also return an HTML inline element._
 
 ### Adding Custom Inline Content to the Editor
 

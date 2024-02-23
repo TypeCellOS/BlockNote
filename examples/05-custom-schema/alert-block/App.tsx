@@ -27,7 +27,7 @@ const schema = BlockNoteSchema.create({
 });
 
 // Slash menu item to insert an Alert block
-export const insertAlert = (editor: typeof schema.BlockNoteEditor) => ({
+const insertAlert = (editor: typeof schema.BlockNoteEditor) => ({
   title: "Alert",
   onItemClick: () => {
     // TODO: document this function?
@@ -56,10 +56,11 @@ export default function App() {
 
   return (
     <BlockNoteView editor={editor} slashMenu={false}>
+      {/* Replaces the default Slash Menu. */}
       <SuggestionMenuController
         triggerCharacter={"/"}
         getItems={async (query) =>
-          // TODO: document?
+          // Gets all default slash menu items and `insertAlert` item.
           filterSuggestionItems(
             [...getDefaultReactSlashMenuItems(editor), insertAlert(editor)],
             query

@@ -347,6 +347,22 @@
         }
       },
       {
+        "projectSlug": "font-style",
+        "fullSlug": "custom-schema/font-style",
+        "pathFromRoot": "examples/05-custom-schema/font-style",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "group": "Advanced Examples",
+          "order": 1
+        },
+        "title": "Font Style",
+        "group": {
+          "pathFromRoot": "examples/05-custom-schema",
+          "slug": "custom-schema"
+        }
+      },
+      {
         "projectSlug": "react-custom-blocks",
         "fullSlug": "custom-schema/react-custom-blocks",
         "pathFromRoot": "examples/05-custom-schema/react-custom-blocks",

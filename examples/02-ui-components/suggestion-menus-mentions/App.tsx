@@ -13,16 +13,21 @@ import "@blocknote/react/style.css";
 
 import { Mention } from "./Mention";
 
+// Our schema with inline content specs, which contain the configs and implementations for inline content
+// that we want our editor to use.
 const schema = BlockNoteSchema.create({
   inlineContentSpecs: {
+    // Adds all default inline content.
     ...defaultInlineContentSpecs,
+    // Adds the mention tag.
     mention: Mention,
   },
 });
 
-function getMentionMenuItems(
+// Function which gets all users for the mentions menu.
+const getMentionMenuItems = (
   editor: typeof schema.BlockNoteEditor
-): DefaultReactSuggestionItem[] {
+): DefaultReactSuggestionItem[] => {
   const users = ["Steve", "Bob", "Joe", "Mike"];
 
   return users.map((user) => ({
@@ -37,7 +42,7 @@ function getMentionMenuItems(
       });
     },
   }));
-}
+};
 
 export function App() {
   const editor = useCreateBlockNote({
@@ -77,9 +82,11 @@ export function App() {
 
   return (
     <BlockNoteView editor={editor}>
+      {/* Adds a mentions menu which opens with the "@" key. */}
       <SuggestionMenuController
         triggerCharacter={"@"}
         getItems={async (query) =>
+          // Gets the mentions menu items.
           filterSuggestionItems(getMentionMenuItems(editor), query)
         }
       />
