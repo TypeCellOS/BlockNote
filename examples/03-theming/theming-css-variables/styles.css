@@ -1,5 +1,5 @@
 /* Base theme */
-.bn-container[data-color-scheme] {
+.bn-container[data-theming-css-variables-demo][data-color-scheme] {
   --bn-colors-editor-text: #222222;
   --bn-colors-editor-background: #ffffff;
   --bn-colors-menu-text: #ffffff;
@@ -21,7 +21,7 @@
 }
 
 /* Changes for dark mode */
-.bn-container[data-color-scheme="dark"] {
+.bn-container[data-theming-css-variables-demo][data-color-scheme="dark"] {
   --bn-colors-editor-text: #ffffff;
   --bn-colors-editor-background: #9b0000;
   --bn-colors-side-menu: #ffffff;
