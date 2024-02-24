@@ -1,0 +1,74 @@
+---
+title: Introduction to Blocks
+description: Once you create an editor, you'll need to understand how its content is structured into blocks.
+imageTitle: Introduction to Blocks
+---
+
+import { Example } from "@/components/example";
+
+# Intro to Inline Content
+
+Many blocks contain inline content. This page explains what inline content is, and how it's represented in code.
+
+## Inline Content Objects
+
+A block's content is referred to as inline content, and is used to represent rich text.
+
+TODO: Between custom & default inline content types, the shapes on inline content objects are not standardized.
+e.g. `Link`s have `href` and no props, custom IC will have props. `StyledText` can be IC itself, or used in other IC types.
+
+I think we should have smth like this:
+```typescript
+// Helper types
+type Styles = {
+  bold: boolean;
+  textColor: string;
+  ...
+}
+
+// Inline Content types
+type StyledText = {
+  type: "richText";
+  props: {
+    styles: Styles;
+  }
+  editable: true;
+}
+type Link = {
+  type: "link";
+  props: {
+    styles: Styles;
+    href: string;
+  }
+  editable: true;
+}
+type Mention = {
+  type: "mention";
+  props: {
+    user: string;
+  }
+  editable: false;
+}
+```
+This is way cleaner, but means that links cannot have mixed styles. I think we either:
+- Convert links to styles (they're already marks in TipTap)
+- Not do anything bc I don't think having mixed styles on links is ever useful
+
+## Table Content
+
+Most blocks use an array of `InlineContent` objects to describe their content, but tables are slightly different. Table blocks have `TableContent` as their content, in which each row contains an array of cells, that each have an array of `InlineContent` objects.
+
+```typescript
+type TableContent = {
+  type: "tableContent";
+  rows: {
+    cells: InlineContent[][];
+  }[];
+};
+```
+
+## Displaying Block Content
+
+In the example below, you can see how a block with the content, "Hello __there__, [BlockNote](https://www.blocknotejs.org)", is represented as an array of `InlineContent` objects:
+
+TODO: DEMO

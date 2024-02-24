@@ -6,9 +6,7 @@ imageTitle: Default Blocks
 
 import { Example } from "@/components/example";
 
-# Default blocks
-
-TBD: move to a separate "reference" section?
+# Default Blocks
 
 BlockNote includes a number of built-in block types. The demo editor below displays all of them:
 
@@ -142,7 +140,7 @@ type TableBlock = {
 
 ## Default Block Properties
 
-While each type of block can have its own set of properties, there are some properties that all built-in block types have by default, which you can find in the definition for `DefaultProps`:
+There are some default block props that BlockNote uses for its default block types, and also exports for use in your own [custom blocks](/docs/custom-schemas/custom-blocks):
 
 ```typescript
 type DefaultProps = {
@@ -158,6 +156,6 @@ type DefaultProps = {
 
 `textAlignment:` The text alignment of the block.
 
-## Creating your own blocks
+## Creating New Block Types
 
-You can create your own custom blocks using React. Skip to the Advanced "custom schemas" section to learn more about extending the editor. (TODO: link)
+Skip to [Custom Blocks](/docs/custom-schemas/custom-blocks) to learn how to do this.

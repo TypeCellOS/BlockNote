@@ -1,8 +1,8 @@
 ---
 title: Editor Setup
-description: While you can get started with BlockNote in minutes, it's likely that you'll want to customize its features and functionality to better suit your app.
-imageTitle: Customizing the Editor
-path: /docs/editor
+description: While BlockNote is ready to use out-of-the-box, there are a number of ways in which you can set it up, to better suit your use case.
+imageTitle: Editor Setup
+path: /docs/editor-basics/editor
 ---
 
 import { Example } from "@/components/example";
@@ -18,13 +18,42 @@ TODO:
 
 # Editor Setup
 
-While you can get started with BlockNote in minutes, it's likely that you'll
-want to customize its features and functionality to better suit your app.
+While BlockNote is ready to use out-of-the-box, there are a number of ways in which you can set it up, to better suit your use case.
 
-## Editor Options
+## Creating the Editor
 
-There are a number of options that you can pass to `useCreateBlockNote()`, which you
-can use to customize the editor. You can find the full list of these below:
+### Using a React Hook
+
+Most of the time, you'll want to create the BlockNote editor using the `useCreateBlockNote` hook. This will create a new editor as your React component gets mounted, and you can pass a dependency array as with other React hooks.
+
+```ts
+useCreateBlockNote = (
+  options?: Partial<BlockNoteEditorOptions>,
+  deps?: React.DependencyList
+) => BlockNoteEditor;
+```
+
+Read on to [Options](/docs/editor-basics/editor#options) to see what options you can pass to the editor.
+
+### Using a Method
+
+You can also create a new editor using `BlockNoteEditor.create`. You should use this when you want to wait after your React component gets mounted before creating the editor.
+
+```ts
+BlockNoteEditor.create = (
+  options?: Partial<BlockNoteEditorOptions>,
+) => BlockNoteEditor;
+```
+
+In the demo below, we use `BlockNoteEditor.create` so we can fetch the editor's initial content from `localStorage` before creating it.
+
+<Example name="basic/saving-loading" />
+
+Read on to [Options](/docs/editor-basics/editor#options) to see what options you can pass to the editor.
+
+### Options
+
+There are a number of options that you can pass to `useCreateBlockNote()` and `BlockNoteEditor.create`. You can find the full list of these below:
 
 ```typescript
 export type BlockNoteEditorOptions = Partial<{
@@ -58,19 +87,18 @@ export type BlockNoteEditorOptions = Partial<{
 
 `styleSpecs` (_advanced_): Specifications for Custom Styles. See [Style Specs](/docs/style-specs) for more info.
 
-## `useCreateBlockNote`
+## Rendering the Editor
 
-## `BlockNoteView`
+### Using a React Component
 
-- editable
-- events
+To, render the editor, you should use the `BlockNoteView` component, and pass in the editor created using `useCreateBlockNote` or `BlockNoteEditor.create`:
 
-### Removing UI Elements
+```tsx
+const editor = useCreateBlockNote();
 
-TODO: probably just explain the props of BlockNoteView
+return <BlockNoteView editor={editor}/>
+```
 
-In the following example, we remove the Side Menu from the editor. This is done by adding all `Positioner` components as children of `BlockNoteView`, for each UI element except the Side Menu:
+### Props
 
-<Example name="ui-components/ui-elements-remove" />
-
-Each further `Positioner` component you remove will remove its corresponding UI element from the editor. If you only want to keep the editor itself, add only an empty fragment (`<></>`) to `BlockNoteView`'s children.
+TODO
