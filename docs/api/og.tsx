@@ -1,12 +1,11 @@
 import { ImageResponse } from "@vercel/og";
-import React from "react";
 
 export const config = {
   runtime: "edge",
 };
 
 const font = fetch(
-  new URL("../docs/public/fonts/Gilroy-Regular.ttf", import.meta.url)
+  new URL("../public/fonts/Gilroy-Regular.ttf", import.meta.url),
 ).then((res) => res.arrayBuffer());
 
 export default async function handler(request: { url: string }) {
