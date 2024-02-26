@@ -1,7 +1,5 @@
 {
-  "editor": "Editor Setup",
-  "blocks": "Intro to Blocks",
-  "inline-content": "Intro to Inline Content",
-  "default-blocks": "Default Blocks",
-  "default-inline-content": "Default Inline Content"
+  "content-structure": "Content Structure",
+  "default-content-types": "Default Content Types",
+  "editor": "Editor Setup"
 }

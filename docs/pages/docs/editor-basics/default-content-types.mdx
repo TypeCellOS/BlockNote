@@ -1,22 +1,26 @@
 ---
-title: Default Blocks
-description: Overview of all default block types and their properties in BlockNote.
-imageTitle: Default Blocks
+title: Default Content Types
+description: BlockNote supports a variety on built-in block and inline content types that are included in the editor by default.
+imageTitle: Default Content Types
 ---
 
 import { Example } from "@/components/example";
 
-# Default Blocks
+# Default Content Types
 
-BlockNote includes a number of built-in block types. The demo editor below displays all of them:
+BlockNote supports a variety on built-in block and inline content types that are included in the editor by default. To create your own content types, see [Custom Schemas](/docs/custom-schemas).
 
-TODO: demo
+## Default Blocks
 
-## Reference
+BlockNote includes a number of built-in block types. The demo below contains each of them:
+
+<Example name="basic/all-blocks" />
+
+### Reference
 
 Here's an overview of all default blocks and the properties they support:
 
-### Paragraph
+#### Paragraph
 
 **Appearance**
 
@@ -34,7 +38,7 @@ type ParagraphBlock = {
 };
 ```
 
-### Heading
+#### Heading
 
 **Appearance**
 
@@ -56,7 +60,7 @@ type HeadingBlock = {
 
 `level:` The heading level, representing a title (`level: 1`), heading (`level: 2`), and subheading (`level: 3`).
 
-### Bullet List Item
+#### Bullet List Item
 
 **Appearance**
 
@@ -74,7 +78,7 @@ type BulletListItemBlock = {
 };
 ```
 
-### Numbered List Item
+#### Numbered List Item
 
 **Appearance**
 
@@ -92,7 +96,7 @@ type NumberedListItemBlock = {
 };
 ```
 
-### Image
+#### Image
 
 **Appearance**
 
@@ -108,8 +112,8 @@ type ImageBlock = {
     url: string = "";
     caption: string = "";
     width: number = 512;
-  } & Omit<DefaultProps, "textAlignment">;
-  content: InlineContent[];
+  } & DefaultProps;
+  content: undefined;
   children: Block[];
 };
 ```
@@ -120,7 +124,7 @@ type ImageBlock = {
 
 `width:` The image width in pixels.
 
-### Table
+#### Table
 
 **Appearance**
 
@@ -138,7 +142,7 @@ type TableBlock = {
 };
 ```
 
-## Default Block Properties
+### Default Block Properties
 
 There are some default block props that BlockNote uses for its default block types, and also exports for use in your own [custom blocks](/docs/custom-schemas/custom-blocks):
 
@@ -156,6 +160,78 @@ type DefaultProps = {
 
 `textAlignment:` The text alignment of the block.
 
-## Creating New Block Types
+### Creating New Block Types
 
 Skip to [Custom Blocks](/docs/custom-schemas/custom-blocks) to learn how to do this.
+
+## Default Inline Content
+
+BlockNote includes a number of built-in inline content types. The demo editor below displays all of them:
+
+<Example name="basic/all-inline-content" />
+
+### Reference
+
+Here's an overview of all default inline content and the properties they support:
+
+#### Styled Text
+
+`StyledText` is a type of `InlineContent` used to display pieces of text with styles:
+
+```typescript
+type Styles = {
+  bold: true;
+  italic: true;
+  underline: true;
+  strikethrough: true;
+  textColor: string;
+  backgroundColor: string;
+}
+
+type StyledText = {
+  type: "text";
+  text: string;
+  styles: Styles;
+};
+```
+
+#### Link
+
+`Link` objects represent links to a URL:
+
+```typescript
+type Link = {
+  type: "link";
+  content: StyledText[];
+  href: string;
+};
+```
+
+### Default Inline Content Properties
+
+TODO: This section only makes sense with the proposal in [Inline Content](/docs/editor-basics/content-structure#inline-content)
+
+There are some default inline content props that BlockNote uses for its default inline content types, and also exports for use in your own [custom inline content](/docs/custom-schemas/custom-inline-content):
+
+```typescript
+type Styles = {
+  bold: true;
+  italic: true;
+  underline: true;
+  strikethrough: true;
+  textColor: string;
+  backgroundColor: string;
+}
+
+type DefaultInlineContentProps = {
+  styles: Styles
+};
+```
+
+`styles:` The text styles applied to the inline content. Only useful for editable inline content types.
+
+### Creating New Inline Content Types
+
+You can create your own custom inline content using React - skip to [Custom Inline Content](/docs/custom-schemas/custom-inline-content) to learn how to do this.
+
+You can also create custom styles to apply to `StyledText` - skip to [Custom Styles](/docs/custom-schemas/custom-styles) to learn how to do this.
