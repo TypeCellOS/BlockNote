@@ -1,6 +1,6 @@
 ---
 title: Editor Setup
-description: While BlockNote is ready to use out-of-the-box, there are a number of ways in which you can set it up, to better suit your use case.
+description: While BlockNote is ready to use out-of-the-box, there are a number of setup options you can choose to fit your use case.
 imageTitle: Editor Setup
 path: /docs/editor-basics/editor
 ---
@@ -18,13 +18,13 @@ TODO:
 
 # Editor Setup
 
-While BlockNote is ready to use out-of-the-box, there are a number of ways in which you can set it up, to better suit your use case.
+While BlockNote is ready to use out-of-the-box, there are a number of setup options you can choose to fit your use case.
 
 ## Creating the Editor
 
 ### Using a React Hook
 
-Most of the time, you'll want to create the BlockNote editor using the `useCreateBlockNote` hook. This will create a new editor as your React component gets mounted, and you can pass a dependency array as with other React hooks.
+Most of the time, you'll want to create the BlockNote editor using the `useCreateBlockNote` hook. This will create a new editor when your React component gets mounted, and accepts a dependency array as with other React hooks.
 
 ```ts
 useCreateBlockNote = (
@@ -101,4 +101,48 @@ return <BlockNoteView editor={editor}/>
 
 ### Props
 
-TODO
+There are a number of additional props you can pass to `BlockNoteView`. You can find the full list of these below:
+
+```typescript
+export type BlockNoteViewProps = Partial<{
+  formattingToolbar?: boolean;
+  hyperlinkToolbar?: boolean;
+  sideMenu?: boolean;
+  slashMenu?: boolean;
+  imageToolbar?: boolean;
+  tableHandles?: boolean;
+  theme:
+    | "light"
+    | "dark"
+    | Theme
+    | {
+        light: Theme;
+        dark: Theme;
+      };
+    editable?: boolean;
+    onSelectionChange?: () => void;
+    onChange?: () => void;
+}>;
+```
+
+`formattingToolbar`: Whether the [Formatting Toolbar](/docs/ui-components/formatting-toolbar) should be enabled.
+
+`hyperlinkToolbar`: Whether the Hyperlink Toolbar should be enabled.
+
+`sideMenu`: Whether the [Block Side Menu](/docs/ui-components/side-menu) should be enabled.
+
+`slashMenu`: Whether the [Slash Menu](/docs/ui-components/suggestion-menus#slash-menu) should be enabled.
+
+`imageToolbar`: Whether the Image Toolbar should be enabled.
+
+`tableHandles`: Whether the Table Handles should be enabled.
+
+`theme`: The editor's theme, see [Themes](/docs/styling-theming/themes) for more about this.
+
+`editable`: Whether the editor should be editable.
+
+`onSelectionChange`: Callback for when the editor selection changes.
+
+`onChange`: Callback for when the editor selection or content changes.
+
+`BlockNoteView` also takes props that you can pass to any HTML `div` element.

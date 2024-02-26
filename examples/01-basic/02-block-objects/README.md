@@ -1,8 +1,6 @@
 # Displaying Block Objects
 
-Here, we use the `onChange` handler to listen to updates to the BlockNote document and display them below the editor.
-
-**Try it out:** Type in the editor and see the JSON representation of the document.
+In this example, below the editor, we display its contents as they're represented in code - i.e. as a JSON array of `Block` objects.
 
 **Relevant Docs:**
 
