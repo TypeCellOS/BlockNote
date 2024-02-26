@@ -5,152 +5,13 @@ imageTitle: Manipulating Inline Content
 path: /docs/block-content
 ---
 
-TODO: API For this is pretty weird vs blocks
-
-[//]: # (# Block Content)
-
-[//]: # ()
-[//]: # (The `content` field of a `Block` describes the content of the block. For all blocks except tables, this field is an array of `InlineContent` objects and describes the rich text content typed inside the block.)
-
-[//]: # ()
-[//]: # (In the example below, you can see how a sentence like "Hello __there__, [BlockNote]&#40;https://www.blocknotejs.org&#41;" is represented as an array of `InlineContent` objects:)
-
-[//]: # ()
-[//]: # (TODO: DEMO)
-
-[//]: # ()
-[//]: # ()
-[//]: # (## `InlineContent` Types)
-
-[//]: # ()
-[//]: # (`InlineContent` can be styled text &#40;rich text&#41;, a link, or a mention:)
-
-[//]: # ()
-[//]: # (### Styled Text)
-
-[//]: # ()
-[//]: # (`StyledText` is a type of `InlineContent` used to display pieces of text with styles:)
-
-[//]: # ()
-[//]: # (```typescript)
-
-[//]: # (type StyledText = {)
-
-[//]: # (  type: "text";)
-
-[//]: # (  text: string;)
-
-[//]: # (  styles: Styles;)
-
-[//]: # (};)
-
-[//]: # (```)
-
-[//]: # ()
-[//]: # (`text:` The displayed text.)
-
-[//]: # ()
-[//]: # (`styles:` The styles that are applied to the text.)
-
-[//]: # ()
-[//]: # (**Styles Object**)
-
-[//]: # ()
-[//]: # (`StyledText` supports a variety of styles, including bold, underline, and text color, which are represented using a `Styles` object:)
-
-[//]: # ()
-[//]: # (```typescript)
-
-[//]: # (type Styles = Partial<{)
-
-[//]: # (  bold: true;)
-
-[//]: # (  italic: true;)
-
-[//]: # (  underline: true;)
-
-[//]: # (  strikethrough: true;)
-
-[//]: # (  textColor: string;)
-
-[//]: # (  backgroundColor: string;)
-
-[//]: # (}>;)
-
-[//]: # (```)
-
-[//]: # ()
-[//]: # (### Links)
-
-[//]: # ()
-[//]: # (`Link` objects represent links to a URL:)
-
-[//]: # ()
-[//]: # (```typescript)
-
-[//]: # (type Link = {)
-
-[//]: # (  type: "link";)
-
-[//]: # (  content: StyledText[];)
-
-[//]: # (  href: string;)
-
-[//]: # (};)
-
-[//]: # (```)
-
-[//]: # ()
-[//]: # (`content:` The styled text used to display the link.)
-
-[//]: # ()
-[//]: # (`href:` The URL that opens when clicking the link.)
-
-[//]: # ()
-[//]: # (### Mentions)
-
-[//]: # ()
-[//]: # (TODO)
-
-[//]: # ()
-[//]: # (### Custom `InlineContent` and `Styles`)
-
-[//]: # ()
-[//]: # (You can create your own types of `InlineContent` and `Styles` using React. Skip to the Advanced "custom schemas" section to learn more about extending the editor. &#40;TODO: link&#41;)
-
-[//]: # ()
-[//]: # (## TableContent)
-
-[//]: # ()
-[//]: # (Most blocks use an array of `InlineContent` objects to describe their content, but tables are slightly different. Table blocks have `TableContent` as their content, in which each row contains an array of cells, that)
-
-[//]: # ()
-[//]: # ()
-[//]: # (```typescript)
-
-[//]: # (type TableContent = {)
-
-[//]: # (  type: "tableContent";)
-
-[//]: # (  rows: {)
-
-[//]: # (    cells: InlineContent[][];)
-
-[//]: # (  }[];)
-
-[//]: # (};)
-
-[//]: # (```)
-
 # Manipulating Inline Content
-
-TODO: where should this be?
 
 While `InlineContent` objects are used to describe a block's content, they can be cumbersome to work with directly. Therefore, BlockNote exposes functions which make it easier to edit block contents.
 
 ## Accessing Styles
 
-You can get the styles at the current [Text Cursor Position](/docs/cursor-selections#text-cursor) using the following function:
+You can get the styles at the current [Text Cursor Position](/docs/editor-api/cursor-selections#text-cursor) using the following function:
 
 ```typescript
 getActiveStyles(): Styles;
@@ -159,7 +20,7 @@ getActiveStyles(): Styles;
 const styles = editor.getActiveStyles();
 ```
 
-If a [Selection](/docs/cursor-selections#selections) is active, this function returns the active styles at the end of the selection.
+If a [Selection](/docs/editor-api/cursor-selections#selections) is active, this function returns the active styles at the end of the selection.
 
 ## Adding Styles
 
@@ -229,4 +90,4 @@ createLink(url: string, text?: string): void;
 editor.createLink("https://www.blocknotejs.org/", "BlockNote");
 ```
 
-If a [Selection](/docs/cursor-selections#selections) is active, the new link will replace the currently selected content.
+If a [Selection](/docs/editor-api/cursor-selections#selections) is active, the new link will replace the currently selected content.
