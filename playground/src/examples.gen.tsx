@@ -89,6 +89,48 @@
           "pathFromRoot": "examples/01-basic",
           "slug": "basic"
         }
+      },
+      {
+        "projectSlug": "all-blocks",
+        "fullSlug": "basic/all-blocks",
+        "pathFromRoot": "examples/01-basic/all-blocks",
+        "config": {
+          "playground": true,
+          "docs": true
+        },
+        "title": "All Block Types",
+        "group": {
+          "pathFromRoot": "examples/01-basic",
+          "slug": "basic"
+        }
+      },
+      {
+        "projectSlug": "all-inline-content",
+        "fullSlug": "basic/all-inline-content",
+        "pathFromRoot": "examples/01-basic/all-inline-content",
+        "config": {
+          "playground": true,
+          "docs": true
+        },
+        "title": "All Inline Content Types",
+        "group": {
+          "pathFromRoot": "examples/01-basic",
+          "slug": "basic"
+        }
+      },
+      {
+        "projectSlug": "inline-content-objects",
+        "fullSlug": "basic/inline-content-objects",
+        "pathFromRoot": "examples/01-basic/inline-content-objects",
+        "config": {
+          "playground": true,
+          "docs": true
+        },
+        "title": "Displaying Inline Content Objects",
+        "group": {
+          "pathFromRoot": "examples/01-basic",
+          "slug": "basic"
+        }
       }
     ]
   },

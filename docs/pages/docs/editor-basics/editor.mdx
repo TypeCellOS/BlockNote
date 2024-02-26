@@ -8,13 +8,9 @@ path: /docs/editor-basics/editor
 import { Example } from "@/components/example";
 
 TODO:
-[x] review API
-[x] what needs to be part of useBlockNote vs the component?
-[ ] document instantiation / useBlockNote
 [ ] expose / document hooks
 [ ] document events
 [ ] explain controlled / uncontrolled
-[ ] Maybe move outside of "Editor API"?
 
 # Editor Setup
 
@@ -29,7 +25,7 @@ Most of the time, you'll want to create the BlockNote editor using the `useCreat
 ```ts
 useCreateBlockNote = (
   options?: Partial<BlockNoteEditorOptions>,
-  deps?: React.DependencyList
+  deps?: React.DependencyList,
 ) => BlockNoteEditor;
 ```
 
@@ -40,9 +36,8 @@ Read on to [Options](/docs/editor-basics/editor#options) to see what options you
 You can also create a new editor using `BlockNoteEditor.create`. You should use this when you want to wait after your React component gets mounted before creating the editor.
 
 ```ts
-BlockNoteEditor.create = (
-  options?: Partial<BlockNoteEditorOptions>,
-) => BlockNoteEditor;
+BlockNoteEditor.create = (options?: Partial<BlockNoteEditorOptions>) =>
+  BlockNoteEditor;
 ```
 
 In the demo below, we use `BlockNoteEditor.create` so we can fetch the editor's initial content from `localStorage` before creating it.
@@ -96,7 +91,7 @@ To, render the editor, you should use the `BlockNoteView` component, and pass in
 ```tsx
 const editor = useCreateBlockNote();
 
-return <BlockNoteView editor={editor}/>
+return <BlockNoteView editor={editor} />;
 ```
 
 ### Props
@@ -119,9 +114,9 @@ export type BlockNoteViewProps = Partial<{
         light: Theme;
         dark: Theme;
       };
-    editable?: boolean;
-    onSelectionChange?: () => void;
-    onChange?: () => void;
+  editable?: boolean;
+  onSelectionChange?: () => void;
+  onChange?: () => void;
 }>;
 ```
 
