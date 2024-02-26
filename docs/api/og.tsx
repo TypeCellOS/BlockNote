@@ -5,7 +5,7 @@ export const config = {
 };
 
 const font = fetch(
-  new URL("../public/fonts/Gilroy-Regular.ttf", import.meta.url),
+  new URL("../../assets/fonts/Gilroy-Regular.ttf", import.meta.url),
 ).then((res) => res.arrayBuffer());
 
 export default async function handler(request: { url: string }) {
