@@ -17,7 +17,7 @@ A theme is made up of a set of CSS variables, which can be overwritten to change
 
 Here are each of the theme CSS variables you can set, with values from the default light theme:
 
-```css
+```
 --bn-colors-editor-text: #3f3f3f;
 --bn-colors-editor-background: #ffffff;
 --bn-colors-menu-text: #3f3f3f;
@@ -62,13 +62,13 @@ Here are each of the theme CSS variables you can set, with values from the defau
 
 Setting these variables on the `.bn-container[data-color-scheme]` selector will overwrite them for both default light & dark themes. To overwrite variables separately for light & dark themes, use the `.bn-container[data-color-scheme="light"]` and `.bn-container[data-color-scheme="dark"]` selectors.
 
-In the demo below, we set a red theme for the editor which changes based on if light or dark mode is selected (change the website to dark mode in the footer to see the dark theme):
+In the demo below, we set a red theme for the editor which changes based on if light or dark mode is selected (see this in action by changing the website theme in the footer):
 
 <Example name="theming/theming-css-variables" />
 
 ## Changing CSS Variables Through Code
 
-You can also set the theme CSS variables using the `theme` prop in [`BlockNoteView`](TODO). Passing a `Theme` object will overwrite CSS variables for both light & dark themes with values from the object:
+You can also set the theme CSS variables using the `theme` prop in [`BlockNoteView`](/docs/editor-basics/setup#rendering-the-editor-with-blocknoteview). Passing a `Theme` object will overwrite CSS variables for both light & dark themes with values from the object:
 
 ```ts
 type CombinedColor = Partial<{
