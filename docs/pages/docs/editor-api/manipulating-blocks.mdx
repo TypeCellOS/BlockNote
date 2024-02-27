@@ -9,17 +9,17 @@ path: /docs/manipulating-blocks
 
 Below, we explain the methods on `editor` you can use to read Blocks from the editor, and how to create / remove / update Blocks:
 
-- [topLevelBlocks](/docs/editor-api/manipulating-blocks#getting-all-top-level-blocks)
-- [getBlock](/docs/editor-api/manipulating-blocks#getting-a-specific-block)
-- [forEachBlock](/docs/editor-api/manipulating-blocks#traversing-all-blocks)
-- [insertBlocks](/docs/editor-api/manipulating-blocks#inserting-new-blocks)
-- [updateBlock](/docs/editor-api/manipulating-blocks#updating-blocks)
-- [removeBlocks](/docs/editor-api/manipulating-blocks#removing-blocks)
-- [replaceBlocks](/docs/editor-api/manipulating-blocks#replacing-blocks)
-- [canNestBlock](/docs/editor-api/manipulating-blocks#nesting-blocks)
-- [nestBlock](/docs/editor-api/manipulating-blocks#nesting-blocks)
-- [canUnnestBlock](/docs/editor-api/manipulating-blocks#un-nesting-blocks)
-- [unnestBlock](/docs/editor-api/manipulating-blocks#un-nesting-blocks)
+- [`get document`](/docs/editor-api/manipulating-blocks#getting-the-document)
+- [`getBlock`](/docs/editor-api/manipulating-blocks#getting-a-specific-block)
+- [`forEachBlock`](/docs/editor-api/manipulating-blocks#traversing-all-blocks)
+- [`insertBlocks`](/docs/editor-api/manipulating-blocks#inserting-new-blocks)
+- [`updateBlock`](/docs/editor-api/manipulating-blocks#updating-blocks)
+- [`removeBlocks`](/docs/editor-api/manipulating-blocks#removing-blocks)
+- [`replaceBlocks`](/docs/editor-api/manipulating-blocks#replacing-blocks)
+- [`canNestBlock`](/docs/editor-api/manipulating-blocks#nesting-blocks)
+- [`nestBlock`](/docs/editor-api/manipulating-blocks#nesting-blocks)
+- [`canUnnestBlock`](/docs/editor-api/manipulating-blocks#un-nesting-blocks)
+- [`unnestBlock`](/docs/editor-api/manipulating-blocks#un-nesting-blocks)
 
 ## Common types
 
@@ -27,7 +27,7 @@ Before we dive into the methods, let's discuss some common types used in paramet
 
 ### Block Identifiers
 
-The methods to access, insert, update, remove, or replace blocks, can require a `BlockIdentifier` as reference to an existing block in the document. 
+The methods to access, insert, update, remove, or replace blocks, can require a `BlockIdentifier` as reference to an existing block in the document.
 This is either a `string` representing the block ID, or a `Block` object from which the ID is taken:
 
 ```typescript
@@ -36,7 +36,7 @@ type BlockIdentifier = string | Block;
 
 ### Partial Blocks
 
-When retrieving blocks from the editor, you always receive complete `Block` objects. 
+When retrieving blocks from the editor, you always receive complete `Block` objects.
 For updating or creating blocks, you don't need to pass all properties and you can use a `PartialBlock` type instead:
 
 ```typescript
@@ -51,25 +51,24 @@ type PartialBlock = {
 
 `PartialBlock` objects are almost the same as regular `Block` objects, but with all members optional and partial `props`. This makes updating or creating simpler blocks much easier. We'll see this below.
 
-
 ## Accessing Blocks
 
 There are a few different ways to retrieve Blocks from the editor:
 
-### Getting All Top-Level Blocks
+### Getting the Document
 
-Retrieve a snapshot of all top-level (non-nested) blocks in the editor using the following call:
+Retrieve a snapshot of the document (all top-level, non-nested blocks) in the editor using the following call:
 
 ```typescript
-topLevelBlocks: Block[];
+document: Block[];
 
 // Usage
-const blocks = editor.topLevelBlocks;
+const blocks = editor.document;
 ```
 
 `returns:` The document; a snapshot of all top-level (non-nested) blocks in the editor.
 
-We  already used this for the [Editor Content in JSON](/docs/editor-basics/content-structure#editor-content-in-json) demo.
+We already used this for the [Editor Content in JSON](/docs/editor-basics/content-structure#editor-content-in-json) demo.
 
 ### Getting a Specific Block
 
@@ -129,7 +128,7 @@ editor.insertBlocks([{type: "paragraph", text: "Hello World"}], referenceBlock, 
 
 `placement:` Whether the blocks should be inserted just before, just after, or nested inside the `referenceBlock`. Inserts the blocks at the start of the existing block's children if `"nested"` is used.
 
-If a block's `id` is undefined, BlockNote generates one automatically. 
+If a block's `id` is undefined, BlockNote generates one automatically.
 
 The method throws an error if the reference block could not be found.
 
@@ -151,7 +150,7 @@ editor.updateBlock(blockToUpdate, { type: "paragraph" });
 
 `update:` A [partial blocks](/docs/editor-api/manipulating-blocks#partial-blocks) which defines how the existing block should be changed.
 
-Since `blockToUpdate` is a `PartialBlock` object, some fields might not be defined. These undefined fields are kept as-is from the existing block. 
+Since `blockToUpdate` is a `PartialBlock` object, some fields might not be defined. These undefined fields are kept as-is from the existing block.
 
 Throws an error if the block to update could not be found.
 
@@ -190,7 +189,7 @@ editor.replaceBlocks(blocksToRemove, blocksToInsert)
 
 `blocksToInsert:` An array of [partial blocks](/docs/editor-api/manipulating-blocks#partial-blocks) that the existing ones should be replaced with.
 
-If the blocks that should be removed are not adjacent or are at different nesting levels, `blocksToInsert` will be inserted at the position of the first block in `blocksToRemove`. 
+If the blocks that should be removed are not adjacent or are at different nesting levels, `blocksToInsert` will be inserted at the position of the first block in `blocksToRemove`.
 
 Throws an error if any of the blocks to remove could not be found.
 
@@ -200,7 +199,7 @@ BlockNote also provides functions to nest & un-nest the block containing the [Te
 
 ### Nesting Blocks
 
-TODO: this API seems different as it doesn't require a block id. should we make it possible to pass an identifier?
+{/* TODO: this API seems different as it doesn't require a block id. should we make it possible to pass an identifier? */}
 
 Use `canNestBlock` to check whether the block containing the [Text Cursor](/docs/editor-api/cursor-selections#text-cursor) can be nested (i.e. if there is a block above it at the same nesting level):
 

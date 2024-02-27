@@ -23,13 +23,13 @@ The Slash Menu is a Suggestion Menu that opens with the `/` character (or when c
 
 ### Changing Slash Menu Items
 
-You can change the items in the Slash Menu. The demo below adds an item that inserts a new block below, with "Hello World" in bold.
+You can change the items in the Slash Menu. The demo below adds an item that inserts a new block, with "Hello World" in bold.
 
 <Example name="ui-components/suggestion-menus-slash-menu-items" />
 
 Passing `slashMenu={false}` to `BlockNoteView` tells BlockNote not to show the default Slash Menu. Adding the `SuggestionMenuController` with `triggerCharacter={"/"}` and a custom `getItems` function tells BlockNote to show one with custom items instead.
 
-`getItems` should return the items that need to be shown in the Slash Menu, based on a `query` entered by the user (anything the user types after the `triggerCharacter`.
+`getItems` should return the items that need to be shown in the Slash Menu, based on a `query` entered by the user (anything the user types after the `triggerCharacter`).
 
 ### Replacing the Suggestion Menu Component
 

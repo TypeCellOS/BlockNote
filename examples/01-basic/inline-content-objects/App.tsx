@@ -61,7 +61,7 @@ export default function App() {
         onChange={() => {
           // Converts the editor's contents to an array with each top level
           // block's content.
-          setInlineContent(editor.topLevelBlocks.map((block) => block.content));
+          setInlineContent(editor.document.map((block) => block.content));
         }}
       />
       <p>Document JSON:</p>

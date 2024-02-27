@@ -350,10 +350,17 @@ export class BlockNoteEditor<
   }
 
   /**
+   * @deprecated, use `editor.document` instead
+   */
+  public get topLevelBlocks(): Block<BSchema, ISchema, SSchema>[] {
+    return this.topLevelBlocks;
+  }
+
+  /**
    * Gets a snapshot of all top-level (non-nested) blocks in the editor.
    * @returns A snapshot of all top-level (non-nested) blocks in the editor.
    */
-  public get topLevelBlocks(): Block<BSchema, ISchema, SSchema>[] {
+  public get document(): Block<BSchema, ISchema, SSchema>[] {
     const blocks: Block<BSchema, ISchema, SSchema>[] = [];
 
     this._tiptapEditor.state.doc.firstChild!.descendants((node) => {
@@ -419,7 +426,7 @@ export class BlockNoteEditor<
     callback: (block: Block<BSchema, ISchema, SSchema>) => boolean,
     reverse = false
   ): void {
-    const blocks = this.topLevelBlocks.slice();
+    const blocks = this.document.slice();
 
     if (reverse) {
       blocks.reverse();
@@ -861,7 +868,7 @@ export class BlockNoteEditor<
    * @returns The blocks, serialized as an HTML string.
    */
   public async blocksToHTMLLossy(
-    blocks: Block<BSchema, ISchema, SSchema>[] = this.topLevelBlocks
+    blocks: Block<BSchema, ISchema, SSchema>[] = this.document
   ): Promise<string> {
     const exporter = createExternalHTMLExporter(
       this._tiptapEditor.schema,
@@ -896,7 +903,7 @@ export class BlockNoteEditor<
    * @returns The blocks, serialized as a Markdown string.
    */
   public async blocksToMarkdownLossy(
-    blocks: Block<BSchema, ISchema, SSchema>[] = this.topLevelBlocks
+    blocks: Block<BSchema, ISchema, SSchema>[] = this.document
   ): Promise<string> {
     return blocksToMarkdown(blocks, this._tiptapEditor.schema, this);
   }

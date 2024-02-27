@@ -20,19 +20,14 @@ function createReactStyleSpec(
 Let's look at our custom font style from the demo, and go over each field to explain how it works:
 
 ```typescript
-const Mention = createReactStyleSpec(
+export const Font = createReactStyleSpec(
   {
-    type: "mention",
-    propSchema: {
-      user: {
-        default: "Unknown",
-      },
-    },
-    content: "none",
-  } as const,
+    type: "font",
+    propSchema: "string",
+  },
   {
     render: (props) => (
-      ...
+      <span style={{ fontFamily: props.value }} ref={props.contentRef} />
     ),
   }
 );
@@ -57,7 +52,7 @@ Defines the identifier of the custom style.
 
 The `PropSchema` specifies whether the style can only be toggled (`"boolean"`), or whether it can take a string value (`"string"`). Having a string value is useful for e.g. setting a color on the style.
 
-_In the font style demo, we set this to `"string"` so we can store the font name._
+_In the font style demo, we set this to `"string"` so we can store the font family._
 
 #### Style Implementation (`ReactCustomStyleImplementation`)
 
@@ -78,9 +73,9 @@ This is your React component which defines how your custom style should be rende
 
 `value:` The string value of the style, this is only available if your style config contains `propSchema: "string"`.
 
-`contentRef:` A React `ref` you can use to mark which element in your style is editable.
+`contentRef:` A React `ref` to mark the editable element.
 
-_Note that since styles are applied to text, you must set `contentRef` somewhere in you component, and should also return an HTML inline element._
+_Note that in contrast to Custom Blocks and Inline Content, the `render` function of Custom Styles cannot access React Context or other state. They should be plain React functions analogous to the example._
 
 ### Adding Custom Style to the Editor
 
