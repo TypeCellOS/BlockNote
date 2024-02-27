@@ -53,6 +53,7 @@ export const sponsorsCardData: SponsorCardProps[] = [
       dark: twentyDark,
     },
     name: "Twenty",
+    tagline: "Y Combinator S23",
   },
   {
     logo: {

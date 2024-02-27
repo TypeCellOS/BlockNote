@@ -3,11 +3,11 @@ import { Hero } from "./hero/Hero";
 import { Letter } from "./letter/Letter";
 
 import { FadeIn } from "@/components/pages/landing/shared/FadeIn";
-import { ContributorsSection } from "./Community";
 import FAQ from "./FAQ";
-import { Sponsors } from "./Sponsors";
 import "./gradients.css";
 import "./styles.css";
+import { Sponsors } from "@/components/pages/landing/sponsors/Sponsors";
+import { Community } from "@/components/pages/landing/community/Community";
 
 // TODO: Cleanup
 export function BlockNoteHome() {
@@ -32,7 +32,7 @@ export function BlockNoteHome() {
         <FadeIn noVertical>
           <div className={"section-border"} />
         </FadeIn>
-        <ContributorsSection />
+        <Community />
         {/*</GradientSectionBorder>*/}
         <FAQ />
       </main>

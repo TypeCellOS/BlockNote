@@ -15,7 +15,7 @@ export const Join = (props: {
       className={
         "flex w-full flex-col items-start justify-between gap-4 rounded-lg bg-gray-50 p-4 dark:bg-gray-800 sm:flex-row sm:items-center sm:gap-8 md:max-w-screen-md"
       }>
-      <div className={"hidden lg:block lg:w-fit"}>
+      <div className={"hidden md:block md:w-fit"}>
         <Icon width={30} />
       </div>
       <div className={"flex w-full flex-col"}>

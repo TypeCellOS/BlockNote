@@ -31,8 +31,8 @@ export const Community: FC = () => (
             "Ask questions, request features, and share your work with other BlockNote users on Discord"
           }
           icon={DiscordIcon}
-          linkTitle={"See our repository"}
-          linkUrl={"https://github.com/TypeCellOS/BlockNote"}
+          linkTitle={"Join our Server"}
+          linkUrl={"https://discord.gg/Qc2QTTH5dF"}
         />
       </div>
     </div>

@@ -80,7 +80,7 @@ function fetchContributors(): { username: string; avatarUrl: string }[] {
 }
 
 export const Contributors = () => (
-  <div className="flex flex-wrap items-center justify-center gap-3 md:max-w-screen-lg">
+  <div className="flex max-w-screen-md flex-wrap items-center justify-center gap-3 lg:max-w-screen-lg">
     {fetchContributors().map((contributor) => (
       // <Tooltip key={contributor.id} content={contributor.login}>
       <Link

@@ -53,11 +53,7 @@ function getUTCDateYYYYMMDD() {
   return `${year}${formattedMonth}${formattedDay}`;
 }
 
-export function ReactBlockNote(props: {
-  theme: "light" | "dark";
-}) {
-
-
+export function ReactBlockNote(props: { theme: "light" | "dark" }) {
   const [doc, provider] = useMemo(() => {
     console.log("create");
     const doc = new Y.Doc();
