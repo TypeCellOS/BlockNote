@@ -8,6 +8,7 @@ import { FadeIn } from "../shared/FadeIn";
 import { useTheme } from "nextra-theme-docs";
 import tryHereImageDark from "../../../../public/img/assets/try.dark.svg";
 import tryHereImageLight from "../../../../public/img/assets/try.svg";
+import Link from "next/link";
 
 const Demo = dynamic(() => import("@/components/pages/landing/hero/Demo"), {
   ssr: false,
@@ -32,30 +33,16 @@ export function Hero() {
             functionality like custom blocks or AI tooling.
           </SectionSubtext>
           <div className="button-glow-parent relative flex h-fit w-fit flex-wrap gap-x-6 gap-y-4">
-            <a
+            <Link
               className={
                 "z-20 rounded-full bg-slate-800 px-4 py-2 text-lg font-medium text-white"
               }
               href="/docs">
               Get Started
-            </a>
+            </Link>
             <div
               className={"button-glow absolute z-10 h-full w-full rounded-full"}
             />
-
-            {/* <a
-                className="rounded-full bg-slate-800 py-2 px-4 text-sm font-medium text-white hover:bg-slate-700 focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/50 active:text-slate-400"
-                href="/">
-                Get Started
-              </a> */}
-            {/* <AppStoreLink />
-          <Button
-            href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-            variant="outline"
-          >
-            <PlayIcon className="h-6 w-6 flex-none" />
-            <span className="ml-2.5">Watch the video</span>
-          </Button> */}
           </div>
         </FadeIn>
         <div className="relative h-[36rem] w-full shrink-0 grow-0 rounded-lg xl:w-[584px]">

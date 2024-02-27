@@ -102,11 +102,11 @@ export function Features() {
           "z-20 flex max-w-full flex-col items-center gap-12 px-4 md:max-w-screen-md xl:max-w-none"
         }>
         <FadeIn className="flex max-w-full flex-col items-center gap-2 text-center md:max-w-screen-md md:gap-4">
-          <SectionHeader>{"Why BlockNote?"}</SectionHeader>
+          <SectionHeader>Why BlockNote?</SectionHeader>
           <SectionSubtext>
-            {
-              "Whether you want deep customization or a great out-of-the-box experience, BlockNote has you covered with features for any use case."
-            }
+            Whether you want deep customization or a great out-of-the-box
+            experience, BlockNote has you covered with features for any use
+            case.
           </SectionSubtext>
         </FadeIn>
         <FadeIn className="grid max-w-full grid-cols-1 gap-4 md:max-w-screen-md md:grid-cols-2 xl:max-w-none xl:grid-cols-3 xl:gap-6 xl:p-0">

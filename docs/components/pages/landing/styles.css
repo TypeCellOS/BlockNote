@@ -11,10 +11,6 @@
     z-index: 30;
 }
 
-.card {
-    background-color: var(--bg-color);
-}
-
 .thumbnail:before {
     content: '';
     width: 100%;

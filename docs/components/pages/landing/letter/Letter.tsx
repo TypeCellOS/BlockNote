@@ -1,10 +1,8 @@
 import cn from "classnames";
-import Link from "next/link";
-
-import { CTAButton } from "../../home-shared/CTAButton";
 import { FadeIn } from "../shared/FadeIn";
 import { HeroText } from "../../home-shared/Headings";
 import gradients from "../../home-shared/gradients.module.css";
+import Link from "next/link";
 
 export function Letter() {
   return (
@@ -99,11 +97,18 @@ export function Letter() {
         className="relative z-20 mt-16 flex w-full justify-center"
         noVertical>
         <div className="w-full max-w-[180px]">
-          <CTAButton>
-            <Link className="block py-3 font-sans" href="/pack/docs">
+          <div className="button-glow-parent relative flex h-fit w-fit flex-wrap gap-x-6 gap-y-4">
+            <Link
+              className={
+                "z-20 rounded-full bg-slate-800 px-8 py-2 text-lg font-medium text-white"
+              }
+              href="/docs">
               Start Building
             </Link>
-          </CTAButton>
+            <div
+              className={"button-glow absolute z-10 h-full w-full rounded-full"}
+            />
+          </div>
         </div>
         {/*<Gradient*/}
         {/*  className="bottom-[-200px] -z-10 opacity-20"*/}
