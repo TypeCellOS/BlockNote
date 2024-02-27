@@ -1,5 +1,5 @@
 {
-  "content-structure": "Content Structure",
-  "default-content-types": "Default Content Types",
-  "editor": "Editor Setup"
+  "setup": "Editor Setup",
+  "document-structure": "Document Structure",
+  "default-schema": "Default Schema"
 }

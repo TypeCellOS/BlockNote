@@ -66,7 +66,6 @@ export default function App() {
   });
 
   // Renders the editor instance.
-  // TODO: Shorthand to just pass the array
   return (
     <BlockNoteView editor={editor} slashMenu={false}>
       <SuggestionMenuController

@@ -18,7 +18,7 @@ export default function App() {
                   new Date().toLocaleTimeString(),
               },
             ],
-            editor.topLevelBlocks[editor.topLevelBlocks.length - 1],
+            editor.document[editor.document.length - 1],
             "after"
           )
         }>
@@ -27,7 +27,7 @@ export default function App() {
       {/*Updates the currently selected block*/}
       <button
         onClick={() =>
-          editor.updateBlock(editor.topLevelBlocks[0], {
+          editor.updateBlock(editor.document[0], {
             content:
               "This block was updated at " + new Date().toLocaleTimeString(),
           })
@@ -35,14 +35,14 @@ export default function App() {
         Update first block
       </button>
       {/*Removes the currently selected block*/}
-      <button onClick={() => editor.removeBlocks([editor.topLevelBlocks[0]])}>
+      <button onClick={() => editor.removeBlocks([editor.document[0]])}>
         Remove first block
       </button>
       {/*Replaces the currently selected block*/}
       <button
         onClick={() =>
           editor.replaceBlocks(
-            [editor.topLevelBlocks[0]],
+            [editor.document[0]],
             [
               {
                 content:
