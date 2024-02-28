@@ -35,11 +35,13 @@ export default function App() {
 
   // Renders the editor instance, and its contents as HTML below.
   return (
-    <div className={"wrapper"}>
-      <div className={"item"}>
+    <div className="wrapper">
+      <div>Input (BlockNote Editor):</div>
+      <div className="item">
         <BlockNoteView editor={editor} onChange={onChange} />
       </div>
-      <div className={"item not-editor"}>
+      <div>Output (HTML):</div>
+      <div className="item bordered">
         <pre>
           <code>{html}</code>
         </pre>

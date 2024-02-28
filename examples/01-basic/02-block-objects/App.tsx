@@ -3,6 +3,8 @@ import { BlockNoteView, useCreateBlockNote } from "@blocknote/react";
 import "@blocknote/react/style.css";
 import { useState } from "react";
 
+import "./styles.css";
+
 export default function App() {
   // Stores the editor's contents (document) as an array of Block objects.
   const [blocks, setBlocks] = useState<Block[]>([]);
@@ -30,16 +32,23 @@ export default function App() {
   // Renders the editor instance and its contents, as an array of Block
   // objects, below.
   return (
-    <div>
-      <BlockNoteView
-        editor={editor}
-        onChange={() => {
-          // Get the editor content (document) and store on the state.
-          setBlocks(editor.document);
-        }}
-      />
-      <p>Document JSON:</p>
-      <pre>{JSON.stringify(blocks, null, 2)}</pre>
+    <div className={"wrapper"}>
+      <div>BlockNote Editor:</div>
+      <div className={"item"}>
+        <BlockNoteView
+          editor={editor}
+          onChange={() => {
+            // Get the editor content (document) and store on the state.
+            setBlocks(editor.document);
+          }}
+        />
+      </div>
+      <div>Document JSON:</div>
+      <div className={"item bordered"}>
+        <pre>
+          <code>{JSON.stringify(blocks, null, 2)}</code>
+        </pre>
+      </div>
     </div>
   );
 }

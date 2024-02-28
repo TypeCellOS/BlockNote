@@ -34,11 +34,13 @@ export default function App() {
   // below, which displays the current HTML as blocks.
   return (
     <div className={"wrapper"}>
-      <div className={"item not-editor"}>
+      <div>Input (HTML):</div>
+      <div className={"item bordered"}>
         <code>
           <textarea defaultValue={initialHTML} onChange={htmlInputChanged} />
         </code>
       </div>
+      <div>Output (BlockNote Editor):</div>
       <div className={"item"}>
         <BlockNoteView editor={editor} editable={false} />
       </div>

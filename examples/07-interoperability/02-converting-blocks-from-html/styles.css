@@ -1,17 +1,16 @@
 .wrapper {
     display: flex;
     flex-direction: column;
-    gap: 4%;
     height: 100%;
 }
 
 .item {
     border-radius: 0.5rem;
+    flex: 1;
     overflow: hidden;
-    height: 48%;
 }
 
-.item.not-editor {
+.item.bordered {
     border: 1px solid gray;
 }
 

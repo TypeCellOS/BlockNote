@@ -32,7 +32,8 @@ export default function App() {
   // below, which displays the current Markdown as blocks.
   return (
     <div className={"wrapper"}>
-      <div className={"item not-editor"}>
+      <div>Input (Markdown):</div>
+      <div className={"item bordered"}>
         <code>
           <textarea
             defaultValue={initialMarkdown}
@@ -40,6 +41,7 @@ export default function App() {
           />
         </code>
       </div>
+      <div>Output (BlockNote Editor):</div>
       <div className={"item"}>
         <BlockNoteView editor={editor} editable={false} />
       </div>
