@@ -4,7 +4,6 @@ import { AiFillCodeSandboxCircle, AiFillGithub } from "react-icons/ai";
 import { examples } from "./generated/exampleComponents.gen";
 import "./styles.css";
 
-
 const baseGitHubURL =
   "https://github.com/TypeCellOS/BlockNote/tree/main/examples/";
 const baseCodeSandboxURL =
@@ -13,7 +12,7 @@ const baseCodeSandboxURL =
 const ThemedExample = dynamic(() => import("./ThemedExample"), {
   ssr: false,
 });
-  
+
 export function ExampleBlock(props: {
   name: keyof typeof examples;
   children: any;
@@ -22,10 +21,9 @@ export function ExampleBlock(props: {
   // if (!example) {
   //   throw new Error("invalid example");
   // }
-  
 
   return (
-    <div className="nx-bg-primary-700/5 dark:nx-bg-primary-300/10 mt-6 rounded-lg p-4">
+    <div className="demo nx-bg-primary-700/5 dark:nx-bg-primary-300/10 mt-6 rounded-lg p-4">
       <div className={"flex flex-row gap-6 pb-4"}>
         <button
           className={
@@ -44,8 +42,8 @@ export function ExampleBlock(props: {
           <div className={"text-sm"}>CodeSandbox</div>
         </button>
       </div>
-      <div className={"h-64 overflow-scroll rounded-lg"}>
-          <ThemedExample name={props.name} />
+      <div className={"h-96 overflow-auto rounded-lg"}>
+        <ThemedExample name={props.name} />
       </div>
       {props.children}
     </div>

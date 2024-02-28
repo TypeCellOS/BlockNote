@@ -135,7 +135,7 @@
     box-shadow: var(--bn-shadow-medium);
     box-sizing: border-box;
     color: var(--bn-colors-menu-text);
-    overflow-y: scroll;
+    overflow-y: auto;
     padding: 2px;
 }
 

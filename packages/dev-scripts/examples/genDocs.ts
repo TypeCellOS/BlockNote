@@ -2,10 +2,10 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import {
   Files,
-  Project,
   getExampleProjects,
   getProjectFiles,
   groupProjects,
+  Project,
 } from "./util";
 
 /*
@@ -32,7 +32,7 @@ import { Tabs } from "nextra/components";
       .map(
         ([filename, file]) =>
           `<Tabs.Tab>
-            <div className={"max-h-96 overflow-scroll rounded-lg overscroll-contain"}>
+            <div className={"max-h-96 overflow-auto rounded-lg overscroll-contain"}>
 \`\`\`${getLanguageFromFileName(filename)} 
 ${file.code}
 \`\`\`
