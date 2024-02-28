@@ -1,22 +1,18 @@
-import { ImageResponse } from "@vercel/og";
+import { ImageResponse } from "next/og";
 
-export const config = {
-  runtime: "edge",
-};
+export const runtime = "edge";
 
-const font = fetch(
-  new URL("../../assets/fonts/Gilroy-Regular.ttf", import.meta.url),
-).then((res) => res.arrayBuffer());
-
-export default async function handler(request: { url: string }) {
+export async function GET(request: Request) {
   try {
+    const fontData = await fetch(
+      new URL("../../../assets/fonts/Gilroy-Regular.ttf", import.meta.url),
+    ).then((res) => res.arrayBuffer());
+
     const { searchParams } = new URL(request.url);
     let title = searchParams.get("title");
     if (title && title.length > 100) {
       title = title.slice(0, 99) + "…";
     }
-
-    const fontData = await font;
 
     const bannerSVG = (
       <svg
