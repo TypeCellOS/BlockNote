@@ -3,7 +3,7 @@ import { useEditorChange } from "./useEditorChange";
 import { useEditorSelectionChange } from "./useEditorSelectionChange";
 
 export function useEditorContentOrSelectionChange(
-  callback: (editor: BlockNoteEditor<any, any, any>) => void,
+  callback: () => void,
   editor?: BlockNoteEditor<any, any, any>
 ) {
   useEditorChange(callback, editor);

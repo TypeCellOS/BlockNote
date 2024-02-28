@@ -126,9 +126,9 @@ export const Alert = createBlockSpec(
   }
 );
 
-export const insertAlert = {
+export const insertAlert = (editor: BlockNoteEditor<any, any, any>) => ({
   title: "Insert Alert",
-  onItemClick: (editor: BlockNoteEditor<any, any, any>) => {
+  onItemClick: () => {
     const block: PartialBlock<
       BlockSchemaWithBlock<"alert", (typeof Alert)["config"]>,
       any,
@@ -151,4 +151,4 @@ export const insertAlert = {
     "success",
   ],
   group: "Other",
-};
+});

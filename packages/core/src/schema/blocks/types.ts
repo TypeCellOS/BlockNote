@@ -1,14 +1,14 @@
 /** Define the main block types **/
-import { Extension, Node } from "@tiptap/core";
+import type { Extension, Node } from "@tiptap/core";
 
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
-import {
+import type {
   InlineContent,
   InlineContentSchema,
   PartialInlineContent,
 } from "../inlineContent/types";
-import { PropSchema, Props } from "../propTypes";
-import { StyleSchema } from "../styles/types";
+import type { PropSchema, Props } from "../propTypes";
+import type { StyleSchema } from "../styles/types";
 
 export type BlockNoteDOMElement =
   | "editor"

@@ -1,9 +1,9 @@
 import {
-  FormattingToolbarProps,
+  useBlockNoteEditor,
   useEditorChange,
   useEditorSelectionChange,
 } from "@blocknote/react";
-import { HTMLAttributes, useState } from "react";
+import { useState } from "react";
 import { MdFormatColorText } from "react-icons/md";
 
 export const colors = [
@@ -17,41 +17,35 @@ export const colors = [
 ] as const;
 
 // Formatting Toolbar sub menu for changing text and background color
-export const ColorMenu = (
-  props: FormattingToolbarProps<any> & HTMLAttributes<HTMLDivElement>
-) => {
-  const { editor, className, ...rest } = props;
+export function ColorMenu(props: { className?: string }) {
+  const editor = useBlockNoteEditor();
 
   // Colors of the currently selected text
-  // TODO: Vite doesn't seem to be live-updating core & react?
   const [textColor, setTextColor] = useState<string>(
-    (props.editor.getActiveStyles().textColor as string) || "default"
+    (editor.getActiveStyles().textColor as string) || "default"
   );
   const [backgroundColor, setCurrentColor] = useState<string>(
-    (props.editor.getActiveStyles().backgroundColor as string) || "default"
+    (editor.getActiveStyles().backgroundColor as string) || "default"
   );
 
   // Update the colors when the editor content or selection changes
   useEditorChange(() => {
-    setTextColor(
-      (props.editor.getActiveStyles().textColor as string) || "default"
-    );
+    setTextColor((editor.getActiveStyles().textColor as string) || "default");
     setCurrentColor(
-      (props.editor.getActiveStyles().backgroundColor as string) || "default"
+      (editor.getActiveStyles().backgroundColor as string) || "default"
     );
-  }, props.editor);
+  }, editor);
 
   useEditorSelectionChange(() => {
-    setTextColor(
-      (props.editor.getActiveStyles().textColor as string) || "default"
-    );
+    setTextColor((editor.getActiveStyles().textColor as string) || "default");
     setCurrentColor(
-      (props.editor.getActiveStyles().backgroundColor as string) || "default"
+      (editor.getActiveStyles().backgroundColor as string) || "default"
     );
-  }, props.editor);
+  }, editor);
 
   return (
-    <div {...rest} className={`color-menu${className ? " " + className : ""}`}>
+    <div
+      className={`color-menu${props.className ? " " + props.className : ""}`}>
       {/*Group for text color buttons*/}
       <div className={"color-menu-group"}>
         {colors.map((color) => (
@@ -62,8 +56,8 @@ export const ColorMenu = (
             }`}
             onClick={() => {
               color === "default"
-                ? props.editor.removeStyles({ textColor: color })
-                : props.editor.addStyles({ textColor: color });
+                ? editor.removeStyles({ textColor: color })
+                : editor.addStyles({ textColor: color });
             }}
             key={color}>
             <MdFormatColorText />
@@ -80,8 +74,8 @@ export const ColorMenu = (
             }`}
             onClick={() => {
               color === "default"
-                ? props.editor.removeStyles({ backgroundColor: color })
-                : props.editor.addStyles({ backgroundColor: color });
+                ? editor.removeStyles({ backgroundColor: color })
+                : editor.addStyles({ backgroundColor: color });
             }}
             key={color}>
             <MdFormatColorText />
@@ -90,4 +84,4 @@ export const ColorMenu = (
       </div>
     </div>
   );
-};
+}

@@ -1,23 +1,61 @@
-import { BlockNoteView, useBlockNote } from "@blocknote/react";
+import {
+  BlockColorsItem,
+  BlockNoteView,
+  DragHandleMenu,
+  DragHandleMenuItem,
+  RemoveBlockItem,
+  SideMenu,
+  SideMenuController,
+  useCreateBlockNote,
+} from "@blocknote/react";
 import "@blocknote/react/style.css";
 
 export default function App() {
   // Creates a new editor instance.
-  const editor = useBlockNote();
+  const editor = useCreateBlockNote({
+    initialContent: [
+      {
+        type: "paragraph",
+        content: "Welcome to this demo!",
+      },
+      {
+        type: "paragraph",
+        content: "<- Click the Drag Handle to see the new item",
+      },
+      {
+        type: "bulletListItem",
+        content:
+          "Try resetting this block's type using the new Drag Handle Menu item",
+      },
+      {
+        type: "paragraph",
+      },
+    ],
+  });
 
   // Renders the editor instance.
   return (
-    <BlockNoteView editor={editor}>
-      {/* TODO */}
-      {/* <FormattingToolbarPositioner editor={editor} />
-      <HyperlinkToolbarPositioner editor={editor} />
-      <SlashMenuPositioner editor={editor} />
-      <SideMenuPositioner
-        editor={editor}
+    <BlockNoteView editor={editor} sideMenu={false}>
+      <SideMenuController
         sideMenu={(props) => (
-          <DefaultSideMenu {...props} dragHandleMenu={CustomDragHandleMenu} />
-        )} */}
-      {/* /> */}
+          <SideMenu
+            {...props}
+            dragHandleMenu={(props) => (
+              <DragHandleMenu {...props}>
+                <RemoveBlockItem {...props}>Delete</RemoveBlockItem>
+                <BlockColorsItem {...props}>Colors</BlockColorsItem>
+                {/*Custom item which resets the hovered block's type.*/}
+                <DragHandleMenuItem
+                  onClick={() => {
+                    editor.updateBlock(props.block, { type: "paragraph" });
+                  }}>
+                  Reset Type
+                </DragHandleMenuItem>
+              </DragHandleMenu>
+            )}
+          />
+        )}
+      />
     </BlockNoteView>
   );
 }

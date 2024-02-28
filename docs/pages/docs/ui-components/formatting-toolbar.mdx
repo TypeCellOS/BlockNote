@@ -1,6 +1,6 @@
 ---
 title: Formatting Toolbar
-description: The Formatting Toolbar appears whenever you highlight text in the editor, and is mainly used for styling.
+description: The Formatting Toolbar appears whenever you highlight text in the editor.
 imageTitle: Formatting Toolbar
 path: /docs/formatting-toolbar
 ---
@@ -9,97 +9,41 @@ import { Example } from "@/components/example";
 
 # Formatting Toolbar
 
-The Formatting Toolbar appears whenever you highlight text in the editor, and is mainly used for styling.
+The Formatting Toolbar appears whenever you highlight text in the editor.
 
-<img style={{maxWidth: "600px"}} src="/img/screenshots/formatting_toolbar.png" alt="image" />
+<img
+  style={{ maxWidth: "600px" }}
+  src="/img/screenshots/formatting_toolbar.png"
+  alt="image"
+/>
 
-## Custom Formatting Toolbar
+## Changing the Formatting Toolbar
 
-If you want to change the buttons/dropdowns in the Formatting Toolbar, or replace it altogether, you can do that using a React component.
-
-You can see how this is done in the example below, which has a custom Formatting Toolbar. It contains the same items as the default Formatting Toolbar, with and added blue text/background color and code style button.
+You can change or replace the Formatting Toolbar with your own React component. In the demo below, 2 buttons are added to the default Formatting Toolbar - one to add a blue text/background, and one to toggle code styles.
 
 <Example name="ui-components/formatting-toolbar-buttons" />
 
-`CustomFormattingToolbar` is the component we use to replace the default Formatting Toolbar. You can see it's made up of a bunch of other components that are exported by BlockNote. Read on to [Components](/docs/formatting-toolbar#components) to find out more about these.
+We use the `FormattingToolbar` component to create a custom Formatting Toolbar. By specifying its children, we can replace the default buttons in the toolbar with our own.
 
-After creating `CustomFormattingToolbar`, we tell BlockNote to use it inside `BlockNoteView`. [Changing UI Elements](/docs/ui-elements) has more information about how this is done.
+This custom Formatting Toolbar is passed to a `FormattingToolbarController`, which controls its position and visibility (above or below the highlighted text).
 
-## Changing the Block Type Dropdown
+Setting `formattingToolbar={false}` on `BlockNoteView` tells BlockNote not to show the default Formatting Toolbar.
 
-If you create a [custom block](/docs/block-types#custom-block-types) and want to add it to the block type dropdown in the default Formatting Toolbar, you can do that through the `blockTypeDropdownItems` prop of the `DefaultFormattingToolbar` component:
+<div className="nx-mt-6 nx-leading-7 first:nx-mt-0">
+    <small>
+        <strong>Tip:</strong> The children you pass to the `FormattingToolbar` component
+        should be default dropdowns/buttons (e.g. `BlockTypeDropdown` & `BasicTextStyleButton`) or custom dropdowns/buttons
+        (`ToolbarDropdown` & `ToolbarButton`). To see all the components you can use, head to the
+        [Formatting Toolbar's source code](link).
+    </small>
+</div>
 
-```typescript jsx
-<DefaultFormattingToolbar
-    {...props}
-    blockTypeDropdownItems={[
-        ...defaultBlockTypeDropdownItems,
-        {
-            name: "Image",
-            type: "image",
-            props: {
-                src: "https://via.placeholder.com/1000",
-                alt: "image",
-            },
-            icon: RiImage2Fill,
-            isSelected: (block) => block.type === "image",
-        },
-    ]}
-/>
-```
+## Changing Block Type Dropdown Items
 
-Find out how to replace the Formatting Toolbar in [Replacing UI Elements](/docs/ui-elements#replacing-ui-elements).
+TODO: I think this is too specific for this page. We can just describe the components below, and link to an example that makes more sense ("image" doesn't)
 
-## Components
+The first element in the default Formatting Toolbar is the Block Type Dropdown, and you can change the items in it. The demo makes the Block Type Dropdown work for image blocks by adding an item to it.
 
-It might seem daunting to create your own Formatting Toolbar from scratch, which is why BlockNote provides React components that you can use which match the default styling.
+<Example name="ui-components/formatting-toolbar-block-type-items" />
 
-### Default Components
-
-BlockNote exports all components used to create the default layout - both the toolbar itself and the items in it. Head to the [default Formatting Toolbar's source code](https://github.com/TypeCellOS/BlockNote/blob/main/packages/react/src/FormattingToolbar/components/DefaultFormattingToolbar.tsx) to see all the components that you can use.
-
-### Custom Components
-
-BlockNote also provides components that you can use to make your own toolbar items, which also match the default styling:
-
-```typescript
-// Custom dropdown.
-type ToolbarDropdownProps = {
-  // Array representing the items in the dropdown.
-  items: Array<{
-    // Item name/text.
-    text: string;
-    // Icon next to the text.
-    icon?: IconType;
-    // Function to execute on click.
-    onClick?: (e: MouseEvent) => void;
-    // Condition for when the item is selected/active.
-    isSelected?: boolean;
-    // Whether the item should be clickable.
-    isDisabled?: boolean;
-  }>;
-  // Whether the dropdown should be clickable.
-  isDisabled?: boolean;
-};
-const ToolbarDropdown = (props: ToolbarDropdownProps): JSX.Element => ...;
-
-// Custom button.
-type ToolbarButtonProps = {
-  // Main tooltip, which is shown on hover.
-  mainTooltip: string;
-  // Secondary tooltip, usually showing the keyboard shortcut.
-  secondaryTooltip?: string;
-  // Icon for the button.
-  icon?: IconType;
-  // Function to execute on click.
-  onClick?: (e: MouseEvent) => void;
-  // Condition for when the item is selected/active.
-  isSelected?: boolean;
-  // Whether the item should be clickable.
-  isDisabled?: boolean;
-  // Child components, usually just the button text. If no children are 
-  // given, make sure to provide an icon.
-  children?: any;
-};
-export const ToolbarButton = (props: ToolbarButtonProps) => ...;
-```
+Here, we use the `FormattingToolbar` component but keep the default buttons (we don't pass any children). Instead, we pass our customized Block Type Dropdown items using the `blockTypeDropdownItems` prop.

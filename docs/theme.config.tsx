@@ -37,8 +37,8 @@ interface Frontmatter {
 
 const config: DocsThemeConfig = {
   sidebar: {
-    defaultMenuCollapseLevel: 2,
-    toggleButton: true,
+    defaultMenuCollapseLevel: 1,
+    toggleButton: false,
   },
   docsRepositoryBase: "https://github.com/TypeCellOS/BlockNote/blob/main/docs",
   useNextSeoProps: function SEO() {

@@ -1,0 +1,36 @@
+---
+title: Overriding CSS
+description: You can change any styles applied to the editor by setting your own CSS styles.
+imageTitle: Overriding CSS
+path: /docs/styling-theming/overriding-css
+---
+
+import { Example } from "@/components/example";
+
+# Overriding CSS
+
+Within the editor's DOM structure, you'll find many elements have classes with the `bn-` prefix. BlockNote uses these to apply CSS styles to the editor, which you can override with your own. Here are some of the most useful BlockNote classes that you can use for your CSS rules:
+
+`bn-container`: Container element for the editor, as well as all menus and toolbars.
+
+`bn-editor`: Element for only the editor.
+
+`bn-block`: Element for a block, including nested blocks.
+
+`bn-group`: Container element for nested blocks.
+
+`bn-inline-content`: Element for a block's content.
+
+`bn-toolbar`: Element for the formatting & hyperlink toolbars.
+
+`bn-side-menu`: Element for the side menu.
+
+`bn-drag-handle-menu`: Element for the drag handle menu.
+
+`bn-slash-menu`: Element for the slash menu.
+
+Because BlockNote uses [Mantine](https://mantine.dev/) for its UI, you can also write CSS rules using any of the default Mantine component classes. To figure out what CSS selector you need to use to target a specific DOM element, it's easiest to just inspect the DOM tree using your browser's dev tools.
+
+In the demo below, we create additional CSS rules to add some simple styling to the editor, and also make all hovered slash menu items blue:
+
+<Example name="theming/theming-css" />

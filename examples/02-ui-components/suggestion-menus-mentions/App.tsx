@@ -1,0 +1,97 @@
+import {
+  BlockNoteSchema,
+  defaultInlineContentSpecs,
+  filterSuggestionItems,
+} from "@blocknote/core";
+import {
+  BlockNoteView,
+  DefaultReactSuggestionItem,
+  SuggestionMenuController,
+  useCreateBlockNote,
+} from "@blocknote/react";
+import "@blocknote/react/style.css";
+
+import { Mention } from "./Mention";
+
+// Our schema with inline content specs, which contain the configs and implementations for inline content
+// that we want our editor to use.
+const schema = BlockNoteSchema.create({
+  inlineContentSpecs: {
+    // Adds all default inline content.
+    ...defaultInlineContentSpecs,
+    // Adds the mention tag.
+    mention: Mention,
+  },
+});
+
+// Function which gets all users for the mentions menu.
+const getMentionMenuItems = (
+  editor: typeof schema.BlockNoteEditor
+): DefaultReactSuggestionItem[] => {
+  const users = ["Steve", "Bob", "Joe", "Mike"];
+
+  return users.map((user) => ({
+    title: user,
+    onItemClick: () => {
+      // TODO: Better API
+      editor._tiptapEditor.commands.insertContent({
+        type: "mention",
+        attrs: {
+          user: user,
+        },
+      });
+    },
+  }));
+};
+
+export function App() {
+  const editor = useCreateBlockNote({
+    schema,
+    initialContent: [
+      {
+        type: "paragraph",
+        content: "Welcome to this demo!",
+      },
+      {
+        type: "paragraph",
+        content: [
+          {
+            type: "mention",
+            props: {
+              user: "Steve",
+            },
+            // TODO: Typing needs fix
+            content: undefined,
+          },
+          {
+            type: "text",
+            text: " <- This is an example mention",
+            styles: {},
+          },
+        ],
+      },
+      {
+        type: "paragraph",
+        content: "Press the '@' key to open the mention menu and add another",
+      },
+      {
+        type: "paragraph",
+      },
+    ],
+  });
+
+  return (
+    <BlockNoteView editor={editor}>
+      {/* Adds a mentions menu which opens with the "@" key. */}
+      <SuggestionMenuController
+        triggerCharacter={"@"}
+        getItems={async (query) =>
+          // Gets the mentions menu items.
+          filterSuggestionItems(getMentionMenuItems(editor), query)
+        }
+      />
+    </BlockNoteView>
+  );
+}
+
+export default App;

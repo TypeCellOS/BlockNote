@@ -43,7 +43,7 @@ async function convertToHTMLAndCompareSnapshots<
 
   // turn the internalHTML back into blocks, and make sure no data was lost
   const fullBlocks = partialBlocksToBlocksForTesting(
-    editor.blockSchema,
+    editor.schema.blockSchema,
     blocks
   );
   const parsed = await editor.tryParseHTMLToBlocks(internalHTML);

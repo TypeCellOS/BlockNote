@@ -1,4 +1,5 @@
 {
   "playground": true,
-  "docs": true
+  "docs": true,
+  "shortTitle": "Saving & Loading"
 }

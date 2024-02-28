@@ -1,44 +1,26 @@
-import { filterSuggestionItems } from "@blocknote/core";
+import { BlockNoteSchema, filterSuggestionItems } from "@blocknote/core";
 import "@blocknote/core/style.css";
 import {
   BlockNoteDefaultUI,
   BlockNoteView,
-  DefaultPositionedSuggestionMenu,
+  SuggestionMenuController,
   getDefaultReactSlashMenuItems,
-  useBlockNote,
+  useCreateBlockNote,
 } from "@blocknote/react";
 import { Alert, insertAlert } from "../customblocks/Alert";
 import { Button } from "../customblocks/Button";
 
 type WindowWithProseMirror = Window & typeof globalThis & { ProseMirror: any };
 
-const blockSpecs = {
-  // ...defaultBlockSpecs,
-  alert: Alert,
-  button: Button,
-  // embed: Embed,
-  // image: Image,
-  // separator: Separator,
-  // toc: TableOfContents,
-};
-
-const defaultItems = getDefaultReactSlashMenuItems();
-
-const customItems = [
-  insertAlert,
-  // insertButton,
-  // insertEmbed,
-  // insertImage,
-  // insertSeparator,
-  // insertTableOfContents,
-];
-
-const allItems = [...defaultItems, ...customItems];
+const schema = BlockNoteSchema.create({
+  blockSpecs: {
+    alert: Alert,
+    button: Button,
+  },
+});
 
 export default function Editor() {
-  const editor = useBlockNote({
-    blockSpecs,
-  });
+  const editor = useCreateBlockNote({ schema });
 
   console.log(editor);
 
@@ -50,11 +32,14 @@ export default function Editor() {
   // TODO: how to customize slashmenu
   return (
     <BlockNoteView editor={editor}>
-      <BlockNoteDefaultUI editor={editor} slashMenu={false} />
-      <DefaultPositionedSuggestionMenu
-        editor={editor}
-        getItems={async (query) => filterSuggestionItems(allItems, query)}
-        onItemClick={(i) => i.onItemClick(editor)}
+      <BlockNoteDefaultUI slashMenu={false} />
+      <SuggestionMenuController
+        getItems={async (query) =>
+          filterSuggestionItems(
+            [...getDefaultReactSlashMenuItems(editor), insertAlert(editor)],
+            query
+          )
+        }
         // suggestionMenuComponent={MantineSuggestionMenu}
         triggerCharacter="/"
       />

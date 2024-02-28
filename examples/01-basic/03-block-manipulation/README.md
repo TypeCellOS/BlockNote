@@ -7,4 +7,3 @@ This example shows 4 buttons to manipulate the currently selected block using th
 **Relevant Docs:**
 
 - [Block Manipulation](/docs/manipulating-blocks)
-- [Text Cursor](/docs/cursor-selections#text-cursor)

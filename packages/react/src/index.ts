@@ -5,55 +5,60 @@ export * from "./editor/BlockNoteTheme";
 export * from "./editor/BlockNoteView";
 export * from "./editor/defaultThemes";
 
-export * from "./components/FormattingToolbar/DefaultButtons/ColorStyleButton";
-export * from "./components/FormattingToolbar/DefaultButtons/CreateLinkButton";
-export * from "./components/FormattingToolbar/DefaultButtons/ImageCaptionButton";
-export * from "./components/FormattingToolbar/DefaultButtons/NestBlockButtons";
-export * from "./components/FormattingToolbar/DefaultButtons/ReplaceImageButton";
-export * from "./components/FormattingToolbar/DefaultButtons/TextAlignButton";
-export * from "./components/FormattingToolbar/DefaultButtons/ToggledStyleButton";
-export * from "./components/FormattingToolbar/DefaultDropdowns/BlockTypeDropdown";
-export * from "./components/FormattingToolbar/DefaultFormattingToolbar";
-export * from "./components/FormattingToolbar/DefaultPositionedFormattingToolbar";
+export * from "./components/FormattingToolbar/FormattingToolbarController";
+export * from "./components/FormattingToolbar/FormattingToolbarProps";
+export * from "./components/FormattingToolbar/mantine/DefaultButtons/BasicTextStyleButton";
+export * from "./components/FormattingToolbar/mantine/DefaultButtons/ColorStyleButton";
+export * from "./components/FormattingToolbar/mantine/DefaultButtons/CreateLinkButton";
+export * from "./components/FormattingToolbar/mantine/DefaultButtons/ImageCaptionButton";
+export * from "./components/FormattingToolbar/mantine/DefaultButtons/NestBlockButtons";
+export * from "./components/FormattingToolbar/mantine/DefaultButtons/ReplaceImageButton";
+export * from "./components/FormattingToolbar/mantine/DefaultButtons/TextAlignButton";
+export * from "./components/FormattingToolbar/mantine/DefaultDropdowns/BlockTypeDropdown";
+export * from "./components/FormattingToolbar/mantine/FormattingToolbar";
 
-export * from "./components/HyperlinkToolbar/DefaultHyperlinkToolbar";
-export * from "./components/HyperlinkToolbar/DefaultPositionedHyperlinkToolbar";
+export * from "./components/HyperlinkToolbar/HyperlinkToolbarController";
+export * from "./components/HyperlinkToolbar/HyperlinkToolbarProps";
+export * from "./components/HyperlinkToolbar/mantine/HyperlinkToolbar";
 
-export * from "./components/SideMenu/DefaultButtons/AddBlockButton";
-export * from "./components/SideMenu/DefaultButtons/DragHandle";
-export * from "./components/SideMenu/DefaultPositionedSideMenu";
-export * from "./components/SideMenu/DefaultSideMenu";
-export * from "./components/SideMenu/SideMenu";
-export * from "./components/SideMenu/SideMenuButton";
+export * from "./components/SideMenu/SideMenuController";
+export * from "./components/SideMenu/SideMenuProps";
+export * from "./components/SideMenu/mantine/DefaultButtons/AddBlockButton";
+export * from "./components/SideMenu/mantine/DefaultButtons/DragHandleButton";
+export * from "./components/SideMenu/mantine/SideMenu";
+export * from "./components/SideMenu/mantine/SideMenuButton";
 
-export * from "./components/SideMenu/DragHandleMenu/DefaultButtons/BlockColorsButton";
-export * from "./components/SideMenu/DragHandleMenu/DefaultButtons/RemoveBlockButton";
-export * from "./components/SideMenu/DragHandleMenu/DefaultDragHandleMenu";
-export * from "./components/SideMenu/DragHandleMenu/DragHandleMenu";
-export * from "./components/SideMenu/DragHandleMenu/DragHandleMenuItem";
+export * from "./components/SideMenu/DragHandleMenu/DragHandleMenuProps";
+export * from "./components/SideMenu/DragHandleMenu/mantine/DefaultItems/BlockColorsItem";
+export * from "./components/SideMenu/DragHandleMenu/mantine/DefaultItems/RemoveBlockItem";
+export * from "./components/SideMenu/DragHandleMenu/mantine/DragHandleMenu";
+export * from "./components/SideMenu/DragHandleMenu/mantine/DragHandleMenuItem";
 
-export * from "./components/SuggestionMenu/DefaultPositionedSuggestionMenu";
-export * from "./components/SuggestionMenu/DefaultSuggestionMenu";
-export * from "./components/SuggestionMenu/defaultReactSlashMenuItems";
+export * from "./components/SuggestionMenu/SuggestionMenuController";
+export * from "./components/SuggestionMenu/SuggestionMenuWrapper";
+export * from "./components/SuggestionMenu/getDefaultReactSlashMenuItems";
 export * from "./components/SuggestionMenu/hooks/useCloseSuggestionMenuNoItems";
 export * from "./components/SuggestionMenu/hooks/useLoadSuggestionMenuItems";
 export * from "./components/SuggestionMenu/hooks/useSuggestionMenuKeyboardNavigation";
-export * from "./components/SuggestionMenu/mantine/MantineSuggestionMenu";
-export * from "./components/SuggestionMenu/mantine/MantineSuggestionMenuItem";
+export * from "./components/SuggestionMenu/mantine/SuggestionMenu";
+export * from "./components/SuggestionMenu/mantine/SuggestionMenuItem";
+export * from "./components/SuggestionMenu/types";
 
-export * from "./components/ImageToolbar/DefaultImageToolbar";
-export * from "./components/ImageToolbar/DefaultPositionedImageToolbar";
+export * from "./components/ImageToolbar/ImageToolbarController";
+export * from "./components/ImageToolbar/ImageToolbarProps";
+export * from "./components/ImageToolbar/mantine/ImageToolbar";
 
-export * from "./components/TableHandles/DefaultPositionedTableHandles";
-export * from "./components/TableHandles/DefaultTableHandle";
+export * from "./components/TableHandles/TableHandleProps";
+export * from "./components/TableHandles/TableHandlesController";
 export * from "./components/TableHandles/hooks/useTableHandlesPositioning";
+export * from "./components/TableHandles/mantine/TableHandle";
 
-export * from "./components-shared/Toolbar/Toolbar";
-export * from "./components-shared/Toolbar/ToolbarButton";
-export * from "./components-shared/Toolbar/ToolbarDropdown";
+export * from "./components/mantine-shared/Toolbar/ToolbarButton";
+export * from "./components/mantine-shared/Toolbar/ToolbarDropdown";
 
 export * from "./hooks/useActiveStyles";
-export * from "./hooks/useBlockNote";
+export * from "./hooks/useBlockNoteEditor";
+export * from "./hooks/useCreateBlockNote";
 export * from "./hooks/useEditorChange";
 export * from "./hooks/useEditorContentOrSelectionChange";
 export * from "./hooks/useEditorForceUpdate";

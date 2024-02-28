@@ -5,7 +5,7 @@ import {
 } from "@floating-ui/react";
 import { useEffect, useMemo } from "react";
 
-import { UiComponentPosition } from "../components-shared/UiComponentTypes";
+import { UiComponentPosition } from "./UiComponentPosition";
 
 export function useUIElementPositioning(
   show: boolean,

@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "docs:build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
@@ -12,7 +12,7 @@
     "@blocknote/core": "*",
     "@blocknote/react": "*",
     "@headlessui/react": "^1.7.18",
-    "@mantine/core": "^7.4.2",
+    "@mantine/core": "^7.5.0",
     "@next/bundle-analyzer": "^14.1.0",
     "@vercel/og": "^0.6.2",
     "classnames": "2.3.2",

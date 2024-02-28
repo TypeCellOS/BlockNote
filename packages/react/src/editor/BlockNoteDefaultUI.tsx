@@ -1,12 +1,12 @@
 import { filterSuggestionItems } from "@blocknote/core";
-import { DefaultPositionedFormattingToolbar } from "../components/FormattingToolbar/DefaultPositionedFormattingToolbar";
-import { DefaultPositionedHyperlinkToolbar } from "../components/HyperlinkToolbar/DefaultPositionedHyperlinkToolbar";
-import { DefaultPositionedImageToolbar } from "../components/ImageToolbar/DefaultPositionedImageToolbar";
-import { DefaultPositionedSideMenu } from "../components/SideMenu/DefaultPositionedSideMenu";
-import { DefaultPositionedSuggestionMenu } from "../components/SuggestionMenu/DefaultPositionedSuggestionMenu";
-import { getDefaultReactSlashMenuItems } from "../components/SuggestionMenu/defaultReactSlashMenuItems";
-import { DefaultPositionedTableHandles } from "../components/TableHandles/DefaultPositionedTableHandles";
-import { useBlockNoteContext } from "./BlockNoteContext";
+import { FormattingToolbarController } from "../components/FormattingToolbar/FormattingToolbarController";
+import { HyperlinkToolbarController } from "../components/HyperlinkToolbar/HyperlinkToolbarController";
+import { ImageToolbarController } from "../components/ImageToolbar/ImageToolbarController";
+import { SideMenuController } from "../components/SideMenu/SideMenuController";
+import { getDefaultReactSlashMenuItems } from "../components/SuggestionMenu/getDefaultReactSlashMenuItems";
+import { SuggestionMenuController } from "../components/SuggestionMenu/SuggestionMenuController";
+import { TableHandlesController } from "../components/TableHandles/TableHandlesController";
+import { useBlockNoteEditor } from "../hooks/useBlockNoteEditor";
 
 export type BlockNoteDefaultUIProps = {
   formattingToolbar?: boolean;
@@ -18,7 +18,7 @@ export type BlockNoteDefaultUIProps = {
 };
 
 export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
-  const editor = useBlockNoteContext()?.editor;
+  const editor = useBlockNoteEditor();
 
   if (!editor) {
     throw new Error(
@@ -26,36 +26,28 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
     );
   }
 
-  // TODO also remove editor passing to each component, use context
   return (
     <>
-      {props.formattingToolbar !== false && (
-        <DefaultPositionedFormattingToolbar editor={editor} />
-      )}
-      {props.hyperlinkToolbar !== false && (
-        <DefaultPositionedHyperlinkToolbar editor={editor} />
-      )}
+      {props.formattingToolbar !== false && <FormattingToolbarController />}
+      {props.hyperlinkToolbar !== false && <HyperlinkToolbarController />}
       {props.slashMenu !== false && (
-        <DefaultPositionedSuggestionMenu
-          editor={editor}
+        <SuggestionMenuController
           getItems={async (query) =>
-            filterSuggestionItems(getDefaultReactSlashMenuItems(), query)
+            filterSuggestionItems(getDefaultReactSlashMenuItems(editor), query)
           }
           // suggestionMenuComponent={MantineSuggestionMenu}
           onItemClick={(item) => {
-            item.onItemClick(editor);
+            item.onItemClick();
           }}
           triggerCharacter="/"
         />
       )}
-      {props.sideMenu !== false && (
-        <DefaultPositionedSideMenu editor={editor} />
+      {props.sideMenu !== false && <SideMenuController />}
+      {editor.imageToolbar && props.imageToolbar !== false && (
+        <ImageToolbarController />
       )}
-      {props.imageToolbar !== false && (
-        <DefaultPositionedImageToolbar editor={editor} />
-      )}
-      {editor.blockSchema.table && props.tableHandles !== false && (
-        <DefaultPositionedTableHandles editor={editor as any} />
+      {editor.tableHandles && props.tableHandles !== false && (
+        <TableHandlesController />
       )}
     </>
   );

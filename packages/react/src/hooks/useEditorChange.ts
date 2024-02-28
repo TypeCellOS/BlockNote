@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { useBlockNoteContext } from "../editor/BlockNoteContext";
 
 export function useEditorChange(
-  callback: (editor: BlockNoteEditor<any, any, any>) => void,
+  callback: () => void,
   editor?: BlockNoteEditor<any, any, any>
 ) {
   const editorContext = useBlockNoteContext();

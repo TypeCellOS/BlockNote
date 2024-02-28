@@ -36,11 +36,11 @@ Play with the editor @ [https://playground.blocknotejs.org/](https://playground.
 [![npm version](https://badge.fury.io/js/%40blocknote%2Freact.svg)](https://badge.fury.io/js/%40blocknote%2Freact)
 
 ```typescript
-import { BlockNoteView, useBlockNote } from "@blocknote/react";
+import { BlockNoteView, useCreateBlockNote } from "@blocknote/react";
 import "@blocknote/react/style.css";
 
 function App() {
-  const editor = useBlockNote({
+  const editor = useCreateBlockNote({
     onEditorContentChange: (editor) => {
       // Log the document to console on every update
       console.log(editor.getJSON());
