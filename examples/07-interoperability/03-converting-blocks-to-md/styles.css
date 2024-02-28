@@ -1,0 +1,26 @@
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 4%;
+    height: 100%;
+}
+
+.item {
+    border-radius: 0.5rem;
+    overflow: hidden;
+    height: 48%;
+}
+
+.item.not-editor {
+    border: 1px solid gray;
+}
+
+.item pre {
+    border-radius: 0.5rem;
+    height: 100%;
+    overflow: auto;
+    padding-block: 1rem;
+    padding-inline: 54px;
+    width: 100%;
+    white-space: pre-wrap;
+}

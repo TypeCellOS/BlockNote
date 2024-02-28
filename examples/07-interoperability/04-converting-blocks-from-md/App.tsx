@@ -31,12 +31,18 @@ export default function App() {
   // Renders a text area for you to write/paste Markdown in, and the editor instance
   // below, which displays the current Markdown as blocks.
   return (
-    <div>
-      <textarea
-        defaultValue={initialMarkdown}
-        onChange={markdownInputChanged}
-      />
-      <BlockNoteView editor={editor} editable={false} />
+    <div className={"wrapper"}>
+      <div className={"item not-editor"}>
+        <code>
+          <textarea
+            defaultValue={initialMarkdown}
+            onChange={markdownInputChanged}
+          />
+        </code>
+      </div>
+      <div className={"item"}>
+        <BlockNoteView editor={editor} editable={false} />
+      </div>
     </div>
   );
 }

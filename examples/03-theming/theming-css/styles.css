@@ -1,7 +1,6 @@
 /* Adds border and shadow to editor */
-.bn-container[data-theming-css-demo] .bn-editor {
-  border-radius: var(--bn-border-radius-medium);
-  box-shadow: var(--bn-shadow-medium);
+.bn-container[data-theming-css-demo] .bn-editor * {
+  color: blue;
 }
 
 /* Makes slash menu hovered items blue */

@@ -2,7 +2,8 @@ import { BlockNoteView, useCreateBlockNote } from "@blocknote/react";
 import "@blocknote/react/style.css";
 import { useState } from "react";
 
-// TODO: better design?
+import "./styles.css";
+
 export default function App() {
   // Stores the editor's contents as Markdown.
   const [markdown, setMarkdown] = useState<string>("");
@@ -34,9 +35,15 @@ export default function App() {
 
   // Renders the editor instance, and its contents as Markdown below.
   return (
-    <div>
-      <BlockNoteView editor={editor} onChange={onChange} />
-      <pre>{markdown}</pre>
+    <div className={"wrapper"}>
+      <div className={"item"}>
+        <BlockNoteView editor={editor} onChange={onChange} />
+      </div>
+      <div className={"item not-editor"}>
+        <pre>
+          <code>{markdown}</code>
+        </pre>
+      </div>
     </div>
   );
 }

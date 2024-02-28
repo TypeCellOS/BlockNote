@@ -2,6 +2,8 @@ import { BlockNoteView, useCreateBlockNote } from "@blocknote/react";
 import "@blocknote/react/style.css";
 import { ChangeEvent, useCallback, useEffect } from "react";
 
+import "./styles.css";
+
 const initialHTML = "<p>Hello, <strong>world!</strong></p>";
 
 // TODO: better design?
@@ -31,9 +33,15 @@ export default function App() {
   // Renders a text area for you to write/paste HTML in, and the editor instance
   // below, which displays the current HTML as blocks.
   return (
-    <div>
-      <textarea defaultValue={initialHTML} onChange={htmlInputChanged} />
-      <BlockNoteView editor={editor} editable={false} />
+    <div className={"wrapper"}>
+      <div className={"item not-editor"}>
+        <code>
+          <textarea defaultValue={initialHTML} onChange={htmlInputChanged} />
+        </code>
+      </div>
+      <div className={"item"}>
+        <BlockNoteView editor={editor} editable={false} />
+      </div>
     </div>
   );
 }
