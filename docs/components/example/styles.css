@@ -12,10 +12,6 @@
     padding: 0 !important;
 }
 
-.demo .nextra-code-block code > span:last-child {
-    display: none;
-}
-
 .demo .bn-container, .demo .bn-editor {
     height: 100%;
 }

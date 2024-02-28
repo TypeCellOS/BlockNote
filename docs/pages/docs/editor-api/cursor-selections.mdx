@@ -8,6 +8,8 @@ path: /docs/cursor-selections
 
 
 
+
+
 import { Example } from "@/components/example";
 
 # Cursor & Selections
@@ -67,7 +69,7 @@ Throws an error if the target block could not be found.
 
 ## Selections
 
-When you highlight content using the mouse or keyboard, this is called a selection. A selection is only active when the highlighted content spans at least 2 blocks. BlockNote uses `Selection` objects to show which blocks the current selection spans across:
+When you highlight content using the mouse or keyboard, this is called a selection. BlockNote uses `Selection` objects to show which blocks the current selection spans across:
 
 ```typescript
 type Selection = {
@@ -90,6 +92,8 @@ const selection = editor.getSelection();
 
 `returns:` A snapshot of the current selection, or `undefined` if no selection is active.
 
-The demo below displays the blocks in the selection as JSON below the editor. If a selection isn't active, it displays the block containing the [text cursor]() instead.
+## Getting Selected Blocks
+
+The demo below displays the blocks in the current [selection](/docs/editor-api/cursor-selections#selections) as JSON below the editor. If a selection isn't active, it displays the block containing the [text cursor](/docs/editor-api/cursor-selections#text-cursor) instead.
 
 <Example name="cursor-selections/selection-blocks" />
