@@ -72,12 +72,14 @@ describe("Test HTML conversion", () => {
   for (const testCase of testCases) {
     describe("Case: " + testCase.name, () => {
       let editor: BlockNoteEditor<any, any, any>;
-
+      const div = document.createElement("div");
       beforeEach(() => {
         editor = testCase.createEditor();
+        editor.mount(div);
       });
 
       afterEach(() => {
+        editor.mount(undefined);
         editor._tiptapEditor.destroy();
         editor = undefined as any;
 

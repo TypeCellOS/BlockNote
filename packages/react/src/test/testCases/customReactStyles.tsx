@@ -1,12 +1,12 @@
 import {
   BlockNoteEditor,
+  BlockNoteSchema,
   DefaultBlockSchema,
   DefaultInlineContentSchema,
   EditorTestCases,
   defaultStyleSpecs,
   uploadToTmpFilesDotOrg_DEV_ONLY,
 } from "@blocknote/core";
-import { BlockNoteSchema } from "@blocknote/core/src/editor/BlockNoteSchema";
 import { createReactStyleSpec } from "../../schema/ReactStyleSpec";
 
 const small = createReactStyleSpec(

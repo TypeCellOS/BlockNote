@@ -9,6 +9,7 @@ import {
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 
 let editor: BlockNoteEditor;
+const div = document.createElement("div");
 
 function waitForEditor() {
   // wait for create event on editor,
@@ -43,6 +44,7 @@ let insert: (
 
 beforeEach(() => {
   editor = BlockNoteEditor.create();
+  editor.mount(div);
 
   singleBlock = {
     type: "paragraph",
@@ -93,6 +95,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  editor.mount(undefined);
   editor._tiptapEditor.destroy();
   editor = undefined as any;
 });

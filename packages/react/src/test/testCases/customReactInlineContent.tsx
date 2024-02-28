@@ -72,7 +72,7 @@ export const customReactInlineContentTestCases: EditorTestCases<
           content: [
             "I enjoy working with ",
             {
-              type: "mentdfion",
+              type: "mention",
               props: {
                 user: "Matthew",
               },
