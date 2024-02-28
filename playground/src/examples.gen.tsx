@@ -344,22 +344,6 @@
           "pathFromRoot": "examples/04-cursor-selections",
           "slug": "cursor-selections"
         }
-      },
-      {
-        "projectSlug": "text-cursor-block",
-        "fullSlug": "cursor-selections/text-cursor-block",
-        "pathFromRoot": "examples/04-cursor-selections/text-cursor-block",
-        "config": {
-          "playground": true,
-          "docs": false,
-          "group": "Basic Examples",
-          "order": 1
-        },
-        "title": "Highlighting Block with the Text Cursor",
-        "group": {
-          "pathFromRoot": "examples/04-cursor-selections",
-          "slug": "cursor-selections"
-        }
       }
     ]
   },

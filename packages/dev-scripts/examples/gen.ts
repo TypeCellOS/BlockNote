@@ -48,9 +48,9 @@ async function writeTemplate(project: Project, templateFile: string) {
 
   fs.writeFileSync(targetFilePath, stringOutput);
 
-  try {
-    // fs.unlinkSync(targetFilePath);
-  } catch (e) {}
+  // try {
+  //   // fs.unlinkSync(targetFilePath);
+  // } catch (e) {}
   console.log("written", targetFilePath);
 }
 
