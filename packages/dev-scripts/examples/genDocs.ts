@@ -43,17 +43,19 @@ ${file.code}
   </Tabs>
 </ExampleBlock>`;
 
+const COMPONENT_DIR = path.resolve(
+  dir,
+  "../../../docs/components/example/generated/"
+);
+
+const EXAMPLES_PAGES_DIR = path.resolve(dir, "../../../docs/pages/examples/");
+
 /**
  * Generates the <ExampleBlock> component that has all the source code of the example
  * This block can be used both in the /docs and in the /example page
  */
 async function generateCodeForExample(project: Project) {
-  const target = path.resolve(
-    dir,
-    "../../../docs/components/example/generated/mdx/" +
-      project.fullSlug +
-      ".mdx"
-  );
+  const target = path.join(COMPONENT_DIR, "mdx", project.fullSlug + ".mdx");
 
   const files = getProjectFiles(project);
   const filtered = Object.fromEntries(
@@ -82,10 +84,7 @@ ${readme}
  * Consists of the contents of the readme + the interactive example
  */
 async function generatePageForExample(project: Project) {
-  const target = path.resolve(
-    dir,
-    "../../../docs/pages/examples/" + project.fullSlug + ".mdx"
-  );
+  const target = path.join(EXAMPLES_PAGES_DIR, project.fullSlug + ".mdx");
 
   const files = getProjectFiles(project);
 
@@ -102,20 +101,11 @@ async function generateMetaForExampleGroup(group: {
   slug: string;
   projects: Project[];
 }) {
-  if (
-    !fs.existsSync(
-      path.resolve(dir, "../../../docs/pages/examples/" + group.slug)
-    )
-  ) {
-    fs.mkdirSync(
-      path.resolve(dir, "../../../docs/pages/examples/" + group.slug)
-    );
+  if (!fs.existsSync(path.join(EXAMPLES_PAGES_DIR, group.slug))) {
+    fs.mkdirSync(path.join(EXAMPLES_PAGES_DIR, group.slug));
   }
 
-  const target = path.resolve(
-    dir,
-    "../../../docs/pages/examples/" + group.slug + "/_meta.json"
-  );
+  const target = path.join(EXAMPLES_PAGES_DIR, group.slug, "_meta.json");
 
   const meta = Object.fromEntries(
     group.projects.map((project) => [
@@ -160,10 +150,7 @@ ${projects
  * Generate the file with all the dynamic imports for examples (exampleComponents.gen.tsx)
  */
 async function generateExampleComponents(projects: Project[]) {
-  const target = path.resolve(
-    dir,
-    "../../../docs/components/example/generated/exampleComponents.gen.tsx"
-  );
+  const target = path.join(COMPONENT_DIR, "exampleComponents.gen.tsx");
 
   const code = templateExampleComponents(projects);
 
@@ -174,10 +161,7 @@ async function generateExampleComponents(projects: Project[]) {
  * generates exampleList.gen.ts file with data about all the examples
  */
 async function generateExampleList(projects: Project[]) {
-  const target = path.resolve(
-    dir,
-    "../../../docs/components/example/generated/exampleList.gen.ts"
-  );
+  const target = path.join(COMPONENT_DIR, "exampleList.gen.ts");
 
   const groups = groupProjects(projects);
 
@@ -199,6 +183,19 @@ async function generateExampleList(projects: Project[]) {
   fs.writeFileSync(target, code);
 }
 
+// clean old files / dirs
+fs.rmSync(COMPONENT_DIR, { recursive: true, force: true });
+
+fs.readdirSync(EXAMPLES_PAGES_DIR, { withFileTypes: true }).forEach((file) => {
+  if (file.isDirectory()) {
+    fs.rmSync(path.join(EXAMPLES_PAGES_DIR, file.name), {
+      recursive: true,
+      force: true,
+    });
+  }
+});
+
+// generate new files
 const projects = getExampleProjects(); // TODO: .filter((p) => p.config?.docs === true);
 const groups = groupProjects(projects);
 

@@ -53,7 +53,7 @@ async function parseHTMLAndCompareSnapshots(
   //     },
   //   } as any);
 
-  const pastedBlocks = editor.topLevelBlocks;
+  const pastedBlocks = editor.document;
   pastedBlocks.pop(); // trailing paragraph
   expect(pastedBlocks).toStrictEqual(blocks);
 }

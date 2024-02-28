@@ -24,20 +24,9 @@ npm install @blocknote/core @blocknote/react
 
 With the `useCreateBlockNote` hook, we can create a new editor instance, then use the`BlockNoteView` component to render it. See below:
 
-```typescript jsx
-import { BlockNoteView, useCreateBlockNote } from "@blocknote/react";
-import "@blocknote/react/style.css";
+<Example name="basic/minimal" />
 
-function App() {
-  // Creates a new editor instance.
-  const editor = useCreateBlockNote();
-
-  // Renders the editor instance using a React component.
-  return <BlockNoteView editor={editor} />;
-}
-```
-
-As well as `BlockNoteView` and `useCreateBlockNote`, we import `@blocknote/react/style.css` to provide default styling for the editor.
+We also import `@blocknote/react/style.css` to add default styling for the editor.
 
 <Callout type="warning" emoji={""}>
   <strong>Next.js usage (or other server-side React frameworks)</strong>
@@ -57,24 +46,10 @@ As well as `BlockNoteView` and `useCreateBlockNote`, we import `@blocknote/react
   </p>
 </Callout>
 
-## Demo: Basic App Using BlockNote
-
-Taking the same code, the live preview below turns it into a super simple, working app:
-
-<Example name="basic/minimal" />
-
 ## Next steps
 
 You now know how to integrate BlockNote into your React app! However, this is just scratching the surface of what you can do with BlockNote.
 
-### Editor API
-
-TODO: Learn about how to interact with the editor, documents and blocks from code.
-
-### UI Components
-
-TODO: BlockNote comes with a default UI. Learn how to customize them, or create your own components.
-
-### Custom schemas
-
-TODO: A document consists of blocks, inline content and styles that the user can edit. Learn how to create your own Custom Blocks, inline content and styles.
+- Learn about [blocks and the editor basics](/docs/editor-basics) and how to interact with the editor using the [editor API](/docs/editor-api)
+- See [UI Components](/docs/ui-components) to customize built-in menus and toolbars and [Styling & Theming](/docs/styling-theming) to customize the look and feel of the editor
+- Further extend the editor with your own Blocks using [Custom Schemas](/docs/custom-schemas) or add [Real-Time Collaboration](/docs/advanced/real-time-collaboration)

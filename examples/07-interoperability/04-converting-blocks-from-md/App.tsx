@@ -14,7 +14,7 @@ export default function App() {
       // Whenever the current Markdown content changes, converts it to an array of
       // Block objects and replaces the editor's content with them.
       const blocks = await editor.tryParseMarkdownToBlocks(e.target.value);
-      editor.replaceBlocks(editor.topLevelBlocks, blocks);
+      editor.replaceBlocks(editor.document, blocks);
     },
     [editor]
   );
@@ -23,7 +23,7 @@ export default function App() {
   useEffect(() => {
     async function loadInitialHTML() {
       const blocks = await editor.tryParseMarkdownToBlocks(initialMarkdown);
-      editor.replaceBlocks(editor.topLevelBlocks, blocks);
+      editor.replaceBlocks(editor.document, blocks);
     }
     loadInitialHTML();
   }, [editor]);

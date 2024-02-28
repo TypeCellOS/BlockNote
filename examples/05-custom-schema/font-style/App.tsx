@@ -1,20 +1,20 @@
 import { BlockNoteSchema, defaultStyleSpecs } from "@blocknote/core";
 import {
-  useCreateBlockNote,
-  ToolbarButton,
-  FormattingToolbar,
-  BlockTypeDropdown,
-  ImageCaptionButton,
-  ReplaceImageButton,
   BasicTextStyleButton,
-  TextAlignButton,
-  ColorStyleButton,
-  NestBlockButton,
-  UnnestBlockButton,
-  CreateLinkButton,
-  useBlockNoteEditor,
   BlockNoteView,
+  BlockTypeDropdown,
+  ColorStyleButton,
+  CreateLinkButton,
+  FormattingToolbar,
   FormattingToolbarController,
+  ImageCaptionButton,
+  NestBlockButton,
+  ReplaceImageButton,
+  TextAlignButton,
+  ToolbarButton,
+  UnnestBlockButton,
+  useBlockNoteEditor,
+  useCreateBlockNote,
 } from "@blocknote/react";
 import "@blocknote/react/style.css";
 import { RiText } from "react-icons/ri";
@@ -47,8 +47,8 @@ const SetFontStyleButton = () => {
       onClick={() => {
         const fontName = prompt("Enter a font name") || "Comic Sans MS";
 
-        editor._tiptapEditor.commands.setMark("font", {
-          stringValue: fontName,
+        editor.addStyles({
+          font: fontName,
         });
       }}
     />

@@ -4,13 +4,7 @@ imageTitle: Introduction to BlockNote
 path: /docs/introduction
 ---
 
-import {Example} from "@/components/example";
-
-TODO:
-- make shorter?
-- add "Main Features"? similar to nextjs
-- Remove example?
-- Add cards to bottom?
+import { Example } from "@/components/example";
 
 # Introduction to BlockNote
 
@@ -18,23 +12,27 @@ TODO:
 
 BlockNote is a block-based rich-text editor for [React](https://reactjs.org/), focused on providing a great out-of-the-box experience with minimal setup.
 
-With BlockNote, we want to make it easy for developers to add a next-generation text editing experience to their app, with a UX that's on-par with industry leaders like Notion or Coda.
+With BlockNote, we want to make it easy for developers to add a next-generation text editing experience to their app, with a UX that's on-par with industry leaders like Notion, Google Docs or Coda.
 
-Unlike other rich-text editor libraries, BlockNote organizes documents into blocks, giving them a more rigid structure and making it easy to interact with the document from code.
-
-Conceptually, you can think of a block as a paragraph, heading, image, or some other individual piece of content. Blocks can have more blocks nested inside of them, and can also be moved by dragging and dropping them inside or around each other.
+Unlike other rich-text editor libraries, BlockNote organizes documents into blocks. This makes it easy for the user to organize their document, and for developers to interact with the document from code.
 
 BlockNote has been created with extensibility in mind. You can customize the document, create custom block types and customize UX elements like menu items. Advanced users can even create their own UI from scratch and use BlockNote with vanilla JavaScript instead of React.
+
+- Jump right into the [quickstart](/docs/quickstart) to get started
+- Learn about [blocks and the editor basics](/docs/editor-basics) and how to interact with the editor using the [editor API](/docs/editor-api)
+- See [UI Components](/docs/ui-components) to customize built-in menus and toolbars and [Styling & Theming](/docs/styling-theming) to customize the look and feel of the editor
+- Further extend the editor with your own Blocks using [Custom Schemas](/docs/custom-schemas) or add [Real-Time Collaboration](/docs/advanced/real-time-collaboration)
 
 ## Why BlockNote?
 
 There are plenty of libraries out there for creating rich-text editors. In fact, BlockNote is built on top of the widely used [ProseMirror](https://prosemirror.net/) and [TipTap](https://tiptap.dev/).
 
-As powerful as they are, these libraries often have quite a steep learning-curve and require you to customize every single detail of your editor, and then you still need to add your own UI elements.
+As powerful as they are, these libraries often have quite a steep learning-curve and require you to customize every single detail of your editor. This can require months of specialized work.
 
 BlockNote instead, offers a great experience with minimal setup, including a ready-made and animated UI.
 
 On top of that, it comes with a modern block-based design. This gives documents more structure, allow for a richer user experience while simultaneously making it easier to customize the editor's functionality.
+
 
 ## Community
 

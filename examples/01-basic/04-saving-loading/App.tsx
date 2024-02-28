@@ -46,7 +46,7 @@ export default function App() {
     <BlockNoteView
       editor={editor}
       onChange={() => {
-        saveToStorage(editor.topLevelBlocks);
+        saveToStorage(editor.document);
       }}
     />
   );
