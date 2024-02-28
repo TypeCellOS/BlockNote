@@ -100,6 +100,7 @@ const App = (props: { project: (typeof examples.basic)["projects"][0] }) => {
   if (!ExampleComponent) {
     return <div>Loading...</div>;
   }
+  // eslint-disable-next-line react/jsx-pascal-case
   return <ExampleComponent.default />;
 };
 

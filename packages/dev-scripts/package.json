@@ -11,7 +11,7 @@
     "gen:examples": "tsx examples/gen.ts",
     "gen:docs": "tsx examples/genDocs.ts",
     "build": "tsc",
-    "lint": "eslint src --max-warnings 0"
+    "lint": "eslint examples --max-warnings 0"
   },
   "dependencies": {},
   "devDependencies": {
