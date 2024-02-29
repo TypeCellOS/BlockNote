@@ -2,10 +2,10 @@ import { AppShell, MantineProvider, ScrollArea } from "@mantine/core";
 import React from "react";
 import { createRoot } from "react-dom/client";
 import {
+  createBrowserRouter,
   Link,
   Outlet,
   RouterProvider,
-  createBrowserRouter,
 } from "react-router-dom";
 
 import { examples } from "./examples.gen";
@@ -34,7 +34,14 @@ function Root() {
   return (
     <MantineProvider>
       <AppShell
-        navbar={{ width: 300, breakpoint: 0 }}
+        navbar={
+          window.location.search.includes("hideMenu")
+            ? undefined
+            : {
+                width: 300,
+                breakpoint: 0,
+              }
+        }
         padding={0}
         //   header={<Header height={60} p="xs">
         //   {/* Header content */}

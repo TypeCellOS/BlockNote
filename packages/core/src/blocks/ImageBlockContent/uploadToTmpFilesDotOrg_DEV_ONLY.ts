@@ -3,7 +3,9 @@
  *
  * @warning This function should only be used for development purposes, replace with your own backend!
  */
-export const uploadToTmpFilesDotOrg_DEV_ONLY = async (file: File) => {
+export const uploadToTmpFilesDotOrg_DEV_ONLY = async (
+  file: File
+): Promise<string> => {
   const body = new FormData();
   body.append("file", file);
 
