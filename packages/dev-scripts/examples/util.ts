@@ -137,7 +137,11 @@ export function getExampleProjects(): Project[] {
       }
 
       const md = fs.readFileSync(readmePath, "utf-8");
-      const title = md.match(/# (.*)/)?.[1] || path.basename(directory);
+      const title = md.match(/# (.*)/)?.[1];
+
+      if (!title?.length) {
+        throw new Error(`Missing title in README.md for ${directory}`);
+      }
 
       const [groupDir, exampleDir] = path
         .relative(path.resolve("../../examples"), directory)

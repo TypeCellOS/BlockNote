@@ -131,6 +131,20 @@
           "pathFromRoot": "examples/01-basic",
           "slug": "basic"
         }
+      },
+      {
+        "projectSlug": "testing",
+        "fullSlug": "basic/testing",
+        "pathFromRoot": "examples/01-basic/testing",
+        "config": {
+          "playground": true,
+          "docs": false
+        },
+        "title": "Test Editor",
+        "group": {
+          "pathFromRoot": "examples/01-basic",
+          "slug": "basic"
+        }
       }
     ]
   },
@@ -339,7 +353,7 @@
           "group": "Basic Examples",
           "order": 1
         },
-        "title": "Highlighting Blocks in Selection",
+        "title": "Displaying Selection/Text Cursor Position Blocks",
         "group": {
           "pathFromRoot": "examples/04-cursor-selections",
           "slug": "cursor-selections"

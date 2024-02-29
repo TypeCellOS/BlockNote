@@ -111,9 +111,7 @@ async function generateMetaForExampleGroup(group: {
     group.projects.map((project) => [
       project.projectSlug,
       {
-        ...(project.config.shortTitle
-          ? { title: project.config.shortTitle }
-          : {}),
+        title: project.config.shortTitle || project.title,
       },
     ])
   );
@@ -196,7 +194,7 @@ fs.readdirSync(EXAMPLES_PAGES_DIR, { withFileTypes: true }).forEach((file) => {
 });
 
 // generate new files
-const projects = getExampleProjects(); // TODO: .filter((p) => p.config?.docs === true);
+const projects = getExampleProjects().filter((p) => p.config?.docs === true);
 const groups = groupProjects(projects);
 
 for (const group of Object.values(groups)) {
