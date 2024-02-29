@@ -1,7 +1,7 @@
 const PORT = 3000;
 export const BASE_URL = !process.env.RUN_IN_DOCKER
-  ? `http://localhost:${PORT}/basic/minimal?hideMenu`
-  : `http://host.docker.internal:${PORT}/basic/minimal?hideMenu`;
+  ? `http://localhost:${PORT}/basic/testing?hideMenu`
+  : `http://host.docker.internal:${PORT}/basic/testing?hideMenu`;
 
 export const PASTE_ZONE_SELECTOR = "#pasteZone";
 

@@ -8,7 +8,7 @@ test.beforeEach(async ({ page }) => {
 
 test.describe("Basic typing functionality", () => {
   test("should allow me to type content", async ({ page }) => {
-    const editor = await page.waitForSelector("[data-test='editor']");
+    const editor = await page.waitForSelector(EDITOR_SELECTOR);
     await page
       .locator(EDITOR_SELECTOR + " div")
       .nth(3)
