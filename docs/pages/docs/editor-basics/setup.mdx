@@ -2,7 +2,8 @@
 description: Learn how to setup your BlockNote editor using the `useCreateBlockNote` hook and the ``BlockNoteView` component.
 ---
 
-import { Example } from "@/components/example";
+
+
 import { Callout } from "nextra/components";
 
 # Editor Setup
@@ -39,7 +40,7 @@ The hook takes two optional parameters:
 
 `defaultStyles`: Whether to use the default font and reset the styles of `<p>`, `<li>`, `<h1>`, etc. elements that are used in BlockNote. Defaults to true if undefined.
 
-`uploadFile`: A function which handles file uploads and eventually returns the URL to the uploaded file. Used by the [Image Toolbar](/docs/image-toolbar). TODO
+`uploadFile`: A function which handles file uploads and eventually returns the URL to the uploaded file. Used for [Image blocks](/docs/editor-basics/default-schema#image).
 
 `collaboration`: Options for enabling real-time collaboration. See [Collaboration](/docs/collaboration) for more info.
 
