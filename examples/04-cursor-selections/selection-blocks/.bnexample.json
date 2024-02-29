@@ -1,6 +1,6 @@
 {
   "playground": true,
-  "docs": false,
+  "docs": true,
   "group": "Basic Examples",
   "order": 1
 }
