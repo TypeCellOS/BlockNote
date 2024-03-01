@@ -11,9 +11,13 @@
         "pathFromRoot": "examples/01-basic/01-minimal",
         "config": {
           "playground": true,
-          "docs": true
+          "docs": true,
+          "author": "matthewlipski",
+          "tags": [
+            "Basic"
+          ]
         },
-        "title": "Basic Editor Setup",
+        "title": "Basic Setup",
         "group": {
           "pathFromRoot": "examples/01-basic",
           "slug": "basic"
@@ -25,66 +29,15 @@
         "pathFromRoot": "examples/01-basic/02-block-objects",
         "config": {
           "playground": true,
-          "docs": true
-        },
-        "title": "Displaying Block Objects",
-        "group": {
-          "pathFromRoot": "examples/01-basic",
-          "slug": "basic"
-        }
-      },
-      {
-        "projectSlug": "block-manipulation",
-        "fullSlug": "basic/block-manipulation",
-        "pathFromRoot": "examples/01-basic/03-block-manipulation",
-        "config": {
-          "playground": true,
-          "docs": true
-        },
-        "title": "Block Manipulation",
-        "group": {
-          "pathFromRoot": "examples/01-basic",
-          "slug": "basic"
-        }
-      },
-      {
-        "projectSlug": "saving-loading",
-        "fullSlug": "basic/saving-loading",
-        "pathFromRoot": "examples/01-basic/04-saving-loading",
-        "config": {
-          "playground": true,
           "docs": true,
-          "shortTitle": "Saving & Loading"
+          "author": "matthewlipski",
+          "tags": [
+            "Basic",
+            "Blocks",
+            "Inline Content"
+          ]
         },
-        "title": "Saving & Loading data",
-        "group": {
-          "pathFromRoot": "examples/01-basic",
-          "slug": "basic"
-        }
-      },
-      {
-        "projectSlug": "file-uploading",
-        "fullSlug": "basic/file-uploading",
-        "pathFromRoot": "examples/01-basic/05-file-uploading",
-        "config": {
-          "playground": true,
-          "docs": true
-        },
-        "title": "File / image uploading",
-        "group": {
-          "pathFromRoot": "examples/01-basic",
-          "slug": "basic"
-        }
-      },
-      {
-        "projectSlug": "keyboard-shortcuts",
-        "fullSlug": "basic/keyboard-shortcuts",
-        "pathFromRoot": "examples/01-basic/06-keyboard-shortcuts",
-        "config": {
-          "playground": true,
-          "docs": true
-        },
-        "title": "Keyboard Shortcuts",
+        "title": "Displaying Document JSON",
         "group": {
           "pathFromRoot": "examples/01-basic",
           "slug": "basic"
@@ -93,40 +46,95 @@
       {
         "projectSlug": "all-blocks",
         "fullSlug": "basic/all-blocks",
-        "pathFromRoot": "examples/01-basic/all-blocks",
+        "pathFromRoot": "examples/01-basic/03-all-blocks",
         "config": {
           "playground": true,
-          "docs": true
+          "docs": true,
+          "author": "matthewlipski",
+          "tags": [
+            "Basic",
+            "Blocks",
+            "Inline Content"
+          ]
         },
-        "title": "All Block Types",
+        "title": "Default Schema Showcase",
         "group": {
           "pathFromRoot": "examples/01-basic",
           "slug": "basic"
         }
       },
       {
-        "projectSlug": "all-inline-content",
-        "fullSlug": "basic/all-inline-content",
-        "pathFromRoot": "examples/01-basic/all-inline-content",
+        "projectSlug": "selection-blocks",
+        "fullSlug": "basic/selection-blocks",
+        "pathFromRoot": "examples/01-basic/04-selection-blocks",
         "config": {
           "playground": true,
-          "docs": true
+          "docs": true,
+          "author": "matthewlipski",
+          "tags": [
+            "Basic",
+            "Blocks"
+          ]
         },
-        "title": "All Inline Content Types",
+        "title": "Displaying Selected Blocks",
         "group": {
           "pathFromRoot": "examples/01-basic",
           "slug": "basic"
         }
       },
       {
-        "projectSlug": "inline-content-objects",
-        "fullSlug": "basic/inline-content-objects",
-        "pathFromRoot": "examples/01-basic/inline-content-objects",
+        "projectSlug": "block-manipulation",
+        "fullSlug": "basic/block-manipulation",
+        "pathFromRoot": "examples/01-basic/05-block-manipulation",
         "config": {
           "playground": true,
-          "docs": true
+          "docs": true,
+          "author": "matthewlipski",
+          "tags": [
+            "Basic",
+            "Blocks"
+          ]
         },
-        "title": "Displaying Inline Content Objects",
+        "title": "Manipulating Blocks",
+        "group": {
+          "pathFromRoot": "examples/01-basic",
+          "slug": "basic"
+        }
+      },
+      {
+        "projectSlug": "file-uploading",
+        "fullSlug": "basic/file-uploading",
+        "pathFromRoot": "examples/01-basic/06-file-uploading",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "matthewlipski",
+          "tags": [
+            "Intermediate",
+            "Saving/Loading"
+          ]
+        },
+        "title": "Uploading Files",
+        "group": {
+          "pathFromRoot": "examples/01-basic",
+          "slug": "basic"
+        }
+      },
+      {
+        "projectSlug": "saving-loading",
+        "fullSlug": "basic/saving-loading",
+        "pathFromRoot": "examples/01-basic/07-saving-loading",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "matthewlipski",
+          "tags": [
+            "Intermediate",
+            "Blocks",
+            "Saving/Loading"
+          ]
+        },
+        "title": "Saving & Loading",
         "group": {
           "pathFromRoot": "examples/01-basic",
           "slug": "basic"
@@ -151,23 +159,24 @@
   "ui-components": {
     "pathFromRoot": "examples/02-ui-components",
     "slug": "ui-components",
-    "title": "UI components",
+    "title": "UI Components",
     "projects": [
       {
-        "projectSlug": "custom-ui",
-        "fullSlug": "ui-components/custom-ui",
-        "pathFromRoot": "examples/02-ui-components/custom-ui",
+        "projectSlug": "formatting-toolbar-buttons",
+        "fullSlug": "ui-components/formatting-toolbar-buttons",
+        "pathFromRoot": "examples/02-ui-components/02-formatting-toolbar-buttons",
         "config": {
           "playground": true,
           "docs": true,
-          "group": "Advanced Examples",
-          "order": 1,
-          "dependencies": {
-            "@mantine/core": "^7.5.0",
-            "react-icons": "^4.3.1"
-          }
+          "author": "matthewlipski",
+          "tags": [
+            "Intermediate",
+            "Inline Content",
+            "UI Components",
+            "Formatting Toolbar"
+          ]
         },
-        "title": "Making UI Elements From Scratch",
+        "title": "Adding Formatting Toolbar Buttons",
         "group": {
           "pathFromRoot": "examples/02-ui-components",
           "slug": "ui-components"
@@ -176,12 +185,18 @@
       {
         "projectSlug": "formatting-toolbar-block-type-items",
         "fullSlug": "ui-components/formatting-toolbar-block-type-items",
-        "pathFromRoot": "examples/02-ui-components/formatting-toolbar-block-type-items",
+        "pathFromRoot": "examples/02-ui-components/03-formatting-toolbar-block-type-items",
         "config": {
           "playground": true,
           "docs": true,
-          "group": "Basic Examples",
-          "order": 1,
+          "author": "matthewlipski",
+          "tags": [
+            "Intermediate",
+            "Blocks",
+            "UI Components",
+            "Formatting Toolbar",
+            "Custom Schemas"
+          ],
           "dependencies": {
             "react-icons": "^4.3.1"
           }
@@ -193,46 +208,19 @@
         }
       },
       {
-        "projectSlug": "formatting-toolbar-buttons",
-        "fullSlug": "ui-components/formatting-toolbar-buttons",
-        "pathFromRoot": "examples/02-ui-components/formatting-toolbar-buttons",
-        "config": {
-          "playground": true,
-          "docs": true,
-          "group": "Basic Examples",
-          "order": 1
-        },
-        "title": "Adding Formatting Toolbar Buttons",
-        "group": {
-          "pathFromRoot": "examples/02-ui-components",
-          "slug": "ui-components"
-        }
-      },
-      {
-        "projectSlug": "hyperlink-toolbar-buttons",
-        "fullSlug": "ui-components/hyperlink-toolbar-buttons",
-        "pathFromRoot": "examples/02-ui-components/hyperlink-toolbar-buttons",
-        "config": {
-          "playground": true,
-          "docs": true,
-          "group": "Basic Examples",
-          "order": 1
-        },
-        "title": "Adding Hyperlink Toolbar Buttons",
-        "group": {
-          "pathFromRoot": "examples/02-ui-components",
-          "slug": "ui-components"
-        }
-      },
-      {
         "projectSlug": "side-menu-buttons",
         "fullSlug": "ui-components/side-menu-buttons",
-        "pathFromRoot": "examples/02-ui-components/side-menu-buttons",
+        "pathFromRoot": "examples/02-ui-components/04-side-menu-buttons",
         "config": {
           "playground": true,
           "docs": true,
-          "group": "Basic Examples",
-          "order": 1,
+          "author": "matthewlipski",
+          "tags": [
+            "Intermediate",
+            "Blocks",
+            "UI Components",
+            "Block Side Menu"
+          ],
           "dependencies": {
             "react-icons": "^4.3.1"
           }
@@ -246,12 +234,17 @@
       {
         "projectSlug": "side-menu-drag-handle-items",
         "fullSlug": "ui-components/side-menu-drag-handle-items",
-        "pathFromRoot": "examples/02-ui-components/side-menu-drag-handle-items",
+        "pathFromRoot": "examples/02-ui-components/05-side-menu-drag-handle-items",
         "config": {
           "playground": true,
           "docs": true,
-          "group": "Basic Examples",
-          "order": 1,
+          "author": "matthewlipski",
+          "tags": [
+            "Intermediate",
+            "Blocks",
+            "UI Components",
+            "Block Side Menu"
+          ],
           "dependencies": {
             "react-icons": "^4.3.1"
           }
@@ -263,16 +256,25 @@
         }
       },
       {
-        "projectSlug": "suggestion-menus-mentions",
-        "fullSlug": "ui-components/suggestion-menus-mentions",
-        "pathFromRoot": "examples/02-ui-components/suggestion-menus-mentions",
+        "projectSlug": "suggestion-menus-slash-menu-items",
+        "fullSlug": "ui-components/suggestion-menus-slash-menu-items",
+        "pathFromRoot": "examples/02-ui-components/06-suggestion-menus-slash-menu-items",
         "config": {
           "playground": true,
           "docs": true,
-          "group": "Basic Examples",
-          "order": 1
+          "author": "matthewlipski",
+          "tags": [
+            "Intermediate",
+            "Blocks",
+            "UI Components",
+            "Suggestion Menus",
+            "Slash Menu"
+          ],
+          "dependencies": {
+            "react-icons": "^4.3.1"
+          }
         },
-        "title": "Adding Suggestion Menu",
+        "title": "Adding Slash Menu Items",
         "group": {
           "pathFromRoot": "examples/02-ui-components",
           "slug": "ui-components"
@@ -281,12 +283,18 @@
       {
         "projectSlug": "suggestion-menus-slash-menu-component",
         "fullSlug": "ui-components/suggestion-menus-slash-menu-component",
-        "pathFromRoot": "examples/02-ui-components/suggestion-menus-slash-menu-component",
+        "pathFromRoot": "examples/02-ui-components/07-suggestion-menus-slash-menu-component",
         "config": {
           "playground": true,
           "docs": true,
-          "group": "Basic Examples",
-          "order": 1
+          "author": "matthewlipski",
+          "tags": [
+            "Intermediate",
+            "UI Components",
+            "Suggestion Menus",
+            "Slash Menu",
+            "Appearance & Styling"
+          ]
         },
         "title": "Replacing Slash Menu Component",
         "group": {
@@ -295,19 +303,45 @@
         }
       },
       {
-        "projectSlug": "suggestion-menus-slash-menu-items",
-        "fullSlug": "ui-components/suggestion-menus-slash-menu-items",
-        "pathFromRoot": "examples/02-ui-components/suggestion-menus-slash-menu-items",
+        "projectSlug": "custom-ui",
+        "fullSlug": "ui-components/custom-ui",
+        "pathFromRoot": "examples/02-ui-components/08-custom-ui",
         "config": {
           "playground": true,
           "docs": true,
-          "group": "Basic Examples",
-          "order": 1,
+          "author": "matthewlipski",
+          "tags": [
+            "Advanced",
+            "Inline Content",
+            "UI Components",
+            "Block Side Menu",
+            "Formatting Toolbar",
+            "Suggestion Menus",
+            "Slash Menu",
+            "Appearance & Styling"
+          ],
           "dependencies": {
+            "@mantine/core": "^7.5.0",
             "react-icons": "^4.3.1"
           }
         },
-        "title": "Adding Slash Menu Items",
+        "title": "Custom UI",
+        "group": {
+          "pathFromRoot": "examples/02-ui-components",
+          "slug": "ui-components"
+        }
+      },
+      {
+        "projectSlug": "hyperlink-toolbar-buttons",
+        "fullSlug": "ui-components/hyperlink-toolbar-buttons",
+        "pathFromRoot": "examples/02-ui-components/hyperlink-toolbar-buttons",
+        "config": {
+          "playground": true,
+          "docs": false,
+          "author": "matthewlipski",
+          "tags": []
+        },
+        "title": "Adding Hyperlink Toolbar Buttons",
         "group": {
           "pathFromRoot": "examples/02-ui-components",
           "slug": "ui-components"
@@ -321,16 +355,39 @@
     "title": "Theming",
     "projects": [
       {
-        "projectSlug": "changing-font",
-        "fullSlug": "theming/changing-font",
-        "pathFromRoot": "examples/03-theming/changing-font",
+        "projectSlug": "theming-dom-attributes",
+        "fullSlug": "theming/theming-dom-attributes",
+        "pathFromRoot": "examples/03-theming/01-theming-dom-attributes",
         "config": {
           "playground": true,
           "docs": true,
-          "group": "Basic Examples",
-          "order": 3
+          "author": "matthewlipski",
+          "tags": [
+            "Basic",
+            "Blocks",
+            "Appearance & Styling"
+          ]
         },
-        "title": "Changing Font",
+        "title": "Adding CSS Class to Blocks",
+        "group": {
+          "pathFromRoot": "examples/03-theming",
+          "slug": "theming"
+        }
+      },
+      {
+        "projectSlug": "changing-font",
+        "fullSlug": "theming/changing-font",
+        "pathFromRoot": "examples/03-theming/02-changing-font",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "matthewlipski",
+          "tags": [
+            "Basic",
+            "Appearance & Styling"
+          ]
+        },
+        "title": "Changing Editor Font",
         "group": {
           "pathFromRoot": "examples/03-theming",
           "slug": "theming"
@@ -339,14 +396,18 @@
       {
         "projectSlug": "theming-css",
         "fullSlug": "theming/theming-css",
-        "pathFromRoot": "examples/03-theming/theming-css",
+        "pathFromRoot": "examples/03-theming/03-theming-css",
         "config": {
           "playground": true,
           "docs": true,
-          "group": "Basic Examples",
-          "order": 1
+          "author": "matthewlipski",
+          "tags": [
+            "Basic",
+            "Appearance & Styling",
+            "UI Components"
+          ]
         },
-        "title": "CSS Styling",
+        "title": "Overriding CSS Styles",
         "group": {
           "pathFromRoot": "examples/03-theming",
           "slug": "theming"
@@ -355,14 +416,18 @@
       {
         "projectSlug": "theming-css-variables",
         "fullSlug": "theming/theming-css-variables",
-        "pathFromRoot": "examples/03-theming/theming-css-variables",
+        "pathFromRoot": "examples/03-theming/04-theming-css-variables",
         "config": {
           "playground": true,
           "docs": true,
-          "group": "Basic Examples",
-          "order": 1
+          "author": "matthewlipski",
+          "tags": [
+            "Basic",
+            "Appearance & Styling",
+            "UI Components"
+          ]
         },
-        "title": "CSS Variables",
+        "title": "Overriding Theme CSS Variables",
         "group": {
           "pathFromRoot": "examples/03-theming",
           "slug": "theming"
@@ -371,30 +436,18 @@
       {
         "projectSlug": "theming-css-variables-code",
         "fullSlug": "theming/theming-css-variables-code",
-        "pathFromRoot": "examples/03-theming/theming-css-variables-code",
+        "pathFromRoot": "examples/03-theming/05-theming-css-variables-code",
         "config": {
           "playground": true,
           "docs": true,
-          "group": "Basic Examples",
-          "order": 1
+          "author": "matthewlipski",
+          "tags": [
+            "Basic",
+            "Appearance & Styling",
+            "UI Components"
+          ]
         },
-        "title": "Theme Objects",
-        "group": {
-          "pathFromRoot": "examples/03-theming",
-          "slug": "theming"
-        }
-      },
-      {
-        "projectSlug": "theming-dom-attributes",
-        "fullSlug": "theming/theming-dom-attributes",
-        "pathFromRoot": "examples/03-theming/theming-dom-attributes",
-        "config": {
-          "playground": true,
-          "docs": true,
-          "group": "Basic Examples",
-          "order": 1
-        },
-        "title": "Adding DOM Attributes",
+        "title": "Changing Themes Through Code",
         "group": {
           "pathFromRoot": "examples/03-theming",
           "slug": "theming"
@@ -402,25 +455,89 @@
       }
     ]
   },
-  "cursor-selections": {
-    "pathFromRoot": "examples/04-cursor-selections",
-    "slug": "cursor-selections",
-    "title": "Cursors & selections",
+  "interoperability": {
+    "pathFromRoot": "examples/04-interoperability",
+    "slug": "interoperability",
+    "title": "Interoperability",
     "projects": [
       {
-        "projectSlug": "selection-blocks",
-        "fullSlug": "cursor-selections/selection-blocks",
-        "pathFromRoot": "examples/04-cursor-selections/selection-blocks",
+        "projectSlug": "converting-blocks-to-html",
+        "fullSlug": "interoperability/converting-blocks-to-html",
+        "pathFromRoot": "examples/04-interoperability/01-converting-blocks-to-html",
         "config": {
           "playground": true,
           "docs": true,
-          "group": "Basic Examples",
-          "order": 1
+          "author": "matthewlipski",
+          "tags": [
+            "Basic",
+            "Blocks",
+            "Import/Export"
+          ]
         },
-        "title": "Displaying Selection/Text Cursor Position Blocks",
+        "title": "Converting Blocks to HTML",
         "group": {
-          "pathFromRoot": "examples/04-cursor-selections",
-          "slug": "cursor-selections"
+          "pathFromRoot": "examples/04-interoperability",
+          "slug": "interoperability"
+        }
+      },
+      {
+        "projectSlug": "converting-blocks-from-html",
+        "fullSlug": "interoperability/converting-blocks-from-html",
+        "pathFromRoot": "examples/04-interoperability/02-converting-blocks-from-html",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "matthewlipski",
+          "tags": [
+            "Basic",
+            "Blocks",
+            "Import/Export"
+          ]
+        },
+        "title": "Parsing HTML to Blocks",
+        "group": {
+          "pathFromRoot": "examples/04-interoperability",
+          "slug": "interoperability"
+        }
+      },
+      {
+        "projectSlug": "converting-blocks-to-md",
+        "fullSlug": "interoperability/converting-blocks-to-md",
+        "pathFromRoot": "examples/04-interoperability/03-converting-blocks-to-md",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "matthewlipski",
+          "tags": [
+            "Basic",
+            "Blocks",
+            "Import/Export"
+          ]
+        },
+        "title": "Converting Blocks to Markdown",
+        "group": {
+          "pathFromRoot": "examples/04-interoperability",
+          "slug": "interoperability"
+        }
+      },
+      {
+        "projectSlug": "converting-blocks-from-md",
+        "fullSlug": "interoperability/converting-blocks-from-md",
+        "pathFromRoot": "examples/04-interoperability/04-converting-blocks-from-md",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "matthewlipski",
+          "tags": [
+            "Basic",
+            "Blocks",
+            "Import/Export"
+          ]
+        },
+        "title": "Parsing Markdown to Blocks",
+        "group": {
+          "pathFromRoot": "examples/04-interoperability",
+          "slug": "interoperability"
         }
       }
     ]
@@ -428,17 +545,23 @@
   "custom-schema": {
     "pathFromRoot": "examples/05-custom-schema",
     "slug": "custom-schema",
-    "title": "Custom schemas",
+    "title": "Custom Schemas",
     "projects": [
       {
         "projectSlug": "alert-block",
         "fullSlug": "custom-schema/alert-block",
-        "pathFromRoot": "examples/05-custom-schema/alert-block",
+        "pathFromRoot": "examples/05-custom-schema/01-alert-block",
         "config": {
           "playground": true,
           "docs": true,
-          "group": "Advanced Examples",
-          "order": 1,
+          "author": "matthewlipski",
+          "tags": [
+            "Intermediate",
+            "Blocks",
+            "Custom Schemas",
+            "Suggestion Menus",
+            "Slash Menu"
+          ],
           "dependencies": {
             "@mantine/core": "^7.5.0",
             "react-icons": "^4.3.1"
@@ -451,14 +574,40 @@
         }
       },
       {
-        "projectSlug": "font-style",
-        "fullSlug": "custom-schema/font-style",
-        "pathFromRoot": "examples/05-custom-schema/font-style",
+        "projectSlug": "suggestion-menus-mentions",
+        "fullSlug": "custom-schema/suggestion-menus-mentions",
+        "pathFromRoot": "examples/05-custom-schema/02-suggestion-menus-mentions",
         "config": {
           "playground": true,
           "docs": true,
-          "group": "Advanced Examples",
-          "order": 1
+          "author": "matthewlipski",
+          "tags": [
+            "Intermediate",
+            "Inline Content",
+            "Custom Schemas",
+            "Suggestion Menus"
+          ]
+        },
+        "title": "Mentions Menu",
+        "group": {
+          "pathFromRoot": "examples/05-custom-schema",
+          "slug": "custom-schema"
+        }
+      },
+      {
+        "projectSlug": "font-style",
+        "fullSlug": "custom-schema/font-style",
+        "pathFromRoot": "examples/05-custom-schema/03-font-style",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "matthewlipski",
+          "tags": [
+            "Intermediate",
+            "Inline Content",
+            "Custom Schemas",
+            "Formatting Toolbar"
+          ]
         },
         "title": "Font Style",
         "group": {
@@ -473,8 +622,8 @@
         "config": {
           "playground": true,
           "docs": false,
-          "group": "Custom Specs",
-          "order": 2
+          "author": "matthewlipski",
+          "tags": []
         },
         "title": "Custom Blocks - React API",
         "group": {
@@ -489,8 +638,8 @@
         "config": {
           "playground": true,
           "docs": false,
-          "group": "Custom Specs",
-          "order": 2
+          "author": "matthewlipski",
+          "tags": []
         },
         "title": "Custom Inline Content - React API",
         "group": {
@@ -505,8 +654,8 @@
         "config": {
           "playground": true,
           "docs": false,
-          "group": "Custom Specs",
-          "order": 2
+          "author": "matthewlipski",
+          "tags": []
         },
         "title": "Custom Styles - React API",
         "group": {
@@ -524,139 +673,25 @@
       {
         "projectSlug": "partykit",
         "fullSlug": "collaboration/partykit",
-        "pathFromRoot": "examples/06-collaboration/partykit",
+        "pathFromRoot": "examples/06-collaboration/01-partykit",
         "config": {
           "playground": true,
-          "docs": false,
-          "group": "Advanced",
-          "order": 1,
+          "docs": true,
+          "author": "matthewlipski",
+          "tags": [
+            "Advanced",
+            "Saving/Loading",
+            "Collaboration"
+          ],
           "dependencies": {
             "y-partykit": "^0.0.10",
             "yjs": "^13.6.1"
           }
         },
-        "title": "Collaboration",
+        "title": "Collaborative Editing with Partykit",
         "group": {
           "pathFromRoot": "examples/06-collaboration",
           "slug": "collaboration"
-        }
-      }
-    ]
-  },
-  "interoperability": {
-    "pathFromRoot": "examples/07-interoperability",
-    "slug": "interoperability",
-    "title": "Interoperability",
-    "projects": [
-      {
-        "projectSlug": "converting-blocks-to-html",
-        "fullSlug": "interoperability/converting-blocks-to-html",
-        "pathFromRoot": "examples/07-interoperability/01-converting-blocks-to-html",
-        "config": {
-          "playground": true,
-          "docs": true
-        },
-        "title": "Converting Blocks to HTML",
-        "group": {
-          "pathFromRoot": "examples/07-interoperability",
-          "slug": "interoperability"
-        }
-      },
-      {
-        "projectSlug": "converting-blocks-from-html",
-        "fullSlug": "interoperability/converting-blocks-from-html",
-        "pathFromRoot": "examples/07-interoperability/02-converting-blocks-from-html",
-        "config": {
-          "playground": true,
-          "docs": true
-        },
-        "title": "Parsing HTML to Blocks",
-        "group": {
-          "pathFromRoot": "examples/07-interoperability",
-          "slug": "interoperability"
-        }
-      },
-      {
-        "projectSlug": "converting-blocks-to-md",
-        "fullSlug": "interoperability/converting-blocks-to-md",
-        "pathFromRoot": "examples/07-interoperability/03-converting-blocks-to-md",
-        "config": {
-          "playground": true,
-          "docs": true
-        },
-        "title": "Converting Blocks to Markdown",
-        "group": {
-          "pathFromRoot": "examples/07-interoperability",
-          "slug": "interoperability"
-        }
-      },
-      {
-        "projectSlug": "converting-blocks-from-md",
-        "fullSlug": "interoperability/converting-blocks-from-md",
-        "pathFromRoot": "examples/07-interoperability/04-converting-blocks-from-md",
-        "config": {
-          "playground": true,
-          "docs": true
-        },
-        "title": "Parsing Markdown to Blocks",
-        "group": {
-          "pathFromRoot": "examples/07-interoperability",
-          "slug": "interoperability"
-        }
-      }
-    ]
-  },
-  "vanilla-js": {
-    "pathFromRoot": "examples/08-vanilla-js",
-    "slug": "vanilla-js",
-    "title": "Vanilla JS",
-    "projects": [
-      {
-        "projectSlug": "react-vanilla-custom-blocks",
-        "fullSlug": "vanilla-js/react-vanilla-custom-blocks",
-        "pathFromRoot": "examples/08-vanilla-js/react-vanilla-custom-blocks",
-        "config": {
-          "playground": true,
-          "docs": false,
-          "group": "Custom Specs",
-          "order": 2
-        },
-        "title": "Custom Blocks - Vanilla JS API",
-        "group": {
-          "pathFromRoot": "examples/08-vanilla-js",
-          "slug": "vanilla-js"
-        }
-      },
-      {
-        "projectSlug": "react-vanilla-custom-inline-content",
-        "fullSlug": "vanilla-js/react-vanilla-custom-inline-content",
-        "pathFromRoot": "examples/08-vanilla-js/react-vanilla-custom-inline-content",
-        "config": {
-          "playground": true,
-          "docs": false,
-          "group": "Custom Specs",
-          "order": 2
-        },
-        "title": "Custom Inline Content - Vanilla JS API",
-        "group": {
-          "pathFromRoot": "examples/08-vanilla-js",
-          "slug": "vanilla-js"
-        }
-      },
-      {
-        "projectSlug": "react-vanilla-custom-styles",
-        "fullSlug": "vanilla-js/react-vanilla-custom-styles",
-        "pathFromRoot": "examples/08-vanilla-js/react-vanilla-custom-styles",
-        "config": {
-          "playground": true,
-          "docs": false,
-          "group": "Custom Specs",
-          "order": 2
-        },
-        "title": "Custom Styles - Vanilla JS API",
-        "group": {
-          "pathFromRoot": "examples/08-vanilla-js",
-          "slug": "vanilla-js"
         }
       }
     ]

@@ -109,7 +109,7 @@ export const BlockContainer = Node.create<{
     }
 
     const blockHTMLAttributes = {
-      ...(this.options.domAttributes?.blockContainer || {}),
+      ...(this.options.domAttributes?.block || {}),
       ...HTMLAttributes,
     };
     const block = document.createElement("div");

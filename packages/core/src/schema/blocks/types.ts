@@ -12,7 +12,7 @@ import type { StyleSchema } from "../styles/types";
 
 export type BlockNoteDOMElement =
   | "editor"
-  | "blockContainer"
+  | "block"
   | "blockGroup"
   | "blockContent"
   | "inlineContent";

@@ -1,11 +1,9 @@
 {
   "index": "Overview",
   "basic": "Basic",
-  "ui-components": "UI components",
+  "ui-components": "UI Components",
   "theming": "Theming",
-  "cursor-selections": "Cursors & selections",
-  "custom-schema": "Custom schemas",
   "interoperability": "Interoperability",
-  "collaboration": "Collaboration",
-  "vanilla-js": "Vanilla JS"
+  "custom-schema": "Custom Schemas",
+  "collaboration": "Collaboration"
 }

@@ -1,4 +1,4 @@
-# Document JSON
+# Displaying Document JSON
 
 In this example, the document's JSON representation is displayed below the editor.
 
