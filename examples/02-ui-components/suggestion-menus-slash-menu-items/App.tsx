@@ -13,7 +13,7 @@ import {
 import "@blocknote/react/style.css";
 import { HiOutlineGlobeAlt } from "react-icons/hi";
 
-// Custom Slash Menu item which executes the above function.
+// Custom Slash Menu item to insert a block after the current one.
 const insertHelloWorldItem = (editor: BlockNoteEditor) => ({
   title: "Insert Hello World",
   onItemClick: () => {
@@ -70,6 +70,7 @@ export default function App() {
     <BlockNoteView editor={editor} slashMenu={false}>
       <SuggestionMenuController
         triggerCharacter={"/"}
+        // Replaces the default Slash Menu items with our custom ones.
         getItems={async (query) =>
           filterSuggestionItems(getCustomSlashMenuItems(editor), query)
         }

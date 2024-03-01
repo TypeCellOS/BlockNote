@@ -50,7 +50,7 @@ export default function App() {
           },
           {
             type: "text",
-            text: " styles with new buttons is the Formatting Toolbar",
+            text: " styles with new buttons in the Formatting Toolbar",
             styles: {},
           },
         ],

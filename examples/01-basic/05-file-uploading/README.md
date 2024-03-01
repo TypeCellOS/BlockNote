@@ -1,9 +1,10 @@
-# File / image uploading
+# File Upload
 
-This example registers an `uploadFile` handler. This makes it possible for users to upload files to the editor.
+This example allows users to upload files and use them in the editor. The files are uploaded to [/TMP/Files](https://tmpfiles.org/), and can be used in Image blocks.
 
-**Try it out:** Insert an image (by typing `/` and selecting image) and notice how it's now possible to upload a file from your local device.
+**Try it out:** Click the "Add Image" button and see there's now an "Upload" tab in the toolbar!
 
 **Relevant Docs:**
 
-TODO
+- [Editor Setup](/docs/editor-basics/setup)
+- [Image](/docs/editor-basics/default-schema#image)

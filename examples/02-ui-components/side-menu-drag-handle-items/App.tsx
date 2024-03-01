@@ -44,7 +44,7 @@ export default function App() {
               <DragHandleMenu {...props}>
                 <RemoveBlockItem {...props}>Delete</RemoveBlockItem>
                 <BlockColorsItem {...props}>Colors</BlockColorsItem>
-                {/*Custom item which resets the hovered block's type.*/}
+                {/* Item which resets the hovered block's type. */}
                 <DragHandleMenuItem
                   onClick={() => {
                     editor.updateBlock(props.block, { type: "paragraph" });

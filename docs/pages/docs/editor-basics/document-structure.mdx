@@ -2,6 +2,13 @@
 description: Learn how documents (the content of the rich text editor) are structured to make the most out of BlockNote.
 ---
 
+
+
+
+
+
+
+
 import { Example } from "@/components/example";
 
 # Document Structure
@@ -42,12 +49,6 @@ type Block = {
 `content:` The block's rich text content, usually represented as an array of `InlineContent` objects. This does not include content from any nested blocks. Read on to [Inline Content](/docs/editor-basics/content-structure#inline-content) for more on this.
 
 `children:` Any blocks nested inside the block. The nested blocks are also represented using `Block` objects.
-
-### Editor Content in JSON
-
-The demo below shows the editor contents (document) in JSON. It's basically an array of `Block` objects that updates as you type in the editor:
-
-<Example name="basic/block-objects" />
 
 ## Inline Content
 
@@ -90,14 +91,14 @@ type TableContent = {
 };
 ```
 
-## Styles and rich text
+### Styles and Rich Text
 
 The `styles` property of `StyledText` objects is used to describe the rich text styles (e.g.: bold, italic, color) or other attributes of a piece of text. It's a set of key / value pairs that specify the styles applied to the text.
 
 See the [Default Schema](/docs/editor-basics/default-schema) to learn which styles are included in BlockNote by default.
 
-## Demo: Block Content
+## Document JSON
 
-In the demo below, you can explore how the block content and styles are represented in JSON by outputting only the `content` field of each top level block.
+The demo below shows the editor contents (document) in JSON. It's an array of `Block` objects that updates as you type in the editor:
 
-<Example name="basic/inline-content-objects" />
+<Example name="basic/block-objects" />

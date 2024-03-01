@@ -11,6 +11,19 @@ export default function App() {
       },
       {
         type: "paragraph",
+      },
+      {
+        type: "paragraph",
+        content: [
+          {
+            type: "text",
+            text: "Blocks:",
+            styles: { bold: true },
+          },
+        ],
+      },
+      {
+        type: "paragraph",
         content: "Paragraph",
       },
       {
@@ -44,6 +57,47 @@ export default function App() {
             },
           ],
         },
+      },
+      {
+        type: "paragraph",
+      },
+      {
+        type: "paragraph",
+        content: [
+          {
+            type: "text",
+            text: "Inline Content:",
+            styles: { bold: true },
+          },
+        ],
+      },
+      {
+        type: "paragraph",
+        content: [
+          {
+            type: "text",
+            text: "Styled Text",
+            styles: {
+              bold: true,
+              italic: true,
+              textColor: "red",
+              backgroundColor: "blue",
+            },
+          },
+          {
+            type: "text",
+            text: " ",
+            styles: {},
+          },
+          {
+            type: "link",
+            content: "Link",
+            href: "https://www.blocknotejs.org",
+          },
+        ],
+      },
+      {
+        type: "paragraph",
       },
     ],
   });

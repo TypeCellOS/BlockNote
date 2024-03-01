@@ -1,7 +1,10 @@
-# Displaying Block Objects
+# Document JSON
 
-In this example, below the editor, we display its contents as they're represented in code - i.e. as a JSON array of `Block` objects.
+In this example, the document's JSON representation is displayed below the editor.
+
+**Try it out:** Try typing in the editor and see the JSON update!
 
 **Relevant Docs:**
 
-- TODO
+- [Document Structure](/docs/editor-basics/document-structure)
+- [Getting the Document](/docs/editor-api/manipulating-blocks#getting-the-document)

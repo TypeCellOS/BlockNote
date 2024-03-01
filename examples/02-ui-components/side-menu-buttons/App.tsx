@@ -37,7 +37,7 @@ export default function App() {
       <SideMenuController
         sideMenu={(props) => (
           <SideMenu {...props}>
-            {/*Custom button which removes the hovered block.*/}
+            {/* Button which removes the hovered block. */}
             <RemoveBlockButton {...props} />
             <DragHandleButton {...props} />
           </SideMenu>

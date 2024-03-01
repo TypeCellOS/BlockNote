@@ -1,6 +1,6 @@
 {
   "playground": true,
-  "docs": true,
-  "group": "Basic Examples",
-  "order": 1
+  "docs": false,
+  "author": "matthewlipski",
+  "tags": []
 }

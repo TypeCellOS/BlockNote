@@ -5,6 +5,7 @@ import {
 } from "@blocknote/react";
 import { MdDelete } from "react-icons/md";
 
+// Custom Side Menu button to remove the hovered block.
 export function RemoveBlockButton(props: SideMenuProps) {
   const editor = useBlockNoteEditor();
 

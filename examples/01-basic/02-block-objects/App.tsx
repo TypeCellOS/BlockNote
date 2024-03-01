@@ -6,8 +6,9 @@ import { useState } from "react";
 import "./styles.css";
 
 export default function App() {
-  // Stores the editor's contents (document) as an array of Block objects.
+  // Stores the document JSON.
   const [blocks, setBlocks] = useState<Block[]>([]);
+
   // Creates a new editor instance.
   const editor = useCreateBlockNote({
     initialContent: [
@@ -29,8 +30,7 @@ export default function App() {
     ],
   });
 
-  // Renders the editor instance and its contents, as an array of Block
-  // objects, below.
+  // Renders the editor instance and its document JSON.
   return (
     <div className={"wrapper"}>
       <div>BlockNote Editor:</div>
@@ -38,7 +38,7 @@ export default function App() {
         <BlockNoteView
           editor={editor}
           onChange={() => {
-            // Get the editor content (document) and store on the state.
+            // Saves the document JSON to state.
             setBlocks(editor.document);
           }}
         />

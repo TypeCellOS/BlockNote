@@ -5,7 +5,8 @@ import {
   useCreateBlockNote,
 } from "@blocknote/react";
 import "@blocknote/react/style.css";
-import { CustomButton } from "./CustomButton";
+
+import { AlertButton } from "./AlertButton";
 
 export default function App() {
   // Creates a new editor instance.
@@ -22,7 +23,6 @@ export default function App() {
       {
         type: "paragraph",
         content: [
-          // TODO: Fix link styles (think it's website only)
           {
             type: "link",
             href: "https://www.blocknotejs.org/",
@@ -52,7 +52,7 @@ export default function App() {
           //  massive pain when you want to customize the hyperlink. Lots of
           //  refactoring probably needed here.
           <HyperlinkToolbar {...props}>
-            <CustomButton {...props} />
+            <AlertButton {...props} />
           </HyperlinkToolbar>
         )}
       />

@@ -1,7 +1,7 @@
-# Basic Editor Setup
+# Basic Setup
 
-This example shows the minimal code required to setup your React rich text editor with BlockNote.
+This example shows the minimal code required to set up a BlockNote editor in React.
 
 **Relevant Docs:**
 
-- TODO
+- [Editor Setup](/docs/editor-basics/setup)
