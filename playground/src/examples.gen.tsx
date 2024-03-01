@@ -335,6 +335,70 @@
           "pathFromRoot": "examples/03-theming",
           "slug": "theming"
         }
+      },
+      {
+        "projectSlug": "theming-css",
+        "fullSlug": "theming/theming-css",
+        "pathFromRoot": "examples/03-theming/theming-css",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "group": "Basic Examples",
+          "order": 1
+        },
+        "title": "CSS Styling",
+        "group": {
+          "pathFromRoot": "examples/03-theming",
+          "slug": "theming"
+        }
+      },
+      {
+        "projectSlug": "theming-css-variables",
+        "fullSlug": "theming/theming-css-variables",
+        "pathFromRoot": "examples/03-theming/theming-css-variables",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "group": "Basic Examples",
+          "order": 1
+        },
+        "title": "CSS Variables",
+        "group": {
+          "pathFromRoot": "examples/03-theming",
+          "slug": "theming"
+        }
+      },
+      {
+        "projectSlug": "theming-css-variables-code",
+        "fullSlug": "theming/theming-css-variables-code",
+        "pathFromRoot": "examples/03-theming/theming-css-variables-code",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "group": "Basic Examples",
+          "order": 1
+        },
+        "title": "Theme Objects",
+        "group": {
+          "pathFromRoot": "examples/03-theming",
+          "slug": "theming"
+        }
+      },
+      {
+        "projectSlug": "theming-dom-attributes",
+        "fullSlug": "theming/theming-dom-attributes",
+        "pathFromRoot": "examples/03-theming/theming-dom-attributes",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "group": "Basic Examples",
+          "order": 1
+        },
+        "title": "Adding DOM Attributes",
+        "group": {
+          "pathFromRoot": "examples/03-theming",
+          "slug": "theming"
+        }
       }
     ]
   },
@@ -349,7 +413,7 @@
         "pathFromRoot": "examples/04-cursor-selections/selection-blocks",
         "config": {
           "playground": true,
-          "docs": false,
+          "docs": true,
           "group": "Basic Examples",
           "order": 1
         },

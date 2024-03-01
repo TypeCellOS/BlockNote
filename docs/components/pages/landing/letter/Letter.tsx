@@ -3,6 +3,7 @@ import { FadeIn } from "../shared/FadeIn";
 import { HeroText } from "../../home-shared/Headings";
 import gradients from "../../home-shared/gradients.module.css";
 import Link from "next/link";
+import { CTAButton } from "@/components/CTAButton";
 
 export function Letter() {
   return (
@@ -97,18 +98,9 @@ export function Letter() {
         className="relative z-20 mt-16 flex w-full justify-center"
         noVertical>
         <div className="w-full max-w-[180px]">
-          <div className="button-glow-parent relative flex h-fit w-fit flex-wrap gap-x-6 gap-y-4">
-            <Link
-              className={
-                "z-20 rounded-full bg-slate-800 px-8 py-2 text-lg font-medium text-white"
-              }
-              href="/docs">
-              Start Building
-            </Link>
-            <div
-              className={"button-glow absolute z-10 h-full w-full rounded-full"}
-            />
-          </div>
+          <CTAButton href={"/docs"} hoverGlow={true}>
+            Start Building
+          </CTAButton>
         </div>
         {/*<Gradient*/}
         {/*  className="bottom-[-200px] -z-10 opacity-20"*/}

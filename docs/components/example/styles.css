@@ -20,3 +20,8 @@
     overflow: auto;
     padding-block: 1rem;
 }
+
+.demo a {
+    color: revert;
+    text-decoration: revert;
+}

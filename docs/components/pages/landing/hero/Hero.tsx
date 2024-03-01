@@ -9,6 +9,7 @@ import { useTheme } from "nextra-theme-docs";
 import tryHereImageDark from "../../../../public/img/assets/try.dark.svg";
 import tryHereImageLight from "../../../../public/img/assets/try.svg";
 import Link from "next/link";
+import { CTAButton } from "@/components/CTAButton";
 
 const Demo = dynamic(() => import("@/components/pages/landing/hero/Demo"), {
   ssr: false,
@@ -32,24 +33,15 @@ export function Hero() {
             your app that users will love. Customize it with your own
             functionality like custom blocks or AI tooling.
           </SectionSubtext>
-          <div className="button-glow-parent relative flex h-fit w-fit flex-wrap gap-x-6 gap-y-4">
-            <Link
-              className={
-                "z-20 rounded-full bg-slate-800 px-4 py-2 text-lg font-medium text-white"
-              }
-              href="/docs">
-              Get Started
-            </Link>
-            <div
-              className={"button-glow absolute z-10 h-full w-full rounded-full"}
-            />
-          </div>
+          <CTAButton href={"/docs"} hoverGlow={true}>
+            Get Started
+          </CTAButton>
         </FadeIn>
-        <div className="relative h-[36rem] w-full shrink-0 grow-0 rounded-lg xl:w-[584px]">
+        <div className="hero relative h-[36rem] w-full shrink-0 grow-0 rounded-lg xl:w-[584px]">
           <FadeIn noVertical className={"absolute z-10 h-full w-full"}>
             <div className={"editor-glow h-full w-full"} />
           </FadeIn>
-          <FadeIn className="relative z-20 h-full w-full overflow-auto overscroll-contain rounded-lg bg-white dark:bg-[#202020]">
+          <FadeIn className="relative z-20 h-full w-full rounded-lg bg-white dark:bg-[#202020]">
             <Demo theme={theme === "dark" ? "dark" : "light"} />
             {/* <BackgroundIllustration className="absolute left-1/2 top-4 h-[1026px] w-[1026px] -translate-x-1/3 stroke-gray-300/70 [mask-image:linear-gradient(to_bottom,white_20%,transparent_75%)] sm:top-16 sm:-translate-x-1/2 lg:-top-16 lg:ml-12 xl:-top-14 xl:ml-0" />
         <div className="-mx-4 h-[448px] px-9 [mask-image:linear-gradient(to_bottom,white_60%,transparent)] sm:mx-0 lg:absolute lg:-inset-x-10 lg:-bottom-20 lg:-top-10 lg:h-auto lg:px-0 lg:pt-10 xl:-bottom-32">
