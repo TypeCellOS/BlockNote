@@ -1,3 +1,4 @@
+import { BlockNoteSchema, defaultBlockSpecs } from "@blocknote/core";
 import {
   BlockNoteView,
   BlockTypeDropdownItem,
@@ -7,11 +8,25 @@ import {
   useCreateBlockNote,
 } from "@blocknote/react";
 import "@blocknote/react/style.css";
-import { RiImage2Fill } from "react-icons/ri";
+import { RiAlertFill } from "react-icons/ri";
+
+import { Alert } from "./Alert";
+
+// Our schema with block specs, which contain the configs and implementations
+// for blocks that we want our editor to use.
+const schema = BlockNoteSchema.create({
+  blockSpecs: {
+    // Adds all default blocks.
+    ...defaultBlockSpecs,
+    // Adds the Alert block.
+    alert: Alert,
+  },
+});
 
 export default function App() {
   // Creates a new editor instance.
   const editor = useCreateBlockNote({
+    schema,
     initialContent: [
       {
         type: "paragraph",
@@ -20,19 +35,12 @@ export default function App() {
       {
         type: "paragraph",
         content:
-          "Try selecting some text - you'll see the new 'Image' item in the Block Type Dropdown",
+          "Try selecting some text - you'll see the new 'Alert' item in the Block Type Dropdown",
       },
       {
-        type: "paragraph",
+        type: "alert",
         content:
-          "Or select the image below - the Block Type Dropdown now appears",
-      },
-      {
-        type: "image",
-        props: {
-          url: "https://www.economist.com/cdn-cgi/image/width=1424,quality=80,format=auto/content-assets/images/20230708_STP001.jpg",
-          width: 200,
-        },
+          "Or select text in this alert - the Block Type Dropdown also appears",
       },
       {
         type: "paragraph",
@@ -40,7 +48,7 @@ export default function App() {
     ],
   });
 
-  // Renders the editor instance.
+  // Renders the editor instance with the updated Block Type Dropdown.
   return (
     <BlockNoteView editor={editor} formattingToolbar={false}>
       <FormattingToolbarController
@@ -49,10 +57,10 @@ export default function App() {
             blockTypeDropdownItems={[
               ...blockTypeDropdownItems,
               {
-                name: "Image",
-                type: "image",
-                icon: RiImage2Fill,
-                isSelected: (block) => block.type === "image",
+                name: "Alert",
+                type: "alert",
+                icon: RiAlertFill,
+                isSelected: (block) => block.type === "alert",
               } satisfies BlockTypeDropdownItem,
             ]}
           />

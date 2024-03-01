@@ -1,8 +1,8 @@
 {
   "playground": true,
   "docs": true,
-  "group": "Advanced Examples",
-  "order": 1,
+  "author": "matthewlipski",
+  "tags": [],
   "dependencies": {
     "@mantine/core": "^7.5.0",
     "react-icons": "^4.3.1"

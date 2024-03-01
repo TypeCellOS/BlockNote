@@ -5,6 +5,7 @@ import {
 } from "@blocknote/react";
 import { useState } from "react";
 
+// Custom Formatting Toolbar Button to toggle blue text & background color.
 export function BlueButton() {
   const editor = useBlockNoteEditor();
 

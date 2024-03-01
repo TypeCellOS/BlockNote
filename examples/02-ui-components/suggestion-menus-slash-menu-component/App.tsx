@@ -9,6 +9,7 @@ import "@blocknote/react/style.css";
 
 import "./styles.css";
 
+// Custom component to replace the default Slash Menu.
 function CustomSlashMenu(
   props: SuggestionMenuProps<DefaultReactSuggestionItem>
 ) {
@@ -20,8 +21,6 @@ function CustomSlashMenu(
             props.selectedIndex === index ? " selected" : ""
           }`}
           onClick={() => {
-            // TODO: Should not be undefined since we use
-            //  DefaultReactSuggestionItem
             props.onItemClick?.(item);
           }}>
           {item.title}

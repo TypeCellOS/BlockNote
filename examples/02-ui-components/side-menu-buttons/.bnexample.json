@@ -1,8 +1,8 @@
 {
   "playground": true,
   "docs": true,
-  "group": "Basic Examples",
-  "order": 1,
+  "author": "matthewlipski",
+  "tags": [],
   "dependencies": {
     "react-icons": "^4.3.1"
   }

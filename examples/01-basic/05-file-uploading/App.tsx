@@ -1,11 +1,7 @@
 import { BlockNoteView, useCreateBlockNote } from "@blocknote/react";
 import "@blocknote/react/style.css";
 
-/**
- * Uploads a file to tmpfiles.org and returns the URL to the uploaded file.
- *
- * @warning This function should only be used for development purposes, replace with your own backend!
- */
+// Uploads a file to tmpfiles.org and returns the URL to the uploaded file.
 async function uploadFile(file: File) {
   const body = new FormData();
   body.append("file", file);
@@ -22,7 +18,22 @@ async function uploadFile(file: File) {
 
 export default function App() {
   // Creates a new editor instance.
-  const editor = useCreateBlockNote({ uploadFile });
+  const editor = useCreateBlockNote({
+    initialContent: [
+      {
+        type: "paragraph",
+        content: "Welcome to this demo!",
+      },
+      {
+        type: "paragraph",
+        content: "Upload an image using the button below",
+      },
+      {
+        type: "image",
+      },
+    ],
+    uploadFile,
+  });
 
   // Renders the editor instance using a React component.
   return <BlockNoteView editor={editor} />;

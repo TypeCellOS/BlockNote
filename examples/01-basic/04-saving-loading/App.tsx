@@ -1,15 +1,16 @@
-import { BlockNoteEditor, PartialBlock } from "@blocknote/core";
+import { Block, BlockNoteEditor, PartialBlock } from "@blocknote/core";
 import { BlockNoteView } from "@blocknote/react";
 import "@blocknote/react/style.css";
 import { useEffect, useMemo, useState } from "react";
 
-async function saveToStorage(jsonBlocks: any[]) {
-  // Save contents to local storage. You might want to debounce this or replace with a call to your API / database
+async function saveToStorage(jsonBlocks: Block[]) {
+  // Save contents to local storage. You might want to debounce this or replace
+  // with a call to your API / database.
   localStorage.setItem("editorContent", JSON.stringify(jsonBlocks));
 }
 
 async function loadFromStorage() {
-  // Gets the previously stored editor contents
+  // Gets the previously stored editor contents.
   const storageString = localStorage.getItem("editorContent");
   return storageString
     ? (JSON.parse(storageString) as PartialBlock[])
@@ -21,7 +22,7 @@ export default function App() {
     PartialBlock[] | undefined | "loading"
   >("loading");
 
-  // Loads the previously stored editor contents
+  // Loads the previously stored editor contents.
   useEffect(() => {
     loadFromStorage().then((content) => {
       setInitialContent(content);
@@ -29,7 +30,8 @@ export default function App() {
   }, []);
 
   // Creates a new editor instance.
-  // We use useMemo + createBlockNoteEditor instead of useCreateBlockNote so we can delay the creation of the editor until the initial content is loaded.
+  // We use useMemo + createBlockNoteEditor instead of useCreateBlockNote so we
+  // can delay the creation of the editor until the initial content is loaded.
   const editor = useMemo(() => {
     if (initialContent === "loading") {
       return undefined;

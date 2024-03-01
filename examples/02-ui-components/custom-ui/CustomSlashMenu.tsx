@@ -4,10 +4,13 @@ import {
   useBlockNoteEditor,
 } from "@blocknote/react";
 
+// Custom component to replace the default Slash Menu.
 export function CustomSlashMenu(
   props: SuggestionMenuProps<DefaultReactSuggestionItem>
 ) {
   const editor = useBlockNoteEditor();
+
+  // Sorts items into their groups.
   const groups: Record<string, DefaultReactSuggestionItem[]> = {};
   for (const item of props.items) {
     const group = item.group || item.title;
@@ -19,7 +22,7 @@ export function CustomSlashMenu(
     groups[group].push(item);
   }
 
-  // If query matches no items, show "No matches" message
+  // If query matches no items, shows "No matches" message.
   if (props.items.length === 0) {
     return <div className={"slash-menu"}>No matches</div>;
   }
@@ -29,9 +32,9 @@ export function CustomSlashMenu(
       {Object.entries(groups).map(([group, items]) => (
         // Component for each group
         <div key={group} className={"slash-menu-group"}>
-          {/*Group label*/}
+          {/* Group label */}
           <div className={"slash-menu-label"}>{group}</div>
-          {/*Group items*/}
+          {/* Group items */}
           <div className={"slash-menu-item-group"}>
             {items.map((item: DefaultReactSuggestionItem) => {
               const Icon = item.icon;

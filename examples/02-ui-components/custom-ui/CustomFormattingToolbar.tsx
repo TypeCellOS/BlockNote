@@ -30,10 +30,11 @@ type CustomFormattingToolbarState = {
   backgroundColor: string;
 };
 
+// Custom component to replace the default Formatting Toolbar.
 export function CustomFormattingToolbar() {
   const editor = useBlockNoteEditor();
 
-  // Function to get the state of toolbar buttons (active/inactive)
+  // Function to get the state of toolbar buttons (active/inactive).
   const getState = (): CustomFormattingToolbarState => {
     const block = editor.getTextCursorPosition().block;
     const activeStyles = editor.getActiveStyles();
@@ -50,7 +51,7 @@ export function CustomFormattingToolbar() {
     };
   };
 
-  // Callback to set text alignment
+  // Callback to set text alignment.
   const setTextAlignment = (
     textAlignment: CustomFormattingToolbarState["textAlignment"]
   ) => {
@@ -71,28 +72,28 @@ export function CustomFormattingToolbar() {
     }
   };
 
-  // Keeps track of the state of toolbar buttons
+  // Keeps track of the state of toolbar buttons.
   const [state, setState] = useState<CustomFormattingToolbarState>(getState());
 
-  // Keeps track of if the color and link sub menus are open
+  // Keeps track of if the color and link sub menus are open.
   const [colorMenuOpen, setColorMenuOpen] = useState(false);
   const [linkMenuOpen, setLinkMenuOpen] = useState(false);
 
-  // Updates toolbar state when the editor content or selection changes
+  // Updates toolbar state when the editor content or selection changes.
   useEditorChange(() => setState(getState()), editor);
   useEditorSelectionChange(() => setState(getState()), editor);
 
   return (
     <div className={"formatting-toolbar"}>
-      {/*Button group for toggled text styles*/}
+      {/* Button group for toggled text styles. */}
       <div className={"formatting-toolbar-group"}>
-        {/*Toggle bold button*/}
+        {/* Toggle bold button */}
         <button
           className={`formatting-toolbar-button${state.bold ? " active" : ""}`}
           onClick={() => editor.toggleStyles({ bold: true })}>
           <MdFormatBold />
         </button>
-        {/*Toggle italic button*/}
+        {/* Toggle italic button */}
         <button
           className={`formatting-toolbar-button${
             state.italic ? " active" : ""
@@ -100,7 +101,7 @@ export function CustomFormattingToolbar() {
           onClick={() => editor.toggleStyles({ italic: true })}>
           <MdFormatItalic />
         </button>
-        {/*Toggle underline button*/}
+        {/* Toggle underline button */}
         <button
           className={`formatting-toolbar-button${
             state.underline ? " active" : ""
@@ -109,7 +110,7 @@ export function CustomFormattingToolbar() {
           <MdFormatUnderlined />
         </button>
       </div>
-      {/*Button group for text alignment*/}
+      {/* Button group for text alignment */}
       <div className={"formatting-toolbar-group"}>
         {/*Left align button*/}
         <button
@@ -119,7 +120,7 @@ export function CustomFormattingToolbar() {
           onClick={() => setTextAlignment("left")}>
           <MdFormatAlignLeft />
         </button>
-        {/*Center align button*/}
+        {/* Center align button */}
         <button
           className={`formatting-toolbar-button${
             state.textAlignment === "center" ? " active" : ""
@@ -127,7 +128,7 @@ export function CustomFormattingToolbar() {
           onClick={() => setTextAlignment("center")}>
           <MdFormatAlignCenter />
         </button>
-        {/*Right align button*/}
+        {/* Right align button */}
         <button
           className={`formatting-toolbar-button${
             state.textAlignment === "right" ? " active" : ""
@@ -135,7 +136,7 @@ export function CustomFormattingToolbar() {
           onClick={() => setTextAlignment("right")}>
           <MdFormatAlignRight />
         </button>
-        {/*Justify text button*/}
+        {/* Justify text button */}
         <button
           className={`formatting-toolbar-button${
             state.textAlignment === "justify" ? " active" : ""
@@ -144,7 +145,7 @@ export function CustomFormattingToolbar() {
           <MdFormatAlignJustify />
         </button>
       </div>
-      {/*Button group for color menu*/}
+      {/* Button group for color menu */}
       <div className={"formatting-toolbar-group"}>
         <div className={"color-menu-button"}>
           <button
@@ -157,7 +158,7 @@ export function CustomFormattingToolbar() {
           <ColorMenu className={!colorMenuOpen ? "hidden" : undefined} />
         </div>
       </div>
-      {/*Button group for link menu*/}
+      {/* Button group for link menu */}
       <div className={"formatting-toolbar-group"}>
         <div className={"link-menu-button"}>
           <button

@@ -16,11 +16,11 @@ export const colors = [
   "purple",
 ] as const;
 
-// Formatting Toolbar sub menu for changing text and background color
+// Formatting Toolbar sub menu for changing text and background color.
 export function ColorMenu(props: { className?: string }) {
   const editor = useBlockNoteEditor();
 
-  // Colors of the currently selected text
+  // Colors of the currently selected text.
   const [textColor, setTextColor] = useState<string>(
     (editor.getActiveStyles().textColor as string) || "default"
   );
@@ -28,14 +28,13 @@ export function ColorMenu(props: { className?: string }) {
     (editor.getActiveStyles().backgroundColor as string) || "default"
   );
 
-  // Update the colors when the editor content or selection changes
+  // Updates the colors when the editor content or selection changes.
   useEditorChange(() => {
     setTextColor((editor.getActiveStyles().textColor as string) || "default");
     setCurrentColor(
       (editor.getActiveStyles().backgroundColor as string) || "default"
     );
   }, editor);
-
   useEditorSelectionChange(() => {
     setTextColor((editor.getActiveStyles().textColor as string) || "default");
     setCurrentColor(
@@ -46,7 +45,7 @@ export function ColorMenu(props: { className?: string }) {
   return (
     <div
       className={`color-menu${props.className ? " " + props.className : ""}`}>
-      {/*Group for text color buttons*/}
+      {/* Group for text color buttons */}
       <div className={"color-menu-group"}>
         {colors.map((color) => (
           // Button for each color
@@ -64,7 +63,7 @@ export function ColorMenu(props: { className?: string }) {
           </button>
         ))}
       </div>
-      {/*Group for background color buttons*/}
+      {/* Group for background color buttons */}
       <div className={"color-menu-group"}>
         {colors.map((color) => (
           // Button for each color
