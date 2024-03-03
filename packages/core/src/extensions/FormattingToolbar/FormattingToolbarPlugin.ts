@@ -39,6 +39,7 @@ export class FormattingToolbarView {
           "Attempting to update uninitialized formatting toolbar"
         );
       }
+      console.log(this.state);
 
       emitUpdate(this.state);
     };
@@ -95,8 +96,12 @@ export class FormattingToolbarView {
       (editorWrapper === (event.relatedTarget as Node) ||
         editorWrapper.contains(event.relatedTarget as Node))
     ) {
+      console.log(event);
+      console.log(this.state);
       return;
     }
+    console.log(event);
+    console.log(this.state);
 
     if (this.state?.show) {
       this.state.show = false;

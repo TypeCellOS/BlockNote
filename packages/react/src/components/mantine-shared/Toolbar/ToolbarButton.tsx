@@ -1,5 +1,5 @@
 import { ActionIcon, Button, Tooltip } from "@mantine/core";
-import { ForwardedRef, MouseEvent, forwardRef } from "react";
+import { MouseEvent, forwardRef, useRef } from "react";
 import type { IconType } from "react-icons";
 
 import { TooltipContent } from "../Tooltip/TooltipContent";
@@ -17,8 +17,9 @@ export type ToolbarButtonProps = {
 /**
  * Helper for basic buttons that show in the formatting toolbar.
  */
-export const ToolbarButton = forwardRef(
-  (props: ToolbarButtonProps, ref: ForwardedRef<HTMLButtonElement>) => {
+export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
+  (props, ref) => {
+    const buttonRef = useRef<HTMLButtonElement | null>(null);
     const ButtonIcon = props.icon;
 
     return (
@@ -33,6 +34,13 @@ export const ToolbarButton = forwardRef(
         {/*Creates an ActionIcon instead of a Button if only an icon is provided as content.*/}
         {props.children ? (
           <Button
+            // Needed as Safari doesn't focus button elements on mouse down
+            // unlike other browsers.
+            onMouseDown={() => {
+              if (buttonRef.current !== null) {
+                buttonRef.current.focus();
+              }
+            }}
             onClick={props.onClick}
             data-selected={props.isSelected ? "true" : undefined}
             data-test={
@@ -41,12 +49,27 @@ export const ToolbarButton = forwardRef(
             }
             size={"xs"}
             disabled={props.isDisabled || false}
-            ref={ref}>
+            // TODO: Ugly code for combining refs
+            ref={(node) => {
+              buttonRef.current = node;
+              if (typeof ref === "function") {
+                ref(node);
+              } else if (ref) {
+                ref.current = node;
+              }
+            }}>
             {ButtonIcon && <ButtonIcon />}
             {props.children}
           </Button>
         ) : (
           <ActionIcon
+            // Needed as Safari doesn't focus button elements on mouse down
+            // unlike other browsers.
+            onMouseDown={() => {
+              if (buttonRef.current !== null) {
+                buttonRef.current.focus();
+              }
+            }}
             onClick={props.onClick}
             data-selected={props.isSelected ? "true" : undefined}
             data-test={
@@ -55,7 +78,15 @@ export const ToolbarButton = forwardRef(
             }
             size={30}
             disabled={props.isDisabled || false}
-            ref={ref}>
+            // TODO: Ugly code for combining refs
+            ref={(node) => {
+              buttonRef.current = node;
+              if (typeof ref === "function") {
+                ref(node);
+              } else if (ref) {
+                ref.current = node;
+              }
+            }}>
             {ButtonIcon && <ButtonIcon />}
           </ActionIcon>
         )}
