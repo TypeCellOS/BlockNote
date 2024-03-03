@@ -688,7 +688,33 @@
             "yjs": "^13.6.1"
           }
         },
-        "title": "Collaborative Editing with Partykit",
+        "title": "Collaborative Editing with PartyKit",
+        "group": {
+          "pathFromRoot": "examples/06-collaboration",
+          "slug": "collaboration"
+        }
+      },
+      {
+        "projectSlug": "liveblocks",
+        "fullSlug": "collaboration/liveblocks",
+        "pathFromRoot": "examples/06-collaboration/02-liveblocks",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "matthewlipski",
+          "tags": [
+            "Advanced",
+            "Saving/Loading",
+            "Collaboration"
+          ],
+          "dependencies": {
+            "@liveblocks/client": "^1.10.0",
+            "@liveblocks/react": "^1.10.0",
+            "@liveblocks/yjs": "^1.10.0",
+            "yjs": "^13.6.1"
+          }
+        },
+        "title": "Collaborative Editing with LiveBlocks",
         "group": {
           "pathFromRoot": "examples/06-collaboration",
           "slug": "collaboration"

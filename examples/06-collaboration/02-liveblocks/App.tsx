@@ -1,16 +1,23 @@
 import { BlockNoteView, useCreateBlockNote } from "@blocknote/react";
 import "@blocknote/react/style.css";
-import YPartyKitProvider from "y-partykit/provider";
+import { createClient } from "@liveblocks/client";
+import LiveblocksProvider from "@liveblocks/yjs";
 import * as Y from "yjs";
+
+// Sets up Liveblocks client.
+const client = createClient({
+  publicApiKey:
+    "pk_dev_lJAS4XHx3l1e0x_Gh9VMtrvo8PEB1vrNarC2YRtAOp4t6i9_QAcSX2U953GS6v7B",
+});
+// Enters a multiplayer room.
+// Use a unique name as a "room" for your application.
+const { room } = client.enterRoom("your-project-name", {
+  initialPresence: {},
+});
 
 // Sets up Yjs document and LiveBlocks Yjs provider.
 const doc = new Y.Doc();
-const provider = new YPartyKitProvider(
-  "blocknote-dev.yousefed.partykit.dev",
-  // Use a unique name as a "room" for your application.
-  "your-project-name",
-  doc
-);
+const provider = new LiveblocksProvider(room, doc);
 
 export default function App() {
   const editor = useCreateBlockNote({
