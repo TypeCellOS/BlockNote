@@ -33,13 +33,15 @@ const getMentionMenuItems = (
   return users.map((user) => ({
     title: user,
     onItemClick: () => {
-      // TODO: Better API
-      editor._tiptapEditor.commands.insertContent({
-        type: "mention",
-        attrs: {
-          user: user,
+      editor.insertInlineContent([
+        {
+          type: "mention",
+          props: {
+            user,
+          },
         },
-      });
+        " ", // add a space after the mention
+      ]);
     },
   }));
 };
@@ -60,8 +62,6 @@ export function App() {
             props: {
               user: "Steve",
             },
-            // TODO: Typing needs fix
-            content: undefined,
           },
           {
             type: "text",

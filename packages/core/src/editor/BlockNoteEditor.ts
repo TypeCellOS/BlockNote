@@ -4,6 +4,7 @@ import { Node } from "prosemirror-model";
 import * as Y from "yjs";
 import {
   insertBlocks,
+  insertContentAt,
   removeBlocks,
   replaceBlocks,
   updateBlock,
@@ -11,7 +12,10 @@ import {
 import { createExternalHTMLExporter } from "../api/exporters/html/externalHTMLExporter";
 import { blocksToMarkdown } from "../api/exporters/markdown/markdownExporter";
 import { getBlockInfoFromPos } from "../api/getBlockInfoFromPos";
-import { nodeToBlock } from "../api/nodeConversions/nodeConversions";
+import {
+  inlineContentToNodes,
+  nodeToBlock,
+} from "../api/nodeConversions/nodeConversions";
 import { getNodeById } from "../api/nodeUtil";
 import { HTMLToBlocks } from "../api/parsers/html/parseHTML";
 import { markdownToBlocks } from "../api/parsers/markdown/parseMarkdown";
@@ -36,6 +40,7 @@ import {
   BlockSpecs,
   InlineContentSchema,
   InlineContentSpecs,
+  PartialInlineContent,
   StyleSchema,
   StyleSpecs,
   Styles,
@@ -699,6 +704,28 @@ export class BlockNoteEditor<
     blocksToInsert: PartialBlock<BSchema, ISchema, SSchema>[]
   ) {
     return replaceBlocks(blocksToRemove, blocksToInsert, this);
+  }
+
+  /**
+   * Insert a piece of content at the current cursor position.
+   *
+   * @param content can be a string, or array of partial inline content elements
+   */
+  public insertInlineContent(content: PartialInlineContent<ISchema, SSchema>) {
+    const nodes = inlineContentToNodes(
+      content,
+      this._tiptapEditor.schema,
+      this.schema.styleSchema
+    );
+
+    insertContentAt(
+      {
+        from: this._tiptapEditor.state.selection.from,
+        to: this._tiptapEditor.state.selection.to,
+      },
+      nodes,
+      this
+    );
   }
 
   /**
