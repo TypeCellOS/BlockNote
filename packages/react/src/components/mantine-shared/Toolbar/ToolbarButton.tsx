@@ -1,5 +1,5 @@
 import { ActionIcon, Button, Tooltip } from "@mantine/core";
-import { MouseEvent, forwardRef, useRef } from "react";
+import { MouseEvent, forwardRef } from "react";
 import type { IconType } from "react-icons";
 
 import { TooltipContent } from "../Tooltip/TooltipContent";
@@ -19,7 +19,6 @@ export type ToolbarButtonProps = {
  */
 export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
   (props, ref) => {
-    const buttonRef = useRef<HTMLButtonElement | null>(null);
     const ButtonIcon = props.icon;
 
     return (
@@ -36,10 +35,8 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
           <Button
             // Needed as Safari doesn't focus button elements on mouse down
             // unlike other browsers.
-            onMouseDown={() => {
-              if (buttonRef.current !== null) {
-                buttonRef.current.focus();
-              }
+            onMouseDown={(e) => {
+              (e.currentTarget as HTMLButtonElement).focus();
             }}
             onClick={props.onClick}
             data-selected={props.isSelected ? "true" : undefined}
@@ -49,15 +46,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
             }
             size={"xs"}
             disabled={props.isDisabled || false}
-            // TODO: Ugly code for combining refs
-            ref={(node) => {
-              buttonRef.current = node;
-              if (typeof ref === "function") {
-                ref(node);
-              } else if (ref) {
-                ref.current = node;
-              }
-            }}>
+            ref={ref}>
             {ButtonIcon && <ButtonIcon />}
             {props.children}
           </Button>
@@ -65,10 +54,8 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
           <ActionIcon
             // Needed as Safari doesn't focus button elements on mouse down
             // unlike other browsers.
-            onMouseDown={() => {
-              if (buttonRef.current !== null) {
-                buttonRef.current.focus();
-              }
+            onMouseDown={(e) => {
+              (e.currentTarget as HTMLButtonElement).focus();
             }}
             onClick={props.onClick}
             data-selected={props.isSelected ? "true" : undefined}
@@ -78,15 +65,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
             }
             size={30}
             disabled={props.isDisabled || false}
-            // TODO: Ugly code for combining refs
-            ref={(node) => {
-              buttonRef.current = node;
-              if (typeof ref === "function") {
-                ref(node);
-              } else if (ref) {
-                ref.current = node;
-              }
-            }}>
+            ref={ref}>
             {ButtonIcon && <ButtonIcon />}
           </ActionIcon>
         )}

@@ -1,5 +1,5 @@
 import { Button } from "@mantine/core";
-import { MouseEventHandler, forwardRef, useRef } from "react";
+import { MouseEventHandler, forwardRef } from "react";
 import type { IconType } from "react-icons";
 import { HiChevronDown } from "react-icons/hi";
 
@@ -14,17 +14,14 @@ export const ToolbarDropdownTarget = forwardRef<
   HTMLButtonElement,
   ToolbarDropdownTargetProps
 >((props: ToolbarDropdownTargetProps, ref) => {
-  const buttonRef = useRef<HTMLButtonElement | null>(null);
   const TargetIcon = props.icon;
 
   return (
     <Button
       // Needed as Safari doesn't focus button elements on mouse down
       // unlike other browsers.
-      onMouseDown={() => {
-        if (buttonRef.current !== null) {
-          buttonRef.current.focus();
-        }
+      onMouseDown={(e) => {
+        (e.currentTarget as HTMLButtonElement).focus();
       }}
       leftSection={TargetIcon && <TargetIcon size={16} />}
       rightSection={<HiChevronDown />}
@@ -32,15 +29,7 @@ export const ToolbarDropdownTarget = forwardRef<
       variant={"subtle"}
       disabled={props.isDisabled}
       onClick={props.onClick}
-      // TODO: Ugly code for combining refs
-      ref={(node) => {
-        buttonRef.current = node;
-        if (typeof ref === "function") {
-          ref(node);
-        } else if (ref) {
-          ref.current = node;
-        }
-      }}>
+      ref={ref}>
       {props.text}
     </Button>
   );

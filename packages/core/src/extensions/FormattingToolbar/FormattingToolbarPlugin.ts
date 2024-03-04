@@ -3,8 +3,8 @@ import { EditorState, Plugin, PluginKey } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
-import { BlockSchema, InlineContentSchema, StyleSchema } from "../../schema";
 import { UiElementPosition } from "../../extensions-shared/UiElementPosition";
+import { BlockSchema, InlineContentSchema, StyleSchema } from "../../schema";
 import { EventEmitter } from "../../util/EventEmitter";
 
 export type FormattingToolbarState = UiElementPosition;
@@ -39,7 +39,6 @@ export class FormattingToolbarView {
           "Attempting to update uninitialized formatting toolbar"
         );
       }
-      console.log(this.state);
 
       emitUpdate(this.state);
     };
@@ -96,12 +95,8 @@ export class FormattingToolbarView {
       (editorWrapper === (event.relatedTarget as Node) ||
         editorWrapper.contains(event.relatedTarget as Node))
     ) {
-      console.log(event);
-      console.log(this.state);
       return;
     }
-    console.log(event);
-    console.log(this.state);
 
     if (this.state?.show) {
       this.state.show = false;
