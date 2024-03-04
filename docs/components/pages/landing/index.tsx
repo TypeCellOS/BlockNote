@@ -25,7 +25,7 @@ export function BlockNoteHome() {
         <FadeIn noVertical>
           <div className={"section-border"} />
         </FadeIn>
-        <Sponsors />
+
         {/*</GradientSectionBorder>*/}
         {/*<GradientSectionBorder>*/}
         <Letter />
@@ -33,6 +33,8 @@ export function BlockNoteHome() {
           <div className={"section-border"} />
         </FadeIn>
         <Community />
+
+        <Sponsors />
         {/*</GradientSectionBorder>*/}
         <FAQ />
       </main>

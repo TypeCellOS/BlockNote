@@ -1,4 +1,5 @@
 import { Link } from "nextra-theme-docs";
+import { SectionHeader, SectionSubtext } from "../home-shared/Headings";
 
 const faqs = [
   {
@@ -24,19 +25,24 @@ const faqs = [
     answer: `100% of BlockNote is open source. While the library is free, we offer paid consultancy and support services to help sustain BlockNote.   
     Sponsoring the project is encouraged if you are using BlockNote in a commercial project.`,
   },
-  // More questions...
 ];
 
+// TODO: proper structure
 export default function FAQ() {
   return (
     <div className="mx-auto max-w-7xl px-6 py-16 sm:py-24 lg:px-8">
       <div className="mx-auto max-w-2xl text-center">
-        <h2 className="text-2xl font-bold leading-10 tracking-tight text-gray-900 dark:text-white">
+        <SectionHeader>Frequently asked questions</SectionHeader>
+        <SectionSubtext>
+          More questions? <Link href="/about">Reach out to our team</Link>.
+        </SectionSubtext>
+
+        {/* <h2 className="text-2xl font-bold leading-10 tracking-tight text-gray-900 dark:text-white">
           Frequently asked questions
         </h2>
         <p className="mt-6 text-base leading-7 text-gray-600 dark:text-gray-300">
           More questions? <Link href="/about">Reach out to our team</Link>.
-        </p>
+        </p> */}
       </div>
       <div className="mt-20">
         <dl className="space-y-16 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:gap-y-16 sm:space-y-0 lg:gap-x-10">

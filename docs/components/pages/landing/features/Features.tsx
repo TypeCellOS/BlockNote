@@ -21,7 +21,7 @@ import slashMenuImageDark from "../../../../public/img/screenshots/slash_menu_da
 // TODO: icons, images
 export const featuresCardData: FeatureCardProps[] = [
   {
-    title: "Modern UX",
+    title: "Works out of the box",
     description:
       "Built-in components like menus and toolbars instantly provide a familiar, Notion-style user experience - but are also fully customizable.",
     icon: RiMenuAddFill,
@@ -92,9 +92,9 @@ export const featuresCardData: FeatureCardProps[] = [
 export function Features() {
   return (
     <section className="relative flex flex-col items-center gap-9 overflow-hidden py-16 pb-16 font-sans md:pb-24 lg:gap-14 lg:pb-32">
-      <FadeIn noVertical className={"absolute top-0 z-10 h-full w-full"}>
+      {/* <FadeIn noVertical className={"absolute top-0 z-10 h-full w-full"}>
         <div className={"section-glow h-full w-full"} />
-      </FadeIn>
+      </FadeIn> */}
       <div
         className={
           "z-20 flex max-w-full flex-col items-center gap-12 px-4 md:max-w-screen-md xl:max-w-none"
@@ -110,13 +110,13 @@ export function Features() {
           {featuresCardData.map((feature) => (
             <FeatureCard key={feature.title} {...feature} />
           ))}
-          <p>...and more: (TODO)</p>
+          {/* <p>...and more: (TODO)</p>
           <ul>
             <li>Helpful Placeholders</li>
             <li>Smooth Animations</li>
             <li>Image Uploads</li>
             <li>Resizable Tables</li>
-          </ul>
+          </ul> */}
         </FadeIn>
       </div>
     </section>

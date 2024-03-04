@@ -68,9 +68,9 @@ export const sponsorsCardData: SponsorCardProps[] = [
 export function Sponsors() {
   return (
     <section className="relative flex flex-col items-center gap-9 overflow-hidden py-16 pb-16 font-sans md:pb-24 lg:gap-14 lg:pb-32">
-      <FadeIn noVertical className={"absolute top-0 z-10 h-full w-full"}>
+      {/* <FadeIn noVertical className={"absolute top-0 z-10 h-full w-full"}>
         <div className={"section-glow h-full w-full"} />
-      </FadeIn>
+      </FadeIn> */}
       <div
         className={
           "z-20 flex w-fit max-w-full flex-col items-center gap-12 px-4"
