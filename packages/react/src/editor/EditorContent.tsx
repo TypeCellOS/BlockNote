@@ -43,7 +43,9 @@ export function EditorContent(props: {
         });
       },
     };
-    props.editor._tiptapEditor.createNodeViews();
+    queueMicrotask(() => {
+      props.editor._tiptapEditor.createNodeViews();
+    });
     return () => {
       props.editor._tiptapEditor.contentComponent = null;
     };
