@@ -1,6 +1,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import {
+  addTitleToGroups,
   Files,
   getExampleProjects,
   getProjectFiles,
@@ -161,7 +162,7 @@ async function generateExampleComponents(projects: Project[]) {
 async function generateExampleList(projects: Project[]) {
   const target = path.join(COMPONENT_DIR, "exampleList.gen.ts");
 
-  const groups = groupProjects(projects);
+  const groups = addTitleToGroups(groupProjects(projects));
 
   const items = Object.entries(groups).map(([key, group]) => {
     return {
@@ -196,7 +197,7 @@ fs.readdirSync(EXAMPLES_PAGES_DIR, { withFileTypes: true }).forEach((file) => {
 
 // generate new files
 const projects = getExampleProjects().filter((p) => p.config?.docs === true);
-const groups = groupProjects(projects);
+const groups = addTitleToGroups(groupProjects(projects));
 
 for (const group of Object.values(groups)) {
   await generateMetaForExampleGroup(group);

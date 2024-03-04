@@ -59,6 +59,21 @@ export function groupBy<T>(arr: T[], key: (el: T) => string) {
 export function groupProjects(projects: Project[]) {
   const grouped = groupBy(projects, (p) => p.group.slug);
 
+  return Object.fromEntries(
+    Object.entries(grouped).map(([key, projects]) => {
+      const group = projects[0].group;
+      return [
+        key,
+        {
+          ...group,
+          projects,
+        },
+      ];
+    })
+  );
+}
+
+export function addTitleToGroups(grouped: ReturnType<typeof groupProjects>) {
   // read group titles from /pages/examples/_meta.json
   const meta = JSON.parse(
     fs.readFileSync(
@@ -68,8 +83,7 @@ export function groupProjects(projects: Project[]) {
   );
 
   const groupsWithTitles = Object.fromEntries(
-    Object.entries(grouped).map(([key, projects]) => {
-      const group = projects[0].group;
+    Object.entries(grouped).map(([key, group]) => {
       const title = meta[key];
       if (!title) {
         throw new Error(
@@ -81,7 +95,6 @@ export function groupProjects(projects: Project[]) {
         {
           ...group,
           title,
-          projects,
         },
       ];
     })

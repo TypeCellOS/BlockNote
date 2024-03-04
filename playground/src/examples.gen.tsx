@@ -3,7 +3,6 @@
   "basic": {
     "pathFromRoot": "examples/01-basic",
     "slug": "basic",
-    "title": "Basic",
     "projects": [
       {
         "projectSlug": "minimal",
@@ -159,7 +158,6 @@
   "ui-components": {
     "pathFromRoot": "examples/02-ui-components",
     "slug": "ui-components",
-    "title": "UI Components",
     "projects": [
       {
         "projectSlug": "formatting-toolbar-buttons",
@@ -352,7 +350,6 @@
   "theming": {
     "pathFromRoot": "examples/03-theming",
     "slug": "theming",
-    "title": "Theming",
     "projects": [
       {
         "projectSlug": "theming-dom-attributes",
@@ -458,7 +455,6 @@
   "interoperability": {
     "pathFromRoot": "examples/04-interoperability",
     "slug": "interoperability",
-    "title": "Interoperability",
     "projects": [
       {
         "projectSlug": "converting-blocks-to-html",
@@ -545,7 +541,6 @@
   "custom-schema": {
     "pathFromRoot": "examples/05-custom-schema",
     "slug": "custom-schema",
-    "title": "Custom Schemas",
     "projects": [
       {
         "projectSlug": "alert-block",
@@ -668,7 +663,6 @@
   "collaboration": {
     "pathFromRoot": "examples/06-collaboration",
     "slug": "collaboration",
-    "title": "Collaboration",
     "projects": [
       {
         "projectSlug": "partykit",
@@ -718,6 +712,60 @@
         "group": {
           "pathFromRoot": "examples/06-collaboration",
           "slug": "collaboration"
+        }
+      }
+    ]
+  },
+  "vanilla-js": {
+    "pathFromRoot": "examples/vanilla-js",
+    "slug": "vanilla-js",
+    "projects": [
+      {
+        "projectSlug": "react-vanilla-custom-blocks",
+        "fullSlug": "vanilla-js/react-vanilla-custom-blocks",
+        "pathFromRoot": "examples/vanilla-js/react-vanilla-custom-blocks",
+        "config": {
+          "playground": true,
+          "docs": false,
+          "author": "matthewlipski",
+          "tags": []
+        },
+        "title": "Custom Blocks - Vanilla JS API",
+        "group": {
+          "pathFromRoot": "examples/vanilla-js",
+          "slug": "vanilla-js"
+        }
+      },
+      {
+        "projectSlug": "react-vanilla-custom-inline-content",
+        "fullSlug": "vanilla-js/react-vanilla-custom-inline-content",
+        "pathFromRoot": "examples/vanilla-js/react-vanilla-custom-inline-content",
+        "config": {
+          "playground": true,
+          "docs": false,
+          "author": "matthewlipski",
+          "tags": []
+        },
+        "title": "Custom Inline Content - Vanilla JS API",
+        "group": {
+          "pathFromRoot": "examples/vanilla-js",
+          "slug": "vanilla-js"
+        }
+      },
+      {
+        "projectSlug": "react-vanilla-custom-styles",
+        "fullSlug": "vanilla-js/react-vanilla-custom-styles",
+        "pathFromRoot": "examples/vanilla-js/react-vanilla-custom-styles",
+        "config": {
+          "playground": true,
+          "docs": false,
+          "author": "matthewlipski",
+          "tags": []
+        },
+        "title": "Custom Styles - Vanilla JS API",
+        "group": {
+          "pathFromRoot": "examples/vanilla-js",
+          "slug": "vanilla-js"
         }
       }
     ]
