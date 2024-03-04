@@ -8,7 +8,7 @@ path: /docs/block-content
 
 `BlockNoteEditor` exposes a number of functions to interact with the currently selected content.
 
-### Partial Inline Content
+## Partial Inline Content
 
 When retrieving inline content from the editor, you always receive complete `InlineContent` objects.
 For updating or creating inline content, you don't need to pass all properties, and you can use a `PartialInlineContent` type instead:
@@ -20,7 +20,7 @@ type PartialLink = {
   href: string;
 };
 
-type PartialInlineContent = string | (PartialLink | StyledText)[];
+type PartialInlineContent = string | (string | PartialLink | StyledText)[];
 ```
 
 ## Inserting Inline Content
@@ -31,7 +31,7 @@ You can insert inline content using the following function:
 insertInlineContent(content: PartialInlineContent)
 
 // Usage
-const styles = editor.insertInlineContent([
+editor.insertInlineContent([
   "Hello ",
   { type: "text", text: "World", styles: { bold: true } }
 ]);
