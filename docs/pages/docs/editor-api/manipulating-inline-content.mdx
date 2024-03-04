@@ -8,6 +8,35 @@ path: /docs/block-content
 
 `BlockNoteEditor` exposes a number of functions to interact with the currently selected content.
 
+### Partial Inline Content
+
+When retrieving inline content from the editor, you always receive complete `InlineContent` objects.
+For updating or creating inline content, you don't need to pass all properties, and you can use a `PartialInlineContent` type instead:
+
+```typescript
+type PartialLink = {
+  type: "link";
+  content: string | StyledText[];
+  href: string;
+};
+
+type PartialInlineContent = string | (PartialLink | StyledText)[];
+```
+
+## Inserting Inline Content
+
+You can insert inline content using the following function:
+
+```typescript
+insertInlineContent(content: PartialInlineContent)
+
+// Usage
+const styles = editor.insertInlineContent([
+  "Hello ",
+  { type: "text", text: "World", styles: { bold: true } }
+]);
+```
+
 ## Accessing Styles
 
 You can get the styles at the current [Text Cursor Position](/docs/editor-api/cursor-selections#text-cursor) using the following function:
