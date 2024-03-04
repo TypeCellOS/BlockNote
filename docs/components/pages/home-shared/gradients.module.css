@@ -1,77 +1,3 @@
-.benchmarkTurbo {
-  background: linear-gradient(288.43deg, #ff1e56 28.29%, #9c51a1 78.78%);
-  box-shadow: 0px 0px 16px #f02662;
-  :global(.light) & {
-    background: linear-gradient(
-      268.86deg,
-      #ff1e56 -5.68%,
-      #d67fdc 107.63%,
-      #9c51a1 107.64%
-    );
-    box-shadow: none;
-  }
-}
-
-.benchmarkActiveTab {
-  background: radial-gradient(
-      50% 50% at 50% 100%,
-      rgba(255, 255, 255, 0.2) 0%,
-      rgba(255, 255, 255, 0) 100%
-    ),
-    linear-gradient(0deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.12)),
-    radial-gradient(
-      128.57% 128.57% at 50% 0%,
-      rgba(255, 255, 255, 0.1) 0%,
-      rgba(255, 255, 255, 0) 100%
-    ),
-    radial-gradient(
-      100% 427.04% at 100% 0%,
-      rgba(255, 255, 255, 0.1) 0%,
-      rgba(255, 255, 255, 0) 100%
-    ),
-    radial-gradient(
-      100% 462.63% at 0% 0%,
-      rgba(255, 255, 255, 0.1) 0%,
-      rgba(255, 255, 255, 0) 100%
-    );
-  :global(.light) & {
-    background: linear-gradient(
-        0deg,
-        rgba(255, 255, 255, 0.8),
-        rgba(255, 255, 255, 0.8)
-      ),
-      radial-gradient(
-        50% 50% at 49.66% 0%,
-        rgba(255, 255, 255, 0.1) 0%,
-        rgba(255, 255, 255, 0) 100%
-      );
-  }
-}
-
-.benchmarkTurboLabel {
-  background: linear-gradient(288.43deg, #ff1e56 28.29%, #9c51a1 78.78%);
-  color: transparent;
-  background-clip: text;
-  :global(.light) & {
-    background: linear-gradient(
-        268.86deg,
-        #ff1e56 -5.68%,
-        #d67fdc 107.63%,
-        #9c51a1 107.64%
-      ),
-      linear-gradient(288.43deg, #ff1e56 28.29%, #9c51a1 78.78%);
-    color: transparent;
-    background-clip: text;
-  }
-}
-
-.benchmark {
-  background: linear-gradient(270deg, #5c5c5c 0%, #1f1f1f 100%);
-  :global(.light) & {
-    background: linear-gradient(89.98deg, #e0e0e0 0.01%, #9c9c9c 99.49%);
-  }
-}
-
 .barBorder {
   border: rgba(255, 255, 255, 0.4) 1px solid;
   :global(.light) & {
@@ -111,26 +37,6 @@
   100% {
     background-position: -20% -20%;
   }
-}
-
-.turbopackHeaderText {
-  background: linear-gradient(
-      90deg,
-      rgba(200, 221, 255, 0.75) 0%,
-      rgba(255, 202, 222, 0.75) 100%
-    ),
-    linear-gradient(0deg, #ffffff, #ffffff);
-
-  :global(.light) & {
-    background: linear-gradient(
-        90deg,
-        rgba(200, 221, 255, 0.1) 0%,
-        rgba(255, 202, 222, 0.1) 100%
-      ),
-      #000000;
-    background-clip: text;
-  }
-  background-clip: text;
 }
 
 .heroHeading {

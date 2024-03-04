@@ -170,6 +170,7 @@ async function generateExampleList(projects: Project[]) {
         return {
           text: project.title,
           link: `/examples/${project.fullSlug}`,
+          author: project.config.author,
         };
       }),
     };

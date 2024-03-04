@@ -124,22 +124,25 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
    * Replace the default `createView` method with a custom one - which we call on mount
    */
   private createViewAlternative() {
-    this.view = new EditorView(this.options.element, {
-      ...this.options.editorProps,
-      // @ts-ignore
-      dispatchTransaction: this.dispatchTransaction.bind(this),
-      state: this.state,
+    // Without queueMicrotask, custom IC / styles will give a React FlushSync error
+    queueMicrotask(() => {
+      this.view = new EditorView(this.options.element, {
+        ...this.options.editorProps,
+        // @ts-ignore
+        dispatchTransaction: this.dispatchTransaction.bind(this),
+        state: this.state,
+      });
+
+      // `editor.view` is not yet available at this time.
+      // Therefore we will add all plugins and node views directly afterwards.
+      const newState = this.state.reconfigure({
+        plugins: this.extensionManager.plugins,
+      });
+
+      this.view.updateState(newState);
+
+      this.createNodeViews();
     });
-
-    // `editor.view` is not yet available at this time.
-    // Therefore we will add all plugins and node views directly afterwards.
-    const newState = this.state.reconfigure({
-      plugins: this.extensionManager.plugins,
-    });
-
-    this.view.updateState(newState);
-
-    this.createNodeViews();
   }
 
   /**

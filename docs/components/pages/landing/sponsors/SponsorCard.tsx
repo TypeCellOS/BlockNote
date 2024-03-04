@@ -23,7 +23,7 @@ export function SponsorCard(props: SponsorCardProps) {
         alt={props.name}
       />
       {props.tagline && (
-        <div className={"absolute bottom-[10%] text-xs font-bold md:text-sm"}>
+        <div className={"absolute bottom-[10%] text-xs  italic md:text-sm"}>
           {props.tagline}
         </div>
       )}

@@ -6,7 +6,6 @@ import "./styles.css";
 
 const initialHTML = "<p>Hello, <strong>world!</strong></p>";
 
-// TODO: better design?
 export default function App() {
   // Creates a new editor instance.
   const editor = useCreateBlockNote();

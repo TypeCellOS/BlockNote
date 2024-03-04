@@ -1,7 +1,7 @@
 import { uploadToTmpFilesDotOrg_DEV_ONLY } from "@blocknote/core";
 import { BlockNoteView, useCreateBlockNote } from "@blocknote/react";
 import "@blocknote/react/style.css";
-import { useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import YPartyKitProvider from "y-partykit/provider";
 import * as Y from "yjs";
 
@@ -81,24 +81,18 @@ export function ReactBlockNote(props: { theme: "light" | "dark" }) {
     [],
   );
 
-  // TODO
-  // useEffect(() => {
-  //   let shownAlert = false;
-  //   const listener = () => {
-  //     if (!shownAlert) {
-  //       alert(
-  //         "Text you enter in this demo is displayed publicly on the internet to show multiplayer features. Be kind :)",
-  //       );
-  //       shownAlert = true;
-  //     }
-  //   };
-  //   editor?.domElement?.addEventListener("focus", listener);
-  //   return () => {
-  //     editor?.domElement?.removeEventListener("focus", listener);
-  //   };
-  // }, [editor?.domElement]);
+  const [warningShown, setWarningShown] = useState(false);
 
-  return <BlockNoteView editor={editor} theme={props.theme} />;
+  const focus = useCallback(() => {
+    if (!warningShown) {
+      alert(
+        "Text you enter in this demo is displayed publicly on the internet to show multiplayer features. Be kind :)",
+      );
+      setWarningShown(true);
+    }
+  }, [warningShown]);
+
+  return <BlockNoteView onFocus={focus} editor={editor} theme={props.theme} />;
 }
 
 export default ReactBlockNote;

@@ -43,7 +43,10 @@ export function EditorContent(props: {
         });
       },
     };
-    props.editor._tiptapEditor.createNodeViews();
+    // Without queueMicrotask, custom IC / styles will give a React FlushSync error
+    queueMicrotask(() => {
+      props.editor._tiptapEditor.createNodeViews();
+    });
     return () => {
       props.editor._tiptapEditor.contentComponent = null;
     };

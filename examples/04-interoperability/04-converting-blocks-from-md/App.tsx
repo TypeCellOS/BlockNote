@@ -2,7 +2,6 @@ import { BlockNoteView, useCreateBlockNote } from "@blocknote/react";
 import "@blocknote/react/style.css";
 import { ChangeEvent, useCallback, useEffect } from "react";
 
-// TODO: better design?
 const initialMarkdown = "Hello, **world!**";
 
 export default function App() {

@@ -1,22 +1,22 @@
-import { SectionHeader } from "../../home-shared/Headings";
-import { FadeIn } from "../shared/FadeIn";
 import {
   SponsorCard,
   SponsorCardProps,
 } from "@/components/pages/landing/sponsors/SponsorCard";
+import { SectionHeader } from "../../home-shared/Headings";
+import { FadeIn } from "../shared/FadeIn";
 
-import fermatLight from "../../../../public/img/sponsors/fermat.png";
 import fermatDark from "../../../../public/img/sponsors/fermat-dark.png";
-import nlnetLight from "../../../../public/img/sponsors/nlnet.svg";
+import fermatLight from "../../../../public/img/sponsors/fermat.png";
 import nlnetDark from "../../../../public/img/sponsors/nlnet-dark.svg";
-import typecellLight from "../../../../public/img/sponsors/typecell.svg";
-import typecellDark from "../../../../public/img/sponsors/typecell-dark.svg";
-import poggioLight from "../../../../public/img/sponsors/poggio.svg";
-import poggioDark from "../../../../public/img/sponsors/poggio-dark.svg";
-import twentyLight from "../../../../public/img/sponsors/twenty.png";
-import twentyDark from "../../../../public/img/sponsors/twenty-dark.png";
-import noteplanLight from "../../../../public/img/sponsors/noteplan.png";
+import nlnetLight from "../../../../public/img/sponsors/nlnet.svg";
 import noteplanDark from "../../../../public/img/sponsors/noteplan-dark.png";
+import noteplanLight from "../../../../public/img/sponsors/noteplan.png";
+import poggioDark from "../../../../public/img/sponsors/poggio-dark.svg";
+import poggioLight from "../../../../public/img/sponsors/poggio.svg";
+import twentyDark from "../../../../public/img/sponsors/twenty-dark.png";
+import twentyLight from "../../../../public/img/sponsors/twenty.png";
+import typecellDark from "../../../../public/img/sponsors/typecell-dark.svg";
+import typecellLight from "../../../../public/img/sponsors/typecell.svg";
 
 export const sponsorsCardData: SponsorCardProps[] = [
   {
@@ -53,7 +53,7 @@ export const sponsorsCardData: SponsorCardProps[] = [
       dark: twentyDark,
     },
     name: "Twenty",
-    tagline: "Y Combinator S23",
+    tagline: "YC S23",
   },
   {
     logo: {
@@ -61,6 +61,7 @@ export const sponsorsCardData: SponsorCardProps[] = [
       dark: noteplanDark,
     },
     name: "Noteplan",
+    tagline: "Apple Top Notes Apps",
   },
 ];
 
