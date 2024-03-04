@@ -1,7 +1,7 @@
 import { Menu, Transition } from "@headlessui/react";
 import clsx from "clsx";
-import { signIn, signOut, useSession } from "next-auth/react";
-import Image from 'next/image';
+import { signOut, useSession } from "next-auth/react";
+import Image from "next/image";
 import { ReactElement, ReactNode } from "react";
 
 export function AuthNavButton(props: any) {
@@ -14,7 +14,7 @@ export function AuthNavButton(props: any) {
           <div
             className={clsx(
               "nx-relative nx-hidden nx-w-full nx-select-none nx-whitespace-nowrap nx-text-gray-600 hover:nx-text-gray-900 dark:nx-text-gray-400 dark:hover:nx-text-gray-100 md:nx-inline-block",
-              "nx-py-1.5 nx-transition-colors ltr:nx-pl-3 ltr:nx-pr-9 rtl:nx-pr-3 rtl:nx-pl-9"
+              "nx-py-1.5 nx-transition-colors ltr:nx-pl-3 ltr:nx-pr-9 rtl:nx-pr-3 rtl:nx-pl-9",
             )}>
             💖 Thanks for sponsoring!
           </div>
@@ -26,14 +26,14 @@ export function AuthNavButton(props: any) {
             }}
             className={clsx(
               "nx-relative nx-hidden nx-w-full nx-select-none nx-whitespace-nowrap nx-text-gray-600 hover:nx-text-gray-900 dark:nx-text-gray-400 dark:hover:nx-text-gray-100 md:nx-inline-block",
-              "nx-py-1.5 nx-transition-colors ltr:nx-pl-3 ltr:nx-pr-9 rtl:nx-pr-3 rtl:nx-pl-9"
+              "nx-py-1.5 nx-transition-colors ltr:nx-pl-3 ltr:nx-pr-9 rtl:nx-pr-3 rtl:nx-pl-9",
             )}>
             Sign out
           </button>
         </Menu.Item>,
       ]}>
       <Image
-        className="rounded-md size-5"
+        className="size-5 rounded-md"
         src={session.data.user!.image!}
         alt={session.data.user!.name!}
         width={50}
@@ -41,13 +41,14 @@ export function AuthNavButton(props: any) {
       />
     </NavbarMenu>
   ) : (
+    <></>
     // TODO: design button
-    <button
-      onClick={async () => {
-        await signIn("github");
-      }}>
-      Sign in
-    </button>
+    // <button
+    //   onClick={async () => {
+    //     await signIn("github");
+    //   }}>
+    //   Sign in
+    // </button>
   );
 }
 

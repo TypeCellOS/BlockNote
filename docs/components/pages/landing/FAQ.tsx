@@ -35,9 +35,7 @@ export default function FAQ() {
           Frequently asked questions
         </h2>
         <p className="mt-6 text-base leading-7 text-gray-600 dark:text-gray-300">
-          Have a different question and can’t find the answer you’re looking
-          for? <br />
-          <Link href="/about">Reach out to our team</Link>.
+          More questions? <Link href="/about">Reach out to our team</Link>.
         </p>
       </div>
       <div className="mt-20">

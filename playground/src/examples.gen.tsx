@@ -684,7 +684,7 @@
             "Collaboration"
           ],
           "dependencies": {
-            "y-partykit": "^0.0.25",
+            "y-partykit": "^0.0.10",
             "yjs": "^13.6.1"
           }
         },

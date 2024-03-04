@@ -9,14 +9,13 @@ export function ExampleGroup(props: { examples: (typeof EXAMPLES_LIST)[0] }) {
       </h2>
       <Cards>
         {props.examples.items.map((project, i) => {
-          const user = i % 2 === 0 ? "yousefed" : "matthewlipski"; // TODO
           return (
             <Card
               key={i}
               title={project.text}
               href={project.link}
-              authorName={user}
-              authorImage={`https://github.com/${user}.png`}
+              authorName={project.author}
+              authorImage={`https://github.com/${project.author}.png`}
             />
           );
         })}

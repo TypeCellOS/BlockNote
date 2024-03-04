@@ -56,7 +56,6 @@ const alertBlock = createBlockSpec(
       const dropdown = document.createElement("select");
       dropdown.contentEditable = "false";
       dropdown.addEventListener("change", () => {
-        // TODO: Something is not quite right with the typing seems like
         editor.updateBlock(block, {
           type: "alert",
           props: { type: dropdown.value as keyof typeof alertTypes },

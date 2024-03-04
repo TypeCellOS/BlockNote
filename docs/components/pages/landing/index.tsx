@@ -2,12 +2,12 @@ import { Features } from "./features/Features";
 import { Hero } from "./hero/Hero";
 import { Letter } from "./letter/Letter";
 
+import { Community } from "@/components/pages/landing/community/Community";
 import { FadeIn } from "@/components/pages/landing/shared/FadeIn";
+import { Sponsors } from "@/components/pages/landing/sponsors/Sponsors";
 import FAQ from "./FAQ";
 import "./gradients.css";
 import "./styles.css";
-import { Sponsors } from "@/components/pages/landing/sponsors/Sponsors";
-import { Community } from "@/components/pages/landing/community/Community";
 
 // TODO: Cleanup
 export function BlockNoteHome() {
