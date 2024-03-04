@@ -15,17 +15,8 @@ export interface PlaceholderOptions {
   placeholders: Record<string | "default", string>;
 }
 
-export const Placeholder = Extension.create<
-  PlaceholderOptions,
-  { styleEl: HTMLStyleElement }
->({
+export const Placeholder = Extension.create<PlaceholderOptions>({
   name: "placeholder",
-
-  addStorage() {
-    return {
-      styleEl: document.createElement("style"),
-    };
-  },
 
   addOptions() {
     return {
@@ -38,60 +29,64 @@ export const Placeholder = Extension.create<
     };
   },
 
-  onCreate() {
-    const styleEl = this.storage.styleEl;
-    document.head.appendChild(styleEl);
-    const styleSheet = styleEl.sheet!;
-
-    const getBaseSelector = (additionalSelectors = "") =>
-      `.bn-block-content${additionalSelectors} .bn-inline-content:has(> .ProseMirror-trailingBreak):before`;
-
-    const getSelector = (
-      blockType: string | "default",
-      mustBeFocused = true
-    ) => {
-      const mustBeFocusedSelector = mustBeFocused
-        ? `[data-is-empty-and-focused]`
-        : ``;
-
-      if (blockType === "default") {
-        return getBaseSelector(mustBeFocusedSelector);
-      }
-
-      const blockTypeSelector = `[data-content-type="${blockType}"]`;
-      return getBaseSelector(mustBeFocusedSelector + blockTypeSelector);
-    };
-
-    for (const [blockType, placeholder] of Object.entries(
-      this.options.placeholders
-    )) {
-      const mustBeFocused = blockType === "default";
-
-      styleSheet.insertRule(
-        `${getSelector(blockType, mustBeFocused)}{ content: "${placeholder}"; }`
-      );
-
-      // For some reason, the placeholders which show when the block is focused
-      // take priority over ones which show depending on block type, so we need
-      // to make sure the block specific ones are also used when the block is
-      // focused.
-      if (!mustBeFocused) {
-        styleSheet.insertRule(
-          `${getSelector(blockType, true)}{ content: "${placeholder}"; }`
-        );
-      }
-    }
-  },
-
-  onDestroy() {
-    const styleEl = this.storage.styleEl;
-    document.head.removeChild(styleEl);
-  },
-
   addProseMirrorPlugins() {
+    const placeholders = this.options.placeholders;
     return [
       new Plugin({
         key: PLUGIN_KEY,
+        view: () => {
+          const styleEl = document.createElement("style");
+          document.head.appendChild(styleEl);
+          const styleSheet = styleEl.sheet!;
+
+          const getBaseSelector = (additionalSelectors = "") =>
+            `.bn-block-content${additionalSelectors} .bn-inline-content:has(> .ProseMirror-trailingBreak):before`;
+
+          const getSelector = (
+            blockType: string | "default",
+            mustBeFocused = true
+          ) => {
+            const mustBeFocusedSelector = mustBeFocused
+              ? `[data-is-empty-and-focused]`
+              : ``;
+
+            if (blockType === "default") {
+              return getBaseSelector(mustBeFocusedSelector);
+            }
+
+            const blockTypeSelector = `[data-content-type="${blockType}"]`;
+            return getBaseSelector(mustBeFocusedSelector + blockTypeSelector);
+          };
+
+          for (const [blockType, placeholder] of Object.entries(placeholders)) {
+            const mustBeFocused = blockType === "default";
+
+            styleSheet.insertRule(
+              `${getSelector(
+                blockType,
+                mustBeFocused
+              )}{ content: ${JSON.stringify(placeholder)}; }`
+            );
+
+            // For some reason, the placeholders which show when the block is focused
+            // take priority over ones which show depending on block type, so we need
+            // to make sure the block specific ones are also used when the block is
+            // focused.
+            if (!mustBeFocused) {
+              styleSheet.insertRule(
+                `${getSelector(blockType, true)}{ content: ${JSON.stringify(
+                  placeholder
+                )}; }`
+              );
+            }
+          }
+
+          return {
+            destroy: () => {
+              document.head.removeChild(styleEl);
+            },
+          };
+        },
         props: {
           // TODO: maybe also add placeholder for empty document ("e.g.: start writing..")
           decorations: (state) => {
