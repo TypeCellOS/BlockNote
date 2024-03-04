@@ -1,7 +1,7 @@
 {
   "playground": true,
   "docs": true,
-  "author": "matthewlipski",
+  "author": "yousefed",
   "tags": ["Advanced", "Saving/Loading", "Collaboration"],
   "dependencies": {
     "y-partykit": "^0.0.25",

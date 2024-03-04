@@ -1,7 +1,7 @@
 {
   "playground": true,
   "docs": true,
-  "author": "matthewlipski",
+  "author": "yousefed",
   "tags": ["Advanced", "Saving/Loading", "Collaboration"],
   "dependencies": {
     "@liveblocks/client": "^1.10.0",

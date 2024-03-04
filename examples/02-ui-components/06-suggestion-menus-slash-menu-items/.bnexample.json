@@ -1,8 +1,14 @@
 {
   "playground": true,
   "docs": true,
-  "author": "matthewlipski",
-  "tags": ["Intermediate", "Blocks", "UI Components", "Suggestion Menus", "Slash Menu"],
+  "author": "yousefed",
+  "tags": [
+    "Intermediate",
+    "Blocks",
+    "UI Components",
+    "Suggestion Menus",
+    "Slash Menu"
+  ],
   "dependencies": {
     "react-icons": "^4.3.1"
   }
