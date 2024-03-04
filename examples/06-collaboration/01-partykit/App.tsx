@@ -3,7 +3,7 @@ import "@blocknote/react/style.css";
 import YPartyKitProvider from "y-partykit/provider";
 import * as Y from "yjs";
 
-// Sets up Yjs document and LiveBlocks Yjs provider.
+// Sets up Yjs document and PartyKit Yjs provider.
 const doc = new Y.Doc();
 const provider = new YPartyKitProvider(
   "blocknote-dev.yousefed.partykit.dev",

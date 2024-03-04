@@ -61,7 +61,7 @@ export const Alert = createReactBlockSpec(
       },
     },
     content: "inline",
-  } as const,
+  },
   {
     render: (props) => {
       const alertType = alertTypes.find(

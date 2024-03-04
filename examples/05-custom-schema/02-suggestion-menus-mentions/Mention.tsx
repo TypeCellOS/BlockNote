@@ -10,7 +10,7 @@ export const Mention = createReactInlineContentSpec(
       },
     },
     content: "none",
-  } as const,
+  },
   {
     render: (props) => (
       <span style={{ backgroundColor: "#8400ff33" }}>

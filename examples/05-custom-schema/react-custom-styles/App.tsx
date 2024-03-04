@@ -1,11 +1,11 @@
 import { BlockNoteSchema, defaultStyleSpecs } from "@blocknote/core";
 import {
   BlockNoteView,
+  createReactStyleSpec,
   FormattingToolbar,
   FormattingToolbarController,
   FormattingToolbarProps,
   ToolbarButton,
-  createReactStyleSpec,
   useActiveStyles,
   useBlockNoteEditor,
   useCreateBlockNote,
@@ -14,7 +14,7 @@ import "@blocknote/react/style.css";
 
 const small = createReactStyleSpec(
   {
-    type: "small" as const,
+    type: "small",
     propSchema: "boolean",
   },
   {
@@ -26,7 +26,7 @@ const small = createReactStyleSpec(
 
 const fontSize = createReactStyleSpec(
   {
-    type: "fontSize" as const,
+    type: "fontSize",
     propSchema: "string",
   },
   {

@@ -40,7 +40,7 @@ const alertBlock = createBlockSpec(
       textAlignment: defaultProps.textAlignment,
       textColor: defaultProps.textColor,
       type: {
-        default: "warning" as const,
+        default: "warning",
         values: ["warning", "error", "info", "success"] as const,
       },
     },
