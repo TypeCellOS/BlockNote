@@ -2,6 +2,7 @@ import { ActionIcon, Button, Tooltip } from "@mantine/core";
 import { MouseEvent, forwardRef } from "react";
 import type { IconType } from "react-icons";
 
+import { isSafari } from "@blocknote/core";
 import { TooltipContent } from "../Tooltip/TooltipContent";
 
 export type ToolbarButtonProps = {
@@ -36,7 +37,9 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
             // Needed as Safari doesn't focus button elements on mouse down
             // unlike other browsers.
             onMouseDown={(e) => {
-              (e.currentTarget as HTMLButtonElement).focus();
+              if (isSafari()) {
+                (e.currentTarget as HTMLButtonElement).focus();
+              }
             }}
             onClick={props.onClick}
             data-selected={props.isSelected ? "true" : undefined}
@@ -55,7 +58,9 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
             // Needed as Safari doesn't focus button elements on mouse down
             // unlike other browsers.
             onMouseDown={(e) => {
-              (e.currentTarget as HTMLButtonElement).focus();
+              if (isSafari()) {
+                (e.currentTarget as HTMLButtonElement).focus();
+              }
             }}
             onClick={props.onClick}
             data-selected={props.isSelected ? "true" : undefined}

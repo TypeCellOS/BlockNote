@@ -1,3 +1,4 @@
+import { isSafari } from "@blocknote/core";
 import { Button } from "@mantine/core";
 import { MouseEventHandler, forwardRef } from "react";
 import type { IconType } from "react-icons";
@@ -21,7 +22,9 @@ export const ToolbarDropdownTarget = forwardRef<
       // Needed as Safari doesn't focus button elements on mouse down
       // unlike other browsers.
       onMouseDown={(e) => {
-        (e.currentTarget as HTMLButtonElement).focus();
+        if (isSafari()) {
+          (e.currentTarget as HTMLButtonElement).focus();
+        }
       }}
       leftSection={TargetIcon && <TargetIcon size={16} />}
       rightSection={<HiChevronDown />}
