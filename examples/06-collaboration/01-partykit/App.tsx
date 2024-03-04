@@ -1,3 +1,4 @@
+import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView, useCreateBlockNote } from "@blocknote/react";
 import "@blocknote/react/style.css";
 import YPartyKitProvider from "y-partykit/provider";

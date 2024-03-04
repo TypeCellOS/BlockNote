@@ -1,4 +1,5 @@
 import { Block, BlockNoteEditor, PartialBlock } from "@blocknote/core";
+import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/react";
 import "@blocknote/react/style.css";
 import { useEffect, useMemo, useState } from "react";

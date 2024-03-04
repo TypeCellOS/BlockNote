@@ -1,10 +1,11 @@
 import { BlockNoteSchema, defaultBlockSpecs } from "@blocknote/core";
+import "@blocknote/core/fonts/inter.css";
 import {
   BlockNoteView,
   BlockTypeDropdownItem,
-  blockTypeDropdownItems,
   FormattingToolbar,
   FormattingToolbarController,
+  blockTypeDropdownItems,
   useCreateBlockNote,
 } from "@blocknote/react";
 import "@blocknote/react/style.css";
