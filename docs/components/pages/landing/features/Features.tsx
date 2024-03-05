@@ -19,8 +19,12 @@ import {
 import { FadeIn } from "@/components/pages/landing/shared/FadeIn";
 import { SectionIntro } from "@/components/pages/landing/shared/Headings";
 
-import slashMenuImageLight from "../../../../public/img/screenshots/slash_menu.png";
-import slashMenuImageDark from "../../../../public/img/screenshots/slash_menu_dark.png";
+import worksOutOfTheBoxLight from "../../../../public/img/features/works_out_of_the_box_light.gif";
+import worksOutOfTheBoxDark from "../../../../public/img/features/works_out_of_the_box_dark.gif";
+import blockBasedDesignLight from "../../../../public/img/features/block_based_design_light.gif";
+import blockBasedDesignDark from "../../../../public/img/features/block_based_design_dark.gif";
+import collaborationLight from "../../../../public/img/features/collaboration_light.gif";
+import collaborationDark from "../../../../public/img/features/collaboration_dark.gif";
 
 // TODO: icons, images
 export const featuresCardData: FeatureCardProps[] = [
@@ -30,8 +34,8 @@ export const featuresCardData: FeatureCardProps[] = [
       "Built-in components like menus and toolbars instantly provide a familiar, Notion-style user experience - but are also fully customizable.",
     icon: RiSettings3Fill,
     thumbnail: {
-      light: slashMenuImageLight,
-      dark: slashMenuImageDark,
+      light: worksOutOfTheBoxLight,
+      dark: worksOutOfTheBoxDark,
     },
   },
   {
@@ -40,8 +44,8 @@ export const featuresCardData: FeatureCardProps[] = [
       "Drag, drop, or nest blocks. The block-based design enables users to create beautiful docs and unlocks a powerful API for engineers.",
     icon: RiIndentIncrease,
     thumbnail: {
-      light: slashMenuImageLight,
-      dark: slashMenuImageDark,
+      light: blockBasedDesignLight,
+      dark: blockBasedDesignDark,
     },
   },
   {
@@ -50,8 +54,8 @@ export const featuresCardData: FeatureCardProps[] = [
       "Craft beautiful multiplayer experiences with support for real-time collaboration.",
     icon: RiTeamFill,
     thumbnail: {
-      light: slashMenuImageLight,
-      dark: slashMenuImageDark,
+      light: collaborationLight,
+      dark: collaborationDark,
     },
   },
   {
@@ -105,7 +109,7 @@ export function Features() {
             "Whether you want extensive customization or a great out-of-the-box experience, BlockNote has you covered:"
           }
         />
-        <FadeIn className="grid max-w-full grid-cols-1 gap-4 md:max-w-screen-md md:grid-cols-2 xl:max-w-none xl:grid-cols-3 xl:gap-6 xl:p-0">
+        <FadeIn className="grid max-w-full grid-cols-1 gap-4 md:max-w-screen-md md:grid-cols-2 xl:max-w-none xl:grid-cols-3 xl:p-0">
           {featuresCardData.map((feature) => (
             <FeatureCard key={feature.title} {...feature} />
           ))}

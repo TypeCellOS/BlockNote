@@ -39,7 +39,9 @@ export function FeatureCard(props: FeatureCardProps) {
           <div className={"flex flex-row items-center justify-between gap-2"}>
             <span className={"text-md font-bold"}>{props.title}</span>
           </div>
-          <div className={"text-sm"}>{props.description}</div>
+          <div className={"text-sm sm:min-h-[3.75rem]"}>
+            {props.description}
+          </div>
         </div>
       </div>
     </div>
