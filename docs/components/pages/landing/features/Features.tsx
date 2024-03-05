@@ -26,7 +26,6 @@ import blockBasedDesignDark from "../../../../public/img/features/block_based_de
 import collaborationLight from "../../../../public/img/features/collaboration_light.gif";
 import collaborationDark from "../../../../public/img/features/collaboration_dark.gif";
 
-// TODO: icons, images
 export const featuresCardData: FeatureCardProps[] = [
   {
     title: "Works out of the box",

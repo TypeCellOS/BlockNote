@@ -48,10 +48,6 @@ export default function App() {
     <BlockNoteView editor={editor} hyperlinkToolbar={false}>
       <HyperlinkToolbarController
         hyperlinkToolbar={(props) => (
-          // TODO: We don't export the default buttons atm. Also, the edit button
-          //  replaces the entire toolbar component when editing, which seems like a
-          //  massive pain when you want to customize the hyperlink. Lots of
-          //  refactoring probably needed here.
           <HyperlinkToolbar {...props}>
             <AlertButton {...props} />
           </HyperlinkToolbar>

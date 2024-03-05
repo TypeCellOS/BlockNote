@@ -31,7 +31,6 @@ const schema = BlockNoteSchema.create({
 const insertAlert = (editor: typeof schema.BlockNoteEditor) => ({
   title: "Alert",
   onItemClick: () => {
-    // TODO: document this function?
     insertOrUpdateBlock(editor, {
       type: "alert",
     });
