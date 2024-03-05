@@ -107,7 +107,7 @@ export const Contributors = () => (
         // </Tooltip>
       ))}
     </FadeIn>
-    <FadeIn className={"flex flex-col gap-2"}>
+    <FadeIn className={"flex flex-col gap-2 py-4"}>
       <JoinButton
         text={"Become a GitHub contributor"}
         subtext={

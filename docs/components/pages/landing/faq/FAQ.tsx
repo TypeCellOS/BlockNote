@@ -31,7 +31,7 @@ const faqs = [
 export function FAQ() {
   return (
     <Section className="py-16 sm:py-16">
-      <div className="z-20 flex max-w-full flex-col gap-12 px-6 text-center md:max-w-screen-md">
+      <div className="z-20 flex max-w-full flex-col items-center gap-12 px-6 text-center md:max-w-7xl">
         <SectionIntro
           header={"Frequently asked questions"}
           subtext={
