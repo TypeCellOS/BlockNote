@@ -4,13 +4,9 @@ import rehypeRemark from "rehype-remark";
 import remarkGfm from "remark-gfm";
 import remarkStringify from "remark-stringify";
 import { unified } from "unified";
+import { Block } from "../../../blocks/defaultBlocks";
 import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
-import {
-  Block,
-  BlockSchema,
-  InlineContentSchema,
-  StyleSchema,
-} from "../../../schema";
+import { BlockSchema, InlineContentSchema, StyleSchema } from "../../../schema";
 import { createExternalHTMLExporter } from "../html/externalHTMLExporter";
 import { removeUnderlines } from "./removeUnderlinesRehypePlugin";
 

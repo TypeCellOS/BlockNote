@@ -1,7 +1,7 @@
 import type { Project } from "../util";
 
 const template = (project: Project) => ({
-  name: "@blocknote/example-" + project.slug,
+  name: "@blocknote/example-" + project.projectSlug,
   description: "AUTO-GENERATED FILE, DO NOT EDIT DIRECTLY",
   private: true,
   version: "0.11.1",
@@ -28,7 +28,7 @@ const template = (project: Project) => ({
     ...(project.config?.devDependencies || {}),
   },
   eslintConfig: {
-    extends: ["../../.eslintrc.js"],
+    extends: ["../../../.eslintrc.js"],
   },
   eslintIgnore: ["dist"],
 });

@@ -25,7 +25,7 @@ async function getElementCenterCoords(_page: Page, element: Locator) {
 
 export async function moveMouseOverElement(page: Page, element: Locator) {
   const boundingBox = (await element.boundingBox())!;
-  const coords = { x: boundingBox.x, y: boundingBox.y };
+  const coords = { x: boundingBox.x + 1, y: boundingBox.y + 1 };
   await page.mouse.move(coords.x, coords.y, { steps: 5 });
 }
 

@@ -8,6 +8,7 @@ import {
   inlineContentToNodes,
   tableContentToNodes,
 } from "../api/nodeConversions/nodeConversions";
+import { PartialBlock } from "../blocks/defaultBlocks";
 import type { BlockNoteEditor } from "../editor/BlockNoteEditor";
 import { NonEditableBlockPlugin } from "../extensions/NonEditableBlocks/NonEditableBlockPlugin";
 import { PreviousBlockTypePlugin } from "../extensions/PreviousBlockType/PreviousBlockTypePlugin";
@@ -15,7 +16,6 @@ import {
   BlockNoteDOMAttributes,
   BlockSchema,
   InlineContentSchema,
-  PartialBlock,
   StyleSchema,
 } from "../schema";
 import { mergeCSSClasses } from "../util/browser";
@@ -109,7 +109,7 @@ export const BlockContainer = Node.create<{
     }
 
     const blockHTMLAttributes = {
-      ...(this.options.domAttributes?.blockContainer || {}),
+      ...(this.options.domAttributes?.block || {}),
       ...HTMLAttributes,
     };
     const block = document.createElement("div");
@@ -183,7 +183,7 @@ export const BlockContainer = Node.create<{
                   blockToNode(
                     child,
                     state.schema,
-                    this.options.editor.styleSchema
+                    this.options.editor.schema.styleSchema
                   )
                 );
               }
@@ -223,13 +223,13 @@ export const BlockContainer = Node.create<{
                 content = inlineContentToNodes(
                   block.content,
                   state.schema,
-                  this.options.editor.styleSchema
+                  this.options.editor.schema.styleSchema
                 );
               } else if (block.content.type === "tableContent") {
                 content = tableContentToNodes(
                   block.content,
                   state.schema,
-                  this.options.editor.styleSchema
+                  this.options.editor.schema.styleSchema
                 );
               } else {
                 throw new UnreachableCaseError(block.content.type);
@@ -693,10 +693,6 @@ export const BlockContainer = Node.create<{
         this.editor.commands.liftListItem("blockContainer");
         return true;
       },
-      "Mod-Alt-0": () =>
-        this.editor.commands.BNCreateBlock(
-          this.editor.state.selection.anchor + 2
-        ),
     };
   },
 });

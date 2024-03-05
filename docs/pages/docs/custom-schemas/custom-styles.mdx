@@ -1,0 +1,96 @@
+import { Example } from "@/components/example";
+
+## Custom Style Types
+
+In addition to the default style types that BlockNote offers, you can also make your own custom styles using React components. Take a look at the demo below, in which we add a custom font style to a BlockNote editor, as well as a custom [Formatting Toolbar button](/docs/ui-components/formatting-toolbar) to set it.
+
+<Example name="custom-schema/font-style" />
+
+### Creating a Custom Style Type
+
+Use the `createReactStyleSpec` function to create a custom style type. This function takes two arguments:
+
+```typescript
+function createReactStyleSpec(
+  styleConfig: CustomStyleConfig,
+  styleImplementation: ReactStyleImplementation,
+);
+```
+
+Let's look at our custom font style from the demo, and go over each field to explain how it works:
+
+```typescript
+export const Font = createReactStyleSpec(
+  {
+    type: "font",
+    propSchema: "string",
+  },
+  {
+    render: (props) => (
+      <span style={{ fontFamily: props.value }} ref={props.contentRef} />
+    ),
+  }
+);
+```
+
+#### Style Config (`CustomStyleConfig`)
+
+The Style Config describes the shape of your custom style. Use it to specify the type, and whether the style should take a string value:
+
+```typescript
+type CustomStyleConfig = {
+  type: string;
+  readonly propSchema: "boolean" | "string";
+};
+```
+
+**`type`**
+
+Defines the identifier of the custom style.
+
+**`propSchema`**
+
+The `PropSchema` specifies whether the style can only be toggled (`"boolean"`), or whether it can take a string value (`"string"`). Having a string value is useful for e.g. setting a color on the style.
+
+_In the font style demo, we set this to `"string"` so we can store the font family._
+
+#### Style Implementation (`ReactCustomStyleImplementation`)
+
+The Style Implementation defines how the style should be rendered to HTML.
+
+```typescript
+type ReactCustomStyleImplementation = {
+  render: React.FC<{
+    value?: string;
+    contentRef: (node: HTMLElement | null) => void;
+  }>;
+};
+```
+
+**`render`**
+
+This is your React component which defines how your custom style should be rendered, and takes two React props:
+
+`value:` The string value of the style, this is only available if your style config contains `propSchema: "string"`.
+
+`contentRef:` A React `ref` to mark the editable element.
+
+_Note that in contrast to Custom Blocks and Inline Content, the `render` function of Custom Styles cannot access React Context or other state. They should be plain React functions analogous to the example._
+
+### Adding Custom Style to the Editor
+
+Finally, create a BlockNoteSchema using the definition of your custom style:
+
+```typescript
+const schema = BlockNoteSchema.create({
+  styleSpecs: {
+    // enable the default styles if desired
+    ...defaultStyleSpecs,
+
+    // Add your own custom style:
+    font: Font,
+  },
+});
+```
+
+You can then instantiate your editor with this custom schema, as explained on the [Custom Schemas](/docs/custom-schemas) page.

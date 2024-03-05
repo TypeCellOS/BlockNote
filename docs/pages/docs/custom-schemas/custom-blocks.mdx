@@ -1,0 +1,148 @@
+import { Example } from "@/components/example";
+
+## Custom Block Types
+
+In addition to the default block types that BlockNote offers, you can also make your own custom blocks using React components. Take a look at the demo below, in which we add a custom alert block to a BlockNote editor, as well as a custom [Slash Menu Item](/docs/ui-components/suggestion-menus#changing-slash-menu-items) to insert it.
+
+<Example name="custom-schema/alert-block" />
+
+### Creating a Custom Block Type
+
+Use the `createReactBlockSpec` function to create a custom block type. This function takes two arguments:
+
+```typescript
+function createReactBlockSpec(
+  blockConfig: CustomBlockConfig,
+  blockImplementation: ReactCustomBlockImplementation,
+);
+```
+
+Let's look at our custom alert block from the demo, and go over each field to explain how it works:
+
+```typescript
+const Alert = createReactBlockSpec(
+  {
+    type: "alert",
+    propSchema: {
+      textAlignment: defaultProps.textAlignment,
+      textColor: defaultProps.textColor,
+      type: {
+        default: "warning",
+        values: ["warning", "error", "info", "success"],
+      },
+    },
+    content: "inline",
+  },
+  {
+    render: (props) => {
+      ...
+    },
+  }
+);
+```
+
+#### Block Config (`CustomBlockConfig`)
+
+The Block Config describes the shape of your custom blocks. Use it to specify the type, properties (props) and content your custom blocks should support:
+
+```typescript
+type CustomBlockConfig = {
+  type: string;
+  content: "inline" | "none";
+  readonly propSchema: PropSchema;
+};
+```
+
+**`type`**
+
+Defines the identifier of the custom block.
+
+**`content`**
+
+`inline` if your custom block should support rich text content, `none` if not.
+
+_In the alert demo, we want the user to be able to type text in our alert, so we set it to `"inline"`._
+
+**`propSchema`**
+
+The `PropSchema` specifies the props that the block supports. Block props (properties) are data stored with your Block in the document, and can be used to customize its appearance or behavior.
+
+```typescript
+type PropSchema<
+  PrimitiveType extends "boolean" | "number" | "string"
+> = Record<
+  string,
+  {
+    default: PrimitiveType;
+    values?: PrimitiveType[];
+  }
+>
+```
+
+`[key: string]` is the name of the prop, and the value is an object with two fields:
+
+- `default`: Specifies the prop's default value
+
+- `values` (optional): Specifies an array of values that the prop can take, for example, to limit the value to a list of pre-defined strings. If `values` is not defined, BlockNote assumes the prop can be any value of `PrimitiveType`
+
+_In the alert demo, we add a `type` prop for the type of alert that we want (warning / error / info / success). We also want basic styling options, so we add text alignment and text color from the [Default Block Properties](/docs/block-types#default-block-properties)._
+
+#### Block Implementation (`ReactCustomBlockImplementation`)
+
+The Block Implementation defines how the block should be rendered in the editor, and how it should be parsed from and converted to HTML.
+
+```typescript
+type ReactCustomBlockImplementation = {
+  render: React.FC<{
+    block: Block;
+    editor: BlockNoteEditor;
+    contentRef?: (node: HTMLElement | null) => void;
+  }>;
+  toExternalHTML?: React.FC<{
+    block: Block;
+    editor: BlockNoteEditor;
+    contentRef?: (node: HTMLElement | null) => void;
+  }>;
+  parse?: (element: HTMLElement) => PartialBlock["props"] | undefined;
+};
+```
+
+**`render`**
+
+This is your React component which defines how your custom block should be rendered in the editor, and takes three React props:
+
+`block:` The block that should be rendered. Its type and props will match the type and PropSchema defined in the Block Config.
+
+`editor:` The BlockNote editor instance that the block is in.
+
+`contentRef:` A React `ref` you can use to mark which element in your block is editable, this is only available if your block config contains `content: "inline"`.
+
+**`toExternalHTML`** (optional)
+
+This component is used whenever the block is being exported to HTML for use outside BlockNote, for example when copying it to the clipboard. If it's not defined, BlockNote will just use `render` for the HTML conversion.
+
+_Note that your component passed to `toExternalHTML` is rendered and serialized in a separate React root, which means you can't use hooks that rely on React Contexts._
+
+**`parse`** (optional)
+
+The `parse` function defines how to parse HTML content into your block, for example when pasting contents from the clipboard. If the element should be parsed into your custom block, you return the props that the block should be given. Otherwise, return `undefined`.
+
+`element`: The HTML element that's being parsed.
+
+### Adding Custom Blocks to the Editor
+
+Finally, create a BlockNoteSchema using the definition of your custom blocks:
+
+```typescript
+const schema = BlockNoteSchema.create({
+  blockSpecs: {
+    // enable the default blocks if desired
+    ...defaultBlockSpecs,
+
+    // Add your own custom blocks:
+    alert: Alert,
+  },
+});
+```
+
+You can then instantiate your editor with this custom schema, as explained on the [Custom Schemas](/docs/custom-schemas) page.

@@ -1,0 +1,37 @@
+---
+title: Hyperlink Toolbar
+description: The Hyperlink Toolbar appears whenever you hover a link in the editor.
+imageTitle: Hyperlink Toolbar
+path: /docs/hyperlink-toolbar
+---
+
+import { Example } from "@/components/example";
+
+# Hyperlink Toolbar
+
+The Hyperlink Toolbar appears whenever you hover a link in the editor.
+
+TODO Image
+
+[//]: # '<img style={{maxWidth: "600px"}} src="/img/screenshots/hyperlink_toolbar.png" alt="image" />'
+
+## Changing the Hyperlink Toolbar
+
+You can change or replace the Hyperlink Toolbar with your own React component. In the demo below, a button is added to the default Hyperlink Toolbar, which opens a browser alert.
+
+[//]: # (<Example name="ui-components/hyperlink-toolbar-buttons" />)
+
+We use the `HyperlinkToolbar` component to create a custom Hyperlink Toolbar. By specifying its children, we can replace the default buttons in the toolbar with our own.
+
+This custom Hyperlink Toolbar is passed to a `HyperlinkToolbarController`, which controls its position and visibility (above or below the hovered link).
+
+Setting `hyperlinkToolbar={false}` on `BlockNoteView` tells BlockNote not to show the default Hyperlink Toolbar.
+
+<div className="nx-mt-6 nx-leading-7 first:nx-mt-0">
+  <small>
+    <strong>Tip:</strong> The children you pass to the `HyperlinkToolbar`
+    component should be default buttons (e.g. TODO) or custom dropdowns/buttons
+    (`ToolbarDropdown` & `ToolbarButton`). To see all the components you can
+    use, head to the [Hyperlink Toolbar's source code](link).
+  </small>
+</div>

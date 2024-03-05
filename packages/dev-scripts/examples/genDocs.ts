@@ -1,94 +1,212 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { Project, getExampleProjects, groupProjects } from "./util";
+import {
+  addTitleToGroups,
+  Files,
+  getExampleProjects,
+  getProjectFiles,
+  groupProjects,
+  Project,
+} from "./util";
 
 /*
- `genDocs` generates the Sandpack Playgrounds for the website. 
+ `genDocs` generates the nextjs example blocks for the website docs. 
  Note that these files are not checked in to the repo, so this command should always be run before running / building the site
  */
 
 const dir = path.parse(import.meta.url.replace("file://", "")).dir;
 
-const template = (project: Project, readme: string) => `---
-path: /examples/${project.slug}
----
+const getLanguageFromFileName = (fileName: string) => fileName.split(".").pop();
 
-<script setup>
-import { useData } from 'vitepress'
-import { Playground } from '../components/playground'	
-import { examples } from '../components/files'	
+/******* templates + generate functions *******/
+const templateExampleBlock = (
+  project: Project,
+  files: Files
+) => `import { ExampleBlock } from "@/components/example/ExampleBlock";
+import { Tabs } from "nextra/components";
 
-const dir = "../../../../examples/${project.slug}";
-const { params } = useData()
+<ExampleBlock name="${project.fullSlug}">
+  <Tabs items={${JSON.stringify(
+    Object.keys(files).map((fileName) => fileName.slice(1))
+  )}}>
+    ${Object.entries(files)
+      .map(
+        ([filename, file]) =>
+          `<Tabs.Tab>
+            <div className={"max-h-96 overflow-auto rounded-lg overscroll-contain"}>
+\`\`\`${getLanguageFromFileName(filename)} 
+${file.code}
+\`\`\`
+            </div>
+          </Tabs.Tab>`
+      )
+      .join("")}
+  </Tabs>
+</ExampleBlock>`;
 
-const files = import.meta.glob("../../../../examples/${project.slug}/**/*", { as: 'raw', eager: true });
-const passedFiles = Object.fromEntries(Object.entries(files).map(([fullPath, content]) => {
-    const filename = fullPath.substring(dir.length)
-    return [filename, {
-        filename,
-        code: content,
-        hidden: filename.endsWith(".md") || filename.endsWith("main.tsx"),
-    }];
-}));
+const COMPONENT_DIR = path.resolve(
+  dir,
+  "../../../docs/components/example/generated/"
+);
 
-</script>
+const EXAMPLES_PAGES_DIR = path.resolve(dir, "../../../docs/pages/examples/");
 
-${readme}
-
-<Playground :files="passedFiles" />
-`;
-
+/**
+ * Generates the <ExampleBlock> component that has all the source code of the example
+ * This block can be used both in the /docs and in the /example page
+ */
 async function generateCodeForExample(project: Project) {
-  const target = path.resolve(
-    dir,
-    "../../website/docs/examples/" + project.slug + ".md"
+  const target = path.join(COMPONENT_DIR, "mdx", project.fullSlug + ".mdx");
+
+  const files = getProjectFiles(project);
+  const filtered = Object.fromEntries(
+    Object.entries(files).filter(([filename, file]) => !file.hidden)
   );
 
-  const readmeFile = fs.readFileSync(
-    path.join("../../", project.pathFromRoot, "/README.md"),
-    "utf-8"
-  );
+  const code = templateExampleBlock(project, filtered);
 
-  const code = template(project, readmeFile);
+  fs.mkdirSync(path.dirname(target), { recursive: true });
 
   fs.writeFileSync(target, code);
 }
 
-async function generateSidebar(projects: Project[]) {
-  const target = path.resolve(
-    dir,
-    "../../website/docs/.vitepress/sidebar-examples.ts"
+const templatePageForExample = (
+  project: Project,
+  readme: string
+) => `import { Example } from "@/components/example";
+
+${readme}
+
+<Example name="${project.fullSlug}" />`;
+
+/**
+ * Generate the page for the example in /examples overview
+ *
+ * Consists of the contents of the readme + the interactive example
+ */
+async function generatePageForExample(project: Project) {
+  const target = path.join(EXAMPLES_PAGES_DIR, project.fullSlug + ".mdx");
+
+  const files = getProjectFiles(project);
+
+  const code = templatePageForExample(project, files["/README.md"]!.code);
+
+  fs.writeFileSync(target, code);
+}
+
+/**
+ * generates _meta.json file for each example group, so that order is preserved
+ */
+async function generateMetaForExampleGroup(group: {
+  title: string;
+  slug: string;
+  projects: Project[];
+}) {
+  if (!fs.existsSync(path.join(EXAMPLES_PAGES_DIR, group.slug))) {
+    fs.mkdirSync(path.join(EXAMPLES_PAGES_DIR, group.slug));
+  }
+
+  const target = path.join(EXAMPLES_PAGES_DIR, group.slug, "_meta.json");
+
+  const meta = Object.fromEntries(
+    group.projects.map((project) => [
+      project.projectSlug,
+      {
+        title: project.config.shortTitle || project.title,
+      },
+    ])
   );
 
-  const groups = groupProjects(projects);
+  const code = JSON.stringify(meta, undefined, 2);
 
-  const sidebarItems = Object.entries(groups).map(([group, projects]) => {
+  fs.writeFileSync(target, code);
+}
+
+const templateExampleComponents = (
+  projects: Project[]
+) => `// generated by dev-scripts/examples/genDocs.ts
+import dynamic from "next/dynamic";
+  
+export const examples = {
+${projects
+  .map((p) => {
+    const importPath = `../../../../${p.pathFromRoot}/App`;
+
+    return `  "${p.fullSlug}": {
+    // App: () => <div>hello</div>,
+    App: dynamic(() => import(${JSON.stringify(importPath)}), {
+      ssr: false,
+    }),
+    ExampleWithCode: dynamic(() => import("./mdx/${p.fullSlug}.mdx"), {
+      //ssr: false,
+    }),
+  },`;
+  })
+  .join("\n")}  
+};`;
+
+/**
+ * Generate the file with all the dynamic imports for examples (exampleComponents.gen.tsx)
+ */
+async function generateExampleComponents(projects: Project[]) {
+  const target = path.join(COMPONENT_DIR, "exampleComponents.gen.tsx");
+
+  const code = templateExampleComponents(projects);
+
+  fs.writeFileSync(target, code);
+}
+
+/**
+ * generates exampleList.gen.ts file with data about all the examples
+ */
+async function generateExampleList(projects: Project[]) {
+  const target = path.join(COMPONENT_DIR, "exampleList.gen.ts");
+
+  const groups = addTitleToGroups(groupProjects(projects));
+
+  const items = Object.entries(groups).map(([key, group]) => {
     return {
-      text: group,
-      items: projects.map((project) => {
+      text: group.title,
+      items: group.projects.map((project) => {
         return {
           text: project.title,
-          link: `/examples/${project.slug}`,
+          link: `/examples/${project.fullSlug}`,
+          author: project.config.author,
         };
       }),
     };
   });
 
   const code = `// generated by dev-scripts/examples/genDocs.ts
-  export const EXAMPLES_SIDEBAR = ${JSON.stringify(
-    sidebarItems,
-    undefined,
-    2
-  )};`;
+  export const EXAMPLES_LIST = ${JSON.stringify(items, undefined, 2)};`;
 
   fs.writeFileSync(target, code);
 }
 
-const projects = getExampleProjects().filter((p) => p.config?.docs === true);
+// clean old files / dirs
+fs.rmSync(COMPONENT_DIR, { recursive: true, force: true });
 
-for (const project of projects) {
-  console.log("generating code for example", project);
-  await generateCodeForExample(project);
+fs.readdirSync(EXAMPLES_PAGES_DIR, { withFileTypes: true }).forEach((file) => {
+  if (file.isDirectory()) {
+    fs.rmSync(path.join(EXAMPLES_PAGES_DIR, file.name), {
+      recursive: true,
+      force: true,
+    });
+  }
+});
+
+// generate new files
+const projects = getExampleProjects().filter((p) => p.config?.docs === true);
+const groups = addTitleToGroups(groupProjects(projects));
+
+for (const group of Object.values(groups)) {
+  await generateMetaForExampleGroup(group);
+
+  for (const project of group.projects) {
+    await generateCodeForExample(project);
+    await generatePageForExample(project);
+  }
 }
 
-await generateSidebar(projects);
+await generateExampleComponents(projects);
+await generateExampleList(projects);

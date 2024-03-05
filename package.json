@@ -4,23 +4,24 @@
   "workspaces": [
     "packages/*",
     "playground",
-    "tests"
+    "tests",
+    "docs"
   ],
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.5.0",
+    "@typescript-eslint/parser": "^5.5.0",
     "eslint": "^8.22.0",
-    "eslint-plugin-import": "^2.28.0",
     "eslint-config-react-app": "^7.0.0",
+    "eslint-plugin-import": "^2.28.0",
+    "glob": "^10.3.10",
     "lerna": "^5.4.0",
     "patch-package": "^6.4.7",
-    "typescript": "^5.2.2",
-    "@typescript-eslint/parser": "^5.5.0",
-    "@typescript-eslint/eslint-plugin": "^5.5.0",
-    "glob": "^10.3.10"
+    "typescript": "^5.3.3"
   },
   "scripts": {
     "start": "lerna run --stream --scope @blocknote/example-editor dev",
     "gen": "lerna run --stream --scope @blocknote/dev-scripts gen",
-    "start:built": "npx serve examples/editor/dist -c ../serve.json",
+    "start:built": "npx serve playground/dist -c ../serve.json",
     "build": "npm run clean && npm run gen && npm run clean && lerna run --stream build --concurrency 1",
     "build:site": "lerna run --stream docs:build --concurrency 1",
     "lint": "lerna run --stream lint",

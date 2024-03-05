@@ -1,49 +1,45 @@
 <p align="center">
   <a href="https://www.blocknotejs.org">
-    <img alt="TypeCell" src="https://github.com/TypeCellOS/BlockNote/raw/main/packages/website/docs/public/img/logos/banner.svg?raw=true" width="300" />
+    <img alt="TypeCell" src="https://github.com/TypeCellOS/BlockNote/raw/main/docs/public/img/logos/banner.svg?raw=true" width="300" />
   </a>
 </p>
 
 <p align="center">
 Welcome to BlockNote! The open source Block-Based
-rich text editor. Easily add a modern text editing experience to your app.
+React rich text editor. Easily add a modern text editing experience to your app.
 </p>
 
 <p align="center">
-<a href="https://discord.gg/Qc2QTTH5dF"><img alt="Discord" src="https://img.shields.io/badge/Chat on discord%20-%237289DA.svg?&style=for-the-badge&logo=discord&logoColor=white"/></a> <a href="https://matrix.to/#/#typecell-space:matrix.org"><img alt="Matrix" src="https://img.shields.io/badge/Chat on matrix%20-%23000.svg?&style=for-the-badge&logo=matrix&logoColor=white"/></a>
+<a href="https://discord.gg/Qc2QTTH5dF"><img alt="Discord" src="https://img.shields.io/badge/Chat on discord%20-%237289DA.svg?&style=for-the-badge&logo=discord&logoColor=white"/></a> 
 </p>
 
 <p align="center">
   <a href="https://www.blocknotejs.org">
     Homepage
   </a> - <a href="https://www.blocknotejs.org/docs/introduction">
-    Introduction
-  </a> - <a href="https://www.blocknotejs.org/docs/quickstart">
     Documentation
+  </a> - <a href="https://www.blocknotejs.org/docs/quickstart">
+    Quickstart
+  </a>- <a href="https://www.blocknotejs.org/docs/examples">
+    Examples
   </a>
 </p>
 
 # Live demo
 
-Play with the editor @ [https://playground.blocknotejs.org/](https://playground.blocknotejs.org/).
-
-(Source in [examples](/examples))
+See our homepage @ [https://www.blocknotejs.org](https://www.blocknotejs.org/) or browse the [examples](https://www.blocknotejs.org/examples).
 
 # Example code (React)
 
 [![npm version](https://badge.fury.io/js/%40blocknote%2Freact.svg)](https://badge.fury.io/js/%40blocknote%2Freact)
 
 ```typescript
-import { BlockNoteView, useBlockNote } from "@blocknote/react";
+import { BlockNoteView, useCreateBlockNote } from "@blocknote/react";
+import "@blocknote/core/fonts/inter.css";
 import "@blocknote/react/style.css";
 
 function App() {
-  const editor = useBlockNote({
-    onEditorContentChange: (editor) => {
-      // Log the document to console on every update
-      console.log(editor.getJSON());
-    },
-  });
+  const editor = useCreateBlockNote();
 
   return <BlockNoteView editor={editor} />;
 }
