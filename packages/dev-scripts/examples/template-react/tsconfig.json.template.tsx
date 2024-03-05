@@ -21,14 +21,15 @@ const template = (project: Project) => ({
     composite: true,
   },
   include: ["."],
-  references: [
-    {
-      path: "../../../packages/core/",
-    },
-    {
-      path: "../../../packages/react/",
-    },
-  ],
+  // uncuomment for local dev
+  // references: [
+  //   {
+  //     path: "../../../packages/core/",
+  //   },
+  //   {
+  //     path: "../../../packages/react/",
+  //   },
+  // ],
 });
 
 export default template;

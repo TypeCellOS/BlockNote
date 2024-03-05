@@ -24,13 +24,5 @@
   },
   "include": [
     "."
-  ],
-  "references": [
-    {
-      "path": "../../../packages/core/"
-    },
-    {
-      "path": "../../../packages/react/"
-    }
   ]
 }
