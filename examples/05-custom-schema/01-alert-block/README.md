@@ -7,5 +7,5 @@ In this example, we create a custom `Alert` block which is used to emphasize tex
 **Relevant Docs:**
 
 - [Custom Blocks](/docs/custom-schemas/custom-blocks)
-- [Changing Slash Menu Items](/docs/ui-components/slash-menu#changing-slash-menu-items)
+- [Changing Slash Menu Items](/docs/ui-components/suggestion-menus#changing-slash-menu-items)
 - [Editor Setup](/docs/editor-basics/setup)

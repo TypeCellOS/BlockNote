@@ -7,5 +7,5 @@ In this example, we create a custom `Mention` inline content type which is used 
 **Relevant Docs:**
 
 - [Custom Inline Content Types](/docs/custom-schemas/custom-inline-content)
-- [Creating Suggestion Menus](/docs/ui-components/slash-menu#creating-suggestion-menus)
+- [Creating Suggestion Menus](/docs/ui-components/suggestion-menus#creating-additional-suggestion-menus)
 - [Editor Setup](/docs/editor-basics/setup)

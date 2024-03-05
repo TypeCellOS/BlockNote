@@ -6,5 +6,5 @@ In this example, we replace the default Slash Menu component with a basic custom
 
 **Relevant Docs:**
 
-- [Replacing the Slash Menu Component](/docs/ui-components/slash-menu#replacing-the-slash-menu-component)
+- [Replacing the Slash Menu Component](/docs/ui-components/suggestion-menus#replacing-the-suggestion-menu-component)
 - [Editor Setup](/docs/editor-basics/setup)
