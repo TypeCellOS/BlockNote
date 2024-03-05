@@ -24,5 +24,13 @@
   },
   "include": [
     "."
+  ],
+  "__ADD_FOR_LOCAL_DEV_references": [
+    {
+      "path": "../../../packages/core/"
+    },
+    {
+      "path": "../../../packages/react/"
+    }
   ]
 }
