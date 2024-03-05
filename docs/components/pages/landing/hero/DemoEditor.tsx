@@ -54,9 +54,8 @@ function getUTCDateYYYYMMDD() {
   return `${year}${formattedMonth}${formattedDay}`;
 }
 
-export default function DemoEditor(props: { theme: "light" | "dark" }) {
+export default function DemoEditor(props: { theme?: "light" | "dark" }) {
   const [doc, provider] = useMemo(() => {
-    console.log("create");
     const doc = new Y.Doc();
     const provider = new YPartyKitProvider(
       "blocknote.yousefed.partykit.dev",
