@@ -6,7 +6,7 @@ In this example, we add an item to the Slash Menu, which adds a new block below 
 
 **Relevant Docs:**
 
-- [Changing Slash Menu Items](/docs/ui-components/slash-menu#changing-slash-menu-items)
+- [Changing Slash Menu Items](/docs/ui-components/suggestion-menus#changing-slash-menu-items)
 - [Getting Text Cursor Position](/docs/editor-api/cursor-selections#getting-text-cursor-position)
 - [Inserting New Blocks](/docs/editor-api/manipulating-blocks#inserting-new-blocks)
 - [Editor Setup](/docs/editor-basics/setup)

@@ -7,6 +7,6 @@ In this example, we replace the default Formatting Toolbar using a custom React 
 - [Formatting Toolbar](/docs/ui-components/formatting-toolbar)
 - [Manipulating Inline Content](/docs/editor-api/manipulating-inline-content)
 - [Hooks](TODO)
-- [Slash Menu](/docs/ui-components/slash-menu)
+- [Slash Menu](/docs/ui-components/suggestion-menus#slash-menu)
 - [Side Menu](/docs/ui-components/side-menu)
 - [Editor Setup](/docs/editor-basics/setup)
