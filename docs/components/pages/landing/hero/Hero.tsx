@@ -15,7 +15,13 @@ export function Hero() {
           "z-20 flex w-full flex-col items-center justify-between gap-6 px-6 md:max-w-screen-md xl:max-w-[1440px] xl:flex-row"
         }>
         <Text />
-        <Demo theme={theme === "dark" ? "dark" : "light"} />
+        <Demo
+          theme={
+            theme === undefined || theme === "system"
+              ? undefined
+              : (theme as "light" | "dark" | undefined)
+          }
+        />
       </FadeIn>
     </Section>
   );
