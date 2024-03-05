@@ -1,7 +1,11 @@
 import { DOMSerializer, Fragment, Node, Schema } from "prosemirror-model";
-import { PartialBlock } from "../../../blocks/defaultBlocks";
 import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
-import { BlockSchema, InlineContentSchema, StyleSchema } from "../../../schema";
+import {
+  BlockSchema,
+  InlineContentSchema,
+  PartialBlock,
+  StyleSchema,
+} from "../../../schema";
 import { blockToNode } from "../../nodeConversions/nodeConversions";
 import {
   serializeNodeInner,
@@ -65,7 +69,7 @@ export const createInternalHTMLSerializer = <
 
   serializer.serializeBlocks = (blocks: PartialBlock<BSchema, I, S>[]) => {
     const nodes = blocks.map((block) =>
-      blockToNode(block, schema, editor.schema.styleSchema)
+      blockToNode(block, schema, editor.styleSchema)
     );
     const blockGroup = schema.nodes["blockGroup"].create(null, nodes);
 

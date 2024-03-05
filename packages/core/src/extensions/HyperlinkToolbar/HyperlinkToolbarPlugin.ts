@@ -2,13 +2,12 @@ import { getMarkRange, posToDOMRect, Range } from "@tiptap/core";
 import { EditorView } from "@tiptap/pm/view";
 import { Mark } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
-
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
+import { BaseUiElementState } from "../../extensions-shared/BaseUiElementTypes";
 import { BlockSchema, InlineContentSchema, StyleSchema } from "../../schema";
-import { UiElementPosition } from "../../extensions-shared/UiElementPosition";
 import { EventEmitter } from "../../util/EventEmitter";
 
-export type HyperlinkToolbarState = UiElementPosition & {
+export type HyperlinkToolbarState = BaseUiElementState & {
   // The hovered hyperlink's URL, and the text it's displayed with in the
   // editor.
   url: string;
@@ -16,8 +15,8 @@ export type HyperlinkToolbarState = UiElementPosition & {
 };
 
 class HyperlinkToolbarView {
-  public state?: HyperlinkToolbarState;
-  public emitUpdate: () => void;
+  private hyperlinkToolbarState?: HyperlinkToolbarState;
+  public updateHyperlinkToolbar: () => void;
 
   menuUpdateTimer: ReturnType<typeof setTimeout> | undefined;
   startMenuUpdateTimer: () => void;
@@ -35,14 +34,16 @@ class HyperlinkToolbarView {
   constructor(
     private readonly editor: BlockNoteEditor<any, any, any>,
     private readonly pmView: EditorView,
-    emitUpdate: (state: HyperlinkToolbarState) => void
+    updateHyperlinkToolbar: (
+      hyperlinkToolbarState: HyperlinkToolbarState
+    ) => void
   ) {
-    this.emitUpdate = () => {
-      if (!this.state) {
+    this.updateHyperlinkToolbar = () => {
+      if (!this.hyperlinkToolbarState) {
         throw new Error("Attempting to update uninitialized hyperlink toolbar");
       }
 
-      emitUpdate(this.state);
+      updateHyperlinkToolbar(this.hyperlinkToolbarState);
     };
 
     this.startMenuUpdateTimer = () => {
@@ -123,22 +124,22 @@ class HyperlinkToolbarView {
         editorWrapper.contains(event.target as Node)
       )
     ) {
-      if (this.state?.show) {
-        this.state.show = false;
-        this.emitUpdate();
+      if (this.hyperlinkToolbarState?.show) {
+        this.hyperlinkToolbarState.show = false;
+        this.updateHyperlinkToolbar();
       }
     }
   };
 
   scrollHandler = () => {
     if (this.hyperlinkMark !== undefined) {
-      if (this.state?.show) {
-        this.state.referencePos = posToDOMRect(
+      if (this.hyperlinkToolbarState?.show) {
+        this.hyperlinkToolbarState.referencePos = posToDOMRect(
           this.pmView,
           this.hyperlinkMarkRange!.from,
           this.hyperlinkMarkRange!.to
         );
-        this.emitUpdate();
+        this.updateHyperlinkToolbar();
       }
     }
   };
@@ -157,9 +158,9 @@ class HyperlinkToolbarView {
     this.pmView.dispatch(tr);
     this.pmView.focus();
 
-    if (this.state?.show) {
-      this.state.show = false;
-      this.emitUpdate();
+    if (this.hyperlinkToolbarState?.show) {
+      this.hyperlinkToolbarState.show = false;
+      this.updateHyperlinkToolbar();
     }
   }
 
@@ -175,9 +176,9 @@ class HyperlinkToolbarView {
     );
     this.pmView.focus();
 
-    if (this.state?.show) {
-      this.state.show = false;
-      this.emitUpdate();
+    if (this.hyperlinkToolbarState?.show) {
+      this.hyperlinkToolbarState.show = false;
+      this.updateHyperlinkToolbar();
     }
   }
 
@@ -231,7 +232,7 @@ class HyperlinkToolbarView {
     }
 
     if (this.hyperlinkMark && this.editor.isEditable) {
-      this.state = {
+      this.hyperlinkToolbarState = {
         show: true,
         referencePos: posToDOMRect(
           this.pmView,
@@ -244,19 +245,19 @@ class HyperlinkToolbarView {
           this.hyperlinkMarkRange!.to
         ),
       };
-      this.emitUpdate();
+      this.updateHyperlinkToolbar();
 
       return;
     }
 
     // Hides menu.
     if (
-      this.state?.show &&
+      this.hyperlinkToolbarState?.show &&
       prevHyperlinkMark &&
       (!this.hyperlinkMark || !this.editor.isEditable)
     ) {
-      this.state.show = false;
-      this.emitUpdate();
+      this.hyperlinkToolbarState.show = false;
+      this.updateHyperlinkToolbar();
 
       return;
     }

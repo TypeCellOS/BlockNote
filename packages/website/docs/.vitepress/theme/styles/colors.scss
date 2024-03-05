@@ -1,0 +1,76 @@
+:root {
+  scroll-padding-top: calc(var(--vp-nav-height-desktop) + 30px);
+  --content-max-width: 1480px;
+}
+
+// :root:not(.dark) {
+:root {
+  // Highlight color (links, some borders or hover effects)
+  --vp-c-brand: hsl(200 80% 38%);
+  --vp-c-brand-light: hsl(195 85% 42%);
+  --vp-c-brand-lighter: hsl(190 90% 48%);
+  --vp-c-brand-dark: hsl(200 80% 32%);
+  --vp-c-brand-darker: hsl(200 70% 24%);
+  // Custom highlight colors (used on home page)
+  --sb-foreground-highlight: hsl(210 90% 50%);
+  --sb-foreground-highlight-high: hsl(190 100% 50%);
+
+  // Contrast fixes
+  --vp-custom-block-info-text: hsl(220 10% 36%);
+  --vp-custom-block-warning-text: hsl(45, 90%, 28%);
+  --vp-custom-block-tip-text: hsl(106, 37%, 27%);
+
+  // Greys
+  --vp-c-gray-dark-2: rgb(186, 194, 210);
+}
+
+:root.dark {
+  // Tweak the color palette for blacks and dark grays
+  --vp-c-black: hsl(220 20% 9%);
+  --vp-c-black-pure: hsl(220, 24%, 4%);
+  --vp-c-black-soft: hsl(220 16% 13%);
+  --vp-c-black-mute: hsl(220 14% 17%);
+  --vp-c-gray: hsl(220 8% 56%);
+  --vp-c-gray-dark-1: hsl(220 10% 39%);
+  --vp-c-gray-dark-2: hsl(220 12% 28%);
+  --vp-c-gray-dark-3: hsl(220 12% 23%);
+  --vp-c-gray-dark-4: hsl(220 14% 17%);
+  --vp-c-gray-dark-5: hsl(220 16% 13%);
+
+  // Backgrounds
+  // --vp-c-bg: hsl(220 14% 13%);
+  // --vp-c-bg: rgb(7, 8, 9);
+  --vp-c-bg: rgb(7, 8, 11);
+  --vp-c-bg-alt: hsl(220 20% 9%);
+  --vp-c-bg-soft: hsl(220 14% 17%);
+  --vp-c-bg-mute: hsl(220 12% 23%);
+  --vp-custom-block-info-bg: hsl(220 14% 17%);
+
+  // Highlight color (links, some borders or hover effects)
+  --vp-c-brand: hsl(190 100% 48%);
+  --vp-c-brand-light: hsl(185 100% 54%);
+  --vp-c-brand-lighter: hsl(180 100% 60%);
+  --vp-c-brand-dark: hsl(190 100% 42%);
+  --vp-c-brand-darker: hsl(190 100% 36%);
+  // Custom highlight colors (used on home page)
+  --sb-foreground-highlight: hsl(190, 91%, 69%);
+  --sb-foreground-highlight-high: hsl(165, 100%, 60%);
+  // WCAPI site
+  --wc-background-soft-light: hsla(220, 100%, 81%, 0.05);
+  --wc-background-softer-light: hsla(220, 100%, 81%, 0.02);
+
+  // Contrast fixes
+  --vp-custom-block-info-text: hsl(220 50% 85%);
+  --vp-custom-block-danger-text: hsl(340, 100%, 66%);
+  --vp-custom-block-warning-text: hsl(45, 90%, 50%);
+  --vp-custom-block-tip-text: hsl(160, 84%, 39%);
+
+  // If we want to make the dividers blueish too
+  //--vp-c-divider: var(--vp-c-divider-light-1);
+  //--vp-c-divider-light: var(--vp-c-divider-light-2);
+  //--vp-c-divider-inverse: var(--vp-c-divider-dark-1);
+  //--vp-c-divider-inverse-light: var(--vp-c-divider-dark-2);
+
+  // Algolia DocSearch UI
+  --docsearch-container-background: hsl(220 24% 30% / 0.85);
+}

@@ -74,7 +74,7 @@ export type PartialCustomInlineContentFromConfig<
 > = {
   type: I["type"];
   props?: Props<I["propSchema"]>;
-  content?: I["content"] extends "styled"
+  content: I["content"] extends "styled"
     ? StyledText<S>[] | string
     : I["content"] extends "plain"
     ? string

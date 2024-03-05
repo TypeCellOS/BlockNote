@@ -2,10 +2,10 @@ import { AppShell, MantineProvider, ScrollArea } from "@mantine/core";
 import React from "react";
 import { createRoot } from "react-dom/client";
 import {
-  createBrowserRouter,
   Link,
   Outlet,
   RouterProvider,
+  createBrowserRouter,
 } from "react-router-dom";
 
 import { examples } from "./examples.gen";
@@ -13,7 +13,7 @@ import "./style.css";
 
 window.React = React;
 
-const modules = import.meta.glob("../../examples/**/*/App.tsx");
+const modules = import.meta.glob("../../examples/*/App.tsx");
 
 const editors = examples;
 
@@ -34,14 +34,7 @@ function Root() {
   return (
     <MantineProvider>
       <AppShell
-        navbar={
-          window.location.search.includes("hideMenu")
-            ? undefined
-            : {
-                width: 300,
-                breakpoint: 0,
-              }
-        }
+        navbar={{ width: 300, breakpoint: 0 }}
         padding={0}
         //   header={<Header height={60} p="xs">
         //   {/* Header content */}
@@ -57,11 +50,11 @@ function Root() {
         {window.location.search.includes("hideMenu") ? undefined : (
           <AppShell.Navbar p="xs">
             <AppShell.Section grow component={ScrollArea} mx="-xs" px="xs">
-              {Object.values(editors)
+              {editors
                 .flatMap((g) => g.projects)
                 .map((editor, i) => (
                   <div key={i}>
-                    <Link to={editor.fullSlug}>{editor.title}</Link>
+                    <Link to={editor.slug}>{editor.title}</Link>
                   </div>
                 ))}
 
@@ -90,13 +83,12 @@ function Root() {
   );
 }
 
-const App = (props: { project: (typeof examples.basic)["projects"][0] }) => {
+const App = (props: { project: (typeof examples)[0]["projects"][0] }) => {
   const [ExampleComponent, setExampleComponent] = React.useState<any>(null);
 
   React.useEffect(() => {
     (async () => {
       // load app async
-      console.log("../../" + props.project.pathFromRoot + "/App.tsx");
       const c: any = await modules[
         "../../" + props.project.pathFromRoot + "/App.tsx"
       ]();
@@ -107,7 +99,6 @@ const App = (props: { project: (typeof examples.basic)["projects"][0] }) => {
   if (!ExampleComponent) {
     return <div>Loading...</div>;
   }
-  // eslint-disable-next-line react/jsx-pascal-case
   return <ExampleComponent.default />;
 };
 
@@ -115,10 +106,10 @@ const router = createBrowserRouter([
   {
     path: "/",
     element: <Root />,
-    children: Object.values(editors)
+    children: editors
       .flatMap((g) => g.projects)
       .map((editor) => ({
-        path: editor.fullSlug,
+        path: editor.slug,
         element: <App project={editor} />,
       })),
   },
@@ -126,7 +117,9 @@ const router = createBrowserRouter([
 
 const root = createRoot(document.getElementById("root")!);
 root.render(
-  <React.StrictMode>
-    <RouterProvider router={router} />
-  </React.StrictMode>
+  // TODO: StrictMode is causing duplicate mounts and conflicts with collaboration
+  // <React.StrictMode>
+  // <App />
+  <RouterProvider router={router} />
+  // </React.StrictMode>
 );

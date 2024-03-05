@@ -2,8 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
 
 import { addIdsToBlocks, partialBlocksToBlocksForTesting } from "../../..";
-import { PartialBlock } from "../../../blocks/defaultBlocks";
-import { BlockSchema } from "../../../schema/blocks/types";
+import { BlockSchema, PartialBlock } from "../../../schema/blocks/types";
 import { InlineContentSchema } from "../../../schema/inlineContent/types";
 import { StyleSchema } from "../../../schema/styles/types";
 import { customBlocksTestCases } from "../../testUtil/cases/customBlocks";
@@ -39,7 +38,7 @@ async function convertToHTMLAndCompareSnapshots<
 
   // turn the internalHTML back into blocks, and make sure no data was lost
   const fullBlocks = partialBlocksToBlocksForTesting(
-    editor.schema.blockSchema,
+    editor.blockSchema,
     blocks
   );
   const parsed = await editor.tryParseHTMLToBlocks(internalHTML);
@@ -72,14 +71,12 @@ describe("Test HTML conversion", () => {
   for (const testCase of testCases) {
     describe("Case: " + testCase.name, () => {
       let editor: BlockNoteEditor<any, any, any>;
-      const div = document.createElement("div");
+
       beforeEach(() => {
         editor = testCase.createEditor();
-        editor.mount(div);
       });
 
       afterEach(() => {
-        editor.mount(undefined);
         editor._tiptapEditor.destroy();
         editor = undefined as any;
 

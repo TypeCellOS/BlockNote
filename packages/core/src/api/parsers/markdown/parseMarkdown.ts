@@ -4,8 +4,12 @@ import remarkGfm from "remark-gfm";
 import remarkParse from "remark-parse";
 import remarkRehype, { defaultHandlers } from "remark-rehype";
 import { unified } from "unified";
-import { Block } from "../../../blocks/defaultBlocks";
-import { BlockSchema, InlineContentSchema, StyleSchema } from "../../../schema";
+import {
+  Block,
+  BlockSchema,
+  InlineContentSchema,
+  StyleSchema,
+} from "../../../schema";
 import { HTMLToBlocks } from "../html/parseHTML";
 
 // modified version of https://github.com/syntax-tree/mdast-util-to-hast/blob/main/lib/handlers/code.js

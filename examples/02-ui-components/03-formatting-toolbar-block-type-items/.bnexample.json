@@ -1,9 +1,0 @@
-{
-  "playground": true,
-  "docs": true,
-  "author": "matthewlipski",
-  "tags": ["Intermediate", "Blocks", "UI Components", "Formatting Toolbar", "Custom Schemas"],
-  "dependencies": {
-    "react-icons": "^4.3.1"
-  }
-}

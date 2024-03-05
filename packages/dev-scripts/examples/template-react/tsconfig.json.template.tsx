@@ -1,4 +1,4 @@
-import type { Project } from "../util";
+import type { Project } from "../gen";
 
 const template = (project: Project) => ({
   __comment: "AUTO-GENERATED FILE, DO NOT EDIT DIRECTLY",
@@ -23,10 +23,10 @@ const template = (project: Project) => ({
   include: ["."],
   references: [
     {
-      path: "../../../packages/core/",
+      path: "../../packages/core/",
     },
     {
-      path: "../../../packages/react/",
+      path: "../../packages/react/",
     },
   ],
 });

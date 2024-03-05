@@ -1,19 +1,41 @@
 import { Plugin, PluginKey, PluginView } from "prosemirror-state";
 import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
+import { EventEmitter } from "../../util/EventEmitter";
 import { nodeToBlock } from "../../api/nodeConversions/nodeConversions";
-import { Block, DefaultBlockSchema } from "../../blocks/defaultBlocks";
+import { DefaultBlockSchema } from "../../blocks/defaultBlocks";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import {
+  Block,
   BlockFromConfigNoChildren,
   BlockSchemaWithBlock,
   InlineContentSchema,
+  PartialBlock,
   SpecificBlock,
   StyleSchema,
 } from "../../schema";
-import { EventEmitter } from "../../util/EventEmitter";
 import { getDraggableBlockFromCoords } from "../SideMenu/SideMenuPlugin";
 
 let dragImageElement: HTMLElement | undefined;
+
+function setHiddenDragImage() {
+  if (dragImageElement) {
+    return;
+  }
+
+  dragImageElement = document.createElement("div");
+  dragImageElement.innerHTML = "_";
+  dragImageElement.style.opacity = "0";
+  dragImageElement.style.height = "1px";
+  dragImageElement.style.width = "1px";
+  document.body.appendChild(dragImageElement);
+}
+
+function unsetHiddenDragImage() {
+  if (dragImageElement) {
+    document.body.removeChild(dragImageElement);
+    dragImageElement = undefined;
+  }
+}
 
 export type TableHandlesState<
   I extends InlineContentSchema,
@@ -35,26 +57,6 @@ export type TableHandlesState<
       }
     | undefined;
 };
-
-function setHiddenDragImage() {
-  if (dragImageElement) {
-    return;
-  }
-
-  dragImageElement = document.createElement("div");
-  dragImageElement.innerHTML = "_";
-  dragImageElement.style.opacity = "0";
-  dragImageElement.style.height = "1px";
-  dragImageElement.style.width = "1px";
-  document.body.appendChild(dragImageElement);
-}
-
-function unsetHiddenDragImage() {
-  if (dragImageElement) {
-    document.body.removeChild(dragImageElement);
-    dragImageElement = undefined;
-  }
-}
 
 function getChildIndex(node: Element) {
   return Array.prototype.indexOf.call(node.parentElement!.childNodes, node);
@@ -89,7 +91,7 @@ export class TableHandlesView<
 > implements PluginView
 {
   public state?: TableHandlesState<I, S>;
-  public emitUpdate: () => void;
+  public updateState: () => void;
 
   public tableId: string | undefined;
   public tablePos: number | undefined;
@@ -99,20 +101,16 @@ export class TableHandlesView<
   public prevWasEditable: boolean | null = null;
 
   constructor(
-    private readonly editor: BlockNoteEditor<
-      BlockSchemaWithBlock<"table", DefaultBlockSchema["table"]>,
-      I,
-      S
-    >,
+    private readonly editor: BlockNoteEditor<BSchema, I, S>,
     private readonly pmView: EditorView,
-    emitUpdate: (state: TableHandlesState<I, S>) => void
+    updateState: (state: TableHandlesState<I, S>) => void
   ) {
-    this.emitUpdate = () => {
+    this.updateState = () => {
       if (!this.state) {
         throw new Error("Attempting to update uninitialized image toolbar");
       }
 
-      emitUpdate(this.state);
+      updateState(this.state);
     };
 
     pmView.dom.addEventListener("mousemove", this.mouseMoveHandler);
@@ -133,7 +131,7 @@ export class TableHandlesView<
     if (!target || !this.editor.isEditable) {
       if (this.state?.show) {
         this.state.show = false;
-        this.emitUpdate();
+        this.updateState();
       }
       return;
     }
@@ -177,9 +175,9 @@ export class TableHandlesView<
 
       block = nodeToBlock(
         node,
-        this.editor.schema.blockSchema,
-        this.editor.schema.inlineContentSchema,
-        this.editor.schema.styleSchema,
+        this.editor.blockSchema,
+        this.editor.inlineContentSchema,
+        this.editor.styleSchema,
         this.editor.blockCache
       );
       this.tablePos = pos + 1;
@@ -198,7 +196,7 @@ export class TableHandlesView<
 
       draggingState: undefined,
     };
-    this.emitUpdate();
+    this.updateState();
 
     return false;
   };
@@ -288,7 +286,7 @@ export class TableHandlesView<
 
     // Emits a state update if any of the fields have changed.
     if (emitStateUpdate) {
-      this.emitUpdate();
+      this.updateState();
     }
 
     // Dispatches a dummy transaction to force a decorations update if
@@ -329,7 +327,7 @@ export class TableHandlesView<
         type: "tableContent",
         rows: rows,
       },
-    });
+    } as PartialBlock<BSchema, I, S>);
   };
 
   scrollHandler = () => {
@@ -345,7 +343,7 @@ export class TableHandlesView<
 
       this.state.referencePosTable = tableElement.getBoundingClientRect();
       this.state.referencePosCell = cellElement.getBoundingClientRect();
-      this.emitUpdate();
+      this.updateState();
     }
   };
 
@@ -362,25 +360,14 @@ export class TableHandlesView<
 export const tableHandlesPluginKey = new PluginKey("TableHandlesPlugin");
 
 export class TableHandlesProsemirrorPlugin<
+  BSchema extends BlockSchemaWithBlock<"table", DefaultBlockSchema["table"]>,
   I extends InlineContentSchema,
   S extends StyleSchema
 > extends EventEmitter<any> {
-  private view:
-    | TableHandlesView<
-        BlockSchemaWithBlock<"table", DefaultBlockSchema["table"]>,
-        I,
-        S
-      >
-    | undefined;
+  private view: TableHandlesView<BSchema, I, S> | undefined;
   public readonly plugin: Plugin;
 
-  constructor(
-    private readonly editor: BlockNoteEditor<
-      BlockSchemaWithBlock<"table", DefaultBlockSchema["table"]>,
-      I,
-      S
-    >
-  ) {
+  constructor(private readonly editor: BlockNoteEditor<BSchema, I, S>) {
     super();
     this.plugin = new Plugin({
       key: tableHandlesPluginKey,
@@ -544,7 +531,7 @@ export class TableHandlesProsemirrorPlugin<
       originalIndex: this.view!.state.colIndex,
       mousePos: event.clientX,
     };
-    this.view!.emitUpdate();
+    this.view!.updateState();
 
     this.editor._tiptapEditor.view.dispatch(
       this.editor._tiptapEditor.state.tr.setMeta(tableHandlesPluginKey, {
@@ -580,7 +567,7 @@ export class TableHandlesProsemirrorPlugin<
       originalIndex: this.view!.state.rowIndex,
       mousePos: event.clientY,
     };
-    this.view!.emitUpdate();
+    this.view!.updateState();
 
     this.editor._tiptapEditor.view.dispatch(
       this.editor._tiptapEditor.state.tr.setMeta(tableHandlesPluginKey, {
@@ -609,7 +596,7 @@ export class TableHandlesProsemirrorPlugin<
     }
 
     this.view!.state.draggingState = undefined;
-    this.view!.emitUpdate();
+    this.view!.updateState();
 
     this.editor._tiptapEditor.view.dispatch(
       this.editor._tiptapEditor.state.tr.setMeta(tableHandlesPluginKey, null)
@@ -622,15 +609,11 @@ export class TableHandlesProsemirrorPlugin<
    * Freezes the drag handles. When frozen, they will stay attached to the same
    * cell regardless of which cell is hovered by the mouse cursor.
    */
-  freezeHandles = () => {
-    this.view!.menuFrozen = true;
-  };
+  freezeHandles = () => (this.view!.menuFrozen = true);
 
   /**
    * Unfreezes the drag handles. When frozen, they will stay attached to the
    * same cell regardless of which cell is hovered by the mouse cursor.
    */
-  unfreezeHandles = () => {
-    this.view!.menuFrozen = false;
-  };
+  unfreezeHandles = () => (this.view!.menuFrozen = false);
 }

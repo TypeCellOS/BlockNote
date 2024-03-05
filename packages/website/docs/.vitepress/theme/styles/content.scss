@@ -1,0 +1,93 @@
+.vp-doc h1 {
+  margin-bottom: 24px;
+}
+
+.vp-doc h2 {
+  margin: 44px 0 24px;
+  border-top: 1px solid var(--vp-c-divider-light);
+  padding-top: 32px;
+}
+
+// Wrap code examples
+.vp-doc [class*='language-'] pre,
+.vp-doc [class*='language-'] code {
+  white-space: pre-wrap;
+  // break contiguous strings if there was no break opportunity (e.g. whitespace, hyphens or slashes)
+  word-break: break-word;
+}
+
+.vp-doc td,
+.vp-doc th {
+  font-size: 14px;
+  line-height: 1.5;
+  &.no-break {
+    white-space: nowrap;
+  }
+}
+
+.vp-doc img {
+  margin: 8px 0;
+}
+
+.vp-doc figure {
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.vp-doc figcaption {
+  padding: 0.75rem 1.25rem;
+  font-size: 87%;
+  border-radius: 8px;
+  background-color: var(--vp-c-bg-soft);
+}
+
+@media (min-width: 600px) {
+  .vp-doc .float-left {
+    float: left;
+    max-width: 50%;
+    margin-top: 1rem;
+    margin-bottom: 1.5rem;
+    margin-right: 1.5rem;
+  }
+  .vp-doc .float-right {
+    float: right;
+    max-width: 50%;
+    margin-top: 1rem;
+    margin-bottom: 1.5rem;
+    margin-left: 1.5rem;
+  }
+}
+
+// Function/variable names in titles
+.vp-doc var {
+  font-family: var(--vp-font-family-mono);
+  font-weight: inherit;
+  font-style: inherit;
+  small {
+    padding-inline: 0.4ch;
+    font-weight: normal;
+    font-size: 90%;
+    color: var(--vp-c-text-2);
+  }
+}
+
+.vp-doc .footnotes-sep {
+  margin: 44px 0 32px;
+  border-top: 1px solid var(--vp-c-divider-light);
+}
+
+.vp-doc .footnotes {
+  p {
+    margin: 0.75em 0;
+    font-size: 14px;
+    line-height: 24px;
+  }
+}
+
+.content-container .VPDocFooter {
+  margin-top: 30px;
+}
+
+.VPPage {
+  overflow-x: hidden;
+}

@@ -114,8 +114,8 @@ export function createReactInlineContentSpec<
 
       const ic = nodeToCustomInlineContent(
         node,
-        editor.schema.inlineContentSchema,
-        editor.schema.styleSchema
+        editor.inlineContentSchema,
+        editor.styleSchema
       ) as any as InlineContentFromConfig<T, S>; // TODO: fix cast
       const Content = inlineContentImplementation.render;
       const output = renderToDOMSpec((refCB) => (
@@ -147,8 +147,8 @@ export function createReactInlineContentSpec<
                 inlineContent={
                   nodeToCustomInlineContent(
                     props.node,
-                    editor.schema.inlineContentSchema,
-                    editor.schema.styleSchema
+                    editor.inlineContentSchema,
+                    editor.styleSchema
                   ) as any as InlineContentFromConfig<T, S> // TODO: fix cast
                 }
               />,

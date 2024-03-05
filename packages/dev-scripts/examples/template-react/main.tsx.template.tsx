@@ -1,4 +1,4 @@
-import type { Project } from "../util";
+import type { Project } from "../gen";
 
 const template = (
   project: Project
@@ -9,10 +9,9 @@ import App from "./App";
 
 const root = createRoot(document.getElementById("root")!);
 root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
-`;
+  // <React.StrictMode >
+  <App />
+  // </React.StrictMode>
+);`;
 
 export default template;

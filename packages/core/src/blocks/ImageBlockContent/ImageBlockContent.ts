@@ -1,4 +1,5 @@
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
+import { imageToolbarPluginKey } from "../../extensions/ImageToolbar/ImageToolbarPlugin";
 
 import {
   BlockFromConfig,
@@ -234,7 +235,7 @@ export const renderImage = (
   // Opens the image toolbar.
   const addImageButtonClickHandler = () => {
     editor._tiptapEditor.view.dispatch(
-      editor._tiptapEditor.state.tr.setMeta(editor.imageToolbar!.plugin, {
+      editor._tiptapEditor.state.tr.setMeta(imageToolbarPluginKey, {
         block: block,
       })
     );

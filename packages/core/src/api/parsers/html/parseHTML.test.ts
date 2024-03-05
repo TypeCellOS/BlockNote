@@ -11,8 +11,6 @@ async function parseHTMLAndCompareSnapshots(
   const view: any = await import("prosemirror-view");
 
   const editor = BlockNoteEditor.create();
-  const div = document.createElement("div");
-  editor.mount(div);
   const blocks = await editor.tryParseHTMLToBlocks(html);
 
   const snapshotPath = "./__snapshots__/paste/" + snapshotName + ".json";
@@ -55,11 +53,9 @@ async function parseHTMLAndCompareSnapshots(
   //     },
   //   } as any);
 
-  const pastedBlocks = editor.document;
+  const pastedBlocks = editor.topLevelBlocks;
   pastedBlocks.pop(); // trailing paragraph
   expect(pastedBlocks).toStrictEqual(blocks);
-
-  editor.mount(undefined);
 }
 
 describe("Parse HTML", () => {

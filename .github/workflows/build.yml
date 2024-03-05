@@ -11,14 +11,14 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v3
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v3
         with:
-          node-version: "20.x"
+          node-version: "18.x"
 
       - name: Cache node modules
-        uses: actions/cache@v4
+        uses: actions/cache@v3
         env:
           cache-name: cache-node-modules
         with:
@@ -32,7 +32,7 @@ jobs:
 
       - name: cache playwright
         id: playwright-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v3
         with:
           path: ~/.cache/ms-playwright
           key: pw-new-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
@@ -70,7 +70,7 @@ jobs:
         working-directory: ./tests
         run: npx playwright test
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v3
         if: always()
         with:
           name: playwright-report
@@ -80,5 +80,5 @@ jobs:
       - name: Upload webpack stats artifact (editor)
         uses: relative-ci/agent-upload-artifact-action@v1
         with:
-          webpackStatsFile: ./playground/dist/webpack-stats.json
+          webpackStatsFile: ./examples/editor/dist/webpack-stats.json
           artifactName: relative-ci-artifacts-editor

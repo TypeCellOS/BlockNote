@@ -1,16 +1,15 @@
 import fs from "node:fs";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { PartialBlock } from "../../../blocks/defaultBlocks";
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
-import { BlockSchema } from "../../../schema/blocks/types";
+import { BlockSchema, PartialBlock } from "../../../schema/blocks/types";
 import { InlineContentSchema } from "../../../schema/inlineContent/types";
 import { StyleSchema } from "../../../schema/styles/types";
+import { partialBlocksToBlocksForTesting } from "../../testUtil/partialBlockTestUtil";
 import { customBlocksTestCases } from "../../testUtil/cases/customBlocks";
 import { customInlineContentTestCases } from "../../testUtil/cases/customInlineContent";
 import { customStylesTestCases } from "../../testUtil/cases/customStyles";
 import { defaultSchemaTestCases } from "../../testUtil/cases/defaultSchema";
-import { partialBlocksToBlocksForTesting } from "../../testUtil/partialBlockTestUtil";
 
 async function convertToMarkdownAndCompareSnapshots<
   B extends BlockSchema,
@@ -23,7 +22,7 @@ async function convertToMarkdownAndCompareSnapshots<
   snapshotName: string
 ) {
   const fullBlocks = partialBlocksToBlocksForTesting(
-    editor.schema.blockSchema,
+    editor.blockSchema,
     blocks
   );
   const md = await editor.blocksToMarkdownLossy(fullBlocks);
@@ -57,15 +56,12 @@ describe("markdownExporter", () => {
   for (const testCase of testCases) {
     describe("Case: " + testCase.name, () => {
       let editor: BlockNoteEditor<any, any, any>;
-      const div = document.createElement("div");
 
       beforeEach(() => {
         editor = testCase.createEditor();
-        editor.mount(div);
       });
 
       afterEach(() => {
-        editor.mount(undefined);
         editor._tiptapEditor.destroy();
         editor = undefined as any;
 

@@ -1,0 +1,9 @@
+{
+  "playground": true,
+  "docs": true,
+  "group": "Advanced Examples",
+  "order": 1,
+  "dependencies": {
+    "@mantine/core": "^7.4.2"
+  }
+}

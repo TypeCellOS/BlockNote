@@ -2,12 +2,14 @@ import { Mark, Node, Schema } from "@tiptap/pm/model";
 
 import UniqueID from "../../extensions/UniqueID/UniqueID";
 import type {
+  Block,
   BlockSchema,
   CustomInlineContentConfig,
   CustomInlineContentFromConfig,
   InlineContent,
   InlineContentFromConfig,
   InlineContentSchema,
+  PartialBlock,
   PartialCustomInlineContentFromConfig,
   PartialInlineContent,
   PartialLink,
@@ -19,7 +21,6 @@ import type {
 } from "../../schema";
 import { getBlockInfo } from "../getBlockInfoFromPos";
 
-import type { Block, PartialBlock } from "../../blocks/defaultBlocks";
 import {
   isLinkInlineContent,
   isPartialLinkInlineContent,
