@@ -1,0 +1,10 @@
+{
+  "cleanUrls": true,
+  "redirects": [
+    {
+      "source": "/docs",
+      "destination": "https://www.blocknotejs.org/docs/introduction",
+      "permanent": true
+    }
+  ]
+}

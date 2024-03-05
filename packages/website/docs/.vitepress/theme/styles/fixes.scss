@@ -1,0 +1,57 @@
+// Remove nav border
+.VPNavBar {
+  border-bottom: none !important;
+}
+
+// No content-body transition (background-color fix)
+.VPNavBar .content-body {
+  transition: none !important;
+}
+
+// Correct max logo height
+.VPNavBarTitle img.logo {
+  height: 34px;
+}
+
+// Fix enormous line-height of navbar items
+.VPNavBarMenu .VPNavBarMenuLink {
+  min-height: var(--vp-nav-height-mobile);
+  line-height: 1.32;
+  @media (min-width: 960px) {
+    min-height: var(--vp-nav-height-desktop);
+  }
+}
+
+// Don't clip text in the outline
+.VPDocAsideOutline .outline-link {
+  white-space: normal;
+  text-overflow: initial;
+  padding: 5px 0;
+  font-size: 13px;
+  line-height: 18px;
+}
+
+// We would like to have single pages in the sidebar (e.g. API Reference, Enterprise).
+// VitPress expects to have you section title text + items and when you only have one item it looks like there are extra spacing.
+// These styles are to adjust spacing between groups. 
+#VPSidebarNav .group {
+  padding-bottom: 11px;
+}
+
+#VPSidebarNav .group+.group {
+  margin-top: 0px;
+}
+
+.VPSidebarGroup.collapsed {
+  margin-bottom: 11px;
+}
+
+.VPSidebarGroup.collapsible.collapsed .items {
+  margin-bottom: -14px;
+}
+
+// move search away from logo
+.VPNavBarSearch.search {
+  justify-content: flex-end;
+  margin-right: 32px;
+}

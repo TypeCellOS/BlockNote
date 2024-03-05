@@ -1,6 +1,7 @@
 import {
   BlockNoteEditor,
-  BlockNoteSchema,
+  BlockSchemaFromSpecs,
+  BlockSpecs,
   DefaultInlineContentSchema,
   DefaultStyleSchema,
   EditorTestCases,
@@ -12,7 +13,7 @@ import { createReactBlockSpec } from "../../schema/ReactBlockSpec";
 
 const ReactCustomParagraph = createReactBlockSpec(
   {
-    type: "reactCustomParagraph",
+    type: "reactCustomParagraph" as const,
     propSchema: defaultProps,
     content: "inline",
   },
@@ -28,7 +29,7 @@ const ReactCustomParagraph = createReactBlockSpec(
 
 const SimpleReactCustomParagraph = createReactBlockSpec(
   {
-    type: "simpleReactCustomParagraph",
+    type: "simpleReactCustomParagraph" as const,
     propSchema: defaultProps,
     content: "inline",
   },
@@ -39,23 +40,21 @@ const SimpleReactCustomParagraph = createReactBlockSpec(
   }
 );
 
-const schema = BlockNoteSchema.create({
-  blockSpecs: {
-    ...defaultBlockSpecs,
-    reactCustomParagraph: ReactCustomParagraph,
-    simpleReactCustomParagraph: SimpleReactCustomParagraph,
-  },
-});
+const customSpecs = {
+  ...defaultBlockSpecs,
+  reactCustomParagraph: ReactCustomParagraph,
+  simpleReactCustomParagraph: SimpleReactCustomParagraph,
+} satisfies BlockSpecs;
 
 export const customReactBlockSchemaTestCases: EditorTestCases<
-  typeof schema.blockSchema,
+  BlockSchemaFromSpecs<typeof customSpecs>,
   DefaultInlineContentSchema,
   DefaultStyleSchema
 > = {
   name: "custom react block schema",
   createEditor: () => {
     return BlockNoteEditor.create({
-      schema,
+      blockSpecs: customSpecs,
       uploadFile: uploadToTmpFilesDotOrg_DEV_ONLY,
     });
   },

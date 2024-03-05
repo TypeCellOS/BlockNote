@@ -1,5 +1,5 @@
 import React from "react";
-import type { Project } from "../util";
+import type { Project } from "../gen";
 
 const template = (project: Project) => (
   <html lang="en">
@@ -10,7 +10,7 @@ const template = (project: Project) => (
         }}></script>
       <meta charSet="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>{project.title}</title>
+      <title>{project.name}</title>
     </head>
     <body>
       <div id="root"></div>

@@ -1,0 +1,10 @@
+{
+  "playground": true,
+  "docs": false,
+  "group": "Advanced",
+  "order": 1,
+  "dependencies": {
+    "y-partykit": "^0.0.10",
+    "yjs": "^13.6.1"
+  }
+}

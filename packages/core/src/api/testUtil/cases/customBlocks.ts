@@ -1,19 +1,19 @@
 import { EditorTestCases } from "../index";
 
-import {
-  imagePropSchema,
-  renderImage,
-} from "../../../blocks/ImageBlockContent/ImageBlockContent";
-import { uploadToTmpFilesDotOrg_DEV_ONLY } from "../../../blocks/ImageBlockContent/uploadToTmpFilesDotOrg_DEV_ONLY";
+import { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
 import {
   DefaultInlineContentSchema,
   DefaultStyleSchema,
   defaultBlockSpecs,
 } from "../../../blocks/defaultBlocks";
 import { defaultProps } from "../../../blocks/defaultProps";
-import { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
-import { BlockNoteSchema } from "../../../editor/BlockNoteSchema";
+import {
+  imagePropSchema,
+  renderImage,
+} from "../../../blocks/ImageBlockContent/ImageBlockContent";
+import { uploadToTmpFilesDotOrg_DEV_ONLY } from "../../../blocks/ImageBlockContent/uploadToTmpFilesDotOrg_DEV_ONLY";
 import { createBlockSpec } from "../../../schema/blocks/createSpec";
+import { BlockSchemaFromSpecs, BlockSpecs } from "../../../schema/blocks/types";
 
 // This is a modified version of the default image block that does not implement
 // a `serialize` function. It's used to test if the custom serializer by default
@@ -74,24 +74,22 @@ const SimpleCustomParagraph = createBlockSpec(
   }
 );
 
-const schema = BlockNoteSchema.create({
-  blockSpecs: {
-    ...defaultBlockSpecs,
-    simpleImage: SimpleImage,
-    customParagraph: CustomParagraph,
-    simpleCustomParagraph: SimpleCustomParagraph,
-  },
-});
+const customSpecs = {
+  ...defaultBlockSpecs,
+  simpleImage: SimpleImage,
+  customParagraph: CustomParagraph,
+  simpleCustomParagraph: SimpleCustomParagraph,
+} satisfies BlockSpecs;
 
 export const customBlocksTestCases: EditorTestCases<
-  typeof schema.blockSchema,
+  BlockSchemaFromSpecs<typeof customSpecs>,
   DefaultInlineContentSchema,
   DefaultStyleSchema
 > = {
   name: "custom blocks schema",
   createEditor: () => {
     return BlockNoteEditor.create({
-      schema,
+      blockSpecs: customSpecs,
       uploadFile: uploadToTmpFilesDotOrg_DEV_ONLY,
     });
   },
@@ -100,7 +98,7 @@ export const customBlocksTestCases: EditorTestCases<
       name: "simpleImage/button",
       blocks: [
         {
-          type: "simpleImage",
+          type: "simpleImage" as const,
         },
       ],
     },

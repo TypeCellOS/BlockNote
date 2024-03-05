@@ -1,5 +1,5 @@
-import { BlockNoteEditor, createBlockSpec } from "@blocknote/core";
-
+import { BlockSchemaWithBlock, createBlockSpec } from "@blocknote/core";
+import { ReactSlashMenuItem } from "@blocknote/react";
 import { RiLayout5Fill } from "react-icons/ri";
 
 export const Embed = createBlockSpec(
@@ -28,9 +28,13 @@ export const Embed = createBlockSpec(
   }
 );
 
-export const insertEmbed = {
-  title: "Insert Embedded Website",
-  onItemClick: (editor: BlockNoteEditor<any, any, any>) => {
+export const insertEmbed: ReactSlashMenuItem<
+  BlockSchemaWithBlock<"embed", typeof Embed.config>,
+  any,
+  any
+> = {
+  name: "Insert Embedded Website",
+  execute: (editor) => {
     const src = prompt("Enter website URL");
     editor.insertBlocks(
       [
@@ -45,8 +49,8 @@ export const insertEmbed = {
       "after"
     );
   },
-  subtext: "Insert an embedded website",
-  icon: <RiLayout5Fill />,
   aliases: ["embedded", "website", "site", "link", "url"],
-  group: "Other",
+  group: "Media",
+  icon: <RiLayout5Fill />,
+  hint: "Insert an embedded website",
 };

@@ -98,8 +98,8 @@ export function createInlineContentSpec<
       const output = inlineContentImplementation.render(
         nodeToCustomInlineContent(
           node,
-          editor.schema.inlineContentSchema,
-          editor.schema.styleSchema
+          editor.inlineContentSchema,
+          editor.styleSchema
         ) as any as InlineContentFromConfig<T, S> // TODO: fix cast
       );
 

@@ -13,7 +13,7 @@ export const defaultColorScheme = [
   "#000000",
 ];
 
-export const lightDefaultTheme = {
+export const lightDefaultTheme: Theme = {
   colors: {
     editor: {
       text: defaultColorScheme[5],
@@ -84,9 +84,9 @@ export const lightDefaultTheme = {
   borderRadius: 6,
   fontFamily:
     '"Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Open Sans", "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif',
-} satisfies Theme;
+};
 
-export const darkDefaultTheme = {
+export const darkDefaultTheme: Theme = {
   colors: {
     editor: {
       text: defaultColorScheme[2],
@@ -156,4 +156,4 @@ export const darkDefaultTheme = {
   },
   borderRadius: lightDefaultTheme.borderRadius,
   fontFamily: lightDefaultTheme.fontFamily,
-} satisfies Theme;
+};

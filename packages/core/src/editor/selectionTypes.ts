@@ -1,5 +1,9 @@
-import { Block } from "../blocks/defaultBlocks";
-import { BlockSchema, InlineContentSchema, StyleSchema } from "../schema";
+import {
+  Block,
+  BlockSchema,
+  InlineContentSchema,
+  StyleSchema,
+} from "../schema";
 
 export type Selection<
   BSchema extends BlockSchema,

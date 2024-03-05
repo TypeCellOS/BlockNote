@@ -1,18 +1,18 @@
 /** Define the main block types **/
-import type { Extension, Node } from "@tiptap/core";
+import { Extension, Node } from "@tiptap/core";
 
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
-import type {
+import {
   InlineContent,
   InlineContentSchema,
   PartialInlineContent,
 } from "../inlineContent/types";
-import type { PropSchema, Props } from "../propTypes";
-import type { StyleSchema } from "../styles/types";
+import { PropSchema, Props } from "../propTypes";
+import { StyleSchema } from "../styles/types";
 
 export type BlockNoteDOMElement =
   | "editor"
-  | "block"
+  | "blockContainer"
   | "blockGroup"
   | "blockContent"
   | "inlineContent";
@@ -41,7 +41,7 @@ export type TiptapBlockImplementation<
   node: Node;
   toInternalHTML: (
     block: BlockFromConfigNoChildren<T, I, S> & {
-      children: BlockNoDefaults<B, I, S>[];
+      children: Block<B, I, S>[];
     },
     editor: BlockNoteEditor<B, I, S>
   ) => {
@@ -50,7 +50,7 @@ export type TiptapBlockImplementation<
   };
   toExternalHTML: (
     block: BlockFromConfigNoChildren<T, I, S> & {
-      children: BlockNoDefaults<B, I, S>[];
+      children: Block<B, I, S>[];
     },
     editor: BlockNoteEditor<B, I, S>
   ) => {
@@ -142,7 +142,7 @@ export type BlockFromConfig<
   I extends InlineContentSchema,
   S extends StyleSchema
 > = BlockFromConfigNoChildren<B, I, S> & {
-  children: BlockNoDefaults<BlockSchema, I, S>[];
+  children: Block<BlockSchema, I, S>[];
 };
 
 // Converts each block spec into a Block object without children. We later merge
@@ -158,12 +158,12 @@ type BlocksWithoutChildren<
 
 // Converts each block spec into a Block object without children, merges them
 // into a union type, and adds a children property
-export type BlockNoDefaults<
+export type Block<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
 > = BlocksWithoutChildren<BSchema, I, S>[keyof BSchema] & {
-  children: BlockNoDefaults<BSchema, I, S>[];
+  children: Block<BSchema, I, S>[];
 };
 
 export type SpecificBlock<
@@ -172,7 +172,7 @@ export type SpecificBlock<
   I extends InlineContentSchema,
   S extends StyleSchema
 > = BlocksWithoutChildren<BSchema, I, S>[BType] & {
-  children: BlockNoDefaults<BSchema, I, S>[];
+  children: Block<BSchema, I, S>[];
 };
 
 /** CODE FOR PARTIAL BLOCKS, analogous to above
@@ -219,7 +219,7 @@ type PartialBlocksWithoutChildren<
   >;
 };
 
-export type PartialBlockNoDefaults<
+export type PartialBlock<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
@@ -229,7 +229,7 @@ export type PartialBlockNoDefaults<
   S
 >[keyof PartialBlocksWithoutChildren<BSchema, I, S>] &
   Partial<{
-    children: PartialBlockNoDefaults<BSchema, I, S>[];
+    children: PartialBlock<BSchema, I, S>[];
   }>;
 
 export type SpecificPartialBlock<
@@ -238,7 +238,7 @@ export type SpecificPartialBlock<
   BType extends keyof BSchema,
   S extends StyleSchema
 > = PartialBlocksWithoutChildren<BSchema, I, S>[BType] & {
-  children?: BlockNoDefaults<BSchema, I, S>[];
+  children?: Block<BSchema, I, S>[];
 };
 
 export type PartialBlockFromConfig<
@@ -246,7 +246,7 @@ export type PartialBlockFromConfig<
   I extends InlineContentSchema,
   S extends StyleSchema
 > = PartialBlockFromConfigNoChildren<B, I, S> & {
-  children?: BlockNoDefaults<BlockSchema, I, S>[];
+  children?: Block<BlockSchema, I, S>[];
 };
 
 export type BlockIdentifier = { id: string } | string;

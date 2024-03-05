@@ -71,9 +71,9 @@ export const serializeNodeInner = <
         const blockContent = toHTML(
           nodeToBlock(
             node,
-            editor.schema.blockSchema,
-            editor.schema.inlineContentSchema,
-            editor.schema.styleSchema,
+            editor.blockSchema,
+            editor.inlineContentSchema,
+            editor.styleSchema,
             editor.blockCache
           ),
           editor as any

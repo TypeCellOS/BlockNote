@@ -1,4 +1,4 @@
-import type { Project } from "../util";
+import type { Project } from "../gen";
 
 const template = (
   project: Project

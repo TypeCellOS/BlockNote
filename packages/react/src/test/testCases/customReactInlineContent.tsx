@@ -1,9 +1,10 @@
 import {
   BlockNoteEditor,
-  BlockNoteSchema,
   DefaultBlockSchema,
   DefaultStyleSchema,
   EditorTestCases,
+  InlineContentSchemaFromSpecs,
+  InlineContentSpecs,
   defaultInlineContentSpecs,
   uploadToTmpFilesDotOrg_DEV_ONLY,
 } from "@blocknote/core";
@@ -43,24 +44,22 @@ const tag = createReactInlineContentSpec(
   }
 );
 
-const schema = BlockNoteSchema.create({
-  inlineContentSpecs: {
-    ...defaultInlineContentSpecs,
-    tag,
-    mention,
-  },
-});
+const customReactInlineContent = {
+  ...defaultInlineContentSpecs,
+  tag,
+  mention,
+} satisfies InlineContentSpecs;
 
 export const customReactInlineContentTestCases: EditorTestCases<
   DefaultBlockSchema,
-  typeof schema.inlineContentSchema,
+  InlineContentSchemaFromSpecs<typeof customReactInlineContent>,
   DefaultStyleSchema
 > = {
   name: "custom react inline content schema",
   createEditor: () => {
     return BlockNoteEditor.create({
       uploadFile: uploadToTmpFilesDotOrg_DEV_ONLY,
-      schema,
+      inlineContentSpecs: customReactInlineContent,
     });
   },
   documents: [
@@ -77,7 +76,7 @@ export const customReactInlineContentTestCases: EditorTestCases<
                 user: "Matthew",
               },
               content: undefined,
-            } as const,
+            } as any,
           ],
         },
       ],
@@ -93,7 +92,7 @@ export const customReactInlineContentTestCases: EditorTestCases<
               type: "tag",
               // props: {},
               content: "BlockNote",
-            } as const,
+            } as any,
           ],
         },
       ],

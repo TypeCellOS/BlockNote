@@ -1,0 +1,9 @@
+@import "./vars.scss";
+@import "./fonts.scss";
+@import "./colors.scss";
+@import "./fixes.scss";
+@import "./content.scss";
+
+.sp-layout > .sp-stack {
+  min-width: 100%;
+}
