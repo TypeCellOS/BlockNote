@@ -11,7 +11,7 @@ blocknote
 └── tests               - Playwright end to end tests
 ```
 
-An introduction into the BlockNote Prosemirror schema can be found in [packages/core/ARCHITECTURE.md](https://github.com/TypeCellOS/BlockNote/blob/main/packages/core/ARCHITECTURE.md).
+An introduction into the BlockNote Prosemirror schema can be found in [packages/core/src/pm-nodes/README.md](https://github.com/TypeCellOS/BlockNote/blob/main/packages/core/src/pm-nodes/README.md).
 
 ## Running
 
