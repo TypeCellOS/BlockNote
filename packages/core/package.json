@@ -37,6 +37,10 @@
     "./style.css": {
       "import": "./dist/style.css",
       "require": "./dist/style.css"
+    },
+    "./fonts/inter.css": {
+      "import": "./src/fonts/inter.css",
+      "require": "./src/fonts/inter.css"
     }
   },
   "scripts": {

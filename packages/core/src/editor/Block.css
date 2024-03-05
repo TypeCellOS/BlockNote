@@ -305,11 +305,8 @@ NESTED BLOCKS
 }
 
 /* PLACEHOLDERS*/
-
-.bn-is-empty .bn-inline-content:before,
-.bn-is-filter .bn-inline-content:before {
+.bn-inline-content:has(> .ProseMirror-trailingBreak):before {
   /*float: left; */
-  content: "";
   pointer-events: none;
   height: 0;
   /* width: 0; */
@@ -317,33 +314,7 @@ NESTED BLOCKS
   font-style: italic;
 }
 
-/* TODO: would be nicer if defined from code */
-
-.bn-block-content.bn-is-empty.bn-has-anchor .bn-inline-content:before {
-  content: "Enter text or type '/' for commands";
-}
-
-.bn-block-content.bn-is-filter.bn-has-anchor .bn-inline-content:before {
-  content: "Type to filter";
-}
-
-.bn-block-content[data-content-type="heading"].bn-is-empty
-  .bn-inline-content:before {
-  content: "Heading";
-}
-
-.bn-block-content[data-content-type="bulletListItem"].bn-is-empty
-  .bn-inline-content:before,
-.bn-block-content[data-content-type="numberedListItem"].bn-is-empty
-  .bn-inline-content:before {
-  content: "List";
-}
-
-.bn-is-empty
-  .bn-block-content[data-content-type="captionedImage"]
-  .bn-inline-content:before {
-  content: "Caption";
-}
+/* TODO: should this be here? */
 
 /* TEXT COLORS */
 [data-text-color="gray"] {

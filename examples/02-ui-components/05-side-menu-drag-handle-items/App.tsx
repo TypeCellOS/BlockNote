@@ -1,3 +1,4 @@
+import "@blocknote/core/fonts/inter.css";
 import {
   BlockColorsItem,
   BlockNoteView,

@@ -19,6 +19,7 @@ export * from "./components/FormattingToolbar/mantine/FormattingToolbar";
 
 export * from "./components/HyperlinkToolbar/HyperlinkToolbarController";
 export * from "./components/HyperlinkToolbar/HyperlinkToolbarProps";
+export * from "./components/HyperlinkToolbar/mantine/EditHyperlinkMenu/EditHyperlinkMenu";
 export * from "./components/HyperlinkToolbar/mantine/HyperlinkToolbar";
 
 export * from "./components/SideMenu/SideMenuController";

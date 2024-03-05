@@ -72,6 +72,8 @@ export type BlockNoteEditorOptions<
   // TODO: Figure out if enableBlockNoteExtensions/disableHistoryExtension are needed and document them.
   enableBlockNoteExtensions: boolean;
 
+  placeholders: Record<string | "default", string>;
+
   /**
    * An object containing attributes that should be added to HTML elements of the editor.
    *
@@ -243,6 +245,7 @@ export class BlockNoteEditor<
 
     const extensions = getBlockNoteExtensions({
       editor: this,
+      placeholders: newOptions.placeholders,
       domAttributes: newOptions.domAttributes || {},
       blockSchema: this.schema.blockSchema,
       blockSpecs: this.schema.blockSpecs,

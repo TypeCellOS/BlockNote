@@ -35,6 +35,7 @@ See our homepage @ [https://www.blocknotejs.org](https://www.blocknotejs.org/) o
 
 ```typescript
 import { BlockNoteView, useCreateBlockNote } from "@blocknote/react";
+import "@blocknote/core/fonts/inter.css";
 import "@blocknote/react/style.css";
 
 function App() {
