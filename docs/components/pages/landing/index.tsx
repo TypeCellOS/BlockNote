@@ -1,13 +1,11 @@
-import { Features } from "./features/Features";
-import { Hero } from "./hero/Hero";
-import { Letter } from "./letter/Letter";
-
 import { Community } from "@/components/pages/landing/community/Community";
 import { FadeIn } from "@/components/pages/landing/shared/FadeIn";
-import { Sponsors } from "@/components/pages/landing/sponsors/Sponsors";
-import FAQ from "./FAQ";
-import "./gradients.css";
-import "./styles.css";
+import { Hero } from "@/components/pages/landing/hero/Hero";
+import { Features } from "@/components/pages/landing/features/Features";
+import { Letter } from "@/components/pages/landing/letter/Letter";
+import { FAQ } from "@/components/pages/landing/faq/FAQ";
+import "@/components/pages/landing/gradients.css";
+import "@/components/pages/landing/styles.css";
 
 // TODO: Cleanup
 export function BlockNoteHome() {
@@ -33,9 +31,11 @@ export function BlockNoteHome() {
           <div className={"section-border"} />
         </FadeIn>
         <Community />
-
-        <Sponsors />
         {/*</GradientSectionBorder>*/}
+        <FadeIn noVertical>
+          {/* TODO: Fix border color */}
+          <div className={"h-px w-full bg-gray-500 opacity-20"} />
+        </FadeIn>
         <FAQ />
       </main>
     </>

@@ -11,7 +11,7 @@ export type SponsorCardProps = {
 
 export function SponsorCard(props: SponsorCardProps) {
   return (
-    <div className="relative flex aspect-video max-w-[244px] items-center justify-center bg-gray-100 dark:bg-gray-900 md:w-[244px]">
+    <div className="relative flex aspect-video max-w-[238px] items-center justify-center bg-gray-100 dark:bg-gray-900 md:w-[238px]">
       <Image
         className={"block h-1/3 w-3/5 object-contain dark:hidden"}
         src={props.logo.light}

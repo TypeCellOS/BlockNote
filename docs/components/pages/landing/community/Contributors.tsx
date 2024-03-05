@@ -1,5 +1,9 @@
 import { Link } from "nextra-theme-docs";
 import Image from "next/image";
+import { DiscordIcon, GitHubIcon } from "nextra/icons";
+import { SectionSubHeader } from "@/components/pages/landing/shared/Headings";
+import { JoinButton } from "@/components/pages/landing/community/JoinButton";
+import { FadeIn } from "@/components/pages/landing/shared/FadeIn";
 
 // TODO: Use GitHub API
 function fetchContributors(): { username: string; avatarUrl: string }[] {
@@ -80,23 +84,48 @@ function fetchContributors(): { username: string; avatarUrl: string }[] {
 }
 
 export const Contributors = () => (
-  <div className="flex max-w-screen-md flex-wrap items-center justify-center gap-3 lg:max-w-screen-lg">
-    {fetchContributors().map((contributor) => (
-      // <Tooltip key={contributor.id} content={contributor.login}>
-      <Link
-        key={contributor.username}
-        href={`https://github.com/${contributor.username}`}
-        rel="nofollow noreferrer noopener"
-        target="_blank">
-        <Image
-          src={contributor.avatarUrl}
-          alt={`${contributor.username} avatar`}
-          className="size-10 rounded-full sm:size-12 lg:size-14"
-          width={64}
-          height={64}
-        />
-      </Link>
-      // </Tooltip>
-    ))}
+  <div className="flex max-w-screen-md flex-col gap-4 lg:max-w-screen-lg">
+    <FadeIn>
+      <SectionSubHeader>Contributors</SectionSubHeader>
+    </FadeIn>
+    <FadeIn className="flex flex-wrap items-center justify-center gap-3">
+      {fetchContributors().map((contributor) => (
+        // <Tooltip key={contributor.id} content={contributor.login}>
+        <Link
+          key={contributor.username}
+          href={`https://github.com/${contributor.username}`}
+          rel="nofollow noreferrer noopener"
+          target="_blank">
+          <Image
+            src={contributor.avatarUrl}
+            alt={`${contributor.username} avatar`}
+            className="size-12 rounded-full md:size-14"
+            width={64}
+            height={64}
+          />
+        </Link>
+        // </Tooltip>
+      ))}
+    </FadeIn>
+    <FadeIn className={"flex flex-col gap-2"}>
+      <JoinButton
+        text={"Become a GitHub contributor"}
+        subtext={
+          "Join the community of BlockNote developers by contributing code and supporting the project."
+        }
+        icon={GitHubIcon}
+        linkTitle={"See our repository"}
+        linkUrl={"https://github.com/TypeCellOS/BlockNote"}
+      />
+      <JoinButton
+        text={"Join the Discord community"}
+        subtext={
+          "Ask questions, discuss features, and share your work with other BlockNote users on Discord."
+        }
+        icon={DiscordIcon}
+        linkTitle={"Join our Server"}
+        linkUrl={"https://discord.gg/Qc2QTTH5dF"}
+      />
+    </FadeIn>
   </div>
 );
