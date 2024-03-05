@@ -1,4 +1,5 @@
 import { BlockNoteSchema, defaultInlineContentSpecs } from "@blocknote/core";
+import "@blocknote/core/fonts/inter.css";
 import {
   BlockNoteView,
   createReactInlineContentSpec,
