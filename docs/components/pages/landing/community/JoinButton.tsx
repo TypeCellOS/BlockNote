@@ -1,7 +1,7 @@
 import { Link } from "nextra-theme-docs";
 import { ComponentProps, FC } from "react";
 
-export const Join = (props: {
+export const JoinButton = (props: {
   text: string;
   subtext: string;
   icon: FC<ComponentProps<"svg">>;
@@ -18,14 +18,14 @@ export const Join = (props: {
       <div className={"hidden md:block md:w-fit"}>
         <Icon width={30} />
       </div>
-      <div className={"flex w-full flex-col"}>
+      <div className={"flex w-full flex-col items-start justify-start"}>
         <h2
           className={
             "text-left text-xl font-bold tracking-tight text-gray-900 dark:text-white"
           }>
           {props.text}
         </h2>
-        <p>{props.subtext}</p>
+        <p className={"text-left"}>{props.subtext}</p>
       </div>
       <Link
         href={props.linkUrl}

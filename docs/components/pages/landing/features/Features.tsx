@@ -1,19 +1,23 @@
 import {
-  SectionHeader,
-  SectionSubtext,
-} from "@/components/pages/home-shared/Headings";
+  RiMenuAddFill,
+  RiPaintBrushFill,
+  RiTeamFill,
+  RiIndentIncrease,
+  RiSettings3Fill,
+} from "react-icons/ri";
+import {
+  BiLogoTypescript,
+  BiLogoJavascript,
+  BiLogoMarkdown,
+  BiSolidWrench,
+} from "react-icons/bi";
+import { Section } from "@/components/pages/landing/shared/Section";
 import {
   FeatureCard,
   FeatureCardProps,
 } from "@/components/pages/landing/features/FeatureCard";
 import { FadeIn } from "@/components/pages/landing/shared/FadeIn";
-import {
-  RiJavascriptFill,
-  RiMarkdownFill,
-  RiMenuAddFill,
-  RiPaintBrushFill,
-  RiTeamFill,
-} from "react-icons/ri";
+import { SectionIntro } from "@/components/pages/landing/shared/Headings";
 
 import slashMenuImageLight from "../../../../public/img/screenshots/slash_menu.png";
 import slashMenuImageDark from "../../../../public/img/screenshots/slash_menu_dark.png";
@@ -24,7 +28,7 @@ export const featuresCardData: FeatureCardProps[] = [
     title: "Works out of the box",
     description:
       "Built-in components like menus and toolbars instantly provide a familiar, Notion-style user experience - but are also fully customizable.",
-    icon: RiMenuAddFill,
+    icon: RiSettings3Fill,
     thumbnail: {
       light: slashMenuImageLight,
       dark: slashMenuImageDark,
@@ -34,7 +38,7 @@ export const featuresCardData: FeatureCardProps[] = [
     title: "Block-based design",
     description:
       "Drag, drop, or nest blocks. The block-based design enables users to create beautiful docs and unlocks a powerful API for engineers.",
-    icon: RiMenuAddFill,
+    icon: RiIndentIncrease,
     thumbnail: {
       light: slashMenuImageLight,
       dark: slashMenuImageDark,
@@ -60,7 +64,7 @@ export const featuresCardData: FeatureCardProps[] = [
     title: "First-class Typescript support",
     description:
       "Get full type safety and autocompletion even when extending your editor with custom blocks and schemas.",
-    icon: RiMenuAddFill,
+    icon: BiLogoTypescript,
   },
   {
     title: "Theming",
@@ -68,44 +72,39 @@ export const featuresCardData: FeatureCardProps[] = [
       "Customize the look and feel of your editor to match your brand. Built-in support for light & dark modes.",
     icon: RiPaintBrushFill,
   },
-
   {
     title: "Markdown & HTML",
     description:
       "Convert documents from BlockNote JSON to and from Markdown and HTML.",
-    icon: RiMarkdownFill,
+    icon: BiLogoMarkdown,
   },
   {
     title: "Prosemirror based",
     description:
       "Builds on top of the battle-tested Prosemirror, but without the steep learning curve.",
-    icon: RiMarkdownFill,
+    icon: BiSolidWrench,
   },
   {
     title: "Vanilla JS",
     description:
       "Not using React? BlockNote also works with vanilla JS for use with other frameworks.",
-    icon: RiJavascriptFill,
+    icon: BiLogoJavascript,
   },
 ];
 
 export function Features() {
   return (
-    <section className="relative flex flex-col items-center gap-9 overflow-hidden py-16 pb-16 font-sans md:pb-24 lg:gap-14 lg:pb-32">
-      {/* <FadeIn noVertical className={"absolute top-0 z-10 h-full w-full"}>
-        <div className={"section-glow h-full w-full"} />
-      </FadeIn> */}
+    <Section className="pb-24 pt-12 xl:pb-32 xl:pt-16">
       <div
         className={
-          "z-20 flex max-w-full flex-col items-center gap-12 px-4 md:max-w-screen-md xl:max-w-none"
+          "z-20 flex max-w-full flex-col items-center gap-12 px-6 md:max-w-screen-md xl:max-w-none"
         }>
-        <FadeIn className="flex max-w-full flex-col items-center gap-2 text-center md:max-w-screen-md md:gap-4">
-          <SectionHeader>Why BlockNote?</SectionHeader>
-          <SectionSubtext>
-            Whether you want extensive customization or a great out-of-the-box
-            experience, BlockNote has you covered:
-          </SectionSubtext>
-        </FadeIn>
+        <SectionIntro
+          header={"Why BlockNote?"}
+          subtext={
+            "Whether you want extensive customization or a great out-of-the-box experience, BlockNote has you covered:"
+          }
+        />
         <FadeIn className="grid max-w-full grid-cols-1 gap-4 md:max-w-screen-md md:grid-cols-2 xl:max-w-none xl:grid-cols-3 xl:gap-6 xl:p-0">
           {featuresCardData.map((feature) => (
             <FeatureCard key={feature.title} {...feature} />
@@ -119,6 +118,6 @@ export function Features() {
           </ul> */}
         </FadeIn>
       </div>
-    </section>
+    </Section>
   );
 }

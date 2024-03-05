@@ -1,21 +1,21 @@
 import cn from "classnames";
-import { FadeIn } from "../shared/FadeIn";
-import { HeroText } from "../../home-shared/Headings";
-import gradients from "../../home-shared/gradients.module.css";
-import Link from "next/link";
-import { CTAButton } from "@/components/CTAButton";
+import { CTAButton } from "@/components/pages/landing/shared/CTAButton";
+import { Section } from "@/components/pages/landing/shared/Section";
+import { FadeIn } from "@/components/pages/landing/shared/FadeIn";
+import { HeroText } from "@/components/pages/landing/shared/Headings";
+import gradients from "@/components/pages/landing/shared/gradients.module.css";
 
 export function Letter() {
   return (
-    <section className="relative flex flex-col items-center gap-14 px-6 py-16 font-sans md:py-24 lg:py-32">
-      <FadeIn noVertical className={"absolute top-0 z-10 h-full w-full"}>
-        <div className={"section-glow h-full w-full"} />
-      </FadeIn>
-      <FadeIn className={"z-20"}>
-        <HeroText>Let&apos;s build</HeroText>
-      </FadeIn>
-      <div className="z-20 flex max-w-xl flex-col leading-6 md:text-lg lg:text-lg">
-        <FadeIn className="opacity-70">
+    <Section gradientBackground className="pb-16 pt-12 xl:pb-24 xl:pt-16">
+      <div
+        className={
+          "z-20 flex max-w-xl flex-col items-center gap-12 px-6 xl:gap-16"
+        }>
+        <FadeIn>
+          <HeroText>Let&apos;s build</HeroText>
+        </FadeIn>
+        <FadeIn className="flex flex-col leading-6 md:text-lg">
           <p>
             When we started building an Open Source Notion alternative, we
             figured: &quot;How hard can it be?&quot;. Pretty hard, it turns out.
@@ -46,69 +46,15 @@ export function Letter() {
             your contributions, feedback, or collaboration!
           </p>
         </FadeIn>
-        <FadeIn
-          className="relative h-2 md:h-12 lg:h-12"
-          noVertical
-          viewTriggerOffset>
-          <span
-            className={cn(
-              "absolute -bottom-8 h-[1px] w-full md:-bottom-4 lg:-bottom-4",
-              gradients.letterLine,
-            )}
-          />
+        <FadeIn className="relative h-px w-full" noVertical viewTriggerOffset>
+          <span className={cn("absolute h-px w-full", gradients.letterLine)} />
         </FadeIn>
-        {/* <FadeIn
-          className="flex items-end justify-center gap-3 md:self-start md:-ml-4 lg:self-start lg:-ml-4 min-w-[300px]"
-          noVertical
-          viewTriggerOffset>
-          <div className="w-24 h-24 min-w-[96px] min-h-[96px] rounded-full border dark:border-white/10 border-black/10 flex items-center justify-center ">
-            <Image
-              alt="Image of Tobias Koopers"
-              className="rounded-full"
-              height={64}
-              src="/images/people/tobiaskoppers.jpg"
-              width={64}
-            />
-          </div>
-          <div className="flex flex-col gap-3 pb-2">
-            <Image
-              alt="Tobias Koppers hand written signature"
-              className="block -mb-3 -ml-3 dark:hidden"
-              height={91 + 16}
-              src="/images/docs/pack/tobias-signature-light.svg"
-              // 16 px added and offset to account for the glow
-              width={173 + 16}
-            />
-            <Image
-              alt="Tobias Koppers hand written signature"
-              className="hidden -mb-3 -ml-3 dark:block"
-              height={91 + 16}
-              src="/images/docs/pack/tobias-signature-dark.svg"
-              // 16 px added and offset to account for the glow
-              width={173 + 16}
-            />
-            <div className="flex gap-2 flex-wrap text-sm leading-none text-[#888888] max-w-[156px] md:max-w-xl lg:max-w-xl">
-              <p className="font-bold">Tobias Koppers</p>
-              <p>Creator of Webpack</p>
-            </div>
-          </div>
-        </FadeIn> */}
-      </div>
-      <FadeIn
-        className="relative z-20 mt-16 flex w-full justify-center"
-        noVertical>
-        <div className="w-full max-w-[180px]">
+        <FadeIn noVertical>
           <CTAButton href={"/docs"} hoverGlow={true}>
             Start Building
           </CTAButton>
-        </div>
-        {/*<Gradient*/}
-        {/*  className="bottom-[-200px] -z-10 opacity-20"*/}
-        {/*  conic*/}
-        {/*  height={300}*/}
-        {/*  width={1200}*/}
-        {/*/>*/}
-      </FadeIn>
-    </section>
+        </FadeIn>
+      </div>
+    </Section>
   );
 }

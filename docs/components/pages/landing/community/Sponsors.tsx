@@ -1,9 +1,9 @@
 import {
   SponsorCard,
   SponsorCardProps,
-} from "@/components/pages/landing/sponsors/SponsorCard";
-import { SectionHeader } from "../../home-shared/Headings";
-import { FadeIn } from "../shared/FadeIn";
+} from "@/components/pages/landing/community/SponsorCard";
+import { FadeIn } from "@/components/pages/landing/shared/FadeIn";
+import { SectionSubHeader } from "@/components/pages/landing/shared/Headings";
 
 import fermatDark from "../../../../public/img/sponsors/fermat-dark.png";
 import fermatLight from "../../../../public/img/sponsors/fermat.png";
@@ -67,23 +67,15 @@ export const sponsorsCardData: SponsorCardProps[] = [
 
 export function Sponsors() {
   return (
-    <section className="relative flex flex-col items-center gap-9 overflow-hidden py-16 pb-16 font-sans md:pb-24 lg:gap-14 lg:pb-32">
-      {/* <FadeIn noVertical className={"absolute top-0 z-10 h-full w-full"}>
-        <div className={"section-glow h-full w-full"} />
-      </FadeIn> */}
-      <div
-        className={
-          "z-20 flex w-fit max-w-full flex-col items-center gap-12 px-4"
-        }>
-        <FadeIn className="">
-          <SectionHeader>Sponsors &amp; users</SectionHeader>
-        </FadeIn>
-        <FadeIn className="grid grid-cols-2 gap-0.5 overflow-hidden rounded-2xl md:grid-cols-3">
-          {sponsorsCardData.map((sponsor) => (
-            <SponsorCard key={sponsor.name} {...sponsor} />
-          ))}
-        </FadeIn>
-      </div>
-    </section>
+    <div className={"flex w-fit max-w-full flex-col items-center gap-4"}>
+      <FadeIn>
+        <SectionSubHeader>Sponsors &amp; users</SectionSubHeader>
+      </FadeIn>
+      <FadeIn className="grid grid-cols-2 gap-0.5 overflow-hidden rounded-2xl md:grid-cols-3">
+        {sponsorsCardData.map((sponsor) => (
+          <SponsorCard key={sponsor.name} {...sponsor} />
+        ))}
+      </FadeIn>
+    </div>
   );
 }
