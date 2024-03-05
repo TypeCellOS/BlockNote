@@ -3,7 +3,7 @@
   "homepage": "https://github.com/TypeCellOS/BlockNote",
   "private": false,
   "license": "MPL-2.0",
-  "version": "0.11.2",
+  "version": "0.12.0",
   "files": [
     "dist",
     "types",
@@ -50,7 +50,7 @@
     "clean": "rimraf dist && rimraf types"
   },
   "dependencies": {
-    "@blocknote/core": "^0.11.2",
+    "@blocknote/core": "^0.12.0",
     "@floating-ui/react": "^0.26.4",
     "@mantine/core": "^7.5.0",
     "@mantine/hooks": "^7.5.0",
