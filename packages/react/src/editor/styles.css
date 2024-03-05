@@ -209,7 +209,7 @@
 }
 
 /* Mantine Tooltip component base styles */
-.mantine-Tooltip-tooltip {
+.bn-container .mantine-Tooltip-tooltip {
   background-color: transparent;
   border: none;
   border-radius: 0;
