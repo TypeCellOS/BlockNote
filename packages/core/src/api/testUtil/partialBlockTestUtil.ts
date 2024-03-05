@@ -1,10 +1,6 @@
+import { Block, PartialBlock } from "../../blocks/defaultBlocks";
 import UniqueID from "../../extensions/UniqueID/UniqueID";
-import {
-  Block,
-  BlockSchema,
-  PartialBlock,
-  TableContent,
-} from "../../schema/blocks/types";
+import { BlockSchema, TableContent } from "../../schema/blocks/types";
 import {
   InlineContent,
   InlineContentSchema,

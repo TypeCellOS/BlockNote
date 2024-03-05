@@ -1,0 +1,13 @@
+@import url("@mantine/core/styles.css");
+
+body {
+  height: auto;
+}
+
+.bn-container {
+  margin: 8px calc((100% - 731px) / 2) 0;
+}
+
+.mantine-AppShell-navbar {
+  background-color: #f7f7f5;
+}

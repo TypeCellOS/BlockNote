@@ -1,9 +1,0 @@
-@import url("@mantine/core/styles.css");
-
-.editor {
-  margin: 8px calc((100% - 731px) / 2) 0;
-}
-
-.mantine-AppShell-navbar {
-  background-color: #f7f7f5;
-}

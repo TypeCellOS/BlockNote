@@ -39,6 +39,7 @@ export const getBlockNoteExtensions = <
   S extends StyleSchema
 >(opts: {
   editor: BlockNoteEditor<BSchema, I, S>;
+  placeholders?: Record<string | "default", string>;
   domAttributes: Partial<BlockNoteDOMAttributes>;
   blockSchema: BSchema;
   blockSpecs: BlockSpecs;
@@ -66,8 +67,10 @@ export const getBlockNoteExtensions = <
 
     // DropCursor,
     Placeholder.configure({
-      includeChildren: true,
-      showOnlyCurrent: false,
+      // TODO: This shorthand is kind of ugly
+      ...(opts.placeholders !== undefined
+        ? { placeholders: opts.placeholders }
+        : {}),
     }),
     UniqueID.configure({
       types: ["blockContainer"],

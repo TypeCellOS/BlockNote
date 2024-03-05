@@ -43,7 +43,7 @@ async function convertToHTMLAndCompareSnapshots<
 
   // turn the internalHTML back into blocks, and make sure no data was lost
   const fullBlocks = partialBlocksToBlocksForTesting(
-    editor.blockSchema,
+    editor.schema.blockSchema,
     blocks
   );
   const parsed = await editor.tryParseHTMLToBlocks(internalHTML);
@@ -75,12 +75,15 @@ describe("Test React HTML conversion", () => {
   for (const testCase of testCases) {
     describe("Case: " + testCase.name, () => {
       let editor: BlockNoteEditor<any, any, any>;
+      const div = document.createElement("div");
 
       beforeEach(() => {
         editor = testCase.createEditor();
+        editor.mount(div);
       });
 
       afterEach(() => {
+        editor.mount(undefined);
         editor._tiptapEditor.destroy();
         editor = undefined as any;
 

@@ -1,0 +1,16 @@
+.hero .bn-container, .hero .bn-editor {
+    height: 100%
+}
+
+.hero .bn-editor {
+    overflow: auto;
+    min-height: 100%;
+    /* Removes focus outline */
+    box-shadow: none !important;
+    padding-block: 1rem
+}
+
+.hero a {
+    color: revert;
+    text-decoration: revert;
+}
