@@ -1,9 +1,6 @@
-import { Editor, Extension } from "@tiptap/core";
-import { Node as ProsemirrorNode } from "prosemirror-model";
+import { Extension } from "@tiptap/core";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
-import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
-import { suggestionMenuPluginKey } from "../SuggestionMenu/SuggestionPlugin";
 
 const PLUGIN_KEY = new PluginKey(`blocknote-placeholder`);
 
@@ -15,22 +12,7 @@ const PLUGIN_KEY = new PluginKey(`blocknote-placeholder`);
  *
  */
 export interface PlaceholderOptions {
-  editor: BlockNoteEditor<any, any, any> | undefined;
-  emptyEditorClass: string;
-  emptyNodeClass: string;
-  isFilterClass: string;
-  hasAnchorClass: string;
-  placeholder:
-    | ((PlaceholderProps: {
-        editor: Editor;
-        node: ProsemirrorNode;
-        pos: number;
-        hasAnchor: boolean;
-      }) => string)
-    | string;
-  showOnlyWhenEditable: boolean;
-  showOnlyCurrent: boolean;
-  includeChildren: boolean;
+  placeholders: Record<string | "default", string>;
 }
 
 export const Placeholder = Extension.create<PlaceholderOptions>({
@@ -38,94 +20,102 @@ export const Placeholder = Extension.create<PlaceholderOptions>({
 
   addOptions() {
     return {
-      editor: undefined,
-      emptyEditorClass: "bn-is-editor-empty",
-      emptyNodeClass: "bn-is-empty",
-      isFilterClass: "bn-is-filter",
-      hasAnchorClass: "bn-has-anchor",
-      placeholder: "Write something …",
-      showOnlyWhenEditable: true,
-      showOnlyCurrent: true,
-      includeChildren: false,
+      placeholders: {
+        default: "Enter text or type '/' for commands",
+        heading: "Heading",
+        bulletListItem: "List",
+        numberedListItem: "List",
+      },
     };
   },
 
   addProseMirrorPlugins() {
+    const placeholders = this.options.placeholders;
     return [
       new Plugin({
         key: PLUGIN_KEY,
+        view: () => {
+          const styleEl = document.createElement("style");
+          document.head.appendChild(styleEl);
+          const styleSheet = styleEl.sheet!;
+
+          const getBaseSelector = (additionalSelectors = "") =>
+            `.bn-block-content${additionalSelectors} .bn-inline-content:has(> .ProseMirror-trailingBreak):before`;
+
+          const getSelector = (
+            blockType: string | "default",
+            mustBeFocused = true
+          ) => {
+            const mustBeFocusedSelector = mustBeFocused
+              ? `[data-is-empty-and-focused]`
+              : ``;
+
+            if (blockType === "default") {
+              return getBaseSelector(mustBeFocusedSelector);
+            }
+
+            const blockTypeSelector = `[data-content-type="${blockType}"]`;
+            return getBaseSelector(mustBeFocusedSelector + blockTypeSelector);
+          };
+
+          for (const [blockType, placeholder] of Object.entries(placeholders)) {
+            const mustBeFocused = blockType === "default";
+
+            styleSheet.insertRule(
+              `${getSelector(
+                blockType,
+                mustBeFocused
+              )}{ content: ${JSON.stringify(placeholder)}; }`
+            );
+
+            // For some reason, the placeholders which show when the block is focused
+            // take priority over ones which show depending on block type, so we need
+            // to make sure the block specific ones are also used when the block is
+            // focused.
+            if (!mustBeFocused) {
+              styleSheet.insertRule(
+                `${getSelector(blockType, true)}{ content: ${JSON.stringify(
+                  placeholder
+                )}; }`
+              );
+            }
+          }
+
+          return {
+            destroy: () => {
+              document.head.removeChild(styleEl);
+            },
+          };
+        },
         props: {
+          // TODO: maybe also add placeholder for empty document ("e.g.: start writing..")
           decorations: (state) => {
             const { doc, selection } = state;
-            // Get state of slash menu
-            const menuState = suggestionMenuPluginKey.getState(state);
-            const active =
-              this.editor.isEditable || !this.options.showOnlyWhenEditable;
-            const { anchor } = selection;
-            const decorations: Decoration[] = [];
+
+            const active = this.editor.isEditable;
 
             if (!active) {
               return;
             }
 
-            doc.descendants((node, pos) => {
-              const hasAnchor = anchor >= pos && anchor <= pos + node.nodeSize;
-              const isEmpty = !node.isLeaf && !node.childCount;
+            if (!selection.empty) {
+              return;
+            }
 
-              if ((hasAnchor || !this.options.showOnlyCurrent) && isEmpty) {
-                const classes = [this.options.emptyNodeClass];
+            const $pos = selection.$anchor;
+            const node = $pos.parent;
 
-                // TODO: Doesn't work?
-                if (this.editor.isEmpty) {
-                  classes.push(this.options.emptyEditorClass);
-                }
+            if (node.content.size > 0) {
+              return null;
+            }
 
-                if (hasAnchor) {
-                  classes.push(this.options.hasAnchorClass);
-                }
+            const before = $pos.before();
 
-                // If slash menu is of drag type and active, show the filter placeholder
-                if (menuState?.triggerCharacter === "" && menuState?.active) {
-                  classes.push(this.options.isFilterClass);
-                }
-                // using widget, didn't work (caret position bug)
-                // const decoration = Decoration.widget(
-                //   pos + 1,
-                //   () => {
-                //     const el = document.createElement("span");
-                //     el.innerText = "hello";
-                //     return el;
-                //   },
-                //   { side: 0 }
-
-                // Code that sets variables / classes
-                // const ph =
-                //   typeof this.options.placeholder === "function"
-                //     ? this.options.placeholder({
-                //         editor: this.editor,
-                //         node,
-                //         pos,
-                //         hasAnchor,
-                //       })
-                //     : this.options.placeholder;
-                // const decoration = Decoration.node(pos, pos + node.nodeSize, {
-                //   class: classes.join(" "),
-                //   style: `--placeholder:'${ph.replaceAll("'", "\\'")}';`,
-                //   "data-placeholder": ph,
-                // });
-
-                // Latest version, only set isEmpty and hasAnchor, rest is done via CSS
-
-                const decoration = Decoration.node(pos, pos + node.nodeSize, {
-                  class: classes.join(" "),
-                });
-                decorations.push(decoration);
-              }
-
-              return this.options.includeChildren;
+            const dec = Decoration.node(before, before + node.nodeSize, {
+              "data-is-empty-and-focused": "true",
             });
 
-            return DecorationSet.create(doc, decorations);
+            return DecorationSet.create(doc, [dec]);
           },
         },
       }),
