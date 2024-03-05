@@ -25,7 +25,7 @@ const templateExampleBlock = (
 ) => `import { ExampleBlock } from "@/components/example/ExampleBlock";
 import { Tabs } from "nextra/components";
 
-<ExampleBlock name="${project.fullSlug}">
+<ExampleBlock name="${project.fullSlug}" path="${project.pathFromRoot}">
   <Tabs items={${JSON.stringify(
     Object.keys(files).map((fileName) => fileName.slice(1))
   )}}>
