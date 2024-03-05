@@ -511,7 +511,7 @@ export class SideMenuView<
       this.sideMenuState.show = false;
       this.updateSideMenu(this.sideMenuState);
     }
-    document.body.removeEventListener("mousemove", this.onMouseMove);
+    document.body.removeEventListener("mousemove", this.onMouseMove, true);
     document.body.removeEventListener("dragover", this.onDragOver);
     this.pmView.dom.removeEventListener("dragstart", this.onDragStart);
     document.body.removeEventListener("drop", this.onDrop, true);
