@@ -1,4 +1,4 @@
-import { FileInput, Tabs, Text } from "@mantine/core";
+import { Text } from "@mantine/core";
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor";
 import {
   DefaultBlockSchema,
@@ -8,7 +8,10 @@ import {
   StyleSchema,
 } from "@blocknote/core";
 import { useCallback, useEffect, useState } from "react";
+
 import { ImageToolbarProps } from "../../ImageToolbarProps";
+import { ImageToolbarPanel } from "../ImageToolbarPanel";
+import { ImageToolbarFileInput } from "../ImageToolbarFileInput";
 
 export const UploadPanel = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
@@ -68,21 +71,17 @@ export const UploadPanel = <
   );
 
   return editor.uploadFile !== undefined ? (
-    <Tabs.Panel className={"bn-upload-image-panel"} value="upload">
-      <div>
-        <FileInput
-          placeholder={"Upload Image"}
-          size={"xs"}
-          value={null}
-          onChange={handleFileChange}
-          data-test={"upload-input"}
-        />
-        {uploadFailed && (
-          <Text c={"red"} size={"12px"}>
-            Error: Upload failed
-          </Text>
-        )}
-      </div>
-    </Tabs.Panel>
+    <ImageToolbarPanel>
+      <ImageToolbarFileInput
+        placeholder={"Upload Image"}
+        value={null}
+        onChange={handleFileChange}
+      />
+      {uploadFailed && (
+        <Text c={"red"} size={"12px"}>
+          Error: Upload failed
+        </Text>
+      )}
+    </ImageToolbarPanel>
   ) : null;
 };

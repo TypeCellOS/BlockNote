@@ -1,4 +1,3 @@
-import { Button, Tabs, TextInput } from "@mantine/core";
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor";
 import {
   DefaultBlockSchema,
@@ -8,9 +7,13 @@ import {
   StyleSchema,
 } from "@blocknote/core";
 import { ChangeEvent, KeyboardEvent, useCallback, useState } from "react";
-import { ImageToolbarProps } from "../../ImageToolbarProps";
 
-export const URLPanel = <
+import { ImageToolbarProps } from "../../ImageToolbarProps";
+import { ImageToolbarPanel } from "../ImageToolbarPanel";
+import { ImageToolbarTextInput } from "../ImageToolbarTextInput";
+import { ImageToolbarButton } from "../ImageToolbarButton";
+
+export const EmbedPanel = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema
 >(
@@ -58,24 +61,20 @@ export const URLPanel = <
   }, [editor, block, currentURL]);
 
   return (
-    <Tabs.Panel className={"bn-embed-image-panel"} value="embed">
-      <div>
-        <TextInput
-          size={"xs"}
-          placeholder={"Enter URL"}
-          value={currentURL}
-          onChange={handleURLChange}
-          onKeyDown={handleURLEnter}
-          data-test={"embed-input"}
-        />
-        <Button
-          className={"bn-embed-image-button"}
-          onClick={handleURLClick}
-          size={"xs"}
-          data-test={"embed-input-button"}>
-          Embed Image
-        </Button>
-      </div>
-    </Tabs.Panel>
+    <ImageToolbarPanel>
+      <ImageToolbarTextInput
+        placeholder={"Enter URL"}
+        value={currentURL}
+        onChange={handleURLChange}
+        onKeyDown={handleURLEnter}
+        data-test={"embed-input"}
+      />
+      <ImageToolbarButton
+        className={"bn-image-toolbar-button"}
+        onClick={handleURLClick}
+        data-test={"embed-input-button"}>
+        Embed Image
+      </ImageToolbarButton>
+    </ImageToolbarPanel>
   );
 };

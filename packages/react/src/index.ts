@@ -47,7 +47,13 @@ export * from "./components/SuggestionMenu/types";
 
 export * from "./components/ImageToolbar/ImageToolbarController";
 export * from "./components/ImageToolbar/ImageToolbarProps";
+export * from "./components/ImageToolbar/mantine/DefaultTabPanels/EmbedPanel";
+export * from "./components/ImageToolbar/mantine/DefaultTabPanels/UploadPanel";
 export * from "./components/ImageToolbar/mantine/ImageToolbar";
+export * from "./components/ImageToolbar/mantine/ImageToolbarButton";
+export * from "./components/ImageToolbar/mantine/ImageToolbarFileInput";
+export * from "./components/ImageToolbar/mantine/ImageToolbarPanel";
+export * from "./components/ImageToolbar/mantine/ImageToolbarTextInput";
 
 export * from "./components/TableHandles/TableHandleProps";
 export * from "./components/TableHandles/TableHandlesController";

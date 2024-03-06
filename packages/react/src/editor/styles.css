@@ -364,13 +364,6 @@
   background-color: var(--bn-colors-hovered-background);
 }
 
-.bn-container .bn-toolbar .bn-embed-image-button {
-  border: solid var(--bn-colors-border) 1px;
-  border-radius: var(--bn-border-radius-small);
-  height: 32px;
-  width: 60%;
-}
-
 .bn-container .bn-toolbar-input-dropdown {
   background-color: var(--bn-colors-menu-background);
   border: var(--bn-border);
@@ -425,22 +418,7 @@
   width: 500px;
 }
 
-.bn-container .bn-image-toolbar .bn-upload-image-panel > div {
-  align-items: stretch;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.bn-container
-  .bn-image-toolbar
-  .bn-upload-image-panel
-  > div
-  > .mantine-Text-root {
-  text-align: center;
-}
-
-.bn-container .bn-image-toolbar .bn-embed-image-panel > div {
+.bn-container .bn-image-toolbar .bn-image-toolbar-panel {
   align-items: center;
   display: flex;
   flex-direction: column;
@@ -448,12 +426,20 @@
   width: 100%;
 }
 
-.bn-container
-  .bn-image-toolbar
-  .bn-embed-image-panel
-  > div
-  .mantine-TextInput-root {
+.bn-container .bn-image-toolbar .mantine-TextInput-root,
+.bn-container .bn-image-toolbar .mantine-FileInput-root {
   width: 100%;
+}
+
+.bn-container .bn-image-toolbar .mantine-Button-root {
+  border: solid var(--bn-colors-border) 1px;
+  border-radius: var(--bn-border-radius-small);
+  height: 32px;
+  width: 60%;
+}
+
+.bn-container .bn-image-toolbar .mantine-Text-root {
+  text-align: center;
 }
 
 /* Slash Menu styling*/
