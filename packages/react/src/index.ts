@@ -19,7 +19,9 @@ export * from "./components/FormattingToolbar/mantine/FormattingToolbar";
 
 export * from "./components/HyperlinkToolbar/HyperlinkToolbarController";
 export * from "./components/HyperlinkToolbar/HyperlinkToolbarProps";
-export * from "./components/HyperlinkToolbar/mantine/EditHyperlinkMenu/EditHyperlinkMenu";
+export * from "./components/HyperlinkToolbar/mantine/DefaultButtons/DeleteLinkButton";
+export * from "./components/HyperlinkToolbar/mantine/DefaultButtons/EditLinkButton";
+export * from "./components/HyperlinkToolbar/mantine/DefaultButtons/OpenLinkButton";
 export * from "./components/HyperlinkToolbar/mantine/HyperlinkToolbar";
 
 export * from "./components/SideMenu/SideMenuController";
@@ -55,10 +57,16 @@ export * from "./components/ImageToolbar/mantine/ImageToolbarFileInput";
 export * from "./components/ImageToolbar/mantine/ImageToolbarPanel";
 export * from "./components/ImageToolbar/mantine/ImageToolbarTextInput";
 
-export * from "./components/TableHandles/TableHandleProps";
 export * from "./components/TableHandles/TableHandlesController";
+export * from "./components/TableHandles/TableHandleProps";
 export * from "./components/TableHandles/hooks/useTableHandlesPositioning";
 export * from "./components/TableHandles/mantine/TableHandle";
+
+export * from "./components/TableHandles/TableHandleMenu/TableHandleMenuProps";
+export * from "./components/TableHandles/TableHandleMenu/mantine/DefaultButtons/AddButton";
+export * from "./components/TableHandles/TableHandleMenu/mantine/DefaultButtons/DeleteButton";
+export * from "./components/TableHandles/TableHandleMenu/mantine/TableHandleMenu";
+export * from "./components/TableHandles/TableHandleMenu/mantine/TableHandleMenuItem";
 
 export * from "./components/mantine-shared/Toolbar/ToolbarButton";
 export * from "./components/mantine-shared/Toolbar/ToolbarDropdown";

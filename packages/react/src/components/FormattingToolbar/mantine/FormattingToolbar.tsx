@@ -1,3 +1,5 @@
+import { ReactNode } from "react";
+
 import { Toolbar } from "../../mantine-shared/Toolbar/Toolbar";
 import { FormattingToolbarProps } from "../FormattingToolbarProps";
 import { BasicTextStyleButton } from "./DefaultButtons/BasicTextStyleButton";
@@ -55,7 +57,7 @@ export const getFormattingToolbarItems = (
  * `components/mantine-shared/Toolbar` directory.
  */
 export const FormattingToolbar = (
-  props: FormattingToolbarProps & { children?: React.ReactNode }
+  props: FormattingToolbarProps & { children?: ReactNode }
 ) => {
   return (
     <Toolbar>

@@ -14,6 +14,12 @@ import { ImageToolbarProps } from "../ImageToolbarProps";
 import { UploadPanel } from "./DefaultTabPanels/UploadPanel";
 import { EmbedPanel } from "./DefaultTabPanels/EmbedPanel";
 
+/**
+ * By default, the ImageToolbar component will render with default tabs.
+ * However, you can override the tabs to render by passing the `tabs` prop. You
+ * can use the default tab panels in the `DefaultTabPanels` directory or make
+ * your own using the `ImageToolbarPanel` component.
+ */
 export const ImageToolbar = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema

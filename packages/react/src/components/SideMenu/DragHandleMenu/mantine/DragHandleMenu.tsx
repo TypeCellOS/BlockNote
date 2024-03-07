@@ -6,6 +6,7 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
+import { ReactNode } from "react";
 
 import { Menu } from "@mantine/core";
 import { DragHandleMenuProps } from "../DragHandleMenuProps";
@@ -25,7 +26,7 @@ export const DragHandleMenu = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema
 >(
-  props: DragHandleMenuProps<BSchema, I, S> & { children?: React.ReactNode }
+  props: DragHandleMenuProps<BSchema, I, S> & { children?: ReactNode }
 ) => (
   <Menu.Dropdown className={"bn-drag-handle-menu"}>
     {props.children || (

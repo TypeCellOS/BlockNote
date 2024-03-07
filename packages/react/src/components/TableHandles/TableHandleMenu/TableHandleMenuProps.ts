@@ -1,19 +1,17 @@
 import {
-  BlockNoteEditor,
   DefaultBlockSchema,
+  DefaultInlineContentSchema,
+  DefaultStyleSchema,
+  InlineContentSchema,
   SpecificBlock,
+  StyleSchema,
 } from "@blocknote/core";
 
 export type TableHandleMenuProps<
-  BSchema extends { table: DefaultBlockSchema["table"] }
+  I extends InlineContentSchema = DefaultInlineContentSchema,
+  S extends StyleSchema = DefaultStyleSchema
 > = {
   orientation: "row" | "column";
-  editor: BlockNoteEditor<BSchema, any, any>;
-  block: SpecificBlock<
-    { table: DefaultBlockSchema["table"] },
-    "table",
-    any,
-    any
-  >;
+  block: SpecificBlock<{ table: DefaultBlockSchema["table"] }, "table", I, S>;
   index: number;
 };

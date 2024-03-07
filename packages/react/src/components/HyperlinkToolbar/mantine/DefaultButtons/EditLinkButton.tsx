@@ -1,31 +1,22 @@
+import { ToolbarButton } from "../../../mantine-shared/Toolbar/ToolbarButton";
+import { ToolbarInputDropdownButton } from "../../../mantine-shared/Toolbar/ToolbarInputDropdownButton";
+import { HyperlinkToolbarProps } from "../../HyperlinkToolbarProps";
 import {
   ChangeEvent,
-  forwardRef,
-  HTMLAttributes,
   KeyboardEvent,
   useCallback,
   useEffect,
   useState,
 } from "react";
-import { RiLink, RiText } from "react-icons/ri";
-
-import { ToolbarInputDropdown } from "../../../mantine-shared/Toolbar/ToolbarInputDropdown";
 import { ToolbarInputDropdownItem } from "../../../mantine-shared/Toolbar/ToolbarInputDropdownItem";
+import { RiLink, RiText } from "react-icons/ri";
+import { ToolbarInputDropdown } from "../../../mantine-shared/Toolbar/ToolbarInputDropdown";
 
-export type EditHyperlinkMenuProps = {
-  url: string;
-  text: string;
-  update: (url: string, text: string) => void;
-};
+export const EditLinkMenu = (
+  props: Pick<HyperlinkToolbarProps, "url" | "text" | "editHyperlink">
+) => {
+  const { url, text, editHyperlink } = props;
 
-/**
- * Menu which opens when editing an existing hyperlink or creating a new one.
- * Provides input fields for setting the hyperlink URL and title.
- */
-export const EditHyperlinkMenu = forwardRef<
-  HTMLDivElement,
-  EditHyperlinkMenuProps & HTMLAttributes<HTMLDivElement>
->(({ url, text, update, ...props }, ref) => {
   const [currentUrl, setCurrentUrl] = useState<string>(url);
   const [currentText, setCurrentText] = useState<string>(text);
 
@@ -38,10 +29,10 @@ export const EditHyperlinkMenu = forwardRef<
     (event: KeyboardEvent) => {
       if (event.key === "Enter") {
         event.preventDefault();
-        update(currentUrl, currentText);
+        editHyperlink(currentUrl, currentText);
       }
     },
-    [update, currentUrl, currentText]
+    [editHyperlink, currentUrl, currentText]
   );
 
   const handleUrlChange = useCallback(
@@ -57,12 +48,12 @@ export const EditHyperlinkMenu = forwardRef<
   );
 
   const handleSubmit = useCallback(
-    () => update(currentUrl, currentText),
-    [update, currentUrl, currentText]
+    () => editHyperlink(currentUrl, currentText),
+    [editHyperlink, currentUrl, currentText]
   );
 
   return (
-    <ToolbarInputDropdown {...props} ref={ref}>
+    <ToolbarInputDropdown {...props}>
       <ToolbarInputDropdownItem
         type={"text"}
         icon={RiLink}
@@ -88,4 +79,17 @@ export const EditHyperlinkMenu = forwardRef<
       />
     </ToolbarInputDropdown>
   );
-});
+};
+
+export const EditLinkButton = (
+  props: Pick<HyperlinkToolbarProps, "url" | "text" | "editHyperlink">
+) => (
+  <ToolbarInputDropdownButton
+    target={
+      <ToolbarButton mainTooltip="Edit" isSelected={false}>
+        Edit Link
+      </ToolbarButton>
+    }
+    dropdown={<EditLinkMenu {...props} />}
+  />
+);

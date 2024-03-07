@@ -1,62 +1,85 @@
 import {
   DefaultBlockSchema,
-  PartialBlock,
+  DefaultInlineContentSchema,
+  DefaultStyleSchema,
+  InlineContentSchema,
+  StyleSchema,
   TableContent,
 } from "@blocknote/core";
 
 import { TableHandleMenuProps } from "../../TableHandleMenuProps";
 import { TableHandleMenuItem } from "../TableHandleMenuItem";
+import { useBlockNoteEditor } from "../../../../../hooks/useBlockNoteEditor";
 
 export const DeleteRowButton = <
-  BSchema extends { table: DefaultBlockSchema["table"] }
+  I extends InlineContentSchema = DefaultInlineContentSchema,
+  S extends StyleSchema = DefaultStyleSchema
 >(
-  props: TableHandleMenuProps<BSchema>
-) => (
-  <TableHandleMenuItem
-    onClick={() => {
-      const content: TableContent<any, any> = {
-        type: "tableContent",
-        rows: props.block.content.rows.filter(
-          (_, index) => index !== props.index
-        ),
-      };
+  props: TableHandleMenuProps<I, S>
+) => {
+  const editor = useBlockNoteEditor<
+    { table: DefaultBlockSchema["table"] },
+    I,
+    S
+  >();
 
-      props.editor.updateBlock(props.block, {
-        type: "table",
-        content,
-      } as PartialBlock<BSchema, any, any>);
-    }}>
-    Delete row
-  </TableHandleMenuItem>
-);
+  return (
+    <TableHandleMenuItem
+      onClick={() => {
+        const content: TableContent<I, S> = {
+          type: "tableContent",
+          rows: props.block.content.rows.filter(
+            (_, index) => index !== props.index
+          ),
+        };
+
+        editor.updateBlock(props.block, {
+          type: "table",
+          content,
+        });
+      }}>
+      Delete row
+    </TableHandleMenuItem>
+  );
+};
 
 export const DeleteColumnButton = <
-  BSchema extends { table: DefaultBlockSchema["table"] }
+  I extends InlineContentSchema = DefaultInlineContentSchema,
+  S extends StyleSchema = DefaultStyleSchema
 >(
-  props: TableHandleMenuProps<BSchema>
-) => (
-  <TableHandleMenuItem
-    onClick={() => {
-      const content: TableContent<any, any> = {
-        type: "tableContent",
-        rows: props.block.content.rows.map((row) => ({
-          cells: row.cells.filter((_, index) => index !== props.index),
-        })),
-      };
+  props: TableHandleMenuProps<I, S>
+) => {
+  const editor = useBlockNoteEditor<
+    { table: DefaultBlockSchema["table"] },
+    I,
+    S
+  >();
 
-      props.editor.updateBlock(props.block, {
-        type: "table",
-        content,
-      } as PartialBlock<BSchema, any, any>);
-    }}>
-    Delete column
-  </TableHandleMenuItem>
-);
+  return (
+    <TableHandleMenuItem
+      onClick={() => {
+        const content: TableContent<I, S> = {
+          type: "tableContent",
+          rows: props.block.content.rows.map((row) => ({
+            cells: row.cells.filter((_, index) => index !== props.index),
+          })),
+        };
+
+        editor.updateBlock(props.block, {
+          type: "table",
+          content,
+        });
+      }}>
+      Delete column
+    </TableHandleMenuItem>
+  );
+};
 
 export const DeleteButton = <
-  BSchema extends { table: DefaultBlockSchema["table"] }
+  I extends InlineContentSchema = DefaultInlineContentSchema,
+  S extends StyleSchema = DefaultStyleSchema
 >(
-  props: TableHandleMenuProps<BSchema> & { orientation: "row" | "column" }
+  props: TableHandleMenuProps<I, S> & { orientation: "row" | "column" }
 ) =>
   props.orientation === "row" ? (
     <DeleteRowButton {...props} />

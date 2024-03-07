@@ -11,9 +11,9 @@ import {
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor";
 import { useEditorContentOrSelectionChange } from "../../../../hooks/useEditorContentOrSelectionChange";
 import { useSelectedBlocks } from "../../../../hooks/useSelectedBlocks";
-import { EditHyperlinkMenu } from "../../../HyperlinkToolbar/mantine/EditHyperlinkMenu/EditHyperlinkMenu";
 import { ToolbarButton } from "../../../mantine-shared/Toolbar/ToolbarButton";
 import { ToolbarInputDropdownButton } from "../../../mantine-shared/Toolbar/ToolbarInputDropdownButton";
+import { EditLinkMenu } from "../../../HyperlinkToolbar/mantine/DefaultButtons/EditLinkButton";
 
 // TODO: Make sure Link is in inline content schema
 export const CreateLinkButton = () => {
@@ -64,7 +64,7 @@ export const CreateLinkButton = () => {
           icon={RiLink}
         />
       }
-      dropdown={<EditHyperlinkMenu url={url} text={text} update={update} />}
+      dropdown={<EditLinkMenu url={url} text={text} editHyperlink={update} />}
     />
   );
 };
