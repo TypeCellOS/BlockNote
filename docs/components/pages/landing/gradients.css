@@ -13,6 +13,9 @@ section {
 
 .editor-glow {
   --glow-opacity: 0.4;
+  @media screen and (max-width: 640px) {
+    --glow-opacity: 0.25;
+  }
   background: conic-gradient(
     from 33deg at 50% 50%,
     hsla(var(--glow-blue), var(--glow-opacity)),
