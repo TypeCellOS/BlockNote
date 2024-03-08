@@ -1,4 +1,5 @@
 import { ComponentPropsWithoutRef, forwardRef } from "react";
+import { mergeCSSClasses } from "@blocknote/core";
 
 export const ImageToolbarPanel = forwardRef<
   HTMLDivElement,
@@ -8,9 +9,7 @@ export const ImageToolbarPanel = forwardRef<
 
   return (
     <div
-      className={`bn-image-toolbar-panel${
-        className ? " " + props.className : ""
-      }`}
+      className={mergeCSSClasses("bn-image-toolbar-panel", className || "")}
       {...rest}
       ref={ref}>
       {children}

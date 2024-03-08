@@ -13,7 +13,7 @@ import { useEditorContentOrSelectionChange } from "../../../../hooks/useEditorCo
 import { useSelectedBlocks } from "../../../../hooks/useSelectedBlocks";
 import { ToolbarButton } from "../../../mantine-shared/Toolbar/ToolbarButton";
 import { ToolbarInputDropdownButton } from "../../../mantine-shared/Toolbar/ToolbarInputDropdownButton";
-import { EditLinkMenu } from "../../../HyperlinkToolbar/mantine/DefaultButtons/EditLinkButton";
+import { EditLinkMenu } from "../../../HyperlinkToolbar/mantine/EditLinkMenu";
 
 // TODO: Make sure Link is in inline content schema
 export const CreateLinkButton = () => {

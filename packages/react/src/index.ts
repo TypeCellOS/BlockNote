@@ -23,6 +23,7 @@ export * from "./components/HyperlinkToolbar/mantine/DefaultButtons/DeleteLinkBu
 export * from "./components/HyperlinkToolbar/mantine/DefaultButtons/EditLinkButton";
 export * from "./components/HyperlinkToolbar/mantine/DefaultButtons/OpenLinkButton";
 export * from "./components/HyperlinkToolbar/mantine/HyperlinkToolbar";
+export * from "./components/HyperlinkToolbar/mantine/EditLinkMenu";
 
 export * from "./components/SideMenu/SideMenuController";
 export * from "./components/SideMenu/SideMenuProps";
