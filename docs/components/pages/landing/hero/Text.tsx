@@ -7,7 +7,7 @@ import { CTAButton } from "@/components/pages/landing/shared/CTAButton";
 export function Text() {
   return (
     <div className="relative flex h-fit flex-col items-center justify-center gap-6 text-center xl:w-[584px] xl:items-start xl:text-left">
-      <div className="editor-glow absolute block h-full w-full sm:hidden" />
+      <div className="hero-glow text-glow absolute block h-full w-full sm:hidden" />
       <HeroText h1 className={"z-10"}>
         The open source
         <br />

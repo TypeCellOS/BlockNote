@@ -6,8 +6,6 @@ import { useCallback, useMemo, useState } from "react";
 import YPartyKitProvider from "y-partykit/provider";
 import * as Y from "yjs";
 
-import "./styles.css";
-
 const colors = [
   "#958DF1",
   "#F98181",
