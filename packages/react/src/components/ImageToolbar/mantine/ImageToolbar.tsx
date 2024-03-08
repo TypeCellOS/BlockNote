@@ -53,12 +53,14 @@ export const ImageToolbar = <
 
   const handleFileChange = useCallback(
     (file: File | null) => {
+      debugger;
       if (file === null) {
         return;
       }
 
       async function upload(file: File) {
         setUploading(true);
+        debugger;
 
         if (editor.uploadFile !== undefined) {
           try {
