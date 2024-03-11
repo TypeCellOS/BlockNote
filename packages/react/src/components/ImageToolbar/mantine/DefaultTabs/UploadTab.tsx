@@ -9,15 +9,15 @@ import {
 } from "@blocknote/core";
 import { useCallback, useEffect, useState } from "react";
 
-import { ImageToolbarProps } from "../../ImageToolbarProps";
-import { ImageToolbarPanel } from "../ImageToolbarPanel";
-import { ImageToolbarFileInput } from "../ImageToolbarFileInput";
+import { ImagePanelProps } from "../../ImagePanelProps";
+import { ImagePanelTab } from "../ImagePanelTab";
+import { ImagePanelFileInput } from "../ImagePanelFileInput";
 
-export const UploadPanel = <
+export const UploadTab = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema
 >(
-  props: ImageToolbarProps<I, S> & {
+  props: ImagePanelProps<I, S> & {
     setLoading: (loading: boolean) => void;
   }
 ) => {
@@ -71,8 +71,8 @@ export const UploadPanel = <
   );
 
   return editor.uploadFile !== undefined ? (
-    <ImageToolbarPanel>
-      <ImageToolbarFileInput
+    <ImagePanelTab>
+      <ImagePanelFileInput
         placeholder={"Upload Image"}
         value={null}
         onChange={handleFileChange}
@@ -82,6 +82,6 @@ export const UploadPanel = <
           Error: Upload failed
         </Text>
       )}
-    </ImageToolbarPanel>
+    </ImagePanelTab>
   ) : null;
 };

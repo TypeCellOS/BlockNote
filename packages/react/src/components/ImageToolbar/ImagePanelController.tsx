@@ -11,14 +11,14 @@ import { FC } from "react";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor";
 import { useUIElementPositioning } from "../../hooks/useUIElementPositioning";
 import { useUIPluginState } from "../../hooks/useUIPluginState";
-import { ImageToolbarProps } from "./ImageToolbarProps";
-import { ImageToolbar } from "./mantine/ImageToolbar";
+import { ImagePanelProps } from "./ImagePanelProps";
+import { ImagePanel } from "./mantine/ImagePanel";
 
-export const ImageToolbarController = <
+export const ImagePanelController = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema
 >(props: {
-  imageToolbar?: FC<ImageToolbarProps<I, S>>;
+  imageToolbar?: FC<ImagePanelProps<I, S>>;
 }) => {
   const editor = useBlockNoteEditor<
     { image: DefaultBlockSchema["image"] },
@@ -51,7 +51,7 @@ export const ImageToolbarController = <
 
   const { show, referencePos, ...data } = state;
 
-  const Component = props.imageToolbar || ImageToolbar;
+  const Component = props.imageToolbar || ImagePanel;
 
   return (
     <div ref={ref} style={style}>

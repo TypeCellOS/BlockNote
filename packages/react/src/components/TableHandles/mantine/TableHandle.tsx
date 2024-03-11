@@ -12,8 +12,6 @@ import { TableHandleProps } from "../TableHandleProps";
 import { MdDragIndicator } from "react-icons/md";
 import { TableHandleMenu } from "../TableHandleMenu/mantine/TableHandleMenu";
 
-// TODO: props.tableHandleMenu should only be available if no children are
-//  passed
 /**
  * By default, the TableHandle component will render with the default icon.
  * However, you can override the icon to render by passing children.

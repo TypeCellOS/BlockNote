@@ -8,16 +8,16 @@ import {
 } from "@blocknote/core";
 import { ChangeEvent, KeyboardEvent, useCallback, useState } from "react";
 
-import { ImageToolbarProps } from "../../ImageToolbarProps";
-import { ImageToolbarPanel } from "../ImageToolbarPanel";
-import { ImageToolbarTextInput } from "../ImageToolbarTextInput";
-import { ImageToolbarButton } from "../ImageToolbarButton";
+import { ImagePanelProps } from "../../ImagePanelProps";
+import { ImagePanelTab } from "../ImagePanelTab";
+import { ImagePanelTextInput } from "../ImagePanelTextInput";
+import { ImagePanelButton } from "../ImagePanelButton";
 
-export const EmbedPanel = <
+export const EmbedTab = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema
 >(
-  props: ImageToolbarProps<I, S>
+  props: ImagePanelProps<I, S>
 ) => {
   const { block } = props;
 
@@ -61,20 +61,20 @@ export const EmbedPanel = <
   }, [editor, block, currentURL]);
 
   return (
-    <ImageToolbarPanel>
-      <ImageToolbarTextInput
+    <ImagePanelTab>
+      <ImagePanelTextInput
         placeholder={"Enter URL"}
         value={currentURL}
         onChange={handleURLChange}
         onKeyDown={handleURLEnter}
         data-test={"embed-input"}
       />
-      <ImageToolbarButton
+      <ImagePanelButton
         className={"bn-image-toolbar-button"}
         onClick={handleURLClick}
         data-test={"embed-input-button"}>
         Embed Image
-      </ImageToolbarButton>
-    </ImageToolbarPanel>
+      </ImagePanelButton>
+    </ImagePanelTab>
   );
 };

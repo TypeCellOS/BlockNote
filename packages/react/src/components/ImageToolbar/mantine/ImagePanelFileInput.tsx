@@ -1,7 +1,7 @@
 import { FileInput } from "@mantine/core";
 import { ComponentPropsWithoutRef, forwardRef, ReactNode } from "react";
 
-export const ImageToolbarFileInput = forwardRef<
+export const ImagePanelFileInput = forwardRef<
   HTMLButtonElement,
   Omit<
     ComponentPropsWithoutRef<"button">,

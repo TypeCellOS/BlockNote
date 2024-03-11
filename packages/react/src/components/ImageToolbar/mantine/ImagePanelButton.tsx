@@ -1,7 +1,7 @@
 import { ComponentPropsWithoutRef, forwardRef } from "react";
 import { Button } from "@mantine/core";
 
-export const ImageToolbarButton = forwardRef<
+export const ImagePanelButton = forwardRef<
   HTMLButtonElement,
   Omit<ComponentPropsWithoutRef<"button">, "size">
 >((props, ref) => (
