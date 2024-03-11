@@ -48,10 +48,19 @@ export function SectionSubHeader({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function SectionSubtext({ children }: { children: React.ReactNode }) {
+export function SectionSubtext({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
   return (
     <p
-      className={`font-space-grotesk text-lg leading-snug text-[#00000080] dark:text-[#FFFFFFB2] md:text-xl`}>
+      className={cn(
+        "font-space-grotesk text-lg leading-snug text-[#00000080] dark:text-[#FFFFFFB2] md:text-xl",
+        className,
+      )}>
       {children}
     </p>
   );
