@@ -8,11 +8,11 @@ import { DeleteLinkButton } from "./DefaultButtons/DeleteLinkButton";
 
 /**
  * By default, the HyperlinkToolbar component will render with default buttons.
- * However, you can override the dropdowns/buttons to render by passing
+ * However, you can override the selects/buttons to render by passing
  * children. The children you pass should be:
  *
  * - Default buttons: Components found within the `/DefaultButtons` directory.
- * - Custom dropdowns: The `ToolbarDropdown` component in the
+ * - Custom selects: The `ToolbarSelect` component in the
  * `components/mantine-shared/Toolbar` directory.
  * - Custom buttons: The `ToolbarButton` component in the
  * `components/mantine-shared/Toolbar` directory.

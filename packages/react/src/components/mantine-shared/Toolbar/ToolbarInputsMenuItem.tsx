@@ -19,21 +19,21 @@ export const inputComponents: Record<InputType, any> = {
   file: FileInput,
 };
 
-export type ToolbarInputDropdownItemProps<Type extends InputType> = {
+export type ToolbarInputsMenuItemProps<Type extends InputType> = {
   type: Type;
-  inputProps: Omit<InputProps[Type], "type">;
   icon: IconType;
-};
+} & Omit<InputProps[Type], "type">;
 
-export const ToolbarInputDropdownItem = <Type extends InputType>(
-  props: ToolbarInputDropdownItemProps<Type>
+export const ToolbarInputsMenuItem = <Type extends InputType>(
+  props: ToolbarInputsMenuItemProps<Type>
 ) => {
-  const Icon = props.icon;
+  const { type, icon, ...rest } = props;
   const Input = inputComponents[props.type];
+  const Icon = props.icon;
 
   return (
     <Group>
-      <Input size={"xs"} icon={<Icon />} {...props.inputProps} />
+      <Input size={"xs"} icon={<Icon />} {...rest} />
     </Group>
   );
 };

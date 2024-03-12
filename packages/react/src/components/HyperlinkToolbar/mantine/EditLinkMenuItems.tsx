@@ -6,11 +6,10 @@ import {
   useEffect,
   useState,
 } from "react";
-import { ToolbarInputDropdown } from "../../mantine-shared/Toolbar/ToolbarInputDropdown";
-import { ToolbarInputDropdownItem } from "../../mantine-shared/Toolbar/ToolbarInputDropdownItem";
+import { ToolbarInputsMenuItem } from "../../mantine-shared/Toolbar/ToolbarInputsMenuItem";
 import { RiLink, RiText } from "react-icons/ri";
 
-export const EditLinkMenu = (
+export const EditLinkMenuItems = (
   props: Pick<HyperlinkToolbarProps, "url" | "text" | "editHyperlink">
 ) => {
   const { url, text, editHyperlink } = props;
@@ -51,30 +50,26 @@ export const EditLinkMenu = (
   );
 
   return (
-    <ToolbarInputDropdown {...props}>
-      <ToolbarInputDropdownItem
+    <>
+      <ToolbarInputsMenuItem
         type={"text"}
         icon={RiLink}
-        inputProps={{
-          autoFocus: true,
-          placeholder: "Edit URL",
-          value: currentUrl,
-          onKeyDown: handleEnter,
-          onChange: handleUrlChange,
-          onSubmit: handleSubmit,
-        }}
+        autoFocus={true}
+        placeholder={"Edit URL"}
+        value={currentUrl}
+        onKeyDown={handleEnter}
+        onChange={handleUrlChange}
+        onSubmit={handleSubmit}
       />
-      <ToolbarInputDropdownItem
+      <ToolbarInputsMenuItem
         type={"text"}
         icon={RiText}
-        inputProps={{
-          placeholder: "Edit Title",
-          value: currentText,
-          onKeyDown: handleEnter,
-          onChange: handleTextChange,
-          onSubmit: handleSubmit,
-        }}
+        placeholder={"Edit Title"}
+        value={currentText}
+        onKeyDown={handleEnter}
+        onChange={handleTextChange}
+        onSubmit={handleSubmit}
       />
-    </ToolbarInputDropdown>
+    </>
   );
 };

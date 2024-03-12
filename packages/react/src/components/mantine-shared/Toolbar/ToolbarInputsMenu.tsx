@@ -1,16 +1,16 @@
 import { ToolbarButton } from "./ToolbarButton";
 import { ReactElement, useCallback, useState } from "react";
-import { ToolbarInputDropdown } from "./ToolbarInputDropdown";
-import { Popover } from "@mantine/core";
+import { Popover, Stack } from "@mantine/core";
+import { InputProps } from "./ToolbarInputsMenuItem";
 
-export type ToolbarInputDropdownButtonProps = {
-  target: ReactElement<typeof ToolbarButton>;
-  dropdown: ReactElement<typeof ToolbarInputDropdown>;
+export type ToolbarInputsMenuButtonProps = {
+  button: ReactElement<typeof ToolbarButton>;
+  dropdownItems:
+    | ReactElement<InputProps[keyof InputProps]>
+    | Array<ReactElement<InputProps[keyof InputProps]>>;
 };
 
-export const ToolbarInputDropdownButton = (
-  props: ToolbarInputDropdownButtonProps
-) => {
+export const ToolbarInputsMenu = (props: ToolbarInputsMenuButtonProps) => {
   const [renderDropdown, setRenderDropdown] = useState<boolean>(false);
 
   // TODO: review code; does this pattern still make sense?
@@ -31,11 +31,14 @@ export const ToolbarInputDropdownButton = (
       onClose={() => {
         destroyDropdown();
       }}
-      zIndex={10000}
-      {...props}>
-      <Popover.Target>{props.target}</Popover.Target>
+      zIndex={10000}>
+      <Popover.Target>{props.button}</Popover.Target>
       <Popover.Dropdown>
-        {renderDropdown ? props.dropdown : null}
+        {renderDropdown ? (
+          <Stack className={"bn-toolbar-input-dropdown"}>
+            {props.dropdownItems}
+          </Stack>
+        ) : null}
       </Popover.Dropdown>
     </Popover>
   );

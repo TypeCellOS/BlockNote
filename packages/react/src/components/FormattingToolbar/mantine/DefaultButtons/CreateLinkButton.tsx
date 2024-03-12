@@ -12,10 +12,9 @@ import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor";
 import { useEditorContentOrSelectionChange } from "../../../../hooks/useEditorContentOrSelectionChange";
 import { useSelectedBlocks } from "../../../../hooks/useSelectedBlocks";
 import { ToolbarButton } from "../../../mantine-shared/Toolbar/ToolbarButton";
-import { ToolbarInputDropdownButton } from "../../../mantine-shared/Toolbar/ToolbarInputDropdownButton";
-import { EditLinkMenu } from "../../../HyperlinkToolbar/mantine/EditLinkMenu";
+import { ToolbarInputsMenu } from "../../../mantine-shared/Toolbar/ToolbarInputsMenu";
+import { EditLinkMenuItems } from "../../../HyperlinkToolbar/mantine/EditLinkMenuItems";
 
-// TODO: Make sure Link is in inline content schema
 export const CreateLinkButton = () => {
   const editor = useBlockNoteEditor<
     BlockSchema,
@@ -51,20 +50,22 @@ export const CreateLinkButton = () => {
     return true;
   }, [selectedBlocks]);
 
-  if (!show) {
+  if (!show || !("link" in editor.schema.inlineContentSchema)) {
     return null;
   }
 
   return (
-    <ToolbarInputDropdownButton
-      target={
+    <ToolbarInputsMenu
+      button={
         <ToolbarButton
           mainTooltip={"Create Link"}
           secondaryTooltip={formatKeyboardShortcut("Mod+K")}
           icon={RiLink}
         />
       }
-      dropdown={<EditLinkMenu url={url} text={text} editHyperlink={update} />}
+      dropdownItems={
+        <EditLinkMenuItems url={url} text={text} editHyperlink={update} />
+      }
     />
   );
 };

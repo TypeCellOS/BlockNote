@@ -1,6 +1,8 @@
 import {
   Block,
   BlockSchema,
+  checkDefaultBlockTypeInSchema,
+  DefaultBlockSchema,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
@@ -18,10 +20,10 @@ import {
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor";
 import { useEditorContentOrSelectionChange } from "../../../../hooks/useEditorContentOrSelectionChange";
 import { useSelectedBlocks } from "../../../../hooks/useSelectedBlocks";
-import { ToolbarDropdown } from "../../../mantine-shared/Toolbar/ToolbarDropdown";
-import { ToolbarDropdownItemProps } from "../../../mantine-shared/Toolbar/ToolbarDropdownItem";
+import { ToolbarSelect } from "../../../mantine-shared/Toolbar/ToolbarSelect";
+import { ToolbarSelectItemProps } from "../../../mantine-shared/Toolbar/ToolbarSelectItem";
 
-export type BlockTypeDropdownItem = {
+export type BlockTypeSelectItem = {
   name: string;
   type: string;
   props?: Record<string, boolean | number | string>;
@@ -31,8 +33,7 @@ export type BlockTypeDropdownItem = {
   ) => boolean;
 };
 
-// TODO: Filtering from schema should be done here, not in component?
-export const blockTypeDropdownItems: BlockTypeDropdownItem[] = [
+export const blockTypeSelectItems: BlockTypeSelectItem[] = [
   {
     name: "Paragraph",
     type: "paragraph",
@@ -83,9 +84,7 @@ export const blockTypeDropdownItems: BlockTypeDropdownItem[] = [
   },
 ];
 
-export const BlockTypeDropdown = (props: {
-  items?: BlockTypeDropdownItem[];
-}) => {
+export const BlockTypeSelect = (props: { items?: BlockTypeSelectItem[] }) => {
   const editor = useBlockNoteEditor<
     BlockSchema,
     InlineContentSchema,
@@ -96,33 +95,13 @@ export const BlockTypeDropdown = (props: {
 
   const [block, setBlock] = useState(editor.getTextCursorPosition().block);
 
-  const filteredItems: BlockTypeDropdownItem[] = useMemo(() => {
-    return (props.items || blockTypeDropdownItems).filter((item) => {
-      // Checks if block type exists in the schema
-      if (!(item.type in editor.schema.blockSchema)) {
-        return false;
-      }
-
-      // Checks if props for the block type are valid
-      for (const [prop, value] of Object.entries(item.props || {})) {
-        const propSchema = editor.schema.blockSchema[item.type].propSchema;
-
-        // Checks if the prop exists for the block type
-        if (!(prop in propSchema)) {
-          return false;
-        }
-
-        // Checks if the prop's value is valid
-        if (
-          propSchema[prop].values !== undefined &&
-          !propSchema[prop].values!.includes(value)
-        ) {
-          return false;
-        }
-      }
-
-      return true;
-    });
+  const filteredItems: BlockTypeSelectItem[] = useMemo(() => {
+    return (props.items || blockTypeSelectItems).filter((item) =>
+      checkDefaultBlockTypeInSchema(
+        item.type as keyof DefaultBlockSchema,
+        editor
+      )
+    );
   }, [editor, props.items]);
 
   const shouldShow: boolean = useMemo(
@@ -130,8 +109,8 @@ export const BlockTypeDropdown = (props: {
     [block.type, filteredItems]
   );
 
-  const fullItems: ToolbarDropdownItemProps[] = useMemo(() => {
-    const onClick = (item: BlockTypeDropdownItem) => {
+  const fullItems: ToolbarSelectItemProps[] = useMemo(() => {
+    const onClick = (item: BlockTypeSelectItem) => {
       editor.focus();
 
       for (const block of selectedBlocks) {
@@ -158,5 +137,5 @@ export const BlockTypeDropdown = (props: {
     return null;
   }
 
-  return <ToolbarDropdown items={fullItems} />;
+  return <ToolbarSelect items={fullItems} />;
 };
