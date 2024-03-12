@@ -4,6 +4,8 @@ import { Text } from "@/components/pages/landing/hero/Text";
 import { Demo } from "@/components/pages/landing/hero/Demo";
 import { FadeIn } from "@/components/pages/landing/shared/FadeIn";
 
+import "./styles.css";
+
 export function Hero() {
   const { theme } = useTheme();
 
