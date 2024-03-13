@@ -118,9 +118,10 @@ export function createReactInlineContentSpec<
         editor.schema.styleSchema
       ) as any as InlineContentFromConfig<T, S>; // TODO: fix cast
       const Content = inlineContentImplementation.render;
-      const output = renderToDOMSpec((refCB) => (
-        <Content inlineContent={ic} contentRef={refCB} />
-      ));
+      const output = renderToDOMSpec(
+        (refCB) => <Content inlineContent={ic} contentRef={refCB} />,
+        editor
+      );
 
       return addInlineContentAttributes(
         output,
