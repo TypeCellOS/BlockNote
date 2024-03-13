@@ -6,11 +6,22 @@ import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import { UiElementPosition } from "../../extensions-shared/UiElementPosition";
 import { BlockSchema, InlineContentSchema, StyleSchema } from "../../schema";
 import { EventEmitter } from "../../util/EventEmitter";
+import { Block } from "../../blocks/defaultBlocks";
 
-export type FormattingToolbarState = UiElementPosition;
+export type FormattingToolbarState<
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+> = UiElementPosition & {
+  selectedBlocks: Block<BSchema, I, S>[];
+};
 
-export class FormattingToolbarView {
-  public state?: FormattingToolbarState;
+export class FormattingToolbarView<
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+> {
+  public state?: FormattingToolbarState<BSchema, I, S>;
   public emitUpdate: () => void;
 
   public preventHide = false;
@@ -25,13 +36,9 @@ export class FormattingToolbarView {
   }) => boolean = ({ state }) => !state.selection.empty;
 
   constructor(
-    private readonly editor: BlockNoteEditor<
-      BlockSchema,
-      InlineContentSchema,
-      StyleSchema
-    >,
+    private readonly editor: BlockNoteEditor<BSchema, I, S>,
     private readonly pmView: EditorView,
-    emitUpdate: (state: FormattingToolbarState) => void
+    emitUpdate: (state: FormattingToolbarState<BSchema, I, S>) => void
   ) {
     this.emitUpdate = () => {
       if (!this.state) {
@@ -145,9 +152,14 @@ export class FormattingToolbarView {
       !this.preventShow &&
       (shouldShow || this.preventHide)
     ) {
+      const blockWithTextCursor = this.editor.getTextCursorPosition().block;
+      const selection = this.editor.getSelection();
+
       this.state = {
         show: true,
         referencePos: this.getSelectionBoundingBox(),
+        selectedBlocks:
+          selection !== undefined ? selection.blocks : [blockWithTextCursor],
       };
 
       this.emitUpdate();
@@ -205,11 +217,15 @@ export const formattingToolbarPluginKey = new PluginKey(
   "FormattingToolbarPlugin"
 );
 
-export class FormattingToolbarProsemirrorPlugin extends EventEmitter<any> {
-  private view: FormattingToolbarView | undefined;
+export class FormattingToolbarProsemirrorPlugin<
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+> extends EventEmitter<any> {
+  private view: FormattingToolbarView<BSchema, I, S> | undefined;
   public readonly plugin: Plugin;
 
-  constructor(editor: BlockNoteEditor<any, any, any>) {
+  constructor(editor: BlockNoteEditor<BSchema, I, S>) {
     super();
     this.plugin = new Plugin({
       key: formattingToolbarPluginKey,
@@ -222,7 +238,9 @@ export class FormattingToolbarProsemirrorPlugin extends EventEmitter<any> {
     });
   }
 
-  public onUpdate(callback: (state: FormattingToolbarState) => void) {
+  public onUpdate(
+    callback: (state: FormattingToolbarState<BSchema, I, S>) => void
+  ) {
     return this.on("update", callback);
   }
 }

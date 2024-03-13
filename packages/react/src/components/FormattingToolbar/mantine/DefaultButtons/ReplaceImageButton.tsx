@@ -1,6 +1,10 @@
 import {
+  Block,
   BlockSchema,
   checkBlockIsDefaultType,
+  DefaultBlockSchema,
+  DefaultInlineContentSchema,
+  DefaultStyleSchema,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
@@ -9,26 +13,30 @@ import { useEffect, useState } from "react";
 import { RiImageEditFill } from "react-icons/ri";
 
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor";
-import { useSelectedBlocks } from "../../../../hooks/useSelectedBlocks";
 import { ImageToolbar } from "../../../ImageToolbar/mantine/ImageToolbar";
 import { ToolbarButton } from "../../../mantine-shared/Toolbar/ToolbarButton";
 
-export const ReplaceImageButton = () => {
+export const ReplaceImageButton = <
+  BSchema extends BlockSchema = DefaultBlockSchema,
+  I extends InlineContentSchema = DefaultInlineContentSchema,
+  S extends StyleSchema = DefaultStyleSchema
+>(props: {
+  selectedBlocks: Block<BSchema, I, S>[];
+}) => {
   const editor = useBlockNoteEditor<
     BlockSchema,
     InlineContentSchema,
     StyleSchema
   >();
 
-  const selectedBlocks = useSelectedBlocks(editor);
-
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
   useEffect(() => {
     setIsOpen(false);
-  }, [selectedBlocks]);
+  }, []);
 
-  const block = selectedBlocks.length === 1 ? selectedBlocks[0] : undefined;
+  const block =
+    props.selectedBlocks.length === 1 ? props.selectedBlocks[0] : undefined;
 
   if (
     block === undefined ||

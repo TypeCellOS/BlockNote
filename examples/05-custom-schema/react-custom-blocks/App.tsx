@@ -110,11 +110,11 @@ export const bracketsParagraphBlock = createReactBlockSpec(
   {
     render: (props) => (
       <div className={"brackets-paragraph"}>
-        <div contentEditable={"false"}>{"["}</div>
-        <span contentEditable={"false"}>{"{"}</span>
+        <div>{"["}</div>
+        <span>{"{"}</span>
         <div className={"inline-content"} ref={props.contentRef} />
-        <span contentEditable={"false"}>{"}"}</span>
-        <div contentEditable={"false"}>{"]"}</div>
+        <span>{"}"}</span>
+        <div>{"]"}</div>
       </div>
     ),
   }

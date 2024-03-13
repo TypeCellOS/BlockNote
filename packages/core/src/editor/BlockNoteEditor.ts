@@ -155,7 +155,11 @@ export class BlockNoteEditor<
   public readonly inlineContentImplementations: InlineContentSpecs;
   public readonly styleImplementations: StyleSpecs;
 
-  public readonly formattingToolbar: FormattingToolbarProsemirrorPlugin;
+  public readonly formattingToolbar: FormattingToolbarProsemirrorPlugin<
+    BSchema,
+    ISchema,
+    SSchema
+  >;
   public readonly hyperlinkToolbar: HyperlinkToolbarProsemirrorPlugin<
     BSchema,
     ISchema,
@@ -361,7 +365,7 @@ export class BlockNoteEditor<
    * @deprecated, use `editor.document` instead
    */
   public get topLevelBlocks(): Block<BSchema, ISchema, SSchema>[] {
-    return this.topLevelBlocks;
+    return this.document;
   }
 
   /**

@@ -1,6 +1,10 @@
 import {
+  Block,
   BlockNoteEditor,
   BlockSchema,
+  DefaultBlockSchema,
+  DefaultInlineContentSchema,
+  DefaultStyleSchema,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
@@ -10,17 +14,20 @@ import { useCallback, useMemo, useState } from "react";
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor";
 import { useEditorContentOrSelectionChange } from "../../../../hooks/useEditorContentOrSelectionChange";
 import { usePreventMenuOverflow } from "../../../../hooks/usePreventMenuOverflow";
-import { useSelectedBlocks } from "../../../../hooks/useSelectedBlocks";
 import { ColorIcon } from "../../../mantine-shared/ColorPicker/ColorIcon";
 import { ColorPicker } from "../../../mantine-shared/ColorPicker/ColorPicker";
 import { ToolbarButton } from "../../../mantine-shared/Toolbar/ToolbarButton";
 
-function checkColorInSchema<Color extends "text" | "background">(
+function checkColorInSchema<
+  Color extends "text" | "background",
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema
+>(
   color: Color,
-  editor: BlockNoteEditor<BlockSchema, InlineContentSchema, StyleSchema>
+  editor: BlockNoteEditor<BSchema, I, any>
 ): editor is BlockNoteEditor<
-  BlockSchema,
-  InlineContentSchema,
+  BSchema,
+  I,
   Color extends "text"
     ? {
         textColor: {
@@ -42,7 +49,13 @@ function checkColorInSchema<Color extends "text" | "background">(
   );
 }
 
-export const ColorStyleButton = () => {
+export const ColorStyleButton = <
+  BSchema extends BlockSchema = DefaultBlockSchema,
+  I extends InlineContentSchema = DefaultInlineContentSchema,
+  S extends StyleSchema = DefaultStyleSchema
+>(props: {
+  selectedBlocks: Block<BSchema, I, S>[];
+}) => {
   const editor = useBlockNoteEditor<
     BlockSchema,
     InlineContentSchema,
@@ -51,8 +64,6 @@ export const ColorStyleButton = () => {
 
   const textColorInSchema = checkColorInSchema("text", editor);
   const backgroundColorInSchema = checkColorInSchema("background", editor);
-
-  const selectedBlocks = useSelectedBlocks(editor);
 
   const [currentTextColor, setCurrentTextColor] = useState<string>(
     textColorInSchema
@@ -115,14 +126,14 @@ export const ColorStyleButton = () => {
       return false;
     }
 
-    for (const block of selectedBlocks) {
+    for (const block of props.selectedBlocks) {
       if (block.content !== undefined) {
         return true;
       }
     }
 
     return false;
-  }, [backgroundColorInSchema, selectedBlocks, textColorInSchema]);
+  }, [backgroundColorInSchema, props.selectedBlocks, textColorInSchema]);
 
   if (!show) {
     return null;

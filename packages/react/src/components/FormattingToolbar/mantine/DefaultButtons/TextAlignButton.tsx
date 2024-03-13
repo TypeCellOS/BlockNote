@@ -1,8 +1,12 @@
 import {
+  Block,
   BlockSchema,
   checkBlockHasDefaultProp,
   checkBlockTypeHasDefaultProp,
+  DefaultBlockSchema,
+  DefaultInlineContentSchema,
   DefaultProps,
+  DefaultStyleSchema,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
@@ -16,7 +20,6 @@ import {
 } from "react-icons/ri";
 
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor";
-import { useSelectedBlocks } from "../../../../hooks/useSelectedBlocks";
 import { ToolbarButton } from "../../../mantine-shared/Toolbar/ToolbarButton";
 
 type TextAlignment = DefaultProps["textAlignment"];
@@ -28,30 +31,35 @@ const icons: Record<TextAlignment, IconType> = {
   justify: RiAlignJustify,
 };
 
-export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
+export const TextAlignButton = <
+  BSchema extends BlockSchema = DefaultBlockSchema,
+  I extends InlineContentSchema = DefaultInlineContentSchema,
+  S extends StyleSchema = DefaultStyleSchema
+>(props: {
+  textAlignment: TextAlignment;
+  selectedBlocks: Block<BSchema, I, S>[];
+}) => {
   const editor = useBlockNoteEditor<
     BlockSchema,
     InlineContentSchema,
     StyleSchema
   >();
 
-  const selectedBlocks = useSelectedBlocks(editor);
-
   const textAlignment = useMemo(() => {
-    const block = selectedBlocks[0];
+    const block = props.selectedBlocks[0];
 
     if (checkBlockHasDefaultProp("textAlignment", block, editor)) {
       return block.props.textAlignment;
     }
 
     return;
-  }, [editor, selectedBlocks]);
+  }, [editor, props.selectedBlocks]);
 
   const setTextAlignment = useCallback(
     (textAlignment: TextAlignment) => {
       editor.focus();
 
-      for (const block of selectedBlocks) {
+      for (const block of props.selectedBlocks) {
         if (checkBlockTypeHasDefaultProp("textAlignment", block.type, editor)) {
           editor.updateBlock(block, {
             props: { textAlignment: textAlignment },
@@ -59,12 +67,14 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
         }
       }
     },
-    [editor, selectedBlocks]
+    [editor, props.selectedBlocks]
   );
 
   const show = useMemo(() => {
-    return !!selectedBlocks.find((block) => "textAlignment" in block.props);
-  }, [selectedBlocks]);
+    return !!props.selectedBlocks.find(
+      (block) => "textAlignment" in block.props
+    );
+  }, [props.selectedBlocks]);
 
   if (!show) {
     return null;

@@ -70,57 +70,80 @@ export default function App() {
   return (
     <BlockNoteView editor={editor} formattingToolbar={false}>
       <FormattingToolbarController
-        formattingToolbar={() => (
-          <FormattingToolbar>
-            <BlockTypeDropdown key={"blockTypeDropdown"} />
+        formattingToolbar={(props) => (
+          <FormattingToolbar {...props}>
+            <BlockTypeDropdown
+              selectedBlocks={props.selectedBlocks}
+              key={"blockTypeDropdown"}
+            />
 
             {/* Extra button to toggle blue text & background */}
             <BlueButton key={"customButton"} />
 
-            <ImageCaptionButton key={"imageCaptionButton"} />
-            <ReplaceImageButton key={"replaceImageButton"} />
+            <ImageCaptionButton
+              selectedBlocks={props.selectedBlocks}
+              key={"imageCaptionButton"}
+            />
+            <ReplaceImageButton
+              selectedBlocks={props.selectedBlocks}
+              key={"replaceImageButton"}
+            />
 
             <BasicTextStyleButton
+              selectedBlocks={props.selectedBlocks}
               basicTextStyle={"bold"}
               key={"boldStyleButton"}
             />
             <BasicTextStyleButton
+              selectedBlocks={props.selectedBlocks}
               basicTextStyle={"italic"}
               key={"italicStyleButton"}
             />
             <BasicTextStyleButton
+              selectedBlocks={props.selectedBlocks}
               basicTextStyle={"underline"}
               key={"underlineStyleButton"}
             />
             <BasicTextStyleButton
+              selectedBlocks={props.selectedBlocks}
               basicTextStyle={"strike"}
               key={"strikeStyleButton"}
             />
             {/* Extra button to toggle code styles */}
             <BasicTextStyleButton
+              selectedBlocks={props.selectedBlocks}
               key={"codeStyleButton"}
               basicTextStyle={"code"}
             />
 
             <TextAlignButton
+              selectedBlocks={props.selectedBlocks}
               textAlignment={"left"}
               key={"textAlignLeftButton"}
             />
             <TextAlignButton
+              selectedBlocks={props.selectedBlocks}
               textAlignment={"center"}
               key={"textAlignCenterButton"}
             />
             <TextAlignButton
+              selectedBlocks={props.selectedBlocks}
               textAlignment={"right"}
               key={"textAlignRightButton"}
             />
 
-            <ColorStyleButton key={"colorStyleButton"} />
+            <ColorStyleButton
+              selectedBlocks={props.selectedBlocks}
+              key={"colorStyleButton"}
+            />
 
             <NestBlockButton key={"nestBlockButton"} />
             <UnnestBlockButton key={"unnestBlockButton"} />
 
-            <CreateLinkButton key={"createLinkButton"} />
+            <CreateLinkButton
+              selectedBlocks={props.selectedBlocks}
+              key={"createLinkButton"}
+            />
           </FormattingToolbar>
         )}
       />

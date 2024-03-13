@@ -64,7 +64,7 @@ const CustomFormattingToolbar = (props: FormattingToolbarProps) => {
   const activeStyles = useActiveStyles(editor);
 
   return (
-    <FormattingToolbar>
+    <FormattingToolbar {...props}>
       <ToolbarButton
         mainTooltip={"small"}
         onClick={() => {

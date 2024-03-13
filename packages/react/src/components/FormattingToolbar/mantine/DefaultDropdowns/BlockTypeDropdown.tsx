@@ -1,10 +1,13 @@
 import {
   Block,
   BlockSchema,
+  DefaultBlockSchema,
+  DefaultInlineContentSchema,
+  DefaultStyleSchema,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import type { IconType } from "react-icons";
 import {
   RiH1,
@@ -16,8 +19,6 @@ import {
 } from "react-icons/ri";
 
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor";
-import { useEditorContentOrSelectionChange } from "../../../../hooks/useEditorContentOrSelectionChange";
-import { useSelectedBlocks } from "../../../../hooks/useSelectedBlocks";
 import { ToolbarDropdown } from "../../../mantine-shared/Toolbar/ToolbarDropdown";
 import { ToolbarDropdownItemProps } from "../../../mantine-shared/Toolbar/ToolbarDropdownItem";
 
@@ -83,18 +84,19 @@ export const blockTypeDropdownItems: BlockTypeDropdownItem[] = [
   },
 ];
 
-export const BlockTypeDropdown = (props: {
+export const BlockTypeDropdown = <
+  BSchema extends BlockSchema = DefaultBlockSchema,
+  I extends InlineContentSchema = DefaultInlineContentSchema,
+  S extends StyleSchema = DefaultStyleSchema
+>(props: {
   items?: BlockTypeDropdownItem[];
+  selectedBlocks: Block<BSchema, I, S>[];
 }) => {
   const editor = useBlockNoteEditor<
     BlockSchema,
     InlineContentSchema,
     StyleSchema
   >();
-
-  const selectedBlocks = useSelectedBlocks(editor);
-
-  const [block, setBlock] = useState(editor.getTextCursorPosition().block);
 
   const filteredItems: BlockTypeDropdownItem[] = useMemo(() => {
     return (props.items || blockTypeDropdownItems).filter((item) => {
@@ -126,15 +128,18 @@ export const BlockTypeDropdown = (props: {
   }, [editor, props.items]);
 
   const shouldShow: boolean = useMemo(
-    () => filteredItems.find((item) => item.type === block.type) !== undefined,
-    [block.type, filteredItems]
+    () =>
+      filteredItems.find(
+        (item) => item.type === props.selectedBlocks[0].type
+      ) !== undefined,
+    [filteredItems, props.selectedBlocks]
   );
 
   const fullItems: ToolbarDropdownItemProps[] = useMemo(() => {
     const onClick = (item: BlockTypeDropdownItem) => {
       editor.focus();
 
-      for (const block of selectedBlocks) {
+      for (const block of props.selectedBlocks) {
         editor.updateBlock(block, {
           type: item.type as any,
           props: item.props as any,
@@ -146,13 +151,15 @@ export const BlockTypeDropdown = (props: {
       text: item.name,
       icon: item.icon,
       onClick: () => onClick(item),
-      isSelected: item.isSelected(block),
+      isSelected: item.isSelected(
+        props.selectedBlocks[0] as Block<
+          BlockSchema,
+          InlineContentSchema,
+          StyleSchema
+        >
+      ),
     }));
-  }, [block, filteredItems, editor, selectedBlocks]);
-
-  useEditorContentOrSelectionChange(() => {
-    setBlock(editor.getTextCursorPosition().block);
-  }, editor);
+  }, [filteredItems, editor, props.selectedBlocks]);
 
   if (!shouldShow) {
     return null;

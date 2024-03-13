@@ -53,8 +53,9 @@ export default function App() {
   return (
     <BlockNoteView editor={editor} formattingToolbar={false}>
       <FormattingToolbarController
-        formattingToolbar={() => (
+        formattingToolbar={(props) => (
           <FormattingToolbar
+            {...props}
             blockTypeDropdownItems={[
               ...blockTypeDropdownItems,
               {

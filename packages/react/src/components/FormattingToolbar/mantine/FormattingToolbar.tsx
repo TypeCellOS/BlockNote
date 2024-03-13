@@ -14,30 +14,76 @@ import {
   BlockTypeDropdown,
   BlockTypeDropdownItem,
 } from "./DefaultDropdowns/BlockTypeDropdown";
+import {
+  Block,
+  BlockSchema,
+  DefaultBlockSchema,
+  DefaultInlineContentSchema,
+  DefaultStyleSchema,
+  InlineContentSchema,
+  StyleSchema,
+} from "@blocknote/core";
 
-export const getFormattingToolbarItems = (
+export const getFormattingToolbarItems = <
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(
+  selectedBlocks: Block<BSchema, I, S>[],
   blockTypeDropdownItems?: BlockTypeDropdownItem[]
 ): JSX.Element[] => [
   <BlockTypeDropdown
-    key={"blockTypeDropdown"}
+    selectedBlocks={selectedBlocks}
     items={blockTypeDropdownItems}
+    key={"blockTypeDropdown"}
   />,
-  <ImageCaptionButton key={"imageCaptionButton"} />,
-  <ReplaceImageButton key={"replaceImageButton"} />,
-  <BasicTextStyleButton basicTextStyle={"bold"} key={"boldStyleButton"} />,
-  <BasicTextStyleButton basicTextStyle={"italic"} key={"italicStyleButton"} />,
+  <ImageCaptionButton
+    selectedBlocks={selectedBlocks}
+    key={"imageCaptionButton"}
+  />,
+  <ReplaceImageButton
+    selectedBlocks={selectedBlocks}
+    key={"replaceImageButton"}
+  />,
   <BasicTextStyleButton
+    selectedBlocks={selectedBlocks}
+    basicTextStyle={"bold"}
+    key={"boldStyleButton"}
+  />,
+  <BasicTextStyleButton
+    selectedBlocks={selectedBlocks}
+    basicTextStyle={"italic"}
+    key={"italicStyleButton"}
+  />,
+  <BasicTextStyleButton
+    selectedBlocks={selectedBlocks}
     basicTextStyle={"underline"}
     key={"underlineStyleButton"}
   />,
-  <BasicTextStyleButton basicTextStyle={"strike"} key={"strikeStyleButton"} />,
-  <TextAlignButton textAlignment={"left"} key={"textAlignLeftButton"} />,
-  <TextAlignButton textAlignment={"center"} key={"textAlignCenterButton"} />,
-  <TextAlignButton textAlignment={"right"} key={"textAlignRightButton"} />,
-  <ColorStyleButton key={"colorStyleButton"} />,
+  <BasicTextStyleButton
+    selectedBlocks={selectedBlocks}
+    basicTextStyle={"strike"}
+    key={"strikeStyleButton"}
+  />,
+  <TextAlignButton
+    selectedBlocks={selectedBlocks}
+    textAlignment={"left"}
+    key={"textAlignLeftButton"}
+  />,
+  <TextAlignButton
+    selectedBlocks={selectedBlocks}
+    textAlignment={"center"}
+    key={"textAlignCenterButton"}
+  />,
+  <TextAlignButton
+    selectedBlocks={selectedBlocks}
+    textAlignment={"right"}
+    key={"textAlignRightButton"}
+  />,
+  <ColorStyleButton selectedBlocks={selectedBlocks} key={"colorStyleButton"} />,
   <NestBlockButton key={"nestBlockButton"} />,
   <UnnestBlockButton key={"unnestBlockButton"} />,
-  <CreateLinkButton key={"createLinkButton"} />,
+  <CreateLinkButton selectedBlocks={selectedBlocks} key={"createLinkButton"} />,
 ];
 
 // TODO: props.blockTypeDropdownItems should only be available if no children
@@ -54,13 +100,20 @@ export const getFormattingToolbarItems = (
  * - Custom buttons: The `ToolbarButton` component in the
  * `components/mantine-shared/Toolbar` directory.
  */
-export const FormattingToolbar = (
-  props: FormattingToolbarProps & { children?: React.ReactNode }
+export const FormattingToolbar = <
+  BSchema extends BlockSchema = DefaultBlockSchema,
+  I extends InlineContentSchema = DefaultInlineContentSchema,
+  S extends StyleSchema = DefaultStyleSchema
+>(
+  props: FormattingToolbarProps<BSchema, I, S> & { children?: React.ReactNode }
 ) => {
   return (
     <Toolbar>
       {props.children ||
-        getFormattingToolbarItems(props.blockTypeDropdownItems)}
+        getFormattingToolbarItems(
+          props.selectedBlocks,
+          props.blockTypeDropdownItems
+        )}
     </Toolbar>
   );
 };

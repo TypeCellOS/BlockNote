@@ -1,6 +1,10 @@
 import {
+  Block,
   BlockNoteEditor,
   BlockSchema,
+  DefaultBlockSchema,
+  DefaultInlineContentSchema,
+  DefaultStyleSchema,
   formatKeyboardShortcut,
   InlineContentSchema,
   StyleSchema,
@@ -17,7 +21,6 @@ import {
 
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor";
 import { useEditorContentOrSelectionChange } from "../../../../hooks/useEditorContentOrSelectionChange";
-import { useSelectedBlocks } from "../../../../hooks/useSelectedBlocks";
 import { ToolbarButton } from "../../../mantine-shared/Toolbar/ToolbarButton";
 
 type BasicTextStyle = "bold" | "italic" | "underline" | "strike" | "code";
@@ -38,12 +41,16 @@ const shortcuts = {
   code: "",
 } satisfies Record<BasicTextStyle, string>;
 
-function checkBasicTextStyleInSchema<Style extends BasicTextStyle>(
+function checkBasicTextStyleInSchema<
+  Style extends BasicTextStyle,
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema
+>(
   style: Style,
-  editor: BlockNoteEditor<BlockSchema, InlineContentSchema, StyleSchema>
+  editor: BlockNoteEditor<BSchema, I, any>
 ): editor is BlockNoteEditor<
-  BlockSchema,
-  InlineContentSchema,
+  BSchema,
+  I,
   {
     [k in Style]: {
       type: k;
@@ -58,8 +65,14 @@ function checkBasicTextStyleInSchema<Style extends BasicTextStyle>(
   );
 }
 
-export const BasicTextStyleButton = <Style extends BasicTextStyle>(props: {
+export const BasicTextStyleButton = <
+  Style extends BasicTextStyle,
+  BSchema extends BlockSchema = DefaultBlockSchema,
+  I extends InlineContentSchema = DefaultInlineContentSchema,
+  S extends StyleSchema = DefaultStyleSchema
+>(props: {
   basicTextStyle: Style;
+  selectedBlocks: Block<BSchema, I, S>[];
 }) => {
   const editor = useBlockNoteEditor<
     BlockSchema,
@@ -71,8 +84,6 @@ export const BasicTextStyleButton = <Style extends BasicTextStyle>(props: {
     props.basicTextStyle,
     editor
   );
-
-  const selectedBlocks = useSelectedBlocks(editor);
 
   const [active, setActive] = useState<boolean>(
     props.basicTextStyle in editor.getActiveStyles()
@@ -101,8 +112,8 @@ export const BasicTextStyleButton = <Style extends BasicTextStyle>(props: {
       return false;
     }
     // Also don't show when none of the selected blocks have text content
-    return !!selectedBlocks.find((block) => block.content !== undefined);
-  }, [basicTextStyleInSchema, selectedBlocks]);
+    return !!props.selectedBlocks.find((block) => block.content !== undefined);
+  }, [basicTextStyleInSchema, props.selectedBlocks]);
 
   if (!show) {
     return null;

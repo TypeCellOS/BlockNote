@@ -1,6 +1,9 @@
 import {
   BlockSchema,
+  DefaultBlockSchema,
+  DefaultInlineContentSchema,
   DefaultProps,
+  DefaultStyleSchema,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
@@ -29,14 +32,14 @@ const textAlignmentToPlacement = (
   }
 };
 
-export const FormattingToolbarController = (props: {
-  formattingToolbar?: FC<FormattingToolbarProps>;
+export const FormattingToolbarController = <
+  BSchema extends BlockSchema = DefaultBlockSchema,
+  I extends InlineContentSchema = DefaultInlineContentSchema,
+  S extends StyleSchema = DefaultStyleSchema
+>(props: {
+  formattingToolbar?: FC<FormattingToolbarProps<BSchema, I, S>>;
 }) => {
-  const editor = useBlockNoteEditor<
-    BlockSchema,
-    InlineContentSchema,
-    StyleSchema
-  >();
+  const editor = useBlockNoteEditor<BSchema, I, S>();
 
   const [placement, setPlacement] = useState<"top-start" | "top" | "top-end">(
     () => {
@@ -83,11 +86,13 @@ export const FormattingToolbarController = (props: {
     return null;
   }
 
+  const { show, referencePos, ...data } = state;
+
   const Component = props.formattingToolbar || FormattingToolbar;
 
   return (
     <div ref={ref} style={style}>
-      <Component />
+      <Component {...data} />
     </div>
   );
 };

@@ -1,7 +1,11 @@
 import {
+  Block,
   BlockSchema,
   checkBlockIsDefaultType,
   checkDefaultBlockTypeInSchema,
+  DefaultBlockSchema,
+  DefaultInlineContentSchema,
+  DefaultStyleSchema,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
@@ -15,13 +19,18 @@ import {
 import { RiText } from "react-icons/ri";
 
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor";
-import { useSelectedBlocks } from "../../../../hooks/useSelectedBlocks";
 import { ToolbarButton } from "../../../mantine-shared/Toolbar/ToolbarButton";
 import { ToolbarInputDropdown } from "../../../mantine-shared/Toolbar/ToolbarInputDropdown";
 import { ToolbarInputDropdownButton } from "../../../mantine-shared/Toolbar/ToolbarInputDropdownButton";
 import { ToolbarInputDropdownItem } from "../../../mantine-shared/Toolbar/ToolbarInputDropdownItem";
 
-export const ImageCaptionButton = () => {
+export const ImageCaptionButton = <
+  BSchema extends BlockSchema = DefaultBlockSchema,
+  I extends InlineContentSchema = DefaultInlineContentSchema,
+  S extends StyleSchema = DefaultStyleSchema
+>(props: {
+  selectedBlocks: Block<BSchema, I, S>[];
+}) => {
   const editor = useBlockNoteEditor<
     BlockSchema,
     InlineContentSchema,
@@ -30,22 +39,20 @@ export const ImageCaptionButton = () => {
 
   const [currentEditingCaption, setCurrentEditingCaption] = useState<string>();
 
-  const selectedBlocks = useSelectedBlocks(editor);
-
   const imageBlock = useMemo(() => {
     // Checks if only one block is selected.
-    if (selectedBlocks.length !== 1) {
+    if (props.selectedBlocks.length !== 1) {
       return undefined;
     }
 
-    const block = selectedBlocks[0];
+    const block = props.selectedBlocks[0];
 
     if (checkBlockIsDefaultType("image", block, editor)) {
       return block;
     }
 
     return undefined;
-  }, [editor, selectedBlocks]);
+  }, [editor, props.selectedBlocks]);
 
   const handleEnter = useCallback(
     (event: KeyboardEvent) => {
