@@ -15,7 +15,10 @@ import { flushSync } from "react-dom";
 import { Root, createRoot } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { BlockNoteView } from "../editor/BlockNoteView";
-import { customReactBlockSchemaTestCases } from "./testCases/customReactBlocks";
+import {
+  TestContext,
+  customReactBlockSchemaTestCases,
+} from "./testCases/customReactBlocks";
 import { customReactInlineContentTestCases } from "./testCases/customReactInlineContent";
 import { customReactStylesTestCases } from "./testCases/customReactStyles";
 
@@ -84,7 +87,11 @@ describe("Test React HTML conversion", () => {
       beforeEach(() => {
         editor = testCase.createEditor();
 
-        const el = <BlockNoteView editor={editor} />;
+        const el = (
+          <TestContext.Provider value={true}>
+            <BlockNoteView editor={editor} />
+          </TestContext.Provider>
+        );
         root = createRoot(div);
         flushSync(() => {
           // eslint-disable-next-line testing-library/no-render-in-setup
