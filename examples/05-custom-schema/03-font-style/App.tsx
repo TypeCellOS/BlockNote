@@ -3,9 +3,9 @@ import "@blocknote/core/fonts/inter.css";
 import {
   BasicTextStyleButton,
   BlockNoteView,
-  BlockTypeDropdown,
+  BlockTypeSelect,
   ColorStyleButton,
-  CreateLinkButton,
+  CreateHyperlinkButton,
   FormattingToolbar,
   FormattingToolbarController,
   ImageCaptionButton,
@@ -99,7 +99,7 @@ export default function App() {
       <FormattingToolbarController
         formattingToolbar={() => (
           <FormattingToolbar>
-            <BlockTypeDropdown key={"blockTypeDropdown"} />
+            <BlockTypeSelect key={"blockTypeSelect"} />
 
             <ImageCaptionButton key={"imageCaptionButton"} />
             <ReplaceImageButton key={"replaceImageButton"} />
@@ -141,7 +141,7 @@ export default function App() {
             <NestBlockButton key={"nestBlockButton"} />
             <UnnestBlockButton key={"unnestBlockButton"} />
 
-            <CreateLinkButton key={"createLinkButton"} />
+            <CreateHyperlinkButton key={"createLinkButton"} />
           </FormattingToolbar>
         )}
       />
