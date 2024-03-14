@@ -2,11 +2,11 @@ import { BlockNoteSchema, defaultBlockSpecs } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
 import {
   BlockNoteView,
-  BlockTypeDropdownItem,
   FormattingToolbar,
   FormattingToolbarController,
-  blockTypeDropdownItems,
   useCreateBlockNote,
+  blockTypeSelectItems,
+  BlockTypeSelectItem,
 } from "@blocknote/react";
 import "@blocknote/react/style.css";
 import { RiAlertFill } from "react-icons/ri";
@@ -36,12 +36,12 @@ export default function App() {
       {
         type: "paragraph",
         content:
-          "Try selecting some text - you'll see the new 'Alert' item in the Block Type Dropdown",
+          "Try selecting some text - you'll see the new 'Alert' item in the Block Type Select",
       },
       {
         type: "alert",
         content:
-          "Or select text in this alert - the Block Type Dropdown also appears",
+          "Or select text in this alert - the Block Type Select also appears",
       },
       {
         type: "paragraph",
@@ -49,20 +49,20 @@ export default function App() {
     ],
   });
 
-  // Renders the editor instance with the updated Block Type Dropdown.
+  // Renders the editor instance with the updated Block Type Select.
   return (
     <BlockNoteView editor={editor} formattingToolbar={false}>
       <FormattingToolbarController
         formattingToolbar={() => (
           <FormattingToolbar
-            blockTypeDropdownItems={[
-              ...blockTypeDropdownItems,
+            blockTypeSelectItems={[
+              ...blockTypeSelectItems,
               {
                 name: "Alert",
                 type: "alert",
                 icon: RiAlertFill,
                 isSelected: (block) => block.type === "alert",
-              } satisfies BlockTypeDropdownItem,
+              } satisfies BlockTypeSelectItem,
             ]}
           />
         )}

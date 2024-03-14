@@ -12,8 +12,8 @@ import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor";
 import { useEditorContentOrSelectionChange } from "../../../../hooks/useEditorContentOrSelectionChange";
 import { useSelectedBlocks } from "../../../../hooks/useSelectedBlocks";
 import { ToolbarButton } from "../../../mantine-shared/Toolbar/ToolbarButton";
-import { ToolbarInputDropdownButton } from "../../../mantine-shared/Toolbar/ToolbarInputDropdownButton";
-import { EditHyperlinkMenu } from "../../../HyperlinkToolbar/mantine/EditHyperlinkMenu";
+import { ToolbarInputsMenu } from "../../../mantine-shared/Toolbar/ToolbarInputsMenu";
+import { EditHyperlinkMenuItems } from "../../../HyperlinkToolbar/mantine/EditHyperlinkMenuItems";
 
 // TODO: Make sure Link is in inline content schema
 export const CreateHyperlinkButton = () => {
@@ -56,16 +56,16 @@ export const CreateHyperlinkButton = () => {
   }
 
   return (
-    <ToolbarInputDropdownButton
-      target={
+    <ToolbarInputsMenu
+      button={
         <ToolbarButton
           mainTooltip={"Create Link"}
           secondaryTooltip={formatKeyboardShortcut("Mod+K")}
           icon={RiLink}
         />
       }
-      dropdown={
-        <EditHyperlinkMenu url={url} text={text} editHyperlink={update} />
+      dropdownItems={
+        <EditHyperlinkMenuItems url={url} text={text} editHyperlink={update} />
       }
     />
   );

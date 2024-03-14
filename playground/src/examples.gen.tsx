@@ -199,7 +199,7 @@
             "react-icons": "^4.3.1"
           }
         },
-        "title": "Adding Block Type Dropdown Items",
+        "title": "Adding Block Type Select Items",
         "group": {
           "pathFromRoot": "examples/02-ui-components",
           "slug": "ui-components"
