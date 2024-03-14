@@ -1,3 +1,4 @@
+import { createContext, useContext } from "react";
 import {
   BlockNoteEditor,
   BlockNoteSchema,
@@ -39,11 +40,34 @@ const SimpleReactCustomParagraph = createReactBlockSpec(
   }
 );
 
+export const TestContext = createContext<true | undefined>(undefined);
+
+const ReactContextParagraphComponent = (props: any) => {
+  const testData = useContext(TestContext);
+  if (testData === undefined) {
+    throw Error();
+  }
+
+  return <div ref={props.contentRef} />;
+};
+
+const ReactContextParagraph = createReactBlockSpec(
+  {
+    type: "reactContextParagraph",
+    propSchema: defaultProps,
+    content: "inline",
+  },
+  {
+    render: ReactContextParagraphComponent,
+  }
+);
+
 const schema = BlockNoteSchema.create({
   blockSpecs: {
     ...defaultBlockSpecs,
     reactCustomParagraph: ReactCustomParagraph,
     simpleReactCustomParagraph: SimpleReactCustomParagraph,
+    reactContextParagraph: ReactContextParagraph,
   },
 });
 
@@ -197,6 +221,15 @@ export const customReactBlockSchemaTestCases: EditorTestCases<
               content: "Nested React Custom Paragraph 2",
             },
           ],
+        },
+      ],
+    },
+    {
+      name: "reactContextParagraph/basic",
+      blocks: [
+        {
+          type: "reactContextParagraph",
+          content: "React Context Paragraph",
         },
       ],
     },

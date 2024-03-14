@@ -184,19 +184,22 @@ export function createReactBlockSpec<
         node.options.domAttributes?.blockContent || {};
 
       const BlockContent = blockImplementation.render;
-      const output = renderToDOMSpec((refCB) => (
-        <BlockContentWrapper
-          blockType={block.type}
-          blockProps={block.props}
-          propSchema={blockConfig.propSchema}
-          domAttributes={blockContentDOMAttributes}>
-          <BlockContent
-            block={block as any}
-            editor={editor as any}
-            contentRef={refCB}
-          />
-        </BlockContentWrapper>
-      ));
+      const output = renderToDOMSpec(
+        (refCB) => (
+          <BlockContentWrapper
+            blockType={block.type}
+            blockProps={block.props}
+            propSchema={blockConfig.propSchema}
+            domAttributes={blockContentDOMAttributes}>
+            <BlockContent
+              block={block as any}
+              editor={editor as any}
+              contentRef={refCB}
+            />
+          </BlockContentWrapper>
+        ),
+        editor
+      );
       output.contentDOM?.setAttribute("data-editable", "");
 
       return output;
@@ -221,7 +224,7 @@ export function createReactBlockSpec<
             />
           </BlockContentWrapper>
         );
-      });
+      }, editor);
       output.contentDOM?.setAttribute("data-editable", "");
 
       return output;

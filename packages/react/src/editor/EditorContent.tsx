@@ -1,7 +1,7 @@
 import { BlockNoteEditor } from "@blocknote/core";
 import { ReactRenderer } from "@tiptap/react";
 import { useEffect, useState } from "react";
-import { createPortal } from "react-dom";
+import { createPortal, flushSync } from "react-dom";
 
 const Portals: React.FC<{ renderers: Record<string, ReactRenderer> }> = ({
   renderers,
@@ -26,13 +26,20 @@ export function EditorContent(props: {
   children: any;
 }) {
   const [renderers, setRenderers] = useState<Record<string, ReactRenderer>>({});
+  const [singleRenderData, setSingleRenderData] = useState<any>();
 
   useEffect(() => {
     props.editor._tiptapEditor.contentComponent = {
+      /**
+       * Used by TipTap
+       */
       setRenderer(id: string, renderer: ReactRenderer) {
         setRenderers((renderers) => ({ ...renderers, [id]: renderer }));
       },
 
+      /**
+       * Used by TipTap
+       */
       removeRenderer(id: string) {
         setRenderers((renderers) => {
           const nextRenderers = { ...renderers };
@@ -41,6 +48,18 @@ export function EditorContent(props: {
 
           return nextRenderers;
         });
+      },
+
+      /**
+       * Render a single node to a container within the React context (used by BlockNote renderToDOMSpec)
+       */
+      renderToElement(node: React.ReactNode, container: HTMLElement) {
+        flushSync(() => {
+          setSingleRenderData({ node, container });
+        });
+
+        // clear after it's been rendered to `container`
+        setSingleRenderData(undefined);
       },
     };
     // Without queueMicrotask, custom IC / styles will give a React FlushSync error
@@ -55,6 +74,8 @@ export function EditorContent(props: {
   return (
     <>
       <Portals renderers={renderers} />
+      {singleRenderData &&
+        createPortal(singleRenderData.node, singleRenderData.container)}
       {props.children}
     </>
   );
