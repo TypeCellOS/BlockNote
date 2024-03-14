@@ -5,11 +5,10 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { LoadingOverlay, Tabs } from "@mantine/core";
+import { Group, LoadingOverlay, Tabs } from "@mantine/core";
 import { ReactNode, useState } from "react";
 
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
-import { Toolbar } from "../../mantine-shared/Toolbar/Toolbar";
 import { ImagePanelProps } from "../ImagePanelProps";
 import { UploadTab } from "./DefaultTabs/UploadTab";
 import { EmbedTab } from "./DefaultTabs/EmbedTab";
@@ -38,7 +37,7 @@ export const ImagePanel = <
   const [loading, setLoading] = useState<boolean>(false);
 
   return (
-    <Toolbar className={"bn-image-toolbar"}>
+    <Group className={"bn-image-panel"}>
       {props.children !== undefined ? (
         props.children
       ) : (
@@ -70,6 +69,6 @@ export const ImagePanel = <
           </Tabs.Panel>
         </Tabs>
       )}
-    </Toolbar>
+    </Group>
   );
 };

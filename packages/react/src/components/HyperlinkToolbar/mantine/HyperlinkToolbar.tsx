@@ -2,9 +2,9 @@ import { ReactNode } from "react";
 
 import { HyperlinkToolbarProps } from "../HyperlinkToolbarProps";
 import { Toolbar } from "../../mantine-shared/Toolbar/Toolbar";
-import { EditLinkButton } from "./DefaultButtons/EditLinkButton";
-import { OpenLinkButton } from "./DefaultButtons/OpenLinkButton";
-import { DeleteLinkButton } from "./DefaultButtons/DeleteLinkButton";
+import { EditHyperlinkButton } from "./DefaultButtons/EditHyperlinkButton";
+import { OpenHyperlinkButton } from "./DefaultButtons/OpenHyperlinkButton";
+import { DeleteHyperlinkButton } from "./DefaultButtons/DeleteHyperlinkButton";
 
 /**
  * By default, the HyperlinkToolbar component will render with default buttons.
@@ -28,13 +28,13 @@ export const HyperlinkToolbar = (
     <Toolbar
       onMouseEnter={props.stopHideTimer}
       onMouseLeave={props.startHideTimer}>
-      <EditLinkButton
+      <EditHyperlinkButton
         url={props.url}
         text={props.text}
         editHyperlink={props.editHyperlink}
       />
-      <OpenLinkButton url={props.url} />
-      <DeleteLinkButton deleteHyperlink={props.deleteHyperlink} />
+      <OpenHyperlinkButton url={props.url} />
+      <DeleteHyperlinkButton deleteHyperlink={props.deleteHyperlink} />
     </Toolbar>
   );
 };

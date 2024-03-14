@@ -26,14 +26,14 @@ export const ImagePanelController = <
     S
   >();
 
-  if (!editor.imageToolbar) {
+  if (!editor.imagePanel) {
     throw new Error(
       "ImageToolbarController can only be used when BlockNote editor schema contains image block"
     );
   }
 
   const state = useUIPluginState(
-    editor.imageToolbar.onUpdate.bind(editor.imageToolbar)
+    editor.imagePanel.onUpdate.bind(editor.imagePanel)
   );
   const { isMounted, ref, style } = useUIElementPositioning(
     state?.show || false,

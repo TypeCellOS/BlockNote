@@ -28,9 +28,9 @@ import {
 } from "../blocks/defaultBlocks";
 import { FormattingToolbarProsemirrorPlugin } from "../extensions/FormattingToolbar/FormattingToolbarPlugin";
 import { HyperlinkToolbarProsemirrorPlugin } from "../extensions/HyperlinkToolbar/HyperlinkToolbarPlugin";
-import { ImageToolbarProsemirrorPlugin } from "../extensions/ImageToolbar/ImageToolbarPlugin";
 import { SideMenuProsemirrorPlugin } from "../extensions/SideMenu/SideMenuPlugin";
 import { SuggestionMenuProseMirrorPlugin } from "../extensions/SuggestionMenu/SuggestionPlugin";
+import { ImagePanelProsemirrorPlugin } from "../extensions/ImagePanel/ImageToolbarPlugin";
 import { TableHandlesProsemirrorPlugin } from "../extensions/TableHandles/TableHandlesPlugin";
 import { UniqueID } from "../extensions/UniqueID/UniqueID";
 import {
@@ -54,14 +54,15 @@ import { TextCursorPosition } from "./cursorPositionTypes";
 import { Selection } from "./selectionTypes";
 import { transformPasted } from "./transformPasted";
 
-// CSS
 import { checkDefaultBlockTypeInSchema } from "../blocks/defaultBlockTypeGuards";
-import "./Block.css";
 import { BlockNoteSchema } from "./BlockNoteSchema";
 import {
   BlockNoteTipTapEditor,
   BlockNoteTipTapEditorOptions,
 } from "./BlockNoteTipTapEditor";
+
+// CSS
+import "./Block.css";
 import "./editor.css";
 
 export type BlockNoteEditorOptions<
@@ -171,10 +172,7 @@ export class BlockNoteEditor<
     ISchema,
     SSchema
   >;
-  public readonly imageToolbar?: ImageToolbarProsemirrorPlugin<
-    ISchema,
-    SSchema
-  >;
+  public readonly imagePanel?: ImagePanelProsemirrorPlugin<ISchema, SSchema>;
   public readonly tableHandles?: TableHandlesProsemirrorPlugin<
     ISchema,
     SSchema
@@ -237,7 +235,7 @@ export class BlockNoteEditor<
     this.suggestionMenus = new SuggestionMenuProseMirrorPlugin(this);
     if (checkDefaultBlockTypeInSchema("image", this)) {
       // Type guards only work on `const`s? Not working for `this`
-      this.imageToolbar = new ImageToolbarProsemirrorPlugin(this as any);
+      this.imagePanel = new ImagePanelProsemirrorPlugin(this as any);
     }
     if (checkDefaultBlockTypeInSchema("table", this)) {
       this.tableHandles = new TableHandlesProsemirrorPlugin(this as any);
@@ -263,7 +261,7 @@ export class BlockNoteEditor<
           this.hyperlinkToolbar.plugin,
           this.sideMenu.plugin,
           this.suggestionMenus.plugin,
-          ...(this.imageToolbar ? [this.imageToolbar.plugin] : []),
+          ...(this.imagePanel ? [this.imagePanel.plugin] : []),
           ...(this.tableHandles ? [this.tableHandles.plugin] : []),
         ];
       },

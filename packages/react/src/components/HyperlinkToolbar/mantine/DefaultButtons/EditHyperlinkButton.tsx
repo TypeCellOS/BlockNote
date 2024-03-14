@@ -1,9 +1,9 @@
 import { ToolbarButton } from "../../../mantine-shared/Toolbar/ToolbarButton";
 import { ToolbarInputDropdownButton } from "../../../mantine-shared/Toolbar/ToolbarInputDropdownButton";
 import { HyperlinkToolbarProps } from "../../HyperlinkToolbarProps";
-import { EditLinkMenu } from "../EditLinkMenu";
+import { EditHyperlinkMenu } from "../EditHyperlinkMenu";
 
-export const EditLinkButton = (
+export const EditHyperlinkButton = (
   props: Pick<HyperlinkToolbarProps, "url" | "text" | "editHyperlink">
 ) => (
   <ToolbarInputDropdownButton
@@ -12,6 +12,6 @@ export const EditLinkButton = (
         Edit Link
       </ToolbarButton>
     }
-    dropdown={<EditLinkMenu {...props} />}
+    dropdown={<EditHyperlinkMenu {...props} />}
   />
 );
