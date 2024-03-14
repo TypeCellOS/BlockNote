@@ -16,7 +16,7 @@ const { room } = client.enterRoom("your-project-name", {
   initialPresence: {},
 });
 
-// Sets up Yjs document and LiveBlocks Yjs provider.
+// Sets up Yjs document and Liveblocks Yjs provider.
 const doc = new Y.Doc();
 const provider = new LiveblocksProvider(room, doc);
 

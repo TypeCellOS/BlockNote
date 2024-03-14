@@ -23,7 +23,6 @@ export const NestBlockButton = () => {
   );
 
   useEditorContentOrSelectionChange(() => {
-    editor.canNestBlock();
     setCanNestBlock(editor.canNestBlock());
   }, editor);
 

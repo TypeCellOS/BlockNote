@@ -11,8 +11,20 @@ section {
   --bg-color: #000000;
 }
 
-.editor-glow {
+.demo-glow {
   --glow-opacity: 0.4;
+  display: block;
+}
+
+.text-glow {
+  --glow-opacity: 0.2;
+  display: none;
+  @media only screen and (hover: none) and (pointer: coarse) {
+    display: block; /* disable on mobile */
+  }
+}
+
+.hero-glow {
   background: conic-gradient(
     from 33deg at 50% 50%,
     hsla(var(--glow-blue), var(--glow-opacity)),
