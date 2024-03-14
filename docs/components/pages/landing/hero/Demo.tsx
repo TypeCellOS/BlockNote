@@ -31,8 +31,8 @@ const DemoEditor = dynamic(
 
 export function Demo(props: { theme?: "light" | "dark" }) {
   return (
-    <div className="hero relative h-[36rem] w-full shrink-0 grow-0 rounded-lg xl:w-[584px]">
-      <div className="editor-glow absolute z-10 h-full w-full" />
+    <div className="hero-demo relative h-[36rem] w-full shrink-0 grow-0 rounded-lg sm:block xl:w-[584px]">
+      <div className="hero-glow demo-glow absolute z-10 h-full w-full" />
       <div className="relative z-20 h-full w-full rounded-lg bg-white dark:bg-[#202020]">
         <DemoEditor theme={props.theme} />
       </div>

@@ -44,7 +44,8 @@ const lightRedTheme = {
   fontFamily: "Helvetica Neue, sans-serif",
 } satisfies Theme;
 
-// Changes for dark mode
+// The theme for dark mode,
+// users the light theme defined above with a few changes
 const darkRedTheme = {
   ...lightRedTheme,
   colors: {
@@ -57,6 +58,14 @@ const darkRedTheme = {
     highlights: darkDefaultTheme.colors!.highlights,
   },
 } satisfies Theme;
+
+// The combined "red theme",
+// we pass this to BlockNoteView and then the editor will automatically
+// switch between lightRedTheme / darkRedTheme based on the system theme
+const redTheme = {
+  light: lightRedTheme,
+  dark: darkRedTheme,
+};
 
 export default function App() {
   // Creates a new editor instance.
@@ -82,14 +91,5 @@ export default function App() {
   });
 
   // Renders the editor instance using a React component.
-  return (
-    <BlockNoteView
-      editor={editor}
-      // Sets the red theme
-      theme={{
-        light: lightRedTheme,
-        dark: darkRedTheme,
-      }}
-    />
-  );
+  return <BlockNoteView editor={editor} theme={redTheme} />;
 }

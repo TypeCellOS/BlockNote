@@ -708,7 +708,7 @@
             "yjs": "^13.6.1"
           }
         },
-        "title": "Collaborative Editing with LiveBlocks",
+        "title": "Collaborative Editing with Liveblocks",
         "group": {
           "pathFromRoot": "examples/06-collaboration",
           "slug": "collaboration"
