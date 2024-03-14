@@ -4,7 +4,7 @@ import { Toolbar } from "../../mantine-shared/Toolbar/Toolbar";
 import { FormattingToolbarProps } from "../FormattingToolbarProps";
 import { BasicTextStyleButton } from "./DefaultButtons/BasicTextStyleButton";
 import { ColorStyleButton } from "./DefaultButtons/ColorStyleButton";
-import { CreateLinkButton } from "./DefaultButtons/CreateLinkButton";
+import { CreateHyperlinkButton } from "./DefaultButtons/CreateHyperlinkButton";
 import { ImageCaptionButton } from "./DefaultButtons/ImageCaptionButton";
 import {
   NestBlockButton,
@@ -36,7 +36,7 @@ export const getFormattingToolbarItems = (
   <ColorStyleButton key={"colorStyleButton"} />,
   <NestBlockButton key={"nestBlockButton"} />,
   <UnnestBlockButton key={"unnestBlockButton"} />,
-  <CreateLinkButton key={"createLinkButton"} />,
+  <CreateHyperlinkButton key={"createLinkButton"} />,
 ];
 
 // TODO: props.blockTypeSelectItems should only be available if no children

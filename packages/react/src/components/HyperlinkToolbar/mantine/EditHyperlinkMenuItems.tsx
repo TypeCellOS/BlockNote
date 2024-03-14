@@ -9,7 +9,7 @@ import {
 import { ToolbarInputsMenuItem } from "../../mantine-shared/Toolbar/ToolbarInputsMenuItem";
 import { RiLink, RiText } from "react-icons/ri";
 
-export const EditLinkMenuItems = (
+export const EditHyperlinkMenuItems = (
   props: Pick<HyperlinkToolbarProps, "url" | "text" | "editHyperlink">
 ) => {
   const { url, text, editHyperlink } = props;

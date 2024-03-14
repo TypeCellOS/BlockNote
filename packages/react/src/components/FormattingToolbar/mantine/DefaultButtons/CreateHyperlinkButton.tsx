@@ -13,9 +13,9 @@ import { useEditorContentOrSelectionChange } from "../../../../hooks/useEditorCo
 import { useSelectedBlocks } from "../../../../hooks/useSelectedBlocks";
 import { ToolbarButton } from "../../../mantine-shared/Toolbar/ToolbarButton";
 import { ToolbarInputsMenu } from "../../../mantine-shared/Toolbar/ToolbarInputsMenu";
-import { EditLinkMenuItems } from "../../../HyperlinkToolbar/mantine/EditLinkMenuItems";
+import { EditHyperlinkMenuItems } from "../../../HyperlinkToolbar/mantine/EditHyperlinkMenuItems";
 
-export const CreateLinkButton = () => {
+export const CreateHyperlinkButton = () => {
   const editor = useBlockNoteEditor<
     BlockSchema,
     InlineContentSchema,
@@ -64,7 +64,7 @@ export const CreateLinkButton = () => {
         />
       }
       dropdownItems={
-        <EditLinkMenuItems url={url} text={text} editHyperlink={update} />
+        <EditHyperlinkMenuItems url={url} text={text} editHyperlink={update} />
       }
     />
   );
