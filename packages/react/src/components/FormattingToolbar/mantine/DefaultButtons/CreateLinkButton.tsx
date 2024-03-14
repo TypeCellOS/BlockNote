@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState } from "react";
 import { RiLink } from "react-icons/ri";
 
 import {
+  BlockNoteEditor,
   BlockSchema,
   formatKeyboardShortcut,
   InlineContentSchema,
@@ -11,17 +12,37 @@ import {
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor";
 import { useEditorContentOrSelectionChange } from "../../../../hooks/useEditorContentOrSelectionChange";
 import { useSelectedBlocks } from "../../../../hooks/useSelectedBlocks";
-import { EditHyperlinkMenu } from "../../../HyperlinkToolbar/mantine/EditHyperlinkMenu/EditHyperlinkMenu";
 import { ToolbarButton } from "../../../mantine-shared/Toolbar/ToolbarButton";
-import { ToolbarInputDropdownButton } from "../../../mantine-shared/Toolbar/ToolbarInputDropdownButton";
+import { ToolbarInputsMenu } from "../../../mantine-shared/Toolbar/ToolbarInputsMenu";
+import { EditLinkMenuItems } from "../../../LinkToolbar/mantine/EditLinkMenuItems";
 
-// TODO: Make sure Link is in inline content schema
+function checkLinkInSchema(
+  editor: BlockNoteEditor<BlockSchema, any, StyleSchema>
+): editor is BlockNoteEditor<
+  BlockSchema,
+  {
+    link: {
+      type: "link";
+      propSchema: any;
+      content: "styled";
+    };
+  },
+  StyleSchema
+> {
+  return (
+    "link" in editor.schema.inlineContentSchema &&
+    editor.schema.inlineContentSchema["link"] === "link"
+  );
+}
+
 export const CreateLinkButton = () => {
   const editor = useBlockNoteEditor<
     BlockSchema,
     InlineContentSchema,
     StyleSchema
   >();
+
+  const linkInSchema = checkLinkInSchema(editor);
 
   const selectedBlocks = useSelectedBlocks(editor);
 
@@ -42,6 +63,10 @@ export const CreateLinkButton = () => {
   );
 
   const show = useMemo(() => {
+    if (!linkInSchema) {
+      return false;
+    }
+
     for (const block of selectedBlocks) {
       if (block.content === undefined) {
         return false;
@@ -49,22 +74,24 @@ export const CreateLinkButton = () => {
     }
 
     return true;
-  }, [selectedBlocks]);
+  }, [linkInSchema, selectedBlocks]);
 
   if (!show) {
     return null;
   }
 
   return (
-    <ToolbarInputDropdownButton
-      target={
+    <ToolbarInputsMenu
+      button={
         <ToolbarButton
           mainTooltip={"Create Link"}
           secondaryTooltip={formatKeyboardShortcut("Mod+K")}
           icon={RiLink}
         />
       }
-      dropdown={<EditHyperlinkMenu url={url} text={text} update={update} />}
+      dropdownItems={
+        <EditLinkMenuItems url={url} text={text} editLink={update} />
+      }
     />
   );
 };

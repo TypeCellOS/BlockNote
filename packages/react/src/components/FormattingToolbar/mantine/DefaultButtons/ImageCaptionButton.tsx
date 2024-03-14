@@ -17,9 +17,8 @@ import { RiText } from "react-icons/ri";
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor";
 import { useSelectedBlocks } from "../../../../hooks/useSelectedBlocks";
 import { ToolbarButton } from "../../../mantine-shared/Toolbar/ToolbarButton";
-import { ToolbarInputDropdown } from "../../../mantine-shared/Toolbar/ToolbarInputDropdown";
-import { ToolbarInputDropdownButton } from "../../../mantine-shared/Toolbar/ToolbarInputDropdownButton";
-import { ToolbarInputDropdownItem } from "../../../mantine-shared/Toolbar/ToolbarInputDropdownItem";
+import { ToolbarInputsMenu } from "../../../mantine-shared/Toolbar/ToolbarInputsMenu";
+import { ToolbarInputsMenuItem } from "../../../mantine-shared/Toolbar/ToolbarInputsMenuItem";
 
 export const ImageCaptionButton = () => {
   const editor = useBlockNoteEditor<
@@ -77,30 +76,25 @@ export const ImageCaptionButton = () => {
   }
 
   return (
-    <ToolbarInputDropdownButton
-      target={
+    <ToolbarInputsMenu
+      button={
         <ToolbarButton
           mainTooltip={"Edit Caption"}
           icon={RiText}
           isSelected={imageBlock.props.caption !== ""}
         />
       }
-      dropdown={
-        <ToolbarInputDropdown>
-          <ToolbarInputDropdownItem
-            type={"text"}
-            icon={RiText}
-            inputProps={{
-              // TODO: weird pattern of props passing?
-              value: currentEditingCaption,
-              autoFocus: true,
-              placeholder: "Edit Caption",
-              onKeyDown: handleEnter,
-              defaultValue: imageBlock.props.caption,
-              onChange: handleChange,
-            }}
-          />
-        </ToolbarInputDropdown>
+      dropdownItems={
+        <ToolbarInputsMenuItem
+          type={"text"}
+          icon={RiText}
+          value={currentEditingCaption}
+          autoFocus={true}
+          placeholder={"Edit Caption"}
+          onKeyDown={handleEnter}
+          defaultValue={imageBlock.props.caption}
+          onChange={handleChange}
+        />
       }
     />
   );

@@ -3,7 +3,7 @@ import "@blocknote/core/fonts/inter.css";
 import {
   BasicTextStyleButton,
   BlockNoteView,
-  BlockTypeDropdown,
+  BlockTypeSelect,
   ColorStyleButton,
   CreateLinkButton,
   FormattingToolbar,
@@ -99,7 +99,7 @@ export default function App() {
       <FormattingToolbarController
         formattingToolbar={() => (
           <FormattingToolbar>
-            <BlockTypeDropdown key={"blockTypeDropdown"} />
+            <BlockTypeSelect key={"blockTypeSelect"} />
 
             <ImageCaptionButton key={"imageCaptionButton"} />
             <ReplaceImageButton key={"replaceImageButton"} />

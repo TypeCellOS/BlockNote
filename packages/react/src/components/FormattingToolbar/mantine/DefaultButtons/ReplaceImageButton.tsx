@@ -10,7 +10,7 @@ import { RiImageEditFill } from "react-icons/ri";
 
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor";
 import { useSelectedBlocks } from "../../../../hooks/useSelectedBlocks";
-import { ImageToolbar } from "../../../ImageToolbar/mantine/ImageToolbar";
+import { ImagePanel } from "../../../ImagePanel/mantine/ImagePanel";
 import { ToolbarButton } from "../../../mantine-shared/Toolbar/ToolbarButton";
 
 export const ReplaceImageButton = () => {
@@ -49,7 +49,7 @@ export const ReplaceImageButton = () => {
         />
       </Popover.Target>
       <Popover.Dropdown>
-        <ImageToolbar block={block} />
+        <ImagePanel block={block} />
       </Popover.Dropdown>
     </Popover>
   );

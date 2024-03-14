@@ -76,7 +76,7 @@ function useTableHandlePosition(
   }, [referencePosCell, referencePosTable, update]);
 
   useEffect(() => {
-    // TODO: Maybe throw error instead if null
+    // Will be null on initial render when used in UI component controllers.
     if (referencePosCell === null || referencePosTable === null) {
       return;
     }

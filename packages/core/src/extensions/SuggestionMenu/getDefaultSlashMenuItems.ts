@@ -205,7 +205,7 @@ export function getDefaultSlashMenuItems<
 
         // Immediately open the image toolbar
         editor.prosemirrorView.dispatch(
-          editor._tiptapEditor.state.tr.setMeta(editor.imageToolbar!.plugin, {
+          editor._tiptapEditor.state.tr.setMeta(editor.imagePanel!.plugin, {
             block: insertedBlock,
           })
         );
