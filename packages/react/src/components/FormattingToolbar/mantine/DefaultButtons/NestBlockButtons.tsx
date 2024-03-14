@@ -7,11 +7,13 @@ import {
 import { useCallback, useState } from "react";
 import { RiIndentDecrease, RiIndentIncrease } from "react-icons/ri";
 
+import { useComponentsContext } from "../../../../editor/ComponentsContext";
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor";
 import { useEditorContentOrSelectionChange } from "../../../../hooks/useEditorContentOrSelectionChange";
-import { ToolbarButton } from "../../../mantine-shared/Toolbar/ToolbarButton";
 
 export const NestBlockButton = () => {
+  const components = useComponentsContext()!;
+
   const editor = useBlockNoteEditor<
     BlockSchema,
     InlineContentSchema,
@@ -33,7 +35,7 @@ export const NestBlockButton = () => {
   }, [editor]);
 
   return (
-    <ToolbarButton
+    <components.ToolbarButton
       onClick={nestBlock}
       isDisabled={!canNestBlock}
       mainTooltip="Nest Block"
@@ -44,6 +46,7 @@ export const NestBlockButton = () => {
 };
 
 export const UnnestBlockButton = () => {
+  const components = useComponentsContext()!;
   const editor = useBlockNoteEditor<any, any, any>();
 
   const [canUnnestBlock, setCanUnnestBlock] = useState<boolean>(() =>
@@ -60,7 +63,7 @@ export const UnnestBlockButton = () => {
   }, [editor]);
 
   return (
-    <ToolbarButton
+    <components.ToolbarButton
       onClick={unnestBlock}
       isDisabled={!canUnnestBlock}
       mainTooltip="Unnest Block"

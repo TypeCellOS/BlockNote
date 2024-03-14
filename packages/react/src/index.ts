@@ -5,6 +5,7 @@ export * from "./editor/BlockNoteTheme";
 export * from "./editor/BlockNoteView";
 export * from "./editor/defaultThemes";
 
+export * from "./components/FormattingToolbar/FormattingToolbar";
 export * from "./components/FormattingToolbar/FormattingToolbarController";
 export * from "./components/FormattingToolbar/FormattingToolbarProps";
 export * from "./components/FormattingToolbar/mantine/DefaultButtons/BasicTextStyleButton";
@@ -15,15 +16,14 @@ export * from "./components/FormattingToolbar/mantine/DefaultButtons/NestBlockBu
 export * from "./components/FormattingToolbar/mantine/DefaultButtons/ReplaceImageButton";
 export * from "./components/FormattingToolbar/mantine/DefaultButtons/TextAlignButton";
 export * from "./components/FormattingToolbar/mantine/DefaultSelects/BlockTypeSelect";
-export * from "./components/FormattingToolbar/mantine/FormattingToolbar";
 
 export * from "./components/HyperlinkToolbar/HyperlinkToolbarController";
 export * from "./components/HyperlinkToolbar/HyperlinkToolbarProps";
 export * from "./components/HyperlinkToolbar/mantine/DefaultButtons/DeleteLinkButton";
 export * from "./components/HyperlinkToolbar/mantine/DefaultButtons/EditLinkButton";
 export * from "./components/HyperlinkToolbar/mantine/DefaultButtons/OpenLinkButton";
-export * from "./components/HyperlinkToolbar/mantine/HyperlinkToolbar";
 export * from "./components/HyperlinkToolbar/mantine/EditLinkMenuItems";
+export * from "./components/HyperlinkToolbar/mantine/HyperlinkToolbar";
 
 export * from "./components/SideMenu/SideMenuController";
 export * from "./components/SideMenu/SideMenuProps";
@@ -58,8 +58,8 @@ export * from "./components/ImageToolbar/mantine/ImagePanelFileInput";
 export * from "./components/ImageToolbar/mantine/ImagePanelTab";
 export * from "./components/ImageToolbar/mantine/ImagePanelTextInput";
 
-export * from "./components/TableHandles/TableHandlesController";
 export * from "./components/TableHandles/TableHandleProps";
+export * from "./components/TableHandles/TableHandlesController";
 export * from "./components/TableHandles/hooks/useTableHandlesPositioning";
 export * from "./components/TableHandles/mantine/TableHandle";
 

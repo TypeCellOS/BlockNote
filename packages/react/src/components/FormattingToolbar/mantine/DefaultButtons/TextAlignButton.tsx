@@ -15,9 +15,9 @@ import {
   RiAlignRight,
 } from "react-icons/ri";
 
+import { useComponentsContext } from "../../../../editor/ComponentsContext";
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor";
 import { useSelectedBlocks } from "../../../../hooks/useSelectedBlocks";
-import { ToolbarButton } from "../../../mantine-shared/Toolbar/ToolbarButton";
 
 type TextAlignment = DefaultProps["textAlignment"];
 
@@ -29,6 +29,7 @@ const icons: Record<TextAlignment, IconType> = {
 };
 
 export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
+  const components = useComponentsContext()!;
   const editor = useBlockNoteEditor<
     BlockSchema,
     InlineContentSchema,
@@ -71,7 +72,7 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
   }
 
   return (
-    <ToolbarButton
+    <components.ToolbarButton
       onClick={() => setTextAlignment(props.textAlignment)}
       isSelected={textAlignment === props.textAlignment}
       mainTooltip={

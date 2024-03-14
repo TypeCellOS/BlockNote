@@ -1,28 +1,24 @@
 import { ReactNode } from "react";
 
-import { Toolbar } from "../../mantine-shared/Toolbar/Toolbar";
-import { FormattingToolbarProps } from "../FormattingToolbarProps";
-import { BasicTextStyleButton } from "./DefaultButtons/BasicTextStyleButton";
-import { ColorStyleButton } from "./DefaultButtons/ColorStyleButton";
-import { CreateLinkButton } from "./DefaultButtons/CreateLinkButton";
-import { ImageCaptionButton } from "./DefaultButtons/ImageCaptionButton";
+import { useComponentsContext } from "../../editor/ComponentsContext";
+import { FormattingToolbarProps } from "./FormattingToolbarProps";
+import { BasicTextStyleButton } from "./mantine/DefaultButtons/BasicTextStyleButton";
 import {
   NestBlockButton,
   UnnestBlockButton,
-} from "./DefaultButtons/NestBlockButtons";
-import { ReplaceImageButton } from "./DefaultButtons/ReplaceImageButton";
-import { TextAlignButton } from "./DefaultButtons/TextAlignButton";
+} from "./mantine/DefaultButtons/NestBlockButtons";
+import { TextAlignButton } from "./mantine/DefaultButtons/TextAlignButton";
 import {
   BlockTypeSelect,
   BlockTypeSelectItem,
-} from "./DefaultSelects/BlockTypeSelect";
+} from "./mantine/DefaultSelects/BlockTypeSelect";
 
 export const getFormattingToolbarItems = (
   blockTypeSelectItems?: BlockTypeSelectItem[]
 ): JSX.Element[] => [
   <BlockTypeSelect key={"blockTypeSelect"} items={blockTypeSelectItems} />,
-  <ImageCaptionButton key={"imageCaptionButton"} />,
-  <ReplaceImageButton key={"replaceImageButton"} />,
+  // <ImageCaptionButton key={"imageCaptionButton"} />,
+  // <ReplaceImageButton key={"replaceImageButton"} />,
   <BasicTextStyleButton basicTextStyle={"bold"} key={"boldStyleButton"} />,
   <BasicTextStyleButton basicTextStyle={"italic"} key={"italicStyleButton"} />,
   <BasicTextStyleButton
@@ -33,10 +29,10 @@ export const getFormattingToolbarItems = (
   <TextAlignButton textAlignment={"left"} key={"textAlignLeftButton"} />,
   <TextAlignButton textAlignment={"center"} key={"textAlignCenterButton"} />,
   <TextAlignButton textAlignment={"right"} key={"textAlignRightButton"} />,
-  <ColorStyleButton key={"colorStyleButton"} />,
+  // <ColorStyleButton key={"colorStyleButton"} />,
   <NestBlockButton key={"nestBlockButton"} />,
   <UnnestBlockButton key={"unnestBlockButton"} />,
-  <CreateLinkButton key={"createLinkButton"} />,
+  // <CreateLinkButton key={"createLinkButton"} />,
 ];
 
 // TODO: props.blockTypeSelectItems should only be available if no children
@@ -56,9 +52,10 @@ export const getFormattingToolbarItems = (
 export const FormattingToolbar = (
   props: FormattingToolbarProps & { children?: ReactNode }
 ) => {
+  const components = useComponentsContext()!;
   return (
-    <Toolbar>
+    <components.Toolbar>
       {props.children || getFormattingToolbarItems(props.blockTypeSelectItems)}
-    </Toolbar>
+    </components.Toolbar>
   );
 };

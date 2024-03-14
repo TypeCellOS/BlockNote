@@ -11,8 +11,8 @@ import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor";
 import { useEditorContentOrSelectionChange } from "../../hooks/useEditorContentOrSelectionChange";
 import { useUIElementPositioning } from "../../hooks/useUIElementPositioning";
 import { useUIPluginState } from "../../hooks/useUIPluginState";
+import { FormattingToolbar } from "./FormattingToolbar";
 import { FormattingToolbarProps } from "./FormattingToolbarProps";
-import { FormattingToolbar } from "./mantine/FormattingToolbar";
 
 const textAlignmentToPlacement = (
   textAlignment: DefaultProps["textAlignment"]

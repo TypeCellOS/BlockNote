@@ -17,10 +17,10 @@ import {
   RiText,
 } from "react-icons/ri";
 
+import { useComponentsContext } from "../../../../editor/ComponentsContext";
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor";
 import { useEditorContentOrSelectionChange } from "../../../../hooks/useEditorContentOrSelectionChange";
 import { useSelectedBlocks } from "../../../../hooks/useSelectedBlocks";
-import { ToolbarSelect } from "../../../mantine-shared/Toolbar/ToolbarSelect";
 import { ToolbarSelectItemProps } from "../../../mantine-shared/Toolbar/ToolbarSelectItem";
 
 export type BlockTypeSelectItem = {
@@ -85,6 +85,7 @@ export const blockTypeSelectItems: BlockTypeSelectItem[] = [
 ];
 
 export const BlockTypeSelect = (props: { items?: BlockTypeSelectItem[] }) => {
+  const components = useComponentsContext()!;
   const editor = useBlockNoteEditor<
     BlockSchema,
     InlineContentSchema,
@@ -137,5 +138,5 @@ export const BlockTypeSelect = (props: { items?: BlockTypeSelectItem[] }) => {
     return null;
   }
 
-  return <ToolbarSelect items={fullItems} />;
+  return <components.ToolbarSelect items={fullItems} />;
 };

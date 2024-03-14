@@ -15,10 +15,10 @@ import {
   RiUnderline,
 } from "react-icons/ri";
 
+import { useComponentsContext } from "../../../../editor/ComponentsContext";
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor";
 import { useEditorContentOrSelectionChange } from "../../../../hooks/useEditorContentOrSelectionChange";
 import { useSelectedBlocks } from "../../../../hooks/useSelectedBlocks";
-import { ToolbarButton } from "../../../mantine-shared/Toolbar/ToolbarButton";
 
 type BasicTextStyle = "bold" | "italic" | "underline" | "strike" | "code";
 
@@ -61,6 +61,8 @@ function checkBasicTextStyleInSchema<Style extends BasicTextStyle>(
 export const BasicTextStyleButton = <Style extends BasicTextStyle>(props: {
   basicTextStyle: Style;
 }) => {
+  const components = useComponentsContext()!;
+
   const editor = useBlockNoteEditor<
     BlockSchema,
     InlineContentSchema,
@@ -109,7 +111,7 @@ export const BasicTextStyleButton = <Style extends BasicTextStyle>(props: {
   }
 
   return (
-    <ToolbarButton
+    <components.ToolbarButton
       onClick={() => toggleStyle(props.basicTextStyle)}
       isSelected={active}
       mainTooltip={
