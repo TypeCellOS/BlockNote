@@ -12,8 +12,8 @@ export const handleEnter = (editor: Editor) => {
 
   if (
     !(
-      contentType.name === "BulletListItem" ||
-      contentType.name === "NumberedListItem"
+      contentType.name === "bulletListItem" ||
+      contentType.name === "numberedListItem"
     ) ||
     !selectionEmpty
   ) {
