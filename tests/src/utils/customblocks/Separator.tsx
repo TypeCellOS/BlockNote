@@ -1,5 +1,5 @@
-import { BlockSchemaWithBlock, createBlockSpec } from "@blocknote/core";
-import { ReactSlashMenuItem } from "@blocknote/react";
+import { BlockNoteEditor, createBlockSpec } from "@blocknote/core";
+
 import { RiSeparator } from "react-icons/ri";
 
 export const Separator = createBlockSpec(
@@ -30,11 +30,9 @@ export const Separator = createBlockSpec(
   }
 );
 
-export const insertSeparator: ReactSlashMenuItem<
-  BlockSchemaWithBlock<"separator", typeof Separator.config>
-> = {
-  name: "Insert Separator",
-  execute: (editor) => {
+export const insertSeparator = {
+  title: "Insert Separator",
+  onItemClick: (editor: BlockNoteEditor<any, any, any>) => {
     editor.insertBlocks(
       [
         {
@@ -45,9 +43,8 @@ export const insertSeparator: ReactSlashMenuItem<
       "after"
     );
   },
-
-  aliases: ["separator", "horizontal", "line", "rule"],
-  group: "Media",
+  subtext: "Insert a button which inserts a block below it",
   icon: <RiSeparator />,
-  hint: "Insert a button which inserts a block below it",
+  aliases: ["separator", "horizontal", "line", "rule"],
+  group: "Other",
 };

@@ -1,0 +1,99 @@
+---
+title: Custom Schemas
+description: Learn how to create custom schemas for your BlockNote editor
+---
+
+# Custom Schemas (advanced)
+
+By default, BlockNote documents support different kind of blocks, inline content and text styles (see [default schema](/docs/editor-basics/default-schema)).
+However, you can extend BlockNote and create custom schemas to support your own blocks, inline content and text styles.
+
+## Custom Blocks
+
+Blocks are the main elements of a document, such as paragraphs, headings, lists, etc.
+
+- [Learn how to create custom blocks for your BlockNote editor](/docs/custom-schemas/custom-blocks)
+
+## Custom Inline Content
+
+Inline Content are elements that can be inserted inside a text block, such as links, mentions, tags, etc.
+
+- [Learn how to create custom Inline Content for your BlockNote editor](/docs/custom-schemas/custom-inline-content)
+
+## Custom Styles
+
+Text Styles are properties that can be applied to a piece of text, such as bold, italic, underline, etc.
+
+- [Learn how to add custom Styles to your BlockNote editor](/docs/custom-schemas/custom-styles)
+
+## Creating your own schema
+
+Once you have defined your custom blocks (see the links above), inline content or styles, you can create a schema and pass this to the initialization of the editor.
+
+```typescript
+const schema = BlockNoteSchema.create({
+  blockSpecs: {
+    // enable the default blocks if desired
+    ...defaultBlockSpecs,
+
+    // Add your own custom blocks:
+    // customBlock: CustomBlock,
+  },
+  inlineContentSpecs: {
+    // enable the default inline content if desired
+    ...defaultInlineContentSpecs,
+
+    // Add your own custom inline content:
+    // customInlineContent: CustomInlineContent,
+  },
+  styleSpecs: {
+    // enable the default styles if desired
+    ...defaultStyleSpecs,
+
+    // Add your own custom styles:
+    // customStyle: CustomStyle
+  },
+});
+```
+
+You can then pass this to the instantiation of your BlockNoteEditor (`BlockNoteEditor.create` or `useCreateBlockNote`):
+
+```typescript
+const editor = useCreateBlockNote({
+  schema,
+});
+```
+
+## Usage with TypeScript
+
+In contrast to most other editors, BlockNote has been designed for full TypeScript compatibility. This means you can get full type safety and autocompletion _even when using a custom schema_.
+
+By default, the methods, hooks, and types exposed by the API assume you're using the default, built-in schema. If you're using a custom schema, there are 3 ways to get full type safety:
+
+### Methods that accept an optional `schema` parameter
+
+Some methods, like the `useBlockNoteEditor` hook, take an optional `schema?: BlockNoteSchema` parameter. If you're using a custom schema, you should pass it here to make sure the return type is correctly typed.
+
+### Manual typing of types
+
+If you're using types like `BlockNoteEditor`, `Block`, `PartialBlock` directly, you can get the correctly typed variants like this:
+
+```typescript
+type MyBlock = Block<
+  typeof schema.blockSchema,
+  typeof schema.inlineContentSchema,
+  typeof schema.styleSchema
+>;
+```
+
+Or even simpler, use the shorthands exposed by the schema:
+
+```typescript
+type MyBlockNoteEditor = typeof schema.BlockNoteEditor;
+type MyBlock = typeof schema.Block;
+type MyPartialBlock = typeof schema.PartialBlock;
+```
+
+### Automatically override all default types (experimental)
+
+Alternatively, the easiest way to get full type safety without any additional work is to override all default types with your custom schema, by using a custom type definition file. See this [example blocknote.d.ts](https://github.com/TypeCellOS/BlockNote/blob/main/examples/05-custom-schema/react-custom-styles/blocknote.d.ts.example). This is an experimental feature - we would love to hear your feedback on this approach.

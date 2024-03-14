@@ -29,20 +29,20 @@ function validateConversion(
   const node = blockToNode(
     block,
     editor._tiptapEditor.schema,
-    editor.styleSchema
+    editor.schema.styleSchema
   );
 
   expect(node).toMatchSnapshot();
 
   const outputBlock = nodeToBlock(
     node,
-    editor.blockSchema,
-    editor.inlineContentSchema,
-    editor.styleSchema
+    editor.schema.blockSchema,
+    editor.schema.inlineContentSchema,
+    editor.schema.styleSchema
   );
 
   const fullOriginalBlock = partialBlockToBlockForTesting(
-    editor.blockSchema,
+    editor.schema.blockSchema,
     block
   );
 
@@ -59,12 +59,15 @@ describe("Test React BlockNote-Prosemirror conversion", () => {
   for (const testCase of testCases) {
     describe("Case: " + testCase.name, () => {
       let editor: BlockNoteEditor<any, any, any>;
+      const div = document.createElement("div");
 
       beforeEach(() => {
         editor = testCase.createEditor();
+        editor.mount(div);
       });
 
       afterEach(() => {
+        editor.mount(undefined);
         editor._tiptapEditor.destroy();
         editor = undefined as any;
 

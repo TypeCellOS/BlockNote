@@ -3,7 +3,7 @@
   "homepage": "https://github.com/TypeCellOS/BlockNote",
   "private": false,
   "license": "MPL-2.0",
-  "version": "0.11.2",
+  "version": "0.12.0",
   "files": [
     "dist",
     "types",
@@ -37,6 +37,10 @@
     "./style.css": {
       "import": "./dist/style.css",
       "require": "./dist/style.css"
+    },
+    "./fonts/inter.css": {
+      "import": "./src/fonts/inter.css",
+      "require": "./src/fonts/inter.css"
     }
   },
   "scripts": {
@@ -98,7 +102,7 @@
     "prettier": "^2.7.1",
     "rimraf": "^5.0.5",
     "rollup-plugin-webpack-stats": "^0.2.2",
-    "typescript": "^5.0.4",
+    "typescript": "^5.3.3",
     "vite": "^4.4.8",
     "vite-plugin-eslint": "^1.8.1",
     "vitest": "^0.34.1"
