@@ -10,7 +10,13 @@ export const handleEnter = (editor: Editor) => {
   const selectionEmpty =
     editor.state.selection.anchor === editor.state.selection.head;
 
-  if (!contentType.name.endsWith("ListItem") || !selectionEmpty) {
+  if (
+    !(
+      contentType.name === "bulletListItem" ||
+      contentType.name === "numberedListItem"
+    ) ||
+    !selectionEmpty
+  ) {
     return false;
   }
 
