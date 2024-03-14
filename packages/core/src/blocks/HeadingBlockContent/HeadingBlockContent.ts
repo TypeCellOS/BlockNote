@@ -6,6 +6,7 @@ import {
 } from "../../schema";
 import { createDefaultBlockDOMOutputSpec } from "../defaultBlockHelpers";
 import { defaultProps } from "../defaultProps";
+import { getCurrentBlockContentType } from "../../api/getCurrentBlockContentType";
 
 export const headingPropSchema = {
   ...defaultProps,
@@ -45,6 +46,10 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
         return new InputRule({
           find: new RegExp(`^(#{${level}})\\s$`),
           handler: ({ state, chain, range }) => {
+            if (getCurrentBlockContentType(this.editor) !== "inline*") {
+              return;
+            }
+
             chain()
               .BNUpdateBlock(state.selection.from, {
                 type: "heading",
@@ -62,27 +67,51 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
 
   addKeyboardShortcuts() {
     return {
-      "Mod-Alt-1": () =>
-        this.editor.commands.BNUpdateBlock(this.editor.state.selection.anchor, {
-          type: "heading",
-          props: {
-            level: 1 as any,
-          },
-        }),
-      "Mod-Alt-2": () =>
-        this.editor.commands.BNUpdateBlock(this.editor.state.selection.anchor, {
-          type: "heading",
-          props: {
-            level: 2 as any,
-          },
-        }),
-      "Mod-Alt-3": () =>
-        this.editor.commands.BNUpdateBlock(this.editor.state.selection.anchor, {
-          type: "heading",
-          props: {
-            level: 3 as any,
-          },
-        }),
+      "Mod-Alt-1": () => {
+        if (getCurrentBlockContentType(this.editor) !== "inline*") {
+          return true;
+        }
+
+        return this.editor.commands.BNUpdateBlock(
+          this.editor.state.selection.anchor,
+          {
+            type: "heading",
+            props: {
+              level: 1 as any,
+            },
+          }
+        );
+      },
+      "Mod-Alt-2": () => {
+        if (getCurrentBlockContentType(this.editor) !== "inline*") {
+          return true;
+        }
+
+        return this.editor.commands.BNUpdateBlock(
+          this.editor.state.selection.anchor,
+          {
+            type: "heading",
+            props: {
+              level: 2 as any,
+            },
+          }
+        );
+      },
+      "Mod-Alt-3": () => {
+        if (getCurrentBlockContentType(this.editor) !== "inline*") {
+          return true;
+        }
+
+        return this.editor.commands.BNUpdateBlock(
+          this.editor.state.selection.anchor,
+          {
+            type: "heading",
+            props: {
+              level: 3 as any,
+            },
+          }
+        );
+      },
     };
   },
   parseHTML() {
