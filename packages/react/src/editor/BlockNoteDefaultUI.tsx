@@ -1,7 +1,7 @@
 import { filterSuggestionItems } from "@blocknote/core";
 import { FormattingToolbarController } from "../components/FormattingToolbar/FormattingToolbarController";
 import { HyperlinkToolbarController } from "../components/HyperlinkToolbar/HyperlinkToolbarController";
-import { ImagePanelController } from "../components/ImageToolbar/ImagePanelController";
+import { ImagePanelController } from "../components/ImagePanel/ImagePanelController";
 import { SideMenuController } from "../components/SideMenu/SideMenuController";
 import { getDefaultReactSlashMenuItems } from "../components/SuggestionMenu/getDefaultReactSlashMenuItems";
 import { SuggestionMenuController } from "../components/SuggestionMenu/SuggestionMenuController";
@@ -43,7 +43,7 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
         />
       )}
       {props.sideMenu !== false && <SideMenuController />}
-      {editor.imageToolbar && props.imageToolbar !== false && (
+      {editor.imagePanel && props.imageToolbar !== false && (
         <ImagePanelController />
       )}
       {editor.tableHandles && props.tableHandles !== false && (

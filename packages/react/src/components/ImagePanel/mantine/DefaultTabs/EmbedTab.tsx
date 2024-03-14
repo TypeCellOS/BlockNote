@@ -70,7 +70,7 @@ export const EmbedTab = <
         data-test={"embed-input"}
       />
       <ImagePanelButton
-        className={"bn-image-toolbar-button"}
+        className={"bn-image-panel-button"}
         onClick={handleURLClick}
         data-test={"embed-input-button"}>
         Embed Image

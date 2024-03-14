@@ -9,7 +9,7 @@ export const ImagePanelTab = forwardRef<
 
   return (
     <div
-      className={mergeCSSClasses("bn-image-toolbar-panel", className || "")}
+      className={mergeCSSClasses("bn-image-panel-tab", className || "")}
       {...rest}
       ref={ref}>
       {children}

@@ -4,7 +4,7 @@ import {
   BlockNoteView,
   BlockTypeSelect,
   ColorStyleButton,
-  CreateLinkButton,
+  CreateHyperlinkButton,
   FormattingToolbar,
   FormattingToolbarController,
   ImageCaptionButton,
@@ -120,7 +120,7 @@ export default function App() {
             <NestBlockButton key={"nestBlockButton"} />
             <UnnestBlockButton key={"unnestBlockButton"} />
 
-            <CreateLinkButton key={"createLinkButton"} />
+            <CreateHyperlinkButton key={"createLinkButton"} />
           </FormattingToolbar>
         )}
       />

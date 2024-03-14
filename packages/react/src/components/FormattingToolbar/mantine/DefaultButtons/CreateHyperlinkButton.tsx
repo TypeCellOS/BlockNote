@@ -15,6 +15,7 @@ import { ToolbarButton } from "../../../mantine-shared/Toolbar/ToolbarButton";
 import { ToolbarInputsMenu } from "../../../mantine-shared/Toolbar/ToolbarInputsMenu";
 import { EditHyperlinkMenuItems } from "../../../HyperlinkToolbar/mantine/EditHyperlinkMenuItems";
 
+// TODO: Make sure Link is in inline content schema
 export const CreateHyperlinkButton = () => {
   const editor = useBlockNoteEditor<
     BlockSchema,
@@ -50,7 +51,7 @@ export const CreateHyperlinkButton = () => {
     return true;
   }, [selectedBlocks]);
 
-  if (!show || !("link" in editor.schema.inlineContentSchema)) {
+  if (!show) {
     return null;
   }
 
