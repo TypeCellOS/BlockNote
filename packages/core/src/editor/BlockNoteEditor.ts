@@ -27,7 +27,7 @@ import {
   PartialBlock,
 } from "../blocks/defaultBlocks";
 import { FormattingToolbarProsemirrorPlugin } from "../extensions/FormattingToolbar/FormattingToolbarPlugin";
-import { HyperlinkToolbarProsemirrorPlugin } from "../extensions/HyperlinkToolbar/HyperlinkToolbarPlugin";
+import { LinkToolbarProsemirrorPlugin } from "../extensions/LinkToolbar/LinkToolbarPlugin";
 import { SideMenuProsemirrorPlugin } from "../extensions/SideMenu/SideMenuPlugin";
 import { SuggestionMenuProseMirrorPlugin } from "../extensions/SuggestionMenu/SuggestionPlugin";
 import { ImagePanelProsemirrorPlugin } from "../extensions/ImagePanel/ImageToolbarPlugin";
@@ -157,7 +157,7 @@ export class BlockNoteEditor<
   public readonly styleImplementations: StyleSpecs;
 
   public readonly formattingToolbar: FormattingToolbarProsemirrorPlugin;
-  public readonly hyperlinkToolbar: HyperlinkToolbarProsemirrorPlugin<
+  public readonly linkToolbar: LinkToolbarProsemirrorPlugin<
     BSchema,
     ISchema,
     SSchema
@@ -230,7 +230,7 @@ export class BlockNoteEditor<
     this.styleImplementations = newOptions.schema.styleSpecs;
 
     this.formattingToolbar = new FormattingToolbarProsemirrorPlugin(this);
-    this.hyperlinkToolbar = new HyperlinkToolbarProsemirrorPlugin(this);
+    this.linkToolbar = new LinkToolbarProsemirrorPlugin(this);
     this.sideMenu = new SideMenuProsemirrorPlugin(this);
     this.suggestionMenus = new SuggestionMenuProseMirrorPlugin(this);
     if (checkDefaultBlockTypeInSchema("image", this)) {
@@ -258,7 +258,7 @@ export class BlockNoteEditor<
       addProseMirrorPlugins: () => {
         return [
           this.formattingToolbar.plugin,
-          this.hyperlinkToolbar.plugin,
+          this.linkToolbar.plugin,
           this.sideMenu.plugin,
           this.suggestionMenus.plugin,
           ...(this.imagePanel ? [this.imagePanel.plugin] : []),

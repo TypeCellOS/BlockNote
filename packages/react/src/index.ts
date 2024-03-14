@@ -9,7 +9,7 @@ export * from "./components/FormattingToolbar/FormattingToolbarController";
 export * from "./components/FormattingToolbar/FormattingToolbarProps";
 export * from "./components/FormattingToolbar/mantine/DefaultButtons/BasicTextStyleButton";
 export * from "./components/FormattingToolbar/mantine/DefaultButtons/ColorStyleButton";
-export * from "./components/FormattingToolbar/mantine/DefaultButtons/CreateHyperlinkButton";
+export * from "./components/FormattingToolbar/mantine/DefaultButtons/CreateLinkButton";
 export * from "./components/FormattingToolbar/mantine/DefaultButtons/ImageCaptionButton";
 export * from "./components/FormattingToolbar/mantine/DefaultButtons/NestBlockButtons";
 export * from "./components/FormattingToolbar/mantine/DefaultButtons/ReplaceImageButton";
@@ -17,13 +17,13 @@ export * from "./components/FormattingToolbar/mantine/DefaultButtons/TextAlignBu
 export * from "./components/FormattingToolbar/mantine/DefaultSelects/BlockTypeSelect";
 export * from "./components/FormattingToolbar/mantine/FormattingToolbar";
 
-export * from "./components/HyperlinkToolbar/HyperlinkToolbarController";
-export * from "./components/HyperlinkToolbar/HyperlinkToolbarProps";
-export * from "./components/HyperlinkToolbar/mantine/DefaultButtons/DeleteHyperlinkButton";
-export * from "./components/HyperlinkToolbar/mantine/DefaultButtons/EditHyperlinkButton";
-export * from "./components/HyperlinkToolbar/mantine/DefaultButtons/OpenHyperlinkButton";
-export * from "./components/HyperlinkToolbar/mantine/HyperlinkToolbar";
-export * from "./components/HyperlinkToolbar/mantine/EditHyperlinkMenuItems";
+export * from "./components/LinkToolbar/LinkToolbarController";
+export * from "./components/LinkToolbar/LinkToolbarProps";
+export * from "./components/LinkToolbar/mantine/DefaultButtons/DeleteLinkButton";
+export * from "./components/LinkToolbar/mantine/DefaultButtons/EditLinkButton";
+export * from "./components/LinkToolbar/mantine/DefaultButtons/OpenLinkButton";
+export * from "./components/LinkToolbar/mantine/LinkToolbar";
+export * from "./components/LinkToolbar/mantine/EditLinkMenuItems";
 
 export * from "./components/SideMenu/SideMenuController";
 export * from "./components/SideMenu/SideMenuProps";

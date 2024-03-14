@@ -1,4 +1,3 @@
-import { HyperlinkToolbarProps } from "../HyperlinkToolbarProps";
 import {
   ChangeEvent,
   KeyboardEvent,
@@ -6,13 +5,14 @@ import {
   useEffect,
   useState,
 } from "react";
-import { ToolbarInputsMenuItem } from "../../mantine-shared/Toolbar/ToolbarInputsMenuItem";
 import { RiLink, RiText } from "react-icons/ri";
+import { LinkToolbarProps } from "../LinkToolbarProps";
+import { ToolbarInputsMenuItem } from "../../mantine-shared/Toolbar/ToolbarInputsMenuItem";
 
-export const EditHyperlinkMenuItems = (
-  props: Pick<HyperlinkToolbarProps, "url" | "text" | "editHyperlink">
+export const EditLinkMenuItems = (
+  props: Pick<LinkToolbarProps, "url" | "text" | "editLink">
 ) => {
-  const { url, text, editHyperlink } = props;
+  const { url, text, editLink } = props;
 
   const [currentUrl, setCurrentUrl] = useState<string>(url);
   const [currentText, setCurrentText] = useState<string>(text);
@@ -26,10 +26,10 @@ export const EditHyperlinkMenuItems = (
     (event: KeyboardEvent) => {
       if (event.key === "Enter") {
         event.preventDefault();
-        editHyperlink(currentUrl, currentText);
+        editLink(currentUrl, currentText);
       }
     },
-    [editHyperlink, currentUrl, currentText]
+    [editLink, currentUrl, currentText]
   );
 
   const handleUrlChange = useCallback(
@@ -45,8 +45,8 @@ export const EditHyperlinkMenuItems = (
   );
 
   const handleSubmit = useCallback(
-    () => editHyperlink(currentUrl, currentText),
-    [editHyperlink, currentUrl, currentText]
+    () => editLink(currentUrl, currentText),
+    [editLink, currentUrl, currentText]
   );
 
   return (

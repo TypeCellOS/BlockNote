@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState } from "react";
 import { RiLink } from "react-icons/ri";
 
 import {
+  BlockNoteEditor,
   BlockSchema,
   formatKeyboardShortcut,
   InlineContentSchema,
@@ -13,15 +14,35 @@ import { useEditorContentOrSelectionChange } from "../../../../hooks/useEditorCo
 import { useSelectedBlocks } from "../../../../hooks/useSelectedBlocks";
 import { ToolbarButton } from "../../../mantine-shared/Toolbar/ToolbarButton";
 import { ToolbarInputsMenu } from "../../../mantine-shared/Toolbar/ToolbarInputsMenu";
-import { EditHyperlinkMenuItems } from "../../../HyperlinkToolbar/mantine/EditHyperlinkMenuItems";
+import { EditLinkMenuItems } from "../../../LinkToolbar/mantine/EditLinkMenuItems";
 
-// TODO: Make sure Link is in inline content schema
-export const CreateHyperlinkButton = () => {
+function checkLinkInSchema(
+  editor: BlockNoteEditor<BlockSchema, any, StyleSchema>
+): editor is BlockNoteEditor<
+  BlockSchema,
+  {
+    link: {
+      type: "link";
+      propSchema: any;
+      content: "styled";
+    };
+  },
+  StyleSchema
+> {
+  return (
+    "link" in editor.schema.inlineContentSchema &&
+    editor.schema.inlineContentSchema["link"] === "link"
+  );
+}
+
+export const CreateLinkButton = () => {
   const editor = useBlockNoteEditor<
     BlockSchema,
     InlineContentSchema,
     StyleSchema
   >();
+
+  const linkInSchema = checkLinkInSchema(editor);
 
   const selectedBlocks = useSelectedBlocks(editor);
 
@@ -42,6 +63,10 @@ export const CreateHyperlinkButton = () => {
   );
 
   const show = useMemo(() => {
+    if (!linkInSchema) {
+      return false;
+    }
+
     for (const block of selectedBlocks) {
       if (block.content === undefined) {
         return false;
@@ -49,7 +74,7 @@ export const CreateHyperlinkButton = () => {
     }
 
     return true;
-  }, [selectedBlocks]);
+  }, [linkInSchema, selectedBlocks]);
 
   if (!show) {
     return null;
@@ -65,7 +90,7 @@ export const CreateHyperlinkButton = () => {
         />
       }
       dropdownItems={
-        <EditHyperlinkMenuItems url={url} text={text} editHyperlink={update} />
+        <EditLinkMenuItems url={url} text={text} editLink={update} />
       }
     />
   );

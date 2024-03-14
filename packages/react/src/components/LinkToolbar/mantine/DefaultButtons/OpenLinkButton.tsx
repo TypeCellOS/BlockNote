@@ -1,10 +1,8 @@
 import { RiExternalLinkFill } from "react-icons/ri";
 import { ToolbarButton } from "../../../mantine-shared/Toolbar/ToolbarButton";
-import { HyperlinkToolbarProps } from "../../HyperlinkToolbarProps";
+import { LinkToolbarProps } from "../../LinkToolbarProps";
 
-export const OpenHyperlinkButton = (
-  props: Pick<HyperlinkToolbarProps, "url">
-) => (
+export const OpenLinkButton = (props: Pick<LinkToolbarProps, "url">) => (
   <ToolbarButton
     mainTooltip="Open in new tab"
     isSelected={false}
