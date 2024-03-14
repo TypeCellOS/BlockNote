@@ -64,7 +64,7 @@ jobs:
           CI: true
 
       - name: Install Playwright
-        run: npx playwright install --with-deps
+        run: npm run install-playwright
 
       - name: Run Playwright tests
         working-directory: ./tests
