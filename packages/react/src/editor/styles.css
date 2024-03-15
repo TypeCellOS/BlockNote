@@ -326,6 +326,10 @@
   width: fit-content;
 }
 
+.bn-container .bn-toolbar:empty {
+  display: none;
+}
+
 .bn-container .bn-toolbar .mantine-Button-root,
 .bn-container .bn-toolbar .mantine-ActionIcon-root {
   background-color: var(--bn-colors-menu-background);
