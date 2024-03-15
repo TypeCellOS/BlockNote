@@ -14,13 +14,16 @@ export * from "./components/FormattingToolbar/mantine/DefaultButtons/ImageCaptio
 export * from "./components/FormattingToolbar/mantine/DefaultButtons/NestBlockButtons";
 export * from "./components/FormattingToolbar/mantine/DefaultButtons/ReplaceImageButton";
 export * from "./components/FormattingToolbar/mantine/DefaultButtons/TextAlignButton";
-export * from "./components/FormattingToolbar/mantine/DefaultDropdowns/BlockTypeDropdown";
+export * from "./components/FormattingToolbar/mantine/DefaultSelects/BlockTypeSelect";
 export * from "./components/FormattingToolbar/mantine/FormattingToolbar";
 
-export * from "./components/HyperlinkToolbar/HyperlinkToolbarController";
-export * from "./components/HyperlinkToolbar/HyperlinkToolbarProps";
-export * from "./components/HyperlinkToolbar/mantine/EditHyperlinkMenu/EditHyperlinkMenu";
-export * from "./components/HyperlinkToolbar/mantine/HyperlinkToolbar";
+export * from "./components/LinkToolbar/LinkToolbarController";
+export * from "./components/LinkToolbar/LinkToolbarProps";
+export * from "./components/LinkToolbar/mantine/DefaultButtons/DeleteLinkButton";
+export * from "./components/LinkToolbar/mantine/DefaultButtons/EditLinkButton";
+export * from "./components/LinkToolbar/mantine/DefaultButtons/OpenLinkButton";
+export * from "./components/LinkToolbar/mantine/LinkToolbar";
+export * from "./components/LinkToolbar/mantine/EditLinkMenuItems";
 
 export * from "./components/SideMenu/SideMenuController";
 export * from "./components/SideMenu/SideMenuProps";
@@ -45,17 +48,29 @@ export * from "./components/SuggestionMenu/mantine/SuggestionMenu";
 export * from "./components/SuggestionMenu/mantine/SuggestionMenuItem";
 export * from "./components/SuggestionMenu/types";
 
-export * from "./components/ImageToolbar/ImageToolbarController";
-export * from "./components/ImageToolbar/ImageToolbarProps";
-export * from "./components/ImageToolbar/mantine/ImageToolbar";
+export * from "./components/ImagePanel/ImagePanelController";
+export * from "./components/ImagePanel/ImagePanelProps";
+export * from "./components/ImagePanel/mantine/DefaultTabs/EmbedTab";
+export * from "./components/ImagePanel/mantine/DefaultTabs/UploadTab";
+export * from "./components/ImagePanel/mantine/ImagePanel";
+export * from "./components/ImagePanel/mantine/ImagePanelButton";
+export * from "./components/ImagePanel/mantine/ImagePanelFileInput";
+export * from "./components/ImagePanel/mantine/ImagePanelTab";
+export * from "./components/ImagePanel/mantine/ImagePanelTextInput";
 
-export * from "./components/TableHandles/TableHandleProps";
 export * from "./components/TableHandles/TableHandlesController";
+export * from "./components/TableHandles/TableHandleProps";
 export * from "./components/TableHandles/hooks/useTableHandlesPositioning";
 export * from "./components/TableHandles/mantine/TableHandle";
 
+export * from "./components/TableHandles/TableHandleMenu/TableHandleMenuProps";
+export * from "./components/TableHandles/TableHandleMenu/mantine/DefaultButtons/AddButton";
+export * from "./components/TableHandles/TableHandleMenu/mantine/DefaultButtons/DeleteButton";
+export * from "./components/TableHandles/TableHandleMenu/mantine/TableHandleMenu";
+export * from "./components/TableHandles/TableHandleMenu/mantine/TableHandleMenuItem";
+
 export * from "./components/mantine-shared/Toolbar/ToolbarButton";
-export * from "./components/mantine-shared/Toolbar/ToolbarDropdown";
+export * from "./components/mantine-shared/Toolbar/ToolbarSelect";
 
 export * from "./hooks/useActiveStyles";
 export * from "./hooks/useBlockNoteEditor";

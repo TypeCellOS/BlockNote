@@ -7,6 +7,7 @@ import {
 import { createDefaultBlockDOMOutputSpec } from "../../defaultBlockHelpers";
 import { defaultProps } from "../../defaultProps";
 import { handleEnter } from "../ListItemKeyboardShortcuts";
+import { getCurrentBlockContentType } from "../../../api/getCurrentBlockContentType";
 
 export const bulletListItemPropSchema = {
   ...defaultProps,
@@ -22,6 +23,10 @@ const BulletListItemBlockContent = createStronglyTypedTiptapNode({
       new InputRule({
         find: new RegExp(`^[-+*]\\s$`),
         handler: ({ state, chain, range }) => {
+          if (getCurrentBlockContentType(this.editor) !== "inline*") {
+            return;
+          }
+
           chain()
             .BNUpdateBlock(state.selection.from, {
               type: "bulletListItem",
@@ -37,11 +42,19 @@ const BulletListItemBlockContent = createStronglyTypedTiptapNode({
   addKeyboardShortcuts() {
     return {
       Enter: () => handleEnter(this.editor),
-      "Mod-Shift-8": () =>
-        this.editor.commands.BNUpdateBlock(this.editor.state.selection.anchor, {
-          type: "bulletListItem",
-          props: {},
-        }),
+      "Mod-Shift-8": () => {
+        if (getCurrentBlockContentType(this.editor) !== "inline*") {
+          return true;
+        }
+
+        return this.editor.commands.BNUpdateBlock(
+          this.editor.state.selection.anchor,
+          {
+            type: "bulletListItem",
+            props: {},
+          }
+        );
+      },
     };
   },
 

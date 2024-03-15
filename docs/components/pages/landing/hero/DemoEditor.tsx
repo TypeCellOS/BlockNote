@@ -6,8 +6,6 @@ import { useCallback, useMemo, useState } from "react";
 import YPartyKitProvider from "y-partykit/provider";
 import * as Y from "yjs";
 
-import "./styles.css";
-
 const colors = [
   "#958DF1",
   "#F98181",
@@ -54,9 +52,8 @@ function getUTCDateYYYYMMDD() {
   return `${year}${formattedMonth}${formattedDay}`;
 }
 
-export default function DemoEditor(props: { theme: "light" | "dark" }) {
+export default function DemoEditor(props: { theme?: "light" | "dark" }) {
   const [doc, provider] = useMemo(() => {
-    console.log("create");
     const doc = new Y.Doc();
     const provider = new YPartyKitProvider(
       "blocknote.yousefed.partykit.dev",

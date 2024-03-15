@@ -1,3 +1,4 @@
+import { Group } from "@mantine/core";
 import {
   BlockSchema,
   DefaultBlockSchema,
@@ -6,8 +7,8 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
+import { ReactNode } from "react";
 
-import { Group } from "@mantine/core";
 import { SideMenuProps } from "../SideMenuProps";
 import { AddBlockButton } from "./DefaultButtons/AddBlockButton";
 import { DragHandleButton } from "./DefaultButtons/DragHandleButton";
@@ -26,7 +27,7 @@ export const SideMenu = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema
 >(
-  props: SideMenuProps<BSchema, I, S> & { children?: React.ReactNode }
+  props: SideMenuProps<BSchema, I, S> & { children?: ReactNode }
 ) => {
   const { addBlock, ...rest } = props;
 

@@ -32,7 +32,7 @@ export default function App() {
       editor={editor}
       // Removes all menus and toolbars.
       formattingToolbar={false}
-      hyperlinkToolbar={false}
+      linkToolbar={false}
       imageToolbar={false}
       sideMenu={false}
       slashMenu={false}

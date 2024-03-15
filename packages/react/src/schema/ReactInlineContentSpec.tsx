@@ -46,33 +46,33 @@ export type ReactInlineContentImplementation<
 // Function that adds a wrapper with necessary classes and attributes to the
 // component returned from a custom inline content's 'render' function, to
 // ensure no data is lost on internal copy & paste.
-export function reactWrapInInlineContentStructure<
+export function InlineContentWrapper<
   IType extends string,
   PSchema extends PropSchema
->(
-  element: JSX.Element,
-  inlineContentType: IType,
-  inlineContentProps: Props<PSchema>,
-  propSchema: PSchema
-) {
-  return () => (
+>(props: {
+  children: JSX.Element;
+  inlineContentType: IType;
+  inlineContentProps: Props<PSchema>;
+  propSchema: PSchema;
+}) {
+  return (
     // Creates inline content section element
     <NodeViewWrapper
       as={"span"}
       // Sets inline content section class
       className={"bn-inline-content-section"}
       // Sets content type attribute
-      data-inline-content-type={inlineContentType}
+      data-inline-content-type={props.inlineContentType}
       // Adds props as HTML attributes in kebab-case with "data-" prefix. Skips
       // props set to their default values.
       {...Object.fromEntries(
-        Object.entries(inlineContentProps)
-          .filter(([prop, value]) => value !== propSchema[prop].default)
+        Object.entries(props.inlineContentProps)
+          .filter(([prop, value]) => value !== props.propSchema[prop].default)
           .map(([prop, value]) => {
             return [camelToDataKebab(prop), value];
           })
       )}>
-      {element}
+      {props.children}
     </NodeViewWrapper>
   );
 }
@@ -118,9 +118,10 @@ export function createReactInlineContentSpec<
         editor.schema.styleSchema
       ) as any as InlineContentFromConfig<T, S>; // TODO: fix cast
       const Content = inlineContentImplementation.render;
-      const output = renderToDOMSpec((refCB) => (
-        <Content inlineContent={ic} contentRef={refCB} />
-      ));
+      const output = renderToDOMSpec(
+        (refCB) => <Content inlineContent={ic} contentRef={refCB} />,
+        editor
+      );
 
       return addInlineContentAttributes(
         output,
@@ -133,7 +134,6 @@ export function createReactInlineContentSpec<
     // TODO: needed?
     addNodeView() {
       const editor = this.options.editor;
-
       return (props) =>
         ReactNodeViewRenderer(
           (props: NodeViewProps) => {
@@ -141,22 +141,23 @@ export function createReactInlineContentSpec<
             const ref = (NodeViewContent({}) as any).ref;
 
             const Content = inlineContentImplementation.render;
-            const FullContent = reactWrapInInlineContentStructure(
-              <Content
-                contentRef={ref}
-                inlineContent={
-                  nodeToCustomInlineContent(
-                    props.node,
-                    editor.schema.inlineContentSchema,
-                    editor.schema.styleSchema
-                  ) as any as InlineContentFromConfig<T, S> // TODO: fix cast
-                }
-              />,
-              inlineContentConfig.type,
-              props.node.attrs as Props<T["propSchema"]>,
-              inlineContentConfig.propSchema
+            return (
+              <InlineContentWrapper
+                inlineContentProps={props.node.attrs as Props<T["propSchema"]>}
+                inlineContentType={inlineContentConfig.type}
+                propSchema={inlineContentConfig.propSchema}>
+                <Content
+                  contentRef={ref}
+                  inlineContent={
+                    nodeToCustomInlineContent(
+                      props.node,
+                      editor.schema.inlineContentSchema,
+                      editor.schema.styleSchema
+                    ) as any as InlineContentFromConfig<T, S> // TODO: fix cast
+                  }
+                />
+              </InlineContentWrapper>
             );
-            return <FullContent />;
           },
           {
             className: "bn-ic-react-node-view-renderer",

@@ -32,16 +32,16 @@ Setting `formattingToolbar={false}` on `BlockNoteView` tells BlockNote not to sh
 <div className="nx-mt-6 nx-leading-7 first:nx-mt-0">
     <small>
         <strong>Tip:</strong> The children you pass to the `FormattingToolbar` component
-        should be default dropdowns/buttons (e.g. `BlockTypeDropdown` & `BasicTextStyleButton`) or custom dropdowns/buttons
-        (`ToolbarDropdown` & `ToolbarButton`). To see all the components you can use, head to the
-        [Formatting Toolbar's source code](link).
+        should be default selects/buttons (e.g. `BlockTypeSelect` & `BasicTextStyleButton`) or custom selects/buttons
+        (`ToolbarSelect` & `ToolbarButton`). To see all the components you can use, head to the
+        [Formatting Toolbar's source code](https://github.com/TypeCellOS/BlockNote/blob/main/packages/react/src/components/FormattingToolbar/mantine/FormattingToolbar.tsx).
     </small>
 </div>
 
-## Changing Block Type Dropdown Items
+## Changing Block Type Select (Dropdown) Items
 
-The first element in the default Formatting Toolbar is the Block Type Dropdown, and you can change the items in it. The demo makes the Block Type Dropdown work for image blocks by adding an item to it.
+The first element in the default Formatting Toolbar is the Block Type Select, and you can change the items in it. The demo makes the Block Type Select work for image blocks by adding an item to it.
 
 <Example name="ui-components/formatting-toolbar-block-type-items" />
 
-Here, we use the `FormattingToolbar` component but keep the default buttons (we don't pass any children). Instead, we pass our customized Block Type Dropdown items using the `blockTypeDropdownItems` prop.
+Here, we use the `FormattingToolbar` component but keep the default buttons (we don't pass any children). Instead, we pass our customized Block Type Select items using the `blockTypeSelectItems` prop.

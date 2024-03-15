@@ -199,7 +199,7 @@
             "react-icons": "^4.3.1"
           }
         },
-        "title": "Adding Block Type Dropdown Items",
+        "title": "Adding Block Type Select Items",
         "group": {
           "pathFromRoot": "examples/02-ui-components",
           "slug": "ui-components"
@@ -330,16 +330,16 @@
         }
       },
       {
-        "projectSlug": "hyperlink-toolbar-buttons",
-        "fullSlug": "ui-components/hyperlink-toolbar-buttons",
-        "pathFromRoot": "examples/02-ui-components/hyperlink-toolbar-buttons",
+        "projectSlug": "link-toolbar-buttons",
+        "fullSlug": "ui-components/link-toolbar-buttons",
+        "pathFromRoot": "examples/02-ui-components/link-toolbar-buttons",
         "config": {
           "playground": true,
           "docs": false,
           "author": "matthewlipski",
           "tags": []
         },
-        "title": "Adding Hyperlink Toolbar Buttons",
+        "title": "Adding Link Toolbar Buttons",
         "group": {
           "pathFromRoot": "examples/02-ui-components",
           "slug": "ui-components"
@@ -708,7 +708,7 @@
             "yjs": "^13.6.1"
           }
         },
-        "title": "Collaborative Editing with LiveBlocks",
+        "title": "Collaborative Editing with Liveblocks",
         "group": {
           "pathFromRoot": "examples/06-collaboration",
           "slug": "collaboration"

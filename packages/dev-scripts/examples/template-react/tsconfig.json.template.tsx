@@ -21,7 +21,7 @@ const template = (project: Project) => ({
     composite: true,
   },
   include: ["."],
-  references: [
+  __ADD_FOR_LOCAL_DEV_references: [
     {
       path: "../../../packages/core/",
     },

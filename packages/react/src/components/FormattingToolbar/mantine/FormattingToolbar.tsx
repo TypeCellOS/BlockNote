@@ -1,3 +1,5 @@
+import { ReactNode } from "react";
+
 import { Toolbar } from "../../mantine-shared/Toolbar/Toolbar";
 import { FormattingToolbarProps } from "../FormattingToolbarProps";
 import { BasicTextStyleButton } from "./DefaultButtons/BasicTextStyleButton";
@@ -11,17 +13,14 @@ import {
 import { ReplaceImageButton } from "./DefaultButtons/ReplaceImageButton";
 import { TextAlignButton } from "./DefaultButtons/TextAlignButton";
 import {
-  BlockTypeDropdown,
-  BlockTypeDropdownItem,
-} from "./DefaultDropdowns/BlockTypeDropdown";
+  BlockTypeSelect,
+  BlockTypeSelectItem,
+} from "./DefaultSelects/BlockTypeSelect";
 
 export const getFormattingToolbarItems = (
-  blockTypeDropdownItems?: BlockTypeDropdownItem[]
+  blockTypeSelectItems?: BlockTypeSelectItem[]
 ): JSX.Element[] => [
-  <BlockTypeDropdown
-    key={"blockTypeDropdown"}
-    items={blockTypeDropdownItems}
-  />,
+  <BlockTypeSelect key={"blockTypeSelect"} items={blockTypeSelectItems} />,
   <ImageCaptionButton key={"imageCaptionButton"} />,
   <ReplaceImageButton key={"replaceImageButton"} />,
   <BasicTextStyleButton basicTextStyle={"bold"} key={"boldStyleButton"} />,
@@ -40,27 +39,26 @@ export const getFormattingToolbarItems = (
   <CreateLinkButton key={"createLinkButton"} />,
 ];
 
-// TODO: props.blockTypeDropdownItems should only be available if no children
+// TODO: props.blockTypeSelectItems should only be available if no children
 //  are passed
 /**
  * By default, the FormattingToolbar component will render with default
- * dropdowns/buttons. However, you can override the dropdowns/buttons to render
+ * selects/buttons. However, you can override the selects/buttons to render
  * by passing children. The children you pass should be:
  *
- * - Default dropdowns: Components found within the `/DefaultDropdowns` directory.
+ * - Default selects: Components found within the `/DefaultSelects` directory.
  * - Default buttons: Components found within the `/DefaultButtons` directory.
- * - Custom dropdowns: The `ToolbarDropdown` component in the
+ * - Custom selects: The `ToolbarSelect` component in the
  * `components/mantine-shared/Toolbar` directory.
  * - Custom buttons: The `ToolbarButton` component in the
  * `components/mantine-shared/Toolbar` directory.
  */
 export const FormattingToolbar = (
-  props: FormattingToolbarProps & { children?: React.ReactNode }
+  props: FormattingToolbarProps & { children?: ReactNode }
 ) => {
   return (
     <Toolbar>
-      {props.children ||
-        getFormattingToolbarItems(props.blockTypeDropdownItems)}
+      {props.children || getFormattingToolbarItems(props.blockTypeSelectItems)}
     </Toolbar>
   );
 };

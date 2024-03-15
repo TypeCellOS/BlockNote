@@ -364,13 +364,6 @@
   background-color: var(--bn-colors-hovered-background);
 }
 
-.bn-container .bn-toolbar .bn-embed-image-button {
-  border: solid var(--bn-colors-border) 1px;
-  border-radius: var(--bn-border-radius-small);
-  height: 32px;
-  width: 60%;
-}
-
 .bn-container .bn-toolbar-input-dropdown {
   background-color: var(--bn-colors-menu-background);
   border: var(--bn-border);
@@ -419,41 +412,6 @@
 
 .bn-container .bn-toolbar-input-dropdown .mantine-FileInput-placeholder {
   color: var(--bn-colors-menu-text);
-}
-
-.bn-container .bn-image-toolbar {
-  width: 500px;
-}
-
-.bn-container .bn-image-toolbar .bn-upload-image-panel > div {
-  align-items: stretch;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.bn-container
-  .bn-image-toolbar
-  .bn-upload-image-panel
-  > div
-  > .mantine-Text-root {
-  text-align: center;
-}
-
-.bn-container .bn-image-toolbar .bn-embed-image-panel > div {
-  align-items: center;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  width: 100%;
-}
-
-.bn-container
-  .bn-image-toolbar
-  .bn-embed-image-panel
-  > div
-  .mantine-TextInput-root {
-  width: 100%;
 }
 
 /* Slash Menu styling*/
@@ -510,6 +468,46 @@
 .bn-container .bn-drag-handle {
   height: 24px;
   width: 24px;
+}
+
+/* Image Panel styling*/
+.bn-container .bn-image-panel {
+  background-color: var(--bn-colors-menu-background);
+  border: var(--bn-border);
+  border-radius: var(--bn-border-radius-medium);
+  box-shadow: var(--bn-shadow-medium);
+  padding: 2px;
+  width: 500px;
+}
+
+.bn-container .bn-image-panel .bn-image-panel-tab {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.bn-container .bn-image-panel .mantine-TextInput-root,
+.bn-container .bn-image-panel .mantine-FileInput-root {
+  width: 100%;
+}
+
+.bn-container .bn-image-panel .mantine-Button-root {
+  background-color: var(--bn-colors-menu-background);
+  border: solid var(--bn-colors-border) 1px;
+  border-radius: var(--bn-border-radius-small);
+  color: var(--bn-colors-menu-text);
+  height: 32px;
+  width: 60%;
+}
+
+.bn-container .bn-image-panel .mantine-Button-root:hover {
+  background-color: var(--bn-colors-hovered-background);
+}
+
+.bn-container .bn-image-panel .mantine-Text-root {
+  text-align: center;
 }
 
 /* Table Handle styling */
