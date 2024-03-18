@@ -16,7 +16,6 @@ export * from "./components/FormattingToolbar/mantine/DefaultButtons/NestBlockBu
 export * from "./components/FormattingToolbar/mantine/DefaultButtons/ReplaceImageButton";
 export * from "./components/FormattingToolbar/mantine/DefaultButtons/TextAlignButton";
 export * from "./components/FormattingToolbar/mantine/DefaultSelects/BlockTypeSelect";
-export * from "./components/FormattingToolbar/mantine/FormattingToolbar";
 
 export * from "./components/LinkToolbar/LinkToolbarController";
 export * from "./components/LinkToolbar/LinkToolbarProps";
@@ -85,4 +84,3 @@ export * from "./hooks/useSelectedBlocks";
 export * from "./schema/ReactBlockSpec";
 export * from "./schema/ReactInlineContentSpec";
 export * from "./schema/ReactStyleSpec";
-
