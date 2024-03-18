@@ -10,6 +10,9 @@ export type ComponentsContextValue = {
   MenuDivider: any;
   MenuLabel: any;
   MenuItem: any;
+  Popover: any;
+  PopoverTrigger: any;
+  PopoverContent: any;
 };
 
 export const ComponentsContext = createContext<

@@ -9,12 +9,12 @@ import {
   StyleSchema,
 } from "@blocknote/core";
 
+import { useComponentsContext } from "../../../../editor/ComponentsContext";
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor";
 import { useEditorContentOrSelectionChange } from "../../../../hooks/useEditorContentOrSelectionChange";
 import { useSelectedBlocks } from "../../../../hooks/useSelectedBlocks";
 import { EditLinkMenuItems } from "../../../LinkToolbar/mantine/EditLinkMenuItems";
 import { ToolbarButton } from "../../../mantine-shared/Toolbar/ToolbarButton";
-import { ToolbarInputsMenu } from "../../../mantine-shared/Toolbar/ToolbarInputsMenu";
 
 function checkLinkInSchema(
   editor: BlockNoteEditor<BlockSchema, any, StyleSchema>
@@ -41,7 +41,7 @@ export const CreateLinkButton = () => {
     InlineContentSchema,
     StyleSchema
   >();
-
+  const components = useComponentsContext()!;
   const linkInSchema = checkLinkInSchema(editor);
 
   const selectedBlocks = useSelectedBlocks(editor);
@@ -81,17 +81,18 @@ export const CreateLinkButton = () => {
   }
 
   return (
-    <ToolbarInputsMenu
-      button={
+    <components.Popover>
+      <components.PopoverTrigger>
+        {/* TODO: hide tooltip on click */}
         <ToolbarButton
-          mainTooltip={"Create Link"}
+          mainTooltip={"Create Lidfnk"}
           secondaryTooltip={formatKeyboardShortcut("Mod+K")}
           icon={RiLink}
         />
-      }
-      dropdownItems={
+      </components.PopoverTrigger>
+      <components.PopoverContent>
         <EditLinkMenuItems url={url} text={text} editLink={update} />
-      }
-    />
+      </components.PopoverContent>
+    </components.Popover>
   );
 };

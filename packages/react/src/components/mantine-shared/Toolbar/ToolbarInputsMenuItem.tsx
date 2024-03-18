@@ -1,39 +1,17 @@
-import {
-  FileInput,
-  FileInputProps,
-  Group,
-  TextInput,
-  TextInputProps,
-} from "@mantine/core";
+import { Group, TextInput, TextInputProps } from "@mantine/core";
 import type { IconType } from "react-icons";
 
-export type InputType = "text" | "file";
-
-export type InputProps = {
-  text: TextInputProps;
-  file: FileInputProps;
-};
-
-export const inputComponents: Record<InputType, any> = {
-  text: TextInput,
-  file: FileInput,
-};
-
-export type ToolbarInputsMenuItemProps<Type extends InputType> = {
-  type: Type;
+export type ToolbarInputsMenuItemProps = {
   icon: IconType;
-} & Omit<InputProps[Type], "type">;
+} & TextInputProps;
 
-export const ToolbarInputsMenuItem = <Type extends InputType>(
-  props: ToolbarInputsMenuItemProps<Type>
-) => {
-  const { type, icon, ...rest } = props;
-  const Input = inputComponents[props.type];
+export const ToolbarInputsMenuItem = (props: ToolbarInputsMenuItemProps) => {
+  const { icon, ...rest } = props;
   const Icon = props.icon;
 
   return (
     <Group>
-      <Input size={"xs"} icon={<Icon />} {...rest} />
+      <TextInput leftSection={<Icon />} size={"xs"} {...rest} />
     </Group>
   );
 };

@@ -14,13 +14,14 @@ import {
 } from "react";
 import { RiText } from "react-icons/ri";
 
+import { useComponentsContext } from "../../../../editor/ComponentsContext";
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor";
 import { useSelectedBlocks } from "../../../../hooks/useSelectedBlocks";
 import { ToolbarButton } from "../../../mantine-shared/Toolbar/ToolbarButton";
-import { ToolbarInputsMenu } from "../../../mantine-shared/Toolbar/ToolbarInputsMenu";
 import { ToolbarInputsMenuItem } from "../../../mantine-shared/Toolbar/ToolbarInputsMenuItem";
 
 export const ImageCaptionButton = () => {
+  const components = useComponentsContext()!;
   const editor = useBlockNoteEditor<
     BlockSchema,
     InlineContentSchema,
@@ -76,17 +77,16 @@ export const ImageCaptionButton = () => {
   }
 
   return (
-    <ToolbarInputsMenu
-      button={
+    <components.Popover>
+      <components.PopoverTrigger>
         <ToolbarButton
           mainTooltip={"Edit Caption"}
           icon={RiText}
           isSelected={imageBlock.props.caption !== ""}
         />
-      }
-      dropdownItems={
+      </components.PopoverTrigger>
+      <components.PopoverContent>
         <ToolbarInputsMenuItem
-          type={"text"}
           icon={RiText}
           value={currentEditingCaption}
           autoFocus={true}
@@ -95,7 +95,7 @@ export const ImageCaptionButton = () => {
           defaultValue={imageBlock.props.caption}
           onChange={handleChange}
         />
-      }
-    />
+      </components.PopoverContent>
+    </components.Popover>
   );
 };

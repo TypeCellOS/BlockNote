@@ -10,6 +10,7 @@ import {
   MenuLabel,
   MenuTarget,
 } from "./menu/Menu";
+import { Popover, PopoverContent, PopoverTrigger } from "./popover/Popover";
 
 export const ariakitComponents: ComponentsContextValue = {
   Toolbar: Toolbar,
@@ -21,4 +22,7 @@ export const ariakitComponents: ComponentsContextValue = {
   MenuDivider,
   MenuLabel,
   MenuItem,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
 };

@@ -4,11 +4,13 @@ import { useComponentsContext } from "../../editor/ComponentsContext";
 import { FormattingToolbarProps } from "./FormattingToolbarProps";
 import { BasicTextStyleButton } from "./mantine/DefaultButtons/BasicTextStyleButton";
 import { ColorStyleButton } from "./mantine/DefaultButtons/ColorStyleButton";
+import { CreateLinkButton } from "./mantine/DefaultButtons/CreateLinkButton";
 import { ImageCaptionButton } from "./mantine/DefaultButtons/ImageCaptionButton";
 import {
   NestBlockButton,
   UnnestBlockButton,
 } from "./mantine/DefaultButtons/NestBlockButtons";
+import { ReplaceImageButton } from "./mantine/DefaultButtons/ReplaceImageButton";
 import { TextAlignButton } from "./mantine/DefaultButtons/TextAlignButton";
 import {
   BlockTypeSelect,
@@ -20,7 +22,7 @@ export const getFormattingToolbarItems = (
 ): JSX.Element[] => [
   <BlockTypeSelect key={"blockTypeSelect"} items={blockTypeSelectItems} />,
   <ImageCaptionButton key={"imageCaptionButton"} />,
-  // <ReplaceImageButton key={"replaceImageButton"} />,
+  <ReplaceImageButton key={"replaceImageButton"} />,
   <BasicTextStyleButton basicTextStyle={"bold"} key={"boldStyleButton"} />,
   <BasicTextStyleButton basicTextStyle={"italic"} key={"italicStyleButton"} />,
   <BasicTextStyleButton
@@ -34,7 +36,7 @@ export const getFormattingToolbarItems = (
   <ColorStyleButton key={"colorStyleButton"} />,
   <NestBlockButton key={"nestBlockButton"} />,
   <UnnestBlockButton key={"unnestBlockButton"} />,
-  // <CreateLinkButton key={"createLinkButton"} />,
+  <CreateLinkButton key={"createLinkButton"} />,
 ];
 
 // TODO: props.blockTypeSelectItems should only be available if no children

@@ -6,8 +6,8 @@ import {
   useState,
 } from "react";
 import { RiLink, RiText } from "react-icons/ri";
-import { LinkToolbarProps } from "../LinkToolbarProps";
 import { ToolbarInputsMenuItem } from "../../mantine-shared/Toolbar/ToolbarInputsMenuItem";
+import { LinkToolbarProps } from "../LinkToolbarProps";
 
 export const EditLinkMenuItems = (
   props: Pick<LinkToolbarProps, "url" | "text" | "editLink">
@@ -52,7 +52,6 @@ export const EditLinkMenuItems = (
   return (
     <>
       <ToolbarInputsMenuItem
-        type={"text"}
         icon={RiLink}
         autoFocus={true}
         placeholder={"Edit URL"}
@@ -62,7 +61,6 @@ export const EditLinkMenuItems = (
         onSubmit={handleSubmit}
       />
       <ToolbarInputsMenuItem
-        type={"text"}
         icon={RiText}
         placeholder={"Edit Title"}
         value={currentText}
