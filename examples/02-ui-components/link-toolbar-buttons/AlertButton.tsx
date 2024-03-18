@@ -1,7 +1,7 @@
-import { HyperlinkToolbarProps, ToolbarButton } from "@blocknote/react";
+import { LinkToolbarProps, ToolbarButton } from "@blocknote/react";
 
-// Custom Hyperlink Toolbar button to open a browser alert.
-export function AlertButton(props: HyperlinkToolbarProps) {
+// Custom Link Toolbar button to open a browser alert.
+export function AlertButton(props: LinkToolbarProps) {
   return (
     <ToolbarButton
       mainTooltip={"Open Alert with URL"}

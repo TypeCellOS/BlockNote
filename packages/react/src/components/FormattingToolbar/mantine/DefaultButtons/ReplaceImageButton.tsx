@@ -10,7 +10,7 @@ import { RiImageEditFill } from "react-icons/ri";
 
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor";
 import { useSelectedBlocks } from "../../../../hooks/useSelectedBlocks";
-import { ImagePanel } from "../../../ImageToolbar/mantine/ImagePanel";
+import { ImagePanel } from "../../../ImagePanel/mantine/ImagePanel";
 import { ToolbarButton } from "../../../mantine-shared/Toolbar/ToolbarButton";
 
 export const ReplaceImageButton = () => {

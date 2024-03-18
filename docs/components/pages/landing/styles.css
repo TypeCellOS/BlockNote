@@ -8,6 +8,10 @@
 }
 
 .nextra-nav-container {
+    z-index: 40;
+}
+
+.nextra-sidebar-container {
     z-index: 30;
 }
 

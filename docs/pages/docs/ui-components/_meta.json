@@ -1,8 +1,8 @@
 {
   "side-menu": "Block Side Menu",
   "formatting-toolbar": "Formatting Toolbar",
-  "hyperlink-toolbar": {
-    "title": "Hyperlink Toolbar",
+  "link-toolbar": {
+    "title": "Link Toolbar",
     "display": "hidden"
   },
   "image-toolbar": {

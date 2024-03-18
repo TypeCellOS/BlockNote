@@ -11,7 +11,7 @@ import { UiElementPosition } from "../../extensions-shared/UiElementPosition";
 import { EventEmitter } from "../../util/EventEmitter";
 import { DefaultBlockSchema } from "../../blocks/defaultBlocks";
 
-export type ImageToolbarState<
+export type ImagePanelState<
   I extends InlineContentSchema,
   S extends StyleSchema
 > = UiElementPosition & {
@@ -19,11 +19,11 @@ export type ImageToolbarState<
   block: BlockFromConfig<DefaultBlockSchema["image"], I, S>;
 };
 
-export class ImageToolbarView<
+export class ImagePanelView<
   I extends InlineContentSchema,
   S extends StyleSchema
 > {
-  public state?: ImageToolbarState<I, S>;
+  public state?: ImagePanelState<I, S>;
   public emitUpdate: () => void;
 
   public prevWasEditable: boolean | null = null;
@@ -31,11 +31,11 @@ export class ImageToolbarView<
   constructor(
     private readonly pluginKey: PluginKey,
     private readonly pmView: EditorView,
-    emitUpdate: (state: ImageToolbarState<I, S>) => void
+    emitUpdate: (state: ImagePanelState<I, S>) => void
   ) {
     this.emitUpdate = () => {
       if (!this.state) {
-        throw new Error("Attempting to update uninitialized image toolbar");
+        throw new Error("Attempting to update uninitialized image panel");
       }
 
       emitUpdate(this.state);
@@ -69,7 +69,7 @@ export class ImageToolbarView<
     const editorWrapper = this.pmView.dom.parentElement!;
 
     // Checks if the focus is moving to an element outside the editor. If it is,
-    // the toolbar is hidden.
+    // the panel is hidden.
     if (
       // An element is clicked.
       event &&
@@ -142,13 +142,13 @@ export class ImageToolbarView<
   }
 }
 
-const imageToolbarPluginKey = new PluginKey("ImageToolbarPlugin");
+const imagePanelPluginKey = new PluginKey("ImagePanelPlugin");
 
-export class ImageToolbarProsemirrorPlugin<
+export class ImagePanelProsemirrorPlugin<
   I extends InlineContentSchema,
   S extends StyleSchema
 > extends EventEmitter<any> {
-  private view: ImageToolbarView<I, S> | undefined;
+  private view: ImagePanelView<I, S> | undefined;
   public readonly plugin: Plugin;
 
   constructor(
@@ -158,11 +158,11 @@ export class ImageToolbarProsemirrorPlugin<
     this.plugin = new Plugin<{
       block: BlockFromConfig<DefaultBlockSchema["image"], I, S> | undefined;
     }>({
-      key: imageToolbarPluginKey,
+      key: imagePanelPluginKey,
       view: (editorView) => {
-        this.view = new ImageToolbarView(
+        this.view = new ImagePanelView(
           // editor,
-          imageToolbarPluginKey,
+          imagePanelPluginKey,
           editorView,
           (state) => {
             this.emit("update", state);
@@ -179,7 +179,7 @@ export class ImageToolbarProsemirrorPlugin<
         apply: (transaction) => {
           const block:
             | BlockFromConfig<DefaultBlockSchema["image"], I, S>
-            | undefined = transaction.getMeta(imageToolbarPluginKey)?.block;
+            | undefined = transaction.getMeta(imagePanelPluginKey)?.block;
 
           return {
             block,
@@ -189,7 +189,7 @@ export class ImageToolbarProsemirrorPlugin<
     });
   }
 
-  public onUpdate(callback: (state: ImageToolbarState<I, S>) => void) {
+  public onUpdate(callback: (state: ImagePanelState<I, S>) => void) {
     return this.on("update", callback);
   }
 }

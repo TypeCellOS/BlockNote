@@ -16,14 +16,15 @@ export * from "./components/FormattingToolbar/mantine/DefaultButtons/NestBlockBu
 export * from "./components/FormattingToolbar/mantine/DefaultButtons/ReplaceImageButton";
 export * from "./components/FormattingToolbar/mantine/DefaultButtons/TextAlignButton";
 export * from "./components/FormattingToolbar/mantine/DefaultSelects/BlockTypeSelect";
+export * from "./components/FormattingToolbar/mantine/FormattingToolbar";
 
-export * from "./components/HyperlinkToolbar/HyperlinkToolbarController";
-export * from "./components/HyperlinkToolbar/HyperlinkToolbarProps";
-export * from "./components/HyperlinkToolbar/mantine/DefaultButtons/DeleteLinkButton";
-export * from "./components/HyperlinkToolbar/mantine/DefaultButtons/EditLinkButton";
-export * from "./components/HyperlinkToolbar/mantine/DefaultButtons/OpenLinkButton";
-export * from "./components/HyperlinkToolbar/mantine/EditLinkMenuItems";
-export * from "./components/HyperlinkToolbar/mantine/HyperlinkToolbar";
+export * from "./components/LinkToolbar/LinkToolbarController";
+export * from "./components/LinkToolbar/LinkToolbarProps";
+export * from "./components/LinkToolbar/mantine/DefaultButtons/DeleteLinkButton";
+export * from "./components/LinkToolbar/mantine/DefaultButtons/EditLinkButton";
+export * from "./components/LinkToolbar/mantine/DefaultButtons/OpenLinkButton";
+export * from "./components/LinkToolbar/mantine/EditLinkMenuItems";
+export * from "./components/LinkToolbar/mantine/LinkToolbar";
 
 export * from "./components/SideMenu/SideMenuController";
 export * from "./components/SideMenu/SideMenuProps";
@@ -48,15 +49,15 @@ export * from "./components/SuggestionMenu/mantine/SuggestionMenu";
 export * from "./components/SuggestionMenu/mantine/SuggestionMenuItem";
 export * from "./components/SuggestionMenu/types";
 
-export * from "./components/ImageToolbar/ImagePanelController";
-export * from "./components/ImageToolbar/ImagePanelProps";
-export * from "./components/ImageToolbar/mantine/DefaultTabs/EmbedTab";
-export * from "./components/ImageToolbar/mantine/DefaultTabs/UploadTab";
-export * from "./components/ImageToolbar/mantine/ImagePanel";
-export * from "./components/ImageToolbar/mantine/ImagePanelButton";
-export * from "./components/ImageToolbar/mantine/ImagePanelFileInput";
-export * from "./components/ImageToolbar/mantine/ImagePanelTab";
-export * from "./components/ImageToolbar/mantine/ImagePanelTextInput";
+export * from "./components/ImagePanel/ImagePanelController";
+export * from "./components/ImagePanel/ImagePanelProps";
+export * from "./components/ImagePanel/mantine/DefaultTabs/EmbedTab";
+export * from "./components/ImagePanel/mantine/DefaultTabs/UploadTab";
+export * from "./components/ImagePanel/mantine/ImagePanel";
+export * from "./components/ImagePanel/mantine/ImagePanelButton";
+export * from "./components/ImagePanel/mantine/ImagePanelFileInput";
+export * from "./components/ImagePanel/mantine/ImagePanelTab";
+export * from "./components/ImagePanel/mantine/ImagePanelTextInput";
 
 export * from "./components/TableHandles/TableHandleProps";
 export * from "./components/TableHandles/TableHandlesController";
@@ -84,3 +85,4 @@ export * from "./hooks/useSelectedBlocks";
 export * from "./schema/ReactBlockSpec";
 export * from "./schema/ReactInlineContentSpec";
 export * from "./schema/ReactStyleSpec";
+

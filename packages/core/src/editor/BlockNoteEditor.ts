@@ -27,10 +27,10 @@ import {
   PartialBlock,
 } from "../blocks/defaultBlocks";
 import { FormattingToolbarProsemirrorPlugin } from "../extensions/FormattingToolbar/FormattingToolbarPlugin";
-import { HyperlinkToolbarProsemirrorPlugin } from "../extensions/HyperlinkToolbar/HyperlinkToolbarPlugin";
-import { ImageToolbarProsemirrorPlugin } from "../extensions/ImageToolbar/ImageToolbarPlugin";
+import { LinkToolbarProsemirrorPlugin } from "../extensions/LinkToolbar/LinkToolbarPlugin";
 import { SideMenuProsemirrorPlugin } from "../extensions/SideMenu/SideMenuPlugin";
 import { SuggestionMenuProseMirrorPlugin } from "../extensions/SuggestionMenu/SuggestionPlugin";
+import { ImagePanelProsemirrorPlugin } from "../extensions/ImagePanel/ImageToolbarPlugin";
 import { TableHandlesProsemirrorPlugin } from "../extensions/TableHandles/TableHandlesPlugin";
 import { UniqueID } from "../extensions/UniqueID/UniqueID";
 import {
@@ -54,14 +54,15 @@ import { TextCursorPosition } from "./cursorPositionTypes";
 import { Selection } from "./selectionTypes";
 import { transformPasted } from "./transformPasted";
 
-// CSS
 import { checkDefaultBlockTypeInSchema } from "../blocks/defaultBlockTypeGuards";
-import "./Block.css";
 import { BlockNoteSchema } from "./BlockNoteSchema";
 import {
   BlockNoteTipTapEditor,
   BlockNoteTipTapEditorOptions,
 } from "./BlockNoteTipTapEditor";
+
+// CSS
+import "./Block.css";
 import "./editor.css";
 
 export type BlockNoteEditorOptions<
@@ -156,7 +157,7 @@ export class BlockNoteEditor<
   public readonly styleImplementations: StyleSpecs;
 
   public readonly formattingToolbar: FormattingToolbarProsemirrorPlugin;
-  public readonly hyperlinkToolbar: HyperlinkToolbarProsemirrorPlugin<
+  public readonly linkToolbar: LinkToolbarProsemirrorPlugin<
     BSchema,
     ISchema,
     SSchema
@@ -171,10 +172,7 @@ export class BlockNoteEditor<
     ISchema,
     SSchema
   >;
-  public readonly imageToolbar?: ImageToolbarProsemirrorPlugin<
-    ISchema,
-    SSchema
-  >;
+  public readonly imagePanel?: ImagePanelProsemirrorPlugin<ISchema, SSchema>;
   public readonly tableHandles?: TableHandlesProsemirrorPlugin<
     ISchema,
     SSchema
@@ -232,12 +230,12 @@ export class BlockNoteEditor<
     this.styleImplementations = newOptions.schema.styleSpecs;
 
     this.formattingToolbar = new FormattingToolbarProsemirrorPlugin(this);
-    this.hyperlinkToolbar = new HyperlinkToolbarProsemirrorPlugin(this);
+    this.linkToolbar = new LinkToolbarProsemirrorPlugin(this);
     this.sideMenu = new SideMenuProsemirrorPlugin(this);
     this.suggestionMenus = new SuggestionMenuProseMirrorPlugin(this);
     if (checkDefaultBlockTypeInSchema("image", this)) {
       // Type guards only work on `const`s? Not working for `this`
-      this.imageToolbar = new ImageToolbarProsemirrorPlugin(this as any);
+      this.imagePanel = new ImagePanelProsemirrorPlugin(this as any);
     }
     if (checkDefaultBlockTypeInSchema("table", this)) {
       this.tableHandles = new TableHandlesProsemirrorPlugin(this as any);
@@ -260,10 +258,10 @@ export class BlockNoteEditor<
       addProseMirrorPlugins: () => {
         return [
           this.formattingToolbar.plugin,
-          this.hyperlinkToolbar.plugin,
+          this.linkToolbar.plugin,
           this.sideMenu.plugin,
           this.suggestionMenus.plugin,
-          ...(this.imageToolbar ? [this.imageToolbar.plugin] : []),
+          ...(this.imagePanel ? [this.imagePanel.plugin] : []),
           ...(this.tableHandles ? [this.tableHandles.plugin] : []),
         ];
       },
@@ -654,7 +652,9 @@ export class BlockNoteEditor<
    * @param editable True to make the editor editable, or false to lock it.
    */
   public set isEditable(editable: boolean) {
-    this._tiptapEditor.setEditable(editable);
+    if (this._tiptapEditor.options.editable !== editable) {
+      this._tiptapEditor.setEditable(editable);
+    }
   }
 
   /**

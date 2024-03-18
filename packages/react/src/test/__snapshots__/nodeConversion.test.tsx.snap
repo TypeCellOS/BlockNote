@@ -1,5 +1,30 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`Test React BlockNote-Prosemirror conversion > Case: custom react block schema > Convert reactContextParagraph/basic to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "textAlignment": "left",
+      },
+      "content": [
+        {
+          "text": "React Context Paragraph",
+          "type": "text",
+        },
+      ],
+      "type": "reactContextParagraph",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
 exports[`Test React BlockNote-Prosemirror conversion > Case: custom react block schema > Convert reactCustomParagraph/basic to/from prosemirror 1`] = `
 {
   "attrs": {

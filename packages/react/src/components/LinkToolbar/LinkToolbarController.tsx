@@ -12,27 +12,27 @@ import { FC } from "react";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor";
 import { useUIElementPositioning } from "../../hooks/useUIElementPositioning";
 import { useUIPluginState } from "../../hooks/useUIPluginState";
-import { HyperlinkToolbarProps } from "./HyperlinkToolbarProps";
-import { HyperlinkToolbar } from "./mantine/HyperlinkToolbar";
+import { LinkToolbarProps } from "./LinkToolbarProps";
+import { LinkToolbar } from "./mantine/LinkToolbar";
 
-export const HyperlinkToolbarController = <
+export const LinkToolbarController = <
   BSchema extends BlockSchema = DefaultBlockSchema,
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema
 >(props: {
-  hyperlinkToolbar?: FC<HyperlinkToolbarProps>;
+  linkToolbar?: FC<LinkToolbarProps>;
 }) => {
   const editor = useBlockNoteEditor<BSchema, I, S>();
 
   const callbacks = {
-    deleteHyperlink: editor.hyperlinkToolbar.deleteHyperlink,
-    editHyperlink: editor.hyperlinkToolbar.editHyperlink,
-    startHideTimer: editor.hyperlinkToolbar.startHideTimer,
-    stopHideTimer: editor.hyperlinkToolbar.stopHideTimer,
+    deleteLink: editor.linkToolbar.deleteLink,
+    editLink: editor.linkToolbar.editLink,
+    startHideTimer: editor.linkToolbar.startHideTimer,
+    stopHideTimer: editor.linkToolbar.stopHideTimer,
   };
 
   const state = useUIPluginState(
-    editor.hyperlinkToolbar.onUpdate.bind(editor.hyperlinkToolbar)
+    editor.linkToolbar.onUpdate.bind(editor.linkToolbar)
   );
   const { isMounted, ref, style } = useUIElementPositioning(
     state?.show || false,
@@ -50,7 +50,7 @@ export const HyperlinkToolbarController = <
 
   const { show, referencePos, ...data } = state;
 
-  const Component = props.hyperlinkToolbar || HyperlinkToolbar;
+  const Component = props.linkToolbar || LinkToolbar;
 
   return (
     <div ref={ref} style={style}>

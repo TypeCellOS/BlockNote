@@ -1,8 +1,14 @@
-.hero .bn-container, .hero .bn-editor {
+.hero-demo {
+    @media only screen and (hover: none) and (pointer: coarse) {
+        display: none; /* disable on mobile */
+    }
+}
+
+.hero-demo .bn-container, .hero-demo .bn-editor {
     height: 100%
 }
 
-.hero .bn-editor {
+.hero-demo .bn-editor {
     overflow: auto;
     min-height: 100%;
     /* Removes focus outline */
@@ -10,7 +16,7 @@
     padding-block: 1rem
 }
 
-.hero a {
+.hero-demo a {
     color: revert;
     text-decoration: revert;
 }

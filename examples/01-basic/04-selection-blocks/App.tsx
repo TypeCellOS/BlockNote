@@ -1,6 +1,7 @@
 import { Block } from "@blocknote/core";
+import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView, useCreateBlockNote } from "@blocknote/react";
-import "../../../packages/react/dist/style.css";
+import "@blocknote/react/style.css";
 import { useState } from "react";
 
 import "./styles.css";

@@ -1,8 +1,8 @@
 import "@blocknote/core/fonts/inter.css";
 import {
   BlockNoteView,
-  HyperlinkToolbar,
-  HyperlinkToolbarController,
+  LinkToolbar,
+  LinkToolbarController,
   useCreateBlockNote,
 } from "@blocknote/react";
 import "@blocknote/react/style.css";
@@ -19,7 +19,7 @@ export default function App() {
       },
       {
         type: "paragraph",
-        content: "Hover the link below to see the modified Hyperlink Toolbar",
+        content: "Hover the link below to see the modified Link Toolbar",
       },
       {
         type: "paragraph",
@@ -45,12 +45,12 @@ export default function App() {
 
   // Renders the editor instance.
   return (
-    <BlockNoteView editor={editor} hyperlinkToolbar={false}>
-      <HyperlinkToolbarController
-        hyperlinkToolbar={(props) => (
-          <HyperlinkToolbar {...props}>
+    <BlockNoteView editor={editor} linkToolbar={false}>
+      <LinkToolbarController
+        linkToolbar={(props) => (
+          <LinkToolbar {...props}>
             <AlertButton {...props} />
-          </HyperlinkToolbar>
+          </LinkToolbar>
         )}
       />
     </BlockNoteView>

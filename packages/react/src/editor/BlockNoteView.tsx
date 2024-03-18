@@ -93,7 +93,7 @@ function BlockNoteViewComponent<
     onSelectionChange,
     onChange,
     formattingToolbar,
-    hyperlinkToolbar,
+    linkToolbar,
     slashMenu,
     sideMenu,
     imageToolbar,
@@ -165,7 +165,7 @@ function BlockNoteViewComponent<
         {children}
         <BlockNoteDefaultUI
           formattingToolbar={formattingToolbar}
-          hyperlinkToolbar={hyperlinkToolbar}
+          linkToolbar={linkToolbar}
           slashMenu={slashMenu}
           sideMenu={sideMenu}
           imageToolbar={imageToolbar}
@@ -176,7 +176,7 @@ function BlockNoteViewComponent<
   }, [
     children,
     formattingToolbar,
-    hyperlinkToolbar,
+    linkToolbar,
     imageToolbar,
     sideMenu,
     slashMenu,
