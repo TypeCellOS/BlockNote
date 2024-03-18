@@ -3,6 +3,8 @@ import { ReactNode } from "react";
 import { useComponentsContext } from "../../editor/ComponentsContext";
 import { FormattingToolbarProps } from "./FormattingToolbarProps";
 import { BasicTextStyleButton } from "./mantine/DefaultButtons/BasicTextStyleButton";
+import { ColorStyleButton } from "./mantine/DefaultButtons/ColorStyleButton";
+import { ImageCaptionButton } from "./mantine/DefaultButtons/ImageCaptionButton";
 import {
   NestBlockButton,
   UnnestBlockButton,
@@ -17,7 +19,7 @@ export const getFormattingToolbarItems = (
   blockTypeSelectItems?: BlockTypeSelectItem[]
 ): JSX.Element[] => [
   <BlockTypeSelect key={"blockTypeSelect"} items={blockTypeSelectItems} />,
-  // <ImageCaptionButton key={"imageCaptionButton"} />,
+  <ImageCaptionButton key={"imageCaptionButton"} />,
   // <ReplaceImageButton key={"replaceImageButton"} />,
   <BasicTextStyleButton basicTextStyle={"bold"} key={"boldStyleButton"} />,
   <BasicTextStyleButton basicTextStyle={"italic"} key={"italicStyleButton"} />,
@@ -29,7 +31,7 @@ export const getFormattingToolbarItems = (
   <TextAlignButton textAlignment={"left"} key={"textAlignLeftButton"} />,
   <TextAlignButton textAlignment={"center"} key={"textAlignCenterButton"} />,
   <TextAlignButton textAlignment={"right"} key={"textAlignRightButton"} />,
-  // <ColorStyleButton key={"colorStyleButton"} />,
+  <ColorStyleButton key={"colorStyleButton"} />,
   <NestBlockButton key={"nestBlockButton"} />,
   <UnnestBlockButton key={"unnestBlockButton"} />,
   // <CreateLinkButton key={"createLinkButton"} />,

@@ -6,12 +6,12 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { Menu } from "@mantine/core";
 import { MdDragIndicator } from "react-icons/md";
 
+import { useComponentsContext } from "../../../../editor/ComponentsContext";
+import { DragHandleMenu } from "../../DragHandleMenu/mantine/DragHandleMenu";
 import { SideMenuProps } from "../../SideMenuProps";
 import { SideMenuButton } from "../SideMenuButton";
-import { DragHandleMenu } from "../../DragHandleMenu/mantine/DragHandleMenu";
 
 export const DragHandleButton = <
   BSchema extends BlockSchema = DefaultBlockSchema,
@@ -20,17 +20,25 @@ export const DragHandleButton = <
 >(
   props: Omit<SideMenuProps<BSchema, I, S>, "addBlock">
 ) => {
+  const components = useComponentsContext()!;
   const Component = props.dragHandleMenu || DragHandleMenu;
 
   return (
-    <Menu
+    <components.Menu
       withinPortal={false}
       trigger={"click"}
-      onOpen={props.freezeMenu}
-      onClose={props.unfreezeMenu}
+      setOpen={(open: boolean) => {
+        if (open) {
+          props.freezeMenu();
+        } else {
+          props.unfreezeMenu();
+        }
+      }}
+      // onOpen={props.freezeMenu}
+      // onClose={props.unfreezeMenu}
       width={100}
       position={"left"}>
-      <Menu.Target>
+      <components.MenuTarget>
         <div
           className={"bn-drag-handle"}
           draggable="true"
@@ -40,8 +48,8 @@ export const DragHandleButton = <
             <MdDragIndicator size={24} data-test={"dragHandle"} />
           </SideMenuButton>
         </div>
-      </Menu.Target>
+      </components.MenuTarget>
       <Component block={props.block} />
-    </Menu>
+    </components.Menu>
   );
 };

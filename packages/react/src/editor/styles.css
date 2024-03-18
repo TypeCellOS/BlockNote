@@ -138,7 +138,6 @@
   box-sizing: border-box;
   color: var(--bn-colors-menu-text);
   overflow-y: auto;
-  padding: 2px;
 }
 
 .bn-container .mantine-Menu-label {

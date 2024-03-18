@@ -8,12 +8,12 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { Box, Menu } from "@mantine/core";
+import { Box } from "@mantine/core";
 import { ReactNode, useCallback, useRef, useState } from "react";
 import { HiChevronRight } from "react-icons/hi";
 
+import { useComponentsContext } from "../../../../../editor/ComponentsContext";
 import { useBlockNoteEditor } from "../../../../../hooks/useBlockNoteEditor";
-import { usePreventMenuOverflow } from "../../../../../hooks/usePreventMenuOverflow";
 import { ColorPicker } from "../../../../mantine-shared/ColorPicker/ColorPicker";
 import { DragHandleMenuProps } from "../../DragHandleMenuProps";
 import { DragHandleMenuItem } from "../DragHandleMenuItem";
@@ -27,11 +27,10 @@ export const BlockColorsItem = <
     children: ReactNode;
   }
 ) => {
+  const components = useComponentsContext()!;
   const editor = useBlockNoteEditor<BSchema, I, S>();
 
   const [opened, setOpened] = useState(false);
-
-  const { ref, updateMaxHeight } = usePreventMenuOverflow();
 
   const menuCloseTimer = useRef<ReturnType<typeof setTimeout> | undefined>();
 
@@ -49,12 +48,8 @@ export const BlockColorsItem = <
       clearTimeout(menuCloseTimer.current);
     }
 
-    if (!opened) {
-      updateMaxHeight();
-    }
-
     setOpened(true);
-  }, [opened, updateMaxHeight]);
+  }, []);
 
   if (
     !checkBlockTypeHasDefaultProp("textColor", props.block.type, editor) &&
@@ -67,58 +62,61 @@ export const BlockColorsItem = <
     <DragHandleMenuItem
       onMouseLeave={startMenuCloseTimer}
       onMouseOver={stopMenuCloseTimer}>
-      <Menu withinPortal={false} opened={opened} position={"right"}>
-        <Menu.Target>
+      <components.Menu
+        withinPortal={false}
+        opened={opened}
+        position={"right"}
+        middlewares={{ flip: true, shift: true, inline: false, size: true }}>
+        <components.MenuTarget>
           <div style={{ display: "flex", alignItems: "center" }}>
             <div style={{ flex: 1 }}>{props.children}</div>
             <Box style={{ display: "flex", alignItems: "center" }}>
               <HiChevronRight size={15} />
             </Box>
           </div>
-        </Menu.Target>
-        <div ref={ref}>
-          <Menu.Dropdown
-            onMouseLeave={startMenuCloseTimer}
-            onMouseOver={stopMenuCloseTimer}
-            style={{ marginLeft: "5px" }}>
-            <ColorPicker
-              iconSize={18}
-              text={
-                checkBlockTypeHasDefaultProp(
-                  "textColor",
-                  props.block.type,
-                  editor
-                ) && checkBlockHasDefaultProp("textColor", props.block, editor)
-                  ? {
-                      color: props.block.props.textColor,
-                      setColor: (color) =>
-                        editor.updateBlock(props.block, {
-                          type: props.block.type,
-                          props: { textColor: color },
-                        }),
-                    }
-                  : undefined
-              }
-              background={
-                checkBlockTypeHasDefaultProp(
-                  "backgroundColor",
-                  props.block.type,
-                  editor
-                ) &&
-                checkBlockHasDefaultProp("backgroundColor", props.block, editor)
-                  ? {
-                      color: props.block.props.backgroundColor,
-                      setColor: (color) =>
-                        editor.updateBlock(props.block, {
-                          props: { backgroundColor: color },
-                        }),
-                    }
-                  : undefined
-              }
-            />
-          </Menu.Dropdown>
-        </div>
-      </Menu>
+        </components.MenuTarget>
+
+        <components.MenuDropdown
+          onMouseLeave={startMenuCloseTimer}
+          onMouseOver={stopMenuCloseTimer}
+          style={{ marginLeft: "5px" }}>
+          <ColorPicker
+            iconSize={18}
+            text={
+              checkBlockTypeHasDefaultProp(
+                "textColor",
+                props.block.type,
+                editor
+              ) && checkBlockHasDefaultProp("textColor", props.block, editor)
+                ? {
+                    color: props.block.props.textColor,
+                    setColor: (color) =>
+                      editor.updateBlock(props.block, {
+                        type: props.block.type,
+                        props: { textColor: color },
+                      }),
+                  }
+                : undefined
+            }
+            background={
+              checkBlockTypeHasDefaultProp(
+                "backgroundColor",
+                props.block.type,
+                editor
+              ) &&
+              checkBlockHasDefaultProp("backgroundColor", props.block, editor)
+                ? {
+                    color: props.block.props.backgroundColor,
+                    setColor: (color) =>
+                      editor.updateBlock(props.block, {
+                        props: { backgroundColor: color },
+                      }),
+                  }
+                : undefined
+            }
+          />
+        </components.MenuDropdown>
+      </components.Menu>
     </DragHandleMenuItem>
   );
 };

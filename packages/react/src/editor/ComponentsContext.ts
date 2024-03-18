@@ -4,6 +4,12 @@ export type ComponentsContextValue = {
   Toolbar: React.ElementType;
   ToolbarSelect: React.ElementType;
   ToolbarButton: any;
+  Menu: any;
+  MenuTarget: any;
+  MenuDropdown: any;
+  MenuDivider: any;
+  MenuLabel: any;
+  MenuItem: any;
 };
 
 export const ComponentsContext = createContext<

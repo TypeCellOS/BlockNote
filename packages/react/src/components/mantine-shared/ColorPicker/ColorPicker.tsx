@@ -1,6 +1,6 @@
-import { Menu } from "@mantine/core";
-import { ColorIcon } from "./ColorIcon";
 import { TiTick } from "react-icons/ti";
+import { useComponentsContext } from "../../../editor/ComponentsContext";
+import { ColorIcon } from "./ColorIcon";
 
 export const ColorPicker = (props: {
   onClick?: () => void;
@@ -14,10 +14,12 @@ export const ColorPicker = (props: {
     setColor: (color: string) => void;
   };
 }) => {
+  const components = useComponentsContext()!;
+
   const TextColorSection = () =>
     props.text ? (
       <>
-        <Menu.Label>Text</Menu.Label>
+        <components.MenuLabel>Text</components.MenuLabel>
         {[
           "default",
           "gray",
@@ -30,7 +32,7 @@ export const ColorPicker = (props: {
           "purple",
           "pink",
         ].map((color) => (
-          <Menu.Item
+          <components.MenuItem
             onClick={() => {
               props.onClick && props.onClick();
               props.text!.setColor(color);
@@ -47,7 +49,7 @@ export const ColorPicker = (props: {
             }
             key={"text-color-" + color}>
             {color.charAt(0).toUpperCase() + color.slice(1)}
-          </Menu.Item>
+          </components.MenuItem>
         ))}
       </>
     ) : null;
@@ -55,7 +57,7 @@ export const ColorPicker = (props: {
   const BackgroundColorSection = () =>
     props.background ? (
       <>
-        <Menu.Label>Background</Menu.Label>
+        <components.MenuLabel>Background</components.MenuLabel>
         {[
           "default",
           "gray",
@@ -68,7 +70,7 @@ export const ColorPicker = (props: {
           "purple",
           "pink",
         ].map((color) => (
-          <Menu.Item
+          <components.MenuItem
             onClick={() => {
               props.onClick && props.onClick();
               props.background!.setColor(color);
@@ -87,7 +89,7 @@ export const ColorPicker = (props: {
               )
             }>
             {color.charAt(0).toUpperCase() + color.slice(1)}
-          </Menu.Item>
+          </components.MenuItem>
         ))}
       </>
     ) : null;

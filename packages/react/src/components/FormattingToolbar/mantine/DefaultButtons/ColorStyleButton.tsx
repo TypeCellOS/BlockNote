@@ -4,12 +4,11 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { Menu } from "@mantine/core";
 import { useCallback, useMemo, useState } from "react";
 
+import { useComponentsContext } from "../../../../editor/ComponentsContext";
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor";
 import { useEditorContentOrSelectionChange } from "../../../../hooks/useEditorContentOrSelectionChange";
-import { usePreventMenuOverflow } from "../../../../hooks/usePreventMenuOverflow";
 import { useSelectedBlocks } from "../../../../hooks/useSelectedBlocks";
 import { ColorIcon } from "../../../mantine-shared/ColorPicker/ColorIcon";
 import { ColorPicker } from "../../../mantine-shared/ColorPicker/ColorPicker";
@@ -43,6 +42,7 @@ function checkColorInSchema<Color extends "text" | "background">(
 }
 
 export const ColorStyleButton = () => {
+  const components = useComponentsContext()!;
   const editor = useBlockNoteEditor<
     BlockSchema,
     InlineContentSchema,
@@ -75,8 +75,6 @@ export const ColorStyleButton = () => {
       );
     }
   }, editor);
-
-  const { ref, updateMaxHeight } = usePreventMenuOverflow();
 
   const setTextColor = useCallback(
     (color: string) => {
@@ -129,8 +127,10 @@ export const ColorStyleButton = () => {
   }
 
   return (
-    <Menu withinPortal={false} onOpen={updateMaxHeight}>
-      <Menu.Target>
+    <components.Menu
+      withinPortal={false}
+      middlewares={{ flip: true, shift: true, inline: false, size: true }}>
+      <components.MenuTarget>
         <ToolbarButton
           mainTooltip={"Colors"}
           icon={() => (
@@ -141,29 +141,27 @@ export const ColorStyleButton = () => {
             />
           )}
         />
-      </Menu.Target>
-      <div ref={ref}>
-        <Menu.Dropdown>
-          <ColorPicker
-            text={
-              textColorInSchema
-                ? {
-                    color: currentTextColor,
-                    setColor: setTextColor,
-                  }
-                : undefined
-            }
-            background={
-              backgroundColorInSchema
-                ? {
-                    color: currentBackgroundColor,
-                    setColor: setBackgroundColor,
-                  }
-                : undefined
-            }
-          />
-        </Menu.Dropdown>
-      </div>
-    </Menu>
+      </components.MenuTarget>
+      <components.MenuDropdown>
+        <ColorPicker
+          text={
+            textColorInSchema
+              ? {
+                  color: currentTextColor,
+                  setColor: setTextColor,
+                }
+              : undefined
+          }
+          background={
+            backgroundColorInSchema
+              ? {
+                  color: currentBackgroundColor,
+                  setColor: setBackgroundColor,
+                }
+              : undefined
+          }
+        />
+      </components.MenuDropdown>
+    </components.Menu>
   );
 };
