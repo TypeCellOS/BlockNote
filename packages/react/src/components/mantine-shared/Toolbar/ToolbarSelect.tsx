@@ -8,6 +8,7 @@ export type ToolbarSelectProps = {
   isDisabled?: boolean;
 };
 
+// TODO: turn into select
 export function ToolbarSelect(props: ToolbarSelectProps) {
   const selectedItem = props.items.filter((p) => p.isSelected)[0];
 

@@ -8,7 +8,6 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { Box } from "@mantine/core";
 import { ReactNode, useCallback, useRef, useState } from "react";
 import { HiChevronRight } from "react-icons/hi";
 
@@ -68,11 +67,12 @@ export const BlockColorsItem = <
         position={"right"}
         middlewares={{ flip: true, shift: true, inline: false, size: true }}>
         <components.MenuTarget>
+          {/* TODO, make nicer? */}
           <div style={{ display: "flex", alignItems: "center" }}>
             <div style={{ flex: 1 }}>{props.children}</div>
-            <Box style={{ display: "flex", alignItems: "center" }}>
+            <div style={{ display: "flex", alignItems: "center" }}>
               <HiChevronRight size={15} />
-            </Box>
+            </div>
           </div>
         </components.MenuTarget>
 

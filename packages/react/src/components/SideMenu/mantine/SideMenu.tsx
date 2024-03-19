@@ -1,4 +1,3 @@
-import { Group } from "@mantine/core";
 import {
   BlockSchema,
   DefaultBlockSchema,
@@ -32,13 +31,22 @@ export const SideMenu = <
   const { addBlock, ...rest } = props;
 
   return (
-    <Group className={"bn-side-menu"} gap={0}>
+    <div
+      className={"bn-side-menu"}
+      style={{
+        alignItems: "center",
+        display: "flex",
+        flexDirection: "row",
+        flexWrap: "wrap",
+        justifyContent: "flex-start",
+        gap: 0,
+      }}>
       {props.children || (
         <>
           <AddBlockButton addBlock={addBlock} />
           <DragHandleButton {...rest} />
         </>
       )}
-    </Group>
+    </div>
   );
 };

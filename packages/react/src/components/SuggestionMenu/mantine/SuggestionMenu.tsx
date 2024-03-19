@@ -1,12 +1,14 @@
-import { Loader, Menu } from "@mantine/core";
+import { Loader } from "@mantine/core";
 import { Children, useMemo } from "react";
 
+import { useComponentsContext } from "../../../editor/ComponentsContext";
 import { DefaultReactSuggestionItem, SuggestionMenuProps } from "../types";
 import { SuggestionMenuItem } from "./SuggestionMenuItem";
 
 export function SuggestionMenu<T extends DefaultReactSuggestionItem>(
   props: SuggestionMenuProps<T>
 ) {
+  const components = useComponentsContext()!;
   const { items, loadingState, selectedIndex, onItemClick } = props;
 
   const loader =
@@ -23,7 +25,9 @@ export function SuggestionMenu<T extends DefaultReactSuggestionItem>(
       if (item.group !== currentGroup) {
         currentGroup = item.group;
         renderedItems.push(
-          <Menu.Label key={currentGroup}>{currentGroup}</Menu.Label>
+          <components.MenuLabel key={currentGroup}>
+            {currentGroup}
+          </components.MenuLabel>
         );
       }
 
@@ -38,32 +42,24 @@ export function SuggestionMenu<T extends DefaultReactSuggestionItem>(
     }
 
     return renderedItems;
-  }, [items, selectedIndex, onItemClick]);
+  }, [items, selectedIndex, components, onItemClick]);
 
   return (
-    <Menu
+    <components.Menu
       withinPortal={false}
       trapFocus={false}
-      /** Hacky fix to get the desired menu behaviour. The trigger="hover"
-       * attribute allows focus to remain on the editor, allowing for suggestion
-       * filtering. The closeDelay=10000000 attribute allows the menu to stay open
-       * practically indefinitely, as normally hovering off it would cause it to
-       * close due to trigger="hover".
-       */
-      defaultOpened={true}
-      trigger={"hover"}
-      closeDelay={10000000}>
-      <Menu.Dropdown
-        onMouseDown={(event) => event.preventDefault()}
+      defaultOpened={true}>
+      <components.MenuDropdown
+        onMouseDown={(event: any) => event.preventDefault()}
         className={"bn-slash-menu"}>
         {renderedItems}
         {Children.count(renderedItems) === 0 &&
           (props.loadingState === "loading" ||
             props.loadingState === "loaded") && (
-            <Menu.Item>No match found</Menu.Item>
+            <components.MenuItem>No match found</components.MenuItem>
           )}
         {loader}
-      </Menu.Dropdown>
-    </Menu>
+      </components.MenuDropdown>
+    </components.Menu>
   );
 }

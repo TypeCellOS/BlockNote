@@ -1,4 +1,3 @@
-import { Menu } from "@mantine/core";
 import {
   DefaultInlineContentSchema,
   DefaultStyleSchema,
@@ -7,6 +6,7 @@ import {
 } from "@blocknote/core";
 import { ReactNode } from "react";
 
+import { useComponentsContext } from "../../../../editor/ComponentsContext";
 import { TableHandleMenuProps } from "../TableHandleMenuProps";
 import { AddButton } from "./DefaultButtons/AddButton";
 import { DeleteButton } from "./DefaultButtons/DeleteButton";
@@ -16,28 +16,31 @@ export const TableHandleMenu = <
   S extends StyleSchema = DefaultStyleSchema
 >(
   props: TableHandleMenuProps<I, S> & { children?: ReactNode }
-) => (
-  <Menu.Dropdown className={"bn-table-handle-menu"}>
-    {props.children || (
-      <>
-        <DeleteButton
-          orientation={props.orientation}
-          block={props.block}
-          index={props.index}
-        />
-        <AddButton
-          orientation={props.orientation}
-          block={props.block}
-          index={props.index}
-          side={props.orientation === "row" ? "above" : ("left" as any)}
-        />
-        <AddButton
-          orientation={props.orientation}
-          block={props.block}
-          index={props.index}
-          side={props.orientation === "row" ? "below" : ("right" as any)}
-        />
-      </>
-    )}
-  </Menu.Dropdown>
-);
+) => {
+  const components = useComponentsContext()!;
+  return (
+    <components.MenuDropdown className={"bn-table-handle-menu"}>
+      {props.children || (
+        <>
+          <DeleteButton
+            orientation={props.orientation}
+            block={props.block}
+            index={props.index}
+          />
+          <AddButton
+            orientation={props.orientation}
+            block={props.block}
+            index={props.index}
+            side={props.orientation === "row" ? "above" : ("left" as any)}
+          />
+          <AddButton
+            orientation={props.orientation}
+            block={props.block}
+            index={props.index}
+            side={props.orientation === "row" ? "below" : ("right" as any)}
+          />
+        </>
+      )}
+    </components.MenuDropdown>
+  );
+};

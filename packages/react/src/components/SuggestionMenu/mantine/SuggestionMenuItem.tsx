@@ -1,5 +1,6 @@
-import { Badge, Menu, Stack, Text } from "@mantine/core";
+import { Badge, Stack, Text } from "@mantine/core";
 import { useEffect, useRef } from "react";
+import { useComponentsContext } from "../../../editor/ComponentsContext";
 
 const MIN_LEFT_MARGIN = 5;
 
@@ -11,6 +12,7 @@ export function SuggestionMenuItem(props: {
   badge?: string;
   isSelected?: boolean;
 }) {
+  const components = useComponentsContext()!;
   const itemRef = useRef<HTMLButtonElement>(null);
 
   function isSelected() {
@@ -48,7 +50,7 @@ export function SuggestionMenuItem(props: {
   });
 
   return (
-    <Menu.Item
+    <components.MenuItem
       className={"bn-slash-menu-item"}
       onClick={props.onClick}
       closeMenuOnClick={false}
@@ -61,6 +63,7 @@ export function SuggestionMenuItem(props: {
       leftSection={props.icon}
       rightSection={props.badge && <Badge size={"xs"}>{props.badge}</Badge>}
       ref={itemRef}>
+      {/* TODO */}
       <Stack>
         {/*Might need separate classes.*/}
         <Text lh={"20px"} size={"14px"} fw={500}>
@@ -70,6 +73,6 @@ export function SuggestionMenuItem(props: {
           {props.subtext}
         </Text>
       </Stack>
-    </Menu.Item>
+    </components.MenuItem>
   );
 }

@@ -4,16 +4,16 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { Popover } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { RiImageEditFill } from "react-icons/ri";
 
+import { useComponentsContext } from "../../../../editor/ComponentsContext";
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor";
 import { useSelectedBlocks } from "../../../../hooks/useSelectedBlocks";
 import { ImagePanel } from "../../../ImagePanel/mantine/ImagePanel";
-import { ToolbarButton } from "../../../mantine-shared/Toolbar/ToolbarButton";
 
 export const ReplaceImageButton = () => {
+  const components = useComponentsContext()!;
   const editor = useBlockNoteEditor<
     BlockSchema,
     InlineContentSchema,
@@ -39,18 +39,18 @@ export const ReplaceImageButton = () => {
   }
 
   return (
-    <Popover withinPortal={false} opened={isOpen} position={"bottom"}>
-      <Popover.Target>
-        <ToolbarButton
+    <components.Popover opened={isOpen} position={"bottom"}>
+      <components.PopoverTrigger>
+        <components.ToolbarButton
           onClick={() => setIsOpen(!isOpen)}
           isSelected={isOpen}
           mainTooltip={"Replace Image"}
           icon={RiImageEditFill}
         />
-      </Popover.Target>
-      <Popover.Dropdown>
+      </components.PopoverTrigger>
+      <components.PopoverContent>
         <ImagePanel block={block} />
-      </Popover.Dropdown>
-    </Popover>
+      </components.PopoverContent>
+    </components.Popover>
   );
 };

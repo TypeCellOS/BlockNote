@@ -5,12 +5,12 @@ import {
   mergeCSSClasses,
   StyleSchema,
 } from "@blocknote/core";
-import { Menu } from "@mantine/core";
 import { ReactNode, useState } from "react";
 
-import { TableHandleProps } from "../TableHandleProps";
 import { MdDragIndicator } from "react-icons/md";
+import { useComponentsContext } from "../../../editor/ComponentsContext";
 import { TableHandleMenu } from "../TableHandleMenu/mantine/TableHandleMenu";
+import { TableHandleProps } from "../TableHandleProps";
 
 /**
  * By default, the TableHandle component will render with the default icon.
@@ -22,13 +22,13 @@ export const TableHandle = <
 >(
   props: TableHandleProps<I, S> & { children?: ReactNode }
 ) => {
+  const components = useComponentsContext()!;
   const [isDragging, setIsDragging] = useState(false);
 
   const Component = props.tableHandleMenu || TableHandleMenu;
 
   return (
-    <Menu
-      withinPortal={false}
+    <components.Menu
       trigger={"click"}
       onOpen={() => {
         props.freezeHandles();
@@ -39,7 +39,7 @@ export const TableHandle = <
         props.showOtherSide();
       }}
       position={"right"}>
-      <Menu.Target>
+      <components.MenuTarget>
         <div
           className={mergeCSSClasses(
             "bn-table-handle",
@@ -63,12 +63,12 @@ export const TableHandle = <
             <MdDragIndicator size={24} data-test={"tableHandle"} />
           )}
         </div>
-      </Menu.Target>
+      </components.MenuTarget>
       <Component
         orientation={props.orientation}
         block={props.block as any}
         index={props.index}
       />
-    </Menu>
+    </components.Menu>
   );
 };
