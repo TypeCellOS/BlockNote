@@ -29,17 +29,17 @@ export const TableHandle = <
 
   return (
     <components.Menu
-      trigger={"click"}
-      onOpen={() => {
-        props.freezeHandles();
-        props.hideOtherSide();
-      }}
-      onClose={() => {
-        props.unfreezeHandles();
-        props.showOtherSide();
+      onOpenChange={(open: boolean) => {
+        if (open) {
+          props.freezeHandles();
+          props.hideOtherSide();
+        } else {
+          props.unfreezeHandles();
+          props.showOtherSide();
+        }
       }}
       position={"right"}>
-      <components.MenuTarget>
+      <components.MenuTrigger>
         <div
           className={mergeCSSClasses(
             "bn-table-handle",
@@ -63,7 +63,7 @@ export const TableHandle = <
             <MdDragIndicator size={24} data-test={"tableHandle"} />
           )}
         </div>
-      </components.MenuTarget>
+      </components.MenuTrigger>
       <Component
         orientation={props.orientation}
         block={props.block as any}

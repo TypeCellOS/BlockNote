@@ -1,13 +1,25 @@
-import { createContext, useContext } from "react";
+import { ComponentType, createContext, useContext } from "react";
+
+export type MenuProps = {
+  children: React.ReactNode;
+  defaultOpen?: boolean;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  position?: "top" | "right" | "bottom" | "left";
+};
 
 export type ComponentsContextValue = {
   Toolbar: React.ElementType;
   ToolbarSelect: React.ElementType;
   ToolbarButton: any;
-  Menu: any;
-  MenuTarget: any;
-  MenuDropdown: any;
-  MenuDivider: any;
+  Menu: ComponentType<MenuProps>;
+  MenuTrigger: ComponentType<{
+    children: React.ReactNode;
+  }>;
+  MenuDropdown: ComponentType<{
+    children: React.ReactNode;
+  }>;
+  MenuDivider: ComponentType<Record<string, never>>;
   MenuLabel: any;
   MenuItem: any;
   Popover: any;

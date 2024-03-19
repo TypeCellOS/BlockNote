@@ -8,9 +8,9 @@ import {
 } from "@blocknote/core";
 import { ReactNode } from "react";
 
+import { useComponentsContext } from "../../../../../editor/ComponentsContext";
 import { useBlockNoteEditor } from "../../../../../hooks/useBlockNoteEditor";
 import { DragHandleMenuProps } from "../../DragHandleMenuProps";
-import { DragHandleMenuItem } from "../DragHandleMenuItem";
 
 export const RemoveBlockItem = <
   BSchema extends BlockSchema = DefaultBlockSchema,
@@ -21,11 +21,12 @@ export const RemoveBlockItem = <
     children: ReactNode;
   }
 ) => {
+  const components = useComponentsContext()!;
   const editor = useBlockNoteEditor<BSchema, I, S>();
 
   return (
-    <DragHandleMenuItem onClick={() => editor.removeBlocks([props.block])}>
+    <components.MenuItem onClick={() => editor.removeBlocks([props.block])}>
       {props.children}
-    </DragHandleMenuItem>
+    </components.MenuItem>
   );
 };

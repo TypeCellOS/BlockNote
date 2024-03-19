@@ -25,20 +25,15 @@ export const DragHandleButton = <
 
   return (
     <components.Menu
-      withinPortal={false}
-      trigger={"click"}
-      setOpen={(open: boolean) => {
+      onOpenChange={(open: boolean) => {
         if (open) {
           props.freezeMenu();
         } else {
           props.unfreezeMenu();
         }
       }}
-      // onOpen={props.freezeMenu}
-      // onClose={props.unfreezeMenu}
-      width={100}
       position={"left"}>
-      <components.MenuTarget>
+      <components.MenuTrigger>
         <div
           className={"bn-drag-handle"}
           draggable="true"
@@ -48,7 +43,7 @@ export const DragHandleButton = <
             <MdDragIndicator size={24} data-test={"dragHandle"} />
           </SideMenuButton>
         </div>
-      </components.MenuTarget>
+      </components.MenuTrigger>
       <Component block={props.block} />
     </components.Menu>
   );

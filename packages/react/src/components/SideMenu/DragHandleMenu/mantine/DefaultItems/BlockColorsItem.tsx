@@ -15,7 +15,6 @@ import { useComponentsContext } from "../../../../../editor/ComponentsContext";
 import { useBlockNoteEditor } from "../../../../../hooks/useBlockNoteEditor";
 import { ColorPicker } from "../../../../mantine-shared/ColorPicker/ColorPicker";
 import { DragHandleMenuProps } from "../../DragHandleMenuProps";
-import { DragHandleMenuItem } from "../DragHandleMenuItem";
 
 export const BlockColorsItem = <
   BSchema extends BlockSchema = DefaultBlockSchema,
@@ -58,65 +57,61 @@ export const BlockColorsItem = <
   }
 
   return (
-    <DragHandleMenuItem
-      onMouseLeave={startMenuCloseTimer}
-      onMouseOver={stopMenuCloseTimer}>
-      <components.Menu
-        withinPortal={false}
-        opened={opened}
-        position={"right"}
-        middlewares={{ flip: true, shift: true, inline: false, size: true }}>
-        <components.MenuTarget>
-          {/* TODO, make nicer? */}
+    <components.Menu open={opened} position={"right"}>
+      <components.MenuTrigger>
+        {/* TODO, make nicer? */}
+        <components.MenuItem
+          onMouseLeave={startMenuCloseTimer}
+          onMouseOver={stopMenuCloseTimer}>
           <div style={{ display: "flex", alignItems: "center" }}>
             <div style={{ flex: 1 }}>{props.children}</div>
             <div style={{ display: "flex", alignItems: "center" }}>
               <HiChevronRight size={15} />
             </div>
           </div>
-        </components.MenuTarget>
+        </components.MenuItem>
+      </components.MenuTrigger>
 
-        <components.MenuDropdown
-          onMouseLeave={startMenuCloseTimer}
-          onMouseOver={stopMenuCloseTimer}
-          style={{ marginLeft: "5px" }}>
-          <ColorPicker
-            iconSize={18}
-            text={
-              checkBlockTypeHasDefaultProp(
-                "textColor",
-                props.block.type,
-                editor
-              ) && checkBlockHasDefaultProp("textColor", props.block, editor)
-                ? {
-                    color: props.block.props.textColor,
-                    setColor: (color) =>
-                      editor.updateBlock(props.block, {
-                        type: props.block.type,
-                        props: { textColor: color },
-                      }),
-                  }
-                : undefined
-            }
-            background={
-              checkBlockTypeHasDefaultProp(
-                "backgroundColor",
-                props.block.type,
-                editor
-              ) &&
-              checkBlockHasDefaultProp("backgroundColor", props.block, editor)
-                ? {
-                    color: props.block.props.backgroundColor,
-                    setColor: (color) =>
-                      editor.updateBlock(props.block, {
-                        props: { backgroundColor: color },
-                      }),
-                  }
-                : undefined
-            }
-          />
-        </components.MenuDropdown>
-      </components.Menu>
-    </DragHandleMenuItem>
+      <components.MenuDropdown
+        onMouseLeave={startMenuCloseTimer}
+        onMouseOver={stopMenuCloseTimer}
+        style={{ marginLeft: "5px" }}>
+        <ColorPicker
+          iconSize={18}
+          text={
+            checkBlockTypeHasDefaultProp(
+              "textColor",
+              props.block.type,
+              editor
+            ) && checkBlockHasDefaultProp("textColor", props.block, editor)
+              ? {
+                  color: props.block.props.textColor,
+                  setColor: (color) =>
+                    editor.updateBlock(props.block, {
+                      type: props.block.type,
+                      props: { textColor: color },
+                    }),
+                }
+              : undefined
+          }
+          background={
+            checkBlockTypeHasDefaultProp(
+              "backgroundColor",
+              props.block.type,
+              editor
+            ) &&
+            checkBlockHasDefaultProp("backgroundColor", props.block, editor)
+              ? {
+                  color: props.block.props.backgroundColor,
+                  setColor: (color) =>
+                    editor.updateBlock(props.block, {
+                      props: { backgroundColor: color },
+                    }),
+                }
+              : undefined
+          }
+        />
+      </components.MenuDropdown>
+    </components.Menu>
   );
 };

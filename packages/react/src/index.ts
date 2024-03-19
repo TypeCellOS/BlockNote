@@ -36,7 +36,6 @@ export * from "./components/SideMenu/DragHandleMenu/DragHandleMenuProps";
 export * from "./components/SideMenu/DragHandleMenu/mantine/DefaultItems/BlockColorsItem";
 export * from "./components/SideMenu/DragHandleMenu/mantine/DefaultItems/RemoveBlockItem";
 export * from "./components/SideMenu/DragHandleMenu/mantine/DragHandleMenu";
-export * from "./components/SideMenu/DragHandleMenu/mantine/DragHandleMenuItem";
 
 export * from "./components/SuggestionMenu/SuggestionMenuController";
 export * from "./components/SuggestionMenu/SuggestionMenuWrapper";

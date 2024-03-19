@@ -18,7 +18,7 @@ export const mantineComponents: ComponentsContextValue = {
   ToolbarButton,
   ToolbarSelect,
   Menu,
-  MenuTarget,
+  MenuTrigger: MenuTarget,
   MenuDropdown,
   MenuDivider,
   MenuLabel,

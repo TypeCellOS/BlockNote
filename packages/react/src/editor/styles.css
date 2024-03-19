@@ -537,6 +537,10 @@
 }
 
 /* Drag Handle & Table Handle Menu styling */
+.bn-container .bn-drag-handle-menu {
+  width: 100px;
+}
+
 .bn-container .bn-drag-handle-menu,
 .bn-container .bn-table-handle-menu {
   overflow: visible;

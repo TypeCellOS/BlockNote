@@ -127,10 +127,8 @@ export const ColorStyleButton = () => {
   }
 
   return (
-    <components.Menu
-      withinPortal={false}
-      middlewares={{ flip: true, shift: true, inline: false, size: true }}>
-      <components.MenuTarget>
+    <components.Menu>
+      <components.MenuTrigger>
         <ToolbarButton
           mainTooltip={"Colors"}
           icon={() => (
@@ -141,7 +139,7 @@ export const ColorStyleButton = () => {
             />
           )}
         />
-      </components.MenuTarget>
+      </components.MenuTrigger>
       <components.MenuDropdown>
         <ColorPicker
           text={
