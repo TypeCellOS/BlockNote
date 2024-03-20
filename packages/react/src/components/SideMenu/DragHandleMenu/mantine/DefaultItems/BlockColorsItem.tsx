@@ -9,7 +9,6 @@ import {
   StyleSchema,
 } from "@blocknote/core";
 import { ReactNode, useCallback, useRef, useState } from "react";
-import { HiChevronRight } from "react-icons/hi";
 
 import { useComponentsContext } from "../../../../../editor/ComponentsContext";
 import { useBlockNoteEditor } from "../../../../../hooks/useBlockNoteEditor";
@@ -59,16 +58,11 @@ export const BlockColorsItem = <
   return (
     <components.Menu open={opened} position={"right"}>
       <components.MenuTrigger>
-        {/* TODO, make nicer? */}
         <components.MenuItem
           onMouseLeave={startMenuCloseTimer}
-          onMouseOver={stopMenuCloseTimer}>
-          <div style={{ display: "flex", alignItems: "center" }}>
-            <div style={{ flex: 1 }}>{props.children}</div>
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <HiChevronRight size={15} />
-            </div>
-          </div>
+          onMouseOver={stopMenuCloseTimer}
+          expandArrow={true}>
+          {props.children}
         </components.MenuItem>
       </components.MenuTrigger>
 

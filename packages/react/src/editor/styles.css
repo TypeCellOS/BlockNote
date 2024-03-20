@@ -573,11 +573,6 @@
   justify-content: center;
 }
 
-/* Tick styling */
-.bn-container .bn-tick-icon {
-  padding-left: 8px;
-}
-
 .bn-container .bn-tick-space {
   padding: 0;
   width: 20px;

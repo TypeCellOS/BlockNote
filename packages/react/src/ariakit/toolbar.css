@@ -251,3 +251,14 @@
 .bn-menu-item .label {
   flex: 1 1 0%;
 }
+
+.bn-menu-label {
+  cursor: default;
+  padding: 0.5rem;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+  opacity: 0.5;
+}

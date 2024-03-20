@@ -1,9 +1,9 @@
 import * as mantine from "@mantine/core";
-import { MenuProps } from "../../../editor/ComponentsContext";
+import { HiChevronRight } from "react-icons/hi";
+import { MenuItemProps, MenuProps } from "../../../editor/ComponentsContext";
 export {
   MenuDivider,
   MenuDropdown,
-  MenuItem,
   MenuLabel,
   MenuTarget,
 } from "@mantine/core";
@@ -19,6 +19,30 @@ export const Menu = (props: MenuProps) => {
       onOpen={() => onOpenChange?.(true)}
       opened={open}
       defaultOpened={defaultOpen}
+      closeOnItemClick={false}
+      {...rest}
+      position="right"
+    />
+  );
+};
+
+export const MenuItem = (props: MenuItemProps) => {
+  const { icon, checked, expandArrow, ...rest } = props;
+
+  return (
+    <mantine.MenuItem
+      component="div"
+      leftSection={icon}
+      rightSection={
+        <>
+          {checked ? (
+            <mantine.CheckIcon size={10} />
+          ) : checked === false ? (
+            <div className={"bn-tick-space"} />
+          ) : undefined}
+          {expandArrow && <HiChevronRight size={15} />}
+        </>
+      }
       {...rest}
     />
   );

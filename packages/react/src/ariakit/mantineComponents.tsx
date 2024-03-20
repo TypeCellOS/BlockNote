@@ -1,4 +1,5 @@
 import { PopoverDropdown, PopoverTarget } from "@mantine/core";
+import { TextInput } from "../components/mantine-shared/Input/TextInput";
 import {
   Menu,
   MenuDivider,
@@ -26,4 +27,6 @@ export const mantineComponents: ComponentsContextValue = {
   Popover: Popover,
   PopoverContent: PopoverDropdown,
   PopoverTrigger: PopoverTarget,
+  TextInput,
+  Form: (props) => <div {...props} />,
 };

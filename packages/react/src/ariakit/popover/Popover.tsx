@@ -15,7 +15,7 @@ export const PopoverTrigger = forwardRef<
   return (
     <Ariakit.PopoverDisclosure
       {...rest}
-      className={mergeCSSClasses("bn-menu-item", className || "")}
+      className={mergeCSSClasses(className || "")}
       ref={ref}
       render={children as any}></Ariakit.PopoverDisclosure>
   );

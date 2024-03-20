@@ -1,4 +1,9 @@
-import { ComponentType, createContext, useContext } from "react";
+import {
+  ComponentType,
+  HTMLAttributes,
+  createContext,
+  useContext,
+} from "react";
 
 export type MenuProps = {
   children: React.ReactNode;
@@ -8,7 +13,28 @@ export type MenuProps = {
   position?: "top" | "right" | "bottom" | "left";
 };
 
+export type TextInputProps = {
+  name: string;
+  label?: string;
+  icon?: React.ReactNode;
+  autoFocus?: boolean;
+  placeholder?: string;
+  value?: string;
+  onKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void;
+  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onSubmit?: () => void;
+};
+
+export type MenuItemProps = {
+  icon?: React.ReactNode;
+  checked?: boolean;
+  expandArrow?: boolean;
+} & HTMLAttributes<HTMLDivElement>;
+
 export type ComponentsContextValue = {
+  Form: ComponentType<{
+    children: React.ReactNode;
+  }>;
   Toolbar: React.ElementType;
   ToolbarSelect: React.ElementType;
   ToolbarButton: any;
@@ -16,15 +42,16 @@ export type ComponentsContextValue = {
   MenuTrigger: ComponentType<{
     children: React.ReactNode;
   }>;
-  MenuDropdown: ComponentType<{
+  MenuDropdown: ComponentType<HTMLAttributes<HTMLDivElement>>;
+  MenuDivider: ComponentType<Record<string, never>>;
+  MenuLabel: ComponentType<{
     children: React.ReactNode;
   }>;
-  MenuDivider: ComponentType<Record<string, never>>;
-  MenuLabel: any;
-  MenuItem: any;
+  MenuItem: ComponentType<MenuItemProps>;
   Popover: any;
   PopoverTrigger: any;
   PopoverContent: any;
+  TextInput: ComponentType<TextInputProps>;
 };
 
 export const ComponentsContext = createContext<

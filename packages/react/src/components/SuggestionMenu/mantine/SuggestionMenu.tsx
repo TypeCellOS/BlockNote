@@ -47,6 +47,9 @@ export function SuggestionMenu<T extends DefaultReactSuggestionItem>(
   return (
     // TODO: trapFocus={false} has been removed, needed?
     <components.Menu defaultOpen={true}>
+      <components.MenuTrigger>
+        <div style={{ width: 0, height: 0 }}></div>
+      </components.MenuTrigger>
       <components.MenuDropdown
         onMouseDown={(event: any) => event.preventDefault()}
         className={"bn-slash-menu"}>

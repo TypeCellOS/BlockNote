@@ -12,7 +12,6 @@ import { useEditorContentOrSelectionChange } from "../../../../hooks/useEditorCo
 import { useSelectedBlocks } from "../../../../hooks/useSelectedBlocks";
 import { ColorIcon } from "../../../mantine-shared/ColorPicker/ColorIcon";
 import { ColorPicker } from "../../../mantine-shared/ColorPicker/ColorPicker";
-import { ToolbarButton } from "../../../mantine-shared/Toolbar/ToolbarButton";
 
 function checkColorInSchema<Color extends "text" | "background">(
   color: Color,
@@ -129,7 +128,7 @@ export const ColorStyleButton = () => {
   return (
     <components.Menu>
       <components.MenuTrigger>
-        <ToolbarButton
+        <components.ToolbarButton
           mainTooltip={"Colors"}
           icon={() => (
             <ColorIcon

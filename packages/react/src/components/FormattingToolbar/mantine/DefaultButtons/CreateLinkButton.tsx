@@ -14,7 +14,6 @@ import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor";
 import { useEditorContentOrSelectionChange } from "../../../../hooks/useEditorContentOrSelectionChange";
 import { useSelectedBlocks } from "../../../../hooks/useSelectedBlocks";
 import { EditLinkMenuItems } from "../../../LinkToolbar/mantine/EditLinkMenuItems";
-import { ToolbarButton } from "../../../mantine-shared/Toolbar/ToolbarButton";
 
 function checkLinkInSchema(
   editor: BlockNoteEditor<BlockSchema, any, StyleSchema>
@@ -84,8 +83,8 @@ export const CreateLinkButton = () => {
     <components.Popover>
       <components.PopoverTrigger>
         {/* TODO: hide tooltip on click */}
-        <ToolbarButton
-          mainTooltip={"Create Lidfnk"}
+        <components.ToolbarButton
+          mainTooltip={"Create Link"}
           secondaryTooltip={formatKeyboardShortcut("Mod+K")}
           icon={RiLink}
         />

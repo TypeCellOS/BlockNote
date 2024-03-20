@@ -76,7 +76,7 @@ export function SuggestionMenuController<
       )
   );
   const { isMounted, ref, style } = useUIElementPositioning(
-    state?.show || false,
+    state?.show || true,
     state?.referencePos || null,
     2000,
     {

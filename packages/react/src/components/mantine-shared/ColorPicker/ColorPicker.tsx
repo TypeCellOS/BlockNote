@@ -1,4 +1,3 @@
-import { TiTick } from "react-icons/ti";
 import { useComponentsContext } from "../../../editor/ComponentsContext";
 import { ColorIcon } from "./ColorIcon";
 
@@ -37,16 +36,9 @@ export const ColorPicker = (props: {
               props.onClick && props.onClick();
               props.text!.setColor(color);
             }}
-            component={"div"}
             data-test={"text-color-" + color}
-            leftSection={<ColorIcon textColor={color} size={props.iconSize} />}
-            rightSection={
-              props.text!.color === color ? (
-                <TiTick size={20} className={"bn-tick-icon"} />
-              ) : (
-                <div className={"bn-tick-space"} />
-              )
-            }
+            icon={<ColorIcon textColor={color} size={props.iconSize} />}
+            checked={props.text!.color === color}
             key={"text-color-" + color}>
             {color.charAt(0).toUpperCase() + color.slice(1)}
           </components.MenuItem>
@@ -75,19 +67,10 @@ export const ColorPicker = (props: {
               props.onClick && props.onClick();
               props.background!.setColor(color);
             }}
-            component={"div"}
             data-test={"background-color-" + color}
-            leftSection={
-              <ColorIcon backgroundColor={color} size={props.iconSize} />
-            }
+            icon={<ColorIcon backgroundColor={color} size={props.iconSize} />}
             key={"background-color-" + color}
-            rightSection={
-              props.background!.color === color ? (
-                <TiTick size={20} className={"bn-tick-icon"} />
-              ) : (
-                <div className={"bn-tick-space"} />
-              )
-            }>
+            checked={props.background!.color === color}>
             {color.charAt(0).toUpperCase() + color.slice(1)}
           </components.MenuItem>
         ))}
