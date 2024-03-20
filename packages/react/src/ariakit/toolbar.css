@@ -262,3 +262,37 @@
   font-weight: 500;
   opacity: 0.5;
 }
+
+.bn-combobox-item {
+  display: flex;
+  cursor: default;
+  scroll-margin: 0.5rem;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 0.25rem;
+  padding: 0.5rem;
+  outline: none !important;
+}
+
+.bn-combobox-item:hover {
+  background-color: hsl(204 100% 80% / 0.4);
+}
+
+.bn-combobox-item[data-active-item] {
+  background-color: hsl(204 100% 40%);
+  color: hsl(204 20% 100%);
+}
+
+.bn-combobox-item:active,
+.bn-combobox-item[data-active] {
+  padding-top: 9px;
+  padding-bottom: 7px;
+}
+
+:is(.dark .bn-combobox-item:hover) {
+  background-color: hsl(204 100% 40% / 0.25);
+}
+
+:is(.dark .bn-combobox-item)[data-active-item] {
+  background-color: hsl(204 100% 40%);
+}

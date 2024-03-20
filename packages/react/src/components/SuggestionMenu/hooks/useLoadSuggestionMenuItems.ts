@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 // information whether the current query is still being processed, and the
 // query that was used to retrieve the last set of items.
 export function useLoadSuggestionMenuItems<T>(
-  query: string,
+  query: string | undefined,
   getItems: (query: string) => Promise<T[]>
 ): {
   items: T[];
@@ -20,6 +20,12 @@ export function useLoadSuggestionMenuItems<T>(
   useEffect(() => {
     const thisQuery = query;
     currentQuery.current = query;
+
+    if (query === undefined) {
+      setItems([]);
+      usedQuery.current = undefined;
+      return;
+    }
 
     setLoading(true);
 

@@ -16,6 +16,8 @@ export type DefaultReactSuggestionItem = DefaultSuggestionItem & {
 export type SuggestionMenuProps<T> = {
   items: T[];
   loadingState: "loading-initial" | "loading" | "loaded";
-  selectedIndex: number;
+  opened: boolean;
   onItemClick?: (item: T) => void;
+  closeMenu: () => void;
+  referencePos: { left: number; top: number };
 };

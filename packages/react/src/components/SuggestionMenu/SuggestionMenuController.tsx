@@ -5,14 +5,13 @@ import {
   SuggestionMenuState,
   filterSuggestionItems,
 } from "@blocknote/core";
-import { flip, offset, size } from "@floating-ui/react";
 import { FC } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor";
-import { useUIElementPositioning } from "../../hooks/useUIElementPositioning";
 import { useUIPluginState } from "../../hooks/useUIPluginState";
-import { SuggestionMenuWrapper } from "./SuggestionMenuWrapper";
 import { getDefaultReactSlashMenuItems } from "./getDefaultReactSlashMenuItems";
+import { useCloseSuggestionMenuNoItems } from "./hooks/useCloseSuggestionMenuNoItems";
+import { useLoadSuggestionMenuItems } from "./hooks/useLoadSuggestionMenuItems";
 import { SuggestionMenu } from "./mantine/SuggestionMenu";
 import { DefaultReactSuggestionItem, SuggestionMenuProps } from "./types";
 
@@ -75,31 +74,6 @@ export function SuggestionMenuController<
         callback
       )
   );
-  const { isMounted, ref, style } = useUIElementPositioning(
-    state?.show || true,
-    state?.referencePos || null,
-    2000,
-    {
-      placement: "bottom-start",
-      middleware: [
-        offset(10),
-        // Flips the menu placement to maximize the space available, and prevents
-        // the menu from being cut off by the confines of the screen.
-        flip(),
-        size({
-          apply({ availableHeight, elements }) {
-            Object.assign(elements.floating.style, {
-              maxHeight: `${availableHeight - 10}px`,
-            });
-          },
-        }),
-      ],
-    }
-  );
-
-  if (!isMounted || !state) {
-    return null;
-  }
 
   if (!getItems) {
     getItems = (async (query: string) =>
@@ -109,16 +83,74 @@ export function SuggestionMenuController<
       )) as any;
   }
 
-  return (
-    <div ref={ref} style={style}>
-      <SuggestionMenuWrapper
-        query={state.query}
-        closeMenu={callbacks.closeMenu}
-        clearQuery={callbacks.clearQuery}
-        getItems={getItems!}
-        suggestionMenuComponent={suggestionMenuComponent || SuggestionMenu}
-        onItemClick={onItemClick}
-      />
-    </div>
+  const { items, usedQuery, loadingState } = useLoadSuggestionMenuItems(
+    state?.query,
+    getItems!
   );
+
+  useCloseSuggestionMenuNoItems(items, usedQuery, callbacks.closeMenu);
+
+  if (!state) {
+    // TBD
+    return null;
+  }
+
+  const Component = props.suggestionMenuComponent || SuggestionMenu;
+
+  return (
+    <Component
+      closeMenu={callbacks.closeMenu}
+      items={items}
+      opened={state.show}
+      loadingState={loadingState}
+      referencePos={state.referencePos}
+      onItemClick={onItemClick}
+    />
+  );
+  // const { isMounted, ref, style } = useUIElementPositioning(
+  //   state?.show || true,
+  //   state?.referencePos || null,
+  //   2000,
+  //   {
+  //     placement: "bottom-start",
+  //     middleware: [
+  //       offset(10),
+  //       // Flips the menu placement to maximize the space available, and prevents
+  //       // the menu from being cut off by the confines of the screen.
+  //       flip(),
+  //       size({
+  //         apply({ availableHeight, elements }) {
+  //           Object.assign(elements.floating.style, {
+  //             maxHeight: `${availableHeight - 10}px`,
+  //           });
+  //         },
+  //       }),
+  //     ],
+  //   }
+  // );
+
+  // if (!isMounted || !state) {
+  //   return null;
+  // }
+
+  // if (!getItems) {
+  //   getItems = (async (query: string) =>
+  //     filterSuggestionItems(
+  //       getDefaultReactSlashMenuItems(editor),
+  //       query
+  //     )) as any;
+  // }
+
+  // return (
+  //   <div ref={ref} style={style}>
+  //     <SuggestionMenuWrapper
+  //       query={state.query}
+  //       closeMenu={callbacks.closeMenu}
+  //       clearQuery={callbacks.clearQuery}
+  //       getItems={getItems!}
+  //       suggestionMenuComponent={suggestionMenuComponent || SuggestionMenu}
+  //       onItemClick={onItemClick}
+  //     />
+  //   </div>
+  // );
 }

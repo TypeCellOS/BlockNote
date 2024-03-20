@@ -3,8 +3,8 @@ import { EditorState, Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
 
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
-import { BlockSchema, InlineContentSchema, StyleSchema } from "../../schema";
 import { UiElementPosition } from "../../extensions-shared/UiElementPosition";
+import { BlockSchema, InlineContentSchema, StyleSchema } from "../../schema";
 import { EventEmitter } from "../../util/EventEmitter";
 
 const findBlock = findParentNode((node) => node.type.name === "blockContainer");
@@ -222,9 +222,9 @@ export class SuggestionMenuProseMirrorPlugin<
             suggestionPluginTransactionMeta === null ||
             // Certain mouse events should hide the menu.
             // TODO: Change to global mousedown listener.
-            transaction.getMeta("focus") ||
-            transaction.getMeta("blur") ||
-            transaction.getMeta("pointer") ||
+            // transaction.getMeta("focus") ||
+            // transaction.getMeta("blur") ||
+            // transaction.getMeta("pointer") ||
             // Moving the caret before the character which triggered the menu should hide it.
             (prev.triggerCharacter !== undefined &&
               newState.selection.from < prev.queryStartPos!)

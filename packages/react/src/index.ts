@@ -38,13 +38,13 @@ export * from "./components/SideMenu/DragHandleMenu/mantine/DefaultItems/RemoveB
 export * from "./components/SideMenu/DragHandleMenu/mantine/DragHandleMenu";
 
 export * from "./components/SuggestionMenu/SuggestionMenuController";
-export * from "./components/SuggestionMenu/SuggestionMenuWrapper";
+
 export * from "./components/SuggestionMenu/getDefaultReactSlashMenuItems";
 export * from "./components/SuggestionMenu/hooks/useCloseSuggestionMenuNoItems";
 export * from "./components/SuggestionMenu/hooks/useLoadSuggestionMenuItems";
 export * from "./components/SuggestionMenu/hooks/useSuggestionMenuKeyboardNavigation";
 export * from "./components/SuggestionMenu/mantine/SuggestionMenu";
-export * from "./components/SuggestionMenu/mantine/SuggestionMenuItem";
+
 export * from "./components/SuggestionMenu/types";
 
 export * from "./components/ImagePanel/ImagePanelController";
