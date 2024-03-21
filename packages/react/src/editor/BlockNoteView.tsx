@@ -1,3 +1,6 @@
+import * as Ariakit from "@ariakit/react";
+import { useComboboxStore } from "@ariakit/react";
+import { useCombobox } from "@ariakit/react-core/combobox/combobox";
 import {
   BlockNoteEditor,
   BlockSchema,
@@ -6,7 +9,6 @@ import {
   mergeCSSClasses,
 } from "@blocknote/core";
 import { MantineProvider } from "@mantine/core";
-
 import React, {
   HTMLAttributes,
   ReactNode,
@@ -190,25 +192,51 @@ function BlockNoteViewComponent<
     };
   }, [existingContext, editor]);
 
-  const refs = useMemo(() => {
-    return mergeRefs([containerRef, editor._tiptapEditor.mount, ref]);
-  }, [containerRef, editor._tiptapEditor.mount, ref]);
+  const combobox = useComboboxStore({
+    setOpen: (open) => {
+      console.log("setOpen", open);
+    },
+  });
 
+  const cbProps = useCombobox<"div">({
+    store: combobox,
+    autoSelect: true,
+    showOnClick: false,
+    showOnKeyPress: false,
+    showOnChange: false,
+    setValueOnChange: false,
+  });
+
+  const refs = useMemo(() => {
+    return mergeRefs([
+      containerRef,
+      editor._tiptapEditor.mount,
+      ref,
+      cbProps.ref,
+    ]);
+  }, [containerRef, editor._tiptapEditor.mount, ref, cbProps.ref]);
+
+  console.log(cbProps);
   return (
     // `cssVariablesSelector` scopes Mantine CSS variables to only the editor,
     // as proposed here:  https://github.com/orgs/mantinedev/discussions/5685
     <MantineProvider theme={mantineTheme} cssVariablesSelector=".bn-container">
       <BlockNoteContext.Provider value={context as any}>
         <ComponentsContext.Provider value={ariakitComponents}>
-          <EditorContent editor={editor}>
-            <div
-              className={mergeCSSClasses("bn-container", className || "")}
-              data-color-scheme={editorColorScheme}
-              {...rest}
-              ref={refs}>
-              {renderChildren}
-            </div>
-          </EditorContent>
+          <Ariakit.ComboboxProvider
+            store={combobox}
+            open={true}
+            virtualFocus={true}>
+            <EditorContent editor={editor}>
+              <div
+                className={mergeCSSClasses("bn-container", className || "")}
+                data-color-scheme={editorColorScheme}
+                {...rest}
+                {...cbProps}
+                ref={refs}></div>
+              <div>{renderChildren}</div>
+            </EditorContent>
+          </Ariakit.ComboboxProvider>
         </ComponentsContext.Provider>
       </BlockNoteContext.Provider>
     </MantineProvider>
