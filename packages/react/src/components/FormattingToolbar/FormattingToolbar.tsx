@@ -1,21 +1,21 @@
 import { ReactNode } from "react";
 
 import { useComponentsContext } from "../../editor/ComponentsContext";
-import { FormattingToolbarProps } from "./FormattingToolbarProps";
-import { BasicTextStyleButton } from "./mantine/DefaultButtons/BasicTextStyleButton";
-import { ColorStyleButton } from "./mantine/DefaultButtons/ColorStyleButton";
-import { CreateLinkButton } from "./mantine/DefaultButtons/CreateLinkButton";
-import { ImageCaptionButton } from "./mantine/DefaultButtons/ImageCaptionButton";
+import { BasicTextStyleButton } from "./DefaultButtons/BasicTextStyleButton";
+import { ColorStyleButton } from "./DefaultButtons/ColorStyleButton";
+import { CreateLinkButton } from "./DefaultButtons/CreateLinkButton";
+import { ImageCaptionButton } from "./DefaultButtons/ImageCaptionButton";
 import {
   NestBlockButton,
   UnnestBlockButton,
-} from "./mantine/DefaultButtons/NestBlockButtons";
-import { ReplaceImageButton } from "./mantine/DefaultButtons/ReplaceImageButton";
-import { TextAlignButton } from "./mantine/DefaultButtons/TextAlignButton";
+} from "./DefaultButtons/NestBlockButtons";
+import { ReplaceImageButton } from "./DefaultButtons/ReplaceImageButton";
+import { TextAlignButton } from "./DefaultButtons/TextAlignButton";
 import {
   BlockTypeSelect,
   BlockTypeSelectItem,
-} from "./mantine/DefaultSelects/BlockTypeSelect";
+} from "./DefaultSelects/BlockTypeSelect";
+import { FormattingToolbarProps } from "./FormattingToolbarProps";
 
 export const getFormattingToolbarItems = (
   blockTypeSelectItems?: BlockTypeSelectItem[]

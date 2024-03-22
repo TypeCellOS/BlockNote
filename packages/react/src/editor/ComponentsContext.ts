@@ -4,10 +4,10 @@ import {
   createContext,
   useContext,
 } from "react";
-import { SuggestionMenuEmptyItem } from "../components/SuggestionMenu/mantine/SuggestionMenuEmptyItem";
-import { SuggestionMenuItem } from "../components/SuggestionMenu/mantine/SuggestionMenuItem";
-import { SuggestionMenuLabel } from "../components/SuggestionMenu/mantine/SuggestionMenuLabel";
-import { SuggestionMenuLoader } from "../components/SuggestionMenu/mantine/SuggestionMenuLoader";
+import { SuggestionMenuEmptyItem } from "../components/SuggestionMenu/implementation/SuggestionMenuEmptyItem";
+import { SuggestionMenuItem } from "../components/SuggestionMenu/implementation/SuggestionMenuItem";
+import { SuggestionMenuLabel } from "../components/SuggestionMenu/implementation/SuggestionMenuLabel";
+import { SuggestionMenuLoader } from "../components/SuggestionMenu/implementation/SuggestionMenuLoader";
 
 export type MenuProps = {
   children: React.ReactNode;

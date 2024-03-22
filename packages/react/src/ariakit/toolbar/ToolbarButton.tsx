@@ -15,6 +15,7 @@ export type ToolbarButtonProps = {
 /**
  * Helper for basic buttons that show in the formatting toolbar.
  */
+// TODO: implement tooltip
 export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
   (props, ref) => {
     const ButtonIcon = props.icon;

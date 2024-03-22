@@ -1,5 +1,6 @@
 import { Loader, PopoverDropdown, PopoverTarget } from "@mantine/core";
-import { TextInput } from "../components/mantine-shared/Input/TextInput";
+import { ComponentsContextValue } from "../editor/ComponentsContext";
+import { TextInput } from "./input/TextInput";
 import {
   Menu,
   MenuDivider,
@@ -7,12 +8,11 @@ import {
   MenuItem,
   MenuLabel,
   MenuTarget,
-} from "../components/mantine-shared/Menu/Menu";
-import { Popover } from "../components/mantine-shared/Popover/Popover";
-import { Toolbar } from "../components/mantine-shared/Toolbar/Toolbar";
-import { ToolbarButton } from "../components/mantine-shared/Toolbar/ToolbarButton";
-import { ToolbarSelect } from "../components/mantine-shared/Toolbar/ToolbarSelect";
-import { ComponentsContextValue } from "../editor/ComponentsContext";
+} from "./menu/Menu";
+import { Popover } from "./popover/Popover";
+import { Toolbar } from "./toolbar/Toolbar";
+import { ToolbarButton } from "./toolbar/ToolbarButton";
+import { ToolbarSelect } from "./toolbar/ToolbarSelect";
 
 export const mantineComponents: ComponentsContextValue = {
   Toolbar,

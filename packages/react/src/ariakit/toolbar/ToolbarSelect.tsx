@@ -1,5 +1,5 @@
 import * as Ariakit from "@ariakit/react";
-import { ToolbarSelectProps } from "../../components/mantine-shared/Toolbar/ToolbarSelect";
+import { ToolbarSelectProps } from "../../mantine/toolbar/ToolbarSelect";
 
 export function ToolbarSelect(props: ToolbarSelectProps) {
   const selectedItem = props.items.filter((p) => p.isSelected)[0];
