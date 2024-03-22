@@ -9,7 +9,8 @@ export function SuggestionMenu<T extends DefaultReactSuggestionItem>(
   props: SuggestionMenuProps<T>
 ) {
   const components = useComponentsContext()!;
-  const { items, loadingState, selectedIndex, onItemClick } = props;
+  const { items, loadingState, selectedIndex, onItemClick, setSelectedIndex } =
+    props;
 
   const loader =
     loadingState === "loading-initial" || loadingState === "loading" ? (
@@ -24,11 +25,11 @@ export function SuggestionMenu<T extends DefaultReactSuggestionItem>(
       const item = items[i];
       if (item.group !== currentGroup) {
         currentGroup = item.group;
-        renderedItems.push(
-          <components.MenuLabel key={currentGroup}>
-            {currentGroup}
-          </components.MenuLabel>
-        );
+        // renderedItems.push(
+        //   <components.MenuLabel key={currentGroup}>
+        //     {currentGroup}
+        //   </components.MenuLabel>
+        // );
       }
 
       renderedItems.push(
@@ -37,30 +38,27 @@ export function SuggestionMenu<T extends DefaultReactSuggestionItem>(
           isSelected={i === selectedIndex}
           key={item.title}
           onClick={() => onItemClick?.(item)}
+          setSelected={(selected) => {
+            setSelectedIndex(selected ? i : -1);
+          }}
         />
       );
     }
 
     return renderedItems;
-  }, [items, selectedIndex, components, onItemClick]);
+  }, [items, selectedIndex, components, onItemClick, setSelectedIndex]);
 
   return (
-    // TODO: trapFocus={false} has been removed, needed?
-    <components.Menu defaultOpen={true}>
-      <components.MenuTrigger>
-        <div style={{ width: 0, height: 0 }}></div>
-      </components.MenuTrigger>
-      <components.MenuDropdown
-        onMouseDown={(event: any) => event.preventDefault()}
-        className={"bn-slash-menu"}>
-        {renderedItems}
-        {Children.count(renderedItems) === 0 &&
-          (props.loadingState === "loading" ||
-            props.loadingState === "loaded") && (
-            <components.MenuItem>No match found</components.MenuItem>
-          )}
-        {loader}
-      </components.MenuDropdown>
-    </components.Menu>
+    <div
+      // onMouseDown={(event: any) => event.preventDefault()} // TODO: needed?
+      className={"bn-slash-menu"}>
+      {renderedItems}
+      {Children.count(renderedItems) === 0 &&
+        (props.loadingState === "loading" ||
+          props.loadingState === "loaded") && (
+          <components.MenuItem>No match found</components.MenuItem>
+        )}
+      {loader}
+    </div>
   );
 }

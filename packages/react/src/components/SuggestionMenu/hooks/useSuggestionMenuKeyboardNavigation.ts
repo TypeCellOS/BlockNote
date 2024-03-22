@@ -10,7 +10,7 @@ export function useSuggestionMenuKeyboardNavigation<Item>(
   closeMenu: () => void,
   onItemClick?: (item: Item) => void
 ) {
-  const [selectedIndex, setSelectedIndex] = useState<number>(0);
+  const [selectedIndex, setSelectedIndex] = useState<number>(-1);
 
   useEffect(() => {
     const handleMenuNavigationKeys = (event: KeyboardEvent) => {
@@ -70,5 +70,5 @@ export function useSuggestionMenuKeyboardNavigation<Item>(
     };
   }, [closeMenu, editor.domElement, items, selectedIndex, onItemClick]);
 
-  return selectedIndex;
+  return { selectedIndex, setSelectedIndex };
 }

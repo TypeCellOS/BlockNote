@@ -421,6 +421,11 @@
 .bn-container .bn-slash-menu {
   max-height: 100%;
   position: relative;
+  box-shadow: var(--mantine-shadow-md);
+  border: calc(0.0625rem * var(--mantine-scale)) solid
+    var(--mantine-color-gray-2);
+  border-radius: var(--mantine-radius-default);
+  padding: 4px;
 }
 
 .bn-container .bn-slash-menu .mantine-Menu-item {
@@ -576,4 +581,45 @@
 .bn-container .bn-tick-space {
   padding: 0;
   width: 20px;
+}
+
+/* copied from mantine menu */
+.bn-container .bn-slash-menu-item {
+  font-size: var(--mantine-font-size-sm);
+  width: 100%;
+  padding: calc(var(--mantine-spacing-xs) / 1.5) var(--mantine-spacing-sm);
+  border-radius: var(--popover-radius, var(--mantine-radius-default));
+  color: var(--menu-item-color, var(--mantine-color-text));
+  display: flex;
+  align-items: center;
+  user-select: none;
+
+  &:where([data-disabled], :disabled) {
+    color: var(--mantine-color-dimmed);
+    opacity: 0.6;
+    pointer-events: none;
+  }
+
+  &:where([data-hovered]) {
+  }
+}
+
+/* copied from mantine menu */
+.bn-container .bn-slash-menu-item .mantine-Menu-itemLabel {
+  flex: 1;
+}
+
+/* copied from mantine menu */
+.bn-container .bn-slash-menu-item .mantine-Menu-itemSection {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  &:where([data-position="left"]) {
+    margin-inline-end: var(--mantine-spacing-xs);
+  }
+
+  &:where([data-position="right"]) {
+    margin-inline-start: var(--mantine-spacing-xs);
+  }
 }

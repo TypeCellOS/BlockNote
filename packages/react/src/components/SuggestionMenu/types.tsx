@@ -18,4 +18,5 @@ export type SuggestionMenuProps<T> = {
   loadingState: "loading-initial" | "loading" | "loaded";
   selectedIndex: number;
   onItemClick?: (item: T) => void;
+  setSelectedIndex: (index: number) => void;
 };
