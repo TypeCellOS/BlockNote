@@ -458,15 +458,6 @@
   background-color: transparent;
 }
 
-.bn-container .bn-side-menu .mantine-UnstyledButton-root {
-  background-color: transparent;
-  color: var(--bn-colors-side-menu);
-}
-
-.bn-container .bn-side-menu .mantine-UnstyledButton-root:hover {
-  background-color: var(--bn-colors-hovered-background);
-}
-
 .bn-container .bn-drag-handle {
   height: 24px;
   width: 24px;
@@ -664,4 +655,71 @@ https://github.com/mantinedev/mantine/blob/e3e3bb834de1f2f75a27dbc757dc0a2fc6a6c
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* from https://github.com/mantinedev/mantine/blob/master/packages/%40mantine/core/src/components/UnstyledButton/UnstyledButton.module.css */
+.bn-sidemenu-button {
+  background-color: transparent;
+  cursor: pointer;
+  border: 0;
+  padding: 0;
+  appearance: none;
+  font-size: var(--mantine-font-size-md);
+  text-align: left;
+  text-decoration: none;
+  color: inherit;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* from https://github.com/mantinedev/mantine/blob/master/packages/%40mantine/core/src/components/ActionIcon/ActionIcon.module.css */
+.bn-sidemenu-button {
+  --ai-size: 24px;
+  --ai-color: var(--mantine-color-white);
+
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  user-select: none;
+  overflow: hidden;
+
+  width: var(--ai-size);
+  height: var(--ai-size);
+  min-width: var(--ai-size);
+  min-height: var(--ai-size);
+  border-radius: var(--ai-radius, var(--mantine-radius-default));
+  background: var(--ai-bg, var(--mantine-primary-color-filled));
+  color: var(--ai-color, var(--mantine-color-white));
+  border: 1px solid transparent;
+  cursor: pointer;
+
+  /* @mixin hover {
+    &:where(:not([data-loading], :disabled, [data-disabled])) {
+      background-color: var(
+        --ai-hover,
+        var(--mantine-primary-color-filled-hover)
+      );
+      color: var(--ai-hover-color, var(--ai-color));
+    }
+  } */
+}
+
+.bn-container .bn-sidemenu-button {
+  background-color: transparent;
+  color: var(--bn-colors-side-menu);
+}
+
+.bn-container .bn-sidemenu-button:hover {
+  background-color: var(--bn-colors-hovered-background);
+}
+
+.bn-sidemenu-button-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 150ms ease, opacity 100ms ease;
+  width: 100%;
+  height: 100%;
 }

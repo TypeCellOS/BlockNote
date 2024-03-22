@@ -7,9 +7,9 @@ import {
   TableContent,
 } from "@blocknote/core";
 
-import { TableHandleMenuProps } from "../../TableHandleMenuProps";
-import { TableHandleMenuItem } from "../TableHandleMenuItem";
+import { useComponentsContext } from "../../../../../editor/ComponentsContext";
 import { useBlockNoteEditor } from "../../../../../hooks/useBlockNoteEditor";
+import { TableHandleMenuProps } from "../../TableHandleMenuProps";
 
 export const DeleteRowButton = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
@@ -17,6 +17,7 @@ export const DeleteRowButton = <
 >(
   props: TableHandleMenuProps<I, S>
 ) => {
+  const components = useComponentsContext()!;
   const editor = useBlockNoteEditor<
     { table: DefaultBlockSchema["table"] },
     I,
@@ -24,7 +25,7 @@ export const DeleteRowButton = <
   >();
 
   return (
-    <TableHandleMenuItem
+    <components.MenuItem
       onClick={() => {
         const content: TableContent<I, S> = {
           type: "tableContent",
@@ -39,7 +40,7 @@ export const DeleteRowButton = <
         });
       }}>
       Delete row
-    </TableHandleMenuItem>
+    </components.MenuItem>
   );
 };
 
@@ -49,6 +50,7 @@ export const DeleteColumnButton = <
 >(
   props: TableHandleMenuProps<I, S>
 ) => {
+  const components = useComponentsContext()!;
   const editor = useBlockNoteEditor<
     { table: DefaultBlockSchema["table"] },
     I,
@@ -56,7 +58,7 @@ export const DeleteColumnButton = <
   >();
 
   return (
-    <TableHandleMenuItem
+    <components.MenuItem
       onClick={() => {
         const content: TableContent<I, S> = {
           type: "tableContent",
@@ -71,7 +73,7 @@ export const DeleteColumnButton = <
         });
       }}>
       Delete column
-    </TableHandleMenuItem>
+    </components.MenuItem>
   );
 };
 

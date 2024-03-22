@@ -66,7 +66,6 @@ export * from "./components/TableHandles/TableHandleMenu/TableHandleMenuProps";
 export * from "./components/TableHandles/TableHandleMenu/mantine/DefaultButtons/AddButton";
 export * from "./components/TableHandles/TableHandleMenu/mantine/DefaultButtons/DeleteButton";
 export * from "./components/TableHandles/TableHandleMenu/mantine/TableHandleMenu";
-export * from "./components/TableHandles/TableHandleMenu/mantine/TableHandleMenuItem";
 
 export * from "./components/mantine-shared/Toolbar/ToolbarButton";
 export * from "./components/mantine-shared/Toolbar/ToolbarSelect";

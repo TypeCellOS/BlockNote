@@ -34,6 +34,7 @@ export const DragHandleButton = <
       }}
       position={"left"}>
       <components.MenuTrigger>
+        {/* TODO: remove this extra div? */}
         <div
           className={"bn-drag-handle"}
           draggable="true"

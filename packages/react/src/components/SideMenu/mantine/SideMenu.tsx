@@ -33,6 +33,7 @@ export const SideMenu = <
   return (
     <div
       className={"bn-side-menu"}
+      // TODO: move to css
       style={{
         alignItems: "center",
         display: "flex",

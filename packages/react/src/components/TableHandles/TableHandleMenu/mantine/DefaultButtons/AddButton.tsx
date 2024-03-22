@@ -7,9 +7,9 @@ import {
   TableContent,
 } from "@blocknote/core";
 
-import { TableHandleMenuProps } from "../../TableHandleMenuProps";
-import { TableHandleMenuItem } from "../TableHandleMenuItem";
+import { useComponentsContext } from "../../../../../editor/ComponentsContext";
 import { useBlockNoteEditor } from "../../../../../hooks/useBlockNoteEditor";
+import { TableHandleMenuProps } from "../../TableHandleMenuProps";
 
 export const AddRowButton = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
@@ -17,6 +17,7 @@ export const AddRowButton = <
 >(
   props: TableHandleMenuProps<I, S> & { side: "above" | "below" }
 ) => {
+  const components = useComponentsContext()!;
   const editor = useBlockNoteEditor<
     { table: DefaultBlockSchema["table"] },
     I,
@@ -24,7 +25,7 @@ export const AddRowButton = <
   >();
 
   return (
-    <TableHandleMenuItem
+    <components.MenuItem
       onClick={() => {
         const emptyCol = props.block.content.rows[props.index].cells.map(
           () => []
@@ -43,7 +44,7 @@ export const AddRowButton = <
         });
       }}>
       {`Add row ${props.side}`}
-    </TableHandleMenuItem>
+    </components.MenuItem>
   );
 };
 
@@ -53,6 +54,7 @@ export const AddColumnButton = <
 >(
   props: TableHandleMenuProps<I, S> & { side: "left" | "right" }
 ) => {
+  const components = useComponentsContext()!;
   const editor = useBlockNoteEditor<
     { table: DefaultBlockSchema["table"] },
     I,
@@ -60,7 +62,7 @@ export const AddColumnButton = <
   >();
 
   return (
-    <TableHandleMenuItem
+    <components.MenuItem
       onClick={() => {
         const content: TableContent<I, S> = {
           type: "tableContent",
@@ -77,7 +79,7 @@ export const AddColumnButton = <
         });
       }}>
       {`Add column ${props.side}`}
-    </TableHandleMenuItem>
+    </components.MenuItem>
   );
 };
 

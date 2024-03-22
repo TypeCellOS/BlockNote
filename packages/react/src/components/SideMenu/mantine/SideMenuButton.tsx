@@ -1,5 +1,5 @@
-import { ActionIcon } from "@mantine/core";
-
 export const SideMenuButton = (props: { children: JSX.Element }) => (
-  <ActionIcon size={24}>{props.children}</ActionIcon>
+  <button className="bn-sidemenu-button">
+    <span className="bn-sidemenu-button-icon">{props.children}</span>
+  </button>
 );
