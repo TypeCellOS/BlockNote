@@ -17,9 +17,9 @@ import React, {
   useState,
 } from "react";
 import usePrefersColorScheme from "use-prefers-color-scheme";
-import { mantineComponents } from "../ariakit/mantineComponents";
 import { useEditorChange } from "../hooks/useEditorChange";
 import { useEditorSelectionChange } from "../hooks/useEditorSelectionChange";
+import { mantineComponents } from "../mantine/mantineComponents";
 import { mergeRefs } from "../util/mergeRefs";
 import { BlockNoteContext, useBlockNoteContext } from "./BlockNoteContext";
 import {

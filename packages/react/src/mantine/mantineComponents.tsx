@@ -1,4 +1,7 @@
-import { PopoverDropdown, PopoverTarget } from "@mantine/core";
+import { Loader, PopoverDropdown, PopoverTarget } from "@mantine/core";
+import { SuggestionMenuEmptyItem } from "../components/SuggestionMenu/mantine/SuggestionMenuEmptyItem";
+import { SuggestionMenuItem } from "../components/SuggestionMenu/mantine/SuggestionMenuItem";
+import { SuggestionMenuLabel } from "../components/SuggestionMenu/mantine/SuggestionMenuLabel";
 import { TextInput } from "../components/mantine-shared/Input/TextInput";
 import {
   Menu,
@@ -29,4 +32,10 @@ export const mantineComponents: ComponentsContextValue = {
   PopoverTrigger: PopoverTarget,
   TextInput,
   Form: (props) => <div {...props} />,
+  SuggestionMenuItem,
+  SuggestionMenuLoader: () => (
+    <Loader className={"bn-slash-menu-loader"} type="dots" />
+  ),
+  SuggestionMenuEmptyItem,
+  SuggestionMenuLabel,
 };

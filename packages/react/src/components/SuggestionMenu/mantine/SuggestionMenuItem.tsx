@@ -1,16 +1,11 @@
 import { Badge, Stack, Text, UnstyledButton } from "@mantine/core";
 import { useCallback, useRef } from "react";
-import { useComponentsContext } from "../../../editor/ComponentsContext";
+import {
+  SuggestionMenuItemProps,
+  useComponentsContext,
+} from "../../../editor/ComponentsContext";
 
-export function SuggestionMenuItem(props: {
-  title: string;
-  onClick: () => void;
-  subtext?: string;
-  icon?: JSX.Element;
-  badge?: string;
-  isSelected?: boolean;
-  setSelected: (selected: boolean) => void;
-}) {
+export function SuggestionMenuItem(props: SuggestionMenuItemProps) {
   const { setSelected } = props;
   const components = useComponentsContext()!;
   const itemRef = useRef<HTMLDivElement>(null);

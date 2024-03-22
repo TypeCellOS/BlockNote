@@ -1,10 +1,9 @@
-import { Loader } from "@mantine/core";
 import { Children, useMemo } from "react";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext";
 import { DefaultReactSuggestionItem, SuggestionMenuProps } from "../types";
-import { SuggestionMenuItem } from "./SuggestionMenuItem";
 
+// TODO: move directory up
 export function SuggestionMenu<T extends DefaultReactSuggestionItem>(
   props: SuggestionMenuProps<T>
 ) {
@@ -14,7 +13,7 @@ export function SuggestionMenu<T extends DefaultReactSuggestionItem>(
 
   const loader =
     loadingState === "loading-initial" || loadingState === "loading" ? (
-      <Loader className={"bn-slash-menu-loader"} type="dots" />
+      <components.SuggestionMenuLoader />
     ) : null;
 
   const renderedItems = useMemo<JSX.Element[]>(() => {
@@ -25,15 +24,15 @@ export function SuggestionMenu<T extends DefaultReactSuggestionItem>(
       const item = items[i];
       if (item.group !== currentGroup) {
         currentGroup = item.group;
-        // renderedItems.push(
-        //   <components.MenuLabel key={currentGroup}>
-        //     {currentGroup}
-        //   </components.MenuLabel>
-        // );
+        renderedItems.push(
+          <components.SuggestionMenuLabel key={currentGroup}>
+            {currentGroup}
+          </components.SuggestionMenuLabel>
+        );
       }
 
       renderedItems.push(
-        <SuggestionMenuItem
+        <components.SuggestionMenuItem
           {...item}
           isSelected={i === selectedIndex}
           key={item.title}
@@ -56,7 +55,9 @@ export function SuggestionMenu<T extends DefaultReactSuggestionItem>(
       {Children.count(renderedItems) === 0 &&
         (props.loadingState === "loading" ||
           props.loadingState === "loaded") && (
-          <components.MenuItem>No match found</components.MenuItem>
+          <components.SuggestionMenuEmptyItem>
+            No match found
+          </components.SuggestionMenuEmptyItem>
         )}
       {loader}
     </div>

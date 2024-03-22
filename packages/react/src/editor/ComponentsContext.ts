@@ -31,6 +31,16 @@ export type MenuItemProps = {
   expandArrow?: boolean;
 } & HTMLAttributes<HTMLDivElement>;
 
+export type SuggestionMenuItemProps = {
+  title: string;
+  onClick: () => void;
+  subtext?: string;
+  icon?: JSX.Element;
+  badge?: string;
+  isSelected?: boolean;
+  setSelected: (selected: boolean) => void;
+};
+
 export type ComponentsContextValue = {
   Form: ComponentType<{
     children: React.ReactNode;
@@ -51,6 +61,14 @@ export type ComponentsContextValue = {
   Popover: any;
   PopoverTrigger: any;
   PopoverContent: any;
+  SuggestionMenuLabel: ComponentType<{
+    children: React.ReactNode;
+  }>;
+  SuggestionMenuLoader: React.ElementType;
+  SuggestionMenuItem: ComponentType<SuggestionMenuItemProps>;
+  SuggestionMenuEmptyItem: ComponentType<{
+    children: React.ReactNode;
+  }>;
   TextInput: ComponentType<TextInputProps>;
 };
 

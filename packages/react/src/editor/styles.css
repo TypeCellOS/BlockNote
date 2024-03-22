@@ -583,7 +583,19 @@
   width: 20px;
 }
 
-/* copied from mantine menu */
+/* 
+copied from mantine menu 
+https://github.com/mantinedev/mantine/blob/e3e3bb834de1f2f75a27dbc757dc0a2fc6a6cba8/packages/%40mantine/core/src/components/Menu/Menu.module.css
+*/
+
+.bn-container .bn-slash-menu .mantine-Menu-label {
+  color: var(--mantine-color-dimmed);
+  font-weight: 500;
+  font-size: var(--mantine-font-size-xs);
+  padding: calc(var(--mantine-spacing-xs) / 2) var(--mantine-spacing-sm);
+  cursor: default;
+}
+
 .bn-container .bn-slash-menu-item {
   font-size: var(--mantine-font-size-sm);
   width: 100%;

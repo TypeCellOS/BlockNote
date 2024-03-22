@@ -1,5 +1,3 @@
-import "./toolbar.css";
-
 import * as Ariakit from "@ariakit/react";
 import { mergeCSSClasses } from "@blocknote/core";
 import { forwardRef, HTMLAttributes } from "react";

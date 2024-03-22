@@ -1,12 +1,8 @@
 import * as mantine from "@mantine/core";
+import { HTMLAttributes } from "react";
 import { HiChevronRight } from "react-icons/hi";
 import { MenuItemProps, MenuProps } from "../../../editor/ComponentsContext";
-export {
-  MenuDivider,
-  MenuDropdown,
-  MenuLabel,
-  MenuTarget,
-} from "@mantine/core";
+export { MenuLabel, MenuTarget } from "@mantine/core";
 
 export const Menu = (props: MenuProps) => {
   const { onOpenChange, open, defaultOpen, ...rest } = props;
@@ -46,4 +42,11 @@ export const MenuItem = (props: MenuItemProps) => {
       {...rest}
     />
   );
+};
+
+export const MenuDropdown = (props: HTMLAttributes<HTMLDivElement>) => {
+  return <mantine.MenuDropdown {...props} />;
+};
+export const MenuDivider = () => {
+  return <mantine.MenuDivider />;
 };
