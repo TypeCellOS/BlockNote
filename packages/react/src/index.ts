@@ -3,6 +3,7 @@ export * from "./editor/BlockNoteContext";
 export * from "./editor/BlockNoteDefaultUI";
 export * from "./editor/BlockNoteTheme";
 export * from "./editor/BlockNoteView";
+export * from "./editor/ComponentsContext";
 export * from "./editor/defaultThemes";
 
 export * from "./components/FormattingToolbar/DefaultButtons/BasicTextStyleButton";

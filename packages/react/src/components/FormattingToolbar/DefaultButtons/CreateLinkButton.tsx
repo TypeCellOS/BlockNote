@@ -86,7 +86,7 @@ export const CreateLinkButton = () => {
         <components.ToolbarButton
           mainTooltip={"Create Link"}
           secondaryTooltip={formatKeyboardShortcut("Mod+K")}
-          icon={RiLink}
+          icon={<RiLink />}
         />
       </components.PopoverTrigger>
       <components.PopoverContent>

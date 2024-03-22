@@ -71,6 +71,7 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
     return null;
   }
 
+  const Icon: IconType = icons[props.textAlignment];
   return (
     <components.ToolbarButton
       onClick={() => setTextAlignment(props.textAlignment)}
@@ -82,7 +83,7 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
             props.textAlignment.slice(0, 1).toUpperCase() +
             props.textAlignment.slice(1)
       }
-      icon={icons[props.textAlignment]}
+      icon={<Icon />}
     />
   );
 };

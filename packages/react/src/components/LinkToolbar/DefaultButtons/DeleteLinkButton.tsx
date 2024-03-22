@@ -9,6 +9,6 @@ export const DeleteLinkButton = (
     mainTooltip="Remove link"
     isSelected={false}
     onClick={props.deleteLink}
-    icon={RiLinkUnlink}
+    icon={<RiLinkUnlink />}
   />
 );

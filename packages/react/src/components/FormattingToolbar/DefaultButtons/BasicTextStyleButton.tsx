@@ -110,6 +110,7 @@ export const BasicTextStyleButton = <Style extends BasicTextStyle>(props: {
     return null;
   }
 
+  const Icon = icons[props.basicTextStyle] as any; // TODO
   return (
     <components.ToolbarButton
       onClick={() => toggleStyle(props.basicTextStyle)}
@@ -119,7 +120,7 @@ export const BasicTextStyleButton = <Style extends BasicTextStyle>(props: {
         props.basicTextStyle.slice(1)
       }
       secondaryTooltip={formatKeyboardShortcut(shortcuts[props.basicTextStyle])}
-      icon={icons[props.basicTextStyle]}
+      icon={<Icon />}
     />
   );
 };

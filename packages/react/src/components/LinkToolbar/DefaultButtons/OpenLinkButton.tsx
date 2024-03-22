@@ -9,6 +9,6 @@ export const OpenLinkButton = (props: Pick<LinkToolbarProps, "url">) => (
     onClick={() => {
       window.open(props.url, "_blank");
     }}
-    icon={RiExternalLinkFill}
+    icon={<RiExternalLinkFill />}
   />
 );

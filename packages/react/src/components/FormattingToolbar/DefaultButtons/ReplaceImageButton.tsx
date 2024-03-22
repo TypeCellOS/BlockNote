@@ -45,7 +45,7 @@ export const ReplaceImageButton = () => {
           onClick={() => setIsOpen(!isOpen)}
           isSelected={isOpen}
           mainTooltip={"Replace Image"}
-          icon={RiImageEditFill}
+          icon={<RiImageEditFill />}
         />
       </components.PopoverTrigger>
       <components.PopoverContent>

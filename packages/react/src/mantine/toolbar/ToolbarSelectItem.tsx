@@ -1,14 +1,6 @@
 import { Menu } from "@mantine/core";
-import type { IconType } from "react-icons";
 import { TiTick } from "react-icons/ti";
-
-export type ToolbarSelectItemProps = {
-  text: string;
-  icon?: IconType;
-  onClick?: () => void;
-  isSelected?: boolean;
-  isDisabled?: boolean;
-};
+import { ToolbarSelectItemProps } from "../../editor/ComponentsContext";
 
 export function ToolbarSelectItem(props: ToolbarSelectItemProps) {
   const ItemIcon = props.icon;

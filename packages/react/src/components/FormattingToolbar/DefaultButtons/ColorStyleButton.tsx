@@ -130,13 +130,13 @@ export const ColorStyleButton = () => {
       <components.MenuTrigger>
         <components.ToolbarButton
           mainTooltip={"Colors"}
-          icon={() => (
+          icon={
             <ColorIcon
               textColor={currentTextColor}
               backgroundColor={currentBackgroundColor}
               size={20}
             />
-          )}
+          }
         />
       </components.MenuTrigger>
       <components.MenuDropdown>

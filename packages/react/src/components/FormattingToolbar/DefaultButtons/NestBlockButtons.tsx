@@ -52,7 +52,7 @@ export const NestBlockButton = () => {
       isDisabled={!canNestBlock}
       mainTooltip="Nest Block"
       secondaryTooltip={formatKeyboardShortcut("Tab")}
-      icon={RiIndentIncrease}
+      icon={<RiIndentIncrease />}
     />
   );
 };
@@ -92,7 +92,7 @@ export const UnnestBlockButton = () => {
       isDisabled={!canUnnestBlock}
       mainTooltip="Unnest Block"
       secondaryTooltip={formatKeyboardShortcut("Shift+Tab")}
-      icon={RiIndentDecrease}
+      icon={<RiIndentDecrease />}
     />
   );
 };

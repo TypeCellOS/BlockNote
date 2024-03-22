@@ -8,6 +8,7 @@ import {
 import { MantineProvider } from "@mantine/core";
 
 import React, {
+  ComponentProps,
   HTMLAttributes,
   ReactNode,
   Ref,
@@ -17,9 +18,9 @@ import React, {
   useState,
 } from "react";
 import usePrefersColorScheme from "use-prefers-color-scheme";
-import { ariakitComponents } from "../ariakit/components";
 import { useEditorChange } from "../hooks/useEditorChange";
 import { useEditorSelectionChange } from "../hooks/useEditorSelectionChange";
+import { mantineComponents } from "../mantine/mantineComponents";
 import { mergeRefs } from "../util/mergeRefs";
 import { BlockNoteContext, useBlockNoteContext } from "./BlockNoteContext";
 import {
@@ -199,22 +200,42 @@ function BlockNoteViewComponent<
     // as proposed here:  https://github.com/orgs/mantinedev/discussions/5685
     <MantineProvider theme={mantineTheme} cssVariablesSelector=".bn-container">
       <BlockNoteContext.Provider value={context as any}>
-        <ComponentsContext.Provider value={ariakitComponents}>
-          <EditorContent editor={editor}>
-            <div
-              className={mergeCSSClasses("bn-container", className || "")}
-              data-color-scheme={editorColorScheme}
-              {...rest}
-              ref={refs}>
-              {renderChildren}
-            </div>
-          </EditorContent>
-        </ComponentsContext.Provider>
+        <EditorContent editor={editor}>
+          <div
+            className={mergeCSSClasses("bn-container", className || "")}
+            data-color-scheme={editorColorScheme}
+            {...rest}
+            ref={refs}>
+            {renderChildren}
+          </div>
+        </EditorContent>
       </BlockNoteContext.Provider>
     </MantineProvider>
   );
 }
 
-export const BlockNoteView = React.forwardRef(
+export const BlockNoteViewRaw = React.forwardRef(
   BlockNoteViewComponent
 ) as typeof BlockNoteViewComponent; // need hack to get types working with generics
+
+export const BlockNoteViewMantine = (
+  props: ComponentProps<typeof BlockNoteViewRaw>
+) => {
+  return (
+    <ComponentsContext.Provider value={mantineComponents}>
+      <BlockNoteViewRaw {...props} />
+    </ComponentsContext.Provider>
+  );
+};
+
+export const BlockNoteViewAriakit = (
+  props: ComponentProps<typeof BlockNoteViewRaw>
+) => {
+  return (
+    <ComponentsContext.Provider value={mantineComponents}>
+      <BlockNoteViewRaw {...props} />
+    </ComponentsContext.Provider>
+  );
+};
+
+export const BlockNoteView = BlockNoteViewMantine;

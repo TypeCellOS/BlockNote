@@ -2,12 +2,13 @@ import { AppShell, MantineProvider, ScrollArea } from "@mantine/core";
 import React from "react";
 import { createRoot } from "react-dom/client";
 import {
-  createBrowserRouter,
   Link,
   Outlet,
   RouterProvider,
+  createBrowserRouter,
 } from "react-router-dom";
 
+import "@blocknote/shadcn/style.css";
 import { examples } from "./examples.gen";
 import "./style.css";
 

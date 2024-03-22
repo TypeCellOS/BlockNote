@@ -81,7 +81,7 @@ export const ImageCaptionButton = () => {
       <components.PopoverTrigger>
         <ToolbarButton
           mainTooltip={"Edit Caption"}
-          icon={RiText}
+          icon={<RiText />}
           isSelected={imageBlock.props.caption !== ""}
         />
       </components.PopoverTrigger>

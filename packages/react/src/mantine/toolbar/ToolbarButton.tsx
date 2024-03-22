@@ -1,8 +1,8 @@
 import { ActionIcon, Button, Stack, Text, Tooltip } from "@mantine/core";
-import { MouseEvent, forwardRef } from "react";
-import type { IconType } from "react-icons";
+import { forwardRef } from "react";
 
 import { isSafari } from "@blocknote/core";
+import { ToolbarButtonProps } from "../../editor/ComponentsContext";
 
 export const TooltipContent = (props: {
   mainTooltip: string;
@@ -16,23 +16,11 @@ export const TooltipContent = (props: {
   </Stack>
 );
 
-export type ToolbarButtonProps = {
-  onClick?: (e: MouseEvent) => void;
-  icon?: IconType;
-  mainTooltip: string;
-  secondaryTooltip?: string;
-  isSelected?: boolean;
-  children?: any;
-  isDisabled?: boolean;
-};
-
 /**
  * Helper for basic buttons that show in the formatting toolbar.
  */
 export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
   (props, ref) => {
-    const ButtonIcon = props.icon;
-
     return (
       <Tooltip
         withinPortal={false}
@@ -61,7 +49,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
             size={"xs"}
             disabled={props.isDisabled || false}
             ref={ref}>
-            {ButtonIcon && <ButtonIcon />}
+            {props.icon}
             {props.children}
           </Button>
         ) : (
@@ -82,7 +70,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
             size={30}
             disabled={props.isDisabled || false}
             ref={ref}>
-            {ButtonIcon && <ButtonIcon />}
+            {props.icon}
           </ActionIcon>
         )}
       </Tooltip>

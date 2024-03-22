@@ -1,16 +1,7 @@
 import * as Ariakit from "@ariakit/react";
 import { isSafari } from "@blocknote/core";
 import { forwardRef } from "react";
-
-export type ToolbarButtonProps = {
-  onClick?: (e: React.MouseEvent) => void;
-  icon?: any; // IconType; TODO
-  mainTooltip: string;
-  secondaryTooltip?: string;
-  isSelected?: boolean;
-  children?: any;
-  isDisabled?: boolean;
-};
+import { ToolbarButtonProps } from "../../editor/ComponentsContext";
 
 /**
  * Helper for basic buttons that show in the formatting toolbar.
@@ -18,8 +9,6 @@ export type ToolbarButtonProps = {
 // TODO: implement tooltip
 export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
   (props, ref) => {
-    const ButtonIcon = props.icon;
-
     return (
       <Ariakit.ToolbarItem
         className="button secondary"
@@ -39,7 +28,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
         //   size={"xs"}
         disabled={props.isDisabled || false}
         ref={ref}>
-        {ButtonIcon && <ButtonIcon />}
+        {props.icon}
         {props.children}
       </Ariakit.ToolbarItem>
     );
@@ -68,7 +57,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
               disabled={props.isDisabled || false}
               ref={ref}></Ariakit.ToolbarItem>
           }>
-          {ButtonIcon && <ButtonIcon />}
+          {props.icon}
           {props.children}
         </Ariakit.TooltipAnchor>
         <Ariakit.Tooltip className="tooltip">

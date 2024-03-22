@@ -45,13 +45,38 @@ export type SuggestionMenuItemProps = {
   setSelected: (selected: boolean) => void;
 };
 
+export type ToolbarButtonProps = {
+  onClick?: (e: React.MouseEvent) => void;
+  icon?: React.ReactNode;
+  mainTooltip: string;
+  secondaryTooltip?: string;
+  isSelected?: boolean;
+  children?: any;
+  isDisabled?: boolean;
+};
+
+export type ToolbarSelectItemProps = {
+  text: string;
+  icon?: React.ReactNode;
+  onClick?: () => void;
+  isSelected?: boolean;
+  isDisabled?: boolean;
+};
+
+export type ToolbarSelectProps = {
+  // TODO: maybe don't use items array, but elements instead
+  items: ToolbarSelectItemProps[];
+  isDisabled?: boolean;
+};
+
 export type ComponentsContextValue = {
   Form: ComponentType<{
     children: React.ReactNode;
   }>;
   Toolbar: React.ElementType;
-  ToolbarSelect: React.ElementType;
-  ToolbarButton: any;
+  ToolbarSelect: ComponentType<ToolbarSelectProps>;
+
+  ToolbarButton: ComponentType<ToolbarButtonProps>;
   Menu: ComponentType<MenuProps>;
   MenuTrigger: ComponentType<{
     children: React.ReactNode;

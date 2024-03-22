@@ -1,4 +1,4 @@
-export function SuggestionMenuLoader(props: { children: React.ReactNode }) {
+export function SuggestionMenuLoader() {
   // TODO Test
   return <div>Loading&ellipsis;</div>;
 }

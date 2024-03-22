@@ -1,12 +1,8 @@
 import { isSafari } from "@blocknote/core";
 import { Button, Menu } from "@mantine/core";
 import { HiChevronDown } from "react-icons/hi";
-import { ToolbarSelectItem, ToolbarSelectItemProps } from "./ToolbarSelectItem";
-
-export type ToolbarSelectProps = {
-  items: ToolbarSelectItemProps[];
-  isDisabled?: boolean;
-};
+import { ToolbarSelectProps } from "../../editor/ComponentsContext";
+import { ToolbarSelectItem } from "./ToolbarSelectItem";
 
 // TODO: turn into select
 export function ToolbarSelect(props: ToolbarSelectProps) {
