@@ -4,6 +4,10 @@ import {
   createContext,
   useContext,
 } from "react";
+import { SuggestionMenuEmptyItem } from "../components/SuggestionMenu/mantine/SuggestionMenuEmptyItem";
+import { SuggestionMenuItem } from "../components/SuggestionMenu/mantine/SuggestionMenuItem";
+import { SuggestionMenuLabel } from "../components/SuggestionMenu/mantine/SuggestionMenuLabel";
+import { SuggestionMenuLoader } from "../components/SuggestionMenu/mantine/SuggestionMenuLoader";
 
 export type MenuProps = {
   children: React.ReactNode;
@@ -61,12 +65,12 @@ export type ComponentsContextValue = {
   Popover: any;
   PopoverTrigger: any;
   PopoverContent: any;
-  SuggestionMenuLabel: ComponentType<{
+  SuggestionMenuLabel?: ComponentType<{
     children: React.ReactNode;
   }>;
-  SuggestionMenuLoader: React.ElementType;
-  SuggestionMenuItem: ComponentType<SuggestionMenuItemProps>;
-  SuggestionMenuEmptyItem: ComponentType<{
+  SuggestionMenuLoader?: React.ElementType;
+  SuggestionMenuItem?: ComponentType<SuggestionMenuItemProps>;
+  SuggestionMenuEmptyItem?: ComponentType<{
     children: React.ReactNode;
   }>;
   TextInput: ComponentType<TextInputProps>;
@@ -76,8 +80,19 @@ export const ComponentsContext = createContext<
   ComponentsContextValue | undefined
 >(undefined);
 
-export function useComponentsContext(): ComponentsContextValue | undefined {
-  const context = useContext(ComponentsContext) as any;
+export function useComponentsContext():
+  | Required<ComponentsContextValue>
+  | undefined {
+  const context = useContext(ComponentsContext)!;
 
-  return context;
+  return {
+    // defaults
+    SuggestionMenuEmptyItem,
+    SuggestionMenuLabel,
+    SuggestionMenuItem,
+    SuggestionMenuLoader,
+
+    // provided
+    ...context,
+  };
 }

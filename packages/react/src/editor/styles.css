@@ -97,12 +97,6 @@
 
 /* Mantine base styles*/
 
-/* Mantine Badge component base styles */
-.bn-container .mantine-Badge-root {
-  background-color: var(--bn-colors-tooltip-background);
-  color: var(--bn-colors-tooltip-text);
-}
-
 /* Mantine FileInput component base styles */
 .bn-container .mantine-FileInput-input {
   align-items: center;
@@ -634,4 +628,40 @@ https://github.com/mantinedev/mantine/blob/e3e3bb834de1f2f75a27dbc757dc0a2fc6a6c
   &:where([data-position="right"]) {
     margin-inline-start: var(--mantine-spacing-xs);
   }
+}
+
+/* copied from mantine badge */
+
+.bn-badge-root {
+  --badge-height: calc(1rem * var(--mantine-scale));
+  --badge-fz: calc(0.5625rem * var(--mantine-scale));
+  --badge-padding-x: calc(0.375rem * var(--mantine-scale));
+  --badge-radius: calc(62.5rem * var(--mantine-scale));
+  --badge-bg: var(--bn-colors-tooltip-background);
+  --badge-color: var(--bn-colors-tooltip-text);
+  align-items: center;
+  background: var(--badge-bg);
+  border: var(--badge-bd);
+  border-radius: var(--badge-radius);
+  color: var(--badge-color);
+  cursor: inherit;
+  display: inline-flex;
+  font-size: var(--badge-fz);
+  font-weight: 700;
+  height: var(--badge-height);
+  justify-content: center;
+  letter-spacing: calc(0.01563rem * var(--mantine-scale));
+  line-height: var(--badge-lh);
+  overflow: hidden;
+  padding: 0 var(--badge-padding-x);
+  text-decoration: none;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  width: fit-content;
+}
+
+.bn-badge-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

@@ -17,9 +17,9 @@ import React, {
   useState,
 } from "react";
 import usePrefersColorScheme from "use-prefers-color-scheme";
+import { ariakitComponents } from "../ariakit/components";
 import { useEditorChange } from "../hooks/useEditorChange";
 import { useEditorSelectionChange } from "../hooks/useEditorSelectionChange";
-import { mantineComponents } from "../mantine/mantineComponents";
 import { mergeRefs } from "../util/mergeRefs";
 import { BlockNoteContext, useBlockNoteContext } from "./BlockNoteContext";
 import {
@@ -199,7 +199,7 @@ function BlockNoteViewComponent<
     // as proposed here:  https://github.com/orgs/mantinedev/discussions/5685
     <MantineProvider theme={mantineTheme} cssVariablesSelector=".bn-container">
       <BlockNoteContext.Provider value={context as any}>
-        <ComponentsContext.Provider value={mantineComponents}>
+        <ComponentsContext.Provider value={ariakitComponents}>
           <EditorContent editor={editor}>
             <div
               className={mergeCSSClasses("bn-container", className || "")}

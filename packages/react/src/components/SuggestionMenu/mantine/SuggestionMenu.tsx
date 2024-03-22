@@ -13,7 +13,7 @@ export function SuggestionMenu<T extends DefaultReactSuggestionItem>(
 
   const loader =
     loadingState === "loading-initial" || loadingState === "loading" ? (
-      <components.SuggestionMenuLoader />
+      <components.SuggestionMenuLoader /> // TODO: test loader
     ) : null;
 
   const renderedItems = useMemo<JSX.Element[]>(() => {
