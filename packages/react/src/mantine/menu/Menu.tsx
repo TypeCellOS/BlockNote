@@ -136,10 +136,11 @@ export const MenuDropdown = React.forwardRef(
     );
   }
 );
-export const MenuDivider = React.forwardRef(({}, ref) => {
-  return <mantine.MenuDivider ref={ref} />;
+
+export const MenuDivider = React.forwardRef((props, ref) => {
+  return <mantine.MenuDivider {...props} ref={ref} />;
 });
 
-export const MenuLabel = React.forwardRef(({}, ref) => {
-  return <mantine.MenuLabel ref={ref} />;
+export const MenuLabel = React.forwardRef((props, ref) => {
+  return <mantine.MenuLabel {...props} ref={ref} />;
 });
