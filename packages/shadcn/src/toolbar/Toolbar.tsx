@@ -8,6 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../components/ui/select";
+import { Toggle } from "../components/ui/toggle";
 import {
   Tooltip,
   TooltipContent,
@@ -38,23 +39,40 @@ export const ToolbarButton = React.forwardRef(
       children,
       mainTooltip,
       secondaryTooltip,
+      isSelected,
+      onClick,
       ...rest
     } = props;
 
-    // TODO: rest.isSelected?
+    const trigger =
+      props.isSelected === undefined ? (
+        <Button
+          variant="ghost"
+          size="icon"
+          disabled={isDisabled}
+          onClick={onClick}
+          ref={ref}
+          {...rest}>
+          {icon}
+          {children}
+        </Button>
+      ) : (
+        <Toggle
+          onPressedChange={onClick}
+          pressed={isSelected}
+          disabled={isDisabled}
+          ref={ref}
+          data-state={isSelected ? "on" : "off"}
+          data-disabled={isDisabled}
+          {...rest}>
+          {props.icon}
+          {props.children}
+        </Toggle>
+      );
+
     return (
       <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            disabled={isDisabled}
-            ref={ref}
-            {...rest}>
-            {icon}
-            {children}
-          </Button>
-        </TooltipTrigger>
+        <TooltipTrigger asChild>{trigger}</TooltipTrigger>
         <TooltipContent>{mainTooltip}</TooltipContent>
         {/* TODO: secondary tooltip */}
       </Tooltip>
@@ -63,16 +81,29 @@ export const ToolbarButton = React.forwardRef(
 );
 
 export const ToolbarSelect = (props: ToolbarSelectProps) => {
-  // TODO
+  const selectedItem = props.items.filter((p) => p.isSelected)[0];
+
+  if (!selectedItem) {
+    return null;
+  }
+
   return (
     <Select>
       <SelectTrigger className="w-[180px]">
-        <SelectValue placeholder="Theme" />
+        <SelectValue placeholder={selectedItem.text} />
       </SelectTrigger>
-      <SelectContent className={cn("bn-ui-container", props.className)}>
-        <SelectItem value="light">Light</SelectItem>
-        <SelectItem value="dark">Dark</SelectItem>
-        <SelectItem value="system">System</SelectItem>
+      <SelectContent className={cn("bn-ui-container")}>
+        {props.items.map((item) => (
+          // TODO: item.icon
+          <SelectItem
+            disabled={item.isDisabled}
+            key={item.text}
+            value={item.text}
+            onClick={() => item.onClick?.()}>
+            {item.text}
+            {item.icon}
+          </SelectItem>
+        ))}
       </SelectContent>
     </Select>
   );

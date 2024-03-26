@@ -66,6 +66,9 @@
   }
 }
 
+[data-radix-popper-content-wrapper] {
+  z-index: 99999 !important;
+}
 /* @layer base {
   * {
     @apply border-border;

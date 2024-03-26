@@ -4,6 +4,7 @@ import {
   MenuProps,
   MenuTriggerProps,
 } from "@blocknote/react";
+import { ChevronRight } from "lucide-react";
 import React from "react";
 import {
   DropdownMenu,
@@ -76,7 +77,12 @@ export const MenuItem = React.forwardRef((props: MenuItemProps, ref) => {
     );
   }
 
-  return <DropdownMenuItem {...rest} ref={ref} />;
+  return (
+    <DropdownMenuItem {...rest} ref={ref}>
+      {props.children}
+      {props.expandArrow && <ChevronRight className="ml-auto h-4 w-4" />}
+    </DropdownMenuItem>
+  );
 });
 
 export const MenuDivider = DropdownMenuSeparator;

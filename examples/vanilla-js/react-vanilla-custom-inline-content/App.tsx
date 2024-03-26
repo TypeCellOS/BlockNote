@@ -19,7 +19,6 @@ const mention = createInlineContentSpec(
   },
   {
     render: (inlineContent) => {
-      console.log("render", inlineContent);
       const mention = document.createElement("span");
       mention.textContent = `@${inlineContent.props.user}`;
 
