@@ -7,7 +7,7 @@ import {
   MenuDropdown,
   MenuItem,
   MenuLabel,
-  MenuTarget,
+  MenuTrigger,
 } from "./menu/Menu";
 import { Popover } from "./popover/Popover";
 import { Toolbar } from "./toolbar/Toolbar";
@@ -19,7 +19,7 @@ export const mantineComponents: ComponentsContextValue = {
   ToolbarButton,
   ToolbarSelect,
   Menu,
-  MenuTrigger: MenuTarget,
+  MenuTrigger,
   MenuDropdown,
   MenuDivider,
   MenuLabel,

@@ -4,62 +4,27 @@ import {
   ComponentsContextValue,
 } from "@blocknote/react";
 import { ComponentProps } from "react";
-import { Button } from "./components/ui/button";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "./components/ui/select";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "./components/ui/tooltip";
+  Menu,
+  MenuDivider,
+  MenuDropdown,
+  MenuItem,
+  MenuLabel,
+  MenuTrigger,
+} from "./menu/Menu";
 import "./style.css";
+import { Toolbar, ToolbarButton, ToolbarSelect } from "./toolbar/Toolbar";
 
 export const components: ComponentsContextValue = {
-  Toolbar: (props) => (
-    <TooltipProvider delayDuration={0}>
-      <div className="flex items-center gap-2" {...props} />
-    </TooltipProvider>
-  ),
-  ToolbarButton: (props) => (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Button
-          onClick={props.onClick}
-          variant="ghost"
-          size="icon"
-          disabled={props.isDisabled}>
-          {props.icon}
-          {props.children}
-        </Button>
-      </TooltipTrigger>
-      <TooltipContent>{props.mainTooltip}</TooltipContent>
-      {/* TODO: secondary tooltip */}
-    </Tooltip>
-  ),
-  ToolbarSelect: (props) => (
-    <Select>
-      <SelectTrigger className="w-[180px]">
-        <SelectValue placeholder="Theme" />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectItem value="light">Light</SelectItem>
-        <SelectItem value="dark">Dark</SelectItem>
-        <SelectItem value="system">System</SelectItem>
-      </SelectContent>
-    </Select>
-  ),
-  Menu: () => null,
-  MenuTrigger: () => null,
-  MenuDropdown: () => null,
-  MenuDivider: () => null,
-  MenuLabel: () => null,
-  MenuItem: () => null,
+  Toolbar,
+  ToolbarButton,
+  ToolbarSelect,
+  Menu,
+  MenuTrigger,
+  MenuDropdown,
+  MenuLabel,
+  MenuDivider,
+  MenuItem,
   Popover: () => null,
   PopoverContent: () => null,
   PopoverTrigger: () => null,
@@ -80,3 +45,17 @@ export const BlockNoteView = (
     </ComponentsContext.Provider>
   );
 };
+
+/*
+
+TODO:
+- allow passing in shadcn components
+- fix other libs
+- select items
+- menu colors
+- caret
+- suggestion menu?
+- forms
+- toggle buttons
+- zindex
+*/

@@ -1,6 +1,6 @@
 import {
+  ComponentProps,
   ComponentType,
-  HTMLAttributes,
   createContext,
   useContext,
 } from "react";
@@ -15,6 +15,7 @@ export type MenuProps = {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   position?: "top" | "right" | "bottom" | "left";
+  sub?: boolean;
 };
 
 export type TextInputProps = {
@@ -33,7 +34,18 @@ export type MenuItemProps = {
   icon?: React.ReactNode;
   checked?: boolean;
   expandArrow?: boolean;
-} & HTMLAttributes<HTMLDivElement>;
+  subTrigger?: boolean;
+} & ComponentProps<"div">;
+
+export type MenuDropdownProps = {
+  sub?: boolean;
+  position?: "top" | "right" | "bottom" | "left";
+} & ComponentProps<"div">;
+
+export type MenuTriggerProps = {
+  children: React.ReactNode;
+  sub?: boolean;
+};
 
 export type SuggestionMenuItemProps = {
   title: string;
@@ -73,15 +85,15 @@ export type ComponentsContextValue = {
   Form: ComponentType<{
     children: React.ReactNode;
   }>;
-  Toolbar: React.ElementType;
+  Toolbar: ComponentType<{
+    children: React.ReactNode;
+  }>;
   ToolbarSelect: ComponentType<ToolbarSelectProps>;
 
   ToolbarButton: ComponentType<ToolbarButtonProps>;
   Menu: ComponentType<MenuProps>;
-  MenuTrigger: ComponentType<{
-    children: React.ReactNode;
-  }>;
-  MenuDropdown: ComponentType<HTMLAttributes<HTMLDivElement>>;
+  MenuTrigger: ComponentType<MenuTriggerProps>;
+  MenuDropdown: ComponentType<MenuDropdownProps>;
   MenuDivider: ComponentType<Record<string, never>>;
   MenuLabel: ComponentType<{
     children: React.ReactNode;

@@ -8,7 +8,7 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { ReactNode, useCallback, useRef, useState } from "react";
+import { ReactNode } from "react";
 
 import { useComponentsContext } from "../../../../editor/ComponentsContext";
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor";
@@ -27,27 +27,6 @@ export const BlockColorsItem = <
   const components = useComponentsContext()!;
   const editor = useBlockNoteEditor<BSchema, I, S>();
 
-  const [opened, setOpened] = useState(false);
-
-  const menuCloseTimer = useRef<ReturnType<typeof setTimeout> | undefined>();
-
-  const startMenuCloseTimer = useCallback(() => {
-    if (menuCloseTimer.current) {
-      clearTimeout(menuCloseTimer.current);
-    }
-    menuCloseTimer.current = setTimeout(() => {
-      setOpened(false);
-    }, 250);
-  }, []);
-
-  const stopMenuCloseTimer = useCallback(() => {
-    if (menuCloseTimer.current) {
-      clearTimeout(menuCloseTimer.current);
-    }
-
-    setOpened(true);
-  }, []);
-
   if (
     !checkBlockTypeHasDefaultProp("textColor", props.block.type, editor) &&
     !checkBlockTypeHasDefaultProp("backgroundColor", props.block.type, editor)
@@ -56,20 +35,14 @@ export const BlockColorsItem = <
   }
 
   return (
-    <components.Menu open={opened} position={"right"}>
-      <components.MenuTrigger>
-        <components.MenuItem
-          onMouseLeave={startMenuCloseTimer}
-          onMouseOver={stopMenuCloseTimer}
-          expandArrow={true}>
+    <components.Menu sub={true} position={"right"}>
+      <components.MenuTrigger sub={true}>
+        <components.MenuItem subTrigger={true} expandArrow={true}>
           {props.children}
         </components.MenuItem>
       </components.MenuTrigger>
 
-      <components.MenuDropdown
-        onMouseLeave={startMenuCloseTimer}
-        onMouseOver={stopMenuCloseTimer}
-        style={{ marginLeft: "5px" }}>
+      <components.MenuDropdown sub={true} position={"right"}>
         <ColorPicker
           iconSize={18}
           text={

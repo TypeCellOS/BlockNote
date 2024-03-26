@@ -1,3 +1,5 @@
+const { blackA, mauve, violet } = require("@radix-ui/colors");
+
 /** @type {import('tailwindcss').Config} */
 const dir = __dirname;
 module.exports = {
@@ -20,6 +22,7 @@ module.exports = {
     },
     extend: {
       colors: {
+        ...blackA,
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

@@ -1,11 +1,76 @@
 import * as mantine from "@mantine/core";
-import { HTMLAttributes } from "react";
+import React, { useCallback, useContext, useRef, useState } from "react";
 import { HiChevronRight } from "react-icons/hi";
-import { MenuItemProps, MenuProps } from "../../editor/ComponentsContext";
-export { MenuLabel, MenuTarget } from "@mantine/core";
+import {
+  MenuDropdownProps,
+  MenuItemProps,
+  MenuProps,
+  MenuTriggerProps,
+} from "../../editor/ComponentsContext";
+
+const SubMenuContext = React.createContext<
+  | {
+      onTriggerMouseOver: () => void;
+      onTriggerMouseLeave: () => void;
+      onMenuMouseOver: () => void;
+      onMenuMouseLeave: () => void;
+    }
+  | undefined
+>(undefined);
+
+const SubMenu = (props: MenuProps) => {
+  const { sub, onOpenChange, open, defaultOpen, ...rest } = props;
+
+  const [opened, setOpened] = useState(false);
+
+  const menuCloseTimer = useRef<ReturnType<typeof setTimeout> | undefined>();
+
+  const mouseLeave = useCallback(() => {
+    if (menuCloseTimer.current) {
+      clearTimeout(menuCloseTimer.current);
+    }
+    menuCloseTimer.current = setTimeout(() => {
+      setOpened(false);
+    }, 250);
+  }, []);
+
+  const mouseOver = useCallback(() => {
+    if (menuCloseTimer.current) {
+      clearTimeout(menuCloseTimer.current);
+    }
+
+    setOpened(true);
+  }, []);
+
+  return (
+    <SubMenuContext.Provider
+      value={{
+        onTriggerMouseOver: mouseOver,
+        onTriggerMouseLeave: mouseLeave,
+        onMenuMouseOver: mouseOver,
+        onMenuMouseLeave: mouseLeave,
+      }}>
+      <mantine.Menu
+        opened={opened}
+        withinPortal={false}
+        middlewares={{ flip: true, shift: true, inline: false, size: true }}
+        onClose={() => onOpenChange?.(false)}
+        onOpen={() => onOpenChange?.(true)}
+        defaultOpened={defaultOpen}
+        closeOnItemClick={false}
+        {...rest}
+        position="right"
+      />
+    </SubMenuContext.Provider>
+  );
+};
 
 export const Menu = (props: MenuProps) => {
-  const { onOpenChange, open, defaultOpen, ...rest } = props;
+  const { sub, onOpenChange, open, defaultOpen, ...rest } = props;
+
+  if (sub) {
+    return <SubMenu {...props} />;
+  }
 
   return (
     <mantine.Menu
@@ -13,7 +78,6 @@ export const Menu = (props: MenuProps) => {
       middlewares={{ flip: true, shift: true, inline: false, size: true }}
       onClose={() => onOpenChange?.(false)}
       onOpen={() => onOpenChange?.(true)}
-      opened={open}
       defaultOpened={defaultOpen}
       closeOnItemClick={false}
       {...rest}
@@ -22,8 +86,12 @@ export const Menu = (props: MenuProps) => {
   );
 };
 
-export const MenuItem = (props: MenuItemProps) => {
-  const { icon, checked, expandArrow, ...rest } = props;
+export const MenuItem = React.forwardRef((props: MenuItemProps, ref) => {
+  const { icon, checked, expandArrow, subTrigger, ...rest } = props;
+  const ctx = useContext(SubMenuContext);
+
+  const onMouseLeave = subTrigger ? ctx!.onTriggerMouseLeave : undefined;
+  const onMouseOver = subTrigger ? ctx!.onTriggerMouseOver : undefined;
 
   return (
     <mantine.MenuItem
@@ -39,14 +107,39 @@ export const MenuItem = (props: MenuItemProps) => {
           {expandArrow && <HiChevronRight size={15} />}
         </>
       }
+      onMouseOver={onMouseOver}
+      onMouseLeave={onMouseLeave}
       {...rest}
+      ref={ref}
     />
   );
-};
+});
 
-export const MenuDropdown = (props: HTMLAttributes<HTMLDivElement>) => {
-  return <mantine.MenuDropdown {...props} />;
-};
-export const MenuDivider = () => {
-  return <mantine.MenuDivider />;
-};
+export const MenuTrigger = React.forwardRef((props: MenuTriggerProps, ref) => {
+  const { sub, ...rest } = props;
+  return <mantine.MenuTarget {...rest} ref={ref} />;
+});
+
+export const MenuDropdown = React.forwardRef(
+  (props: MenuDropdownProps, ref) => {
+    const { sub, ...rest } = props;
+    const ctx = useContext(SubMenuContext);
+
+    return (
+      <mantine.MenuDropdown
+        onMouseOver={ctx?.onMenuMouseOver}
+        onMouseLeave={ctx?.onMenuMouseLeave}
+        style={sub ? { marginLeft: "5px" } : {}} // TODO: Needed?
+        {...rest}
+        ref={ref}
+      />
+    );
+  }
+);
+export const MenuDivider = React.forwardRef(({}, ref) => {
+  return <mantine.MenuDivider ref={ref} />;
+});
+
+export const MenuLabel = React.forwardRef(({}, ref) => {
+  return <mantine.MenuLabel ref={ref} />;
+});
