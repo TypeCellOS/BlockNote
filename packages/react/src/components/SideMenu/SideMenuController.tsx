@@ -11,8 +11,8 @@ import { FC } from "react";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor";
 import { useUIElementPositioning } from "../../hooks/useUIElementPositioning";
 import { useUIPluginState } from "../../hooks/useUIPluginState";
+import { SideMenu } from "./SideMenu";
 import { SideMenuProps } from "./SideMenuProps";
-import { SideMenu } from "./mantine/SideMenu";
 
 export const SideMenuController = <
   BSchema extends BlockSchema = DefaultBlockSchema,

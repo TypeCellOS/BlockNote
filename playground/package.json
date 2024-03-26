@@ -12,6 +12,7 @@
   "dependencies": {
     "@blocknote/core": "^0.12.1",
     "@blocknote/react": "^0.12.2",
+    "@blocknote/shadcn": "^0.12.1",
     "@liveblocks/client": "^1.10.0",
     "@liveblocks/yjs": "^1.10.0",
     "@mantine/core": "^7.5.0",

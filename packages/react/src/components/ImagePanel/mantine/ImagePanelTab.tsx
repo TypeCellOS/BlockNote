@@ -1,5 +1,5 @@
-import { ComponentPropsWithoutRef, forwardRef } from "react";
 import { mergeCSSClasses } from "@blocknote/core";
+import { ComponentPropsWithoutRef, forwardRef } from "react";
 
 export const ImagePanelTab = forwardRef<
   HTMLDivElement,

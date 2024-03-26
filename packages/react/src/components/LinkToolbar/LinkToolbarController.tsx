@@ -12,8 +12,8 @@ import { FC } from "react";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor";
 import { useUIElementPositioning } from "../../hooks/useUIElementPositioning";
 import { useUIPluginState } from "../../hooks/useUIPluginState";
+import { LinkToolbar } from "./LinkToolbar";
 import { LinkToolbarProps } from "./LinkToolbarProps";
-import { LinkToolbar } from "./mantine/LinkToolbar";
 
 export const LinkToolbarController = <
   BSchema extends BlockSchema = DefaultBlockSchema,

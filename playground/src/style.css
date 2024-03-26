@@ -5,7 +5,8 @@ body {
 }
 
 .bn-container {
-  margin: 8px calc((100% - 731px) / 2) 0;
+  padding-top: 8px;
+  margin: 0 calc((100% - 731px) / 2) 0;
 }
 
 .mantine-AppShell-navbar {

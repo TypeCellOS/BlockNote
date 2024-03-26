@@ -9,9 +9,9 @@ import { FC, useState } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor";
 import { useUIPluginState } from "../../hooks/useUIPluginState";
+import { TableHandle } from "./TableHandle";
 import { TableHandleProps } from "./TableHandleProps";
 import { useTableHandlesPositioning } from "./hooks/useTableHandlesPositioning";
-import { TableHandle } from "./mantine/TableHandle";
 
 export const TableHandlesController = <
   I extends InlineContentSchema = DefaultInlineContentSchema,

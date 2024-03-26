@@ -10,8 +10,8 @@ import { ReactNode, useState } from "react";
 
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
 import { ImagePanelProps } from "../ImagePanelProps";
-import { UploadTab } from "./DefaultTabs/UploadTab";
 import { EmbedTab } from "./DefaultTabs/EmbedTab";
+import { UploadTab } from "./DefaultTabs/UploadTab";
 
 /**
  * By default, the ImageToolbar component will render with default tabs.

@@ -1,10 +1,10 @@
 import { filterSuggestionItems } from "@blocknote/core";
 import { FormattingToolbarController } from "../components/FormattingToolbar/FormattingToolbarController";
-import { LinkToolbarController } from "../components/LinkToolbar/LinkToolbarController";
 import { ImagePanelController } from "../components/ImagePanel/ImagePanelController";
+import { LinkToolbarController } from "../components/LinkToolbar/LinkToolbarController";
 import { SideMenuController } from "../components/SideMenu/SideMenuController";
-import { getDefaultReactSlashMenuItems } from "../components/SuggestionMenu/getDefaultReactSlashMenuItems";
 import { SuggestionMenuController } from "../components/SuggestionMenu/SuggestionMenuController";
+import { getDefaultReactSlashMenuItems } from "../components/SuggestionMenu/getDefaultReactSlashMenuItems";
 import { TableHandlesController } from "../components/TableHandles/TableHandlesController";
 import { useBlockNoteEditor } from "../hooks/useBlockNoteEditor";
 

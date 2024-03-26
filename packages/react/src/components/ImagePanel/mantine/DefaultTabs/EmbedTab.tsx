@@ -1,4 +1,3 @@
-import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor";
 import {
   DefaultBlockSchema,
   DefaultInlineContentSchema,
@@ -7,11 +6,12 @@ import {
   StyleSchema,
 } from "@blocknote/core";
 import { ChangeEvent, KeyboardEvent, useCallback, useState } from "react";
+import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor";
 
 import { ImagePanelProps } from "../../ImagePanelProps";
+import { ImagePanelButton } from "../ImagePanelButton";
 import { ImagePanelTab } from "../ImagePanelTab";
 import { ImagePanelTextInput } from "../ImagePanelTextInput";
-import { ImagePanelButton } from "../ImagePanelButton";
 
 export const EmbedTab = <
   I extends InlineContentSchema = DefaultInlineContentSchema,

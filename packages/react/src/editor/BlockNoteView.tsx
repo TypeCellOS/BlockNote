@@ -8,6 +8,7 @@ import {
 import { MantineProvider } from "@mantine/core";
 
 import React, {
+  ComponentProps,
   HTMLAttributes,
   ReactNode,
   Ref,
@@ -19,6 +20,7 @@ import React, {
 import usePrefersColorScheme from "use-prefers-color-scheme";
 import { useEditorChange } from "../hooks/useEditorChange";
 import { useEditorSelectionChange } from "../hooks/useEditorSelectionChange";
+import { mantineComponents } from "../mantine/mantineComponents";
 import { mergeRefs } from "../util/mergeRefs";
 import { BlockNoteContext, useBlockNoteContext } from "./BlockNoteContext";
 import {
@@ -30,6 +32,7 @@ import {
   applyBlockNoteCSSVariablesFromTheme,
   removeBlockNoteCSSVariables,
 } from "./BlockNoteTheme";
+import { ComponentsContext } from "./ComponentsContext";
 import { EditorContent } from "./EditorContent";
 import "./styles.css";
 
@@ -211,6 +214,28 @@ function BlockNoteViewComponent<
   );
 }
 
-export const BlockNoteView = React.forwardRef(
+export const BlockNoteViewRaw = React.forwardRef(
   BlockNoteViewComponent
 ) as typeof BlockNoteViewComponent; // need hack to get types working with generics
+
+export const BlockNoteViewMantine = (
+  props: ComponentProps<typeof BlockNoteViewRaw>
+) => {
+  return (
+    <ComponentsContext.Provider value={mantineComponents}>
+      <BlockNoteViewRaw {...props} />
+    </ComponentsContext.Provider>
+  );
+};
+
+export const BlockNoteViewAriakit = (
+  props: ComponentProps<typeof BlockNoteViewRaw>
+) => {
+  return (
+    <ComponentsContext.Provider value={mantineComponents}>
+      <BlockNoteViewRaw {...props} />
+    </ComponentsContext.Provider>
+  );
+};
+
+export const BlockNoteView = BlockNoteViewMantine;

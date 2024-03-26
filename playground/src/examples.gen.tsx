@@ -140,6 +140,24 @@
         }
       },
       {
+        "projectSlug": "shadcn",
+        "fullSlug": "basic/shadcn",
+        "pathFromRoot": "examples/01-basic/08-shadcn",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "matthewlipski",
+          "tags": [
+            "Basic"
+          ]
+        },
+        "title": "Basic Setup TODO",
+        "group": {
+          "pathFromRoot": "examples/01-basic",
+          "slug": "basic"
+        }
+      },
+      {
         "projectSlug": "testing",
         "fullSlug": "basic/testing",
         "pathFromRoot": "examples/01-basic/testing",
