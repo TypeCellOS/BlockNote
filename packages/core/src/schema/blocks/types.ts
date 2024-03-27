@@ -27,6 +27,7 @@ export type BlockConfig = {
   type: string;
   readonly propSchema: PropSchema;
   content: "inline" | "none" | "table";
+  trailingBlock: boolean;
 };
 
 // Block implementation contains the "implementation" info about a Block
