@@ -10,7 +10,7 @@ import { Plugin, PluginKey } from "prosemirror-state";
  */
 
 export interface TrailingNodeOptions {
-  node: string;
+  trailingBlock?: boolean;
 }
 
 /**
@@ -31,17 +31,23 @@ export const TrailingNode = Extension.create<TrailingNodeOptions>({
         appendTransaction: (_, __, state) => {
           const { doc, tr, schema } = state;
           const shouldInsertNodeAtEnd = plugin.getState(state);
-          const endPosition = doc.content.size - 2;
-          const type = schema.nodes["blockContainer"];
-          const contentType = schema.nodes["paragraph"];
+
           if (!shouldInsertNodeAtEnd) {
             return;
           }
 
-          return tr.insert(
-            endPosition,
-            type.create(undefined, contentType.create())
-          );
+          if (this.options.trailingBlock) {
+            const endPosition = doc.content.size - 2;
+            const type = schema.nodes["blockContainer"];
+            const contentType = schema.nodes["paragraph"];
+
+            return tr.insert(
+              endPosition,
+              type.create(undefined, contentType.create())
+            );
+          } else {
+            return;
+          }
         },
         state: {
           init: (_, _state) => {
