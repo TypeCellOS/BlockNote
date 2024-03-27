@@ -1,5 +1,6 @@
 import {
   ComponentProps,
+  ComponentPropsWithoutRef,
   ComponentType,
   createContext,
   useContext,
@@ -47,6 +48,37 @@ export type MenuTriggerProps = {
   sub?: boolean;
 };
 
+export type PanelProps = {
+  defaultOpenTab: string;
+  openTab: string;
+  setOpenTab: (name: string) => void;
+  tabs: {
+    name: string;
+    tabPanel: React.ReactNode;
+  }[];
+  loading: boolean;
+  setLoading: (loading: boolean) => void;
+};
+
+export type PanelButtonProps = Omit<ComponentPropsWithoutRef<"button">, "size">;
+
+export type PanelFileInputProps = Omit<
+  ComponentPropsWithoutRef<"button">,
+  "value" | "defaultValue" | "onChange"
+> & {
+  placeholder?: React.ReactNode;
+  value?: File | null;
+  defaultValue?: File | null;
+  onChange?: (payload: File | null) => void;
+};
+
+export type PanelTabProps = ComponentPropsWithoutRef<"div">;
+
+export type PanelTextInputProps = Omit<
+  ComponentPropsWithoutRef<"input">,
+  "size"
+>;
+
 export type SuggestionMenuItemProps = {
   title: string;
   onClick: () => void;
@@ -82,6 +114,7 @@ export type ToolbarSelectProps = {
 };
 
 export type ComponentsContextValue = {
+  FileInput: any;
   Form: ComponentType<{
     children: React.ReactNode;
   }>;
@@ -99,6 +132,11 @@ export type ComponentsContextValue = {
     children: React.ReactNode;
   }>;
   MenuItem: ComponentType<MenuItemProps>;
+  Panel: ComponentType<PanelProps>;
+  PanelButton: ComponentType<PanelButtonProps>;
+  PanelFileInput: ComponentType<PanelFileInputProps>;
+  PanelTab: ComponentType<PanelTabProps>;
+  PanelTextInput: ComponentType<PanelTextInputProps>;
   Popover: any;
   PopoverTrigger: any;
   PopoverContent: any;
