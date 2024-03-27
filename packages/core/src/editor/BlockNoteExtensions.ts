@@ -131,7 +131,7 @@ export const getBlockNoteExtensions = <
     Dropcursor.configure({ width: 5, color: "#ddeeff" }),
     // This needs to be at the bottom of this list, because Key events (such as enter, when selecting a /command),
     // should be handled before Enter handlers in other components like splitListItem
-    TrailingNode,
+    ...(opts.blockSchema.trailingBlock ? [TrailingNode] : []),
   ];
 
   if (opts.collaboration) {
