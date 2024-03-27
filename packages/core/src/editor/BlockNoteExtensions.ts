@@ -65,6 +65,10 @@ export const getBlockNoteExtensions = <
     // DevTools,
     Gapcursor,
 
+    TrailingNode.configure({
+      trailingBlock: true,
+    }),
+
     // DropCursor,
     Placeholder.configure({
       // TODO: This shorthand is kind of ugly

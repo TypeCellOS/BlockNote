@@ -10,7 +10,7 @@ import { Plugin, PluginKey } from "prosemirror-state";
  */
 
 export interface TrailingNodeOptions {
-  node: string;
+  trailingBlock?: boolean;
 }
 
 /**
@@ -18,6 +18,10 @@ export interface TrailingNodeOptions {
  */
 export const TrailingNode = Extension.create<TrailingNodeOptions>({
   name: "trailingNode",
+
+  defaultOptions: {
+    trailingBlock: true,
+  },
 
   addProseMirrorPlugins() {
     const plugin = new PluginKey(this.name);
@@ -53,30 +57,23 @@ export const TrailingNode = Extension.create<TrailingNodeOptions>({
               return value;
             }
 
-            let lastNode = tr.doc.lastChild;
+            const shouldInsertTrailingNode = this.options.trailingBlock;
+            if (!shouldInsertTrailingNode) {
+              return false;
+            }
+
+            const lastNode = tr.doc.lastChild;
 
             if (!lastNode || lastNode.type.name !== "blockGroup") {
-              throw new Error("Expected blockGroup");
+              return true;
             }
 
-            lastNode = lastNode.lastChild;
-
-            if (!lastNode || lastNode.type.name !== "blockContainer") {
-              throw new Error("Expected blockContainer");
+            const lastContentNode = lastNode.lastChild;
+            if (!lastContentNode || lastContentNode.isTextblock) {
+              return true;
             }
 
-            const lastContentNode = lastNode.firstChild;
-
-            if (!lastContentNode) {
-              throw new Error("Expected blockContent");
-            }
-
-            // If last node is not empty (size > 4) or it doesn't contain
-            // inline content, we need to add a trailing node.
-            return (
-              lastNode.nodeSize > 4 ||
-              lastContentNode.type.spec.content !== "inline*"
-            );
+            return false;
           },
         },
       }),
