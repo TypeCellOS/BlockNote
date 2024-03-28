@@ -62,11 +62,8 @@ export type PanelProps = {
 
 export type PanelButtonProps = Omit<ComponentPropsWithoutRef<"button">, "size">;
 
-export type PanelFileInputProps = Omit<
-  ComponentPropsWithoutRef<"button">,
-  "value" | "defaultValue" | "onChange"
-> & {
-  placeholder?: React.ReactNode;
+export type PanelFileInputProps = {
+  placeholder?: string;
   value?: File | null;
   defaultValue?: File | null;
   onChange?: (payload: File | null) => void;
