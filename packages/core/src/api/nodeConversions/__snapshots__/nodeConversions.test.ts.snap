@@ -268,6 +268,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
               "attrs": {
                 "class": null,
                 "href": "https://www.website.com",
+                "rel": "noopener noreferrer nofollow",
                 "target": "_blank",
               },
               "type": "link",
@@ -285,6 +286,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
               "attrs": {
                 "class": null,
                 "href": "https://www.website2.com",
+                "rel": "noopener noreferrer nofollow",
                 "target": "_blank",
               },
               "type": "link",
@@ -348,6 +350,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
               "attrs": {
                 "class": null,
                 "href": "https://www.website.com",
+                "rel": "noopener noreferrer nofollow",
                 "target": "_blank",
               },
               "type": "link",
@@ -365,6 +368,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
               "attrs": {
                 "class": null,
                 "href": "https://www.website.com",
+                "rel": "noopener noreferrer nofollow",
                 "target": "_blank",
               },
               "type": "link",
@@ -618,6 +622,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
               "attrs": {
                 "class": null,
                 "href": "https://www.website.com",
+                "rel": "noopener noreferrer nofollow",
                 "target": "_blank",
               },
               "type": "link",
@@ -632,6 +637,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
               "attrs": {
                 "class": null,
                 "href": "https://www.website2.com",
+                "rel": "noopener noreferrer nofollow",
                 "target": "_blank",
               },
               "type": "link",
@@ -667,6 +673,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
               "attrs": {
                 "class": null,
                 "href": "https://www.website.com",
+                "rel": "noopener noreferrer nofollow",
                 "target": "_blank",
               },
               "type": "link",
@@ -705,6 +712,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
               "attrs": {
                 "class": null,
                 "href": "https://www.website.com",
+                "rel": "noopener noreferrer nofollow",
                 "target": "_blank",
               },
               "type": "link",
@@ -719,6 +727,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
               "attrs": {
                 "class": null,
                 "href": "https://www.website.com",
+                "rel": "noopener noreferrer nofollow",
                 "target": "_blank",
               },
               "type": "link",

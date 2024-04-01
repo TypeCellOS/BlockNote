@@ -1,0 +1,47 @@
+---
+title: Formatting Toolbar
+description: The Formatting Toolbar appears whenever you highlight text in the editor.
+imageTitle: Formatting Toolbar
+path: /docs/formatting-toolbar
+---
+
+import { Example } from "@/components/example";
+
+# Formatting Toolbar
+
+The Formatting Toolbar appears whenever you highlight text in the editor.
+
+<img
+  style={{ maxWidth: "600px" }}
+  src="/img/screenshots/formatting_toolbar.png"
+  alt="image"
+/>
+
+## Changing the Formatting Toolbar
+
+You can change or replace the Formatting Toolbar with your own React component. In the demo below, 2 buttons are added to the default Formatting Toolbar - one to add a blue text/background, and one to toggle code styles.
+
+<Example name="ui-components/formatting-toolbar-buttons" />
+
+We use the `FormattingToolbar` component to create a custom Formatting Toolbar. By specifying its children, we can replace the default buttons in the toolbar with our own.
+
+This custom Formatting Toolbar is passed to a `FormattingToolbarController`, which controls its position and visibility (above or below the highlighted text).
+
+Setting `formattingToolbar={false}` on `BlockNoteView` tells BlockNote not to show the default Formatting Toolbar.
+
+<div className="nx-mt-6 nx-leading-7 first:nx-mt-0">
+    <small>
+        <strong>Tip:</strong> The children you pass to the `FormattingToolbar` component
+        should be default selects/buttons (e.g. `BlockTypeSelect` & `BasicTextStyleButton`) or custom selects/buttons
+        (`ToolbarSelect` & `ToolbarButton`). To see all the components you can use, head to the
+        [Formatting Toolbar's source code](https://github.com/TypeCellOS/BlockNote/blob/main/packages/react/src/components/FormattingToolbar/mantine/FormattingToolbar.tsx).
+    </small>
+</div>
+
+## Changing Block Type Select (Dropdown) Items
+
+The first element in the default Formatting Toolbar is the Block Type Select, and you can change the items in it. The demo makes the Block Type Select work for image blocks by adding an item to it.
+
+<Example name="ui-components/formatting-toolbar-block-type-items" />
+
+Here, we use the `FormattingToolbar` component but keep the default buttons (we don't pass any children). Instead, we pass our customized Block Type Select items using the `blockTypeSelectItems` prop.

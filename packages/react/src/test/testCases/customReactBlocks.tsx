@@ -1,7 +1,7 @@
+import { createContext, useContext } from "react";
 import {
   BlockNoteEditor,
-  BlockSchemaFromSpecs,
-  BlockSpecs,
+  BlockNoteSchema,
   DefaultInlineContentSchema,
   DefaultStyleSchema,
   EditorTestCases,
@@ -13,7 +13,7 @@ import { createReactBlockSpec } from "../../schema/ReactBlockSpec";
 
 const ReactCustomParagraph = createReactBlockSpec(
   {
-    type: "reactCustomParagraph" as const,
+    type: "reactCustomParagraph",
     propSchema: defaultProps,
     content: "inline",
   },
@@ -29,7 +29,7 @@ const ReactCustomParagraph = createReactBlockSpec(
 
 const SimpleReactCustomParagraph = createReactBlockSpec(
   {
-    type: "simpleReactCustomParagraph" as const,
+    type: "simpleReactCustomParagraph",
     propSchema: defaultProps,
     content: "inline",
   },
@@ -40,21 +40,46 @@ const SimpleReactCustomParagraph = createReactBlockSpec(
   }
 );
 
-const customSpecs = {
-  ...defaultBlockSpecs,
-  reactCustomParagraph: ReactCustomParagraph,
-  simpleReactCustomParagraph: SimpleReactCustomParagraph,
-} satisfies BlockSpecs;
+export const TestContext = createContext<true | undefined>(undefined);
+
+const ReactContextParagraphComponent = (props: any) => {
+  const testData = useContext(TestContext);
+  if (testData === undefined) {
+    throw Error();
+  }
+
+  return <div ref={props.contentRef} />;
+};
+
+const ReactContextParagraph = createReactBlockSpec(
+  {
+    type: "reactContextParagraph",
+    propSchema: defaultProps,
+    content: "inline",
+  },
+  {
+    render: ReactContextParagraphComponent,
+  }
+);
+
+const schema = BlockNoteSchema.create({
+  blockSpecs: {
+    ...defaultBlockSpecs,
+    reactCustomParagraph: ReactCustomParagraph,
+    simpleReactCustomParagraph: SimpleReactCustomParagraph,
+    reactContextParagraph: ReactContextParagraph,
+  },
+});
 
 export const customReactBlockSchemaTestCases: EditorTestCases<
-  BlockSchemaFromSpecs<typeof customSpecs>,
+  typeof schema.blockSchema,
   DefaultInlineContentSchema,
   DefaultStyleSchema
 > = {
   name: "custom react block schema",
   createEditor: () => {
     return BlockNoteEditor.create({
-      blockSpecs: customSpecs,
+      schema,
       uploadFile: uploadToTmpFilesDotOrg_DEV_ONLY,
     });
   },
@@ -196,6 +221,15 @@ export const customReactBlockSchemaTestCases: EditorTestCases<
               content: "Nested React Custom Paragraph 2",
             },
           ],
+        },
+      ],
+    },
+    {
+      name: "reactContextParagraph/basic",
+      blocks: [
+        {
+          type: "reactContextParagraph",
+          content: "React Context Paragraph",
         },
       ],
     },

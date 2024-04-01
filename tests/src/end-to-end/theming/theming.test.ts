@@ -35,7 +35,7 @@ test.describe("Check Dark Theme is Automatically Applied", () => {
       "dark-formatting-toolbar.png"
     );
   });
-  test("Should show dark hyperlink toolbar", async ({ page }) => {
+  test("Should show dark link toolbar", async ({ page }) => {
     await focusOnEditor(page);
     await page.keyboard.type("Paragraph");
     await page.keyboard.press("Shift+Home");
@@ -47,9 +47,7 @@ test.describe("Check Dark Theme is Automatically Applied", () => {
     await page.keyboard.press("Enter");
 
     await page.waitForTimeout(500);
-    expect(await page.screenshot()).toMatchSnapshot(
-      "dark-hyperlink-toolbar.png"
-    );
+    expect(await page.screenshot()).toMatchSnapshot("dark-link-toolbar.png");
   });
   test("Should show dark slash menu", async ({ page }) => {
     await focusOnEditor(page);

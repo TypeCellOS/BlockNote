@@ -1,0 +1,13 @@
+{
+  "side-menu": "Block Side Menu",
+  "formatting-toolbar": "Formatting Toolbar",
+  "link-toolbar": {
+    "title": "Link Toolbar",
+    "display": "hidden"
+  },
+  "image-toolbar": {
+    "title": "Image Toolbar",
+    "display": "hidden"
+  },
+  "suggestion-menus": "Suggestion Menus"
+}

@@ -1,0 +1,110 @@
+section {
+  --text-color: #000000;
+  --bg-color: #ffffff;
+
+  --glow-blue: 185, 100%, 50%;
+  --glow-purple: 261, 100%, 50%;
+}
+
+.dark section {
+  --text-color: #ffffff;
+  --bg-color: #000000;
+}
+
+.demo-glow {
+  --glow-opacity: 0.4;
+  display: block;
+}
+
+.text-glow {
+  --glow-opacity: 0.2;
+  display: none;
+  @media only screen and (hover: none) and (pointer: coarse) {
+    display: block; /* disable on mobile */
+  }
+}
+
+.hero-glow {
+  background: conic-gradient(
+    from 33deg at 50% 50%,
+    hsla(var(--glow-blue), var(--glow-opacity)),
+    hsla(var(--glow-purple), var(--glow-opacity)),
+    hsla(var(--glow-blue), var(--glow-opacity))
+  );
+  filter: blur(120px);
+}
+
+@property --button-glow-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 33deg;
+}
+@keyframes button-glow-rotation {
+  from {
+    --button-glow-angle: 0deg;
+  }
+
+  to {
+    --button-glow-angle: 360deg;
+  }
+}
+@property --button-glow-position {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 0%;
+}
+@keyframes button-glow-translation {
+  from {
+    --button-glow-position: 0%;
+  }
+
+  to {
+    --button-glow-position: 200%;
+  }
+}
+.button-glow {
+  --glow-opacity: 0.6;
+  animation: button-glow-rotation 10s linear infinite;
+  background: conic-gradient(
+    from var(--button-glow-angle) at 50% 50%,
+    hsla(var(--glow-blue), var(--glow-opacity)),
+    hsla(var(--glow-purple), var(--glow-opacity)),
+    hsla(var(--glow-blue), var(--glow-opacity))
+  );
+  /*animation: button-glow-translation 10s linear infinite;*/
+  /*background:*/
+  /*        linear-gradient(*/
+  /*                90deg,*/
+  /*                hsla(var(--glow-purple), var(--glow-opacity)) calc(-200% + var(--button-glow-position)),*/
+  /*                hsla(var(--glow-blue), var(--glow-opacity)) calc(-100% + var(--button-glow-position)),*/
+  /*                hsla(var(--glow-purple), var(--glow-opacity)) calc(0% + var(--button-glow-position)),*/
+  /*                hsla(var(--glow-blue), var(--glow-opacity)) calc(100% + var(--button-glow-position))*/
+  /*        );*/
+  filter: blur(20px);
+  opacity: 0;
+  transition: opacity 0.2s linear;
+}
+.button-glow-parent:hover .button-glow {
+  opacity: 1;
+  transition: opacity 0.2s linear;
+}
+
+.section-glow {
+  --glow-opacity: 0.15;
+  background: linear-gradient(0deg, var(--bg-color) 80%, transparent),
+    linear-gradient(
+      90deg,
+      hsla(var(--glow-purple), var(--glow-opacity)),
+      hsla(var(--glow-blue), var(--glow-opacity))
+    );
+}
+
+.section-border {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, #5900ff60, #00eaff60);
+}
+
+.feature-icon {
+  background: conic-gradient(from 33deg, #00eaff80, #5900ff80, #00eaff80);
+}

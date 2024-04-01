@@ -32,6 +32,7 @@ export const serializeNodeInner = <
   if (!serializer.nodes[node.type.name]) {
     throw new Error("Serializer is missing a node type: " + node.type.name);
   }
+
   const { dom, contentDOM } = DOMSerializer.renderSpec(
     doc(options),
     serializer.nodes[node.type.name](node)
@@ -70,9 +71,9 @@ export const serializeNodeInner = <
         const blockContent = toHTML(
           nodeToBlock(
             node,
-            editor.blockSchema,
-            editor.inlineContentSchema,
-            editor.styleSchema,
+            editor.schema.blockSchema,
+            editor.schema.inlineContentSchema,
+            editor.schema.styleSchema,
             editor.blockCache
           ),
           editor as any

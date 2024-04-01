@@ -13,7 +13,7 @@ export const defaultColorScheme = [
   "#000000",
 ];
 
-export const lightDefaultTheme: Theme = {
+export const lightDefaultTheme = {
   colors: {
     editor: {
       text: defaultColorScheme[5],
@@ -42,7 +42,7 @@ export const lightDefaultTheme: Theme = {
     shadow: defaultColorScheme[2],
     border: defaultColorScheme[1],
     sideMenu: defaultColorScheme[2],
-    highlightColors: {
+    highlights: {
       gray: {
         text: "#9b9a97",
         background: "#ebeced",
@@ -84,9 +84,9 @@ export const lightDefaultTheme: Theme = {
   borderRadius: 6,
   fontFamily:
     '"Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Open Sans", "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif',
-};
+} satisfies Theme;
 
-export const darkDefaultTheme: Theme = {
+export const darkDefaultTheme = {
   colors: {
     editor: {
       text: defaultColorScheme[2],
@@ -115,7 +115,7 @@ export const darkDefaultTheme: Theme = {
     shadow: defaultColorScheme[8],
     border: defaultColorScheme[7],
     sideMenu: defaultColorScheme[4],
-    highlightColors: {
+    highlights: {
       gray: {
         text: "#bebdb8",
         background: "#9b9a97",
@@ -156,4 +156,4 @@ export const darkDefaultTheme: Theme = {
   },
   borderRadius: lightDefaultTheme.borderRadius,
   fontFamily: lightDefaultTheme.fontFamily,
-};
+} satisfies Theme;

@@ -1,0 +1,28 @@
+:focus-visible {
+  box-shadow: unset !important;
+}
+
+.demo .nextra-code-block pre {
+  background-color: transparent !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.demo .nextra-code-block code > span {
+  padding: 0 !important;
+}
+
+.demo .bn-container,
+.demo .bn-editor {
+  height: 100%;
+}
+
+.demo .bn-editor {
+  overflow: auto;
+  padding-block: 1rem;
+}
+
+.demo-contents a {
+  color: revert;
+  text-decoration: revert;
+}

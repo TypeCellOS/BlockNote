@@ -1,0 +1,125 @@
+---
+title: Usage Without React (Vanilla JS)
+description: BlockNote is mainly designed as a quick and easy drop-in block-based editor for React apps, but can also be used in vanilla JavaScript apps.
+imageTitle: Usage Without React (Vanilla JS)
+path: /docs/vanilla-js
+---
+
+import { Callout } from "nextra/components";
+
+# Usage Without React (Vanilla JS)
+
+BlockNote is mainly designed as a quick and easy drop-in block-based editor for React apps, but can also be used in vanilla JavaScript apps. However, this does involve writing your own UI elements.
+
+<Callout type={"warning"}>
+  We recommend using BlockNote with React so you can use the built-in UI
+  components. This document will explain how you can use BlockNote without
+  React, and write your own components, but this is not recommended as you'll
+  lose the great out-of-the-box experience that BlockNote offers.
+</Callout>
+
+## Installing with NPM
+
+To install only the vanilla JS parts of BlockNote with [NPM](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm), run:
+
+```console
+npm install @blocknote/core
+```
+
+## Creating an editor
+
+This is how to create a new BlockNote editor:
+
+```typescript
+import { BlockNoteEditor } from "@blocknote/core";
+
+const editor = BlockNoteEditor.create();
+
+editor.mount(document.getElementById("root")); // element to append the editor to
+```
+
+Now, you'll have a plain BlockNote instance on your page. However, it's missing some menus and other UI elements.
+
+## Creating your own UI elements
+
+Because you can't use the built-in React [UI Components](/docs/quickstart), you'll need to create and register your own UI elements.
+
+While it's up to you to decide how you want the elements to be rendered, BlockNote provides methods for updating the visibility, position, and state of your elements:
+
+```typescript
+type UIElement =
+  | "formattingToolbar"
+  | "linkToolbar"
+  | "imageToolbar"
+  | "sideMenu"
+  | "suggestionMenu"
+  | "tableHandles"
+
+const uiElement: UIElement = ...;
+
+editor[uiElement].onUpdate((uiElementState: ...) => {
+  ...;
+})
+```
+
+Let's look at how you could add the [Side Menu]() to your editor:
+
+```typescript
+import { BlockNoteEditor } from "@blocknote/core";
+
+const editor = BlockNoteEditor.create({
+  element: document.getElementById("root")!,
+});
+
+export function createButton(text: string, onClick?: () => void) {
+  const element = document.createElement("a");
+  element.href = "#";
+  element.text = text;
+  element.style.margin = "10px";
+
+  if (onClick) {
+    element.addEventListener("click", (e) => {
+      onClick();
+      e.preventDefault();
+    });
+  }
+
+  return element;
+}
+
+let element: HTMLElement;
+
+editor.sideMenu.onUpdate((sideMenuState) => {
+  if (!element) {
+    element = document.createElement("div");
+    element.style.background = "gray";
+    element.style.position = "absolute";
+    element.style.padding = "10px";
+    element.style.opacity = "0.8";
+    const addBtn = createButton("+", () => {
+      editor.sideMenu.addBlock();
+    });
+    element.appendChild(addBtn);
+
+    const dragBtn = createButton("::", () => {});
+
+    dragBtn.addEventListener("dragstart", editor.sideMenu.blockDragStart);
+    dragBtn.addEventListener("dragend", editor.sideMenu.blockDragEnd);
+    dragBtn.draggable = true;
+    element.style.display = "none";
+    element.appendChild(dragBtn);
+
+    document.getElementById("root")!.appendChild(element);
+  }
+
+  if (sideMenuState.show) {
+    element.style.display = "block";
+
+    element.style.top = sideMenuState.referencePos.top + "px";
+    element.style.left =
+      sideMenuState.referencePos.x - element.offsetWidth + "px";
+  } else {
+    element.style.display = "none";
+  }
+});
+```

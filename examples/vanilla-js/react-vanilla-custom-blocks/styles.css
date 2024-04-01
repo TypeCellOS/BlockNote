@@ -1,0 +1,17 @@
+.alert, .brackets-paragraph {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-grow: 1;
+    height: 48px;
+    padding: 4px;
+    max-width: 100%;
+}
+
+.simple-image {
+    width: 100%;
+}
+
+.inline-content {
+    flex-grow: 1;
+}

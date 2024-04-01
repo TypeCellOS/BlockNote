@@ -3,20 +3,15 @@ import { EditorState, Plugin, PluginKey } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
-import {
-  BaseUiElementCallbacks,
-  BaseUiElementState,
-} from "../../extensions-shared/BaseUiElementTypes";
+import { UiElementPosition } from "../../extensions-shared/UiElementPosition";
 import { BlockSchema, InlineContentSchema, StyleSchema } from "../../schema";
 import { EventEmitter } from "../../util/EventEmitter";
 
-export type FormattingToolbarCallbacks = BaseUiElementCallbacks;
-
-export type FormattingToolbarState = BaseUiElementState;
+export type FormattingToolbarState = UiElementPosition;
 
 export class FormattingToolbarView {
-  private formattingToolbarState?: FormattingToolbarState;
-  public updateFormattingToolbar: () => void;
+  public state?: FormattingToolbarState;
+  public emitUpdate: () => void;
 
   public preventHide = false;
   public preventShow = false;
@@ -36,23 +31,22 @@ export class FormattingToolbarView {
       StyleSchema
     >,
     private readonly pmView: EditorView,
-    updateFormattingToolbar: (
-      formattingToolbarState: FormattingToolbarState
-    ) => void
+    emitUpdate: (state: FormattingToolbarState) => void
   ) {
-    this.updateFormattingToolbar = () => {
-      if (!this.formattingToolbarState) {
+    this.emitUpdate = () => {
+      if (!this.state) {
         throw new Error(
           "Attempting to update uninitialized formatting toolbar"
         );
       }
 
-      updateFormattingToolbar(this.formattingToolbarState);
+      emitUpdate(this.state);
     };
 
     pmView.dom.addEventListener("mousedown", this.viewMousedownHandler);
     pmView.dom.addEventListener("mouseup", this.viewMouseupHandler);
-    pmView.dom.addEventListener("dragstart", this.dragstartHandler);
+    pmView.dom.addEventListener("dragstart", this.dragHandler);
+    pmView.dom.addEventListener("dragover", this.dragHandler);
 
     pmView.dom.addEventListener("focus", this.focusHandler);
     pmView.dom.addEventListener("blur", this.blurHandler);
@@ -70,10 +64,10 @@ export class FormattingToolbarView {
   };
 
   // For dragging the whole editor.
-  dragstartHandler = () => {
-    if (this.formattingToolbarState?.show) {
-      this.formattingToolbarState.show = false;
-      this.updateFormattingToolbar();
+  dragHandler = () => {
+    if (this.state?.show) {
+      this.state.show = false;
+      this.emitUpdate();
     }
   };
 
@@ -104,16 +98,16 @@ export class FormattingToolbarView {
       return;
     }
 
-    if (this.formattingToolbarState?.show) {
-      this.formattingToolbarState.show = false;
-      this.updateFormattingToolbar();
+    if (this.state?.show) {
+      this.state.show = false;
+      this.emitUpdate();
     }
   };
 
   scrollHandler = () => {
-    if (this.formattingToolbarState?.show) {
-      this.formattingToolbarState.referencePos = this.getSelectionBoundingBox();
-      this.updateFormattingToolbar();
+    if (this.state?.show) {
+      this.state.referencePos = this.getSelectionBoundingBox();
+      this.emitUpdate();
     }
   };
 
@@ -151,24 +145,24 @@ export class FormattingToolbarView {
       !this.preventShow &&
       (shouldShow || this.preventHide)
     ) {
-      this.formattingToolbarState = {
+      this.state = {
         show: true,
         referencePos: this.getSelectionBoundingBox(),
       };
 
-      this.updateFormattingToolbar();
+      this.emitUpdate();
 
       return;
     }
 
     // Checks if menu should be hidden.
     if (
-      this.formattingToolbarState?.show &&
+      this.state?.show &&
       !this.preventHide &&
       (!shouldShow || this.preventShow || !this.editor.isEditable)
     ) {
-      this.formattingToolbarState.show = false;
-      this.updateFormattingToolbar();
+      this.state.show = false;
+      this.emitUpdate();
 
       return;
     }
@@ -177,7 +171,8 @@ export class FormattingToolbarView {
   destroy() {
     this.pmView.dom.removeEventListener("mousedown", this.viewMousedownHandler);
     this.pmView.dom.removeEventListener("mouseup", this.viewMouseupHandler);
-    this.pmView.dom.removeEventListener("dragstart", this.dragstartHandler);
+    this.pmView.dom.removeEventListener("dragstart", this.dragHandler);
+    this.pmView.dom.removeEventListener("dragover", this.dragHandler);
 
     this.pmView.dom.removeEventListener("focus", this.focusHandler);
     this.pmView.dom.removeEventListener("blur", this.blurHandler);

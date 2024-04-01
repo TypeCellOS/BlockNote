@@ -10,4 +10,5 @@ export async function executeSlashCommand(page: Page, command: string) {
   await openSlashMenu(page);
   await page.keyboard.type(command);
   await page.keyboard.press("Enter");
+  await page.waitForTimeout(500);
 }

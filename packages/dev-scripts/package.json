@@ -1,0 +1,33 @@
+{
+  "name": "@blocknote/dev-scripts",
+  "homepage": "https://github.com/TypeCellOS/BlockNote",
+  "private": true,
+  "license": "MPL-2.0",
+  "version": "0.12.1",
+  "description": "",
+  "type": "module",
+  "scripts": {
+    "gen": "npm run gen:examples && npm run gen:docs",
+    "gen:examples": "tsx examples/gen.ts",
+    "gen:docs": "tsx examples/genDocs.ts",
+    "build": "tsc",
+    "lint": "eslint examples --max-warnings 0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.25",
+    "@types/react-dom": "^18.0.9",
+    "eslint": "^8.10.0",
+    "fast-glob": "^3.3.2",
+    "glob": "^10.3.10",
+    "prettier": "^2.7.1",
+    "react": "^18",
+    "react-dom": "^18",
+    "tsx": "^4.6.2",
+    "typescript": "^5.3.3"
+  },
+  "eslintConfig": {
+    "extends": [
+      "../../.eslintrc.js"
+    ]
+  }
+}

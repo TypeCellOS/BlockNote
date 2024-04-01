@@ -23,7 +23,7 @@ import {
   NodeViewWrapper,
   ReactNodeViewRenderer,
 } from "@tiptap/react";
-import { FC } from "react";
+import { FC, ReactNode } from "react";
 import { renderToDOMSpec } from "./@util/ReactRenderUtil";
 
 // this file is mostly analogoues to `customBlocks.ts`, but for React blocks
@@ -52,46 +52,48 @@ export type ReactCustomBlockImplementation<
 // Function that wraps the React component returned from 'blockConfig.render' in
 // a `NodeViewWrapper` which also acts as a `blockContent` div. It contains the
 // block type and props as HTML attributes.
-export function reactWrapInBlockStructure<
+export function BlockContentWrapper<
   BType extends string,
   PSchema extends PropSchema
->(
-  element: JSX.Element,
-  blockType: BType,
-  blockProps: Props<PSchema>,
-  propSchema: PSchema,
-  domAttributes?: Record<string, string>
-) {
-  return () => (
+>(props: {
+  blockType: BType;
+  blockProps: Props<PSchema>;
+  propSchema: PSchema;
+  domAttributes?: Record<string, string>;
+  children: ReactNode;
+}) {
+  return (
     // Creates `blockContent` element
     <NodeViewWrapper
       // Adds custom HTML attributes
       {...Object.fromEntries(
-        Object.entries(domAttributes || {}).filter(([key]) => key !== "class")
+        Object.entries(props.domAttributes || {}).filter(
+          ([key]) => key !== "class"
+        )
       )}
       // Sets blockContent class
       className={mergeCSSClasses(
         "bn-block-content",
-        domAttributes?.class || ""
+        props.domAttributes?.class || ""
       )}
       // Sets content type attribute
-      data-content-type={blockType}
+      data-content-type={props.blockType}
       // Adds props as HTML attributes in kebab-case with "data-" prefix. Skips
       // props which are already added as HTML attributes to the parent
       // `blockContent` element (inheritedProps) and props set to their default
       // values
       {...Object.fromEntries(
-        Object.entries(blockProps)
+        Object.entries(props.blockProps)
           .filter(
             ([prop, value]) =>
               !inheritedProps.includes(prop) &&
-              value !== propSchema[prop].default
+              value !== props.propSchema[prop].default
           )
           .map(([prop, value]) => {
             return [camelToDataKebab(prop), value];
           })
       )}>
-      {element}
+      {props.children}
     </NodeViewWrapper>
   );
 }
@@ -99,9 +101,9 @@ export function reactWrapInBlockStructure<
 // A function to create custom block for API consumers
 // we want to hide the tiptap node from API consumers and provide a simpler API surface instead
 export function createReactBlockSpec<
-  T extends CustomBlockConfig,
-  I extends InlineContentSchema,
-  S extends StyleSchema
+  const T extends CustomBlockConfig,
+  const I extends InlineContentSchema,
+  const S extends StyleSchema
 >(
   blockConfig: T,
   blockImplementation: ReactCustomBlockImplementation<T, I, S>
@@ -153,16 +155,20 @@ export function createReactBlockSpec<
             // hacky, should export `useReactNodeView` from tiptap to get access to ref
             const ref = (NodeViewContent({}) as any).ref;
 
-            const Content = blockImplementation.render;
-            const BlockContent = reactWrapInBlockStructure(
-              <Content block={block} editor={editor as any} contentRef={ref} />,
-              block.type,
-              block.props,
-              blockConfig.propSchema,
-              blockContentDOMAttributes
+            const BlockContent = blockImplementation.render;
+            return (
+              <BlockContentWrapper
+                blockType={block.type}
+                blockProps={block.props}
+                propSchema={blockConfig.propSchema}
+                domAttributes={blockContentDOMAttributes}>
+                <BlockContent
+                  block={block as any}
+                  editor={editor as any}
+                  contentRef={ref}
+                />
+              </BlockContentWrapper>
             );
-
-            return <BlockContent />;
           },
           {
             className: "bn-react-node-view-renderer",
@@ -177,21 +183,23 @@ export function createReactBlockSpec<
       const blockContentDOMAttributes =
         node.options.domAttributes?.blockContent || {};
 
-      const Content = blockImplementation.render;
-      const output = renderToDOMSpec((refCB) => {
-        const BlockContent = reactWrapInBlockStructure(
-          <Content
-            block={block as any}
-            editor={editor as any}
-            contentRef={refCB}
-          />,
-          block.type,
-          block.props,
-          blockConfig.propSchema,
-          blockContentDOMAttributes
-        );
-        return <BlockContent />;
-      });
+      const BlockContent = blockImplementation.render;
+      const output = renderToDOMSpec(
+        (refCB) => (
+          <BlockContentWrapper
+            blockType={block.type}
+            blockProps={block.props}
+            propSchema={blockConfig.propSchema}
+            domAttributes={blockContentDOMAttributes}>
+            <BlockContent
+              block={block as any}
+              editor={editor as any}
+              contentRef={refCB}
+            />
+          </BlockContentWrapper>
+        ),
+        editor
+      );
       output.contentDOM?.setAttribute("data-editable", "");
 
       return output;
@@ -200,22 +208,23 @@ export function createReactBlockSpec<
       const blockContentDOMAttributes =
         node.options.domAttributes?.blockContent || {};
 
-      const Content =
+      const BlockContent =
         blockImplementation.toExternalHTML || blockImplementation.render;
       const output = renderToDOMSpec((refCB) => {
-        const BlockContent = reactWrapInBlockStructure(
-          <Content
-            block={block as any}
-            editor={editor as any}
-            contentRef={refCB}
-          />,
-          block.type,
-          block.props,
-          blockConfig.propSchema,
-          blockContentDOMAttributes
+        return (
+          <BlockContentWrapper
+            blockType={block.type}
+            blockProps={block.props}
+            propSchema={blockConfig.propSchema}
+            domAttributes={blockContentDOMAttributes}>
+            <BlockContent
+              block={block as any}
+              editor={editor as any}
+              contentRef={refCB}
+            />
+          </BlockContentWrapper>
         );
-        return <BlockContent />;
-      });
+      }, editor);
       output.contentDOM?.setAttribute("data-editable", "");
 
       return output;

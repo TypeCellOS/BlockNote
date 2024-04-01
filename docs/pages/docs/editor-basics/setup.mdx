@@ -1,0 +1,134 @@
+---
+description: Learn how to setup your BlockNote editor using the `useCreateBlockNote` hook and the ``BlockNoteView` component.
+---
+
+import { Callout } from "nextra/components";
+
+# Editor Setup
+
+You can customize your editor when you instantiate it. Let's take a closer looks at the basic methods and components to set up your BlockNote editor.
+
+## `useCreateBlockNote` hook
+
+Create a new `BlockNoteEditor` by calling the `useCreateBlockNote` hook. This instantiates a new editor and its required state. You can later interact with the editor using the Editor API and pass it to the `BlockNoteView` component.
+
+```ts
+function useCreateBlockNote(
+  options?: BlockNoteEditorOptions,
+  deps?: React.DependencyList = [],
+): BlockNoteEditor;
+
+type BlockNoteEditorOptions = {
+  initialContent?: PartialBlock[];
+  domAttributes?: Record<string, string>;
+  defaultStyles?: boolean;
+  uploadFile?: (file: File) => Promise<string>;
+  collaboration?: CollaborationOptions;
+  schema?: BlockNoteSchema;
+};
+```
+
+The hook takes two optional parameters:
+
+**options:** An object containing options for the editor:
+
+`initialContent:` The content that should be in the editor when it's created, represented as an array of [partial block objects](/docs/manipulating-blocks#partial-blocks).
+
+`domAttributes:` An object containing HTML attributes that should be added to various DOM elements in the editor. See [Adding DOM Attributes](/docs/theming#adding-dom-attributes) for more.
+
+`defaultStyles`: Whether to use the default font and reset the styles of `<p>`, `<li>`, `<h1>`, etc. elements that are used in BlockNote. Defaults to true if undefined.
+
+`uploadFile`: A function which handles file uploads and eventually returns the URL to the uploaded file. Used for [Image blocks](/docs/editor-basics/default-schema#image).
+
+`collaboration`: Options for enabling real-time collaboration. See [Real-time Collaboration](/docs/advanced/real-time-collaboration) for more info.
+
+`schema` (_advanced_): The editor schema if you want to extend your editor with custom blocks, styles, or inline content [Custom Schemas](/docs/custom-schemas).
+
+**deps:** Dependency array that's internally passed to `useMemo`. A new editor will only be created when this array changes.
+
+<Callout type="info" emoji={"💡"}>
+  <strong>Manually creating the editor (`BlockNoteEditor.create`)</strong>
+  <p>
+    The `useCreateBlockNote` hook is actually a simple `useMemo` wrapper around
+    the `BlockNoteEditor.create` method. You can use this method directly if you
+    want to control the editor lifecycle manually. For example, we do this in
+    the [Saving & Loading example](/examples/basic/saving-loading) to delay the
+    editor creation until some content has been fetched from an external data
+    source.
+  </p>
+</Callout>
+
+## Rendering the Editor with `<BlockNoteView>`
+
+Use the `<BlockNoteView>` component to render the `BlockNoteEditor` instance you just created:
+
+```tsx
+const editor = useCreateBlockNote();
+
+return <BlockNoteView editor={editor} />;
+```
+
+### Props
+
+There are a number of additional props you can pass to `BlockNoteView`. You can find the full list of these below:
+
+```typescript
+export type BlockNoteViewProps = {
+  editor: BlockNoteEditor;
+  editable?: boolean;
+  onSelectionChange?: () => void;
+  onChange?: () => void;
+  theme?:
+    | "light"
+    | "dark"
+    | Theme
+    | {
+        light: Theme;
+        dark: Theme;
+      };
+  formattingToolbar?: boolean;
+  linkToolbar?: boolean;
+  sideMenu?: boolean;
+  slashMenu?: boolean;
+  imageToolbar?: boolean;
+  tableHandles?: boolean;
+  children?:
+} & HTMLAttributes<HTMLDivElement>;
+```
+
+`editor`: The `BlockNoteEditor` instance to render.
+
+`editable`: Whether the editor should be editable.
+
+`onSelectionChange`: Callback fired when the editor selection changes.
+
+`onChange`: Callback fired when the editor content (document) changes.
+
+`theme`: The editor's theme, see [Themes](/docs/styling-theming/themes) for more about this.
+
+`formattingToolbar`: Whether the [Formatting Toolbar](/docs/ui-components/formatting-toolbar) should be enabled.
+
+`linkToolbar`: Whether the Link Toolbar should be enabled.
+
+`sideMenu`: Whether the [Block Side Menu](/docs/ui-components/side-menu) should be enabled.
+
+`slashMenu`: Whether the [Slash Menu](/docs/ui-components/suggestion-menus#slash-menu) should be enabled.
+
+`imageToolbar`: Whether the Image Toolbar should be enabled.
+
+`tableHandles`: Whether the Table Handles should be enabled.
+
+`children`: Pass child elements to the `BlockNoteView` to create or customize toolbars, menus, or other UI components. See [UI Components](/docs/ui-components) for more.
+
+Additional props passed are forwarded to the HTML `div` element BlockNote renders internally.
+
+<Callout type="info" emoji={"💡"}>
+  <strong>Uncontrolled component</strong>
+  <p>
+    Note that the `BlockNoteView` component is an [uncontrolled component](https://react.dev/learn/sharing-state-between-components#controlled-and-uncontrolled-components). 
+    This means you don't pass in the editor content directly as a prop. You can use the `initialContent` option in the `useCreateBlockNote` hook to set the initial content of the editor (similar to the `defaultValue` prop in a regular React `<textarea>`).
+  </p>
+  <p>
+    BlockNote handles the complexities and performance optimizations of managing editor state internally. You can interact with the editor content using the [Editor API](/docs/editor-api).
+  </p>
+</Callout>

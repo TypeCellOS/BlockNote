@@ -1,0 +1,56 @@
+---
+title: Overriding CSS
+description: You can change any styles applied to the editor by setting your own CSS styles.
+imageTitle: Overriding CSS
+path: /docs/styling-theming/overriding-css
+---
+
+import { Example } from "@/components/example";
+
+# Overriding CSS
+
+In the demo below, we create additional CSS rules to make the editor text and hovered slash menu items blue:
+
+<Example name="theming/theming-css" />
+
+In this page you'll find the main selectors which are useful to create your own CSS rules, including the ones seen in the demo. However, if you want to target a specific DOM element, it's easiest to just inspect the DOM tree using your browser's dev tools.
+
+## BlockNote CSS Classes
+
+Within the editor's DOM structure, you'll find many elements have classes with the `bn-` prefix. BlockNote uses these to apply CSS styles to the editor, which you can override with your own. Here are some of the most useful BlockNote classes that you can use for your CSS rules:
+
+`.bn-container`: Container element for the editor, as well as all menus and toolbars.
+
+`.bn-editor`: Element for only the editor.
+
+`.bn-block`: Element for a block, including nested blocks.
+
+`.bn-block-group`: Container element for nested blocks.
+
+`.bn-block-content`: Element for a block's content.
+
+`.bn-inline-content`: Element for only the block's editable, rich text content.
+
+`.bn-toolbar`: Element for the formatting & link toolbars.
+
+`.bn-side-menu`: Element for the side menu.
+
+`.bn-drag-handle-menu`: Element for the drag handle menu.
+
+`.bn-slash-menu`: Element for the slash menu.
+
+## BlockNote CSS Attributes
+
+In addition to classes, BlockNote also uses the following attributes to target a specific block type & props:
+
+`[data-content-type="blockType"]`: Element for a block's content, but only for blocks of type `blockType`.
+
+`[data-propName="propValue"]`: Element for a block's content, but only for blocks with the `propName` prop with value `propValue`.
+
+For example, `[data-content-type="heading"][data-level="2"]` will select all heading blocks with heading level 2.
+
+## Mantine Classes
+
+Because BlockNote uses [Mantine](https://mantine.dev/) for its UI, you can also write CSS rules using any of the default Mantine component classes.
+
+

@@ -1,0 +1,37 @@
+---
+title: Link Toolbar
+description: The Link Toolbar appears whenever you hover a link in the editor.
+imageTitle: Link Toolbar
+path: /docs/link-toolbar
+---
+
+import { Example } from "@/components/example";
+
+# Link Toolbar
+
+The Link Toolbar appears whenever you hover a link in the editor.
+
+TODO Image
+
+[//]: # '<img style={{maxWidth: "600px"}} src="/img/screenshots/link_toolbar.png" alt="image" />'
+
+## Changing the Link Toolbar
+
+You can change or replace the Link Toolbar with your own React component. In the demo below, a button is added to the default Link Toolbar, which opens a browser alert.
+
+[//]: # (<Example name="ui-components/link-toolbar-buttons" />)
+
+We use the `LinkToolbar` component to create a custom Link Toolbar. By specifying its children, we can replace the default buttons in the toolbar with our own.
+
+This custom Link Toolbar is passed to a `LinkToolbarController`, which controls its position and visibility (above or below the hovered link).
+
+Setting `linkToolbar={false}` on `BlockNoteView` tells BlockNote not to show the default Link Toolbar.
+
+<div className="nx-mt-6 nx-leading-7 first:nx-mt-0">
+  <small>
+    <strong>Tip:</strong> The children you pass to the `LinkToolbar`
+    component should be default buttons (e.g. TODO) or custom selects/buttons
+    (`ToolbarSelect` & `ToolbarButton`). To see all the components you can
+    use, head to the [Link Toolbar's source code](link).
+  </small>
+</div>

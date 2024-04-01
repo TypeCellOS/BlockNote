@@ -3,7 +3,7 @@
   "homepage": "https://github.com/TypeCellOS/BlockNote",
   "private": false,
   "license": "MPL-2.0",
-  "version": "0.10.0",
+  "version": "0.12.3",
   "files": [
     "dist",
     "types",
@@ -37,6 +37,10 @@
     "./style.css": {
       "import": "./dist/style.css",
       "require": "./dist/style.css"
+    },
+    "./fonts/inter.css": {
+      "import": "./src/fonts/inter.css",
+      "require": "./src/fonts/inter.css"
     }
   },
   "scripts": {
@@ -46,12 +50,10 @@
     "preview": "vite preview",
     "lint": "eslint src --max-warnings 0",
     "test": "vitest --run",
-    "test-watch": "vitest watch"
+    "test-watch": "vitest watch",
+    "clean": "rimraf dist && rimraf types"
   },
   "dependencies": {
-    "@emotion/cache": "^11.10.5",
-    "@emotion/serialize": "^1.1.1",
-    "@emotion/utils": "^1.2.0",
     "@tiptap/core": "^2.0.3",
     "@tiptap/extension-bold": "^2.0.3",
     "@tiptap/extension-code": "^2.0.3",
@@ -88,7 +90,7 @@
     "remark-stringify": "^10.0.2",
     "unified": "^10.1.2",
     "uuid": "^8.3.2",
-    "y-prosemirror": "1.0.20",
+    "y-prosemirror": "1.2.1",
     "y-protocols": "^1.0.5",
     "yjs": "^13.6.1"
   },
@@ -98,8 +100,9 @@
     "eslint": "^8.10.0",
     "jsdom": "^21.1.0",
     "prettier": "^2.7.1",
+    "rimraf": "^5.0.5",
     "rollup-plugin-webpack-stats": "^0.2.2",
-    "typescript": "^5.0.4",
+    "typescript": "^5.3.3",
     "vite": "^4.4.8",
     "vite-plugin-eslint": "^1.8.1",
     "vitest": "^0.34.1"
