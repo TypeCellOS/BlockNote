@@ -267,7 +267,28 @@ export class SuggestionMenuProseMirrorPlugin<
 
             return true;
           }
+          return false;
+        },
+        handleTextInput(view, _from, _to, text) {
+          const suggestionPluginState: SuggestionPluginState = (
+            this as Plugin
+          ).getState(view.state);
 
+          if (
+            triggerCharacters.includes(text) &&
+            suggestionPluginState === undefined
+          ) {
+            view.dispatch(
+              view.state.tr
+                .insertText(text)
+                .scrollIntoView()
+                .setMeta(suggestionMenuPluginKey, {
+                  triggerCharacter: text,
+                })
+            );
+
+            return true;
+          }
           return false;
         },
 
