@@ -256,13 +256,15 @@ export class SuggestionMenuProseMirrorPlugin<
           ) {
             event.preventDefault();
 
+            // view.dispatch applies all transactions to the view simultaneously
+            // and not in order, so the menu should be opened in a separate
+            // transaction after scrolling to ensure the correct viewport
+            // position.
+            view.dispatch(view.state.tr.insertText(event.key).scrollIntoView());
             view.dispatch(
-              view.state.tr
-                .insertText(event.key)
-                .scrollIntoView()
-                .setMeta(suggestionMenuPluginKey, {
-                  triggerCharacter: event.key,
-                })
+              view.state.tr.setMeta(suggestionMenuPluginKey, {
+                triggerCharacter: event.key,
+              })
             );
 
             return true;
