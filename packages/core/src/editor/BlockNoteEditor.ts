@@ -133,6 +133,8 @@ export type BlockNoteEditorOptions<
 
   // tiptap options, undocumented
   _tiptapOptions: Partial<EditorOptions>;
+
+  trailingBlock?: boolean;
 };
 
 const blockNoteTipTapOptions = {
@@ -179,6 +181,8 @@ export class BlockNoteEditor<
   >;
 
   public readonly uploadFile: ((file: File) => Promise<string>) | undefined;
+
+  public trailingBlock?: boolean = false;
 
   public static create<
     BSchema extends BlockSchema = DefaultBlockSchema,
@@ -228,6 +232,7 @@ export class BlockNoteEditor<
     this.blockImplementations = newOptions.schema.blockSpecs;
     this.inlineContentImplementations = newOptions.schema.inlineContentSpecs;
     this.styleImplementations = newOptions.schema.styleSpecs;
+    this.trailingBlock = newOptions.trailingBlock;
 
     this.formattingToolbar = new FormattingToolbarProsemirrorPlugin(this);
     this.linkToolbar = new LinkToolbarProsemirrorPlugin(this);

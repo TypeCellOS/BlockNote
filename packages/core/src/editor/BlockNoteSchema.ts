@@ -66,6 +66,8 @@ export class BlockNoteSchema<
      * A list of custom Styles that should be available in the editor.
      */
     styleSpecs?: SSpecs;
+
+    trailingNode?: boolean;
   }) {
     return new BlockNoteSchema<
       BlockSchemaFromSpecs<BSpecs>,
