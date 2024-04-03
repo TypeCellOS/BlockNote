@@ -52,8 +52,8 @@
   "dependencies": {
     "@blocknote/core": "^0.12.3",
     "@floating-ui/react": "^0.26.4",
-    "@mantine/core": "^7.5.0",
-    "@mantine/hooks": "^7.5.0",
+    "@mantine/core": "^7.7.1",
+    "@mantine/hooks": "^7.7.1",
     "@mantine/utils": "^6.0.21",
     "@tiptap/core": "^2.0.3",
     "@tiptap/react": "^2.0.3",
