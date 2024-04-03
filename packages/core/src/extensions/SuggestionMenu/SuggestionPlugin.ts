@@ -245,30 +245,6 @@ export class SuggestionMenuProseMirrorPlugin<
       },
 
       props: {
-        handleKeyDown(view, event) {
-          const suggestionPluginState: SuggestionPluginState = (
-            this as Plugin
-          ).getState(view.state);
-
-          if (
-            triggerCharacters.includes(event.key) &&
-            suggestionPluginState === undefined
-          ) {
-            event.preventDefault();
-
-            view.dispatch(
-              view.state.tr
-                .insertText(event.key)
-                .scrollIntoView()
-                .setMeta(suggestionMenuPluginKey, {
-                  triggerCharacter: event.key,
-                })
-            );
-
-            return true;
-          }
-          return false;
-        },
         handleTextInput(view, _from, _to, text) {
           const suggestionPluginState: SuggestionPluginState = (
             this as Plugin
