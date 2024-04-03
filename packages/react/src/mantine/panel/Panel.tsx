@@ -17,10 +17,7 @@ export const Panel = (props: PanelProps) => {
         </Tabs.List>
 
         {props.tabs.map((tab) => (
-          <Tabs.Panel
-            // className={"bn-upload-image-panel"}
-            value={tab.name}
-            key={tab.name}>
+          <Tabs.Panel value={tab.name} key={tab.name}>
             {tab.tabPanel}
           </Tabs.Panel>
         ))}
