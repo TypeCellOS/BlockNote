@@ -64,9 +64,6 @@ export * from "./components/TableHandles/TableHandleMenu/DefaultButtons/DeleteBu
 export * from "./components/TableHandles/TableHandleMenu/TableHandleMenu";
 export * from "./components/TableHandles/TableHandleMenu/TableHandleMenuProps";
 
-export * from "./mantine/toolbar/ToolbarButton";
-export * from "./mantine/toolbar/ToolbarSelect";
-
 export * from "./hooks/useActiveStyles";
 export * from "./hooks/useBlockNoteEditor";
 export * from "./hooks/useCreateBlockNote";

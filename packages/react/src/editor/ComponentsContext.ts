@@ -112,15 +112,19 @@ export type ToolbarSelectProps = {
 
 export type ComponentsContextValue = {
   FileInput: any;
+
   Form: ComponentType<{
     children: React.ReactNode;
   }>;
-  Toolbar: ComponentType<{
-    children: React.ReactNode;
-  }>;
-  ToolbarSelect: ComponentType<ToolbarSelectProps>;
 
+  Toolbar: ComponentType<
+    ComponentPropsWithoutRef<"div"> & {
+      children: React.ReactNode;
+    }
+  >;
+  ToolbarSelect: ComponentType<ToolbarSelectProps>;
   ToolbarButton: ComponentType<ToolbarButtonProps>;
+
   Menu: ComponentType<MenuProps>;
   MenuTrigger: ComponentType<MenuTriggerProps>;
   MenuDropdown: ComponentType<MenuDropdownProps>;
@@ -129,14 +133,17 @@ export type ComponentsContextValue = {
     children: React.ReactNode;
   }>;
   MenuItem: ComponentType<MenuItemProps>;
+
   Panel: ComponentType<PanelProps>;
   PanelButton: ComponentType<PanelButtonProps>;
   PanelFileInput: ComponentType<PanelFileInputProps>;
   PanelTab: ComponentType<PanelTabProps>;
   PanelTextInput: ComponentType<PanelTextInputProps>;
+
   Popover: any;
   PopoverTrigger: any;
   PopoverContent: any;
+
   SuggestionMenuLabel?: ComponentType<{
     children: React.ReactNode;
   }>;
@@ -145,6 +152,7 @@ export type ComponentsContextValue = {
   SuggestionMenuEmptyItem?: ComponentType<{
     children: React.ReactNode;
   }>;
+
   TextInput: ComponentType<TextInputProps>;
 };
 

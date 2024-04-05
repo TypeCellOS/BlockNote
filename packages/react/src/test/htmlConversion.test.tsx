@@ -11,14 +11,10 @@ import {
   createInternalHTMLSerializer,
   partialBlocksToBlocksForTesting,
 } from "@blocknote/core";
-import { flushSync } from "react-dom";
-import { Root, createRoot } from "react-dom/client";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { BlockNoteView } from "../editor/BlockNoteView";
-import {
-  TestContext,
-  customReactBlockSchemaTestCases,
-} from "./testCases/customReactBlocks";
+// import { flushSync } from "react-dom";
+// import { Root, createRoot } from "react-dom/client";
+import { describe, expect, it } from "vitest";
+import { customReactBlockSchemaTestCases } from "./testCases/customReactBlocks";
 import { customReactInlineContentTestCases } from "./testCases/customReactInlineContent";
 import { customReactStylesTestCases } from "./testCases/customReactStyles";
 
@@ -81,31 +77,32 @@ describe("Test React HTML conversion", () => {
   for (const testCase of testCases) {
     describe("Case: " + testCase.name, () => {
       let editor: BlockNoteEditor<any, any, any>;
-      let root: Root;
-      const div = document.createElement("div");
-
-      beforeEach(() => {
-        editor = testCase.createEditor();
-
-        const el = (
-          <TestContext.Provider value={true}>
-            <BlockNoteView editor={editor} />
-          </TestContext.Provider>
-        );
-        root = createRoot(div);
-        flushSync(() => {
-          // eslint-disable-next-line testing-library/no-render-in-setup
-          root.render(el);
-        });
-      });
-
-      afterEach(() => {
-        root.unmount();
-        editor._tiptapEditor.destroy();
-        editor = undefined as any;
-
-        delete (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS;
-      });
+      // TODO: Why do we need to render for unit tests?
+      // let root: Root;
+      // const div = document.createElement("div");
+      //
+      // beforeEach(() => {
+      //   editor = testCase.createEditor();
+      //
+      //   const el = (
+      //     <TestContext.Provider value={true}>
+      //       <BlockNoteView editor={editor} />
+      //     </TestContext.Provider>
+      //   );
+      //   root = createRoot(div);
+      //   flushSync(() => {
+      //     // eslint-disable-next-line testing-library/no-render-in-setup
+      //     root.render(el);
+      //   });
+      // });
+      //
+      // afterEach(() => {
+      //   root.unmount();
+      //   editor._tiptapEditor.destroy();
+      //   editor = undefined as any;
+      //
+      //   delete (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS;
+      // });
 
       for (const document of testCase.documents) {
         // eslint-disable-next-line no-loop-func

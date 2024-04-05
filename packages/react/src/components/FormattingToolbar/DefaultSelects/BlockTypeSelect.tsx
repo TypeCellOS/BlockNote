@@ -17,11 +17,13 @@ import {
   RiText,
 } from "react-icons/ri";
 
-import { useComponentsContext } from "../../../editor/ComponentsContext";
+import {
+  ToolbarSelectItemProps,
+  useComponentsContext,
+} from "../../../editor/ComponentsContext";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
 import { useEditorContentOrSelectionChange } from "../../../hooks/useEditorContentOrSelectionChange";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
-import { ToolbarSelectItemProps } from "../../../mantine/toolbar/ToolbarSelectItem";
 
 export type BlockTypeSelectItem = {
   name: string;
@@ -122,12 +124,16 @@ export const BlockTypeSelect = (props: { items?: BlockTypeSelectItem[] }) => {
       }
     };
 
-    return filteredItems.map((item) => ({
-      text: item.name,
-      icon: item.icon,
-      onClick: () => onClick(item),
-      isSelected: item.isSelected(block),
-    }));
+    return filteredItems.map((item) => {
+      const Icon = item.icon;
+
+      return {
+        text: item.name,
+        icon: <Icon size={16} />,
+        onClick: () => onClick(item),
+        isSelected: item.isSelected(block),
+      };
+    });
   }, [block, filteredItems, editor, selectedBlocks]);
 
   useEditorContentOrSelectionChange(() => {
