@@ -1,5 +1,5 @@
 import { isNodeSelection, posToDOMRect } from "@tiptap/core";
-import { EditorState, Plugin, PluginKey } from "prosemirror-state";
+import { EditorState, Plugin, PluginKey, PluginView } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
@@ -9,7 +9,7 @@ import { EventEmitter } from "../../util/EventEmitter";
 
 export type FormattingToolbarState = UiElementPosition;
 
-export class FormattingToolbarView {
+export class FormattingToolbarView implements PluginView {
   public state?: FormattingToolbarState;
   public emitUpdate: () => void;
 
@@ -73,38 +73,34 @@ export class FormattingToolbarView {
 
   focusHandler = () => {
     // we use `setTimeout` to make sure `selection` is already updated
-    setTimeout(() => this.update(this.pmView));
+    // setTimeout(() => this.update(this.pmView));
   };
 
   blurHandler = (event: FocusEvent) => {
-    if (this.preventHide) {
-      this.preventHide = false;
-
-      return;
-    }
-
-    const editorWrapper = this.pmView.dom.parentElement!;
-
-    // Checks if the focus is moving to an element outside the editor. If it is,
-    // the toolbar is hidden.
-    if (
-      // An element is clicked.
-      event &&
-      event.relatedTarget &&
-      // Element is inside the editor.
-      (editorWrapper === (event.relatedTarget as Node) ||
-        editorWrapper.contains(event.relatedTarget as Node) ||
-        (event.relatedTarget as HTMLElement).matches(
-          ".bn-ui-container, .bn-ui-container *"
-        ))
-    ) {
-      return;
-    }
-
-    if (this.state?.show) {
-      this.state.show = false;
-      this.emitUpdate();
-    }
+    // if (this.preventHide) {
+    //   this.preventHide = false;
+    //   return;
+    // }
+    // const editorWrapper = this.pmView.dom.parentElement!;
+    // // Checks if the focus is moving to an element outside the editor. If it is,
+    // // the toolbar is hidden.
+    // if (
+    //   // An element is clicked.
+    //   event &&
+    //   event.relatedTarget &&
+    //   // Element is inside the editor.
+    //   (editorWrapper === (event.relatedTarget as Node) ||
+    //     editorWrapper.contains(event.relatedTarget as Node) ||
+    //     (event.relatedTarget as HTMLElement).matches(
+    //       ".bn-ui-container, .bn-ui-container *"
+    //     ))
+    // ) {
+    //   return;
+    // }
+    // if (this.state?.show) {
+    //   this.state.show = false;
+    //   this.emitUpdate();
+    // }
   };
 
   scrollHandler = () => {
@@ -183,6 +179,13 @@ export class FormattingToolbarView {
     document.removeEventListener("scroll", this.scrollHandler);
   }
 
+  closeMenu = () => {
+    if (this.state?.show) {
+      this.state.show = false;
+      this.emitUpdate();
+    }
+  };
+
   getSelectionBoundingBox() {
     const { state } = this.pmView;
     const { selection } = state;
@@ -222,10 +225,21 @@ export class FormattingToolbarProsemirrorPlugin extends EventEmitter<any> {
         });
         return this.view;
       },
+      props: {
+        handleKeyDown: (_view, event: KeyboardEvent) => {
+          if (event.key === "Escape") {
+            this.view!.closeMenu();
+            return true;
+          }
+          return false;
+        },
+      },
     });
   }
 
   public onUpdate(callback: (state: FormattingToolbarState) => void) {
     return this.on("update", callback);
   }
+
+  closeMenu = () => this.view!.closeMenu();
 }

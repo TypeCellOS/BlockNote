@@ -1,4 +1,4 @@
-import { Extensions, extensions } from "@tiptap/core";
+import { Extension, Extensions, extensions } from "@tiptap/core";
 
 import type { BlockNoteEditor } from "./BlockNoteEditor";
 
@@ -91,6 +91,16 @@ export const getBlockNoteExtensions = <
 
     BackgroundColorExtension,
     TextAlignmentExtension,
+
+    // make sure escape blurs editor, so that we can tab to other elements in the host page (accessibility)
+    Extension.create({
+      name: "OverrideEscape",
+      addKeyboardShortcuts() {
+        return {
+          Escape: () => this.editor.commands.blur(),
+        };
+      },
+    }),
 
     // nodes
     Doc,

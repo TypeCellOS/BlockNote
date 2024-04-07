@@ -50,7 +50,10 @@ export function SuggestionMenu<T extends DefaultReactSuggestionItem>(
   return (
     <div
       // onMouseDown={(event: any) => event.preventDefault()} // TODO: needed?
-      className={"bn-slash-menu"}>
+      className={"bn-slash-menu"}
+      id="bn-slash-menu"
+      role="listbox"
+      tabIndex={-1}>
       {renderedItems}
       {Children.count(renderedItems) === 0 &&
         (props.loadingState === "loading" ||

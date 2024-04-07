@@ -26,6 +26,10 @@ import {
   BlockNoteDefaultUIProps,
 } from "./BlockNoteDefaultUI";
 import {
+  BlockNotePropsContext,
+  useBlockNotePropsContext,
+} from "./BlockNotePropsContext";
+import {
   Theme,
   applyBlockNoteCSSVariablesFromTheme,
   removeBlockNoteCSSVariables,
@@ -181,6 +185,14 @@ function BlockNoteViewComponent<
     tableHandles,
   ]);
 
+  const [cprops, setCprops] = useState<Record<string, any>>();
+  const propsContext = useMemo(() => {
+    return {
+      props: cprops,
+      setProps: setCprops,
+    };
+  }, [editor, cprops, setCprops]);
+
   const context = useMemo(() => {
     return {
       ...existingContext,
@@ -189,27 +201,46 @@ function BlockNoteViewComponent<
   }, [existingContext, editor]);
 
   const refs = useMemo(() => {
-    return mergeRefs([containerRef, editor._tiptapEditor.mount, ref]);
-  }, [containerRef, editor._tiptapEditor.mount, ref]);
+    return mergeRefs([containerRef, ref]);
+  }, [containerRef, ref]);
 
   return (
     // `cssVariablesSelector` scopes Mantine CSS variables to only the editor,
     // as proposed here:  https://github.com/orgs/mantinedev/discussions/5685
     <MantineProvider theme={mantineTheme} cssVariablesSelector=".bn-container">
       <BlockNoteContext.Provider value={context as any}>
-        <EditorContent editor={editor}>
-          <div
-            className={mergeCSSClasses("bn-container", className || "")}
-            data-color-scheme={editorColorScheme}
-            {...rest}
-            ref={refs}>
-            {renderChildren}
-          </div>
-        </EditorContent>
+        <BlockNotePropsContext.Provider value={propsContext as any}>
+          <EditorContent editor={editor}>
+            <div
+              className={mergeCSSClasses("bn-container", className || "")}
+              data-color-scheme={editorColorScheme}
+              {...rest}
+              ref={refs}>
+              <BlockNoteContentEditable ref={editor._tiptapEditor.mount} />
+              {renderChildren}
+            </div>
+          </EditorContent>
+        </BlockNotePropsContext.Provider>
       </BlockNoteContext.Provider>
     </MantineProvider>
   );
 }
+
+export const BlockNoteContentEditable = React.forwardRef<HTMLDivElement>(
+  ({}, ref) => {
+    const ctx = useBlockNotePropsContext()!;
+    return (
+      <div
+        ref={ref}
+        aria-autocomplete="list"
+        aria-haspopup="listbox"
+        aria-placeholder="Enter text or type '/' for commands" // TODO: configurable
+        tabIndex={0}
+        {...ctx.props}
+      />
+    );
+  }
+);
 
 export const BlockNoteViewRaw = React.forwardRef(
   BlockNoteViewComponent

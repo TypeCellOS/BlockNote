@@ -115,6 +115,7 @@ export const BlockContainer = Node.create<{
     const block = document.createElement("div");
     block.className = mergeCSSClasses("bn-block", blockHTMLAttributes.class);
     block.setAttribute("data-node-type", this.name);
+
     for (const [attribute, value] of Object.entries(blockHTMLAttributes)) {
       if (attribute !== "class") {
         block.setAttribute(attribute, value);
@@ -686,12 +687,12 @@ export const BlockContainer = Node.create<{
       // Always returning true for tab key presses ensures they're not captured by the browser. Otherwise, they blur the
       // editor since the browser will try to use tab for keyboard navigation.
       Tab: () => {
-        this.editor.commands.sinkListItem("blockContainer");
-        return true;
+        // this.editor.commands.sinkListItem("blockContainer");
+        // return true;
       },
       "Shift-Tab": () => {
-        this.editor.commands.liftListItem("blockContainer");
-        return true;
+        // this.editor.commands.liftListItem("blockContainer");
+        // return true;
       },
     };
   },

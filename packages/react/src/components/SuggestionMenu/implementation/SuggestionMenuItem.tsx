@@ -1,29 +1,19 @@
-import { useCallback, useRef } from "react";
+import { useRef } from "react";
 import type { SuggestionMenuItemProps } from "../../../editor/ComponentsContext";
 
 export function SuggestionMenuItem(props: SuggestionMenuItemProps) {
-  const { setSelected } = props;
-
   const itemRef = useRef<HTMLDivElement>(null);
-
-  const handleMouseLeave = useCallback(() => {
-    setSelected(false);
-  }, [setSelected]);
-
-  const handleMouseEnter = useCallback(() => {
-    setSelected(true);
-  }, [setSelected]);
 
   // TODO: remove mantine classnames and clean up styles
   return (
     <div
       // component="div"
+      role="option"
+      tabIndex={-1}
       className={"bn-slash-menu-item mantine-Menu-item"}
       onClick={props.onClick}
-      // Ensures an item selected with both mouse & keyboard doesn't get deselected on mouse leave.
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      data-hovered={props.isSelected ? "" : undefined}
+      aria-selected={props.isSelected}
+      id="bn-slash-menu-item-0"
       ref={itemRef}>
       {props.icon && (
         <div className="mantine-Menu-itemSection" data-position="left">

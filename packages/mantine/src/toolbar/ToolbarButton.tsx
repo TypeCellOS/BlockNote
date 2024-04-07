@@ -46,6 +46,8 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
               props.mainTooltip.slice(0, 1).toLowerCase() +
               props.mainTooltip.replace(/\s+/g, "").slice(1)
             }
+            aria-label={props.mainTooltip}
+            aria-pressed={props.isSelected}
             size={"xs"}
             disabled={props.isDisabled || false}
             ref={ref}>
@@ -67,6 +69,8 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
               props.mainTooltip.slice(0, 1).toLowerCase() +
               props.mainTooltip.replace(/\s+/g, "").slice(1)
             }
+            aria-label={props.mainTooltip}
+            aria-pressed={props.isSelected}
             size={30}
             disabled={props.isDisabled || false}
             ref={ref}>

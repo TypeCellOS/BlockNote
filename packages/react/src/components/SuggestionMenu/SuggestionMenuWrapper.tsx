@@ -1,6 +1,7 @@
 import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
-import { FC, useCallback } from "react";
+import { FC, useCallback, useEffect } from "react";
 
+import { useBlockNotePropsContext } from "../../editor/BlockNotePropsContext";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor";
 import { useCloseSuggestionMenuNoItems } from "./hooks/useCloseSuggestionMenuNoItems";
 import { useLoadSuggestionMenuItems } from "./hooks/useLoadSuggestionMenuItems";
@@ -15,6 +16,9 @@ export function SuggestionMenuWrapper<Item>(props: {
   onItemClick?: (item: Item) => void;
   suggestionMenuComponent: FC<SuggestionMenuProps<Item>>;
 }) {
+  const ctx = useBlockNotePropsContext()!;
+  const setEditorProps = ctx.setProps;
+
   const editor = useBlockNoteEditor<
     BlockSchema,
     InlineContentSchema,
@@ -53,6 +57,35 @@ export function SuggestionMenuWrapper<Item>(props: {
       closeMenu,
       onItemClickCloseMenu
     );
+
+  useEffect(() => {
+    setEditorProps((p) => ({
+      ...p,
+      "aria-expanded": true,
+      "aria-controls": "bn-suggestion-box",
+    }));
+    return () => {
+      setEditorProps((p) => ({
+        ...p,
+        "aria-expanded": false,
+        "aria-controls": undefined,
+      }));
+    };
+  }, [setEditorProps]);
+
+  useEffect(() => {
+    setEditorProps((p) => ({
+      ...p,
+      "aria-activedescendant":
+        selectedIndex > -1 ? "bn-suggestion-item-" + selectedIndex : undefined,
+    }));
+    return () => {
+      setEditorProps((p) => ({
+        ...p,
+        "aria-activedescendant": undefined,
+      }));
+    };
+  }, [setEditorProps, selectedIndex]);
 
   // TODO: reset selectionIndex when items change?
   // TODO: changes to suggestionmenu need extensive testing

@@ -27,10 +27,10 @@ import {
   PartialBlock,
 } from "../blocks/defaultBlocks";
 import { FormattingToolbarProsemirrorPlugin } from "../extensions/FormattingToolbar/FormattingToolbarPlugin";
+import { ImagePanelProsemirrorPlugin } from "../extensions/ImagePanel/ImageToolbarPlugin";
 import { LinkToolbarProsemirrorPlugin } from "../extensions/LinkToolbar/LinkToolbarPlugin";
 import { SideMenuProsemirrorPlugin } from "../extensions/SideMenu/SideMenuPlugin";
 import { SuggestionMenuProseMirrorPlugin } from "../extensions/SuggestionMenu/SuggestionPlugin";
-import { ImagePanelProsemirrorPlugin } from "../extensions/ImagePanel/ImageToolbarPlugin";
 import { TableHandlesProsemirrorPlugin } from "../extensions/TableHandles/TableHandlesPlugin";
 import { UniqueID } from "../extensions/UniqueID/UniqueID";
 import {
@@ -781,7 +781,7 @@ export class BlockNoteEditor<
    * @param styles The styles to remove.
    */
   public removeStyles(styles: Styles<SSchema>) {
-    this._tiptapEditor.view.focus();
+    // this._tiptapEditor.view.focus();
 
     for (const style of Object.keys(styles)) {
       this._tiptapEditor.commands.unsetMark(style);
@@ -793,7 +793,7 @@ export class BlockNoteEditor<
    * @param styles The styles to toggle.
    */
   public toggleStyles(styles: Styles<SSchema>) {
-    this._tiptapEditor.view.focus();
+    // this._tiptapEditor.view.focus();
 
     for (const [style, value] of Object.entries(styles)) {
       const config = this.schema.styleSchema[style];

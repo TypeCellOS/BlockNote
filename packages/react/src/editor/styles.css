@@ -146,7 +146,8 @@
   color: var(--bn-colors-menu-text);
 }
 
-.bn-container .mantine-Menu-item[data-hovered] {
+.bn-container .mantine-Menu-item[aria-selected="true"],
+.bn-container .mantine-Menu-item:hover {
   background-color: var(--bn-colors-hovered-background);
   border: none;
   color: var(--bn-colors-hovered-text);

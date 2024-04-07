@@ -113,6 +113,7 @@ export const Placeholder = Extension.create<PlaceholderOptions>({
 
             const dec = Decoration.node(before, before + node.nodeSize, {
               "data-is-empty-and-focused": "true",
+              // "aria-placeholder": this.options.placeholders.default,
             });
 
             return DecorationSet.create(doc, [dec]);
