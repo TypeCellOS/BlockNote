@@ -4,6 +4,7 @@ import {
   ComponentsContextValue,
 } from "@blocknote/react";
 import { ComponentProps } from "react";
+import { Form } from "./form/Form";
 import {
   Menu,
   MenuDivider,
@@ -17,8 +18,14 @@ import { PanelButton } from "./panel/PanelButton";
 import { PanelFileInput } from "./panel/PanelFileInput";
 import { PanelTab } from "./panel/PanelTab";
 import { PanelTextInput } from "./panel/PanelTextInput";
-import "./style.css";
 import { Toolbar, ToolbarButton, ToolbarSelect } from "./toolbar/Toolbar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "./components/ui/popover";
+import { TextInput } from "./input/TextInput";
+import "./style.css";
 
 export const components: ComponentsContextValue = {
   Toolbar,
@@ -35,11 +42,11 @@ export const components: ComponentsContextValue = {
   PanelFileInput,
   PanelTab,
   PanelTextInput,
-  Popover: () => null,
-  PopoverContent: () => null,
-  PopoverTrigger: () => null,
-  TextInput: () => null,
-  Form: (props) => <div {...props} />,
+  Popover: Popover,
+  PopoverContent: PopoverContent,
+  PopoverTrigger: PopoverTrigger,
+  TextInput: TextInput,
+  Form: Form,
   //   SuggestionMenuLoader: () => (
   //     <Loader className={"bn-slash-menu-loader"} type="dots" />
   //   ),

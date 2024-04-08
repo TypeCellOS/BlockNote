@@ -15,8 +15,7 @@ export function ToolbarSelect(props: ToolbarSelectProps) {
         aria-label="Text alignment"
         className="button secondary"
         render={<Ariakit.ToolbarItem />}>
-        {selectedItem.icon && <selectedItem.icon />} {selectedItem.text}{" "}
-        <Ariakit.SelectArrow />
+        {selectedItem.icon} {selectedItem.text} <Ariakit.SelectArrow />
       </Ariakit.Select>
       <Ariakit.SelectPopover gutter={4} className="popover">
         {props.items.map((option) => (
@@ -24,7 +23,8 @@ export function ToolbarSelect(props: ToolbarSelectProps) {
             key={option.text}
             value={option.text}
             className="select-item">
-            {option.icon && <option.icon />} {option.text}
+            {option.icon}
+            {option.text}
           </Ariakit.SelectItem>
         ))}
       </Ariakit.SelectPopover>

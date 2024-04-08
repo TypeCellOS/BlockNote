@@ -69,16 +69,20 @@ export const MenuDropdown = React.forwardRef(
 
 export const MenuItem = React.forwardRef((props: MenuItemProps, ref) => {
   // TODO: implement icon
-  const { icon, ...rest } = props;
+  const { icon, children, ...rest } = props;
 
   if (props.checked !== undefined) {
     return (
-      <DropdownMenuCheckboxItem {...rest} ref={ref}></DropdownMenuCheckboxItem>
+      <DropdownMenuCheckboxItem icon={icon} {...rest} ref={ref}>
+        {props.icon}
+        {props.children}
+      </DropdownMenuCheckboxItem>
     );
   }
 
   return (
     <DropdownMenuItem {...rest} ref={ref}>
+      {props.icon}
       {props.children}
       {props.expandArrow && <ChevronRight className="ml-auto h-4 w-4" />}
     </DropdownMenuItem>
