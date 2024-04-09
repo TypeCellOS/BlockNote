@@ -45,6 +45,7 @@ export const getBlockNoteExtensions = <
   blockSpecs: BlockSpecs;
   inlineContentSpecs: InlineContentSpecs;
   styleSpecs: StyleSpecs;
+  trailingBlock: boolean | undefined;
   collaboration?: {
     fragment: Y.XmlFragment;
     user: {
@@ -131,7 +132,9 @@ export const getBlockNoteExtensions = <
     Dropcursor.configure({ width: 5, color: "#ddeeff" }),
     // This needs to be at the bottom of this list, because Key events (such as enter, when selecting a /command),
     // should be handled before Enter handlers in other components like splitListItem
-    ...(opts.editor.trailingBlock ? [TrailingNode] : []),
+    ...(opts.trailingBlock === undefined || opts.trailingBlock
+      ? [TrailingNode]
+      : []),
   ];
 
   if (opts.collaboration) {

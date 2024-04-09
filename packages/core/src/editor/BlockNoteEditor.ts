@@ -182,8 +182,6 @@ export class BlockNoteEditor<
 
   public readonly uploadFile: ((file: File) => Promise<string>) | undefined;
 
-  public trailingBlock?: boolean = false;
-
   public static create<
     BSchema extends BlockSchema = DefaultBlockSchema,
     ISchema extends InlineContentSchema = DefaultInlineContentSchema,
@@ -232,7 +230,6 @@ export class BlockNoteEditor<
     this.blockImplementations = newOptions.schema.blockSpecs;
     this.inlineContentImplementations = newOptions.schema.inlineContentSpecs;
     this.styleImplementations = newOptions.schema.styleSpecs;
-    this.trailingBlock = newOptions.trailingBlock;
 
     this.formattingToolbar = new FormattingToolbarProsemirrorPlugin(this);
     this.linkToolbar = new LinkToolbarProsemirrorPlugin(this);
@@ -255,6 +252,7 @@ export class BlockNoteEditor<
       styleSpecs: this.schema.styleSpecs,
       inlineContentSpecs: this.schema.inlineContentSpecs,
       collaboration: newOptions.collaboration,
+      trailingBlock: newOptions.trailingBlock,
     });
 
     const blockNoteUIExtension = Extension.create({
