@@ -7,11 +7,11 @@ export function SuggestionMenuItem(props: SuggestionMenuItemProps) {
   const itemRef = useRef<HTMLDivElement>(null);
 
   const handleMouseLeave = useCallback(() => {
-    setSelected(false);
+    setSelected?.(false);
   }, [setSelected]);
 
   const handleMouseEnter = useCallback(() => {
-    setSelected(true);
+    setSelected?.(true);
   }, [setSelected]);
 
   // TODO: remove mantine classnames and clean up styles

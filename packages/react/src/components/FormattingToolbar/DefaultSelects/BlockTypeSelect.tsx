@@ -18,7 +18,7 @@ import {
 } from "react-icons/ri";
 
 import {
-  ToolbarSelectItemProps,
+  ToolbarSelectItem,
   useComponentsContext,
 } from "../../../editor/ComponentsContext";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
@@ -112,7 +112,7 @@ export const BlockTypeSelect = (props: { items?: BlockTypeSelectItem[] }) => {
     [block.type, filteredItems]
   );
 
-  const fullItems: ToolbarSelectItemProps[] = useMemo(() => {
+  const fullItems: ToolbarSelectItem[] = useMemo(() => {
     const onClick = (item: BlockTypeSelectItem) => {
       editor.focus();
 

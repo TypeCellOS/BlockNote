@@ -1,7 +1,7 @@
 import * as Ariakit from "@ariakit/react";
 
 import { mergeCSSClasses } from "@blocknote/core";
-import { MenuItemProps, MenuProps } from "@blocknote/react";
+import { MenuItemProps, MenuProps, MenuLabelProps } from "@blocknote/react";
 import { HTMLAttributes, forwardRef } from "react";
 
 export const Menu = (props: MenuProps) => {
@@ -36,14 +36,11 @@ export const MenuDropdown = forwardRef<
 
 export const MenuItem = forwardRef<HTMLDivElement, MenuItemProps>(
   (props, ref) => {
-    const { className, children, icon, checked, expandArrow, ...rest } = props;
+    const { children, icon, checked, subTrigger, onClick } = props;
 
-    if (expandArrow) {
+    if (subTrigger) {
       return (
-        <Ariakit.MenuButton
-          {...rest}
-          className={mergeCSSClasses("bn-menu-item", className || "")}
-          ref={ref}>
+        <Ariakit.MenuButton className={"bn-menu-item"} ref={ref}>
           {icon}
           {children}
           <Ariakit.MenuButtonArrow />
@@ -52,10 +49,7 @@ export const MenuItem = forwardRef<HTMLDivElement, MenuItemProps>(
       );
     }
     return (
-      <Ariakit.MenuItem
-        {...rest}
-        className={mergeCSSClasses("bn-menu-item", className || "")}
-        ref={ref}>
+      <Ariakit.MenuItem className={"bn-menu-item"} ref={ref}>
         {icon}
         {children}
         {checked !== undefined && <Ariakit.CheckboxCheck checked={checked} />}
@@ -64,21 +58,20 @@ export const MenuItem = forwardRef<HTMLDivElement, MenuItemProps>(
   }
 );
 
-export const MenuLabel = forwardRef<
-  HTMLDivElement,
-  HTMLAttributes<HTMLDivElement>
->((props, ref) => {
-  const { className, children, ...rest } = props;
+export const MenuLabel = forwardRef<HTMLDivElement, MenuLabelProps>(
+  (props, ref) => {
+    const { className, children, ...rest } = props;
 
-  return (
-    <Ariakit.MenuGroupLabel
-      {...rest}
-      className={mergeCSSClasses("bn-menu-label", className || "")}
-      ref={ref}>
-      {children}
-    </Ariakit.MenuGroupLabel>
-  );
-});
+    return (
+      <Ariakit.MenuGroupLabel
+        {...rest}
+        className={mergeCSSClasses("bn-menu-label", className || "")}
+        ref={ref}>
+        {children}
+      </Ariakit.MenuGroupLabel>
+    );
+  }
+);
 
 export const MenuTrigger = forwardRef<
   HTMLDivElement,

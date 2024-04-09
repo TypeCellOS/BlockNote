@@ -84,7 +84,7 @@ export const MenuItem = React.forwardRef((props: MenuItemProps, ref) => {
     <DropdownMenuItem {...rest} ref={ref}>
       {props.icon}
       {props.children}
-      {props.expandArrow && <ChevronRight className="ml-auto h-4 w-4" />}
+      {props.subTrigger && <ChevronRight className="ml-auto h-4 w-4" />}
     </DropdownMenuItem>
   );
 });

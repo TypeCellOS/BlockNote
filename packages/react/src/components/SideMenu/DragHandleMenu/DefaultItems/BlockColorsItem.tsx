@@ -35,14 +35,14 @@ export const BlockColorsItem = <
   }
 
   return (
-    <components.Menu sub={true} position={"right"}>
+    <components.Menu sub={true}>
       <components.MenuTrigger sub={true}>
-        <components.MenuItem subTrigger={true} expandArrow={true}>
+        <components.MenuItem subTrigger={true}>
           {props.children}
         </components.MenuItem>
       </components.MenuTrigger>
 
-      <components.MenuDropdown sub={true} position={"right"}>
+      <components.MenuDropdown sub={true}>
         <ColorPicker
           iconSize={18}
           text={

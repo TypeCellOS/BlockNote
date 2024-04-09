@@ -15,6 +15,7 @@ import {
   useState,
 } from "react";
 import { HiChevronRight } from "react-icons/hi";
+import { MenuDividerProps } from "@mantine/core";
 
 const SubMenuContext = createContext<
   | {
@@ -27,7 +28,7 @@ const SubMenuContext = createContext<
 >(undefined);
 
 const SubMenu = (props: MenuProps) => {
-  const { sub, onOpenChange, open, defaultOpen, ...rest } = props;
+  const { sub, onOpenChange, ...rest } = props;
 
   const [opened, setOpened] = useState(false);
 
@@ -64,7 +65,6 @@ const SubMenu = (props: MenuProps) => {
         middlewares={{ flip: true, shift: true, inline: false, size: true }}
         onClose={() => onOpenChange?.(false)}
         onOpen={() => onOpenChange?.(true)}
-        defaultOpened={defaultOpen}
         closeOnItemClick={false}
         {...rest}
         position="right"
@@ -74,7 +74,7 @@ const SubMenu = (props: MenuProps) => {
 };
 
 export const Menu = (props: MenuProps) => {
-  const { sub, onOpenChange, open, defaultOpen, ...rest } = props;
+  const { sub, onOpenChange, ...rest } = props;
 
   if (sub) {
     return <SubMenu {...props} />;
@@ -86,7 +86,6 @@ export const Menu = (props: MenuProps) => {
       middlewares={{ flip: true, shift: true, inline: false, size: true }}
       onClose={() => onOpenChange?.(false)}
       onOpen={() => onOpenChange?.(true)}
-      defaultOpened={defaultOpen}
       closeOnItemClick={false}
       {...rest}
       position="right"
@@ -96,7 +95,7 @@ export const Menu = (props: MenuProps) => {
 
 export const MenuItem = forwardRef<HTMLDivElement, MenuItemProps>(
   (props, ref) => {
-    const { icon, checked, expandArrow, subTrigger, ...rest } = props;
+    const { icon, checked, subTrigger, ...rest } = props;
     const ctx = useContext(SubMenuContext);
 
     const onMouseLeave = subTrigger ? ctx!.onTriggerMouseLeave : undefined;
@@ -113,7 +112,7 @@ export const MenuItem = forwardRef<HTMLDivElement, MenuItemProps>(
             ) : checked === false ? (
               <div className={"bn-tick-space"} />
             ) : undefined}
-            {expandArrow && <HiChevronRight size={15} />}
+            {subTrigger && <HiChevronRight size={15} />}
           </>
         }
         onMouseOver={onMouseOver}
@@ -153,7 +152,7 @@ export const MenuDropdown = forwardRef<HTMLDivElement, MenuDropdownProps>(
   }
 );
 
-export const MenuDivider = forwardRef<HTMLDivElement, Record<string, never>>(
+export const MenuDivider = forwardRef<HTMLDivElement, MenuDividerProps>(
   (props, ref) => {
     return <Mantine.MenuDivider {...props} ref={ref} />;
   }

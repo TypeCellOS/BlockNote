@@ -1,51 +1,52 @@
 import {
-  ComponentProps,
-  ComponentPropsWithoutRef,
   ComponentType,
   createContext,
+  ReactNode,
   useContext,
+  KeyboardEvent,
+  MouseEvent,
+  ChangeEvent,
+  ElementType,
 } from "react";
 import { SuggestionMenuEmptyItem } from "../components/SuggestionMenu/implementation/SuggestionMenuEmptyItem";
 import { SuggestionMenuItem } from "../components/SuggestionMenu/implementation/SuggestionMenuItem";
 import { SuggestionMenuLabel } from "../components/SuggestionMenu/implementation/SuggestionMenuLabel";
 import { SuggestionMenuLoader } from "../components/SuggestionMenu/implementation/SuggestionMenuLoader";
 
+export type FormProps = {
+  children: ReactNode;
+};
+
 export type MenuProps = {
-  children: React.ReactNode;
-  defaultOpen?: boolean;
-  open?: boolean;
+  children: ReactNode;
   onOpenChange?: (open: boolean) => void;
   position?: "top" | "right" | "bottom" | "left";
   sub?: boolean;
 };
 
-export type TextInputProps = {
-  name: string;
-  label?: string;
-  icon?: React.ReactNode;
-  autoFocus?: boolean;
-  placeholder?: string;
-  value?: string;
-  onKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void;
-  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  onSubmit?: () => void;
+export type MenuDividerProps = Record<string, never>;
+
+export type MenuDropdownProps = {
+  className?: string;
+  sub?: boolean;
+  children: ReactNode;
 };
 
 export type MenuItemProps = {
-  icon?: React.ReactNode;
+  icon?: ReactNode;
   checked?: boolean;
-  expandArrow?: boolean;
   subTrigger?: boolean;
-} & ComponentProps<"div">;
+  onClick?: () => void;
+  children: ReactNode;
+};
 
-export type MenuDropdownProps = {
-  sub?: boolean;
-  position?: "top" | "right" | "bottom" | "left";
-} & ComponentProps<"div">;
+export type MenuLabelProps = {
+  children: ReactNode;
+};
 
 export type MenuTriggerProps = {
-  children: React.ReactNode;
   sub?: boolean;
+  children: ReactNode;
 };
 
 export type PanelProps = {
@@ -54,41 +55,88 @@ export type PanelProps = {
   setOpenTab: (name: string) => void;
   tabs: {
     name: string;
-    tabPanel: React.ReactNode;
+    tabPanel: ReactNode;
   }[];
   loading: boolean;
   setLoading: (loading: boolean) => void;
 };
 
-export type PanelButtonProps = Omit<ComponentPropsWithoutRef<"button">, "size">;
+export type PanelButtonProps = {
+  className: string;
+  onClick: () => void;
+  children: ReactNode;
+};
 
 export type PanelFileInputProps = {
   placeholder?: string;
   value?: File | null;
-  defaultValue?: File | null;
   onChange?: (payload: File | null) => void;
 };
 
-export type PanelTabProps = ComponentPropsWithoutRef<"div">;
+export type PanelTabProps = {
+  children: ReactNode;
+};
 
-export type PanelTextInputProps = Omit<
-  ComponentPropsWithoutRef<"input">,
-  "size"
->;
+export type PanelTextInputProps = {
+  placeholder: string;
+  value: string;
+  onChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  onKeyDown: (event: KeyboardEvent) => void;
+};
+
+export type PopoverProps = {
+  opened?: boolean;
+  position?: "top" | "right" | "bottom" | "left";
+  children: ReactNode;
+};
+
+export type PopoverTriggerProps = {
+  children: ReactNode;
+};
+
+export type PopoverContentProps = {
+  children: ReactNode;
+};
+
+export type SuggestionMenuEmptyItemProps = {
+  children: ReactNode;
+};
 
 export type SuggestionMenuItemProps = {
   title: string;
-  onClick: () => void;
   subtext?: string;
-  icon?: JSX.Element;
-  badge?: string;
+  icon?: ReactNode;
+  badge?: ReactNode;
+  onClick?: () => void;
   isSelected?: boolean;
-  setSelected: (selected: boolean) => void;
+  setSelected?: (selected: boolean) => void;
+};
+
+export type SuggestionMenuLabelProps = {
+  children: ReactNode;
+};
+
+export type TextInputProps = {
+  name: string;
+  label?: string;
+  icon?: ReactNode;
+  autoFocus?: boolean;
+  placeholder?: string;
+  value?: string;
+  onKeyDown?: (event: KeyboardEvent<HTMLInputElement>) => void;
+  onChange?: (event: ChangeEvent<HTMLInputElement>) => void;
+  onSubmit?: () => void;
+};
+
+export type ToolbarProps = {
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
+  children: ReactNode;
 };
 
 export type ToolbarButtonProps = {
-  onClick?: (e: React.MouseEvent) => void;
-  icon?: React.ReactNode;
+  onClick?: (e: MouseEvent) => void;
+  icon?: ReactNode;
   mainTooltip: string;
   secondaryTooltip?: string;
   isSelected?: boolean;
@@ -96,42 +144,27 @@ export type ToolbarButtonProps = {
   isDisabled?: boolean;
 };
 
-export type ToolbarSelectItemProps = {
+export type ToolbarSelectItem = {
   text: string;
-  icon?: React.ReactNode;
+  icon?: ReactNode;
   onClick?: () => void;
   isSelected?: boolean;
   isDisabled?: boolean;
 };
 
 export type ToolbarSelectProps = {
-  // TODO: maybe don't use items array, but elements instead
-  items: ToolbarSelectItemProps[];
+  items: ToolbarSelectItem[];
   isDisabled?: boolean;
 };
 
 export type ComponentsContextValue = {
-  FileInput: any;
-
-  Form: ComponentType<{
-    children: React.ReactNode;
-  }>;
-
-  Toolbar: ComponentType<
-    ComponentPropsWithoutRef<"div"> & {
-      children: React.ReactNode;
-    }
-  >;
-  ToolbarSelect: ComponentType<ToolbarSelectProps>;
-  ToolbarButton: ComponentType<ToolbarButtonProps>;
+  Form: ComponentType<FormProps>;
 
   Menu: ComponentType<MenuProps>;
   MenuTrigger: ComponentType<MenuTriggerProps>;
   MenuDropdown: ComponentType<MenuDropdownProps>;
-  MenuDivider: ComponentType<Record<string, never>>;
-  MenuLabel: ComponentType<{
-    children: React.ReactNode;
-  }>;
+  MenuDivider: ComponentType<MenuDividerProps>;
+  MenuLabel: ComponentType<MenuLabelProps>;
   MenuItem: ComponentType<MenuItemProps>;
 
   Panel: ComponentType<PanelProps>;
@@ -140,20 +173,20 @@ export type ComponentsContextValue = {
   PanelTab: ComponentType<PanelTabProps>;
   PanelTextInput: ComponentType<PanelTextInputProps>;
 
-  Popover: any;
-  PopoverTrigger: any;
-  PopoverContent: any;
+  Popover: ComponentType<PopoverProps>;
+  PopoverTrigger: ComponentType<PopoverTriggerProps>;
+  PopoverContent: ComponentType<PopoverContentProps>;
 
-  SuggestionMenuLabel?: ComponentType<{
-    children: React.ReactNode;
-  }>;
-  SuggestionMenuLoader?: React.ElementType;
+  SuggestionMenuLabel?: ComponentType<SuggestionMenuLabelProps>;
+  SuggestionMenuLoader?: ElementType;
   SuggestionMenuItem?: ComponentType<SuggestionMenuItemProps>;
-  SuggestionMenuEmptyItem?: ComponentType<{
-    children: React.ReactNode;
-  }>;
+  SuggestionMenuEmptyItem?: ComponentType<SuggestionMenuEmptyItemProps>;
 
   TextInput: ComponentType<TextInputProps>;
+
+  Toolbar: ComponentType<ToolbarProps>;
+  ToolbarSelect: ComponentType<ToolbarSelectProps>;
+  ToolbarButton: ComponentType<ToolbarButtonProps>;
 };
 
 export const ComponentsContext = createContext<

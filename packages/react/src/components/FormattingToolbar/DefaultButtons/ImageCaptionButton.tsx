@@ -76,18 +76,18 @@ export const ImageCaptionButton = () => {
           isSelected={imageBlock.props.caption !== ""}
         />
       </components.PopoverTrigger>
-      <components.PopoverContent>
-        {/*TODO*/}
-        {/*<components.ToolbarInputsMenuItem*/}
-        {/*  icon={RiText}*/}
-        {/*  value={currentEditingCaption}*/}
-        {/*  autoFocus={true}*/}
-        {/*  placeholder={"Edit Caption"}*/}
-        {/*  onKeyDown={handleEnter}*/}
-        {/*  defaultValue={imageBlock.props.caption}*/}
-        {/*  onChange={handleChange}*/}
-        {/*/>*/}
-      </components.PopoverContent>
+      {/*<components.PopoverContent>*/}
+      {/*  TODO*/}
+      {/*  <components.ToolbarInputsMenuItem*/}
+      {/*    icon={RiText}*/}
+      {/*    value={currentEditingCaption}*/}
+      {/*    autoFocus={true}*/}
+      {/*    placeholder={"Edit Caption"}*/}
+      {/*    onKeyDown={handleEnter}*/}
+      {/*    defaultValue={imageBlock.props.caption}*/}
+      {/*    onChange={handleChange}*/}
+      {/*  />*/}
+      {/*</components.PopoverContent>*/}
     </components.Popover>
   );
 };

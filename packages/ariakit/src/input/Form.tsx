@@ -1,8 +1,8 @@
 import * as Ariakit from "@ariakit/react";
 
-import { ReactNode } from "react";
+import { FormProps } from "@ariakit/react";
 
-export const Form = (props: { children: ReactNode }) => {
+export const Form = (props: FormProps) => {
   const { ...rest } = props;
 
   return <Ariakit.FormProvider {...rest} />;
