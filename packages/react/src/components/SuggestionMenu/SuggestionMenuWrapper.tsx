@@ -50,13 +50,17 @@ export function SuggestionMenuWrapper<Item>(props: {
 
   useCloseSuggestionMenuNoItems(items, usedQuery, closeMenu);
 
-  const { selectedIndex, setSelectedIndex } =
-    useSuggestionMenuKeyboardNavigation(
-      editor,
-      items,
-      closeMenu,
-      onItemClickCloseMenu
-    );
+  const selInfo = useSuggestionMenuKeyboardNavigation(
+    editor,
+    items,
+    closeMenu,
+    onItemClickCloseMenu
+  );
+
+  let selectedIndex = selInfo.selectedIndex;
+  if (items.length === 0) {
+    selectedIndex = -1;
+  }
 
   useEffect(() => {
     setEditorProps((p) => ({
@@ -89,6 +93,7 @@ export function SuggestionMenuWrapper<Item>(props: {
 
   // TODO: reset selectionIndex when items change?
   // TODO: changes to suggestionmenu need extensive testing
+  // TODO: set correct ids on items etc
 
   const Component = suggestionMenuComponent;
 
@@ -98,7 +103,7 @@ export function SuggestionMenuWrapper<Item>(props: {
       onItemClick={onItemClickCloseMenu}
       loadingState={loadingState}
       selectedIndex={selectedIndex}
-      setSelectedIndex={setSelectedIndex}
+      setSelectedIndex={selInfo.setSelectedIndex}
     />
   );
 }
