@@ -62,7 +62,7 @@ declare module "@tiptap/core" {
  */
 export const BlockContainer = Node.create<{
   domAttributes?: BlockNoteDOMAttributes;
-  editor: BlockNoteEditor<BlockSchema, InlineContentSchema, StyleSchema>;
+  editor: BlockNoteEditor<any, any, any>;
 }>({
   name: "blockContainer",
   group: "blockContainer",
@@ -687,12 +687,28 @@ export const BlockContainer = Node.create<{
       // Always returning true for tab key presses ensures they're not captured by the browser. Otherwise, they blur the
       // editor since the browser will try to use tab for keyboard navigation.
       Tab: () => {
-        // this.editor.commands.sinkListItem("blockContainer");
-        // return true;
+        if (
+          this.options.editor.formattingToolbar?.shown ||
+          this.options.editor.linkToolbar?.shown ||
+          this.options.editor.imagePanel?.shown
+        ) {
+          // don't handle tabs if a toolbar is shown, so we can tab into / out of it
+          return false;
+        }
+        this.editor.commands.sinkListItem("blockContainer");
+        return true;
       },
       "Shift-Tab": () => {
-        // this.editor.commands.liftListItem("blockContainer");
-        // return true;
+        if (
+          this.options.editor.formattingToolbar?.shown ||
+          this.options.editor.linkToolbar?.shown ||
+          this.options.editor.imagePanel?.shown
+        ) {
+          // don't handle tabs if the formatting toolbar is shown, so we can tab into / out of it
+          return false;
+        }
+        this.editor.commands.liftListItem("blockContainer");
+        return true;
       },
     };
   },

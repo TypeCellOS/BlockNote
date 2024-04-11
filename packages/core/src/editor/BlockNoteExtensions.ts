@@ -97,7 +97,9 @@ export const getBlockNoteExtensions = <
       name: "OverrideEscape",
       addKeyboardShortcuts() {
         return {
-          Escape: () => this.editor.commands.blur(),
+          Escape: () => {
+            return this.editor.commands.blur();
+          },
         };
       },
     }),
@@ -105,7 +107,7 @@ export const getBlockNoteExtensions = <
     // nodes
     Doc,
     BlockContainer.configure({
-      editor: opts.editor as any,
+      editor: opts.editor,
       domAttributes: opts.domAttributes,
     }),
     BlockGroup.configure({

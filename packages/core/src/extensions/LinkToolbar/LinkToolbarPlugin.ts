@@ -4,8 +4,8 @@ import { Mark } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
 
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
-import { BlockSchema, InlineContentSchema, StyleSchema } from "../../schema";
 import { UiElementPosition } from "../../extensions-shared/UiElementPosition";
+import { BlockSchema, InlineContentSchema, StyleSchema } from "../../schema";
 import { EventEmitter } from "../../util/EventEmitter";
 
 export type LinkToolbarState = UiElementPosition & {
@@ -263,6 +263,13 @@ class LinkToolbarView {
     document.removeEventListener("scroll", this.scrollHandler);
     document.removeEventListener("click", this.clickHandler, true);
   }
+
+  closeMenu = () => {
+    if (this.state?.show) {
+      this.state.show = false;
+      this.emitUpdate();
+    }
+  };
 }
 
 export const linkToolbarPluginKey = new PluginKey("LinkToolbarPlugin");
@@ -285,7 +292,20 @@ export class LinkToolbarProsemirrorPlugin<
         });
         return this.view;
       },
+      props: {
+        handleKeyDown: (_view, event: KeyboardEvent) => {
+          if (event.key === "Escape" && this.shown) {
+            this.view!.closeMenu();
+            return true;
+          }
+          return false;
+        },
+      },
     });
+  }
+
+  public get shown() {
+    return this.view?.state?.show || false;
   }
 
   public onUpdate(callback: (state: LinkToolbarState) => void) {
@@ -327,4 +347,6 @@ export class LinkToolbarProsemirrorPlugin<
   public stopHideTimer = () => {
     this.view!.stopMenuUpdateTimer();
   };
+
+  public closeMenu = () => this.view!.closeMenu();
 }

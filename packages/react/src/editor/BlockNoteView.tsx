@@ -235,7 +235,6 @@ export const BlockNoteContentEditable = React.forwardRef<HTMLDivElement>(
         aria-autocomplete="list"
         aria-haspopup="listbox"
         aria-placeholder="Enter text or type '/' for commands" // TODO: configurable
-        tabIndex={0}
         {...ctx.props}
       />
     );

@@ -89,7 +89,6 @@ export const FormattingToolbarController = (props: {
       middleware: [offset(10), flip()],
       onOpenChange: (open) => {
         if (!open) {
-          // debugger;
           editor.formattingToolbar.closeMenu();
           editor.focus();
         }
@@ -124,11 +123,7 @@ export const FormattingToolbarController = (props: {
   const Component = props.formattingToolbar || FormattingToolbar;
 
   return (
-    <div
-      ref={combinedRef}
-      style={style}
-      {...getFloatingProps()}
-      tabIndex={undefined}>
+    <div ref={combinedRef} style={style} {...getFloatingProps()}>
       <Component />
     </div>
   );

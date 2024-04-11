@@ -227,7 +227,7 @@ export class FormattingToolbarProsemirrorPlugin extends EventEmitter<any> {
       },
       props: {
         handleKeyDown: (_view, event: KeyboardEvent) => {
-          if (event.key === "Escape") {
+          if (event.key === "Escape" && this.shown) {
             this.view!.closeMenu();
             return true;
           }
@@ -237,9 +237,13 @@ export class FormattingToolbarProsemirrorPlugin extends EventEmitter<any> {
     });
   }
 
+  public get shown() {
+    return this.view?.state?.show || false;
+  }
+
   public onUpdate(callback: (state: FormattingToolbarState) => void) {
     return this.on("update", callback);
   }
 
-  closeMenu = () => this.view!.closeMenu();
+  public closeMenu = () => this.view!.closeMenu();
 }

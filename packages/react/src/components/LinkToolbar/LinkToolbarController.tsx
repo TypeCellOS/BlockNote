@@ -34,13 +34,19 @@ export const LinkToolbarController = <
   const state = useUIPluginState(
     editor.linkToolbar.onUpdate.bind(editor.linkToolbar)
   );
-  const { isMounted, ref, style } = useUIElementPositioning(
+  const { isMounted, ref, style, getFloatingProps } = useUIElementPositioning(
     state?.show || false,
     state?.referencePos || null,
     4000,
     {
       placement: "top-start",
       middleware: [offset(10), flip()],
+      onOpenChange: (open) => {
+        if (!open) {
+          editor.linkToolbar.closeMenu();
+          editor.focus();
+        }
+      },
     }
   );
 
@@ -53,7 +59,7 @@ export const LinkToolbarController = <
   const Component = props.linkToolbar || LinkToolbar;
 
   return (
-    <div ref={ref} style={style}>
+    <div ref={ref} style={style} {...getFloatingProps()}>
       <Component {...data} {...callbacks} />
     </div>
   );

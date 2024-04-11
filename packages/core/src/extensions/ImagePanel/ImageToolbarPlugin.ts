@@ -1,15 +1,15 @@
 import { EditorState, Plugin, PluginKey } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 
+import { DefaultBlockSchema } from "../../blocks/defaultBlocks";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
+import { UiElementPosition } from "../../extensions-shared/UiElementPosition";
 import type {
   BlockFromConfig,
   InlineContentSchema,
   StyleSchema,
 } from "../../schema";
-import { UiElementPosition } from "../../extensions-shared/UiElementPosition";
 import { EventEmitter } from "../../util/EventEmitter";
-import { DefaultBlockSchema } from "../../blocks/defaultBlocks";
 
 export type ImagePanelState<
   I extends InlineContentSchema,
@@ -140,6 +140,13 @@ export class ImagePanelView<
 
     document.removeEventListener("scroll", this.scrollHandler);
   }
+
+  closeMenu = () => {
+    if (this.state?.show) {
+      this.state.show = false;
+      this.emitUpdate();
+    }
+  };
 }
 
 const imagePanelPluginKey = new PluginKey("ImagePanelPlugin");
@@ -170,6 +177,15 @@ export class ImagePanelProsemirrorPlugin<
         );
         return this.view;
       },
+      props: {
+        handleKeyDown: (_view, event: KeyboardEvent) => {
+          if (event.key === "Escape" && this.shown) {
+            this.view!.closeMenu();
+            return true;
+          }
+          return false;
+        },
+      },
       state: {
         init: () => {
           return {
@@ -189,7 +205,13 @@ export class ImagePanelProsemirrorPlugin<
     });
   }
 
+  public get shown() {
+    return this.view?.state?.show || false;
+  }
+
   public onUpdate(callback: (state: ImagePanelState<I, S>) => void) {
     return this.on("update", callback);
   }
+
+  public closeMenu = () => this.view!.closeMenu();
 }
