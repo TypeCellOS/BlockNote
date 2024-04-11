@@ -1,8 +1,7 @@
 import { mergeCSSClasses } from "@blocknote/core";
+import { ComponentProps } from "@blocknote/react";
 
-import { PanelTabProps } from "../../../react/src";
-
-export const PanelTab = (props: PanelTabProps) => {
+export const PanelTab = (props: ComponentProps["ImagePanel"]["TabPanel"]) => {
   const { className, children, ...rest } = props;
 
   return (

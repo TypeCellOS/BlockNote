@@ -29,7 +29,8 @@ const icons: Record<TextAlignment, IconType> = {
 };
 
 export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
-  const components = useComponentsContext()!;
+  const Components = useComponentsContext()!;
+
   const editor = useBlockNoteEditor<
     BlockSchema,
     InlineContentSchema,
@@ -73,7 +74,8 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
 
   const Icon: IconType = icons[props.textAlignment];
   return (
-    <components.ToolbarButton
+    <Components.FormattingToolbar.Button
+      className={"bn-text-align-button"}
       onClick={() => setTextAlignment(props.textAlignment)}
       isSelected={textAlignment === props.textAlignment}
       mainTooltip={

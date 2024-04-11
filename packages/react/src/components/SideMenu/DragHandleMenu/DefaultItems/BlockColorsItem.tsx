@@ -24,7 +24,8 @@ export const BlockColorsItem = <
     children: ReactNode;
   }
 ) => {
-  const components = useComponentsContext()!;
+  const Components = useComponentsContext()!;
+
   const editor = useBlockNoteEditor<BSchema, I, S>();
 
   if (
@@ -35,14 +36,14 @@ export const BlockColorsItem = <
   }
 
   return (
-    <components.Menu sub={true}>
-      <components.MenuTrigger sub={true}>
-        <components.MenuItem subTrigger={true}>
+    <Components.Generic.Menu.Root sub={true}>
+      <Components.Generic.Menu.Trigger sub={true}>
+        <Components.Generic.Menu.Item subTrigger={true}>
           {props.children}
-        </components.MenuItem>
-      </components.MenuTrigger>
+        </Components.Generic.Menu.Item>
+      </Components.Generic.Menu.Trigger>
 
-      <components.MenuDropdown sub={true}>
+      <Components.Generic.Menu.Dropdown sub={true}>
         <ColorPicker
           iconSize={18}
           text={
@@ -78,7 +79,7 @@ export const BlockColorsItem = <
               : undefined
           }
         />
-      </components.MenuDropdown>
-    </components.Menu>
+      </Components.Generic.Menu.Dropdown>
+    </Components.Generic.Menu.Root>
   );
 };

@@ -8,13 +8,15 @@ import {
 import { useState } from "react";
 
 import {
-  PanelProps,
+  ComponentProps,
   useComponentsContext,
 } from "../../editor/ComponentsContext";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor";
 import { ImagePanelProps } from "./ImagePanelProps";
 import { EmbedTab } from "./DefaultTabs/EmbedTab";
 import { UploadTab } from "./DefaultTabs/UploadTab";
+
+type PanelProps = ComponentProps["ImagePanel"]["Root"];
 
 /**
  * By default, the ImageToolbar component will render with default tabs.
@@ -29,7 +31,7 @@ export const ImagePanel = <
   props: ImagePanelProps<I, S> &
     Partial<Pick<PanelProps, "defaultOpenTab" | "tabs">>
 ) => {
-  const components = useComponentsContext()!;
+  const Components = useComponentsContext()!;
 
   const editor = useBlockNoteEditor<
     { image: DefaultBlockSchema["image"] },
@@ -59,7 +61,7 @@ export const ImagePanel = <
   );
 
   return (
-    <components.Panel
+    <Components.ImagePanel.Root
       defaultOpenTab={openTab}
       openTab={openTab}
       setOpenTab={setOpenTab}

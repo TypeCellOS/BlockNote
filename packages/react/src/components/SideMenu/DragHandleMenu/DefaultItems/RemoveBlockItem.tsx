@@ -21,12 +21,14 @@ export const RemoveBlockItem = <
     children: ReactNode;
   }
 ) => {
-  const components = useComponentsContext()!;
+  const Components = useComponentsContext()!;
+
   const editor = useBlockNoteEditor<BSchema, I, S>();
 
   return (
-    <components.MenuItem onClick={() => editor.removeBlocks([props.block])}>
+    <Components.Generic.Menu.Item
+      onClick={() => editor.removeBlocks([props.block])}>
       {props.children}
-    </components.MenuItem>
+    </Components.Generic.Menu.Item>
   );
 };

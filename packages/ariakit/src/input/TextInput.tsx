@@ -1,8 +1,10 @@
 import * as Ariakit from "@ariakit/react";
 
-import { TextInputProps } from "@blocknote/react";
+import { ComponentProps } from "@blocknote/react";
 
-export const TextInput = (props: TextInputProps) => {
+export const TextInput = (
+  props: ComponentProps["Generic"]["Form"]["TextInput"]
+) => {
   const { icon, ...rest } = props;
 
   // TODO: support icon

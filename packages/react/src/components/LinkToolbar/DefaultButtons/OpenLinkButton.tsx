@@ -3,10 +3,11 @@ import { LinkToolbarProps } from "../LinkToolbarProps";
 import { useComponentsContext } from "../../../editor/ComponentsContext";
 
 export const OpenLinkButton = (props: Pick<LinkToolbarProps, "url">) => {
-  const components = useComponentsContext()!;
+  const Components = useComponentsContext()!;
 
   return (
-    <components.ToolbarButton
+    <Components.LinkToolbar.Button
+      className={"bn-open-link-button"}
       mainTooltip="Open in new tab"
       isSelected={false}
       onClick={() => {

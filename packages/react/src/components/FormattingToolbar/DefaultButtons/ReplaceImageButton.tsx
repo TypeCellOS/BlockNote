@@ -13,7 +13,8 @@ import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
 import { ImagePanel } from "../../ImagePanel/ImagePanel";
 
 export const ReplaceImageButton = () => {
-  const components = useComponentsContext()!;
+  const Components = useComponentsContext()!;
+
   const editor = useBlockNoteEditor<
     BlockSchema,
     InlineContentSchema,
@@ -39,18 +40,20 @@ export const ReplaceImageButton = () => {
   }
 
   return (
-    <components.Popover opened={isOpen} position={"bottom"}>
-      <components.PopoverTrigger>
-        <components.ToolbarButton
+    <Components.Generic.Popover.Root opened={isOpen} position={"bottom"}>
+      <Components.Generic.Popover.Trigger>
+        <Components.FormattingToolbar.Button
+          className={"bn-replace-image-button"}
           onClick={() => setIsOpen(!isOpen)}
           isSelected={isOpen}
           mainTooltip={"Replace Image"}
           icon={<RiImageEditFill />}
         />
-      </components.PopoverTrigger>
-      <components.PopoverContent>
+      </Components.Generic.Popover.Trigger>
+      <Components.Generic.Popover.Content
+        className={"bn-replace-image-dropdown"}>
         <ImagePanel block={block} />
-      </components.PopoverContent>
-    </components.Popover>
+      </Components.Generic.Popover.Content>
+    </Components.Generic.Popover.Root>
   );
 };

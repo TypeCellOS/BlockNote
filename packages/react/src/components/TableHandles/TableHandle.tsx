@@ -22,13 +22,14 @@ export const TableHandle = <
 >(
   props: TableHandleProps<I, S> & { children?: ReactNode }
 ) => {
-  const components = useComponentsContext()!;
+  const Components = useComponentsContext()!;
+
   const [isDragging, setIsDragging] = useState(false);
 
   const Component = props.tableHandleMenu || TableHandleMenu;
 
   return (
-    <components.Menu
+    <Components.Generic.Menu.Root
       onOpenChange={(open: boolean) => {
         if (open) {
           props.freezeHandles();
@@ -39,7 +40,7 @@ export const TableHandle = <
         }
       }}
       position={"right"}>
-      <components.MenuTrigger>
+      <Components.Generic.Menu.Trigger>
         <div
           className={mergeCSSClasses(
             "bn-table-handle",
@@ -63,12 +64,12 @@ export const TableHandle = <
             <MdDragIndicator size={24} data-test={"tableHandle"} />
           )}
         </div>
-      </components.MenuTrigger>
+      </Components.Generic.Menu.Trigger>
       <Component
         orientation={props.orientation}
         block={props.block as any}
         index={props.index}
       />
-    </components.Menu>
+    </Components.Generic.Menu.Root>
   );
 };

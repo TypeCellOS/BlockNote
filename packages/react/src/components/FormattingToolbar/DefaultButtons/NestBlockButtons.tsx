@@ -13,7 +13,7 @@ import { useEditorContentOrSelectionChange } from "../../../hooks/useEditorConte
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
 
 export const NestBlockButton = () => {
-  const components = useComponentsContext()!;
+  const Components = useComponentsContext()!;
 
   const editor = useBlockNoteEditor<
     BlockSchema,
@@ -47,7 +47,8 @@ export const NestBlockButton = () => {
   }
 
   return (
-    <components.ToolbarButton
+    <Components.FormattingToolbar.Button
+      className={"bn-nest-block-button"}
       onClick={nestBlock}
       isDisabled={!canNestBlock}
       mainTooltip="Nest Block"
@@ -58,7 +59,8 @@ export const NestBlockButton = () => {
 };
 
 export const UnnestBlockButton = () => {
-  const components = useComponentsContext()!;
+  const Components = useComponentsContext()!;
+
   const editor = useBlockNoteEditor<any, any, any>();
 
   const selectedBlocks = useSelectedBlocks(editor);
@@ -87,7 +89,8 @@ export const UnnestBlockButton = () => {
   }
 
   return (
-    <components.ToolbarButton
+    <Components.FormattingToolbar.Button
+      className={"bn-unnest-block-button"}
       onClick={unnestBlock}
       isDisabled={!canUnnestBlock}
       mainTooltip="Unnest Block"

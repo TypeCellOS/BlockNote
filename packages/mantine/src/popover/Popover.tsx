@@ -1,6 +1,10 @@
 import * as Mantine from "@mantine/core";
 
-export const Popover = (props: Mantine.PopoverProps) => {
+import { ComponentProps } from "@blocknote/react";
+
+export const Popover = (
+  props: ComponentProps["Generic"]["Popover"]["Root"]
+) => {
   const { children, ...rest } = props;
 
   return (
@@ -9,3 +13,11 @@ export const Popover = (props: Mantine.PopoverProps) => {
     </Mantine.Popover>
   );
 };
+
+export const PopoverTrigger = (
+  props: ComponentProps["Generic"]["Popover"]["Trigger"]
+) => <Mantine.PopoverTarget>{props.children}</Mantine.PopoverTarget>;
+
+export const PopoverContent = (
+  props: ComponentProps["Generic"]["Popover"]["Content"]
+) => <Mantine.PopoverDropdown>{props.children}</Mantine.PopoverDropdown>;

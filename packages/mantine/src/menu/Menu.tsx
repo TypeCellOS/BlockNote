@@ -1,21 +1,14 @@
 import * as Mantine from "@mantine/core";
 
-import {
-  MenuDropdownProps,
-  MenuItemProps,
-  MenuProps,
-  MenuTriggerProps,
-} from "@blocknote/react";
+import { ComponentProps } from "@blocknote/react";
 import {
   createContext,
-  forwardRef,
   useCallback,
   useContext,
   useRef,
   useState,
 } from "react";
 import { HiChevronRight } from "react-icons/hi";
-import { MenuDividerProps } from "@mantine/core";
 
 const SubMenuContext = createContext<
   | {
@@ -27,9 +20,7 @@ const SubMenuContext = createContext<
   | undefined
 >(undefined);
 
-const SubMenu = (props: MenuProps) => {
-  const { sub, onOpenChange, ...rest } = props;
-
+const SubMenu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
   const [opened, setOpened] = useState(false);
 
   const menuCloseTimer = useRef<ReturnType<typeof setTimeout> | undefined>();
@@ -63,17 +54,16 @@ const SubMenu = (props: MenuProps) => {
         opened={opened}
         withinPortal={false}
         middlewares={{ flip: true, shift: true, inline: false, size: true }}
-        onClose={() => onOpenChange?.(false)}
-        onOpen={() => onOpenChange?.(true)}
+        onClose={() => props.onOpenChange?.(false)}
+        onOpen={() => props.onOpenChange?.(true)}
         closeOnItemClick={false}
-        {...rest}
         position="right"
       />
     </SubMenuContext.Provider>
   );
 };
 
-export const Menu = (props: MenuProps) => {
+export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
   const { sub, onOpenChange, ...rest } = props;
 
   if (sub) {
@@ -83,7 +73,7 @@ export const Menu = (props: MenuProps) => {
   return (
     <Mantine.Menu
       withinPortal={false}
-      middlewares={{ flip: true, shift: true, inline: false, size: true }}
+      // middlewares={{ flip: true, shift: true, inline: false, size: true }}
       onClose={() => onOpenChange?.(false)}
       onOpen={() => onOpenChange?.(true)}
       closeOnItemClick={false}
@@ -93,73 +83,56 @@ export const Menu = (props: MenuProps) => {
   );
 };
 
-export const MenuItem = forwardRef<HTMLDivElement, MenuItemProps>(
-  (props, ref) => {
-    const { icon, checked, subTrigger, ...rest } = props;
-    const ctx = useContext(SubMenuContext);
+export const MenuItem = (props: ComponentProps["Generic"]["Menu"]["Item"]) => {
+  const ctx = useContext(SubMenuContext);
 
-    const onMouseLeave = subTrigger ? ctx!.onTriggerMouseLeave : undefined;
-    const onMouseOver = subTrigger ? ctx!.onTriggerMouseOver : undefined;
+  const onMouseLeave = props.subTrigger ? ctx!.onTriggerMouseLeave : undefined;
+  const onMouseOver = props.subTrigger ? ctx!.onTriggerMouseOver : undefined;
 
-    return (
-      <Mantine.MenuItem
-        component="div"
-        leftSection={icon}
-        rightSection={
-          <>
-            {checked ? (
-              <Mantine.CheckIcon size={10} />
-            ) : checked === false ? (
-              <div className={"bn-tick-space"} />
-            ) : undefined}
-            {subTrigger && <HiChevronRight size={15} />}
-          </>
-        }
-        onMouseOver={onMouseOver}
-        onMouseLeave={onMouseLeave}
-        {...rest}
-        ref={ref}
-      />
-    );
-  }
-);
+  return (
+    <Mantine.MenuItem
+      className={props.className}
+      component="div"
+      leftSection={props.icon}
+      rightSection={
+        <>
+          {props.checked ? (
+            <Mantine.CheckIcon size={10} />
+          ) : !props.checked ? (
+            <div className={"bn-tick-space"} />
+          ) : undefined}
+          {props.subTrigger && <HiChevronRight size={15} />}
+        </>
+      }
+      onMouseOver={onMouseOver}
+      onMouseLeave={onMouseLeave}
+    />
+  );
+};
 
-export const MenuTrigger = forwardRef<HTMLDivElement, MenuTriggerProps>(
-  (props, ref) => {
-    const { sub, children, ...rest } = props;
-    return (
-      <Mantine.MenuTarget {...rest} ref={ref}>
-        {children}
-      </Mantine.MenuTarget>
-    );
-  }
-);
+export const MenuTrigger = (
+  props: ComponentProps["Generic"]["Menu"]["Trigger"]
+) => <Mantine.MenuTarget>{props.children}</Mantine.MenuTarget>;
 
-export const MenuDropdown = forwardRef<HTMLDivElement, MenuDropdownProps>(
-  (props, ref) => {
-    const { sub, ...rest } = props;
-    const ctx = useContext(SubMenuContext);
+export const MenuDropdown = (
+  props: ComponentProps["Generic"]["Menu"]["Dropdown"]
+) => {
+  const ctx = useContext(SubMenuContext);
 
-    return (
-      <Mantine.MenuDropdown
-        onMouseOver={ctx?.onMenuMouseOver}
-        onMouseLeave={ctx?.onMenuMouseLeave}
-        style={sub ? { marginLeft: "5px" } : {}} // TODO: Needed?
-        {...rest}
-        ref={ref}
-      />
-    );
-  }
-);
+  return (
+    <Mantine.MenuDropdown
+      className={props.className}
+      onMouseOver={ctx?.onMenuMouseOver}
+      onMouseLeave={ctx?.onMenuMouseLeave}
+      style={props.sub ? { marginLeft: "5px" } : {}} // TODO: Needed?
+    />
+  );
+};
 
-export const MenuDivider = forwardRef<HTMLDivElement, MenuDividerProps>(
-  (props, ref) => {
-    return <Mantine.MenuDivider {...props} ref={ref} />;
-  }
-);
+export const MenuDivider = (
+  props: ComponentProps["Generic"]["Menu"]["Divider"]
+) => <Mantine.MenuDivider {...props} />;
 
-export const MenuLabel = forwardRef<HTMLDivElement, Record<string, never>>(
-  (props, ref) => {
-    return <Mantine.MenuLabel {...props} ref={ref} />;
-  }
-);
+export const MenuLabel = (
+  props: ComponentProps["Generic"]["Menu"]["Label"]
+) => <Mantine.MenuLabel {...props} />;

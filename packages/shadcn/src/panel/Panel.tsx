@@ -1,13 +1,12 @@
-import { PanelProps } from "../../../react/src";
-
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
 } from "../components/ui/tabs";
+import { ComponentProps } from "@blocknote/react";
 
-export const Panel = (props: PanelProps) => {
+export const Panel = (props: ComponentProps["ImagePanel"]["Root"]) => {
   return (
     <Tabs
       className={"bn-image-panel"}

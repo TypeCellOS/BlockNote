@@ -44,8 +44,6 @@ export * from "./components/SuggestionMenu/getDefaultReactSlashMenuItems";
 export * from "./components/SuggestionMenu/hooks/useCloseSuggestionMenuNoItems";
 export * from "./components/SuggestionMenu/hooks/useLoadSuggestionMenuItems";
 export * from "./components/SuggestionMenu/hooks/useSuggestionMenuKeyboardNavigation";
-export * from "./components/SuggestionMenu/implementation/SuggestionMenu";
-export * from "./components/SuggestionMenu/implementation/SuggestionMenuItem";
 export * from "./components/SuggestionMenu/types";
 
 export * from "./components/ImagePanel/ImagePanelController";

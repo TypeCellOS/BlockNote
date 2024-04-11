@@ -40,7 +40,8 @@ export const CreateLinkButton = () => {
     InlineContentSchema,
     StyleSchema
   >();
-  const components = useComponentsContext()!;
+  const Components = useComponentsContext()!;
+
   const linkInSchema = checkLinkInSchema(editor);
 
   const selectedBlocks = useSelectedBlocks(editor);
@@ -80,18 +81,19 @@ export const CreateLinkButton = () => {
   }
 
   return (
-    <components.Popover>
-      <components.PopoverTrigger>
+    <Components.Generic.Popover.Root>
+      <Components.Generic.Popover.Trigger>
         {/* TODO: hide tooltip on click */}
-        <components.ToolbarButton
+        <Components.FormattingToolbar.Button
+          className={"bn-create-link-button"}
           mainTooltip={"Create Link"}
           secondaryTooltip={formatKeyboardShortcut("Mod+K")}
           icon={<RiLink />}
         />
-      </components.PopoverTrigger>
-      <components.PopoverContent>
+      </Components.Generic.Popover.Trigger>
+      <Components.Generic.Popover.Content className={"bn-create-link-dropdown"}>
         <EditLinkMenuItems url={url} text={text} editLink={update} />
-      </components.PopoverContent>
-    </components.Popover>
+      </Components.Generic.Popover.Content>
+    </Components.Generic.Popover.Root>
   );
 };

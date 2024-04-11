@@ -1,11 +1,5 @@
-import {
-  MenuDropdownProps,
-  MenuItemProps,
-  MenuProps,
-  MenuTriggerProps,
-} from "@blocknote/react";
+import { ComponentProps } from "@blocknote/react";
 import { ChevronRight } from "lucide-react";
-import React from "react";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -18,62 +12,49 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "../components/ui/dropdown-menu";
-import { cn } from "../lib/utils";
 
-export const Menu = React.forwardRef((props: MenuProps, ref) => {
+export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
   const { sub, position, ...rest } = props;
 
   if (sub) {
-    return <DropdownMenuSub {...rest} ref={ref} />;
+    return <DropdownMenuSub {...rest} />;
   } else {
     // return <DropdownMenuDemo />;
-    return <DropdownMenu {...rest} ref={ref} />;
+    return <DropdownMenu {...rest} />;
   }
-});
+};
 
-export const MenuTrigger = React.forwardRef((props: MenuTriggerProps, ref) => {
+export const MenuTrigger = (
+  props: ComponentProps["Generic"]["Menu"]["Trigger"]
+) => {
   const { sub, ...rest } = props;
 
   if (sub) {
-    return <DropdownMenuSubTrigger asChild {...rest} ref={ref} />;
+    return <DropdownMenuSubTrigger {...rest} />;
   } else {
-    return <DropdownMenuTrigger asChild {...rest} ref={ref} />;
+    return <DropdownMenuTrigger {...rest} />;
   }
-});
+};
 
-export const MenuDropdown = React.forwardRef(
-  (props: MenuDropdownProps, ref) => {
-    const { sub, position, ...rest } = props;
+export const MenuDropdown = (
+  props: ComponentProps["Generic"]["Menu"]["Dropdown"]
+) => {
+  const { sub, ...rest } = props;
 
-    if (sub) {
-      return (
-        <DropdownMenuSubContent
-          className={cn("bn-ui-container", props.className)}
-          {...rest}
-          side={position}
-          ref={ref}
-        />
-      );
-    } else {
-      return (
-        <DropdownMenuContent
-          className={cn("bn-ui-container", props.className)}
-          {...rest}
-          side={position}
-          ref={ref}
-        />
-      );
-    }
+  if (sub) {
+    return <DropdownMenuSubContent {...rest} />;
+  } else {
+    return <DropdownMenuContent {...rest} />;
   }
-);
+};
 
-export const MenuItem = React.forwardRef((props: MenuItemProps, ref) => {
+export const MenuItem = (props: ComponentProps["Generic"]["Menu"]["Item"]) => {
   // TODO: implement icon
   const { icon, children, ...rest } = props;
 
   if (props.checked !== undefined) {
     return (
-      <DropdownMenuCheckboxItem icon={icon} {...rest} ref={ref}>
+      <DropdownMenuCheckboxItem {...rest}>
         {props.icon}
         {props.children}
       </DropdownMenuCheckboxItem>
@@ -81,13 +62,15 @@ export const MenuItem = React.forwardRef((props: MenuItemProps, ref) => {
   }
 
   return (
-    <DropdownMenuItem {...rest} ref={ref}>
+    <DropdownMenuItem {...rest}>
       {props.icon}
       {props.children}
       {props.subTrigger && <ChevronRight className="ml-auto h-4 w-4" />}
     </DropdownMenuItem>
   );
-});
+};
 
-export const MenuDivider = DropdownMenuSeparator;
+export const MenuDivider = (
+  props: ComponentProps["Generic"]["Menu"]["Divider"]
+) => <DropdownMenuSeparator {...props} />;
 export const MenuLabel = DropdownMenuLabel;

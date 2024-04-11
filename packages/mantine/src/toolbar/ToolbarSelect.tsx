@@ -1,12 +1,14 @@
 import * as Mantine from "@mantine/core";
 
 import { isSafari } from "@blocknote/core";
-import { ToolbarSelectProps } from "@blocknote/react";
+import { ComponentProps } from "@blocknote/react";
 import { HiChevronDown } from "react-icons/hi";
 import { TiTick } from "react-icons/ti";
 
 // TODO: turn into select
-export function ToolbarSelect(props: ToolbarSelectProps) {
+export function ToolbarSelect(
+  props: ComponentProps["FormattingToolbar"]["Select"]
+) {
   const selectedItem = props.items.filter((p) => p.isSelected)[0];
 
   if (!selectedItem) {
@@ -38,7 +40,7 @@ export function ToolbarSelect(props: ToolbarSelectProps) {
           {selectedItem.text}
         </Mantine.Button>
       </Mantine.Menu.Target>
-      <Mantine.Menu.Dropdown>
+      <Mantine.Menu.Dropdown className={props.className}>
         {props.items.map((item) => (
           <Mantine.Menu.Item
             key={item.text}

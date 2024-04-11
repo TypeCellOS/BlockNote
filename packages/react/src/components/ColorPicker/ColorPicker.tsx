@@ -13,12 +13,12 @@ export const ColorPicker = (props: {
     setColor: (color: string) => void;
   };
 }) => {
-  const components = useComponentsContext()!;
+  const Components = useComponentsContext()!;
 
   const TextColorSection = () =>
     props.text ? (
       <>
-        <components.MenuLabel>Text</components.MenuLabel>
+        <Components.Generic.Menu.Label>Text</Components.Generic.Menu.Label>
         {[
           "default",
           "gray",
@@ -31,7 +31,7 @@ export const ColorPicker = (props: {
           "purple",
           "pink",
         ].map((color) => (
-          <components.MenuItem
+          <Components.Generic.Menu.Item
             onClick={() => {
               props.onClick && props.onClick();
               props.text!.setColor(color);
@@ -41,7 +41,7 @@ export const ColorPicker = (props: {
             checked={props.text!.color === color}
             key={"text-color-" + color}>
             {color.charAt(0).toUpperCase() + color.slice(1)}
-          </components.MenuItem>
+          </Components.Generic.Menu.Item>
         ))}
       </>
     ) : null;
@@ -49,7 +49,9 @@ export const ColorPicker = (props: {
   const BackgroundColorSection = () =>
     props.background ? (
       <>
-        <components.MenuLabel>Background</components.MenuLabel>
+        <Components.Generic.Menu.Label>
+          Background
+        </Components.Generic.Menu.Label>
         {[
           "default",
           "gray",
@@ -62,7 +64,7 @@ export const ColorPicker = (props: {
           "purple",
           "pink",
         ].map((color) => (
-          <components.MenuItem
+          <Components.Generic.Menu.Item
             onClick={() => {
               props.onClick && props.onClick();
               props.background!.setColor(color);
@@ -72,7 +74,7 @@ export const ColorPicker = (props: {
             key={"background-color-" + color}
             checked={props.background!.color === color}>
             {color.charAt(0).toUpperCase() + color.slice(1)}
-          </components.MenuItem>
+          </Components.Generic.Menu.Item>
         ))}
       </>
     ) : null;

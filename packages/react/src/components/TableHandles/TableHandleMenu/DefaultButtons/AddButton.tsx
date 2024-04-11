@@ -17,7 +17,8 @@ export const AddRowButton = <
 >(
   props: TableHandleMenuProps<I, S> & { side: "above" | "below" }
 ) => {
-  const components = useComponentsContext()!;
+  const Components = useComponentsContext()!;
+
   const editor = useBlockNoteEditor<
     { table: DefaultBlockSchema["table"] },
     I,
@@ -25,7 +26,7 @@ export const AddRowButton = <
   >();
 
   return (
-    <components.MenuItem
+    <Components.Generic.Menu.Item
       onClick={() => {
         const emptyCol = props.block.content.rows[props.index].cells.map(
           () => []
@@ -44,7 +45,7 @@ export const AddRowButton = <
         });
       }}>
       {`Add row ${props.side}`}
-    </components.MenuItem>
+    </Components.Generic.Menu.Item>
   );
 };
 
@@ -54,7 +55,8 @@ export const AddColumnButton = <
 >(
   props: TableHandleMenuProps<I, S> & { side: "left" | "right" }
 ) => {
-  const components = useComponentsContext()!;
+  const Components = useComponentsContext()!;
+
   const editor = useBlockNoteEditor<
     { table: DefaultBlockSchema["table"] },
     I,
@@ -62,7 +64,7 @@ export const AddColumnButton = <
   >();
 
   return (
-    <components.MenuItem
+    <Components.Generic.Menu.Item
       onClick={() => {
         const content: TableContent<I, S> = {
           type: "tableContent",
@@ -79,7 +81,7 @@ export const AddColumnButton = <
         });
       }}>
       {`Add column ${props.side}`}
-    </components.MenuItem>
+    </Components.Generic.Menu.Item>
   );
 };
 

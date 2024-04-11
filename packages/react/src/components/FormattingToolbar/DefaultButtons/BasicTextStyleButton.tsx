@@ -61,7 +61,7 @@ function checkBasicTextStyleInSchema<Style extends BasicTextStyle>(
 export const BasicTextStyleButton = <Style extends BasicTextStyle>(props: {
   basicTextStyle: Style;
 }) => {
-  const components = useComponentsContext()!;
+  const Components = useComponentsContext()!;
 
   const editor = useBlockNoteEditor<
     BlockSchema,
@@ -112,7 +112,8 @@ export const BasicTextStyleButton = <Style extends BasicTextStyle>(props: {
 
   const Icon = icons[props.basicTextStyle] as any; // TODO
   return (
-    <components.ToolbarButton
+    <Components.FormattingToolbar.Button
+      className={"bn-basic-text-style-button"}
       onClick={() => toggleStyle(props.basicTextStyle)}
       isSelected={active}
       mainTooltip={

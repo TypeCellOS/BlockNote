@@ -41,7 +41,8 @@ function checkColorInSchema<Color extends "text" | "background">(
 }
 
 export const ColorStyleButton = () => {
-  const components = useComponentsContext()!;
+  const Components = useComponentsContext()!;
+
   const editor = useBlockNoteEditor<
     BlockSchema,
     InlineContentSchema,
@@ -126,9 +127,10 @@ export const ColorStyleButton = () => {
   }
 
   return (
-    <components.Menu>
-      <components.MenuTrigger>
-        <components.ToolbarButton
+    <Components.Generic.Menu.Root>
+      <Components.Generic.Menu.Trigger>
+        <Components.FormattingToolbar.Button
+          className={"bn-color-style-button"}
           mainTooltip={"Colors"}
           icon={
             <ColorIcon
@@ -138,8 +140,8 @@ export const ColorStyleButton = () => {
             />
           }
         />
-      </components.MenuTrigger>
-      <components.MenuDropdown>
+      </Components.Generic.Menu.Trigger>
+      <Components.Generic.Menu.Dropdown className={"bn-color-style-dropdown"}>
         <ColorPicker
           text={
             textColorInSchema
@@ -158,7 +160,7 @@ export const ColorStyleButton = () => {
               : undefined
           }
         />
-      </components.MenuDropdown>
-    </components.Menu>
+      </Components.Generic.Menu.Dropdown>
+    </Components.Generic.Menu.Root>
   );
 };

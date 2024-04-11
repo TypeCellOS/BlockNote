@@ -1,9 +1,11 @@
-import { TextInputProps } from "@blocknote/react";
+import { ComponentProps } from "@blocknote/react";
 
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 
-export const TextInput = (props: TextInputProps) => {
+export const TextInput = (
+  props: ComponentProps["Generic"]["Form"]["TextInput"]
+) => {
   if (!props.label) {
     return (
       <Input

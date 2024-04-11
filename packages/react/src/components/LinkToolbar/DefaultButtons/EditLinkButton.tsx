@@ -5,18 +5,21 @@ import { LinkToolbarProps } from "../LinkToolbarProps";
 export const EditLinkButton = (
   props: Pick<LinkToolbarProps, "url" | "text" | "editLink">
 ) => {
-  const components = useComponentsContext()!;
+  const Components = useComponentsContext()!;
 
   return (
-    <components.Popover>
-      <components.PopoverTrigger>
-        <components.ToolbarButton mainTooltip="Edit" isSelected={false}>
+    <Components.Generic.Popover.Root>
+      <Components.Generic.Popover.Trigger>
+        <Components.LinkToolbar.Button
+          className={"bn-edit-link-button"}
+          mainTooltip="Edit"
+          isSelected={false}>
           Edit Link
-        </components.ToolbarButton>
-      </components.PopoverTrigger>
-      <components.PopoverContent>
+        </Components.LinkToolbar.Button>
+      </Components.Generic.Popover.Trigger>
+      <Components.Generic.Popover.Content>
         <EditLinkMenuItems {...props} />
-      </components.PopoverContent>
-    </components.Popover>
+      </Components.Generic.Popover.Content>
+    </Components.Generic.Popover.Root>
   );
 };

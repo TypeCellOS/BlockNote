@@ -1,23 +1,12 @@
 import * as Ariakit from "@ariakit/react";
 
-import { mergeCSSClasses } from "@blocknote/core";
-import { forwardRef, HTMLAttributes } from "react";
+import { ComponentProps } from "@blocknote/react";
 
-export const Toolbar = forwardRef<
-  HTMLDivElement,
-  HTMLAttributes<HTMLDivElement>
->((props, ref) => {
-  const { className, children, ...rest } = props;
+type ToolbarProps = ComponentProps["FormattingToolbar"]["Root"] &
+  ComponentProps["LinkToolbar"]["Root"];
 
-  return (
-    <Ariakit.Toolbar
-      className={mergeCSSClasses("bn-toolbar", className || "")}
-      ref={ref}
-      {...rest}>
-      {children}
-    </Ariakit.Toolbar>
-  );
-});
+export const Toolbar = (props: ToolbarProps) => {
+  const { children, ...rest } = props;
 
-// export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
-//
+  return <Ariakit.Toolbar {...rest}>{children}</Ariakit.Toolbar>;
+};

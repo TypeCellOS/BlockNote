@@ -1,11 +1,11 @@
-import { filterSuggestionItems } from "@blocknote/core";
+// import { filterSuggestionItems } from "@blocknote/core";
 import { FormattingToolbarController } from "../components/FormattingToolbar/FormattingToolbarController";
 import { ImagePanelController } from "../components/ImagePanel/ImagePanelController";
 import { LinkToolbarController } from "../components/LinkToolbar/LinkToolbarController";
-import { SideMenuController } from "../components/SideMenu/SideMenuController";
-import { SuggestionMenuController } from "../components/SuggestionMenu/SuggestionMenuController";
-import { getDefaultReactSlashMenuItems } from "../components/SuggestionMenu/getDefaultReactSlashMenuItems";
-import { TableHandlesController } from "../components/TableHandles/TableHandlesController";
+// import { SideMenuController } from "../components/SideMenu/SideMenuController";
+// import { SuggestionMenuController } from "../components/SuggestionMenu/SuggestionMenuController";
+// import { getDefaultReactSlashMenuItems } from "../components/SuggestionMenu/getDefaultReactSlashMenuItems";
+// import { TableHandlesController } from "../components/TableHandles/TableHandlesController";
 import { useBlockNoteEditor } from "../hooks/useBlockNoteEditor";
 
 export type BlockNoteDefaultUIProps = {
@@ -30,25 +30,25 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
     <>
       {props.formattingToolbar !== false && <FormattingToolbarController />}
       {props.linkToolbar !== false && <LinkToolbarController />}
-      {props.slashMenu !== false && (
-        <SuggestionMenuController
-          getItems={async (query) =>
-            filterSuggestionItems(getDefaultReactSlashMenuItems(editor), query)
-          }
-          // suggestionMenuComponent={MantineSuggestionMenu}
-          onItemClick={(item) => {
-            item.onItemClick();
-          }}
-          triggerCharacter="/"
-        />
-      )}
-      {props.sideMenu !== false && <SideMenuController />}
+      {/*{props.slashMenu !== false && (*/}
+      {/*  <SuggestionMenuController*/}
+      {/*    getItems={async (query) =>*/}
+      {/*      filterSuggestionItems(getDefaultReactSlashMenuItems(editor), query)*/}
+      {/*    }*/}
+      {/*    // suggestionMenuComponent={MantineSuggestionMenu}*/}
+      {/*    onItemClick={(item) => {*/}
+      {/*      item.onItemClick();*/}
+      {/*    }}*/}
+      {/*    triggerCharacter="/"*/}
+      {/*  />*/}
+      {/*)}*/}
+      {/*{props.sideMenu !== false && <SideMenuController />}*/}
       {editor.imagePanel && props.imageToolbar !== false && (
         <ImagePanelController />
       )}
-      {editor.tableHandles && props.tableHandles !== false && (
-        <TableHandlesController />
-      )}
+      {/*{editor.tableHandles && props.tableHandles !== false && (*/}
+      {/*  <TableHandlesController />*/}
+      {/*)}*/}
     </>
   );
 }

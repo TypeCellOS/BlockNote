@@ -1,7 +1,7 @@
 import * as Mantine from "@mantine/core";
 
-import { PanelFileInputProps } from "@blocknote/react";
+import { ComponentProps } from "@blocknote/react";
 
-export const PanelFileInput = (props: PanelFileInputProps) => (
-  <Mantine.FileInput size={"xs"} {...props} />
-);
+export const PanelFileInput = (
+  props: ComponentProps["ImagePanel"]["FileInput"]
+) => <Mantine.FileInput size={"xs"} {...props} />;

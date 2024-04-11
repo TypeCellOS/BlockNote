@@ -1,8 +1,10 @@
 import * as Ariakit from "@ariakit/react";
 
-import { ToolbarSelectProps } from "@blocknote/react";
+import { ComponentProps } from "@blocknote/react";
 
-export function ToolbarSelect(props: ToolbarSelectProps) {
+export function ToolbarSelect(
+  props: ComponentProps["FormattingToolbar"]["Select"]
+) {
   const selectedItem = props.items.filter((p) => p.isSelected)[0];
 
   const setValue = (value: string) => {
@@ -13,16 +15,12 @@ export function ToolbarSelect(props: ToolbarSelectProps) {
     <Ariakit.SelectProvider value={selectedItem.text} setValue={setValue}>
       <Ariakit.Select
         aria-label="Text alignment"
-        className="button secondary"
         render={<Ariakit.ToolbarItem />}>
         {selectedItem.icon} {selectedItem.text} <Ariakit.SelectArrow />
       </Ariakit.Select>
-      <Ariakit.SelectPopover gutter={4} className="popover">
+      <Ariakit.SelectPopover className={props.className} gutter={4}>
         {props.items.map((option) => (
-          <Ariakit.SelectItem
-            key={option.text}
-            value={option.text}
-            className="select-item">
+          <Ariakit.SelectItem key={option.text} value={option.text}>
             {option.icon}
             {option.text}
           </Ariakit.SelectItem>

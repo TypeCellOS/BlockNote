@@ -1,5 +1,4 @@
-import { ToolbarButtonProps, ToolbarSelectProps } from "@blocknote/react";
-import React from "react";
+import { ComponentProps } from "@blocknote/react";
 import { Button } from "../components/ui/button";
 import {
   Select,
@@ -16,55 +15,52 @@ import {
   TooltipTrigger,
 } from "../components/ui/tooltip";
 import { cn } from "../lib/utils";
+import { forwardRef } from "react";
 
-export const Toolbar = React.forwardRef(
-  (props: { children: React.ReactNode }, ref) => {
-    return (
-      <TooltipProvider delayDuration={0}>
-        <div
-          className="flex p-[10px] w-full min-w-max rounded-md bg-white shadow-[0_2px_10px] shadow-blackA4"
-          ref={ref}
-          {...props}
-        />
-      </TooltipProvider>
-    );
-  }
-);
+type ToolbarProps = ComponentProps["FormattingToolbar"]["Root"] &
+  ComponentProps["LinkToolbar"]["Root"];
 
-export const ToolbarButton = React.forwardRef(
-  (props: ToolbarButtonProps, ref) => {
-    const {
-      icon,
-      isDisabled,
-      children,
-      mainTooltip,
-      secondaryTooltip,
-      isSelected,
-      onClick,
-      ...rest
-    } = props;
+export const Toolbar = (props: ToolbarProps) => {
+  const { className, children, ...rest } = props;
 
+  return (
+    <TooltipProvider delayDuration={0}>
+      <div
+        className={cn(
+          className,
+          "flex p-[10px] w-full min-w-max rounded-md bg-white shadow-[0_2px_10px] shadow-blackA4"
+        )}
+        {...rest}>
+        {children}
+      </div>
+    </TooltipProvider>
+  );
+};
+
+type ToolbarButtonProps = ComponentProps["FormattingToolbar"]["Button"] &
+  ComponentProps["LinkToolbar"]["Button"];
+
+export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
+  (props, ref) => {
     const trigger =
       props.isSelected === undefined ? (
         <Button
           variant="ghost"
           size="icon"
-          disabled={isDisabled}
-          onClick={onClick}
-          ref={ref}
-          {...rest}>
-          {icon}
-          {children}
+          disabled={props.isDisabled}
+          onClick={props.onClick}
+          ref={ref}>
+          {props.icon}
+          {props.children}
         </Button>
       ) : (
         <Toggle
-          onPressedChange={onClick}
-          pressed={isSelected}
-          disabled={isDisabled}
-          ref={ref}
-          data-state={isSelected ? "on" : "off"}
-          data-disabled={isDisabled}
-          {...rest}>
+          onClick={props.onClick}
+          pressed={props.isSelected}
+          disabled={props.isDisabled}
+          data-state={props.isSelected ? "on" : "off"}
+          data-disabled={props.isDisabled}
+          ref={ref}>
           {props.icon}
           {props.children}
         </Toggle>
@@ -73,14 +69,16 @@ export const ToolbarButton = React.forwardRef(
     return (
       <Tooltip>
         <TooltipTrigger asChild>{trigger}</TooltipTrigger>
-        <TooltipContent>{mainTooltip}</TooltipContent>
+        <TooltipContent>{props.mainTooltip}</TooltipContent>
         {/* TODO: secondary tooltip */}
       </Tooltip>
     );
   }
 );
 
-export const ToolbarSelect = (props: ToolbarSelectProps) => {
+export const ToolbarSelect = (
+  props: ComponentProps["FormattingToolbar"]["Select"]
+) => {
   const selectedItem = props.items.filter((p) => p.isSelected)[0];
 
   if (!selectedItem) {

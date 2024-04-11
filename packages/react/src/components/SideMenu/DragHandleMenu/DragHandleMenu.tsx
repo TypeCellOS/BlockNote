@@ -28,15 +28,16 @@ export const DragHandleMenu = <
 >(
   props: DragHandleMenuProps<BSchema, I, S> & { children?: ReactNode }
 ) => {
-  const components = useComponentsContext()!;
+  const Components = useComponentsContext()!;
+
   return (
-    <components.MenuDropdown className={"bn-drag-handle-menu"}>
+    <Components.Generic.Menu.Dropdown className={"bn-drag-handle-menu"}>
       {props.children || (
         <>
           <RemoveBlockItem {...props}>Delete</RemoveBlockItem>
           <BlockColorsItem {...props}>Colors</BlockColorsItem>
         </>
       )}
-    </components.MenuDropdown>
+    </Components.Generic.Menu.Dropdown>
   );
 };

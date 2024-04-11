@@ -17,7 +17,8 @@ export const DeleteRowButton = <
 >(
   props: TableHandleMenuProps<I, S>
 ) => {
-  const components = useComponentsContext()!;
+  const Components = useComponentsContext()!;
+
   const editor = useBlockNoteEditor<
     { table: DefaultBlockSchema["table"] },
     I,
@@ -25,7 +26,7 @@ export const DeleteRowButton = <
   >();
 
   return (
-    <components.MenuItem
+    <Components.Generic.Menu.Item
       onClick={() => {
         const content: TableContent<I, S> = {
           type: "tableContent",
@@ -40,7 +41,7 @@ export const DeleteRowButton = <
         });
       }}>
       Delete row
-    </components.MenuItem>
+    </Components.Generic.Menu.Item>
   );
 };
 
@@ -50,7 +51,8 @@ export const DeleteColumnButton = <
 >(
   props: TableHandleMenuProps<I, S>
 ) => {
-  const components = useComponentsContext()!;
+  const Components = useComponentsContext()!;
+
   const editor = useBlockNoteEditor<
     { table: DefaultBlockSchema["table"] },
     I,
@@ -58,7 +60,7 @@ export const DeleteColumnButton = <
   >();
 
   return (
-    <components.MenuItem
+    <Components.Generic.Menu.Item
       onClick={() => {
         const content: TableContent<I, S> = {
           type: "tableContent",
@@ -73,7 +75,7 @@ export const DeleteColumnButton = <
         });
       }}>
       Delete column
-    </components.MenuItem>
+    </Components.Generic.Menu.Item>
   );
 };
 

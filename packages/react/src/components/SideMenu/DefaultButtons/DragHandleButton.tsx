@@ -20,11 +20,12 @@ export const DragHandleButton = <
 >(
   props: Omit<SideMenuProps<BSchema, I, S>, "addBlock">
 ) => {
-  const components = useComponentsContext()!;
+  const Components = useComponentsContext()!;
+
   const Component = props.dragHandleMenu || DragHandleMenu;
 
   return (
-    <components.Menu
+    <Components.Generic.Menu.Root
       onOpenChange={(open: boolean) => {
         if (open) {
           props.freezeMenu();
@@ -33,7 +34,7 @@ export const DragHandleButton = <
         }
       }}
       position={"left"}>
-      <components.MenuTrigger>
+      <Components.Generic.Menu.Trigger>
         {/* TODO: remove this extra div? */}
         <div
           className={"bn-drag-handle"}
@@ -44,8 +45,8 @@ export const DragHandleButton = <
             <MdDragIndicator size={24} data-test={"dragHandle"} />
           </SideMenuButton>
         </div>
-      </components.MenuTrigger>
+      </Components.Generic.Menu.Trigger>
       <Component block={props.block} />
-    </components.Menu>
+    </Components.Generic.Menu.Root>
   );
 };

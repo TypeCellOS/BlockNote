@@ -1,8 +1,7 @@
-import { Loader, PopoverDropdown, PopoverTarget } from "@mantine/core";
 import {
   BlockNoteViewRaw,
+  Components,
   ComponentsContext,
-  ComponentsContextValue,
 } from "@blocknote/react";
 import { ComponentProps } from "react";
 import { TextInput } from "./input/TextInput";
@@ -14,7 +13,7 @@ import {
   MenuLabel,
   MenuTrigger,
 } from "./menu/Menu";
-import { Popover } from "./popover/Popover";
+import { Popover, PopoverContent, PopoverTrigger } from "./popover/Popover";
 import { Toolbar } from "./toolbar/Toolbar";
 import { ToolbarButton } from "./toolbar/ToolbarButton";
 import { ToolbarSelect } from "./toolbar/ToolbarSelect";
@@ -23,31 +22,45 @@ import { PanelButton } from "./panel/PanelButton";
 import { PanelFileInput } from "./panel/PanelFileInput";
 import { PanelTab } from "./panel/PanelTab";
 import { PanelTextInput } from "./panel/PanelTextInput";
+import { createComponentsContext } from "../../react/src";
 
-export const components: ComponentsContextValue = {
-  Toolbar,
-  ToolbarButton,
-  ToolbarSelect,
-  Menu,
-  MenuTrigger,
-  MenuDropdown,
-  MenuDivider,
-  MenuLabel,
-  MenuItem,
-  Panel,
-  PanelButton,
-  PanelFileInput,
-  PanelTab,
-  PanelTextInput,
-  Popover: Popover,
-  PopoverContent: PopoverDropdown,
-  PopoverTrigger: PopoverTarget,
-  TextInput,
-  Form: (props) => <div {...props} />,
-  SuggestionMenuLoader: () => (
-    <Loader className={"bn-slash-menu-loader"} type="dots" />
-  ),
-};
+export const components: Components = createComponentsContext({
+  FormattingToolbar: {
+    Root: Toolbar,
+    Button: ToolbarButton,
+    Select: ToolbarSelect,
+  },
+  ImagePanel: {
+    Root: Panel,
+    Button: PanelButton,
+    FileInput: PanelFileInput,
+    TabPanel: PanelTab,
+    TextInput: PanelTextInput,
+  },
+  LinkToolbar: {
+    Root: Toolbar,
+    Button: ToolbarButton,
+  },
+  Generic: {
+    Form: {
+      Root: (props) => <div>{props.children}</div>,
+      TextInput: TextInput,
+    },
+    Menu: {
+      Root: Menu,
+      Trigger: MenuTrigger,
+      Dropdown: MenuDropdown,
+      Divider: MenuDivider,
+      Label: MenuLabel,
+      Item: MenuItem,
+    },
+    Popover: {
+      Root: Popover,
+      Trigger: PopoverTrigger,
+      Content: PopoverContent,
+    },
+  },
+});
 
 export const BlockNoteView = (
   props: ComponentProps<typeof BlockNoteViewRaw>

@@ -1,12 +1,10 @@
-import { PanelTextInputProps } from "../../../react/src";
 import { Input } from "../components/ui/input";
+import { ComponentProps } from "@blocknote/react";
 
-export const PanelTextInput = (props: PanelTextInputProps) => {
-  const { children, ...rest } = props;
+export const PanelTextInput = (
+  props: ComponentProps["ImagePanel"]["TextInput"]
+) => {
+  const { ...rest } = props;
 
-  return (
-    <Input {...rest} data-test={"embed-input"}>
-      {children}
-    </Input>
-  );
+  return <Input {...rest} data-test={"embed-input"} />;
 };

@@ -1,7 +1,7 @@
 import * as Mantine from "@mantine/core";
 
 import { isSafari } from "@blocknote/core";
-import { ToolbarButtonProps } from "@blocknote/react";
+import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
 
 export const TooltipContent = (props: {
@@ -16,64 +16,67 @@ export const TooltipContent = (props: {
   </Mantine.Stack>
 );
 
+type ToolbarButtonProps = ComponentProps["FormattingToolbar"]["Button"] &
+  ComponentProps["LinkToolbar"]["Button"];
+
 /**
  * Helper for basic buttons that show in the formatting toolbar.
  */
 export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
-  (props, ref) => {
-    return (
-      <Mantine.Tooltip
-        withinPortal={false}
-        label={
-          <TooltipContent
-            mainTooltip={props.mainTooltip}
-            secondaryTooltip={props.secondaryTooltip}
-          />
-        }>
-        {/*Creates an ActionIcon instead of a Button if only an icon is provided as content.*/}
-        {props.children ? (
-          <Mantine.Button
-            // Needed as Safari doesn't focus button elements on mouse down
-            // unlike other browsers.
-            onMouseDown={(e) => {
-              if (isSafari()) {
-                (e.currentTarget as HTMLButtonElement).focus();
-              }
-            }}
-            onClick={props.onClick}
-            data-selected={props.isSelected ? "true" : undefined}
-            data-test={
-              props.mainTooltip.slice(0, 1).toLowerCase() +
-              props.mainTooltip.replace(/\s+/g, "").slice(1)
+  (props, ref) => (
+    <Mantine.Tooltip
+      withinPortal={false}
+      label={
+        <TooltipContent
+          mainTooltip={props.mainTooltip}
+          secondaryTooltip={props.secondaryTooltip}
+        />
+      }>
+      {/*Creates an ActionIcon instead of a Button if only an icon is provided as content.*/}
+      {props.children ? (
+        <Mantine.Button
+          className={props.className}
+          // Needed as Safari doesn't focus button elements on mouse down
+          // unlike other browsers.
+          onMouseDown={(e) => {
+            if (isSafari()) {
+              (e.currentTarget as HTMLButtonElement).focus();
             }
-            size={"xs"}
-            disabled={props.isDisabled || false}
-            ref={ref}>
-            {props.icon}
-            {props.children}
-          </Mantine.Button>
-        ) : (
-          <Mantine.ActionIcon
-            // Needed as Safari doesn't focus button elements on mouse down
-            // unlike other browsers.
-            onMouseDown={(e) => {
-              if (isSafari()) {
-                (e.currentTarget as HTMLButtonElement).focus();
-              }
-            }}
-            onClick={props.onClick}
-            data-selected={props.isSelected ? "true" : undefined}
-            data-test={
-              props.mainTooltip.slice(0, 1).toLowerCase() +
-              props.mainTooltip.replace(/\s+/g, "").slice(1)
+          }}
+          onClick={props.onClick}
+          data-selected={props.isSelected ? "true" : undefined}
+          data-test={
+            props.mainTooltip.slice(0, 1).toLowerCase() +
+            props.mainTooltip.replace(/\s+/g, "").slice(1)
+          }
+          size={"xs"}
+          disabled={props.isDisabled || false}
+          ref={ref}>
+          {props.icon}
+          {props.children}
+        </Mantine.Button>
+      ) : (
+        <Mantine.ActionIcon
+          className={props.className}
+          // Needed as Safari doesn't focus button elements on mouse down
+          // unlike other browsers.
+          onMouseDown={(e) => {
+            if (isSafari()) {
+              (e.currentTarget as HTMLButtonElement).focus();
             }
-            size={30}
-            disabled={props.isDisabled || false}
-            ref={ref}>
-            {props.icon}
-          </Mantine.ActionIcon>
-        )}
-      </Mantine.Tooltip>
-    );
-  }
+          }}
+          onClick={props.onClick}
+          data-selected={props.isSelected ? "true" : undefined}
+          data-test={
+            props.mainTooltip.slice(0, 1).toLowerCase() +
+            props.mainTooltip.replace(/\s+/g, "").slice(1)
+          }
+          size={30}
+          disabled={props.isDisabled || false}
+          ref={ref}>
+          {props.icon}
+        </Mantine.ActionIcon>
+      )}
+    </Mantine.Tooltip>
+  )
 );

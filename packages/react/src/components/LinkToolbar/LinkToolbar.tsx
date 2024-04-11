@@ -20,14 +20,18 @@ import { useComponentsContext } from "../../editor/ComponentsContext";
 export const LinkToolbar = (
   props: LinkToolbarProps & { children?: ReactNode }
 ) => {
-  const components = useComponentsContext()!;
+  const Components = useComponentsContext()!;
 
   if (props.children) {
-    return <components.Toolbar>{props.children}</components.Toolbar>;
+    return (
+      <Components.LinkToolbar.Root>
+        {props.children}
+      </Components.LinkToolbar.Root>
+    );
   }
 
   return (
-    <components.Toolbar
+    <Components.LinkToolbar.Root
       onMouseEnter={props.stopHideTimer}
       onMouseLeave={props.startHideTimer}>
       <EditLinkButton
@@ -37,6 +41,6 @@ export const LinkToolbar = (
       />
       <OpenLinkButton url={props.url} />
       <DeleteLinkButton deleteLink={props.deleteLink} />
-    </components.Toolbar>
+    </Components.LinkToolbar.Root>
   );
 };

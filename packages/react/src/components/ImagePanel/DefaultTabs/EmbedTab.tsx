@@ -17,7 +17,7 @@ export const EmbedTab = <
 >(
   props: ImagePanelProps<I, S>
 ) => {
-  const components = useComponentsContext()!;
+  const Components = useComponentsContext()!;
 
   const { block } = props;
 
@@ -61,20 +61,21 @@ export const EmbedTab = <
   }, [editor, block, currentURL]);
 
   return (
-    <components.PanelTab>
-      <components.PanelTextInput
+    <Components.ImagePanel.TabPanel className={"bn-image-panel-url"}>
+      <Components.ImagePanel.TextInput
+        className={"bn-image-panel-url-input"}
         placeholder={"Enter URL"}
         value={currentURL}
         onChange={handleURLChange}
         onKeyDown={handleURLEnter}
         data-test={"embed-input"}
       />
-      <components.PanelButton
-        className={"bn-image-panel-button"}
+      <Components.ImagePanel.Button
+        className={"bn-image-panel-url-button"}
         onClick={handleURLClick}
         data-test={"embed-input-button"}>
         Embed Image
-      </components.PanelButton>
-    </components.PanelTab>
+      </Components.ImagePanel.Button>
+    </Components.ImagePanel.TabPanel>
   );
 };

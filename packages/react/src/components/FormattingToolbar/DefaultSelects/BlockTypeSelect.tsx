@@ -18,7 +18,7 @@ import {
 } from "react-icons/ri";
 
 import {
-  ToolbarSelectItem,
+  ComponentProps,
   useComponentsContext,
 } from "../../../editor/ComponentsContext";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
@@ -87,7 +87,8 @@ export const blockTypeSelectItems: BlockTypeSelectItem[] = [
 ];
 
 export const BlockTypeSelect = (props: { items?: BlockTypeSelectItem[] }) => {
-  const components = useComponentsContext()!;
+  const Components = useComponentsContext()!;
+
   const editor = useBlockNoteEditor<
     BlockSchema,
     InlineContentSchema,
@@ -112,29 +113,30 @@ export const BlockTypeSelect = (props: { items?: BlockTypeSelectItem[] }) => {
     [block.type, filteredItems]
   );
 
-  const fullItems: ToolbarSelectItem[] = useMemo(() => {
-    const onClick = (item: BlockTypeSelectItem) => {
-      editor.focus();
+  const fullItems: ComponentProps["FormattingToolbar"]["Select"]["items"] =
+    useMemo(() => {
+      const onClick = (item: BlockTypeSelectItem) => {
+        editor.focus();
 
-      for (const block of selectedBlocks) {
-        editor.updateBlock(block, {
-          type: item.type as any,
-          props: item.props as any,
-        });
-      }
-    };
-
-    return filteredItems.map((item) => {
-      const Icon = item.icon;
-
-      return {
-        text: item.name,
-        icon: <Icon size={16} />,
-        onClick: () => onClick(item),
-        isSelected: item.isSelected(block),
+        for (const block of selectedBlocks) {
+          editor.updateBlock(block, {
+            type: item.type as any,
+            props: item.props as any,
+          });
+        }
       };
-    });
-  }, [block, filteredItems, editor, selectedBlocks]);
+
+      return filteredItems.map((item) => {
+        const Icon = item.icon;
+
+        return {
+          text: item.name,
+          icon: <Icon size={16} />,
+          onClick: () => onClick(item),
+          isSelected: item.isSelected(block),
+        };
+      });
+    }, [block, filteredItems, editor, selectedBlocks]);
 
   useEditorContentOrSelectionChange(() => {
     setBlock(editor.getTextCursorPosition().block);
@@ -144,5 +146,5 @@ export const BlockTypeSelect = (props: { items?: BlockTypeSelectItem[] }) => {
     return null;
   }
 
-  return <components.ToolbarSelect items={fullItems} />;
+  return <Components.FormattingToolbar.Select items={fullItems} />;
 };

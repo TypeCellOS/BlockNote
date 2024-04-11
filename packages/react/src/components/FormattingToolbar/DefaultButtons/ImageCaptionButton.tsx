@@ -12,7 +12,8 @@ import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
 
 export const ImageCaptionButton = () => {
-  const components = useComponentsContext()!;
+  const Components = useComponentsContext()!;
+
   const editor = useBlockNoteEditor<
     BlockSchema,
     InlineContentSchema,
@@ -68,14 +69,15 @@ export const ImageCaptionButton = () => {
   }
 
   return (
-    <components.Popover>
-      <components.PopoverTrigger>
-        <components.ToolbarButton
+    <Components.Generic.Popover.Root>
+      <Components.Generic.Popover.Trigger>
+        <Components.FormattingToolbar.Button
+          className={"bn-image-caption-button"}
           mainTooltip={"Edit Caption"}
           icon={<RiText />}
           isSelected={imageBlock.props.caption !== ""}
         />
-      </components.PopoverTrigger>
+      </Components.Generic.Popover.Trigger>
       {/*<components.PopoverContent>*/}
       {/*  TODO*/}
       {/*  <components.ToolbarInputsMenuItem*/}
@@ -88,6 +90,6 @@ export const ImageCaptionButton = () => {
       {/*    onChange={handleChange}*/}
       {/*  />*/}
       {/*</components.PopoverContent>*/}
-    </components.Popover>
+    </Components.Generic.Popover.Root>
   );
 };

@@ -12,7 +12,8 @@ import { LinkToolbarProps } from "./LinkToolbarProps";
 export const EditLinkMenuItems = (
   props: Pick<LinkToolbarProps, "url" | "text" | "editLink">
 ) => {
-  const components = useComponentsContext()!;
+  const Components = useComponentsContext()!;
+
   const { url, text, editLink } = props;
 
   const [currentUrl, setCurrentUrl] = useState<string>(url);
@@ -51,9 +52,9 @@ export const EditLinkMenuItems = (
   );
 
   return (
-    <components.Form>
+    <Components.Generic.Form.Root>
       {/* // TODO: add labels? */}
-      <components.TextInput
+      <Components.Generic.Form.TextInput
         name="url"
         icon={<RiLink />}
         autoFocus={true}
@@ -63,7 +64,7 @@ export const EditLinkMenuItems = (
         onChange={handleUrlChange}
         onSubmit={handleSubmit}
       />
-      <components.TextInput
+      <Components.Generic.Form.TextInput
         name="title"
         icon={<RiText />}
         placeholder={"Edit Title"}
@@ -72,6 +73,6 @@ export const EditLinkMenuItems = (
         onChange={handleTextChange}
         onSubmit={handleSubmit}
       />
-    </components.Form>
+    </Components.Generic.Form.Root>
   );
 };

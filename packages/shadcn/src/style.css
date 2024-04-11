@@ -1,3 +1,6 @@
+@import url("@blocknote/core/fonts/inter.css");
+@import url("@blocknote/react/style.css");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

@@ -20,7 +20,7 @@ export const UploadTab = <
     setLoading: (loading: boolean) => void;
   }
 ) => {
-  const components = useComponentsContext()!;
+  const Components = useComponentsContext()!;
 
   const { block, setLoading } = props;
 
@@ -72,8 +72,9 @@ export const UploadTab = <
   );
 
   return (
-    <components.PanelTab>
-      <components.PanelFileInput
+    <Components.ImagePanel.TabPanel className={"bn-image-panel-upload"}>
+      <Components.ImagePanel.FileInput
+        className={"bn-image-panel-upload-input"}
         placeholder={"Upload Image"}
         value={null}
         onChange={handleFileChange}
@@ -84,6 +85,6 @@ export const UploadTab = <
           Error: Upload failed
         </Text>
       )}
-    </components.PanelTab>
+    </Components.ImagePanel.TabPanel>
   );
 };

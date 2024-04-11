@@ -58,8 +58,8 @@ export const FormattingToolbar = (
 ) => {
   const components = useComponentsContext()!;
   return (
-    <components.Toolbar>
+    <components.FormattingToolbar.Root>
       {props.children || getFormattingToolbarItems(props.blockTypeSelectItems)}
-    </components.Toolbar>
+    </components.FormattingToolbar.Root>
   );
 };
