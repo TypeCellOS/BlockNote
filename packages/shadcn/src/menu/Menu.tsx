@@ -1,6 +1,7 @@
+import * as ShadCNDropdownMenu from "../components/ui/dropdown-menu";
+
 import { ComponentProps } from "@blocknote/react";
 import { ChevronRight } from "lucide-react";
-import * as ShadCNDropdownMenu from "../components/ui/dropdown-menu";
 
 export const Menu = (
   props: ComponentProps["Generic"]["Menu"]["Root"] &
@@ -9,17 +10,23 @@ export const Menu = (
       DropdownMenuSub: typeof ShadCNDropdownMenu.DropdownMenuSub;
     }>
 ) => {
+  const {
+    children,
+    onOpenChange,
+    // position,
+    sub,
+  } = props;
+
   const DropdownMenu = props.DropdownMenu || ShadCNDropdownMenu.DropdownMenu;
   const DropdownMenuSub =
     props.DropdownMenuSub || ShadCNDropdownMenu.DropdownMenuSub;
 
-  const { sub, position, ...rest } = props;
-
   if (sub) {
-    return <DropdownMenuSub {...rest} />;
+    return (
+      <DropdownMenuSub onOpenChange={onOpenChange}>{children}</DropdownMenuSub>
+    );
   } else {
-    // return <DropdownMenuDemo />;
-    return <DropdownMenu {...rest} />;
+    return <DropdownMenu onOpenChange={onOpenChange}>{children}</DropdownMenu>;
   }
 };
 
@@ -30,17 +37,17 @@ export const MenuTrigger = (
       DropdownMenuTrigger: typeof ShadCNDropdownMenu.DropdownMenuTrigger;
     }>
 ) => {
+  const { children, sub } = props;
+
   const DropdownMenuSubTrigger =
     props.DropdownMenuSubTrigger || ShadCNDropdownMenu.DropdownMenuSubTrigger;
   const DropdownMenuTrigger =
     props.DropdownMenuTrigger || ShadCNDropdownMenu.DropdownMenuTrigger;
 
-  const { sub, ...rest } = props;
-
   if (sub) {
-    return <DropdownMenuSubTrigger {...rest} />;
+    return <DropdownMenuSubTrigger>{children}</DropdownMenuSubTrigger>;
   } else {
-    return <DropdownMenuTrigger {...rest} />;
+    return <DropdownMenuTrigger>{children}</DropdownMenuTrigger>;
   }
 };
 
@@ -51,17 +58,25 @@ export const MenuDropdown = (
       DropdownMenuSubContent: typeof ShadCNDropdownMenu.DropdownMenuSubContent;
     }>
 ) => {
+  const { className, children, sub } = props;
+
   const DropdownMenuContent =
     props.DropdownMenuContent || ShadCNDropdownMenu.DropdownMenuContent;
   const DropdownMenuSubContent =
     props.DropdownMenuSubContent || ShadCNDropdownMenu.DropdownMenuSubContent;
 
-  const { sub, ...rest } = props;
-
   if (sub) {
-    return <DropdownMenuSubContent {...rest} />;
+    return (
+      <DropdownMenuSubContent className={className}>
+        {children}
+      </DropdownMenuSubContent>
+    );
   } else {
-    return <DropdownMenuContent {...rest} />;
+    return (
+      <DropdownMenuContent className={className}>
+        {children}
+      </DropdownMenuContent>
+    );
   }
 };
 
@@ -72,29 +87,31 @@ export const MenuItem = (
       DropdownMenuItem: typeof ShadCNDropdownMenu.DropdownMenuItem;
     }>
 ) => {
+  const { className, children, icon, checked, subTrigger, onClick } = props;
+
   const DropdownMenuCheckboxItem =
     props.DropdownMenuCheckboxItem ||
     ShadCNDropdownMenu.DropdownMenuCheckboxItem;
   const DropdownMenuItem =
     props.DropdownMenuItem || ShadCNDropdownMenu.DropdownMenuItem;
 
-  // TODO: implement icon
-  const { icon, children, ...rest } = props;
-
-  if (props.checked !== undefined) {
+  if (checked !== undefined) {
     return (
-      <DropdownMenuCheckboxItem {...rest}>
-        {props.icon}
-        {props.children}
+      <DropdownMenuCheckboxItem
+        className={className}
+        checked={checked}
+        onClick={onClick}>
+        {icon}
+        {children}
       </DropdownMenuCheckboxItem>
     );
   }
 
   return (
-    <DropdownMenuItem {...rest}>
-      {props.icon}
-      {props.children}
-      {props.subTrigger && <ChevronRight className="ml-auto h-4 w-4" />}
+    <DropdownMenuItem className={className} onClick={onClick}>
+      {icon}
+      {children}
+      {subTrigger && <ChevronRight className="ml-auto h-4 w-4" />}
     </DropdownMenuItem>
   );
 };
@@ -105,10 +122,12 @@ export const MenuDivider = (
       DropdownMenuSeparator: typeof ShadCNDropdownMenu.DropdownMenuSeparator;
     }>
 ) => {
+  const { className } = props;
+
   const DropdownMenuSeparator =
     props.DropdownMenuSeparator || ShadCNDropdownMenu.DropdownMenuSeparator;
 
-  return <DropdownMenuSeparator {...props} />;
+  return <DropdownMenuSeparator className={className} />;
 };
 
 export const MenuLabel = (
@@ -117,8 +136,12 @@ export const MenuLabel = (
       DropdownMenuLabel: typeof ShadCNDropdownMenu.DropdownMenuLabel;
     }>
 ) => {
+  const { className, children } = props;
+
   const DropdownMenuLabel =
     props.DropdownMenuLabel || ShadCNDropdownMenu.DropdownMenuLabel;
 
-  return <DropdownMenuLabel {...props} />;
+  return (
+    <DropdownMenuLabel className={className}>{children}</DropdownMenuLabel>
+  );
 };

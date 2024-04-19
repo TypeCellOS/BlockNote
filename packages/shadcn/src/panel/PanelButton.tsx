@@ -1,4 +1,5 @@
 import * as ShadCNButton from "../components/ui/button";
+
 import { ComponentProps } from "@blocknote/react";
 
 export const PanelButton = (
@@ -7,12 +8,12 @@ export const PanelButton = (
       Button: typeof ShadCNButton.Button;
     }>
 ) => {
+  const { className, children, onClick } = props;
+
   const Button = props.Button || ShadCNButton.Button;
 
-  const { children, className, ...rest } = props;
-
   return (
-    <Button variant={"outline"} {...rest}>
+    <Button variant={"outline"} className={className} onClick={onClick}>
       {children}
     </Button>
   );

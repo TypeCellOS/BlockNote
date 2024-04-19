@@ -1,10 +1,12 @@
-import { ComponentProps } from "@blocknote/react";
 import * as ShadCNButton from "../components/ui/button";
 import * as ShadCNSelect from "../components/ui/select";
 import * as ShadCNToggle from "../components/ui/toggle";
 import * as ShadCNTooltip from "../components/ui/tooltip";
-import { cn } from "../lib/utils";
+
+import { ComponentProps } from "@blocknote/react";
 import { ComponentType, forwardRef } from "react";
+
+import { cn } from "../lib/utils";
 
 type ToolbarProps = ComponentProps["FormattingToolbar"]["Root"] &
   ComponentProps["LinkToolbar"]["Root"];
@@ -15,10 +17,10 @@ export const Toolbar = (
       TooltipProvider: typeof ShadCNTooltip.TooltipProvider;
     }>
 ) => {
+  const { className, children, onMouseEnter, onMouseLeave } = props;
+
   const TooltipProvider =
     props.TooltipProvider || ShadCNTooltip.TooltipProvider;
-
-  const { className, children, ...rest } = props;
 
   return (
     <TooltipProvider delayDuration={0}>
@@ -27,7 +29,8 @@ export const Toolbar = (
           className,
           "flex p-[10px] rounded-md bg-white shadow-[0_2px_10px] shadow-blackA4"
         )}
-        {...rest}>
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}>
         {children}
       </div>
     </TooltipProvider>
@@ -48,6 +51,17 @@ export const ToolbarButton = forwardRef<
       TooltipTrigger: typeof ShadCNTooltip.TooltipTrigger;
     }>
 >((props, ref) => {
+  const {
+    className,
+    children,
+    mainTooltip,
+    // secondaryTooltip,
+    icon,
+    isSelected,
+    isDisabled,
+    onClick,
+  } = props;
+
   const Button = props.Button || ShadCNButton.Button;
   const Toggle = props.Toggle || ShadCNToggle.Toggle;
   const Tooltip = props.Tooltip || ShadCNTooltip.Tooltip;
@@ -55,33 +69,35 @@ export const ToolbarButton = forwardRef<
   const TooltipTrigger = props.TooltipTrigger || ShadCNTooltip.TooltipTrigger;
 
   const trigger =
-    props.isSelected === undefined ? (
+    isSelected === undefined ? (
       <Button
+        className={className}
         variant="ghost"
         size="sm"
-        disabled={props.isDisabled}
-        onClick={props.onClick}
+        disabled={isDisabled}
+        onClick={onClick}
         ref={ref}>
-        {props.icon}
-        {props.children}
+        {icon}
+        {children}
       </Button>
     ) : (
       <Toggle
-        onClick={props.onClick}
-        pressed={props.isSelected}
-        disabled={props.isDisabled}
-        data-state={props.isSelected ? "on" : "off"}
-        data-disabled={props.isDisabled}
+        className={className}
+        onClick={onClick}
+        pressed={isSelected}
+        disabled={isDisabled}
+        data-state={isSelected ? "on" : "off"}
+        data-disabled={isDisabled}
         ref={ref}>
-        {props.icon}
-        {props.children}
+        {icon}
+        {children}
       </Toggle>
     );
 
   return (
     <Tooltip>
       <TooltipTrigger asChild>{trigger}</TooltipTrigger>
-      <TooltipContent>{props.mainTooltip}</TooltipContent>
+      <TooltipContent>{mainTooltip}</TooltipContent>
       {/* TODO: secondary tooltip */}
     </Tooltip>
   );
@@ -98,6 +114,8 @@ export const ToolbarSelect = (
       SelectValue: typeof ShadCNSelect.SelectValue;
     }>
 ) => {
+  const { className, items, isDisabled } = props;
+
   const Select = props.Select || ShadCNSelect.Select;
   const SelectContent = props.SelectContent || ShadCNSelect.SelectContent;
   const SelectItem = props.SelectItem || ShadCNSelect.SelectItem;
@@ -106,7 +124,7 @@ export const ToolbarSelect = (
 
   const { SelectItemContent } = props;
 
-  const selectedItem = props.items.filter((p) => p.isSelected)[0];
+  const selectedItem = items.filter((p) => p.isSelected)[0];
 
   if (!selectedItem) {
     return null;
@@ -116,13 +134,14 @@ export const ToolbarSelect = (
     <Select
       value={selectedItem.text}
       onValueChange={(value) =>
-        props.items.find((item) => item.text === value)!.onClick?.()
-      }>
+        items.find((item) => item.text === value)!.onClick?.()
+      }
+      disabled={isDisabled}>
       <SelectTrigger>
         <SelectValue />
       </SelectTrigger>
-      <SelectContent>
-        {props.items.map((item) => (
+      <SelectContent className={className}>
+        {items.map((item) => (
           <SelectItem
             disabled={item.isDisabled}
             key={item.text}

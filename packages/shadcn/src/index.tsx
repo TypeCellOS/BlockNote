@@ -1,9 +1,22 @@
+import * as ShadCNButton from "./components/ui/button";
+import * as ShadCNDropdownMenu from "./components/ui/dropdown-menu";
+import * as ShadCNInput from "./components/ui/input";
+import * as ShadCNLabel from "./components/ui/label";
+import * as ShadCNPopover from "./components/ui/popover";
+import * as ShadCNSelect from "./components/ui/select";
+import * as ShadCNTabs from "./components/ui/tabs";
+import * as ShadCNToggle from "./components/ui/toggle";
+import * as ShadCNTooltip from "./components/ui/tooltip";
+
 import {
   BlockNoteViewRaw,
   Components,
   ComponentsContext,
+  createComponentsContext,
 } from "@blocknote/react";
 import { ComponentProps } from "react";
+
+import { TextInput } from "./form/TextInput";
 import {
   Menu,
   MenuDivider,
@@ -23,19 +36,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "./components/ui/popover";
-import { TextInput } from "./input/TextInput";
-import "./style.css";
-import { createComponentsContext } from "../../react/src";
 
-import * as ShadCNButton from "./components/ui/button";
-import * as ShadCNDropdownMenu from "./components/ui/dropdown-menu";
-import * as ShadCNInput from "./components/ui/input";
-import * as ShadCNLabel from "./components/ui/label";
-import * as ShadCNPopover from "./components/ui/popover";
-import * as ShadCNSelect from "./components/ui/select";
-import * as ShadCNTabs from "./components/ui/tabs";
-import * as ShadCNToggle from "./components/ui/toggle";
-import * as ShadCNTooltip from "./components/ui/tooltip";
+import "./style.css";
 
 export const components: Components = createComponentsContext({
   FormattingToolbar: {

@@ -1,4 +1,5 @@
 import * as ShadCNInput from "../components/ui/input";
+
 import { ComponentProps } from "@blocknote/react";
 
 export const PanelFileInput = (
@@ -7,14 +8,17 @@ export const PanelFileInput = (
       Input: typeof ShadCNInput.Input;
     }>
 ) => {
+  const { className, value, placeholder, onChange } = props;
+
   const Input = props.Input || ShadCNInput.Input;
 
   return (
     <Input
       type={"file"}
-      value={props.value ? props.value.name : undefined}
-      onChange={async (e) => props.onChange?.(e.target.files![0])}
-      placeholder={props.placeholder}
+      className={className}
+      value={value ? value.name : undefined}
+      onChange={async (e) => onChange?.(e.target.files![0])}
+      placeholder={placeholder}
     />
   );
 };

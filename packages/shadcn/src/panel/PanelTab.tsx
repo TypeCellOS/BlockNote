@@ -1,7 +1,7 @@
 import { ComponentProps } from "@blocknote/react";
 
 export const PanelTab = (props: ComponentProps["ImagePanel"]["TabPanel"]) => {
-  const { children, ...rest } = props;
+  const { className, children } = props;
 
-  return <div {...rest}>{children}</div>;
+  return <div className={className}>{children}</div>;
 };
