@@ -1,6 +1,7 @@
 import * as Ariakit from "@ariakit/react";
 
 import { ComponentProps } from "@blocknote/react";
+import { mergeCSSClasses } from "@blocknote/core";
 
 export const PopoverTrigger = (
   props: ComponentProps["Generic"]["Popover"]["Trigger"]
@@ -16,7 +17,12 @@ export const PopoverTrigger = (
 
 export const PopoverContent = (
   props: ComponentProps["Generic"]["Popover"]["Content"]
-) => <Ariakit.Popover {...props} />;
+) => (
+  <Ariakit.Popover
+    className={mergeCSSClasses("popover", props.className || "")}>
+    {props.children}
+  </Ariakit.Popover>
+);
 
 export const Popover = (
   props: ComponentProps["Generic"]["Popover"]["Root"]

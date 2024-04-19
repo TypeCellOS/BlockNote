@@ -1,12 +1,18 @@
-import { Button } from "../components/ui/button";
-import { cn } from "../lib/utils";
+import * as ShadCNButton from "../components/ui/button";
 import { ComponentProps } from "@blocknote/react";
 
-export const PanelButton = (props: ComponentProps["ImagePanel"]["Button"]) => {
+export const PanelButton = (
+  props: ComponentProps["ImagePanel"]["Button"] &
+    Partial<{
+      Button: typeof ShadCNButton.Button;
+    }>
+) => {
+  const Button = props.Button || ShadCNButton.Button;
+
   const { children, className, ...rest } = props;
 
   return (
-    <Button className={cn("w-64", className)} variant={"outline"} {...rest}>
+    <Button variant={"outline"} {...rest}>
       {children}
     </Button>
   );

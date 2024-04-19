@@ -1,7 +1,7 @@
 import { useCallback, useRef } from "react";
-import type { SuggestionMenuItemProps } from "../../../editor/ComponentsContext";
+// import type { SuggestionMenuItemProps } from "../../../react/src/editor/ComponentsContext";
 
-export function SuggestionMenuItem(props: SuggestionMenuItemProps) {
+export function SuggestionMenuItem(props: any) {
   const { setSelected } = props;
 
   const itemRef = useRef<HTMLDivElement>(null);

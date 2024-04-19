@@ -382,7 +382,7 @@ export const createComponentsContext = (Components: Components): Components => {
           <Components.FormattingToolbar.Root
             {...rest}
             className={mergeCSSClasses(
-              "bn-formatting-toolbar-root",
+              "bn-formatting-toolbar bn-toolbar",
               className || ""
             )}>
             {children}
@@ -398,10 +398,7 @@ export const createComponentsContext = (Components: Components): Components => {
         return (
           <Components.FormattingToolbar.Button
             {...rest}
-            className={mergeCSSClasses(
-              "bn-formatting-toolbar-button",
-              className || ""
-            )}
+            className={mergeCSSClasses("bn-button", className || "")}
             // @ts-ignore
             ref={ref}>
             {children}
@@ -411,10 +408,7 @@ export const createComponentsContext = (Components: Components): Components => {
       Select: (props) => (
         <Components.FormattingToolbar.Select
           {...props}
-          className={mergeCSSClasses(
-            "bn-formatting-toolbar-select",
-            props.className || ""
-          )}
+          className={mergeCSSClasses("bn-select", props.className || "")}
         />
       ),
     },
@@ -423,7 +417,7 @@ export const createComponentsContext = (Components: Components): Components => {
         <Components.ImagePanel.Root
           {...props}
           className={mergeCSSClasses(
-            "bn-image-panel-root",
+            "bn-image-panel bn-panel",
             props.className || ""
           )}
         />
@@ -434,7 +428,7 @@ export const createComponentsContext = (Components: Components): Components => {
         return (
           <Components.ImagePanel.Button
             {...rest}
-            className={mergeCSSClasses("bn-image-panel-button", className)}>
+            className={mergeCSSClasses("bn-button", className || "")}>
             {children}
           </Components.ImagePanel.Button>
         );
@@ -442,10 +436,7 @@ export const createComponentsContext = (Components: Components): Components => {
       FileInput: (props) => (
         <Components.ImagePanel.FileInput
           {...props}
-          className={mergeCSSClasses(
-            "bn-image-panel-file-input",
-            props.className || ""
-          )}
+          className={mergeCSSClasses("bn-file-input", props.className || "")}
         />
       ),
       TabPanel: (props) => {
@@ -454,10 +445,7 @@ export const createComponentsContext = (Components: Components): Components => {
         return (
           <Components.ImagePanel.TabPanel
             {...rest}
-            className={mergeCSSClasses(
-              "bn-image-panel-tab-panel",
-              className || ""
-            )}>
+            className={mergeCSSClasses("bn-tab-panel", className || "")}>
             {children}
           </Components.ImagePanel.TabPanel>
         );
@@ -465,10 +453,7 @@ export const createComponentsContext = (Components: Components): Components => {
       TextInput: (props) => (
         <Components.ImagePanel.TextInput
           {...props}
-          className={mergeCSSClasses(
-            "bn-image-panel-text-input",
-            props.className || ""
-          )}
+          className={mergeCSSClasses("bn-text-input", props.className || "")}
         />
       ),
     },
@@ -480,7 +465,7 @@ export const createComponentsContext = (Components: Components): Components => {
           <Components.LinkToolbar.Root
             {...rest}
             className={mergeCSSClasses(
-              "bn-link-toolbar-root",
+              "bn-link-toolbar bn-toolbar",
               className || ""
             )}>
             {children}
@@ -493,10 +478,7 @@ export const createComponentsContext = (Components: Components): Components => {
         return (
           <Components.LinkToolbar.Button
             {...rest}
-            className={mergeCSSClasses(
-              "bn-link-toolbar-button",
-              className || ""
-            )}>
+            className={mergeCSSClasses("bn-button", className || "")}>
             {children}
           </Components.LinkToolbar.Button>
         );
@@ -508,10 +490,7 @@ export const createComponentsContext = (Components: Components): Components => {
         TextInput: (props) => (
           <Components.Generic.Form.TextInput
             {...props}
-            className={mergeCSSClasses(
-              "bn-generic-form-text-input",
-              props.className || ""
-            )}
+            className={mergeCSSClasses("bn-text-input", props.className || "")}
           />
         ),
       },
@@ -520,10 +499,7 @@ export const createComponentsContext = (Components: Components): Components => {
         Divider: (props) => (
           <Components.Generic.Menu.Divider
             {...props}
-            className={mergeCSSClasses(
-              "bn-generic-menu-divider",
-              props.className
-            )}
+            className={mergeCSSClasses("bn-menu-divider", props.className)}
           />
         ),
         Dropdown: (props) => {
@@ -532,10 +508,7 @@ export const createComponentsContext = (Components: Components): Components => {
           return (
             <Components.Generic.Menu.Dropdown
               {...rest}
-              className={mergeCSSClasses(
-                "bn-generic-menu-dropdown",
-                className || ""
-              )}>
+              className={mergeCSSClasses("bn-menu-dropdown", className || "")}>
               {children}
             </Components.Generic.Menu.Dropdown>
           );
@@ -546,10 +519,7 @@ export const createComponentsContext = (Components: Components): Components => {
           return (
             <Components.Generic.Menu.Item
               {...rest}
-              className={mergeCSSClasses(
-                "bn-generic-menu-item",
-                className || ""
-              )}>
+              className={mergeCSSClasses("bn-menu-item", className || "")}>
               {children}
             </Components.Generic.Menu.Item>
           );
@@ -560,10 +530,7 @@ export const createComponentsContext = (Components: Components): Components => {
           return (
             <Components.Generic.Menu.Label
               {...rest}
-              className={mergeCSSClasses(
-                "bn-generic-menu-label",
-                className || ""
-              )}>
+              className={mergeCSSClasses("bn-menu-label", className || "")}>
               {children}
             </Components.Generic.Menu.Label>
           );
@@ -579,7 +546,7 @@ export const createComponentsContext = (Components: Components): Components => {
             <Components.Generic.Popover.Content
               {...rest}
               className={mergeCSSClasses(
-                "bn-generic-popover-content",
+                "bn-popover-content",
                 className || ""
               )}>
               {children}

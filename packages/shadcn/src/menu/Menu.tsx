@@ -1,19 +1,18 @@
 import { ComponentProps } from "@blocknote/react";
 import { ChevronRight } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
-} from "../components/ui/dropdown-menu";
+import * as ShadCNDropdownMenu from "../components/ui/dropdown-menu";
 
-export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
+export const Menu = (
+  props: ComponentProps["Generic"]["Menu"]["Root"] &
+    Partial<{
+      DropdownMenu: typeof ShadCNDropdownMenu.DropdownMenu;
+      DropdownMenuSub: typeof ShadCNDropdownMenu.DropdownMenuSub;
+    }>
+) => {
+  const DropdownMenu = props.DropdownMenu || ShadCNDropdownMenu.DropdownMenu;
+  const DropdownMenuSub =
+    props.DropdownMenuSub || ShadCNDropdownMenu.DropdownMenuSub;
+
   const { sub, position, ...rest } = props;
 
   if (sub) {
@@ -25,8 +24,17 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
 };
 
 export const MenuTrigger = (
-  props: ComponentProps["Generic"]["Menu"]["Trigger"]
+  props: ComponentProps["Generic"]["Menu"]["Trigger"] &
+    Partial<{
+      DropdownMenuSubTrigger: typeof ShadCNDropdownMenu.DropdownMenuSubTrigger;
+      DropdownMenuTrigger: typeof ShadCNDropdownMenu.DropdownMenuTrigger;
+    }>
 ) => {
+  const DropdownMenuSubTrigger =
+    props.DropdownMenuSubTrigger || ShadCNDropdownMenu.DropdownMenuSubTrigger;
+  const DropdownMenuTrigger =
+    props.DropdownMenuTrigger || ShadCNDropdownMenu.DropdownMenuTrigger;
+
   const { sub, ...rest } = props;
 
   if (sub) {
@@ -37,8 +45,17 @@ export const MenuTrigger = (
 };
 
 export const MenuDropdown = (
-  props: ComponentProps["Generic"]["Menu"]["Dropdown"]
+  props: ComponentProps["Generic"]["Menu"]["Dropdown"] &
+    Partial<{
+      DropdownMenuContent: typeof ShadCNDropdownMenu.DropdownMenuContent;
+      DropdownMenuSubContent: typeof ShadCNDropdownMenu.DropdownMenuSubContent;
+    }>
 ) => {
+  const DropdownMenuContent =
+    props.DropdownMenuContent || ShadCNDropdownMenu.DropdownMenuContent;
+  const DropdownMenuSubContent =
+    props.DropdownMenuSubContent || ShadCNDropdownMenu.DropdownMenuSubContent;
+
   const { sub, ...rest } = props;
 
   if (sub) {
@@ -48,7 +65,19 @@ export const MenuDropdown = (
   }
 };
 
-export const MenuItem = (props: ComponentProps["Generic"]["Menu"]["Item"]) => {
+export const MenuItem = (
+  props: ComponentProps["Generic"]["Menu"]["Item"] &
+    Partial<{
+      DropdownMenuCheckboxItem: typeof ShadCNDropdownMenu.DropdownMenuCheckboxItem;
+      DropdownMenuItem: typeof ShadCNDropdownMenu.DropdownMenuItem;
+    }>
+) => {
+  const DropdownMenuCheckboxItem =
+    props.DropdownMenuCheckboxItem ||
+    ShadCNDropdownMenu.DropdownMenuCheckboxItem;
+  const DropdownMenuItem =
+    props.DropdownMenuItem || ShadCNDropdownMenu.DropdownMenuItem;
+
   // TODO: implement icon
   const { icon, children, ...rest } = props;
 
@@ -71,6 +100,25 @@ export const MenuItem = (props: ComponentProps["Generic"]["Menu"]["Item"]) => {
 };
 
 export const MenuDivider = (
-  props: ComponentProps["Generic"]["Menu"]["Divider"]
-) => <DropdownMenuSeparator {...props} />;
-export const MenuLabel = DropdownMenuLabel;
+  props: ComponentProps["Generic"]["Menu"]["Divider"] &
+    Partial<{
+      DropdownMenuSeparator: typeof ShadCNDropdownMenu.DropdownMenuSeparator;
+    }>
+) => {
+  const DropdownMenuSeparator =
+    props.DropdownMenuSeparator || ShadCNDropdownMenu.DropdownMenuSeparator;
+
+  return <DropdownMenuSeparator {...props} />;
+};
+
+export const MenuLabel = (
+  props: ComponentProps["Generic"]["Menu"]["Label"] &
+    Partial<{
+      DropdownMenuLabel: typeof ShadCNDropdownMenu.DropdownMenuLabel;
+    }>
+) => {
+  const DropdownMenuLabel =
+    props.DropdownMenuLabel || ShadCNDropdownMenu.DropdownMenuLabel;
+
+  return <DropdownMenuLabel {...props} />;
+};

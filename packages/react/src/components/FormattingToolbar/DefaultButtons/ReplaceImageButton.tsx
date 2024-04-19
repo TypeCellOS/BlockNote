@@ -43,7 +43,6 @@ export const ReplaceImageButton = () => {
     <Components.Generic.Popover.Root opened={isOpen} position={"bottom"}>
       <Components.Generic.Popover.Trigger>
         <Components.FormattingToolbar.Button
-          className={"bn-replace-image-button"}
           onClick={() => setIsOpen(!isOpen)}
           isSelected={isOpen}
           mainTooltip={"Replace Image"}

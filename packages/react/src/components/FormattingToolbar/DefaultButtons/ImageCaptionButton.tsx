@@ -72,7 +72,6 @@ export const ImageCaptionButton = () => {
     <Components.Generic.Popover.Root>
       <Components.Generic.Popover.Trigger>
         <Components.FormattingToolbar.Button
-          className={"bn-image-caption-button"}
           mainTooltip={"Edit Caption"}
           icon={<RiText />}
           isSelected={imageBlock.props.caption !== ""}

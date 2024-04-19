@@ -1,9 +1,14 @@
-import { Input } from "../components/ui/input";
+import * as ShadCNInput from "../components/ui/input";
 import { ComponentProps } from "@blocknote/react";
 
 export const PanelFileInput = (
-  props: ComponentProps["ImagePanel"]["FileInput"]
+  props: ComponentProps["ImagePanel"]["FileInput"] &
+    Partial<{
+      Input: typeof ShadCNInput.Input;
+    }>
 ) => {
+  const Input = props.Input || ShadCNInput.Input;
+
   return (
     <Input
       type={"file"}

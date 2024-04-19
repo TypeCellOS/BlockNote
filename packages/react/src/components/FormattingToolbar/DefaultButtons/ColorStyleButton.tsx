@@ -130,7 +130,6 @@ export const ColorStyleButton = () => {
     <Components.Generic.Menu.Root>
       <Components.Generic.Menu.Trigger>
         <Components.FormattingToolbar.Button
-          className={"bn-color-style-button"}
           mainTooltip={"Colors"}
           icon={
             <ColorIcon
@@ -141,7 +140,7 @@ export const ColorStyleButton = () => {
           }
         />
       </Components.Generic.Menu.Trigger>
-      <Components.Generic.Menu.Dropdown className={"bn-color-style-dropdown"}>
+      <Components.Generic.Menu.Dropdown>
         <ColorPicker
           text={
             textColorInSchema

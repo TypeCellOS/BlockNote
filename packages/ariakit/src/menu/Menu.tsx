@@ -1,6 +1,7 @@
 import * as Ariakit from "@ariakit/react";
 
 import { ComponentProps } from "@blocknote/react";
+import { mergeCSSClasses } from "@blocknote/core";
 
 export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
   const { onOpenChange, position, ...rest } = props;
@@ -21,7 +22,9 @@ export const MenuDropdown = (
   const { className, children, ...rest } = props;
 
   return (
-    <Ariakit.Menu {...rest} className={className}>
+    <Ariakit.Menu
+      {...rest}
+      className={mergeCSSClasses("menu", className || "")}>
       {children}
     </Ariakit.Menu>
   );
@@ -41,7 +44,9 @@ export const MenuItem = (props: ComponentProps["Generic"]["Menu"]["Item"]) => {
     );
   }
   return (
-    <Ariakit.MenuItem className={className} onClick={onClick}>
+    <Ariakit.MenuItem
+      className={mergeCSSClasses("menu-item", className || "")}
+      onClick={onClick}>
       {icon}
       {children}
       {checked !== undefined && <Ariakit.CheckboxCheck checked={checked} />}
@@ -52,9 +57,15 @@ export const MenuItem = (props: ComponentProps["Generic"]["Menu"]["Item"]) => {
 export const MenuLabel = (
   props: ComponentProps["Generic"]["Menu"]["Label"]
 ) => {
-  const { children, ...rest } = props;
+  const { className, children, ...rest } = props;
 
-  return <Ariakit.MenuGroupLabel {...rest}>{children}</Ariakit.MenuGroupLabel>;
+  return (
+    <Ariakit.MenuGroupLabel
+      className={mergeCSSClasses("group-label", className || "")}
+      {...rest}>
+      {children}
+    </Ariakit.MenuGroupLabel>
+  );
 };
 
 export const MenuTrigger = (
@@ -70,5 +81,9 @@ export const MenuTrigger = (
 export const MenuDivider = (
   props: ComponentProps["Generic"]["Menu"]["Divider"]
 ) => {
-  return <Ariakit.MenuSeparator {...props} />;
+  return (
+    <Ariakit.MenuSeparator
+      className={mergeCSSClasses("separator", props.className || "")}
+    />
+  );
 };

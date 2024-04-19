@@ -1,7 +1,10 @@
 import { Children, useMemo } from "react";
 
-import { useComponentsContext } from "../../../editor/ComponentsContext";
-import { DefaultReactSuggestionItem, SuggestionMenuProps } from "../types";
+import { useComponentsContext } from "../../../react/src/editor/ComponentsContext";
+import {
+  DefaultReactSuggestionItem,
+  SuggestionMenuProps,
+} from "../../../react/src/components/SuggestionMenu/types";
 
 // TODO: move directory up
 export function SuggestionMenu<T extends DefaultReactSuggestionItem>(
@@ -13,7 +16,8 @@ export function SuggestionMenu<T extends DefaultReactSuggestionItem>(
 
   const loader =
     loadingState === "loading-initial" || loadingState === "loading" ? (
-      <components.SuggestionMenuLoader /> // TODO: test loader
+      // <components.SuggestionMenuLoader /> // TODO: test loader
+      <div />
     ) : null;
 
   const renderedItems = useMemo<JSX.Element[]>(() => {
@@ -25,22 +29,24 @@ export function SuggestionMenu<T extends DefaultReactSuggestionItem>(
       if (item.group !== currentGroup) {
         currentGroup = item.group;
         renderedItems.push(
-          <components.SuggestionMenuLabel key={currentGroup}>
-            {currentGroup}
-          </components.SuggestionMenuLabel>
+          // <components.SuggestionMenuLabel key={currentGroup}>
+          //   {currentGroup}
+          // </components.SuggestionMenuLabel>
+          <div />
         );
       }
 
       renderedItems.push(
-        <components.SuggestionMenuItem
-          {...item}
-          isSelected={i === selectedIndex}
-          key={item.title}
-          onClick={() => onItemClick?.(item)}
-          setSelected={(selected) => {
-            setSelectedIndex(selected ? i : -1);
-          }}
-        />
+        // <components.SuggestionMenuItem
+        //   {...item}
+        //   isSelected={i === selectedIndex}
+        //   key={item.title}
+        //   onClick={() => onItemClick?.(item)}
+        //   setSelected={(selected) => {
+        //     setSelectedIndex(selected ? i : -1);
+        //   }}
+        // />
+        <div />
       );
     }
 
@@ -55,9 +61,10 @@ export function SuggestionMenu<T extends DefaultReactSuggestionItem>(
       {Children.count(renderedItems) === 0 &&
         (props.loadingState === "loading" ||
           props.loadingState === "loaded") && (
-          <components.SuggestionMenuEmptyItem>
-            No match found
-          </components.SuggestionMenuEmptyItem>
+          // <components.SuggestionMenuEmptyItem>
+          //   No match found
+          // </components.SuggestionMenuEmptyItem>
+          <div />
         )}
       {loader}
     </div>

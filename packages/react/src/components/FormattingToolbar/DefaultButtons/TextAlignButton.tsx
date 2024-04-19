@@ -75,7 +75,6 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
   const Icon: IconType = icons[props.textAlignment];
   return (
     <Components.FormattingToolbar.Button
-      className={"bn-text-align-button"}
       onClick={() => setTextAlignment(props.textAlignment)}
       isSelected={textAlignment === props.textAlignment}
       mainTooltip={

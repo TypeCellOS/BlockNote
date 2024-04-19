@@ -1,6 +1,6 @@
 import * as Ariakit from "@ariakit/react";
 
-import { isSafari } from "@blocknote/core";
+import { isSafari, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
 import { useToolbarContext } from "@ariakit/react";
@@ -22,7 +22,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
 
     return (
       <Ariakit.ToolbarItem
-        className={props.className}
+        className={mergeCSSClasses("button secondary", props.className || "")}
         // Needed as Safari doesn't focus button elements on mouse down
         // unlike other browsers.
         onMouseDown={(e) => {

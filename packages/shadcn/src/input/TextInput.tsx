@@ -1,11 +1,18 @@
 import { ComponentProps } from "@blocknote/react";
 
-import { Input } from "../components/ui/input";
-import { Label } from "../components/ui/label";
+import * as ShadCNInput from "../components/ui/input";
+import * as ShadCNLabel from "../components/ui/label";
 
 export const TextInput = (
-  props: ComponentProps["Generic"]["Form"]["TextInput"]
+  props: ComponentProps["Generic"]["Form"]["TextInput"] &
+    Partial<{
+      Input: typeof ShadCNInput.Input;
+      Label: typeof ShadCNLabel.Label;
+    }>
 ) => {
+  const Input = props.Input || ShadCNInput.Input;
+  const Label = props.Label || ShadCNLabel.Label;
+
   if (!props.label) {
     return (
       <Input

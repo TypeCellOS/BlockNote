@@ -61,9 +61,8 @@ export const EmbedTab = <
   }, [editor, block, currentURL]);
 
   return (
-    <Components.ImagePanel.TabPanel className={"bn-image-panel-url"}>
+    <Components.ImagePanel.TabPanel>
       <Components.ImagePanel.TextInput
-        className={"bn-image-panel-url-input"}
         placeholder={"Enter URL"}
         value={currentURL}
         onChange={handleURLChange}
@@ -71,7 +70,6 @@ export const EmbedTab = <
         data-test={"embed-input"}
       />
       <Components.ImagePanel.Button
-        className={"bn-image-panel-url-button"}
         onClick={handleURLClick}
         data-test={"embed-input-button"}>
         Embed Image

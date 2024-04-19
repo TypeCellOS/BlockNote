@@ -48,7 +48,6 @@ export const NestBlockButton = () => {
 
   return (
     <Components.FormattingToolbar.Button
-      className={"bn-nest-block-button"}
       onClick={nestBlock}
       isDisabled={!canNestBlock}
       mainTooltip="Nest Block"
@@ -90,7 +89,6 @@ export const UnnestBlockButton = () => {
 
   return (
     <Components.FormattingToolbar.Button
-      className={"bn-unnest-block-button"}
       onClick={unnestBlock}
       isDisabled={!canUnnestBlock}
       mainTooltip="Unnest Block"

@@ -1,0 +1,813 @@
+/* This file contains styles copied directly from Ariakit's website, and is
+ responsible for the majority of the styling. */
+
+.bn-container {
+    /* https://ariakit.org/examples/form-select */
+    .button {
+        --border: rgb(0 0 0/13%);
+        --highlight: rgb(255 255 255/20%);
+        --shadow: rgb(0 0 0/10%);
+        display: flex;
+        height: 2.5rem;
+        user-select: none;
+        align-items: center;
+        gap: 0.25rem;
+        white-space: nowrap;
+        border-style: none;
+        background-color: hsl(204 20% 100%);
+        padding-left: 1rem;
+        padding-right: 1rem;
+        font-size: 1rem;
+        line-height: 1.5rem;
+        color: hsl(204 4% 0%);
+        text-decoration-line: none;
+        outline-width: 2px;
+        outline-offset: 2px;
+        outline-color: hsl(204 100% 40%);
+        box-shadow:
+                inset 0 0 0 1px var(--border),
+                inset 0 2px 0 var(--highlight),
+                inset 0 -1px 0 var(--shadow),
+                0 1px 1px var(--shadow);
+        justify-content: space-between;
+        width: 100%;
+        border-radius: 0.375rem;
+    }
+
+    .button:where(.dark, .dark *) {
+        --border: rgb(255 255 255/10%);
+        --highlight: rgb(255 255 255/5%);
+        --shadow: rgb(0 0 0/25%);
+        background-color: hsl(204 20% 100% / 0.05);
+        color: hsl(204 20% 100%);
+        box-shadow:
+                inset 0 0 0 1px var(--border),
+                inset 0 -1px 0 1px var(--shadow),
+                inset 0 1px 0 var(--highlight);
+    }
+
+    .button:not(:active):hover {
+        --border: rgb(0 0 0/33%);
+    }
+
+    .button:where(.dark, .dark *):not(:active):hover {
+        --border: rgb(255 255 255/25%);
+    }
+
+    .primary {
+        --border: rgba(0, 0, 0, 0.15);
+        --highlight: rgba(255, 255, 255, 0.25);
+        --shadow: rgba(0, 0, 0, 0.15);
+        background-color: hsl(204 100% 40%);
+        color: hsl(204 20% 100%);
+        justify-content: center;
+    }
+
+    .primary:hover {
+        --border: rgba(0, 0, 0, 0.35);
+        background-color: hsl(204 100% 35%);
+    }
+
+    .primary:where(.dark, .dark *) {
+        --border: rgba(255, 255, 255, 0.25);
+        --highlight: rgba(255, 255, 255, 0.1);
+        --shadow: rgba(0, 0, 0, 0.25);
+        background-color: hsl(204 100% 35%);
+    }
+
+    .primary:hover:where(.dark, .dark *) {
+        --border: rgba(255, 255, 255, 0.45);
+        background-color: hsl(204 100% 40%);
+    }
+
+    .button[aria-disabled="true"] {
+        opacity: 0.5;
+    }
+
+    .button[data-focus-visible] {
+        outline-style: solid;
+    }
+
+    .button:active,
+    .button[data-active] {
+        padding-top: 0.125rem;
+        box-shadow:
+                inset 0 0 0 1px var(--border),
+                inset 0 2px 0 var(--border);
+    }
+
+    @media (min-width: 640px) {
+        .button {
+            gap: 0.5rem;
+        }
+    }
+
+    .button:active:where(.dark, .dark *),
+    .button[data-active]:where(.dark, .dark *) {
+        box-shadow:
+                inset 0 0 0 1px var(--border),
+                inset 0 1px 1px 1px var(--shadow);
+    }
+
+    .wrapper {
+        display: flex;
+        width: 320px;
+        max-width: 100%;
+        flex-direction: column;
+        gap: 1.5rem;
+        border-radius: 0.5rem;
+        background-color: hsl(204 20% 100%);
+        padding: 1rem;
+        box-shadow:
+                0 1px 3px 0 rgb(0 0 0 / 0.1),
+                0 1px 2px -1px rgb(0 0 0 / 0.1);
+    }
+
+    .label {
+        padding-left: 1rem;
+    }
+
+    .popover {
+        z-index: 50;
+        display: flex;
+        max-height: min(var(--popover-available-height, 300px), 300px);
+        flex-direction: column;
+        overflow: auto;
+        overscroll-behavior: contain;
+        border-radius: 0.5rem;
+        border-width: 1px;
+        border-style: solid;
+        border-color: hsl(204 20% 88%);
+        background-color: hsl(204 20% 100%);
+        padding: 0.5rem;
+        color: hsl(204 4% 0%);
+        box-shadow:
+                0 10px 15px -3px rgb(0 0 0 / 0.1),
+                0 4px 6px -4px rgb(0 0 0 / 0.1);
+    }
+
+    .popover:where(.dark, .dark *) {
+        border-color: hsl(204 4% 24%);
+        background-color: hsl(204 4% 16%);
+        color: hsl(204 20% 100%);
+        box-shadow:
+                0 10px 15px -3px rgb(0 0 0 / 0.25),
+                0 4px 6px -4px rgb(0 0 0 / 0.1);
+    }
+
+    .select-item {
+        display: flex;
+        cursor: default;
+        scroll-margin: 0.5rem;
+        align-items: center;
+        gap: 0.5rem;
+        border-radius: 0.25rem;
+        padding: 0.5rem;
+        outline: none !important;
+    }
+
+    .select-item[aria-disabled="true"] {
+        opacity: 0.5;
+    }
+
+    .select-item[data-active-item] {
+        background-color: hsl(204 100% 40%);
+        color: hsl(204 20% 100%);
+    }
+
+    .wrapper:where(.dark, .dark *) {
+        background-color: hsl(204 4% 16%);
+        box-shadow:
+                0 1px 3px 0 rgb(0 0 0 / 0.25),
+                0 1px 2px -1px rgb(0 0 0 / 0.1);
+    }
+
+    .field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .input {
+        height: 2.5rem;
+        width: 100%;
+        border-radius: 0.375rem;
+        border-style: none;
+        background-color: hsl(204 20% 94% / 0.4);
+        padding-left: 1rem;
+        padding-right: 1rem;
+        font-size: 1rem;
+        line-height: 1.5rem;
+        color: hsl(204 4% 0%);
+        box-shadow:
+                inset 0 0 0 1px rgba(0 0 0 / 0.1),
+                inset 0 2px 5px 0 rgba(0 0 0 / 0.05);
+    }
+
+    .input::placeholder {
+        color: hsl(204 4% 0% / 0.6);
+    }
+
+    .input:hover {
+        background-color: hsl(204 20% 94%);
+    }
+
+    .popover:focus-visible,
+    .popover[data-focus-visible],
+    .input:focus-visible,
+    .input[data-focus-visible] {
+        outline: 2px solid hsl(204 100% 40%);
+        outline-offset: -1px;
+    }
+
+    .input:where(.dark, .dark *) {
+        background-color: hsl(204 4% 10%);
+        color: hsl(204 20% 100%);
+        box-shadow:
+                inset 0 0 0 1px rgba(255 255 255 / 0.12),
+                inset 0 -1px 0 0 rgba(255 255 255 / 0.05),
+                inset 0 2px 5px 0 rgba(0 0 0 / 0.15);
+    }
+
+    .input:where(.dark, .dark *)::placeholder {
+        color: hsl(204 20% 100% / 46%);
+    }
+
+    .input:hover:where(.dark, .dark *) {
+        background-color: hsl(204 4% 8%);
+    }
+
+    .error {
+        width: fit-content;
+        border-radius: 0.375rem;
+        border-width: 1px;
+        border-color: hsl(357 56% 80%);
+        background-color: hsl(357 56% 80% / 0.4);
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+        padding-left: 1rem;
+        padding-right: 1rem;
+        color: hsl(357 100% 30%);
+    }
+
+    .error:empty {
+        display: none;
+    }
+
+    .error:where(.dark, .dark *) {
+        border-color: hsl(357 56% 50% / 0.4);
+        background-color: hsl(357 56% 42% / 0.25);
+        color: hsl(357 100% 90%);
+    }
+
+    .buttons {
+        display: flex;
+        gap: 1rem;
+        padding-top: 1rem;
+    }
+
+    /* https://ariakit.org/components/menu */
+    .button {
+        --border: rgb(0 0 0/13%);
+        --highlight: rgb(255 255 255/20%);
+        --shadow: rgb(0 0 0/10%);
+        display: flex;
+        height: 2.5rem;
+        user-select: none;
+        align-items: center;
+        justify-content: center;
+        gap: 0.25rem;
+        white-space: nowrap;
+        border-radius: 0.5rem;
+        border-style: none;
+        background-color: hsl(204 20% 100%);
+        padding-left: 1rem;
+        padding-right: 1rem;
+        font-size: 1rem;
+        line-height: 1.5rem;
+        color: hsl(204 4% 0%);
+        text-decoration-line: none;
+        outline-width: 2px;
+        outline-offset: 2px;
+        outline-color: hsl(204 100% 40%);
+        box-shadow:
+                inset 0 0 0 1px var(--border),
+                inset 0 2px 0 var(--highlight),
+                inset 0 -1px 0 var(--shadow),
+                0 1px 1px var(--shadow);
+        font-weight: 500;
+    }
+
+    .button:where(.dark, .dark *) {
+        --border: rgb(255 255 255/10%);
+        --highlight: rgb(255 255 255/5%);
+        --shadow: rgb(0 0 0/25%);
+        background-color: hsl(204 20% 100% / 0.05);
+        color: hsl(204 20% 100%);
+        box-shadow:
+                inset 0 0 0 1px var(--border),
+                inset 0 -1px 0 1px var(--shadow),
+                inset 0 1px 0 var(--highlight);
+    }
+
+    .button:not(:active):hover {
+        --border: rgb(0 0 0/33%);
+    }
+
+    .button:where(.dark, .dark *):not(:active):hover {
+        --border: rgb(255 255 255/25%);
+    }
+
+    .button[aria-disabled="true"] {
+        opacity: 0.5;
+    }
+
+    .button[data-focus-visible] {
+        outline-style: solid;
+    }
+
+    .button:active,
+    .button[data-active] {
+        padding-top: 0.125rem;
+        box-shadow:
+                inset 0 0 0 1px var(--border),
+                inset 0 2px 0 var(--border);
+    }
+
+    @media (min-width: 640px) {
+        .button {
+            gap: 0.5rem;
+        }
+    }
+
+    .button:active:where(.dark, .dark *),
+    .button[data-active]:where(.dark, .dark *) {
+        box-shadow:
+                inset 0 0 0 1px var(--border),
+                inset 0 1px 1px 1px var(--shadow);
+    }
+
+    .separator {
+        margin-top: 0.5rem;
+        margin-bottom: 0.5rem;
+        height: 0px;
+        width: 100%;
+        border-top-width: 1px;
+        border-color: hsl(204 20% 88%);
+    }
+
+    .separator:where(.dark, .dark *) {
+        border-color: hsl(204 4% 28%);
+    }
+
+    .menu {
+        position: relative;
+        z-index: 50;
+        display: flex;
+        max-height: var(--popover-available-height);
+        min-width: 180px;
+        flex-direction: column;
+        overflow: auto;
+        overscroll-behavior: contain;
+        border-radius: 0.5rem;
+        border-width: 1px;
+        border-style: solid;
+        border-color: hsl(204 20% 88%);
+        background-color: hsl(204 20% 100%);
+        padding: 0.5rem;
+        color: hsl(204 4% 0%);
+        box-shadow:
+                0 10px 15px -3px rgb(0 0 0 / 0.1),
+                0 4px 6px -4px rgb(0 0 0 / 0.1);
+        outline: none !important;
+    }
+
+    .menu:where(.dark, .dark *) {
+        border-color: hsl(204 4% 24%);
+        background-color: hsl(204 4% 16%);
+        color: hsl(204 20% 100%);
+        box-shadow:
+                0 10px 15px -3px rgb(0 0 0 / 0.25),
+                0 4px 6px -4px rgb(0 0 0 / 0.1);
+    }
+
+    .menu-item {
+        display: flex;
+        cursor: default;
+        scroll-margin: 0.5rem;
+        align-items: center;
+        gap: 0.5rem;
+        border-radius: 0.25rem;
+        padding: 0.5rem;
+        outline: none !important;
+    }
+
+    .menu-item[aria-disabled="true"] {
+        opacity: 0.25;
+    }
+
+    .menu-item[data-active-item] {
+        background-color: hsl(204 100% 40%);
+        color: hsl(204 20% 100%);
+    }
+
+    .menu-item:active,
+    .menu-item[data-active] {
+        background-color: hsl(204 100% 32%);
+        padding-top: 9px;
+        padding-bottom: 7px;
+    }
+
+    /* https://ariakit.org/examples/select-group */
+    .button {
+        --border: rgb(0 0 0/13%);
+        --highlight: rgb(255 255 255/20%);
+        --shadow: rgb(0 0 0/10%);
+        display: flex;
+        height: 2.5rem;
+        user-select: none;
+        align-items: center;
+        gap: 0.25rem;
+        white-space: nowrap;
+        border-radius: 0.5rem;
+        border-style: none;
+        background-color: hsl(204 20% 100%);
+        padding-left: 1rem;
+        padding-right: 1rem;
+        font-size: 1rem;
+        line-height: 1.5rem;
+        color: hsl(204 4% 0%);
+        text-decoration-line: none;
+        outline-width: 2px;
+        outline-offset: 2px;
+        outline-color: hsl(204 100% 40%);
+        box-shadow:
+                inset 0 0 0 1px var(--border),
+                inset 0 2px 0 var(--highlight),
+                inset 0 -1px 0 var(--shadow),
+                0 1px 1px var(--shadow);
+        width: 200px;
+        justify-content: space-between;
+    }
+
+    .button:where(.dark, .dark *) {
+        --border: rgb(255 255 255/10%);
+        --highlight: rgb(255 255 255/5%);
+        --shadow: rgb(0 0 0/25%);
+        background-color: hsl(204 20% 100% / 0.05);
+        color: hsl(204 20% 100%);
+        box-shadow:
+                inset 0 0 0 1px var(--border),
+                inset 0 -1px 0 1px var(--shadow),
+                inset 0 1px 0 var(--highlight);
+    }
+
+    .button:not(:active):hover {
+        --border: rgb(0 0 0/33%);
+    }
+
+    .button:where(.dark, .dark *):not(:active):hover {
+        --border: rgb(255 255 255/25%);
+    }
+
+    .button[aria-disabled="true"] {
+        opacity: 0.5;
+    }
+
+    .button[data-focus-visible] {
+        outline-style: solid;
+    }
+
+    .button:active,
+    .button[data-active] {
+        padding-top: 0.125rem;
+        box-shadow:
+                inset 0 0 0 1px var(--border),
+                inset 0 2px 0 var(--border);
+    }
+
+    @media (min-width: 640px) {
+        .button {
+            gap: 0.5rem;
+        }
+    }
+
+    .button:active:where(.dark, .dark *),
+    .button[data-active]:where(.dark, .dark *) {
+        box-shadow:
+                inset 0 0 0 1px var(--border),
+                inset 0 1px 1px 1px var(--shadow);
+    }
+
+    .wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        padding: 1rem;
+    }
+
+    .popover {
+        z-index: 50;
+        display: flex;
+        max-height: min(var(--popover-available-height, 300px), 300px);
+        flex-direction: column;
+        overflow: auto;
+        overscroll-behavior: contain;
+        border-radius: 0.5rem;
+        border-width: 1px;
+        border-style: solid;
+        border-color: hsl(204 20% 88%);
+        background-color: hsl(204 20% 100%);
+        padding: 0.5rem;
+        color: hsl(204 4% 0%);
+        box-shadow:
+                0 10px 15px -3px rgb(0 0 0 / 0.1),
+                0 4px 6px -4px rgb(0 0 0 / 0.1);
+    }
+
+    .popover:focus-visible,
+    .popover[data-focus-visible] {
+        outline: 2px solid hsl(204 100% 40%);
+        outline-offset: -1px;
+    }
+
+    .popover:where(.dark, .dark *) {
+        border-color: hsl(204 4% 24%);
+        background-color: hsl(204 4% 16%);
+        color: hsl(204 20% 100%);
+        box-shadow:
+                0 10px 15px -3px rgb(0 0 0 / 0.25),
+                0 4px 6px -4px rgb(0 0 0 / 0.1);
+    }
+
+    .select-item {
+        display: flex;
+        cursor: default;
+        scroll-margin: 0.5rem;
+        align-items: center;
+        gap: 0.5rem;
+        border-radius: 0.25rem;
+        padding: 0.5rem;
+        outline: none !important;
+    }
+
+    .select-item[aria-disabled="true"] {
+        opacity: 0.5;
+    }
+
+    .select-item[data-active-item] {
+        background-color: hsl(204 100% 40%);
+        color: hsl(204 20% 100%);
+    }
+
+    .separator {
+        margin-top: 0.5rem;
+        margin-bottom: 0.5rem;
+        height: 0px;
+        width: 100%;
+        border-top-width: 1px;
+        border-color: hsl(204 20% 88%);
+    }
+
+    .separator:where(.dark, .dark *) {
+        border-color: hsl(204 4% 28%);
+    }
+
+    .group-label {
+        cursor: default;
+        padding: 0.5rem;
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+        font-weight: 500;
+        opacity: 0.6;
+    }
+
+    .group-label + * {
+        scroll-margin-top: 2.5rem;
+    }
+
+    /* https://ariakit.org/components/tab */
+    .wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        border-radius: 0.5rem;
+        background-color: hsl(204 20% 100%);
+        padding: 0.5rem;
+        box-shadow:
+                0 1px 3px 0 rgb(0 0 0 / 0.1),
+                0 1px 2px -1px rgb(0 0 0 / 0.1);
+    }
+
+    .wrapper:where(.dark, .dark *) {
+        background-color: hsl(204 4% 16%);
+        box-shadow:
+                0 1px 3px 0 rgb(0 0 0 / 0.25),
+                0 1px 2px -1px rgb(0 0 0 / 0.1);
+    }
+
+    .tab-list {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .tab {
+        display: flex;
+        height: 2.5rem;
+        user-select: none;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        white-space: nowrap;
+        border-radius: 0.25rem;
+        border-style: none;
+        padding-left: 1rem;
+        padding-right: 1rem;
+        font-size: 1rem;
+        line-height: 1.5rem;
+        text-decoration-line: none;
+        outline-width: 2px;
+        outline-offset: 2px;
+        outline-color: hsl(204 100% 40%);
+    }
+
+    .tab:hover {
+        background-color: hsl(204 4% 0% / 7.5%);
+    }
+
+    .tab[aria-disabled="true"] {
+        opacity: 0.5;
+    }
+
+    .tab[aria-selected="true"] {
+        background-color: hsl(204 100% 40%);
+        color: hsl(204 20% 100%);
+    }
+
+    .tab:hover[aria-selected="true"] {
+        background-color: hsl(204 100% 32%);
+    }
+
+    .tab[data-focus-visible] {
+        outline-style: solid;
+    }
+
+    .tab:active,
+    .tab[data-active] {
+        padding-top: 0.125rem;
+    }
+
+    .tab:hover:where(.dark, .dark *) {
+        background-color: hsl(204 20% 100% / 0.1);
+    }
+
+    .tab[aria-selected="true"]:where(.dark, .dark *) {
+        background-color: hsl(204 100% 40%);
+        color: hsl(204 20% 100%);
+    }
+
+    .tab:hover[aria-selected="true"]:where(.dark, .dark *) {
+        background-color: hsl(204 100% 32%);
+    }
+
+    .panels {
+        padding: 0.5rem;
+    }
+
+    /* https://ariakit.org/components/toolbar */
+    .button {
+        --border: rgb(0 0 0/13%);
+        --highlight: rgb(255 255 255/20%);
+        --shadow: rgb(0 0 0/10%);
+        display: flex;
+        height: 2.5rem;
+        user-select: none;
+        align-items: center;
+        justify-content: center;
+        white-space: nowrap;
+        border-style: none;
+        background-color: hsl(204 20% 100%);
+        padding-left: 1rem;
+        padding-right: 1rem;
+        font-size: 1rem;
+        line-height: 1.5rem;
+        color: hsl(204 4% 0%);
+        text-decoration-line: none;
+        outline-width: 2px;
+        outline-offset: 2px;
+        outline-color: hsl(204 100% 40%);
+        box-shadow:
+                inset 0 0 0 1px var(--border),
+                inset 0 2px 0 var(--highlight),
+                inset 0 -1px 0 var(--shadow),
+                0 1px 1px var(--shadow);
+        scroll-margin-left: 0.25rem;
+        scroll-margin-right: 0.25rem;
+        gap: 0.5rem;
+        border-radius: 0.25rem;
+    }
+
+    .button:where(.dark, .dark *) {
+        --border: rgb(255 255 255/10%);
+        --highlight: rgb(255 255 255/5%);
+        --shadow: rgb(0 0 0/25%);
+        background-color: hsl(204 20% 100% / 0.05);
+        color: hsl(204 20% 100%);
+        box-shadow:
+                inset 0 0 0 1px var(--border),
+                inset 0 -1px 0 1px var(--shadow),
+                inset 0 1px 0 var(--highlight);
+    }
+
+    .button:not(:active):hover {
+        --border: rgb(0 0 0/33%);
+    }
+
+    .button:where(.dark, .dark *):not(:active):hover {
+        --border: rgb(255 255 255/25%);
+    }
+
+    .button[aria-disabled="true"] {
+        opacity: 0.5;
+    }
+
+    .button[data-focus-visible] {
+        outline-style: solid;
+    }
+
+    .button:active,
+    .button[data-active] {
+        padding-top: 0.125rem;
+        box-shadow:
+                inset 0 0 0 1px var(--border),
+                inset 0 2px 0 var(--border);
+    }
+
+    @media (min-width: 640px) {
+        .button {
+            gap: 0.5rem;
+        }
+    }
+
+    .button:active:where(.dark, .dark *),
+    .button[data-active]:where(.dark, .dark *) {
+        box-shadow:
+                inset 0 0 0 1px var(--border),
+                inset 0 1px 1px 1px var(--shadow);
+    }
+
+    .secondary {
+        background-color: transparent;
+        color: currentColor;
+        box-shadow: none;
+    }
+
+    .secondary:hover {
+        background-color: hsl(204 4% 0% / 0.05);
+    }
+
+    .secondary:where(.dark, .dark *) {
+        background-color: transparent;
+        box-shadow: none;
+    }
+
+    .secondary:hover:where(.dark, .dark *) {
+        background-color: hsl(204 20% 100% / 0.05);
+    }
+
+    .secondary:active:where(.dark, .dark *),
+    .secondary[data-active]:where(.dark, .dark *) {
+        box-shadow: none;
+    }
+
+    .toolbar {
+        display: flex;
+        max-width: 100%;
+        align-items: center;
+        gap: 0.25rem;
+        overflow-x: auto;
+        border-radius: 0.5rem;
+        background-color: hsl(204 20% 100%);
+        padding: 0.25rem;
+        box-shadow:
+                0 1px 3px 0 rgb(0 0 0 / 0.1),
+                0 1px 2px -1px rgb(0 0 0 / 0.1);
+    }
+
+    .toolbar:where(.dark, .dark *) {
+        background-color: hsl(204 4% 16%);
+        box-shadow:
+                0 1px 3px 0 rgb(0 0 0 / 0.25),
+                0 1px 2px -1px rgb(0 0 0 / 0.1);
+    }
+
+    .separator {
+        height: 2rem;
+        border-right-width: 1px;
+        border-color: hsl(204 20% 88%);
+    }
+
+    .separator:where(.dark, .dark *) {
+        border-color: hsl(204 4% 28%);
+    }
+}
