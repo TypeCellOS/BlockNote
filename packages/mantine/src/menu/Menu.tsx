@@ -21,6 +21,8 @@ const SubMenuContext = createContext<
 >(undefined);
 
 const SubMenu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
+  const { children, onOpenChange, position } = props;
+
   const [opened, setOpened] = useState(false);
 
   const menuCloseTimer = useRef<ReturnType<typeof setTimeout> | undefined>();
@@ -51,20 +53,20 @@ const SubMenu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
         onMenuMouseLeave: mouseLeave,
       }}>
       <Mantine.Menu
-        opened={opened}
         withinPortal={false}
         middlewares={{ flip: true, shift: true, inline: false, size: true }}
-        onClose={() => props.onOpenChange?.(false)}
-        onOpen={() => props.onOpenChange?.(true)}
-        closeOnItemClick={false}
-        position="right"
-      />
+        opened={opened}
+        onClose={() => onOpenChange?.(false)}
+        onOpen={() => onOpenChange?.(true)}
+        position={position}>
+        {children}
+      </Mantine.Menu>
     </SubMenuContext.Provider>
   );
 };
 
 export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
-  const { sub, onOpenChange, ...rest } = props;
+  const { children, onOpenChange, position, sub } = props;
 
   if (sub) {
     return <SubMenu {...props} />;
@@ -73,66 +75,87 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
   return (
     <Mantine.Menu
       withinPortal={false}
-      // middlewares={{ flip: true, shift: true, inline: false, size: true }}
+      middlewares={{ flip: true, shift: true, inline: false, size: true }}
       onClose={() => onOpenChange?.(false)}
       onOpen={() => onOpenChange?.(true)}
-      closeOnItemClick={false}
-      {...rest}
-      position="right"
-    />
+      position={position}>
+      {children}
+    </Mantine.Menu>
   );
 };
 
 export const MenuItem = (props: ComponentProps["Generic"]["Menu"]["Item"]) => {
+  const { className, children, icon, checked, subTrigger, onClick } = props;
+
   const ctx = useContext(SubMenuContext);
 
-  const onMouseLeave = props.subTrigger ? ctx!.onTriggerMouseLeave : undefined;
-  const onMouseOver = props.subTrigger ? ctx!.onTriggerMouseOver : undefined;
+  const onMouseLeave = subTrigger ? ctx!.onTriggerMouseLeave : undefined;
+  const onMouseOver = subTrigger ? ctx!.onTriggerMouseOver : undefined;
 
   return (
     <Mantine.MenuItem
-      className={props.className}
+      className={className}
       component="div"
-      leftSection={props.icon}
+      leftSection={icon}
       rightSection={
         <>
-          {props.checked ? (
+          {checked ? (
             <Mantine.CheckIcon size={10} />
-          ) : !props.checked ? (
+          ) : !checked ? (
             <div className={"bn-tick-space"} />
           ) : undefined}
-          {props.subTrigger && <HiChevronRight size={15} />}
+          {subTrigger && <HiChevronRight size={15} />}
         </>
       }
       onMouseOver={onMouseOver}
       onMouseLeave={onMouseLeave}
-    />
+      onClick={onClick}>
+      {children}
+    </Mantine.MenuItem>
   );
 };
 
 export const MenuTrigger = (
   props: ComponentProps["Generic"]["Menu"]["Trigger"]
-) => <Mantine.MenuTarget>{props.children}</Mantine.MenuTarget>;
+) => {
+  const { children } = props;
+
+  return <Mantine.MenuTarget>{children}</Mantine.MenuTarget>;
+};
 
 export const MenuDropdown = (
   props: ComponentProps["Generic"]["Menu"]["Dropdown"]
 ) => {
+  const { className, children, sub } = props;
+
   const ctx = useContext(SubMenuContext);
 
   return (
     <Mantine.MenuDropdown
-      className={props.className}
+      className={className}
       onMouseOver={ctx?.onMenuMouseOver}
       onMouseLeave={ctx?.onMenuMouseLeave}
-      style={props.sub ? { marginLeft: "5px" } : {}} // TODO: Needed?
-    />
+      style={sub ? { marginLeft: "5px" } : {}} // TODO: Needed?
+    >
+      {children}
+    </Mantine.MenuDropdown>
   );
 };
 
 export const MenuDivider = (
   props: ComponentProps["Generic"]["Menu"]["Divider"]
-) => <Mantine.MenuDivider {...props} />;
+) => {
+  const { className } = props;
+
+  return <Mantine.MenuDivider className={className} />;
+};
 
 export const MenuLabel = (
   props: ComponentProps["Generic"]["Menu"]["Label"]
-) => <Mantine.MenuLabel {...props} />;
+) => {
+  const { className, children } = props;
+
+  return (
+    <Mantine.MenuLabel className={className}>{children}</Mantine.MenuLabel>
+  );
+};

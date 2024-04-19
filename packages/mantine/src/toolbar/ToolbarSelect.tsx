@@ -9,7 +9,9 @@ import { TiTick } from "react-icons/ti";
 export function ToolbarSelect(
   props: ComponentProps["FormattingToolbar"]["Select"]
 ) {
-  const selectedItem = props.items.filter((p) => p.isSelected)[0];
+  const { className, items, isDisabled } = props;
+
+  const selectedItem = items.filter((p) => p.isSelected)[0];
 
   if (!selectedItem) {
     return null;
@@ -21,7 +23,7 @@ export function ToolbarSelect(
       transitionProps={{
         exitDuration: 0,
       }}
-      disabled={props.isDisabled}
+      disabled={isDisabled}
       middlewares={{ flip: true, shift: true, inline: false, size: true }}>
       <Mantine.Menu.Target>
         <Mantine.Button
@@ -36,12 +38,12 @@ export function ToolbarSelect(
           rightSection={<HiChevronDown />}
           size={"xs"}
           variant={"subtle"}
-          disabled={props.isDisabled}>
+          disabled={isDisabled}>
           {selectedItem.text}
         </Mantine.Button>
       </Mantine.Menu.Target>
-      <Mantine.Menu.Dropdown className={props.className}>
-        {props.items.map((item) => (
+      <Mantine.Menu.Dropdown className={className}>
+        {items.map((item) => (
           <Mantine.Menu.Item
             key={item.text}
             onClick={item.onClick}

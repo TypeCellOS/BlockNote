@@ -5,10 +5,14 @@ import { ComponentProps } from "@blocknote/react";
 export const Popover = (
   props: ComponentProps["Generic"]["Popover"]["Root"]
 ) => {
-  const { children, ...rest } = props;
+  const { children, opened, position } = props;
 
   return (
-    <Mantine.Popover {...rest} withinPortal={false} zIndex={10000}>
+    <Mantine.Popover
+      withinPortal={false}
+      zIndex={10000}
+      opened={opened}
+      position={position}>
       {children}
     </Mantine.Popover>
   );
@@ -16,8 +20,20 @@ export const Popover = (
 
 export const PopoverTrigger = (
   props: ComponentProps["Generic"]["Popover"]["Trigger"]
-) => <Mantine.PopoverTarget>{props.children}</Mantine.PopoverTarget>;
+) => {
+  const { children } = props;
+
+  return <Mantine.PopoverTarget>{children}</Mantine.PopoverTarget>;
+};
 
 export const PopoverContent = (
   props: ComponentProps["Generic"]["Popover"]["Content"]
-) => <Mantine.PopoverDropdown>{props.children}</Mantine.PopoverDropdown>;
+) => {
+  const { className, children } = props;
+
+  return (
+    <Mantine.PopoverDropdown className={className}>
+      {children}
+    </Mantine.PopoverDropdown>
+  );
+};

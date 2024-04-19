@@ -4,4 +4,16 @@ import { ComponentProps } from "@blocknote/react";
 
 export const PanelFileInput = (
   props: ComponentProps["ImagePanel"]["FileInput"]
-) => <Mantine.FileInput size={"xs"} {...props} />;
+) => {
+  const { className, value, placeholder, onChange } = props;
+
+  return (
+    <Mantine.FileInput
+      size={"xs"}
+      className={className}
+      value={value}
+      placeholder={placeholder}
+      onChange={onChange}
+    />
+  );
+};
