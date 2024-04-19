@@ -211,6 +211,7 @@ function BlockNoteViewComponent<
   );
 }
 
+// TODO: Type args are not being passed through to the component
 export const BlockNoteViewRaw = React.forwardRef(
   BlockNoteViewComponent
 ) as typeof BlockNoteViewComponent; // need hack to get types working with generics

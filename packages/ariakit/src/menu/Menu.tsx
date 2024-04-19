@@ -4,7 +4,12 @@ import { ComponentProps } from "@blocknote/react";
 import { mergeCSSClasses } from "@blocknote/core";
 
 export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
-  const { children, onOpenChange, position } = props;
+  const {
+    children,
+    onOpenChange,
+    position,
+    // sub
+  } = props;
 
   return (
     <Ariakit.MenuProvider
@@ -19,7 +24,11 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
 export const MenuDropdown = (
   props: ComponentProps["Generic"]["Menu"]["Dropdown"]
 ) => {
-  const { className, children } = props;
+  const {
+    className,
+    children,
+    // sub
+  } = props;
 
   return (
     <Ariakit.Menu className={mergeCSSClasses("menu", className || "")}>
@@ -68,7 +77,10 @@ export const MenuLabel = (
 export const MenuTrigger = (
   props: ComponentProps["Generic"]["Menu"]["Trigger"]
 ) => {
-  const { children } = props;
+  const {
+    children,
+    // sub
+  } = props;
 
   return <Ariakit.MenuButton render={children as any}></Ariakit.MenuButton>;
 };

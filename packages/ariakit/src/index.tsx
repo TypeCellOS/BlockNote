@@ -4,7 +4,8 @@ import {
   ComponentsContext,
   createComponentsContext,
 } from "@blocknote/react";
-import "./style.css";
+import { ComponentProps } from "react";
+
 import { Form } from "./input/Form";
 import { TextInput } from "./input/TextInput";
 import {
@@ -15,17 +16,15 @@ import {
   MenuLabel,
   MenuTrigger,
 } from "./menu/Menu";
-import { Popover, PopoverContent, PopoverTrigger } from "./popover/Popover";
-import { Toolbar } from "./toolbar/Toolbar";
-import { ToolbarButton } from "./toolbar/ToolbarButton";
-import { ToolbarSelect } from "./toolbar/ToolbarSelect";
-
 import { Panel } from "./panel/Panel";
 import { PanelButton } from "./panel/PanelButton";
 import { PanelFileInput } from "./panel/PanelFileInput";
 import { PanelTab } from "./panel/PanelTab";
 import { PanelTextInput } from "./panel/PanelTextInput";
-import { ComponentProps } from "react";
+import { Popover, PopoverContent, PopoverTrigger } from "./popover/Popover";
+import { Toolbar } from "./toolbar/Toolbar";
+import { ToolbarButton } from "./toolbar/ToolbarButton";
+import { ToolbarSelect } from "./toolbar/ToolbarSelect";
 
 export const components: Components = createComponentsContext({
   FormattingToolbar: {

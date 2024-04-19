@@ -1,21 +1,13 @@
 import * as Mantine from "@mantine/core";
 
 import { ComponentProps } from "@blocknote/react";
-import { forwardRef } from "react";
 
-export const PanelButton = forwardRef<
-  HTMLButtonElement,
-  ComponentProps["ImagePanel"]["Button"]
->((props, ref) => {
+export const PanelButton = (props: ComponentProps["ImagePanel"]["Button"]) => {
   const { className, children, onClick } = props;
 
   return (
-    <Mantine.Button
-      size={"xs"}
-      className={className}
-      onClick={onClick}
-      ref={ref}>
+    <Mantine.Button size={"xs"} className={className} onClick={onClick}>
       {children}
     </Mantine.Button>
   );
-});
+};

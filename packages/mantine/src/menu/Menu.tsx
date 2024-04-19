@@ -21,8 +21,12 @@ const SubMenuContext = createContext<
 >(undefined);
 
 const SubMenu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
-  const { children, onOpenChange, position } = props;
-
+  const {
+    children,
+    onOpenChange,
+    position,
+    // sub
+  } = props;
   const [opened, setOpened] = useState(false);
 
   const menuCloseTimer = useRef<ReturnType<typeof setTimeout> | undefined>();
@@ -118,7 +122,10 @@ export const MenuItem = (props: ComponentProps["Generic"]["Menu"]["Item"]) => {
 export const MenuTrigger = (
   props: ComponentProps["Generic"]["Menu"]["Trigger"]
 ) => {
-  const { children } = props;
+  const {
+    children,
+    // sub
+  } = props;
 
   return <Mantine.MenuTarget>{children}</Mantine.MenuTarget>;
 };

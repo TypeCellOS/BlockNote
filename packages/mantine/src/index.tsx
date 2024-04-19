@@ -2,9 +2,11 @@ import {
   BlockNoteViewRaw,
   Components,
   ComponentsContext,
+  createComponentsContext,
 } from "@blocknote/react";
 import { ComponentProps } from "react";
-import { TextInput } from "./input/TextInput";
+
+import { TextInput } from "./form/TextInput";
 import {
   Menu,
   MenuDivider,
@@ -13,16 +15,15 @@ import {
   MenuLabel,
   MenuTrigger,
 } from "./menu/Menu";
-import { Popover, PopoverContent, PopoverTrigger } from "./popover/Popover";
-import { Toolbar } from "./toolbar/Toolbar";
-import { ToolbarButton } from "./toolbar/ToolbarButton";
-import { ToolbarSelect } from "./toolbar/ToolbarSelect";
 import { Panel } from "./panel/Panel";
 import { PanelButton } from "./panel/PanelButton";
 import { PanelFileInput } from "./panel/PanelFileInput";
 import { PanelTab } from "./panel/PanelTab";
 import { PanelTextInput } from "./panel/PanelTextInput";
-import { createComponentsContext } from "../../react/src";
+import { Popover, PopoverContent, PopoverTrigger } from "./popover/Popover";
+import { Toolbar } from "./toolbar/Toolbar";
+import { ToolbarButton } from "./toolbar/ToolbarButton";
+import { ToolbarSelect } from "./toolbar/ToolbarSelect";
 
 export const components: Components = createComponentsContext({
   FormattingToolbar: {
@@ -71,17 +72,3 @@ export const BlockNoteView = (
     </ComponentsContext.Provider>
   );
 };
-
-/*
-
-TODO:
-- allow passing in shadcn components
-- fix other libs
-- select items
-- menu colors
-- caret
-- suggestion menu?
-- forms
-- toggle buttons
-- zindex
-*/
