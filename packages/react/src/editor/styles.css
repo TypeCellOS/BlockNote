@@ -125,6 +125,12 @@
   justify-content: center;
 }
 
+/* Error text styling */
+.bn-error-text {
+  color: red;
+  font-size: 12px;
+}
+
 /* Highlight color styling */
 [data-text-color="gray"] {
   color: var(--bn-colors-highlights-gray-text);

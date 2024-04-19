@@ -16,11 +16,8 @@ export default defineConfig((conf) => ({
   resolve: {
     alias:
       conf.command === "build"
-        ? ({
-            "@": path.resolve(__dirname, "./src"),
-          } as Record<string, string>)
+        ? ({} as Record<string, string>)
         : ({
-            "@": path.resolve(__dirname, "./src"),
             // load live from sources with live reload working
             "@blocknote/core": path.resolve(__dirname, "../core/src/"),
             "@blocknote/react": path.resolve(__dirname, "../react/src/"),

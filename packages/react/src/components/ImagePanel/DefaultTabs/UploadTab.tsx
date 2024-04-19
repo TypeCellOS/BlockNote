@@ -1,4 +1,3 @@
-import { Text } from "@mantine/core";
 import {
   DefaultBlockSchema,
   DefaultInlineContentSchema,
@@ -80,9 +79,7 @@ export const UploadTab = <
         data-test={"upload-input"}
       />
       {uploadFailed && (
-        <Text c={"red"} size={"12px"}>
-          Error: Upload failed
-        </Text>
+        <div className={"bn-error-text"}>Error: Upload failed</div>
       )}
     </Components.ImagePanel.TabPanel>
   );

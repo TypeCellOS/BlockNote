@@ -19,10 +19,10 @@ import { UploadTab } from "./DefaultTabs/UploadTab";
 type PanelProps = ComponentProps["ImagePanel"]["Root"];
 
 /**
- * By default, the ImageToolbar component will render with default tabs.
+ * By default, the ImagePanel component will render with default tabs.
  * However, you can override the tabs to render by passing the `tabs` prop. You
  * can use the default tab panels in the `DefaultTabPanels` directory or make
- * your own using the `ImageToolbarPanel` component.
+ * your own using the `ImagePanelPanel` component.
  */
 export const ImagePanel = <
   I extends InlineContentSchema = DefaultInlineContentSchema,

@@ -29,6 +29,7 @@ export const TextInput = (
   if (!label) {
     return (
       <Input
+        aria-label={name}
         name={name}
         autoFocus={autoFocus}
         placeholder={placeholder}
