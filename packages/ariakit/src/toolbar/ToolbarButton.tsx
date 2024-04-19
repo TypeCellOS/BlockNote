@@ -14,10 +14,31 @@ type ToolbarButtonProps = ComponentProps["FormattingToolbar"]["Button"] &
 // TODO: implement tooltip
 export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
   (props, ref) => {
+    const {
+      className,
+      children,
+      // mainTooltip,
+      // secondaryTooltip,
+      icon,
+      isSelected,
+      isDisabled,
+      onClick,
+    } = props;
+
     const toolbar = useToolbarContext();
 
     if (!toolbar) {
-      return <Ariakit.Button {...props} />;
+      return (
+        <Ariakit.Button
+          className={mergeCSSClasses("button", className || "")}
+          onClick={onClick}
+          data-selected={isSelected ? "true" : undefined}
+          disabled={isDisabled || false}
+          ref={ref}>
+          {icon}
+          {children}
+        </Ariakit.Button>
+      );
     }
 
     return (
@@ -30,17 +51,17 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
             (e.currentTarget as HTMLButtonElement).focus();
           }
         }}
-        onClick={props.onClick}
-        data-selected={props.isSelected ? "true" : undefined}
+        onClick={onClick}
+        data-selected={isSelected ? "true" : undefined}
         data-test={
           props.mainTooltip.slice(0, 1).toLowerCase() +
           props.mainTooltip.replace(/\s+/g, "").slice(1)
         }
         //   size={"xs"}
-        disabled={props.isDisabled || false}
+        disabled={isDisabled || false}
         ref={ref}>
-        {props.icon}
-        {props.children}
+        {icon}
+        {children}
       </Ariakit.ToolbarItem>
     );
 

@@ -6,24 +6,34 @@ import { mergeCSSClasses } from "@blocknote/core";
 export const PopoverTrigger = (
   props: ComponentProps["Generic"]["Popover"]["Trigger"]
 ) => {
-  const { children, ...rest } = props;
+  const { children } = props;
 
   return (
     <Ariakit.PopoverDisclosure
-      {...rest}
       render={children as any}></Ariakit.PopoverDisclosure>
   );
 };
 
 export const PopoverContent = (
   props: ComponentProps["Generic"]["Popover"]["Content"]
-) => (
-  <Ariakit.Popover
-    className={mergeCSSClasses("popover", props.className || "")}>
-    {props.children}
-  </Ariakit.Popover>
-);
+) => {
+  const { className, children } = props;
+
+  return (
+    <Ariakit.Popover className={mergeCSSClasses("popover", className || "")}>
+      {children}
+    </Ariakit.Popover>
+  );
+};
 
 export const Popover = (
   props: ComponentProps["Generic"]["Popover"]["Root"]
-) => <Ariakit.PopoverProvider {...props} />;
+) => {
+  const { children, opened, position } = props;
+
+  return (
+    <Ariakit.PopoverProvider open={opened} placement={position}>
+      {children}
+    </Ariakit.PopoverProvider>
+  );
+};

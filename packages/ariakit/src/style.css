@@ -3,6 +3,12 @@
 
 @import "./ariakitStyles.css";
 
+.input-wrapper {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+}
+
 .bn-toolbar .button {
   width: unset;
 }

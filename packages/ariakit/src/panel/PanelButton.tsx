@@ -4,12 +4,12 @@ import { ComponentProps } from "@blocknote/react";
 import { mergeCSSClasses } from "@blocknote/core";
 
 export const PanelButton = (props: ComponentProps["ImagePanel"]["Button"]) => {
-  const { className, children, ...rest } = props;
+  const { className, children, onClick } = props;
 
   return (
     <Ariakit.Button
       className={mergeCSSClasses("button", className || "")}
-      {...rest}>
+      onClick={onClick}>
       {children}
     </Ariakit.Button>
   );

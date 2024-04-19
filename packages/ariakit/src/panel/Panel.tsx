@@ -4,19 +4,30 @@ import { ComponentProps } from "@blocknote/react";
 import { mergeCSSClasses } from "@blocknote/core";
 
 export const Panel = (props: ComponentProps["ImagePanel"]["Root"]) => {
+  const {
+    className,
+    tabs,
+    defaultOpenTab,
+    openTab,
+    setOpenTab,
+    // loading,
+    // setLoading,
+  } = props;
+
   return (
-    <div className={mergeCSSClasses("wrapper", props.className || "")}>
+    <div className={mergeCSSClasses("wrapper", className || "")}>
       <Ariakit.TabProvider
-        selectedId={props.openTab}
+        defaultSelectedId={defaultOpenTab}
+        selectedId={openTab}
         setActiveId={(activeId) => {
           if (activeId) {
-            props.setOpenTab(activeId);
+            setOpenTab(activeId);
           }
         }}>
-        {/*{props.loading && <LoadingOverlay visible={props.loading} />}*/}
+        {/*{loading && <LoadingOverlay visible={loading} />}*/}
 
         <Ariakit.TabList className={"tab-list"}>
-          {props.tabs.map((tab) => (
+          {tabs.map((tab) => (
             <Ariakit.Tab className={"tab"} id={tab.name} key={tab.name}>
               {tab.name}
             </Ariakit.Tab>
@@ -24,7 +35,7 @@ export const Panel = (props: ComponentProps["ImagePanel"]["Root"]) => {
         </Ariakit.TabList>
 
         <div className={"panels"}>
-          {props.tabs.map((tab) => (
+          {tabs.map((tab) => (
             <Ariakit.TabPanel tabId={tab.name} key={tab.name}>
               {tab.tabPanel}
             </Ariakit.TabPanel>

@@ -6,14 +6,17 @@ import { mergeCSSClasses } from "@blocknote/core";
 export const PanelTextInput = (
   props: ComponentProps["ImagePanel"]["TextInput"]
 ) => {
-  const { className, ...rest } = props;
+  const { className, value, placeholder, onKeyDown, onChange } = props;
 
   return (
     <Ariakit.FormProvider>
       <Ariakit.FormInput
         className={mergeCSSClasses("input", className || "")}
         name={"panel-input"}
-        {...rest}
+        value={value}
+        placeholder={placeholder}
+        onChange={onChange}
+        onKeyDown={onKeyDown}
         data-test={"embed-input"}
       />
     </Ariakit.FormProvider>

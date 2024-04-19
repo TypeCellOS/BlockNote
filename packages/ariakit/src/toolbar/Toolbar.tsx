@@ -7,12 +7,13 @@ type ToolbarProps = ComponentProps["FormattingToolbar"]["Root"] &
   ComponentProps["LinkToolbar"]["Root"];
 
 export const Toolbar = (props: ToolbarProps) => {
-  const { className, children, ...rest } = props;
+  const { className, children, onMouseEnter, onMouseLeave } = props;
 
   return (
     <Ariakit.Toolbar
       className={mergeCSSClasses("toolbar", className || "")}
-      {...rest}>
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}>
       {children}
     </Ariakit.Toolbar>
   );

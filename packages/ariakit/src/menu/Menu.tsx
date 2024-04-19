@@ -4,27 +4,25 @@ import { ComponentProps } from "@blocknote/react";
 import { mergeCSSClasses } from "@blocknote/core";
 
 export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
-  const { onOpenChange, position, ...rest } = props;
+  const { children, onOpenChange, position } = props;
 
   return (
     <Ariakit.MenuProvider
       placement={position}
       setOpen={onOpenChange}
-      virtualFocus={true}
-      {...rest}
-    />
+      virtualFocus={true}>
+      {children}
+    </Ariakit.MenuProvider>
   );
 };
 
 export const MenuDropdown = (
   props: ComponentProps["Generic"]["Menu"]["Dropdown"]
 ) => {
-  const { className, children, ...rest } = props;
+  const { className, children } = props;
 
   return (
-    <Ariakit.Menu
-      {...rest}
-      className={mergeCSSClasses("menu", className || "")}>
+    <Ariakit.Menu className={mergeCSSClasses("menu", className || "")}>
       {children}
     </Ariakit.Menu>
   );
@@ -57,12 +55,11 @@ export const MenuItem = (props: ComponentProps["Generic"]["Menu"]["Item"]) => {
 export const MenuLabel = (
   props: ComponentProps["Generic"]["Menu"]["Label"]
 ) => {
-  const { className, children, ...rest } = props;
+  const { className, children } = props;
 
   return (
     <Ariakit.MenuGroupLabel
-      className={mergeCSSClasses("group-label", className || "")}
-      {...rest}>
+      className={mergeCSSClasses("group-label", className || "")}>
       {children}
     </Ariakit.MenuGroupLabel>
   );
@@ -71,19 +68,19 @@ export const MenuLabel = (
 export const MenuTrigger = (
   props: ComponentProps["Generic"]["Menu"]["Trigger"]
 ) => {
-  const { children, ...rest } = props;
+  const { children } = props;
 
-  return (
-    <Ariakit.MenuButton {...rest} render={children as any}></Ariakit.MenuButton>
-  );
+  return <Ariakit.MenuButton render={children as any}></Ariakit.MenuButton>;
 };
 
 export const MenuDivider = (
   props: ComponentProps["Generic"]["Menu"]["Divider"]
 ) => {
+  const { className } = props;
+
   return (
     <Ariakit.MenuSeparator
-      className={mergeCSSClasses("separator", props.className || "")}
+      className={mergeCSSClasses("separator", className || "")}
     />
   );
 };

@@ -6,18 +6,37 @@ import { mergeCSSClasses } from "@blocknote/core";
 export const TextInput = (
   props: ComponentProps["Generic"]["Form"]["TextInput"]
 ) => {
-  const { className, icon, ...rest } = props;
+  const {
+    className,
+    name,
+    label,
+    icon,
+    value,
+    autoFocus,
+    placeholder,
+    onKeyDown,
+    onChange,
+    onSubmit,
+  } = props;
 
-  // TODO: support icon
   return (
     <>
       {props.label && (
-        <Ariakit.FormLabel name={props.name}>{props.label}</Ariakit.FormLabel>
+        <Ariakit.FormLabel name={name}>{label}</Ariakit.FormLabel>
       )}
-      <Ariakit.FormInput
-        className={mergeCSSClasses("input", className || "")}
-        {...rest}
-      />
+      <div className="input-wrapper">
+        {icon}
+        <Ariakit.FormInput
+          className={mergeCSSClasses("input", className || "")}
+          name={name}
+          value={value}
+          autoFocus={autoFocus}
+          placeholder={placeholder}
+          onKeyDown={onKeyDown}
+          onChange={onChange}
+          onSubmit={onSubmit}
+        />
+      </div>
     </>
   );
 };
