@@ -7,6 +7,7 @@ import {
 } from "@blocknote/core";
 
 import React, {
+  ComponentProps,
   HTMLAttributes,
   ReactNode,
   Ref,
@@ -201,7 +202,15 @@ function BlockNoteViewComponent<
   );
 }
 
-// TODO: Type args are not being passed through to the component
-export const BlockNoteViewRaw = React.forwardRef(
-  BlockNoteViewComponent
-) as typeof BlockNoteViewComponent; // need hack to get types working with generics
+// https://fettblog.eu/typescript-react-generic-forward-refs/
+export const BlockNoteViewRaw = React.forwardRef(BlockNoteViewComponent) as <
+  BSchema extends BlockSchema,
+  ISchema extends InlineContentSchema,
+  SSchema extends StyleSchema
+>(
+  props: ComponentProps<
+    typeof BlockNoteViewComponent<BSchema, ISchema, SSchema>
+  > & {
+    ref?: React.ForwardedRef<HTMLDivElement>;
+  }
+) => ReturnType<typeof BlockNoteViewComponent<BSchema, ISchema, SSchema>>;
