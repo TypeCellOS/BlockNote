@@ -1,4 +1,5 @@
 import * as ShadCNButton from "@/components/ui/button";
+import * as ShadCNCard from "@/components/ui/card";
 import * as ShadCNDropdownMenu from "@/components/ui/dropdown-menu";
 import * as ShadCNInput from "@/components/ui/input";
 import * as ShadCNLabel from "@/components/ui/label";
@@ -13,6 +14,8 @@ import { ComponentProps } from "@blocknote/react";
 
 export type ShadCNComponents = {
   Button: typeof ShadCNButton.Button;
+  Card: typeof ShadCNCard.Card;
+  CardContent: typeof ShadCNCard.CardContent;
   DropdownMenu: typeof ShadCNDropdownMenu.DropdownMenu;
   DropdownMenuCheckboxItem: typeof ShadCNDropdownMenu.DropdownMenuCheckboxItem;
   DropdownMenuContent: typeof ShadCNDropdownMenu.DropdownMenuContent;
