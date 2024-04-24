@@ -17,7 +17,8 @@ export const EditLinkButton = (
           Edit Link
         </Components.LinkToolbar.Button>
       </Components.Generic.Popover.Trigger>
-      <Components.Generic.Popover.Content className={"bn-popover-content"}>
+      <Components.Generic.Popover.Content
+        className={"bn-popover-content bn-input-popover"}>
         <EditLinkMenuItems {...props} />
       </Components.Generic.Popover.Content>
     </Components.Generic.Popover.Root>

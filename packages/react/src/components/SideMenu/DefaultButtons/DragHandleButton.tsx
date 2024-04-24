@@ -35,7 +35,8 @@ export const DragHandleButton = <
       position={"left"}>
       <Components.Generic.Menu.Trigger>
         <div
-          className={"bn-drag-handle"}
+          className="bn-drag-handle"
+          data-test="dragHandle"
           draggable="true"
           onDragStart={props.blockDragStart}
           onDragEnd={props.blockDragEnd}>

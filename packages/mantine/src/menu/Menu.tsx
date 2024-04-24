@@ -157,7 +157,7 @@ export const MenuItem = forwardRef<
     return (
       <div ref={ref}>
         {children}
-        {subTrigger && <HiChevronRight size={15} />}
+        <HiChevronRight size={15} />
       </div>
     );
   }
@@ -172,13 +172,11 @@ export const MenuItem = forwardRef<
       component="div"
       leftSection={icon}
       rightSection={
-        <>
-          {checked ? (
-            <Mantine.CheckIcon size={10} />
-          ) : !checked ? (
-            <div className={"bn-tick-space"} />
-          ) : undefined}
-        </>
+        checked ? (
+          <Mantine.CheckIcon size={10} />
+        ) : checked === false ? (
+          <div className={"bn-tick-space"} />
+        ) : null
       }
       onMouseOver={onMouseOver}
       onMouseLeave={onMouseLeave}
