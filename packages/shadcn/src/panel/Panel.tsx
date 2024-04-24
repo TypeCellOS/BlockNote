@@ -48,7 +48,6 @@ export const Panel = forwardRef<
       {tabs.map((tab) => (
         <TabsContent value={tab.name} key={tab.name}>
           <Card>
-            <ShadCNCard.CardHeader>Test</ShadCNCard.CardHeader>
             <CardContent>{tab.tabPanel}</CardContent>
           </Card>
         </TabsContent>
