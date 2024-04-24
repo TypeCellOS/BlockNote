@@ -1,8 +1,12 @@
 import * as Mantine from "@mantine/core";
 
 import { ComponentProps } from "@blocknote/react";
+import { forwardRef } from "react";
 
-export const Panel = (props: ComponentProps["ImagePanel"]["Root"]) => {
+export const Panel = forwardRef<
+  HTMLDivElement,
+  ComponentProps["ImagePanel"]["Root"]
+>((props, ref) => {
   const {
     className,
     tabs,
@@ -14,7 +18,7 @@ export const Panel = (props: ComponentProps["ImagePanel"]["Root"]) => {
   } = props;
 
   return (
-    <Mantine.Group className={className}>
+    <Mantine.Group className={className} ref={ref}>
       <Mantine.Tabs
         value={openTab}
         defaultValue={defaultOpenTab}
@@ -37,4 +41,4 @@ export const Panel = (props: ComponentProps["ImagePanel"]["Root"]) => {
       </Mantine.Tabs>
     </Mantine.Group>
   );
-};
+});

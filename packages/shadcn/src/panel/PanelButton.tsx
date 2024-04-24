@@ -1,20 +1,26 @@
 import * as ShadCNButton from "../components/ui/button";
 
 import { ComponentProps } from "@blocknote/react";
+import { forwardRef } from "react";
 
-export const PanelButton = (
-  props: ComponentProps["ImagePanel"]["Button"] &
-    Partial<{
-      Button: typeof ShadCNButton.Button;
-    }>
-) => {
+import { useShadCNComponentsContext } from "../ShadCNComponentsContext";
+
+export const PanelButton = forwardRef<
+  HTMLButtonElement,
+  ComponentProps["ImagePanel"]["Button"]
+>((props, ref) => {
   const { className, children, onClick } = props;
 
-  const Button = props.Button || ShadCNButton.Button;
+  const ShadCNComponents = useShadCNComponentsContext();
+  const Button = ShadCNComponents?.Button || ShadCNButton.Button;
 
   return (
-    <Button variant={"outline"} className={className} onClick={onClick}>
+    <Button
+      variant={"outline"}
+      className={className}
+      ref={ref}
+      onClick={onClick}>
       {children}
     </Button>
   );
-};
+});

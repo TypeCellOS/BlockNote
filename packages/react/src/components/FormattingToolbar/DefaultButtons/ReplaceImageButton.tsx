@@ -43,14 +43,14 @@ export const ReplaceImageButton = () => {
     <Components.Generic.Popover.Root opened={isOpen} position={"bottom"}>
       <Components.Generic.Popover.Trigger>
         <Components.FormattingToolbar.Button
+          className={"bn-button"}
           onClick={() => setIsOpen(!isOpen)}
           isSelected={isOpen}
           mainTooltip={"Replace Image"}
           icon={<RiImageEditFill />}
         />
       </Components.Generic.Popover.Trigger>
-      <Components.Generic.Popover.Content
-        className={"bn-replace-image-dropdown"}>
+      <Components.Generic.Popover.Content className={"bn-popover-content"}>
         <ImagePanel block={block} />
       </Components.Generic.Popover.Content>
     </Components.Generic.Popover.Root>

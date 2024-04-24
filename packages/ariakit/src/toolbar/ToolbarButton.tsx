@@ -26,7 +26,10 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
 
     return (
       <Ariakit.ToolbarItem
-        className={mergeCSSClasses("button secondary", className || "")}
+        className={mergeCSSClasses(
+          "bn-ak-button bn-ak-secondary",
+          className || ""
+        )}
         // Needed as Safari doesn't focus button elements on mouse down
         // unlike other browsers.
         onMouseDown={(e) => {

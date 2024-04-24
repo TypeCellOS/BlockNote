@@ -89,6 +89,7 @@ export const UnnestBlockButton = () => {
 
   return (
     <Components.FormattingToolbar.Button
+      className={"bn-button"}
       onClick={unnestBlock}
       isDisabled={!canUnnestBlock}
       mainTooltip="Unnest Block"

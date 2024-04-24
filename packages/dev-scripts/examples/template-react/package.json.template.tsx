@@ -13,8 +13,11 @@ const template = (project: Project) => ({
     lint: "eslint . --max-warnings 0",
   },
   dependencies: {
-    "@blocknote/core": "^0.12.0",
-    "@blocknote/react": "^0.12.0",
+    "@blocknote/core": "^0.12.1",
+    "@blocknote/react": "^0.12.2",
+    "@blocknote/ariakit": "^0.12.2",
+    "@blocknote/mantine": "^0.12.2",
+    "@blocknote/shadcn": "^0.12.2",
     react: "^18.2.0",
     "react-dom": "^18.2.0",
     ...(project.config?.dependencies || {}),

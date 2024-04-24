@@ -1,10 +1,12 @@
 import * as Mantine from "@mantine/core";
 
 import { ComponentProps } from "@blocknote/react";
+import { forwardRef } from "react";
 
-export const TextInput = (
-  props: ComponentProps["Generic"]["Form"]["TextInput"]
-) => {
+export const TextInput = forwardRef<
+  HTMLInputElement,
+  ComponentProps["Generic"]["Form"]["TextInput"]
+>((props, ref) => {
   const {
     className,
     name,
@@ -22,6 +24,7 @@ export const TextInput = (
     <Mantine.TextInput
       size={"xs"}
       className={className}
+      ref={ref}
       name={name}
       label={label}
       leftSection={icon}
@@ -33,4 +36,4 @@ export const TextInput = (
       onSubmit={onSubmit}
     />
   );
-};
+});

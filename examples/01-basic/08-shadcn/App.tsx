@@ -1,7 +1,7 @@
 import "@blocknote/core/fonts/inter.css";
 import { useCreateBlockNote } from "@blocknote/react";
-import "@blocknote/react/style.css";
 import { BlockNoteView } from "@blocknote/shadcn";
+import "@blocknote/shadcn/style.css";
 
 export default function App() {
   // Creates a new editor instance.

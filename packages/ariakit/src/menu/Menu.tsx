@@ -1,7 +1,8 @@
 import * as Ariakit from "@ariakit/react";
 
-import { ComponentProps } from "@blocknote/react";
 import { mergeCSSClasses } from "@blocknote/core";
+import { ComponentProps } from "@blocknote/react";
+import { forwardRef } from "react";
 
 export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
   const {
@@ -21,28 +22,33 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
   );
 };
 
-export const MenuDropdown = (
-  props: ComponentProps["Generic"]["Menu"]["Dropdown"]
-) => {
-  const {
-    className,
-    children,
-    // sub
-  } = props;
+export const MenuDropdown = forwardRef<
+  HTMLDivElement,
+  ComponentProps["Generic"]["Menu"]["Dropdown"]
+>((props, ref) => {
+  const { className, children } = props;
 
   return (
-    <Ariakit.Menu className={mergeCSSClasses("menu", className || "")}>
+    <Ariakit.Menu
+      className={mergeCSSClasses("bn-ak-menu", className || "")}
+      ref={ref}>
       {children}
     </Ariakit.Menu>
   );
-};
+});
 
-export const MenuItem = (props: ComponentProps["Generic"]["Menu"]["Item"]) => {
+export const MenuItem = forwardRef<
+  HTMLDivElement,
+  ComponentProps["Generic"]["Menu"]["Item"]
+>((props, ref) => {
   const { className, children, icon, checked, subTrigger, onClick } = props;
 
   if (subTrigger) {
     return (
-      <Ariakit.MenuButton className={className} onClick={onClick}>
+      <Ariakit.MenuButton
+        className={mergeCSSClasses("bn-ak-menu-item", className || "")}
+        ref={ref}
+        onClick={onClick}>
         {icon}
         {children}
         <Ariakit.MenuButtonArrow />
@@ -52,27 +58,30 @@ export const MenuItem = (props: ComponentProps["Generic"]["Menu"]["Item"]) => {
   }
   return (
     <Ariakit.MenuItem
-      className={mergeCSSClasses("menu-item", className || "")}
+      className={mergeCSSClasses("bn-ak-menu-item", className || "")}
+      ref={ref}
       onClick={onClick}>
       {icon}
       {children}
       {checked !== undefined && <Ariakit.CheckboxCheck checked={checked} />}
     </Ariakit.MenuItem>
   );
-};
+});
 
-export const MenuLabel = (
-  props: ComponentProps["Generic"]["Menu"]["Label"]
-) => {
+export const MenuLabel = forwardRef<
+  HTMLDivElement,
+  ComponentProps["Generic"]["Menu"]["Label"]
+>((props, ref) => {
   const { className, children } = props;
 
   return (
     <Ariakit.MenuGroupLabel
-      className={mergeCSSClasses("group-label", className || "")}>
+      className={mergeCSSClasses("bn-ak-group-label", className || "")}
+      ref={ref}>
       {children}
     </Ariakit.MenuGroupLabel>
   );
-};
+});
 
 export const MenuTrigger = (
   props: ComponentProps["Generic"]["Menu"]["Trigger"]
@@ -85,14 +94,16 @@ export const MenuTrigger = (
   return <Ariakit.MenuButton render={children as any}></Ariakit.MenuButton>;
 };
 
-export const MenuDivider = (
-  props: ComponentProps["Generic"]["Menu"]["Divider"]
-) => {
+export const MenuDivider = forwardRef<
+  HTMLHRElement,
+  ComponentProps["Generic"]["Menu"]["Divider"]
+>((props, ref) => {
   const { className } = props;
 
   return (
     <Ariakit.MenuSeparator
-      className={mergeCSSClasses("separator", className || "")}
+      className={mergeCSSClasses("bn-ak-separator", className || "")}
+      ref={ref}
     />
   );
-};
+});

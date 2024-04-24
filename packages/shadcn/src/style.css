@@ -71,6 +71,33 @@
 [data-radix-popper-content-wrapper] {
   z-index: 99999 !important;
 }
+
+.bn-side-menu {
+  display: flex;
+  justify-content: center;
+}
+
+.bn-side-menu .bn-button {
+  padding: 0;
+  height: 24px;
+}
+
+.bn-select {
+  max-height: var(--radix-select-content-available-height);
+}
+
+.bn-menu-dropdown {
+  max-height: var(--radix-dropdown-menu-content-available-height);
+}
+
+.bn-color-picker-dropdown {
+  overflow: auto;
+}
+
+.bn-suggestion-menu-item[data-hovered] {
+  background-color: hsl(var(--accent));
+}
+
 /* @layer base {
   * {
     @apply border-border;

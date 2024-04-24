@@ -24,7 +24,7 @@ export const LinkToolbar = (
 
   if (props.children) {
     return (
-      <Components.LinkToolbar.Root>
+      <Components.LinkToolbar.Root className={"bn-toolbar bn-link-toolbar"}>
         {props.children}
       </Components.LinkToolbar.Root>
     );
@@ -32,6 +32,7 @@ export const LinkToolbar = (
 
   return (
     <Components.LinkToolbar.Root
+      className={"bn-toolbar bn-link-toolbar"}
       onMouseEnter={props.stopHideTimer}
       onMouseLeave={props.startHideTimer}>
       <EditLinkButton

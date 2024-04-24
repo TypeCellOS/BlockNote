@@ -62,6 +62,7 @@ export const ImagePanel = <
 
   return (
     <Components.ImagePanel.Root
+      className={"bn-panel"}
       defaultOpenTab={openTab}
       openTab={openTab}
       setOpenTab={setOpenTab}

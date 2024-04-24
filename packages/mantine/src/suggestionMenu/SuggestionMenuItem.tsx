@@ -1,10 +1,25 @@
-import { useCallback, useRef } from "react";
-// import type { SuggestionMenuItemProps } from "../../../react/src/editor/ComponentsContext";
+import * as Mantine from "@mantine/core";
 
-export function SuggestionMenuItem(props: any) {
-  const { setSelected } = props;
+import { ComponentProps } from "@blocknote/react";
+import { forwardRef, useCallback } from "react";
 
-  const itemRef = useRef<HTMLDivElement>(null);
+export const SuggestionMenuItem = forwardRef<
+  HTMLDivElement,
+  ComponentProps["SuggestionMenu"]["Item"]
+>((props, ref) => {
+  const {
+    className,
+    title,
+    subtext,
+    // group,
+    icon,
+    badge,
+    // aliases,
+    // onItemClick,
+    isSelected,
+    setSelected,
+    onClick,
+  } = props;
 
   const handleMouseLeave = useCallback(() => {
     setSelected?.(false);
@@ -14,60 +29,38 @@ export function SuggestionMenuItem(props: any) {
     setSelected?.(true);
   }, [setSelected]);
 
-  // TODO: remove mantine classnames and clean up styles
   return (
-    <div
+    <Mantine.Group
       // component="div"
-      className={"bn-slash-menu-item mantine-Menu-item"}
-      onClick={props.onClick}
+      className={className}
+      ref={ref}
+      onClick={onClick}
       // Ensures an item selected with both mouse & keyboard doesn't get deselected on mouse leave.
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      data-hovered={props.isSelected ? "" : undefined}
-      ref={itemRef}>
-      {props.icon && (
-        <div className="mantine-Menu-itemSection" data-position="left">
-          {props.icon}
-        </div>
+      data-hovered={isSelected ? "" : undefined}>
+      {icon && (
+        <Mantine.Group
+          className="bn-mt-suggestion-menu-item-section"
+          data-position="left">
+          {icon}
+        </Mantine.Group>
       )}
-      <div className="mantine-Menu-itemLabel">
-        {/* TODO: move styles to css */}
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "flex-start",
-            alignItems: "stretch",
-          }}>
-          <p
-            style={{
-              lineHeight: "20px",
-              fontWeight: 500,
-              fontSize: "14px",
-              margin: 0,
-              padding: 0,
-            }}>
-            {props.title}
-          </p>
-          <p
-            style={{
-              lineHeight: "16px",
-              fontSize: "10px",
-              margin: 0,
-              padding: 0,
-            }}>
-            {props.subtext}
-          </p>
-        </div>
-      </div>
-      {props.badge && (
-        <div data-position="right" className="mantine-Menu-itemSection">
-          <div className="bn-badge-root">
-            <span className="bn-badge-label">{props.badge}</span>
-          </div>
-          {/* <Badge size={"xs"}>{props.badge}</Badge> */}
-        </div>
+      <Mantine.Stack gap={0} className="bn-mt-suggestion-menu-item-body">
+        <Mantine.Text className="bn-mt-suggestion-menu-item-title">
+          {title}
+        </Mantine.Text>
+        <Mantine.Text className="bn-mt-suggestion-menu-item-subtitle">
+          {subtext}
+        </Mantine.Text>
+      </Mantine.Stack>
+      {badge && (
+        <Mantine.Group
+          data-position="right"
+          className="bn-mt-suggestion-menu-item-section">
+          <Mantine.Badge size={"xs"}>{badge}</Mantine.Badge>
+        </Mantine.Group>
       )}
-    </div>
+    </Mantine.Group>
   );
-}
+});

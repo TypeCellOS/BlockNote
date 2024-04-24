@@ -27,8 +27,8 @@ export default defineConfig((conf) => ({
     sourcemap: true,
     lib: {
       entry: path.resolve(__dirname, "src/index.tsx"),
-      name: "blocknote-shadcn",
-      fileName: "blocknote-shadcn",
+      name: "blocknote-mantine",
+      fileName: "blocknote-mantine",
     },
     rollupOptions: {
       // make sure to externalize deps that shouldn't be bundled

@@ -136,3 +136,63 @@
 .bn-container[dir=rtl] .mantine-rotate-rtl {
     transform: rotate(180deg)
 }
+
+/* Base styles for Suggestion Menus, copied from the Mantine Menu component. */
+/* Unfortunately necessary, as we can't use a Menu.Dropdown component on its
+ own. */
+/* https://github.com/mantinedev/mantine/blob/e3e3bb834de1f2f75a27dbc757dc0a2fc6a6cba8/packages/%40mantine/core/src/components/Menu/Menu.module.css */
+.bn-suggestion-menu {
+    max-height: 100%;
+    position: relative;
+    box-shadow: var(--mantine-shadow-md);
+    border: calc(0.0625rem * var(--mantine-scale)) solid
+    var(--mantine-color-gray-2);
+    border-radius: var(--mantine-radius-default);
+    padding: 4px;
+}
+
+.bn-suggestion-menu-label {
+    color: var(--mantine-color-dimmed);
+    font-weight: 500;
+    font-size: var(--mantine-font-size-xs);
+    padding: calc(var(--mantine-spacing-xs) / 2) var(--mantine-spacing-sm);
+    cursor: default;
+}
+
+.bn-suggestion-menu-item {
+    font-size: var(--mantine-font-size-sm);
+    width: 100%;
+    padding: calc(var(--mantine-spacing-xs) / 1.5) var(--mantine-spacing-sm);
+    border-radius: var(--popover-radius, var(--mantine-radius-default));
+    color: var(--menu-item-color, var(--mantine-color-text));
+    display: flex;
+    align-items: center;
+    user-select: none;
+
+    &:where([data-disabled], :disabled) {
+        color: var(--mantine-color-dimmed);
+        opacity: 0.6;
+        pointer-events: none;
+    }
+
+    &:where([data-hovered]) {
+    }
+}
+
+.bn-mt-suggestion-menu-item-label {
+    flex: 1;
+}
+
+.bn-mt-suggestion-menu-item-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    &:where([data-position="left"]) {
+        margin-inline-end: var(--mantine-spacing-xs);
+    }
+
+    &:where([data-position="right"]) {
+        margin-inline-start: var(--mantine-spacing-xs);
+    }
+}

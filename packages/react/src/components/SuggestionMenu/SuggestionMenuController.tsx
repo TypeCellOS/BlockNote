@@ -14,6 +14,7 @@ import { useUIPluginState } from "../../hooks/useUIPluginState";
 import { SuggestionMenuWrapper } from "./SuggestionMenuWrapper";
 import { getDefaultReactSlashMenuItems } from "./getDefaultReactSlashMenuItems";
 import { DefaultReactSuggestionItem, SuggestionMenuProps } from "./types";
+import { SuggestionMenu } from "./SuggestionMenu";
 
 type ArrayElement<A> = A extends readonly (infer T)[] ? T : never;
 
@@ -115,7 +116,7 @@ export function SuggestionMenuController<
         closeMenu={callbacks.closeMenu}
         clearQuery={callbacks.clearQuery}
         getItems={getItems!}
-        suggestionMenuComponent={suggestionMenuComponent || (() => <div />)}
+        suggestionMenuComponent={suggestionMenuComponent || SuggestionMenu}
         onItemClick={onItemClick}
       />
     </div>

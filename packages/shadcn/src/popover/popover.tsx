@@ -1,10 +1,12 @@
 import * as ShadCNPopover from "../components/ui/popover";
 
 import { ComponentProps } from "@blocknote/react";
+import { forwardRef } from "react";
+
+import { useShadCNComponentsContext } from "../ShadCNComponentsContext";
 
 export const Popover = (
-  props: ComponentProps["Generic"]["Popover"]["Root"] &
-    Partial<{ Popover: typeof ShadCNPopover.Popover }>
+  props: ComponentProps["Generic"]["Popover"]["Root"]
 ) => {
   const {
     children,
@@ -12,7 +14,8 @@ export const Popover = (
     // position
   } = props;
 
-  const Popover = props.Popover || ShadCNPopover.Popover;
+  const ShadCNComponents = useShadCNComponentsContext();
+  const Popover = ShadCNComponents?.Popover || ShadCNPopover.Popover;
 
   return <Popover open={opened}>{children}</Popover>;
 };
@@ -23,18 +26,26 @@ export const PopoverTrigger = (
 ) => {
   const { children } = props;
 
-  const PopoverTrigger = props.PopoverTrigger || ShadCNPopover.PopoverTrigger;
+  const ShadCNComponents = useShadCNComponentsContext();
+  const PopoverTrigger =
+    ShadCNComponents?.PopoverTrigger || ShadCNPopover.PopoverTrigger;
 
   return <PopoverTrigger>{children}</PopoverTrigger>;
 };
 
-export const PopoverContent = (
-  props: ComponentProps["Generic"]["Popover"]["Content"] &
-    Partial<{ PopoverContent: typeof ShadCNPopover.PopoverContent }>
-) => {
+export const PopoverContent = forwardRef<
+  HTMLDivElement,
+  ComponentProps["Generic"]["Popover"]["Content"]
+>((props, ref) => {
   const { className, children } = props;
 
-  const PopoverContent = props.PopoverContent || ShadCNPopover.PopoverContent;
+  const ShadCNComponents = useShadCNComponentsContext();
+  const PopoverContent =
+    ShadCNComponents?.PopoverContent || ShadCNPopover.PopoverContent;
 
-  return <PopoverContent className={className}>{children}</PopoverContent>;
-};
+  return (
+    <PopoverContent className={className} ref={ref}>
+      {children}
+    </PopoverContent>
+  );
+});

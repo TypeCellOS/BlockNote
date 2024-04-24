@@ -1,8 +1,9 @@
 import { useCreateBlockNote } from "@blocknote/react";
+import "@blocknote/core/fonts/inter.css";
 import { uploadToTmpFilesDotOrg_DEV_ONLY } from "@blocknote/core";
 
 // import { BlockNoteView } from "@blocknote/mantine";
-// import "@blocknote/mantine/styles.css";
+// import "@blocknote/mantine/style.css";
 import { BlockNoteView } from "@blocknote/ariakit";
 import "@blocknote/ariakit/style.css";
 // import { BlockNoteView } from "@blocknote/shadcn";
@@ -15,6 +16,23 @@ export default function App() {
     initialContent: [
       {
         type: "image",
+      },
+      {
+        type: "table",
+        content: {
+          type: "tableContent",
+          rows: [
+            {
+              cells: ["", "", ""],
+            },
+            {
+              cells: ["", "", ""],
+            },
+            {
+              cells: ["", "", ""],
+            },
+          ],
+        },
       },
       {
         type: "paragraph",

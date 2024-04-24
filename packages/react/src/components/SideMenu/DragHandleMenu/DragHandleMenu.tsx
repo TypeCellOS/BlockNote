@@ -31,7 +31,7 @@ export const DragHandleMenu = <
   const Components = useComponentsContext()!;
 
   return (
-    <Components.Generic.Menu.Dropdown className={"bn-drag-handle-menu"}>
+    <Components.Generic.Menu.Dropdown className={"bn-menu-dropdown"}>
       {props.children || (
         <>
           <RemoveBlockItem {...props}>Delete</RemoveBlockItem>

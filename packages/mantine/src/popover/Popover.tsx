@@ -1,6 +1,7 @@
 import * as Mantine from "@mantine/core";
 
 import { ComponentProps } from "@blocknote/react";
+import { forwardRef } from "react";
 
 export const Popover = (
   props: ComponentProps["Generic"]["Popover"]["Root"]
@@ -26,14 +27,15 @@ export const PopoverTrigger = (
   return <Mantine.PopoverTarget>{children}</Mantine.PopoverTarget>;
 };
 
-export const PopoverContent = (
-  props: ComponentProps["Generic"]["Popover"]["Content"]
-) => {
+export const PopoverContent = forwardRef<
+  HTMLDivElement,
+  ComponentProps["Generic"]["Popover"]["Content"]
+>((props, ref) => {
   const { className, children } = props;
 
   return (
-    <Mantine.PopoverDropdown className={className}>
+    <Mantine.PopoverDropdown className={className} ref={ref}>
       {children}
     </Mantine.PopoverDropdown>
   );
-};
+});

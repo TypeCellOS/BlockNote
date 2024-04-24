@@ -7,7 +7,7 @@ export const OpenLinkButton = (props: Pick<LinkToolbarProps, "url">) => {
 
   return (
     <Components.LinkToolbar.Button
-      className={"bn-open-link-button"}
+      className={"bn-button"}
       mainTooltip="Open in new tab"
       isSelected={false}
       onClick={() => {

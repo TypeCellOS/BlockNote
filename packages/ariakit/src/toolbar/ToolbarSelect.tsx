@@ -2,10 +2,12 @@ import * as Ariakit from "@ariakit/react";
 
 import { ComponentProps } from "@blocknote/react";
 import { mergeCSSClasses } from "@blocknote/core";
+import { forwardRef } from "react";
 
-export function ToolbarSelect(
-  props: ComponentProps["FormattingToolbar"]["Select"]
-) {
+export const ToolbarSelect = forwardRef<
+  HTMLDivElement,
+  ComponentProps["FormattingToolbar"]["Select"]
+>((props, ref) => {
   const { className, items, isDisabled } = props;
 
   const selectedItem = props.items.filter((p) => p.isSelected)[0];
@@ -17,18 +19,19 @@ export function ToolbarSelect(
   return (
     <Ariakit.SelectProvider value={selectedItem.text} setValue={setValue}>
       <Ariakit.Select
-        className={"button secondary"}
+        className={"bn-ak-button bn-ak-secondary"}
         disabled={isDisabled}
         aria-label="Text alignment"
         render={<Ariakit.ToolbarItem />}>
         {selectedItem.icon} {selectedItem.text} <Ariakit.SelectArrow />
       </Ariakit.Select>
       <Ariakit.SelectPopover
-        className={mergeCSSClasses("popover", className || "")}
+        className={mergeCSSClasses("bn-ak-popover", className || "")}
+        ref={ref}
         gutter={4}>
         {items.map((option) => (
           <Ariakit.SelectItem
-            className={"select-item"}
+            className={"bn-ak-select-item"}
             key={option.text}
             value={option.text}>
             {option.icon}
@@ -38,4 +41,4 @@ export function ToolbarSelect(
       </Ariakit.SelectPopover>
     </Ariakit.SelectProvider>
   );
-}
+});

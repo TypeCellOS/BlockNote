@@ -71,8 +71,9 @@ export const UploadTab = <
   );
 
   return (
-    <Components.ImagePanel.TabPanel>
+    <Components.ImagePanel.TabPanel className={"bn-tab-panel"}>
       <Components.ImagePanel.FileInput
+        className={"bn-file-input"}
         placeholder={"Upload Image"}
         value={null}
         onChange={handleFileChange}

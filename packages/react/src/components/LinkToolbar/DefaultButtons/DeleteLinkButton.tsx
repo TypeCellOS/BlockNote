@@ -10,7 +10,7 @@ export const DeleteLinkButton = (
 
   return (
     <Components.LinkToolbar.Button
-      className={"bn-delete-link-button"}
+      className={"bn-button"}
       mainTooltip="Remove link"
       isSelected={false}
       onClick={props.deleteLink}

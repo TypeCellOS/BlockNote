@@ -2,14 +2,11 @@ import * as ShadCNDropdownMenu from "../components/ui/dropdown-menu";
 
 import { ComponentProps } from "@blocknote/react";
 import { ChevronRight } from "lucide-react";
+import { forwardRef } from "react";
 
-export const Menu = (
-  props: ComponentProps["Generic"]["Menu"]["Root"] &
-    Partial<{
-      DropdownMenu: typeof ShadCNDropdownMenu.DropdownMenu;
-      DropdownMenuSub: typeof ShadCNDropdownMenu.DropdownMenuSub;
-    }>
-) => {
+import { useShadCNComponentsContext } from "../ShadCNComponentsContext";
+
+export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
   const {
     children,
     onOpenChange,
@@ -17,9 +14,11 @@ export const Menu = (
     sub,
   } = props;
 
-  const DropdownMenu = props.DropdownMenu || ShadCNDropdownMenu.DropdownMenu;
+  const ShadCNComponents = useShadCNComponentsContext();
+  const DropdownMenu =
+    ShadCNComponents?.DropdownMenu || ShadCNDropdownMenu.DropdownMenu;
   const DropdownMenuSub =
-    props.DropdownMenuSub || ShadCNDropdownMenu.DropdownMenuSub;
+    ShadCNComponents?.DropdownMenuSub || ShadCNDropdownMenu.DropdownMenuSub;
 
   if (sub) {
     return (
@@ -31,18 +30,17 @@ export const Menu = (
 };
 
 export const MenuTrigger = (
-  props: ComponentProps["Generic"]["Menu"]["Trigger"] &
-    Partial<{
-      DropdownMenuSubTrigger: typeof ShadCNDropdownMenu.DropdownMenuSubTrigger;
-      DropdownMenuTrigger: typeof ShadCNDropdownMenu.DropdownMenuTrigger;
-    }>
+  props: ComponentProps["Generic"]["Menu"]["Trigger"]
 ) => {
   const { children, sub } = props;
 
+  const ShadCNComponents = useShadCNComponentsContext();
   const DropdownMenuSubTrigger =
-    props.DropdownMenuSubTrigger || ShadCNDropdownMenu.DropdownMenuSubTrigger;
+    ShadCNComponents?.DropdownMenuSubTrigger ||
+    ShadCNDropdownMenu.DropdownMenuSubTrigger;
   const DropdownMenuTrigger =
-    props.DropdownMenuTrigger || ShadCNDropdownMenu.DropdownMenuTrigger;
+    ShadCNComponents?.DropdownMenuTrigger ||
+    ShadCNDropdownMenu.DropdownMenuTrigger;
 
   if (sub) {
     return <DropdownMenuSubTrigger>{children}</DropdownMenuSubTrigger>;
@@ -51,54 +49,62 @@ export const MenuTrigger = (
   }
 };
 
-export const MenuDropdown = (
-  props: ComponentProps["Generic"]["Menu"]["Dropdown"] &
-    Partial<{
-      DropdownMenuContent: typeof ShadCNDropdownMenu.DropdownMenuContent;
-      DropdownMenuSubContent: typeof ShadCNDropdownMenu.DropdownMenuSubContent;
-    }>
-) => {
+export const MenuDropdown = forwardRef<
+  HTMLDivElement,
+  ComponentProps["Generic"]["Menu"]["Dropdown"]
+>((props, ref) => {
   const { className, children, sub } = props;
 
+  const ShadCNComponents = useShadCNComponentsContext();
   const DropdownMenuContent =
-    props.DropdownMenuContent || ShadCNDropdownMenu.DropdownMenuContent;
+    ShadCNComponents?.DropdownMenuContent ||
+    ShadCNDropdownMenu.DropdownMenuContent;
   const DropdownMenuSubContent =
-    props.DropdownMenuSubContent || ShadCNDropdownMenu.DropdownMenuSubContent;
+    ShadCNComponents?.DropdownMenuSubContent ||
+    ShadCNDropdownMenu.DropdownMenuSubContent;
 
   if (sub) {
     return (
-      <DropdownMenuSubContent className={className}>
+      <DropdownMenuSubContent className={className} ref={ref}>
         {children}
       </DropdownMenuSubContent>
     );
   } else {
     return (
-      <DropdownMenuContent className={className}>
+      <DropdownMenuContent className={className} ref={ref}>
         {children}
       </DropdownMenuContent>
     );
   }
-};
+});
 
-export const MenuItem = (
-  props: ComponentProps["Generic"]["Menu"]["Item"] &
-    Partial<{
-      DropdownMenuCheckboxItem: typeof ShadCNDropdownMenu.DropdownMenuCheckboxItem;
-      DropdownMenuItem: typeof ShadCNDropdownMenu.DropdownMenuItem;
-    }>
-) => {
+export const MenuItem = forwardRef<
+  HTMLDivElement,
+  ComponentProps["Generic"]["Menu"]["Item"]
+>((props, ref) => {
   const { className, children, icon, checked, subTrigger, onClick } = props;
 
+  const ShadCNComponents = useShadCNComponentsContext();
   const DropdownMenuCheckboxItem =
-    props.DropdownMenuCheckboxItem ||
+    ShadCNComponents?.DropdownMenuCheckboxItem ||
     ShadCNDropdownMenu.DropdownMenuCheckboxItem;
   const DropdownMenuItem =
-    props.DropdownMenuItem || ShadCNDropdownMenu.DropdownMenuItem;
+    ShadCNComponents?.DropdownMenuItem || ShadCNDropdownMenu.DropdownMenuItem;
+
+  if (subTrigger) {
+    return (
+      <>
+        {icon}
+        {children}
+      </>
+    );
+  }
 
   if (checked !== undefined) {
     return (
       <DropdownMenuCheckboxItem
         className={className}
+        ref={ref}
         checked={checked}
         onClick={onClick}>
         {icon}
@@ -108,40 +114,41 @@ export const MenuItem = (
   }
 
   return (
-    <DropdownMenuItem className={className} onClick={onClick}>
+    <DropdownMenuItem className={className} ref={ref} onClick={onClick}>
       {icon}
       {children}
       {subTrigger && <ChevronRight className="ml-auto h-4 w-4" />}
     </DropdownMenuItem>
   );
-};
+});
 
-export const MenuDivider = (
-  props: ComponentProps["Generic"]["Menu"]["Divider"] &
-    Partial<{
-      DropdownMenuSeparator: typeof ShadCNDropdownMenu.DropdownMenuSeparator;
-    }>
-) => {
+export const MenuDivider = forwardRef<
+  HTMLDivElement,
+  ComponentProps["Generic"]["Menu"]["Divider"]
+>((props, ref) => {
   const { className } = props;
 
+  const ShadCNComponents = useShadCNComponentsContext();
   const DropdownMenuSeparator =
-    props.DropdownMenuSeparator || ShadCNDropdownMenu.DropdownMenuSeparator;
+    ShadCNComponents?.DropdownMenuSeparator ||
+    ShadCNDropdownMenu.DropdownMenuSeparator;
 
-  return <DropdownMenuSeparator className={className} />;
-};
+  return <DropdownMenuSeparator className={className} ref={ref} />;
+});
 
-export const MenuLabel = (
-  props: ComponentProps["Generic"]["Menu"]["Label"] &
-    Partial<{
-      DropdownMenuLabel: typeof ShadCNDropdownMenu.DropdownMenuLabel;
-    }>
-) => {
+export const MenuLabel = forwardRef<
+  HTMLDivElement,
+  ComponentProps["Generic"]["Menu"]["Label"]
+>((props, ref) => {
   const { className, children } = props;
 
+  const ShadCNComponents = useShadCNComponentsContext();
   const DropdownMenuLabel =
-    props.DropdownMenuLabel || ShadCNDropdownMenu.DropdownMenuLabel;
+    ShadCNComponents?.DropdownMenuLabel || ShadCNDropdownMenu.DropdownMenuLabel;
 
   return (
-    <DropdownMenuLabel className={className}>{children}</DropdownMenuLabel>
+    <DropdownMenuLabel className={className} ref={ref}>
+      {children}
+    </DropdownMenuLabel>
   );
-};
+});

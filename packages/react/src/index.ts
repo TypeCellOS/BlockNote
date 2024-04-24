@@ -29,7 +29,6 @@ export * from "./components/LinkToolbar/LinkToolbarProps";
 export * from "./components/SideMenu/DefaultButtons/AddBlockButton";
 export * from "./components/SideMenu/DefaultButtons/DragHandleButton";
 export * from "./components/SideMenu/SideMenu";
-export * from "./components/SideMenu/SideMenuButton";
 export * from "./components/SideMenu/SideMenuController";
 export * from "./components/SideMenu/SideMenuProps";
 

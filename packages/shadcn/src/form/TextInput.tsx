@@ -2,59 +2,65 @@ import * as ShadCNInput from "../components/ui/input";
 import * as ShadCNLabel from "../components/ui/label";
 
 import { ComponentProps } from "@blocknote/react";
+import { forwardRef } from "react";
 
-export const TextInput = (
-  props: ComponentProps["Generic"]["Form"]["TextInput"] &
-    Partial<{
-      Input: typeof ShadCNInput.Input;
-      Label: typeof ShadCNLabel.Label;
-    }>
-) => {
-  const {
-    className,
-    name,
-    label,
-    // icon,
-    value,
-    autoFocus,
-    placeholder,
-    onKeyDown,
-    onChange,
-    onSubmit,
-  } = props;
+import { useShadCNComponentsContext } from "../ShadCNComponentsContext";
 
-  const Input = props.Input || ShadCNInput.Input;
-  const Label = props.Label || ShadCNLabel.Label;
+export const TextInput = forwardRef(
+  (
+    props: ComponentProps["Generic"]["Form"]["TextInput"] &
+      Partial<{
+        Input: typeof ShadCNInput.Input;
+        Label: typeof ShadCNLabel.Label;
+      }>
+  ) => {
+    const {
+      className,
+      name,
+      label,
+      // icon,
+      value,
+      autoFocus,
+      placeholder,
+      onKeyDown,
+      onChange,
+      onSubmit,
+    } = props;
 
-  if (!label) {
+    const ShadCNComponents = useShadCNComponentsContext();
+    const Input = ShadCNComponents?.Input || ShadCNInput.Input;
+    const Label = ShadCNComponents?.Label || ShadCNLabel.Label;
+
+    if (!label) {
+      return (
+        <Input
+          aria-label={name}
+          name={name}
+          autoFocus={autoFocus}
+          placeholder={placeholder}
+          value={value}
+          onKeyDown={onKeyDown}
+          onChange={onChange}
+          onSubmit={onSubmit}
+        />
+      );
+    }
+
     return (
-      <Input
-        aria-label={name}
-        name={name}
-        autoFocus={autoFocus}
-        placeholder={placeholder}
-        value={value}
-        onKeyDown={onKeyDown}
-        onChange={onChange}
-        onSubmit={onSubmit}
-      />
+      <div>
+        <Label htmlFor={label}>{label}</Label>
+        <Input
+          className={className}
+          id={label}
+          name={name}
+          autoFocus={autoFocus}
+          placeholder={placeholder}
+          value={value}
+          onKeyDown={onKeyDown}
+          onChange={onChange}
+          onSubmit={onSubmit}
+        />
+      </div>
     );
   }
-
-  return (
-    <div>
-      <Label htmlFor={label}>{label}</Label>
-      <Input
-        className={className}
-        id={label}
-        name={name}
-        autoFocus={autoFocus}
-        placeholder={placeholder}
-        value={value}
-        onKeyDown={onKeyDown}
-        onChange={onChange}
-        onSubmit={onSubmit}
-      />
-    </div>
-  );
-};
+);

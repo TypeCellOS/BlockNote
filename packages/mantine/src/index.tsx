@@ -2,7 +2,6 @@ import {
   BlockNoteViewRaw,
   Components,
   ComponentsContext,
-  createComponentsContext,
 } from "@blocknote/react";
 import { ComponentProps } from "react";
 
@@ -21,11 +20,20 @@ import { PanelFileInput } from "./panel/PanelFileInput";
 import { PanelTab } from "./panel/PanelTab";
 import { PanelTextInput } from "./panel/PanelTextInput";
 import { Popover, PopoverContent, PopoverTrigger } from "./popover/Popover";
+import { SideMenu } from "./sideMenu/SideMenu";
+import { SideMenuButton } from "./sideMenu/SideMenuButton";
+import { SuggestionMenu } from "./suggestionMenu/SuggestionMenu";
+import { SuggestionMenuItem } from "./suggestionMenu/SuggestionMenuItem";
+import { SuggestionMenuEmptyItem } from "./suggestionMenu/SuggestionMenuEmptyItem";
+import { SuggestionMenuLabel } from "./suggestionMenu/SuggestionMenuLabel";
+import { SuggestionMenuLoader } from "./suggestionMenu/SuggestionMenuLoader";
 import { Toolbar } from "./toolbar/Toolbar";
 import { ToolbarButton } from "./toolbar/ToolbarButton";
 import { ToolbarSelect } from "./toolbar/ToolbarSelect";
 
-export const components: Components = createComponentsContext({
+import "./style.css";
+
+export const components: Components = {
   FormattingToolbar: {
     Root: Toolbar,
     Button: ToolbarButton,
@@ -41,6 +49,17 @@ export const components: Components = createComponentsContext({
   LinkToolbar: {
     Root: Toolbar,
     Button: ToolbarButton,
+  },
+  SideMenu: {
+    Root: SideMenu,
+    Button: SideMenuButton,
+  },
+  SuggestionMenu: {
+    Root: SuggestionMenu,
+    Item: SuggestionMenuItem,
+    EmptyItem: SuggestionMenuEmptyItem,
+    Label: SuggestionMenuLabel,
+    Loader: SuggestionMenuLoader,
   },
   Generic: {
     Form: {
@@ -61,10 +80,11 @@ export const components: Components = createComponentsContext({
       Content: PopoverContent,
     },
   },
-});
+};
 
 export const BlockNoteView = (
-  props: ComponentProps<typeof BlockNoteViewRaw>
+  // TODO: Fix typing
+  props: ComponentProps<typeof BlockNoteViewRaw<any, any, any>>
 ) => {
   return (
     <ComponentsContext.Provider value={components}>

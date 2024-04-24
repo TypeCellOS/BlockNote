@@ -85,12 +85,13 @@ export const CreateLinkButton = () => {
       <Components.Generic.Popover.Trigger>
         {/* TODO: hide tooltip on click */}
         <Components.FormattingToolbar.Button
+          className={"bn-button"}
           mainTooltip={"Create Link"}
           secondaryTooltip={formatKeyboardShortcut("Mod+K")}
           icon={<RiLink />}
         />
       </Components.Generic.Popover.Trigger>
-      <Components.Generic.Popover.Content>
+      <Components.Generic.Popover.Content className={"bn-popover-content"}>
         <EditLinkMenuItems url={url} text={text} editLink={update} />
       </Components.Generic.Popover.Content>
     </Components.Generic.Popover.Root>

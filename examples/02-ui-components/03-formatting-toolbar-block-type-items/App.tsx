@@ -1,14 +1,14 @@
 import { BlockNoteSchema, defaultBlockSpecs } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
 import {
-  BlockNoteView,
   FormattingToolbar,
   FormattingToolbarController,
   useCreateBlockNote,
   blockTypeSelectItems,
   BlockTypeSelectItem,
 } from "@blocknote/react";
-import "@blocknote/react/style.css";
+import { BlockNoteView } from "@blocknote/mantine";
+import "@blocknote/mantine/style.css";
 import { RiAlertFill } from "react-icons/ri";
 
 import { Alert } from "./Alert";

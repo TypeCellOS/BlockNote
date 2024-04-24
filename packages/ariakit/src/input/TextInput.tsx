@@ -1,11 +1,13 @@
 import * as Ariakit from "@ariakit/react";
 
-import { ComponentProps } from "@blocknote/react";
 import { mergeCSSClasses } from "@blocknote/core";
+import { ComponentProps } from "@blocknote/react";
+import { forwardRef } from "react";
 
-export const TextInput = (
-  props: ComponentProps["Generic"]["Form"]["TextInput"]
-) => {
+export const TextInput = forwardRef<
+  HTMLInputElement,
+  ComponentProps["Generic"]["Form"]["TextInput"]
+>((props, ref) => {
   const {
     className,
     name,
@@ -24,10 +26,11 @@ export const TextInput = (
       {props.label && (
         <Ariakit.FormLabel name={name}>{label}</Ariakit.FormLabel>
       )}
-      <div className="input-wrapper">
+      <div className="bn-ak-input-wrapper">
         {icon}
         <Ariakit.FormInput
-          className={mergeCSSClasses("input", className || "")}
+          className={mergeCSSClasses("bn-ak-input", className || "")}
+          ref={ref}
           name={name}
           value={value}
           autoFocus={autoFocus}
@@ -39,4 +42,4 @@ export const TextInput = (
       </div>
     </>
   );
-};
+});

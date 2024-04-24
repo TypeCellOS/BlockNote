@@ -2,20 +2,20 @@ import {
   ChangeEvent,
   ComponentType,
   createContext,
-  forwardRef,
   KeyboardEvent,
   MouseEvent,
   ReactNode,
+  Ref,
   useContext,
 } from "react";
-import { mergeCSSClasses } from "@blocknote/core";
+import { DefaultReactSuggestionItem } from "../components/SuggestionMenu/types";
 
 // export type FormProps = {
-//   children: ReactNode;
+//   children?: ReactNode;
 // };
 //
 // export type MenuProps = {
-//   children: ReactNode;
+//   children?: ReactNode;
 //   onOpenChange?: (open: boolean) => void;
 //   position?: "top" | "right" | "bottom" | "left";
 //   sub?: boolean;
@@ -26,7 +26,7 @@ import { mergeCSSClasses } from "@blocknote/core";
 // export type MenuDropdownProps = {
 //   className?: string;
 //   sub?: boolean;
-//   children: ReactNode;
+//   children?: ReactNode;
 // };
 //
 // export type MenuItemProps = {
@@ -34,16 +34,16 @@ import { mergeCSSClasses } from "@blocknote/core";
 //   checked?: boolean;
 //   subTrigger?: boolean;
 //   onClick?: () => void;
-//   children: ReactNode;
+//   children?: ReactNode;
 // };
 //
 // export type MenuLabelProps = {
-//   children: ReactNode;
+//   children?: ReactNode;
 // };
 //
 // export type MenuTriggerProps = {
 //   sub?: boolean;
-//   children: ReactNode;
+//   children?: ReactNode;
 // };
 //
 // export type PanelProps = {
@@ -61,7 +61,7 @@ import { mergeCSSClasses } from "@blocknote/core";
 // export type PanelButtonProps = {
 //   className: string;
 //   onClick: () => void;
-//   children: ReactNode;
+//   children?: ReactNode;
 // };
 //
 // export type PanelFileInputProps = {
@@ -71,7 +71,7 @@ import { mergeCSSClasses } from "@blocknote/core";
 // };
 //
 // export type PanelTabProps = {
-//   children: ReactNode;
+//   children?: ReactNode;
 // };
 //
 // export type PanelTextInputProps = {
@@ -84,19 +84,19 @@ import { mergeCSSClasses } from "@blocknote/core";
 // export type PopoverProps = {
 //   opened?: boolean;
 //   position?: "top" | "right" | "bottom" | "left";
-//   children: ReactNode;
+//   children?: ReactNode;
 // };
 //
 // export type PopoverTriggerProps = {
-//   children: ReactNode;
+//   children?: ReactNode;
 // };
 //
 // export type PopoverContentProps = {
-//   children: ReactNode;
+//   children?: ReactNode;
 // };
 //
 // export type SuggestionMenuEmptyItemProps = {
-//   children: ReactNode;
+//   children?: ReactNode;
 // };
 //
 // export type SuggestionMenuItemProps = {
@@ -110,7 +110,7 @@ import { mergeCSSClasses } from "@blocknote/core";
 // };
 //
 // export type SuggestionMenuLabelProps = {
-//   children: ReactNode;
+//   children?: ReactNode;
 // };
 //
 // export type TextInputProps = {
@@ -128,7 +128,7 @@ import { mergeCSSClasses } from "@blocknote/core";
 // export type ToolbarProps = {
 //   onMouseEnter?: () => void;
 //   onMouseLeave?: () => void;
-//   children: ReactNode;
+//   children?: ReactNode;
 // };
 //
 // export type ToolbarButtonProps = {
@@ -193,17 +193,18 @@ export type ComponentProps = {
   FormattingToolbar: {
     Root: {
       className?: string;
-      children: ReactNode;
+      children?: ReactNode;
     };
     Button: {
       className?: string;
+      children?: ReactNode;
+      ref?: Ref<HTMLButtonElement>;
       mainTooltip: string;
       secondaryTooltip?: string;
       icon?: ReactNode;
       onClick?: (e: MouseEvent) => void;
       isSelected?: boolean;
       isDisabled?: boolean;
-      children?: ReactNode;
     };
     Select: {
       className?: string;
@@ -232,8 +233,8 @@ export type ComponentProps = {
     };
     Button: {
       className?: string;
+      children?: ReactNode;
       onClick: () => void;
-      children: ReactNode;
     };
     FileInput: {
       className?: string;
@@ -243,7 +244,7 @@ export type ComponentProps = {
     };
     TabPanel: {
       className?: string;
-      children: ReactNode;
+      children?: ReactNode;
     };
     TextInput: {
       className?: string;
@@ -256,38 +257,63 @@ export type ComponentProps = {
   LinkToolbar: {
     Root: {
       className?: string;
+      children?: ReactNode;
       onMouseEnter?: () => void;
       onMouseLeave?: () => void;
-      children: ReactNode;
     };
     Button: {
       className?: string;
+      children?: ReactNode;
       mainTooltip: string;
       secondaryTooltip?: string;
       icon?: ReactNode;
       onClick?: (e: MouseEvent) => void;
       isSelected?: boolean;
       isDisabled?: boolean;
-      children?: ReactNode;
     };
   };
-  // SideMenu: {
-  //   Root: any;
-  // };
-  // SuggestionMenu: {
-  //   Root: any;
-  //   EmptyItem: any;
-  //   Item: any;
-  //   Label: any;
-  //   Loader: any;
-  // };
+  SideMenu: {
+    Root: {
+      className?: string;
+      children?: ReactNode;
+    };
+    Button: {
+      className?: string;
+      children?: ReactNode;
+      onClick?: (e: MouseEvent) => void;
+      icon?: ReactNode;
+    };
+  };
+  SuggestionMenu: {
+    Root: {
+      className?: string;
+      children?: ReactNode;
+    };
+    EmptyItem: {
+      className?: string;
+    };
+    Item: DefaultReactSuggestionItem & {
+      className?: string;
+      isSelected: boolean;
+      setSelected: (selected: boolean) => void;
+      onClick: () => void;
+    };
+    Label: {
+      className?: string;
+      children?: ReactNode;
+    };
+    Loader: {
+      className?: string;
+    };
+  };
   // TableHandle: {
   //   Root: any;
-  // },
+  // };
+  // TODO: We should try to make everything as generic as we can
   Generic: {
     Form: {
       Root: {
-        children: ReactNode;
+        children?: ReactNode;
       };
       TextInput: {
         className?: string;
@@ -307,45 +333,46 @@ export type ComponentProps = {
         sub?: boolean;
         position?: "top" | "right" | "bottom" | "left";
         onOpenChange?: (open: boolean) => void;
-        children: ReactNode;
+        children?: ReactNode;
       };
       Divider: {
-        className: string;
+        className?: string;
       };
       Dropdown: {
         className?: string;
+        children?: ReactNode;
         sub?: boolean;
-        children: ReactNode;
       };
       Item: {
         className?: string;
+        children?: ReactNode;
+
         subTrigger?: boolean;
         icon?: ReactNode;
         checked?: boolean;
         onClick?: () => void;
-        children: ReactNode;
       };
       Label: {
         className?: string;
-        children: ReactNode;
+        children?: ReactNode;
       };
       Trigger: {
+        children?: ReactNode;
         sub?: boolean;
-        children: ReactNode;
       };
     };
     Popover: {
       Root: {
+        children?: ReactNode;
         opened?: boolean;
         position?: "top" | "right" | "bottom" | "left";
-        children: ReactNode;
       };
       Content: {
         className?: string;
-        children: ReactNode;
+        children?: ReactNode;
       };
       Trigger: {
-        children: ReactNode;
+        children?: ReactNode;
       };
     };
   };
@@ -358,6 +385,7 @@ export type Components = {
     >;
   };
 } & {
+  // only needed as Generic Root/etc elements are 1 level of nesting deeper
   Generic: {
     [GenericComponents in keyof ComponentProps["Generic"]]: {
       [Component in keyof ComponentProps["Generic"][GenericComponents]]: ComponentType<
@@ -370,194 +398,6 @@ export type Components = {
 export const ComponentsContext = createContext<Components | undefined>(
   undefined
 );
-
-// TODO: We should be able to apply the class names in a smarter way
-export const createComponentsContext = (Components: Components): Components => {
-  return {
-    FormattingToolbar: {
-      Root: (props) => {
-        const { className, children, ...rest } = props;
-
-        return (
-          <Components.FormattingToolbar.Root
-            {...rest}
-            className={mergeCSSClasses(
-              "bn-formatting-toolbar bn-toolbar",
-              className || ""
-            )}>
-            {children}
-          </Components.FormattingToolbar.Root>
-        );
-      },
-      Button: forwardRef<
-        HTMLElement,
-        ComponentProps["FormattingToolbar"]["Button"]
-      >((props, ref) => {
-        const { className, children, ...rest } = props;
-
-        return (
-          <Components.FormattingToolbar.Button
-            {...rest}
-            className={mergeCSSClasses("bn-button", className || "")}
-            // @ts-ignore
-            ref={ref}>
-            {children}
-          </Components.FormattingToolbar.Button>
-        );
-      }),
-      Select: (props) => (
-        <Components.FormattingToolbar.Select
-          {...props}
-          className={mergeCSSClasses("bn-select", props.className || "")}
-        />
-      ),
-    },
-    ImagePanel: {
-      Root: (props) => (
-        <Components.ImagePanel.Root
-          {...props}
-          className={mergeCSSClasses(
-            "bn-image-panel bn-panel",
-            props.className || ""
-          )}
-        />
-      ),
-      Button: (props) => {
-        const { className, children, ...rest } = props;
-
-        return (
-          <Components.ImagePanel.Button
-            {...rest}
-            className={mergeCSSClasses("bn-button", className || "")}>
-            {children}
-          </Components.ImagePanel.Button>
-        );
-      },
-      FileInput: (props) => (
-        <Components.ImagePanel.FileInput
-          {...props}
-          className={mergeCSSClasses("bn-file-input", props.className || "")}
-        />
-      ),
-      TabPanel: (props) => {
-        const { className, children, ...rest } = props;
-
-        return (
-          <Components.ImagePanel.TabPanel
-            {...rest}
-            className={mergeCSSClasses("bn-tab-panel", className || "")}>
-            {children}
-          </Components.ImagePanel.TabPanel>
-        );
-      },
-      TextInput: (props) => (
-        <Components.ImagePanel.TextInput
-          {...props}
-          className={mergeCSSClasses("bn-text-input", props.className || "")}
-        />
-      ),
-    },
-    LinkToolbar: {
-      Root: (props) => {
-        const { className, children, ...rest } = props;
-
-        return (
-          <Components.LinkToolbar.Root
-            {...rest}
-            className={mergeCSSClasses(
-              "bn-link-toolbar bn-toolbar",
-              className || ""
-            )}>
-            {children}
-          </Components.LinkToolbar.Root>
-        );
-      },
-      Button: (props) => {
-        const { className, children, ...rest } = props;
-
-        return (
-          <Components.LinkToolbar.Button
-            {...rest}
-            className={mergeCSSClasses("bn-button", className || "")}>
-            {children}
-          </Components.LinkToolbar.Button>
-        );
-      },
-    },
-    Generic: {
-      Form: {
-        Root: Components.Generic.Form.Root,
-        TextInput: (props) => (
-          <Components.Generic.Form.TextInput
-            {...props}
-            className={mergeCSSClasses("bn-text-input", props.className || "")}
-          />
-        ),
-      },
-      Menu: {
-        Root: Components.Generic.Menu.Root,
-        Divider: (props) => (
-          <Components.Generic.Menu.Divider
-            {...props}
-            className={mergeCSSClasses("bn-menu-divider", props.className)}
-          />
-        ),
-        Dropdown: (props) => {
-          const { className, children, ...rest } = props;
-
-          return (
-            <Components.Generic.Menu.Dropdown
-              {...rest}
-              className={mergeCSSClasses("bn-menu-dropdown", className || "")}>
-              {children}
-            </Components.Generic.Menu.Dropdown>
-          );
-        },
-        Item: (props) => {
-          const { className, children, ...rest } = props;
-
-          return (
-            <Components.Generic.Menu.Item
-              {...rest}
-              className={mergeCSSClasses("bn-menu-item", className || "")}>
-              {children}
-            </Components.Generic.Menu.Item>
-          );
-        },
-        Label: (props) => {
-          const { className, children, ...rest } = props;
-
-          return (
-            <Components.Generic.Menu.Label
-              {...rest}
-              className={mergeCSSClasses("bn-menu-label", className || "")}>
-              {children}
-            </Components.Generic.Menu.Label>
-          );
-        },
-        Trigger: Components.Generic.Menu.Trigger,
-      },
-      Popover: {
-        Root: Components.Generic.Popover.Root,
-        Content: (props) => {
-          const { className, children, ...rest } = props;
-
-          return (
-            <Components.Generic.Popover.Content
-              {...rest}
-              className={mergeCSSClasses(
-                "bn-popover-content",
-                className || ""
-              )}>
-              {children}
-            </Components.Generic.Popover.Content>
-          );
-        },
-        Trigger: Components.Generic.Popover.Trigger,
-      },
-    },
-  };
-};
 
 export function useComponentsContext(): Components | undefined {
   return useContext(ComponentsContext)!;

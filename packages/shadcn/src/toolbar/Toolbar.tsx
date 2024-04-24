@@ -4,38 +4,38 @@ import * as ShadCNToggle from "../components/ui/toggle";
 import * as ShadCNTooltip from "../components/ui/tooltip";
 
 import { ComponentProps } from "@blocknote/react";
-import { ComponentType, forwardRef } from "react";
+import { forwardRef } from "react";
 
+import { useShadCNComponentsContext } from "../ShadCNComponentsContext";
 import { cn } from "../lib/utils";
 
 type ToolbarProps = ComponentProps["FormattingToolbar"]["Root"] &
   ComponentProps["LinkToolbar"]["Root"];
 
-export const Toolbar = (
-  props: ToolbarProps &
-    Partial<{
-      TooltipProvider: typeof ShadCNTooltip.TooltipProvider;
-    }>
-) => {
-  const { className, children, onMouseEnter, onMouseLeave } = props;
+export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(
+  (props, ref) => {
+    const { className, children, onMouseEnter, onMouseLeave } = props;
 
-  const TooltipProvider =
-    props.TooltipProvider || ShadCNTooltip.TooltipProvider;
+    const ShadCNComponents = useShadCNComponentsContext();
+    const TooltipProvider =
+      ShadCNComponents?.TooltipProvider || ShadCNTooltip.TooltipProvider;
 
-  return (
-    <TooltipProvider delayDuration={0}>
-      <div
-        className={cn(
-          className,
-          "flex p-[10px] rounded-md bg-white shadow-[0_2px_10px] shadow-blackA4"
-        )}
-        onMouseEnter={onMouseEnter}
-        onMouseLeave={onMouseLeave}>
-        {children}
-      </div>
-    </TooltipProvider>
-  );
-};
+    return (
+      <TooltipProvider delayDuration={0}>
+        <div
+          className={cn(
+            className,
+            "flex p-[10px] rounded-md bg-white shadow-[0_2px_10px] shadow-blackA4"
+          )}
+          ref={ref}
+          onMouseEnter={onMouseEnter}
+          onMouseLeave={onMouseLeave}>
+          {children}
+        </div>
+      </TooltipProvider>
+    );
+  }
+);
 
 type ToolbarButtonProps = ComponentProps["FormattingToolbar"]["Button"] &
   ComponentProps["LinkToolbar"]["Button"];
@@ -62,11 +62,14 @@ export const ToolbarButton = forwardRef<
     onClick,
   } = props;
 
-  const Button = props.Button || ShadCNButton.Button;
-  const Toggle = props.Toggle || ShadCNToggle.Toggle;
-  const Tooltip = props.Tooltip || ShadCNTooltip.Tooltip;
-  const TooltipContent = props.TooltipContent || ShadCNTooltip.TooltipContent;
-  const TooltipTrigger = props.TooltipTrigger || ShadCNTooltip.TooltipTrigger;
+  const ShadCNComponents = useShadCNComponentsContext();
+  const Button = ShadCNComponents?.Button || ShadCNButton.Button;
+  const Toggle = ShadCNComponents?.Toggle || ShadCNToggle.Toggle;
+  const Tooltip = ShadCNComponents?.Tooltip || ShadCNTooltip.Tooltip;
+  const TooltipContent =
+    ShadCNComponents?.TooltipContent || ShadCNTooltip.TooltipContent;
+  const TooltipTrigger =
+    ShadCNComponents?.TooltipTrigger || ShadCNTooltip.TooltipTrigger;
 
   const trigger =
     isSelected === undefined ? (
@@ -103,26 +106,28 @@ export const ToolbarButton = forwardRef<
   );
 });
 
-export const ToolbarSelect = (
-  props: ComponentProps["FormattingToolbar"]["Select"] &
-    Partial<{
-      Select: typeof ShadCNSelect.Select;
-      SelectContent: typeof ShadCNSelect.SelectContent;
-      SelectItem: typeof ShadCNSelect.SelectItem;
-      SelectItemContent: ComponentType<(typeof props.items)[number]>;
-      SelectTrigger: typeof ShadCNSelect.SelectTrigger;
-      SelectValue: typeof ShadCNSelect.SelectValue;
-    }>
-) => {
+export const ToolbarSelect = forwardRef<
+  HTMLDivElement,
+  ComponentProps["FormattingToolbar"]["Select"]
+>((props, ref) => {
   const { className, items, isDisabled } = props;
 
-  const Select = props.Select || ShadCNSelect.Select;
-  const SelectContent = props.SelectContent || ShadCNSelect.SelectContent;
-  const SelectItem = props.SelectItem || ShadCNSelect.SelectItem;
-  const SelectTrigger = props.SelectTrigger || ShadCNSelect.SelectTrigger;
-  const SelectValue = props.SelectValue || ShadCNSelect.SelectValue;
-
-  const { SelectItemContent } = props;
+  const ShadCNComponents = useShadCNComponentsContext();
+  const Select = ShadCNComponents?.Select || ShadCNSelect.Select;
+  const SelectContent =
+    ShadCNComponents?.SelectContent || ShadCNSelect.SelectContent;
+  const SelectItem = ShadCNComponents?.SelectItem || ShadCNSelect.SelectItem;
+  const SelectTrigger =
+    ShadCNComponents?.SelectTrigger || ShadCNSelect.SelectTrigger;
+  const SelectValue = ShadCNComponents?.SelectValue || ShadCNSelect.SelectValue;
+  const SelectItemContent =
+    ShadCNComponents?.SelectItemContent ||
+    ((props) => (
+      <div className={"flex items-center"}>
+        {props.icon}
+        {props.text}
+      </div>
+    ));
 
   const selectedItem = items.filter((p) => p.isSelected)[0];
 
@@ -140,23 +145,24 @@ export const ToolbarSelect = (
       <SelectTrigger>
         <SelectValue />
       </SelectTrigger>
-      <SelectContent className={className}>
+      <SelectContent
+        className={cn(
+          className
+          // "max-h-[var(--radix-dropdown-menu-content-available-height)]"
+        )}
+        // style={{
+        //   maxHeight: "var(--radix-dropdown-menu-content-available-height)",
+        // }}
+        ref={ref}>
         {items.map((item) => (
           <SelectItem
             disabled={item.isDisabled}
             key={item.text}
             value={item.text}>
-            {SelectItemContent ? (
-              <SelectItemContent {...item} />
-            ) : (
-              <div className={"flex items-center"}>
-                {item.icon}
-                {item.text}
-              </div>
-            )}
+            <SelectItemContent {...item} />
           </SelectItem>
         ))}
       </SelectContent>
     </Select>
   );
-};
+});

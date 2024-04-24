@@ -56,10 +56,12 @@ export const getFormattingToolbarItems = (
 export const FormattingToolbar = (
   props: FormattingToolbarProps & { children?: ReactNode }
 ) => {
-  const components = useComponentsContext()!;
+  const Components = useComponentsContext()!;
+
   return (
-    <components.FormattingToolbar.Root>
+    <Components.FormattingToolbar.Root
+      className={"bn-toolbar bn-formatting-toolbar"}>
       {props.children || getFormattingToolbarItems(props.blockTypeSelectItems)}
-    </components.FormattingToolbar.Root>
+    </Components.FormattingToolbar.Root>
   );
 };

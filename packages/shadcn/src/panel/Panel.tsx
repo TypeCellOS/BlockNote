@@ -2,16 +2,14 @@ import * as ShadCNCard from "../components/ui/card";
 import * as ShadCNTabs from "../components/ui/tabs";
 
 import { ComponentProps } from "@blocknote/react";
+import { forwardRef } from "react";
 
-export const Panel = (
-  props: ComponentProps["ImagePanel"]["Root"] &
-    Partial<{
-      Tabs: typeof ShadCNTabs.Tabs;
-      TabsList: typeof ShadCNTabs.TabsList;
-      TabsTrigger: typeof ShadCNTabs.TabsTrigger;
-      TabsContent: typeof ShadCNTabs.TabsContent;
-    }>
-) => {
+import { useShadCNComponentsContext } from "../ShadCNComponentsContext";
+
+export const Panel = forwardRef<
+  HTMLDivElement,
+  ComponentProps["ImagePanel"]["Root"]
+>((props, ref) => {
   const {
     className,
     tabs,
@@ -22,14 +20,16 @@ export const Panel = (
     // setLoading,
   } = props;
 
-  const Tabs = props.Tabs || ShadCNTabs.Tabs;
-  const TabsList = props.TabsList || ShadCNTabs.TabsList;
-  const TabsTrigger = props.TabsTrigger || ShadCNTabs.TabsTrigger;
-  const TabsContent = props.TabsContent || ShadCNTabs.TabsContent;
+  const ShadCNComponents = useShadCNComponentsContext();
+  const Tabs = ShadCNComponents?.Tabs || ShadCNTabs.Tabs;
+  const TabsList = ShadCNComponents?.TabsList || ShadCNTabs.TabsList;
+  const TabsTrigger = ShadCNComponents?.TabsTrigger || ShadCNTabs.TabsTrigger;
+  const TabsContent = ShadCNComponents?.TabsContent || ShadCNTabs.TabsContent;
 
   return (
     <Tabs
       className={className}
+      ref={ref}
       value={openTab}
       defaultValue={defaultOpenTab}
       onValueChange={setOpenTab}>
@@ -52,4 +52,4 @@ export const Panel = (
       ))}
     </Tabs>
   );
-};
+});
