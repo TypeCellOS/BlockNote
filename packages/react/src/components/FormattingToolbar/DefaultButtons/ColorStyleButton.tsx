@@ -131,6 +131,7 @@ export const ColorStyleButton = () => {
       <Components.Generic.Menu.Trigger>
         <Components.FormattingToolbar.Button
           className={"bn-button"}
+          data-test="colors"
           mainTooltip={"Colors"}
           icon={
             <ColorIcon

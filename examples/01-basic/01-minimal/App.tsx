@@ -4,10 +4,10 @@ import { uploadToTmpFilesDotOrg_DEV_ONLY } from "@blocknote/core";
 
 // import { BlockNoteView } from "@blocknote/mantine";
 // import "@blocknote/mantine/style.css";
-import { BlockNoteView } from "@blocknote/ariakit";
-import "@blocknote/ariakit/style.css";
-// import { BlockNoteView } from "@blocknote/shadcn";
-// import "@blocknote/shadcn/style.css";
+// import { BlockNoteView } from "@blocknote/ariakit";
+// import "@blocknote/ariakit/style.css";
+import { BlockNoteView } from "@blocknote/shadcn";
+import "@blocknote/shadcn/style.css";
 
 export default function App() {
   // Creates a new editor instance.

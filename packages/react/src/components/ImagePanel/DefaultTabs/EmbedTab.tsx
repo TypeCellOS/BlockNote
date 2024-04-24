@@ -61,7 +61,9 @@ export const EmbedTab = <
   }, [editor, block, currentURL]);
 
   return (
-    <Components.ImagePanel.TabPanel className={"bn-tab-panel"}>
+    <Components.ImagePanel.TabPanel
+      className={"bn-tab-panel"}
+      data-test="embed-tab">
       <Components.ImagePanel.TextInput
         className={"bn-text-input"}
         placeholder={"Enter URL"}

@@ -1,8 +1,6 @@
 import {
   Block,
   BlockSchema,
-  checkDefaultBlockTypeInSchema,
-  DefaultBlockSchema,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
@@ -100,11 +98,8 @@ export const BlockTypeSelect = (props: { items?: BlockTypeSelectItem[] }) => {
   const [block, setBlock] = useState(editor.getTextCursorPosition().block);
 
   const filteredItems: BlockTypeSelectItem[] = useMemo(() => {
-    return (props.items || blockTypeSelectItems).filter((item) =>
-      checkDefaultBlockTypeInSchema(
-        item.type as keyof DefaultBlockSchema,
-        editor
-      )
+    return (props.items || blockTypeSelectItems).filter(
+      (item) => item.type in editor.schema.blockSchema
     );
   }, [editor, props.items]);
 

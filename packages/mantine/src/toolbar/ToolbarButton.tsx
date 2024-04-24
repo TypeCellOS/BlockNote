@@ -33,6 +33,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
       isSelected,
       isDisabled,
       onClick,
+      ...rest
     } = props;
 
     return (
@@ -63,7 +64,8 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
             }
             size={"xs"}
             disabled={isDisabled || false}
-            ref={ref}>
+            ref={ref}
+            {...rest}>
             {children}
           </Mantine.Button>
         ) : (
@@ -84,7 +86,8 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
             }
             size={30}
             disabled={isDisabled || false}
-            ref={ref}>
+            ref={ref}
+            {...rest}>
             {icon}
           </Mantine.ActionIcon>
         )}

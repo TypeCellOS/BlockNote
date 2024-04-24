@@ -5,6 +5,7 @@ import { ChevronRight } from "lucide-react";
 import { forwardRef } from "react";
 
 import { useShadCNComponentsContext } from "../ShadCNComponentsContext";
+import { cn } from "../lib/utils";
 
 export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
   const {
@@ -45,7 +46,7 @@ export const MenuTrigger = (
   if (sub) {
     return <DropdownMenuSubTrigger>{children}</DropdownMenuSubTrigger>;
   } else {
-    return <DropdownMenuTrigger>{children}</DropdownMenuTrigger>;
+    return <DropdownMenuTrigger asChild={true}>{children}</DropdownMenuTrigger>;
   }
 };
 
@@ -82,7 +83,8 @@ export const MenuItem = forwardRef<
   HTMLDivElement,
   ComponentProps["Generic"]["Menu"]["Item"]
 >((props, ref) => {
-  const { className, children, icon, checked, subTrigger, onClick } = props;
+  const { className, children, icon, checked, subTrigger, onClick, ...rest } =
+    props;
 
   const ShadCNComponents = useShadCNComponentsContext();
   const DropdownMenuCheckboxItem =
@@ -103,10 +105,11 @@ export const MenuItem = forwardRef<
   if (checked !== undefined) {
     return (
       <DropdownMenuCheckboxItem
-        className={className}
+        className={cn(className, "gap-1")}
         ref={ref}
         checked={checked}
-        onClick={onClick}>
+        onClick={onClick}
+        {...rest}>
         {icon}
         {children}
       </DropdownMenuCheckboxItem>
@@ -114,7 +117,11 @@ export const MenuItem = forwardRef<
   }
 
   return (
-    <DropdownMenuItem className={className} ref={ref} onClick={onClick}>
+    <DropdownMenuItem
+      className={className}
+      ref={ref}
+      onClick={onClick}
+      {...rest}>
       {icon}
       {children}
       {subTrigger && <ChevronRight className="ml-auto h-4 w-4" />}

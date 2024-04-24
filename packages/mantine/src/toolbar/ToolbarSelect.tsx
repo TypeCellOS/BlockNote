@@ -4,7 +4,6 @@ import { isSafari } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
 import { HiChevronDown } from "react-icons/hi";
-import { TiTick } from "react-icons/ti";
 
 // TODO: turn into select
 export const ToolbarSelect = forwardRef<
@@ -52,7 +51,7 @@ export const ToolbarSelect = forwardRef<
             leftSection={item.icon}
             rightSection={
               item.isSelected ? (
-                <TiTick size={20} className={"bn-tick-icon"} />
+                <Mantine.CheckIcon size={10} className={"bn-tick-icon"} />
               ) : (
                 // Ensures space for tick even if item isn't currently selected.
                 <div className={"bn-tick-space"} />

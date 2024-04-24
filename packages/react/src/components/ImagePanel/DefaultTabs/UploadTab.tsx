@@ -74,10 +74,10 @@ export const UploadTab = <
     <Components.ImagePanel.TabPanel className={"bn-tab-panel"}>
       <Components.ImagePanel.FileInput
         className={"bn-file-input"}
+        data-test="upload-input"
         placeholder={"Upload Image"}
         value={null}
         onChange={handleFileChange}
-        data-test={"upload-input"}
       />
       {uploadFailed && (
         <div className={"bn-error-text"}>Error: Upload failed</div>

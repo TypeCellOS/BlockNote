@@ -135,6 +135,7 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
 
   return (
     <Mantine.Menu
+      width={100}
       withinPortal={false}
       middlewares={{ flip: true, shift: true, inline: false, size: true }}
       onClose={() => onOpenChange?.(false)}
@@ -149,13 +150,14 @@ export const MenuItem = forwardRef<
   HTMLDivElement,
   ComponentProps["Generic"]["Menu"]["Item"]
 >((props, ref) => {
-  const { className, children, icon, checked, subTrigger, onClick } = props;
+  const { className, children, icon, checked, subTrigger, onClick, ...rest } =
+    props;
 
   const ctx = useContext(SubMenuContext);
 
   if (subTrigger) {
     return (
-      <div ref={ref}>
+      <div ref={ref} {...rest}>
         {children}
         <HiChevronRight size={15} />
       </div>
@@ -180,7 +182,8 @@ export const MenuItem = forwardRef<
       }
       onMouseOver={onMouseOver}
       onMouseLeave={onMouseLeave}
-      onClick={onClick}>
+      onClick={onClick}
+      {...rest}>
       {children}
     </Mantine.Menu.Item>
   );

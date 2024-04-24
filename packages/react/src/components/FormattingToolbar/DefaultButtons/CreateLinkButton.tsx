@@ -86,6 +86,7 @@ export const CreateLinkButton = () => {
         {/* TODO: hide tooltip on click */}
         <Components.FormattingToolbar.Button
           className={"bn-button"}
+          data-test="createLink"
           mainTooltip={"Create Link"}
           secondaryTooltip={formatKeyboardShortcut("Mod+K")}
           icon={<RiLink />}

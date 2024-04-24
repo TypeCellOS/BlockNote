@@ -5,7 +5,6 @@ import {
   KeyboardEvent,
   MouseEvent,
   ReactNode,
-  Ref,
   useContext,
 } from "react";
 import { DefaultReactSuggestionItem } from "../components/SuggestionMenu/types";
@@ -198,7 +197,6 @@ export type ComponentProps = {
     Button: {
       className?: string;
       children?: ReactNode;
-      ref?: Ref<HTMLButtonElement>;
       mainTooltip: string;
       secondaryTooltip?: string;
       icon?: ReactNode;

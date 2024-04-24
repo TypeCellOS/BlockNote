@@ -25,7 +25,7 @@ export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(
         <div
           className={cn(
             className,
-            "flex p-[10px] rounded-md bg-white shadow-[0_2px_10px] shadow-blackA4"
+            "flex gap-1 p-1 rounded-lg bg-white shadow-[0_2px_10px] shadow-blackA4"
           )}
           ref={ref}
           onMouseEnter={onMouseEnter}
@@ -55,11 +55,12 @@ export const ToolbarButton = forwardRef<
     className,
     children,
     mainTooltip,
-    // secondaryTooltip,
+    secondaryTooltip,
     icon,
     isSelected,
     isDisabled,
     onClick,
+    ...rest
   } = props;
 
   const ShadCNComponents = useShadCNComponentsContext();
@@ -79,7 +80,8 @@ export const ToolbarButton = forwardRef<
         size="sm"
         disabled={isDisabled}
         onClick={onClick}
-        ref={ref}>
+        ref={ref}
+        {...rest}>
         {icon}
         {children}
       </Button>
@@ -91,11 +93,14 @@ export const ToolbarButton = forwardRef<
         disabled={isDisabled}
         data-state={isSelected ? "on" : "off"}
         data-disabled={isDisabled}
-        ref={ref}>
+        ref={ref}
+        {...rest}>
         {icon}
         {children}
       </Toggle>
     );
+
+  return trigger;
 
   return (
     <Tooltip>
@@ -123,7 +128,7 @@ export const ToolbarSelect = forwardRef<
   const SelectItemContent =
     ShadCNComponents?.SelectItemContent ||
     ((props) => (
-      <div className={"flex items-center"}>
+      <div className={"flex gap-1 items-center"}>
         {props.icon}
         {props.text}
       </div>
@@ -142,7 +147,7 @@ export const ToolbarSelect = forwardRef<
         items.find((item) => item.text === value)!.onClick?.()
       }
       disabled={isDisabled}>
-      <SelectTrigger>
+      <SelectTrigger className={"border-none"}>
         <SelectValue />
       </SelectTrigger>
       <SelectContent
