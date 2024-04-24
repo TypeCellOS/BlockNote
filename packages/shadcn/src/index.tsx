@@ -5,6 +5,10 @@ import {
 } from "@blocknote/react";
 import { ComponentProps } from "react";
 
+import {
+  ShadCNComponents,
+  ShadCNComponentsContext,
+} from "./ShadCNComponentsContext";
 import { TextInput } from "./form/TextInput";
 import {
   Menu,
@@ -19,23 +23,15 @@ import { PanelButton } from "./panel/PanelButton";
 import { PanelFileInput } from "./panel/PanelFileInput";
 import { PanelTab } from "./panel/PanelTab";
 import { PanelTextInput } from "./panel/PanelTextInput";
+import { Popover, PopoverContent, PopoverTrigger } from "./popover/popover";
 import { SideMenu } from "./sideMenu/SideMenu";
 import { SideMenuButton } from "./sideMenu/SideMenuButton";
 import { SuggestionMenu } from "./suggestionMenu/SuggestionMenu";
-import { SuggestionMenuItem } from "./suggestionMenu/SuggestionMenuItem";
 import { SuggestionMenuEmptyItem } from "./suggestionMenu/SuggestionMenuEmptyItem";
+import { SuggestionMenuItem } from "./suggestionMenu/SuggestionMenuItem";
 import { SuggestionMenuLabel } from "./suggestionMenu/SuggestionMenuLabel";
 import { SuggestionMenuLoader } from "./suggestionMenu/SuggestionMenuLoader";
-import {
-  ShadCNComponentsContext,
-  ShadCNComponents,
-} from "./ShadCNComponentsContext";
 import { Toolbar, ToolbarButton, ToolbarSelect } from "./toolbar/Toolbar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "./components/ui/popover";
 
 import "./style.css";
 
