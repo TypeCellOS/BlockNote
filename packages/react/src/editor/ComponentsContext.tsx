@@ -306,9 +306,6 @@ export type ComponentProps = {
       className?: string;
     };
   };
-  // TableHandle: {
-  //   Root: any;
-  // };
   // TODO: We should try to make everything as generic as we can
   Generic: {
     Form: {

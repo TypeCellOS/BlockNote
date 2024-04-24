@@ -21,6 +21,8 @@ export const Panel = forwardRef<
   } = props;
 
   const ShadCNComponents = useShadCNComponentsContext();
+  const Card = ShadCNComponents?.Card || ShadCNCard.Card;
+  const CardContent = ShadCNComponents?.CardContent || ShadCNCard.CardContent;
   const Tabs = ShadCNComponents?.Tabs || ShadCNTabs.Tabs;
   const TabsList = ShadCNComponents?.TabsList || ShadCNTabs.TabsList;
   const TabsTrigger = ShadCNComponents?.TabsTrigger || ShadCNTabs.TabsTrigger;
@@ -45,9 +47,10 @@ export const Panel = forwardRef<
 
       {tabs.map((tab) => (
         <TabsContent value={tab.name} key={tab.name}>
-          <ShadCNCard.Card>
-            <ShadCNCard.CardContent>{tab.tabPanel}</ShadCNCard.CardContent>
-          </ShadCNCard.Card>
+          <Card>
+            <ShadCNCard.CardHeader>Test</ShadCNCard.CardHeader>
+            <CardContent>{tab.tabPanel}</CardContent>
+          </Card>
         </TabsContent>
       ))}
     </Tabs>
