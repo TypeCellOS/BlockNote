@@ -5,7 +5,6 @@ import {
   StyleSchema,
   mergeCSSClasses,
 } from "@blocknote/core";
-import { MantineProvider } from "@mantine/core";
 
 import React, {
   HTMLAttributes,
@@ -32,11 +31,6 @@ import {
 } from "./BlockNoteTheme";
 import { EditorContent } from "./EditorContent";
 import "./styles.css";
-
-const mantineTheme = {
-  // Removes button press effect
-  activeClassName: "",
-};
 
 const emptyFn = () => {
   // noop
@@ -193,21 +187,17 @@ function BlockNoteViewComponent<
   }, [containerRef, editor._tiptapEditor.mount, ref]);
 
   return (
-    // `cssVariablesSelector` scopes Mantine CSS variables to only the editor,
-    // as proposed here:  https://github.com/orgs/mantinedev/discussions/5685
-    <MantineProvider theme={mantineTheme} cssVariablesSelector=".bn-container">
-      <BlockNoteContext.Provider value={context as any}>
-        <EditorContent editor={editor}>
-          <div
-            className={mergeCSSClasses("bn-container", className || "")}
-            data-color-scheme={editorColorScheme}
-            {...rest}
-            ref={refs}>
-            {renderChildren}
-          </div>
-        </EditorContent>
-      </BlockNoteContext.Provider>
-    </MantineProvider>
+    <BlockNoteContext.Provider value={context as any}>
+      <EditorContent editor={editor}>
+        <div
+          className={mergeCSSClasses("bn-container", className || "")}
+          data-color-scheme={editorColorScheme}
+          {...rest}
+          ref={refs}>
+          {renderChildren}
+        </div>
+      </EditorContent>
+    </BlockNoteContext.Provider>
   );
 }
 

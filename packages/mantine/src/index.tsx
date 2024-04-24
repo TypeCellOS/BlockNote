@@ -32,6 +32,7 @@ import { ToolbarButton } from "./toolbar/ToolbarButton";
 import { ToolbarSelect } from "./toolbar/ToolbarSelect";
 
 import "./style.css";
+import { MantineProvider } from "@mantine/core";
 
 export const components: Components = {
   FormattingToolbar: {
@@ -82,13 +83,24 @@ export const components: Components = {
   },
 };
 
+const mantineTheme = {
+  // Removes button press effect
+  activeClassName: "",
+};
+
 export const BlockNoteView = (
   // TODO: Fix typing
   props: ComponentProps<typeof BlockNoteViewRaw<any, any, any>>
 ) => {
   return (
     <ComponentsContext.Provider value={components}>
-      <BlockNoteViewRaw {...props} />
+      {/* `cssVariablesSelector` scopes Mantine CSS variables to only the editor, */}
+      {/* as proposed here:  https://github.com/orgs/mantinedev/discussions/5685 */}
+      <MantineProvider
+        theme={mantineTheme}
+        cssVariablesSelector=".bn-container">
+        <BlockNoteViewRaw {...props} />
+      </MantineProvider>
     </ComponentsContext.Provider>
   );
 };
