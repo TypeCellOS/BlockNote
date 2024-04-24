@@ -36,7 +36,7 @@ export const BlockColorsItem = <
   }
 
   return (
-    <Components.Generic.Menu.Root sub={true}>
+    <Components.Generic.Menu.Root position={"right"} sub={true}>
       <Components.Generic.Menu.Trigger sub={true}>
         <Components.Generic.Menu.Item
           className={"bn-menu-item"}
