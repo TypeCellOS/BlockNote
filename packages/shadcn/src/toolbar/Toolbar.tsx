@@ -100,8 +100,6 @@ export const ToolbarButton = forwardRef<
       </Toggle>
     );
 
-  return trigger;
-
   return (
     <Tooltip>
       <TooltipTrigger asChild>{trigger}</TooltipTrigger>

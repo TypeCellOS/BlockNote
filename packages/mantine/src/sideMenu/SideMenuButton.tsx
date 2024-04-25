@@ -12,6 +12,7 @@ export const SideMenuButton = forwardRef<
   if (icon) {
     return (
       <Mantine.ActionIcon
+        size={24}
         className={className}
         ref={ref}
         onClick={onClick}

@@ -27,7 +27,7 @@ export const AddBlockButton = <
         <AiOutlinePlus
           size={24}
           onClick={props.addBlock}
-          data-test={"dragHandleAdd"}
+          data-test="dragHandleAdd"
         />
       }
     />

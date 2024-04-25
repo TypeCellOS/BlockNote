@@ -7,14 +7,15 @@ export const PanelButton = forwardRef<
   HTMLButtonElement,
   ComponentProps["ImagePanel"]["Button"]
 >((props, ref) => {
-  const { className, children, onClick } = props;
+  const { className, children, onClick, ...rest } = props;
 
   return (
     <Mantine.Button
       size={"xs"}
       className={className}
       ref={ref}
-      onClick={onClick}>
+      onClick={onClick}
+      {...rest}>
       {children}
     </Mantine.Button>
   );

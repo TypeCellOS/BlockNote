@@ -324,6 +324,7 @@
 
 .bn-mt-suggestion-menu-item-body {
     align-items: stretch;
+    color: var(--bn-colors-menu-text);
     display: flex;
     flex: 1;
     flex-direction: column;
@@ -344,6 +345,10 @@
     font-size: 10px;
     margin: 0;
     padding: 0;
+}
+
+.bn-suggestion-menu-label {
+    color: var(--bn-colors-hovered-text);
 }
 
 .bn-suggestion-menu-loader {
@@ -368,13 +373,17 @@
 
 .bn-side-menu .mantine-UnstyledButton-root:not(.mantine-Menu-item) {
     background-color: transparent;
-    color: var(--bn-colors-side-menu);
-    height: 28px;
-    width: 28px;
 }
 
 .bn-side-menu .mantine-UnstyledButton-root:hover {
     background-color: var(--bn-colors-hovered-background);
+}
+
+.bn-side-menu .mantine-UnstyledButton-root:not(.mantine-Menu-item) svg {
+    background-color: transparent;
+    color: var(--bn-colors-side-menu);
+    height: 22px;
+    width: 22px;
 }
 
 .bn-side-menu > [draggable="true"] {
@@ -382,6 +391,7 @@
 }
 
 .bn-side-menu .mantine-Menu-dropdown {
+    min-width: 100px;
     padding: 2px;
     position: absolute;
 }
@@ -477,7 +487,7 @@
     text-align: center;
 }
 
-/* Color Icon styling */
+/* Additional menu styles */
 .bn-tick-space {
     padding: 0;
     width: 20px;

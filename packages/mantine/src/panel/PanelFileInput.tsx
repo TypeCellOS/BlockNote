@@ -7,7 +7,7 @@ export const PanelFileInput = forwardRef<
   HTMLButtonElement,
   ComponentProps["ImagePanel"]["FileInput"]
 >((props, ref) => {
-  const { className, value, placeholder, onChange } = props;
+  const { className, value, placeholder, onChange, ...rest } = props;
 
   return (
     <Mantine.FileInput
@@ -17,6 +17,7 @@ export const PanelFileInput = forwardRef<
       value={value}
       placeholder={placeholder}
       onChange={onChange}
+      {...rest}
     />
   );
 });

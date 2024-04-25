@@ -135,7 +135,6 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
 
   return (
     <Mantine.Menu
-      width={100}
       withinPortal={false}
       middlewares={{ flip: true, shift: true, inline: false, size: true }}
       onClose={() => onOpenChange?.(false)}
