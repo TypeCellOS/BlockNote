@@ -579,3 +579,11 @@
   padding: 0;
   width: 20px;
 }
+
+/* code style */
+.bn-container code {
+  background-color: var(--bn-colors-highlights-gray-background);
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-size: 12px;
+}
