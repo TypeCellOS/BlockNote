@@ -93,7 +93,6 @@ export const ToolbarButton = forwardRef<
         disabled={isDisabled}
         data-state={isSelected ? "on" : "off"}
         data-disabled={isDisabled}
-        ref={ref}
         {...rest}>
         {icon}
         {children}
