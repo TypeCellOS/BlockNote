@@ -10,9 +10,7 @@ export const PopoverTrigger = forwardRef<
 >((props, ref) => {
   const { children } = props;
 
-  return (
-    <Ariakit.PopoverDisclosure ref={ref}>{children}</Ariakit.PopoverDisclosure>
-  );
+  return <Ariakit.PopoverDisclosure render={children as any} ref={ref} />;
 });
 
 export const PopoverContent = forwardRef<

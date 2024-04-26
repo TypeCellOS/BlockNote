@@ -1,3 +1,5 @@
+@import url("@blocknote/react/style.css");
+
 /* This file contains BlockNote-specific fixes for the styles in
  ariakitStyles.css. */
 
@@ -87,6 +89,8 @@
   justify-content: center;
 }
 
-.bn-drag-handle {
-  height: 24px;
+.bn-side-menu .bn-ak-button {
+  height: fit-content;
+  padding: 0;
+  width: fit-content;
 }

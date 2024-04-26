@@ -1,6 +1,6 @@
-# Basic Setup TODO
+# Use with ShadCN
 
-This example shows the minimal code required to set up a BlockNote editor in React.
+This example shows how you can integrate BlockNote with ShadCN, replacing the default Mantine UI with ShadCN components.
 
 **Relevant Docs:**
 
