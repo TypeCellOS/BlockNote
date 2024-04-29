@@ -68,6 +68,10 @@
   }
 }
 
+:focus-visible {
+  outline: none;
+}
+
 [data-radix-popper-content-wrapper] {
   z-index: 99999 !important;
 }
@@ -96,6 +100,10 @@
 
 .bn-suggestion-menu-item[data-hovered] {
   background-color: hsl(var(--accent));
+}
+
+.bn-drag-handle {
+  height: 24px;
 }
 
 /* @layer base {

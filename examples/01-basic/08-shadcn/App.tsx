@@ -8,5 +8,15 @@ export default function App() {
   const editor = useCreateBlockNote();
 
   // Renders the editor instance using a React component.
-  return <BlockNoteView editor={editor} />;
+  return (
+    <BlockNoteView
+      editor={editor}
+      shadCNComponents={
+        {
+          // Pass modified ShadCN components from your project here.
+          // Otherwise, the default ShadCN components will be used.
+        }
+      }
+    />
+  );
 }

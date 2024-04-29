@@ -3,6 +3,14 @@ export const BASE_URL = !process.env.RUN_IN_DOCKER
   ? `http://localhost:${PORT}/basic/testing?hideMenu`
   : `http://host.docker.internal:${PORT}/basic/testing?hideMenu`;
 
+export const SHADCN_URL = !process.env.RUN_IN_DOCKER
+  ? `http://localhost:${PORT}/basic/shadcn?hideMenu`
+  : `http://host.docker.internal:${PORT}/basic/shadcn?hideMenu`;
+
+export const ARIAKIT_URL = !process.env.RUN_IN_DOCKER
+  ? `http://localhost:${PORT}/basic/ariakit?hideMenu`
+  : `http://host.docker.internal:${PORT}/basic/ariakit?hideMenu`;
+
 export const PASTE_ZONE_SELECTOR = "#pasteZone";
 
 export const EDITOR_SELECTOR = `.bn-editor`;
