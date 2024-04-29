@@ -1,5 +1,3 @@
-import { createContext, useContext } from "react";
-
 // function scramble(dict: any) {
 //   const newDict: any = {} as any;
 
@@ -13,8 +11,77 @@ import { createContext, useContext } from "react";
 
 //   return newDict;
 // }
-
 export const english = {
+  slash_menu: {
+    heading: {
+      title: "Heading 1",
+      subtext: "Used for a top-level heading",
+      aliases: ["h", "heading1", "h1"],
+      group: "Headings",
+    },
+    heading_2: {
+      title: "Heading 2",
+      subtext: "Used for key sections",
+      aliases: ["h2", "heading2", "subheading"],
+      group: "Headings",
+    },
+    heading_3: {
+      title: "Heading 3",
+      subtext: "Used for subsections and group headings",
+      aliases: ["h3", "heading3", "subheading"],
+      group: "Headings",
+    },
+    numbered_list: {
+      title: "Numbered List",
+      subtext: "Used to display a numbered list",
+      aliases: ["ol", "li", "list", "numberedlist", "numbered list"],
+      group: "Basic blocks",
+    },
+    bullet_list: {
+      title: "Bullet List",
+      subtext: "Used to display an unordered list",
+      aliases: ["ul", "li", "list", "bulletlist", "bullet list"],
+      group: "Basic blocks",
+    },
+    paragraph: {
+      title: "Paragraph",
+      subtext: "Used for the body of your document",
+      aliases: ["p", "paragraph"],
+      group: "Basic blocks",
+    },
+    table: {
+      title: "Table",
+      subtext: "Used for for tables",
+      aliases: ["table"],
+      group: "Advanced",
+    },
+    image: {
+      title: "Image",
+      subtext: "Insert an image",
+      aliases: [
+        "image",
+        "imageUpload",
+        "upload",
+        "img",
+        "picture",
+        "media",
+        "url",
+        "drive",
+        "dropbox",
+      ],
+      group: "Media",
+    },
+  },
+  placeholders: {
+    default: "Enter text or type '/' for commands",
+    heading: "Heading",
+    bulletListItem: "List",
+    numberedListItem: "List",
+  },
+  image: {
+    add_button: "Add Image",
+  },
+  // from react package:
   drag_handle: {
     delete_menuitem: "Delete",
     colors_menuitem: "Colors",
@@ -137,12 +204,4 @@ export const english = {
   },
 };
 
-type Dictionary = typeof english;
-
-export const DictionaryContext = createContext<Dictionary | undefined>(
-  undefined
-);
-
-export function useDictionaryContext(): Dictionary {
-  return useContext(DictionaryContext)!;
-}
+export type Dictionary = typeof english;

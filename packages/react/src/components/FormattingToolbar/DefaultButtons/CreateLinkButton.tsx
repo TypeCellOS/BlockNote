@@ -10,10 +10,10 @@ import {
 } from "@blocknote/core";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext";
-import { useDictionaryContext } from "../../../editor/Dictionary";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
 import { useEditorContentOrSelectionChange } from "../../../hooks/useEditorContentOrSelectionChange";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
+import { useDictionaryContext } from "../../../i18n/dictionary";
 import { EditLinkMenuItems } from "../../LinkToolbar/EditLinkMenuItems";
 
 function checkLinkInSchema(

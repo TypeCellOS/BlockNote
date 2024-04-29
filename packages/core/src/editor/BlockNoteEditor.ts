@@ -27,10 +27,10 @@ import {
   PartialBlock,
 } from "../blocks/defaultBlocks";
 import { FormattingToolbarProsemirrorPlugin } from "../extensions/FormattingToolbar/FormattingToolbarPlugin";
+import { ImagePanelProsemirrorPlugin } from "../extensions/ImagePanel/ImageToolbarPlugin";
 import { LinkToolbarProsemirrorPlugin } from "../extensions/LinkToolbar/LinkToolbarPlugin";
 import { SideMenuProsemirrorPlugin } from "../extensions/SideMenu/SideMenuPlugin";
 import { SuggestionMenuProseMirrorPlugin } from "../extensions/SuggestionMenu/SuggestionPlugin";
-import { ImagePanelProsemirrorPlugin } from "../extensions/ImagePanel/ImageToolbarPlugin";
 import { TableHandlesProsemirrorPlugin } from "../extensions/TableHandles/TableHandlesPlugin";
 import { UniqueID } from "../extensions/UniqueID/UniqueID";
 import {
@@ -62,6 +62,8 @@ import {
 } from "./BlockNoteTipTapEditor";
 
 // CSS
+import { PlaceholderPlugin } from "../extensions/Placeholder/PlaceholderPlugin";
+import { english } from "../i18n/dictionary";
 import "./Block.css";
 import "./editor.css";
 
@@ -150,6 +152,8 @@ export class BlockNoteEditor<
     contentComponent: any;
   };
   public blockCache = new WeakMap<Node, Block<any, any, any>>();
+  public readonly dictionary = english;
+
   public readonly schema: BlockNoteSchema<BSchema, ISchema, SSchema>;
 
   public readonly blockImplementations: BlockSpecs;
@@ -221,6 +225,10 @@ export class BlockNoteEditor<
       defaultStyles: true,
       schema: options.schema || BlockNoteSchema.create(),
       ...options,
+      placeholders: {
+        ...this.dictionary.placeholders,
+        ...options.placeholders,
+      },
     };
 
     // @ts-ignore
@@ -243,7 +251,6 @@ export class BlockNoteEditor<
 
     const extensions = getBlockNoteExtensions({
       editor: this,
-      placeholders: newOptions.placeholders,
       domAttributes: newOptions.domAttributes || {},
       blockSchema: this.schema.blockSchema,
       blockSpecs: this.schema.blockSpecs,
@@ -263,6 +270,7 @@ export class BlockNoteEditor<
           this.suggestionMenus.plugin,
           ...(this.imagePanel ? [this.imagePanel.plugin] : []),
           ...(this.tableHandles ? [this.tableHandles.plugin] : []),
+          PlaceholderPlugin(this, newOptions.placeholders),
         ];
       },
     });

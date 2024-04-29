@@ -9,7 +9,7 @@ import {
 import { ReactNode } from "react";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext";
-import { useDictionaryContext } from "../../../editor/Dictionary";
+import { useDictionaryContext } from "../../../i18n/dictionary";
 import { BlockColorsItem } from "./DefaultItems/BlockColorsItem";
 import { RemoveBlockItem } from "./DefaultItems/RemoveBlockItem";
 import { DragHandleMenuProps } from "./DragHandleMenuProps";

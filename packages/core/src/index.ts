@@ -25,4 +25,5 @@ export * from "./util/string";
 export * from "./api/nodeConversions/nodeConversions";
 export * from "./api/testUtil/partialBlockTestUtil";
 export * from "./extensions/UniqueID/UniqueID";
+export * from "./i18n/dictionary";
 export { UnreachableCaseError } from "./util/typescript";

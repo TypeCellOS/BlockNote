@@ -7,10 +7,10 @@ import {
 import { useCallback, useMemo, useState } from "react";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext";
-import { useDictionaryContext } from "../../../editor/Dictionary";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
 import { useEditorContentOrSelectionChange } from "../../../hooks/useEditorContentOrSelectionChange";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
+import { useDictionaryContext } from "../../../i18n/dictionary";
 import { ColorIcon } from "../../ColorPicker/ColorIcon";
 import { ColorPicker } from "../../ColorPicker/ColorPicker";
 

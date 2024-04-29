@@ -8,8 +8,8 @@ import {
 import { ChangeEvent, KeyboardEvent, useCallback, useState } from "react";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext";
-import { useDictionaryContext } from "../../../editor/Dictionary";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
+import { useDictionaryContext } from "../../../i18n/dictionary";
 import { ImagePanelProps } from "../ImagePanelProps";
 
 export const EmbedTab = <

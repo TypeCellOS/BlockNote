@@ -4,8 +4,8 @@ export * from "./editor/BlockNoteDefaultUI";
 export * from "./editor/BlockNoteTheme";
 export * from "./editor/BlockNoteView";
 export * from "./editor/ComponentsContext";
-export * from "./editor/Dictionary";
 export * from "./editor/defaultThemes";
+export * from "./i18n/dictionary";
 
 export * from "./components/FormattingToolbar/DefaultButtons/BasicTextStyleButton";
 export * from "./components/FormattingToolbar/DefaultButtons/ColorStyleButton";

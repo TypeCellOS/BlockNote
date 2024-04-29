@@ -3,6 +3,7 @@ import {
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
+  english,
   mergeCSSClasses,
 } from "@blocknote/core";
 
@@ -19,6 +20,7 @@ import React, {
 import usePrefersColorScheme from "use-prefers-color-scheme";
 import { useEditorChange } from "../hooks/useEditorChange";
 import { useEditorSelectionChange } from "../hooks/useEditorSelectionChange";
+import { DictionaryContext } from "../i18n/dictionary";
 import { mergeRefs } from "../util/mergeRefs";
 import { BlockNoteContext, useBlockNoteContext } from "./BlockNoteContext";
 import {
@@ -30,7 +32,6 @@ import {
   applyBlockNoteCSSVariablesFromTheme,
   removeBlockNoteCSSVariables,
 } from "./BlockNoteTheme";
-import { DictionaryContext, english } from "./Dictionary";
 import { EditorContent } from "./EditorContent";
 import "./styles.css";
 

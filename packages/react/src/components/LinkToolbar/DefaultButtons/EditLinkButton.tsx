@@ -1,5 +1,5 @@
 import { useComponentsContext } from "../../../editor/ComponentsContext";
-import { useDictionaryContext } from "../../../editor/Dictionary";
+import { useDictionaryContext } from "../../../i18n/dictionary";
 import { EditLinkMenuItems } from "../EditLinkMenuItems";
 import { LinkToolbarProps } from "../LinkToolbarProps";
 

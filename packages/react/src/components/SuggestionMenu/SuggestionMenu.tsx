@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useComponentsContext } from "../../editor/ComponentsContext";
-import { useDictionaryContext } from "../../editor/Dictionary";
+import { useDictionaryContext } from "../../i18n/dictionary";
 import { DefaultReactSuggestionItem, SuggestionMenuProps } from "./types";
 
 export function SuggestionMenu<T extends DefaultReactSuggestionItem>(

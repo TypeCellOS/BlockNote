@@ -1,6 +1,7 @@
 import {
   Block,
   BlockSchema,
+  Dictionary,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
@@ -22,6 +23,7 @@ import {
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
 import { useEditorContentOrSelectionChange } from "../../../hooks/useEditorContentOrSelectionChange";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
+import { useDictionaryContext } from "../../../i18n/dictionary";
 
 export type BlockTypeSelectItem = {
   name: string;
@@ -33,15 +35,17 @@ export type BlockTypeSelectItem = {
   ) => boolean;
 };
 
-export const blockTypeSelectItems: BlockTypeSelectItem[] = [
+export const blockTypeSelectItems = (
+  dict: Dictionary
+): BlockTypeSelectItem[] => [
   {
-    name: "Paragraph",
+    name: dict.slash_menu.paragraph.title,
     type: "paragraph",
     icon: RiText,
     isSelected: (block) => block.type === "paragraph",
   },
   {
-    name: "Heading 1",
+    name: dict.slash_menu.heading.title,
     type: "heading",
     props: { level: 1 },
     icon: RiH1,
@@ -51,7 +55,7 @@ export const blockTypeSelectItems: BlockTypeSelectItem[] = [
       block.props.level === 1,
   },
   {
-    name: "Heading 2",
+    name: dict.slash_menu.heading_2.title,
     type: "heading",
     props: { level: 2 },
     icon: RiH2,
@@ -61,7 +65,7 @@ export const blockTypeSelectItems: BlockTypeSelectItem[] = [
       block.props.level === 2,
   },
   {
-    name: "Heading 3",
+    name: dict.slash_menu.heading_3.title,
     type: "heading",
     props: { level: 3 },
     icon: RiH3,
@@ -71,13 +75,13 @@ export const blockTypeSelectItems: BlockTypeSelectItem[] = [
       block.props.level === 3,
   },
   {
-    name: "Bullet List",
+    name: dict.slash_menu.bullet_list.title,
     type: "bulletListItem",
     icon: RiListUnordered,
     isSelected: (block) => block.type === "bulletListItem",
   },
   {
-    name: "Numbered List",
+    name: dict.slash_menu.numbered_list.title,
     type: "numberedListItem",
     icon: RiListOrdered,
     isSelected: (block) => block.type === "numberedListItem",
@@ -86,6 +90,7 @@ export const blockTypeSelectItems: BlockTypeSelectItem[] = [
 
 export const BlockTypeSelect = (props: { items?: BlockTypeSelectItem[] }) => {
   const Components = useComponentsContext()!;
+  const dict = useDictionaryContext();
 
   const editor = useBlockNoteEditor<
     BlockSchema,
@@ -98,10 +103,10 @@ export const BlockTypeSelect = (props: { items?: BlockTypeSelectItem[] }) => {
   const [block, setBlock] = useState(editor.getTextCursorPosition().block);
 
   const filteredItems: BlockTypeSelectItem[] = useMemo(() => {
-    return (props.items || blockTypeSelectItems).filter(
+    return (props.items || blockTypeSelectItems(dict)).filter(
       (item) => item.type in editor.schema.blockSchema
     );
-  }, [editor, props.items]);
+  }, [editor, dict, props.items]);
 
   const shouldShow: boolean = useMemo(
     () => filteredItems.find((item) => item.type === block.type) !== undefined,

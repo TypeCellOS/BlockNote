@@ -11,8 +11,8 @@ import {
   ComponentProps,
   useComponentsContext,
 } from "../../editor/ComponentsContext";
-import { useDictionaryContext } from "../../editor/Dictionary";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor";
+import { useDictionaryContext } from "../../i18n/dictionary";
 import { EmbedTab } from "./DefaultTabs/EmbedTab";
 import { UploadTab } from "./DefaultTabs/UploadTab";
 import { ImagePanelProps } from "./ImagePanelProps";
