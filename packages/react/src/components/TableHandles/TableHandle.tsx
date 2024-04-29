@@ -46,7 +46,7 @@ export const TableHandle = <
             "bn-table-handle",
             isDragging ? "bn-table-handle-dragging" : ""
           )}
-          draggable="true"
+          draggable={true}
           onDragStart={(e) => {
             setIsDragging(true);
             props.dragStart(e);

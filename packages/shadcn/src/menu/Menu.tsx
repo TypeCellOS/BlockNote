@@ -2,10 +2,39 @@ import * as ShadCNDropdownMenu from "../components/ui/dropdown-menu";
 
 import { ComponentProps } from "@blocknote/react";
 import { ChevronRight } from "lucide-react";
-import { forwardRef } from "react";
-
+import { forwardRef, useMemo } from "react";
 import { useShadCNComponentsContext } from "../ShadCNComponentsContext";
 import { cn } from "../lib/utils";
+
+// hacky HoC to change DropdownMenuTrigger to open a menu on PointerUp instead of PointerDown
+// Needed to fix this issue: https://github.com/radix-ui/primitives/issues/2867
+const MenuTriggerWithPointerUp = (
+  Comp: typeof ShadCNDropdownMenu.DropdownMenuTrigger
+) =>
+  forwardRef<
+    any,
+    React.ComponentProps<typeof ShadCNDropdownMenu.DropdownMenuTrigger>
+  >((props, ref) => {
+    return (
+      <Comp
+        onPointerDown={(e) => {
+          if (!(e.nativeEvent as any).fakeEvent) {
+            // setting ctrlKey will block the menu from opening
+            // as it will block this line: https://github.com/radix-ui/primitives/blob/b32a93318cdfce383c2eec095710d35ffbd33a1c/packages/react/dropdown-menu/src/DropdownMenu.tsx#L120
+            e.ctrlKey = true;
+          }
+        }}
+        onPointerUp={(event) => {
+          // dispatch a pointerdown event so the Radix pointer down handler gets called that opens the menu
+          const e = new PointerEvent("pointerdown", event.nativeEvent);
+          (e as any).fakeEvent = true;
+          event.target.dispatchEvent(e);
+        }}
+        {...props}
+        ref={ref}
+      />
+    );
+  });
 
 export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
   const {
@@ -33,20 +62,31 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
 export const MenuTrigger = (
   props: ComponentProps["Generic"]["Menu"]["Trigger"]
 ) => {
-  const { children, sub } = props;
+  const { children, sub, ...rest } = props;
 
   const ShadCNComponents = useShadCNComponentsContext();
+
   const DropdownMenuSubTrigger =
     ShadCNComponents?.DropdownMenuSubTrigger ||
     ShadCNDropdownMenu.DropdownMenuSubTrigger;
-  const DropdownMenuTrigger =
-    ShadCNComponents?.DropdownMenuTrigger ||
-    ShadCNDropdownMenu.DropdownMenuTrigger;
+
+  const DropdownMenuTrigger = useMemo(
+    () =>
+      MenuTriggerWithPointerUp(
+        ShadCNComponents?.DropdownMenuTrigger ||
+          ShadCNDropdownMenu.DropdownMenuTrigger
+      ),
+    [ShadCNComponents?.DropdownMenuTrigger]
+  );
 
   if (sub) {
     return <DropdownMenuSubTrigger>{children}</DropdownMenuSubTrigger>;
   } else {
-    return <DropdownMenuTrigger asChild={true}>{children}</DropdownMenuTrigger>;
+    return (
+      <DropdownMenuTrigger asChild={true} {...rest}>
+        {children}
+      </DropdownMenuTrigger>
+    );
   }
 };
 

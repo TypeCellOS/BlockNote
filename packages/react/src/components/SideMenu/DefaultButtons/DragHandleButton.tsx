@@ -34,16 +34,14 @@ export const DragHandleButton = <
       }}
       position={"left"}>
       <Components.Generic.Menu.Trigger>
-        {/*<div*/}
-        {/*  className="bn-drag-handle"*/}
-        {/*  draggable="true"*/}
-        {/*  onDragStart={props.blockDragStart}*/}
-        {/*  onDragEnd={props.blockDragEnd}>*/}
+        {/* TODO: figure out what to do with removed bn-drag-handle */}
         <Components.SideMenu.Button
+          draggable={true}
+          onDragStart={props.blockDragStart}
+          onDragEnd={props.blockDragEnd}
           className={"bn-button"}
           icon={<MdDragIndicator size={24} data-test="dragHandle" />}
         />
-        {/*</div>*/}
       </Components.Generic.Menu.Trigger>
       <Component block={props.block} />
     </Components.Generic.Menu.Root>

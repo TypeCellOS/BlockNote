@@ -280,6 +280,9 @@ export type ComponentProps = {
       children?: ReactNode;
       onClick?: (e: MouseEvent) => void;
       icon?: ReactNode;
+      onDragStart?: (e: React.DragEvent) => void;
+      onDragEnd?: (e: React.DragEvent) => void;
+      draggable?: boolean;
     };
   };
   SuggestionMenu: {
