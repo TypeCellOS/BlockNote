@@ -63,7 +63,7 @@ import {
 
 // CSS
 import { PlaceholderPlugin } from "../extensions/Placeholder/PlaceholderPlugin";
-import { english } from "../i18n/dictionary";
+import { en } from "../i18n/locales";
 import "./Block.css";
 import "./editor.css";
 
@@ -152,7 +152,7 @@ export class BlockNoteEditor<
     contentComponent: any;
   };
   public blockCache = new WeakMap<Node, Block<any, any, any>>();
-  public readonly dictionary = english;
+  public readonly dictionary = en;
 
   public readonly schema: BlockNoteSchema<BSchema, ISchema, SSchema>;
 

@@ -1,14 +1,14 @@
 import { BlockNoteSchema, defaultBlockSpecs } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
-import {
-  FormattingToolbar,
-  FormattingToolbarController,
-  useCreateBlockNote,
-  blockTypeSelectItems,
-  BlockTypeSelectItem,
-} from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
+import {
+  BlockTypeSelectItem,
+  FormattingToolbar,
+  FormattingToolbarController,
+  blockTypeSelectItems,
+  useCreateBlockNote,
+} from "@blocknote/react";
 import { RiAlertFill } from "react-icons/ri";
 
 import { Alert } from "./Alert";
@@ -56,7 +56,7 @@ export default function App() {
         formattingToolbar={() => (
           <FormattingToolbar
             blockTypeSelectItems={[
-              ...blockTypeSelectItems,
+              ...blockTypeSelectItems(editor.dictionary),
               {
                 name: "Alert",
                 type: "alert",

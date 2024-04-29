@@ -3,7 +3,7 @@ import {
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
-  english,
+  locales,
   mergeCSSClasses,
 } from "@blocknote/core";
 
@@ -190,7 +190,7 @@ function BlockNoteViewComponent<
   }, [containerRef, editor._tiptapEditor.mount, ref]);
 
   return (
-    <DictionaryContext.Provider value={english}>
+    <DictionaryContext.Provider value={locales.en}>
       <BlockNoteContext.Provider value={context as any}>
         <EditorContent editor={editor}>
           <div
