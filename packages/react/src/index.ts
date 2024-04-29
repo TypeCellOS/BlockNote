@@ -4,6 +4,7 @@ export * from "./editor/BlockNoteDefaultUI";
 export * from "./editor/BlockNoteTheme";
 export * from "./editor/BlockNoteView";
 export * from "./editor/ComponentsContext";
+export * from "./editor/Dictionary";
 export * from "./editor/defaultThemes";
 
 export * from "./components/FormattingToolbar/DefaultButtons/BasicTextStyleButton";
@@ -45,11 +46,11 @@ export * from "./components/SuggestionMenu/hooks/useLoadSuggestionMenuItems";
 export * from "./components/SuggestionMenu/hooks/useSuggestionMenuKeyboardNavigation";
 export * from "./components/SuggestionMenu/types";
 
-export * from "./components/ImagePanel/ImagePanelController";
-export * from "./components/ImagePanel/ImagePanelProps";
 export * from "./components/ImagePanel/DefaultTabs/EmbedTab";
 export * from "./components/ImagePanel/DefaultTabs/UploadTab";
 export * from "./components/ImagePanel/ImagePanel";
+export * from "./components/ImagePanel/ImagePanelController";
+export * from "./components/ImagePanel/ImagePanelProps";
 
 export * from "./components/TableHandles/TableHandle";
 export * from "./components/TableHandles/TableHandleProps";

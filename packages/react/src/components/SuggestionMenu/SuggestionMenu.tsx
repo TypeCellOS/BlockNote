@@ -1,20 +1,22 @@
-import { DefaultReactSuggestionItem, SuggestionMenuProps } from "./types";
-import { useComponentsContext } from "../../editor/ComponentsContext";
 import { useMemo } from "react";
+import { useComponentsContext } from "../../editor/ComponentsContext";
+import { useDictionaryContext } from "../../editor/Dictionary";
+import { DefaultReactSuggestionItem, SuggestionMenuProps } from "./types";
 
 export function SuggestionMenu<T extends DefaultReactSuggestionItem>(
   props: SuggestionMenuProps<T>
 ) {
   const Components = useComponentsContext()!;
+  const dict = useDictionaryContext();
 
   const { items, loadingState, selectedIndex, setSelectedIndex, onItemClick } =
     props;
 
   const loader =
     loadingState === "loading-initial" || loadingState === "loading" ? (
-      <Components.SuggestionMenu.Loader
-        className={"bn-suggestion-menu-loader"}
-      /> // TODO: test loader
+      <Components.SuggestionMenu.Loader className={"bn-suggestion-menu-loader"}>
+        {dict.suggestion_menu.loading}
+      </Components.SuggestionMenu.Loader> // TODO: test loader
     ) : null;
 
   const renderedItems = useMemo<JSX.Element[]>(() => {
@@ -61,8 +63,9 @@ export function SuggestionMenu<T extends DefaultReactSuggestionItem>(
         (props.loadingState === "loading" ||
           props.loadingState === "loaded") && (
           <Components.SuggestionMenu.EmptyItem
-            className={"bn-suggestion-menu-item"}
-          />
+            className={"bn-suggestion-menu-item"}>
+            {dict.suggestion_menu.no_items_title}
+          </Components.SuggestionMenu.EmptyItem>
         )}
       {loader}
     </Components.SuggestionMenu.Root>

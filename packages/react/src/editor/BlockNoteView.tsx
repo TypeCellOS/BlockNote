@@ -30,6 +30,7 @@ import {
   applyBlockNoteCSSVariablesFromTheme,
   removeBlockNoteCSSVariables,
 } from "./BlockNoteTheme";
+import { DictionaryContext, english } from "./Dictionary";
 import { EditorContent } from "./EditorContent";
 import "./styles.css";
 
@@ -188,17 +189,19 @@ function BlockNoteViewComponent<
   }, [containerRef, editor._tiptapEditor.mount, ref]);
 
   return (
-    <BlockNoteContext.Provider value={context as any}>
-      <EditorContent editor={editor}>
-        <div
-          className={mergeCSSClasses("bn-container", className || "")}
-          data-color-scheme={editorColorScheme}
-          {...rest}
-          ref={refs}>
-          {renderChildren}
-        </div>
-      </EditorContent>
-    </BlockNoteContext.Provider>
+    <DictionaryContext.Provider value={english}>
+      <BlockNoteContext.Provider value={context as any}>
+        <EditorContent editor={editor}>
+          <div
+            className={mergeCSSClasses("bn-container", className || "")}
+            data-color-scheme={editorColorScheme}
+            {...rest}
+            ref={refs}>
+            {renderChildren}
+          </div>
+        </EditorContent>
+      </BlockNoteContext.Provider>
+    </DictionaryContext.Provider>
   );
 }
 

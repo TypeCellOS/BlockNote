@@ -8,6 +8,7 @@ import {
 import { ChangeEvent, KeyboardEvent, useCallback, useState } from "react";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext";
+import { useDictionaryContext } from "../../../editor/Dictionary";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
 import { ImagePanelProps } from "../ImagePanelProps";
 
@@ -18,6 +19,7 @@ export const EmbedTab = <
   props: ImagePanelProps<I, S>
 ) => {
   const Components = useComponentsContext()!;
+  const dict = useDictionaryContext();
 
   const { block } = props;
 
@@ -64,7 +66,7 @@ export const EmbedTab = <
     <Components.ImagePanel.TabPanel className={"bn-tab-panel"}>
       <Components.ImagePanel.TextInput
         className={"bn-text-input"}
-        placeholder={"Enter URL"}
+        placeholder={dict.image_panel.embed.url_placeholder}
         value={currentURL}
         onChange={handleURLChange}
         onKeyDown={handleURLEnter}
@@ -74,7 +76,7 @@ export const EmbedTab = <
         className={"bn-button"}
         onClick={handleURLClick}
         data-test="embed-input-button">
-        Embed Image
+        {dict.image_panel.embed.embed_button}
       </Components.ImagePanel.Button>
     </Components.ImagePanel.TabPanel>
   );

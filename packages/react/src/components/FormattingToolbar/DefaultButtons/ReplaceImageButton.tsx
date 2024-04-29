@@ -8,11 +8,13 @@ import { useEffect, useState } from "react";
 import { RiImageEditFill } from "react-icons/ri";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext";
+import { useDictionaryContext } from "../../../editor/Dictionary";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
 import { ImagePanel } from "../../ImagePanel/ImagePanel";
 
 export const ReplaceImageButton = () => {
+  const dict = useDictionaryContext();
   const Components = useComponentsContext()!;
 
   const editor = useBlockNoteEditor<
@@ -46,7 +48,7 @@ export const ReplaceImageButton = () => {
           className={"bn-button"}
           onClick={() => setIsOpen(!isOpen)}
           isSelected={isOpen}
-          mainTooltip={"Replace Image"}
+          mainTooltip={dict.formatting_toolbar.image_replace.tooltip}
           icon={<RiImageEditFill />}
         />
       </Components.Generic.Popover.Trigger>

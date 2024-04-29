@@ -7,12 +7,11 @@ export const SuggestionMenuLoader = forwardRef<
   HTMLDivElement,
   ComponentProps["SuggestionMenu"]["Loader"]
 >((props, ref) => {
-  const { className } = props;
+  const { className, children } = props;
 
-  // TODO Test
   return (
     <Mantine.Group className={className} ref={ref}>
-      Loading&ellipsis;
+      {children}
     </Mantine.Group>
   );
 });

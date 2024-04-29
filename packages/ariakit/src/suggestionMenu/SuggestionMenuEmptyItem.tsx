@@ -6,13 +6,13 @@ export const SuggestionMenuEmptyItem = forwardRef<
   HTMLDivElement,
   ComponentProps["SuggestionMenu"]["EmptyItem"]
 >((props, ref) => {
-  const { className } = props;
+  const { className, children } = props;
 
   return (
     <div
       className={mergeCSSClasses("bn-ak-menu-item", className || "")}
       ref={ref}>
-      <div className="bn-ak-suggestion-menu-item-label">No items found</div>
+      <div className="bn-ak-suggestion-menu-item-label">{children}</div>
     </div>
   );
 });

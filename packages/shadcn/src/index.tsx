@@ -88,7 +88,7 @@ export const components: Components = {
 export const BlockNoteView = (
   props: ComponentProps<typeof BlockNoteViewRaw<any, any, any>> & {
     /**
-     * (optional) Provide your own shadcn component overrides
+     * (optional)Provide your own shadcn component overrides
      */
     shadCNComponents?: Partial<ShadCNComponents>;
   }

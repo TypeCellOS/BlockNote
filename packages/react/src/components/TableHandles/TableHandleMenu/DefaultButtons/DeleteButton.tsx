@@ -8,6 +8,7 @@ import {
 } from "@blocknote/core";
 
 import { useComponentsContext } from "../../../../editor/ComponentsContext";
+import { useDictionaryContext } from "../../../../editor/Dictionary";
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor";
 import { TableHandleMenuProps } from "../TableHandleMenuProps";
 
@@ -18,7 +19,7 @@ export const DeleteRowButton = <
   props: TableHandleMenuProps<I, S>
 ) => {
   const Components = useComponentsContext()!;
-
+  const dict = useDictionaryContext();
   const editor = useBlockNoteEditor<
     { table: DefaultBlockSchema["table"] },
     I,
@@ -40,7 +41,7 @@ export const DeleteRowButton = <
           content,
         });
       }}>
-      Delete row
+      {dict.table_handle.delete_row_menuitem}
     </Components.Generic.Menu.Item>
   );
 };
@@ -52,6 +53,7 @@ export const DeleteColumnButton = <
   props: TableHandleMenuProps<I, S>
 ) => {
   const Components = useComponentsContext()!;
+  const dict = useDictionaryContext();
 
   const editor = useBlockNoteEditor<
     { table: DefaultBlockSchema["table"] },
@@ -74,7 +76,7 @@ export const DeleteColumnButton = <
           content,
         });
       }}>
-      Delete column
+      {dict.table_handle.delete_column_menuitem}
     </Components.Generic.Menu.Item>
   );
 };

@@ -1,4 +1,5 @@
 import { useComponentsContext } from "../../../editor/ComponentsContext";
+import { useDictionaryContext } from "../../../editor/Dictionary";
 import { EditLinkMenuItems } from "../EditLinkMenuItems";
 import { LinkToolbarProps } from "../LinkToolbarProps";
 
@@ -6,15 +7,16 @@ export const EditLinkButton = (
   props: Pick<LinkToolbarProps, "url" | "text" | "editLink">
 ) => {
   const Components = useComponentsContext()!;
+  const dict = useDictionaryContext();
 
   return (
     <Components.Generic.Popover.Root>
       <Components.Generic.Popover.Trigger>
         <Components.LinkToolbar.Button
           className={"bn-button"}
-          mainTooltip="Edit"
+          mainTooltip={dict.link_toolbar.edit.tooltip}
           isSelected={false}>
-          Edit Link
+          {dict.link_toolbar.edit.text}
         </Components.LinkToolbar.Button>
       </Components.Generic.Popover.Trigger>
       <Components.Generic.Popover.Content

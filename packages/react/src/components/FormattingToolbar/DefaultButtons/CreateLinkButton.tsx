@@ -10,6 +10,7 @@ import {
 } from "@blocknote/core";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext";
+import { useDictionaryContext } from "../../../editor/Dictionary";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
 import { useEditorContentOrSelectionChange } from "../../../hooks/useEditorContentOrSelectionChange";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
@@ -41,6 +42,7 @@ export const CreateLinkButton = () => {
     StyleSchema
   >();
   const Components = useComponentsContext()!;
+  const dict = useDictionaryContext();
 
   const linkInSchema = checkLinkInSchema(editor);
 
@@ -87,8 +89,11 @@ export const CreateLinkButton = () => {
         <Components.FormattingToolbar.Button
           className={"bn-button"}
           data-test="createLink"
-          mainTooltip={"Create Link"}
-          secondaryTooltip={formatKeyboardShortcut("Mod+K")}
+          mainTooltip={dict.formatting_toolbar.link.tooltip}
+          secondaryTooltip={formatKeyboardShortcut(
+            dict.formatting_toolbar.link.secondary_tooltip,
+            dict.generic.ctrl_shortcut
+          )}
           icon={<RiLink />}
         />
       </Components.Generic.Popover.Trigger>

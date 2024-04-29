@@ -1,5 +1,19 @@
 import { useComponentsContext } from "../../editor/ComponentsContext";
+import { useDictionaryContext } from "../../editor/Dictionary";
 import { ColorIcon } from "./ColorIcon";
+
+const colors = [
+  "default",
+  "gray",
+  "brown",
+  "red",
+  "orange",
+  "yellow",
+  "green",
+  "blue",
+  "purple",
+  "pink",
+] as const;
 
 export const ColorPicker = (props: {
   onClick?: () => void;
@@ -14,23 +28,14 @@ export const ColorPicker = (props: {
   };
 }) => {
   const Components = useComponentsContext()!;
-
+  const dict = useDictionaryContext();
   const TextColorSection = () =>
     props.text ? (
       <>
-        <Components.Generic.Menu.Label>Text</Components.Generic.Menu.Label>
-        {[
-          "default",
-          "gray",
-          "brown",
-          "red",
-          "orange",
-          "yellow",
-          "green",
-          "blue",
-          "purple",
-          "pink",
-        ].map((color) => (
+        <Components.Generic.Menu.Label>
+          {dict.color_picker.text_title}
+        </Components.Generic.Menu.Label>
+        {colors.map((color) => (
           <Components.Generic.Menu.Item
             onClick={() => {
               props.onClick && props.onClick();
@@ -40,7 +45,7 @@ export const ColorPicker = (props: {
             icon={<ColorIcon textColor={color} size={props.iconSize} />}
             checked={props.text!.color === color}
             key={"text-color-" + color}>
-            {color.charAt(0).toUpperCase() + color.slice(1)}
+            {dict.color_picker.colors[color]}
           </Components.Generic.Menu.Item>
         ))}
       </>
@@ -50,20 +55,9 @@ export const ColorPicker = (props: {
     props.background ? (
       <>
         <Components.Generic.Menu.Label>
-          Background
+          {dict.color_picker.background_title}
         </Components.Generic.Menu.Label>
-        {[
-          "default",
-          "gray",
-          "brown",
-          "red",
-          "orange",
-          "yellow",
-          "green",
-          "blue",
-          "purple",
-          "pink",
-        ].map((color) => (
+        {colors.map((color) => (
           <Components.Generic.Menu.Item
             onClick={() => {
               props.onClick && props.onClick();
@@ -73,7 +67,7 @@ export const ColorPicker = (props: {
             icon={<ColorIcon backgroundColor={color} size={props.iconSize} />}
             key={"background-color-" + color}
             checked={props.background!.color === color}>
-            {color.charAt(0).toUpperCase() + color.slice(1)}
+            {dict.color_picker.colors[color]}
           </Components.Generic.Menu.Item>
         ))}
       </>

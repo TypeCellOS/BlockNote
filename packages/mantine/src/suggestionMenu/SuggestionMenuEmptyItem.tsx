@@ -7,12 +7,12 @@ export const SuggestionMenuEmptyItem = forwardRef<
   HTMLDivElement,
   ComponentProps["SuggestionMenu"]["EmptyItem"]
 >((props, ref) => {
-  const { className } = props;
+  const { className, children } = props;
 
   return (
     <Mantine.Group className={className} ref={ref}>
       <Mantine.Group className="bn-mt-suggestion-menu-item-label">
-        No items found
+        {children}
       </Mantine.Group>
     </Mantine.Group>
   );

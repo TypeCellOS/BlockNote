@@ -8,6 +8,7 @@ import {
 } from "@blocknote/core";
 
 import { useComponentsContext } from "../../../../editor/ComponentsContext";
+import { useDictionaryContext } from "../../../../editor/Dictionary";
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor";
 import { TableHandleMenuProps } from "../TableHandleMenuProps";
 
@@ -18,6 +19,7 @@ export const AddRowButton = <
   props: TableHandleMenuProps<I, S> & { side: "above" | "below" }
 ) => {
   const Components = useComponentsContext()!;
+  const dict = useDictionaryContext();
 
   const editor = useBlockNoteEditor<
     { table: DefaultBlockSchema["table"] },
@@ -44,7 +46,7 @@ export const AddRowButton = <
           },
         });
       }}>
-      {`Add row ${props.side}`}
+      {dict.table_handle[`add_${props.side}_menuitem`]}
     </Components.Generic.Menu.Item>
   );
 };
@@ -56,6 +58,7 @@ export const AddColumnButton = <
   props: TableHandleMenuProps<I, S> & { side: "left" | "right" }
 ) => {
   const Components = useComponentsContext()!;
+  const dict = useDictionaryContext();
 
   const editor = useBlockNoteEditor<
     { table: DefaultBlockSchema["table"] },
@@ -80,7 +83,7 @@ export const AddColumnButton = <
           content: content,
         });
       }}>
-      {`Add column ${props.side}`}
+      {dict.table_handle[`add_${props.side}_menuitem`]}
     </Components.Generic.Menu.Item>
   );
 };

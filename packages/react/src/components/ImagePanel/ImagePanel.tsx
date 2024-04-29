@@ -11,10 +11,11 @@ import {
   ComponentProps,
   useComponentsContext,
 } from "../../editor/ComponentsContext";
+import { useDictionaryContext } from "../../editor/Dictionary";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor";
-import { ImagePanelProps } from "./ImagePanelProps";
 import { EmbedTab } from "./DefaultTabs/EmbedTab";
 import { UploadTab } from "./DefaultTabs/UploadTab";
+import { ImagePanelProps } from "./ImagePanelProps";
 
 type PanelProps = ComponentProps["ImagePanel"]["Root"];
 
@@ -32,6 +33,7 @@ export const ImagePanel = <
     Partial<Pick<PanelProps, "defaultOpenTab" | "tabs">>
 ) => {
   const Components = useComponentsContext()!;
+  const dict = useDictionaryContext();
 
   const editor = useBlockNoteEditor<
     { image: DefaultBlockSchema["image"] },
@@ -45,13 +47,13 @@ export const ImagePanel = <
     ...(editor.uploadFile !== undefined
       ? [
           {
-            name: "Upload",
+            name: dict.image_panel.upload.title,
             tabPanel: <UploadTab block={props.block} setLoading={setLoading} />,
           },
         ]
       : []),
     {
-      name: "Embed",
+      name: dict.image_panel.embed.title,
       tabPanel: <EmbedTab block={props.block} />,
     },
   ];

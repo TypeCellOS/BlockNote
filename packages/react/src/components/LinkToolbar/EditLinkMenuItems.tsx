@@ -7,12 +7,14 @@ import {
 } from "react";
 import { RiLink, RiText } from "react-icons/ri";
 import { useComponentsContext } from "../../editor/ComponentsContext";
+import { useDictionaryContext } from "../../editor/Dictionary";
 import { LinkToolbarProps } from "./LinkToolbarProps";
 
 export const EditLinkMenuItems = (
   props: Pick<LinkToolbarProps, "url" | "text" | "editLink">
 ) => {
   const Components = useComponentsContext()!;
+  const dict = useDictionaryContext();
 
   const { url, text, editLink } = props;
 
@@ -59,7 +61,7 @@ export const EditLinkMenuItems = (
         name="url"
         icon={<RiLink />}
         autoFocus={true}
-        placeholder={"Edit URL"}
+        placeholder={dict.link_toolbar.form.url_placeholder}
         value={currentUrl}
         onKeyDown={handleEnter}
         onChange={handleUrlChange}
@@ -69,7 +71,7 @@ export const EditLinkMenuItems = (
         className={"bn-text-input"}
         name="title"
         icon={<RiText />}
-        placeholder={"Edit Title"}
+        placeholder={dict.link_toolbar.form.title_placeholder}
         value={currentText}
         onKeyDown={handleEnter}
         onChange={handleTextChange}

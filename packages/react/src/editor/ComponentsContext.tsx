@@ -292,6 +292,7 @@ export type ComponentProps = {
     };
     EmptyItem: {
       className?: string;
+      children?: ReactNode;
     };
     Item: DefaultReactSuggestionItem & {
       className?: string;
@@ -305,6 +306,7 @@ export type ComponentProps = {
     };
     Loader: {
       className?: string;
+      children?: ReactNode;
     };
   };
   // TODO: We should try to make everything as generic as we can

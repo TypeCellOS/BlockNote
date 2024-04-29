@@ -7,7 +7,7 @@ export const SuggestionMenuEmptyItem = forwardRef<
   HTMLDivElement,
   ComponentProps["SuggestionMenu"]["EmptyItem"]
 >((props, ref) => {
-  const { className } = props;
+  const { className, children } = props;
 
   return (
     <div
@@ -17,7 +17,7 @@ export const SuggestionMenuEmptyItem = forwardRef<
         className
       )}
       ref={ref}>
-      <div>No items found</div>
+      <div>{children}</div>
     </div>
   );
 });

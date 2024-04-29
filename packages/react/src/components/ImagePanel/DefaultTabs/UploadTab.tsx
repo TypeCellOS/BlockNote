@@ -8,6 +8,7 @@ import {
 import { useCallback, useEffect, useState } from "react";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext";
+import { useDictionaryContext } from "../../../editor/Dictionary";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
 import { ImagePanelProps } from "../ImagePanelProps";
 
@@ -20,6 +21,7 @@ export const UploadTab = <
   }
 ) => {
   const Components = useComponentsContext()!;
+  const dict = useDictionaryContext();
 
   const { block, setLoading } = props;
 
@@ -75,12 +77,14 @@ export const UploadTab = <
       <Components.ImagePanel.FileInput
         className="bn-file-input"
         data-test="upload-input"
-        placeholder="Upload Image"
+        placeholder={dict.image_panel.upload.file_placeholder}
         value={null}
         onChange={handleFileChange}
       />
       {uploadFailed && (
-        <div className={"bn-error-text"}>Error: Upload failed</div>
+        <div className="bn-error-text">
+          {dict.image_panel.upload.upload_error}
+        </div>
       )}
     </Components.ImagePanel.TabPanel>
   );

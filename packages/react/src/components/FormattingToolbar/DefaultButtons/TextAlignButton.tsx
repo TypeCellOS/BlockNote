@@ -16,6 +16,7 @@ import {
 } from "react-icons/ri";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext";
+import { useDictionaryContext } from "../../../editor/Dictionary";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
 
@@ -30,6 +31,7 @@ const icons: Record<TextAlignment, IconType> = {
 
 export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
   const Components = useComponentsContext()!;
+  const dict = useDictionaryContext();
 
   const editor = useBlockNoteEditor<
     BlockSchema,
@@ -83,11 +85,7 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
       onClick={() => setTextAlignment(props.textAlignment)}
       isSelected={textAlignment === props.textAlignment}
       mainTooltip={
-        props.textAlignment === "justify"
-          ? "Justify Text"
-          : "Align Text " +
-            props.textAlignment.slice(0, 1).toUpperCase() +
-            props.textAlignment.slice(1)
+        dict.formatting_toolbar[`align_${props.textAlignment}`].tooltip
       }
       icon={<Icon />}
     />

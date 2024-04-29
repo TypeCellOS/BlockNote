@@ -15,10 +15,12 @@ import {
 import { RiText } from "react-icons/ri";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext";
+import { useDictionaryContext } from "../../../editor/Dictionary";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
 
 export const ImageCaptionButton = () => {
+  const dict = useDictionaryContext();
   const Components = useComponentsContext()!;
 
   const editor = useBlockNoteEditor<
@@ -81,7 +83,7 @@ export const ImageCaptionButton = () => {
       <Components.Generic.Popover.Trigger>
         <Components.FormattingToolbar.Button
           className={"bn-button"}
-          mainTooltip={"Edit Caption"}
+          mainTooltip={dict.formatting_toolbar.image_caption.tooltip}
           icon={<RiText />}
           isSelected={imageBlock.props.caption !== ""}
         />
@@ -94,7 +96,9 @@ export const ImageCaptionButton = () => {
             icon={<RiText />}
             value={currentEditingCaption || ""}
             autoFocus={true}
-            placeholder={"Edit Caption"}
+            placeholder={
+              dict.formatting_toolbar.image_caption.input_placeholder
+            }
             onKeyDown={handleEnter}
             onChange={handleChange}
           />

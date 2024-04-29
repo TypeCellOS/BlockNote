@@ -7,6 +7,7 @@ import {
 import { useCallback, useMemo, useState } from "react";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext";
+import { useDictionaryContext } from "../../../editor/Dictionary";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
 import { useEditorContentOrSelectionChange } from "../../../hooks/useEditorContentOrSelectionChange";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
@@ -42,7 +43,7 @@ function checkColorInSchema<Color extends "text" | "background">(
 
 export const ColorStyleButton = () => {
   const Components = useComponentsContext()!;
-
+  const dict = useDictionaryContext();
   const editor = useBlockNoteEditor<
     BlockSchema,
     InlineContentSchema,
@@ -132,7 +133,7 @@ export const ColorStyleButton = () => {
         <Components.FormattingToolbar.Button
           className={"bn-button"}
           data-test="colors"
-          mainTooltip={"Colors"}
+          mainTooltip={dict.formatting_toolbar.colors.tooltip}
           icon={
             <ColorIcon
               textColor={currentTextColor}

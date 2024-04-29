@@ -8,11 +8,13 @@ import { useCallback, useMemo, useState } from "react";
 import { RiIndentDecrease, RiIndentIncrease } from "react-icons/ri";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext";
+import { useDictionaryContext } from "../../../editor/Dictionary";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
 import { useEditorContentOrSelectionChange } from "../../../hooks/useEditorContentOrSelectionChange";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
 
 export const NestBlockButton = () => {
+  const dict = useDictionaryContext();
   const Components = useComponentsContext()!;
 
   const editor = useBlockNoteEditor<
@@ -52,14 +54,18 @@ export const NestBlockButton = () => {
       data-test="nestBlock"
       onClick={nestBlock}
       isDisabled={!canNestBlock}
-      mainTooltip="Nest Block"
-      secondaryTooltip={formatKeyboardShortcut("Tab")}
+      mainTooltip={dict.formatting_toolbar.nest.tooltip}
+      secondaryTooltip={formatKeyboardShortcut(
+        dict.formatting_toolbar.nest.secondary_tooltip,
+        dict.generic.ctrl_shortcut
+      )}
       icon={<RiIndentIncrease />}
     />
   );
 };
 
 export const UnnestBlockButton = () => {
+  const dict = useDictionaryContext();
   const Components = useComponentsContext()!;
 
   const editor = useBlockNoteEditor<any, any, any>();
@@ -95,8 +101,11 @@ export const UnnestBlockButton = () => {
       data-test="unnestBlock"
       onClick={unnestBlock}
       isDisabled={!canUnnestBlock}
-      mainTooltip="Unnest Block"
-      secondaryTooltip={formatKeyboardShortcut("Shift+Tab")}
+      mainTooltip={dict.formatting_toolbar.unnest.tooltip}
+      secondaryTooltip={formatKeyboardShortcut(
+        dict.formatting_toolbar.unnest.secondary_tooltip,
+        dict.generic.ctrl_shortcut
+      )}
       icon={<RiIndentDecrease />}
     />
   );
