@@ -1,3 +1,4 @@
+import * as locales from "./i18n/locales";
 export * from "./api/exporters/html/externalHTMLExporter";
 export * from "./api/exporters/html/internalHTMLSerializer";
 export * from "./api/testUtil";
@@ -27,3 +28,4 @@ export * from "./api/testUtil/partialBlockTestUtil";
 export * from "./extensions/UniqueID/UniqueID";
 export * from "./i18n/dictionary";
 export { UnreachableCaseError } from "./util/typescript";
+export { locales };
