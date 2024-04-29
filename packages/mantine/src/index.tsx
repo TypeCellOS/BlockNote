@@ -3,6 +3,7 @@ import {
   Components,
   ComponentsContext,
 } from "@blocknote/react";
+import { MantineProvider } from "@mantine/core";
 import { ComponentProps } from "react";
 
 import { TextInput } from "./form/TextInput";
@@ -27,12 +28,12 @@ import { SuggestionMenuItem } from "./suggestionMenu/SuggestionMenuItem";
 import { SuggestionMenuEmptyItem } from "./suggestionMenu/SuggestionMenuEmptyItem";
 import { SuggestionMenuLabel } from "./suggestionMenu/SuggestionMenuLabel";
 import { SuggestionMenuLoader } from "./suggestionMenu/SuggestionMenuLoader";
+import { TableHandle } from "./tableHandle/TableHandle";
 import { Toolbar } from "./toolbar/Toolbar";
 import { ToolbarButton } from "./toolbar/ToolbarButton";
 import { ToolbarSelect } from "./toolbar/ToolbarSelect";
 
 import "./style.css";
-import { MantineProvider } from "@mantine/core";
 
 export const components: Components = {
   FormattingToolbar: {
@@ -61,6 +62,9 @@ export const components: Components = {
     EmptyItem: SuggestionMenuEmptyItem,
     Label: SuggestionMenuLabel,
     Loader: SuggestionMenuLoader,
+  },
+  TableHandle: {
+    Root: TableHandle,
   },
   Generic: {
     Form: {

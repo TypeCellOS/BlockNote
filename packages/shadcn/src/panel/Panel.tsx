@@ -2,6 +2,7 @@ import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
 
 import { useShadCNComponentsContext } from "../ShadCNComponentsContext";
+import { cn } from "../lib/utils";
 
 export const Panel = forwardRef<
   HTMLDivElement,
@@ -21,7 +22,7 @@ export const Panel = forwardRef<
 
   return (
     <ShadCNComponents.Tabs.Tabs
-      className={className}
+      className={cn(className, "bg-white p-2 rounded-lg")}
       ref={ref}
       value={openTab}
       defaultValue={defaultOpenTab}
@@ -39,7 +40,7 @@ export const Panel = forwardRef<
       {tabs.map((tab) => (
         <ShadCNComponents.Tabs.TabsContent value={tab.name} key={tab.name}>
           <ShadCNComponents.Card.Card>
-            <ShadCNComponents.Card.CardContent>
+            <ShadCNComponents.Card.CardContent className={"p-4"}>
               {tab.tabPanel}
             </ShadCNComponents.Card.CardContent>
           </ShadCNComponents.Card.Card>

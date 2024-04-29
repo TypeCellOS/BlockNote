@@ -88,10 +88,11 @@ export const ImageCaptionButton = () => {
           isSelected={imageBlock.props.caption !== ""}
         />
       </Components.Generic.Popover.Trigger>
-      <Components.Generic.Popover.Content>
+      <Components.Generic.Popover.Content
+        className={"bn-popover-content bn-form-popover"}
+        variant={"form-popover"}>
         <Components.Generic.Form.Root>
           <Components.Generic.Form.TextInput
-            className={"bn-popover-content bn-input-popover"}
             name={"image-caption"}
             icon={<RiText />}
             value={currentEditingCaption || ""}

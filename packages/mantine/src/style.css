@@ -44,6 +44,7 @@
     box-sizing: border-box;
     color: var(--bn-colors-menu-text);
     padding: 2px;
+    overflow: auto;
 }
 
 .bn-container .mantine-Menu-label {
@@ -183,7 +184,7 @@
     background-color: var(--bn-colors-hovered-background);
 }
 
-.bn-container .bn-input-popover {
+.bn-container .bn-form-popover {
     background-color: var(--bn-colors-menu-background);
     border: var(--bn-border);
     border-radius: var(--bn-border-radius-medium);
@@ -194,36 +195,36 @@
     padding: 2px;
 }
 
-.bn-input-popover .mantine-TextInput-root,
-.bn-input-popover .mantine-FileInput-root {
+.bn-form-popover .mantine-TextInput-root,
+.bn-form-popover .mantine-FileInput-root {
     width: 300px;
 }
 
-.bn-input-popover .mantine-TextInput-wrapper,
-.bn-input-popover .mantine-FileInput-wrapper {
+.bn-form-popover .mantine-TextInput-wrapper,
+.bn-form-popover .mantine-FileInput-wrapper {
     padding: 0;
     border-radius: 4px;
 }
 
-.bn-input-popover .mantine-TextInput-wrapper:hover {
+.bn-form-popover .mantine-TextInput-wrapper:hover {
     background-color: var(--bn-colors-hovered-background);
 }
 
-.bn-input-popover .mantine-TextInput-input,
-.bn-input-popover .mantine-FileInput-input {
+.bn-form-popover .mantine-TextInput-input,
+.bn-form-popover .mantine-FileInput-input {
     border: none;
     font-size: 12px;
 }
 
-.bn-input-popover .mantine-FileInput-input:hover {
+.bn-form-popover .mantine-FileInput-input:hover {
     background-color: var(--bn-colors-hovered-background);
 }
 
-.bn-input-popover .mantine-FileInput-section[data-position="left"] {
+.bn-form-popover .mantine-FileInput-section[data-position="left"] {
     color: var(--bn-colors-menu-text);
 }
 
-.bn-input-popover .mantine-FileInput-placeholder {
+.bn-form-popover .mantine-FileInput-placeholder {
     color: var(--bn-colors-menu-text);
 }
 
@@ -366,7 +367,7 @@
     overflow: visible;
 }
 
-.bn-side-menu .mantine-Menu-item {
+.bn-side-menu .mantine-Menu-item, .bn-table-handle-menu .mantine-Menu-item {
     font-size: 12px;
     height: 30px;
 }
@@ -448,9 +449,10 @@
     display: flex;
     justify-content: center;
     overflow: visible;
+    padding: 0;
 }
 
-.bn-table-handle > svg {
+.bn-table-handle svg {
     margin-inline: -4px;
 }
 
@@ -460,20 +462,8 @@
 }
 
 /* Drag Handle & Table Handle Menu styling */
-.bn-drag-handle-menu {
-    width: 100px;
-}
-
-.bn-drag-handle-menu,
-.bn-table-handle-menu {
+.bn-container .bn-drag-handle-menu {
     overflow: visible;
-}
-
-.bn-drag-handle-menu .mantine-Menu-item,
-.bn-table-handle-menu .mantine-Menu-item {
-    color: var(--bn-colors-menu-text);
-    font-size: 12px;
-    height: 30px;
 }
 
 /* Tooltip styling */

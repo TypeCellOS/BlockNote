@@ -98,7 +98,9 @@ export const CreateLinkButton = () => {
         />
       </Components.Generic.Popover.Trigger>
       <Components.Generic.Popover.Content
-        className={"bn-popover-content bn-input-popover"}>
+        className={"bn-popover-content bn-form-popover"}
+        variant={"form-popover"}
+        data-input-popover>
         <EditLinkMenuItems url={url} text={text} editLink={update} />
       </Components.Generic.Popover.Content>
     </Components.Generic.Popover.Root>

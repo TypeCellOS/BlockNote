@@ -52,7 +52,9 @@ export const ReplaceImageButton = () => {
           icon={<RiImageEditFill />}
         />
       </Components.Generic.Popover.Trigger>
-      <Components.Generic.Popover.Content className={"bn-popover-content"}>
+      <Components.Generic.Popover.Content
+        className={"bn-popover-content bn-panel-popover"}
+        variant={"panel-popover"}>
         <ImagePanel block={block} />
       </Components.Generic.Popover.Content>
     </Components.Generic.Popover.Root>
