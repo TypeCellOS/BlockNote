@@ -54,7 +54,6 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
         <ShadCNComponents.Button.Button
           className={className}
           variant="ghost"
-          size="sm"
           disabled={isDisabled}
           onClick={onClick}
           ref={ref}
@@ -64,12 +63,16 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
         </ShadCNComponents.Button.Button>
       ) : (
         <ShadCNComponents.Toggle.Toggle
-          className={className}
+          className={cn(
+            className,
+            "data-[state=open]:bg-accent data-[state=closed]:text-accent-foreground"
+          )}
           onClick={onClick}
           pressed={isSelected}
           disabled={isDisabled}
           data-state={isSelected ? "on" : "off"}
           data-disabled={isDisabled}
+          ref={ref}
           {...rest}>
           {icon}
           {children}
@@ -122,15 +125,7 @@ export const ToolbarSelect = forwardRef<
       <ShadCNComponents.Select.SelectTrigger className={"border-none"}>
         <ShadCNComponents.Select.SelectValue />
       </ShadCNComponents.Select.SelectTrigger>
-      <ShadCNComponents.Select.SelectContent
-        className={cn(
-          className
-          // "max-h-[var(--radix-dropdown-menu-content-available-height)]"
-        )}
-        // style={{
-        //   maxHeight: "var(--radix-dropdown-menu-content-available-height)",
-        // }}
-        ref={ref}>
+      <ShadCNComponents.Select.SelectContent className={className} ref={ref}>
         {items.map((item) => (
           <ShadCNComponents.Select.SelectItem
             disabled={item.isDisabled}

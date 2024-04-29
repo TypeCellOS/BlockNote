@@ -40,13 +40,20 @@ export const PopoverContent = forwardRef<
   HTMLDivElement,
   ComponentProps["Generic"]["Popover"]["Content"]
 >((props, ref) => {
-  const { className, children } = props;
+  const { className, variant, children } = props;
 
   const ShadCNComponents = useShadCNComponentsContext()!;
 
   return (
     <ShadCNComponents.Popover.PopoverContent
-      className={cn(className, "gap-2")}
+      sideOffset={8}
+      className={cn(
+        className,
+        "flex flex-col gap-2",
+        variant === "panel-popover"
+          ? "p-0 border-none shadow-none max-w-none w-fit"
+          : ""
+      )}
       ref={ref}>
       {children}
     </ShadCNComponents.Popover.PopoverContent>

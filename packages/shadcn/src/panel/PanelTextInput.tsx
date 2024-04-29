@@ -2,6 +2,7 @@ import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
 
 import { useShadCNComponentsContext } from "../ShadCNComponentsContext";
+import { cn } from "../lib/utils";
 
 export const PanelTextInput = forwardRef<
   HTMLInputElement,
@@ -14,7 +15,7 @@ export const PanelTextInput = forwardRef<
   return (
     <ShadCNComponents.Input.Input
       data-test={"embed-input"}
-      className={className}
+      className={cn(className, "w-80")}
       ref={ref}
       value={value}
       placeholder={placeholder}

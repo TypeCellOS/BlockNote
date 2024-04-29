@@ -1,6 +1,8 @@
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
 
+import { cn } from "../lib/utils";
+
 export const PanelTab = forwardRef<
   HTMLDivElement,
   ComponentProps["ImagePanel"]["TabPanel"]
@@ -8,7 +10,12 @@ export const PanelTab = forwardRef<
   const { className, children } = props;
 
   return (
-    <div className={className} ref={ref}>
+    <div
+      className={cn(
+        className,
+        "flex flex-col gap-2 items-start justify-center"
+      )}
+      ref={ref}>
       {children}
     </div>
   );

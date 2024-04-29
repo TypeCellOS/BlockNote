@@ -36,6 +36,7 @@ export const ToolbarSelect = forwardRef<
             value={option.text}>
             {option.icon}
             {option.text}
+            {option.text === selectedItem.text && <Ariakit.SelectItemCheck />}
           </Ariakit.SelectItem>
         ))}
       </Ariakit.SelectPopover>

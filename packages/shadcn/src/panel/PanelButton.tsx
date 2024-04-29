@@ -13,7 +13,7 @@ export const PanelButton = forwardRef<
 
   return (
     <ShadCNComponents.Button.Button
-      variant={"outline"}
+      type={"submit"}
       className={className}
       ref={ref}
       onClick={onClick}>

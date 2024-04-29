@@ -46,6 +46,7 @@ export const MenuItem = forwardRef<
   if (subTrigger) {
     return (
       <Ariakit.MenuButton
+        render={<Ariakit.MenuItem />}
         className={mergeCSSClasses("bn-ak-menu-item", className || "")}
         ref={ref}
         onClick={onClick}>
@@ -86,10 +87,11 @@ export const MenuLabel = forwardRef<
 export const MenuTrigger = (
   props: ComponentProps["Generic"]["Menu"]["Trigger"]
 ) => {
-  const {
-    children,
-    // sub
-  } = props;
+  const { children, sub } = props;
+
+  if (sub) {
+    return children;
+  }
 
   return <Ariakit.MenuButton render={children as any}></Ariakit.MenuButton>;
 };

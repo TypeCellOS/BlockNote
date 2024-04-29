@@ -32,6 +32,7 @@ import { SuggestionMenuEmptyItem } from "./suggestionMenu/SuggestionMenuEmptyIte
 import { SuggestionMenuItem } from "./suggestionMenu/SuggestionMenuItem";
 import { SuggestionMenuLabel } from "./suggestionMenu/SuggestionMenuLabel";
 import { SuggestionMenuLoader } from "./suggestionMenu/SuggestionMenuLoader";
+import { TableHandle } from "./TableHandle/TableHandle";
 import { Toolbar, ToolbarButton, ToolbarSelect } from "./toolbar/Toolbar";
 
 import "./style.css";
@@ -64,9 +65,12 @@ export const components: Components = {
     Label: SuggestionMenuLabel,
     Loader: SuggestionMenuLoader,
   },
+  TableHandle: {
+    Root: TableHandle,
+  },
   Generic: {
     Form: {
-      Root: (props) => <div>{props.children}</div>,
+      Root: (props) => <>{props.children}</>,
       TextInput: TextInput,
     },
     Menu: {

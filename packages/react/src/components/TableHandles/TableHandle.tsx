@@ -41,7 +41,7 @@ export const TableHandle = <
       }}
       position={"right"}>
       <Components.Generic.Menu.Trigger>
-        <div
+        <Components.TableHandle.Root
           className={mergeCSSClasses(
             "bn-table-handle",
             isDragging ? "bn-table-handle-dragging" : ""
@@ -63,7 +63,7 @@ export const TableHandle = <
           {props.children || (
             <MdDragIndicator size={24} data-test={"tableHandle"} />
           )}
-        </div>
+        </Components.TableHandle.Root>
       </Components.Generic.Menu.Trigger>
       <Component
         orientation={props.orientation}
