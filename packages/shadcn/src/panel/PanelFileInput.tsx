@@ -1,5 +1,3 @@
-import * as ShadCNInput from "../components/ui/input";
-
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
 
@@ -11,11 +9,10 @@ export const PanelFileInput = forwardRef<
 >((props, ref) => {
   const { className, value, placeholder, onChange } = props;
 
-  const ShadCNComponents = useShadCNComponentsContext();
-  const Input = ShadCNComponents?.Input || ShadCNInput.Input;
+  const ShadCNComponents = useShadCNComponentsContext()!;
 
   return (
-    <Input
+    <ShadCNComponents.Input.Input
       type={"file"}
       className={className}
       ref={ref}

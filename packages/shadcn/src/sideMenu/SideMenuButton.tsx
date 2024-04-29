@@ -1,5 +1,3 @@
-import * as ShadCNButton from "../components/ui/button";
-
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
 
@@ -12,11 +10,10 @@ export const SideMenuButton = forwardRef<
 >((props, ref) => {
   const { className, children, icon, onClick, ...rest } = props;
 
-  const ShadCNComponents = useShadCNComponentsContext();
-  const Button = ShadCNComponents?.Button || ShadCNButton.Button;
+  const ShadCNComponents = useShadCNComponentsContext()!;
 
   return (
-    <Button
+    <ShadCNComponents.Button.Button
       variant={"ghost"}
       className={cn(className, "text-gray-400")}
       ref={ref}
@@ -24,6 +21,6 @@ export const SideMenuButton = forwardRef<
       {...rest}>
       {icon}
       {children}
-    </Button>
+    </ShadCNComponents.Button.Button>
   );
 });

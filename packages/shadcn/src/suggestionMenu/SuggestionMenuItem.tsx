@@ -1,13 +1,14 @@
-import * as ShadCNBadge from "../components/ui/badge";
-
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef, useCallback } from "react";
+import { useShadCNComponentsContext } from "../ShadCNComponentsContext";
 import { cn } from "../lib/utils";
 
 export const SuggestionMenuItem = forwardRef<
   HTMLDivElement,
   ComponentProps["SuggestionMenu"]["Item"]
 >((props, ref) => {
+  const ShadCNComponents = useShadCNComponentsContext()!;
+
   const {
     className,
     title,
@@ -55,7 +56,9 @@ export const SuggestionMenuItem = forwardRef<
       </div>
       {badge && (
         <div data-position="right" className="text-xs">
-          <ShadCNBadge.Badge variant={"secondary"}>{badge}</ShadCNBadge.Badge>
+          <ShadCNComponents.Badge.Badge variant={"secondary"}>
+            {badge}
+          </ShadCNComponents.Badge.Badge>
         </div>
       )}
     </div>

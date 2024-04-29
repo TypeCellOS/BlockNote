@@ -1,4 +1,4 @@
-import * as ShadCNDropdownMenu from "../components/ui/dropdown-menu";
+import type * as ShadCNDropdownMenu from "../components/ui/dropdown-menu";
 
 import { ComponentProps } from "@blocknote/react";
 import { ChevronRight } from "lucide-react";
@@ -44,18 +44,21 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
     sub,
   } = props;
 
-  const ShadCNComponents = useShadCNComponentsContext();
-  const DropdownMenu =
-    ShadCNComponents?.DropdownMenu || ShadCNDropdownMenu.DropdownMenu;
-  const DropdownMenuSub =
-    ShadCNComponents?.DropdownMenuSub || ShadCNDropdownMenu.DropdownMenuSub;
+  const ShadCNComponents = useShadCNComponentsContext()!;
 
   if (sub) {
     return (
-      <DropdownMenuSub onOpenChange={onOpenChange}>{children}</DropdownMenuSub>
+      <ShadCNComponents.DropdownMenu.DropdownMenuSub
+        onOpenChange={onOpenChange}>
+        {children}
+      </ShadCNComponents.DropdownMenu.DropdownMenuSub>
     );
   } else {
-    return <DropdownMenu onOpenChange={onOpenChange}>{children}</DropdownMenu>;
+    return (
+      <ShadCNComponents.DropdownMenu.DropdownMenu onOpenChange={onOpenChange}>
+        {children}
+      </ShadCNComponents.DropdownMenu.DropdownMenu>
+    );
   }
 };
 
@@ -64,23 +67,22 @@ export const MenuTrigger = (
 ) => {
   const { children, sub, ...rest } = props;
 
-  const ShadCNComponents = useShadCNComponentsContext();
-
-  const DropdownMenuSubTrigger =
-    ShadCNComponents?.DropdownMenuSubTrigger ||
-    ShadCNDropdownMenu.DropdownMenuSubTrigger;
+  const ShadCNComponents = useShadCNComponentsContext()!;
 
   const DropdownMenuTrigger = useMemo(
     () =>
       MenuTriggerWithPointerUp(
-        ShadCNComponents?.DropdownMenuTrigger ||
-          ShadCNDropdownMenu.DropdownMenuTrigger
+        ShadCNComponents.DropdownMenu.DropdownMenuTrigger
       ),
-    [ShadCNComponents?.DropdownMenuTrigger]
+    [ShadCNComponents.DropdownMenu.DropdownMenuTrigger]
   );
 
   if (sub) {
-    return <DropdownMenuSubTrigger>{children}</DropdownMenuSubTrigger>;
+    return (
+      <ShadCNComponents.DropdownMenu.DropdownMenuSubTrigger>
+        {children}
+      </ShadCNComponents.DropdownMenu.DropdownMenuSubTrigger>
+    );
   } else {
     return (
       <DropdownMenuTrigger asChild={true} {...rest}>
@@ -96,25 +98,23 @@ export const MenuDropdown = forwardRef<
 >((props, ref) => {
   const { className, children, sub } = props;
 
-  const ShadCNComponents = useShadCNComponentsContext();
-  const DropdownMenuContent =
-    ShadCNComponents?.DropdownMenuContent ||
-    ShadCNDropdownMenu.DropdownMenuContent;
-  const DropdownMenuSubContent =
-    ShadCNComponents?.DropdownMenuSubContent ||
-    ShadCNDropdownMenu.DropdownMenuSubContent;
+  const ShadCNComponents = useShadCNComponentsContext()!;
 
   if (sub) {
     return (
-      <DropdownMenuSubContent className={className} ref={ref}>
+      <ShadCNComponents.DropdownMenu.DropdownMenuSubContent
+        className={className}
+        ref={ref}>
         {children}
-      </DropdownMenuSubContent>
+      </ShadCNComponents.DropdownMenu.DropdownMenuSubContent>
     );
   } else {
     return (
-      <DropdownMenuContent className={className} ref={ref}>
+      <ShadCNComponents.DropdownMenu.DropdownMenuContent
+        className={className}
+        ref={ref}>
         {children}
-      </DropdownMenuContent>
+      </ShadCNComponents.DropdownMenu.DropdownMenuContent>
     );
   }
 });
@@ -126,12 +126,7 @@ export const MenuItem = forwardRef<
   const { className, children, icon, checked, subTrigger, onClick, ...rest } =
     props;
 
-  const ShadCNComponents = useShadCNComponentsContext();
-  const DropdownMenuCheckboxItem =
-    ShadCNComponents?.DropdownMenuCheckboxItem ||
-    ShadCNDropdownMenu.DropdownMenuCheckboxItem;
-  const DropdownMenuItem =
-    ShadCNComponents?.DropdownMenuItem || ShadCNDropdownMenu.DropdownMenuItem;
+  const ShadCNComponents = useShadCNComponentsContext()!;
 
   if (subTrigger) {
     return (
@@ -144,7 +139,7 @@ export const MenuItem = forwardRef<
 
   if (checked !== undefined) {
     return (
-      <DropdownMenuCheckboxItem
+      <ShadCNComponents.DropdownMenu.DropdownMenuCheckboxItem
         className={cn(className, "gap-1")}
         ref={ref}
         checked={checked}
@@ -152,12 +147,12 @@ export const MenuItem = forwardRef<
         {...rest}>
         {icon}
         {children}
-      </DropdownMenuCheckboxItem>
+      </ShadCNComponents.DropdownMenu.DropdownMenuCheckboxItem>
     );
   }
 
   return (
-    <DropdownMenuItem
+    <ShadCNComponents.DropdownMenu.DropdownMenuItem
       className={className}
       ref={ref}
       onClick={onClick}
@@ -165,7 +160,7 @@ export const MenuItem = forwardRef<
       {icon}
       {children}
       {subTrigger && <ChevronRight className="ml-auto h-4 w-4" />}
-    </DropdownMenuItem>
+    </ShadCNComponents.DropdownMenu.DropdownMenuItem>
   );
 });
 
@@ -175,12 +170,14 @@ export const MenuDivider = forwardRef<
 >((props, ref) => {
   const { className } = props;
 
-  const ShadCNComponents = useShadCNComponentsContext();
-  const DropdownMenuSeparator =
-    ShadCNComponents?.DropdownMenuSeparator ||
-    ShadCNDropdownMenu.DropdownMenuSeparator;
+  const ShadCNComponents = useShadCNComponentsContext()!;
 
-  return <DropdownMenuSeparator className={className} ref={ref} />;
+  return (
+    <ShadCNComponents.DropdownMenu.DropdownMenuSeparator
+      className={className}
+      ref={ref}
+    />
+  );
 });
 
 export const MenuLabel = forwardRef<
@@ -189,13 +186,13 @@ export const MenuLabel = forwardRef<
 >((props, ref) => {
   const { className, children } = props;
 
-  const ShadCNComponents = useShadCNComponentsContext();
-  const DropdownMenuLabel =
-    ShadCNComponents?.DropdownMenuLabel || ShadCNDropdownMenu.DropdownMenuLabel;
+  const ShadCNComponents = useShadCNComponentsContext()!;
 
   return (
-    <DropdownMenuLabel className={className} ref={ref}>
+    <ShadCNComponents.DropdownMenu.DropdownMenuLabel
+      className={className}
+      ref={ref}>
       {children}
-    </DropdownMenuLabel>
+    </ShadCNComponents.DropdownMenu.DropdownMenuLabel>
   );
 });

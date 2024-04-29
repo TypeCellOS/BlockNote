@@ -3,11 +3,12 @@ import {
   Components,
   ComponentsContext,
 } from "@blocknote/react";
-import { ComponentProps } from "react";
+import { ComponentProps, useMemo } from "react";
 
 import {
   ShadCNComponents,
   ShadCNComponentsContext,
+  ShadCNDefaultComponents,
 } from "./ShadCNComponentsContext";
 import { TextInput } from "./form/TextInput";
 import {
@@ -85,15 +86,24 @@ export const components: Components = {
 };
 
 export const BlockNoteView = (
-  // TODO: Fix typing
   props: ComponentProps<typeof BlockNoteViewRaw<any, any, any>> & {
+    /**
+     * (optional) Provide your own shadcn component overrides
+     */
     shadCNComponents?: Partial<ShadCNComponents>;
   }
 ) => {
   const { shadCNComponents, ...rest } = props;
 
+  const componentsValue = useMemo(() => {
+    return {
+      ...shadCNComponents,
+      ...ShadCNDefaultComponents,
+    };
+  }, [shadCNComponents]);
+
   return (
-    <ShadCNComponentsContext.Provider value={shadCNComponents}>
+    <ShadCNComponentsContext.Provider value={componentsValue}>
       <ComponentsContext.Provider value={components}>
         <BlockNoteViewRaw {...rest} />
       </ComponentsContext.Provider>

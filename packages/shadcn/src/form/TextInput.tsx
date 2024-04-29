@@ -1,19 +1,10 @@
-import * as ShadCNInput from "../components/ui/input";
-import * as ShadCNLabel from "../components/ui/label";
-
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
 
 import { useShadCNComponentsContext } from "../ShadCNComponentsContext";
 
 export const TextInput = forwardRef(
-  (
-    props: ComponentProps["Generic"]["Form"]["TextInput"] &
-      Partial<{
-        Input: typeof ShadCNInput.Input;
-        Label: typeof ShadCNLabel.Label;
-      }>
-  ) => {
+  (props: ComponentProps["Generic"]["Form"]["TextInput"]) => {
     const {
       className,
       name,
@@ -27,13 +18,11 @@ export const TextInput = forwardRef(
       onSubmit,
     } = props;
 
-    const ShadCNComponents = useShadCNComponentsContext();
-    const Input = ShadCNComponents?.Input || ShadCNInput.Input;
-    const Label = ShadCNComponents?.Label || ShadCNLabel.Label;
+    const ShadCNComponents = useShadCNComponentsContext()!;
 
     if (!label) {
       return (
-        <Input
+        <ShadCNComponents.Input.Input
           aria-label={name}
           name={name}
           autoFocus={autoFocus}
@@ -48,8 +37,10 @@ export const TextInput = forwardRef(
 
     return (
       <div>
-        <Label htmlFor={label}>{label}</Label>
-        <Input
+        <ShadCNComponents.Label.Label htmlFor={label}>
+          {label}
+        </ShadCNComponents.Label.Label>
+        <ShadCNComponents.Input.Input
           className={className}
           id={label}
           name={name}

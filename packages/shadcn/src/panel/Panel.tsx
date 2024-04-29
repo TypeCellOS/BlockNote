@@ -1,6 +1,3 @@
-import * as ShadCNCard from "../components/ui/card";
-import * as ShadCNTabs from "../components/ui/tabs";
-
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
 
@@ -20,16 +17,10 @@ export const Panel = forwardRef<
     // setLoading,
   } = props;
 
-  const ShadCNComponents = useShadCNComponentsContext();
-  const Card = ShadCNComponents?.Card || ShadCNCard.Card;
-  const CardContent = ShadCNComponents?.CardContent || ShadCNCard.CardContent;
-  const Tabs = ShadCNComponents?.Tabs || ShadCNTabs.Tabs;
-  const TabsList = ShadCNComponents?.TabsList || ShadCNTabs.TabsList;
-  const TabsTrigger = ShadCNComponents?.TabsTrigger || ShadCNTabs.TabsTrigger;
-  const TabsContent = ShadCNComponents?.TabsContent || ShadCNTabs.TabsContent;
+  const ShadCNComponents = useShadCNComponentsContext()!;
 
   return (
-    <Tabs
+    <ShadCNComponents.Tabs.Tabs
       className={className}
       ref={ref}
       value={openTab}
@@ -37,21 +28,23 @@ export const Panel = forwardRef<
       onValueChange={setOpenTab}>
       {/*{loading && <LoadingOverlay visible={loading} />}*/}
 
-      <TabsList>
+      <ShadCNComponents.Tabs.TabsList>
         {tabs.map((tab) => (
-          <TabsTrigger value={tab.name} key={tab.name}>
+          <ShadCNComponents.Tabs.TabsTrigger value={tab.name} key={tab.name}>
             {tab.name}
-          </TabsTrigger>
+          </ShadCNComponents.Tabs.TabsTrigger>
         ))}
-      </TabsList>
+      </ShadCNComponents.Tabs.TabsList>
 
       {tabs.map((tab) => (
-        <TabsContent value={tab.name} key={tab.name}>
-          <Card>
-            <CardContent>{tab.tabPanel}</CardContent>
-          </Card>
-        </TabsContent>
+        <ShadCNComponents.Tabs.TabsContent value={tab.name} key={tab.name}>
+          <ShadCNComponents.Card.Card>
+            <ShadCNComponents.Card.CardContent>
+              {tab.tabPanel}
+            </ShadCNComponents.Card.CardContent>
+          </ShadCNComponents.Card.Card>
+        </ShadCNComponents.Tabs.TabsContent>
       ))}
-    </Tabs>
+    </ShadCNComponents.Tabs.Tabs>
   );
 });

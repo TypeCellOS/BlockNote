@@ -1,8 +1,3 @@
-import * as ShadCNButton from "../components/ui/button";
-import * as ShadCNSelect from "../components/ui/select";
-import * as ShadCNToggle from "../components/ui/toggle";
-import * as ShadCNTooltip from "../components/ui/tooltip";
-
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
 
@@ -16,12 +11,10 @@ export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(
   (props, ref) => {
     const { className, children, onMouseEnter, onMouseLeave } = props;
 
-    const ShadCNComponents = useShadCNComponentsContext();
-    const TooltipProvider =
-      ShadCNComponents?.TooltipProvider || ShadCNTooltip.TooltipProvider;
+    const ShadCNComponents = useShadCNComponentsContext()!;
 
     return (
-      <TooltipProvider delayDuration={0}>
+      <ShadCNComponents.Tooltip.TooltipProvider delayDuration={0}>
         <div
           className={cn(
             className,
@@ -32,7 +25,7 @@ export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(
           onMouseLeave={onMouseLeave}>
           {children}
         </div>
-      </TooltipProvider>
+      </ShadCNComponents.Tooltip.TooltipProvider>
     );
   }
 );
@@ -40,73 +33,62 @@ export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(
 type ToolbarButtonProps = ComponentProps["FormattingToolbar"]["Button"] &
   ComponentProps["LinkToolbar"]["Button"];
 
-export const ToolbarButton = forwardRef<
-  HTMLButtonElement,
-  ToolbarButtonProps &
-    Partial<{
-      Button: typeof ShadCNButton.Button;
-      Toggle: typeof ShadCNToggle.Toggle;
-      Tooltip: typeof ShadCNTooltip.Tooltip;
-      TooltipContent: typeof ShadCNTooltip.TooltipContent;
-      TooltipTrigger: typeof ShadCNTooltip.TooltipTrigger;
-    }>
->((props, ref) => {
-  const {
-    className,
-    children,
-    mainTooltip,
-    secondaryTooltip,
-    icon,
-    isSelected,
-    isDisabled,
-    onClick,
-    ...rest
-  } = props;
+export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
+  (props, ref) => {
+    const {
+      className,
+      children,
+      mainTooltip,
+      secondaryTooltip,
+      icon,
+      isSelected,
+      isDisabled,
+      onClick,
+      ...rest
+    } = props;
 
-  const ShadCNComponents = useShadCNComponentsContext();
-  const Button = ShadCNComponents?.Button || ShadCNButton.Button;
-  const Toggle = ShadCNComponents?.Toggle || ShadCNToggle.Toggle;
-  const Tooltip = ShadCNComponents?.Tooltip || ShadCNTooltip.Tooltip;
-  const TooltipContent =
-    ShadCNComponents?.TooltipContent || ShadCNTooltip.TooltipContent;
-  const TooltipTrigger =
-    ShadCNComponents?.TooltipTrigger || ShadCNTooltip.TooltipTrigger;
+    const ShadCNComponents = useShadCNComponentsContext()!;
 
-  const trigger =
-    isSelected === undefined ? (
-      <Button
-        className={className}
-        variant="ghost"
-        size="sm"
-        disabled={isDisabled}
-        onClick={onClick}
-        ref={ref}
-        {...rest}>
-        {icon}
-        {children}
-      </Button>
-    ) : (
-      <Toggle
-        className={className}
-        onClick={onClick}
-        pressed={isSelected}
-        disabled={isDisabled}
-        data-state={isSelected ? "on" : "off"}
-        data-disabled={isDisabled}
-        {...rest}>
-        {icon}
-        {children}
-      </Toggle>
+    const trigger =
+      isSelected === undefined ? (
+        <ShadCNComponents.Button.Button
+          className={className}
+          variant="ghost"
+          size="sm"
+          disabled={isDisabled}
+          onClick={onClick}
+          ref={ref}
+          {...rest}>
+          {icon}
+          {children}
+        </ShadCNComponents.Button.Button>
+      ) : (
+        <ShadCNComponents.Toggle.Toggle
+          className={className}
+          onClick={onClick}
+          pressed={isSelected}
+          disabled={isDisabled}
+          data-state={isSelected ? "on" : "off"}
+          data-disabled={isDisabled}
+          {...rest}>
+          {icon}
+          {children}
+        </ShadCNComponents.Toggle.Toggle>
+      );
+
+    return (
+      <ShadCNComponents.Tooltip.Tooltip>
+        <ShadCNComponents.Tooltip.TooltipTrigger asChild>
+          {trigger}
+        </ShadCNComponents.Tooltip.TooltipTrigger>
+        <ShadCNComponents.Tooltip.TooltipContent>
+          {mainTooltip}
+        </ShadCNComponents.Tooltip.TooltipContent>
+        {/* TODO: secondary tooltip */}
+      </ShadCNComponents.Tooltip.Tooltip>
     );
-
-  return (
-    <Tooltip>
-      <TooltipTrigger asChild>{trigger}</TooltipTrigger>
-      <TooltipContent>{mainTooltip}</TooltipContent>
-      {/* TODO: secondary tooltip */}
-    </Tooltip>
-  );
-});
+  }
+);
 
 export const ToolbarSelect = forwardRef<
   HTMLDivElement,
@@ -114,22 +96,15 @@ export const ToolbarSelect = forwardRef<
 >((props, ref) => {
   const { className, items, isDisabled } = props;
 
-  const ShadCNComponents = useShadCNComponentsContext();
-  const Select = ShadCNComponents?.Select || ShadCNSelect.Select;
-  const SelectContent =
-    ShadCNComponents?.SelectContent || ShadCNSelect.SelectContent;
-  const SelectItem = ShadCNComponents?.SelectItem || ShadCNSelect.SelectItem;
-  const SelectTrigger =
-    ShadCNComponents?.SelectTrigger || ShadCNSelect.SelectTrigger;
-  const SelectValue = ShadCNComponents?.SelectValue || ShadCNSelect.SelectValue;
-  const SelectItemContent =
-    ShadCNComponents?.SelectItemContent ||
-    ((props) => (
-      <div className={"flex gap-1 items-center"}>
-        {props.icon}
-        {props.text}
-      </div>
-    ));
+  const ShadCNComponents = useShadCNComponentsContext()!;
+
+  // TODO?
+  const SelectItemContent = (props: any) => (
+    <div className={"flex gap-1 items-center"}>
+      {props.icon}
+      {props.text}
+    </div>
+  );
 
   const selectedItem = items.filter((p) => p.isSelected)[0];
 
@@ -138,16 +113,16 @@ export const ToolbarSelect = forwardRef<
   }
 
   return (
-    <Select
+    <ShadCNComponents.Select.Select
       value={selectedItem.text}
       onValueChange={(value) =>
         items.find((item) => item.text === value)!.onClick?.()
       }
       disabled={isDisabled}>
-      <SelectTrigger className={"border-none"}>
-        <SelectValue />
-      </SelectTrigger>
-      <SelectContent
+      <ShadCNComponents.Select.SelectTrigger className={"border-none"}>
+        <ShadCNComponents.Select.SelectValue />
+      </ShadCNComponents.Select.SelectTrigger>
+      <ShadCNComponents.Select.SelectContent
         className={cn(
           className
           // "max-h-[var(--radix-dropdown-menu-content-available-height)]"
@@ -157,14 +132,14 @@ export const ToolbarSelect = forwardRef<
         // }}
         ref={ref}>
         {items.map((item) => (
-          <SelectItem
+          <ShadCNComponents.Select.SelectItem
             disabled={item.isDisabled}
             key={item.text}
             value={item.text}>
             <SelectItemContent {...item} />
-          </SelectItem>
+          </ShadCNComponents.Select.SelectItem>
         ))}
-      </SelectContent>
-    </Select>
+      </ShadCNComponents.Select.SelectContent>
+    </ShadCNComponents.Select.Select>
   );
 });
