@@ -11,7 +11,7 @@ import {
   ShadCNComponentsContext,
   ShadCNDefaultComponents,
 } from "./ShadCNComponentsContext";
-import { TextInput } from "./form/TextInput";
+import { Form } from "./form/Form";
 import {
   Menu,
   MenuDivider,
@@ -34,6 +34,7 @@ import { SuggestionMenuItem } from "./suggestionMenu/SuggestionMenuItem";
 import { SuggestionMenuLabel } from "./suggestionMenu/SuggestionMenuLabel";
 import { SuggestionMenuLoader } from "./suggestionMenu/SuggestionMenuLoader";
 import { TableHandle } from "./tableHandle/TableHandle";
+import { TextInput } from "./form/TextInput";
 import { Toolbar, ToolbarButton, ToolbarSelect } from "./toolbar/Toolbar";
 
 import "./style.css";
@@ -71,7 +72,7 @@ export const components: Components = {
   },
   Generic: {
     Form: {
-      Root: (props) => <>{props.children}</>,
+      Root: Form,
       TextInput: TextInput,
     },
     Menu: {
