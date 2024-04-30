@@ -2,6 +2,7 @@ import * as Mantine from "@mantine/core";
 
 import type { IconType } from "react-icons";
 
+// TODO
 export type ToolbarInputsMenuItemProps = {
   icon: IconType;
 } & Mantine.TextInputProps;

@@ -1,14 +1,24 @@
-import { PanelFileInputProps } from "../../../react/src";
-import { Input } from "../components/ui/input";
+import { ComponentProps } from "@blocknote/react";
+import { forwardRef } from "react";
 
-export const PanelFileInput = (props: PanelFileInputProps) => {
+import { useShadCNComponentsContext } from "../ShadCNComponentsContext";
+
+export const PanelFileInput = forwardRef<
+  HTMLInputElement,
+  ComponentProps["ImagePanel"]["FileInput"]
+>((props, ref) => {
+  const { className, value, placeholder, onChange } = props;
+
+  const ShadCNComponents = useShadCNComponentsContext()!;
+
   return (
-    <Input
+    <ShadCNComponents.Input.Input
       type={"file"}
-      defaultValue={props.defaultValue ? props.defaultValue.name : undefined}
-      value={props.value ? props.value.name : undefined}
-      onChange={async (e) => props.onChange?.(e.target.files![0])}
-      placeholder={props.placeholder}
+      className={className}
+      ref={ref}
+      value={value ? value.name : undefined}
+      onChange={async (e) => onChange?.(e.target.files![0])}
+      placeholder={placeholder}
     />
   );
-};
+});

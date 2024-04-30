@@ -8,7 +8,6 @@ import {
   createBrowserRouter,
 } from "react-router-dom";
 
-import "@blocknote/shadcn/style.css";
 import { examples } from "./examples.gen";
 import "./style.css";
 

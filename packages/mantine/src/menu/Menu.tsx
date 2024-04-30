@@ -1,11 +1,6 @@
 import * as Mantine from "@mantine/core";
 
-import {
-  MenuDropdownProps,
-  MenuItemProps,
-  MenuProps,
-  MenuTriggerProps,
-} from "@blocknote/react";
+import { ComponentProps } from "@blocknote/react";
 import {
   createContext,
   forwardRef,
@@ -26,9 +21,61 @@ const SubMenuContext = createContext<
   | undefined
 >(undefined);
 
-const SubMenu = (props: MenuProps) => {
-  const { sub, onOpenChange, open, defaultOpen, ...rest } = props;
-
+// https://github.com/orgs/mantinedev/discussions/2307
+// Mantine does not officially support sub menus, so we have to use a workaround
+// which uses an unconventional nesting structure:
+//
+//  Conventional nesting structure (used by Ariakit/ShadCN):
+// <Menu>
+//   <MenuTrigger>
+//     <MenuItem>Find</MenuItem>
+//   </MenuTrigger>
+//   <MenuDropdown>
+//     <MenuItem>Undo</MenuItem>
+//     <MenuItem>Redo</MenuItem>
+//     <Menu>
+//       <MenuTrigger>
+//         <MenuItem>Find</MenuItem>
+//       </MenuTrigger>
+//       <MenuDropdown>
+//         <MenuItem>Find Next</MenuItem>
+//         <MenuItem>Find Previous</MenuItem>
+//       </MenuDropdown>
+//     </Menu>
+//   </MenuDropdown>
+// </Menu>
+//
+//  Required structure for Mantine:
+// <Menu>
+//   <MenuTrigger>
+//       <MenuItem>Find</MenuItem>
+//   </MenuTrigger>
+//   <MenuDropdown>
+//     <MenuItem>Undo</MenuItem>
+//     <MenuItem>Redo</MenuItem>
+//     <MenuItem>
+//       <Menu>
+//         <MenuTrigger>
+//             <div>Find</div>
+//         </MenuTrigger>
+//         <MenuDropdown>
+//           <MenuItem>Find Next</MenuItem>
+//           <MenuItem>Find Previous</MenuItem>
+//         </MenuDropdown>
+//       </Menu>
+//     </MenuItem>
+//   </MenuDropdown>
+// </Menu>
+const SubMenu = forwardRef<
+  HTMLDivElement,
+  ComponentProps["Generic"]["Menu"]["Root"]
+>((props, ref) => {
+  const {
+    children,
+    onOpenChange,
+    position,
+    // sub
+  } = props;
   const [opened, setOpened] = useState(false);
 
   const menuCloseTimer = useRef<ReturnType<typeof setTimeout> | undefined>();
@@ -58,23 +105,29 @@ const SubMenu = (props: MenuProps) => {
         onMenuMouseOver: mouseOver,
         onMenuMouseLeave: mouseLeave,
       }}>
-      <Mantine.Menu
-        opened={opened}
-        withinPortal={false}
-        middlewares={{ flip: true, shift: true, inline: false, size: true }}
-        onClose={() => onOpenChange?.(false)}
-        onOpen={() => onOpenChange?.(true)}
-        defaultOpened={defaultOpen}
-        closeOnItemClick={false}
-        {...rest}
-        position="right"
-      />
+      <Mantine.Menu.Item
+        className="bn-menu-item bn-mt-sub-menu-item"
+        ref={ref}
+        component="div"
+        onMouseOver={mouseOver}
+        onMouseLeave={mouseLeave}>
+        <Mantine.Menu
+          withinPortal={false}
+          middlewares={{ flip: true, shift: true, inline: false, size: true }}
+          trigger={"hover"}
+          opened={opened}
+          onClose={() => onOpenChange?.(false)}
+          onOpen={() => onOpenChange?.(true)}
+          position={position}>
+          {children}
+        </Mantine.Menu>
+      </Mantine.Menu.Item>
     </SubMenuContext.Provider>
   );
-};
+});
 
-export const Menu = (props: MenuProps) => {
-  const { sub, onOpenChange, open, defaultOpen, ...rest } = props;
+export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
+  const { children, onOpenChange, position, sub } = props;
 
   if (sub) {
     return <SubMenu {...props} />;
@@ -86,81 +139,105 @@ export const Menu = (props: MenuProps) => {
       middlewares={{ flip: true, shift: true, inline: false, size: true }}
       onClose={() => onOpenChange?.(false)}
       onOpen={() => onOpenChange?.(true)}
-      defaultOpened={defaultOpen}
-      closeOnItemClick={false}
-      {...rest}
-      position="right"
-    />
+      position={position}>
+      {children}
+    </Mantine.Menu>
   );
 };
 
-export const MenuItem = forwardRef<HTMLDivElement, MenuItemProps>(
-  (props, ref) => {
-    const { icon, checked, expandArrow, subTrigger, ...rest } = props;
-    const ctx = useContext(SubMenuContext);
+export const MenuItem = forwardRef<
+  HTMLDivElement,
+  ComponentProps["Generic"]["Menu"]["Item"]
+>((props, ref) => {
+  const { className, children, icon, checked, subTrigger, onClick, ...rest } =
+    props;
 
-    const onMouseLeave = subTrigger ? ctx!.onTriggerMouseLeave : undefined;
-    const onMouseOver = subTrigger ? ctx!.onTriggerMouseOver : undefined;
+  const ctx = useContext(SubMenuContext);
 
+  if (subTrigger) {
     return (
-      <Mantine.MenuItem
-        component="div"
-        leftSection={icon}
-        rightSection={
-          <>
-            {checked ? (
-              <Mantine.CheckIcon size={10} />
-            ) : checked === false ? (
-              <div className={"bn-tick-space"} />
-            ) : undefined}
-            {expandArrow && <HiChevronRight size={15} />}
-          </>
-        }
-        onMouseOver={onMouseOver}
-        onMouseLeave={onMouseLeave}
-        {...rest}
-        ref={ref}
-      />
-    );
-  }
-);
-
-export const MenuTrigger = forwardRef<HTMLDivElement, MenuTriggerProps>(
-  (props, ref) => {
-    const { sub, children, ...rest } = props;
-    return (
-      <Mantine.MenuTarget {...rest} ref={ref}>
+      <div ref={ref} {...rest}>
         {children}
-      </Mantine.MenuTarget>
+        <HiChevronRight size={15} />
+      </div>
     );
   }
-);
 
-export const MenuDropdown = forwardRef<HTMLDivElement, MenuDropdownProps>(
-  (props, ref) => {
-    const { sub, ...rest } = props;
-    const ctx = useContext(SubMenuContext);
+  const onMouseLeave = subTrigger ? ctx!.onTriggerMouseLeave : undefined;
+  const onMouseOver = subTrigger ? ctx!.onTriggerMouseOver : undefined;
 
-    return (
-      <Mantine.MenuDropdown
-        onMouseOver={ctx?.onMenuMouseOver}
-        onMouseLeave={ctx?.onMenuMouseLeave}
-        style={sub ? { marginLeft: "5px" } : {}} // TODO: Needed?
-        {...rest}
-        ref={ref}
-      />
-    );
-  }
-);
+  return (
+    <Mantine.Menu.Item
+      className={className}
+      ref={ref}
+      component="div"
+      leftSection={icon}
+      rightSection={
+        checked ? (
+          <Mantine.CheckIcon size={10} />
+        ) : checked === false ? (
+          <div className={"bn-tick-space"} />
+        ) : null
+      }
+      onMouseOver={onMouseOver}
+      onMouseLeave={onMouseLeave}
+      onClick={onClick}
+      {...rest}>
+      {children}
+    </Mantine.Menu.Item>
+  );
+});
 
-export const MenuDivider = forwardRef<HTMLDivElement, Record<string, never>>(
-  (props, ref) => {
-    return <Mantine.MenuDivider {...props} ref={ref} />;
-  }
-);
+export const MenuTrigger = (
+  props: ComponentProps["Generic"]["Menu"]["Trigger"]
+) => {
+  const {
+    children,
+    // sub
+  } = props;
 
-export const MenuLabel = forwardRef<HTMLDivElement, Record<string, never>>(
-  (props, ref) => {
-    return <Mantine.MenuLabel {...props} ref={ref} />;
-  }
-);
+  return <Mantine.Menu.Target>{children}</Mantine.Menu.Target>;
+};
+
+export const MenuDropdown = forwardRef<
+  HTMLDivElement,
+  ComponentProps["Generic"]["Menu"]["Dropdown"]
+>((props, ref) => {
+  const { className, children, sub } = props;
+
+  const ctx = useContext(SubMenuContext);
+
+  return (
+    <Mantine.Menu.Dropdown
+      className={className}
+      ref={ref}
+      onMouseOver={ctx?.onMenuMouseOver}
+      onMouseLeave={ctx?.onMenuMouseLeave}
+      style={sub ? { marginLeft: "5px" } : {}} // TODO: Needed?
+    >
+      {children}
+    </Mantine.Menu.Dropdown>
+  );
+});
+
+export const MenuDivider = forwardRef<
+  HTMLDivElement,
+  ComponentProps["Generic"]["Menu"]["Divider"]
+>((props, ref) => {
+  const { className } = props;
+
+  return <Mantine.Menu.Divider className={className} ref={ref} />;
+});
+
+export const MenuLabel = forwardRef<
+  HTMLDivElement,
+  ComponentProps["Generic"]["Menu"]["Label"]
+>((props, ref) => {
+  const { className, children } = props;
+
+  return (
+    <Mantine.Menu.Label className={className} ref={ref}>
+      {children}
+    </Mantine.Menu.Label>
+  );
+});

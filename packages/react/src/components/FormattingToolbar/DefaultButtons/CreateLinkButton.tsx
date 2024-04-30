@@ -13,6 +13,7 @@ import { useComponentsContext } from "../../../editor/ComponentsContext";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
 import { useEditorContentOrSelectionChange } from "../../../hooks/useEditorContentOrSelectionChange";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
+import { useDictionaryContext } from "../../../i18n/dictionary";
 import { EditLinkMenuItems } from "../../LinkToolbar/EditLinkMenuItems";
 
 function checkLinkInSchema(
@@ -40,7 +41,9 @@ export const CreateLinkButton = () => {
     InlineContentSchema,
     StyleSchema
   >();
-  const components = useComponentsContext()!;
+  const Components = useComponentsContext()!;
+  const dict = useDictionaryContext();
+
   const linkInSchema = checkLinkInSchema(editor);
 
   const selectedBlocks = useSelectedBlocks(editor);
@@ -80,18 +83,26 @@ export const CreateLinkButton = () => {
   }
 
   return (
-    <components.Popover>
-      <components.PopoverTrigger>
+    <Components.Generic.Popover.Root>
+      <Components.Generic.Popover.Trigger>
         {/* TODO: hide tooltip on click */}
-        <components.ToolbarButton
-          mainTooltip={"Create Link"}
-          secondaryTooltip={formatKeyboardShortcut("Mod+K")}
+        <Components.FormattingToolbar.Button
+          className={"bn-button"}
+          data-test="createLink"
+          mainTooltip={dict.formatting_toolbar.link.tooltip}
+          secondaryTooltip={formatKeyboardShortcut(
+            dict.formatting_toolbar.link.secondary_tooltip,
+            dict.generic.ctrl_shortcut
+          )}
           icon={<RiLink />}
         />
-      </components.PopoverTrigger>
-      <components.PopoverContent>
+      </Components.Generic.Popover.Trigger>
+      <Components.Generic.Popover.Content
+        className={"bn-popover-content bn-form-popover"}
+        variant={"form-popover"}
+        data-input-popover>
         <EditLinkMenuItems url={url} text={text} editLink={update} />
-      </components.PopoverContent>
-    </components.Popover>
+      </Components.Generic.Popover.Content>
+    </Components.Generic.Popover.Root>
   );
 };

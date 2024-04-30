@@ -1,36 +1,51 @@
-import { PanelProps } from "../../../react/src";
+import { ComponentProps } from "@blocknote/react";
+import { forwardRef } from "react";
 
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "../components/ui/tabs";
+import { useShadCNComponentsContext } from "../ShadCNComponentsContext";
+import { cn } from "../lib/utils";
 
-export const Panel = (props: PanelProps) => {
+export const Panel = forwardRef<
+  HTMLDivElement,
+  ComponentProps["ImagePanel"]["Root"]
+>((props, ref) => {
+  const {
+    className,
+    tabs,
+    defaultOpenTab,
+    openTab,
+    setOpenTab,
+    // loading,
+    // setLoading,
+  } = props;
+
+  const ShadCNComponents = useShadCNComponentsContext()!;
+
   return (
-    <Tabs
-      className={"bn-image-panel"}
-      value={props.openTab}
-      onValueChange={props.setOpenTab}>
-      {/*{props.loading && <LoadingOverlay visible={props.loading} />}*/}
+    <ShadCNComponents.Tabs.Tabs
+      className={cn(className, "bg-popover p-2 rounded-lg")}
+      ref={ref}
+      value={openTab}
+      defaultValue={defaultOpenTab}
+      onValueChange={setOpenTab}>
+      {/*{loading && <LoadingOverlay visible={loading} />}*/}
 
-      <TabsList>
-        {props.tabs.map((tab) => (
-          <TabsTrigger value={tab.name} key={tab.name}>
+      <ShadCNComponents.Tabs.TabsList>
+        {tabs.map((tab) => (
+          <ShadCNComponents.Tabs.TabsTrigger value={tab.name} key={tab.name}>
             {tab.name}
-          </TabsTrigger>
+          </ShadCNComponents.Tabs.TabsTrigger>
         ))}
-      </TabsList>
+      </ShadCNComponents.Tabs.TabsList>
 
-      {props.tabs.map((tab) => (
-        <TabsContent
-          // className={"bn-upload-image-panel"}
-          value={tab.name}
-          key={tab.name}>
-          {tab.tabPanel}
-        </TabsContent>
+      {tabs.map((tab) => (
+        <ShadCNComponents.Tabs.TabsContent value={tab.name} key={tab.name}>
+          <ShadCNComponents.Card.Card>
+            <ShadCNComponents.Card.CardContent className={"p-4"}>
+              {tab.tabPanel}
+            </ShadCNComponents.Card.CardContent>
+          </ShadCNComponents.Card.Card>
+        </ShadCNComponents.Tabs.TabsContent>
       ))}
-    </Tabs>
+    </ShadCNComponents.Tabs.Tabs>
   );
-};
+});

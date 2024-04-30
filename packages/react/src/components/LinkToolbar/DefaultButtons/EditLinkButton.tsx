@@ -1,22 +1,29 @@
 import { useComponentsContext } from "../../../editor/ComponentsContext";
+import { useDictionaryContext } from "../../../i18n/dictionary";
 import { EditLinkMenuItems } from "../EditLinkMenuItems";
 import { LinkToolbarProps } from "../LinkToolbarProps";
 
 export const EditLinkButton = (
   props: Pick<LinkToolbarProps, "url" | "text" | "editLink">
 ) => {
-  const components = useComponentsContext()!;
+  const Components = useComponentsContext()!;
+  const dict = useDictionaryContext();
 
   return (
-    <components.Popover>
-      <components.PopoverTrigger>
-        <components.ToolbarButton mainTooltip="Edit" isSelected={false}>
-          Edit Link
-        </components.ToolbarButton>
-      </components.PopoverTrigger>
-      <components.PopoverContent>
+    <Components.Generic.Popover.Root>
+      <Components.Generic.Popover.Trigger>
+        <Components.LinkToolbar.Button
+          className={"bn-button"}
+          mainTooltip={dict.link_toolbar.edit.tooltip}
+          isSelected={false}>
+          {dict.link_toolbar.edit.text}
+        </Components.LinkToolbar.Button>
+      </Components.Generic.Popover.Trigger>
+      <Components.Generic.Popover.Content
+        className={"bn-popover-content bn-form-popover"}
+        variant={"form-popover"}>
         <EditLinkMenuItems {...props} />
-      </components.PopoverContent>
-    </components.Popover>
+      </Components.Generic.Popover.Content>
+    </Components.Generic.Popover.Root>
   );
 };

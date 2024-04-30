@@ -1,16 +1,21 @@
 import * as Ariakit from "@ariakit/react";
 
 import { mergeCSSClasses } from "@blocknote/core";
-import { PanelButtonProps } from "@blocknote/react";
+import { ComponentProps } from "@blocknote/react";
+import { forwardRef } from "react";
 
-export const PanelButton = (props: PanelButtonProps) => {
-  const { children, className, ...rest } = props;
+export const PanelButton = forwardRef<
+  HTMLButtonElement,
+  ComponentProps["ImagePanel"]["Button"]
+>((props, ref) => {
+  const { className, children, onClick } = props;
 
   return (
     <Ariakit.Button
-      className={mergeCSSClasses("button", className || "")}
-      {...rest}>
+      className={mergeCSSClasses("bn-ak-button", className || "")}
+      onClick={onClick}
+      ref={ref}>
       {children}
     </Ariakit.Button>
   );
-};
+});

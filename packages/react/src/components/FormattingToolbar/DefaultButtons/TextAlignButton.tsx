@@ -18,6 +18,7 @@ import {
 import { useComponentsContext } from "../../../editor/ComponentsContext";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
+import { useDictionaryContext } from "../../../i18n/dictionary";
 
 type TextAlignment = DefaultProps["textAlignment"];
 
@@ -29,7 +30,9 @@ const icons: Record<TextAlignment, IconType> = {
 };
 
 export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
-  const components = useComponentsContext()!;
+  const Components = useComponentsContext()!;
+  const dict = useDictionaryContext();
+
   const editor = useBlockNoteEditor<
     BlockSchema,
     InlineContentSchema,
@@ -73,15 +76,16 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
 
   const Icon: IconType = icons[props.textAlignment];
   return (
-    <components.ToolbarButton
+    <Components.FormattingToolbar.Button
+      className={"bn-button"}
+      data-test={`alignText${
+        props.textAlignment.slice(0, 1).toUpperCase() +
+        props.textAlignment.slice(1)
+      }`}
       onClick={() => setTextAlignment(props.textAlignment)}
       isSelected={textAlignment === props.textAlignment}
       mainTooltip={
-        props.textAlignment === "justify"
-          ? "Justify Text"
-          : "Align Text " +
-            props.textAlignment.slice(0, 1).toUpperCase() +
-            props.textAlignment.slice(1)
+        dict.formatting_toolbar[`align_${props.textAlignment}`].tooltip
       }
       icon={<Icon />}
     />

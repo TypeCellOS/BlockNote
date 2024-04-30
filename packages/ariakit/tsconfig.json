@@ -19,9 +19,6 @@
     "declarationDir": "types",
     "composite": true,
     "skipLibCheck": true,
-    "paths": {
-      "@/*": ["./src/*"]
-    }
   },
   "include": ["src"],
   "references": [

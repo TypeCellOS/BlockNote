@@ -13,8 +13,8 @@ import { useUIElementPositioning } from "../../hooks/useUIElementPositioning";
 import { useUIPluginState } from "../../hooks/useUIPluginState";
 import { SuggestionMenuWrapper } from "./SuggestionMenuWrapper";
 import { getDefaultReactSlashMenuItems } from "./getDefaultReactSlashMenuItems";
-import { SuggestionMenu } from "./implementation/SuggestionMenu";
 import { DefaultReactSuggestionItem, SuggestionMenuProps } from "./types";
+import { SuggestionMenu } from "./SuggestionMenu";
 
 type ArrayElement<A> = A extends readonly (infer T)[] ? T : never;
 

@@ -1,25 +1,35 @@
 import {
   BlockSchema,
   checkBlockIsDefaultType,
+  checkDefaultBlockTypeInSchema,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { useMemo } from "react";
+import {
+  ChangeEvent,
+  KeyboardEvent,
+  useCallback,
+  useMemo,
+  useState,
+} from "react";
 import { RiText } from "react-icons/ri";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
+import { useDictionaryContext } from "../../../i18n/dictionary";
 
 export const ImageCaptionButton = () => {
-  const components = useComponentsContext()!;
+  const dict = useDictionaryContext();
+  const Components = useComponentsContext()!;
+
   const editor = useBlockNoteEditor<
     BlockSchema,
     InlineContentSchema,
     StyleSchema
   >();
 
-  // const [currentEditingCaption, setCurrentEditingCaption] = useState<string>();
+  const [currentEditingCaption, setCurrentEditingCaption] = useState<string>();
 
   const selectedBlocks = useSelectedBlocks(editor);
 
@@ -32,62 +42,69 @@ export const ImageCaptionButton = () => {
     const block = selectedBlocks[0];
 
     if (checkBlockIsDefaultType("image", block, editor)) {
+      setCurrentEditingCaption(block.props.caption);
       return block;
     }
 
     return undefined;
   }, [editor, selectedBlocks]);
 
-  // const handleEnter = useCallback(
-  //   (event: KeyboardEvent) => {
-  //     if (
-  //       imageBlock &&
-  //       checkDefaultBlockTypeInSchema("image", editor) &&
-  //       event.key === "Enter"
-  //     ) {
-  //       event.preventDefault();
-  //       editor.updateBlock(imageBlock, {
-  //         type: "image",
-  //         props: {
-  //           caption: currentEditingCaption,
-  //         },
-  //       });
-  //     }
-  //   },
-  //   [currentEditingCaption, editor, imageBlock]
-  // );
-  //
-  // const handleChange = useCallback(
-  //   (event: ChangeEvent<HTMLInputElement>) =>
-  //     setCurrentEditingCaption(event.currentTarget.value),
-  //   []
-  // );
+  const handleEnter = useCallback(
+    (event: KeyboardEvent) => {
+      if (
+        imageBlock &&
+        checkDefaultBlockTypeInSchema("image", editor) &&
+        event.key === "Enter"
+      ) {
+        event.preventDefault();
+        editor.updateBlock(imageBlock, {
+          type: "image",
+          props: {
+            caption: currentEditingCaption,
+          },
+        });
+      }
+    },
+    [currentEditingCaption, editor, imageBlock]
+  );
+
+  const handleChange = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) =>
+      setCurrentEditingCaption(event.currentTarget.value),
+    []
+  );
 
   if (!imageBlock) {
     return null;
   }
 
   return (
-    <components.Popover>
-      <components.PopoverTrigger>
-        <components.ToolbarButton
-          mainTooltip={"Edit Caption"}
+    <Components.Generic.Popover.Root>
+      <Components.Generic.Popover.Trigger>
+        <Components.FormattingToolbar.Button
+          className={"bn-button"}
+          mainTooltip={dict.formatting_toolbar.image_caption.tooltip}
           icon={<RiText />}
           isSelected={imageBlock.props.caption !== ""}
         />
-      </components.PopoverTrigger>
-      <components.PopoverContent>
-        {/*TODO*/}
-        {/*<components.ToolbarInputsMenuItem*/}
-        {/*  icon={RiText}*/}
-        {/*  value={currentEditingCaption}*/}
-        {/*  autoFocus={true}*/}
-        {/*  placeholder={"Edit Caption"}*/}
-        {/*  onKeyDown={handleEnter}*/}
-        {/*  defaultValue={imageBlock.props.caption}*/}
-        {/*  onChange={handleChange}*/}
-        {/*/>*/}
-      </components.PopoverContent>
-    </components.Popover>
+      </Components.Generic.Popover.Trigger>
+      <Components.Generic.Popover.Content
+        className={"bn-popover-content bn-form-popover"}
+        variant={"form-popover"}>
+        <Components.Generic.Form.Root>
+          <Components.Generic.Form.TextInput
+            name={"image-caption"}
+            icon={<RiText />}
+            value={currentEditingCaption || ""}
+            autoFocus={true}
+            placeholder={
+              dict.formatting_toolbar.image_caption.input_placeholder
+            }
+            onKeyDown={handleEnter}
+            onChange={handleChange}
+          />
+        </Components.Generic.Form.Root>
+      </Components.Generic.Popover.Content>
+    </Components.Generic.Popover.Root>
   );
 };

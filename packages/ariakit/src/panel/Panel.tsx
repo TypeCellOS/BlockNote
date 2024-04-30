@@ -1,33 +1,53 @@
 import * as Ariakit from "@ariakit/react";
 
-import { PanelProps } from "@blocknote/react";
+import { mergeCSSClasses } from "@blocknote/core";
+import { ComponentProps } from "@blocknote/react";
+import { forwardRef } from "react";
 
-export const Panel = (props: PanelProps) => {
+export const Panel = forwardRef<
+  HTMLDivElement,
+  ComponentProps["ImagePanel"]["Root"]
+>((props, ref) => {
+  const {
+    className,
+    tabs,
+    defaultOpenTab,
+    openTab,
+    setOpenTab,
+    // loading,
+    // setLoading,
+  } = props;
+
   return (
-    <div className={"bn-image-panel"}>
+    <div
+      className={mergeCSSClasses("bn-ak-wrapper", className || "")}
+      ref={ref}>
       <Ariakit.TabProvider
-        selectedId={props.openTab}
+        defaultSelectedId={defaultOpenTab}
+        selectedId={openTab}
         setActiveId={(activeId) => {
           if (activeId) {
-            props.setOpenTab(activeId);
+            setOpenTab(activeId);
           }
         }}>
-        {/*{props.loading && <LoadingOverlay visible={props.loading} />}*/}
+        {/*{loading && <LoadingOverlay visible={loading} />}*/}
 
-        <Ariakit.TabList className={"tab-list"}>
-          {props.tabs.map((tab) => (
-            <Ariakit.Tab id={tab.name} className={"tab"} key={tab.name}>
+        <Ariakit.TabList className={"bn-ak-tab-list"}>
+          {tabs.map((tab) => (
+            <Ariakit.Tab className={"bn-ak-tab"} id={tab.name} key={tab.name}>
               {tab.name}
             </Ariakit.Tab>
           ))}
         </Ariakit.TabList>
 
-        {props.tabs.map((tab) => (
-          <Ariakit.TabPanel tabId={tab.name} className={"panel"} key={tab.name}>
-            {tab.tabPanel}
-          </Ariakit.TabPanel>
-        ))}
+        <div className={"bn-ak-panels"}>
+          {tabs.map((tab) => (
+            <Ariakit.TabPanel tabId={tab.name} key={tab.name}>
+              {tab.tabPanel}
+            </Ariakit.TabPanel>
+          ))}
+        </div>
       </Ariakit.TabProvider>
     </div>
   );
-};
+});
