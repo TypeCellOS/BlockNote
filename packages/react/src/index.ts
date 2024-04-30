@@ -5,6 +5,7 @@ export * from "./editor/BlockNoteTheme";
 export * from "./editor/BlockNoteView";
 export * from "./editor/ComponentsContext";
 export * from "./editor/defaultThemes";
+export * from "./i18n/dictionary";
 
 export * from "./components/FormattingToolbar/DefaultButtons/BasicTextStyleButton";
 export * from "./components/FormattingToolbar/DefaultButtons/ColorStyleButton";
@@ -29,7 +30,6 @@ export * from "./components/LinkToolbar/LinkToolbarProps";
 export * from "./components/SideMenu/DefaultButtons/AddBlockButton";
 export * from "./components/SideMenu/DefaultButtons/DragHandleButton";
 export * from "./components/SideMenu/SideMenu";
-export * from "./components/SideMenu/SideMenuButton";
 export * from "./components/SideMenu/SideMenuController";
 export * from "./components/SideMenu/SideMenuProps";
 
@@ -44,15 +44,13 @@ export * from "./components/SuggestionMenu/getDefaultReactSlashMenuItems";
 export * from "./components/SuggestionMenu/hooks/useCloseSuggestionMenuNoItems";
 export * from "./components/SuggestionMenu/hooks/useLoadSuggestionMenuItems";
 export * from "./components/SuggestionMenu/hooks/useSuggestionMenuKeyboardNavigation";
-export * from "./components/SuggestionMenu/implementation/SuggestionMenu";
-export * from "./components/SuggestionMenu/implementation/SuggestionMenuItem";
 export * from "./components/SuggestionMenu/types";
 
-export * from "./components/ImagePanel/ImagePanelController";
-export * from "./components/ImagePanel/ImagePanelProps";
 export * from "./components/ImagePanel/DefaultTabs/EmbedTab";
 export * from "./components/ImagePanel/DefaultTabs/UploadTab";
 export * from "./components/ImagePanel/ImagePanel";
+export * from "./components/ImagePanel/ImagePanelController";
+export * from "./components/ImagePanel/ImagePanelProps";
 
 export * from "./components/TableHandles/TableHandle";
 export * from "./components/TableHandles/TableHandleProps";
@@ -63,9 +61,6 @@ export * from "./components/TableHandles/TableHandleMenu/DefaultButtons/AddButto
 export * from "./components/TableHandles/TableHandleMenu/DefaultButtons/DeleteButton";
 export * from "./components/TableHandles/TableHandleMenu/TableHandleMenu";
 export * from "./components/TableHandles/TableHandleMenu/TableHandleMenuProps";
-
-export * from "./mantine/toolbar/ToolbarButton";
-export * from "./mantine/toolbar/ToolbarSelect";
 
 export * from "./hooks/useActiveStyles";
 export * from "./hooks/useBlockNoteEditor";

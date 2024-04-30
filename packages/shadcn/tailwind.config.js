@@ -1,16 +1,8 @@
-const { blackA, mauve, violet } = require("@radix-ui/colors");
-
 /** @type {import('tailwindcss').Config} */
 const dir = __dirname;
 module.exports = {
   darkMode: ["class"],
-  content: [
-    // "./pages/**/*.{ts,tsx}",
-    // "./components/**/*.{ts,tsx}",
-    // "./app/**/*.{ts,tsx}",
-    // "./src/**/*.{ts,tsx}",
-    dir + "/**/*.{ts,tsx}",
-  ],
+  content: [dir + "/**/*.{ts,tsx}"],
   prefix: "",
   theme: {
     container: {
@@ -22,7 +14,6 @@ module.exports = {
     },
     extend: {
       colors: {
-        ...blackA,
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

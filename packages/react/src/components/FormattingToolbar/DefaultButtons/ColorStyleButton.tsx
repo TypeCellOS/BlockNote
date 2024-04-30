@@ -10,6 +10,7 @@ import { useComponentsContext } from "../../../editor/ComponentsContext";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
 import { useEditorContentOrSelectionChange } from "../../../hooks/useEditorContentOrSelectionChange";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
+import { useDictionaryContext } from "../../../i18n/dictionary";
 import { ColorIcon } from "../../ColorPicker/ColorIcon";
 import { ColorPicker } from "../../ColorPicker/ColorPicker";
 
@@ -41,7 +42,8 @@ function checkColorInSchema<Color extends "text" | "background">(
 }
 
 export const ColorStyleButton = () => {
-  const components = useComponentsContext()!;
+  const Components = useComponentsContext()!;
+  const dict = useDictionaryContext();
   const editor = useBlockNoteEditor<
     BlockSchema,
     InlineContentSchema,
@@ -126,10 +128,12 @@ export const ColorStyleButton = () => {
   }
 
   return (
-    <components.Menu>
-      <components.MenuTrigger>
-        <components.ToolbarButton
-          mainTooltip={"Colors"}
+    <Components.Generic.Menu.Root>
+      <Components.Generic.Menu.Trigger>
+        <Components.FormattingToolbar.Button
+          className={"bn-button"}
+          data-test="colors"
+          mainTooltip={dict.formatting_toolbar.colors.tooltip}
           icon={
             <ColorIcon
               textColor={currentTextColor}
@@ -138,8 +142,9 @@ export const ColorStyleButton = () => {
             />
           }
         />
-      </components.MenuTrigger>
-      <components.MenuDropdown>
+      </Components.Generic.Menu.Trigger>
+      <Components.Generic.Menu.Dropdown
+        className={"bn-menu-dropdown bn-color-picker-dropdown"}>
         <ColorPicker
           text={
             textColorInSchema
@@ -158,7 +163,7 @@ export const ColorStyleButton = () => {
               : undefined
           }
         />
-      </components.MenuDropdown>
-    </components.Menu>
+      </Components.Generic.Menu.Dropdown>
+    </Components.Generic.Menu.Root>
   );
 };

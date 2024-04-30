@@ -17,11 +17,12 @@ import { RiText } from "react-icons/ri";
 import { useComponentsContext } from "../../../editor/ComponentsContext";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
-import { ToolbarButton } from "../../../mantine/toolbar/ToolbarButton";
-import { ToolbarInputsMenuItem } from "../../../mantine/toolbar/ToolbarInputsMenuItem";
+import { useDictionaryContext } from "../../../i18n/dictionary";
 
 export const ImageCaptionButton = () => {
-  const components = useComponentsContext()!;
+  const dict = useDictionaryContext();
+  const Components = useComponentsContext()!;
+
   const editor = useBlockNoteEditor<
     BlockSchema,
     InlineContentSchema,
@@ -41,6 +42,7 @@ export const ImageCaptionButton = () => {
     const block = selectedBlocks[0];
 
     if (checkBlockIsDefaultType("image", block, editor)) {
+      setCurrentEditingCaption(block.props.caption);
       return block;
     }
 
@@ -77,25 +79,32 @@ export const ImageCaptionButton = () => {
   }
 
   return (
-    <components.Popover>
-      <components.PopoverTrigger>
-        <ToolbarButton
-          mainTooltip={"Edit Caption"}
+    <Components.Generic.Popover.Root>
+      <Components.Generic.Popover.Trigger>
+        <Components.FormattingToolbar.Button
+          className={"bn-button"}
+          mainTooltip={dict.formatting_toolbar.image_caption.tooltip}
           icon={<RiText />}
           isSelected={imageBlock.props.caption !== ""}
         />
-      </components.PopoverTrigger>
-      <components.PopoverContent>
-        <ToolbarInputsMenuItem
-          icon={RiText}
-          value={currentEditingCaption}
-          autoFocus={true}
-          placeholder={"Edit Caption"}
-          onKeyDown={handleEnter}
-          defaultValue={imageBlock.props.caption}
-          onChange={handleChange}
-        />
-      </components.PopoverContent>
-    </components.Popover>
+      </Components.Generic.Popover.Trigger>
+      <Components.Generic.Popover.Content
+        className={"bn-popover-content bn-form-popover"}
+        variant={"form-popover"}>
+        <Components.Generic.Form.Root>
+          <Components.Generic.Form.TextInput
+            name={"image-caption"}
+            icon={<RiText />}
+            value={currentEditingCaption || ""}
+            autoFocus={true}
+            placeholder={
+              dict.formatting_toolbar.image_caption.input_placeholder
+            }
+            onKeyDown={handleEnter}
+            onChange={handleChange}
+          />
+        </Components.Generic.Form.Root>
+      </Components.Generic.Popover.Content>
+    </Components.Generic.Popover.Root>
   );
 };
