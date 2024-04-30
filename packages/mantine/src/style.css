@@ -230,9 +230,6 @@
 
 /* Suggestion Menu styling*/
 
-/*TODO: Make sure there's a clear split between copied Mantine Menu styles and
-   additional BlockNote styles*/
-
 /* Base styles for Suggestion Menus, copied from the Mantine Menu component. */
 /* Unfortunately necessary, as we can't use a Menu.Dropdown component on its
  own. */
@@ -275,6 +272,7 @@
     }
 }
 
+/* Additional Suggestion Menu styling*/
 .bn-mt-suggestion-menu-item-body {
     flex: 1;
 }

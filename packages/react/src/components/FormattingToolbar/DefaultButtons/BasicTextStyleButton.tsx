@@ -33,7 +33,7 @@ const icons = {
 
 function checkBasicTextStyleInSchema<Style extends BasicTextStyle>(
   style: Style,
-  editor: BlockNoteEditor<BlockSchema, InlineContentSchema, StyleSchema>
+  editor: BlockNoteEditor<BlockSchema, InlineContentSchema, any>
 ): editor is BlockNoteEditor<
   BlockSchema,
   InlineContentSchema,

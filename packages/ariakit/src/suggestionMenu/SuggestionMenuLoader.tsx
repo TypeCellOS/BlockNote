@@ -7,7 +7,6 @@ export const SuggestionMenuLoader = forwardRef<
 >((props, ref) => {
   const { className, children } = props;
 
-  // TODO Test
   return (
     <div className={className} ref={ref}>
       {children}

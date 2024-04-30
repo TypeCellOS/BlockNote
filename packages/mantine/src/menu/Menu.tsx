@@ -203,7 +203,11 @@ export const MenuDropdown = forwardRef<
   HTMLDivElement,
   ComponentProps["Generic"]["Menu"]["Dropdown"]
 >((props, ref) => {
-  const { className, children, sub } = props;
+  const {
+    className,
+    children,
+    // sub
+  } = props;
 
   const ctx = useContext(SubMenuContext);
 
@@ -212,9 +216,7 @@ export const MenuDropdown = forwardRef<
       className={className}
       ref={ref}
       onMouseOver={ctx?.onMenuMouseOver}
-      onMouseLeave={ctx?.onMenuMouseLeave}
-      style={sub ? { marginLeft: "5px" } : {}} // TODO: Needed?
-    >
+      onMouseLeave={ctx?.onMenuMouseLeave}>
       {children}
     </Mantine.Menu.Dropdown>
   );

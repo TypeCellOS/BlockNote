@@ -5,7 +5,7 @@ import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
 import { HiChevronDown } from "react-icons/hi";
 
-// TODO: turn into select
+// TODO: Turn into select?
 export const ToolbarSelect = forwardRef<
   HTMLDivElement,
   ComponentProps["FormattingToolbar"]["Select"]

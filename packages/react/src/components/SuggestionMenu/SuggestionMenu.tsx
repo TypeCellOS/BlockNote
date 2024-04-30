@@ -16,7 +16,7 @@ export function SuggestionMenu<T extends DefaultReactSuggestionItem>(
     loadingState === "loading-initial" || loadingState === "loading" ? (
       <Components.SuggestionMenu.Loader className={"bn-suggestion-menu-loader"}>
         {dict.suggestion_menu.loading}
-      </Components.SuggestionMenu.Loader> // TODO: test loader
+      </Components.SuggestionMenu.Loader>
     ) : null;
 
   const renderedItems = useMemo<JSX.Element[]>(() => {
@@ -54,10 +54,7 @@ export function SuggestionMenu<T extends DefaultReactSuggestionItem>(
   }, [Components, items, onItemClick, selectedIndex, setSelectedIndex]);
 
   return (
-    <Components.SuggestionMenu.Root
-      className={"bn-suggestion-menu"}
-      // onMouseDown={(event: any) => event.preventDefault()} // TODO: needed?
-    >
+    <Components.SuggestionMenu.Root className={"bn-suggestion-menu"}>
       {renderedItems}
       {renderedItems.length === 0 &&
         (props.loadingState === "loading" ||

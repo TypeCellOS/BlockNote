@@ -84,10 +84,11 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
         <ShadCNComponents.Tooltip.TooltipTrigger asChild>
           {trigger}
         </ShadCNComponents.Tooltip.TooltipTrigger>
-        <ShadCNComponents.Tooltip.TooltipContent>
-          {mainTooltip}
+        <ShadCNComponents.Tooltip.TooltipContent
+          className={"flex flex-col items-center"}>
+          <span>{mainTooltip}</span>
+          <span>{secondaryTooltip}</span>
         </ShadCNComponents.Tooltip.TooltipContent>
-        {/* TODO: secondary tooltip */}
       </ShadCNComponents.Tooltip.Tooltip>
     );
   }

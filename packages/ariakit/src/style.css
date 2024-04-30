@@ -127,3 +127,9 @@
 .bn-ak-tab:where(.dark, .dark *), .bn-file-input:where(.dark, .dark *) {
   color: white;
 }
+
+.bn-ak-tooltip {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+}

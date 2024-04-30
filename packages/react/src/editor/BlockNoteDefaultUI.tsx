@@ -35,7 +35,6 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
           getItems={async (query) =>
             filterSuggestionItems(getDefaultReactSlashMenuItems(editor), query)
           }
-          // suggestionMenuComponent={MantineSuggestionMenu}
           onItemClick={(item) => {
             item.onItemClick();
           }}

@@ -33,7 +33,7 @@ import { SuggestionMenuEmptyItem } from "./suggestionMenu/SuggestionMenuEmptyIte
 import { SuggestionMenuItem } from "./suggestionMenu/SuggestionMenuItem";
 import { SuggestionMenuLabel } from "./suggestionMenu/SuggestionMenuLabel";
 import { SuggestionMenuLoader } from "./suggestionMenu/SuggestionMenuLoader";
-import { TableHandle } from "@/tableHandle/TableHandle";
+import { TableHandle } from "./tableHandle/TableHandle";
 import { Toolbar, ToolbarButton, ToolbarSelect } from "./toolbar/Toolbar";
 
 import "./style.css";
