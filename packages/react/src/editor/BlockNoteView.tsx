@@ -35,7 +35,6 @@ import {
 import { ComponentsContext } from "./ComponentsContext";
 import { EditorContent } from "./EditorContent";
 import "./styles.css";
-import { ariakitComponents } from "../ariakit/components";
 
 const mantineTheme = {
   // Removes button press effect
@@ -233,7 +232,7 @@ export const BlockNoteViewAriakit = (
   props: ComponentProps<typeof BlockNoteViewRaw>
 ) => {
   return (
-    <ComponentsContext.Provider value={ariakitComponents}>
+    <ComponentsContext.Provider value={mantineComponents}>
       <BlockNoteViewRaw {...props} />
     </ComponentsContext.Provider>
   );

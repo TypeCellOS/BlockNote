@@ -6,10 +6,12 @@ import {
   StyleSchema,
 } from "@blocknote/core";
 import { ChangeEvent, KeyboardEvent, useCallback, useState } from "react";
+import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor";
 
-import { useComponentsContext } from "../../../editor/ComponentsContext";
-import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
-import { ImagePanelProps } from "../ImagePanelProps";
+import { ImagePanelProps } from "../../ImagePanelProps";
+import { ImagePanelButton } from "../ImagePanelButton";
+import { ImagePanelTab } from "../ImagePanelTab";
+import { ImagePanelTextInput } from "../ImagePanelTextInput";
 
 export const EmbedTab = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
@@ -17,8 +19,6 @@ export const EmbedTab = <
 >(
   props: ImagePanelProps<I, S>
 ) => {
-  const components = useComponentsContext()!;
-
   const { block } = props;
 
   const editor = useBlockNoteEditor<
@@ -61,20 +61,20 @@ export const EmbedTab = <
   }, [editor, block, currentURL]);
 
   return (
-    <components.PanelTab>
-      <components.PanelTextInput
+    <ImagePanelTab>
+      <ImagePanelTextInput
         placeholder={"Enter URL"}
         value={currentURL}
         onChange={handleURLChange}
         onKeyDown={handleURLEnter}
         data-test={"embed-input"}
       />
-      <components.PanelButton
+      <ImagePanelButton
         className={"bn-image-panel-button"}
         onClick={handleURLClick}
         data-test={"embed-input-button"}>
         Embed Image
-      </components.PanelButton>
-    </components.PanelTab>
+      </ImagePanelButton>
+    </ImagePanelTab>
   );
 };

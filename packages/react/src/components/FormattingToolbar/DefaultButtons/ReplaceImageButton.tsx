@@ -10,7 +10,7 @@ import { RiImageEditFill } from "react-icons/ri";
 import { useComponentsContext } from "../../../editor/ComponentsContext";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
-import { ImagePanel } from "../../ImagePanel/ImagePanel";
+import { ImagePanel } from "../../ImagePanel/mantine/ImagePanel";
 
 export const ReplaceImageButton = () => {
   const components = useComponentsContext()!;
