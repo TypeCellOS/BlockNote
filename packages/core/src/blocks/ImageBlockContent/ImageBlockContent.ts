@@ -76,7 +76,7 @@ export const renderImage = (
   // Text for the add image button.
   const addImageButtonText = document.createElement("p");
   addImageButtonText.className = "bn-add-image-button-text";
-  addImageButtonText.innerText = "Add Image";
+  addImageButtonText.innerText = editor.dictionary.image.add_button;
 
   // Wrapper element for the image, resize handles and caption.
   const imageAndCaptionWrapper = document.createElement("div");

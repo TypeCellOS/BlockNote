@@ -1,10 +1,10 @@
 import { ReactNode } from "react";
 
-import { Toolbar } from "../../mantine/toolbar/Toolbar";
 import { DeleteLinkButton } from "./DefaultButtons/DeleteLinkButton";
 import { EditLinkButton } from "./DefaultButtons/EditLinkButton";
 import { OpenLinkButton } from "./DefaultButtons/OpenLinkButton";
 import { LinkToolbarProps } from "./LinkToolbarProps";
+import { useComponentsContext } from "../../editor/ComponentsContext";
 
 /**
  * By default, the LinkToolbar component will render with default buttons.
@@ -20,12 +20,19 @@ import { LinkToolbarProps } from "./LinkToolbarProps";
 export const LinkToolbar = (
   props: LinkToolbarProps & { children?: ReactNode }
 ) => {
+  const Components = useComponentsContext()!;
+
   if (props.children) {
-    return <Toolbar>{props.children}</Toolbar>;
+    return (
+      <Components.LinkToolbar.Root className={"bn-toolbar bn-link-toolbar"}>
+        {props.children}
+      </Components.LinkToolbar.Root>
+    );
   }
 
   return (
-    <Toolbar
+    <Components.LinkToolbar.Root
+      className={"bn-toolbar bn-link-toolbar"}
       onMouseEnter={props.stopHideTimer}
       onMouseLeave={props.startHideTimer}>
       <EditLinkButton
@@ -35,6 +42,6 @@ export const LinkToolbar = (
       />
       <OpenLinkButton url={props.url} />
       <DeleteLinkButton deleteLink={props.deleteLink} />
-    </Toolbar>
+    </Components.LinkToolbar.Root>
   );
 };

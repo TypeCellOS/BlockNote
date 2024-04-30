@@ -1,89 +1,198 @@
-import {
-  MenuDropdownProps,
-  MenuItemProps,
-  MenuProps,
-  MenuTriggerProps,
-} from "@blocknote/react";
+import type * as ShadCNDropdownMenu from "../components/ui/dropdown-menu";
+
+import { ComponentProps } from "@blocknote/react";
 import { ChevronRight } from "lucide-react";
-import React from "react";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
-} from "../components/ui/dropdown-menu";
+import { forwardRef, useMemo } from "react";
+import { useShadCNComponentsContext } from "../ShadCNComponentsContext";
 import { cn } from "../lib/utils";
 
-export const Menu = React.forwardRef((props: MenuProps, ref) => {
-  const { sub, position, ...rest } = props;
-
-  if (sub) {
-    return <DropdownMenuSub {...rest} ref={ref} />;
-  } else {
-    // return <DropdownMenuDemo />;
-    return <DropdownMenu {...rest} ref={ref} />;
-  }
-});
-
-export const MenuTrigger = React.forwardRef((props: MenuTriggerProps, ref) => {
-  const { sub, ...rest } = props;
-
-  if (sub) {
-    return <DropdownMenuSubTrigger asChild {...rest} ref={ref} />;
-  } else {
-    return <DropdownMenuTrigger asChild {...rest} ref={ref} />;
-  }
-});
-
-export const MenuDropdown = React.forwardRef(
-  (props: MenuDropdownProps, ref) => {
-    const { sub, position, ...rest } = props;
-
-    if (sub) {
-      return (
-        <DropdownMenuSubContent
-          className={cn("bn-ui-container", props.className)}
-          {...rest}
-          side={position}
-          ref={ref}
-        />
-      );
-    } else {
-      return (
-        <DropdownMenuContent
-          className={cn("bn-ui-container", props.className)}
-          {...rest}
-          side={position}
-          ref={ref}
-        />
-      );
-    }
-  }
-);
-
-export const MenuItem = React.forwardRef((props: MenuItemProps, ref) => {
-  // TODO: implement icon
-  const { icon, ...rest } = props;
-
-  if (props.checked !== undefined) {
+// hacky HoC to change DropdownMenuTrigger to open a menu on PointerUp instead of PointerDown
+// Needed to fix this issue: https://github.com/radix-ui/primitives/issues/2867
+const MenuTriggerWithPointerUp = (
+  Comp: typeof ShadCNDropdownMenu.DropdownMenuTrigger
+) =>
+  forwardRef<
+    any,
+    React.ComponentProps<typeof ShadCNDropdownMenu.DropdownMenuTrigger>
+  >((props, ref) => {
     return (
-      <DropdownMenuCheckboxItem {...rest} ref={ref}></DropdownMenuCheckboxItem>
+      <Comp
+        onPointerDown={(e) => {
+          if (!(e.nativeEvent as any).fakeEvent) {
+            // setting ctrlKey will block the menu from opening
+            // as it will block this line: https://github.com/radix-ui/primitives/blob/b32a93318cdfce383c2eec095710d35ffbd33a1c/packages/react/dropdown-menu/src/DropdownMenu.tsx#L120
+            e.ctrlKey = true;
+          }
+        }}
+        onPointerUp={(event) => {
+          // dispatch a pointerdown event so the Radix pointer down handler gets called that opens the menu
+          const e = new PointerEvent("pointerdown", event.nativeEvent);
+          (e as any).fakeEvent = true;
+          event.target.dispatchEvent(e);
+        }}
+        {...props}
+        ref={ref}
+      />
+    );
+  });
+
+export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
+  const {
+    children,
+    onOpenChange,
+    // position,
+    sub,
+  } = props;
+
+  const ShadCNComponents = useShadCNComponentsContext()!;
+
+  if (sub) {
+    return (
+      <ShadCNComponents.DropdownMenu.DropdownMenuSub
+        onOpenChange={onOpenChange}>
+        {children}
+      </ShadCNComponents.DropdownMenu.DropdownMenuSub>
+    );
+  } else {
+    return (
+      <ShadCNComponents.DropdownMenu.DropdownMenu onOpenChange={onOpenChange}>
+        {children}
+      </ShadCNComponents.DropdownMenu.DropdownMenu>
+    );
+  }
+};
+
+export const MenuTrigger = (
+  props: ComponentProps["Generic"]["Menu"]["Trigger"]
+) => {
+  const { children, sub, ...rest } = props;
+
+  const ShadCNComponents = useShadCNComponentsContext()!;
+
+  const DropdownMenuTrigger = useMemo(
+    () =>
+      MenuTriggerWithPointerUp(
+        ShadCNComponents.DropdownMenu.DropdownMenuTrigger
+      ),
+    [ShadCNComponents.DropdownMenu.DropdownMenuTrigger]
+  );
+
+  if (sub) {
+    return (
+      <ShadCNComponents.DropdownMenu.DropdownMenuSubTrigger>
+        {children}
+      </ShadCNComponents.DropdownMenu.DropdownMenuSubTrigger>
+    );
+  } else {
+    return (
+      <DropdownMenuTrigger asChild={true} {...rest}>
+        {children}
+      </DropdownMenuTrigger>
+    );
+  }
+};
+
+export const MenuDropdown = forwardRef<
+  HTMLDivElement,
+  ComponentProps["Generic"]["Menu"]["Dropdown"]
+>((props, ref) => {
+  const { className, children, sub } = props;
+
+  const ShadCNComponents = useShadCNComponentsContext()!;
+
+  if (sub) {
+    return (
+      <ShadCNComponents.DropdownMenu.DropdownMenuSubContent
+        className={className}
+        ref={ref}>
+        {children}
+      </ShadCNComponents.DropdownMenu.DropdownMenuSubContent>
+    );
+  } else {
+    return (
+      <ShadCNComponents.DropdownMenu.DropdownMenuContent
+        className={className}
+        ref={ref}>
+        {children}
+      </ShadCNComponents.DropdownMenu.DropdownMenuContent>
+    );
+  }
+});
+
+export const MenuItem = forwardRef<
+  HTMLDivElement,
+  ComponentProps["Generic"]["Menu"]["Item"]
+>((props, ref) => {
+  const { className, children, icon, checked, subTrigger, onClick, ...rest } =
+    props;
+
+  const ShadCNComponents = useShadCNComponentsContext()!;
+
+  if (subTrigger) {
+    return (
+      <>
+        {icon}
+        {children}
+      </>
+    );
+  }
+
+  if (checked !== undefined) {
+    return (
+      <ShadCNComponents.DropdownMenu.DropdownMenuCheckboxItem
+        className={cn(className, "gap-1")}
+        ref={ref}
+        checked={checked}
+        onClick={onClick}
+        {...rest}>
+        {icon}
+        {children}
+      </ShadCNComponents.DropdownMenu.DropdownMenuCheckboxItem>
     );
   }
 
   return (
-    <DropdownMenuItem {...rest} ref={ref}>
-      {props.children}
-      {props.expandArrow && <ChevronRight className="ml-auto h-4 w-4" />}
-    </DropdownMenuItem>
+    <ShadCNComponents.DropdownMenu.DropdownMenuItem
+      className={className}
+      ref={ref}
+      onClick={onClick}
+      {...rest}>
+      {icon}
+      {children}
+      {subTrigger && <ChevronRight className="ml-auto h-4 w-4" />}
+    </ShadCNComponents.DropdownMenu.DropdownMenuItem>
   );
 });
 
-export const MenuDivider = DropdownMenuSeparator;
-export const MenuLabel = DropdownMenuLabel;
+export const MenuDivider = forwardRef<
+  HTMLDivElement,
+  ComponentProps["Generic"]["Menu"]["Divider"]
+>((props, ref) => {
+  const { className } = props;
+
+  const ShadCNComponents = useShadCNComponentsContext()!;
+
+  return (
+    <ShadCNComponents.DropdownMenu.DropdownMenuSeparator
+      className={className}
+      ref={ref}
+    />
+  );
+});
+
+export const MenuLabel = forwardRef<
+  HTMLDivElement,
+  ComponentProps["Generic"]["Menu"]["Label"]
+>((props, ref) => {
+  const { className, children } = props;
+
+  const ShadCNComponents = useShadCNComponentsContext()!;
+
+  return (
+    <ShadCNComponents.DropdownMenu.DropdownMenuLabel
+      className={className}
+      ref={ref}>
+      {children}
+    </ShadCNComponents.DropdownMenu.DropdownMenuLabel>
+  );
+});

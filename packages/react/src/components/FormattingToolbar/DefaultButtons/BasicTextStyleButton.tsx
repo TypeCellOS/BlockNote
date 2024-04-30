@@ -19,6 +19,7 @@ import { useComponentsContext } from "../../../editor/ComponentsContext";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
 import { useEditorContentOrSelectionChange } from "../../../hooks/useEditorContentOrSelectionChange";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
+import { useDictionaryContext } from "../../../i18n/dictionary";
 
 type BasicTextStyle = "bold" | "italic" | "underline" | "strike" | "code";
 
@@ -29,14 +30,6 @@ const icons = {
   strike: RiStrikethrough,
   code: RiCodeFill,
 } satisfies Record<BasicTextStyle, IconType>;
-
-const shortcuts = {
-  bold: "Mod+B",
-  italic: "Mod+I",
-  underline: "Mod+U",
-  strike: "Mod+Shift+X",
-  code: "",
-} satisfies Record<BasicTextStyle, string>;
 
 function checkBasicTextStyleInSchema<Style extends BasicTextStyle>(
   style: Style,
@@ -61,7 +54,8 @@ function checkBasicTextStyleInSchema<Style extends BasicTextStyle>(
 export const BasicTextStyleButton = <Style extends BasicTextStyle>(props: {
   basicTextStyle: Style;
 }) => {
-  const components = useComponentsContext()!;
+  const dict = useDictionaryContext();
+  const Components = useComponentsContext()!;
 
   const editor = useBlockNoteEditor<
     BlockSchema,
@@ -112,14 +106,16 @@ export const BasicTextStyleButton = <Style extends BasicTextStyle>(props: {
 
   const Icon = icons[props.basicTextStyle] as any; // TODO
   return (
-    <components.ToolbarButton
+    <Components.FormattingToolbar.Button
+      className="bn-button"
+      data-test={props.basicTextStyle}
       onClick={() => toggleStyle(props.basicTextStyle)}
       isSelected={active}
-      mainTooltip={
-        props.basicTextStyle.slice(0, 1).toUpperCase() +
-        props.basicTextStyle.slice(1)
-      }
-      secondaryTooltip={formatKeyboardShortcut(shortcuts[props.basicTextStyle])}
+      mainTooltip={dict.formatting_toolbar[props.basicTextStyle].tooltip}
+      secondaryTooltip={formatKeyboardShortcut(
+        dict.formatting_toolbar[props.basicTextStyle].secondary_tooltip,
+        dict.generic.ctrl_shortcut
+      )}
       icon={<Icon />}
     />
   );

@@ -9,6 +9,7 @@ import {
 
 import { useComponentsContext } from "../../../../editor/ComponentsContext";
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor";
+import { useDictionaryContext } from "../../../../i18n/dictionary";
 import { TableHandleMenuProps } from "../TableHandleMenuProps";
 
 export const AddRowButton = <
@@ -17,7 +18,9 @@ export const AddRowButton = <
 >(
   props: TableHandleMenuProps<I, S> & { side: "above" | "below" }
 ) => {
-  const components = useComponentsContext()!;
+  const Components = useComponentsContext()!;
+  const dict = useDictionaryContext();
+
   const editor = useBlockNoteEditor<
     { table: DefaultBlockSchema["table"] },
     I,
@@ -25,7 +28,7 @@ export const AddRowButton = <
   >();
 
   return (
-    <components.MenuItem
+    <Components.Generic.Menu.Item
       onClick={() => {
         const emptyCol = props.block.content.rows[props.index].cells.map(
           () => []
@@ -43,8 +46,8 @@ export const AddRowButton = <
           },
         });
       }}>
-      {`Add row ${props.side}`}
-    </components.MenuItem>
+      {dict.table_handle[`add_${props.side}_menuitem`]}
+    </Components.Generic.Menu.Item>
   );
 };
 
@@ -54,7 +57,9 @@ export const AddColumnButton = <
 >(
   props: TableHandleMenuProps<I, S> & { side: "left" | "right" }
 ) => {
-  const components = useComponentsContext()!;
+  const Components = useComponentsContext()!;
+  const dict = useDictionaryContext();
+
   const editor = useBlockNoteEditor<
     { table: DefaultBlockSchema["table"] },
     I,
@@ -62,7 +67,7 @@ export const AddColumnButton = <
   >();
 
   return (
-    <components.MenuItem
+    <Components.Generic.Menu.Item
       onClick={() => {
         const content: TableContent<I, S> = {
           type: "tableContent",
@@ -78,8 +83,8 @@ export const AddColumnButton = <
           content: content,
         });
       }}>
-      {`Add column ${props.side}`}
-    </components.MenuItem>
+      {dict.table_handle[`add_${props.side}_menuitem`]}
+    </Components.Generic.Menu.Item>
   );
 };
 
