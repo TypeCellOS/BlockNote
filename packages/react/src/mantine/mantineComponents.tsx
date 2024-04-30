@@ -9,6 +9,11 @@ import {
   MenuLabel,
   MenuTrigger,
 } from "./menu/Menu";
+import { Panel } from "./panel/Panel";
+import { PanelButton } from "./panel/PanelButton";
+import { PanelFileInput } from "./panel/PanelFileInput";
+import { PanelTab } from "./panel/PanelTab";
+import { PanelTextInput } from "./panel/PanelTextInput";
 import { Popover } from "./popover/Popover";
 import { Toolbar } from "./toolbar/Toolbar";
 import { ToolbarButton } from "./toolbar/ToolbarButton";
@@ -24,6 +29,11 @@ export const mantineComponents: ComponentsContextValue = {
   MenuDivider,
   MenuLabel,
   MenuItem,
+  Panel,
+  PanelButton,
+  PanelFileInput,
+  PanelTab,
+  PanelTextInput,
   Popover: Popover,
   PopoverContent: PopoverDropdown,
   PopoverTrigger: PopoverTarget,
