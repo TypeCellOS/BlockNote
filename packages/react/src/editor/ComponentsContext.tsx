@@ -8,6 +8,7 @@ import {
   ReactNode,
   useContext,
 } from "react";
+
 import { DefaultReactSuggestionItem } from "../components/SuggestionMenu/types";
 
 export type ComponentProps = {

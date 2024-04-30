@@ -12,13 +12,15 @@ export function RemoveBlockButton(props: SideMenuProps) {
   const Components = useComponentsContext()!;
 
   return (
-    <Components.SideMenu.Button>
-      <MdDelete
-        size={24}
-        onClick={() => {
-          editor.removeBlocks([props.block]);
-        }}
-      />
-    </Components.SideMenu.Button>
+    <Components.SideMenu.Button
+      icon={
+        <MdDelete
+          size={24}
+          onClick={() => {
+            editor.removeBlocks([props.block]);
+          }}
+        />
+      }
+    />
   );
 }

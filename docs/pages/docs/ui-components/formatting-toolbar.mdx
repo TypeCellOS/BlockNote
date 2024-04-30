@@ -23,22 +23,13 @@ You can change or replace the Formatting Toolbar with your own React component. 
 
 <Example name="ui-components/formatting-toolbar-buttons" />
 
+We first define our custom `BlueButton`. The `useComponentsContext` hook gets all components used internally by BlockNote, so we want to use `Components.FormattingToolbar.Button` for this.
+
 We use the `FormattingToolbar` component to create a custom Formatting Toolbar. By specifying its children, we can replace the default buttons in the toolbar with our own.
 
 This custom Formatting Toolbar is passed to a `FormattingToolbarController`, which controls its position and visibility (above or below the highlighted text).
 
 Setting `formattingToolbar={false}` on `BlockNoteView` tells BlockNote not to show the default Formatting Toolbar.
-
-<div className="nx-mt-6 nx-leading-7 first:nx-mt-0">
-  <small>
-    <strong>Tip:</strong> The children you pass to the `FormattingToolbar`
-    component should be default selects/buttons (e.g. `BlockTypeSelect` &
-    `BasicTextStyleButton`) or custom selects/buttons (`ToolbarSelect` &
-    `ToolbarButton`). To see all the components you can use, head to the
-    [Formatting Toolbar's source
-    code](https://github.com/TypeCellOS/BlockNote/blob/main/packages/react/src/components/FormattingToolbar/mantine/FormattingToolbar.tsx).
-  </small>
-</div>
 
 ## Changing Block Type Select (Dropdown) Items
 

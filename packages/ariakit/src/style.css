@@ -41,6 +41,10 @@
   max-width: 100%;
 }
 
+.bn-ak-button {
+  outline-style: none;
+}
+
 .bn-ak-menu-item[data-hovered] {
   background-color: hsl(204 100% 40%);
   color: hsl(204 20% 100%);

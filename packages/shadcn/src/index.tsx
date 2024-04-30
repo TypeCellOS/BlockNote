@@ -1,3 +1,4 @@
+import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
 import {
   BlockNoteViewRaw,
   Components,
@@ -32,7 +33,7 @@ import { SuggestionMenuEmptyItem } from "./suggestionMenu/SuggestionMenuEmptyIte
 import { SuggestionMenuItem } from "./suggestionMenu/SuggestionMenuItem";
 import { SuggestionMenuLabel } from "./suggestionMenu/SuggestionMenuLabel";
 import { SuggestionMenuLoader } from "./suggestionMenu/SuggestionMenuLoader";
-import { TableHandle } from "./TableHandle/TableHandle";
+import { TableHandle } from "@/tableHandle/TableHandle";
 import { Toolbar, ToolbarButton, ToolbarSelect } from "./toolbar/Toolbar";
 
 import "./style.css";
@@ -89,8 +90,12 @@ export const components: Components = {
   },
 };
 
-export const BlockNoteView = (
-  props: ComponentProps<typeof BlockNoteViewRaw<any, any, any>> & {
+export const BlockNoteView = <
+  BSchema extends BlockSchema,
+  ISchema extends InlineContentSchema,
+  SSchema extends StyleSchema
+>(
+  props: ComponentProps<typeof BlockNoteViewRaw<BSchema, ISchema, SSchema>> & {
     /**
      * (optional)Provide your own shadcn component overrides
      */

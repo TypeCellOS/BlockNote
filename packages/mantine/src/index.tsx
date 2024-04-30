@@ -1,3 +1,4 @@
+import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
 import {
   BlockNoteViewRaw,
   Components,
@@ -92,9 +93,12 @@ const mantineTheme = {
   activeClassName: "",
 };
 
-export const BlockNoteView = (
-  // TODO: Fix typing
-  props: ComponentProps<typeof BlockNoteViewRaw<any, any, any>>
+export const BlockNoteView = <
+  BSchema extends BlockSchema,
+  ISchema extends InlineContentSchema,
+  SSchema extends StyleSchema
+>(
+  props: ComponentProps<typeof BlockNoteViewRaw<BSchema, ISchema, SSchema>>
 ) => {
   return (
     <ComponentsContext.Provider value={components}>
