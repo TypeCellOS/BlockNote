@@ -22,7 +22,7 @@ export const Panel = forwardRef<
 
   return (
     <ShadCNComponents.Tabs.Tabs
-      className={cn(className, "bg-white p-2 rounded-lg")}
+      className={cn(className, "bg-popover p-2 rounded-lg")}
       ref={ref}
       value={openTab}
       defaultValue={defaultOpenTab}

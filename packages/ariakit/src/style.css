@@ -110,3 +110,16 @@
 .bn-side-menu, .bn-table-handle {
   color: gray;
 }
+
+.bn-ak-button:where(.dark, .dark *) {
+  color: hsl(204 20% 100%);
+}
+
+.bn-ak-tab, .bn-file-input {
+  background-color: transparent;
+  color: black;
+}
+
+.bn-ak-tab:where(.dark, .dark *), .bn-file-input:where(.dark, .dark *) {
+  color: white;
+}

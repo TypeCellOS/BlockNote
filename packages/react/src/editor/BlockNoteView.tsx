@@ -194,7 +194,11 @@ function BlockNoteViewComponent<
       <BlockNoteContext.Provider value={context as any}>
         <EditorContent editor={editor}>
           <div
-            className={mergeCSSClasses("bn-container", className || "")}
+            className={mergeCSSClasses(
+              "bn-container",
+              editorColorScheme || "",
+              className || ""
+            )}
             data-color-scheme={editorColorScheme}
             {...rest}
             ref={refs}>

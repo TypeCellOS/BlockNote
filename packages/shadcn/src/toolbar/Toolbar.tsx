@@ -18,7 +18,7 @@ export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(
         <div
           className={cn(
             className,
-            "flex gap-1 p-1 rounded-lg bg-white shadow-[0_2px_10px] shadow-blackA4"
+            "flex gap-1 p-1 bg-popover text-popover-foreground border rounded-lg shadow-md"
           )}
           ref={ref}
           onMouseEnter={onMouseEnter}
