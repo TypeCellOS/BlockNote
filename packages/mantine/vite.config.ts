@@ -16,11 +16,8 @@ export default defineConfig((conf) => ({
   resolve: {
     alias:
       conf.command === "build"
-        ? ({
-            "@": path.resolve(__dirname, "./src"),
-          } as Record<string, string>)
+        ? ({} as Record<string, string>)
         : ({
-            "@": path.resolve(__dirname, "./src"),
             // load live from sources with live reload working
             "@blocknote/core": path.resolve(__dirname, "../core/src/"),
             "@blocknote/react": path.resolve(__dirname, "../react/src/"),
@@ -30,8 +27,8 @@ export default defineConfig((conf) => ({
     sourcemap: true,
     lib: {
       entry: path.resolve(__dirname, "src/index.tsx"),
-      name: "blocknote-shadcn",
-      fileName: "blocknote-shadcn",
+      name: "blocknote-mantine",
+      fileName: "blocknote-mantine",
     },
     rollupOptions: {
       // make sure to externalize deps that shouldn't be bundled

@@ -1,9 +1,24 @@
 import * as Mantine from "@mantine/core";
 
-import { PanelTextInputProps } from "@blocknote/react";
+import { ComponentProps } from "@blocknote/react";
+import { forwardRef } from "react";
 
-export const PanelTextInput = (props: PanelTextInputProps) => {
-  const { children, ...rest } = props;
+export const PanelTextInput = forwardRef<
+  HTMLInputElement,
+  ComponentProps["ImagePanel"]["TextInput"]
+>((props, ref) => {
+  const { className, value, placeholder, onKeyDown, onChange } = props;
 
-  return <Mantine.TextInput size={"xs"} {...rest} data-test={"embed-input"} />;
-};
+  return (
+    <Mantine.TextInput
+      size={"xs"}
+      data-test={"embed-input"}
+      className={className}
+      ref={ref}
+      value={value}
+      placeholder={placeholder}
+      onKeyDown={onKeyDown}
+      onChange={onChange}
+    />
+  );
+});

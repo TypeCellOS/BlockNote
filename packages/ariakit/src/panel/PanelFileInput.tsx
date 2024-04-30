@@ -1,16 +1,25 @@
 import * as Ariakit from "@ariakit/react";
 
-import { PanelFileInputProps } from "@blocknote/react";
+import { ComponentProps } from "@blocknote/react";
+import { forwardRef } from "react";
 
-export const PanelFileInput = (props: PanelFileInputProps) => (
-  <Ariakit.FormProvider>
-    <Ariakit.FormInput
-      name={"panel-input"}
-      type={"file"}
-      defaultValue={props.defaultValue ? props.defaultValue.name : undefined}
-      value={props.value ? props.value.name : undefined}
-      onChange={async (e) => props.onChange?.(e.target.files![0])}
-      placeholder={props.placeholder}
-    />
-  </Ariakit.FormProvider>
-);
+export const PanelFileInput = forwardRef<
+  HTMLInputElement,
+  ComponentProps["ImagePanel"]["FileInput"]
+>((props, ref) => {
+  const { className, value, placeholder, onChange } = props;
+
+  return (
+    <Ariakit.FormProvider>
+      <Ariakit.FormInput
+        className={className}
+        ref={ref}
+        name={"panel-input"}
+        type={"file"}
+        value={value ? value.name : undefined}
+        onChange={async (e) => onChange?.(e.target.files![0])}
+        placeholder={placeholder}
+      />
+    </Ariakit.FormProvider>
+  );
+});

@@ -350,7 +350,7 @@ export class TableHandlesView<
   };
 
   destroy() {
-    this.pmView.dom.removeEventListener("mousedown", this.mouseMoveHandler);
+    this.pmView.dom.removeEventListener("mousemove", this.mouseMoveHandler);
 
     document.removeEventListener("dragover", this.dragOverHandler);
     document.removeEventListener("drop", this.dropHandler);

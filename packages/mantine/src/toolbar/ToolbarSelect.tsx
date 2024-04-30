@@ -1,14 +1,18 @@
 import * as Mantine from "@mantine/core";
 
 import { isSafari } from "@blocknote/core";
-import { ToolbarSelectProps } from "@blocknote/react";
+import { ComponentProps } from "@blocknote/react";
+import { forwardRef } from "react";
 import { HiChevronDown } from "react-icons/hi";
 
-import { ToolbarSelectItem } from "./ToolbarSelectItem";
-
 // TODO: turn into select
-export function ToolbarSelect(props: ToolbarSelectProps) {
-  const selectedItem = props.items.filter((p) => p.isSelected)[0];
+export const ToolbarSelect = forwardRef<
+  HTMLDivElement,
+  ComponentProps["FormattingToolbar"]["Select"]
+>((props, ref) => {
+  const { className, items, isDisabled } = props;
+
+  const selectedItem = items.filter((p) => p.isSelected)[0];
 
   if (!selectedItem) {
     return null;
@@ -20,7 +24,7 @@ export function ToolbarSelect(props: ToolbarSelectProps) {
       transitionProps={{
         exitDuration: 0,
       }}
-      disabled={props.isDisabled}
+      disabled={isDisabled}
       middlewares={{ flip: true, shift: true, inline: false, size: true }}>
       <Mantine.Menu.Target>
         <Mantine.Button
@@ -35,15 +39,29 @@ export function ToolbarSelect(props: ToolbarSelectProps) {
           rightSection={<HiChevronDown />}
           size={"xs"}
           variant={"subtle"}
-          disabled={props.isDisabled}>
+          disabled={isDisabled}>
           {selectedItem.text}
         </Mantine.Button>
       </Mantine.Menu.Target>
-      <Mantine.Menu.Dropdown>
-        {props.items.map((item) => (
-          <ToolbarSelectItem key={item.text} {...item} />
+      <Mantine.Menu.Dropdown className={className} ref={ref}>
+        {items.map((item) => (
+          <Mantine.Menu.Item
+            key={item.text}
+            onClick={item.onClick}
+            leftSection={item.icon}
+            rightSection={
+              item.isSelected ? (
+                <Mantine.CheckIcon size={10} className={"bn-tick-icon"} />
+              ) : (
+                // Ensures space for tick even if item isn't currently selected.
+                <div className={"bn-tick-space"} />
+              )
+            }
+            disabled={item.isDisabled}>
+            {item.text}
+          </Mantine.Menu.Item>
         ))}
       </Mantine.Menu.Dropdown>
     </Mantine.Menu>
   );
-}
+});

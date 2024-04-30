@@ -1,7 +1,6 @@
 import "@blocknote/core/fonts/inter.css";
 import {
   BasicTextStyleButton,
-  BlockNoteView,
   BlockTypeSelect,
   ColorStyleButton,
   CreateLinkButton,
@@ -14,7 +13,8 @@ import {
   UnnestBlockButton,
   useCreateBlockNote,
 } from "@blocknote/react";
-import "@blocknote/react/style.css";
+import { BlockNoteView } from "@blocknote/mantine";
+import "@blocknote/mantine/style.css";
 
 import { BlueButton } from "./BlueButton";
 

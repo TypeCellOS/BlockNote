@@ -17,9 +17,10 @@ export const TableHandleMenu = <
 >(
   props: TableHandleMenuProps<I, S> & { children?: ReactNode }
 ) => {
-  const components = useComponentsContext()!;
+  const Components = useComponentsContext()!;
+
   return (
-    <components.MenuDropdown className={"bn-table-handle-menu"}>
+    <Components.Generic.Menu.Dropdown className={"bn-table-handle-menu"}>
       {props.children || (
         <>
           <DeleteButton
@@ -41,6 +42,6 @@ export const TableHandleMenu = <
           />
         </>
       )}
-    </components.MenuDropdown>
+    </Components.Generic.Menu.Dropdown>
   );
 };

@@ -3,11 +3,12 @@ import {
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
+  locales,
   mergeCSSClasses,
 } from "@blocknote/core";
-import { MantineProvider } from "@mantine/core";
 
 import React, {
+  ComponentProps,
   HTMLAttributes,
   ReactNode,
   Ref,
@@ -19,6 +20,7 @@ import React, {
 import usePrefersColorScheme from "use-prefers-color-scheme";
 import { useEditorChange } from "../hooks/useEditorChange";
 import { useEditorSelectionChange } from "../hooks/useEditorSelectionChange";
+import { DictionaryContext } from "../i18n/dictionary";
 import { mergeRefs } from "../util/mergeRefs";
 import { BlockNoteContext, useBlockNoteContext } from "./BlockNoteContext";
 import {
@@ -32,11 +34,6 @@ import {
 } from "./BlockNoteTheme";
 import { EditorContent } from "./EditorContent";
 import "./styles.css";
-
-const mantineTheme = {
-  // Removes button press effect
-  activeClassName: "",
-};
 
 const emptyFn = () => {
   // noop
@@ -193,13 +190,15 @@ function BlockNoteViewComponent<
   }, [containerRef, editor._tiptapEditor.mount, ref]);
 
   return (
-    // `cssVariablesSelector` scopes Mantine CSS variables to only the editor,
-    // as proposed here:  https://github.com/orgs/mantinedev/discussions/5685
-    <MantineProvider theme={mantineTheme} cssVariablesSelector=".bn-container">
+    <DictionaryContext.Provider value={locales.en}>
       <BlockNoteContext.Provider value={context as any}>
         <EditorContent editor={editor}>
           <div
-            className={mergeCSSClasses("bn-container", className || "")}
+            className={mergeCSSClasses(
+              "bn-container",
+              editorColorScheme || "",
+              className || ""
+            )}
             data-color-scheme={editorColorScheme}
             {...rest}
             ref={refs}>
@@ -207,10 +206,19 @@ function BlockNoteViewComponent<
           </div>
         </EditorContent>
       </BlockNoteContext.Provider>
-    </MantineProvider>
+    </DictionaryContext.Provider>
   );
 }
 
-export const BlockNoteViewRaw = React.forwardRef(
-  BlockNoteViewComponent
-) as typeof BlockNoteViewComponent; // need hack to get types working with generics
+// https://fettblog.eu/typescript-react-generic-forward-refs/
+export const BlockNoteViewRaw = React.forwardRef(BlockNoteViewComponent) as <
+  BSchema extends BlockSchema,
+  ISchema extends InlineContentSchema,
+  SSchema extends StyleSchema
+>(
+  props: ComponentProps<
+    typeof BlockNoteViewComponent<BSchema, ISchema, SSchema>
+  > & {
+    ref?: React.ForwardedRef<HTMLDivElement>;
+  }
+) => ReturnType<typeof BlockNoteViewComponent<BSchema, ISchema, SSchema>>;

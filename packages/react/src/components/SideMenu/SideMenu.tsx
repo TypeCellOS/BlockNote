@@ -11,6 +11,7 @@ import { ReactNode } from "react";
 import { AddBlockButton } from "./DefaultButtons/AddBlockButton";
 import { DragHandleButton } from "./DefaultButtons/DragHandleButton";
 import { SideMenuProps } from "./SideMenuProps";
+import { useComponentsContext } from "../../editor/ComponentsContext";
 
 // TODO: props.dragHandleMenu should only be available if no children are passed
 /**
@@ -28,26 +29,18 @@ export const SideMenu = <
 >(
   props: SideMenuProps<BSchema, I, S> & { children?: ReactNode }
 ) => {
+  const Components = useComponentsContext()!;
+
   const { addBlock, ...rest } = props;
 
   return (
-    <div
-      className={"bn-side-menu"}
-      // TODO: move to css
-      style={{
-        alignItems: "center",
-        display: "flex",
-        flexDirection: "row",
-        flexWrap: "wrap",
-        justifyContent: "flex-start",
-        gap: 0,
-      }}>
+    <Components.SideMenu.Root className={"bn-side-menu"}>
       {props.children || (
         <>
           <AddBlockButton addBlock={addBlock} />
           <DragHandleButton {...rest} />
         </>
       )}
-    </div>
+    </Components.SideMenu.Root>
   );
 };

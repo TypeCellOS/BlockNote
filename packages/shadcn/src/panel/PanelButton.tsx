@@ -1,13 +1,23 @@
-import { PanelButtonProps } from "../../../react/src";
-import { Button } from "../components/ui/button";
-import { cn } from "../lib/utils";
+import { ComponentProps } from "@blocknote/react";
+import { forwardRef } from "react";
 
-export const PanelButton = (props: PanelButtonProps) => {
-  const { children, className, ...rest } = props;
+import { useShadCNComponentsContext } from "../ShadCNComponentsContext";
+
+export const PanelButton = forwardRef<
+  HTMLButtonElement,
+  ComponentProps["ImagePanel"]["Button"]
+>((props, ref) => {
+  const { className, children, onClick } = props;
+
+  const ShadCNComponents = useShadCNComponentsContext()!;
 
   return (
-    <Button className={cn("w-64", className)} variant={"outline"} {...rest}>
+    <ShadCNComponents.Button.Button
+      type={"submit"}
+      className={className}
+      ref={ref}
+      onClick={onClick}>
       {children}
-    </Button>
+    </ShadCNComponents.Button.Button>
   );
-};
+});

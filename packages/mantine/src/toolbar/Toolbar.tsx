@@ -1,20 +1,23 @@
 import * as Mantine from "@mantine/core";
 
-import { mergeCSSClasses } from "@blocknote/core";
-import { forwardRef, HTMLAttributes } from "react";
+import { ComponentProps } from "@blocknote/react";
+import { forwardRef } from "react";
 
-export const Toolbar = forwardRef<
-  HTMLDivElement,
-  HTMLAttributes<HTMLDivElement>
->((props, ref) => {
-  const { className, children, ...rest } = props;
+type ToolbarProps = ComponentProps["FormattingToolbar"]["Root"] &
+  ComponentProps["LinkToolbar"]["Root"];
 
-  return (
-    <Mantine.Group
-      className={mergeCSSClasses("bn-toolbar", className || "")}
-      ref={ref}
-      {...rest}>
-      {children}
-    </Mantine.Group>
-  );
-});
+export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(
+  (props, ref) => {
+    const { className, children, onMouseEnter, onMouseLeave } = props;
+
+    return (
+      <Mantine.Group
+        className={className}
+        ref={ref}
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}>
+        {children}
+      </Mantine.Group>
+    );
+  }
+);

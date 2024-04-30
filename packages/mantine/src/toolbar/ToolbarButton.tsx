@@ -1,7 +1,7 @@
 import * as Mantine from "@mantine/core";
 
 import { isSafari } from "@blocknote/core";
-import { ToolbarButtonProps } from "@blocknote/react";
+import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
 
 export const TooltipContent = (props: {
@@ -16,23 +16,39 @@ export const TooltipContent = (props: {
   </Mantine.Stack>
 );
 
+type ToolbarButtonProps = ComponentProps["FormattingToolbar"]["Button"] &
+  ComponentProps["LinkToolbar"]["Button"];
+
 /**
  * Helper for basic buttons that show in the formatting toolbar.
  */
 export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
   (props, ref) => {
+    const {
+      className,
+      children,
+      mainTooltip,
+      secondaryTooltip,
+      icon,
+      isSelected,
+      isDisabled,
+      onClick,
+      ...rest
+    } = props;
+
     return (
       <Mantine.Tooltip
         withinPortal={false}
         label={
           <TooltipContent
-            mainTooltip={props.mainTooltip}
-            secondaryTooltip={props.secondaryTooltip}
+            mainTooltip={mainTooltip}
+            secondaryTooltip={secondaryTooltip}
           />
         }>
         {/*Creates an ActionIcon instead of a Button if only an icon is provided as content.*/}
-        {props.children ? (
+        {children ? (
           <Mantine.Button
+            className={className}
             // Needed as Safari doesn't focus button elements on mouse down
             // unlike other browsers.
             onMouseDown={(e) => {
@@ -40,20 +56,21 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
                 (e.currentTarget as HTMLButtonElement).focus();
               }
             }}
-            onClick={props.onClick}
-            data-selected={props.isSelected ? "true" : undefined}
+            onClick={onClick}
+            data-selected={isSelected ? "true" : undefined}
             data-test={
-              props.mainTooltip.slice(0, 1).toLowerCase() +
-              props.mainTooltip.replace(/\s+/g, "").slice(1)
+              mainTooltip.slice(0, 1).toLowerCase() +
+              mainTooltip.replace(/\s+/g, "").slice(1)
             }
             size={"xs"}
-            disabled={props.isDisabled || false}
-            ref={ref}>
-            {props.icon}
-            {props.children}
+            disabled={isDisabled || false}
+            ref={ref}
+            {...rest}>
+            {children}
           </Mantine.Button>
         ) : (
           <Mantine.ActionIcon
+            className={className}
             // Needed as Safari doesn't focus button elements on mouse down
             // unlike other browsers.
             onMouseDown={(e) => {
@@ -61,16 +78,17 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
                 (e.currentTarget as HTMLButtonElement).focus();
               }
             }}
-            onClick={props.onClick}
-            data-selected={props.isSelected ? "true" : undefined}
+            onClick={onClick}
+            data-selected={isSelected ? "true" : undefined}
             data-test={
-              props.mainTooltip.slice(0, 1).toLowerCase() +
-              props.mainTooltip.replace(/\s+/g, "").slice(1)
+              mainTooltip.slice(0, 1).toLowerCase() +
+              mainTooltip.replace(/\s+/g, "").slice(1)
             }
             size={30}
-            disabled={props.isDisabled || false}
-            ref={ref}>
-            {props.icon}
+            disabled={isDisabled || false}
+            ref={ref}
+            {...rest}>
+            {icon}
           </Mantine.ActionIcon>
         )}
       </Mantine.Tooltip>

@@ -7,12 +7,15 @@ import {
 } from "react";
 import { RiLink, RiText } from "react-icons/ri";
 import { useComponentsContext } from "../../editor/ComponentsContext";
+import { useDictionaryContext } from "../../i18n/dictionary";
 import { LinkToolbarProps } from "./LinkToolbarProps";
 
 export const EditLinkMenuItems = (
   props: Pick<LinkToolbarProps, "url" | "text" | "editLink">
 ) => {
-  const components = useComponentsContext()!;
+  const Components = useComponentsContext()!;
+  const dict = useDictionaryContext();
+
   const { url, text, editLink } = props;
 
   const [currentUrl, setCurrentUrl] = useState<string>(url);
@@ -51,27 +54,29 @@ export const EditLinkMenuItems = (
   );
 
   return (
-    <components.Form>
+    <Components.Generic.Form.Root>
       {/* // TODO: add labels? */}
-      <components.TextInput
+      <Components.Generic.Form.TextInput
+        className={"bn-text-input"}
         name="url"
         icon={<RiLink />}
         autoFocus={true}
-        placeholder={"Edit URL"}
+        placeholder={dict.link_toolbar.form.url_placeholder}
         value={currentUrl}
         onKeyDown={handleEnter}
         onChange={handleUrlChange}
         onSubmit={handleSubmit}
       />
-      <components.TextInput
+      <Components.Generic.Form.TextInput
+        className={"bn-text-input"}
         name="title"
         icon={<RiText />}
-        placeholder={"Edit Title"}
+        placeholder={dict.link_toolbar.form.title_placeholder}
         value={currentText}
         onKeyDown={handleEnter}
         onChange={handleTextChange}
         onSubmit={handleSubmit}
       />
-    </components.Form>
+    </Components.Generic.Form.Root>
   );
 };
