@@ -2,11 +2,13 @@ import { BlockNoteSchema, filterSuggestionItems } from "@blocknote/core";
 import "@blocknote/core/style.css";
 import {
   BlockNoteDefaultUI,
-  BlockNoteView,
   SuggestionMenuController,
   getDefaultReactSlashMenuItems,
   useCreateBlockNote,
 } from "@blocknote/react";
+import { BlockNoteView } from "@blocknote/mantine";
+import "@blocknote/mantine/style.css";
+
 import { Alert, insertAlert } from "../customblocks/Alert";
 import { Button } from "../customblocks/Button";
 

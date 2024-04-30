@@ -1,4 +1,3 @@
-import { Text } from "@mantine/core";
 import {
   DefaultBlockSchema,
   DefaultInlineContentSchema,
@@ -10,6 +9,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
+import { useDictionaryContext } from "../../../i18n/dictionary";
 import { ImagePanelProps } from "../ImagePanelProps";
 
 export const UploadTab = <
@@ -20,7 +20,8 @@ export const UploadTab = <
     setLoading: (loading: boolean) => void;
   }
 ) => {
-  const components = useComponentsContext()!;
+  const Components = useComponentsContext()!;
+  const dict = useDictionaryContext();
 
   const { block, setLoading } = props;
 
@@ -72,18 +73,19 @@ export const UploadTab = <
   );
 
   return (
-    <components.PanelTab>
-      <components.PanelFileInput
-        placeholder={"Upload Image"}
+    <Components.ImagePanel.TabPanel className={"bn-tab-panel"}>
+      <Components.ImagePanel.FileInput
+        className="bn-file-input"
+        data-test="upload-input"
+        placeholder={dict.image_panel.upload.file_placeholder}
         value={null}
         onChange={handleFileChange}
-        data-test={"upload-input"}
       />
       {uploadFailed && (
-        <Text c={"red"} size={"12px"}>
-          Error: Upload failed
-        </Text>
+        <div className="bn-error-text">
+          {dict.image_panel.upload.upload_error}
+        </div>
       )}
-    </components.PanelTab>
+    </Components.ImagePanel.TabPanel>
   );
 };

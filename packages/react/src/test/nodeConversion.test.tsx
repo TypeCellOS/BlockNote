@@ -10,7 +10,7 @@ import {
 } from "@blocknote/core";
 import { flushSync } from "react-dom";
 import { Root, createRoot } from "react-dom/client";
-import { BlockNoteView } from "../editor/BlockNoteView";
+import { BlockNoteViewRaw } from "../editor/BlockNoteView";
 import { customReactBlockSchemaTestCases } from "./testCases/customReactBlocks";
 import { customReactInlineContentTestCases } from "./testCases/customReactInlineContent";
 import { customReactStylesTestCases } from "./testCases/customReactStyles";
@@ -62,13 +62,14 @@ describe("Test React BlockNote-Prosemirror conversion", () => {
   for (const testCase of testCases) {
     describe("Case: " + testCase.name, () => {
       let editor: BlockNoteEditor<any, any, any>;
+      // TODO: Why do we need to render for unit tests?
       let root: Root;
       const div = document.createElement("div");
 
       beforeEach(() => {
         editor = testCase.createEditor();
 
-        const el = <BlockNoteView editor={editor} />;
+        const el = <BlockNoteViewRaw editor={editor} />;
         root = createRoot(div);
         flushSync(() => {
           // eslint-disable-next-line testing-library/no-render-in-setup

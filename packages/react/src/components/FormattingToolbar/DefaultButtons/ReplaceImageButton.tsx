@@ -10,10 +10,13 @@ import { RiImageEditFill } from "react-icons/ri";
 import { useComponentsContext } from "../../../editor/ComponentsContext";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
+import { useDictionaryContext } from "../../../i18n/dictionary";
 import { ImagePanel } from "../../ImagePanel/ImagePanel";
 
 export const ReplaceImageButton = () => {
-  const components = useComponentsContext()!;
+  const dict = useDictionaryContext();
+  const Components = useComponentsContext()!;
+
   const editor = useBlockNoteEditor<
     BlockSchema,
     InlineContentSchema,
@@ -39,18 +42,21 @@ export const ReplaceImageButton = () => {
   }
 
   return (
-    <components.Popover opened={isOpen} position={"bottom"}>
-      <components.PopoverTrigger>
-        <components.ToolbarButton
+    <Components.Generic.Popover.Root opened={isOpen} position={"bottom"}>
+      <Components.Generic.Popover.Trigger>
+        <Components.FormattingToolbar.Button
+          className={"bn-button"}
           onClick={() => setIsOpen(!isOpen)}
           isSelected={isOpen}
-          mainTooltip={"Replace Image"}
+          mainTooltip={dict.formatting_toolbar.image_replace.tooltip}
           icon={<RiImageEditFill />}
         />
-      </components.PopoverTrigger>
-      <components.PopoverContent>
+      </Components.Generic.Popover.Trigger>
+      <Components.Generic.Popover.Content
+        className={"bn-popover-content bn-panel-popover"}
+        variant={"panel-popover"}>
         <ImagePanel block={block} />
-      </components.PopoverContent>
-    </components.Popover>
+      </Components.Generic.Popover.Content>
+    </Components.Generic.Popover.Root>
   );
 };

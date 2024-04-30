@@ -1,8 +1,7 @@
 import {
   Block,
   BlockSchema,
-  checkDefaultBlockTypeInSchema,
-  DefaultBlockSchema,
+  Dictionary,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
@@ -17,11 +16,14 @@ import {
   RiText,
 } from "react-icons/ri";
 
-import { useComponentsContext } from "../../../editor/ComponentsContext";
+import {
+  ComponentProps,
+  useComponentsContext,
+} from "../../../editor/ComponentsContext";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
 import { useEditorContentOrSelectionChange } from "../../../hooks/useEditorContentOrSelectionChange";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
-import { ToolbarSelectItemProps } from "../../../mantine/toolbar/ToolbarSelectItem";
+import { useDictionaryContext } from "../../../i18n/dictionary";
 
 export type BlockTypeSelectItem = {
   name: string;
@@ -33,15 +35,17 @@ export type BlockTypeSelectItem = {
   ) => boolean;
 };
 
-export const blockTypeSelectItems: BlockTypeSelectItem[] = [
+export const blockTypeSelectItems = (
+  dict: Dictionary
+): BlockTypeSelectItem[] => [
   {
-    name: "Paragraph",
+    name: dict.slash_menu.paragraph.title,
     type: "paragraph",
     icon: RiText,
     isSelected: (block) => block.type === "paragraph",
   },
   {
-    name: "Heading 1",
+    name: dict.slash_menu.heading.title,
     type: "heading",
     props: { level: 1 },
     icon: RiH1,
@@ -51,7 +55,7 @@ export const blockTypeSelectItems: BlockTypeSelectItem[] = [
       block.props.level === 1,
   },
   {
-    name: "Heading 2",
+    name: dict.slash_menu.heading_2.title,
     type: "heading",
     props: { level: 2 },
     icon: RiH2,
@@ -61,7 +65,7 @@ export const blockTypeSelectItems: BlockTypeSelectItem[] = [
       block.props.level === 2,
   },
   {
-    name: "Heading 3",
+    name: dict.slash_menu.heading_3.title,
     type: "heading",
     props: { level: 3 },
     icon: RiH3,
@@ -71,13 +75,13 @@ export const blockTypeSelectItems: BlockTypeSelectItem[] = [
       block.props.level === 3,
   },
   {
-    name: "Bullet List",
+    name: dict.slash_menu.bullet_list.title,
     type: "bulletListItem",
     icon: RiListUnordered,
     isSelected: (block) => block.type === "bulletListItem",
   },
   {
-    name: "Numbered List",
+    name: dict.slash_menu.numbered_list.title,
     type: "numberedListItem",
     icon: RiListOrdered,
     isSelected: (block) => block.type === "numberedListItem",
@@ -85,7 +89,9 @@ export const blockTypeSelectItems: BlockTypeSelectItem[] = [
 ];
 
 export const BlockTypeSelect = (props: { items?: BlockTypeSelectItem[] }) => {
-  const components = useComponentsContext()!;
+  const Components = useComponentsContext()!;
+  const dict = useDictionaryContext();
+
   const editor = useBlockNoteEditor<
     BlockSchema,
     InlineContentSchema,
@@ -97,38 +103,40 @@ export const BlockTypeSelect = (props: { items?: BlockTypeSelectItem[] }) => {
   const [block, setBlock] = useState(editor.getTextCursorPosition().block);
 
   const filteredItems: BlockTypeSelectItem[] = useMemo(() => {
-    return (props.items || blockTypeSelectItems).filter((item) =>
-      checkDefaultBlockTypeInSchema(
-        item.type as keyof DefaultBlockSchema,
-        editor
-      )
+    return (props.items || blockTypeSelectItems(dict)).filter(
+      (item) => item.type in editor.schema.blockSchema
     );
-  }, [editor, props.items]);
+  }, [editor, dict, props.items]);
 
   const shouldShow: boolean = useMemo(
     () => filteredItems.find((item) => item.type === block.type) !== undefined,
     [block.type, filteredItems]
   );
 
-  const fullItems: ToolbarSelectItemProps[] = useMemo(() => {
-    const onClick = (item: BlockTypeSelectItem) => {
-      editor.focus();
+  const fullItems: ComponentProps["FormattingToolbar"]["Select"]["items"] =
+    useMemo(() => {
+      const onClick = (item: BlockTypeSelectItem) => {
+        editor.focus();
 
-      for (const block of selectedBlocks) {
-        editor.updateBlock(block, {
-          type: item.type as any,
-          props: item.props as any,
-        });
-      }
-    };
+        for (const block of selectedBlocks) {
+          editor.updateBlock(block, {
+            type: item.type as any,
+            props: item.props as any,
+          });
+        }
+      };
 
-    return filteredItems.map((item) => ({
-      text: item.name,
-      icon: item.icon,
-      onClick: () => onClick(item),
-      isSelected: item.isSelected(block),
-    }));
-  }, [block, filteredItems, editor, selectedBlocks]);
+      return filteredItems.map((item) => {
+        const Icon = item.icon;
+
+        return {
+          text: item.name,
+          icon: <Icon size={16} />,
+          onClick: () => onClick(item),
+          isSelected: item.isSelected(block),
+        };
+      });
+    }, [block, filteredItems, editor, selectedBlocks]);
 
   useEditorContentOrSelectionChange(() => {
     setBlock(editor.getTextCursorPosition().block);
@@ -138,5 +146,10 @@ export const BlockTypeSelect = (props: { items?: BlockTypeSelectItem[] }) => {
     return null;
   }
 
-  return <components.ToolbarSelect items={fullItems} />;
+  return (
+    <Components.FormattingToolbar.Select
+      className={"bn-select"}
+      items={fullItems}
+    />
+  );
 };

@@ -151,7 +151,25 @@
             "Basic"
           ]
         },
-        "title": "Basic Setup TODO",
+        "title": "Use with ShadCN",
+        "group": {
+          "pathFromRoot": "examples/01-basic",
+          "slug": "basic"
+        }
+      },
+      {
+        "projectSlug": "ariakit",
+        "fullSlug": "basic/ariakit",
+        "pathFromRoot": "examples/01-basic/09-ariakit",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "matthewlipski",
+          "tags": [
+            "Basic"
+          ]
+        },
+        "title": "Use with Ariakit",
         "group": {
           "pathFromRoot": "examples/01-basic",
           "slug": "basic"

@@ -38,6 +38,14 @@ export default defineConfig((conf) => ({
               __dirname,
               "../packages/react/src/"
             ),
+            "@blocknote/ariakit": path.resolve(
+              __dirname,
+              "../packages/ariakit/src/"
+            ),
+            "@blocknote/mantine": path.resolve(
+              __dirname,
+              "../packages/mantine/src/"
+            ),
             "@blocknote/shadcn": path.resolve(
               __dirname,
               "../packages/shadcn/src/"

@@ -26,7 +26,7 @@ export type TableHandleProps<
   >;
   orientation: "row" | "column";
   index: number;
-  dragStart: (e: DragEvent<HTMLDivElement>) => void;
+  dragStart: (e: DragEvent) => void;
   showOtherSide: () => void;
   hideOtherSide: () => void;
   tableHandleMenu?: FC<
