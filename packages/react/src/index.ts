@@ -50,9 +50,13 @@ export * from "./components/SuggestionMenu/types";
 
 export * from "./components/ImagePanel/ImagePanelController";
 export * from "./components/ImagePanel/ImagePanelProps";
-export * from "./components/ImagePanel/DefaultTabs/EmbedTab";
-export * from "./components/ImagePanel/DefaultTabs/UploadTab";
-export * from "./components/ImagePanel/ImagePanel";
+export * from "./components/ImagePanel/mantine/DefaultTabs/EmbedTab";
+export * from "./components/ImagePanel/mantine/DefaultTabs/UploadTab";
+export * from "./components/ImagePanel/mantine/ImagePanel";
+export * from "./components/ImagePanel/mantine/ImagePanelButton";
+export * from "./components/ImagePanel/mantine/ImagePanelFileInput";
+export * from "./components/ImagePanel/mantine/ImagePanelTab";
+export * from "./components/ImagePanel/mantine/ImagePanelTextInput";
 
 export * from "./components/TableHandles/TableHandle";
 export * from "./components/TableHandles/TableHandleProps";

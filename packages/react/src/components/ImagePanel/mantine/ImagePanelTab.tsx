@@ -1,15 +1,18 @@
 import { mergeCSSClasses } from "@blocknote/core";
+import { ComponentPropsWithoutRef, forwardRef } from "react";
 
-import { PanelTabProps } from "../../../react/src";
-
-export const PanelTab = (props: PanelTabProps) => {
+export const ImagePanelTab = forwardRef<
+  HTMLDivElement,
+  ComponentPropsWithoutRef<"div">
+>((props, ref) => {
   const { className, children, ...rest } = props;
 
   return (
     <div
       className={mergeCSSClasses("bn-image-panel-tab", className || "")}
-      {...rest}>
+      {...rest}
+      ref={ref}>
       {children}
     </div>
   );
-};
+});
