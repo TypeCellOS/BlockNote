@@ -104,7 +104,3 @@
 .bn-suggestion-menu-item[data-hovered] {
     background-color: hsl(var(--accent));
 }
-
-.bn-drag-handle {
-    height: 24px;
-}

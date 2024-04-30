@@ -34,7 +34,6 @@ export const DragHandleButton = <
       }}
       position={"left"}>
       <Components.Generic.Menu.Trigger>
-        {/* TODO: figure out what to do with removed bn-drag-handle */}
         <Components.SideMenu.Button
           draggable={true}
           onDragStart={props.blockDragStart}
