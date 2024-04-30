@@ -3,7 +3,7 @@
   "homepage": "https://github.com/TypeCellOS/BlockNote",
   "private": false,
   "license": "MPL-2.0",
-  "version": "0.12.2",
+  "version": "0.12.4",
   "files": [
     "dist",
     "types",
@@ -51,10 +51,10 @@
   },
   "dependencies": {
     "@ariakit/react": "^0.4.3",
-    "@blocknote/core": "^0.12.1",
+    "@blocknote/core": "^0.12.4",
     "@floating-ui/react": "^0.26.4",
-    "@mantine/core": "^7.5.0",
-    "@mantine/hooks": "^7.5.0",
+    "@mantine/core": "^7.7.1",
+    "@mantine/hooks": "^7.7.1",
     "@mantine/utils": "^6.0.21",
     "@tiptap/core": "^2.0.3",
     "@tiptap/react": "^2.0.3",
