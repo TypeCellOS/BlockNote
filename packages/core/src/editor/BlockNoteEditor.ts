@@ -133,6 +133,8 @@ export type BlockNoteEditorOptions<
 
   // tiptap options, undocumented
   _tiptapOptions: Partial<EditorOptions>;
+
+  trailingBlock?: boolean;
 };
 
 const blockNoteTipTapOptions = {
@@ -250,6 +252,7 @@ export class BlockNoteEditor<
       styleSpecs: this.schema.styleSpecs,
       inlineContentSpecs: this.schema.inlineContentSpecs,
       collaboration: newOptions.collaboration,
+      trailingBlock: newOptions.trailingBlock,
     });
 
     const blockNoteUIExtension = Extension.create({
