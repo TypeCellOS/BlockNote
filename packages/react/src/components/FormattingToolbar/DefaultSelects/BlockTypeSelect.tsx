@@ -23,7 +23,7 @@ import {
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
 import { useEditorContentOrSelectionChange } from "../../../hooks/useEditorContentOrSelectionChange";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
-import { useDictionaryContext } from "../../../i18n/dictionary";
+import { useDictionary } from "../../../i18n/dictionary";
 
 export type BlockTypeSelectItem = {
   name: string;
@@ -90,7 +90,7 @@ export const blockTypeSelectItems = (
 
 export const BlockTypeSelect = (props: { items?: BlockTypeSelectItem[] }) => {
   const Components = useComponentsContext()!;
-  const dict = useDictionaryContext();
+  const dict = useDictionary();
 
   const editor = useBlockNoteEditor<
     BlockSchema,

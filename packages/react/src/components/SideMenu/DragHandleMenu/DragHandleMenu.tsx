@@ -9,7 +9,7 @@ import {
 import { ReactNode } from "react";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext";
-import { useDictionaryContext } from "../../../i18n/dictionary";
+import { useDictionary } from "../../../i18n/dictionary";
 import { BlockColorsItem } from "./DefaultItems/BlockColorsItem";
 import { RemoveBlockItem } from "./DefaultItems/RemoveBlockItem";
 import { DragHandleMenuProps } from "./DragHandleMenuProps";
@@ -30,7 +30,7 @@ export const DragHandleMenu = <
   props: DragHandleMenuProps<BSchema, I, S> & { children?: ReactNode }
 ) => {
   const Components = useComponentsContext()!;
-  const dict = useDictionaryContext();
+  const dict = useDictionary();
 
   return (
     <Components.Generic.Menu.Dropdown

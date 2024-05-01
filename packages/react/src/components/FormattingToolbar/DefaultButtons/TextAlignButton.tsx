@@ -18,7 +18,7 @@ import {
 import { useComponentsContext } from "../../../editor/ComponentsContext";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
-import { useDictionaryContext } from "../../../i18n/dictionary";
+import { useDictionary } from "../../../i18n/dictionary";
 
 type TextAlignment = DefaultProps["textAlignment"];
 
@@ -31,7 +31,7 @@ const icons: Record<TextAlignment, IconType> = {
 
 export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
   const Components = useComponentsContext()!;
-  const dict = useDictionaryContext();
+  const dict = useDictionary();
 
   const editor = useBlockNoteEditor<
     BlockSchema,

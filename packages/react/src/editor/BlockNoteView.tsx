@@ -3,7 +3,6 @@ import {
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
-  locales,
   mergeCSSClasses,
 } from "@blocknote/core";
 
@@ -20,7 +19,6 @@ import React, {
 import usePrefersColorScheme from "use-prefers-color-scheme";
 import { useEditorChange } from "../hooks/useEditorChange";
 import { useEditorSelectionChange } from "../hooks/useEditorSelectionChange";
-import { DictionaryContext } from "../i18n/dictionary";
 import { mergeRefs } from "../util/mergeRefs";
 import { BlockNoteContext, useBlockNoteContext } from "./BlockNoteContext";
 import {
@@ -190,23 +188,21 @@ function BlockNoteViewComponent<
   }, [containerRef, editor._tiptapEditor.mount, ref]);
 
   return (
-    <DictionaryContext.Provider value={locales.en}>
-      <BlockNoteContext.Provider value={context as any}>
-        <EditorContent editor={editor}>
-          <div
-            className={mergeCSSClasses(
-              "bn-container",
-              editorColorScheme || "",
-              className || ""
-            )}
-            data-color-scheme={editorColorScheme}
-            {...rest}
-            ref={refs}>
-            {renderChildren}
-          </div>
-        </EditorContent>
-      </BlockNoteContext.Provider>
-    </DictionaryContext.Provider>
+    <BlockNoteContext.Provider value={context as any}>
+      <EditorContent editor={editor}>
+        <div
+          className={mergeCSSClasses(
+            "bn-container",
+            editorColorScheme || "",
+            className || ""
+          )}
+          data-color-scheme={editorColorScheme}
+          {...rest}
+          ref={refs}>
+          {renderChildren}
+        </div>
+      </EditorContent>
+    </BlockNoteContext.Provider>
   );
 }
 

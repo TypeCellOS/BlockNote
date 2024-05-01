@@ -13,7 +13,7 @@ import { useComponentsContext } from "../../../editor/ComponentsContext";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
 import { useEditorContentOrSelectionChange } from "../../../hooks/useEditorContentOrSelectionChange";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
-import { useDictionaryContext } from "../../../i18n/dictionary";
+import { useDictionary } from "../../../i18n/dictionary";
 import { EditLinkMenuItems } from "../../LinkToolbar/EditLinkMenuItems";
 
 function checkLinkInSchema(
@@ -42,7 +42,7 @@ export const CreateLinkButton = () => {
     StyleSchema
   >();
   const Components = useComponentsContext()!;
-  const dict = useDictionaryContext();
+  const dict = useDictionary();
 
   const linkInSchema = checkLinkInSchema(editor);
 

@@ -7,14 +7,14 @@ import {
 } from "react";
 import { RiLink, RiText } from "react-icons/ri";
 import { useComponentsContext } from "../../editor/ComponentsContext";
-import { useDictionaryContext } from "../../i18n/dictionary";
+import { useDictionary } from "../../i18n/dictionary";
 import { LinkToolbarProps } from "./LinkToolbarProps";
 
 export const EditLinkMenuItems = (
   props: Pick<LinkToolbarProps, "url" | "text" | "editLink">
 ) => {
   const Components = useComponentsContext()!;
-  const dict = useDictionaryContext();
+  const dict = useDictionary();
 
   const { url, text, editLink } = props;
 

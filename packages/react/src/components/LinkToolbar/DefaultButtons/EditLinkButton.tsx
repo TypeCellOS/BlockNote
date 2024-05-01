@@ -1,5 +1,5 @@
 import { useComponentsContext } from "../../../editor/ComponentsContext";
-import { useDictionaryContext } from "../../../i18n/dictionary";
+import { useDictionary } from "../../../i18n/dictionary";
 import { EditLinkMenuItems } from "../EditLinkMenuItems";
 import { LinkToolbarProps } from "../LinkToolbarProps";
 
@@ -7,7 +7,7 @@ export const EditLinkButton = (
   props: Pick<LinkToolbarProps, "url" | "text" | "editLink">
 ) => {
   const Components = useComponentsContext()!;
-  const dict = useDictionaryContext();
+  const dict = useDictionary();
 
   return (
     <Components.Generic.Popover.Root>

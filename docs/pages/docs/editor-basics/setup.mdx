@@ -24,6 +24,7 @@ type BlockNoteEditorOptions = {
   defaultStyles?: boolean;
   uploadFile?: (file: File) => Promise<string>;
   collaboration?: CollaborationOptions;
+  dictionary?: Dictionary;
   schema?: BlockNoteSchema;
 };
 ```
@@ -41,6 +42,8 @@ The hook takes two optional parameters:
 `uploadFile`: A function which handles file uploads and eventually returns the URL to the uploaded file. Used for [Image blocks](/docs/editor-basics/default-schema#image).
 
 `collaboration`: Options for enabling real-time collaboration. See [Real-time Collaboration](/docs/advanced/real-time-collaboration) for more info.
+
+`dictionary`: Provide strings for localization. See the [Localization / i18n example](/examples/basic/localization).
 
 `schema` (_advanced_): The editor schema if you want to extend your editor with custom blocks, styles, or inline content [Custom Schemas](/docs/custom-schemas).
 

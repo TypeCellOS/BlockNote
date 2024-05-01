@@ -9,7 +9,7 @@ import {
 
 import { useComponentsContext } from "../../../../editor/ComponentsContext";
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor";
-import { useDictionaryContext } from "../../../../i18n/dictionary";
+import { useDictionary } from "../../../../i18n/dictionary";
 import { TableHandleMenuProps } from "../TableHandleMenuProps";
 
 export const AddRowButton = <
@@ -19,7 +19,7 @@ export const AddRowButton = <
   props: TableHandleMenuProps<I, S> & { side: "above" | "below" }
 ) => {
   const Components = useComponentsContext()!;
-  const dict = useDictionaryContext();
+  const dict = useDictionary();
 
   const editor = useBlockNoteEditor<
     { table: DefaultBlockSchema["table"] },
@@ -58,7 +58,7 @@ export const AddColumnButton = <
   props: TableHandleMenuProps<I, S> & { side: "left" | "right" }
 ) => {
   const Components = useComponentsContext()!;
-  const dict = useDictionaryContext();
+  const dict = useDictionary();
 
   const editor = useBlockNoteEditor<
     { table: DefaultBlockSchema["table"] },

@@ -63,6 +63,7 @@ import {
 
 // CSS
 import { PlaceholderPlugin } from "../extensions/Placeholder/PlaceholderPlugin";
+import { Dictionary } from "../i18n/dictionary";
 import { en } from "../i18n/locales";
 import "./Block.css";
 import "./editor.css";
@@ -75,6 +76,14 @@ export type BlockNoteEditorOptions<
   // TODO: Figure out if enableBlockNoteExtensions/disableHistoryExtension are needed and document them.
   enableBlockNoteExtensions: boolean;
 
+  /**
+   * A dictionary object containing translations for the editor.
+   */
+  dictionary?: Dictionary;
+
+  /**
+   * @deprecated, provide placeholders via dictionary instead
+   */
   placeholders: Record<string | "default", string>;
 
   /**
@@ -152,7 +161,7 @@ export class BlockNoteEditor<
     contentComponent: any;
   };
   public blockCache = new WeakMap<Node, Block<any, any, any>>();
-  public readonly dictionary = en;
+  public readonly dictionary: Dictionary;
 
   public readonly schema: BlockNoteSchema<BSchema, ISchema, SSchema>;
 
@@ -219,6 +228,8 @@ export class BlockNoteEditor<
         "editable initialization option is deprecated, use <BlockNoteView editable={true/false} />, or alternatively editor.isEditable = true/false"
       );
     }
+
+    this.dictionary = options.dictionary || en;
 
     // apply defaults
     const newOptions = {

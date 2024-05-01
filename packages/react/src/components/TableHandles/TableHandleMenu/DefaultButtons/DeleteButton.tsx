@@ -9,7 +9,7 @@ import {
 
 import { useComponentsContext } from "../../../../editor/ComponentsContext";
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor";
-import { useDictionaryContext } from "../../../../i18n/dictionary";
+import { useDictionary } from "../../../../i18n/dictionary";
 import { TableHandleMenuProps } from "../TableHandleMenuProps";
 
 export const DeleteRowButton = <
@@ -19,7 +19,7 @@ export const DeleteRowButton = <
   props: TableHandleMenuProps<I, S>
 ) => {
   const Components = useComponentsContext()!;
-  const dict = useDictionaryContext();
+  const dict = useDictionary();
   const editor = useBlockNoteEditor<
     { table: DefaultBlockSchema["table"] },
     I,
@@ -53,7 +53,7 @@ export const DeleteColumnButton = <
   props: TableHandleMenuProps<I, S>
 ) => {
   const Components = useComponentsContext()!;
-  const dict = useDictionaryContext();
+  const dict = useDictionary();
 
   const editor = useBlockNoteEditor<
     { table: DefaultBlockSchema["table"] },

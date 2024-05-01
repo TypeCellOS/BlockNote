@@ -17,10 +17,10 @@ import { RiText } from "react-icons/ri";
 import { useComponentsContext } from "../../../editor/ComponentsContext";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
-import { useDictionaryContext } from "../../../i18n/dictionary";
+import { useDictionary } from "../../../i18n/dictionary";
 
 export const ImageCaptionButton = () => {
-  const dict = useDictionaryContext();
+  const dict = useDictionary();
   const Components = useComponentsContext()!;
 
   const editor = useBlockNoteEditor<
