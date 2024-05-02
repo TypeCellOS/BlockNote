@@ -9,6 +9,7 @@ import {
 import { MdDragIndicator } from "react-icons/md";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext";
+import { useDictionary } from "../../../i18n/dictionary";
 import { DragHandleMenu } from "../DragHandleMenu/DragHandleMenu";
 import { SideMenuProps } from "../SideMenuProps";
 
@@ -20,6 +21,7 @@ export const DragHandleButton = <
   props: Omit<SideMenuProps<BSchema, I, S>, "addBlock">
 ) => {
   const Components = useComponentsContext()!;
+  const dict = useDictionary();
 
   const Component = props.dragHandleMenu || DragHandleMenu;
 
@@ -37,6 +39,7 @@ export const DragHandleButton = <
       position={"left"}>
       <Components.Generic.Menu.Trigger>
         <Components.SideMenu.Button
+          label={dict.side_menu.drag_handle_label}
           draggable={true}
           onDragStart={props.blockDragStart}
           onDragEnd={props.blockDragEnd}

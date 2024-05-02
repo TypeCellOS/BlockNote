@@ -1,13 +1,16 @@
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
 
+import { assertEmpty } from "@blocknote/core";
 import { useShadCNComponentsContext } from "../ShadCNComponentsContext";
 
 export const PanelFileInput = forwardRef<
   HTMLInputElement,
   ComponentProps["ImagePanel"]["FileInput"]
 >((props, ref) => {
-  const { className, value, placeholder, onChange } = props;
+  const { className, value, placeholder, onChange, ...rest } = props;
+
+  assertEmpty(rest);
 
   const ShadCNComponents = useShadCNComponentsContext()!;
 

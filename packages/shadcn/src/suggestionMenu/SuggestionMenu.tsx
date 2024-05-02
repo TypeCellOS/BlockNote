@@ -1,13 +1,16 @@
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
 
+import { assertEmpty } from "@blocknote/core";
 import { cn } from "../lib/utils";
 
 export const SuggestionMenu = forwardRef<
   HTMLDivElement,
   ComponentProps["SuggestionMenu"]["Root"]
 >((props, ref) => {
-  const { className, children } = props;
+  const { className, children, ...rest } = props;
+
+  assertEmpty(rest);
 
   return (
     <div

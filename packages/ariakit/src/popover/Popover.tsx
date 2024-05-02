@@ -1,6 +1,6 @@
 import * as Ariakit from "@ariakit/react";
 
-import { mergeCSSClasses } from "@blocknote/core";
+import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
 
@@ -8,7 +8,9 @@ export const PopoverTrigger = forwardRef<
   HTMLButtonElement,
   ComponentProps["Generic"]["Popover"]["Trigger"]
 >((props, ref) => {
-  const { children } = props;
+  const { children, ...rest } = props;
+
+  assertEmpty(rest);
 
   return <Ariakit.PopoverDisclosure render={children as any} ref={ref} />;
 });
@@ -17,7 +19,9 @@ export const PopoverContent = forwardRef<
   HTMLDivElement,
   ComponentProps["Generic"]["Popover"]["Content"]
 >((props, ref) => {
-  const { className, children } = props;
+  const { className, children, variant, ...rest } = props;
+
+  assertEmpty(rest);
 
   return (
     <Ariakit.Popover
@@ -31,7 +35,9 @@ export const PopoverContent = forwardRef<
 export const Popover = (
   props: ComponentProps["Generic"]["Popover"]["Root"]
 ) => {
-  const { children, opened, position } = props;
+  const { children, opened, position, ...rest } = props;
+
+  assertEmpty(rest);
 
   return (
     <Ariakit.PopoverProvider open={opened} placement={position}>

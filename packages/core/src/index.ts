@@ -27,5 +27,5 @@ export * from "./api/nodeConversions/nodeConversions";
 export * from "./api/testUtil/partialBlockTestUtil";
 export * from "./extensions/UniqueID/UniqueID";
 export * from "./i18n/dictionary";
-export { UnreachableCaseError } from "./util/typescript";
+export { UnreachableCaseError, assertEmpty } from "./util/typescript";
 export { locales };

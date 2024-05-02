@@ -83,6 +83,7 @@ export const ImageCaptionButton = () => {
       <Components.Generic.Popover.Trigger>
         <Components.FormattingToolbar.Button
           className={"bn-button"}
+          label={dict.formatting_toolbar.image_caption.tooltip}
           mainTooltip={dict.formatting_toolbar.image_caption.tooltip}
           icon={<RiText />}
           isSelected={imageBlock.props.caption !== ""}

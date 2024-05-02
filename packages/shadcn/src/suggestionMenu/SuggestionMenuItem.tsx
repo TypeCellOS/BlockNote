@@ -1,3 +1,4 @@
+import { assertEmpty } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef, useCallback } from "react";
 import { useShadCNComponentsContext } from "../ShadCNComponentsContext";
@@ -9,19 +10,9 @@ export const SuggestionMenuItem = forwardRef<
 >((props, ref) => {
   const ShadCNComponents = useShadCNComponentsContext()!;
 
-  const {
-    className,
-    title,
-    subtext,
-    // group,
-    icon,
-    badge,
-    // aliases,
-    // onItemClick,
-    isSelected,
-    setSelected,
-    onClick,
-  } = props;
+  const { className, item, isSelected, setSelected, onClick, ...rest } = props;
+
+  assertEmpty(rest);
 
   const handleMouseLeave = useCallback(() => {
     setSelected?.(false);
@@ -44,19 +35,19 @@ export const SuggestionMenuItem = forwardRef<
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       data-hovered={isSelected ? "" : undefined}>
-      {icon && (
+      {item.icon && (
         <div className="p-3" data-position="left">
-          {icon}
+          {item.icon}
         </div>
       )}
       <div className="flex-1">
-        <div className="text-base">{title}</div>
-        <div className="text-xs">{subtext}</div>
+        <div className="text-base">{item.title}</div>
+        <div className="text-xs">{item.subtext}</div>
       </div>
-      {badge && (
+      {item.badge && (
         <div data-position="right" className="text-xs">
           <ShadCNComponents.Badge.Badge variant={"secondary"}>
-            {badge}
+            {item.badge}
           </ShadCNComponents.Badge.Badge>
         </div>
       )}

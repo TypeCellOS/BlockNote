@@ -1,5 +1,6 @@
 import * as Mantine from "@mantine/core";
 
+import { assertEmpty } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef, useCallback } from "react";
 
@@ -7,19 +8,9 @@ export const SuggestionMenuItem = forwardRef<
   HTMLDivElement,
   ComponentProps["SuggestionMenu"]["Item"]
 >((props, ref) => {
-  const {
-    className,
-    title,
-    subtext,
-    // group,
-    icon,
-    badge,
-    // aliases,
-    // onItemClick,
-    isSelected,
-    setSelected,
-    onClick,
-  } = props;
+  const { className, isSelected, setSelected, onClick, item, ...rest } = props;
+
+  assertEmpty(rest);
 
   const handleMouseLeave = useCallback(() => {
     setSelected?.(false);
@@ -39,26 +30,26 @@ export const SuggestionMenuItem = forwardRef<
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       data-hovered={isSelected ? "" : undefined}>
-      {icon && (
+      {item.icon && (
         <Mantine.Group
           className="bn-mt-suggestion-menu-item-section"
           data-position="left">
-          {icon}
+          {item.icon}
         </Mantine.Group>
       )}
       <Mantine.Stack gap={0} className="bn-mt-suggestion-menu-item-body">
         <Mantine.Text className="bn-mt-suggestion-menu-item-title">
-          {title}
+          {item.title}
         </Mantine.Text>
         <Mantine.Text className="bn-mt-suggestion-menu-item-subtitle">
-          {subtext}
+          {item.subtext}
         </Mantine.Text>
       </Mantine.Stack>
-      {badge && (
+      {item.badge && (
         <Mantine.Group
           data-position="right"
           className="bn-mt-suggestion-menu-item-section">
-          <Mantine.Badge size={"xs"}>{badge}</Mantine.Badge>
+          <Mantine.Badge size={"xs"}>{item.badge}</Mantine.Badge>
         </Mantine.Group>
       )}
     </Mantine.Group>

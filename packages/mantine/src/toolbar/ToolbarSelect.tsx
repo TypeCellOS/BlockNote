@@ -1,6 +1,6 @@
 import * as Mantine from "@mantine/core";
 
-import { isSafari } from "@blocknote/core";
+import { assertEmpty, isSafari } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
 import { HiChevronDown } from "react-icons/hi";
@@ -10,7 +10,9 @@ export const ToolbarSelect = forwardRef<
   HTMLDivElement,
   ComponentProps["FormattingToolbar"]["Select"]
 >((props, ref) => {
-  const { className, items, isDisabled } = props;
+  const { className, items, isDisabled, ...rest } = props;
+
+  assertEmpty(rest);
 
   const selectedItem = items.filter((p) => p.isSelected)[0];
 

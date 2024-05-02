@@ -111,6 +111,7 @@ export const BasicTextStyleButton = <Style extends BasicTextStyle>(props: {
       data-test={props.basicTextStyle}
       onClick={() => toggleStyle(props.basicTextStyle)}
       isSelected={active}
+      label={dict.formatting_toolbar[props.basicTextStyle].tooltip}
       mainTooltip={dict.formatting_toolbar[props.basicTextStyle].tooltip}
       secondaryTooltip={formatKeyboardShortcut(
         dict.formatting_toolbar[props.basicTextStyle].secondary_tooltip,

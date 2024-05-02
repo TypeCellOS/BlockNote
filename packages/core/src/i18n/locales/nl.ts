@@ -71,6 +71,10 @@ export const nl: Dictionary = {
     add_button: "Afbeelding toevoegen",
   },
   // from react package:
+  side_menu: {
+    add_block_label: "Nieuw blok",
+    drag_handle_label: "Open blok menu",
+  },
   drag_handle: {
     delete_menuitem: "Verwijder",
     colors_menuitem: "Kleuren",

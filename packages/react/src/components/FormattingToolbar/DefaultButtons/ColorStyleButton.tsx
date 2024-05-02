@@ -133,6 +133,7 @@ export const ColorStyleButton = () => {
         <Components.FormattingToolbar.Button
           className={"bn-button"}
           data-test="colors"
+          label={dict.formatting_toolbar.colors.tooltip}
           mainTooltip={dict.formatting_toolbar.colors.tooltip}
           icon={
             <ColorIcon

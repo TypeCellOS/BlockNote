@@ -1,14 +1,16 @@
 import * as Ariakit from "@ariakit/react";
 
+import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
-import { mergeCSSClasses } from "@blocknote/core";
 import { forwardRef } from "react";
 
 export const ToolbarSelect = forwardRef<
   HTMLDivElement,
   ComponentProps["FormattingToolbar"]["Select"]
 >((props, ref) => {
-  const { className, items, isDisabled } = props;
+  const { className, items, isDisabled, ...rest } = props;
+
+  assertEmpty(rest);
 
   const selectedItem = props.items.filter((p) => p.isSelected)[0];
 

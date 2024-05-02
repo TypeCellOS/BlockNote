@@ -89,6 +89,7 @@ export const CreateLinkButton = () => {
         <Components.FormattingToolbar.Button
           className={"bn-button"}
           data-test="createLink"
+          label={dict.formatting_toolbar.link.tooltip}
           mainTooltip={dict.formatting_toolbar.link.tooltip}
           secondaryTooltip={formatKeyboardShortcut(
             dict.formatting_toolbar.link.secondary_tooltip,
@@ -99,8 +100,7 @@ export const CreateLinkButton = () => {
       </Components.Generic.Popover.Trigger>
       <Components.Generic.Popover.Content
         className={"bn-popover-content bn-form-popover"}
-        variant={"form-popover"}
-        data-input-popover>
+        variant={"form-popover"}>
         <EditLinkMenuItems url={url} text={text} editLink={update} />
       </Components.Generic.Popover.Content>
     </Components.Generic.Popover.Root>

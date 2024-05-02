@@ -1,6 +1,6 @@
 import * as Ariakit from "@ariakit/react";
 
-import { isSafari, mergeCSSClasses } from "@blocknote/core";
+import { assertEmpty, isSafari, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
 
@@ -21,8 +21,13 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
       isSelected,
       isDisabled,
       onClick,
+      label,
       ...rest
     } = props;
+
+    // false, because rest props can be added by ariakit when button is used as a trigger
+    // assertEmpty in this case is only used at typescript level, not runtime level
+    assertEmpty(rest, false);
 
     return (
       <Ariakit.TooltipProvider>
@@ -30,6 +35,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
           className="link"
           render={
             <Ariakit.ToolbarItem
+              aria-label={label}
               className={mergeCSSClasses(
                 "bn-ak-button bn-ak-secondary",
                 className || ""

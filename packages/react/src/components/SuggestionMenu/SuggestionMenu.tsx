@@ -39,7 +39,7 @@ export function SuggestionMenu<T extends DefaultReactSuggestionItem>(
       renderedItems.push(
         <Components.SuggestionMenu.Item
           className={"bn-suggestion-menu-item"}
-          {...item}
+          item={item}
           isSelected={i === selectedIndex}
           key={item.title}
           onClick={() => onItemClick?.(item)}

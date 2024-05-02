@@ -1,4 +1,4 @@
-import { mergeCSSClasses } from "@blocknote/core";
+import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef, useCallback } from "react";
 
@@ -6,19 +6,9 @@ export const SuggestionMenuItem = forwardRef<
   HTMLDivElement,
   ComponentProps["SuggestionMenu"]["Item"]
 >((props, ref) => {
-  const {
-    className,
-    title,
-    subtext,
-    // group,
-    icon,
-    badge,
-    // aliases,
-    // onItemClick,
-    isSelected,
-    setSelected,
-    onClick,
-  } = props;
+  const { className, item, isSelected, setSelected, onClick, ...rest } = props;
+
+  assertEmpty(rest);
 
   const handleMouseLeave = useCallback(() => {
     setSelected?.(false);
@@ -37,22 +27,24 @@ export const SuggestionMenuItem = forwardRef<
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       data-hovered={isSelected ? "" : undefined}>
-      {icon && (
+      {item.icon && (
         <div
           className="bn-ak-suggestion-menu-item-section"
           data-position="left">
-          {icon}
+          {item.icon}
         </div>
       )}
       <div className="bn-ak-suggestion-menu-item-body">
-        <div className="bn-ak-suggestion-menu-item-title">{title}</div>
-        <div className="bn-ak-suggestion-menu-item-subtitle">{subtext}</div>
+        <div className="bn-ak-suggestion-menu-item-title">{item.title}</div>
+        <div className="bn-ak-suggestion-menu-item-subtitle">
+          {item.subtext}
+        </div>
       </div>
-      {badge && (
+      {item.badge && (
         <div
           data-position="right"
           className="bn-ak-suggestion-menu-item-section">
-          <div>{badge}</div>
+          <div>{item.badge}</div>
         </div>
       )}
     </div>

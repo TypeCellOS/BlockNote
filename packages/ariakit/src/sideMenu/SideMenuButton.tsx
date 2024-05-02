@@ -1,6 +1,6 @@
 import * as Ariakit from "@ariakit/react";
 
-import { mergeCSSClasses } from "@blocknote/core";
+import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
 
@@ -8,16 +8,35 @@ export const SideMenuButton = forwardRef<
   HTMLButtonElement,
   ComponentProps["SideMenu"]["Button"]
 >((props, ref) => {
-  const { className, children, icon, onClick } = props;
+  const {
+    className,
+    children,
+    icon,
+    onClick,
+    label,
+    onDragEnd,
+    onDragStart,
+    draggable,
+    ...rest
+  } = props;
+
+  // false, because rest props can be added by ariakit when button is used as a trigger
+  // assertEmpty in this case is only used at typescript level, not runtime level
+  assertEmpty(rest, false);
 
   return (
     <Ariakit.Button
+      onDragEnd={onDragEnd}
+      onDragStart={onDragStart}
+      draggable={draggable}
+      aria-label={label}
       className={mergeCSSClasses(
         "bn-ak-button bn-ak-secondary",
         className || ""
       )}
       ref={ref}
-      onClick={onClick}>
+      onClick={onClick}
+      {...rest}>
       {icon}
       {children}
     </Ariakit.Button>

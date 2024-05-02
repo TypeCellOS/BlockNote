@@ -70,7 +70,6 @@ export const ImagePanel = <
       setOpenTab={setOpenTab}
       tabs={tabs}
       loading={loading}
-      setLoading={setLoading}
     />
   );
 };

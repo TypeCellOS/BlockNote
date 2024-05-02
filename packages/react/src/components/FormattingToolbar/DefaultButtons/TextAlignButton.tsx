@@ -84,6 +84,7 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
       }`}
       onClick={() => setTextAlignment(props.textAlignment)}
       isSelected={textAlignment === props.textAlignment}
+      label={dict.formatting_toolbar[`align_${props.textAlignment}`].tooltip}
       mainTooltip={
         dict.formatting_toolbar[`align_${props.textAlignment}`].tooltip
       }
