@@ -299,7 +299,7 @@ export class SideMenuView<
     // Unfreezes the menu whenever the user clicks anywhere.
     document.body.addEventListener("mousedown", this.onMouseDown, true);
     // Hides and unfreezes the menu whenever the user presses a key.
-    document.body.addEventListener("keydown", this.onKeyDown, true);
+    // document.body.addEventListener("keydown", this.onKeyDown, true);
   }
 
   /**

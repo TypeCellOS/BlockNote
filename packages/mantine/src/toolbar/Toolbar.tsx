@@ -1,6 +1,7 @@
 import * as Mantine from "@mantine/core";
 
 import { ComponentProps } from "@blocknote/react";
+import { mergeRefs, useFocusTrap, useFocusWithin } from "@mantine/hooks";
 import { forwardRef } from "react";
 
 type ToolbarProps = ComponentProps["FormattingToolbar"]["Root"] &
@@ -10,10 +11,19 @@ export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(
   (props, ref) => {
     const { className, children, onMouseEnter, onMouseLeave } = props;
 
+    // use a focus trap so that tab cycles through toolbar buttons, but only if focus is within the toolbar
+    const { ref: focusRef, focused } = useFocusWithin();
+
+    const trapRef = useFocusTrap(focused);
+
+    const combinedRef = mergeRefs(ref, focusRef, trapRef);
+
     return (
       <Mantine.Group
         className={className}
-        ref={ref}
+        ref={combinedRef}
+        role="toolbar"
+        // TODO: aria-label
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}>
         {children}

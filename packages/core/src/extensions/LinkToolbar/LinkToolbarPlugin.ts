@@ -1,11 +1,11 @@
 import { getMarkRange, posToDOMRect, Range } from "@tiptap/core";
 import { EditorView } from "@tiptap/pm/view";
 import { Mark } from "prosemirror-model";
-import { Plugin, PluginKey } from "prosemirror-state";
+import { Plugin, PluginKey, PluginView } from "prosemirror-state";
 
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
-import { BlockSchema, InlineContentSchema, StyleSchema } from "../../schema";
 import { UiElementPosition } from "../../extensions-shared/UiElementPosition";
+import { BlockSchema, InlineContentSchema, StyleSchema } from "../../schema";
 import { EventEmitter } from "../../util/EventEmitter";
 
 export type LinkToolbarState = UiElementPosition & {
@@ -15,7 +15,7 @@ export type LinkToolbarState = UiElementPosition & {
   text: string;
 };
 
-class LinkToolbarView {
+class LinkToolbarView implements PluginView {
   public state?: LinkToolbarState;
   public emitUpdate: () => void;
 
@@ -258,6 +258,13 @@ class LinkToolbarView {
     }
   }
 
+  closeMenu = () => {
+    if (this.state?.show) {
+      this.state.show = false;
+      this.emitUpdate();
+    }
+  };
+
   destroy() {
     this.pmView.dom.removeEventListener("mouseover", this.mouseOverHandler);
     document.removeEventListener("scroll", this.scrollHandler);
@@ -284,6 +291,15 @@ export class LinkToolbarProsemirrorPlugin<
           this.emit("update", state);
         });
         return this.view;
+      },
+      props: {
+        handleKeyDown: (_view, event: KeyboardEvent) => {
+          if (event.key === "Escape" && this.shown) {
+            this.view!.closeMenu();
+            return true;
+          }
+          return false;
+        },
       },
     });
   }
@@ -327,4 +343,10 @@ export class LinkToolbarProsemirrorPlugin<
   public stopHideTimer = () => {
     this.view!.stopMenuUpdateTimer();
   };
+
+  public get shown() {
+    return this.view?.state?.show || false;
+  }
+
+  public closeMenu = () => this.view!.closeMenu();
 }

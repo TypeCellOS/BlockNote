@@ -3,8 +3,8 @@ import { EditorState, Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
 
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
-import { BlockSchema, InlineContentSchema, StyleSchema } from "../../schema";
 import { UiElementPosition } from "../../extensions-shared/UiElementPosition";
+import { BlockSchema, InlineContentSchema, StyleSchema } from "../../schema";
 import { EventEmitter } from "../../util/EventEmitter";
 
 const findBlock = findParentNode((node) => node.type.name === "blockContainer");
@@ -18,7 +18,7 @@ class SuggestionMenuView<
   I extends InlineContentSchema,
   S extends StyleSchema
 > {
-  private state?: SuggestionMenuState;
+  public state?: SuggestionMenuState;
   public emitUpdate: (triggerCharacter: string) => void;
 
   pluginState: SuggestionPluginState;
@@ -339,6 +339,10 @@ export class SuggestionMenuProseMirrorPlugin<
   closeMenu = () => this.view!.closeMenu();
 
   clearQuery = () => this.view!.clearQuery();
+
+  public get shown() {
+    return this.view?.state?.show || false;
+  }
 }
 
 export function createSuggestionMenu<

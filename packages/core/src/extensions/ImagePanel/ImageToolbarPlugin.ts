@@ -1,15 +1,15 @@
-import { EditorState, Plugin, PluginKey } from "prosemirror-state";
+import { EditorState, Plugin, PluginKey, PluginView } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 
+import { DefaultBlockSchema } from "../../blocks/defaultBlocks";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
+import { UiElementPosition } from "../../extensions-shared/UiElementPosition";
 import type {
   BlockFromConfig,
   InlineContentSchema,
   StyleSchema,
 } from "../../schema";
-import { UiElementPosition } from "../../extensions-shared/UiElementPosition";
 import { EventEmitter } from "../../util/EventEmitter";
-import { DefaultBlockSchema } from "../../blocks/defaultBlocks";
 
 export type ImagePanelState<
   I extends InlineContentSchema,
@@ -22,7 +22,8 @@ export type ImagePanelState<
 export class ImagePanelView<
   I extends InlineContentSchema,
   S extends StyleSchema
-> {
+> implements PluginView
+{
   public state?: ImagePanelState<I, S>;
   public emitUpdate: () => void;
 
@@ -45,8 +46,6 @@ export class ImagePanelView<
 
     pmView.dom.addEventListener("dragstart", this.dragstartHandler);
 
-    pmView.dom.addEventListener("blur", this.blurHandler);
-
     document.addEventListener("scroll", this.scrollHandler);
   }
 
@@ -59,28 +58,6 @@ export class ImagePanelView<
 
   // For dragging the whole editor.
   dragstartHandler = () => {
-    if (this.state?.show) {
-      this.state.show = false;
-      this.emitUpdate();
-    }
-  };
-
-  blurHandler = (event: FocusEvent) => {
-    const editorWrapper = this.pmView.dom.parentElement!;
-
-    // Checks if the focus is moving to an element outside the editor. If it is,
-    // the panel is hidden.
-    if (
-      // An element is clicked.
-      event &&
-      event.relatedTarget &&
-      // Element is inside the editor.
-      (editorWrapper === (event.relatedTarget as Node) ||
-        editorWrapper.contains(event.relatedTarget as Node))
-    ) {
-      return;
-    }
-
     if (this.state?.show) {
       this.state.show = false;
       this.emitUpdate();
@@ -131,12 +108,17 @@ export class ImagePanelView<
     }
   }
 
+  closeMenu = () => {
+    if (this.state?.show) {
+      this.state.show = false;
+      this.emitUpdate();
+    }
+  };
+
   destroy() {
     this.pmView.dom.removeEventListener("mousedown", this.mouseDownHandler);
 
     this.pmView.dom.removeEventListener("dragstart", this.dragstartHandler);
-
-    this.pmView.dom.removeEventListener("blur", this.blurHandler);
 
     document.removeEventListener("scroll", this.scrollHandler);
   }
@@ -170,6 +152,15 @@ export class ImagePanelProsemirrorPlugin<
         );
         return this.view;
       },
+      props: {
+        handleKeyDown: (_view, event: KeyboardEvent) => {
+          if (event.key === "Escape" && this.shown) {
+            this.view!.closeMenu();
+            return true;
+          }
+          return false;
+        },
+      },
       state: {
         init: () => {
           return {
@@ -189,7 +180,13 @@ export class ImagePanelProsemirrorPlugin<
     });
   }
 
+  public get shown() {
+    return this.view?.state?.show || false;
+  }
+
   public onUpdate(callback: (state: ImagePanelState<I, S>) => void) {
     return this.on("update", callback);
   }
+
+  public closeMenu = () => this.view!.closeMenu();
 }

@@ -2,8 +2,7 @@ import { BlockNoteEditor } from "@blocknote/core";
 import { useEffect, useState } from "react";
 
 // Hook which handles keyboard navigation of a suggestion menu. Arrow keys are
-// used to select a menu item, enter to execute it, and escape to close the
-// menu.
+// used to select a menu item, enter to execute it
 export function useSuggestionMenuKeyboardNavigation<Item>(
   editor: BlockNoteEditor<any, any, any>,
   query: string,
@@ -41,14 +40,6 @@ export function useSuggestionMenuKeyboardNavigation<Item>(
         if (items.length) {
           onItemClick?.(items[selectedIndex]);
         }
-
-        return true;
-      }
-
-      if (event.key === "Escape") {
-        event.preventDefault();
-
-        closeMenu();
 
         return true;
       }
