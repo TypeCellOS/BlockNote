@@ -13,8 +13,6 @@ import { HiChevronRight } from "react-icons/hi";
 
 const SubMenuContext = createContext<
   | {
-      onTriggerMouseOver: () => void;
-      onTriggerMouseLeave: () => void;
       onMenuMouseOver: () => void;
       onMenuMouseLeave: () => void;
     }
@@ -67,7 +65,7 @@ const SubMenuContext = createContext<
 //   </MenuDropdown>
 // </Menu>
 const SubMenu = forwardRef<
-  HTMLDivElement,
+  HTMLButtonElement,
   ComponentProps["Generic"]["Menu"]["Root"]
 >((props, ref) => {
   const {
@@ -93,22 +91,18 @@ const SubMenu = forwardRef<
     if (menuCloseTimer.current) {
       clearTimeout(menuCloseTimer.current);
     }
-
     setOpened(true);
   }, []);
 
   return (
     <SubMenuContext.Provider
       value={{
-        onTriggerMouseOver: mouseOver,
-        onTriggerMouseLeave: mouseLeave,
         onMenuMouseOver: mouseOver,
         onMenuMouseLeave: mouseLeave,
       }}>
       <Mantine.Menu.Item
         className="bn-menu-item bn-mt-sub-menu-item"
         ref={ref}
-        component="div"
         onMouseOver={mouseOver}
         onMouseLeave={mouseLeave}>
         <Mantine.Menu
@@ -146,13 +140,11 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
 };
 
 export const MenuItem = forwardRef<
-  HTMLDivElement,
+  HTMLButtonElement & HTMLDivElement,
   ComponentProps["Generic"]["Menu"]["Item"]
 >((props, ref) => {
   const { className, children, icon, checked, subTrigger, onClick, ...rest } =
     props;
-
-  const ctx = useContext(SubMenuContext);
 
   if (subTrigger) {
     return (
@@ -163,14 +155,10 @@ export const MenuItem = forwardRef<
     );
   }
 
-  const onMouseLeave = subTrigger ? ctx!.onTriggerMouseLeave : undefined;
-  const onMouseOver = subTrigger ? ctx!.onTriggerMouseOver : undefined;
-
   return (
     <Mantine.Menu.Item
       className={className}
       ref={ref}
-      component="div"
       leftSection={icon}
       rightSection={
         checked ? (
@@ -179,8 +167,6 @@ export const MenuItem = forwardRef<
           <div className={"bn-tick-space"} />
         ) : null
       }
-      onMouseOver={onMouseOver}
-      onMouseLeave={onMouseLeave}
       onClick={onClick}
       {...rest}>
       {children}

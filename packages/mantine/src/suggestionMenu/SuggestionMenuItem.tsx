@@ -32,7 +32,6 @@ export const SuggestionMenuItem = forwardRef<
   return (
     <Mantine.Group
       gap={0}
-      // component="div"
       className={className}
       ref={ref}
       onClick={onClick}

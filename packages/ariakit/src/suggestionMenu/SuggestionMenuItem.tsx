@@ -30,7 +30,6 @@ export const SuggestionMenuItem = forwardRef<
 
   return (
     <div
-      // component="div"
       className={mergeCSSClasses("bn-ak-menu-item", className || "")}
       ref={ref}
       onClick={onClick}
