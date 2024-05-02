@@ -234,10 +234,10 @@ export function filterSuggestionItems<
 >(items: T[], query: string) {
   return items.filter(
     ({ title, aliases }) =>
-      title.toLowerCase().startsWith(query.toLowerCase()) ||
+      title.toLowerCase().includes(query.toLowerCase()) ||
       (aliases &&
         aliases.filter((alias) =>
-          alias.toLowerCase().startsWith(query.toLowerCase())
+          alias.toLowerCase().includes(query.toLowerCase())
         ).length !== 0)
   );
 }
