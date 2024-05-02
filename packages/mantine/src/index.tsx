@@ -1,11 +1,16 @@
 import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
 import {
+  applyBlockNoteCSSVariablesFromTheme,
   BlockNoteViewRaw,
   Components,
   ComponentsContext,
+  removeBlockNoteCSSVariables,
+  Theme,
+  useBlockNoteContext,
 } from "@blocknote/react";
 import { MantineProvider } from "@mantine/core";
-import { ComponentProps } from "react";
+import { ComponentProps, useCallback } from "react";
+import usePrefersColorScheme from "use-prefers-color-scheme";
 
 import { TextInput } from "./form/TextInput";
 import {
@@ -98,8 +103,49 @@ export const BlockNoteView = <
   ISchema extends InlineContentSchema,
   SSchema extends StyleSchema
 >(
-  props: ComponentProps<typeof BlockNoteViewRaw<BSchema, ISchema, SSchema>>
+  props: ComponentProps<typeof BlockNoteViewRaw<BSchema, ISchema, SSchema>> & {
+    theme?:
+      | "light"
+      | "dark"
+      | Theme
+      | {
+          light: Theme;
+          dark: Theme;
+        };
+  }
 ) => {
+  const { theme, ...rest } = props;
+
+  const existingContext = useBlockNoteContext();
+  const systemColorScheme = usePrefersColorScheme();
+  const defaultColorScheme =
+    existingContext?.colorSchemePreference || systemColorScheme;
+
+  const ref = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (!node) {
+        // todo: clean variables?
+        return;
+      }
+
+      removeBlockNoteCSSVariables(node);
+
+      if (typeof theme === "object") {
+        if ("light" in theme && "dark" in theme) {
+          applyBlockNoteCSSVariablesFromTheme(
+            theme[defaultColorScheme === "dark" ? "dark" : "light"],
+            node
+          );
+          return;
+        }
+
+        applyBlockNoteCSSVariablesFromTheme(theme, node);
+        return;
+      }
+    },
+    [defaultColorScheme, theme]
+  );
+
   return (
     <ComponentsContext.Provider value={components}>
       {/* `cssVariablesSelector` scopes Mantine CSS variables to only the editor, */}
@@ -107,7 +153,11 @@ export const BlockNoteView = <
       <MantineProvider
         theme={mantineTheme}
         cssVariablesSelector=".bn-container">
-        <BlockNoteViewRaw {...props} />
+        <BlockNoteViewRaw
+          theme={typeof theme === "object" ? undefined : theme}
+          {...rest}
+          ref={ref}
+        />
       </MantineProvider>
     </ComponentsContext.Provider>
   );

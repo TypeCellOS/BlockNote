@@ -27,11 +27,6 @@ import {
   BlockNoteDefaultUI,
   BlockNoteDefaultUIProps,
 } from "./BlockNoteDefaultUI";
-import {
-  Theme,
-  applyBlockNoteCSSVariablesFromTheme,
-  removeBlockNoteCSSVariables,
-} from "./BlockNoteTheme";
 import { EditorContent } from "./EditorContent";
 import "./styles.css";
 
@@ -47,14 +42,8 @@ function BlockNoteViewComponent<
   props: {
     editor: BlockNoteEditor<BSchema, ISchema, SSchema>;
 
-    theme?:
-      | "light"
-      | "dark"
-      | Theme
-      | {
-          light: Theme;
-          dark: Theme;
-        };
+    theme?: "light" | "dark";
+
     /**
      * Locks the editor from being editable by the user if set to `false`.
      */
@@ -97,7 +86,6 @@ function BlockNoteViewComponent<
   } = props;
 
   const existingContext = useBlockNoteContext();
-
   const systemColorScheme = usePrefersColorScheme();
   const defaultColorScheme =
     existingContext?.colorSchemePreference || systemColorScheme;
@@ -109,40 +97,12 @@ function BlockNoteViewComponent<
   const containerRef = useCallback(
     (node: HTMLDivElement | null) => {
       if (!node) {
-        // todo: clean variables?
         return;
       }
 
-      removeBlockNoteCSSVariables(node);
-
-      if (theme === "light") {
-        setEditorColorScheme("light");
-        return;
-      }
-
-      if (theme === "dark") {
-        setEditorColorScheme("dark");
-        return;
-      }
-
-      if (typeof theme === "object") {
-        if ("light" in theme && "dark" in theme) {
-          applyBlockNoteCSSVariablesFromTheme(
-            theme[defaultColorScheme === "dark" ? "dark" : "light"],
-            node
-          );
-          setEditorColorScheme(
-            defaultColorScheme === "dark" ? "dark" : "light"
-          );
-          return;
-        }
-
-        applyBlockNoteCSSVariablesFromTheme(theme, node);
-        setEditorColorScheme(undefined);
-        return;
-      }
-
-      setEditorColorScheme(defaultColorScheme === "dark" ? "dark" : "light");
+      setEditorColorScheme(
+        theme || defaultColorScheme === "dark" ? "dark" : "light"
+      );
     },
     [defaultColorScheme, theme]
   );
