@@ -176,6 +176,24 @@
         }
       },
       {
+        "projectSlug": "localization",
+        "fullSlug": "basic/localization",
+        "pathFromRoot": "examples/01-basic/10-localization",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "yousefed",
+          "tags": [
+            "Basic"
+          ]
+        },
+        "title": "Localization (i18n)",
+        "group": {
+          "pathFromRoot": "examples/01-basic",
+          "slug": "basic"
+        }
+      },
+      {
         "projectSlug": "testing",
         "fullSlug": "basic/testing",
         "pathFromRoot": "examples/01-basic/testing",

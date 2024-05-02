@@ -19,7 +19,7 @@ import { useComponentsContext } from "../../../editor/ComponentsContext";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
 import { useEditorContentOrSelectionChange } from "../../../hooks/useEditorContentOrSelectionChange";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
-import { useDictionaryContext } from "../../../i18n/dictionary";
+import { useDictionary } from "../../../i18n/dictionary";
 
 type BasicTextStyle = "bold" | "italic" | "underline" | "strike" | "code";
 
@@ -54,7 +54,7 @@ function checkBasicTextStyleInSchema<Style extends BasicTextStyle>(
 export const BasicTextStyleButton = <Style extends BasicTextStyle>(props: {
   basicTextStyle: Style;
 }) => {
-  const dict = useDictionaryContext();
+  const dict = useDictionary();
   const Components = useComponentsContext()!;
 
   const editor = useBlockNoteEditor<

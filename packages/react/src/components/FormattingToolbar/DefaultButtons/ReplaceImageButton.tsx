@@ -10,11 +10,11 @@ import { RiImageEditFill } from "react-icons/ri";
 import { useComponentsContext } from "../../../editor/ComponentsContext";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
-import { useDictionaryContext } from "../../../i18n/dictionary";
+import { useDictionary } from "../../../i18n/dictionary";
 import { ImagePanel } from "../../ImagePanel/ImagePanel";
 
 export const ReplaceImageButton = () => {
-  const dict = useDictionaryContext();
+  const dict = useDictionary();
   const Components = useComponentsContext()!;
 
   const editor = useBlockNoteEditor<

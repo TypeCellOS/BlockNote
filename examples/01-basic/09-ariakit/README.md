@@ -1,7 +1,7 @@
 # Use with Ariakit
 
-This example shows how you can integrate BlockNote with Ariakit, replacing the default Mantine UI with Ariakit components.
+This example shows how you can use BlockNote with Ariakit (instead of Mantine).
 
 **Relevant Docs:**
 
-- [Editor Setup](/docs/editor-basics/setup)
+- [Ariakit](/docs/advanced/ariakit)

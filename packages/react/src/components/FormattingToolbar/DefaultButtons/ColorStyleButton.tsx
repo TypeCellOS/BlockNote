@@ -10,7 +10,7 @@ import { useComponentsContext } from "../../../editor/ComponentsContext";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
 import { useEditorContentOrSelectionChange } from "../../../hooks/useEditorContentOrSelectionChange";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
-import { useDictionaryContext } from "../../../i18n/dictionary";
+import { useDictionary } from "../../../i18n/dictionary";
 import { ColorIcon } from "../../ColorPicker/ColorIcon";
 import { ColorPicker } from "../../ColorPicker/ColorPicker";
 
@@ -43,7 +43,7 @@ function checkColorInSchema<Color extends "text" | "background">(
 
 export const ColorStyleButton = () => {
   const Components = useComponentsContext()!;
-  const dict = useDictionaryContext();
+  const dict = useDictionary();
   const editor = useBlockNoteEditor<
     BlockSchema,
     InlineContentSchema,

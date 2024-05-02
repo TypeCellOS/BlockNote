@@ -12,7 +12,7 @@ import {
   useComponentsContext,
 } from "../../editor/ComponentsContext";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor";
-import { useDictionaryContext } from "../../i18n/dictionary";
+import { useDictionary } from "../../i18n/dictionary";
 import { EmbedTab } from "./DefaultTabs/EmbedTab";
 import { UploadTab } from "./DefaultTabs/UploadTab";
 import { ImagePanelProps } from "./ImagePanelProps";
@@ -33,7 +33,7 @@ export const ImagePanel = <
     Partial<Pick<PanelProps, "defaultOpenTab" | "tabs">>
 ) => {
   const Components = useComponentsContext()!;
-  const dict = useDictionaryContext();
+  const dict = useDictionary();
 
   const editor = useBlockNoteEditor<
     { image: DefaultBlockSchema["image"] },

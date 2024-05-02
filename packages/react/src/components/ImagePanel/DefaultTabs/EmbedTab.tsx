@@ -9,7 +9,7 @@ import { ChangeEvent, KeyboardEvent, useCallback, useState } from "react";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
-import { useDictionaryContext } from "../../../i18n/dictionary";
+import { useDictionary } from "../../../i18n/dictionary";
 import { ImagePanelProps } from "../ImagePanelProps";
 
 export const EmbedTab = <
@@ -19,7 +19,7 @@ export const EmbedTab = <
   props: ImagePanelProps<I, S>
 ) => {
   const Components = useComponentsContext()!;
-  const dict = useDictionaryContext();
+  const dict = useDictionary();
 
   const { block } = props;
 

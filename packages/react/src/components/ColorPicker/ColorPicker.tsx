@@ -1,5 +1,5 @@
 import { useComponentsContext } from "../../editor/ComponentsContext";
-import { useDictionaryContext } from "../../i18n/dictionary";
+import { useDictionary } from "../../i18n/dictionary";
 import { ColorIcon } from "./ColorIcon";
 
 const colors = [
@@ -28,7 +28,7 @@ export const ColorPicker = (props: {
   };
 }) => {
   const Components = useComponentsContext()!;
-  const dict = useDictionaryContext();
+  const dict = useDictionary();
   const TextColorSection = () =>
     props.text ? (
       <>

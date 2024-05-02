@@ -1,14 +1,14 @@
 import { RiLinkUnlink } from "react-icons/ri";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext";
-import { useDictionaryContext } from "../../../i18n/dictionary";
+import { useDictionary } from "../../../i18n/dictionary";
 import { LinkToolbarProps } from "../LinkToolbarProps";
 
 export const DeleteLinkButton = (
   props: Pick<LinkToolbarProps, "deleteLink">
 ) => {
   const Components = useComponentsContext()!;
-  const dict = useDictionaryContext();
+  const dict = useDictionary();
   return (
     <Components.LinkToolbar.Button
       className={"bn-button"}

@@ -11,10 +11,10 @@ import { useComponentsContext } from "../../../editor/ComponentsContext";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
 import { useEditorContentOrSelectionChange } from "../../../hooks/useEditorContentOrSelectionChange";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
-import { useDictionaryContext } from "../../../i18n/dictionary";
+import { useDictionary } from "../../../i18n/dictionary";
 
 export const NestBlockButton = () => {
-  const dict = useDictionaryContext();
+  const dict = useDictionary();
   const Components = useComponentsContext()!;
 
   const editor = useBlockNoteEditor<
@@ -65,7 +65,7 @@ export const NestBlockButton = () => {
 };
 
 export const UnnestBlockButton = () => {
-  const dict = useDictionaryContext();
+  const dict = useDictionary();
   const Components = useComponentsContext()!;
 
   const editor = useBlockNoteEditor<any, any, any>();
