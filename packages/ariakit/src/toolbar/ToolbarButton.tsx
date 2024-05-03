@@ -48,6 +48,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
                 }
               }}
               onClick={onClick}
+              aria-pressed={isSelected}
               data-selected={isSelected ? "true" : undefined}
               data-test={
                 props.mainTooltip.slice(0, 1).toLowerCase() +
@@ -64,7 +65,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
         />
         <Ariakit.Tooltip className="bn-ak-tooltip">
           <span>{mainTooltip}</span>
-          <span>{secondaryTooltip}</span>
+          {secondaryTooltip && <span>{secondaryTooltip}</span>}
         </Ariakit.Tooltip>
       </Ariakit.TooltipProvider>
     );

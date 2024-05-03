@@ -63,7 +63,8 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
               }
             }}
             onClick={onClick}
-            data-selected={isSelected ? "true" : undefined}
+            aria-pressed={isSelected}
+            data-selected={isSelected || undefined}
             data-test={
               mainTooltip.slice(0, 1).toLowerCase() +
               mainTooltip.replace(/\s+/g, "").slice(1)
@@ -86,7 +87,8 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
               }
             }}
             onClick={onClick}
-            data-selected={isSelected ? "true" : undefined}
+            aria-pressed={isSelected}
+            data-selected={isSelected || undefined}
             data-test={
               mainTooltip.slice(0, 1).toLowerCase() +
               mainTooltip.replace(/\s+/g, "").slice(1)
