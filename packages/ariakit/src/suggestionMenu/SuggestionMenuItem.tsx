@@ -1,32 +1,23 @@
 import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
-import { forwardRef, useCallback } from "react";
+import { forwardRef } from "react";
 
 export const SuggestionMenuItem = forwardRef<
   HTMLDivElement,
   ComponentProps["SuggestionMenu"]["Item"]
 >((props, ref) => {
-  const { className, item, isSelected, setSelected, onClick, ...rest } = props;
+  const { className, item, isSelected, onClick, id, ...rest } = props;
 
   assertEmpty(rest);
-
-  const handleMouseLeave = useCallback(() => {
-    setSelected?.(false);
-  }, [setSelected]);
-
-  const handleMouseEnter = useCallback(() => {
-    setSelected?.(true);
-  }, [setSelected]);
 
   return (
     <div
       className={mergeCSSClasses("bn-ak-menu-item", className || "")}
       ref={ref}
+      id={id}
       onClick={onClick}
-      // Ensures an item selected with both mouse & keyboard doesn't get deselected on mouse leave.
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      data-hovered={isSelected ? "" : undefined}>
+      role="option"
+      aria-selected={isSelected || undefined}>
       {item.icon && (
         <div
           className="bn-ak-suggestion-menu-item-section"

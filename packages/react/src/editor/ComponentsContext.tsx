@@ -117,6 +117,7 @@ export type ComponentProps = {
   };
   SuggestionMenu: {
     Root: {
+      id: string;
       className?: string;
       children?: ReactNode;
     };
@@ -126,8 +127,8 @@ export type ComponentProps = {
     };
     Item: {
       className?: string;
+      id: string;
       isSelected: boolean;
-      setSelected: (selected: boolean) => void;
       onClick: () => void;
       item: DefaultReactSuggestionItem;
     };

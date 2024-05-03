@@ -8,12 +8,17 @@ export const SuggestionMenu = forwardRef<
   HTMLDivElement,
   ComponentProps["SuggestionMenu"]["Root"]
 >((props, ref) => {
-  const { className, children, ...rest } = props;
+  const { className, children, id, ...rest } = props;
 
   assertEmpty(rest);
 
   return (
-    <Mantine.Stack gap={0} className={className} ref={ref}>
+    <Mantine.Stack
+      gap={0}
+      className={className}
+      ref={ref}
+      id={id}
+      role="listbox">
       {children}
     </Mantine.Stack>
   );

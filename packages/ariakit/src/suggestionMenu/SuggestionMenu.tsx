@@ -8,13 +8,15 @@ export const SuggestionMenu = forwardRef<
   HTMLDivElement,
   ComponentProps["SuggestionMenu"]["Root"]
 >((props, ref) => {
-  const { className, children, ...rest } = props;
+  const { className, children, id, ...rest } = props;
 
   assertEmpty(rest);
 
   return (
     <Ariakit.Group
       className={mergeCSSClasses("bn-ak-menu", className || "")}
+      id={id}
+      role="listbox"
       ref={ref}>
       {children}
     </Ariakit.Group>

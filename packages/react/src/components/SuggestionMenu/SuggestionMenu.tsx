@@ -9,8 +9,7 @@ export function SuggestionMenu<T extends DefaultReactSuggestionItem>(
   const Components = useComponentsContext()!;
   const dict = useDictionary();
 
-  const { items, loadingState, selectedIndex, setSelectedIndex, onItemClick } =
-    props;
+  const { items, loadingState, selectedIndex, onItemClick } = props;
 
   const loader =
     loadingState === "loading-initial" || loadingState === "loading" ? (
@@ -40,21 +39,21 @@ export function SuggestionMenu<T extends DefaultReactSuggestionItem>(
         <Components.SuggestionMenu.Item
           className={"bn-suggestion-menu-item"}
           item={item}
+          id={`bn-suggestion-menu-item-${i}`}
           isSelected={i === selectedIndex}
           key={item.title}
           onClick={() => onItemClick?.(item)}
-          setSelected={(selected) => {
-            setSelectedIndex(selected ? i : -1);
-          }}
         />
       );
     }
 
     return renderedItems;
-  }, [Components, items, onItemClick, selectedIndex, setSelectedIndex]);
+  }, [Components, items, onItemClick, selectedIndex]);
 
   return (
-    <Components.SuggestionMenu.Root className={"bn-suggestion-menu"}>
+    <Components.SuggestionMenu.Root
+      id="bn-suggestion-menu"
+      className="bn-suggestion-menu">
       {renderedItems}
       {renderedItems.length === 0 &&
         (props.loadingState === "loading" ||

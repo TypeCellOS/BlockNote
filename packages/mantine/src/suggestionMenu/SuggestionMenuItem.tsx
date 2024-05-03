@@ -2,34 +2,24 @@ import * as Mantine from "@mantine/core";
 
 import { assertEmpty } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
-import { forwardRef, useCallback } from "react";
+import { forwardRef } from "react";
 
 export const SuggestionMenuItem = forwardRef<
   HTMLDivElement,
   ComponentProps["SuggestionMenu"]["Item"]
 >((props, ref) => {
-  const { className, isSelected, setSelected, onClick, item, ...rest } = props;
+  const { className, isSelected, onClick, item, id, ...rest } = props;
 
   assertEmpty(rest);
-
-  const handleMouseLeave = useCallback(() => {
-    setSelected?.(false);
-  }, [setSelected]);
-
-  const handleMouseEnter = useCallback(() => {
-    setSelected?.(true);
-  }, [setSelected]);
 
   return (
     <Mantine.Group
       gap={0}
       className={className}
       ref={ref}
-      onClick={onClick}
-      // Ensures an item selected with both mouse & keyboard doesn't get deselected on mouse leave.
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      data-hovered={isSelected ? "" : undefined}>
+      id={id}
+      role="option"
+      aria-selected={isSelected || undefined}>
       {item.icon && (
         <Mantine.Group
           className="bn-mt-suggestion-menu-item-section"

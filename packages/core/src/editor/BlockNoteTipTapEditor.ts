@@ -126,12 +126,15 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
   private createViewAlternative() {
     // Without queueMicrotask, custom IC / styles will give a React FlushSync error
     queueMicrotask(() => {
-      this.view = new EditorView(this.options.element, {
-        ...this.options.editorProps,
-        // @ts-ignore
-        dispatchTransaction: this.dispatchTransaction.bind(this),
-        state: this.state,
-      });
+      this.view = new EditorView(
+        { mount: this.options.element as any }, // use mount option so that we reuse the existing element instead of creating a new one
+        {
+          ...this.options.editorProps,
+          // @ts-ignore
+          dispatchTransaction: this.dispatchTransaction.bind(this),
+          state: this.state,
+        }
+      );
 
       // `editor.view` is not yet available at this time.
       // Therefore we will add all plugins and node views directly afterwards.
