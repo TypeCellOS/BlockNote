@@ -234,7 +234,7 @@ export const renderImage = (
   // Opens the image toolbar.
   const addImageButtonClickHandler = () => {
     editor._tiptapEditor.view.dispatch(
-      editor._tiptapEditor.state.tr.setMeta(editor.imagePanel!.plugin, {
+      editor._tiptapEditor.state.tr.setMeta(editor.filePanel!.plugin, {
         block: block,
       })
     );

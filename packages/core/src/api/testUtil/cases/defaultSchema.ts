@@ -6,7 +6,7 @@ import {
   DefaultInlineContentSchema,
   DefaultStyleSchema,
 } from "../../../blocks/defaultBlocks";
-import { uploadToTmpFilesDotOrg_DEV_ONLY } from "../../../blocks/ImageBlockContent/uploadToTmpFilesDotOrg_DEV_ONLY";
+import { uploadToTmpFilesDotOrg_DEV_ONLY } from "../../../blocks/FileBlockContent/uploadToTmpFilesDotOrg_DEV_ONLY";
 
 export const defaultSchemaTestCases: EditorTestCases<
   DefaultBlockSchema,
@@ -102,7 +102,7 @@ export const defaultSchemaTestCases: EditorTestCases<
       name: "image/button",
       blocks: [
         {
-          type: "image",
+          type: "file",
         },
       ],
     },
@@ -110,11 +110,11 @@ export const defaultSchemaTestCases: EditorTestCases<
       name: "image/basic",
       blocks: [
         {
-          type: "image",
+          type: "file",
           props: {
             url: "exampleURL",
             caption: "Caption",
-            width: 256,
+            previewWidth: 256,
           },
         },
       ],
@@ -123,19 +123,19 @@ export const defaultSchemaTestCases: EditorTestCases<
       name: "image/nested",
       blocks: [
         {
-          type: "image",
+          type: "file",
           props: {
             url: "exampleURL",
             caption: "Caption",
-            width: 256,
+            previewWidth: 256,
           },
           children: [
             {
-              type: "image",
+              type: "file",
               props: {
                 url: "exampleURL",
                 caption: "Caption",
-                width: 256,
+                previewWidth: 256,
               },
             },
           ],

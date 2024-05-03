@@ -195,25 +195,25 @@ export function getDefaultSlashMenuItems<
     });
   }
 
-  if (checkDefaultBlockTypeInSchema("image", editor)) {
+  if (checkDefaultBlockTypeInSchema("file", editor)) {
     items.push({
-      title: "Image",
+      title: "File",
       onItemClick: () => {
         const insertedBlock = insertOrUpdateBlock(editor, {
-          type: "image",
+          type: "file",
         });
 
-        // Immediately open the image toolbar
+        // Immediately open the file toolbar
         editor.prosemirrorView.dispatch(
-          editor._tiptapEditor.state.tr.setMeta(editor.imagePanel!.plugin, {
+          editor._tiptapEditor.state.tr.setMeta(editor.filePanel!.plugin, {
             block: insertedBlock,
           })
         );
       },
-      subtext: "Insert an image",
+      subtext: "Insert an file",
       aliases: [
-        "image",
-        "imageUpload",
+        "file",
+        "fileUpload",
         "upload",
         "img",
         "picture",

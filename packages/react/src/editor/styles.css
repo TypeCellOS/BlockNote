@@ -474,8 +474,8 @@
   width: 24px;
 }
 
-/* Image Panel styling*/
-.bn-container .bn-image-panel {
+/* File Panel styling*/
+.bn-container .bn-file-panel {
   background-color: var(--bn-colors-menu-background);
   border: var(--bn-border);
   border-radius: var(--bn-border-radius-medium);
@@ -484,7 +484,7 @@
   width: 500px;
 }
 
-.bn-container .bn-image-panel .bn-image-panel-tab {
+.bn-container .bn-file-panel .bn-file-panel-tab {
   align-items: center;
   display: flex;
   flex-direction: column;
@@ -492,12 +492,12 @@
   width: 100%;
 }
 
-.bn-container .bn-image-panel .mantine-TextInput-root,
-.bn-container .bn-image-panel .mantine-FileInput-root {
+.bn-container .bn-file-panel .mantine-TextInput-root,
+.bn-container .bn-file-panel .mantine-FileInput-root {
   width: 100%;
 }
 
-.bn-container .bn-image-panel .mantine-Button-root {
+.bn-container .bn-file-panel .mantine-Button-root {
   background-color: var(--bn-colors-menu-background);
   border: solid var(--bn-colors-border) 1px;
   border-radius: var(--bn-border-radius-small);
@@ -506,11 +506,11 @@
   width: 60%;
 }
 
-.bn-container .bn-image-panel .mantine-Button-root:hover {
+.bn-container .bn-file-panel .mantine-Button-root:hover {
   background-color: var(--bn-colors-hovered-background);
 }
 
-.bn-container .bn-image-panel .mantine-Text-root {
+.bn-container .bn-file-panel .mantine-Text-root {
   text-align: center;
 }
 

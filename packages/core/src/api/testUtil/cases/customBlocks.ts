@@ -3,8 +3,8 @@ import { EditorTestCases } from "../index";
 import {
   imagePropSchema,
   renderImage,
-} from "../../../blocks/ImageBlockContent/ImageBlockContent";
-import { uploadToTmpFilesDotOrg_DEV_ONLY } from "../../../blocks/ImageBlockContent/uploadToTmpFilesDotOrg_DEV_ONLY";
+} from "../../../blocks/FileBlockContent/ImageBlockContent";
+import { uploadToTmpFilesDotOrg_DEV_ONLY } from "../../../blocks/FileBlockContent/uploadToTmpFilesDotOrg_DEV_ONLY";
 import {
   DefaultInlineContentSchema,
   DefaultStyleSchema,

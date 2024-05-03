@@ -30,7 +30,7 @@ import { FormattingToolbarProsemirrorPlugin } from "../extensions/FormattingTool
 import { LinkToolbarProsemirrorPlugin } from "../extensions/LinkToolbar/LinkToolbarPlugin";
 import { SideMenuProsemirrorPlugin } from "../extensions/SideMenu/SideMenuPlugin";
 import { SuggestionMenuProseMirrorPlugin } from "../extensions/SuggestionMenu/SuggestionPlugin";
-import { ImagePanelProsemirrorPlugin } from "../extensions/ImagePanel/ImageToolbarPlugin";
+import { FilePanelProsemirrorPlugin } from "../extensions/FilePanel/FilePanelPlugin";
 import { TableHandlesProsemirrorPlugin } from "../extensions/TableHandles/TableHandlesPlugin";
 import { UniqueID } from "../extensions/UniqueID/UniqueID";
 import {
@@ -44,6 +44,8 @@ import {
   StyleSchema,
   StyleSpecs,
   Styles,
+  BlockFromConfig,
+  BlockSchemaWithBlock,
 } from "../schema";
 import { mergeCSSClasses } from "../util/browser";
 import { NoInfer, UnreachableCaseError } from "../util/typescript";
@@ -64,6 +66,8 @@ import {
 // CSS
 import "./Block.css";
 import "./editor.css";
+import { renderImageFile } from "../blocks/FileBlockContent/renderImageFile";
+import { renderFile } from "../blocks/FileBlockContent/FileBlockContent";
 
 export type BlockNoteEditorOptions<
   BSchema extends BlockSchema,
@@ -105,6 +109,20 @@ export type BlockNoteEditorOptions<
    * @returns The URL of the uploaded file.
    */
   uploadFile: (file: File) => Promise<string>;
+  renderFileExtension: Record<
+    "default" | string,
+    (
+      block: BlockFromConfig<DefaultBlockSchema["file"], ISchema, SSchema>,
+      editor: BlockNoteEditor<
+        BlockSchemaWithBlock<"file", DefaultBlockSchema["file"]>,
+        ISchema,
+        SSchema
+      >
+    ) => {
+      dom: HTMLElement;
+      destroy?: () => void;
+    }
+  >;
 
   /**
    * When enabled, allows for collaboration between multiple users.
@@ -174,13 +192,32 @@ export class BlockNoteEditor<
     ISchema,
     SSchema
   >;
-  public readonly imagePanel?: ImagePanelProsemirrorPlugin<ISchema, SSchema>;
+  public readonly filePanel?: FilePanelProsemirrorPlugin<ISchema, SSchema>;
   public readonly tableHandles?: TableHandlesProsemirrorPlugin<
     ISchema,
     SSchema
   >;
 
   public readonly uploadFile: ((file: File) => Promise<string>) | undefined;
+  public readonly renderFileExtension: Record<
+    "default" | string,
+    (
+      block: BlockFromConfig<DefaultBlockSchema["file"], ISchema, SSchema>,
+      editor: BlockNoteEditor<
+        BlockSchemaWithBlock<"file", DefaultBlockSchema["file"]>,
+        ISchema,
+        SSchema
+      >
+    ) => {
+      dom: HTMLElement;
+      destroy?: () => void;
+    }
+  > = {
+    default: renderFile,
+    png: renderImageFile,
+    jpg: renderImageFile,
+    jpeg: renderImageFile,
+  };
 
   public static create<
     BSchema extends BlockSchema = DefaultBlockSchema,
@@ -235,9 +272,9 @@ export class BlockNoteEditor<
     this.linkToolbar = new LinkToolbarProsemirrorPlugin(this);
     this.sideMenu = new SideMenuProsemirrorPlugin(this);
     this.suggestionMenus = new SuggestionMenuProseMirrorPlugin(this);
-    if (checkDefaultBlockTypeInSchema("image", this)) {
+    if (checkDefaultBlockTypeInSchema("file", this)) {
       // Type guards only work on `const`s? Not working for `this`
-      this.imagePanel = new ImagePanelProsemirrorPlugin(this as any);
+      this.filePanel = new FilePanelProsemirrorPlugin(this as any);
     }
     if (checkDefaultBlockTypeInSchema("table", this)) {
       this.tableHandles = new TableHandlesProsemirrorPlugin(this as any);
@@ -264,7 +301,7 @@ export class BlockNoteEditor<
           this.linkToolbar.plugin,
           this.sideMenu.plugin,
           this.suggestionMenus.plugin,
-          ...(this.imagePanel ? [this.imagePanel.plugin] : []),
+          ...(this.filePanel ? [this.filePanel.plugin] : []),
           ...(this.tableHandles ? [this.tableHandles.plugin] : []),
         ];
       },
@@ -272,6 +309,12 @@ export class BlockNoteEditor<
     extensions.push(blockNoteUIExtension);
 
     this.uploadFile = newOptions.uploadFile;
+    if (newOptions.renderFileExtension) {
+      this.renderFileExtension = {
+        ...this.renderFileExtension,
+        ...newOptions.renderFileExtension,
+      };
+    }
 
     if (newOptions.collaboration && newOptions.initialContent) {
       console.warn(

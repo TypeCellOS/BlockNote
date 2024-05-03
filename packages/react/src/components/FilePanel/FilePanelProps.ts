@@ -1,13 +1,13 @@
 import {
   DefaultInlineContentSchema,
   DefaultStyleSchema,
-  ImagePanelState,
+  FilePanelState,
   InlineContentSchema,
   StyleSchema,
   UiElementPosition,
 } from "@blocknote/core";
 
-export type ImagePanelProps<
+export type FilePanelProps<
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema
-> = Omit<ImagePanelState<I, S>, keyof UiElementPosition>;
+> = Omit<FilePanelState<I, S>, keyof UiElementPosition>;

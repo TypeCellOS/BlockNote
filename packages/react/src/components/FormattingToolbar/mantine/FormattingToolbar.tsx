@@ -5,12 +5,12 @@ import { FormattingToolbarProps } from "../FormattingToolbarProps";
 import { BasicTextStyleButton } from "./DefaultButtons/BasicTextStyleButton";
 import { ColorStyleButton } from "./DefaultButtons/ColorStyleButton";
 import { CreateLinkButton } from "./DefaultButtons/CreateLinkButton";
-import { ImageCaptionButton } from "./DefaultButtons/ImageCaptionButton";
+import { FileCaptionButton } from "./DefaultButtons/FileCaptionButton";
 import {
   NestBlockButton,
   UnnestBlockButton,
 } from "./DefaultButtons/NestBlockButtons";
-import { ReplaceImageButton } from "./DefaultButtons/ReplaceImageButton";
+import { ReplaceFileButton } from "./DefaultButtons/ReplaceFileButton";
 import { TextAlignButton } from "./DefaultButtons/TextAlignButton";
 import {
   BlockTypeSelect,
@@ -21,8 +21,8 @@ export const getFormattingToolbarItems = (
   blockTypeSelectItems?: BlockTypeSelectItem[]
 ): JSX.Element[] => [
   <BlockTypeSelect key={"blockTypeSelect"} items={blockTypeSelectItems} />,
-  <ImageCaptionButton key={"imageCaptionButton"} />,
-  <ReplaceImageButton key={"replaceImageButton"} />,
+  <FileCaptionButton key={"imageCaptionButton"} />,
+  <ReplaceFileButton key={"replaceImageButton"} />,
   <BasicTextStyleButton basicTextStyle={"bold"} key={"boldStyleButton"} />,
   <BasicTextStyleButton basicTextStyle={"italic"} key={"italicStyleButton"} />,
   <BasicTextStyleButton

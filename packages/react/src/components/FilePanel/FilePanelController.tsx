@@ -11,29 +11,29 @@ import { FC } from "react";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor";
 import { useUIElementPositioning } from "../../hooks/useUIElementPositioning";
 import { useUIPluginState } from "../../hooks/useUIPluginState";
-import { ImagePanelProps } from "./ImagePanelProps";
-import { ImagePanel } from "./mantine/ImagePanel";
+import { FilePanelProps } from "./FilePanelProps";
+import { FilePanel } from "./mantine/FilePanel";
 
-export const ImagePanelController = <
+export const FilePanelController = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema
 >(props: {
-  imageToolbar?: FC<ImagePanelProps<I, S>>;
+  fileToolbar?: FC<FilePanelProps<I, S>>;
 }) => {
   const editor = useBlockNoteEditor<
-    { image: DefaultBlockSchema["image"] },
+    { file: DefaultBlockSchema["file"] },
     I,
     S
   >();
 
-  if (!editor.imagePanel) {
+  if (!editor.filePanel) {
     throw new Error(
-      "ImageToolbarController can only be used when BlockNote editor schema contains image block"
+      "FileToolbarController can only be used when BlockNote editor schema contains file block"
     );
   }
 
   const state = useUIPluginState(
-    editor.imagePanel.onUpdate.bind(editor.imagePanel)
+    editor.filePanel.onUpdate.bind(editor.filePanel)
   );
   const { isMounted, ref, style } = useUIElementPositioning(
     state?.show || false,
@@ -51,7 +51,7 @@ export const ImagePanelController = <
 
   const { show, referencePos, ...data } = state;
 
-  const Component = props.imageToolbar || ImagePanel;
+  const Component = props.fileToolbar || FilePanel;
 
   return (
     <div ref={ref} style={style}>

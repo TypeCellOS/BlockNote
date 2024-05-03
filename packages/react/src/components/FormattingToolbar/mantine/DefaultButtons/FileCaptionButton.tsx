@@ -20,7 +20,7 @@ import { ToolbarButton } from "../../../mantine-shared/Toolbar/ToolbarButton";
 import { ToolbarInputsMenu } from "../../../mantine-shared/Toolbar/ToolbarInputsMenu";
 import { ToolbarInputsMenuItem } from "../../../mantine-shared/Toolbar/ToolbarInputsMenuItem";
 
-export const ImageCaptionButton = () => {
+export const FileCaptionButton = () => {
   const editor = useBlockNoteEditor<
     BlockSchema,
     InlineContentSchema,
@@ -39,7 +39,7 @@ export const ImageCaptionButton = () => {
 
     const block = selectedBlocks[0];
 
-    if (checkBlockIsDefaultType("image", block, editor)) {
+    if (checkBlockIsDefaultType("file", block, editor)) {
       return block;
     }
 
@@ -50,12 +50,12 @@ export const ImageCaptionButton = () => {
     (event: KeyboardEvent) => {
       if (
         imageBlock &&
-        checkDefaultBlockTypeInSchema("image", editor) &&
+        checkDefaultBlockTypeInSchema("file", editor) &&
         event.key === "Enter"
       ) {
         event.preventDefault();
         editor.updateBlock(imageBlock, {
-          type: "image",
+          type: "file",
           props: {
             caption: currentEditingCaption,
           },

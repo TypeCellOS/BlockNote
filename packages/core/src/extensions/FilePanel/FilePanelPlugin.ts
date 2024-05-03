@@ -11,19 +11,19 @@ import { UiElementPosition } from "../../extensions-shared/UiElementPosition";
 import { EventEmitter } from "../../util/EventEmitter";
 import { DefaultBlockSchema } from "../../blocks/defaultBlocks";
 
-export type ImagePanelState<
+export type FilePanelState<
   I extends InlineContentSchema,
   S extends StyleSchema
 > = UiElementPosition & {
   // TODO: This typing is not quite right (children should be from BSchema)
-  block: BlockFromConfig<DefaultBlockSchema["image"], I, S>;
+  block: BlockFromConfig<DefaultBlockSchema["file"], I, S>;
 };
 
-export class ImagePanelView<
+export class FilePanelView<
   I extends InlineContentSchema,
   S extends StyleSchema
 > {
-  public state?: ImagePanelState<I, S>;
+  public state?: FilePanelState<I, S>;
   public emitUpdate: () => void;
 
   public prevWasEditable: boolean | null = null;
@@ -31,11 +31,11 @@ export class ImagePanelView<
   constructor(
     private readonly pluginKey: PluginKey,
     private readonly pmView: EditorView,
-    emitUpdate: (state: ImagePanelState<I, S>) => void
+    emitUpdate: (state: FilePanelState<I, S>) => void
   ) {
     this.emitUpdate = () => {
       if (!this.state) {
-        throw new Error("Attempting to update uninitialized image panel");
+        throw new Error("Attempting to update uninitialized file panel");
       }
 
       emitUpdate(this.state);
@@ -100,7 +100,7 @@ export class ImagePanelView<
 
   update(view: EditorView, prevState: EditorState) {
     const pluginState: {
-      block: BlockFromConfig<DefaultBlockSchema["image"], I, S>;
+      block: BlockFromConfig<DefaultBlockSchema["file"], I, S>;
     } = this.pluginKey.getState(view.state);
 
     if (!this.state?.show && pluginState.block) {
@@ -142,27 +142,27 @@ export class ImagePanelView<
   }
 }
 
-const imagePanelPluginKey = new PluginKey("ImagePanelPlugin");
+const filePanelPluginKey = new PluginKey("FilePanelPlugin");
 
-export class ImagePanelProsemirrorPlugin<
+export class FilePanelProsemirrorPlugin<
   I extends InlineContentSchema,
   S extends StyleSchema
 > extends EventEmitter<any> {
-  private view: ImagePanelView<I, S> | undefined;
+  private view: FilePanelView<I, S> | undefined;
   public readonly plugin: Plugin;
 
   constructor(
-    _editor: BlockNoteEditor<{ image: DefaultBlockSchema["image"] }, I, S>
+    _editor: BlockNoteEditor<{ file: DefaultBlockSchema["file"] }, I, S>
   ) {
     super();
     this.plugin = new Plugin<{
-      block: BlockFromConfig<DefaultBlockSchema["image"], I, S> | undefined;
+      block: BlockFromConfig<DefaultBlockSchema["file"], I, S> | undefined;
     }>({
-      key: imagePanelPluginKey,
+      key: filePanelPluginKey,
       view: (editorView) => {
-        this.view = new ImagePanelView(
+        this.view = new FilePanelView(
           // editor,
-          imagePanelPluginKey,
+          filePanelPluginKey,
           editorView,
           (state) => {
             this.emit("update", state);
@@ -178,8 +178,8 @@ export class ImagePanelProsemirrorPlugin<
         },
         apply: (transaction) => {
           const block:
-            | BlockFromConfig<DefaultBlockSchema["image"], I, S>
-            | undefined = transaction.getMeta(imagePanelPluginKey)?.block;
+            | BlockFromConfig<DefaultBlockSchema["file"], I, S>
+            | undefined = transaction.getMeta(filePanelPluginKey)?.block;
 
           return {
             block,
@@ -189,7 +189,7 @@ export class ImagePanelProsemirrorPlugin<
     });
   }
 
-  public onUpdate(callback: (state: ImagePanelState<I, S>) => void) {
+  public onUpdate(callback: (state: FilePanelState<I, S>) => void) {
     return this.on("update", callback);
   }
 }

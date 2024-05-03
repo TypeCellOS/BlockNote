@@ -6,14 +6,14 @@ import {
 } from "@blocknote/core";
 import { Popover } from "@mantine/core";
 import { useEffect, useState } from "react";
-import { RiImageEditFill } from "react-icons/ri";
+import { RiFileEditFill } from "react-icons/ri";
 
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor";
 import { useSelectedBlocks } from "../../../../hooks/useSelectedBlocks";
-import { ImagePanel } from "../../../ImagePanel/mantine/ImagePanel";
+import { FilePanel } from "../../../FilePanel/mantine/FilePanel";
 import { ToolbarButton } from "../../../mantine-shared/Toolbar/ToolbarButton";
 
-export const ReplaceImageButton = () => {
+export const ReplaceFileButton = () => {
   const editor = useBlockNoteEditor<
     BlockSchema,
     InlineContentSchema,
@@ -32,8 +32,8 @@ export const ReplaceImageButton = () => {
 
   if (
     block === undefined ||
-    block.type !== "image" ||
-    !checkBlockIsDefaultType("image", block, editor)
+    block.type !== "file" ||
+    !checkBlockIsDefaultType("file", block, editor)
   ) {
     return null;
   }
@@ -44,12 +44,12 @@ export const ReplaceImageButton = () => {
         <ToolbarButton
           onClick={() => setIsOpen(!isOpen)}
           isSelected={isOpen}
-          mainTooltip={"Replace Image"}
-          icon={RiImageEditFill}
+          mainTooltip={"Replace File"}
+          icon={RiFileEditFill}
         />
       </Popover.Target>
       <Popover.Dropdown>
-        <ImagePanel block={block} />
+        <FilePanel block={block} />
       </Popover.Dropdown>
     </Popover>
   );

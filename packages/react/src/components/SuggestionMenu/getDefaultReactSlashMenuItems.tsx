@@ -10,7 +10,7 @@ import {
   RiH1,
   RiH2,
   RiH3,
-  RiImage2Fill,
+  RiFile2Line,
   RiListOrdered,
   RiListUnordered,
   RiTable2,
@@ -26,7 +26,7 @@ const icons: Record<string, IconType> = {
   "Bullet List": RiListUnordered,
   Paragraph: RiText,
   Table: RiTable2,
-  Image: RiImage2Fill,
+  File: RiFile2Line,
 };
 
 export function getDefaultReactSlashMenuItems<

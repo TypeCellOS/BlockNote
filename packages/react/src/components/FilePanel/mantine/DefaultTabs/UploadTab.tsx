@@ -9,22 +9,22 @@ import {
 } from "@blocknote/core";
 import { useCallback, useEffect, useState } from "react";
 
-import { ImagePanelProps } from "../../ImagePanelProps";
-import { ImagePanelTab } from "../ImagePanelTab";
-import { ImagePanelFileInput } from "../ImagePanelFileInput";
+import { FilePanelProps } from "../../FilePanelProps";
+import { FilePanelTab } from "../FilePanelTab";
+import { FilePanelFileInput } from "../FilePanelFileInput";
 
 export const UploadTab = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema
 >(
-  props: ImagePanelProps<I, S> & {
+  props: FilePanelProps<I, S> & {
     setLoading: (loading: boolean) => void;
   }
 ) => {
   const { block, setLoading } = props;
 
   const editor = useBlockNoteEditor<
-    { image: DefaultBlockSchema["image"] },
+    { file: DefaultBlockSchema["file"] },
     I,
     S
   >();
@@ -52,7 +52,7 @@ export const UploadTab = <
           try {
             const uploaded = await editor.uploadFile(file);
             editor.updateBlock(block, {
-              type: "image",
+              type: "file",
               props: {
                 url: uploaded,
               },
@@ -71,9 +71,9 @@ export const UploadTab = <
   );
 
   return editor.uploadFile !== undefined ? (
-    <ImagePanelTab>
-      <ImagePanelFileInput
-        placeholder={"Upload Image"}
+    <FilePanelTab>
+      <FilePanelFileInput
+        placeholder={"Upload File"}
         value={null}
         onChange={handleFileChange}
       />
@@ -82,6 +82,6 @@ export const UploadTab = <
           Error: Upload failed
         </Text>
       )}
-    </ImagePanelTab>
+    </FilePanelTab>
   ) : null;
 };

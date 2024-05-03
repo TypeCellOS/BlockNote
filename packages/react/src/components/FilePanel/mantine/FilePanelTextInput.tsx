@@ -1,7 +1,7 @@
 import { TextInput } from "@mantine/core";
 import { ComponentPropsWithoutRef, forwardRef } from "react";
 
-export const ImagePanelTextInput = forwardRef<
+export const FilePanelTextInput = forwardRef<
   HTMLInputElement,
   Omit<ComponentPropsWithoutRef<"input">, "size">
 >((props, ref) => (

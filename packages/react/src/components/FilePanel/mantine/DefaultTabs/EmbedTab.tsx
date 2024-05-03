@@ -8,21 +8,21 @@ import {
 } from "@blocknote/core";
 import { ChangeEvent, KeyboardEvent, useCallback, useState } from "react";
 
-import { ImagePanelProps } from "../../ImagePanelProps";
-import { ImagePanelTab } from "../ImagePanelTab";
-import { ImagePanelTextInput } from "../ImagePanelTextInput";
-import { ImagePanelButton } from "../ImagePanelButton";
+import { FilePanelProps } from "../../FilePanelProps";
+import { FilePanelTab } from "../FilePanelTab";
+import { FilePanelTextInput } from "../FilePanelTextInput";
+import { FilePanelButton } from "../FilePanelButton";
 
 export const EmbedTab = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema
 >(
-  props: ImagePanelProps<I, S>
+  props: FilePanelProps<I, S>
 ) => {
   const { block } = props;
 
   const editor = useBlockNoteEditor<
-    { image: DefaultBlockSchema["image"] },
+    { file: DefaultBlockSchema["file"] },
     I,
     S
   >();
@@ -41,7 +41,7 @@ export const EmbedTab = <
       if (event.key === "Enter") {
         event.preventDefault();
         editor.updateBlock(block, {
-          type: "image",
+          type: "file",
           props: {
             url: currentURL,
           },
@@ -53,7 +53,7 @@ export const EmbedTab = <
 
   const handleURLClick = useCallback(() => {
     editor.updateBlock(block, {
-      type: "image",
+      type: "file",
       props: {
         url: currentURL,
       },
@@ -61,20 +61,20 @@ export const EmbedTab = <
   }, [editor, block, currentURL]);
 
   return (
-    <ImagePanelTab>
-      <ImagePanelTextInput
+    <FilePanelTab>
+      <FilePanelTextInput
         placeholder={"Enter URL"}
         value={currentURL}
         onChange={handleURLChange}
         onKeyDown={handleURLEnter}
         data-test={"embed-input"}
       />
-      <ImagePanelButton
-        className={"bn-image-panel-button"}
+      <FilePanelButton
+        className={"bn-file-panel-button"}
         onClick={handleURLClick}
         data-test={"embed-input-button"}>
-        Embed Image
-      </ImagePanelButton>
-    </ImagePanelTab>
+        Embed File
+      </FilePanelButton>
+    </FilePanelTab>
   );
 };
