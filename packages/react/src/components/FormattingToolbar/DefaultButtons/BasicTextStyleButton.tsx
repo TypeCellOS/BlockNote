@@ -1,9 +1,9 @@
 import {
   BlockNoteEditor,
   BlockSchema,
-  formatKeyboardShortcut,
   InlineContentSchema,
   StyleSchema,
+  formatKeyboardShortcut,
 } from "@blocknote/core";
 import { useMemo, useState } from "react";
 import { IconType } from "react-icons";
@@ -85,11 +85,14 @@ export const BasicTextStyleButton = <Style extends BasicTextStyle>(props: {
       return;
     }
 
-    editor.focus();
     if (editor.schema.styleSchema[style].propSchema !== "boolean") {
       throw new Error("can only toggle boolean styles");
     }
     editor.toggleStyles({ [style]: true } as any);
+    setTimeout(() => {
+      // timeout needed to ensure compatibility with Mantine Toolbar useFocusTrap
+      editor.focus();
+    });
   };
 
   const show = useMemo(() => {

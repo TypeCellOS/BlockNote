@@ -49,7 +49,8 @@ test.describe("Check Keyboard Handlers' Behaviour", () => {
     await page.mouse.click(x + 35, y + height / 2, { clickCount: 2 });
     await page.locator(ITALIC_BUTTON_SELECTOR).click();
     await page.waitForTimeout(500);
-    await page.mouse.click(x + 35, y + height / 2);
+    await page.keyboard.press("Control+ArrowLeft");
+    await page.keyboard.press("ArrowRight");
     await page.keyboard.press("Enter");
 
     await compareDocToSnapshot(page, "enterPreservesMarks.json");
@@ -63,11 +64,12 @@ test.describe("Check Keyboard Handlers' Behaviour", () => {
     await insertHeading(page, 3);
 
     await page.waitForTimeout(500);
-    const element = await page.locator(H_ONE_BLOCK_SELECTOR);
-    const boundingBox = (await element.boundingBox())!;
-    const { x, y, height } = boundingBox;
-
-    await page.mouse.click(x + 35, y + height / 2);
+    await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("Control+ArrowLeft");
+    await page.keyboard.press("ArrowRight");
     await page.keyboard.press("Enter");
 
     await compareDocToSnapshot(page, "enterPreservesNestedBlocks.json");
