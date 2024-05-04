@@ -1,12 +1,12 @@
 import "@blocknote/core/fonts/inter.css";
 import {
+  BlockNoteView,
   darkDefaultTheme,
   lightDefaultTheme,
   Theme,
-  useCreateBlockNote,
-} from "@blocknote/react";
-import { BlockNoteView } from "@blocknote/mantine";
+} from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
+import { useCreateBlockNote } from "@blocknote/react";
 
 // Base theme
 const lightRedTheme = {

@@ -1,17 +1,19 @@
 import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
 import {
-  applyBlockNoteCSSVariablesFromTheme,
   BlockNoteViewRaw,
   Components,
   ComponentsContext,
-  removeBlockNoteCSSVariables,
-  Theme,
   useBlockNoteContext,
 } from "@blocknote/react";
 import { MantineProvider } from "@mantine/core";
 import { ComponentProps, useCallback } from "react";
 import usePrefersColorScheme from "use-prefers-color-scheme";
 
+import {
+  Theme,
+  applyBlockNoteCSSVariablesFromTheme,
+  removeBlockNoteCSSVariables,
+} from "./BlockNoteTheme";
 import { TextInput } from "./form/TextInput";
 import {
   Menu,
@@ -30,8 +32,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "./popover/Popover";
 import { SideMenu } from "./sideMenu/SideMenu";
 import { SideMenuButton } from "./sideMenu/SideMenuButton";
 import { SuggestionMenu } from "./suggestionMenu/SuggestionMenu";
-import { SuggestionMenuItem } from "./suggestionMenu/SuggestionMenuItem";
 import { SuggestionMenuEmptyItem } from "./suggestionMenu/SuggestionMenuEmptyItem";
+import { SuggestionMenuItem } from "./suggestionMenu/SuggestionMenuItem";
 import { SuggestionMenuLabel } from "./suggestionMenu/SuggestionMenuLabel";
 import { SuggestionMenuLoader } from "./suggestionMenu/SuggestionMenuLoader";
 import { TableHandle } from "./tableHandle/TableHandle";
@@ -40,6 +42,9 @@ import { ToolbarButton } from "./toolbar/ToolbarButton";
 import { ToolbarSelect } from "./toolbar/ToolbarSelect";
 
 import "./style.css";
+
+export * from "./BlockNoteTheme";
+export * from "./defaultThemes";
 
 export const components: Components = {
   FormattingToolbar: {
@@ -103,7 +108,10 @@ export const BlockNoteView = <
   ISchema extends InlineContentSchema,
   SSchema extends StyleSchema
 >(
-  props: ComponentProps<typeof BlockNoteViewRaw<BSchema, ISchema, SSchema>> & {
+  props: Omit<
+    ComponentProps<typeof BlockNoteViewRaw<BSchema, ISchema, SSchema>>,
+    "theme"
+  > & {
     theme?:
       | "light"
       | "dark"
