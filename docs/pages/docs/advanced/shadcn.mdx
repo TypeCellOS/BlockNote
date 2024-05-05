@@ -1,0 +1,52 @@
+---
+title: BlockNote with ShadCN and Tailwind
+description: ShadCN + Tailwind rich text editor using BlockNote
+imageTitle: BlockNote with ShadCN and Tailwind
+---
+
+import { Example } from "@/components/example";
+import { Callout } from "nextra/components";
+
+## Using ShadCN, Radix and Tailwind with BlockNote
+
+[shadcn/ui](https://ui.shadcn.com/) is an open-source collection of React components based on [Radix](https://radix-ui.com/) and Tailwind. To use BlockNote with shadcn, you can import `BlockNoteView` from `@blocknote/shadcn` (instead of from `@blocknote/mantine`) and the stylesheet from `@blocknote/shadcn/style.css`.
+
+<Example name="basic/shadcn" />
+
+## ShadCN Customization
+
+BlockNote comes with default shadcn components. However, it's likely that you have copied and possibly customized your own shadcn components in your project.
+To make BlockNote use the ShadCN components from your project instead of the default ones, you can pass them using the `shadCNComponents` prop of `BlockNoteView`:
+
+```tsx
+import * as Button from "@/components/ui/button"
+import * as Select from "@/components/ui/select"
+
+return (
+  <BlockNoteView editor={editor} shadCNComponents={{
+    Select,
+    Button,
+    ...
+  }} />
+);
+```
+
+You can pass components from the following ShadCN modules:
+
+- Badge
+- Button
+- Card
+- DropdownMenu
+- Form
+- Input
+- Label
+- Popover
+- Select
+- Tabs
+- Toggle
+- Tooltip
+
+<Callout type="warning" emoji="⚠️">
+  To ensure compatibility, your ShadCN components should not use Portals
+  (comment these out from your DropdownMenu, Popover and Select components).
+</Callout>

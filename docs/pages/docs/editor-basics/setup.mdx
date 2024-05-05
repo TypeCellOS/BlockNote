@@ -24,7 +24,9 @@ type BlockNoteEditorOptions = {
   defaultStyles?: boolean;
   uploadFile?: (file: File) => Promise<string>;
   collaboration?: CollaborationOptions;
+  dictionary?: Dictionary;
   schema?: BlockNoteSchema;
+  trailingBlock?: boolean;
 };
 ```
 
@@ -42,7 +44,11 @@ The hook takes two optional parameters:
 
 `collaboration`: Options for enabling real-time collaboration. See [Real-time Collaboration](/docs/advanced/real-time-collaboration) for more info.
 
+`dictionary`: Provide strings for localization. See the [Localization / i18n example](/examples/basic/localization).
+
 `schema` (_advanced_): The editor schema if you want to extend your editor with custom blocks, styles, or inline content [Custom Schemas](/docs/custom-schemas).
+
+`trailingBlock`: An option which user can pass with `false` value to disable the automatic creation of a trailing new block on the next line when the user types or edits any block. Defaults to `true` if undefined.
 
 **deps:** Dependency array that's internally passed to `useMemo`. A new editor will only be created when this array changes.
 

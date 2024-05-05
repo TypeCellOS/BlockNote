@@ -11,8 +11,8 @@ import { FC } from "react";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor";
 import { useUIElementPositioning } from "../../hooks/useUIElementPositioning";
 import { useUIPluginState } from "../../hooks/useUIPluginState";
+import { ImagePanel } from "./ImagePanel";
 import { ImagePanelProps } from "./ImagePanelProps";
-import { ImagePanel } from "./mantine/ImagePanel";
 
 export const ImagePanelController = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
@@ -35,13 +35,20 @@ export const ImagePanelController = <
   const state = useUIPluginState(
     editor.imagePanel.onUpdate.bind(editor.imagePanel)
   );
-  const { isMounted, ref, style } = useUIElementPositioning(
+
+  const { isMounted, ref, style, getFloatingProps } = useUIElementPositioning(
     state?.show || false,
     state?.referencePos || null,
     5000,
     {
       placement: "bottom",
       middleware: [offset(10), flip()],
+      onOpenChange: (open) => {
+        if (!open) {
+          editor.imagePanel!.closeMenu();
+          editor.focus();
+        }
+      },
     }
   );
 
@@ -54,7 +61,7 @@ export const ImagePanelController = <
   const Component = props.imageToolbar || ImagePanel;
 
   return (
-    <div ref={ref} style={style}>
+    <div ref={ref} style={style} {...getFloatingProps()}>
       <Component {...data} />
     </div>
   );

@@ -52,14 +52,11 @@
   "dependencies": {
     "@blocknote/core": "^0.12.4",
     "@floating-ui/react": "^0.26.4",
-    "@mantine/core": "^7.7.1",
-    "@mantine/hooks": "^7.7.1",
-    "@mantine/utils": "^6.0.21",
     "@tiptap/core": "^2.0.3",
     "@tiptap/react": "^2.0.3",
     "lodash.merge": "^4.6.2",
     "react": "^18",
-    "react-dom": "^18.2.0",
+    "react-dom": "^18",
     "react-icons": "^4.3.1",
     "use-prefers-color-scheme": "^1.1.3"
   },

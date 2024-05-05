@@ -1,0 +1,1005 @@
+/* This file contains styles copied directly from Ariakit's website, and is
+responsible for the majority of the styling. */
+
+/* https://ariakit.org/examples/menu-nested */
+.bn-ak-button {
+    --border: rgb(0 0 0/13%);
+    --highlight: rgb(255 255 255/20%);
+    --shadow: rgb(0 0 0/10%);
+    display: flex;
+    height: 2.5rem;
+    user-select: none;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    white-space: nowrap;
+    border-radius: 0.5rem;
+    border-style: none;
+    background-color: hsl(204 20% 100%);
+    padding-left: 1rem;
+    padding-right: 1rem;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    color: hsl(204 4% 0%);
+    text-decoration-line: none;
+    outline-width: 2px;
+    outline-offset: 2px;
+    outline-color: hsl(204 100% 40%);
+    box-shadow:
+            inset 0 0 0 1px var(--border),
+            inset 0 2px 0 var(--highlight),
+            inset 0 -1px 0 var(--shadow),
+            0 1px 1px var(--shadow);
+    font-weight: 500;
+}
+
+.bn-ak-button:where(.dark, .dark *) {
+    --border: rgb(255 255 255/10%);
+    --highlight: rgb(255 255 255/5%);
+    --shadow: rgb(0 0 0/25%);
+    background-color: hsl(204 20% 100% / 0.05);
+    color: hsl(204 20% 100%);
+    box-shadow:
+            inset 0 0 0 1px var(--border),
+            inset 0 -1px 0 1px var(--shadow),
+            inset 0 1px 0 var(--highlight);
+}
+
+.bn-ak-button:not(:active):hover {
+    --border: rgb(0 0 0/33%);
+}
+
+.bn-ak-button:where(.dark, .dark *):not(:active):hover {
+    --border: rgb(255 255 255/25%);
+}
+
+.bn-ak-button[aria-disabled="true"] {
+    opacity: 0.5;
+}
+
+.bn-ak-button[data-focus-visible] {
+    outline-style: solid;
+}
+
+.bn-ak-button:active,
+.bn-ak-button[data-active] {
+    padding-top: 0.125rem;
+    box-shadow:
+            inset 0 0 0 1px var(--border),
+            inset 0 2px 0 var(--border);
+}
+
+@media (min-width: 640px) {
+    .bn-ak-button {
+        gap: 0.5rem;
+    }
+}
+
+.bn-ak-button:active:where(.dark, .dark *),
+.bn-ak-button[data-active]:where(.dark, .dark *) {
+    box-shadow:
+            inset 0 0 0 1px var(--border),
+            inset 0 1px 1px 1px var(--shadow);
+}
+
+.bn-ak-menu {
+    position: relative;
+    z-index: 50;
+    display: flex;
+    max-height: var(--popover-available-height);
+    min-width: 180px;
+    flex-direction: column;
+    overscroll-behavior: contain;
+    border-radius: 0.5rem;
+    border-width: 1px;
+    border-style: solid;
+    border-color: hsl(204 20% 88%);
+    background-color: hsl(204 20% 100%);
+    padding: 0.5rem;
+    color: hsl(204 4% 0%);
+    box-shadow:
+            0 10px 15px -3px rgb(0 0 0 / 0.1),
+            0 4px 6px -4px rgb(0 0 0 / 0.1);
+    outline: none !important;
+    overflow: visible;
+}
+
+.bn-ak-menu:where(.dark, .dark *) {
+    border-color: hsl(204 4% 24%);
+    background-color: hsl(204 4% 16%);
+    color: hsl(204 20% 100%);
+    box-shadow:
+            0 10px 15px -3px rgb(0 0 0 / 0.25),
+            0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+.bn-ak-menu-item {
+    display: flex;
+    cursor: default;
+    scroll-margin: 0.5rem;
+    align-items: center;
+    gap: 0.5rem;
+    border-radius: 0.25rem;
+    padding: 0.5rem;
+    outline: none !important;
+}
+
+.bn-ak-menu-item[aria-disabled="true"] {
+    opacity: 0.25;
+}
+
+.bn-ak-menu-item[data-active-item] {
+    background-color: hsl(204 100% 40%);
+    color: hsl(204 20% 100%);
+}
+
+.bn-ak-menu-item:active,
+.bn-ak-menu-item[data-active] {
+    background-color: hsl(204 100% 32%);
+    padding-top: 9px;
+    padding-bottom: 7px;
+}
+
+.bn-ak-menu:not(:focus) .bn-ak-menu-item:not(:focus)[aria-expanded="true"] {
+    background-color: hsl(204 4% 0% / 7.5%);
+    color: currentColor;
+}
+
+.bn-ak-menu:not(:focus)
+.bn-ak-menu-item:not(:focus)[aria-expanded="true"]:where(.dark, .dark *) {
+    background-color: hsl(204 20% 100% / 0.1);
+}
+
+.bn-ak-menu-item .label {
+    flex: 1 1 0%;
+}
+
+/* https://ariakit.org/examples/form-select */
+.bn-ak-button {
+    --border: rgb(0 0 0/13%);
+    --highlight: rgb(255 255 255/20%);
+    --shadow: rgb(0 0 0/10%);
+    display: flex;
+    height: 2.5rem;
+    user-select: none;
+    align-items: center;
+    gap: 0.25rem;
+    white-space: nowrap;
+    border-style: none;
+    background-color: hsl(204 20% 100%);
+    padding-left: 1rem;
+    padding-right: 1rem;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    color: hsl(204 4% 0%);
+    text-decoration-line: none;
+    outline-width: 2px;
+    outline-offset: 2px;
+    outline-color: hsl(204 100% 40%);
+    box-shadow:
+            inset 0 0 0 1px var(--border),
+            inset 0 2px 0 var(--highlight),
+            inset 0 -1px 0 var(--shadow),
+            0 1px 1px var(--shadow);
+    justify-content: space-between;
+    width: 100%;
+    border-radius: 0.375rem;
+}
+
+.bn-ak-button:where(.dark, .dark *) {
+    --border: rgb(255 255 255/10%);
+    --highlight: rgb(255 255 255/5%);
+    --shadow: rgb(0 0 0/25%);
+    background-color: hsl(204 20% 100% / 0.05);
+    color: hsl(204 20% 100%);
+    box-shadow:
+            inset 0 0 0 1px var(--border),
+            inset 0 -1px 0 1px var(--shadow),
+            inset 0 1px 0 var(--highlight);
+}
+
+.bn-ak-button:not(:active):hover {
+    --border: rgb(0 0 0/33%);
+}
+
+.bn-ak-button:where(.dark, .dark *):not(:active):hover {
+    --border: rgb(255 255 255/25%);
+}
+
+.bn-ak-primary {
+    --border: rgba(0, 0, 0, 0.15);
+    --highlight: rgba(255, 255, 255, 0.25);
+    --shadow: rgba(0, 0, 0, 0.15);
+    background-color: hsl(204 100% 40%);
+    color: hsl(204 20% 100%);
+    justify-content: center;
+}
+
+.bn-ak-primary:hover {
+    --border: rgba(0, 0, 0, 0.35);
+    background-color: hsl(204 100% 35%);
+}
+
+.bn-ak-primary:where(.dark, .dark *) {
+    --border: rgba(255, 255, 255, 0.25);
+    --highlight: rgba(255, 255, 255, 0.1);
+    --shadow: rgba(0, 0, 0, 0.25);
+    background-color: hsl(204 100% 35%);
+}
+
+.bn-ak-primary:hover:where(.dark, .dark *) {
+    --border: rgba(255, 255, 255, 0.45);
+    background-color: hsl(204 100% 40%);
+}
+
+.bn-ak-button[aria-disabled="true"] {
+    opacity: 0.5;
+}
+
+.bn-ak-button[data-focus-visible] {
+    outline-style: solid;
+}
+
+.bn-ak-button:active,
+.bn-ak-button[data-active] {
+    padding-top: 0.125rem;
+    box-shadow:
+            inset 0 0 0 1px var(--border),
+            inset 0 2px 0 var(--border);
+}
+
+@media (min-width: 640px) {
+    .bn-ak-button {
+        gap: 0.5rem;
+    }
+}
+
+.bn-ak-button:active:where(.dark, .dark *),
+.bn-ak-button[data-active]:where(.dark, .dark *) {
+    box-shadow:
+            inset 0 0 0 1px var(--border),
+            inset 0 1px 1px 1px var(--shadow);
+}
+
+.bn-ak-wrapper {
+    display: flex;
+    width: 320px;
+    max-width: 100%;
+    flex-direction: column;
+    gap: 1.5rem;
+    border-radius: 0.5rem;
+    background-color: hsl(204 20% 100%);
+    padding: 1rem;
+    box-shadow:
+            0 1px 3px 0 rgb(0 0 0 / 0.1),
+            0 1px 2px -1px rgb(0 0 0 / 0.1);
+}
+
+.bn-ak-label {
+    padding-left: 1rem;
+}
+
+.bn-ak-popover {
+    z-index: 50;
+    display: flex;
+    max-height: min(var(--popover-available-height, 300px), 300px);
+    flex-direction: column;
+    overflow: auto;
+    overscroll-behavior: contain;
+    border-radius: 0.5rem;
+    border-width: 1px;
+    border-style: solid;
+    border-color: hsl(204 20% 88%);
+    background-color: hsl(204 20% 100%);
+    padding: 0.5rem;
+    color: hsl(204 4% 0%);
+    box-shadow:
+            0 10px 15px -3px rgb(0 0 0 / 0.1),
+            0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+.bn-ak-popover:where(.dark, .dark *) {
+    border-color: hsl(204 4% 24%);
+    background-color: hsl(204 4% 16%);
+    color: hsl(204 20% 100%);
+    box-shadow:
+            0 10px 15px -3px rgb(0 0 0 / 0.25),
+            0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+.bn-ak-select-item {
+    display: flex;
+    cursor: default;
+    scroll-margin: 0.5rem;
+    align-items: center;
+    gap: 0.5rem;
+    border-radius: 0.25rem;
+    padding: 0.5rem;
+    outline: none !important;
+}
+
+.bn-ak-select-item[aria-disabled="true"] {
+    opacity: 0.5;
+}
+
+.bn-ak-select-item[data-active-item] {
+    background-color: hsl(204 100% 40%);
+    color: hsl(204 20% 100%);
+}
+
+.bn-ak-wrapper:where(.dark, .dark *) {
+    background-color: hsl(204 4% 16%);
+    box-shadow:
+            0 1px 3px 0 rgb(0 0 0 / 0.25),
+            0 1px 2px -1px rgb(0 0 0 / 0.1);
+}
+
+.bn-ak-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.bn-ak-input {
+    height: 2.5rem;
+    width: 100%;
+    border-radius: 0.375rem;
+    border-style: none;
+    background-color: hsl(204 20% 94% / 0.4);
+    padding-left: 1rem;
+    padding-right: 1rem;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    color: hsl(204 4% 0%);
+    box-shadow:
+            inset 0 0 0 1px rgba(0 0 0 / 0.1),
+            inset 0 2px 5px 0 rgba(0 0 0 / 0.05);
+}
+
+.bn-ak-input::placeholder {
+    color: hsl(204 4% 0% / 0.6);
+}
+
+.bn-ak-input:hover {
+    background-color: hsl(204 20% 94%);
+}
+
+.bn-ak-popover:focus-visible,
+.bn-ak-popover[data-focus-visible],
+.bn-ak-input:focus-visible,
+.bn-ak-input[data-focus-visible] {
+    outline: 2px solid hsl(204 100% 40%);
+    outline-offset: -1px;
+}
+
+.bn-ak-input:where(.dark, .dark *) {
+    background-color: hsl(204 4% 10%);
+    color: hsl(204 20% 100%);
+    box-shadow:
+            inset 0 0 0 1px rgba(255 255 255 / 0.12),
+            inset 0 -1px 0 0 rgba(255 255 255 / 0.05),
+            inset 0 2px 5px 0 rgba(0 0 0 / 0.15);
+}
+
+.bn-ak-input:where(.dark, .dark *)::placeholder {
+    color: hsl(204 20% 100% / 46%);
+}
+
+.bn-ak-input:hover:where(.dark, .dark *) {
+    background-color: hsl(204 4% 8%);
+}
+
+.bn-ak-error {
+    width: fit-content;
+    border-radius: 0.375rem;
+    border-width: 1px;
+    border-color: hsl(357 56% 80%);
+    background-color: hsl(357 56% 80% / 0.4);
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    color: hsl(357 100% 30%);
+}
+
+.bn-ak-error:empty {
+    display: none;
+}
+
+.bn-ak-error:where(.dark, .dark *) {
+    border-color: hsl(357 56% 50% / 0.4);
+    background-color: hsl(357 56% 42% / 0.25);
+    color: hsl(357 100% 90%);
+}
+
+.bn-ak-buttons {
+    display: flex;
+    gap: 1rem;
+    padding-top: 1rem;
+}
+
+/* https://ariakit.org/components/menu */
+.bn-ak-button {
+    --border: rgb(0 0 0/13%);
+    --highlight: rgb(255 255 255/20%);
+    --shadow: rgb(0 0 0/10%);
+    display: flex;
+    height: 2.5rem;
+    user-select: none;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    white-space: nowrap;
+    border-radius: 0.5rem;
+    border-style: none;
+    background-color: hsl(204 20% 100%);
+    padding-left: 1rem;
+    padding-right: 1rem;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    color: hsl(204 4% 0%);
+    text-decoration-line: none;
+    outline-width: 2px;
+    outline-offset: 2px;
+    outline-color: hsl(204 100% 40%);
+    box-shadow:
+            inset 0 0 0 1px var(--border),
+            inset 0 2px 0 var(--highlight),
+            inset 0 -1px 0 var(--shadow),
+            0 1px 1px var(--shadow);
+    font-weight: 500;
+}
+
+.bn-ak-button:where(.dark, .dark *) {
+    --border: rgb(255 255 255/10%);
+    --highlight: rgb(255 255 255/5%);
+    --shadow: rgb(0 0 0/25%);
+    background-color: hsl(204 20% 100% / 0.05);
+    color: hsl(204 20% 100%);
+    box-shadow:
+            inset 0 0 0 1px var(--border),
+            inset 0 -1px 0 1px var(--shadow),
+            inset 0 1px 0 var(--highlight);
+}
+
+.bn-ak-button:not(:active):hover {
+    --border: rgb(0 0 0/33%);
+}
+
+.bn-ak-button:where(.dark, .dark *):not(:active):hover {
+    --border: rgb(255 255 255/25%);
+}
+
+.bn-ak-button[aria-disabled="true"] {
+    opacity: 0.5;
+}
+
+.bn-ak-button[data-focus-visible] {
+    outline-style: solid;
+}
+
+.bn-ak-button:active,
+.bn-ak-button[data-active] {
+    padding-top: 0.125rem;
+    box-shadow:
+            inset 0 0 0 1px var(--border),
+            inset 0 2px 0 var(--border);
+}
+
+@media (min-width: 640px) {
+    .bn-ak-button {
+        gap: 0.5rem;
+    }
+}
+
+.bn-ak-button:active:where(.dark, .dark *),
+.bn-ak-button[data-active]:where(.dark, .dark *) {
+    box-shadow:
+            inset 0 0 0 1px var(--border),
+            inset 0 1px 1px 1px var(--shadow);
+}
+
+.bn-ak-separator {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    height: 0px;
+    width: 100%;
+    border-top-width: 1px;
+    border-color: hsl(204 20% 88%);
+}
+
+.bn-ak-separator:where(.dark, .dark *) {
+    border-color: hsl(204 4% 28%);
+}
+
+.bn-ak-menu {
+    position: relative;
+    z-index: 50;
+    display: flex;
+    /*max-height: var(--popover-available-height);*/
+    min-width: 180px;
+    flex-direction: column;
+    /*overflow: auto;*/
+    overscroll-behavior: contain;
+    border-radius: 0.5rem;
+    border-width: 1px;
+    border-style: solid;
+    border-color: hsl(204 20% 88%);
+    background-color: hsl(204 20% 100%);
+    padding: 0.5rem;
+    color: hsl(204 4% 0%);
+    box-shadow:
+            0 10px 15px -3px rgb(0 0 0 / 0.1),
+            0 4px 6px -4px rgb(0 0 0 / 0.1);
+    outline: none !important;
+}
+
+.bn-ak-menu:where(.dark, .dark *) {
+    border-color: hsl(204 4% 24%);
+    background-color: hsl(204 4% 16%);
+    color: hsl(204 20% 100%);
+    box-shadow:
+            0 10px 15px -3px rgb(0 0 0 / 0.25),
+            0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+.bn-ak-menu-item {
+    display: flex;
+    cursor: default;
+    scroll-margin: 0.5rem;
+    align-items: center;
+    gap: 0.5rem;
+    border-radius: 0.25rem;
+    padding: 0.5rem;
+    outline: none !important;
+}
+
+.bn-ak-menu-item[aria-disabled="true"] {
+    opacity: 0.25;
+}
+
+.bn-ak-menu-item[data-active-item] {
+    background-color: hsl(204 100% 40%);
+    color: hsl(204 20% 100%);
+}
+
+.bn-ak-menu-item:active,
+.bn-ak-menu-item[data-active] {
+    background-color: hsl(204 100% 32%);
+    padding-top: 9px;
+    padding-bottom: 7px;
+}
+
+/* https://ariakit.org/examples/select-group */
+.bn-ak-button {
+    --border: rgb(0 0 0/13%);
+    --highlight: rgb(255 255 255/20%);
+    --shadow: rgb(0 0 0/10%);
+    display: flex;
+    height: 2.5rem;
+    user-select: none;
+    align-items: center;
+    gap: 0.25rem;
+    white-space: nowrap;
+    border-radius: 0.5rem;
+    border-style: none;
+    background-color: hsl(204 20% 100%);
+    padding-left: 1rem;
+    padding-right: 1rem;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    color: hsl(204 4% 0%);
+    text-decoration-line: none;
+    outline-width: 2px;
+    outline-offset: 2px;
+    outline-color: hsl(204 100% 40%);
+    box-shadow:
+            inset 0 0 0 1px var(--border),
+            inset 0 2px 0 var(--highlight),
+            inset 0 -1px 0 var(--shadow),
+            0 1px 1px var(--shadow);
+    width: 200px;
+    justify-content: space-between;
+}
+
+.bn-ak-button:where(.dark, .dark *) {
+    --border: rgb(255 255 255/10%);
+    --highlight: rgb(255 255 255/5%);
+    --shadow: rgb(0 0 0/25%);
+    background-color: hsl(204 20% 100% / 0.05);
+    color: hsl(204 20% 100%);
+    box-shadow:
+            inset 0 0 0 1px var(--border),
+            inset 0 -1px 0 1px var(--shadow),
+            inset 0 1px 0 var(--highlight);
+}
+
+.bn-ak-button:not(:active):hover {
+    --border: rgb(0 0 0/33%);
+}
+
+.bn-ak-button:where(.dark, .dark *):not(:active):hover {
+    --border: rgb(255 255 255/25%);
+}
+
+.bn-ak-button[aria-disabled="true"] {
+    opacity: 0.5;
+}
+
+.bn-ak-button[data-focus-visible] {
+    outline-style: solid;
+}
+
+.bn-ak-button:active,
+.bn-ak-button[data-active] {
+    padding-top: 0.125rem;
+    box-shadow:
+            inset 0 0 0 1px var(--border),
+            inset 0 2px 0 var(--border);
+}
+
+@media (min-width: 640px) {
+    .bn-ak-button {
+        gap: 0.5rem;
+    }
+}
+
+.bn-ak-button:active:where(.dark, .dark *),
+.bn-ak-button[data-active]:where(.dark, .dark *) {
+    box-shadow:
+            inset 0 0 0 1px var(--border),
+            inset 0 1px 1px 1px var(--shadow);
+}
+
+.bn-ak-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem;
+}
+
+.bn-ak-popover {
+    z-index: 50;
+    display: flex;
+    max-height: min(var(--popover-available-height, 300px), 300px);
+    flex-direction: column;
+    overflow: auto;
+    overscroll-behavior: contain;
+    border-radius: 0.5rem;
+    border-width: 1px;
+    border-style: solid;
+    border-color: hsl(204 20% 88%);
+    background-color: hsl(204 20% 100%);
+    padding: 0.5rem;
+    color: hsl(204 4% 0%);
+    box-shadow:
+            0 10px 15px -3px rgb(0 0 0 / 0.1),
+            0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+.bn-ak-popover:focus-visible,
+.bn-ak-popover[data-focus-visible] {
+    outline: 2px solid hsl(204 100% 40%);
+    outline-offset: -1px;
+}
+
+.bn-ak-popover:where(.dark, .dark *) {
+    border-color: hsl(204 4% 24%);
+    background-color: hsl(204 4% 16%);
+    color: hsl(204 20% 100%);
+    box-shadow:
+            0 10px 15px -3px rgb(0 0 0 / 0.25),
+            0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+.bn-ak-select-item {
+    display: flex;
+    cursor: default;
+    scroll-margin: 0.5rem;
+    align-items: center;
+    gap: 0.5rem;
+    border-radius: 0.25rem;
+    padding: 0.5rem;
+    outline: none !important;
+}
+
+.bn-ak-select-item[aria-disabled="true"] {
+    opacity: 0.5;
+}
+
+.bn-ak-select-item[data-active-item] {
+    background-color: hsl(204 100% 40%);
+    color: hsl(204 20% 100%);
+}
+
+.bn-ak-separator {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    height: 0px;
+    width: 100%;
+    border-top-width: 1px;
+    border-color: hsl(204 20% 88%);
+}
+
+.bn-ak-separator:where(.dark, .dark *) {
+    border-color: hsl(204 4% 28%);
+}
+
+.bn-ak-group-label {
+    cursor: default;
+    padding: 0.5rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 500;
+    opacity: 0.6;
+}
+
+.bn-ak-group-label + * {
+    scroll-margin-top: 2.5rem;
+}
+
+/* https://ariakit.org/components/tab */
+.bn-ak-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    border-radius: 0.5rem;
+    background-color: hsl(204 20% 100%);
+    padding: 0.5rem;
+    box-shadow:
+            0 1px 3px 0 rgb(0 0 0 / 0.1),
+            0 1px 2px -1px rgb(0 0 0 / 0.1);
+}
+
+.bn-ak-wrapper:where(.dark, .dark *) {
+    background-color: hsl(204 4% 16%);
+    box-shadow:
+            0 1px 3px 0 rgb(0 0 0 / 0.25),
+            0 1px 2px -1px rgb(0 0 0 / 0.1);
+}
+
+.bn-ak-tab-list {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.bn-ak-tab {
+    display: flex;
+    height: 2.5rem;
+    user-select: none;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+    border-radius: 0.25rem;
+    border-style: none;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    text-decoration-line: none;
+    outline-width: 2px;
+    outline-offset: 2px;
+    outline-color: hsl(204 100% 40%);
+}
+
+.bn-ak-tab:hover {
+    background-color: hsl(204 4% 0% / 7.5%);
+}
+
+.bn-ak-tab[aria-disabled="true"] {
+    opacity: 0.5;
+}
+
+.bn-ak-tab[aria-selected="true"] {
+    background-color: hsl(204 100% 40%);
+    color: hsl(204 20% 100%);
+}
+
+.bn-ak-tab:hover[aria-selected="true"] {
+    background-color: hsl(204 100% 32%);
+}
+
+.bn-ak-tab[data-focus-visible] {
+    outline-style: solid;
+}
+
+.bn-ak-tab:active,
+.bn-ak-tab[data-active] {
+    padding-top: 0.125rem;
+}
+
+.bn-ak-tab:hover:where(.dark, .dark *) {
+    background-color: hsl(204 20% 100% / 0.1);
+}
+
+.bn-ak-tab[aria-selected="true"]:where(.dark, .dark *) {
+    background-color: hsl(204 100% 40%);
+    color: hsl(204 20% 100%);
+}
+
+.bn-ak-tab:hover[aria-selected="true"]:where(.dark, .dark *) {
+    background-color: hsl(204 100% 32%);
+}
+
+.bn-ak-panels {
+    padding: 0.5rem;
+}
+
+/* https://ariakit.org/components/toolbar */
+.bn-ak-button {
+    --border: rgb(0 0 0/13%);
+    --highlight: rgb(255 255 255/20%);
+    --shadow: rgb(0 0 0/10%);
+    display: flex;
+    height: 2.5rem;
+    user-select: none;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    border-style: none;
+    background-color: hsl(204 20% 100%);
+    padding-left: 1rem;
+    padding-right: 1rem;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    color: hsl(204 4% 0%);
+    text-decoration-line: none;
+    outline-width: 2px;
+    outline-offset: 2px;
+    outline-color: hsl(204 100% 40%);
+    box-shadow:
+            inset 0 0 0 1px var(--border),
+            inset 0 2px 0 var(--highlight),
+            inset 0 -1px 0 var(--shadow),
+            0 1px 1px var(--shadow);
+    scroll-margin-left: 0.25rem;
+    scroll-margin-right: 0.25rem;
+    gap: 0.5rem;
+    border-radius: 0.25rem;
+}
+
+.bn-ak-button:where(.dark, .dark *) {
+    --border: rgb(255 255 255/10%);
+    --highlight: rgb(255 255 255/5%);
+    --shadow: rgb(0 0 0/25%);
+    background-color: hsl(204 20% 100% / 0.05);
+    color: hsl(204 20% 100%);
+    box-shadow:
+            inset 0 0 0 1px var(--border),
+            inset 0 -1px 0 1px var(--shadow),
+            inset 0 1px 0 var(--highlight);
+}
+
+.bn-ak-button:not(:active):hover {
+    --border: rgb(0 0 0/33%);
+}
+
+.bn-ak-button:where(.dark, .dark *):not(:active):hover {
+    --border: rgb(255 255 255/25%);
+}
+
+.bn-ak-button[aria-disabled="true"] {
+    opacity: 0.5;
+}
+
+.bn-ak-button[data-focus-visible] {
+    outline-style: solid;
+}
+
+.bn-ak-button:active,
+.bn-ak-button[data-active] {
+    padding-top: 0.125rem;
+    box-shadow:
+            inset 0 0 0 1px var(--border),
+            inset 0 2px 0 var(--border);
+}
+
+@media (min-width: 640px) {
+    .bn-ak-button {
+        gap: 0.5rem;
+    }
+}
+
+.bn-ak-button:active:where(.dark, .dark *),
+.bn-ak-button[data-active]:where(.dark, .dark *) {
+    box-shadow:
+            inset 0 0 0 1px var(--border),
+            inset 0 1px 1px 1px var(--shadow);
+}
+
+.bn-ak-secondary {
+    background-color: transparent;
+    color: currentColor;
+    box-shadow: none;
+}
+
+.bn-ak-secondary:hover {
+    background-color: hsl(204 4% 0% / 0.05);
+}
+
+.bn-ak-secondary:where(.dark, .dark *) {
+    background-color: transparent;
+    box-shadow: none;
+}
+
+.bn-ak-secondary:hover:where(.dark, .dark *) {
+    background-color: hsl(204 20% 100% / 0.05);
+}
+
+.bn-ak-secondary:active:where(.dark, .dark *),
+.bn-ak-secondary[data-active]:where(.dark, .dark *) {
+    box-shadow: none;
+}
+
+.bn-ak-toolbar {
+    display: flex;
+    max-width: 100%;
+    align-items: center;
+    gap: 0.25rem;
+    overflow-x: auto;
+    border-radius: 0.5rem;
+    background-color: hsl(204 20% 100%);
+    padding: 0.25rem;
+    box-shadow:
+            0 1px 3px 0 rgb(0 0 0 / 0.1),
+            0 1px 2px -1px rgb(0 0 0 / 0.1);
+}
+
+.bn-ak-toolbar:where(.dark, .dark *) {
+    background-color: hsl(204 4% 16%);
+    box-shadow:
+            0 1px 3px 0 rgb(0 0 0 / 0.25),
+            0 1px 2px -1px rgb(0 0 0 / 0.1);
+}
+
+.bn-ak-separator {
+    height: 2rem;
+    border-right-width: 1px;
+    border-color: hsl(204 20% 88%);
+}
+
+.bn-ak-separator:where(.dark, .dark *) {
+    border-color: hsl(204 4% 28%);
+}
+
+/* https://ariakit.org/components/tooltip */
+.bn-ak-tooltip {
+    z-index: 50;
+    cursor: default;
+    border-radius: 0.375rem;
+    border-width: 1px;
+    border-color: hsl(204 20% 82%);
+    background-color: hsl(204 20% 94%);
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: black;
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+}
+
+.bn-ak-tooltip:where(.dark, .dark *) {
+    border-color: hsl(204 4% 24%);
+    background-color: hsl(204 4% 16%);
+    color: white;
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.15);
+}
+
+.bn-ak-link {
+    font-weight: 500;
+    color: hsl(204 100% 35%);
+    text-decoration-line: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.25em;
+}
+
+.bn-ak-link:hover {
+    text-decoration-thickness: 3px;
+}
+
+.bn-ak-link:where(.dark, .dark *) {
+    color: hsl(204 100% 64%);
+}

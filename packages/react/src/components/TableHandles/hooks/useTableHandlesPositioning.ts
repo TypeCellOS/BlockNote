@@ -1,8 +1,6 @@
 import { offset, useFloating, useTransitionStyles } from "@floating-ui/react";
 import { useEffect, useMemo } from "react";
 
-import { UiComponentPosition } from "../../../hooks/UiComponentPosition";
-
 function getBoundingClientRectRow(
   referencePosCell: DOMRect | null,
   referencePosTable: DOMRect | null,
@@ -62,7 +60,7 @@ function useTableHandlePosition(
     draggedCellOrientation: "row" | "col";
     mousePos: number;
   }
-): UiComponentPosition {
+) {
   const { refs, update, context, floatingStyles } = useFloating({
     open: show,
     placement: orientation === "row" ? "left" : "top",
@@ -116,8 +114,8 @@ export function useTableHandlesPositioning(
     mousePos: number;
   }
 ): {
-  rowHandle: UiComponentPosition;
-  colHandle: UiComponentPosition;
+  rowHandle: ReturnType<typeof useTableHandlePosition>;
+  colHandle: ReturnType<typeof useTableHandlePosition>;
 } {
   const rowHandle = useTableHandlePosition(
     "row",
