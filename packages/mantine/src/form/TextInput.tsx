@@ -34,6 +34,7 @@ export const TextInput = forwardRef<
       leftSection={icon}
       value={value}
       autoFocus={autoFocus}
+      data-autofocus={autoFocus ? "true" : undefined}
       placeholder={placeholder}
       onKeyDown={onKeyDown}
       onChange={onChange}
