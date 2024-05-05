@@ -5,7 +5,6 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { IconType } from "react-icons";
 import {
   RiH1,
   RiH2,
@@ -18,15 +17,15 @@ import {
 } from "react-icons/ri";
 import { DefaultReactSuggestionItem } from "./types";
 
-const icons: Record<string, IconType> = {
-  "Heading 1": RiH1,
-  "Heading 2": RiH2,
-  "Heading 3": RiH3,
-  "Numbered List": RiListOrdered,
-  "Bullet List": RiListUnordered,
-  Paragraph: RiText,
-  Table: RiTable2,
-  Image: RiImage2Fill,
+const icons = {
+  heading: RiH1,
+  heading_2: RiH2,
+  heading_3: RiH3,
+  numbered_list: RiListOrdered,
+  bullet_list: RiListUnordered,
+  paragraph: RiText,
+  table: RiTable2,
+  image: RiImage2Fill,
 };
 
 export function getDefaultReactSlashMenuItems<
@@ -35,7 +34,7 @@ export function getDefaultReactSlashMenuItems<
   S extends StyleSchema
 >(editor: BlockNoteEditor<BSchema, I, S>): DefaultReactSuggestionItem[] {
   return getDefaultSlashMenuItems(editor).map((item) => {
-    const Icon = icons[item.title];
+    const Icon = icons[item.key];
     return {
       ...item,
       icon: <Icon size={18} />,

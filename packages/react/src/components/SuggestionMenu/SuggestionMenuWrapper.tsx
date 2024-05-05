@@ -46,12 +46,14 @@ export function SuggestionMenuWrapper<Item>(props: {
 
   useCloseSuggestionMenuNoItems(items, usedQuery, closeMenu);
 
-  const selectedIndex = useSuggestionMenuKeyboardNavigation(
-    editor,
-    items,
-    closeMenu,
-    onItemClickCloseMenu
-  );
+  const { selectedIndex, setSelectedIndex } =
+    useSuggestionMenuKeyboardNavigation(
+      editor,
+      query,
+      items,
+      closeMenu,
+      onItemClickCloseMenu
+    );
 
   const Component = suggestionMenuComponent;
 
@@ -61,6 +63,7 @@ export function SuggestionMenuWrapper<Item>(props: {
       onItemClick={onItemClickCloseMenu}
       loadingState={loadingState}
       selectedIndex={selectedIndex}
+      setSelectedIndex={setSelectedIndex}
     />
   );
 }

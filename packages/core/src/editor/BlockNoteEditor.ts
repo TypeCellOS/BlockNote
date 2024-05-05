@@ -27,10 +27,10 @@ import {
   PartialBlock,
 } from "../blocks/defaultBlocks";
 import { FormattingToolbarProsemirrorPlugin } from "../extensions/FormattingToolbar/FormattingToolbarPlugin";
+import { ImagePanelProsemirrorPlugin } from "../extensions/ImagePanel/ImageToolbarPlugin";
 import { LinkToolbarProsemirrorPlugin } from "../extensions/LinkToolbar/LinkToolbarPlugin";
 import { SideMenuProsemirrorPlugin } from "../extensions/SideMenu/SideMenuPlugin";
 import { SuggestionMenuProseMirrorPlugin } from "../extensions/SuggestionMenu/SuggestionPlugin";
-import { ImagePanelProsemirrorPlugin } from "../extensions/ImagePanel/ImageToolbarPlugin";
 import { TableHandlesProsemirrorPlugin } from "../extensions/TableHandles/TableHandlesPlugin";
 import { UniqueID } from "../extensions/UniqueID/UniqueID";
 import {
@@ -62,6 +62,9 @@ import {
 } from "./BlockNoteTipTapEditor";
 
 // CSS
+import { PlaceholderPlugin } from "../extensions/Placeholder/PlaceholderPlugin";
+import { Dictionary } from "../i18n/dictionary";
+import { en } from "../i18n/locales";
 import "./Block.css";
 import "./editor.css";
 
@@ -73,6 +76,14 @@ export type BlockNoteEditorOptions<
   // TODO: Figure out if enableBlockNoteExtensions/disableHistoryExtension are needed and document them.
   enableBlockNoteExtensions: boolean;
 
+  /**
+   * A dictionary object containing translations for the editor.
+   */
+  dictionary?: Dictionary;
+
+  /**
+   * @deprecated, provide placeholders via dictionary instead
+   */
   placeholders: Record<string | "default", string>;
 
   /**
@@ -152,6 +163,8 @@ export class BlockNoteEditor<
     contentComponent: any;
   };
   public blockCache = new WeakMap<Node, Block<any, any, any>>();
+  public readonly dictionary: Dictionary;
+
   public readonly schema: BlockNoteSchema<BSchema, ISchema, SSchema>;
 
   public readonly blockImplementations: BlockSpecs;
@@ -218,11 +231,17 @@ export class BlockNoteEditor<
       );
     }
 
+    this.dictionary = options.dictionary || en;
+
     // apply defaults
     const newOptions = {
       defaultStyles: true,
       schema: options.schema || BlockNoteSchema.create(),
       ...options,
+      placeholders: {
+        ...this.dictionary.placeholders,
+        ...options.placeholders,
+      },
     };
 
     // @ts-ignore
@@ -245,7 +264,6 @@ export class BlockNoteEditor<
 
     const extensions = getBlockNoteExtensions({
       editor: this,
-      placeholders: newOptions.placeholders,
       domAttributes: newOptions.domAttributes || {},
       blockSchema: this.schema.blockSchema,
       blockSpecs: this.schema.blockSpecs,
@@ -266,6 +284,7 @@ export class BlockNoteEditor<
           this.suggestionMenus.plugin,
           ...(this.imagePanel ? [this.imagePanel.plugin] : []),
           ...(this.tableHandles ? [this.tableHandles.plugin] : []),
+          PlaceholderPlugin(this, newOptions.placeholders),
         ];
       },
     });

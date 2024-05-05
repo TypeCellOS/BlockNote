@@ -93,7 +93,10 @@ export class FormattingToolbarView {
       event.relatedTarget &&
       // Element is inside the editor.
       (editorWrapper === (event.relatedTarget as Node) ||
-        editorWrapper.contains(event.relatedTarget as Node))
+        editorWrapper.contains(event.relatedTarget as Node) ||
+        (event.relatedTarget as HTMLElement).matches(
+          ".bn-ui-container, .bn-ui-container *"
+        ))
     ) {
       return;
     }

@@ -6,11 +6,12 @@ import { useEffect, useState } from "react";
 // menu.
 export function useSuggestionMenuKeyboardNavigation<Item>(
   editor: BlockNoteEditor<any, any, any>,
+  query: string,
   items: Item[],
   closeMenu: () => void,
   onItemClick?: (item: Item) => void
 ) {
-  const [selectedIndex, setSelectedIndex] = useState<number>(0);
+  const [selectedIndex, setSelectedIndex] = useState<number>(-1);
 
   useEffect(() => {
     const handleMenuNavigationKeys = (event: KeyboardEvent) => {
@@ -70,5 +71,10 @@ export function useSuggestionMenuKeyboardNavigation<Item>(
     };
   }, [closeMenu, editor.domElement, items, selectedIndex, onItemClick]);
 
-  return selectedIndex;
+  // Resets index when items change
+  useEffect(() => {
+    setSelectedIndex(-1);
+  }, [query]);
+
+  return { selectedIndex, setSelectedIndex };
 }

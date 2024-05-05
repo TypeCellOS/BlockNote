@@ -2,7 +2,7 @@
   "name": "@blocknote/example-theming-dom-attributes",
   "description": "AUTO-GENERATED FILE, DO NOT EDIT DIRECTLY",
   "private": true,
-  "version": "0.12.0",
+  "version": "0.12.4",
   "scripts": {
     "start": "vite",
     "dev": "vite",
@@ -11,8 +11,11 @@
     "lint": "eslint . --max-warnings 0"
   },
   "dependencies": {
-    "@blocknote/core": "^0.12.0",
-    "@blocknote/react": "^0.12.0",
+    "@blocknote/core": "^0.12.4",
+    "@blocknote/react": "^0.12.4",
+    "@blocknote/ariakit": "^0.12.4",
+    "@blocknote/mantine": "^0.12.4",
+    "@blocknote/shadcn": "^0.12.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },

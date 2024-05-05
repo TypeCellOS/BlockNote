@@ -1,7 +1,7 @@
 import {
-  SideMenuButton,
   SideMenuProps,
   useBlockNoteEditor,
+  useComponentsContext,
 } from "@blocknote/react";
 import { MdDelete } from "react-icons/md";
 
@@ -9,14 +9,18 @@ import { MdDelete } from "react-icons/md";
 export function RemoveBlockButton(props: SideMenuProps) {
   const editor = useBlockNoteEditor();
 
+  const Components = useComponentsContext()!;
+
   return (
-    <SideMenuButton>
-      <MdDelete
-        size={24}
-        onClick={() => {
-          editor.removeBlocks([props.block]);
-        }}
-      />
-    </SideMenuButton>
+    <Components.SideMenu.Button
+      icon={
+        <MdDelete
+          size={24}
+          onClick={() => {
+            editor.removeBlocks([props.block]);
+          }}
+        />
+      }
+    />
   );
 }

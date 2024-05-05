@@ -24,6 +24,7 @@ module.exports = {
       },
     },
   },
+  ignorePatterns: ["**/ui/*"],
   rules: {
     curly: 1,
     "import/no-extraneous-dependencies": [
