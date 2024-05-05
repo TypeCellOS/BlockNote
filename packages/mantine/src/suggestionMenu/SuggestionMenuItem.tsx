@@ -19,6 +19,7 @@ export const SuggestionMenuItem = forwardRef<
       ref={ref}
       id={id}
       role="option"
+      onClick={onClick}
       aria-selected={isSelected || undefined}>
       {item.icon && (
         <Mantine.Group
