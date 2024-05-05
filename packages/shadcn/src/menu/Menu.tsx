@@ -1,5 +1,6 @@
 import type * as ShadCNDropdownMenu from "../components/ui/dropdown-menu";
 
+import { assertEmpty } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { ChevronRight } from "lucide-react";
 import { forwardRef, useMemo } from "react";
@@ -40,9 +41,12 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
   const {
     children,
     onOpenChange,
-    // position,
+    position, // Unused
     sub,
+    ...rest
   } = props;
+
+  assertEmpty(rest);
 
   const ShadCNComponents = useShadCNComponentsContext()!;
 
@@ -66,6 +70,8 @@ export const MenuTrigger = (
   props: ComponentProps["Generic"]["Menu"]["Trigger"]
 ) => {
   const { children, sub, ...rest } = props;
+
+  assertEmpty(rest);
 
   const ShadCNComponents = useShadCNComponentsContext()!;
 
@@ -96,7 +102,9 @@ export const MenuDropdown = forwardRef<
   HTMLDivElement,
   ComponentProps["Generic"]["Menu"]["Dropdown"]
 >((props, ref) => {
-  const { className, children, sub } = props;
+  const { className, children, sub, ...rest } = props;
+
+  assertEmpty(rest);
 
   const ShadCNComponents = useShadCNComponentsContext()!;
 
@@ -125,6 +133,8 @@ export const MenuItem = forwardRef<
 >((props, ref) => {
   const { className, children, icon, checked, subTrigger, onClick, ...rest } =
     props;
+
+  assertEmpty(rest);
 
   const ShadCNComponents = useShadCNComponentsContext()!;
 
@@ -168,7 +178,9 @@ export const MenuDivider = forwardRef<
   HTMLDivElement,
   ComponentProps["Generic"]["Menu"]["Divider"]
 >((props, ref) => {
-  const { className } = props;
+  const { className, ...rest } = props;
+
+  assertEmpty(rest);
 
   const ShadCNComponents = useShadCNComponentsContext()!;
 
@@ -184,7 +196,9 @@ export const MenuLabel = forwardRef<
   HTMLDivElement,
   ComponentProps["Generic"]["Menu"]["Label"]
 >((props, ref) => {
-  const { className, children } = props;
+  const { className, children, ...rest } = props;
+
+  assertEmpty(rest);
 
   const ShadCNComponents = useShadCNComponentsContext()!;
 

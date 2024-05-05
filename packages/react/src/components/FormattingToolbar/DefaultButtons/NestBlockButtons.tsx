@@ -54,6 +54,7 @@ export const NestBlockButton = () => {
       data-test="nestBlock"
       onClick={nestBlock}
       isDisabled={!canNestBlock}
+      label={dict.formatting_toolbar.nest.tooltip}
       mainTooltip={dict.formatting_toolbar.nest.tooltip}
       secondaryTooltip={formatKeyboardShortcut(
         dict.formatting_toolbar.nest.secondary_tooltip,
@@ -101,6 +102,7 @@ export const UnnestBlockButton = () => {
       data-test="unnestBlock"
       onClick={unnestBlock}
       isDisabled={!canUnnestBlock}
+      label={dict.formatting_toolbar.unnest.tooltip}
       mainTooltip={dict.formatting_toolbar.unnest.tooltip}
       secondaryTooltip={formatKeyboardShortcut(
         dict.formatting_toolbar.unnest.secondary_tooltip,

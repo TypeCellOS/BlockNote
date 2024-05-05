@@ -1,6 +1,7 @@
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
 
+import { assertEmpty } from "@blocknote/core";
 import { useShadCNComponentsContext } from "../ShadCNComponentsContext";
 import { cn } from "../lib/utils";
 
@@ -15,8 +16,13 @@ export const TableHandle = forwardRef<
     onDragStart,
     onDragEnd,
     style,
+    label,
     ...rest
   } = props;
+
+  // false, because rest props can be added by shadcn when button is used as a trigger
+  // assertEmpty in this case is only used at typescript level, not runtime level
+  assertEmpty(rest, false);
 
   const ShadCNComponents = useShadCNComponentsContext()!;
 
@@ -25,6 +31,7 @@ export const TableHandle = forwardRef<
       variant={"ghost"}
       className={cn(className, "p-0 h-fit w-fit text-gray-400")}
       ref={ref}
+      aria-label={label}
       draggable={draggable}
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}

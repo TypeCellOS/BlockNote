@@ -1,6 +1,7 @@
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
 
+import { assertEmpty } from "@blocknote/core";
 import { useShadCNComponentsContext } from "../ShadCNComponentsContext";
 import { cn } from "../lib/utils";
 
@@ -9,7 +10,9 @@ type ToolbarProps = ComponentProps["FormattingToolbar"]["Root"] &
 
 export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(
   (props, ref) => {
-    const { className, children, onMouseEnter, onMouseLeave } = props;
+    const { className, children, onMouseEnter, onMouseLeave, ...rest } = props;
+
+    assertEmpty(rest);
 
     const ShadCNComponents = useShadCNComponentsContext()!;
 
@@ -44,8 +47,13 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
       isSelected,
       isDisabled,
       onClick,
+      label,
       ...rest
     } = props;
+
+    // false, because rest props can be added by shadcn when button is used as a trigger
+    // assertEmpty in this case is only used at typescript level, not runtime level
+    assertEmpty(rest, false);
 
     const ShadCNComponents = useShadCNComponentsContext()!;
 
@@ -57,6 +65,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
           disabled={isDisabled}
           onClick={onClick}
           ref={ref}
+          aria-label={label}
           {...rest}>
           {icon}
           {children}
@@ -67,6 +76,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
             className,
             "data-[state=open]:bg-accent data-[state=closed]:text-accent-foreground"
           )}
+          aria-label={label}
           onClick={onClick}
           pressed={isSelected}
           disabled={isDisabled}
@@ -87,7 +97,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
         <ShadCNComponents.Tooltip.TooltipContent
           className={"flex flex-col items-center"}>
           <span>{mainTooltip}</span>
-          <span>{secondaryTooltip}</span>
+          {secondaryTooltip && <span>{secondaryTooltip}</span>}
         </ShadCNComponents.Tooltip.TooltipContent>
       </ShadCNComponents.Tooltip.Tooltip>
     );
@@ -98,7 +108,9 @@ export const ToolbarSelect = forwardRef<
   HTMLDivElement,
   ComponentProps["FormattingToolbar"]["Select"]
 >((props, ref) => {
-  const { className, items, isDisabled } = props;
+  const { className, items, isDisabled, ...rest } = props;
+
+  assertEmpty(rest);
 
   const ShadCNComponents = useShadCNComponentsContext()!;
 

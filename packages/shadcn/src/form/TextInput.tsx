@@ -1,6 +1,7 @@
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
 
+import { assertEmpty } from "@blocknote/core";
 import { useShadCNComponentsContext } from "../ShadCNComponentsContext";
 
 export const TextInput = forwardRef(
@@ -9,14 +10,17 @@ export const TextInput = forwardRef(
       className,
       name,
       label,
-      // icon,
+      icon, // TODO: implement
       value,
       autoFocus,
       placeholder,
       onKeyDown,
       onChange,
       onSubmit,
+      ...rest
     } = props;
+
+    assertEmpty(rest);
 
     const ShadCNComponents = useShadCNComponentsContext()!;
 

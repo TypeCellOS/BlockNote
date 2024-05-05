@@ -1,3 +1,4 @@
+import { assertEmpty } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
 
@@ -12,13 +13,19 @@ export const TableHandle = forwardRef<
     onDragStart,
     onDragEnd,
     style,
+    label,
     ...rest
   } = props;
+
+  // false, because rest props can be added by mantine when button is used as a trigger
+  // assertEmpty in this case is only used at typescript level, not runtime level
+  assertEmpty(rest, false);
 
   return (
     <button
       className={className}
       ref={ref}
+      aria-label={label}
       draggable={draggable}
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}

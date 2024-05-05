@@ -13,6 +13,7 @@ export function RemoveBlockButton(props: SideMenuProps) {
 
   return (
     <Components.SideMenu.Button
+      label="Remove block"
       icon={
         <MdDelete
           size={24}

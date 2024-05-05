@@ -1,6 +1,6 @@
 import * as Ariakit from "@ariakit/react";
 
-import { mergeCSSClasses } from "@blocknote/core";
+import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
 
@@ -14,9 +14,11 @@ export const Panel = forwardRef<
     defaultOpenTab,
     openTab,
     setOpenTab,
-    // loading,
-    // setLoading,
+    loading, // TODO: implement loading
+    ...rest
   } = props;
+
+  assertEmpty(rest);
 
   return (
     <div

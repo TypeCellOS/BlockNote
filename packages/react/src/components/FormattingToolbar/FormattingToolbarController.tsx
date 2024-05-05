@@ -72,13 +72,21 @@ export const FormattingToolbarController = (props: {
   const state = useUIPluginState(
     editor.formattingToolbar.onUpdate.bind(editor.formattingToolbar)
   );
-  const { isMounted, ref, style } = useUIElementPositioning(
+
+  const { isMounted, ref, style, getFloatingProps } = useUIElementPositioning(
     state?.show || false,
     state?.referencePos || null,
     3000,
     {
       placement,
       middleware: [offset(10), flip()],
+      onOpenChange: (open, event) => {
+        console.log("change", event);
+        if (!open) {
+          editor.formattingToolbar.closeMenu();
+          editor.focus();
+        }
+      },
     }
   );
 
@@ -103,7 +111,7 @@ export const FormattingToolbarController = (props: {
   const Component = props.formattingToolbar || FormattingToolbar;
 
   return (
-    <div ref={combinedRef} style={style}>
+    <div ref={combinedRef} style={style} {...getFloatingProps()}>
       <Component />
     </div>
   );

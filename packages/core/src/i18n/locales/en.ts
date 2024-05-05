@@ -69,6 +69,10 @@ export const en = {
     add_button: "Add Image",
   },
   // from react package:
+  side_menu: {
+    add_block_label: "Add block",
+    drag_handle_label: "Open block menu",
+  },
   drag_handle: {
     delete_menuitem: "Delete",
     colors_menuitem: "Colors",

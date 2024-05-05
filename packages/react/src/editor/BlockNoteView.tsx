@@ -83,6 +83,11 @@ function BlockNoteViewComponent<
     ...rest
   } = props;
 
+  // Used so other components (suggestion menu) can set
+  // aria related props to the contenteditable div
+  const [contentEditableProps, setContentEditableProps] =
+    useState<Record<string, any>>();
+
   const existingContext = useBlockNoteContext();
   const systemColorScheme = usePrefersColorScheme();
   const defaultColorScheme =
@@ -140,12 +145,13 @@ function BlockNoteViewComponent<
     return {
       ...existingContext,
       editor,
+      setContentEditableProps,
     };
   }, [existingContext, editor]);
 
   const refs = useMemo(() => {
-    return mergeRefs([containerRef, editor._tiptapEditor.mount, ref]);
-  }, [containerRef, editor._tiptapEditor.mount, ref]);
+    return mergeRefs([containerRef, ref]);
+  }, [containerRef, ref]);
 
   return (
     <BlockNoteContext.Provider value={context as any}>
@@ -159,6 +165,12 @@ function BlockNoteViewComponent<
           data-color-scheme={editorColorScheme}
           {...rest}
           ref={refs}>
+          <div
+            aria-autocomplete="list"
+            aria-haspopup="listbox"
+            ref={editor._tiptapEditor.mount}
+            {...contentEditableProps}
+          />
           {renderChildren}
         </div>
       </EditorContent>

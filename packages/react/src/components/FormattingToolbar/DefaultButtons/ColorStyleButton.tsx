@@ -85,10 +85,14 @@ export const ColorStyleButton = () => {
         );
       }
 
-      editor.focus();
       color === "default"
         ? editor.removeStyles({ textColor: color })
         : editor.addStyles({ textColor: color });
+
+      setTimeout(() => {
+        // timeout needed to ensure compatibility with Mantine Toolbar useFocusTrap
+        editor.focus();
+      });
     },
     [editor, textColorInSchema]
   );
@@ -101,10 +105,14 @@ export const ColorStyleButton = () => {
         );
       }
 
-      editor.focus();
       color === "default"
         ? editor.removeStyles({ backgroundColor: color })
         : editor.addStyles({ backgroundColor: color });
+
+      setTimeout(() => {
+        // timeout needed to ensure compatibility with Mantine Toolbar useFocusTrap
+        editor.focus();
+      });
     },
     [backgroundColorInSchema, editor]
   );
@@ -133,6 +141,7 @@ export const ColorStyleButton = () => {
         <Components.FormattingToolbar.Button
           className={"bn-button"}
           data-test="colors"
+          label={dict.formatting_toolbar.colors.tooltip}
           mainTooltip={dict.formatting_toolbar.colors.tooltip}
           icon={
             <ColorIcon

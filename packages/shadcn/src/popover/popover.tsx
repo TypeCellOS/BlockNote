@@ -1,6 +1,7 @@
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
 
+import { assertEmpty } from "@blocknote/core";
 import { useShadCNComponentsContext } from "../ShadCNComponentsContext";
 import { cn } from "../lib/utils";
 
@@ -10,8 +11,11 @@ export const Popover = (
   const {
     children,
     opened,
-    // position
+    position, // unused
+    ...rest
   } = props;
+
+  assertEmpty(rest);
 
   const ShadCNComponents = useShadCNComponentsContext()!;
 
@@ -24,7 +28,9 @@ export const Popover = (
 
 export const PopoverTrigger = forwardRef(
   (props: ComponentProps["Generic"]["Popover"]["Trigger"], ref: any) => {
-    const { children } = props;
+    const { children, ...rest } = props;
+
+    assertEmpty(rest);
 
     const ShadCNComponents = useShadCNComponentsContext()!;
 
@@ -40,7 +46,9 @@ export const PopoverContent = forwardRef<
   HTMLDivElement,
   ComponentProps["Generic"]["Popover"]["Content"]
 >((props, ref) => {
-  const { className, variant, children } = props;
+  const { className, variant, children, ...rest } = props;
+
+  assertEmpty(rest);
 
   const ShadCNComponents = useShadCNComponentsContext()!;
 

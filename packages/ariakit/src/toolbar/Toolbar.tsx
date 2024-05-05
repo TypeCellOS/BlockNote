@@ -1,6 +1,6 @@
 import * as Ariakit from "@ariakit/react";
 
-import { mergeCSSClasses } from "@blocknote/core";
+import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
 
@@ -9,7 +9,9 @@ type ToolbarProps = ComponentProps["FormattingToolbar"]["Root"] &
 
 export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(
   (props, ref) => {
-    const { className, children, onMouseEnter, onMouseLeave } = props;
+    const { className, children, onMouseEnter, onMouseLeave, ...rest } = props;
+
+    assertEmpty(rest);
 
     return (
       <Ariakit.Toolbar

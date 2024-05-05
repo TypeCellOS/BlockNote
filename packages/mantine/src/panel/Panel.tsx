@@ -1,5 +1,6 @@
 import * as Mantine from "@mantine/core";
 
+import { assertEmpty } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
 
@@ -14,8 +15,10 @@ export const Panel = forwardRef<
     openTab,
     setOpenTab,
     loading,
-    // setLoading,
+    ...rest
   } = props;
+
+  assertEmpty(rest);
 
   return (
     <Mantine.Group className={className} ref={ref}>

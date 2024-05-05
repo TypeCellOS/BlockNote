@@ -1,6 +1,6 @@
 import * as Mantine from "@mantine/core";
 
-import { isSafari } from "@blocknote/core";
+import { assertEmpty, isSafari } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
 
@@ -33,8 +33,13 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
       isSelected,
       isDisabled,
       onClick,
+      label,
       ...rest
     } = props;
+
+    // false, because rest props can be added by mantine when button is used as a trigger
+    // assertEmpty in this case is only used at typescript level, not runtime level
+    assertEmpty(rest, false);
 
     return (
       <Mantine.Tooltip
@@ -48,6 +53,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
         {/*Creates an ActionIcon instead of a Button if only an icon is provided as content.*/}
         {children ? (
           <Mantine.Button
+            aria-label={label}
             className={className}
             // Needed as Safari doesn't focus button elements on mouse down
             // unlike other browsers.
@@ -57,7 +63,8 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
               }
             }}
             onClick={onClick}
-            data-selected={isSelected ? "true" : undefined}
+            aria-pressed={isSelected}
+            data-selected={isSelected || undefined}
             data-test={
               mainTooltip.slice(0, 1).toLowerCase() +
               mainTooltip.replace(/\s+/g, "").slice(1)
@@ -71,6 +78,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
         ) : (
           <Mantine.ActionIcon
             className={className}
+            aria-label={label}
             // Needed as Safari doesn't focus button elements on mouse down
             // unlike other browsers.
             onMouseDown={(e) => {
@@ -79,7 +87,8 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
               }
             }}
             onClick={onClick}
-            data-selected={isSelected ? "true" : undefined}
+            aria-pressed={isSelected}
+            data-selected={isSelected || undefined}
             data-test={
               mainTooltip.slice(0, 1).toLowerCase() +
               mainTooltip.replace(/\s+/g, "").slice(1)

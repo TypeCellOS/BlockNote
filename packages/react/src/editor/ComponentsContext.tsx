@@ -19,14 +19,16 @@ export type ComponentProps = {
     };
     Button: {
       className?: string;
-      children?: ReactNode;
       mainTooltip: string;
       secondaryTooltip?: string;
       icon?: ReactNode;
       onClick?: (e: MouseEvent) => void;
       isSelected?: boolean;
       isDisabled?: boolean;
-    };
+    } & (
+      | { children: ReactNode; label?: string }
+      | { children?: undefined; label: string }
+    );
     Select: {
       className?: string;
       items: {
@@ -50,13 +52,14 @@ export type ComponentProps = {
       setOpenTab: (name: string) => void;
       defaultOpenTab: string;
       loading: boolean;
-      setLoading: (loading: boolean) => void;
     };
     Button: {
       className?: string;
-      children?: ReactNode;
       onClick: () => void;
-    };
+    } & (
+      | { children: ReactNode; label?: string }
+      | { children?: undefined; label: string }
+    );
     FileInput: {
       className?: string;
       value: File | null;
@@ -84,14 +87,16 @@ export type ComponentProps = {
     };
     Button: {
       className?: string;
-      children?: ReactNode;
       mainTooltip: string;
       secondaryTooltip?: string;
       icon?: ReactNode;
       onClick?: (e: MouseEvent) => void;
       isSelected?: boolean;
       isDisabled?: boolean;
-    };
+    } & (
+      | { children: ReactNode; label?: string }
+      | { children?: undefined; label: string }
+    );
   };
   SideMenu: {
     Root: {
@@ -100,16 +105,19 @@ export type ComponentProps = {
     };
     Button: {
       className?: string;
-      children?: ReactNode;
       onClick?: (e: MouseEvent) => void;
       icon?: ReactNode;
       onDragStart?: (e: React.DragEvent) => void;
       onDragEnd?: (e: React.DragEvent) => void;
       draggable?: boolean;
-    };
+    } & (
+      | { children: ReactNode; label?: string }
+      | { children?: undefined; label: string }
+    );
   };
   SuggestionMenu: {
     Root: {
+      id: string;
       className?: string;
       children?: ReactNode;
     };
@@ -117,11 +125,12 @@ export type ComponentProps = {
       className?: string;
       children?: ReactNode;
     };
-    Item: DefaultReactSuggestionItem & {
+    Item: {
       className?: string;
+      id: string;
       isSelected: boolean;
-      setSelected: (selected: boolean) => void;
       onClick: () => void;
+      item: DefaultReactSuggestionItem;
     };
     Label: {
       className?: string;
@@ -135,12 +144,14 @@ export type ComponentProps = {
   TableHandle: {
     Root: {
       className?: string;
-      children?: ReactNode;
       draggable: boolean;
       onDragStart: (e: React.DragEvent) => void;
       onDragEnd: () => void;
       style?: CSSProperties;
-    };
+    } & (
+      | { children: ReactNode; label?: string }
+      | { children?: undefined; label: string }
+    );
   };
   // TODO: We should try to make everything as generic as we can
   Generic: {

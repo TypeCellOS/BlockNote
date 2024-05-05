@@ -1,5 +1,6 @@
 import * as Mantine from "@mantine/core";
 
+import { assertEmpty } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import {
   createContext,
@@ -13,8 +14,6 @@ import { HiChevronRight } from "react-icons/hi";
 
 const SubMenuContext = createContext<
   | {
-      onTriggerMouseOver: () => void;
-      onTriggerMouseLeave: () => void;
       onMenuMouseOver: () => void;
       onMenuMouseLeave: () => void;
     }
@@ -67,15 +66,19 @@ const SubMenuContext = createContext<
 //   </MenuDropdown>
 // </Menu>
 const SubMenu = forwardRef<
-  HTMLDivElement,
+  HTMLButtonElement,
   ComponentProps["Generic"]["Menu"]["Root"]
 >((props, ref) => {
   const {
     children,
     onOpenChange,
     position,
-    // sub
+    sub, // not used
+    ...rest
   } = props;
+
+  assertEmpty(rest);
+
   const [opened, setOpened] = useState(false);
 
   const menuCloseTimer = useRef<ReturnType<typeof setTimeout> | undefined>();
@@ -93,22 +96,18 @@ const SubMenu = forwardRef<
     if (menuCloseTimer.current) {
       clearTimeout(menuCloseTimer.current);
     }
-
     setOpened(true);
   }, []);
 
   return (
     <SubMenuContext.Provider
       value={{
-        onTriggerMouseOver: mouseOver,
-        onTriggerMouseLeave: mouseLeave,
         onMenuMouseOver: mouseOver,
         onMenuMouseLeave: mouseLeave,
       }}>
       <Mantine.Menu.Item
         className="bn-menu-item bn-mt-sub-menu-item"
         ref={ref}
-        component="div"
         onMouseOver={mouseOver}
         onMouseLeave={mouseLeave}>
         <Mantine.Menu
@@ -127,7 +126,9 @@ const SubMenu = forwardRef<
 });
 
 export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
-  const { children, onOpenChange, position, sub } = props;
+  const { children, onOpenChange, position, sub, ...rest } = props;
+
+  assertEmpty(rest);
 
   if (sub) {
     return <SubMenu {...props} />;
@@ -146,13 +147,15 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
 };
 
 export const MenuItem = forwardRef<
-  HTMLDivElement,
+  HTMLButtonElement & HTMLDivElement,
   ComponentProps["Generic"]["Menu"]["Item"]
 >((props, ref) => {
   const { className, children, icon, checked, subTrigger, onClick, ...rest } =
     props;
 
-  const ctx = useContext(SubMenuContext);
+  // false, because rest props can be added by mantine when button is used as a trigger
+  // assertEmpty in this case is only used at typescript level, not runtime level
+  assertEmpty(rest, false);
 
   if (subTrigger) {
     return (
@@ -163,14 +166,10 @@ export const MenuItem = forwardRef<
     );
   }
 
-  const onMouseLeave = subTrigger ? ctx!.onTriggerMouseLeave : undefined;
-  const onMouseOver = subTrigger ? ctx!.onTriggerMouseOver : undefined;
-
   return (
     <Mantine.Menu.Item
       className={className}
       ref={ref}
-      component="div"
       leftSection={icon}
       rightSection={
         checked ? (
@@ -179,8 +178,6 @@ export const MenuItem = forwardRef<
           <div className={"bn-tick-space"} />
         ) : null
       }
-      onMouseOver={onMouseOver}
-      onMouseLeave={onMouseLeave}
       onClick={onClick}
       {...rest}>
       {children}
@@ -193,8 +190,11 @@ export const MenuTrigger = (
 ) => {
   const {
     children,
-    // sub
+    sub, // unused
+    ...rest
   } = props;
+
+  assertEmpty(rest);
 
   return <Mantine.Menu.Target>{children}</Mantine.Menu.Target>;
 };
@@ -206,8 +206,11 @@ export const MenuDropdown = forwardRef<
   const {
     className,
     children,
-    // sub
+    sub, //unused
+    ...rest
   } = props;
+
+  assertEmpty(rest);
 
   const ctx = useContext(SubMenuContext);
 
@@ -226,7 +229,9 @@ export const MenuDivider = forwardRef<
   HTMLDivElement,
   ComponentProps["Generic"]["Menu"]["Divider"]
 >((props, ref) => {
-  const { className } = props;
+  const { className, ...rest } = props;
+
+  assertEmpty(rest);
 
   return <Mantine.Menu.Divider className={className} ref={ref} />;
 });
@@ -235,7 +240,9 @@ export const MenuLabel = forwardRef<
   HTMLDivElement,
   ComponentProps["Generic"]["Menu"]["Label"]
 >((props, ref) => {
-  const { className, children } = props;
+  const { className, children, ...rest } = props;
+
+  assertEmpty(rest);
 
   return (
     <Mantine.Menu.Label className={className} ref={ref}>

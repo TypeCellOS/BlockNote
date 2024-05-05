@@ -1,6 +1,6 @@
 import * as Ariakit from "@ariakit/react";
 
-import { mergeCSSClasses } from "@blocknote/core";
+import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
 
@@ -19,7 +19,10 @@ export const TextInput = forwardRef<
     onKeyDown,
     onChange,
     onSubmit,
+    ...rest
   } = props;
+
+  assertEmpty(rest);
 
   return (
     <>

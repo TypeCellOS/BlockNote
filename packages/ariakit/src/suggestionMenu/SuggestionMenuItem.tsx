@@ -1,59 +1,41 @@
-import { mergeCSSClasses } from "@blocknote/core";
+import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
-import { forwardRef, useCallback } from "react";
+import { forwardRef } from "react";
 
 export const SuggestionMenuItem = forwardRef<
   HTMLDivElement,
   ComponentProps["SuggestionMenu"]["Item"]
 >((props, ref) => {
-  const {
-    className,
-    title,
-    subtext,
-    // group,
-    icon,
-    badge,
-    // aliases,
-    // onItemClick,
-    isSelected,
-    setSelected,
-    onClick,
-  } = props;
+  const { className, item, isSelected, onClick, id, ...rest } = props;
 
-  const handleMouseLeave = useCallback(() => {
-    setSelected?.(false);
-  }, [setSelected]);
-
-  const handleMouseEnter = useCallback(() => {
-    setSelected?.(true);
-  }, [setSelected]);
+  assertEmpty(rest);
 
   return (
     <div
-      // component="div"
       className={mergeCSSClasses("bn-ak-menu-item", className || "")}
       ref={ref}
+      id={id}
       onClick={onClick}
-      // Ensures an item selected with both mouse & keyboard doesn't get deselected on mouse leave.
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      data-hovered={isSelected ? "" : undefined}>
-      {icon && (
+      role="option"
+      aria-selected={isSelected || undefined}>
+      {item.icon && (
         <div
           className="bn-ak-suggestion-menu-item-section"
           data-position="left">
-          {icon}
+          {item.icon}
         </div>
       )}
       <div className="bn-ak-suggestion-menu-item-body">
-        <div className="bn-ak-suggestion-menu-item-title">{title}</div>
-        <div className="bn-ak-suggestion-menu-item-subtitle">{subtext}</div>
+        <div className="bn-ak-suggestion-menu-item-title">{item.title}</div>
+        <div className="bn-ak-suggestion-menu-item-subtitle">
+          {item.subtext}
+        </div>
       </div>
-      {badge && (
+      {item.badge && (
         <div
           data-position="right"
           className="bn-ak-suggestion-menu-item-section">
-          <div>{badge}</div>
+          <div>{item.badge}</div>
         </div>
       )}
     </div>

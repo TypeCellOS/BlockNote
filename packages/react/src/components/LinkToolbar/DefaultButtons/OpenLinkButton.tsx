@@ -11,6 +11,7 @@ export const OpenLinkButton = (props: Pick<LinkToolbarProps, "url">) => {
     <Components.LinkToolbar.Button
       className={"bn-button"}
       mainTooltip={dict.link_toolbar.open.tooltip}
+      label={dict.link_toolbar.open.tooltip}
       isSelected={false}
       onClick={() => {
         window.open(props.url, "_blank");

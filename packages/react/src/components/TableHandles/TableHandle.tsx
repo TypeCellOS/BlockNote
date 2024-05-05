@@ -37,6 +37,7 @@ export const TableHandle = <
         } else {
           props.unfreezeHandles();
           props.showOtherSide();
+          props.editor.focus();
         }
       }}
       position={"right"}>

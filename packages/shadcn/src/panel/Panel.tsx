@@ -1,6 +1,7 @@
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
 
+import { assertEmpty } from "@blocknote/core";
 import { useShadCNComponentsContext } from "../ShadCNComponentsContext";
 import { cn } from "../lib/utils";
 
@@ -14,9 +15,11 @@ export const Panel = forwardRef<
     defaultOpenTab,
     openTab,
     setOpenTab,
-    // loading,
-    // setLoading,
+    loading, // TODO: implement loader
+    ...rest
   } = props;
+
+  assertEmpty(rest);
 
   const ShadCNComponents = useShadCNComponentsContext()!;
 
