@@ -15,7 +15,7 @@ type BlockNoteContextValue<
   ISchema extends InlineContentSchema = DefaultInlineContentSchema,
   SSchema extends StyleSchema = DefaultStyleSchema
 > = {
-  setContentEditableProps?: ReturnType<typeof useState<Record<string, any>>>[1];
+  setContentEditableProps?: ReturnType<typeof useState<Record<string, any>>>[1]; // copy type of setXXX from useState
   editor?: BlockNoteEditor<BSchema, ISchema, SSchema>;
   colorSchemePreference?: "light" | "dark";
 };

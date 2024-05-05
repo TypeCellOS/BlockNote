@@ -20,7 +20,9 @@ export function useUIElementPositioning(
 
   const { isMounted, styles } = useTransitionStyles(context);
 
-  const dismiss = useDismiss(context, {});
+  // handle "escape" and other dismiss events, these will add some listeners to
+  // getFloatingProps which need to be attached to the floating element
+  const dismiss = useDismiss(context);
 
   const { getReferenceProps, getFloatingProps } = useInteractions([dismiss]);
 
