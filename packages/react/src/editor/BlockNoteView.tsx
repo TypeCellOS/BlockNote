@@ -11,7 +11,6 @@ import React, {
   HTMLAttributes,
   ReactNode,
   Ref,
-  useCallback,
   useEffect,
   useMemo,
   useState,
@@ -19,7 +18,6 @@ import React, {
 import usePrefersColorScheme from "use-prefers-color-scheme";
 import { useEditorChange } from "../hooks/useEditorChange";
 import { useEditorSelectionChange } from "../hooks/useEditorSelectionChange";
-import { mergeRefs } from "../util/mergeRefs";
 import { BlockNoteContext, useBlockNoteContext } from "./BlockNoteContext";
 import {
   BlockNoteDefaultUI,
@@ -93,22 +91,8 @@ function BlockNoteViewComponent<
   const defaultColorScheme =
     existingContext?.colorSchemePreference || systemColorScheme;
 
-  const [editorColorScheme, setEditorColorScheme] = useState<
-    "light" | "dark" | undefined
-  >(undefined);
-
-  const containerRef = useCallback(
-    (node: HTMLDivElement | null) => {
-      if (!node) {
-        return;
-      }
-
-      setEditorColorScheme(
-        theme || defaultColorScheme === "dark" ? "dark" : "light"
-      );
-    },
-    [defaultColorScheme, theme]
-  );
+  const editorColorScheme =
+    theme || (defaultColorScheme === "dark" ? "dark" : "light");
 
   useEditorChange(onChange || emptyFn, editor);
   useEditorSelectionChange(onSelectionChange || emptyFn, editor);
@@ -149,10 +133,6 @@ function BlockNoteViewComponent<
     };
   }, [existingContext, editor]);
 
-  const refs = useMemo(() => {
-    return mergeRefs([containerRef, ref]);
-  }, [containerRef, ref]);
-
   return (
     <BlockNoteContext.Provider value={context as any}>
       <EditorContent editor={editor}>
@@ -164,7 +144,7 @@ function BlockNoteViewComponent<
           )}
           data-color-scheme={editorColorScheme}
           {...rest}
-          ref={refs}>
+          ref={ref}>
           <div
             aria-autocomplete="list"
             aria-haspopup="listbox"
