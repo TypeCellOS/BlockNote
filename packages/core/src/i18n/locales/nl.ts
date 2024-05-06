@@ -32,6 +32,21 @@ export const nl: Dictionary = {
       aliases: ["ul", "li", "lijst", "puntenlijst", "punten lijst"],
       group: "Basisblokken",
     },
+    // TODO: Translate to Dutch
+    check_list: {
+      title: "Check List",
+      subtext: "Used to display a list with checkboxes",
+      aliases: [
+        "ul",
+        "li",
+        "list",
+        "checklist",
+        "check list",
+        "checked list",
+        "checkbox",
+      ],
+      group: "Basic blocks",
+    },
     paragraph: {
       title: "Paragraaf",
       subtext: "Gebruikt voor de hoofdtekst van uw document",

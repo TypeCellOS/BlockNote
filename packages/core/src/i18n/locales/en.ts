@@ -30,6 +30,20 @@ export const en = {
       aliases: ["ul", "li", "list", "bulletlist", "bullet list"],
       group: "Basic blocks",
     },
+    check_list: {
+      title: "Check List",
+      subtext: "Used to display a list with checkboxes",
+      aliases: [
+        "ul",
+        "li",
+        "list",
+        "checklist",
+        "check list",
+        "checked list",
+        "checkbox",
+      ],
+      group: "Basic blocks",
+    },
     paragraph: {
       title: "Paragraph",
       subtext: "Used for the body of your document",

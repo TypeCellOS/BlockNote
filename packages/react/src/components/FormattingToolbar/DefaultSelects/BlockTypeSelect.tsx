@@ -11,6 +11,7 @@ import {
   RiH1,
   RiH2,
   RiH3,
+  RiListCheck3,
   RiListOrdered,
   RiListUnordered,
   RiText,
@@ -85,6 +86,12 @@ export const blockTypeSelectItems = (
     type: "numberedListItem",
     icon: RiListOrdered,
     isSelected: (block) => block.type === "numberedListItem",
+  },
+  {
+    name: dict.slash_menu.check_list.title,
+    type: "checkListItem",
+    icon: RiListCheck3,
+    isSelected: (block) => block.type === "checkListItem",
   },
 ];
 

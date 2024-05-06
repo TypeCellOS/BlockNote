@@ -23,6 +23,7 @@ import { Heading } from "./HeadingBlockContent/HeadingBlockContent";
 import { Image } from "./ImageBlockContent/ImageBlockContent";
 import { BulletListItem } from "./ListItemBlockContent/BulletListItemBlockContent/BulletListItemBlockContent";
 import { NumberedListItem } from "./ListItemBlockContent/NumberedListItemBlockContent/NumberedListItemBlockContent";
+import { CheckListItem } from "./ListItemBlockContent/CheckListItemBlockContent/CheckListItemBlockContent";
 import { Paragraph } from "./ParagraphBlockContent/ParagraphBlockContent";
 import { Table } from "./TableBlockContent/TableBlockContent";
 
@@ -31,6 +32,7 @@ export const defaultBlockSpecs = {
   heading: Heading,
   bulletListItem: BulletListItem,
   numberedListItem: NumberedListItem,
+  checkListItem: CheckListItem,
   image: Image,
   table: Table,
 } satisfies BlockSpecs;
