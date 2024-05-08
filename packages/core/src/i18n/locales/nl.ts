@@ -81,6 +81,7 @@ export const nl: Dictionary = {
     heading: "Kop",
     bulletListItem: "Lijst",
     numberedListItem: "Lijst",
+    checkListItem: "Lijst",
   },
   image: {
     add_button: "Afbeelding toevoegen",
