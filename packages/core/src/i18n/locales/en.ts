@@ -78,6 +78,7 @@ export const en = {
     heading: "Heading",
     bulletListItem: "List",
     numberedListItem: "List",
+    checkListItem: "List",
   },
   image: {
     add_button: "Add Image",

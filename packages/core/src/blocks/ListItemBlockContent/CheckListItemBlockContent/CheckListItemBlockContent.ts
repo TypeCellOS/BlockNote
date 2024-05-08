@@ -52,7 +52,7 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
                 checked: false as any,
               },
             })
-            // Removes the "-", "+", or "*" character used to set the list.
+            // Removes the characters used to set the list.
             .deleteRange({ from: range.from, to: range.to });
         },
       }),
@@ -70,7 +70,7 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
                 checked: true as any,
               },
             })
-            // Removes the "-", "+", or "*" character used to set the list.
+            // Removes the characters used to set the list.
             .deleteRange({ from: range.from, to: range.to });
         },
       }),
@@ -147,14 +147,22 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
     ];
   },
 
+  // TODO: Since there is no HTML checklist element, there isn't really any
+  //  standardization for what checklists should look like in the DOM. GDocs'
+  //  and Notion's aren't cross compatible, for example. How should we do it?
+  //  - `ul`/`li` elements?
+  //  - `ul`/`li` elements with "[]"/"[X]" strings?
+  //  - `input` & `span` elements in a `div` wrapper?
   renderHTML({ node, HTMLAttributes }) {
+    const wrapper = document.createElement("div");
+
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
     checkbox.checked = node.attrs.checked;
 
     const { dom, contentDOM } = createDefaultBlockDOMOutputSpec(
       this.name,
-      "p",
+      "span",
       {
         ...(this.options.domAttributes?.blockContent || {}),
         ...HTMLAttributes,
@@ -162,13 +170,24 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
       this.options.domAttributes?.inlineContent || {}
     );
 
-    dom.insertBefore(checkbox, contentDOM);
+    dom.removeChild(contentDOM);
+    dom.appendChild(wrapper);
+    wrapper.appendChild(checkbox);
+    wrapper.appendChild(contentDOM);
 
     return { dom, contentDOM };
   },
 
+  // Need to render node view since the checkbox needs to be able to update the
+  // node. This is only possible with a node view as it exposes `getPos`.
   addNodeView() {
     return ({ node, getPos, HTMLAttributes }) => {
+      // Need to wrap certain elements in a div or keyboard navigation gets
+      // confused.
+      const wrapper = document.createElement("div");
+      const checkboxWrapper = document.createElement("div");
+      checkboxWrapper.contentEditable = "false";
+
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
       checkbox.checked = node.attrs.checked;
@@ -187,7 +206,7 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
 
       const { dom, contentDOM } = createDefaultBlockDOMOutputSpec(
         this.name,
-        "p",
+        "span",
         {
           ...(this.options.domAttributes?.blockContent || {}),
           ...HTMLAttributes,
@@ -195,7 +214,11 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
         this.options.domAttributes?.inlineContent || {}
       );
 
-      dom.insertBefore(checkbox, contentDOM);
+      dom.removeChild(contentDOM);
+      dom.appendChild(wrapper);
+      wrapper.appendChild(checkboxWrapper);
+      wrapper.appendChild(contentDOM);
+      checkboxWrapper.appendChild(checkbox);
 
       return { dom, contentDOM };
     };
