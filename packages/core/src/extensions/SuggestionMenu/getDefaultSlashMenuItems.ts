@@ -197,6 +197,27 @@ export function getDefaultSlashMenuItems<
 
   if (checkDefaultBlockTypeInSchema("file", editor)) {
     items.push({
+      title: "Image",
+      onItemClick: () => {
+        const insertedBlock = insertOrUpdateBlock(editor, {
+          type: "file",
+          props: {
+            fileType: "image",
+          },
+        });
+
+        // Immediately open the file toolbar
+        editor.prosemirrorView.dispatch(
+          editor._tiptapEditor.state.tr.setMeta(editor.filePanel!.plugin, {
+            block: insertedBlock,
+          })
+        );
+      },
+      subtext: "Insert an image",
+      aliases: ["image", "upload", "embed", "img", "picture", "media", "url"],
+      group: "Media",
+    });
+    items.push({
       title: "File",
       onItemClick: () => {
         const insertedBlock = insertOrUpdateBlock(editor, {
@@ -210,18 +231,8 @@ export function getDefaultSlashMenuItems<
           })
         );
       },
-      subtext: "Insert an file",
-      aliases: [
-        "file",
-        "fileUpload",
-        "upload",
-        "img",
-        "picture",
-        "media",
-        "url",
-        "drive",
-        "dropbox",
-      ],
+      subtext: "Insert a file",
+      aliases: ["file", "upload", "embed", "media", "url"],
       group: "Media",
     });
   }

@@ -28,22 +28,24 @@ import { renderToDOMSpec } from "./@util/ReactRenderUtil";
 
 // this file is mostly analogoues to `customBlocks.ts`, but for React blocks
 
+export type ReactCustomBlockRenderProps<
+  T extends CustomBlockConfig,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+> = {
+  block: BlockFromConfig<T, I, S>;
+  editor: BlockNoteEditor<BlockSchemaWithBlock<T["type"], T>, I, S>;
+  contentRef: (node: HTMLElement | null) => void;
+};
+
 // extend BlockConfig but use a React render function
 export type ReactCustomBlockImplementation<
   T extends CustomBlockConfig,
   I extends InlineContentSchema,
   S extends StyleSchema
 > = {
-  render: FC<{
-    block: BlockFromConfig<T, I, S>;
-    editor: BlockNoteEditor<BlockSchemaWithBlock<T["type"], T>, I, S>;
-    contentRef: (node: HTMLElement | null) => void;
-  }>;
-  toExternalHTML?: FC<{
-    block: BlockFromConfig<T, I, S>;
-    editor: BlockNoteEditor<BlockSchemaWithBlock<T["type"], T>, I, S>;
-    contentRef: (node: HTMLElement | null) => void;
-  }>;
+  render: FC<ReactCustomBlockRenderProps<T, I, S>>;
+  toExternalHTML?: FC<ReactCustomBlockRenderProps<T, I, S>>;
   parse?: (
     el: HTMLElement
   ) => PartialBlockFromConfig<T, I, S>["props"] | undefined;

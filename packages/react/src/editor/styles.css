@@ -579,3 +579,16 @@
   padding: 0;
   width: 20px;
 }
+
+/* Custom block node view wrapper styling */
+.bn-react-node-view-renderer {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* Selected */
+.ProseMirror-selectednode > .bn-block-content > * {
+  border-radius: 4px;
+  outline: 4px solid rgb(100, 160, 255);
+}

@@ -20,7 +20,7 @@ import {
   getStyleSchemaFromSpecs,
 } from "../schema";
 import { Heading } from "./HeadingBlockContent/HeadingBlockContent";
-import { File } from "./FileBlockContent/FileBlockContent";
+import { createFileBlock } from "./FileBlockContent/FileBlockContent";
 import { BulletListItem } from "./ListItemBlockContent/BulletListItemBlockContent/BulletListItemBlockContent";
 import { NumberedListItem } from "./ListItemBlockContent/NumberedListItemBlockContent/NumberedListItemBlockContent";
 import { Paragraph } from "./ParagraphBlockContent/ParagraphBlockContent";
@@ -31,7 +31,7 @@ export const defaultBlockSpecs = {
   heading: Heading,
   bulletListItem: BulletListItem,
   numberedListItem: NumberedListItem,
-  file: File,
+  file: createFileBlock(),
   table: Table,
 } satisfies BlockSpecs;
 

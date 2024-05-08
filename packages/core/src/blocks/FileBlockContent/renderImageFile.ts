@@ -1,11 +1,6 @@
-import {
-  BlockFromConfig,
-  BlockSchemaWithBlock,
-  InlineContentSchema,
-  StyleSchema,
-} from "../../schema";
-import { DefaultBlockSchema } from "../defaultBlocks";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
+import { BlockFromConfig, BlockSchemaWithBlock } from "../../schema";
+import { fileBlockConfig } from "./fileBlockConfig";
 
 // Converts text alignment prop values to the flexbox `align-items` values.
 const textAlignmentToAlignItems = (
@@ -26,15 +21,12 @@ const textAlignmentToAlignItems = (
 // Min image width in px.
 const minWidth = 64;
 
-export const renderImageFile = <
-  ISchema extends InlineContentSchema,
-  SSchema extends StyleSchema
->(
-  block: BlockFromConfig<DefaultBlockSchema["file"], ISchema, SSchema>,
+export const renderImageFile = (
+  block: BlockFromConfig<typeof fileBlockConfig, any, any>,
   editor: BlockNoteEditor<
-    BlockSchemaWithBlock<"file", DefaultBlockSchema["file"]>,
-    ISchema,
-    SSchema
+    BlockSchemaWithBlock<"file", typeof fileBlockConfig>,
+    any,
+    any
   >
 ): { dom: HTMLElement; destroy?: () => void } => {
   // Wrapper element for the image and resize handles.

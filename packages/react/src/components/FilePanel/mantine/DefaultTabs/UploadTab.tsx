@@ -54,6 +54,7 @@ export const UploadTab = <
             editor.updateBlock(block, {
               type: "file",
               props: {
+                fileType: file.type.split("/")[0],
                 url: uploaded,
               },
             });
@@ -73,6 +74,7 @@ export const UploadTab = <
   return editor.uploadFile !== undefined ? (
     <FilePanelTab>
       <FilePanelFileInput
+        accept={props.block.props.fileType + "/*"}
         placeholder={"Upload File"}
         value={null}
         onChange={handleFileChange}

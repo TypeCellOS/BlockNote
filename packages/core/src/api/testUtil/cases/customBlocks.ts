@@ -1,9 +1,5 @@
 import { EditorTestCases } from "../index";
 
-import {
-  imagePropSchema,
-  renderImage,
-} from "../../../blocks/FileBlockContent/ImageBlockContent";
 import { uploadToTmpFilesDotOrg_DEV_ONLY } from "../../../blocks/FileBlockContent/uploadToTmpFilesDotOrg_DEV_ONLY";
 import {
   DefaultInlineContentSchema,
@@ -14,17 +10,25 @@ import { defaultProps } from "../../../blocks/defaultProps";
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
 import { BlockNoteSchema } from "../../../editor/BlockNoteSchema";
 import { createBlockSpec } from "../../../schema/blocks/createSpec";
+import { renderFile } from "../../../blocks/FileBlockContent/renderFile";
+import { filePropSchema } from "../../../blocks/FileBlockContent/fileBlockConfig";
+import { fileBlockImageExtension } from "../../../blocks/FileBlockContent/fileBlockExtensions";
 
-// This is a modified version of the default image block that does not implement
+// This is a modified version of the default file block that does not implement
 // a `serialize` function. It's used to test if the custom serializer by default
 // serializes custom blocks using their `render` function.
-const SimpleImage = createBlockSpec(
+const SimpleFile = createBlockSpec(
   {
-    type: "simpleImage" as const,
-    propSchema: imagePropSchema,
+    type: "simpleFile" as const,
+    propSchema: filePropSchema,
     content: "none",
   },
-  { render: renderImage as any }
+  {
+    render: (block, editor) =>
+      renderFile(block as any, editor as any, {
+        image: fileBlockImageExtension,
+      }),
+  }
 );
 
 const CustomParagraph = createBlockSpec(
@@ -77,7 +81,7 @@ const SimpleCustomParagraph = createBlockSpec(
 const schema = BlockNoteSchema.create({
   blockSpecs: {
     ...defaultBlockSpecs,
-    simpleImage: SimpleImage,
+    simpleFile: SimpleFile,
     customParagraph: CustomParagraph,
     simpleCustomParagraph: SimpleCustomParagraph,
   },
@@ -97,43 +101,43 @@ export const customBlocksTestCases: EditorTestCases<
   },
   documents: [
     {
-      name: "simpleImage/button",
+      name: "simpleFile/button",
       blocks: [
         {
-          type: "simpleImage",
+          type: "simpleFile",
         },
       ],
     },
     {
-      name: "simpleImage/basic",
+      name: "simpleFile/basic",
       blocks: [
         {
-          type: "simpleImage" as const,
+          type: "simpleFile" as const,
           props: {
             url: "exampleURL",
             caption: "Caption",
-            width: 256,
+            previewWidth: 256,
           } as const,
         },
       ],
     },
     {
-      name: "simpleImage/nested",
+      name: "simpleFile/nested",
       blocks: [
         {
-          type: "simpleImage" as const,
+          type: "simpleFile" as const,
           props: {
             url: "exampleURL",
             caption: "Caption",
-            width: 256,
+            previewWidth: 256,
           } as const,
           children: [
             {
-              type: "simpleImage" as const,
+              type: "simpleFile" as const,
               props: {
                 url: "exampleURL",
                 caption: "Caption",
-                width: 256,
+                previewWidth: 256,
               } as const,
             },
           ],

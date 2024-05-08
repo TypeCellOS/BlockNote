@@ -7,11 +7,8 @@ import {
   DefaultStyleSchema,
   InlineContentSchema,
   StyleSchema,
-  BlockFromConfig,
-  BlockSchemaWithBlock,
 } from "@blocknote/core";
-import { DependencyList, FC, useMemo } from "react";
-import { ImageFile } from "../components/FileBlock/ImageFile";
+import { DependencyList, useMemo } from "react";
 
 /**
  * Main hook for importing a BlockNote editor into a React project
@@ -23,37 +20,11 @@ export const useCreateBlockNote = <
   ISchema extends InlineContentSchema = DefaultInlineContentSchema,
   SSchema extends StyleSchema = DefaultStyleSchema
 >(
-  options: Partial<
-    Omit<
-      BlockNoteEditorOptions<BSchema, ISchema, SSchema>,
-      "renderFileExtension"
-    > & {
-      renderFileExtension: Record<
-        string,
-        FC<{
-          block: BlockFromConfig<DefaultBlockSchema["file"], ISchema, SSchema>;
-          editor: BlockNoteEditor<
-            BlockSchemaWithBlock<"file", DefaultBlockSchema["file"]>,
-            ISchema,
-            SSchema
-          >;
-        }>
-      >;
-    }
-  > = {},
+  options: Partial<BlockNoteEditorOptions<BSchema, ISchema, SSchema>> = {},
   deps: DependencyList = []
 ) => {
   return useMemo(() => {
-    const { renderFileExtension, ...rest } = options;
-
-    const editor = BlockNoteEditor.create<BSchema, ISchema, SSchema>({
-      renderFileExtension: {
-        // png: ImageFile,
-        // jpg: ImageFile,
-        // jpeg: ImageFile,
-      },
-      ...rest,
-    });
+    const editor = BlockNoteEditor.create<BSchema, ISchema, SSchema>(options);
     if (window) {
       // for testing / dev purposes
       (window as any).ProseMirror = editor._tiptapEditor;

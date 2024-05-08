@@ -7,6 +7,7 @@ export const FilePanelFileInput = forwardRef<
     ComponentPropsWithoutRef<"button">,
     "value" | "defaultValue" | "onChange"
   > & {
+    accept?: string;
     placeholder?: ReactNode;
     value?: File | null;
     defaultValue?: File | null;

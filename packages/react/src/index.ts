@@ -5,6 +5,8 @@ export * from "./editor/BlockNoteTheme";
 export * from "./editor/BlockNoteView";
 export * from "./editor/defaultThemes";
 
+export * from "./components/FileBlock/FileBlockContent";
+
 export * from "./components/FormattingToolbar/FormattingToolbarController";
 export * from "./components/FormattingToolbar/FormattingToolbarProps";
 export * from "./components/FormattingToolbar/mantine/DefaultButtons/BasicTextStyleButton";

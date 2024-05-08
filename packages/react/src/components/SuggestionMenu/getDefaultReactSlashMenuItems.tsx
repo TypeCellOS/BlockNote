@@ -15,6 +15,7 @@ import {
   RiListUnordered,
   RiTable2,
   RiText,
+  RiImage2Fill,
 } from "react-icons/ri";
 import { DefaultReactSuggestionItem } from "./types";
 
@@ -26,6 +27,7 @@ const icons: Record<string, IconType> = {
   "Bullet List": RiListUnordered,
   Paragraph: RiText,
   Table: RiTable2,
+  Image: RiImage2Fill,
   File: RiFile2Line,
 };
 

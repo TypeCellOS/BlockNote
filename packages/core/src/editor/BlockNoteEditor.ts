@@ -44,8 +44,6 @@ import {
   StyleSchema,
   StyleSpecs,
   Styles,
-  BlockFromConfig,
-  BlockSchemaWithBlock,
 } from "../schema";
 import { mergeCSSClasses } from "../util/browser";
 import { NoInfer, UnreachableCaseError } from "../util/typescript";
@@ -66,8 +64,6 @@ import {
 // CSS
 import "./Block.css";
 import "./editor.css";
-import { renderImageFile } from "../blocks/FileBlockContent/renderImageFile";
-import { renderFile } from "../blocks/FileBlockContent/FileBlockContent";
 
 export type BlockNoteEditorOptions<
   BSchema extends BlockSchema,
@@ -109,20 +105,6 @@ export type BlockNoteEditorOptions<
    * @returns The URL of the uploaded file.
    */
   uploadFile: (file: File) => Promise<string>;
-  renderFileExtension: Record<
-    "default" | string,
-    (
-      block: BlockFromConfig<DefaultBlockSchema["file"], ISchema, SSchema>,
-      editor: BlockNoteEditor<
-        BlockSchemaWithBlock<"file", DefaultBlockSchema["file"]>,
-        ISchema,
-        SSchema
-      >
-    ) => {
-      dom: HTMLElement;
-      destroy?: () => void;
-    }
-  >;
 
   /**
    * When enabled, allows for collaboration between multiple users.
@@ -199,25 +181,6 @@ export class BlockNoteEditor<
   >;
 
   public readonly uploadFile: ((file: File) => Promise<string>) | undefined;
-  public readonly renderFileExtension: Record<
-    "default" | string,
-    (
-      block: BlockFromConfig<DefaultBlockSchema["file"], ISchema, SSchema>,
-      editor: BlockNoteEditor<
-        BlockSchemaWithBlock<"file", DefaultBlockSchema["file"]>,
-        ISchema,
-        SSchema
-      >
-    ) => {
-      dom: HTMLElement;
-      destroy?: () => void;
-    }
-  > = {
-    default: renderFile,
-    png: renderImageFile,
-    jpg: renderImageFile,
-    jpeg: renderImageFile,
-  };
 
   public static create<
     BSchema extends BlockSchema = DefaultBlockSchema,
@@ -309,12 +272,6 @@ export class BlockNoteEditor<
     extensions.push(blockNoteUIExtension);
 
     this.uploadFile = newOptions.uploadFile;
-    if (newOptions.renderFileExtension) {
-      this.renderFileExtension = {
-        ...this.renderFileExtension,
-        ...newOptions.renderFileExtension,
-      };
-    }
 
     if (newOptions.collaboration && newOptions.initialContent) {
       console.warn(
