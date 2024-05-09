@@ -1,14 +1,20 @@
-import { Plugin, PluginKey } from "prosemirror-state";
+import { Plugin, PluginKey, TextSelection } from "prosemirror-state";
 
 const PLUGIN_KEY = new PluginKey("non-editable-block");
-// Prevent typing for blocks without inline content, as this would otherwise
-// convert them into paragraph blocks.
-// TODO: This implementation misses a lot of edge cases, e.g. inserting emojis
-//  and special characters on international keyboards (e.g. "ś" which is Alt-S
-//  on the Polish keyboard). A more robust approach would be to filter out
-//  transactions in which a no content block is selected before, and replaced
-//  with a paragraph block after (will likely need additional filtering e.g. to
-//  not filter out `updateBlock` calls).
+// By default, typing with a node selection active will cause ProseMirror to
+// replace the node with one that contains editable content. This plugin blocks
+// this behaviour without also blocking things like keyboard shortcuts:
+//
+// - Lets through key presses that do not include alphanumeric characters. This
+// includes things like backspace/delete/home/end/etc.
+// - Lets through any key presses that include ctrl/meta keys. These will be
+// shortcuts of some kind like ctrl+C/mod+C.
+// - Special case for Enter key which creates a new paragraph block below and
+// sets the selection to it. This is just to bring the UX closer to Notion
+//
+// While a more elegant solution would probably process transactions instead of
+// keystrokes, this brings us most of the way to Notion's UX without much added
+// complexity.
 export const NonEditableBlockPlugin = () => {
   return new Plugin({
     key: PLUGIN_KEY,
@@ -16,15 +22,31 @@ export const NonEditableBlockPlugin = () => {
       handleKeyDown: (view, event) => {
         // Checks for node selection
         if ("node" in view.state.selection) {
-          // Checks if key input will insert a character - we want to block this
-          // as it will convert the block into a paragraph.
-          if (
-            (event.key.length === 1 || event.key === "Enter") &&
-            !event.ctrlKey &&
-            !event.altKey &&
-            !event.metaKey
-          ) {
+          // Checks if key press uses ctrl/meta modifier
+          if (event.ctrlKey || event.metaKey) {
+            return false;
+          }
+          // Checks if key press is alphanumeric
+          if (event.key.length === 1) {
             event.preventDefault();
+
+            return true;
+          }
+          // Checks if key press is Enter
+          if (event.key === "Enter") {
+            const tr = view.state.tr;
+            view.dispatch(
+              tr
+                .insert(
+                  view.state.tr.selection.$to.after(),
+                  view.state.schema.nodes["paragraph"].create()
+                )
+                .setSelection(
+                  new TextSelection(
+                    tr.doc.resolve(view.state.tr.selection.$to.after() + 1)
+                  )
+                )
+            );
 
             return true;
           }
