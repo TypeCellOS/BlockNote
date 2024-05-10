@@ -140,6 +140,60 @@
         }
       },
       {
+        "projectSlug": "shadcn",
+        "fullSlug": "basic/shadcn",
+        "pathFromRoot": "examples/01-basic/08-shadcn",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "matthewlipski",
+          "tags": [
+            "Basic"
+          ]
+        },
+        "title": "Use with ShadCN",
+        "group": {
+          "pathFromRoot": "examples/01-basic",
+          "slug": "basic"
+        }
+      },
+      {
+        "projectSlug": "ariakit",
+        "fullSlug": "basic/ariakit",
+        "pathFromRoot": "examples/01-basic/09-ariakit",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "matthewlipski",
+          "tags": [
+            "Basic"
+          ]
+        },
+        "title": "Use with Ariakit",
+        "group": {
+          "pathFromRoot": "examples/01-basic",
+          "slug": "basic"
+        }
+      },
+      {
+        "projectSlug": "localization",
+        "fullSlug": "basic/localization",
+        "pathFromRoot": "examples/01-basic/10-localization",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "yousefed",
+          "tags": [
+            "Basic"
+          ]
+        },
+        "title": "Localization (i18n)",
+        "group": {
+          "pathFromRoot": "examples/01-basic",
+          "slug": "basic"
+        }
+      },
+      {
         "projectSlug": "testing",
         "fullSlug": "basic/testing",
         "pathFromRoot": "examples/01-basic/testing",
@@ -196,6 +250,7 @@
             "Custom Schemas"
           ],
           "dependencies": {
+            "@mantine/core": "^7.7.1",
             "react-icons": "^4.3.1"
           }
         },
@@ -319,7 +374,6 @@
             "Appearance & Styling"
           ],
           "dependencies": {
-            "@mantine/core": "^7.5.0",
             "react-icons": "^4.3.1"
           }
         },
@@ -558,7 +612,7 @@
             "Slash Menu"
           ],
           "dependencies": {
-            "@mantine/core": "^7.5.0",
+            "@mantine/core": "^7.7.1",
             "react-icons": "^4.3.1"
           }
         },

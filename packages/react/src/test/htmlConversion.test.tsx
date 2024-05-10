@@ -14,13 +14,13 @@ import {
 import { flushSync } from "react-dom";
 import { Root, createRoot } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { BlockNoteView } from "../editor/BlockNoteView";
 import {
   TestContext,
   customReactBlockSchemaTestCases,
 } from "./testCases/customReactBlocks";
 import { customReactInlineContentTestCases } from "./testCases/customReactInlineContent";
 import { customReactStylesTestCases } from "./testCases/customReactStyles";
+import { BlockNoteViewRaw } from "../editor/BlockNoteView";
 
 // TODO: code same from @blocknote/core, maybe create separate test util package
 async function convertToHTMLAndCompareSnapshots<
@@ -81,6 +81,7 @@ describe("Test React HTML conversion", () => {
   for (const testCase of testCases) {
     describe("Case: " + testCase.name, () => {
       let editor: BlockNoteEditor<any, any, any>;
+      // TODO: Why do we need to render for unit tests?
       let root: Root;
       const div = document.createElement("div");
 
@@ -89,7 +90,7 @@ describe("Test React HTML conversion", () => {
 
         const el = (
           <TestContext.Provider value={true}>
-            <BlockNoteView editor={editor} />
+            <BlockNoteViewRaw editor={editor} />
           </TestContext.Provider>
         );
         root = createRoot(div);

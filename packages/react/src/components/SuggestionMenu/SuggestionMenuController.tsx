@@ -11,9 +11,9 @@ import { FC } from "react";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor";
 import { useUIElementPositioning } from "../../hooks/useUIElementPositioning";
 import { useUIPluginState } from "../../hooks/useUIPluginState";
+import { SuggestionMenu } from "./SuggestionMenu";
 import { SuggestionMenuWrapper } from "./SuggestionMenuWrapper";
 import { getDefaultReactSlashMenuItems } from "./getDefaultReactSlashMenuItems";
-import { SuggestionMenu } from "./mantine/SuggestionMenu";
 import { DefaultReactSuggestionItem, SuggestionMenuProps } from "./types";
 
 type ArrayElement<A> = A extends readonly (infer T)[] ? T : never;
@@ -75,7 +75,7 @@ export function SuggestionMenuController<
         callback
       )
   );
-  const { isMounted, ref, style } = useUIElementPositioning(
+  const { isMounted, ref, style, getFloatingProps } = useUIElementPositioning(
     state?.show || false,
     state?.referencePos || null,
     2000,
@@ -94,6 +94,11 @@ export function SuggestionMenuController<
           },
         }),
       ],
+      onOpenChange(open) {
+        if (!open) {
+          editor.suggestionMenus.closeMenu();
+        }
+      },
     }
   );
 
@@ -110,7 +115,7 @@ export function SuggestionMenuController<
   }
 
   return (
-    <div ref={ref} style={style}>
+    <div ref={ref} style={style} {...getFloatingProps()}>
       <SuggestionMenuWrapper
         query={state.query}
         closeMenu={callbacks.closeMenu}

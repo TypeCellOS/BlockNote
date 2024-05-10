@@ -34,9 +34,10 @@ See our homepage @ [https://www.blocknotejs.org](https://www.blocknotejs.org/) o
 [![npm version](https://badge.fury.io/js/%40blocknote%2Freact.svg)](https://badge.fury.io/js/%40blocknote%2Freact)
 
 ```typescript
-import { BlockNoteView, useCreateBlockNote } from "@blocknote/react";
+import { useCreateBlockNote } from "@blocknote/react";
+import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/core/fonts/inter.css";
-import "@blocknote/react/style.css";
+import "@blocknote/mantine/style.css";
 
 function App() {
   const editor = useCreateBlockNote();
@@ -95,6 +96,9 @@ Directory structure:
 blocknote
 ├── packages/core       - The core of the editor
 ├── packages/react      - The main library for use in React apps
+├── packages/mantine    - Mantine (default) implementation of BlockNote UI
+├── packages/ariakit    - AriaKit implementation of BlockNote UI
+├── packages/shadcn     - ShadCN / Tailwind / Radix implementation of BlockNote UI
 ├── examples            - Example apps
 ├── playground          - App to browse the example apps (https://playground.blocknotejs.org)
 └── tests               - Playwright end to end tests

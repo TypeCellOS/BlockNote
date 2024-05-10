@@ -5,13 +5,13 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { FC, useState } from "react";
+import { FC, useMemo, useState } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor";
 import { useUIPluginState } from "../../hooks/useUIPluginState";
+import { TableHandle } from "./TableHandle";
 import { TableHandleProps } from "./TableHandleProps";
 import { useTableHandlesPositioning } from "./hooks/useTableHandlesPositioning";
-import { TableHandle } from "./mantine/TableHandle";
 
 export const TableHandlesController = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
@@ -38,16 +38,26 @@ export const TableHandlesController = <
   const state = useUIPluginState(
     editor.tableHandles.onUpdate.bind(editor.tableHandles)
   );
-  const { rowHandle, colHandle } = useTableHandlesPositioning(
-    state?.show || false,
-    state?.referencePosCell || null,
-    state?.referencePosTable || null,
-    state?.draggingState
+
+  const draggingState = useMemo(() => {
+    return state?.draggingState
       ? {
           draggedCellOrientation: state?.draggingState?.draggedCellOrientation,
           mousePos: state?.draggingState?.mousePos,
         }
-      : undefined
+      : undefined;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    state?.draggingState,
+    state?.draggingState?.draggedCellOrientation,
+    state?.draggingState?.mousePos,
+  ]);
+
+  const { rowHandle, colHandle } = useTableHandlesPositioning(
+    state?.show || false,
+    state?.referencePosCell || null,
+    state?.referencePosTable || null,
+    draggingState
   );
 
   const [hideRow, setHideRow] = useState<boolean>(false);

@@ -1,15 +1,15 @@
 import "@blocknote/core/fonts/inter.css";
 import {
   BlockColorsItem,
-  BlockNoteView,
   DragHandleMenu,
-  DragHandleMenuItem,
   RemoveBlockItem,
   SideMenu,
   SideMenuController,
+  useComponentsContext,
   useCreateBlockNote,
 } from "@blocknote/react";
-import "@blocknote/react/style.css";
+import { BlockNoteView } from "@blocknote/mantine";
+import "@blocknote/mantine/style.css";
 
 export default function App() {
   // Creates a new editor instance.
@@ -34,6 +34,8 @@ export default function App() {
     ],
   });
 
+  const Components = useComponentsContext()!;
+
   // Renders the editor instance.
   return (
     <BlockNoteView editor={editor} sideMenu={false}>
@@ -46,12 +48,12 @@ export default function App() {
                 <RemoveBlockItem {...props}>Delete</RemoveBlockItem>
                 <BlockColorsItem {...props}>Colors</BlockColorsItem>
                 {/* Item which resets the hovered block's type. */}
-                <DragHandleMenuItem
+                <Components.Generic.Menu.Item
                   onClick={() => {
                     editor.updateBlock(props.block, { type: "paragraph" });
                   }}>
                   Reset Type
-                </DragHandleMenuItem>
+                </Components.Generic.Menu.Item>
               </DragHandleMenu>
             )}
           />

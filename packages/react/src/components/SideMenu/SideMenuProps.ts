@@ -18,6 +18,7 @@ export type SideMenuProps<
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema
 > = {
+  editor: BlockNoteEditor<BSchema, I, S>;
   dragHandleMenu?: FC<DragHandleMenuProps<BSchema, I, S>>;
 } & Omit<SideMenuState<BSchema, I, S>, keyof UiElementPosition> &
   Pick<

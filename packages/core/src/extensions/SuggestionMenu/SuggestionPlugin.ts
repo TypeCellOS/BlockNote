@@ -3,8 +3,8 @@ import { EditorState, Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
 
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
-import { BlockSchema, InlineContentSchema, StyleSchema } from "../../schema";
 import { UiElementPosition } from "../../extensions-shared/UiElementPosition";
+import { BlockSchema, InlineContentSchema, StyleSchema } from "../../schema";
 import { EventEmitter } from "../../util/EventEmitter";
 
 const findBlock = findParentNode((node) => node.type.name === "blockContainer");
@@ -18,7 +18,7 @@ class SuggestionMenuView<
   I extends InlineContentSchema,
   S extends StyleSchema
 > {
-  private state?: SuggestionMenuState;
+  public state?: SuggestionMenuState;
   public emitUpdate: (triggerCharacter: string) => void;
 
   pluginState: SuggestionPluginState;
@@ -245,31 +245,26 @@ export class SuggestionMenuProseMirrorPlugin<
       },
 
       props: {
-        handleKeyDown(view, event) {
+        handleTextInput(view, _from, _to, text) {
           const suggestionPluginState: SuggestionPluginState = (
             this as Plugin
           ).getState(view.state);
 
           if (
-            triggerCharacters.includes(event.key) &&
+            triggerCharacters.includes(text) &&
             suggestionPluginState === undefined
           ) {
-            event.preventDefault();
-
-            // view.dispatch applies all transactions to the view simultaneously
-            // and not in order, so the menu should be opened in a separate
-            // transaction after scrolling to ensure the correct viewport
-            // position.
-            view.dispatch(view.state.tr.insertText(event.key).scrollIntoView());
             view.dispatch(
-              view.state.tr.setMeta(suggestionMenuPluginKey, {
-                triggerCharacter: event.key,
-              })
+              view.state.tr
+                .insertText(text)
+                .scrollIntoView()
+                .setMeta(suggestionMenuPluginKey, {
+                  triggerCharacter: text,
+                })
             );
 
             return true;
           }
-
           return false;
         },
 
@@ -344,6 +339,10 @@ export class SuggestionMenuProseMirrorPlugin<
   closeMenu = () => this.view!.closeMenu();
 
   clearQuery = () => this.view!.clearQuery();
+
+  public get shown() {
+    return this.view?.state?.show || false;
+  }
 }
 
 export function createSuggestionMenu<

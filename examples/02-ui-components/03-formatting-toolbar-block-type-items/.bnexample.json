@@ -4,6 +4,7 @@
   "author": "matthewlipski",
   "tags": ["Intermediate", "Blocks", "UI Components", "Formatting Toolbar", "Custom Schemas"],
   "dependencies": {
+    "@mantine/core": "^7.7.1",
     "react-icons": "^4.3.1"
   }
 }

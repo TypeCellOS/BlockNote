@@ -1,8 +1,11 @@
 import react from "@vitejs/plugin-react";
+import auto from "autoprefixer";
 import * as path from "path";
 import { webpackStats } from "rollup-plugin-webpack-stats";
-import { defineConfig } from "vite";
+import tailwindcss from "tailwindcss";
+import nesting from "tailwindcss/nesting";
 
+import { defineConfig } from "vite";
 // import eslintPlugin from "vite-plugin-eslint";
 // https://vitejs.dev/config/
 export default defineConfig((conf) => ({
@@ -12,6 +15,16 @@ export default defineConfig((conf) => ({
   },
   build: {
     sourcemap: true,
+  },
+  css: {
+    postcss: {
+      plugins: [
+        nesting,
+        tailwindcss("../packages/shadcn/tailwind.config.js"), // Adjust the path as necessary
+        auto,
+      ],
+    },
+    // postcss: "../packages/shadcn/postcss.config.js",
   },
   resolve: {
     alias:
@@ -24,6 +37,18 @@ export default defineConfig((conf) => ({
             "@blocknote/react": path.resolve(
               __dirname,
               "../packages/react/src/"
+            ),
+            "@blocknote/ariakit": path.resolve(
+              __dirname,
+              "../packages/ariakit/src/"
+            ),
+            "@blocknote/mantine": path.resolve(
+              __dirname,
+              "../packages/mantine/src/"
+            ),
+            "@blocknote/shadcn": path.resolve(
+              __dirname,
+              "../packages/shadcn/src/"
             ),
           },
   },

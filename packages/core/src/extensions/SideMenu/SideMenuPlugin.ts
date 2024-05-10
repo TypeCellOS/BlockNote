@@ -373,11 +373,12 @@ export class SideMenuView<
   };
 
   onKeyDown = (_event: KeyboardEvent) => {
-    if (this.state?.show) {
+    if (this.state?.show && this.editor.isFocused()) {
+      // Typing in editor should hide side menu
       this.state.show = false;
       this.emitUpdate(this.state);
+      this.menuFrozen = false;
     }
-    this.menuFrozen = false;
   };
 
   onMouseDown = (_event: MouseEvent) => {

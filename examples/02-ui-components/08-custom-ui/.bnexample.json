@@ -4,7 +4,6 @@
   "author": "matthewlipski",
   "tags": ["Advanced", "Inline Content", "UI Components", "Block Side Menu", "Formatting Toolbar", "Suggestion Menus", "Slash Menu", "Appearance & Styling"],
   "dependencies": {
-    "@mantine/core": "^7.5.0",
     "react-icons": "^4.3.1"
   }
 }
