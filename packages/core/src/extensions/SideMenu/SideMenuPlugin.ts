@@ -574,13 +574,8 @@ export class SideMenuView<
 
     // Focuses and activates the suggestion menu.
     this.pmView.focus();
-    // view.dispatch applies all transactions to the view simultaneously
-    // and not in order, so the menu should be opened in a separate
-    // transaction after scrolling to ensure the correct viewport
-    // position.
-    this.pmView.dispatch(this.pmView.state.tr.scrollIntoView());
     this.pmView.dispatch(
-      this.pmView.state.tr.setMeta(suggestionMenuPluginKey, {
+      this.pmView.state.tr.scrollIntoView().setMeta(suggestionMenuPluginKey, {
         triggerCharacter: "/",
         fromUserInput: false,
       })
