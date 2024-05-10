@@ -139,7 +139,7 @@ export const BlockContainer = Node.create<{
             state.schema.nodes["blockContainer"].createAndFill()!;
 
           if (dispatch) {
-            state.tr.insert(pos, newBlock);
+            state.tr.insert(pos, newBlock).scrollIntoView();
           }
 
           return true;
@@ -470,6 +470,8 @@ export const BlockContainer = Node.create<{
                   )
                 : undefined
             );
+
+            state.tr.scrollIntoView();
           }
 
           return true;
