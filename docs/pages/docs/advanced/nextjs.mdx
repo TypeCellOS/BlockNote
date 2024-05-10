@@ -12,9 +12,10 @@ Make sure to use BlockNote in a [Client Component](https://nextjs.org/docs/getti
 
 ```typescript jsx
 "use client"; // this registers <Editor> as a Client Component
-import { BlockNoteView, useCreateBlockNote } from "@blocknote/react";
 import "@blocknote/core/fonts/inter.css";
-import "@blocknote/react/style.css";
+import { useCreateBlockNote } from "@blocknote/react";
+import { BlockNoteView } from "@blocknote/mantine";
+import "@blocknote/mantine/style.css";
 
 // Our <Editor> component we can reuse later
 export default function Editor() {
