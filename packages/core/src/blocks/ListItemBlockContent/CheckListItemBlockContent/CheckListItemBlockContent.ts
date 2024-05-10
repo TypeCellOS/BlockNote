@@ -159,10 +159,13 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
     checkbox.checked = node.attrs.checked;
+    if (node.attrs.checked) {
+      checkbox.setAttribute("checked", "");
+    }
 
     const { dom, contentDOM } = createDefaultBlockDOMOutputSpec(
       this.name,
-      "span",
+      "p",
       {
         ...(this.options.domAttributes?.blockContent || {}),
         ...HTMLAttributes,
@@ -191,6 +194,9 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
       checkbox.checked = node.attrs.checked;
+      if (node.attrs.checked) {
+        checkbox.setAttribute("checked", "");
+      }
       checkbox.addEventListener("change", () => {
         if (typeof getPos === "boolean") {
           return;
@@ -206,7 +212,7 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
 
       const { dom, contentDOM } = createDefaultBlockDOMOutputSpec(
         this.name,
-        "span",
+        "p",
         {
           ...(this.options.domAttributes?.blockContent || {}),
           ...HTMLAttributes,

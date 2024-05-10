@@ -6,6 +6,5 @@
 
     2.  Numbered List Item 2
 
-        \[ ]Check List Item 1
-
-        \[ ]Check List Item 2
+        *   \[ ] Check List Item 1
+        *   \[x] Check List Item 2

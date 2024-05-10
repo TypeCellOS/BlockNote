@@ -73,7 +73,10 @@ export const createExternalHTMLExporter = <
       .use(rehypeParse, { fragment: true })
       .use(simplifyBlocks, {
         orderedListItemBlockTypes: new Set<string>(["numberedListItem"]),
-        unorderedListItemBlockTypes: new Set<string>(["bulletListItem"]),
+        unorderedListItemBlockTypes: new Set<string>([
+          "bulletListItem",
+          "checkListItem",
+        ]),
       })
       .use(rehypeStringify)
       .processSync(serializeProseMirrorFragment(fragment, serializer));
