@@ -301,8 +301,13 @@ NESTED BLOCKS
   cursor: ew-resize;
 }
 
-[data-content-type="file"] .caption {
+[data-content-type="file"] .bn-file-caption {
   font-size: 0.8em;
+  padding-block: 4px;
+}
+
+[data-content-type="file"] .bn-file-caption:empty {
+  padding-block: 0;
 }
 
 /* PLACEHOLDERS*/

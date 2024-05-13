@@ -1,27 +1,9 @@
-import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
-import { BlockFromConfig, BlockSchemaWithBlock } from "../../schema";
-import { fileBlockConfig } from "./fileBlockConfig";
+import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
+import { BlockFromConfig, BlockSchemaWithBlock } from "../../../schema";
+import { fileBlockConfig } from "../fileBlockConfig";
+import { FileBlockExtension } from "../fileBlockExtension";
 
-// Converts text alignment prop values to the flexbox `align-items` values.
-const textAlignmentToAlignItems = (
-  textAlignment: "left" | "center" | "right" | "justify"
-): "flex-start" | "center" | "flex-end" => {
-  switch (textAlignment) {
-    case "left":
-      return "flex-start";
-    case "center":
-      return "center";
-    case "right":
-      return "flex-end";
-    default:
-      return "flex-start";
-  }
-};
-
-// Min image width in px.
-const minWidth = 64;
-
-export const renderImageFile = (
+const renderImageFile = (
   block: BlockFromConfig<typeof fileBlockConfig, any, any>,
   editor: BlockNoteEditor<
     BlockSchemaWithBlock<"file", typeof fileBlockConfig>,
@@ -37,13 +19,13 @@ export const renderImageFile = (
   const image = document.createElement("img");
   image.className = "bn-image";
   image.src = block.props.url;
-  image.alt = "placeholder";
+  image.alt = block.props.caption || "BlockNote image";
   image.contentEditable = "false";
   image.draggable = false;
-  image.style.width = `${Math.min(
+  image.width = Math.min(
     block.props.previewWidth,
     editor.domElement.firstElementChild!.clientWidth
-  )}px`;
+  );
 
   // Resize handle elements.
   const leftResizeHandle = document.createElement("div");
@@ -81,7 +63,7 @@ export const renderImageFile = (
 
     let newWidth: number;
 
-    if (textAlignmentToAlignItems(block.props.textAlignment) === "center") {
+    if (block.props.textAlignment === "center") {
       if (resizeParams.handleUsed === "left") {
         newWidth =
           resizeParams.initialWidth +
@@ -105,16 +87,17 @@ export const renderImageFile = (
       }
     }
 
+    // Min image width in px.
+    const minWidth = 64;
+
     // Ensures the image is not wider than the editor and not smaller than a
     // predetermined minimum width.
     if (newWidth < minWidth) {
-      image.style.width = `${minWidth}px`;
+      image.width = minWidth;
     } else if (newWidth > editor.domElement.firstElementChild!.clientWidth) {
-      image.style.width = `${
-        editor.domElement.firstElementChild!.clientWidth
-      }px`;
+      image.width = editor.domElement.firstElementChild!.clientWidth;
     } else {
-      image.style.width = `${newWidth}px`;
+      image.width = newWidth;
     }
   };
   // Stops mouse movements from resizing the image and updates the block's
@@ -141,8 +124,7 @@ export const renderImageFile = (
     editor.updateBlock(block, {
       type: "file",
       props: {
-        // Removes "px" from the end of the width string and converts to float.
-        previewWidth: parseFloat(image.style.width.slice(0, -2)) as any,
+        previewWidth: image.width,
       },
     });
   };
@@ -235,4 +217,79 @@ export const renderImageFile = (
       );
     },
   };
+};
+
+const parseImageFile = (element: HTMLElement) => {
+  if (element.tagName === "FIGURE") {
+    const img = element.querySelector("img");
+    const caption = element.querySelector("figcaption");
+    return {
+      fileType: "image",
+      url: img?.src || undefined,
+      caption: caption?.textContent ?? img?.alt,
+      previewWidth: img?.width || undefined,
+    };
+  }
+
+  if (element.tagName === "IMG") {
+    return {
+      fileType: "image",
+      url: (element as HTMLImageElement).src || undefined,
+      previewWidth: (element as HTMLImageElement).width || undefined,
+    };
+  }
+
+  return undefined;
+};
+
+const imageFileToExternalHTML = (
+  block: BlockFromConfig<typeof fileBlockConfig, any, any>
+): { dom: HTMLElement } => {
+  const image = document.createElement("img");
+  image.src = block.props.url;
+  image.width = block.props.previewWidth;
+  image.alt = block.props.caption || "BlockNote image";
+
+  if (block.props.caption) {
+    const figure = document.createElement("figure");
+    const caption = document.createElement("figcaption");
+    caption.textContent = block.props.caption;
+
+    figure.appendChild(image);
+    figure.appendChild(caption);
+
+    return {
+      dom: figure,
+    };
+  }
+
+  return {
+    dom: image,
+  };
+};
+
+export const imageFileExtension: FileBlockExtension = {
+  fileEndings: [
+    "apng",
+    "avif",
+    "gif",
+    "jpg",
+    "jpeg",
+    "jfif",
+    "pjpeg",
+    "pjp",
+    "svg",
+    "webp",
+  ],
+  render: renderImageFile,
+  toExternalHTML: imageFileToExternalHTML,
+  parse: parseImageFile,
+  buttonText: "image",
+  buttonIcon: () => {
+    const fileBlockImageIcon = document.createElement("div");
+    fileBlockImageIcon.innerHTML =
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M5 11.1005L7 9.1005L12.5 14.6005L16 11.1005L19 14.1005V5H5V11.1005ZM4 3H20C20.5523 3 21 3.44772 21 4V20C21 20.5523 20.5523 21 20 21H4C3.44772 21 3 20.5523 3 20V4C3 3.44772 3.44772 3 4 3ZM15.5 10C14.6716 10 14 9.32843 14 8.5C14 7.67157 14.6716 7 15.5 7C16.3284 7 17 7.67157 17 8.5C17 9.32843 16.3284 10 15.5 10Z"></path></svg>';
+
+    return fileBlockImageIcon.firstElementChild as HTMLElement;
+  },
 };

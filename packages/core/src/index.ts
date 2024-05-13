@@ -2,7 +2,7 @@ export * from "./api/exporters/html/externalHTMLExporter";
 export * from "./api/exporters/html/internalHTMLSerializer";
 export * from "./api/testUtil";
 export * from "./blocks/FileBlockContent/fileBlockConfig";
-export * from "./blocks/FileBlockContent/fileBlockExtensions";
+export * from "./blocks/FileBlockContent/fileBlockExtension";
 export * from "./blocks/FileBlockContent/FileBlockContent";
 export * from "./blocks/FileBlockContent/uploadToTmpFilesDotOrg_DEV_ONLY";
 export * from "./blocks/defaultBlockTypeGuards";

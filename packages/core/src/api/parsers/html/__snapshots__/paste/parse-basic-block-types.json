@@ -72,13 +72,14 @@
   },
   {
     "id": "5",
-    "type": "image",
+    "type": "file",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
+      "fileType": "image",
       "url": "exampleURL",
       "caption": "Image Caption",
-      "width": 512
+      "previewWidth": 512
     },
     "children": []
   },

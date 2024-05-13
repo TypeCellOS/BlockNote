@@ -99,10 +99,54 @@ export const defaultSchemaTestCases: EditorTestCases<
       ],
     },
     {
+      name: "file/button",
+      blocks: [
+        {
+          type: "file",
+        },
+      ],
+    },
+    {
+      name: "file/basic",
+      blocks: [
+        {
+          type: "file",
+          props: {
+            url: "exampleURL",
+            caption: "Caption",
+          },
+        },
+      ],
+    },
+    {
+      name: "file/nested",
+      blocks: [
+        {
+          type: "file",
+          props: {
+            url: "exampleURL",
+            caption: "Caption",
+          },
+          children: [
+            {
+              type: "file",
+              props: {
+                url: "exampleURL",
+                caption: "Caption",
+              },
+            },
+          ],
+        },
+      ],
+    },
+    {
       name: "image/button",
       blocks: [
         {
           type: "file",
+          props: {
+            fileType: "image",
+          },
         },
       ],
     },
@@ -112,6 +156,7 @@ export const defaultSchemaTestCases: EditorTestCases<
         {
           type: "file",
           props: {
+            fileType: "image",
             url: "exampleURL",
             caption: "Caption",
             previewWidth: 256,
@@ -125,6 +170,7 @@ export const defaultSchemaTestCases: EditorTestCases<
         {
           type: "file",
           props: {
+            fileType: "image",
             url: "exampleURL",
             caption: "Caption",
             previewWidth: 256,
@@ -133,6 +179,7 @@ export const defaultSchemaTestCases: EditorTestCases<
             {
               type: "file",
               props: {
+                fileType: "image",
                 url: "exampleURL",
                 caption: "Caption",
                 previewWidth: 256,

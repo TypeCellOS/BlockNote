@@ -217,6 +217,100 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
 }
 `;
 
+exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert file/basic to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "caption": "Caption",
+        "fileType": "",
+        "previewWidth": 512,
+        "textAlignment": "left",
+        "url": "exampleURL",
+      },
+      "type": "file",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert file/button to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "caption": "",
+        "fileType": "",
+        "previewWidth": 512,
+        "textAlignment": "left",
+        "url": "",
+      },
+      "type": "file",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert file/nested to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "caption": "Caption",
+        "fileType": "",
+        "previewWidth": 512,
+        "textAlignment": "left",
+        "url": "exampleURL",
+      },
+      "type": "file",
+    },
+    {
+      "content": [
+        {
+          "attrs": {
+            "backgroundColor": "default",
+            "id": "2",
+            "textColor": "default",
+          },
+          "content": [
+            {
+              "attrs": {
+                "caption": "Caption",
+                "fileType": "",
+                "previewWidth": 512,
+                "textAlignment": "left",
+                "url": "exampleURL",
+              },
+              "type": "file",
+            },
+          ],
+          "type": "blockContainer",
+        },
+      ],
+      "type": "blockGroup",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
 exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert hardbreak/basic to/from prosemirror 1`] = `
 {
   "attrs": {
@@ -524,11 +618,12 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
     {
       "attrs": {
         "caption": "Caption",
+        "fileType": "image",
+        "previewWidth": 256,
         "textAlignment": "left",
         "url": "exampleURL",
-        "width": 256,
       },
-      "type": "image",
+      "type": "file",
     },
   ],
   "type": "blockContainer",
@@ -546,11 +641,12 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
     {
       "attrs": {
         "caption": "",
+        "fileType": "image",
+        "previewWidth": 512,
         "textAlignment": "left",
         "url": "",
-        "width": 512,
       },
-      "type": "image",
+      "type": "file",
     },
   ],
   "type": "blockContainer",
@@ -568,11 +664,12 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
     {
       "attrs": {
         "caption": "Caption",
+        "fileType": "image",
+        "previewWidth": 256,
         "textAlignment": "left",
         "url": "exampleURL",
-        "width": 256,
       },
-      "type": "image",
+      "type": "file",
     },
     {
       "content": [
@@ -586,11 +683,12 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
             {
               "attrs": {
                 "caption": "Caption",
+                "fileType": "image",
+                "previewWidth": 256,
                 "textAlignment": "left",
                 "url": "exampleURL",
-                "width": 256,
               },
-              "type": "image",
+              "type": "file",
             },
           ],
           "type": "blockContainer",

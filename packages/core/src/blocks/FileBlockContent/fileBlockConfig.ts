@@ -5,6 +5,7 @@ export const filePropSchema = {
   textAlignment: defaultProps.textAlignment,
   backgroundColor: defaultProps.backgroundColor,
   // File type.
+  // TODO: Make this explicitly MIME type?
   fileType: {
     default: "" as const,
   },
@@ -16,7 +17,7 @@ export const filePropSchema = {
   caption: {
     default: "" as const,
   },
-  // File width in px.
+  // File preview width in px.
   previewWidth: {
     default: 512 as const,
   },

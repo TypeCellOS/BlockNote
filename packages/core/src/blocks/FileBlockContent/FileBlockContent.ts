@@ -1,53 +1,12 @@
-import {
-  BlockFromConfig,
-  InlineContentSchema,
-  StyleSchema,
-  createBlockSpec,
-} from "../../schema";
-import {
-  FileBlockExtension,
-  fileBlockImageExtension,
-} from "./fileBlockExtensions";
+import { createBlockSpec } from "../../schema";
 import { fileBlockConfig } from "./fileBlockConfig";
-import { renderFile } from "./renderFile";
-
-export const fileToExternalHTML = <
-  ISchema extends InlineContentSchema,
-  SSchema extends StyleSchema
->(
-  block: BlockFromConfig<typeof fileBlockConfig, ISchema, SSchema>
-) => {
-  if (block.props.url === "") {
-    const div = document.createElement("p");
-    div.innerHTML = "Add file";
-
-    return {
-      dom: div,
-    };
-  }
-
-  const div = document.createElement("p");
-  div.innerText = block.props.url;
-
-  return {
-    dom: div,
-  };
-};
-
-export const parseFile = () => {
-  return undefined;
-};
+import { createFileBlockImplementation } from "./fileBlockImplementation";
+import { FileBlockExtension } from "./fileBlockExtension";
 
 export const createFileBlock = (
-  extensions: Record<string, FileBlockExtension> = {
-    image: fileBlockImageExtension,
-  }
+  extensions?: Record<string, FileBlockExtension>
 ) =>
-  createBlockSpec(fileBlockConfig, {
-    render: (block, editor) => renderFile(block, editor, extensions),
-    toExternalHTML: fileToExternalHTML,
-    parse: parseFile,
-  });
+  createBlockSpec(fileBlockConfig, createFileBlockImplementation(extensions));
 
 // - React support?
 // - Support parse HTML and toExternalHTML
