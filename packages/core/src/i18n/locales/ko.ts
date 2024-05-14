@@ -143,11 +143,11 @@ export const ko = {
         tooltip: "이미지 교체",
       },
       nest: {
-        tooltip: "들여블록",
+        tooltip: "중첩 블록",
         secondary_tooltip: "Tab",
       },
       unnest: {
-        tooltip: "내어블록",
+        tooltip: "비중첩 블록",
         secondary_tooltip: "Shift+Tab",
       },
       align_left: {
@@ -180,7 +180,7 @@ export const ko = {
         tooltip: "링크 삭제",
       },
       edit: {
-        text: "싱크 수정",
+        text: "링크 수정",
         tooltip: "수정",
       },
       open: {
