@@ -4,21 +4,22 @@ import {
   BlockSchemaWithBlock,
   DefaultBlockSchema,
   fileBlockConfig,
+  fileParse,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
 import { FC, useCallback, useMemo } from "react";
-import {
-  createReactBlockSpec,
-  ReactCustomBlockRenderProps,
-} from "../../schema/ReactBlockSpec";
-import {
-  ReactFileBlockExtension,
-  reactFileBlockImageExtension,
-} from "./FileBlockExtensions";
 import { RiFile2Line } from "react-icons/ri";
 
-const DefaultFile = <
+import {
+  createReactBlockSpec,
+  ReactCustomBlockImplementation,
+  ReactCustomBlockRenderProps,
+} from "../../schema/ReactBlockSpec";
+import { defaultReactFileExtensions } from "./extensions/defaultReactFileExtensions";
+import { ReactFileBlockExtension } from "./reactFileBlockExtension";
+
+export const DefaultFileRender = <
   ISchema extends InlineContentSchema,
   SSchema extends StyleSchema
 >(props: {
@@ -34,7 +35,7 @@ const DefaultFile = <
   </div>
 );
 
-export const File = <
+export const FileRender = <
   ISchema extends InlineContentSchema,
   SSchema extends StyleSchema
 >(
@@ -87,7 +88,7 @@ export const File = <
       "contentRef"
     >
   > = useMemo(
-    () => activeExtension?.render || DefaultFile,
+    () => activeExtension?.render || DefaultFileRender,
     [activeExtension?.render]
   );
 
@@ -124,11 +125,79 @@ export const File = <
   );
 };
 
-export const createReactFileBlock = (
-  extensions: Record<string, ReactFileBlockExtension> = {
-    image: reactFileBlockImageExtension,
+export const FileToExternalHTML = (props: {
+  block: BlockFromConfig<typeof fileBlockConfig, any, any>;
+  editor: BlockNoteEditor<
+    BlockSchemaWithBlock<"file", typeof fileBlockConfig>,
+    any,
+    any
+  >;
+  extensions?: Record<
+    string,
+    Pick<ReactFileBlockExtension, "buttonText" | "toExternalHTML">
+  >;
+}) => {
+  if (!props.block.props.url) {
+    const buttonText =
+      props.extensions && props.block.props.fileType in props.extensions
+        ? props.extensions[props.block.props.fileType].buttonText
+        : "file";
+
+    return <p>{`Add ${buttonText}`}</p>;
   }
+
+  if (
+    props.extensions &&
+    props.block.props.fileType &&
+    props.block.props.fileType in props.extensions &&
+    props.extensions[props.block.props.fileType].toExternalHTML
+  ) {
+    const Component =
+      props.extensions[props.block.props.fileType].toExternalHTML!;
+
+    return <Component block={props.block} editor={props.editor} />;
+  }
+
+  const embed = (
+    <embed
+      src={props.block.props.url}
+      type={props.block.props.fileType || undefined}
+    />
+  );
+
+  if (props.block.props.caption) {
+    return (
+      <figure>
+        {embed}
+        <figcaption>{props.block.props.caption}</figcaption>
+      </figure>
+    );
+  }
+
+  return embed;
+};
+
+export const createReactFileBlockImplementation = (
+  extensions: Record<
+    string,
+    ReactFileBlockExtension
+  > = defaultReactFileExtensions
 ) =>
-  createReactBlockSpec(fileBlockConfig, {
-    render: (props) => <File {...props} extensions={extensions} />,
-  });
+  ({
+    render: (props) => <FileRender {...props} extensions={extensions} />,
+    parse: (element) => fileParse(element, extensions),
+    toExternalHTML: (props) => (
+      <FileToExternalHTML {...props} extensions={extensions} />
+    ),
+  } satisfies ReactCustomBlockImplementation<typeof fileBlockConfig, any, any>);
+
+export const createReactFileBlock = (
+  extensions: Record<
+    string,
+    ReactFileBlockExtension
+  > = defaultReactFileExtensions
+) =>
+  createReactBlockSpec(
+    fileBlockConfig,
+    createReactFileBlockImplementation(extensions)
+  );

@@ -7,7 +7,7 @@ import {
 import { fileBlockConfig } from "./fileBlockConfig";
 import { FileBlockExtension } from "./fileBlockExtension";
 
-const renderDefaultFile = (
+const defaultFileRender = (
   block: BlockFromConfig<typeof fileBlockConfig, any, any>
 ): { dom: HTMLElement; destroy?: () => void } => {
   const file = document.createElement("div");
@@ -21,14 +21,17 @@ const renderDefaultFile = (
   };
 };
 
-export const renderFile = (
+export const fileRender = (
   block: BlockFromConfig<typeof fileBlockConfig, any, any>,
   editor: BlockNoteEditor<
     BlockSchemaWithBlock<"file", typeof fileBlockConfig>,
     any,
     any
   >,
-  extensions?: Record<string, FileBlockExtension>
+  extensions?: Record<
+    string,
+    Pick<FileBlockExtension, "buttonText" | "buttonIcon" | "render">
+  >
 ) => {
   // Wrapper element to set the file alignment, contains both file/file
   // upload dashboard and caption.
@@ -63,7 +66,7 @@ export const renderFile = (
   const renderedFileExtension =
     fileType && extensions && fileType in extensions
       ? extensions[fileType].render(block, editor)
-      : renderDefaultFile(block);
+      : defaultFileRender(block);
 
   // File element.
   const file = renderedFileExtension.dom;
@@ -127,12 +130,12 @@ export const renderFile = (
   };
 };
 
-export const parseFile = (
+export const fileParse = (
   element: HTMLElement,
-  extensions?: Record<string, FileBlockExtension>
+  parseExtensions?: Record<string, Pick<FileBlockExtension, "parse">>
 ) => {
   // Checks if any extensions can parse the element.
-  const propsFromExtension = Object.values(extensions || {})
+  const propsFromExtension = Object.values(parseExtensions || {})
     .map((extension) =>
       extension.parse ? extension.parse(element) : undefined
     )
@@ -150,7 +153,7 @@ export const parseFile = (
 
     return {
       fileType:
-        fileType && extensions && fileType in extensions
+        fileType && parseExtensions && fileType in parseExtensions
           ? fileType.split("/")[0]
           : undefined,
       url: url || undefined,
@@ -169,7 +172,7 @@ export const parseFile = (
 
     return {
       fileType:
-        fileType && extensions && fileType in extensions
+        fileType && parseExtensions && fileType in parseExtensions
           ? fileType.split("/")[0]
           : undefined,
       url: url || undefined,
@@ -188,7 +191,10 @@ export const fileToExternalHTML = (
     any,
     any
   >,
-  extensions?: Record<string, FileBlockExtension>
+  extensions?: Record<
+    string,
+    Pick<FileBlockExtension, "buttonText" | "toExternalHTML">
+  >
 ) => {
   if (!block.props.url) {
     const div = document.createElement("p");
@@ -241,8 +247,8 @@ export const createFileBlockImplementation = (
   extensions?: Record<string, FileBlockExtension>
 ) =>
   ({
-    render: (block, editor) => renderFile(block, editor, extensions),
-    parse: (element) => parseFile(element, extensions),
+    render: (block, editor) => fileRender(block, editor, extensions),
+    parse: (element) => fileParse(element, extensions),
     toExternalHTML: (block, editor) =>
       fileToExternalHTML(block, editor, extensions),
   } satisfies CustomBlockImplementation<typeof fileBlockConfig, any, any>);

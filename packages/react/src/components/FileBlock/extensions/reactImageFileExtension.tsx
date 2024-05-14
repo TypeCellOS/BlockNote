@@ -3,31 +3,17 @@ import {
   BlockNoteEditor,
   BlockSchemaWithBlock,
   DefaultBlockSchema,
+  fileBlockConfig,
+  imageParse,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
 import { useCallback, useEffect, useState } from "react";
+import { RiImage2Fill } from "react-icons/ri";
 
-// Converts text alignment prop values to the flexbox `align-items` values.
-const textAlignmentToAlignItems = (
-  textAlignment: "left" | "center" | "right" | "justify"
-): "flex-start" | "center" | "flex-end" => {
-  switch (textAlignment) {
-    case "left":
-      return "flex-start";
-    case "center":
-      return "center";
-    case "right":
-      return "flex-end";
-    default:
-      return "flex-start";
-  }
-};
+import { ReactFileBlockExtension } from "../reactFileBlockExtension";
 
-// Min image width in px.
-const minWidth = 64;
-
-export const ImageFile = <
+const ImageRender = <
   ISchema extends InlineContentSchema,
   SSchema extends StyleSchema
 >(props: {
@@ -59,9 +45,7 @@ export const ImageFile = <
 
       let newWidth: number;
 
-      if (
-        textAlignmentToAlignItems(props.block.props.textAlignment) === "center"
-      ) {
+      if (props.block.props.textAlignment === "center") {
         if (resizeParams.handleUsed === "left") {
           newWidth =
             resizeParams.initialWidth +
@@ -84,6 +68,9 @@ export const ImageFile = <
             resizeParams.initialClientX;
         }
       }
+
+      // Min image width in px.
+      const minWidth = 64;
 
       // Ensures the image is not wider than the editor and not smaller than a
       // predetermined minimum width.
@@ -171,10 +158,10 @@ export const ImageFile = <
       <img
         className={"bn-image"}
         src={props.block.props.url}
-        alt={"placeholder"}
+        alt={props.block.props.caption || "BlockNote image"}
         contentEditable={false}
         draggable={false}
-        style={{ width: `${width}px` }}
+        width={width}
       />
       {(imageHovered || resizeParams) && (
         <>
@@ -192,4 +179,47 @@ export const ImageFile = <
       )}
     </div>
   );
+};
+
+const ImageToExternalHTML = (props: {
+  block: BlockFromConfig<typeof fileBlockConfig, any, any>;
+}) => {
+  const image = (
+    <img
+      src={props.block.props.url}
+      alt={props.block.props.caption || "BlockNote image"}
+      width={props.block.props.previewWidth}
+    />
+  );
+
+  if (props.block.props.caption) {
+    return (
+      <figure>
+        {image}
+        <figcaption>{props.block.props.caption}</figcaption>
+      </figure>
+    );
+  }
+
+  return image;
+};
+
+export const reactImageFileExtension: ReactFileBlockExtension = {
+  fileEndings: [
+    "apng",
+    "avif",
+    "gif",
+    "jpg",
+    "jpeg",
+    "jfif",
+    "pjpeg",
+    "pjp",
+    "svg",
+    "webp",
+  ],
+  render: ImageRender,
+  parse: imageParse,
+  toExternalHTML: ImageToExternalHTML,
+  buttonText: "image",
+  buttonIcon: <RiImage2Fill size={24} />,
 };

@@ -3,14 +3,14 @@ import { BlockFromConfig, BlockSchemaWithBlock } from "../../../schema";
 import { fileBlockConfig } from "../fileBlockConfig";
 import { FileBlockExtension } from "../fileBlockExtension";
 
-const renderImageFile = (
+export const imageRender = (
   block: BlockFromConfig<typeof fileBlockConfig, any, any>,
   editor: BlockNoteEditor<
     BlockSchemaWithBlock<"file", typeof fileBlockConfig>,
     any,
     any
   >
-): { dom: HTMLElement; destroy?: () => void } => {
+) => {
   // Wrapper element for the image and resize handles.
   const imageWrapper = document.createElement("div");
   imageWrapper.className = "bn-image-wrapper";
@@ -219,7 +219,7 @@ const renderImageFile = (
   };
 };
 
-const parseImageFile = (element: HTMLElement) => {
+export const imageParse = (element: HTMLElement) => {
   if (element.tagName === "FIGURE") {
     const img = element.querySelector("img");
     const caption = element.querySelector("figcaption");
@@ -242,9 +242,9 @@ const parseImageFile = (element: HTMLElement) => {
   return undefined;
 };
 
-const imageFileToExternalHTML = (
+export const imageToExternalHTML = (
   block: BlockFromConfig<typeof fileBlockConfig, any, any>
-): { dom: HTMLElement } => {
+) => {
   const image = document.createElement("img");
   image.src = block.props.url;
   image.width = block.props.previewWidth;
@@ -281,9 +281,9 @@ export const imageFileExtension: FileBlockExtension = {
     "svg",
     "webp",
   ],
-  render: renderImageFile,
-  toExternalHTML: imageFileToExternalHTML,
-  parse: parseImageFile,
+  render: imageRender,
+  parse: imageParse,
+  toExternalHTML: imageToExternalHTML,
   buttonText: "image",
   buttonIcon: () => {
     const fileBlockImageIcon = document.createElement("div");

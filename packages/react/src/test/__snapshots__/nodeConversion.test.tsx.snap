@@ -191,6 +191,194 @@ exports[`Test React BlockNote-Prosemirror conversion > Case: custom react block 
 }
 `;
 
+exports[`Test React BlockNote-Prosemirror conversion > Case: custom react block schema > Convert reactFile/basic to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "caption": "Caption",
+        "fileType": "",
+        "previewWidth": 512,
+        "textAlignment": "left",
+        "url": "exampleURL",
+      },
+      "type": "reactFile",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test React BlockNote-Prosemirror conversion > Case: custom react block schema > Convert reactFile/button to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "caption": "",
+        "fileType": "",
+        "previewWidth": 512,
+        "textAlignment": "left",
+        "url": "",
+      },
+      "type": "reactFile",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test React BlockNote-Prosemirror conversion > Case: custom react block schema > Convert reactFile/nested to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "caption": "Caption",
+        "fileType": "",
+        "previewWidth": 512,
+        "textAlignment": "left",
+        "url": "exampleURL",
+      },
+      "type": "reactFile",
+    },
+    {
+      "content": [
+        {
+          "attrs": {
+            "backgroundColor": "default",
+            "id": "2",
+            "textColor": "default",
+          },
+          "content": [
+            {
+              "attrs": {
+                "caption": "Caption",
+                "fileType": "",
+                "previewWidth": 512,
+                "textAlignment": "left",
+                "url": "exampleURL",
+              },
+              "type": "reactFile",
+            },
+          ],
+          "type": "blockContainer",
+        },
+      ],
+      "type": "blockGroup",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test React BlockNote-Prosemirror conversion > Case: custom react block schema > Convert reactImage/basic to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "caption": "Caption",
+        "fileType": "image",
+        "previewWidth": 256,
+        "textAlignment": "left",
+        "url": "exampleURL",
+      },
+      "type": "reactFile",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test React BlockNote-Prosemirror conversion > Case: custom react block schema > Convert reactImage/button to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "caption": "",
+        "fileType": "image",
+        "previewWidth": 512,
+        "textAlignment": "left",
+        "url": "",
+      },
+      "type": "reactFile",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test React BlockNote-Prosemirror conversion > Case: custom react block schema > Convert reactImage/nested to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "caption": "Caption",
+        "fileType": "image",
+        "previewWidth": 256,
+        "textAlignment": "left",
+        "url": "exampleURL",
+      },
+      "type": "reactFile",
+    },
+    {
+      "content": [
+        {
+          "attrs": {
+            "backgroundColor": "default",
+            "id": "2",
+            "textColor": "default",
+          },
+          "content": [
+            {
+              "attrs": {
+                "caption": "Caption",
+                "fileType": "image",
+                "previewWidth": 256,
+                "textAlignment": "left",
+                "url": "exampleURL",
+              },
+              "type": "reactFile",
+            },
+          ],
+          "type": "blockContainer",
+        },
+      ],
+      "type": "blockGroup",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
 exports[`Test React BlockNote-Prosemirror conversion > Case: custom react block schema > Convert simpleReactCustomParagraph/basic to/from prosemirror 1`] = `
 {
   "attrs": {

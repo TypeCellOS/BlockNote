@@ -8,8 +8,19 @@ import {
   defaultBlockSpecs,
   defaultProps,
   uploadToTmpFilesDotOrg_DEV_ONLY,
+  filePropSchema,
 } from "@blocknote/core";
 import { createReactBlockSpec } from "../../schema/ReactBlockSpec";
+import { createReactFileBlockImplementation } from "../../components/FileBlock/FileBlockContent";
+
+const ReactFile = createReactBlockSpec(
+  {
+    type: "reactFile",
+    propSchema: filePropSchema,
+    content: "none",
+  },
+  createReactFileBlockImplementation() as any
+);
 
 const ReactCustomParagraph = createReactBlockSpec(
   {
@@ -65,6 +76,7 @@ const ReactContextParagraph = createReactBlockSpec(
 const schema = BlockNoteSchema.create({
   blockSpecs: {
     ...defaultBlockSpecs,
+    reactFile: ReactFile,
     reactCustomParagraph: ReactCustomParagraph,
     simpleReactCustomParagraph: SimpleReactCustomParagraph,
     reactContextParagraph: ReactContextParagraph,
@@ -84,6 +96,97 @@ export const customReactBlockSchemaTestCases: EditorTestCases<
     });
   },
   documents: [
+    {
+      name: "reactFile/button",
+      blocks: [
+        {
+          type: "reactFile",
+        },
+      ],
+    },
+    {
+      name: "reactFile/basic",
+      blocks: [
+        {
+          type: "reactFile",
+          props: {
+            url: "exampleURL",
+            caption: "Caption",
+          },
+        },
+      ],
+    },
+    {
+      name: "reactFile/nested",
+      blocks: [
+        {
+          type: "reactFile",
+          props: {
+            url: "exampleURL",
+            caption: "Caption",
+          },
+          children: [
+            {
+              type: "reactFile",
+              props: {
+                url: "exampleURL",
+                caption: "Caption",
+              },
+            },
+          ],
+        },
+      ],
+    },
+    {
+      name: "reactImage/button",
+      blocks: [
+        {
+          type: "reactFile",
+          props: {
+            fileType: "image",
+          },
+        },
+      ],
+    },
+    {
+      name: "reactImage/basic",
+      blocks: [
+        {
+          type: "reactFile",
+          props: {
+            fileType: "image",
+            url: "exampleURL",
+            caption: "Caption",
+            previewWidth: 256,
+          },
+        },
+      ],
+    },
+    {
+      name: "reactImage/nested",
+      blocks: [
+        {
+          type: "reactFile",
+          props: {
+            fileType: "image",
+            url: "exampleURL",
+            caption: "Caption",
+            previewWidth: 256,
+          },
+          children: [
+            {
+              type: "reactFile",
+              props: {
+                fileType: "image",
+                url: "exampleURL",
+                caption: "Caption",
+                previewWidth: 256,
+              },
+            },
+          ],
+        },
+      ],
+    },
     {
       name: "reactCustomParagraph/basic",
       blocks: [

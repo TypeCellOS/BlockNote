@@ -10,7 +10,7 @@ import { defaultProps } from "../../../blocks/defaultProps";
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
 import { BlockNoteSchema } from "../../../editor/BlockNoteSchema";
 import { createBlockSpec } from "../../../schema";
-import { renderFile } from "../../../blocks/FileBlockContent/fileBlockImplementation";
+import { fileRender } from "../../../blocks/FileBlockContent/fileBlockImplementation";
 import { filePropSchema } from "../../../blocks/FileBlockContent/fileBlockConfig";
 
 // This is a modified version of the default file block that does not implement
@@ -23,7 +23,7 @@ const SimpleFile = createBlockSpec(
     content: "none",
   },
   {
-    render: (block, editor) => renderFile(block as any, editor as any),
+    render: (block, editor) => fileRender(block as any, editor as any),
   }
 );
 
