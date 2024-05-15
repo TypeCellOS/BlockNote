@@ -1,4 +1,6 @@
-export const fr = {
+import { Dictionary } from "../dictionary";
+
+export const fr: Dictionary = {
   slash_menu: {
     heading: {
       title: "Titre 1",
@@ -58,6 +60,13 @@ export const fr = {
       ],
       group: "Médias",
     },
+    // TODO
+    file: {
+      title: "File",
+      subtext: "Insert a file",
+      aliases: ["file", "upload", "embed", "media", "url"],
+      group: "Media",
+    },
   },
   placeholders: {
     default: "Entrez du texte ou tapez '/' pour les commandes",
@@ -65,8 +74,10 @@ export const fr = {
     bulletListItem: "Liste",
     numberedListItem: "Liste",
   },
-  image: {
-    add_button: "Ajouter une Image",
+  // TODO
+  file: {
+    button_add_text: "Add",
+    button_default_file_type_text: "file",
   },
   // from react package:
   side_menu: {
@@ -134,12 +145,13 @@ export const fr = {
       tooltip: "Créer un lien",
       secondary_tooltip: "Mod+K",
     },
-    image_caption: {
+    file_caption: {
       tooltip: "Modifier la légende",
       input_placeholder: "Modifier la légende",
     },
-    image_replace: {
-      tooltip: "Remplacer l'image",
+    // TODO
+    file_replace: {
+      tooltip: "Replace file",
     },
     nest: {
       tooltip: "Emboîter le bloc",
@@ -162,15 +174,17 @@ export const fr = {
       tooltip: "Justifier le texte",
     },
   },
-  image_panel: {
+  file_panel: {
     upload: {
       title: "Télécharger",
-      file_placeholder: "Télécharger l'image",
+      // TODO
+      file_placeholder: "Upload file",
       upload_error: "Erreur : Échec du téléchargement",
     },
     embed: {
       title: "Intégrer",
-      embed_button: "Intégrer l'image",
+      // TODO
+      embed_button: "Embed file",
       url_placeholder: "Entrez l'URL",
     },
   },

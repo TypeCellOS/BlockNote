@@ -75,6 +75,13 @@ export const zh: Dictionary = {
       ],
       group: "媒体",
     },
+    // TODO
+    file: {
+      title: "File",
+      subtext: "Insert a file",
+      aliases: ["file", "upload", "embed", "media", "url"],
+      group: "Media",
+    },
   },
   placeholders: {
     default: "输入 '/' 以使用命令",
@@ -82,8 +89,10 @@ export const zh: Dictionary = {
     bulletListItem: "列表",
     numberedListItem: "列表",
   },
-  image: {
-    add_button: "添加图片",
+  // TODO
+  file: {
+    button_add_text: "Add",
+    button_default_file_type_text: "file",
   },
   // from react package:
   side_menu: {
@@ -151,12 +160,13 @@ export const zh: Dictionary = {
       tooltip: "添加链接",
       secondary_tooltip: "Mod+K",
     },
-    image_caption: {
+    file_caption: {
       tooltip: "编辑标题",
       input_placeholder: "编辑标题",
     },
-    image_replace: {
-      tooltip: "替换图片",
+    // TODO
+    file_replace: {
+      tooltip: "Replace file",
     },
     nest: {
       tooltip: "嵌套",
@@ -179,15 +189,17 @@ export const zh: Dictionary = {
       tooltip: "文本对齐",
     },
   },
-  image_panel: {
+  file_panel: {
     upload: {
       title: "上传",
-      file_placeholder: "上传图片",
+      // TODO
+      file_placeholder: "Upload file",
       upload_error: "Error：上传失败",
     },
     embed: {
       title: "嵌入",
-      embed_button: "嵌入图片",
+      // TODO
+      embed_button: "Embed file",
       url_placeholder: "输入图片地址",
     },
   },

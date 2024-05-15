@@ -60,6 +60,13 @@ export const nl: Dictionary = {
       ],
       group: "Media",
     },
+    // TODO
+    file: {
+      title: "File",
+      subtext: "Insert a file",
+      aliases: ["file", "upload", "embed", "media", "url"],
+      group: "Media",
+    },
   },
   placeholders: {
     default: "Voer tekst in of type '/' voor commando's",
@@ -67,8 +74,10 @@ export const nl: Dictionary = {
     bulletListItem: "Lijst",
     numberedListItem: "Lijst",
   },
-  image: {
-    add_button: "Afbeelding toevoegen",
+  // TODO
+  file: {
+    button_add_text: "Add",
+    button_default_file_type_text: "file",
   },
   // from react package:
   side_menu: {
@@ -135,12 +144,13 @@ export const nl: Dictionary = {
       tooltip: "Maak link",
       secondary_tooltip: "Mod+K",
     },
-    image_caption: {
+    file_caption: {
       tooltip: "Bewerk onderschrift",
       input_placeholder: "Bewerk onderschrift",
     },
-    image_replace: {
-      tooltip: "Vervang afbeelding",
+    // TODO
+    file_replace: {
+      tooltip: "Replace file",
     },
     nest: {
       tooltip: "Nest blok",
@@ -163,15 +173,17 @@ export const nl: Dictionary = {
       tooltip: "Tekst uitvullen",
     },
   },
-  image_panel: {
+  file_panel: {
     upload: {
       title: "Upload",
-      file_placeholder: "Upload afbeelding",
+      // TODO
+      file_placeholder: "Upload file",
       upload_error: "Fout: Upload mislukt",
     },
     embed: {
       title: "Insluiten",
-      embed_button: "Insluiten afbeelding",
+      // TODO
+      embed_button: "Embed file",
       url_placeholder: "Voer URL in",
     },
   },

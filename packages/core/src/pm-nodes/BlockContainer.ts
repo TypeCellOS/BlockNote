@@ -691,7 +691,7 @@ export const BlockContainer = Node.create<{
         if (
           this.options.editor.formattingToolbar?.shown ||
           this.options.editor.linkToolbar?.shown ||
-          this.options.editor.imagePanel?.shown
+          this.options.editor.filePanel?.shown
         ) {
           // don't handle tabs if a toolbar is shown, so we can tab into / out of it
           return false;
@@ -703,7 +703,7 @@ export const BlockContainer = Node.create<{
         if (
           this.options.editor.formattingToolbar?.shown ||
           this.options.editor.linkToolbar?.shown ||
-          this.options.editor.imagePanel?.shown
+          this.options.editor.filePanel?.shown
         ) {
           // don't handle tabs if a toolbar is shown, so we can tab into / out of it
           return false;

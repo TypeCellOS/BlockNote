@@ -100,11 +100,13 @@ export const FileRender = <
           onMouseDown={addFileButtonMouseDownHandler}
           onClick={addFileButtonClickHandler}>
           <div className={"bn-add-file-button-icon"}>
-            {/* TODO */}
             {activeExtension?.buttonIcon || <RiFile2Line size={24} />}
           </div>
-          <div className={"bn-add-file-button-text"}>{`Add ${
-            activeExtension?.buttonText || "file"
+          <div className={"bn-add-file-button-text"}>{`${
+            props.editor.dictionary.file.button_add_text
+          } ${
+            activeExtension?.buttonText ||
+            props.editor.dictionary.file.button_default_file_type_text
           }`}</div>
         </div>
       ) : (
@@ -138,12 +140,16 @@ export const FileToExternalHTML = (props: {
   >;
 }) => {
   if (!props.block.props.url) {
-    const buttonText =
-      props.extensions && props.block.props.fileType in props.extensions
+    const buttonText = `${props.editor.dictionary.file.button_add_text} ${
+      props.block.props.fileType &&
+      props.extensions &&
+      props.block.props.fileType in props.extensions &&
+      props.extensions[props.block.props.fileType].buttonText !== undefined
         ? props.extensions[props.block.props.fileType].buttonText
-        : "file";
+        : props.editor.dictionary.file.button_default_file_type_text
+    }`;
 
-    return <p>{`Add ${buttonText}`}</p>;
+    return <p>{buttonText}</p>;
   }
 
   if (

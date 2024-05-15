@@ -18,7 +18,7 @@ import {
 } from "react-icons/ri";
 import { DefaultReactSuggestionItem } from "./types";
 
-const icons: Record<string, IconType> = {
+const icons = {
   heading: RiH1,
   heading_2: RiH2,
   heading_3: RiH3,

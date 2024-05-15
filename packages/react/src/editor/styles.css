@@ -104,6 +104,13 @@
   font-family: var(--bn-font-family);
 }
 
+/* Custom block node view wrapper styling */
+.bn-react-node-view-renderer {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
 /* Indent line styling */
 .bn-block-group
   .bn-block-group

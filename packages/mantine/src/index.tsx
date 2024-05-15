@@ -52,7 +52,7 @@ export const components: Components = {
     Button: ToolbarButton,
     Select: ToolbarSelect,
   },
-  ImagePanel: {
+  FilePanel: {
     Root: Panel,
     Button: PanelButton,
     FileInput: PanelFileInput,

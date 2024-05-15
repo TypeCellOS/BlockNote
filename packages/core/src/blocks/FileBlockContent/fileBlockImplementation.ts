@@ -49,13 +49,13 @@ export const fileRender = (
   // Text for the add file button.
   const addFileButtonText = document.createElement("p");
   addFileButtonText.className = "bn-add-file-button-text";
-  addFileButtonText.innerHTML = `Add ${
+  addFileButtonText.innerHTML = `${editor.dictionary.file.button_add_text} ${
     block.props.fileType &&
     extensions &&
     block.props.fileType in extensions &&
     extensions[block.props.fileType].buttonText !== undefined
       ? extensions[block.props.fileType].buttonText!
-      : "file"
+      : editor.dictionary.file.button_default_file_type_text
   }`;
 
   // Wrapper element for the file, resize handles and caption.
@@ -198,11 +198,14 @@ export const fileToExternalHTML = (
 ) => {
   if (!block.props.url) {
     const div = document.createElement("p");
-    const buttonText =
-      extensions && block.props.fileType in extensions
+    div.innerHTML = `${editor.dictionary.file.button_add_text} ${
+      block.props.fileType &&
+      extensions &&
+      block.props.fileType in extensions &&
+      extensions[block.props.fileType].buttonText !== undefined
         ? extensions[block.props.fileType].buttonText
-        : "file";
-    div.innerHTML = `Add ${buttonText}`;
+        : editor.dictionary.file.button_default_file_type_text
+    }`;
 
     return {
       dom: div,

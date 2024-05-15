@@ -6,7 +6,7 @@ import { cn } from "../lib/utils";
 
 export const PanelTab = forwardRef<
   HTMLDivElement,
-  ComponentProps["ImagePanel"]["TabPanel"]
+  ComponentProps["FilePanel"]["TabPanel"]
 >((props, ref) => {
   const { className, children, ...rest } = props;
 

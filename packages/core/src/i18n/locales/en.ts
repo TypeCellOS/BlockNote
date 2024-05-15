@@ -58,6 +58,12 @@ export const en = {
       ],
       group: "Media",
     },
+    file: {
+      title: "File",
+      subtext: "Insert a file",
+      aliases: ["file", "upload", "embed", "media", "url"],
+      group: "Media",
+    },
   },
   placeholders: {
     default: "Enter text or type '/' for commands",
@@ -65,8 +71,9 @@ export const en = {
     bulletListItem: "List",
     numberedListItem: "List",
   },
-  image: {
-    add_button: "Add Image",
+  file: {
+    button_add_text: "Add",
+    button_default_file_type_text: "file",
   },
   // from react package:
   side_menu: {
@@ -134,12 +141,12 @@ export const en = {
       tooltip: "Create link",
       secondary_tooltip: "Mod+K",
     },
-    image_caption: {
+    file_caption: {
       tooltip: "Edit caption",
       input_placeholder: "Edit caption",
     },
-    image_replace: {
-      tooltip: "Replace image",
+    file_replace: {
+      tooltip: "Replace file",
     },
     nest: {
       tooltip: "Nest block",
@@ -162,15 +169,15 @@ export const en = {
       tooltip: "Justify text",
     },
   },
-  image_panel: {
+  file_panel: {
     upload: {
       title: "Upload",
-      file_placeholder: "Upload image",
+      file_placeholder: "Upload file",
       upload_error: "Error: Upload failed",
     },
     embed: {
       title: "Embed",
-      embed_button: "Embed image",
+      embed_button: "Embed file",
       url_placeholder: "Enter URL",
     },
   },

@@ -29,7 +29,9 @@ BASIC STYLES
   /*margin: 0px;*/
 }
 
-.bn-block-content.ProseMirror-selectednode > * {
+.bn-block-content.ProseMirror-selectednode > *,
+/* Case for node view renderers */
+.ProseMirror-selectednode > .bn-block-content > * {
   border-radius: 4px;
   outline: 4px solid rgb(100, 160, 255);
 }
