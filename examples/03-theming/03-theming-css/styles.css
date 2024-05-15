@@ -4,6 +4,8 @@
 }
 
 /* Makes slash menu hovered items blue */
-.bn-container[data-theming-css-demo] .bn-slash-menu .mantine-Menu-item[data-hovered] {
+.bn-container[data-theming-css-demo]
+  .bn-suggestion-menu-item[aria-selected="true"],
+.bn-container[data-theming-css-demo] .bn-suggestion-menu-item:hover {
   background-color: blue;
 }

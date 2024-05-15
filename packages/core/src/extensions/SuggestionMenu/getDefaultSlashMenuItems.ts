@@ -83,95 +83,82 @@ export function getDefaultSlashMenuItems<
   if (checkDefaultBlockTypeInSchema("heading", editor)) {
     items.push(
       {
-        title: "Heading 1",
         onItemClick: () => {
           insertOrUpdateBlock(editor, {
             type: "heading",
             props: { level: 1 },
           });
         },
-        subtext: "Used for a top-level heading",
         badge: formatKeyboardShortcut("Mod-Alt-1"),
-        aliases: ["h", "heading1", "h1"],
-        group: "Headings",
+        key: "heading",
+        ...editor.dictionary.slash_menu.heading,
       },
       {
-        title: "Heading 2",
         onItemClick: () => {
           insertOrUpdateBlock(editor, {
             type: "heading",
             props: { level: 2 },
           });
         },
-        subtext: "Used for key sections",
         badge: formatKeyboardShortcut("Mod-Alt-2"),
-        aliases: ["h2", "heading2", "subheading"],
-        group: "Headings",
+        key: "heading_2",
+        ...editor.dictionary.slash_menu.heading_2,
       },
       {
-        title: "Heading 3",
         onItemClick: () => {
           insertOrUpdateBlock(editor, {
             type: "heading",
             props: { level: 3 },
           });
         },
-        subtext: "Used for subsections and group headings",
         badge: formatKeyboardShortcut("Mod-Alt-3"),
-        aliases: ["h3", "heading3", "subheading"],
-        group: "Headings",
+        key: "heading_3",
+        ...editor.dictionary.slash_menu.heading_3,
       }
     );
   }
 
   if (checkDefaultBlockTypeInSchema("numberedListItem", editor)) {
     items.push({
-      title: "Numbered List",
       onItemClick: () => {
         insertOrUpdateBlock(editor, {
           type: "numberedListItem",
         });
       },
-      subtext: "Used to display a numbered list",
       badge: formatKeyboardShortcut("Mod-Shift-7"),
-      aliases: ["ol", "li", "list", "numberedlist", "numbered list"],
-      group: "Basic blocks",
+      key: "numbered_list",
+      ...editor.dictionary.slash_menu.numbered_list,
     });
   }
 
   if (checkDefaultBlockTypeInSchema("bulletListItem", editor)) {
     items.push({
-      title: "Bullet List",
       onItemClick: () => {
         insertOrUpdateBlock(editor, {
           type: "bulletListItem",
         });
       },
-      subtext: "Used to display an unordered list",
       badge: formatKeyboardShortcut("Mod-Shift-8"),
-      aliases: ["ul", "li", "list", "bulletlist", "bullet list"],
-      group: "Basic blocks",
+      key: "bullet_list",
+      ...editor.dictionary.slash_menu.bullet_list,
     });
   }
 
   if (checkDefaultBlockTypeInSchema("paragraph", editor)) {
     items.push({
-      title: "Paragraph",
       onItemClick: () => {
         insertOrUpdateBlock(editor, {
           type: "paragraph",
         });
       },
-      subtext: "Used for the body of your document",
       badge: formatKeyboardShortcut("Mod-Alt-0"),
-      aliases: ["p", "paragraph"],
-      group: "Basic blocks",
+      key: "paragraph",
+      ...editor.dictionary.slash_menu.paragraph,
     });
   }
 
   if (checkDefaultBlockTypeInSchema("table", editor)) {
     items.push({
-      title: "Table",
       onItemClick: () => {
         insertOrUpdateBlock(editor, {
           type: "table",
@@ -188,16 +175,14 @@ export function getDefaultSlashMenuItems<
           },
         });
       },
-      subtext: "Used for for tables",
-      aliases: ["table"],
-      group: "Advanced",
       badge: undefined,
+      key: "table",
+      ...editor.dictionary.slash_menu.table,
     });
   }
 
   if (checkDefaultBlockTypeInSchema("file", editor)) {
     items.push({
-      title: "Image",
       onItemClick: () => {
         const insertedBlock = insertOrUpdateBlock(editor, {
           type: "file",
@@ -213,12 +198,10 @@ export function getDefaultSlashMenuItems<
           })
         );
       },
-      subtext: "Insert an image",
-      aliases: ["image", "upload", "embed", "img", "picture", "media", "url"],
-      group: "Media",
+      key: "image",
+      ...editor.dictionary.slash_menu.image,
     });
     items.push({
-      title: "File",
       onItemClick: () => {
         const insertedBlock = insertOrUpdateBlock(editor, {
           type: "file",
@@ -231,9 +214,8 @@ export function getDefaultSlashMenuItems<
           })
         );
       },
-      subtext: "Insert a file",
-      aliases: ["file", "upload", "embed", "media", "url"],
-      group: "Media",
+      key: "file",
+      ...editor.dictionary.slash_menu.file,
     });
   }
 
@@ -245,10 +227,10 @@ export function filterSuggestionItems<
 >(items: T[], query: string) {
   return items.filter(
     ({ title, aliases }) =>
-      title.toLowerCase().startsWith(query.toLowerCase()) ||
+      title.toLowerCase().includes(query.toLowerCase()) ||
       (aliases &&
         aliases.filter((alias) =>
-          alias.toLowerCase().startsWith(query.toLowerCase())
+          alias.toLowerCase().includes(query.toLowerCase())
         ).length !== 0)
   );
 }

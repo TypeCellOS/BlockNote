@@ -1,8 +1,9 @@
 import { BlockNoteSchema, defaultStyleSpecs } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
+import { BlockNoteView } from "@blocknote/mantine";
+import "@blocknote/mantine/style.css";
 import {
   BasicTextStyleButton,
-  BlockNoteView,
   BlockTypeSelect,
   ColorStyleButton,
   CreateLinkButton,
@@ -12,12 +13,11 @@ import {
   NestBlockButton,
   ReplaceImageButton,
   TextAlignButton,
-  ToolbarButton,
   UnnestBlockButton,
   useBlockNoteEditor,
+  useComponentsContext,
   useCreateBlockNote,
 } from "@blocknote/react";
-import "@blocknote/react/style.css";
 import { RiText } from "react-icons/ri";
 
 import { Font } from "./Font";
@@ -41,10 +41,13 @@ const SetFontStyleButton = () => {
     typeof schema.styleSchema
   >();
 
+  const Components = useComponentsContext()!;
+
   return (
-    <ToolbarButton
+    <Components.FormattingToolbar.Button
+      label="Set Font"
       mainTooltip={"Set Font"}
-      icon={RiText}
+      icon={<RiText />}
       onClick={() => {
         const fontName = prompt("Enter a font name") || "Comic Sans MS";
 

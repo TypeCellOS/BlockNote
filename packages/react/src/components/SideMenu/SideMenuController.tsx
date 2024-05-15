@@ -11,8 +11,8 @@ import { FC } from "react";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor";
 import { useUIElementPositioning } from "../../hooks/useUIElementPositioning";
 import { useUIPluginState } from "../../hooks/useUIPluginState";
+import { SideMenu } from "./SideMenu";
 import { SideMenuProps } from "./SideMenuProps";
-import { SideMenu } from "./mantine/SideMenu";
 
 export const SideMenuController = <
   BSchema extends BlockSchema = DefaultBlockSchema,
@@ -34,7 +34,7 @@ export const SideMenuController = <
   const state = useUIPluginState(
     editor.sideMenu.onUpdate.bind(editor.sideMenu)
   );
-  const { isMounted, ref, style } = useUIElementPositioning(
+  const { isMounted, ref, style, getFloatingProps } = useUIElementPositioning(
     state?.show || false,
     state?.referencePos || null,
     1000,
@@ -52,8 +52,8 @@ export const SideMenuController = <
   const Component = props.sideMenu || SideMenu;
 
   return (
-    <div ref={ref} style={style}>
-      <Component {...data} {...callbacks} />
+    <div ref={ref} style={style} {...getFloatingProps()}>
+      <Component {...data} {...callbacks} editor={editor} />
     </div>
   );
 };

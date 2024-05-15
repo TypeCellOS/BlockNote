@@ -2,10 +2,12 @@ import { Page } from "@playwright/test";
 import { DRAG_HANDLE_ADD_SELECTOR, DRAG_HANDLE_SELECTOR } from "./const";
 import { moveMouseOverElement } from "./mouse";
 
-export async function addBlockFromDragHandle(page: Page, blockQuery: string) {
+export async function addBlockFromDragHandle(page: Page, command: string) {
   await page.click(DRAG_HANDLE_ADD_SELECTOR);
-  await page.keyboard.type(blockQuery, { delay: 10 });
-  await page.keyboard.press("Enter", { delay: 10 });
+  await page.keyboard.type(command);
+  await page.keyboard.press("ArrowDown");
+  await page.keyboard.press("Enter");
+  await page.waitForTimeout(500);
 }
 
 export async function hoverAndAddBlockFromDragHandle(

@@ -1,9 +1,7 @@
-import { filterSuggestionItems } from "@blocknote/core";
 import { FormattingToolbarController } from "../components/FormattingToolbar/FormattingToolbarController";
 import { LinkToolbarController } from "../components/LinkToolbar/LinkToolbarController";
 import { FilePanelController } from "../components/FilePanel/FilePanelController";
 import { SideMenuController } from "../components/SideMenu/SideMenuController";
-import { getDefaultReactSlashMenuItems } from "../components/SuggestionMenu/getDefaultReactSlashMenuItems";
 import { SuggestionMenuController } from "../components/SuggestionMenu/SuggestionMenuController";
 import { TableHandlesController } from "../components/TableHandles/TableHandlesController";
 import { useBlockNoteEditor } from "../hooks/useBlockNoteEditor";
@@ -31,16 +29,7 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
       {props.formattingToolbar !== false && <FormattingToolbarController />}
       {props.linkToolbar !== false && <LinkToolbarController />}
       {props.slashMenu !== false && (
-        <SuggestionMenuController
-          getItems={async (query) =>
-            filterSuggestionItems(getDefaultReactSlashMenuItems(editor), query)
-          }
-          // suggestionMenuComponent={MantineSuggestionMenu}
-          onItemClick={(item) => {
-            item.onItemClick();
-          }}
-          triggerCharacter="/"
-        />
+        <SuggestionMenuController triggerCharacter="/" />
       )}
       {props.sideMenu !== false && <SideMenuController />}
       {editor.filePanel && props.fileToolbar !== false && (

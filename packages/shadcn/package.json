@@ -1,0 +1,103 @@
+{
+  "name": "@blocknote/shadcn",
+  "homepage": "https://github.com/TypeCellOS/BlockNote",
+  "private": false,
+  "license": "MPL-2.0",
+  "version": "0.13.2",
+  "files": [
+    "dist",
+    "types",
+    "src"
+  ],
+  "keywords": [
+    "react",
+    "javascript",
+    "editor",
+    "typescript",
+    "prosemirror",
+    "wysiwyg",
+    "rich-text-editor",
+    "notion",
+    "yjs",
+    "block-based",
+    "tiptap"
+  ],
+  "description": "A \"Notion-style\" block-based extensible text editor built on top of Prosemirror and Tiptap.",
+  "type": "module",
+  "source": "src/index.tsx",
+  "types": "./types/src/index.d.ts",
+  "main": "./dist/blocknote-shadcn.umd.cjs",
+  "module": "./dist/blocknote-shadcn.js",
+  "exports": {
+    ".": {
+      "types": "./types/src/index.d.ts",
+      "import": "./dist/blocknote-shadcn.js",
+      "require": "./dist/blocknote-shadcn.umd.cjs"
+    },
+    "./style.css": {
+      "import": "./dist/style.css",
+      "require": "./dist/style.css"
+    }
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "build-bundled": "tsc && vite build --config vite.config.bundled.ts && git checkout tmp-releases && rm -rf ../../release && mv ../../release-tmp ../../release",
+    "preview": "vite preview",
+    "lint": "eslint src --max-warnings 0",
+    "clean": "rimraf dist && rimraf types"
+  },
+  "dependencies": {
+    "@blocknote/core": "^0.13.2",
+    "@blocknote/react": "^0.13.2",
+    "@hookform/resolvers": "^3.3.4",
+    "@radix-ui/react-dropdown-menu": "^2.0.6",
+    "@radix-ui/react-label": "^2.0.2",
+    "@radix-ui/react-popover": "^1.0.7",
+    "@radix-ui/react-select": "^2.0.0",
+    "@radix-ui/react-slot": "^1.0.2",
+    "@radix-ui/react-tabs": "^1.0.4",
+    "@radix-ui/react-toggle": "^1.0.3",
+    "@radix-ui/react-tooltip": "^1.0.7",
+    "autoprefixer": "^10.4.19",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.362.0",
+    "postcss": "^8.4.38",
+    "react": "^18",
+    "react-dom": "^18",
+    "react-hook-form": "^7.51.3",
+    "tailwind-merge": "^2.3.0",
+    "tailwindcss": "^3.4.3",
+    "tailwindcss-animate": "^1.0.7",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@radix-ui/colors": "^3.0.0",
+    "@types/node": "^20.12.7",
+    "@types/react": "^18.0.25",
+    "@types/react-dom": "^18.0.9",
+    "@vitejs/plugin-react": "^4.0.4",
+    "eslint": "^8.10.0",
+    "prettier": "^2.7.1",
+    "rimraf": "^5.0.5",
+    "rollup-plugin-webpack-stats": "^0.2.2",
+    "typescript": "^5.3.3",
+    "vite": "^4.4.8",
+    "vite-plugin-eslint": "^1.8.1",
+    "vite-plugin-externalize-deps": "^0.7.0"
+  },
+  "peerDependencies": {
+    "react": "^18",
+    "react-dom": "^18"
+  },
+  "eslintConfig": {
+    "extends": [
+      "../../.eslintrc.js"
+    ]
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
+}

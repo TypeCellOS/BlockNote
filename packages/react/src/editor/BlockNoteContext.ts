@@ -8,13 +8,14 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { createContext, useContext } from "react";
+import { createContext, useContext, useState } from "react";
 
 type BlockNoteContextValue<
   BSchema extends BlockSchema = DefaultBlockSchema,
   ISchema extends InlineContentSchema = DefaultInlineContentSchema,
   SSchema extends StyleSchema = DefaultStyleSchema
 > = {
+  setContentEditableProps?: ReturnType<typeof useState<Record<string, any>>>[1]; // copy type of setXXX from useState
   editor?: BlockNoteEditor<BSchema, ISchema, SSchema>;
   colorSchemePreference?: "light" | "dark";
 };

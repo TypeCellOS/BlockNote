@@ -11,8 +11,8 @@ import { FC } from "react";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor";
 import { useUIElementPositioning } from "../../hooks/useUIElementPositioning";
 import { useUIPluginState } from "../../hooks/useUIPluginState";
+import { FilePanel } from "./FilePanel";
 import { FilePanelProps } from "./FilePanelProps";
-import { FilePanel } from "./mantine/FilePanel";
 
 export const FilePanelController = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
@@ -35,13 +35,20 @@ export const FilePanelController = <
   const state = useUIPluginState(
     editor.filePanel.onUpdate.bind(editor.filePanel)
   );
-  const { isMounted, ref, style } = useUIElementPositioning(
+
+  const { isMounted, ref, style, getFloatingProps } = useUIElementPositioning(
     state?.show || false,
     state?.referencePos || null,
     5000,
     {
       placement: "bottom",
       middleware: [offset(10), flip()],
+      onOpenChange: (open) => {
+        if (!open) {
+          editor.filePanel!.closeMenu();
+          editor.focus();
+        }
+      },
     }
   );
 
@@ -54,7 +61,7 @@ export const FilePanelController = <
   const Component = props.fileToolbar || FilePanel;
 
   return (
-    <div ref={ref} style={style}>
+    <div ref={ref} style={style} {...getFloatingProps()}>
       <Component {...data} />
     </div>
   );

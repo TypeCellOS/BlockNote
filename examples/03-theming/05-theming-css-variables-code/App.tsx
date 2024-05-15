@@ -4,9 +4,9 @@ import {
   darkDefaultTheme,
   lightDefaultTheme,
   Theme,
-  useCreateBlockNote,
-} from "@blocknote/react";
-import "@blocknote/react/style.css";
+} from "@blocknote/mantine";
+import "@blocknote/mantine/style.css";
+import { useCreateBlockNote } from "@blocknote/react";
 
 // Base theme
 const lightRedTheme = {

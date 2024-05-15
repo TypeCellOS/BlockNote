@@ -1,0 +1,87 @@
+{
+  "name": "@blocknote/mantine",
+  "homepage": "https://github.com/TypeCellOS/BlockNote",
+  "private": false,
+  "license": "MPL-2.0",
+  "version": "0.13.2",
+  "files": [
+    "dist",
+    "types",
+    "src"
+  ],
+  "keywords": [
+    "react",
+    "javascript",
+    "editor",
+    "typescript",
+    "prosemirror",
+    "wysiwyg",
+    "rich-text-editor",
+    "notion",
+    "yjs",
+    "block-based",
+    "tiptap"
+  ],
+  "description": "A \"Notion-style\" block-based extensible text editor built on top of Prosemirror and Tiptap.",
+  "type": "module",
+  "source": "src/index.tsx",
+  "types": "./types/src/index.d.ts",
+  "main": "./dist/blocknote-mantine.umd.cjs",
+  "module": "./dist/blocknote-mantine.js",
+  "exports": {
+    ".": {
+      "types": "./types/src/index.d.ts",
+      "import": "./dist/blocknote-mantine.js",
+      "require": "./dist/blocknote-mantine.umd.cjs"
+    },
+    "./style.css": {
+      "import": "./dist/style.css",
+      "require": "./dist/style.css"
+    }
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "build-bundled": "tsc && vite build --config vite.config.bundled.ts && git checkout tmp-releases && rm -rf ../../release && mv ../../release-tmp ../../release",
+    "preview": "vite preview",
+    "lint": "eslint src --max-warnings 0",
+    "clean": "rimraf dist && rimraf types"
+  },
+  "dependencies": {
+    "@blocknote/core": "^0.13.2",
+    "@blocknote/react": "^0.13.2",
+    "@mantine/core": "^7.5.0",
+    "@mantine/hooks": "^7.5.0",
+    "@mantine/utils": "^6.0.21",
+    "react": "^18",
+    "react-dom": "^18",
+    "react-icons": "^4.3.1",
+    "use-prefers-color-scheme": "^1.1.3"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.25",
+    "@types/react-dom": "^18.0.9",
+    "@vitejs/plugin-react": "^4.0.4",
+    "eslint": "^8.10.0",
+    "prettier": "^2.7.1",
+    "rimraf": "^5.0.5",
+    "rollup-plugin-webpack-stats": "^0.2.2",
+    "typescript": "^5.3.3",
+    "vite": "^4.4.8",
+    "vite-plugin-eslint": "^1.8.1",
+    "vite-plugin-externalize-deps": "^0.7.0"
+  },
+  "peerDependencies": {
+    "react": "^18",
+    "react-dom": "^18"
+  },
+  "eslintConfig": {
+    "extends": [
+      "../../.eslintrc.js"
+    ]
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
+}

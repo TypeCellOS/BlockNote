@@ -31,20 +31,13 @@ You can change or replace the Block Side Menu with your own React component. In 
 
 <Example name="ui-components/side-menu-buttons" />
 
+We first define our custom `RemoveBlockButton`. The `useComponentsContext` hook gets all components used internally by BlockNote, so we want to use `Components.SideMenu.Button` for this.
+
 We use the `SideMenu` component to create a custom Block Side Menu. By specifying its children, we can replace the default buttons in the menu with our own.
 
 This custom Side Menu is passed to a `SideMenuController`, which controls its position and visibility (on the left side when you hover a block).
 
 Setting `sideMenu={false}` on `BlockNoteView` tells BlockNote not to show the default Block Side Menu.
-
-<div className="nx-mt-6 nx-leading-7 first:nx-mt-0">
-  <small>
-    <strong>Tip:</strong> The children you pass to the `SideMenu` component
-    should be default buttons (e.g. `DragHandleButton`) or custom buttons
-    (`SideMenuButton`). To see all the components you can use, head to the
-    [Side Menu's source code](link).
-  </small>
-</div>
 
 ## Changing Drag Handle Menu Items
 

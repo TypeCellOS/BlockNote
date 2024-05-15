@@ -1,0 +1,490 @@
+@import url("@blocknote/react/style.css");
+@import url("./mantineStyles.css");
+
+/* Mantine base styles*/
+
+/* Mantine Badge component base styles */
+.bn-container .mantine-Badge-root {
+  background-color: var(--bn-colors-tooltip-background);
+  color: var(--bn-colors-tooltip-text);
+}
+
+/* Mantine FileInput component base styles */
+.bn-container .mantine-FileInput-input {
+  align-items: center;
+  background-color: var(--bn-colors-menu-background);
+  border: none;
+  border-radius: 4px;
+  color: var(--bn-colors-menu-text);
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.bn-container .mantine-FileInput-input:hover {
+  background-color: var(--bn-colors-hovered-background);
+}
+
+.bn-container .mantine-FileInput-wrapper {
+  border: solid var(--bn-colors-border) 1px;
+  border-radius: 4px;
+}
+
+.bn-container .mantine-InputPlaceholder-placeholder {
+  color: var(--bn-colors-menu-text);
+  font-weight: 600;
+}
+
+/* Mantine Menu component base styles */
+.bn-container .mantine-Menu-dropdown {
+  background-color: var(--bn-colors-menu-background);
+  border: var(--bn-border);
+  border-radius: var(--bn-border-radius-medium);
+  box-shadow: var(--bn-shadow-medium);
+  box-sizing: border-box;
+  color: var(--bn-colors-menu-text);
+  padding: 2px;
+  overflow: auto;
+}
+
+.bn-container .mantine-Menu-label {
+  background-color: var(--bn-colors-menu-background);
+  color: var(--bn-colors-menu-text);
+}
+
+.bn-container .mantine-Menu-item {
+  background-color: var(--bn-colors-menu-background);
+  border: none;
+  border-radius: var(--bn-border-radius-small);
+  color: var(--bn-colors-menu-text);
+}
+
+.bn-container .mantine-Menu-item[aria-selected="true"],
+.bn-container .mantine-Menu-item:hover {
+  background-color: var(--bn-colors-hovered-background);
+  border: none;
+  color: var(--bn-colors-hovered-text);
+}
+
+/* Mantine Popover component base styles */
+.bn-container .mantine-Popover-dropdown {
+  background-color: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+}
+
+/* Mantine Tabs component base styles */
+.bn-container .mantine-Tabs-root {
+  width: 100%;
+  background-color: var(--bn-colors-menu-background);
+}
+
+.bn-container .mantine-Tabs-list:before {
+  border-color: var(--bn-colors-hovered-background);
+}
+
+.bn-container .mantine-Tabs-tab {
+  color: var(--bn-colors-menu-text);
+  border-color: var(--bn-colors-hovered-background);
+}
+
+.bn-container .mantine-Tabs-tab:hover {
+  background-color: var(--bn-colors-hovered-background);
+  border-color: var(--bn-colors-hovered-background);
+  color: var(--bn-colors-hovered-text);
+}
+
+.bn-container .mantine-Tabs-tab[data-active],
+.bn-container .mantine-Tabs-tab[data-active]:hover {
+  border-color: var(--bn-colors-menu-text);
+  color: var(--bn-colors-menu-text);
+}
+
+.bn-container .mantine-Tabs-panel {
+  padding: 8px;
+}
+
+/* Mantine TextInput component base styles */
+.bn-container .mantine-TextInput-input {
+  background-color: var(--bn-colors-menu-background);
+  border: solid var(--bn-colors-border) 1px;
+  border-radius: 4px;
+  color: var(--bn-colors-menu-text);
+  height: 32px;
+}
+
+/* Mantine Tooltip component base styles */
+.bn-container .mantine-Tooltip-tooltip {
+  background-color: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+}
+
+/* UI element styling */
+
+/* Select styling */
+.bn-select {
+  overflow: auto;
+}
+
+/* Toolbar styling */
+.bn-toolbar {
+  background-color: var(--bn-colors-menu-background);
+  border: var(--bn-border);
+  border-radius: var(--bn-border-radius-medium);
+  box-shadow: var(--bn-shadow-medium);
+  flex-wrap: nowrap;
+  gap: 2px;
+  padding: 2px;
+  width: fit-content;
+}
+
+.bn-toolbar:empty {
+  display: none;
+}
+
+.bn-toolbar .mantine-Button-root,
+.bn-toolbar .mantine-ActionIcon-root {
+  background-color: var(--bn-colors-menu-background);
+  border: none;
+  border-radius: var(--bn-border-radius-small);
+  color: var(--bn-colors-menu-text);
+}
+
+.bn-toolbar .mantine-Button-root:hover,
+.bn-toolbar .mantine-ActionIcon-root:hover {
+  background-color: var(--bn-colors-hovered-background);
+  border: none;
+  color: var(--bn-colors-hovered-text);
+}
+
+.bn-toolbar .mantine-Button-root[data-selected],
+.bn-toolbar .mantine-ActionIcon-root[data-selected] {
+  background-color: var(--bn-colors-selected-background);
+  border: none;
+  color: var(--bn-colors-selected-text);
+}
+
+.bn-toolbar .mantine-Button-root[data-disabled],
+.bn-toolbar .mantine-ActionIcon-root[data-disabled] {
+  background-color: var(--bn-colors-disabled-background);
+  border: none;
+  color: var(--bn-colors-disabled-text);
+}
+
+.bn-toolbar .mantine-Menu-item {
+  font-size: 12px;
+  height: 30px;
+}
+
+.bn-toolbar .mantine-Menu-item:hover {
+  background-color: var(--bn-colors-hovered-background);
+}
+
+.bn-container .bn-form-popover {
+  background-color: var(--bn-colors-menu-background);
+  border: var(--bn-border);
+  border-radius: var(--bn-border-radius-medium);
+  box-shadow: var(--bn-shadow-medium);
+  color: var(--bn-colors-menu-text);
+  gap: 4px;
+  min-width: 145px;
+  padding: 2px;
+}
+
+.bn-form-popover .mantine-TextInput-root,
+.bn-form-popover .mantine-FileInput-root {
+  width: 300px;
+}
+
+.bn-form-popover .mantine-TextInput-wrapper,
+.bn-form-popover .mantine-FileInput-wrapper {
+  padding: 0;
+  border-radius: 4px;
+}
+
+.bn-form-popover .mantine-TextInput-wrapper:hover {
+  background-color: var(--bn-colors-hovered-background);
+}
+
+.bn-form-popover .mantine-TextInput-input,
+.bn-form-popover .mantine-FileInput-input {
+  border: none;
+  font-size: 12px;
+}
+
+.bn-form-popover .mantine-FileInput-input:hover {
+  background-color: var(--bn-colors-hovered-background);
+}
+
+.bn-form-popover .mantine-FileInput-section[data-position="left"] {
+  color: var(--bn-colors-menu-text);
+}
+
+.bn-form-popover .mantine-FileInput-placeholder {
+  color: var(--bn-colors-menu-text);
+}
+
+/* Suggestion Menu styling*/
+
+/* Base styles for Suggestion Menus, copied from the Mantine Menu component. */
+/* Unfortunately necessary, as we can't use a Menu.Dropdown component on its
+ own. */
+/* https://github.com/mantinedev/mantine/blob/e3e3bb834de1f2f75a27dbc757dc0a2fc6a6cba8/packages/%40mantine/core/src/components/Menu/Menu.module.css */
+.bn-suggestion-menu {
+  max-height: 100%;
+  position: relative;
+  box-shadow: var(--mantine-shadow-md);
+  border: calc(0.0625rem * var(--mantine-scale)) solid
+    var(--mantine-color-gray-2);
+  border-radius: var(--mantine-radius-default);
+  padding: 4px;
+}
+
+.bn-suggestion-menu-label {
+  color: var(--mantine-color-dimmed);
+  font-weight: 500;
+  font-size: var(--mantine-font-size-xs);
+  padding: calc(var(--mantine-spacing-xs) / 2) var(--mantine-spacing-sm);
+  cursor: default;
+}
+
+.bn-suggestion-menu-item {
+  font-size: var(--mantine-font-size-sm);
+  width: 100%;
+  padding: calc(var(--mantine-spacing-xs) / 1.5) var(--mantine-spacing-sm);
+  border-radius: var(--popover-radius, var(--mantine-radius-default));
+  color: var(--menu-item-color, var(--mantine-color-text));
+  display: flex;
+  align-items: center;
+  user-select: none;
+
+  &:where([data-disabled], :disabled) {
+    color: var(--mantine-color-dimmed);
+    opacity: 0.6;
+    pointer-events: none;
+  }
+}
+
+/* Additional Suggestion Menu styling*/
+.bn-mt-suggestion-menu-item-body {
+  flex: 1;
+}
+
+.bn-mt-suggestion-menu-item-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  &:where([data-position="left"]) {
+    margin-inline-end: var(--mantine-spacing-xs);
+  }
+
+  &:where([data-position="right"]) {
+    margin-inline-start: var(--mantine-spacing-xs);
+  }
+}
+
+.bn-suggestion-menu {
+  background-color: var(--bn-colors-menu-background);
+  border: var(--bn-border);
+  border-radius: var(--bn-border-radius-medium);
+  box-shadow: var(--bn-shadow-medium);
+  box-sizing: border-box;
+  color: var(--bn-colors-menu-text);
+  overflow-y: auto;
+  padding: 2px;
+}
+
+.bn-suggestion-menu-item {
+  cursor: pointer;
+  height: 52px;
+}
+
+.bn-suggestion-menu-item[aria-selected="true"],
+.bn-suggestion-menu-item:hover {
+  background-color: var(--bn-colors-hovered-background);
+}
+
+.bn-mt-suggestion-menu-item-section {
+  color: var(--bn-colors-tooltip-text);
+}
+
+.bn-mt-suggestion-menu-item-section[data-position="left"] {
+  background-color: var(--bn-colors-tooltip-background);
+  border-radius: var(--bn-border-radius-small);
+  padding: 8px;
+}
+
+.bn-mt-suggestion-menu-item-body {
+  align-items: stretch;
+  color: var(--bn-colors-menu-text);
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding-right: 16px;
+}
+
+.bn-mt-suggestion-menu-item-title {
+  line-height: 20px;
+  font-weight: 500;
+  font-size: 14px;
+  margin: 0;
+  padding: 0;
+}
+
+.bn-mt-suggestion-menu-item-subtitle {
+  line-height: 16px;
+  font-size: 10px;
+  margin: 0;
+  padding: 0;
+}
+
+.bn-suggestion-menu-label {
+  color: var(--bn-colors-hovered-text);
+}
+
+.bn-suggestion-menu-loader {
+  height: 20px;
+  width: 100%;
+}
+
+.bn-suggestion-menu-loader span {
+  background-color: var(--bn-colors-side-menu);
+}
+
+/* Side Menu styling */
+.bn-side-menu {
+  background-color: transparent;
+  overflow: visible;
+}
+
+.bn-side-menu .mantine-Menu-item,
+.bn-table-handle-menu .mantine-Menu-item {
+  font-size: 12px;
+  height: 30px;
+}
+
+.bn-side-menu .mantine-UnstyledButton-root:not(.mantine-Menu-item) {
+  background-color: transparent;
+}
+
+.bn-side-menu .mantine-UnstyledButton-root:hover {
+  background-color: var(--bn-colors-hovered-background);
+}
+
+.bn-side-menu .mantine-UnstyledButton-root:not(.mantine-Menu-item) svg {
+  background-color: transparent;
+  color: var(--bn-colors-side-menu);
+  height: 22px;
+  width: 22px;
+}
+
+.bn-side-menu > [draggable="true"] {
+  display: flex;
+}
+
+.bn-side-menu .mantine-Menu-dropdown {
+  min-width: 100px;
+  padding: 2px;
+  position: absolute;
+}
+
+/* Image Panel styling*/
+.bn-panel {
+  background-color: var(--bn-colors-menu-background);
+  border: var(--bn-border);
+  border-radius: var(--bn-border-radius-medium);
+  box-shadow: var(--bn-shadow-medium);
+  padding: 2px;
+  width: 500px;
+}
+
+.bn-panel .bn-tab-panel {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.bn-panel .mantine-TextInput-root,
+.bn-panel .mantine-FileInput-root {
+  width: 100%;
+}
+
+.bn-panel .mantine-Button-root {
+  background-color: var(--bn-colors-menu-background);
+  border: solid var(--bn-colors-border) 1px;
+  border-radius: var(--bn-border-radius-small);
+  color: var(--bn-colors-menu-text);
+  height: 32px;
+  width: 60%;
+}
+
+.bn-panel .mantine-Button-root:hover {
+  background-color: var(--bn-colors-hovered-background);
+}
+
+.bn-panel.mantine-Text-root {
+  text-align: center;
+}
+
+/* Table Handle styling */
+.bn-table-handle {
+  align-items: center;
+  background-color: var(--bn-colors-menu-background);
+  border: var(--bn-border);
+  border-radius: var(--bn-border-radius-small);
+  box-shadow: var(--bn-shadow-light);
+  color: var(--bn-colors-side-menu);
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  overflow: visible;
+  padding: 0;
+}
+
+.bn-table-handle svg {
+  margin-inline: -4px;
+}
+
+.bn-table-handle:hover,
+.bn-table-handle-dragging {
+  background-color: var(--bn-colors-hovered-background);
+}
+
+/* Drag Handle & Table Handle Menu styling */
+.bn-container .bn-drag-handle-menu {
+  overflow: visible;
+}
+
+/* Tooltip styling */
+.bn-tooltip {
+  background-color: var(--bn-colors-tooltip-background);
+  border: var(--bn-border);
+  border-radius: var(--bn-border-radius-medium);
+  box-shadow: var(--bn-shadow-medium);
+  color: var(--bn-colors-tooltip-text);
+  padding: 4px 10px;
+  text-align: center;
+}
+
+/* Additional menu styles */
+.bn-tick-space {
+  padding: 0;
+  width: 20px;
+}
+
+.bn-mt-sub-menu-item
+  > .mantine-Menu-itemLabel
+  > div:not(.mantine-Menu-dropdown) {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
