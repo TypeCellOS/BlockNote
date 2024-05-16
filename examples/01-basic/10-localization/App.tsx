@@ -10,7 +10,7 @@ export default function App() {
     // Passes the Dutch (NL) dictionary to the editor instance.
     // You can also provide your own dictionary here to customize the strings used in the editor,
     // or submit a Pull Request to add support for your language of your choice
-    dictionary: locales.vi,
+    dictionary: locales.nl,
   });
 
   // Renders the editor instance using a React component.
