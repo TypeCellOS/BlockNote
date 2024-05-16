@@ -11,10 +11,19 @@ const defaultFileRender = (
   block: BlockFromConfig<typeof fileBlockConfig, any, any>
 ): { dom: HTMLElement; destroy?: () => void } => {
   const file = document.createElement("div");
-  file.className = "bn-file";
-  file.contentEditable = "false";
-  file.draggable = false;
-  file.innerHTML = block.props.url.split("/").pop() || "";
+  file.className = "bn-file-default-preview";
+
+  const icon = document.createElement("div");
+  icon.className = "bn-file-default-preview-icon";
+  icon.innerHTML =
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M3 8L9.00319 2H19.9978C20.5513 2 21 2.45531 21 2.9918V21.0082C21 21.556 20.5551 22 20.0066 22H3.9934C3.44476 22 3 21.5501 3 20.9932V8ZM10 4V9H5V20H19V4H10Z"></path></svg>';
+
+  const fileName = document.createElement("p");
+  fileName.className = "bn-file-default-preview-name";
+  fileName.innerHTML = block.props.name || "";
+
+  file.appendChild(icon);
+  file.appendChild(fileName);
 
   return {
     dom: file,
@@ -64,7 +73,7 @@ export const fileRender = (
 
   const fileType = block.props.fileType;
   const renderedFileExtension =
-    fileType && extensions && fileType in extensions
+    block.props.showPreview && fileType && extensions && fileType in extensions
       ? extensions[fileType].render(block, editor)
       : defaultFileRender(block);
 
@@ -114,17 +123,26 @@ export const fileRender = (
     wrapper.appendChild(fileAndCaptionWrapper);
   }
 
-  addFileButton.addEventListener("mousedown", addFileButtonMouseDownHandler);
-  addFileButton.addEventListener("click", addFileButtonClickHandler);
+  addFileButton.addEventListener(
+    "mousedown",
+    addFileButtonMouseDownHandler,
+    true
+  );
+  addFileButton.addEventListener("click", addFileButtonClickHandler, true);
 
   return {
     dom: wrapper,
     destroy: () => {
       addFileButton.removeEventListener(
         "mousedown",
-        addFileButtonMouseDownHandler
+        addFileButtonMouseDownHandler,
+        true
       );
-      addFileButton.removeEventListener("click", addFileButtonClickHandler);
+      addFileButton.removeEventListener(
+        "click",
+        addFileButtonClickHandler,
+        true
+      );
       renderedFileExtension?.destroy?.();
     },
   };
@@ -254,4 +272,7 @@ export const createFileBlockImplementation = (
     parse: (element) => fileParse(element, extensions),
     toExternalHTML: (block, editor) =>
       fileToExternalHTML(block, editor, extensions),
-  } satisfies CustomBlockImplementation<typeof fileBlockConfig, any, any>);
+    extensions: extensions || {},
+  } satisfies CustomBlockImplementation<typeof fileBlockConfig, any, any> & {
+    extensions: Record<string, FileBlockExtension>;
+  });

@@ -4,17 +4,17 @@ import {
   BlockSchemaWithBlock,
   DefaultBlockSchema,
   fileBlockConfig,
-  imageParse,
+  videoParse,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
 import { useState } from "react";
-import { RiImage2Fill } from "react-icons/ri";
+import { RiVideoFill } from "react-icons/ri";
 
 import { ReactFileBlockExtension } from "../reactFileBlockExtension";
 import { ResizeHandlesWrapper } from "./utils/ResizeHandlesWrapper";
 
-const ImageRender = <
+const VideoRender = <
   ISchema extends InlineContentSchema,
   SSchema extends StyleSchema
 >(props: {
@@ -34,11 +34,11 @@ const ImageRender = <
 
   return (
     <ResizeHandlesWrapper {...props} width={width} setWidth={setWidth}>
-      <img
+      <video
         className={"bn-visual-media"}
         src={props.block.props.url}
-        alt={props.block.props.caption || "BlockNote image"}
         contentEditable={false}
+        controls={true}
         draggable={false}
         width={width}
       />
@@ -46,45 +46,30 @@ const ImageRender = <
   );
 };
 
-const ImageToExternalHTML = (props: {
+const VideoToExternalHTML = (props: {
   block: BlockFromConfig<typeof fileBlockConfig, any, any>;
 }) => {
-  const image = (
-    <img
-      src={props.block.props.url}
-      alt={props.block.props.caption || "BlockNote image"}
-      width={props.block.props.previewWidth}
-    />
+  const video = (
+    <video src={props.block.props.url} width={props.block.props.previewWidth} />
   );
 
   if (props.block.props.caption) {
     return (
       <figure>
-        {image}
+        {video}
         <figcaption>{props.block.props.caption}</figcaption>
       </figure>
     );
   }
 
-  return image;
+  return video;
 };
 
-export const reactImageFileExtension: ReactFileBlockExtension = {
-  fileEndings: [
-    "apng",
-    "avif",
-    "gif",
-    "jpg",
-    "jpeg",
-    "jfif",
-    "pjpeg",
-    "pjp",
-    "svg",
-    "webp",
-  ],
-  render: ImageRender,
-  parse: imageParse,
-  toExternalHTML: ImageToExternalHTML,
-  buttonText: "image",
-  buttonIcon: <RiImage2Fill size={24} />,
+export const reactVideoFileExtension: ReactFileBlockExtension = {
+  fileEndings: ["mp4", "ogg", "webm"],
+  render: VideoRender,
+  parse: videoParse,
+  toExternalHTML: VideoToExternalHTML,
+  buttonText: "video",
+  buttonIcon: <RiVideoFill size={24} />,
 };

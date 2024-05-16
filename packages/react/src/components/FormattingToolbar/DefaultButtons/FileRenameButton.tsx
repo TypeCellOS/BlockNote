@@ -12,14 +12,14 @@ import {
   useMemo,
   useState,
 } from "react";
-import { RiInputField } from "react-icons/ri";
+import { RiFontFamily } from "react-icons/ri";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
 import { useDictionary } from "../../../i18n/dictionary";
 
-export const FileCaptionButton = () => {
+export const FileRenameButton = () => {
   const dict = useDictionary();
   const Components = useComponentsContext()!;
 
@@ -29,7 +29,7 @@ export const FileCaptionButton = () => {
     StyleSchema
   >();
 
-  const [currentEditingCaption, setCurrentEditingCaption] = useState<string>();
+  const [currentEditingName, setCurrentEditingName] = useState<string>();
 
   const selectedBlocks = useSelectedBlocks(editor);
 
@@ -42,7 +42,7 @@ export const FileCaptionButton = () => {
     const block = selectedBlocks[0];
 
     if (checkBlockIsDefaultType("file", block, editor)) {
-      setCurrentEditingCaption(block.props.caption);
+      setCurrentEditingName(block.props.name);
       return block;
     }
 
@@ -60,17 +60,17 @@ export const FileCaptionButton = () => {
         editor.updateBlock(fileBlock, {
           type: "file",
           props: {
-            caption: currentEditingCaption,
+            name: currentEditingName,
           },
         });
       }
     },
-    [currentEditingCaption, editor, fileBlock]
+    [currentEditingName, editor, fileBlock]
   );
 
   const handleChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) =>
-      setCurrentEditingCaption(event.currentTarget.value),
+      setCurrentEditingName(event.currentTarget.value),
     []
   );
 
@@ -83,10 +83,9 @@ export const FileCaptionButton = () => {
       <Components.Generic.Popover.Trigger>
         <Components.FormattingToolbar.Button
           className={"bn-button"}
-          label={dict.formatting_toolbar.file_caption.tooltip}
-          mainTooltip={dict.formatting_toolbar.file_caption.tooltip}
-          icon={<RiInputField />}
-          isSelected={fileBlock.props.caption !== ""}
+          label={dict.formatting_toolbar.file_rename.tooltip}
+          mainTooltip={dict.formatting_toolbar.file_rename.tooltip}
+          icon={<RiFontFamily />}
         />
       </Components.Generic.Popover.Trigger>
       <Components.Generic.Popover.Content
@@ -94,11 +93,11 @@ export const FileCaptionButton = () => {
         variant={"form-popover"}>
         <Components.Generic.Form.Root>
           <Components.Generic.Form.TextInput
-            name={"file-caption"}
-            icon={<RiInputField />}
-            value={currentEditingCaption || ""}
+            name={"file-name"}
+            icon={<RiFontFamily />}
+            value={currentEditingName || ""}
             autoFocus={true}
-            placeholder={dict.formatting_toolbar.file_caption.input_placeholder}
+            placeholder={dict.formatting_toolbar.file_rename.input_placeholder}
             onKeyDown={handleEnter}
             onChange={handleChange}
           />

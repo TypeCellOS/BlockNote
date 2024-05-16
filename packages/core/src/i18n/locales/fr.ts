@@ -61,6 +61,38 @@ export const fr: Dictionary = {
       group: "Médias",
     },
     // TODO
+    video: {
+      title: "Video",
+      subtext: "Insert a video",
+      aliases: [
+        "video",
+        "videoUpload",
+        "upload",
+        "mp4",
+        "film",
+        "media",
+        "url",
+        "drive",
+        "dropbox",
+      ],
+      group: "Media",
+    },
+    audio: {
+      title: "Audio",
+      subtext: "Insert audio",
+      aliases: [
+        "audio",
+        "audioUpload",
+        "upload",
+        "mp3",
+        "sound",
+        "media",
+        "url",
+        "drive",
+        "dropbox",
+      ],
+      group: "Media",
+    },
     file: {
       title: "File",
       subtext: "Insert a file",
@@ -152,6 +184,19 @@ export const fr: Dictionary = {
     // TODO
     file_replace: {
       tooltip: "Replace file",
+    },
+    file_rename: {
+      tooltip: "Rename file",
+      input_placeholder: "Rename file",
+    },
+    file_download: {
+      tooltip: "Download file",
+    },
+    file_delete: {
+      tooltip: "Delete file",
+    },
+    file_preview_toggle: {
+      tooltip: "Toggle preview",
     },
     nest: {
       tooltip: "Emboîter le bloc",

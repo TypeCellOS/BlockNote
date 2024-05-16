@@ -8,6 +8,8 @@ export * from "./blocks/FileBlockContent/fileBlockExtension";
 export * from "./blocks/FileBlockContent/FileBlockContent";
 export * from "./blocks/FileBlockContent/uploadToTmpFilesDotOrg_DEV_ONLY";
 export * from "./blocks/FileBlockContent/extensions/imageFileExtension";
+export * from "./blocks/FileBlockContent/extensions/videoFileExtension";
+export * from "./blocks/FileBlockContent/extensions/audioFileExtension";
 export * from "./blocks/FileBlockContent/extensions/defaultFileExtensions";
 export * from "./blocks/defaultBlockTypeGuards";
 export * from "./blocks/defaultBlocks";

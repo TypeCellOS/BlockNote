@@ -237,6 +237,10 @@ NESTED BLOCKS
 
 /* FILES */
 
+[data-content-type="file"] {
+  cursor: pointer;
+}
+
 [data-content-type="file"] .bn-file-block-content-wrapper {
   display: flex;
   flex-direction: column;
@@ -280,7 +284,23 @@ NESTED BLOCKS
   border-radius: 4px;
 }
 
-[data-content-type="file"] .bn-image-wrapper {
+[data-content-type="file"] .bn-file-default-preview {
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+}
+
+[data-content-type="file"] .bn-file-default-preview-icon {
+  width: 24px;
+  height: 24px;
+}
+
+[data-content-type="file"] .bn-file-default-preview-name {
+  /*font-size: 0.8em;*/
+}
+
+[data-content-type="file"] .bn-visual-media-wrapper {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -288,12 +308,12 @@ NESTED BLOCKS
   width: fit-content;
 }
 
-[data-content-type="file"] .bn-image {
+[data-content-type="file"] .bn-visual-media {
   border-radius: 4px;
   max-width: 100%;
 }
 
-[data-content-type="file"] .bn-image-resize-handle {
+[data-content-type="file"] .bn-visual-media-resize-handle {
   position: absolute;
   width: 8px;
   height: 30px;
@@ -301,6 +321,10 @@ NESTED BLOCKS
   border: 1px solid white;
   border-radius: 4px;
   cursor: ew-resize;
+}
+
+[data-content-type="file"][data-file-type="audio"], [data-content-type="file"] .bn-audio {
+  width: 100%;
 }
 
 [data-content-type="file"] .bn-file-caption {

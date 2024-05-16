@@ -45,6 +45,7 @@ export const EmbedTab = <
         editor.updateBlock(block, {
           type: "file",
           props: {
+            name: currentURL.split("/")[-1],
             url: currentURL,
           },
         });
@@ -57,6 +58,7 @@ export const EmbedTab = <
     editor.updateBlock(block, {
       type: "file",
       props: {
+        name: currentURL.split("/")[-1],
         url: currentURL,
       },
     });

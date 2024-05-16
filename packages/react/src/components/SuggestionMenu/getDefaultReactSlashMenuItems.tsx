@@ -15,6 +15,8 @@ import {
   RiListUnordered,
   RiTable2,
   RiText,
+  RiFilmLine,
+  RiVolumeUpFill,
 } from "react-icons/ri";
 import { DefaultReactSuggestionItem } from "./types";
 
@@ -27,6 +29,8 @@ const icons = {
   paragraph: RiText,
   table: RiTable2,
   image: RiImage2Fill,
+  video: RiFilmLine,
+  audio: RiVolumeUpFill,
   file: RiFile2Line,
 };
 

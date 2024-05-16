@@ -30,8 +30,12 @@ export const DefaultFileRender = <
     SSchema
   >;
 }) => (
-  <div className={"bn-file"} contentEditable={false} draggable={false}>
-    {props.block.props.url.split("/").pop()}
+  <div
+    className={"bn-file-default-preview"}
+    contentEditable={false}
+    draggable={false}>
+    <RiFile2Line size={24} />
+    {props.block.props.name}
   </div>
 );
 
@@ -88,8 +92,11 @@ export const FileRender = <
       "contentRef"
     >
   > = useMemo(
-    () => activeExtension?.render || DefaultFileRender,
-    [activeExtension?.render]
+    () =>
+      props.block.props.showPreview
+        ? activeExtension?.render || DefaultFileRender
+        : DefaultFileRender,
+    [activeExtension?.render, props.block.props.showPreview]
   );
 
   return (

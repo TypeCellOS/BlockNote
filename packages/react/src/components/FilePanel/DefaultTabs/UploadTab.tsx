@@ -7,7 +7,6 @@ import {
 } from "@blocknote/core";
 import { useCallback, useEffect, useState } from "react";
 
-
 import { useComponentsContext } from "../../../editor/ComponentsContext";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
 import { useDictionary } from "../../../i18n/dictionary";
@@ -57,7 +56,9 @@ export const UploadTab = <
             editor.updateBlock(block, {
               type: "file",
               props: {
+                // TODO: Get type from file extension, not MIME type
                 fileType: file.type.split("/")[0],
+                name: file.name,
                 url: uploaded,
               },
             });
@@ -73,7 +74,7 @@ export const UploadTab = <
     },
     [block, editor, setLoading]
   );
-  
+
   return (
     <Components.FilePanel.TabPanel className={"bn-tab-panel"}>
       <Components.FilePanel.FileInput
