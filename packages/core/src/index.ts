@@ -3,7 +3,9 @@ export * from "./api/exporters/html/externalHTMLExporter";
 export * from "./api/exporters/html/internalHTMLSerializer";
 export * from "./api/testUtil";
 export * from "./blocks/FileBlockContent/FileBlockContent";
-export * from "./blocks/FileBlockContent/ImageBlockContent";
+export * from "./blocks/ImageBlockContent/ImageBlockContent";
+export * from "./blocks/VideoBlockContent/VideoBlockContent";
+export * from "./blocks/AudioBlockContent/AudioBlockContent";
 
 export * from "./blocks/FileBlockContent/fileBlockHelpers";
 export * from "./blocks/FileBlockContent/uploadToTmpFilesDotOrg_DEV_ONLY";
@@ -33,3 +35,4 @@ export * from "./extensions/UniqueID/UniqueID";
 export * from "./i18n/dictionary";
 export { UnreachableCaseError, assertEmpty } from "./util/typescript";
 export { locales };
+export { parseImageElement } from "./blocks/ImageBlockContent/imageBlockHelpers";

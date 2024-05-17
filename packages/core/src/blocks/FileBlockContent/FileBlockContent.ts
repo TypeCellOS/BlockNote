@@ -6,14 +6,12 @@ import {
   createBlockSpec,
 } from "../../schema";
 import { defaultProps } from "../defaultProps";
-
 import {
-  createFileAndCaptionDOM,
-  createFileIconAndNameDOM,
-  createFilePlaceholderDOM,
-  parseEmbed,
-  parseFigure,
-  toExternalHTMLWithCaption,
+  createFileAndCaptionWrapper,
+  createDefaultFilePreview,
+  createAddFileButton,
+  parseEmbedElement,
+  parseFigureElement,
 } from "./fileBlockHelpers";
 
 export const filePropSchema = {
@@ -49,26 +47,17 @@ export const fileRender = (
   const wrapper = document.createElement("div");
   wrapper.className = "bn-file-block-content-wrapper";
 
-  // const fileType = block.props.fileType;
-  // block.props.showPreview && fileType && extensions && fileType in extensions
-  // ? extensions[fileType].render(block, editor)
-  // : defaultFileRender(block);
-
-  // File element.
-
   if (block.props.url === "") {
-    const placeholder = createFilePlaceholderDOM(block, editor);
-    wrapper.appendChild(placeholder.dom);
+    const addFileButton = createAddFileButton(block, editor);
+    wrapper.appendChild(addFileButton.dom);
 
     return {
       dom: wrapper,
-      destroy: () => {
-        placeholder?.destroy?.();
-      },
+      destroy: addFileButton.destroy,
     };
   } else {
-    const file = createFileIconAndNameDOM(block).dom;
-    const element = createFileAndCaptionDOM(block, editor, file);
+    const file = createDefaultFilePreview(block).dom;
+    const element = createFileAndCaptionWrapper(block, file);
     wrapper.appendChild(element.dom);
 
     return {
@@ -79,11 +68,11 @@ export const fileRender = (
 
 export const fileParse = (element: HTMLElement) => {
   if (element.tagName === "EMBED") {
-    return parseEmbed(element as HTMLEmbedElement);
+    return parseEmbedElement(element as HTMLEmbedElement);
   }
 
   if (element.tagName === "FIGURE") {
-    const parsedFigure = parseFigure(element, "embed");
+    const parsedFigure = parseFigureElement(element, "embed");
     if (!parsedFigure) {
       return undefined;
     }
@@ -91,7 +80,7 @@ export const fileParse = (element: HTMLElement) => {
     const { targetElement, caption } = parsedFigure;
 
     return {
-      ...parseEmbed(targetElement as HTMLEmbedElement),
+      ...parseEmbedElement(targetElement as HTMLEmbedElement),
       caption,
     };
   }
@@ -111,16 +100,20 @@ export const fileToExternalHTML = (
     };
   }
 
-  // TBD: should default be of type "embed"?
-  const embed = document.createElement("embed");
-  embed.src = block.props.url;
+  const wrapper = document.createElement("div");
+  const fileSrcLink = document.createElement("a");
+  fileSrcLink.href = block.props.url;
+  fileSrcLink.innerText = block.props.name;
+  wrapper.appendChild(fileSrcLink);
 
   if (block.props.caption) {
-    return toExternalHTMLWithCaption(embed, block.props.caption);
+    const fileCaption = document.createElement("p");
+    fileCaption.innerText = block.props.caption;
+    wrapper.appendChild(fileCaption);
   }
 
   return {
-    dom: embed,
+    dom: wrapper,
   };
 };
 
@@ -129,14 +122,3 @@ export const FileBlock = createBlockSpec(fileBlockConfig, {
   parse: fileParse,
   toExternalHTML: fileToExternalHTML,
 });
-
-// - React support?
-// - Support parse HTML and toExternalHTML
-// - Copy/paste support
-// - Drag/drop from external into BlockNote (automatic conversion to block & upload)
-// - Custom props e.g. PDF height, video playback options
-// - Toolbar/menu options should change based on file type
-// - Button text/icon should be file type specific
-// - Should be able to define the file type before uploading/embedding
-// - Media like pdfs should be previewable (might be issues with cross domain access)
-// - Renderers should be loosely coupled to file extensions via plugins for different file types

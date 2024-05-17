@@ -1,23 +1,24 @@
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import {
   BlockFromConfig,
-  FileBlockConfig,
-  PropSchema,
-  Props,
   createBlockSpec,
+  FileBlockConfig,
+  Props,
+  PropSchema,
 } from "../../schema";
 import { defaultProps } from "../defaultProps";
-import { renderWithResizeHandles } from "./extensions/utils/renderWithResizeHandles";
 
 import {
-  createFileAndCaptionDOM,
-  createFileIconAndNameDOM,
-  createFilePlaceholderDOM,
-  parseFigure,
-  toExternalHTMLWithCaption,
-} from "./fileBlockHelpers";
+  createAddFileButton,
+  createDefaultFilePreview,
+  createFigureWithCaption,
+  createFileAndCaptionWrapper,
+  createResizeHandlesWrapper,
+  parseFigureElement,
+} from "../FileBlockContent/fileBlockHelpers";
+import { parseImageElement } from "./imageBlockHelpers";
 
-export const propSchema = {
+export const imagePropSchema = {
   textAlignment: defaultProps.textAlignment,
   backgroundColor: defaultProps.backgroundColor,
   // File name.
@@ -44,36 +45,39 @@ export const propSchema = {
 
 export const imageBlockConfig = {
   type: "image" as const,
-  propSchema,
+  propSchema: imagePropSchema,
   content: "none",
   isFileBlock: true,
 } satisfies FileBlockConfig;
 
-export const fileRender = (
+export const imageRender = (
   block: BlockFromConfig<typeof imageBlockConfig, any, any>,
   editor: BlockNoteEditor<any, any, any>
 ) => {
-  // Wrapper element to set the file alignment, contains both file/file
-  // upload dashboard and caption.
   const wrapper = document.createElement("div");
   wrapper.className = "bn-file-block-content-wrapper";
 
-  // File element.
-
   if (block.props.url === "") {
-    // TODO: pass image related things
-    const placeholder = createFilePlaceholderDOM(block, editor);
-    wrapper.appendChild(placeholder.dom);
+    const fileBlockImageIcon = document.createElement("div");
+    fileBlockImageIcon.innerHTML =
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M5 11.1005L7 9.1005L12.5 14.6005L16 11.1005L19 14.1005V5H5V11.1005ZM4 3H20C20.5523 3 21 3.44772 21 4V20C21 20.5523 20.5523 21 20 21H4C3.44772 21 3 20.5523 3 20V4C3 3.44772 3.44772 3 4 3ZM15.5 10C14.6716 10 14 9.32843 14 8.5C14 7.67157 14.6716 7 15.5 7C16.3284 7 17 7.67157 17 8.5C17 9.32843 16.3284 10 15.5 10Z"></path></svg>';
+    const addImageButton = createAddFileButton(
+      block,
+      editor,
+      "Add image",
+      fileBlockImageIcon.firstElementChild as HTMLElement
+    );
+    wrapper.appendChild(addImageButton.dom);
 
     return {
       dom: wrapper,
       destroy: () => {
-        placeholder?.destroy?.();
+        addImageButton?.destroy?.();
       },
     };
   } else if (!block.props.showPreview) {
-    const file = createFileIconAndNameDOM(block).dom;
-    const element = createFileAndCaptionDOM(block, editor, file);
+    const file = createDefaultFilePreview(block).dom;
+    const element = createFileAndCaptionWrapper(block, file);
 
     return {
       dom: element.dom,
@@ -90,7 +94,7 @@ export const fileRender = (
       editor.domElement.firstElementChild!.clientWidth
     );
 
-    const file = renderWithResizeHandles(
+    const file = createResizeHandlesWrapper(
       block,
       editor,
       image,
@@ -98,7 +102,7 @@ export const fileRender = (
       (width) => (image.width = width)
     );
 
-    const element = createFileAndCaptionDOM(block, editor, file.dom);
+    const element = createFileAndCaptionWrapper(block, file.dom);
     wrapper.appendChild(element.dom);
 
     return {
@@ -108,22 +112,15 @@ export const fileRender = (
   }
 };
 
-export const parseImage = (imageElement: HTMLImageElement) => {
-  const url = imageElement.src || undefined;
-  const previewWidth = imageElement.width || undefined;
-
-  return { url, previewWidth };
-};
-
 export const imageParse = (
   element: HTMLElement
 ): Partial<Props<typeof imageBlockConfig.propSchema>> | undefined => {
   if (element.tagName === "IMG") {
-    return parseImage(element as HTMLImageElement);
+    return parseImageElement(element as HTMLImageElement);
   }
 
   if (element.tagName === "FIGURE") {
-    const parsedFigure = parseFigure(element, "img");
+    const parsedFigure = parseFigureElement(element, "img");
     if (!parsedFigure) {
       return undefined;
     }
@@ -131,7 +128,7 @@ export const imageParse = (
     const { targetElement, caption } = parsedFigure;
 
     return {
-      ...parseImage(targetElement as HTMLImageElement),
+      ...parseImageElement(targetElement as HTMLImageElement),
       caption,
     };
   }
@@ -155,7 +152,7 @@ export const imageToExternalHTML = (
   image.src = block.props.url;
 
   if (block.props.caption) {
-    return toExternalHTMLWithCaption(image, block.props.caption);
+    return createFigureWithCaption(image, block.props.caption);
   }
 
   return {
@@ -164,7 +161,7 @@ export const imageToExternalHTML = (
 };
 
 export const ImageBlock = createBlockSpec(imageBlockConfig, {
-  render: fileRender,
+  render: imageRender,
   parse: imageParse,
   toExternalHTML: imageToExternalHTML,
 });

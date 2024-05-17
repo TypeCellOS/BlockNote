@@ -246,12 +246,11 @@ NESTED BLOCKS
   width: 100%;
 }
 
-/* // TODO */
-.bn-file-block-content-wrapper:not([data-url]) {
+[data-file-block]:not([data-url]) {
   width: 100%;
 }
 
-.bn-file-block-content-wrapper .bn-add-file-button {
+.bn-add-file-button {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -263,42 +262,42 @@ NESTED BLOCKS
   width: 100%;
 }
 
-.bn-file-block-content-wrapper .bn-add-file-button:hover {
+.bn-add-file-button:hover {
   background-color: gainsboro;
 }
 
-.bn-file-block-content-wrapper .bn-add-file-button-icon {
+.bn-add-file-button-icon {
   width: 24px;
   height: 24px;
 }
 
-.bn-file-block-content-wrapper .bn-add-file-button-text {
+.bn-add-file-button-text {
   color: black;
 }
 
-.bn-file-block-content-wrapper .bn-file-and-caption-wrapper {
+.bn-file-and-caption-wrapper {
   display: flex;
   flex-direction: column;
   border-radius: 4px;
 }
 
-.bn-file-block-content-wrapper .bn-file-default-preview {
+.bn-file-default-preview {
   align-items: center;
   display: flex;
   flex-direction: row;
   gap: 4px;
 }
 
-.bn-file-block-content-wrapper .bn-file-default-preview-icon {
+.bn-file-default-preview-icon {
   width: 24px;
   height: 24px;
 }
 
-.bn-file-block-content-wrapper .bn-file-default-preview-name {
+.bn-file-default-preview-name {
   /*font-size: 0.8em;*/
 }
 
-.bn-file-block-content-wrapper .bn-visual-media-wrapper {
+.bn-visual-media-wrapper {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -306,12 +305,12 @@ NESTED BLOCKS
   width: fit-content;
 }
 
-.bn-file-block-content-wrapper .bn-visual-media {
+.bn-visual-media {
   border-radius: 4px;
   max-width: 100%;
 }
 
-.bn-file-block-content-wrapper .bn-visual-media-resize-handle {
+.bn-visual-media-resize-handle {
   position: absolute;
   width: 8px;
   height: 30px;
@@ -321,16 +320,16 @@ NESTED BLOCKS
   cursor: ew-resize;
 }
 
-.bn-file-block-content-wrapper .bn-audio {
+[data-content-type="audio"], .bn-audio {
   width: 100%;
 }
 
-.bn-file-block-content-wrapper .bn-file-caption {
+.bn-file-caption {
   font-size: 0.8em;
   padding-block: 4px;
 }
 
-.bn-file-block-content-wrapper .bn-file-caption:empty {
+.bn-file-caption:empty {
   padding-block: 0;
 }
 
