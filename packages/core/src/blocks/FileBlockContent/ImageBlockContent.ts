@@ -4,6 +4,7 @@ import {
   FileBlockConfig,
   PropSchema,
   createBlockSpec,
+  Props,
 } from "../../schema";
 import { defaultProps } from "../defaultProps";
 import { renderWithResizeHandles } from "./extensions/utils/renderWithResizeHandles";
@@ -12,8 +13,8 @@ import {
   createFileAndCaptionDOM,
   createFileIconAndNameDOM,
   createFilePlaceholderDOM,
-  fileParse,
-  fileToExternalHTML,
+  parseFigure,
+  toExternalHTMLWithCaption,
 } from "./fileBlockHelpers";
 
 export const propSchema = {
@@ -111,8 +112,63 @@ export const fileRender = (
   }
 };
 
+export const parseImage = (imageElement: HTMLImageElement) => {
+  const url = imageElement.src || undefined;
+  const previewWidth = imageElement.width || undefined;
+
+  return { url, previewWidth };
+};
+
+export const imageParse = (
+  element: HTMLElement
+): Partial<Props<typeof imageBlockConfig.propSchema>> | undefined => {
+  if (element.tagName === "IMG") {
+    return parseImage(element as HTMLImageElement);
+  }
+
+  if (element.tagName === "FIGURE") {
+    const parsedFigure = parseFigure(element, "img");
+    if (!parsedFigure) {
+      return undefined;
+    }
+
+    const { targetElement, caption } = parsedFigure;
+
+    return {
+      ...parseImage(targetElement as HTMLImageElement),
+      caption,
+    };
+  }
+
+  return undefined;
+};
+
+export const imageToExternalHTML = (
+  block: BlockFromConfig<typeof imageBlockConfig, any, any>
+) => {
+  if (!block.props.url) {
+    const div = document.createElement("p");
+    div.innerHTML = "Add image";
+
+    return {
+      dom: div,
+    };
+  }
+
+  const image = document.createElement("img");
+  image.src = block.props.url;
+
+  if (block.props.caption) {
+    return toExternalHTMLWithCaption(image, block.props.caption);
+  }
+
+  return {
+    dom: image,
+  };
+};
+
 export const ImageBlock = createBlockSpec(imageBlockConfig, {
-  render: (block, editor) => fileRender(block, editor),
-  parse: (element) => fileParse(element),
-  toExternalHTML: (block, editor) => fileToExternalHTML(block, editor),
+  render: fileRender,
+  parse: imageParse,
+  toExternalHTML: imageToExternalHTML,
 });

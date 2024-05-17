@@ -124,101 +124,80 @@ export const createFilePlaceholderDOM = (
   };
 };
 
+export const parseEmbed = (embedElement: HTMLEmbedElement) => {
+  const url = embedElement.src || undefined;
+
+  return { url };
+};
+
+export const parseFigure = (figureElement: HTMLElement, targetTag: string) => {
+  const targetElement = figureElement.querySelector(
+    targetTag
+  ) as HTMLElement | null;
+  if (!targetElement) {
+    return undefined;
+  }
+
+  const captionElement = figureElement.querySelector("figcaption");
+  const caption = captionElement?.textContent ?? undefined;
+
+  return { targetElement, caption };
+};
+
 export const fileParse = (element: HTMLElement) => {
-  // Checks if any extensions can parse the element.
-  // const propsFromExtension = Object.values(parseExtensions || {})
-  //   .map((extension) =>
-  //     extension.parse ? extension.parse(element) : undefined
-  //   )
-  //   .find((item) => item !== undefined);
-
-  // if (propsFromExtension) {
-  //   return propsFromExtension;
-  // }
-
-  // Falls back to default parsing logic.
   if (element.tagName === "EMBED") {
-    // const fileType = element.getAttribute("type");
-    const url = element.getAttribute("src");
-    const previewWidth = element.getAttribute("width");
-
-    return {
-      // fileType:
-      //   fileType && parseExtensions && fileType in parseExtensions
-      //     ? fileType.split("/")[0]
-      //     : undefined,
-      url: url || undefined,
-      previewWidth: previewWidth ? parseInt(previewWidth) : undefined,
-    };
+    return parseEmbed(element as HTMLEmbedElement);
   }
 
   if (element.tagName === "FIGURE") {
-    const fileElement = element.querySelector("embed");
-    const captionElement = element.querySelector("figcaption");
+    const parsedFigure = parseFigure(element, "embed");
+    if (!parsedFigure) {
+      return undefined;
+    }
 
-    // const fileType = fileElement?.type;
-    const url = fileElement?.src;
-    const previewWidth = fileElement?.width;
-    const caption = captionElement?.textContent;
+    const { targetElement, caption } = parsedFigure;
 
     return {
-      url: url || undefined,
-      previewWidth: previewWidth ? parseInt(previewWidth) : undefined,
-      caption: caption || undefined,
+      ...parseEmbed(targetElement as HTMLEmbedElement),
+      caption,
     };
   }
 
   return undefined;
 };
 
-export const fileToExternalHTML = (
-  block: BlockFromConfig<FileBlockConfig, any, any>,
-  editor: BlockNoteEditor<any, any, any>
+export const toExternalHTMLWithCaption = (
+  element: HTMLElement,
+  caption: string
 ) => {
-  // if (!block.props.url) {
-  //   const div = document.createElement("p");
-  //   div.innerHTML = `${editor.dictionary.file.button_add_text} ${
-  //     block.props.fileType &&
-  //     extensions &&
-  //     block.props.fileType in extensions &&
-  //     extensions[block.props.fileType].buttonText !== undefined
-  //       ? extensions[block.props.fileType].buttonText
-  //       : editor.dictionary.file.button_default_file_type_text
-  //   }`;
+  const figure = document.createElement("figure");
+  const captionElement = document.createElement("figcaption");
+  captionElement.textContent = caption;
 
-  //   return {
-  //     dom: div,
-  //   };
-  // }
+  figure.appendChild(element);
+  figure.appendChild(captionElement);
 
-  // if (
-  //   extensions &&
-  //   block.props.fileType &&
-  //   block.props.fileType in extensions &&
-  //   extensions[block.props.fileType].toExternalHTML
-  // ) {
-  //   return extensions[block.props.fileType].toExternalHTML!(block, editor);
-  // }
+  return { dom: figure };
+};
+
+export const fileToExternalHTML = (
+  block: BlockFromConfig<FileBlockConfig, any, any>
+) => {
+  if (!block.props.url) {
+    const div = document.createElement("p");
+    div.innerHTML = "Add file";
+
+    return {
+      dom: div,
+    };
+  }
 
   // TBD: should default be of type "embed"?
   const embed = document.createElement("embed");
-  // if (block.props.fileType) {
-  // embed.type = block.props.fileType;
-  // }
   embed.src = block.props.url;
 
   if (block.props.caption) {
-    const figure = document.createElement("figure");
-    const caption = document.createElement("figcaption");
-
-    caption.textContent = block.props.caption;
-
-    figure.appendChild(embed);
-    figure.appendChild(caption);
-
-    return {
-      dom: figure,
-    };
+    return toExternalHTMLWithCaption(embed, block.props.caption);
   }
 
   return {

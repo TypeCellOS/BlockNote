@@ -23,6 +23,7 @@ export type BlockNoteDOMAttributes = Partial<{
 
 export type FileBlockConfig = {
   type: string;
+  // TODO: The `PropSchema & ` breaks typing for `parse` function
   readonly propSchema: PropSchema & {
     url: {
       default: "";

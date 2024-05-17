@@ -77,9 +77,9 @@ export const fileRender = (
 };
 
 export const FileBlock = createBlockSpec(fileBlockConfig, {
-  render: (block, editor) => fileRender(block, editor),
-  parse: (element) => fileParse(element),
-  toExternalHTML: (block, editor) => fileToExternalHTML(block, editor),
+  render: fileRender,
+  parse: fileParse as any, // TODO: See FileBlockConfig type
+  toExternalHTML: fileToExternalHTML,
 });
 
 // - React support?
