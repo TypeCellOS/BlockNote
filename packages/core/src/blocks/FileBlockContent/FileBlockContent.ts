@@ -11,8 +11,9 @@ import {
   createFileAndCaptionDOM,
   createFileIconAndNameDOM,
   createFilePlaceholderDOM,
-  fileParse,
-  fileToExternalHTML,
+  parseEmbed,
+  parseFigure,
+  toExternalHTMLWithCaption,
 } from "./fileBlockHelpers";
 
 export const filePropSchema = {
@@ -74,6 +75,52 @@ export const fileRender = (
       dom: wrapper,
     };
   }
+};
+
+export const fileParse = (element: HTMLElement) => {
+  if (element.tagName === "EMBED") {
+    return parseEmbed(element as HTMLEmbedElement);
+  }
+
+  if (element.tagName === "FIGURE") {
+    const parsedFigure = parseFigure(element, "embed");
+    if (!parsedFigure) {
+      return undefined;
+    }
+
+    const { targetElement, caption } = parsedFigure;
+
+    return {
+      ...parseEmbed(targetElement as HTMLEmbedElement),
+      caption,
+    };
+  }
+
+  return undefined;
+};
+export const fileToExternalHTML = (
+  block: BlockFromConfig<FileBlockConfig, any, any>
+) => {
+  if (!block.props.url) {
+    const div = document.createElement("p");
+    div.innerHTML = "Add file";
+
+    return {
+      dom: div,
+    };
+  }
+
+  // TBD: should default be of type "embed"?
+  const embed = document.createElement("embed");
+  embed.src = block.props.url;
+
+  if (block.props.caption) {
+    return toExternalHTMLWithCaption(embed, block.props.caption);
+  }
+
+  return {
+    dom: embed,
+  };
 };
 
 export const FileBlock = createBlockSpec(fileBlockConfig, {
