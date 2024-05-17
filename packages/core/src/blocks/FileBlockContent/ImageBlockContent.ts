@@ -3,8 +3,8 @@ import {
   BlockFromConfig,
   FileBlockConfig,
   PropSchema,
-  createBlockSpec,
   Props,
+  createBlockSpec,
 } from "../../schema";
 import { defaultProps } from "../defaultProps";
 import { renderWithResizeHandles } from "./extensions/utils/renderWithResizeHandles";
@@ -58,14 +58,10 @@ export const fileRender = (
   const wrapper = document.createElement("div");
   wrapper.className = "bn-file-block-content-wrapper";
 
-  // const fileType = block.props.fileType;
-  // block.props.showPreview && fileType && extensions && fileType in extensions
-  // ? extensions[fileType].render(block, editor)
-  // : defaultFileRender(block);
-
   // File element.
 
   if (block.props.url === "") {
+    // TODO: pass image related things
     const placeholder = createFilePlaceholderDOM(block, editor);
     wrapper.appendChild(placeholder.dom);
 

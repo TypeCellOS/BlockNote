@@ -1,8 +1,7 @@
 import {
   BlockFromConfig,
   BlockNoteEditor,
-  BlockSchemaWithBlock,
-  DefaultBlockSchema,
+  FileBlockConfig,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
@@ -12,9 +11,9 @@ export const ResizeHandlesWrapper = <
   ISchema extends InlineContentSchema,
   SSchema extends StyleSchema
 >(props: {
-  block: BlockFromConfig<DefaultBlockSchema["file"], ISchema, SSchema>;
+  block: BlockFromConfig<FileBlockConfig, ISchema, SSchema>;
   editor: BlockNoteEditor<
-    BlockSchemaWithBlock<"file", DefaultBlockSchema["file"]>,
+    any, // TODO: BlockSchemaWithBlock<"file", DefaultBlockSchema["file"]> ?
     ISchema,
     SSchema
   >;

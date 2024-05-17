@@ -104,8 +104,7 @@ export const en = {
     numberedListItem: "List",
   },
   file: {
-    button_add_text: "Add",
-    button_default_file_type_text: "file",
+    button_add_file_text: "Add file",
   },
   // from react package:
   side_menu: {

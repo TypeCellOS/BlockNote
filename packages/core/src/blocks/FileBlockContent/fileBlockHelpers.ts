@@ -46,6 +46,7 @@ export const createFileAndCaptionDOM = (
   };
 };
 
+// TODO: allow icon / text to be passed in
 export const createFilePlaceholderDOM = (
   block: BlockFromConfig<FileBlockConfig, any, any>,
   editor: BlockNoteEditor<any, any, any>
@@ -61,6 +62,7 @@ export const createFilePlaceholderDOM = (
   // Text for the add file button.
   const addFileButtonText = document.createElement("p");
   addFileButtonText.className = "bn-add-file-button-text";
+
   addFileButtonText.innerHTML =
     /*`${editor.dictionary.file.button_add_text} ${
     block.props.fileType &&
@@ -68,7 +70,7 @@ export const createFilePlaceholderDOM = (
     block.props.fileType in extensions &&
     extensions[block.props.fileType].buttonText !== undefined
       ? extensions[block.props.fileType].buttonText!
-      : */ editor.dictionary.file.button_default_file_type_text;
+      : */ editor.dictionary.file.button_add_file_text;
   // }`;
 
   // Prevents focus from moving to the button.

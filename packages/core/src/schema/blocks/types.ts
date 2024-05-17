@@ -45,6 +45,7 @@ export type FileBlockConfig = {
   };
   content: "none";
   isFileBlock: true;
+  // TODO: add "accept" mime types here
 };
 
 // BlockConfig contains the "schema" info about a Block type

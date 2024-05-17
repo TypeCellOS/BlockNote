@@ -41,7 +41,7 @@ export const fileBlockConfig = {
 } satisfies FileBlockConfig;
 
 export const fileRender = (
-  block: BlockFromConfig<FileBlockConfig, any, any>,
+  block: BlockFromConfig<typeof fileBlockConfig, any, any>,
   editor: BlockNoteEditor<any, any, any>
 ) => {
   // Wrapper element to set the file alignment, contains both file/file
@@ -98,8 +98,9 @@ export const fileParse = (element: HTMLElement) => {
 
   return undefined;
 };
+
 export const fileToExternalHTML = (
-  block: BlockFromConfig<FileBlockConfig, any, any>
+  block: BlockFromConfig<typeof fileBlockConfig, any, any>
 ) => {
   if (!block.props.url) {
     const div = document.createElement("p");
@@ -125,7 +126,7 @@ export const fileToExternalHTML = (
 
 export const FileBlock = createBlockSpec(fileBlockConfig, {
   render: fileRender,
-  parse: fileParse as any, // TODO: See FileBlockConfig type
+  parse: fileParse,
   toExternalHTML: fileToExternalHTML,
 });
 
