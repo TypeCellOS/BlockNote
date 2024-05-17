@@ -181,14 +181,11 @@ export function getDefaultSlashMenuItems<
     });
   }
 
-  if (checkDefaultBlockTypeInSchema("file", editor)) {
+  if (checkDefaultBlockTypeInSchema("image", editor)) {
     items.push({
       onItemClick: () => {
         const insertedBlock = insertOrUpdateBlock(editor, {
-          type: "file",
-          props: {
-            fileType: "image",
-          },
+          type: "image",
         });
 
         // Immediately open the file toolbar
@@ -201,44 +198,9 @@ export function getDefaultSlashMenuItems<
       key: "image",
       ...editor.dictionary.slash_menu.image,
     });
-    items.push({
-      onItemClick: () => {
-        const insertedBlock = insertOrUpdateBlock(editor, {
-          type: "file",
-          props: {
-            fileType: "video",
-          },
-        });
+  }
 
-        // Immediately open the file toolbar
-        editor.prosemirrorView.dispatch(
-          editor._tiptapEditor.state.tr.setMeta(editor.filePanel!.plugin, {
-            block: insertedBlock,
-          })
-        );
-      },
-      key: "video",
-      ...editor.dictionary.slash_menu.video,
-    });
-    items.push({
-      onItemClick: () => {
-        const insertedBlock = insertOrUpdateBlock(editor, {
-          type: "file",
-          props: {
-            fileType: "audio",
-          },
-        });
-
-        // Immediately open the file toolbar
-        editor.prosemirrorView.dispatch(
-          editor._tiptapEditor.state.tr.setMeta(editor.filePanel!.plugin, {
-            block: insertedBlock,
-          })
-        );
-      },
-      key: "audio",
-      ...editor.dictionary.slash_menu.audio,
-    });
+  if (checkDefaultBlockTypeInSchema("file", editor)) {
     items.push({
       onItemClick: () => {
         const insertedBlock = insertOrUpdateBlock(editor, {
@@ -252,10 +214,65 @@ export function getDefaultSlashMenuItems<
           })
         );
       },
-      key: "file",
+      key: "image",
       ...editor.dictionary.slash_menu.file,
     });
   }
+  // items.push({
+  //   onItemClick: () => {
+  //     const insertedBlock = insertOrUpdateBlock(editor, {
+  //       type: "file",
+  //       props: {
+  //         fileType: "video",
+  //       },
+  //     });
+
+  //     // Immediately open the file toolbar
+  //     editor.prosemirrorView.dispatch(
+  //       editor._tiptapEditor.state.tr.setMeta(editor.filePanel!.plugin, {
+  //         block: insertedBlock,
+  //       })
+  //     );
+  //   },
+  //   key: "video",
+  //   ...editor.dictionary.slash_menu.video,
+  // });
+  // items.push({
+  //   onItemClick: () => {
+  //     const insertedBlock = insertOrUpdateBlock(editor, {
+  //       type: "file",
+  //       props: {
+  //         fileType: "audio",
+  //       },
+  //     });
+
+  //     // Immediately open the file toolbar
+  //     editor.prosemirrorView.dispatch(
+  //       editor._tiptapEditor.state.tr.setMeta(editor.filePanel!.plugin, {
+  //         block: insertedBlock,
+  //       })
+  //     );
+  //   },
+  //   key: "audio",
+  //   ...editor.dictionary.slash_menu.audio,
+  // });
+  // items.push({
+  //   onItemClick: () => {
+  //     const insertedBlock = insertOrUpdateBlock(editor, {
+  //       type: "file",
+  //     });
+
+  //     // Immediately open the file toolbar
+  //     editor.prosemirrorView.dispatch(
+  //       editor._tiptapEditor.state.tr.setMeta(editor.filePanel!.plugin, {
+  //         block: insertedBlock,
+  //       })
+  //     );
+  //   },
+  //   key: "file",
+  //   ...editor.dictionary.slash_menu.file,
+  // });
+  // }
 
   return items;
 }

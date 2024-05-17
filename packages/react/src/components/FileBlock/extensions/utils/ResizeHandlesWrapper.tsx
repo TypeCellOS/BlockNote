@@ -91,7 +91,6 @@ export const ResizeHandlesWrapper = <
       setResizeParams(undefined);
 
       props.editor.updateBlock(props.block, {
-        type: "file",
         props: {
           previewWidth: props.width,
         },

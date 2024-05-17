@@ -1,5 +1,7 @@
 import { EditorTestCases } from "../index";
 
+import { filePropSchema } from "../../../blocks/FileBlockContent/fileBlockConfig";
+import { fileRender } from "../../../blocks/FileBlockContent/fileBlockHelpers";
 import { uploadToTmpFilesDotOrg_DEV_ONLY } from "../../../blocks/FileBlockContent/uploadToTmpFilesDotOrg_DEV_ONLY";
 import {
   DefaultInlineContentSchema,
@@ -10,8 +12,6 @@ import { defaultProps } from "../../../blocks/defaultProps";
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
 import { BlockNoteSchema } from "../../../editor/BlockNoteSchema";
 import { createBlockSpec } from "../../../schema";
-import { fileRender } from "../../../blocks/FileBlockContent/fileBlockImplementation";
-import { filePropSchema } from "../../../blocks/FileBlockContent/fileBlockConfig";
 
 // This is a modified version of the default file block that does not implement
 // a `toExternalHTML` function. It's used to test if the custom serializer by

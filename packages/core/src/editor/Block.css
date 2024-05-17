@@ -237,11 +237,8 @@ NESTED BLOCKS
 
 /* FILES */
 
-[data-content-type="file"] {
+.bn-file-block-content-wrapper {
   cursor: pointer;
-}
-
-[data-content-type="file"] .bn-file-block-content-wrapper {
   display: flex;
   flex-direction: column;
   justify-content: stretch;
@@ -249,11 +246,12 @@ NESTED BLOCKS
   width: 100%;
 }
 
-[data-content-type="file"]:not([data-url]) {
+/* // TODO */
+.bn-file-block-content-wrapper:not([data-url]) {
   width: 100%;
 }
 
-[data-content-type="file"] .bn-add-file-button {
+.bn-file-block-content-wrapper .bn-add-file-button {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -265,42 +263,42 @@ NESTED BLOCKS
   width: 100%;
 }
 
-[data-content-type="file"] .bn-add-file-button:hover {
+.bn-file-block-content-wrapper .bn-add-file-button:hover {
   background-color: gainsboro;
 }
 
-[data-content-type="file"] .bn-add-file-button-icon {
+.bn-file-block-content-wrapper .bn-add-file-button-icon {
   width: 24px;
   height: 24px;
 }
 
-[data-content-type="file"] .bn-add-file-button-text {
+.bn-file-block-content-wrapper .bn-add-file-button-text {
   color: black;
 }
 
-[data-content-type="file"] .bn-file-and-caption-wrapper {
+.bn-file-block-content-wrapper .bn-file-and-caption-wrapper {
   display: flex;
   flex-direction: column;
   border-radius: 4px;
 }
 
-[data-content-type="file"] .bn-file-default-preview {
+.bn-file-block-content-wrapper .bn-file-default-preview {
   align-items: center;
   display: flex;
   flex-direction: row;
   gap: 4px;
 }
 
-[data-content-type="file"] .bn-file-default-preview-icon {
+.bn-file-block-content-wrapper .bn-file-default-preview-icon {
   width: 24px;
   height: 24px;
 }
 
-[data-content-type="file"] .bn-file-default-preview-name {
+.bn-file-block-content-wrapper .bn-file-default-preview-name {
   /*font-size: 0.8em;*/
 }
 
-[data-content-type="file"] .bn-visual-media-wrapper {
+.bn-file-block-content-wrapper .bn-visual-media-wrapper {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -308,12 +306,12 @@ NESTED BLOCKS
   width: fit-content;
 }
 
-[data-content-type="file"] .bn-visual-media {
+.bn-file-block-content-wrapper .bn-visual-media {
   border-radius: 4px;
   max-width: 100%;
 }
 
-[data-content-type="file"] .bn-visual-media-resize-handle {
+.bn-file-block-content-wrapper .bn-visual-media-resize-handle {
   position: absolute;
   width: 8px;
   height: 30px;
@@ -323,16 +321,16 @@ NESTED BLOCKS
   cursor: ew-resize;
 }
 
-[data-content-type="file"][data-file-type="audio"], [data-content-type="file"] .bn-audio {
+.bn-file-block-content-wrapper .bn-audio {
   width: 100%;
 }
 
-[data-content-type="file"] .bn-file-caption {
+.bn-file-block-content-wrapper .bn-file-caption {
   font-size: 0.8em;
   padding-block: 4px;
 }
 
-[data-content-type="file"] .bn-file-caption:empty {
+.bn-file-block-content-wrapper .bn-file-caption:empty {
   padding-block: 0;
 }
 

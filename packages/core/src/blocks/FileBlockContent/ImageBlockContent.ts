@@ -6,6 +6,7 @@ import {
   createBlockSpec,
 } from "../../schema";
 import { defaultProps } from "../defaultProps";
+import { renderWithResizeHandles } from "./extensions/utils/renderWithResizeHandles";
 
 import {
   createFileAndCaptionDOM,
@@ -15,7 +16,7 @@ import {
   fileToExternalHTML,
 } from "./fileBlockHelpers";
 
-export const filePropSchema = {
+export const propSchema = {
   textAlignment: defaultProps.textAlignment,
   backgroundColor: defaultProps.backgroundColor,
   // File name.
@@ -30,17 +31,25 @@ export const filePropSchema = {
   caption: {
     default: "" as const,
   },
+
+  showPreview: {
+    default: true,
+  },
+  // File preview width in px.
+  previewWidth: {
+    default: 512,
+  },
 } satisfies PropSchema;
 
-export const fileBlockConfig = {
-  type: "file" as const,
-  propSchema: filePropSchema,
+export const imageBlockConfig = {
+  type: "image" as const,
+  propSchema,
   content: "none",
   isFileBlock: true,
 } satisfies FileBlockConfig;
 
 export const fileRender = (
-  block: BlockFromConfig<FileBlockConfig, any, any>,
+  block: BlockFromConfig<typeof imageBlockConfig, any, any>,
   editor: BlockNoteEditor<any, any, any>
 ) => {
   // Wrapper element to set the file alignment, contains both file/file
@@ -55,6 +64,7 @@ export const fileRender = (
 
   // File element.
 
+  debugger;
   if (block.props.url === "") {
     const placeholder = createFilePlaceholderDOM(block, editor);
     wrapper.appendChild(placeholder.dom);
@@ -65,30 +75,45 @@ export const fileRender = (
         placeholder?.destroy?.();
       },
     };
-  } else {
+  } else if (!block.props.showPreview) {
     const file = createFileIconAndNameDOM(block).dom;
     const element = createFileAndCaptionDOM(block, editor, file);
+
+    return {
+      dom: element.dom,
+    };
+  } else {
+    const image = document.createElement("img");
+    image.className = "bn-visual-media";
+    image.src = block.props.url;
+    image.alt = block.props.caption || "BlockNote image";
+    image.contentEditable = "false";
+    image.draggable = false;
+    image.width = Math.min(
+      block.props.previewWidth,
+      editor.domElement.firstElementChild!.clientWidth
+    );
+
+    const file = renderWithResizeHandles(
+      block,
+      editor,
+      image,
+      () => image.width,
+      (width) => (image.width = width)
+    );
+
+    const element = createFileAndCaptionDOM(block, editor, file.dom);
     wrapper.appendChild(element.dom);
 
     return {
       dom: wrapper,
+      destroy: file.destroy,
     };
   }
 };
 
-export const FileBlock = createBlockSpec(fileBlockConfig, {
+export const ImageBlock = createBlockSpec(imageBlockConfig, {
   render: (block, editor) => fileRender(block, editor),
   parse: (element) => fileParse(element),
   toExternalHTML: (block, editor) => fileToExternalHTML(block, editor),
 });
-
-// - React support?
-// - Support parse HTML and toExternalHTML
-// - Copy/paste support
-// - Drag/drop from external into BlockNote (automatic conversion to block & upload)
-// - Custom props e.g. PDF height, video playback options
-// - Toolbar/menu options should change based on file type
-// - Button text/icon should be file type specific
-// - Should be able to define the file type before uploading/embedding
-// - Media like pdfs should be previewable (might be issues with cross domain access)
-// - Renderers should be loosely coupled to file extensions via plugins for different file types

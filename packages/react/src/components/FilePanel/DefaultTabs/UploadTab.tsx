@@ -54,10 +54,8 @@ export const UploadTab = <
           try {
             const uploaded = await editor.uploadFile(file);
             editor.updateBlock(block, {
-              type: "file",
               props: {
                 // TODO: Get type from file extension, not MIME type
-                fileType: file.type.split("/")[0],
                 name: file.name,
                 url: uploaded,
               },
@@ -80,7 +78,8 @@ export const UploadTab = <
       <Components.FilePanel.FileInput
         className="bn-file-input"
         data-test="upload-input"
-        accept={props.block.props.fileType + "/*"}
+        accept="*/*"
+        // accept={props.block.props.fileType + "/*"} TODO
         placeholder={dict.file_panel.upload.file_placeholder}
         value={null}
         onChange={handleFileChange}

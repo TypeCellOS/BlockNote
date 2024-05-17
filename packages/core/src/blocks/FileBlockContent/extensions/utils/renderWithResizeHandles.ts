@@ -1,6 +1,6 @@
+import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor";
 import { BlockFromConfig, BlockSchemaWithBlock } from "../../../../schema";
 import { fileBlockConfig } from "../../fileBlockConfig";
-import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor";
 
 export const renderWithResizeHandles = (
   block: BlockFromConfig<typeof fileBlockConfig, any, any>,
@@ -112,7 +112,6 @@ export const renderWithResizeHandles = (
     resizeParams = undefined;
 
     editor.updateBlock(block, {
-      type: "file",
       props: {
         previewWidth: getWidth(),
       },

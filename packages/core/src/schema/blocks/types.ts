@@ -21,13 +21,41 @@ export type BlockNoteDOMAttributes = Partial<{
   [DOMElement in BlockNoteDOMElement]: Record<string, string>;
 }>;
 
+export type FileBlockConfig = {
+  type: string;
+  readonly propSchema: PropSchema & {
+    url: {
+      default: "";
+    };
+    caption: {
+      default: "";
+    };
+    name: {
+      default: "";
+    };
+    // Whether to show the file preview or the name only.
+    showPreview?: {
+      default: boolean;
+    };
+    // File preview width in px.
+    previewWidth?: {
+      default: number;
+    };
+  };
+  content: "none";
+  isFileBlock: true;
+};
+
 // BlockConfig contains the "schema" info about a Block type
 // i.e. what props it supports, what content it supports, etc.
-export type BlockConfig = {
-  type: string;
-  readonly propSchema: PropSchema;
-  content: "inline" | "none" | "table";
-};
+export type BlockConfig =
+  | {
+      type: string;
+      readonly propSchema: PropSchema;
+      content: "inline" | "none" | "table";
+      isFileBlock?: false;
+    }
+  | FileBlockConfig;
 
 // Block implementation contains the "implementation" info about a Block
 // such as the functions / Nodes required to render and / or serialize it
