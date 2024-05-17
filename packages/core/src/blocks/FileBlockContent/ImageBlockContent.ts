@@ -64,7 +64,6 @@ export const fileRender = (
 
   // File element.
 
-  debugger;
   if (block.props.url === "") {
     const placeholder = createFilePlaceholderDOM(block, editor);
     wrapper.appendChild(placeholder.dom);

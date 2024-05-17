@@ -1,7 +1,6 @@
 import {
   BlockSchema,
-  checkBlockIsDefaultType,
-  checkDefaultBlockTypeInSchema,
+  checkBlockIsFileBlock,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
@@ -41,7 +40,7 @@ export const FileCaptionButton = () => {
 
     const block = selectedBlocks[0];
 
-    if (checkBlockIsDefaultType("file", block, editor)) {
+    if (checkBlockIsFileBlock(block, editor)) {
       setCurrentEditingCaption(block.props.caption);
       return block;
     }
@@ -51,16 +50,12 @@ export const FileCaptionButton = () => {
 
   const handleEnter = useCallback(
     (event: KeyboardEvent) => {
-      if (
-        fileBlock &&
-        checkDefaultBlockTypeInSchema("file", editor) &&
-        event.key === "Enter"
-      ) {
+      if (fileBlock && event.key === "Enter") {
         event.preventDefault();
         editor.updateBlock(fileBlock, {
           type: "file",
           props: {
-            caption: currentEditingCaption,
+            caption: currentEditingCaption as any, // TODO
           },
         });
       }
