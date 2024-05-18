@@ -1,4 +1,6 @@
-export const pl = {
+import type { Dictionary } from "../dictionary";
+
+export const pl: Dictionary = {
   slash_menu: {
     heading: {
       title: "Nagłówek 1",

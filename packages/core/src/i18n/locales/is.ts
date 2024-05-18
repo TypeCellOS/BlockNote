@@ -1,4 +1,6 @@
-export const is = {
+import type { Dictionary } from "../dictionary";
+
+export const is: Dictionary = {
   slash_menu: {
     heading: {
       title: "Fyrirsögn 1",
