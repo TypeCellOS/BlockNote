@@ -1,18 +1,166 @@
-import { BlockFromConfig, BlockSchemaWithBlock } from "../../../../schema";
-import { fileBlockConfig } from "../../fileBlockConfig";
-import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
+import { BlockFromConfig, FileBlockConfig } from "../../schema";
 
-export const renderWithResizeHandles = (
-  block: BlockFromConfig<typeof fileBlockConfig, any, any>,
-  editor: BlockNoteEditor<
-    BlockSchemaWithBlock<"file", typeof fileBlockConfig>,
-    any,
-    any
-  >,
+// Default file preview, displaying a file icon and file name.
+export const createDefaultFilePreview = (
+  block: BlockFromConfig<FileBlockConfig, any, any>
+): { dom: HTMLElement; destroy?: () => void } => {
+  const file = document.createElement("div");
+  file.className = "bn-file-default-preview";
+
+  const icon = document.createElement("div");
+  icon.className = "bn-file-default-preview-icon";
+  icon.innerHTML =
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M3 8L9.00319 2H19.9978C20.5513 2 21 2.45531 21 2.9918V21.0082C21 21.556 20.5551 22 20.0066 22H3.9934C3.44476 22 3 21.5501 3 20.9932V8ZM10 4V9H5V20H19V4H10Z"></path></svg>';
+
+  const fileName = document.createElement("p");
+  fileName.className = "bn-file-default-preview-name";
+  fileName.innerText = block.props.name || "";
+
+  file.appendChild(icon);
+  file.appendChild(fileName);
+
+  return {
+    dom: file,
+  };
+};
+
+// Wrapper element containing file preview and caption.
+export const createFileAndCaptionWrapper = (
+  block: BlockFromConfig<FileBlockConfig, any, any>,
+  file: HTMLElement
+) => {
+  const fileAndCaptionWrapper = document.createElement("div");
+  fileAndCaptionWrapper.className = "bn-file-and-caption-wrapper";
+
+  const caption = document.createElement("p");
+  caption.className = "bn-file-caption";
+  caption.innerText = block.props.caption;
+
+  fileAndCaptionWrapper.appendChild(file);
+  fileAndCaptionWrapper.appendChild(caption);
+
+  return {
+    dom: fileAndCaptionWrapper,
+  };
+};
+
+// Button element that acts as a placeholder for files with no src.
+export const createAddFileButton = (
+  block: BlockFromConfig<FileBlockConfig, any, any>,
+  editor: BlockNoteEditor<any, any, any>,
+  buttonText?: string,
+  buttonIcon?: HTMLElement
+) => {
+  const addFileButton = document.createElement("div");
+  addFileButton.className = "bn-add-file-button";
+
+  const addFileButtonIcon = document.createElement("div");
+  addFileButtonIcon.className = "bn-add-file-button-icon";
+  if (buttonIcon) {
+    addFileButtonIcon.appendChild(buttonIcon);
+  } else {
+    addFileButtonIcon.innerHTML =
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M3 8L9.00319 2H19.9978C20.5513 2 21 2.45531 21 2.9918V21.0082C21 21.556 20.5551 22 20.0066 22H3.9934C3.44476 22 3 21.5501 3 20.9932V8ZM10 4V9H5V20H19V4H10Z"></path></svg>';
+  }
+
+  const addFileButtonText = document.createElement("p");
+  addFileButtonText.className = "bn-add-file-button-text";
+  addFileButtonText.innerHTML =
+    buttonText || editor.dictionary.file_blocks.file.add_button_text;
+
+  // Prevents focus from moving to the button.
+  const addFileButtonMouseDownHandler = (event: MouseEvent) => {
+    event.preventDefault();
+  };
+  // Opens the file toolbar.
+  const addFileButtonClickHandler = () => {
+    editor._tiptapEditor.view.dispatch(
+      editor._tiptapEditor.state.tr.setMeta(editor.filePanel!.plugin, {
+        block: block,
+      })
+    );
+  };
+
+  addFileButton.appendChild(addFileButtonIcon);
+  addFileButton.appendChild(addFileButtonText);
+
+  addFileButton.addEventListener(
+    "mousedown",
+    addFileButtonMouseDownHandler,
+    true
+  );
+  addFileButton.addEventListener("click", addFileButtonClickHandler, true);
+
+  return {
+    dom: addFileButton,
+    destroy: () => {
+      addFileButton.removeEventListener(
+        "mousedown",
+        addFileButtonMouseDownHandler,
+        true
+      );
+      addFileButton.removeEventListener(
+        "click",
+        addFileButtonClickHandler,
+        true
+      );
+    },
+  };
+};
+
+export const parseEmbedElement = (embedElement: HTMLEmbedElement) => {
+  const url = embedElement.src || undefined;
+
+  return { url };
+};
+
+export const parseFigureElement = (
+  figureElement: HTMLElement,
+  targetTag: string
+) => {
+  const targetElement = figureElement.querySelector(
+    targetTag
+  ) as HTMLElement | null;
+  if (!targetElement) {
+    return undefined;
+  }
+
+  const captionElement = figureElement.querySelector("figcaption");
+  const caption = captionElement?.textContent ?? undefined;
+
+  return { targetElement, caption };
+};
+
+// Wrapper figure element to display file preview with caption. Used for
+// external HTML.
+export const createFigureWithCaption = (
+  element: HTMLElement,
+  caption: string
+) => {
+  const figure = document.createElement("figure");
+  const captionElement = document.createElement("figcaption");
+  captionElement.textContent = caption;
+
+  figure.appendChild(element);
+  figure.appendChild(captionElement);
+
+  return { dom: figure };
+};
+
+// Wrapper element which adds resize handles & logic for visual media file
+// previews.
+export const createResizeHandlesWrapper = (
+  block: BlockFromConfig<FileBlockConfig, any, any>,
+  editor: BlockNoteEditor<any, any, any>,
   element: HTMLElement,
   getWidth: () => number,
   setWidth: (width: number) => void
 ): { dom: HTMLElement; destroy: () => void } => {
+  if (!block.props.previewWidth) {
+    throw new Error("Block must have a `previewWidth` prop.");
+  }
+
   // Wrapper element for rendered element and resize handles.
   const wrapper = document.createElement("div");
   wrapper.className = "bn-visual-media-wrapper";
@@ -112,7 +260,6 @@ export const renderWithResizeHandles = (
     resizeParams = undefined;
 
     editor.updateBlock(block, {
-      type: "file",
       props: {
         previewWidth: getWidth(),
       },
@@ -160,7 +307,7 @@ export const renderWithResizeHandles = (
 
     resizeParams = {
       handleUsed: "left",
-      initialWidth: block.props.previewWidth,
+      initialWidth: block.props.previewWidth!,
       initialClientX: event.clientX,
     };
   };
@@ -172,7 +319,7 @@ export const renderWithResizeHandles = (
 
     resizeParams = {
       handleUsed: "right",
-      initialWidth: block.props.previewWidth,
+      initialWidth: block.props.previewWidth!,
       initialClientX: event.clientX,
     };
   };

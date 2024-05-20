@@ -1,6 +1,6 @@
 import {
   BlockSchema,
-  checkBlockIsDefaultType,
+  checkBlockIsFileBlock,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
@@ -32,7 +32,7 @@ export const FileDeleteButton = () => {
 
     const block = selectedBlocks[0];
 
-    if (checkBlockIsDefaultType("file", block, editor)) {
+    if (checkBlockIsFileBlock(block, editor)) {
       return block;
     }
 

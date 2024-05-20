@@ -1,7 +1,6 @@
 import {
   BlockSchema,
-  checkBlockIsDefaultType,
-  checkDefaultBlockTypeInSchema,
+  checkBlockIsFileBlockWithPreview,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
@@ -33,34 +32,24 @@ export const FilePreviewButton = () => {
 
     const block = selectedBlocks[0];
 
-    if (checkBlockIsDefaultType("file", block, editor)) {
+    if (checkBlockIsFileBlockWithPreview(block, editor)) {
       return block;
     }
 
     return undefined;
   }, [editor, selectedBlocks]);
 
-  // TODO: Where can we store the extensions such that we can access them here?
-  const fileBlockHasPreview = useMemo(() => {
-    return (
-      fileBlock?.props.fileType === "image" ||
-      fileBlock?.props.fileType === "audio" ||
-      fileBlock?.props.fileType === "video"
-    );
-  }, [fileBlock]);
-
   const onClick = useCallback(() => {
-    if (fileBlock && checkDefaultBlockTypeInSchema("file", editor)) {
+    if (fileBlock) {
       editor.updateBlock(fileBlock, {
-        type: "file",
         props: {
-          showPreview: !fileBlock.props.showPreview,
+          showPreview: !fileBlock.props.showPreview as any, // TODO
         },
       });
     }
   }, [editor, fileBlock]);
 
-  if (!fileBlock || !fileBlock.props.url || !fileBlockHasPreview) {
+  if (!fileBlock || !fileBlock.props.url) {
     return null;
   }
 

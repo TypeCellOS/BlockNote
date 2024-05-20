@@ -4,18 +4,21 @@ import {
   uploadToTmpFilesDotOrg_DEV_ONLY,
 } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
-import {
-  createReactFileBlock,
-  defaultReactFileExtensions,
-  useCreateBlockNote,
-} from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
+import {
+  ReactAudioBlock,
+  ReactImageBlock,
+  ReactVideoBlock,
+  useCreateBlockNote,
+} from "@blocknote/react";
 
 const schema = BlockNoteSchema.create({
   blockSpecs: {
     ...defaultBlockSpecs,
-    file: createReactFileBlock(defaultReactFileExtensions),
+    image: ReactImageBlock,
+    video: ReactVideoBlock,
+    audio: ReactAudioBlock,
   },
 });
 

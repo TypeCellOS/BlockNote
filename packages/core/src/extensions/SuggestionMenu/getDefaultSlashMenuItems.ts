@@ -181,14 +181,11 @@ export function getDefaultSlashMenuItems<
     });
   }
 
-  if (checkDefaultBlockTypeInSchema("file", editor)) {
+  if (checkDefaultBlockTypeInSchema("image", editor)) {
     items.push({
       onItemClick: () => {
         const insertedBlock = insertOrUpdateBlock(editor, {
-          type: "file",
-          props: {
-            fileType: "image",
-          },
+          type: "image",
         });
 
         // Immediately open the file toolbar
@@ -201,13 +198,13 @@ export function getDefaultSlashMenuItems<
       key: "image",
       ...editor.dictionary.slash_menu.image,
     });
+  }
+
+  if (checkDefaultBlockTypeInSchema("video", editor)) {
     items.push({
       onItemClick: () => {
         const insertedBlock = insertOrUpdateBlock(editor, {
-          type: "file",
-          props: {
-            fileType: "video",
-          },
+          type: "video",
         });
 
         // Immediately open the file toolbar
@@ -220,13 +217,13 @@ export function getDefaultSlashMenuItems<
       key: "video",
       ...editor.dictionary.slash_menu.video,
     });
+  }
+
+  if (checkDefaultBlockTypeInSchema("audio", editor)) {
     items.push({
       onItemClick: () => {
         const insertedBlock = insertOrUpdateBlock(editor, {
-          type: "file",
-          props: {
-            fileType: "audio",
-          },
+          type: "audio",
         });
 
         // Immediately open the file toolbar
@@ -239,6 +236,9 @@ export function getDefaultSlashMenuItems<
       key: "audio",
       ...editor.dictionary.slash_menu.audio,
     });
+  }
+
+  if (checkDefaultBlockTypeInSchema("file", editor)) {
     items.push({
       onItemClick: () => {
         const insertedBlock = insertOrUpdateBlock(editor, {
@@ -252,7 +252,7 @@ export function getDefaultSlashMenuItems<
           })
         );
       },
-      key: "file",
+      key: "image",
       ...editor.dictionary.slash_menu.file,
     });
   }

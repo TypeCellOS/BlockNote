@@ -1,27 +1,115 @@
-import {
-  BlockFromConfig,
-  BlockNoteEditor,
-  BlockSchemaWithBlock,
-  DefaultBlockSchema,
-  InlineContentSchema,
-  StyleSchema,
-} from "@blocknote/core";
+import { FileBlockConfig } from "@blocknote/core";
 import { ReactNode, useCallback, useEffect, useState } from "react";
+import { RiFile2Line } from "react-icons/ri";
+import { ReactCustomBlockRenderProps } from "../../schema/ReactBlockSpec";
 
-export const ResizeHandlesWrapper = <
-  ISchema extends InlineContentSchema,
-  SSchema extends StyleSchema
->(props: {
-  block: BlockFromConfig<DefaultBlockSchema["file"], ISchema, SSchema>;
-  editor: BlockNoteEditor<
-    BlockSchemaWithBlock<"file", DefaultBlockSchema["file"]>,
-    ISchema,
-    SSchema
-  >;
-  width: number;
-  setWidth: (width: number) => void;
+export const DefaultFilePreview = (
+  props: Omit<
+    ReactCustomBlockRenderProps<FileBlockConfig, any, any>,
+    "contentRef"
+  >
+) => (
+  <div
+    className={"bn-file-default-preview"}
+    contentEditable={false}
+    draggable={false}>
+    <RiFile2Line size={24} />
+    {props.block.props.name}
+  </div>
+);
+
+export const FileAndCaptionWrapper = (
+  props: Omit<
+    ReactCustomBlockRenderProps<FileBlockConfig, any, any>,
+    "contentRef"
+  > & {
+    children: ReactNode;
+  }
+) => {
+  return (
+    <div className={"bn-file-and-caption-wrapper"}>
+      {props.children}
+      {props.block.props.caption && (
+        <p
+          className={"bn-file-caption"}
+          style={{
+            paddingBlock: props.block.props.caption ? "4px" : undefined,
+          }}>
+          {props.block.props.caption}
+        </p>
+      )}
+    </div>
+  );
+};
+
+export const AddFileButton = (
+  props: Omit<
+    ReactCustomBlockRenderProps<FileBlockConfig, any, any>,
+    "contentRef"
+  > & {
+    buttonText?: string;
+    buttonIcon?: ReactNode;
+  }
+) => {
+  // Prevents focus from moving to the button.
+  const addFileButtonMouseDownHandler = useCallback(
+    (event: React.MouseEvent) => {
+      event.preventDefault();
+    },
+    []
+  );
+  // Opens the file toolbar.
+  const addFileButtonClickHandler = useCallback(() => {
+    props.editor._tiptapEditor.view.dispatch(
+      props.editor._tiptapEditor.state.tr.setMeta(
+        props.editor.filePanel!.plugin,
+        {
+          block: props.block,
+        }
+      )
+    );
+  }, [
+    props.block,
+    props.editor._tiptapEditor.state.tr,
+    props.editor._tiptapEditor.view,
+    props.editor.filePanel,
+  ]);
+
+  return (
+    <div
+      className={"bn-add-file-button"}
+      onMouseDown={addFileButtonMouseDownHandler}
+      onClick={addFileButtonClickHandler}>
+      <div className={"bn-add-file-button-icon"}>
+        {props.buttonIcon || <RiFile2Line size={24} />}
+      </div>
+      <div className={"bn-add-file-button-text"}>
+        {props.buttonText ||
+          props.editor.dictionary.file_blocks.file.add_button_text}
+      </div>
+    </div>
+  );
+};
+
+export const FigureWithCaption = (props: {
+  caption: string;
   children: ReactNode;
-}) => {
+}) => (
+  <figure>
+    {props.children}
+    <figcaption>{props.caption}</figcaption>
+  </figure>
+);
+
+export const ResizeHandlesWrapper = (
+  props: Required<
+    Omit<ReactCustomBlockRenderProps<FileBlockConfig, any, any>, "contentRef">
+  > & {
+    width: number;
+    setWidth: (width: number) => void;
+    children: ReactNode;
+  }
+) => {
   const [childHovered, setChildHovered] = useState<boolean>(false);
   const [resizeParams, setResizeParams] = useState<
     | {
@@ -90,8 +178,7 @@ export const ResizeHandlesWrapper = <
 
       setResizeParams(undefined);
 
-      props.editor.updateBlock(props.block, {
-        type: "file",
+      (props.editor as any).updateBlock(props.block, {
         props: {
           previewWidth: props.width,
         },

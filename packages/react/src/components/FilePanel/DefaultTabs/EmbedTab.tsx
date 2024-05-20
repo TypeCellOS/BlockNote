@@ -43,7 +43,6 @@ export const EmbedTab = <
       if (event.key === "Enter") {
         event.preventDefault();
         editor.updateBlock(block, {
-          type: "file",
           props: {
             name: currentURL.split("/")[-1],
             url: currentURL,
@@ -56,7 +55,6 @@ export const EmbedTab = <
 
   const handleURLClick = useCallback(() => {
     editor.updateBlock(block, {
-      type: "file",
       props: {
         name: currentURL.split("/")[-1],
         url: currentURL,

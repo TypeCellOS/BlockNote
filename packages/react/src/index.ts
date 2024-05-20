@@ -5,10 +5,10 @@ export * from "./editor/BlockNoteView";
 export * from "./editor/ComponentsContext";
 export * from "./i18n/dictionary";
 
-export * from "./components/FileBlock/FileBlockContent";
-export * from "./components/FileBlock/reactFileBlockExtension";
-export * from "./components/FileBlock/extensions/reactImageFileExtension";
-export * from "./components/FileBlock/extensions/defaultReactFileExtensions";
+export * from "./blocks/FileBlockContent/FileBlockContent";
+export * from "./blocks/ImageBlockContent/ImageBlockContent";
+export * from "./blocks/VideoBlockContent/VideoBlockContent";
+export * from "./blocks/AudioBlockContent/AudioBlockContent";
 
 export * from "./components/FormattingToolbar/DefaultButtons/BasicTextStyleButton";
 export * from "./components/FormattingToolbar/DefaultButtons/ColorStyleButton";
