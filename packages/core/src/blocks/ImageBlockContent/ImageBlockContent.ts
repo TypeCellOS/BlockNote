@@ -87,7 +87,7 @@ export const imageRender = (
     const image = document.createElement("img");
     image.className = "bn-visual-media";
     image.src = block.props.url;
-    image.alt = block.props.caption || "BlockNote image";
+    image.alt = block.props.name || block.props.caption || "BlockNote image";
     image.contentEditable = "false";
     image.draggable = false;
     image.width = Math.min(
@@ -153,7 +153,7 @@ export const imageToExternalHTML = (
   if (block.props.showPreview) {
     image = document.createElement("img");
     image.src = block.props.url;
-    image.alt = block.props.caption || "BlockNote image";
+    image.alt = block.props.name || block.props.caption || "BlockNote image";
     image.width = block.props.previewWidth;
   } else {
     image = document.createElement("a");

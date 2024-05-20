@@ -55,7 +55,9 @@ export const ImageToExternalHTML = (
   const image = props.block.props.showPreview ? (
     <img
       src={props.block.props.url}
-      alt={props.block.props.caption || "BlockNote image"}
+      alt={
+        props.block.props.name || props.block.props.caption || "BlockNote image"
+      }
       width={props.block.props.previewWidth}
     />
   ) : (

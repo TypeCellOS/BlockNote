@@ -15,7 +15,7 @@ export const createDefaultFilePreview = (
 
   const fileName = document.createElement("p");
   fileName.className = "bn-file-default-preview-name";
-  fileName.innerText = block.props.name || "";
+  fileName.textContent = block.props.name || "";
 
   file.appendChild(icon);
   file.appendChild(fileName);
@@ -35,7 +35,7 @@ export const createFileAndCaptionWrapper = (
 
   const caption = document.createElement("p");
   caption.className = "bn-file-caption";
-  caption.innerText = block.props.caption;
+  caption.textContent = block.props.caption;
 
   fileAndCaptionWrapper.appendChild(file);
   fileAndCaptionWrapper.appendChild(caption);
