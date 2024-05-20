@@ -82,6 +82,16 @@ export const AddFileButton = (
   );
 };
 
+export const LinkWithCaption = (props: {
+  caption: string;
+  children: ReactNode;
+}) => (
+  <div>
+    {props.children}
+    <p>{props.caption}</p>
+  </div>
+);
+
 export const FigureWithCaption = (props: {
   caption: string;
   children: ReactNode;

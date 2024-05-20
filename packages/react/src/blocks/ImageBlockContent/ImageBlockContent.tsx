@@ -12,6 +12,7 @@ import {
   ResizeHandlesWrapper,
   DefaultFilePreview,
   FigureWithCaption,
+  LinkWithCaption,
 } from "../FileBlockContent/fileBlockHelpers";
 
 export const ImagePreview = (
@@ -51,18 +52,27 @@ export const ImageToExternalHTML = (
     return <p>Add image</p>;
   }
 
-  const image = (
+  const image = props.block.props.showPreview ? (
     <img
       src={props.block.props.url}
       alt={props.block.props.caption || "BlockNote image"}
+      width={props.block.props.previewWidth}
     />
+  ) : (
+    <a href={props.block.props.url}>
+      {props.block.props.name || props.block.props.url}
+    </a>
   );
 
   if (props.block.props.caption) {
-    return (
+    return props.block.props.showPreview ? (
       <FigureWithCaption caption={props.block.props.caption}>
         {image}
       </FigureWithCaption>
+    ) : (
+      <LinkWithCaption caption={props.block.props.caption}>
+        {image}
+      </LinkWithCaption>
     );
   }
 

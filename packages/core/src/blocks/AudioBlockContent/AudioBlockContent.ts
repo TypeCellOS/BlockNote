@@ -13,6 +13,7 @@ import {
   createDefaultFilePreview,
   createFigureWithCaption,
   createFileAndCaptionWrapper,
+  createLinkWithCaption,
   parseFigureElement,
 } from "../FileBlockContent/fileBlockHelpers";
 import { parseAudioElement } from "./audioBlockHelpers";
@@ -122,18 +123,29 @@ export const audioToExternalHTML = (
 ) => {
   if (!block.props.url) {
     const div = document.createElement("p");
-    div.innerHTML = "Add audio";
+    div.textContent = "Add audio";
 
     return {
       dom: div,
     };
   }
 
-  const audio = document.createElement("audio");
-  audio.src = block.props.url;
+  let audio;
+  if (block.props.showPreview) {
+    audio = document.createElement("audio");
+    audio.src = block.props.url;
+  } else {
+    audio = document.createElement("a");
+    audio.href = block.props.url;
+    audio.textContent = block.props.name || block.props.url;
+  }
 
   if (block.props.caption) {
-    return createFigureWithCaption(audio, block.props.caption);
+    if (block.props.showPreview) {
+      return createFigureWithCaption(audio, block.props.caption);
+    } else {
+      return createLinkWithCaption(audio, block.props.caption);
+    }
   }
 
   return {

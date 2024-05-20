@@ -10,6 +10,7 @@ import {
   AddFileButton,
   DefaultFilePreview,
   FigureWithCaption,
+  LinkWithCaption,
 } from "../FileBlockContent/fileBlockHelpers";
 
 export const AudioPreview = (
@@ -37,13 +38,23 @@ export const AudioToExternalHTML = (
     return <p>Add audio</p>;
   }
 
-  const audio = <audio src={props.block.props.url} />;
+  const audio = props.block.props.showPreview ? (
+    <audio src={props.block.props.url} />
+  ) : (
+    <a href={props.block.props.url}>
+      {props.block.props.name || props.block.props.url}
+    </a>
+  );
 
   if (props.block.props.caption) {
-    return (
+    return props.block.props.showPreview ? (
       <FigureWithCaption caption={props.block.props.caption}>
         {audio}
       </FigureWithCaption>
+    ) : (
+      <LinkWithCaption caption={props.block.props.caption}>
+        {audio}
+      </LinkWithCaption>
     );
   }
 

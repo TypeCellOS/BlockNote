@@ -12,6 +12,7 @@ import {
   createAddFileButton,
   parseEmbedElement,
   parseFigureElement,
+  createLinkWithCaption,
 } from "./fileBlockHelpers";
 
 export const filePropSchema = {
@@ -93,7 +94,7 @@ export const fileToExternalHTML = (
 ) => {
   if (!block.props.url) {
     const div = document.createElement("p");
-    div.innerHTML = "Add file";
+    div.textContent = "Add file";
 
     return {
       dom: div,
@@ -102,18 +103,10 @@ export const fileToExternalHTML = (
 
   const fileSrcLink = document.createElement("a");
   fileSrcLink.href = block.props.url;
-  fileSrcLink.innerText = block.props.name;
+  fileSrcLink.textContent = block.props.name || block.props.url;
 
   if (block.props.caption) {
-    const wrapper = document.createElement("div");
-    const fileCaption = document.createElement("p");
-    fileCaption.innerText = block.props.caption;
-    wrapper.appendChild(fileSrcLink);
-    wrapper.appendChild(fileCaption);
-
-    return {
-      dom: wrapper,
-    };
+    return createLinkWithCaption(fileSrcLink, block.props.caption);
   }
 
   return {

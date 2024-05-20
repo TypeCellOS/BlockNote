@@ -132,6 +132,24 @@ export const parseFigureElement = (
   return { targetElement, caption };
 };
 
+// Wrapper figure element to display file link with caption. Used for external
+// HTML
+export const createLinkWithCaption = (
+  element: HTMLElement,
+  caption: string
+) => {
+  const wrapper = document.createElement("div");
+  const fileCaption = document.createElement("p");
+  fileCaption.textContent = caption;
+
+  wrapper.appendChild(element);
+  wrapper.appendChild(fileCaption);
+
+  return {
+    dom: wrapper,
+  };
+};
+
 // Wrapper figure element to display file preview with caption. Used for
 // external HTML.
 export const createFigureWithCaption = (
