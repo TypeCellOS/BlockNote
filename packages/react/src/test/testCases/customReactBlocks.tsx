@@ -200,8 +200,33 @@ export const customReactBlockSchemaTestCases: EditorTestCases<
         {
           type: "reactFile",
           props: {
+            name: "example",
             url: "exampleURL",
             caption: "Caption",
+          },
+        },
+      ],
+    },
+    {
+      name: "reactFile/noName",
+      blocks: [
+        {
+          type: "reactFile",
+          props: {
+            url: "exampleURL",
+            caption: "Caption",
+          },
+        },
+      ],
+    },
+    {
+      name: "reactFile/noCaption",
+      blocks: [
+        {
+          type: "reactFile",
+          props: {
+            name: "example",
+            url: "exampleURL",
           },
         },
       ],
@@ -212,6 +237,7 @@ export const customReactBlockSchemaTestCases: EditorTestCases<
         {
           type: "reactFile",
           props: {
+            name: "example",
             url: "exampleURL",
             caption: "Caption",
           },
@@ -219,6 +245,7 @@ export const customReactBlockSchemaTestCases: EditorTestCases<
             {
               type: "reactFile",
               props: {
+                name: "example",
                 url: "exampleURL",
                 caption: "Caption",
               },
@@ -241,8 +268,50 @@ export const customReactBlockSchemaTestCases: EditorTestCases<
         {
           type: "reactImage",
           props: {
+            name: "example",
             url: "exampleURL",
             caption: "Caption",
+            previewWidth: 256,
+          },
+        },
+      ],
+    },
+    {
+      name: "reactImage/noName",
+      blocks: [
+        {
+          type: "reactImage",
+          props: {
+            url: "exampleURL",
+            caption: "Caption",
+            previewWidth: 256,
+          },
+        },
+      ],
+    },
+    {
+      name: "reactImage/noCaption",
+      blocks: [
+        {
+          type: "reactImage",
+          props: {
+            name: "example",
+            url: "exampleURL",
+            previewWidth: 256,
+          },
+        },
+      ],
+    },
+    {
+      name: "reactImage/noPreview",
+      blocks: [
+        {
+          type: "reactImage",
+          props: {
+            name: "example",
+            url: "exampleURL",
+            caption: "Caption",
+            showPreview: false,
             previewWidth: 256,
           },
         },
@@ -254,6 +323,7 @@ export const customReactBlockSchemaTestCases: EditorTestCases<
         {
           type: "reactImage",
           props: {
+            name: "example",
             url: "exampleURL",
             caption: "Caption",
             previewWidth: 256,
@@ -262,6 +332,7 @@ export const customReactBlockSchemaTestCases: EditorTestCases<
             {
               type: "reactImage",
               props: {
+                name: "example",
                 url: "exampleURL",
                 caption: "Caption",
                 previewWidth: 256,

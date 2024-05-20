@@ -202,8 +202,7 @@ exports[`Test React BlockNote-Prosemirror conversion > Case: custom react block 
     {
       "attrs": {
         "caption": "Caption",
-        "fileType": "",
-        "previewWidth": 512,
+        "name": "example",
         "textAlignment": "left",
         "url": "exampleURL",
       },
@@ -225,8 +224,7 @@ exports[`Test React BlockNote-Prosemirror conversion > Case: custom react block 
     {
       "attrs": {
         "caption": "",
-        "fileType": "",
-        "previewWidth": 512,
+        "name": "",
         "textAlignment": "left",
         "url": "",
       },
@@ -248,8 +246,7 @@ exports[`Test React BlockNote-Prosemirror conversion > Case: custom react block 
     {
       "attrs": {
         "caption": "Caption",
-        "fileType": "",
-        "previewWidth": 512,
+        "name": "example",
         "textAlignment": "left",
         "url": "exampleURL",
       },
@@ -267,8 +264,7 @@ exports[`Test React BlockNote-Prosemirror conversion > Case: custom react block 
             {
               "attrs": {
                 "caption": "Caption",
-                "fileType": "",
-                "previewWidth": 512,
+                "name": "example",
                 "textAlignment": "left",
                 "url": "exampleURL",
               },
@@ -279,6 +275,50 @@ exports[`Test React BlockNote-Prosemirror conversion > Case: custom react block 
         },
       ],
       "type": "blockGroup",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test React BlockNote-Prosemirror conversion > Case: custom react block schema > Convert reactFile/noCaption to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "caption": "",
+        "name": "example",
+        "textAlignment": "left",
+        "url": "exampleURL",
+      },
+      "type": "reactFile",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test React BlockNote-Prosemirror conversion > Case: custom react block schema > Convert reactFile/noName to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "caption": "Caption",
+        "name": "",
+        "textAlignment": "left",
+        "url": "exampleURL",
+      },
+      "type": "reactFile",
     },
   ],
   "type": "blockContainer",
@@ -296,12 +336,13 @@ exports[`Test React BlockNote-Prosemirror conversion > Case: custom react block 
     {
       "attrs": {
         "caption": "Caption",
-        "fileType": "image",
+        "name": "example",
         "previewWidth": 256,
+        "showPreview": true,
         "textAlignment": "left",
         "url": "exampleURL",
       },
-      "type": "reactFile",
+      "type": "reactImage",
     },
   ],
   "type": "blockContainer",
@@ -319,12 +360,13 @@ exports[`Test React BlockNote-Prosemirror conversion > Case: custom react block 
     {
       "attrs": {
         "caption": "",
-        "fileType": "image",
+        "name": "",
         "previewWidth": 512,
+        "showPreview": true,
         "textAlignment": "left",
         "url": "",
       },
-      "type": "reactFile",
+      "type": "reactImage",
     },
   ],
   "type": "blockContainer",
@@ -342,12 +384,13 @@ exports[`Test React BlockNote-Prosemirror conversion > Case: custom react block 
     {
       "attrs": {
         "caption": "Caption",
-        "fileType": "image",
+        "name": "example",
         "previewWidth": 256,
+        "showPreview": true,
         "textAlignment": "left",
         "url": "exampleURL",
       },
-      "type": "reactFile",
+      "type": "reactImage",
     },
     {
       "content": [
@@ -361,18 +404,91 @@ exports[`Test React BlockNote-Prosemirror conversion > Case: custom react block 
             {
               "attrs": {
                 "caption": "Caption",
-                "fileType": "image",
+                "name": "example",
                 "previewWidth": 256,
+                "showPreview": true,
                 "textAlignment": "left",
                 "url": "exampleURL",
               },
-              "type": "reactFile",
+              "type": "reactImage",
             },
           ],
           "type": "blockContainer",
         },
       ],
       "type": "blockGroup",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test React BlockNote-Prosemirror conversion > Case: custom react block schema > Convert reactImage/noCaption to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "caption": "",
+        "name": "example",
+        "previewWidth": 256,
+        "showPreview": true,
+        "textAlignment": "left",
+        "url": "exampleURL",
+      },
+      "type": "reactImage",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test React BlockNote-Prosemirror conversion > Case: custom react block schema > Convert reactImage/noName to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "caption": "Caption",
+        "name": "",
+        "previewWidth": 256,
+        "showPreview": true,
+        "textAlignment": "left",
+        "url": "exampleURL",
+      },
+      "type": "reactImage",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test React BlockNote-Prosemirror conversion > Case: custom react block schema > Convert reactImage/noPreview to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "caption": "Caption",
+        "name": "example",
+        "previewWidth": 256,
+        "showPreview": false,
+        "textAlignment": "left",
+        "url": "exampleURL",
+      },
+      "type": "reactImage",
     },
   ],
   "type": "blockContainer",
