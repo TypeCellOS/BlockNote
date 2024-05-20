@@ -1,6 +1,6 @@
 import {
   useBlockNoteEditor,
-  useEditorChange,
+  useEditorContentOrSelectionChange,
   useEditorSelectionChange,
 } from "@blocknote/react";
 import { useState } from "react";
@@ -16,6 +16,7 @@ import {
   MdFormatUnderlined,
 } from "react-icons/md";
 
+import { checkBlockHasDefaultProp } from "@blocknote/core";
 import { ColorMenu } from "./ColorMenu";
 import { LinkMenu } from "./LinkMenu";
 
@@ -24,7 +25,7 @@ type CustomFormattingToolbarState = {
   italic: boolean;
   underline: boolean;
 
-  textAlignment: "left" | "center" | "right" | "justify";
+  textAlignment: "left" | "center" | "right" | "justify" | undefined;
 
   textColor: string;
   backgroundColor: string;
@@ -35,6 +36,7 @@ export function CustomFormattingToolbar() {
   const editor = useBlockNoteEditor();
 
   // Function to get the state of toolbar buttons (active/inactive).
+  // TODO: this is a bit weird, better to use useSelectedBlocks and useActiveStyles hooks
   const getState = (): CustomFormattingToolbarState => {
     const block = editor.getTextCursorPosition().block;
     const activeStyles = editor.getActiveStyles();
@@ -44,7 +46,9 @@ export function CustomFormattingToolbar() {
       italic: (activeStyles.italic as boolean) || false,
       underline: (activeStyles.underline as boolean) || false,
 
-      textAlignment: block.props.textAlignment,
+      textAlignment: checkBlockHasDefaultProp("textAlignment", block, editor)
+        ? block.props.textAlignment
+        : undefined,
 
       textColor: (activeStyles.textColor as string) || "default",
       backgroundColor: (activeStyles.backgroundColor as string) || "default",
@@ -80,7 +84,7 @@ export function CustomFormattingToolbar() {
   const [linkMenuOpen, setLinkMenuOpen] = useState(false);
 
   // Updates toolbar state when the editor content or selection changes.
-  useEditorChange(() => setState(getState()), editor);
+  useEditorContentOrSelectionChange(() => setState(getState()), editor);
   useEditorSelectionChange(() => setState(getState()), editor);
 
   return (
@@ -111,40 +115,42 @@ export function CustomFormattingToolbar() {
         </button>
       </div>
       {/* Button group for text alignment */}
-      <div className={"formatting-toolbar-group"}>
-        {/*Left align button*/}
-        <button
-          className={`formatting-toolbar-button${
-            state.textAlignment === "left" ? " active" : ""
-          }`}
-          onClick={() => setTextAlignment("left")}>
-          <MdFormatAlignLeft />
-        </button>
-        {/* Center align button */}
-        <button
-          className={`formatting-toolbar-button${
-            state.textAlignment === "center" ? " active" : ""
-          }`}
-          onClick={() => setTextAlignment("center")}>
-          <MdFormatAlignCenter />
-        </button>
-        {/* Right align button */}
-        <button
-          className={`formatting-toolbar-button${
-            state.textAlignment === "right" ? " active" : ""
-          }`}
-          onClick={() => setTextAlignment("right")}>
-          <MdFormatAlignRight />
-        </button>
-        {/* Justify text button */}
-        <button
-          className={`formatting-toolbar-button${
-            state.textAlignment === "justify" ? " active" : ""
-          }`}
-          onClick={() => setTextAlignment("justify")}>
-          <MdFormatAlignJustify />
-        </button>
-      </div>
+      {state.textAlignment && (
+        <div className={"formatting-toolbar-group"}>
+          {/*Left align button*/}
+          <button
+            className={`formatting-toolbar-button${
+              state.textAlignment === "left" ? " active" : ""
+            }`}
+            onClick={() => setTextAlignment("left")}>
+            <MdFormatAlignLeft />
+          </button>
+          {/* Center align button */}
+          <button
+            className={`formatting-toolbar-button${
+              state.textAlignment === "center" ? " active" : ""
+            }`}
+            onClick={() => setTextAlignment("center")}>
+            <MdFormatAlignCenter />
+          </button>
+          {/* Right align button */}
+          <button
+            className={`formatting-toolbar-button${
+              state.textAlignment === "right" ? " active" : ""
+            }`}
+            onClick={() => setTextAlignment("right")}>
+            <MdFormatAlignRight />
+          </button>
+          {/* Justify text button */}
+          <button
+            className={`formatting-toolbar-button${
+              state.textAlignment === "justify" ? " active" : ""
+            }`}
+            onClick={() => setTextAlignment("justify")}>
+            <MdFormatAlignJustify />
+          </button>
+        </div>
+      )}
       {/* Button group for color menu */}
       <div className={"formatting-toolbar-group"}>
         <div className={"color-menu-button"}>

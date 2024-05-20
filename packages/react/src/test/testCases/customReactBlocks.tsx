@@ -6,21 +6,21 @@ import {
   EditorTestCases,
   defaultBlockSpecs,
   defaultProps,
-  uploadToTmpFilesDotOrg_DEV_ONLY,
-  filePropSchema,
   fileParse,
-  imagePropSchema,
+  filePropSchema,
   imageParse,
+  imagePropSchema,
+  uploadToTmpFilesDotOrg_DEV_ONLY,
 } from "@blocknote/core";
 import { createContext, useContext } from "react";
-import { RiImage2Fill } from "react-icons/ri";
+import { RiFile2Line, RiImage2Fill } from "react-icons/ri";
 
+import { FileToExternalHTML } from "../../blocks/FileBlockContent/FileBlockContent";
 import {
   AddFileButton,
   DefaultFilePreview,
   FileAndCaptionWrapper,
 } from "../../blocks/FileBlockContent/fileBlockHelpers";
-import { FileToExternalHTML } from "../../blocks/FileBlockContent/FileBlockContent";
 import { createReactBlockSpec } from "../../schema/ReactBlockSpec";
 
 import {
@@ -38,7 +38,12 @@ const ReactFile = createReactBlockSpec(
     render: (props) => (
       <div className={"bn-file-block-content-wrapper"}>
         {props.block.props.url === "" ? (
-          <AddFileButton block={props.block} editor={props.editor as any} />
+          <AddFileButton
+            block={props.block}
+            editor={props.editor as any}
+            buttonText={"Add file"}
+            buttonIcon={<RiFile2Line size={24} />}
+          />
         ) : (
           <FileAndCaptionWrapper
             block={props.block}

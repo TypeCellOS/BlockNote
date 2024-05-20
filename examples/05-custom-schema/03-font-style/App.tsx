@@ -7,11 +7,11 @@ import {
   BlockTypeSelect,
   ColorStyleButton,
   CreateLinkButton,
+  FileCaptionButton,
   FormattingToolbar,
   FormattingToolbarController,
-  ImageCaptionButton,
   NestBlockButton,
-  ReplaceImageButton,
+  ReplaceFileButton,
   TextAlignButton,
   UnnestBlockButton,
   useBlockNoteEditor,
@@ -104,8 +104,8 @@ export default function App() {
           <FormattingToolbar>
             <BlockTypeSelect key={"blockTypeSelect"} />
 
-            <ImageCaptionButton key={"imageCaptionButton"} />
-            <ReplaceImageButton key={"replaceImageButton"} />
+            <FileCaptionButton key={"fileCaptionButton"} />
+            <ReplaceFileButton key={"replaceFileButton"} />
 
             <BasicTextStyleButton
               basicTextStyle={"bold"}
