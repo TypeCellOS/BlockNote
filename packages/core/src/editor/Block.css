@@ -14,9 +14,10 @@ BASIC STYLES
 }
 
 .bn-block-content {
+  display: flex;
   padding: 3px 0;
   transition: font-size 0.2s;
-  width: fit-content;
+  width: 100%;
   /*
   because the content elements are display: block
   we use flex to position them next to list markers
@@ -238,9 +239,9 @@ NESTED BLOCKS
 /* FILES */
 
 /* Add block button & default preview */
-[data-file-block]:not([data-url]),
-[data-content-type="file"],
-[data-file-block][data-show-preview="false"] {
+[data-file-block]:not([data-url]) > .bn-file-block-content-wrapper,
+[data-file-block][data-show-preview="false"] > .bn-file-block-content-wrapper,
+[data-content-type="file"] > .bn-file-block-content-wrapper {
   width: 100%;
 }
 
@@ -250,7 +251,6 @@ NESTED BLOCKS
   flex-direction: column;
   justify-content: stretch;
   user-select: none;
-  width: 100%;
 }
 
 [data-file-block] .bn-add-file-button {
@@ -328,7 +328,7 @@ NESTED BLOCKS
   cursor: ew-resize;
 }
 
-[data-content-type="audio"], .bn-audio {
+[data-content-type="audio"] > .bn-file-block-content-wrapper, .bn-audio {
   width: 100%;
 }
 
@@ -429,21 +429,21 @@ NESTED BLOCKS
 
 /* TEXT ALIGNMENT */
 [data-text-alignment="left"] {
-  align-self: flex-start;
+  justify-content: flex-start;
   text-align: left;
 }
 
 [data-text-alignment="center"] {
-  align-self: center;
+  justify-content: center;
   text-align: center;
 }
 
 [data-text-alignment="right"] {
-  align-self: flex-end;
+  justify-content: flex-end;
   text-align: right;
 }
 
 [data-text-alignment="justify"] {
-  align-self: flex-start;
+  justify-content: flex-start;
   text-align: justify;
 }
