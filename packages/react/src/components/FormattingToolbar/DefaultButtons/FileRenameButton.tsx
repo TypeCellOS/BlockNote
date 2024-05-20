@@ -53,7 +53,6 @@ export const FileRenameButton = () => {
       if (fileBlock && event.key === "Enter") {
         event.preventDefault();
         editor.updateBlock(fileBlock, {
-          type: "file",
           props: {
             name: currentEditingName as any, // TODO
           },

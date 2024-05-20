@@ -150,6 +150,7 @@ export const imageToExternalHTML = (
 
   const image = document.createElement("img");
   image.src = block.props.url;
+  image.alt = block.props.caption || "BlockNote image";
 
   if (block.props.caption) {
     return createFigureWithCaption(image, block.props.caption);

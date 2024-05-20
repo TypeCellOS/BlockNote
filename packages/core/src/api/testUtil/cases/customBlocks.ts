@@ -1,7 +1,5 @@
 import { EditorTestCases } from "../index";
 
-import { filePropSchema } from "../../../blocks/FileBlockContent/fileBlockConfig";
-import { fileRender } from "../../../blocks/FileBlockContent/fileBlockHelpers";
 import { uploadToTmpFilesDotOrg_DEV_ONLY } from "../../../blocks/FileBlockContent/uploadToTmpFilesDotOrg_DEV_ONLY";
 import {
   DefaultInlineContentSchema,
@@ -12,18 +10,22 @@ import { defaultProps } from "../../../blocks/defaultProps";
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
 import { BlockNoteSchema } from "../../../editor/BlockNoteSchema";
 import { createBlockSpec } from "../../../schema";
+import {
+  imagePropSchema,
+  imageRender,
+} from "../../../blocks/ImageBlockContent/ImageBlockContent";
 
-// This is a modified version of the default file block that does not implement
+// This is a modified version of the default image block that does not implement
 // a `toExternalHTML` function. It's used to test if the custom serializer by
 // default serializes custom blocks using their `render` function.
-const SimpleFile = createBlockSpec(
+const SimpleImage = createBlockSpec(
   {
-    type: "simpleFile",
-    propSchema: filePropSchema,
+    type: "simpleImage",
+    propSchema: imagePropSchema,
     content: "none",
   },
   {
-    render: (block, editor) => fileRender(block as any, editor as any),
+    render: (block, editor) => imageRender(block as any, editor as any),
   }
 );
 
@@ -77,7 +79,7 @@ const SimpleCustomParagraph = createBlockSpec(
 const schema = BlockNoteSchema.create({
   blockSpecs: {
     ...defaultBlockSpecs,
-    simpleFile: SimpleFile,
+    simpleImage: SimpleImage,
     customParagraph: CustomParagraph,
     simpleCustomParagraph: SimpleCustomParagraph,
   },
@@ -97,18 +99,18 @@ export const customBlocksTestCases: EditorTestCases<
   },
   documents: [
     {
-      name: "simpleFile/button",
+      name: "simpleImage/button",
       blocks: [
         {
-          type: "simpleFile",
+          type: "simpleImage",
         },
       ],
     },
     {
-      name: "simpleFile/basic",
+      name: "simpleImage/basic",
       blocks: [
         {
-          type: "simpleFile",
+          type: "simpleImage",
           props: {
             url: "exampleURL",
             caption: "Caption",
@@ -118,10 +120,10 @@ export const customBlocksTestCases: EditorTestCases<
       ],
     },
     {
-      name: "simpleFile/nested",
+      name: "simpleImage/nested",
       blocks: [
         {
-          type: "simpleFile",
+          type: "simpleImage",
           props: {
             url: "exampleURL",
             caption: "Caption",
@@ -129,7 +131,7 @@ export const customBlocksTestCases: EditorTestCases<
           },
           children: [
             {
-              type: "simpleFile",
+              type: "simpleImage",
               props: {
                 url: "exampleURL",
                 caption: "Caption",

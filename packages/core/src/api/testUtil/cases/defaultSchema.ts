@@ -143,10 +143,7 @@ export const defaultSchemaTestCases: EditorTestCases<
       name: "image/button",
       blocks: [
         {
-          type: "file",
-          props: {
-            fileType: "image",
-          },
+          type: "image",
         },
       ],
     },
@@ -154,9 +151,8 @@ export const defaultSchemaTestCases: EditorTestCases<
       name: "image/basic",
       blocks: [
         {
-          type: "file",
+          type: "image",
           props: {
-            fileType: "image",
             url: "exampleURL",
             caption: "Caption",
             previewWidth: 256,
@@ -168,18 +164,16 @@ export const defaultSchemaTestCases: EditorTestCases<
       name: "image/nested",
       blocks: [
         {
-          type: "file",
+          type: "image",
           props: {
-            fileType: "image",
             url: "exampleURL",
             caption: "Caption",
             previewWidth: 256,
           },
           children: [
             {
-              type: "file",
+              type: "image",
               props: {
-                fileType: "image",
                 url: "exampleURL",
                 caption: "Caption",
                 previewWidth: 256,

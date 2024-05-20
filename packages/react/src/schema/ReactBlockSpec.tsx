@@ -61,6 +61,7 @@ export function BlockContentWrapper<
   blockType: BType;
   blockProps: Props<PSchema>;
   propSchema: PSchema;
+  isFileBlock?: boolean;
   domAttributes?: Record<string, string>;
   children: ReactNode;
 }) {
@@ -94,7 +95,8 @@ export function BlockContentWrapper<
           .map(([prop, value]) => {
             return [camelToDataKebab(prop), value];
           })
-      )}>
+      )}
+      data-file-block={props.isFileBlock === true || undefined}>
       {props.children}
     </NodeViewWrapper>
   );
@@ -163,6 +165,7 @@ export function createReactBlockSpec<
                 blockType={block.type}
                 blockProps={block.props}
                 propSchema={blockConfig.propSchema}
+                isFileBlock={blockConfig.isFileBlock}
                 domAttributes={blockContentDOMAttributes}>
                 <BlockContent
                   block={block as any}

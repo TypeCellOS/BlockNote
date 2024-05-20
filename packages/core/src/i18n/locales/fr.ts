@@ -107,9 +107,19 @@ export const fr: Dictionary = {
     numberedListItem: "Liste",
   },
   // TODO
-  file: {
-    button_add_text: "Add",
-    button_default_file_type_text: "file",
+  file_blocks: {
+    image: {
+      add_button_text: "Add image",
+    },
+    video: {
+      add_button_text: "Add video",
+    },
+    audio: {
+      add_button_text: "Add audio",
+    },
+    file: {
+      add_button_text: "Add file",
+    },
   },
   // from react package:
   side_menu: {

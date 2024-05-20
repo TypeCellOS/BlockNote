@@ -1,4 +1,3 @@
-import { createContext, useContext } from "react";
 import {
   BlockNoteEditor,
   BlockNoteSchema,
@@ -9,9 +8,25 @@ import {
   defaultProps,
   uploadToTmpFilesDotOrg_DEV_ONLY,
   filePropSchema,
+  fileParse,
+  imagePropSchema,
+  imageParse,
 } from "@blocknote/core";
+import { createContext, useContext } from "react";
+import { RiImage2Fill } from "react-icons/ri";
+
+import {
+  AddFileButton,
+  DefaultFilePreview,
+  FileAndCaptionWrapper,
+} from "../../blocks/FileBlockContent/fileBlockHelpers";
+import { FileToExternalHTML } from "../../blocks/FileBlockContent/FileBlockContent";
 import { createReactBlockSpec } from "../../schema/ReactBlockSpec";
-import { createReactFileBlockImplementation } from "../../components/FileBlock/FileBlockContent";
+
+import {
+  ImagePreview,
+  ImageToExternalHTML,
+} from "../../blocks/ImageBlockContent/ImageBlockContent";
 
 const ReactFile = createReactBlockSpec(
   {
@@ -19,7 +34,76 @@ const ReactFile = createReactBlockSpec(
     propSchema: filePropSchema,
     content: "none",
   },
-  createReactFileBlockImplementation() as any
+  {
+    render: (props) => (
+      <div className={"bn-file-block-content-wrapper"}>
+        {props.block.props.url === "" ? (
+          <AddFileButton block={props.block} editor={props.editor as any} />
+        ) : (
+          <FileAndCaptionWrapper
+            block={props.block}
+            editor={props.editor as any}>
+            <DefaultFilePreview
+              block={props.block}
+              editor={props.editor as any}
+            />
+          </FileAndCaptionWrapper>
+        )}
+      </div>
+    ),
+    parse: fileParse,
+    toExternalHTML: (props) => (
+      <FileToExternalHTML
+        block={props.block as any}
+        editor={props.editor as any}
+      />
+    ),
+  }
+);
+
+const ReactImage = createReactBlockSpec(
+  {
+    type: "reactImage",
+    propSchema: imagePropSchema,
+    content: "none",
+    isFileBlock: true,
+  },
+  {
+    render: (props) => (
+      <div className={"bn-file-block-content-wrapper"}>
+        {props.block.props.url === "" ? (
+          <AddFileButton
+            {...props}
+            editor={props.editor as any}
+            buttonText={"Add image"}
+            buttonIcon={<RiImage2Fill size={24} />}
+          />
+        ) : !props.block.props.showPreview ? (
+          <FileAndCaptionWrapper
+            block={props.block}
+            editor={props.editor as any}>
+            <DefaultFilePreview
+              block={props.block}
+              editor={props.editor as any}
+            />
+          </FileAndCaptionWrapper>
+        ) : (
+          <FileAndCaptionWrapper
+            block={props.block}
+            editor={props.editor as any}>
+            <ImagePreview block={props.block} editor={props.editor as any} />
+          </FileAndCaptionWrapper>
+        )}
+      </div>
+    ),
+    parse: imageParse,
+    toExternalHTML: (props) => (
+      <ImageToExternalHTML
+        block={props.block as any}
+        editor={props.editor as any}
+      />
+    ),
+  }
 );
 
 const ReactCustomParagraph = createReactBlockSpec(
@@ -77,6 +161,7 @@ const schema = BlockNoteSchema.create({
   blockSpecs: {
     ...defaultBlockSpecs,
     reactFile: ReactFile,
+    reactImage: ReactImage,
     reactCustomParagraph: ReactCustomParagraph,
     simpleReactCustomParagraph: SimpleReactCustomParagraph,
     reactContextParagraph: ReactContextParagraph,
@@ -141,10 +226,7 @@ export const customReactBlockSchemaTestCases: EditorTestCases<
       name: "reactImage/button",
       blocks: [
         {
-          type: "reactFile",
-          props: {
-            fileType: "image",
-          },
+          type: "reactImage",
         },
       ],
     },
@@ -152,9 +234,8 @@ export const customReactBlockSchemaTestCases: EditorTestCases<
       name: "reactImage/basic",
       blocks: [
         {
-          type: "reactFile",
+          type: "reactImage",
           props: {
-            fileType: "image",
             url: "exampleURL",
             caption: "Caption",
             previewWidth: 256,
@@ -166,18 +247,16 @@ export const customReactBlockSchemaTestCases: EditorTestCases<
       name: "reactImage/nested",
       blocks: [
         {
-          type: "reactFile",
+          type: "reactImage",
           props: {
-            fileType: "image",
             url: "exampleURL",
             caption: "Caption",
             previewWidth: 256,
           },
           children: [
             {
-              type: "reactFile",
+              type: "reactImage",
               props: {
-                fileType: "image",
                 url: "exampleURL",
                 caption: "Caption",
                 previewWidth: 256,

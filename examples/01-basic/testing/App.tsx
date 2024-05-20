@@ -6,12 +6,19 @@ import {
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
-import { ReactImageBlock, useCreateBlockNote } from "@blocknote/react";
+import {
+  ReactAudioBlock,
+  ReactImageBlock,
+  ReactVideoBlock,
+  useCreateBlockNote,
+} from "@blocknote/react";
 
 const schema = BlockNoteSchema.create({
   blockSpecs: {
     ...defaultBlockSpecs,
     image: ReactImageBlock,
+    video: ReactVideoBlock,
+    audio: ReactAudioBlock,
   },
 });
 

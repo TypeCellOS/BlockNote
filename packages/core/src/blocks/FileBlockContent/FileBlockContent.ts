@@ -100,20 +100,24 @@ export const fileToExternalHTML = (
     };
   }
 
-  const wrapper = document.createElement("div");
   const fileSrcLink = document.createElement("a");
   fileSrcLink.href = block.props.url;
   fileSrcLink.innerText = block.props.name;
-  wrapper.appendChild(fileSrcLink);
 
   if (block.props.caption) {
+    const wrapper = document.createElement("div");
     const fileCaption = document.createElement("p");
     fileCaption.innerText = block.props.caption;
+    wrapper.appendChild(fileSrcLink);
     wrapper.appendChild(fileCaption);
+
+    return {
+      dom: wrapper,
+    };
   }
 
   return {
-    dom: wrapper,
+    dom: fileSrcLink,
   };
 };
 

@@ -53,7 +53,6 @@ export const FileCaptionButton = () => {
       if (fileBlock && event.key === "Enter") {
         event.preventDefault();
         editor.updateBlock(fileBlock, {
-          type: "file",
           props: {
             caption: currentEditingCaption as any, // TODO
           },

@@ -66,7 +66,8 @@ export const createAddFileButton = (
 
   const addFileButtonText = document.createElement("p");
   addFileButtonText.className = "bn-add-file-button-text";
-  addFileButtonText.innerHTML = buttonText || "Add file";
+  addFileButtonText.innerHTML =
+    buttonText || editor.dictionary.file_blocks.file.add_button_text;
 
   // Prevents focus from moving to the button.
   const addFileButtonMouseDownHandler = (event: MouseEvent) => {
