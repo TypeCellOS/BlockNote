@@ -1,4 +1,5 @@
 import {
+  BlockSchema,
   DefaultBlockSchema,
   DefaultInlineContentSchema,
   DefaultStyleSchema,
@@ -13,6 +14,7 @@ import { useDictionary } from "../../../i18n/dictionary";
 import { FilePanelProps } from "../FilePanelProps";
 
 export const EmbedTab = <
+  B extends BlockSchema = DefaultBlockSchema,
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema
 >(
@@ -23,11 +25,7 @@ export const EmbedTab = <
 
   const { block } = props;
 
-  const editor = useBlockNoteEditor<
-    { file: DefaultBlockSchema["file"] },
-    I,
-    S
-  >();
+  const editor = useBlockNoteEditor<B, I, S>();
 
   const [currentURL, setCurrentURL] = useState<string>("");
 
@@ -44,9 +42,9 @@ export const EmbedTab = <
         event.preventDefault();
         editor.updateBlock(block, {
           props: {
-            name: currentURL.split("/")[-1],
+            name: currentURL.split("/")[-1], // TODO
             url: currentURL,
-          },
+          } as any,
         });
       }
     },
@@ -56,9 +54,9 @@ export const EmbedTab = <
   const handleURLClick = useCallback(() => {
     editor.updateBlock(block, {
       props: {
-        name: currentURL.split("/")[-1],
+        name: currentURL.split("/")[-1], // TODO
         url: currentURL,
-      },
+      } as any,
     });
   }, [editor, block, currentURL]);
 

@@ -7,9 +7,9 @@ import {
 } from "../../schema";
 import { defaultProps } from "../defaultProps";
 import {
-  createFileAndCaptionWrapper,
-  createDefaultFilePreview,
   createAddFileButton,
+  createDefaultFilePreview,
+  createFileAndCaptionWrapper,
   parseEmbedElement,
   parseFigureElement,
 } from "./fileBlockHelpers";
@@ -36,6 +36,7 @@ export const fileBlockConfig = {
   propSchema: filePropSchema,
   content: "none",
   isFileBlock: true,
+  isFileBlockPlaceholder: (block: any) => !block.props.url,
 } satisfies FileBlockConfig;
 
 export const fileRender = (

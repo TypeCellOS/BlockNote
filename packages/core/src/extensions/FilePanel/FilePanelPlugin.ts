@@ -1,11 +1,12 @@
 import { EditorState, Plugin, PluginKey, PluginView } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 
-import { DefaultBlockSchema } from "../../blocks/defaultBlocks";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import { UiElementPosition } from "../../extensions-shared/UiElementPosition";
 import type {
   BlockFromConfig,
+  BlockSchema,
+  FileBlockConfig,
   InlineContentSchema,
   StyleSchema,
 } from "../../schema";
@@ -16,13 +17,11 @@ export type FilePanelState<
   S extends StyleSchema
 > = UiElementPosition & {
   // TODO: This typing is not quite right (children should be from BSchema)
-  block: BlockFromConfig<DefaultBlockSchema["file"], I, S>;
+  block: BlockFromConfig<FileBlockConfig, I, S>;
 };
 
-export class FilePanelView<
-  I extends InlineContentSchema,
-  S extends StyleSchema
-> implements PluginView
+export class FilePanelView<I extends InlineContentSchema, S extends StyleSchema>
+  implements PluginView
 {
   public state?: FilePanelState<I, S>;
   public emitUpdate: () => void;
@@ -77,7 +76,7 @@ export class FilePanelView<
 
   update(view: EditorView, prevState: EditorState) {
     const pluginState: {
-      block: BlockFromConfig<DefaultBlockSchema["file"], I, S>;
+      block: BlockFromConfig<FileBlockConfig, I, S>;
     } = this.pluginKey.getState(view.state);
 
     if (!this.state?.show && pluginState.block) {
@@ -127,18 +126,17 @@ export class FilePanelView<
 const filePanelPluginKey = new PluginKey("FilePanelPlugin");
 
 export class FilePanelProsemirrorPlugin<
+  B extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
 > extends EventEmitter<any> {
   private view: FilePanelView<I, S> | undefined;
   public readonly plugin: Plugin;
 
-  constructor(
-    _editor: BlockNoteEditor<{ file: DefaultBlockSchema["file"] }, I, S>
-  ) {
+  constructor(_editor: BlockNoteEditor<B, I, S>) {
     super();
     this.plugin = new Plugin<{
-      block: BlockFromConfig<DefaultBlockSchema["file"], I, S> | undefined;
+      block: BlockFromConfig<FileBlockConfig, I, S> | undefined;
     }>({
       key: filePanelPluginKey,
       view: (editorView) => {
@@ -168,9 +166,8 @@ export class FilePanelProsemirrorPlugin<
           };
         },
         apply: (transaction) => {
-          const block:
-            | BlockFromConfig<DefaultBlockSchema["file"], I, S>
-            | undefined = transaction.getMeta(filePanelPluginKey)?.block;
+          const block: BlockFromConfig<FileBlockConfig, I, S> | undefined =
+            transaction.getMeta(filePanelPluginKey)?.block;
 
           return {
             block,

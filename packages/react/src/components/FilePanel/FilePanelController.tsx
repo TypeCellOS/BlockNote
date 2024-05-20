@@ -1,4 +1,5 @@
 import {
+  BlockSchema,
   DefaultBlockSchema,
   DefaultInlineContentSchema,
   DefaultStyleSchema,
@@ -15,16 +16,13 @@ import { FilePanel } from "./FilePanel";
 import { FilePanelProps } from "./FilePanelProps";
 
 export const FilePanelController = <
+  B extends BlockSchema = DefaultBlockSchema,
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema
 >(props: {
   fileToolbar?: FC<FilePanelProps<I, S>>;
 }) => {
-  const editor = useBlockNoteEditor<
-    { file: DefaultBlockSchema["file"] },
-    I,
-    S
-  >();
+  const editor = useBlockNoteEditor<B, I, S>();
 
   if (!editor.filePanel) {
     throw new Error(

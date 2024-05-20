@@ -1,4 +1,5 @@
 import {
+  BlockSchema,
   DefaultBlockSchema,
   DefaultInlineContentSchema,
   DefaultStyleSchema,
@@ -13,6 +14,7 @@ import { useDictionary } from "../../../i18n/dictionary";
 import { FilePanelProps } from "../FilePanelProps";
 
 export const UploadTab = <
+  B extends BlockSchema = DefaultBlockSchema,
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema
 >(
@@ -25,11 +27,7 @@ export const UploadTab = <
 
   const { block, setLoading } = props;
 
-  const editor = useBlockNoteEditor<
-    { file: DefaultBlockSchema["file"] },
-    I,
-    S
-  >();
+  const editor = useBlockNoteEditor<B, I, S>();
 
   const [uploadFailed, setUploadFailed] = useState<boolean>(false);
 
@@ -52,13 +50,16 @@ export const UploadTab = <
 
         if (editor.uploadFile !== undefined) {
           try {
-            const uploaded = await editor.uploadFile(file);
-            editor.updateBlock(block, {
-              props: {
-                // TODO: Get type from file extension, not MIME type
+            let props = await editor.uploadFile(file);
+            if (typeof props === "string") {
+              // received a url
+              props = {
                 name: file.name,
-                url: uploaded,
-              },
+                url: props,
+              };
+            }
+            editor.updateBlock(block, {
+              props: props as any,
             });
           } catch (e) {
             setUploadFailed(true);

@@ -5,10 +5,11 @@ export * from "./editor/BlockNoteView";
 export * from "./editor/ComponentsContext";
 export * from "./i18n/dictionary";
 
+export * from "./blocks/AudioBlockContent/AudioBlockContent";
 export * from "./blocks/FileBlockContent/FileBlockContent";
+export * from "./blocks/FileBlockContent/fileBlockHelpers";
 export * from "./blocks/ImageBlockContent/ImageBlockContent";
 export * from "./blocks/VideoBlockContent/VideoBlockContent";
-export * from "./blocks/AudioBlockContent/AudioBlockContent";
 
 export * from "./components/FormattingToolbar/DefaultButtons/BasicTextStyleButton";
 export * from "./components/FormattingToolbar/DefaultButtons/ColorStyleButton";

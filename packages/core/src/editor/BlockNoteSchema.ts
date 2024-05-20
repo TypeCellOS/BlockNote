@@ -23,6 +23,15 @@ import type {
 } from "../schema/blocks/types";
 import type { BlockNoteEditor } from "./BlockNoteEditor";
 
+function removeUndefined<T extends Record<string, any> | undefined>(obj: T): T {
+  if (!obj) {
+    return obj;
+  }
+  return Object.fromEntries(
+    Object.entries(obj).filter(([, value]) => value !== undefined)
+  ) as T;
+}
+
 export class BlockNoteSchema<
   BSchema extends BlockSchema,
   ISchema extends InlineContentSchema,
@@ -84,10 +93,10 @@ export class BlockNoteSchema<
     inlineContentSpecs?: InlineContentSpecs;
     styleSpecs?: StyleSpecs;
   }) {
-    this.blockSpecs = opts?.blockSpecs || defaultBlockSpecs;
+    this.blockSpecs = removeUndefined(opts?.blockSpecs) || defaultBlockSpecs;
     this.inlineContentSpecs =
-      opts?.inlineContentSpecs || defaultInlineContentSpecs;
-    this.styleSpecs = opts?.styleSpecs || defaultStyleSpecs;
+      removeUndefined(opts?.inlineContentSpecs) || defaultInlineContentSpecs;
+    this.styleSpecs = removeUndefined(opts?.styleSpecs) || defaultStyleSpecs;
 
     this.blockSchema = getBlockSchemaFromSpecs(this.blockSpecs) as any;
     this.inlineContentSchema = getInlineContentSchemaFromSpecs(

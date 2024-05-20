@@ -1,6 +1,7 @@
 import {
   BlockSchema,
   checkBlockIsFileBlock,
+  checkBlockIsFileBlockWithPlaceholder,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
@@ -45,7 +46,7 @@ export const FileDownloadButton = () => {
     }
   }, [fileBlock]);
 
-  if (!fileBlock || !fileBlock.props.url) {
+  if (!fileBlock || checkBlockIsFileBlockWithPlaceholder(fileBlock, editor)) {
     return null;
   }
 

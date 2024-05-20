@@ -1,4 +1,5 @@
 import {
+  BlockSchema,
   DefaultBlockSchema,
   DefaultInlineContentSchema,
   DefaultStyleSchema,
@@ -26,6 +27,7 @@ type PanelProps = ComponentProps["FilePanel"]["Root"];
  * using the `FilePanelPanel` component.
  */
 export const FilePanel = <
+  B extends BlockSchema = DefaultBlockSchema,
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema
 >(
@@ -35,11 +37,7 @@ export const FilePanel = <
   const Components = useComponentsContext()!;
   const dict = useDictionary();
 
-  const editor = useBlockNoteEditor<
-    { file: DefaultBlockSchema["file"] },
-    I,
-    S
-  >();
+  const editor = useBlockNoteEditor<B, I, S>();
 
   const [loading, setLoading] = useState<boolean>(false);
 

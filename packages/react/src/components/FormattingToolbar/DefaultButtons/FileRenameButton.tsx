@@ -1,6 +1,7 @@
 import {
   BlockSchema,
   checkBlockIsFileBlock,
+  checkBlockIsFileBlockWithPlaceholder,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
@@ -68,7 +69,7 @@ export const FileRenameButton = () => {
     []
   );
 
-  if (!fileBlock || !fileBlock.props.url) {
+  if (!fileBlock || checkBlockIsFileBlockWithPlaceholder(fileBlock, editor)) {
     return null;
   }
 

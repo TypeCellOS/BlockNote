@@ -1,6 +1,7 @@
 import {
   BlockSchema,
   checkBlockIsFileBlock,
+  checkBlockIsFileBlockWithPlaceholder,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
@@ -43,7 +44,7 @@ export const FileDeleteButton = () => {
     editor.removeBlocks([fileBlock!]);
   }, [editor, fileBlock]);
 
-  if (!fileBlock || !fileBlock.props.url) {
+  if (!fileBlock || checkBlockIsFileBlockWithPlaceholder(fileBlock, editor)) {
     return null;
   }
 

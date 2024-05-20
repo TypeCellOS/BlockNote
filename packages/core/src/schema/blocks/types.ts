@@ -24,15 +24,19 @@ export type BlockNoteDOMAttributes = Partial<{
 export type FileBlockConfig = {
   type: string;
   readonly propSchema: PropSchema & {
-    url: {
-      default: "";
-    };
     caption: {
       default: "";
     };
     name: {
       default: "";
     };
+
+    // URL is optional, as we also want to accept files with no URL, but for example ids
+    // (ids can be used for files that are resolved on the backend)
+    url?: {
+      default: "";
+    };
+
     // Whether to show the file preview or the name only.
     // This is useful for some file blocks, but not all
     // (e.g.: not relevant for default "file" block which doesn;'t show previews)
@@ -46,6 +50,7 @@ export type FileBlockConfig = {
   };
   content: "none";
   isFileBlock: true;
+  isFileBlockPlaceholder: (block: any) => boolean;
   // TODO: add "accept" mime types here
 };
 

@@ -1,5 +1,6 @@
 import {
   BlockSchema,
+  checkBlockIsFileBlockWithPlaceholder,
   checkBlockIsFileBlockWithPreview,
   InlineContentSchema,
   StyleSchema,
@@ -49,7 +50,7 @@ export const FilePreviewButton = () => {
     }
   }, [editor, fileBlock]);
 
-  if (!fileBlock || !fileBlock.props.url) {
+  if (!fileBlock || checkBlockIsFileBlockWithPlaceholder(fileBlock, editor)) {
     return null;
   }
 

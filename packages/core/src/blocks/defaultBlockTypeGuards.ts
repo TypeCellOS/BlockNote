@@ -76,6 +76,15 @@ export function checkBlockIsFileBlockWithPreview<
   );
 }
 
+export function checkBlockIsFileBlockWithPlaceholder<
+  B extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(block: Block<B, I, S>, editor: BlockNoteEditor<B, I, S>) {
+  const config = editor.schema.blockSchema[block.type];
+  return config.isFileBlock && config.isFileBlockPlaceholder(block);
+}
+
 export function checkBlockTypeHasDefaultProp<
   Prop extends keyof typeof defaultProps,
   I extends InlineContentSchema,
