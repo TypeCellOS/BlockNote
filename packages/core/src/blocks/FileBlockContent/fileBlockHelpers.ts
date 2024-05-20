@@ -344,6 +344,8 @@ export const createResizeHandlesWrapper = (
     destroy: () => {
       window.removeEventListener("mousemove", windowMouseMoveHandler);
       window.removeEventListener("mouseup", windowMouseUpHandler);
+      element.removeEventListener("mouseenter", elementMouseEnterHandler);
+      element.removeEventListener("mouseleave", elementMouseLeaveHandler);
       leftResizeHandle.removeEventListener(
         "mousedown",
         leftResizeHandleMouseDownHandler
