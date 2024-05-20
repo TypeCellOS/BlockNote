@@ -13,6 +13,7 @@ import {
   createDefaultFilePreview,
   createFigureWithCaption,
   createFileAndCaptionWrapper,
+  createLinkWithCaption,
   createResizeHandlesWrapper,
   parseFigureElement,
 } from "../FileBlockContent/fileBlockHelpers";
@@ -87,7 +88,7 @@ export const imageRender = (
     const image = document.createElement("img");
     image.className = "bn-visual-media";
     image.src = block.props.url;
-    image.alt = block.props.caption || "BlockNote image";
+    image.alt = block.props.name || block.props.caption || "BlockNote image";
     image.contentEditable = "false";
     image.draggable = false;
     image.width = Math.min(
@@ -142,19 +143,31 @@ export const imageToExternalHTML = (
 ) => {
   if (!block.props.url) {
     const div = document.createElement("p");
-    div.innerHTML = "Add image";
+    div.textContent = "Add image";
 
     return {
       dom: div,
     };
   }
 
-  const image = document.createElement("img");
-  image.src = block.props.url;
-  image.alt = block.props.caption || "BlockNote image";
+  let image;
+  if (block.props.showPreview) {
+    image = document.createElement("img");
+    image.src = block.props.url;
+    image.alt = block.props.name || block.props.caption || "BlockNote image";
+    image.width = block.props.previewWidth;
+  } else {
+    image = document.createElement("a");
+    image.href = block.props.url;
+    image.textContent = block.props.name || block.props.url;
+  }
 
   if (block.props.caption) {
-    return createFigureWithCaption(image, block.props.caption);
+    if (block.props.showPreview) {
+      return createFigureWithCaption(image, block.props.caption);
+    } else {
+      return createLinkWithCaption(image, block.props.caption);
+    }
   }
 
   return {

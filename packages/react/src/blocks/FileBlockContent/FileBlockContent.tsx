@@ -9,6 +9,7 @@ import {
   AddFileButton,
   DefaultFilePreview,
   FileAndCaptionWrapper,
+  LinkWithCaption,
 } from "./fileBlockHelpers";
 
 export const FileToExternalHTML = (
@@ -21,14 +22,17 @@ export const FileToExternalHTML = (
     return <p>Add file</p>;
   }
 
-  const link = <a href={props.block.props.url}>{props.block.props.name}</a>;
+  const link = (
+    <a href={props.block.props.url}>
+      {props.block.props.name || props.block.props.url}
+    </a>
+  );
 
   if (props.block.props.caption) {
     return (
-      <div>
+      <LinkWithCaption caption={props.block.props.caption}>
         {link}
-        <p>{props.block.props.caption}</p>
-      </div>
+      </LinkWithCaption>
     );
   }
 

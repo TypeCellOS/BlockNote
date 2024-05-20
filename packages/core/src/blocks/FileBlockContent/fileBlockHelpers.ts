@@ -15,7 +15,7 @@ export const createDefaultFilePreview = (
 
   const fileName = document.createElement("p");
   fileName.className = "bn-file-default-preview-name";
-  fileName.innerText = block.props.name || "";
+  fileName.textContent = block.props.name || "";
 
   file.appendChild(icon);
   file.appendChild(fileName);
@@ -35,7 +35,7 @@ export const createFileAndCaptionWrapper = (
 
   const caption = document.createElement("p");
   caption.className = "bn-file-caption";
-  caption.innerText = block.props.caption;
+  caption.textContent = block.props.caption;
 
   fileAndCaptionWrapper.appendChild(file);
   fileAndCaptionWrapper.appendChild(caption);
@@ -130,6 +130,24 @@ export const parseFigureElement = (
   const caption = captionElement?.textContent ?? undefined;
 
   return { targetElement, caption };
+};
+
+// Wrapper figure element to display file link with caption. Used for external
+// HTML
+export const createLinkWithCaption = (
+  element: HTMLElement,
+  caption: string
+) => {
+  const wrapper = document.createElement("div");
+  const fileCaption = document.createElement("p");
+  fileCaption.textContent = caption;
+
+  wrapper.appendChild(element);
+  wrapper.appendChild(fileCaption);
+
+  return {
+    dom: wrapper,
+  };
 };
 
 // Wrapper figure element to display file preview with caption. Used for
@@ -344,6 +362,8 @@ export const createResizeHandlesWrapper = (
     destroy: () => {
       window.removeEventListener("mousemove", windowMouseMoveHandler);
       window.removeEventListener("mouseup", windowMouseUpHandler);
+      element.removeEventListener("mouseenter", elementMouseEnterHandler);
+      element.removeEventListener("mouseleave", elementMouseLeaveHandler);
       leftResizeHandle.removeEventListener(
         "mousedown",
         leftResizeHandleMouseDownHandler

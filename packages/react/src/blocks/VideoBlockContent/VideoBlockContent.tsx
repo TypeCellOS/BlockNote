@@ -12,6 +12,7 @@ import {
   ResizeHandlesWrapper,
   DefaultFilePreview,
   FigureWithCaption,
+  LinkWithCaption,
 } from "../FileBlockContent/fileBlockHelpers";
 
 export const VideoPreview = (
@@ -51,13 +52,23 @@ export const VideoToExternalHTML = (
     return <p>Add video</p>;
   }
 
-  const video = <video src={props.block.props.url} />;
+  const video = props.block.props.showPreview ? (
+    <video src={props.block.props.url} />
+  ) : (
+    <a href={props.block.props.url}>
+      {props.block.props.name || props.block.props.url}
+    </a>
+  );
 
   if (props.block.props.caption) {
-    return (
+    return props.block.props.showPreview ? (
       <FigureWithCaption caption={props.block.props.caption}>
         {video}
       </FigureWithCaption>
+    ) : (
+      <LinkWithCaption caption={props.block.props.caption}>
+        {video}
+      </LinkWithCaption>
     );
   }
 

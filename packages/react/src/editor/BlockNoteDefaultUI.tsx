@@ -11,7 +11,7 @@ export type BlockNoteDefaultUIProps = {
   linkToolbar?: boolean;
   slashMenu?: boolean;
   sideMenu?: boolean;
-  fileToolbar?: boolean;
+  filePanel?: boolean;
   tableHandles?: boolean;
 };
 
@@ -32,9 +32,7 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
         <SuggestionMenuController triggerCharacter="/" />
       )}
       {props.sideMenu !== false && <SideMenuController />}
-      {editor.filePanel && props.fileToolbar !== false && (
-        <FilePanelController />
-      )}
+      {editor.filePanel && props.filePanel !== false && <FilePanelController />}
       {editor.tableHandles && props.tableHandles !== false && (
         <TableHandlesController />
       )}

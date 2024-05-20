@@ -13,6 +13,7 @@ import {
   createDefaultFilePreview,
   createFigureWithCaption,
   createFileAndCaptionWrapper,
+  createLinkWithCaption,
   createResizeHandlesWrapper,
   parseFigureElement,
 } from "../FileBlockContent/fileBlockHelpers";
@@ -142,18 +143,30 @@ export const videoToExternalHTML = (
 ) => {
   if (!block.props.url) {
     const div = document.createElement("p");
-    div.innerHTML = "Add video";
+    div.textContent = "Add video";
 
     return {
       dom: div,
     };
   }
 
-  const video = document.createElement("video");
-  video.src = block.props.url;
+  let video;
+  if (block.props.showPreview) {
+    video = document.createElement("video");
+    video.src = block.props.url;
+    video.width = block.props.previewWidth;
+  } else {
+    video = document.createElement("a");
+    video.href = block.props.url;
+    video.textContent = block.props.name || block.props.url;
+  }
 
   if (block.props.caption) {
-    return createFigureWithCaption(video, block.props.caption);
+    if (block.props.showPreview) {
+      return createFigureWithCaption(video, block.props.caption);
+    } else {
+      return createLinkWithCaption(video, block.props.caption);
+    }
   }
 
   return {

@@ -112,8 +112,33 @@ export const defaultSchemaTestCases: EditorTestCases<
         {
           type: "file",
           props: {
+            name: "example",
             url: "exampleURL",
             caption: "Caption",
+          },
+        },
+      ],
+    },
+    {
+      name: "file/noName",
+      blocks: [
+        {
+          type: "file",
+          props: {
+            url: "exampleURL",
+            caption: "Caption",
+          },
+        },
+      ],
+    },
+    {
+      name: "file/noCaption",
+      blocks: [
+        {
+          type: "file",
+          props: {
+            name: "example",
+            url: "exampleURL",
           },
         },
       ],
@@ -124,6 +149,7 @@ export const defaultSchemaTestCases: EditorTestCases<
         {
           type: "file",
           props: {
+            name: "example",
             url: "exampleURL",
             caption: "Caption",
           },
@@ -131,6 +157,7 @@ export const defaultSchemaTestCases: EditorTestCases<
             {
               type: "file",
               props: {
+                name: "example",
                 url: "exampleURL",
                 caption: "Caption",
               },
@@ -153,8 +180,50 @@ export const defaultSchemaTestCases: EditorTestCases<
         {
           type: "image",
           props: {
+            name: "example",
             url: "exampleURL",
             caption: "Caption",
+            previewWidth: 256,
+          },
+        },
+      ],
+    },
+    {
+      name: "image/noName",
+      blocks: [
+        {
+          type: "image",
+          props: {
+            url: "exampleURL",
+            caption: "Caption",
+            previewWidth: 256,
+          },
+        },
+      ],
+    },
+    {
+      name: "image/noCaption",
+      blocks: [
+        {
+          type: "image",
+          props: {
+            name: "example",
+            url: "exampleURL",
+            previewWidth: 256,
+          },
+        },
+      ],
+    },
+    {
+      name: "image/noPreview",
+      blocks: [
+        {
+          type: "image",
+          props: {
+            name: "example",
+            url: "exampleURL",
+            caption: "Caption",
+            showPreview: false,
             previewWidth: 256,
           },
         },

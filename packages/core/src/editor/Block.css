@@ -237,7 +237,14 @@ NESTED BLOCKS
 
 /* FILES */
 
-.bn-file-block-content-wrapper {
+/* Add block button & default preview */
+[data-file-block]:not([data-url]),
+[data-content-type="file"],
+[data-file-block][data-show-preview="false"] {
+  width: 100%;
+}
+
+[data-file-block] .bn-file-block-content-wrapper {
   cursor: pointer;
   display: flex;
   flex-direction: column;
@@ -246,14 +253,7 @@ NESTED BLOCKS
   width: 100%;
 }
 
-/* Add block button & default preview */
-[data-file-block]:not([data-url]),
-[data-content-type="file"],
-[data-file-block][data-show-preview="false"] {
-  width: 100%;
-}
-
-.bn-add-file-button {
+[data-file-block] .bn-add-file-button {
   align-items: center;
   background-color: rgb(242, 241, 238);
   border-radius: 4px;
@@ -266,26 +266,26 @@ NESTED BLOCKS
   width: 100%;
 }
 
-.bn-add-file-button:hover {
+[data-file-block] .bn-add-file-button:hover {
   background-color: rgb(55, 53, 47, 0.16);
 }
 
-.bn-add-file-button-icon {
+[data-file-block] .bn-add-file-button-icon {
   width: 24px;
   height: 24px;
 }
 
-.bn-add-file-button .bn-add-file-button-text {
+[data-file-block] .bn-add-file-button .bn-add-file-button-text {
   font-size: 0.9rem;
 }
 
-.bn-file-and-caption-wrapper {
+[data-file-block] .bn-file-and-caption-wrapper {
   display: flex;
   flex-direction: column;
   border-radius: 4px;
 }
 
-.bn-file-default-preview {
+[data-file-block] .bn-file-default-preview {
   align-items: center;
   border-radius: 4px;
   display: flex;
@@ -295,17 +295,17 @@ NESTED BLOCKS
   width: 100%;
 }
 
-.bn-file-default-preview:hover,
+[data-file-block] .bn-file-default-preview:hover,
 .ProseMirror-selectednode .bn-file-default-preview {
   background-color: rgba(55, 53, 47, 0.08);
 }
 
-.bn-file-default-preview-icon {
+[data-file-block] .bn-file-default-preview-icon {
   width: 24px;
   height: 24px;
 }
 
-.bn-visual-media-wrapper {
+[data-file-block] .bn-visual-media-wrapper {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -313,12 +313,12 @@ NESTED BLOCKS
   width: fit-content;
 }
 
-.bn-visual-media {
+[data-file-block] .bn-visual-media {
   border-radius: 4px;
   max-width: 100%;
 }
 
-.bn-visual-media-resize-handle {
+[data-file-block] .bn-visual-media-resize-handle {
   position: absolute;
   width: 8px;
   height: 30px;
@@ -332,12 +332,12 @@ NESTED BLOCKS
   width: 100%;
 }
 
-.bn-file-caption {
+[data-file-block] .bn-file-caption {
   font-size: 0.8em;
   padding-block: 4px;
 }
 
-.bn-file-caption:empty {
+[data-file-block] .bn-file-caption:empty {
   padding-block: 0;
 }
 

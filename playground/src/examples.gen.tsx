@@ -251,7 +251,7 @@
           ],
           "dependencies": {
             "@mantine/core": "^7.7.1",
-            "react-icons": "^4.3.1"
+            "react-icons": "^5.2.1"
           }
         },
         "title": "Adding Block Type Select Items",
@@ -275,7 +275,7 @@
             "Block Side Menu"
           ],
           "dependencies": {
-            "react-icons": "^4.3.1"
+            "react-icons": "^5.2.1"
           }
         },
         "title": "Adding Block Side Menu Buttons",
@@ -299,7 +299,7 @@
             "Block Side Menu"
           ],
           "dependencies": {
-            "react-icons": "^4.3.1"
+            "react-icons": "^5.2.1"
           }
         },
         "title": "Adding Drag Handle Menu Items",
@@ -324,7 +324,7 @@
             "Slash Menu"
           ],
           "dependencies": {
-            "react-icons": "^4.3.1"
+            "react-icons": "^5.2.1"
           }
         },
         "title": "Adding Slash Menu Items",
@@ -374,7 +374,7 @@
             "Appearance & Styling"
           ],
           "dependencies": {
-            "react-icons": "^4.3.1"
+            "react-icons": "^5.2.1"
           }
         },
         "title": "Custom UI",
@@ -613,7 +613,7 @@
           ],
           "dependencies": {
             "@mantine/core": "^7.7.1",
-            "react-icons": "^4.3.1"
+            "react-icons": "^5.2.1"
           }
         },
         "title": "Alert Block",
@@ -659,6 +659,32 @@
           ]
         },
         "title": "Font Style",
+        "group": {
+          "pathFromRoot": "examples/05-custom-schema",
+          "slug": "custom-schema"
+        }
+      },
+      {
+        "projectSlug": "pdf-file-block",
+        "fullSlug": "custom-schema/pdf-file-block",
+        "pathFromRoot": "examples/05-custom-schema/04-pdf-file-block",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "matthewlipski",
+          "tags": [
+            "Intermediate",
+            "Blocks",
+            "Custom Schemas",
+            "Suggestion Menus",
+            "Slash Menu"
+          ],
+          "dependencies": {
+            "@mantine/core": "^7.7.1",
+            "react-icons": "^5.2.1"
+          }
+        },
+        "title": "PDF Block",
         "group": {
           "pathFromRoot": "examples/05-custom-schema",
           "slug": "custom-schema"

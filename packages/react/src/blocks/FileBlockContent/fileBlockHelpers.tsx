@@ -30,13 +30,7 @@ export const FileAndCaptionWrapper = (
     <div className={"bn-file-and-caption-wrapper"}>
       {props.children}
       {props.block.props.caption && (
-        <p
-          className={"bn-file-caption"}
-          style={{
-            paddingBlock: props.block.props.caption ? "4px" : undefined,
-          }}>
-          {props.block.props.caption}
-        </p>
+        <p className={"bn-file-caption"}>{props.block.props.caption}</p>
       )}
     </div>
   );
@@ -88,6 +82,16 @@ export const AddFileButton = (
   );
 };
 
+export const LinkWithCaption = (props: {
+  caption: string;
+  children: ReactNode;
+}) => (
+  <div>
+    {props.children}
+    <p>{props.caption}</p>
+  </div>
+);
+
 export const FigureWithCaption = (props: {
   caption: string;
   children: ReactNode;
@@ -121,33 +125,29 @@ export const ResizeHandlesWrapper = (
     // Updates the child width with an updated width depending on the cursor X
     // offset from when the resize began, and which resize handle is being used.
     const windowMouseMoveHandler = (event: MouseEvent) => {
-      if (!resizeParams) {
-        return;
-      }
-
       let newWidth: number;
 
       if (props.block.props.textAlignment === "center") {
-        if (resizeParams.handleUsed === "left") {
+        if (resizeParams!.handleUsed === "left") {
           newWidth =
-            resizeParams.initialWidth +
-            (resizeParams.initialClientX - event.clientX) * 2;
+            resizeParams!.initialWidth +
+            (resizeParams!.initialClientX - event.clientX) * 2;
         } else {
           newWidth =
-            resizeParams.initialWidth +
-            (event.clientX - resizeParams.initialClientX) * 2;
+            resizeParams!.initialWidth +
+            (event.clientX - resizeParams!.initialClientX) * 2;
         }
       } else {
-        if (resizeParams.handleUsed === "left") {
+        if (resizeParams!.handleUsed === "left") {
           newWidth =
-            resizeParams.initialWidth +
-            resizeParams.initialClientX -
+            resizeParams!.initialWidth +
+            resizeParams!.initialClientX -
             event.clientX;
         } else {
           newWidth =
-            resizeParams.initialWidth +
+            resizeParams!.initialWidth +
             event.clientX -
-            resizeParams.initialClientX;
+            resizeParams!.initialClientX;
         }
       }
 
@@ -169,10 +169,6 @@ export const ResizeHandlesWrapper = (
     // Stops mouse movements from resizing the child and updates the block's
     // `width` prop to the new value.
     const windowMouseUpHandler = () => {
-      if (!resizeParams) {
-        return;
-      }
-
       setResizeParams(undefined);
 
       (props.editor as any).updateBlock(props.block, {
@@ -182,8 +178,10 @@ export const ResizeHandlesWrapper = (
       });
     };
 
-    window.addEventListener("mousemove", windowMouseMoveHandler);
-    window.addEventListener("mouseup", windowMouseUpHandler);
+    if (resizeParams) {
+      window.addEventListener("mousemove", windowMouseMoveHandler);
+      window.addEventListener("mouseup", windowMouseUpHandler);
+    }
 
     return () => {
       window.removeEventListener("mousemove", windowMouseMoveHandler);

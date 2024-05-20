@@ -1,13 +1,14 @@
 [
   {
     "id": "1",
-    "type": "file",
+    "type": "image",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
-      "fileType": "image",
+      "name": "",
       "url": "exampleURL",
       "caption": "",
+      "showPreview": true,
       "previewWidth": 512
     },
     "children": []

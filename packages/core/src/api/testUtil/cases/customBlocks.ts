@@ -112,8 +112,50 @@ export const customBlocksTestCases: EditorTestCases<
         {
           type: "simpleImage",
           props: {
+            name: "example",
             url: "exampleURL",
             caption: "Caption",
+            previewWidth: 256,
+          },
+        },
+      ],
+    },
+    {
+      name: "simpleImage/noName",
+      blocks: [
+        {
+          type: "simpleImage",
+          props: {
+            url: "exampleURL",
+            caption: "Caption",
+            previewWidth: 256,
+          },
+        },
+      ],
+    },
+    {
+      name: "simpleImage/noCaption",
+      blocks: [
+        {
+          type: "simpleImage",
+          props: {
+            name: "example",
+            url: "exampleURL",
+            previewWidth: 256,
+          },
+        },
+      ],
+    },
+    {
+      name: "simpleImage/noPreview",
+      blocks: [
+        {
+          type: "simpleImage",
+          props: {
+            name: "example",
+            url: "exampleURL",
+            caption: "Caption",
+            showPreview: false,
             previewWidth: 256,
           },
         },
@@ -125,6 +167,7 @@ export const customBlocksTestCases: EditorTestCases<
         {
           type: "simpleImage",
           props: {
+            name: "example",
             url: "exampleURL",
             caption: "Caption",
             previewWidth: 256,
@@ -133,6 +176,7 @@ export const customBlocksTestCases: EditorTestCases<
             {
               type: "simpleImage",
               props: {
+                name: "example",
                 url: "exampleURL",
                 caption: "Caption",
                 previewWidth: 256,
