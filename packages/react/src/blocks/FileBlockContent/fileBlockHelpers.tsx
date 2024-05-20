@@ -47,8 +47,8 @@ export const AddFileButton = (
     ReactCustomBlockRenderProps<FileBlockConfig, any, any>,
     "contentRef"
   > & {
-    buttonText?: string;
-    buttonIcon?: ReactNode;
+    buttonText: string;
+    buttonIcon: ReactNode;
   }
 ) => {
   // Prevents focus from moving to the button.
@@ -83,10 +83,7 @@ export const AddFileButton = (
       <div className={"bn-add-file-button-icon"}>
         {props.buttonIcon || <RiFile2Line size={24} />}
       </div>
-      <div className={"bn-add-file-button-text"}>
-        {props.buttonText ||
-          props.editor.dictionary.file_blocks.file.add_button_text}
-      </div>
+      <div className={"bn-add-file-button-text"}>{props.buttonText}</div>
     </div>
   );
 };

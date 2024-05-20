@@ -23,7 +23,6 @@ export type BlockNoteDOMAttributes = Partial<{
 
 export type FileBlockConfig = {
   type: string;
-  // TODO: The `PropSchema & ` breaks typing for `parse` function
   readonly propSchema: PropSchema & {
     url: {
       default: "";
@@ -35,6 +34,8 @@ export type FileBlockConfig = {
       default: "";
     };
     // Whether to show the file preview or the name only.
+    // This is useful for some file blocks, but not all
+    // (e.g.: not relevant for default "file" block which doesn;'t show previews)
     showPreview?: {
       default: boolean;
     };

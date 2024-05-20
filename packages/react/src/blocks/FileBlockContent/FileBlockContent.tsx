@@ -1,13 +1,14 @@
 import { fileBlockConfig, fileParse } from "@blocknote/core";
 
+import { RiFile2Line } from "react-icons/ri";
 import {
   createReactBlockSpec,
   ReactCustomBlockRenderProps,
 } from "../../schema/ReactBlockSpec";
 import {
-  FileAndCaptionWrapper,
   AddFileButton,
   DefaultFilePreview,
+  FileAndCaptionWrapper,
 } from "./fileBlockHelpers";
 
 export const FileToExternalHTML = (
@@ -38,7 +39,12 @@ export const ReactFileBlock = createReactBlockSpec(fileBlockConfig, {
   render: (props) => (
     <div className={"bn-file-block-content-wrapper"}>
       {props.block.props.url === "" ? (
-        <AddFileButton block={props.block} editor={props.editor as any} />
+        <AddFileButton
+          block={props.block}
+          editor={props.editor as any}
+          buttonIcon={<RiFile2Line size={24} />}
+          buttonText={props.editor.dictionary.file_blocks.file.add_button_text}
+        />
       ) : (
         <FileAndCaptionWrapper block={props.block} editor={props.editor as any}>
           <DefaultFilePreview
