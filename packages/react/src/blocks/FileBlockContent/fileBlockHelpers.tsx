@@ -30,13 +30,7 @@ export const FileAndCaptionWrapper = (
     <div className={"bn-file-and-caption-wrapper"}>
       {props.children}
       {props.block.props.caption && (
-        <p
-          className={"bn-file-caption"}
-          style={{
-            paddingBlock: props.block.props.caption ? "4px" : undefined,
-          }}>
-          {props.block.props.caption}
-        </p>
+        <p className={"bn-file-caption"}>{props.block.props.caption}</p>
       )}
     </div>
   );

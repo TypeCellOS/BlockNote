@@ -18,7 +18,7 @@ export const FilePanelController = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema
 >(props: {
-  fileToolbar?: FC<FilePanelProps<I, S>>;
+  filePanel?: FC<FilePanelProps<I, S>>;
 }) => {
   const editor = useBlockNoteEditor<
     { file: DefaultBlockSchema["file"] },
@@ -58,7 +58,7 @@ export const FilePanelController = <
 
   const { show, referencePos, ...data } = state;
 
-  const Component = props.fileToolbar || FilePanel;
+  const Component = props.filePanel || FilePanel;
 
   return (
     <div ref={ref} style={style} {...getFloatingProps()}>

@@ -251,7 +251,7 @@
           ],
           "dependencies": {
             "@mantine/core": "^7.7.1",
-            "react-icons": "^4.3.1"
+            "react-icons": "^5.2.1"
           }
         },
         "title": "Adding Block Type Select Items",
@@ -275,7 +275,7 @@
             "Block Side Menu"
           ],
           "dependencies": {
-            "react-icons": "^4.3.1"
+            "react-icons": "^5.2.1"
           }
         },
         "title": "Adding Block Side Menu Buttons",
@@ -299,7 +299,7 @@
             "Block Side Menu"
           ],
           "dependencies": {
-            "react-icons": "^4.3.1"
+            "react-icons": "^5.2.1"
           }
         },
         "title": "Adding Drag Handle Menu Items",
@@ -324,7 +324,7 @@
             "Slash Menu"
           ],
           "dependencies": {
-            "react-icons": "^4.3.1"
+            "react-icons": "^5.2.1"
           }
         },
         "title": "Adding Slash Menu Items",
@@ -374,7 +374,7 @@
             "Appearance & Styling"
           ],
           "dependencies": {
-            "react-icons": "^4.3.1"
+            "react-icons": "^5.2.1"
           }
         },
         "title": "Custom UI",
@@ -613,7 +613,7 @@
           ],
           "dependencies": {
             "@mantine/core": "^7.7.1",
-            "react-icons": "^4.3.1"
+            "react-icons": "^5.2.1"
           }
         },
         "title": "Alert Block",
@@ -681,7 +681,7 @@
           ],
           "dependencies": {
             "@mantine/core": "^7.7.1",
-            "react-icons": "^4.3.1"
+            "react-icons": "^5.2.1"
           }
         },
         "title": "PDF Block",

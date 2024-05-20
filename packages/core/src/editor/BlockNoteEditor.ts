@@ -254,10 +254,7 @@ export class BlockNoteEditor<
     this.linkToolbar = new LinkToolbarProsemirrorPlugin(this);
     this.sideMenu = new SideMenuProsemirrorPlugin(this);
     this.suggestionMenus = new SuggestionMenuProseMirrorPlugin(this);
-    if (checkDefaultBlockTypeInSchema("file", this)) {
-      // Type guards only work on `const`s? Not working for `this`
-      this.filePanel = new FilePanelProsemirrorPlugin(this as any);
-    }
+    this.filePanel = new FilePanelProsemirrorPlugin(this as any);
     if (checkDefaultBlockTypeInSchema("table", this)) {
       this.tableHandles = new TableHandlesProsemirrorPlugin(this as any);
     }
