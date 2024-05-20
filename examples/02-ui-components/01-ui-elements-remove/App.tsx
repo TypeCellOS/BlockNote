@@ -34,7 +34,7 @@ export default function App() {
       // Removes all menus and toolbars.
       formattingToolbar={false}
       linkToolbar={false}
-      fileToolbar={false}
+      filePanel={false}
       sideMenu={false}
       slashMenu={false}
       tableHandles={false}
