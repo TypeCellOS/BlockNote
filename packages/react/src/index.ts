@@ -6,6 +6,7 @@ export * from "./editor/ComponentsContext";
 export * from "./i18n/dictionary";
 
 export * from "./blocks/FileBlockContent/FileBlockContent";
+export * from "./blocks/FileBlockContent/fileBlockHelpers";
 export * from "./blocks/ImageBlockContent/ImageBlockContent";
 export * from "./blocks/VideoBlockContent/VideoBlockContent";
 export * from "./blocks/AudioBlockContent/AudioBlockContent";

@@ -665,6 +665,32 @@
         }
       },
       {
+        "projectSlug": "pdf-file-block",
+        "fullSlug": "custom-schema/pdf-file-block",
+        "pathFromRoot": "examples/05-custom-schema/04-pdf-file-block",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "matthewlipski",
+          "tags": [
+            "Intermediate",
+            "Blocks",
+            "Custom Schemas",
+            "Suggestion Menus",
+            "Slash Menu"
+          ],
+          "dependencies": {
+            "@mantine/core": "^7.7.1",
+            "react-icons": "^4.3.1"
+          }
+        },
+        "title": "PDF Block",
+        "group": {
+          "pathFromRoot": "examples/05-custom-schema",
+          "slug": "custom-schema"
+        }
+      },
+      {
         "projectSlug": "react-custom-blocks",
         "fullSlug": "custom-schema/react-custom-blocks",
         "pathFromRoot": "examples/05-custom-schema/react-custom-blocks",

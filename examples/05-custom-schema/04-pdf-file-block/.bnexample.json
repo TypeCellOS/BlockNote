@@ -1,0 +1,10 @@
+{
+  "playground": true,
+  "docs": true,
+  "author": "matthewlipski",
+  "tags": ["Intermediate", "Blocks", "Custom Schemas", "Suggestion Menus", "Slash Menu"],
+  "dependencies": {
+    "@mantine/core": "^7.7.1",
+    "react-icons": "^4.3.1"
+  }
+}
