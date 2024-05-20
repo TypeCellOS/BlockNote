@@ -52,6 +52,7 @@ export const PDF = createReactBlockSpec(
     },
     content: "none",
     isFileBlock: true,
+    isFileBlockPlaceholder: (block: any) => !block.props.url,
   },
   {
     render: (props) => (

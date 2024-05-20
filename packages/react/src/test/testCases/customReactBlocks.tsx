@@ -72,6 +72,7 @@ const ReactImage = createReactBlockSpec(
     propSchema: imagePropSchema,
     content: "none",
     isFileBlock: true,
+    isFileBlockPlaceholder: (block) => !block.props.url,
   },
   {
     render: (props) => (
