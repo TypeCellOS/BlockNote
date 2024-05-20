@@ -7,10 +7,10 @@ import {
   ColorStyleButton,
   CreateLinkButton,
   FileCaptionButton,
+  FileReplaceButton,
   FormattingToolbar,
   FormattingToolbarController,
   NestBlockButton,
-  ReplaceFileButton,
   TextAlignButton,
   UnnestBlockButton,
   useCreateBlockNote,
@@ -78,7 +78,7 @@ export default function App() {
             <BlueButton key={"customButton"} />
 
             <FileCaptionButton key={"fileCaptionButton"} />
-            <ReplaceFileButton key={"replaceFileButton"} />
+            <FileReplaceButton key={"replaceFileButton"} />
 
             <BasicTextStyleButton
               basicTextStyle={"bold"}

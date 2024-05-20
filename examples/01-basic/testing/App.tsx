@@ -26,7 +26,7 @@ export default function App() {
   // Creates a new editor instance.
   const editor = useCreateBlockNote({
     uploadFile: uploadToTmpFilesDotOrg_DEV_ONLY,
-    schema,
+    // schema,
   });
 
   // Renders the editor instance using a React component.

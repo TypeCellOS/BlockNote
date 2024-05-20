@@ -1,6 +1,6 @@
 import {
   BlockSchema,
-  checkBlockIsDefaultType,
+  checkBlockIsFileBlock,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
@@ -13,7 +13,7 @@ import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
 import { useDictionary } from "../../../i18n/dictionary";
 import { FilePanel } from "../../FilePanel/FilePanel";
 
-export const ReplaceFileButton = () => {
+export const FileReplaceButton = () => {
   const dict = useDictionary();
   const Components = useComponentsContext()!;
 
@@ -33,11 +33,7 @@ export const ReplaceFileButton = () => {
 
   const block = selectedBlocks.length === 1 ? selectedBlocks[0] : undefined;
 
-  if (
-    block === undefined ||
-    block.type !== "file" ||
-    !checkBlockIsDefaultType("file", block, editor)
-  ) {
+  if (block === undefined || !checkBlockIsFileBlock(block, editor)) {
     return null;
   }
 
@@ -48,8 +44,8 @@ export const ReplaceFileButton = () => {
           className={"bn-button"}
           onClick={() => setIsOpen(!isOpen)}
           isSelected={isOpen}
-          mainTooltip={dict.formatting_toolbar.file_replace.tooltip}
-          label={dict.formatting_toolbar.file_replace.tooltip}
+          mainTooltip={dict.formatting_toolbar.file_replace.tooltip[block.type]}
+          label={dict.formatting_toolbar.file_replace.tooltip[block.type]}
           icon={<RiImageEditFill />}
         />
       </Components.Generic.Popover.Trigger>

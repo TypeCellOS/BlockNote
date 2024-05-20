@@ -9,7 +9,7 @@ import {
   NestBlockButton,
   UnnestBlockButton,
 } from "./DefaultButtons/NestBlockButtons";
-import { ReplaceFileButton } from "./DefaultButtons/ReplaceFileButton";
+import { FileReplaceButton } from "./DefaultButtons/FileReplaceButton";
 import { TextAlignButton } from "./DefaultButtons/TextAlignButton";
 import {
   BlockTypeSelect,
@@ -26,7 +26,7 @@ export const getFormattingToolbarItems = (
 ): JSX.Element[] => [
   <BlockTypeSelect key={"blockTypeSelect"} items={blockTypeSelectItems} />,
   <FileCaptionButton key={"fileCaptionButton"} />,
-  <ReplaceFileButton key={"replaceFileButton"} />,
+  <FileReplaceButton key={"replaceFileButton"} />,
   <FileRenameButton key={"fileRenameButton"} />,
   <FileDeleteButton key={"fileDeleteButton"} />,
   <FileDownloadButton key={"fileDownloadButton"} />,

@@ -257,7 +257,7 @@ NESTED BLOCKS
   align-items: center;
   background-color: rgb(242, 241, 238);
   border-radius: 4px;
-  color: rgba(55, 53, 47, 0.65);
+  color: rgb(125, 121, 122);
   cursor: pointer;
   display: flex;
   flex-direction: row;
@@ -267,7 +267,7 @@ NESTED BLOCKS
 }
 
 [data-file-block] .bn-add-file-button:hover {
-  background-color: rgb(55, 53, 47, 0.16);
+  background-color: rgb(225, 225, 225);
 }
 
 [data-file-block] .bn-add-file-button-icon {
@@ -297,7 +297,7 @@ NESTED BLOCKS
 
 [data-file-block] .bn-file-default-preview:hover,
 .ProseMirror-selectednode .bn-file-default-preview {
-  background-color: rgba(55, 53, 47, 0.08);
+  background-color: rgb(225, 225, 225);
 }
 
 [data-file-block] .bn-file-default-preview-icon {

@@ -188,17 +188,42 @@ export const en = {
       input_placeholder: "Edit caption",
     },
     file_replace: {
-      tooltip: "Replace file",
+      tooltip: {
+        image: "Replace image",
+        video: "Replace video",
+        audio: "Replace audio",
+        file: "Replace file",
+      } as Record<string, string>,
     },
     file_rename: {
-      tooltip: "Rename file",
-      input_placeholder: "Rename file",
+      tooltip: {
+        image: "Rename image",
+        video: "Rename video",
+        audio: "Rename audio",
+        file: "Rename file",
+      } as Record<string, string>,
+      input_placeholder: {
+        image: "Rename image",
+        video: "Rename video",
+        audio: "Rename audio",
+        file: "Rename file",
+      } as Record<string, string>,
     },
     file_download: {
-      tooltip: "Download file",
+      tooltip: {
+        image: "Download image",
+        video: "Download video",
+        audio: "Download audio",
+        file: "Download file",
+      } as Record<string, string>,
     },
     file_delete: {
-      tooltip: "Delete file",
+      tooltip: {
+        image: "Delete image",
+        video: "Delete video",
+        audio: "Delete audio",
+        file: "Delete file",
+      } as Record<string, string>,
     },
     file_preview_toggle: {
       tooltip: "Toggle preview",
@@ -227,12 +252,22 @@ export const en = {
   file_panel: {
     upload: {
       title: "Upload",
-      file_placeholder: "Upload file",
+      file_placeholder: {
+        image: "Upload image",
+        video: "Upload video",
+        audio: "Upload audio",
+        file: "Upload file",
+      } as Record<string, string>,
       upload_error: "Error: Upload failed",
     },
     embed: {
       title: "Embed",
-      embed_button: "Embed file",
+      embed_button: {
+        image: "Embed image",
+        video: "Embed video",
+        audio: "Embed audio",
+        file: "Embed file",
+      } as Record<string, string>,
       url_placeholder: "Enter URL",
     },
   },

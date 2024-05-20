@@ -74,7 +74,7 @@ export const EmbedTab = <
         className={"bn-button"}
         onClick={handleURLClick}
         data-test="embed-input-button">
-        {dict.file_panel.embed.embed_button}
+        {dict.file_panel.embed.embed_button[block.type]}
       </Components.FilePanel.Button>
     </Components.FilePanel.TabPanel>
   );

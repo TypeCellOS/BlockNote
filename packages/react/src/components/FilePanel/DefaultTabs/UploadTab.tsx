@@ -81,7 +81,7 @@ export const UploadTab = <
         data-test="upload-input"
         accept="*/*"
         // accept={props.block.props.fileType + "/*"} TODO
-        placeholder={dict.file_panel.upload.file_placeholder}
+        placeholder={dict.file_panel.upload.file_placeholder[block.type]}
         value={null}
         onChange={handleFileChange}
       />

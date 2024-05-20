@@ -78,8 +78,10 @@ export const FileRenameButton = () => {
       <Components.Generic.Popover.Trigger>
         <Components.FormattingToolbar.Button
           className={"bn-button"}
-          label={dict.formatting_toolbar.file_rename.tooltip}
-          mainTooltip={dict.formatting_toolbar.file_rename.tooltip}
+          label={dict.formatting_toolbar.file_rename.tooltip[fileBlock.type]}
+          mainTooltip={
+            dict.formatting_toolbar.file_rename.tooltip[fileBlock.type]
+          }
           icon={<RiFontFamily />}
         />
       </Components.Generic.Popover.Trigger>
@@ -92,7 +94,11 @@ export const FileRenameButton = () => {
             icon={<RiFontFamily />}
             value={currentEditingName || ""}
             autoFocus={true}
-            placeholder={dict.formatting_toolbar.file_rename.input_placeholder}
+            placeholder={
+              dict.formatting_toolbar.file_rename.input_placeholder[
+                fileBlock.type
+              ]
+            }
             onKeyDown={handleEnter}
             onChange={handleChange}
           />
