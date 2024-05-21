@@ -1,6 +1,6 @@
 import type { Dictionary } from "../dictionary";
 
-export const ptBR: Dictionary = {
+export const pt: Dictionary = {
   slash_menu: {
     heading: {
       title: "Título",
