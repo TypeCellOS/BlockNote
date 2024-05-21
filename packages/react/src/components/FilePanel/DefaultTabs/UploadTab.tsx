@@ -50,17 +50,17 @@ export const UploadTab = <
 
         if (editor.uploadFile !== undefined) {
           try {
-            let props = await editor.uploadFile(file);
-            if (typeof props === "string") {
+            let updateData = await editor.uploadFile(file);
+            if (typeof updateData === "string") {
               // received a url
-              props = {
-                name: file.name,
-                url: props,
+              updateData = {
+                props: {
+                  name: file.name,
+                  url: updateData,
+                },
               };
             }
-            editor.updateBlock(block, {
-              props: props as any,
-            });
+            editor.updateBlock(block, updateData);
           } catch (e) {
             setUploadFailed(true);
           } finally {

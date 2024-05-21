@@ -5,6 +5,7 @@ import {
   DefaultStyleSchema,
   InlineContentSchema,
   StyleSchema,
+  filenameFromURL,
 } from "@blocknote/core";
 import { ChangeEvent, KeyboardEvent, useCallback, useState } from "react";
 
@@ -42,7 +43,7 @@ export const EmbedTab = <
         event.preventDefault();
         editor.updateBlock(block, {
           props: {
-            name: currentURL.split("/")[-1], // TODO
+            name: filenameFromURL(currentURL),
             url: currentURL,
           } as any,
         });
@@ -54,7 +55,7 @@ export const EmbedTab = <
   const handleURLClick = useCallback(() => {
     editor.updateBlock(block, {
       props: {
-        name: currentURL.split("/")[-1], // TODO
+        name: filenameFromURL(currentURL),
         url: currentURL,
       } as any,
     });
