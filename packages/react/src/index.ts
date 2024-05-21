@@ -5,12 +5,18 @@ export * from "./editor/BlockNoteView";
 export * from "./editor/ComponentsContext";
 export * from "./i18n/dictionary";
 
+export * from "./blocks/AudioBlockContent/AudioBlockContent";
+export * from "./blocks/FileBlockContent/FileBlockContent";
+export * from "./blocks/FileBlockContent/fileBlockHelpers";
+export * from "./blocks/ImageBlockContent/ImageBlockContent";
+export * from "./blocks/VideoBlockContent/VideoBlockContent";
+
 export * from "./components/FormattingToolbar/DefaultButtons/BasicTextStyleButton";
 export * from "./components/FormattingToolbar/DefaultButtons/ColorStyleButton";
 export * from "./components/FormattingToolbar/DefaultButtons/CreateLinkButton";
-export * from "./components/FormattingToolbar/DefaultButtons/ImageCaptionButton";
+export * from "./components/FormattingToolbar/DefaultButtons/FileCaptionButton";
 export * from "./components/FormattingToolbar/DefaultButtons/NestBlockButtons";
-export * from "./components/FormattingToolbar/DefaultButtons/ReplaceImageButton";
+export * from "./components/FormattingToolbar/DefaultButtons/FileReplaceButton";
 export * from "./components/FormattingToolbar/DefaultButtons/TextAlignButton";
 export * from "./components/FormattingToolbar/DefaultSelects/BlockTypeSelect";
 export * from "./components/FormattingToolbar/FormattingToolbar";
@@ -44,11 +50,11 @@ export * from "./components/SuggestionMenu/hooks/useLoadSuggestionMenuItems";
 export * from "./components/SuggestionMenu/hooks/useSuggestionMenuKeyboardNavigation";
 export * from "./components/SuggestionMenu/types";
 
-export * from "./components/ImagePanel/DefaultTabs/EmbedTab";
-export * from "./components/ImagePanel/DefaultTabs/UploadTab";
-export * from "./components/ImagePanel/ImagePanel";
-export * from "./components/ImagePanel/ImagePanelController";
-export * from "./components/ImagePanel/ImagePanelProps";
+export * from "./components/FilePanel/DefaultTabs/EmbedTab";
+export * from "./components/FilePanel/DefaultTabs/UploadTab";
+export * from "./components/FilePanel/FilePanel";
+export * from "./components/FilePanel/FilePanelController";
+export * from "./components/FilePanel/FilePanelProps";
 
 export * from "./components/TableHandles/TableHandle";
 export * from "./components/TableHandles/TableHandleProps";

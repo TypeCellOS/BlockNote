@@ -9,11 +9,14 @@ import {
   RiH1,
   RiH2,
   RiH3,
+  RiFile2Line,
   RiImage2Fill,
   RiListOrdered,
   RiListUnordered,
   RiTable2,
   RiText,
+  RiFilmLine,
+  RiVolumeUpFill,
 } from "react-icons/ri";
 import { DefaultReactSuggestionItem } from "./types";
 
@@ -26,6 +29,9 @@ const icons = {
   paragraph: RiText,
   table: RiTable2,
   image: RiImage2Fill,
+  video: RiFilmLine,
+  audio: RiVolumeUpFill,
+  file: RiFile2Line,
 };
 
 export function getDefaultReactSlashMenuItems<

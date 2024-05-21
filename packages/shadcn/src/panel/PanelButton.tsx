@@ -6,7 +6,7 @@ import { useShadCNComponentsContext } from "../ShadCNComponentsContext";
 
 export const PanelButton = forwardRef<
   HTMLButtonElement,
-  ComponentProps["ImagePanel"]["Button"]
+  ComponentProps["FilePanel"]["Button"]
 >((props, ref) => {
   const { className, children, onClick, label, ...rest } = props;
 

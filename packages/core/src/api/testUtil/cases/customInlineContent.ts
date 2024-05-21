@@ -1,6 +1,6 @@
 import { EditorTestCases } from "../index";
 
-import { uploadToTmpFilesDotOrg_DEV_ONLY } from "../../../blocks/ImageBlockContent/uploadToTmpFilesDotOrg_DEV_ONLY";
+import { uploadToTmpFilesDotOrg_DEV_ONLY } from "../../../blocks/FileBlockContent/uploadToTmpFilesDotOrg_DEV_ONLY";
 import {
   DefaultBlockSchema,
   DefaultStyleSchema,

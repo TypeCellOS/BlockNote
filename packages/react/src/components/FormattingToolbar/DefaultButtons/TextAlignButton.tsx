@@ -53,6 +53,8 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
 
   const setTextAlignment = useCallback(
     (textAlignment: TextAlignment) => {
+      editor.focus();
+
       for (const block of selectedBlocks) {
         if (checkBlockTypeHasDefaultProp("textAlignment", block.type, editor)) {
           editor.updateBlock(block, {
@@ -60,11 +62,6 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
           });
         }
       }
-
-      setTimeout(() => {
-        // timeout needed to ensure compatibility with Mantine Toolbar useFocusTrap
-        editor.focus();
-      });
     },
     [editor, selectedBlocks]
   );

@@ -1,4 +1,3 @@
-import { createContext, useContext } from "react";
 import {
   BlockNoteEditor,
   BlockNoteSchema,
@@ -9,7 +8,11 @@ import {
   defaultProps,
   uploadToTmpFilesDotOrg_DEV_ONLY,
 } from "@blocknote/core";
+import { createContext, useContext } from "react";
+
 import { createReactBlockSpec } from "../../schema/ReactBlockSpec";
+import { ReactFileBlock } from "../../blocks/FileBlockContent/FileBlockContent";
+import { ReactImageBlock } from "../../blocks/ImageBlockContent/ImageBlockContent";
 
 const ReactCustomParagraph = createReactBlockSpec(
   {
@@ -65,6 +68,8 @@ const ReactContextParagraph = createReactBlockSpec(
 const schema = BlockNoteSchema.create({
   blockSpecs: {
     ...defaultBlockSpecs,
+    reactFile: ReactFileBlock,
+    reactImage: ReactImageBlock,
     reactCustomParagraph: ReactCustomParagraph,
     simpleReactCustomParagraph: SimpleReactCustomParagraph,
     reactContextParagraph: ReactContextParagraph,
@@ -84,6 +89,162 @@ export const customReactBlockSchemaTestCases: EditorTestCases<
     });
   },
   documents: [
+    {
+      name: "reactFile/button",
+      blocks: [
+        {
+          type: "file",
+        },
+      ],
+    },
+    {
+      name: "reactFile/basic",
+      blocks: [
+        {
+          type: "file",
+          props: {
+            name: "example",
+            url: "exampleURL",
+            caption: "Caption",
+          },
+        },
+      ],
+    },
+    {
+      name: "reactFile/noName",
+      blocks: [
+        {
+          type: "file",
+          props: {
+            url: "exampleURL",
+            caption: "Caption",
+          },
+        },
+      ],
+    },
+    {
+      name: "reactFile/noCaption",
+      blocks: [
+        {
+          type: "file",
+          props: {
+            name: "example",
+            url: "exampleURL",
+          },
+        },
+      ],
+    },
+    {
+      name: "reactFile/nested",
+      blocks: [
+        {
+          type: "file",
+          props: {
+            name: "example",
+            url: "exampleURL",
+            caption: "Caption",
+          },
+          children: [
+            {
+              type: "file",
+              props: {
+                name: "example",
+                url: "exampleURL",
+                caption: "Caption",
+              },
+            },
+          ],
+        },
+      ],
+    },
+    {
+      name: "reactImage/button",
+      blocks: [
+        {
+          type: "image",
+        },
+      ],
+    },
+    {
+      name: "reactImage/basic",
+      blocks: [
+        {
+          type: "image",
+          props: {
+            name: "example",
+            url: "exampleURL",
+            caption: "Caption",
+            previewWidth: 256,
+          },
+        },
+      ],
+    },
+    {
+      name: "reactImage/noName",
+      blocks: [
+        {
+          type: "image",
+          props: {
+            url: "exampleURL",
+            caption: "Caption",
+            previewWidth: 256,
+          },
+        },
+      ],
+    },
+    {
+      name: "reactImage/noCaption",
+      blocks: [
+        {
+          type: "image",
+          props: {
+            name: "example",
+            url: "exampleURL",
+            previewWidth: 256,
+          },
+        },
+      ],
+    },
+    {
+      name: "reactImage/noPreview",
+      blocks: [
+        {
+          type: "image",
+          props: {
+            name: "example",
+            url: "exampleURL",
+            caption: "Caption",
+            showPreview: false,
+            previewWidth: 256,
+          },
+        },
+      ],
+    },
+    {
+      name: "reactImage/nested",
+      blocks: [
+        {
+          type: "image",
+          props: {
+            name: "example",
+            url: "exampleURL",
+            caption: "Caption",
+            previewWidth: 256,
+          },
+          children: [
+            {
+              type: "image",
+              props: {
+                name: "example",
+                url: "exampleURL",
+                caption: "Caption",
+                previewWidth: 256,
+              },
+            },
+          ],
+        },
+      ],
+    },
     {
       name: "reactCustomParagraph/basic",
       blocks: [

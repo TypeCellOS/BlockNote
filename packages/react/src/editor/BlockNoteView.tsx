@@ -76,7 +76,7 @@ function BlockNoteViewComponent<
     linkToolbar,
     slashMenu,
     sideMenu,
-    imageToolbar,
+    filePanel,
     tableHandles,
     ...rest
   } = props;
@@ -110,7 +110,7 @@ function BlockNoteViewComponent<
           linkToolbar={linkToolbar}
           slashMenu={slashMenu}
           sideMenu={sideMenu}
-          imageToolbar={imageToolbar}
+          filePanel={filePanel}
           tableHandles={tableHandles}
         />
       </>
@@ -119,7 +119,7 @@ function BlockNoteViewComponent<
     children,
     formattingToolbar,
     linkToolbar,
-    imageToolbar,
+    filePanel,
     sideMenu,
     slashMenu,
     tableHandles,

@@ -1,20 +1,20 @@
 import "@blocknote/core/fonts/inter.css";
+import { BlockNoteView } from "@blocknote/mantine";
+import "@blocknote/mantine/style.css";
 import {
   BasicTextStyleButton,
   BlockTypeSelect,
   ColorStyleButton,
   CreateLinkButton,
+  FileCaptionButton,
+  FileReplaceButton,
   FormattingToolbar,
   FormattingToolbarController,
-  ImageCaptionButton,
   NestBlockButton,
-  ReplaceImageButton,
   TextAlignButton,
   UnnestBlockButton,
   useCreateBlockNote,
 } from "@blocknote/react";
-import { BlockNoteView } from "@blocknote/mantine";
-import "@blocknote/mantine/style.css";
 
 import { BlueButton } from "./BlueButton";
 
@@ -77,8 +77,8 @@ export default function App() {
             {/* Extra button to toggle blue text & background */}
             <BlueButton key={"customButton"} />
 
-            <ImageCaptionButton key={"imageCaptionButton"} />
-            <ReplaceImageButton key={"replaceImageButton"} />
+            <FileCaptionButton key={"fileCaptionButton"} />
+            <FileReplaceButton key={"replaceFileButton"} />
 
             <BasicTextStyleButton
               basicTextStyle={"bold"}

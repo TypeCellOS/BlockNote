@@ -1,7 +1,7 @@
 import "@blocknote/core/fonts/inter.css";
-import { useCreateBlockNote } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
+import { useCreateBlockNote } from "@blocknote/react";
 
 export default function App() {
   // Creates a new editor instance.
@@ -34,7 +34,7 @@ export default function App() {
       // Removes all menus and toolbars.
       formattingToolbar={false}
       linkToolbar={false}
-      imageToolbar={false}
+      filePanel={false}
       sideMenu={false}
       slashMenu={false}
       tableHandles={false}

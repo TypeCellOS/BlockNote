@@ -1,4 +1,6 @@
-export const fr = {
+import { Dictionary } from "../dictionary";
+
+export const fr: Dictionary = {
   slash_menu: {
     heading: {
       title: "Titre 1",
@@ -53,10 +55,42 @@ export const fr = {
         "photo",
         "média",
         "url",
-        "drive",
-        "dropbox",
       ],
       group: "Médias",
+    },
+    video: {
+      title: "Vidéo",
+      subtext: "Insérer une vidéo",
+      aliases: [
+        "vidéo",
+        "téléchargerVidéo",
+        "téléverser",
+        "mp4",
+        "film",
+        "média",
+        "url",
+      ],
+      group: "Média",
+    },
+    audio: {
+      title: "Audio",
+      subtext: "Insérer un audio",
+      aliases: [
+        "audio",
+        "téléchargerAudio",
+        "téléverser",
+        "mp3",
+        "son",
+        "média",
+        "url",
+      ],
+      group: "Média",
+    },
+    file: {
+      title: "Fichier",
+      subtext: "Insérer un fichier",
+      aliases: ["fichier", "téléverser", "intégrer", "média", "url"],
+      group: "Média",
     },
   },
   placeholders: {
@@ -65,8 +99,19 @@ export const fr = {
     bulletListItem: "Liste",
     numberedListItem: "Liste",
   },
-  image: {
-    add_button: "Ajouter une Image",
+  file_blocks: {
+    image: {
+      add_button_text: "Ajouter une image",
+    },
+    video: {
+      add_button_text: "Ajouter une vidéo",
+    },
+    audio: {
+      add_button_text: "Ajouter un audio",
+    },
+    file: {
+      add_button_text: "Ajouter un fichier",
+    },
   },
   // from react package:
   side_menu: {
@@ -134,12 +179,50 @@ export const fr = {
       tooltip: "Créer un lien",
       secondary_tooltip: "Mod+K",
     },
-    image_caption: {
+    file_caption: {
       tooltip: "Modifier la légende",
       input_placeholder: "Modifier la légende",
     },
-    image_replace: {
-      tooltip: "Remplacer l'image",
+    file_replace: {
+      tooltip: {
+        image: "Remplacer l'image",
+        video: "Remplacer la vidéo",
+        audio: "Remplacer l'audio",
+        file: "Remplacer le fichier",
+      },
+    },
+    file_rename: {
+      tooltip: {
+        image: "Renommer l'image",
+        video: "Renommer la vidéo",
+        audio: "Renommer l'audio",
+        file: "Renommer le fichier",
+      },
+      input_placeholder: {
+        image: "Renommer l'image",
+        video: "Renommer la vidéo",
+        audio: "Renommer l'audio",
+        file: "Renommer le fichier",
+      },
+    },
+    file_download: {
+      tooltip: {
+        image: "Télécharger l'image",
+        video: "Télécharger la vidéo",
+        audio: "Télécharger l'audio",
+        file: "Télécharger le fichier",
+      },
+    },
+    file_delete: {
+      tooltip: {
+        image: "Supprimer l'image",
+        video: "Supprimer la vidéo",
+        audio: "Supprimer l'audio",
+        file: "Supprimer le fichier",
+      },
+    },
+    file_preview_toggle: {
+      tooltip: "Basculer l'aperçu",
     },
     nest: {
       tooltip: "Emboîter le bloc",
@@ -162,15 +245,25 @@ export const fr = {
       tooltip: "Justifier le texte",
     },
   },
-  image_panel: {
+  file_panel: {
     upload: {
       title: "Télécharger",
-      file_placeholder: "Télécharger l'image",
+      file_placeholder: {
+        image: "Télécharger une image",
+        video: "Télécharger une vidéo",
+        audio: "Télécharger un fichier audio",
+        file: "Télécharger un fichier",
+      },
       upload_error: "Erreur : Échec du téléchargement",
     },
     embed: {
       title: "Intégrer",
-      embed_button: "Intégrer l'image",
+      embed_button: {
+        image: "Intégrer une image",
+        video: "Intégrer une vidéo",
+        audio: "Intégrer un fichier audio",
+        file: "Intégrer un fichier",
+      },
       url_placeholder: "Entrez l'URL",
     },
   },
