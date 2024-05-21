@@ -6,9 +6,9 @@ import { forwardRef } from "react";
 
 export const PanelFileInput = forwardRef<
   HTMLButtonElement,
-  ComponentProps["ImagePanel"]["FileInput"]
+  ComponentProps["FilePanel"]["FileInput"]
 >((props, ref) => {
-  const { className, value, placeholder, onChange, ...rest } = props;
+  const { className, accept, value, placeholder, onChange, ...rest } = props;
 
   assertEmpty(rest);
 
@@ -17,6 +17,7 @@ export const PanelFileInput = forwardRef<
       size={"xs"}
       className={className}
       ref={ref}
+      accept={accept}
       value={value}
       placeholder={placeholder}
       onChange={onChange}

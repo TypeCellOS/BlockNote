@@ -4,25 +4,33 @@ import { useComponentsContext } from "../../editor/ComponentsContext";
 import { BasicTextStyleButton } from "./DefaultButtons/BasicTextStyleButton";
 import { ColorStyleButton } from "./DefaultButtons/ColorStyleButton";
 import { CreateLinkButton } from "./DefaultButtons/CreateLinkButton";
-import { ImageCaptionButton } from "./DefaultButtons/ImageCaptionButton";
+import { FileCaptionButton } from "./DefaultButtons/FileCaptionButton";
 import {
   NestBlockButton,
   UnnestBlockButton,
 } from "./DefaultButtons/NestBlockButtons";
-import { ReplaceImageButton } from "./DefaultButtons/ReplaceImageButton";
+import { FileReplaceButton } from "./DefaultButtons/FileReplaceButton";
 import { TextAlignButton } from "./DefaultButtons/TextAlignButton";
 import {
   BlockTypeSelect,
   BlockTypeSelectItem,
 } from "./DefaultSelects/BlockTypeSelect";
 import { FormattingToolbarProps } from "./FormattingToolbarProps";
+import { FileRenameButton } from "./DefaultButtons/FileRenameButton";
+import { FileDownloadButton } from "./DefaultButtons/FileDownloadButton";
+import { FilePreviewButton } from "./DefaultButtons/FilePreviewButton";
+import { FileDeleteButton } from "./DefaultButtons/FileDeleteButton";
 
 export const getFormattingToolbarItems = (
   blockTypeSelectItems?: BlockTypeSelectItem[]
 ): JSX.Element[] => [
   <BlockTypeSelect key={"blockTypeSelect"} items={blockTypeSelectItems} />,
-  <ImageCaptionButton key={"imageCaptionButton"} />,
-  <ReplaceImageButton key={"replaceImageButton"} />,
+  <FileCaptionButton key={"fileCaptionButton"} />,
+  <FileReplaceButton key={"replaceFileButton"} />,
+  <FileRenameButton key={"fileRenameButton"} />,
+  <FileDeleteButton key={"fileDeleteButton"} />,
+  <FileDownloadButton key={"fileDownloadButton"} />,
+  <FilePreviewButton key={"filePreviewButton"} />,
   <BasicTextStyleButton basicTextStyle={"bold"} key={"boldStyleButton"} />,
   <BasicTextStyleButton basicTextStyle={"italic"} key={"italicStyleButton"} />,
   <BasicTextStyleButton

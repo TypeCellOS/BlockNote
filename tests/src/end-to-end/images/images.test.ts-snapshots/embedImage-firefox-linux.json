@@ -16,9 +16,11 @@
               "type": "image",
               "attrs": {
                 "textAlignment": "left",
+                "name": "jk-placeholder-image.jpg",
                 "url": "https://www.pulsecarshalton.co.uk/wp-content/uploads/2016/08/jk-placeholder-image.jpg",
                 "caption": "",
-                "width": 512
+                "showPreview": true,
+                "previewWidth": 512
               }
             }
           ]

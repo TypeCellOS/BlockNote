@@ -188,15 +188,72 @@ export function getDefaultSlashMenuItems<
           type: "image",
         });
 
-        // Immediately open the image toolbar
+        // Immediately open the file toolbar
         editor.prosemirrorView.dispatch(
-          editor._tiptapEditor.state.tr.setMeta(editor.imagePanel!.plugin, {
+          editor._tiptapEditor.state.tr.setMeta(editor.filePanel!.plugin, {
             block: insertedBlock,
           })
         );
       },
       key: "image",
       ...editor.dictionary.slash_menu.image,
+    });
+  }
+
+  if (checkDefaultBlockTypeInSchema("video", editor)) {
+    items.push({
+      onItemClick: () => {
+        const insertedBlock = insertOrUpdateBlock(editor, {
+          type: "video",
+        });
+
+        // Immediately open the file toolbar
+        editor.prosemirrorView.dispatch(
+          editor._tiptapEditor.state.tr.setMeta(editor.filePanel!.plugin, {
+            block: insertedBlock,
+          })
+        );
+      },
+      key: "video",
+      ...editor.dictionary.slash_menu.video,
+    });
+  }
+
+  if (checkDefaultBlockTypeInSchema("audio", editor)) {
+    items.push({
+      onItemClick: () => {
+        const insertedBlock = insertOrUpdateBlock(editor, {
+          type: "audio",
+        });
+
+        // Immediately open the file toolbar
+        editor.prosemirrorView.dispatch(
+          editor._tiptapEditor.state.tr.setMeta(editor.filePanel!.plugin, {
+            block: insertedBlock,
+          })
+        );
+      },
+      key: "audio",
+      ...editor.dictionary.slash_menu.audio,
+    });
+  }
+
+  if (checkDefaultBlockTypeInSchema("file", editor)) {
+    items.push({
+      onItemClick: () => {
+        const insertedBlock = insertOrUpdateBlock(editor, {
+          type: "file",
+        });
+
+        // Immediately open the file toolbar
+        editor.prosemirrorView.dispatch(
+          editor._tiptapEditor.state.tr.setMeta(editor.filePanel!.plugin, {
+            block: insertedBlock,
+          })
+        );
+      },
+      key: "image",
+      ...editor.dictionary.slash_menu.file,
     });
   }
 

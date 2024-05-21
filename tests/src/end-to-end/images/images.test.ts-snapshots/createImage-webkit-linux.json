@@ -16,9 +16,11 @@
               "type": "image",
               "attrs": {
                 "textAlignment": "left",
+                "name": "",
                 "url": "",
                 "caption": "",
-                "width": 512
+                "showPreview": true,
+                "previewWidth": 512
               }
             }
           ]

@@ -1,6 +1,6 @@
 import { FormattingToolbarController } from "../components/FormattingToolbar/FormattingToolbarController";
-import { ImagePanelController } from "../components/ImagePanel/ImagePanelController";
 import { LinkToolbarController } from "../components/LinkToolbar/LinkToolbarController";
+import { FilePanelController } from "../components/FilePanel/FilePanelController";
 import { SideMenuController } from "../components/SideMenu/SideMenuController";
 import { SuggestionMenuController } from "../components/SuggestionMenu/SuggestionMenuController";
 import { TableHandlesController } from "../components/TableHandles/TableHandlesController";
@@ -11,7 +11,7 @@ export type BlockNoteDefaultUIProps = {
   linkToolbar?: boolean;
   slashMenu?: boolean;
   sideMenu?: boolean;
-  imageToolbar?: boolean;
+  filePanel?: boolean;
   tableHandles?: boolean;
 };
 
@@ -32,9 +32,7 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
         <SuggestionMenuController triggerCharacter="/" />
       )}
       {props.sideMenu !== false && <SideMenuController />}
-      {editor.imagePanel && props.imageToolbar !== false && (
-        <ImagePanelController />
-      )}
+      {editor.filePanel && props.filePanel !== false && <FilePanelController />}
       {editor.tableHandles && props.tableHandles !== false && (
         <TableHandlesController />
       )}

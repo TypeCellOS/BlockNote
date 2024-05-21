@@ -6,7 +6,7 @@ import { forwardRef } from "react";
 
 export const PanelTextInput = forwardRef<
   HTMLInputElement,
-  ComponentProps["ImagePanel"]["TextInput"]
+  ComponentProps["FilePanel"]["TextInput"]
 >((props, ref) => {
   const { className, value, placeholder, onKeyDown, onChange, ...rest } = props;
 

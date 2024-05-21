@@ -1,4 +1,6 @@
-export const ko = {
+import { Dictionary } from "../dictionary";
+
+export const ko: Dictionary = {
   slash_menu: {
     heading: {
       title: "제목1",
@@ -54,9 +56,43 @@ export const ko = {
         "media",
         "이미지",
         "url",
-        "drive",
-        "dropbox",
       ],
+      group: "미디어",
+    },
+    video: {
+      title: "비디오",
+      subtext: "비디오 삽입",
+      aliases: [
+        "video",
+        "videoUpload",
+        "upload",
+        "mp4",
+        "film",
+        "media",
+        "동영상",
+        "url",
+      ],
+      group: "미디어",
+    },
+    audio: {
+      title: "오디오",
+      subtext: "오디오 삽입",
+      aliases: [
+        "audio",
+        "audioUpload",
+        "upload",
+        "mp3",
+        "sound",
+        "media",
+        "오디오",
+        "url",
+      ],
+      group: "미디어",
+    },
+    file: {
+      title: "파일",
+      subtext: "파일 삽입",
+      aliases: ["file", "upload", "embed", "media", "파일", "url"],
       group: "미디어",
     },
   },
@@ -66,8 +102,19 @@ export const ko = {
     bulletListItem: "목록",
     numberedListItem: "목록",
   },
-  image: {
-    add_button: "이미지 추가",
+  file_blocks: {
+    image: {
+      add_button_text: "이미지 추가",
+    },
+    video: {
+      add_button_text: "비디오 추가",
+    },
+    audio: {
+      add_button_text: "오디오 추가",
+    },
+    file: {
+      add_button_text: "파일 추가",
+    },
   },
   // from react package:
   side_menu: {
@@ -135,12 +182,50 @@ export const ko = {
       tooltip: "링크 만들기",
       secondary_tooltip: "Mod+K",
     },
-    image_caption: {
+    file_caption: {
       tooltip: "이미지 캡션 수정",
       input_placeholder: "이미지 캡션 수정",
     },
-    image_replace: {
-      tooltip: "이미지 교체",
+    file_replace: {
+      tooltip: {
+        image: "이미지 교체",
+        video: "비디오 교체",
+        audio: "오디오 교체",
+        file: "파일 교체",
+      },
+    },
+    file_rename: {
+      tooltip: {
+        image: "이미지 이름 변경",
+        video: "비디오 이름 변경",
+        audio: "오디오 이름 변경",
+        file: "파일 이름 변경",
+      },
+      input_placeholder: {
+        image: "이미지 이름 변경",
+        video: "비디오 이름 변경",
+        audio: "오디오 이름 변경",
+        file: "파일 이름 변경",
+      },
+    },
+    file_download: {
+      tooltip: {
+        image: "이미지 다운로드",
+        video: "비디오 다운로드",
+        audio: "오디오 다운로드",
+        file: "파일 다운로드",
+      },
+    },
+    file_delete: {
+      tooltip: {
+        image: "이미지 삭제",
+        video: "비디오 삭제",
+        audio: "오디오 삭제",
+        file: "파일 삭제",
+      },
+    },
+    file_preview_toggle: {
+      tooltip: "미리보기 전환",
     },
     nest: {
       tooltip: "중첩 블록",
@@ -163,15 +248,25 @@ export const ko = {
       tooltip: "텍스트 양쪽 맞춤",
     },
   },
-  image_panel: {
+  file_panel: {
     upload: {
       title: "업로드",
-      file_placeholder: "이미지 업로드",
+      file_placeholder: {
+        image: "이미지 업로드",
+        video: "비디오 업로드",
+        audio: "오디오 업로드",
+        file: "파일 업로드",
+      },
       upload_error: "오류: 업로드 실패",
     },
     embed: {
       title: "임베드",
-      embed_button: "이미지 임베드",
+      embed_button: {
+        image: "이미지 삽입",
+        video: "비디오 삽입",
+        audio: "오디오 삽입",
+        file: "파일 삽입",
+      },
       url_placeholder: "URL을 입력하세요.",
     },
   },

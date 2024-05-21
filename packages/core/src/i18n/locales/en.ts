@@ -53,9 +53,41 @@ export const en = {
         "picture",
         "media",
         "url",
-        "drive",
-        "dropbox",
       ],
+      group: "Media",
+    },
+    video: {
+      title: "Video",
+      subtext: "Insert a video",
+      aliases: [
+        "video",
+        "videoUpload",
+        "upload",
+        "mp4",
+        "film",
+        "media",
+        "url",
+      ],
+      group: "Media",
+    },
+    audio: {
+      title: "Audio",
+      subtext: "Insert audio",
+      aliases: [
+        "audio",
+        "audioUpload",
+        "upload",
+        "mp3",
+        "sound",
+        "media",
+        "url",
+      ],
+      group: "Media",
+    },
+    file: {
+      title: "File",
+      subtext: "Insert a file",
+      aliases: ["file", "upload", "embed", "media", "url"],
       group: "Media",
     },
   },
@@ -65,8 +97,19 @@ export const en = {
     bulletListItem: "List",
     numberedListItem: "List",
   },
-  image: {
-    add_button: "Add Image",
+  file_blocks: {
+    image: {
+      add_button_text: "Add image",
+    },
+    video: {
+      add_button_text: "Add video",
+    },
+    audio: {
+      add_button_text: "Add audio",
+    },
+    file: {
+      add_button_text: "Add file",
+    },
   },
   // from react package:
   side_menu: {
@@ -134,12 +177,50 @@ export const en = {
       tooltip: "Create link",
       secondary_tooltip: "Mod+K",
     },
-    image_caption: {
+    file_caption: {
       tooltip: "Edit caption",
       input_placeholder: "Edit caption",
     },
-    image_replace: {
-      tooltip: "Replace image",
+    file_replace: {
+      tooltip: {
+        image: "Replace image",
+        video: "Replace video",
+        audio: "Replace audio",
+        file: "Replace file",
+      } as Record<string, string>,
+    },
+    file_rename: {
+      tooltip: {
+        image: "Rename image",
+        video: "Rename video",
+        audio: "Rename audio",
+        file: "Rename file",
+      } as Record<string, string>,
+      input_placeholder: {
+        image: "Rename image",
+        video: "Rename video",
+        audio: "Rename audio",
+        file: "Rename file",
+      } as Record<string, string>,
+    },
+    file_download: {
+      tooltip: {
+        image: "Download image",
+        video: "Download video",
+        audio: "Download audio",
+        file: "Download file",
+      } as Record<string, string>,
+    },
+    file_delete: {
+      tooltip: {
+        image: "Delete image",
+        video: "Delete video",
+        audio: "Delete audio",
+        file: "Delete file",
+      } as Record<string, string>,
+    },
+    file_preview_toggle: {
+      tooltip: "Toggle preview",
     },
     nest: {
       tooltip: "Nest block",
@@ -162,15 +243,25 @@ export const en = {
       tooltip: "Justify text",
     },
   },
-  image_panel: {
+  file_panel: {
     upload: {
       title: "Upload",
-      file_placeholder: "Upload image",
+      file_placeholder: {
+        image: "Upload image",
+        video: "Upload video",
+        audio: "Upload audio",
+        file: "Upload file",
+      } as Record<string, string>,
       upload_error: "Error: Upload failed",
     },
     embed: {
       title: "Embed",
-      embed_button: "Embed image",
+      embed_button: {
+        image: "Embed image",
+        video: "Embed video",
+        audio: "Embed audio",
+        file: "Embed file",
+      } as Record<string, string>,
       url_placeholder: "Enter URL",
     },
   },

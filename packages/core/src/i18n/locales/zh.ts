@@ -75,6 +75,46 @@ export const zh: Dictionary = {
       ],
       group: "媒体",
     },
+    video: {
+      title: "视频",
+      subtext: "插入视频",
+      aliases: [
+        "视频",
+        "视频上传",
+        "上传",
+        "video",
+        "mp4",
+        "电影",
+        "媒体",
+        "url",
+        "驱动",
+        "dropbox",
+      ],
+      group: "媒体",
+    },
+    audio: {
+      title: "音频",
+      subtext: "插入音频",
+      aliases: [
+        "音频",
+        "音频上传",
+        "上传",
+        "audio",
+        "mp3",
+        "声音",
+        "媒体",
+        "url",
+        "驱动",
+        "dropbox",
+      ],
+      group: "媒体",
+    },
+    file: {
+      title: "文件",
+      subtext: "插入文件",
+      aliases: ["文件", "上传", "file", "嵌入", "媒体", "url"],
+      group: "媒体",
+    },
   },
   placeholders: {
     default: "输入 '/' 以使用命令",
@@ -82,8 +122,19 @@ export const zh: Dictionary = {
     bulletListItem: "列表",
     numberedListItem: "列表",
   },
-  image: {
-    add_button: "添加图片",
+  file_blocks: {
+    image: {
+      add_button_text: "添加图片",
+    },
+    video: {
+      add_button_text: "添加视频",
+    },
+    audio: {
+      add_button_text: "添加音频",
+    },
+    file: {
+      add_button_text: "添加文件",
+    },
   },
   // from react package:
   side_menu: {
@@ -151,12 +202,50 @@ export const zh: Dictionary = {
       tooltip: "添加链接",
       secondary_tooltip: "Mod+K",
     },
-    image_caption: {
+    file_caption: {
       tooltip: "编辑标题",
       input_placeholder: "编辑标题",
     },
-    image_replace: {
-      tooltip: "替换图片",
+    file_replace: {
+      tooltip: {
+        image: "替换图片",
+        video: "替换视频",
+        audio: "替换音频",
+        file: "替换文件",
+      },
+    },
+    file_rename: {
+      tooltip: {
+        image: "重命名图片",
+        video: "重命名视频",
+        audio: "重命名音频",
+        file: "重命名文件",
+      },
+      input_placeholder: {
+        image: "重命名图片",
+        video: "重命名视频",
+        audio: "重命名音频",
+        file: "重命名文件",
+      },
+    },
+    file_download: {
+      tooltip: {
+        image: "下载图片",
+        video: "下载视频",
+        audio: "下载音频",
+        file: "下载文件",
+      },
+    },
+    file_delete: {
+      tooltip: {
+        image: "删除图片",
+        video: "删除视频",
+        audio: "删除音频",
+        file: "删除文件",
+      },
+    },
+    file_preview_toggle: {
+      tooltip: "切换预览",
     },
     nest: {
       tooltip: "嵌套",
@@ -179,15 +268,25 @@ export const zh: Dictionary = {
       tooltip: "文本对齐",
     },
   },
-  image_panel: {
+  file_panel: {
     upload: {
       title: "上传",
-      file_placeholder: "上传图片",
+      file_placeholder: {
+        image: "上传图片",
+        video: "上传视频",
+        audio: "上传音频",
+        file: "上传文件",
+      },
       upload_error: "Error：上传失败",
     },
     embed: {
       title: "嵌入",
-      embed_button: "嵌入图片",
+      embed_button: {
+        image: "嵌入图片",
+        video: "嵌入视频",
+        audio: "嵌入音频",
+        file: "嵌入文件",
+      },
       url_placeholder: "输入图片地址",
     },
   },

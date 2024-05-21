@@ -55,9 +55,33 @@ export const pt: Dictionary = {
         "foto",
         "media",
         "url",
-        "drive",
-        "dropbox",
       ],
+      group: "Mídia",
+    },
+    video: {
+      title: "Vídeo",
+      subtext: "Inserir um vídeo",
+      aliases: [
+        "vídeo",
+        "uploadVídeo",
+        "upload",
+        "mp4",
+        "filme",
+        "mídia",
+        "url",
+      ],
+      group: "Mídia",
+    },
+    audio: {
+      title: "Áudio",
+      subtext: "Inserir um áudio",
+      aliases: ["áudio", "uploadÁudio", "upload", "mp3", "som", "mídia", "url"],
+      group: "Mídia",
+    },
+    file: {
+      title: "Arquivo",
+      subtext: "Inserir um arquivo",
+      aliases: ["arquivo", "upload", "incorporar", "mídia", "url"],
       group: "Mídia",
     },
   },
@@ -67,8 +91,19 @@ export const pt: Dictionary = {
     bulletListItem: "Lista",
     numberedListItem: "Lista",
   },
-  image: {
-    add_button: "Adicionar Imagem",
+  file_blocks: {
+    image: {
+      add_button_text: "Adicionar imagem",
+    },
+    video: {
+      add_button_text: "Adicionar vídeo",
+    },
+    audio: {
+      add_button_text: "Adicionar áudio",
+    },
+    file: {
+      add_button_text: "Adicionar arquivo",
+    },
   },
   // from react package:
   side_menu: {
@@ -136,12 +171,50 @@ export const pt: Dictionary = {
       tooltip: "Criar link",
       secondary_tooltip: "Mod+K",
     },
-    image_caption: {
+    file_caption: {
       tooltip: "Editar legenda",
       input_placeholder: "Editar legenda",
     },
-    image_replace: {
-      tooltip: "Substituir imagem",
+    file_replace: {
+      tooltip: {
+        image: "Substituir imagem",
+        video: "Substituir vídeo",
+        audio: "Substituir áudio",
+        file: "Substituir arquivo",
+      },
+    },
+    file_rename: {
+      tooltip: {
+        image: "Renomear imagem",
+        video: "Renomear vídeo",
+        audio: "Renomear áudio",
+        file: "Renomear arquivo",
+      },
+      input_placeholder: {
+        image: "Renomear imagem",
+        video: "Renomear vídeo",
+        audio: "Renomear áudio",
+        file: "Renomear arquivo",
+      },
+    },
+    file_download: {
+      tooltip: {
+        image: "Baixar imagem",
+        video: "Baixar vídeo",
+        audio: "Baixar áudio",
+        file: "Baixar arquivo",
+      },
+    },
+    file_delete: {
+      tooltip: {
+        image: "Excluir imagem",
+        video: "Excluir vídeo",
+        audio: "Excluir áudio",
+        file: "Excluir arquivo",
+      },
+    },
+    file_preview_toggle: {
+      tooltip: "Alternar visualização",
     },
     nest: {
       tooltip: "Aninhar bloco",
@@ -164,15 +237,25 @@ export const pt: Dictionary = {
       tooltip: "Justificar texto",
     },
   },
-  image_panel: {
+  file_panel: {
     upload: {
       title: "Upload",
-      file_placeholder: "Upload de imagem",
+      file_placeholder: {
+        image: "Upload de imagem",
+        video: "Upload de vídeo",
+        audio: "Upload de áudio",
+        file: "Upload de arquivo",
+      },
       upload_error: "Erro: Falha no upload",
     },
     embed: {
       title: "Incorporar",
-      embed_button: "Incorporar imagem",
+      embed_button: {
+        image: "Incorporar imagem",
+        video: "Incorporar vídeo",
+        audio: "Incorporar áudio",
+        file: "Incorporar arquivo",
+      },
       url_placeholder: "Insira a URL",
     },
   },

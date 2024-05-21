@@ -109,6 +109,11 @@ export function getBlockFromPos<
   const blockContainer = tipTapEditor.state.doc.resolve(pos!).node();
   // Gets block identifier
   const blockIdentifier = blockContainer.attrs.id;
+
+  if (!blockIdentifier) {
+    throw new Error("Block doesn't have id");
+  }
+
   // Gets the block
   const block = editor.getBlock(blockIdentifier)! as SpecificBlock<
     BSchema,
@@ -139,6 +144,7 @@ export function wrapInBlockStructure<
   blockType: BType,
   blockProps: Props<PSchema>,
   propSchema: PSchema,
+  isFileBlock = false,
   domAttributes?: Record<string, string>
 ): {
   dom: HTMLElement;
@@ -170,6 +176,10 @@ export function wrapInBlockStructure<
     if (!inheritedProps.includes(prop) && value !== propSchema[prop].default) {
       blockContent.setAttribute(camelToDataKebab(prop), value);
     }
+  }
+  // Adds file block attribute
+  if (isFileBlock) {
+    blockContent.setAttribute("data-file-block", "");
   }
 
   blockContent.appendChild(element.dom);

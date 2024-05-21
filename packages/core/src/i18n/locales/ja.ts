@@ -63,10 +63,44 @@ export const ja: Dictionary = {
         "picture",
         "media",
         "url",
-        "drive",
-        "dropbox",
         "画像",
       ],
+      group: "メディア",
+    },
+    video: {
+      title: "ビデオ",
+      subtext: "ビデオを挿入",
+      aliases: [
+        "video",
+        "videoUpload",
+        "upload",
+        "mp4",
+        "film",
+        "media",
+        "url",
+        "ビデオ",
+      ],
+      group: "メディア",
+    },
+    audio: {
+      title: "オーディオ",
+      subtext: "オーディオを挿入",
+      aliases: [
+        "audio",
+        "audioUpload",
+        "upload",
+        "mp3",
+        "sound",
+        "media",
+        "url",
+        "オーディオ",
+      ],
+      group: "メディア",
+    },
+    file: {
+      title: "ファイル",
+      subtext: "ファイルを挿入",
+      aliases: ["file", "upload", "embed", "media", "url", "ファイル"],
       group: "メディア",
     },
   },
@@ -76,8 +110,19 @@ export const ja: Dictionary = {
     bulletListItem: "リストを追加",
     numberedListItem: "リストを追加",
   },
-  image: {
-    add_button: "画像を追加",
+  file_blocks: {
+    image: {
+      add_button_text: "画像を追加",
+    },
+    video: {
+      add_button_text: "ビデオを追加",
+    },
+    audio: {
+      add_button_text: "オーディオを追加",
+    },
+    file: {
+      add_button_text: "ファイルを追加",
+    },
   },
   // from react package:
   side_menu: {
@@ -145,12 +190,50 @@ export const ja: Dictionary = {
       tooltip: "リンク",
       secondary_tooltip: "Mod+K",
     },
-    image_caption: {
+    file_caption: {
       tooltip: "キャプションを編集",
       input_placeholder: "キャプションを編集",
     },
-    image_replace: {
-      tooltip: "画像の置き換え",
+    file_replace: {
+      tooltip: {
+        image: "画像を置換",
+        video: "ビデオを置換",
+        audio: "オーディオを置換",
+        file: "ファイルを置換",
+      },
+    },
+    file_rename: {
+      tooltip: {
+        image: "画像の名前を変更",
+        video: "ビデオの名前を変更",
+        audio: "オーディオの名前を変更",
+        file: "ファイルの名前を変更",
+      },
+      input_placeholder: {
+        image: "画像の名前を変更",
+        video: "ビデオの名前を変更",
+        audio: "オーディオの名前を変更",
+        file: "ファイルの名前を変更",
+      },
+    },
+    file_download: {
+      tooltip: {
+        image: "画像をダウンロード",
+        video: "ビデオをダウンロード",
+        audio: "オーディオをダウンロード",
+        file: "ファイルをダウンロード",
+      },
+    },
+    file_delete: {
+      tooltip: {
+        image: "画像を削除",
+        video: "ビデオを削除",
+        audio: "オーディオを削除",
+        file: "ファイルを削除",
+      },
+    },
+    file_preview_toggle: {
+      tooltip: "プレビューの切り替え",
     },
     nest: {
       tooltip: "インデント増",
@@ -173,15 +256,25 @@ export const ja: Dictionary = {
       tooltip: "両端揃え",
     },
   },
-  image_panel: {
+  file_panel: {
     upload: {
       title: "アップロード",
-      file_placeholder: "画像アップロード",
+      file_placeholder: {
+        image: "画像をアップロード",
+        video: "ビデオをアップロード",
+        audio: "オーディオをアップロード",
+        file: "ファイルをアップロード",
+      },
       upload_error: "エラー: アップロードが失敗しました",
     },
     embed: {
       title: "埋め込み",
-      embed_button: "画像を埋め込み",
+      embed_button: {
+        image: "画像を埋め込む",
+        video: "ビデオを埋め込む",
+        audio: "オーディオを埋め込む",
+        file: "ファイルを埋め込む",
+      },
       url_placeholder: "URLを入力",
     },
   },

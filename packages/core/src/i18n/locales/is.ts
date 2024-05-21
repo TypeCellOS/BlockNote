@@ -55,9 +55,41 @@ export const is: Dictionary = {
         "mynd",
         "media",
         "url",
-        "drive",
-        "dropbox",
       ],
+      group: "Miðlar",
+    },
+    video: {
+      title: "Myndband",
+      subtext: "Setja inn myndband",
+      aliases: [
+        "myndband",
+        "videoUpphala",
+        "hlaða upp",
+        "mp4",
+        "kvikmynd",
+        "miðill",
+        "url",
+      ],
+      group: "Miðill",
+    },
+    audio: {
+      title: "Hljóð",
+      subtext: "Setja inn hljóð",
+      aliases: [
+        "hljóð",
+        "audioUpphala",
+        "hlaða upp",
+        "mp3",
+        "hljóð",
+        "miðill",
+        "url",
+      ],
+      group: "Miðlar",
+    },
+    file: {
+      title: "Skrá",
+      subtext: "Setja inn skrá",
+      aliases: ["skrá", "hlaða upp", "fella inn", "miðill", "url"],
       group: "Miðlar",
     },
   },
@@ -67,8 +99,19 @@ export const is: Dictionary = {
     bulletListItem: "Listi",
     numberedListItem: "Listi",
   },
-  image: {
-    add_button: "Bæta við mynd",
+  file_blocks: {
+    image: {
+      add_button_text: "Bæta við mynd",
+    },
+    video: {
+      add_button_text: "Bæta við myndbandi",
+    },
+    audio: {
+      add_button_text: "Bæta við hljóði",
+    },
+    file: {
+      add_button_text: "Bæta við skrá",
+    },
   },
   side_menu: {
     add_block_label: "Bæta við blokki",
@@ -135,12 +178,50 @@ export const is: Dictionary = {
       tooltip: "Búa til tengil",
       secondary_tooltip: "Mod+K",
     },
-    image_caption: {
+    file_caption: {
       tooltip: "Breyta myndatexta",
       input_placeholder: "Breyta myndatexta",
     },
-    image_replace: {
-      tooltip: "Skipta um mynd",
+    file_replace: {
+      tooltip: {
+        image: "Skipta um mynd",
+        video: "Skipta um myndband",
+        audio: "Skipta um hljóð",
+        file: "Skipta um skrá",
+      },
+    },
+    file_rename: {
+      tooltip: {
+        image: "Endurnefna mynd",
+        video: "Endurnefna myndband",
+        audio: "Endurnefna hljóð",
+        file: "Endurnefna skrá",
+      },
+      input_placeholder: {
+        image: "Endurnefna mynd",
+        video: "Endurnefna myndband",
+        audio: "Endurnefna hljóð",
+        file: "Endurnefna skrá",
+      },
+    },
+    file_download: {
+      tooltip: {
+        image: "Sækja mynd",
+        video: "Sækja myndband",
+        audio: "Sækja hljóð",
+        file: "Sækja skrá",
+      },
+    },
+    file_delete: {
+      tooltip: {
+        image: "Eyða mynd",
+        video: "Eyða myndbandi",
+        audio: "Eyða hljóði",
+        file: "Eyða skrá",
+      },
+    },
+    file_preview_toggle: {
+      tooltip: "Skipta um forskoðun",
     },
     nest: {
       tooltip: "Fella blokk saman",
@@ -163,15 +244,25 @@ export const is: Dictionary = {
       tooltip: "Jafna texta",
     },
   },
-  image_panel: {
+  file_panel: {
     upload: {
       title: "Hlaða upp",
-      file_placeholder: "Hlaða upp mynd",
+      file_placeholder: {
+        image: "Hlaða upp mynd",
+        video: "Hlaða upp myndband",
+        audio: "Hlaða upp hljóð",
+        file: "Hlaða upp skrá",
+      },
       upload_error: "Villa: Upphleðsla mistókst",
     },
     embed: {
       title: "Innsetja",
-      embed_button: "Innsetja mynd",
+      embed_button: {
+        image: "Innsetja mynd",
+        video: "Innsetja myndband",
+        audio: "Innsetja hljóð",
+        file: "Innsetja skrá",
+      },
       url_placeholder: "Sláðu inn URL",
     },
   },
