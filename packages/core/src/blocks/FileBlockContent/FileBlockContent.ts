@@ -16,7 +16,6 @@ import {
 } from "./fileBlockHelpers";
 
 export const filePropSchema = {
-  textAlignment: defaultProps.textAlignment,
   backgroundColor: defaultProps.backgroundColor,
   // File name.
   name: {
