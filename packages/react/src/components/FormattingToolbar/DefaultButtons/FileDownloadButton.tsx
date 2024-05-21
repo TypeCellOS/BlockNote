@@ -53,9 +53,13 @@ export const FileDownloadButton = () => {
   return (
     <Components.FormattingToolbar.Button
       className={"bn-button"}
-      label={dict.formatting_toolbar.file_download.tooltip[fileBlock.type]}
+      label={
+        dict.formatting_toolbar.file_download.tooltip[fileBlock.type] ||
+        dict.formatting_toolbar.file_download.tooltip["file"]
+      }
       mainTooltip={
-        dict.formatting_toolbar.file_download.tooltip[fileBlock.type]
+        dict.formatting_toolbar.file_download.tooltip[fileBlock.type] ||
+        dict.formatting_toolbar.file_download.tooltip["file"]
       }
       icon={<RiDownload2Fill />}
       onClick={onClick}
