@@ -48,11 +48,13 @@ test.describe("Check Keyboard Handlers' Behaviour", () => {
 
     await page.mouse.click(x + 35, y + height / 2, { clickCount: 2 });
     await page.locator(ITALIC_BUTTON_SELECTOR).click();
+    await page.keyboard.press("Escape");
     await page.waitForTimeout(500);
     await page.keyboard.press("Control+ArrowLeft");
     await page.keyboard.press("ArrowRight");
     await page.keyboard.press("Enter");
 
+    await page.pause();
     await compareDocToSnapshot(page, "enterPreservesMarks.json");
   });
   test("Check Enter preserves nested blocks", async ({ page }) => {
@@ -101,6 +103,7 @@ test.describe("Check Keyboard Handlers' Behaviour", () => {
     }
 
     await page.locator(ITALIC_BUTTON_SELECTOR).click();
+    await page.keyboard.press("Escape");
     await page.waitForTimeout(500);
 
     await page.keyboard.press("ArrowLeft");
