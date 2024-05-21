@@ -61,7 +61,7 @@ export const audioRender = (
     const addAudioButton = createAddFileButton(
       block,
       editor,
-      "Add audio",
+      editor.dictionary.file_blocks.audio.add_button_text,
       fileBlockAudioIcon.firstElementChild as HTMLElement
     );
     wrapper.appendChild(addAudioButton.dom);

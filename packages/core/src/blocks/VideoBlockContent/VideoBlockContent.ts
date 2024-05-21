@@ -67,7 +67,7 @@ export const videoRender = (
     const addVideoButton = createAddFileButton(
       block,
       editor,
-      "Add video",
+      editor.dictionary.file_blocks.video.add_button_text,
       fileBlockVideoIcon.firstElementChild as HTMLElement
     );
     wrapper.appendChild(addVideoButton.dom);

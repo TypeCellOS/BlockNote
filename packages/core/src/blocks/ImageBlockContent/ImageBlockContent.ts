@@ -67,7 +67,7 @@ export const imageRender = (
     const addImageButton = createAddFileButton(
       block,
       editor,
-      "Add image",
+      editor.dictionary.file_blocks.image.add_button_text,
       fileBlockImageIcon.firstElementChild as HTMLElement
     );
     wrapper.appendChild(addImageButton.dom);

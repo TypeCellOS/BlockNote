@@ -7,12 +7,12 @@ import {
   ReactCustomBlockRenderProps,
 } from "../../schema/ReactBlockSpec";
 import {
-  FileAndCaptionWrapper,
   AddFileButton,
-  ResizeHandlesWrapper,
   DefaultFilePreview,
   FigureWithCaption,
+  FileAndCaptionWrapper,
   LinkWithCaption,
+  ResizeHandlesWrapper,
 } from "../FileBlockContent/fileBlockHelpers";
 
 export const ImagePreview = (
@@ -88,7 +88,7 @@ export const ReactImageBlock = createReactBlockSpec(imageBlockConfig, {
         <AddFileButton
           {...props}
           editor={props.editor as any}
-          buttonText={"Add image"}
+          buttonText={props.editor.dictionary.file_blocks.image.add_button_text}
           buttonIcon={<RiImage2Fill size={24} />}
         />
       ) : !props.block.props.showPreview ? (

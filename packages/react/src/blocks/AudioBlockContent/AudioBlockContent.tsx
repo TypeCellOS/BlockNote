@@ -2,14 +2,14 @@ import { FileBlockConfig, audioBlockConfig, audioParse } from "@blocknote/core";
 import { RiVolumeUpFill } from "react-icons/ri";
 
 import {
-  createReactBlockSpec,
   ReactCustomBlockRenderProps,
+  createReactBlockSpec,
 } from "../../schema/ReactBlockSpec";
 import {
-  FileAndCaptionWrapper,
   AddFileButton,
   DefaultFilePreview,
   FigureWithCaption,
+  FileAndCaptionWrapper,
   LinkWithCaption,
 } from "../FileBlockContent/fileBlockHelpers";
 
@@ -68,7 +68,7 @@ export const ReactAudioBlock = createReactBlockSpec(audioBlockConfig, {
         <AddFileButton
           {...props}
           editor={props.editor as any}
-          buttonText={"Add audio"}
+          buttonText={props.editor.dictionary.file_blocks.audio.add_button_text}
           buttonIcon={<RiVolumeUpFill size={24} />}
         />
       ) : !props.block.props.showPreview ? (

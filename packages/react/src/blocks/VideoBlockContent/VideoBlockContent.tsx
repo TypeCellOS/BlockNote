@@ -7,12 +7,12 @@ import {
   ReactCustomBlockRenderProps,
 } from "../../schema/ReactBlockSpec";
 import {
-  FileAndCaptionWrapper,
   AddFileButton,
-  ResizeHandlesWrapper,
   DefaultFilePreview,
   FigureWithCaption,
+  FileAndCaptionWrapper,
   LinkWithCaption,
+  ResizeHandlesWrapper,
 } from "../FileBlockContent/fileBlockHelpers";
 
 export const VideoPreview = (
@@ -82,7 +82,7 @@ export const ReactVideoBlock = createReactBlockSpec(videoBlockConfig, {
         <AddFileButton
           {...props}
           editor={props.editor as any}
-          buttonText={"Add video"}
+          buttonText={props.editor.dictionary.file_blocks.video.add_button_text}
           buttonIcon={<RiVideoFill size={24} />}
         />
       ) : !props.block.props.showPreview ? (
