@@ -38,7 +38,7 @@ export const en = {
     },
     table: {
       title: "Table",
-      subtext: "Used for for tables",
+      subtext: "Used for tables",
       aliases: ["table"],
       group: "Advanced",
     },
