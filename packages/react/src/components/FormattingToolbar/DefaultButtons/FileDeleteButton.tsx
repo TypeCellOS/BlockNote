@@ -41,6 +41,7 @@ export const FileDeleteButton = () => {
   }, [editor, selectedBlocks]);
 
   const onClick = useCallback(() => {
+    editor.focus();
     editor.removeBlocks([fileBlock!]);
   }, [editor, fileBlock]);
 
