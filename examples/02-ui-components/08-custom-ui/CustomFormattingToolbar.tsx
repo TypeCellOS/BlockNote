@@ -1,7 +1,6 @@
 import {
   useBlockNoteEditor,
   useEditorContentOrSelectionChange,
-  useEditorSelectionChange,
 } from "@blocknote/react";
 import { useState } from "react";
 import {
@@ -85,7 +84,6 @@ export function CustomFormattingToolbar() {
 
   // Updates toolbar state when the editor content or selection changes.
   useEditorContentOrSelectionChange(() => setState(getState()), editor);
-  useEditorSelectionChange(() => setState(getState()), editor);
 
   return (
     <div className={"formatting-toolbar"}>

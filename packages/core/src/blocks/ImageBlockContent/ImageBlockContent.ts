@@ -50,6 +50,7 @@ export const imageBlockConfig = {
   content: "none",
   isFileBlock: true,
   isFileBlockPlaceholder: (block: any) => !block.props.url,
+  fileBlockAcceptMimeTypes: ["image/*"],
 } satisfies FileBlockConfig;
 
 export const imageRender = (

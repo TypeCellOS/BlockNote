@@ -51,7 +51,7 @@ export type FileBlockConfig = {
   content: "none";
   isFileBlock: true;
   isFileBlockPlaceholder: (block: any) => boolean;
-  // TODO: add "accept" mime types here
+  fileBlockAcceptMimeTypes?: string[];
 };
 
 // BlockConfig contains the "schema" info about a Block type

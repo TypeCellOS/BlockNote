@@ -50,6 +50,7 @@ export const videoBlockConfig = {
   content: "none",
   isFileBlock: true,
   isFileBlockPlaceholder: (block: any) => !block.props.url,
+  fileBlockAcceptMimeTypes: ["video/*"],
 } satisfies FileBlockConfig;
 
 export const videoRender = (

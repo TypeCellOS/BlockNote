@@ -44,6 +44,7 @@ export const audioBlockConfig = {
   content: "none",
   isFileBlock: true,
   isFileBlockPlaceholder: (block: any) => !block.props.url,
+  fileBlockAcceptMimeTypes: ["audio/*"],
 } satisfies FileBlockConfig;
 
 export const audioRender = (
