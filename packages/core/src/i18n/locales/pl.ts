@@ -45,19 +45,43 @@ export const pl: Dictionary = {
       group: "Zaawansowane",
     },
     image: {
-      title: "Obraz",
-      subtext: "Wstaw obraz",
+      title: "Zdjęcie",
+      subtext: "Wstaw zdjęcie",
       aliases: [
         "obraz",
-        "przeslijObraz",
-        "przeslij",
+        "wrzućZdjęcie",
+        "wrzuć",
         "img",
-        "zdjecie",
+        "zdjęcie",
         "media",
         "url",
-        "dysk",
-        "dropbox",
       ],
+      group: "Media",
+    },
+    video: {
+      title: "Wideo",
+      subtext: "Wstaw wideo",
+      aliases: ["wideo", "wrzućWideo", "wrzuć", "mp4", "film", "media", "url"],
+      group: "Media",
+    },
+    audio: {
+      title: "Audio",
+      subtext: "Wstaw audio",
+      aliases: [
+        "audio",
+        "wrzućAudio",
+        "wrzuć",
+        "mp3",
+        "dźwięk",
+        "media",
+        "url",
+      ],
+      group: "Media",
+    },
+    file: {
+      title: "Plik",
+      subtext: "Wstaw plik",
+      aliases: ["plik", "wrzuć", "wstaw", "media", "url"],
       group: "Media",
     },
   },
@@ -67,8 +91,19 @@ export const pl: Dictionary = {
     bulletListItem: "Lista",
     numberedListItem: "Lista",
   },
-  image: {
-    add_button: "Dodaj obraz",
+  file_blocks: {
+    image: {
+      add_button_text: "Dodaj zdjęcie",
+    },
+    video: {
+      add_button_text: "Dodaj wideo",
+    },
+    audio: {
+      add_button_text: "Dodaj audio",
+    },
+    file: {
+      add_button_text: "Dodaj plik",
+    },
   },
   side_menu: {
     add_block_label: "Dodaj blok",
@@ -135,12 +170,50 @@ export const pl: Dictionary = {
       tooltip: "Utwórz link",
       secondary_tooltip: "Mod+K",
     },
-    image_caption: {
-      tooltip: "Edytuj podpis",
-      input_placeholder: "Edytuj podpis",
+    file_caption: {
+      tooltip: "Zmień podpis",
+      input_placeholder: "Zmień podpis",
     },
-    image_replace: {
-      tooltip: "Zamień obraz",
+    file_replace: {
+      tooltip: {
+        image: "Zmień obraz",
+        video: "Zmień wideo",
+        audio: "Zmień audio",
+        file: "Zmień plik",
+      },
+    },
+    file_rename: {
+      tooltip: {
+        image: "Zmień nazwę zdjęcia",
+        video: "Zmień nazwę wideo",
+        audio: "Zmień nazwę audio",
+        file: "Zmień nazwę pliku",
+      },
+      input_placeholder: {
+        image: "Zmień nazwę zdjęcia",
+        video: "Zmień nazwę wideo",
+        audio: "Zmień nazwę audio",
+        file: "Zmień nazwę pliku",
+      },
+    },
+    file_download: {
+      tooltip: {
+        image: "Pobierz zdjęcie",
+        video: "Pobierz wideo",
+        audio: "Pobierz audio",
+        file: "Pobierz plik",
+      },
+    },
+    file_delete: {
+      tooltip: {
+        image: "Usuń zdjęcie",
+        video: "Usuń wideo",
+        audio: "Usuń audio",
+        file: "Usuń plik",
+      },
+    },
+    file_preview_toggle: {
+      tooltip: "Przełącz podgląd",
     },
     nest: {
       tooltip: "Zagnieźdź blok",
@@ -163,15 +236,25 @@ export const pl: Dictionary = {
       tooltip: "Wyjustuj tekst",
     },
   },
-  image_panel: {
+  file_panel: {
     upload: {
-      title: "Przesyłanie",
-      file_placeholder: "Prześlij obraz",
+      title: "Wrzuć",
+      file_placeholder: {
+        image: "Wrzuć zdjęcie",
+        video: "Wrzuć wideo",
+        audio: "Wrzuć audio",
+        file: "Wrzuć plik",
+      },
       upload_error: "Błąd: Przesyłanie nie powiodło się",
     },
     embed: {
-      title: "Osadź",
-      embed_button: "Osadź obraz",
+      title: "Wstaw",
+      embed_button: {
+        image: "Wstaw zdjęice",
+        video: "Wstaw wideo",
+        audio: "Wstaw audio",
+        file: "Wstaw plik",
+      },
       url_placeholder: "Wprowadź URL",
     },
   },

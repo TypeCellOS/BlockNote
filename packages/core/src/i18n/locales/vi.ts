@@ -47,17 +47,41 @@ export const vi: Dictionary = {
     image: {
       title: "Hình ảnh",
       subtext: "Chèn hình ảnh",
+      aliases: ["anh", "tai-len-anh", "tai-len", "img", "hinh", "media", "url"],
+      group: "Phương tiện",
+    },
+    video: {
+      title: "Video",
+      subtext: "Chèn video",
       aliases: [
-        "anh",
-        "tai-len-anh",
+        "video",
+        "tai-len-video",
         "tai-len",
-        "img",
-        "hinh",
+        "mp4",
+        "phim",
         "media",
         "url",
-        "drive",
-        "dropbox",
       ],
+      group: "Phương tiện",
+    },
+    audio: {
+      title: "Âm thanh",
+      subtext: "Chèn âm thanh",
+      aliases: [
+        "âm thanh",
+        "tai-len-am-thanh",
+        "tai-len",
+        "mp3",
+        "am thanh",
+        "media",
+        "url",
+      ],
+      group: "Phương tiện",
+    },
+    file: {
+      title: "Tệp",
+      subtext: "Chèn tệp",
+      aliases: ["tep", "tai-len", "nhung", "media", "url"],
       group: "Phương tiện",
     },
   },
@@ -67,8 +91,19 @@ export const vi: Dictionary = {
     bulletListItem: "Danh sách",
     numberedListItem: "Danh sách",
   },
-  image: {
-    add_button: "Thêm ảnh",
+  file_blocks: {
+    image: {
+      add_button_text: "Thêm ảnh",
+    },
+    video: {
+      add_button_text: "Thêm video",
+    },
+    audio: {
+      add_button_text: "Thêm âm thanh",
+    },
+    file: {
+      add_button_text: "Thêm tệp",
+    },
   },
   // từ gói phản ứng:
   side_menu: {
@@ -136,12 +171,50 @@ export const vi: Dictionary = {
       tooltip: "Tạo liên kết",
       secondary_tooltip: "Mod+K",
     },
-    image_caption: {
+    file_caption: {
       tooltip: "Chỉnh sửa chú thích",
       input_placeholder: "Chỉnh sửa chú thích",
     },
-    image_replace: {
-      tooltip: "Thay thế hình ảnh",
+    file_replace: {
+      tooltip: {
+        image: "Thay thế hình ảnh",
+        video: "Thay thế video",
+        audio: "Thay thế âm thanh",
+        file: "Thay thế tệp",
+      },
+    },
+    file_rename: {
+      tooltip: {
+        image: "Đổi tên hình ảnh",
+        video: "Đổi tên video",
+        audio: "Đổi tên âm thanh",
+        file: "Đổi tên tệp",
+      },
+      input_placeholder: {
+        image: "Đổi tên hình ảnh",
+        video: "Đổi tên video",
+        audio: "Đổi tên âm thanh",
+        file: "Đổi tên tệp",
+      },
+    },
+    file_download: {
+      tooltip: {
+        image: "Tải xuống hình ảnh",
+        video: "Tải xuống video",
+        audio: "Tải xuống âm thanh",
+        file: "Tải xuống tệp",
+      },
+    },
+    file_delete: {
+      tooltip: {
+        image: "Xóa hình ảnh",
+        video: "Xóa video",
+        audio: "Xóa âm thanh",
+        file: "Xóa tệp",
+      },
+    },
+    file_preview_toggle: {
+      tooltip: "Chuyển đổi xem trước",
     },
     nest: {
       tooltip: "Lồng khối",
@@ -164,15 +237,25 @@ export const vi: Dictionary = {
       tooltip: "Căn đều văn bản",
     },
   },
-  image_panel: {
+  file_panel: {
     upload: {
       title: "Tải lên",
-      file_placeholder: "Tải lên hình ảnh",
+      file_placeholder: {
+        image: "Tải lên hình ảnh",
+        video: "Tải lên video",
+        audio: "Tải lên âm thanh",
+        file: "Tải lên tệp",
+      },
       upload_error: "Lỗi: Tải lên thất bại",
     },
     embed: {
       title: "Nhúng",
-      embed_button: "Nhúng hình ảnh",
+      embed_button: {
+        image: "Nhúng hình ảnh",
+        video: "Nhúng video",
+        audio: "Nhúng âm thanh",
+        file: "Nhúng tệp",
+      },
       url_placeholder: "Nhập URL",
     },
   },

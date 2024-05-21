@@ -55,18 +55,15 @@ export const nl: Dictionary = {
         "foto",
         "media",
         "url",
-        "drive",
-        "dropbox",
       ],
       group: "Media",
     },
-    // TODO
     video: {
       title: "Video",
-      subtext: "Insert a video",
+      subtext: "Voeg een video in",
       aliases: [
         "video",
-        "videoUpload",
+        "videoUploaden",
         "upload",
         "mp4",
         "film",
@@ -79,24 +76,22 @@ export const nl: Dictionary = {
     },
     audio: {
       title: "Audio",
-      subtext: "Insert audio",
+      subtext: "Voeg audio in",
       aliases: [
         "audio",
-        "audioUpload",
+        "audioUploaden",
         "upload",
         "mp3",
-        "sound",
+        "geluid",
         "media",
         "url",
-        "drive",
-        "dropbox",
       ],
       group: "Media",
     },
     file: {
-      title: "File",
-      subtext: "Insert a file",
-      aliases: ["file", "upload", "embed", "media", "url"],
+      title: "Bestand",
+      subtext: "Voeg een bestand in",
+      aliases: ["bestand", "upload", "insluiten", "media", "url"],
       group: "Media",
     },
   },
@@ -106,19 +101,18 @@ export const nl: Dictionary = {
     bulletListItem: "Lijst",
     numberedListItem: "Lijst",
   },
-  // TODO
   file_blocks: {
     image: {
-      add_button_text: "Add image",
+      add_button_text: "Afbeelding toevoegen",
     },
     video: {
-      add_button_text: "Add video",
+      add_button_text: "Video toevoegen",
     },
     audio: {
-      add_button_text: "Add audio",
+      add_button_text: "Audio toevoegen",
     },
     file: {
-      add_button_text: "Add file",
+      add_button_text: "Bestand toevoegen",
     },
   },
   // from react package:
@@ -190,47 +184,46 @@ export const nl: Dictionary = {
       tooltip: "Bewerk onderschrift",
       input_placeholder: "Bewerk onderschrift",
     },
-    // TODO
     file_replace: {
       tooltip: {
-        image: "Replace image",
-        video: "Replace video",
-        audio: "Replace audio",
-        file: "Replace file",
+        image: "Afbeelding vervangen",
+        video: "Video vervangen",
+        audio: "Audio vervangen",
+        file: "Bestand vervangen",
       },
     },
     file_rename: {
       tooltip: {
-        image: "Rename image",
-        video: "Rename video",
-        audio: "Rename audio",
-        file: "Rename file",
+        image: "Afbeelding hernoemen",
+        video: "Video hernoemen",
+        audio: "Audio hernoemen",
+        file: "Bestand hernoemen",
       },
       input_placeholder: {
-        image: "Rename image",
-        video: "Rename video",
-        audio: "Rename audio",
-        file: "Rename file",
+        image: "Afbeelding hernoemen",
+        video: "Video hernoemen",
+        audio: "Audio hernoemen",
+        file: "Bestand hernoemen",
       },
     },
     file_download: {
       tooltip: {
-        image: "Download image",
-        video: "Download video",
-        audio: "Download audio",
-        file: "Download file",
+        image: "Afbeelding downloaden",
+        video: "Video downloaden",
+        audio: "Audio downloaden",
+        file: "Bestand downloaden",
       },
     },
     file_delete: {
       tooltip: {
-        image: "Delete image",
-        video: "Delete video",
-        audio: "Delete audio",
-        file: "Delete file",
+        image: "Afbeelding verwijderen",
+        video: "Video verwijderen",
+        audio: "Audio verwijderen",
+        file: "Bestand verwijderen",
       },
     },
     file_preview_toggle: {
-      tooltip: "Toggle preview",
+      tooltip: "Voorbeeldschakelaar",
     },
     nest: {
       tooltip: "Nest blok",
@@ -256,23 +249,21 @@ export const nl: Dictionary = {
   file_panel: {
     upload: {
       title: "Upload",
-      // TODO
       file_placeholder: {
-        image: "Upload image",
-        video: "Upload video",
-        audio: "Upload audio",
-        file: "Upload file",
+        image: "Afbeelding uploaden",
+        video: "Video uploaden",
+        audio: "Audio uploaden",
+        file: "Bestand uploaden",
       },
       upload_error: "Fout: Upload mislukt",
     },
     embed: {
       title: "Insluiten",
-      // TODO
       embed_button: {
-        image: "Embed image",
-        video: "Embed video",
-        audio: "Embed audio",
-        file: "Embed file",
+        image: "Afbeelding insluiten",
+        video: "Video insluiten",
+        audio: "Audio insluiten",
+        file: "Bestand insluiten",
       },
       url_placeholder: "Voer URL in",
     },
