@@ -42,9 +42,10 @@ export const FileDownloadButton = () => {
 
   const onClick = useCallback(() => {
     if (fileBlock && fileBlock.props.url) {
+      editor.focus();
       window.open(fileBlock.props.url);
     }
-  }, [fileBlock]);
+  }, [editor, fileBlock]);
 
   if (!fileBlock || checkBlockIsFileBlockWithPlaceholder(fileBlock, editor)) {
     return null;

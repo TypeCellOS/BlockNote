@@ -81,6 +81,8 @@ export const BasicTextStyleButton = <Style extends BasicTextStyle>(props: {
   }, editor);
 
   const toggleStyle = (style: typeof props.basicTextStyle) => {
+    editor.focus();
+
     if (!basicTextStyleInSchema) {
       return;
     }
@@ -89,10 +91,6 @@ export const BasicTextStyleButton = <Style extends BasicTextStyle>(props: {
       throw new Error("can only toggle boolean styles");
     }
     editor.toggleStyles({ [style]: true } as any);
-    setTimeout(() => {
-      // timeout needed to ensure compatibility with Mantine Toolbar useFocusTrap
-      editor.focus();
-    });
   };
 
   const show = useMemo(() => {

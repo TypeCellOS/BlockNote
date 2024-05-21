@@ -26,10 +26,10 @@ test.describe("Check Text Alignment Functionality", () => {
     await page.locator(ALIGN_TEXT_RIGHT_BUTTON_SELECTOR).click();
     await page.waitForTimeout(350);
 
-    await page.keyboard.press("ArrowLeft");
-
+    await page.keyboard.press("Escape");
     // Waits for formatting toolbar animation to finish.
     await page.waitForTimeout(500);
+    await page.keyboard.press("ArrowLeft");
 
     expect(await page.screenshot()).toMatchSnapshot("alignTextSingleBlock.png");
   });
@@ -50,10 +50,10 @@ test.describe("Check Text Alignment Functionality", () => {
     await page.locator(ALIGN_TEXT_RIGHT_BUTTON_SELECTOR).click();
     await page.waitForTimeout(350);
 
-    await page.keyboard.press("ArrowLeft");
-
+    await page.keyboard.press("Escape");
     // Waits for formatting toolbar animation to finish.
     await page.waitForTimeout(500);
+    await page.keyboard.press("ArrowLeft");
 
     expect(await page.screenshot()).toMatchSnapshot(
       "alignTextMultipleBlocks.png"
