@@ -239,9 +239,8 @@ NESTED BLOCKS
 /* FILES */
 
 /* Add block button & default preview */
-[data-file-block]:not([data-url]) > .bn-file-block-content-wrapper,
-[data-file-block][data-show-preview="false"] > .bn-file-block-content-wrapper,
-[data-content-type="file"] > .bn-file-block-content-wrapper {
+[data-file-block] .bn-file-block-content-wrapper:has(.bn-add-file-button),
+[data-file-block] .bn-file-block-content-wrapper:has(.bn-file-default-preview) {
   width: 100%;
 }
 
