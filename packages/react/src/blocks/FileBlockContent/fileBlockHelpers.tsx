@@ -13,8 +13,10 @@ export const DefaultFilePreview = (
     className={"bn-file-default-preview"}
     contentEditable={false}
     draggable={false}>
-    <RiFile2Line size={24} />
-    {props.block.props.name}
+    <div className={"bn-file-default-preview-icon"}>
+      <RiFile2Line size={24} />
+    </div>
+    <p className={"bn-file-default-preview-name"}>{props.block.props.name}</p>
   </div>
 );
 
