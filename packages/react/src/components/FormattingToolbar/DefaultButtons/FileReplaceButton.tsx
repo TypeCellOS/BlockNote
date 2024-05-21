@@ -44,8 +44,14 @@ export const FileReplaceButton = () => {
           className={"bn-button"}
           onClick={() => setIsOpen(!isOpen)}
           isSelected={isOpen}
-          mainTooltip={dict.formatting_toolbar.file_replace.tooltip[block.type]}
-          label={dict.formatting_toolbar.file_replace.tooltip[block.type]}
+          mainTooltip={
+            dict.formatting_toolbar.file_replace.tooltip[block.type] ||
+            dict.formatting_toolbar.file_replace.tooltip["file"]
+          }
+          label={
+            dict.formatting_toolbar.file_replace.tooltip[block.type] ||
+            dict.formatting_toolbar.file_replace.tooltip["file"]
+          }
           icon={<RiImageEditFill />}
         />
       </Components.Generic.Popover.Trigger>

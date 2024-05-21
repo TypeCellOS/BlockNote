@@ -32,8 +32,6 @@ export const PDF = createReactBlockSpec(
   {
     type: "pdf",
     propSchema: {
-      textAlignment: defaultProps.textAlignment,
-      backgroundColor: defaultProps.backgroundColor,
       name: {
         default: "" as const,
       },

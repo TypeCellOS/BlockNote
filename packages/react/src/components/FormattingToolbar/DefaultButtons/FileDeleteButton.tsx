@@ -51,8 +51,14 @@ export const FileDeleteButton = () => {
   return (
     <Components.FormattingToolbar.Button
       className={"bn-button"}
-      label={dict.formatting_toolbar.file_delete.tooltip[fileBlock.type]}
-      mainTooltip={dict.formatting_toolbar.file_delete.tooltip[fileBlock.type]}
+      label={
+        dict.formatting_toolbar.file_delete.tooltip[fileBlock.type] ||
+        dict.formatting_toolbar.file_delete.tooltip["file"]
+      }
+      mainTooltip={
+        dict.formatting_toolbar.file_delete.tooltip[fileBlock.type] ||
+        dict.formatting_toolbar.file_delete.tooltip["file"]
+      }
       icon={<RiDeleteBin7Line />}
       onClick={onClick}
     />
