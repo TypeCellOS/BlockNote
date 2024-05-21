@@ -1,4 +1,4 @@
-import { isNodeSelection, posToDOMRect } from "@tiptap/core";
+import { isNodeSelection, isTextSelection, posToDOMRect } from "@tiptap/core";
 import { EditorState, Plugin, PluginKey, PluginView } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 
@@ -22,7 +22,19 @@ export class FormattingToolbarView implements PluginView {
     state: EditorState;
     from: number;
     to: number;
-  }) => boolean = ({ state }) => !state.selection.empty;
+  }) => boolean = ({ state, from, to, view }) => {
+    const { doc, selection } = state;
+    const { empty } = selection;
+
+    // Sometime check for `empty` is not enough.
+    // Doubleclick an empty paragraph returns a node size of 2.
+    // So we check also for an empty text size.
+    const isEmptyTextBlock =
+      !doc.textBetween(from, to).length && isTextSelection(state.selection);
+
+    // check view.hasFocus so that the toolbar doesn't show up when the editor is not focused or when for example a code block is focused
+    return !(!view.hasFocus() || empty || isEmptyTextBlock);
+  };
 
   constructor(
     private readonly editor: BlockNoteEditor<
