@@ -203,7 +203,6 @@ exports[`Test React BlockNote-Prosemirror conversion > Case: custom react block 
       "attrs": {
         "caption": "Caption",
         "name": "example",
-        "textAlignment": "left",
         "url": "exampleURL",
       },
       "type": "file",
@@ -225,7 +224,6 @@ exports[`Test React BlockNote-Prosemirror conversion > Case: custom react block 
       "attrs": {
         "caption": "",
         "name": "",
-        "textAlignment": "left",
         "url": "",
       },
       "type": "file",
@@ -247,7 +245,6 @@ exports[`Test React BlockNote-Prosemirror conversion > Case: custom react block 
       "attrs": {
         "caption": "Caption",
         "name": "example",
-        "textAlignment": "left",
         "url": "exampleURL",
       },
       "type": "file",
@@ -265,7 +262,6 @@ exports[`Test React BlockNote-Prosemirror conversion > Case: custom react block 
               "attrs": {
                 "caption": "Caption",
                 "name": "example",
-                "textAlignment": "left",
                 "url": "exampleURL",
               },
               "type": "file",
@@ -293,7 +289,6 @@ exports[`Test React BlockNote-Prosemirror conversion > Case: custom react block 
       "attrs": {
         "caption": "",
         "name": "example",
-        "textAlignment": "left",
         "url": "exampleURL",
       },
       "type": "file",
@@ -315,7 +310,6 @@ exports[`Test React BlockNote-Prosemirror conversion > Case: custom react block 
       "attrs": {
         "caption": "Caption",
         "name": "",
-        "textAlignment": "left",
         "url": "exampleURL",
       },
       "type": "file",
