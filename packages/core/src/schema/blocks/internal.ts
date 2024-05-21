@@ -109,6 +109,11 @@ export function getBlockFromPos<
   const blockContainer = tipTapEditor.state.doc.resolve(pos!).node();
   // Gets block identifier
   const blockIdentifier = blockContainer.attrs.id;
+
+  if (!blockIdentifier) {
+    throw new Error("Block doesn't have id");
+  }
+
   // Gets the block
   const block = editor.getBlock(blockIdentifier)! as SpecificBlock<
     BSchema,
