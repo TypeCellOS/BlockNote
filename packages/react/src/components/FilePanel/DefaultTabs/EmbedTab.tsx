@@ -45,7 +45,6 @@ export const EmbedTab = <
           props: {
             name: filenameFromURL(currentURL),
             url: currentURL,
-            fileId: undefined, // TODO: make this pluggable / not hard-coded
           } as any,
         });
       }
@@ -58,7 +57,6 @@ export const EmbedTab = <
       props: {
         name: filenameFromURL(currentURL),
         url: currentURL,
-        fileId: undefined, // TODO: make this pluggable / not hard-coded
       } as any,
     });
   }, [editor, block, currentURL]);

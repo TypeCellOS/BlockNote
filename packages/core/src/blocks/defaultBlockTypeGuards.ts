@@ -82,7 +82,7 @@ export function checkBlockIsFileBlockWithPlaceholder<
   S extends StyleSchema
 >(block: Block<B, I, S>, editor: BlockNoteEditor<B, I, S>) {
   const config = editor.schema.blockSchema[block.type];
-  return config.isFileBlock && config.isFileBlockPlaceholder(block);
+  return config.isFileBlock && !block.props.url;
 }
 
 export function checkBlockTypeHasDefaultProp<

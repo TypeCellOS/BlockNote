@@ -1,4 +1,4 @@
-import { defaultProps, FileBlockConfig } from "@blocknote/core";
+import { FileBlockConfig } from "@blocknote/core";
 import {
   AddFileButton,
   createReactBlockSpec,
@@ -50,7 +50,6 @@ export const PDF = createReactBlockSpec(
     },
     content: "none",
     isFileBlock: true,
-    isFileBlockPlaceholder: (block: any) => !block.props.url,
   },
   {
     render: (props) => (

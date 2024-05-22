@@ -49,7 +49,6 @@ export const imageBlockConfig = {
   propSchema: imagePropSchema,
   content: "none",
   isFileBlock: true,
-  isFileBlockPlaceholder: (block: any) => !block.props.url,
   fileBlockAcceptMimeTypes: ["image/*"],
 } satisfies FileBlockConfig;
 

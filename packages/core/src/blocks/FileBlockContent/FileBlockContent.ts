@@ -10,9 +10,9 @@ import {
   createAddFileButton,
   createDefaultFilePreview,
   createFileAndCaptionWrapper,
+  createLinkWithCaption,
   parseEmbedElement,
   parseFigureElement,
-  createLinkWithCaption,
 } from "./fileBlockHelpers";
 
 export const filePropSchema = {
@@ -36,7 +36,6 @@ export const fileBlockConfig = {
   propSchema: filePropSchema,
   content: "none",
   isFileBlock: true,
-  isFileBlockPlaceholder: (block: any) => !block.props.url,
 } satisfies FileBlockConfig;
 
 export const fileRender = (

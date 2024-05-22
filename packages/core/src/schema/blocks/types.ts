@@ -50,7 +50,6 @@ export type FileBlockConfig = {
   };
   content: "none";
   isFileBlock: true;
-  isFileBlockPlaceholder: (block: any) => boolean;
   fileBlockAcceptMimeTypes?: string[];
 };
 
