@@ -180,7 +180,7 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
   // Need to render node view since the checkbox needs to be able to update the
   // node. This is only possible with a node view as it exposes `getPos`.
   addNodeView() {
-    return ({ node, getPos, HTMLAttributes }) => {
+    return ({ node, getPos, editor, HTMLAttributes }) => {
       // Need to wrap certain elements in a div or keyboard navigation gets
       // confused.
       const wrapper = document.createElement("div");
@@ -193,7 +193,9 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
       if (node.attrs.checked) {
         checkbox.setAttribute("checked", "");
       }
-      checkbox.addEventListener("change", () => {
+      checkbox.disabled = !editor.isEditable;
+
+      const changeHandler = () => {
         if (typeof getPos === "boolean") {
           return;
         }
@@ -204,6 +206,20 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
             checked: checkbox.checked as any,
           },
         });
+      };
+      checkbox.addEventListener("change", changeHandler);
+
+      // Need to use mutation observer - no easier way of listening to when the
+      // editor becomes (un)editable.
+      const observer = new MutationObserver(function (mutations) {
+        mutations.forEach(function (mutation) {
+          if (mutation.type === "attributes") {
+            checkbox.disabled = !editor.isEditable;
+          }
+        });
+      });
+      observer.observe(editor.view.dom, {
+        attributes: true, //configure it to listen to attribute changes
       });
 
       const { dom, contentDOM } = createDefaultBlockDOMOutputSpec(
@@ -222,7 +238,14 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
       wrapper.appendChild(contentDOM);
       checkboxWrapper.appendChild(checkbox);
 
-      return { dom, contentDOM };
+      return {
+        dom,
+        contentDOM,
+        destroy: () => {
+          checkbox.removeEventListener("change", changeHandler);
+          observer.disconnect();
+        },
+      };
     };
   },
 });
