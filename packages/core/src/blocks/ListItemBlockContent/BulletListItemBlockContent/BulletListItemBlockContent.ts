@@ -17,6 +17,7 @@ const BulletListItemBlockContent = createStronglyTypedTiptapNode({
   name: "bulletListItem",
   content: "inline*",
   group: "blockContent",
+  priority: 90,
   addInputRules() {
     return [
       // Creates an unordered list when starting with "-", "+", or "*".
