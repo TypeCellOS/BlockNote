@@ -48,6 +48,21 @@ export const zh: Dictionary = {
       ],
       group: "基础",
     },
+    check_list: {
+      title: "检查清单",
+      subtext: "用于显示带有复选框的列表",
+      aliases: [
+        "ul",
+        "li",
+        "checklist",
+        "checked list",
+        "列表",
+        "检查清单",
+        "勾选列表",
+        "复选框",
+      ],
+      group: "基本块",
+    },
     paragraph: {
       title: "段落",
       subtext: "用于文档正文",
@@ -121,6 +136,7 @@ export const zh: Dictionary = {
     heading: "标题",
     bulletListItem: "列表",
     numberedListItem: "列表",
+    checkListItem: "列表",
   },
   file_blocks: {
     image: {

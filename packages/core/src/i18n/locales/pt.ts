@@ -32,6 +32,19 @@ export const pt: Dictionary = {
       aliases: ["ul", "li", "lista", "listamarcadores", "lista com marcadores"],
       group: "Blocos Básicos",
     },
+    check_list: {
+      title: "Lista de verificação",
+      subtext: "Usado para exibir uma lista com caixas de seleção",
+      aliases: [
+        "ul",
+        "li",
+        "lista",
+        "lista de verificação",
+        "lista marcada",
+        "caixa de seleção",
+      ],
+      group: "Blocos básicos",
+    },
     paragraph: {
       title: "Parágrafo",
       subtext: "Usado para o corpo do seu documento",
@@ -90,6 +103,7 @@ export const pt: Dictionary = {
     heading: "Título",
     bulletListItem: "Lista",
     numberedListItem: "Lista",
+    checkListItem: "Lista",
   },
   file_blocks: {
     image: {
