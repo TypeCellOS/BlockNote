@@ -6,7 +6,7 @@ import { forwardRef } from "react";
 
 export const Panel = forwardRef<
   HTMLDivElement,
-  ComponentProps["ImagePanel"]["Root"]
+  ComponentProps["FilePanel"]["Root"]
 >((props, ref) => {
   const {
     className,

@@ -70,9 +70,43 @@ export const nl: Dictionary = {
         "foto",
         "media",
         "url",
+      ],
+      group: "Media",
+    },
+    video: {
+      title: "Video",
+      subtext: "Voeg een video in",
+      aliases: [
+        "video",
+        "videoUploaden",
+        "upload",
+        "mp4",
+        "film",
+        "media",
+        "url",
         "drive",
         "dropbox",
       ],
+      group: "Media",
+    },
+    audio: {
+      title: "Audio",
+      subtext: "Voeg audio in",
+      aliases: [
+        "audio",
+        "audioUploaden",
+        "upload",
+        "mp3",
+        "geluid",
+        "media",
+        "url",
+      ],
+      group: "Media",
+    },
+    file: {
+      title: "Bestand",
+      subtext: "Voeg een bestand in",
+      aliases: ["bestand", "upload", "insluiten", "media", "url"],
       group: "Media",
     },
   },
@@ -83,8 +117,19 @@ export const nl: Dictionary = {
     numberedListItem: "Lijst",
     checkListItem: "Lijst",
   },
-  image: {
-    add_button: "Afbeelding toevoegen",
+  file_blocks: {
+    image: {
+      add_button_text: "Afbeelding toevoegen",
+    },
+    video: {
+      add_button_text: "Video toevoegen",
+    },
+    audio: {
+      add_button_text: "Audio toevoegen",
+    },
+    file: {
+      add_button_text: "Bestand toevoegen",
+    },
   },
   // from react package:
   side_menu: {
@@ -151,12 +196,50 @@ export const nl: Dictionary = {
       tooltip: "Maak link",
       secondary_tooltip: "Mod+K",
     },
-    image_caption: {
+    file_caption: {
       tooltip: "Bewerk onderschrift",
       input_placeholder: "Bewerk onderschrift",
     },
-    image_replace: {
-      tooltip: "Vervang afbeelding",
+    file_replace: {
+      tooltip: {
+        image: "Afbeelding vervangen",
+        video: "Video vervangen",
+        audio: "Audio vervangen",
+        file: "Bestand vervangen",
+      },
+    },
+    file_rename: {
+      tooltip: {
+        image: "Afbeelding hernoemen",
+        video: "Video hernoemen",
+        audio: "Audio hernoemen",
+        file: "Bestand hernoemen",
+      },
+      input_placeholder: {
+        image: "Afbeelding hernoemen",
+        video: "Video hernoemen",
+        audio: "Audio hernoemen",
+        file: "Bestand hernoemen",
+      },
+    },
+    file_download: {
+      tooltip: {
+        image: "Afbeelding downloaden",
+        video: "Video downloaden",
+        audio: "Audio downloaden",
+        file: "Bestand downloaden",
+      },
+    },
+    file_delete: {
+      tooltip: {
+        image: "Afbeelding verwijderen",
+        video: "Video verwijderen",
+        audio: "Audio verwijderen",
+        file: "Bestand verwijderen",
+      },
+    },
+    file_preview_toggle: {
+      tooltip: "Voorbeeldschakelaar",
     },
     nest: {
       tooltip: "Nest blok",
@@ -179,15 +262,25 @@ export const nl: Dictionary = {
       tooltip: "Tekst uitvullen",
     },
   },
-  image_panel: {
+  file_panel: {
     upload: {
       title: "Upload",
-      file_placeholder: "Upload afbeelding",
+      file_placeholder: {
+        image: "Afbeelding uploaden",
+        video: "Video uploaden",
+        audio: "Audio uploaden",
+        file: "Bestand uploaden",
+      },
       upload_error: "Fout: Upload mislukt",
     },
     embed: {
       title: "Insluiten",
-      embed_button: "Insluiten afbeelding",
+      embed_button: {
+        image: "Afbeelding insluiten",
+        video: "Video insluiten",
+        audio: "Audio insluiten",
+        file: "Bestand insluiten",
+      },
       url_placeholder: "Voer URL in",
     },
   },

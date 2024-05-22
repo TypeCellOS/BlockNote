@@ -7,7 +7,7 @@ import { cn } from "../lib/utils";
 
 export const Panel = forwardRef<
   HTMLDivElement,
-  ComponentProps["ImagePanel"]["Root"]
+  ComponentProps["FilePanel"]["Root"]
 >((props, ref) => {
   const {
     className,

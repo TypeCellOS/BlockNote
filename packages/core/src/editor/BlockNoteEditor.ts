@@ -26,8 +26,8 @@ import {
   DefaultStyleSchema,
   PartialBlock,
 } from "../blocks/defaultBlocks";
+import { FilePanelProsemirrorPlugin } from "../extensions/FilePanel/FilePanelPlugin";
 import { FormattingToolbarProsemirrorPlugin } from "../extensions/FormattingToolbar/FormattingToolbarPlugin";
-import { ImagePanelProsemirrorPlugin } from "../extensions/ImagePanel/ImageToolbarPlugin";
 import { LinkToolbarProsemirrorPlugin } from "../extensions/LinkToolbar/LinkToolbarPlugin";
 import { SideMenuProsemirrorPlugin } from "../extensions/SideMenu/SideMenuPlugin";
 import { SuggestionMenuProseMirrorPlugin } from "../extensions/SuggestionMenu/SuggestionPlugin";
@@ -113,9 +113,9 @@ export type BlockNoteEditorOptions<
   /**
    * A custom function to handle file uploads.
    * @param file The file that should be uploaded.
-   * @returns The URL of the uploaded file.
+   * @returns The URL of the uploaded file OR an object containing props that should be set on the file block (such as an id)
    */
-  uploadFile: (file: File) => Promise<string>;
+  uploadFile: (file: File) => Promise<string | Record<string, any>>;
 
   /**
    * When enabled, allows for collaboration between multiple users.
@@ -187,13 +187,19 @@ export class BlockNoteEditor<
     ISchema,
     SSchema
   >;
-  public readonly imagePanel?: ImagePanelProsemirrorPlugin<ISchema, SSchema>;
+  public readonly filePanel?: FilePanelProsemirrorPlugin<
+    BSchema,
+    ISchema,
+    SSchema
+  >;
   public readonly tableHandles?: TableHandlesProsemirrorPlugin<
     ISchema,
     SSchema
   >;
 
-  public readonly uploadFile: ((file: File) => Promise<string>) | undefined;
+  public readonly uploadFile:
+    | ((file: File) => Promise<string | Record<string, any>>)
+    | undefined;
 
   public static create<
     BSchema extends BlockSchema = DefaultBlockSchema,
@@ -254,10 +260,8 @@ export class BlockNoteEditor<
     this.linkToolbar = new LinkToolbarProsemirrorPlugin(this);
     this.sideMenu = new SideMenuProsemirrorPlugin(this);
     this.suggestionMenus = new SuggestionMenuProseMirrorPlugin(this);
-    if (checkDefaultBlockTypeInSchema("image", this)) {
-      // Type guards only work on `const`s? Not working for `this`
-      this.imagePanel = new ImagePanelProsemirrorPlugin(this as any);
-    }
+    this.filePanel = new FilePanelProsemirrorPlugin(this as any);
+
     if (checkDefaultBlockTypeInSchema("table", this)) {
       this.tableHandles = new TableHandlesProsemirrorPlugin(this as any);
     }
@@ -282,7 +286,7 @@ export class BlockNoteEditor<
           this.linkToolbar.plugin,
           this.sideMenu.plugin,
           this.suggestionMenus.plugin,
-          ...(this.imagePanel ? [this.imagePanel.plugin] : []),
+          ...(this.filePanel ? [this.filePanel.plugin] : []),
           ...(this.tableHandles ? [this.tableHandles.plugin] : []),
           PlaceholderPlugin(this, newOptions.placeholders),
         ];

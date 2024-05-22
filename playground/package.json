@@ -1,7 +1,7 @@
 {
   "name": "@blocknote/example-editor",
   "private": true,
-  "version": "0.13.1",
+  "version": "0.13.3",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -10,16 +10,17 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "@blocknote/ariakit": "^0.13.1",
-    "@blocknote/core": "^0.13.0",
-    "@blocknote/mantine": "^0.13.1",
-    "@blocknote/react": "^0.13.1",
-    "@blocknote/shadcn": "^0.13.1",
+    "@blocknote/ariakit": "^0.13.3",
+    "@blocknote/core": "^0.13.3",
+    "@blocknote/mantine": "^0.13.3",
+    "@blocknote/react": "^0.13.3",
+    "@blocknote/shadcn": "^0.13.3",
     "@liveblocks/client": "^1.10.0",
     "@liveblocks/yjs": "^1.10.0",
     "@mantine/core": "^7.7.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-icons": "^5.2.1",
     "react-router-dom": "^6.20.0",
     "y-partykit": "^0.0.25",
     "yjs": "^13.6.10"

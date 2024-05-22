@@ -1,5 +1,11 @@
 import type { BlockNoteEditor } from "../editor/BlockNoteEditor";
-import { BlockFromConfig, InlineContentSchema, StyleSchema } from "../schema";
+import {
+  BlockFromConfig,
+  BlockSchema,
+  FileBlockConfig,
+  InlineContentSchema,
+  StyleSchema,
+} from "../schema";
 import { Block, DefaultBlockSchema, defaultBlockSchema } from "./defaultBlocks";
 import { defaultProps } from "./defaultProps";
 
@@ -31,6 +37,52 @@ export function checkBlockIsDefaultType<
     block.type in editor.schema.blockSchema &&
     checkDefaultBlockTypeInSchema(block.type, editor)
   );
+}
+
+export function checkBlockIsFileBlock<
+  B extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(
+  block: Block<any, I, S>,
+  editor: BlockNoteEditor<B, I, S>
+): block is BlockFromConfig<FileBlockConfig, I, S> {
+  return (
+    (block.type in editor.schema.blockSchema &&
+      editor.schema.blockSchema[block.type].isFileBlock) ||
+    false
+  );
+}
+
+export function checkBlockIsFileBlockWithPreview<
+  B extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(
+  block: Block<any, I, S>,
+  editor: BlockNoteEditor<B, I, S>
+): block is BlockFromConfig<
+  FileBlockConfig & {
+    propSchema: Required<FileBlockConfig["propSchema"]>;
+  },
+  I,
+  S
+> {
+  return (
+    (block.type in editor.schema.blockSchema &&
+      editor.schema.blockSchema[block.type].isFileBlock &&
+      "showPreview" in editor.schema.blockSchema[block.type].propSchema) ||
+    false
+  );
+}
+
+export function checkBlockIsFileBlockWithPlaceholder<
+  B extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(block: Block<B, I, S>, editor: BlockNoteEditor<B, I, S>) {
+  const config = editor.schema.blockSchema[block.type];
+  return config.isFileBlock && config.isFileBlockPlaceholder(block);
 }
 
 export function checkBlockTypeHasDefaultProp<

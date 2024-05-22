@@ -13,15 +13,9 @@ BASIC STYLES
   flex-direction: column;
 }
 
-/*Ensures block content inside React node views spans editor width*/
-.bn-react-node-view-renderer {
-  display: flex;
-  flex-grow: 1;
-}
-
 .bn-block-content {
+  display: flex;
   padding: 3px 0;
-  flex-grow: 1;
   transition: font-size 0.2s;
   width: 100%;
   /*
@@ -34,6 +28,13 @@ BASIC STYLES
   /* content: ""; */
   transition: all 0.2s;
   /*margin: 0px;*/
+}
+
+.bn-block-content.ProseMirror-selectednode > *,
+/* Case for node view renderers */
+.ProseMirror-selectednode > .bn-block-content > * {
+  border-radius: 4px;
+  outline: 4px solid rgb(100, 160, 255);
 }
 
 /*
@@ -257,49 +258,75 @@ NESTED BLOCKS
   content: "▪";
 }
 
-/* IMAGES */
+/* FILES */
 
-[data-content-type="image"] .bn-image-block-content-wrapper {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  user-select: none;
+/* Add block button & default preview */
+[data-file-block] .bn-file-block-content-wrapper:has(.bn-add-file-button),
+[data-file-block] .bn-file-block-content-wrapper:has(.bn-file-default-preview) {
   width: 100%;
 }
 
-[data-content-type="image"] .bn-add-image-button {
+[data-file-block] .bn-file-block-content-wrapper {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: stretch;
+  user-select: none;
+}
+
+[data-file-block] .bn-add-file-button {
+  align-items: center;
+  background-color: rgb(242, 241, 238);
+  border-radius: 4px;
+  color: rgb(125, 121, 122);
+  cursor: pointer;
   display: flex;
   flex-direction: row;
-  align-items: center;
-  gap: 8px;
-  background-color: whitesmoke;
-  border-radius: 4px;
-  cursor: pointer;
+  gap: 10px;
   padding: 12px;
   width: 100%;
 }
 
-[data-content-type="image"] .bn-add-image-button:hover {
-  background-color: gainsboro;
+[data-file-block] .bn-add-file-button:hover {
+  background-color: rgb(225, 225, 225);
 }
 
-[data-content-type="image"] .bn-add-image-button-icon {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M20 5H4V19L13.2923 9.70649C13.6828 9.31595 14.3159 9.31591 14.7065 9.70641L20 15.0104V5ZM2 3.9934C2 3.44476 2.45531 3 2.9918 3H21.0082C21.556 3 22 3.44495 22 3.9934V20.0066C22 20.5552 21.5447 21 21.0082 21H2.9918C2.44405 21 2 20.5551 2 20.0066V3.9934ZM8 11C6.89543 11 6 10.1046 6 9C6 7.89543 6.89543 7 8 7C9.10457 7 10 7.89543 10 9C10 10.1046 9.10457 11 8 11Z'%3E%3C/path%3E%3C/svg%3E");
+[data-file-block] .bn-add-file-button-icon {
   width: 24px;
   height: 24px;
 }
 
-[data-content-type="image"] .bn-add-image-button-text {
-  color: black;
+[data-file-block] .bn-add-file-button .bn-add-file-button-text {
+  font-size: 0.9rem;
 }
 
-[data-content-type="image"] .bn-image-and-caption-wrapper {
+[data-file-block] .bn-file-and-caption-wrapper {
   display: flex;
   flex-direction: column;
   border-radius: 4px;
 }
 
-[data-content-type="image"] .bn-image-wrapper {
+[data-file-block] .bn-file-default-preview {
+  align-items: center;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  padding: 4px;
+  width: 100%;
+}
+
+[data-file-block] .bn-file-default-preview:hover,
+.ProseMirror-selectednode .bn-file-default-preview {
+  background-color: rgb(225, 225, 225);
+}
+
+[data-file-block] .bn-file-default-preview-icon {
+  width: 24px;
+  height: 24px;
+}
+
+[data-file-block] .bn-visual-media-wrapper {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -307,12 +334,12 @@ NESTED BLOCKS
   width: fit-content;
 }
 
-[data-content-type="image"] .bn-image {
+[data-file-block] .bn-visual-media {
   border-radius: 4px;
   max-width: 100%;
 }
 
-[data-content-type="image"] .bn-image-resize-handle {
+[data-file-block] .bn-visual-media-resize-handle {
   position: absolute;
   width: 8px;
   height: 30px;
@@ -322,8 +349,17 @@ NESTED BLOCKS
   cursor: ew-resize;
 }
 
-[data-content-type="image"] .caption {
+[data-content-type="audio"] > .bn-file-block-content-wrapper, .bn-audio {
+  width: 100%;
+}
+
+[data-file-block] .bn-file-caption {
   font-size: 0.8em;
+  padding-block: 4px;
+}
+
+[data-file-block] .bn-file-caption:empty {
+  padding-block: 0;
 }
 
 /* PLACEHOLDERS*/
@@ -414,17 +450,21 @@ NESTED BLOCKS
 
 /* TEXT ALIGNMENT */
 [data-text-alignment="left"] {
+  justify-content: flex-start;
   text-align: left;
 }
 
 [data-text-alignment="center"] {
+  justify-content: center;
   text-align: center;
 }
 
 [data-text-alignment="right"] {
+  justify-content: flex-end;
   text-align: right;
 }
 
 [data-text-alignment="justify"] {
+  justify-content: flex-start;
   text-align: justify;
 }

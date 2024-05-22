@@ -68,7 +68,7 @@ export const getBlockNoteExtensions = <
     UniqueID.configure({
       types: ["blockContainer"],
     }),
-    HardBreak,
+    HardBreak.extend({ priority: 10 }),
     // Comments,
 
     // basics:

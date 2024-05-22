@@ -76,9 +76,11 @@
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
+      "name": "",
       "url": "exampleURL",
       "caption": "Image Caption",
-      "width": 512
+      "showPreview": true,
+      "previewWidth": 512
     },
     "children": []
   },

@@ -41,7 +41,7 @@ export type ComponentProps = {
       isDisabled?: boolean;
     };
   };
-  ImagePanel: {
+  FilePanel: {
     Root: {
       className?: string;
       tabs: {
@@ -62,6 +62,7 @@ export type ComponentProps = {
     );
     FileInput: {
       className?: string;
+      accept: string;
       value: File | null;
       placeholder: string;
       onChange: (payload: File | null) => void;

@@ -41,9 +41,6 @@ export default function App() {
         content: "Numbered List Item",
       },
       {
-        type: "image",
-      },
-      {
         type: "table",
         content: {
           type: "tableContent",
@@ -58,6 +55,33 @@ export default function App() {
               cells: ["Table Cell", "Table Cell", "Table Cell"],
             },
           ],
+        },
+      },
+      {
+        type: "file",
+      },
+      {
+        type: "image",
+        props: {
+          url: "https://interactive-examples.mdn.mozilla.net/media/cc0-images/grapefruit-slice-332-332.jpg",
+          caption:
+            "From https://interactive-examples.mdn.mozilla.net/media/cc0-images/grapefruit-slice-332-332.jpg",
+        },
+      },
+      {
+        type: "video",
+        props: {
+          url: "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm",
+          caption:
+            "From https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm",
+        },
+      },
+      {
+        type: "audio",
+        props: {
+          url: "https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3",
+          caption:
+            "From https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3",
         },
       },
       {

@@ -6,7 +6,7 @@ import {
   DefaultInlineContentSchema,
   DefaultStyleSchema,
 } from "../../../blocks/defaultBlocks";
-import { uploadToTmpFilesDotOrg_DEV_ONLY } from "../../../blocks/ImageBlockContent/uploadToTmpFilesDotOrg_DEV_ONLY";
+import { uploadToTmpFilesDotOrg_DEV_ONLY } from "../../../blocks/FileBlockContent/uploadToTmpFilesDotOrg_DEV_ONLY";
 
 export const defaultSchemaTestCases: EditorTestCases<
   DefaultBlockSchema,
@@ -167,6 +167,74 @@ export const defaultSchemaTestCases: EditorTestCases<
       ],
     },
     {
+      name: "file/button",
+      blocks: [
+        {
+          type: "file",
+        },
+      ],
+    },
+    {
+      name: "file/basic",
+      blocks: [
+        {
+          type: "file",
+          props: {
+            name: "example",
+            url: "exampleURL",
+            caption: "Caption",
+          },
+        },
+      ],
+    },
+    {
+      name: "file/noName",
+      blocks: [
+        {
+          type: "file",
+          props: {
+            url: "exampleURL",
+            caption: "Caption",
+          },
+        },
+      ],
+    },
+    {
+      name: "file/noCaption",
+      blocks: [
+        {
+          type: "file",
+          props: {
+            name: "example",
+            url: "exampleURL",
+          },
+        },
+      ],
+    },
+    {
+      name: "file/nested",
+      blocks: [
+        {
+          type: "file",
+          props: {
+            name: "example",
+            url: "exampleURL",
+            caption: "Caption",
+          },
+          children: [
+            {
+              type: "file",
+              props: {
+                name: "example",
+                url: "exampleURL",
+                caption: "Caption",
+              },
+            },
+          ],
+        },
+      ],
+    },
+    {
       name: "image/button",
       blocks: [
         {
@@ -180,9 +248,51 @@ export const defaultSchemaTestCases: EditorTestCases<
         {
           type: "image",
           props: {
+            name: "example",
             url: "exampleURL",
             caption: "Caption",
-            width: 256,
+            previewWidth: 256,
+          },
+        },
+      ],
+    },
+    {
+      name: "image/noName",
+      blocks: [
+        {
+          type: "image",
+          props: {
+            url: "exampleURL",
+            caption: "Caption",
+            previewWidth: 256,
+          },
+        },
+      ],
+    },
+    {
+      name: "image/noCaption",
+      blocks: [
+        {
+          type: "image",
+          props: {
+            name: "example",
+            url: "exampleURL",
+            previewWidth: 256,
+          },
+        },
+      ],
+    },
+    {
+      name: "image/noPreview",
+      blocks: [
+        {
+          type: "image",
+          props: {
+            name: "example",
+            url: "exampleURL",
+            caption: "Caption",
+            showPreview: false,
+            previewWidth: 256,
           },
         },
       ],
@@ -195,7 +305,7 @@ export const defaultSchemaTestCases: EditorTestCases<
           props: {
             url: "exampleURL",
             caption: "Caption",
-            width: 256,
+            previewWidth: 256,
           },
           children: [
             {
@@ -203,7 +313,7 @@ export const defaultSchemaTestCases: EditorTestCases<
               props: {
                 url: "exampleURL",
                 caption: "Caption",
-                width: 256,
+                previewWidth: 256,
               },
             },
           ],
