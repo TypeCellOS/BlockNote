@@ -100,9 +100,26 @@
         "styles": {}
       }
     ],
+    "children": []
+  },
+  {
+    "id": "7",
+    "type": "numberedListItem",
+    "props": {
+      "textColor": "default",
+      "backgroundColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "Numbered List Item",
+        "styles": {}
+      }
+    ],
     "children": [
       {
-        "id": "7",
+        "id": "8",
         "type": "numberedListItem",
         "props": {
           "textColor": "default",
@@ -119,7 +136,7 @@
         "children": []
       },
       {
-        "id": "8",
+        "id": "9",
         "type": "numberedListItem",
         "props": {
           "textColor": "default",
@@ -138,7 +155,7 @@
     ]
   },
   {
-    "id": "9",
+    "id": "10",
     "type": "numberedListItem",
     "props": {
       "textColor": "default",
@@ -149,6 +166,97 @@
       {
         "type": "text",
         "text": "Numbered List Item",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "11",
+    "type": "checkListItem",
+    "props": {
+      "textColor": "default",
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "checked": false
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "Check List Item",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "12",
+    "type": "checkListItem",
+    "props": {
+      "textColor": "default",
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "checked": false
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "Check List Item",
+        "styles": {}
+      }
+    ],
+    "children": [
+      {
+        "id": "13",
+        "type": "checkListItem",
+        "props": {
+          "textColor": "default",
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "checked": false
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Nested Check List Item",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "14",
+        "type": "checkListItem",
+        "props": {
+          "textColor": "default",
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "checked": false
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Nested Check List Item",
+            "styles": {}
+          }
+        ],
+        "children": []
+      }
+    ]
+  },
+  {
+    "id": "15",
+    "type": "checkListItem",
+    "props": {
+      "textColor": "default",
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "checked": false
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "Nested Check List Item",
         "styles": {}
       }
     ],

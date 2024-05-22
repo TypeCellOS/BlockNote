@@ -25,11 +25,14 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
       checked: {
         default: false,
         // instead of "level" attributes, use "data-level"
-        parseHTML: (element) => element.getAttribute("data-checked") === "true",
+        parseHTML: (element) =>
+          element.getAttribute("data-checked") === "true" || undefined,
         renderHTML: (attributes) => {
-          return {
-            "data-checked": (attributes.checked as boolean).toString(),
-          };
+          return attributes.checked
+            ? {
+                "data-checked": (attributes.checked as boolean).toString(),
+              }
+            : {};
         },
       },
     };
@@ -125,23 +128,29 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
             return false;
           }
 
-          if (element.children.length === 0) {
+          const parent = element.parentElement;
+
+          if (parent === null) {
             return false;
           }
 
-          const checkbox = element.querySelector(
-            "input[type=checkbox]"
-          ) as HTMLInputElement | null;
+          if (
+            parent.tagName === "UL" ||
+            (parent.tagName === "DIV" && parent.parentElement!.tagName === "UL")
+          ) {
+            const checkbox =
+              (element.querySelector(
+                "input[type=checkbox]"
+              ) as HTMLInputElement) || null;
 
-          if (!checkbox) {
-            return false;
+            if (checkbox === null) {
+              return false;
+            }
+
+            return { checked: checkbox.checked };
           }
 
-          const checkedAttribute = checkbox.getAttribute("checked");
-          const checked =
-            checkedAttribute !== null && checkedAttribute !== "false";
-
-          return { checked };
+          return false;
         },
         node: "checkListItem",
       },
@@ -172,7 +181,6 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
     );
 
     dom.insertBefore(checkbox, contentDOM);
-    dom.appendChild(contentDOM);
 
     return { dom, contentDOM };
   },
@@ -193,34 +201,22 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
       if (node.attrs.checked) {
         checkbox.setAttribute("checked", "");
       }
-      checkbox.disabled = !editor.isEditable;
 
       const changeHandler = () => {
-        if (typeof getPos === "boolean") {
-          return;
+        if (!editor.isEditable) {
+          checkbox.checked = !checkbox.checked;
         }
 
-        this.editor.commands.BNUpdateBlock(getPos(), {
-          type: "checkListItem",
-          props: {
-            checked: checkbox.checked as any,
-          },
-        });
+        if (typeof getPos !== "boolean") {
+          this.editor.commands.BNUpdateBlock(getPos(), {
+            type: "checkListItem",
+            props: {
+              checked: checkbox.checked as any,
+            },
+          });
+        }
       };
       checkbox.addEventListener("change", changeHandler);
-
-      // Need to use mutation observer - no easier way of listening to when the
-      // editor becomes (un)editable.
-      const observer = new MutationObserver(function (mutations) {
-        mutations.forEach(function (mutation) {
-          if (mutation.type === "attributes") {
-            checkbox.disabled = !editor.isEditable;
-          }
-        });
-      });
-      observer.observe(editor.view.dom, {
-        attributes: true, //configure it to listen to attribute changes
-      });
 
       const { dom, contentDOM } = createDefaultBlockDOMOutputSpec(
         this.name,
@@ -231,6 +227,13 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
         },
         this.options.domAttributes?.inlineContent || {}
       );
+
+      if (typeof getPos !== "boolean") {
+        const label =
+          "label-" + this.editor.state.doc.resolve(getPos()).node().attrs.id;
+        checkbox.setAttribute("aria-labelledby", label);
+        contentDOM.id = label;
+      }
 
       dom.removeChild(contentDOM);
       dom.appendChild(wrapper);
@@ -243,7 +246,6 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
         contentDOM,
         destroy: () => {
           checkbox.removeEventListener("change", changeHandler);
-          observer.disconnect();
         },
       };
     };
