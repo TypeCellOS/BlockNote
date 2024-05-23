@@ -406,6 +406,10 @@ export const BlockContainer = Node.create<{
         },
       // Splits a block at a given position. Content after the position is moved to a new block below, at the same
       // nesting level.
+      // - `keepType` is usually false, unless the selection is at the start of
+      // a block.
+      // - `keepProps` is usually true when `keepType` is true, except for when
+      // creating new list item blocks with Enter.
       BNSplitBlock:
         (posInBlock, keepType, keepProps) =>
         ({ state, dispatch }) => {

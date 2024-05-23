@@ -17,6 +17,8 @@ const BulletListItemBlockContent = createStronglyTypedTiptapNode({
   name: "bulletListItem",
   content: "inline*",
   group: "blockContent",
+  // This is to make sure that check list parse rules run before, since they
+  // both parse `li` elements but check lists are more specific.
   priority: 90,
   addInputRules() {
     return [

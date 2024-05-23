@@ -24,7 +24,7 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
     return {
       checked: {
         default: false,
-        // instead of "level" attributes, use "data-level"
+        // instead of "checked" attributes, use "data-checked"
         parseHTML: (element) =>
           element.getAttribute("data-checked") === "true" || undefined,
         renderHTML: (attributes) => {
@@ -204,6 +204,9 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
 
       const changeHandler = () => {
         if (!editor.isEditable) {
+          // This seems like the most effective way of blocking the checkbox
+          // from being toggled, as event.preventDefault() does not stop it for
+          // "click" or "change" events.
           checkbox.checked = !checkbox.checked;
         }
 
@@ -229,8 +232,12 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
       );
 
       if (typeof getPos !== "boolean") {
-        const label =
-          "label-" + this.editor.state.doc.resolve(getPos()).node().attrs.id;
+        // Since `node` is a blockContent node, we have to get the block ID from
+        // the parent blockContainer node. This means we can't add the label in
+        // `renderHTML` as we can't use `getPos` and therefore can't get the
+        // parent blockContainer node.
+        const blockID = this.editor.state.doc.resolve(getPos()).node().attrs.id;
+        const label = "label-" + blockID;
         checkbox.setAttribute("aria-labelledby", label);
         contentDOM.id = label;
       }
