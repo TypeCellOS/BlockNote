@@ -12,21 +12,30 @@ import {
   FileAndCaptionWrapper,
   LinkWithCaption,
 } from "../FileBlockContent/fileBlockHelpers";
+import { useResolveUrl } from "../FileBlockContent/useResolveUrl";
 
 export const AudioPreview = (
   props: Omit<
     ReactCustomBlockRenderProps<FileBlockConfig, any, any>,
     "contentRef"
   >
-) => (
-  <audio
-    className={"bn-audio"}
-    src={props.block.props.url}
-    controls={true}
-    contentEditable={false}
-    draggable={false}
-  />
-);
+) => {
+  const resolved = useResolveUrl(props.block.props.url!);
+
+  if (resolved.loadingState === "loading") {
+    return null;
+  }
+
+  return (
+    <audio
+      className={"bn-audio"}
+      src={resolved.downloadUrl}
+      controls={true}
+      contentEditable={false}
+      draggable={false}
+    />
+  );
+};
 
 export const AudioToExternalHTML = (
   props: Omit<

@@ -1,5 +1,5 @@
 import { FileBlockConfig, imageBlockConfig, imageParse } from "@blocknote/core";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { RiImage2Fill } from "react-icons/ri";
 
 import {
@@ -14,6 +14,7 @@ import {
   LinkWithCaption,
   ResizeHandlesWrapper,
 } from "../FileBlockContent/fileBlockHelpers";
+import { useResolveUrl } from "../FileBlockContent/useResolveUrl";
 
 export const ImagePreview = (
   props: Omit<
@@ -21,8 +22,6 @@ export const ImagePreview = (
     "contentRef"
   >
 ) => {
-  const [url, setUrl] = useState<string | undefined>();
-
   const [width, setWidth] = useState<number>(
     Math.min(
       props.block.props.previewWidth!,
@@ -30,29 +29,9 @@ export const ImagePreview = (
     )
   );
 
-  // TODO: extract to re-usable hook
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      // TODO: catch error and determine what to do if resolving fails
-      const url = await props.editor.resolveFileUrl?.(
-        props.block.props.url!,
-        props.block as any
-      );
+  const resolved = useResolveUrl(props.block.props.url!);
 
-      if (mounted) {
-        setUrl(url);
-      }
-    })();
-
-    return () => {
-      mounted = false;
-    };
-  }, [props.block, props.editor]);
-
-  if (!url) {
-    // url is loading
-    // TODO?
+  if (resolved.loadingState === "loading") {
     return null;
   }
 
@@ -60,7 +39,7 @@ export const ImagePreview = (
     <ResizeHandlesWrapper {...props} width={width} setWidth={setWidth}>
       <img
         className={"bn-visual-media"}
-        src={props.block.props.url}
+        src={resolved.downloadUrl}
         alt={props.block.props.caption || "BlockNote image"}
         contentEditable={false}
         draggable={false}

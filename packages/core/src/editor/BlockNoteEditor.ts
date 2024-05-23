@@ -122,10 +122,7 @@ export type BlockNoteEditorOptions<
    * implementing custom protocols / schemes
    * @returns The URL that's
    */
-  resolveFileUrl: (
-    url: string,
-    block: Block<BSchema, ISchema, SSchema>
-  ) => Promise<string>;
+  resolveFileUrl: (url: string) => Promise<string>;
 
   /**
    * When enabled, allows for collaboration between multiple users.
@@ -211,10 +208,7 @@ export class BlockNoteEditor<
     | ((file: File) => Promise<string | Record<string, any>>)
     | undefined;
 
-  public readonly resolveFileUrl: (
-    url: string,
-    block: Block<BSchema, ISchema, SSchema>
-  ) => Promise<string>;
+  public readonly resolveFileUrl: (url: string) => Promise<string>;
 
   public static create<
     BSchema extends BlockSchema = DefaultBlockSchema,
