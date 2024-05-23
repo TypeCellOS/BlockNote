@@ -211,12 +211,10 @@ export class BlockNoteEditor<
     | ((file: File) => Promise<string | Record<string, any>>)
     | undefined;
 
-  public readonly resolveFileUrl:
-    | ((
-        url: string,
-        block: Block<BSchema, ISchema, SSchema>
-      ) => Promise<string>)
-    | undefined;
+  public readonly resolveFileUrl: (
+    url: string,
+    block: Block<BSchema, ISchema, SSchema>
+  ) => Promise<string>;
 
   public static create<
     BSchema extends BlockSchema = DefaultBlockSchema,
@@ -312,7 +310,7 @@ export class BlockNoteEditor<
     extensions.push(blockNoteUIExtension);
 
     this.uploadFile = newOptions.uploadFile;
-    this.resolveFileUrl = newOptions.resolveFileUrl;
+    this.resolveFileUrl = newOptions.resolveFileUrl || (async (url) => url);
 
     if (newOptions.collaboration && newOptions.initialContent) {
       console.warn(

@@ -21,7 +21,8 @@ export const ImagePreview = (
     "contentRef"
   >
 ) => {
-  const [url, setUrl] = useState<string>();
+  const [url, setUrl] = useState<string | undefined>();
+
   const [width, setWidth] = useState<number>(
     Math.min(
       props.block.props.previewWidth!,
@@ -29,10 +30,11 @@ export const ImagePreview = (
     )
   );
 
+  // TODO: extract to re-usable hook
   useEffect(() => {
     let mounted = true;
     (async () => {
-      // TODO: catch error
+      // TODO: catch error and determine what to do if resolving fails
       const url = await props.editor.resolveFileUrl?.(
         props.block.props.url!,
         props.block as any
@@ -49,6 +51,7 @@ export const ImagePreview = (
   }, [props.block, props.editor]);
 
   if (!url) {
+    // url is loading
     // TODO?
     return null;
   }
