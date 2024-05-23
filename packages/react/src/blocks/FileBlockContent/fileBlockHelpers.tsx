@@ -70,9 +70,35 @@ export const AddFileButton = (
     props.editor._tiptapEditor.view,
     props.editor.filePanel,
   ]);
+  const windowKeyDownHandler = useCallback(
+    (event: KeyboardEvent) => {
+      if (
+        event.key === "Enter" &&
+        props.editor.getTextCursorPosition().block.id === props.block.id
+      ) {
+        props.editor._tiptapEditor.view.dispatch(
+          props.editor._tiptapEditor.state.tr.setMeta(
+            props.editor.filePanel!.plugin,
+            {
+              block: props.block,
+            }
+          )
+        );
+      }
+    },
+    [props.block, props.editor]
+  );
+
+  useEffect(() => {
+    window.addEventListener("keydown", windowKeyDownHandler);
+
+    return () => {
+      window.removeEventListener("keydown", windowKeyDownHandler);
+    };
+  }, [windowKeyDownHandler]);
 
   return (
-    <div
+    <button
       className={"bn-add-file-button"}
       onMouseDown={addFileButtonMouseDownHandler}
       onClick={addFileButtonClickHandler}>
@@ -80,7 +106,7 @@ export const AddFileButton = (
         {props.buttonIcon || <RiFile2Line size={24} />}
       </div>
       <div className={"bn-add-file-button-text"}>{props.buttonText}</div>
-    </div>
+    </button>
   );
 };
 

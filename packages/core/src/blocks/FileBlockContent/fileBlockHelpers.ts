@@ -52,7 +52,7 @@ export const createAddFileButton = (
   buttonText?: string,
   buttonIcon?: HTMLElement
 ) => {
-  const addFileButton = document.createElement("div");
+  const addFileButton = document.createElement("button");
   addFileButton.className = "bn-add-file-button";
 
   const addFileButtonIcon = document.createElement("div");
@@ -81,6 +81,18 @@ export const createAddFileButton = (
       })
     );
   };
+  const windowKeyDownHandler = (event: KeyboardEvent) => {
+    if (
+      event.key === "Enter" &&
+      editor.getTextCursorPosition().block.id === block.id
+    ) {
+      editor._tiptapEditor.view.dispatch(
+        editor._tiptapEditor.state.tr.setMeta(editor.filePanel!.plugin, {
+          block: block,
+        })
+      );
+    }
+  };
 
   addFileButton.appendChild(addFileButtonIcon);
   addFileButton.appendChild(addFileButtonText);
@@ -91,6 +103,7 @@ export const createAddFileButton = (
     true
   );
   addFileButton.addEventListener("click", addFileButtonClickHandler, true);
+  window.addEventListener("keydown", windowKeyDownHandler, true);
 
   return {
     dom: addFileButton,
@@ -105,6 +118,7 @@ export const createAddFileButton = (
         addFileButtonClickHandler,
         true
       );
+      window.removeEventListener("keydown", windowKeyDownHandler, true);
     },
   };
 };

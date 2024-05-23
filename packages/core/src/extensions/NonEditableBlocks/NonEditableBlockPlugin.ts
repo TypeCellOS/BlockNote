@@ -34,6 +34,30 @@ export const NonEditableBlockPlugin = () => {
           }
           // Checks if key press is Enter
           if (event.key === "Enter") {
+            // Kind of a hacky way to ensure that pressing Enter when a file
+            // block is showing the add file button will open the file panel.
+            // Here, we just make the Enter handler skip this case and the file
+            // block's implementation will have to handle it itself. It would be
+            // cleaner if both handlers were in the same place, however:
+            // - This plugin takes precedence over handlers in the file block's
+            // implementation, so we can't override the behaviour there.
+            // - This plugin has no access to the BN schema, so it can't convert
+            // the node to a block for the file panel plugin, and therefore
+            // can't open the file plugin here.
+            let blockContentDOM = view.domAtPos(view.state.selection.from)
+              .node as HTMLElement;
+            while (!blockContentDOM.className.includes("bn-block-content")) {
+              blockContentDOM = blockContentDOM.firstChild as HTMLElement;
+            }
+
+            const isFileBlock =
+              blockContentDOM.getAttribute("data-file-block") !== null;
+            const hasURL = blockContentDOM.getAttribute("data-url") !== null;
+
+            if (isFileBlock && !hasURL) {
+              return false;
+            }
+
             const tr = view.state.tr;
             view.dispatch(
               tr

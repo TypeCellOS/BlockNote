@@ -30,9 +30,9 @@ BASIC STYLES
   /*margin: 0px;*/
 }
 
-.bn-block-content.ProseMirror-selectednode > *,
+.ProseMirror-focused .bn-block-content.ProseMirror-selectednode > *,
 /* Case for node view renderers */
-.ProseMirror-selectednode > .bn-block-content > * {
+.ProseMirror-focused .ProseMirror-selectednode > .bn-block-content > * {
   border-radius: 4px;
   outline: 4px solid rgb(100, 160, 255);
 }
@@ -255,6 +255,7 @@ NESTED BLOCKS
 [data-file-block] .bn-add-file-button {
   align-items: center;
   background-color: rgb(242, 241, 238);
+  border: none;
   border-radius: 4px;
   color: rgb(125, 121, 122);
   cursor: pointer;
@@ -292,6 +293,26 @@ NESTED BLOCKS
   gap: 4px;
   padding: 4px;
   width: 100%;
+}
+
+[data-text-alignment="left"] .bn-file-default-preview, [data-text-alignment="left"] .bn-file-and-caption-wrapper {
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+[data-text-alignment="center"] .bn-file-default-preview, [data-text-alignment="center"] .bn-file-and-caption-wrapper {
+  align-items: center;
+  justify-content: center;
+}
+
+[data-text-alignment="right"] .bn-file-default-preview, [data-text-alignment="right"] .bn-file-and-caption-wrapper {
+  align-items: flex-end;
+  justify-content: flex-end;
+}
+
+[data-text-alignment="justify"] .bn-file-default-preview, [data-text-alignment="justify"] .bn-file-and-caption-wrapper {
+  align-items: flex-start;
+  justify-content: flex-start;
 }
 
 [data-file-block] .bn-file-default-preview:hover,
