@@ -1,5 +1,5 @@
 import { FileBlockConfig, imageBlockConfig, imageParse } from "@blocknote/core";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { RiImage2Fill } from "react-icons/ri";
 
 import {
@@ -21,12 +21,37 @@ export const ImagePreview = (
     "contentRef"
   >
 ) => {
+  const [url, setUrl] = useState<string>();
   const [width, setWidth] = useState<number>(
     Math.min(
       props.block.props.previewWidth!,
       props.editor.domElement.firstElementChild!.clientWidth
     )
   );
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      // TODO: catch error
+      const url = await props.editor.resolveFileUrl?.(
+        props.block.props.url!,
+        props.block as any
+      );
+
+      if (mounted) {
+        setUrl(url);
+      }
+    })();
+
+    return () => {
+      mounted = false;
+    };
+  }, [props.block, props.editor]);
+
+  if (!url) {
+    // TODO?
+    return null;
+  }
 
   return (
     <ResizeHandlesWrapper {...props} width={width} setWidth={setWidth}>
