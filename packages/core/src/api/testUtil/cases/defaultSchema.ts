@@ -234,6 +234,9 @@ export const defaultSchemaTestCases: EditorTestCases<
         },
       ],
     },
+    // Because images need to fetch the download URL async, their internal HTML
+    // is initially rendered without a `src` attribute, which is reflected in
+    // the tests.
     {
       name: "image/button",
       blocks: [

@@ -49,7 +49,6 @@ export const imageBlockConfig = {
   propSchema: imagePropSchema,
   content: "none",
   isFileBlock: true,
-  isFileBlockPlaceholder: (block: any) => !block.props.url,
   fileBlockAcceptMimeTypes: ["image/*"],
 } satisfies FileBlockConfig;
 
@@ -88,7 +87,9 @@ export const imageRender = (
   } else {
     const image = document.createElement("img");
     image.className = "bn-visual-media";
-    image.src = block.props.url;
+    editor.resolveFileUrl(block.props.url).then((downloadUrl) => {
+      image.src = downloadUrl;
+    });
     image.alt = block.props.name || block.props.caption || "BlockNote image";
     image.contentEditable = "false";
     image.draggable = false;

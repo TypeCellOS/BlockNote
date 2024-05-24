@@ -1,3 +1,3 @@
-![example](exampleURL)
+![example]()
 
 Caption

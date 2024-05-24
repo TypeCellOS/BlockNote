@@ -8,6 +8,7 @@ export * from "./i18n/dictionary";
 export * from "./blocks/AudioBlockContent/AudioBlockContent";
 export * from "./blocks/FileBlockContent/FileBlockContent";
 export * from "./blocks/FileBlockContent/fileBlockHelpers";
+export * from "./blocks/FileBlockContent/useResolveUrl";
 export * from "./blocks/ImageBlockContent/ImageBlockContent";
 export * from "./blocks/VideoBlockContent/VideoBlockContent";
 

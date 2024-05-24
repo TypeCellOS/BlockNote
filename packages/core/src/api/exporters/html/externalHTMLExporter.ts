@@ -54,8 +54,6 @@ export const createExternalHTMLExporter = <
       node: Node,
       options: { document?: Document }
     ) => HTMLElement;
-    // TODO: Should not be async, but is since we're using a rehype plugin to
-    //  convert internal HTML to external HTML.
     exportProseMirrorFragment: (fragment: Fragment) => string;
     exportBlocks: (blocks: PartialBlock<BSchema, I, S>[]) => string;
   };

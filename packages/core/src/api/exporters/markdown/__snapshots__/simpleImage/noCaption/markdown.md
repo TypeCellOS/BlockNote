@@ -1,1 +1,1 @@
-![example](exampleURL)
+![example]()

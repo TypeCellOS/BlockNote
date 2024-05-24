@@ -43,7 +43,6 @@ export const audioBlockConfig = {
   propSchema: audioPropSchema,
   content: "none",
   isFileBlock: true,
-  isFileBlockPlaceholder: (block: any) => !block.props.url,
   fileBlockAcceptMimeTypes: ["audio/*"],
 } satisfies FileBlockConfig;
 
@@ -82,7 +81,9 @@ export const audioRender = (
   } else {
     const audio = document.createElement("audio");
     audio.className = "bn-audio";
-    audio.src = block.props.url;
+    editor.resolveFileUrl(block.props.url).then((downloadUrl) => {
+      audio.src = downloadUrl;
+    });
     audio.controls = true;
     audio.contentEditable = "false";
     audio.draggable = false;
