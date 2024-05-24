@@ -208,6 +208,7 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
           // from being toggled, as event.preventDefault() does not stop it for
           // "click" or "change" events.
           checkbox.checked = !checkbox.checked;
+          return;
         }
 
         if (typeof getPos !== "boolean") {
