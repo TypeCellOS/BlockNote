@@ -98,6 +98,9 @@ export const customBlocksTestCases: EditorTestCases<
     });
   },
   documents: [
+    // Because images need to fetch the download URL async, their output HTML is
+    // initially rendered without a `src` attribute, which is reflected in the
+    // tests.
     {
       name: "simpleImage/button",
       blocks: [
