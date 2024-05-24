@@ -32,6 +32,12 @@ export const pl: Dictionary = {
       aliases: ["ul", "li", "lista", "punktowana lista"],
       group: "Podstawowe bloki",
     },
+    check_list: {
+      title: "Lista z polami wyboru",
+      subtext: "Używana do wyświetlania listy z polami wyboru",
+      aliases: ["ul", "li", "lista", "lista z polami wyboru", "pole wyboru"],
+      group: "Podstawowe bloki",
+    },
     paragraph: {
       title: "Akapit",
       subtext: "Używany dla treści dokumentu",
@@ -90,6 +96,7 @@ export const pl: Dictionary = {
     heading: "Nagłówek",
     bulletListItem: "Lista",
     numberedListItem: "Lista",
+    checkListItem: "Lista",
   },
   file_blocks: {
     image: {

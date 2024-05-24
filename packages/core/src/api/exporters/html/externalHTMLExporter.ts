@@ -54,8 +54,6 @@ export const createExternalHTMLExporter = <
       node: Node,
       options: { document?: Document }
     ) => HTMLElement;
-    // TODO: Should not be async, but is since we're using a rehype plugin to
-    //  convert internal HTML to external HTML.
     exportProseMirrorFragment: (fragment: Fragment) => string;
     exportBlocks: (blocks: PartialBlock<BSchema, I, S>[]) => string;
   };
@@ -73,7 +71,10 @@ export const createExternalHTMLExporter = <
       .use(rehypeParse, { fragment: true })
       .use(simplifyBlocks, {
         orderedListItemBlockTypes: new Set<string>(["numberedListItem"]),
-        unorderedListItemBlockTypes: new Set<string>(["bulletListItem"]),
+        unorderedListItemBlockTypes: new Set<string>([
+          "bulletListItem",
+          "checkListItem",
+        ]),
       })
       .use(rehypeStringify)
       .processSync(serializeProseMirrorFragment(fragment, serializer));

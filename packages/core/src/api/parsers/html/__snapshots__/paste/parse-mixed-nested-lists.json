@@ -14,24 +14,24 @@
         "styles": {}
       }
     ],
-    "children": [
+    "children": []
+  },
+  {
+    "id": "2",
+    "type": "bulletListItem",
+    "props": {
+      "textColor": "default",
+      "backgroundColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
       {
-        "id": "2",
-        "type": "numberedListItem",
-        "props": {
-          "textColor": "default",
-          "backgroundColor": "default",
-          "textAlignment": "left"
-        },
-        "content": [
-          {
-            "type": "text",
-            "text": "Nested Numbered List Item",
-            "styles": {}
-          }
-        ],
-        "children": []
-      },
+        "type": "text",
+        "text": "Bullet List Item",
+        "styles": {}
+      }
+    ],
+    "children": [
       {
         "id": "3",
         "type": "numberedListItem",
@@ -48,11 +48,28 @@
           }
         ],
         "children": []
+      },
+      {
+        "id": "4",
+        "type": "numberedListItem",
+        "props": {
+          "textColor": "default",
+          "backgroundColor": "default",
+          "textAlignment": "left"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Nested Numbered List Item",
+            "styles": {}
+          }
+        ],
+        "children": []
       }
     ]
   },
   {
-    "id": "4",
+    "id": "5",
     "type": "bulletListItem",
     "props": {
       "textColor": "default",
@@ -69,7 +86,24 @@
     "children": []
   },
   {
-    "id": "5",
+    "id": "6",
+    "type": "numberedListItem",
+    "props": {
+      "textColor": "default",
+      "backgroundColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "Numbered List Item",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "7",
     "type": "numberedListItem",
     "props": {
       "textColor": "default",
@@ -85,7 +119,97 @@
     ],
     "children": [
       {
-        "id": "6",
+        "id": "8",
+        "type": "checkListItem",
+        "props": {
+          "textColor": "default",
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "checked": true
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Nested Check List Item",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "9",
+        "type": "checkListItem",
+        "props": {
+          "textColor": "default",
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "checked": false
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Nested Check List Item",
+            "styles": {}
+          }
+        ],
+        "children": []
+      }
+    ]
+  },
+  {
+    "id": "10",
+    "type": "numberedListItem",
+    "props": {
+      "textColor": "default",
+      "backgroundColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "Numbered List Item",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "11",
+    "type": "checkListItem",
+    "props": {
+      "textColor": "default",
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "checked": true
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "Check List Item",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "12",
+    "type": "checkListItem",
+    "props": {
+      "textColor": "default",
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "checked": false
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "Check List Item",
+        "styles": {}
+      }
+    ],
+    "children": [
+      {
+        "id": "13",
         "type": "bulletListItem",
         "props": {
           "textColor": "default",
@@ -102,7 +226,7 @@
         "children": []
       },
       {
-        "id": "7",
+        "id": "14",
         "type": "bulletListItem",
         "props": {
           "textColor": "default",
@@ -121,17 +245,18 @@
     ]
   },
   {
-    "id": "8",
-    "type": "numberedListItem",
+    "id": "15",
+    "type": "checkListItem",
     "props": {
       "textColor": "default",
       "backgroundColor": "default",
-      "textAlignment": "left"
+      "textAlignment": "left",
+      "checked": true
     },
     "content": [
       {
         "type": "text",
-        "text": "Numbered List Item",
+        "text": "Nested Check List Item",
         "styles": {}
       }
     ],

@@ -45,7 +45,6 @@ export const EmbedTab = <
           props: {
             name: filenameFromURL(currentURL),
             url: currentURL,
-            fileId: undefined, // TODO: make this pluggable / not hard-coded
           } as any,
         });
       }
@@ -58,7 +57,6 @@ export const EmbedTab = <
       props: {
         name: filenameFromURL(currentURL),
         url: currentURL,
-        fileId: undefined, // TODO: make this pluggable / not hard-coded
       } as any,
     });
   }, [editor, block, currentURL]);
@@ -77,7 +75,8 @@ export const EmbedTab = <
         className={"bn-button"}
         onClick={handleURLClick}
         data-test="embed-input-button">
-        {dict.file_panel.embed.embed_button[block.type]}
+        {dict.file_panel.embed.embed_button[block.type] ||
+          dict.file_panel.embed.embed_button["file"]}
       </Components.FilePanel.Button>
     </Components.FilePanel.TabPanel>
   );

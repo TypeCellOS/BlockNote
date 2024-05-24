@@ -99,6 +99,74 @@ export const defaultSchemaTestCases: EditorTestCases<
       ],
     },
     {
+      name: "lists/basic",
+      blocks: [
+        {
+          type: "bulletListItem",
+          content: "Bullet List Item 1",
+        },
+        {
+          type: "bulletListItem",
+          content: "Bullet List Item 2",
+        },
+        {
+          type: "numberedListItem",
+          content: "Numbered List Item 1",
+        },
+        {
+          type: "numberedListItem",
+          content: "Numbered List Item 2",
+        },
+        {
+          type: "checkListItem",
+          content: "Check List Item 1",
+        },
+        {
+          type: "checkListItem",
+          props: {
+            checked: true,
+          },
+          content: "Check List Item 2",
+        },
+      ],
+    },
+    {
+      name: "lists/nested",
+      blocks: [
+        {
+          type: "bulletListItem",
+          content: "Bullet List Item 1",
+        },
+        {
+          type: "bulletListItem",
+          content: "Bullet List Item 2",
+          children: [
+            {
+              type: "numberedListItem",
+              content: "Numbered List Item 1",
+            },
+            {
+              type: "numberedListItem",
+              content: "Numbered List Item 2",
+              children: [
+                {
+                  type: "checkListItem",
+                  content: "Check List Item 1",
+                },
+                {
+                  type: "checkListItem",
+                  props: {
+                    checked: true,
+                  },
+                  content: "Check List Item 2",
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+    {
       name: "file/button",
       blocks: [
         {
@@ -166,6 +234,9 @@ export const defaultSchemaTestCases: EditorTestCases<
         },
       ],
     },
+    // Because images need to fetch the download URL async, their internal HTML
+    // is initially rendered without a `src` attribute, which is reflected in
+    // the tests.
     {
       name: "image/button",
       blocks: [

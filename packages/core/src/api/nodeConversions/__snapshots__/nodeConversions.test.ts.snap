@@ -952,6 +952,56 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
 }
 `;
 
+exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert lists/basic to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "textAlignment": "left",
+      },
+      "content": [
+        {
+          "text": "Bullet List Item 1",
+          "type": "text",
+        },
+      ],
+      "type": "bulletListItem",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert lists/nested to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "textAlignment": "left",
+      },
+      "content": [
+        {
+          "text": "Bullet List Item 1",
+          "type": "text",
+        },
+      ],
+      "type": "bulletListItem",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
 exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert paragraph/basic to/from prosemirror 1`] = `
 {
   "attrs": {

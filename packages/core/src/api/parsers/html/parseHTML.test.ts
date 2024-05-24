@@ -76,88 +76,147 @@ describe("Parse HTML", () => {
 
   it("list test", async () => {
     const html = `<ul>
-   <li>First</li>
-   <li>Second</li>
-   <li>Third</li>
-   <li>Five Parent
-   <ul>
-   <li>Child 1</li>
-   <li>Child 2</li>
-   </ul>
-   </li>
-   </ul>`;
+    <li>First</li>
+    <li>Second</li>
+    <li>Third</li>
+    <li>
+      <input type="checkbox">
+      Fourth
+    </li>
+    <li>
+      <input type="checkbox">
+      Fifth
+    </li>
+    <li>Five Parent
+      <ul>
+        <li>Child 1</li>
+        <li>Child 2</li>
+        <li>
+          <input type="checkbox">
+          Child 3
+        </li>
+        <li>
+          <input type="checkbox">
+          Child 4
+        </li>
+      </ul>
+    </li>
+  </ul>`;
     await parseHTMLAndCompareSnapshots(html, "list-test");
   });
 
   it("Parse nested lists", async () => {
     const html = `<ul>
     <li>Bullet List Item</li>
-      <li>Bullet List Item</li>
-        <ul>
-           <li>
-              Nested Bullet List Item
-           </li>
-           <li>
-              Nested Bullet List Item
-           </li>
-        </ul>
-     <li>
-        Bullet List Item
-     </li>
+    <li>Bullet List Item
+      <ul>
+        <li>Nested Bullet List Item</li>
+        <li>Nested Bullet List Item</li>
+      </ul>
+    </li>
+    <li>Bullet List Item</li>
   </ul>
   <ol>
-     <li>
-        Numbered List Item
-        <ol>
-           <li>
-              Nested Numbered List Item
-           </li>
-           <li>
-              Nested Numbered List Item
-           </li>
-        </ol>
-     </li>
-     <li>
-        Numbered List Item
-     </li>
-  </ol>`;
+    <li>Numbered List Item</li>
+    <li>Numbered List Item
+      <ol>
+        <li>Nested Numbered List Item</li>
+        <li>Nested Numbered List Item</li>
+      </ol>
+    </li>
+    <li>Numbered List Item</li>
+  </ol>
+  <ul>
+    <li>
+      <input type="checkbox">
+      Check List Item
+    </li>
+    <li>
+      <input type="checkbox">
+      Check List Item
+      <ul>
+        <li>
+          <input type="checkbox">
+          Nested Check List Item
+        </li>
+        <li>
+          <input type="checkbox">
+          Nested Check List Item
+        </li>
+      </ul>
+    </li>
+    <li>
+      <input type="checkbox">
+      Nested Check List Item
+    </li>
+  </ul>`;
 
     await parseHTMLAndCompareSnapshots(html, "parse-nested-lists");
   });
 
   it("Parse nested lists with paragraphs", async () => {
     const html = `<ul>
-     <li>
-        <p>Bullet List Item</p>
-        <ul>
-           <li>
-              <p>Nested Bullet List Item</p>
-           </li>
-           <li>
-              <p>Nested Bullet List Item</p>
-           </li>
-        </ul>
-     </li>
-     <li>
-        <p>Bullet List Item</p>
-     </li>
+    <li>
+      <p>Bullet List Item</p>
+    </li>
+    <li>
+      <p>Bullet List Item</p>
+      <ul>
+        <li>
+          <p>Nested Bullet List Item</p>
+        </li>
+        <li>
+          <p>Nested Bullet List Item</p>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <p>Bullet List Item</p>
+    </li>
   </ul>
   <ol>
-     <li>
-        <p>Numbered List Item</p>
-        <ol>
-           <li>
-              <p>Nested Numbered List Item</p>
-           </li>
-           <li>
-              <p>Nested Numbered List Item</p>
-           </li>
-        </ol>
-     </li>
-     <li>
-        <p>Numbered List Item</p>
-     </li>
-  </ol>`;
+    <li>
+      <p>Numbered List Item</p>
+    </li>
+    <li>
+      <p>Numbered List Item</p>
+      <ol>
+        <li>
+          <p>Nested Numbered List Item</p>
+        </li>
+        <li>
+          <p>Nested Numbered List Item</p>
+        </li>
+      </ol>
+    </li>
+    <li>
+      <p>Numbered List Item</p>
+    </li>
+  </ol>
+  <ul>
+    <li>
+      <input type="checkbox">
+      <p>Checked List Item</p>
+    </li>
+    <li>
+      <input type="checkbox">
+      <p>Checked List Item</p>
+      <ul>
+        <li>
+          <input type="checkbox">
+          <p>Nested Checked List Item</p>
+        </li>
+        <li>
+          <label><input type="checkbox"></label>
+          <p>Nested Checked List Item</p>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <input type="checkbox">
+      <p>Checked List Item</p>
+    </li>
+  </ul>`;
 
     await parseHTMLAndCompareSnapshots(
       html,
@@ -167,37 +226,49 @@ describe("Parse HTML", () => {
 
   it("Parse mixed nested lists", async () => {
     const html = `<ul>
-     <li>
-        Bullet List Item
-        <ol>
-           <li>
-              Nested Numbered List Item
-           </li>
-           <li>
-              Nested Numbered List Item
-           </li>
-        </ol>
-     </li>
-     <li>
-        Bullet List Item
-     </li>
+    <li>Bullet List Item</li>
+    <li>Bullet List Item
+      <ol>
+        <li>Nested Numbered List Item</li>
+        <li>Nested Numbered List Item</li>
+      </ol>
+    </li>
+    <li>Bullet List Item</li>
   </ul>
   <ol>
-     <li>
-        Numbered List Item
-        <ul>
-           <li>
-              <p>Nested Bullet List Item</p>
-           </li>
-           <li>
-              <p>Nested Bullet List Item</p>
-           </li>
-        </ul>
-     </li>
-     <li>
-        Numbered List Item
-     </li>
-  </ol>`;
+    <li>Numbered List Item</li>
+    <li>Numbered List Item
+      <ul>
+        <li>
+          <input type="checkbox" checked>
+          Nested Check List Item
+        </li>
+        <li>
+          <input type="checkbox">
+          Nested Check List Item
+        </li>
+      </ul>
+    </li>
+    <li>Numbered List Item</li>
+  </ol>
+  <ul>
+    <li>
+      <input type="checkbox" checked>
+      Check List Item
+    </li>
+    <li>
+      <input type="checkbox">
+      Check List Item
+      <ul>
+        <li>Nested Bullet List Item</li>
+        <li>Nested Bullet List Item</li>
+      </ul>
+    </li>
+    <li>
+      <input type="checkbox" checked>
+      Nested Check List Item
+    </li>
+  </ul>`;
 
     await parseHTMLAndCompareSnapshots(html, "parse-mixed-nested-lists");
   });

@@ -98,7 +98,7 @@ export function simplifyBlocks(options: SimplifyBlocksOptions) {
         ) as HASTElement;
 
         // Adds only the content inside the block to the active list.
-        listItemElement.children.push(blockContent.children[0]);
+        listItemElement.children.push(...blockContent.children);
         // Nested blocks have already been processed in the recursive function call, so the resulting elements are
         // also added to the active list.
         if (blockGroup !== null) {

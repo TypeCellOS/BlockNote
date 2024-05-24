@@ -32,6 +32,12 @@ export const is: Dictionary = {
       aliases: ["ul", "li", "listi", "punktalisti"],
       group: "Grunnblokkar",
     },
+    check_list: {
+      title: "Athugunarlisti",
+      subtext: "Notað til að sýna lista með gátreitum",
+      aliases: ["ul", "li", "listi", "athugunarlisti", "merktur listi"],
+      group: "Grunnblokkar",
+    },
     paragraph: {
       title: "Málsgrein",
       subtext: "Notað fyrir meginmál skjalsins",
@@ -98,6 +104,7 @@ export const is: Dictionary = {
     heading: "Fyrirsögn",
     bulletListItem: "Listi",
     numberedListItem: "Listi",
+    checkListItem: "Listi",
   },
   file_blocks: {
     image: {

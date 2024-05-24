@@ -19,13 +19,15 @@ import {
   getInlineContentSchemaFromSpecs,
   getStyleSchemaFromSpecs,
 } from "../schema";
-import { FileBlock } from "./FileBlockContent/FileBlockContent";
-import { ImageBlock } from "./ImageBlockContent/ImageBlockContent";
+
 import { Heading } from "./HeadingBlockContent/HeadingBlockContent";
 import { BulletListItem } from "./ListItemBlockContent/BulletListItemBlockContent/BulletListItemBlockContent";
 import { NumberedListItem } from "./ListItemBlockContent/NumberedListItemBlockContent/NumberedListItemBlockContent";
+import { CheckListItem } from "./ListItemBlockContent/CheckListItemBlockContent/CheckListItemBlockContent";
 import { Paragraph } from "./ParagraphBlockContent/ParagraphBlockContent";
 import { Table } from "./TableBlockContent/TableBlockContent";
+import { FileBlock } from "./FileBlockContent/FileBlockContent";
+import { ImageBlock } from "./ImageBlockContent/ImageBlockContent";
 import { VideoBlock } from "./VideoBlockContent/VideoBlockContent";
 import { AudioBlock } from "./AudioBlockContent/AudioBlockContent";
 
@@ -34,11 +36,12 @@ export const defaultBlockSpecs = {
   heading: Heading,
   bulletListItem: BulletListItem,
   numberedListItem: NumberedListItem,
+  checkListItem: CheckListItem,
+  table: Table,
   file: FileBlock,
   image: ImageBlock,
   video: VideoBlock,
   audio: AudioBlock,
-  table: Table,
 } satisfies BlockSpecs;
 
 export const defaultBlockSchema = getBlockSchemaFromSpecs(defaultBlockSpecs);

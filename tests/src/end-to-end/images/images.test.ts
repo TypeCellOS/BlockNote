@@ -36,6 +36,7 @@ test.describe("Check Image Block and Toolbar functionality", () => {
     });
     await page.click(`[data-test="upload-input"]`);
     await page.waitForSelector(`img[src^="https://tmpfiles.org/"]`);
+    await page.waitForTimeout(500);
 
     await page.click(`img`);
 
@@ -51,6 +52,7 @@ test.describe("Check Image Block and Toolbar functionality", () => {
     await page.keyboard.type(IMAGE_EMBED_URL);
     await page.click(`[data-test="embed-input-button"]`);
     await page.waitForSelector(`img[src="${IMAGE_EMBED_URL}"]`);
+    await page.waitForTimeout(500);
 
     await page.click(`img`);
 
@@ -67,6 +69,7 @@ test.describe("Check Image Block and Toolbar functionality", () => {
     await page.keyboard.type(IMAGE_EMBED_URL);
     await page.click(`[data-test="embed-input-button"]`);
     await page.waitForSelector(`img[src="${IMAGE_EMBED_URL}"]`);
+    await page.waitForTimeout(500);
 
     await page.click(`img`);
 

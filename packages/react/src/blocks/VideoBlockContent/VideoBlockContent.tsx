@@ -14,6 +14,7 @@ import {
   LinkWithCaption,
   ResizeHandlesWrapper,
 } from "../FileBlockContent/fileBlockHelpers";
+import { useResolveUrl } from "../FileBlockContent/useResolveUrl";
 
 export const VideoPreview = (
   props: Omit<
@@ -28,11 +29,17 @@ export const VideoPreview = (
     )
   );
 
+  const resolved = useResolveUrl(props.block.props.url!);
+
+  if (resolved.loadingState === "loading") {
+    return null;
+  }
+
   return (
     <ResizeHandlesWrapper {...props} width={width} setWidth={setWidth}>
       <video
         className={"bn-visual-media"}
-        src={props.block.props.url}
+        src={resolved.downloadUrl}
         controls={true}
         contentEditable={false}
         draggable={false}

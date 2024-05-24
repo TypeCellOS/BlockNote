@@ -49,7 +49,6 @@ export const videoBlockConfig = {
   propSchema: videoPropSchema,
   content: "none",
   isFileBlock: true,
-  isFileBlockPlaceholder: (block: any) => !block.props.url,
   fileBlockAcceptMimeTypes: ["video/*"],
 } satisfies FileBlockConfig;
 

@@ -86,7 +86,10 @@ export const UploadTab = <
         className="bn-file-input"
         data-test="upload-input"
         accept={accept}
-        placeholder={dict.file_panel.upload.file_placeholder[block.type]}
+        placeholder={
+          dict.file_panel.upload.file_placeholder[block.type] ||
+          dict.file_panel.upload.file_placeholder["file"]
+        }
         value={null}
         onChange={handleFileChange}
       />

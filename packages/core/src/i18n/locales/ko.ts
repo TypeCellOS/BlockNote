@@ -32,6 +32,20 @@ export const ko: Dictionary = {
       aliases: ["ul", "li", "목록", "글머리 기호 목록", "글머리 목록"],
       group: "기본 블록",
     },
+    check_list: {
+      title: "체크리스트",
+      subtext: "체크박스가 있는 목록을 표시하는 데 사용",
+      aliases: [
+        "ul",
+        "li",
+        "목록",
+        "체크리스트",
+        "체크 리스트",
+        "체크된 목록",
+        "체크박스",
+      ],
+      group: "기본 블록",
+    },
     paragraph: {
       title: "본문",
       subtext: "일반 텍스트",
@@ -101,6 +115,7 @@ export const ko: Dictionary = {
     heading: "제목",
     bulletListItem: "목록",
     numberedListItem: "목록",
+    checkListItem: "목록",
   },
   file_blocks: {
     image: {

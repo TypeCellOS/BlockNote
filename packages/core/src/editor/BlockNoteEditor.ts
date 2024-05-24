@@ -118,6 +118,13 @@ export type BlockNoteEditorOptions<
   uploadFile: (file: File) => Promise<string | Record<string, any>>;
 
   /**
+   * Resolve a URL of a file block to one that can be displayed or downloaded. This can be used for creating authenticated URL or
+   * implementing custom protocols / schemes
+   * @returns The URL that's
+   */
+  resolveFileUrl: (url: string) => Promise<string>;
+
+  /**
    * When enabled, allows for collaboration between multiple users.
    */
   collaboration: {
@@ -200,6 +207,8 @@ export class BlockNoteEditor<
   public readonly uploadFile:
     | ((file: File) => Promise<string | Record<string, any>>)
     | undefined;
+
+  public readonly resolveFileUrl: (url: string) => Promise<string>;
 
   public static create<
     BSchema extends BlockSchema = DefaultBlockSchema,
@@ -295,6 +304,7 @@ export class BlockNoteEditor<
     extensions.push(blockNoteUIExtension);
 
     this.uploadFile = newOptions.uploadFile;
+    this.resolveFileUrl = newOptions.resolveFileUrl || (async (url) => url);
 
     if (newOptions.collaboration && newOptions.initialContent) {
       console.warn(

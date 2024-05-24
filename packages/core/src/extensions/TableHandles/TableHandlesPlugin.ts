@@ -7,9 +7,9 @@ import {
   BlockFromConfigNoChildren,
   BlockSchemaWithBlock,
   InlineContentSchema,
-  SpecificBlock,
   StyleSchema,
 } from "../../schema";
+import { checkBlockIsDefaultType } from "../../blocks/defaultBlockTypeGuards";
 import { EventEmitter } from "../../util/EventEmitter";
 import { getDraggableBlockFromCoords } from "../SideMenu/SideMenuPlugin";
 
@@ -83,7 +83,6 @@ function hideElementsWithClassNames(classNames: string[]) {
 }
 
 export class TableHandlesView<
-  BSchema extends BlockSchemaWithBlock<"table", DefaultBlockSchema["table"]>,
   I extends InlineContentSchema,
   S extends StyleSchema
 > implements PluginView
@@ -146,10 +145,42 @@ export class TableHandlesView<
 
     const blockEl = getDraggableBlockFromCoords(cellRect, this.pmView);
     if (!blockEl) {
-      throw new Error(
-        "Found table cell element, but could not find surrounding blockContent element."
-      );
+      return;
     }
+
+    let tableBlock: Block<any, any, any> | undefined = undefined;
+
+    // Copied from `getBlock`. We don't use `getBlock` since we also need the PM
+    // node for the table, so we would effectively be doing the same work twice.
+    this.editor._tiptapEditor.state.doc.descendants((node, pos) => {
+      if (typeof tableBlock !== "undefined") {
+        return false;
+      }
+
+      if (node.type.name !== "blockContainer" || node.attrs.id !== blockEl.id) {
+        return true;
+      }
+
+      const block = nodeToBlock(
+        node,
+        this.editor.schema.blockSchema,
+        this.editor.schema.inlineContentSchema,
+        this.editor.schema.styleSchema,
+        this.editor.blockCache
+      );
+
+      if (checkBlockIsDefaultType("table", block, this.editor)) {
+        this.tablePos = pos + 1;
+        tableBlock = block;
+      }
+
+      return false;
+    });
+
+    if (!tableBlock) {
+      return;
+    }
+
     this.tableId = blockEl.id;
 
     if (
@@ -162,37 +193,12 @@ export class TableHandlesView<
       return;
     }
 
-    let block: Block<any, any, any> | undefined = undefined;
-
-    // Copied from `getBlock`. We don't use `getBlock` since we also need the PM
-    // node for the table, so we would effectively be doing the same work twice.
-    this.editor._tiptapEditor.state.doc.descendants((node, pos) => {
-      if (typeof block !== "undefined") {
-        return false;
-      }
-
-      if (node.type.name !== "blockContainer" || node.attrs.id !== blockEl.id) {
-        return true;
-      }
-
-      block = nodeToBlock(
-        node,
-        this.editor.schema.blockSchema,
-        this.editor.schema.inlineContentSchema,
-        this.editor.schema.styleSchema,
-        this.editor.blockCache
-      );
-      this.tablePos = pos + 1;
-
-      return false;
-    });
-
     this.state = {
       show: true,
       referencePosCell: cellRect,
       referencePosTable: tableRect,
 
-      block: block! as SpecificBlock<BSchema, "table", I, S>,
+      block: tableBlock,
       colIndex: colIndex,
       rowIndex: rowIndex,
 
@@ -365,13 +371,7 @@ export class TableHandlesProsemirrorPlugin<
   I extends InlineContentSchema,
   S extends StyleSchema
 > extends EventEmitter<any> {
-  private view:
-    | TableHandlesView<
-        BlockSchemaWithBlock<"table", DefaultBlockSchema["table"]>,
-        I,
-        S
-      >
-    | undefined;
+  private view: TableHandlesView<I, S> | undefined;
   public readonly plugin: Plugin;
 
   constructor(

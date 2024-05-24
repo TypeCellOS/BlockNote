@@ -52,6 +52,42 @@
   },
   {
     "id": "4",
+    "type": "checkListItem",
+    "props": {
+      "textColor": "default",
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "checked": false
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "Fourth",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "5",
+    "type": "checkListItem",
+    "props": {
+      "textColor": "default",
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "checked": false
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "Fifth",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "6",
     "type": "bulletListItem",
     "props": {
       "textColor": "default",
@@ -67,7 +103,7 @@
     ],
     "children": [
       {
-        "id": "5",
+        "id": "7",
         "type": "bulletListItem",
         "props": {
           "textColor": "default",
@@ -84,7 +120,7 @@
         "children": []
       },
       {
-        "id": "6",
+        "id": "8",
         "type": "bulletListItem",
         "props": {
           "textColor": "default",
@@ -95,6 +131,42 @@
           {
             "type": "text",
             "text": "Child 2",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "9",
+        "type": "checkListItem",
+        "props": {
+          "textColor": "default",
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "checked": false
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Child 3",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "10",
+        "type": "checkListItem",
+        "props": {
+          "textColor": "default",
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "checked": false
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Child 4",
             "styles": {}
           }
         ],
