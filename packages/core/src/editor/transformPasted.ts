@@ -40,7 +40,8 @@ export function transformPasted(slice: Slice, view: EditorView) {
 
         if (
           nestedChild.type.name === "bulletListItem" ||
-          nestedChild.type.name === "numberedListItem"
+          nestedChild.type.name === "numberedListItem" ||
+          nestedChild.type.name === "checkListItem"
         ) {
           content.push(f.child(i + 1));
           f = removeChild(f, i + 1);

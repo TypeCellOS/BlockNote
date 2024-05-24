@@ -23,13 +23,26 @@ export const vi: Dictionary = {
     numbered_list: {
       title: "Danh sách đánh số",
       subtext: "Sử dụng để hiển thị danh sách có đánh số",
-      aliases: ["ol", "li", "ds", "danhsachdso", "danh sách đánh số"],
+      aliases: ["ol", "li", "ds", "danhsachdso", "danh sach danh so"],
       group: "Khối cơ bản",
     },
     bullet_list: {
       title: "Danh sách",
       subtext: "Sử dụng để hiển thị danh sách không đánh số",
-      aliases: ["ul", "li", "ds", "danhsach", "danh sách"],
+      aliases: ["ul", "li", "ds", "danhsach", "danh sach"],
+      group: "Khối cơ bản",
+    },
+    check_list: {
+      title: "Danh sách kiểm tra",
+      subtext: "Dùng để hiển thị danh sách có hộp kiểm",
+      aliases: [
+        "ul",
+        "li",
+        "danh sach",
+        "danh sach kiem tra",
+        "danh sach da kiem tra",
+        "hop kiem",
+      ],
       group: "Khối cơ bản",
     },
     paragraph: {
@@ -90,6 +103,7 @@ export const vi: Dictionary = {
     heading: "Tiêu đề",
     bulletListItem: "Danh sách",
     numberedListItem: "Danh sách",
+    checkListItem: "Danh sách",
   },
   file_blocks: {
     image: {

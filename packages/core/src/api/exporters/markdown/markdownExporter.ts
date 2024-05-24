@@ -9,11 +9,13 @@ import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
 import { BlockSchema, InlineContentSchema, StyleSchema } from "../../../schema";
 import { createExternalHTMLExporter } from "../html/externalHTMLExporter";
 import { removeUnderlines } from "./removeUnderlinesRehypePlugin";
+import { addSpacesToCheckboxes } from "./util/addSpacesToCheckboxesRehypePlugin";
 
 export function cleanHTMLToMarkdown(cleanHTMLString: string) {
   const markdownString = unified()
     .use(rehypeParse, { fragment: true })
     .use(removeUnderlines)
+    .use(addSpacesToCheckboxes)
     .use(rehypeRemark)
     .use(remarkGfm)
     .use(remarkStringify)

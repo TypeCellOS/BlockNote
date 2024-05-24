@@ -32,6 +32,19 @@ export const fr: Dictionary = {
       aliases: ["ul", "li", "liste", "listeàpuces", "liste à puces"],
       group: "Blocs de base",
     },
+    check_list: {
+      title: "Liste de vérification",
+      subtext: "Utilisé pour afficher une liste avec des cases à cocher",
+      aliases: [
+        "ul",
+        "li",
+        "liste",
+        "liste de vérification",
+        "liste cochée",
+        "case à cocher",
+      ],
+      group: "Blocs de base",
+    },
     paragraph: {
       title: "Paragraphe",
       subtext: "Utilisé pour le corps de votre document",
@@ -98,6 +111,7 @@ export const fr: Dictionary = {
     heading: "Titre",
     bulletListItem: "Liste",
     numberedListItem: "Liste",
+    checkListItem: "Liste",
   },
   file_blocks: {
     image: {

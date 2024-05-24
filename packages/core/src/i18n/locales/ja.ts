@@ -37,7 +37,29 @@ export const ja: Dictionary = {
     bullet_list: {
       title: "箇条書き",
       subtext: "箇条書きを表示するために使用",
-      aliases: ["ul", "li", "リスト", "箇条書きリスト"],
+      aliases: [
+        "ul",
+        "li",
+        "bulletlist",
+        "bullet list",
+        "リスト",
+        "箇条書きリスト",
+      ],
+      group: "基本ブロック",
+    },
+    check_list: {
+      title: "チェックリスト",
+      subtext: "チェックボックス付きリストを表示するために使用されます",
+      aliases: [
+        "ul",
+        "li",
+        "list",
+        "checklist",
+        "checked list",
+        "リスト",
+        "チェックリスト",
+        "チェックされたリスト",
+      ],
       group: "基本ブロック",
     },
     paragraph: {
@@ -109,6 +131,7 @@ export const ja: Dictionary = {
     heading: "見出し",
     bulletListItem: "リストを追加",
     numberedListItem: "リストを追加",
+    checkListItem: "リストを追加",
   },
   file_blocks: {
     image: {

@@ -185,6 +185,28 @@ NESTED BLOCKS
   gap: 1.2em;
 }
 
+/* Checked */
+.bn-block-content[data-content-type="checkListItem"] > div {
+  display: flex;
+}
+
+.bn-block-content[data-content-type="checkListItem"] > div > div > input {
+  margin: 0 1.2em 0 0;
+  cursor: pointer;
+}
+
+.bn-block-content[data-content-type="checkListItem"][data-checked="true"] .bn-inline-content {
+  text-decoration: line-through;
+}
+
+.bn-block-content[data-text-alignment="center"] {
+  justify-content: center;
+}
+
+.bn-block-content[data-text-alignment="right"] {
+  justify-content: flex-end;
+}
+
 /* No list nesting */
 .bn-block-outer[data-prev-type="bulletListItem"]
   > .bn-block

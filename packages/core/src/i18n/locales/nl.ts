@@ -32,6 +32,12 @@ export const nl: Dictionary = {
       aliases: ["ul", "li", "lijst", "puntenlijst", "punten lijst"],
       group: "Basisblokken",
     },
+    check_list: {
+      title: "Controlelijst",
+      subtext: "Gebruikt om een lijst met selectievakjes weer te geven",
+      aliases: ["ul", "li", "lijst", "aangevinkte lijst", "selectievakje"],
+      group: "Basisblokken",
+    },
     paragraph: {
       title: "Paragraaf",
       subtext: "Gebruikt voor de hoofdtekst van uw document",
@@ -100,6 +106,7 @@ export const nl: Dictionary = {
     heading: "Kop",
     bulletListItem: "Lijst",
     numberedListItem: "Lijst",
+    checkListItem: "Lijst",
   },
   file_blocks: {
     image: {

@@ -144,6 +144,19 @@ export function getDefaultSlashMenuItems<
     });
   }
 
+  if (checkDefaultBlockTypeInSchema("checkListItem", editor)) {
+    items.push({
+      onItemClick: () => {
+        insertOrUpdateBlock(editor, {
+          type: "checkListItem",
+        });
+      },
+      badge: formatKeyboardShortcut("Mod-Shift-9"),
+      key: "check_list",
+      ...editor.dictionary.slash_menu.check_list,
+    });
+  }
+
   if (checkDefaultBlockTypeInSchema("paragraph", editor)) {
     items.push({
       onItemClick: () => {

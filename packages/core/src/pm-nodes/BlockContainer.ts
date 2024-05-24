@@ -36,7 +36,11 @@ declare module "@tiptap/core" {
       BNCreateBlock: (pos: number) => ReturnType;
       BNDeleteBlock: (posInBlock: number) => ReturnType;
       BNMergeBlocks: (posBetweenBlocks: number) => ReturnType;
-      BNSplitBlock: (posInBlock: number, keepType: boolean) => ReturnType;
+      BNSplitBlock: (
+        posInBlock: number,
+        keepType?: boolean,
+        keepProps?: boolean
+      ) => ReturnType;
       BNUpdateBlock: <
         BSchema extends BlockSchema,
         I extends InlineContentSchema,
@@ -402,8 +406,12 @@ export const BlockContainer = Node.create<{
         },
       // Splits a block at a given position. Content after the position is moved to a new block below, at the same
       // nesting level.
+      // - `keepType` is usually false, unless the selection is at the start of
+      // a block.
+      // - `keepProps` is usually true when `keepType` is true, except for when
+      // creating new list item blocks with Enter.
       BNSplitBlock:
-        (posInBlock, keepType) =>
+        (posInBlock, keepType, keepProps) =>
         ({ state, dispatch }) => {
           const blockInfo = getBlockInfoFromPos(state.doc, posInBlock);
           if (blockInfo === undefined) {
@@ -448,7 +456,7 @@ export const BlockContainer = Node.create<{
                 newBlockContentPos,
                 newBlockContentPos,
                 state.schema.node(contentType).type,
-                contentNode.attrs
+                keepProps ? contentNode.attrs : undefined
               );
             }
 
@@ -671,7 +679,11 @@ export const BlockContainer = Node.create<{
             if (!blockEmpty) {
               chain()
                 .deleteSelection()
-                .BNSplitBlock(state.selection.from, selectionAtBlockStart)
+                .BNSplitBlock(
+                  state.selection.from,
+                  selectionAtBlockStart,
+                  selectionAtBlockStart
+                )
                 .run();
 
               return true;

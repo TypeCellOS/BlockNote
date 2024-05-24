@@ -18,6 +18,7 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
   name: "numberedListItem",
   content: "inline*",
   group: "blockContent",
+  priority: 90,
   addAttributes() {
     return {
       index: {
