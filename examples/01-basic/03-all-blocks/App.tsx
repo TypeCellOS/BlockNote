@@ -41,6 +41,10 @@ export default function App() {
         content: "Numbered List Item",
       },
       {
+        type: "checkListItem",
+        content: "Check List Item",
+      },
+      {
         type: "table",
         content: {
           type: "tableContent",
