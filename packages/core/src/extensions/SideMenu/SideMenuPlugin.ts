@@ -381,12 +381,26 @@ export class SideMenuView<
     }
   };
 
-  onMouseDown = (_event: MouseEvent) => {
-    if (this.state && !this.state.show) {
-      this.state.show = true;
-      this.emitUpdate(this.state);
-    }
+  onMouseDown = (event: MouseEvent) => {
+    // Allow e.g. mousemove events to show the menu even if it was previously frozen
     this.menuFrozen = false;
+
+    // Show menu immediately since touch screen users don't get mousemove events
+    // Do it on the block that was clicked (and only if a block was clicked)
+    const editorBoundingBox = (
+      this.pmView.dom.firstChild! as HTMLElement
+    ).getBoundingClientRect();
+    const coords = {
+      left: editorBoundingBox.left + editorBoundingBox.width / 2, // take middle of editor
+      top: event.clientY,
+    };
+    const block = getDraggableBlockFromCoords(coords, this.pmView);
+    if (this.state && !this.state.show && block) {
+      this.hoveredBlock = block.node;
+      this.state.show = true;
+
+      this.updateAndShow(block.node);
+    }
   };
 
   onMouseMove = (event: MouseEvent) => {
@@ -464,8 +478,12 @@ export class SideMenuView<
 
     this.hoveredBlock = block.node;
 
+    this.updateAndShow(block.node);
+  };
+
+  private updateAndShow(node: HTMLElement) {
     // Gets the block's content node, which lets to ignore child blocks when determining the block menu's position.
-    const blockContent = block.node.firstChild as HTMLElement;
+    const blockContent = node.firstChild as HTMLElement;
 
     if (!blockContent) {
       return;
@@ -492,7 +510,7 @@ export class SideMenuView<
 
       this.emitUpdate(this.state);
     }
-  };
+  }
 
   onScroll = () => {
     if (this.state?.show) {
