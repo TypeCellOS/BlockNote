@@ -45,7 +45,7 @@ export class FilePanelView<I extends InlineContentSchema, S extends StyleSchema>
 
     pmView.dom.addEventListener("dragstart", this.dragstartHandler);
 
-    document.addEventListener("scroll", this.scrollHandler);
+    document.addEventListener("scroll", this.scrollHandler, true);
   }
 
   mouseDownHandler = () => {
@@ -119,7 +119,7 @@ export class FilePanelView<I extends InlineContentSchema, S extends StyleSchema>
 
     this.pmView.dom.removeEventListener("dragstart", this.dragstartHandler);
 
-    document.removeEventListener("scroll", this.scrollHandler);
+    document.removeEventListener("scroll", this.scrollHandler, true);
   }
 }
 

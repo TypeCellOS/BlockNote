@@ -60,7 +60,7 @@ export class FormattingToolbarView implements PluginView {
     pmView.dom.addEventListener("dragstart", this.dragHandler);
     pmView.dom.addEventListener("dragover", this.dragHandler);
 
-    document.addEventListener("scroll", this.scrollHandler);
+    document.addEventListener("scroll", this.scrollHandler, true);
   }
 
   viewMousedownHandler = () => {
@@ -150,7 +150,7 @@ export class FormattingToolbarView implements PluginView {
     this.pmView.dom.removeEventListener("dragstart", this.dragHandler);
     this.pmView.dom.removeEventListener("dragover", this.dragHandler);
 
-    document.removeEventListener("scroll", this.scrollHandler);
+    document.removeEventListener("scroll", this.scrollHandler, true);
   }
 
   closeMenu = () => {

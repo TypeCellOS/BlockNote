@@ -37,7 +37,7 @@ class SuggestionMenuView<
       emitUpdate(menuName, this.state);
     };
 
-    document.addEventListener("scroll", this.handleScroll);
+    document.addEventListener("scroll", this.handleScroll, true);
   }
 
   handleScroll = () => {
@@ -92,7 +92,7 @@ class SuggestionMenuView<
   }
 
   destroy() {
-    document.removeEventListener("scroll", this.handleScroll);
+    document.removeEventListener("scroll", this.handleScroll, true);
   }
 
   closeMenu = () => {

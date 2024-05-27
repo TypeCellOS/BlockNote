@@ -119,7 +119,7 @@ export class TableHandlesView<
     document.addEventListener("dragover", this.dragOverHandler);
     document.addEventListener("drop", this.dropHandler);
 
-    document.addEventListener("scroll", this.scrollHandler);
+    document.addEventListener("scroll", this.scrollHandler, true);
   }
 
   mouseMoveHandler = (event: MouseEvent) => {
@@ -361,7 +361,7 @@ export class TableHandlesView<
     document.removeEventListener("dragover", this.dragOverHandler);
     document.removeEventListener("drop", this.dropHandler);
 
-    document.removeEventListener("scroll", this.scrollHandler);
+    document.removeEventListener("scroll", this.scrollHandler, true);
   }
 }
 
