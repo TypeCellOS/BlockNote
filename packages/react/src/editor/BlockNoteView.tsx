@@ -30,38 +30,44 @@ const emptyFn = () => {
   // noop
 };
 
+export type BlockNoteViewProps<
+  BSchema extends BlockSchema,
+  ISchema extends InlineContentSchema,
+  SSchema extends StyleSchema
+> = {
+  editor: BlockNoteEditor<BSchema, ISchema, SSchema>;
+
+  theme?: "light" | "dark";
+
+  /**
+   * Locks the editor from being editable by the user if set to `false`.
+   */
+  editable?: boolean;
+  /**
+   * A callback function that runs whenever the text cursor position or selection changes.
+   */
+  onSelectionChange?: () => void;
+
+  /**
+   * A callback function that runs whenever the editor's contents change.
+   */
+  onChange?: () => void;
+
+  children?: ReactNode;
+
+  ref?: Ref<HTMLDivElement> | undefined; // only here to get types working with the generics. Regular form doesn't work
+} & Omit<
+  HTMLAttributes<HTMLDivElement>,
+  "onChange" | "onSelectionChange" | "children"
+> &
+  BlockNoteDefaultUIProps;
+
 function BlockNoteViewComponent<
   BSchema extends BlockSchema,
   ISchema extends InlineContentSchema,
   SSchema extends StyleSchema
 >(
-  props: {
-    editor: BlockNoteEditor<BSchema, ISchema, SSchema>;
-
-    theme?: "light" | "dark";
-
-    /**
-     * Locks the editor from being editable by the user if set to `false`.
-     */
-    editable?: boolean;
-    /**
-     * A callback function that runs whenever the text cursor position or selection changes.
-     */
-    onSelectionChange?: () => void;
-
-    /**
-     * A callback function that runs whenever the editor's contents change.
-     */
-    onChange?: () => void;
-
-    children?: ReactNode;
-
-    ref?: Ref<HTMLDivElement> | undefined; // only here to get types working with the generics. Regular form doesn't work
-  } & Omit<
-    HTMLAttributes<HTMLDivElement>,
-    "onChange" | "onSelectionChange" | "children"
-  > &
-    BlockNoteDefaultUIProps,
+  props: BlockNoteViewProps<BSchema, ISchema, SSchema>,
   ref: React.Ref<HTMLDivElement>
 ) {
   const {
