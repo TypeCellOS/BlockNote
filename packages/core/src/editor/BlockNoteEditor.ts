@@ -67,6 +67,7 @@ import { Dictionary } from "../i18n/dictionary";
 import { en } from "../i18n/locales";
 import "./Block.css";
 import "./editor.css";
+import Link from "@tiptap/extension-link";
 
 export type BlockNoteEditorOptions<
   BSchema extends BlockSchema,
@@ -151,6 +152,39 @@ export type BlockNoteEditorOptions<
 
   // tiptap options, undocumented
   _tiptapOptions: Partial<EditorOptions>;
+
+  // Link configuration options
+  /**
+   * Allows customization of link behavior within the BlockNote editor.
+   *
+   * The `linkOptions` property can be used to pass configuration options to the `Link` extension
+   * from the Tiptap editor. This enables users to customize how links are handled, displayed,
+   * and edited within the editor.
+   *
+   * Example usage:
+   * ```typescript
+   * const editor = BlockNoteEditor.create({
+   *   linkOptions: {
+   *     openOnClick: false,
+   *     HTMLAttributes: {
+   *       target: '_blank',
+   *       rel: 'noopener noreferrer',
+   *     },
+   *   },
+   *   // other options...
+   * });
+   * ```
+   *
+   * Available options include:
+   * - `openOnClick` (boolean): Whether clicking a link should open it.
+   * - `HTMLAttributes` (object): Additional HTML attributes to add to the link element.
+   * - `validate` (function): A custom function to validate URLs.
+   *
+   * For a full list of available options, refer to the Tiptap `Link` extension documentation.
+   *
+   * @see https://tiptap.dev/api/extensions/link#options
+   */
+  linkOptions?: Partial<Parameters<typeof Link.configure>[0]>;
 
   trailingBlock?: boolean;
 };
@@ -257,6 +291,7 @@ export class BlockNoteEditor<
         ...this.dictionary.placeholders,
         ...options.placeholders,
       },
+      linkOptions: options.linkOptions,
     };
 
     // @ts-ignore
@@ -284,6 +319,7 @@ export class BlockNoteEditor<
       inlineContentSpecs: this.schema.inlineContentSpecs,
       collaboration: newOptions.collaboration,
       trailingBlock: newOptions.trailingBlock,
+      linkOptions: newOptions.linkOptions,
     });
 
     const blockNoteUIExtension = Extension.create({

@@ -53,6 +53,7 @@ export const getBlockNoteExtensions = <
     provider: any;
     renderCursor?: (user: any) => HTMLElement;
   };
+  linkOptions?: Partial<Parameters<typeof Link.configure>[0]>;
 }) => {
   const ret: Extensions = [
     extensions.ClipboardTextSerializer,
@@ -75,7 +76,8 @@ export const getBlockNoteExtensions = <
     Text,
 
     // marks:
-    Link,
+    Link.configure(opts.linkOptions ? opts.linkOptions : {}),
+
     ...Object.values(opts.styleSpecs).map((styleSpec) => {
       return styleSpec.implementation.mark;
     }),
