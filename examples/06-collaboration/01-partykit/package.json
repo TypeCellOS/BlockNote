@@ -19,7 +19,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "y-partykit": "^0.0.25",
-    "yjs": "^13.6.1"
+    "yjs": "^13.6.15"
   },
   "devDependencies": {
     "@types/react": "^18.0.25",
