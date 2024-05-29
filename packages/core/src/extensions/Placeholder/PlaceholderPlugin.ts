@@ -16,7 +16,7 @@ export const PlaceholderPlugin = (
       const styleSheet = styleEl.sheet!;
 
       const getBaseSelector = (additionalSelectors = "") =>
-        `.bn-block-content${additionalSelectors} .bn-inline-content:has(> .ProseMirror-trailingBreak):before`;
+        `.bn-block-content${additionalSelectors} .bn-inline-content:has(> .ProseMirror-trailingBreak:only-child):before`;
 
       const getSelector = (
         blockType: string | "default",

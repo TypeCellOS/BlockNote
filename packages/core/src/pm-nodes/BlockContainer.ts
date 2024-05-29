@@ -620,7 +620,7 @@ export const BlockContainer = Node.create<{
               state.selection.$anchor.parentOffset === 0;
             const selectionEmpty =
               state.selection.anchor === state.selection.head;
-            const blockEmpty = node.textContent.length === 0;
+            const blockEmpty = node.firstChild!.nodeSize === 2;
             const blockIndented = depth > 2;
 
             if (
@@ -647,7 +647,7 @@ export const BlockContainer = Node.create<{
               state.selection.$anchor.parentOffset === 0;
             const selectionEmpty =
               state.selection.anchor === state.selection.head;
-            const blockEmpty = node.textContent.length === 0;
+            const blockEmpty = node.firstChild!.nodeSize === 2;
 
             if (selectionAtBlockStart && selectionEmpty && blockEmpty) {
               const newBlockInsertionPos = endPos + 1;
@@ -674,7 +674,7 @@ export const BlockContainer = Node.create<{
 
             const selectionAtBlockStart =
               state.selection.$anchor.parentOffset === 0;
-            const blockEmpty = node.textContent.length === 0;
+            const blockEmpty = node.firstChild!.nodeSize === 2;
 
             if (!blockEmpty) {
               chain()

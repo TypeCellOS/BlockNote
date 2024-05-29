@@ -363,7 +363,7 @@ NESTED BLOCKS
 }
 
 /* PLACEHOLDERS*/
-.bn-inline-content:has(> .ProseMirror-trailingBreak):before {
+.bn-inline-content:has(> .ProseMirror-trailingBreak:only-child):before {
   /*float: left; */
   pointer-events: none;
   height: 0;

@@ -23,9 +23,9 @@ export const handleEnter = (editor: Editor) => {
 
   return editor.commands.first(({ state, chain, commands }) => [
     () =>
-      // Changes list item block to a text block if the content is empty.
+      // Changes list item block to a paragraph block if the content is empty.
       commands.command(() => {
-        if (node.textContent.length === 0) {
+        if (node.firstChild!.nodeSize === 2) {
           return commands.BNUpdateBlock(state.selection.from, {
             type: "paragraph",
             props: {},
@@ -36,10 +36,10 @@ export const handleEnter = (editor: Editor) => {
       }),
 
     () =>
-      // Splits the current block, moving content inside that's after the cursor to a new block of the same type
-      // below.
+      // Splits the current block, moving content inside that's after the cursor
+      // to a new block of the same type below.
       commands.command(() => {
-        if (node.textContent.length > 0) {
+        if (node.firstChild!.nodeSize > 2) {
           chain()
             .deleteSelection()
             .BNSplitBlock(state.selection.from, true)
