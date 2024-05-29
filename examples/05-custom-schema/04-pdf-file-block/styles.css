@@ -1,0 +1,10 @@
+.bn-file-block-content-wrapper,
+.bn-file-and-caption-wrapper {
+    height: 800px;
+    width: 100%;
+}
+
+embed {
+    height: 100%;
+    width: 100%;
+}
