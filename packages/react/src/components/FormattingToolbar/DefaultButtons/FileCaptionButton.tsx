@@ -69,7 +69,11 @@ export const FileCaptionButton = () => {
     []
   );
 
-  if (!fileBlock || checkBlockIsFileBlockWithPlaceholder(fileBlock, editor)) {
+  if (
+    !fileBlock ||
+    checkBlockIsFileBlockWithPlaceholder(fileBlock, editor) ||
+    !editor.isEditable
+  ) {
     return null;
   }
 

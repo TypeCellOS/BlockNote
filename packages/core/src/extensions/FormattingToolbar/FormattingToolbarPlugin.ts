@@ -15,7 +15,6 @@ export class FormattingToolbarView implements PluginView {
 
   public preventHide = false;
   public preventShow = false;
-  public prevWasEditable: boolean | null = null;
 
   public shouldShow: (props: {
     view: EditorView;
@@ -93,15 +92,9 @@ export class FormattingToolbarView implements PluginView {
     const isSame =
       oldState && oldState.doc.eq(doc) && oldState.selection.eq(selection);
 
-    if (
-      (this.prevWasEditable === null ||
-        this.prevWasEditable === this.editor.isEditable) &&
-      (composing || isSame)
-    ) {
+    if (composing || isSame) {
       return;
     }
-
-    this.prevWasEditable = this.editor.isEditable;
 
     // support for CellSelections
     const { ranges } = selection;
@@ -116,11 +109,7 @@ export class FormattingToolbarView implements PluginView {
     });
 
     // Checks if menu should be shown/updated.
-    if (
-      this.editor.isEditable &&
-      !this.preventShow &&
-      (shouldShow || this.preventHide)
-    ) {
+    if (!this.preventShow && (shouldShow || this.preventHide)) {
       this.state = {
         show: true,
         referencePos: this.getSelectionBoundingBox(),

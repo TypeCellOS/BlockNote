@@ -50,7 +50,11 @@ export const FilePreviewButton = () => {
     }
   }, [editor, fileBlock]);
 
-  if (!fileBlock || checkBlockIsFileBlockWithPlaceholder(fileBlock, editor)) {
+  if (
+    !fileBlock ||
+    checkBlockIsFileBlockWithPlaceholder(fileBlock, editor) ||
+    !editor.isEditable
+  ) {
     return null;
   }
 
