@@ -293,13 +293,15 @@ export class SideMenuView<
     // Shows or updates menu position whenever the cursor moves, if the menu isn't frozen.
     document.body.addEventListener("mousemove", this.onMouseMove, true);
 
-    // Makes menu scroll with the page.
-    document.addEventListener("scroll", this.onScroll, true);
-
     // Unfreezes the menu whenever the user clicks.
     this.pmView.dom.addEventListener("mousedown", this.onMouseDown);
     // Hides and unfreezes the menu whenever the user presses a key.
     document.body.addEventListener("keydown", this.onKeyDown, true);
+
+    // Setting capture=true ensures that any parent container of the editor that
+    // gets scrolled will trigger the scroll event. Scroll events do not bubble
+    // and so won't propagate to the document by default.
+    document.addEventListener("scroll", this.onScroll, true);
   }
 
   /**
