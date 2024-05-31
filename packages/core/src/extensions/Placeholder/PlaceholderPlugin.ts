@@ -12,6 +12,10 @@ export const PlaceholderPlugin = (
     key: PLUGIN_KEY,
     view: () => {
       const styleEl = document.createElement("style");
+      const nonce = editor._tiptapEditor.options.injectNonce;
+      if (nonce) {
+        styleEl.setAttribute("nonce", nonce);
+      }
       document.head.appendChild(styleEl);
       const styleSheet = styleEl.sheet!;
 
