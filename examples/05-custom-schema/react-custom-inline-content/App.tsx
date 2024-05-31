@@ -2,6 +2,7 @@ import { BlockNoteSchema, defaultInlineContentSpecs } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
 import {
   createReactInlineContentSpec,
+  useContent,
   useCreateBlockNote,
 } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/mantine";
@@ -24,6 +25,16 @@ const mention = createReactInlineContentSpec(
   }
 );
 
+const Tag = () => {
+  const contentProps = useContent();
+
+  return (
+    <span>
+      #<span {...contentProps} />
+    </span>
+  );
+};
+
 const tag = createReactInlineContentSpec(
   {
     type: "tag",
@@ -31,13 +42,7 @@ const tag = createReactInlineContentSpec(
     content: "styled",
   },
   {
-    render: (props) => {
-      return (
-        <span>
-          #<span ref={props.contentRef}></span>
-        </span>
-      );
-    },
+    render: Tag,
   }
 );
 

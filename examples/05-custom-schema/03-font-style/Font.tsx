@@ -1,4 +1,10 @@
-import { createReactStyleSpec } from "@blocknote/react";
+import { createReactStyleSpec, useContent } from "@blocknote/react";
+
+const RenderFont = (props: { value: string }) => {
+  const { style, ...rest } = useContent();
+
+  return <span style={{ fontFamily: props.value, ...style }} {...rest} />;
+};
 
 // The Font style.
 export const Font = createReactStyleSpec(
@@ -7,8 +13,6 @@ export const Font = createReactStyleSpec(
     propSchema: "string",
   },
   {
-    render: (props) => (
-      <span style={{ fontFamily: props.value }} ref={props.contentRef} />
-    ),
+    render: RenderFont,
   }
 );

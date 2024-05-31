@@ -15,7 +15,6 @@ import {
   StyleSchema,
 } from "@blocknote/core";
 import {
-  NodeViewContent,
   NodeViewProps,
   NodeViewWrapper,
   ReactNodeViewRenderer,
@@ -34,7 +33,6 @@ export type ReactInlineContentImplementation<
 > = {
   render: FC<{
     inlineContent: InlineContentFromConfig<T, S>;
-    contentRef: (node: HTMLElement | null) => void;
   }>;
   // TODO?
   // toExternalHTML?: FC<{
@@ -119,7 +117,7 @@ export function createReactInlineContentSpec<
       ) as any as InlineContentFromConfig<T, S>; // TODO: fix cast
       const Content = inlineContentImplementation.render;
       const output = renderToDOMSpec(
-        (refCB) => <Content inlineContent={ic} contentRef={refCB} />,
+        () => <Content inlineContent={ic} />,
         editor
       );
 
@@ -137,9 +135,6 @@ export function createReactInlineContentSpec<
       return (props) =>
         ReactNodeViewRenderer(
           (props: NodeViewProps) => {
-            // hacky, should export `useReactNodeView` from tiptap to get access to ref
-            const ref = (NodeViewContent({}) as any).ref;
-
             const Content = inlineContentImplementation.render;
             return (
               <InlineContentWrapper
@@ -147,7 +142,6 @@ export function createReactInlineContentSpec<
                 inlineContentType={inlineContentConfig.type}
                 propSchema={inlineContentConfig.propSchema}>
                 <Content
-                  contentRef={ref}
                   inlineContent={
                     nodeToCustomInlineContent(
                       props.node,

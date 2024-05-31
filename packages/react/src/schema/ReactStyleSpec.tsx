@@ -13,9 +13,7 @@ import { renderToDOMSpec } from "./@util/ReactRenderUtil";
 
 // extend BlockConfig but use a React render function
 export type ReactCustomStyleImplementation<T extends StyleConfig> = {
-  render: T["propSchema"] extends "boolean"
-    ? FC<{ contentRef: (el: HTMLElement | null) => void }>
-    : FC<{ contentRef: (el: HTMLElement | null) => void; value: string }>;
+  render: T["propSchema"] extends "boolean" ? FC : FC<{ value: string }>;
 };
 
 // A function to create custom block for API consumers
@@ -44,7 +42,7 @@ export function createReactStyleSpec<T extends StyleConfig>(
 
       const Content = styleImplementation.render;
       const renderResult = renderToDOMSpec(
-        (refCB) => <Content {...props} contentRef={refCB} />,
+        () => <Content {...props} />,
         undefined
       );
 

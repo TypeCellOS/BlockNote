@@ -18,7 +18,6 @@ import {
   StyleSchema,
 } from "@blocknote/core";
 import {
-  NodeViewContent,
   NodeViewProps,
   NodeViewWrapper,
   ReactNodeViewRenderer,
@@ -35,7 +34,6 @@ export type ReactCustomBlockRenderProps<
 > = {
   block: BlockFromConfig<T, I, S>;
   editor: BlockNoteEditor<BlockSchemaWithBlock<T["type"], T>, I, S>;
-  contentRef: (node: HTMLElement | null) => void;
 };
 
 // extend BlockConfig but use a React render function
@@ -156,9 +154,6 @@ export function createReactBlockSpec<
             const blockContentDOMAttributes =
               this.options.domAttributes?.blockContent || {};
 
-            // hacky, should export `useReactNodeView` from tiptap to get access to ref
-            const ref = (NodeViewContent({}) as any).ref;
-
             const BlockContent = blockImplementation.render;
             return (
               <BlockContentWrapper
@@ -167,11 +162,7 @@ export function createReactBlockSpec<
                 propSchema={blockConfig.propSchema}
                 isFileBlock={blockConfig.isFileBlock}
                 domAttributes={blockContentDOMAttributes}>
-                <BlockContent
-                  block={block as any}
-                  editor={editor as any}
-                  contentRef={ref}
-                />
+                <BlockContent block={block as any} editor={editor as any} />
               </BlockContentWrapper>
             );
           },
@@ -190,17 +181,13 @@ export function createReactBlockSpec<
 
       const BlockContent = blockImplementation.render;
       const output = renderToDOMSpec(
-        (refCB) => (
+        () => (
           <BlockContentWrapper
             blockType={block.type}
             blockProps={block.props}
             propSchema={blockConfig.propSchema}
             domAttributes={blockContentDOMAttributes}>
-            <BlockContent
-              block={block as any}
-              editor={editor as any}
-              contentRef={refCB}
-            />
+            <BlockContent block={block as any} editor={editor as any} />
           </BlockContentWrapper>
         ),
         editor
@@ -215,18 +202,14 @@ export function createReactBlockSpec<
 
       const BlockContent =
         blockImplementation.toExternalHTML || blockImplementation.render;
-      const output = renderToDOMSpec((refCB) => {
+      const output = renderToDOMSpec(() => {
         return (
           <BlockContentWrapper
             blockType={block.type}
             blockProps={block.props}
             propSchema={blockConfig.propSchema}
             domAttributes={blockContentDOMAttributes}>
-            <BlockContent
-              block={block as any}
-              editor={editor as any}
-              contentRef={refCB}
-            />
+            <BlockContent block={block as any} editor={editor as any} />
           </BlockContentWrapper>
         );
       }, editor);

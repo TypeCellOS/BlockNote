@@ -3,7 +3,7 @@ import { flushSync } from "react-dom";
 import { Root, createRoot } from "react-dom/client";
 
 export function renderToDOMSpec(
-  fc: (refCB: (ref: HTMLElement | null) => void) => React.ReactNode,
+  fc: () => React.ReactNode,
   editor: BlockNoteEditor<any, any, any> | undefined
 ) {
   let contentDOM: HTMLElement | undefined;
@@ -15,15 +15,12 @@ export function renderToDOMSpec(
     // This is currently only used for Styles. In this case, react context etc. won't be available inside `fc`
     root = createRoot(div);
     flushSync(() => {
-      root!.render(fc((el) => (contentDOM = el || undefined)));
+      root!.render(fc());
     });
   } else {
     // Render temporarily using `EditorContent` (which is stored somewhat hacky on `editor._tiptapEditor.contentComponent`)
     // This way React Context will still work, as `fc` will be rendered inside the existing React tree
-    editor._tiptapEditor.contentComponent.renderToElement(
-      fc((el) => (contentDOM = el || undefined)),
-      div
-    );
+    editor._tiptapEditor.contentComponent.renderToElement(fc(), div);
   }
 
   if (!div.childElementCount) {

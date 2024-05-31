@@ -1,40 +1,53 @@
-import { BlockNoteEditor, defaultProps } from "@blocknote/core";
-import { createReactBlockSpec } from "@blocknote/react";
+import {
+  BlockConfig,
+  BlockNoteEditor,
+  DefaultInlineContentSchema,
+  defaultProps,
+  DefaultStyleSchema,
+} from "@blocknote/core";
+import {
+  createReactBlockSpec,
+  ReactCustomBlockRenderProps,
+  useContent,
+} from "@blocknote/react";
 import { RiImage2Fill } from "react-icons/ri";
 
-export const ReactImage = createReactBlockSpec(
-  {
-    type: "reactImage",
-    propSchema: {
-      ...defaultProps,
-      src: {
-        default: "https://via.placeholder.com/1000",
-      },
+const reactImageConfig = {
+  type: "reactImage",
+  propSchema: {
+    ...defaultProps,
+    src: {
+      default: "https://via.placeholder.com/1000",
     },
-    content: "inline",
   },
-  {
-    render: ({ block, contentRef }) => {
-      return (
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-          }}>
-          <img
-            style={{
-              width: "100%",
-            }}
-            src={block.props.src}
-            alt={"test"}
-            contentEditable={false}
-          />
-          <span ref={contentRef} style={{ flexGrow: 1 }} />
-        </div>
-      );
-    },
-  }
-);
+  content: "inline",
+} satisfies BlockConfig;
+
+const RenderReactImage = (
+  props: ReactCustomBlockRenderProps<
+    typeof reactImageConfig,
+    DefaultInlineContentSchema,
+    DefaultStyleSchema
+  >
+) => {
+  const { style, ...rest } = useContent();
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column" }}>
+      <img
+        style={{ width: "100%" }}
+        src={props.block.props.src}
+        alt={"test"}
+        contentEditable={false}
+      />
+      <span style={{ flexGrow: 1, ...style }} {...rest} />
+    </div>
+  );
+};
+
+export const ReactImage = createReactBlockSpec(reactImageConfig, {
+  render: RenderReactImage,
+});
 
 export const insertReactImage = {
   title: "Insert React Image",

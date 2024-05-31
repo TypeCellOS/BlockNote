@@ -69,6 +69,7 @@ export * from "./components/TableHandles/TableHandleMenu/TableHandleMenuProps";
 
 export * from "./hooks/useActiveStyles";
 export * from "./hooks/useBlockNoteEditor";
+export * from "./hooks/useContent";
 export * from "./hooks/useCreateBlockNote";
 export * from "./hooks/useEditorChange";
 export * from "./hooks/useEditorContentOrSelectionChange";

@@ -8,6 +8,7 @@ import {
   uploadToTmpFilesDotOrg_DEV_ONLY,
 } from "@blocknote/core";
 import { createReactInlineContentSpec } from "../../schema/ReactInlineContentSpec";
+import { useContent } from "../../hooks/useContent";
 
 const mention = createReactInlineContentSpec(
   {
@@ -26,6 +27,16 @@ const mention = createReactInlineContentSpec(
   }
 );
 
+const Tag = () => {
+  const contentProps = useContent();
+
+  return (
+    <span>
+      #<span {...contentProps} />
+    </span>
+  );
+};
+
 const tag = createReactInlineContentSpec(
   {
     type: "tag",
@@ -33,13 +44,7 @@ const tag = createReactInlineContentSpec(
     content: "styled",
   },
   {
-    render: (props) => {
-      return (
-        <span>
-          #<span ref={props.contentRef}></span>
-        </span>
-      );
-    },
+    render: Tag,
   }
 );
 

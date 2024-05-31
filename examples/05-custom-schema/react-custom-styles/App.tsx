@@ -8,10 +8,17 @@ import {
   useActiveStyles,
   useBlockNoteEditor,
   useComponentsContext,
+  useContent,
   useCreateBlockNote,
 } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
+
+const Small = () => {
+  const contentProps = useContent();
+
+  return <small {...contentProps} />;
+};
 
 const small = createReactStyleSpec(
   {
@@ -19,11 +26,15 @@ const small = createReactStyleSpec(
     propSchema: "boolean",
   },
   {
-    render: (props) => {
-      return <small ref={props.contentRef}></small>;
-    },
+    render: Small,
   }
 );
+
+const FontSize = (props: { value: string }) => {
+  const { style, ...rest } = useContent();
+
+  return <span style={{ fontSize: props.value, ...style }} {...rest} />;
+};
 
 const fontSize = createReactStyleSpec(
   {
@@ -31,11 +42,7 @@ const fontSize = createReactStyleSpec(
     propSchema: "string",
   },
   {
-    render: (props) => {
-      return (
-        <span ref={props.contentRef} style={{ fontSize: props.value }}></span>
-      );
-    },
+    render: FontSize,
   }
 );
 

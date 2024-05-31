@@ -13,33 +13,42 @@ import { createContext, useContext } from "react";
 import { createReactBlockSpec } from "../../schema/ReactBlockSpec";
 import { ReactFileBlock } from "../../blocks/FileBlockContent/FileBlockContent";
 import { ReactImageBlock } from "../../blocks/ImageBlockContent/ImageBlockContent";
+import { useContent } from "../../hooks/useContent";
 
-const ReactCustomParagraph = createReactBlockSpec(
+const ReactCustomParagraph = () => {
+  const contentProps = useContent();
+
+  return <p className={"react-custom-paragraph"} {...contentProps} />;
+};
+
+const reactCustomParagraph = createReactBlockSpec(
   {
     type: "reactCustomParagraph",
     propSchema: defaultProps,
     content: "inline",
   },
   {
-    render: (props) => (
-      <p ref={props.contentRef} className={"react-custom-paragraph"} />
-    ),
+    render: ReactCustomParagraph,
     toExternalHTML: () => (
       <p className={"react-custom-paragraph"}>Hello World</p>
     ),
   }
 );
 
-const SimpleReactCustomParagraph = createReactBlockSpec(
+const SimpleReactCustomParagraph = () => {
+  const contentProps = useContent();
+
+  return <p className={"simple-react-custom-paragraph"} {...contentProps} />;
+};
+
+const simpleReactCustomParagraph = createReactBlockSpec(
   {
     type: "simpleReactCustomParagraph",
     propSchema: defaultProps,
     content: "inline",
   },
   {
-    render: (props) => (
-      <p ref={props.contentRef} className={"simple-react-custom-paragraph"} />
-    ),
+    render: SimpleReactCustomParagraph,
   }
 );
 
@@ -70,8 +79,8 @@ const schema = BlockNoteSchema.create({
     ...defaultBlockSpecs,
     reactFile: ReactFileBlock,
     reactImage: ReactImageBlock,
-    reactCustomParagraph: ReactCustomParagraph,
-    simpleReactCustomParagraph: SimpleReactCustomParagraph,
+    reactCustomParagraph: reactCustomParagraph,
+    simpleReactCustomParagraph: simpleReactCustomParagraph,
     reactContextParagraph: ReactContextParagraph,
   },
 });

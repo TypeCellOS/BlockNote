@@ -1,10 +1,18 @@
 import {
+  BlockConfig,
   BlockNoteSchema,
   defaultBlockSpecs,
+  DefaultInlineContentSchema,
   defaultProps,
+  DefaultStyleSchema,
 } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
-import { createReactBlockSpec, useCreateBlockNote } from "@blocknote/react";
+import {
+  createReactBlockSpec,
+  ReactCustomBlockRenderProps,
+  useContent,
+  useCreateBlockNote,
+} from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 
@@ -34,6 +42,55 @@ const alertTypes = {
   },
 };
 
+const alertBlockConfig = {
+  type: "alert",
+  propSchema: {
+    textAlignment: defaultProps.textAlignment,
+    textColor: defaultProps.textColor,
+    type: {
+      default: "warning",
+      values: ["warning", "error", "info", "success"],
+    },
+  },
+  content: "inline",
+} satisfies BlockConfig;
+
+const AlertBlock = (
+  props: ReactCustomBlockRenderProps<
+    typeof alertBlockConfig,
+    DefaultInlineContentSchema,
+    DefaultStyleSchema
+  >
+) => {
+  const contentProps = useContent();
+
+  return (
+    <div
+      className={"alert"}
+      style={{
+        backgroundColor:
+          alertTypes[props.block.props.type as keyof typeof alertTypes]
+            .backgroundColor,
+      }}>
+      <select
+        contentEditable={false}
+        value={props.block.props.type}
+        onChange={(event) => {
+          props.editor.updateBlock(props.block, {
+            type: "alert",
+            props: { type: event.target.value as keyof typeof alertTypes },
+          });
+        }}>
+        <option value="warning">{alertTypes["warning"].icon}</option>
+        <option value="error">{alertTypes["error"].icon}</option>
+        <option value="info">{alertTypes["info"].icon}</option>
+        <option value="success">{alertTypes["success"].icon}</option>
+      </select>
+      <div className={"inline-content"} {...contentProps} />
+    </div>
+  );
+};
+
 export const alertBlock = createReactBlockSpec(
   {
     type: "alert",
@@ -48,29 +105,7 @@ export const alertBlock = createReactBlockSpec(
     content: "inline",
   },
   {
-    render: (props) => (
-      <div
-        className={"alert"}
-        style={{
-          backgroundColor: alertTypes[props.block.props.type].backgroundColor,
-        }}>
-        <select
-          contentEditable={false}
-          value={props.block.props.type}
-          onChange={(event) => {
-            props.editor.updateBlock(props.block, {
-              type: "alert",
-              props: { type: event.target.value as keyof typeof alertTypes },
-            });
-          }}>
-          <option value="warning">{alertTypes["warning"].icon}</option>
-          <option value="error">{alertTypes["error"].icon}</option>
-          <option value="info">{alertTypes["info"].icon}</option>
-          <option value="success">{alertTypes["success"].icon}</option>
-        </select>
-        <div className={"inline-content"} ref={props.contentRef} />
-      </div>
-    ),
+    render: AlertBlock,
   }
 );
 
@@ -96,6 +131,20 @@ const simpleImageBlock = createReactBlockSpec(
   }
 );
 
+const BracketsParagraph = () => {
+  const contentProps = useContent();
+
+  return (
+    <div className={"brackets-paragraph"}>
+      <div contentEditable={"false"}>{"["}</div>
+      <span contentEditable={"false"}>{"{"}</span>
+      <div className={"inline-content"} {...contentProps} />
+      <span contentEditable={"false"}>{"}"}</span>
+      <div contentEditable={"false"}>{"]"}</div>
+    </div>
+  );
+};
+
 export const bracketsParagraphBlock = createReactBlockSpec(
   {
     type: "bracketsParagraph",
@@ -105,15 +154,7 @@ export const bracketsParagraphBlock = createReactBlockSpec(
     },
   },
   {
-    render: (props) => (
-      <div className={"brackets-paragraph"}>
-        <div contentEditable={"false"}>{"["}</div>
-        <span contentEditable={"false"}>{"{"}</span>
-        <div className={"inline-content"} ref={props.contentRef} />
-        <span contentEditable={"false"}>{"}"}</span>
-        <div contentEditable={"false"}>{"]"}</div>
-      </div>
-    ),
+    render: BracketsParagraph,
   }
 );
 
