@@ -61,7 +61,7 @@ export const zh: Dictionary = {
         "勾选列表",
         "复选框",
       ],
-      group: "基本块",
+      group: "基础",
     },
     paragraph: {
       title: "段落",

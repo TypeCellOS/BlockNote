@@ -33,6 +33,7 @@ it("has good typing", () => {
       suggestionMenuComponent={undefined as any}
       getItems={async () => [{ hello: "hello" }]}
       onItemClick={(item) => {
+        // eslint-disable-next-line no-console
         console.log(item.hello);
       }}
       triggerCharacter="/"
@@ -40,5 +41,6 @@ it("has good typing", () => {
   );
 
   // prevent typescript unused error
+  // eslint-disable-next-line no-console
   console.log("menu", menu);
 });

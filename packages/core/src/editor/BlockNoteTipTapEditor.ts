@@ -87,6 +87,7 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
         this.options.parseOptions
       );
     } catch (e) {
+      // eslint-disable-next-line no-console
       console.error(
         "Error creating document from blocks passed as `initialContent`. Caused by exception: ",
         e
