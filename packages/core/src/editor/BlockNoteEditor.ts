@@ -307,6 +307,7 @@ export class BlockNoteEditor<
     this.resolveFileUrl = newOptions.resolveFileUrl || (async (url) => url);
 
     if (newOptions.collaboration && newOptions.initialContent) {
+      // eslint-disable-next-line no-console
       console.warn(
         "When using Collaboration, initialContent might cause conflicts, because changes should come from the collaboration provider"
       );
@@ -777,6 +778,7 @@ export class BlockNoteEditor<
     for (const mark of marks) {
       const config = this.schema.styleSchema[mark.type.name];
       if (!config) {
+        // eslint-disable-next-line no-console
         console.warn("mark not found in styleschema", mark.type.name);
         continue;
       }
