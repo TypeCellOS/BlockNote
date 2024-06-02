@@ -33,7 +33,7 @@
     "react-github-btn": "^1.4.0",
     "react-icons": "^5.2.1",
     "y-partykit": "^0.0.25",
-    "yjs": "^13.6.1"
+    "yjs": "^13.6.15"
   },
   "devDependencies": {
     "@types/node": "^20",

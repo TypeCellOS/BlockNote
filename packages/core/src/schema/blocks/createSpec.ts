@@ -1,4 +1,4 @@
-import { ParseRule } from "@tiptap/pm/model";
+import { TagParseRule } from "@tiptap/pm/model";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import { InlineContentSchema } from "../inlineContent/types";
 import { StyleSchema } from "../styles/types";
@@ -68,7 +68,7 @@ export function getParseRules(
   config: BlockConfig,
   customParseFunction: CustomBlockImplementation<any, any, any>["parse"]
 ) {
-  const rules: ParseRule[] = [
+  const rules: TagParseRule[] = [
     {
       tag: "[data-content-type=" + config.type + "]",
       contentElement: "[data-editable]",
