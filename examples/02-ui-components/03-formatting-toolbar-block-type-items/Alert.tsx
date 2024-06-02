@@ -70,6 +70,15 @@ export const Alert = createReactBlockSpec(
       )!;
       const Icon = alertType.icon;
 
+      const transformedContent = props.block.content
+  .split('\n')
+  .map((line, index) => (
+    <React.Fragment key={index}>
+      {line}
+      <br />
+    </React.Fragment>
+  ));
+
       return (
         <div className={"alert"} data-alert-type={props.block.props.type}>
           {/*Icon which opens a menu to choose the Alert type*/}
@@ -113,6 +122,7 @@ export const Alert = createReactBlockSpec(
           </Menu>
           {/*Rich text field for user to type in*/}
           <div className={"inline-content"} ref={props.contentRef} />
+          {transformedContent}
         </div>
       );
     },
