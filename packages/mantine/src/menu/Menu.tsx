@@ -81,6 +81,8 @@ const SubMenu = forwardRef<
 
   const [opened, setOpened] = useState(false);
 
+  const itemRef = useRef<HTMLButtonElement | null>(null);
+
   const menuCloseTimer = useRef<ReturnType<typeof setTimeout> | undefined>();
 
   const mouseLeave = useCallback(() => {
@@ -107,11 +109,22 @@ const SubMenu = forwardRef<
       }}>
       <Mantine.Menu.Item
         className="bn-menu-item bn-mt-sub-menu-item"
-        ref={ref}
+        ref={(node) => {
+          itemRef.current = node;
+          if (typeof ref === "function") {
+            ref(node);
+          } else if (ref) {
+            ref.current = node;
+          }
+        }}
         onMouseOver={mouseOver}
         onMouseLeave={mouseLeave}>
         <Mantine.Menu
-          withinPortal={false}
+          portalProps={{
+            target: itemRef.current
+              ? itemRef.current.parentElement!
+              : undefined,
+          }}
           middlewares={{ flip: true, shift: true, inline: false, size: true }}
           trigger={"hover"}
           opened={opened}
