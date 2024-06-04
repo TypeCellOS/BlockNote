@@ -45,7 +45,29 @@ const TableParagraph = Node.create({
   content: "inline*",
 
   parseHTML() {
-    return [{ tag: "p" }];
+    return [
+      { tag: "td" },
+      {
+        tag: "p",
+        getAttrs: (element) => {
+          if (typeof element === "string" || !element.textContent) {
+            return false;
+          }
+
+          const parent = element.parentElement;
+
+          if (parent === null) {
+            return false;
+          }
+
+          if (parent.tagName === "TD") {
+            return {};
+          }
+
+          return false;
+        },
+      },
+    ];
   },
 
   renderHTML({ HTMLAttributes }) {
