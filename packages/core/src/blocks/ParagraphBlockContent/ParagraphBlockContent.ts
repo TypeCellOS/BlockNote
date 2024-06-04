@@ -42,7 +42,7 @@ export const ParagraphBlockContent = createStronglyTypedTiptapNode({
         tag: "p",
         priority: 200,
         getAttrs: (element) => {
-          if (typeof element === "string" || !element.textContent) {
+          if (typeof element === "string" || !element.textContent?.trim()) {
             return false;
           }
 
