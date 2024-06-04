@@ -1,4 +1,8 @@
-import * as Mantine from "@mantine/core";
+import {
+  Popover as MantinePopover,
+  PopoverTarget,
+  PopoverDropdown,
+} from "@mantine/core";
 
 import { assertEmpty } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
@@ -12,13 +16,13 @@ export const Popover = (
   assertEmpty(rest);
 
   return (
-    <Mantine.Popover
+    <MantinePopover
       withinPortal={false}
       zIndex={10000}
       opened={opened}
       position={position}>
       {children}
-    </Mantine.Popover>
+    </MantinePopover>
   );
 };
 
@@ -29,7 +33,7 @@ export const PopoverTrigger = (
 
   assertEmpty(rest);
 
-  return <Mantine.PopoverTarget>{children}</Mantine.PopoverTarget>;
+  return <PopoverTarget>{children}</PopoverTarget>;
 };
 
 export const PopoverContent = forwardRef<
@@ -46,8 +50,8 @@ export const PopoverContent = forwardRef<
   assertEmpty(rest);
 
   return (
-    <Mantine.PopoverDropdown className={className} ref={ref}>
+    <PopoverDropdown className={className} ref={ref}>
       {children}
-    </Mantine.PopoverDropdown>
+    </PopoverDropdown>
   );
 });

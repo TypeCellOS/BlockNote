@@ -1,4 +1,4 @@
-import * as Mantine from "@mantine/core";
+import { Stack, Text, Tooltip, Button, ActionIcon } from "@mantine/core";
 
 import { assertEmpty, isSafari } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
@@ -8,12 +8,12 @@ export const TooltipContent = (props: {
   mainTooltip: string;
   secondaryTooltip?: string;
 }) => (
-  <Mantine.Stack gap={0} className={"bn-tooltip"}>
-    <Mantine.Text size={"sm"}>{props.mainTooltip}</Mantine.Text>
+  <Stack gap={0} className={"bn-tooltip"}>
+    <Text size={"sm"}>{props.mainTooltip}</Text>
     {props.secondaryTooltip && (
-      <Mantine.Text size={"xs"}>{props.secondaryTooltip}</Mantine.Text>
+      <Text size={"xs"}>{props.secondaryTooltip}</Text>
     )}
-  </Mantine.Stack>
+  </Stack>
 );
 
 type ToolbarButtonProps = ComponentProps["FormattingToolbar"]["Button"] &
@@ -42,7 +42,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
     assertEmpty(rest, false);
 
     return (
-      <Mantine.Tooltip
+      <Tooltip
         withinPortal={false}
         label={
           <TooltipContent
@@ -52,7 +52,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
         }>
         {/*Creates an ActionIcon instead of a Button if only an icon is provided as content.*/}
         {children ? (
-          <Mantine.Button
+          <Button
             aria-label={label}
             className={className}
             // Needed as Safari doesn't focus button elements on mouse down
@@ -74,9 +74,9 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
             ref={ref}
             {...rest}>
             {children}
-          </Mantine.Button>
+          </Button>
         ) : (
-          <Mantine.ActionIcon
+          <ActionIcon
             className={className}
             aria-label={label}
             // Needed as Safari doesn't focus button elements on mouse down
@@ -98,9 +98,9 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
             ref={ref}
             {...rest}>
             {icon}
-          </Mantine.ActionIcon>
+          </ActionIcon>
         )}
-      </Mantine.Tooltip>
+      </Tooltip>
     );
   }
 );

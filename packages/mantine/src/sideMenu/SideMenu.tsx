@@ -1,4 +1,4 @@
-import * as Mantine from "@mantine/core";
+import { Group } from "@mantine/core";
 
 import { assertEmpty } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
@@ -13,8 +13,8 @@ export const SideMenu = forwardRef<
   assertEmpty(rest);
 
   return (
-    <Mantine.Group align={"center"} gap={0} className={className} ref={ref}>
+    <Group align={"center"} gap={0} className={className} ref={ref}>
       {children}
-    </Mantine.Group>
+    </Group>
   );
 });
