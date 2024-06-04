@@ -525,6 +525,13 @@ export class SideMenuView<
     }
   };
 
+  // Needed in cases where the editor state updates without the mouse cursor
+  // moving, as some state updates can require a side menu update. For example,
+  // adding a button to the side menu which removes the block can cause the
+  // block below to jump up into the place of the removed block when clicked,
+  // allowing the user to click the button again without moving the cursor. This
+  // would otherwise not update the side menu, and so clicking the button again
+  // would attempt to remove the same block again, causing an error.
   update() {
     const prevBlockId = this.state?.block.id;
 
