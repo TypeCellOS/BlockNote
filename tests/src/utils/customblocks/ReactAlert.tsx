@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { BlockNoteEditor, defaultProps } from "@blocknote/core";
 import { createReactBlockSpec } from "@blocknote/react";
 import { useEffect, useState } from "react";

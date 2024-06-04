@@ -759,7 +759,7 @@
           ],
           "dependencies": {
             "y-partykit": "^0.0.25",
-            "yjs": "^13.6.1"
+            "yjs": "^13.6.15"
           }
         },
         "title": "Collaborative Editing with PartyKit",
@@ -785,7 +785,7 @@
             "@liveblocks/client": "^1.10.0",
             "@liveblocks/react": "^1.10.0",
             "@liveblocks/yjs": "^1.10.0",
-            "yjs": "^13.6.1"
+            "yjs": "^13.6.15"
           }
         },
         "title": "Collaborative Editing with Liveblocks",

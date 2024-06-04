@@ -80,8 +80,8 @@ export const FormattingToolbarController = (props: {
     {
       placement,
       middleware: [offset(10), flip()],
-      onOpenChange: (open, event) => {
-        console.log("change", event);
+      onOpenChange: (open, _event) => {
+        // console.log("change", event);
         if (!open) {
           editor.formattingToolbar.closeMenu();
           editor.focus();

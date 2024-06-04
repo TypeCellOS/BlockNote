@@ -28,6 +28,7 @@ export function renderToDOMSpec(
 
   if (!div.childElementCount) {
     // TODO
+    // eslint-disable-next-line no-console
     console.warn("ReactInlineContentSpec: renderHTML() failed");
     return {
       dom: document.createElement("span"),

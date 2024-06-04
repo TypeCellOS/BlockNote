@@ -26,6 +26,7 @@ module.exports = {
   },
   ignorePatterns: ["**/ui/*"],
   rules: {
+    "no-console": "error",
     curly: 1,
     "import/no-extraneous-dependencies": [
       "error",
