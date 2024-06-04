@@ -777,6 +777,10 @@ export class BlockNoteEditor<
     for (const mark of marks) {
       const config = this.schema.styleSchema[mark.type.name];
       if (!config) {
+        if (mark.type.name !== "link") {
+          console.warn("mark not found in styleschema", mark.type.name);
+        }
+
         continue;
       }
       if (config.propSchema === "boolean") {
