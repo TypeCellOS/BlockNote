@@ -59,7 +59,7 @@ export default function App() {
       },
       {
         type: "alert",
-        content: "This is an example alert",
+        content: "This is an example /n alert",
       },
       {
         type: "paragraph",
