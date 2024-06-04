@@ -533,8 +533,6 @@ export class SideMenuView<
       this.emitUpdate(this.state);
     }
 
-    this.menuFrozen = true;
-
     const blockContent = this.hoveredBlock!.firstChild! as HTMLElement;
     const blockContentBoundingBox = blockContent.getBoundingClientRect();
 
