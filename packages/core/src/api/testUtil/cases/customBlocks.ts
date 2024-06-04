@@ -196,6 +196,10 @@ export const customBlocksTestCases: EditorTestCases<
           type: "customParagraph",
           content: "Custom Paragraph",
         },
+        {
+          type: "customParagraph",
+          content: "Custom Paragraph with \nmultiple lines",
+        },
       ],
     },
     {
