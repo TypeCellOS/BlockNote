@@ -2,7 +2,7 @@ import { Editor } from "@tiptap/core";
 import { getBlockInfoFromPos } from "../../api/getBlockInfoFromPos";
 
 export const handleEnter = (editor: Editor) => {
-  const { node, contentType } = getBlockInfoFromPos(
+  const { contentNode, contentType } = getBlockInfoFromPos(
     editor.state.doc,
     editor.state.selection.from
   )!;
@@ -25,7 +25,7 @@ export const handleEnter = (editor: Editor) => {
     () =>
       // Changes list item block to a paragraph block if the content is empty.
       commands.command(() => {
-        if (node.firstChild!.nodeSize === 2) {
+        if (contentNode.childCount === 0) {
           return commands.BNUpdateBlock(state.selection.from, {
             type: "paragraph",
             props: {},
@@ -39,7 +39,7 @@ export const handleEnter = (editor: Editor) => {
       // Splits the current block, moving content inside that's after the cursor
       // to a new block of the same type below.
       commands.command(() => {
-        if (node.firstChild!.nodeSize > 2) {
+        if (contentNode.childCount > 0) {
           chain()
             .deleteSelection()
             .BNSplitBlock(state.selection.from, true)
