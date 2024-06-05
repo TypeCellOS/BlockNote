@@ -110,6 +110,11 @@ export class FormattingToolbarView implements PluginView {
 
     // Checks if menu should be shown/updated.
     if (!this.preventShow && (shouldShow || this.preventHide)) {
+      // Unlike other UI elements, we don't prevent the formatting toolbar from
+      // showing when the editor is not editable. This is because some buttons,
+      // e.g. the download file button, should still be accessible. Therefore,
+      // logic for hiding when the editor is non-editable is handled
+      // individually in each button.
       this.state = {
         show: true,
         referencePos: this.getSelectionBoundingBox(),
