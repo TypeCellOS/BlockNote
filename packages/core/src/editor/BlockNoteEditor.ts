@@ -778,8 +778,11 @@ export class BlockNoteEditor<
     for (const mark of marks) {
       const config = this.schema.styleSchema[mark.type.name];
       if (!config) {
-        // eslint-disable-next-line no-console
-        console.warn("mark not found in styleschema", mark.type.name);
+        if (mark.type.name !== "link") {
+          // eslint-disable-next-line no-console
+          console.warn("mark not found in styleschema", mark.type.name);
+        }
+
         continue;
       }
       if (config.propSchema === "boolean") {
