@@ -210,3 +210,31 @@
 [data-background-color="pink"] {
   background-color: var(--bn-colors-highlights-pink-background);
 }
+
+.bn-side-menu[data-block-height="default"] {
+  height: 30px;
+}
+
+.bn-side-menu[data-block-height="h1"] {
+  height: 78px;
+}
+
+.bn-side-menu[data-block-height="h2"] {
+  height: 54px;
+}
+
+.bn-side-menu[data-block-height="h3"] {
+  height: 37px;
+}
+
+.bn-side-menu[data-block-height="add-file-button"] {
+  height: 54px;
+}
+
+.bn-side-menu[data-block-height="file"] {
+  height: 38px;
+}
+
+.bn-side-menu[data-block-height="audio"] {
+  height: 60px;
+}

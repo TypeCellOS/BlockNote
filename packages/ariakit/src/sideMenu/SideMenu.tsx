@@ -10,10 +10,10 @@ export const SideMenu = forwardRef<
 >((props, ref) => {
   const { className, children, ...rest } = props;
 
-  assertEmpty(rest);
+  assertEmpty(rest, false);
 
   return (
-    <Ariakit.Group className={className} ref={ref}>
+    <Ariakit.Group className={className} ref={ref} {...rest}>
       {children}
     </Ariakit.Group>
   );

@@ -6,7 +6,7 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { ReactNode } from "react";
+import { ReactNode, useMemo } from "react";
 
 import { AddBlockButton } from "./DefaultButtons/AddBlockButton";
 import { DragHandleButton } from "./DefaultButtons/DragHandleButton";
@@ -33,8 +33,32 @@ export const SideMenu = <
 
   const { addBlock, ...rest } = props;
 
+  const blockHeight = useMemo(() => {
+    if (props.block.type === "heading") {
+      return `h${props.block.props.level}`;
+    }
+
+    if (props.editor.schema.blockSchema[props.block.type].isFileBlock) {
+      if (!props.block.props.url) {
+        return "add-file-button";
+      }
+
+      if (props.block.type === "file") {
+        return "file";
+      }
+
+      if (props.block.type === "audio") {
+        return "audio";
+      }
+    }
+
+    return "default";
+  }, [props.block, props.editor.schema.blockSchema]);
+
   return (
-    <Components.SideMenu.Root className={"bn-side-menu"}>
+    <Components.SideMenu.Root
+      className={"bn-side-menu"}
+      data-block-height={blockHeight}>
       {props.children || (
         <>
           <AddBlockButton addBlock={addBlock} />
