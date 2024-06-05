@@ -348,6 +348,10 @@ export class SideMenuView<
 
     this.hoveredBlock = block.node;
 
+    if (!this.hoveredBlock?.hasAttribute("data-id")) {
+      return
+    }
+
     // Gets the block's content node, which lets to ignore child blocks when determining the block menu's position.
     const blockContent = block.node.firstChild as HTMLElement;
 
