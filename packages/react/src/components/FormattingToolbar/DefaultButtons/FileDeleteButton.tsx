@@ -45,7 +45,11 @@ export const FileDeleteButton = () => {
     editor.removeBlocks([fileBlock!]);
   }, [editor, fileBlock]);
 
-  if (!fileBlock || checkBlockIsFileBlockWithPlaceholder(fileBlock, editor)) {
+  if (
+    !fileBlock ||
+    checkBlockIsFileBlockWithPlaceholder(fileBlock, editor) ||
+    !editor.isEditable
+  ) {
     return null;
   }
 

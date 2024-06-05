@@ -131,7 +131,7 @@ export const ColorStyleButton = () => {
     return false;
   }, [backgroundColorInSchema, selectedBlocks, textColorInSchema]);
 
-  if (!show) {
+  if (!show || !editor.isEditable) {
     return null;
   }
 

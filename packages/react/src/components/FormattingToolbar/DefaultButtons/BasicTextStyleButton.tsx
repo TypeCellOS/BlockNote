@@ -101,7 +101,7 @@ export const BasicTextStyleButton = <Style extends BasicTextStyle>(props: {
     return !!selectedBlocks.find((block) => block.content !== undefined);
   }, [basicTextStyleInSchema, selectedBlocks]);
 
-  if (!show) {
+  if (!show || !editor.isEditable) {
     return null;
   }
 
