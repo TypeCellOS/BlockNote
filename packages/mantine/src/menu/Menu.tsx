@@ -1,4 +1,5 @@
 import * as Mantine from "@mantine/core";
+import { mergeRefs } from "@mantine/hooks";
 
 import { assertEmpty } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
@@ -109,14 +110,7 @@ const SubMenu = forwardRef<
       }}>
       <Mantine.Menu.Item
         className="bn-menu-item bn-mt-sub-menu-item"
-        ref={(node) => {
-          itemRef.current = node;
-          if (typeof ref === "function") {
-            ref(node);
-          } else if (ref) {
-            ref.current = node;
-          }
-        }}
+        ref={mergeRefs(ref, itemRef)}
         onMouseOver={mouseOver}
         onMouseLeave={mouseLeave}>
         <Mantine.Menu
