@@ -4,7 +4,6 @@ import {
 } from "../../schema";
 import { createDefaultBlockDOMOutputSpec } from "../defaultBlockHelpers";
 import { defaultProps } from "../defaultProps";
-import { handleEnter } from "../ListItemBlockContent/ListItemKeyboardShortcuts";
 import { getCurrentBlockContentType } from "../../api/getCurrentBlockContentType";
 
 export const paragraphPropSchema = {
@@ -18,7 +17,6 @@ export const ParagraphBlockContent = createStronglyTypedTiptapNode({
 
   addKeyboardShortcuts() {
     return {
-      Enter: () => handleEnter(this.editor),
       "Mod-Alt-0": () => {
         if (getCurrentBlockContentType(this.editor) !== "inline*") {
           return true;

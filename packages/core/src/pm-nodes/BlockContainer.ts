@@ -611,7 +611,7 @@ export const BlockContainer = Node.create<{
         // of the block.
         () =>
           commands.command(({ state }) => {
-            const { node, depth } = getBlockInfoFromPos(
+            const { contentNode, depth } = getBlockInfoFromPos(
               state.doc,
               state.selection.from
             )!;
@@ -620,7 +620,7 @@ export const BlockContainer = Node.create<{
               state.selection.$anchor.parentOffset === 0;
             const selectionEmpty =
               state.selection.anchor === state.selection.head;
-            const blockEmpty = node.textContent.length === 0;
+            const blockEmpty = contentNode.childCount === 0;
             const blockIndented = depth > 2;
 
             if (
@@ -638,7 +638,7 @@ export const BlockContainer = Node.create<{
         // empty & at the start of the block.
         () =>
           commands.command(({ state, chain }) => {
-            const { node, endPos } = getBlockInfoFromPos(
+            const { contentNode, endPos } = getBlockInfoFromPos(
               state.doc,
               state.selection.from
             )!;
@@ -647,7 +647,7 @@ export const BlockContainer = Node.create<{
               state.selection.$anchor.parentOffset === 0;
             const selectionEmpty =
               state.selection.anchor === state.selection.head;
-            const blockEmpty = node.textContent.length === 0;
+            const blockEmpty = contentNode.childCount === 0;
 
             if (selectionAtBlockStart && selectionEmpty && blockEmpty) {
               const newBlockInsertionPos = endPos + 1;
@@ -667,14 +667,14 @@ export const BlockContainer = Node.create<{
         // deletes the selection beforehand, if it's not empty.
         () =>
           commands.command(({ state, chain }) => {
-            const { node } = getBlockInfoFromPos(
+            const { contentNode } = getBlockInfoFromPos(
               state.doc,
               state.selection.from
             )!;
 
             const selectionAtBlockStart =
               state.selection.$anchor.parentOffset === 0;
-            const blockEmpty = node.textContent.length === 0;
+            const blockEmpty = contentNode.childCount === 0;
 
             if (!blockEmpty) {
               chain()
