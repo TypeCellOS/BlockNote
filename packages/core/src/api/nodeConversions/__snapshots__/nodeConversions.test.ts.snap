@@ -1,5 +1,529 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`Test BlockNote-Prosemirror conversion > Case: custom blocks schema > Convert customBlock/basic to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "content": [
+        {
+          "text": "Custom customBlock",
+          "type": "text",
+        },
+      ],
+      "type": "customBlock",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test BlockNote-Prosemirror conversion > Case: custom blocks schema > Convert customParagraph/basic to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "textAlignment": "left",
+      },
+      "content": [
+        {
+          "text": "Custom Paragraph",
+          "type": "text",
+        },
+      ],
+      "type": "customParagraph",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test BlockNote-Prosemirror conversion > Case: custom blocks schema > Convert customParagraph/nested to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "textAlignment": "left",
+      },
+      "content": [
+        {
+          "text": "Custom Paragraph",
+          "type": "text",
+        },
+      ],
+      "type": "customParagraph",
+    },
+    {
+      "content": [
+        {
+          "attrs": {
+            "backgroundColor": "default",
+            "id": "2",
+            "textColor": "default",
+          },
+          "content": [
+            {
+              "attrs": {
+                "textAlignment": "left",
+              },
+              "content": [
+                {
+                  "text": "Nested Custom Paragraph 1",
+                  "type": "text",
+                },
+              ],
+              "type": "customParagraph",
+            },
+          ],
+          "type": "blockContainer",
+        },
+        {
+          "attrs": {
+            "backgroundColor": "default",
+            "id": "3",
+            "textColor": "default",
+          },
+          "content": [
+            {
+              "attrs": {
+                "textAlignment": "left",
+              },
+              "content": [
+                {
+                  "text": "Nested Custom Paragraph 2",
+                  "type": "text",
+                },
+              ],
+              "type": "customParagraph",
+            },
+          ],
+          "type": "blockContainer",
+        },
+      ],
+      "type": "blockGroup",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test BlockNote-Prosemirror conversion > Case: custom blocks schema > Convert customParagraph/styled to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "pink",
+    "id": "1",
+    "textColor": "orange",
+  },
+  "content": [
+    {
+      "attrs": {
+        "textAlignment": "center",
+      },
+      "content": [
+        {
+          "text": "Plain ",
+          "type": "text",
+        },
+        {
+          "marks": [
+            {
+              "attrs": {
+                "stringValue": "red",
+              },
+              "type": "textColor",
+            },
+          ],
+          "text": "Red Text ",
+          "type": "text",
+        },
+        {
+          "marks": [
+            {
+              "attrs": {
+                "stringValue": "blue",
+              },
+              "type": "backgroundColor",
+            },
+          ],
+          "text": "Blue Background ",
+          "type": "text",
+        },
+        {
+          "marks": [
+            {
+              "attrs": {
+                "stringValue": "red",
+              },
+              "type": "textColor",
+            },
+            {
+              "attrs": {
+                "stringValue": "blue",
+              },
+              "type": "backgroundColor",
+            },
+          ],
+          "text": "Mixed Colors",
+          "type": "text",
+        },
+      ],
+      "type": "customParagraph",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test BlockNote-Prosemirror conversion > Case: custom blocks schema > Convert simpleCustomParagraph/basic to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "textAlignment": "left",
+      },
+      "content": [
+        {
+          "text": "Custom Paragraph",
+          "type": "text",
+        },
+      ],
+      "type": "simpleCustomParagraph",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test BlockNote-Prosemirror conversion > Case: custom blocks schema > Convert simpleCustomParagraph/nested to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "textAlignment": "left",
+      },
+      "content": [
+        {
+          "text": "Custom Paragraph",
+          "type": "text",
+        },
+      ],
+      "type": "simpleCustomParagraph",
+    },
+    {
+      "content": [
+        {
+          "attrs": {
+            "backgroundColor": "default",
+            "id": "2",
+            "textColor": "default",
+          },
+          "content": [
+            {
+              "attrs": {
+                "textAlignment": "left",
+              },
+              "content": [
+                {
+                  "text": "Nested Custom Paragraph 1",
+                  "type": "text",
+                },
+              ],
+              "type": "simpleCustomParagraph",
+            },
+          ],
+          "type": "blockContainer",
+        },
+        {
+          "attrs": {
+            "backgroundColor": "default",
+            "id": "3",
+            "textColor": "default",
+          },
+          "content": [
+            {
+              "attrs": {
+                "textAlignment": "left",
+              },
+              "content": [
+                {
+                  "text": "Nested Custom Paragraph 2",
+                  "type": "text",
+                },
+              ],
+              "type": "simpleCustomParagraph",
+            },
+          ],
+          "type": "blockContainer",
+        },
+      ],
+      "type": "blockGroup",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test BlockNote-Prosemirror conversion > Case: custom blocks schema > Convert simpleCustomParagraph/styled to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "pink",
+    "id": "1",
+    "textColor": "orange",
+  },
+  "content": [
+    {
+      "attrs": {
+        "textAlignment": "center",
+      },
+      "content": [
+        {
+          "text": "Plain ",
+          "type": "text",
+        },
+        {
+          "marks": [
+            {
+              "attrs": {
+                "stringValue": "red",
+              },
+              "type": "textColor",
+            },
+          ],
+          "text": "Red Text ",
+          "type": "text",
+        },
+        {
+          "marks": [
+            {
+              "attrs": {
+                "stringValue": "blue",
+              },
+              "type": "backgroundColor",
+            },
+          ],
+          "text": "Blue Background ",
+          "type": "text",
+        },
+        {
+          "marks": [
+            {
+              "attrs": {
+                "stringValue": "red",
+              },
+              "type": "textColor",
+            },
+            {
+              "attrs": {
+                "stringValue": "blue",
+              },
+              "type": "backgroundColor",
+            },
+          ],
+          "text": "Mixed Colors",
+          "type": "text",
+        },
+      ],
+      "type": "simpleCustomParagraph",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test BlockNote-Prosemirror conversion > Case: custom blocks schema > Convert simpleImage/basic to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "caption": "Caption",
+        "name": "example",
+        "previewWidth": 256,
+        "showPreview": true,
+        "textAlignment": "left",
+        "url": "exampleURL",
+      },
+      "type": "simpleImage",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test BlockNote-Prosemirror conversion > Case: custom blocks schema > Convert simpleImage/button to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "caption": "",
+        "name": "",
+        "previewWidth": 512,
+        "showPreview": true,
+        "textAlignment": "left",
+        "url": "",
+      },
+      "type": "simpleImage",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test BlockNote-Prosemirror conversion > Case: custom blocks schema > Convert simpleImage/nested to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "caption": "Caption",
+        "name": "example",
+        "previewWidth": 256,
+        "showPreview": true,
+        "textAlignment": "left",
+        "url": "exampleURL",
+      },
+      "type": "simpleImage",
+    },
+    {
+      "content": [
+        {
+          "attrs": {
+            "backgroundColor": "default",
+            "id": "2",
+            "textColor": "default",
+          },
+          "content": [
+            {
+              "attrs": {
+                "caption": "Caption",
+                "name": "example",
+                "previewWidth": 256,
+                "showPreview": true,
+                "textAlignment": "left",
+                "url": "exampleURL",
+              },
+              "type": "simpleImage",
+            },
+          ],
+          "type": "blockContainer",
+        },
+      ],
+      "type": "blockGroup",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test BlockNote-Prosemirror conversion > Case: custom blocks schema > Convert simpleImage/noCaption to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "caption": "",
+        "name": "example",
+        "previewWidth": 256,
+        "showPreview": true,
+        "textAlignment": "left",
+        "url": "exampleURL",
+      },
+      "type": "simpleImage",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test BlockNote-Prosemirror conversion > Case: custom blocks schema > Convert simpleImage/noName to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "caption": "Caption",
+        "name": "",
+        "previewWidth": 256,
+        "showPreview": true,
+        "textAlignment": "left",
+        "url": "exampleURL",
+      },
+      "type": "simpleImage",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test BlockNote-Prosemirror conversion > Case: custom blocks schema > Convert simpleImage/noPreview to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "caption": "Caption",
+        "name": "example",
+        "previewWidth": 256,
+        "showPreview": false,
+        "textAlignment": "left",
+        "url": "exampleURL",
+      },
+      "type": "simpleImage",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
 exports[`Test BlockNote-Prosemirror conversion > Case: custom inline content schema > Convert mention/basic to/from prosemirror 1`] = `
 {
   "attrs": {
