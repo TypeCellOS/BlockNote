@@ -194,6 +194,25 @@
         }
       },
       {
+        "projectSlug": "file-uploading-uppy",
+        "fullSlug": "basic/file-uploading-uppy",
+        "pathFromRoot": "examples/01-basic/11-file-uploading-uppy",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "ezhil56x",
+          "tags": [
+            "Intermediate",
+            "Saving/Loading"
+          ]
+        },
+        "title": "Uploading Files with Uppy",
+        "group": {
+          "pathFromRoot": "examples/01-basic",
+          "slug": "basic"
+        }
+      },
+      {
         "projectSlug": "testing",
         "fullSlug": "basic/testing",
         "pathFromRoot": "examples/01-basic/testing",

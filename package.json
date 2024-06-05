@@ -33,5 +33,10 @@
     "prepublishOnly": "npm run build && cp README.md packages/core/README.md && cp README.md packages/react/README.md",
     "postpublish": "rm -rf packages/core/README.md && rm -rf packages/react/README.md",
     "clean": "lerna run --stream clean"
+  },
+  "dependencies": {
+    "@uppy/core": "^3.12.0",
+    "@uppy/dashboard": "^3.8.3",
+    "@uppy/react": "^3.3.1"
   }
 }
