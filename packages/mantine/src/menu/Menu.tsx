@@ -1,4 +1,5 @@
 import * as Mantine from "@mantine/core";
+import { mergeRefs } from "@mantine/hooks";
 
 import { assertEmpty } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
@@ -81,6 +82,8 @@ const SubMenu = forwardRef<
 
   const [opened, setOpened] = useState(false);
 
+  const itemRef = useRef<HTMLButtonElement | null>(null);
+
   const menuCloseTimer = useRef<ReturnType<typeof setTimeout> | undefined>();
 
   const mouseLeave = useCallback(() => {
@@ -107,11 +110,15 @@ const SubMenu = forwardRef<
       }}>
       <Mantine.Menu.Item
         className="bn-menu-item bn-mt-sub-menu-item"
-        ref={ref}
+        ref={mergeRefs(ref, itemRef)}
         onMouseOver={mouseOver}
         onMouseLeave={mouseLeave}>
         <Mantine.Menu
-          withinPortal={false}
+          portalProps={{
+            target: itemRef.current
+              ? itemRef.current.parentElement!
+              : undefined,
+          }}
           middlewares={{ flip: true, shift: true, inline: false, size: true }}
           trigger={"hover"}
           opened={opened}
