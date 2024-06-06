@@ -8,10 +8,10 @@ export const SideMenu = forwardRef<
 >((props, ref) => {
   const { className, children, ...rest } = props;
 
-  assertEmpty(rest);
+  assertEmpty(rest, false);
 
   return (
-    <div className={className} ref={ref}>
+    <div className={className} ref={ref} {...rest}>
       {children}
     </div>
   );

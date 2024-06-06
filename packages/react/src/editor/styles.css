@@ -210,3 +210,32 @@
 [data-background-color="pink"] {
   background-color: var(--bn-colors-highlights-pink-background);
 }
+
+/* Matching Side Menu height to block line height */
+.bn-side-menu {
+  height: 30px;
+}
+
+.bn-side-menu[data-block-type="heading"][data-level="1"] {
+  height: 78px;
+}
+
+.bn-side-menu[data-block-type="heading"][data-level="2"] {
+  height: 54px;
+}
+
+.bn-side-menu[data-block-type="heading"][data-level="3"] {
+  height: 37px;
+}
+
+.bn-side-menu[data-block-type="file"] {
+  height: 38px;
+}
+
+.bn-side-menu[data-block-type="audio"] {
+  height: 60px;
+}
+
+.bn-side-menu[data-url="false"] {
+  height: 54px;
+}

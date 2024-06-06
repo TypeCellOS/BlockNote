@@ -160,7 +160,11 @@ export const BlockNoteView = <
       {/* as proposed here:  https://github.com/orgs/mantinedev/discussions/5685 */}
       <MantineProvider
         theme={mantineTheme}
-        cssVariablesSelector=".bn-container">
+        cssVariablesSelector=".bn-container"
+        // This gets the element to set `data-mantine-color-scheme` on. Since we
+        // don't need this attribute (we use our own theming API), we return
+        // undefined here.
+        getRootElement={() => undefined}>
         <BlockNoteViewRaw
           theme={typeof theme === "object" ? undefined : theme}
           {...rest}

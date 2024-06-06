@@ -49,6 +49,7 @@ export const MenuDropdown = forwardRef<
 
   return (
     <AriakitMenu
+      unmountOnHide={true}
       className={mergeCSSClasses("bn-ak-menu", className || "")}
       ref={ref}>
       {children}

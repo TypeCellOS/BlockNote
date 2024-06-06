@@ -12,11 +12,15 @@ export const PlaceholderPlugin = (
     key: PLUGIN_KEY,
     view: () => {
       const styleEl = document.createElement("style");
+      const nonce = editor._tiptapEditor.options.injectNonce;
+      if (nonce) {
+        styleEl.setAttribute("nonce", nonce);
+      }
       document.head.appendChild(styleEl);
       const styleSheet = styleEl.sheet!;
 
       const getBaseSelector = (additionalSelectors = "") =>
-        `.bn-block-content${additionalSelectors} .bn-inline-content:has(> .ProseMirror-trailingBreak):before`;
+        `.bn-block-content${additionalSelectors} .bn-inline-content:has(> .ProseMirror-trailingBreak:only-child):before`;
 
       const getSelector = (
         blockType: string | "default",

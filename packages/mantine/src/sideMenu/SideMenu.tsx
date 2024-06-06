@@ -10,10 +10,15 @@ export const SideMenu = forwardRef<
 >((props, ref) => {
   const { className, children, ...rest } = props;
 
-  assertEmpty(rest);
+  assertEmpty(rest, false);
 
   return (
-    <MantineGroup align={"center"} gap={0} className={className} ref={ref}>
+    <MantineGroup
+      align={"center"}
+      gap={0}
+      className={className}
+      ref={ref}
+      {...rest}>
       {children}
     </MantineGroup>
   );

@@ -12,8 +12,8 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
     "@blocknote/ariakit": "^0.13.4",
