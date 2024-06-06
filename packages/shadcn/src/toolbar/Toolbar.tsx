@@ -1,9 +1,9 @@
+import { assertEmpty } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
 
-import { assertEmpty } from "@blocknote/core";
-import { useShadCNComponentsContext } from "../ShadCNComponentsContext";
 import { cn } from "../lib/utils";
+import { useShadCNComponentsContext } from "../ShadCNComponentsContext";
 
 type ToolbarProps = ComponentProps["FormattingToolbar"]["Root"] &
   ComponentProps["LinkToolbar"]["Root"];

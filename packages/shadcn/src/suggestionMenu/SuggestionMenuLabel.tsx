@@ -1,6 +1,7 @@
 import { assertEmpty } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
+
 import { cn } from "../lib/utils";
 
 export const SuggestionMenuLabel = forwardRef<

@@ -1,4 +1,9 @@
-import * as Mantine from "@mantine/core";
+import {
+  Badge as MantineBadge,
+  Group as MantineGroup,
+  Stack as MantineStack,
+  Text as MantineText,
+} from "@mantine/core";
 
 import { assertEmpty } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
@@ -13,7 +18,7 @@ export const SuggestionMenuItem = forwardRef<
   assertEmpty(rest);
 
   return (
-    <Mantine.Group
+    <MantineGroup
       gap={0}
       className={className}
       ref={ref}
@@ -22,27 +27,27 @@ export const SuggestionMenuItem = forwardRef<
       onClick={onClick}
       aria-selected={isSelected || undefined}>
       {item.icon && (
-        <Mantine.Group
+        <MantineGroup
           className="bn-mt-suggestion-menu-item-section"
           data-position="left">
           {item.icon}
-        </Mantine.Group>
+        </MantineGroup>
       )}
-      <Mantine.Stack gap={0} className="bn-mt-suggestion-menu-item-body">
-        <Mantine.Text className="bn-mt-suggestion-menu-item-title">
+      <MantineStack gap={0} className="bn-mt-suggestion-menu-item-body">
+        <MantineText className="bn-mt-suggestion-menu-item-title">
           {item.title}
-        </Mantine.Text>
-        <Mantine.Text className="bn-mt-suggestion-menu-item-subtitle">
+        </MantineText>
+        <MantineText className="bn-mt-suggestion-menu-item-subtitle">
           {item.subtext}
-        </Mantine.Text>
-      </Mantine.Stack>
+        </MantineText>
+      </MantineStack>
       {item.badge && (
-        <Mantine.Group
+        <MantineGroup
           data-position="right"
           className="bn-mt-suggestion-menu-item-section">
-          <Mantine.Badge size={"xs"}>{item.badge}</Mantine.Badge>
-        </Mantine.Group>
+          <MantineBadge size={"xs"}>{item.badge}</MantineBadge>
+        </MantineGroup>
       )}
-    </Mantine.Group>
+    </MantineGroup>
   );
 });

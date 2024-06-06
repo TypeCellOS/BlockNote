@@ -1,4 +1,13 @@
-import * as Ariakit from "@ariakit/react";
+import {
+  CheckboxCheck as AriakitCheckboxCheck,
+  Menu as AriakitMenu,
+  MenuButton as AriakitMenuButton,
+  MenuButtonArrow as AriakitMenuButtonArrow,
+  MenuGroupLabel as AriakitMenuGroupLabel,
+  MenuItem as AriakitMenuItem,
+  MenuProvider as AriakitMenuProvider,
+  MenuSeparator as AriakitMenuSeparator,
+} from "@ariakit/react";
 
 import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
@@ -16,12 +25,12 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
   assertEmpty(rest);
 
   return (
-    <Ariakit.MenuProvider
+    <AriakitMenuProvider
       placement={position}
       setOpen={onOpenChange}
       virtualFocus={true}>
       {children}
-    </Ariakit.MenuProvider>
+    </AriakitMenuProvider>
   );
 };
 
@@ -39,12 +48,12 @@ export const MenuDropdown = forwardRef<
   assertEmpty(rest);
 
   return (
-    <Ariakit.Menu
+    <AriakitMenu
       unmountOnHide={true}
       className={mergeCSSClasses("bn-ak-menu", className || "")}
       ref={ref}>
       {children}
-    </Ariakit.Menu>
+    </AriakitMenu>
   );
 });
 
@@ -59,27 +68,27 @@ export const MenuItem = forwardRef<
 
   if (subTrigger) {
     return (
-      <Ariakit.MenuButton
-        render={<Ariakit.MenuItem />}
+      <AriakitMenuButton
+        render={<AriakitMenuItem />}
         className={mergeCSSClasses("bn-ak-menu-item", className || "")}
         ref={ref}
         onClick={onClick}>
         {icon}
         {children}
-        <Ariakit.MenuButtonArrow />
-        {checked !== undefined && <Ariakit.CheckboxCheck checked={checked} />}
-      </Ariakit.MenuButton>
+        <AriakitMenuButtonArrow />
+        {checked !== undefined && <AriakitCheckboxCheck checked={checked} />}
+      </AriakitMenuButton>
     );
   }
   return (
-    <Ariakit.MenuItem
+    <AriakitMenuItem
       className={mergeCSSClasses("bn-ak-menu-item", className || "")}
       ref={ref}
       onClick={onClick}>
       {icon}
       {children}
-      {checked !== undefined && <Ariakit.CheckboxCheck checked={checked} />}
-    </Ariakit.MenuItem>
+      {checked !== undefined && <AriakitCheckboxCheck checked={checked} />}
+    </AriakitMenuItem>
   );
 });
 
@@ -92,11 +101,11 @@ export const MenuLabel = forwardRef<
   assertEmpty(rest);
 
   return (
-    <Ariakit.MenuGroupLabel
+    <AriakitMenuGroupLabel
       className={mergeCSSClasses("bn-ak-group-label", className || "")}
       ref={ref}>
       {children}
-    </Ariakit.MenuGroupLabel>
+    </AriakitMenuGroupLabel>
   );
 });
 
@@ -111,7 +120,7 @@ export const MenuTrigger = (
     return children;
   }
 
-  return <Ariakit.MenuButton render={children as any}></Ariakit.MenuButton>;
+  return <AriakitMenuButton render={children as any}></AriakitMenuButton>;
 };
 
 export const MenuDivider = forwardRef<
@@ -123,7 +132,7 @@ export const MenuDivider = forwardRef<
   assertEmpty(rest);
 
   return (
-    <Ariakit.MenuSeparator
+    <AriakitMenuSeparator
       className={mergeCSSClasses("bn-ak-separator", className || "")}
       ref={ref}
     />

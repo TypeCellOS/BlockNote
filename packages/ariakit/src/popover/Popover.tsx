@@ -1,4 +1,8 @@
-import * as Ariakit from "@ariakit/react";
+import {
+  Popover as AriakitPopover,
+  PopoverDisclosure as AriakitPopoverDisclosure,
+  PopoverProvider as AriakitPopoverProvider,
+} from "@ariakit/react";
 
 import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
@@ -12,7 +16,7 @@ export const PopoverTrigger = forwardRef<
 
   assertEmpty(rest);
 
-  return <Ariakit.PopoverDisclosure render={children as any} ref={ref} />;
+  return <AriakitPopoverDisclosure render={children as any} ref={ref} />;
 });
 
 export const PopoverContent = forwardRef<
@@ -24,11 +28,11 @@ export const PopoverContent = forwardRef<
   assertEmpty(rest);
 
   return (
-    <Ariakit.Popover
+    <AriakitPopover
       className={mergeCSSClasses("bn-ak-popover", className || "")}
       ref={ref}>
       {children}
-    </Ariakit.Popover>
+    </AriakitPopover>
   );
 });
 
@@ -40,8 +44,8 @@ export const Popover = (
   assertEmpty(rest);
 
   return (
-    <Ariakit.PopoverProvider open={opened} placement={position}>
+    <AriakitPopoverProvider open={opened} placement={position}>
       {children}
-    </Ariakit.PopoverProvider>
+    </AriakitPopoverProvider>
   );
 };

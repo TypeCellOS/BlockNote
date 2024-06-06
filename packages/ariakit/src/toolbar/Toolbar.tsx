@@ -1,4 +1,4 @@
-import * as Ariakit from "@ariakit/react";
+import { Toolbar as AriakitToolbar } from "@ariakit/react";
 
 import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
@@ -14,13 +14,13 @@ export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(
     assertEmpty(rest);
 
     return (
-      <Ariakit.Toolbar
+      <AriakitToolbar
         className={mergeCSSClasses("bn-ak-toolbar", className || "")}
         ref={ref}
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}>
         {children}
-      </Ariakit.Toolbar>
+      </AriakitToolbar>
     );
   }
 );

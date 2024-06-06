@@ -1,4 +1,7 @@
-import * as Ariakit from "@ariakit/react";
+import {
+  FormInput as AriakitFormInput,
+  FormLabel as AriakitFormLabel,
+} from "@ariakit/react";
 
 import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
@@ -26,12 +29,10 @@ export const TextInput = forwardRef<
 
   return (
     <>
-      {props.label && (
-        <Ariakit.FormLabel name={name}>{label}</Ariakit.FormLabel>
-      )}
+      {props.label && <AriakitFormLabel name={name}>{label}</AriakitFormLabel>}
       <div className="bn-ak-input-wrapper">
         {icon}
-        <Ariakit.FormInput
+        <AriakitFormInput
           className={mergeCSSClasses("bn-ak-input", className || "")}
           ref={ref}
           name={name}
