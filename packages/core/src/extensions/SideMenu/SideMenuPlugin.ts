@@ -312,12 +312,16 @@ export class SideMenuView<
       left: editorBoundingBox.left + editorBoundingBox.width / 2, // take middle of editor
       top: this.mousePos.y,
     };
-    const element = document.elementFromPoint(coords.left, coords.top);
-    if (element === null) {
-      return;
-    }
 
-    const block = getDraggableBlockFromElement(element, this.pmView);
+    const elements = document.elementsFromPoint(coords.left, coords.top);
+    let block = undefined;
+
+    for (const element of elements) {
+      if (this.pmView.dom.contains(element)) {
+        block = getDraggableBlockFromElement(element, this.pmView);
+        break;
+      }
+    }
 
     // Closes the menu if the mouse cursor is beyond the editor vertically.
     if (!block || !this.editor.isEditable) {
