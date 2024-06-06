@@ -1,4 +1,4 @@
-import { Button } from "@mantine/core";
+import { Button as MantineButton } from "@mantine/core";
 
 import { assertEmpty } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
@@ -13,7 +13,7 @@ export const PanelButton = forwardRef<
   assertEmpty(rest);
 
   return (
-    <Button
+    <MantineButton
       size={"xs"}
       aria-label={label}
       className={className}
@@ -21,6 +21,6 @@ export const PanelButton = forwardRef<
       onClick={onClick}
       {...rest}>
       {children}
-    </Button>
+    </MantineButton>
   );
 });

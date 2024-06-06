@@ -1,4 +1,4 @@
-import { FileInput } from "@mantine/core";
+import { FileInput as MantineFileInput } from "@mantine/core";
 
 import { assertEmpty } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
@@ -13,7 +13,7 @@ export const PanelFileInput = forwardRef<
   assertEmpty(rest);
 
   return (
-    <FileInput
+    <MantineFileInput
       size={"xs"}
       className={className}
       ref={ref}

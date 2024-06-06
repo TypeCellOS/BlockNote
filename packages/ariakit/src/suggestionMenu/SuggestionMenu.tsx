@@ -1,4 +1,4 @@
-import * as Ariakit from "@ariakit/react";
+import { Group as AriakitGroup } from "@ariakit/react";
 
 import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
@@ -13,12 +13,12 @@ export const SuggestionMenu = forwardRef<
   assertEmpty(rest);
 
   return (
-    <Ariakit.Group
+    <AriakitGroup
       className={mergeCSSClasses("bn-ak-menu", className || "")}
       id={id}
       role="listbox"
       ref={ref}>
       {children}
-    </Ariakit.Group>
+    </AriakitGroup>
   );
 });

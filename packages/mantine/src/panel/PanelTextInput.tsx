@@ -1,4 +1,4 @@
-import { TextInput } from "@mantine/core";
+import { TextInput as MantineTextInput } from "@mantine/core";
 
 import { assertEmpty } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
@@ -13,7 +13,7 @@ export const PanelTextInput = forwardRef<
   assertEmpty(rest);
 
   return (
-    <TextInput
+    <MantineTextInput
       size={"xs"}
       data-test={"embed-input"}
       className={className}

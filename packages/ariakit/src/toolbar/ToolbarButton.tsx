@@ -1,4 +1,9 @@
-import * as Ariakit from "@ariakit/react";
+import {
+  Tooltip as AriakitTooltip,
+  TooltipAnchor as AriakitTooltipAnchor,
+  ToolbarItem as AriakitToolbarItem,
+  TooltipProvider as AriakitTooltipProvider,
+} from "@ariakit/react";
 
 import { assertEmpty, isSafari, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
@@ -30,11 +35,11 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
     assertEmpty(rest, false);
 
     return (
-      <Ariakit.TooltipProvider>
-        <Ariakit.TooltipAnchor
+      <AriakitTooltipProvider>
+        <AriakitTooltipAnchor
           className="link"
           render={
-            <Ariakit.ToolbarItem
+            <AriakitToolbarItem
               aria-label={label}
               className={mergeCSSClasses(
                 "bn-ak-button bn-ak-secondary",
@@ -60,14 +65,14 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
               {...rest}>
               {icon}
               {children}
-            </Ariakit.ToolbarItem>
+            </AriakitToolbarItem>
           }
         />
-        <Ariakit.Tooltip className="bn-ak-tooltip">
+        <AriakitTooltip className="bn-ak-tooltip">
           <span>{mainTooltip}</span>
           {secondaryTooltip && <span>{secondaryTooltip}</span>}
-        </Ariakit.Tooltip>
-      </Ariakit.TooltipProvider>
+        </AriakitTooltip>
+      </AriakitTooltipProvider>
     );
   }
 );

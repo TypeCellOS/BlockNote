@@ -1,7 +1,7 @@
 import {
   Popover as MantinePopover,
-  PopoverTarget,
-  PopoverDropdown,
+  PopoverDropdown as MantinePopoverDropdown,
+  PopoverTarget as MantinePopoverTarget,
 } from "@mantine/core";
 
 import { assertEmpty } from "@blocknote/core";
@@ -33,7 +33,7 @@ export const PopoverTrigger = (
 
   assertEmpty(rest);
 
-  return <PopoverTarget>{children}</PopoverTarget>;
+  return <MantinePopoverTarget>{children}</MantinePopoverTarget>;
 };
 
 export const PopoverContent = forwardRef<
@@ -50,8 +50,8 @@ export const PopoverContent = forwardRef<
   assertEmpty(rest);
 
   return (
-    <PopoverDropdown className={className} ref={ref}>
+    <MantinePopoverDropdown className={className} ref={ref}>
       {children}
-    </PopoverDropdown>
+    </MantinePopoverDropdown>
   );
 });

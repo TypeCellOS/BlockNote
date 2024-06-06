@@ -1,41 +1,38 @@
-import type * as ShadCNDropdownMenu from "../components/ui/dropdown-menu";
-
 import { assertEmpty } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { ChevronRight } from "lucide-react";
 import { forwardRef, useMemo } from "react";
-import { useShadCNComponentsContext } from "../ShadCNComponentsContext";
+
+import type { DropdownMenuTrigger as ShadCNDropdownMenuTrigger } from "../components/ui/dropdown-menu";
 import { cn } from "../lib/utils";
+import { useShadCNComponentsContext } from "../ShadCNComponentsContext";
 
 // hacky HoC to change DropdownMenuTrigger to open a menu on PointerUp instead of PointerDown
 // Needed to fix this issue: https://github.com/radix-ui/primitives/issues/2867
-const MenuTriggerWithPointerUp = (
-  Comp: typeof ShadCNDropdownMenu.DropdownMenuTrigger
-) =>
-  forwardRef<
-    any,
-    React.ComponentProps<typeof ShadCNDropdownMenu.DropdownMenuTrigger>
-  >((props, ref) => {
-    return (
-      <Comp
-        onPointerDown={(e) => {
-          if (!(e.nativeEvent as any).fakeEvent) {
-            // setting ctrlKey will block the menu from opening
-            // as it will block this line: https://github.com/radix-ui/primitives/blob/b32a93318cdfce383c2eec095710d35ffbd33a1c/packages/react/dropdown-menu/src/DropdownMenu.tsx#L120
-            e.ctrlKey = true;
-          }
-        }}
-        onPointerUp={(event) => {
-          // dispatch a pointerdown event so the Radix pointer down handler gets called that opens the menu
-          const e = new PointerEvent("pointerdown", event.nativeEvent);
-          (e as any).fakeEvent = true;
-          event.target.dispatchEvent(e);
-        }}
-        {...props}
-        ref={ref}
-      />
-    );
-  });
+const MenuTriggerWithPointerUp = (Comp: typeof ShadCNDropdownMenuTrigger) =>
+  forwardRef<any, React.ComponentProps<typeof ShadCNDropdownMenuTrigger>>(
+    (props, ref) => {
+      return (
+        <Comp
+          onPointerDown={(e) => {
+            if (!(e.nativeEvent as any).fakeEvent) {
+              // setting ctrlKey will block the menu from opening
+              // as it will block this line: https://github.com/radix-ui/primitives/blob/b32a93318cdfce383c2eec095710d35ffbd33a1c/packages/react/dropdown-menu/src/DropdownMenu.tsx#L120
+              e.ctrlKey = true;
+            }
+          }}
+          onPointerUp={(event) => {
+            // dispatch a pointerdown event so the Radix pointer down handler gets called that opens the menu
+            const e = new PointerEvent("pointerdown", event.nativeEvent);
+            (e as any).fakeEvent = true;
+            event.target.dispatchEvent(e);
+          }}
+          {...props}
+          ref={ref}
+        />
+      );
+    }
+  );
 
 export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
   const {

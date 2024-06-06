@@ -1,4 +1,4 @@
-import { Group } from "@mantine/core";
+import { Group as MantineGroup } from "@mantine/core";
 
 import { assertEmpty } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
@@ -22,7 +22,7 @@ export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(
     const combinedRef = mergeRefs(ref, focusRef, trapRef);
 
     return (
-      <Group
+      <MantineGroup
         className={className}
         ref={combinedRef}
         role="toolbar"
@@ -30,7 +30,7 @@ export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}>
         {children}
-      </Group>
+      </MantineGroup>
     );
   }
 );

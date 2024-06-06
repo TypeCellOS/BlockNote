@@ -1,4 +1,4 @@
-import { Stack } from "@mantine/core";
+import { Stack as MantineStack } from "@mantine/core";
 
 import { assertEmpty } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
@@ -13,8 +13,13 @@ export const SuggestionMenu = forwardRef<
   assertEmpty(rest);
 
   return (
-    <Stack gap={0} className={className} ref={ref} id={id} role="listbox">
+    <MantineStack
+      gap={0}
+      className={className}
+      ref={ref}
+      id={id}
+      role="listbox">
       {children}
-    </Stack>
+    </MantineStack>
   );
 });

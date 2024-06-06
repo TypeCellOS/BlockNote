@@ -1,4 +1,8 @@
-import { Group, Tabs, LoadingOverlay } from "@mantine/core";
+import {
+  Group as MantineGroup,
+  LoadingOverlay as MantineLoadingOverlay,
+  Tabs as MantineTabs,
+} from "@mantine/core";
 
 import { assertEmpty } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
@@ -21,30 +25,30 @@ export const Panel = forwardRef<
   assertEmpty(rest);
 
   return (
-    <Group className={className} ref={ref}>
-      <Tabs
+    <MantineGroup className={className} ref={ref}>
+      <MantineTabs
         value={openTab}
         defaultValue={defaultOpenTab}
         onChange={setOpenTab as any}>
-        {loading && <LoadingOverlay visible={loading} />}
+        {loading && <MantineLoadingOverlay visible={loading} />}
 
-        <Tabs.List>
+        <MantineTabs.List>
           {tabs.map((tab) => (
-            <Tabs.Tab
+            <MantineTabs.Tab
               data-test={`${tab.name.toLowerCase()}-tab`}
               value={tab.name}
               key={tab.name}>
               {tab.name}
-            </Tabs.Tab>
+            </MantineTabs.Tab>
           ))}
-        </Tabs.List>
+        </MantineTabs.List>
 
         {tabs.map((tab) => (
-          <Tabs.Panel value={tab.name} key={tab.name}>
+          <MantineTabs.Panel value={tab.name} key={tab.name}>
             {tab.tabPanel}
-          </Tabs.Panel>
+          </MantineTabs.Panel>
         ))}
-      </Tabs>
-    </Group>
+      </MantineTabs>
+    </MantineGroup>
   );
 });

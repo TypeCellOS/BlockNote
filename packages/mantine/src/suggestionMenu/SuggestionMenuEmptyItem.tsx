@@ -1,4 +1,4 @@
-import { Group } from "@mantine/core";
+import { Group as MantineGroup } from "@mantine/core";
 
 import { assertEmpty } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
@@ -13,8 +13,10 @@ export const SuggestionMenuEmptyItem = forwardRef<
   assertEmpty(rest);
 
   return (
-    <Group className={className} ref={ref}>
-      <Group className="bn-mt-suggestion-menu-item-label">{children}</Group>
-    </Group>
+    <MantineGroup className={className} ref={ref}>
+      <MantineGroup className="bn-mt-suggestion-menu-item-label">
+        {children}
+      </MantineGroup>
+    </MantineGroup>
   );
 });

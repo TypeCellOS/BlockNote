@@ -1,6 +1,6 @@
 import {
-  Menu as MantineMenu,
   CheckIcon as MantineCheckIcon,
+  Menu as MantineMenu,
 } from "@mantine/core";
 
 import { assertEmpty } from "@blocknote/core";

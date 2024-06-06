@@ -1,4 +1,8 @@
-import { Menu, Button, CheckIcon } from "@mantine/core";
+import {
+  Button as MantineButton,
+  CheckIcon as MantineCheckIcon,
+  Menu as MantineMenu,
+} from "@mantine/core";
 
 import { assertEmpty, isSafari } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
@@ -21,15 +25,15 @@ export const ToolbarSelect = forwardRef<
   }
 
   return (
-    <Menu
+    <MantineMenu
       withinPortal={false}
       transitionProps={{
         exitDuration: 0,
       }}
       disabled={isDisabled}
       middlewares={{ flip: true, shift: true, inline: false, size: true }}>
-      <Menu.Target>
-        <Button
+      <MantineMenu.Target>
+        <MantineButton
           // Needed as Safari doesn't focus button elements on mouse down
           // unlike other browsers.
           onMouseDown={(e) => {
@@ -43,17 +47,17 @@ export const ToolbarSelect = forwardRef<
           variant={"subtle"}
           disabled={isDisabled}>
           {selectedItem.text}
-        </Button>
-      </Menu.Target>
-      <Menu.Dropdown className={className} ref={ref}>
+        </MantineButton>
+      </MantineMenu.Target>
+      <MantineMenu.Dropdown className={className} ref={ref}>
         {items.map((item) => (
-          <Menu.Item
+          <MantineMenu.Item
             key={item.text}
             onClick={item.onClick}
             leftSection={item.icon}
             rightSection={
               item.isSelected ? (
-                <CheckIcon size={10} className={"bn-tick-icon"} />
+                <MantineCheckIcon size={10} className={"bn-tick-icon"} />
               ) : (
                 // Ensures space for tick even if item isn't currently selected.
                 <div className={"bn-tick-space"} />
@@ -61,9 +65,9 @@ export const ToolbarSelect = forwardRef<
             }
             disabled={item.isDisabled}>
             {item.text}
-          </Menu.Item>
+          </MantineMenu.Item>
         ))}
-      </Menu.Dropdown>
-    </Menu>
+      </MantineMenu.Dropdown>
+    </MantineMenu>
   );
 });

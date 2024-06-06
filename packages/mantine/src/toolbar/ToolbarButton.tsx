@@ -1,4 +1,10 @@
-import { Stack, Text, Tooltip, Button, ActionIcon } from "@mantine/core";
+import {
+  ActionIcon as MantineActionIcon,
+  Button as MantineButton,
+  Stack as MantineStack,
+  Text as MantineText,
+  Tooltip as MantineTooltip,
+} from "@mantine/core";
 
 import { assertEmpty, isSafari } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
@@ -8,12 +14,12 @@ export const TooltipContent = (props: {
   mainTooltip: string;
   secondaryTooltip?: string;
 }) => (
-  <Stack gap={0} className={"bn-tooltip"}>
-    <Text size={"sm"}>{props.mainTooltip}</Text>
+  <MantineStack gap={0} className={"bn-tooltip"}>
+    <MantineText size={"sm"}>{props.mainTooltip}</MantineText>
     {props.secondaryTooltip && (
-      <Text size={"xs"}>{props.secondaryTooltip}</Text>
+      <MantineText size={"xs"}>{props.secondaryTooltip}</MantineText>
     )}
-  </Stack>
+  </MantineStack>
 );
 
 type ToolbarButtonProps = ComponentProps["FormattingToolbar"]["Button"] &
@@ -42,7 +48,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
     assertEmpty(rest, false);
 
     return (
-      <Tooltip
+      <MantineTooltip
         withinPortal={false}
         label={
           <TooltipContent
@@ -52,7 +58,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
         }>
         {/*Creates an ActionIcon instead of a Button if only an icon is provided as content.*/}
         {children ? (
-          <Button
+          <MantineButton
             aria-label={label}
             className={className}
             // Needed as Safari doesn't focus button elements on mouse down
@@ -74,9 +80,9 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
             ref={ref}
             {...rest}>
             {children}
-          </Button>
+          </MantineButton>
         ) : (
-          <ActionIcon
+          <MantineActionIcon
             className={className}
             aria-label={label}
             // Needed as Safari doesn't focus button elements on mouse down
@@ -98,9 +104,9 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
             ref={ref}
             {...rest}>
             {icon}
-          </ActionIcon>
+          </MantineActionIcon>
         )}
-      </Tooltip>
+      </MantineTooltip>
     );
   }
 );

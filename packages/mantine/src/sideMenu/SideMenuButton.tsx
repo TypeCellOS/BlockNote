@@ -1,4 +1,7 @@
-import { ActionIcon, Button } from "@mantine/core";
+import {
+  ActionIcon as MantineActionIcon,
+  Button as MantineButton,
+} from "@mantine/core";
 
 import { assertEmpty } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
@@ -26,7 +29,7 @@ export const SideMenuButton = forwardRef<
 
   if (icon) {
     return (
-      <ActionIcon
+      <MantineActionIcon
         size={24}
         className={className}
         ref={ref}
@@ -37,12 +40,12 @@ export const SideMenuButton = forwardRef<
         aria-label={label}
         {...rest}>
         {icon}
-      </ActionIcon>
+      </MantineActionIcon>
     );
   }
 
   return (
-    <Button
+    <MantineButton
       className={className}
       ref={ref}
       onClick={onClick}
@@ -52,6 +55,6 @@ export const SideMenuButton = forwardRef<
       aria-label={label}
       {...rest}>
       {children}
-    </Button>
+    </MantineButton>
   );
 });
