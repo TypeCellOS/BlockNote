@@ -39,7 +39,7 @@ export const SideMenuController = <
     state?.referencePos || null,
     1000,
     {
-      placement: "left",
+      placement: "left-start",
     }
   );
 
