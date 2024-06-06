@@ -1,7 +1,6 @@
 import {
   BlockNoteSchema,
   defaultBlockSpecs,
-  defaultInlineContentSpecs,
   filterSuggestionItems,
   insertOrUpdateBlock,
 } from "@blocknote/core";
@@ -19,8 +18,8 @@ import { LaTex } from "./LaTex";
 // Our schema with block specs, which contain the configs and implementations for blocks
 // that we want our editor to use.
 const schema = BlockNoteSchema.create({
-  inlineContentSpecs: {
-    ...defaultInlineContentSpecs,
+  blockSpecs: {
+    ...defaultBlockSpecs,
     latex: LaTex,
   },
 });
@@ -34,17 +33,11 @@ const insertLaTex = (editor: typeof schema.BlockNoteEditor) => ({
   group: "Other",
   onItemClick: () => {
     insertOrUpdateBlock(editor, {
-      type: "paragraph",
-      content: [
-        {
-          type: "latex",
-          props: {
-            latex: "",
-            open: true,
-          },
-          content: 'c = \\pm\\sqrt{a^2 + b^2}'
-        },
-      ],
+      type: "latex",
+      props: {
+        open: true
+      },
+      content: '\\sqrt{a^2 + b^2}'
     });
   },
 });
@@ -57,7 +50,7 @@ export default function App() {
       {
         type: "paragraph",
         content: [
-          "I enjoy working with ",
+          "latex text editor ",
           {
             type: "latex",
             content: "c = \\pm\\sqrt{a^2 + b^2}",
@@ -66,7 +59,15 @@ export default function App() {
       },
       {
         type: "paragraph",
-        content: "Press the '/' key to open the Slash Menu and add another",
+      },
+      {
+        type: "paragraph",
+        content: [
+          {
+            type: "latex",
+            content: "\\int \\frac{1}{\\sqrt{1-x^{2}}}\\mathrm{d}x= \\arcsin x +C"
+          },
+        ],
       },
       {
         type: "paragraph",

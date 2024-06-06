@@ -2,7 +2,7 @@ import {
   useComponentsContext,
 } from "@blocknote/react";
 import { NodeView } from "prosemirror-view";
-import { BlockNoteEditor } from "@blocknote/core";
+import { BlockNoteEditor, propsToAttributes } from "@blocknote/core";
 import {
   NodeViewProps,
   NodeViewRenderer,
@@ -12,53 +12,47 @@ import {
 import "./styles.css";
 import { createStronglyTypedTiptapNode, createInternalBlockSpec } from "@blocknote/core";
 import { mergeAttributes } from "@tiptap/core";
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState, useRef } from "react";
 
 function loadKaTex(callback: () => void) {
-  const katexScript = document.getElementById("katex-script");
-  const katexLink = document.getElementById("katex-link");
-  let scriptLoaded = !!katexScript;
-  let linkLoaded = !!katexLink;
+  const Window = window as any;
+  if (Window.katex) {
+    return callback();
+  }
+
+  Window._katexCallbacks = Window._katexCallbacks || [];
+  Window._katexCallbacks.push(callback);
 
   const handleCallback = () => {
-    if (scriptLoaded && linkLoaded) {
-      setTimeout(callback);
+    if (Window.katex && Window._katexCallbacks) {
+      Window._katexCallbacks.forEach((callback: () => void) => {
+        callback();
+      });
+
+      delete Window._katexCallbacks;
     }
   };
 
-  if (!katexScript) {
-    const script = document.createElement("script");
-    script.src = "https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js";
-    script.integrity =
-      "sha384-hIoBPJpTUs74ddyc4bFZSM1TVlQDA60VBbJS0oA934VSz82sBx1X7kSx2ATBDIyd";
-    script.crossOrigin = "anonymous";
-    script.id = "katex-script";
-    // script.defer = true;
-    script.onload = () => {
-      scriptLoaded = true;
-      handleCallback();
-    };
-    document.head.appendChild(script);
-  }
+  const script = document.createElement("script");
+  script.src = "https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js";
+  script.integrity =
+    "sha384-hIoBPJpTUs74ddyc4bFZSM1TVlQDA60VBbJS0oA934VSz82sBx1X7kSx2ATBDIyd";
+  script.crossOrigin = "anonymous";
+  script.id = "katex-script";
+  script.onload = () => {
+    handleCallback();
+  };
+  document.head.appendChild(script);
 
-  if (!katexLink) {
-    const link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.href = "https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css";
-    link.integrity =
-      "sha384-wcIxkf4k558AjM3Yz3BBFQUbk/zgIYC2R0QpeeYb+TwlBVMrlgLqwRjRtGZiK7ww";
-    link.crossOrigin = "anonymous";
-    link.id = "katex-link";
-    link.onload = () => {
-      linkLoaded = true;
-      handleCallback();
-    };
-    document.head.appendChild(link);
-  }
 
-  if (scriptLoaded && linkLoaded) {
-    setTimeout(callback);
-  }
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = "https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css";
+  link.integrity =
+    "sha384-wcIxkf4k558AjM3Yz3BBFQUbk/zgIYC2R0QpeeYb+TwlBVMrlgLqwRjRtGZiK7ww";
+  link.crossOrigin = "anonymous";
+  link.id = "katex-link";
+  document.head.appendChild(link);
 }
 
 function LaTexView() {
@@ -75,8 +69,10 @@ function LaTexView() {
     const BlockContent = (props: NodeViewProps & { selectionHack: any }) => {
       /* eslint-disable react-hooks/rules-of-hooks */
       const editor: BlockNoteEditor<any> = this.options.editor;
-      
       const content = props.node.textContent;
+      const open = props.node.attrs.open;
+      const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+      const contentRef = useRef<HTMLElement | null>(null);
       const [html, setHtml] = useState("");
       const [loading, setLoading] = useState(false);
       const Components = useComponentsContext()!;
@@ -84,7 +80,7 @@ function LaTexView() {
       useEffect(() => {
         setLoading(true);
         loadKaTex(() => {
-          const html = window.katex.renderToString(content, {
+          const html = (window as any).katex.renderToString(content, {
             throwOnError: false,
           });
           setHtml(html);
@@ -92,28 +88,42 @@ function LaTexView() {
         });
       }, [content]);
 
+      useEffect(() => {
+        if (open) {
+          if (contentRef.current) {
+            contentRef.current.click();
+          }
+          setTimeout(() => {
+            if (textareaRef.current) {
+              textareaRef.current?.focus()
+              textareaRef.current?.setSelectionRange(textareaRef.current.value.length, textareaRef.current.value.length);
+            }
+          })
+        }
+      }, [open]);
+
       const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
         const val = e.target.value;
         const pos = props.getPos?.();
         const node = props.node;
         const view = editor._tiptapEditor.view;
+
         const tr = view.state.tr
-          .replaceWith(pos, pos+node.nodeSize, view.state.schema.nodes.latex.create(
-            {
-              ...node.attrs,
-            },
-            view.state.schema.text(val)
-          ));
+        .replaceWith(pos, pos+node.nodeSize, view.state.schema.nodes.latex.create(
+          {
+            ...node.attrs,
+          },
+          val ? view.state.schema.text(val) : null
+        ));
 
         view.dispatch(tr);
       }
-        
 
       return (
         <NodeViewWrapper as={'span'}>
           <Components.Generic.Popover.Root>
             <Components.Generic.Popover.Trigger>
-              <span className={"latex"}>
+              <span className={"latex"} ref={contentRef}>
                 {loading ? (
                   <span className={"latex-loading"}>latex loading...</span>
                 ) : (
@@ -124,7 +134,7 @@ function LaTexView() {
             <Components.Generic.Popover.Content
               className={"bn-popover-content bn-form-popover"}
               variant={"form-popover"}>
-              <textarea className={"latex-textarea"} value={content} onChange={handleChange} />
+              <textarea ref={textareaRef} className={"latex-textarea"} value={content} onChange={handleChange} />
             </Components.Generic.Popover.Content>
           </Components.Generic.Popover.Root>
         </NodeViewWrapper>
@@ -169,6 +179,13 @@ function LaTexView() {
   return nodeView;
 }
 
+const propSchema = {
+  open: {
+    type: "boolean",
+    default: false,
+  },
+}
+
 const node = createStronglyTypedTiptapNode({
   name: "latex",
   inline: true,
@@ -176,6 +193,11 @@ const node = createStronglyTypedTiptapNode({
   content: "inline*",
   editable: true,
   selectable: false,
+
+  addAttributes() {
+    return propsToAttributes(propSchema);
+  },
+
   parseHTML() {
     return [
       {
@@ -186,8 +208,14 @@ const node = createStronglyTypedTiptapNode({
     ];
   },
 
-  renderHTML() {
-    return ["latex"];
+  renderHTML({ HTMLAttributes }) {
+    return [
+      "latex",
+      mergeAttributes(HTMLAttributes, {
+        "data-content-type": this.name,
+      }),
+      0
+    ];
   },
 
   addNodeView: LaTexView(),
@@ -197,16 +225,7 @@ export const LaTex = createInternalBlockSpec(
   {
     content: "inline",
     type: "latex",
-    propSchema: {
-      language: {
-        type: "string",
-        default: "typescript",
-      },
-      storage: {
-        type: "string",
-        default: "",
-      },
-    },
+    propSchema: propSchema,
   },
   {
     node,
