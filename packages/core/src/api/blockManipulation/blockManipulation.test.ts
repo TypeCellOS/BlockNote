@@ -150,7 +150,6 @@ describe("Test strong typing", () => {
       editor.updateBlock(
         { id: "sdf" },
         {
-          // @ts-expect-error invalid type
           type: "non-existing",
         }
       );
@@ -166,7 +165,6 @@ describe("Test strong typing", () => {
         {
           type: "paragraph",
           props: {
-            // @ts-expect-error level not suitable for paragraph
             level: 1,
           },
         }
