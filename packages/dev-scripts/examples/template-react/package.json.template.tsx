@@ -18,8 +18,8 @@ const template = (project: Project) => ({
     "@blocknote/ariakit": "^0.13.0",
     "@blocknote/mantine": "^0.13.0",
     "@blocknote/shadcn": "^0.13.0",
-    react: "^18.2.0",
-    "react-dom": "^18.2.0",
+    react: "^18.3.1",
+    "react-dom": "^18.3.1",
     ...(project.config?.dependencies || {}),
   },
   devDependencies: {
