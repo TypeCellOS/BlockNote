@@ -1,0 +1,16 @@
+.latex-content {
+  pointer-events: none;
+}
+
+.latex-loading {
+  color: #aaa;
+  transform: scale(0.8);
+}
+
+.latex-textarea {
+  outline: none;
+  border: none;
+  width: 100%;
+  min-height: 120px;
+  padding: 8px;
+}

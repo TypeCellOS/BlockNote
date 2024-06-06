@@ -691,6 +691,30 @@
         }
       },
       {
+        "projectSlug": "latex-block",
+        "fullSlug": "custom-schema/latex-block",
+        "pathFromRoot": "examples/05-custom-schema/05-latex-block",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "matthewlipski",
+          "tags": [
+            "Intermediate",
+            "Blocks",
+            "Custom Schemas"
+          ],
+          "dependencies": {
+            "@mantine/core": "^7.7.1",
+            "react-icons": "^5.2.1"
+          }
+        },
+        "title": "LaTex Block",
+        "group": {
+          "pathFromRoot": "examples/05-custom-schema",
+          "slug": "custom-schema"
+        }
+      },
+      {
         "projectSlug": "react-custom-blocks",
         "fullSlug": "custom-schema/react-custom-blocks",
         "pathFromRoot": "examples/05-custom-schema/react-custom-blocks",

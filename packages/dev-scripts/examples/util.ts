@@ -1,8 +1,9 @@
 import glob from "fast-glob";
 import * as fs from "node:fs";
 import * as path from "node:path";
+import { fileURLToPath } from "url";
 
-const dir = path.parse(import.meta.url.replace("file://", "")).dir;
+const dir = path.parse(fileURLToPath(import.meta.url)).dir;
 
 export type Project = {
   /**
@@ -139,7 +140,7 @@ export function getProjectFiles(project: Project): Files {
  */
 export function getExampleProjects(): Project[] {
   const examples: Project[] = glob
-    .globSync(path.join(dir, "../../../examples/**/*/.bnexample.json"))
+    .globSync(path.join(dir, "../../../examples/**/*/.bnexample.json").replace(/\\/g, "/"))
     .map((configPath) => {
       const config = JSON.parse(fs.readFileSync(configPath, "utf-8"));
       const directory = path.dirname(configPath);
@@ -161,10 +162,9 @@ export function getExampleProjects(): Project[] {
         .split(path.sep);
 
       const group = {
-        pathFromRoot: path.relative(
-          path.resolve("../../"),
-          path.join(directory, "..")
-        ),
+        pathFromRoot: path
+          .relative(path.resolve("../../"), path.join(directory, ".."))
+          .replace(/\\/g, "/"),
         // remove optional 01- prefix
         slug: groupDir.replace(/^\d{2}-/, ""),
       };
@@ -173,7 +173,9 @@ export function getExampleProjects(): Project[] {
       const project = {
         projectSlug,
         fullSlug: `${group.slug}/${projectSlug}`,
-        pathFromRoot: path.relative(path.resolve("../../"), directory),
+        pathFromRoot: path
+          .relative(path.resolve("../../"), directory)
+          .replace(/\\/g, "/"),
         config,
         title,
         group,
