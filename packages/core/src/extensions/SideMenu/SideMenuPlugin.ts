@@ -177,12 +177,21 @@ function dragStart<
     top: e.clientY,
   };
 
-  const element = document.elementFromPoint(coords.left, coords.top);
-  if (element === null) {
+  const elements = document.elementsFromPoint(coords.left, coords.top);
+  let blockEl = undefined;
+
+  for (const element of elements) {
+    if (view.dom.contains(element)) {
+      blockEl = getDraggableBlockFromElement(element, view);
+      break;
+    }
+  }
+
+  if (!blockEl) {
     return;
   }
 
-  const pos = blockPositionFromElement(element, view);
+  const pos = blockPositionFromElement(blockEl.node, view);
   if (pos != null) {
     const selection = view.state.selection;
     const doc = view.state.doc;
