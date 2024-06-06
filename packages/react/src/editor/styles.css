@@ -211,30 +211,31 @@
   background-color: var(--bn-colors-highlights-pink-background);
 }
 
-.bn-side-menu[data-block-height="default"] {
+/* Matching Side Menu height to block line height */
+.bn-side-menu {
   height: 30px;
 }
 
-.bn-side-menu[data-block-height="h1"] {
+.bn-side-menu[data-block-type="heading"][data-level="1"] {
   height: 78px;
 }
 
-.bn-side-menu[data-block-height="h2"] {
+.bn-side-menu[data-block-type="heading"][data-level="2"] {
   height: 54px;
 }
 
-.bn-side-menu[data-block-height="h3"] {
+.bn-side-menu[data-block-type="heading"][data-level="3"] {
   height: 37px;
 }
 
-.bn-side-menu[data-block-height="add-file-button"] {
-  height: 54px;
-}
-
-.bn-side-menu[data-block-height="file"] {
+.bn-side-menu[data-block-type="file"] {
   height: 38px;
 }
 
-.bn-side-menu[data-block-height="audio"] {
+.bn-side-menu[data-block-type="audio"] {
   height: 60px;
+}
+
+.bn-side-menu[data-url="false"] {
+  height: 54px;
 }

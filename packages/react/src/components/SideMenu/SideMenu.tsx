@@ -33,32 +33,28 @@ export const SideMenu = <
 
   const { addBlock, ...rest } = props;
 
-  const blockHeight = useMemo(() => {
+  const dataAttributes = useMemo(() => {
+    const attrs: Record<string, string> = {
+      "data-block-type": props.block.type,
+    };
+
     if (props.block.type === "heading") {
-      return `h${props.block.props.level}`;
+      attrs["data-level"] = props.block.props.level.toString();
     }
 
     if (props.editor.schema.blockSchema[props.block.type].isFileBlock) {
-      if (!props.block.props.url) {
-        return "add-file-button";
-      }
-
-      if (props.block.type === "file") {
-        return "file";
-      }
-
-      if (props.block.type === "audio") {
-        return "audio";
+      if (props.block.props.url) {
+        attrs["data-url"] = "true";
+      } else {
+        attrs["data-url"] = "false";
       }
     }
 
-    return "default";
+    return attrs;
   }, [props.block, props.editor.schema.blockSchema]);
 
   return (
-    <Components.SideMenu.Root
-      className={"bn-side-menu"}
-      data-block-height={blockHeight}>
+    <Components.SideMenu.Root className={"bn-side-menu"} {...dataAttributes}>
       {props.children || (
         <>
           <AddBlockButton addBlock={addBlock} />
