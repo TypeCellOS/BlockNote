@@ -140,7 +140,11 @@ export function getProjectFiles(project: Project): Files {
  */
 export function getExampleProjects(): Project[] {
   const examples: Project[] = glob
-    .globSync(path.join(dir, "../../../examples/**/*/.bnexample.json").replace(/\\/g, "/"))
+    .globSync(
+      path
+        .join(dir, "../../../examples/**/*/.bnexample.json")
+        .replace(/\\/g, "/")
+    )
     .map((configPath) => {
       const config = JSON.parse(fs.readFileSync(configPath, "utf-8"));
       const directory = path.dirname(configPath);

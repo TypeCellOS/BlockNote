@@ -696,17 +696,13 @@
         "pathFromRoot": "examples/05-custom-schema/05-latex-block",
         "config": {
           "playground": true,
-          "docs": true,
-          "author": "matthewlipski",
+          "docs": false,
+          "author": "jkcs",
           "tags": [
             "Intermediate",
-            "Blocks",
+            "LaTex",
             "Custom Schemas"
-          ],
-          "dependencies": {
-            "@mantine/core": "^7.7.1",
-            "react-icons": "^5.2.1"
-          }
+          ]
         },
         "title": "LaTex Block",
         "group": {
