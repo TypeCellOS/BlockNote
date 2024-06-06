@@ -26,46 +26,26 @@ export type SideMenuState<
   block: Block<BSchema, I, S>;
 };
 
-export function getDraggableBlockFromCoords(
-  coords: { left: number; top: number },
+export function getDraggableBlockFromElement(
+  element: Element,
   view: EditorView
 ) {
-  if (!view.dom.isConnected) {
-    // view is not connected to the DOM, this can cause posAtCoords to fail
-    // (Cannot read properties of null (reading 'nearestDesc'), https://github.com/TypeCellOS/BlockNote/issues/123)
-    return undefined;
-  }
-
-  const pos = view.posAtCoords(coords);
-  if (!pos) {
-    return undefined;
-  }
-  let node = view.domAtPos(pos.pos).node as HTMLElement;
-
-  if (node === view.dom) {
-    // mouse over root
-    return undefined;
-  }
-
   while (
-    node &&
-    node.parentNode &&
-    node.parentNode !== view.dom &&
-    !node.hasAttribute?.("data-id")
+    element &&
+    element.parentElement &&
+    element.parentElement !== view.dom &&
+    !element.hasAttribute?.("data-id")
   ) {
-    node = node.parentNode as HTMLElement;
+    element = element.parentElement;
   }
-  if (!node) {
+  if (!element.hasAttribute("data-id")) {
     return undefined;
   }
-  return { node, id: node.getAttribute("data-id")! };
+  return { node: element as HTMLElement, id: element.getAttribute("data-id")! };
 }
 
-function blockPositionFromCoords(
-  coords: { left: number; top: number },
-  view: EditorView
-) {
-  const block = getDraggableBlockFromCoords(coords, view);
+function blockPositionFromElement(element: Element, view: EditorView) {
+  const block = getDraggableBlockFromElement(element, view);
 
   if (block && block.node.nodeType === 1) {
     // TODO: this uses undocumented PM APIs? do we need this / let's add docs?
@@ -197,7 +177,12 @@ function dragStart<
     top: e.clientY,
   };
 
-  const pos = blockPositionFromCoords(coords, view);
+  const element = document.elementFromPoint(coords.left, coords.top);
+  if (element === null) {
+    return;
+  }
+
+  const pos = blockPositionFromElement(element, view);
   if (pos != null) {
     const selection = view.state.selection;
     const doc = view.state.doc;
@@ -327,7 +312,12 @@ export class SideMenuView<
       left: editorBoundingBox.left + editorBoundingBox.width / 2, // take middle of editor
       top: this.mousePos.y,
     };
-    const block = getDraggableBlockFromCoords(coords, this.pmView);
+    const element = document.elementFromPoint(coords.left, coords.top);
+    if (element === null) {
+      return;
+    }
+
+    const block = getDraggableBlockFromElement(element, this.pmView);
 
     // Closes the menu if the mouse cursor is beyond the editor vertically.
     if (!block || !this.editor.isEditable) {
