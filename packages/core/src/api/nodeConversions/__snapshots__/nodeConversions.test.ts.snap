@@ -1,27 +1,5 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Test BlockNote-Prosemirror conversion > Case: custom blocks schema > Convert customBlock/basic to/from prosemirror 1`] = `
-{
-  "attrs": {
-    "backgroundColor": "default",
-    "id": "1",
-    "textColor": "default",
-  },
-  "content": [
-    {
-      "content": [
-        {
-          "text": "Custom customBlock",
-          "type": "text",
-        },
-      ],
-      "type": "customBlock",
-    },
-  ],
-  "type": "blockContainer",
-}
-`;
-
 exports[`Test BlockNote-Prosemirror conversion > Case: custom blocks schema > Convert customParagraph/basic to/from prosemirror 1`] = `
 {
   "attrs": {
@@ -37,6 +15,38 @@ exports[`Test BlockNote-Prosemirror conversion > Case: custom blocks schema > Co
       "content": [
         {
           "text": "Custom Paragraph",
+          "type": "text",
+        },
+      ],
+      "type": "customParagraph",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test BlockNote-Prosemirror conversion > Case: custom blocks schema > Convert customParagraph/lineBreaks to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "textAlignment": "left",
+      },
+      "content": [
+        {
+          "text": "Line 1",
+          "type": "text",
+        },
+        {
+          "type": "hardBreak",
+        },
+        {
+          "text": "Line 2",
           "type": "text",
         },
       ],
@@ -1563,6 +1573,38 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
       "attrs": {
         "textAlignment": "left",
       },
+      "type": "paragraph",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert paragraph/lineBreaks to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "textAlignment": "left",
+      },
+      "content": [
+        {
+          "text": "Line 1",
+          "type": "text",
+        },
+        {
+          "type": "hardBreak",
+        },
+        {
+          "text": "Line 2",
+          "type": "text",
+        },
+      ],
       "type": "paragraph",
     },
   ],
