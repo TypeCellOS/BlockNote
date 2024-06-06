@@ -2,13 +2,43 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
   Block,
   DefaultBlockSchema,
+  defaultBlockSpecs,
   DefaultInlineContentSchema,
   DefaultStyleSchema,
   PartialBlock,
 } from "../../blocks/defaultBlocks";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor";
+import { createBlockSpec } from "../../schema";
+import { BlockNoteSchema } from "../../editor/BlockNoteSchema";
+import { createInternalHTMLSerializer } from "../exporters/html/internalHTMLSerializer";
 
-let editor: BlockNoteEditor;
+const CustomBlock = createBlockSpec(
+  {
+    type: "customBlock",
+    propSchema: {},
+    content: "inline",
+  },
+  {
+    render: () => {
+      const dom = document.createElement("div");
+      dom.className = "custom-block";
+
+      return {
+        dom: dom,
+        contentDOM: dom,
+      };
+    },
+  }
+);
+
+const schema = BlockNoteSchema.create({
+  blockSpecs: {
+    ...defaultBlockSpecs,
+    customBlock: CustomBlock
+  },
+});
+
+let editor: BlockNoteEditor<typeof schema.blockSchema>;
 const div = document.createElement("div");
 
 function waitForEditor() {
@@ -34,16 +64,25 @@ let multipleBlocks: PartialBlock<
   DefaultStyleSchema
 >[];
 
+let customBlock: PartialBlock<
+  typeof schema.blockSchema,
+  DefaultInlineContentSchema,
+  DefaultStyleSchema
+>;
+
 let insert: (
   placement: "before" | "nested" | "after"
 ) => Block<
-  DefaultBlockSchema,
+  typeof schema.blockSchema,
   DefaultInlineContentSchema,
   DefaultStyleSchema
 >[];
 
 beforeEach(() => {
-  editor = BlockNoteEditor.create();
+  editor = BlockNoteEditor.create<typeof schema.blockSchema>({
+    schema: schema
+  });
+
   editor.mount(div);
 
   singleBlock = {
@@ -85,6 +124,11 @@ beforeEach(() => {
       ],
     },
   ];
+
+  customBlock = {
+    type: 'customBlock',
+    content: 'Custom Block',
+  }
 
   insert = (placement) => {
     const existingBlock = editor.document[0];
@@ -234,5 +278,29 @@ describe("Insert, Update, & Delete Blocks", () => {
     editor.removeBlocks([updatedBlocks[0].children[0], updatedBlocks[1]]);
 
     expect(editor.document).toMatchSnapshot();
+  });
+});
+
+describe("Update Custom Block content", () => {
+  it("update Custom Block with line break", async () => {
+    await waitForEditor();
+
+    const existingBlock = editor.document[0];
+    editor.insertBlocks([customBlock], existingBlock);
+
+    const newBlock = editor.document[0];
+    editor.updateBlock(newBlock, {
+      type: "customBlock",
+      content: "Updated Custom Block with \nline \nbreak",
+      children: [customBlock],
+    });
+
+    const serializer = createInternalHTMLSerializer(
+      editor._tiptapEditor.schema,
+      editor
+    );
+    const internalHTML = serializer.serializeBlocks(editor.document);
+    
+    expect(internalHTML).toMatchSnapshot();
   });
 });
