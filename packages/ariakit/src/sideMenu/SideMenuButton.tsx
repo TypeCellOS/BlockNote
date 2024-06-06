@@ -1,4 +1,4 @@
-import * as Ariakit from "@ariakit/react";
+import { Button as AriakitButton } from "@ariakit/react";
 
 import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
@@ -25,7 +25,7 @@ export const SideMenuButton = forwardRef<
   assertEmpty(rest, false);
 
   return (
-    <Ariakit.Button
+    <AriakitButton
       onDragEnd={onDragEnd}
       onDragStart={onDragStart}
       draggable={draggable}
@@ -39,6 +39,6 @@ export const SideMenuButton = forwardRef<
       {...rest}>
       {icon}
       {children}
-    </Ariakit.Button>
+    </AriakitButton>
   );
 });

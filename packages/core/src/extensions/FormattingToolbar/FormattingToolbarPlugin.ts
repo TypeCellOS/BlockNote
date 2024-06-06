@@ -15,7 +15,6 @@ export class FormattingToolbarView implements PluginView {
 
   public preventHide = false;
   public preventShow = false;
-  public prevWasEditable: boolean | null = null;
 
   public shouldShow: (props: {
     view: EditorView;
@@ -60,7 +59,10 @@ export class FormattingToolbarView implements PluginView {
     pmView.dom.addEventListener("dragstart", this.dragHandler);
     pmView.dom.addEventListener("dragover", this.dragHandler);
 
-    document.addEventListener("scroll", this.scrollHandler);
+    // Setting capture=true ensures that any parent container of the editor that
+    // gets scrolled will trigger the scroll event. Scroll events do not bubble
+    // and so won't propagate to the document by default.
+    document.addEventListener("scroll", this.scrollHandler, true);
   }
 
   viewMousedownHandler = () => {
@@ -93,15 +95,9 @@ export class FormattingToolbarView implements PluginView {
     const isSame =
       oldState && oldState.doc.eq(doc) && oldState.selection.eq(selection);
 
-    if (
-      (this.prevWasEditable === null ||
-        this.prevWasEditable === this.editor.isEditable) &&
-      (composing || isSame)
-    ) {
+    if (composing || isSame) {
       return;
     }
-
-    this.prevWasEditable = this.editor.isEditable;
 
     // support for CellSelections
     const { ranges } = selection;
@@ -116,11 +112,12 @@ export class FormattingToolbarView implements PluginView {
     });
 
     // Checks if menu should be shown/updated.
-    if (
-      this.editor.isEditable &&
-      !this.preventShow &&
-      (shouldShow || this.preventHide)
-    ) {
+    if (!this.preventShow && (shouldShow || this.preventHide)) {
+      // Unlike other UI elements, we don't prevent the formatting toolbar from
+      // showing when the editor is not editable. This is because some buttons,
+      // e.g. the download file button, should still be accessible. Therefore,
+      // logic for hiding when the editor is non-editable is handled
+      // individually in each button.
       this.state = {
         show: true,
         referencePos: this.getSelectionBoundingBox(),
@@ -150,7 +147,7 @@ export class FormattingToolbarView implements PluginView {
     this.pmView.dom.removeEventListener("dragstart", this.dragHandler);
     this.pmView.dom.removeEventListener("dragover", this.dragHandler);
 
-    document.removeEventListener("scroll", this.scrollHandler);
+    document.removeEventListener("scroll", this.scrollHandler, true);
   }
 
   closeMenu = () => {

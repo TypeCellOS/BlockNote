@@ -445,6 +445,7 @@
   color: var(--bn-colors-side-menu);
   cursor: pointer;
   display: flex;
+  height: fit-content;
   justify-content: center;
   overflow: visible;
   padding: 0;

@@ -11,7 +11,7 @@ import {
 } from "../../schema";
 import { checkBlockIsDefaultType } from "../../blocks/defaultBlockTypeGuards";
 import { EventEmitter } from "../../util/EventEmitter";
-import { getDraggableBlockFromCoords } from "../SideMenu/SideMenuPlugin";
+import { getDraggableBlockFromElement } from "../SideMenu/SideMenuPlugin";
 
 let dragImageElement: HTMLElement | undefined;
 
@@ -119,7 +119,10 @@ export class TableHandlesView<
     document.addEventListener("dragover", this.dragOverHandler);
     document.addEventListener("drop", this.dropHandler);
 
-    document.addEventListener("scroll", this.scrollHandler);
+    // Setting capture=true ensures that any parent container of the editor that
+    // gets scrolled will trigger the scroll event. Scroll events do not bubble
+    // and so won't propagate to the document by default.
+    document.addEventListener("scroll", this.scrollHandler, true);
   }
 
   mouseMoveHandler = (event: MouseEvent) => {
@@ -143,7 +146,7 @@ export class TableHandlesView<
     const tableRect =
       target.parentElement!.parentElement!.getBoundingClientRect();
 
-    const blockEl = getDraggableBlockFromCoords(cellRect, this.pmView);
+    const blockEl = getDraggableBlockFromElement(target, this.pmView);
     if (!blockEl) {
       return;
     }
@@ -361,7 +364,7 @@ export class TableHandlesView<
     document.removeEventListener("dragover", this.dragOverHandler);
     document.removeEventListener("drop", this.dropHandler);
 
-    document.removeEventListener("scroll", this.scrollHandler);
+    document.removeEventListener("scroll", this.scrollHandler, true);
   }
 }
 

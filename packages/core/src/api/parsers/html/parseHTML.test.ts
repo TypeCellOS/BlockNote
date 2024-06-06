@@ -295,6 +295,14 @@ describe("Parse HTML", () => {
     await parseHTMLAndCompareSnapshots(html, "parse-two-divs");
   });
 
+  it("Parse image in paragraph", async () => {
+    const html = `<p>
+    <img src="exampleURL">
+  </p>`;
+
+    await parseHTMLAndCompareSnapshots(html, "parse-image-in-paragraph");
+  });
+
   it("Parse fake image caption", async () => {
     const html = `<div>
     <img src="exampleURL">

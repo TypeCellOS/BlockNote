@@ -319,6 +319,15 @@ export const customReactBlockSchemaTestCases: EditorTestCases<
       ],
     },
     {
+      name: "reactCustomParagraph/lineBreaks",
+      blocks: [
+        {
+          type: "reactCustomParagraph",
+          content: "Line 1\nLine 2",
+        },
+      ],
+    },
+    {
       name: "simpleReactCustomParagraph/basic",
       blocks: [
         {

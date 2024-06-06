@@ -1,6 +1,9 @@
-import * as Ariakit from "@ariakit/react";
-import { assertEmpty } from "@blocknote/core";
+import {
+  FormInput as AriakitFormInput,
+  FormProvider as AriakitFormProvider,
+} from "@ariakit/react";
 
+import { assertEmpty } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
 
@@ -13,8 +16,8 @@ export const PanelFileInput = forwardRef<
   assertEmpty(rest);
 
   return (
-    <Ariakit.FormProvider>
-      <Ariakit.FormInput
+    <AriakitFormProvider>
+      <AriakitFormInput
         className={className}
         ref={ref}
         name={"panel-input"}
@@ -24,6 +27,6 @@ export const PanelFileInput = forwardRef<
         onChange={async (e) => onChange?.(e.target.files![0])}
         placeholder={placeholder}
       />
-    </Ariakit.FormProvider>
+    </AriakitFormProvider>
   );
 });

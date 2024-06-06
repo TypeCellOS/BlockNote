@@ -43,7 +43,7 @@ export const pt: Dictionary = {
         "lista marcada",
         "caixa de seleção",
       ],
-      group: "Blocos básicos",
+      group: "Blocos Básicos",
     },
     paragraph: {
       title: "Parágrafo",
