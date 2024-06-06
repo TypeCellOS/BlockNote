@@ -77,6 +77,10 @@
   z-index: 99999 !important;
 }
 
+.bn-editor:focus-visible {
+  outline: none;
+}
+
 .bn-side-menu {
   display: flex;
   justify-content: center;
