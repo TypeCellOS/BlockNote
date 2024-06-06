@@ -6,6 +6,7 @@ import { PartialBlock } from "../../blocks/defaultBlocks";
 import { customInlineContentTestCases } from "../testUtil/cases/customInlineContent";
 import { customStylesTestCases } from "../testUtil/cases/customStyles";
 import { defaultSchemaTestCases } from "../testUtil/cases/defaultSchema";
+import { customBlocksTestCases } from "../testUtil/cases/customBlocks";
 import {
   addIdsToBlock,
   partialBlockToBlockForTesting,
@@ -44,6 +45,7 @@ const testCases = [
   defaultSchemaTestCases,
   customStylesTestCases,
   customInlineContentTestCases,
+  customBlocksTestCases,
 ];
 
 describe("Test BlockNote-Prosemirror conversion", () => {

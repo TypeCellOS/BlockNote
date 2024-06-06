@@ -99,6 +99,15 @@ export const defaultSchemaTestCases: EditorTestCases<
       ],
     },
     {
+      name: "paragraph/lineBreaks",
+      blocks: [
+        {
+          type: "paragraph",
+          content: "Line 1\nLine 2",
+        },
+      ],
+    },
+    {
       name: "lists/basic",
       blocks: [
         {

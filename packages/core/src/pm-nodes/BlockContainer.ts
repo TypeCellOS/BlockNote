@@ -220,7 +220,11 @@ export const BlockContainer = Node.create<{
             if (block.content) {
               if (typeof block.content === "string") {
                 // Adds a single text node with no marks to the content.
-                content = [state.schema.text(block.content)];
+                content = inlineContentToNodes(
+                  [block.content],
+                  state.schema,
+                  this.options.editor.schema.styleSchema
+                );
               } else if (Array.isArray(block.content)) {
                 // Adds a text node with the provided styles converted into marks to the content,
                 // for each InlineContent object.

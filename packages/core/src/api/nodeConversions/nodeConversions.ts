@@ -212,10 +212,8 @@ function blockOrInlineContentToContentNode(
   if (!block.content) {
     contentNode = schema.nodes[type].create(block.props);
   } else if (typeof block.content === "string") {
-    contentNode = schema.nodes[type].create(
-      block.props,
-      schema.text(block.content)
-    );
+    const nodes = inlineContentToNodes([block.content], schema, styleSchema);
+    contentNode = schema.nodes[type].create(block.props, nodes);
   } else if (Array.isArray(block.content)) {
     const nodes = inlineContentToNodes(block.content, schema, styleSchema);
     contentNode = schema.nodes[type].create(block.props, nodes);
