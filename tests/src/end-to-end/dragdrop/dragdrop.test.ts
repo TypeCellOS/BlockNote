@@ -66,22 +66,17 @@ test.describe("Check Block Dragging Functionality", () => {
     // Dragging first heading into next nested element.
     let dragTarget = await page.locator(H_ONE_BLOCK_SELECTOR);
     let dropTarget = await page.locator(H_TWO_BLOCK_SELECTOR);
-    await page.pause();
     await dragAndDropBlock(page, dragTarget, dropTarget, true);
 
     // Dragging second heading into next nested element.
     dragTarget = await page.locator(H_TWO_BLOCK_SELECTOR);
     dropTarget = await page.locator(H_THREE_BLOCK_SELECTOR);
-    await page.pause();
     await dragAndDropBlock(page, dragTarget, dropTarget, true);
 
     // Dragging third heading into outside nesting.
     dragTarget = await page.locator(H_THREE_BLOCK_SELECTOR);
     dropTarget = await page.locator(BLOCK_CONTAINER_SELECTOR).last();
-    await page.pause();
     await dragAndDropBlock(page, dragTarget, dropTarget, true);
-
-    await page.pause();
 
     await compareDocToSnapshot(page, "dragdropnested");
   });
