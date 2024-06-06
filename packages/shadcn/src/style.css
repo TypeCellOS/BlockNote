@@ -73,10 +73,6 @@
   @apply bg-background text-foreground;
 }
 
-:focus-visible {
-  outline: none;
-}
-
 [data-radix-popper-content-wrapper] {
   z-index: 99999 !important;
 }
