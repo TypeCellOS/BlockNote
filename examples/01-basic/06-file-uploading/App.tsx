@@ -33,6 +33,9 @@ export default function App() {
       {
         type: "image",
       },
+      {
+        type: "paragraph",
+      },
     ],
     uploadFile,
   });
