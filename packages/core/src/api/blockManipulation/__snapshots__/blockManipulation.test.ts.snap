@@ -640,8 +640,8 @@ Line2",
     "content": [
       {
         "styles": {},
-        "text": "Updated Custom Block with
-line
+        "text": "Updated Custom Block with 
+line 
 break",
         "type": "text",
       },
@@ -671,8 +671,8 @@ exports[`Update Line Breaks > Update paragraph with line break 1`] = `
     "content": [
       {
         "styles": {},
-        "text": "Updated Custom Block with
-line
+        "text": "Updated Custom Block with 
+line 
 break",
         "type": "text",
       },
