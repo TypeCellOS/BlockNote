@@ -44,7 +44,7 @@ export const NestBlockButton = () => {
     );
   }, [editor.schema.blockSchema, selectedBlocks]);
 
-  if (!show) {
+  if (!show || !editor.isEditable) {
     return null;
   }
 
@@ -92,7 +92,7 @@ export const UnnestBlockButton = () => {
     );
   }, [editor.schema.blockSchema, selectedBlocks]);
 
-  if (!show) {
+  if (!show || !editor.isEditable) {
     return null;
   }
 

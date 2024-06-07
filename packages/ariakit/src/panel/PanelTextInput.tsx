@@ -1,4 +1,7 @@
-import * as Ariakit from "@ariakit/react";
+import {
+  FormInput as AriakitFormInput,
+  FormProvider as AriakitFormProvider,
+} from "@ariakit/react";
 
 import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
@@ -13,8 +16,8 @@ export const PanelTextInput = forwardRef<
   assertEmpty(rest);
 
   return (
-    <Ariakit.FormProvider>
-      <Ariakit.FormInput
+    <AriakitFormProvider>
+      <AriakitFormInput
         className={mergeCSSClasses("bn-ak-input", className || "")}
         name={"panel-input"}
         value={value}
@@ -24,6 +27,6 @@ export const PanelTextInput = forwardRef<
         data-test={"embed-input"}
         ref={ref}
       />
-    </Ariakit.FormProvider>
+    </AriakitFormProvider>
   );
 });

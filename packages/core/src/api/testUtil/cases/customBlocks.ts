@@ -280,6 +280,15 @@ export const customBlocksTestCases: EditorTestCases<
       ],
     },
     {
+      name: "customParagraph/lineBreaks",
+      blocks: [
+        {
+          type: "customParagraph",
+          content: "Line 1\nLine 2",
+        },
+      ],
+    },
+    {
       name: "simpleCustomParagraph/basic",
       blocks: [
         {

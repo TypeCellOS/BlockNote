@@ -75,7 +75,16 @@ export const getBlockNoteExtensions = <
     Text,
 
     // marks:
-    Link,
+    Link.extend({
+      addKeyboardShortcuts() {
+        return {
+          "Mod-k": () => {
+            this.editor.commands.toggleLink({ href: "" });
+            return true;
+          },
+        };
+      },
+    }),
     ...Object.values(opts.styleSpecs).map((styleSpec) => {
       return styleSpec.implementation.mark;
     }),

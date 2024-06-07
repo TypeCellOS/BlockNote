@@ -6,7 +6,7 @@ import {
   filterSuggestionItems,
 } from "@blocknote/core";
 import { flip, offset, size } from "@floating-ui/react";
-import { FC } from "react";
+import { FC, useCallback, useMemo } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor";
 import { useUIElementPositioning } from "../../hooks/useUIElementPositioning";
@@ -55,26 +55,42 @@ export function SuggestionMenuController<
 
   const { triggerCharacter, suggestionMenuComponent } = props;
 
-  let { onItemClick, getItems } = props;
+  const { onItemClick, getItems } = props;
 
-  if (!onItemClick) {
-    onItemClick = (item: ItemType<GetItemsType>) => {
-      item.onItemClick(editor);
-    };
-  }
+  const onItemClickOrDefault = useMemo(() => {
+    return (
+      onItemClick ||
+      ((item: ItemType<GetItemsType>) => {
+        item.onItemClick(editor);
+      })
+    );
+  }, [editor, onItemClick]);
+
+  const getItemsOrDefault = useMemo(() => {
+    return (
+      getItems ||
+      ((async (query: string) =>
+        filterSuggestionItems(
+          getDefaultReactSlashMenuItems(editor),
+          query
+        )) as any as typeof getItems)
+    );
+  }, [editor, getItems])!;
 
   const callbacks = {
     closeMenu: editor.suggestionMenus.closeMenu,
     clearQuery: editor.suggestionMenus.clearQuery,
   };
 
-  const state = useUIPluginState(
-    (callback: (state: SuggestionMenuState) => void) =>
-      editor.suggestionMenus.onUpdate.bind(editor.suggestionMenus)(
-        triggerCharacter,
-        callback
-      )
+  const cb = useCallback(
+    (callback: (state: SuggestionMenuState) => void) => {
+      return editor.suggestionMenus.onUpdate(triggerCharacter, callback);
+    },
+    [editor.suggestionMenus, triggerCharacter]
   );
+
+  const state = useUIPluginState(cb);
+
   const { isMounted, ref, style, getFloatingProps } = useUIElementPositioning(
     state?.show || false,
     state?.referencePos || null,
@@ -106,23 +122,15 @@ export function SuggestionMenuController<
     return null;
   }
 
-  if (!getItems) {
-    getItems = (async (query: string) =>
-      filterSuggestionItems(
-        getDefaultReactSlashMenuItems(editor),
-        query
-      )) as any;
-  }
-
   return (
     <div ref={ref} style={style} {...getFloatingProps()}>
       <SuggestionMenuWrapper
         query={state.query}
         closeMenu={callbacks.closeMenu}
         clearQuery={callbacks.clearQuery}
-        getItems={getItems!}
+        getItems={getItemsOrDefault}
         suggestionMenuComponent={suggestionMenuComponent || SuggestionMenu}
-        onItemClick={onItemClick}
+        onItemClick={onItemClickOrDefault}
       />
     </div>
   );

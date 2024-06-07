@@ -1,4 +1,12 @@
-import * as Ariakit from "@ariakit/react";
+import {
+  Select as AriakitSelect,
+  SelectArrow as AriakitSelectArrow,
+  SelectItem as AriakitSelectItem,
+  SelectItemCheck as AriakitSelectItemCheck,
+  SelectPopover as AriakitSelectPopover,
+  SelectProvider as AriakitSelectProvider,
+  ToolbarItem as AriakitToolbarItem,
+} from "@ariakit/react";
 
 import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
@@ -19,29 +27,29 @@ export const ToolbarSelect = forwardRef<
   };
 
   return (
-    <Ariakit.SelectProvider value={selectedItem.text} setValue={setValue}>
-      <Ariakit.Select
+    <AriakitSelectProvider value={selectedItem.text} setValue={setValue}>
+      <AriakitSelect
         className={"bn-ak-button bn-ak-secondary"}
         disabled={isDisabled}
         aria-label="Text alignment"
-        render={<Ariakit.ToolbarItem />}>
-        {selectedItem.icon} {selectedItem.text} <Ariakit.SelectArrow />
-      </Ariakit.Select>
-      <Ariakit.SelectPopover
+        render={<AriakitToolbarItem />}>
+        {selectedItem.icon} {selectedItem.text} <AriakitSelectArrow />
+      </AriakitSelect>
+      <AriakitSelectPopover
         className={mergeCSSClasses("bn-ak-popover", className || "")}
         ref={ref}
         gutter={4}>
         {items.map((option) => (
-          <Ariakit.SelectItem
+          <AriakitSelectItem
             className={"bn-ak-select-item"}
             key={option.text}
             value={option.text}>
             {option.icon}
             {option.text}
-            {option.text === selectedItem.text && <Ariakit.SelectItemCheck />}
-          </Ariakit.SelectItem>
+            {option.text === selectedItem.text && <AriakitSelectItemCheck />}
+          </AriakitSelectItem>
         ))}
-      </Ariakit.SelectPopover>
-    </Ariakit.SelectProvider>
+      </AriakitSelectPopover>
+    </AriakitSelectProvider>
   );
 });

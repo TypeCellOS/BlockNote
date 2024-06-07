@@ -1,0 +1,10 @@
+[data-content-type="pdf"] .bn-file-block-content-wrapper,
+[data-content-type="pdf"] .bn-file-and-caption-wrapper {
+    height: 800px;
+    width: 100%;
+}
+
+[data-content-type="pdf"] embed {
+    height: 100%;
+    width: 100%;
+}

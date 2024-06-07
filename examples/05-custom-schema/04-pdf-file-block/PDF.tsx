@@ -6,8 +6,9 @@ import {
   FileAndCaptionWrapper,
   ReactCustomBlockRenderProps,
 } from "@blocknote/react";
-
 import { RiFilePdfFill } from "react-icons/ri";
+
+import "./styles.css";
 
 export const PDFPreview = (
   props: Omit<
@@ -21,8 +22,6 @@ export const PDFPreview = (
       src={props.block.props.url}
       contentEditable={false}
       draggable={false}
-      height={props.editor.domElement.clientWidth * 1.5}
-      width={props.editor.domElement.clientWidth}
       onClick={() => props.editor.setTextCursorPosition(props.block)}
     />
   );

@@ -1,4 +1,4 @@
-import * as Mantine from "@mantine/core";
+import { TextInput as MantineTextInput } from "@mantine/core";
 
 import { assertEmpty } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
@@ -25,7 +25,7 @@ export const TextInput = forwardRef<
   assertEmpty(rest);
 
   return (
-    <Mantine.TextInput
+    <MantineTextInput
       size={"xs"}
       className={className}
       ref={ref}

@@ -5,7 +5,6 @@ import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import { UiElementPosition } from "../../extensions-shared/UiElementPosition";
 import type {
   BlockFromConfig,
-  BlockSchema,
   FileBlockConfig,
   InlineContentSchema,
   StyleSchema,
@@ -26,9 +25,12 @@ export class FilePanelView<I extends InlineContentSchema, S extends StyleSchema>
   public state?: FilePanelState<I, S>;
   public emitUpdate: () => void;
 
-  public prevWasEditable: boolean | null = null;
-
   constructor(
+    private readonly editor: BlockNoteEditor<
+      Record<string, FileBlockConfig>,
+      I,
+      S
+    >,
     private readonly pluginKey: PluginKey,
     private readonly pmView: EditorView,
     emitUpdate: (state: FilePanelState<I, S>) => void
@@ -42,10 +44,12 @@ export class FilePanelView<I extends InlineContentSchema, S extends StyleSchema>
     };
 
     pmView.dom.addEventListener("mousedown", this.mouseDownHandler);
-
     pmView.dom.addEventListener("dragstart", this.dragstartHandler);
 
-    document.addEventListener("scroll", this.scrollHandler);
+    // Setting capture=true ensures that any parent container of the editor that
+    // gets scrolled will trigger the scroll event. Scroll events do not bubble
+    // and so won't propagate to the document by default.
+    document.addEventListener("scroll", this.scrollHandler, true);
   }
 
   mouseDownHandler = () => {
@@ -79,7 +83,7 @@ export class FilePanelView<I extends InlineContentSchema, S extends StyleSchema>
       block: BlockFromConfig<FileBlockConfig, I, S>;
     } = this.pluginKey.getState(view.state);
 
-    if (!this.state?.show && pluginState.block) {
+    if (!this.state?.show && pluginState.block && this.editor.isEditable) {
       const blockElement = document.querySelector(
         `[data-node-type="blockContainer"][data-id="${pluginState.block.id}"]`
       )!;
@@ -97,7 +101,8 @@ export class FilePanelView<I extends InlineContentSchema, S extends StyleSchema>
 
     if (
       !view.state.selection.eq(prevState.selection) ||
-      !view.state.doc.eq(prevState.doc)
+      !view.state.doc.eq(prevState.doc) ||
+      !this.editor.isEditable
     ) {
       if (this.state?.show) {
         this.state.show = false;
@@ -119,29 +124,28 @@ export class FilePanelView<I extends InlineContentSchema, S extends StyleSchema>
 
     this.pmView.dom.removeEventListener("dragstart", this.dragstartHandler);
 
-    document.removeEventListener("scroll", this.scrollHandler);
+    document.removeEventListener("scroll", this.scrollHandler, true);
   }
 }
 
 const filePanelPluginKey = new PluginKey("FilePanelPlugin");
 
 export class FilePanelProsemirrorPlugin<
-  B extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
 > extends EventEmitter<any> {
   private view: FilePanelView<I, S> | undefined;
   public readonly plugin: Plugin;
 
-  constructor(_editor: BlockNoteEditor<B, I, S>) {
+  constructor(editor: BlockNoteEditor<Record<string, FileBlockConfig>, I, S>) {
     super();
     this.plugin = new Plugin<{
       block: BlockFromConfig<FileBlockConfig, I, S> | undefined;
     }>({
       key: filePanelPluginKey,
       view: (editorView) => {
-        this.view = new FilePanelView(
-          // editor,
+        this.view = new FilePanelView<I, S>(
+          editor,
           filePanelPluginKey,
           editorView,
           (state) => {

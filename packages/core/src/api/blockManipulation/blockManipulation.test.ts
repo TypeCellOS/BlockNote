@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
   Block,
-  DefaultBlockSchema,
   defaultBlockSpecs,
   DefaultInlineContentSchema,
   DefaultStyleSchema,
@@ -10,14 +9,13 @@ import {
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import { createBlockSpec } from "../../schema";
 import { BlockNoteSchema } from "../../editor/BlockNoteSchema";
-import { createInternalHTMLSerializer } from "../exporters/html/internalHTMLSerializer";
 
 const CustomBlock = createBlockSpec(
   {
     type: "customBlock",
     propSchema: {},
     content: "inline",
-  },
+  } as const,
   {
     render: () => {
       const dom = document.createElement("div");
@@ -34,7 +32,7 @@ const CustomBlock = createBlockSpec(
 const schema = BlockNoteSchema.create({
   blockSpecs: {
     ...defaultBlockSpecs,
-    customBlock: CustomBlock
+    customBlock: CustomBlock,
   },
 });
 
@@ -53,22 +51,22 @@ function waitForEditor() {
 }
 
 let singleBlock: PartialBlock<
-  DefaultBlockSchema,
+  typeof schema.blockSchema,
   DefaultInlineContentSchema,
   DefaultStyleSchema
 >;
 
 let multipleBlocks: PartialBlock<
-  DefaultBlockSchema,
+  typeof schema.blockSchema,
   DefaultInlineContentSchema,
   DefaultStyleSchema
 >[];
 
-let customBlock: PartialBlock<
+let blocksWithLineBreaks: PartialBlock<
   typeof schema.blockSchema,
   DefaultInlineContentSchema,
   DefaultStyleSchema
->;
+>[];
 
 let insert: (
   placement: "before" | "nested" | "after"
@@ -80,7 +78,7 @@ let insert: (
 
 beforeEach(() => {
   editor = BlockNoteEditor.create<typeof schema.blockSchema>({
-    schema: schema
+    schema: schema,
   });
 
   editor.mount(div);
@@ -125,10 +123,16 @@ beforeEach(() => {
     },
   ];
 
-  customBlock = {
-    type: 'customBlock',
-    content: 'Custom Block',
-  }
+  blocksWithLineBreaks = [
+    {
+      type: "paragraph",
+      content: "Line1\nLine2",
+    },
+    {
+      type: "customBlock",
+      content: "Line1\nLine2",
+    },
+  ];
 
   insert = (placement) => {
     const existingBlock = editor.document[0];
@@ -166,7 +170,7 @@ describe("Test strong typing", () => {
         {
           type: "paragraph",
           props: {
-            // @ts-expect-error level not suitable for paragraph
+            // @ts-expect-error invalid type
             level: 1,
           },
         }
@@ -281,26 +285,33 @@ describe("Insert, Update, & Delete Blocks", () => {
   });
 });
 
-describe("Update Custom Block content", () => {
-  it("update Custom Block with line break", async () => {
+describe("Update Line Breaks", () => {
+  it("Update paragraph with line break", async () => {
     await waitForEditor();
 
     const existingBlock = editor.document[0];
-    editor.insertBlocks([customBlock], existingBlock);
+    editor.insertBlocks(blocksWithLineBreaks, existingBlock);
 
     const newBlock = editor.document[0];
     editor.updateBlock(newBlock, {
-      type: "customBlock",
+      type: "paragraph",
       content: "Updated Custom Block with \nline \nbreak",
-      children: [customBlock],
     });
 
-    const serializer = createInternalHTMLSerializer(
-      editor._tiptapEditor.schema,
-      editor
-    );
-    const internalHTML = serializer.serializeBlocks(editor.document);
-    
-    expect(internalHTML).toMatchSnapshot();
+    expect(editor.document).toMatchSnapshot();
+  });
+  it("Update custom block with line break", async () => {
+    await waitForEditor();
+
+    const existingBlock = editor.document[0];
+    editor.insertBlocks(blocksWithLineBreaks, existingBlock);
+
+    const newBlock = editor.document[1];
+    editor.updateBlock(newBlock, {
+      type: "customBlock",
+      content: "Updated Custom Block with \nline \nbreak",
+    });
+
+    expect(editor.document).toMatchSnapshot();
   });
 });

@@ -33,7 +33,11 @@ export const FileReplaceButton = () => {
 
   const block = selectedBlocks.length === 1 ? selectedBlocks[0] : undefined;
 
-  if (block === undefined || !checkBlockIsFileBlock(block, editor)) {
+  if (
+    block === undefined ||
+    !checkBlockIsFileBlock(block, editor) ||
+    !editor.isEditable
+  ) {
     return null;
   }
 

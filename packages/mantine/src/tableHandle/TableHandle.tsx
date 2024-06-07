@@ -1,3 +1,5 @@
+import { Button as MantineButton } from "@mantine/core";
+
 import { assertEmpty } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
@@ -22,7 +24,7 @@ export const TableHandle = forwardRef<
   assertEmpty(rest, false);
 
   return (
-    <button
+    <MantineButton
       className={className}
       ref={ref}
       aria-label={label}
@@ -32,6 +34,6 @@ export const TableHandle = forwardRef<
       style={style}
       {...rest}>
       {children}
-    </button>
+    </MantineButton>
   );
 });
