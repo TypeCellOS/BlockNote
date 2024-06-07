@@ -1,4 +1,8 @@
-import * as Mantine from "@mantine/core";
+import {
+  CheckIcon as MantineCheckIcon,
+  Menu as MantineMenu,
+} from "@mantine/core";
+import { mergeRefs } from "@mantine/hooks";
 
 import { assertEmpty } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
@@ -81,6 +85,8 @@ const SubMenu = forwardRef<
 
   const [opened, setOpened] = useState(false);
 
+  const itemRef = useRef<HTMLButtonElement | null>(null);
+
   const menuCloseTimer = useRef<ReturnType<typeof setTimeout> | undefined>();
 
   const mouseLeave = useCallback(() => {
@@ -105,13 +111,17 @@ const SubMenu = forwardRef<
         onMenuMouseOver: mouseOver,
         onMenuMouseLeave: mouseLeave,
       }}>
-      <Mantine.Menu.Item
+      <MantineMenu.Item
         className="bn-menu-item bn-mt-sub-menu-item"
-        ref={ref}
+        ref={mergeRefs(ref, itemRef)}
         onMouseOver={mouseOver}
         onMouseLeave={mouseLeave}>
-        <Mantine.Menu
-          withinPortal={false}
+        <MantineMenu
+          portalProps={{
+            target: itemRef.current
+              ? itemRef.current.parentElement!
+              : undefined,
+          }}
           middlewares={{ flip: true, shift: true, inline: false, size: true }}
           trigger={"hover"}
           opened={opened}
@@ -119,8 +129,8 @@ const SubMenu = forwardRef<
           onOpen={() => onOpenChange?.(true)}
           position={position}>
           {children}
-        </Mantine.Menu>
-      </Mantine.Menu.Item>
+        </MantineMenu>
+      </MantineMenu.Item>
     </SubMenuContext.Provider>
   );
 });
@@ -135,14 +145,14 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
   }
 
   return (
-    <Mantine.Menu
+    <MantineMenu
       withinPortal={false}
       middlewares={{ flip: true, shift: true, inline: false, size: true }}
       onClose={() => onOpenChange?.(false)}
       onOpen={() => onOpenChange?.(true)}
       position={position}>
       {children}
-    </Mantine.Menu>
+    </MantineMenu>
   );
 };
 
@@ -167,13 +177,13 @@ export const MenuItem = forwardRef<
   }
 
   return (
-    <Mantine.Menu.Item
+    <MantineMenu.Item
       className={className}
       ref={ref}
       leftSection={icon}
       rightSection={
         checked ? (
-          <Mantine.CheckIcon size={10} />
+          <MantineCheckIcon size={10} />
         ) : checked === false ? (
           <div className={"bn-tick-space"} />
         ) : null
@@ -181,7 +191,7 @@ export const MenuItem = forwardRef<
       onClick={onClick}
       {...rest}>
       {children}
-    </Mantine.Menu.Item>
+    </MantineMenu.Item>
   );
 });
 
@@ -196,7 +206,7 @@ export const MenuTrigger = (
 
   assertEmpty(rest);
 
-  return <Mantine.Menu.Target>{children}</Mantine.Menu.Target>;
+  return <MantineMenu.Target>{children}</MantineMenu.Target>;
 };
 
 export const MenuDropdown = forwardRef<
@@ -215,13 +225,13 @@ export const MenuDropdown = forwardRef<
   const ctx = useContext(SubMenuContext);
 
   return (
-    <Mantine.Menu.Dropdown
+    <MantineMenu.Dropdown
       className={className}
       ref={ref}
       onMouseOver={ctx?.onMenuMouseOver}
       onMouseLeave={ctx?.onMenuMouseLeave}>
       {children}
-    </Mantine.Menu.Dropdown>
+    </MantineMenu.Dropdown>
   );
 });
 
@@ -233,7 +243,7 @@ export const MenuDivider = forwardRef<
 
   assertEmpty(rest);
 
-  return <Mantine.Menu.Divider className={className} ref={ref} />;
+  return <MantineMenu.Divider className={className} ref={ref} />;
 });
 
 export const MenuLabel = forwardRef<
@@ -245,8 +255,8 @@ export const MenuLabel = forwardRef<
   assertEmpty(rest);
 
   return (
-    <Mantine.Menu.Label className={className} ref={ref}>
+    <MantineMenu.Label className={className} ref={ref}>
       {children}
-    </Mantine.Menu.Label>
+    </MantineMenu.Label>
   );
 });

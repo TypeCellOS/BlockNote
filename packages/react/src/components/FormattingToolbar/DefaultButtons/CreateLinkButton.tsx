@@ -78,7 +78,11 @@ export const CreateLinkButton = () => {
     return true;
   }, [linkInSchema, selectedBlocks]);
 
-  if (!show || !("link" in editor.schema.inlineContentSchema)) {
+  if (
+    !show ||
+    !("link" in editor.schema.inlineContentSchema) ||
+    !editor.isEditable
+  ) {
     return null;
   }
 

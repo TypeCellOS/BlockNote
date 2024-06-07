@@ -1,6 +1,6 @@
-import * as Ariakit from "@ariakit/react";
-import { assertEmpty } from "@blocknote/core";
+import { Group as AriakitGroup } from "@ariakit/react";
 
+import { assertEmpty } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
 
@@ -10,11 +10,11 @@ export const SideMenu = forwardRef<
 >((props, ref) => {
   const { className, children, ...rest } = props;
 
-  assertEmpty(rest);
+  assertEmpty(rest, false);
 
   return (
-    <Ariakit.Group className={className} ref={ref}>
+    <AriakitGroup className={className} ref={ref} {...rest}>
       {children}
-    </Ariakit.Group>
+    </AriakitGroup>
   );
 });

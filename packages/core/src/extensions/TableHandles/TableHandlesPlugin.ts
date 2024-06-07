@@ -11,7 +11,7 @@ import {
 } from "../../schema";
 import { checkBlockIsDefaultType } from "../../blocks/defaultBlockTypeGuards";
 import { EventEmitter } from "../../util/EventEmitter";
-import { getDraggableBlockFromCoords } from "../SideMenu/SideMenuPlugin";
+import { getDraggableBlockFromElement } from "../SideMenu/SideMenuPlugin";
 
 let dragImageElement: HTMLElement | undefined;
 
@@ -146,7 +146,7 @@ export class TableHandlesView<
     const tableRect =
       target.parentElement!.parentElement!.getBoundingClientRect();
 
-    const blockEl = getDraggableBlockFromCoords(cellRect, this.pmView);
+    const blockEl = getDraggableBlockFromElement(target, this.pmView);
     if (!blockEl) {
       return;
     }

@@ -1,4 +1,4 @@
-import * as Ariakit from "@ariakit/react";
+import { Button as AriakitButton } from "@ariakit/react";
 
 import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
@@ -24,7 +24,7 @@ export const TableHandle = forwardRef<
   assertEmpty(rest, false);
 
   return (
-    <Ariakit.Button
+    <AriakitButton
       className={mergeCSSClasses(
         "bn-ak-button bn-ak-secondary",
         className || ""
@@ -37,6 +37,6 @@ export const TableHandle = forwardRef<
       style={style}
       {...rest}>
       {children}
-    </Ariakit.Button>
+    </AriakitButton>
   );
 });

@@ -194,11 +194,7 @@ export class BlockNoteEditor<
     ISchema,
     SSchema
   >;
-  public readonly filePanel?: FilePanelProsemirrorPlugin<
-    BSchema,
-    ISchema,
-    SSchema
-  >;
+  public readonly filePanel?: FilePanelProsemirrorPlugin<ISchema, SSchema>;
   public readonly tableHandles?: TableHandlesProsemirrorPlugin<
     ISchema,
     SSchema

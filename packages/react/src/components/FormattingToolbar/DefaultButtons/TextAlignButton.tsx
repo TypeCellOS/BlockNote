@@ -70,7 +70,7 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
     return !!selectedBlocks.find((block) => "textAlignment" in block.props);
   }, [selectedBlocks]);
 
-  if (!show) {
+  if (!show || !editor.isEditable) {
     return null;
   }
 

@@ -1,7 +1,7 @@
+import { assertEmpty } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
 
-import { assertEmpty } from "@blocknote/core";
 import { cn } from "../lib/utils";
 
 export const PanelTab = forwardRef<

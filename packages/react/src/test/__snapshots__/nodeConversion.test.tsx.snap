@@ -50,6 +50,38 @@ exports[`Test React BlockNote-Prosemirror conversion > Case: custom react block 
 }
 `;
 
+exports[`Test React BlockNote-Prosemirror conversion > Case: custom react block schema > Convert reactCustomParagraph/lineBreaks to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "textAlignment": "left",
+      },
+      "content": [
+        {
+          "text": "Line 1",
+          "type": "text",
+        },
+        {
+          "type": "hardBreak",
+        },
+        {
+          "text": "Line 2",
+          "type": "text",
+        },
+      ],
+      "type": "reactCustomParagraph",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
 exports[`Test React BlockNote-Prosemirror conversion > Case: custom react block schema > Convert reactCustomParagraph/nested to/from prosemirror 1`] = `
 {
   "attrs": {

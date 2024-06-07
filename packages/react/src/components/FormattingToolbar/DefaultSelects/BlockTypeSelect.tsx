@@ -149,7 +149,7 @@ export const BlockTypeSelect = (props: { items?: BlockTypeSelectItem[] }) => {
     setBlock(editor.getTextCursorPosition().block);
   }, editor);
 
-  if (!shouldShow) {
+  if (!shouldShow || !editor.isEditable) {
     return null;
   }
 
