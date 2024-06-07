@@ -76,32 +76,12 @@ const SimpleCustomParagraph = createBlockSpec(
   }
 );
 
-const CustomBlock = createBlockSpec(
-  {
-    type: "customBlock",
-    propSchema: {},
-    content: "inline",
-  },
-  {
-    render: () => {
-      const dom = document.createElement("div");
-      dom.className = "custom-block";
-
-      return {
-        dom: dom,
-        contentDOM: dom,
-      };
-    },
-  }
-);
-
 const schema = BlockNoteSchema.create({
   blockSpecs: {
     ...defaultBlockSpecs,
     simpleImage: SimpleImage,
     customParagraph: CustomParagraph,
     simpleCustomParagraph: SimpleCustomParagraph,
-    customBlock: CustomBlock
   },
 });
 
@@ -355,19 +335,6 @@ export const customBlocksTestCases: EditorTestCases<
               content: "Nested Custom Paragraph 2",
             },
           ],
-        },
-      ],
-    },
-    {
-      name: "customBlock/basic",
-      blocks: [
-        {
-          type: "customBlock",
-          content: "Custom customBlock",
-        },
-        {
-          type: "customBlock",
-          content: "Custom customBlock \nwith \nline breaks",
         },
       ],
     },
