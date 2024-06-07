@@ -9,10 +9,10 @@ import {
   NodeViewWrapper,
   ReactNodeViewRenderer,
 } from "@tiptap/react";
-import "./styles.css";
 import { createStronglyTypedTiptapNode, createInternalBlockSpec } from "@blocknote/core";
 import { mergeAttributes } from "@tiptap/core";
 import { ChangeEvent, useEffect, useState, useRef } from "react";
+import "./styles.css";
 
 function loadKaTex(callback: () => void) {
   const Window = window as any;
@@ -156,7 +156,7 @@ function LaTexView() {
       };
 
       (ret as any).contentDOMElement = undefined;
-     
+
       const oldUpdated = ret.update!.bind(ret);
       ret.update = (node, outerDeco, innerDeco) => {
         const retAsAny = ret as any;
