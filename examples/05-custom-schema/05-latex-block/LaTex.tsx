@@ -9,7 +9,7 @@ import {
   NodeViewWrapper,
   ReactNodeViewRenderer,
 } from "@tiptap/react";
-import { createStronglyTypedTiptapNode, createInternalBlockSpec } from "@blocknote/core";
+import { createStronglyTypedTiptapNode, createInternalInlineContentSpec } from "@blocknote/core";
 import { mergeAttributes } from "@tiptap/core";
 import { ChangeEvent, useEffect, useState, useRef } from "react";
 import "./styles.css";
@@ -221,15 +221,13 @@ const node = createStronglyTypedTiptapNode({
   addNodeView: LaTexView(),
 });
 
-export const LaTex = createInternalBlockSpec(
+export const LaTex = createInternalInlineContentSpec(
   {
-    content: "inline",
+    content: "styled",
     type: "latex",
     propSchema: propSchema,
   },
   {
     node,
-    toExternalHTML: undefined as any,
-    toInternalHTML: undefined as any,
   },
 );

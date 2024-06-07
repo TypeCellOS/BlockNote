@@ -1,6 +1,6 @@
 import {
   BlockNoteSchema,
-  defaultBlockSpecs,
+  defaultInlineContentSpecs,
   filterSuggestionItems,
   insertOrUpdateBlock,
 } from "@blocknote/core";
@@ -18,8 +18,8 @@ import { LaTex } from "./LaTex";
 // Our schema with block specs, which contain the configs and implementations for blocks
 // that we want our editor to use.
 const schema = BlockNoteSchema.create({
-  blockSpecs: {
-    ...defaultBlockSpecs,
+  inlineContentSpecs: {
+    ...defaultInlineContentSpecs,
     latex: LaTex,
   },
 });
@@ -33,11 +33,16 @@ const insertLaTex = (editor: typeof schema.BlockNoteEditor) => ({
   group: "Other",
   onItemClick: () => {
     insertOrUpdateBlock(editor, {
-      type: "latex",
-      props: {
-        open: true
-      },
-      content: '\\sqrt{a^2 + b^2}'
+      type: "paragraph",
+      content: [
+        {
+          type: "latex",
+          props: {
+            open: true
+          },
+          content: '\\sqrt{a^2 + b^2}'
+        }
+      ]
     });
   },
 });
