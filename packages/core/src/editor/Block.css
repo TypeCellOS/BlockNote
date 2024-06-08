@@ -192,7 +192,7 @@ NESTED BLOCKS
 
 .bn-block-content[data-content-type="checkListItem"] > div > div > input {
   margin: 0;
-  margin-inline-end: 1.2em;
+  margin-inline-end: 0.5em;
   cursor: pointer;
 }
 
