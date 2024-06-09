@@ -6,12 +6,15 @@ async function parseMarkdownAndCompareSnapshots(
   snapshotName: string
 ) {
   const editor = BlockNoteEditor.create();
+  const div = document.createElement("div");
+  editor.mount(div);
   const blocks = await editor.tryParseMarkdownToBlocks(md);
 
   const snapshotPath = "./__snapshots__/" + snapshotName + ".json";
   expect(JSON.stringify(blocks, undefined, 2)).toMatchFileSnapshot(
     snapshotPath
   );
+  editor.mount(undefined);
 }
 
 describe("Parse Markdown", () => {

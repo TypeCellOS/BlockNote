@@ -1,5 +1,6 @@
-import { BlockSchemaWithBlock, defaultProps } from "@blocknote/core";
-import { ReactSlashMenuItem, createReactBlockSpec } from "@blocknote/react";
+/* eslint-disable no-console */
+import { BlockNoteEditor, defaultProps } from "@blocknote/core";
+import { createReactBlockSpec } from "@blocknote/react";
 import { useEffect, useState } from "react";
 import { RiAlertFill } from "react-icons/ri";
 
@@ -24,7 +25,7 @@ const values = {
 
 export const ReactAlert = createReactBlockSpec(
   {
-    type: "reactAlert" as const,
+    type: "reactAlert",
     propSchema: {
       textAlignment: defaultProps.textAlignment,
       textColor: defaultProps.textColor,
@@ -113,11 +114,9 @@ export const ReactAlert = createReactBlockSpec(
     },
   }
 );
-export const insertReactAler: ReactSlashMenuItem<
-  BlockSchemaWithBlock<"reactAlert", typeof ReactAlert.config>
-> = {
-  name: "Insert React Alert",
-  execute: (editor) => {
+export const insertReactAlert = {
+  title: "Insert React Alert",
+  onItemClick: (editor: BlockNoteEditor<any, any, any>) => {
     editor.insertBlocks(
       [
         {
@@ -128,6 +127,8 @@ export const insertReactAler: ReactSlashMenuItem<
       "after"
     );
   },
+  subtext: "Insert an alert block to emphasize text",
+  icon: <RiAlertFill />,
   aliases: [
     "react",
     "reactAlert",
@@ -140,7 +141,5 @@ export const insertReactAler: ReactSlashMenuItem<
     "info",
     "success",
   ],
-  group: "Media",
-  icon: <RiAlertFill />,
-  hint: "Insert an alert block to emphasize text",
+  group: "Other",
 };

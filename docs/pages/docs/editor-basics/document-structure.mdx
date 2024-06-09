@@ -1,0 +1,97 @@
+---
+description: Learn how documents (the content of the rich text editor) are structured to make the most out of BlockNote.
+---
+
+import { Example } from "@/components/example";
+
+# Document Structure
+
+Learn how documents (the content of the rich text editor) are structured to make the most out of BlockNote.
+
+## Blocks
+
+Each BlockNote document is made up of a list of blocks.
+A block is a piece of content like a paragraph, heading, list item or image. Blocks can be dragged around by users in the editor. A block contains a piece of content and optionally nested (child) blocks:
+
+<img
+  src="/img/screenshots/block_structure.png"
+  alt="image"
+  style={{ width: "100%", marginTop: "1em" }}
+/>
+
+### Block Objects
+
+The `Block` type is used to describe any given block in the editor:
+
+```typescript
+type Block = {
+  id: string;
+  type: string;
+  props: Record<string, boolean | number | string>;
+  content: InlineContent[] | TableContent | undefined;
+  children: Block[];
+};
+```
+
+`id:` The block's ID. Multiple blocks cannot share a single ID, and a block will keep the same ID from when it's created until it's removed.
+
+`type:` The block's type, such as a paragraph, heading, or list item. For an overview of built-in block types, see [Default Blocks](/docs/editor-basics/default-schema#default-blocks).
+
+`props:` The block's properties, which is a set of key/value pairs that further specify how the block looks and behaves. Different block types have different props - see [Default Blocks](/docs/editor-basics/default-schema#default-blocks) for more.
+
+`content:` The block's rich text content, usually represented as an array of `InlineContent` objects. This does not include content from any nested blocks. Read on to [Inline Content](/docs/editor-basics/document-structure#inline-content) for more on this.
+
+`children:` Any blocks nested inside the block. The nested blocks are also represented using `Block` objects.
+
+## Inline Content
+
+The `content` field of a block contains the rich-text content of a block. This is defined as an array of `InlineContent` objects. Inline content can either be styled text or a link (or a custom inline content type if you customize the editor schema).
+
+### Inline Content Objects
+
+The `InlineContent` type is used to describe a piece of inline content:
+
+```typescript
+type Link = {
+  type: "link";
+  content: StyledText[];
+  href: string;
+};
+
+type StyledText = {
+  type: "text";
+  text: string;
+  styles: Styles;
+};
+
+type InlineContent = Link | StyledText;
+```
+
+The `styles` property is explained below.
+
+### Other types of Block Content
+
+While most blocks use an array of `InlineContent` objects to describe their content (e.g.: paragraphs, headings, list items). Some blocks, like [images](/docs/editor-basics/default-schema#image), don't contain any rich text content, so their `content` fields will be `undefined`.
+
+[Tables](/docs/editor-basics/default-schema#table) are also different, as they contain `TableContent`. Here, each table cell is represented as an array of `InlineContent` objects:
+
+```typescript
+type TableContent = {
+  type: "tableContent";
+  rows: {
+    cells: InlineContent[][];
+  }[];
+};
+```
+
+### Styles and Rich Text
+
+The `styles` property of `StyledText` objects is used to describe the rich text styles (e.g.: bold, italic, color) or other attributes of a piece of text. It's a set of key / value pairs that specify the styles applied to the text.
+
+See the [Default Schema](/docs/editor-basics/default-schema) to learn which styles are included in BlockNote by default.
+
+## Document JSON
+
+The demo below shows the editor contents (document) in JSON. It's an array of `Block` objects that updates as you type in the editor:
+
+<Example name="basic/block-objects" />

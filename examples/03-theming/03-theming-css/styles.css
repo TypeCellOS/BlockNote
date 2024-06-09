@@ -1,0 +1,11 @@
+/* Adds border and shadow to editor */
+.bn-container[data-theming-css-demo] .bn-editor * {
+  color: blue;
+}
+
+/* Makes slash menu hovered items blue */
+.bn-container[data-theming-css-demo]
+  .bn-suggestion-menu-item[aria-selected="true"],
+.bn-container[data-theming-css-demo] .bn-suggestion-menu-item:hover {
+  background-color: blue;
+}

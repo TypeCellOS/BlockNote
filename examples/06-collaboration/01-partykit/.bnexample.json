@@ -1,0 +1,10 @@
+{
+  "playground": true,
+  "docs": true,
+  "author": "yousefed",
+  "tags": ["Advanced", "Saving/Loading", "Collaboration"],
+  "dependencies": {
+    "y-partykit": "^0.0.25",
+    "yjs": "^13.6.15"
+  }
+}

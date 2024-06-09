@@ -2,6 +2,7 @@
 import { test } from "../../setup/setupScript";
 import { BASE_URL } from "../../utils/const";
 import {
+  copyPaste,
   copyPasteAll,
   insertHeading,
   insertListItems,
@@ -160,10 +161,10 @@ test.describe("Check Copy/Paste Functionality", () => {
     await page.click(`img`);
 
     await page.waitForSelector(
-      `[class*="bn-image-resize-handle"][style*="right"]`
+      `[class*="bn-visual-media-resize-handle"][style*="right"]`
     );
     const resizeHandle = page.locator(
-      `[class*="bn-image-resize-handle"][style*="right"]`
+      `[class*="bn-visual-media-resize-handle"][style*="right"]`
     );
     const resizeHandleBoundingBox = (await resizeHandle.boundingBox())!;
     await page.mouse.move(
@@ -185,12 +186,7 @@ test.describe("Check Copy/Paste Functionality", () => {
 
     await page.mouse.up();
 
-    await page.click(`img`);
-    await page.keyboard.press("ArrowDown");
-    await page.pause();
-
-    await copyPasteAll(page);
-    await page.pause();
+    await copyPaste(page);
 
     await compareDocToSnapshot(page, "images.json");
   });

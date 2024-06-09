@@ -2,20 +2,17 @@ import { PluginView } from "@tiptap/pm/state";
 import { Node } from "prosemirror-model";
 import { NodeSelection, Plugin, PluginKey, Selection } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
+
 import { createExternalHTMLExporter } from "../../api/exporters/html/externalHTMLExporter";
 import { createInternalHTMLSerializer } from "../../api/exporters/html/internalHTMLSerializer";
 import { cleanHTMLToMarkdown } from "../../api/exporters/markdown/markdownExporter";
 import { getBlockInfoFromPos } from "../../api/getBlockInfoFromPos";
+import { Block } from "../../blocks/defaultBlocks";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
-import { BaseUiElementState } from "../../extensions-shared/BaseUiElementTypes";
-import {
-  Block,
-  BlockSchema,
-  InlineContentSchema,
-  StyleSchema,
-} from "../../schema";
+import { UiElementPosition } from "../../extensions-shared/UiElementPosition";
+import { BlockSchema, InlineContentSchema, StyleSchema } from "../../schema";
 import { EventEmitter } from "../../util/EventEmitter";
-import { slashMenuPluginKey } from "../SlashMenu/SlashMenuPlugin";
+import { suggestionMenuPluginKey } from "../SuggestionMenu/SuggestionPlugin";
 import { MultipleNodeSelection } from "./MultipleNodeSelection";
 
 let dragImageElement: Element | undefined;
@@ -24,51 +21,31 @@ export type SideMenuState<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
-> = BaseUiElementState & {
+> = UiElementPosition & {
   // The block that the side menu is attached to.
   block: Block<BSchema, I, S>;
 };
 
-export function getDraggableBlockFromCoords(
-  coords: { left: number; top: number },
+export function getDraggableBlockFromElement(
+  element: Element,
   view: EditorView
 ) {
-  if (!view.dom.isConnected) {
-    // view is not connected to the DOM, this can cause posAtCoords to fail
-    // (Cannot read properties of null (reading 'nearestDesc'), https://github.com/TypeCellOS/BlockNote/issues/123)
-    return undefined;
-  }
-
-  const pos = view.posAtCoords(coords);
-  if (!pos) {
-    return undefined;
-  }
-  let node = view.domAtPos(pos.pos).node as HTMLElement;
-
-  if (node === view.dom) {
-    // mouse over root
-    return undefined;
-  }
-
   while (
-    node &&
-    node.parentNode &&
-    node.parentNode !== view.dom &&
-    !node.hasAttribute?.("data-id")
+    element &&
+    element.parentElement &&
+    element.parentElement !== view.dom &&
+    !element.hasAttribute?.("data-id")
   ) {
-    node = node.parentNode as HTMLElement;
+    element = element.parentElement;
   }
-  if (!node) {
+  if (!element.hasAttribute("data-id")) {
     return undefined;
   }
-  return { node, id: node.getAttribute("data-id")! };
+  return { node: element as HTMLElement, id: element.getAttribute("data-id")! };
 }
 
-function blockPositionFromCoords(
-  coords: { left: number; top: number },
-  view: EditorView
-) {
-  const block = getDraggableBlockFromCoords(coords, view);
+function blockPositionFromElement(element: Element, view: EditorView) {
+  const block = getDraggableBlockFromElement(element, view);
 
   if (block && block.node.nodeType === 1) {
     // TODO: this uses undocumented PM APIs? do we need this / let's add docs?
@@ -200,7 +177,21 @@ function dragStart<
     top: e.clientY,
   };
 
-  const pos = blockPositionFromCoords(coords, view);
+  const elements = document.elementsFromPoint(coords.left, coords.top);
+  let blockEl = undefined;
+
+  for (const element of elements) {
+    if (view.dom.contains(element)) {
+      blockEl = getDraggableBlockFromElement(element, view);
+      break;
+    }
+  }
+
+  if (!blockEl) {
+    return;
+  }
+
+  const pos = blockPositionFromElement(blockEl.node, view);
   if (pos != null) {
     const selection = view.state.selection;
     const doc = view.state.doc;
@@ -257,7 +248,11 @@ export class SideMenuView<
   S extends StyleSchema
 > implements PluginView
 {
-  private sideMenuState?: SideMenuState<BSchema, I, S>;
+  public state?: SideMenuState<BSchema, I, S>;
+  public readonly emitUpdate: (state: SideMenuState<BSchema, I, S>) => void;
+
+  private needUpdate = false;
+  private mousePos: { x: number; y: number } | undefined;
 
   // When true, the drag handle with be anchored at the same level as root elements
   // When false, the drag handle with be just to the left of the element
@@ -275,10 +270,16 @@ export class SideMenuView<
   constructor(
     private readonly editor: BlockNoteEditor<BSchema, I, S>,
     private readonly pmView: EditorView,
-    private readonly updateSideMenu: (
-      sideMenuState: SideMenuState<BSchema, I, S>
-    ) => void
+    emitUpdate: (state: SideMenuState<BSchema, I, S>) => void
   ) {
+    this.emitUpdate = () => {
+      if (!this.state) {
+        throw new Error("Attempting to update uninitialized side menu");
+      }
+
+      emitUpdate(this.state);
+    };
+
     this.horizontalPosAnchoredAtRoot = true;
     this.horizontalPosAnchor = (
       this.pmView.dom.firstChild! as HTMLElement
@@ -291,14 +292,97 @@ export class SideMenuView<
     // Shows or updates menu position whenever the cursor moves, if the menu isn't frozen.
     document.body.addEventListener("mousemove", this.onMouseMove, true);
 
-    // Makes menu scroll with the page.
-    document.addEventListener("scroll", this.onScroll);
-
-    // Unfreezes the menu whenever the user clicks anywhere.
-    document.body.addEventListener("mousedown", this.onMouseDown, true);
+    // Unfreezes the menu whenever the user clicks.
+    this.pmView.dom.addEventListener("mousedown", this.onMouseDown);
     // Hides and unfreezes the menu whenever the user presses a key.
     document.body.addEventListener("keydown", this.onKeyDown, true);
+
+    // Setting capture=true ensures that any parent container of the editor that
+    // gets scrolled will trigger the scroll event. Scroll events do not bubble
+    // and so won't propagate to the document by default.
+    document.addEventListener("scroll", this.onScroll, true);
   }
+
+  updateState = () => {
+    if (this.menuFrozen || !this.mousePos) {
+      return;
+    }
+
+    // Editor itself may have padding or other styling which affects
+    // size/position, so we get the boundingRect of the first child (i.e. the
+    // blockGroup that wraps all blocks in the editor) for more accurate side
+    // menu placement.
+    const editorBoundingBox = (
+      this.pmView.dom.firstChild! as HTMLElement
+    ).getBoundingClientRect();
+
+    this.horizontalPosAnchor = editorBoundingBox.x;
+
+    // Gets block at mouse cursor's vertical position.
+    const coords = {
+      left: editorBoundingBox.left + editorBoundingBox.width / 2, // take middle of editor
+      top: this.mousePos.y,
+    };
+
+    const elements = document.elementsFromPoint(coords.left, coords.top);
+    let block = undefined;
+
+    for (const element of elements) {
+      if (this.pmView.dom.contains(element)) {
+        block = getDraggableBlockFromElement(element, this.pmView);
+        break;
+      }
+    }
+
+    // Closes the menu if the mouse cursor is beyond the editor vertically.
+    if (!block || !this.editor.isEditable) {
+      if (this.state?.show) {
+        this.state.show = false;
+        this.needUpdate = true;
+      }
+
+      return;
+    }
+
+    // Doesn't update if the menu is already open and the mouse cursor is still hovering the same block.
+    if (
+      this.state?.show &&
+      this.hoveredBlock?.hasAttribute("data-id") &&
+      this.hoveredBlock?.getAttribute("data-id") === block.id
+    ) {
+      return;
+    }
+
+    this.hoveredBlock = block.node;
+
+    // Gets the block's content node, which lets to ignore child blocks when determining the block menu's position.
+    const blockContent = block.node.firstChild as HTMLElement;
+
+    if (!blockContent) {
+      return;
+    }
+
+    // Shows or updates elements.
+    if (this.editor.isEditable) {
+      const blockContentBoundingBox = blockContent.getBoundingClientRect();
+
+      this.state = {
+        show: true,
+        referencePos: new DOMRect(
+          this.horizontalPosAnchoredAtRoot
+            ? this.horizontalPosAnchor
+            : blockContentBoundingBox.x,
+          blockContentBoundingBox.y,
+          blockContentBoundingBox.width,
+          blockContentBoundingBox.height
+        ),
+        block: this.editor.getBlock(
+          this.hoveredBlock!.getAttribute("data-id")!
+        )!,
+      };
+      this.needUpdate = true;
+    }
+  };
 
   /**
    * Sets isDragging when dragging text.
@@ -371,41 +455,33 @@ export class SideMenuView<
   };
 
   onKeyDown = (_event: KeyboardEvent) => {
-    if (this.sideMenuState?.show) {
-      this.sideMenuState.show = false;
-      this.updateSideMenu(this.sideMenuState);
+    if (this.state?.show && this.editor.isFocused()) {
+      // Typing in editor should hide side menu
+      this.state.show = false;
+      this.emitUpdate(this.state);
+      this.menuFrozen = false;
     }
-    this.menuFrozen = false;
   };
 
-  onMouseDown = (_event: MouseEvent) => {
-    if (this.sideMenuState && !this.sideMenuState.show) {
-      this.sideMenuState.show = true;
-      this.updateSideMenu(this.sideMenuState);
+  onMouseDown = () => {
+    if (this.state && this.state.show && this.menuFrozen) {
+      this.menuFrozen = false;
+      this.state.show = false;
+      this.emitUpdate(this.state);
     }
-    this.menuFrozen = false;
   };
 
   onMouseMove = (event: MouseEvent) => {
-    if (this.menuFrozen) {
-      return;
-    }
+    this.mousePos = { x: event.clientX, y: event.clientY };
 
-    // Editor itself may have padding or other styling which affects
-    // size/position, so we get the boundingRect of the first child (i.e. the
-    // blockGroup that wraps all blocks in the editor) for more accurate side
-    // menu placement.
-    const editorBoundingBox = (
-      this.pmView.dom.firstChild! as HTMLElement
-    ).getBoundingClientRect();
     // We want the full area of the editor to check if the cursor is hovering
     // above it though.
     const editorOuterBoundingBox = this.pmView.dom.getBoundingClientRect();
     const cursorWithinEditor =
-      event.clientX >= editorOuterBoundingBox.left &&
-      event.clientX <= editorOuterBoundingBox.right &&
-      event.clientY >= editorOuterBoundingBox.top &&
-      event.clientY <= editorOuterBoundingBox.bottom;
+      this.mousePos.x > editorOuterBoundingBox.left &&
+      this.mousePos.x < editorOuterBoundingBox.right &&
+      this.mousePos.y > editorOuterBoundingBox.top &&
+      this.mousePos.y < editorOuterBoundingBox.bottom;
 
     const editorWrapper = this.pmView.dom.parentElement!;
 
@@ -423,80 +499,28 @@ export class SideMenuView<
         editorWrapper.contains(event.target as HTMLElement)
       )
     ) {
-      if (this.sideMenuState?.show) {
-        this.sideMenuState.show = false;
-        this.updateSideMenu(this.sideMenuState);
+      if (this.state?.show) {
+        this.state.show = false;
+        this.emitUpdate(this.state);
       }
 
       return;
     }
 
-    this.horizontalPosAnchor = editorBoundingBox.x;
+    this.updateState();
 
-    // Gets block at mouse cursor's vertical position.
-    const coords = {
-      left: editorBoundingBox.left + editorBoundingBox.width / 2, // take middle of editor
-      top: event.clientY,
-    };
-    const block = getDraggableBlockFromCoords(coords, this.pmView);
-
-    // Closes the menu if the mouse cursor is beyond the editor vertically.
-    if (!block || !this.editor.isEditable) {
-      if (this.sideMenuState?.show) {
-        this.sideMenuState.show = false;
-        this.updateSideMenu(this.sideMenuState);
-      }
-
-      return;
-    }
-
-    // Doesn't update if the menu is already open and the mouse cursor is still hovering the same block.
-    if (
-      this.sideMenuState?.show &&
-      this.hoveredBlock?.hasAttribute("data-id") &&
-      this.hoveredBlock?.getAttribute("data-id") === block.id
-    ) {
-      return;
-    }
-
-    this.hoveredBlock = block.node;
-
-    // Gets the block's content node, which lets to ignore child blocks when determining the block menu's position.
-    const blockContent = block.node.firstChild as HTMLElement;
-
-    if (!blockContent) {
-      return;
-    }
-
-    // Shows or updates elements.
-    if (this.editor.isEditable) {
-      const blockContentBoundingBox = blockContent.getBoundingClientRect();
-
-      this.sideMenuState = {
-        show: true,
-        referencePos: new DOMRect(
-          this.horizontalPosAnchoredAtRoot
-            ? this.horizontalPosAnchor
-            : blockContentBoundingBox.x,
-          blockContentBoundingBox.y,
-          blockContentBoundingBox.width,
-          blockContentBoundingBox.height
-        ),
-        block: this.editor.getBlock(
-          this.hoveredBlock!.getAttribute("data-id")!
-        )!,
-      };
-
-      this.updateSideMenu(this.sideMenuState);
+    if (this.needUpdate) {
+      this.emitUpdate(this.state!);
+      this.needUpdate = false;
     }
   };
 
   onScroll = () => {
-    if (this.sideMenuState?.show) {
+    if (this.state?.show) {
       const blockContent = this.hoveredBlock!.firstChild as HTMLElement;
       const blockContentBoundingBox = blockContent.getBoundingClientRect();
 
-      this.sideMenuState.referencePos = new DOMRect(
+      this.state.referencePos = new DOMRect(
         this.horizontalPosAnchoredAtRoot
           ? this.horizontalPosAnchor
           : blockContentBoundingBox.x,
@@ -504,31 +528,47 @@ export class SideMenuView<
         blockContentBoundingBox.width,
         blockContentBoundingBox.height
       );
-      this.updateSideMenu(this.sideMenuState);
+      this.emitUpdate(this.state);
     }
   };
 
-  destroy() {
-    if (this.sideMenuState?.show) {
-      this.sideMenuState.show = false;
-      this.updateSideMenu(this.sideMenuState);
+  // Needed in cases where the editor state updates without the mouse cursor
+  // moving, as some state updates can require a side menu update. For example,
+  // adding a button to the side menu which removes the block can cause the
+  // block below to jump up into the place of the removed block when clicked,
+  // allowing the user to click the button again without moving the cursor. This
+  // would otherwise not update the side menu, and so clicking the button again
+  // would attempt to remove the same block again, causing an error.
+  update() {
+    const prevBlockId = this.state?.block.id;
+
+    this.updateState();
+
+    if (this.needUpdate && this.state && prevBlockId !== this.state.block.id) {
+      this.emitUpdate(this.state);
+      this.needUpdate = false;
     }
-    document.body.removeEventListener("mousemove", this.onMouseMove);
+  }
+
+  destroy() {
+    if (this.state?.show) {
+      this.state.show = false;
+      this.emitUpdate(this.state);
+    }
+    document.body.removeEventListener("mousemove", this.onMouseMove, true);
     document.body.removeEventListener("dragover", this.onDragOver);
     this.pmView.dom.removeEventListener("dragstart", this.onDragStart);
     document.body.removeEventListener("drop", this.onDrop, true);
-    document.removeEventListener("scroll", this.onScroll);
-    document.body.removeEventListener("mousedown", this.onMouseDown, true);
+    document.removeEventListener("scroll", this.onScroll, true);
+    this.pmView.dom.removeEventListener("mousedown", this.onMouseDown);
     document.body.removeEventListener("keydown", this.onKeyDown, true);
   }
 
   addBlock() {
-    if (this.sideMenuState?.show) {
-      this.sideMenuState.show = false;
-      this.updateSideMenu(this.sideMenuState);
+    if (this.state?.show) {
+      this.state.show = false;
+      this.emitUpdate(this.state);
     }
-
-    this.menuFrozen = true;
 
     const blockContent = this.hoveredBlock!.firstChild! as HTMLElement;
     const blockContentBoundingBox = blockContent.getBoundingClientRect();
@@ -549,30 +589,32 @@ export class SideMenuView<
       return;
     }
 
-    const { contentNode, endPos } = blockInfo;
+    const { contentNode, startPos, endPos } = blockInfo;
 
     // Creates a new block if current one is not empty for the suggestion menu to open in.
-    if (contentNode.textContent.length !== 0) {
+    if (
+      contentNode.type.spec.content !== "inline*" ||
+      contentNode.textContent.length !== 0
+    ) {
       const newBlockInsertionPos = endPos + 1;
       const newBlockContentPos = newBlockInsertionPos + 2;
 
       this.editor._tiptapEditor
         .chain()
         .BNCreateBlock(newBlockInsertionPos)
-        .BNUpdateBlock(newBlockContentPos, { type: "paragraph", props: {} })
+        // .BNUpdateBlock(newBlockContentPos, { type: "paragraph", props: {} })
         .setTextSelection(newBlockContentPos)
         .run();
     } else {
-      this.editor._tiptapEditor.commands.setTextSelection(endPos);
+      this.editor._tiptapEditor.commands.setTextSelection(startPos + 1);
     }
 
     // Focuses and activates the suggestion menu.
     this.pmView.focus();
     this.pmView.dispatch(
-      this.pmView.state.tr.scrollIntoView().setMeta(slashMenuPluginKey, {
-        // TODO import suggestion plugin key
-        activate: true,
-        type: "drag",
+      this.pmView.state.tr.scrollIntoView().setMeta(suggestionMenuPluginKey, {
+        triggerCharacter: "/",
+        fromUserInput: false,
       })
     );
   }
@@ -585,7 +627,7 @@ export class SideMenuProsemirrorPlugin<
   I extends InlineContentSchema,
   S extends StyleSchema
 > extends EventEmitter<any> {
-  private sideMenuView: SideMenuView<BSchema, I, S> | undefined;
+  public view: SideMenuView<BSchema, I, S> | undefined;
   public readonly plugin: Plugin;
 
   constructor(private readonly editor: BlockNoteEditor<BSchema, I, S>) {
@@ -593,14 +635,10 @@ export class SideMenuProsemirrorPlugin<
     this.plugin = new Plugin({
       key: sideMenuPluginKey,
       view: (editorView) => {
-        this.sideMenuView = new SideMenuView(
-          editor,
-          editorView,
-          (sideMenuState) => {
-            this.emit("update", sideMenuState);
-          }
-        );
-        return this.sideMenuView;
+        this.view = new SideMenuView(editor, editorView, (state) => {
+          this.emit("update", state);
+        });
+        return this.view;
       },
     });
   }
@@ -613,7 +651,7 @@ export class SideMenuProsemirrorPlugin<
    * If the block is empty, opens the slash menu. If the block has content,
    * creates a new block below and opens the slash menu in it.
    */
-  addBlock = () => this.sideMenuView!.addBlock();
+  addBlock = () => this.view!.addBlock();
 
   /**
    * Handles drag & drop events for blocks.
@@ -622,7 +660,7 @@ export class SideMenuProsemirrorPlugin<
     dataTransfer: DataTransfer | null;
     clientY: number;
   }) => {
-    this.sideMenuView!.isDragging = true;
+    this.view!.isDragging = true;
     dragStart(event, this.editor);
   };
 
@@ -635,11 +673,15 @@ export class SideMenuProsemirrorPlugin<
    * attached to the same block regardless of which block is hovered by the
    * mouse cursor.
    */
-  freezeMenu = () => (this.sideMenuView!.menuFrozen = true);
+  freezeMenu = () => (this.view!.menuFrozen = true);
   /**
    * Unfreezes the side menu. When frozen, the side menu will stay
    * attached to the same block regardless of which block is hovered by the
    * mouse cursor.
    */
-  unfreezeMenu = () => (this.sideMenuView!.menuFrozen = false);
+  unfreezeMenu = () => {
+    this.view!.menuFrozen = false;
+    this.view!.state!.show = false;
+    this.view!.emitUpdate(this.view!.state!);
+  };
 }

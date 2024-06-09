@@ -1,14 +1,14 @@
 import { EditorTestCases } from "../index";
 
-import { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
+import { uploadToTmpFilesDotOrg_DEV_ONLY } from "../../../blocks/FileBlockContent/uploadToTmpFilesDotOrg_DEV_ONLY";
 import {
   DefaultBlockSchema,
   DefaultInlineContentSchema,
   defaultStyleSpecs,
 } from "../../../blocks/defaultBlocks";
-import { uploadToTmpFilesDotOrg_DEV_ONLY } from "../../../blocks/ImageBlockContent/uploadToTmpFilesDotOrg_DEV_ONLY";
+import { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
+import { BlockNoteSchema } from "../../../editor/BlockNoteSchema";
 import { createStyleSpec } from "../../../schema/styles/createSpec";
-import { StyleSchemaFromSpecs, StyleSpecs } from "../../../schema/styles/types";
 
 const small = createStyleSpec(
   {
@@ -43,22 +43,24 @@ const fontSize = createStyleSpec(
   }
 );
 
-const customStyles = {
-  ...defaultStyleSpecs,
-  small,
-  fontSize,
-} satisfies StyleSpecs;
+const schema = BlockNoteSchema.create({
+  styleSpecs: {
+    ...defaultStyleSpecs,
+    small,
+    fontSize,
+  },
+});
 
 export const customStylesTestCases: EditorTestCases<
   DefaultBlockSchema,
   DefaultInlineContentSchema,
-  StyleSchemaFromSpecs<typeof customStyles>
+  typeof schema.styleSchema
 > = {
   name: "custom style schema",
   createEditor: () => {
     return BlockNoteEditor.create({
       uploadFile: uploadToTmpFilesDotOrg_DEV_ONLY,
-      styleSpecs: customStyles,
+      schema,
     });
   },
   documents: [

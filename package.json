@@ -3,36 +3,35 @@
   "private": true,
   "workspaces": [
     "packages/*",
-    "examples/*",
-    "tests"
+    "playground",
+    "tests",
+    "docs"
   ],
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.5.0",
+    "@typescript-eslint/parser": "^5.5.0",
     "eslint": "^8.22.0",
-    "eslint-plugin-import": "^2.28.0",
     "eslint-config-react-app": "^7.0.0",
+    "eslint-plugin-import": "^2.28.0",
+    "glob": "^10.3.10",
     "lerna": "^5.4.0",
     "patch-package": "^6.4.7",
-    "typescript": "^5.2.2",
-    "@typescript-eslint/parser": "^5.5.0",
-    "@typescript-eslint/eslint-plugin": "^5.5.0"
+    "typescript": "^5.3.3"
   },
   "scripts": {
     "start": "lerna run --stream --scope @blocknote/example-editor dev",
-    "start:built": "npx serve examples/editor/dist -c ../serve.json",
-    "build": "lerna run --stream build --concurrency 1",
+    "gen": "lerna run --stream --scope @blocknote/dev-scripts gen",
+    "start:built": "npx serve playground/dist -c ../serve.json",
+    "build": "npm run clean && npm run gen && npm run clean && lerna run --stream build --concurrency 1",
     "build:site": "lerna run --stream docs:build --concurrency 1",
     "lint": "lerna run --stream lint",
     "bootstrap": "lerna bootstrap --ci -- --force && patch-package",
     "install-new-packages": "lerna bootstrap -- --force && patch-package",
     "test": "lerna run --stream test",
-    "install-playwright": "npx playwright install --with-deps",
+    "install-playwright": "cd tests && npx playwright install --with-deps",
     "deploy": "lerna publish -- --access public",
     "prepublishOnly": "npm run build && cp README.md packages/core/README.md && cp README.md packages/react/README.md",
-    "postpublish": "rm -rf packages/core/README.md && rm -rf packages/react/README.md"
-  },
-  "overrides": {
-    "react": "18.2.0",
-    "react-dom": "18.2.0",
-    "prosemirror-model": "1.18.3"
+    "postpublish": "rm -rf packages/core/README.md && rm -rf packages/react/README.md",
+    "clean": "lerna run --stream clean"
   }
 }

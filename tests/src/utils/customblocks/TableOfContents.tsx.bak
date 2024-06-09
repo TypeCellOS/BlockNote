@@ -53,7 +53,7 @@ export const TableOfContents = createBlockSpec(
 
       editor.onEditorContentChange(() => {
         toc.innerHTML = "";
-        for (const block of editor.topLevelBlocks) {
+        for (const block of editor.document) {
           if (block.type === "heading") {
             toc.appendChild(createHeadingElements(block));
           }

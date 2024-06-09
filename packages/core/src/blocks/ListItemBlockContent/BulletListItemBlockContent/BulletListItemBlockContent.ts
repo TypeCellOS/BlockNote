@@ -7,6 +7,7 @@ import {
 import { createDefaultBlockDOMOutputSpec } from "../../defaultBlockHelpers";
 import { defaultProps } from "../../defaultProps";
 import { handleEnter } from "../ListItemKeyboardShortcuts";
+import { getCurrentBlockContentType } from "../../../api/getCurrentBlockContentType";
 
 export const bulletListItemPropSchema = {
   ...defaultProps,
@@ -16,12 +17,19 @@ const BulletListItemBlockContent = createStronglyTypedTiptapNode({
   name: "bulletListItem",
   content: "inline*",
   group: "blockContent",
+  // This is to make sure that check list parse rules run before, since they
+  // both parse `li` elements but check lists are more specific.
+  priority: 90,
   addInputRules() {
     return [
       // Creates an unordered list when starting with "-", "+", or "*".
       new InputRule({
         find: new RegExp(`^[-+*]\\s$`),
         handler: ({ state, chain, range }) => {
+          if (getCurrentBlockContentType(this.editor) !== "inline*") {
+            return;
+          }
+
           chain()
             .BNUpdateBlock(state.selection.from, {
               type: "bulletListItem",
@@ -37,11 +45,19 @@ const BulletListItemBlockContent = createStronglyTypedTiptapNode({
   addKeyboardShortcuts() {
     return {
       Enter: () => handleEnter(this.editor),
-      "Mod-Shift-7": () =>
-        this.editor.commands.BNUpdateBlock(this.editor.state.selection.anchor, {
-          type: "bulletListItem",
-          props: {},
-        }),
+      "Mod-Shift-8": () => {
+        if (getCurrentBlockContentType(this.editor) !== "inline*") {
+          return true;
+        }
+
+        return this.editor.commands.BNUpdateBlock(
+          this.editor.state.selection.anchor,
+          {
+            type: "bulletListItem",
+            props: {},
+          }
+        );
+      },
     };
   },
 

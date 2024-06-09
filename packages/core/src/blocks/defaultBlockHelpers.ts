@@ -1,7 +1,7 @@
 import { blockToNode } from "../api/nodeConversions/nodeConversions";
 import type { BlockNoteEditor } from "../editor/BlockNoteEditor";
 import type {
-  Block,
+  BlockNoDefaults,
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
@@ -61,13 +61,13 @@ export const defaultBlockToHTML = <
   I extends InlineContentSchema,
   S extends StyleSchema
 >(
-  block: Block<BSchema, I, S>,
+  block: BlockNoDefaults<BSchema, I, S>,
   editor: BlockNoteEditor<BSchema, I, S>
 ): {
   dom: HTMLElement;
   contentDOM?: HTMLElement;
 } => {
-  const node = blockToNode(block, editor.pmSchema, editor.styleSchema)
+  const node = blockToNode(block, editor.pmSchema, editor.schema.styleSchema)
     .firstChild!;
   const toDOM = editor.pmSchema.nodes[node.type.name].spec.toDOM;
 

@@ -8,6 +8,9 @@ import {
   nodeToBlock,
   partialBlockToBlockForTesting,
 } from "@blocknote/core";
+import { flushSync } from "react-dom";
+import { Root, createRoot } from "react-dom/client";
+import { BlockNoteViewRaw } from "../editor/BlockNoteView";
 import { customReactBlockSchemaTestCases } from "./testCases/customReactBlocks";
 import { customReactInlineContentTestCases } from "./testCases/customReactInlineContent";
 import { customReactStylesTestCases } from "./testCases/customReactStyles";
@@ -29,20 +32,20 @@ function validateConversion(
   const node = blockToNode(
     block,
     editor._tiptapEditor.schema,
-    editor.styleSchema
+    editor.schema.styleSchema
   );
 
   expect(node).toMatchSnapshot();
 
   const outputBlock = nodeToBlock(
     node,
-    editor.blockSchema,
-    editor.inlineContentSchema,
-    editor.styleSchema
+    editor.schema.blockSchema,
+    editor.schema.inlineContentSchema,
+    editor.schema.styleSchema
   );
 
   const fullOriginalBlock = partialBlockToBlockForTesting(
-    editor.blockSchema,
+    editor.schema.blockSchema,
     block
   );
 
@@ -59,12 +62,23 @@ describe("Test React BlockNote-Prosemirror conversion", () => {
   for (const testCase of testCases) {
     describe("Case: " + testCase.name, () => {
       let editor: BlockNoteEditor<any, any, any>;
+      // TODO: Why do we need to render for unit tests?
+      let root: Root;
+      const div = document.createElement("div");
 
       beforeEach(() => {
         editor = testCase.createEditor();
+
+        const el = <BlockNoteViewRaw editor={editor} />;
+        root = createRoot(div);
+        flushSync(() => {
+          // eslint-disable-next-line testing-library/no-render-in-setup
+          root.render(el);
+        });
       });
 
       afterEach(() => {
+        root.unmount();
         editor._tiptapEditor.destroy();
         editor = undefined as any;
 

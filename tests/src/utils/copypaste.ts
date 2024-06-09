@@ -2,14 +2,20 @@ import { Page } from "@playwright/test";
 import { PASTE_ZONE_SELECTOR, TYPE_DELAY } from "./const";
 import { focusOnEditor } from "./editor";
 
-export async function copyPasteAll(page: Page, os: "mac" | "linux" = "linux") {
+export async function copyPaste(page: Page, os: "mac" | "linux" = "linux") {
   const modifierKey = os === "mac" ? "Meta" : "Control";
 
-  await page.keyboard.press(`${modifierKey}+A`);
   await page.keyboard.press(`${modifierKey}+C`);
   await page.keyboard.press("ArrowDown", { delay: TYPE_DELAY });
   await page.keyboard.press("Enter");
   await page.keyboard.press(`${modifierKey}+V`);
+}
+
+export async function copyPasteAll(page: Page, os: "mac" | "linux" = "linux") {
+  const modifierKey = os === "mac" ? "Meta" : "Control";
+
+  await page.keyboard.press(`${modifierKey}+A`);
+  await copyPaste(page, os);
 }
 
 export async function copyPasteAllExternal(

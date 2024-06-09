@@ -11,7 +11,7 @@ assignees: ''
 <what's going wrong!?>
 
 **To Reproduce**
-<links to a sandbox or clear steps to reproduce are super helpful!>
+<clear steps to reproduce are super helpful! Best is to provide an online sandbox, [click to create one](https://stackblitz.com/github/TypeCellOS/BlockNote/tree/main/examples/01-basic/01-minimal?file=App.tsx)>
 
 **Misc**
 - Node version:

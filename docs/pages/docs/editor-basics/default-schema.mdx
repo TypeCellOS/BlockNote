@@ -1,0 +1,193 @@
+---
+title: Default Content Types
+description: BlockNote supports a variety on built-in block and inline content types that are included in the editor by default.
+imageTitle: Default Content Types
+---
+
+
+
+import { Example } from "@/components/example";
+
+# Default Content Types
+
+BlockNote supports a number of built-in blocks, inline content types, and styles that are included in the editor by default. This is called the Default Schema. To create your own content types, see [Custom Schemas](/docs/custom-schemas).
+
+The demo below showcases each of BlockNote's built-in block and inline content types:
+
+<Example name="basic/all-blocks" />
+
+## Default Blocks
+
+BlockNote's built-in blocks range from basic paragraphs to tables and images.
+
+### Reference
+
+Let's look more in-depth at the default blocks and the properties they support:
+
+#### Paragraph
+
+**Type & Props**
+
+```typescript
+type ParagraphBlock = {
+  id: string;
+  type: "paragraph";
+  props: DefaultProps;
+  content: InlineContent[];
+  children: Block[];
+};
+```
+
+#### Heading
+
+**Type & Props**
+
+```typescript
+type HeadingBlock = {
+  id: string;
+  type: "heading";
+  props: {
+    level: 1 | 2 | 3 = 1;
+  } & DefaultProps;
+  content: InlineContent[];
+  children: Block[];
+};
+```
+
+`level:` The heading level, representing a title (`level: 1`), heading (`level: 2`), and subheading (`level: 3`).
+
+#### Bullet List Item
+
+**Type & Props**
+
+```typescript
+type BulletListItemBlock = {
+  id: string;
+  type: "bulletListItem";
+  props: DefaultProps;
+  content: InlineContent[];
+  children: Block[];
+};
+```
+
+#### Numbered List Item
+
+**Type & Props**
+
+```typescript
+type NumberedListItemBlock = {
+  id: string;
+  type: "numberedListItem";
+  props: DefaultProps;
+  content: InlineContent[];
+  children: Block[];
+};
+```
+
+#### Image
+
+**Type & Props**
+
+```typescript
+type ImageBlock = {
+  id: string;
+  type: "image";
+  props: {
+    url: string = "";
+    caption: string = "";
+    width: number = 512;
+  } & DefaultProps;
+  content: undefined;
+  children: Block[];
+};
+```
+
+`url:` The image URL.
+
+`caption:` The image caption.
+
+`width:` The image width in pixels.
+
+#### Table
+
+**Type & Props**
+
+```typescript
+type TableBlock = {
+  id: string;
+  type: "table";
+  props: DefaultProps;
+  content: TableContent[];
+  children: Block[];
+};
+```
+
+### Default Block Properties
+
+There are some default block props that BlockNote uses for the built-in blocks:
+
+```typescript
+type DefaultProps = {
+  backgroundColor: string = "default";
+  textColor: string = "default";
+  textAlignment: "left" | "center" | "right" | "justify" = "left";
+};
+```
+
+`backgroundColor:` The background color of the block, which also applies to nested blocks.
+
+`textColor:` The text color of the block, which also applies to nested blocks.
+
+`textAlignment:` The text alignment of the block.
+
+## Default Inline Content
+
+By default, `InlineContent` (the content of text blocks like paragraphs) in BlockNote can either be a `StyledText` or a `Link` object.
+
+### Reference
+
+Here's an overview of all default inline content and the properties they support:
+
+#### Styled Text
+
+`StyledText` is a type of `InlineContent` used to display pieces of text with styles:
+
+```typescript
+type StyledText = {
+  type: "text";
+  text: string;
+  styles: Styles;
+};
+```
+
+#### Link
+
+`Link` objects represent links to a URL:
+
+```typescript
+type Link = {
+  type: "link";
+  content: StyledText[];
+  href: string;
+};
+```
+
+## Default Styles
+
+The default text formatting options in BlockNote are represented by the `Styles` in the default schema:
+
+```typescript
+type Styles = {
+  bold: boolean;
+  italic: boolean;
+  underline: boolean;
+  strikethrough: boolean;
+  textColor: string;
+  backgroundColor: string;
+};
+```
+
+## Creating New Block or Inline Content Types
+
+You can also extend your editor and create your own Blocks, Inline Content or Styles using React.
+Skip to [Custom Schemas (advanced)](/docs/custom-schemas) to learn how to do this.

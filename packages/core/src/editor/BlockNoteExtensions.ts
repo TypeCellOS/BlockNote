@@ -1,4 +1,4 @@
-import { Extensions, extensions } from "@tiptap/core";
+import { Extension, Extensions, extensions } from "@tiptap/core";
 
 import type { BlockNoteEditor } from "./BlockNoteEditor";
 
@@ -14,7 +14,6 @@ import * as Y from "yjs";
 import { createCopyToClipboardExtension } from "../api/exporters/copyExtension";
 import { createPasteFromClipboardExtension } from "../api/parsers/pasteExtension";
 import { BackgroundColorExtension } from "../extensions/BackgroundColor/BackgroundColorExtension";
-import { Placeholder } from "../extensions/Placeholder/PlaceholderExtension";
 import { TextAlignmentExtension } from "../extensions/TextAlignment/TextAlignmentExtension";
 import { TextColorExtension } from "../extensions/TextColor/TextColorExtension";
 import { TrailingNode } from "../extensions/TrailingNode/TrailingNodeExtension";
@@ -43,6 +42,7 @@ export const getBlockNoteExtensions = <
   blockSpecs: BlockSpecs;
   inlineContentSpecs: InlineContentSpecs;
   styleSpecs: StyleSpecs;
+  trailingBlock: boolean | undefined;
   collaboration?: {
     fragment: Y.XmlFragment;
     user: {
@@ -64,21 +64,26 @@ export const getBlockNoteExtensions = <
     Gapcursor,
 
     // DropCursor,
-    Placeholder.configure({
-      includeChildren: true,
-      showOnlyCurrent: false,
-    }),
     UniqueID.configure({
       types: ["blockContainer"],
     }),
-    HardBreak,
+    HardBreak.extend({ priority: 10 }),
     // Comments,
 
     // basics:
     Text,
 
     // marks:
-    Link,
+    Link.extend({
+      addKeyboardShortcuts() {
+        return {
+          "Mod-k": () => {
+            this.editor.commands.toggleLink({ href: "" });
+            return true;
+          },
+        };
+      },
+    }),
     ...Object.values(opts.styleSpecs).map((styleSpec) => {
       return styleSpec.implementation.mark;
     }),
@@ -88,10 +93,26 @@ export const getBlockNoteExtensions = <
     BackgroundColorExtension,
     TextAlignmentExtension,
 
+    // make sure escape blurs editor, so that we can tab to other elements in the host page (accessibility)
+    Extension.create({
+      name: "OverrideEscape",
+      addKeyboardShortcuts() {
+        return {
+          Escape: () => {
+            if (opts.editor.suggestionMenus.shown) {
+              // escape is handled by suggestionmenu
+              return false;
+            }
+            return this.editor.commands.blur();
+          },
+        };
+      },
+    }),
+
     // nodes
     Doc,
     BlockContainer.configure({
-      editor: opts.editor as any,
+      editor: opts.editor,
       domAttributes: opts.domAttributes,
     }),
     BlockGroup.configure({
@@ -127,7 +148,9 @@ export const getBlockNoteExtensions = <
     Dropcursor.configure({ width: 5, color: "#ddeeff" }),
     // This needs to be at the bottom of this list, because Key events (such as enter, when selecting a /command),
     // should be handled before Enter handlers in other components like splitListItem
-    TrailingNode,
+    ...(opts.trailingBlock === undefined || opts.trailingBlock
+      ? [TrailingNode]
+      : []),
   ];
 
   if (opts.collaboration) {

@@ -1,33 +1,47 @@
 import {
-  BlockNoteEditor,
-  DefaultBlockSchema,
-  SpecificBlock,
+  DefaultInlineContentSchema,
+  DefaultStyleSchema,
+  InlineContentSchema,
+  StyleSchema,
 } from "@blocknote/core";
-import { Menu, createStyles } from "@mantine/core";
 import { ReactNode } from "react";
 
-export type TableHandleMenuProps<
-  BSchema extends { table: DefaultBlockSchema["table"] }
-> = {
-  orientation: "row" | "column";
-  editor: BlockNoteEditor<BSchema, any, any>;
-  block: SpecificBlock<
-    { table: DefaultBlockSchema["table"] },
-    "table",
-    any,
-    any
-  >;
-  index: number;
-};
+import { useComponentsContext } from "../../../editor/ComponentsContext";
+import { AddButton } from "./DefaultButtons/AddButton";
+import { DeleteButton } from "./DefaultButtons/DeleteButton";
+import { TableHandleMenuProps } from "./TableHandleMenuProps";
 
-export const TableHandleMenu = (props: { children: ReactNode }) => {
-  const { classes } = createStyles({ root: {} })(undefined, {
-    name: "TableHandleMenu",
-  });
+export const TableHandleMenu = <
+  I extends InlineContentSchema = DefaultInlineContentSchema,
+  S extends StyleSchema = DefaultStyleSchema
+>(
+  props: TableHandleMenuProps<I, S> & { children?: ReactNode }
+) => {
+  const Components = useComponentsContext()!;
 
   return (
-    <Menu.Dropdown className={classes.root} style={{ overflow: "visible" }}>
-      {props.children}
-    </Menu.Dropdown>
+    <Components.Generic.Menu.Dropdown className={"bn-table-handle-menu"}>
+      {props.children || (
+        <>
+          <DeleteButton
+            orientation={props.orientation}
+            block={props.block}
+            index={props.index}
+          />
+          <AddButton
+            orientation={props.orientation}
+            block={props.block}
+            index={props.index}
+            side={props.orientation === "row" ? "above" : ("left" as any)}
+          />
+          <AddButton
+            orientation={props.orientation}
+            block={props.block}
+            index={props.index}
+            side={props.orientation === "row" ? "below" : ("right" as any)}
+          />
+        </>
+      )}
+    </Components.Generic.Menu.Dropdown>
   );
 };

@@ -2,14 +2,12 @@ import { Mark, Node, Schema } from "@tiptap/pm/model";
 
 import UniqueID from "../../extensions/UniqueID/UniqueID";
 import type {
-  Block,
   BlockSchema,
   CustomInlineContentConfig,
   CustomInlineContentFromConfig,
   InlineContent,
   InlineContentFromConfig,
   InlineContentSchema,
-  PartialBlock,
   PartialCustomInlineContentFromConfig,
   PartialInlineContent,
   PartialLink,
@@ -21,6 +19,7 @@ import type {
 } from "../../schema";
 import { getBlockInfo } from "../getBlockInfoFromPos";
 
+import type { Block, PartialBlock } from "../../blocks/defaultBlocks";
 import {
   isLinkInlineContent,
   isPartialLinkInlineContent,
@@ -213,10 +212,8 @@ function blockOrInlineContentToContentNode(
   if (!block.content) {
     contentNode = schema.nodes[type].create(block.props);
   } else if (typeof block.content === "string") {
-    contentNode = schema.nodes[type].create(
-      block.props,
-      schema.text(block.content)
-    );
+    const nodes = inlineContentToNodes([block.content], schema, styleSchema);
+    contentNode = schema.nodes[type].create(block.props, nodes);
   } else if (Array.isArray(block.content)) {
     const nodes = inlineContentToNodes(block.content, schema, styleSchema);
     contentNode = schema.nodes[type].create(block.props, nodes);

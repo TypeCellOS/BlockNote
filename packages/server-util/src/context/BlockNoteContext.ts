@@ -98,6 +98,7 @@ export class BlockNoteContext<
       styleSpecs: newOptions.styleSpecs,
       editor: {} as any, // TODO, how to go about this?
       domAttributes: {} as any, // TODO, necessary / can we remove this?
+      trailingBlock: false,
     });
 
     this.pmSchema = getSchema(exts);

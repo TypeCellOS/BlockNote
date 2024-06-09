@@ -5,103 +5,174 @@ import {
   StyleSchema,
   mergeCSSClasses,
 } from "@blocknote/core";
-import { MantineProvider, createStyles } from "@mantine/core";
-import { EditorContent } from "@tiptap/react";
-import { HTMLAttributes, ReactNode, useMemo } from "react";
+
+import React, {
+  ComponentProps,
+  HTMLAttributes,
+  ReactNode,
+  Ref,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import usePrefersColorScheme from "use-prefers-color-scheme";
-import { Theme, blockNoteToMantineTheme } from "./BlockNoteTheme";
-import { FormattingToolbarPositioner } from "../components/FormattingToolbar/FormattingToolbarPositioner";
-import { HyperlinkToolbarPositioner } from "../components/HyperlinkToolbar/HyperlinkToolbarPositioner";
-import { ImageToolbarPositioner } from "../components/ImageToolbar/ImageToolbarPositioner";
-import { SideMenuPositioner } from "../components/SideMenu/SideMenuPositioner";
-import { SlashMenuPositioner } from "../components/SlashMenu/SlashMenuPositioner";
-import { TableHandlesPositioner } from "../components/TableHandles/TableHandlePositioner";
-import { darkDefaultTheme, lightDefaultTheme } from "./defaultThemes";
+import { useEditorChange } from "../hooks/useEditorChange";
+import { useEditorSelectionChange } from "../hooks/useEditorSelectionChange";
+import { BlockNoteContext, useBlockNoteContext } from "./BlockNoteContext";
+import {
+  BlockNoteDefaultUI,
+  BlockNoteDefaultUIProps,
+} from "./BlockNoteDefaultUI";
+import { EditorContent } from "./EditorContent";
+import "./styles.css";
 
-// Renders the editor as well as all menus & toolbars using default styles.
-function BaseBlockNoteView<
+const emptyFn = () => {
+  // noop
+};
+
+export type BlockNoteViewProps<
+  BSchema extends BlockSchema,
+  ISchema extends InlineContentSchema,
+  SSchema extends StyleSchema
+> = {
+  editor: BlockNoteEditor<BSchema, ISchema, SSchema>;
+
+  theme?: "light" | "dark";
+
+  /**
+   * Locks the editor from being editable by the user if set to `false`.
+   */
+  editable?: boolean;
+  /**
+   * A callback function that runs whenever the text cursor position or selection changes.
+   */
+  onSelectionChange?: () => void;
+
+  /**
+   * A callback function that runs whenever the editor's contents change.
+   */
+  onChange?: () => void;
+
+  children?: ReactNode;
+
+  ref?: Ref<HTMLDivElement> | undefined; // only here to get types working with the generics. Regular form doesn't work
+} & Omit<
+  HTMLAttributes<HTMLDivElement>,
+  "onChange" | "onSelectionChange" | "children"
+> &
+  BlockNoteDefaultUIProps;
+
+function BlockNoteViewComponent<
   BSchema extends BlockSchema,
   ISchema extends InlineContentSchema,
   SSchema extends StyleSchema
 >(
-  props: {
-    editor: BlockNoteEditor<BSchema, ISchema, SSchema>;
-    children?: ReactNode;
-  } & HTMLAttributes<HTMLDivElement>
-) {
-  const { classes } = createStyles({ root: {} })(undefined, {
-    name: "Editor",
-  });
-
-  const { editor, children, className, ...rest } = props;
-
-  return (
-    <EditorContent
-      editor={props.editor?._tiptapEditor}
-      className={mergeCSSClasses(classes.root, props.className || "")}
-      {...rest}>
-      {props.children || (
-        <>
-          <FormattingToolbarPositioner editor={props.editor} />
-          <HyperlinkToolbarPositioner editor={props.editor} />
-          <SlashMenuPositioner editor={props.editor} />
-          <SideMenuPositioner editor={props.editor} />
-          <ImageToolbarPositioner editor={props.editor} />
-          {props.editor.blockSchema.table && (
-            <TableHandlesPositioner editor={props.editor as any} />
-          )}
-        </>
-      )}
-    </EditorContent>
-  );
-}
-
-export function BlockNoteView<
-  BSchema extends BlockSchema,
-  ISchema extends InlineContentSchema,
-  SSchema extends StyleSchema
->(
-  props: {
-    editor: BlockNoteEditor<BSchema, ISchema, SSchema>;
-    theme?:
-      | "light"
-      | "dark"
-      | Theme
-      | {
-          light: Theme;
-          dark: Theme;
-        };
-    children?: ReactNode;
-  } & HTMLAttributes<HTMLDivElement>
+  props: BlockNoteViewProps<BSchema, ISchema, SSchema>,
+  ref: React.Ref<HTMLDivElement>
 ) {
   const {
-    theme = { light: lightDefaultTheme, dark: darkDefaultTheme },
+    editor,
+    className,
+    theme,
+    children,
+    editable,
+    onSelectionChange,
+    onChange,
+    formattingToolbar,
+    linkToolbar,
+    slashMenu,
+    sideMenu,
+    filePanel,
+    tableHandles,
     ...rest
   } = props;
 
-  const preferredTheme = usePrefersColorScheme();
+  // Used so other components (suggestion menu) can set
+  // aria related props to the contenteditable div
+  const [contentEditableProps, setContentEditableProps] =
+    useState<Record<string, any>>();
 
-  const mantineTheme = useMemo(() => {
-    if (theme === "light") {
-      return blockNoteToMantineTheme(lightDefaultTheme);
-    }
+  const existingContext = useBlockNoteContext();
+  const systemColorScheme = usePrefersColorScheme();
+  const defaultColorScheme =
+    existingContext?.colorSchemePreference || systemColorScheme;
 
-    if (theme === "dark") {
-      return blockNoteToMantineTheme(darkDefaultTheme);
-    }
+  const editorColorScheme =
+    theme || (defaultColorScheme === "dark" ? "dark" : "light");
 
-    if ("light" in theme && "dark" in theme) {
-      return blockNoteToMantineTheme(
-        theme[preferredTheme === "dark" ? "dark" : "light"]
-      );
-    }
+  useEditorChange(onChange || emptyFn, editor);
+  useEditorSelectionChange(onSelectionChange || emptyFn, editor);
 
-    return blockNoteToMantineTheme(theme);
-  }, [preferredTheme, theme]);
+  useEffect(() => {
+    editor.isEditable = editable !== false;
+  }, [editable, editor]);
+
+  const renderChildren = useMemo(() => {
+    return (
+      <>
+        {children}
+        <BlockNoteDefaultUI
+          formattingToolbar={formattingToolbar}
+          linkToolbar={linkToolbar}
+          slashMenu={slashMenu}
+          sideMenu={sideMenu}
+          filePanel={filePanel}
+          tableHandles={tableHandles}
+        />
+      </>
+    );
+  }, [
+    children,
+    formattingToolbar,
+    linkToolbar,
+    filePanel,
+    sideMenu,
+    slashMenu,
+    tableHandles,
+  ]);
+
+  const context = useMemo(() => {
+    return {
+      ...existingContext,
+      editor,
+      setContentEditableProps,
+    };
+  }, [existingContext, editor]);
 
   return (
-    <MantineProvider theme={mantineTheme}>
-      <BaseBlockNoteView {...rest} />
-    </MantineProvider>
+    <BlockNoteContext.Provider value={context as any}>
+      <EditorContent editor={editor}>
+        <div
+          className={mergeCSSClasses(
+            "bn-container",
+            editorColorScheme || "",
+            className || ""
+          )}
+          data-color-scheme={editorColorScheme}
+          {...rest}
+          ref={ref}>
+          <div
+            aria-autocomplete="list"
+            aria-haspopup="listbox"
+            ref={editor._tiptapEditor.mount}
+            {...contentEditableProps}
+          />
+          {renderChildren}
+        </div>
+      </EditorContent>
+    </BlockNoteContext.Provider>
   );
 }
+
+// https://fettblog.eu/typescript-react-generic-forward-refs/
+export const BlockNoteViewRaw = React.forwardRef(BlockNoteViewComponent) as <
+  BSchema extends BlockSchema,
+  ISchema extends InlineContentSchema,
+  SSchema extends StyleSchema
+>(
+  props: ComponentProps<
+    typeof BlockNoteViewComponent<BSchema, ISchema, SSchema>
+  > & {
+    ref?: React.ForwardedRef<HTMLDivElement>;
+  }
+) => ReturnType<typeof BlockNoteViewComponent<BSchema, ISchema, SSchema>>;

@@ -1,0 +1,15 @@
+@import url("@mantine/core/styles.css");
+
+body {
+  height: auto;
+}
+
+.bn-container {
+  padding-top: 8px;
+  margin: 0 auto;
+  max-width: 731px;
+}
+
+.mantine-AppShell-navbar {
+  background-color: #f7f7f5;
+}

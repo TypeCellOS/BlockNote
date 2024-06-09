@@ -1,3 +1,7 @@
-![placeholder](exampleURL)
+![example]()
 
-![placeholder](exampleURL)
+Caption
+
+![example]()
+
+Caption

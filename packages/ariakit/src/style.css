@@ -1,0 +1,136 @@
+@import url("@blocknote/react/style.css");
+
+/* This file contains BlockNote-specific fixes for the styles in
+ ariakitStyles.css. */
+
+@import "./ariakitStyles.css";
+
+.bn-ak-input-wrapper {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.bn-toolbar .bn-ak-button {
+  width: unset;
+}
+
+.bn-toolbar .bn-ak-button[data-selected] {
+  padding-top: 0.125rem;
+  box-shadow: inset 0 0 0 1px var(--border), inset 0 2px 0 var(--border);
+}
+
+.bn-toolbar .bn-ak-button[data-selected]:where(.dark, .dark *) {
+  box-shadow: inset 0 0 0 1px var(--border), inset 0 1px 1px 1px var(--shadow);
+}
+
+.bn-toolbar .bn-ak-popover {
+  gap: 0.5rem;
+}
+
+.bn-tab-panel {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.bn-file-input {
+  max-width: 100%;
+}
+
+.bn-ak-button {
+  outline-style: none;
+}
+
+.bn-ak-menu-item[aria-selected="true"],
+.bn-ak-menu-item:hover {
+  background-color: hsl(204 100% 40%);
+  color: hsl(204 20% 100%);
+}
+
+.bn-ak-menu-item {
+  display: flex;
+}
+
+.bn-dropdown {
+  overflow: visible;
+}
+
+.bn-suggestion-menu,
+.bn-color-picker-dropdown {
+  overflow: scroll;
+}
+
+.bn-ak-suggestion-menu-item-body {
+  flex: 1;
+}
+
+.bn-ak-suggestion-menu-item-subtitle {
+  font-size: 0.7rem;
+}
+
+.bn-ak-suggestion-menu-item-section[data-position="left"] {
+  padding: 8px;
+}
+
+.bn-ak-suggestion-menu-item-section[data-position="right"] {
+  --border: rgb(0 0 0/13%);
+  --highlight: rgb(255 255 255/20%);
+  --shadow: rgb(0 0 0/10%);
+  box-shadow: inset 0 0 0 1px var(--border), inset 0 2px 0 var(--highlight),
+    inset 0 -1px 0 var(--shadow), 0 1px 1px var(--shadow);
+  font-size: 0.7rem;
+  border-radius: 4px;
+  padding-inline: 4px;
+}
+
+.bn-side-menu {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+}
+
+.bn-side-menu .bn-ak-button {
+  height: fit-content;
+  padding: 0;
+  width: fit-content;
+}
+
+.bn-panel-popover {
+  background-color: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.bn-table-handle {
+  height: fit-content;
+  padding: 0;
+  width: fit-content;
+}
+
+.bn-side-menu,
+.bn-table-handle {
+  color: gray;
+}
+
+.bn-ak-button:where(.dark, .dark *) {
+  color: hsl(204 20% 100%);
+}
+
+.bn-ak-tab,
+.bn-file-input {
+  background-color: transparent;
+  color: black;
+}
+
+.bn-ak-tab:where(.dark, .dark *),
+.bn-file-input:where(.dark, .dark *) {
+  color: white;
+}
+
+.bn-ak-tooltip {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+}

@@ -1,0 +1,238 @@
+---
+title: Manipulating Blocks
+description: How to read Blocks from the editor, and how to create / remove / update Blocks.
+imageTitle: Manipulating Blocks
+path: /docs/manipulating-blocks
+---
+
+# Manipulating Blocks
+
+Below, we explain the methods on `editor` you can use to read Blocks from the editor, and how to create / remove / update Blocks:
+
+- [`get document`](/docs/editor-api/manipulating-blocks#getting-the-document)
+- [`getBlock`](/docs/editor-api/manipulating-blocks#getting-a-specific-block)
+- [`forEachBlock`](/docs/editor-api/manipulating-blocks#traversing-all-blocks)
+- [`insertBlocks`](/docs/editor-api/manipulating-blocks#inserting-new-blocks)
+- [`updateBlock`](/docs/editor-api/manipulating-blocks#updating-blocks)
+- [`removeBlocks`](/docs/editor-api/manipulating-blocks#removing-blocks)
+- [`replaceBlocks`](/docs/editor-api/manipulating-blocks#replacing-blocks)
+- [`canNestBlock`](/docs/editor-api/manipulating-blocks#nesting-blocks)
+- [`nestBlock`](/docs/editor-api/manipulating-blocks#nesting-blocks)
+- [`canUnnestBlock`](/docs/editor-api/manipulating-blocks#un-nesting-blocks)
+- [`unnestBlock`](/docs/editor-api/manipulating-blocks#un-nesting-blocks)
+
+## Common types
+
+Before we dive into the methods, let's discuss some common types used in parameters:
+
+### Block Identifiers
+
+The methods to access, insert, update, remove, or replace blocks, can require a `BlockIdentifier` as reference to an existing block in the document.
+This is either a `string` representing the block ID, or a `Block` object from which the ID is taken:
+
+```typescript
+type BlockIdentifier = string | Block;
+```
+
+### Partial Blocks
+
+When retrieving blocks from the editor, you always receive complete `Block` objects.
+For updating or creating blocks, you don't need to pass all properties, and you can use a `PartialBlock` type instead:
+
+```typescript
+type PartialBlock = {
+  id?: string;
+  type?: string;
+  props?: Partial<Record<string, any>>; // exact type depends on "type"
+  content?: string | InlineContent[] | TableContent;
+  children?: PartialBlock[];
+};
+```
+
+`PartialBlock` objects are almost the same as regular `Block` objects, but with all members optional and partial `props`. This makes updating or creating simpler blocks much easier. We'll see this below.
+
+## Accessing Blocks
+
+There are a few different ways to retrieve Blocks from the editor:
+
+### Getting the Document
+
+Retrieve a snapshot of the document (all top-level, non-nested blocks) in the editor using the following call:
+
+```typescript
+document: Block[];
+
+// Usage
+const blocks = editor.document;
+```
+
+`returns:` The document; a snapshot of all top-level (non-nested) blocks in the editor.
+
+We already used this for the [Document JSON](/docs/editor-basics/document-structure#document-json) demo.
+
+### Getting a Specific Block
+
+Use `getBlock` to retrieve a snapshot of a specific block in the editor:
+
+```typescript
+getBlock(blockIdentifier: BlockIdentifier): Block | undefined;
+
+// Usage
+const block = editor.getBlock(blockIdentifier);
+```
+
+`blockIdentifier:` The [identifier](/docs/editor-api/manipulating-blocks#block-identifiers) of an existing block that should be retrieved.
+
+`returns:` The block that matches the identifier, or `undefined` if no matching block was found.
+
+### Traversing All Blocks
+
+Use `forEachBlock` to traverse all blocks in the editor depth-first, and execute a callback for each block:
+
+```typescript
+forEachBlock(
+  callback: (block: Block) => boolean,
+  reverse: boolean = false
+): void;
+
+// Usage
+editor.forEachBlock((block) => {...});
+```
+
+`callback:` The callback to execute for each block. Returning `false` stops the traversal.
+
+`reverse:` Whether the blocks should be traversed in reverse order.
+
+### Getting the hovered / selected Block
+
+See [Cursor & Selections](/docs/editor-api/cursor-selections) to learn how to retrieve the block a user is interacting with.
+
+## Inserting New Blocks
+
+Use `insertBlocks` to insert new blocks into the document:
+
+```typescript
+insertBlocks(
+  blocksToInsert: PartialBlock[],
+  referenceBlock: BlockIdentifier,
+  placement: "before" | "after" | "nested" = "before"
+): void;
+
+// Usage
+editor.insertBlocks([{type: "paragraph", text: "Hello World"}], referenceBlock, placement)
+```
+
+`blocksToInsert:` An array of [partial blocks](/docs/editor-api/manipulating-blocks#partial-blocks) that should be inserted.
+
+`referenceBlock:` An [identifier](/docs/editor-api/manipulating-blocks#block-identifiers) for an existing block, at which the new blocks should be inserted.
+
+`placement:` Whether the blocks should be inserted just before, just after, or nested inside the `referenceBlock`. Inserts the blocks at the start of the existing block's children if `"nested"` is used.
+
+If a block's `id` is undefined, BlockNote generates one automatically.
+
+The method throws an error if the reference block could not be found.
+
+## Updating Blocks
+
+Use `updateBlock` to update an existing block:
+
+```typescript
+updateBlock(
+  blockToUpdate: BlockIdentifier,
+  update: PartialBlock
+): void;
+
+// Example to change a block type to paragraph
+editor.updateBlock(blockToUpdate, { type: "paragraph" });
+```
+
+`blockToUpdate:` The [identifier](/docs/editor-api/manipulating-blocks#block-identifiers) of an existing block that should be updated.
+
+`update:` A [partial blocks](/docs/editor-api/manipulating-blocks#partial-blocks) which defines how the existing block should be changed.
+
+Since `blockToUpdate` is a `PartialBlock` object, some fields might not be defined. These undefined fields are kept as-is from the existing block.
+
+Throws an error if the block to update could not be found.
+
+## Removing Blocks
+
+Use `removeBlocks` to remove existing blocks from the document:
+
+```typescript
+removeBlocks(
+  blocksToRemove: BlockIdentifier[],
+): void;
+
+// Usage
+editor.removeBlocks(blocksToRemove)
+```
+
+`blocksToRemove:` An array of [identifier](/docs/editor-api/manipulating-blocks#block-identifiers) for existing blocks that should be removed.
+
+Throws an error if any of the blocks could not be found.
+
+## Replacing Blocks
+
+Use `replaceBlocks` to replace existing blocks in the editor with new blocks:
+
+```typescript
+replaceBlocks(
+  blocksToRemove: BlockIdentifier[],
+  blocksToInsert: PartialBlock[],
+): void;
+
+// Usage
+editor.replaceBlocks(blocksToRemove, blocksToInsert)
+```
+
+`blocksToRemove:` An array of [identifier](/docs/editor-api/manipulating-blocks#block-identifiers) for existing blocks that should be replaced.
+
+`blocksToInsert:` An array of [partial blocks](/docs/editor-api/manipulating-blocks#partial-blocks) that the existing ones should be replaced with.
+
+If the blocks that should be removed are not adjacent or are at different nesting levels, `blocksToInsert` will be inserted at the position of the first block in `blocksToRemove`.
+
+Throws an error if any of the blocks to remove could not be found.
+
+## Nesting & Un-nesting Blocks
+
+BlockNote also provides functions to nest & un-nest the block containing the [Text Cursor](/docs/editor-api/cursor-selections#text-cursor).
+
+### Nesting Blocks
+
+Use `canNestBlock` to check whether the block containing the [Text Cursor](/docs/editor-api/cursor-selections#text-cursor) can be nested (i.e. if there is a block above it at the same nesting level):
+
+```typescript
+canNestBlock(): boolean;
+
+// Usage
+const canNestBlock = editor.canNestBlock();
+```
+
+Then, use `nestBlock` to actually nest (indent) the block:
+
+```typescript
+nestBlock(): void;
+
+// Usage
+editor.nestBlock();
+```
+
+### Un-nesting Blocks
+
+Use `canUnnestBlock` to check whether the block containing the [Text Cursor](/docs/editor-api/cursor-selections#text-cursor) can be un-nested (i.e. if it's nested in another block):
+
+```typescript
+canUnnestBlock(): boolean;
+
+// Usage
+const canUnnestBlock = editor.canUnnestBlock();
+```
+
+Then, use `unnestBlock` to un-nest the block:
+
+```typescript
+unnestBlock(): void;
+
+// Usage
+editor.unnestBlock();
+```

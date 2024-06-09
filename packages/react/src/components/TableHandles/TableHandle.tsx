@@ -1,38 +1,53 @@
-import { BlockSchemaWithBlock, DefaultBlockSchema } from "@blocknote/core";
-import { Menu, createStyles } from "@mantine/core";
+import {
+  DefaultInlineContentSchema,
+  DefaultStyleSchema,
+  InlineContentSchema,
+  mergeCSSClasses,
+  StyleSchema,
+} from "@blocknote/core";
 import { ReactNode, useState } from "react";
-import { DefaultTableHandleMenu } from "./TableHandleMenu/DefaultTableHandleMenu";
-import type { TableHandleProps } from "./TableHandlePositioner";
 
+import { MdDragIndicator } from "react-icons/md";
+import { useComponentsContext } from "../../editor/ComponentsContext";
+import { TableHandleMenu } from "./TableHandleMenu/TableHandleMenu";
+import { TableHandleProps } from "./TableHandleProps";
+
+/**
+ * By default, the TableHandle component will render with the default icon.
+ * However, you can override the icon to render by passing children.
+ */
 export const TableHandle = <
-  BSchema extends BlockSchemaWithBlock<"table", DefaultBlockSchema["table"]>
+  I extends InlineContentSchema = DefaultInlineContentSchema,
+  S extends StyleSchema = DefaultStyleSchema
 >(
-  props: TableHandleProps<BSchema, any, any> & { children: ReactNode }
+  props: TableHandleProps<I, S> & { children?: ReactNode }
 ) => {
-  const { classes } = createStyles({ root: {} })(undefined, {
-    name: "TableHandle",
-  });
-
-  const TableHandleMenu = props.tableHandleMenu || DefaultTableHandleMenu;
+  const Components = useComponentsContext()!;
 
   const [isDragging, setIsDragging] = useState(false);
 
+  const Component = props.tableHandleMenu || TableHandleMenu;
+
   return (
-    <Menu
-      trigger={"click"}
-      onOpen={() => {
-        props.freezeHandles();
-        props.hideOtherSide();
-      }}
-      onClose={() => {
-        props.unfreezeHandles();
-        props.showOtherSide();
+    <Components.Generic.Menu.Root
+      onOpenChange={(open: boolean) => {
+        if (open) {
+          props.freezeHandles();
+          props.hideOtherSide();
+        } else {
+          props.unfreezeHandles();
+          props.showOtherSide();
+          props.editor.focus();
+        }
       }}
       position={"right"}>
-      <Menu.Target>
-        <div
-          className={classes.root}
-          draggable="true"
+      <Components.Generic.Menu.Trigger>
+        <Components.TableHandle.Root
+          className={mergeCSSClasses(
+            "bn-table-handle",
+            isDragging ? "bn-table-handle-dragging" : ""
+          )}
+          draggable={true}
           onDragStart={(e) => {
             setIsDragging(true);
             props.dragStart(e);
@@ -46,17 +61,16 @@ export const TableHandle = <
               ? { transform: "rotate(0.25turn)" }
               : undefined
           }>
-          <div className={isDragging ? "bn-table-handle-dragging" : undefined}>
-            {props.children}
-          </div>
-        </div>
-      </Menu.Target>
-      <TableHandleMenu
+          {props.children || (
+            <MdDragIndicator size={24} data-test={"tableHandle"} />
+          )}
+        </Components.TableHandle.Root>
+      </Components.Generic.Menu.Trigger>
+      <Component
         orientation={props.orientation}
-        editor={props.editor as any}
         block={props.block as any}
         index={props.index}
       />
-    </Menu>
+    </Components.Generic.Menu.Root>
   );
 };

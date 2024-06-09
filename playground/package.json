@@ -1,0 +1,43 @@
+{
+  "name": "@blocknote/example-editor",
+  "private": true,
+  "version": "0.13.4",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "lint": "eslint src --max-warnings 0",
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "@blocknote/ariakit": "^0.13.4",
+    "@blocknote/core": "^0.13.4",
+    "@blocknote/mantine": "^0.13.4",
+    "@blocknote/react": "^0.13.4",
+    "@blocknote/shadcn": "^0.13.4",
+    "@liveblocks/client": "^1.10.0",
+    "@liveblocks/yjs": "^1.10.0",
+    "@mantine/core": "^7.7.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-icons": "^5.2.1",
+    "react-router-dom": "^6.20.0",
+    "y-partykit": "^0.0.25",
+    "yjs": "^13.6.15"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.25",
+    "@types/react-dom": "^18.0.9",
+    "@vitejs/plugin-react": "^4.0.4",
+    "eslint": "^8.10.0",
+    "rimraf": "^5.0.5",
+    "rollup-plugin-webpack-stats": "^0.2.2",
+    "vite": "^4.4.8",
+    "vite-plugin-eslint": "^1.8.1"
+  },
+  "eslintConfig": {
+    "extends": [
+      "../.eslintrc.js"
+    ]
+  }
+}

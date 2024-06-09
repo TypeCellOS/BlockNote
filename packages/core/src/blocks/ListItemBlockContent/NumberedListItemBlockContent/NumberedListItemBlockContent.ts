@@ -8,6 +8,7 @@ import { createDefaultBlockDOMOutputSpec } from "../../defaultBlockHelpers";
 import { defaultProps } from "../../defaultProps";
 import { handleEnter } from "../ListItemKeyboardShortcuts";
 import { NumberedListIndexingPlugin } from "./NumberedListIndexingPlugin";
+import { getCurrentBlockContentType } from "../../../api/getCurrentBlockContentType";
 
 export const numberedListItemPropSchema = {
   ...defaultProps,
@@ -17,6 +18,7 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
   name: "numberedListItem",
   content: "inline*",
   group: "blockContent",
+  priority: 90,
   addAttributes() {
     return {
       index: {
@@ -37,6 +39,10 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
       new InputRule({
         find: new RegExp(`^1\\.\\s$`),
         handler: ({ state, chain, range }) => {
+          if (getCurrentBlockContentType(this.editor) !== "inline*") {
+            return;
+          }
+
           chain()
             .BNUpdateBlock(state.selection.from, {
               type: "numberedListItem",
@@ -52,11 +58,19 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
   addKeyboardShortcuts() {
     return {
       Enter: () => handleEnter(this.editor),
-      "Mod-Shift-8": () =>
-        this.editor.commands.BNUpdateBlock(this.editor.state.selection.anchor, {
-          type: "numberedListItem",
-          props: {},
-        }),
+      "Mod-Shift-7": () => {
+        if (getCurrentBlockContentType(this.editor) !== "inline*") {
+          return true;
+        }
+
+        return this.editor.commands.BNUpdateBlock(
+          this.editor.state.selection.anchor,
+          {
+            type: "numberedListItem",
+            props: {},
+          }
+        );
+      },
     };
   },
 

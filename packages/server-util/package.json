@@ -47,13 +47,13 @@
     "test-watch": "vitest watch"
   },
   "dependencies": {
-    "@blocknote/core": "^0.10.0",
-    "@tiptap/pm": "^2.0.3",
-    "@tiptap/core": "^2.0.3",
+    "@blocknote/core": "^0.13.4",
+    "@tiptap/pm": "^2.4.0",
+    "@tiptap/core": "^2.4.0",
     "jsdom": "^21.1.0",
-    "y-prosemirror": "1.0.20",
-    "y-protocols": "^1.0.5",
-    "yjs": "^13.6.1"
+    "y-prosemirror": "1.2.5",
+    "y-protocols": "^1.0.6",
+    "yjs": "^13.6.15"
   },
   "devDependencies": {
     "@types/jsdom": "^21.1.6",

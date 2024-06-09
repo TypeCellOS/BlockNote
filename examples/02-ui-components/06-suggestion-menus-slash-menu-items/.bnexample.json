@@ -1,0 +1,15 @@
+{
+  "playground": true,
+  "docs": true,
+  "author": "yousefed",
+  "tags": [
+    "Intermediate",
+    "Blocks",
+    "UI Components",
+    "Suggestion Menus",
+    "Slash Menu"
+  ],
+  "dependencies": {
+    "react-icons": "^5.2.1"
+  }
+}

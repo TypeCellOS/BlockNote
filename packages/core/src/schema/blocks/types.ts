@@ -1,18 +1,18 @@
 /** Define the main block types **/
-import { Extension, Node } from "@tiptap/core";
+import type { Extension, Node } from "@tiptap/core";
 
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
-import {
+import type {
   InlineContent,
   InlineContentSchema,
   PartialInlineContent,
 } from "../inlineContent/types";
-import { PropSchema, Props } from "../propTypes";
-import { StyleSchema } from "../styles/types";
+import type { PropSchema, Props } from "../propTypes";
+import type { StyleSchema } from "../styles/types";
 
 export type BlockNoteDOMElement =
   | "editor"
-  | "blockContainer"
+  | "block"
   | "blockGroup"
   | "blockContent"
   | "inlineContent";
@@ -21,13 +21,48 @@ export type BlockNoteDOMAttributes = Partial<{
   [DOMElement in BlockNoteDOMElement]: Record<string, string>;
 }>;
 
+export type FileBlockConfig = {
+  type: string;
+  readonly propSchema: PropSchema & {
+    caption: {
+      default: "";
+    };
+    name: {
+      default: "";
+    };
+
+    // URL is optional, as we also want to accept files with no URL, but for example ids
+    // (ids can be used for files that are resolved on the backend)
+    url?: {
+      default: "";
+    };
+
+    // Whether to show the file preview or the name only.
+    // This is useful for some file blocks, but not all
+    // (e.g.: not relevant for default "file" block which doesn;'t show previews)
+    showPreview?: {
+      default: boolean;
+    };
+    // File preview width in px.
+    previewWidth?: {
+      default: number;
+    };
+  };
+  content: "none";
+  isFileBlock: true;
+  fileBlockAcceptMimeTypes?: string[];
+};
+
 // BlockConfig contains the "schema" info about a Block type
 // i.e. what props it supports, what content it supports, etc.
-export type BlockConfig = {
-  type: string;
-  readonly propSchema: PropSchema;
-  content: "inline" | "none" | "table";
-};
+export type BlockConfig =
+  | {
+      type: string;
+      readonly propSchema: PropSchema;
+      content: "inline" | "none" | "table";
+      isFileBlock?: false;
+    }
+  | FileBlockConfig;
 
 // Block implementation contains the "implementation" info about a Block
 // such as the functions / Nodes required to render and / or serialize it
@@ -41,7 +76,7 @@ export type TiptapBlockImplementation<
   node: Node;
   toInternalHTML: (
     block: BlockFromConfigNoChildren<T, I, S> & {
-      children: Block<B, I, S>[];
+      children: BlockNoDefaults<B, I, S>[];
     },
     editor: BlockNoteEditor<B, I, S>
   ) => {
@@ -50,7 +85,7 @@ export type TiptapBlockImplementation<
   };
   toExternalHTML: (
     block: BlockFromConfigNoChildren<T, I, S> & {
-      children: Block<B, I, S>[];
+      children: BlockNoDefaults<B, I, S>[];
     },
     editor: BlockNoteEditor<B, I, S>
   ) => {
@@ -142,7 +177,7 @@ export type BlockFromConfig<
   I extends InlineContentSchema,
   S extends StyleSchema
 > = BlockFromConfigNoChildren<B, I, S> & {
-  children: Block<BlockSchema, I, S>[];
+  children: BlockNoDefaults<BlockSchema, I, S>[];
 };
 
 // Converts each block spec into a Block object without children. We later merge
@@ -158,12 +193,12 @@ type BlocksWithoutChildren<
 
 // Converts each block spec into a Block object without children, merges them
 // into a union type, and adds a children property
-export type Block<
+export type BlockNoDefaults<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
 > = BlocksWithoutChildren<BSchema, I, S>[keyof BSchema] & {
-  children: Block<BSchema, I, S>[];
+  children: BlockNoDefaults<BSchema, I, S>[];
 };
 
 export type SpecificBlock<
@@ -172,7 +207,7 @@ export type SpecificBlock<
   I extends InlineContentSchema,
   S extends StyleSchema
 > = BlocksWithoutChildren<BSchema, I, S>[BType] & {
-  children: Block<BSchema, I, S>[];
+  children: BlockNoDefaults<BSchema, I, S>[];
 };
 
 /** CODE FOR PARTIAL BLOCKS, analogous to above
@@ -219,7 +254,7 @@ type PartialBlocksWithoutChildren<
   >;
 };
 
-export type PartialBlock<
+export type PartialBlockNoDefaults<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
@@ -229,7 +264,7 @@ export type PartialBlock<
   S
 >[keyof PartialBlocksWithoutChildren<BSchema, I, S>] &
   Partial<{
-    children: PartialBlock<BSchema, I, S>[];
+    children: PartialBlockNoDefaults<BSchema, I, S>[];
   }>;
 
 export type SpecificPartialBlock<
@@ -238,7 +273,7 @@ export type SpecificPartialBlock<
   BType extends keyof BSchema,
   S extends StyleSchema
 > = PartialBlocksWithoutChildren<BSchema, I, S>[BType] & {
-  children?: Block<BSchema, I, S>[];
+  children?: BlockNoDefaults<BSchema, I, S>[];
 };
 
 export type PartialBlockFromConfig<
@@ -246,7 +281,7 @@ export type PartialBlockFromConfig<
   I extends InlineContentSchema,
   S extends StyleSchema
 > = PartialBlockFromConfigNoChildren<B, I, S> & {
-  children?: Block<BlockSchema, I, S>[];
+  children?: BlockNoDefaults<BlockSchema, I, S>[];
 };
 
 export type BlockIdentifier = { id: string } | string;

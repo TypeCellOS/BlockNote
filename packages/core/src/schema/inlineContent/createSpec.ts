@@ -1,5 +1,5 @@
 import { Node } from "@tiptap/core";
-import { ParseRule } from "@tiptap/pm/model";
+import { TagParseRule } from "@tiptap/pm/model";
 import { nodeToCustomInlineContent } from "../../api/nodeConversions/nodeConversions";
 import { propsToAttributes } from "../blocks/internal";
 import { Props } from "../propTypes";
@@ -46,7 +46,7 @@ export type CustomInlineContentImplementation<
 
 export function getInlineContentParseRules(
   config: CustomInlineContentConfig
-): ParseRule[] {
+): TagParseRule[] {
   return [
     {
       tag: `[data-inline-content-type="${config.type}"]`,
@@ -98,8 +98,8 @@ export function createInlineContentSpec<
       const output = inlineContentImplementation.render(
         nodeToCustomInlineContent(
           node,
-          editor.inlineContentSchema,
-          editor.styleSchema
+          editor.schema.inlineContentSchema,
+          editor.schema.styleSchema
         ) as any as InlineContentFromConfig<T, S> // TODO: fix cast
       );
 

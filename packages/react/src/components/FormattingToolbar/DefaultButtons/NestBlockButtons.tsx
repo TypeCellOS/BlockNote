@@ -1,57 +1,114 @@
-import { useCallback, useState } from "react";
-import { BlockNoteEditor, BlockSchema } from "@blocknote/core";
+import {
+  BlockSchema,
+  formatKeyboardShortcut,
+  InlineContentSchema,
+  StyleSchema,
+} from "@blocknote/core";
+import { useCallback, useMemo, useState } from "react";
 import { RiIndentDecrease, RiIndentIncrease } from "react-icons/ri";
 
-import { ToolbarButton } from "../../../components-shared/Toolbar/ToolbarButton";
-import { useEditorChange } from "../../../hooks/useEditorChange";
-import { formatKeyboardShortcut } from "@blocknote/core";
+import { useComponentsContext } from "../../../editor/ComponentsContext";
+import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
+import { useEditorContentOrSelectionChange } from "../../../hooks/useEditorContentOrSelectionChange";
+import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
+import { useDictionary } from "../../../i18n/dictionary";
 
-export const NestBlockButton = <BSchema extends BlockSchema>(props: {
-  editor: BlockNoteEditor<BSchema>;
-}) => {
-  const [canNestBlock, setCanNestBlock] = useState<boolean>();
+export const NestBlockButton = () => {
+  const dict = useDictionary();
+  const Components = useComponentsContext()!;
 
-  useEditorChange(props.editor, () => {
-    setCanNestBlock(props.editor.canNestBlock());
-  });
+  const editor = useBlockNoteEditor<
+    BlockSchema,
+    InlineContentSchema,
+    StyleSchema
+  >();
+
+  const selectedBlocks = useSelectedBlocks(editor);
+
+  const [canNestBlock, setCanNestBlock] = useState<boolean>(() =>
+    editor.canNestBlock()
+  );
+
+  useEditorContentOrSelectionChange(() => {
+    setCanNestBlock(editor.canNestBlock());
+  }, editor);
 
   const nestBlock = useCallback(() => {
-    props.editor.focus();
-    props.editor.nestBlock();
-  }, [props.editor]);
+    editor.focus();
+    editor.nestBlock();
+  }, [editor]);
+
+  const show = useMemo(() => {
+    return !selectedBlocks.find(
+      (block) => editor.schema.blockSchema[block.type].content !== "inline"
+    );
+  }, [editor.schema.blockSchema, selectedBlocks]);
+
+  if (!show || !editor.isEditable) {
+    return null;
+  }
 
   return (
-    <ToolbarButton
+    <Components.FormattingToolbar.Button
+      className={"bn-button"}
+      data-test="nestBlock"
       onClick={nestBlock}
       isDisabled={!canNestBlock}
-      mainTooltip="Nest Block"
-      secondaryTooltip={formatKeyboardShortcut("Tab")}
-      icon={RiIndentIncrease}
+      label={dict.formatting_toolbar.nest.tooltip}
+      mainTooltip={dict.formatting_toolbar.nest.tooltip}
+      secondaryTooltip={formatKeyboardShortcut(
+        dict.formatting_toolbar.nest.secondary_tooltip,
+        dict.generic.ctrl_shortcut
+      )}
+      icon={<RiIndentIncrease />}
     />
   );
 };
 
-export const UnnestBlockButton = <BSchema extends BlockSchema>(props: {
-  editor: BlockNoteEditor<BSchema>;
-}) => {
-  const [canUnnestBlock, setCanUnnestBlock] = useState<boolean>();
+export const UnnestBlockButton = () => {
+  const dict = useDictionary();
+  const Components = useComponentsContext()!;
 
-  useEditorChange(props.editor, () => {
-    setCanUnnestBlock(props.editor.canUnnestBlock());
-  });
+  const editor = useBlockNoteEditor<any, any, any>();
+
+  const selectedBlocks = useSelectedBlocks(editor);
+
+  const [canUnnestBlock, setCanUnnestBlock] = useState<boolean>(() =>
+    editor.canUnnestBlock()
+  );
+
+  useEditorContentOrSelectionChange(() => {
+    setCanUnnestBlock(editor.canUnnestBlock());
+  }, editor);
 
   const unnestBlock = useCallback(() => {
-    props.editor.focus();
-    props.editor.unnestBlock();
-  }, [props]);
+    editor.focus();
+    editor.unnestBlock();
+  }, [editor]);
+
+  const show = useMemo(() => {
+    return !selectedBlocks.find(
+      (block) => editor.schema.blockSchema[block.type].content !== "inline"
+    );
+  }, [editor.schema.blockSchema, selectedBlocks]);
+
+  if (!show || !editor.isEditable) {
+    return null;
+  }
 
   return (
-    <ToolbarButton
+    <Components.FormattingToolbar.Button
+      className={"bn-button"}
+      data-test="unnestBlock"
       onClick={unnestBlock}
       isDisabled={!canUnnestBlock}
-      mainTooltip="Unnest Block"
-      secondaryTooltip={formatKeyboardShortcut("Shift+Tab")}
-      icon={RiIndentDecrease}
+      label={dict.formatting_toolbar.unnest.tooltip}
+      mainTooltip={dict.formatting_toolbar.unnest.tooltip}
+      secondaryTooltip={formatKeyboardShortcut(
+        dict.formatting_toolbar.unnest.secondary_tooltip,
+        dict.generic.ctrl_shortcut
+      )}
+      icon={<RiIndentDecrease />}
     />
   );
 };

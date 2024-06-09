@@ -27,6 +27,11 @@ export const createPasteFromClipboardExtension = <
             handleDOMEvents: {
               paste(_view, event) {
                 event.preventDefault();
+
+                if (!editor.isEditable) {
+                  return;
+                }
+
                 let format: (typeof acceptedMIMETypes)[number] | null = null;
 
                 for (const mimeType of acceptedMIMETypes) {
@@ -44,7 +49,6 @@ export const createPasteFromClipboardExtension = <
                     );
 
                     data = htmlNode.innerHTML;
-                    console.log(data);
                   }
                   editor._tiptapEditor.view.pasteHTML(data);
                 }

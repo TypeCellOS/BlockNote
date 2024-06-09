@@ -3,13 +3,9 @@ import rehypeParse from "rehype-parse";
 import rehypeStringify from "rehype-stringify";
 import { unified } from "unified";
 
+import { PartialBlock } from "../../../blocks/defaultBlocks";
 import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
-import {
-  BlockSchema,
-  InlineContentSchema,
-  PartialBlock,
-  StyleSchema,
-} from "../../../schema";
+import { BlockSchema, InlineContentSchema, StyleSchema } from "../../../schema";
 import { blockToNode } from "../../nodeConversions/nodeConversions";
 import {
   serializeNodeInner,
@@ -87,7 +83,10 @@ export const createExternalHTMLExporter = <
       .use(rehypeParse, { fragment: true })
       .use(simplifyBlocks, {
         orderedListItemBlockTypes: new Set<string>(["numberedListItem"]),
-        unorderedListItemBlockTypes: new Set<string>(["bulletListItem"]),
+        unorderedListItemBlockTypes: new Set<string>([
+          "bulletListItem",
+          "checkListItem",
+        ]),
       })
       .use(rehypeStringify)
       .processSync(serializeProseMirrorFragment(fragment, serializer, options));
@@ -100,7 +99,7 @@ export const createExternalHTMLExporter = <
     options
   ) => {
     const nodes = blocks.map((block) =>
-      blockToNode(block, schema, editor.styleSchema)
+      blockToNode(block, schema, editor.schema.styleSchema)
     );
     const blockGroup = schema.nodes["blockGroup"].create(null, nodes);
 

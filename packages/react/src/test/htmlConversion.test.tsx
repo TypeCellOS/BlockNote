@@ -11,10 +11,16 @@ import {
   createInternalHTMLSerializer,
   partialBlocksToBlocksForTesting,
 } from "@blocknote/core";
+import { flushSync } from "react-dom";
+import { Root, createRoot } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { customReactBlockSchemaTestCases } from "./testCases/customReactBlocks";
+import {
+  TestContext,
+  customReactBlockSchemaTestCases,
+} from "./testCases/customReactBlocks";
 import { customReactInlineContentTestCases } from "./testCases/customReactInlineContent";
 import { customReactStylesTestCases } from "./testCases/customReactStyles";
+import { BlockNoteViewRaw } from "../editor/BlockNoteView";
 
 // TODO: code same from @blocknote/core, maybe create separate test util package
 async function convertToHTMLAndCompareSnapshots<
@@ -43,7 +49,7 @@ async function convertToHTMLAndCompareSnapshots<
 
   // turn the internalHTML back into blocks, and make sure no data was lost
   const fullBlocks = partialBlocksToBlocksForTesting(
-    editor.blockSchema,
+    editor.schema.blockSchema,
     blocks
   );
   const parsed = await editor.tryParseHTMLToBlocks(internalHTML);
@@ -75,12 +81,27 @@ describe("Test React HTML conversion", () => {
   for (const testCase of testCases) {
     describe("Case: " + testCase.name, () => {
       let editor: BlockNoteEditor<any, any, any>;
+      // TODO: Why do we need to render for unit tests?
+      let root: Root;
+      const div = document.createElement("div");
 
       beforeEach(() => {
         editor = testCase.createEditor();
+
+        const el = (
+          <TestContext.Provider value={true}>
+            <BlockNoteViewRaw editor={editor} />
+          </TestContext.Provider>
+        );
+        root = createRoot(div);
+        flushSync(() => {
+          // eslint-disable-next-line testing-library/no-render-in-setup
+          root.render(el);
+        });
       });
 
       afterEach(() => {
+        root.unmount();
         editor._tiptapEditor.destroy();
         editor = undefined as any;
 

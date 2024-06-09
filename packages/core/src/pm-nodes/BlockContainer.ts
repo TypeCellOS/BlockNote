@@ -8,6 +8,7 @@ import {
   inlineContentToNodes,
   tableContentToNodes,
 } from "../api/nodeConversions/nodeConversions";
+import { PartialBlock } from "../blocks/defaultBlocks";
 import type { BlockNoteEditor } from "../editor/BlockNoteEditor";
 import { NonEditableBlockPlugin } from "../extensions/NonEditableBlocks/NonEditableBlockPlugin";
 import { PreviousBlockTypePlugin } from "../extensions/PreviousBlockType/PreviousBlockTypePlugin";
@@ -15,7 +16,6 @@ import {
   BlockNoteDOMAttributes,
   BlockSchema,
   InlineContentSchema,
-  PartialBlock,
   StyleSchema,
 } from "../schema";
 import { mergeCSSClasses } from "../util/browser";
@@ -36,7 +36,11 @@ declare module "@tiptap/core" {
       BNCreateBlock: (pos: number) => ReturnType;
       BNDeleteBlock: (posInBlock: number) => ReturnType;
       BNMergeBlocks: (posBetweenBlocks: number) => ReturnType;
-      BNSplitBlock: (posInBlock: number, keepType: boolean) => ReturnType;
+      BNSplitBlock: (
+        posInBlock: number,
+        keepType?: boolean,
+        keepProps?: boolean
+      ) => ReturnType;
       BNUpdateBlock: <
         BSchema extends BlockSchema,
         I extends InlineContentSchema,
@@ -62,7 +66,7 @@ declare module "@tiptap/core" {
  */
 export const BlockContainer = Node.create<{
   domAttributes?: BlockNoteDOMAttributes;
-  editor: BlockNoteEditor<BlockSchema, InlineContentSchema, StyleSchema>;
+  editor: BlockNoteEditor<any, any, any>;
 }>({
   name: "blockContainer",
   group: "blockContainer",
@@ -109,7 +113,7 @@ export const BlockContainer = Node.create<{
     }
 
     const blockHTMLAttributes = {
-      ...(this.options.domAttributes?.blockContainer || {}),
+      ...(this.options.domAttributes?.block || {}),
       ...HTMLAttributes,
     };
     const block = document.createElement("div");
@@ -139,7 +143,7 @@ export const BlockContainer = Node.create<{
             state.schema.nodes["blockContainer"].createAndFill()!;
 
           if (dispatch) {
-            state.tr.insert(pos, newBlock);
+            state.tr.insert(pos, newBlock).scrollIntoView();
           }
 
           return true;
@@ -183,7 +187,7 @@ export const BlockContainer = Node.create<{
                   blockToNode(
                     child,
                     state.schema,
-                    this.options.editor.styleSchema
+                    this.options.editor.schema.styleSchema
                   )
                 );
               }
@@ -216,20 +220,24 @@ export const BlockContainer = Node.create<{
             if (block.content) {
               if (typeof block.content === "string") {
                 // Adds a single text node with no marks to the content.
-                content = [state.schema.text(block.content)];
+                content = inlineContentToNodes(
+                  [block.content],
+                  state.schema,
+                  this.options.editor.schema.styleSchema
+                );
               } else if (Array.isArray(block.content)) {
                 // Adds a text node with the provided styles converted into marks to the content,
                 // for each InlineContent object.
                 content = inlineContentToNodes(
                   block.content,
                   state.schema,
-                  this.options.editor.styleSchema
+                  this.options.editor.schema.styleSchema
                 );
               } else if (block.content.type === "tableContent") {
                 content = tableContentToNodes(
                   block.content,
                   state.schema,
-                  this.options.editor.styleSchema
+                  this.options.editor.schema.styleSchema
                 );
               } else {
                 throw new UnreachableCaseError(block.content.type);
@@ -402,8 +410,12 @@ export const BlockContainer = Node.create<{
         },
       // Splits a block at a given position. Content after the position is moved to a new block below, at the same
       // nesting level.
+      // - `keepType` is usually false, unless the selection is at the start of
+      // a block.
+      // - `keepProps` is usually true when `keepType` is true, except for when
+      // creating new list item blocks with Enter.
       BNSplitBlock:
-        (posInBlock, keepType) =>
+        (posInBlock, keepType, keepProps) =>
         ({ state, dispatch }) => {
           const blockInfo = getBlockInfoFromPos(state.doc, posInBlock);
           if (blockInfo === undefined) {
@@ -448,7 +460,7 @@ export const BlockContainer = Node.create<{
                 newBlockContentPos,
                 newBlockContentPos,
                 state.schema.node(contentType).type,
-                contentNode.attrs
+                keepProps ? contentNode.attrs : undefined
               );
             }
 
@@ -470,6 +482,8 @@ export const BlockContainer = Node.create<{
                   )
                 : undefined
             );
+
+            state.tr.scrollIntoView();
           }
 
           return true;
@@ -567,7 +581,7 @@ export const BlockContainer = Node.create<{
               state.selection.from
             )!;
 
-            const blockAtDocEnd = false;
+            const blockAtDocEnd = endPos === state.doc.nodeSize - 4;
             const selectionAtBlockEnd = state.selection.from === endPos - 1;
             const selectionEmpty = state.selection.empty;
             const hasChildBlocks = node.childCount === 2;
@@ -601,7 +615,7 @@ export const BlockContainer = Node.create<{
         // of the block.
         () =>
           commands.command(({ state }) => {
-            const { node, depth } = getBlockInfoFromPos(
+            const { contentNode, depth } = getBlockInfoFromPos(
               state.doc,
               state.selection.from
             )!;
@@ -610,7 +624,7 @@ export const BlockContainer = Node.create<{
               state.selection.$anchor.parentOffset === 0;
             const selectionEmpty =
               state.selection.anchor === state.selection.head;
-            const blockEmpty = node.textContent.length === 0;
+            const blockEmpty = contentNode.childCount === 0;
             const blockIndented = depth > 2;
 
             if (
@@ -628,7 +642,7 @@ export const BlockContainer = Node.create<{
         // empty & at the start of the block.
         () =>
           commands.command(({ state, chain }) => {
-            const { node, endPos } = getBlockInfoFromPos(
+            const { contentNode, endPos } = getBlockInfoFromPos(
               state.doc,
               state.selection.from
             )!;
@@ -637,7 +651,7 @@ export const BlockContainer = Node.create<{
               state.selection.$anchor.parentOffset === 0;
             const selectionEmpty =
               state.selection.anchor === state.selection.head;
-            const blockEmpty = node.textContent.length === 0;
+            const blockEmpty = contentNode.childCount === 0;
 
             if (selectionAtBlockStart && selectionEmpty && blockEmpty) {
               const newBlockInsertionPos = endPos + 1;
@@ -657,19 +671,23 @@ export const BlockContainer = Node.create<{
         // deletes the selection beforehand, if it's not empty.
         () =>
           commands.command(({ state, chain }) => {
-            const { node } = getBlockInfoFromPos(
+            const { contentNode } = getBlockInfoFromPos(
               state.doc,
               state.selection.from
             )!;
 
             const selectionAtBlockStart =
               state.selection.$anchor.parentOffset === 0;
-            const blockEmpty = node.textContent.length === 0;
+            const blockEmpty = contentNode.childCount === 0;
 
             if (!blockEmpty) {
               chain()
                 .deleteSelection()
-                .BNSplitBlock(state.selection.from, selectionAtBlockStart)
+                .BNSplitBlock(
+                  state.selection.from,
+                  selectionAtBlockStart,
+                  selectionAtBlockStart
+                )
                 .run();
 
               return true;
@@ -686,17 +704,29 @@ export const BlockContainer = Node.create<{
       // Always returning true for tab key presses ensures they're not captured by the browser. Otherwise, they blur the
       // editor since the browser will try to use tab for keyboard navigation.
       Tab: () => {
+        if (
+          this.options.editor.formattingToolbar?.shown ||
+          this.options.editor.linkToolbar?.shown ||
+          this.options.editor.filePanel?.shown
+        ) {
+          // don't handle tabs if a toolbar is shown, so we can tab into / out of it
+          return false;
+        }
         this.editor.commands.sinkListItem("blockContainer");
         return true;
       },
       "Shift-Tab": () => {
+        if (
+          this.options.editor.formattingToolbar?.shown ||
+          this.options.editor.linkToolbar?.shown ||
+          this.options.editor.filePanel?.shown
+        ) {
+          // don't handle tabs if a toolbar is shown, so we can tab into / out of it
+          return false;
+        }
         this.editor.commands.liftListItem("blockContainer");
         return true;
       },
-      "Mod-Alt-0": () =>
-        this.editor.commands.BNCreateBlock(
-          this.editor.state.selection.anchor + 2
-        ),
     };
   },
 });

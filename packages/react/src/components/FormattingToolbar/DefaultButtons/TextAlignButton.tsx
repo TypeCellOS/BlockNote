@@ -1,8 +1,10 @@
 import {
-  BlockNoteEditor,
   BlockSchema,
+  checkBlockHasDefaultProp,
+  checkBlockTypeHasDefaultProp,
   DefaultProps,
-  PartialBlock,
+  InlineContentSchema,
+  StyleSchema,
 } from "@blocknote/core";
 import { useCallback, useMemo } from "react";
 import { IconType } from "react-icons";
@@ -13,8 +15,10 @@ import {
   RiAlignRight,
 } from "react-icons/ri";
 
-import { ToolbarButton } from "../../../components-shared/Toolbar/ToolbarButton";
+import { useComponentsContext } from "../../../editor/ComponentsContext";
+import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
+import { useDictionary } from "../../../i18n/dictionary";
 
 type TextAlignment = DefaultProps["textAlignment"];
 
@@ -25,55 +29,66 @@ const icons: Record<TextAlignment, IconType> = {
   justify: RiAlignJustify,
 };
 
-export const TextAlignButton = <BSchema extends BlockSchema>(props: {
-  editor: BlockNoteEditor<BSchema, any, any>;
-  textAlignment: TextAlignment;
-}) => {
-  const selectedBlocks = useSelectedBlocks(props.editor);
+export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
+  const Components = useComponentsContext()!;
+  const dict = useDictionary();
+
+  const editor = useBlockNoteEditor<
+    BlockSchema,
+    InlineContentSchema,
+    StyleSchema
+  >();
+
+  const selectedBlocks = useSelectedBlocks(editor);
 
   const textAlignment = useMemo(() => {
     const block = selectedBlocks[0];
 
-    if ("textAlignment" in block.props) {
-      return block.props.textAlignment as TextAlignment;
+    if (checkBlockHasDefaultProp("textAlignment", block, editor)) {
+      return block.props.textAlignment;
     }
 
     return;
-  }, [selectedBlocks]);
+  }, [editor, selectedBlocks]);
 
   const setTextAlignment = useCallback(
     (textAlignment: TextAlignment) => {
-      props.editor.focus();
+      editor.focus();
 
       for (const block of selectedBlocks) {
-        props.editor.updateBlock(block, {
-          props: { textAlignment: textAlignment },
-        } as PartialBlock<BSchema, any, any>);
+        if (checkBlockTypeHasDefaultProp("textAlignment", block.type, editor)) {
+          editor.updateBlock(block, {
+            props: { textAlignment: textAlignment },
+          });
+        }
       }
     },
-    [props.editor, selectedBlocks]
+    [editor, selectedBlocks]
   );
 
   const show = useMemo(() => {
     return !!selectedBlocks.find((block) => "textAlignment" in block.props);
   }, [selectedBlocks]);
 
-  if (!show) {
+  if (!show || !editor.isEditable) {
     return null;
   }
 
+  const Icon: IconType = icons[props.textAlignment];
   return (
-    <ToolbarButton
+    <Components.FormattingToolbar.Button
+      className={"bn-button"}
+      data-test={`alignText${
+        props.textAlignment.slice(0, 1).toUpperCase() +
+        props.textAlignment.slice(1)
+      }`}
       onClick={() => setTextAlignment(props.textAlignment)}
       isSelected={textAlignment === props.textAlignment}
+      label={dict.formatting_toolbar[`align_${props.textAlignment}`].tooltip}
       mainTooltip={
-        props.textAlignment === "justify"
-          ? "Justify Text"
-          : "Align Text " +
-            props.textAlignment.slice(0, 1).toUpperCase() +
-            props.textAlignment.slice(1)
+        dict.formatting_toolbar[`align_${props.textAlignment}`].tooltip
       }
-      icon={icons[props.textAlignment]}
+      icon={<Icon />}
     />
   );
 };

@@ -1,13 +1,43 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
-  DefaultBlockSchema,
+  Block,
+  defaultBlockSpecs,
   DefaultInlineContentSchema,
   DefaultStyleSchema,
+  PartialBlock,
 } from "../../blocks/defaultBlocks";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor";
-import { Block, PartialBlock } from "../../schema/blocks/types";
+import { createBlockSpec } from "../../schema";
+import { BlockNoteSchema } from "../../editor/BlockNoteSchema";
 
-let editor: BlockNoteEditor;
+const CustomBlock = createBlockSpec(
+  {
+    type: "customBlock",
+    propSchema: {},
+    content: "inline",
+  } as const,
+  {
+    render: () => {
+      const dom = document.createElement("div");
+      dom.className = "custom-block";
+
+      return {
+        dom: dom,
+        contentDOM: dom,
+      };
+    },
+  }
+);
+
+const schema = BlockNoteSchema.create({
+  blockSpecs: {
+    ...defaultBlockSpecs,
+    customBlock: CustomBlock,
+  },
+});
+
+let editor: BlockNoteEditor<typeof schema.blockSchema>;
+const div = document.createElement("div");
 
 function waitForEditor() {
   // wait for create event on editor,
@@ -21,13 +51,19 @@ function waitForEditor() {
 }
 
 let singleBlock: PartialBlock<
-  DefaultBlockSchema,
+  typeof schema.blockSchema,
   DefaultInlineContentSchema,
   DefaultStyleSchema
 >;
 
 let multipleBlocks: PartialBlock<
-  DefaultBlockSchema,
+  typeof schema.blockSchema,
+  DefaultInlineContentSchema,
+  DefaultStyleSchema
+>[];
+
+let blocksWithLineBreaks: PartialBlock<
+  typeof schema.blockSchema,
   DefaultInlineContentSchema,
   DefaultStyleSchema
 >[];
@@ -35,13 +71,17 @@ let multipleBlocks: PartialBlock<
 let insert: (
   placement: "before" | "nested" | "after"
 ) => Block<
-  DefaultBlockSchema,
+  typeof schema.blockSchema,
   DefaultInlineContentSchema,
   DefaultStyleSchema
 >[];
 
 beforeEach(() => {
-  editor = BlockNoteEditor.create();
+  editor = BlockNoteEditor.create<typeof schema.blockSchema>({
+    schema: schema,
+  });
+
+  editor.mount(div);
 
   singleBlock = {
     type: "paragraph",
@@ -83,15 +123,27 @@ beforeEach(() => {
     },
   ];
 
+  blocksWithLineBreaks = [
+    {
+      type: "paragraph",
+      content: "Line1\nLine2",
+    },
+    {
+      type: "customBlock",
+      content: "Line1\nLine2",
+    },
+  ];
+
   insert = (placement) => {
-    const existingBlock = editor.topLevelBlocks[0];
+    const existingBlock = editor.document[0];
     editor.insertBlocks(multipleBlocks, existingBlock, placement);
 
-    return editor.topLevelBlocks;
+    return editor.document;
   };
 });
 
 afterEach(() => {
+  editor.mount(undefined);
   editor._tiptapEditor.destroy();
   editor = undefined as any;
 });
@@ -118,7 +170,7 @@ describe("Test strong typing", () => {
         {
           type: "paragraph",
           props: {
-            // @ts-expect-error level not suitable for paragraph
+            // @ts-expect-error invalid type
             level: 1,
           },
         }
@@ -172,12 +224,12 @@ describe("Insert, Update, & Delete Blocks", () => {
   it("Insert, update, & delete single block", async () => {
     await waitForEditor();
 
-    const existingBlock = editor.topLevelBlocks[0];
+    const existingBlock = editor.document[0];
     editor.insertBlocks([singleBlock], existingBlock);
 
-    expect(editor.topLevelBlocks).toMatchSnapshot();
+    expect(editor.document).toMatchSnapshot();
 
-    const newBlock = editor.topLevelBlocks[0];
+    const newBlock = editor.document[0];
     editor.updateBlock(newBlock, {
       type: "heading",
       props: {
@@ -203,32 +255,63 @@ describe("Insert, Update, & Delete Blocks", () => {
       children: [singleBlock],
     });
 
-    expect(editor.topLevelBlocks).toMatchSnapshot();
+    expect(editor.document).toMatchSnapshot();
 
-    const updatedBlock = editor.topLevelBlocks[0];
+    const updatedBlock = editor.document[0];
     editor.removeBlocks([updatedBlock]);
 
-    expect(editor.topLevelBlocks).toMatchSnapshot();
+    expect(editor.document).toMatchSnapshot();
   });
 
   it("Insert, update, & delete multiple blocks", async () => {
     await waitForEditor();
 
-    const existingBlock = editor.topLevelBlocks[0];
+    const existingBlock = editor.document[0];
     editor.insertBlocks(multipleBlocks, existingBlock);
 
-    expect(editor.topLevelBlocks).toMatchSnapshot();
+    expect(editor.document).toMatchSnapshot();
 
-    const newBlock = editor.topLevelBlocks[0];
+    const newBlock = editor.document[0];
     editor.updateBlock(newBlock, {
       type: "paragraph",
     });
 
-    expect(editor.topLevelBlocks).toMatchSnapshot();
+    expect(editor.document).toMatchSnapshot();
 
-    const updatedBlocks = editor.topLevelBlocks.slice(0, 2);
+    const updatedBlocks = editor.document.slice(0, 2);
     editor.removeBlocks([updatedBlocks[0].children[0], updatedBlocks[1]]);
 
-    expect(editor.topLevelBlocks).toMatchSnapshot();
+    expect(editor.document).toMatchSnapshot();
+  });
+});
+
+describe("Update Line Breaks", () => {
+  it("Update paragraph with line break", async () => {
+    await waitForEditor();
+
+    const existingBlock = editor.document[0];
+    editor.insertBlocks(blocksWithLineBreaks, existingBlock);
+
+    const newBlock = editor.document[0];
+    editor.updateBlock(newBlock, {
+      type: "paragraph",
+      content: "Updated Custom Block with \nline \nbreak",
+    });
+
+    expect(editor.document).toMatchSnapshot();
+  });
+  it("Update custom block with line break", async () => {
+    await waitForEditor();
+
+    const existingBlock = editor.document[0];
+    editor.insertBlocks(blocksWithLineBreaks, existingBlock);
+
+    const newBlock = editor.document[1];
+    editor.updateBlock(newBlock, {
+      type: "customBlock",
+      content: "Updated Custom Block with \nline \nbreak",
+    });
+
+    expect(editor.document).toMatchSnapshot();
   });
 });

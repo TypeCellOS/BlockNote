@@ -1,17 +1,14 @@
 import { EditorTestCases } from "../index";
 
-import { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
+import { uploadToTmpFilesDotOrg_DEV_ONLY } from "../../../blocks/FileBlockContent/uploadToTmpFilesDotOrg_DEV_ONLY";
 import {
   DefaultBlockSchema,
   DefaultStyleSchema,
   defaultInlineContentSpecs,
 } from "../../../blocks/defaultBlocks";
-import { uploadToTmpFilesDotOrg_DEV_ONLY } from "../../../blocks/ImageBlockContent/uploadToTmpFilesDotOrg_DEV_ONLY";
+import { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
+import { BlockNoteSchema } from "../../../editor/BlockNoteSchema";
 import { createInlineContentSpec } from "../../../schema/inlineContent/createSpec";
-import {
-  InlineContentSchemaFromSpecs,
-  InlineContentSpecs,
-} from "../../../schema/inlineContent/types";
 
 const mention = createInlineContentSpec(
   {
@@ -57,22 +54,24 @@ const tag = createInlineContentSpec(
   }
 );
 
-const customInlineContent = {
-  ...defaultInlineContentSpecs,
-  mention,
-  tag,
-} satisfies InlineContentSpecs;
+const schema = BlockNoteSchema.create({
+  inlineContentSpecs: {
+    ...defaultInlineContentSpecs,
+    mention,
+    tag,
+  },
+});
 
 export const customInlineContentTestCases: EditorTestCases<
   DefaultBlockSchema,
-  InlineContentSchemaFromSpecs<typeof customInlineContent>,
+  typeof schema.inlineContentSchema,
   DefaultStyleSchema
 > = {
   name: "custom inline content schema",
   createEditor: () => {
     return BlockNoteEditor.create({
       uploadFile: uploadToTmpFilesDotOrg_DEV_ONLY,
-      inlineContentSpecs: customInlineContent,
+      schema,
     });
   },
   documents: [

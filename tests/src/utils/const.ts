@@ -1,11 +1,19 @@
 const PORT = 3000;
 export const BASE_URL = !process.env.RUN_IN_DOCKER
-  ? `http://localhost:${PORT}/simple?hideMenu`
-  : `http://host.docker.internal:${PORT}/simple?hideMenu`;
+  ? `http://localhost:${PORT}/basic/testing?hideMenu`
+  : `http://host.docker.internal:${PORT}/basic/testing?hideMenu`;
+
+export const SHADCN_URL = !process.env.RUN_IN_DOCKER
+  ? `http://localhost:${PORT}/basic/shadcn?hideMenu`
+  : `http://host.docker.internal:${PORT}/basic/shadcn?hideMenu`;
+
+export const ARIAKIT_URL = !process.env.RUN_IN_DOCKER
+  ? `http://localhost:${PORT}/basic/ariakit?hideMenu`
+  : `http://host.docker.internal:${PORT}/basic/ariakit?hideMenu`;
 
 export const PASTE_ZONE_SELECTOR = "#pasteZone";
 
-export const EDITOR_SELECTOR = `[data-test="editor"]`;
+export const EDITOR_SELECTOR = `.bn-editor`;
 export const BLOCK_CONTAINER_SELECTOR = `[data-node-type="blockContainer"]`;
 export const BLOCK_GROUP_SELECTOR = `[data-node-type="blockGroup"]`;
 
@@ -20,8 +28,8 @@ export const IMAGE_SELECTOR = `[data-content-type="image"]`;
 export const DRAG_HANDLE_SELECTOR = `[data-test="dragHandle"]`;
 export const DRAG_HANDLE_ADD_SELECTOR = `[data-test="dragHandleAdd"]`;
 
-export const DRAG_HANDLE_MENU_SELECTOR = `.mantine-DragHandleMenu-root`;
-export const SLASH_MENU_SELECTOR = `.mantine-SlashMenu-root`;
+export const DRAG_HANDLE_MENU_SELECTOR = `.bn-side-menu > .bn-menu-dropdown`;
+export const SLASH_MENU_SELECTOR = `.bn-suggestion-menu`;
 
 export const ITALIC_BUTTON_SELECTOR = `[data-test="italic"]`;
 export const COLORS_BUTTON_SELECTOR = `[data-test="colors"]`;
