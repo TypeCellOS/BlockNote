@@ -89,7 +89,6 @@ export function getDefaultSlashMenuItems<
             props: { level: 1 },
           });
         },
-        badge: formatKeyboardShortcut("Mod-Alt-1"),
         key: "heading",
         ...editor.dictionary.slash_menu.heading,
       },
@@ -100,7 +99,6 @@ export function getDefaultSlashMenuItems<
             props: { level: 2 },
           });
         },
-        badge: formatKeyboardShortcut("Mod-Alt-2"),
         key: "heading_2",
         ...editor.dictionary.slash_menu.heading_2,
       },
@@ -111,7 +109,6 @@ export function getDefaultSlashMenuItems<
             props: { level: 3 },
           });
         },
-        badge: formatKeyboardShortcut("Mod-Alt-3"),
         key: "heading_3",
         ...editor.dictionary.slash_menu.heading_3,
       }
@@ -125,7 +122,6 @@ export function getDefaultSlashMenuItems<
           type: "numberedListItem",
         });
       },
-      badge: formatKeyboardShortcut("Mod-Shift-7"),
       key: "numbered_list",
       ...editor.dictionary.slash_menu.numbered_list,
     });
@@ -138,7 +134,6 @@ export function getDefaultSlashMenuItems<
           type: "bulletListItem",
         });
       },
-      badge: formatKeyboardShortcut("Mod-Shift-8"),
       key: "bullet_list",
       ...editor.dictionary.slash_menu.bullet_list,
     });
@@ -151,7 +146,6 @@ export function getDefaultSlashMenuItems<
           type: "checkListItem",
         });
       },
-      badge: formatKeyboardShortcut("Mod-Shift-9"),
       key: "check_list",
       ...editor.dictionary.slash_menu.check_list,
     });
@@ -164,7 +158,6 @@ export function getDefaultSlashMenuItems<
           type: "paragraph",
         });
       },
-      badge: formatKeyboardShortcut("Mod-Alt-0"),
       key: "paragraph",
       ...editor.dictionary.slash_menu.paragraph,
     });

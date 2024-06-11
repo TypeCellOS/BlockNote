@@ -6,7 +6,6 @@ import {
 } from "../../../schema";
 import { createDefaultBlockDOMOutputSpec } from "../../defaultBlockHelpers";
 import { defaultProps } from "../../defaultProps";
-import { handleEnter } from "../ListItemKeyboardShortcuts";
 import { getCurrentBlockContentType } from "../../../api/getCurrentBlockContentType";
 
 export const checkListItemPropSchema = {
@@ -78,25 +77,6 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
         },
       }),
     ];
-  },
-
-  addKeyboardShortcuts() {
-    return {
-      Enter: () => handleEnter(this.editor),
-      "Mod-Shift-9": () => {
-        if (getCurrentBlockContentType(this.editor) !== "inline*") {
-          return true;
-        }
-
-        return this.editor.commands.BNUpdateBlock(
-          this.editor.state.selection.anchor,
-          {
-            type: "checkListItem",
-            props: {},
-          }
-        );
-      },
-    };
   },
 
   parseHTML() {
