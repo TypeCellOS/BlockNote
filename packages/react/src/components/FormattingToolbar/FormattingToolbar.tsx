@@ -9,16 +9,16 @@ import {
   NestBlockButton,
   UnnestBlockButton,
 } from "./DefaultButtons/NestBlockButtons";
-import { FileReplaceButton } from "./DefaultButtons/FileReplaceButton";
+// import { FileReplaceButton } from "./DefaultButtons/FileReplaceButton";
 import { TextAlignButton } from "./DefaultButtons/TextAlignButton";
 import {
   BlockTypeSelect,
   BlockTypeSelectItem,
 } from "./DefaultSelects/BlockTypeSelect";
 import { FormattingToolbarProps } from "./FormattingToolbarProps";
-import { FileRenameButton } from "./DefaultButtons/FileRenameButton";
+// import { FileRenameButton } from "./DefaultButtons/FileRenameButton";
 import { FileDownloadButton } from "./DefaultButtons/FileDownloadButton";
-import { FilePreviewButton } from "./DefaultButtons/FilePreviewButton";
+// import { FilePreviewButton } from "./DefaultButtons/FilePreviewButton";
 import { FileDeleteButton } from "./DefaultButtons/FileDeleteButton";
 
 export const getFormattingToolbarItems = (
@@ -26,11 +26,11 @@ export const getFormattingToolbarItems = (
 ): JSX.Element[] => [
   <BlockTypeSelect key={"blockTypeSelect"} items={blockTypeSelectItems} />,
   <FileCaptionButton key={"fileCaptionButton"} />,
-  <FileReplaceButton key={"replaceFileButton"} />,
-  <FileRenameButton key={"fileRenameButton"} />,
+  // <FileReplaceButton key={"replaceFileButton"} />,
+  // <FileRenameButton key={"fileRenameButton"} />,
   <FileDeleteButton key={"fileDeleteButton"} />,
   <FileDownloadButton key={"fileDownloadButton"} />,
-  <FilePreviewButton key={"filePreviewButton"} />,
+  // <FilePreviewButton key={"filePreviewButton"} />,
   <BasicTextStyleButton basicTextStyle={"bold"} key={"boldStyleButton"} />,
   <BasicTextStyleButton basicTextStyle={"italic"} key={"italicStyleButton"} />,
   <BasicTextStyleButton

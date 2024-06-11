@@ -7,8 +7,9 @@ import {
   isStyledTextInlineContent,
   StyleSchema,
 } from "../../schema";
-import { formatKeyboardShortcut } from "../../util/browser";
 import { DefaultSuggestionItem } from "./DefaultSuggestionItem";
+import {fileOpen} from 'browser-fs-access';
+import {fileToBase64} from "../../util";
 
 // Sets the editor's text cursor position to the next content editable block,
 // so either a block with inline content or a table. The last block is always a
@@ -189,17 +190,27 @@ export function getDefaultSlashMenuItems<
 
   if (checkDefaultBlockTypeInSchema("image", editor)) {
     items.push({
-      onItemClick: () => {
-        const insertedBlock = insertOrUpdateBlock(editor, {
+      onItemClick: async () => {
+        const file = await fileOpen({
+          mimeTypes: ['image/*']
+        });
+        if (!file) return
+        insertOrUpdateBlock(editor, {
           type: "image",
+          props: {
+            url: await fileToBase64(file),
+            name: file.name,
+            caption: file.name,
+            // showPreview: true,
+          }
         });
 
         // Immediately open the file toolbar
-        editor.prosemirrorView.dispatch(
-          editor._tiptapEditor.state.tr.setMeta(editor.filePanel!.plugin, {
-            block: insertedBlock,
-          })
-        );
+        // editor.prosemirrorView.dispatch(
+        //   editor._tiptapEditor.state.tr.setMeta(editor.filePanel!.plugin, {
+        //     block: insertedBlock,
+        //   })
+        // );
       },
       key: "image",
       ...editor.dictionary.slash_menu.image,
@@ -208,17 +219,25 @@ export function getDefaultSlashMenuItems<
 
   if (checkDefaultBlockTypeInSchema("video", editor)) {
     items.push({
-      onItemClick: () => {
-        const insertedBlock = insertOrUpdateBlock(editor, {
+      onItemClick: async () => {
+        const file = await fileOpen({
+          mimeTypes: ['video/*'],
+        });
+        if (!file) return
+        insertOrUpdateBlock(editor, {
           type: "video",
+          props: {
+            url: await URL.createObjectURL(file),
+            caption: file.name,
+          }
         });
 
         // Immediately open the file toolbar
-        editor.prosemirrorView.dispatch(
-          editor._tiptapEditor.state.tr.setMeta(editor.filePanel!.plugin, {
-            block: insertedBlock,
-          })
-        );
+        // editor.prosemirrorView.dispatch(
+        //   editor._tiptapEditor.state.tr.setMeta(editor.filePanel!.plugin, {
+        //     block: insertedBlock,
+        //   })
+        // );
       },
       key: "video",
       ...editor.dictionary.slash_menu.video,

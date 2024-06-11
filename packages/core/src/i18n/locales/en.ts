@@ -104,6 +104,12 @@ export const en = {
       aliases: ["file", "upload", "embed", "media", "url"],
       group: "Media",
     },
+    code: {
+      title: 'Code',
+      subtext: "Insert Code Snippet",
+      aliases: ['code', 'snippet', "javascript"],
+      group: 'media'
+    },
   },
   placeholders: {
     default: "Enter text or type '/' for commands",
