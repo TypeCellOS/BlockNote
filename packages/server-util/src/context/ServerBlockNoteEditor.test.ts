@@ -1,14 +1,10 @@
 import { Block } from "@blocknote/core";
 import { describe, expect, it } from "vitest";
-import { BlockNoteContext } from "./BlockNoteContext";
+import { ServerBlockNoteEditor } from "./ServerBlockNoteEditor";
 
-describe("Test BlockNoteContext", () => {
-  const context = BlockNoteContext.create();
-  const blocks: Block<
-    (typeof context)["blockSchema"],
-    (typeof context)["inlineContentSchema"],
-    (typeof context)["styleSchema"]
-  >[] = [
+describe("Test ServerBlockNoteEditor", () => {
+  const editor = ServerBlockNoteEditor.create();
+  const blocks: Block[] = [
     {
       id: "1",
       type: "heading",
@@ -76,17 +72,17 @@ describe("Test BlockNoteContext", () => {
   ];
 
   it("blocksToHTMLLossy", async () => {
-    const html = await context.blocksToHTMLLossy(blocks);
+    const html = await editor.blocksToHTMLLossy(blocks);
     expect(html).toMatchSnapshot();
   });
 
   it("blocksToMarkdownLossy", async () => {
-    const md = await context.blocksToMarkdownLossy(blocks);
+    const md = await editor.blocksToMarkdownLossy(blocks);
     expect(md).toMatchSnapshot();
   });
 
   it("blocksToBlockNoteStyleHTML", async () => {
-    const html = await context.blocksToBlockNoteStyleHTML(blocks);
+    const html = await editor.blocksToBlockNoteStyleHTML(blocks);
     expect(html).toMatchSnapshot();
   });
 });

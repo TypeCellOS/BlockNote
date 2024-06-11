@@ -1,2 +1,1 @@
-export * from "./context/BlockNoteContext";
-export * from "./yjs";
+export * from "./context/ServerBlockNoteEditor";
