@@ -20,8 +20,11 @@ export function renderToDOMSpec(
       div
     );
   } else {
-    // If no editor is provided, or if _tiptapEditor or _tiptapEditor.contentComponent is undefined, use a temporary root.
-    // This is currently only used for Styles. In this case, react context etc. won't be available inside `fc`
+    // If no editor is provided, use a temporary root. This is currently only used for Styles (see ReactStyleSpec).
+    // In this case, react context etc. won't be available inside `fc`
+
+    // We also use this if _tiptapEditor or _tiptapEditor.contentComponent is undefined, use a temporary root.
+    // This is actually a fallback / temporary fix, as normally this shouldn't happen (see #755). TODO: find cause
     root = createRoot(div);
     flushSync(() => {
       root!.render(fc((el) => (contentDOM = el || undefined)));
