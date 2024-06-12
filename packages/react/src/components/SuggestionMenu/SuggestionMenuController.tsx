@@ -90,25 +90,24 @@ export function SuggestionMenuController<
   );
 
   const state = useUIPluginState(cb);
-
   const { isMounted, ref, style, getFloatingProps } = useUIElementPositioning(
     state?.show || false,
     state?.referencePos || null,
     2000,
     {
-      placement: "bottom-start",
+      placement: "top-start",
       middleware: [
         offset(10),
         // Flips the menu placement to maximize the space available, and prevents
         // the menu from being cut off by the confines of the screen.
-        flip(),
-        size({
-          apply({ availableHeight, elements }) {
-            Object.assign(elements.floating.style, {
-              maxHeight: `${availableHeight - 10}px`,
-            });
-          },
-        }),
+        // flip(),
+        // size({
+        //   apply({ availableHeight, elements }) {
+        //     Object.assign(elements.floating.style, {
+        //       maxHeight: `${availableHeight - 10}px`,
+        //     });
+        //   },
+        // }),
       ],
       onOpenChange(open) {
         if (!open) {

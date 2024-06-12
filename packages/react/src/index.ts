@@ -45,6 +45,7 @@ export * from "./components/SideMenu/DragHandleMenu/DragHandleMenuProps";
 
 export * from "./components/SuggestionMenu/SuggestionMenuController";
 export * from "./components/SuggestionMenu/SuggestionMenuWrapper";
+export * from "./components/SuggestionMenu/SuggestionMenu";
 export * from "./components/SuggestionMenu/getDefaultReactSlashMenuItems";
 export * from "./components/SuggestionMenu/hooks/useCloseSuggestionMenuNoItems";
 export * from "./components/SuggestionMenu/hooks/useLoadSuggestionMenuItems";
