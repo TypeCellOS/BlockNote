@@ -1,12 +1,6 @@
-import { type ClassValue, clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
 import { ForwardedRef, MutableRefObject } from "react";
 
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
-
-export function mr<ElementType extends HTMLElement>(
+export function mergeRefs<ElementType extends HTMLElement>(
   ...refs: (MutableRefObject<ElementType> | ForwardedRef<ElementType>)[]
 ) {
   return (node: ElementType | null) => {

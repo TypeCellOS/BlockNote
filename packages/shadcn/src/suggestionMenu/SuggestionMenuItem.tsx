@@ -1,8 +1,8 @@
 import { assertEmpty } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
-import { forwardRef } from "react";
+import { forwardRef, useEffect, useRef } from "react";
 
-import { cn } from "../lib/utils";
+import { cn, mr } from "../lib/utils";
 import { useShadCNComponentsContext } from "../ShadCNComponentsContext";
 
 export const SuggestionMenuItem = forwardRef<
@@ -15,6 +15,14 @@ export const SuggestionMenuItem = forwardRef<
 
   assertEmpty(rest);
 
+  const itemRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (itemRef.current && isSelected) {
+      itemRef.current.scrollIntoView();
+    }
+  }, [isSelected]);
+
   return (
     <div
       // Styles from ShadCN DropdownMenuItem component
@@ -22,7 +30,7 @@ export const SuggestionMenuItem = forwardRef<
         "relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
         className
       )}
-      ref={ref}
+      ref={mr(ref, itemRef)}
       id={id}
       onClick={onClick}
       role="option"

@@ -4,10 +4,11 @@ import {
   Stack as MantineStack,
   Text as MantineText,
 } from "@mantine/core";
+import { mergeRefs } from "@mantine/hooks";
 
 import { assertEmpty } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
-import { forwardRef } from "react";
+import { forwardRef, useEffect, useRef } from "react";
 
 export const SuggestionMenuItem = forwardRef<
   HTMLDivElement,
@@ -17,11 +18,19 @@ export const SuggestionMenuItem = forwardRef<
 
   assertEmpty(rest);
 
+  const itemRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (itemRef.current && isSelected) {
+      itemRef.current.scrollIntoView();
+    }
+  }, [isSelected]);
+
   return (
     <MantineGroup
       gap={0}
       className={className}
-      ref={ref}
+      ref={mergeRefs(ref, itemRef)}
       id={id}
       role="option"
       onClick={onClick}
