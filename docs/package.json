@@ -15,7 +15,7 @@
     "@blocknote/react": "^0.14.0",
     "@blocknote/shadcn": "^0.14.0",
     "@headlessui/react": "^1.7.18",
-    "@mantine/core": "^7.7.1",
+    "@mantine/core": "^7.10.1",
     "@next/bundle-analyzer": "^14.1.0",
     "@vercel/analytics": "^1.2.2",
     "@vercel/og": "^0.6.2",
