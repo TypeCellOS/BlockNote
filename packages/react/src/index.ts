@@ -79,3 +79,6 @@ export * from "./hooks/useSelectedBlocks";
 export * from "./schema/ReactBlockSpec";
 export * from "./schema/ReactInlineContentSpec";
 export * from "./schema/ReactStyleSpec";
+
+export * from "./util/mergeRefs";
+export * from "./util/elementOverflow";

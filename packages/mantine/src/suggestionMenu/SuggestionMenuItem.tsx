@@ -7,7 +7,7 @@ import {
 import { mergeRefs } from "@mantine/hooks";
 
 import { assertEmpty } from "@blocknote/core";
-import { ComponentProps } from "@blocknote/react";
+import { ComponentProps, elementOverflow } from "@blocknote/react";
 import { forwardRef, useEffect, useRef } from "react";
 
 export const SuggestionMenuItem = forwardRef<
@@ -21,8 +21,16 @@ export const SuggestionMenuItem = forwardRef<
   const itemRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (itemRef.current && isSelected) {
-      itemRef.current.scrollIntoView();
+    if (!itemRef.current || !isSelected) {
+      return;
+    }
+
+    const overflow = elementOverflow(itemRef.current);
+
+    if (overflow === "top") {
+      itemRef.current.scrollIntoView(true);
+    } else if (overflow === "bottom") {
+      itemRef.current.scrollIntoView(false);
     }
   }, [isSelected]);
 
