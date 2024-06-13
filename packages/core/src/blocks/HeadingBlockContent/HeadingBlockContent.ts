@@ -65,6 +65,55 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
     ];
   },
 
+  addKeyboardShortcuts() {
+    return {
+      "Mod-Alt-1": () => {
+        if (getCurrentBlockContentType(this.editor) !== "inline*") {
+          return true;
+        }
+
+        return this.editor.commands.BNUpdateBlock(
+          this.editor.state.selection.anchor,
+          {
+            type: "heading",
+            props: {
+              level: 1 as any,
+            },
+          }
+        );
+      },
+      "Mod-Alt-2": () => {
+        if (getCurrentBlockContentType(this.editor) !== "inline*") {
+          return true;
+        }
+
+        return this.editor.commands.BNUpdateBlock(
+          this.editor.state.selection.anchor,
+          {
+            type: "heading",
+            props: {
+              level: 2 as any,
+            },
+          }
+        );
+      },
+      "Mod-Alt-3": () => {
+        if (getCurrentBlockContentType(this.editor) !== "inline*") {
+          return true;
+        }
+
+        return this.editor.commands.BNUpdateBlock(
+          this.editor.state.selection.anchor,
+          {
+            type: "heading",
+            props: {
+              level: 3 as any,
+            },
+          }
+        );
+      },
+    };
+  },
   parseHTML() {
     return [
       {
