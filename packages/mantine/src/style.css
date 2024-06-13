@@ -322,7 +322,6 @@
 
 .bn-mt-suggestion-menu-item-body {
   align-items: stretch;
-  color: var(--bn-colors-menu-text);
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -331,6 +330,7 @@
 }
 
 .bn-mt-suggestion-menu-item-title {
+  color: var(--bn-colors-menu-text);
   line-height: 20px;
   font-weight: 500;
   font-size: 14px;
@@ -339,6 +339,7 @@
 }
 
 .bn-mt-suggestion-menu-item-subtitle {
+  color: var(--bn-colors-menu-text);
   line-height: 16px;
   font-size: 10px;
   margin: 0;
