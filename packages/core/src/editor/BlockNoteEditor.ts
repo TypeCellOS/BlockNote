@@ -1,3 +1,4 @@
+/* eslint-disable import/no-extraneous-dependencies */
 import { EditorOptions, Extension } from "@tiptap/core";
 import { Node } from "prosemirror-model";
 // import "./blocknote.css";
@@ -67,6 +68,7 @@ import { Dictionary } from "../i18n/dictionary";
 import { en } from "../i18n/locales";
 import "./Block.css";
 import "./editor.css";
+import Uppy from "@uppy/core";
 
 export type BlockNoteEditorOptions<
   BSchema extends BlockSchema,
@@ -116,6 +118,11 @@ export type BlockNoteEditorOptions<
    * @returns The URL of the uploaded file OR an object containing props that should be set on the file block (such as an id)
    */
   uploadFile: (file: File) => Promise<string | Record<string, any>>;
+
+  /**
+   * An Uppy instance that can be used for file uploads.
+   */
+  uploadFileUppy: Uppy<Record<string, unknown>, Record<string, unknown>>;
 
   /**
    * Resolve a URL of a file block to one that can be displayed or downloaded. This can be used for creating authenticated URL or
@@ -202,6 +209,10 @@ export class BlockNoteEditor<
 
   public readonly uploadFile:
     | ((file: File) => Promise<string | Record<string, any>>)
+    | undefined;
+
+  public readonly uploadFileUppy:
+    | Uppy<Record<string, unknown>, Record<string, unknown>>
     | undefined;
 
   public readonly resolveFileUrl: (url: string) => Promise<string>;
@@ -300,6 +311,7 @@ export class BlockNoteEditor<
     extensions.push(blockNoteUIExtension);
 
     this.uploadFile = newOptions.uploadFile;
+    this.uploadFileUppy = newOptions.uploadFileUppy;
     this.resolveFileUrl = newOptions.resolveFileUrl || (async (url) => url);
 
     if (newOptions.collaboration && newOptions.initialContent) {
