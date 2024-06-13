@@ -112,11 +112,13 @@ export const UppyTab = <
       autoProceed: true,
     });
 
-    uppy.use(XHR, {
-      endpoint: endpoint || "",
-      formData: true,
-      fieldName: maxNumberOfFiles > 1 ? "files" : "file",
-    });
+    if (endpoint) {
+      uppy.use(XHR, {
+        endpoint: endpoint || "",
+        formData: true,
+        fieldName: maxNumberOfFiles > 1 ? "files" : "file",
+      });
+    }
 
     uppy.on("complete", async (result) => {
       if (result.successful.length > 0) {
@@ -149,12 +151,15 @@ export const UppyTab = <
 
   return (
     <Components.FilePanel.TabPanel className="bn-panel-tab">
-      <Dashboard
-        id={`${block.id}-uppy`}
-        uppy={uppyInstance ?? new Uppy()}
-        fileManagerSelectionType="files"
-        closeModalOnClickOutside={true}
-      />
+      {uppyInstance && (
+        <Dashboard
+          id={`${block.id}-uppy`}
+          uppy={uppyInstance}
+          fileManagerSelectionType="files"
+          closeModalOnClickOutside={true}
+        />
+      )}
+      {!uppyInstance && <div>Uppy Loading...</div>}
       {uploadFailed && (
         <div className="bn-error-text">
           {dict.file_panel.upload.upload_error}
