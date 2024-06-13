@@ -250,7 +250,7 @@
             "Custom Schemas"
           ],
           "dependencies": {
-            "@mantine/core": "^7.7.1",
+            "@mantine/core": "^7.10.1",
             "react-icons": "^5.2.1"
           }
         },
@@ -612,7 +612,7 @@
             "Slash Menu"
           ],
           "dependencies": {
-            "@mantine/core": "^7.7.1",
+            "@mantine/core": "^7.10.1",
             "react-icons": "^5.2.1"
           }
         },
@@ -680,7 +680,7 @@
             "Slash Menu"
           ],
           "dependencies": {
-            "@mantine/core": "^7.7.1",
+            "@mantine/core": "^7.10.1",
             "react-icons": "^5.2.1"
           }
         },
