@@ -156,7 +156,7 @@ NESTED BLOCKS
 /* Ordered */
 .bn-block-content[data-content-type="numberedListItem"] {
   display: flex;
-  gap: 1.2em;
+  gap: 0.5em;
 }
 
 [data-content-type="numberedListItem"] {
@@ -182,7 +182,7 @@ NESTED BLOCKS
 /* Unordered */
 .bn-block-content[data-content-type="bulletListItem"] {
   display: flex;
-  gap: 1.2em;
+  gap: 0.5em;
 }
 
 /* Checked */
