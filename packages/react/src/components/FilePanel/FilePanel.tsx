@@ -17,6 +17,7 @@ import { useDictionary } from "../../i18n/dictionary";
 import { EmbedTab } from "./DefaultTabs/EmbedTab";
 import { UploadTab } from "./DefaultTabs/UploadTab";
 import { FilePanelProps } from "./FilePanelProps";
+import { UppyTab } from "./DefaultTabs/UppyTab";
 
 type PanelProps = ComponentProps["FilePanel"]["Root"];
 
@@ -42,6 +43,14 @@ export const FilePanel = <
   const [loading, setLoading] = useState<boolean>(false);
 
   const tabs: PanelProps["tabs"] = props.tabs ?? [
+    ...(editor.uploadFile || editor.endpoint !== undefined
+      ? [
+          {
+            name: dict.file_panel.upload.title + ` V2`,
+            tabPanel: <UppyTab block={props.block} setLoading={setLoading} />,
+          },
+        ]
+      : []),
     ...(editor.uploadFile !== undefined
       ? [
           {

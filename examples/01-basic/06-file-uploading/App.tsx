@@ -37,7 +37,9 @@ export default function App() {
         type: "paragraph",
       },
     ],
-    uploadFile,
+    uploadFile, // This function will be used to upload the file.(even user uploads file with this mehtod it works the same)
+    endpoint: "http://localhost:3000/api/upload", // this will have highest priority.
+    urlPath: "body.test_url", //this is the custom path for the uploaded file.
   });
 
   // Renders the editor instance using a React component.

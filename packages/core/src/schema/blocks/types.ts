@@ -51,6 +51,8 @@ export type FileBlockConfig = {
   content: "none";
   isFileBlock: true;
   fileBlockAcceptMimeTypes?: string[];
+  endpoint?: string;
+  urlPath?: string | string[];
 };
 
 // BlockConfig contains the "schema" info about a Block type

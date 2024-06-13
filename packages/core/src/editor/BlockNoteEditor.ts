@@ -153,6 +153,8 @@ export type BlockNoteEditorOptions<
   _tiptapOptions: Partial<EditorOptions>;
 
   trailingBlock?: boolean;
+  endpoint?: string;
+  urlPath?: string | string[];
 };
 
 const blockNoteTipTapOptions = {
@@ -205,6 +207,10 @@ export class BlockNoteEditor<
     | undefined;
 
   public readonly resolveFileUrl: (url: string) => Promise<string>;
+
+  public readonly endpoint: string | undefined;
+
+  public readonly urlPath: string | string[] | undefined;
 
   public static create<
     BSchema extends BlockSchema = DefaultBlockSchema,
@@ -301,6 +307,12 @@ export class BlockNoteEditor<
 
     this.uploadFile = newOptions.uploadFile;
     this.resolveFileUrl = newOptions.resolveFileUrl || (async (url) => url);
+    if (newOptions.endpoint) {
+      this.endpoint = newOptions.endpoint;
+    }
+    if (newOptions.urlPath) {
+      this.urlPath = newOptions.urlPath;
+    }
 
     if (newOptions.collaboration && newOptions.initialContent) {
       // eslint-disable-next-line no-console
