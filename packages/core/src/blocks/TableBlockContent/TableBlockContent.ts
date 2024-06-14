@@ -1,4 +1,4 @@
-import { mergeAttributes, Node } from "@tiptap/core";
+import { Node } from "@tiptap/core";
 import { TableCell } from "@tiptap/extension-table-cell";
 import { TableHeader } from "@tiptap/extension-table-header";
 import { TableRow } from "@tiptap/extension-table-row";
@@ -44,6 +44,13 @@ const TableParagraph = Node.create({
   group: "tableContent",
   content: "inline*",
 
+  addAttributes() {
+    return {
+      width: {
+        default: "100px",
+      },
+    };
+  },
   parseHTML() {
     return [
       { tag: "td" },
@@ -71,11 +78,15 @@ const TableParagraph = Node.create({
   },
 
   renderHTML({ HTMLAttributes }) {
-    return [
-      "p",
-      mergeAttributes(this.options.HTMLAttributes, HTMLAttributes),
-      0,
-    ];
+    const p = document.createElement("p");
+
+    if (HTMLAttributes.width) {
+      p.style.width = HTMLAttributes.width;
+    }
+    return {
+      dom: p,
+      contentDOM: p,
+    };
   },
 });
 
@@ -88,6 +99,15 @@ const TableImage = Node.create({
     return {
       src: {
         default: "",
+      },
+      width: {
+        default: "100px",
+      },
+      caption: {
+        default: "",
+      },
+      backgroundColor: {
+        default: "default",
       },
     };
   },
@@ -118,11 +138,46 @@ const TableImage = Node.create({
   },
 
   renderHTML({ HTMLAttributes }) {
-    return [
-      "img",
-      mergeAttributes(this.options.HTMLAttributes, HTMLAttributes),
-      0,
-    ];
+    const div = document.createElement("div");
+    div.className = "table-image-container";
+    const img = document.createElement("img");
+    img.src = HTMLAttributes.src;
+
+    const imgStyleProps = {
+      padding: "8px",
+      borderRadius: "4px",
+    };
+    const divStyleProps = {
+      maxWidth: "300px",
+      backgroundColor: HTMLAttributes.backgroundColor,
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      verticalAlign: "middle",
+      flexDirection: "column",
+    };
+    Object.entries(imgStyleProps).forEach(([key, value]) => {
+      img.style[key as any] = value;
+    });
+    Object.entries(divStyleProps).forEach(([key, value]) => {
+      div.style[key as any] = value;
+    });
+
+    if (HTMLAttributes.width) {
+      div.style.width = HTMLAttributes.width;
+    }
+    div.appendChild(img);
+
+    if (HTMLAttributes.caption) {
+      const p = document.createElement("p");
+      p.innerText = HTMLAttributes.caption;
+      div.appendChild(p);
+    }
+
+    return {
+      dom: div,
+      contentDOM: img,
+    };
   },
 });
 

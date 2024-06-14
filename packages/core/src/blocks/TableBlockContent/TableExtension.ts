@@ -26,7 +26,12 @@ export const TableExtension = Extension.create({
 
           return true;
         }
-
+        if (
+          this.editor.state.selection.empty &&
+          this.editor.state.selection.$head.parent.type.name === "tableImage"
+        ) {
+          return true;
+        }
         return false;
       },
       // Ensures that backspace won't delete the table if the text cursor is at

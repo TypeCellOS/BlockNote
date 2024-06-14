@@ -177,14 +177,27 @@ export function tableContentToNodes<
       } else if (typeof cell === "string") {
         pNode = schema.nodes["tableParagraph"].create({}, schema.text(cell));
       } else {
-        const isImage = cell.find((c) => c.type === "tableImage");
+        const isImage = cell.find(
+          (c: any) => c.type === "tableImage"
+        ) as unknown as {
+          url: string;
+          caption: string;
+          width: string;
+          styles: any;
+        };
         if (isImage) {
           pNode = schema.nodes["tableImage"].create({
             src: isImage.url,
+            caption: isImage.caption,
+            width: isImage.width,
+            backgroundColor: isImage.styles?.backgroundColor,
           });
         } else {
           const textNodes = inlineContentToNodes(cell, schema, styleSchema);
-          pNode = schema.nodes["tableParagraph"].create({}, textNodes);
+          pNode = schema.nodes["tableParagraph"].create(
+            (cell[0] as any) ?? {},
+            textNodes
+          );
         }
       }
 
@@ -194,6 +207,7 @@ export function tableContentToNodes<
     const rowNode = schema.nodes["tableRow"].create({}, columnNodes);
     rowNodes.push(rowNode);
   }
+
   return rowNodes;
 }
 
@@ -289,26 +303,39 @@ function contentNodeToTableContent<
     };
 
     rowNode.content.forEach((cellNode) => {
-      if (
-        cellNode.firstChild &&
-        cellNode.firstChild.type.name === "tableImage"
-      ) {
+      const firstChild = cellNode.firstChild;
+      if (firstChild && firstChild.type.name === "tableImage") {
         row.cells.push([
           {
             type: "tableImage",
-            url: cellNode.firstChild.attrs.src,
+            url: firstChild.attrs.src,
+            caption: firstChild.attrs.caption,
+            width: firstChild.attrs.width,
+            styles: {
+              backgroundColor: firstChild.attrs.backgroundColor,
+            },
           } as unknown as InlineContent<I, S>,
         ]);
         return;
       }
 
-      row.cells.push(
-        contentNodeToInlineContent(
-          cellNode.firstChild!,
-          inlineContentSchema,
-          styleSchema
-        )
-      );
+      const cells = contentNodeToInlineContent(
+        cellNode.firstChild!,
+        inlineContentSchema,
+        styleSchema
+      ).map((c) => ({
+        ...c,
+        width: firstChild!.attrs.width ?? undefined,
+      })) as any;
+      if (cells.length === 0) {
+        cells.push({
+          type: "text",
+          text: "",
+          styles: {},
+          width: firstChild!.attrs.width ?? undefined,
+        });
+      }
+      row.cells.push(cells);
     });
 
     ret.rows.push(row);
