@@ -101,7 +101,7 @@ const TableImage = Node.create({
         default: "",
       },
       width: {
-        default: "100px",
+        default: "",
       },
       caption: {
         default: "",
@@ -141,28 +141,9 @@ const TableImage = Node.create({
     const div = document.createElement("div");
     div.className = "table-image-container";
     const img = document.createElement("img");
+    img.className = "table-image";
     img.src = HTMLAttributes.src;
-
-    const imgStyleProps = {
-      padding: "8px",
-      borderRadius: "4px",
-    };
-    const divStyleProps = {
-      maxWidth: "300px",
-      backgroundColor: HTMLAttributes.backgroundColor,
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      verticalAlign: "middle",
-      flexDirection: "column",
-    };
-    Object.entries(imgStyleProps).forEach(([key, value]) => {
-      img.style[key as any] = value;
-    });
-    Object.entries(divStyleProps).forEach(([key, value]) => {
-      div.style[key as any] = value;
-    });
-
+    div.style.backgroundColor = HTMLAttributes.backgroundColor;
     if (HTMLAttributes.width) {
       div.style.width = HTMLAttributes.width;
     }
