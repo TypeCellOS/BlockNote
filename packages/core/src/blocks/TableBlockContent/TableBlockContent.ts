@@ -79,12 +79,60 @@ const TableParagraph = Node.create({
   },
 });
 
+const TableImage = Node.create({
+  name: "tableImage",
+  group: "tableContent",
+  content: "inline*",
+
+  addAttributes() {
+    return {
+      src: {
+        default: "",
+      },
+    };
+  },
+  parseHTML() {
+    return [
+      { tag: "td" },
+      {
+        tag: "img",
+        getAttrs: (element) => {
+          if (typeof element === "string" || !element.textContent) {
+            return false;
+          }
+
+          const parent = element.parentElement;
+
+          if (parent === null) {
+            return false;
+          }
+
+          if (parent.tagName === "TD") {
+            return {};
+          }
+
+          return false;
+        },
+      },
+    ];
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    return [
+      "img",
+      mergeAttributes(this.options.HTMLAttributes, HTMLAttributes),
+      0,
+    ];
+  },
+});
+
 export const Table = createBlockSpecFromStronglyTypedTiptapNode(
   TableBlockContent,
   tablePropSchema,
   [
     TableExtension,
     TableParagraph,
+    TableImage,
     TableHeader.extend({
       content: "tableContent",
     }),

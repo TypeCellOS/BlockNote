@@ -172,13 +172,20 @@ export function tableContentToNodes<
     const columnNodes: Node[] = [];
     for (const cell of row.cells) {
       let pNode: Node;
-      if (!cell) {
+      if (!cell || cell.length === 0) {
         pNode = schema.nodes["tableParagraph"].create({});
       } else if (typeof cell === "string") {
         pNode = schema.nodes["tableParagraph"].create({}, schema.text(cell));
       } else {
-        const textNodes = inlineContentToNodes(cell, schema, styleSchema);
-        pNode = schema.nodes["tableParagraph"].create({}, textNodes);
+        const isImage = cell.find((c) => c.type === "tableImage");
+        if (isImage) {
+          pNode = schema.nodes["tableImage"].create({
+            src: isImage.url,
+          });
+        } else {
+          const textNodes = inlineContentToNodes(cell, schema, styleSchema);
+          pNode = schema.nodes["tableParagraph"].create({}, textNodes);
+        }
       }
 
       const cellNode = schema.nodes["tableCell"].create({}, pNode);
@@ -282,6 +289,19 @@ function contentNodeToTableContent<
     };
 
     rowNode.content.forEach((cellNode) => {
+      if (
+        cellNode.firstChild &&
+        cellNode.firstChild.type.name === "tableImage"
+      ) {
+        row.cells.push([
+          {
+            type: "tableImage",
+            url: cellNode.firstChild.attrs.src,
+          } as unknown as InlineContent<I, S>,
+        ]);
+        return;
+      }
+
       row.cells.push(
         contentNodeToInlineContent(
           cellNode.firstChild!,

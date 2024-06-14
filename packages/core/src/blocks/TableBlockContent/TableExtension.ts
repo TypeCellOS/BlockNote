@@ -33,6 +33,10 @@ export const TableExtension = Extension.create({
       // the start of a cell and the selection is empty.
       Backspace: () => {
         const selection = this.editor.state.selection;
+
+        if (selection.$head.node().type.name === "tableImage") {
+          return false;
+        }
         const selectionIsEmpty = selection.empty;
         const selectionIsAtStartOfNode = selection.$head.parentOffset === 0;
         const selectionIsInTableParagraphNode =
