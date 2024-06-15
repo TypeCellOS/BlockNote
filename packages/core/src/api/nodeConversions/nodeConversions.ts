@@ -304,18 +304,28 @@ function contentNodeToTableContent<
 
     rowNode.content.forEach((cellNode) => {
       const firstChild = cellNode.firstChild;
+
       if (firstChild && firstChild.type.name === "tableImage") {
-        row.cells.push([
-          {
-            type: "tableImage",
-            url: firstChild.attrs.src,
-            caption: firstChild.attrs.caption,
-            width: firstChild.attrs.width,
-            styles: {
-              backgroundColor: firstChild.attrs.backgroundColor,
-            },
-          } as unknown as InlineContent<I, S>,
-        ]);
+        const styles: Record<string, string> = {
+          ...(firstChild.attrs.backgroundColor &&
+          firstChild.attrs.backgroundColor !== "default"
+            ? { backgroundColor: firstChild.attrs.backgroundColor }
+            : {}),
+        };
+        const addStyles = Object.keys(styles).length > 0;
+        const imageCell = {
+          type: "tableImage",
+          url: firstChild.attrs.src,
+          ...(firstChild.attrs.caption
+            ? { caption: firstChild.attrs.caption }
+            : {}),
+          ...(firstChild.attrs.width && firstChild.attrs.width !== "default"
+            ? { width: firstChild.attrs.width }
+            : {}),
+          ...(addStyles ? { styles } : {}),
+        } as unknown as InlineContent<I, S>;
+
+        row.cells.push([imageCell]);
         return;
       }
 
@@ -325,14 +335,18 @@ function contentNodeToTableContent<
         styleSchema
       ).map((c) => ({
         ...c,
-        width: firstChild!.attrs.width ?? undefined,
+        ...(firstChild!.attrs.width && firstChild!.attrs.width !== "default"
+          ? { width: firstChild!.attrs.width }
+          : {}),
       })) as any;
       if (cells.length === 0) {
         cells.push({
           type: "text",
           text: "",
           styles: {},
-          width: firstChild!.attrs.width ?? undefined,
+          ...(firstChild!.attrs.width && firstChild!.attrs.width !== "default"
+            ? { width: firstChild!.attrs.width }
+            : {}),
         });
       }
       row.cells.push(cells);

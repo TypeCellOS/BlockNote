@@ -47,7 +47,7 @@ const TableParagraph = Node.create({
   addAttributes() {
     return {
       width: {
-        default: "100px",
+        default: "default",
       },
     };
   },
@@ -80,8 +80,10 @@ const TableParagraph = Node.create({
   renderHTML({ HTMLAttributes }) {
     const p = document.createElement("p");
 
-    if (HTMLAttributes.width) {
+    if (HTMLAttributes.width && HTMLAttributes.width !== "default") {
       p.style.width = HTMLAttributes.width;
+    } else {
+      p.style.width = "100px";
     }
     return {
       dom: p,
@@ -101,7 +103,7 @@ const TableImage = Node.create({
         default: "",
       },
       width: {
-        default: "",
+        default: "default",
       },
       caption: {
         default: "",
@@ -144,7 +146,7 @@ const TableImage = Node.create({
     img.className = "table-image";
     img.src = HTMLAttributes.src;
     div.style.backgroundColor = HTMLAttributes.backgroundColor;
-    if (HTMLAttributes.width) {
+    if (HTMLAttributes.width && HTMLAttributes.width !== "default") {
       div.style.width = HTMLAttributes.width;
     }
     div.appendChild(img);
