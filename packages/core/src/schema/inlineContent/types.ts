@@ -115,7 +115,7 @@ export type InlineContent<
   T extends StyleSchema
 > = InlineContentFromConfig<I[keyof I], T>;
 
-type PartialInlineContentElement<
+export type PartialInlineContentElement<
   I extends InlineContentSchema,
   T extends StyleSchema
 > = PartialInlineContentFromConfig<I[keyof I], T>;

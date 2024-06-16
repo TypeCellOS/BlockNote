@@ -172,13 +172,14 @@ export function tableContentToNodes<
     const columnNodes: Node[] = [];
     for (const cell of row.cells) {
       let pNode: Node;
-      if (!cell) {
+      if (!cell || cell.length === 0) {
         pNode = schema.nodes["tableParagraph"].create({});
       } else if (typeof cell === "string") {
         pNode = schema.nodes["tableParagraph"].create({}, schema.text(cell));
       } else {
         const textNodes = inlineContentToNodes(cell, schema, styleSchema);
-        pNode = schema.nodes["tableParagraph"].create({}, textNodes);
+        const width = cell[0].width;
+        pNode = schema.nodes["tableParagraph"].create({ width }, textNodes);
       }
 
       const cellNode = schema.nodes["tableCell"].create({}, pNode);
@@ -282,12 +283,31 @@ function contentNodeToTableContent<
     };
 
     rowNode.content.forEach((cellNode) => {
+      const firstChild = cellNode.firstChild;
+
+      const cells = contentNodeToInlineContent(
+        firstChild!,
+        inlineContentSchema,
+        styleSchema
+      );
+
+      // push an empty cell if there are no cells to keep a fixed width
+      if (cells.length === 0) {
+        cells.push({
+          type: "text",
+          text: "",
+          styles: {},
+        } as InlineContentFromConfig<I[keyof I], S>);
+      }
+
+      // push cells with width attribute if it exists
       row.cells.push(
-        contentNodeToInlineContent(
-          cellNode.firstChild!,
-          inlineContentSchema,
-          styleSchema
-        )
+        cells.map((c) => ({
+          ...c,
+          ...(firstChild!.attrs.width
+            ? { width: firstChild!.attrs.width }
+            : {}),
+        }))
       );
     });
 

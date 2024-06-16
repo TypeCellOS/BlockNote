@@ -6,6 +6,7 @@ import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import {
   BlockFromConfigNoChildren,
   BlockSchemaWithBlock,
+  CellContent,
   InlineContentSchema,
   StyleSchema,
 } from "../../schema";
@@ -88,6 +89,7 @@ export class TableHandlesView<
 > implements PluginView
 {
   public state?: TableHandlesState<I, S>;
+  public resizingTable?: HTMLElement;
   public emitUpdate: () => void;
 
   public tableId: string | undefined;
@@ -115,6 +117,8 @@ export class TableHandlesView<
     };
 
     pmView.dom.addEventListener("mousemove", this.mouseMoveHandler);
+    pmView.dom.addEventListener("mouseup", this.mouseUpHandler);
+    pmView.dom.addEventListener("mousedown", this.mouseDownHandler);
 
     document.addEventListener("dragover", this.dragOverHandler);
     document.addEventListener("drop", this.dropHandler);
@@ -358,8 +362,110 @@ export class TableHandlesView<
     }
   };
 
+  mouseDownHandler = (event: MouseEvent) => {
+    if (this.state === undefined) {
+      return;
+    }
+
+    if (this.state.block.type !== "table") {
+      return;
+    }
+
+    this.resizingTable = (event.target as any)?.closest("table") || undefined;
+    return;
+  };
+
+  mouseUpHandler = (event: MouseEvent) => {
+    if (this.state === undefined) {
+      return;
+    }
+
+    event.preventDefault();
+    if (this.state.block.type !== "table" || !this.resizingTable) {
+      return;
+    }
+    const rows = this.state.block.content.rows;
+
+    const cols = this.resizingTable.querySelectorAll("col") ?? [];
+    const colWidth = Array.from(cols).map((col) => col.style.width);
+    let columnWidthChanged = false;
+
+    const emptyCell = {
+      type: "text",
+      text: "",
+      styles: {},
+    };
+    const newRows = rows.map((row) => {
+      return {
+        cells: row.cells.map((cell, index) => {
+          if (typeof cell === "string") {
+            if (!colWidth[index]) {
+              return [
+                {
+                  ...emptyCell,
+                  text: cell,
+                },
+              ];
+            }
+            columnWidthChanged = true;
+            return [
+              {
+                ...emptyCell,
+                text: cell,
+                width: colWidth[index],
+              },
+            ];
+          }
+          if (cell.length === 0) {
+            if (!colWidth[index]) {
+              return [];
+            }
+            columnWidthChanged = true;
+            return [
+              {
+                ...emptyCell,
+                width: colWidth[index],
+              },
+            ];
+          }
+          return cell.map((c) => {
+            if (!colWidth[index]) {
+              return c;
+            }
+            if (c.width !== colWidth[index]) {
+              columnWidthChanged = true;
+            }
+            return {
+              ...c,
+              width: colWidth[index],
+            };
+          });
+        }),
+      };
+    }) as {
+      cells: CellContent<I, S>[];
+    }[];
+
+    if (!columnWidthChanged) {
+      return;
+    }
+    const savedState = this.state;
+    // wait for proseMirror to update the DOM
+    setTimeout(() => {
+      this.editor.updateBlock(savedState.block, {
+        type: "table",
+        content: {
+          type: "tableContent",
+          rows: newRows,
+        },
+      });
+    }, 10);
+  };
+
   destroy() {
     this.pmView.dom.removeEventListener("mousemove", this.mouseMoveHandler);
+    this.pmView.dom.removeEventListener("mousedown", this.mouseDownHandler);
+    this.pmView.dom.removeEventListener("mouseup", this.mouseUpHandler);
 
     document.removeEventListener("dragover", this.dragOverHandler);
     document.removeEventListener("drop", this.dropHandler);
