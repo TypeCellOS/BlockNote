@@ -79,11 +79,10 @@ const TableParagraph = Node.create({
 
   renderHTML({ HTMLAttributes }) {
     const p = document.createElement("p");
+    p.style.setProperty("min-width", "100px", "important");
 
     if (HTMLAttributes.width && HTMLAttributes.width !== "default") {
       p.style.width = HTMLAttributes.width;
-    } else {
-      p.style.width = "100px";
     }
     return {
       dom: p,
