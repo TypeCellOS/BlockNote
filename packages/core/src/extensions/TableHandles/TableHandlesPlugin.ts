@@ -12,6 +12,7 @@ import {
 import { checkBlockIsDefaultType } from "../../blocks/defaultBlockTypeGuards";
 import { EventEmitter } from "../../util/EventEmitter";
 import { getDraggableBlockFromElement } from "../SideMenu/SideMenuPlugin";
+import { CellSelection, cellAround } from "prosemirror-tables";
 
 let dragImageElement: HTMLElement | undefined;
 
@@ -118,6 +119,7 @@ export class TableHandlesView<
     pmView.dom.addEventListener("mousemove", this.mouseMoveHandler);
     pmView.dom.addEventListener("mouseup", this.mouseUpHandler);
     pmView.dom.addEventListener("mousedown", this.mouseDownHandler);
+    pmView.dom.addEventListener("click", this.mouseClickHandler);
 
     document.addEventListener("dragover", this.dragOverHandler);
     document.addEventListener("drop", this.dropHandler);
@@ -374,6 +376,33 @@ export class TableHandlesView<
     return;
   };
 
+  mouseClickHandler = (event: MouseEvent) => {
+    if (this.state === undefined) {
+      return;
+    }
+
+    if (this.state.block.type !== "table") {
+      return;
+    }
+
+    if ((event.target as HTMLElement).closest(".table-image-container")) {
+      const a = this.editor._tiptapEditor.view.posAtCoords({
+        left: event.clientX,
+        top: event.clientY,
+      })!;
+      const cell = cellAround(
+        this.editor._tiptapEditor.view.state.doc.resolve(a.pos)
+      )!;
+
+      this.editor._tiptapEditor.view.dispatch(
+        this.editor._tiptapEditor.view.state.tr.setSelection(
+          new CellSelection(cell)
+        )
+      );
+    }
+    return;
+  };
+
   mouseUpHandler = (event: MouseEvent) => {
     if (this.state === undefined) {
       return;
@@ -443,6 +472,7 @@ export class TableHandlesView<
     this.pmView.dom.removeEventListener("mousemove", this.mouseMoveHandler);
     this.pmView.dom.removeEventListener("mousedown", this.mouseDownHandler);
     this.pmView.dom.removeEventListener("mouseup", this.mouseUpHandler);
+    this.pmView.dom.addEventListener("click", this.mouseClickHandler);
 
     document.removeEventListener("dragover", this.dragOverHandler);
     document.removeEventListener("drop", this.dropHandler);

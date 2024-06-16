@@ -145,6 +145,10 @@ const TableImage = Node.create({
     const img = document.createElement("img");
     img.className = "table-image";
     img.src = HTMLAttributes.src;
+    img.contentEditable = "false";
+    img.draggable = false;
+    div.contentEditable = "false";
+    div.draggable = false;
     div.style.backgroundColor = HTMLAttributes.backgroundColor;
     if (HTMLAttributes.width && HTMLAttributes.width !== "default") {
       div.style.width = HTMLAttributes.width;
