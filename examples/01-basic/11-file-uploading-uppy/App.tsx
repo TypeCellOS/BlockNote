@@ -34,6 +34,7 @@ export default function App() {
   });
 
   uppy.on("upload-success", (file: any, response: any) => {
+    // File should be removed from the uppy instance after successful upload.
     if (response.status === 200) {
       uppy.removeFile(file.id);
     }
