@@ -8,7 +8,7 @@
     "css": "src/style.css",
     "baseColor": "slate",
     "cssVariables": true,
-    "prefix": ""
+    "prefix": "bn-"
   },
   "aliases": {
     "components": "@/components",

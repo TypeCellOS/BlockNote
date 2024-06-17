@@ -21,7 +21,7 @@ export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(
         <div
           className={cn(
             className,
-            "flex gap-1 p-1 bg-popover text-popover-foreground border rounded-lg shadow-md"
+            "bn-flex bn-gap-1 bn-p-1 bn-bg-popover bn-text-popover-foreground bn-border bn-rounded-lg bn-shadow-md"
           )}
           ref={ref}
           onMouseEnter={onMouseEnter}
@@ -95,7 +95,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
           {trigger}
         </ShadCNComponents.Tooltip.TooltipTrigger>
         <ShadCNComponents.Tooltip.TooltipContent
-          className={"flex flex-col items-center"}>
+          className={"bn-flex bn-flex-col bn-items-center"}>
           <span>{mainTooltip}</span>
           {secondaryTooltip && <span>{secondaryTooltip}</span>}
         </ShadCNComponents.Tooltip.TooltipContent>
@@ -116,7 +116,7 @@ export const ToolbarSelect = forwardRef<
 
   // TODO?
   const SelectItemContent = (props: any) => (
-    <div className={"flex gap-1 items-center"}>
+    <div className={"bn-flex bn-gap-1 bn-items-center"}>
       {props.icon}
       {props.text}
     </div>

@@ -67,10 +67,10 @@
 }
 
 .bn-container * {
-  @apply border-border;
+  @apply bn-border-border;
 }
 .bn-editor {
-  @apply bg-background text-foreground;
+  @apply bn-bg-background bn-text-foreground;
 }
 
 [data-radix-popper-content-wrapper] {
