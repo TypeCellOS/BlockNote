@@ -1,4 +1,3 @@
-/* eslint-disable import/no-extraneous-dependencies */
 import { EditorOptions, Extension } from "@tiptap/core";
 import { Node } from "prosemirror-model";
 // import "./blocknote.css";
@@ -68,7 +67,6 @@ import { Dictionary } from "../i18n/dictionary";
 import { en } from "../i18n/locales";
 import "./Block.css";
 import "./editor.css";
-import Uppy from "@uppy/core";
 
 export type BlockNoteEditorOptions<
   BSchema extends BlockSchema,
