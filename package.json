@@ -33,5 +33,10 @@
     "prepublishOnly": "npm run build && cp README.md packages/core/README.md && cp README.md packages/react/README.md",
     "postpublish": "rm -rf packages/core/README.md && rm -rf packages/react/README.md",
     "clean": "lerna run --stream clean"
+  },
+  "dependencies": {
+    "@emoji-mart/data": "^1.2.1",
+    "@emoji-mart/react": "^1.1.1",
+    "emoji-mart": "^5.6.0"
   }
 }

@@ -93,8 +93,10 @@ export function SuggestionMenuWrapper<Item>(props: {
   return (
     <Component
       items={items}
+      editor={editor}
       onItemClick={onItemClickCloseMenu}
       loadingState={loadingState}
+      clearQuery={clearQuery}
       selectedIndex={selectedIndex}
     />
   );
