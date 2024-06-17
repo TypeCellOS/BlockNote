@@ -23,19 +23,19 @@ async function search(value) {
   const response = await fetch(
     'https://cdn.jsdelivr.net/npm/@emoji-mart/data',
   )
-  let allemojis = await response.json()
-  let emojisToShow = []
+  const allemojis = await response.json()
+  const emojisToShow = []
 
   const emojis = await SearchIndex.search(value);
-  console.log(emojis)
   const results = (emojis || []).map((emoji) => {
     return emoji.id;
   })
   Object.values(allemojis.emojis).forEach(({id, skins})=>{
     //add all emojis if not yet searched for an emoji
-    results.includes(id) || !emojis ? emojisToShow.push(skins[0].native) : null
+   if( results.includes(id) || !emojis){ 
+     emojisToShow.push(skins[0].native) 
+    }
   });
-  console.log(emojisToShow)
   return emojisToShow;
 
 }
@@ -43,10 +43,9 @@ async function search(value) {
 
 export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
   const editor = useBlockNoteEditor();
-  async function emojiChangeHandler(query){
+  async function emojiChangeHandler(query: string){
   
     //now do the emojis
-    console.log('IM HERE')
     //return a promise
    return search(query);
   //  setEmojisToHide(results)

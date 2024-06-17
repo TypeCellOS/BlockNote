@@ -24,10 +24,10 @@ export default function EmojiMenu({items, clearQuery, editor}){
           ]);
     }
 
-    return (<div>
+    return (<div style={{display: 'grid', justifyItems: 'center', background: 'black', borderRadius: 20, gap: 7, padding: 20, maxHeight: '30vh', minWidth: '30vh', overflowY: 'scroll', gridTemplateColumns: 'repeat(10, 1fr)'}}>
 {
   items.map(item=>(
-    <p onClick={()=>(emojiInsert(item))}>{item}</p>
+    <p style={{margin: 0, cursor: 'pointer', fontSize: 'large'}} onClick={()=>(emojiInsert(item))}>{item}</p>
   ))
 }
     </div>
