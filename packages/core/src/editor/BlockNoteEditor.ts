@@ -120,11 +120,6 @@ export type BlockNoteEditorOptions<
   uploadFile: (file: File) => Promise<string | Record<string, any>>;
 
   /**
-   * An Uppy instance that can be used for file uploads.
-   */
-  uploadFileUppy: Uppy<Record<string, unknown>, Record<string, unknown>>;
-
-  /**
    * Resolve a URL of a file block to one that can be displayed or downloaded. This can be used for creating authenticated URL or
    * implementing custom protocols / schemes
    * @returns The URL that's
@@ -209,10 +204,6 @@ export class BlockNoteEditor<
 
   public readonly uploadFile:
     | ((file: File) => Promise<string | Record<string, any>>)
-    | undefined;
-
-  public readonly uploadFileUppy:
-    | Uppy<Record<string, unknown>, Record<string, unknown>>
     | undefined;
 
   public readonly resolveFileUrl: (url: string) => Promise<string>;
@@ -311,7 +302,6 @@ export class BlockNoteEditor<
     extensions.push(blockNoteUIExtension);
 
     this.uploadFile = newOptions.uploadFile;
-    this.uploadFileUppy = newOptions.uploadFileUppy;
     this.resolveFileUrl = newOptions.resolveFileUrl || (async (url) => url);
 
     if (newOptions.collaboration && newOptions.initialContent) {

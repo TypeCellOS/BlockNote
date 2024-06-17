@@ -2,17 +2,15 @@
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
-import { useCreateBlockNote } from "@blocknote/react";
+import { useCreateBlockNote, FilePanelController } from "@blocknote/react";
+// import
 
 import Uppy from "@uppy/core";
 import XHR from "@uppy/xhr-upload";
+import { Dashboard } from "@uppy/react";
 
 import "@uppy/core/dist/style.min.css";
 import "@uppy/dashboard/dist/style.min.css";
-
-const uploadFileUppy = new Uppy().use(XHR, {
-  endpoint: "https://tmpfiles.org/api/v1/upload",
-});
 
 export default function App() {
   // Creates a new editor instance.
@@ -29,16 +27,44 @@ export default function App() {
       {
         type: "image",
       },
-      {
-        type: "video",
-      },
-      {
-        type: "paragraph",
-      },
     ],
-    uploadFileUppy,
+  });
+
+  const uppy = new Uppy().use(XHR, {
+    endpoint: "https://tmpfiles.org/api/v1/upload",
+  });
+
+  uppy.on("upload-success", (file: any, response: any) => {
+    if (response.status === 200) {
+      uppy.removeFile(file.id);
+    }
+
+    const block = editor.document[2];
+
+    let fileURL = response.body.data.url;
+    fileURL = fileURL.replace("tmpfiles.org/", "tmpfiles.org/dl/");
+
+    const updateData = {
+      props: {
+        name: file?.name,
+        url: fileURL,
+      },
+    };
+    editor.updateBlock(block, updateData);
+  });
+
+  uppy.on("upload-error", (file: any, error: any) => {
+    console.error("Upload error:", error);
   });
 
   // Renders the editor instance using a React component.
-  return <BlockNoteView editor={editor} />;
+  return (
+    <BlockNoteView editor={editor} filePanel={false}>
+      <FilePanelController
+        filePanel={() => {
+          return <Dashboard uppy={uppy} width={400} height={500} />;
+        }}
+      />
+    </BlockNoteView>
+  );
 }

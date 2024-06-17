@@ -17,11 +17,7 @@ import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor";
 import { useDictionary } from "../../i18n/dictionary";
 import { EmbedTab } from "./DefaultTabs/EmbedTab";
 import { UploadTab } from "./DefaultTabs/UploadTab";
-import { UploadTabUppy } from "./DefaultTabs/UploadTabUppy";
 import { FilePanelProps } from "./FilePanelProps";
-
-import "@uppy/core/dist/style.min.css";
-import "@uppy/dashboard/dist/style.min.css";
 
 type PanelProps = ComponentProps["FilePanel"]["Root"];
 
@@ -52,16 +48,6 @@ export const FilePanel = <
           {
             name: dict.file_panel.upload.title,
             tabPanel: <UploadTab block={props.block} setLoading={setLoading} />,
-          },
-        ]
-      : []),
-    ...(editor.uploadFileUppy !== undefined
-      ? [
-          {
-            name: dict.file_panel.upload.title,
-            tabPanel: (
-              <UploadTabUppy block={props.block} setLoading={setLoading} />
-            ),
           },
         ]
       : []),
