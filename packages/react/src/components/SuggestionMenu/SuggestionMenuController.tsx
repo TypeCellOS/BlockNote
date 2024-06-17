@@ -55,7 +55,7 @@ export function SuggestionMenuController<
 
   const { triggerCharacter, suggestionMenuComponent } = props;
 
-  const { onItemClick, getItems } = props;
+  const { onItemClick, isEmoji, getItems } = props;
 
   const onItemClickOrDefault = useMemo(() => {
     return (
@@ -128,6 +128,7 @@ export function SuggestionMenuController<
         query={state.query}
         closeMenu={callbacks.closeMenu}
         clearQuery={callbacks.clearQuery}
+        isEmoji={isEmoji}
         getItems={getItemsOrDefault}
         suggestionMenuComponent={suggestionMenuComponent || SuggestionMenu}
         onItemClick={onItemClickOrDefault}

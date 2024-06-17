@@ -65,6 +65,7 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
         <>
         <SuggestionMenuController triggerCharacter="/" />
         <SuggestionMenuController
+        isEmoji
         triggerCharacter={":"}
        suggestionMenuComponent={EmojiMenu}
        getItems={emojiChangeHandler}

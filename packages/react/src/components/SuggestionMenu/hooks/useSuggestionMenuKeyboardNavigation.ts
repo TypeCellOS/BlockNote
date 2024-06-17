@@ -7,7 +7,8 @@ export function useSuggestionMenuKeyboardNavigation<Item>(
   editor: BlockNoteEditor<any, any, any>,
   query: string,
   items: Item[],
-  onItemClick?: (item: Item) => void
+  onItemClick?: (item: Item) => void,
+  isEmojiMenu
 ) {
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
 
@@ -17,7 +18,7 @@ export function useSuggestionMenuKeyboardNavigation<Item>(
         event.preventDefault();
 
         if (items.length) {
-          setSelectedIndex((selectedIndex - 1 + items!.length) % items!.length);
+          isEmojiMenu ? setSelectedIndex(selectedIndex - 10 >= 0 ? selectedIndex - 10 : 0) : setSelectedIndex((selectedIndex - 1 + items!.length) % items!.length);
         }
 
         return true;
@@ -27,10 +28,24 @@ export function useSuggestionMenuKeyboardNavigation<Item>(
         event.preventDefault();
 
         if (items.length) {
-          setSelectedIndex((selectedIndex + 1) % items!.length);
+          isEmojiMenu ? setSelectedIndex(selectedIndex + 10 < items!.length ? selectedIndex + 10 : items!.length -1)  : setSelectedIndex((selectedIndex + 1) % items!.length);
         }
 
         return true;
+      }
+
+      if(event.key === 'ArrowRight' && isEmojiMenu){
+        event.preventDefault()
+        if(items.length){
+          setSelectedIndex((selectedIndex + 1 + items!.length) % items!.length);
+        }
+      }
+
+      if(event.key === 'ArrowLeft' && isEmojiMenu){
+        event.preventDefault()
+        if(items.length){
+          setSelectedIndex((selectedIndex - 1 + items!.length) % items!.length);
+        }
       }
 
       if (event.key === "Enter") {

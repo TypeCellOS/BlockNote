@@ -24,6 +24,19 @@ export function SuggestionMenuWrapper<Item>(props: {
     StyleSchema
   >();
 
+  const emojiInsert = (emojiToInsert) => {
+      clearQuery()
+      editor.insertInlineContent([
+          {
+            type: "emoji",
+            props: {
+              emoji : emojiToInsert
+            },
+          },
+          " ", // add a space after the emoji
+        ]);
+  }
+
   const {
     getItems,
     suggestionMenuComponent,
@@ -31,6 +44,7 @@ export function SuggestionMenuWrapper<Item>(props: {
     clearQuery,
     closeMenu,
     onItemClick,
+    isEmoji
   } = props;
 
   const onItemClickCloseMenu = useCallback(
@@ -53,7 +67,8 @@ export function SuggestionMenuWrapper<Item>(props: {
     editor,
     query,
     items,
-    onItemClickCloseMenu
+    isEmoji ? emojiInsert : onItemClickCloseMenu,
+    isEmoji
   );
 
   // set basic aria attributes when the menu is open
@@ -94,6 +109,7 @@ export function SuggestionMenuWrapper<Item>(props: {
     <Component
       items={items}
       editor={editor}
+      emojiInsert={emojiInsert}
       onItemClick={onItemClickCloseMenu}
       loadingState={loadingState}
       clearQuery={clearQuery}
