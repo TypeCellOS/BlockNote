@@ -386,12 +386,12 @@ export class TableHandlesView<
     }
 
     if ((event.target as HTMLElement).closest(".table-image-container")) {
-      const a = this.editor._tiptapEditor.view.posAtCoords({
+      const image = this.editor._tiptapEditor.view.posAtCoords({
         left: event.clientX,
         top: event.clientY,
       })!;
       const cell = cellAround(
-        this.editor._tiptapEditor.view.state.doc.resolve(a.pos)
+        this.editor._tiptapEditor.view.state.doc.resolve(image.pos)
       )!;
 
       this.editor._tiptapEditor.view.dispatch(
