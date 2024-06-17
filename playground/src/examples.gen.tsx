@@ -204,7 +204,16 @@
           "tags": [
             "Intermediate",
             "Saving/Loading"
-          ]
+          ],
+          "dependencies": {
+            "@uppy/core": "^3.12.0",
+            "@uppy/dashboard": "^3.8.3",
+            "@uppy/drag-drop": "^3.1.0",
+            "@uppy/file-input": "^3.1.2",
+            "@uppy/progress-bar": "^3.1.1",
+            "@uppy/react": "^3.3.1",
+            "@uppy/xhr-upload": "^3.6.7",
+          },
         },
         "title": "Uploading Files with Uppy",
         "group": {
