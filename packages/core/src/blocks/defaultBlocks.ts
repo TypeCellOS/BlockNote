@@ -31,6 +31,7 @@ import { ImageBlock } from "./ImageBlockContent/ImageBlockContent";
 import { VideoBlock } from "./VideoBlockContent/VideoBlockContent";
 import { AudioBlock } from "./AudioBlockContent/AudioBlockContent";
 import { Emoji } from "./Emoji"
+import { EmojiSlash } from "./EmojiSlash";
 
 export const defaultBlockSpecs = {
   paragraph: Paragraph,
@@ -72,7 +73,8 @@ export type DefaultStyleSchema = _DefaultStyleSchema;
 export const defaultInlineContentSpecs = {
   text: { config: "text", implementation: {} as any },
   link: { config: "link", implementation: {} as any },
-  emoji: Emoji
+  emoji: Emoji,
+  emojiSlash:  EmojiSlash
 } satisfies InlineContentSpecs;
 
 export const defaultInlineContentSchema = getInlineContentSchemaFromSpecs(

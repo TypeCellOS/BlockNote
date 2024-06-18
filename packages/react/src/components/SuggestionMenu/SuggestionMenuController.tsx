@@ -15,6 +15,7 @@ import { SuggestionMenu } from "./SuggestionMenu";
 import { SuggestionMenuWrapper } from "./SuggestionMenuWrapper";
 import { getDefaultReactSlashMenuItems } from "./getDefaultReactSlashMenuItems";
 import { DefaultReactSuggestionItem, SuggestionMenuProps } from "./types";
+import { MdEmojiEmotions } from "react-icons/md";
 
 type ArrayElement<A> = A extends readonly (infer T)[] ? T : never;
 
@@ -66,12 +67,36 @@ export function SuggestionMenuController<
     );
   }, [editor, onItemClick]);
 
+  const insertSlashMenuOption = (editor) => ({
+    title: "Emoji",
+    onItemClick: () => {
+      console.log('called 1');
+      editor.insertInlineContent(
+        
+        [  {
+            type: 'emojiSlash',
+            props: {
+              editor
+            }
+          }]
+        
+      )
+    },
+    aliases: [
+      "emoji",
+      "emote",
+      "face",
+    ],
+    group: "Other",
+    icon: <MdEmojiEmotions />,
+  });
+
   const getItemsOrDefault = useMemo(() => {
     return (
       getItems ||
       ((async (query: string) =>
         filterSuggestionItems(
-          getDefaultReactSlashMenuItems(editor),
+          [...getDefaultReactSlashMenuItems(editor), insertSlashMenuOption(editor)],
           query
         )) as any as typeof getItems)
     );

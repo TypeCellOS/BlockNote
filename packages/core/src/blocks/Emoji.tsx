@@ -1,6 +1,6 @@
 import { createReactInlineContentSpec } from "@blocknote/react";
  
-// The Mention inline content.
+
 export const Emoji = createReactInlineContentSpec(
   {
     type: "emoji",
