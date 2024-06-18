@@ -107,8 +107,8 @@ export const BlockNoteView = <
 
   const componentsValue = useMemo(() => {
     return {
-      ...shadCNComponents,
       ...ShadCNDefaultComponents,
+      ...shadCNComponents,
     };
   }, [shadCNComponents]);
 
