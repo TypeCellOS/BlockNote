@@ -135,7 +135,7 @@ export const ToolbarSelect = forwardRef<
         items.find((item) => item.text === value)!.onClick?.()
       }
       disabled={isDisabled}>
-      <ShadCNComponents.Select.SelectTrigger className={"border-none"}>
+      <ShadCNComponents.Select.SelectTrigger className={"bn-border-none"}>
         <ShadCNComponents.Select.SelectValue />
       </ShadCNComponents.Select.SelectTrigger>
       <ShadCNComponents.Select.SelectContent className={className} ref={ref}>
