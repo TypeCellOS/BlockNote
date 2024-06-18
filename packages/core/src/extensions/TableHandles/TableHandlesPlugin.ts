@@ -384,8 +384,7 @@ export class TableHandlesView<
     if (this.state.block.type !== "table") {
       return;
     }
-
-    if ((event.target as HTMLElement).closest(".table-image-container")) {
+    if ((event.target as any).className === "table-image") {
       const image = this.editor._tiptapEditor.view.posAtCoords({
         left: event.clientX,
         top: event.clientY,
