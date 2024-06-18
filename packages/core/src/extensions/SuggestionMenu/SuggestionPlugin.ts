@@ -20,7 +20,7 @@ class SuggestionMenuView<
 > {
   public state?: SuggestionMenuState;
   public emitUpdate: (triggerCharacter: string) => void;
-
+  private rootEl?: Document | ShadowRoot;
   pluginState: SuggestionPluginState;
 
   constructor(
@@ -37,15 +37,18 @@ class SuggestionMenuView<
       emitUpdate(menuName, this.state);
     };
 
+    this.rootEl = this.editor._tiptapEditor.view.root;
+
     // Setting capture=true ensures that any parent container of the editor that
     // gets scrolled will trigger the scroll event. Scroll events do not bubble
     // and so won't propagate to the document by default.
-    document.addEventListener("scroll", this.handleScroll, true);
+    // document.addEventListener("scroll", this.handleScroll, true);
+    this.rootEl.addEventListener("scroll", this.handleScroll, true);
   }
 
   handleScroll = () => {
     if (this.state?.show) {
-      const decorationNode = document.querySelector(
+      const decorationNode = this.rootEl?.querySelector(
         `[data-decoration-id="${this.pluginState!.decorationId}"]`
       );
       this.state.referencePos = decorationNode!.getBoundingClientRect();
@@ -79,7 +82,7 @@ class SuggestionMenuView<
       return;
     }
 
-    const decorationNode = document.querySelector(
+    const decorationNode = this.rootEl?.querySelector(
       `[data-decoration-id="${this.pluginState!.decorationId}"]`
     );
 
@@ -95,7 +98,7 @@ class SuggestionMenuView<
   }
 
   destroy() {
-    document.removeEventListener("scroll", this.handleScroll, true);
+    this.rootEl?.removeEventListener("scroll", this.handleScroll, true);
   }
 
   closeMenu = () => {

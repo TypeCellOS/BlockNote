@@ -36,7 +36,7 @@ export type TableHandlesState<
     | undefined;
 };
 
-function setHiddenDragImage() {
+function setHiddenDragImage(rootEl: Document | ShadowRoot) {
   if (dragImageElement) {
     return;
   }
@@ -46,12 +46,21 @@ function setHiddenDragImage() {
   dragImageElement.style.opacity = "0";
   dragImageElement.style.height = "1px";
   dragImageElement.style.width = "1px";
-  document.body.appendChild(dragImageElement);
+  // document.body.appendChild(dragImageElement);
+  if (rootEl instanceof Document) {
+    rootEl.body.appendChild(dragImageElement);
+  } else {
+    rootEl.appendChild(dragImageElement);
+  }
 }
 
-function unsetHiddenDragImage() {
+function unsetHiddenDragImage(rootEl: Document | ShadowRoot) {
   if (dragImageElement) {
-    document.body.removeChild(dragImageElement);
+    if (rootEl instanceof Document) {
+      rootEl.body.removeChild(dragImageElement);
+    } else {
+      rootEl.removeChild(dragImageElement);
+    }
     dragImageElement = undefined;
   }
 }
@@ -116,13 +125,19 @@ export class TableHandlesView<
 
     pmView.dom.addEventListener("mousemove", this.mouseMoveHandler);
 
-    document.addEventListener("dragover", this.dragOverHandler);
-    document.addEventListener("drop", this.dropHandler);
+    // document.addEventListener("dragover", this.dragOverHandler);
+    // document.addEventListener("drop", this.dropHandler);
+    pmView.root.addEventListener(
+      "dragover",
+      this.dragOverHandler as EventListener
+    );
+    pmView.root.addEventListener("drop", this.dropHandler as EventListener);
 
     // Setting capture=true ensures that any parent container of the editor that
     // gets scrolled will trigger the scroll event. Scroll events do not bubble
     // and so won't propagate to the document by default.
-    document.addEventListener("scroll", this.scrollHandler, true);
+    // document.addEventListener("scroll", this.scrollHandler, true);
+    pmView.root.addEventListener("scroll", this.scrollHandler, true);
   }
 
   mouseMoveHandler = (event: MouseEvent) => {
@@ -242,7 +257,12 @@ export class TableHandlesView<
 
     // Gets the table cell element that the bounded mouse cursor coordinates lie
     // in.
-    const tableCellElements = document
+    // const tableCellElements = document
+    //   .elementsFromPoint(boundedMouseCoords.left, boundedMouseCoords.top)
+    //   .filter(
+    //     (element) => element.tagName === "TD" || element.tagName === "TH"
+    //   );
+    const tableCellElements = this.pmView.root
       .elementsFromPoint(boundedMouseCoords.left, boundedMouseCoords.top)
       .filter(
         (element) => element.tagName === "TD" || element.tagName === "TH"
@@ -343,7 +363,10 @@ export class TableHandlesView<
 
   scrollHandler = () => {
     if (this.state?.show) {
-      const tableElement = document.querySelector(
+      // const tableElement = document.querySelector(
+      //   `[data-node-type="blockContainer"][data-id="${this.tableId}"] table`
+      // )!;
+      const tableElement = this.pmView.root.querySelector(
         `[data-node-type="blockContainer"][data-id="${this.tableId}"] table`
       )!;
       const cellElement = tableElement.querySelector(
@@ -361,10 +384,18 @@ export class TableHandlesView<
   destroy() {
     this.pmView.dom.removeEventListener("mousemove", this.mouseMoveHandler);
 
-    document.removeEventListener("dragover", this.dragOverHandler);
-    document.removeEventListener("drop", this.dropHandler);
-
-    document.removeEventListener("scroll", this.scrollHandler, true);
+    // document.removeEventListener("dragover", this.dragOverHandler);
+    // document.removeEventListener("drop", this.dropHandler);
+    // document.removeEventListener("scroll", this.scrollHandler, true);
+    this.pmView.root.removeEventListener(
+      "dragover",
+      this.dragOverHandler as EventListener
+    );
+    this.pmView.root.removeEventListener(
+      "drop",
+      this.dropHandler as EventListener
+    );
+    this.pmView.root.removeEventListener("scroll", this.scrollHandler, true);
   }
 }
 
@@ -559,7 +590,7 @@ export class TableHandlesProsemirrorPlugin<
       })
     );
 
-    setHiddenDragImage();
+    setHiddenDragImage(this.editor._tiptapEditor.view.root);
     event.dataTransfer!.setDragImage(dragImageElement!, 0, 0);
     event.dataTransfer!.effectAllowed = "move";
   };
@@ -595,7 +626,7 @@ export class TableHandlesProsemirrorPlugin<
       })
     );
 
-    setHiddenDragImage();
+    setHiddenDragImage(this.editor._tiptapEditor.view.root);
     event.dataTransfer!.setDragImage(dragImageElement!, 0, 0);
     event.dataTransfer!.effectAllowed = "copyMove";
   };
@@ -618,7 +649,7 @@ export class TableHandlesProsemirrorPlugin<
       this.editor._tiptapEditor.state.tr.setMeta(tableHandlesPluginKey, null)
     );
 
-    unsetHiddenDragImage();
+    unsetHiddenDragImage(this.editor._tiptapEditor.view.root);
   };
 
   /**

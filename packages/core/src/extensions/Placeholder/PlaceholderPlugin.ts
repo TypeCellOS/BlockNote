@@ -12,11 +12,18 @@ export const PlaceholderPlugin = (
     key: PLUGIN_KEY,
     view: () => {
       const styleEl = document.createElement("style");
+      // editor.view.root.append(styleEl);
       const nonce = editor._tiptapEditor.options.injectNonce;
       if (nonce) {
         styleEl.setAttribute("nonce", nonce);
       }
-      document.head.appendChild(styleEl);
+      // document.head.appendChild(styleEl);
+      if (editor._tiptapEditor.view.root instanceof ShadowRoot) {
+        editor._tiptapEditor.view.root.append(styleEl);
+      } else if (editor._tiptapEditor.view.root instanceof Document) {
+        editor._tiptapEditor.view.root.head.appendChild(styleEl);
+      }
+
       const styleSheet = styleEl.sheet!;
 
       const getBaseSelector = (additionalSelectors = "") =>
@@ -62,7 +69,11 @@ export const PlaceholderPlugin = (
 
       return {
         destroy: () => {
-          document.head.removeChild(styleEl);
+          if (editor._tiptapEditor.view.root instanceof ShadowRoot) {
+            editor._tiptapEditor.view.root.removeChild(styleEl);
+          } else if (editor._tiptapEditor.view.root instanceof Document) {
+            editor._tiptapEditor.view.root.head.removeChild(styleEl);
+          }
         },
       };
     },
