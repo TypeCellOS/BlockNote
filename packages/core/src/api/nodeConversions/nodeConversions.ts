@@ -181,14 +181,12 @@ export function tableContentToNodes<
           (c: any) => c.type === "tableImage"
         ) as unknown as {
           url: string;
-          caption: string;
           width: string;
           styles: any;
         };
         if (isImage) {
           pNode = schema.nodes["tableImage"].create({
             src: isImage.url,
-            caption: isImage.caption,
             width: isImage.width,
             backgroundColor: isImage.styles?.backgroundColor,
           });
@@ -316,9 +314,6 @@ function contentNodeToTableContent<
         const imageCell = {
           type: "tableImage",
           url: firstChild.attrs.src,
-          ...(firstChild.attrs.caption
-            ? { caption: firstChild.attrs.caption }
-            : {}),
           ...(firstChild.attrs.width && firstChild.attrs.width !== "default"
             ? { width: firstChild.attrs.width }
             : {}),

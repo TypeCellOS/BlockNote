@@ -104,9 +104,6 @@ const TableImage = Node.create({
       width: {
         default: "default",
       },
-      caption: {
-        default: "",
-      },
       backgroundColor: {
         default: "default",
       },
@@ -139,30 +136,22 @@ const TableImage = Node.create({
   },
 
   renderHTML({ HTMLAttributes }) {
-    const div = document.createElement("div");
-    div.className = "table-image-container";
+    const editor = this.options.editor;
     const img = document.createElement("img");
     img.className = "table-image";
-    img.src = HTMLAttributes.src;
+    editor.resolveFileUrl(HTMLAttributes.src).then((downloadUrl: string) => {
+      img.src = downloadUrl;
+    });
+
     img.contentEditable = "false";
     img.draggable = false;
-    div.contentEditable = "false";
-    div.draggable = false;
-    div.style.backgroundColor = HTMLAttributes.backgroundColor;
+    img.style.backgroundColor = HTMLAttributes.backgroundColor;
     if (HTMLAttributes.width && HTMLAttributes.width !== "default") {
-      div.style.width = HTMLAttributes.width;
-    }
-    div.appendChild(img);
-
-    if (HTMLAttributes.caption) {
-      const p = document.createElement("p");
-      p.innerText = HTMLAttributes.caption;
-      div.appendChild(p);
+      img.style.width = HTMLAttributes.width;
     }
 
     return {
-      dom: div,
-      contentDOM: img,
+      dom: img,
     };
   },
 });
