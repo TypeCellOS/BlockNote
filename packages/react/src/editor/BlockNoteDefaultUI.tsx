@@ -7,6 +7,7 @@ import { TableHandlesController } from "../components/TableHandles/TableHandlesC
 import { useBlockNoteEditor } from "../hooks/useBlockNoteEditor";
 import EmojiMenu from '../components/SuggestionMenu/emojisMenu.jsx'
 import { Data, SearchIndex, init } from "emoji-mart";
+import { useEffect } from "react";
 
 export type BlockNoteDefaultUIProps = {
   formattingToolbar?: boolean;
@@ -17,31 +18,40 @@ export type BlockNoteDefaultUIProps = {
   tableHandles?: boolean;
 };
 
+
+
+
+export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
+
+
+
+let allemojis = [];
 init({ Data })
 
 async function search(value) {
-  const response = await fetch(
-    'https://cdn.jsdelivr.net/npm/@emoji-mart/data',
-  )
-  const allemojis = await response.json()
+  if(value == ''){
+    console.log(Data)
+    return Object.values(Data.emojis).map(emoji=>(
+      emoji.skins[0].native
+    ))
+  }
   const emojisToShow = []
-
-  const emojis = await SearchIndex.search(value);
-  const results = (emojis || []).map((emoji) => {
-    return emoji.id;
-  })
-  Object.values(allemojis.emojis).forEach(({id, skins})=>{
-    //add all emojis if not yet searched for an emoji
-   if( results.includes(id) || !emojis){ 
-     emojisToShow.push(skins[0].native) 
+  // const emojis = [];
+  //begin the search
+  Object.values(Data.emojis).forEach((emoji)=>{
+    for(let a = 0; a < emoji.keywords.length; a++){
+      let keyword = emoji.keywords[a];
+      if(keyword.includes(value)){
+        emojisToShow.push(emoji.skins[0].native);
+        break;
+      }
     }
-  });
+
+  })
   return emojisToShow;
 
 }
 
-
-export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
   const editor = useBlockNoteEditor();
   async function emojiChangeHandler(query: string){
   
