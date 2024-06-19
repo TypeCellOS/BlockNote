@@ -6,8 +6,7 @@ import { SuggestionMenuController } from "../components/SuggestionMenu/Suggestio
 import { TableHandlesController } from "../components/TableHandles/TableHandlesController";
 import { useBlockNoteEditor } from "../hooks/useBlockNoteEditor";
 import EmojiMenu from '../components/SuggestionMenu/emojisMenu.jsx'
-import { Data, SearchIndex, init } from "emoji-mart";
-import { useEffect } from "react";
+import { Data, init } from "emoji-mart";
 
 export type BlockNoteDefaultUIProps = {
   formattingToolbar?: boolean;
@@ -30,7 +29,7 @@ init({ Data })
 
 async function search(value) {
   if(value == ''){
-    console.log(Data)
+
     return Object.values(Data.emojis).map(emoji=>(
       emoji.skins[0].native
     ))

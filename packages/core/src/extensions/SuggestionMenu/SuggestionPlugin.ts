@@ -27,7 +27,7 @@ class SuggestionMenuView<
     private readonly editor: BlockNoteEditor<BSchema, I, S>,
     emitUpdate: (menuName: string, state: SuggestionMenuState) => void
   ) {
-    this.pluginState = undefined;
+    this.pluginState = undefined; 
 
     this.emitUpdate = (menuName: string) => {
       if (!this.state) {
@@ -248,6 +248,30 @@ export class SuggestionMenuProseMirrorPlugin<
       },
 
       props: {
+        handleKeyDown(view, event) {
+          console.log('KEY DOWN ', view, event)
+
+          if (event.key == ':') {
+            const suggestionPluginState: SuggestionPluginState = (
+              this as Plugin
+            ).getState(view.state);
+            console.log('TEXT INPUT HANDLER CALLED WITH TRIGGER ', ':')
+            console.log(suggestionMenuPluginKey)
+            view.dispatch(
+              view.state.tr
+                .insertText(':')
+                .scrollIntoView()
+                .setMeta(suggestionMenuPluginKey, {
+                  triggerCharacter: ':',
+                  alreadyShownMenu: true
+                })
+            );
+
+            return true;
+          }
+          return;
+        },
+
         handleTextInput(view, _from, _to, text) {
           const suggestionPluginState: SuggestionPluginState = (
             this as Plugin
@@ -303,7 +327,7 @@ export class SuggestionMenuProseMirrorPlugin<
           return DecorationSet.create(state.doc, [
             Decoration.inline(
               suggestionPluginState.queryStartPos! -
-                suggestionPluginState.triggerCharacter!.length,
+              suggestionPluginState.triggerCharacter!.length,
               suggestionPluginState.queryStartPos!,
               {
                 nodeName: "span",
