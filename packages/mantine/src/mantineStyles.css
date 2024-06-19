@@ -89,50 +89,50 @@
  (src: https://github.com/mantinedev/mantine/blob/master/packages/%40mantine/core/src/core/MantineProvider/global.css)
  but with styles set on `body` and `html` instead set on `bn-container`, as
  well as other minor changes. */
-.bn-container *, .bn-container :after, .bn-container :before {
+.bn-mantine *, .bn-mantine :after, .bn-mantine :before {
     box-sizing: border-box
 }
 
-.bn-container button,
-.bn-container select {
+.bn-mantine button,
+.bn-mantine select {
     text-transform: none
 }
 
 @media screen and (max-device-width: 500px) {
-    .bn-container {
+    .bn-mantine {
         -webkit-text-size-adjust: 100%
     }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .bn-container [data-respect-reduced-motion] [data-reduce-motion] {
+    .bn-mantine [data-respect-reduced-motion] [data-reduce-motion] {
         animation: none;
         transition: none
     }
 }
 
-.bn-container [data-mantine-color-scheme=dark] .mantine-dark-hidden, .bn-container [data-mantine-color-scheme=light] .mantine-light-hidden {
+.bn-mantine [data-mantine-color-scheme=dark] .mantine-dark-hidden, .bn-mantine [data-mantine-color-scheme=light] .mantine-light-hidden {
     display: none
 }
 
-.bn-container .mantine-focus-auto:focus-visible {
+.bn-mantine .mantine-focus-auto:focus-visible {
     outline: calc(.125rem * var(--mantine-scale)) solid var(--mantine-primary-color-filled);
     outline-offset: calc(.125rem * var(--mantine-scale))
 }
 
-.bn-container .mantine-focus-always:focus {
+.bn-mantine .mantine-focus-always:focus {
     outline: calc(.125rem * var(--mantine-scale)) solid var(--mantine-primary-color-filled);
     outline-offset: calc(.125rem * var(--mantine-scale))
 }
 
-.bn-container .mantine-focus-never:focus {
+.bn-mantine .mantine-focus-never:focus {
     outline: none
 }
 
-.bn-container .mantine-active:active {
+.bn-mantine .mantine-active:active {
     transform: translateY(calc(.0625rem * var(--mantine-scale)))
 }
 
-.bn-container[dir=rtl] .mantine-rotate-rtl {
+.bn-mantine[dir=rtl] .mantine-rotate-rtl {
     transform: rotate(180deg)
 }

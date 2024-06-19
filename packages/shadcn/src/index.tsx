@@ -1,4 +1,9 @@
-import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
+import {
+  BlockSchema,
+  InlineContentSchema,
+  mergeCSSClasses,
+  StyleSchema,
+} from "@blocknote/core";
 import {
   BlockNoteViewRaw,
   Components,
@@ -103,7 +108,7 @@ export const BlockNoteView = <
     shadCNComponents?: Partial<ShadCNComponents>;
   }
 ) => {
-  const { shadCNComponents, ...rest } = props;
+  const { className, shadCNComponents, ...rest } = props;
 
   const componentsValue = useMemo(() => {
     return {
@@ -115,7 +120,10 @@ export const BlockNoteView = <
   return (
     <ShadCNComponentsContext.Provider value={componentsValue}>
       <ComponentsContext.Provider value={components}>
-        <BlockNoteViewRaw {...rest} />
+        <BlockNoteViewRaw
+          className={mergeCSSClasses("bn-shad-cn", className || "")}
+          {...rest}
+        />
       </ComponentsContext.Provider>
     </ShadCNComponentsContext.Provider>
   );
