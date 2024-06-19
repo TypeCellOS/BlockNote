@@ -41,6 +41,7 @@ export default function App() {
 
     const block = editor.document[2];
 
+    // The file URL is returned in the response body need to be modified to be downloadable.
     let fileURL = response.body.data.url;
     fileURL = fileURL.replace("tmpfiles.org/", "tmpfiles.org/dl/");
 
