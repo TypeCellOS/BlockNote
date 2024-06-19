@@ -25,39 +25,39 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
 
 
 let allemojis = [];
+//this makes sure emjois aren't fetched at every render
 init({ Data })
 
 async function search(value) {
   if(value == ''){
-
+    //Don't do unnecessary linear search if no search query
     return Object.values(Data.emojis).map(emoji=>(
       emoji.skins[0].native
     ))
   }
   const emojisToShow = []
-  // const emojis = [];
-  //begin the search
+  //begin the linear search
   Object.values(Data.emojis).forEach((emoji)=>{
+    //check for every keyword, until a keyword contains the query
     for(let a = 0; a < emoji.keywords.length; a++){
       let keyword = emoji.keywords[a];
       if(keyword.includes(value)){
         emojisToShow.push(emoji.skins[0].native);
+        //dont go further if emoji satisfies query
         break;
       }
     }
 
   })
+  //return the emojis 
   return emojisToShow;
 
 }
 
   const editor = useBlockNoteEditor();
   async function emojiChangeHandler(query: string){
-  
-    //now do the emojis
-    //return a promise
+  //STEP 2: call the search function, which returns an array of emojis as items for the component
    return search(query);
-  //  setEmojisToHide(results)
 }
 
   if (!editor) {
@@ -73,6 +73,7 @@ async function search(value) {
       {props.slashMenu !== false && (
         <>
         <SuggestionMenuController triggerCharacter="/" />
+        {/*STEP 1:  the suggestion menu for the emojis, with custom component and getItems */}
         <SuggestionMenuController
         isEmoji
         triggerCharacter={":"}

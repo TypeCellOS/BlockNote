@@ -101,6 +101,7 @@ export function SuggestionMenuController<
       getItems ||
       ((async (query: string) =>
         filterSuggestionItems(
+          //STEP 6: SHOW THE EMOJI OPTION IN THE SLASH MENU
           [...getDefaultReactSlashMenuItems(editor), insertSlashMenuOption(editor)],
           query
         )) as any as typeof getItems)

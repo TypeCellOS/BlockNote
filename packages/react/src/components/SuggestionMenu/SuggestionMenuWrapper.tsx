@@ -25,11 +25,15 @@ export function SuggestionMenuWrapper<Item>(props: {
   >();
 
   const emojiInsert = (emojiToInsert) => {
+    //STEP 3: handle onclick, this function is called whenever an emoji is clicked or enter key is pressed on an emoji
+
       clearQuery()
       editor.insertInlineContent([
           {
+            //call the inlinecontent of type of emoji declared in defaultBlocks.ts
             type: "emoji",
             props: {
+              //pass the emoji as a prop so it can be inserted in the text
               emoji : emojiToInsert
             },
           },

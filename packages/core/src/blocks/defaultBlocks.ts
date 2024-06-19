@@ -72,6 +72,7 @@ export type DefaultStyleSchema = _DefaultStyleSchema;
 export const defaultInlineContentSpecs = {
   text: { config: "text", implementation: {} as any },
   link: { config: "link", implementation: {} as any },
+  //for rendering emojis inline
   emoji: Emoji,
 } satisfies InlineContentSpecs;
 
