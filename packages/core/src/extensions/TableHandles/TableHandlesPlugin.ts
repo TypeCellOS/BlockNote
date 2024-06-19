@@ -46,7 +46,6 @@ function setHiddenDragImage(rootEl: Document | ShadowRoot) {
   dragImageElement.style.opacity = "0";
   dragImageElement.style.height = "1px";
   dragImageElement.style.width = "1px";
-  // document.body.appendChild(dragImageElement);
   if (rootEl instanceof Document) {
     rootEl.body.appendChild(dragImageElement);
   } else {
@@ -82,9 +81,13 @@ function domCellAround(target: Element | null): Element | null {
 }
 
 // Hides elements in the DOMwith the provided class names.
-function hideElementsWithClassNames(classNames: string[]) {
+function hideElementsWithClassNames(
+  classNames: string[],
+  rootEl: Document | ShadowRoot
+) {
   classNames.forEach((className) => {
-    const elementsToHide = document.getElementsByClassName(className);
+    const elementsToHide = rootEl.querySelectorAll(className);
+
     for (let i = 0; i < elementsToHide.length; i++) {
       (elementsToHide[i] as HTMLElement).style.visibility = "hidden";
     }
@@ -125,8 +128,6 @@ export class TableHandlesView<
 
     pmView.dom.addEventListener("mousemove", this.mouseMoveHandler);
 
-    // document.addEventListener("dragover", this.dragOverHandler);
-    // document.addEventListener("drop", this.dropHandler);
     pmView.root.addEventListener(
       "dragover",
       this.dragOverHandler as EventListener
@@ -136,7 +137,6 @@ export class TableHandlesView<
     // Setting capture=true ensures that any parent container of the editor that
     // gets scrolled will trigger the scroll event. Scroll events do not bubble
     // and so won't propagate to the document by default.
-    // document.addEventListener("scroll", this.scrollHandler, true);
     pmView.root.addEventListener("scroll", this.scrollHandler, true);
   }
 
@@ -235,11 +235,14 @@ export class TableHandlesView<
     event.preventDefault();
     event.dataTransfer!.dropEffect = "move";
 
-    hideElementsWithClassNames([
-      "column-resize-handle",
-      "prosemirror-dropcursor-block",
-      "prosemirror-dropcursor-inline",
-    ]);
+    hideElementsWithClassNames(
+      [
+        "column-resize-handle",
+        "prosemirror-dropcursor-block",
+        "prosemirror-dropcursor-inline",
+      ],
+      this.pmView.root
+    );
 
     // The mouse cursor coordinates, bounded to the table's bounding box. The
     // bounding box is shrunk by 1px on each side to ensure that the bounded
@@ -257,11 +260,6 @@ export class TableHandlesView<
 
     // Gets the table cell element that the bounded mouse cursor coordinates lie
     // in.
-    // const tableCellElements = document
-    //   .elementsFromPoint(boundedMouseCoords.left, boundedMouseCoords.top)
-    //   .filter(
-    //     (element) => element.tagName === "TD" || element.tagName === "TH"
-    //   );
     const tableCellElements = this.pmView.root
       .elementsFromPoint(boundedMouseCoords.left, boundedMouseCoords.top)
       .filter(
@@ -363,9 +361,6 @@ export class TableHandlesView<
 
   scrollHandler = () => {
     if (this.state?.show) {
-      // const tableElement = document.querySelector(
-      //   `[data-node-type="blockContainer"][data-id="${this.tableId}"] table`
-      // )!;
       const tableElement = this.pmView.root.querySelector(
         `[data-node-type="blockContainer"][data-id="${this.tableId}"] table`
       )!;
@@ -383,10 +378,6 @@ export class TableHandlesView<
 
   destroy() {
     this.pmView.dom.removeEventListener("mousemove", this.mouseMoveHandler);
-
-    // document.removeEventListener("dragover", this.dragOverHandler);
-    // document.removeEventListener("drop", this.dropHandler);
-    // document.removeEventListener("scroll", this.scrollHandler, true);
     this.pmView.root.removeEventListener(
       "dragover",
       this.dragOverHandler as EventListener

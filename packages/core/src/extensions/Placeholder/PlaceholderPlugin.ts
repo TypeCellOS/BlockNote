@@ -12,12 +12,10 @@ export const PlaceholderPlugin = (
     key: PLUGIN_KEY,
     view: () => {
       const styleEl = document.createElement("style");
-      // editor.view.root.append(styleEl);
       const nonce = editor._tiptapEditor.options.injectNonce;
       if (nonce) {
         styleEl.setAttribute("nonce", nonce);
       }
-      // document.head.appendChild(styleEl);
       if (editor._tiptapEditor.view.root instanceof ShadowRoot) {
         editor._tiptapEditor.view.root.append(styleEl);
       } else if (editor._tiptapEditor.view.root instanceof Document) {
