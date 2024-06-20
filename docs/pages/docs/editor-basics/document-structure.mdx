@@ -73,13 +73,16 @@ The `styles` property is explained below.
 
 While most blocks use an array of `InlineContent` objects to describe their content (e.g.: paragraphs, headings, list items). Some blocks, like [images](/docs/editor-basics/default-schema#image), don't contain any rich text content, so their `content` fields will be `undefined`.
 
-[Tables](/docs/editor-basics/default-schema#table) are also different, as they contain `TableContent`. Here, each table cell is represented as an array of `InlineContent` objects:
+[Tables](/docs/editor-basics/default-schema#table) are also different, as they contain `TableContent`. Here, each table cell is represented as an array of `InlineContent` objects with a width:
 
 ```typescript
 type TableContent = {
   type: "tableContent";
   rows: {
-    cells: InlineContent[][];
+    cells: {
+      content: InlineContent,
+      width?: number
+    }[][];
   }[];
 };
 ```
