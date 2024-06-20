@@ -74,8 +74,8 @@ export type BlockNoteEditorOptions<
   SSchema extends StyleSchema
 > = {
   // TODO: Figure out if enableBlockNoteExtensions/disableHistoryExtension are needed and document them.
-  enableBlockNoteExtensions: boolean | string[];
-
+  enableBlockNoteExtensions: boolean;
+  disableBlockNoteExtensions: string[];
   /**
    * A dictionary object containing translations for the editor.
    */
@@ -280,7 +280,7 @@ export class BlockNoteEditor<
       inlineContentSpecs: this.schema.inlineContentSpecs,
       collaboration: newOptions.collaboration,
       trailingBlock: newOptions.trailingBlock,
-      disabled: newOptions.enableBlockNoteExtensions
+      disabled: newOptions.disableBlockNoteExtensions
     });
 
     const blockNoteUIExtension = Extension.create({
