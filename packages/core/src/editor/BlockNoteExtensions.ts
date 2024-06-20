@@ -53,6 +53,7 @@ export const getBlockNoteExtensions = <
     provider: any;
     renderCursor?: (user: any) => HTMLElement;
   };
+  disabled: null | string: []
 }) => {
   const ret: Extensions = [
     extensions.ClipboardTextSerializer,
@@ -193,5 +194,5 @@ export const getBlockNoteExtensions = <
     ret.push(History);
   }
 
-  return ret;
+  return ret.filter(ex => !disabled.includes(ex.name);
 };
