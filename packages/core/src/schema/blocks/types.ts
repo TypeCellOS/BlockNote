@@ -6,7 +6,6 @@ import type {
   InlineContent,
   InlineContentSchema,
   PartialInlineContent,
-  PartialInlineContentElement,
 } from "../inlineContent/types";
 import type { PropSchema, Props } from "../propTypes";
 import type { StyleSchema } from "../styles/types";
@@ -153,9 +152,13 @@ export type TableContent<
   }[];
 };
 
-export type CellContent<I extends InlineContentSchema, T extends StyleSchema> =
-  | (InlineContent<I, T> & { width?: string })[]
-  | string;
+export type CellContent<
+  I extends InlineContentSchema,
+  T extends StyleSchema
+> = {
+  content: InlineContent<I, T>[];
+  width?: number;
+};
 
 // A BlockConfig has all the information to get the type of a Block (which is a specific instance of the BlockConfig.
 // i.e.: paragraphConfig: BlockConfig defines what a "paragraph" is / supports, and BlockFromConfigNoChildren<paragraphConfig> is the shape of a specific paragraph block.
@@ -235,7 +238,10 @@ export type PartialTableContent<
 export type PartialCellContent<
   I extends InlineContentSchema,
   T extends StyleSchema
-> = (PartialInlineContentElement<I, T> & { width: string })[] | string;
+> = {
+  content: PartialInlineContent<I, T>;
+  width?: number;
+};
 
 type PartialBlockFromConfigNoChildren<
   B extends BlockConfig,

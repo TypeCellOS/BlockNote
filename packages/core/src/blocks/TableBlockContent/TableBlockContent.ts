@@ -1,4 +1,4 @@
-import { Node } from "@tiptap/core";
+import { mergeAttributes, Node } from "@tiptap/core";
 import { TableCell } from "@tiptap/extension-table-cell";
 import { TableHeader } from "@tiptap/extension-table-header";
 import { TableRow } from "@tiptap/extension-table-row";
@@ -44,16 +44,8 @@ const TableParagraph = Node.create({
   group: "tableContent",
   content: "inline*",
 
-  addAttributes() {
-    return {
-      width: {
-        default: "default",
-      },
-    };
-  },
   parseHTML() {
     return [
-      { tag: "td" },
       {
         tag: "p",
         getAttrs: (element) => {
@@ -78,17 +70,11 @@ const TableParagraph = Node.create({
   },
 
   renderHTML({ HTMLAttributes }) {
-    const p = document.createElement("p");
-    p.style.setProperty("min-width", "100px", "important");
-
-    if (HTMLAttributes.width && HTMLAttributes.width !== "default") {
-      p.style.width = HTMLAttributes.width;
-    }
-
-    return {
-      dom: p,
-      contentDOM: p,
-    };
+    return [
+      "p",
+      mergeAttributes(this.options.HTMLAttributes, HTMLAttributes),
+      0,
+    ];
   },
 });
 

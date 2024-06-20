@@ -172,17 +172,23 @@ export function tableContentToNodes<
     const columnNodes: Node[] = [];
     for (const cell of row.cells) {
       let pNode: Node;
-      if (!cell || cell.length === 0) {
+      if (!cell.content || cell.content.length === 0) {
         pNode = schema.nodes["tableParagraph"].create({});
       } else if (typeof cell === "string") {
         pNode = schema.nodes["tableParagraph"].create({}, schema.text(cell));
       } else {
-        const textNodes = inlineContentToNodes(cell, schema, styleSchema);
-        const width = cell[0].width;
-        pNode = schema.nodes["tableParagraph"].create({ width }, textNodes);
+        const textNodes = inlineContentToNodes(
+          cell.content,
+          schema,
+          styleSchema
+        );
+        pNode = schema.nodes["tableParagraph"].create({}, textNodes);
       }
 
-      const cellNode = schema.nodes["tableCell"].create({}, pNode);
+      const cellNode = schema.nodes["tableCell"].create(
+        { colwidth: [cell.width] || null },
+        pNode
+      );
       columnNodes.push(cellNode);
     }
     const rowNode = schema.nodes["tableRow"].create({}, columnNodes);
@@ -283,32 +289,17 @@ function contentNodeToTableContent<
     };
 
     rowNode.content.forEach((cellNode) => {
-      const firstChild = cellNode.firstChild;
-
-      const cells = contentNodeToInlineContent(
-        firstChild!,
-        inlineContentSchema,
-        styleSchema
-      );
-
-      // push an empty cell if there are no cells to keep a fixed width
-      if (cells.length === 0) {
-        cells.push({
-          type: "text",
-          text: "",
-          styles: {},
-        } as InlineContentFromConfig<I[keyof I], S>);
-      }
-
-      // push cells with width attribute if it exists
-      row.cells.push(
-        cells.map((c) => ({
-          ...c,
-          ...(firstChild!.attrs.width
-            ? { width: firstChild!.attrs.width }
-            : {}),
-        }))
-      );
+      row.cells.push({
+        content: contentNodeToInlineContent(
+          cellNode.firstChild!,
+          inlineContentSchema,
+          styleSchema
+        ),
+        width:
+          cellNode.attrs.colwidth !== null
+            ? cellNode.attrs.colwidth[0]
+            : undefined,
+      });
     });
 
     ret.rows.push(row);

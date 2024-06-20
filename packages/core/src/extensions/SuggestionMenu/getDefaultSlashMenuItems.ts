@@ -179,10 +179,10 @@ export function getDefaultSlashMenuItems<
             type: "tableContent",
             rows: [
               {
-                cells: ["", "", ""],
+                cells: [{ content: "" }, { content: "" }, { content: "" }],
               },
               {
-                cells: ["", "", ""],
+                cells: [{ content: "" }, { content: "" }, { content: "" }],
               },
             ],
           },
