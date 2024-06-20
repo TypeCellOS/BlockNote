@@ -50,13 +50,25 @@ export default function App() {
           type: "tableContent",
           rows: [
             {
-              cells: ["Table Cell", "Table Cell", "Table Cell"],
+              cells: [
+                { content: "Table Cell" },
+                { content: "Table Cell" },
+                { content: "Table Cell" },
+              ],
             },
             {
-              cells: ["Table Cell", "Table Cell", "Table Cell"],
+              cells: [
+                { content: "Table Cell" },
+                { content: "Table Cell" },
+                { content: "Table Cell" },
+              ],
             },
             {
-              cells: ["Table Cell", "Table Cell", "Table Cell"],
+              cells: [
+                { content: "Table Cell" },
+                { content: "Table Cell" },
+                { content: "Table Cell" },
+              ],
             },
           ],
         },

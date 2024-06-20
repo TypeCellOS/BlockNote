@@ -373,77 +373,95 @@
       "rows": [
         {
           "cells": [
-            [
-              {
-                "type": "text",
-                "text": "Cell 1",
-                "styles": {}
-              }
-            ],
-            [
-              {
-                "type": "text",
-                "text": "Cell 2",
-                "styles": {}
-              }
-            ],
-            [
-              {
-                "type": "text",
-                "text": "Cell 3",
-                "styles": {}
-              }
-            ]
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Cell 1",
+                  "styles": {}
+                }
+              ]
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Cell 2",
+                  "styles": {}
+                }
+              ]
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Cell 3",
+                  "styles": {}
+                }
+              ]
+            }
           ]
         },
         {
           "cells": [
-            [
-              {
-                "type": "text",
-                "text": "Cell 4",
-                "styles": {}
-              }
-            ],
-            [
-              {
-                "type": "text",
-                "text": "Cell 5",
-                "styles": {}
-              }
-            ],
-            [
-              {
-                "type": "text",
-                "text": "Cell 6",
-                "styles": {}
-              }
-            ]
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Cell 4",
+                  "styles": {}
+                }
+              ]
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Cell 5",
+                  "styles": {}
+                }
+              ]
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Cell 6",
+                  "styles": {}
+                }
+              ]
+            }
           ]
         },
         {
           "cells": [
-            [
-              {
-                "type": "text",
-                "text": "Cell 7",
-                "styles": {}
-              }
-            ],
-            [
-              {
-                "type": "text",
-                "text": "Cell 8",
-                "styles": {}
-              }
-            ],
-            [
-              {
-                "type": "text",
-                "text": "Cell 9",
-                "styles": {}
-              }
-            ]
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Cell 7",
+                  "styles": {}
+                }
+              ]
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Cell 8",
+                  "styles": {}
+                }
+              ]
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Cell 9",
+                  "styles": {}
+                }
+              ]
+            }
           ]
         }
       ]
