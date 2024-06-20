@@ -194,5 +194,5 @@ export const getBlockNoteExtensions = <
     ret.push(History);
   }
 
-  return ret.filter(ex => !disabled.includes(ex.name);
+  return disabled ? ret.filter(ex => !disabled.includes(ex.name) : ret;
 };
