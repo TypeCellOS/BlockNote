@@ -1,7 +1,7 @@
-import { createReactInlineContentSpec } from "@blocknote/react";
+import { createInlineContentSpec } from "../schema";
  
 
-export const Emoji = createReactInlineContentSpec(
+export const Emoji = createInlineContentSpec(
   //STEP 4: this component recieves an emoji, and insets it in the line
   {
     type: "emoji",
@@ -13,13 +13,14 @@ export const Emoji = createReactInlineContentSpec(
     content: "none",
   },
   {
-    render: (props) => {
-      return(
-      
-      <span >
-        {props.inlineContent.props.emoji}
-      </span>
-    )},
+    render: (props: any) => {
+      const dom = document.createElement("span");
+      dom.appendChild(document.createTextNode(props.props.emoji));
+
+      return {
+        dom,
+      };
+    },
   }
 );
  

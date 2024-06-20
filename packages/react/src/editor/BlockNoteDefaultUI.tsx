@@ -5,7 +5,7 @@ import { SideMenuController } from "../components/SideMenu/SideMenuController";
 import { SuggestionMenuController } from "../components/SuggestionMenu/SuggestionMenuController";
 import { TableHandlesController } from "../components/TableHandles/TableHandlesController";
 import { useBlockNoteEditor } from "../hooks/useBlockNoteEditor";
-import EmojiMenu from '../components/SuggestionMenu/emojisMenu.jsx'
+import EmojiMenu from '../components/SuggestionMenu/emojisMenu.js'
 import { Data, init } from "emoji-mart";
 
 export type BlockNoteDefaultUIProps = {
@@ -24,20 +24,19 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
 
 
 
-let allemojis = [];
 //this makes sure emjois aren't fetched at every render
 init({ Data })
 
-async function search(value) {
+async function search(value: string) {
   if(value == ''){
     //Don't do unnecessary linear search if no search query
-    return Object.values(Data.emojis).map(emoji=>(
+    return Object.values(Data.emojis).map((emoji : any)=>(
       emoji.skins[0].native
     ))
   }
-  const emojisToShow = []
+  const emojisToShow : any[] = []
   //begin the linear search
-  Object.values(Data.emojis).forEach((emoji)=>{
+  Object.values(Data.emojis).forEach((emoji : any)=>{
     //check for every keyword, until a keyword contains the query
     for(let a = 0; a < emoji.keywords.length; a++){
       let keyword = emoji.keywords[a];

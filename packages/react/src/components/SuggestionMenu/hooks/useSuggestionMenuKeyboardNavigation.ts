@@ -7,8 +7,8 @@ export function useSuggestionMenuKeyboardNavigation<Item>(
   editor: BlockNoteEditor<any, any, any>,
   query: string,
   items: Item[],
-  onItemClick?: (item: Item) => void,
-  isEmojiMenu
+  isEmojiMenu: any,
+  onItemClick?:( (item: Item) => void )| ((item: never) => void)
 ) {
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
 
@@ -52,7 +52,7 @@ export function useSuggestionMenuKeyboardNavigation<Item>(
         event.preventDefault();
 
         if (items.length) {
-          onItemClick?.(items[selectedIndex]);
+          onItemClick?.(items[selectedIndex] as never);
         }
 
         return true;

@@ -15,6 +15,7 @@ export function SuggestionMenuWrapper<Item>(props: {
   getItems: (query: string) => Promise<Item[]>;
   onItemClick?: (item: Item) => void;
   suggestionMenuComponent: FC<SuggestionMenuProps<Item>>;
+  isEmoji: boolean
 }) {
   const ctx = useBlockNoteContext();
   const setContentEditableProps = ctx!.setContentEditableProps!;
@@ -24,9 +25,9 @@ export function SuggestionMenuWrapper<Item>(props: {
     StyleSchema
   >();
 
-  const emojiInsert = (emojiToInsert) => {
+  const emojiInsert = (item : never) => {
     //STEP 3: handle onclick, this function is called whenever an emoji is clicked or enter key is pressed on an emoji
-
+    //I had to make it never since it's not supporting any other type under the hood
       clearQuery()
       editor.insertInlineContent([
           {
@@ -34,7 +35,7 @@ export function SuggestionMenuWrapper<Item>(props: {
             type: "emoji",
             props: {
               //pass the emoji as a prop so it can be inserted in the text
-              emoji : emojiToInsert
+              emoji : item
             },
           },
           " ", // add a space after the emoji
@@ -71,8 +72,8 @@ export function SuggestionMenuWrapper<Item>(props: {
     editor,
     query,
     items,
+    isEmoji,
     isEmoji ? emojiInsert : onItemClickCloseMenu,
-    isEmoji
   );
 
   // set basic aria attributes when the menu is open
@@ -112,11 +113,9 @@ export function SuggestionMenuWrapper<Item>(props: {
   return (
     <Component
       items={items}
-      editor={editor}
       emojiInsert={emojiInsert}
       onItemClick={onItemClickCloseMenu}
       loadingState={loadingState}
-      clearQuery={clearQuery}
       selectedIndex={selectedIndex}
     />
   );

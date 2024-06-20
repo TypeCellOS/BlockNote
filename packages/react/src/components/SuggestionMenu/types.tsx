@@ -18,4 +18,5 @@ export type SuggestionMenuProps<T> = {
   loadingState: "loading-initial" | "loading" | "loaded";
   selectedIndex: number | undefined;
   onItemClick?: (item: T) => void;
+  emojiInsert?: (emoji: never) => void
 };

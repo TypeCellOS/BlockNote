@@ -31,13 +31,14 @@ export function SuggestionMenuController<
 >(
   props: {
     triggerCharacter: string;
+    isEmoji?: boolean;
     getItems?: GetItemsType;
   } & (ItemType<GetItemsType> extends DefaultReactSuggestionItem
     ? {
         // can be undefined
         suggestionMenuComponent?: FC<
           SuggestionMenuProps<ItemType<GetItemsType>>
-        >;
+        > | FC<any>;
         onItemClick?: (item: ItemType<GetItemsType>) => void;
       }
     : {
@@ -67,7 +68,7 @@ export function SuggestionMenuController<
     );
   }, [editor, onItemClick]);
 
-  const insertSlashMenuOption = (editor) => ({
+  const insertSlashMenuOption = (editor: any) => ({
     title: "Emoji",
     //we are simulating a : keydown event to trigger the emoji menu
     onItemClick: () => {
@@ -159,7 +160,7 @@ export function SuggestionMenuController<
         query={state.query}
         closeMenu={callbacks.closeMenu}
         clearQuery={callbacks.clearQuery}
-        isEmoji={isEmoji}
+        isEmoji={isEmoji || false}
         getItems={getItemsOrDefault}
         suggestionMenuComponent={suggestionMenuComponent || SuggestionMenu}
         onItemClick={onItemClickOrDefault}

@@ -253,9 +253,6 @@ export class SuggestionMenuProseMirrorPlugin<
 
           if (event.key == ':') {
             //only proceed if it was the trigger character (:)
-            const suggestionPluginState: SuggestionPluginState = (
-              this as Plugin
-            ).getState(view.state);
             view.dispatch(
               view.state.tr
                 .insertText(':')
