@@ -155,7 +155,12 @@ function setDragImage(view: EditorView, from: number, to = from) {
 
 function unsetDragImage(rootEl: Document | ShadowRoot) {
   if (dragImageElement !== undefined) {
-    rootEl.removeChild(dragImageElement);
+    if (rootEl instanceof ShadowRoot) {
+      rootEl.removeChild(dragImageElement);
+    } else {
+      rootEl.body.appendChild(dragImageElement);
+    }
+
     dragImageElement = undefined;
   }
 }
