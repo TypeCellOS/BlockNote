@@ -194,6 +194,25 @@
         }
       },
       {
+        "projectSlug": "s3",
+        "fullSlug": "basic/s3",
+        "pathFromRoot": "examples/01-basic/s3",
+        "config": {
+          "playground": true,
+          "docs": false,
+          "author": "matthewlipski",
+          "tags": [],
+          "dependencies": {
+            "@aws-sdk/client-s3": "^3.600.0"
+          }
+        },
+        "title": "AWS S3 File Upload",
+        "group": {
+          "pathFromRoot": "examples/01-basic",
+          "slug": "basic"
+        }
+      },
+      {
         "projectSlug": "testing",
         "fullSlug": "basic/testing",
         "pathFromRoot": "examples/01-basic/testing",
