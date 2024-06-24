@@ -30,7 +30,7 @@ function checkMIMETypesMatch(mimeType1: string, mimeType2: string) {
   return types1[0] === types2[0] && types1[1] === types2[1];
 }
 
-export function handleFileInsertion<
+export async function handleFileInsertion<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
@@ -81,20 +81,19 @@ export function handleFileInsertion<
 
     const file = items[i].getAsFile();
     if (file) {
-      editor.uploadFile(file).then((updateData) => {
-        // TODO: Why can `uploadFile` return an object again?
-        if (typeof updateData === "string") {
-          const fileBlock = {
-            type: fileBlockType,
-            props: {
-              name: file.name,
-              url: updateData,
-            },
-          } as PartialBlock<BSchema, I, S>;
+      const updateData = await editor.uploadFile(file);
 
-          insertOrUpdateBlock(editor, fileBlock);
-        }
-      });
+      if (typeof updateData === "string") {
+        const fileBlock = {
+          type: fileBlockType,
+          props: {
+            name: file.name,
+            url: updateData,
+          },
+        } as PartialBlock<BSchema, I, S>;
+
+        insertOrUpdateBlock(editor, fileBlock);
+      }
     }
   }
 }
