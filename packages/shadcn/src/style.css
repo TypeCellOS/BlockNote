@@ -4,7 +4,7 @@
 @tailwind components;
 @tailwind utilities;
 
-.bn-shad-cn {
+.bn-shadcn {
   --background: 0 0% 100%;
   --foreground: 222.2 84% 4.9%;
 
@@ -36,7 +36,7 @@
   --radius: 0.5rem;
 }
 
-.bn-shad-cn.dark {
+.bn-shadcn.dark {
   --background: 222.2 84% 4.9%;
   --foreground: 210 40% 98%;
 
@@ -69,42 +69,42 @@
 .bn-shadcn * {
   @apply bn-border-border;
 }
-.bn-shad-cn .bn-editor {
+.bn-shadcn .bn-editor {
   @apply bn-bg-background bn-text-foreground;
 }
 
-.bn-shad-cn [data-radix-popper-content-wrapper] {
+.bn-shadcn [data-radix-popper-content-wrapper] {
   z-index: 99999 !important;
 }
 
-.bn-shad-cn .bn-editor:focus-visible {
+.bn-shadcn .bn-editor:focus-visible {
   outline: none;
 }
 
-.bn-shad-cn .bn-side-menu {
+.bn-shadcn .bn-side-menu {
   align-items: center;
   display: flex;
   justify-content: center;
 }
 
-.bn-shad-cn .bn-side-menu .bn-button {
+.bn-shadcn .bn-side-menu .bn-button {
   padding: 0;
   height: 24px;
 }
 
-.bn-shad-cn .bn-select {
+.bn-shadcn .bn-select {
   max-height: var(--radix-select-content-available-height);
 }
 
-.bn-shad-cn .bn-menu-dropdown {
+.bn-shadcn .bn-menu-dropdown {
   max-height: var(--radix-dropdown-menu-content-available-height);
 }
 
-.bn-shad-cn .bn-color-picker-dropdown {
+.bn-shadcn .bn-color-picker-dropdown {
   overflow: auto;
 }
 
-.bn-shad-cn .bn-suggestion-menu-item[aria-selected="true"],
-.bn-shad-cn .bn-suggestion-menu-item:hover {
+.bn-shadcn .bn-suggestion-menu-item[aria-selected="true"],
+.bn-shadcn .bn-suggestion-menu-item:hover {
   background-color: hsl(var(--accent));
 }

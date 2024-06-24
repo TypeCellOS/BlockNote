@@ -121,7 +121,7 @@ export const BlockNoteView = <
     <ShadCNComponentsContext.Provider value={componentsValue}>
       <ComponentsContext.Provider value={components}>
         <BlockNoteViewRaw
-          className={mergeCSSClasses("bn-shad-cn", className || "")}
+          className={mergeCSSClasses("bn-shadcn", className || "")}
           {...rest}
         />
       </ComponentsContext.Provider>

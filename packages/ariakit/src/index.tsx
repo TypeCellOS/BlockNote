@@ -105,7 +105,7 @@ export const BlockNoteView = <
   return (
     <ComponentsContext.Provider value={components}>
       <BlockNoteViewRaw
-        className={mergeCSSClasses("bn-aria-kit", className || "")}
+        className={mergeCSSClasses("bn-ariakit", className || "")}
         {...rest}
       />
     </ComponentsContext.Provider>

@@ -4,13 +4,13 @@
 /* Mantine base styles*/
 
 /* Mantine Badge component base styles */
-.bn-mantine .mantine-Badge-root {
+.mantine-Badge-root {
   background-color: var(--bn-colors-tooltip-background);
   color: var(--bn-colors-tooltip-text);
 }
 
 /* Mantine FileInput component base styles */
-.bn-mantine .mantine-FileInput-input {
+.mantine-FileInput-input {
   align-items: center;
   background-color: var(--bn-colors-menu-background);
   border: none;
@@ -21,22 +21,22 @@
   justify-content: center;
 }
 
-.bn-mantine .mantine-FileInput-input:hover {
+.mantine-FileInput-input:hover {
   background-color: var(--bn-colors-hovered-background);
 }
 
-.bn-mantine .mantine-FileInput-wrapper {
+.mantine-FileInput-wrapper {
   border: solid var(--bn-colors-border) 1px;
   border-radius: 4px;
 }
 
-.bn-mantine .mantine-InputPlaceholder-placeholder {
+.mantine-InputPlaceholder-placeholder {
   color: var(--bn-colors-menu-text);
   font-weight: 600;
 }
 
 /* Mantine Menu component base styles */
-.bn-mantine .mantine-Menu-dropdown {
+.mantine-Menu-dropdown {
   background-color: var(--bn-colors-menu-background);
   border: var(--bn-border);
   border-radius: var(--bn-border-radius-medium);
@@ -47,27 +47,27 @@
   overflow: auto;
 }
 
-.bn-mantine .mantine-Menu-label {
+.mantine-Menu-label {
   background-color: var(--bn-colors-menu-background);
   color: var(--bn-colors-menu-text);
 }
 
-.bn-mantine .mantine-Menu-item {
+.mantine-Menu-item {
   background-color: var(--bn-colors-menu-background);
   border: none;
   border-radius: var(--bn-border-radius-small);
   color: var(--bn-colors-menu-text);
 }
 
-.bn-mantine .mantine-Menu-item[aria-selected="true"],
-.bn-mantine .mantine-Menu-item:hover {
+.mantine-Menu-item[aria-selected="true"],
+.mantine-Menu-item:hover {
   background-color: var(--bn-colors-hovered-background);
   border: none;
   color: var(--bn-colors-hovered-text);
 }
 
 /* Mantine Popover component base styles */
-.bn-mantine .mantine-Popover-dropdown {
+.mantine-Popover-dropdown {
   background-color: transparent;
   border: none;
   border-radius: 0;
@@ -76,38 +76,38 @@
 }
 
 /* Mantine Tabs component base styles */
-.bn-mantine .mantine-Tabs-root {
+.mantine-Tabs-root {
   width: 100%;
   background-color: var(--bn-colors-menu-background);
 }
 
-.bn-mantine .mantine-Tabs-list:before {
+.mantine-Tabs-list:before {
   border-color: var(--bn-colors-hovered-background);
 }
 
-.bn-mantine .mantine-Tabs-tab {
+.mantine-Tabs-tab {
   color: var(--bn-colors-menu-text);
   border-color: var(--bn-colors-hovered-background);
 }
 
-.bn-mantine .mantine-Tabs-tab:hover {
+.mantine-Tabs-tab:hover {
   background-color: var(--bn-colors-hovered-background);
   border-color: var(--bn-colors-hovered-background);
   color: var(--bn-colors-hovered-text);
 }
 
-.bn-mantine .mantine-Tabs-tab[data-active],
-.bn-mantine .mantine-Tabs-tab[data-active]:hover {
+.mantine-Tabs-tab[data-active],
+.mantine-Tabs-tab[data-active]:hover {
   border-color: var(--bn-colors-menu-text);
   color: var(--bn-colors-menu-text);
 }
 
-.bn-mantine .mantine-Tabs-panel {
+.mantine-Tabs-panel {
   padding: 8px;
 }
 
 /* Mantine TextInput component base styles */
-.bn-mantine .mantine-TextInput-input {
+.mantine-TextInput-input {
   background-color: var(--bn-colors-menu-background);
   border: solid var(--bn-colors-border) 1px;
   border-radius: 4px;
@@ -116,7 +116,7 @@
 }
 
 /* Mantine Tooltip component base styles */
-.bn-mantine .mantine-Tooltip-tooltip {
+.mantine-Tooltip-tooltip {
   background-color: transparent;
   border: none;
   border-radius: 0;
@@ -147,41 +147,41 @@
   display: none;
 }
 
-.bn-mantine .bn-toolbar .mantine-Button-root,
-.bn-mantine .bn-toolbar .mantine-ActionIcon-root {
+.bn-toolbar .mantine-Button-root,
+.bn-toolbar .mantine-ActionIcon-root {
   background-color: var(--bn-colors-menu-background);
   border: none;
   border-radius: var(--bn-border-radius-small);
   color: var(--bn-colors-menu-text);
 }
 
-.bn-mantine .bn-toolbar .mantine-Button-root:hover,
-.bn-mantine .bn-toolbar .mantine-ActionIcon-root:hover {
+.bn-toolbar .mantine-Button-root:hover,
+.bn-toolbar .mantine-ActionIcon-root:hover {
   background-color: var(--bn-colors-hovered-background);
   border: none;
   color: var(--bn-colors-hovered-text);
 }
 
-.bn-mantine .bn-toolbar .mantine-Button-root[data-selected],
-.bn-mantine .bn-toolbar .mantine-ActionIcon-root[data-selected] {
+.bn-toolbar .mantine-Button-root[data-selected],
+.bn-toolbar .mantine-ActionIcon-root[data-selected] {
   background-color: var(--bn-colors-selected-background);
   border: none;
   color: var(--bn-colors-selected-text);
 }
 
-.bn-mantine .bn-toolbar .mantine-Button-root[data-disabled],
-.bn-mantine .bn-toolbar .mantine-ActionIcon-root[data-disabled] {
+.bn-toolbar .mantine-Button-root[data-disabled],
+.bn-toolbar .mantine-ActionIcon-root[data-disabled] {
   background-color: var(--bn-colors-disabled-background);
   border: none;
   color: var(--bn-colors-disabled-text);
 }
 
-.bn-mantine .bn-toolbar .mantine-Menu-item {
+.bn-toolbar .mantine-Menu-item {
   font-size: 12px;
   height: 30px;
 }
 
-.bn-mantine .bn-toolbar .mantine-Menu-item:hover {
+.bn-toolbar .mantine-Menu-item:hover {
   background-color: var(--bn-colors-hovered-background);
 }
 
@@ -196,36 +196,36 @@
   padding: 2px;
 }
 
-.bn-mantine .bn-form-popover .mantine-TextInput-root,
-.bn-mantine .bn-form-popover .mantine-FileInput-root {
+.bn-form-popover .mantine-TextInput-root,
+.bn-form-popover .mantine-FileInput-root {
   width: 300px;
 }
 
-.bn-mantine .bn-form-popover .mantine-TextInput-wrapper,
-.bn-mantine .bn-form-popover .mantine-FileInput-wrapper {
+.bn-form-popover .mantine-TextInput-wrapper,
+.bn-form-popover .mantine-FileInput-wrapper {
   padding: 0;
   border-radius: 4px;
 }
 
-.bn-mantine .bn-form-popover .mantine-TextInput-wrapper:hover {
+.bn-form-popover .mantine-TextInput-wrapper:hover {
   background-color: var(--bn-colors-hovered-background);
 }
 
-.bn-mantine .bn-form-popover .mantine-TextInput-input,
-.bn-mantine .bn-form-popover .mantine-FileInput-input {
+.bn-form-popover .mantine-TextInput-input,
+.bn-form-popover .mantine-FileInput-input {
   border: none;
   font-size: 12px;
 }
 
-.bn-mantine .bn-form-popover .mantine-FileInput-input:hover {
+.bn-form-popover .mantine-FileInput-input:hover {
   background-color: var(--bn-colors-hovered-background);
 }
 
-.bn-mantine .bn-form-popover .mantine-FileInput-section[data-position="left"] {
+.bn-form-popover .mantine-FileInput-section[data-position="left"] {
   color: var(--bn-colors-menu-text);
 }
 
-.bn-mantine .bn-form-popover .mantine-FileInput-placeholder {
+.bn-form-popover .mantine-FileInput-placeholder {
   color: var(--bn-colors-menu-text);
 }
 
@@ -271,11 +271,11 @@
 }
 
 /* Additional Suggestion Menu styling*/
-.bn-mantine .bn-mt-suggestion-menu-item-body {
+.bn-mt-suggestion-menu-item-body {
   flex: 1;
 }
 
-.bn-mantine .bn-mt-suggestion-menu-item-section {
+.bn-mt-suggestion-menu-item-section {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -310,17 +310,17 @@
   background-color: var(--bn-colors-hovered-background);
 }
 
-.bn-mantine .bn-mt-suggestion-menu-item-section {
+.bn-mt-suggestion-menu-item-section {
   color: var(--bn-colors-tooltip-text);
 }
 
-.bn-mantine .bn-mt-suggestion-menu-item-section[data-position="left"] {
+.bn-mt-suggestion-menu-item-section[data-position="left"] {
   background-color: var(--bn-colors-tooltip-background);
   border-radius: var(--bn-border-radius-small);
   padding: 8px;
 }
 
-.bn-mantine .bn-mt-suggestion-menu-item-body {
+.bn-mt-suggestion-menu-item-body {
   align-items: stretch;
   display: flex;
   flex: 1;
@@ -329,7 +329,7 @@
   padding-right: 16px;
 }
 
-.bn-mantine .bn-mt-suggestion-menu-item-title {
+.bn-mt-suggestion-menu-item-title {
   color: var(--bn-colors-menu-text);
   line-height: 20px;
   font-weight: 500;
@@ -338,7 +338,7 @@
   padding: 0;
 }
 
-.bn-mantine .bn-mt-suggestion-menu-item-subtitle {
+.bn-mt-suggestion-menu-item-subtitle {
   color: var(--bn-colors-menu-text);
   line-height: 16px;
   font-size: 10px;
@@ -365,21 +365,21 @@
   overflow: visible;
 }
 
-.bn-mantine .bn-side-menu .mantine-Menu-item,
-.bn-mantine .bn-table-handle-menu .mantine-Menu-item {
+.bn-side-menu .mantine-Menu-item,
+.bn-table-handle-menu .mantine-Menu-item {
   font-size: 12px;
   height: 30px;
 }
 
-.bn-mantine .bn-side-menu .mantine-UnstyledButton-root:not(.mantine-Menu-item) {
+.bn-side-menu .mantine-UnstyledButton-root:not(.mantine-Menu-item) {
   background-color: transparent;
 }
 
-.bn-mantine .bn-side-menu .mantine-UnstyledButton-root:hover {
+.bn-side-menu .mantine-UnstyledButton-root:hover {
   background-color: var(--bn-colors-hovered-background);
 }
 
-.bn-mantine .bn-side-menu .mantine-UnstyledButton-root:not(.mantine-Menu-item) svg {
+.bn-side-menu .mantine-UnstyledButton-root:not(.mantine-Menu-item) svg {
   background-color: transparent;
   color: var(--bn-colors-side-menu);
   height: 22px;
@@ -390,7 +390,7 @@
   display: flex;
 }
 
-.bn-mantine .bn-side-menu .mantine-Menu-dropdown {
+.bn-side-menu .mantine-Menu-dropdown {
   min-width: 100px;
   padding: 2px;
   position: absolute;
@@ -414,12 +414,12 @@
   width: 100%;
 }
 
-.bn-mantine .bn-panel .mantine-TextInput-root,
-.bn-mantine .bn-panel .mantine-FileInput-root {
+.bn-panel .mantine-TextInput-root,
+.bn-panel .mantine-FileInput-root {
   width: 100%;
 }
 
-.bn-mantine .bn-panel .mantine-Button-root {
+.bn-panel .mantine-Button-root {
   background-color: var(--bn-colors-menu-background);
   border: solid var(--bn-colors-border) 1px;
   border-radius: var(--bn-border-radius-small);
@@ -428,11 +428,11 @@
   width: 60%;
 }
 
-.bn-mantine .bn-panel .mantine-Button-root:hover {
+.bn-panel .mantine-Button-root:hover {
   background-color: var(--bn-colors-hovered-background);
 }
 
-.bn-mantine .bn-panel.mantine-Text-root {
+.bn-panel .mantine-Text-root {
   text-align: center;
 }
 
