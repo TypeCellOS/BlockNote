@@ -18,7 +18,7 @@ export function cleanHTMLToMarkdown(cleanHTMLString: string) {
     .use(addSpacesToCheckboxes)
     .use(rehypeRemark)
     .use(remarkGfm)
-    .use(remarkStringify)
+    .use(remarkStringify, { handlers: { text: (node) => node.value } })
     .processSync(cleanHTMLString);
 
   return markdownString.value as string;

@@ -3,7 +3,7 @@ const dir = __dirname;
 module.exports = {
   darkMode: ["class"],
   content: [dir + "/**/*.{ts,tsx}"],
-  prefix: "",
+  prefix: "bn-",
   theme: {
     container: {
       center: true,
