@@ -146,7 +146,11 @@ function setDragImage(view: EditorView, from: number, to = from) {
   dragImageElement.className =
     dragImageElement.className + " bn-drag-preview " + inheritedClasses;
 
-  view.root.appendChild(dragImageElement);
+  if (view.root instanceof ShadowRoot) {
+    view.root.appendChild(dragImageElement);
+  } else {
+    view.root.body.appendChild(dragImageElement);
+  }
 }
 
 function unsetDragImage(rootEl: Document | ShadowRoot) {

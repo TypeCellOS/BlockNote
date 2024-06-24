@@ -18,7 +18,7 @@ export const PlaceholderPlugin = (
       }
       if (editor._tiptapEditor.view.root instanceof ShadowRoot) {
         editor._tiptapEditor.view.root.append(styleEl);
-      } else if (editor._tiptapEditor.view.root instanceof Document) {
+      } else {
         editor._tiptapEditor.view.root.head.appendChild(styleEl);
       }
 
@@ -69,7 +69,7 @@ export const PlaceholderPlugin = (
         destroy: () => {
           if (editor._tiptapEditor.view.root instanceof ShadowRoot) {
             editor._tiptapEditor.view.root.removeChild(styleEl);
-          } else if (editor._tiptapEditor.view.root instanceof Document) {
+          } else {
             editor._tiptapEditor.view.root.head.removeChild(styleEl);
           }
         },
