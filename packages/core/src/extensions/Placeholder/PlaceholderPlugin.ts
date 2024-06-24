@@ -16,7 +16,12 @@ export const PlaceholderPlugin = (
       if (nonce) {
         styleEl.setAttribute("nonce", nonce);
       }
-      document.head.appendChild(styleEl);
+      if (editor._tiptapEditor.view.root instanceof ShadowRoot) {
+        editor._tiptapEditor.view.root.append(styleEl);
+      } else {
+        editor._tiptapEditor.view.root.head.appendChild(styleEl);
+      }
+
       const styleSheet = styleEl.sheet!;
 
       const getBaseSelector = (additionalSelectors = "") =>
@@ -62,7 +67,11 @@ export const PlaceholderPlugin = (
 
       return {
         destroy: () => {
-          document.head.removeChild(styleEl);
+          if (editor._tiptapEditor.view.root instanceof ShadowRoot) {
+            editor._tiptapEditor.view.root.removeChild(styleEl);
+          } else {
+            editor._tiptapEditor.view.root.head.removeChild(styleEl);
+          }
         },
       };
     },
