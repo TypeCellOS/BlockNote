@@ -73,9 +73,7 @@ export type BlockNoteEditorOptions<
   ISchema extends InlineContentSchema,
   SSchema extends StyleSchema
 > = {
-  // TODO: Figure out if enableBlockNoteExtensions/disableHistoryExtension are needed and document them.
-  enableBlockNoteExtensions: boolean;
-
+  disableExtensions: string[];
   /**
    * A dictionary object containing translations for the editor.
    */
@@ -280,6 +278,7 @@ export class BlockNoteEditor<
       inlineContentSpecs: this.schema.inlineContentSpecs,
       collaboration: newOptions.collaboration,
       trailingBlock: newOptions.trailingBlock,
+      disableExtensions: newOptions.disableExtensions,
     });
 
     const blockNoteUIExtension = Extension.create({
@@ -336,10 +335,10 @@ export class BlockNoteEditor<
       ...blockNoteTipTapOptions,
       ...newOptions._tiptapOptions,
       content: initialContent,
-      extensions:
-        newOptions.enableBlockNoteExtensions === false
-          ? newOptions._tiptapOptions?.extensions || []
-          : [...(newOptions._tiptapOptions?.extensions || []), ...extensions],
+      extensions: [
+        ...(newOptions._tiptapOptions?.extensions || []),
+        ...extensions,
+      ],
       editorProps: {
         ...newOptions._tiptapOptions?.editorProps,
         attributes: {

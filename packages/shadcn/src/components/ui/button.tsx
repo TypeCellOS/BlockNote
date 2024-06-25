@@ -5,25 +5,26 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "../../lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+  "bn-inline-flex bn-items-center bn-justify-center bn-whitespace-nowrap bn-rounded-md bn-text-sm bn-font-medium bn-ring-offset-background bn-transition-colors focus-visible:bn-outline-none focus-visible:bn-ring-2 focus-visible:bn-ring-ring focus-visible:bn-ring-offset-2 disabled:bn-pointer-events-none disabled:bn-opacity-50",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
+        default:
+          "bn-bg-primary bn-text-primary-foreground hover:bn-bg-primary/90",
         destructive:
-          "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+          "bn-bg-destructive bn-text-destructive-foreground hover:bn-bg-destructive/90",
         outline:
-          "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+          "bn-border bn-border-input bn-bg-background hover:bn-bg-accent hover:bn-text-accent-foreground",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
-        link: "text-primary underline-offset-4 hover:underline",
+          "bn-bg-secondary bn-text-secondary-foreground hover:bn-bg-secondary/80",
+        ghost: "hover:bn-bg-accent hover:bn-text-accent-foreground",
+        link: "bn-text-primary bn-underline-offset-4 hover:bn-underline",
       },
       size: {
-        default: "h-10 px-4 py-2",
-        sm: "h-9 rounded-md px-3",
-        lg: "h-11 rounded-md px-8",
-        icon: "h-10 w-10",
+        default: "bn-h-10 bn-px-4 bn-py-2",
+        sm: "bn-h-9 bn-rounded-md bn-px-3",
+        lg: "bn-h-11 bn-rounded-md bn-px-8",
+        icon: "bn-h-10 bn-w-10",
       },
     },
     defaultVariants: {
