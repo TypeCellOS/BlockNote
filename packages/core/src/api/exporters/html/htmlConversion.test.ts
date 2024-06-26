@@ -1,3 +1,4 @@
+import { Fragment } from "prosemirror-model";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
 
@@ -100,4 +101,205 @@ describe("Test HTML conversion", () => {
       }
     });
   }
+});
+
+// Fragments created from ProseMirror selections don't always conform to the
+// schema. This is because ProseMirror preserves the full ancestry of selected
+// nodes, but not the siblings of ancestor nodes. These tests are to verify that
+// Fragments like this are exported to HTML properly, as they can't be created
+// from Block objects like all the other test cases (Block object conversions
+// always conform to the schema).
+describe("Test ProseMirror fragment edge case conversion", () => {
+  let editor: BlockNoteEditor;
+  const div = document.createElement("div");
+  beforeEach(() => {
+    editor = BlockNoteEditor.create();
+    editor.mount(div);
+  });
+
+  afterEach(() => {
+    editor.mount(undefined);
+    editor._tiptapEditor.destroy();
+    editor = undefined as any;
+
+    delete (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS;
+  });
+
+  // When the selection starts in a nested block, the Fragment from it omits the
+  // `blockContent` node of the parent `blockContainer` if it's not also
+  // included in the selection. In the schema, `blockContainer` nodes should
+  // contain a single `blockContent` node, so this edge case needs to be tested.
+  describe("No block content", () => {
+    it("Selection within a block's children", () => {
+      // Fragment created when the selection starts and ends within a block's
+      // children.
+      const copiedFragment = Fragment.from(
+        editor._tiptapEditor.schema.nodes["blockGroup"].create(
+          null,
+          editor._tiptapEditor.schema.nodes["blockContainer"].create(
+            null,
+            editor._tiptapEditor.schema.nodes["blockGroup"].create(null, [
+              editor._tiptapEditor.schema.nodes["blockContainer"].create(
+                null,
+                editor._tiptapEditor.schema.nodes["paragraph"].create(
+                  null,
+                  editor._tiptapEditor.schema.text("Nested Paragraph 1")
+                )
+              ),
+              editor._tiptapEditor.schema.nodes["blockContainer"].create(
+                null,
+                editor._tiptapEditor.schema.nodes["paragraph"].create(
+                  null,
+                  editor._tiptapEditor.schema.text("Nested Paragraph 2")
+                )
+              ),
+              editor._tiptapEditor.schema.nodes["blockContainer"].create(
+                null,
+                editor._tiptapEditor.schema.nodes["paragraph"].create(
+                  null,
+                  editor._tiptapEditor.schema.text("Nested Paragraph 3")
+                )
+              ),
+            ])
+          )
+        )
+      );
+
+      const exporter = createExternalHTMLExporter(
+        editor._tiptapEditor.schema,
+        editor
+      );
+      const externalHTML = exporter.exportProseMirrorFragment(copiedFragment);
+      expect(externalHTML).toMatchFileSnapshot(
+        "./__snapshots_fragment_edge_cases__/" +
+          "selectionWithinBlockChildren.html"
+      );
+    });
+
+    it("Selection leaves a block's children", () => {
+      // Fragment created when the selection starts within a block's children and
+      // ends outside, at a shallower nesting level.
+      const copiedFragment = Fragment.from(
+        editor._tiptapEditor.schema.nodes["blockGroup"].create(null, [
+          editor._tiptapEditor.schema.nodes["blockContainer"].create(
+            null,
+            editor._tiptapEditor.schema.nodes["blockGroup"].create(null, [
+              editor._tiptapEditor.schema.nodes["blockContainer"].create(
+                null,
+                editor._tiptapEditor.schema.nodes["paragraph"].create(
+                  null,
+                  editor._tiptapEditor.schema.text("Nested Paragraph 1")
+                )
+              ),
+              editor._tiptapEditor.schema.nodes["blockContainer"].create(
+                null,
+                editor._tiptapEditor.schema.nodes["paragraph"].create(
+                  null,
+                  editor._tiptapEditor.schema.text("Nested Paragraph 2")
+                )
+              ),
+              editor._tiptapEditor.schema.nodes["blockContainer"].create(
+                null,
+                editor._tiptapEditor.schema.nodes["paragraph"].create(
+                  null,
+                  editor._tiptapEditor.schema.text("Nested Paragraph 3")
+                )
+              ),
+            ])
+          ),
+          editor._tiptapEditor.schema.nodes["blockContainer"].create(
+            null,
+            editor._tiptapEditor.schema.nodes["paragraph"].create(
+              null,
+              editor._tiptapEditor.schema.text("Paragraph 2")
+            )
+          ),
+        ])
+      );
+
+      const exporter = createExternalHTMLExporter(
+        editor._tiptapEditor.schema,
+        editor
+      );
+      const externalHTML = exporter.exportProseMirrorFragment(copiedFragment);
+      expect(externalHTML).toMatchFileSnapshot(
+        "./__snapshots_fragment_edge_cases__/" +
+          "selectionLeavesBlockChildren.html"
+      );
+    });
+
+    it("Selection spans multiple blocks' children", () => {
+      // Fragment created when the selection starts within a block's children
+      // and ends in a different block's children, at the same nesting level.
+      const copiedFragment = Fragment.from(
+        editor._tiptapEditor.schema.nodes["blockGroup"].create(null, [
+          editor._tiptapEditor.schema.nodes["blockContainer"].create(
+            null,
+            editor._tiptapEditor.schema.nodes["blockGroup"].create(null, [
+              editor._tiptapEditor.schema.nodes["blockContainer"].create(
+                null,
+                editor._tiptapEditor.schema.nodes["paragraph"].create(
+                  null,
+                  editor._tiptapEditor.schema.text("Nested Paragraph 1")
+                )
+              ),
+              editor._tiptapEditor.schema.nodes["blockContainer"].create(
+                null,
+                editor._tiptapEditor.schema.nodes["paragraph"].create(
+                  null,
+                  editor._tiptapEditor.schema.text("Nested Paragraph 2")
+                )
+              ),
+              editor._tiptapEditor.schema.nodes["blockContainer"].create(
+                null,
+                editor._tiptapEditor.schema.nodes["paragraph"].create(
+                  null,
+                  editor._tiptapEditor.schema.text("Nested Paragraph 3")
+                )
+              ),
+            ])
+          ),
+          editor._tiptapEditor.schema.nodes["blockContainer"].create(null, [
+            editor._tiptapEditor.schema.nodes["paragraph"].create(
+              null,
+              editor._tiptapEditor.schema.text("Paragraph 2")
+            ),
+            editor._tiptapEditor.schema.nodes["blockGroup"].create(null, [
+              editor._tiptapEditor.schema.nodes["blockContainer"].create(
+                null,
+                editor._tiptapEditor.schema.nodes["paragraph"].create(
+                  null,
+                  editor._tiptapEditor.schema.text("Nested Paragraph 1")
+                )
+              ),
+              editor._tiptapEditor.schema.nodes["blockContainer"].create(
+                null,
+                editor._tiptapEditor.schema.nodes["paragraph"].create(
+                  null,
+                  editor._tiptapEditor.schema.text("Nested Paragraph 1")
+                )
+              ),
+              editor._tiptapEditor.schema.nodes["blockContainer"].create(
+                null,
+                editor._tiptapEditor.schema.nodes["paragraph"].create(
+                  null,
+                  editor._tiptapEditor.schema.text("Nested Paragraph 1")
+                )
+              ),
+            ]),
+          ]),
+        ])
+      );
+
+      const exporter = createExternalHTMLExporter(
+        editor._tiptapEditor.schema,
+        editor
+      );
+      const externalHTML = exporter.exportProseMirrorFragment(copiedFragment);
+      expect(externalHTML).toMatchFileSnapshot(
+        "./__snapshots_fragment_edge_cases__/" +
+          "selectionSpansBlocksChildren.html"
+      );
+    });
+  });
 });
