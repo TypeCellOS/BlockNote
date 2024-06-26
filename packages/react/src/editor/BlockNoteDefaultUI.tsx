@@ -28,14 +28,14 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
 init({ Data })
 
 async function search(value: string) {
-  if(value == ''){
+  if(value === ''){
     //Don't do unnecessary linear search if no search query
     return Object.values(Data.emojis).map((emoji : any)=>(
       emoji.skins[0].native
     ))
   }
   //begin the linear search
-  let emojisToShow = await SearchIndex.search(value);
+  const emojisToShow = await SearchIndex.search(value);
 
   //return the emojis 
   return emojisToShow.map((emoji : any)=>(

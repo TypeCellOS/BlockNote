@@ -74,7 +74,7 @@ export function useSuggestionMenuKeyboardNavigation<Item>(
         true
       );
     };
-  }, [editor.domElement, items, selectedIndex, onItemClick]);
+  }, [editor.domElement, items, selectedIndex, onItemClick, isEmojiMenu]);
 
   // Resets index when items change
   useEffect(() => {
