@@ -113,7 +113,7 @@ export type BlockNoteEditorOptions<
    * @param file The file that should be uploaded.
    * @returns The URL of the uploaded file OR an object containing props that should be set on the file block (such as an id)
    */
-  uploadFile: (file: File) => Promise<string | Record<string, any> | void>;
+  uploadFile: (file: File) => Promise<string | Record<string, any>>;
 
   /**
    * Resolve a URL of a file block to one that can be displayed or downloaded. This can be used for creating authenticated URL or
@@ -199,7 +199,7 @@ export class BlockNoteEditor<
   >;
 
   public readonly uploadFile:
-    | ((file: File) => Promise<string | Record<string, any> | void>)
+    | ((file: File) => Promise<string | Record<string, any>>)
     | undefined;
 
   public readonly resolveFileUrl: (url: string) => Promise<string>;
