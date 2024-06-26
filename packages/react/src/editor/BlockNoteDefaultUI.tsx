@@ -6,7 +6,7 @@ import { SuggestionMenuController } from "../components/SuggestionMenu/Suggestio
 import { TableHandlesController } from "../components/TableHandles/TableHandlesController";
 import { useBlockNoteEditor } from "../hooks/useBlockNoteEditor";
 import EmojiMenu from '../components/SuggestionMenu/emojisMenu.js'
-import { Data, init } from "emoji-mart";
+import { Data, SearchIndex, init } from "emoji-mart";
 
 export type BlockNoteDefaultUIProps = {
   formattingToolbar?: boolean;
@@ -34,22 +34,13 @@ async function search(value: string) {
       emoji.skins[0].native
     ))
   }
-  const emojisToShow : any[] = []
   //begin the linear search
-  Object.values(Data.emojis).forEach((emoji : any)=>{
-    //check for every keyword, until a keyword contains the query
-    for(let a = 0; a < emoji.keywords.length; a++){
-      let keyword = emoji.keywords[a];
-      if(keyword.includes(value)){
-        emojisToShow.push(emoji.skins[0].native);
-        //dont go further if emoji satisfies query
-        break;
-      }
-    }
+  let emojisToShow = await SearchIndex.search(value);
 
-  })
   //return the emojis 
-  return emojisToShow;
+  return emojisToShow.map((emoji : any)=>(
+    emoji.skins[0].native
+  ));
 
 }
 
