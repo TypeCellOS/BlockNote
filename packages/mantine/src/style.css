@@ -235,8 +235,8 @@
 /* Unfortunately necessary, as we can't use a Menu.Dropdown component on its
  own. */
 /* https://github.com/mantinedev/mantine/blob/e3e3bb834de1f2f75a27dbc757dc0a2fc6a6cba8/packages/%40mantine/core/src/components/Menu/Menu.module.css */
-.bn-suggestion-menu {
-  max-height: 10% !important;
+.bn-mantine .bn-suggestion-menu {
+  max-height: 100%;
   position: relative;
   box-shadow: var(--mantine-shadow-md);
   border: calc(0.0625rem * var(--mantine-scale)) solid
