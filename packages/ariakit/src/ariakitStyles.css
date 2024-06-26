@@ -140,7 +140,8 @@ responsible for the majority of the styling. */
     padding-bottom: 7px;
 }
 
-.bn-ak-menu:not(:focus) .bn-ak-menu-item:not(:focus)[aria-expanded="true"] {
+.bn-ak-menu:not(:focus)
+.bn-ak-menu-item:not(:focus)[aria-expanded="true"] {
     background-color: hsl(204 4% 0% / 7.5%);
     color: currentColor;
 }

@@ -49,7 +49,7 @@ export class FilePanelView<I extends InlineContentSchema, S extends StyleSchema>
     // Setting capture=true ensures that any parent container of the editor that
     // gets scrolled will trigger the scroll event. Scroll events do not bubble
     // and so won't propagate to the document by default.
-    document.addEventListener("scroll", this.scrollHandler, true);
+    pmView.root.addEventListener("scroll", this.scrollHandler, true);
   }
 
   mouseDownHandler = () => {
@@ -69,7 +69,7 @@ export class FilePanelView<I extends InlineContentSchema, S extends StyleSchema>
 
   scrollHandler = () => {
     if (this.state?.show) {
-      const blockElement = document.querySelector(
+      const blockElement = this.pmView.root.querySelector(
         `[data-node-type="blockContainer"][data-id="${this.state.block.id}"]`
       )!;
 
@@ -84,7 +84,7 @@ export class FilePanelView<I extends InlineContentSchema, S extends StyleSchema>
     } = this.pluginKey.getState(view.state);
 
     if (!this.state?.show && pluginState.block && this.editor.isEditable) {
-      const blockElement = document.querySelector(
+      const blockElement = this.pmView.root.querySelector(
         `[data-node-type="blockContainer"][data-id="${pluginState.block.id}"]`
       )!;
 
@@ -124,7 +124,7 @@ export class FilePanelView<I extends InlineContentSchema, S extends StyleSchema>
 
     this.pmView.dom.removeEventListener("dragstart", this.dragstartHandler);
 
-    document.removeEventListener("scroll", this.scrollHandler, true);
+    this.pmView.root.removeEventListener("scroll", this.scrollHandler, true);
   }
 }
 

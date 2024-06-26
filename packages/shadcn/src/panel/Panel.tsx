@@ -25,7 +25,7 @@ export const Panel = forwardRef<
 
   return (
     <ShadCNComponents.Tabs.Tabs
-      className={cn(className, "bg-popover p-2 rounded-lg")}
+      className={cn(className, "bn-bg-popover bn-p-2 bn-rounded-lg")}
       ref={ref}
       value={openTab}
       defaultValue={defaultOpenTab}
@@ -43,7 +43,7 @@ export const Panel = forwardRef<
       {tabs.map((tab) => (
         <ShadCNComponents.Tabs.TabsContent value={tab.name} key={tab.name}>
           <ShadCNComponents.Card.Card>
-            <ShadCNComponents.Card.CardContent className={"p-4"}>
+            <ShadCNComponents.Card.CardContent className={"bn-p-4"}>
               {tab.tabPanel}
             </ShadCNComponents.Card.CardContent>
           </ShadCNComponents.Card.Card>
