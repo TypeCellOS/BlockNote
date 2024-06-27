@@ -62,7 +62,7 @@ export class FormattingToolbarView implements PluginView {
     // Setting capture=true ensures that any parent container of the editor that
     // gets scrolled will trigger the scroll event. Scroll events do not bubble
     // and so won't propagate to the document by default.
-    document.addEventListener("scroll", this.scrollHandler, true);
+    pmView.root.addEventListener("scroll", this.scrollHandler, true);
   }
 
   viewMousedownHandler = () => {
@@ -147,7 +147,7 @@ export class FormattingToolbarView implements PluginView {
     this.pmView.dom.removeEventListener("dragstart", this.dragHandler);
     this.pmView.dom.removeEventListener("dragover", this.dragHandler);
 
-    document.removeEventListener("scroll", this.scrollHandler, true);
+    this.pmView.root.removeEventListener("scroll", this.scrollHandler, true);
   }
 
   closeMenu = () => {

@@ -61,12 +61,16 @@ class LinkToolbarView implements PluginView {
     };
 
     this.pmView.dom.addEventListener("mouseover", this.mouseOverHandler);
-    document.addEventListener("click", this.clickHandler, true);
+    this.pmView.root.addEventListener(
+      "click",
+      this.clickHandler as EventListener,
+      true
+    );
 
     // Setting capture=true ensures that any parent container of the editor that
     // gets scrolled will trigger the scroll event. Scroll events do not bubble
     // and so won't propagate to the document by default.
-    document.addEventListener("scroll", this.scrollHandler, true);
+    this.pmView.root.addEventListener("scroll", this.scrollHandler, true);
   }
 
   mouseOverHandler = (event: MouseEvent) => {
@@ -271,8 +275,12 @@ class LinkToolbarView implements PluginView {
 
   destroy() {
     this.pmView.dom.removeEventListener("mouseover", this.mouseOverHandler);
-    document.removeEventListener("scroll", this.scrollHandler, true);
-    document.removeEventListener("click", this.clickHandler, true);
+    this.pmView.root.removeEventListener("scroll", this.scrollHandler, true);
+    this.pmView.root.removeEventListener(
+      "click",
+      this.clickHandler as EventListener,
+      true
+    );
   }
 }
 
