@@ -15,6 +15,7 @@ export type BlockNoteDefaultUIProps = {
   sideMenu?: boolean;
   filePanel?: boolean;
   tableHandles?: boolean;
+  emojiPicker?: boolean
 };
 
 export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
@@ -52,29 +53,31 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
       {props.formattingToolbar !== false && <FormattingToolbarController />}
       {props.linkToolbar !== false && <LinkToolbarController />}
       {props.slashMenu !== false && (
-        <>
           <SuggestionMenuController triggerCharacter="/" />
-          <SuggestionMenuController
-            triggerCharacter={":"}
-            grid={true}
-            suggestionMenuComponent={EmojiMenu}
-            getItems={emojiChangeHandler}
-            onItemClick={(item) =>
-          {
-            editor.insertInlineContent([
-              {
-                type: 'emoji',
-                props: {
-                  emoji: item
-                }
-              }, " "
-            ])
-          
-          }
-            }
-          />
-        </>
       )}
+      {
+        props.emojiPicker !== false && (
+          <SuggestionMenuController
+          triggerCharacter={":"}
+          grid={true}
+          suggestionMenuComponent={EmojiMenu}
+          getItems={emojiChangeHandler}
+          onItemClick={(item) =>
+        {
+          editor.insertInlineContent([
+            {
+              type: 'emoji',
+              props: {
+                emoji: item
+              }
+            }, " "
+          ])
+        
+        }
+          }
+        />
+        )
+      }
       {props.sideMenu !== false && <SideMenuController />}
       {editor.filePanel && props.filePanel !== false && <FilePanelController />}
       {editor.tableHandles && props.tableHandles !== false && (
