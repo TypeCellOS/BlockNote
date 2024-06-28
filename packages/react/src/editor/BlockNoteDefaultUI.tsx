@@ -60,18 +60,17 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
             suggestionMenuComponent={EmojiMenu}
             getItems={emojiChangeHandler}
             onItemClick={(item) =>
-              editor.insertInlineContent([
-                {
-                  type: "emoji",
-                  props: {
-                    emoji: item as any,
-                  },
-                },
-                {
-                  type: "text",
-                  text: " ",
-                },
-              ])
+          {
+            editor.insertInlineContent([
+              {
+                type: 'emoji',
+                props: {
+                  emoji: item
+                }
+              }, " "
+            ])
+          
+          }
             }
           />
         </>
