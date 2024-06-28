@@ -1,4 +1,6 @@
 import { Block, PartialBlock } from "../../blocks/defaultBlocks";
+import { suggestionMenuPluginKey } from "../SuggestionMenu/SuggestionPlugin";
+
 import { checkDefaultBlockTypeInSchema } from "../../blocks/defaultBlockTypeGuards";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import {
@@ -79,6 +81,8 @@ export function getDefaultSlashMenuItems<
   S extends StyleSchema
 >(editor: BlockNoteEditor<BSchema, I, S>) {
   const items: DefaultSuggestionItem[] = [];
+
+  
 
   if (checkDefaultBlockTypeInSchema("heading", editor)) {
     items.push(
@@ -269,6 +273,22 @@ export function getDefaultSlashMenuItems<
       ...editor.dictionary.slash_menu.file,
     });
   }
+
+  items.push({
+    onItemClick: () => {
+      editor.prosemirrorView.focus();
+      editor.prosemirrorView.dispatch(
+        editor.prosemirrorView.state.tr
+          .scrollIntoView()
+          .setMeta(suggestionMenuPluginKey, {
+            triggerCharacter: ":",
+            fromUserInput: false,
+          })
+      );
+    },
+    key: "emoji",
+    ...editor.dictionary.slash_menu.emoji,
+  })
 
   return items;
 }

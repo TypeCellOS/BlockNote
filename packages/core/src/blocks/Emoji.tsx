@@ -7,7 +7,7 @@ export const Emoji = createInlineContentSpec(
     type: "emoji",
     propSchema: {
       emoji: {
-        default: "Unknown",
+        default: "",
       },
     },
     content: "none",

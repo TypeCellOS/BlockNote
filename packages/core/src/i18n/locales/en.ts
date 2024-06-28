@@ -104,6 +104,12 @@ export const en = {
       aliases: ["file", "upload", "embed", "media", "url"],
       group: "Media",
     },
+    emoji: {
+      title: "Emoji",
+      subtext: "Used for inserting an emoji",
+      aliases: ["emoji", "emote", "emotion", "face"],
+      group: "Others",
+    },
   },
   placeholders: {
     default: "Enter text or type '/' for commands",
