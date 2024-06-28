@@ -131,6 +131,12 @@ export const ar: Dictionary = {
       aliases: ["file", "upload", "embed", "media", "url", "ملف", "رفع"],
       group: "الوسائط",
     },
+    emoji: {
+      title: "الرموز التعبيرية",
+      subtext: "تُستخدم لإدراج رمز تعبيري",
+      aliases: ["رمز تعبيري", "إيموجي", "إيموت", "عاطفة", "وجه"],
+      group: "آخرون",
+    },
   },
   placeholders: {
     default: "أدخل النص أو اكتب '/' للأوامر",

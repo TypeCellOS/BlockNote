@@ -68,7 +68,7 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
             {
               type: 'emoji',
               props: {
-                emoji: item
+                emoji: item as any
               }
             }, " "
           ])

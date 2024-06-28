@@ -100,6 +100,13 @@ export const nl: Dictionary = {
       aliases: ["bestand", "upload", "insluiten", "media", "url"],
       group: "Media",
     },
+    emoji: {
+      title: "Emoji",
+      subtext: "Gebruikt voor het invoegen van een emoji",
+      aliases: ["emoji", "emotie-uitdrukking", "gezichtsuitdrukking", "gezicht"],
+      group: "Overig",
+    },
+    
   },
   placeholders: {
     default: "Voer tekst in of type '/' voor commando's",

@@ -97,6 +97,13 @@ export const vi: Dictionary = {
       aliases: ["tep", "tai-len", "nhung", "media", "url"],
       group: "Phương tiện",
     },
+    emoji: {
+      title: "Biểu tượng cảm xúc",
+      subtext: "Dùng để chèn biểu tượng cảm xúc",
+      aliases: ["biểu tượng cảm xúc", "emoji", "emoticon", "cảm xúc expression", "khuôn mặt", "face"],
+      group: "Khác",
+    },
+    
   },
   placeholders: {
     default: "Nhập văn bản hoặc gõ '/' để thêm định dạng",

@@ -90,6 +90,13 @@ export const pl: Dictionary = {
       aliases: ["plik", "wrzuć", "wstaw", "media", "url"],
       group: "Media",
     },
+    emoji: {
+      title: "Emoji",
+      subtext: "Używane do wstawiania emoji",
+      aliases: ["emoji", "emotka", "wyrażenie emocji", "twarz"],
+      group: "Inne",
+    },
+    
   },
   placeholders: {
     default: "Wprowadź tekst lub wpisz '/' aby użyć poleceń",
