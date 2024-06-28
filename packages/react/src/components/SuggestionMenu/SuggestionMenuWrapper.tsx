@@ -4,6 +4,7 @@ import { FC, useCallback, useEffect } from "react";
 import { useBlockNoteContext } from "../../editor/BlockNoteContext";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor";
 import { useCloseSuggestionMenuNoItems } from "./hooks/useCloseSuggestionMenuNoItems";
+import { useGridSuggestionMenuKeyboardNavigation } from "./hooks/useGridSuggestionMenuKeyboardNavigation";
 import { useLoadSuggestionMenuItems } from "./hooks/useLoadSuggestionMenuItems";
 import { useSuggestionMenuKeyboardNavigation } from "./hooks/useSuggestionMenuKeyboardNavigation";
 import { SuggestionMenuProps } from "./types";
@@ -13,9 +14,9 @@ export function SuggestionMenuWrapper<Item>(props: {
   closeMenu: () => void;
   clearQuery: () => void;
   getItems: (query: string) => Promise<Item[]>;
+  grid?: boolean;
   onItemClick?: (item: Item) => void;
   suggestionMenuComponent: FC<SuggestionMenuProps<Item>>;
-  isEmoji: boolean
 }) {
   const ctx = useBlockNoteContext();
   const setContentEditableProps = ctx!.setContentEditableProps!;
@@ -25,23 +26,6 @@ export function SuggestionMenuWrapper<Item>(props: {
     StyleSchema
   >();
 
-  const emojiInsert = (item : never) => {
-    //STEP 3: handle onclick, this function is called whenever an emoji is clicked or enter key is pressed on an emoji
-    //I had to make it never since it's not supporting any other type under the hood
-      clearQuery()
-      editor.insertInlineContent([
-          {
-            //call the inlinecontent of type of emoji declared in defaultBlocks.ts
-            type: "emoji",
-            props: {
-              //pass the emoji as a prop so it can be inserted in the text
-              emoji : item
-            },
-          },
-          " ", // add a space after the emoji
-        ]);
-  }
-
   const {
     getItems,
     suggestionMenuComponent,
@@ -49,7 +33,7 @@ export function SuggestionMenuWrapper<Item>(props: {
     clearQuery,
     closeMenu,
     onItemClick,
-    isEmoji
+    grid,
   } = props;
 
   const onItemClickCloseMenu = useCallback(
@@ -68,12 +52,15 @@ export function SuggestionMenuWrapper<Item>(props: {
 
   useCloseSuggestionMenuNoItems(items, usedQuery, closeMenu);
 
-  const { selectedIndex } = useSuggestionMenuKeyboardNavigation(
+  const useKeyboardNavigation = grid
+    ? useGridSuggestionMenuKeyboardNavigation
+    : useSuggestionMenuKeyboardNavigation;
+
+  const { selectedIndex } = useKeyboardNavigation(
     editor,
     query,
     items,
-    isEmoji,
-    isEmoji ? emojiInsert : onItemClickCloseMenu,
+    onItemClickCloseMenu
   );
 
   // set basic aria attributes when the menu is open
@@ -113,7 +100,6 @@ export function SuggestionMenuWrapper<Item>(props: {
   return (
     <Component
       items={items}
-      emojiInsert={emojiInsert}
       onItemClick={onItemClickCloseMenu}
       loadingState={loadingState}
       selectedIndex={selectedIndex}
