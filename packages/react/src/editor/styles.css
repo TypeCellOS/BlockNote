@@ -241,7 +241,7 @@
 }
 
 /* styles for the emoji menu */
-.bn-emoji-menu{
+.bn-grid-suggestion-menu{
   display: grid;
   justify-items: center;
   gap: 7;
@@ -254,7 +254,7 @@
   box-shadow: var(--bn-shadow-medium);
 }
 
-.bn-emoji-menu p{
+.bn-grid-suggestion-menu p{
   border-radius: var(--bn-border-radius-large);
   padding: 4px;
   margin: 2px;
@@ -262,7 +262,7 @@
   cursor: pointer;
 }
 
-.emoji-selected{
+.grid-item-selected{
   background: var(--bn-colors-selected-background);
 }
 

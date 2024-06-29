@@ -3,7 +3,7 @@ import { LinkToolbarController } from "../components/LinkToolbar/LinkToolbarCont
 import { FilePanelController } from "../components/FilePanel/FilePanelController";
 import { SideMenuController } from "../components/SideMenu/SideMenuController";
 import { SuggestionMenuController } from "../components/SuggestionMenu/SuggestionMenuController";
-import EmojiMenu from "../components/SuggestionMenu/emojisMenu.js";
+import GridSuggestionMenu from "../components/SuggestionMenu/gridSuggestionMenu.js";
 import { TableHandlesController } from "../components/TableHandles/TableHandlesController";
 import { useBlockNoteEditor } from "../hooks/useBlockNoteEditor";
 import { Data, SearchIndex, init } from "emoji-mart";
@@ -60,7 +60,7 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
           <SuggestionMenuController
           triggerCharacter={":"}
           grid={true}
-          suggestionMenuComponent={EmojiMenu}
+          suggestionMenuComponent={GridSuggestionMenu}
           getItems={emojiChangeHandler}
           onItemClick={(item) =>
         {
