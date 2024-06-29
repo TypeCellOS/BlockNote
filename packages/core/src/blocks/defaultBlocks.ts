@@ -30,7 +30,7 @@ import { FileBlock } from "./FileBlockContent/FileBlockContent";
 import { ImageBlock } from "./ImageBlockContent/ImageBlockContent";
 import { VideoBlock } from "./VideoBlockContent/VideoBlockContent";
 import { AudioBlock } from "./AudioBlockContent/AudioBlockContent";
-import { Emoji } from "./Emoji";
+import { Emoji } from "../inlineContent/emojiInlineContent/Emoji";
 
 export const defaultBlockSpecs = {
   paragraph: Paragraph,

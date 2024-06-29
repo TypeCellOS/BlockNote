@@ -1,4 +1,4 @@
-import { createInlineContentSpec } from "../schema";
+import { createInlineContentSpec } from "../../schema";
  
 
 export const Emoji = createInlineContentSpec(
