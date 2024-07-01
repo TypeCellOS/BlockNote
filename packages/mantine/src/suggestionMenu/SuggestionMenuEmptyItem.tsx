@@ -14,7 +14,7 @@ export const SuggestionMenuEmptyItem = forwardRef<
 
   return (
     <MantineGroup className={className} ref={ref}>
-      <MantineGroup className="bn-mt-suggestion-menu-item-label">
+      <MantineGroup className="bn-mt-suggestion-menu-item-title">
         {children}
       </MantineGroup>
     </MantineGroup>

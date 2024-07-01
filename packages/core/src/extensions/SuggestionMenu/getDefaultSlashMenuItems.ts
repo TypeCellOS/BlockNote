@@ -1,6 +1,6 @@
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import { Block, PartialBlock } from "../../blocks/defaultBlocks";
 import { checkDefaultBlockTypeInSchema } from "../../blocks/defaultBlockTypeGuards";
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import {
   BlockSchema,
   InlineContentSchema,

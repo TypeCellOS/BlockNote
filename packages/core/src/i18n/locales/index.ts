@@ -1,3 +1,4 @@
+export * from "./ar";
 export * from "./en";
 export * from "./fr";
 export * from "./is";
@@ -8,3 +9,4 @@ export * from "./pl";
 export * from "./pt";
 export * from "./vi";
 export * from "./zh";
+export * from "./ru";

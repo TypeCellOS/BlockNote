@@ -1,6 +1,6 @@
 import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
-import { ComponentProps } from "@blocknote/react";
-import { forwardRef } from "react";
+import { ComponentProps, elementOverflow, mergeRefs } from "@blocknote/react";
+import { forwardRef, useEffect, useRef } from "react";
 
 export const SuggestionMenuItem = forwardRef<
   HTMLDivElement,
@@ -10,10 +10,26 @@ export const SuggestionMenuItem = forwardRef<
 
   assertEmpty(rest);
 
+  const itemRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!itemRef.current || !isSelected) {
+      return;
+    }
+
+    const overflow = elementOverflow(itemRef.current);
+
+    if (overflow === "top") {
+      itemRef.current.scrollIntoView(true);
+    } else if (overflow === "bottom") {
+      itemRef.current.scrollIntoView(false);
+    }
+  }, [isSelected]);
+
   return (
     <div
       className={mergeCSSClasses("bn-ak-menu-item", className || "")}
-      ref={ref}
+      ref={mergeRefs([ref, itemRef])}
       id={id}
       onClick={onClick}
       role="option"

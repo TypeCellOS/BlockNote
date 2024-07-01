@@ -1,4 +1,9 @@
-import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
+import {
+  BlockSchema,
+  InlineContentSchema,
+  mergeCSSClasses,
+  StyleSchema,
+} from "@blocknote/core";
 import {
   BlockNoteViewRaw,
   Components,
@@ -7,7 +12,7 @@ import {
 } from "@blocknote/react";
 import { MantineProvider } from "@mantine/core";
 import { ComponentProps, useCallback } from "react";
-import usePrefersColorScheme from "use-prefers-color-scheme";
+import { usePrefersColorScheme } from "use-prefers-color-scheme";
 
 import {
   Theme,
@@ -122,7 +127,7 @@ export const BlockNoteView = <
         };
   }
 ) => {
-  const { theme, ...rest } = props;
+  const { className, theme, ...rest } = props;
 
   const existingContext = useBlockNoteContext();
   const systemColorScheme = usePrefersColorScheme();
@@ -160,12 +165,13 @@ export const BlockNoteView = <
       {/* as proposed here:  https://github.com/orgs/mantinedev/discussions/5685 */}
       <MantineProvider
         theme={mantineTheme}
-        cssVariablesSelector=".bn-container"
+        cssVariablesSelector=".bn-mantine"
         // This gets the element to set `data-mantine-color-scheme` on. Since we
         // don't need this attribute (we use our own theming API), we return
         // undefined here.
         getRootElement={() => undefined}>
         <BlockNoteViewRaw
+          className={mergeCSSClasses("bn-mantine", className || "")}
           theme={typeof theme === "object" ? undefined : theme}
           {...rest}
           ref={ref}

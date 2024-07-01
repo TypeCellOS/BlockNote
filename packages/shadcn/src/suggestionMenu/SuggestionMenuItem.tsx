@@ -1,6 +1,6 @@
 import { assertEmpty } from "@blocknote/core";
-import { ComponentProps } from "@blocknote/react";
-import { forwardRef } from "react";
+import { ComponentProps, elementOverflow, mergeRefs } from "@blocknote/react";
+import { forwardRef, useEffect, useRef } from "react";
 
 import { cn } from "../lib/utils";
 import { useShadCNComponentsContext } from "../ShadCNComponentsContext";
@@ -15,29 +15,45 @@ export const SuggestionMenuItem = forwardRef<
 
   assertEmpty(rest);
 
+  const itemRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!itemRef.current || !isSelected) {
+      return;
+    }
+
+    const overflow = elementOverflow(itemRef.current);
+
+    if (overflow === "top") {
+      itemRef.current.scrollIntoView(true);
+    } else if (overflow === "bottom") {
+      itemRef.current.scrollIntoView(false);
+    }
+  }, [isSelected]);
+
   return (
     <div
       // Styles from ShadCN DropdownMenuItem component
       className={cn(
-        "relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+        "bn-relative bn-flex bn-cursor-pointer bn-select-none bn-items-center bn-rounded-sm bn-px-2 bn-py-1.5 bn-text-sm bn-outline-none bn-transition-colors focus:bn-bg-accent focus:bn-text-accent-foreground data-[disabled]:bn-pointer-events-none data-[disabled]:bn-opacity-50",
         className
       )}
-      ref={ref}
+      ref={mergeRefs([ref, itemRef])}
       id={id}
       onClick={onClick}
       role="option"
       aria-selected={isSelected || undefined}>
       {item.icon && (
-        <div className="p-3" data-position="left">
+        <div className="bn-p-3" data-position="left">
           {item.icon}
         </div>
       )}
-      <div className="flex-1">
-        <div className="text-base">{item.title}</div>
-        <div className="text-xs">{item.subtext}</div>
+      <div className="bn-flex-1">
+        <div className="bn-text-base">{item.title}</div>
+        <div className="bn-text-xs">{item.subtext}</div>
       </div>
       {item.badge && (
-        <div data-position="right" className="text-xs">
+        <div data-position="right" className="bn-text-xs">
           <ShadCNComponents.Badge.Badge variant={"secondary"}>
             {item.badge}
           </ShadCNComponents.Badge.Badge>

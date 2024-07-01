@@ -15,7 +15,7 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import usePrefersColorScheme from "use-prefers-color-scheme";
+import { usePrefersColorScheme } from "use-prefers-color-scheme";
 import { useEditorChange } from "../hooks/useEditorChange";
 import { useEditorSelectionChange } from "../hooks/useEditorSelectionChange";
 import { BlockNoteContext, useBlockNoteContext } from "./BlockNoteContext";
