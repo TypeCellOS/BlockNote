@@ -50,6 +50,7 @@ export const getBlockNoteExtensions = <
     user: {
       name: string;
       color: string;
+      [key: string]: string;
     };
     provider: any;
     renderCursor?: (user: any) => HTMLElement;
