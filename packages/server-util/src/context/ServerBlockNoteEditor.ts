@@ -8,6 +8,7 @@ import {
   DefaultStyleSchema,
   InlineContentSchema,
   StyleSchema,
+  blockToNode,
   blocksToMarkdown,
   createExternalHTMLExporter,
   createInternalHTMLSerializer,
@@ -16,8 +17,12 @@ import {
 
 import { Node } from "@tiptap/pm/model";
 import * as jsdom from "jsdom";
-import { yXmlFragmentToProseMirrorRootNode } from "y-prosemirror";
-import * as Y from "yjs";
+import {
+  prosemirrorToYDoc,
+  prosemirrorToYXmlFragment,
+  yXmlFragmentToProseMirrorRootNode,
+} from "y-prosemirror";
+import type * as Y from "yjs";
 
 // TODO: naming, what's a good name for this?
 export class ServerBlockNoteEditor<
@@ -50,6 +55,9 @@ export class ServerBlockNoteEditor<
     const prevDocument = globalThis.document;
     globalThis.document = this.jsdom.window.document;
     (globalThis as any).window = this.jsdom.window;
+    (globalThis as any).window.__TEST_OPTIONS = (
+      prevWindow as any
+    )?.__TEST_OPTIONS;
     try {
       return fn();
     } finally {
@@ -77,12 +85,14 @@ export class ServerBlockNoteEditor<
     });
   }
 
+  /** PROSEMIRROR / BLOCKNOTE conversions */
+
   /**
    * Turn Prosemirror JSON to BlockNote style JSON
    * @param json Prosemirror JSON
    * @returns BlockNote style JSON
    */
-  public prosemirrorNodeToBlocks(pmNode: Node) {
+  public _prosemirrorNodeToBlocks(pmNode: Node) {
     const blocks: Block<BSchema, InlineContentSchema, StyleSchema>[] = [];
 
     // note, this code is similar to editor.document
@@ -107,11 +117,62 @@ export class ServerBlockNoteEditor<
    * @param json Prosemirror JSON
    * @returns BlockNote style JSON
    */
-  public prosemirrorJSONToBlocks(json: any) {
+  public _prosemirrorJSONToBlocks(json: any) {
     // note: theoretically this should also be possible without creating prosemirror nodes,
     // but this is definitely the easiest way
     const doc = this.editor.pmSchema.nodeFromJSON(json);
-    return this.prosemirrorNodeToBlocks(doc);
+    return this._prosemirrorNodeToBlocks(doc);
+  }
+
+  /**
+   * Turn BlockNote JSON to Prosemirror node / state
+   * @param blocks BlockNote blocks
+   * @returns Prosemirror root node
+   */
+  public _blocksToProsemirrorNode(blocks: Block<BSchema, ISchema, SSchema>[]) {
+    const pmNodes = blocks.map((b) =>
+      blockToNode(b, this.editor.pmSchema, this.editor.schema.styleSchema)
+    );
+
+    const doc = this.editor.pmSchema.topNodeType.create(
+      null,
+      this.editor.pmSchema.nodes["blockGroup"].create(null, pmNodes)
+    );
+    return doc;
+  }
+
+  /** YJS / BLOCKNOTE conversions */
+
+  /**
+   * Turn a Y.XmlFragment collaborative doc into a BlockNote document (BlockNote style JSON of all blocks)
+   * @returns BlockNote document (BlockNote style JSON of all blocks)
+   */
+  public yXmlFragmentToBlocks(xmlFragment: Y.XmlFragment) {
+    const pmNode = yXmlFragmentToProseMirrorRootNode(
+      xmlFragment,
+      this.editor.pmSchema
+    );
+    return this._prosemirrorNodeToBlocks(pmNode);
+  }
+
+  /**
+   * Convert blocks to a Y.XmlFragment
+   *
+   * This can be used when importing existing content to Y.Doc for the first time,
+   * note that this should not be used to rehydrate a Y.Doc from a database once
+   * collaboration has begun as all history will be lost
+   *
+   * @param blocks the blocks to convert
+   * @returns Y.XmlFragment
+   */
+  public blocksToYXmlFragment(
+    blocks: Block<BSchema, ISchema, SSchema>[],
+    xmlFragment?: Y.XmlFragment
+  ) {
+    return prosemirrorToYXmlFragment(
+      this._blocksToProsemirrorNode(blocks),
+      xmlFragment
+    );
   }
 
   /**
@@ -123,16 +184,23 @@ export class ServerBlockNoteEditor<
   }
 
   /**
-   * Turn a Y.XmlFragment collaborative doc into a BlockNote document (BlockNote style JSON of all blocks)
-   * @returns BlockNote document (BlockNote style JSON of all blocks)
+   * This can be used when importing existing content to Y.Doc for the first time,
+   * note that this should not be used to rehydrate a Y.Doc from a database once
+   * collaboration has begun as all history will be lost
+   *
+   * @param blocks
    */
-  public yXmlFragmentToBlocks(xmlFragment: Y.XmlFragment) {
-    const pmNode = yXmlFragmentToProseMirrorRootNode(
-      xmlFragment,
-      this.editor.pmSchema
+  public blocksToYDoc(
+    blocks: Block<BSchema, ISchema, SSchema>[],
+    xmlFragment = "prosemirror"
+  ) {
+    return prosemirrorToYDoc(
+      this._blocksToProsemirrorNode(blocks),
+      xmlFragment
     );
-    return this.prosemirrorNodeToBlocks(pmNode);
   }
+
+  /** HTML / BLOCKNOTE conversions */
 
   /**
    * Serializes blocks into an HTML string. To better conform to HTML standards, children of blocks which aren't list
@@ -186,8 +254,12 @@ export class ServerBlockNoteEditor<
   public async tryParseHTMLToBlocks(
     html: string
   ): Promise<Block<BSchema, ISchema, SSchema>[]> {
-    return this.editor.tryParseHTMLToBlocks(html);
+    return this.withJSDOM(() => {
+      return this.editor.tryParseHTMLToBlocks(html);
+    });
   }
+
+  /** MARKDOWN / BLOCKNOTE conversions */
 
   /**
    * Serializes blocks into a Markdown string. The output is simplified as Markdown does not support all features of
@@ -215,6 +287,8 @@ export class ServerBlockNoteEditor<
   public async tryParseMarkdownToBlocks(
     markdown: string
   ): Promise<Block<BSchema, ISchema, SSchema>[]> {
-    return this.editor.tryParseMarkdownToBlocks(markdown);
+    return this.withJSDOM(() => {
+      return this.editor.tryParseMarkdownToBlocks(markdown);
+    });
   }
 }

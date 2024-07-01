@@ -8,6 +8,9 @@ const deps = Object.keys(pkg.dependencies);
 
 // https://vitejs.dev/config/
 export default defineConfig((conf) => ({
+  test: {
+    setupFiles: ["./vitestSetup.ts"],
+  },
   plugins: [webpackStats() as any],
   // used so that vitest resolves the core package from the sources instead of the built version
   resolve: {

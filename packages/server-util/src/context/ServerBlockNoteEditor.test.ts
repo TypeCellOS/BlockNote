@@ -1,5 +1,6 @@
 import { Block } from "@blocknote/core";
 import { describe, expect, it } from "vitest";
+import * as Y from "yjs";
 import { ServerBlockNoteEditor } from "./ServerBlockNoteEditor";
 
 describe("Test ServerBlockNoteEditor", () => {
@@ -71,18 +72,47 @@ describe("Test ServerBlockNoteEditor", () => {
     },
   ];
 
-  it("blocksToHTMLLossy", async () => {
+  it("converts to and from prosemirror (doc)", async () => {
+    const node = await editor._blocksToProsemirrorNode(blocks);
+    const blockOutput = await editor._prosemirrorNodeToBlocks(node);
+    expect(blockOutput).toEqual(blocks);
+  });
+
+  it("converts to and from yjs (doc)", async () => {
+    const ydoc = await editor.blocksToYDoc(blocks);
+    const blockOutput = await editor.yDocToBlocks(ydoc);
+    expect(blockOutput).toEqual(blocks);
+  });
+
+  it("converts to and from yjs (fragment)", async () => {
+    const fragment = await editor.blocksToYXmlFragment(blocks);
+
+    // fragment needs to be part of a Y.Doc before we can use other operations on it
+    const doc = new Y.Doc();
+    doc.getMap().set("prosemirror", fragment);
+
+    const blockOutput = await editor.yXmlFragmentToBlocks(fragment);
+    expect(blockOutput).toEqual(blocks);
+  });
+
+  it("converts to and from HTML (blocksToHTMLLossy)", async () => {
     const html = await editor.blocksToHTMLLossy(blocks);
     expect(html).toMatchSnapshot();
+
+    const blockOutput = await editor.tryParseHTMLToBlocks(html);
+    expect(blockOutput).toMatchSnapshot();
   });
 
-  it("blocksToMarkdownLossy", async () => {
-    const md = await editor.blocksToMarkdownLossy(blocks);
-    expect(md).toMatchSnapshot();
-  });
-
-  it("blocksToBlockNoteStyleHTML", async () => {
+  it("converts to HTML (blocksToBlockNoteStyleHTML)", async () => {
     const html = await editor.blocksToBlockNoteStyleHTML(blocks);
     expect(html).toMatchSnapshot();
+  });
+
+  it("converts to and from markdown (blocksToMarkdownLossy)", async () => {
+    const md = await editor.blocksToMarkdownLossy(blocks);
+    expect(md).toMatchSnapshot();
+
+    const blockOutput = await editor.tryParseMarkdownToBlocks(md);
+    expect(blockOutput).toMatchSnapshot();
   });
 });
