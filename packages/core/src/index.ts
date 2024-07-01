@@ -33,6 +33,7 @@ export * from "./api/nodeConversions/nodeConversions";
 export * from "./api/testUtil/partialBlockTestUtil";
 export * from "./extensions/UniqueID/UniqueID";
 export * from "./i18n/dictionary";
+export * from "./pm-nodes";
 export { UnreachableCaseError, assertEmpty } from "./util/typescript";
 export { locales };
 export { parseImageElement } from "./blocks/ImageBlockContent/imageBlockHelpers";

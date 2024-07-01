@@ -148,7 +148,7 @@ export type BlockNoteEditorOptions<
   };
 
   // tiptap options, undocumented
-  _tiptapOptions: Partial<EditorOptions>;
+  _tiptapOptions: Partial<EditorOptions> | ((editor: BlockNoteEditor<BSchema, ISchema, SSchema>) => Partial<EditorOptions>);
 
   trailingBlock?: boolean;
 };
@@ -331,18 +331,21 @@ export class BlockNoteEditor<
       );
     }
 
+    const tiptapOptionParams = typeof newOptions._tiptapOptions === 'function' ? newOptions._tiptapOptions(this) : newOptions._tiptapOptions;
+
+
     const tiptapOptions: BlockNoteTipTapEditorOptions = {
       ...blockNoteTipTapOptions,
       ...newOptions._tiptapOptions,
       content: initialContent,
       extensions: [
-        ...(newOptions._tiptapOptions?.extensions || []),
+        ...(tiptapOptionParams?.extensions || []),
         ...extensions,
       ],
       editorProps: {
-        ...newOptions._tiptapOptions?.editorProps,
+        ...tiptapOptionParams?.editorProps,
         attributes: {
-          ...newOptions._tiptapOptions?.editorProps?.attributes,
+          ...tiptapOptionParams?.editorProps?.attributes,
           ...newOptions.domAttributes?.editor,
           class: mergeCSSClasses(
             "bn-editor",
