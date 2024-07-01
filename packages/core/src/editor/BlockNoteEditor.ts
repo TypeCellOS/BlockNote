@@ -370,7 +370,7 @@ export class BlockNoteEditor<
       ) as BlockNoteTipTapEditor & {
         contentComponent: any;
       };
-      this._pmSchema = this.pmSchema;
+      this._pmSchema = this._tiptapEditor.schema;
     } else {
       this._pmSchema = getSchema(tiptapOptions.extensions!);
     }
