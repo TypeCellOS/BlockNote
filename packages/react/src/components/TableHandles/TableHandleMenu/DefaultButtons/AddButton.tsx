@@ -31,7 +31,9 @@ export const AddRowButton = <
     <Components.Generic.Menu.Item
       onClick={() => {
         const emptyCol = props.block.content.rows[props.index].cells.map(
-          () => []
+          () => ({
+            content: [],
+          })
         );
         const rows = [...props.block.content.rows];
         rows.splice(props.index + (props.side === "below" ? 1 : 0), 0, {
@@ -73,7 +75,9 @@ export const AddColumnButton = <
           type: "tableContent",
           rows: props.block.content.rows.map((row) => {
             const cells = [...row.cells];
-            cells.splice(props.index + (props.side === "right" ? 1 : 0), 0, []);
+            cells.splice(props.index + (props.side === "right" ? 1 : 0), 0, {
+              content: [],
+            });
             return { cells };
           }),
         };

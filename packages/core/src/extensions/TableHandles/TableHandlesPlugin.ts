@@ -100,6 +100,7 @@ export class TableHandlesView<
 > implements PluginView
 {
   public state?: TableHandlesState<I, S>;
+  public resizingTable?: HTMLElement;
   public emitUpdate: () => void;
 
   public tableId: string | undefined;

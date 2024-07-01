@@ -148,8 +148,16 @@ export type TableContent<
 > = {
   type: "tableContent";
   rows: {
-    cells: InlineContent<I, S>[][];
+    cells: CellContent<I, S>[];
   }[];
+};
+
+export type CellContent<
+  I extends InlineContentSchema,
+  T extends StyleSchema
+> = {
+  content: InlineContent<I, T>[];
+  width?: number;
 };
 
 // A BlockConfig has all the information to get the type of a Block (which is a specific instance of the BlockConfig.
@@ -223,8 +231,16 @@ export type PartialTableContent<
 > = {
   type: "tableContent";
   rows: {
-    cells: PartialInlineContent<I, S>[];
+    cells: PartialCellContent<I, S>[];
   }[];
+};
+
+export type PartialCellContent<
+  I extends InlineContentSchema,
+  T extends StyleSchema
+> = {
+  content: PartialInlineContent<I, T>;
+  width?: number;
 };
 
 type PartialBlockFromConfigNoChildren<
