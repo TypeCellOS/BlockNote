@@ -1,10 +1,16 @@
-import { DefaultSuggestionItem } from "@blocknote/core";
+import {
+  DefaultGridSuggestionItem,
+  DefaultSuggestionItem,
+} from "@blocknote/core";
 
 /**
  * Although any arbitrary data can be passed as suggestion items, the built-in
  * UI components such as `MantineSuggestionMenu` expect a shape that conforms to DefaultSuggestionItem
  */
 export type DefaultReactSuggestionItem = Omit<DefaultSuggestionItem, "key"> & {
+  icon?: JSX.Element;
+};
+export type DefaultReactGridSuggestionItem = DefaultGridSuggestionItem & {
   icon?: JSX.Element;
 };
 
@@ -18,5 +24,5 @@ export type SuggestionMenuProps<T> = {
   loadingState: "loading-initial" | "loading" | "loaded";
   selectedIndex: number | undefined;
   onItemClick?: (item: T) => void;
-  emojiInsert?: (emoji: never) => void
+  emojiInsert?: (emoji: never) => void;
 };

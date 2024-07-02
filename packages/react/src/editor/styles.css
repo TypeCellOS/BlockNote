@@ -239,30 +239,3 @@
 .bn-side-menu[data-url="false"] {
   height: 54px;
 }
-
-/* styles for the emoji menu */
-.bn-grid-suggestion-menu{
-  display: grid;
-  justify-items: center;
-  gap: 7;
-  padding: 20;
-  max-height: 30vh;
-  min-width: 40vw;
-  overflow-y: scroll;
-  border-radius: var(--bn-border-radius-large);
-  background: var(--bn-colors-menu-background);
-  box-shadow: var(--bn-shadow-medium);
-}
-
-.bn-grid-suggestion-menu p{
-  border-radius: var(--bn-border-radius-large);
-  padding: 4px;
-  margin: 2px;
-  font-size: larger;
-  cursor: pointer;
-}
-
-.grid-item-selected{
-  background: var(--bn-colors-selected-background);
-}
-

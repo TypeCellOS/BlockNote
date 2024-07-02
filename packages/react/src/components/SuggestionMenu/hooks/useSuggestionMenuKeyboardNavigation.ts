@@ -1,23 +1,47 @@
 import { BlockNoteEditor } from "@blocknote/core";
 import { useEffect, useState } from "react";
 
-// Hook which handles keyboard navigation of a suggestion menu. Arrow keys are
-// used to select a menu item, enter to execute it
+// Hook which handles keyboard navigation of a suggestion menu. Up & down arrow
+// keys are used to select a menu item, enter is used to execute it. Can also
+// use the left & right arrow keys in addition to up & down to navigate a grid.
 export function useSuggestionMenuKeyboardNavigation<Item>(
   editor: BlockNoteEditor<any, any, any>,
   query: string,
   items: Item[],
+  grid = false,
   onItemClick?: (item: Item) => void
 ) {
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
 
   useEffect(() => {
     const handleMenuNavigationKeys = (event: KeyboardEvent) => {
+      if (grid) {
+        if (event.key === "ArrowRight") {
+          event.preventDefault();
+          if (items.length) {
+            setSelectedIndex(
+              (selectedIndex + 1 + items!.length) % items!.length
+            );
+          }
+        }
+
+        if (event.key === "ArrowLeft") {
+          event.preventDefault();
+          if (items.length) {
+            setSelectedIndex(
+              (selectedIndex - 1 + items!.length) % items!.length
+            );
+          }
+        }
+      }
+
       if (event.key === "ArrowUp") {
         event.preventDefault();
 
         if (items.length) {
-          setSelectedIndex((selectedIndex - 1 + items!.length) % items!.length);
+          setSelectedIndex(
+            (selectedIndex - (grid ? 10 : 1) + items!.length) % items!.length
+          );
         }
 
         return true;
@@ -27,7 +51,7 @@ export function useSuggestionMenuKeyboardNavigation<Item>(
         event.preventDefault();
 
         if (items.length) {
-          setSelectedIndex((selectedIndex + 1) % items!.length);
+          setSelectedIndex((selectedIndex + (grid ? 10 : 1)) % items!.length);
         }
 
         return true;
@@ -59,7 +83,7 @@ export function useSuggestionMenuKeyboardNavigation<Item>(
         true
       );
     };
-  }, [editor.domElement, items, selectedIndex, onItemClick]);
+  }, [editor.domElement, items, selectedIndex, onItemClick, grid]);
 
   // Resets index when items change
   useEffect(() => {

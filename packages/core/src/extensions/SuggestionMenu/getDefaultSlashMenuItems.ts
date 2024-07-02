@@ -82,8 +82,6 @@ export function getDefaultSlashMenuItems<
 >(editor: BlockNoteEditor<BSchema, I, S>) {
   const items: DefaultSuggestionItem[] = [];
 
-  
-
   if (checkDefaultBlockTypeInSchema("heading", editor)) {
     items.push(
       {
@@ -288,7 +286,7 @@ export function getDefaultSlashMenuItems<
     },
     key: "emoji",
     ...editor.dictionary.slash_menu.emoji,
-  })
+  });
 
   return items;
 }

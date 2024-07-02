@@ -7,6 +7,8 @@ import {
 import { ComponentProps } from "react";
 
 import { Form } from "./input/Form";
+import { GridSuggestionMenu } from "./suggestionMenu/GridSuggestionMenu";
+import { GridSuggestionMenuItem } from "./suggestionMenu/GridSuggestionMenuItem";
 import { TextInput } from "./input/TextInput";
 import {
   Menu,
@@ -48,6 +50,10 @@ export const components: Components = {
     FileInput: PanelFileInput,
     TabPanel: PanelTab,
     TextInput: PanelTextInput,
+  },
+  GridSuggestionMenu: {
+    Root: GridSuggestionMenu,
+    Item: GridSuggestionMenuItem,
   },
   LinkToolbar: {
     Root: Toolbar,

@@ -14,7 +14,8 @@ import {
   applyBlockNoteCSSVariablesFromTheme,
   removeBlockNoteCSSVariables,
 } from "./BlockNoteTheme";
-import { TextInput } from "./form/TextInput";
+import { GridSuggestionMenu } from "./suggestionMenu/GridSuggestionMenu";
+import { GridSuggestionMenuItem } from "./suggestionMenu/GridSuggestionMenuItem";
 import {
   Menu,
   MenuDivider,
@@ -37,6 +38,7 @@ import { SuggestionMenuItem } from "./suggestionMenu/SuggestionMenuItem";
 import { SuggestionMenuLabel } from "./suggestionMenu/SuggestionMenuLabel";
 import { SuggestionMenuLoader } from "./suggestionMenu/SuggestionMenuLoader";
 import { TableHandle } from "./tableHandle/TableHandle";
+import { TextInput } from "./form/TextInput";
 import { Toolbar } from "./toolbar/Toolbar";
 import { ToolbarButton } from "./toolbar/ToolbarButton";
 import { ToolbarSelect } from "./toolbar/ToolbarSelect";
@@ -58,6 +60,10 @@ export const components: Components = {
     FileInput: PanelFileInput,
     TabPanel: PanelTab,
     TextInput: PanelTextInput,
+  },
+  GridSuggestionMenu: {
+    Root: GridSuggestionMenu,
+    Item: GridSuggestionMenuItem,
   },
   LinkToolbar: {
     Root: Toolbar,

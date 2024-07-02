@@ -6,7 +6,13 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "../schema";
-import { Block, DefaultBlockSchema, defaultBlockSchema } from "./defaultBlocks";
+import {
+  Block,
+  DefaultBlockSchema,
+  defaultBlockSchema,
+  defaultInlineContentSchema,
+  DefaultInlineContentSchema,
+} from "./defaultBlocks";
 import { defaultProps } from "./defaultProps";
 
 export function checkDefaultBlockTypeInSchema<
@@ -20,6 +26,25 @@ export function checkDefaultBlockTypeInSchema<
   return (
     blockType in editor.schema.blockSchema &&
     editor.schema.blockSchema[blockType] === defaultBlockSchema[blockType]
+  );
+}
+
+export function checkDefaultInlineContentTypeInSchema<
+  InlineContentType extends keyof DefaultInlineContentSchema,
+  B extends BlockSchema,
+  S extends StyleSchema
+>(
+  inlineContentType: InlineContentType,
+  editor: BlockNoteEditor<B, any, S>
+): editor is BlockNoteEditor<
+  B,
+  { Type: DefaultInlineContentSchema[InlineContentType] },
+  S
+> {
+  return (
+    inlineContentType in editor.schema.inlineContentSchema &&
+    editor.schema.inlineContentSchema[inlineContentType] ===
+      defaultInlineContentSchema[inlineContentType]
   );
 }
 

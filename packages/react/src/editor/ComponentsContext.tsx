@@ -9,7 +9,10 @@ import {
   useContext,
 } from "react";
 
-import { DefaultReactSuggestionItem } from "../components/SuggestionMenu/types";
+import {
+  DefaultReactGridSuggestionItem,
+  DefaultReactSuggestionItem,
+} from "../components/SuggestionMenu/types";
 
 export type ComponentProps = {
   FormattingToolbar: {
@@ -141,6 +144,32 @@ export type ComponentProps = {
       className?: string;
       children?: ReactNode;
     };
+  };
+  GridSuggestionMenu: {
+    Root: {
+      id: string;
+      className?: string;
+      children?: ReactNode;
+    };
+    // EmptyItem: {
+    //   className?: string;
+    //   children?: ReactNode;
+    // };
+    Item: {
+      className?: string;
+      id: string;
+      isSelected: boolean;
+      onClick: () => void;
+      item: DefaultReactGridSuggestionItem;
+    };
+    // Label: {
+    //   className?: string;
+    //   children?: ReactNode;
+    // };
+    // Loader: {
+    //   className?: string;
+    //   children?: ReactNode;
+    // };
   };
   TableHandle: {
     Root: {
