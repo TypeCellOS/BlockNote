@@ -1,10 +1,10 @@
 import { test } from "../../setup/setupScript";
 import {
   BASE_URL,
-  BLOCK_CONTAINER_SELECTOR,
   H_ONE_BLOCK_SELECTOR,
   H_THREE_BLOCK_SELECTOR,
   H_TWO_BLOCK_SELECTOR,
+  PARAGRAPH_SELECTOR,
 } from "../../utils/const";
 import { compareDocToSnapshot, focusOnEditor } from "../../utils/editor";
 import { insertHeading, insertParagraph } from "../../utils/copypaste";
@@ -75,7 +75,7 @@ test.describe("Check Block Dragging Functionality", () => {
 
     // Dragging third heading into outside nesting.
     dragTarget = await page.locator(H_THREE_BLOCK_SELECTOR);
-    dropTarget = await page.locator(BLOCK_CONTAINER_SELECTOR).last();
+    dropTarget = await page.locator(PARAGRAPH_SELECTOR).last();
     await dragAndDropBlock(page, dragTarget, dropTarget, true);
 
     await compareDocToSnapshot(page, "dragdropnested");

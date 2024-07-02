@@ -1,9 +1,13 @@
 /** @type {import('tailwindcss').Config} */
 const dir = __dirname;
 module.exports = {
+  important: ".bn-container",
+  corePlugins: {
+    preflight: false,
+  },
   darkMode: ["class"],
   content: [dir + "/**/*.{ts,tsx}"],
-  prefix: "",
+  prefix: "bn-",
   theme: {
     container: {
       center: true,

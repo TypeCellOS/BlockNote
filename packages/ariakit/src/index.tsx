@@ -1,4 +1,9 @@
-import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
+import {
+  BlockSchema,
+  InlineContentSchema,
+  mergeCSSClasses,
+  StyleSchema,
+} from "@blocknote/core";
 import {
   BlockNoteViewRaw,
   Components,
@@ -101,9 +106,14 @@ export const BlockNoteView = <
 >(
   props: ComponentProps<typeof BlockNoteViewRaw<BSchema, ISchema, SSchema>>
 ) => {
+  const { className, ...rest } = props;
+
   return (
     <ComponentsContext.Provider value={components}>
-      <BlockNoteViewRaw {...props} />
+      <BlockNoteViewRaw
+        className={mergeCSSClasses("bn-ariakit", className || "")}
+        {...rest}
+      />
     </ComponentsContext.Provider>
   );
 };

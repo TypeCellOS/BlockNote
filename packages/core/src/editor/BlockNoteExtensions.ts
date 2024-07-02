@@ -13,6 +13,7 @@ import { Text } from "@tiptap/extension-text";
 import * as Y from "yjs";
 import { createCopyToClipboardExtension } from "../api/exporters/copyExtension";
 import { createPasteFromClipboardExtension } from "../api/parsers/pasteExtension";
+import { createDropFileExtension } from "../api/parsers/fileDropExtension";
 import { BackgroundColorExtension } from "../extensions/BackgroundColor/BackgroundColorExtension";
 import { TextAlignmentExtension } from "../extensions/TextAlignment/TextAlignmentExtension";
 import { TextColorExtension } from "../extensions/TextColor/TextColorExtension";
@@ -49,10 +50,12 @@ export const getBlockNoteExtensions = <
     user: {
       name: string;
       color: string;
+      [key: string]: string;
     };
     provider: any;
     renderCursor?: (user: any) => HTMLElement;
   };
+  disableExtensions: string[] | undefined;
 }) => {
   const ret: Extensions = [
     extensions.ClipboardTextSerializer,
@@ -145,6 +148,7 @@ export const getBlockNoteExtensions = <
     }),
     createCopyToClipboardExtension(opts.editor),
     createPasteFromClipboardExtension(opts.editor),
+    createDropFileExtension(opts.editor),
 
     Dropcursor.configure({ width: 5, color: "#ddeeff" }),
     // This needs to be at the bottom of this list, because Key events (such as enter, when selecting a /command),
@@ -193,5 +197,6 @@ export const getBlockNoteExtensions = <
     ret.push(History);
   }
 
-  return ret;
+  const disableExtensions: string[] = opts.disableExtensions || [];
+  return ret.filter(ex => !disableExtensions.includes(ex.name));
 };

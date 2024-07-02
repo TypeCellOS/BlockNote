@@ -41,11 +41,34 @@ export function simplifyBlocks(options: SimplifyBlocksOptions) {
     for (let i = 0; i < numChildElements; i++) {
       const blockOuter = tree.children[i] as HASTElement;
       const blockContainer = blockOuter.children[0] as HASTElement;
-      const blockContent = blockContainer.children[0] as HASTElement;
-      const blockGroup =
-        blockContainer.children.length === 2
-          ? (blockContainer.children[1] as HASTElement)
-          : null;
+      const blockContent = blockContainer.children.find((child) => {
+        const properties = (child as HASTElement).properties;
+        const classNames = properties?.["className"] as string[] | undefined;
+
+        return classNames?.includes("bn-block-content");
+      }) as HASTElement | undefined;
+      const blockGroup = blockContainer.children.find((child) => {
+        const properties = (child as HASTElement).properties;
+        const classNames = properties?.["className"] as string[] | undefined;
+
+        return classNames?.includes("bn-block-group");
+      }) as HASTElement | undefined;
+
+      // When the selection starts in a nested block, the Fragment from it omits
+      // the `blockContent` node of the parent `blockContainer` if it's not also
+      // included in the selection. This is because ProseMirror preserves the
+      // nesting hierarchy of the nested nodes, even if their ancestors aren't
+      // fully selected. In this case, we just lift the child `blockContainer`
+      // nodes up.
+      // NOTE: This only happens for the first `blockContainer`, since to get to
+      // any nested blocks later in the document, the selection must also
+      // include their parents.
+      if (!blockContent) {
+        tree.children.splice(i, 1, ...blockGroup!.children);
+        simplifyBlocksHelper(tree);
+
+        return;
+      }
 
       const isListItemBlock = listItemBlockTypes.has(
         blockContent.properties!["dataContentType"] as string
@@ -60,7 +83,7 @@ export function simplifyBlocks(options: SimplifyBlocksOptions) {
         : null;
 
       // Plugin runs recursively to process nested blocks.
-      if (blockGroup !== null) {
+      if (blockGroup) {
         simplifyBlocksHelper(blockGroup);
       }
 
@@ -101,13 +124,13 @@ export function simplifyBlocks(options: SimplifyBlocksOptions) {
         listItemElement.children.push(...blockContent.children);
         // Nested blocks have already been processed in the recursive function call, so the resulting elements are
         // also added to the active list.
-        if (blockGroup !== null) {
+        if (blockGroup) {
           listItemElement.children.push(...blockGroup.children);
         }
 
         // Adds the list item representing the block to the active list.
         activeList.children.push(listItemElement);
-      } else if (blockGroup !== null) {
+      } else if (blockGroup) {
         // Lifts all children out of the current block, as only list items should allow nesting.
         tree.children.splice(i + 1, 0, ...blockGroup.children);
         // Replaces the block with only the content inside it.
