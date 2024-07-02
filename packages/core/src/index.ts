@@ -2,10 +2,10 @@ import * as locales from "./i18n/locales";
 export * from "./api/exporters/html/externalHTMLExporter";
 export * from "./api/exporters/html/internalHTMLSerializer";
 export * from "./api/testUtil";
+export * from "./blocks/AudioBlockContent/AudioBlockContent";
 export * from "./blocks/FileBlockContent/FileBlockContent";
 export * from "./blocks/ImageBlockContent/ImageBlockContent";
 export * from "./blocks/VideoBlockContent/VideoBlockContent";
-export * from "./blocks/AudioBlockContent/AudioBlockContent";
 
 export * from "./blocks/FileBlockContent/fileBlockHelpers";
 export * from "./blocks/FileBlockContent/uploadToTmpFilesDotOrg_DEV_ONLY";
@@ -28,11 +28,18 @@ export * from "./extensions/TableHandles/TableHandlesPlugin";
 export * from "./schema";
 export * from "./util/browser";
 export * from "./util/string";
+export * from "./util/typescript";
+
 // for testing from react (TODO: move):
 export * from "./api/nodeConversions/nodeConversions";
 export * from "./api/testUtil/partialBlockTestUtil";
 export * from "./extensions/UniqueID/UniqueID";
+
+// for server-util, maybe change dependency graph?
+export * from "./api/exporters/markdown/markdownExporter";
+export * from "./api/parsers/html/parseHTML";
+export * from "./api/parsers/markdown/parseMarkdown";
+export { parseImageElement } from "./blocks/ImageBlockContent/imageBlockHelpers";
 export * from "./i18n/dictionary";
 export { UnreachableCaseError, assertEmpty } from "./util/typescript";
 export { locales };
-export { parseImageElement } from "./blocks/ImageBlockContent/imageBlockHelpers";

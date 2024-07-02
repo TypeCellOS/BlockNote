@@ -1,5 +1,5 @@
-import { EditorOptions, Extension } from "@tiptap/core";
-import { Node } from "prosemirror-model";
+import { EditorOptions, Extension, getSchema } from "@tiptap/core";
+import { Node, Schema } from "prosemirror-model";
 // import "./blocknote.css";
 import * as Y from "yjs";
 import {
@@ -151,6 +151,8 @@ export type BlockNoteEditorOptions<
   _tiptapOptions: Partial<EditorOptions>;
 
   trailingBlock?: boolean;
+
+  headless: boolean;
 };
 
 const blockNoteTipTapOptions = {
@@ -164,9 +166,12 @@ export class BlockNoteEditor<
   ISchema extends InlineContentSchema = DefaultInlineContentSchema,
   SSchema extends StyleSchema = DefaultStyleSchema
 > {
+  private readonly _pmSchema: Schema;
+
   public readonly _tiptapEditor: BlockNoteTipTapEditor & {
     contentComponent: any;
-  };
+  } = undefined as any; // Type should actually reflect that it can be `undefined` in headless mode
+
   public blockCache = new WeakMap<Node, Block<any, any, any>>();
   public readonly dictionary: Dictionary;
 
@@ -203,6 +208,10 @@ export class BlockNoteEditor<
     | undefined;
 
   public readonly resolveFileUrl: (url: string) => Promise<string>;
+
+  public get pmSchema() {
+    return this._pmSchema;
+  }
 
   public static create<
     BSchema extends BlockSchema = DefaultBlockSchema,
@@ -246,6 +255,7 @@ export class BlockNoteEditor<
     const newOptions = {
       defaultStyles: true,
       schema: options.schema || BlockNoteSchema.create(),
+      headless: false,
       ...options,
       placeholders: {
         ...this.dictionary.placeholders,
@@ -272,7 +282,6 @@ export class BlockNoteEditor<
     const extensions = getBlockNoteExtensions({
       editor: this,
       domAttributes: newOptions.domAttributes || {},
-      blockSchema: this.schema.blockSchema,
       blockSpecs: this.schema.blockSpecs,
       styleSpecs: this.schema.styleSpecs,
       inlineContentSpecs: this.schema.inlineContentSpecs,
@@ -354,12 +363,17 @@ export class BlockNoteEditor<
       },
     };
 
-    this._tiptapEditor = new BlockNoteTipTapEditor(
-      tiptapOptions,
-      this.schema.styleSchema
-    ) as BlockNoteTipTapEditor & {
-      contentComponent: any;
-    };
+    if (!newOptions.headless) {
+      this._tiptapEditor = new BlockNoteTipTapEditor(
+        tiptapOptions,
+        this.schema.styleSchema
+      ) as BlockNoteTipTapEditor & {
+        contentComponent: any;
+      };
+      this._pmSchema = this._tiptapEditor.schema;
+    } else {
+      this._pmSchema = getSchema(tiptapOptions.extensions!);
+    }
   }
 
   /**
@@ -391,7 +405,7 @@ export class BlockNoteEditor<
    * @deprecated, use `editor.document` instead
    */
   public get topLevelBlocks(): Block<BSchema, ISchema, SSchema>[] {
-    return this.topLevelBlocks;
+    return this.document;
   }
 
   /**
@@ -749,7 +763,7 @@ export class BlockNoteEditor<
   public insertInlineContent(content: PartialInlineContent<ISchema, SSchema>) {
     const nodes = inlineContentToNodes(
       content,
-      this._tiptapEditor.schema,
+      this.pmSchema,
       this.schema.styleSchema
     );
 
@@ -873,7 +887,7 @@ export class BlockNoteEditor<
       text = this._tiptapEditor.state.doc.textBetween(from, to);
     }
 
-    const mark = this._tiptapEditor.schema.mark("link", { href: url });
+    const mark = this.pmSchema.mark("link", { href: url });
 
     this._tiptapEditor.view.dispatch(
       this._tiptapEditor.view.state.tr
@@ -920,7 +934,6 @@ export class BlockNoteEditor<
     this._tiptapEditor.commands.liftListItem("blockContainer");
   }
 
-  // TODO: Fix when implementing HTML/Markdown import & export
   /**
    * Serializes blocks into an HTML string. To better conform to HTML standards, children of blocks which aren't list
    * items are un-nested in the output HTML.
@@ -930,11 +943,8 @@ export class BlockNoteEditor<
   public async blocksToHTMLLossy(
     blocks: Block<BSchema, ISchema, SSchema>[] = this.document
   ): Promise<string> {
-    const exporter = createExternalHTMLExporter(
-      this._tiptapEditor.schema,
-      this
-    );
-    return exporter.exportBlocks(blocks);
+    const exporter = createExternalHTMLExporter(this.pmSchema, this);
+    return exporter.exportBlocks(blocks, {});
   }
 
   /**
@@ -952,7 +962,7 @@ export class BlockNoteEditor<
       this.schema.blockSchema,
       this.schema.inlineContentSchema,
       this.schema.styleSchema,
-      this._tiptapEditor.schema
+      this.pmSchema
     );
   }
 
@@ -965,7 +975,7 @@ export class BlockNoteEditor<
   public async blocksToMarkdownLossy(
     blocks: Block<BSchema, ISchema, SSchema>[] = this.document
   ): Promise<string> {
-    return blocksToMarkdown(blocks, this._tiptapEditor.schema, this);
+    return blocksToMarkdown(blocks, this.pmSchema, this, {});
   }
 
   /**
@@ -983,7 +993,7 @@ export class BlockNoteEditor<
       this.schema.blockSchema,
       this.schema.inlineContentSchema,
       this.schema.styleSchema,
-      this._tiptapEditor.schema
+      this.pmSchema
     );
   }
 
