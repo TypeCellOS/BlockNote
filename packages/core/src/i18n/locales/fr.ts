@@ -105,6 +105,13 @@ export const fr: Dictionary = {
       aliases: ["fichier", "téléverser", "intégrer", "média", "url"],
       group: "Média",
     },
+    emoji: {
+      title: "Emoji",
+      subtext: "Utilisé pour insérer un emoji",
+      aliases: ["emoji", "émoticône", "émotion", "visage"],
+      group: "Autres",
+    },
+    
   },
   placeholders: {
     default: "Entrez du texte ou tapez '/' pour les commandes",

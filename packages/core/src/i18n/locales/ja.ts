@@ -125,6 +125,13 @@ export const ja: Dictionary = {
       aliases: ["file", "upload", "embed", "media", "url", "ファイル"],
       group: "メディア",
     },
+    emoji: {
+      title: "絵文字",
+      subtext: "絵文字を挿入するために使用します",
+      aliases: ["絵文字", "顔文字", "感情表現", "顔"],
+      group: "その他",
+    },
+    
   },
   placeholders: {
     default: "テキストを入力するか'/' を入力してコマンド選択",

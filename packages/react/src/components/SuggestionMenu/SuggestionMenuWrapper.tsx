@@ -4,6 +4,7 @@ import { FC, useCallback, useEffect } from "react";
 import { useBlockNoteContext } from "../../editor/BlockNoteContext";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor";
 import { useCloseSuggestionMenuNoItems } from "./hooks/useCloseSuggestionMenuNoItems";
+import { useGridSuggestionMenuKeyboardNavigation } from "./hooks/useGridSuggestionMenuKeyboardNavigation";
 import { useLoadSuggestionMenuItems } from "./hooks/useLoadSuggestionMenuItems";
 import { useSuggestionMenuKeyboardNavigation } from "./hooks/useSuggestionMenuKeyboardNavigation";
 import { SuggestionMenuProps } from "./types";
@@ -13,6 +14,7 @@ export function SuggestionMenuWrapper<Item>(props: {
   closeMenu: () => void;
   clearQuery: () => void;
   getItems: (query: string) => Promise<Item[]>;
+  grid?: boolean;
   onItemClick?: (item: Item) => void;
   suggestionMenuComponent: FC<SuggestionMenuProps<Item>>;
 }) {
@@ -31,6 +33,7 @@ export function SuggestionMenuWrapper<Item>(props: {
     clearQuery,
     closeMenu,
     onItemClick,
+    grid,
   } = props;
 
   const onItemClickCloseMenu = useCallback(
@@ -49,7 +52,11 @@ export function SuggestionMenuWrapper<Item>(props: {
 
   useCloseSuggestionMenuNoItems(items, usedQuery, closeMenu);
 
-  const { selectedIndex } = useSuggestionMenuKeyboardNavigation(
+  const useKeyboardNavigation = grid
+    ? useGridSuggestionMenuKeyboardNavigation
+    : useSuggestionMenuKeyboardNavigation;
+
+  const { selectedIndex } = useKeyboardNavigation(
     editor,
     query,
     items,

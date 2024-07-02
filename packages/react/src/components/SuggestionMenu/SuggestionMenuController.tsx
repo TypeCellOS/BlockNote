@@ -31,6 +31,7 @@ export function SuggestionMenuController<
   props: {
     triggerCharacter: string;
     getItems?: GetItemsType;
+    grid?: boolean;
   } & (ItemType<GetItemsType> extends DefaultReactSuggestionItem
     ? {
         // can be undefined
@@ -53,9 +54,13 @@ export function SuggestionMenuController<
     StyleSchema
   >();
 
-  const { triggerCharacter, suggestionMenuComponent } = props;
-
-  const { onItemClick, getItems } = props;
+  const {
+    triggerCharacter,
+    suggestionMenuComponent,
+    grid,
+    onItemClick,
+    getItems,
+  } = props;
 
   const onItemClickOrDefault = useMemo(() => {
     return (
@@ -129,6 +134,7 @@ export function SuggestionMenuController<
         closeMenu={callbacks.closeMenu}
         clearQuery={callbacks.clearQuery}
         getItems={getItemsOrDefault}
+        grid={grid}
         suggestionMenuComponent={suggestionMenuComponent || SuggestionMenu}
         onItemClick={onItemClickOrDefault}
       />

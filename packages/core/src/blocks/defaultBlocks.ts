@@ -30,6 +30,7 @@ import { FileBlock } from "./FileBlockContent/FileBlockContent";
 import { ImageBlock } from "./ImageBlockContent/ImageBlockContent";
 import { VideoBlock } from "./VideoBlockContent/VideoBlockContent";
 import { AudioBlock } from "./AudioBlockContent/AudioBlockContent";
+import { Emoji } from "../inlineContent/emojiInlineContent/Emoji";
 
 export const defaultBlockSpecs = {
   paragraph: Paragraph,
@@ -71,6 +72,8 @@ export type DefaultStyleSchema = _DefaultStyleSchema;
 export const defaultInlineContentSpecs = {
   text: { config: "text", implementation: {} as any },
   link: { config: "link", implementation: {} as any },
+  //for rendering emojis inline
+  emoji: Emoji,
 } satisfies InlineContentSpecs;
 
 export const defaultInlineContentSchema = getInlineContentSchemaFromSpecs(

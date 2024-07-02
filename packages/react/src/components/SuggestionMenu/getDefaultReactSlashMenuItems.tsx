@@ -20,6 +20,7 @@ import {
   RiVolumeUpFill,
 } from "react-icons/ri";
 import { DefaultReactSuggestionItem } from "./types";
+import { MdFace } from "react-icons/md";
 
 const icons = {
   heading: RiH1,
@@ -34,6 +35,7 @@ const icons = {
   video: RiFilmLine,
   audio: RiVolumeUpFill,
   file: RiFile2Line,
+  emoji: MdFace
 };
 
 export function getDefaultReactSlashMenuItems<

@@ -98,6 +98,12 @@ export const is: Dictionary = {
       aliases: ["skrá", "hlaða upp", "fella inn", "miðill", "url"],
       group: "Miðlar",
     },
+    emoji: {
+      title: "Emoji",
+      subtext: "Notað til að setja inn smámynd",
+      aliases: ["emoji", "andlitsávísun", "tilfinningar", "andlit"],
+      group: "Annað",
+    },  
   },
   placeholders: {
     default: "Sláðu inn texta eða skrifaðu '/' fyrir skipanir",
