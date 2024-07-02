@@ -103,10 +103,14 @@ export const nl: Dictionary = {
     emoji: {
       title: "Emoji",
       subtext: "Gebruikt voor het invoegen van een emoji",
-      aliases: ["emoji", "emotie-uitdrukking", "gezichtsuitdrukking", "gezicht"],
+      aliases: [
+        "emoji",
+        "emotie-uitdrukking",
+        "gezichtsuitdrukking",
+        "gezicht",
+      ],
       group: "Overig",
     },
-    
   },
   placeholders: {
     default: "Voer tekst in of type '/' voor commando's",

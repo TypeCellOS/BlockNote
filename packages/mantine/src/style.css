@@ -362,7 +362,7 @@
   background-color: var(--bn-colors-side-menu);
 }
 
-.bn-grid-suggestion-menu {
+.bn-mantine .bn-grid-suggestion-menu {
   background: var(--bn-colors-menu-background);
   border-radius: var(--bn-border-radius-large);
   box-shadow: var(--bn-shadow-medium);
@@ -376,7 +376,7 @@
   padding: 20px;
 }
 
-.bn-grid-suggestion-menu-item {
+.bn-mantine .bn-grid-suggestion-menu-item {
   align-items: center;
   border-radius: var(--bn-border-radius-large);
   cursor: pointer;
@@ -389,8 +389,8 @@
   width: 32px;
 }
 
-.bn-grid-suggestion-menu-item[aria-selected="true"],
-.bn-grid-suggestion-menu-item:hover {
+.bn-mantine .bn-grid-suggestion-menu-item[aria-selected="true"],
+.bn-mantine .bn-grid-suggestion-menu-item:hover {
   background-color: var(--bn-colors-hovered-background);
 }
 

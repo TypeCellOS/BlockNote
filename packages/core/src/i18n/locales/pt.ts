@@ -103,7 +103,6 @@ export const pt: Dictionary = {
       aliases: ["emoji", "emoticon", "expressão emocional", "rosto"],
       group: "Outros",
     },
-    
   },
   placeholders: {
     default: "Digite texto ou use '/' para comandos",

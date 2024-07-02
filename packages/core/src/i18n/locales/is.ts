@@ -103,7 +103,7 @@ export const is: Dictionary = {
       subtext: "Notað til að setja inn smámynd",
       aliases: ["emoji", "andlitsávísun", "tilfinningar", "andlit"],
       group: "Annað",
-    },  
+    },
   },
   placeholders: {
     default: "Sláðu inn texta eða skrifaðu '/' fyrir skipanir",

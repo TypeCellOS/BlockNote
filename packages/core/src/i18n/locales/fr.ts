@@ -111,7 +111,6 @@ export const fr: Dictionary = {
       aliases: ["emoji", "émoticône", "émotion", "visage"],
       group: "Autres",
     },
-    
   },
   placeholders: {
     default: "Entrez du texte ou tapez '/' pour les commandes",

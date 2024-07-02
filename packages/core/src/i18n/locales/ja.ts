@@ -131,7 +131,6 @@ export const ja: Dictionary = {
       aliases: ["絵文字", "顔文字", "感情表現", "顔"],
       group: "その他",
     },
-    
   },
   placeholders: {
     default: "テキストを入力するか'/' を入力してコマンド選択",

@@ -96,7 +96,6 @@ export const pl: Dictionary = {
       aliases: ["emoji", "emotka", "wyrażenie emocji", "twarz"],
       group: "Inne",
     },
-    
   },
   placeholders: {
     default: "Wprowadź tekst lub wpisz '/' aby użyć poleceń",
