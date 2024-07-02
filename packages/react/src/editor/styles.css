@@ -90,7 +90,7 @@
   --bn-colors-highlights-pink-background: #ad1a72;
 }
 
-.bn-container * {
+.bn-container {
   font-family: var(--bn-font-family);
 }
 
@@ -101,7 +101,6 @@
   background-color: var(--bn-colors-editor-background);
   border-radius: var(--bn-border-radius-large);
   color: var(--bn-colors-editor-text);
-  font-family: var(--bn-font-family);
 }
 
 /* Custom block node view wrapper styling */
