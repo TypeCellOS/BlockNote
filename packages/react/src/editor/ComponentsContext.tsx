@@ -150,6 +150,7 @@ export type ComponentProps = {
       id: string;
       className?: string;
       children?: ReactNode;
+      style?:any;
     };
     // EmptyItem: {
     //   className?: string;

@@ -17,7 +17,7 @@ import {
   ShadCNDefaultComponents,
 } from "./ShadCNComponentsContext";
 import { Form } from "./form/Form";
-import { GridSuggestionMenu } from "@/suggestionMenu/GridSuggestionMenu";
+import  {GridSuggestionMenu}  from "@/suggestionMenu/GridSuggestionMenu";
 import { GridSuggestionMenuItem } from "@/suggestionMenu/GridSuggestionMenuItem";
 import {
   Menu,

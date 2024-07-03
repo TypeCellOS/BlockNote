@@ -6,12 +6,12 @@ export const GridSuggestionMenu = forwardRef<
   HTMLDivElement,
   ComponentProps["GridSuggestionMenu"]["Root"]
 >((props, ref) => {
-  const { className, children, id, ...rest } = props;
+  const { className, children, id, style, ...rest } = props;
 
   assertEmpty(rest);
 
   return (
-    <div className={className} ref={ref} id={id} role="grid">
+    <div className={className} style={style} ref={ref} id={id} role="grid">
       {children}
     </div>
   );

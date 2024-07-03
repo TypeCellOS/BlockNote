@@ -15,6 +15,7 @@ export default function GridSuggestionMenu<
     // loadingState,
     selectedIndex,
     onItemClick,
+    gridCols
   } = props;
 
   // const loader =
@@ -59,6 +60,7 @@ export default function GridSuggestionMenu<
   return (
     <Components.GridSuggestionMenu.Root
       id="bn-grid-suggestion-menu"
+      style={{gridTemplateColumns: `repeat(${gridCols}, 1fr)`} as any}
       className="bn-grid-suggestion-menu">
       {renderedItems}
       {/*{renderedItems.length === 0 &&*/}

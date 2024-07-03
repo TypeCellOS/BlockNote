@@ -25,4 +25,5 @@ export type SuggestionMenuProps<T> = {
   selectedIndex: number | undefined;
   onItemClick?: (item: T) => void;
   emojiInsert?: (emoji: never) => void;
+  gridCols?: number
 };

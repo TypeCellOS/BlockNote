@@ -116,7 +116,6 @@
   box-shadow: var(--bn-shadow-medium);
   display: grid;
   gap: 7px;
-  grid-template-columns: repeat(10, 1fr);
   justify-items: center;
   max-height: 30vh;
   min-width: 40vw;

@@ -32,6 +32,7 @@ export function SuggestionMenuController<
     triggerCharacter: string;
     getItems?: GetItemsType;
     grid?: boolean;
+    gridCols?: number
   } & (ItemType<GetItemsType> extends DefaultReactSuggestionItem
     ? {
         // can be undefined
@@ -60,6 +61,7 @@ export function SuggestionMenuController<
     grid,
     onItemClick,
     getItems,
+    gridCols
   } = props;
 
   const onItemClickOrDefault = useMemo(() => {
@@ -135,6 +137,7 @@ export function SuggestionMenuController<
         clearQuery={callbacks.clearQuery}
         getItems={getItemsOrDefault}
         grid={grid}
+        gridCols={gridCols}
         suggestionMenuComponent={suggestionMenuComponent || SuggestionMenu}
         onItemClick={onItemClickOrDefault}
       />

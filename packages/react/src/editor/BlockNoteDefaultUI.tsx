@@ -59,6 +59,7 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
         <SuggestionMenuController
           triggerCharacter={":"}
           grid={true}
+          gridCols={10}
           suggestionMenuComponent={GridSuggestionMenu}
           getItems={getEmojiPickerItems}
           onItemClick={emojiPickerOnItemClick}
