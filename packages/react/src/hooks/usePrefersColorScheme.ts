@@ -4,9 +4,9 @@
 // issues when used in a NextJS project.
 import { useEffect, useState } from "react";
 
-const darkQuery = window.matchMedia?.("(prefers-color-scheme: dark)");
+const darkQuery = window?.matchMedia?.("(prefers-color-scheme: dark)");
 
-const lightQuery = window.matchMedia?.("(prefers-color-scheme: light)");
+const lightQuery = window?.matchMedia?.("(prefers-color-scheme: light)");
 
 export const usePrefersColorScheme = () => {
   const isDark = darkQuery?.matches;
