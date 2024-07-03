@@ -62,7 +62,7 @@ Tippy popups that are appended to document.body directly
 
 .bn-drag-preview {
   position: absolute;
-  left: -100000px;
+  z-index: -1;
 }
 
 /* Give a remote user a caret */

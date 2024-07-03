@@ -158,7 +158,7 @@ function unsetDragImage(rootEl: Document | ShadowRoot) {
     if (rootEl instanceof ShadowRoot) {
       rootEl.removeChild(dragImageElement);
     } else {
-      rootEl.body.appendChild(dragImageElement);
+      rootEl.body.removeChild(dragImageElement);
     }
 
     dragImageElement = undefined;
