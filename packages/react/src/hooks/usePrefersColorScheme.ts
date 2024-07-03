@@ -71,7 +71,7 @@ export const usePrefersColorScheme = () => {
     }
   }, []);
 
-  if (typeof window.matchMedia !== "function") {
+  if (typeof window?.matchMedia !== "function") {
     return preferredColorSchema;
   }
 
