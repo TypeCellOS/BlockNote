@@ -1,6 +1,6 @@
 {
   "name": "docs",
-  "version": "0.14.3",
+  "version": "0.14.4",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -9,11 +9,11 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@blocknote/ariakit": "^0.14.3",
-    "@blocknote/core": "^0.14.3",
-    "@blocknote/mantine": "^0.14.3",
-    "@blocknote/react": "^0.14.3",
-    "@blocknote/shadcn": "^0.14.3",
+    "@blocknote/ariakit": "^0.14.4",
+    "@blocknote/core": "^0.14.4",
+    "@blocknote/mantine": "^0.14.4",
+    "@blocknote/react": "^0.14.4",
+    "@blocknote/shadcn": "^0.14.4",
     "@headlessui/react": "^1.7.18",
     "@mantine/core": "^7.10.1",
     "@next/bundle-analyzer": "^14.1.0",
