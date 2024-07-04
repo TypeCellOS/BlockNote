@@ -6,7 +6,7 @@
     "*.css"
   ],
   "license": "MPL-2.0",
-  "version": "0.14.2",
+  "version": "0.14.6",
   "files": [
     "dist",
     "types",
@@ -51,15 +51,14 @@
     "clean": "rimraf dist && rimraf types"
   },
   "dependencies": {
-    "@blocknote/core": "^0.14.2",
-    "@blocknote/react": "^0.14.2",
+    "@blocknote/core": "^0.14.5",
+    "@blocknote/react": "^0.14.6",
     "@mantine/core": "^7.10.1",
     "@mantine/hooks": "^7.10.1",
     "@mantine/utils": "^6.0.21",
     "react": "^18",
     "react-dom": "^18",
-    "react-icons": "^5.2.1",
-    "use-prefers-color-scheme": "^1.1.3"
+    "react-icons": "^5.2.1"
   },
   "devDependencies": {
     "@types/react": "^18.0.25",

@@ -1,6 +1,6 @@
+@import "./tailwindStyles.css";
 @import url("@blocknote/react/style.css");
 
-@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
@@ -69,6 +69,7 @@
 .bn-shadcn * {
   @apply bn-border-border;
 }
+
 .bn-shadcn .bn-editor {
   @apply bn-bg-background bn-text-foreground;
 }
