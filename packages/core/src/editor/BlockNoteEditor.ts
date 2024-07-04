@@ -65,6 +65,7 @@ import { PlaceholderPlugin } from "../extensions/Placeholder/PlaceholderPlugin";
 import { Dictionary } from "../i18n/dictionary";
 import { en } from "../i18n/locales";
 
+import { createInternalHTMLSerializer } from "../api/exporters/html/internalHTMLSerializer";
 import "../style.css";
 
 export type BlockNoteEditorOptions<
@@ -166,10 +167,13 @@ export class BlockNoteEditor<
   SSchema extends StyleSchema = DefaultStyleSchema
 > {
   private readonly _pmSchema: Schema;
-
+  public readonly headless: boolean = false;
   public readonly _tiptapEditor: BlockNoteTipTapEditor & {
     contentComponent: any;
-  } = undefined as any; // Type should actually reflect that it can be `undefined` in headless mode
+  } = undefined as any; // TODO: Type should actually reflect that it can be `undefined` in headless mode
+
+  public elementRenderer: ((node: any, container: HTMLElement) => void) | null =
+    null;
 
   public blockCache = new WeakMap<Node, Block<any, any, any>>();
   public readonly dictionary: Dictionary;
@@ -373,6 +377,7 @@ export class BlockNoteEditor<
     } else {
       this._pmSchema = getSchema(tiptapOptions.extensions!);
     }
+    this.headless = newOptions.headless;
   }
 
   /**
@@ -381,6 +386,7 @@ export class BlockNoteEditor<
    * @warning Not needed for React, use BlockNoteView to take care of this
    */
   public mount(parentElement?: HTMLElement | null) {
+    debugger;
     this._tiptapEditor.mount(parentElement);
   }
 
@@ -689,6 +695,12 @@ export class BlockNoteEditor<
    * @returns True if the editor is editable, false otherwise.
    */
   public get isEditable(): boolean {
+    if (!this._tiptapEditor) {
+      if (!this.headless) {
+        throw new Error("no editor, but also not headless?");
+      }
+      return false;
+    }
     return this._tiptapEditor.isEditable;
   }
 
@@ -697,6 +709,13 @@ export class BlockNoteEditor<
    * @param editable True to make the editor editable, or false to lock it.
    */
   public set isEditable(editable: boolean) {
+    if (!this._tiptapEditor) {
+      if (!this.headless) {
+        throw new Error("no editor, but also not headless?");
+      }
+      // not relevant on headless
+      return;
+    }
     if (this._tiptapEditor.options.editable !== editable) {
       this._tiptapEditor.setEditable(editable);
     }
@@ -934,18 +953,34 @@ export class BlockNoteEditor<
   }
 
   /**
-   * Serializes blocks into an HTML string. To better conform to HTML standards, children of blocks which aren't list
+   * Exports blocks into a simplified HTML string. To better conform to HTML standards, children of blocks which aren't list
    * items are un-nested in the output HTML.
+   *
    * @param blocks An array of blocks that should be serialized into HTML.
    * @returns The blocks, serialized as an HTML string.
    */
   public async blocksToHTMLLossy(
-    blocks: Block<BSchema, ISchema, SSchema>[] = this.document
+    blocks: PartialBlock<BSchema, ISchema, SSchema>[] = this.document
   ): Promise<string> {
     const exporter = createExternalHTMLExporter(this.pmSchema, this);
     return exporter.exportBlocks(blocks, {});
   }
 
+  /**
+   * Serializes blocks into an HTML string in the format that would normally be rendered by the editor.
+   *
+   * Use this method if you want to server-side render HTML (for example, a blog post that has been edited in BlockNote)
+   * and serve it to users without loading the editor on the client (i.e.: displaying the blog post)
+   *
+   * @param blocks An array of blocks that should be serialized into HTML.
+   * @returns The blocks, serialized as an HTML string.
+   */
+  public async blocksToFullHTML(
+    blocks: PartialBlock<BSchema, ISchema, SSchema>[]
+  ): Promise<string> {
+    const exporter = createInternalHTMLSerializer(this.pmSchema, this);
+    return exporter.serializeBlocks(blocks, {});
+  }
   /**
    * Parses blocks from an HTML string. Tries to create `Block` objects out of any HTML block-level elements, and
    * `InlineNode` objects from any HTML inline elements, though not all element types are recognized. If BlockNote
@@ -972,7 +1007,7 @@ export class BlockNoteEditor<
    * @returns The blocks, serialized as a Markdown string.
    */
   public async blocksToMarkdownLossy(
-    blocks: Block<BSchema, ISchema, SSchema>[] = this.document
+    blocks: PartialBlock<BSchema, ISchema, SSchema>[] = this.document
   ): Promise<string> {
     return blocksToMarkdown(blocks, this.pmSchema, this, {});
   }
@@ -1017,6 +1052,11 @@ export class BlockNoteEditor<
   public onChange(
     callback: (editor: BlockNoteEditor<BSchema, ISchema, SSchema>) => void
   ) {
+    if (this.headless) {
+      // TODO: should actually be possible in headless mode as well
+      return;
+    }
+
     const cb = () => {
       callback(this);
     };
@@ -1037,6 +1077,11 @@ export class BlockNoteEditor<
   public onSelectionChange(
     callback: (editor: BlockNoteEditor<BSchema, ISchema, SSchema>) => void
   ) {
+    if (this.headless) {
+      // TODO: should actually be possible in headless mode as well
+      return;
+    }
+
     const cb = () => {
       callback(this);
     };

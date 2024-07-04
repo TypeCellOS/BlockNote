@@ -25,10 +25,7 @@ async function convertToHTMLAndCompareSnapshots<
   snapshotName: string
 ) {
   addIdsToBlocks(blocks);
-  const serializer = createInternalHTMLSerializer(
-    editor._tiptapEditor.schema,
-    editor
-  );
+  const serializer = createInternalHTMLSerializer(editor.pmSchema, editor);
   const internalHTML = serializer.serializeBlocks(blocks, {});
   const internalHTMLSnapshotPath =
     "./__snapshots__/" +
@@ -48,10 +45,7 @@ async function convertToHTMLAndCompareSnapshots<
   expect(parsed).toStrictEqual(fullBlocks);
 
   // Create the "external" HTML, which is a cleaned up HTML representation, but lossy
-  const exporter = createExternalHTMLExporter(
-    editor._tiptapEditor.schema,
-    editor
-  );
+  const exporter = createExternalHTMLExporter(editor.pmSchema, editor);
   const externalHTML = exporter.exportBlocks(blocks, {});
   const externalHTMLSnapshotPath =
     "./__snapshots__/" +
@@ -76,6 +70,14 @@ describe("Test HTML conversion", () => {
       const div = document.createElement("div");
       beforeEach(() => {
         editor = testCase.createEditor();
+
+        // Note that we don't necessarily need to mount a root
+        // Currently, we do mount to a root so that it reflects the "production" use-case more closely.
+
+        // However, it would be nice to increased converage and share the same set of tests for these cases:
+        // - does render to a root
+        // - does not render to a root
+        // - runs in server (jsdom) environment using server-util
         editor.mount(div);
       });
 
@@ -184,10 +186,7 @@ describe("Test ProseMirror fragment edge case conversion", () => {
       const copiedFragment =
         editor._tiptapEditor.state.selection.content().content;
 
-      const exporter = createExternalHTMLExporter(
-        editor._tiptapEditor.schema,
-        editor
-      );
+      const exporter = createExternalHTMLExporter(editor.pmSchema, editor);
       const externalHTML = exporter.exportProseMirrorFragment(
         copiedFragment,
         {}
@@ -210,10 +209,7 @@ describe("Test ProseMirror fragment edge case conversion", () => {
       const copiedFragment =
         editor._tiptapEditor.state.selection.content().content;
 
-      const exporter = createExternalHTMLExporter(
-        editor._tiptapEditor.schema,
-        editor
-      );
+      const exporter = createExternalHTMLExporter(editor.pmSchema, editor);
       const externalHTML = exporter.exportProseMirrorFragment(
         copiedFragment,
         {}
@@ -235,10 +231,7 @@ describe("Test ProseMirror fragment edge case conversion", () => {
 
       const copiedFragment =
         editor._tiptapEditor.state.selection.content().content;
-      const exporter = createExternalHTMLExporter(
-        editor._tiptapEditor.schema,
-        editor
-      );
+      const exporter = createExternalHTMLExporter(editor.pmSchema, editor);
       const externalHTML = exporter.exportProseMirrorFragment(
         copiedFragment,
         {}

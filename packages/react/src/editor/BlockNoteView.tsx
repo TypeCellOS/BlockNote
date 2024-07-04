@@ -24,6 +24,7 @@ import {
   BlockNoteDefaultUIProps,
 } from "./BlockNoteDefaultUI";
 import { EditorContent } from "./EditorContent";
+import { ElementRenderer } from "./ElementRenderer";
 import "./styles.css";
 
 const emptyFn = () => {
@@ -141,25 +142,32 @@ function BlockNoteViewComponent<
 
   return (
     <BlockNoteContext.Provider value={context as any}>
-      <EditorContent editor={editor}>
-        <div
-          className={mergeCSSClasses(
-            "bn-container",
-            editorColorScheme || "",
-            className || ""
-          )}
-          data-color-scheme={editorColorScheme}
-          {...rest}
-          ref={ref}>
+      <ElementRenderer
+        ref={(ref) => {
+          editor.elementRenderer = ref;
+        }}
+      />
+      {!editor.headless && (
+        <EditorContent editor={editor}>
           <div
-            aria-autocomplete="list"
-            aria-haspopup="listbox"
-            ref={editor._tiptapEditor.mount}
-            {...contentEditableProps}
-          />
-          {renderChildren}
-        </div>
-      </EditorContent>
+            className={mergeCSSClasses(
+              "bn-container",
+              editorColorScheme || "",
+              className || ""
+            )}
+            data-color-scheme={editorColorScheme}
+            {...rest}
+            ref={ref}>
+            <div
+              aria-autocomplete="list"
+              aria-haspopup="listbox"
+              ref={editor.mount}
+              {...contentEditableProps}
+            />
+            {renderChildren}
+          </div>
+        </EditorContent>
+      )}
     </BlockNoteContext.Provider>
   );
 }

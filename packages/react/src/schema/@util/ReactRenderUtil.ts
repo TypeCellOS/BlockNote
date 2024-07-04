@@ -10,12 +10,11 @@ export function renderToDOMSpec(
   const div = document.createElement("div");
 
   let root: Root | undefined;
-  const { _tiptapEditor } = editor || {};
 
-  if (_tiptapEditor?.contentComponent) {
-    // Render temporarily using `EditorContent` (which is stored somewhat hacky on `_tiptapEditor.contentComponent`)
+  if (editor?.elementRenderer) {
+    // Render temporarily using `ElementRenderer`
     // This way React Context will still work, as `fc` will be rendered inside the existing React tree
-    _tiptapEditor.contentComponent.renderToElement(
+    editor.elementRenderer(
       fc((el) => (contentDOM = el || undefined)),
       div
     );

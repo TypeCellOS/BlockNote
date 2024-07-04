@@ -7,6 +7,7 @@ import {
   DefaultInlineContentSchema,
   DefaultStyleSchema,
   InlineContentSchema,
+  PartialBlock,
   StyleSchema,
   blockToNode,
   blocksToMarkdown,
@@ -14,9 +15,13 @@ import {
   createInternalHTMLSerializer,
   nodeToBlock,
 } from "@blocknote/core";
-
+import { BlockNoteViewRaw } from "@blocknote/react";
 import { Node } from "@tiptap/pm/model";
 import * as jsdom from "jsdom";
+import * as React from "react";
+import { createElement } from "react";
+import { flushSync } from "react-dom";
+import { createRoot } from "react-dom/client";
 import {
   prosemirrorToYDoc,
   prosemirrorToYXmlFragment,
@@ -50,7 +55,7 @@ export class ServerBlockNoteEditor<
    *
    * We could make this obsolete by passing in a document / window object to the render / serialize methods of Blocks
    */
-  private withJSDOM<T>(fn: () => T) {
+  private async withJSDOM<T>(fn: () => Promise<T>) {
     const prevWindow = globalThis.window;
     const prevDocument = globalThis.document;
     globalThis.document = this.jsdom.window.document;
@@ -59,7 +64,7 @@ export class ServerBlockNoteEditor<
       prevWindow as any
     )?.__TEST_OPTIONS;
     try {
-      return fn();
+      return await fn();
     } finally {
       globalThis.document = prevDocument;
       globalThis.window = prevWindow;
@@ -129,7 +134,9 @@ export class ServerBlockNoteEditor<
    * @param blocks BlockNote blocks
    * @returns Prosemirror root node
    */
-  public _blocksToProsemirrorNode(blocks: Block<BSchema, ISchema, SSchema>[]) {
+  public _blocksToProsemirrorNode(
+    blocks: PartialBlock<BSchema, ISchema, SSchema>[]
+  ) {
     const pmNodes = blocks.map((b) =>
       blockToNode(b, this.editor.pmSchema, this.editor.schema.styleSchema)
     );
@@ -191,7 +198,7 @@ export class ServerBlockNoteEditor<
    * @param blocks
    */
   public blocksToYDoc(
-    blocks: Block<BSchema, ISchema, SSchema>[],
+    blocks: PartialBlock<BSchema, ISchema, SSchema>[],
     xmlFragment = "prosemirror"
   ) {
     return prosemirrorToYDoc(
@@ -203,15 +210,16 @@ export class ServerBlockNoteEditor<
   /** HTML / BLOCKNOTE conversions */
 
   /**
-   * Serializes blocks into an HTML string. To better conform to HTML standards, children of blocks which aren't list
+   * Exports blocks into a simplified HTML string. To better conform to HTML standards, children of blocks which aren't list
    * items are un-nested in the output HTML.
+   *
    * @param blocks An array of blocks that should be serialized into HTML.
    * @returns The blocks, serialized as an HTML string.
    */
   public async blocksToHTMLLossy(
-    blocks: Block<BSchema, ISchema, SSchema>[]
+    blocks: PartialBlock<BSchema, ISchema, SSchema>[]
   ): Promise<string> {
-    return this.withJSDOM(() => {
+    return this.withJSDOM(async () => {
       const exporter = createExternalHTMLExporter(
         this.editor.pmSchema,
         this.editor
@@ -224,15 +232,18 @@ export class ServerBlockNoteEditor<
   }
 
   /**
-   * Serializes blocks into an HTML string in the format that it would normally be rendered by the editor.
+   * Serializes blocks into an HTML string in the format that would normally be rendered by the editor.
    *
    * Use this method if you want to server-side render HTML (for example, a blog post that has been edited in BlockNote)
    * and serve it to users without loading the editor on the client (i.e.: displaying the blog post)
+   *
+   * @param blocks An array of blocks that should be serialized into HTML.
+   * @returns The blocks, serialized as an HTML string.
    */
-  public async blocksToBlockNoteStyleHTML(
-    blocks: Block<BSchema, ISchema, SSchema>[]
+  public async blocksToFullHTML(
+    blocks: PartialBlock<BSchema, ISchema, SSchema>[]
   ): Promise<string> {
-    return this.withJSDOM(() => {
+    return this.withJSDOM(async () => {
       const exporter = createInternalHTMLSerializer(
         this.editor.pmSchema,
         this.editor
@@ -268,9 +279,9 @@ export class ServerBlockNoteEditor<
    * @returns The blocks, serialized as a Markdown string.
    */
   public async blocksToMarkdownLossy(
-    blocks: Block<BSchema, ISchema, SSchema>[]
+    blocks: PartialBlock<BSchema, ISchema, SSchema>[]
   ): Promise<string> {
-    return this.withJSDOM(() => {
+    return this.withJSDOM(async () => {
       return blocksToMarkdown(blocks, this.editor.pmSchema, this.editor, {
         document: this.jsdom.window.document,
       });
@@ -290,5 +301,37 @@ export class ServerBlockNoteEditor<
     return this.withJSDOM(() => {
       return this.editor.tryParseMarkdownToBlocks(markdown);
     });
+  }
+
+  public async withReactContext<T>(comp: React.FC<any>, fn: () => Promise<T>) {
+    return this.withJSDOM(async () => {
+      const tmpRoot = createRoot(
+        this.jsdom.window.document.createElement("div")
+      );
+
+      flushSync(() => {
+        tmpRoot.render(
+          createElement(
+            comp,
+            {},
+            createElement(BlockNoteViewRaw<any, any, any>, {
+              editor: this.editor,
+            })
+          )
+        );
+      });
+      try {
+        return await fn();
+      } finally {
+        tmpRoot.unmount();
+      }
+    });
+    // createElement()
+    //   return createElement(BlockNoteViewRaw<any, any, any>, {
+    //     editor: this.editor,
+    //   });
+    // })
+    // );
+    // });
   }
 }

@@ -104,7 +104,7 @@ describe("Test ServerBlockNoteEditor", () => {
   });
 
   it("converts to HTML (blocksToBlockNoteStyleHTML)", async () => {
-    const html = await editor.blocksToBlockNoteStyleHTML(blocks);
+    const html = await editor.blocksToFullHTML(blocks);
     expect(html).toMatchSnapshot();
   });
 
