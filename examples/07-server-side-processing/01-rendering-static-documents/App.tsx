@@ -3,12 +3,11 @@ import "@blocknote/core/style.css";
 
 /**
  On Server Side, you can use the ServerBlockNoteEditor to render BlockNote documents to HTML. e.g.:
- ```tsx
- import { ServerBlockNoteEditor } from "@blocknote/server-util";
 
- const editor = ServerBlockNoteEditor.create();
- const html = await editor.blocksToBlockNoteStyleHTML(document);
-```
+    import { ServerBlockNoteEditor } from "@blocknote/server-util";
+
+    const editor = ServerBlockNoteEditor.create();
+    const html = await editor.blocksToFullHTML(document);
 
 You can then use render this HTML as a static page or send it to the client.
 
