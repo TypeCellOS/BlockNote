@@ -383,11 +383,11 @@ export class BlockNoteEditor<
   /**
    * Mount the editor to a parent DOM element. Call mount(undefined) to clean up
    *
-   * @warning Not needed for React, use BlockNoteView to take care of this
+   * @warning Not needed to call manually when using React, use BlockNoteView to take care of mounting
    */
-  public mount(parentElement?: HTMLElement | null) {
+  public mount = (parentElement?: HTMLElement | null) => {
     this._tiptapEditor.mount(parentElement);
-  }
+  };
 
   public get prosemirrorView() {
     return this._tiptapEditor.view;

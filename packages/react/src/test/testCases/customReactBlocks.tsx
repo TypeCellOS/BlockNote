@@ -68,8 +68,8 @@ const ReactContextParagraph = createReactBlockSpec(
 const schema = BlockNoteSchema.create({
   blockSpecs: {
     ...defaultBlockSpecs,
-    file: ReactFileBlock,
-    image: ReactImageBlock,
+    reactFile: ReactFileBlock,
+    reactImage: ReactImageBlock,
     reactCustomParagraph: ReactCustomParagraph,
     simpleReactCustomParagraph: SimpleReactCustomParagraph,
     reactContextParagraph: ReactContextParagraph,
