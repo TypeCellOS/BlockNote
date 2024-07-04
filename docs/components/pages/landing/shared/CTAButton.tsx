@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ReactNode } from "react";
 
-export function CTAButton(props: {
+export default function CTAButton(props: {
   href: string;
   hoverGlow?: boolean;
   variant?: "small" | "large";

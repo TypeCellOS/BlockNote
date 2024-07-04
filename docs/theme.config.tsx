@@ -1,3 +1,4 @@
+import dynamic from "next/dynamic";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
 import { useConfig, useTheme, type DocsThemeConfig } from "nextra-theme-docs";
@@ -19,6 +20,14 @@ import { Navigation } from "./components/Navigation";
 //     ssr: false,
 //   }
 // );
+
+const CTA = dynamic(
+  () => import("@/components/pages/landing/shared/CTAButton"),
+  {
+    ssr: false,
+  },
+);
+
 const SITE_ROOT = "https://www.blocknotejs.org";
 
 const METADATA_DEFAULT = {
@@ -196,6 +205,11 @@ const config: DocsThemeConfig = {
             className="generic-hover">
             <span className="sr-only">Discord</span>
             <DiscordIcon />
+          </NextLink>
+          <NextLink href="/pro">
+            <CTA href={"/pro"} variant={"small"}>
+              BlockNote Pro
+            </CTA>
           </NextLink>
           <AuthNavButton />
         </>
