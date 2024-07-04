@@ -3,8 +3,8 @@ import { EditorOptions, createDocument } from "@tiptap/core";
 import { Editor as TiptapEditor } from "@tiptap/core";
 import { Node } from "@tiptap/pm/model";
 import { EditorView } from "@tiptap/pm/view";
-import { EditorState } from "prosemirror-state";
 
+import { EditorState, Transaction } from "@tiptap/pm/state";
 import { blockToNode } from "../api/nodeConversions/nodeConversions";
 import { PartialBlock } from "../blocks/defaultBlocks";
 import { StyleSchema } from "../schema";
@@ -113,6 +113,15 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
       this._state = this.view.state;
     }
     return this._state;
+  }
+
+  dispatch(tr: Transaction) {
+    if (this.view) {
+      this.view.dispatch(tr);
+    } else {
+      // before view has been initialized
+      this._state = this.state.apply(tr);
+    }
   }
 
   createView() {
