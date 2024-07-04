@@ -386,7 +386,6 @@ export class BlockNoteEditor<
    * @warning Not needed for React, use BlockNoteView to take care of this
    */
   public mount(parentElement?: HTMLElement | null) {
-    debugger;
     this._tiptapEditor.mount(parentElement);
   }
 

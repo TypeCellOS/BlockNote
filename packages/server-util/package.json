@@ -54,7 +54,9 @@
     "jsdom": "^21.1.0",
     "y-prosemirror": "1.2.5",
     "y-protocols": "^1.0.6",
-    "yjs": "^13.6.15"
+    "yjs": "^13.6.15",
+    "react": "^18",
+    "react-dom": "^18"
   },
   "devDependencies": {
     "@types/react": "^18.0.25",
