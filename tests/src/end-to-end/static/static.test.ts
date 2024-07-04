@@ -8,9 +8,7 @@ test.beforeEach(async ({ page }) => {
 
 test.describe("Check static rendering", () => {
   test("Check screenshot", async ({ page }) => {
-    // await focusOnEditor(page);
-
-    // await page.waitForTimeout(500);
+    await page.waitForTimeout(500);
     expect(await page.screenshot()).toMatchSnapshot("static-rendering.png");
   });
 });
