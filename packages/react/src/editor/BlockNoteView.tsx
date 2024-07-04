@@ -11,6 +11,7 @@ import React, {
   HTMLAttributes,
   ReactNode,
   Ref,
+  useCallback,
   useEffect,
   useMemo,
   useState,
@@ -140,13 +141,16 @@ function BlockNoteViewComponent<
     };
   }, [existingContext, editor]);
 
+  const setElementRenderer = useCallback(
+    (ref: (typeof editor)["elementRenderer"]) => {
+      editor.elementRenderer = ref;
+    },
+    [editor]
+  );
+
   return (
     <BlockNoteContext.Provider value={context as any}>
-      <ElementRenderer
-        ref={(ref) => {
-          editor.elementRenderer = ref;
-        }}
-      />
+      <ElementRenderer ref={setElementRenderer} />
       {!editor.headless && (
         <EditorContent editor={editor}>
           <div
