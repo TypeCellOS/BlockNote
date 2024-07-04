@@ -61,12 +61,11 @@ import {
   BlockNoteTipTapEditorOptions,
 } from "./BlockNoteTipTapEditor";
 
-// CSS
 import { PlaceholderPlugin } from "../extensions/Placeholder/PlaceholderPlugin";
 import { Dictionary } from "../i18n/dictionary";
 import { en } from "../i18n/locales";
-import "./Block.css";
-import "./editor.css";
+
+import "../style.css";
 
 export type BlockNoteEditorOptions<
   BSchema extends BlockSchema,

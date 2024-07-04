@@ -26,8 +26,8 @@ export default defineConfig((conf) => ({
     sourcemap: true,
     lib: {
       entry: path.resolve(__dirname, "src/index.ts"),
-      name: "blocknote-server",
-      fileName: "blocknote-server",
+      name: "blocknote-server-util",
+      fileName: "blocknote-server-util",
     },
     rollupOptions: {
       // make sure to externalize deps that shouldn't be bundled

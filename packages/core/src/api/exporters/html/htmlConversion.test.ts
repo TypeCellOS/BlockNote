@@ -188,7 +188,10 @@ describe("Test ProseMirror fragment edge case conversion", () => {
         editor._tiptapEditor.schema,
         editor
       );
-      const externalHTML = exporter.exportProseMirrorFragment(copiedFragment);
+      const externalHTML = exporter.exportProseMirrorFragment(
+        copiedFragment,
+        {}
+      );
       expect(externalHTML).toMatchFileSnapshot(
         "./__snapshots_fragment_edge_cases__/" +
           "selectionWithinBlockChildren.html"
@@ -211,7 +214,10 @@ describe("Test ProseMirror fragment edge case conversion", () => {
         editor._tiptapEditor.schema,
         editor
       );
-      const externalHTML = exporter.exportProseMirrorFragment(copiedFragment);
+      const externalHTML = exporter.exportProseMirrorFragment(
+        copiedFragment,
+        {}
+      );
       expect(externalHTML).toMatchFileSnapshot(
         "./__snapshots_fragment_edge_cases__/" +
           "selectionLeavesBlockChildren.html"
@@ -233,7 +239,10 @@ describe("Test ProseMirror fragment edge case conversion", () => {
         editor._tiptapEditor.schema,
         editor
       );
-      const externalHTML = exporter.exportProseMirrorFragment(copiedFragment);
+      const externalHTML = exporter.exportProseMirrorFragment(
+        copiedFragment,
+        {}
+      );
       expect(externalHTML).toMatchFileSnapshot(
         "./__snapshots_fragment_edge_cases__/" +
           "selectionSpansBlocksChildren.html"
