@@ -20,8 +20,6 @@ import {
   getStyleSchemaFromSpecs,
 } from "../schema";
 
-import { Emoji } from "../inlineContent/emojiInlineContent/Emoji";
-
 import { Heading } from "./HeadingBlockContent/HeadingBlockContent";
 import { BulletListItem } from "./ListItemBlockContent/BulletListItemBlockContent/BulletListItemBlockContent";
 import { NumberedListItem } from "./ListItemBlockContent/NumberedListItemBlockContent/NumberedListItemBlockContent";
@@ -73,7 +71,6 @@ export type DefaultStyleSchema = _DefaultStyleSchema;
 export const defaultInlineContentSpecs = {
   text: { config: "text", implementation: {} as any },
   link: { config: "link", implementation: {} as any },
-  emoji: Emoji,
 } satisfies InlineContentSpecs;
 
 export const defaultInlineContentSchema = getInlineContentSchemaFromSpecs(

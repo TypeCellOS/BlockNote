@@ -91,7 +91,6 @@
     gap: 7px;
     justify-items: center;
     max-height: 30vh;
-    min-width: 40vw;
     overflow-y: scroll;
     padding: 20px;
 }
