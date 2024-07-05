@@ -194,6 +194,26 @@
         }
       },
       {
+        "projectSlug": "removing-default-blocks",
+        "fullSlug": "basic/removing-default-blocks",
+        "pathFromRoot": "examples/01-basic/11-removing-default-blocks",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "hunxjunedo",
+          "tags": [
+            "Basic",
+            "removing",
+            "custom"
+          ]
+        },
+        "title": "Removing Default Blocks Options",
+        "group": {
+          "pathFromRoot": "examples/01-basic",
+          "slug": "basic"
+        }
+      },
+      {
         "projectSlug": "testing",
         "fullSlug": "basic/testing",
         "pathFromRoot": "examples/01-basic/testing",
