@@ -326,12 +326,5 @@ export class ServerBlockNoteEditor<
         tmpRoot.unmount();
       }
     });
-    // createElement()
-    //   return createElement(BlockNoteViewRaw<any, any, any>, {
-    //     editor: this.editor,
-    //   });
-    // })
-    // );
-    // });
   }
 }

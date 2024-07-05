@@ -110,7 +110,11 @@ export type BlockNoteEditorOptions<
   schema: BlockNoteSchema<BSchema, ISchema, SSchema>;
 
   /**
-   * A custom function to handle file uploads.
+   * The `uploadFile` method is what the editor uses when files need to be uploaded (for example when selecting an image to upload).
+   * This method should set when creating the editor as this is application-specific.
+   *
+   * `undefined` means the application doesn't support file uploads.
+   *
    * @param file The file that should be uploaded.
    * @returns The URL of the uploaded file OR an object containing props that should be set on the file block (such as an id)
    */
@@ -168,17 +172,41 @@ export class BlockNoteEditor<
   SSchema extends StyleSchema = DefaultStyleSchema
 > {
   private readonly _pmSchema: Schema;
-  public readonly headless: boolean = false;
-  public readonly _tiptapEditor: BlockNoteTipTapEditor & {
-    contentComponent: any;
-  } = undefined as any; // TODO: Type should actually reflect that it can be `undefined` in headless mode
 
+  /**
+   * Boolean indicating whether the editor is in headless mode.
+   * Headless mode means we can use features like importing / exporting blocks,
+   * but there's no underlying editor (UI) instantiated.
+   */
+  public readonly headless: boolean = false;
+
+  public readonly _tiptapEditor:
+    | BlockNoteTipTapEditor & {
+        contentComponent: any;
+      } = undefined as any; // TODO: Type should actually reflect that it can be `undefined` in headless mode
+
+  /**
+   * Used by React to store a reference to an `ElementRenderer` helper utility to make sure we can render React elements
+   * in the correct context (used by `ReactRenderUtil`)
+   */
   public elementRenderer: ((node: any, container: HTMLElement) => void) | null =
     null;
 
+  /**
+   * Cache of all blocks. This makes sure we don't have to "recompute" blocks if underlying Prosemirror Nodes haven't changed.
+   * This is especially useful when we want to keep track of the same block across multiple operations,
+   * with this cache, blocks stay the same object reference (referential equality with ===).
+   */
   public blockCache = new WeakMap<Node, Block<any, any, any>>();
+
+  /**
+   * The dictionary contains translations for the editor.
+   */
   public readonly dictionary: Dictionary;
 
+  /**
+   * The schema of the editor. The schema defines which Blocks, InlineContent, and Styles are available in the editor.
+   */
   public readonly schema: BlockNoteSchema<BSchema, ISchema, SSchema>;
 
   public readonly blockImplementations: BlockSpecs;
@@ -207,6 +235,15 @@ export class BlockNoteEditor<
     SSchema
   >;
 
+  /**
+   * The `uploadFile` method is what the editor uses when files need to be uploaded (for example when selecting an image to upload).
+   * This method should set when creating the editor as this is application-specific.
+   *
+   * `undefined` means the application doesn't support file uploads.
+   *
+   * @param file The file that should be uploaded.
+   * @returns The URL of the uploaded file OR an object containing props that should be set on the file block (such as an id)
+   */
   public readonly uploadFile:
     | ((file: File) => Promise<string | Record<string, any>>)
     | undefined;
@@ -313,6 +350,7 @@ export class BlockNoteEditor<
 
     this.uploadFile = newOptions.uploadFile;
     this.resolveFileUrl = newOptions.resolveFileUrl || (async (url) => url);
+    this.headless = newOptions.headless;
 
     if (newOptions.collaboration && newOptions.initialContent) {
       // eslint-disable-next-line no-console
@@ -367,7 +405,7 @@ export class BlockNoteEditor<
       },
     };
 
-    if (!newOptions.headless) {
+    if (!this.headless) {
       this._tiptapEditor = new BlockNoteTipTapEditor(
         tiptapOptions,
         this.schema.styleSchema
@@ -376,9 +414,10 @@ export class BlockNoteEditor<
       };
       this._pmSchema = this._tiptapEditor.schema;
     } else {
+      // In headless mode, we don't instantiate an underlying TipTap editor,
+      // but we still need the schema
       this._pmSchema = getSchema(tiptapOptions.extensions!);
     }
-    this.headless = newOptions.headless;
   }
 
   dispatch(tr: Transaction) {
